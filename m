@@ -1,73 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264944AbSLVQlT>; Sun, 22 Dec 2002 11:41:19 -0500
+	id <S265063AbSLVRBH>; Sun, 22 Dec 2002 12:01:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265063AbSLVQlT>; Sun, 22 Dec 2002 11:41:19 -0500
-Received: from roc-66-66-137-112.rochester.rr.com ([66.66.137.112]:39808 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S264944AbSLVQlS>; Sun, 22 Dec 2002 11:41:18 -0500
-Date: Sun, 22 Dec 2002 11:48:58 -0600 (CST)
-From: Ivan Pulleyn <ivan@sixfold.com>
-X-X-Sender: <ivan@localhost.localdomain>
-To: rmkml <rmkml@wanadoo.fr>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Pbs network card PCnet/FAST 79C971
-In-Reply-To: <3E05CD6C.FF9BF954@wanadoo.fr>
-Message-ID: <Pine.LNX.4.33.0212221147290.2566-100000@localhost.localdomain>
+	id <S265095AbSLVRBH>; Sun, 22 Dec 2002 12:01:07 -0500
+Received: from 205-158-62-139.outblaze.com ([205.158.62.139]:9108 "HELO
+	spf1.us.outblaze.com") by vger.kernel.org with SMTP
+	id <S265063AbSLVRBG>; Sun, 22 Dec 2002 12:01:06 -0500
+Message-ID: <20021222170906.13011.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
+To: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>, akpm@digeo.com
+Cc: linux-kernel@vger.kernel.org
+Date: Mon, 23 Dec 2002 01:09:06 +0800
+Subject: Re: Poor performance with 2.5.52, load and process in D state
+X-Originating-Ip: 193.76.202.244
+X-Originating-Server: ws5-3.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
+[...]
+Just to add the result of one more test:
 
-Did you try using ethtool?
+> Ok, I'm back with the results of the osdb test against 2.4.19 and 2.5.52
+> Both the kernel booted with apm=off mem=40M
+> osdb ran with 40M of data.
+> To summarize the results:
+> 2.4.19 "Single User Test"	806.78 seconds	(0:13:26.78)
+> 2.5.52 "Single User Test"	3771.85 seconds	(1:02:51.85)
+2.4.19(mem=24M) "Single User Test"	3371.98 seconds	(0:56:11.98)
 
-Ivan...
+Ciao,
 
-On Sun, 22 Dec 2002, rmkml wrote:
-
-> Hello,
-> 
-> Im use kernel 2.4.21pre2,
-> 
-> and I a pbs on my network card ...
-> 
-> I don't use 100BaseTX / Full-duplex !
-> I don't use 100BaseTX / Half-duplex !
-> I don't use 10BaseT / Full-duplex !
-> 
-> I use only mode 10BaseT / Half-duplex ...
-> 
-> I compile and run "mii" and don't Fix speed ! (100BaseTX/full-duplex)
-> 
-> My version of pcnet32.c is 1.27b.
-> 
-> Could any help ?
-> 
-> My card in use on very old pc box (HP Kayak Pentium II - 400Mhz)
-> 
-> Regards
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Paolo
 
 -- 
+______________________________________________
+http://www.linuxmail.org/
+Now with POP3/IMAP access for only US$19.95/yr
 
-----------------------------------------------------------------------
-Ivan Pulleyn
-Sixfold Technologies, LLC
-Chicago Technology Park
-2201 West Campbell Drive
-Chicago, IL 60612
-
-email:    ivan@sixfold.com
-voice:    (866) 324-5460 x601
-fax:      (312) 421-0388
-----------------------------------------------------------------------
-
+Powered by Outblaze

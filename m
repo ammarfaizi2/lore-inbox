@@ -1,56 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262774AbUDHWDg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Apr 2004 18:03:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262866AbUDHWDf
+	id S262815AbUDHWIP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Apr 2004 18:08:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262840AbUDHWIP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Apr 2004 18:03:35 -0400
-Received: from linux-bt.org ([217.160.111.169]:12234 "EHLO mail.holtmann.net")
-	by vger.kernel.org with ESMTP id S262774AbUDHWDd (ORCPT
+	Thu, 8 Apr 2004 18:08:15 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:34197 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262815AbUDHWIN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Apr 2004 18:03:33 -0400
-Subject: Re: [PATCH 2.6.5] Add sysfs class support to fs/coda/psdev.c
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Hanna Linder <hannal@us.ibm.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, braam@cs.cmu.edu,
-       Greg Kroah-Hartman <greg@kroah.com>, coda@cs.cmu.edu
-In-Reply-To: <7970000.1081458781@dyn318071bld.beaverton.ibm.com>
-References: <7290000.1081457670@dyn318071bld.beaverton.ibm.com>
-	 <7970000.1081458781@dyn318071bld.beaverton.ibm.com>
-Content-Type: text/plain
-Message-Id: <1081461739.5880.13.camel@pegasus>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 09 Apr 2004 00:02:19 +0200
+	Thu, 8 Apr 2004 18:08:13 -0400
+Date: Thu, 08 Apr 2004 15:19:51 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: -mmX 4G patches feedback [numbers: how much performance impact]
+Message-ID: <29690000.1081462791@flay>
+In-Reply-To: <20040408215946.GU31667@dualathlon.random>
+References: <20040406115539.GA31465@elte.hu> <20040406155925.GW2234@dualathlon.random> <20040406192549.GA14869@elte.hu> <12640000.1081378705@flay> <20040407230140.GT26888@dualathlon.random> <29510000.1081380104@flay> <20040407231806.GV26888@dualathlon.random> <33900000.1081380891@flay> <20040408001845.GX26888@dualathlon.random> <1479132704.1081405456@[10.10.2.4]> <20040408215946.GU31667@dualathlon.random>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Hanna,
+--On Thursday, April 08, 2004 23:59:46 +0200 Andrea Arcangeli <andrea@suse.de> wrote:
 
-> Here is the fixed patch:
+> On Wed, Apr 07, 2004 at 11:24:16PM -0700, Martin J. Bligh wrote:
+>> Instead of fiddling with tuning knobs, I'd prefer to just do the UKVA
+>> idea I've proposed before, and let each process have their own pagetables
+>> mapped permanently ;-)
 > 
-> diff -Nrup linux-2.6.5/fs/coda/psdev.c linux-2.6.5p/fs/coda/psdev.c
-> --- linux-2.6.5/fs/coda/psdev.c	2004-04-03 19:37:36.000000000 -0800
-> +++ linux-2.6.5p/fs/coda/psdev.c	2004-04-08 14:05:51.000000000 -0700
-> @@ -37,6 +37,7 @@
->  #include <linux/init.h>
->  #include <linux/list.h>
->  #include <linux/smp_lock.h>
-> +#include <linux/device.h>
->  #include <asm/io.h>
->  #include <asm/system.h>
->  #include <asm/poll.h>
-> @@ -61,6 +62,7 @@ unsigned long coda_timeout = 30; /* .. s
->  
-> 
->  struct venus_comm coda_comms[MAX_CODADEVS];
-> +static struct class_simple coda_psdev_class;
+> that will have you pay for pte-highmem even in non-highmem machines.
+> I'm always been against your above idea ;) It can speedup mmap a bit for
+> some uncommon case but I believe your slowdown comes from the page faults after
+> exeve and startup not from mmap with the kernel compile, and worst of
+> all for non-highmem too (no sysctl or tuning knob can save you then).
+> Amittedly some mmap intensive workload can get a slight speedup compared
+> to pte-highmem but I don't think it's common and it has the potential of
+> slowing down the page faults especially in short lived tasks even w/o
+> highmem.
 
-I think coda_psdev_class must be a pointer.
+You mean the page-faults for the pagetable mappings themselves? I wouldn't
+have thought that'd make an impact - at least I don't see how it could be
+worse than pte_highmem. And as we could make it conditional on highmem
+anyway (or even CONFIG_64GB, I'm pretty sure 4GB machines don't need it),
+I don't think it matters (ie you'd just turn it on instead of pte_highmem).
 
-Regards
+But you're right, we do need to take that into consideration.
+ 
+> What I found attractive was the persistent kmap in userspace, but that
+> idea breaks with threading, and Andrew found another way that is to make
+> the page fault interruptible so it doesn't seem very worthwhile anymore
+> even w/o threading.
 
-Marcel
+Yeah, I've given up on that one ;-) The main use for it was pagetables
+anyway, and we can do that without the threading problems.
 
+M.
 

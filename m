@@ -1,47 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261645AbREOWXi>; Tue, 15 May 2001 18:23:38 -0400
+	id <S261651AbREOWZS>; Tue, 15 May 2001 18:25:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261646AbREOWX2>; Tue, 15 May 2001 18:23:28 -0400
-Received: from cpe.atm0-0-0-122182.bynxx2.customer.tele.dk ([62.243.2.100]:868
-	"HELO marvin.athome.dk") by vger.kernel.org with SMTP
-	id <S261645AbREOWXN>; Tue, 15 May 2001 18:23:13 -0400
-Message-ID: <3B01AC4E.8020805@fugmann.dhs.org>
-Date: Wed, 16 May 2001 00:23:10 +0200
-From: Anders Peter Fugmann <afu@fugmann.dhs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.4-ac9 i686; en-US; rv:0.9+) Gecko/20010513
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andreas Dilger <adilger@turbolinux.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Exporting symbols from a module.
-In-Reply-To: <200105152157.f4FLvAw9021664@webber.adilger.int>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S261647AbREOWY6>; Tue, 15 May 2001 18:24:58 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:48284 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S261646AbREOWYx>; Tue, 15 May 2001 18:24:53 -0400
+Date: Tue, 15 May 2001 16:24:45 -0600
+Message-Id: <200105152224.f4FMOjj02219@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Neil Brown <neilb@cse.unsw.edu.au>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        "H. Peter Anvin" <hpa@transmeta.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: LANANA: To Pending Device Number Registrants
+In-Reply-To: <Pine.GSO.4.21.0105151747060.22958-100000@weyl.math.psu.edu>
+In-Reply-To: <200105152141.f4FLff300686@vindaloo.ras.ucalgary.ca>
+	<Pine.GSO.4.21.0105151747060.22958-100000@weyl.math.psu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
-Thanks for your reply.
-
-I'm not sure where to put this in my Makefile.
-(tried, but it did not help)
-Could you please send an example.
-
-Thanks in advance.
-Anders Fugmann
-
-Andreas Dilger wrote:
-
->>
-> I just recently had this problem, and your Makefile is missing:
+Alexander Viro writes:
 > 
-> export-objs := <file name>.o
 > 
-> where <file name>.o is the compiled object file from <file name>.c, and
-> not the module name (if it is different).
+> On Tue, 15 May 2001, Richard Gooch wrote:
 > 
-> Cheers, Andreas
+> > Alan Cox writes:
+> > > > 	len = readlink ("/proc/self/3", buffer, buflen);
+> > > > 	if (strcmp (buffer + len - 2, "cd") != 0) {
+> > > > 		fprintf (stderr, "Not a CD-ROM! Bugger off.\n");
+> > > > 		exit (1);
+> > > 
+> > > And on my box cd is the cabbage dicer whoops
+> > 
+> > Actually, no, because it's guaranteed that a trailing "/cd" is a
+> > CD-ROM. That's the standard.
 > 
+> Set by...?
 
+Me&Linus. The device name authority (Peter). Whoever. If you want
+Peter to bless it, then fine. But the standard is there. Violators
+will be persecuted.
 
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

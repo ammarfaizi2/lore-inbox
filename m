@@ -1,54 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267104AbTBTWHa>; Thu, 20 Feb 2003 17:07:30 -0500
+	id <S267189AbTBTWY1>; Thu, 20 Feb 2003 17:24:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267106AbTBTWHa>; Thu, 20 Feb 2003 17:07:30 -0500
-Received: from havoc.daloft.com ([64.213.145.173]:54684 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id <S267104AbTBTWH3>;
-	Thu, 20 Feb 2003 17:07:29 -0500
-Date: Thu, 20 Feb 2003 17:17:30 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Prasad <prasad_s@students.iiit.net>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Syscall from Kernel Space
-Message-ID: <20030220221730.GS9800@gtf.org>
-References: <Pine.LNX.4.44.0302202301350.12696-100000@students.iiit.net> <20030220174043.GI9800@gtf.org> <20030220221027.GA31480@x30.school.suse.de>
+	id <S267190AbTBTWY0>; Thu, 20 Feb 2003 17:24:26 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:1665 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id <S267189AbTBTWYI>;
+	Thu, 20 Feb 2003 17:24:08 -0500
+Subject: Re: 2.5.60 cheerleading...
+From: "Timothy D. Witham" <wookie@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Paul Larson <plars@linuxtestproject.org>,
+       John Bradford <john@grabjohn.com>, davej@codemonkey.org.uk,
+       edesio@ieee.org, lkml <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>, edesio@task.com.br
+In-Reply-To: <20030213213850.GA22037@gtf.org>
+References: <200302131823.h1DINeZh016257@darkstar.example.net>
+	 <1045170999.28493.57.camel@plars>  <20030213213850.GA22037@gtf.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: Open Source Development Lab, Inc.
+Message-Id: <1045780188.1429.30.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030220221027.GA31480@x30.school.suse.de>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 20 Feb 2003 14:29:49 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 20, 2003 at 11:10:27PM +0100, Andrea Arcangeli wrote:
-> On Thu, Feb 20, 2003 at 12:40:43PM -0500, Jeff Garzik wrote:
-> > On Thu, Feb 20, 2003 at 11:04:37PM +0530, Prasad wrote:
-> > > 	Is there a way using which i could invoke a syscall in the kernel 
-> > > space?  The syscall is to be run disguised as another process.  The actual 
-> > 
-> > Call sys_<syscall>.  Look at the kernel code for examples.
-> > 
-> > Note that typically you don't want to do this... and you _really_ don't
-> > want to do this if the syscall is not one of the common file I/O
-> > syscalls (read/write/open/close, etc.)
+Sorry about getting back on the thread late was off doing boring
+management stuff.
+
+But this is what PLM/STP does but right now it doesn't bother
+to send the results to any list.
+
+http://www.osdl.org/projects/26lnxstblztn/results/
+
+Tim
+
+
+On Thu, 2003-02-13 at 13:38, Jeff Garzik wrote:
+> On Thu, Feb 13, 2003 at 03:16:29PM -0600, Paul Larson wrote:
+> > Ideally, there should be no waiting around for replies.  The message is
+> > sent, he starts whatever build/boot test cycle, checks for replies when
+> > he's done and ready to release.  If nothing looks urgent enough to hold
+> > it up, then he pushes the release.  I still don't see how this adds any
+> > kind of terrible delay.
 > 
-> you never want to do this, the only point of a syscall is to enter
-> kernel, if you're just in kernel you're wasting time in calling the
-> syscall (not to tell about the new non soft interrupt based syscall
-> instructions, btw this is also why I rejected the int 0x81 thing on
-> x86-64 for 64bit syscalls)
-
-He is talking about directly calling the function behind the syscall,
-not actually executing a syscall itself.
-
-The kernel already does this in various places.  sys_read, sys_write,
-open_filp, sys_close, and other functions are safe to call from kernel
-code -- though this is discouraged.  init/do_mounts.c is a particularly
-annoying case, and is a big reason why klibc needs to be merged.
-syscalls should be made from userspace, not the kernel.
-
-	Jeff
-
-
+> Outside suggestions to "improve" Linus's workflow usually fall upon deaf
+> ears...
+> 
+> IMO to accomplish your goals, set up a test box with BitKeeper,
+> constantly pulling and testing the latest 2.5.x BK trees.  If they
+> crash, send full info to lkml.
+> 
+> Enough crash messages, and people will know automatically whether or not
+> the kernel is good... and Linus didn't have to be bothered at all.
+> 
+> 	Jeff
+> 
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+Timothy D. Witham - Lab Director - wookie@osdlab.org
+Open Source Development Lab Inc - A non-profit corporation
+15275 SW Koll Parkway - Suite H - Beaverton OR, 97006
+(503)-626-2455 x11 (office)    (503)-702-2871     (cell)
+(503)-626-2436     (fax)
 

@@ -1,94 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261676AbUKIUXX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261679AbUKIUZa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261676AbUKIUXX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 15:23:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261679AbUKIUXX
+	id S261679AbUKIUZa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 15:25:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbUKIUZ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 15:23:23 -0500
-Received: from mail1.webmaster.com ([216.152.64.168]:9478 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP id S261676AbUKIUXP
+	Tue, 9 Nov 2004 15:25:29 -0500
+Received: from alog0321.analogic.com ([208.224.222.97]:2688 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261679AbUKIUZS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 15:23:15 -0500
-From: "David Schwartz" <davids@webmaster.com>
-To: <cfriesen@nortelnetworks.com>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: RE: GPL Violation of 'sveasoft' with GPL Linux Kernel/Busybox +code
-Date: Tue, 9 Nov 2004 12:23:08 -0800
-Message-ID: <MDEHLPKNGKAHNMBLJOLKAELDPKAA.davids@webmaster.com>
+	Tue, 9 Nov 2004 15:25:18 -0500
+Date: Tue, 9 Nov 2004 15:25:12 -0500 (EST)
+From: linux-os <linux-os@chaos.analogic.com>
+Reply-To: linux-os@analogic.com
+To: Mike Waychison <Michael.Waychison@Sun.COM>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: More linux-2.6.9 module problems
+In-Reply-To: <41911FD4.2060902@sun.com>
+Message-ID: <Pine.LNX.4.61.0411091522440.3519@chaos.analogic.com>
+References: <Pine.LNX.4.61.0411081148520.5510@chaos.analogic.com>
+ <41911FD4.2060902@sun.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-In-Reply-To: <41911E43.1090607@nortelnetworks.com>
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Tue, 09 Nov 2004 11:59:37 -0800
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Tue, 09 Nov 2004 11:59:41 -0800
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 9 Nov 2004, Mike Waychison wrote:
 
-> David Schwartz wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 >
-> > 	They don't stop you, they just restrict you.
+> linux-os wrote:
+>>
+>> I have a memory-test procedure that tests
+>> memory on a board, accessed via the PCI bus.
+>> There is a lot of RAM and it's bank-switched
+>> into some 64k windows so it takes a lot of
+>> time to test, about 60 seconds.
+>>
+>> This is in a module, therefore inside the kernel.
+>> When it is invoked via an ioctl() call, the
+>> kernel is frozen for the whole test-time. The
+>> test procedure does not use any spin-locks nor
+>> does it even use any semaphores. It just does a
+>> bunch of read/write operations over the PCI/Bus.
+>>
+>> I thought that I could enable the preemptible-
+>> kernel option and the machine would then respond
+>> normally. Not so. Even with 4 CPUs, when one
+>> ioctl() is busy in the kernel, nothing else
+>> happens until its done. Even keyboard activity
+>> is gone, no Caps Lock and no Num Lock, no `ping`
+>> response over the network. However, the machine
+>> comes back to life when the memory-test is done.
+>>
+>> This is kernel version 2.6.9. Is it possible that
+>> somebody left on the BKL when calling a module
+>> ioctl() on this version? If not, what do I do
+>> to be able to execute a time-consuming procedure
+>> from inside the kernel? Do I break it up into
+>> sections and execute schedule() periodically
+>> (temporary work-around --works)??
+>>
 >
-> They restrict you from getting new updates, they don't restrict you from
-> distributing.
+> The BKL has always been grabbed across ioctls.  Drop the lock when you
+> enter your f_op->ioctl call and grab it again open completion.
+>
 
-	Umm, they restrict you from distributing. You don't get new updates if you
-distribute.
+Hmmm. I get 'scheduling while atomic' screaming across the screen!
+There are no atomic operations in my ioctl functions so I don't
+know what its complaining about. I think I shouldn't have tried
+to do anything with BKL because I (my task) doesn't own it.
 
-	If I say to my son, "if you hang out with people I don't like, I won't let
-you use the car". This is a restriction on his hanging out with who he likes
-and his using the car. If I promised not to put any further restrictions on
-*either* his hanging out with who he like *or* his using the car, I'd be
-violating my promise by the restriction.
-
-> The GPL says, "You may not impose any further restrictions on the
-> recipients'
-> exercise of the rights granted herein."   Note the "granted
-> herein" part.  They
-> can put all kinds of other restrictions on anything else, as long
-> as they don't
-> keep you from excercising your rights to modify and/or
-> redistribute the code
-> released under the GPL.
-
-	Exactly. But by conditioning the receipt of updates on failure to
-distribute, they restrict distribution. (They also restrict the distribution
-of updates, of course.) Any restriction of the form "If X, then Y" restricts
-both X and Y.
-
-	I can't imagine what would constitute an "additional restriction" if this
-isn't one.
-
-> > 	Look, this really is simple. When the GPL talks about "additional
-> > restrictions", it doesn't mean the restrictions found in the
-> > GPL. It means
-> > restrictions found elsewhere, such as in private contracts. (Where else
-> > would the restrictions be?!)
-
-> I believe you have misunderstood the GPL.  They only disallow further
-> restrictions on the rights that the GPL grants.  They don't say
-> anything about
-> other contracts or obligations.
-
-	Yes, they do. The whole point of the "additional restrictions" clause is to
-*prohibit* other contracts or obligations that act to restrict your ability
-to exercise the rights under the GPL.
-
-	If not to prevent other contracts or obligations that act as restrictions,
-what purpose does the GPL "additional restriction" clause serve?!
-
-	DS
-
-
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.9 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by John Ashcroft.
+                  98.36% of all statistics are fiction.

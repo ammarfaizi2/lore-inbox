@@ -1,58 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261788AbTI3Xu0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 19:50:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261797AbTI3Xu0
+	id S261762AbTI3VmP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 17:42:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261760AbTI3VmO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 19:50:26 -0400
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:13441
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S261788AbTI3XuV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 19:50:21 -0400
-From: Rob Landley <rob@landley.net>
-Reply-To: rob@landley.net
-To: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
-Subject: Keyboard dead on bootup on -test6.
-Date: Tue, 30 Sep 2003 16:32:01 -0500
-User-Agent: KMail/1.5
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Tue, 30 Sep 2003 17:42:14 -0400
+Received: from relay2.EECS.Berkeley.EDU ([169.229.60.28]:49541 "EHLO
+	relay2.EECS.Berkeley.EDU") by vger.kernel.org with ESMTP
+	id S261776AbTI3VmM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 17:42:12 -0400
+Subject: Re: 2.6.0-test6: a few __init bugs
+From: "Robert T. Johnson" <rtjohnso@eecs.berkeley.edu>
+To: Greg KH <greg@kroah.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030930212551.GA20709@kroah.com>
+References: <1064872693.5733.42.camel@dooby.cs.berkeley.edu>
+	<20030929221113.GB2720@kroah.com>
+	<1064946634.5734.106.camel@dooby.cs.berkeley.edu>
+	<20030930191117.GA20054@kroah.com>
+	<1064956854.5733.233.camel@dooby.cs.berkeley.edu> 
+	<20030930212551.GA20709@kroah.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200309301632.01498.rob@landley.net>
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 30 Sep 2003 14:42:09 -0700
+Message-Id: <1064958129.5264.237.camel@dooby.cs.berkeley.edu>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Since I switched to test6, my stuck-key problems went away.  (Thank you.  Good 
-work.  Judging by the repeat speed, it's back to using hardware repeat.)
+On Tue, 2003-09-30 at 14:25, Greg KH wrote:
+> Hm, good point.  Can you think of a better place for this that would
+> have helped you out?
 
-However, a problem I'd seen before resurfaced.  Sometimes when I boot up the 
-keyboard is completely dead.  It just did this to me (had to use the power 
-button, because of course ctrl-alt-del did nothing), and I compared the boot 
-logs:
+Take two.  It might not have prevented me from reporting the potential
+bug, but I would've known you'd thought about it, it might help future
+developers, and it's unlikely to become dangerously wrong.  Thanks.
 
-This is what it looks like when it works normally:
-
-Sep 30 16:18:28 localhost kernel: serio: i8042 AUX port at 0x60,0x64 irq 12
-Sep 30 16:18:28 localhost kernel: input: AT Translated Set 2 keyboard on 
-isa0060/serio0
-Sep 30 16:18:28 localhost kernel: serio: i8042 KBD port at 0x60,0x64 irq 1
-
-This was the failure:
-
-Sep 30 16:17:31 localhost kernel: atkbd.c: Unknown key pressed (raw set 0, 
-code 0xfc, data 0xfc, on isa0060/serio1).
-Sep 30 16:17:31 localhost kernel: serio: i8042 AUX port at 0x60,0x64 irq 12
-Sep 30 16:17:31 localhost kernel: serio: i8042 KBD port at 0x60,0x64 irq 1
-
-Under -test5, that failure would have left me with a stuck key endlessly 
-repeating (and an otherwise dead keyboard).  Now at least the stuck key part 
-has gone away, but the keyboard is still dead until I power cycle the 
-machine.
-
-I continue to be using a thinkpad iSeries, I believe it's a 1200C...
-
+Best,
 Rob
+
+--- drivers/pci/quirks.c.orig	Tue Sep 30 14:17:40 2003
++++ drivers/pci/quirks.c	Tue Sep 30 14:39:48 2003
+@@ -750,6 +750,9 @@
+ 
+ /*
+  *  The main table of quirks.
++ *
++ *  Note: any hooks for hotpluggable devices in this table must _NOT_
++ *        be declared __init.
+  */
+ 
+ static struct pci_fixup pci_fixups[] __devinitdata = {
 
 

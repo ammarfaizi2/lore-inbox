@@ -1,47 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264102AbUD0OFm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264094AbUD0OFI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264102AbUD0OFm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 10:05:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264103AbUD0OFm
+	id S264094AbUD0OFI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 10:05:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264102AbUD0OFI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 10:05:42 -0400
-Received: from stingr.net ([212.193.32.15]:27592 "EHLO stingr.net")
-	by vger.kernel.org with ESMTP id S264102AbUD0OFg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 10:05:36 -0400
-Date: Tue, 27 Apr 2004 18:05:34 +0400
-From: Paul P Komkoff Jr <i@stingr.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.6-rc2-bk3 (and earlier?) mount problem (?
-Message-ID: <20040427140533.GI14129@stingr.net>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0404261510230.19703@ppc970.osdl.org> <Pine.LNX.4.58.0404270034110.4469@alpha.polcom.net> <20040426225620.GP17014@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0404270157160.6900@alpha.polcom.net> <20040427002323.GW17014@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0404261758230.19703@ppc970.osdl.org> <20040427010748.GY17014@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0404271106500.22815@alpha.polcom.net> <1083070293.30344.116.camel@watt.suse.com> <Pine.LNX.4.58.0404271500210.27538@alpha.polcom.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+	Tue, 27 Apr 2004 10:05:08 -0400
+Received: from postmanpat.isu.mmu.ac.uk ([149.170.192.66]:32158 "EHLO
+	postmanpat.isu.mmu.ac.uk") by vger.kernel.org with ESMTP
+	id S264094AbUD0OFB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 10:05:01 -0400
+From: David Johnson <dj@david-web.co.uk>
+Reply-To: linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Subject: Re: Anyone got aic7xxx working with 2.4.26?
+Date: Tue, 27 Apr 2004 15:05:37 +0100
+User-Agent: KMail/1.6
+References: <200404261532.37860.dj@david-web.co.uk> <20040427132114.GD10264@logos.cnet>
+In-Reply-To: <20040427132114.GD10264@logos.cnet>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0404271500210.27538@alpha.polcom.net>
-User-Agent: Agent Darien Fawkes
-X-Mailer: Intel Ultra ATA Storage Driver
-X-RealName: Stingray Greatest Jr
-Organization: Department of Fish & Wildlife
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200404271505.38166.dj@david-web.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Replying to Grzegorz Kulewski:
-> But it is strange that I need kernel patch even if I have no evms 
-> or dm volumes in my system. Can not it be solved in mainstream kernels?
-> Maybe there should be warning in config help temporaily? Maybe even note 
-> after option name?
+On Tuesday 27 Apr 2004 14:21, Marcelo Tosatti wrote:
+>
+> Hi David,
+>
+> Can you post save the boot messages and post? 
 
-This defect grew up off a disagreement between bdclaim authors and
-evms authors, but as gentoo is topmost in this pyramid I consider it's
-guilty :)
+I'm not sure - I'll try to find out.
 
-just exclude yours partitioned drivers out of evms scan
-(/etc/evms.conf)
--or-
-mount it thru evms nodes (/dev/evms/*)
+> Which 2.4/2.6 works on this box?
+
+2.4.24 and earlier works, but I haven't tried 2.4.25. I haven't found a 2.6 
+that works but I haven't tried anything older than 2.6.5.
+
+>
+> What are the boot messages with 2.6.5 and newer?
+
+I'm afraid I don't have these, but will try to get them. There are no errors 
+or anything out of the ordinary, it just hangs when it gets to finding the 
+SCSI devices.
+
+I've got a bug report (http://bugzilla.kernel.org/show_bug.cgi?id=2517) which 
+has my dmesg from 2.4.24 and I've noted in it where 2.4.26 hangs.
+2.6.5 (and newer) hangs in exactly the same place with either the old or new 
+driver, again with no errors.
+
+I know this is isn't a lot to go on, but it's difficult to play with it as its 
+in production. Let me know what you'd like me to do next and I'll try to do 
+it. Shall I compile in the driver's debugging stuff?
+
+Thanks,
+David.
 
 -- 
-Paul P 'Stingray' Komkoff Jr // http://stingr.net/key <- my pgp key
- This message represents the official view of the voices in my head
+David Johnson
+http://www.david-web.co.uk/

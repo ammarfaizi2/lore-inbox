@@ -1,34 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287160AbSABXC0>; Wed, 2 Jan 2002 18:02:26 -0500
+	id <S287177AbSABXEh>; Wed, 2 Jan 2002 18:04:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287163AbSABXCG>; Wed, 2 Jan 2002 18:02:06 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:8207 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S287155AbSABXB5>; Wed, 2 Jan 2002 18:01:57 -0500
-Subject: Re: [PATCH][RFC] AMD Elan patch
-To: hpa@zytor.com (H. Peter Anvin)
-Date: Wed, 2 Jan 2002 23:10:50 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), davej@suse.de (Dave Jones),
-        robert@schwebel.de (Robert Schwebel),
-        linux-kernel@vger.kernel.org (Linux Kernel List),
-        wingel@hog.ctrl-c.liu.se (Christer Weinigel),
-        jason@mugwump.taiga.com (Jason Sodergren),
-        anders@alarsen.net (Anders Larsen), rkaiser@sysgo.de
-In-Reply-To: <3C338C57.2080902@zytor.com> from "H. Peter Anvin" at Jan 02, 2002 02:40:23 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S287166AbSABXCq>; Wed, 2 Jan 2002 18:02:46 -0500
+Received: from ns.crrstv.net ([216.94.219.4]:4755 "EHLO mail.crrstv.net")
+	by vger.kernel.org with ESMTP id <S287170AbSABXCf>;
+	Wed, 2 Jan 2002 18:02:35 -0500
+Date: Wed, 2 Jan 2002 19:01:08 -0400 (AST)
+From: skidley <skidley@crrstv.net>
+X-X-Sender: skidley@localhost.localdomain
+To: Timothy Covell <timothy.covell@ashavan.org>
+cc: Keith Owens <kaos@ocs.com.au>, adrian kok <adriankok2000@yahoo.com.hk>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: system.map
+In-Reply-To: <200201022117.g02LHbSr022224@svr3.applink.net>
+Message-ID: <Pine.LNX.4.43.0201021853300.2334-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16LuX4-0005wH-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> That's not the problem, really... the problems is that CPUID identifies 
-> the CPU core, and embedded CPU cores tend to be used and reused many 
-> times -- in fact, AMD are quite good at that.
+On Wed, 2 Jan 2002, Timothy Covell wrote:
+ 
+> However, I'm concerned about searching in "/usr/src/linux" for it.
+> Linus has taken great pains to point out that we shouldn't be building
+> our kernels in /usr/src/linux, it would seem that this is reenforcing a
+> mistake.
+> 
+I'm curious as to why kernels shouldn't be built in /usr/src/linux. Also
+this may be a dumb question but if I have built my kernels in /usr/src and want to move them to /home for eg. will that screw up things? Installing some apps from source sometimes they search for the kernel source during configure. If a kernel was compiled and moved to a different dir will this matter? 
 
-The 400/410 this isnt a problem for. Its discontinued and the 5x0 detect
-differently (and actually have working serial ports I believe). So its
-an end of life core
+-- 
+  . ---                                   .----.
+  |o_o |                                 /_ 0  |      
+  |:_/ |   Give Micro$oft the Bird!!!!   \_    |
+ //   \ \  Use Linux!!!!                 /      \
+(|     | )                              | )  | | | 
+/'\_   _/`\                             | )  | | |   
+\___)=(___/                             |_)  (_) |  
+Chad Young                               \______/
+Registered Linux User #195191           (_______|
+@ http://counter.li.org
+-----------------------------------------------------------------------
+Linux localhost 2.4.18pre1 #2 Fri Dec 28 14:41:58 AST 2001 i686 unknown
+  6:50pm  up  4:35,  4 users,  load average: 0.01, 0.00, 0.00
+

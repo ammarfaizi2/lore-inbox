@@ -1,77 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268804AbUHLV5T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268825AbUHLWPU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268804AbUHLV5T (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 17:57:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268819AbUHLV5T
+	id S268825AbUHLWPU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 18:15:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268826AbUHLWPU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 17:57:19 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:26064 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S268804AbUHLVxt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 17:53:49 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.8-rc3-O5
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Florian Schmidt <mista.tapas@gmx.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       jackit-devel <jackit-devel@lists.sourceforge.net>,
-       Paul Davis <paul@linuxaudiosystems.com>
-In-Reply-To: <20040812072127.GA20386@elte.hu>
-References: <20040809104649.GA13299@elte.hu>
-	 <20040810132654.GA28915@elte.hu> <1092174959.5061.6.camel@mindpipe>
-	 <20040811073149.GA4312@elte.hu> <20040811074256.GA5298@elte.hu>
-	 <1092210765.1650.3.camel@mindpipe> <20040811090639.GA8354@elte.hu>
-	 <20040811141649.447f112f@mango.fruits.de> <20040811124342.GA17017@elte.hu>
-	 <1092268536.1090.7.camel@mindpipe>  <20040812072127.GA20386@elte.hu>
+	Thu, 12 Aug 2004 18:15:20 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:12247 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S268825AbUHLWPE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 18:15:04 -0400
+Subject: Re: Linux kernel file offset pointer races
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Pavel Kankovsky <peak@argo.troja.mff.cuni.cz>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040812223057.CF9.0@argo.troja.mff.cuni.cz>
+References: <20040812223057.CF9.0@argo.troja.mff.cuni.cz>
 Content-Type: text/plain
-Message-Id: <1092347654.11134.10.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 12 Aug 2004 17:54:15 -0400
 Content-Transfer-Encoding: 7bit
+Message-Id: <1092345143.22458.105.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 12 Aug 2004 22:12:24 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-08-12 at 03:21, Ingo Molnar wrote:
-> * Lee Revell <rlrevell@joe-job.com> wrote:
-> 
-> > There is definitely some subtle bug in the preempt-timing patch,
-> > because I am getting reports of long non-preemptible sections, which
-> > do not correspond to an xrun in jackd - if these were real then even a
-> > 400usec non-preemptible section would cause an xrun.  I do not seem to
-> > get many xruns during normal jackd operation.
-> 
-> could you send me these latest preempt-timing warnings?
-> 
+On Iau, 2004-08-12 at 22:38, Pavel Kankovsky wrote:
+> In this scenario, the 1st and 3rd pages read by read() contain the old
+> data (before write()) but the 2nd page contains the new data (after
+> write()). This is absurd.
 
-Here are all the XRUN traces and preempt-timing warnings for the last
-~24 hours.  I still have not had a chance to test with the latest
-patches & config changes.
+Why ?
 
-http://krustophenia.net/2.6.8-rc3-O5/kern.log.txt
+> BTW: What about writev() (esp. with O_APPEND)? It appears Linux
+> implementation makes it possible to interleave parts of writev() with
+> other writes.
 
-Here are some graphs from other test runs:
+If that can occur with O_APPEND it might be a bug. SuS does make some
+real guarantees about what O_APPEND means.
 
-http://krustophenia.net/testresults.php?dataset=2.6.8-rc3-O5
-http://krustophenia.net/testresults.php?dataset=2.6.8-rc2-mm2-O3
+> Moreover, there appears to be a race condition between locks_verify_area()
+> and the actual I/O operation(s).
 
-For reference here's an -mm kernel without the voluntary-preempt
-patches:
+Details ?
 
-http://krustophenia.net/testresults.php?dataset=2.6.8-rc3-mm2
-
-Source code for the php script:
-
-http://krustophenia.net/testresults.phps
-
-I based the php script on this perl script: 
-
-http://www.oddmuse.org/cgi-bin/oddmuse/GnuPlot_Extension
-
-The web server is my desktop machine, so please don't complain if it
-becomes unavailable without warning.  I will try to keep the links
-working.
-
-Lee
 

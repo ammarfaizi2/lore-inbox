@@ -1,50 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267173AbTBUFjN>; Fri, 21 Feb 2003 00:39:13 -0500
+	id <S267174AbTBUGDA>; Fri, 21 Feb 2003 01:03:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267174AbTBUFjN>; Fri, 21 Feb 2003 00:39:13 -0500
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:35339 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S267173AbTBUFjM>; Fri, 21 Feb 2003 00:39:12 -0500
-Date: Fri, 21 Feb 2003 06:49:00 +0100
-From: Jurriaan <thunder7@xs4all.nl>
-To: James Williams <fido@tcob1.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Framebuffers / Matrox
-Message-ID: <20030221054900.GA3339@middle.of.nowhere>
-Reply-To: thunder7@xs4all.nl
-References: <MSGID_1=3a11=2f203_3e548111@fidonet.org>
+	id <S267176AbTBUGDA>; Fri, 21 Feb 2003 01:03:00 -0500
+Received: from [63.205.85.133] ([63.205.85.133]:35079 "EHLO schmee.sfgoth.com")
+	by vger.kernel.org with ESMTP id <S267174AbTBUGC7>;
+	Fri, 21 Feb 2003 01:02:59 -0500
+Date: Thu, 20 Feb 2003 22:12:55 -0800
+From: Mitchell Blank Jr <mitch@sfgoth.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: chas williams <chas@locutus.cmf.nrl.navy.mil>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ATM] who 'owns' the skb created by drivers/atm?
+Message-ID: <20030220221255.A11525@sfgoth.com>
+References: <Pine.LNX.4.44.0302211241070.12797-100000@blackbird.intercode.com.au> <1045808570.22228.2.camel@rth.ninka.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <MSGID_1=3a11=2f203_3e548111@fidonet.org>
-X-Message-Flag: Still using Outlook? Please Upgrade to real software!
-User-Agent: Mutt/1.5.3i
+X-Mailer: Mutt 1.0i
+In-Reply-To: <1045808570.22228.2.camel@rth.ninka.net>; from davem@redhat.com on Thu, Feb 20, 2003 at 10:22:50PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: James Williams <fido@tcob1.net>
-Date: Thu, Feb 20, 2003 at 01:14:34AM +0000
-> Originally to: All
+David S. Miller wrote:
+> On Thu, 2003-02-20 at 17:42, James Morris wrote:
+> > skb->cb is owned by whatever layer is currently processing the skb.
 > 
-> Hello everybody.
+> Furthermore, once you netif_rx() an SKB it is no longer yours.
+> It is owned by the networking stack.
 > 
-> Has anyone have a patch or fix to fix the Framebuffer compile bug for the Matrox 
-> cards in Kernel 2.5.xx?
-> 
-In my mailer, this was mentioned just 10 messages above this one. It
-really helps to read this list :-)
+> If the ATM layer wants to do fancy things and still pass the SKB
+> to netif_rx(), _it_ should clone the SKB and give that clone to
+> the ATM layer directly.
 
-ftp://platan.vc.cvut.cz/pub/linux/matrox-latest/matroxfb-2.5.59.gz
+As far as I'm aware the ATM layer doesn't care what happens to the
+SKB after it gets passed to netif_rx(), so I don't know why this would
+be a problem.  Some people seem to be suggesting that we need to zero
+out ->cb before passing the SKB to netif_rx() but I don't see why
+that would be neccesary.
 
-applies and works with 2.5.62 even.
-
-Kind regards,
-Jurriaan
--- 
-And the gosts of hope walk silent halls
-At the death of the promised land
-All is gone, all is gone
-But these changing winds can turn cold and hostile
-	New Model Army
-GNU/Linux 2.5.62 SMP/ReiserFS 2x2793 bogomips load av: 0.03 0.06 0.08
+-Mitch

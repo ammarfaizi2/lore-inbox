@@ -1,73 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267367AbTALKwX>; Sun, 12 Jan 2003 05:52:23 -0500
+	id <S267378AbTALLAa>; Sun, 12 Jan 2003 06:00:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267369AbTALKwX>; Sun, 12 Jan 2003 05:52:23 -0500
-Received: from smtp-out-3.wanadoo.fr ([193.252.19.233]:46981 "EHLO
-	mel-rto3.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S267367AbTALKwW>; Sun, 12 Jan 2003 05:52:22 -0500
-Date: Sun, 12 Jan 2003 12:00:57 +0100
-From: Romain Lievin <roms@tilp.info>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: kconfig (gkc) [PATCH]
-Message-ID: <20030112110057.GA4348@wanadoo.fr>
-References: <20021128091059.GB388@free.fr> <Pine.LNX.4.44.0211281204030.2113-100000@serv> <20021128141223.GA601@free.fr> <Pine.LNX.4.44.0211282111110.2113-100000@serv> <20021212212904.GA8103@free.fr> <Pine.LNX.4.44.0212122308240.2113-100000@serv> <20021219195224.GC1037@free.fr> <3E04E30D.B2947D61@linux-m68k.org> <20021222174307.GB24289@free.fr> <3E1441B5.AB9A55C3@linux-m68k.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S267365AbTALLAa>; Sun, 12 Jan 2003 06:00:30 -0500
+Received: from ns.indranet.co.nz ([210.54.239.210]:42956 "EHLO
+	mail.acheron.indranet.co.nz") by vger.kernel.org with ESMTP
+	id <S267364AbTALLA2>; Sun, 12 Jan 2003 06:00:28 -0500
+Date: Mon, 13 Jan 2003 00:09:15 +1300
+From: Andrew McGregor <andrew@indranet.co.nz>
+To: Andrew Morton <akpm@digeo.com>, Roe Peterson <roe@petcom.com>,
+       linux-laptop@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: dell precision m50 _very_ slow paging/swapping
+Message-ID: <19480000.1042369755@localhost.localdomain>
+In-Reply-To: <200301111012.55150.akpm@digeo.com>
+References: <3E203A45.B590F101@petcom.com>
+ <200301111012.55150.akpm@digeo.com>
+X-Mailer: Mulberry/3.0.0b10 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <3E1441B5.AB9A55C3@linux-m68k.org>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Roman,
+Have you tried hdparm to see if the disk is in a stupid mode and needs 
+something (DMA most likely) switched on to perform?  Dell BIOSes often get 
+this wrong.  idebus=66 on the kernel command line is appropriate too.
 
-On Thu, Jan 02, 2003 at 02:42:13PM +0100, Roman Zippel wrote:
-> Hi,
-> 
-> Sorry about the delay, I wanted to look into this in more detail, but I
-> did some other stuff over christmas.
-> 
+Andrew
 
-me, too. I recently switched from 33.6K modem to 128kbit ADSL and I had some
-work on my new gateway...
+--On Saturday, January 11, 2003 10:12:55 -0800 Andrew Morton 
+<akpm@digeo.com> wrote:
 
-> If you can work around it and it doesn't look that serious, I would
-> really prefer to support at least 2.0. I don't know how long it will
-> take until all distribution switched to 2.2.
-
-You're right, my Debian does not have 2.2 yet....
-Well, I switched to 2.0 given that I can easily work around it. Nevertheless,
-I placed a #define for people who want to use 2.2 release.
-
-> BTW how are the other views doing? :)
-
-I have just finished the 'Single' view. I am working on the 'Split' one.
-
-> 
-> bye, Roman
-> 
-> 
-
-PS: you will find the latest patch at the usual location...
-
-Romain.
--- 
-Romain Lievin, aka 'roms'  	<roms@tilp.info>
-The TiLP project is on 		<http://www.ti-lpg.org>
-"Linux, y'a moins bien mais c'est plus cher !"
-
-
-
-
-
-
-
-
-
-
-
-
+> On Sat January 11 2003 07:37, Roe Peterson wrote:
+>>
+>> Although Dell doesn't consider the precision M50 a laptop (it's a
+>> "portable workstation"), this list
+>> looks like a good place to start :-)
+>>
+>> I'm having a big problem with a brand-new M50.  The symptoms persist
+>> whether I try Redhat 7.3
+>> or 8.0.
+>>
+>> Generally, everything is fine, right up to the time the machine starts
+>> paging out to disk.  Then, the
+>> system essentially grinds to a halt.
+>>
+>
+> You'd need to determine whether the CPU is busy or idle when this is
+> happening.
+>
+> If it's busy, profile the kernel:
+>
+> - boot with "profile=1" on the kernel command line
+>
+> -
+> 	readprofile -r
+> 	<do something>
+> 	readprofile -v -m /boot/System.map | sort -n +2 | tail -40
+>
+> It it's not busy, then:
+>
+> while true
+> do
+> 	ps axl | grep ' D '
+> 	sleep 1
+> done &
+> <do something>
+>
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
 
 

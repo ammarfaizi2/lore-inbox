@@ -1,73 +1,119 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269602AbTG1NPm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 09:15:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269670AbTG1NOQ
+	id S269575AbTG1NMq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 09:12:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269583AbTG1NMq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 09:14:16 -0400
-Received: from mailout06.sul.t-online.com ([194.25.134.19]:35255 "EHLO
-	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S269602AbTG1NNq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 09:13:46 -0400
-Message-ID: <3F252538.3010701@gmx.de>
-Date: Mon, 28 Jul 2003 15:29:28 +0200
-From: hal-9000-@t-online.de (thorstenk)
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030514
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0-1/2 reboots out of the blue
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Seen: false
-X-ID: XLn5-yZloeg4Jfs7HweblLJ654w+2OfPYOjAyCf4e6qTpJ5jaH+Gk2
+	Mon, 28 Jul 2003 09:12:46 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:31210 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S269575AbTG1NMl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jul 2003 09:12:41 -0400
+Date: Mon, 28 Jul 2003 15:27:39 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Krzysztof Halasa <khc@pm.waw.pl>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-net@vger.kernel.org
+Subject: Re: Linux v2.6.0-test2
+Message-ID: <20030728132738.GH25402@fs.tum.de>
+References: <Pine.LNX.4.44.0307271003360.3401-100000@home.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0307271003360.3401-100000@home.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > hi,
- > every time I try to run 2.6.0test1/2, the first couple of minutes all 
-went
- > well, but then without an error or so, my machine reboots suddenly!
- > I have an athlonxp 2000+ with kt333!
- > were can I find infos whats going on in that moment!
+On Sun, Jul 27, 2003 at 10:08:40AM -0700, Linus Torvalds wrote:
+>...
+> Summary of changes from v2.6.0-test1 to v2.6.0-test2
+> ============================================
+>...
+> Krzysztof Halasa:
+>   o HDLC update
+>...
 
-After a few test runs, It shows that this crash appears under more ore 
-less high load!
-e.g. start of mozilla/konquerror, or compiling some sources!
-I have deaktivated acpi/apm.
-Its like somebody pushes the reset buttom!
 
-/var/log/messages shows this:
-Jul 28 14:38:25 astacus kernel: kjournald starting.  Commit interval 5 
-seconds
-Jul 28 14:38:25 astacus kernel: EXT3 FS on hdb3, internal journal
-Jul 28 14:38:25 astacus kernel: EXT3-fs: mounted filesystem with ordered 
-data mode.
-Jul 28 14:38:25 astacus kernel: eth0: Setting half-duplex based on 
-auto-negotiated partner ability 0000.
-Jul 28 14:38:26 astacus sshd[304]: Server listening on 0.0.0.0 port 22.
-Jul 28 14:46:39 astacus syslogd 1.4.1: restart.
+This patch caused the following compile error:
 
-thats my system :
-lspci
-00:00.0 Host bridge: VIA Technologies, Inc. VT8366/A/7 [Apollo KT266/A/333]
-00:01.0 PCI bridge: VIA Technologies, Inc. VT8366/A/7 [Apollo 
-KT266/A/333 AGP]
-00:09.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev 08)
-00:09.1 Input device controller: Creative Labs SB Live! MIDI/Game Port 
-(rev 08)
-00:0b.0 Ethernet controller: Realtek Semiconductor Co., Ltd. 
-RTL-8139/8139C/8139C+ (rev 10)
-00:11.0 ISA bridge: VIA Technologies, Inc. VT8233A ISA Bridge
-00:11.1 IDE interface: VIA Technologies, Inc. VT82C586/B/686A/B PIPC Bus 
-Master IDE (rev 06)
-00:11.2 USB Controller: VIA Technologies, Inc. USB (rev 23)
-00:11.3 USB Controller: VIA Technologies, Inc. USB (rev 23)
-01:00.0 VGA compatible controller: nVidia Corporation NV11DDR [GeForce2 
-MX 100 DDR/200 DDR] (rev b2)
+<--  snip  -->
 
-thanks in advance for any help!
+...
+  CC      drivers/net/wan/pc300_drv.o
+drivers/net/wan/pc300_drv.c: In function `cpc_ioctl':
+drivers/net/wan/pc300_drv.c:2557: error: incompatible types in 
+assignment
+drivers/net/wan/pc300_drv.c:2593: error: incompatible types in 
+assignment
+drivers/net/wan/pc300_drv.c: In function `cpc_open':
+drivers/net/wan/pc300_drv.c:3156: error: invalid operands to binary ==
+drivers/net/wan/pc300_drv.c:3161: error: invalid operands to binary ==
+drivers/net/wan/pc300_drv.c: In function `cpc_close':
+drivers/net/wan/pc300_drv.c:3194: error: invalid operands to binary ==
+make[3]: *** [drivers/net/wan/pc300_drv.o] Error 1
 
-- thorsten
+<--  snip  -->
 
+
+Please check whether the fix below is correct.
+
+TIA
+Adrian
+
+
+--- linux-2.6.0-test2-full-no-smp/drivers/net/wan/pc300_drv.c.tmp	2003-07-28 15:13:06.000000000 +0200
++++ linux-2.6.0-test2-full-no-smp/drivers/net/wan/pc300_drv.c	2003-07-28 15:19:35.000000000 +0200
+@@ -2554,10 +2554,10 @@
+ 		case SIOCGPC300CONF:
+ #ifdef CONFIG_PC300_MLPPP
+ 			if (conf->proto != PC300_PROTO_MLPPP) {
+-				conf->proto = hdlc->proto;
++				conf->proto = hdlc->proto.id;
+ 			}
+ #else
+-			conf->proto = hdlc->proto;
++			conf->proto = hdlc->proto.id;
+ #endif
+ 			memcpy(&conf_aux.conf, conf, sizeof(pc300chconf_t));
+ 			memcpy(&conf_aux.hw, &card->hw, sizeof(pc300hw_t));
+@@ -2590,12 +2590,12 @@
+ 					}
+ 				} else {
+ 					memcpy(conf, &conf_aux.conf, sizeof(pc300chconf_t));
+-					hdlc->proto = conf->proto;
++					hdlc->proto.id = conf->proto;
+ 				}
+ 			}
+ #else
+ 			memcpy(conf, &conf_aux.conf, sizeof(pc300chconf_t));
+-			hdlc->proto = conf->proto;
++			hdlc->proto.id = conf->proto;
+ #endif
+ 			return 0;
+ 		case SIOCGPC300STATUS:
+@@ -3153,12 +3153,12 @@
+ 	printk("pc300: cpc_open");
+ #endif
+ 
+-	if (hdlc->proto == IF_PROTO_PPP) {
++	if (hdlc->proto.id == IF_PROTO_PPP) {
+ 		d->if_ptr = &hdlc->state.ppp.pppdev;
+ 	}
+ 
+ 	result = hdlc_open(hdlc);
+-	if (hdlc->proto == IF_PROTO_PPP) {
++	if (hdlc->proto.id == IF_PROTO_PPP) {
+ 		dev->priv = d;
+ 	}
+ 	if (result) {
+@@ -3191,7 +3191,7 @@
+ 	CPC_UNLOCK(card, flags);
+ 
+ 	hdlc_close(hdlc);
+-	if (hdlc->proto == IF_PROTO_PPP) {
++	if (hdlc->proto.id == IF_PROTO_PPP) {
+ 		d->if_ptr = NULL;
+ 	}
+ #ifdef CONFIG_PC300_MLPPP
 

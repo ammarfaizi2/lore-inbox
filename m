@@ -1,50 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291716AbSBTJ7R>; Wed, 20 Feb 2002 04:59:17 -0500
+	id <S291717AbSBTKLp>; Wed, 20 Feb 2002 05:11:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291717AbSBTJ7G>; Wed, 20 Feb 2002 04:59:06 -0500
-Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:516 "EHLO
-	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id <S291716AbSBTJ6y>; Wed, 20 Feb 2002 04:58:54 -0500
-Date: Wed, 20 Feb 2002 10:58:48 +0100 (CET)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: Tom Holroyd <tomh@po.crl.go.jp>
-cc: Andreas Schwab <schwab@suse.de>,
-        kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Unknown HZ value! (1908) Assume 1024.
-In-Reply-To: <Pine.LNX.4.44.0202201101080.1972-100000@holly.crl.go.jp>
-Message-ID: <Pine.LNX.4.33.0202201055010.708-100000@gans.physik3.uni-rostock.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S291718AbSBTKLe>; Wed, 20 Feb 2002 05:11:34 -0500
+Received: from natpost.webmailer.de ([192.67.198.65]:52393 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S291717AbSBTKLV>; Wed, 20 Feb 2002 05:11:21 -0500
+Date: Wed, 20 Feb 2002 11:05:28 +0100
+From: Kristian <kristian.peters@korseby.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org, andre@linux-ide.org
+Subject: Re: 2.4.18-pre9-ac4 filesystem corruption
+Message-Id: <20020220110528.4274e61d.kristian.peters@korseby.net>
+In-Reply-To: <E16dBaR-0000fj-00@the-village.bc.nu>
+In-Reply-To: <20020219153248.39a1b7fc.kristian.peters@korseby.net>
+	<E16dBaR-0000fj-00@the-village.bc.nu>
+X-Mailer: Sylpheed version 0.7.1claws7 (GTK+ 1.2.10; i386-redhat-linux)
+X-Operating-System: Debian GNU/Linux 2.4.17
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Feb 2002, Tom Holroyd wrote:
-
-> > |> 	jif * smp_num_cpus - (user + nice + system)
-> >
-> > Changing the line to this:
-> >
-> >  	jif * smp_num_cpus - user - nice - system
-> >
-> > should avoid the overflow.
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> > memtest86 completed successfully.
+> > I'll test with -rc2-ac1 for ext2 corruption again.
 > 
-> True.  It still might be a good idea to make them longs, though,
-> because they are really totals of all the CPUs, as in:
->                 user += kstat.per_cpu_user[cpu];
-> 
-> Now ultimately, kstat.per_cpu_user[cpu] will overflow, and I don't
-> know what to do about that, but making user, nice, and system unsigned
-> long will at least allow SMP systems to last a little while longer.
-> (Actually I don't know why Procps needs these values at all -- the
-> claim in the code is that all of this is just to compute the HZ value,
-> which is presumably needed to be able to interpret jiffies.  It'd be a
-> lot simpler just to have /proc/stat export the HZ value directly.)
-> 
+> Thanks. If you do see it can you test with ide=nodma as well and see what
+> that does. Andre will probably also want to know how long your IDE cables
+> are 8)
 
-I'd still prefer to export only 32 bit of user, nice, and system. This 
-way they overflow in a clearly defined way - the 32 bits we export are
-exact, only the higher bits are missing. 
+Booting just normal with -rc2-ac1:
 
-Tim
+Directly after boot appears this messages again:
+	init_special_inode: bogus imode (70141) 
+I'd had to run e2fsck -f /dev/hda5 (/) on it:
+	Entry 'par2' in /dev (8166) has deleted/unused inode 9337.
+But former errors occured on other partitons as well (/dev/hda(5-8)).
+The cable used:
+	+----------+----------------------+
+	|          |                      |
+	|<--16cm-->|<--------40cm-------->|
+	+----------+----------------------+
+    controller  WDC AC24300L          LTN301 CDROM
 
+Booting with ide=nodma:
+
+The corruption hasn't appeared yet.
+
+I've also tried dd if=/dev/hda(1,5-8) of=/dev/null bs=4k without error-messages in the logs.
+
+So I may switch back to -pre9-ac3 again and see if it happens with that kernel.
+
+*Kristian
+
+  :... [snd.science] ...:
+ ::
+ :: http://www.korseby.net
+ :: http://gsmp.sf.net
+  :..........................:

@@ -1,51 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261956AbTLWRXE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 12:23:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261957AbTLWRXE
+	id S261973AbTLWRfu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 12:35:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262030AbTLWRfu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 12:23:04 -0500
-Received: from fw.osdl.org ([65.172.181.6]:232 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261956AbTLWRXC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 12:23:02 -0500
-Date: Tue, 23 Dec 2003 09:21:04 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Jeff Chua <jeffchua@silk.corp.fedex.com>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [bug] 2.6.0 COMMAND_LINE_SIZE <160???
-Message-Id: <20031223092104.6bc9f634.rddunlap@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0312232102340.5732@silk.corp.fedex.com>
-References: <Pine.LNX.4.58.0312232102340.5732@silk.corp.fedex.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Tue, 23 Dec 2003 12:35:50 -0500
+Received: from iron-c-1.tiscali.it ([212.123.84.81]:10802 "EHLO
+	mailr-1.tiscali.it") by vger.kernel.org with ESMTP id S261973AbTLWRfs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Dec 2003 12:35:48 -0500
+X-BrightmailFiltered: true
+Date: Tue, 23 Dec 2003 18:35:56 +0100
+From: Kronos <kronos@kronoz.cjb.net>
+To: linux-kernel@vger.kernel.org
+Cc: Bill Nottingham <notting@redhat.com>
+Subject: Re: various issues with ACPI sleep and 2.6
+Message-ID: <20031223173556.GA9412@dreamland.darkstar.lan>
+Reply-To: kronos@kronoz.cjb.net
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031223165739.GA28356@devserv.devel.redhat.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 23 Dec 2003 21:07:45 +0800 (SGT) Jeff Chua <jeffchua@silk.corp.fedex.com> wrote:
+> Testing ACPI sleep under 2.6, I noticed the following issues
+> (Thinkpad T40, i855PM chipset):
+>
+> - USB fails on resume (sent to linux-usb-devel)
 
-| 
-| I can't seems to pass more than 160 bytes on command line when booting
-| linux-2.6.0. 2.4.24 is ok.
-| 
-| Booting via loadlin, but I've tried linld, still the same problem.
-| 
-| It hangs after "Ok, booting the kernel".
+Known issue. Unload usb modules before suspending.
 
-So 2.4.24-pre works OK for you.
+> - DRI being loaded at all causes X to fail on resume
 
-2.6.0 works OK for me with a command line length of 219 bytes
-(about half of it doesn't matter for booting, but it's all
-there in /proc/cmdline).  Using lilo.
+Known issue. See
+http://dri.sourceforge.net/cgi-bin/moin.cgi/PowerManagement
 
-Same processor arch. type in both .config files?
-Same compiler version building them?
+> - MCE on resume:
+>
+>  MCE: The hardware reports a non fatal, correctable incident occurred on CPU 0.
+>  Bank 1: f200000000000175
 
---
-~Randy
-MOTD:  Always include version info.
+Hum, this is strange. I saw similar  messages on my laptop but they were
+related to bank0-issue on athlon CPUs. No idea of what's going on there.
+
+Luca
+-- 
+Reply-To: kronos@kronoz.cjb.net
+Home: http://kronoz.cjb.net
+Windows /win'dohz/ n. : thirty-two  bit extension and graphical shell to
+a sixteen  bit patch to an  eight bit operating system  originally coded
+for a  four bit microprocessor  which was  written by a  two-bit company
+that can't stand a bit of competition.

@@ -1,44 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266377AbSLJUPH>; Tue, 10 Dec 2002 15:15:07 -0500
+	id <S265725AbSLJURA>; Tue, 10 Dec 2002 15:17:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266409AbSLJUPH>; Tue, 10 Dec 2002 15:15:07 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:29081 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S266377AbSLJUPF>;
-	Tue, 10 Dec 2002 15:15:05 -0500
-Date: Tue, 10 Dec 2002 12:19:08 -0800 (PST)
-Message-Id: <20021210.121908.00373632.davem@redhat.com>
-To: linux-kernel@vger.kernel.org
-CC: marcelo@conectiva.com.br, raul@pleyades.net
-Subject: Re: [BK-2.4] [PATCH] Small do_mmap_pgoff correction
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200212101931.gBAJV1K10639@hera.kernel.org>
-References: <200212101931.gBAJV1K10639@hera.kernel.org>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S266199AbSLJURA>; Tue, 10 Dec 2002 15:17:00 -0500
+Received: from c16688.thoms1.vic.optusnet.com.au ([210.49.244.54]:465 "EHLO
+	mail.kolivas.net") by vger.kernel.org with ESMTP id <S265725AbSLJUQ7>;
+	Tue, 10 Dec 2002 15:16:59 -0500
+Message-ID: <1039551880.3df64d88dc470@kolivas.net>
+Date: Wed, 11 Dec 2002 07:24:40 +1100
+From: Con Kolivas <conman@kolivas.net>
+To: Stan Bubrouski <stan@ccs.neu.edu>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [BENCHMARK] 2.5.51 with contest
+References: <200212102245.19862.conman@kolivas.net> <3DF621D0.6040505@ccs.neu.edu>
+In-Reply-To: <3DF621D0.6040505@ccs.neu.edu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-   Date: Tue, 10 Dec 2002 15:51:07 +0000
+Quoting Stan Bubrouski <stan@ccs.neu.edu>:
 
-   +
-   +/*
-   + *	NOTE: in this function we rely on TASK_SIZE being lower than
-   + *	SIZE_MAX-PAGE_SIZE at least. I'm pretty sure that it is.
-   + */
-   +
+> Con Kolivas wrote:
+> > -----BEGIN PGP SIGNED MESSAGE-----
+> > Hash: SHA1
+> > 
+> > Here are contest results (http://contest.kolivas.net) for 2.5.51 and
+> related 
+> > kerneles using the dedicated osdl (http://www.osdl.org) hardware. 
+> > 
+> > Uniprocessor:
+> > noload:
+> > Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+> > 2.5.49 [5]              70.0    96      0       0       1.05
+> > 2.5.50 [5]              69.9    96      0       0       1.05
+> > 2.5.50-mm1 [5]          71.4    94      0       0       1.07
+> > 2.5.51 [2]              69.8    96      0       0       1.05
+> 
+> I know this has been brought up before, but
+> these don't seem to mean much unless you
+> include 2.4.20 in the comaprison.
 
-This assumption is wrong.  It is totally possible for TASK_SIZE
-to be the entire 64-bit address space on sparc64 and thus larger
-than SIZE_MAX - PAGE_SIZE, and I definitely plan on supporting
-that.
+Repeated benchmarks of each successive release allow to detect subtle
+differences of each change. If contest shows these changes the people who can
+act on them will see them clearly if displayed only with relevant results. If
+you want previous results, a full comparison is available at the full logs of
+all previous benchmarks as I mention.
 
-User processes live entirely in their very own address space seperate
-from the kernel, so kernel stuff does not take up any part of the user
-virtual addresses.
+http://www.osdl.org/projects/ctdevel/results/
 
-Please revert this change, it adds absolutely nothing.
+Con

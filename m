@@ -1,52 +1,157 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316907AbSEVJiT>; Wed, 22 May 2002 05:38:19 -0400
+	id <S316912AbSEVJmR>; Wed, 22 May 2002 05:42:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316910AbSEVJiS>; Wed, 22 May 2002 05:38:18 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:59150 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S316907AbSEVJiO>; Wed, 22 May 2002 05:38:14 -0400
-Message-Id: <200205220925.g4M9OwY01920@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: AUDIT: copy_from_user is a deathtrap.
-Date: Wed, 22 May 2002 12:27:14 -0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <mailman.1021642692.12772.linux-kernel2news@redhat.com> <200205210555.g4L5tfY29889@Port.imtp.ilyichevsk.odessa.ua> <20020521062118.GA13117@conectiva.com.br>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+	id <S316910AbSEVJmQ>; Wed, 22 May 2002 05:42:16 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:63661 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S316908AbSEVJmN>;
+	Wed, 22 May 2002 05:42:13 -0400
+Date: Wed, 22 May 2002 11:42:06 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Martin Dalecki <dalecki@evision-ventures.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] duplicate clock calculation code in 3 IDE drivers
+Message-ID: <20020522114206.D31145@ucw.cz>
+In-Reply-To: <20020522093013.GD312@pazke.ipt>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 21 May 2002 04:21, Arnaldo Carvalho de Melo wrote:
-> > Oh. Do you think a pair of
-> >
-> > copy_to_user_or_EINVAL(...)
-> > copy_to_user_return_residue(...)
-> >
-> > will help avoid such bugs?
-> > It is possible to audit kernel once, move it to new functions
-> > and deprecate/delete old one.
->
-> As Linus and others pointed out, copy_{to_from}_user has its uses and will
-> stay, but something like:
+On Wed, May 22, 2002 at 01:30:13PM +0400, Andrey Panin wrote:
+> Hi,
+> 
+> now it is more interesting patch. AMD, PIIX and VIA IDE drivers contain
+> some duplicated code for (amd|piix|via)_clock calculation. Attached
+> patch moves this code into one function in ata-timing.c file.
+> 
+> Please take a look at it.
 
-I don't say 'kill it', I say 'rename it so that its name tells users what
-return value to expect'. However, one have to weigh 
-long_but_easy_to_understand_name() versus cryptcnshrt() here. :-)
+Looks quite OK - though it'd be better if "system_bus_speed" already
+could be giving these reasonable values - this way we could get rid of
+the (amd|piix|via)_clock variables altogether.
 
-I usually vote for long_but_easy_to_understand_name(), but it's MHO only.
+> 
+> Best regards.
+> 
+> -- 
+> Andrey Panin            | Embedded systems software engineer
+> pazke@orbita1.ru        | PGP key: wwwkeys.eu.pgp.net
+> diff -urN -X /usr/share/dontdiff linux.vanilla/drivers/ide/ata-timing.c linux/drivers/ide/ata-timing.c
+> --- linux.vanilla/drivers/ide/ata-timing.c	Tue May 21 01:56:18 2002
+> +++ linux/drivers/ide/ata-timing.c	Wed May 22 04:06:53 2002
+> @@ -256,3 +256,22 @@
+>  
+>  	return 0;
+>  }
+> +
+> +unsigned int ata_system_bus_clock(void)
+> +{
+> +	unsigned int clock = system_bus_speed * 1000;
+> +
+> +	switch (clock) {
+> +		case 33000: clock = 33333; break;
+> +		case 37000: clock = 37500; break;
+> +		case 41000: clock = 41666; break;
+> +	}
+> +
+> +	if (clock < 20000 || clock > 50000) {
+> +		printk(KERN_WARNING "ATA: User given PCI clock speed impossible (%d), using 33 MHz instead.\n", clock);
+> +		printk(KERN_WARNING "ATA: Use ide0=ata66 if you want to assume 80-wire cable\n");
+> +		clock = 33333;
+> +	}
+> +
+> +	return clock;
+> +}
+> diff -urN -X /usr/share/dontdiff linux.vanilla/drivers/ide/ata-timing.h linux/drivers/ide/ata-timing.h
+> --- linux.vanilla/drivers/ide/ata-timing.h	Tue May  7 23:50:09 2002
+> +++ linux/drivers/ide/ata-timing.h	Wed May 22 04:02:13 2002
+> @@ -82,4 +82,6 @@
+>  extern struct ata_timing* ata_timing_data(short speed);
+>  extern int ata_timing_compute(struct ata_device *drive,
+>  		short speed, struct ata_timing *t, int T, int UT);
+> +
+> +extern unsigned int ata_system_bus_clock(void);
+>  #endif
+> diff -urN -X /usr/share/dontdiff linux.vanilla/drivers/ide/amd74xx.c linux/drivers/ide/amd74xx.c
+> --- linux.vanilla/drivers/ide/amd74xx.c	Tue May 21 01:55:57 2002
+> +++ linux/drivers/ide/amd74xx.c	Wed May 22 03:59:12 2002
+> @@ -360,20 +360,7 @@
+>  /*
+>   * Determine the system bus clock.
+>   */
+> -
+> -	amd_clock = system_bus_speed * 1000;
+> -
+> -	switch (amd_clock) {
+> -		case 33000: amd_clock = 33333; break;
+> -		case 37000: amd_clock = 37500; break;
+> -		case 41000: amd_clock = 41666; break;
+> -	}
+> -
+> -	if (amd_clock < 20000 || amd_clock > 50000) {
+> -		printk(KERN_WARNING "AMD_IDE: User given PCI clock speed impossible (%d), using 33 MHz instead.\n", amd_clock);
+> -		printk(KERN_WARNING "AMD_IDE: Use ide0=ata66 if you want to assume 80-wire cable\n");
+> -		amd_clock = 33333;
+> -	}
+> +	amd_clock = ata_system_bus_clock();
+>  
+>  /*
+>   * Print the boot message.
+> diff -urN -X /usr/share/dontdiff linux.vanilla/drivers/ide/piix.c linux/drivers/ide/piix.c
+> --- linux.vanilla/drivers/ide/piix.c	Tue May 21 01:55:58 2002
+> +++ linux/drivers/ide/piix.c	Wed May 22 04:03:37 2002
+> @@ -497,19 +497,7 @@
+>   * Determine the system bus clock.
+>   */
+>  
+> -	piix_clock = system_bus_speed * 1000;
+> -
+> -	switch (piix_clock) {
+> -		case 33000: piix_clock = 33333; break;
+> -		case 37000: piix_clock = 37500; break;
+> -		case 41000: piix_clock = 41666; break;
+> -	}
+> -
+> -	if (piix_clock < 20000 || piix_clock > 50000) {
+> -		printk(KERN_WARNING "PIIX: User given PCI clock speed impossible (%d), using 33 MHz instead.\n", piix_clock);
+> -		printk(KERN_WARNING "PIIX: Use ide0=ata66 if you want to assume 80-wire cable\n");
+> -		piix_clock = 33333;
+> -	}
+> +	piix_clock = ata_system_bus_clock();
+>  
+>  /*
+>   * Print the boot message.
+> diff -urN -X /usr/share/dontdiff linux.vanilla/drivers/ide/via82cxxx.c linux/drivers/ide/via82cxxx.c
+> --- linux.vanilla/drivers/ide/via82cxxx.c	Tue May 21 01:55:59 2002
+> +++ linux/drivers/ide/via82cxxx.c	Wed May 22 04:03:17 2002
+> @@ -474,19 +474,7 @@
+>   * Determine system bus clock.
+>   */
+>  
+> -	via_clock = system_bus_speed * 1000;
+> -
+> -	switch (via_clock) {
+> -		case 33000: via_clock = 33333; break;
+> -		case 37000: via_clock = 37500; break;
+> -		case 41000: via_clock = 41666; break;
+> -	}
+> -
+> -	if (via_clock < 20000 || via_clock > 50000) {
+> -		printk(KERN_WARNING "VP_IDE: User given PCI clock speed impossible (%d), using 33 MHz instead.\n", via_clock);
+> -		printk(KERN_WARNING "VP_IDE: Use ide0=ata66 if you want to assume 80-wire cable.\n");
+> -		via_clock = 33333;
+> -	}
+> +	via_clock = ata_system_bus_clock();
+>  
+>  /*
+>   * Print the boot message.
 
-> #define copyin(...) (copy_from_user(...) ? -EFAULT : 0)
-> #define copyout(...) (copy_to_user(...) ? -EFAULT : 0)
 
-This falls in cryptcnshrt() category.
-Will "new programmer" grasp form the name alone that it returns EFAULT?
-/me in doubt. OTOH BSD folks may be happy.
---
-vda
+
+
+-- 
+Vojtech Pavlik
+SuSE Labs

@@ -1,39 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265162AbTLKQ2t (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 11:28:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265165AbTLKQ2s
+	id S265151AbTLKQfk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 11:35:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265152AbTLKQfk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 11:28:48 -0500
-Received: from wsip-68-14-236-254.ph.ph.cox.net ([68.14.236.254]:62661 "EHLO
-	office.labsysgrp.com") by vger.kernel.org with ESMTP
-	id S265162AbTLKQ2r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 11:28:47 -0500
-Message-ID: <3FD89B45.8040905@backtobasicsmgmt.com>
-Date: Thu, 11 Dec 2003 09:28:53 -0700
-From: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
-Organization: Back to Basics Network Management
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20030925
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [CFT][RFC] HT scheduler
-References: <3FD3FD52.7020001@cyberone.com.au> <20031208155904.GF19412@krispykreme> <3FD50456.3050003@cyberone.com.au> <20031209001412.GG19412@krispykreme> <3FD7F1B9.5080100@cyberone.com.au>
-In-Reply-To: <3FD7F1B9.5080100@cyberone.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 11 Dec 2003 11:35:40 -0500
+Received: from holomorphy.com ([199.26.172.102]:33254 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S265151AbTLKQfk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Dec 2003 11:35:40 -0500
+Date: Thu, 11 Dec 2003 08:35:34 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: moth@magenta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: Linux 2.6.0-test11 only lets me use 1GB out of 2GB ram.
+Message-ID: <20031211163534.GJ8039@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	moth@magenta.com, linux-kernel@vger.kernel.org
+References: <C033B4C3E96AF74A89582654DEC664DB0672F1@aruba.maner.org> <3FD7FCF5.7030109@cyberone.com.au> <3FD801B3.7080604@wmich.edu> <20031211054111.GX8039@holomorphy.com> <20031211094148.G28449@links.magenta.com> <20031211150011.GF8039@holomorphy.com> <20031211111741.H28449@links.magenta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031211111741.H28449@links.magenta.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
+On Thu, Dec 11, 2003 at 11:17:41AM -0500, moth@magenta.com wrote:
+> I'm not wondering if > 2GB is supported.  I'm trying to get 2GB
+> to work (and I'm having a problem -- perhaps because I believe
+> Documentation/memory.txt doesn't cover the issues I'm facing).
+> I've not yet bothered with highmem, but I will if building a 64 bit
+> kernel doesn't get me access to 2GB.
+> Does that answer your question?
 
-> http://www.kerneltrap.org/~npiggin/w26/
-> Against 2.6.0-test11
-> 
-> This includes the SMT description for P4. Initial results shows comparable
-> performance to Ingo's shared runqueue's patch on a dual P4 Xeon.
-> 
+You should be fine with a 64-bit kernel.
 
-Is there any value in testing/using this on a single CPU P4-HT system, 
-or is it only targeted at multi-CPU systems?
 
+-- wli

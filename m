@@ -1,48 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271710AbRHQReT>; Fri, 17 Aug 2001 13:34:19 -0400
+	id <S271713AbRHQReT>; Fri, 17 Aug 2001 13:34:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271705AbRHQReK>; Fri, 17 Aug 2001 13:34:10 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:2059 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S271709AbRHQRdz>; Fri, 17 Aug 2001 13:33:55 -0400
-Date: Fri, 17 Aug 2001 14:34:00 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Eduardo =?iso-8859-1?q?Cort=E9s=20?= <the_beast@softhome.net>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Re: limit cpu
-In-Reply-To: <20010816162913Z271588-760+2494@vger.kernel.org>
-Message-ID: <Pine.LNX.4.33L.0108171432320.2277-100000@duckman.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S271710AbRHQReJ>; Fri, 17 Aug 2001 13:34:09 -0400
+Received: from elektroni.ee.tut.fi ([130.230.131.11]:33543 "HELO
+	elektroni.ee.tut.fi") by vger.kernel.org with SMTP
+	id <S271705AbRHQReB>; Fri, 17 Aug 2001 13:34:01 -0400
+Date: Fri, 17 Aug 2001 20:34:14 +0300
+From: Petri Kaukasoina <kaukasoi@elektroni.ee.tut.fi>
+To: linux-kernel@vger.kernel.org
+Cc: Tim Moore <timothymoore@bigfoot.com>
+Subject: Re: 2.2.20pre series and booting problem
+Message-ID: <20010817203414.A14553@elektroni.ee.tut.fi>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Tim Moore <timothymoore@bigfoot.com>
+In-Reply-To: <20010815172631.A17156@elektroni.ee.tut.fi> <3B7C58BB.6D67DD7A@bigfoot.com> <20010817081629.A3540@elektroni.ee.tut.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010817081629.A3540@elektroni.ee.tut.fi>; from kaukasoi@elektroni.ee.tut.fi on Fri, Aug 17, 2001 at 08:16:29AM +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 Aug 2001, Eduardo Cortés  wrote:
+On Fri, Aug 17, 2001 at 08:16:29AM +0300, Petri Kaukasoina wrote:
+> On Thu, Aug 16, 2001 at 04:35:23PM -0700, Tim Moore wrote:
+> > Petri Kaukasoina wrote:
+> > > 
+> > > 2.2.20pre3 boots ok but pre5-pre9 do not:
+> > > 
+> > > Uncompressing Linux...
+> > > 
+> > > Out of memory
+> > > 
+> > >   -- System halted
+> > > 
+> 
+> > make bzimage?
+> 
+> Yes, both zImage and bzImage gave the same error. (I should have mentioned
+> that, sorry.)
 
-> I think that it's a good feature for linux, but I don't know if
-> is very complex to develope in linux. If I can limit the max cpu
-> usage (in %) for an user/group, the box is more solid.
+I was wrong. I must have made a mistake when I tried bzImage because now it
+works.
 
-Conectiva has been shipping a patch to limit CPU usage
-on a per-user basis in their 2.2 kernel RPM for quite
-a while now.
+Up to 2.2.20pre3 zImage works ok. After that it doesn't work any longer, but
+bzImage does.
 
-Unfortunately I ran into problems with ksoftirqd while
-porting the patch to 2.4 and have been tied up in the
-memory management and other projects since.
+For example this is a 2.2.19 zImage
 
-Oh, the patch also doesn't have any effect on the scheduler
-fast-path. Only the recalculation is changed...
+-rw-r--r--    1 root     root       476269 Aug 11 23:32 vmlinuz-2.2.19
 
-regards,
+which reports its size like this
 
-Rik
---
-IA64: a worthy successor to the i860.
+Memory: 47136k/49152k available (832k kernel code, 412k reserved, 728k data, 44k init)
 
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
+A 2.2.20pre9 built from the same .config doesn't boot from a zImage (tells
+Out of memory) but boots up ok from a bzImage. Its size is the same as above:
 
+Memory: 47136k/49152k available (832k kernel code, 412k reserved, 728k data, 44k init)
+
+When I leave almost everything out of .config, I get this minimal kernel:
+
+-rw-r--r--    1 kaukasoi users      261818 Aug 17 20:01 zImage
+
+which reports this
+
+Memory: 47612k/49152k available (428k kernel code, 412k reserved, 668k data, 32k init)
+
+Even then zImage tells 'Out of memory' but bzImage boots up ok. So it seems
+that zImages don't work any longer.

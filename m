@@ -1,35 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130346AbRAJUz1>; Wed, 10 Jan 2001 15:55:27 -0500
+	id <S129933AbRAJU5h>; Wed, 10 Jan 2001 15:57:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131105AbRAJUzS>; Wed, 10 Jan 2001 15:55:18 -0500
-Received: from jalon.able.es ([212.97.163.2]:49352 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S130346AbRAJUzP>;
-	Wed, 10 Jan 2001 15:55:15 -0500
-Date: Wed, 10 Jan 2001 21:55:05 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: 2.4 patch branch
-Message-ID: <20010110215505.A864@werewolf.able.es>
+	id <S135763AbRAJU5S>; Wed, 10 Jan 2001 15:57:18 -0500
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:3161
+	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
+	id <S129933AbRAJU5K>; Wed, 10 Jan 2001 15:57:10 -0500
+Date: Wed, 10 Jan 2001 21:57:01 +0100
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: linux-kernel@vger.kernel.org
+Subject: [uPATCH] Nulling mmap_cache iff needed (2.4.0)
+Message-ID: <20010110215701.D971@jaquet.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.0.1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everyone.
+Hi.
 
-What is the relationship betwwen 2.4.1-pre1 and Alan's ac5 ?
-As I see dates over ftp, ac5 is newer than pre1 (and bigger...)
-Is the next step a pre1-ac1 ?
+The following (trivial) patch against 2.4.0 (but should apply cleanly
+against 241p1) makes do_munmap only null our precious cache if the
+pointer contained therein is invalidated by the unmapping. I doubt it
+will make any measurable difference but it seems straightforward
+enough to be done anyway.
+
+Running kernel compiles and starting X/gnome with this patch raises my 
+cache hit rate a couple of percentage points, and I have a feeling that
+there might be work loads out there that hit this kernel path more often
+that these.
+
+Comments?
+
+
+diff -aur linux-2.4.0-clean/mm/mmap.c linux/mm/mmap.c
+--- linux-2.4.0-clean/mm/mmap.c	Sat Dec 30 18:35:19 2000
++++ linux/mm/mmap.c	Tue Jan  9 23:30:03 2001
+@@ -712,7 +712,10 @@
+ 		if (mm->mmap_avl)
+ 			avl_remove(mpnt, &mm->mmap_avl);
+ 	}
+-	mm->mmap_cache = NULL;	/* Kill the cache. */
++	if (mm->mmap_cache && mm->mmap_cache->vm_start < addr+len 
++	    && mm->mmap_cache->vm_end > addr)
++		mm->mmap_cache = NULL;	/* Kill the cache. */
++
+ 	spin_unlock(&mm->page_table_lock);
+ 
+ 	/* Ok - we have the memory areas we should free on the 'free' list,
+
 
 -- 
-J.A. Magallon                                                      $> cd pub
-mailto:jamagallon@able.es                                          $> more beer
+Regards,
+        Rasmus(rasmus@jaquet.dk)
 
-Linux werewolf 2.4.0-ac4 #1 SMP Mon Jan 8 22:10:06 CET 2001 i686
-
+"It's like an Alcatraz around my neck."
+-Boston mayor Menino on the shortage of city parking spaces
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

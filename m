@@ -1,29 +1,29 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262550AbVAUWyX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262552AbVAUWzY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262550AbVAUWyX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 17:54:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262561AbVAUWyX
+	id S262552AbVAUWzY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 17:55:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262561AbVAUWzY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 17:54:23 -0500
-Received: from fmr18.intel.com ([134.134.136.17]:8341 "EHLO
+	Fri, 21 Jan 2005 17:55:24 -0500
+Received: from fmr18.intel.com ([134.134.136.17]:63125 "EHLO
 	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S262550AbVAUWwa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 17:52:30 -0500
-Date: Fri, 21 Jan 2005 14:52:29 -0800
+	id S262552AbVAUWzK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jan 2005 17:55:10 -0500
+Date: Fri, 21 Jan 2005 14:55:09 -0800
 From: Mitch Williams <mitch.a.williams@intel.com>
 X-X-Sender: mawilli1@mawilli1-desk2.amr.corp.intel.com
 To: linux-kernel@vger.kernel.org
 cc: greg@kroah.com
-Subject: [PATCH 2/3] buffer writes to sysfs
-Message-ID: <Pine.CYG.4.58.0501211449410.3364@mawilli1-desk2.amr.corp.intel.com>
+Subject: [PATCH 3/3] change sematics of read flag
+Message-ID: <Pine.CYG.4.58.0501211452420.3364@mawilli1-desk2.amr.corp.intel.com>
 ReplyTo: "Mitch Williams" <mitch.a.williams@intel.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch buffers writes to sysfs files and flushes them to the kobject
-owner when the file is closed.
+This patch reverses the semantics of the read fill flag, getting rid of an
+extra assignment at allocation time.
 
 Generated from 2.6.11-rc1.
 
@@ -32,112 +32,38 @@ Signed-off-by:  Mitch Williams <mitch.a.williams@intel.com>
 diff -uprN -X dontdiff linux-2.6.11-clean/fs/sysfs/file.c linux-2.6.11/fs/sysfs/file.c
 --- linux-2.6.11-clean/fs/sysfs/file.c	2004-12-24 13:33:50.000000000 -0800
 +++ linux-2.6.11/fs/sysfs/file.c	2005-01-21 13:09:21.000000000 -0800
-@@ -62,6 +62,7 @@ struct sysfs_buffer {
+@@ -61,7 +61,7 @@ struct sysfs_buffer {
+ 	char			* page;
  	struct sysfs_ops	* ops;
  	struct semaphore	sem;
- 	int			read_filled;
-+	int			needs_write_flush;
+-	int			needs_read_fill;
++	int			read_filled;
  };
 
 
-@@ -178,7 +178,8 @@ out:
-  */
-
- static int
--fill_write_buffer(struct sysfs_buffer * buffer, const char __user * buf, size_t count)
-+fill_write_buffer(struct sysfs_buffer *buffer, const char __user * buf,
-+		  size_t count, size_t pos)
- {
- 	int error;
-
-@@ -187,10 +189,11 @@ fill_write_buffer(struct sysfs_buffer *
- 	if (!buffer->page)
+@@ -89,7 +89,7 @@ static int fill_read_buffer(struct dentr
  		return -ENOMEM;
 
--	if (count >= PAGE_SIZE)
--		count = PAGE_SIZE - 1;
-+	if (count + pos > PAGE_SIZE)
-+		count = (PAGE_SIZE - 1) - pos;
- 	error = copy_from_user(buffer->page,buf,count);
--	buffer->needs_read_fill = 1;
-+	buffer->needs_write_flush = 1;
-+        buffer->count = pos + count;
- 	return error ? -EFAULT : count;
- }
+ 	count = ops->show(kobj,attr,buffer->page);
+-	buffer->needs_read_fill = 0;
++	buffer->read_filled = 1;
+ 	BUG_ON(count > (ssize_t)PAGE_SIZE);
+ 	if (count >= 0)
+ 		buffer->count = count;
+@@ -154,7 +154,7 @@ sysfs_read_file(struct file *file, char
+ 	ssize_t retval = 0;
 
-@@ -206,13 +209,13 @@ fill_write_buffer(struct sysfs_buffer *
-  */
-
- static int
--flush_write_buffer(struct dentry * dentry, struct sysfs_buffer * buffer, size_t count)
-+flush_write_buffer(struct dentry * dentry, struct sysfs_buffer * buffer)
- {
- 	struct attribute * attr = to_attr(dentry);
- 	struct kobject * kobj = to_kobj(dentry->d_parent);
- 	struct sysfs_ops * ops = buffer->ops;
-
--	return ops->store(kobj,attr,buffer->page,count);
-+	return ops->store(kobj,attr, buffer->page, buffer->count);
- }
-
-
-@@ -225,12 +228,9 @@ flush_write_buffer(struct dentry * dentr
-  *
-  *	Similar to sysfs_read_file(), though working in the opposite direction.
-  *	We allocate and fill the data from the user in fill_write_buffer(),
-- *	then push it to the kobject in flush_write_buffer().
-- *	There is no easy way for us to know if userspace is only doing a partial
-- *	write, so we don't support them. We expect the entire buffer to come
-- *	on the first write.
-- *	Hint: if you're writing a value, first read the file, modify only the
-- *	the value you're changing, then write entire buffer back.
-+ *	but don't push it to the kobject until the file is closed.
-+ *      This allows for buffered writes, but unfortunately also hides error
-+ *      codes returned individual store functions until close time.
-  */
-
- static ssize_t
-@@ -238,10 +238,10 @@ sysfs_write_file(struct file *file, cons
- {
- 	struct sysfs_buffer * buffer = file->private_data;
-
-+	if (*ppos >= PAGE_SIZE)
-+		return -ENOSPC;
  	down(&buffer->sem);
--	count = fill_write_buffer(buffer,buf,count);
--	if (count > 0)
--		count = flush_write_buffer(file->f_dentry,buffer,count);
-+	count = fill_write_buffer(buffer, buf, count, *ppos);
- 	if (count > 0)
- 		*ppos += count;
- 	up(&buffer->sem);
-@@ -337,6 +337,17 @@ static int sysfs_release(struct inode *
- 	struct attribute * attr = to_attr(filp->f_dentry);
- 	struct module * owner = attr->owner;
- 	struct sysfs_buffer * buffer = filp->private_data;
-+        int ret;
-+
-+	/* If data has been written to the file, then flush it
-+	 * back to the kobject's store function here.
-+	 */
-+	if (buffer && kobj) {
-+		down(&buffer->sem);
-+		if (buffer->needs_write_flush)
-+			ret = flush_write_buffer(filp->f_dentry, buffer);
-+		up(&buffer->sem);
-+	}
-
- 	if (kobj)
- 		kobject_put(kobj);
-@@ -348,7 +352,10 @@ static int sysfs_release(struct inode *
- 			free_page((unsigned long)buffer->page);
- 		kfree(buffer);
+-	if (buffer->needs_read_fill) {
++	if (!buffer->read_filled) {
+ 		if ((retval = fill_read_buffer(file->f_dentry,buffer)))
+ 			goto out;
  	}
--	return 0;
-+	/* If flush_write_buffer returned an error, pass it up.
-+	 * Otherwise, return success.
-+	 */
-+	return (ret < 0 ? ret : 0);
- }
-
- struct file_operations sysfs_file_operations = {
+@@ -308,7 +307,6 @@ static int check_perm(struct inode * ino
+ 	if (buffer) {
+ 		memset(buffer,0,sizeof(struct sysfs_buffer));
+ 		init_MUTEX(&buffer->sem);
+-		buffer->needs_read_fill = 1;
+ 		buffer->ops = ops;
+ 		file->private_data = buffer;
+ 	} else

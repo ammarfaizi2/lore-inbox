@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263851AbUC3TKH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 14:10:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263853AbUC3TKH
+	id S263835AbUC3TMb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 14:12:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263833AbUC3TMb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 14:10:07 -0500
-Received: from fed1mtao05.cox.net ([68.6.19.126]:35582 "EHLO
-	fed1mtao05.cox.net") by vger.kernel.org with ESMTP id S263851AbUC3TKA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 14:10:00 -0500
-Date: Tue, 30 Mar 2004 12:09:59 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Sven Hartge <hartge@ds9.gnuu.de>
-Cc: Meelis Roos <mroos@linux.ee>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5-pre* does not boot on my PReP PPC
-Message-ID: <20040330190958.GA13819@smtp.west.cox.net>
-References: <Pine.GSO.4.44.0403262029010.2460-100000@math.ut.ee> <20040326185103.GB20819@smtp.west.cox.net> <E1B7EHF-0004Jm-DY@ds9.argh.org> <20040329151515.GD2895@smtp.west.cox.net> <c4cf82nnq0@ds9.argh.org>
+	Tue, 30 Mar 2004 14:12:31 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:23229
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S263846AbUC3TMU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 14:12:20 -0500
+Date: Tue, 30 Mar 2004 21:12:18 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: mapped pages being truncated [was Re: 2.6.5-rc2-aa5]
+Message-ID: <20040330191218.GE3808@dualathlon.random>
+References: <20040330190102.GD3808@dualathlon.random> <Pine.LNX.4.44.0403302002090.23584-100000@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <c4cf82nnq0@ds9.argh.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <Pine.LNX.4.44.0403302002090.23584-100000@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 30, 2004 at 08:49:15PM +0200, Sven Hartge wrote:
-
-> Um 08:15 Uhr am 29.03.04 schrieb Tom Rini:
+On Tue, Mar 30, 2004 at 08:06:42PM +0100, Hugh Dickins wrote:
+> On Tue, 30 Mar 2004, Andrea Arcangeli wrote:
+> > On Tue, Mar 30, 2004 at 07:48:42PM +0100, Hugh Dickins wrote:
+> > > 
+> > > Do you have enough evidence that it's the very same bug?
+> > 
+> > yes, see the two stack traces, they trigger in the same place and it's
+> > the very same workload. Andrew just noticed that xfs indeed calls
+> > truncate_inode_pages before vmtruncate. It will trigger with your
+> > patches too.
 > 
-> > Ok.  Can both of you try the following patch on top of the version which
-> > fails?
+> Yes, Andrew has got it (and I agree XFS is wrong to be doing that).
+
+indeed.
+
+> > Ok I see what you mean, this should fix it, agreed?
 > 
-> 2.6.4 and earlier are unpatchable, because they differ to much from 2.6.5.
-> Someone with a better connection than a tiny ISDN line should check the
-> ppc32-changes between 2.6.2-rc2 and 2.6.4, because 2.6.2-rc2 was the last
-> kernel I tried before 2.6.4 and 2.6.2-rc2 did at least boot.
+> Yes, that's exactly the fix (for when COWing a reserved page).
 
-I know what the failure is due to, in general terms.  It's merging
-arch/ppc/boot/prep/ into arch/ppc/boot/simple/ .  What I'm not so sure
-about are the specific breakage, but I know it has to do with the
-OpenFirmware code as it does work (or rather, it did when I submitted
-it, and I'm going to verify that 2.6.5-rc3 stock does today) on my
-Motorola PowerStack Series E (PPC1Bug, not OpenFirmware).
-
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+thanks, great spotting!

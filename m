@@ -1,1281 +1,177 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261409AbSKXPxG>; Sun, 24 Nov 2002 10:53:06 -0500
+	id <S261446AbSKXQVo>; Sun, 24 Nov 2002 11:21:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261416AbSKXPxG>; Sun, 24 Nov 2002 10:53:06 -0500
-Received: from pasky.ji.cz ([62.44.12.54]:65273 "HELO machine.sinus.cz")
-	by vger.kernel.org with SMTP id <S261409AbSKXPwu>;
-	Sun, 24 Nov 2002 10:52:50 -0500
-Date: Sun, 24 Nov 2002 16:59:49 +0100
-From: Petr Baudis <pasky@ucw.cz>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org, "Randy.Dunlap" <randy.dunlap@verizon.net>
-Subject: [PATCH] Updated Documentation/kernel-parameters.txt (v4)
-Message-ID: <20021124155949.GD25628@pasky.ji.cz>
-Mail-Followup-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-	"Randy.Dunlap" <randy.dunlap@verizon.net>
+	id <S261448AbSKXQVo>; Sun, 24 Nov 2002 11:21:44 -0500
+Received: from [195.223.140.107] ([195.223.140.107]:56479 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S261446AbSKXQVm>;
+	Sun, 24 Nov 2002 11:21:42 -0500
+Date: Sun, 24 Nov 2002 17:28:45 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Con Kolivas <conman@kolivas.net>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [BENCHMARK] 2.4.20-rc2-aa1 with contest
+Message-ID: <20021124162845.GC12212@dualathlon.random>
+References: <200211230929.31413.conman@kolivas.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <200211230929.31413.conman@kolivas.net>
 User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hello,
+On Sat, Nov 23, 2002 at 09:29:22AM +1100, Con Kolivas wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> Here is a partial run of contest (http://contest.kolivas.net) benchmarks for 
+> rc2aa1 with the disk latency hack
+> 
+> noload:
+> Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+> 2.4.18 [5]              71.7    93      0       0       0.98
+> 2.4.19 [5]              69.0    97      0       0       0.94
+> 2.4.20-rc1 [3]          72.2    93      0       0       0.99
+> 2.4.20-rc1aa1 [1]       71.9    94      0       0       0.98
+> 2420rc2aa1 [1]          71.1    94      0       0       0.97
+> 
+> cacherun:
+> Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+> 2.4.18 [2]              66.6    99      0       0       0.91
+> 2.4.19 [2]              68.0    99      0       0       0.93
+> 2.4.20-rc1 [3]          67.2    99      0       0       0.92
+> 2.4.20-rc1aa1 [1]       67.4    99      0       0       0.92
+> 2420rc2aa1 [1]          66.6    99      0       0       0.91
+> 
+> process_load:
+> Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+> 2.4.18 [3]              109.5   57      119     44      1.50
+> 2.4.19 [3]              106.5   59      112     43      1.45
+> 2.4.20-rc1 [3]          110.7   58      119     43      1.51
+> 2.4.20-rc1aa1 [3]       110.5   58      117     43      1.51*
+> 2420rc2aa1 [1]          212.5   31      412     69      2.90*
+> 
+> This load just copies data between 4 processes repeatedly. Seems to take 
+> longer.
 
-  this patch (against 2.5.49) updates Documentation/kernel-parameters.txt to
-the current state of kernel. It was somehow abadonded lately, so I did my best,
-but it's possible that I still missed some of the options - thus, if you will
-notice your favourite boot option missing there, please speak up. Note also
-that I will probably send up another update after few further kernel releases..
+you go into linux/include/blkdev.h and increase MAX_QUEUE_SECTORS to (2
+<< (20 - 9)) and see if it makes any differences here? if it doesn't
+make differences it could be the a bit increased readhaead but I doubt
+it's the latter.
 
-  Also, I attempted to introduce some uniform format to the entries, I added
-the format description where I was able to find it out and decypher it, and I
-also added gross amount of external links to the headers of the source files or
-to the README-like files, where the options are described into more degree.
-This way, hopefully this file has a chance to be actually usable for the users
-;-).
+> ctar_load:
+> Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+> 2.4.18 [3]              117.4   63      1       7       1.60
+> 2.4.19 [2]              106.5   70      1       8       1.45
+> 2.4.20-rc1 [3]          102.1   72      1       7       1.39
+> 2.4.20-rc1aa1 [3]       107.1   69      1       7       1.46
+> 2420rc2aa1 [1]          103.3   73      1       8       1.41
+> 
+> xtar_load:
+> Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+> 2.4.18 [3]              150.8   49      2       8       2.06
+> 2.4.19 [1]              132.4   55      2       9       1.81
+> 2.4.20-rc1 [3]          180.7   40      3       8       2.47
+> 2.4.20-rc1aa1 [3]       166.6   44      2       7       2.28*
+> 2420rc2aa1 [1]          217.7   34      4       9       2.97*
+> 
+> Takes longer. Is only one run though so may not be an accurate average.
 
-  There are almost certainly some entries which I missed, it was really a huge
-number and the main reason is that some of the boot options don't use the
-__setup macro, which I grep'd for.
+This most probably is a too small waitqueue. Of course increasing the
+waitqueue will increase a bit the latency too for the other workloads,
+it's a tradeoff and there's no way around it. Even read-latency has the
+tradeoff when it chooses the "nth" place to be the seventh slot, where
+to put the read request if it fails inserction.
 
-  I hope the patch is ok, there should be no problems with it. Please apply.
+> 
+> 
+> io_load:
+> Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+> 2.4.18 [3]              474.1   15      36      10      6.48
+> 2.4.19 [3]              492.6   14      38      10      6.73
+> 2.4.20-rc1 [2]          1142.2  6       90      10      15.60
+> 2.4.20-rc1aa1 [1]       1132.5  6       90      10      15.47
+> 2420rc2aa1 [1]          164.3   44      10      9       2.24
+> 
+> This was where the effect of the disk latency hack was expected to have an 
+> effect. It sure did.
 
- Documentation/kernel-parameters.txt |  839 +++++++++++++++++++++++++++---------
- 1 files changed, 649 insertions(+), 190 deletions(-)
+yes, I certainly can feel the machine much more responsive during the
+write load too. Too bad some benchmark like dbench decreased
+significantly but I don't see too many ways around it. At least now with
+those changes the contigous write case is unaffected, my storage  test
+box still reads and writes at over 100mbyte/sec for example, this
+clearly means what matters is that we have 512k dma commands, not an
+huge size of the queue. Really with a loaded machine and potential
+scheduling delays it could matter more to have a larger queue, that
+maybe why the performance is decreased for some workload here too, not
+only because of a less effective elevator. So probably 2Mbyte of queue
+is a much better idea, so at least we can have a ring with 4 elements to refill
+after a completion wakeup, I wanted to be strict to see the "lowlatency" effect
+at most in the first place. We could also consider to use a /4 instead of my
+current /2 for the batch_sectors initialization.
 
-  Note that this is the fifth submission of the patch. In this version, I
-merged some changes from older patch by Randy Dunlap, I also fixed some SCSI
-options (as pointed out by J.E.J. Bottomley) and extended the mem= parameter
-description (hinted by GertJan Spoelman).
+BTW, at first glance it looks 2.5 has the same problem in the queue
+sizing too.
 
-  Kind regards,
-				Petr Baudis
+> read_load:
+> Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+> 2.4.18 [3]              102.3   70      6       3       1.40
+> 2.4.19 [2]              134.1   54      14      5       1.83
+> 2.4.20-rc1 [3]          173.2   43      20      5       2.37
+> 2.4.20-rc1aa1 [3]       150.6   51      16      5       2.06
+> 2420rc2aa1 [1]          140.5   51      13      4       1.92
+> 
+> list_load:
+> Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+> 2.4.18 [3]              90.2    76      1       17      1.23
+> 2.4.19 [1]              89.8    77      1       20      1.23
+> 2.4.20-rc1 [3]          88.8    77      0       12      1.21
+> 2.4.20-rc1aa1 [1]       88.1    78      1       16      1.20
+> 2420rc2aa1 [1]          99.7    69      1       19      1.36
+> 
+> mem_load:
+> Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+> 2.4.18 [3]              103.3   70      32      3       1.41
+> 2.4.19 [3]              100.0   72      33      3       1.37
+> 2.4.20-rc1 [3]          105.9   69      32      2       1.45
+> 
+> Mem load hung the machine. I could not get rc2aa1 through this part of the 
+> benchmark no matter how many times I tried to run it. No idea what was going 
+> on. Easy to reproduce. Simply run the mem_load out of contest (which runs 
+> until it is killed) and the machine will hang. 
 
---- linux/Documentation/kernel-parameters.txt	Mon Nov 18 11:27:48 2002
-+++ linux+pasky/Documentation/kernel-parameters.txt	Sun Nov 24 16:47:03 2002
-@@ -1,21 +1,22 @@
--July 2000		  Kernel Parameters			v2.4.0
--			  ~~~~~~~~~~~~~~~~~
-+November 2002             Kernel Parameters                     v2.5.49
-+                          ~~~~~~~~~~~~~~~~~
- 
- The following is a consolidated list of the kernel parameters as implemented
--by the __setup() macro and sorted into English Dictionary order (defined      
--as ignoring all punctuation and sorting digits before letters in a case
--insensitive manner), and with descriptions where known.
-+(mostly) by the __setup() macro and sorted into English Dictionary order
-+(defined as ignoring all punctuation and sorting digits before letters in a
-+case insensitive manner), and with descriptions where known.
- 
- The text in square brackets at the beginning of the description state the
- restrictions on the kernel for the said kernel parameter to be valid. The
- restrictions referred to are that the relevant option is valid if:
- 
--	ACPI    ACPI support is enabled.
-+	ACPI	ACPI support is enabled.
-+	ALSA	ALSA sound support is enabled.
- 	APIC	APIC support is enabled.
--	APM 	Advanced Power Management support is enabled.
-+	APM	Advanced Power Management support is enabled.
- 	AX25	Appropriate AX.25 support is enabled.
- 	CD	Appropriate CD support is enabled.
--	DEVFS   devfs support is enabled. 
-+	DEVFS	devfs support is enabled. 
- 	DRM	Direct Rendering Management support is enabled. 
- 	EFI	EFI Partitioning (GPT) is enabled
- 	EIDE	EIDE/ATAPI support is enabled.
-@@ -24,38 +25,47 @@
- 	IA-32	IA-32 aka i386 architecture is enabled.
- 	IA-64	IA-64 architecture is enabled.
- 	IP_PNP	IP DCHP, BOOTP, or RARP is enabled.
--	ISAPNP  ISA PnP code is enabled.
-+	ISAPNP	ISA PnP code is enabled.
- 	ISDN	Appropriate ISDN support is enabled.
--	JOY 	Appropriate joystick support is enabled.
-+	JOY	Appropriate joystick support is enabled.
- 	LP	Printer support is enabled.
- 	LOOP	Loopback device support is enabled.
--	M68k	M68k architecture is enabled. 
--	MCA 	MCA bus support is enabled.
--	MDA 	MDA console support is enabled.
-+	M68k	M68k architecture is enabled.
-+			These options have more detailed description inside of
-+			Documentation/m68k/kernel-options.txt.
-+	MCA	MCA bus support is enabled.
-+	MDA	MDA console support is enabled.
- 	MOUSE	Appropriate mouse support is enabled.
--	NET 	Appropriate network support is enabled.
--	NFS 	Appropriate NFS support is enabled.
-+	MTD	MTD support is nebaled.
-+	NET	Appropriate network support is enabled.
-+	NFS	Appropriate NFS support is enabled.
-+	OSS	OSS sound support is enabled.
- 	PARIDE	The ParIDE subsystem is enabled.
--	PCI 	PCI bus support is enabled.
-+	PCI	PCI bus support is enabled.
- 	PCMCIA	The PCMCIA subsystem is enabled.
--	PNP 	Plug & Play support is enabled.
-+	PNP	Plug & Play support is enabled.
-+	PPC	PowerPC architecture is enabled.
- 	PPT	Parallel port support is enabled.
--	PS2 	Appropriate PS/2 support is enabled.
--	RAM 	RAM disk support is enabled.
-+	PS2	Appropriate PS/2 support is enabled.
-+	RAM	RAM disk support is enabled.
-+	S390	S390 architecture is enabled.
- 	SCSI	Appropriate SCSI support is enabled.
-+			A lot of drivers has their options described inside of
-+			Documentation/scsi/.
- 	SERIAL	Serial support is enabled.
--	SMP 	The kernel is an SMP kernel.
--	SOUND	Appropriate sound system support is enabled.
--	SWSUSP  Software suspension is enabled.
-+	SMP	The kernel is an SMP kernel.
-+	SPARC	Sparc architecture is enabled.
-+	SWSUSP	Software suspension is enabled.
-+	USB	USB support is enabled.
- 	V4L	Video For Linux support is enabled.
--	VGA 	The VGA console has been enabled.
-+	VGA	The VGA console has been enabled.
- 	VT	Virtual terminal support is enabled.
- 	XT	IBM PC/XT MFM hard disk support is enabled.
- 
- In addition, the following text indicates that the option:
- 
- 	BUGS=	Relates to possible processor bugs on the said processor.
--	KNL 	Is a kernel start-up parameter.
-+	KNL	Is a kernel start-up parameter.
- 	BOOT	Is a boot loader parameter.
- 
- Parameters denoted with BOOT are actually interpreted by the boot
-@@ -67,66 +77,113 @@
- it will appear as a kernel argument readable via /proc/cmdline by programs
- running once the system is up.
- 
--	53c7xx=		[HW,SCSI] Amiga SCSI controllers.
-+	53c7xx=		[HW,SCSI] Amiga SCSI controllers
-+			See header of drivers/scsi/53c7xx.c.
-+			See also Documentation/scsi/ncr53c7xx.txt.
- 
- 	acpi=		[HW,ACPI] Advanced Configuration and Power Interface 
-+			Format: off[,<...>]
-+			See also Documentation/pm.txt.
-  
--	ad1816=		[HW,SOUND]
-+	ad1816=		[HW,OSS]
-+			Format: <io>,<irq>,<dma>,<dma2>
-+			See also Documentation/sound/oss/AD1816.
- 
--	ad1848=		[HW,SOUND]
-- 
--	adb_buttons=	[HW,MOUSE]
-+	ad1848=		[HW,OSS]
-+			Format: <io>,<irq>,<dma>,<dma2>,<type>
- 
--	adlib=		[HW,SOUND]
-+	adlib=		[HW,OSS]
-+			Format: <io>
-  
- 	advansys=	[HW,SCSI]
-+			See header of drivers/scsi/advansys.c.
- 
--	aedsp16=	[HW,SOUND]
-+	aedsp16=	[HW,OSS] Audio Excel DSP 16
-+			Format: <io>,<irq>,<dma>,<mss_io>,<mpu_io>,<mpu_irq>
-+			See also header of sound/oss/aedsp16.c.
-  
- 	aha152x=	[HW,SCSI]
-+			See Documentation/scsi/aha152x.txt.
- 
- 	aha1542=	[HW,SCSI]
-+			Format: <portbase>[,<buson>,<busoff>[,<dmaspeed>]]
- 
- 	aic7xxx=	[HW,SCSI]
-+			See Documentation/scsi/aic7xxx.txt.
-+
-+	allowdma0	[ISAPNP]
- 
- 	AM53C974=	[HW,SCSI]
-+			Format: <host-scsi-id>,<target-scsi-id>,<max-rate>,<max-offset>
-+			See also header of drivers/scsi/AM53C974.c.
- 
- 	amijoy=		[HW,JOY] Amiga joystick support 
-+
-+	apc=		[HW,SPARC] Power management functions (SPARCstation-4/5 + deriv.)
-+			Format: noidle
-+			Disable APC CPU standby support. SPARCstation-Fox does
-+			not play well with APC CPU idle - disable it if you have
-+			APC and your system crashes randomly.
-  
--	apm=		[APM] Advanced Power Management.
-+	apm=		[APM] Advanced Power Management
-+			See header of arch/i386/kernel/apm.c.
- 
- 	applicom=	[HW]
-+			Format: <mem>,<irq>
-  
--	arcrimi=	[HW,NET]
-+	arcrimi=	[HW,NET] ARCnet - "RIM I" (entirely mem-mapped) cards
-+			Format: <io>,<irq>,<nodeID>
- 
- 	ataflop=	[HW,M68k]
- 
--	atarimouse=	[HW,MOUSE] Atari Mouse.
-+	atarimouse=	[HW,MOUSE] Atari Mouse
- 
--	atascsi=	[HW,SCSI] Atari SCSI.
-+	atascsi=	[HW,SCSI] Atari SCSI
- 
--	awe=            [HW,SOUND]
-- 
--	aztcd=		[HW,CD] Aztec CD driver.
-+	atkbd_set=	[HW] Select keyboard code set
-+			Format: <int>
- 
--	baycom_epp=	[HW,AX25]
-- 
--	baycom_par= 	[HW,AX25] BayCom Parallel Port AX.25 Modem.
--
--	baycom_ser_fdx=	[HW,AX25] BayCom Serial Port AX.25 Modem in Full
--			Duplex Mode.
-+	atkbd_reset	[HW] Reset keyboard during initialization
- 
--	baycom_ser_hdx=	[HW,AX25] BayCom Serial Port AX.25 Modem in Half
--			Duplex Mode.
-+	autotest	[IA64]
- 
--	bmouse=		[HW,MOUSE,PS2] Bus mouse.
-+	awe=		[HW,OSS] AWE32/SB32/AWE64 wave table synth
-+			Format: <io>,<memsize>,<isapnp>
-+ 
-+	aztcd=		[HW,CD] Aztech CD268 CDROM driver
-+			Format: <io>,0x79 (?)
- 
--	bttv.card=	[HW,V4L] bttv (bt848 + bt878 based grabber cards), most
--	bttv.radio=	important insmod options are available as kernel args too.
--	bttv.pll=	see Documentation/video4linux/bttv/Insmod-options
-+	baycom_epp=	[HW,AX25]
-+			Format: <io>,<mode>
-+ 
-+	baycom_par=	[HW,AX25] BayCom Parallel Port AX.25 Modem
-+			Format: <io>,<mode>
-+			See header of drivers/net/hamradio/baycom_par.c.
-+
-+	baycom_ser_fdx=	[HW,AX25] BayCom Serial Port AX.25 Modem (Full Duplex Mode)
-+			Format: <io>,<irq>,<mode>[,<baud>]
-+			See header of drivers/net/hamradio/baycom_ser_fdx.c.
-+
-+	baycom_ser_hdx=	[HW,AX25] BayCom Serial Port AX.25 Modem (Half Duplex Mode)
-+			Format: <io>,<irq>,<mode>
-+			See header of drivers/net/hamradio/baycom_ser_hdx.c.
-+
-+	blkmtd_device=	[HW,MTD]
-+	blkmtd_erasesz=
-+	blkmtd_ro=
-+	blkmtd_bs=
-+	blkmtd_count=
-+
-+	bttv.card=	[HW,V4L] bttv (bt848 + bt878 based grabber cards)
-+	bttv.radio=	Most important insmod options are available as kernel args too.
-+	bttv.pll=	See Documentation/video4linux/bttv/Insmod-options
- 	bttv.tuner=	and Documentation/video4linux/bttv/CARDLIST
- 
- 	BusLogic=	[HW,SCSI]
-+			See drivers/scsi/BusLogic.c, comment before function
-+			BusLogic_ParseDriverOptions().
-+
-+	c101=		[NET] Moxa C101 synchronous serial card
- 
- 	cachesize=	[BUGS=IA-32] Override level 2 CPU cache size detection.
- 			Sometimes CPU hardware bugs make them report the cache
-@@ -136,54 +193,87 @@
- 			This option provides an override for these situations.
- 
- 	cdu31a=		[HW,CD]
-+			Format: <io>,<irq>[,PAS]
-+			See header of drivers/cdrom/cdu31a.c.
- 
--	chandev=	[HW,NET] 
-+	chandev=	[HW,NET] Generic channel device initialisation
-  
- 	cm206=		[HW,CD]
-+			Format: { auto | [<io>,][<irq>] }
- 
--	com20020=	[HW,NET]
-+	com20020=	[HW,NET] ARCnet - COM20020 chipset
-+			Format: <io>[,<irq>[,<nodeID>[,<backplane>[,<ckp>[,<timeout>]]]]]
- 
--	com90io=	[HW,NET]
-+	com90io=	[HW,NET] ARCnet - COM90xx chipset (IO-mapped buffers)
-+			Format: <io>[,<irq>]
- 
--	com90xx=	[HW,NET]
-+	com90xx=	[HW,NET] ARCnet - COM90xx chipset (memory-mapped buffers)
-+			Format: <io>[,<irq>[,<memstart>]]
- 
--	condev=		[HW]
-+	condev=		[HW,S390] console device
-+	conmode=
-  
--	console=	[KNL] output console + comm spec (speed, control,
--			parity).
-+	console=	[KNL] Output console
-+			Console device and comm spec (speed, control, parity).
-+
-+	cpcihp_generic=	[HW,PCI] Generic port I/O CompactPCI driver
-+			Format: <first_slot>,<last_slot>,<port>,<enum_bit>[,<debug>]
- 
- 	cpia_pp=	[HW,PPT]
-+			Format: { parport<nr> | auto | none }
- 
--	cs4232=		[HW,SOUND]
-+	cs4232=		[HW,OSS]
-+			Format: <io>,<irq>,<dma>,<dma2>,<mpuio>,<mpuirq>
- 
- 	cs89x0_dma=	[HW,NET]
-+			Format: <dma>
-+
-+	cs89x0_media=	[HW,NET]
-+			Format: { rj45 | aui | bnc }
- 
- 	ctc=		[HW,NET]
-+			See drivers/s390/net/ctcmain.c, comment before function
-+			ctc_setup().
-  
- 	cyclades=	[HW,SERIAL] Cyclades multi-serial port adapter.
-  
- 	dasd=		[HW,NET]    
-+			See header of drivers/s390/block/dasd_devmap.c.
- 
--	db9=		[HW,JOY]
--
--	db9_2=		[HW,JOY]
-+	dasd_discipline=
-+			[HW,NET]
-+			See header of drivers/s390/block/dasd.c.
- 
--	db9_3=		[HW,JOY]
-+	db9=		[HW,JOY]
-+	db9_2=
-+	db9_3=
-  
- 	debug		[KNL] Enable kernel debugging (events log level).
- 
- 	decnet=		[HW,NET]
-+			Format: <area>[,<node>]
-+			See also Documentation/networking/decnet.txt.
-+
-+	decr_overclock= [PPC]
-+	decr_overclock_proc0=
- 
--	devfs=          [DEVFS]
-+	devfs=		[DEVFS]
-+			See Documentation/filesystems/devfs/boot-options.
-  
--	digi=		[HW,SERIAL] io parameters + enable/disable command.
-+	digi=		[HW,SERIAL]
-+			IO parameters + enable/disable command.
- 
- 	digiepca=	[HW,SERIAL]
-+			See drivers/char/README.epca and
-+			Documentation/digiepca.txt.
- 
- 	dmascc=		[HW,AX25,SERIAL] AX.25 Z80SCC driver with DMA
- 			support available.
-+			Format: <io_dev0>[,<io_dev1>[,..<io_dev32>]]
- 
--	dmasound=	[HW,SOUND] (sound subsystem buffers).
-+	dmasound=	[HW,OSS] Sound subsystem buffers
-+
-+	dscc4.setup=	[NET]
- 
- 	dtc3181e=	[HW,SCSI]
- 
-@@ -194,101 +284,155 @@
- 	edb=		[HW,PS2]
- 
- 	eicon=		[HW,ISDN] 
-+			Format: <id>,<membase>,<irq>
- 
--	es1370=		[HW,SOUND]
-+	eisa_irq_edge=	[PARISC]
-+			See header of drivers/parisc/eisa.c.
- 
--	es1371=		[HW,SOUND]
-- 
--	ether=		[HW,NET] Ethernet cards parameters (irq,
--			base_io_addr, mem_start, mem_end, name.
--			(mem_start is often overloaded to mean something
--			different and driver-specific).
-+	elanfreq=	[IA-32]
-+			See comment before function elanfreq_setup() in
-+			arch/i386/kernel/cpu/cpufreq/elanfreq.c.
-+
-+	es1370=		[HW,OSS]
-+			Format: <lineout>[,<micbias>]
-+			See also header of sound/oss/es1370.c.
-+
-+	es1371=		[HW,OSS]
-+			Format: <spdif>,[<nomix>,[<amplifier>]]
-+			See also header of sound/oss/es1371.c.
-+ 
-+	ether=		[HW,NET] Ethernet cards parameters
-+			This option is obsoleted by the "netdev=" option, which
-+			has equivalent usage. See its documentation for details.
- 
- 	fd_mcs=		[HW,SCSI]
-+			See header of drivers/scsi/fd_mcs.c.
- 
- 	fdomain=	[HW,SCSI]
-+			See header of drivers/scsi/fdomain.c.
- 
- 	floppy=		[HW]
-+			See Documentation/floppy.txt.
- 
- 	ftape=		[HW] Floppy Tape subsystem debugging options.
-+			See Documentation/ftape.txt.
- 
- 	gamma=		[HW,DRM]
- 
- 	gc=		[HW,JOY]
--
--	gc_2=		[HW,JOY]
--	 
--	gc_3=		[HW,JOY]
-+	gc_2=		See Documentation/input/joystick-parport.txt.
-+	gc_3=		
-  
- 	gdth=		[HW,SCSI]
-+			See header of drivers/scsi/gdth.c.
- 
--	gpt             [EFI] Forces disk with valid GPT signature but
-+	gpt		[EFI] Forces disk with valid GPT signature but
- 			invalid Protective MBR to be treated as GPT.
- 
- 	gscd=		[HW,CD]
-+			Format: <io>
- 
--	gus=		[HW,SOUND] 
-+	gt96100eth=	[NET] MIPS GT96100 Advanced Communication Controller
-+
-+	gus=		[HW,OSS]
-+			Format: <io>,<irq>,<dma>,<dma16>
-  
- 	gvp11=		[HW,SCSI]
- 
--	hd= 		[EIDE] (E)IDE hard drive subsystem geometry
--			(Cyl/heads/sectors) or tune parameters.
-+	hcl=		[IA-64] SGI's Hardware Graph compatibility layer
-+
-+	hd=		[EIDE] (E)IDE hard drive subsystem geometry
-+			Format: <cyl>,<head>,<sect>
- 
--	hfmodem=	[HW,AX25]
-+	hd?=		[HW] (E)IDE subsystem
-+	hd?lun=		See Documentation/ide.txt.
- 
- 	hisax=		[HW,ISDN]
-+			See Documentation/isdn/README.HiSax.
-+
-+	hugepages=	[HW,IA-32] Maximal number of HugeTLB pages
-+
-+	i8042_direct	[HW] Non-translated mode
-+	i8042_dumbkbd
-+	i8042_noaux
-+	i8042_nomux
-+	i8042_reset	[HW] Reset the controller during init and cleanup
-+	i8042_unlock	[HW] Unlock (ignore) the keylock
- 
- 	i810=		[HW,DRM]
- 
--	ibmmcascsi=	[HW,MCA,SCSI] IBM MicroChannel SCSI adapter.
-+	ibmmcascsi=	[HW,MCA,SCSI] IBM MicroChannel SCSI adapter
-+			See Documentation/mca.txt.
- 
- 	icn=		[HW,ISDN]
-+			Format: <io>[,<membase>[,<icn_id>[,<icn_id2>]]]
- 
--	ide?=		[HW] (E)IDE subsystem : config (iomem/irq), tuning or
--			debugging (serialize,reset,no{dma,tune,probe}) or
--			chipset specific parameters.
-+	ide?=		[HW] (E)IDE subsystem
-+			Config (iomem/irq), tuning or debugging
-+			(serialize,reset,no{dma,tune,probe}) or chipset
-+			specific parameters.
-+			See Documentation/ide.txt.
- 	
--	idebus=		[HW] (E)IDE subsystem : VLB/PCI bus speed.
-+	idebus=		[HW] (E)IDE subsystem - VLB/PCI bus speed
-+			See Documentation/ide.txt.
- 
- 	idle=		[HW]
-+			Format: poll
-  
- 	in2000=		[HW,SCSI]
-+			See header of drivers/scsi/in2000.c.
- 
- 	init=		[KNL]
-+			Format: <full_path>
-+			Run specified binary instead of /sbin/init as init
-+			process.
- 
--	initrd=		[BOOT] Specify the location of the initial ramdisk. 
-+	initrd=		[BOOT] Specify the location of the initial ramdisk
- 
--	ip=		[IP_PNP]
-+	inport_irq=	[HW] Inport (ATI XL and Microsoft) busmouse driver
-+			Format: <irq>
- 
--	isapnp=		[ISAPNP] Specify RDP, reset, pci_scan and verbosity.
-+	inttest=	[IA64]
- 
--	isapnp_reserve_irq= [ISAPNP] Exclude IRQs for the autoconfiguration.
-+	ip=		[IP_PNP]
-+			See Documentation/nfsroot.txt.
- 
--	isapnp_reserve_dma= [ISAPNP] Exclude DMAs for the autoconfiguration.
-+	ip2=		[HW] Set IO/IRQ pairs for up to 4 IntelliPort boards
-+			See comment before ip2_setup() in drivers/char/ip2.c.
- 
--	isapnp_reserve_io= [ISAPNP] Exclude I/O ports for the autoconfiguration.
--				    Ranges are in pairs (I/O port base and size).
-+	ips=		[HW,SCSI] Adaptec / IBM ServeRAID controller
-+			See header of drivers/scsi/ips.c.
- 
--	isapnp_reserve_mem= [ISAPNP] Exclude memory regions for the autoconfiguration.
--				     Ranges are in pairs (memory base and size).
-+	isapnp=		[ISAPNP]
-+			Format: <RDP>, <reset>, <pci_scan>, <verbosity>
- 
- 	isp16=		[HW,CD]
-+			Format: <io>,<irq>,<dma>,<setup>
- 
- 	iucv=		[HW,NET] 
- 
- 	js=		[HW,JOY] Analog joystick
-- 
--	kbd-reset	[VT]
-+			See Documentation/input/joystick.txt.
-+
-+	keepinitrd	[HW,ARM]
-+
-+	l2cr=		[PPC]
-+
-+	lasi=		[HW,SCSI] PARISC LASI driver for the 53c700 chip
-+			Format: addr:<io>,irq:<irq>
- 
--	keepinitrd	[HW, ARM]
-+	llsc*=		[IA64]
-+			See function print_params() in arch/ia64/sn/kernel/llsc4.c.
- 
--	load_ramdisk=	[RAM] List of ramdisks to load from floppy.
-+	load_ramdisk=	[RAM] List of ramdisks to load from floppy
-+			See Documentation/ramdisk.txt.
- 
- 	lockd.udpport=	[NFS]
- 
- 	lockd.tcpport=	[NFS]
- 
--	logi_busmouse=	[HW, MOUSE]
-+	logibm_irq=	[HW,MOUSE] Logitech Bus Mouse Driver
-+			Format: <irq>
- 
- 	lp=0		[LP]	Specify parallel ports to use, e.g,
- 	lp=port[,port...]	lp=none,parport0 (lp0 not configured, lp1 uses
-@@ -305,62 +449,93 @@
- 				from each port should be examined, to see if
- 				an IEEE 1284-compliant printer is attached; if
- 				so, the driver will manage that printer.
-+				See also header of drivers/char/lp.c.
- 
--	ltpc=		[HW]
-+	ltpc=		[NET]
-+			Format: <io>,<irq>,<dma>
- 
- 	mac5380=	[HW,SCSI]
-+			Format: <can_queue>,<cmd_per_lun>,<sg_tablesize>,<hostid>,<use_tags>
- 
--	mac53c9x= 	[HW,SCSI]
-+	mac53c9x=	[HW,SCSI]
-+			Format: <num_esps>,<disconnect>,<nosync>,<can_queue>,<cmd_per_lun>,<sg_tablesize>,<hostid>,<use_tags>
- 	
--	mad16=		[HW,SOUND]
-+	mad16=		[HW,OSS]
-+			Format: <io>,<irq>,<dma>,<dma16>,<mpu_io>,<mpu_irq>,<joystick>
- 
--	maui=		[HW,SOUND]
-+	maui=		[HW,OSS]
-+			Format: <io>,<irq>
-  
--	max_loop=[0-255] [LOOP] Set the maximum number of loopback devices
--				that can be mounted.
-+	max_loop=       [LOOP] Maximum number of loopback devices that can
-+			be mounted
-+			Format: <1-256>
- 
--	maxcpus=	[SMP] States the maximum number of processors that
--			an SMP kernel should make use of.
-+	maxcpus=	[SMP] Maximum number of processors that	an SMP kernel
-+			should make use of
- 
- 	max_scsi_luns=	[SCSI]
- 
--	mca		[IA-32] On some pentium machines the mce support defaults
--				to off as the mainboard support is not always present.
--				You must activate it as a boot option
-+	max_scsi_report_luns=
-+			[SCSI] Maximum number of LUNs received
-+			Should be between 1 and 16384.
- 
- 	mca-pentium	[BUGS=IA-32]
- 
-+	mcatest=	[IA-64]
-+
- 	mcd=		[HW,CD]
-+			Format: <port>,<irq>,<mitsumi_bug_93_wait>
- 
- 	mcdx=		[HW,CD]
- 
--	md=		[HW] RAID subsystems devices and level.
-+	mce		[IA-32] Machine Check Exception
- 
--	mdisk=		[HW]
-+	md=		[HW] RAID subsystems devices and level
-+			See Documentation/md.txt.
-  
- 	mdacon=		[MDA]
--
--	megaraid=	[HW,SCSI]
-+			Format: <first>,<last>
-  
--	mem=exactmap	[KNL,BOOT,IA-32] enable setting of an exact
--			e820 memory map, as specified by the user.
--			Such mem=exactmap lines can be constructed
--			based on BIOS output or other requirements.
-+	mem=exactmap	[KNL,BOOT,IA-32] Enable setting of an exact
-+			E820 memory map, as specified by the user.
-+			Such mem=exactmap lines can be constructed based on
-+			BIOS output or other requirements. See the mem=nn@ss
-+			option description.
- 
--	mem=nn[KMG]	[KNL,BOOT] force use of a specific amount of
--			memory; to be used when the kernel is not able
-+	mem=nn[KMG]	[KNL,BOOT] Force usage of a specific amount of memory
-+			Amount of memory to be used when the kernel is not able
- 			to see the whole system memory or for test.
- 
--	memfrac=	[KNL]
-+	mem=nn[KMG]@ss[KMG]
-+			[KNL,BOOT] Force usage of a specific region of memory
-+			Region of memory to be used, from ss to ss+nn.
- 
- 	mem=nopentium	[BUGS=IA-32] Disable usage of 4MB pages for kernel
- 			memory.
- 
-+	memfrac=	[KNL]
-+
-+	meye=		[HW] Set MotionEye Camera parameters
-+			See Documentation/video4linux/meye.txt.
-+
- 	mga=		[HW,DRM]
- 
--	mpu401=		[HW,SOUND]
-- 
--	msmouse=	[HW,MOUSE] Microsoft Mouse.
-+	mpu401=		[HW,OSS]
-+			Format: <io>,<irq>
-+
-+	MTD_Partition=	[MTD]
-+			Format: <name>,<region-number>,<size>,<offset>
-+
-+	MTD_Region=	[MTD]
-+			Format: <name>,<region-number>[,<base>,<size>,<buswidth>,<altbuswidth>]
-+
-+	mtdparts=	[MTD]
-+			See drivers/mtd/cmdline.c.
-+
-+	n2=		[NET] SDL Inc. RISCom/N2 synchronous serial card
-+
-+	NCR_D700=	[HW,SCSI]
-+			See header of drivers/scsi/NCR_D700.c.
- 
- 	ncr5380=	[HW,SCSI]
- 
-@@ -372,17 +547,18 @@
- 
- 	ncr53c8xx=	[HW,SCSI]
- 
--	netdev=		[NET] Ethernet cards parameters (irq,
--			base_io_addr, mem_start, mem_end, name.
--			(mem_start is often overloaded to mean something
--			different and driver-specific).
--			(cf: ether=)
-+	netdev=		[NET] Network devices parameters
-+			Format: <irq>,<io>,<mem_start>,<mem_end>,<name>
-+			Note that mem_start is often overloaded to mean
-+			something different and driver-specific.
-  
- 	nfsaddrs=	[NFS]
-+			See Documentation/nfsroot.txt.
- 
- 	nfsroot=	[NFS] nfs root filesystem for disk-less boxes.
-+			See Documentation/nfsroot.txt.
- 
--	nmi_watchdog=	[KNL,BUGS=IA-32] debugging features for SMP kernels.
-+	nmi_watchdog=	[KNL,BUGS=IA-32] Debugging features for SMP kernels
- 
- 	no387		[BUGS=IA-32] Tells the kernel to use the 387 maths
- 			emulation library even if a 387 maths coprocessor
-@@ -393,12 +569,16 @@
- 	noapic		[SMP,APIC] Tells the kernel not to make use of any
- 			APIC that may be present on the system.
- 
--	noasync		[HW, M68K] Disables async and sync negotiation for
-+	noasync		[HW,M68K] Disables async and sync negotiation for
- 			all devices.
- 
- 	nocache		[ARM]
-  
--	nodisconnect	[HW,SCSI, M68K] Disables SCSI disconnects.
-+	nodisconnect	[HW,SCSI,M68K] Disables SCSI disconnects.
-+
-+	nofxsr		[BUGS=IA-32]
-+
-+	nohighio	[BUGS=IA-32] Disable highmem block I/O.
- 
- 	nohlt		[BUGS=ARM]
-  
-@@ -415,27 +595,42 @@
- 
- 	nointroute	[IA-64]
- 
-+	nomce		[IA-32] Machine Check Exception
-+
- 	noresume	[SWSUSP] Disables resume and restore original swap space.
-  
- 	no-scroll	[VGA]
- 
-+	nosbagart	[IA-64]
-+
- 	nosmp		[SMP] Tells an SMP kernel to act as a UP kernel.
- 
--	nosync		[HW, M68K] Disables sync negotiation for all devices.
-+	nosync		[HW,M68K] Disables sync negotiation for all devices.
-+
-+	notsc		[BUGS=IA-32] Disable Time Stamp Counter
- 
--	notsc           [BUGS=IA-32] Disable Time Stamp Counter
-+	nousb		[USB] Disable the USB subsystem
- 
- 	nowb		[ARM]
-  
--	opl3=		[HW,SOUND]
-+	opl3=		[HW,OSS]
-+			Format: <io>
- 
--	opl3sa=		[HW,SOUND]
-+	opl3sa=		[HW,OSS]
-+			Format: <io>,<irq>,<dma>,<dma2>,<mpu_io>,<mpu_irq>
- 
--	opl3sa2=	[HW,SOUND]
-+	opl3sa2=	[HW,OSS]
-+			Format: <io>,<irq>,<dma>,<dma2>,<mss_io>,<mpu_io>,<ymode>,<loopback>[,<isapnp>,<multiple]
-  
- 	optcd=		[HW,CD]
-+			Format: <io>
- 
--	panic=		[KNL] kernel behaviour on panic.
-+	osst=		[HW,SCSI] SCSI Tape Driver
-+			Format: <buffer_size>,<write_threshold>
-+			See also Documentation/scsi/st.txt.
-+
-+	panic=		[KNL] Kernel behaviour on panic
-+			Format: <timeout>
- 
- 	parport=0	[HW,PPT]	Specify parallel ports. 0 disables.
- 	parport=auto			Use 'auto' to force the driver to use
-@@ -452,13 +647,17 @@
- 					order they are specified on the command
- 					line, starting with parport0.
- 
--	pas2=		[HW,SOUND]
-+	pas2=		[HW,OSS]
-+			Format: <io>,<irq>,<dma>,<dma16>,<sb_io>,<sb_irq>,<sb_dma>,<sb_dma16>
-  
- 	pas16=		[HW,SCSI]
-+			See header of drivers/scsi/pas16.c.
- 
- 	pcbit=		[HW,ISDN]
- 
- 	pcd.		[PARIDE]
-+			See header of drivers/block/paride/pcd.c.
-+			See also Documentation/paride.txt.
- 
- 	pci=option[,option...]		[PCI] various PCI subsystem options:
- 		off			[IA-32] don't probe for the PCI bus
-@@ -503,153 +702,413 @@
- 					have no effect if ACPI IRQ routing is
- 					enabled.
- 
-+	pcmv=		[HW,PCMCIA] BadgePAD 4
-+
- 	pd.		[PARIDE]
-+			See Documentation/paride.txt.
- 
- 	pf.		[PARIDE]
-+			See Documentation/paride.txt.
- 
- 	pg.		[PARIDE]
-+			See Documentation/paride.txt.
-+
-+	pirq=		[SMP,APIC] Manual mp-table setup
-+			See Documentation/i386/IO-APIC.txt.
-+
-+	plip=		[PPT,NET] Parallel port network link
-+			Format: { parport<nr> | timid | 0 }
-+			See also Documentation/parport.txt.
- 
--	pirq=		[SMP,APIC] mp-table.
-+	pnpbios=	[ISAPNP]
-+			{ on | off | curr | res | no-curr | no-res }
- 
--	plip=		[PPT,NET] Parallel port network link.
-+	pnp_reserve_irq=
-+			[ISAPNP] Exclude IRQs for the autoconfiguration
- 
--	profile=	[KNL] enable kernel profiling via /proc/profile
--			(param:log level).
-+	pnp_reserve_dma=
-+			[ISAPNP] Exclude DMAs for the autoconfiguration
-+
-+	pnp_reserve_io=	[ISAPNP] Exclude I/O ports for the autoconfiguration
-+		     	Ranges are in pairs (I/O port base and size).
-+
-+	pnp_reserve_mem=
-+			[ISAPNP] Exclude memory regions for the autoconfiguration
-+			Ranges are in pairs (memory base and size).
-+
-+	profile=	[KNL] Enable kernel profiling via /proc/profile
-+			Format: <log_level>
- 
- 	prompt_ramdisk=	[RAM] List of RAM disks to prompt for floppy disk
- 			before loading.
-+			See Documentation/ramdisk.txt.
-+
-+	psmouse_noext	[HW,MOUSE] Disable probing for PS2 mouse protocol extensions
-+
-+	pss=		[HW,OSS] Personal Sound System (ECHO ESC614)
-+			Format: <io>,<mss_io>,<mss_irq>,<mss_dma>,<mpu_io>,<mpu_irq>
- 
--	pss=		[HW,SOUND] 
-- 
- 	pt.		[PARIDE]
-+			See Documentation/paride.txt.
- 
--	quiet=		[KNL] Disable log messages.
-+	quiet=		[KNL] Disable log messages
-  
- 	r128=		[HW,DRM]
- 
- 	raid=		[HW,RAID]
-+			See Documentation/md.txt.
- 
--	ramdisk=	[RAM] Sizes of RAM disks in kilobytes [deprecated].
-+	ramdisk=	[RAM] Sizes of RAM disks in kilobytes [deprecated]
-+			See Documentation/ramdisk.txt.
- 
- 	ramdisk_blocksize=
- 			[RAM]
-+			See Documentation/ramdisk.txt.
-  
--	ramdisk_size=	[RAM] New name for the ramdisk parameter.
-+	ramdisk_size=	[RAM] Sizes of RAM disks in kilobytes
-+			New name for the ramdisk parameter.
-+			See Documentation/ramdisk.txt.
- 
- 	ramdisk_start=	[RAM] Starting block of RAM disk image (so you can
- 			place it after the kernel image on a boot floppy).
-+			See Documentation/ramdisk.txt.
- 
--	reboot=		[BUGS=IA-32]
-+	reboot=		[BUGS=IA-32,BUGS=ARM,BUGS=IA-64] Rebooting mode
-+			Format: <reboot_mode>[,<reboot_mode2>[,...]]
-+			See arch/*/kernel/reboot.c.
- 
--	reserve=	[KNL,BUGS] force the kernel to ignore some iomem area.
-+	reserve=	[KNL,BUGS] Force the kernel to ignore some iomem area
- 
--	resume=		[SWSUSP] specify the partition device for software suspension.
-+	resume=		[SWSUSP] Specify the partition device for software suspension
- 
- 	riscom8=	[HW,SERIAL]
-+			Format: <io_board1>[,<io_board2>[,...<io_boardN>]]
-+
-+	ro		[KNL] Mount root device read-only on boot
- 
--	ro		[KNL] Mount root device read-only on boot.
-+	root=		[KNL] Root filesystem
- 
--	root=		[KNL] root filesystem.
-+	rootflags=	[KNL] Set root filesystem mount option string
- 
--	rootflags=	[KNL] set root filesystem mount option string
-+	rootfstype=	[KNL] Set root filesystem type
- 
--	rootfstype=	[KNL] set root filesystem type
-+	rw		[KNL] Mount root device read-write on boot
- 
--	rw		[KNL] Mount root device read-write on boot.
-+	S		[KNL] Run init in single mode
- 
--	S		[KNL] run init in single mode.
-+	sa1100ir	[NET]
-+			See drivers/net/irda/sa1100_ir.c.
- 
--	sb=		[HW,SOUND]
-+	sb=		[HW,OSS]
-+			Format: <io>,<irq>,<dma>,<dma2>
-+
-+	sbni=		[NET] Granch SBNI12 leased line adapter
-  
--	sbpcd=		[HW,CD] Soundblaster CD adapter.
-+	sbpcd=		[HW,CD] Soundblaster CD adapter
-+			Format: <io>,<type>
-+			See a comment before function sbpcd_setup() in
-+			drivers/cdrom/sbpcd.c.
-+
-+	scsi_debug_*=	[SCSI]
-+			See drivers/scsi/scsi_debug.c.
-+
-+	scsi_default_dev_flags=
-+			[SCSI] SCSI default device flags
-+			Format: <integer>
-+
-+	scsi_dev_flags=	[SCSI] Black/white list entry for vendor and model
-+			Format: <vendor>:<model>:<flags>
-+			(flags are integer value)
- 
- 	scsi_logging=	[SCSI]
- 
- 	scsihosts=	[SCSI]
- 
-+	serialnumber	[BUGS=IA-32]
-+
-+	sf16fm=		[HW] SF16FMI radio driver for Linux
-+			Format: <io>
-+
- 	sg_def_reserved_size=
- 			[SCSI]
-  
--	sgalaxy=	[HW,SOUND]
-+	sgalaxy=	[HW,OSS]
-+			Format: <io>,<irq>,<dma>,<dma2>,<sgbase>
-+
-+	shapers=	[NET]
-+			Maximal number of shapers.
-  
- 	sim710=		[SCSI,HW]
-+			See header of drivers/scsi/sim710.c.
-+
-+	simeth=		[IA-64]
-+	simscsi=
-  
- 	sjcd=		[HW,CD]
-+			Format: <io>,<irq>,<dma>
-+			See header of drivers/cdrom/sjcd.c.
-+
-+	slram=		[HW,MTD]
- 
- 	smart2=		[HW]
-+			Format: <io1>[,<io2>[,...,<io8>]]
-+
-+	snd-ad1816a=	[HW,ALSA]
-+
-+	snd-ad1848=	[HW,ALSA]
-+
-+	snd-ali5451=	[HW,ALSA]
-+
-+	snd-als100=	[HW,ALSA]
-+
-+	snd-als4000=	[HW,ALSA]
-+
-+	snd-azt2320=	[HW,ALSA]
-+
-+	snd-cmi8330=	[HW,ALSA]
-+
-+	snd-cmipci=	[HW,ALSA]
-+
-+	snd-cs4231=	[HW,ALSA]
-+
-+	snd-cs4232=	[HW,ALSA]
-+
-+	snd-cs4236=	[HW,ALSA]
-+
-+	snd-cs4281=	[HW,ALSA]
-+
-+	snd-cs46xx=	[HW,ALSA]
-+
-+	snd-dt019x=	[HW,ALSA]
-+
-+	snd-dummy=	[HW,ALSA]
-+
-+	snd-emu10k1=	[HW,ALSA]
-+
-+	snd-ens1370=	[HW,ALSA]
-+
-+	snd-ens1371=	[HW,ALSA]
-+
-+	snd-es968=	[HW,ALSA]
-+
-+	snd-es1688=	[HW,ALSA]
-+
-+	snd-es18xx=	[HW,ALSA]
-+
-+	snd-es1938=	[HW,ALSA]
-+
-+	snd-es1968=	[HW,ALSA]
-+
-+	snd-fm801=	[HW,ALSA]
-+
-+	snd-gusclassic=	[HW,ALSA]
-+
-+	snd-gusextreme=	[HW,ALSA]
-+
-+	snd-gusmax=	[HW,ALSA]
-+
-+	snd-hdsp=	[HW,ALSA]
-+
-+	snd-ice1712=	[HW,ALSA]
-+
-+	snd-intel8x0=	[HW,ALSA]
-+
-+	snd-interwave=	[HW,ALSA]
-+
-+	snd-interwave-stb=
-+			[HW,ALSA]
-+
-+	snd-korg1212=	[HW,ALSA]
-+
-+	snd-maestro3=	[HW,ALSA]
-+
-+	snd-mpu401=	[HW,ALSA]
-+
-+	snd-mtpav=	[HW,ALSA]
-+
-+	snd-nm256=	[HW,ALSA]
-+
-+	snd-opl3sa2=	[HW,ALSA]
-+
-+	snd-opti92x-ad1848=
-+			[HW,ALSA]
-+
-+	snd-opti92x-cs4231=
-+			[HW,ALSA]
-+
-+	snd-opti93x=	[HW,ALSA]
-+
-+	snd-pmac=	[HW,ALSA]
-+
-+	snd-rme32=	[HW,ALSA]
-+
-+	snd-rme96=	[HW,ALSA]
-+
-+	snd-rme9652=	[HW,ALSA]
-+
-+	snd-sb8=	[HW,ALSA]
-+
-+	snd-sb16=	[HW,ALSA]
-+
-+	snd-sbawe=	[HW,ALSA]
-+
-+	snd-serial=	[HW,ALSA]
-+
-+	snd-sgalaxy=	[HW,ALSA]
-+
-+	snd-sonicvibes=	[HW,ALSA]
-+
-+	snd-sun-amd7930=
-+			[HW,ALSA]
-+
-+	snd-sun-cs4231=	[HW,ALSA]
-+
-+	snd-trident=	[HW,ALSA]
-+
-+	snd-usb-audio=	[HW,ALSA,USB]
-+
-+	snd-via82xx=	[HW,ALSA]
-+
-+	snd-virmidi=	[HW,ALSA]
-+
-+	snd-wavefront=	[HW,ALSA]
-+
-+	snd-ymfpci=	[HW,ALSA]
-  
--	sonicvibes=	[HW,SOUND]
-+	sonicvibes=	[HW,OSS]
-+			Format: <reverb>
-  
- 	sonycd535=	[HW,CD]
-+			Format: <io>[,<irq>]
- 
--	sound=		[SOUND]
-+	sonypi=		[HW] Sony Programmable I/O Control Device driver
-+			Format: <minor>,<verbose>,<fnkeyinit>,<camera>,<compat>,<nojogdial>
- 
--	soundmodem=	[HW,AX25,SOUND] Use sound card as packet radio modem.
-+	soundmodem=	[HW,AX25,SOUND] Use sound card as packet radio modem
-+			Format: <io>,<irq>,<dma>[,<dma2>[,<serio>[,<pario>]]],<mode>
-+			mode: hw:modem
-+			hw: sbc, wss, wssfdx
-+			modem: afsk1200, fsk9600
-+
-+	specialix=	[HW,SERIAL] Specialix multi-serial port adapter
-+			See Documentation/specialix.txt.
-+
-+	speedstep_coppermine=
-+			[HW,IA-32] Take CPU in your notebook as SpeedStep-capable
-+			See comment before function speedstep_setup() in
-+			arch/i386/kernel/cpu/cpufreq/speedstep.c.
-+
-+	spia_io_base=	[HW,MTD]
-+	spia_fio_base=
-+	spia_pedr=
-+	spia_peddr=
- 
--	specialix=	[HW,SERIAL] Specialix multi-serial port adapter.
-+	spread_lpevents=
-+			[PPC]
- 
--	sscape=		[HW,SOUND]
-+	sscape=		[HW,OSS]
-+			Format: <io>,<irq>,<dma>,<mpu_io>,<mpu_irq>
-  
--	st=		[HW,SCSI] SCSI tape parameters (buffers, etc.).
-+	st=		[HW,SCSI] SCSI tape parameters (buffers, etc.)
-+			See Documentation/scsi/st.txt.
- 
- 	st0x=		[HW,SCSI]
-+			See header of drivers/scsi/seagate.c.
- 
--	stram_swap=	[HW]
-+	stram_swap=	[HW,M68k]
- 
--	swiotlb=        [IA-64] Number of I/O TLB slabs.
-+	swiotlb=	[IA-64] Number of I/O TLB slabs
-  
--	switches=	[HW, M68K]
-+	switches=	[HW,M68k]
- 
- 	sym53c416=	[HW,SCSI]
-+			See header of drivers/scsi/sym53c416.c.
- 
- 	sym53c8xx=	[HW,SCSI]
-+			See Documentation/scsi/ncr53c8xx.txt.
- 
- 	t128=		[HW,SCSI]
-+			See header of drivers/scsi/t128.c.
- 
- 	tdfx=		[HW,DRM]
-  
--	tgfx=		[HW,JOY]
-+	tgfx=		[HW,JOY] TurboGraFX parallel port interface
-+	tgfx_2=		See Documentation/input/joystick-parport.txt.
-+	tgfx_3=
- 
--	tgfx_2=		[HW,JOY]
-+	tipar=		[HW]
-+			See header of drivers/char/tipar.c.
- 
--	tgfx_3=		[HW,JOY]
-+	tiusb=		[HW,USB] Texas Instruments' USB GraphLink (aka SilverLink)
-+			Format: <timeout>
-  
- 	tmc8xx=		[HW,SCSI]
-+			See header of drivers/scsi/seagate.c.
- 
- 	tmscsim=	[HW,SCSI]
-+			See comment before function dc390_setup() in
-+			drivers/scsi/tmscsim.c.
- 
- 	tp720=		[HW,PS2]
- 
--	trix=		[HW,SOUND]
-+	trix=		[HW,OSS] MediaTrix AudioTrix Pro
-+			Format: <io>,<irq>,<dma>,<dma2>,<sb_io>,<sb_irq>,<sb_dma>,<mpu_io>,<mpu_irq>
-  
--	u14-34f=	[HW,SCSI]
-+	u14-34f=	[HW,SCSI] UltraStor 14F/34F SCSI host adapter
-+			See header of drivers/scsi/u14-34f.c.
- 
--	uart401=	[HW,SOUND]
-+	uart401=	[HW,OSS]
-+			Format: <io>,<irq>
- 
--	uart6850=	[HW,SOUND]
-- 
--	usbfix		[BUGS=IA-64] 
-- 
--	video=		[FB] frame buffer configuration.
--
--	vga=		[BOOT] on IA-32, select a particular video mode
--			(use vga=ask for menu).  This is actually a
--			boot loader parameter; the value is passed to
--			the kernel using a special protocol.  See
--			linux/Documentation/i386/boot.txt for information.
-+	uart6850=	[HW,OSS]
-+			Format: <io>,<irq>
-+ 
-+	video=		[FB] Frame buffer configuration
-+			See Documentation/fb/modedb.txt.
-+
-+	vga=		[BOOT,IA-32] Select a particular video mode
-+			See Documentation/i386/boot.txt and Documentation/svga.txt.
-+			Use vga=ask for menu.
-+			This is actually a boot loader parameter; the value is
-+			passed to the kernel using a special protocol.
- 
- 	vmhalt=		[KNL,S390]
- 
- 	vmpoff=		[KNL,S390] 
-  
--	waveartist=	[HW,SOUND]
-+	waveartist=	[HW,OSS]
-+			Format: <io>,<irq>,<dma>,<dma2>
-  
- 	wd33c93=	[HW,SCSI]
-+			See header of drivers/scsi/wd33c93.c.
- 
- 	wd7000=		[HW,SCSI]
-+			See header of drivers/scsi/wd7000.c.
- 
--	wdt=		[HW]
-+	wdt=		[HW] Watchdog
-+			See Documentation/watchdog.txt.
- 
- 	xd=		[HW,XT] Original XT pre-IDE (RLL encoded) disks.
-+	xd_geo=		See header of drivers/block/xd.c.
-+
-+	xirc2ps_cs=	[NET,PCMCIA]
-+			Format: <irq>,<irq_mask>,<io>,<full_duplex>,<do_sound>,<lockup_hack>[,<irq2>[,<irq3>[,<irq4>]]]
-+
-+
-+
-+Changelog:
-+
-+	The last known update (for 2.4.0) - the changelog was not kept before.
-+	2000-06-??	Mr. Unknown
-+
-+	Update for 2.5.49, description for most of the options introduced,
-+	references to other documentation (C files, READMEs, ..), added S390,
-+	PPC, SPARC, MTD, ALSA and OSS category. Minor corrections and
-+	reformatting.
-+	2002-11-24	Petr Baudis <pasky@ucw.cz>
-+			Randy Dunlap <randy.dunlap@verizon.net>
-+
-+TODO:
- 
--	xd_geo=		[HW,XT]
-+	Add documentation for ALSA options.
-+	Add more DRM drivers.
+sorry but what is mem_load supposed to do other than to loop forever? It
+is running for two days on my test box (512m of ram, 2G of swap, 4-way
+smp) and nothing happened yet. It's an infinite loop. Sounds like you're
+trapping a signal. Wouldn't it be simpler to just finish after a number
+of passes? The machine is perfectly usable and responsive during the
+mem_load, xmms doesn't skip a beat for istance, this is probably thanks
+to the elevator-lowlatency too, I recall xmms wasn't used to be
+completely smooth during heavy swapping in previous kernels (because the read()
+of the sound file didn't return in rasonable time since I'm swapping in the
+same hd where I store the data).
+
+jupiter:~ # uptime
+  4:20pm  up 1 day, 14:43,  3 users,  load average: 1.38, 1.28, 1.21
+jupiter:~ # vmstat 1
+   procs                      memory    swap          io     system         cpu
+ r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
+ 0  1  0 197408   4504    112   1436  21  34    23    34   36    19   0   2  97
+ 0  1  0 199984   4768    116   1116 11712 5796 11720  5804  514   851   1   2  97
+ 0  1  0 234684   4280    108   1116 14344 12356 14344 12360  617  1034   0   3  96
+ 0  1  0 267880   4312    108   1116 10464 11916 10464 11916  539   790   0   3  97
+ 1  0  0 268704   5192    108   1116 6220 9336  6220  9336  363   474   0   1  99
+ 0  1  0 270764   5312    108   1116 13036 18952 13036 18952  584   958   0   1  99
+ 0  1  0 271368   5088    108   1116 8288 5160  8288  5160  386   576   0   1  99
+ 0  1  1 269184   4296    108   1116 4352 6420  4352  6416  254   314   0   0 100
+ 0  1  0 266528   4604    108   1116 9644 4652  9644  4656  428   658   0   1  99
+
+there is no way I can reproduce any stability problem with mem_load here
+(tested both on scsi quad xeon and ide dualathlon). Can you provide more
+details of your problem and/or a SYSRQ+T during the hang? thanks.
+
+Andrea

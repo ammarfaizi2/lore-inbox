@@ -1,46 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129405AbQKFHSm>; Mon, 6 Nov 2000 02:18:42 -0500
+	id <S129117AbQKFH02>; Mon, 6 Nov 2000 02:26:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129165AbQKFHSY>; Mon, 6 Nov 2000 02:18:24 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:1472 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S129405AbQKFHSS>;
-	Mon, 6 Nov 2000 02:18:18 -0500
-Date: Sun, 5 Nov 2000 23:03:00 -0800
-Message-Id: <200011060703.XAA23404@pizda.ninka.net>
-From: "David S. Miller" <davem@redhat.com>
-To: barryn@pobox.com
-CC: linux-kernel@vger.kernel.org
-In-Reply-To: <200011060615.WAA05490@cx518206-b.irvn1.occa.home.com>
-	(barryn@cx518206-b.irvn1.occa.home.com)
-Subject: Re: [PATCH] document ECN in 2.4 Configure.help
-In-Reply-To: <200011060615.WAA05490@cx518206-b.irvn1.occa.home.com>
+	id <S129165AbQKFH0R>; Mon, 6 Nov 2000 02:26:17 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:43272 "EHLO
+	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129117AbQKFH0I>;
+	Mon, 6 Nov 2000 02:26:08 -0500
+Message-ID: <3A065CDD.BF15B3AC@mandrakesoft.com>
+Date: Mon, 06 Nov 2000 02:25:17 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: David Woodhouse <dwmw2@infradead.org>
+CC: Oliver Xymoron <oxymoron@waste.org>, Keith Owens <kaos@ocs.com.au>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page]
+In-Reply-To: <Pine.LNX.4.21.0011060715431.14068-100000@imladris.demon.co.uk>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: "Barry K. Nathan" <barryn@cx518206-b.irvn1.occa.home.com>
-   Date: 	Sun, 5 Nov 2000 22:15:20 -0800 (PST)
+David Woodhouse wrote:
+> 
+> On Mon, 6 Nov 2000, Oliver Xymoron wrote:
+> 
+> > Hopefully not. The standard examples (mixer levels, etc) are better
+> > handled with a userspace tool hooked by modprobe. This even gets
+> > persistence across reboots if that's what's wanted.
+> 
+> Implement a way for a userspace tool to get the correct mixer levels in
+> place at the time the sound hardware is reset, so there are no glitches in
+> the levels, and I'll agree with you.
 
-   This patch is against test10pre7 but applies cleanly to test10
-   final as well.
+Linux-Mandrake's initscripts run aumix on bootup and shutdown, to take
+care of this...
 
-This patch is fine, thanks a lot.
-
-OH, btw, for all folks out there.  If there ever is an instance where
-I (Alexey too) send email directly to your email address (not via
-linux-kernel for example) your site will be effectively ECN tested.
-We run ECN on all the time on our workstations.  (it's actually nice,
-a lot of crap web sites I used to visit occaisionally are no longer
-reachable :-) the only major loss is theregister.co.uk :-( )
-
-So if it appears as if Alexey and myself are ignoring you, better
-check whether your mail server can talk to off-site ECN speaking
-hosts first.
-
-Later,
-David S. Miller
-davem@redhat.com
-
+-- 
+Jeff Garzik             | Dinner is ready when
+Building 1024           | the smoke alarm goes off.
+MandrakeSoft            |	-/usr/games/fortune
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

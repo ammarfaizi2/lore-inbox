@@ -1,59 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132153AbRAIV1Y>; Tue, 9 Jan 2001 16:27:24 -0500
+	id <S129859AbRAIVbe>; Tue, 9 Jan 2001 16:31:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132129AbRAIV1P>; Tue, 9 Jan 2001 16:27:15 -0500
-Received: from ns.sysgo.de ([213.68.67.98]:10231 "EHLO rob.devdep.sysgo.de")
-	by vger.kernel.org with ESMTP id <S132104AbRAIV04>;
-	Tue, 9 Jan 2001 16:26:56 -0500
-From: Robert Kaiser <rob@sysgo.de>
-Reply-To: rob@sysgo.de
-To: Brian Gerst <bgerst@didntduck.org>
-Subject: Re: Anybody got 2.4.0 running on a 386 ?
-Date: Tue, 9 Jan 2001 22:17:47 +0100
-X-Mailer: KMail [version 1.0.28]
-Content-Type: text/plain; charset=US-ASCII
-In-Reply-To: <01010922090000.02630@rob> <3A5B7F76.ABDFED7A@didntduck.org>
-In-Reply-To: <3A5B7F76.ABDFED7A@didntduck.org>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Message-Id: <01010922264400.02737@rob>
-Content-Transfer-Encoding: 7BIT
+	id <S129764AbRAIVbZ>; Tue, 9 Jan 2001 16:31:25 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:39302 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S131751AbRAIVbK>;
+	Tue, 9 Jan 2001 16:31:10 -0500
+Date: Tue, 9 Jan 2001 13:13:52 -0800
+Message-Id: <200101092113.NAA05515@pizda.ninka.net>
+From: "David S. Miller" <davem@redhat.com>
+To: sct@redhat.com
+CC: mingo@elte.hu, hch@caldera.de, riel@conectiva.com.br, netdev@oss.sgi.com,
+        linux-kernel@vger.kernel.org, sct@redhat.com
+In-Reply-To: <20010109142542.G4284@redhat.com> (sct@redhat.com)
+Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
+In-Reply-To: <20010109122810.A3115@caldera.de> <Pine.LNX.4.30.0101091241490.2424-100000@e2> <20010109142542.G4284@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Die, 09 Jan 2001 you wrote:
-> Robert Kaiser wrote:
-> > I can't seem to get the new 2.4.0 kernel running on a 386 CPU.
-> > The kernel was built for a 386 Processor, Math emulation has been enabled.
-> > I tried three different 386 boards. Execution seems to get as far as
-> > pagetable_init() in arch/i386/mm/init.c, then it falls back into the BIOS as
-> > if someone had pressed the reset button. The same kernel boots fine on
-> > 486 and Pentium Systems.
-> > 
-> > Any ideas/suggestions ?
-> 
-> 
-> is "Checking if this processor honours the WP bit even in supervisor
-> mode... " the last thing you see before the reset?
-> 
+   Date: Tue, 9 Jan 2001 14:25:42 +0000
+   From: "Stephen C. Tweedie" <sct@redhat.com>
 
-No, I don't see _any_ messages from the kernel. The last thing I see is
-"Uncompressing Linux... Ok, booting the kernel." I have added some
-quick and dirty debug code that writes messages directly to the VGA
-screen buffer. According to that, execution seems to get as far as the
-statement
+   Perhaps tcp can merge internal 4K requests, but if you're doing udp
+   jumbograms (or STP or VIA), you do need an interface which can give
+   the networking stack more than one page at once.
 
-        *pte = mk_pte_phys(__pa(vaddr), PAGE_KERNEL);
+All network protocols can use the current interface and get the result
+you are after, see MSG_MORE.  TCP isn't "special" in this regard.
 
-
-
-
-----------------------------------------------------------------
-Robert Kaiser                         email: rkaiser@sysgo.de
-SYSGO RTS GmbH
-Am Pfaffenstein 14                    phone: (49) 6136 9948-762
-D-55270 Klein-Winternheim / Germany   fax:   (49) 6136 9948-10
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

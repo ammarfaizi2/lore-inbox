@@ -1,54 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261843AbVCNFNh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261233AbVCNFax@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261843AbVCNFNh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 00:13:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262078AbVCNFNg
+	id S261233AbVCNFax (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 00:30:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261397AbVCNFax
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 00:13:36 -0500
-Received: from fire.osdl.org ([65.172.181.4]:49035 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261843AbVCNFNA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 00:13:00 -0500
-Date: Sun, 13 Mar 2005 21:12:34 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Peter Chubb <peterc@gelato.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: inode_lock heavily contended in 2.6.11
-Message-Id: <20050313211234.14a1d24f.akpm@osdl.org>
-In-Reply-To: <16949.4010.174143.391599@wombat.chubb.wattle.id.au>
-References: <16949.4010.174143.391599@wombat.chubb.wattle.id.au>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 14 Mar 2005 00:30:53 -0500
+Received: from smtp808.mail.sc5.yahoo.com ([66.163.168.187]:60077 "HELO
+	smtp808.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261233AbVCNFap (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 00:30:45 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Stephen Evanchik <evanchsa@gmail.com>
+Subject: Re: [PATCH 2.6.11] IBM TrackPoint support
+Date: Mon, 14 Mar 2005 00:30:39 -0500
+User-Agent: KMail/1.7.2
+Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+References: <a71293c2050313210230161278@mail.gmail.com>
+In-Reply-To: <a71293c2050313210230161278@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200503140030.39482.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Chubb <peterc@gelato.unsw.edu.au> wrote:
->
+On Monday 14 March 2005 00:02, Stephen Evanchik wrote:
+> Here's the latest patch for TracKPoint devices. I have changed the
+> sysfs filenames to be more descriptive for commonly used attributes. I
+> also implemented the set_properties flag for initialization.
 > 
-> When running reaim7 on a 12-way IA64 on an ext2 filesystem on a ram
-> disc, I see very heavy contention on inode_lock.
-
-Yes, that's a big global lock, protecting global resources.  I always
-expected it to hit someone's fan, but it never did.
-
-> lockstat output shows:
+> It patches against 2.6.11 and 2.6.11.3 however I have not tested it
+> with 2.6.11.3 .
 > 
-> SPINLOCKS         HOLD            WAIT
->   UTIL  CON    MEAN(  MAX )   MEAN(  MAX )(% CPU)     TOTAL NOWAIT SPIN RJECT  NAME
->  46.8% 52.4%  1.9us( 130us)   20us(8073us)(21.5%)   5072151 47.6% 52.4%    0%  inode_lock
->  15.9% 59.5%  3.8us(  61us)   18us(7067us)( 3.9%)    852983 40.5% 59.5%    0%    __sync_single_inode+0xf0
->   9.2% 59.0%  1.2us(  25us)   20us(8073us)( 7.8%)   1596487 41.0% 59.0%    0%    generic_osync_inode+0xe0
+> Any comments are appreciated.
 > 
->  (etc).
-> 
-> Is anyone else seeing this on more realistic workloads?
 
-An fsync/O_SYNC-intensive workload on a ram disk is likely to bring it out,
-yes.  But once one has real disks under there, the acquisition frequency
-will fall a lot.
+Hi Stephen,
 
-Unless people are being all shy again, I don't think anyone has hit
-significant inode_lock problems on more real-world things.
+It looks very good now, I have just a couple of comments and I as far as
+I concerned it is ready for inclusion.
 
+> +PSMOUSE_DEFINE_ATTR(middle_btn_disable);
+
+Is it possible to change it for positive (something like middle_button
+which would show 1 for enabled - default - and 0 for disabled). But this
+is my personal preference, others may disagree.
+
+> +#define MAKE_ATTR_WRITE(_item, command) \
+> +	static ssize_t psmouse_attr_set_##_item(struct psmouse *psmouse,
+> const char *buf, size_t count) \
+
+It looks like your mailer has wrapped the patch.
+
+Also the patch has some trailing whitespace. If you are using vim the
+foillowing in .vimrc will show all trailing spaces in all their glory:
+
+highlight RedundantWhitespace ctermbg=red guibg=red
+match RedundantWhitespace /\s\+$\| \+\ze\t/
+
+-- 
+Dmitry

@@ -1,217 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129873AbQLTPpV>; Wed, 20 Dec 2000 10:45:21 -0500
+	id <S129849AbQLTP4E>; Wed, 20 Dec 2000 10:56:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129849AbQLTPpC>; Wed, 20 Dec 2000 10:45:02 -0500
-Received: from shasta.gate.net ([216.219.246.6]:49356 "EHLO shasta.gate.net")
-	by vger.kernel.org with ESMTP id <S129781AbQLTPox>;
-	Wed, 20 Dec 2000 10:44:53 -0500
-Message-ID: <000301c06a97$85f75a00$7d1a24cf@master>
-From: "Steve Grubb" <ddata@gate.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: [Test Case] performance enhancement for simple_strtoul
-Date: Wed, 20 Dec 2000 10:14:12 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+	id <S130030AbQLTPzx>; Wed, 20 Dec 2000 10:55:53 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:35856 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S129849AbQLTPzt>; Wed, 20 Dec 2000 10:55:49 -0500
+Date: Wed, 20 Dec 2000 16:24:56 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andrew Morton <andrewm@uow.edu.au>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.2.19pre2
+Message-ID: <20001220162456.G7381@athlon.random>
+In-Reply-To: <E147MkJ-00036t-00@the-village.bc.nu>, <E147MkJ-00036t-00@the-village.bc.nu>; <20001220142858.A7381@athlon.random> <3A40C8CB.D063E337@uow.edu.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3A40C8CB.D063E337@uow.edu.au>; from andrewm@uow.edu.au on Thu, Dec 21, 2000 at 01:57:15AM +1100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Thu, Dec 21, 2000 at 01:57:15AM +1100, Andrew Morton wrote:
+> If a task is on two waitqueues at the same time it becomes a bug:
+> if the outer waitqueue is non-exclusive and the inner is exclusive,
 
-Here's the test case for the suggested simple_strtoul function. I just
-finished testing on a P3 where it seems to show a 16-20% speed improvement
-over the current algorithm.
+Your 2.2.x won't allow that either. You set the `current->task_exclusive = 1'
+and so you will get an exclusive wakeups in both waitqueues. You simply cannot
+tell register in two waitqueue and expect a non-exlusive wakeup in one and an
+exclusive wakeup in the other one.
 
-compile it as:
+The only design difference (non implementation difference) between my patch and
+your patch is that you have to clear task_exlusive explicitly. You
+moved the EXCLUSIVE bitflag out of current->state field. That gives no
+advantages and it looks ugiler to me. The robusteness point doesn't hold
+IMHO: as soon as current->state is been changed by somebody else
+you don't care anymore if it was exclusive wakeup or not.
 
-gcc  /usr/src/linux/lib/ctype.c strtoul_test.c -o strtoul_test
+About the fact I mask out the exlusive bit in schedule that's zero cost
+compared to a cacheline miss, but it also depends if you have more wakeups or
+schedules (with accept(2) usage there are going to be more schedule than
+wakeups, but on other usages that could not be the case) but ok, the
+performance point was nearly irrelevant ;).
 
-You can change the numeric base value with this define to 8, 10, or 16 to
-see the speed change for each numeric representation:
+> Anyway, it's academic.  davem would prefer that we do it properly
+> and move the `exclusive' flag into the waitqueue head to avoid the 
+> task-on-two-waitqueues problem, as was done in 2.4.  I think he's
 
-#define BASE  10
+The fact you could mix non-exclusive and exlusive wakeups in the same waitqueue
+was a feature not a misfeature. Then of course you cannot register in two
+waitqueues one with wake-one and one with wake-all but who does that anyways?
+Definitely not an issue for 2.2.x.
 
-Have fun,
-Steve Grubb
+I think the real reason for spearating the two things as davem proposed is
+because otherwise we cannot register for a LIFO wake-one in O(1) as we needed
+for accept.
 
-------strtoul_test.c----------
+Other thing about your patch, adding TASK_EXCLUSIVE to
+wake_up/wake_up_interruptible is useless. You kind of mixed the two things at
+the source level. In your patch TASK_EXCLUSIVE should not be defined.  Last
+thing the wmb() in accept wasn't necessary. At that point you don't care at all
+what the wakeup can see.
 
-#include <unistd.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <sys/resource.h>
-#include <linux/ctype.h>
-
-struct timeval last_stopwatch_time;
-
-
-void stopwatch()
-{
-    struct timeval now;
-    int delta;
-
-    gettimeofday(&now, 0);
-    delta = (now.tv_sec - last_stopwatch_time.tv_sec) * 1000000 +
-    (now.tv_usec - last_stopwatch_time.tv_usec);
-    printf ("Stopwatch: elapsed time %d.%03d seconds\n\n",
-    delta / 1000000, (delta / 1000) % 1000);
-
-
-    last_stopwatch_time = now;
-}
-
-unsigned long old_simple_strtoul(const char *cp,char **endp,unsigned int
-base)
-{
- unsigned long result = 0,value;
- if (!base) {
-  base = 10;
-  if (*cp == '0') {
-   base = 8;
-   cp++;
-   if ((*cp == 'x') && isxdigit(cp[1])) {
-    cp++;
-    base = 16;
-   }
-  }
- }
- while (isxdigit(*cp) && (value = isdigit(*cp) ? *cp-'0' : (islower(*cp)
-? toupper(*cp) : *cp)-'A'+10) < base) {
-  result = result*base + value;
-  cp++;
- }
- if (endp)
-  *endp = (char *)cp;
- return result;
-}
-
-unsigned long new_simple_strtoul2(const char *cp,char **endp,unsigned int
-base)
-{
- unsigned char c;
- unsigned long result = 0;
- if (!base) {
-  base = 10;
-  if (*cp == '0') {
-   base = 8;
-   cp++;
-   if ((*cp == 'x') && isxdigit(cp[1])) {
-    cp++;
-    base = 16;
-   }
-  }
- }
- c = *cp;
- switch (base) {
-  case 10:
-   while (isdigit(c)) {
-    result = (result*10) + (c & 0x0f);
-    c = *(++cp);
-   }
-   break;
-  case 16:
-   while (isxdigit(c)) {
-    result = (result<<4);
-    if (c&0x40)
-      result += (c & 0x07) + 9;
-    else
-     result += (c & 0x0f);
-    c = *(++cp);
-   }
-   break;
-  case 8:
-   while (isdigit(c)) {
-    if ((c&0x37) == c)
-     result = (result<<3) + (c & 0x07);
-    else
-     break;
-    c = *(++cp);
-   }
- }
- if (endp)
-  *endp = (char *)cp;
- return result;
-}
-
-#define NUMBER_TO_TEST 32768
-#define BASE  10
-char f[3][3] = { "%d", "%X", "%o"};
-char str[NUMBER_TO_TEST][32];
-unsigned long r[NUMBER_TO_TEST];
-
-int main()
-{
- int rn, i, j, iterations = 1000;
- time_t tm;
-
- time(&tm);
- srand((unsigned) tm);
- rn = rand();
-
- // do setup here
- for (i=0; i<NUMBER_TO_TEST; i++) {
-  r[i] = rand()%0x7FFFFFF;
-  switch (BASE) {
-  case 10:
-   sprintf(&str[i][0], &f[0][0], r[i]);
-   break;
-  case 16:
-   sprintf(&str[i][0], &f[1][0], r[i]);
-   break;
-  case 8:
-   sprintf(&str[i][0], &f[2][0], r[i]);
-  }
- }
-
- puts("Starting old algorithm");
- sleep(5);  // let the system settle down
-    gettimeofday(&last_stopwatch_time, 0);
-    for (i=0; i<iterations; i++) {
-  for (j=0; j<NUMBER_TO_TEST; j++) {
-   old_simple_strtoul(&str[j][0], NULL, BASE);
-  }
-    }
- stopwatch();
-
-    puts("New algorithm");
-    sleep(5);  // let the system settle down
-    gettimeofday(&last_stopwatch_time, 0);
-    for (i=0; i<iterations; i++) {
-    for (j=0; j<NUMBER_TO_TEST; j++) {
-        new_simple_strtoul2(&str[j][0], NULL, BASE);
-    }
-    }
-    stopwatch();
-
-    puts("Now checking values");
-    for (i=0; i<NUMBER_TO_TEST; i++) {
-    unsigned long t = new_simple_strtoul2(&str[i][0], NULL, BASE);
-    if (r[i] != t) {
-        switch (BASE) {
-        case 10:
-        printf("is %s conv %d\n", &str[i][0], t);
-        break;
-        case 16:
-        printf("is %s conv %x\n", &str[i][0], t);
-        break;
-        case 8:
-        printf("is %s conv %o\n", &str[i][0], t);
-        }
-        break;
-    }
-    }
-
- return 0;
-}
-
-
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

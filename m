@@ -1,42 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278372AbRJMTK5>; Sat, 13 Oct 2001 15:10:57 -0400
+	id <S278366AbRJMTMR>; Sat, 13 Oct 2001 15:12:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278369AbRJMTKr>; Sat, 13 Oct 2001 15:10:47 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:39947 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S278367AbRJMTK3>;
-	Sat, 13 Oct 2001 15:10:29 -0400
-Date: Sat, 13 Oct 2001 16:10:44 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Patrick McFarland <unknown@panax.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Which is better at vm, and why? 2.2 or 2.4
-In-Reply-To: <20011013150408.S249@localhost>
-Message-ID: <Pine.LNX.4.33L.0110131610130.2847-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S278367AbRJMTL5>; Sat, 13 Oct 2001 15:11:57 -0400
+Received: from mons.uio.no ([129.240.130.14]:44416 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S278366AbRJMTLt>;
+	Sat, 13 Oct 2001 15:11:49 -0400
+To: David Chow <davidchow@rcn.com.hk>
+Cc: Andreas Schwab <schwab@suse.de>, linux-kernel@vger.kernel.org,
+        nfs@lists.sourceforge.net
+Subject: Re: [PATCH] NFSv3 symlink bug
+In-Reply-To: <jelmiuj7w2.fsf@sykes.suse.de> <3BC88B44.E461CB63@rcn.com.hk>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 13 Oct 2001 21:12:15 +0200
+In-Reply-To: David Chow's message of "Sun, 14 Oct 2001 02:43:16 +0800"
+Message-ID: <shsvghjuzg0.fsf@charged.uio.no>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 13 Oct 2001, Patrick McFarland wrote:
+>>>>> " " == David Chow <davidchow@rcn.com.hk> writes:
 
-> Could you put the updated vm.txt up somewhere for the world to read?
-> Atleast if the url is here, people could grep the mailing list for "vm
-> doc" or something and find it that way.
+     > Not just that. the call to vfs_symlink on an NFS v3 mounted
+     > filesystem, the dentry that passed to vfs_symlink did not
+     > result with an inode member it remains null. This also lead to
+     > problem in the dcache and didn't have a d_instantiate() and
+     > d_add() in the nfs_symlink() . I have proved this is a bug. in
 
-The patch (for linux 2.4.2) has been up on my home page for
-ages now:
+Wrong. Look again... We do instantiate NFSv3 symlinks.
 
-	http://www.surriel.com/patches/
+     > kernel version 2.4.0 up to 2.4.10 . Not tested with 2.4.12 and
+     > 2.4.11 . This will not affect most of the process context
 
-regards,
+The only bug I can see is if nfs_fhget() fails to allocate a new
+inode. In that case we should drop the dentry. That should be a pretty
+rare bug though and would only happen under extremely low memory
+conditions.
 
-Rik
--- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/  (volunteers needed)
+Cheers,
+   Trond
 
-http://www.surriel.com/		http://distro.conectiva.com/
+--- linux-2.4.12/fs/nfs/dir.c.orig	Tue Jun 12 20:15:08 2001
++++ linux-2.4.12/fs/nfs/dir.c	Sat Oct 13 21:07:26 2001
+@@ -928,6 +928,8 @@
+ 					  &attr, &sym_fh, &sym_attr);
+ 	if (!error && sym_fh.size != 0 && (sym_attr.valid & NFS_ATTR_FATTR)) {
+ 		error = nfs_instantiate(dentry, &sym_fh, &sym_attr);
++		if (error)
++			d_drop(dentry);
+ 	} else {
+ 		if (error == -EEXIST)
+ 			printk("nfs_proc_symlink: %s/%s already exists??\n",
 

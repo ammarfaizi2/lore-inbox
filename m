@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285196AbRLFUy5>; Thu, 6 Dec 2001 15:54:57 -0500
+	id <S285200AbRLFUy4>; Thu, 6 Dec 2001 15:54:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285192AbRLFUxT>; Thu, 6 Dec 2001 15:53:19 -0500
-Received: from bitmover.com ([192.132.92.2]:33923 "EHLO bitmover.bitmover.com")
-	by vger.kernel.org with ESMTP id <S284245AbRLFUuG>;
-	Thu, 6 Dec 2001 15:50:06 -0500
-Date: Thu, 6 Dec 2001 12:50:05 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Pavel Machek <pavel@suse.cz>
-Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>, Larry McVoy <lm@bitmover.com>,
-        Stephan von Krawczynski <skraw@ithnet.com>,
-        Horst von Brand <vonbrand@sleipnir.valparaiso.cl>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux/Pro [was Re: Coding style - a non-issue]
-Message-ID: <20011206125005.K27589@work.bitmover.com>
-Mail-Followup-To: Pavel Machek <pavel@suse.cz>,
-	"Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-	Larry McVoy <lm@bitmover.com>,
-	Stephan von Krawczynski <skraw@ithnet.com>,
-	Horst von Brand <vonbrand@sleipnir.valparaiso.cl>,
-	lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20011202155440.F2622@work.bitmover.com> <2379997133.1007402344@mbligh.des.sequent.com> <20011206134642.D49@toy.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20011206134642.D49@toy.ucw.cz>; from pavel@suse.cz on Thu, Dec 06, 2001 at 01:46:43PM +0000
+	id <S285196AbRLFUxX>; Thu, 6 Dec 2001 15:53:23 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:8970 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S285191AbRLFUwi>; Thu, 6 Dec 2001 15:52:38 -0500
+Date: Thu, 6 Dec 2001 12:46:08 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Kai Henningsen <kaih@khms.westfalen.de>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Linux/Pro  -- clusters
+In-Reply-To: <8EK0gp-1w-B@khms.westfalen.de>
+Message-ID: <Pine.LNX.4.33.0112061243130.10877-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Then we can create memnet (netdevice over shared memory), and Larry's dream
-> can come true...
 
-I'm hoping, but my dreams do not include shared memory over a network.
-That's just way too slow.  It's been done a pile of times, every time
-people say that the caching will make it fast enough and those people
-are wrong every time.
+On 6 Dec 2001, Kai Henningsen wrote:
+>
+> Frankly, format should really have NO timeout. Or possibly a user-
+> specified one.
 
-People who think DSM is a good idea are the same people who think a
-millisecond is OK for a cache miss (current cache miss times are well
-under .0002 milliseconds).
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+Well, frankly, the interface should be that the user code sends the
+command it needs, and waits for it. With no policy in the kernel at all.
+
+Now, for backwards compatibility reasons we cannot do that generically,
+and some things (not format, though), may be common enough that the
+"library code" to do the normal thing is in the kernel. But on the whole,
+the question should not be "how long should the timeout be", but more
+along the lines of "how can we make this easy to interface to existing and
+new applications _without_ having policy decisions like timeouts and
+number of retries".
+
+		Linus
+

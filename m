@@ -1,83 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264103AbUFKQhY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264183AbUFKQe3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264103AbUFKQhY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jun 2004 12:37:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264147AbUFKQeb
+	id S264183AbUFKQe3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jun 2004 12:34:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264147AbUFKQd7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jun 2004 12:34:31 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:10180 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264103AbUFKQcM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jun 2004 12:32:12 -0400
-Message-ID: <40C9DE7F.8040002@pobox.com>
-Date: Fri, 11 Jun 2004 12:31:59 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+	Fri, 11 Jun 2004 12:33:59 -0400
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:40865 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S264153AbUFKQdC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jun 2004 12:33:02 -0400
+Message-ID: <40C9DEFE.8050208@namesys.com>
+Date: Fri, 11 Jun 2004 09:34:06 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "Eric D. Mudama" <edmudama@mail.bounceswoosh.org>
-CC: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Ed Tomlinson <edt@aei.ca>, Andrew Morton <akpm@osdl.org>
-Subject: Re: flush cache range proposal (was Re: ide errors in 7-rc1-mm1 and
- later)
-References: <1085689455.7831.8.camel@localhost> <20040605092447.GB13641@suse.de> <20040606161827.GC28576@bounceswoosh.org> <200406100238.11857.bzolnier@elka.pw.edu.pl> <20040610061141.GD13836@suse.de> <20040610164135.GA2230@bounceswoosh.org> <40C89F4D.4070500@pobox.com> <40C8A241.50608@pobox.com> <20040611075515.GR13836@suse.de> <20040611161701.GB11095@bounceswoosh.org>
-In-Reply-To: <20040611161701.GB11095@bounceswoosh.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
+CC: Chris Mason <mason@suse.com>, reiserfs-dev@namesys.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [STACK] >3k call path in reiserfs
+References: <20040609122226.GE21168@wohnheim.fh-wedel.de> <1086784264.10973.236.camel@watt.suse.com> <1086800028.10973.258.camel@watt.suse.com> <40C74388.20301@namesys.com> <20040609172843.GB2950@wohnheim.fh-wedel.de> <40C75273.7020508@namesys.com> <20040609183442.GD2950@wohnheim.fh-wedel.de> <40C7A07A.1070600@namesys.com> <20040611134918.GB3633@wohnheim.fh-wedel.de>
+In-Reply-To: <20040611134918.GB3633@wohnheim.fh-wedel.de>
+X-Enigmail-Version: 0.83.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric D. Mudama wrote:
-> On Fri, Jun 11 at  9:55, Jens Axboe wrote:
-> 
->> Proposal looks fine, but please lets not forget that flush cache range
->> is really a band-aid because we don't have a proper ordered write in the
->> first place. Personally, I'd much rather see that implemented than flush
->> cache range. It would be way more effective.
-> 
-> 
-> So something like:
-> 
-> WRITE FIRST PARTY DMA QUEUED BARRIER EXT
-> READ FIRST PARTY DMA QUEUED BARRIER EXT
-> READ DMA QUEUED BARRIER EXT
-> READ DMA QUEUED BARRIER
-> WRITE DMA QUEUED BARRIER
-> WRITE DMA QUEUED BARRIER EXT
+Jörn Engel wrote:
 
-Honestly, Linux at least isn't going to care about "legacy TCQ" at all, 
-unless in the very rare case that the controller implements TCQ support 
-in hardware.
+>On Wed, 9 June 2004 16:42:50 -0700, Hans Reiser wrote:
+>  
+>
+>>Jörn Engel wrote:
+>>
+>>    
+>>
+>>>Is there a simple way to tell reiser3 functions from reiser4, btw?
+>>>
+>>>      
+>>>
+>>They are in the reiser4 subdirectory....
+>>    
+>>
+>
+>Does that imply that one cannot build a kernel with both reiser3 and
+>reiser4 in it? 
+>
+No.
 
-The overall difficulty with implementing atomic updates, journalling, 
-barriers etc. on ATA is that traditionally the OS had no clue what was 
-in the write cache, and what was actually on the platter.
+> Or how do you make sure there are not name collisions,
+>being the namespace expert? ;)
+>  
+>
+Be consistently original.;-)
 
-Thus, I think that an FPDMA queued FUA read/write should be all that's 
-needed, since that automatically gives the OS the knowledge of ordering, 
-which gives barriers what they need.  Ordering need only be a matter of 
-waiting for the hardware queue (all FUA commands) to drain, and then 
-issuing an FUA commit block.
-
-Unfortunately, that's not the answer drive guys want to hear, because 
-FUA limits the optimization potential from previous ATA.  ;-)  Maybe 
-drive performance is high enough these days that queued-FUA as a 
-standard mode of operation is tolerable...
-
-
-> ...
-> 
-> If the drive receives a queued barrier write (NCQ or Legacy), it will
-> finish processing all previously-received queued commands and post
-> good status for them, then it will process the barrier operation, post
-> status for that barrier operation, then it will continue processing
-> queued commands in the order received.
-
-If queued-FUA is out of the question, this seems quite reasonable.  It 
-appears to achieve the commit-block semantics described for barrier 
-operation, AFAICS.
-
-	Jeff
-
+>Jörn
+>
+>  
+>
 

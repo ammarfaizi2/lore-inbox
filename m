@@ -1,51 +1,56 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315690AbSE2XBl>; Wed, 29 May 2002 19:01:41 -0400
+	id <S312558AbSE2XHC>; Wed, 29 May 2002 19:07:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315631AbSE2XBk>; Wed, 29 May 2002 19:01:40 -0400
-Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:9489 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S315690AbSE2XBi>; Wed, 29 May 2002 19:01:38 -0400
-Date: Thu, 30 May 2002 01:01:34 +0200
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: Linux 2.5.19
-Message-ID: <20020529230134.GA26708@merlin.emma.line.org>
-Mail-Followup-To: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Linus Torvalds <torvalds@transmeta.com>
-In-Reply-To: <Pine.LNX.4.33.0205291146510.1344-100000@penguin.transmeta.com>
+	id <S315693AbSE2XHB>; Wed, 29 May 2002 19:07:01 -0400
+Received: from louise.pinerecords.com ([212.71.160.16]:35589 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S312558AbSE2XHA>; Wed, 29 May 2002 19:07:00 -0400
+Date: Thu, 30 May 2002 01:06:57 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Nicolas Pitre <nico@cam.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.19 - What's up with the kernel build?
+Message-ID: <20020529230657.GB2851@louise.pinerecords.com>
+In-Reply-To: <3CF540F8.6000802@mandrakesoft.com> <Pine.LNX.4.44.0205291827130.23147-100000@xanadu.home>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.3.99i
+X-OS: GNU/Linux 2.4.19-pre9/sparc SMP
+X-Uptime: 3:14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 May 2002, Linus Torvalds wrote:
-
- Summary of changes from v2.5.18 to v2.5.19
-> ============================================
+> > Well, I really like Keith's kbuild25 too, but Linus said (at least once) 
+> > he wanted an evolution to a new build system... not an unreasonable 
+> > request to at least consider.  Despite Keith's quality of code (again -- 
+> > I like kbuild25), his 3 patch submissions seemed a lot like ultimatums, 
+> > very "take it or leave it dammit".  Not the best way to win friends and 
+> > influence people.
+> > 
+> > If Keith is indeed leaving it, I'm hoping someone will maintain it, or 
+> > work with Kai to integrate it into 2.5.x.
 > 
-> <Andries.Brouwer@cwi.nl>
-> 	o usb-storage
-[...]
+> When I suggested to Keith he push kbuild25 the way Linus likes, he (Keith) 
+> considered that was a "stupid comment" and that he'd ignore stupid comments.
 
-Linus,
+What remains to be answered is, how does one split a system of a myriad of
+build rule files into a reasonable amount of small patches.
 
-is there any particular reason why you have not yet updated to my
-lk-changelog.pl script or ever replied to any of my mails on that
-subject?
+Of course, you could have hundreds of patches each consisting of a single
+Makefile.in, but how would that make the reviewing/integrating easier? In
+the end you'd end up reading the same input, only you'd complement it by
+frequently pressing your favorite show-me-the-next-mail key.
 
-I am constantly updating it to have it resolve most addresses to names,
-fixing bugs, and it seems people are all in favor of my script, but
-still it looks as though some very early version was used to generate
-this summary which knows hardly half of the common mail addresses.
+The solution here is not to create "artificial splitting," but rather spare
+the good ol' system for the time being and have kbuild25 coexist with it until
+all build issues are resolved and everything works acceptably -- and that's
+what has been offered. 2.5 is certain to span a long enough period for such
+treatment, and Keith will be so kind as to keep updating his work.
 
-I'm not adding the script again, it has been posted less than 24 hours
-ago (in response to Marcelo's 2.4.19-pre9 announcement), if you need it,
-find it at http://mandree.home.pages.de/linux/kernel/ or drop me a line
--- the current version is v0.21.
+Alright I really didn't want to get involved in another kbuild thread but
+couldn't help it. Sorry.
 
-Thanks for your attention.
-Matthias
+
+T.

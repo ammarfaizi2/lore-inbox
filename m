@@ -1,52 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135209AbRAFV5Z>; Sat, 6 Jan 2001 16:57:25 -0500
+	id <S133086AbRAFWU0>; Sat, 6 Jan 2001 17:20:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135217AbRAFV5P>; Sat, 6 Jan 2001 16:57:15 -0500
-Received: from mta6.snfc21.pbi.net ([206.13.28.240]:44231 "EHLO
-	mta6.snfc21.pbi.net") by vger.kernel.org with ESMTP
-	id <S135209AbRAFV5E>; Sat, 6 Jan 2001 16:57:04 -0500
-Date: Sat, 06 Jan 2001 13:58:32 -0800
-From: Dan Kegel <dank@alumni.caltech.edu>
-Subject: re: [PATCH] up to 50% faster sys_poll()
-To: manfred@colorfullife.com, linux-kernel@vger.kernel.org
-Reply-to: dank@alumni.caltech.edu
-Message-id: <3A579508.CF755874@alumni.caltech.edu>
-MIME-version: 1.0
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.14-5.0 i686)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-X-Accept-Language: en
+	id <S135173AbRAFWUQ>; Sat, 6 Jan 2001 17:20:16 -0500
+Received: from c837140-a.vncvr1.wa.home.com ([65.0.81.146]:522 "EHLO
+	cyclonehq.dnsalias.net") by vger.kernel.org with ESMTP
+	id <S133086AbRAFWUF>; Sat, 6 Jan 2001 17:20:05 -0500
+Message-ID: <00b801c0782e$bbf72960$3a00000a@danb>
+From: "db" <db@cyclonehq.dnsalias.net>
+To: <linux-kernel@vger.kernel.org>
+In-Reply-To: <01010607054600.01947@gandalf> <20010106075402.A3377@foozle.turbogeek.org> <20010106154027.A1461@conectiva.com>
+Subject: Re: Bug reporting script? (was: removal of redundant line in documentation)
+Date: Sat, 6 Jan 2001 14:19:27 -0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-Mimeole: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manfred (manfred@colorfullife.com) wrote:
-> sys_poll spends around 1/2 of the execution time allocating / freeing a 
-> few bytes temporary memory. 
-> The attached patch tries to avoid these allocation by using the stack - 
-> usually only a few bytes are needed, kmalloc is used for the rest. 
-> The result: one poll of stdin is down from 1736 cpu ticks to 865 cpu 
-> ticks (Pentium II/350 SMP, SMP kernel) 
+[...]
 
-Tested with poll() microbenchmark from 
-http://www.kegel.com/dkftpbench/Poller_bench.html
+> About bug reports, isn't a good thing introduce the sgi's lkcd (linux
+kernel crash dump) into the main stream of 2.5? The main problem of lkcd in
+2.2 was the lack of kiobufs.
+>
+> I think it as a good thing, for distributions, the distribution guys have
+the vmlinuz image of the distro, so when a bug happens the user only needs
+to send the crash dump to the distribution kernel hacker, and he can discuss
+the bug on lkml.
+>
+> This introduce a new kind of bug reporter, if the distribution makes
+avalaible every new development kernel as a package, a user can download and
+use, crash and report the bug without any knowledge about kernel. So the
+marketing guys can say: 'help the development of linux without hacking,
+report bugs'.
 
-time in microsec to find a single active pipe among N pipes
-on a 650 MHz dual Pentium III using poll():
 
-                number of pipes
-kernel        100    1000   10000
----------------------------------
-2.4.0-t10pre4  49    1184   14660
-2.4.0          48    1162   14702
-2.4.0-pp       48    1103   14205
 
-2.4.0-pp is with Manfred's patch.  Seems to be a 4-6% improvement 
-for large numbers of pipes, no change for 100 pipes.
+I think this would be a great idea.
 
-Hope that was an appropriate test. 
 
-- Dan
+
+Dan Browning, Cyclone Computer Systems, danb@cyclonecomputers.com
+
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

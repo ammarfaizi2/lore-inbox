@@ -1,35 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266292AbTAZQ27>; Sun, 26 Jan 2003 11:28:59 -0500
+	id <S266736AbTAZQvU>; Sun, 26 Jan 2003 11:51:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266473AbTAZQ27>; Sun, 26 Jan 2003 11:28:59 -0500
-Received: from ulima.unil.ch ([130.223.144.143]:37607 "EHLO ulima.unil.ch")
-	by vger.kernel.org with ESMTP id <S266292AbTAZQ27>;
-	Sun, 26 Jan 2003 11:28:59 -0500
-Date: Sun, 26 Jan 2003 17:38:15 +0100
-From: Gregoire Favre <greg@ulima.unil.ch>
-To: Jens Axboe <axboe@suse.de>
-Cc: "Henning P. Schmiedehausen" <hps@intermeta.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Can't burn DVD under 2.5.59 with ide-cd
-Message-ID: <20030126163815.GA16437@ulima.unil.ch>
-References: <200301231752.h0NHqOM5001079@burner.fokus.gmd.de> <20030123180124.GB9141@ulima.unil.ch> <20030123180653.GU910@suse.de> <b0qvta$fo6$1@forge.intermeta.de> <20030124092616.GH910@suse.de> <20030125142547.GB18989@ulima.unil.ch> <20030126162348.GP889@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030126162348.GP889@suse.de>
-User-Agent: Mutt/1.4i
+	id <S266792AbTAZQvT>; Sun, 26 Jan 2003 11:51:19 -0500
+Received: from web20507.mail.yahoo.com ([216.136.226.142]:40278 "HELO
+	web20507.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S266736AbTAZQvS>; Sun, 26 Jan 2003 11:51:18 -0500
+Message-ID: <20030126170034.30209.qmail@web20507.mail.yahoo.com>
+Date: Sun, 26 Jan 2003 09:00:34 -0800 (PST)
+From: sundara raman <sundararamand@yahoo.com>
+Subject: doubts in INIT - while system booting up
+To: Linux-Kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 26, 2003 at 05:23:48PM +0100, Jens Axboe wrote:
+Hi,
 
-> Thanks, this is the info I wanted. The sense info has not been read from
-> the drive, it seems.
+I got some error while reconfiguring & rebooting the
+kernel(version 2.4.7-10) in the Redhat linux 7.2 for
+DiffServ support.
 
-Thanky to you, just tell me when I should test another patch ;-)
+I followed the steps for reconfiguring & rebuilding
+the kernel. 
 
-	Grégoire
-________________________________________________________________
-http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch
+1) I downloaded kernel-source-2.4.7-10.rpm from the
+internet.
+2) After extracting, i got the "Linux" folder in
+/usr/src path.
+3) I edited the following commands in /usr/src/linux
+path
+
+	#make xconfig
+	#make dep
+	#make clean
+	#nohup make bzImage
+	#make modules
+	#make modules_install
+	#cp /usr/src/linux/arch/i386/boot/bzImage
+/boot/linix-ds
+	
+4) I added the "lilo.conf" file in /etc path like
+	
+	image=/boot/linux-ds
+	label=DiffServ
+	read-only
+	root=/dev/hda6
+
+5) I run "/sbin/lilo" file.
+6) after rebooting the system,lilo shows the DiffServ
+label.
+7) I selected that label.
+8) while system booting up, it shows the following
+error
+
+	 INIT: Id "x" respawing too fast: disabled for 5
+minutes
+
+
+Please help me.
+what will i do?
+
+
+Best Reagrds
+D.SUndara Raman
+	
+
+
+=====
+------------------------
+D. Sundara Raman
+150 Ettayapuram Road
+Kovilpatti, Tamilnadu
+India. 628 501.
+Phone : 04632 - 27267
+sundararamand@yahoo.com
+
+__________________________________________________
+Do you Yahoo!?
+Yahoo! Mail Plus - Powerful. Affordable. Sign up now.
+http://mailplus.yahoo.com

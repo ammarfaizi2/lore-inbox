@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S132654AbQK3HfL>; Thu, 30 Nov 2000 02:35:11 -0500
+        id <S132671AbQK3Hpn>; Thu, 30 Nov 2000 02:45:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S132656AbQK3HfC>; Thu, 30 Nov 2000 02:35:02 -0500
-Received: from bacchus.veritas.com ([204.177.156.37]:44686 "EHLO
-        bacchus-int.veritas.com") by vger.kernel.org with ESMTP
-        id <S132654AbQK3Hev>; Thu, 30 Nov 2000 02:34:51 -0500
-Date: Thu, 30 Nov 2000 12:32:01 +0530 (IST)
-From: V Ganesh <ganesh@veritas.com>
-Message-Id: <200011300702.MAA26287@vxindia.veritas.com>
+        id <S132656AbQK3HpY>; Thu, 30 Nov 2000 02:45:24 -0500
+Received: from mail.linux.student.kuleuven.ac.be ([193.190.253.82]:55300 "EHLO
+        mail.linux.student.kuleuven.ac.be") by vger.kernel.org with ESMTP
+        id <S132259AbQK3HpM>; Thu, 30 Nov 2000 02:45:12 -0500
+Date: Thu, 30 Nov 2000 08:14:43 +0100
+From: Arnaud Installe <arnaud@bach.kotnet.org>
 To: linux-kernel@vger.kernel.org
-Cc: linux-LVM@EZ-Darmstadt.Telekom.de, mingo@redhat.com
-Subject: [bug] infinite loop in generic_make_request()
+Cc: ainstalle@filepool.com
+Subject: high load & poor interactivity on fast thread creation
+Message-ID: <20001130081443.A8118@bach.iverlek.kotnet.org>
+Reply-To: Arnaud Installe <a.installe@ieee.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.1.12i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[cc'ed to maintainers of md and lvm]
+Hello,
 
-hi,
-in generic_make_request(), the following code handles stacking:
+When creating a lot of Java threads per second linux slows down to a
+crawl.  I don't think this happens on NT, probably because NT doesn't
+create new threads as fast as Linux does.
 
-do {
-       q = blk_get_queue(bh->b_rdev);
-       if (!q) {
-                        printk(...)
-                        buffer_IO_error(bh);
-                        break;
-       }
-} while (q->make_request_fn(q, rw, bh));
+Is there a way (setting ?) to solve this problem ?  Rate-limit the number
+of threads created ?  The problem occurred on linux 2.2, IBM Java 1.1.8.
 
-however, make_request_fn may return -1 in case of errors. one such fn is
-raid0_make_request(). this causes generic_make_request() to loop endlessly.
-lvm returns 1 unconditionally, so it would also loop if an error occured in
-lvm_map(). other bdevs might have the same problem.
-I think a better mechanism would be to mandate that make_request_fn ought
-to call bh->b_end_io() in case of errors and return 0.
+Thanks,
 
-ganesh
+							Arnaud
+
+-- 
+Arnaud Installe                                             a.installe@ieee.org
+
+Look, we trade every day out there with hustlers, deal-makers, shysters,
+con-men.  That's the way businesses get started.  That's the way this
+country was built.
+		-- Hubert Allen
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

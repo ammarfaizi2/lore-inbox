@@ -1,96 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292380AbSBPPRc>; Sat, 16 Feb 2002 10:17:32 -0500
+	id <S292379AbSBPPQl>; Sat, 16 Feb 2002 10:16:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292382AbSBPPRY>; Sat, 16 Feb 2002 10:17:24 -0500
-Received: from [208.166.87.138] ([208.166.87.138]:20661 "EHLO server.rwii.com")
-	by vger.kernel.org with ESMTP id <S292380AbSBPPRO>;
-	Sat, 16 Feb 2002 10:17:14 -0500
-Message-ID: <3C6E77DE.70FE49DF@rwii.com>
-Date: Sat, 16 Feb 2002 10:16:46 -0500
-From: Tyson D Sawyer <tyson@rwii.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.17-preempt i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Missed jiffies
+	id <S292380AbSBPPQc>; Sat, 16 Feb 2002 10:16:32 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:63495
+	"EHLO golux.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S292379AbSBPPQS>; Sat, 16 Feb 2002 10:16:18 -0500
+Date: Sat, 16 Feb 2002 09:50:39 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: That Linux Guy <thatlinuxguy@hotmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Disgusted with kbuild developers
+Message-ID: <20020216095039.L23546@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Jeff Garzik <jgarzik@mandrakesoft.com>,
+	That Linux Guy <thatlinuxguy@hotmail.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020215135557.B10961@thyrsus.com><200202151929.g1FJTaU03362@pc1-camc5-0-cust78.cam.cable.ntl.com><20020215141433.B11369@thyrsus.com><20020215195818.A3534@pc1-camc5-0-cust78.cam.cable.ntl.com><20020215145421.A12540@thyrsus.com><20020215124255.F28735@work.bitmover.com><20020215153953.D12540@thyrsus.com> <1013811711.807.1066.camel@phantasy> <OE193Qime2yO9QJsWhz00006b54@hotmail.com> <3C6DE7DC.59A92A6D@mandrakesoft.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3C6DE7DC.59A92A6D@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Sat, Feb 16, 2002 at 12:02:20AM -0500
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My system looses about 8 seconds every 20 minutes.  This is reported
-by ntp and verified by comparing 'date' to 'hwclock --show' and a wall
-clock.
+Jeff Garzik <jgarzik@mandrakesoft.com>:
+> I consider CML2 an albatross now, and the maintainer does not listen to
+> feedback.
 
-My system is a x86 Dell laptop with HZ=1024.
+New FAQ entry:
 
-I am quite certain that the issue is the System Management Interrupt
-(SMI).
+* Eric doesn't listen to feedback.
 
-While doing latency tests I have observed 18ms delays every 2 seconds.
- Like, as they say, clock work.  Given that in 18ms with HZ==1024
-roughly 18 timer interrupts should occur then 17 of them (I believe)
-would be lost.  Looking in the kernel sources I could find nothing
-that adjusts for this.
+Bill Stearns observed in February 2002 that "Eric has been very good
+about folding in changes".  In response to feedback from the kernel
+mailing list, Eric has:
 
-Since I have defined HZ to be 1024, I miss lots of timer interrupts. 
-However, since the the processor spends 18ms at a time in SMM (System
-Mangement Mode), then even the stock 10ms timer tick will sometimes
-miss a tick.  Thus the problem applies to non-hacked kernels also.
+- introduced the prefix declaration so that symbol names can be 
+  expressed with or without the CONFIG_
 
-I don't know that there is a solution for all systems, however, at
-least on pentium systems it seems possible to use the TSC to catch
-this.  However, even if I worked up a patch to do so, do_timer()
-always increments jiffies by just 1 count and it isn't clear that its
-safe to call it repeatedly to catch up with lost ticks.  It also isn't
-clear that it would be safe to modify jiffies directly in one of the
-arch/i386/kernel/time.c functions.
+- added a recovery mechanism so the configurator can do someting
+  with inconsistent configs (this one was Alan Cox's issue).
 
-In general, I'd like to try a solution that looks something like:
+- removed the magic tie declaration that made symbols without help
+  only visible in EXPERT mode
 
-tsc_per_jiffie = cpu_khz * 1000 / HZ;
+- reorganized the rulebase to minimize stuff in the root rules file
 
-tsc_remainder += last_tsc_low-tsc_low;
-jiffies_increment=0;
-do {
-	tsc_remainder -= tsc_per_jiffie;
-	jiffies_increment++;
-} while (tsc_remainder > tsc_per_jiffie);
+- added the capability to annotate constraint violations with 
+  text messages in English or the language of your choice.
 
-do_timer(regs, jiffies_increment);
+- sped up the rulebase compiler by a factor of six
 
-The above was created on the fly and completely untested.  It needs
-bits like making sure that the arithmetic works properly on overflow
-of tsc_low.  It also requires a patch to do_timer() and proper
-structuring for portability.
+and many other changes comprising months of work.
+ 
+> I would be happy as a clam if Eric wanted to resolve the problems -we-
+> have with CML1 and the config system, not just the problems he has with
+> it.
 
-One problem I see is that tsc_per_jiffie must be perfect or time will
-drift.  I think it might work to not carry over the remainder from
-cycle to cycle under some conditions (no missed ticks) but I'd have
-to think about that the effects of timing jitter on this.
+What problems do you have with CML1?  Name them and I will make sure
+they are not issues in CML2.
 
-Have attempts to address this problem been made before?
-
-What are the problems with incrementing jiffies by more than 1?
-
-What problems have I missed?
-
-What strategies might be employed to prevent degraded system
-performance since this code is in a criticle path?
-
-Have I competely missed something, the kernel already takes care of
-this and I have the problem all wrong?
-
-This problem also comes up with IDE access with dma off and I've
-seen reports of it when using frame buffers.
-
-Thanks!
-Ty
-
-
+I've been begging for feedback for many months.  Pleases *get specific*.
+Instead of muttering that Eric refuses to listen, *give me something
+to listen to*!
 -- 
-Tyson D Sawyer                             iRobot Corporation
-Senior Systems Engineer                    Military Systems Division
-tsawyer@irobot.com                         Robots for the Real World
-603-532-6900 ext 206                       http://www.irobot.com
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>

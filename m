@@ -1,573 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267367AbUHDR4D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267364AbUHDR7j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267367AbUHDR4D (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 13:56:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267366AbUHDRzz
+	id S267364AbUHDR7j (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 13:59:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267365AbUHDR7j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 13:55:55 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:51626 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267365AbUHDRza (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 13:55:30 -0400
-Date: Wed, 4 Aug 2004 13:55:19 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@dhcp83-102.boston.redhat.com
-To: Andrew Morton <akpm@osdl.org>
-cc: Arjan Van de Ven <arjanv@redhat.com>, <linux-kernel@vger.kernel.org>,
-       Chris Wright <chrisw@osdl.org>
-Subject: [PATCH] mlock-as-user for 2.6.8-rc2-mm2
-Message-ID: <Pine.LNX.4.44.0408041328240.9630-100000@dhcp83-102.boston.redhat.com>
+	Wed, 4 Aug 2004 13:59:39 -0400
+Received: from natsmtp00.rzone.de ([81.169.145.165]:56259 "EHLO
+	natsmtp00.rzone.de") by vger.kernel.org with ESMTP id S267364AbUHDR7f
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Aug 2004 13:59:35 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: rusty@rustcorp.com.au
+Subject: [PATCH] fix reading string module parameters in sysfs
+Date: Wed, 4 Aug 2004 19:58:46 +0200
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_WPSEBeZDwkDatL5";
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408041958.46589.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
 
-here is the last agreed-on patch that lets normal users mlock
-pages up to their rlimit.  This patch addresses all the issues
-brought up by Chris and Andrea.
+--Boundary-02=_WPSEBeZDwkDatL5
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Please apply this patch for your next release.
+Reading the contents of a module_param_string through sysfs currently
+oopses because the param_get_charp() function cannot operate on a
+kparam_string struct. This introduces the required param_get_string.
 
-thanks,
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 
-Rik
-
-Signed-off-by: Rik van Riel <riel@redhat.com>
-
-
---- linux-2.6.8-rc2/include/asm-ppc64/resource.h.mlock	2004-07-18 00:58:57.000000000 -0400
-+++ linux-2.6.8-rc2/include/asm-ppc64/resource.h	2004-08-04 13:25:33.000000000 -0400
-@@ -45,7 +45,7 @@
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- 	{             0,             0 },		\
- 	{      INR_OPEN,     INR_OPEN  },		\
--	{ RLIM_INFINITY, RLIM_INFINITY },		\
-+	{ PAGE_SIZE,     PAGE_SIZE     },		\
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- 	{ MAX_SIGPENDING, MAX_SIGPENDING },		\
---- linux-2.6.8-rc2/include/asm-m68k/resource.h.mlock	2004-07-18 00:57:38.000000000 -0400
-+++ linux-2.6.8-rc2/include/asm-m68k/resource.h	2004-08-04 13:25:33.000000000 -0400
-@@ -39,7 +39,7 @@
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- 	{             0,             0 },		\
- 	{      INR_OPEN,     INR_OPEN  },		\
--	{ RLIM_INFINITY, RLIM_INFINITY },		\
-+	{ PAGE_SIZE,     PAGE_SIZE     },		\
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- 	{ MAX_SIGPENDING, MAX_SIGPENDING },		\
---- linux-2.6.8-rc2/include/asm-parisc/resource.h.mlock	2004-07-18 00:58:57.000000000 -0400
-+++ linux-2.6.8-rc2/include/asm-parisc/resource.h	2004-08-04 13:25:33.000000000 -0400
-@@ -39,7 +39,7 @@
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- 	{             0,             0 },		\
- 	{      INR_OPEN,     INR_OPEN  },		\
--	{ RLIM_INFINITY, RLIM_INFINITY },		\
-+	{ PAGE_SIZE,     PAGE_SIZE     },		\
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- 	{ MAX_SIGPENDING, MAX_SIGPENDING },		\
---- linux-2.6.8-rc2/include/asm-ppc/resource.h.mlock	2004-07-18 00:58:21.000000000 -0400
-+++ linux-2.6.8-rc2/include/asm-ppc/resource.h	2004-08-04 13:25:33.000000000 -0400
-@@ -36,7 +36,7 @@
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- 	{             0,             0 },		\
- 	{      INR_OPEN,     INR_OPEN  },		\
--	{ RLIM_INFINITY, RLIM_INFINITY },		\
-+	{ PAGE_SIZE,     PAGE_SIZE     },		\
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- 	{ MAX_SIGPENDING, MAX_SIGPENDING },		\
---- linux-2.6.8-rc2/include/asm-x86_64/resource.h.mlock	2004-07-18 00:58:57.000000000 -0400
-+++ linux-2.6.8-rc2/include/asm-x86_64/resource.h	2004-08-04 13:25:33.000000000 -0400
-@@ -39,7 +39,7 @@
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- 	{             0,             0 },		\
- 	{      INR_OPEN,     INR_OPEN  },		\
--	{ RLIM_INFINITY, RLIM_INFINITY },		\
-+	{ PAGE_SIZE , PAGE_SIZE  },		\
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- 	{ MAX_SIGPENDING, MAX_SIGPENDING },		\
---- linux-2.6.8-rc2/include/asm-ia64/resource.h.mlock	2004-07-18 00:59:03.000000000 -0400
-+++ linux-2.6.8-rc2/include/asm-ia64/resource.h	2004-08-04 13:25:33.000000000 -0400
-@@ -46,7 +46,7 @@
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- 	{             0,             0 },		\
- 	{      INR_OPEN,     INR_OPEN  },		\
--	{ RLIM_INFINITY, RLIM_INFINITY },		\
-+	{ PAGE_SIZE,     PAGE_SIZE     },		\
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- 	{ MAX_SIGPENDING, MAX_SIGPENDING },		\
---- linux-2.6.8-rc2/include/linux/mm.h.mlock	2004-08-04 13:23:15.000000000 -0400
-+++ linux-2.6.8-rc2/include/linux/mm.h	2004-08-04 13:25:33.000000000 -0400
-@@ -498,9 +498,20 @@ int shmem_set_policy(struct vm_area_stru
- struct mempolicy *shmem_get_policy(struct vm_area_struct *vma,
- 					unsigned long addr);
- struct file *shmem_file_setup(char * name, loff_t size, unsigned long flags);
--void shmem_lock(struct file * file, int lock);
-+int shmem_lock(struct file * file, int lock, struct user_struct *);
- int shmem_zero_setup(struct vm_area_struct *);
- 
-+static inline int can_do_mlock(void)
-+{
-+	if (capable(CAP_IPC_LOCK))
-+		return 1;
-+	if (current->rlim[RLIMIT_MEMLOCK].rlim_cur != 0)
-+		return 1;
-+	return 0;
-+}
-+extern int user_can_mlock(size_t, struct user_struct *);
-+extern void user_subtract_mlock(size_t, struct user_struct *);
-+
- /*
-  * Parameter block passed down to zap_pte_range in exceptional cases.
-  */
---- linux-2.6.8-rc2/include/linux/shm.h.mlock	2004-07-18 00:59:02.000000000 -0400
-+++ linux-2.6.8-rc2/include/linux/shm.h	2004-08-04 13:25:33.000000000 -0400
-@@ -84,6 +84,7 @@ struct shmid_kernel /* private to the ke
- 	time_t			shm_ctim;
- 	pid_t			shm_cprid;
- 	pid_t			shm_lprid;
-+	struct user_struct *	mlock_user;
- };
- 
- /* shm_mode upper byte flags */
---- linux-2.6.8-rc2/include/linux/sched.h.mlock	2004-08-04 13:23:17.000000000 -0400
-+++ linux-2.6.8-rc2/include/linux/sched.h	2004-08-04 13:25:33.000000000 -0400
-@@ -333,6 +333,7 @@ struct user_struct {
- 	atomic_t sigpending;	/* How many pending signals does this user have? */
- 	/* protected by mq_lock	*/
- 	unsigned long mq_bytes;	/* How many bytes can be allocated to mqueue? */
-+	unsigned long locked_shm; /* How many pages of mlocked shm ? */
- 
- 	/* Hash table maintenance information */
- 	struct list_head uidhash_list;
---- linux-2.6.8-rc2/include/asm-arm/resource.h.mlock	2004-07-18 00:59:06.000000000 -0400
-+++ linux-2.6.8-rc2/include/asm-arm/resource.h	2004-08-04 13:25:33.000000000 -0400
-@@ -39,7 +39,7 @@
- 	{ RLIM_INFINITY, RLIM_INFINITY },	\
- 	{ 0,             0             },	\
- 	{ INR_OPEN,      INR_OPEN      },	\
--	{ RLIM_INFINITY, RLIM_INFINITY },	\
-+	{ PAGE_SIZE,      PAGE_SIZE    },	\
- 	{ RLIM_INFINITY, RLIM_INFINITY },	\
- 	{ RLIM_INFINITY, RLIM_INFINITY },	\
- 	{ MAX_SIGPENDING, MAX_SIGPENDING},	\
---- linux-2.6.8-rc2/include/asm-v850/resource.h.mlock	2004-07-18 00:57:40.000000000 -0400
-+++ linux-2.6.8-rc2/include/asm-v850/resource.h	2004-08-04 13:25:33.000000000 -0400
-@@ -39,7 +39,7 @@
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- 	{             0,             0 },		\
- 	{      INR_OPEN,     INR_OPEN  },		\
--	{ RLIM_INFINITY, RLIM_INFINITY },		\
-+	{ PAGE_SIZE, PAGE_SIZE  },		\
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- 	{ MAX_SIGPENDING, MAX_SIGPENDING },		\
---- linux-2.6.8-rc2/include/asm-sparc/resource.h.mlock	2004-07-18 00:57:42.000000000 -0400
-+++ linux-2.6.8-rc2/include/asm-sparc/resource.h	2004-08-04 13:25:33.000000000 -0400
-@@ -44,7 +44,7 @@
-     {       0, RLIM_INFINITY},		\
-     {RLIM_INFINITY, RLIM_INFINITY},	\
-     {INR_OPEN, INR_OPEN}, {0, 0},	\
--    {RLIM_INFINITY, RLIM_INFINITY},	\
-+    {PAGE_SIZE, PAGE_SIZE},	\
-     {RLIM_INFINITY, RLIM_INFINITY},	\
-     {RLIM_INFINITY, RLIM_INFINITY},	\
-     {MAX_SIGPENDING, MAX_SIGPENDING},	\
---- linux-2.6.8-rc2/include/asm-alpha/resource.h.mlock	2004-07-18 00:57:41.000000000 -0400
-+++ linux-2.6.8-rc2/include/asm-alpha/resource.h	2004-08-04 13:25:33.000000000 -0400
-@@ -41,7 +41,7 @@
-     {INR_OPEN, INR_OPEN},			/* RLIMIT_NOFILE */	\
-     {LONG_MAX, LONG_MAX},			/* RLIMIT_AS */		\
-     {LONG_MAX, LONG_MAX},			/* RLIMIT_NPROC */	\
--    {LONG_MAX, LONG_MAX},			/* RLIMIT_MEMLOCK */	\
-+    {PAGE_SIZE, PAGE_SIZE},			/* RLIMIT_MEMLOCK */	\
-     {LONG_MAX, LONG_MAX},			/* RLIMIT_LOCKS */	\
-     {MAX_SIGPENDING, MAX_SIGPENDING},		/* RLIMIT_SIGPENDING */ \
-     {MQ_BYTES_MAX, MQ_BYTES_MAX},		/* RLIMIT_MSGQUEUE */	\
---- linux-2.6.8-rc2/include/asm-i386/resource.h.mlock	2004-07-18 00:59:32.000000000 -0400
-+++ linux-2.6.8-rc2/include/asm-i386/resource.h	2004-08-04 13:25:33.000000000 -0400
-@@ -40,7 +40,7 @@
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- 	{             0,             0 },		\
- 	{      INR_OPEN,     INR_OPEN  },		\
--	{ RLIM_INFINITY, RLIM_INFINITY },		\
-+	{ PAGE_SIZE,     PAGE_SIZE     },		\
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- 	{ MAX_SIGPENDING, MAX_SIGPENDING },		\
---- linux-2.6.8-rc2/include/asm-h8300/resource.h.mlock	2004-07-18 00:57:40.000000000 -0400
-+++ linux-2.6.8-rc2/include/asm-h8300/resource.h	2004-08-04 13:25:33.000000000 -0400
-@@ -39,7 +39,7 @@
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- 	{             0,             0 },		\
- 	{      INR_OPEN,     INR_OPEN  },		\
--	{ RLIM_INFINITY, RLIM_INFINITY },		\
-+	{ PAGE_SIZE,     PAGE_SIZE     },		\
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- 	{ MAX_SIGPENDING, MAX_SIGPENDING },		\
---- linux-2.6.8-rc2/include/asm-s390/resource.h.mlock	2004-07-18 00:58:13.000000000 -0400
-+++ linux-2.6.8-rc2/include/asm-s390/resource.h	2004-08-04 13:25:33.000000000 -0400
-@@ -47,7 +47,7 @@
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- 	{             0,             0 },		\
- 	{ INR_OPEN, INR_OPEN },                         \
--	{ RLIM_INFINITY, RLIM_INFINITY },		\
-+	{ PAGE_SIZE,     PAGE_SIZE     },		\
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- 	{ MAX_SIGPENDING, MAX_SIGPENDING },		\
---- linux-2.6.8-rc2/include/asm-cris/resource.h.mlock	2004-07-18 00:58:54.000000000 -0400
-+++ linux-2.6.8-rc2/include/asm-cris/resource.h	2004-08-04 13:25:33.000000000 -0400
-@@ -39,7 +39,7 @@
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- 	{             0,             0 },		\
- 	{      INR_OPEN,     INR_OPEN  },		\
--	{ RLIM_INFINITY, RLIM_INFINITY },               \
-+	{     PAGE_SIZE,    PAGE_SIZE  },               \
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- 	{ MAX_SIGPENDING, MAX_SIGPENDING },		\
---- linux-2.6.8-rc2/include/asm-sparc64/resource.h.mlock	2004-07-18 00:57:38.000000000 -0400
-+++ linux-2.6.8-rc2/include/asm-sparc64/resource.h	2004-08-04 13:25:33.000000000 -0400
-@@ -43,7 +43,7 @@
-     {       0, RLIM_INFINITY},		\
-     {RLIM_INFINITY, RLIM_INFINITY},	\
-     {INR_OPEN, INR_OPEN}, {0, 0},	\
--    {RLIM_INFINITY, RLIM_INFINITY},	\
-+    {PAGE_SIZE,     PAGE_SIZE    },	\
-     {RLIM_INFINITY, RLIM_INFINITY},	\
-     {RLIM_INFINITY, RLIM_INFINITY},	\
-     {MAX_SIGPENDING, MAX_SIGPENDING},	\
---- linux-2.6.8-rc2/include/asm-arm26/resource.h.mlock	2004-07-18 00:57:38.000000000 -0400
-+++ linux-2.6.8-rc2/include/asm-arm26/resource.h	2004-08-04 13:25:33.000000000 -0400
-@@ -39,7 +39,7 @@
- 	{ RLIM_INFINITY, RLIM_INFINITY },	\
- 	{ 0,             0             },	\
- 	{ INR_OPEN,      INR_OPEN      },	\
--	{ RLIM_INFINITY, RLIM_INFINITY },	\
-+	{ PAGE_SIZE,     PAGE_SIZE     },	\
- 	{ RLIM_INFINITY, RLIM_INFINITY },	\
- 	{ RLIM_INFINITY, RLIM_INFINITY },	\
- 	{ MAX_SIGPENDING, MAX_SIGPENDING},	\
---- linux-2.6.8-rc2/include/asm-sh/resource.h.mlock	2004-07-18 00:58:54.000000000 -0400
-+++ linux-2.6.8-rc2/include/asm-sh/resource.h	2004-08-04 13:25:33.000000000 -0400
-@@ -39,7 +39,7 @@
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- 	{             0,             0 },		\
- 	{      INR_OPEN,     INR_OPEN  },		\
--	{ RLIM_INFINITY, RLIM_INFINITY },		\
-+	{ PAGE_SIZE,     PAGE_SIZE     },		\
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- 	{ MAX_SIGPENDING, MAX_SIGPENDING },		\
---- linux-2.6.8-rc2/fs/hugetlbfs/inode.c.mlock	2004-08-04 13:23:11.000000000 -0400
-+++ linux-2.6.8-rc2/fs/hugetlbfs/inode.c	2004-08-04 13:27:11.000000000 -0400
-@@ -742,7 +742,7 @@ static int can_do_hugetlb_shm(void)
- 
- struct file *hugetlb_zero_setup(size_t size)
- {
--	int error;
-+	int error = -ENOMEM;
- 	struct file *file;
- 	struct inode *inode;
- 	struct dentry *dentry, *root;
-@@ -755,6 +755,9 @@ struct file *hugetlb_zero_setup(size_t s
- 	if (!is_hugepage_mem_enough(size))
- 		return ERR_PTR(-ENOMEM);
- 
-+	if (!user_can_mlock(size, current->user))
-+		return ERR_PTR(-ENOMEM);
-+
- 	root = hugetlbfs_vfsmount->mnt_root;
- 	snprintf(buf, 16, "%lu", hugetlbfs_counter());
- 	quick_string.name = buf;
-@@ -762,7 +765,7 @@ struct file *hugetlb_zero_setup(size_t s
- 	quick_string.hash = 0;
- 	dentry = d_alloc(root, &quick_string);
- 	if (!dentry)
--		return ERR_PTR(-ENOMEM);
-+		goto out_subtract_mlock;
- 
- 	error = -ENFILE;
- 	file = get_empty_filp();
-@@ -789,6 +792,8 @@ out_file:
- 	put_filp(file);
- out_dentry:
- 	dput(dentry);
-+out_subtract_mlock:
-+	user_subtract_mlock(size, current->user);
- 	return ERR_PTR(error);
+=3D=3D=3D=3D=3D include/linux/moduleparam.h 1.8 vs edited =3D=3D=3D=3D=3D
+=2D-- 1.8/include/linux/moduleparam.h	Fri May 21 09:50:15 2004
++++ edited/include/linux/moduleparam.h	Wed Aug  4 16:16:23 2004
+@@ -73,7 +73,7 @@
+ #define module_param_string(name, string, len, perm)			\
+ 	static struct kparam_string __param_string_##name		\
+ 		=3D { len, string };					\
+=2D	module_param_call(name, param_set_copystring, param_get_charp,	\
++	module_param_call(name, param_set_copystring, param_get_string,	\
+ 		   &__param_string_##name, perm)
+=20
+ /* Called on module insert or kernel boot */
+@@ -140,6 +140,7 @@
+ extern int param_array_get(char *buffer, struct kernel_param *kp);
+=20
+ extern int param_set_copystring(const char *val, struct kernel_param *kp);
++extern int param_get_string(char *buffer, struct kernel_param *kp);
+=20
+ int param_array(const char *name,
+ 		const char *val,
+=3D=3D=3D=3D=3D kernel/params.c 1.8 vs edited =3D=3D=3D=3D=3D
+=2D-- 1.8/kernel/params.c	Fri May  7 23:22:37 2004
++++ edited/kernel/params.c	Wed Aug  4 16:23:59 2004
+@@ -339,6 +339,12 @@
+ 	return 0;
  }
- 
---- linux-2.6.8-rc2/kernel/user.c.mlock	2004-07-18 00:58:20.000000000 -0400
-+++ linux-2.6.8-rc2/kernel/user.c	2004-08-04 13:25:33.000000000 -0400
-@@ -32,7 +32,8 @@ struct user_struct root_user = {
- 	.processes	= ATOMIC_INIT(1),
- 	.files		= ATOMIC_INIT(0),
- 	.sigpending	= ATOMIC_INIT(0),
--	.mq_bytes	= 0
-+	.mq_bytes	= 0,
-+	.locked_shm     = 0
- };
- 
- /*
-@@ -113,6 +114,7 @@ struct user_struct * alloc_uid(uid_t uid
- 		atomic_set(&new->sigpending, 0);
- 
- 		new->mq_bytes = 0;
-+		new->locked_shm = 0;
- 
- 		/*
- 		 * Before adding this, check whether we raced
---- linux-2.6.8-rc2/ipc/shm.c.mlock	2004-08-04 13:23:18.000000000 -0400
-+++ linux-2.6.8-rc2/ipc/shm.c	2004-08-04 13:25:33.000000000 -0400
-@@ -114,7 +114,10 @@ static void shm_destroy (struct shmid_ke
- 	shm_rmid (shp->id);
- 	shm_unlock(shp);
- 	if (!is_file_hugepages(shp->shm_file))
--		shmem_lock(shp->shm_file, 0);
-+		shmem_lock(shp->shm_file, 0, shp->mlock_user);
-+	else
-+		user_subtract_mlock(shp->shm_file->f_dentry->d_inode->i_size,
-+						shp->mlock_user);
- 	fput (shp->shm_file);
- 	security_shm_free(shp);
- 	ipc_rcu_putref(shp);
-@@ -190,6 +193,7 @@ static int newseg (key_t key, int shmflg
- 
- 	shp->shm_perm.key = key;
- 	shp->shm_flags = (shmflg & S_IRWXUGO);
-+	shp->mlock_user = NULL;
- 
- 	shp->shm_perm.security = NULL;
- 	error = security_shm_alloc(shp);
-@@ -198,9 +202,11 @@ static int newseg (key_t key, int shmflg
- 		return error;
- 	}
- 
--	if (shmflg & SHM_HUGETLB)
-+	if (shmflg & SHM_HUGETLB) {
-+		/* hugetlb_zero_setup takes care of mlock user accounting */
- 		file = hugetlb_zero_setup(size);
--	else {
-+		shp->mlock_user = current->user;
-+	} else {
- 		sprintf (name, "SYSV%08x", key);
- 		file = shmem_file_setup(name, size, VM_ACCOUNT);
- 	}
-@@ -504,14 +510,11 @@ asmlinkage long sys_shmctl (int shmid, i
- 	case SHM_LOCK:
- 	case SHM_UNLOCK:
- 	{
--/* Allow superuser to lock segment in memory */
--/* Should the pages be faulted in here or leave it to user? */
--/* need to determine interaction with current->swappable */
--		if (!capable(CAP_IPC_LOCK)) {
-+		/* Allow superuser to lock segment in memory */
-+		if (!can_do_mlock() && cmd == SHM_LOCK) {
- 			err = -EPERM;
- 			goto out;
- 		}
--
- 		shp = shm_lock(shmid);
- 		if(shp==NULL) {
- 			err = -EINVAL;
-@@ -526,13 +529,18 @@ asmlinkage long sys_shmctl (int shmid, i
- 			goto out_unlock;
- 		
- 		if(cmd==SHM_LOCK) {
--			if (!is_file_hugepages(shp->shm_file))
--				shmem_lock(shp->shm_file, 1);
--			shp->shm_flags |= SHM_LOCKED;
--		} else {
--			if (!is_file_hugepages(shp->shm_file))
--				shmem_lock(shp->shm_file, 0);
-+			struct user_struct * user = current->user;
-+			if (!is_file_hugepages(shp->shm_file)) {
-+				err = shmem_lock(shp->shm_file, 1, current->user);
-+				if (!err) {
-+					shp->shm_flags |= SHM_LOCKED;
-+					shp->mlock_user = user;
-+				}
-+			}
-+		} else if (!is_file_hugepages(shp->shm_file)) {
-+			shmem_lock(shp->shm_file, 0, shp->mlock_user);
- 			shp->shm_flags &= ~SHM_LOCKED;
-+			shp->mlock_user = NULL;
- 		}
- 		shm_unlock(shp);
- 		goto out;
---- linux-2.6.8-rc2/mm/mlock.c.mlock	2004-07-18 00:57:40.000000000 -0400
-+++ linux-2.6.8-rc2/mm/mlock.c	2004-08-04 13:25:33.000000000 -0400
-@@ -60,7 +60,7 @@ static int do_mlock(unsigned long start,
- 	struct vm_area_struct * vma, * next;
- 	int error;
- 
--	if (on && !capable(CAP_IPC_LOCK))
-+	if (on && !can_do_mlock())
- 		return -EPERM;
- 	len = PAGE_ALIGN(len);
- 	end = start + len;
-@@ -118,7 +118,7 @@ asmlinkage long sys_mlock(unsigned long 
- 	lock_limit >>= PAGE_SHIFT;
- 
- 	/* check against resource limits */
--	if (locked <= lock_limit)
-+	if ( (locked <= lock_limit) || capable(CAP_IPC_LOCK))
- 		error = do_mlock(start, len, 1);
- 	up_write(&current->mm->mmap_sem);
- 	return error;
-@@ -142,7 +142,7 @@ static int do_mlockall(int flags)
- 	unsigned int def_flags;
- 	struct vm_area_struct * vma;
- 
--	if (!capable(CAP_IPC_LOCK))
-+	if (!can_do_mlock())
- 		return -EPERM;
- 
- 	def_flags = 0;
-@@ -177,7 +177,7 @@ asmlinkage long sys_mlockall(int flags)
- 	lock_limit >>= PAGE_SHIFT;
- 
- 	ret = -ENOMEM;
--	if (current->mm->total_vm <= lock_limit)
-+	if ((current->mm->total_vm <= lock_limit) || capable(CAP_IPC_LOCK))
- 		ret = do_mlockall(flags);
- out:
- 	up_write(&current->mm->mmap_sem);
-@@ -193,3 +193,36 @@ asmlinkage long sys_munlockall(void)
- 	up_write(&current->mm->mmap_sem);
- 	return ret;
- }
-+
-+/*
-+ * Objects with different lifetime than processes (mlocked shm segments
-+ * and hugetlb files) get accounted against the user_struct instead. 
-+ */
-+static spinlock_t mlock_user_lock = SPIN_LOCK_UNLOCKED;
-+
-+int user_can_mlock(size_t size, struct user_struct * user)
+=20
++int param_get_string(char *buffer, struct kernel_param *kp)
 +{
-+	unsigned long lock_limit, locked;
-+	int allowed = 0;
-+
-+	spin_lock(&mlock_user_lock);
-+	locked = size >> PAGE_SHIFT;
-+	lock_limit = current->rlim[RLIMIT_MEMLOCK].rlim_cur;
-+	lock_limit >>= PAGE_SHIFT;
-+	if (locked + user->locked_shm > lock_limit)
-+		goto out;
-+	get_uid(user);
-+	user->locked_shm += locked;
-+	allowed = 1;
-+out:
-+	spin_unlock(&mlock_user_lock);
-+	return allowed;
++	struct kparam_string *kps =3D kp->arg;
++	return strlcpy(buffer, kps->string, kps->maxlen);
 +}
 +
-+void user_subtract_mlock(size_t size, struct user_struct * user)
-+{
-+	spin_lock(&mlock_user_lock);
-+	user->locked_shm -= (size >> PAGE_SHIFT);
-+	spin_unlock(&mlock_user_lock);
-+	free_uid(user);
-+}
---- linux-2.6.8-rc2/mm/mmap.c.mlock	2004-08-04 13:23:18.000000000 -0400
-+++ linux-2.6.8-rc2/mm/mmap.c	2004-08-04 13:25:33.000000000 -0400
-@@ -796,15 +796,17 @@ unsigned long do_mmap_pgoff(struct file 
- 			mm->def_flags | VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC;
- 
- 	if (flags & MAP_LOCKED) {
--		if (!capable(CAP_IPC_LOCK))
-+		if (!can_do_mlock())
- 			return -EPERM;
- 		vm_flags |= VM_LOCKED;
- 	}
- 	/* mlock MCL_FUTURE? */
- 	if (vm_flags & VM_LOCKED) {
--		unsigned long locked = mm->locked_vm << PAGE_SHIFT;
-+		unsigned long locked, lock_limit;
-+		locked = mm->locked_vm << PAGE_SHIFT;
-+		lock_limit = current->rlim[RLIMIT_MEMLOCK].rlim_cur;
- 		locked += len;
--		if (locked > current->rlim[RLIMIT_MEMLOCK].rlim_cur)
-+		if (locked > lock_limit && !capable(CAP_IPC_LOCK))
- 			return -EAGAIN;
- 	}
- 
-@@ -1723,9 +1725,11 @@ unsigned long do_brk(unsigned long addr,
- 	 * mlock MCL_FUTURE?
- 	 */
- 	if (mm->def_flags & VM_LOCKED) {
--		unsigned long locked = mm->locked_vm << PAGE_SHIFT;
-+		unsigned long locked, lock_limit;
-+		locked = mm->locked_vm << PAGE_SHIFT;
-+		lock_limit = current->rlim[RLIMIT_MEMLOCK].rlim_cur;
- 		locked += len;
--		if (locked > current->rlim[RLIMIT_MEMLOCK].rlim_cur)
-+		if (locked > lock_limit && !capable(CAP_IPC_LOCK))
- 			return -EAGAIN;
- 	}
- 
---- linux-2.6.8-rc2/mm/mremap.c.mlock	2004-07-18 00:58:37.000000000 -0400
-+++ linux-2.6.8-rc2/mm/mremap.c	2004-08-04 13:25:33.000000000 -0400
-@@ -324,10 +324,12 @@ unsigned long do_mremap(unsigned long ad
- 			goto out;
- 	}
- 	if (vma->vm_flags & VM_LOCKED) {
--		unsigned long locked = current->mm->locked_vm << PAGE_SHIFT;
-+		unsigned long locked, lock_limit;
-+		locked = current->mm->locked_vm << PAGE_SHIFT;
-+		lock_limit = current->rlim[RLIMIT_MEMLOCK].rlim_cur;
- 		locked += new_len - old_len;
- 		ret = -EAGAIN;
--		if (locked > current->rlim[RLIMIT_MEMLOCK].rlim_cur)
-+		if (locked > lock_limit && !capable(CAP_IPC_LOCK))
- 			goto out;
- 	}
- 	ret = -ENOMEM;
---- linux-2.6.8-rc2/mm/shmem.c.mlock	2004-08-04 13:23:18.000000000 -0400
-+++ linux-2.6.8-rc2/mm/shmem.c	2004-08-04 13:25:33.000000000 -0400
-@@ -1151,17 +1151,29 @@ shmem_get_policy(struct vm_area_struct *
- }
- #endif
- 
--void shmem_lock(struct file *file, int lock)
-+int shmem_lock(struct file *file, int lock, struct user_struct * user)
- {
- 	struct inode *inode = file->f_dentry->d_inode;
- 	struct shmem_inode_info *info = SHMEM_I(inode);
-+	int retval = -ENOMEM;
-+
-+	if (lock && !can_do_mlock())
-+		return -EPERM;
- 
- 	spin_lock(&info->lock);
--	if (lock)
-+	if (lock && !(info->flags & VM_LOCKED)) {
-+		if (!user_can_mlock(inode->i_size, user) && !capable(CAP_IPC_LOCK))
-+			goto out_nomem;
- 		info->flags |= VM_LOCKED;
--	else
-+	}
-+	if (!lock && (info->flags & VM_LOCKED) && user) {
-+		user_subtract_mlock(inode->i_size, user);
- 		info->flags &= ~VM_LOCKED;
-+	}
-+	retval = 0;
-+out_nomem:
- 	spin_unlock(&info->lock);
-+	return retval;
- }
- 
- static int shmem_mmap(struct file *file, struct vm_area_struct *vma)
+ EXPORT_SYMBOL(param_set_short);
+ EXPORT_SYMBOL(param_get_short);
+ EXPORT_SYMBOL(param_set_ushort);
+@@ -360,3 +366,4 @@
+ EXPORT_SYMBOL(param_array_set);
+ EXPORT_SYMBOL(param_array_get);
+ EXPORT_SYMBOL(param_set_copystring);
++EXPORT_SYMBOL(param_get_string);
 
+--Boundary-02=_WPSEBeZDwkDatL5
+Content-Type: application/pgp-signature
+Content-Description: signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBESPW5t5GS2LDRf4RAhN3AJwMJFAOLeNxt28imDXRmzBu9ULBjACeLoLy
+bKlKUuKPllDpicM2Wy+2YxQ=
+=4MA+
+-----END PGP SIGNATURE-----
+
+--Boundary-02=_WPSEBeZDwkDatL5--

@@ -1,60 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264779AbTFERfB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jun 2003 13:35:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264766AbTFERfB
+	id S264759AbTFERdM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jun 2003 13:33:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264763AbTFERdM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jun 2003 13:35:01 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:27356 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264779AbTFERe7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jun 2003 13:34:59 -0400
-Date: Thu, 5 Jun 2003 19:47:35 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Julien Oster <lkml@mf.frodoid.org>
-cc: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: capacity in 2.5.70-mm3
-In-Reply-To: <frodoid.frodo.87y90g8lxm.fsf@usenet.frodoid.org>
-Message-ID: <Pine.SOL.4.30.0306051944070.21862-100000@mion.elka.pw.edu.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 5 Jun 2003 13:33:12 -0400
+Received: from holomorphy.com ([66.224.33.161]:11706 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S264759AbTFERdL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jun 2003 13:33:11 -0400
+Date: Thu, 5 Jun 2003 10:46:41 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: linux-kernel@vger.kernel.org
+Cc: linux-mm@kvack.org
+Subject: pgcl-2.5.70-bk10-1
+Message-ID: <20030605174641.GJ20413@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>From pgcl-2.5.70-bk9-2:
+Do some intelligent pagetable preconstruction, in combination with a
+small bit of restoration of struct mmu_gather's opacity to the core VM.
+>From pgcl-2.5.70-bk9-3:
+Also inline various things to cope with identified regressions and for
+utterly trivial functions that can be inlined with the non-private
+structure declaration.
 
-Already fixed in 2.5-bk.
-I will make 2.4 patch when I have time  (if nobody backports it first).
---
-Bartlomiej
+This hopefully addresses a performance degradation in pte_alloc_one()
+in the autoconf build benchmark identified by Randy Hron. Further
+tuning may be required to keep space consumption more tightly bounded.
+Oddly, this technique is potentially also applicable to mainline. I
+vaguely wonder why no one's done it yet.
 
-On Thu, 5 Jun 2003, Julien Oster wrote:
+Unfortunately, neither the sysenter bug nor the bug encountered during
+the AIM7 run have had progress made on them.
 
-> Felipe Alfaro Solana <felipe_alfaro@linuxmail.org> writes:
->
-> Hello,
->
-> >> capacity  capacity  capacity  driver  identify  media  model  settings
-> >> Multiplay capacity files. Funny :)
->
-> > Can reproduce it on my laptop with 2.5.70-mm3 and my server with
-> > 2.5.70-bk8. Both have an ATAPI DVD attached to /dev/hdc.
->
-> Can also reproduce it on 2.4.21-rc1, on all my IDE devices: hda, hdc,
-> hdg. The first two are harddrives, the last one's an ATAPI CD writer,
-> so the device type doesn't seem to matter:
->
-> /proc/ide# ls hd?
-> hda:
-> cache     capacity  geometry  media  settings          smart_values
-> capacity  driver    identify  model  smart_thresholds
->
-> hdc:
-> cache     capacity  geometry  media  settings          smart_values
-> capacity  driver    identify  model  smart_thresholds
->
-> hdg:
-> capacity  capacity  driver  identify  media  model  settings
->
-> Julien
+The unified anonymizing fault handling may end up just going in even
+with those bugs pending since it doesn't look likely forward progress
+will get made on either in a timely fashion. For testers looking to
+just avoid the bugs for now, there are workarounds to #ifdef out some
+of the sysenter hooks for ELF loading and coredumping that can help
+carry out test runs of things like LTP without tripping things up
+I can send out in private mail. The AIM7 bug has no known workaround
+or reliable method of reproduction. The sysenter bug is trivial to
+reproduce, so don't bother hunting.
 
+This thing's broken the 300KB of diff mark and I've yet to touch a
+significant number of drivers, fs's, or non-i386 architectures (3 or 4
+drivers, 0 fs's, and 0 non-i386 architectures), and worse yet, I've yet
+to polish off the actual core functionality. It could get harder to
+maintain, I suppose, but I'm not sure how. I guess I asked for it.
+
+I'm at least hoping the aggressive keeping up-to-date of the past week
+or so will float me through the time I'm preoccupied with cpumask_t,
+which should happen soon, since the big MIPS merge looks like it's
+rapidly closing in on -CURRENT.
+
+As usual, available from:
+ftp://ftp.kernel.org/pub/linux/kernel/people/wli/vm/pgcl/
+
+
+-- wli

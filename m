@@ -1,114 +1,118 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261345AbTIZPwl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Sep 2003 11:52:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261380AbTIZPwl
+	id S262006AbTIZQA3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Sep 2003 12:00:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262068AbTIZQA3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Sep 2003 11:52:41 -0400
-Received: from sprocket.loran.com ([209.167.240.9]:64754 "EHLO
-	willy.ottawa.loran.com") by vger.kernel.org with ESMTP
-	id S261345AbTIZPwi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Sep 2003 11:52:38 -0400
-Subject: Re: route cache and messed up network
-From: Dana Lacoste <dana.lacoste@peregrine.com>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <1064518793.42554.93.camel@dlacoste.ottawa.loran.com>
-References: <1064518793.42554.93.camel@dlacoste.ottawa.loran.com>
-Content-Type: text/plain
-Message-Id: <1064591600.84549.1.camel@dlacoste.ottawa.loran.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Fri, 26 Sep 2003 11:53:21 -0400
+	Fri, 26 Sep 2003 12:00:29 -0400
+Received: from 64-60-248-67.cust.telepacific.net ([64.60.248.67]:21380 "EHLO
+	mx.rackable.com") by vger.kernel.org with ESMTP id S262006AbTIZQAU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Sep 2003 12:00:20 -0400
+Message-ID: <3F7460EE.1070002@rackable.com>
+Date: Fri, 26 Sep 2003 08:53:18 -0700
+From: Samuel Flory <sflory@rackable.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030827
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bradley Chapman <kakadu_croc@yahoo.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test5 broke RPM 4.2 on Red Hat 9 in a VERY weird way
+References: <20030926075004.79990.qmail@web40903.mail.yahoo.com>
+In-Reply-To: <20030926075004.79990.qmail@web40903.mail.yahoo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 26 Sep 2003 16:00:18.0644 (UTC) FILETIME=[48439940:01C38447]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Originally sent to linux-net, but that list seems to
-be almost zero traffic lately :)
+Bradley Chapman wrote:
+> Mr. Flory,
+> 
+> --- Samuel Flory <sflory@rackable.com> wrote:
+> 
+>>Bradley Chapman wrote:
+>>
+>>>Damn, spoke too soon :(
+>>>
+>>>I upgraded to popt 1.8.1, installed beecrypt (rawhide RPM needs it), and
+>>
+>>installed
+>>
+>>>rpm 4.2.1 from rawhide -- all using LD_ASSUME_KERNEL=2.2.5. Reloaded my konsole
+>>>to clear&reset my environment.
+>>>
+>>>Now I still get the error, but the program still works, i.e. something like
+>>
+>>this:
+>>
+>>>rpm -qpl /download/system/popt-1.8.1-0.30.i386.rpm
+>>>rpmdb: unable to join the environment
+>>>error: db4 error(11) from dbenv->open: Resource temporarily unavailable
+>>>error: cannot open Packages index using db3 - Resource temporarily unavailable
+>>
+>>(11)
+>>
+>>>error: cannot open Packages database in /var/lib/rpm
+>>>warning: /download/system/popt-1.8.1-0.30.i386.rpm: V3 DSA signature: NOKEY, key
+>>
+>>ID
+>>
+>>>897da07a
+>>>/usr/include/popt.h
+>>>/usr/lib/libpopt.a
+>>>/usr/lib/libpopt.la
+>>>/usr/lib/libpopt.so
+>>>/usr/lib/libpopt.so.0
+>>>/usr/lib/libpopt.so.0.0.0
+>>>/usr/share/locale/cs/LC_MESSAGES/popt.mo
+>>>/usr/share/locale/da/LC_MESSAGES/popt.mo
+>>>/usr/share/locale/de/LC_MESSAGES/popt.mo
+>>>/usr/share/locale/es/LC_MESSAGES/popt.mo
+>>>/usr/share/locale/eu_ES/LC_MESSAGES/popt.mo
+>>>/usr/share/locale/fi/LC_MESSAGES/popt.mo
+>>>/usr/share/locale/fr/LC_MESSAGES/popt.mo
+>>>/usr/share/locale/gl/LC_MESSAGES/popt.mo
+>>>/usr/share/locale/hu/LC_MESSAGES/popt.mo
+>>>/usr/share/locale/id/LC_MESSAGES/popt.mo
+>>>/usr/share/locale/is/LC_MESSAGES/popt.mo
+>>>/usr/share/locale/it/LC_MESSAGES/popt.mo
+>>>/usr/share/locale/ja/LC_MESSAGES/popt.mo
+>>>/usr/share/locale/ko/LC_MESSAGES/popt.mo
+>>>/usr/share/locale/no/LC_MESSAGES/popt.mo
+>>>/usr/share/locale/pl/LC_MESSAGES/popt.mo
+>>>/usr/share/locale/pt/LC_MESSAGES/popt.mo
+>>>/usr/share/locale/pt_BR/LC_MESSAGES/popt.mo
+>>>/usr/share/locale/ro/LC_MESSAGES/popt.mo
+>>>/usr/share/locale/ru/LC_MESSAGES/popt.mo
+>>>/usr/share/locale/sk/LC_MESSAGES/popt.mo
+>>>/usr/share/locale/sl/LC_MESSAGES/popt.mo
+>>>/usr/share/locale/sr/LC_MESSAGES/popt.mo
+>>>/usr/share/locale/sv/LC_MESSAGES/popt.mo
+>>>/usr/share/locale/tr/LC_MESSAGES/popt.mo
+>>>/usr/share/locale/uk/LC_MESSAGES/popt.mo
+>>>/usr/share/locale/wa/LC_MESSAGES/popt.mo
+>>>/usr/share/locale/zh/LC_MESSAGES/popt.mo
+>>>/usr/share/locale/zh_CN.GB2312/LC_MESSAGES/popt.mo
+>>>/usr/share/man/man3/popt.3.gz
+>>>
+>>>Anybody have any other ideas?
+>>>
+>>
+>>
+>>   Try a "LD_ASSUME_KERNEL=2.2.5 rpm --rebuilddb"?
+> 
+> 
+> Excellent! Thanks for the advice; now it works perfectly fine.
+> 
 
-I'm trying to get a system working where Linux's network
-route cache is causing problems.
+   Most likely you  screwed up the rpm database durning your prior 
+problems.
 
-Essentially, the linux side of the problem appears to be that
-/proc/sys/net/ipv4/gc_timeout (for ICMP redirect entries) times
-out not on how long it's been in the cache but on how long it's
-been idle : if the entry is not idle it will never time out.
 
-I verified this behaviour by setting the timeout to 20 seconds
-and testing it with ping :
 
-echo '20' > /proc/sys/net/ipv4/gc_timeout
-ping ip_address once
-   Redirect message appears in output
-ping ip_address again (once)
-   Redirect does not appear
-sleep 30
-ping ip_address again (once)
-   Redirect message appears in output
-ping for 30 seconds
-ping ip_address again (once)
-   Redirect does not appear
-sleep 30
-ping ip_address again (once)
-   Redirect message appears in output
-
-So it only expires the cache if it's not active.
-
-Can I change this?  I notice that net/ipv4/route.c has a line
-that says :
-               /* Entry is expired even if it is in use */
-(kernel 2.4.22, stock, line 408)
-
-Can I force it to timeout entries that are in use?
-
-Here's the situation :
-
-System A is a linux server
-System B is a Cisco router
-System C is a PIX firewall
-
-Subnet X has the linux server, Cisco router, and PIX firewall
-Subnet Y is an internal network connected via System B
-Subnet Z is the internet, behind the PIX
-
-System A (linux) has a single default route to System B (cisco
-router) for all traffic.
-
-System B (cisco router) has static routes for (is connected to)
-Subnets X and Y, and a default route to System C (the firewall.)
-
-Sometimes the connection to Subnet Y on System B (cisco router)
-will go down when System A (Linux server) tries to communicate
-with a system in Subnet Y.  It for some unknown and really
-bass-ackwards reason decides then that the default route (to
-System C, the firewall) is where the packets should be going,
-so it sends them there along with an ICMP redirect back to
-System A (the linux box,) to let it know that it would be more
-efficient to send the packet to System C (the firewall) than to
-System B (the cisco router.)
-
-Well, System C (the firewall) doesn't route packets from the
-internal network to the internal network : it just throws them
-away.  So the packets from System A (linux server) to Subnet Y
-(internal network) don't arrive.  As the gc_timeout is set to
-300 seconds and the linux kernel only times out on idle routes,
-and System A (the linux server) tries to reconnect every minute,
-the (bad) route cache entry never expires and the packets never
-reach their destination again.
-
-I've proposed that the cisco box shouldn't send ICMP redirects
-for subnets which it has a local connection to if no other connection
-to that subnet exists, and that the PIX firewall should be intelligent
-enough to do another ICMP redirect back to the cisco router,
-but instead it just throws all the packets away and I'm not
-allowed to change either of these things.
-
-Which means I can only change the linux box.  Is there a way I can
-change it so that it does a timeout on all route cache entries,
-wether they're used or not?
-
-Thanks
-
-Dana Lacoste
-Ottawa, Canada
+-- 
+Once you have their hardware. Never give it back.
+(The First Rule of Hardware Acquisition)
+Sam Flory  <sflory@rackable.com>
 

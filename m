@@ -1,43 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261779AbUCKV4j (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 16:56:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261780AbUCKV4i
+	id S261753AbUCKWBa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 17:01:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261773AbUCKWB3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 16:56:38 -0500
-Received: from fw.osdl.org ([65.172.181.6]:47533 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261779AbUCKV4b (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 16:56:31 -0500
-Date: Thu, 11 Mar 2004 13:57:29 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.4-mm1: 3c59x-xcvr-xif breaks 3CCFE575CT
-Message-Id: <20040311135729.2fbcdc2a.akpm@osdl.org>
-In-Reply-To: <1079040485.856.4.camel@teapot.felipe-alfaro.com>
-References: <1079040485.856.4.camel@teapot.felipe-alfaro.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Thu, 11 Mar 2004 17:01:29 -0500
+Received: from agminet01.oracle.com ([141.146.126.228]:2991 "EHLO
+	agminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S261753AbUCKWBZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 17:01:25 -0500
+Date: Thu, 11 Mar 2004 13:59:55 -0800
+From: Joel Becker <Joel.Becker@oracle.com>
+To: Joe Thornber <thornber@redhat.com>
+Cc: Andi Kleen <ak@muc.de>, Mickael Marchand <marchand@kde.org>,
+       linux-kernel@vger.kernel.org, dm@uk.sistina.com
+Subject: Re: 2.6.4-mm1
+Message-ID: <20040311215955.GC18020@ca-server1.us.oracle.com>
+Mail-Followup-To: Joe Thornber <thornber@redhat.com>,
+	Andi Kleen <ak@muc.de>, Mickael Marchand <marchand@kde.org>,
+	linux-kernel@vger.kernel.org, dm@uk.sistina.com
+References: <1ysXv-wm-11@gated-at.bofh.it> <1yxuq-6y6-13@gated-at.bofh.it> <m3hdwnawfi.fsf@averell.firstfloor.org> <200403111445.35075.marchand@kde.org> <20040311144829.GA22284@colin2.muc.de> <20040311214354.GM18345@reti>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040311214354.GM18345@reti>
+X-Burt-Line: Trees are cool.
+X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Felipe Alfaro Solana <felipe_alfaro@linuxmail.org> wrote:
->
-> 2.6.4-mm1 has turned to be a tricky kernel...: it breaks the 3c9x
-> transceiver making my 3CCFE575CT CardBus NIC unable to process any
-> incoming network frames, that is, no network communication takes place.
+On Thu, Mar 11, 2004 at 09:43:54PM +0000, Joe Thornber wrote:
+> struct dm_ioctl {			0
+>         uint32_t version[3];		
+>         uint32_t data_size;  		4
 > 
-> Reverting 3c59x-xcvr-fix.patch fixes the problem for me.
+>         uint32_t data_start;
+> 
+>         uint32_t target_count;
+>         int32_t open_count;
+>         uint32_t flags;		8
+>         uint32_t event_nr;
+>         uint32_t padding;		10 ***
 
-Sorry, I meant to check that one against the docs.
+	Here's probably the problem.  Many 64bit arches align 64bit
+numbers on a 64bit boundary.  So it is adding 2 more words of padding to
+start the u64 at offset 12.
 
-The patch is wrong.  For 3c905B, the transceiver select bits are
-InternalConfig:20-23 and for 3c590 the transceiver select bit are
-InternalConfig:20-22.
+>         uint64_t dev;			
+> 
+>         char name[DM_NAME_LEN];
+>         char uuid[DM_UUID_LEN];
+> };
 
-That patch thinks the transceiver select bits are bits 21 to 36 of a 32-bit
-register so no, it won't work very well.
+Joel
 
+-- 
+
+Life's Little Instruction Book #313
+
+	"Never underestimate the power of love."
+
+Joel Becker
+Senior Member of Technical Staff
+Oracle Corporation
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

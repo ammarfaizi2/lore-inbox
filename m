@@ -1,75 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261376AbSLCN1H>; Tue, 3 Dec 2002 08:27:07 -0500
+	id <S261302AbSLCNfe>; Tue, 3 Dec 2002 08:35:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261416AbSLCN1H>; Tue, 3 Dec 2002 08:27:07 -0500
-Received: from fw.2d3d.co.za ([66.8.28.230]:43923 "HELO mail.2d3d.co.za")
-	by vger.kernel.org with SMTP id <S261376AbSLCN1G>;
-	Tue, 3 Dec 2002 08:27:06 -0500
-Date: Tue, 3 Dec 2002 15:36:15 +0200
-From: Abraham vd Merwe <abraham@2d3d.co.za>
-To: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: what is the url for the linux-ppc kernel development?
-Message-ID: <20021203153615.A24416@crystal.2d3d.co.za>
-Mail-Followup-To: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="UlVJffcvxoiEqYs2"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organization: 2d3D, Inc.
-X-Operating-System: Debian GNU/Linux crystal 2.4.17-pre4 i686
-X-GPG-Public-Key: http://oasis.blio.net/pgpkeys/keys/2d3d.gpg
-X-Uptime: 3:34pm  up 3 days, 16:39,  6 users,  load average: 0.04, 0.05, 0.04
-X-Edited-With-Muttmode: muttmail.sl - 2001-06-06
+	id <S261310AbSLCNfd>; Tue, 3 Dec 2002 08:35:33 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:12549 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S261302AbSLCNfd>; Tue, 3 Dec 2002 08:35:33 -0500
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: [PATCH 2.5] Extract configuration from kernel
+Date: 3 Dec 2002 13:41:43 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <asican$58p$1@gatekeeper.tmr.com>
+References: <E18Ixu4-0007zZ-00@lyra.fc.hp.com>
+X-Trace: gatekeeper.tmr.com 1038922903 5401 192.168.12.62 (3 Dec 2002 13:41:43 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <E18Ixu4-0007zZ-00@lyra.fc.hp.com>,
+Khalid Aziz  <khalid@fc.hp.com> wrote:
+| I am including a patch for 2.5.50 that allows a user to embed kernel
+| configuration in the kernel and retrieve it later either from a running
+| kernel or from the kernel image file. This is an enhancement to Randy's
+| patch that was discussed on LKML before and is part of -ac series
+| kernels. 
+| 
+| This patch provides three choices for embedding kernel configuration:
+| 
+| 1. Include configuration in running kernel image. This adds to the
+| footprint of the running kernel but allows configuration to be retrieved
+| using "cat /proc/ikconfig/config".
+| 
+| 2. Include configuration in kernel image file but not in the running
+| kernel. This adds to the kernel image file size but not the footprint of
+| running kernel. Configuration can be extracted from kernel image file
+| using scripts/extract-ikconfig. This script is in principle the same as
+| what Randy had written originally. I have made it little more robust and
+| structured it to accomodate more than just x86 architecture.
+| 
+| 3. Not include kernel configuration in the running kernel or kernel
+| image file. 
 
---UlVJffcvxoiEqYs2
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Hi!
-
-Could somebody please mail me the instructions/url to subscribe to the
-currently most active PowerPC kernel development mailinglists.
-
-I've send a message to the linuxppc-dev list over at lists.linuxppc.orig,
-but that seems to be dead.
-
---=20
-
-Regards
- Abraham
-
-What's love but a second-hand emotion?
-		-- Tina Turner
-
-__________________________________________________________
- Abraham vd Merwe - 2d3D, Inc.
-
- Device Driver Development, Outsourcing, Embedded Systems
-
-  Cell: +27 82 565 4451         Snailmail:
-   Tel: +27 21 761 7549            Block C, Aintree Park
-   Fax: +27 21 761 7648            Doncaster Road
- Email: abraham@2d3d.co.za         Kenilworth, 7700
-  Http: http://www.2d3d.com        South Africa
-
-
---UlVJffcvxoiEqYs2
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE97LNPzNXhP0RCUqMRAlIsAJ9Lwhd5vneTKcMSs2TACK5qyy2H9QCZAeLb
-8md0ys8o08drHxfyjG+y3/8=
-=dMbS
------END PGP SIGNATURE-----
-
---UlVJffcvxoiEqYs2--
+I would suggest that making (2) available as a module would be useful,
+assuming that at some point 2.5 will have working module capability
+again. With a bit of tweaking you could make the kernel loader pull it
+in if a process accessed the file, I guess.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

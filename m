@@ -1,53 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318020AbSGXXbz>; Wed, 24 Jul 2002 19:31:55 -0400
+	id <S318295AbSGXXjb>; Wed, 24 Jul 2002 19:39:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318049AbSGXXbz>; Wed, 24 Jul 2002 19:31:55 -0400
-Received: from bitmover.com ([192.132.92.2]:5844 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S318020AbSGXXby>;
-	Wed, 24 Jul 2002 19:31:54 -0400
-Date: Wed, 24 Jul 2002 16:35:02 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Kenneth Johansson <ken@kenjo.org>
-Cc: Stelian Pop <stelian.pop@fr.alcove.com>, linux-kernel@vger.kernel.org
-Subject: Re: bk://linux.bkbits.net/linux-2.[45] pull error
-Message-ID: <20020724163502.B21335@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Kenneth Johansson <ken@kenjo.org>,
-	Stelian Pop <stelian.pop@fr.alcove.com>,
-	linux-kernel@vger.kernel.org
-References: <m37kjlmt2k.fsf@lugabout.jhcloos.org> <20020724061339.E2703@work.bitmover.com> <20020724140939.GE718@tahoe.alcove-fr> <1027538810.11340.23.camel@tiger>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1027538810.11340.23.camel@tiger>; from ken@kenjo.org on Wed, Jul 24, 2002 at 09:26:50PM +0200
+	id <S318296AbSGXXjb>; Wed, 24 Jul 2002 19:39:31 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:49282 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S318295AbSGXXja>;
+	Wed, 24 Jul 2002 19:39:30 -0400
+Date: Wed, 24 Jul 2002 19:42:41 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Andries.Brouwer@cwi.nl
+cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.28 and partitions
+In-Reply-To: <UTC200207242242.g6OMglA23855.aeb@smtp.cwi.nl>
+Message-ID: <Pine.GSO.4.21.0207241925450.14656-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 24, 2002 at 09:26:50PM +0200, Kenneth Johansson wrote:
-> On Wed, 2002-07-24 at 16:09, Stelian Pop wrote:
-> > On Wed, Jul 24, 2002 at 06:13:39AM -0700, Larry McVoy wrote:
-> > 
-> > > We ran out of disk space, it's fixed.  Thanks for the message.
-> > 
-> > While we are at it, could you please push the Linus tree 
-> > (http://linus.bkbits.net/linux-2.5) to the Linux tree 
-> > (http://linux.bkbits.net/linux-2.5) manualy again.
-> > 
-> > /me really wonders if this couldn't be automated somehow...
-> 
-> Why two trees ?
 
-Because nobody pulls from Linus' tree so it is never locked.  He can push
-to that and then it's up to yours truly to push it up and wait for locks.
-It's actually a non-problem these days, it was a problem right after the
-linux.bkbits.net trees went up because people were cloning them over modems
-and they were locked forever.  Linus was already less than thrilled with
-our locking approach and this was just too lame for him to deal with so
-I set up the extra tree.  It could probably go away but since it works
-and the point of BK wrt Linux was to offload Linus, I'm not going to go
-yank his chain.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+
+On Thu, 25 Jul 2002 Andries.Brouwer@cwi.nl wrote:
+
+> Just saw some new partition code in 2.5.28. Good!
+> I like almost all I see, except for one thing:
+> 
+> +struct parsed_partitions {
+> +       char name[40];
+> +       struct {
+> +               unsigned long from;
+> +               unsigned long size;
+> +               int flags;
+> +       } parts[MAX_PART];
+> +       int next;
+> +       int limit;
+> +};
+> 
+> and I object to the long instead of u64 or so.
+
+Separate set of patches.  As it is, struct hd_struct is still there and
+still not modified.  And it has unsigned long.  It will become sector_t.
+
+Actually, I'm not all that sure that we want u64 here.  The thing being,
+start_sect shouldn't be bigger than sector_t (see how it's used).  And
+64bit arithmetics on 32bit boxen sucks big way.  I'm not too concerned
+about adding start_sect per se - it's done once per request and it's
+noise compared to the rest of work.  However, long long for sector_t
+will hit in a lot of more interesting code paths.
+
+That stuff becomes an issue for 2Tb disks.  Do we actually have something
+that large attached to 32bit boxen?
+ 
+> With 2^32 sectors one can handle up to 2^41 bytes, 2 TiB.
+> Already today people want RAIDs that are larger, and
+> few years from now we'll have single disks that are larger.
+
+... and still use i386 with these disks?  ia64 is stillborn, but x86-64
+promises to be more useful than Itanic.
+
+u64 for sector_t doesn't change anything for 64bit boxen that might be
+interested in really large disks and screws 32bit ones that shouldn't
+have to pay for that...
+

@@ -1,138 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262744AbUDUW46@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262756AbUDUW5q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262744AbUDUW46 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Apr 2004 18:56:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262766AbUDUW46
+	id S262756AbUDUW5q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Apr 2004 18:57:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262766AbUDUW5p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Apr 2004 18:56:58 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:26579 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262744AbUDUW4y
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Apr 2004 18:56:54 -0400
-Date: Wed, 21 Apr 2004 15:54:48 -0700
-From: Hanna Linder <hannal@us.ibm.com>
-To: linux-parport@torque.net
-cc: linux-kernel@vger.kernel.org, greg@kroah.com, hannal@us.ibm.com
-Subject: [PATCH 2.6.6-rc1] RFT add class support to drivers/block/paride/pg.c
-Message-ID: <40530000.1082588088@w-hlinder.beaverton.ibm.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Wed, 21 Apr 2004 18:57:45 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:45771
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S262756AbUDUW5j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Apr 2004 18:57:39 -0400
+Date: Thu, 22 Apr 2004 00:57:44 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Chris Wright <chrisw@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, arjanv@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: updated-fbmem-patch.patch
+Message-ID: <20040421225744.GW29954@dualathlon.random>
+References: <20040421021008.GM29954@dualathlon.random> <20040421154153.O22989@build.pdx.osdl.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <20040421154153.O22989@build.pdx.osdl.net>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Apr 21, 2004 at 03:41:53PM -0700, Chris Wright wrote:
+> * Andrea Arcangeli (andrea@suse.de) wrote:
+> > http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.5/2.6.5-mm4/broken-out/updated-fbmem-patch.patch
+> > 
+> > this uses get_user for the set_cmap operation too.
+> > 
+> > --- 2.6.5-aa3/drivers/video/fbmem.c.~1~	2004-04-04 08:09:23.000000000 +0200
+> > +++ 2.6.5-aa3/drivers/video/fbmem.c	2004-04-21 03:11:05.878951424 +0200
+> > @@ -1034,11 +1034,11 @@ fb_ioctl(struct inode *inode, struct fil
+> >  	case FBIOPUTCMAP:
+> >  		if (copy_from_user(&cmap, (void *) arg, sizeof(cmap)))
+> >  			return -EFAULT;
+> > -		return (fb_set_cmap(&cmap, 0, info));
+> > +		return (fb_set_cmap(&cmap, 1, info));
+> 
+> 0 is userspace, 1 is kernel space.  this change looks wrong.
+> 
+> Perhaps the change below so comment is in sync with code.
 
-This patch adds class support to pg.c, the parallel port generic ATAPI device driver.
+yes, I was mislead by the comment, that's why you will never ever see a
+single comments describing parameters in my code (except if the stuff
+really isn't obvious and it cannot be trivially deduced by the code and
+in turn it _deserves_ a fat comment, definitely not in this case).
+There's no way I can trust comments anyways, I perfectly know I cannot
+stop after reading a comment, I went ahead and I checked if the comment
+was right but it was too late and I was already biased by what I read in
+the comment so I didn't notice the comment was wrong. This isn't a good
+excuse, it's still my bad mistake, shame on me, but it certainly gives
+more strenght to my no-comment-for-obvious-parameters policy. I don't
+care if you cannot do a pdf of the whole kernel anymore, that pdf is
+likely buggy anyways and you'd better not attempt to read it in the
+first place.
 
-I have verified it compiles but do not have the hardware. If someone does and
-could test that would be helpful.
-
-Thanks.
-
-Hanna Linder
-IBM Linux Technology Center
-----
-diff -Nrup linux-2.6.6-rc1/drivers/block/paride/pg.c linux-2.6.6-rc1p/drivers/block/paride/pg.c
---- linux-2.6.6-rc1/drivers/block/paride/pg.c	2004-04-14 18:35:37.000000000 -0700
-+++ linux-2.6.6-rc1p/drivers/block/paride/pg.c	2004-04-21 14:50:32.000000000 -0700
-@@ -161,6 +161,7 @@ enum {D_PRT, D_PRO, D_UNI, D_MOD, D_SLV,
- #include <linux/slab.h>
- #include <linux/mtio.h>
- #include <linux/pg.h>
-+#include <linux/device.h>
- 
- #include <asm/uaccess.h>
- 
-@@ -240,6 +241,8 @@ static int pg_identify(struct pg *dev, i
- 
- static char pg_scratch[512];	/* scratch block buffer */
- 
-+static struct class_simple *pg_class;
-+
- /* kernel glue structures */
- 
- static struct file_operations pg_fops = {
-@@ -658,15 +661,19 @@ static ssize_t pg_read(struct file *filp
- 
- static int __init pg_init(void)
- {
--	int unit;
-+	int unit, err = 0;
- 
--	if (disable)
--		return -1;
-+	if (disable){
-+		err = -1;
-+		goto out;
-+	}
- 
- 	pg_init_units();
- 
--	if (pg_detect())
--		return -1;
-+	if (pg_detect()) {
-+		err = -1;
-+		goto out;
-+	}
- 
- 	if (register_chrdev(major, name, &pg_fops)) {
- 		printk("pg_init: unable to get major number %d\n", major);
-@@ -675,18 +682,37 @@ static int __init pg_init(void)
- 			if (dev->present)
- 				pi_release(dev->pi);
- 		}
--		return -1;
-+		err = -1;
-+		goto out;
-+	}
-+	pg_class = class_simple_create(THIS_MODULE, "pg");
-+	if (IS_ERR(pg_class)) {
-+		err = PTR_ERR(pg_class);
-+		goto out_chrdev;
- 	}
- 	devfs_mk_dir("pg");
- 	for (unit = 0; unit < PG_UNITS; unit++) {
- 		struct pg *dev = &devices[unit];
- 		if (dev->present) {
--			devfs_mk_cdev(MKDEV(major, unit),
-+			class_simple_device_add(pg_class, MKDEV(major, unit), 
-+					NULL, "pg%u", unit);
-+			err = devfs_mk_cdev(MKDEV(major, unit),
- 				      S_IFCHR | S_IRUSR | S_IWUSR, "pg/%u",
- 				      unit);
-+			if (err) 
-+				goto out_class;
- 		}
- 	}
--	return 0;
-+	err = 0;
-+	goto out;
-+
-+out_class:
-+	class_simple_device_remove(MKDEV(major, unit));
-+	class_simple_destroy(pg_class);
-+out_chrdev:
-+	unregister_chrdev(major, "pg");
-+out:
-+	return err;
- }
- 
- static void __exit pg_exit(void)
-@@ -695,10 +721,12 @@ static void __exit pg_exit(void)
- 
- 	for (unit = 0; unit < PG_UNITS; unit++) {
- 		struct pg *dev = &devices[unit];
--		if (dev->present)
-+		if (dev->present) {
-+			class_simple_device_remove(MKDEV(major, unit));
- 			devfs_remove("pg/%u", unit);
-+		}
- 	}
--
-+	class_simple_destroy(pg_class);
- 	devfs_remove("pg");
- 	unregister_chrdev(major, name);
- 
-
+Arjan and Andrew also notified me privately. thanks to all for noticing
+and sorry for the stupid mistake of being influenced by a worthless
+comment.

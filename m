@@ -1,73 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282672AbRK0AVY>; Mon, 26 Nov 2001 19:21:24 -0500
+	id <S282676AbRK0AYy>; Mon, 26 Nov 2001 19:24:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282674AbRK0AUZ>; Mon, 26 Nov 2001 19:20:25 -0500
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:61948 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S282666AbRK0ATr>;
-	Mon, 26 Nov 2001 19:19:47 -0500
-Date: Mon, 26 Nov 2001 17:18:37 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Daniel Kobras <kobras@tat.physik.uni-tuebingen.de>,
-        Oliver Xymoron <oxymoron@waste.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ext3: kjournald and spun-down disks
-Message-ID: <20011126171837.P730@lynx.no>
-Mail-Followup-To: Andrew Morton <akpm@zip.com.au>,
-	Daniel Kobras <kobras@tat.physik.uni-tuebingen.de>,
-	Oliver Xymoron <oxymoron@waste.org>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.40.0111231859510.4162-100000@waste.org> <3BFEF71A.F32176FE@zip.com.au>, <3BFEF71A.F32176FE@zip.com.au>; <20011127002525.A2912@pelks01.extern.uni-tuebingen.de> <3C02D2D3.B8BE11A3@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <3C02D2D3.B8BE11A3@zip.com.au>; from akpm@zip.com.au on Mon, Nov 26, 2001 at 03:40:03PM -0800
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S282675AbRK0AYh>; Mon, 26 Nov 2001 19:24:37 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:55561 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S282676AbRK0AYO>; Mon, 26 Nov 2001 19:24:14 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Journaling pointless with today's hard disks?
+Date: 26 Nov 2001 16:24:00 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9tumf0$dvr$1@cesium.transmeta.com>
+In-Reply-To: <Pine.LNX.4.10.10111261229190.8817-100000@master.linux-ide.org> <0111261535070J.02001@localhost.localdomain> <20011126165920.N730@lynx.no>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Nov 26, 2001  15:40 -0800, Andrew Morton wrote:
-> Daniel Kobras wrote:
-> > Is there a way to tell which kjournald process is associated to which
-> > partition? A fake cmdline, or an fd to the partition's device node that
-> > shows up in /proc/<pid>/fd would indeed be quite helpful.
+Followup to:  <20011126165920.N730@lynx.no>
+By author:    Andreas Dilger <adilger@turbolabs.com>
+In newsgroup: linux.dev.kernel
 > 
-> Andreas has a patch which puts the device major/minor into kjournald's
-> process name.
+> The other thing that concerns a journaling fs is write ordering.  If you
+> can _guarantee_ that an entire track (or whatever) can be written to disk
+> in _all_ cases, then it is OK to reorder write requests within that track
+> AS LONG AS YOU DON'T REORDER WRITES WHERE YOU SKIP BLOCKS THAT ARE NOT
+> GUARANTEED TO COMPLETE.
+> 
+> Generally, in Linux, ext3 will wait on all of the journal transaction
+> blocks to be written before it writes a commit record, which is its way
+> of guaranteeing that everything before the commit is valid.  If you start
+> write cacheing the transaction blocks, return, and then write the commit
+> record to disk before the other transaction blocks are written, this is
+> SEVERELY BROKEN.  If it was guaranteed that the commit record would hit
+> the platters at the same time as the other journal transaction blocks,
+> that would be the minimum acceptable behaviour.
+> 
+> Obviously a working TCQ or write barrier would also allow you to optimize
+> all writes before the commit block is written, but that should be an
+> _enhancement_ above the basic write operations, only available if you
+> start using this feature.
+> 
 
-It is in CVS HEAD, but appears not to be in the branches.  It is below.
-This should not have a problem with the 16-byte command length, because
-kdevname() only returns strings of the form mm:nn, so my system has:
+Indeed; having explicit write barriers would be a very useful feature,
+but the drives MUST default to strict ordering unless reordering (with
+write barriers) have been enabled explicitly by the OS.
+
+Furthermore, I would like to add the following constraint to your
+writeup:
+
+** For each individual sector, a write MUST either complete or not
+   take place at all.  In other words, writes are guaranteed to be
+   atomic on a sector-by-sector basis.
+
+	-hpa
 
 
-root         8     1  0 08:58 ?        00:00:11 [kjournald-03:07]
-root        39     1  0 08:58 ?        00:00:00 [kjournald-03:05]
-root        40     1  0 08:58 ?        00:00:00 [kjournald-03:09]
-root        41     1  0 08:58 ?        00:00:00 [kjournald-03:0a]
-root      1219     1  0 09:23 ?        00:00:02 [kjournald-3a:01]
-
-Which are all within 16 bytes (including NUL), until we get larger
-major/minor numbers.
-
-Cheers, Andreas
-===========================================================================
-diff -u -u -r1.11.2.2 -r1.52
---- fs/jbd/journal.c	2001/11/11 05:11:06	1.11.2.2
-+++ fs/jbd/journal.c	2001/11/27 00:10:39	1.52
-@@ -210,7 +176,7 @@
- 	recalc_sigpending(current);
- 	spin_unlock_irq(&current->sigmask_lock);
- 
--	sprintf(current->comm, "kjournald");
-+	sprintf(current->comm, "kjournald-%s", kdevname(journal->j_dev));
- 
- 	/* Set up an interval timer which can be used to trigger a
- 	    commit wakeup after the commit interval expires */
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-
+P.S. Thanks, Andre, for taking the initiative of getting an actual
+commit model into the standardized specification.  Otherwise we'd be
+doomed to continue down the path where what operating systems need for
+sane operation and what disk drives provide are increasingly
+divergent.
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315293AbSEAEsV>; Wed, 1 May 2002 00:48:21 -0400
+	id <S315296AbSEAFNC>; Wed, 1 May 2002 01:13:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315296AbSEAEsU>; Wed, 1 May 2002 00:48:20 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:30966 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S315293AbSEAEsU>;
-	Wed, 1 May 2002 00:48:20 -0400
-Date: Wed, 1 May 2002 00:48:19 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Paul Menage <pmenage@ensim.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Export path_lookup()
-In-Reply-To: <E172jFe-0006YM-00@pmenage-dt.ensim.com>
-Message-ID: <Pine.GSO.4.21.0205010047150.10523-100000@weyl.math.psu.edu>
+	id <S315297AbSEAFNB>; Wed, 1 May 2002 01:13:01 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56588 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315296AbSEAFNB>;
+	Wed, 1 May 2002 01:13:01 -0400
+Message-ID: <3CCF796C.5090401@mandrakesoft.com>
+Date: Wed, 01 May 2002 01:13:16 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/00200203
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "J.A. Magallon" <jamagallon@able.es>
+CC: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Plan for e100-e1000 in mainline
+In-Reply-To: <20020501010828.GA1753@werewolf.able.es>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+J.A. Magallon wrote:
+
+>Hi.
+>
+>Well, subject says it all. Which is the status/plans for inclussion
+>of those drivers in mainline kernel ? AFAIR, e1000 had been licensed,
+>but e100 was not clear yet.
+>
+
+e100 has been in 2.5.x for quite a long time.  All license issues have 
+similarly been resolved a long time ago.
+
+I expect Intel's Q/A to green light their current driver.  With a few 
+patches it should be ready for 2.4.x soon.
+
+You can easily copy drivers/net/e100[0] into a 2.4.x kernel, it likely 
+compiles without modification.
+
+    Jeff
 
 
-On Tue, 30 Apr 2002, Paul Menage wrote:
-
-> 
-> path_lookup() is no longer an inline function, and needs to be exported 
-> for jffs2, nfsd and af_unix to load as modules.
-> 
-> diff -aur linux-2.5.12/kernel/ksyms.c linux-2.5.12-export/kernel/ksyms.c
-> --- linux-2.5.12/kernel/ksyms.c	Tue Apr 30 17:08:45 2002
-> +++ linux-2.5.12-export/kernel/ksyms.c	Tue Apr 30 18:40:30 2002
-> @@ -144,6 +144,7 @@
->  EXPORT_SYMBOL(follow_up);
->  EXPORT_SYMBOL(follow_down);
->  EXPORT_SYMBOL(lookup_mnt);
-> +EXPORT_SYMBOL(path_lookup);
->  EXPORT_SYMBOL(path_init);
->  EXPORT_SYMBOL(path_walk);
->  EXPORT_SYMBOL(path_release);
-
-Seconded - it is needed, indeed.
 

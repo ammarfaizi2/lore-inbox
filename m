@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265594AbTIDVlV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 17:41:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265596AbTIDVlV
+	id S265554AbTIDVhb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 17:37:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265567AbTIDVhb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 17:41:21 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:51161 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S265594AbTIDVlR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 17:41:17 -0400
-Subject: Re: Driver Model 2 Proposal - Linux Kernel Performance v Usability
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: jimwclark@ntlworld.com
-Cc: Rik van Riel <riel@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200309042212.25052.jimwclark@ntlworld.com>
-References: <Pine.LNX.4.44.0309041628380.14715-100000@chimarrao.boston.redhat.com>
-	 <200309042212.25052.jimwclark@ntlworld.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1062711609.22634.67.camel@dhcp23.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-4) 
-Date: Thu, 04 Sep 2003 22:40:10 +0100
+	Thu, 4 Sep 2003 17:37:31 -0400
+Received: from maja.beep.pl ([195.245.198.10]:20497 "EHLO maja.beep.pl")
+	by vger.kernel.org with ESMTP id S265554AbTIDVh2 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 17:37:28 -0400
+From: Arkadiusz Miskiewicz <arekm@pld-linux.org>
+Organization: SelfOrganizing
+To: <linux-kernel@vger.kernel.org>
+Subject: serial console after panic() (2.4.21)
+Date: Thu, 4 Sep 2003 23:34:19 +0200
+User-Agent: KMail/1.5.3
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200309042334.19639.arekm@pld-linux.org>
+X-Authenticated-Id: arekm 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2003-09-04 at 22:12, James Clark wrote:
-> If a relatively small kernel component can be turned on/off and upgraded at 
-> will, without changing ANYTHING else, this would be a big step forward.
+serial console stops working immediately when for example root fs cannot be 
+mounted - kernel does panic() and serial console no longer works.
 
-It already can, the install tool just happens to involve invoking gcc
-and wrapping it nicely. People have already solved that. I'm actually
-less worried in some ways about the binary only module wrapper question
-because source wrappers around a binary module to handle glueing them
-together puts the shipper in conflict with a patent filing owned by a
-very large hardware company as well as in GPL questionmarks..
+With working console I could reboot (send break+b), and choose proper kernel 
+from lilo but it doesn't work that way so using own foot to get to company 
+and server room is required.
+
+Why code does something that makes serial console usunable in such case?
+It seems that not being able to mount root fs isn't so big deal to do 
+,,something'' that makes serial console not working.
+
+-- 
+Arkadiusz Mi¶kiewicz    CS at FoE, Wroclaw University of Technology
+arekm.pld-linux.org AM2-6BONE, 1024/3DB19BBD, arekm(at)ircnet, PLD/Linux
 

@@ -1,51 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266749AbUF3QLR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266741AbUF3QKV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266749AbUF3QLR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jun 2004 12:11:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266755AbUF3QKt
+	id S266741AbUF3QKV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jun 2004 12:10:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266751AbUF3QIu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jun 2004 12:10:49 -0400
-Received: from bristol.phunnypharm.org ([65.207.35.130]:18617 "EHLO
-	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
-	id S266753AbUF3QJf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jun 2004 12:09:35 -0400
-Date: Wed, 30 Jun 2004 11:46:24 -0400
-From: Ben Collins <bcollins@debian.org>
-To: Matthias Urlichs <smurf@smurf.noris.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.7-mm4: regression: ieee1394: sbp2: null pointer dereference
-Message-ID: <20040630154623.GB18174@phunnypharm.org>
-References: <20040629181347.GA5259@kiste> <pan.2004.06.30.04.01.10.828506@smurf.noris.de>
+	Wed, 30 Jun 2004 12:08:50 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:50066 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266741AbUF3QIJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jun 2004 12:08:09 -0400
+Date: Wed, 30 Jun 2004 12:07:42 -0400
+From: Alan Cox <alan@redhat.com>
+To: bm <b.melnicki@nova-trading.com>
+Cc: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: PATCH: Further aacraid work
+Message-ID: <20040630160742.GA21105@devserv.devel.redhat.com>
+References: <20040616210455.GA13385@devserv.devel.redhat.com> <008e01c45e46$5ad47050$0264a8c0@rck>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <pan.2004.06.30.04.01.10.828506@smurf.noris.de>
-User-Agent: Mutt/1.5.6+20040523i
+In-Reply-To: <008e01c45e46$5ad47050$0264a8c0@rck>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 30, 2004 at 06:01:10AM +0200, Matthias Urlichs wrote:
-> Hi, Matthias Urlichs wrote:
-> 
-> > 2.6.7-mm4 oopses when confronted with an unresponsive iee1394 disk.
-> 
-> (Andrew helpfully forwarded this to 1394-dev. Thanks.)
-> 
-> Further tests show that the problem just shows up more reliably (if that's
-> the word...) under -mm4. However, I just got the error on plain 2.6.7.
+> What can I do ? I'm so desperate that I'm thinking switching to another
+> RAID controller. BTW which one of dual-channel U320 with cache have stable
+> drivers for x86_64 platform ?
 
-This oops traces back into the scsi stack, right? The spaghetti of
-trying to get things to work right with the scsi stack is getting to be
-a pain. I guess USB doesn't have too many problems since it does a
-scsi-host per device, but that's not as easy with sbp2 and 1394, since a
-single sbp2 device can have multiple LUN's, and it's just easier to
-treat that as one scsi host.
+That looks like firmware death to me but Im not the expert, you want to 
+ask Mark at adaptec who is chasing down these reports.
 
-I can't reproduce it, but I'll try to get into the logic of sbp2 device
-removal again to see if I can find out where and why this is occuring.
+As to U320 controllers - I've no real opinion. I'm still at ultra80 8)
 
--- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-WatchGuard - http://www.watchguard.com/

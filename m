@@ -1,38 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266347AbTBTRao>; Thu, 20 Feb 2003 12:30:44 -0500
+	id <S266257AbTBTRhX>; Thu, 20 Feb 2003 12:37:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266356AbTBTRao>; Thu, 20 Feb 2003 12:30:44 -0500
-Received: from havoc.daloft.com ([64.213.145.173]:21142 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id <S266347AbTBTRan>;
-	Thu, 20 Feb 2003 12:30:43 -0500
-Date: Thu, 20 Feb 2003 12:40:43 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Prasad <prasad_s@students.iiit.net>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Syscall from Kernel Space
-Message-ID: <20030220174043.GI9800@gtf.org>
-References: <Pine.LNX.4.44.0302202301350.12696-100000@students.iiit.net>
+	id <S266243AbTBTRhX>; Thu, 20 Feb 2003 12:37:23 -0500
+Received: from louise.pinerecords.com ([213.168.176.16]:24962 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S266408AbTBTRfy>; Thu, 20 Feb 2003 12:35:54 -0500
+Date: Thu, 20 Feb 2003 18:45:54 +0100
+From: Tomas Szepe <szepe@pinerecords.com>
+To: James Buchanan <jamesbuch@iprimus.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux kernel rant
+Message-ID: <20030220174554.GS1426@louise.pinerecords.com>
+References: <200302211551.28222.jamesbuch@iprimus.com.au> <20030220172606.GO1426@louise.pinerecords.com> <200302211642.31669.jamesbuch@iprimus.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0302202301350.12696-100000@students.iiit.net>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <200302211642.31669.jamesbuch@iprimus.com.au>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 20, 2003 at 11:04:37PM +0530, Prasad wrote:
-> 	Is there a way using which i could invoke a syscall in the kernel 
-> space?  The syscall is to be run disguised as another process.  The actual 
+> [jamesbuch@iprimus.com.au]
+> 
+> > Don't be naive, BSD people have to sign NDA's too if they want to
+> > have decent drivers for cheap hardware.
+> 
+> I'm not - Theo De Raadt refuses to sign them.
 
-Call sys_<syscall>.  Look at the kernel code for examples.
-
-Note that typically you don't want to do this... and you _really_ don't
-want to do this if the syscall is not one of the common file I/O
-syscalls (read/write/open/close, etc.)
-
-	Jeff
-
-
-
-
+Certainly he's not the only one on the kernel team.
+Really, go browse /usr/src/sys and stop trolling.

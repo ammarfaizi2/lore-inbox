@@ -1,43 +1,71 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315485AbSEVJgK>; Wed, 22 May 2002 05:36:10 -0400
+	id <S316901AbSEVJhK>; Wed, 22 May 2002 05:37:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316901AbSEVJgJ>; Wed, 22 May 2002 05:36:09 -0400
-Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:4881 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S315485AbSEVJgI>; Wed, 22 May 2002 05:36:08 -0400
-Date: Wed, 22 May 2002 10:36:02 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] SLC82C105 IDE driver: missing __init
-Message-ID: <20020522103602.A15750@flint.arm.linux.org.uk>
-In-Reply-To: <20020522091648.GB312@pazke.ipt>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S316909AbSEVJhJ>; Wed, 22 May 2002 05:37:09 -0400
+Received: from maillog.promise.com.tw ([210.244.60.166]:5902 "EHLO
+	maillog.promise.com.tw") by vger.kernel.org with ESMTP
+	id <S316901AbSEVJhH>; Wed, 22 May 2002 05:37:07 -0400
+Message-ID: <015a01c20174$654acbf0$c0cca8c0@promise.com.tw>
+From: "Hank Yang" <hanky@promise.com.tw>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>,
+        <torvalds@transmeta.com>, <arjanv@redhat.com>
+In-Reply-To: <E16lBmI-0006nf-00@the-village.bc.nu>
+Subject: Re: [PATCH] Submitting PROMISE IDE Controllers Driver Patch
+Date: Wed, 22 May 2002 17:38:13 +0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 22, 2002 at 01:16:48PM +0400, Andrey Panin wrote:
-> slc82c105_bridge_revision() functions lacks __init modifier.
-> Attached patch (against 2.5.17) fixes it.
-> Compiles, but untested. Please consider applying.
+Hi, Alan.
 
-I'm surprised it compiles.  I've got a rather major update to it here,
-but I need to find time to pull it out of the ARM patch, and I need IDE
-to settle down a bit so the two are actually in sync with each other.
-(Martin messed up my DMA changes which'd prevent sl82c105 linking - I'm
-waiting for the fix to emerge, which I think is in 2.5.17, but the TLB
-stuff in 2.5.17 has broken all my ARM builds, so I'm unable to build or
-test anything on 2.5 currently.)
+    Have you been modify the part of pdc202xx.c we mention last time?
+And I have another issue to ask you modify. Could you please modify
+pdc202xx.c to append "QUANTUM FIREBALLP KA9.1" for mark quirk
+drives.
 
-Too many things to do... too many problems to solve... too many patches
-to look at... too much email... not enough hours in the day... not enough
-fast machines to build kernels on... not enough rmk clones to run kernel
-tests... 8)
+const char *pdc_quirk_drives[] = {
+ "QUANTUM FIREBALLlct08 08",
+ "QUANTUM FIREBALLP KA6.4",
+ "QUANTUM FIREBALLP KA9.1",     //please append this line
+ "QUANTUM FIREBALLP LM20.4",
+ "QUANTUM FIREBALLP KX20.5",
+ "QUANTUM FIREBALLP KX27.3",
+ "QUANTUM FIREBALLP LM20.5",
+ NULL
+};
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+If any other questions about Promise products,
+Please feel free to mail support@promise.com or support@promise.com.tw
+Don't reply me directly.
+Thanks and Regards
+Hank Yang
+
+----- Original Message -----
+From: Alan Cox
+To: Hank Yang
+Cc: Alan Cox ; linux-kernel@vger.kernel.org ; torvalds@transmeta.com ;
+arjanv@redhat.com
+Sent: 2002?3?14? ?? 12:39
+Subject: Re: [PATCH] Submitting PROMISE IDE Controllers Driver Patch
+
+
+>     The patch-file 'patch-2.4.19-pre2-ac3' needs be modified for
+pdc202xx.c.
+> In pdc202xx.c, pdc202xx_new_tune_chipset()
+> switch (speed) to set timing only when UDMA 6 drives exist on ATA-133
+> controller (PDC20269 and PDC20275). If there are no any UDMA 6 drives
+> exists, we don't need to set timing here.
+>
+>     Would you please modify this part?
+
+I'll try and work out the bit you need merging
 

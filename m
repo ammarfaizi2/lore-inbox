@@ -1,53 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263178AbTJVAKY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 20:10:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263185AbTJVAKY
+	id S263224AbTJVAkV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 20:40:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263256AbTJVAkU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 20:10:24 -0400
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:15281 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S263178AbTJVAKX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 20:10:23 -0400
-Message-ID: <1066781410.8fc9a83422a85@carlthompson.net>
-X-Priority: 3 (Normal)
-Date: Tue, 21 Oct 2003 17:10:10 -0700
-From: Carl Thompson <cet@carlthompson.net>
-To: "Nakajima, Jun" <jun.nakajima@intel.com>
-Cc: arjanv@redhat.com, "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       "Mallick, Asit K" <asit.k.mallick@intel.com>,
-       Dominik Brodowski <linux@brodo.de>, linux-acpi <linux-acpi@intel.com>,
-       cpufreq@www.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: RE: [PATCH] 3/3 Dynamic cpufreq governor and updates toACPIP-state
-	driver
-References: <7F740D512C7C1046AB53446D3720017304B038@scsmsx402.sc.intel.com>
-In-Reply-To: <7F740D512C7C1046AB53446D3720017304B038@scsmsx402.sc.intel.com>
+	Tue, 21 Oct 2003 20:40:20 -0400
+Received: from mail-04.iinet.net.au ([203.59.3.36]:11244 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S263224AbTJVAkS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Oct 2003 20:40:18 -0400
+Message-ID: <3F95D1F2.1080304@cyberone.com.au>
+Date: Wed, 22 Oct 2003 10:40:18 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Disposition: inline
+To: Lars Marowsky-Bree <lmb@suse.de>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] must fix lists
+References: <3F94C833.8040204@cyberone.com.au> <20031021093601.GH26189@marowsky-bree.de>
+In-Reply-To: <20031021093601.GH26189@marowsky-bree.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-User-Agent: Internet Messaging Program (IMP) 4.0-cvs
-X-Originating-IP: 192.168.0.174
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting "Nakajima, Jun" <jun.nakajima@intel.com>:
 
-> ...
 
-> Then you can put the CPU in C-state or lower P-state after (or even
-> during) your word processor displays the letter. Even you can type very
-> fast, the CPU is almost idle. Having frequent feedbacks simply provide
-> more chances to save power consumption. Then aggregate saving would make
-> a difference. In addition, penalty of making a wrong decision is cheap.
+Lars Marowsky-Bree wrote:
 
-No, it is _more_ expensive.  With a longer poll interval, the CPU would
-never be changed from the slowest speed because the percent idle over that
-period would be too high.  More chances to switch speeds out of slowest is
-more expensive, not less.
+>On 2003-10-21T15:46:27,
+>   Nick Piggin <piggin@cyberone.com.au> said:
+>
+>The multipath module will be (outcome of KS) implemented as a
+>device-mapper personality, which Sistina / Joe are developing. So,
+>luckily, I'm sort of out of the loop of the "must fix" list, but I'll
+>hopefully have some of the issues on my "will fix" list anyway ;-)
+>
 
-> ...
-
-Carl Thompson
-
+OK so that means it can go in any time really, right? So it can
+be removed from the list. Thanks.
 

@@ -1,728 +1,1159 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265480AbTAEX7d>; Sun, 5 Jan 2003 18:59:33 -0500
+	id <S265470AbTAEX5d>; Sun, 5 Jan 2003 18:57:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265508AbTAEX7c>; Sun, 5 Jan 2003 18:59:32 -0500
-Received: from dp.samba.org ([66.70.73.150]:64986 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S265480AbTAEX7R>;
-	Sun, 5 Jan 2003 18:59:17 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org, sfr@canb.auug.org.au, davem@redhat.com
-Subject: [PATCH] Exception table cleanup
-Date: Mon, 06 Jan 2003 11:07:29 +1100
-Message-Id: <20030106000753.062ED2C069@lists.samba.org>
+	id <S265475AbTAEX5c>; Sun, 5 Jan 2003 18:57:32 -0500
+Received: from www.petersen-arne.com ([64.65.177.82]:65040 "EHLO
+	uranus.petersen-arne.com") by vger.kernel.org with ESMTP
+	id <S265470AbTAEX5R>; Sun, 5 Jan 2003 18:57:17 -0500
+Message-ID: <21484.64.65.177.243.1041811557.squirrel@www.petersen-arne.com>
+Date: Sun, 5 Jan 2003 16:05:57 -0800 (PST)
+Subject: PROBLEM: 2.4.19 system crashes with BUG at vmscan.c:355
+From: "Cory Petkovsek" <coryp@petersen-arne.com>
+To: <linux-kernel@vger.kernel.org>
+X-Priority: 3
+Importance: Normal
+X-Mailer: SquirrelMail (version 1.2.9)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Re-xmit.  Linus, please apply (requires LICENSE patch).
+1. 2.4.19 system crashes with BUG at vmscan.c:355
 
-DaveM OKed it.  Other archs should be trivial, and the arch
-maintainers probably want to know about this change anyway.
+2. A server running debian woody and standard kernel 2.4.19 system crashes
+with BUG at vmscan.c:355.  It has done so twice after 30-45 days of
+uptime.
 
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+3. vm, virtual memory, stack dump
 
-Name: extable cleanup
-Author: Rusty Russell
-Status: Tested on 2.5.54
-Depends: Module/module-license.patch.gz
+4.  cat /proc/version
+Linux version 2.4.19 (root@neptune) (gcc version 2.95.4 20011002 (Debian
+prerelease)) #1 Sat Sep 14 14:38:02 PDT 2002
 
-D: This patch combines the common exception table searching
-D: functionality for various architectures, to avoid unneccessary (and
-D: currently buggy) duplication, and so that the exception table list
-D: and lock can be kept private to module.c.
-D:
-D: The archs provide "struct exception_table" and "search_extable":
-D: the generic infrastructure drives the rest.
+5. no oops
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .11490-2.5-bk-extable.pre/kernel/extable.c .11490-2.5-bk-extable/kernel/extable.c
---- .11490-2.5-bk-extable.pre/kernel/extable.c	2003-01-03 18:55:26.000000000 +1100
-+++ .11490-2.5-bk-extable/kernel/extable.c	2003-01-03 18:55:28.000000000 +1100
-@@ -16,45 +16,17 @@
-     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- */
- #include <linux/module.h>
--#include <linux/init.h>
--
--#include <asm/semaphore.h>
- 
- extern const struct exception_table_entry __start___ex_table[];
- extern const struct exception_table_entry __stop___ex_table[];
--extern const struct kernel_symbol __start___ksymtab[];
--extern const struct kernel_symbol __stop___ksymtab[];
--extern const struct kernel_symbol __start___gpl_ksymtab[];
--extern const struct kernel_symbol __stop___gpl_ksymtab[];
- 
--/* Protects extables and symbol tables */
--spinlock_t modlist_lock = SPIN_LOCK_UNLOCKED;
--
--/* The exception and symbol tables: start with kernel only. */
--LIST_HEAD(extables);
--LIST_HEAD(symbols);
--
--static struct exception_table kernel_extable;
--static struct kernel_symbol_group kernel_symbols;
--static struct kernel_symbol_group kernel_gpl_symbols;
--
--void __init extable_init(void)
-+/* Given an address, look for it in the exception tables. */
-+const struct exception_table_entry *search_exception_tables(unsigned long addr)
- {
--	/* Add kernel symbols to symbol table */
--	kernel_symbols.num_syms = (__stop___ksymtab - __start___ksymtab);
--	kernel_symbols.syms = __start___ksymtab;
--	kernel_symbols.gplonly = 0;
--	list_add(&kernel_symbols.list, &symbols);
--	kernel_gpl_symbols.num_syms = (__stop___gpl_ksymtab
--				       - __start___gpl_ksymtab);
--	kernel_gpl_symbols.syms = __start___gpl_ksymtab;
--	kernel_gpl_symbols.gplonly = 1;
--	list_add(&kernel_gpl_symbols.list, &symbols);
-+	const struct exception_table_entry *e;
- 
--	/* Add kernel exception table to exception tables */
--	kernel_extable.num_entries = (__stop___ex_table -__start___ex_table);
--	kernel_extable.entry = __start___ex_table;
--	list_add(&kernel_extable.list, &extables);
-+	e = search_extable(__start___ex_table, __stop___ex_table-1, addr);
-+	if (!e)
-+		e = search_module_extables(addr);
-+	return e;
- }
--
--
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .11490-2.5-bk-extable.pre/kernel/module.c .11490-2.5-bk-extable/kernel/module.c
---- .11490-2.5-bk-extable.pre/kernel/module.c	2003-01-03 18:55:26.000000000 +1100
-+++ .11490-2.5-bk-extable/kernel/module.c	2003-01-03 18:55:28.000000000 +1100
-@@ -51,9 +51,14 @@
- #define symbol_is(literal, string)				\
- 	(strcmp(MODULE_SYMBOL_PREFIX literal, (string)) == 0)
- 
-+/* Protects extables and symbols lists */
-+static spinlock_t modlist_lock = SPIN_LOCK_UNLOCKED;
-+
- /* List of modules, protected by module_mutex */
- static DECLARE_MUTEX(module_mutex);
--LIST_HEAD(modules); /* FIXME: Accessed w/o lock on oops by some archs */
-+LIST_HEAD(modules);  /* FIXME: Accessed w/o lock on oops by some archs */
-+static LIST_HEAD(symbols);
-+static LIST_HEAD(extables);
- 
- /* We require a truly strong try_module_get() */
- static inline int strong_try_module_get(struct module *mod)
-@@ -1425,6 +1430,55 @@ struct seq_operations modules_op = {
- 	.show	= m_show
- };
- 
-+/* Given an address, look for it in the module exception tables. */
-+const struct exception_table_entry *search_module_extables(unsigned long addr)
-+{
-+	unsigned long flags;
-+	const struct exception_table_entry *e = NULL;
-+	struct exception_table *i;
-+
-+	spin_lock_irqsave(&modlist_lock, flags);
-+	list_for_each_entry(i, &extables, list) {
-+		if (i->num_entries == 0)
-+			continue;
-+				
-+		e = search_extable(i->entry, i->entry+i->num_entries-1, addr);
-+		if (e)
-+			break;
-+	}
-+	spin_unlock_irqrestore(&modlist_lock, flags);
-+
-+	/* Now, if we found one, we are running inside it now, hence
-+           we cannot unload the module, hence no refcnt needed. */
-+	return e;
-+}
-+
-+/* Provided by the linker */
-+extern const struct kernel_symbol __start___ksymtab[];
-+extern const struct kernel_symbol __stop___ksymtab[];
-+extern const struct kernel_symbol __start___gpl_ksymtab[];
-+extern const struct kernel_symbol __stop___gpl_ksymtab[];
-+
-+static struct kernel_symbol_group kernel_symbols, kernel_gpl_symbols;
-+
-+static int __init symbols_init(void)
-+{
-+	/* Add kernel symbols to symbol table */
-+	kernel_symbols.num_syms = (__stop___ksymtab - __start___ksymtab);
-+	kernel_symbols.syms = __start___ksymtab;
-+	kernel_symbols.gplonly = 0;
-+	list_add(&kernel_symbols.list, &symbols);
-+	kernel_gpl_symbols.num_syms = (__stop___gpl_ksymtab
-+				       - __start___gpl_ksymtab);
-+	kernel_gpl_symbols.syms = __start___gpl_ksymtab;
-+	kernel_gpl_symbols.gplonly = 1;
-+	list_add(&kernel_gpl_symbols.list, &symbols);
-+
-+	return 0;
-+}
-+
-+__initcall(symbols_init);
-+
- /* Obsolete lvalue for broken code which asks about usage */
- int module_dummy_usage = 1;
- EXPORT_SYMBOL(module_dummy_usage);
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .11490-2.5-bk-extable.pre/include/linux/module.h .11490-2.5-bk-extable/include/linux/module.h
---- .11490-2.5-bk-extable.pre/include/linux/module.h	2003-01-03 18:55:26.000000000 +1100
-+++ .11490-2.5-bk-extable/include/linux/module.h	2003-01-03 18:55:28.000000000 +1100
-@@ -43,6 +43,12 @@ struct kernel_symbol
- extern int init_module(void);
- extern void cleanup_module(void);
- 
-+/* Archs provide a method of finding the correct exception table. */
-+const struct exception_table_entry *
-+search_extable(const struct exception_table_entry *first,
-+	       const struct exception_table_entry *last,
-+	       unsigned long value);
-+
- #ifdef MODULE
- 
- /* For replacement modutils, use an alias not a pointer. */
-@@ -111,6 +117,9 @@ struct kernel_symbol_group
- 	const struct kernel_symbol *syms;
- };
- 
-+/* Given an address, look for it in the exception tables */
-+const struct exception_table_entry *search_exception_tables(unsigned long add);
-+
- struct exception_table
- {
- 	struct list_head list;
-@@ -300,11 +309,21 @@ const char *module_address_lookup(unsign
- 				  unsigned long *offset,
- 				  char **modname);
- 
-+/* For extable.c to search modules' exception tables. */
-+const struct exception_table_entry *search_module_extables(unsigned long addr);
-+
- #else /* !CONFIG_MODULES... */
- #define EXPORT_SYMBOL(sym)
- #define EXPORT_SYMBOL_GPL(sym)
- #define EXPORT_SYMBOL_NOVERS(sym)
- 
-+/* Given an address, look for it in the exception tables. */
-+static inline const struct exception_table_entry *
-+search_module_extables(unsigned long addr)
-+{
-+	return NULL;
-+}
-+
- /* Get/put a kernel symbol (calls should be symmetric) */
- #define symbol_get(x) (&(x))
- #define symbol_put(x) do { } while(0)
-@@ -344,10 +363,6 @@ __attribute__((section(".gnu.linkonce.th
- #endif /* KBUILD_MODNAME */
- #endif /* MODULE */
- 
--/* For archs to search exception tables */
--extern struct list_head extables;
--extern spinlock_t modlist_lock;
--
- #define symbol_request(x) try_then_request_module(symbol_get(x), "symbol:" #x)
- 
- /* BELOW HERE ALL THESE ARE OBSOLETE AND WILL VANISH */
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .11490-2.5-bk-extable.pre/arch/i386/kernel/traps.c .11490-2.5-bk-extable/arch/i386/kernel/traps.c
---- .11490-2.5-bk-extable.pre/arch/i386/kernel/traps.c	2003-01-02 14:47:57.000000000 +1100
-+++ .11490-2.5-bk-extable/arch/i386/kernel/traps.c	2003-01-03 18:55:27.000000000 +1100
-@@ -338,7 +338,7 @@ static inline void do_trap(int trapnr, i
- 	}
- 
- 	kernel_trap: {
--		unsigned long fixup;
-+		const struct exception_table_entry *fixup;
- #ifdef CONFIG_PNPBIOS
- 		if (unlikely((regs->xcs | 8) == 0x88)) /* 0x80 or 0x88 */
- 		{
-@@ -354,9 +354,9 @@ static inline void do_trap(int trapnr, i
- 		}
- #endif	
- 		
--		fixup = search_exception_table(regs->eip);
-+		fixup = search_exception_tables(regs->eip);
- 		if (fixup)
--			regs->eip = fixup;
-+			regs->eip = fixup->fixup;
- 		else	
- 			die(str, regs, error_code);
- 		return;
-@@ -435,10 +435,10 @@ gp_in_vm86:
- 
- gp_in_kernel:
- 	{
--		unsigned long fixup;
--		fixup = search_exception_table(regs->eip);
-+		const struct exception_table_entry *fixup;
-+		fixup = search_exception_tables(regs->eip);
- 		if (fixup) {
--			regs->eip = fixup;
-+			regs->eip = fixup->fixup;
- 			return;
- 		}
- 		die("general protection fault", regs, error_code);
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .11490-2.5-bk-extable.pre/arch/i386/mm/extable.c .11490-2.5-bk-extable/arch/i386/mm/extable.c
---- .11490-2.5-bk-extable.pre/arch/i386/mm/extable.c	2003-01-02 12:35:07.000000000 +1100
-+++ .11490-2.5-bk-extable/arch/i386/mm/extable.c	2003-01-03 18:55:27.000000000 +1100
-@@ -7,13 +7,11 @@
- #include <linux/spinlock.h>
- #include <asm/uaccess.h>
- 
--extern const struct exception_table_entry __start___ex_table[];
--extern const struct exception_table_entry __stop___ex_table[];
--
--static inline unsigned long
--search_one_table(const struct exception_table_entry *first,
--		 const struct exception_table_entry *last,
--		 unsigned long value)
-+/* Simple binary search */
-+const struct exception_table_entry *
-+search_extable(const struct exception_table_entry *first,
-+	       const struct exception_table_entry *last,
-+	       unsigned long value)
- {
-         while (first <= last) {
- 		const struct exception_table_entry *mid;
-@@ -22,43 +20,11 @@ search_one_table(const struct exception_
- 		mid = (last - first) / 2 + first;
- 		diff = mid->insn - value;
-                 if (diff == 0)
--                        return mid->fixup;
-+                        return mid;
-                 else if (diff < 0)
-                         first = mid+1;
-                 else
-                         last = mid-1;
-         }
--        return 0;
--}
--
--extern spinlock_t modlist_lock;
--
--unsigned long
--search_exception_table(unsigned long addr)
--{
--	unsigned long ret = 0;
--	
--#ifndef CONFIG_MODULES
--	/* There is only the kernel to search.  */
--	ret = search_one_table(__start___ex_table, __stop___ex_table-1, addr);
--	return ret;
--#else
--	unsigned long flags;
--	struct list_head *i;
--
--	/* The kernel is the last "module" -- no need to treat it special.  */
--	spin_lock_irqsave(&modlist_lock, flags);
--	list_for_each(i, &extables) {
--		struct exception_table *ex
--			= list_entry(i, struct exception_table, list);
--		if (ex->num_entries == 0)
--			continue;
--		ret = search_one_table(ex->entry,
--				       ex->entry + ex->num_entries - 1, addr);
--		if (ret)
--			break;
--	}
--	spin_unlock_irqrestore(&modlist_lock, flags);
--	return ret;
--#endif
-+        return NULL;
- }
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .11490-2.5-bk-extable.pre/arch/i386/mm/fault.c .11490-2.5-bk-extable/arch/i386/mm/fault.c
---- .11490-2.5-bk-extable.pre/arch/i386/mm/fault.c	2003-01-02 12:46:12.000000000 +1100
-+++ .11490-2.5-bk-extable/arch/i386/mm/fault.c	2003-01-03 18:55:27.000000000 +1100
-@@ -19,6 +19,7 @@
- #include <linux/init.h>
- #include <linux/tty.h>
- #include <linux/vt_kern.h>		/* For unblank_screen() */
-+#include <linux/module.h>
- 
- #include <asm/system.h>
- #include <asm/uaccess.h>
-@@ -154,7 +155,7 @@ asmlinkage void do_page_fault(struct pt_
- 	struct vm_area_struct * vma;
- 	unsigned long address;
- 	unsigned long page;
--	unsigned long fixup;
-+	const struct exception_table_entry *fixup;
- 	int write;
- 	siginfo_t info;
- 
-@@ -310,8 +311,8 @@ bad_area:
- 
- no_context:
- 	/* Are we prepared to handle this kernel fault?  */
--	if ((fixup = search_exception_table(regs->eip)) != 0) {
--		regs->eip = fixup;
-+	if ((fixup = search_exception_tables(regs->eip)) != NULL) {
-+		regs->eip = fixup->fixup;
- 		return;
- 	}
- 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .11490-2.5-bk-extable.pre/arch/ppc/kernel/traps.c .11490-2.5-bk-extable/arch/ppc/kernel/traps.c
---- .11490-2.5-bk-extable.pre/arch/ppc/kernel/traps.c	2003-01-02 12:27:43.000000000 +1100
-+++ .11490-2.5-bk-extable/arch/ppc/kernel/traps.c	2003-01-03 18:55:27.000000000 +1100
-@@ -29,6 +29,7 @@
- #include <linux/interrupt.h>
- #include <linux/config.h>
- #include <linux/init.h>
-+#include <linux/module.h>
- 
- #include <asm/pgtable.h>
- #include <asm/uaccess.h>
-@@ -115,7 +116,7 @@ void
- MachineCheckException(struct pt_regs *regs)
- {
- #ifdef CONFIG_ALL_PPC
--	unsigned long fixup;
-+	const struct exception_table_entry *entry;
- #endif /* CONFIG_ALL_PPC */
- 	unsigned long msr = regs->msr;
- 
-@@ -148,7 +149,7 @@ MachineCheckException(struct pt_regs *re
- 	 *  -- paulus.
- 	 */
- 	if (((msr & 0xffff0000) == 0 || (msr & (0x80000 | 0x40000)))
--	    && (fixup = search_exception_table(regs->nip)) != 0) {
-+	    && (entry = search_exception_tables(regs->nip)) != NULL) {
- 		/*
- 		 * Check that it's a sync instruction, or somewhere
- 		 * in the twi; isync; nop sequence that inb/inw/inl uses.
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .11490-2.5-bk-extable.pre/arch/ppc/mm/extable.c .11490-2.5-bk-extable/arch/ppc/mm/extable.c
---- .11490-2.5-bk-extable.pre/arch/ppc/mm/extable.c	2003-01-02 12:35:59.000000000 +1100
-+++ .11490-2.5-bk-extable/arch/ppc/mm/extable.c	2003-01-03 18:55:27.000000000 +1100
-@@ -6,6 +6,7 @@
- 
- #include <linux/config.h>
- #include <linux/module.h>
-+#include <linux/init.h>
- #include <asm/uaccess.h>
- 
- extern struct exception_table_entry __start___ex_table[];
-@@ -40,16 +41,17 @@ sort_ex_table(struct exception_table_ent
- 	}
- }
- 
--void
-+void __init
- sort_exception_table(void)
- {
- 	sort_ex_table(__start___ex_table, __stop___ex_table);
- }
- 
--static inline unsigned long
--search_one_table(const struct exception_table_entry *first,
--		 const struct exception_table_entry *last,
--		 unsigned long value)
-+/* Simple binary search */
-+const struct exception_table_entry *
-+search_extable(const struct exception_table_entry *first,
-+	       const struct exception_table_entry *last,
-+	       unsigned long value)
- {
-         while (first <= last) {
- 		const struct exception_table_entry *mid;
-@@ -58,41 +60,11 @@ search_one_table(const struct exception_
- 		mid = (last - first) / 2 + first;
- 		diff = mid->insn - value;
-                 if (diff == 0)
--                        return mid->fixup;
-+                        return mid;
-                 else if (diff < 0)
-                         first = mid+1;
-                 else
-                         last = mid-1;
-         }
--        return 0;
--}
--
--unsigned long
--search_exception_table(unsigned long addr)
--{
--	unsigned long ret = 0;
--
--#ifndef CONFIG_MODULES
--	/* There is only the kernel to search.  */
--	ret = search_one_table(__start___ex_table, __stop___ex_table-1, addr);
--#else
--	unsigned long flags;
--	struct list_head *i;
--
--	/* The kernel is the last "module" -- no need to treat it special. */
--	spin_lock_irqsave(&modlist_lock, flags);
--	list_for_each(i, &extables) {
--		struct exception_table *ex
--			= list_entry(i, struct exception_table, list);
--		if (ex->num_entries == 0)
--			continue;
--		ret = search_one_table(ex->entry,
--				       ex->entry + ex->num_entries - 1, addr);
--		if (ret)
--			break;
--	}
--	spin_unlock_irqrestore(&modlist_lock, flags);
--#endif
--
--	return ret;
-+	return NULL;
- }
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .11490-2.5-bk-extable.pre/arch/ppc/mm/fault.c .11490-2.5-bk-extable/arch/ppc/mm/fault.c
---- .11490-2.5-bk-extable.pre/arch/ppc/mm/fault.c	2003-01-02 12:27:43.000000000 +1100
-+++ .11490-2.5-bk-extable/arch/ppc/mm/fault.c	2003-01-03 18:55:27.000000000 +1100
-@@ -27,6 +27,7 @@
- #include <linux/mm.h>
- #include <linux/interrupt.h>
- #include <linux/highmem.h>
-+#include <linux/module.h>
- 
- #include <asm/page.h>
- #include <asm/pgtable.h>
-@@ -263,12 +264,11 @@ void
- bad_page_fault(struct pt_regs *regs, unsigned long address, int sig)
- {
- 	extern void die(const char *,struct pt_regs *,long);
--
--	unsigned long fixup;
-+	const struct exception_table_entry *entry;
- 
- 	/* Are we prepared to handle this fault?  */
--	if ((fixup = search_exception_table(regs->nip)) != 0) {
--		regs->nip = fixup;
-+	if ((entry = search_exception_tables(regs->nip)) != NULL) {
-+		regs->nip = entry->fixup;
- 		return;
- 	}
- 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .11490-2.5-bk-extable.pre/arch/sparc64/kernel/traps.c .11490-2.5-bk-extable/arch/sparc64/kernel/traps.c
---- .11490-2.5-bk-extable.pre/arch/sparc64/kernel/traps.c	2003-01-02 12:34:03.000000000 +1100
-+++ .11490-2.5-bk-extable/arch/sparc64/kernel/traps.c	2003-01-03 18:55:27.000000000 +1100
-@@ -149,17 +149,17 @@ void data_access_exception (struct pt_re
- 
- 	if (regs->tstate & TSTATE_PRIV) {
- 		/* Test if this comes from uaccess places. */
--		unsigned long fixup, g2;
-+		const struct exception_table_entry *entry;
-+		unsigned long g2 = regs->u_regs[UREG_G2];
- 
--		g2 = regs->u_regs[UREG_G2];
--		if ((fixup = search_exception_table (regs->tpc, &g2))) {
-+		if ((entry = search_extables_range(regs->tpc, &g2))) {
- 			/* Ouch, somebody is trying ugly VM hole tricks on us... */
- #ifdef DEBUG_EXCEPTIONS
- 			printk("Exception: PC<%016lx> faddr<UNKNOWN>\n", regs->tpc);
- 			printk("EX_TABLE: insn<%016lx> fixup<%016lx> "
--			       "g2<%016lx>\n", regs->tpc, fixup, g2);
-+			       "g2<%016lx>\n", regs->tpc, entry->fixup, g2);
- #endif
--			regs->tpc = fixup;
-+			regs->tpc = entry->fixup;
- 			regs->tnpc = regs->tpc + 4;
- 			regs->u_regs[UREG_G2] = g2;
- 			return;
-@@ -1370,7 +1370,7 @@ void cheetah_deferred_handler(struct pt_
- 			recoverable = 1;
- 		} else {
- 			unsigned long g2 = regs->u_regs[UREG_G2];
--			unsigned long fixup = search_exception_table(regs->tpc, &g2);
-+			unsigned long fixup = search_extables_range(regs->tpc, &g2);
- 
- 			if (fixup != 0UL) {
- 				/* OK, kernel access to userspace. */
-@@ -1390,8 +1390,8 @@ void cheetah_deferred_handler(struct pt_
- 				/* Only perform fixup if we still have a
- 				 * recoverable condition.
- 				 */
--				if (fixup != 0UL && recoverable) {
--					regs->tpc = fixup;
-+				if (entry && recoverable) {
-+					regs->tpc = entry->fixup;
- 					regs->tnpc = regs->tpc + 4;
- 					regs->u_regs[UREG_G2] = g2;
- 				}
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .11490-2.5-bk-extable.pre/arch/sparc64/kernel/unaligned.c .11490-2.5-bk-extable/arch/sparc64/kernel/unaligned.c
---- .11490-2.5-bk-extable.pre/arch/sparc64/kernel/unaligned.c	2003-01-02 12:30:39.000000000 +1100
-+++ .11490-2.5-bk-extable/arch/sparc64/kernel/unaligned.c	2003-01-03 18:55:27.000000000 +1100
-@@ -10,6 +10,7 @@
- #include <linux/kernel.h>
- #include <linux/sched.h>
- #include <linux/mm.h>
-+#include <linux/module.h>
- #include <asm/asi.h>
- #include <asm/ptrace.h>
- #include <asm/pstate.h>
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .11490-2.5-bk-extable.pre/arch/sparc64/mm/extable.c .11490-2.5-bk-extable/arch/sparc64/mm/extable.c
---- .11490-2.5-bk-extable.pre/arch/sparc64/mm/extable.c	2003-01-02 12:35:08.000000000 +1100
-+++ .11490-2.5-bk-extable/arch/sparc64/mm/extable.c	2003-01-03 18:55:27.000000000 +1100
-@@ -9,10 +9,11 @@
- extern const struct exception_table_entry __start___ex_table[];
- extern const struct exception_table_entry __stop___ex_table[];
- 
--static unsigned long
--search_one_table(const struct exception_table_entry *start,
--		 const struct exception_table_entry *end,
--		 unsigned long value, unsigned long *g2)
-+/* Caller knows they are in a range if ret->fixup == 0 */
-+const struct exception_table_entry *
-+search_extable(const struct exception_table_entry *start,
-+	       const struct exception_table_entry *last,
-+	       unsigned long value)
- {
- 	const struct exception_table_entry *walk;
- 
-@@ -38,7 +39,7 @@ search_one_table(const struct exception_
- 		}
- 
- 		if (walk->insn == value)
--			return walk->fixup;
-+			return walk;
- 	}
- 
- 	/* 2. Try to find a range match. */
-@@ -46,47 +47,29 @@ search_one_table(const struct exception_
- 		if (walk->fixup)
- 			continue;
- 
--		if (walk[0].insn <= value &&
--		    walk[1].insn > value) {
--			*g2 = (value - walk[0].insn) / 4;
--			return walk[1].fixup;
--		}
-+		if (walk[0].insn <= value && walk[1].insn > value)
-+			return walk;
-+
- 		walk++;
- 	}
- 
--        return 0;
-+        return NULL;
- }
- 
--extern spinlock_t modlist_lock;
--
--unsigned long
--search_exception_table(unsigned long addr, unsigned long *g2)
-+/* Special extable search, which handles ranges.  Returns fixup */
-+unsigned long search_extables_range(unsigned long addr, unsigned long *g2)
- {
--	unsigned long ret = 0;
-+	const struct exception_table_entry *entry;
- 
--#ifndef CONFIG_MODULES
--	/* There is only the kernel to search.  */
--	ret = search_one_table(__start___ex_table,
--			       __stop___ex_table-1, addr, g2);
--	return ret;
--#else
--	unsigned long flags;
--	struct list_head *i;
-+	entry = search_exception_tables(addr);
-+	if (!entry)
-+		return 0;
- 
--	/* The kernel is the last "module" -- no need to treat it special.  */
--	spin_lock_irqsave(&modlist_lock, flags);
--	list_for_each(i, &extables) {
--		struct exception_table *ex =
--			list_entry(i, struct exception_table, list);
--		if (ex->num_entries == 0)
--			continue;
--		ret = search_one_table(ex->entry,
--				       ex->entry + ex->num_entries - 1,
--				       addr, g2);
--		if (ret)
--			break;
-+	/* Inside range?  Fix g2 and return correct fixup */
-+	if (!entry->fixup) {
-+		*g2 = (addr - entry->insn) / 4;
-+		return (entry + 1)->fixup;
- 	}
--	spin_unlock_irqrestore(&modlist_lock, flags);
--	return ret;
--#endif
-+
-+	return entry->fixup;
- }
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .11490-2.5-bk-extable.pre/arch/sparc64/mm/fault.c .11490-2.5-bk-extable/arch/sparc64/mm/fault.c
---- .11490-2.5-bk-extable.pre/arch/sparc64/mm/fault.c	2003-01-02 12:30:39.000000000 +1100
-+++ .11490-2.5-bk-extable/arch/sparc64/mm/fault.c	2003-01-03 18:55:27.000000000 +1100
-@@ -14,6 +14,7 @@
- #include <linux/mman.h>
- #include <linux/signal.h>
- #include <linux/mm.h>
-+#include <linux/module.h>
- #include <linux/smp_lock.h>
- #include <linux/init.h>
- #include <linux/interrupt.h>
-@@ -285,7 +286,7 @@ static void do_kernel_fault(struct pt_re
- 	
- 		/* Look in asi.h: All _S asis have LS bit set */
- 		if ((asi & 0x1) &&
--		    (fixup = search_exception_table (regs->tpc, &g2))) {
-+		    (fizup = search_extables_range(regs->tpc, &g2))) {
- 			regs->tpc = fixup;
- 			regs->tnpc = regs->tpc + 4;
- 			regs->u_regs[UREG_G2] = g2;
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .11490-2.5-bk-extable.pre/include/asm-i386/uaccess.h .11490-2.5-bk-extable/include/asm-i386/uaccess.h
---- .11490-2.5-bk-extable.pre/include/asm-i386/uaccess.h	2003-01-02 14:48:00.000000000 +1100
-+++ .11490-2.5-bk-extable/include/asm-i386/uaccess.h	2003-01-03 18:55:27.000000000 +1100
-@@ -92,10 +92,6 @@ struct exception_table_entry
- 	unsigned long insn, fixup;
- };
- 
--/* Returns 0 if exception not found and fixup otherwise.  */
--extern unsigned long search_exception_table(unsigned long);
--
--
- /*
-  * These are the main single-value transfer routines.  They automatically
-  * use the right size if we just have the right pointer type.
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .11490-2.5-bk-extable.pre/include/asm-ppc/uaccess.h .11490-2.5-bk-extable/include/asm-ppc/uaccess.h
---- .11490-2.5-bk-extable.pre/include/asm-ppc/uaccess.h	2003-01-02 12:27:50.000000000 +1100
-+++ .11490-2.5-bk-extable/include/asm-ppc/uaccess.h	2003-01-03 18:55:27.000000000 +1100
-@@ -56,8 +56,6 @@ struct exception_table_entry
- 	unsigned long insn, fixup;
- };
- 
--/* Returns 0 if exception not found and fixup otherwise.  */
--extern unsigned long search_exception_table(unsigned long);
- extern void sort_exception_table(void);
- 
- /*
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .11490-2.5-bk-extable.pre/include/asm-sparc64/uaccess.h .11490-2.5-bk-extable/include/asm-sparc64/uaccess.h
---- .11490-2.5-bk-extable.pre/include/asm-sparc64/uaccess.h	2003-01-02 12:29:33.000000000 +1100
-+++ .11490-2.5-bk-extable/include/asm-sparc64/uaccess.h	2003-01-03 18:55:27.000000000 +1100
-@@ -84,8 +84,8 @@ struct exception_table_entry
-         unsigned insn, fixup;
- };
- 
--/* Returns 0 if exception not found and fixup otherwise.  */
--extern unsigned long search_exception_table(unsigned long, unsigned long *);
-+/* Special exable search, which handles ranges.  Returns fixup */
-+unsigned long search_extables_range(unsigned long addr, unsigned long *g2);
- 
- extern void __ret_efault(void);
- 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .11490-2.5-bk-extable.pre/init/main.c .11490-2.5-bk-extable/init/main.c
---- .11490-2.5-bk-extable.pre/init/main.c	2003-01-02 14:48:01.000000000 +1100
-+++ .11490-2.5-bk-extable/init/main.c	2003-01-03 18:55:28.000000000 +1100
-@@ -61,7 +61,6 @@ extern void init_IRQ(void);
- extern void init_modules(void);
- extern void sock_init(void);
- extern void fork_init(unsigned long);
--extern void extable_init(void);
- extern void mca_init(void);
- extern void sbus_init(void);
- extern void sysctl_init(void);
-@@ -391,7 +390,6 @@ asmlinkage void __init start_kernel(void
- 		   &__stop___param - &__start___param,
- 		   &unknown_bootoption);
- 	trap_init();
--	extable_init();
- 	rcu_init();
- 	init_IRQ();
- 	sched_init();
+6. occurs after 30-45 or so days of uptime
+
+7.1   . ./scripts/ver_linux
+If some fields are empty or look unusual you may have an old version.
+Compare to the current minimal requirements in Documentation/Changes.
+
+Linux neptune 2.4.19 #1 Sat Sep 14 14:38:02 PDT 2002 i686 unknown
+
+Gnu C                  2.95.4
+Gnu make               3.79.1
+util-linux             2.11n
+mount                  2.11n
+modutils               2.4.15
+e2fsprogs              1.27
+PPP                    2.4.1
+Linux C Library        2.5.so*
+Dynamic linker (ldd)   2.2.5
+Procps                 2.0.7
+Net-tools              1.60
+Console-tools          0.2.3
+Sh-utils               2.0.11
+Modules Loaded         nls_cp437 nls_iso8859-1 smbfs 3c59x rtc
+
+7.2  cat /proc/cpuinfo
+processor       : 0
+vendor_id       : AuthenticAMD
+cpu family      : 6
+model           : 4
+model name      : AMD Athlon(tm) processor
+stepping        : 2
+cpu MHz         : 1300.085
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca
+cmov pat pse36 mmx fxsr syscall mmxext 3dnowext 3dnow
+bogomips        : 2595.22
+
+7.3  cat /proc/modules
+nls_cp437               4384   0 (autoclean)
+nls_iso8859-1           2848   0 (autoclean)
+smbfs                  32512   0 (autoclean)
+3c59x                  25096   1
+rtc                     6012   0 (autoclean)
+
+7.4 # cat /proc/ioports /proc/iomem
+0000-001f : dma1
+0020-003f : pic1
+0040-005f : timer
+0060-006f : keyboard
+0070-007f : rtc
+0080-008f : dma page reg
+00a0-00bf : pic2
+00c0-00df : dma2
+00f0-00ff : fpu
+0213-0213 : isapnp read
+02f8-02ff : serial(auto)
+03c0-03df : vga+
+03e8-03ef : serial(auto)
+03f8-03ff : serial(auto)
+0a79-0a79 : isapnp write
+0cf8-0cff : PCI conf1
+5000-500f : VIA Technologies, Inc. VT82C686 [Apollo Super ACPI]
+6000-607f : VIA Technologies, Inc. VT82C686 [Apollo Super ACPI]
+dc00-dc7f : 3Com Corporation 3c905C-TX/TX-M [Tornado]
+  dc00-dc7f : 00:0b.0
+e000-e0ff : Adaptec AHA-2940U/UW/D / AIC-7881U
+00000000-0009fbff : System RAM
+0009fc00-0009ffff : reserved
+000a0000-000bffff : Video RAM area
+000c0000-000c7fff : Video ROM
+000c8000-000cc7ff : Extension ROM
+000f0000-000fffff : System ROM
+00100000-1ffeffff : System RAM
+  00100000-00225617 : Kernel code
+  00225618-0027867f : Kernel data
+1fff0000-1fff2fff : ACPI Non-volatile Storage
+1fff3000-1fffffff : ACPI Tables
+d0000000-d7ffffff : Distributed Processing Technology SmartRAID V Controller
+d8000000-dbffffff : VIA Technologies, Inc. VT8363/8365 [KT133/KM133]
+dc000000-dfffffff : S3 Inc. 86c775/86c785 [Trio 64V2/DX or /GX]
+e1000000-e1000fff : Adaptec AHA-2940U/UW/D / AIC-7881U
+  e1000000-e1000fff : aic7xxx
+e1001000-e100107f : 3Com Corporation 3c905C-TX/TX-M [Tornado]
+ffff0000-ffffffff : reserved
+
+7.5 lspci -vvv
+00:00.0 Host bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133] (rev
+03)
+        Subsystem: ABIT Computer Corp.: Unknown device a401
+        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort+ >SERR- <PERR-
+        Latency: 8
+        Region 0: Memory at d8000000 (32-bit, prefetchable) [size=64M]
+        Capabilities: [a0] AGP version 2.0
+                Status: RQ=31 SBA+ 64bit- FW- Rate=x1,x2
+                Command: RQ=0 SBA- AGP- 64bit- FW- Rate=<none>
+        Capabilities: [c0] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:01.0 PCI bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133 AGP]
+(prog-if 00 [Normal decode])
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort+ >SERR- <PERR-
+        Latency: 0
+        Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
+        I/O behind bridge: 0000f000-00000fff
+        Memory behind bridge: fff00000-000fffff
+        Prefetchable memory behind bridge: fff00000-000fffff
+        BridgeCtl: Parity- SERR- NoISA+ VGA- MAbort- >Reset- FastB2B-
+        Capabilities: [80] Power Management version 2
+                Flags: PMEClk- DSI- D1+ D2- AuxCurrent=0mA
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South]
+(rev 40)
+        Subsystem: ABIT Computer Corp.: Unknown device 0000
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
+ParErr- Stepping+ SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0
+        Capabilities: [c0] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:07.4 Bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 40)
+        Subsystem: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI]
+        Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop-
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+        Interrupt: pin ? routed to IRQ 14
+        Capabilities: [68] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:0b.0 Ethernet controller: 3Com Corporation 3c905C-TX [Fast Etherlink]
+(rev 78)
+        Subsystem: 3Com Corporation 3C905C-TX Fast Etherlink for PC
+Management NIC
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32 (2500ns min, 2500ns max), cache line size 08
+        Interrupt: pin A routed to IRQ 11
+        Region 0: I/O ports at dc00 [size=128]
+        Region 1: Memory at e1001000 (32-bit, non-prefetchable) [size=128]
+        Expansion ROM at <unassigned> [disabled] [size=128K]
+        Capabilities: [dc] Power Management version 2
+                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA
+PME(D0+,D1+,D2+,D3hot+,D3cold+)
+                Status: D0 PME-Enable- DSel=0 DScale=2 PME-
+
+00:0d.0 PCI bridge: Distributed Processing Technology PCI Bridge (rev 02)
+(prog-if 00 [Normal decode])
+        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
+ParErr- Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32, cache line size 08
+        Bus: primary=00, secondary=02, subordinate=02, sec-latency=32
+        I/O behind bridge: 0000f000-00000fff
+        Memory behind bridge: 00100000-000fffff
+        Prefetchable memory behind bridge: 00100000-000fffff
+        BridgeCtl: Parity- SERR+ NoISA+ VGA- MAbort- >Reset- FastB2B-
+        Capabilities: [68] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:0d.1 I2O: Distributed Processing Technology SmartRAID V Controller (rev
+02) (prog-if 01)
+        Subsystem: Distributed Processing Technology: Unknown device c03c
+        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32 (250ns min, 250ns max), cache line size 08
+        Interrupt: pin A routed to IRQ 15
+        BIST result: 00
+        Region 0: Memory at d0000000 (32-bit, prefetchable) [size=128M]
+        Expansion ROM at <unassigned> [disabled] [size=32K]
+        Capabilities: [80] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:0f.0 SCSI storage controller: Adaptec AIC-7881U (rev 01)
+        Subsystem: Adaptec AHA-2940UW SCSI Host Adapter
+        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32 (2000ns min, 2000ns max), cache line size 08
+        Interrupt: pin A routed to IRQ 15
+        Region 0: I/O ports at e000 [disabled] [size=256]
+        Region 1: Memory at e1000000 (32-bit, non-prefetchable) [size=4K]
+        Expansion ROM at <unassigned> [disabled] [size=64K]
+        Capabilities: [dc] Power Management version 1
+                Flags: PMEClk- DSI+ D1- D2- AuxCurrent=0mA
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:11.0 VGA compatible controller: S3 Inc. Trio 64V2/DX or /GX (rev 16)
+(prog-if 00 [VGA])
+        Subsystem: S3 Inc. 86C775 Trio64V2/DX, 86C785 Trio64V2/GX
+        Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop-
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+        Interrupt: pin A routed to IRQ 10
+        Region 0: Memory at dc000000 (32-bit, non-prefetchable) [size=64M]
+        Expansion ROM at <unassigned> [disabled] [size=64K]
+
+7.6  cat /proc/scsi/scsi
+Attached devices:
+Host: scsi0 Channel: 00 Id: 00 Lun: 00
+  Vendor: ADAPTEC  Model: RAID-5           Rev: 370F
+  Type:   Direct-Access                    ANSI SCSI revision: 02
+Host: scsi1 Channel: 00 Id: 00 Lun: 00
+  Vendor: QUANTUM  Model: ATLAS 10K 9WLS   Rev: UC81
+  Type:   Direct-Access                    ANSI SCSI revision: 03
+Host: scsi1 Channel: 00 Id: 01 Lun: 00
+  Vendor: QUANTUM  Model: ATLAS 10K 9WLS   Rev: UC81
+  Type:   Direct-Access                    ANSI SCSI revision: 03
+Host: scsi1 Channel: 00 Id: 02 Lun: 00
+  Vendor: WDIGTL   Model: WD91 ULTRA2      Rev: 1.00
+  Type:   Direct-Access                    ANSI SCSI revision: 02
+Host: scsi1 Channel: 00 Id: 05 Lun: 00
+  Vendor: TOSHIBA  Model: CD-ROM XM-6401TA Rev: 1001
+  Type:   CD-ROM                           ANSI SCSI revision: 02
+
+
+7.7 Log file and dmesg (may have duplicates):
+
+Dec 22 05:43:55 neptune kernel: kernel BUG at vmscan.c:355!
+Dec 22 05:43:55 neptune kernel: invalid operand: 0000
+Dec 22 05:43:55 neptune kernel: CPU:    0
+Dec 22 05:43:55 neptune kernel: EIP:    0010:[shrink_cache+154/768]    Not
+tainted
+Dec 22 05:43:55 neptune kernel: EFLAGS: 00010246
+Dec 22 05:43:55 neptune kernel: eax: 00000000   ebx: 00000000   ecx:
+c50ae618   edx:c1288498
+Dec 22 05:43:55 neptune kernel: esi: c50ae5fc   edi: 00000006   ebp:
+00000200   esp:c15bbf54
+Dec 22 05:43:55 neptune kernel: ds: 0018   es: 0018   ss: 0018
+Dec 22 05:43:55 neptune kernel: Process kswapd (pid: 4, stackpage=c15bb000)
+Dec 22 05:43:55 neptune kernel: Stack: 00000020 000001d0 00000020 00000006
+00000006
+c15ba000 00002db1 000001d0
+Dec 22 05:43:55 neptune kernel:        c02668f4 c012ae86 00000006 00000001
+00000006
+000001d0 c02668f4 00000000
+Dec 22 05:43:55 neptune kernel:        c02668f4 c012aefc 00000020 c02668f4
+00000001
+c15ba000 c012af93 c0266840
+Dec 22 05:43:55 neptune kernel: Call Trace:    [shrink_caches+86/144]
+[try_to_free_pages+60/96] [kswapd_balance_pgdat+67/144]
+[kswapd_balance+22/48]
+[kswapd+157/192]
+Dec 22 05:43:55 neptune kernel:   [kernel_thread+40/64]
+Dec 22 05:43:55 neptune kernel:
+Dec 22 05:43:55 neptune kernel: Code: 0f 0b 63 01 67 cd 22 c0 8b 41 fc a8
+80 74 08
+0f 0b 64 01 67
+Dec 22 05:43:55 neptune kernel: kernel BUG at vmscan.c:355!
+Dec 22 05:43:55 neptune kernel: invalid operand: 0000
+Dec 22 05:43:55 neptune kernel: CPU:    0
+Dec 22 05:43:55 neptune kernel: EIP:    0010:[shrink_cache+154/768]    Not
+tainted
+Dec 22 05:43:55 neptune kernel: EFLAGS: 00010246
+Dec 22 05:43:55 neptune kernel: eax: 00000000   ebx: 00000000   ecx:
+c50ae618   edx:
+c1288498
+Dec 22 05:43:55 neptune kernel: esi: c50ae5fc   edi: 00000006   ebp:
+00000200   esp:
+c15bbf54
+Dec 22 05:43:55 neptune kernel: ds: 0018   es: 0018   ss: 0018
+Dec 22 05:43:55 neptune kernel: Process kswapd (pid: 4, stackpage=c15bb000)
+Dec 22 05:43:55 neptune kernel: Stack: 00000020 000001d0 00000020 00000006
+00000006
+c15ba000 00002db1 000001d0
+Dec 22 05:43:55 neptune kernel:        c02668f4 c012ae86 00000006 00000001
+00000006
+000001d0 c02668f4 00000000
+Dec 22 05:43:55 neptune kernel:        c02668f4 c012aefc 00000020 c02668f4
+00000001
+c15ba000 c012af93 c0266840
+Dec 22 05:43:55 neptune kernel: Call Trace:    [shrink_caches+86/144]
+[try_to_free_pages+60/96] [kswapd_balance_pgdat+67/144]
+[kswapd_balance+22/48]
+[kswapd+157/192]
+Dec 22 05:43:55 neptune kernel:   [kernel_thread+40/64]
+Dec 22 05:43:55 neptune kernel:
+Dec 22 05:43:55 neptune kernel: Code: 0f 0b 63 01 67 cd 22 c0 8b 41 fc a8
+80 74 08
+0f 0b 64 01 67
+Dec 22 05:43:55 neptune kernel: kernel BUG at vmscan.c:355!
+Dec 22 05:43:55 neptune kernel: invalid operand: 0000
+Dec 22 05:43:55 neptune kernel: CPU:    0
+Dec 22 05:43:55 neptune kernel: EIP:    0010:[shrink_cache+154/768]    Not
+tainted
+Dec 22 05:43:55 neptune kernel: EFLAGS: 00010246
+Dec 22 05:43:55 neptune kernel: eax: 00000000   ebx: 00000000   ecx:
+c50ae618   edx:
+c1288498
+Dec 22 05:43:55 neptune kernel: esi: c50ae5fc   edi: 00000006   ebp:
+00000200   esp:
+c15bbf54
+Dec 22 05:43:55 neptune kernel: ds: 0018   es: 0018   ss: 0018
+Dec 22 05:43:55 neptune kernel: Process kswapd (pid: 4, stackpage=c15bb000)
+Dec 22 05:43:55 neptune kernel: Stack: 00000020 000001d0 00000020 00000006
+00000006
+c15ba000 00002db1 000001d0
+Dec 22 05:43:55 neptune kernel:        c02668f4 c012ae86 00000006 00000001
+00000006
+000001d0 c02668f4 00000000
+Dec 22 05:43:55 neptune kernel:        c02668f4 c012aefc 00000020 c02668f4
+00000001
+c15ba000 c012af93 c0266840
+Dec 22 05:43:55 neptune kernel: Call Trace:    [shrink_caches+86/144]
+[try_to_free_pages+60/96] [kswapd_balance_pgdat+67/144]
+[kswapd_balance+22/48]
+[kswapd+157/192]
+Dec 22 05:43:55 neptune kernel:   [kernel_thread+40/64]
+Dec 22 05:43:55 neptune kernel:
+Dec 22 05:43:55 neptune kernel: Code: 0f 0b 63 01 67 cd 22 c0 8b 41 fc a8
+80 74 08
+0f 0b 64 01 67
+Dec 22 05:43:56 neptune kernel:  kernel BUG at vmscan.c:355!
+Dec 22 05:43:56 neptune kernel: invalid operand: 0000
+Dec 22 05:43:56 neptune kernel: CPU:    0
+Dec 22 05:43:56 neptune kernel: EIP:    0010:[shrink_cache+154/768]    Not
+tainted
+Dec 22 05:43:56 neptune kernel: EFLAGS: 00010246
+Dec 22 05:43:56 neptune kernel: eax: 00000000   ebx: 00000000   ecx:
+c50ae618   edx:
+0000049d
+Dec 22 05:43:56 neptune kernel: esi: c50ae5fc   edi: 00000020   ebp:
+00000200   esp:
+dcee3e50
+Dec 22 05:43:56 neptune kernel: ds: 0018   es: 0018   ss: 0018
+Dec 22 05:43:56 neptune kernel: Process smbd (pid: 8638, stackpage=dcee3000)
+Dec 22 05:43:56 neptune kernel: Stack: 00000020 000001d2 00000020 00000006
+00000006
+dcee2000 00002e24 000001d2
+Dec 22 05:43:56 neptune kernel:        c02668f4 c012ae86 00000006 00000000
+00000006
+000001d2 c02668f4 c02668f4
+Dec 22 05:43:56 neptune kernel:        c02668f4 c012aefc 00000020 dcee2000
+00000000
+00000010 c012b844 c0266a88
+Dec 22 05:43:56 neptune kernel: Call Trace:    [shrink_caches+86/144]
+[try_to_free_pages+60/96] [balance_classzone+84/432] [__alloc_pages+274/368]
+[reiserfs_get_block+0/3648]
+Dec 22 05:43:56 neptune kernel:   [_alloc_pages+22/32]
+[page_cache_read+106/192]
+[generic_file_readahead+261/320] [do_generic_file_read+418/1024]
+[generic_file_read+133/320] [file_read_actor+0/144]
+Dec 22 05:43:56 neptune kernel:   [sys_read+150/240] [system_call+51/56]
+Dec 22 05:43:56 neptune kernel:
+Dec 22 05:43:56 neptune kernel: Code: 0f 0b 63 01 67 cd 22 c0 8b 41 fc a8
+80 74 08
+0f 0b 64 01 67
+Dec 22 05:43:56 neptune smbd[17355]: make_connection: cory logged in as
+admin user
+(root privileges)
+Dec 22 05:43:56 neptune kernel:  kernel BUG at vmscan.c:355!
+Dec 22 05:43:56 neptune kernel: invalid operand: 0000
+Dec 22 05:43:56 neptune kernel: CPU:    0
+Dec 22 05:43:56 neptune kernel: EIP:    0010:[shrink_cache+154/768]    Not
+tainted
+Dec 22 05:43:56 neptune kernel: EFLAGS: 00010246
+Dec 22 05:43:56 neptune kernel: eax: 00000000   ebx: 00000000   ecx:
+c50ae618   edx:
+0000049d
+Dec 22 05:43:56 neptune kernel: esi: c50ae5fc   edi: 00000020   ebp:
+00000200   esp:
+dcee3e50
+Dec 22 05:43:56 neptune kernel: ds: 0018   es: 0018   ss: 0018
+Dec 22 05:43:56 neptune kernel: Process smbd (pid: 8638, stackpage=dcee3000)
+Dec 22 05:43:56 neptune kernel: Stack: 00000020 000001d2 00000020 00000006
+00000006
+dcee2000 00002e24 000001d2
+Dec 22 05:43:56 neptune kernel:        c02668f4 c012ae86 00000006 00000000
+00000006
+000001d2 c02668f4 c02668f4
+Dec 22 05:43:56 neptune kernel:        c02668f4 c012aefc 00000020 dcee2000
+00000000
+00000010 c012b844 c0266a88
+Dec 22 05:43:56 neptune kernel: Call Trace:    [shrink_caches+86/144]
+[try_to_free_pages+60/96] [balance_classzone+84/432] [__alloc_pages+274/368]
+[reiserfs_get_block+0/3648]
+Dec 22 05:43:56 neptune kernel:   [_alloc_pages+22/32]
+[page_cache_read+106/192]
+[generic_file_readahead+261/320] [do_generic_file_read+418/1024]
+[generic_file_read+133/320] [file_read_actor+0/144]
+Dec 22 05:43:56 neptune kernel:   [sys_read+150/240] [system_call+51/56]
+Dec 22 05:43:56 neptune kernel:
+Dec 22 05:43:56 neptune kernel: Code: 0f 0b 63 01 67 cd 22 c0 8b 41 fc a8
+80 74 08
+0f 0b 64 01 67
+Dec 22 05:43:56 neptune kernel:  kernel BUG at vmscan.c:355!
+Dec 22 05:43:56 neptune kernel: invalid operand: 0000
+Dec 22 05:43:56 neptune kernel: CPU:    0
+Dec 22 05:43:56 neptune kernel: EIP:    0010:[shrink_cache+154/768]    Not
+tainted
+Dec 22 05:43:56 neptune kernel: EFLAGS: 00010246
+Dec 22 05:43:56 neptune kernel: eax: 00000000   ebx: 00000000   ecx:
+c50ae618   edx:
+0000049d
+Dec 22 05:43:56 neptune kernel: esi: c50ae5fc   edi: 00000020   ebp:
+00000200   esp:
+dcee3e50
+Dec 22 05:43:56 neptune kernel: ds: 0018   es: 0018   ss: 0018
+Dec 22 05:43:56 neptune kernel: Process smbd (pid: 8638, stackpage=dcee3000)
+Dec 22 05:43:56 neptune kernel: Stack: 00000020 000001d2 00000020 00000006
+00000006
+dcee2000 00002e24 000001d2
+Dec 22 05:43:56 neptune kernel:        c02668f4 c012ae86 00000006 00000000
+00000006
+000001d2 c02668f4 c02668f4
+Dec 22 05:43:56 neptune kernel:        c02668f4 c012aefc 00000020 dcee2000
+00000000
+00000010 c012b844 c0266a88
+Dec 22 05:43:56 neptune kernel: Call Trace:    [shrink_caches+86/144]
+[try_to_free_pages+60/96] [balance_classzone+84/432] [__alloc_pages+274/368]
+[reiserfs_get_block+0/3648]
+Dec 22 05:43:56 neptune kernel:   [_alloc_pages+22/32]
+[page_cache_read+106/192]
+[generic_file_readahead+261/320] [do_generic_file_read+418/1024]
+[generic_file_read+133/320] [file_read_actor+0/144]
+Dec 22 05:43:56 neptune kernel:   [sys_read+150/240] [system_call+51/56]
+Dec 22 05:43:56 neptune kernel:
+Dec 22 05:43:56 neptune kernel: Code: 0f 0b 63 01 67 cd 22 c0 8b 41 fc a8
+80 74 08
+0f 0b 64 01 67
+Dec 22 05:43:58 neptune kernel:  kernel BUG at vmscan.c:355!
+Dec 22 05:43:58 neptune kernel: invalid operand: 0000
+Dec 22 05:43:58 neptune kernel: CPU:    0
+Dec 22 05:43:58 neptune kernel: EIP:    0010:[shrink_cache+154/768]    Not
+tainted
+Dec 22 05:43:58 neptune kernel: EFLAGS: 00010246
+Dec 22 05:43:58 neptune kernel: eax: 00000000   ebx: 00000000   ecx:
+c50ae618   edx:
+0000049b
+Dec 22 05:43:58 neptune kernel: esi: c50ae5fc   edi: 00000020   ebp:
+00000200   esp:
+dcee3e50
+Dec 22 05:43:58 neptune kernel: ds: 0018   es: 0018   ss: 0018
+Dec 22 05:43:58 neptune kernel: Process smbd (pid: 17355, stackpage=dcee3000)
+Dec 22 05:43:58 neptune kernel: Stack: 00000020 000001d2 00000020 00000006
+00000006
+dcee2000 00002e12 000001d2
+Dec 22 05:43:58 neptune kernel:        c02668f4 c012ae86 00000006 00000001
+00000006
+000001d2 c02668f4 c02668f4
+Dec 22 05:43:58 neptune kernel:        c02668f4 c012aefc 00000020 dcee2000
+00000000
+00000010 c012b844 c0266a88
+Dec 22 05:43:58 neptune kernel: Call Trace:    [shrink_caches+86/144]
+[try_to_free_pages+60/96] [balance_classzone+84/432] [__alloc_pages+274/368]
+[reiserfs_get_block+0/3648]
+Dec 22 05:43:58 neptune kernel:   [_alloc_pages+22/32]
+[page_cache_read+106/192]
+[generic_file_readahead+261/320] [do_generic_file_read+418/1024]
+[generic_file_read+133/320] [file_read_actor+0/144]
+Dec 22 05:43:58 neptune kernel:   [sys_read+150/240] [system_call+51/56]
+Dec 22 05:43:58 neptune kernel:
+Dec 22 05:43:58 neptune kernel: Code: 0f 0b 63 01 67 cd 22 c0 8b 41 fc a8
+80 74 08
+0f 0b 64 01 67
+Dec 22 05:43:58 neptune kernel:  kernel BUG at vmscan.c:355!
+Dec 22 05:43:58 neptune kernel: invalid operand: 0000
+Dec 22 05:43:58 neptune kernel: CPU:    0
+Dec 22 05:43:58 neptune kernel: EIP:    0010:[shrink_cache+154/768]    Not
+tainted
+Dec 22 05:43:58 neptune kernel: EFLAGS: 00010246
+Dec 22 05:43:58 neptune kernel: eax: 00000000   ebx: 00000000   ecx:
+c50ae618   edx:
+0000049b
+Dec 22 05:43:58 neptune kernel: esi: c50ae5fc   edi: 00000020   ebp:
+00000200   esp:
+dcee3e50
+Dec 22 05:43:58 neptune kernel: ds: 0018   es: 0018   ss: 0018
+Dec 22 05:43:58 neptune kernel: Process smbd (pid: 17355, stackpage=dcee3000)
+Dec 22 05:43:58 neptune kernel: Stack: 00000020 000001d2 00000020 00000006
+00000006
+dcee2000 00002e12 000001d2
+Dec 22 05:43:58 neptune kernel:        c02668f4 c012ae86 00000006 00000001
+00000006
+000001d2 c02668f4 c02668f4
+Dec 22 05:43:58 neptune kernel:        c02668f4 c012aefc 00000020 dcee2000
+00000000
+00000010 c012b844 c0266a88
+Dec 22 05:43:58 neptune kernel: Call Trace:    [shrink_caches+86/144]
+[try_to_free_pages+60/96] [balance_classzone+84/432] [__alloc_pages+274/368]
+[reiserfs_get_block+0/3648]
+Dec 22 05:43:58 neptune kernel:   [_alloc_pages+22/32]
+[page_cache_read+106/192]
+[generic_file_readahead+261/320] [do_generic_file_read+418/1024]
+[generic_file_read+133/320] [file_read_actor+0/144]
+Dec 22 05:43:58 neptune kernel:   [sys_read+150/240] [system_call+51/56]
+Dec 22 05:43:58 neptune kernel:
+Dec 22 05:43:58 neptune kernel: Code: 0f 0b 63 01 67 cd 22 c0 8b 41 fc a8
+80 74 08
+0f 0b 64 01 67
+Dec 22 05:43:58 neptune kernel:  kernel BUG at vmscan.c:355!
+Dec 22 05:43:58 neptune kernel: invalid operand: 0000
+Dec 22 05:43:58 neptune kernel: CPU:    0
+Dec 22 05:43:58 neptune kernel: EIP:    0010:[shrink_cache+154/768]    Not
+tainted
+Dec 22 05:43:58 neptune kernel: EFLAGS: 00010246
+Dec 22 05:43:58 neptune kernel: eax: 00000000   ebx: 00000000   ecx:
+c50ae618   edx:
+0000049b
+Dec 22 05:43:58 neptune kernel: esi: c50ae5fc   edi: 00000020   ebp:
+00000200   esp:
+dcee3e50
+Dec 22 05:43:58 neptune kernel: ds: 0018   es: 0018   ss: 0018
+Dec 22 05:43:58 neptune kernel: Process smbd (pid: 17355, stackpage=dcee3000)
+Dec 22 05:43:58 neptune kernel: Stack: 00000020 000001d2 00000020 00000006
+00000006
+dcee2000 00002e12 000001d2
+Dec 22 05:43:58 neptune kernel:        c02668f4 c012ae86 00000006 00000001
+00000006
+000001d2 c02668f4 c02668f4
+Dec 22 05:43:58 neptune kernel:        c02668f4 c012aefc 00000020 dcee2000
+00000000
+00000010 c012b844 c0266a88
+Dec 22 05:43:58 neptune kernel: Call Trace:    [shrink_caches+86/144]
+[try_to_free_pages+60/96] [balance_classzone+84/432] [__alloc_pages+274/368]
+[reiserfs_get_block+0/3648]
+Dec 22 05:43:58 neptune kernel:   [_alloc_pages+22/32]
+[page_cache_read+106/192]
+[generic_file_readahead+261/320] [do_generic_file_read+418/1024]
+[generic_file_read+133/320] [file_read_actor+0/144]
+Dec 22 05:43:58 neptune kernel:   [sys_read+150/240] [system_call+51/56]
+Dec 22 05:43:58 neptune kernel:
+Dec 22 05:43:58 neptune kernel: Code: 0f 0b 63 01 67 cd 22 c0 8b 41 fc a8
+80 74 08
+0f 0b 64 01 67
+Dec 22 05:44:01 neptune kernel:  kernel BUG at vmscan.c:355!
+Dec 22 05:44:01 neptune kernel: invalid operand: 0000
+Dec 22 05:44:01 neptune kernel: CPU:    0
+Dec 22 05:44:01 neptune kernel: EIP:    0010:[shrink_cache+154/768]    Not
+tainted
+Dec 22 05:44:01 neptune kernel: EFLAGS: 00010246
+Dec 22 05:44:01 neptune kernel: eax: 00000000   ebx: 00000000   ecx:
+c50ae618   edx:
+0000049b
+Dec 22 05:44:01 neptune kernel: esi: c50ae5fc   edi: 00000020   ebp:
+00000200   esp:
+dbdd5df8
+Dec 22 05:44:01 neptune kernel: ds: 0018   es: 0018   ss: 0018
+Dec 22 05:44:01 neptune kernel: Process line_monitor.pl (pid: 17358,
+stackpage=dbdd5000)
+Dec 22 05:44:01 neptune kernel: Stack: 00000020 000001d2 00000020 00000006
+00000006
+dbdd4000 00002e11 000001d2
+Dec 22 05:44:01 neptune kernel:        c02668f4 c012ae86 00000006 00000001
+00000006
+000001d2 c02668f4 c02668f4
+Dec 22 05:44:01 neptune kernel:        c02668f4 c012aefc 00000020 dbdd4000
+00000000
+00000010 c012b844 c0266a88
+Dec 22 05:44:01 neptune kernel: Call Trace:    [shrink_caches+86/144]
+[try_to_free_pages+60/96] [balance_classzone+84/432] [__alloc_pages+274/368]
+[_alloc_pages+22/32]
+Dec 22 05:44:01 neptune kernel:   [do_anonymous_page+52/224]
+[do_no_page+47/368]
+[handle_mm_fault+82/176] [do_page_fault+355/1172] [do_page_fault+0/1172]
+[link_path_walk+2127/2144]
+Dec 22 05:44:01 neptune kernel:   [__user_walk+67/80] [sys_stat64+25/112]
+[error_code+52/60]
+Dec 22 05:44:01 neptune kernel:
+Dec 22 05:44:01 neptune kernel: Code: 0f 0b 63 01 67 cd 22 c0 8b 41 fc a8
+80 74 08
+0f 0b 64 01 67
+Dec 22 05:44:01 neptune kernel:  kernel BUG at vmscan.c:355!
+Dec 22 05:44:01 neptune kernel: invalid operand: 0000
+Dec 22 05:44:01 neptune kernel: CPU:    0
+Dec 22 05:44:01 neptune kernel: EIP:    0010:[shrink_cache+154/768]    Not
+tainted
+Dec 22 05:44:01 neptune kernel: EFLAGS: 00010246
+Dec 22 05:44:01 neptune kernel: eax: 00000000   ebx: 00000000   ecx:
+c50ae618   edx:
+0000049b
+Dec 22 05:44:01 neptune kernel: esi: c50ae5fc   edi: 00000020   ebp:
+00000200   esp:
+dbdd5df8
+Dec 22 05:44:01 neptune kernel: ds: 0018   es: 0018   ss: 0018
+Dec 22 05:44:01 neptune kernel: Process line_monitor.pl (pid: 17358,
+stackpage=dbdd5000)
+Dec 22 05:44:01 neptune kernel: Stack: 00000020 000001d2 00000020 00000006
+00000006
+dbdd4000 00002e11 000001d2
+Dec 22 05:44:01 neptune kernel:        c02668f4 c012ae86 00000006 00000001
+00000006
+000001d2 c02668f4 c02668f4
+Dec 22 05:44:01 neptune kernel:        c02668f4 c012aefc 00000020 dbdd4000
+00000000
+00000010 c012b844 c0266a88
+Dec 22 05:44:01 neptune kernel: Call Trace:    [shrink_caches+86/144]
+[try_to_free_pages+60/96] [balance_classzone+84/432] [__alloc_pages+274/368]
+[_alloc_pages+22/32]
+Dec 22 05:44:01 neptune kernel:   [do_anonymous_page+52/224]
+[do_no_page+47/368]
+[handle_mm_fault+82/176] [do_page_fault+355/1172] [do_page_fault+0/1172]
+[link_path_walk+2127/2144]
+Dec 22 05:44:01 neptune kernel:   [__user_walk+67/80] [sys_stat64+25/112]
+[error_code+52/60]
+Dec 22 05:44:01 neptune kernel:
+Dec 22 05:44:01 neptune kernel: Code: 0f 0b 63 01 67 cd 22 c0 8b 41 fc a8
+80 74 08
+0f 0b 64 01 67
+Dec 22 05:44:01 neptune kernel:  kernel BUG at vmscan.c:355!
+Dec 22 05:44:01 neptune kernel: invalid operand: 0000
+Dec 22 05:44:01 neptune kernel: CPU:    0
+Dec 22 05:44:01 neptune kernel: EIP:    0010:[shrink_cache+154/768]    Not
+tainted
+Dec 22 05:44:01 neptune kernel: EFLAGS: 00010246
+Dec 22 05:44:01 neptune kernel: eax: 00000000   ebx: 00000000   ecx:
+c50ae618   edx:
+0000049b
+Dec 22 05:44:01 neptune kernel: esi: c50ae5fc   edi: 00000020   ebp:
+00000200   esp:
+dbdd5df8
+Dec 22 05:44:01 neptune kernel: ds: 0018   es: 0018   ss: 0018
+Dec 22 05:44:01 neptune kernel: Process line_monitor.pl (pid: 17358,
+stackpage=dbdd5000)
+Dec 22 05:44:01 neptune kernel: Stack: 00000020 000001d2 00000020 00000006
+00000006
+dbdd4000 00002e11 000001d2
+Dec 22 05:44:01 neptune kernel:        c02668f4 c012ae86 00000006 00000001
+00000006
+000001d2 c02668f4 c02668f4
+Dec 22 05:44:01 neptune kernel:        c02668f4 c012aefc 00000020 dbdd4000
+00000000
+00000010 c012b844 c0266a88
+Dec 22 05:44:01 neptune kernel: Call Trace:    [shrink_caches+86/144]
+[try_to_free_pages+60/96] [balance_classzone+84/432] [__alloc_pages+274/368]
+[_alloc_pages+22/32]
+Dec 22 05:44:01 neptune kernel:   [do_anonymous_page+52/224]
+[do_no_page+47/368]
+[handle_mm_fault+82/176] [do_page_fault+355/1172] [do_page_fault+0/1172]
+[link_path_walk+2127/2144]
+Dec 22 05:44:01 neptune kernel:   [__user_walk+67/80] [sys_stat64+25/112]
+[error_code+52/60]
+Dec 22 05:44:01 neptune kernel:
+Dec 22 05:44:01 neptune kernel: Code: 0f 0b 63 01 67 cd 22 c0 8b 41 fc a8
+80 74 08
+0f 0b 64 01 67
+Dec 22 05:44:03 neptune smbd[17359]: make_connection: cory logged in as
+admin user
+(root privileges)
+Dec 22 05:44:03 neptune kernel:  kernel BUG at vmscan.c:355!
+Dec 22 05:44:03 neptune kernel: invalid operand: 0000
+Dec 22 05:44:03 neptune kernel: CPU:    0
+Dec 22 05:44:03 neptune kernel: EIP:    0010:[shrink_cache+154/768]    Not
+tainted
+Dec 22 05:44:03 neptune kernel: EFLAGS: 00010246
+Dec 22 05:44:03 neptune kernel: eax: 00000000   ebx: 00000000   ecx:
+c50ae618   edx:
+0000049b
+Dec 22 05:44:03 neptune kernel: esi: c50ae5fc   edi: 00000020   ebp:
+00000200   esp:
+dcee3e50
+Dec 22 05:44:03 neptune kernel: ds: 0018   es: 0018   ss: 0018
+Dec 22 05:44:03 neptune kernel: Process smbd (pid: 17359, stackpage=dcee3000)
+Dec 22 05:44:03 neptune kernel: Stack: 00000020 000001f0 00000020 00000006
+00000006
+dcee2000 00002e10 000001f0
+Dec 22 05:44:03 neptune kernel:        c02668f4 c012ae86 00000006 00000001
+00000006
+000001f0 c02668f4 c02668f4
+Dec 22 05:44:03 neptune kernel:        c02668f4 c012aefc 00000020 dcee2000
+00000000
+00000010 c012b844 c0266a68
+Dec 22 05:44:03 neptune kernel: Call Trace:    [shrink_caches+86/144]
+[try_to_free_pages+60/96] [balance_classzone+84/432] [__alloc_pages+274/368]
+[_alloc_pages+22/32]
+Dec 22 05:44:03 neptune smbd[17360]: make_connection: cory logged in as
+admin user
+(root privileges)
+Dec 22 05:44:03 neptune smbd[17359]: make_connection: cory logged in as
+admin user
+(root privileges)
+Dec 22 05:44:03 neptune smbd[17360]: make_connection: cory logged in as
+admin user
+(root privileges)
+Dec 22 05:44:03 neptune kernel:  kernel BUG at vmscan.c:355!
+Dec 22 05:44:03 neptune kernel: invalid operand: 0000
+Dec 22 05:44:03 neptune kernel: CPU:    0
+Dec 22 05:44:03 neptune kernel: EIP:    0010:[shrink_cache+154/768]    Not
+tainted
+Dec 22 05:44:03 neptune kernel: EFLAGS: 00010246
+Dec 22 05:44:03 neptune kernel: eax: 00000000   ebx: 00000000   ecx:
+c50ae618   edx:
+0000049b
+Dec 22 05:44:03 neptune kernel: esi: c50ae5fc   edi: 00000020   ebp:
+00000200   esp:
+dcee3e50
+Dec 22 05:44:03 neptune kernel: ds: 0018   es: 0018   ss: 0018
+Dec 22 05:44:03 neptune kernel: Process smbd (pid: 17359, stackpage=dcee3000)
+Dec 22 05:44:03 neptune kernel: Stack: 00000020 000001f0 00000020 00000006
+00000006
+dcee2000 00002e10 000001f0
+Dec 22 05:44:03 neptune kernel:        c02668f4 c012ae86 00000006 00000001
+00000006
+000001f0 c02668f4 c02668f4
+Dec 22 05:44:03 neptune kernel:        c02668f4 c012aefc 00000020 dcee2000
+00000000
+00000010 c012b844 c0266a68
+Dec 22 05:44:03 neptune kernel: Call Trace:    [shrink_caches+86/144]
+[try_to_free_pages+60/96] [balance_classzone+84/432] [__alloc_pages+274/368]
+[_alloc_pages+22/32]
+Dec 22 05:44:03 neptune kernel:  kernel BUG at vmscan.c:355!
+Dec 22 05:44:03 neptune kernel: invalid operand: 0000
+Dec 22 05:44:03 neptune kernel: CPU:    0
+Dec 22 05:44:03 neptune kernel: EIP:    0010:[shrink_cache+154/768]    Not
+tainted
+Dec 22 05:44:03 neptune kernel: EFLAGS: 00010246
+Dec 22 05:44:03 neptune kernel: eax: 00000000   ebx: 00000000   ecx:
+c50ae618   edx:
+0000049b
+Dec 22 05:44:03 neptune kernel: esi: c50ae5fc   edi: 00000020   ebp:
+00000200   esp:
+dcee3e50
+Dec 22 05:44:03 neptune kernel: ds: 0018   es: 0018   ss: 0018
+Dec 22 05:44:03 neptune kernel: Process smbd (pid: 17359, stackpage=dcee3000)
+Dec 22 05:44:03 neptune kernel: Stack: 00000020 000001f0 00000020 00000006
+00000006
+dcee2000 00002e10 000001f0
+Dec 22 05:44:03 neptune kernel:        c02668f4 c012ae86 00000006 00000001
+00000006
+000001f0 c02668f4 c02668f4
+Dec 22 05:44:03 neptune kernel:        c02668f4 c012aefc 00000020 dcee2000
+00000000
+00000010 c012b844 c0266a68
+Dec 22 05:44:03 neptune kernel: Call Trace:    [shrink_caches+86/144]
+[try_to_free_pages+60/96] [balance_classzone+84/432] [__alloc_pages+274/368]
+[_alloc_pages+22/32]
+Dec 22 05:44:08 neptune smbd[17361]: make_connection: cory logged in as
+admin user
+(root privileges)
+Dec 22 05:44:08 neptune smbd[17362]: make_connection: cory logged in as
+admin user
+(root privileges)
+Dec 22 05:44:08 neptune smbd[17363]: make_connection: cory logged in as
+admin user
+(root privileges)
+Dec 22 05:44:08 neptune smbd[17364]: make_connection: cory logged in as
+admin user
+(root privileges)
+Dec 22 05:44:08 neptune smbd[17365]: make_connection: cory logged in as
+admin user
+(root privileges)
+Dec 22 05:44:08 neptune smbd[17366]: make_connection: cory logged in as
+admin user
+(root privileges)
+Dec 22 05:44:08 neptune smbd[17361]: make_connection: cory logged in as
+admin user
+(root privileges)
+Dec 22 05:44:08 neptune smbd[17362]: make_connection: cory logged in as
+admin user
+(root privileges)
+Dec 22 05:44:08 neptune smbd[17363]: make_connection: cory logged in as
+admin user
+(root privileges)
+Dec 22 05:44:08 neptune smbd[17364]: make_connection: cory logged in as
+admin user
+(root privileges)
+Dec 22 05:44:08 neptune smbd[17365]: make_connection: cory logged in as
+admin user
+(root privileges)
+Dec 22 05:44:08 neptune smbd[17366]: make_connection: cory logged in as
+admin user
+(root privileges)
+Dec 22 08:47:50 neptune kernel: klogd 1.4.1#10, log source = /proc/kmsg
+started.
+Dec 22 08:47:50 neptune kernel: Inspecting /boot/System.map-2.4.19
+Dec 22 08:47:50 neptune kernel: Loaded 15068 symbols from
+/boot/System.map-2.4.19.
+Dec 22 08:47:50 neptune kernel: Symbols match kernel version 2.4.19.
+Dec 22 08:47:50 neptune kernel: Loaded 10 symbols from 2 modules.
+Dec 22 08:47:50 neptune kernel: Linux version 2.4.19 (root@neptune) (gcc
+version
+2.95.4 20011002 (Debian prerelease)) #1 Sat Sep 14 14:38:02 PDT 2002
+Dec 22 08:47:50 neptune kernel: BIOS-provided physical RAM map:
+Dec 22 08:47:50 neptune kernel:  BIOS-e820: 0000000000000000 -
+000000000009fc00
+(usable)
+Dec 22 08:47:50 neptune kernel:  BIOS-e820: 000000000009fc00 -
+00000000000a0000
+(reserved)
+Dec 22 08:47:50 neptune kernel:  BIOS-e820: 00000000000f0000 -
+0000000000100000
+(reserved)
+Dec 22 08:47:50 neptune kernel:  BIOS-e820: 0000000000100000 -
+000000001fff0000
+(usable)
+Dec 22 08:47:50 neptune kernel:  BIOS-e820: 000000001fff0000 -
+000000001fff3000
+(ACPI NVS)
+Dec 22 08:47:50 neptune kernel:  BIOS-e820: 000000001fff3000 -
+0000000020000000
+(ACPI data)
+Dec 22 08:47:50 neptune kernel:  BIOS-e820: 00000000ffff0000 -
+0000000100000000
+(reserved)
+Dec 22 08:47:50 neptune kernel: 511MB LOWMEM available.
+Dec 22 08:47:50 neptune kernel: Advanced speculative caching feature not
+present
+Dec 22 08:47:50 neptune kernel: On node 0 totalpages: 131056
+Dec 22 08:47:50 neptune kernel: zone(0): 4096 pages.
+Dec 22 08:47:50 neptune kernel: zone(1): 126960 pages.
+Dec 22 08:47:50 neptune kernel: zone(2): 0 pages.
+Dec 22 08:47:50 neptune kernel: Kernel command line: auto BOOT_IMAGE=Linux
+ro root=901
+Dec 22 08:47:50 neptune kernel: Local APIC disabled by BIOS -- reenabling.
+Dec 22 08:47:50 neptune kernel: Found and enabled local APIC!
+Dec 22 08:47:50 neptune kernel: Initializing CPU#0
+Dec 22 08:47:50 neptune kernel: Detected 1300.059 MHz processor.
+Dec 22 08:47:50 neptune kernel: Console: colour VGA+ 80x30
+Dec 22 08:47:50 neptune kernel: Calibrating delay loop... 2595.22 BogoMIPS
+Dec 22 08:47:50 neptune kernel: Memory: 516216k/524224k available (1173k
+kernel
+code, 7620k reserved, 332k data, 224k init, 0k highmem)
+Dec 22 08:47:50 neptune kernel: Dentry cache hash table entries: 65536
+(order: 7,
+524288 bytes)
+Dec 22 08:47:50 neptune kernel: Inode cache hash table entries: 32768
+(order: 6,
+262144 bytes)
+Dec 22 08:47:50 neptune kernel: Mount-cache hash table entries: 8192
+(order: 4,
+65536 bytes)
+Dec 22 08:47:50 neptune kernel: Buffer-cache hash table entries: 32768
+(order: 5,
+131072 bytes)
+Dec 22 08:47:50 neptune kernel: Page-cache hash table entries: 131072
+(order: 7,
+524288 bytes)
+Dec 22 08:47:50 neptune kernel: CPU: Before vendor init, caps: 0183fbff
+c1c7fbff
+00000000, vendor = 2
+Dec 22 08:47:50 neptune kernel: CPU: L1 I Cache: 64K (64 bytes/line), D
+cache 64K
+(64 bytes/line)
+Dec 22 08:47:50 neptune kernel: CPU: L2 Cache: 256K (64 bytes/line)
+Dec 22 08:47:50 neptune kernel: CPU: After vendor init, caps: 0183fbff
+c1c7fbff
+00000000 00000000
+Dec 22 08:47:50 neptune kernel: Intel machine check architecture supported.
+Dec 22 08:47:50 neptune kernel: Intel machine check reporting enabled on
+CPU#0.
+Dec 22 08:47:50 neptune kernel: CPU:     After generic, caps: 0183fbff
+c1c7fbff
+00000000 00000000
+Dec 22 08:47:50 neptune kernel: CPU:             Common caps: 0183fbff
+c1c7fbff
+00000000 00000000
+Dec 22 08:47:50 neptune kernel: CPU: AMD Athlon(tm) processor stepping 02
+Dec 22 08:47:50 neptune kernel: Enabling fast FPU save and restore... done.
+Dec 22 08:47:50 neptune kernel: Checking 'hlt' instruction... OK.
+Dec 22 08:47:50 neptune kernel: POSIX conformance testing by UNIFIX
+Dec 22 08:47:50 neptune kernel: enabled ExtINT on CPU#0
+Dec 22 08:47:50 neptune kernel: ESR value before enabling vector: 00000000
+Dec 22 08:47:50 neptune kernel: ESR value after enabling vector: 00000000
+Dec 22 08:47:50 neptune kernel: Using local APIC timer interrupts.
+Dec 22 08:47:50 neptune kernel: calibrating APIC timer ...
+Dec 22 08:47:50 neptune kernel: ..... CPU clock speed is 1300.0392 MHz.
+Dec 22 08:47:50 neptune kernel: ..... host bus clock speed is 200.0060 MHz.
+Dec 22 08:47:50 neptune kernel: cpu: 0, clocks: 2000060, slice: 1000030
+Dec 22 08:47:50 neptune kernel:
+CPU0<T0:2000048,T1:1000016,D:2,S:1000030,C:2000060>
+Dec 22 08:47:50 neptune kernel: mtrr: v1.40 (20010327) Richard Gooch
+(rgooch@atnf.csiro.au)
+Dec 22 08:47:50 neptune kernel: mtrr: detected mtrr type: Intel
+Dec 22 08:47:50 neptune kernel: PCI: PCI BIOS revision 2.10 entry at
+0xfb4e0, last
+bus=2
+Dec 22 08:47:50 neptune kernel: PCI: Using configuration type 1
+Dec 22 08:47:50 neptune kernel: PCI: Probing PCI hardware
+Dec 22 08:47:50 neptune kernel: Disabling VIA memory write queue (PCI ID
+0305, rev
+03): [55] 89 & 1f -> 09
+Dec 22 08:47:50 neptune kernel: Unknown bridge resource 0: assuming
+transparent
+Dec 22 08:47:50 neptune kernel: Unknown bridge resource 1: assuming
+transparent
+Dec 22 08:47:50 neptune kernel: Unknown bridge resource 2: assuming
+transparent
+Dec 22 08:47:50 neptune kernel: Unknown bridge resource 0: assuming
+transparent
+Dec 22 08:47:50 neptune kernel: Unknown bridge resource 1: assuming
+transparent
+Dec 22 08:47:50 neptune kernel: Unknown bridge resource 2: assuming
+transparent
+Dec 22 08:47:50 neptune kernel: PCI: Using IRQ router VIA [1106/0686] at
+00:07.0
+Dec 22 08:47:50 neptune kernel: Applying VIA southbridge workaround.
+Dec 22 08:47:50 neptune kernel: isapnp: Scanning for PnP cards...
+Dec 22 08:47:50 neptune kernel: isapnp: Card 'U.S.Robotics Inc. Sportster
+56000
+Voice Interna'
+Dec 22 08:47:50 neptune kernel: isapnp: 1 Plug & Play card detected total
+Dec 22 08:47:50 neptune kernel: Linux NET4.0 for Linux 2.4
+Dec 22 08:47:50 neptune kernel: Based upon Swansea University Computer
+Society NET3.039
+Dec 22 08:47:50 neptune kernel: Initializing RT netlink socket
+Dec 22 08:47:50 neptune kernel: Starting kswapd
+Dec 22 08:47:50 neptune kernel: VFS: Diskquotas version dquot_6.4.0
+initialized
+Dec 22 08:47:50 neptune kernel: pty: 256 Unix98 ptys configured
+Dec 22 08:47:50 neptune kernel: Serial driver version 5.05c (2001-07-08) with
+MANY_PORTS SHARE_IRQ SERIAL_PCI ISAPNP enabled
+Dec 22 08:47:50 neptune kernel: ttyS00 at 0x03f8 (irq = 4) is a 16550A
+Dec 22 08:47:50 neptune kernel: ttyS01 at 0x02f8 (irq = 3) is a 16550A
+Dec 22 08:47:50 neptune kernel: ttyS02 at port 0x03e8 (irq = 5) is a 16550A
+Dec 22 08:47:50 neptune kernel: Floppy drive(s): fd0 is 1.44M
+Dec 22 08:47:50 neptune kernel: FDC 0 is a post-1991 82077
+Dec 22 08:47:50 neptune kernel: SCSI subsystem driver Revision: 1.00
+Dec 22 08:47:50 neptune kernel: Loading Adaptec I2O RAID: Version 2.4 Build 5
+Dec 22 08:47:50 neptune kernel: Detecting Adaptec I2O RAID controllers...
+Dec 22 08:47:50 neptune kernel: PCI: Found IRQ 15 for device 00:0d.1
+Dec 22 08:47:50 neptune kernel: PCI: Sharing IRQ 15 with 00:0f.0
+Dec 22 08:47:50 neptune kernel: Adaptec I2O RAID controller 0 at e0800000
+size=100000 irq=15
+Dec 22 08:47:50 neptune kernel: spurious 8259A interrupt: IRQ7.
+Dec 22 08:47:50 neptune kernel: dpti: If you have a lot of devices this
+could take a
+few minutes.
+Dec 22 08:47:50 neptune kernel: dpti0: Reading the hardware resource table.
+Dec 22 08:47:50 neptune kernel: TID 008  Vendor: ADAPTEC      Device:
+AIC-7899
+Rev: 00000001
+Dec 22 08:47:50 neptune kernel: TID 521  Vendor: ADAPTEC      Device: RAID-5
+Rev: 370F
+Dec 22 08:47:50 neptune kernel: scsi0 : Vendor: Adaptec  Model: 2100S
+FW:370F
+Dec 22 08:47:50 neptune kernel:   Vendor: ADAPTEC   Model: RAID-5         
+  Rev: 370F
+Dec 22 08:47:50 neptune kernel:   Type:   Direct-Access                   
+  ANSI
+SCSI revision: 02
+Dec 22 08:47:50 neptune kernel: PCI: Found IRQ 15 for device 00:0f.0
+Dec 22 08:47:50 neptune kernel: PCI: Sharing IRQ 15 with 00:0d.1
+Dec 22 08:47:50 neptune kernel: scsi1 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA
+DRIVER, Rev 6.2.8
+Dec 22 08:47:50 neptune kernel:         <Adaptec 2940 Ultra SCSI adapter>
+Dec 22 08:47:50 neptune kernel:         aic7880: Ultra Wide Channel A,
+SCSI Id=7,
+16/253 SCBs
+Dec 22 08:47:50 neptune kernel:
+Dec 22 08:47:50 neptune kernel:   Vendor: QUANTUM   Model: ATLAS 10K 9WLS 
+  Rev: UC81
+Dec 22 08:47:50 neptune kernel:   Type:   Direct-Access                   
+  ANSI
+SCSI revision: 03
+Dec 22 08:47:50 neptune kernel: (scsi1:A:0): 40.000MB/s transfers
+(20.000MHz, offset
+8, 16bit)
+Dec 22 08:47:50 neptune kernel:   Vendor: QUANTUM   Model: ATLAS 10K 9WLS 
+  Rev: UC81
+Dec 22 08:47:50 neptune kernel:   Type:   Direct-Access                   
+  ANSI
+SCSI revision: 03
+Dec 22 08:47:50 neptune kernel: (scsi1:A:1): 40.000MB/s transfers
+(20.000MHz, offset
+8, 16bit)
+Dec 22 08:47:50 neptune kernel:   Vendor: WDIGTL    Model: WD91 ULTRA2    
+  Rev: 1.00
+Dec 22 08:47:50 neptune kernel:   Type:   Direct-Access                   
+  ANSI
+SCSI revision: 02
+Dec 22 08:47:50 neptune kernel: (scsi1:A:2): 40.000MB/s transfers
+(20.000MHz, offset
+8, 16bit)
+Dec 22 08:47:50 neptune kernel:   Vendor: TOSHIBA   Model: CD-ROM
+XM-6401TA  Rev: 1001
+Dec 22 08:47:50 neptune kernel:   Type:   CD-ROM                          
+  ANSI
+SCSI revision: 02
+Dec 22 08:47:50 neptune kernel: (scsi1:A:5): 10.000MB/s transfers
+(10.000MHz, offset
+15)
+Dec 22 08:47:50 neptune kernel: scsi1:A:0:0: Tagged Queuing enabled.  Depth 8
+Dec 22 08:47:50 neptune kernel: scsi1:A:1:0: Tagged Queuing enabled.  Depth 8
+Dec 22 08:47:50 neptune kernel: scsi1:A:2:0: Tagged Queuing enabled.  Depth 8
+Dec 22 08:47:50 neptune kernel: Attached scsi disk sda at scsi0, channel
+0, id 0, lun 0
+Dec 22 08:47:50 neptune kernel: Attached scsi disk sdb at scsi1, channel
+0, id 0, lun 0
+Dec 22 08:47:50 neptune kernel: Attached scsi disk sdc at scsi1, channel
+0, id 1, lun 0
+Dec 22 08:47:50 neptune kernel: Attached scsi disk sdd at scsi1, channel
+0, id 2, lun 0
+Dec 22 08:47:50 neptune kernel: SCSI device sda: 215055360 512-byte hdwr
+sectors
+(110108 MB)
+Dec 22 08:47:50 neptune kernel: Partition check:
+Dec 22 08:47:50 neptune kernel:  sda: sda1
+Dec 22 08:47:50 neptune kernel: SCSI device sdb: 17938986 512-byte hdwr
+sectors
+(9185 MB)
+Dec 22 08:47:50 neptune kernel:  sdb: sdb1 sdb2 sdb3
+Dec 22 08:47:50 neptune kernel: SCSI device sdc: 17938986 512-byte hdwr
+sectors
+(9185 MB)
+Dec 22 08:47:50 neptune kernel:  sdc: sdc1 sdc2 sdc3
+Dec 22 08:47:50 neptune kernel: SCSI device sdd: 17873040 512-byte hdwr
+sectors
+(9151 MB)
+Dec 22 08:47:50 neptune kernel:  sdd: sdd1 sdd2
+Dec 22 08:47:50 neptune kernel: Attached scsi CD-ROM sr0 at scsi1, channel
+0, id 5,
+lun 0
+Dec 22 08:47:50 neptune kernel: sr0: scsi-1 drive
+Dec 22 08:47:50 neptune kernel: Uniform CD-ROM driver Revision: 3.12
+Dec 22 08:47:50 neptune kernel: md: raid1 personality registered as nr 3
+Dec 22 08:47:50 neptune kernel: md: raid5 personality registered as nr 4
+Dec 22 08:47:50 neptune kernel:    8regs     :  1986.800 MB/sec
+Dec 22 08:47:50 neptune kernel:    32regs    :  1757.200 MB/sec
+Dec 22 08:47:50 neptune kernel:    pII_mmx   :  3036.800 MB/sec
+Dec 22 08:47:50 neptune kernel:    p5_mmx    :  3889.600 MB/sec
+Dec 22 08:47:50 neptune kernel: md: md driver 0.90.0 MAX_MD_DEVS=256,
+MD_SB_DISKS=27
+Dec 22 08:47:50 neptune kernel: md: Autodetecting RAID arrays.
+Dec 22 08:47:50 neptune kernel:  [events: 000000cf]
+Dec 22 08:47:50 neptune kernel:  [events: 000000db]
+Dec 22 08:47:50 neptune kernel:  [events: 000000cf]
+Dec 22 08:47:50 neptune kernel:  [events: 000000db]
+Dec 22 08:47:50 neptune kernel: md: autorun ...
+Dec 22 08:47:50 neptune kernel: md: considering sdd2 ...
+Dec 22 08:47:50 neptune kernel: md:  adding sdd2 ...
+Dec 22 08:47:50 neptune kernel: md:  adding sdc3 ...
+Dec 22 08:47:50 neptune kernel: md:  adding sdb3 ...
+Dec 22 08:47:50 neptune kernel: md: created md1
+Dec 22 08:47:50 neptune kernel: md: bind<sdb3,1>
+Dec 22 08:47:50 neptune kernel: md: bind<sdc3,2>
+Dec 22 08:47:50 neptune kernel: md: bind<sdd2,3>
+Dec 22 08:47:50 neptune kernel: md: running: <sdd2><sdc3><sdb3>
+Dec 22 08:47:50 neptune kernel: RAID5 conf printout:
+Dec 22 08:47:50 neptune kernel:  --- rd:3 wd:3 fd:0
+Dec 22 08:47:50 neptune kernel:  disk 0, s:0, o:1, n:0 rd:0 us:1 dev:sdb3
+Dec 22 08:47:50 neptune kernel:  disk 1, s:0, o:1, n:1 rd:1 us:1 dev:sdc3
+Dec 22 08:47:50 neptune kernel:  disk 2, s:0, o:1, n:2 rd:2 us:1 dev:sdd2
+Dec 22 08:47:50 neptune kernel: RAID5 conf printout:
+Dec 22 08:47:50 neptune kernel:  --- rd:3 wd:3 fd:0
+Dec 22 08:47:50 neptune kernel:  disk 0, s:0, o:1, n:0 rd:0 us:1 dev:sdb3
+Dec 22 08:47:50 neptune kernel:  disk 1, s:0, o:1, n:1 rd:1 us:1 dev:sdc3
+Dec 22 08:47:50 neptune kernel:  disk 2, s:0, o:1, n:2 rd:2 us:1 dev:sdd2
+Dec 22 08:47:50 neptune kernel: md: updating md1 RAID superblock on device
+Dec 22 08:47:50 neptune kernel: md: considering sdc1 ...
+Dec 22 08:47:50 neptune kernel: md:  adding sdc1 ...
+Dec 22 08:47:50 neptune kernel: md:  adding sdb1 ...
+Dec 22 08:47:50 neptune kernel: md: created md0
+Dec 22 08:47:50 neptune kernel: md: bind<sdb1,1>
+Dec 22 08:47:50 neptune kernel: md: bind<sdc1,2>
+Dec 22 08:47:50 neptune kernel: md: running: <sdc1><sdb1>
+Dec 22 08:47:50 neptune kernel: raid1: raid set md0 active with 2 out of 2
+mirrors
+Dec 22 08:47:50 neptune kernel: md: updating md0 RAID superblock on device
+Dec 22 08:47:50 neptune kernel: md: ... autorun DONE.
+Dec 22 08:47:50 neptune kernel: NET4: Linux TCP/IP 1.0 for NET4.0
+Dec 22 08:47:50 neptune kernel: IP Protocols: ICMP, UDP, TCP
+Dec 22 08:47:50 neptune kernel: IP: routing cache hash table of 4096
+buckets, 32Kbytes
+Dec 22 08:47:50 neptune kernel: TCP: Hash tables configured (established
+32768 bind
+32768)
+Dec 22 08:47:50 neptune kernel: NET4: Unix domain sockets 1.0/SMP for
+Linux NET4.0.
+Dec 22 08:47:50 neptune kernel: raid5: switching cache buffer size, 4096
+--> 1024
+Dec 22 08:47:50 neptune kernel: raid5: switching cache buffer size, 1024
+--> 4096
+Dec 22 08:47:50 neptune kernel: VFS: Mounted root (ext2 filesystem) readonly.
+Dec 22 08:47:50 neptune kernel: Freeing unused kernel memory: 224k freed
+Dec 22 08:47:50 neptune kernel: Adding Swap: 128516k swap-space (priority -1)
+Dec 22 08:47:50 neptune kernel: Adding Swap: 104380k swap-space (priority -2)
+Dec 22 08:47:50 neptune kernel: Real Time Clock Driver v1.10e
+Dec 22 08:47:50 neptune kernel: PCI: Found IRQ 11 for device 00:0b.0
+Dec 22 08:47:50 neptune kernel: 3c59x: Donald Becker and others.
+www.scyld.com/network/vortex.html
+Dec 22 08:47:50 neptune kernel: 00:0b.0: 3Com PCI 3c905C Tornado at
+0xdc00. Vers
+LK1.1.16
+Dec 22 08:47:50 neptune kernel: reiserfs: checking transaction log (device
+08:01) ...
+Dec 22 08:47:50 neptune kernel: reiserfs: replayed 1 transactions in 1
+seconds
+Dec 22 08:47:50 neptune kernel: Using r5 hash to sort names
+Dec 22 08:47:50 neptune kernel: Removing [140095 304357 0x0 SD]..done
+Dec 22 08:47:50 neptune kernel: Removing [140112 140095 0x0 SD]..done
+Dec 22 08:47:50 neptune kernel: There were 2 uncompleted
+unlinks/truncates. Completed
+Dec 22 08:47:50 neptune kernel: ReiserFS version 3.6.25
+Dec 22 08:47:50 neptune lpd[232]: restarted
+
+
+
+
+

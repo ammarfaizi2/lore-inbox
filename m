@@ -1,56 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132126AbQLZWXM>; Tue, 26 Dec 2000 17:23:12 -0500
+	id <S131460AbQLZXCo>; Tue, 26 Dec 2000 18:02:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132127AbQLZWXD>; Tue, 26 Dec 2000 17:23:03 -0500
-Received: from [204.244.205.25] ([204.244.205.25]:33290 "HELO post.gateone.com")
-	by vger.kernel.org with SMTP id <S132126AbQLZWWq>;
-	Tue, 26 Dec 2000 17:22:46 -0500
-From: Michael Peddemors <michael@wizard.ca>
-Organization: Wizard Internet Services
-To: Linus Torvalds <torvalds@transmeta.com>, "Marco d'Itri" <md@Linux.IT>
-Subject: Re: innd mmap bug in 2.4.0-test12
-Date: Tue, 26 Dec 2000 15:02:09 -0800
-X-Mailer: KMail [version 1.1.95.0]
-Content-Type: text/plain
-Cc: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10012241004430.3972-100000@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.10.10012241004430.3972-100000@penguin.transmeta.com>
+	id <S131910AbQLZXCf>; Tue, 26 Dec 2000 18:02:35 -0500
+Received: from 13dyn24.delft.casema.net ([212.64.76.24]:11023 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S131460AbQLZXCa>; Tue, 26 Dec 2000 18:02:30 -0500
+Message-Id: <200012262231.XAA15382@cave.bitwizard.nl>
+Subject: Re: About Celeron processor memory barrier problem
+In-Reply-To: <Pine.LNX.4.10.10012261012330.8122-100000@penguin.transmeta.com>
+ from Linus Torvalds at "Dec 26, 2000 10:14:03 am"
+To: Linus Torvalds <torvalds@transmeta.com>
+Date: Tue, 26 Dec 2000 23:31:55 +0100 (MET)
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Tim Wright <timw@splhi.com>,
+        Kai Henningsen <kaih@khms.westfalen.de>, linux-kernel@vger.kernel.org
+From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
 MIME-Version: 1.0
-Message-Id: <00122615020906.32673@mistress>
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Yeah, yeah, it's 7PM Christmas Eve over there, and you're in the middle of
-> your Christmas dinner. You might feel that it's unreasonable of me to ask
-> you to test out my latest crazy idea.
->
-> How selfish of you.
->
-> Get back there in front of the computer NOW. Christmas can wait.
->
-> 		Linus "the Grinch" Torvalds
+Linus Torvalds wrote:
+> > If we do that I'd rather see a make autoconfig that does the lot from
+> > proc/pci etc 8)
+> 
+> Good point. No point in adding a new config option, we should just have a
+> new configurator instead. Of course, it can't handle many of the
+> questions, so it would still have to fall back on asking.
+> 
+> That _would_ be a nice addition eventually. It's a bigger project than the
+> one I envisioned, though.
 
-I can just imagine Xmas at the Torvalds residence, with their annual 
-tradition of having the kids scream... But dad, other kids have the lights 
-strung around the trees, not the computer....
+The way I interpreted Alan is that 
 
-Linus, that's why they call them computer 'boxes'... didn't you know you are 
-supposed to wait for 'boxing day' before climbing back in front of the 
-screen??
+	make autoconfig
 
+would spit out the default config, modified for the current setup, as
+far as possible. So "my PCI devices" would be configured into the
+kernel automatically (the way Linus likes it ;-). Similarly the
+"complicated" CPU selection would be "don't touch unless you really
+know what you're doing: autoconfig analized your cpuinfo". 
+
+It would at least NOT INPACT anything in the current setup. 
+
+				Roger. 
 
 -- 
---------------------------------------------------------
-Michael Peddemors - Senior Consultant
-Unix Administration - WebSite Hosting
-Network Services - Programming
-Wizard Internet Services http://www.wizard.ca
-Linux Support Specialist - http://www.linuxmagic.com
---------------------------------------------------------
-(604) 589-0037 Beautiful British Columbia, Canada
---------------------------------------------------------
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* There are old pilots, and there are bold pilots. 
+* There are also old, bald pilots. 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

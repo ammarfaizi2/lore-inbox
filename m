@@ -1,55 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261991AbUD1UAP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261162AbUD1UAQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261991AbUD1UAP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 16:00:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261205AbUD1T7e
+	id S261162AbUD1UAQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 16:00:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262006AbUD1T71
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 15:59:34 -0400
-Received: from fw.osdl.org ([65.172.181.6]:24017 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261162AbUD1THv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 15:07:51 -0400
-Date: Wed, 28 Apr 2004 12:07:15 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: trond.myklebust@fys.uio.no, sgoel01@yahoo.com,
+	Wed, 28 Apr 2004 15:59:27 -0400
+Received: from pfepa.post.tele.dk ([195.41.46.235]:39462 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S261205AbUD1TG3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 15:06:29 -0400
+Date: Wed, 28 Apr 2004 21:08:55 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Jari Ruusu <jariruusu@users.sourceforge.net>
+Cc: Sam Ravnborg <sam@ravnborg.org>,
+       Vincent C Jones <vcjones@NetworkingUnlimited.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-rc{1,2} bad VM/NFS interaction in case of dirty page
- writeback
-Message-Id: <20040428120715.68bc51dd.akpm@osdl.org>
-In-Reply-To: <20040428173811.A1505@infradead.org>
-References: <20040427011237.33342.qmail@web12824.mail.yahoo.com>
-	<20040426191512.69485c42.akpm@osdl.org>
-	<1083035471.3710.65.camel@lade.trondhjem.org>
-	<20040426205928.58d76dbc.akpm@osdl.org>
-	<1083043386.3710.201.camel@lade.trondhjem.org>
-	<20040426225834.7035d2c1.akpm@osdl.org>
-	<1083080207.2616.31.camel@lade.trondhjem.org>
-	<20040428062942.A27705@infradead.org>
-	<1083169062.2856.36.camel@lade.trondhjem.org>
-	<20040428173811.A1505@infradead.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Subject: Re: Linux 2.6.6-rc3
+Message-ID: <20040428190855.GA4069@mars.ravnborg.org>
+Mail-Followup-To: Jari Ruusu <jariruusu@users.sourceforge.net>,
+	Sam Ravnborg <sam@ravnborg.org>,
+	Vincent C Jones <vcjones@NetworkingUnlimited.com>,
+	linux-kernel@vger.kernel.org
+References: <1PMQ9-5K6-3@gated-at.bofh.it> <20040428144801.B3708149A6@x23.networkingunlimited.com> <20040428160057.GA2252@mars.ravnborg.org> <408FE8C4.33B3BDB4@users.sourceforge.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <408FE8C4.33B3BDB4@users.sourceforge.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@infradead.org> wrote:
->
-> I'm not yet sure where I'm heading with revamping xfs_aops.c, but what
->  I'd love to see in the end is more or less xfs implementing only
->  writepages and some generic implement writepage as writepages wrapper.
+> 
+> Full package:
+> http://loop-aes.sourceforge.net/loop-AES/loop-AES-v2.0g.tar.bz2
 
-That might make sense.  One problem is that writepage expects to be passed
-a locked page whereas writepages() does not.
+Hi Jari.
+I took a look at how you use the build system in the 2.6 kernel.
+Inherited from the 2.4 days you assemble the commands yourself,
+which is plain wrong in a 2.6 kernel.
+The only sane way to build external modules with a 2.6 kernel is
+to utilise the kbuild infrastructure.
 
-Any code which implements writearound-inside-writepage should be targetted
-at a generic implementation, not an fs-specific one if poss.  We could go
-look at the ->vm_writeback() a_op which was in in 2.5.20 or thereabouts. 
-it was causing problems and had no discernable benefits so I ripped it out.
+For your reference here is a Makefile that I used to compile your
+module (made a symling for loop-patched.c file).
 
-A writearound-within-writepage implementation would need to decide whether
-it's goign to use lock_page() or TryLockPage().  I expect lock_page() will
-be OK - we only call in there for __GFP_FS allocators.
+To compile the kernel I used:
+make -C /home/sam/bk/v2.6/ M=$PWD
+[Assumes latest linus kernel - 2.6.6-rc3]
+
+For older kernels append the modules target
+
+This has the added benefit that Module versioning is also supported.
+
+#########################
+# Minimal kbuild Makefile for loop-AES
+
+EXTRA_CFLAGS := $(LOOP_AES_CFLAGS)
+
+obj-m := loop.o
+
+i586-$(CONFIG_M586) := -i586
+i586-$(CONFIG_M686) := -i586
+
+loop-y := loop-patched.o aes$(i586-y).o glue.o md5$(i586-y).o
+
+##########################
+
+I see in the Makefile that you do a lot of tricks to support various
+kernel versions. But they all end up in a few defines for the C compiler,
+which you just needs to supply in the variable LOOP_AES_CFLAGS.
+[And some file massaging whaich is done before starting the build]
+
+What I would recommend you to do is to move all your backward compatibility
+stuff and general rules to a file named 'makefile'.
+Then provide individual Makefiles for each kernel version:
+Makefile.2.4, Makefile.2.6
+Then symlink Makfile to the right one and build the module.
+
+This would clean up your Makefile and give you correct usage in 2.6
+
+	Sam
+
 

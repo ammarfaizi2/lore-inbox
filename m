@@ -1,27 +1,26 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262800AbRE0Q0A>; Sun, 27 May 2001 12:26:00 -0400
+	id <S262808AbRE0QVl>; Sun, 27 May 2001 12:21:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262809AbRE0QZu>; Sun, 27 May 2001 12:25:50 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:50459 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S262800AbRE0QZg>; Sun, 27 May 2001 12:25:36 -0400
-Date: Sun, 27 May 2001 18:25:15 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: "David S. Miller" <davem@redhat.com>
+	id <S262800AbRE0QVb>; Sun, 27 May 2001 12:21:31 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:61963 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S262799AbRE0QVZ>; Sun, 27 May 2001 12:21:25 -0400
+Subject: Re: [PATCH][2.4.5] buz.c compile errors
+To: sembera@centrum.cz (Jan Sembera)
+Date: Sun, 27 May 2001 17:19:03 +0100 (BST)
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.5aa1
-Message-ID: <20010527182515.D676@athlon.random>
-In-Reply-To: <20010526193310.A1834@athlon.random> <15120.23023.903912.358739@pizda.ninka.net> <20010527043208.G1834@athlon.random>
-Mime-Version: 1.0
+In-Reply-To: <3B111566.6070507@centrum.cz> from "Jan Sembera" at May 27, 2001 01:55:34 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010527043208.G1834@athlon.random>; from andrea@suse.de on Sun, May 27, 2001 at 04:32:09AM +0200
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
+Message-Id: <E1543Fv-0001ze-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 27, 2001 at 04:32:09AM +0200, Andrea Arcangeli wrote:
-> Ok, then I will add define_bool CONFIG_NO_PAGE_VIRTUAL y to sparc and
-	     ^^^^ typo: won't
+> I have written a patch for buz.c for 2.4.5, it should be solution, but i 
+> don't know it really works, I don't have such hardware available.
+
+It doesnt work. The entire buz driver is totally broken and to be discarded

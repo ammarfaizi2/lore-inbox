@@ -1,44 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271265AbRHOQW5>; Wed, 15 Aug 2001 12:22:57 -0400
+	id <S271275AbRHOQ25>; Wed, 15 Aug 2001 12:28:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271268AbRHOQWr>; Wed, 15 Aug 2001 12:22:47 -0400
-Received: from yoda.planetinternet.be ([195.95.30.146]:33287 "EHLO
-	yoda.planetinternet.be") by vger.kernel.org with ESMTP
-	id <S271265AbRHOQWh>; Wed, 15 Aug 2001 12:22:37 -0400
-Date: Wed, 15 Aug 2001 18:22:23 +0200
-From: Kurt Roeckx <Q@ping.be>
-To: =?iso-8859-1?Q?David_G=F3mez?= <davidge@jazzfree.com>
-Cc: ext3-users@redhat.com, Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: vfat is not working with ext3 patch
-Message-ID: <20010815182223.A573@ping.be>
-In-Reply-To: <Pine.LNX.4.33.0108151736510.518-100000@fargo>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Mailer: Mutt 1.0pre2i
-In-Reply-To: <Pine.LNX.4.33.0108151736510.518-100000@fargo>
+	id <S271274AbRHOQ2h>; Wed, 15 Aug 2001 12:28:37 -0400
+Received: from bacchus.veritas.com ([204.177.156.37]:28036 "EHLO
+	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
+	id <S271271AbRHOQ2f>; Wed, 15 Aug 2001 12:28:35 -0400
+Date: Wed, 15 Aug 2001 17:30:04 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: "David S. Miller" <davem@redhat.com>, thockin@sun.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: RFC: poll change
+In-Reply-To: <20010815163256.E7382@athlon.random>
+Message-ID: <Pine.LNX.4.21.0108151725490.1005-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 15, 2001 at 05:49:05PM +0200, David Gómez wrote:
+On Wed, 15 Aug 2001, Andrea Arcangeli wrote:
 > 
-> Hi all,
-> 
-> My system is :
-> kernel 2.4.8 with ext3-0.9.6 patch
-> e2fsprogs-1.22-2, mount-2.11g, util-linux-2.11f
+> Since 2.2 we have the free_pgtables to release the pagetables under
+> unused pgd slots, that was used to work pretty well last time I checked.
 
-I have e2fsprogs 1.22, and util-linux 2.11h, but doubt it has
-much to do with it.
+Funny you mention that: I noticed a while back that actually
+it doesn't work well with i386 PAE - presumably looks for an empty 1GB.
 
-> And ext3 filesystem works fine, but when a vfat partition is mounted:
-> everything looks ok till I try to access that partition. A 'cd' to the
-> directory /mnt/tmp causes an error of 'not a directory' so i can't access
-> to vfat partition.
-
-Works fine here.
-
-
-Kurt
+Hugh
 

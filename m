@@ -1,47 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263458AbVCMFrO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262980AbVCMFyJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263458AbVCMFrO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Mar 2005 00:47:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263459AbVCMFrO
+	id S262980AbVCMFyJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Mar 2005 00:54:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262958AbVCMFyJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Mar 2005 00:47:14 -0500
-Received: from fire.osdl.org ([65.172.181.4]:13276 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S263458AbVCMFrH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Mar 2005 00:47:07 -0500
-Date: Sat, 12 Mar 2005 21:46:45 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: lkml@lievin.net, linux-kernel@vger.kernel.org, zippel@linux-m68k.org
-Subject: Re: [PATCH] Fix warning in gkc (make gconfig) {Scanned}
-Message-Id: <20050312214645.43e57763.akpm@osdl.org>
-In-Reply-To: <20050312211558.GA18623@mars.ravnborg.org>
-References: <20050309083612.GA15812@lievin.net>
-	<20050312211558.GA18623@mars.ravnborg.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 13 Mar 2005 00:54:09 -0500
+Received: from smtp1.Stanford.EDU ([171.67.16.123]:3037 "EHLO
+	smtp1.Stanford.EDU") by vger.kernel.org with ESMTP id S262980AbVCMFyA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Mar 2005 00:54:00 -0500
+Date: Sat, 12 Mar 2005 21:53:54 -0800 (PST)
+From: Junfeng Yang <yjf@stanford.edu>
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+cc: Andrew Morton <akpm@osdl.org>, <chaffee@bmrc.berkeley.edu>,
+       <mc@cs.Stanford.EDU>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [CHECKER] crash + fsck cause file systems to contain loops (msdos
+ and vfat, 2.6.11)
+In-Reply-To: <87fyz1ey5p.fsf@devron.myhome.or.jp>
+Message-ID: <Pine.GSO.4.44.0503122146410.4831-100000@elaine24.Stanford.EDU>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg <sam@ravnborg.org> wrote:
+> Interesting.
 >
-> On Wed, Mar 09, 2005 at 09:36:12AM +0100, Romain Lievin wrote:
-> > Hi,
-> > 
-> > this patch against 2.6.11-rc3 fixes some warnings about GtkToolButton in gkc
-> > (the GTK Kernel Configurator).
-> 
-> Applied, 2 warnings fixed - 10 more to go.
-> Care to take a look at them?
-> Also gconfig does not support setting localversion - is this something you
-> can fix too?
-> 
+> $ /devel/linux/works/fatfs/fatfstools/dosfstools-2.10/dosfsck/dosfsck -a bug10/crash.img
+> dosfsck 2.10, 22 Sep 2003, FAT32, LFN
+> /0006
+>   Directory does not have any cluster  ("." and "..").
+>   Dropping it.
+> Reclaimed 3 unused clusters (6144 bytes) in 3 chains.
+> Performing changes.
+> crash.img: 8 files, 3/8167 clusters
+>
+> My fixed dosfsck found the above corruption in bug10/crash.img (bug7
+> has same corruption). And probably you can see root directory via 0006
+> directory, I guess your testing tree didn't have my patches yet (seems
+> old behavior).
 
-fyi, gconfig doesn't display those cute little pixmap buttons any more. 
-That bug was introduced by the patch "make gconfig work with gtk-2.4".
+I'm using dosfsck 2.10, 22 Sep 2003, FAT32, LFN, and yes, I do see root
+directory after I run dosfsck on the crashed disk image.  I'm checking
+2.6.11.  By "your testing tree didn't have my patches yet", you mean you
+have the patch but haven't made it public?  This "testing tree" is the
+Linux source tree?  Can you be a little bit more specific?
 
-I'm planning on simply reverting that patch.  Which should motivate someone
-to have another go at fixing it for gtk2.4.
+> BTW, what mount options did you use?
+
+I just used default mount.  mount -t msdos source target
+no -o
+
+Thanks,
+-Junfeng
 

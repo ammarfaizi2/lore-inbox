@@ -1,84 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264610AbTGCQCT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jul 2003 12:02:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264898AbTGCQCS
+	id S264911AbTGCQC5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jul 2003 12:02:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264898AbTGCQC1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jul 2003 12:02:18 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:33747 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S264610AbTGCQAL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jul 2003 12:00:11 -0400
-Date: Thu, 3 Jul 2003 18:14:29 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       trivial@rustcorp.com.au
-Subject: [patch] 2.5.74: i2o_scsi.c must include pci.h
-Message-ID: <20030703161429.GN282@fs.tum.de>
-References: <Pine.LNX.4.44.0307021433520.2323-100000@home.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0307021433520.2323-100000@home.osdl.org>
-User-Agent: Mutt/1.4.1i
+	Thu, 3 Jul 2003 12:02:27 -0400
+Received: from ausadmmsrr503.aus.amer.dell.com ([143.166.83.90]:1542 "HELO
+	AUSADMMSRR503.aus.amer.dell.com") by vger.kernel.org with SMTP
+	id S264432AbTGCQCJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jul 2003 12:02:09 -0400
+X-Server-Uuid: 91331657-2068-4fb8-8b09-a4fcbc1ed29f
+Message-ID: <36696BAFD8467644ABA0050BE358905912586B@ausx2kmpc106.aus.amer.dell.com>
+From: Gary_Lerhaupt@Dell.com
+To: linux-kernel@vger.kernel.org
+Subject: [announce] dkms - enhancements for 2.5 + UnitedLinux initrd
+ suppo rt
+Date: Thu, 3 Jul 2003 11:16:26 -0500
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+X-WSS-ID: 131A89684767147-01-01
+Content-Type: text/plain; 
+ charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I got the following compile error with 2.5.74:
+Following the handy pointers at
+http://marc.theaimsgroup.com/?l=linux-ia64&m=105676403229397&w=2, dkms now
+uses 2.5's makefile goodies.  Specifically, if it detects a kernel > 2.4, it
+ignores any MAKE commands in the dkms.conf for your module and instead uses
+`make -C $kernel_source_dir SUBDIRS=$build_dir modules`.  It also doesn't do
+a make dep during the kernel prep (though for SuSE, I left the make
+CONFIG_MODVERSION=1 dep for 2.5 since I didn't know whether it will be
+needed).
 
-<--  snip  -->
+I also added support for modifying SuSE/UnitedLinux initrds.  While this
+already exists for RH type things, the mkinitrd stuff seems to vary per
+distro.  For UL, if REMAKE_INITRD is set in the dkms.conf, during the `add`
+it modifies /etc/sysconfig/kernel and puts a reference in INITRD_MODULES and
+during the final remove it removes it from this list.  Then, as modules are
+installed, it calls the generic mk_initrd command which remakes all the
+initrds it seems to know about.  While this might return exit status 9 if
+some kernels don't have this module, this process seems the best and
+simplest way to go about automating the initrd process for UL.  Comments
+always welcome (btw, we have a shiny new dkms-devel@lists.us.dell.com
+mailing list for anyone interested).
 
-...
-  CC      drivers/message/i2o/i2o_scsi.o
-drivers/message/i2o/i2o_scsi.c: In function `i2o_scsi_reply':
-drivers/message/i2o/i2o_scsi.c:327: warning: implicit declaration of 
-function `pci_unmap_sg'
-drivers/message/i2o/i2o_scsi.c:329: warning: implicit declaration of 
-function `pci_unmap_single'
-drivers/message/i2o/i2o_scsi.c: In function `i2o_scsi_queuecommand':
-drivers/message/i2o/i2o_scsi.c:763: warning: implicit declaration of 
-function `pci_map_sg'
-drivers/message/i2o/i2o_scsi.c:833: warning: implicit declaration of 
-function `pci_map_single'
-...
-  LD      .tmp_vmlinux1
-drivers/built-in.o(.text+0x5e871c): In function `i2o_scsi_reply':
-: undefined reference to `pci_unmap_single'
-drivers/built-in.o(.text+0x5e873c): In function `i2o_scsi_reply':
-: undefined reference to `pci_unmap_sg'
-drivers/built-in.o(.text+0x5e9471): In function `i2o_scsi_queuecommand':
-: undefined reference to `pci_map_sg'
-drivers/built-in.o(.text+0x5e9781): In function `i2o_scsi_queuecommand':
-: undefined reference to `pci_map_single'
-make: *** [.tmp_vmlinux1] Error 1
-
-<--  snip  -->
-
-
-The fix is simple:
-
-
---- linux-2.5.74-not-full/drivers/message/i2o/i2o_scsi.c.old	2003-07-03 17:59:18.000000000 +0200
-+++ linux-2.5.74-not-full/drivers/message/i2o/i2o_scsi.c	2003-07-03 18:00:11.000000000 +0200
-@@ -49,6 +49,7 @@
- #include <linux/delay.h>
- #include <linux/proc_fs.h>
- #include <linux/prefetch.h>
-+#include <linux/pci.h>
- #include <asm/dma.h>
- #include <asm/system.h>
- #include <asm/io.h>
-
-
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Gary Lerhaupt
+Linux Development
+Dell Computer Corporation
 

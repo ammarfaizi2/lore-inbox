@@ -1,55 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129091AbQKNTzx>; Tue, 14 Nov 2000 14:55:53 -0500
+	id <S129415AbQKNT4D>; Tue, 14 Nov 2000 14:56:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129908AbQKNTzn>; Tue, 14 Nov 2000 14:55:43 -0500
-Received: from alcove.wittsend.com ([130.205.0.20]:58379 "EHLO
-	alcove.wittsend.com") by vger.kernel.org with ESMTP
-	id <S129091AbQKNTza>; Tue, 14 Nov 2000 14:55:30 -0500
-Date: Tue, 14 Nov 2000 15:24:30 -0500
-From: "Michael H. Warfield" <mhw@wittsend.com>
-To: Ben Ford <bford@talontech.com>
-Cc: Olaf Kirch <okir@caldera.de>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: More modutils: It's probably worse.
-Message-ID: <20001114152430.C2645@alcove.wittsend.com>
-Mail-Followup-To: Ben Ford <bford@talontech.com>,
-	Olaf Kirch <okir@caldera.de>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.21.0011132040160.1699-100000@ferret.lmh.ox.ac.uk> <Pine.LNX.4.21.0011132352550.31869-100000@dione.ids.pl> <20001114095921.E30730@monad.caldera.de> <3A119082.BBFD700@talontech.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.2i
-In-Reply-To: <3A119082.BBFD700@talontech.com>; from bford@talontech.com on Tue, Nov 14, 2000 at 11:20:35AM -0800
+	id <S129908AbQKNTzx>; Tue, 14 Nov 2000 14:55:53 -0500
+Received: from ns.caldera.de ([212.34.180.1]:60943 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S129415AbQKNTzg>;
+	Tue, 14 Nov 2000 14:55:36 -0500
+Date: Tue, 14 Nov 2000 19:42:24 +0100
+Message-Id: <200011141842.TAA03384@ns.caldera.de>
+From: Christoph Hellwig <hch@caldera.de>
+To: tmolina@home.com (Thomas Molina)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: opl3.o initialization problems in 2.4
+X-Newsgroups: caldera.lists.linux.kernel
+In-Reply-To: <Pine.LNX.4.21.0011140825020.1788-100000@wr5z.localdomain>
+User-Agent: tin/1.4.1-19991201 ("Polish") (UNIX) (Linux/2.2.14 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Oh, I hate to add to a remark like that (OK, I lied, I love
-trollbait...)
+In article <Pine.LNX.4.21.0011140825020.1788-100000@wr5z.localdomain> you wrote:
+> I continue to see apparent interaction problems between sb.o and opl3.o
+> during system initialization.  Several people have reported problems
+> with the opl3.o module not loading or not working properly.  A
+> workaround was developed which results in a functional system; if sb.o
+> is compiled as built-in and opl3.o is compiled modular things work.  
 
-On Tue, Nov 14, 2000 at 11:20:35AM -0800, Ben Ford wrote:
-> Olaf Kirch wrote:
+> My working theory is that the soundcard must be initialized and the
+> driver functioning before the opl3 module can initialize its function on
+> the card.  Currently, the opl3 code is executed before the soundcard
+> code and is unable to initialize the fm synthesizer.  
 
-> > sure request_module _does_not_ accept funky module names. Why allow
-> > people to shoot themselves (and, by extension, all other Linux users
-> > out there) in the foot?
+> I hate to reignite the link order war, but I would appreciate a
+> clarification of the situation.
 
-> I thought that was the whole purpose of Unix/Linux?
+This is strange. CONFIG_SOUND_YM3812 (the opl3 config options)
+is actually _after_ CONFIG_SB in the Makefile.
 
-	True!  Very true!  Unix/Linux requires that the user shoot
-themselves in the foot.  Windows automates that process and does it
-for the user, thus making foot shooting user friendly.  :-)
+Does it work if both drivers are modular?
 
-> -b
 
-	Mike
+	Christoph
+
 -- 
- Michael H. Warfield    |  (770) 985-6132   |  mhw@WittsEnd.com
-  (The Mad Wizard)      |  (678) 463-0932   |  http://www.wittsend.com/mhw/
-  NIC whois:  MHW9      |  An optimist believes we live in the best of all
- PGP Key: 0xDF1DD471    |  possible worlds.  A pessimist is sure of it!
-
+Always remember that you are unique.  Just like everyone else.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

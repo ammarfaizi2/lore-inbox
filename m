@@ -1,40 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264086AbTDPVfl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Apr 2003 17:35:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264137AbTDPVfl
+	id S263924AbTDPVcs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Apr 2003 17:32:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264418AbTDPVcr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 17:35:41 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:62088 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S264086AbTDPVfk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 17:35:40 -0400
-Date: Wed, 16 Apr 2003 14:40:35 -0700 (PDT)
-Message-Id: <20030416.144035.130217416.davem@redhat.com>
-To: akpm@digeo.com
-Cc: willy@debian.org, ak@muc.de, linux-kernel@vger.kernel.org, anton@samba.org,
-       schwidefsky@de.ibm.com, davidm@hpl.hp.com, matthew@wil.cx,
-       ralf@linux-mips.org, rth@redhat.com
-Subject: Re: Reduce struct page by 8 bytes on 64bit
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20030416144311.46f32253.akpm@digeo.com>
-References: <20030416133539.0ac01968.akpm@digeo.com>
-	<20030416212651.GF1505@parcelfarce.linux.theplanet.co.uk>
-	<20030416144311.46f32253.akpm@digeo.com>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	Wed, 16 Apr 2003 17:32:47 -0400
+Received: from louise.pinerecords.com ([213.168.176.16]:60126 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S263924AbTDPVcq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Apr 2003 17:32:46 -0400
+Date: Wed, 16 Apr 2003 23:44:23 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: jamal <hadi@cyberus.ca>
+Cc: Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       Manfred Spraul <manfred@colorfullife.com>,
+       Catalin BOIE <util@deuroconsult.ro>, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com, kuznet@ms2.inr.ac.ru
+Subject: Re: [PATCH] qdisc oops fix
+Message-ID: <20030416214422.GM32575@louise.pinerecords.com>
+References: <20030415084706.O1131@shell.cyberus.ca> <20030416160606.GA32575@louise.pinerecords.com> <3E9D8A68.5050207@colorfullife.com> <200304162003.06600.m.c.p@wolk-project.de> <20030416140440.O5912@shell.cyberus.ca>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030416140440.O5912@shell.cyberus.ca>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Andrew Morton <akpm@digeo.com>
-   Date: Wed, 16 Apr 2003 14:43:11 -0700
-   
-   Well are we sure that the `flags' and `count' fields will always fall into
-   the same 256-byte range?  Wouldn't it subtly break if sizeof(struct page)
-   became not a multiple of eight?  Will the compiler pad it out anyway?
+> [hadi@cyberus.ca]
+> >
+> > > >The original backtrace as provided by Martin Volf does not contain
+> > > >any weird addresses such as 0xd081ecc7 above:
+> > > >http://marc.theaimsgroup.com/?l=linux-kernel&m=105013596721774&w=2
+> > > Thanks.
+> > > The bug was caused by sch_tree_lock() in htb_change_class().
+> > > 2.4.21-pre7 contains a fix.
+> > am I just blind or isn't there a fix in -pre7|current-BK?
+> >
+> 
+> No you are not ;-> Yes, the fix for that specific problem is in
+> 2.4.21-pre7. I think Tomas might have missed that we moved on to the
+> next problem.
 
-As long as there is a long or pointer member, the structure
-will be required to be 8 byte or better aligned.
+Trouble is, the fix went in for already -pre5 (cset 1.930.3.5), so if you
+only look at the pre6->pre7 changelog (like I did), you aren't likely to
+find it.  8)
+
+T.

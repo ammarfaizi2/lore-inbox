@@ -1,64 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261404AbSJHXSb>; Tue, 8 Oct 2002 19:18:31 -0400
+	id <S263214AbSJHXdm>; Tue, 8 Oct 2002 19:33:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261490AbSJHXRk>; Tue, 8 Oct 2002 19:17:40 -0400
-Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:52745 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261404AbSJHXQh>;
-	Tue, 8 Oct 2002 19:16:37 -0400
-Date: Tue, 8 Oct 2002 16:18:32 -0700
-From: Greg KH <greg@kroah.com>
-To: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] USB and driver core changes for 2.5.41
-Message-ID: <20021008231832.GE11337@kroah.com>
-References: <20021008231511.GA11337@kroah.com> <20021008231557.GB11337@kroah.com> <20021008231646.GC11337@kroah.com> <20021008231747.GD11337@kroah.com>
-Mime-Version: 1.0
+	id <S263241AbSJHXdN>; Tue, 8 Oct 2002 19:33:13 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:59557 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S261441AbSJHXcq>;
+	Tue, 8 Oct 2002 19:32:46 -0400
+Date: Tue, 08 Oct 2002 16:34:09 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: "Luck, Tony" <tony.luck@intel.com>, lse-tech@lists.sourceforge.net
+cc: "Kamble, Nitin A" <nitin.a.kamble@intel.com>, linux-kernel@vger.kernel.org,
+       tomlins@cam.org, akpm@digeo.com
+Subject: RE: [Lse-tech] [RFC] numa slab for 2.5.41-mm1
+Message-ID: <599040000.1034120049@flay>
+In-Reply-To: <39B5C4829263D411AA93009027AE9EBB1EF28EFB@fmsmsx35.fm.intel.com>
+References: <39B5C4829263D411AA93009027AE9EBB1EF28EFB@fmsmsx35.fm.intel.com>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20021008231747.GD11337@kroah.com>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.573.92.15 -> 1.573.92.16
-#	drivers/media/video/cpia_usb.c	1.9     -> 1.10   
-#	drivers/media/video/cpia.h	1.3     -> 1.4    
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/10/07	rddunlap@osdl.org	1.573.92.16
-# [PATCH] build cpia video driver
-# 
-# This patch enables the cpia driver to build on 2.5.41.
-# --------------------------------------------
-#
-diff -Nru a/drivers/media/video/cpia.h b/drivers/media/video/cpia.h
---- a/drivers/media/video/cpia.h	Tue Oct  8 15:53:44 2002
-+++ b/drivers/media/video/cpia.h	Tue Oct  8 15:53:44 2002
-@@ -378,8 +378,8 @@
- /* ErrorCode */
- #define ERROR_FLICKER_BELOW_MIN_EXP     0x01 /*flicker exposure got below minimum exposure */
- 
--#define ALOG(lineno,fmt,args...) printk(fmt,lineno,##args)
--#define LOG(fmt,args...) ALOG((__LINE__),KERN_INFO __FILE__":"__FUNCTION__"(%d):"fmt,##args)
-+#define ALOG(fmt,args...) printk(fmt, ##args)
-+#define LOG(fmt,args...) ALOG(KERN_INFO __FILE__ ":%s(%d):" fmt, __FUNCTION__, __LINE__, ##args)
- 
- #ifdef _CPIA_DEBUG_
- #define ADBG(lineno,fmt,args...) printk(fmt, jiffies, lineno, ##args)
-diff -Nru a/drivers/media/video/cpia_usb.c b/drivers/media/video/cpia_usb.c
---- a/drivers/media/video/cpia_usb.c	Tue Oct  8 15:53:44 2002
-+++ b/drivers/media/video/cpia_usb.c	Tue Oct  8 15:53:44 2002
-@@ -167,7 +167,7 @@
- 	/* resubmit */
- 	urb->dev = ucpia->dev;
- 	if ((i = usb_submit_urb(urb, GFP_ATOMIC)) != 0)
--		printk(KERN_ERR __FUNCTION__ ": usb_submit_urb ret %d\n", i);
-+		printk(KERN_ERR "%s: usb_submit_urb ret %d\n", __FUNCTION__,  i);
- }
- 
- static int cpia_usb_open(void *privdata)
+>> - is it possible implement ptr_to_nodeid()
+>>   on all archs efficiently? It will happen for every kfree().
+> 
+> The best platform independent way that I came up with was to stash
+> the node id in the page structure ... the initial patch that Nitin
+> posted included code for this (and it's all my fault that this
+> added an extra element to the page structure).  I think that you
+> suggested that slab could overload the use of some existing field
+> if we wanted to pursue this direction.
+> 
+> If ptr_to_nodeid() is made a platform dependent function, then
+
+I think that's really the key .... the platforms should just make this
+efficient, it's not something for the slab to worry about specifically.
+Those of us that have virtual address space to burn can stick it in
+struct page, whereas other people (eg me) might have to find some
+other way to do it .... but that's the arch people's problem ;-)
+
+> there are some platforms that can do this very efficiently (since
+> the nodeid is embedded in some of the high-order address bits), and
+> some for which this is complex (e.g. platforms that concatenate
+> memory from each node).
+
+M.
+

@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261808AbTCTTSt>; Thu, 20 Mar 2003 14:18:49 -0500
+	id <S261639AbTCTT3F>; Thu, 20 Mar 2003 14:29:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261817AbTCTTSt>; Thu, 20 Mar 2003 14:18:49 -0500
-Received: from havoc.daloft.com ([64.213.145.173]:5589 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id <S261808AbTCTTSs>;
-	Thu, 20 Mar 2003 14:18:48 -0500
-Date: Thu, 20 Mar 2003 14:29:44 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Yaroslav Popovitch <yp@sot.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ptrace bug fix is not working!!!
-Message-ID: <20030320192943.GE8256@gtf.org>
-References: <Pine.LNX.4.44.0303202114350.30893-301000@ares.sot.com>
+	id <S261766AbTCTT3F>; Thu, 20 Mar 2003 14:29:05 -0500
+Received: from hirsch.in-berlin.de ([192.109.42.6]:30684 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
+	id <S261639AbTCTT3E>; Thu, 20 Mar 2003 14:29:04 -0500
+X-Envelope-From: news@bytesex.org
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Gerd Knorr <kraxel@bytesex.org>
+Newsgroups: lists.linux.kernel
+Subject: Re: Oops with bttv in latest bk
+Date: 20 Mar 2003 20:42:35 +0100
+Organization: SuSE Labs, Berlin
+Message-ID: <87y939x1sk.fsf@bytesex.org>
+References: <3E78BB99.3070605@portrix.net> <87he9z7z95.fsf@bytesex.org> <3E796530.2010707@portrix.net> <87znnqmitn.fsf@bytesex.org> <3E79ED9F.1000402@portrix.net>
+NNTP-Posting-Host: localhost
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0303202114350.30893-301000@ares.sot.com>
-User-Agent: Mutt/1.3.28i
+X-Trace: bytesex.org 1048189355 22970 127.0.0.1 (20 Mar 2003 19:42:35 GMT)
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 20, 2003 at 09:23:28PM +0200, Yaroslav Popovitch wrote:
-> Hi! I applied Alan Cox's patches for ptrace bug. But system is still 
-> exploitable.
-> 
-> I used my own kernel-2.4.19 with patch for 2.4.19 kernel. It does not 
-> helped. Then I took vanilla 2.4.20 kernel from www.kernel.org and applied 
-> patch for 2.4.20 kernel. System is still exploitable.
+Jan Dittmer <j.dittmer@portrix.net> writes:
 
-Can you verify that you are clearing the setuid bit that gets set, when
-the exploit is run?  IIRC, you must manually do that to verify that your
-system is indeed no longer exploitable.
+> bttv: driver version 0.9.7 loaded
 
-	Jeff
+Dammit, the must be yet another patch which can trigger that BUG().
+I've already killed at least two of them ...
 
+As it kills the X-Server I guess you are using the X-Servers v4l
+module and the Xvideo extention, correct?
 
+> Would it make sense to try as module? Currently it is compiled in.
 
+I don't expect that makes a difference.
 
+  Gerd
+
+-- 
+/join #zonenkinder

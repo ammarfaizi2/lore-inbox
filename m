@@ -1,33 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129446AbRBXQ76>; Sat, 24 Feb 2001 11:59:58 -0500
+	id <S129458AbRBXRAi>; Sat, 24 Feb 2001 12:00:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129461AbRBXQ7s>; Sat, 24 Feb 2001 11:59:48 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:46866 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129446AbRBXQ7i>; Sat, 24 Feb 2001 11:59:38 -0500
-Subject: Re: APM suspend system lockup under 2.4.2 and 2.4.2ac1
-To: bradley_kernel@yahoo.com (bradley mclain)
-Date: Sat, 24 Feb 2001 17:02:45 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <20010224052955.75158.qmail@web9204.mail.yahoo.com> from "bradley mclain" at Feb 23, 2001 09:29:55 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S129461AbRBXRA3>; Sat, 24 Feb 2001 12:00:29 -0500
+Received: from mout01.kundenserver.de ([195.20.224.132]:16132 "EHLO
+	mout01.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S129458AbRBXRAX>; Sat, 24 Feb 2001 12:00:23 -0500
+Date: Sat, 24 Feb 2001 15:29:13 +0100
+From: Heinz Diehl <hd@cavy.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.2 broke gcd (or, audio CD's won't play)
+Message-ID: <20010224152913.A4604@elfie.cavy.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20010223183743.A26519@hapablap.dyn.dhs.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14Wi5n-0000AV-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15-current-20010213i (Linux 2.4.2 i586)
+In-Reply-To: <20010223183743.A26519@hapablap.dyn.dhs.org>; from srwalter@yahoo.com on Fri, Feb 23, 2001 at 06:37:43PM -0600
+Organization: private site in Mannheim/Germany
+X-PGP-Key: To get my public-key, send mail with subject 'get pgpkey'
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> the sound card is a yamaha YMF-744B.  i hadn't been
-> compiling with sound support (i dont care about sound
-> on my laptop), but when i got 2.4.2 i decided to try,
-> and now i'm pretty sure that was the problem.
+On Fri Feb 23 2001, Steven Walter wrote:
 
-The Yamaha sound driver doesnt handle the case where the bios fails to restore
-the chip status and expects a windows driver to do its dirty work. That
-requires on resume that the device is completely reloaded.
+> After upgrading to 2.4.2, gcd or any audio CD player will work.  The
+> attached chunk of dmesg is the messages produced by attempting to play
+> them.  The player just loops through all tracks, playing nothing.
 
-A workaround is to make it a module, unload it before suspend and reload it
-after resume but thats pretty umm uggly.
+Here, xmcd and cda both work perfectly.
+
+Linux elfie 2.4.2 #1 Thu Feb 22 10:52:17 CET 2001 i586 unknown
+Kernel modules         2.4.2
+Gnu C                  2.95.2
+Gnu Make               3.79
+Binutils               2.10.91.0.2
+Linux C Library        2.2.2
+Dynamic linker         ldd (GNU libc) 2.2.2
+Linux C++ Library      2.9.0
+Procps                 2.0.2
+Mount                  2.10r
+Net-tools              1.46
+Kbd                    0.96
+Sh-utils               1.12
+Modules Loaded         serial
+
+-- 
+# Heinz Diehl, 68259 Mannheim, Germany

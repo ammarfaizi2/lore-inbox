@@ -1,56 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266851AbUHISdZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266849AbUHISd0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266851AbUHISdZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 14:33:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266849AbUHISaz
+	id S266849AbUHISd0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 14:33:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266837AbUHISad
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 14:30:55 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:46780 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S266845AbUHIS3U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 14:29:20 -0400
-From: "R. J. Wysocki" <rjwysocki@sisk.pl>
-Organization: SiSK
-To: Paul Jackson <pj@sgi.com>
-Subject: 2.6.8-rc3: vfat problem [was: Re: [Problem] 2.6.8-rc3: usb-storage devices are read-only (NOT related to iocharset)]
-Date: Mon, 9 Aug 2004 20:39:12 +0200
-User-Agent: KMail/1.5
+	Mon, 9 Aug 2004 14:30:33 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:36532 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S266849AbUHIS32 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 14:29:28 -0400
+Date: Mon, 9 Aug 2004 20:29:21 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Josh Radel <jraidman-linux@yahoo.com>
 Cc: linux-kernel@vger.kernel.org
-References: <200408082157.35469.rjwysocki@sisk.pl> <200408082208.02328.rjwysocki@sisk.pl> <20040809060359.5be7c11f.pj@sgi.com>
-In-Reply-To: <20040809060359.5be7c11f.pj@sgi.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+Subject: Re: elevator abstraction, anticipatory I/O backported to 2.4?
+Message-ID: <20040809182921.GA28302@suse.de>
+References: <20040807000316.85612.qmail@web81706.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200408092039.12606.rjwysocki@sisk.pl>
+In-Reply-To: <20040807000316.85612.qmail@web81706.mail.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 09 of August 2004 15:03, Paul Jackson wrote:
-> I've been mounting my vfat /boot/efi elilo (this is on an SN2, which
-> uses ia64 boot conventions) boot partition read-write by doing:
->
-> 	mount -o remount,rw /boot/efi
->
-> after it comes up mounted read-only.  Does that help?  This is on
-> 2.6.8-rc2-mm2.
+On Fri, Aug 06 2004, Josh Radel wrote:
+> Are there any existing patches for a backport of the
+> 2.6 elevator abstraction (or a specific patch for
+> anticipatory I/O) to 2.4 kernels?
 
-Yes, it does, but you have to be root to do this (ie overkill).  However, it 
-turns out that the "first" mount works if you specify both codepage and 
-iocharset at the same time even if they do not fit each to other (eg cp437 
-and iso8859-2).  It looks like a bug to me.
-
-Thanks,
-RJW
-
-PS
-BTW, I think the mount should be reported as "ro" if it's not _really_ "rw".
+It would be hard to do. In fact it can't be done without hacking the
+drivers to use it as well. So it might be doable just for fun, but not
+as something maintainable.
 
 -- 
-Rafael J. Wysocki
-[tel. (+48) 605 053 693]
-----------------------------
-For a successful technology, reality must take precedence over public 
-relations, for nature cannot be fooled.
-					-- Richard P. Feynman
+Jens Axboe
+

@@ -1,36 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265154AbSLXP4A>; Tue, 24 Dec 2002 10:56:00 -0500
+	id <S264962AbSLXPxL>; Tue, 24 Dec 2002 10:53:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265236AbSLXP4A>; Tue, 24 Dec 2002 10:56:00 -0500
-Received: from pointblue.com.pl ([62.121.131.135]:2063 "EHLO pointblue.com.pl")
-	by vger.kernel.org with ESMTP id <S265154AbSLXPz7>;
-	Tue, 24 Dec 2002 10:55:59 -0500
-Subject: oups in 2.4.20
-From: Grzegorz Jaskiewicz <gj@pointblue.com.pl>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
+	id <S265012AbSLXPxL>; Tue, 24 Dec 2002 10:53:11 -0500
+Received: from aslan.scsiguy.com ([63.229.232.106]:34316 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S264962AbSLXPxK>; Tue, 24 Dec 2002 10:53:10 -0500
+Date: Tue, 24 Dec 2002 08:59:37 -0700
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: venom@sns.it, linux-kernel@vger.kernel.org
+Subject: Re: aicasm: SIG 11 with 2.5.53 (new aic7xxx driver problem)
+Message-ID: <2154615408.1040745577@aslan.scsiguy.com>
+In-Reply-To: <Pine.LNX.4.43.0212241237480.30482-100000@cibs9.sns.it>
+References: <Pine.LNX.4.43.0212241237480.30482-100000@cibs9.sns.it>
+X-Mailer: Mulberry/3.0.0b9 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8-3mdk 
-Date: 24 Dec 2002 17:04:04 +0100
-Message-Id: <1040745846.2240.5.camel@bobo.chello.pl>
-Mime-Version: 1.0
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've encountered unrecovable "oups" in 2.4.20,  but i haven't found any
-patch to 2.4.20 that will allow me to save this message on floppy. 
-Is there any ? Maybe somebody can help me to save those messages.
+> HI,
+> I was compiling new kernel 2.5.53.
+> If "build adaptec formware" option is enabled, (I know I should avoid it,
+> but it is a development kernel, and I am doing tests ;) ),
+> compiling aic7xxx driver,
+> compilation fails because
+> of a segmentation fault I get running aicasm.
 
-I can tell more about this bug. I've got pIII 1.3 ghz on i815
-intelboard.
-One disk and CD-W54E cdrw teac drive. Kernel was compiled with gcc
-3.2.1. Distro is a mandrake 9.
-I've got oups on any access to this cdrom drive, with or without
-ide-scsi module. The same error is present in 2.4.21-pre2.
+Can you try the driver from here?  There was a syntax error in the
+assembler's grammer that might have caused this problem:
 
- 
--- 
-	   	Grzegorz Jaskiewicz 
-	   C/C++/PERL/PHP/SQL programmer
+http://people.FreeBSD.org/~gibbs/linux/SRC/
+
+--
+Justin
 

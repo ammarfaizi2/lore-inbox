@@ -1,56 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262956AbUEPD64@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261712AbUEPESZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262956AbUEPD64 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 May 2004 23:58:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262960AbUEPD64
+	id S261712AbUEPESZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 May 2004 00:18:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262322AbUEPESZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 May 2004 23:58:56 -0400
-Received: from fw.osdl.org ([65.172.181.6]:50098 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262956AbUEPD6z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 May 2004 23:58:55 -0400
-Date: Sat, 15 May 2004 20:58:49 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-cc: Steven Cole <elenstev@mesatop.com>, adi@bitmover.com, scole@lanl.gov,
-       support@bitmover.com, linux-kernel@vger.kernel.org
-Subject: Re: 1352 NUL bytes at the end of a page? (was Re: Assertion `s &&
- s->tree' failed: The saga continues.)
-In-Reply-To: <20040515202054.32bf06d5.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0405152050350.10718@ppc970.osdl.org>
-References: <200405132232.01484.elenstev@mesatop.com>
- <5.1.0.14.2.20040515130250.00b84ff8@171.71.163.14> <20040514204153.0d747933.akpm@osdl.org>
- <200405151923.41353.elenstev@mesatop.com> <20040515202054.32bf06d5.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 16 May 2004 00:18:25 -0400
+Received: from hierophant.serpentine.com ([66.92.13.71]:59815 "EHLO
+	pelerin.serpentine.com") by vger.kernel.org with ESMTP
+	id S261712AbUEPESX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 May 2004 00:18:23 -0400
+Subject: Re: [PATCH][3/7] perfctr-2.7.2 for 2.6.6-mm2: x86_64
+From: "Bryan O'Sullivan" <bos@serpentine.com>
+To: Andi Kleen <ak@muc.de>
+Cc: Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org
+In-Reply-To: <20040515090911.GA21406@colin2.muc.de>
+References: <1VLRr-38z-19@gated-at.bofh.it>
+	 <m3oeorvy58.fsf@averell.firstfloor.org>
+	 <1084599456.4895.103.camel@obsidian.pathscale.com>
+	 <20040515090911.GA21406@colin2.muc.de>
+Content-Type: text/plain
+Message-Id: <1084680953.11976.27.camel@camp4.serpentine.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Sat, 15 May 2004 21:15:54 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 2004-05-15 at 02:09, Andi Kleen wrote:
 
-
-On Sat, 15 May 2004, Andrew Morton wrote:
+> > That's currently handled in user space, by PAPI (which sits on top of
+> > perfctr).  One reason *not* to do it in the kernel is the bloat it would
 > 
-> Two hours so far here.
-> 
-> bix:/usr/src> ~/clone.sh 
-> 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 
-> 
-> That's 2.6.6-mm2+, 2GB 4-way x86.
+> That's clearly the wrong place to do it.
 
-I think Steven's machine (according to an earlier 'dmesg') has something 
-like 384MB of RAM and just one PIII-450 CPU.
+I can see both sides.  The perfctr driver already sanity-checks the
+event selectors to make sure they're not set to anything malicious; this
+is the very least it must do.
 
-With that setup, he's likely getting a lot of IO (and possibly even
-swapping). The BK disk working set for the kernel archive is something
-like half a gig per tree, I think.
+The next step up from that is allocating real performance counters
+properly, but this requires quite a bit of work.  For example, you need
+to know what the asymmetries in a particular CPU's counters are, so you
+can tell which counter can handle the events being requested - this
+varies from perfectly symmetrical (K7 and K8) through slightly odd (P3
+and PM) to completely insane (P4).
 
-In contrast, your nicer machine will do the whole stress-test basically
-totally cached (well, BK will force writeback with fsync, but it will all
-be pretty synchronous with nothing else going on).
+After that, perhaps you start thinking about abstracting the notions of
+what you're counting.  Different CPUs provide radically different ways
+of counting roughly the same thing.  The event selectors for counting
+instructions retired differ between AMD and P3, and between P3 and P4,
+but they can all count this kind of event.  More primitive CPUs can't.
 
-So if it's IO-related or happens when swapping...
+Beyond that, it is possible - and in some cases desirable - to, for
+example, time-slice the real performance counters so that you could get
+a somewhat representative sample of everything you wanted, assuming the
+CPU could count it in the first place.  The Irix kernel does this.
 
-But again, neither of those should usually cause that kind of strange 
-partial-page corruption. 
+Where would you draw the line?
 
-		Linus
+Oh, I forgot to mention IA64 and SPARC64's incompatible performance
+counter APIs :-)
+
+> There is no way around that - there are kernel users (like the
+> nmi watchdog or oprofile) and kernel users cannot be made dependent 
+> on user space modules.
+
+There's no kernel-to-user dependency.
+
+	<b
+

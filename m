@@ -1,77 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262827AbVCDLLZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262839AbVCDLL2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262827AbVCDLLZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 06:11:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262802AbVCDLE5
+	id S262839AbVCDLL2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 06:11:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262769AbVCDLFz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 06:04:57 -0500
-Received: from cncln.online.ln.cn ([218.24.136.48]:32629 "EHLO gcrj.com")
-	by vger.kernel.org with ESMTP id S262769AbVCDLCz (ORCPT
+	Fri, 4 Mar 2005 06:05:55 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:39868 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262785AbVCDLE0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 06:02:55 -0500
-From: "zwx" <zwx@gcrj.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: RE: 2.6.11-rc5-mm1 
-Date: Fri, 4 Mar 2005 19:01:46 +0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1478
-Thread-Index: AcUgF8kXewM8uYDHQUuYtVPbN0caQAAkb8NA
-In-Reply-To: <200503031925.j23JPDDS004025@ccure.user-mode-linux.org>
-Message-Id: <200503041858970.SM01164@zwx2c>
+	Fri, 4 Mar 2005 06:04:26 -0500
+Date: Fri, 4 Mar 2005 12:04:08 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Andi Kleen <ak@suse.de>, kernel list <linux-kernel@vger.kernel.org>,
+       paul.devriendt@amd.com
+Subject: Re: BIOS overwritten during resume (was: Re: Asus L5D resume on battery power)
+Message-ID: <20050304110408.GL1345@elf.ucw.cz>
+References: <200502252237.04110.rjw@sisk.pl> <200503030047.43625.rjw@sisk.pl> <20050302235456.GB1439@elf.ucw.cz> <200503030902.48038.rjw@sisk.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200503030902.48038.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ok
+Hi!
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Jeff Dike
-Sent: Friday, March 04, 2005 3:25 AM
-To: Chris Wright
-Cc: Jeff Dike; Andrew Morton; linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc5-mm1 
+> > IIRC kernel code/data is marked as PageReserved(), that's why we need
+> > to save that :(. Not sure what to do with data e820 marked as
+> > reserved...
+> 
+> Perhaps we need another page flag, like PG_readonly, and mark the pages
+> reserved by the e820 as PG_reserved | PG_readonly (the same for the areas
+> that are not returned by e820 at all).  Would that be acceptable?
 
-chrisw@osdl.org said:
-> Thanks, I'll push that with rest of audit changes.
+This flags are little in the short supply, but being able to tell
+kernel code from memory hole seems like "must have", so yes, that
+looks ok.
 
-Applies on top of your changes.
-
-Signed-off-by: Jeff Dike <jdike@addtoit.com>
-
-Index: linux-2.6.10/arch/um/kernel/ptrace.c
-===================================================================
---- linux-2.6.10.orig/arch/um/kernel/ptrace.c	2005-03-03
-11:41:34.000000000 -0500
-+++ linux-2.6.10/arch/um/kernel/ptrace.c	2005-03-03
-11:42:41.000000000 -0500
-@@ -341,11 +341,15 @@
- 
- 	if (unlikely(current->audit_context)) {
- 		if (!entryexit)
--			audit_syscall_entry(current, regs->orig_eax,
--					    regs->ebx, regs->ecx,
--					    regs->edx, regs->esi);
-+			audit_syscall_entry(current, 
-+					    UPT_SYSCALL_NR(&regs->regs),
-+					    UPT_SYSCALL_ARG1(&regs->regs),
-+					    UPT_SYSCALL_ARG2(&regs->regs),
-+					    UPT_SYSCALL_ARG3(&regs->regs),
-+					    UPT_SYSCALL_ARG4(&regs->regs));
- 		else
--			audit_syscall_exit(current, regs->eax);
-+			audit_syscall_exit(current, 
-+					   UPT_SYSCALL_RET(&regs->regs));
- 	}
- 
- 	/* Fake a debug trap */
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
+You could get subtle and reuse some other pageflag. I do not think
+PG_reserved can have PG_locked... So using for example PG_locked for
+this purpose should be okay.
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

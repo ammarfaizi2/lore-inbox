@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265910AbUAMXK4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 18:10:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266263AbUAMXK4
+	id S266180AbUAMXDI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 18:03:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266224AbUAMXDI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 18:10:56 -0500
-Received: from delerium.codemonkey.org.uk ([81.187.208.145]:56533 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S265910AbUAMXKt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 18:10:49 -0500
-Date: Tue, 13 Jan 2004 23:09:04 +0000
-From: Dave Jones <davej@redhat.com>
-To: Jens David <dg1kjd@afthd.tu-darmstadt.de>
-Cc: hpa@zytor.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] powernow-k7 settling time
-Message-ID: <20040113230904.GN14674@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Jens David <dg1kjd@afthd.tu-darmstadt.de>, hpa@zytor.com,
-	linux-kernel@vger.kernel.org
-References: <200401132239.i0DMddeK027814@mailserver2.hrz.tu-darmstadt.de>
+	Tue, 13 Jan 2004 18:03:08 -0500
+Received: from mail.ccur.com ([208.248.32.212]:36876 "EHLO exchange.ccur.com")
+	by vger.kernel.org with ESMTP id S266180AbUAMXCr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jan 2004 18:02:47 -0500
+Date: Tue, 13 Jan 2004 18:02:20 -0500
+From: Joe Korty <joe.korty@ccur.com>
+To: rml@ximian.com, mingo@elte.hu
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] rq->curr==p not equivalent to task_running(rq,p)
+Message-ID: <20040113230220.GA13341@tsunami.ccur.com>
+Reply-To: joe.korty@ccur.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200401132239.i0DMddeK027814@mailserver2.hrz.tu-darmstadt.de>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 13, 2004 at 11:39:39PM +0100, Jens David wrote:
+task_running(rq,p) is equivalent to (rq->curr == p) only for some
+architectures.  Boot tested on i386.
 
- > Patch against linux-2.4.24-0pre2.1mdk from current Mandrake Cooker.
- > Should apply cleanly to powernow-patched vanilla-2.4.x as well. Probably
- > relevant for Linux-2.6, too.
+Regards,
+Joe
 
-2.6 fixed this a few months back, in a different way.
-(The code misinterpreted the spec back then, so we were doing
- all sorts of sillyness).
-
-If Mandrake are still running the old version of the driver in their
-update kernel, you might want to bug them about it, as there have been
-numerous updates since then fixing lots of bugs.
-
-		Dave
-
+diff -Nua 2.6/kernel/sched.c.0 2.6/kernel/sched.c
+--- 2.6/kernel/sched.c.0	2004-01-13 17:53:34.000000000 -0500
++++ 2.6/kernel/sched.c	2004-01-13 17:47:33.000000000 -0500
+@@ -2062,7 +2062,7 @@
+ 		 * our priority decreased, or if we are not currently running on
+ 		 * this runqueue and our priority is higher than the current's
+ 		 */
+-		if (rq->curr == p) {
++		if (task_running(rq, p)) {
+ 			if (p->prio > oldprio)
+ 				resched_task(rq->curr);
+ 		} else if (p->prio < rq->curr->prio)

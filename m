@@ -1,44 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261661AbVCCNlu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261675AbVCCNoZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261661AbVCCNlu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 08:41:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261671AbVCCNlu
+	id S261675AbVCCNoZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 08:44:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261669AbVCCNoZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 08:41:50 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:53431 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S261661AbVCCNkR (ORCPT
+	Thu, 3 Mar 2005 08:44:25 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:13492 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261676AbVCCNmf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 08:40:17 -0500
-Date: Thu, 3 Mar 2005 14:40:12 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: linux-kernel@vger.kernel.org
-Subject: pci_find_class obsolete
-Message-ID: <Pine.LNX.4.61.0503031436490.22266@yvahk01.tjqt.qr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 3 Mar 2005 08:42:35 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20050302143934.30d191d7.akpm@osdl.org> 
+References: <20050302143934.30d191d7.akpm@osdl.org>  <20050302090734.5a9895a3.akpm@osdl.org> <9420.1109778627@redhat.com> <31789.1109799287@redhat.com> <20050302135146.2248c7e5.akpm@osdl.org> <Pine.LNX.4.58.0503021423420.25732@ppc970.osdl.org> 
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, davidm@snapgear.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] BDI: Provide backing device capability information 
+X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 21.3.50.1
+Date: Thu, 03 Mar 2005 13:42:10 +0000
+Message-ID: <13844.1109857330@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello list,
+Andrew Morton <akpm@osdl.org> wrote:
 
+> Yup.  In this application the fields are initialised once (usually at
+> compile time) and are never modified.
 
-after switching to 2.6.11-rc5-bk2 (from 2.6.9-rc2), I found that the nvidia 
-module (1.0-4996, old, I know) does not compile anymore, because it
-requires pci_find_class():
+That's not exactly so. The block layer appears to modify them. See
+blk_queue_make_request() in ll_rw_blk.c.
 
-nv.c:
-static int
-nvos_probe_devices(void)
-{
-    ...
-    struct pci_dev *dev;
-    ...
-    dev = pci_find_class(PCI_CLASS_DISPLAY_VGA << 8, dev);
-    ...
-}
-
-What function would I need to use, now that pci_find_class is gone?
-
-
-Jan Engelhardt
--- 
+David

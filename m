@@ -1,37 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315455AbSG1JOD>; Sun, 28 Jul 2002 05:14:03 -0400
+	id <S315458AbSG1JRh>; Sun, 28 Jul 2002 05:17:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315458AbSG1JOD>; Sun, 28 Jul 2002 05:14:03 -0400
-Received: from mta01bw.bigpond.com ([139.134.6.78]:62450 "EHLO
-	mta01bw.bigpond.com") by vger.kernel.org with ESMTP
-	id <S315455AbSG1JOD>; Sun, 28 Jul 2002 05:14:03 -0400
-From: Brad Hards <bhards@bigpond.net.au>
-To: Russell King <rmk@arm.linux.org.uk>
-Subject: Re: [cset] Add the EVIOCSABS ioctl for X people.
-Date: Sun, 28 Jul 2002 19:12:47 +1000
-User-Agent: KMail/1.4.5
-Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org,
-       linuxconsole-dev@lists.sourceforge.net
-References: <20020725083716.A20717@ucw.cz> <200207281829.02627.bhards@bigpond.net.au> <20020728095129.B12389@flint.arm.linux.org.uk>
-In-Reply-To: <20020728095129.B12389@flint.arm.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-Message-Id: <200207281912.47948.bhards@bigpond.net.au>
+	id <S315463AbSG1JRh>; Sun, 28 Jul 2002 05:17:37 -0400
+Received: from dns1.arrancar.com ([209.92.187.33]:25493 "EHLO
+	core.arrancar.com") by vger.kernel.org with ESMTP
+	id <S315458AbSG1JRg>; Sun, 28 Jul 2002 05:17:36 -0400
+Subject: Re: Funding GPL projects or funding the GPL?
+From: Federico Ferreres <fferreres@ojf.com>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Daniel Mose <imcol@unicyclist.com>, Larry McVoy <lm@work.bitmover.com>,
+       Rik van Riel <riel@conectiva.com.br>, Larry McVoy <lm@bitmover.com>,
+       linux-kernel@vger.kernel.org, openpatentfunds@home.se
+In-Reply-To: <Pine.GSO.4.21.0207280102160.27010-100000@weyl.math.psu.edu>
+References: <Pine.GSO.4.21.0207280102160.27010-100000@weyl.math.psu.edu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 28 Jul 2002 06:16:57 -0300
+Message-Id: <1027847824.3829.49.camel@fede>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 28 Jul 2002 18:51, Russell King wrote:
-> On Sun, Jul 28, 2002 at 06:29:02PM +1000, Brad Hards wrote:
-> > master.kernel.org:/home/torvalds/BK/tools apparently has some
-> > scripts - I don't have access.
->
-> http://gkernel.bkbits.net/BK-kernel-tools
-404s for me - seems to need a :8080 in there.
+I stated a simple idea aimed at solving a real world issue. And you
+haven't proved it wrong. It may not be what you or the kernel hackers
+need/want (which is FINE). But it would solve ALL the funding problems
+at least.
 
-http://gkernel.bkbits.net:8080/BK-kernel-tools/src?nav=index.html
+The name calling is ok, but only if it makes you feel smarter or
+superior.
 
--- 
-http://conf.linux.org.au. 22-25Jan2003. Perth, Australia. Birds in Black.
+Regards,
+
+Federico
+
+
+On Sun, 2002-07-28 at 02:21, Alexander Viro wrote:
+> 
+> 
+> On Sun, 28 Jul 2002, Daniel Mose wrote:
+> 
+> > Hi to u all!
+> > 
+> > It's funny how some things seem to pop in to peoples minds 
+> > almost simultainously. I believe some people call this 
+> > phenomenon "A collective consciousness" I've had some 
+> > open source funding Ideas spinning in my head since the 
+> > beginning of May. My Ideas differ from Fredricos in some 
+> > crucial ways. But I believe that they might be connectable.
+> > in a way that will form a nice symbiosis.
+> 
+> .. and leverage the synergy.  Or something.
+> 
+> [more spew snipped]
+> 
+> Larry, do you really like the company?  Slashdorks and pretentious
+> self-important wankers speaking PHBese... YMMV, but IMO "prose" above
+> is every bit as disgusting as usual GPL advocacy.  Same depth of
+> thought and amount of clue behind it, same lack of taste...
+> 
+
+

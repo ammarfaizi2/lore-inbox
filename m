@@ -1,60 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265325AbTFUU35 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jun 2003 16:29:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265326AbTFUU34
+	id S265330AbTFUUjw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jun 2003 16:39:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265337AbTFUUjw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jun 2003 16:29:56 -0400
-Received: from moraine.clusterfs.com ([216.138.243.178]:61378 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S265325AbTFUU3z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jun 2003 16:29:55 -0400
-Date: Sat, 21 Jun 2003 14:46:15 -0600
-From: Peter Braam <braam@clusterfs.com>
+	Sat, 21 Jun 2003 16:39:52 -0400
+Received: from AMontsouris-108-2-4-77.w193-252.abo.wanadoo.fr ([193.252.199.77]:14258
+	"EHLO smtp.all-3rd.net") by vger.kernel.org with ESMTP
+	id S265330AbTFUUju (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jun 2003 16:39:50 -0400
+From: Julien LEMOINE <speedblue@happycoders.org>
+Reply-To: Julien LEMOINE <speedblue@happycoders.orgg>
 To: linux-kernel@vger.kernel.org
-Subject: 2.5.72 as VMware guest doesn't boot
-Message-ID: <20030621204615.GA32341@peter.cfs>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: [2.4.21] SYM53C8XX on alpha system
+Date: Sat, 21 Jun 2003 22:53:49 +0200
+User-Agent: KMail/1.5.2
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Message-Id: <200306212253.49591.speedblue@happycoders.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, 
+Hi,
 
-I'm trying to boot a 2.5.72 guest in VMware workstation 3.2. 
+	I have an scsi U160 card with 53c1010 chipset (tekram DC-390U3W) on an Alpha 
+PCA56 (Digital AlphaPC 164SX 533 MHz). The card is correctly detected, but 
+all U160 HD are detected as FAST-10 SCSI instead of U160. I am using 
+"SYM53C8XX Version 2" driver, and I tryed every parameters documented in 
+sym53c8xx_2/Documentation.txt.
 
-It uncompresess the kernel, says it is booting linux, and that's the
-end of the console messages.  
+Thanks.
 
-I have the feeling that I have possibly grossly misconfigured the
-kernel. Does someone have a working .config file?
+******** dmesg ********
+PCI: dev LSI Logic / Symbios Logic (formerly NCR) 53c1010 Ultra3 SCSI Adapter 
+type 64-bit
+PCI: dev LSI Logic / Symbios Logic (formerly NCR) 53c1010 Ultra3 SCSI Adapter 
+(#2) type 64-bit
+PCI: dev LSI Logic / Symbios Logic (formerly NCR) 53c1010 Ultra3 SCSI Adapter 
+type 64-bit
+PCI: dev LSI Logic / Symbios Logic (formerly NCR) 53c1010 Ultra3 SCSI Adapter 
+(#2) type 64-bit
+SMC37c669 Super I/O Controller found @ 0x3f0
+[...]
+SCSI subsystem driver Revision: 1.00
+sym.0.7.0: setting PCI_COMMAND_PARITY...
+sym.0.7.0: setting PCI_COMMAND_INVALIDATE.
+sym.0.7.1: setting PCI_COMMAND_PARITY...
+sym.0.7.1: setting PCI_COMMAND_INVALIDATE.
+sym0: <1010-33> rev 0x1 on pci bus 0 device 7 function 0 irq 26
+sym0: Symbios NVRAM, ID 7, Fast-80, LVD, parity checking
+sym0: open drain IRQ line driver, using on-chip SRAM
+sym0: using LOAD/STORE-based firmware.
+sym0: handling phase mismatch from SCRIPTS.
+sym0: SCSI BUS has been reset.
+sym1: <1010-33> rev 0x1 on pci bus 0 device 7 function 1 irq 26
+sym1: Symbios NVRAM, ID 7, Fast-80, SE, parity checking
+sym1: open drain IRQ line driver, using on-chip SRAM
+sym1: using LOAD/STORE-based firmware.
+sym1: handling phase mismatch from SCRIPTS.
+sym1: SCSI BUS has been reset.
+scsi0 : sym-2.1.17a
+scsi1 : sym-2.1.17a
+blk: queue fffffc000026a8f0, no I/O memory limit
+  Vendor: COMPAQ    Model: BD009735C6        Rev: B021
+  Type:   Direct-Access                      ANSI SCSI revision: 02
+blk: queue fffffc000026aaf0, no I/O memory limit
+  Vendor: COMPAQ    Model: BD009735C6        Rev: B021
+  Type:   Direct-Access                      ANSI SCSI revision: 02
+blk: queue fffffc000026acf0, no I/O memory limit
+  Vendor: COMPAQ    Model: BD009735C6        Rev: B021
+  Type:   Direct-Access                      ANSI SCSI revision: 02
+blk: queue fffffc000026aef0, no I/O memory limit
+sym0:0:0: tagged command queuing enabled, command queue depth 16.
+sym0:2:0: tagged command queuing enabled, command queue depth 16.
+sym0:4:0: tagged command queuing enabled, command queue depth 16.
+Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
+Attached scsi disk sdb at scsi0, channel 0, id 2, lun 0
+Attached scsi disk sdc at scsi0, channel 0, id 4, lun 0
+sym0:0: FAST-10 SCSI 10.0 MB/s ST (100.0 ns, offset 31)
+sda: Spinning up disk.............ready
+SCSI device sda: 17773524 512-byte hdwr sectors (9100 MB)
+ sda: sda1 sda2 sda3
+sym0:2: FAST-10 SCSI 10.0 MB/s ST (100.0 ns, offset 31)
+sdb: Spinning up disk.............ready
+SCSI device sdb: 17773524 512-byte hdwr sectors (9100 MB)
+ sdb: sdb1
+sym0:4: FAST-10 SCSI 10.0 MB/s ST (100.0 ns, offset 31)
+sdc: Spinning up disk.............ready
+SCSI device sdc: 17773524 512-byte hdwr sectors (9100 MB)
+ sdc: sdc1
 
-Just in case it's something more interesting, kgdb (which hasn't hit
-it's initial breakpoint yet) shows:
+-- 
+Julien LEMOINE / SpeedBlue
 
-(gdb) target remote /dev/ttys0
-Remote debugging using /dev/ttys0
-0x3c0a2965 in ?? ()
-warning: shared library handler failed to enable breakpoint
-(gdb) bt
-#0  0x3c0a2965 in ?? ()
-#1  0xc010c2fa in do_IRQ (regs=
-      {ebx = 67598, ecx = 0, edx = 20831, esi = 636928, edi = -1072672768,
-= -1070014472, eax = -1054257152, xds = 123, xes = 123, orig_eax = -256,
-= -1070013788, xcs = 96, eflags = 646, esp = -1070012999, xss =
-0481085})
-    at arch/i386/kernel/irq.c:503
-#2  0xc010ac70 in common_interrupt () at arch/i386/kernel/entry.S:426
-(gdb) c
-Continuing.
-Can't send signals to this remote system.  SIGEMT not sent.
-                                                                           
-Program received signal SIGEMT, Emulation trap.
-0x3c0a2965 in ?? ()
-(gdb)
-
-Thanks for any help.
-
-- Peter -

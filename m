@@ -1,65 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263045AbVBCO3b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262959AbVBCOi6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263045AbVBCO3b (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 09:29:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263036AbVBCO3a
+	id S262959AbVBCOi6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 09:38:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263336AbVBCOaU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 09:29:30 -0500
-Received: from gprs214-99.eurotel.cz ([160.218.214.99]:22241 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S263146AbVBCOWb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 09:22:31 -0500
-Date: Thu, 3 Feb 2005 15:22:03 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Dominik Brodowski <linux@dominikbrodowski.de>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Dave Jones <davej@codemonkey.org.uk>
-Subject: Re: cpufreq problem wrt suspend/resume on Athlon64
-Message-ID: <20050203142203.GB1402@elf.ucw.cz>
-References: <200502021428.12134.rjw@sisk.pl> <200502031230.20302.rjw@sisk.pl> <20050203124006.GA18142@isilmar.linta.de> <200502031420.37560.rjw@sisk.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200502031420.37560.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+	Thu, 3 Feb 2005 09:30:20 -0500
+Received: from gizmo03bw.bigpond.com ([144.140.70.13]:3726 "HELO
+	gizmo03bw.bigpond.com") by vger.kernel.org with SMTP
+	id S263291AbVBCOU4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 09:20:56 -0500
+From: pageexec@freemail.hu
+To: Ingo Molnar <mingo@elte.hu>
+Date: Fri, 04 Feb 2005 00:20:43 +1000
+MIME-Version: 1.0
+Subject: Re: Sabotaged PaXtest (was: Re: Patch 4/6  randomize the stack pointer)
+Reply-to: pageexec@freemail.hu
+CC: linux-kernel@vger.kernel.org, Arjan van de Ven <arjanv@redhat.com>,
+       "Theodore Ts'o" <tytso@mit.edu>
+Message-ID: <4202BFDB.24670.67046BC@localhost>
+In-reply-to: <20050203094410.GB1065@elte.hu>
+References: <4201DBE7.30569.2F5D446@localhost>
+X-mailer: Pegasus Mail for Windows (4.21c)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > So, would it be acceptable to check in _suspend() if the state is S4
-> > > and drop the frequency in that case or do nothing otherwise?
-> > 
-> > No. The point is that this is _very_ system-specific. Some systems resume
-> > always at full speed, some always at low speed; for S4 the behaviour may be
-> > completely unpredictable. And in fact I wouldn't want my desktop P4 drop th
-> > 12.5 % frequency if I ask it to suspend to disk, too. "Ignoring" the warning
-> > seems to be the best thing to me. The good thing is, after all, that cpufreq
-> > detected this situation and tries to correct for it.
+> > dl_make_stack_executable() will nicely return into user_input
+> > (at which time the stack has already become executable).
 > 
-> Well, the warning is not a big problem, as far as I'm concerned.  The problem is
-> that the box often reboots when it's woken up on batteries and this certainly
-> is related to cpufreq (ie it does not happen if cpufreq is not compiled in).
-> 
-> Pavel has suggested that it may happen when the frequency of
-> the CPU is too high on resume, so I'm trying to verify if this is the case.  If so,
-> which I'm not entirely convinced about yet, I'll be going to provide a fix
-> for it, but I wouldn't like to do anything that's not acceptable from the
-> start.
+> wrong, _dl_make_stack_executable() will not return into user_input() in
+> your scenario, and your exploit will be aborted. Check the glibc sources
+> and the implementation of _dl_make_stack_executable() in particular. 
 
-Well, try to force your machine to 2GHz while it is on battery. If it
-crashes, you have verified it is indeed the problem. [Insert standard
-disclaimer about exploding batteries here.]
+oh, you mean the invincible __check_caller(). one possibility:
 
-> I'm currently thinking that the proper approach may be to add a ->suspend()
-> routine to struct cpufreq_driver and call the driver-specific ->suspend()
-> (if one is defined) from cpufreq_suspend().  Then, it'll be possible to do
-> whatever-is-necessary on a per-driver basis.  Just a thought. :-)
+[...]
+[field1 and other locals replaced with shellcode]
+[value of __libc_stack_end]
+[some space for the local variables of dl_make_stack_executable and others]
+[saved EBP replaced with anything in this case]
+[saved EIP replaced with address of a 'pop eax'/'retn' sequence]
+[address of [value of __libc_stack_end], loads into eax]
+[address of dl_make_stack_executable()]
+[address of a suitable 'retn' insn in ld.so/libpthread.so]
+[user_input left in place, i.e., overflows end before this]
+[...]
 
-Yes, that seems like right solution.
-									Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+this payload needs two overflows to construct the two 0 bytes needed
+(a memcpy based one would easily get away with one of course) and an
+extra condition in that in order to load eax we need to find an
+addressable (executable memory outside the ascii armor, this may
+very well include some library/main executable .data/.bss as well
+under Exec-Shield) 2 byte sequence that encodes pop eax/retn or
+popad/retn (for the latter the stack has to be filled appropriately
+with more data of course). other sequences could do the job as well,
+these two are just the trivial ones that come to mind and i found
+in some binaries i checked quickly (my sshd also has a sequence of
+pop eax/pop ebx/pop esi/pop edi/pop ebp/retn for example, suitable
+as well). the question of whether you can get away with one overflow
+(strcpy() or similar based) is open, i don't quite have the time to
+hunt down all the nice insn sequences that can help loading registers
+with proper content and execute dl_make_stack_executable() or a
+suitable part of it. at least there's no explicit mechanism in this
+system that would prevent it in a guaranteed way.
+

@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265253AbSJRRD7>; Fri, 18 Oct 2002 13:03:59 -0400
+	id <S265328AbSJRRJg>; Fri, 18 Oct 2002 13:09:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265252AbSJRRDh>; Fri, 18 Oct 2002 13:03:37 -0400
-Received: from gateway.cinet.co.jp ([210.166.75.129]:37137 "EHLO
+	id <S265296AbSJRRJV>; Fri, 18 Oct 2002 13:09:21 -0400
+Received: from gateway.cinet.co.jp ([210.166.75.129]:43793 "EHLO
 	precia.cinet.co.jp") by vger.kernel.org with ESMTP
-	id <S265253AbSJRQv0>; Fri, 18 Oct 2002 12:51:26 -0400
-Date: Sat, 19 Oct 2002 01:56:32 +0900
+	id <S265269AbSJRQvp>; Fri, 18 Oct 2002 12:51:45 -0400
+Date: Sat, 19 Oct 2002 01:56:50 +0900
 From: Osamu Tomita <tomita@cinet.co.jp>
 To: LKML <linux-kernel@vger.kernel.org>
 Cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCHSET 9/25] add support for PC-9800 architecture (fs)
-Message-ID: <20021019015632.A1564@precia.cinet.co.jp>
+Subject: [PATCHSET 21/25] add support for PC-9800 architecture (SMP)
+Message-ID: <20021019015650.A1636@precia.cinet.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -19,594 +19,306 @@ User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is part 9/26 of patchset for add support NEC PC-9800 architecture,
+This is part 22/26 of patchset for add support NEC PC-9800 architecture,
 against 2.5.43.
 
 Summary:
- file system modules
-  - add support PC-9800 partition table.
-  - small hack for access FAT partition made by PC-9800 DOS.
+ SMP related modules.
+  - add PC-9800 bus spec.
 
 diffstat:
- fs/fat/inode.c          |    9 +
- fs/partitions/Config.in |    9 +
- fs/partitions/Makefile  |    2 
- fs/partitions/check.c   |    8 +
- fs/partitions/msdos.c   |   15 ++
- fs/partitions/nec98.c   |  265 ++++++++++++++++++++++++++++++++++++++++++++++++
- fs/partitions/nec98.h   |   10 +
- fs/partitions/x68000.c  |   94 +++++++++++++++++
- fs/partitions/x68000.h  |    6 +
- 9 files changed, 417 insertions(+), 1 deletion(-)
+ arch/i386/kernel/apic.c    |   16 +++++++++++++---
+ arch/i386/kernel/io_apic.c |   25 +++++++++++++++++++++++--
+ arch/i386/kernel/mpparse.c |   35 ++++++++++++++++++++++++++++++++++-
+ arch/i386/kernel/smpboot.c |   14 ++++++++++++++
+ include/asm-i386/mpspec.h  |    4 +++-
+ include/asm-i386/smpboot.h |    9 +++++++++
+ 6 files changed, 96 insertions(+), 7 deletions(-)
 
 patch:
-diff -urN linux/fs/fat/inode.c linux98/fs/fat/inode.c
---- linux/fs/fat/inode.c	Wed Oct 16 13:20:44 2002
-+++ linux98/fs/fat/inode.c	Wed Oct 16 15:01:51 2002
-@@ -10,6 +10,7 @@
-  *  	Max Cohan: Fixed invalid FSINFO offset when info_sector is 0
-  */
+diff -urN linux/arch/i386/kernel/apic.c linux98/arch/i386/kernel/apic.c
+--- linux/arch/i386/kernel/apic.c	Wed Oct 16 13:20:29 2002
++++ linux98/arch/i386/kernel/apic.c	Wed Oct 16 15:40:20 2002
+@@ -33,6 +33,8 @@
+ #include <asm/arch_hooks.h>
+ #include "mach_apic.h"
  
-+#include <linux/config.h>
- #include <linux/module.h>
- #include <linux/time.h>
- #include <linux/slab.h>
-@@ -979,7 +980,13 @@
- 		error = first;
- 		goto out_fail;
- 	}
--	if (FAT_FIRST_ENT(sb, media) != first) {
-+#ifndef CONFIG_PC9800
-+	if (FAT_FIRST_ENT(sb, media) != first)
-+#else
-+	if (FAT_FIRST_ENT(sb, media) != first
-+	    && (media != 0xf8 || (first & 0xff) != 0xfe))
-+#endif
-+	{
- 		if (!silent) {
- 			printk("FAT: invalid first entry of FAT "
- 			       "(0x%x != 0x%x)\n",
-diff -urN linux/fs/partitions/Config.in linux98/fs/partitions/Config.in
---- linux/fs/partitions/Config.in	Wed Jul 17 08:49:29 2002
-+++ linux98/fs/partitions/Config.in	Fri Jul 19 16:16:58 2002
-@@ -29,19 +29,28 @@
-    if [ "$CONFIG_LDM_PARTITION" = "y" ]; then
-       bool '    Windows LDM extra logging' CONFIG_LDM_DEBUG
-    fi
-+   bool '  NEC PC-9800 partition table support' CONFIG_NEC98_PARTITION
-+   if [ "$CONFIG_NEC98_PARTITION" = "y" ]; then
-+      bool '    BSD disklabel support for NEC PC-9800 type partitions' CONFIG_NEC98_BSD_DISKLABEL
-+   fi
-    bool '  SGI partition support' CONFIG_SGI_PARTITION
-    bool '  Ultrix partition table support' CONFIG_ULTRIX_PARTITION
-    bool '  Sun partition tables support' CONFIG_SUN_PARTITION
-    bool '  EFI GUID Partition support' CONFIG_EFI_PARTITION
-+   bool '  X680x0 partition table support' CONFIG_X68K_PARTITION
- else
-    if [ "$CONFIG_ALPHA" = "y" ]; then
-       define_bool CONFIG_OSF_PARTITION y
-    fi
-+   if [ "$CONFIG_PC9800" = "y" ]; then
-+      define_bool CONFIG_NEC98_PARTITION y
-+   else
-    if [ "$CONFIG_AMIGA" != "y" -a "$CONFIG_ATARI" != "y" -a \
-         "$CONFIG_MAC" != "y" -a "$CONFIG_SGI_IP22" != "y" -a \
- 	"$CONFIG_ARM" != "y" -a "$CONFIG_SGI_IP27" != "y" ]; then
-       define_bool CONFIG_MSDOS_PARTITION y
-    fi
-+   fi
-    if [ "$CONFIG_AMIGA" = "y" -o "$CONFIG_AFFS_FS" = "y" ]; then
-       define_bool CONFIG_AMIGA_PARTITION y
-    fi
-diff -urN linux/fs/partitions/Makefile linux98/fs/partitions/Makefile
---- linux/fs/partitions/Makefile	Sat May 25 10:55:25 2002
-+++ linux98/fs/partitions/Makefile	Sat May 25 14:02:24 2002
-@@ -18,6 +18,8 @@
- obj-$(CONFIG_ULTRIX_PARTITION) += ultrix.o
- obj-$(CONFIG_IBM_PARTITION) += ibm.o
- obj-$(CONFIG_EFI_PARTITION) += efi.o
-+obj-$(CONFIG_NEC98_PARTITION) += nec98.o msdos.o
-+obj-$(CONFIG_X68K_PARTITION) += x68000.o
- 
- include $(TOPDIR)/Rules.make
- 
-diff -urN linux/fs/partitions/check.c linux98/fs/partitions/check.c
---- linux/fs/partitions/check.c	Wed Oct 16 13:20:46 2002
-+++ linux98/fs/partitions/check.c	Wed Oct 16 15:01:51 2002
-@@ -28,11 +28,13 @@
- #include "ldm.h"
- #include "mac.h"
- #include "msdos.h"
-+#include "nec98.h"
- #include "osf.h"
- #include "sgi.h"
- #include "sun.h"
- #include "ibm.h"
- #include "ultrix.h"
-+#include "x68000.h"
- #include "efi.h"
- 
- #if CONFIG_BLK_DEV_MD
-@@ -51,6 +53,9 @@
- #ifdef CONFIG_LDM_PARTITION
- 	ldm_partition,		/* this must come before msdos */
- #endif
-+#ifdef CONFIG_NEC98_PARTITION
-+	nec98_partition,	/* must be come before `msdos_partition' */
-+#endif
- #ifdef CONFIG_MSDOS_PARTITION
- 	msdos_partition,
- #endif
-@@ -78,6 +83,9 @@
- #ifdef CONFIG_IBM_PARTITION
- 	ibm_partition,
- #endif
-+#ifdef CONFIG_X68K_PARTITION
-+	x68k_partition,
-+#endif
- 	NULL
- };
-  
-diff -urN linux/fs/partitions/msdos.c linux98/fs/partitions/msdos.c
---- linux/fs/partitions/msdos.c	Sat Oct 12 13:22:10 2002
-+++ linux98/fs/partitions/msdos.c	Sun Oct 13 22:23:58 2002
-@@ -20,6 +20,11 @@
-  */
- 
- #include <linux/config.h>
++#include "io_ports.h"
 +
-+#ifdef CONFIG_NEC98_BSD_DISKLABEL
-+# define CONFIG_BSD_DISKLABEL
-+#endif
-+
- #include <linux/buffer_head.h>		/* for invalidate_bdev() */
- 
- #ifdef CONFIG_BLK_DEV_IDE
-@@ -37,6 +42,7 @@
- #include "msdos.h"
- #include "efi.h"
- 
-+#if !defined(CONFIG_PC9800) || defined(CONFIG_MSDOS_PARTITION)
- /*
-  * Many architectures don't like unaligned accesses, which is
-  * frequently the case with the nr_sects and start_sect partition
-@@ -171,6 +177,7 @@
- done:
- 	put_dev_sector(sect);
- }
-+#endif /* !defined(CONFIG_PC9800) || defined(CONFIG_MSDOS_PARTITION) */
- 
- /* james@bpgc.com: Solaris has a nasty indicator: 0x82 which also
-    indicates linux swap.  Be careful before believing this is Solaris. */
-@@ -179,6 +186,7 @@
- parse_solaris_x86(struct parsed_partitions *state, struct block_device *bdev,
- 			u32 offset, u32 size, int origin)
+ void __init apic_intr_init(void)
  {
-+#if !defined(CONFIG_PC9800) || defined(CONFIG_MSDOS_PARTITION)
- #ifdef CONFIG_SOLARIS_X86_PARTITION
- 	Sector sect;
- 	struct solaris_x86_vtoc *v;
-@@ -212,6 +220,7 @@
- 	put_dev_sector(sect);
- 	printk(" >\n");
- #endif
-+#endif /* !defined(CONFIG_PC9800) || defined(CONFIG_MSDOS_PARTITION) */
- }
- 
- #ifdef CONFIG_BSD_DISKLABEL
-@@ -219,7 +228,11 @@
-  * Create devices for BSD partitions listed in a disklabel, under a
-  * dos-like partition. See parse_extended() for more information.
-  */
-+#ifndef CONFIG_NEC98_BSD_DISKLABEL
- static void
+ #ifdef CONFIG_SMP
+@@ -135,9 +137,13 @@
+ 		 * PIC mode, enable APIC mode in the IMCR, i.e.
+ 		 * connect BSP's local APIC to INT and NMI lines.
+ 		 */
++#ifndef CONFIG_PC9800
+ 		printk("leaving PIC mode, enabling APIC mode.\n");
+ 		outb(0x70, 0x22);
+ 		outb(0x01, 0x23);
 +#else
-+void
++		printk("On NEC98, Changing mode from PIC to APIC isNOT supported yet.\n");
 +#endif
- parse_bsd(struct parsed_partitions *state, struct block_device *bdev,
- 		u32 offset, u32 size, int origin, char *flavour,
- 		int max_partitions)
-@@ -292,6 +305,7 @@
- #endif
+ 	}
  }
  
-+#if !defined(CONFIG_PC9800) || defined(CONFIG_MSDOS_PARTITION)
- /*
-  * Create devices for Unixware partitions listed in a disklabel, under a
-  * dos-like partition. See parse_extended() for more information.
-@@ -461,3 +475,4 @@
- 	put_dev_sector(sect);
- 	return 1;
+@@ -150,9 +156,13 @@
+ 		 * interrupts, including IPIs, won't work beyond
+ 		 * this point!  The only exception are INIT IPIs.
+ 		 */
++#ifndef CONFIG_PC9800
+ 		printk("disabling APIC mode, entering PIC mode.\n");
+ 		outb(0x70, 0x22);
+ 		outb(0x00, 0x23);
++#else
++		printk("On NEC98, Changing mode from APIC to PIC isNOT supported yet.\n");
++#endif
+ 	}
  }
-+#endif /* !defined(CONFIG_PC9800) || defined(CONFIG_MSDOS_PARTITION) */
-diff -urN linux/fs/partitions/nec98.c linux98/fs/partitions/nec98.c
---- linux/fs/partitions/nec98.c	Thu Jan  1 09:00:00 1970
-+++ linux98/fs/partitions/nec98.c	Thu Aug 29 17:24:07 2002
-@@ -0,0 +1,265 @@
-+/*
-+ *  NEC PC-9800 series partition supports
-+ *
-+ *  Copyright (C) 1999	Kyoto University Microcomputer Club
-+ */
+ 
+@@ -759,9 +769,9 @@
+ 
+ 	spin_lock_irqsave(&i8253_lock, flags);
+ 
+-	outb_p(0x00, 0x43);
+-	count = inb_p(0x40);
+-	count |= inb_p(0x40) << 8;
++	outb_p(0x00, PIT_MODE);
++	count = inb_p(PIT_CH0);
++	count |= inb_p(PIT_CH0) << 8;
+ 
+ 	spin_unlock_irqrestore(&i8253_lock, flags);
+ 
+diff -urN linux/arch/i386/kernel/io_apic.c linux98/arch/i386/kernel/io_apic.c
+--- linux/arch/i386/kernel/io_apic.c	Wed Oct 16 13:20:29 2002
++++ linux98/arch/i386/kernel/io_apic.c	Wed Oct 16 15:40:20 2002
+@@ -37,6 +37,8 @@
+ #include <asm/desc.h>
+ #include "mach_apic.h"
+ 
++#include "io_ports.h"
 +
-+#include <linux/config.h>
+ #undef APIC_LOCKUP_DEBUG
+ 
+ #define APIC_LOCKUP_DEBUG
+@@ -354,7 +356,9 @@
+ 
+ 		if ((mp_bus_id_to_type[lbus] == MP_BUS_ISA ||
+ 		     mp_bus_id_to_type[lbus] == MP_BUS_EISA ||
+-		     mp_bus_id_to_type[lbus] == MP_BUS_MCA) &&
++		     mp_bus_id_to_type[lbus] == MP_BUS_MCA ||
++		     mp_bus_id_to_type[lbus] == MP_BUS_NEC98
++		    ) &&
+ 		    (mp_irqs[i].mpc_irqtype == type) &&
+ 		    (mp_irqs[i].mpc_srcbusirq == irq))
+ 
+@@ -448,6 +452,12 @@
+ #define default_MCA_trigger(idx)	(1)
+ #define default_MCA_polarity(idx)	(0)
+ 
++/* NEC98 interrupts are always polarity zero edge triggered,
++ * when listed as conforming in the MP table. */
 +
-+#ifdef CONFIG_NEC98_BSD_DISKLABEL
-+#define CONFIG_BSD_DISKLABEL
-+#endif
++#define default_NEC98_trigger(idx)     (0)
++#define default_NEC98_polarity(idx)    (0)
 +
-+#include <linux/fs.h>
-+#include <linux/genhd.h>
-+#include <linux/kernel.h>
-+#include <linux/blk.h>
-+#include <linux/major.h>
-+
-+#include "check.h"
-+#include "nec98.h"
-+
-+/* #ifdef CONFIG_BLK_DEV_IDEDISK */
-+#include <linux/ide.h>
-+/* #endif */
-+
-+/* #ifdef CONFIG_BLK_DEV_SD */
-+#include "../../drivers/scsi/scsi.h"
-+#include "../../drivers/scsi/sd.h"
-+#include "../../drivers/scsi/hosts.h"
-+#include <scsi/scsicam.h>
-+/* #endif */
-+
-+struct nec98_partition {
-+	__u8	mid;		/* 0x80 - active */
-+	__u8	sid;		/* 0x80 - bootable */
-+	__u16	pad1;		/* dummy for padding */
-+	__u8	ipl_sector;	/* IPL sector	*/
-+	__u8	ipl_head;	/* IPL head	*/
-+	__u16	ipl_cyl;	/* IPL cylinder	*/
-+	__u8	sector;		/* starting sector	*/
-+	__u8	head;		/* starting head	*/
-+	__u16	cyl;		/* starting cylinder	*/
-+	__u8	end_sector;	/* end sector	*/
-+	__u8	end_head;	/* end head	*/
-+	__u16	end_cyl;	/* end cylinder	*/
-+	unsigned char name[16];
-+} __attribute__((__packed__));
-+
-+#define NEC98_BSD_PARTITION_MID 0x14
-+#define NEC98_BSD_PARTITION_SID 0x44
-+#define MID_SID_16(mid, sid)	(((mid) & 0xFF) | (((sid) & 0xFF) << 8))
-+#define NEC98_BSD_PARTITION_MID_SID	\
-+	MID_SID_16(NEC98_BSD_PARTITION_MID, NEC98_BSD_PARTITION_SID)
-+#define NEC98_VALID_PTABLE_ENTRY(P) \
-+	(!(P)->pad1 && (P)->cyl <= (P)->end_cyl)
-+
-+static inline int
-+is_valid_nec98_partition_table(const struct nec98_partition *ptable,
-+				__u8 nsectors, __u8 nheads)
-+{
-+	int i;
-+	int valid = 0;
-+
-+	for (i = 0; i < 16; i++) {
-+		if (!*(__u16 *)&ptable[i])
-+			continue;	/* empty slot */
-+		if (ptable[i].pad1	/* `pad1' contains junk */
-+		    || ptable[i].ipl_sector	>= nsectors
-+		    || ptable[i].sector		>= nsectors
-+		    || ptable[i].end_sector	>= nsectors
-+		    || ptable[i].ipl_head	>= nheads
-+		    || ptable[i].head		>= nheads
-+		    || ptable[i].end_head	>= nheads
-+		    || ptable[i].cyl > ptable[i].end_cyl)
-+			return 0;
-+		valid = 1;	/* We have a valid partition.  */
-+	}
-+	/* If no valid PC-9800-style partitions found,
-+	   the disk may have other type of partition table.  */
-+	return valid;
-+}
-+
-+#ifdef CONFIG_NEC98_BSD_DISKLABEL
-+extern void parse_bsd(struct parsed_partitions *state,
-+			struct block_device *bdev,
-+			u32 offset, u32 size, int origin, char *flavour,
-+			int max_partitions);
-+#endif
-+
-+int nec98_partition(struct parsed_partitions *state, struct block_device *bdev)
-+{
-+	unsigned int nr;
-+	int g_head, g_sect;
-+	Sector sect;
-+	const struct nec98_partition *part;
-+	unsigned char *data;
-+	int sector_size = bdev_hardsect_size(bdev);
-+
-+	switch (major(to_kdev_t(bdev->bd_dev))) {
-+#if defined CONFIG_BLK_DEV_HD_ONLY
-+	case HD_MAJOR:
-+	{
-+		extern struct hd_i_struct hd_info[2];
-+
-+		g_head = hd_info[minor(to_kdev_t(bdev->bd_dev)) >> 6].head;
-+		g_sect = hd_info[minor(to_kdev_t(bdev->bd_dev)) >> 6].sect;
-+		break;
-+	}
-+#endif /* CONFIG_BLK_DEV_HD_ONLY */
-+#if defined CONFIG_BLK_DEV_IDEDISK || defined CONFIG_BLK_DEV_IDEDISK_MODULE
-+	case IDE0_MAJOR:
-+	case IDE1_MAJOR:
-+	case IDE2_MAJOR:
-+	case IDE3_MAJOR:
-+	case IDE4_MAJOR:
-+	case IDE5_MAJOR:
-+	case IDE6_MAJOR:
-+	case IDE7_MAJOR:
-+	case IDE8_MAJOR:
-+	case IDE9_MAJOR:
-+	{
-+		ide_drive_t *drive = get_info_ptr(to_kdev_t(bdev->bd_dev));
-+		g_head = drive->head;
-+		g_sect = drive->sect;
-+		break;
-+	}
-+#endif /* CONFIG_BLK_DEV_IDEDISK(_MODULE) */
-+#if defined CONFIG_BLK_DEV_SD || defined CONFIG_BLK_DEV_SD_MODULE
-+	case SCSI_DISK0_MAJOR:
-+	case SCSI_DISK1_MAJOR:
-+	case SCSI_DISK2_MAJOR:
-+	case SCSI_DISK3_MAJOR:
-+	case SCSI_DISK4_MAJOR:
-+	case SCSI_DISK5_MAJOR:
-+	case SCSI_DISK6_MAJOR:
-+	case SCSI_DISK7_MAJOR:
-+	{
-+		extern Scsi_Disk * sd_get_sdisk(int);
-+#define SCSI_DEVICE_NR(device) (((major(device) & SD_MAJOR_MASK) << (8 - 4)) + (minor(device) >> 4))
-+		Scsi_Disk *disk	= sd_get_sdisk(SCSI_DEVICE_NR(to_kdev_t(bdev->bd_dev)));
-+		struct Scsi_Host *host = disk->device->host;
-+		int diskinfo[3] = { 0, 0, 0 };
-+
-+		if(host->hostt->bios_param)
-+			host->hostt->bios_param(disk, bdev, diskinfo);
-+		else
-+			scsicam_bios_param(disk, bdev, diskinfo);
-+
-+		if ((g_head = diskinfo[0]) <= 0)
-+			g_head = 8;
-+		if ((g_sect = diskinfo[1]) <= 0)
-+			g_sect = 17;
-+		break;
-+	}
-+#endif /* CONFIG_BLK_DEV_SD(_MODULE) */
-+	default:
-+		printk(" unsupported disk (major = %u)\n",
-+			major(to_kdev_t(bdev->bd_dev)));
-+		return 0;
-+	}
-+
-+	data = read_dev_sector(bdev, 0, &sect);
-+	if (!data) {
-+		if (warn_no_part)
-+			printk(" unable to read partition table\n");
-+		return -1;
-+	}
-+
-+	/* magic(?) check */
-+	if (*(__u16 *)(data + sector_size - 2) != NEC98_PTABLE_MAGIC) {
-+		put_dev_sector(sect);
-+		return 0;
-+	}
-+
-+	put_dev_sector(sect);
-+	data = read_dev_sector(bdev, 1, &sect);
-+	if (!data) {
-+		if (warn_no_part)
-+			printk(" unable to read partition table\n");
-+		return -1;
-+	}
-+
-+	if (!is_valid_nec98_partition_table((struct nec98_partition *)data,
-+					     g_sect, g_head)) {
-+#if 0
-+		if (warn_no_part)
-+			printk(" partition table consistency check failed"
-+				" (not PC-9800 disk?)\n");
-+#endif
-+		put_dev_sector(sect);
-+		return 0;
-+	}
-+
-+	part = (const struct nec98_partition *)data;
-+	for (nr = 0; nr < 16; nr++, part++) {
-+		unsigned int start_sect, end_sect;
-+
-+		if (part->mid == 0 || part->sid == 0)
-+			continue;
-+
-+		if (nr)
-+			printk("     ");
-+
-+		{	/* Print partition name. Fdisk98 might put NUL
-+			   characters in partition name... */
-+
-+			int j;
-+			unsigned char *p;
-+			unsigned char buf[sizeof (part->name) * 2 + 1];
-+
-+			for (p = buf, j = 0; j < sizeof (part->name); j++, p++)
-+				if ((*p = part->name[j]) < ' ') {
-+					*p++ = '^';
-+					*p = part->name[j] + '@';
+ static int __init MPBIOS_polarity(int idx)
+ {
+ 	int bus = mp_irqs[idx].mpc_srcbus;
+@@ -482,6 +492,11 @@
+ 					polarity = default_MCA_polarity(idx);
+ 					break;
+ 				}
++				case MP_BUS_NEC98: /* NEC 98 pin */
++				{
++					polarity = default_NEC98_polarity(idx);
++					break;
 +				}
-+
-+			*p = 0;
-+			printk(" <%s>", buf);
-+		}
-+		start_sect = (part->cyl * g_head + part->head) * g_sect
-+			+ part->sector;
-+		end_sect = (part->end_cyl + 1) * g_head * g_sect;
-+		if (end_sect <= start_sect) {
-+			printk(" (invalid partition info)\n");
-+			continue;
-+		}
-+
-+		put_partition(state, nr + 1, start_sect, end_sect - start_sect);
-+#ifdef CONFIG_NEC98_BSD_DISKLABEL
-+		if ((*(__u16 *)&part->mid & 0x7F7F)
-+		    == NEC98_BSD_PARTITION_MID_SID) {
-+			printk("!");
-+			/* NEC98_BSD_PARTITION_MID_SID is not valid SYSIND for
-+			   IBM PC's MS-DOS partition table, so we simply pass
-+			   it to bsd_disklabel_partition;
-+			   it will just print `<bsd: ... >'. */
-+			parse_bsd(state, bdev, start_sect,
-+					end_sect - start_sect, nr + 1,
-+					"bsd98", BSD_MAXPARTITIONS);
-+		}
+ 				default:
+ 				{
+ 					printk(KERN_WARNING "broken BIOS!!\n");
+@@ -551,6 +566,11 @@
+ 					trigger = default_MCA_trigger(idx);
+ 					break;
+ 				}
++				case MP_BUS_NEC98: /* NEC 98 pin */
++				{
++					trigger = default_NEC98_trigger(idx);
++					break;
++				}
+ 				default:
+ 				{
+ 					printk(KERN_WARNING "broken BIOS!!\n");
+@@ -612,6 +632,7 @@
+ 		case MP_BUS_ISA: /* ISA pin */
+ 		case MP_BUS_EISA:
+ 		case MP_BUS_MCA:
++		case MP_BUS_NEC98:
+ 		{
+ 			irq = mp_irqs[idx].mpc_srcbusirq;
+ 			break;
+@@ -1716,7 +1737,7 @@
+  * Additionally, something is definitely wrong with irq9
+  * on PIIX4 boards.
+  */
+-#define PIC_IRQS	(1<<2)
++#define PIC_IRQS	(1 << PIC_CASCADE_IR)
+ 
+ void __init setup_IO_APIC(void)
+ {
+diff -urN linux/arch/i386/kernel/mpparse.c linux98/arch/i386/kernel/mpparse.c
+--- linux/arch/i386/kernel/mpparse.c	Wed Oct 16 13:20:29 2002
++++ linux98/arch/i386/kernel/mpparse.c	Wed Oct 16 15:40:20 2002
+@@ -236,6 +236,8 @@
+ 		mp_current_pci_id++;
+ 	} else if (strncmp(str, BUSTYPE_MCA, sizeof(BUSTYPE_MCA)-1) == 0) {
+ 		mp_bus_id_to_type[m->mpc_busid] = MP_BUS_MCA;
++	} else if (strncmp(str, BUSTYPE_NEC98, sizeof(BUSTYPE_NEC98)-1) == 0) {
++		mp_bus_id_to_type[m->mpc_busid] = MP_BUS_NEC98;
+ 	} else {
+ 		printk("Unknown bustype %s - ignoring\n", str);
+ 	}
+@@ -681,7 +683,12 @@
+ 		 * Read the physical hardware table.  Anything here will
+ 		 * override the defaults.
+ 		 */
+-		if (!smp_read_mpc((void *)mpf->mpf_physptr)) {
++#ifndef CONFIG_PC9800
++		if (!smp_read_mpc((void *)mpf->mpf_physptr))
++#else
++		if (!smp_read_mpc(phys_to_virt(mpf->mpf_physptr)))
 +#endif
-+		{	/* Pretty size printing. */
-+			/* XXX sector size? */
-+			unsigned int psize = (end_sect - start_sect) / 2;
-+			int unit_char = 'K';
-+
-+			if (psize > 99999) {
-+				psize >>= 10;
-+				unit_char = 'M';
++		{
+ 			smp_found_config = 0;
+ 			printk(KERN_ERR "BIOS bug, MP table errors detected!...\n");
+ 			printk(KERN_ERR "... disabling SMP support. (tell your hw vendor)\n");
+@@ -735,8 +742,30 @@
+ 			printk("found SMP MP-table at %08lx\n",
+ 						virt_to_phys(mpf));
+ 			reserve_bootmem(virt_to_phys(mpf), PAGE_SIZE);
++#ifndef CONFIG_PC9800
+ 			if (mpf->mpf_physptr)
+ 				reserve_bootmem(mpf->mpf_physptr, PAGE_SIZE);
++#else
++			/*
++			 * PC-9800's MPC table places on the very last of
++			 * physical memory; so that simply reserving PAGE_SIZE
++			 * from mpg->mpf_physptr yields BUG() in
++			 * reserve_bootmem.
++			 */
++			if (mpf->mpf_physptr) {
++				/*
++				 * We cannot access to MPC table to compute
++				 * table size yet, as only few megabytes from
++				 * the bottom is mapped now.
++				 */
++				unsigned long size = PAGE_SIZE;
++				unsigned long end = max_low_pfn * PAGE_SIZE;
++				if (mpf->mpf_physptr + size > end)
++					size = end - mpf->mpf_physptr;
++				reserve_bootmem(mpf->mpf_physptr, size);
 +			}
-+			printk(" %5d%cB (%5d-%5d)\n", 
-+			       psize, unit_char, part->cyl, part->end_cyl);
-+		}
-+	}
++#endif
 +
-+	put_dev_sector(sect);
-+
-+	return nr ? 1 : 0;
-+}
-+
-+/*
-+ * Local variables:
-+ * c-basic-offset: 8
-+ * End:
-+ */
-diff -urN linux/fs/partitions/nec98.h linux98/fs/partitions/nec98.h
---- linux/fs/partitions/nec98.h	Thu Jan  1 09:00:00 1970
-+++ linux98/fs/partitions/nec98.h	Fri Jul 26 11:10:08 2002
-@@ -0,0 +1,10 @@
-+/*
-+ *  NEC PC-9800 series partition supports
-+ *
-+ *  Copyright (C) 1998-2000	Kyoto University Microcomputer Club
-+ */
-+
-+#define NEC98_PTABLE_MAGIC	0xAA55
-+
-+extern int nec98_partition(struct parsed_partitions *state,
-+				struct block_device *bdev);
-diff -urN linux/fs/partitions/x68000.c linux98/fs/partitions/x68000.c
---- linux/fs/partitions/x68000.c	Thu Jan  1 09:00:00 1970
-+++ linux98/fs/partitions/x68000.c	Fri Aug 17 21:50:17 2001
-@@ -0,0 +1,94 @@
-+/*
-+ *  fs/partitions/x68000.c
-+ *
-+ *  X68000 style partition table handler.
-+ *
-+ *  Copyright (C) 1999-2000  TAKAI Kousuke  <tak@kmc.kyoto-u.ac.jp>
-+ *			Linux/98 project, Kyoto Univ. Microcomputer Club
-+ */
-+
-+/*
-+ * Commentary:
-+ *  X68000/X68030 are MC68000/MC68EC030-based personal computers
-+ *  designed by Sharp Corporation and used to be sold mainly in Japan.
-+ *
-+ *  We had never heard that Linux runs on them, but here is the partition
-+ *  table handling routine for fun. :-)
-+ */
-+
-+#include <linux/fs.h>
-+
-+#include "check.h"
-+
-+struct x68k_partition {
-+	s8	name[8];
-+	u32	start;
-+	u32	length;
-+} __attribute__((__packed__));
-+
-+struct x68k_partition_table {
-+	u32	magic;		/* 'X68K' */
-+	u32	max;
-+	u32	spare;
-+	u32	shipping;
-+	struct x68k_partition partition[15];
-+} __attribute__((__packed__));
-+
-+#define _X68K_MAGIC	(('X' << 24) | ('6' << 16) | ('8' << 8) | 'K')
-+#define X68K_MAGIC	(be32_to_cpu (_X68K_MAGIC))
-+
-+int x68k_partition (struct gendisk *hd, kdev_t dev,
-+		    unsigned long first_sector, int first_minor)
-+{
-+	int part;
-+	int sectors_per_record;
-+	unsigned long max;
-+	struct x68k_partition_table *pt;
-+	struct buffer_head *bh;
-+
-+	if (hardsect_size[MAJOR(dev)] == NULL
-+	    || (hardsect_size[MAJOR(dev)][MINOR(dev)] != 256
-+		&& hardsect_size[MAJOR(dev)][MINOR(dev)] != 512
-+		&& hardsect_size[MAJOR(dev)][MINOR(dev)] != 1024))
-+		return 0;
-+
-+	bh = bread(dev, (4 * hardsect_size[MAJOR(dev)][MINOR(dev)]
-+			  / blksize_size[MAJOR(dev)][MINOR(dev)]),
-+		    blksize_size[MAJOR(dev)][MINOR(dev)]);
-+	if (bh == NULL)
-+		return -1;
-+
-+	pt = ((struct x68k_partition_table *)
-+	      ((void *)bh->b_data
-+	       + (4 * hardsect_size[MAJOR(dev)][MINOR(dev)]
-+		  % blksize_size[MAJOR(dev)][MINOR(dev)])));
-+	if (pt->magic != X68K_MAGIC) {
-+		brelse(bh);
-+		return 0;
-+	}
-+	max = be32_to_cpu(pt->max);
-+
-+	sectors_per_record = 1024 / hardsect_size[MAJOR(dev)][MINOR(dev)];
-+
-+	for (part = 0; part < 15; part++) {
-+		unsigned int start, length;
-+
-+		if (*(u8 *)&pt->partition[part].start)
-+			break;	/* end of partition table */
-+		start  = be32_to_cpu(pt->partition[part].start );
-+		length = be32_to_cpu(pt->partition[part].length);
-+		if (start >= max || (start + length) > max)
-+			break;
-+		if (!part)
-+			printk(" (X68k partition table)\n");
-+		add_gd_partition(hd, first_minor,
-+				  start  * sectors_per_record,
-+				  length * sectors_per_record);
-+		printk(" <%-8.8s> %8u+%u\n",
-+			pt->partition[part].name, start, length);
-+		first_minor++;
-+	}
-+	brelse(bh);
-+
-+	return part ? 1 : 0;
-+}
-diff -urN linux/fs/partitions/x68000.h linux98/fs/partitions/x68000.h
---- linux/fs/partitions/x68000.h	Thu Jan  1 09:00:00 1970
-+++ linux98/fs/partitions/x68000.h	Fri Aug 17 21:50:17 2001
-@@ -0,0 +1,6 @@
-+/*
-+ *  fs/partitions/x68000.h
-+ */
-+
-+int x68k_partition(struct gendisk *hd, kdev_t dev,
-+		   unsigned long first_sector, int first_minor);
+ 			mpf_found = mpf;
+ 			return 1;
+ 		}
+@@ -748,7 +777,9 @@
+ 
+ void __init find_smp_config (void)
+ {
++#ifndef CONFIG_PC9800
+ 	unsigned int address;
++#endif
+ 
+ 	/*
+ 	 * FIXME: Linux assumes you have 640K of base ram..
+@@ -762,6 +793,7 @@
+ 		smp_scan_config(639*0x400,0x400) ||
+ 			smp_scan_config(0xF0000,0x10000))
+ 		return;
++#ifndef CONFIG_PC9800	/* PC-9800 has no EBDA area? */
+ 	/*
+ 	 * If it is an SMP machine we should know now, unless the
+ 	 * configuration is in an EISA/MCA bus machine with an
+@@ -784,6 +816,7 @@
+ 	smp_scan_config(address, 0x400);
+ 	if (smp_found_config)
+ 		printk(KERN_WARNING "WARNING: MP table in the EBDA can be UNSAFE, contact linux-smp@vger.kernel.org if you experience SMP problems!\n");
++#endif
+ }
+ 
+ 
+diff -urN linux/arch/i386/kernel/smpboot.c linux98/arch/i386/kernel/smpboot.c
+--- linux/arch/i386/kernel/smpboot.c	Wed Oct 16 13:20:29 2002
++++ linux98/arch/i386/kernel/smpboot.c	Wed Oct 16 15:40:20 2002
+@@ -821,13 +821,27 @@
+ 		nmi_low = *((volatile unsigned short *) TRAMPOLINE_LOW);
+ 	} 
+ 
++#ifndef CONFIG_PC9800
+ 	CMOS_WRITE(0xa, 0xf);
++#else
++	/* reset code is stored in 8255 on PC-9800. */
++	outb(0x0e, 0x37);	/* SHUT0 = 0 */
++#endif
+ 	local_flush_tlb();
+ 	Dprintk("1.\n");
+ 	*((volatile unsigned short *) TRAMPOLINE_HIGH) = start_eip >> 4;
+ 	Dprintk("2.\n");
+ 	*((volatile unsigned short *) TRAMPOLINE_LOW) = start_eip & 0xf;
+ 	Dprintk("3.\n");
++#ifdef CONFIG_PC9800
++	/*
++	 * On PC-9800, continuation on warm reset is done by loading
++	 * %ss:%sp from 0x0000:0404 and executing 'lret', so:
++	 */
++	/* 0x3f0 is on unused interrupt vector and should be safe... */
++	*((volatile unsigned long *) phys_to_virt(0x404)) = 0x000003f0;
++	Dprintk("4.\n");
++#endif
+ 
+ 	/*
+ 	 * Be paranoid about clearing APIC errors.
+diff -urN linux/include/asm-i386/mpspec.h linux98/include/asm-i386/mpspec.h
+--- linux/include/asm-i386/mpspec.h	Fri Apr 12 13:58:13 2002
++++ linux98/include/asm-i386/mpspec.h	Fri Apr 12 14:02:42 2002
+@@ -105,6 +105,7 @@
+ #define BUSTYPE_TC	"TC"
+ #define BUSTYPE_VME	"VME"
+ #define BUSTYPE_XPRESS	"XPRESS"
++#define BUSTYPE_NEC98	"NEC98"
+ 
+ struct mpc_config_ioapic
+ {
+@@ -195,7 +196,8 @@
+ 	MP_BUS_ISA = 1,
+ 	MP_BUS_EISA,
+ 	MP_BUS_PCI,
+-	MP_BUS_MCA
++	MP_BUS_MCA,
++	MP_BUS_NEC98
+ };
+ extern int mp_bus_id_to_type [MAX_MP_BUSSES];
+ extern int mp_bus_id_to_node [MAX_MP_BUSSES];
+diff -urN linux/include/asm-i386/smpboot.h linux98/include/asm-i386/smpboot.h
+--- linux/include/asm-i386/smpboot.h	Sat Oct 12 13:22:19 2002
++++ linux98/include/asm-i386/smpboot.h	Sat Oct 12 19:33:46 2002
+@@ -13,8 +13,17 @@
+  #define TRAMPOLINE_LOW phys_to_virt(0x8)
+  #define TRAMPOLINE_HIGH phys_to_virt(0xa)
+ #else /* !CONFIG_CLUSTERED_APIC */
++ #ifndef CONFIG_PC9800
+  #define TRAMPOLINE_LOW phys_to_virt(0x467)
+  #define TRAMPOLINE_HIGH phys_to_virt(0x469)
++ #else  /* CONFIG_PC9800 */
++  /*
++   * On PC-9800, continuation on warm reset is done by loading
++   * %ss:%sp from 0x0000:0404 and executing 'lret', so:
++   */
++  #define TRAMPOLINE_LOW phys_to_virt(0x4fa)
++  #define TRAMPOLINE_HIGH phys_to_virt(0x4fc)
++ #endif /* !CONFIG_PC9800 */
+ #endif /* CONFIG_CLUSTERED_APIC */
+ 
+ #ifdef CONFIG_CLUSTERED_APIC

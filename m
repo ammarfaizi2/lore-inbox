@@ -1,51 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265517AbUIDSrg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265701AbUIDSwL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265517AbUIDSrg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Sep 2004 14:47:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265701AbUIDSrg
+	id S265701AbUIDSwL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Sep 2004 14:52:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265768AbUIDSwL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Sep 2004 14:47:36 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:46934 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S265517AbUIDSre
+	Sat, 4 Sep 2004 14:52:11 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:42605 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S265701AbUIDSwI
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Sep 2004 14:47:34 -0400
-Message-ID: <413A0DD8.50308@cs.aau.dk>
-Date: Sat, 04 Sep 2004 20:47:52 +0200
-From: =?UTF-8?B?S3Jpc3RpYW4gU8O4cmVuc2Vu?= <ks@cs.aau.dk>
+	Sat, 4 Sep 2004 14:52:08 -0400
+Message-ID: <413A0EEE.4000007@cs.aau.dk>
+Date: Sat, 04 Sep 2004 20:52:30 +0200
+From: =?ISO-8859-1?Q?Kristian_S=F8rensen?= <ks@cs.aau.dk>
 User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040814)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Christoph Hellwig <hch@infradead.org>
 Cc: umbrella-devel@lists.sourceforge.net,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: [Umbrella-devel] Re: Getting full path from dentry in LSM hooks
-References: <41385FA5.806@cs.aau.dk>	 <1094220870.7975.19.camel@localhost.localdomain> <4138CE6F.10501@cs.aau.dk> <1094317006.10555.38.camel@localhost.localdomain>
-In-Reply-To: <1094317006.10555.38.camel@localhost.localdomain>
+References: <41385FA5.806@cs.aau.dk> <20040903133238.A4145@infradead.org> <413865B4.7080208@cs.aau.dk> <20040903140449.A4253@infradead.org> <41386FB7.2060804@cs.aau.dk> <20040903150111.A4884@infradead.org> <4138CBEF.9000909@cs.aau.dk> <20040904120958.B14123@infradead.org>
+In-Reply-To: <20040904120958.B14123@infradead.org>
 X-Enigmail-Version: 0.85.0.0
 X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Gwe, 2004-09-03 at 21:05, Kristian SÃ¸rensen wrote:
+Christoph Hellwig wrote:
+> On Fri, Sep 03, 2004 at 09:54:23PM +0200, Kristian Sørensen wrote:
 > 
->>If an email client receives an malformed email (like the countless 
->>attacks on outlook), a simple restriction could be for the process 
->>handeling the mail would be "$HOME/.addressbook", furthermore, you could 
->>specify that attachments executed _from_ the emailprogram would not have 
->>access to the network. Thus the virus cannot find mail addresses to send 
->>itself to - and it cannot even get network access. Simple and effective.
+>>>>We are working on a project called Umbrella, (umbrella.sf.net) which 
+>>>>implements processbased mandatory accesscontrol in the Linux kernel. 
+>>>>This access control is controlled by "restriction", e.g. by restricting 
+>>>> some process from accessing any given file or directory.
+>>>>
+>>>>E.g. if a root owned process is restricted from accessing /var/www, and 
+>>>>the process is compromised by an attacker, no mater what he does, he 
+>>>>would not be able to access this directory.
+>>>
+>>>
+>>>mount --bind /var/www /home/joe/p0rn/, and then?
+>>
+>>Actually this "attack" is avoided, because restrictions are enherited, 
+>>from parent proces to its children.
 > 
 > 
-> ln /tmp/bwhahaha $HOME/.addressbook
-> more /tmp/bwhahaha
-> 
-> As the nice man from the NSA said ;) label content not paths. Use xattrs
-> to say "this is an addressbook" and then the path games go away.
-Just as Christop Hellwig's suggestion (in this thread) this will not 
-work due to the placement of the LSM hooks :-) (he suggested making an 
-"mount -o bind").
+> If you restrict your process on the path /var/ww/ but the same objects
+> are also available below a different path, what does that have to do with
+> child processes?
+Well nothing :-) The point was, that links and mount bindings are 
+handled, and if the parent is restricted from accessing a file, the 
+child is too.
 
 KS.

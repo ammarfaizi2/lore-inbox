@@ -1,85 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266794AbTADKF6>; Sat, 4 Jan 2003 05:05:58 -0500
+	id <S266796AbTADKL7>; Sat, 4 Jan 2003 05:11:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266796AbTADKF6>; Sat, 4 Jan 2003 05:05:58 -0500
-Received: from smtp-outbound.cwctv.net ([213.104.18.10]:60962 "EHLO
-	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S266794AbTADKF5>;
-	Sat, 4 Jan 2003 05:05:57 -0500
-From: <Hell.Surfers@cwctv.net>
-To: andre@linux-ide.org, andrew@indranet.co.nz, ryan@michonline.com,
-       linux-kernel@vger.kernel.org
-Date: Sat, 4 Jan 2003 10:12:49 +0000
-Subject: RE: Gauntlet Set NOW!
+	id <S266804AbTADKL6>; Sat, 4 Jan 2003 05:11:58 -0500
+Received: from daimi.au.dk ([130.225.16.1]:49886 "EHLO daimi.au.dk")
+	by vger.kernel.org with ESMTP id <S266796AbTADKL6>;
+	Sat, 4 Jan 2003 05:11:58 -0500
+Message-ID: <3E16B567.A97CB5A4@daimi.au.dk>
+Date: Sat, 04 Jan 2003 11:20:23 +0100
+From: Kasper Dupont <kasperd@daimi.au.dk>
+Organization: daimi.au.dk
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.18-17.7.xsmp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Liberate TVMail 2.6
-Content-Type: multipart/mixed;
- boundary="1041675169493"
-Message-ID: <0258a1111100413DTVMAIL11@smtp.cwctv.net>
+To: Paolo Ciarrocchi <ciarrocchi@linuxmail.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux v2.5.54
+References: <20030102144208.9410.qmail@linuxmail.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---1041675169493
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-
-Sounds like a jumped up PIC chip, cant think why isnt done yet.
-
-Dean McEwan, If the drugs don't work, [sarcasm] take more...[/sarcasm].
-
-On Sat, 4 Jan 2003 02:07:27 -0800 (PST) Andre Hedrick <andre@linux-ide.org> wrote:
-
---1041675169493
-Content-Type: message/rfc822
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-Received: from master.linux-ide.org ([64.85.224.253]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
-	 Sat, 4 Jan 2003 10:05:12 +0000
-Received: from localhost (andre@localhost)
-	by master.linux-ide.org (8.9.3/8.9.3) with ESMTP id CAA15010;
-	Sat, 4 Jan 2003 02:07:27 -0800
-Date: Sat, 4 Jan 2003 02:07:27 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Hell.Surfers@cwctv.net
-cc: andrew@indranet.co.nz, ryan@michonline.com, linux-kernel@vger.kernel.org
-Subject: RE: Gauntlet Set NOW!
-In-Reply-To: <063864055090413DTVMAIL1@smtp.cwctv.net>
-Message-ID: <Pine.LNX.4.10.10301040201590.421-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-Path: andre@linux-ide.org
-
-
-http://www.xilinx.com/ipcenter/catalog/logicore/docs/cam.pdf
-http://aggregate.org/ECard/
-http://www.utmc.com/cam/
-http://www.openskytech.com/ContentAddressableMemory.htm
-http://www.pcs.cnu.edu/~rhodson/cam/CamPage.html
-http://ipdps.eece.unm.edu/2000/raw/18000884.pdf
-http://www.infoworld.com/research/articles/01/05/15/01051524605.xml
-http://www.stanford.edu/class/ee371/handouts/DramCam92.pdf
-http://www.altera.com/support/software/eda_quartus2/glossary/def_cam.htm
-http://www.altera.com/literature/po/apex_cam_ss.pdf
-http://www.esscirc.org/papers-96/26.pdf
-
-The list is long, the histroy is there.
-
-
-
-On Sat, 4 Jan 2003 Hell.Surfers@cwctv.net wrote:
-
-> moving the whole thing into firmware? Interesting, got _any_ meat on the bone?
+Paolo Ciarrocchi wrote:
 > 
-> Dean McEwan, If the drugs don't work, [sarcasm] take more...[/sarcasm].
-> 
-> On 	Sat, 4 Jan 2003 01:45:44 -0800 (PST) 	Andre Hedrick <andre@linux-ide.org> wrote:
-> 
+> inter -nostdinc -iwithprefix include    -DKBUILD_BASENAME=vm86 -DKBUILD_MODNAME=vm86   -c -o arch/i386/kernel/vm86.o arch/i386/kernel/vm86.c
+> arch/i386/kernel/vm86.c: In function `save_v86_state':
+> arch/i386/kernel/vm86.c:119: structure has no member named `saved_fs'
+> arch/i386/kernel/vm86.c:120: structure has no member named `saved_gs'
+> arch/i386/kernel/vm86.c: In function `do_sys_vm86':
+> arch/i386/kernel/vm86.c:288: structure has no member named `saved_fs'
+> arch/i386/kernel/vm86.c:289: structure has no member named `saved_gs'
+> make[1]: *** [arch/i386/kernel/vm86.o] Error 1
+> make: *** [arch/i386/kernel] Error 2
 
-Andre Hedrick
-LAD Storage Consulting Group
+Doesn't happen to me. Maybe I can reproduce it if I get a copy of
+your .config file. And BTW, which gcc version are you using?
 
---1041675169493--
-
-
+-- 
+Kasper Dupont -- der bruger for meget tid på usenet.
+For sending spam use mailto:aaarep@daimi.au.dk
+for(_=52;_;(_%5)||(_/=5),(_%5)&&(_-=2))putchar(_);

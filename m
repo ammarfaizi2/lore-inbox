@@ -1,87 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264317AbTICT7J (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 15:59:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264429AbTICT5v
+	id S264436AbTICUBP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 16:01:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264429AbTICT7W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 15:57:51 -0400
-Received: from crete.csd.uch.gr ([147.52.16.2]:16527 "EHLO crete.csd.uch.gr")
-	by vger.kernel.org with ESMTP id S264317AbTICT4t (ORCPT
+	Wed, 3 Sep 2003 15:59:22 -0400
+Received: from smtp.terra.es ([213.4.129.129]:61782 "EHLO tsmtp5.mail.isp")
+	by vger.kernel.org with ESMTP id S264436AbTICT66 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 15:56:49 -0400
-Organization: 
-Date: Wed, 3 Sep 2003 22:53:39 +0300 (EEST)
-From: Panagiotis Papadakos <papadako@csd.uoc.gr>
-To: Jens Axboe <axboe@suse.de>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: IOMEGA ZIP 100 ATAPI problems with 2.6
-In-Reply-To: <20030903183242.GH838@suse.de>
-Message-ID: <Pine.GSO.4.53.0309032252150.20516@oneiro.csd.uch.gr>
-References: <Pine.GSO.4.53.0308310037230.27956@oneiro.csd.uch.gr>
- <3F515301.4040305@sbcglobal.net> <3F532C67.6070904@sbcglobal.net>
- <Pine.GSO.4.53.0309020539380.9075@oneiro.csd.uch.gr> <20030901200530.64ad6fb9.akpm@osdl.org>
- <Pine.GSO.4.53.0309032124040.20174@oneiro.csd.uch.gr> <20030903183242.GH838@suse.de>
+	Wed, 3 Sep 2003 15:58:58 -0400
+Message-ID: <3F56478F.9030002@terra.es>
+Date: Wed, 03 Sep 2003 21:57:03 +0200
+From: tonildg <tonildg@terra.es>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030830 Debian/1.4-3.he-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
+CC: Sebastian Reichelt <SebastianR@gmx.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][2.4.21] orinoco_cs card reinsertion
+References: <Pine.LNX.4.44.0309031643400.6102-100000@logos.cnet>
+In-Reply-To: <Pine.LNX.4.44.0309031643400.6102-100000@logos.cnet>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Sep 2003, Jens Axboe wrote:
+Not sure, but can this be related with the stuff commented before in 
+this list with the subjects "Airo Net 340 PCMCIA WiFi Card trouble" ?
 
-> On Wed, Sep 03 2003, Panagiotis Papadakos wrote:
-> > With -mm5 I get the followimg Oops when trying to mount the ZIP
-> >
-> > EIP: 0060:[<c025deb4>] Not tainted VLI
-> > ...
-> > EIP is at idefloppy_input_buffers+0x34/0x120
-> > ...
-> > Call Trace:
-> > [<c025e5a2>] idefloppy_pc_intr+0x212/0x2d0
-> > [<c0127602>] update_one_process+0xb2/0x120
-> > [<c024cb7b>] ide_intr+0xeb/0x190
-> > [<c025e390>] idefloppy_pc_intr+0x0/0x2d0
-> > [<c010c7aa>] handle_IRQ_event+0x3a/0x70
-> > [<c010cb31>] do_IRQ+0x91/0x130
->
-> Would it be possible to get the entire oops? I'm sure I can fix the bug,
-> it would be best if we could talk with lower latency than a few days
-> (otherwise just 2-3 patch iterations will last a week :)
 
-Here it is:
+Marcelo Tosatti wrote:
+> 
+> On Wed, 3 Sep 2003, Sebastian Reichelt wrote:
+> 
+> 
+>>>Can you please try 2.4.22? It contains orinoco changes including in
+>>>the area you changed. 
+>>
+>>Sorry, 2.4.22 (from kernel.org) just hangs when I insert the card, after
+>>the first of two beeps. Ctrl-Alt-Del doesn't work. No messages are
+>>printed except the usual "cs: memory probe 0xa0000000-0xa0ffffff:
+>>clean.", and syslog doesn't seem to have been flushed (it's cut off at
+>>a higher position).
+>>
+>>One thing I noticed from syslog is that the socket is assigned another
+>>IRQ: 5 instead of 9.
+> 
+> 
+> Hum, are you using ACPI? There have a few IRQ assignment issues reported 
+> with the new ACPI in 2.4.22.
+> 
+> Can you please try booting with "pci=noacpi" option ? 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-*pde = 00000000
-Oops: 0000 [#1]
-PREEMPT DEBUG_PAGEALLOC
-CPU:    0
-EIP:    0060:[<c025deb4>]    Not tainted VLI
-EFLAGS: 00010202
-EIP is at idefloppy_input_buffers+0x34/0x120
-eax: 00006b6b   ebx: 6b6b6b6b   ecx: 00010000   edx: dff6cfa0
-esi: dff68e78   edi: 00000000   ebp: 00000001   esp: c03bbedc
-ds: 007b   es: 007b   ss: 0068
-Process swapper (pid: 0, threadinfo=c03ba000 task=c03669c0)
-Stack: c042f99c 00000001 00000002 6b6b6b6b df85a00c c042f99c 00000400
-df85a00c
-       c042f99c 00000001 c025e5a2 c042f99c df85a00c 00000400 00000000
-d722d004
-       c0127602 00000400 c03ba000 00000282 df7dd004 c042f99c c024cb7b
-c042f99c
-Call Trace:
- [<c025e5a2>] idefloppy_pc_intr+0x212/0x2d0
- [<c0127602>] update_one_process+0xb2/0x120
- [<c024cb7b>] ide_intr+0xeb/0x190
- [<c025e390>] idefloppy_pc_intr+0x0/0x2d0
- [<c010c7aa>] handle_IRQ_event+0x3a/0x70
- [<c010cb31>] do_IRQ+0x91/0x130
- [<c0107000>] _stext+0x0/0x60
- [<c030fd94>] common_interrupt+0x18/0x20
- [<c0107000>] _stext+0x0/0x60
- [<c0108f13>] default_idle+0x23/0x30
- [<c0108f7c>] cpu_idle+0x2c/0x40
- [<c03bc715>] start_kernel+0x155/0x170
- [<c03bc480>] unknown_bootoption+0x0/0x100
-Code: 24 2c 8b 54 24 30 8b 7c 24 34 89 44 24 14 89 54 24 10 8b 42 24 8b 40
-30 85 c0 89 44 24 0c 0f 84 a8 00 00 00 8d 76 00 8b 5c
-24 0c <0f> b7 43 16 8b 53 24 8d 0c 40 89 c5 0f b7 43 14 8d 34 8a 39 c5
- <0>Kernel panic: Fatal exceptiom in interrupt
-In interrupt handler - not syncing
+

@@ -1,44 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289813AbSCOMxE>; Fri, 15 Mar 2002 07:53:04 -0500
+	id <S292150AbSCONAO>; Fri, 15 Mar 2002 08:00:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292087AbSCOMwx>; Fri, 15 Mar 2002 07:52:53 -0500
-Received: from ns.suse.de ([213.95.15.193]:52749 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S289813AbSCOMwl>;
-	Fri, 15 Mar 2002 07:52:41 -0500
-Date: Fri, 15 Mar 2002 13:52:40 +0100
-From: Andi Kleen <ak@suse.de>
-To: Martin Wilck <Martin.Wilck@fujitsu-siemens.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: IO delay, port 0x80, and BIOS POST codes
-Message-ID: <20020315135240.A5979@wotan.suse.de>
-In-Reply-To: <p73lmcuyrov.fsf@oldwotan.suse.de> <Pine.LNX.4.33.0203151347110.1477-100000@biker.pdb.fsc.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0203151347110.1477-100000@biker.pdb.fsc.net>
-User-Agent: Mutt/1.3.22.1i
+	id <S292178AbSCONAD>; Fri, 15 Mar 2002 08:00:03 -0500
+Received: from nydalah028.sn.umu.se ([130.239.118.227]:46480 "EHLO
+	x-files.giron.wox.org") by vger.kernel.org with ESMTP
+	id <S292150AbSCOM7s>; Fri, 15 Mar 2002 07:59:48 -0500
+Message-ID: <018901c1cc21$4a05b680$0201a8c0@homer>
+From: "Martin Eriksson" <nitrax@giron.wox.org>
+To: "Luigi Genoni" <kernel@Expansa.sns.it>,
+        "Thunder from the hill" <thunder@ngforever.de>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0203151027560.24394-100000@Expansa.sns.it>
+Subject: Re: HPT370 RAID-1 or Software RAID-1, what's "best"?
+Date: Fri, 15 Mar 2002 13:59:49 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 15, 2002 at 01:47:39PM +0100, Martin Wilck wrote:
-> On 15 Mar 2002, Andi Kleen wrote:
-> 
-> > > It doesn't even have to be a config option - a line
-> > >
-> > > /* Port used for dummy writes for I/O delays */
-> > > /* Change this only if you know what you're doing ! */
-> > > #define DUMMY_IO_PORT 0x80
-> > >
-> > > in a header file would perfectly suffice.
-> >
-> > That effectively already exists. You just need to change the __SLOW_DOWN_IO
-> > macro in include/asm-i387/io.h
-> 
-> No, that doesn't cover all accesses to port 80. I am still searching.
+----- Original Message -----
+From: "Luigi Genoni" <kernel@Expansa.sns.it>
+To: "Thunder from the hill" <thunder@ngforever.de>
+Cc: <linux-kernel@vger.kernel.org>; "Martin Eriksson" <nitrax@giron.wox.org>
+Sent: Friday, March 15, 2002 10:31 AM
+Subject: Re: HPT370 RAID-1 or Software RAID-1, what's "best"?
 
-It should. I would consider all other accesses a bug.
-It is possible that some driver used it for private debugging and left it in by 
-mistake. These should be removed.
 
--Andi
+> HPT370 IDE Raid is not really an hardware raid.
+> It is a software Raid, since Linux does not use tha raid implementation
+> that comes with the BIOS, but it uses softwareraid.
+
+Well, even if it uses the BIOS raid, the CPU still has to do all the work.
+You can easily spot true hardware raid because of the largish PCI boards,
+and the big onboard processors. But this is a budget project... so no true
+hardware raid.
+
+I have come to a conclusion now though... as this machine will be used
+without a monitor, any RAID arrays will be controlled via a web application.
+To do this I need software RAID. Also, from the start it will be running the
+following config:
+
+Celeron-II CPU on an i815 board, 256MB RAM
+
+P/M: Boot drive, temporary backup storage for CD-R backup (a few gigs)
+P/S: RAID-1 disk #1
+
+S/M: CD-RW drive
+S/S: RAID-1 disk #2
+
+In the future, if more storage is needed, there will propably be a three to
+four-disk RAID-5 array with some/all disks on a promise controller.
+
+Now this has gone off-topic, so please send replies only to me.
+
+PS. the "mdadm" package is very nice. Among other things it solved the
+"array is in use" problem.
+

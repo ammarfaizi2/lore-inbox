@@ -1,56 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263718AbTEWW5w (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 May 2003 18:57:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264098AbTEWW5w
+	id S264098AbTEWXFi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 May 2003 19:05:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264169AbTEWXFi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 May 2003 18:57:52 -0400
-Received: from h-68-165-86-241.DLLATX37.covad.net ([68.165.86.241]:11840 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP id S263718AbTEWW5v
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 May 2003 18:57:51 -0400
-From: "Paul Fulghum" <paulkf@microgate.com>
-To: "Andrew Morton" <akpm@digeo.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: [BUGS] 2.5.69 syncppp
-Date: Fri, 23 May 2003 18:11:02 -0500
-Message-ID: <OPENKONOOJPFMJFAJLHAKEPCCBAA.paulkf@microgate.com>
+	Fri, 23 May 2003 19:05:38 -0400
+Received: from bart.one-2-one.net ([217.115.142.76]:45573 "EHLO
+	bart.webpack.hosteurope.de") by vger.kernel.org with ESMTP
+	id S264098AbTEWXFh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 May 2003 19:05:37 -0400
+Date: Sat, 24 May 2003 01:25:20 +0200 (CEST)
+From: Martin Diehl <lists@mdiehl.de>
+X-X-Sender: martin@notebook.home.mdiehl.de
+To: "David S. Miller" <davem@redhat.com>
+cc: akpm@digeo.com, Greg KH <greg@kroah.com>, <linux-kernel@vger.kernel.org>,
+       Jean Tourrilhes <jt@hpl.hp.com>, <shemminger@osdl.org>
+Subject: Re: [2.5.69] rtnl-deadlock with usermodehelper and keventd
+In-Reply-To: <20030523.024308.94566989.davem@redhat.com>
+Message-ID: <Pine.LNX.4.44.0305240115130.11940-100000@notebook.home.mdiehl.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-In-Reply-To: <20030523143138.4701982e.akpm@digeo.com>
-Importance: Normal
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> sppp_lcp_open() is called from other places
-> without that lock held, so it is probably not
-> totally stupid to drop it in the timer handler too.
+On Fri, 23 May 2003, David S. Miller wrote:
 
-That section was previously covered by cli/sti,
-and I changed it to use the spinlock instead
-when cli/sti went away in 2.5.x. 
+>    But nope, unfortunately it's still hanging! I've just tested with 
+>    2.5.69-bk15. Running into the same deadlock due to sleeping with rtnl 
+>    hold. This time however it seems it's triggered from sysfs side!
+> 
+> Stephen, you need to do the device class stuff outside of the RTNL
+> lock please.
+> 
+> At least I didn't add this bug :-)
+> 
+> This should fix it.
 
-I thought it was in place to serialize state changes.
-I'll look at it harder, you may be right in that
-it is not necessary.
+Well, back online now pretty late ;-)
 
-> It's good (and surprising) that someone is
-> actually using that stuff.
+Yes, as was already reported I can also confirm from testing the deadlock 
+is gone now. Thanks for resolving this issue!
 
-It's not pretty, but it works.
-Some customers prefer it to pppd.
+Just a minor question before the thread gets closed: Don't we have the 
+same problem in the register path? register_netdevice is running unter 
+rtnl and calls netdev_register_sysfs. I've never seen a deadlock there, 
+but I'd expect this to sleep for hotplug usermode completion as well.
+Maybe this is just what you meant by your comment above ;-)
 
-> Please beat on it for a while.
-
-Yes, that code is in need of a good beating :-)
-
-Paul Fulghum
-paulkf@microgate.com
-
+Martin
 

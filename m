@@ -1,61 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263768AbTIBUOD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Sep 2003 16:14:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263744AbTIBUOD
+	id S263888AbTIBVzt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Sep 2003 17:55:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263893AbTIBVzt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Sep 2003 16:14:03 -0400
-Received: from [213.39.233.138] ([213.39.233.138]:62377 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S263768AbTIBUOA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Sep 2003 16:14:00 -0400
-Date: Tue, 2 Sep 2003 22:08:34 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: Dave Olien <dmo@osdl.org>, Petri Koistinen <petri.koistinen@iki.fi>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Sparse warning: bitmap.h: bad constant expression
-Message-ID: <20030902200834.GB24744@wohnheim.fh-wedel.de>
-References: <Pine.LNX.4.56.0309012249230.14789@dsl-hkigw4a35.dial.inet.fi> <20030902015702.GA10265@osdl.org> <20030902095628.GB7616@wohnheim.fh-wedel.de> <16212.28592.322946.64754@gargle.gargle.HOWL>
+	Tue, 2 Sep 2003 17:55:49 -0400
+Received: from mailhost.tue.nl ([131.155.2.7]:40711 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S263888AbTIBVzp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Sep 2003 17:55:45 -0400
+Date: Tue, 2 Sep 2003 23:55:43 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: steveb@unix.lancs.ac.uk
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: corruption with A7A266+200GB disk?
+Message-ID: <20030902235543.B1627@pclin040.win.tue.nl>
+References: <E19uBCi-00054b-00@wing0.lancs.ac.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <16212.28592.322946.64754@gargle.gargle.HOWL>
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <E19uBCi-00054b-00@wing0.lancs.ac.uk>; from steveb@unix.lancs.ac.uk on Tue, Sep 02, 2003 at 02:28:16PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 September 2003 12:23:44 +0200, Mikael Pettersson wrote:
+On Tue, Sep 02, 2003 at 02:28:16PM +0100, steveb@unix.lancs.ac.uk wrote:
+
+> I just got a new 200GB disk (WDC WD2000JB) for my home machine (Asus A7A266,
+> Ali chipset). I put some partitions on it like so:
+>   hda1:   100MB - /boot
+>   hda2:  8192MB - /
+>   hda3:  1024MB - swap
+>   hda4:  the rest (about 190GB I guess) - /home
 > 
-> If data is a local variable then this is perfectly valid example of a
-> C99 variable-length array (VLA). This works at least with gcc-2.95.3
-> and newer, and gcc handles it by itself w/o calling alloca().
+> I find that when I mkfs on /home, I get massive filesystem corruption on /
+> When I fsck / (and restore the deleted files) I get massive filesystem corruption on /home.
+> 
+> so...anyone else seen this? Is it a known driver problem?
 
-A lot of buggy code consists of perfectly valid C99. :)
+No doubt wraparound at 137 GB. (2^28 sectors of 2^9 bytes gives a 2^37 byte,
+that is 128 GiB limit; to get past this you need support for lba48)
 
-> Of course, VLAs should be bounded in size to avoid overflowing the
-> kernel stack, but that doesn't make them illegal per se.
+Recently we discussed a case where Linux decided that the hardware
+could not handle lba48 but forgot to adapt the total capacity.
+That was a Linux bug.
 
-There is a deeper problem to this.  At the moment, there is no way to
-prove that the kernel doesn't contain a stack overflow somewhere.  In
-order to do this, we can make some assumptions and do a formal proof
-*as long as the assumptions are valid*.
+In fact, if I am not mistaken, the idea that that hardware could not
+handle lba48 was due to a misunderstanding. That was another Linux bug.
 
-This perfectly valid C99 code means either that we need very
-complicated checker software - a problem in itself - or that the
-assumptions are wrong and we are none the wiser.
+Maybe these have now been fixed in some kernel versions.
 
-And even if you ignore this pet project of mine, do you know of a sane
-way to have an upper bound for a VLA?  And if there is, why not use a
-static array with the upper bound as size in the first place?
-Explicit is always simpler than implicit and simpler code has less
-bugs. :)
+So, you must check (i) what Linux thinks your hardware can do, and
+(ii) what your hardware can do in reality.
+Maybe the former can be seen in /proc/ide/hdX/settings under "address"
+or so.
 
-Jörn
-
--- 
-To recognize individual spam features you have to try to get into the
-mind of the spammer, and frankly I want to spend as little time inside
-the minds of spammers as possible.
--- Paul Graham

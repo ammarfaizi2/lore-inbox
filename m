@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316860AbSGNOg3>; Sun, 14 Jul 2002 10:36:29 -0400
+	id <S316869AbSGNOnn>; Sun, 14 Jul 2002 10:43:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316864AbSGNOg2>; Sun, 14 Jul 2002 10:36:28 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:58348 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S316860AbSGNOg1>; Sun, 14 Jul 2002 10:36:27 -0400
-Date: Sun, 14 Jul 2002 16:39:14 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Raphael Wegmann <wegmann@psi.co.at>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: Oops in 2.4.18 (swapper)
-In-Reply-To: <1026480402.1462.25.camel@exodus>
-Message-ID: <Pine.NEB.4.44.0207141637380.4981-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S316878AbSGNOnm>; Sun, 14 Jul 2002 10:43:42 -0400
+Received: from p50886DAC.dip.t-dialin.net ([80.136.109.172]:26504 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S316869AbSGNOnl>; Sun, 14 Jul 2002 10:43:41 -0400
+Date: Sun, 14 Jul 2002 08:46:30 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Joerg Schilling <schilling@fokus.gmd.de>
+cc: aia21@cantab.net, <linux-kernel@vger.kernel.org>
+Subject: Re: IDE/ATAPI in 2.5
+In-Reply-To: <200207141428.g6EESn7r019159@burner.fokus.gmd.de>
+Message-ID: <Pine.LNX.4.44.0207140845360.3331-100000@hawkeye.luckynet.adm>
+X-Location: Potsdam; Germany
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12 Jul 2002, Raphael Wegmann wrote:
+Hi,
 
-> Hello,
+On Sun, 14 Jul 2002, Joerg Schilling wrote:
+> Name a single drive that is DAE capable, does not support ATAPI and
+> doesn't do DAE in lousy quality.
 
-Hi Raphael,
+I know lots, but I can't tell you names. If I could tell you the name of 
+any of them I'd certainly have to take care of my sanity.
 
-> my plain 2.4.18 is frequently/randomly oopsing in swapper:
->...
-> Please tell me, if I can help you somehow.
-
-could you check whether these Oopses still appear in 2.4.19-rc1?
-
-> best regards
-
-TIA
-Adrian
-
+							Regards,
+							Thunder
 -- 
-
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
 

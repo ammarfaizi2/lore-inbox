@@ -1,85 +1,288 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261422AbTFBRCw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 13:02:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263547AbTFBRCv
+	id S262090AbTFBRDD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 13:03:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263547AbTFBRDD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Mon, 2 Jun 2003 13:03:03 -0400
+Received: from otto.nurk.org ([208.33.7.103]:5607 "EHLO otto.nurk.org")
+	by vger.kernel.org with ESMTP id S262090AbTFBRCv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 2 Jun 2003 13:02:51 -0400
-Received: from uldns1.unil.ch ([130.223.8.20]:57487 "EHLO uldns1.unil.ch")
-	by vger.kernel.org with ESMTP id S261422AbTFBRCu convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 13:02:50 -0400
-Date: Mon, 2 Jun 2003 19:16:13 +0200
-From: Gregoire Favre <greg@magma.unil.ch>
-To: linux-kernel@vger.kernel.org, linux-dvb@linuxtv.org
-Subject: Can't boot since 2.4.21-rc2-ac3 with dvb-kernel
-Message-ID: <20030602171613.GA1609@magma.unil.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-Content-Transfer-Encoding: 8BIT
+Date: Mon, 2 Jun 2003 10:15:35 -0700 (PDT)
+From: Sean Swallow <sean@swallow.org>
+X-X-Sender: olaph@localhost.localdomain
+To: linux-kernel@vger.kernel.org
+Subject: RocketRaid Serial ATA support (HPT374)
+Message-ID: <Pine.LNX.4.44.0306021014210.31232-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hello List,
 
-with 2.4.21-rc2-ac2 I can boot with dvb-kernel (I have recompiled with
-latest CVS from dvb-kernel without problem). But since 2.4.21-rc2-ac3 I
-don't manage, for example with 2.4.21-rc6-ac1, I got:
+I recently bought a Highpoint RocketRaid 1540. I thoght that it should
+work in Linux since it used the HPT374 chipset. I have been unable to get
+get it working with the driver in the kernel (kernel 2.4.20, 2.4.21-rc2,
+2.4.21-rc6 and 2.5.70) or the driver from HighPoint's site.
 
-ksymoops -v /usr/src/linux-2.4.21-rc6-ac1/vmlinux -K -L -l /lib/modules/2.4.21-rc6-ac1/ -m /usr/src/linux-2.4.21-rc6-ac1/System.map 2.4.21-rc6-ac1-err 
-Warning (multi_opt): you specified both -l and -L.  Using '-l /lib/modules/2.4.21-rc6-ac1/'
-ksymoops 2.4.8 on i686 2.4.21-rc2-ac2.  Options used
-     -v /usr/src/linux-2.4.21-rc6-ac1/vmlinux (specified)
-     -K (specified)
-     -l /lib/modules/2.4.21-rc6-ac1/ (specified)
-     -o /lib/modules/2.4.21-rc2-ac2/ (default)
-     -m /usr/src/linux-2.4.21-rc6-ac1/System.map (specified)
+I will be happy to provide any other information I can.
 
-No modules in ksyms, skipping objects
-No ksyms, skipping lsmod
-Unable to handle kernel NULL pointer dereference at virtual address 00000001
-*pde = 34094067
-Oops: 0000
-CPU:    0
-EIP:    0010:[<00000001>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00013202
-eax: f5231880   ebx: f4d24dac   ecx: f4964b80   edx: f58dc780
-esi: fac163c0   edi: fac163a0   ebp: 00000000   esp: f4923edc
-ds: 0018   es: 0018   ss: 0018
-Process X (pid: 1432, stackpage=f4923000)
-Stack: fac15279 f5231880 f4964b80 f5162b00 f5162b00 f4922000 c0147252 f5162b00 
-       f58d4c40 00000000 00000001 f5231880 f5162b00 f4964b80 f5906c80 f5231880 
-       f5906c88 c016bbe9 f5231880 f4964b80 c0146952 00000003 ffffffeb f4964b80 
-Call Trace:    [<fac15279>] [<c0147252>] [<c016bbe9>] [<c0146952>] [<c013b663>]
-  [<c013b588>] [<c013b923>] [<c0107347>]
-Code:  Bad EIP value.
+I have a RocketRaid 1540 connected to 4 60gb ata100 IBM drives 
+(Model=IC35L060AVVA07-0) on a Tyan 2466N.
 
+Upon boot, the first thing I notice is that the first 2 channels are
+recognized as ata100 and the second 2 are only ata33.
 
->>EIP; 00000001 Before first symbol   <=====
+HPT374: IDE controller at PCI slot 02:05.0
+HPT374: chipset revision 7
+HPT374: not 100% native mode: will probe irqs later
+HPT37X: using 33MHz PCI clock
+    ide2: BM-DMA at 0x3000-0x3007, BIOS settings: hde:pio, hdf:pio
+    ide3: BM-DMA at 0x3008-0x300f, BIOS settings: hdg:pio, hdh:pio
+HPT37X: using 33MHz PCI clock
+    ide4: BM-DMA at 0x3400-0x3407, BIOS settings: hdi:pio, hdj:pio
+    ide5: BM-DMA at 0x3408-0x340f, BIOS settings: hdk:pio, hdl:pio
+hde: IC35L060AVVA07-0, ATA DISK drive
+ide2 at 0x3890-0x3897,0x3886 on irq 17
+hdg: IC35L060AVVA07-0, ATA DISK drive
+ide3 at 0x3888-0x388f,0x3882 on irq 17
+hdi: IC35L060AVVA07-0, ATA DISK drive
+ide4 at 0x38a8-0x38af,0x389e on irq 17
+hdk: IC35L060AVVA07-0, ATA DISK drive
+ide5 at 0x38a0-0x38a7,0x389a on irq 17
+hde: max request size: 128KiB
+hde: host protected area => 1
+hde: 120103200 sectors (61493 MB) w/1863KiB Cache, CHS=119150/16/63, 
+UDMA(100)
+ hde: hde1 hde2 hde3
+hdg: max request size: 128KiB
+hdg: host protected area => 1
+hdg: 120103200 sectors (61493 MB) w/1863KiB Cache, CHS=119150/16/63, 
+UDMA(100)
+ hdg: hdg1 hdg2
+hdi: max request size: 128KiB
+hdi: host protected area => 1
+hdi: 120103200 sectors (61493 MB) w/1863KiB Cache, CHS=119150/16/63, 
+UDMA(33)
+ hdi: hdi1 hdi2
+hdk: max request size: 128KiB
+hdk: host protected area => 1
+hdk: 120103200 sectors (61493 MB) w/1863KiB Cache, CHS=119150/16/63, 
+UDMA(33)
+ hdk: hdk1 hdk2
 
-Trace; fac15279 <END_OF_CODE+3a8239a1/????>
-Trace; c0147252 <link_path_walk+4e2/6e0>
-Trace; c016bbe9 <devfs_open+149/1b0>
-Trace; c0146952 <vfs_permission+82/140>
-Trace; c013b663 <dentry_open+d3/1d0>
-Trace; c013b588 <filp_open+68/70>
-Trace; c013b923 <sys_open+53/a0>
-Trace; c0107347 <system_call+33/38>
+Then the second 2 start complaining...
 
+hdi: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+hdi: drive not ready for command
+hdk: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+hdk: drive not ready for command
 
-1 warning issued.  Results may not be reliable.
-Exit 1
+And, if I try to mount them, more fun ensues...
 
-Without dvb-kernel, the system boot perfectly...
-I lauch the dvb at boot with initscript like:
+hdk: drive not ready for command
+hdk: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hdk: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hdk: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hdk: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hdk: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hdk: dma_intr: error=0x84 { DriveStatusError BadCRC }
+ide5: reset: success
+hdk: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hdk: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hdk: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hdk: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hdk: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hdk: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hdk: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hdk: dma_intr: error=0x84 { DriveStatusError BadCRC }
+ide5: reset: success
+hdk: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hdk: dma_intr: error=0x84 { DriveStatusError BadCRC }
+end_request: I/O error, dev hdk, sector 120103024
+md: write_disk_sb failed for device hdk2
+hdi: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hdi: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hdi: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hdi: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hdi: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hdi: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hdi: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hdi: dma_intr: error=0x84 { DriveStatusError BadCRC }
+ide4: reset: success
+hdi: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hdi: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hdi: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hdi: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hdi: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hdi: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hdi: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hdi: dma_intr: error=0x84 { DriveStatusError BadCRC }
+ide4: reset: success
+hdi: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hdi: dma_intr: error=0x84 { DriveStatusError BadCRC }
+end_request: I/O error, dev hdi, sector 120103024
+md: write_disk_sb failed for device hdi2
+hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hdg: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hdg: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hdg: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hdg: dma_intr: error=0x84 { DriveStatusError BadCRC }
+ide3: reset: success
+hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hdg: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hdg: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hdg: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hdg: dma_intr: error=0x84 { DriveStatusError BadCRC }
+ide3: reset: success
+hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hdg: dma_intr: error=0x84 { DriveStatusError BadCRC }
+end_request: I/O error, dev hdg, sector 120103024
+md: write_disk_sb failed for device hdg2
+hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
+ide2: reset: success
+hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
+ide2: reset: success
+hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
+end_request: I/O error, dev hde, sector 120103024
+md: write_disk_sb failed for device hde3
+md: errors occurred during superblock update, repeating
+hdk: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hdk: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hdk: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hdk: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hdk: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hdk: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hdk: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hdk: dma_intr: error=0x84 { DriveStatusError BadCRC }
+ide5: reset: success
+hdi: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hdi: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hdi: dma_intr: status=0x53 { DriveReady SeekComplete Index Error }
+hdi: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hdi: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hdi: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hdi: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hdi: dma_intr: error=0x84 { DriveStatusError BadCRC }
+ide4: reset: success
+hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hdg: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hdg: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hdg: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hdg: dma_intr: error=0x84 { DriveStatusError BadCRC }
+ide3: reset: success
+hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hdg: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hdg: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hdg: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hdg: dma_intr: error=0x84 { DriveStatusError BadCRC }
+ide3: reset: success
+hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hdg: dma_intr: error=0x84 { DriveStatusError BadCRC }
+end_request: I/O error, dev hdg, sector 120103024
+md: write_disk_sb failed for device hdg2
+hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
+ide2: reset: success
+hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
+ide2: reset: success
+hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
+end_request: I/O error, dev hde, sector 120103024
+md: write_disk_sb failed for device hde3
+md: errors occurred during superblock update, repeating
+hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hdg: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hdg: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hdg: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hdg: dma_intr: error=0x84 { DriveStatusError BadCRC }
+ide3: reset: success
+hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hdg: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hdg: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hdg: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hdg: dma_intr: error=0x84 { DriveStatusError BadCRC }
+ide3: reset: success
+hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
+ide2: reset: success
+hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
+ide2: reset: success
+hde: status error: status=0x58 { DriveReady SeekComplete DataRequest }
 
-/usr/src/CVS/dvb-kernel/driver.av7110 start
+hde: drive not ready for command
+hde: status timeout: status=0xd0 { Busy }
 
-Should I provide some other infos?
+hde: drive not ready for command
+ide2: reset: success
+kjournald starting.  Commit interval 5 seconds
+hde: status error: status=0x58 { DriveReady SeekComplete DataRequest }
 
-	Grégoire
-__________________________________________________________________
-http://www-ima.unil.ch/greg ICQ:16624071 mailto:greg@magma.unil.ch
+hde: drive not ready for command
+
+Thank you for your help.
+
+-- 
+Sean Swallow
+

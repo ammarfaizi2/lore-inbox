@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313070AbSGYMvX>; Thu, 25 Jul 2002 08:51:23 -0400
+	id <S312590AbSGYMx6>; Thu, 25 Jul 2002 08:53:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313421AbSGYMvX>; Thu, 25 Jul 2002 08:51:23 -0400
-Received: from mailhost.tue.nl ([131.155.2.5]:37425 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id <S313070AbSGYMvW>;
-	Thu, 25 Jul 2002 08:51:22 -0400
-Date: Thu, 25 Jul 2002 14:54:29 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [IDE bug] hdparm lockup
-Message-ID: <20020725125429.GA13523@win.tue.nl>
-References: <3D3F9012.B066A944@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D3F9012.B066A944@zip.com.au>
-User-Agent: Mutt/1.3.25i
+	id <S312938AbSGYMx6>; Thu, 25 Jul 2002 08:53:58 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:35083 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S312590AbSGYMx5>; Thu, 25 Jul 2002 08:53:57 -0400
+Date: Thu, 25 Jul 2002 08:51:28 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Alan Cox <alan@redhat.com>
+cc: Andrew Rodland <arodland@noln.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH -ac] Panicking in morse code
+In-Reply-To: <200207200035.g6K0ZFN11415@devserv.devel.redhat.com>
+Message-ID: <Pine.LNX.3.96.1020725084540.11202C-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 24, 2002 at 10:43:46PM -0700, Andrew Morton wrote:
+On Fri, 19 Jul 2002, Alan Cox wrote:
 
-> quad:/home/akpm> 0 hdparm -i /dev/hdc 
+> > +static const char * morse[] = {
+> > +	".-", "-...", "-.-.", "-..", ".", "..-.", "--.", "....", /* A-H */
+> > +	"..", ".---.", "-.-", ".-..", "--", "-.", "---", ".--.", /* I-P */
+> > +	"--.-", ".-.", "...", "-", "..-", "...-", ".--", "-..-", /* Q-X */
+> > +	"-.--", "--..",	 	 	 	 	 	 /* Y-Z */
+> > +	"-----", ".----", "..---", "...--", "....-",	 	 /* 0-4 */
+> > +	".....", "-....", "--...", "---..", "----."	 	 /* 5-9 */
 > 
-> /dev/hdc:
->  HDIO_GETGEO_BIG failed: Invalid argument
->  (what's this?)
+> How about using bitmasks here. Say top five bits being the length, lower
+> 5 bits being 1 for dash 0 for dit ?
 
-Your hdparm uses an ioctl that doesnt exist (anymore).
-Change to HDIO_GETGEO.
+??? If the length is 1..5 I suspect you could use the top two bits and fit
+the whole thing in a byte. But since bytes work well, use the top three
+bits for length without the one bit offset. Still a big win over strings,
+although a LOT harder to get right by eye.
 
-> The command
-> 
-> 	hdparm -d1 -A1 -m16 -u1 -a64 /dev/hdc
-> 
-> freezes the machine.
+I want to see this go to the sound card, so that when the admins are in
+the ready room drinking coffee and listening to mp3s over the speakers
+they will "get the message." Actually one guys says he can read morse in
+his sleep, when he's "studying a manual" head down we might see about
+that;-)
 
-There I cannot help.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

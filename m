@@ -1,76 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261696AbUCHMzH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 07:55:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262485AbUCHMzH
+	id S262378AbUCHNLZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 08:11:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262485AbUCHNLZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 07:55:07 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:47502 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S262483AbUCHMy7 (ORCPT
+	Mon, 8 Mar 2004 08:11:25 -0500
+Received: from [218.22.21.1] ([218.22.21.1]:58382 "EHLO mx1.ustc.edu.cn")
+	by vger.kernel.org with ESMTP id S262378AbUCHNLX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 07:54:59 -0500
-Message-Id: <200403081254.i28Csinj002627@eeyore.valparaiso.cl>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
-       linux-net@vger.kernel.org
-Subject: Re: [2.4 patch] MAINTAINERS: remove LAN media entry 
-In-Reply-To: Message from Marcelo Tosatti <marcelo.tosatti@cyclades.com> 
-   of "Mon, 08 Mar 2004 02:22:36 -0300." <Pine.LNX.4.44.0403080221520.2604-100000@dmt.cyclades> 
-X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 14)
-Date: Mon, 08 Mar 2004 09:54:43 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Mon, 8 Mar 2004 08:11:23 -0500
+Date: Mon, 8 Mar 2004 21:06:46 +0800
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] fadvise invalidating range fix
+Message-ID: <20040308130646.GA4826@mail.ustc.edu.cn>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: WU Fengguang <wfg@mail.ustc.edu.cn>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti <marcelo.tosatti@cyclades.com> said:
-> On Sun, 7 Mar 2004, Adrian Bunk wrote:
-> 
-> > On Sat, Feb 28, 2004 at 11:57:11AM +0100, Daniel Egger wrote:
-> > > On Feb 27, 2004, at 9:54 pm, Adrian Bunk wrote:
-> > > 
-> > > >IOW:
-> > > >The entry from MAINTAINER can be removed?
-> > > 
-> > > This one for sure. The same is probably sensible for the
-> > > drivers, too. It's just too confusing to not several
-> > > versions of the driver floating around which need different
-> > > tools. And since the manufacturer propagates their own
-> > > version, the linux one should go...
-> > >...
-> > 
-> > 
-> > It's a question whether removing drivers from a stable kernel series is 
-> > a good idea, but the following is definitely correct:
-> > 
-> > 
-> > --- linux-2.4.26-pre2-full/MAINTAINERS.old	2004-03-07 16:48:59.000000000 +0100
-> > +++ linux-2.4.26-pre2-full/MAINTAINERS	2004-03-07 16:49:09.000000000 +0100
-> > @@ -1077,12 +1077,6 @@
-> >  W:	http://www.cse.unsw.edu.au/~neilb/oss/knfsd/
-> >  S:	Maintained
-> >  
-> > -LANMEDIA WAN CARD DRIVER
-> > -P:      Andrew Stanley-Jones
-> > -M:      asj@lanmedia.com
-> > -W:      http://www.lanmedia.com/
-> > -S:      Supported
-> > - 
-> >  LAPB module
-> >  P:	Henner Eisen
-> >  M:	eis@baty.hanse.de
-> > 
-> 
-> I think it might be better to change to
-> 
-> 
-> LANMEDIA WAN CARD DRIVER
-> S: UNMAINTAINED
-> 
-> Thoughts? 
+Hi Andrew
 
-Sounds right to me.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+I noticed fadvise(POSIX_FADV_DONTNEED) was invalidating more parts of the file
+than I expected. Here is the patch.
+
+Notes for change in fadvise.c/sys_fadvise64_64():
+
+- It should be noticed that the 'end' param of invalidate_mapping_pages()
+  is inclusive;
+
+- When 'offset' and/or 'offset+len' do no align to page boundary, we must
+  decide whether to abandon the partial page at the beginning/end of the range. 
+  My patch assumes that the application is scanning forward,
+  which is the most common case.
+  So 'end_index' is set to the page just before the ending partial page.
+
+- Manual pages for posix_fadvise() mentioned the case of 'len=0', which
+  is not handled by the code. Perhaps the handling of 'len=0' is useless,
+  so I leaved that alone.
+
+Notes for change in truncate.c/invalidate_mapping_pages():
+
+- Is there any reason that I din't know to free any page outside of [begin,end]?
+  The origin code will abandon useful trailing pages when there's hole
+  in the range, which may cause series of unecessary disk I/O in
+  streaming applications.
+
+best regards, Wu Fengguang
+
+
+diff -Naur linux-2.6.4-rc2/mm/fadvise.c linux-2.6.4-rc2_fadvise_fix/mm/fadvise.c
+--- linux-2.6.4-rc2/mm/fadvise.c	2004-02-18 03:57:30.000000000 +0000
++++ linux-2.6.4-rc2_fadvise_fix/mm/fadvise.c	2004-03-08 12:20:06.000000000 +0000
+@@ -66,8 +66,7 @@
+ 		if (!bdi_write_congested(mapping->backing_dev_info))
+ 			filemap_flush(mapping);
+ 		start_index = offset >> PAGE_CACHE_SHIFT;
+-		end_index = (offset + len + PAGE_CACHE_SIZE - 1) >>
+-						PAGE_CACHE_SHIFT;
++		end_index = ((offset + len) >> PAGE_CACHE_SHIFT) - 1;
+ 		invalidate_mapping_pages(mapping, start_index, end_index);
+ 		break;
+ 	default:
+diff -Naur linux-2.6.4-rc2/mm/truncate.c linux-2.6.4-rc2_fadvise_fix/mm/truncate.c
+--- linux-2.6.4-rc2/mm/truncate.c	2004-02-18 03:59:34.000000000 +0000
++++ linux-2.6.4-rc2_fadvise_fix/mm/truncate.c	2004-03-08 12:20:06.000000000 +0000
+@@ -219,6 +219,8 @@
+ 			ret += invalidate_complete_page(mapping, page);
+ unlock:
+ 			unlock_page(page);
++			if (next > end)
++				break;
+ 		}
+ 		pagevec_release(&pvec);
+ 		cond_resched();

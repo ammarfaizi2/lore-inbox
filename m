@@ -1,134 +1,135 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261241AbUK0HGO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261335AbUK0HTO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261241AbUK0HGO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Nov 2004 02:06:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261238AbUK0HFc
+	id S261335AbUK0HTO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Nov 2004 02:19:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261254AbUK0HHM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Nov 2004 02:05:32 -0500
+	Sat, 27 Nov 2004 02:07:12 -0500
 Received: from zeus.kernel.org ([204.152.189.113]:18110 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S261280AbUKZTH7 (ORCPT
+	by vger.kernel.org with ESMTP id S261298AbUKZTH4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:07:59 -0500
-Date: Thu, 25 Nov 2004 21:54:31 -0600
-From: Jack Steiner <steiner@sgi.com>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, "Randy.Dunlap" <rddunlap@osdl.org>
-Subject: Re: [PATCH] - Externel SLIT table information thru sysfs
-Message-ID: <20041126035431.GA4550@sgi.com>
-References: <20041124165724.GA14544@sgi.com> <41A53D93.5070005@osdl.org> <20041125033931.GA25561@kroah.com>
+	Fri, 26 Nov 2004 14:07:56 -0500
+Date: Fri, 26 Nov 2004 09:07:34 +0100
+From: Jens Axboe <axboe@suse.de>
+To: "Christopher S. Aker" <caker@theshore.net>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.10-rc2-bk7 - Badness in cfq_put_request at drivers/block/cfq-iosched.c:1402
+Message-ID: <20041126080734.GJ10456@suse.de>
+References: <001301c4d1f6$941d1370$0201a8c0@hawk> <20041124130139.GC13847@suse.de> <20041124132449.GD13847@suse.de> <002e01c4d22a$f426f630$0201a8c0@hawk> <20041124134038.GF13847@suse.de> <000f01c4d25b$e8d497c0$0201a8c0@hawk> <20041125184336.GA7330@suse.de> <20041126074316.GI10456@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041125033931.GA25561@kroah.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20041126074316.GI10456@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(resend - first bounced)
-
-On Wed, Nov 24, 2004 at 06:04:03PM -0800, Randy.Dunlap wrote:
-> Jack Steiner wrote:
-> >The ACPI SLIT table provides useful information on internode distances.
-> >Here is a patch to externalize the SLIT information. 
-> >
-> >For example:
-> >
-> >        # cd /sys/devices/system
-> >        # find .
-> >        ./node
-> >        ./node/node5
-> >        ./node/node5/distance
-> >        ./node/node5/numastat
-> >        ./node/node5/meminfo
-> >        ./node/node5/cpumap
-> >
-> >        # cat ./node/node0/distance
-> >        10 20 64 42 42 22
-> >
-> >        # cat node/*/distance
-> >        10 20 64 42 42 22
-> >        20 10 42 22 64 84
-> >        64 42 10 20 22 42
-> >        42 22 20 10 42 62
-> >        42 64 22 42 10 20
-> >        22 84 42 62 20 10
-> 
-> Apparently I'm easily confused, but node_distance() {near end}
-> seems to evaluate to either 10 or 20 (only), so what are
-> all of these other numbers here?
-
-On systems that provide the ACPI SLIT table, the distances come from
-the SLIT table.  (See the ACPI spec for the full definition).
-The example above is from the ACPI SLIT table of a 6-node SGI Altix 
-system and the table is provided by the BIOS.
-
-If the BIOS does not provide a SLIT table, the default distance is 10 for
-local & 20 for remote. The value of 10 conforms to the spec for
-local distance, 20 is arbitrary but indicates further than local.
-
-> 
-> And how many nodes are in this example?
-> Maybe 6, numbered 0 thru 5?  Plz correct this guess....
-
-Good guess.
-
-
-
-> 
-> >Index: linux/drivers/base/node.c
-> >===================================================================
-> >--- linux.orig/drivers/base/node.c	2004-11-05 08:34:42.461312000 -0600
-> >+++ linux/drivers/base/node.c	2004-11-05 15:56:23.345662000 -0600
-> >@@ -111,6 +111,24 @@ static ssize_t node_read_numastat(struct
-> > }
-> > static SYSDEV_ATTR(numastat, S_IRUGO, node_read_numastat, NULL);
+On Fri, Nov 26 2004, Jens Axboe wrote:
+> On Thu, Nov 25 2004, Jens Axboe wrote:
+> > On Wed, Nov 24 2004, Christopher S. Aker wrote:
+> > > > Can you try this simple check to see if it triggers anything?
+> > > >
+> > > > ===== cfq-iosched.c 1.13 vs edited =====
+> > > > --- 1.13/drivers/block/cfq-iosched.c 2004-10-30 01:35:21 +02:00
+> > > > +++ edited/cfq-iosched.c 2004-11-24 14:40:13 +01:00
+> > > > @@ -1389,6 +1389,8 @@
+> > > >   struct cfq_data *cfqd = q->elevator->elevator_data;
+> > > >   struct cfq_rq *crq = RQ_DATA(rq);
+> > > >
+> > > > + WARN_ON(!spin_is_locked(q->queue_lock));
+> > > > +
+> > > >   if (crq) {
+> > > >   struct cfq_queue *cfqq = crq->cfq_queue;
+> > > 
+> > > I'd be happy to, but I won't have a free machine for a couple of days.
+> > > I'll can probably give it a shot during the weekend...
 > > 
-> >+static ssize_t node_read_distance(struct sys_device * dev, char * buf)
-> >+{
-> >+	int nid = dev->id;
-> >+	int len = 0;
-> >+	int i;
-> >+
-> >+	/* buf currently PAGE_SIZE, need ~4 chars per node */
-> >+	BUILD_BUG_ON(NR_NODES*4 > PAGE_SIZE/2);
-> >+
-> >+	for (i = 0; i < numnodes; i++)
-> >+		len += sprintf(buf + len, "%s%d", i ? " " : "", 
-> >node_distance(nid, i));
-> >+		
-> >+	len += sprintf(buf + len, "\n");
-> >+	return len;
-> >+}
-> >+static SYSDEV_ATTR(distance, S_IRUGO, node_read_distance, NULL);
-> >+
-> >+
-> >Index: linux/include/linux/topology.h
-> >===================================================================
-> >--- linux.orig/include/linux/topology.h	2004-11-05 
-> >08:34:57.492932000 -0600
-> >+++ linux/include/linux/topology.h	2004-11-23 10:03:26.700821978 -0600
-> >@@ -55,7 +55,10 @@ static inline int __next_node_with_cpus(
-> > 	for (node = 0; node < numnodes; node = __next_node_with_cpus(node))
-> > 
-> > #ifndef node_distance
-> >-#define node_distance(from,to)	((from) != (to))
-> >+/* Conform to ACPI 2.0 SLIT distance definitions */
-> >+#define LOCAL_DISTANCE		10
-> >+#define REMOTE_DISTANCE		20
-> >+#define node_distance(from,to)	((from) == (to) ? LOCAL_DISTANCE : 
-> >REMOTE_DISTANCE)
-> Please add a space after "from,".
+> > Nevermind, here's a patch to fix it. I was so focused on the decrement
+> > side of things that I forgot to check the increment, pretty silly error
+> > really.
 > 
-> > #endif
-> 
-> -- 
-> ~Randy
+> And a small fix is needed on top of that, in case of hash type changes
+> (writing to hash_key).
+
+... And that one relied on another hashing change I made locally. 3rd
+time is the charm,.
+
+Signed-off-by: Jens Axboe <axboe@suse.de>
+
+===== drivers/block/cfq-iosched.c 1.13 vs edited =====
+--- 1.13/drivers/block/cfq-iosched.c	2004-10-30 01:35:21 +02:00
++++ edited/drivers/block/cfq-iosched.c	2004-11-26 09:06:38 +01:00
+@@ -1398,10 +1398,7 @@
+ 		if (crq->io_context)
+ 			put_io_context(crq->io_context->ioc);
+ 
+-		if (!cfqq->allocated[crq->is_write]) {
+-			WARN_ON(1);
+-			cfqq->allocated[crq->is_write] = 1;
+-		}
++		BUG_ON(!cfqq->allocated[crq->is_write]);
+ 		cfqq->allocated[crq->is_write]--;
+ 
+ 		mempool_free(crq, cfqd->crq_pool);
+@@ -1421,7 +1418,7 @@
+ 	struct cfq_data *cfqd = q->elevator->elevator_data;
+ 	struct cfq_io_context *cic;
+ 	const int rw = rq_data_dir(rq);
+-	struct cfq_queue *cfqq;
++	struct cfq_queue *cfqq, *saved_cfqq;
+ 	struct cfq_rq *crq;
+ 	unsigned long flags;
+ 
+@@ -1439,20 +1436,30 @@
+ #endif
+ 	}
+ 
++repeat:
+ 	if (cfqq->allocated[rw] >= cfqd->max_queued)
+ 		goto out_lock;
+ 
++	cfqq->allocated[rw]++;
+ 	spin_unlock_irqrestore(q->queue_lock, flags);
+ 
+ 	/*
+-	 * if hashing type has changed, the cfq_queue might change here. we
+-	 * don't bother rechecking ->allocated since it should be a rare
+-	 * event
++	 * if hashing type has changed, the cfq_queue might change here.
+ 	 */
++	saved_cfqq = cfqq;
+ 	cic = cfq_get_io_context(&cfqq, gfp_mask);
+ 	if (!cic)
+ 		goto err;
+ 
++	/*
++	 * repeat allocation checks on queue change
++	 */
++	if (unlikely(saved_cfqq != cfqq)) {
++		spin_lock_irqsave(q->queue_lock, flags);
++		saved_cfqq->allocated[rw]--;
++		goto repeat;
++	}
++
+ 	crq = mempool_alloc(cfqd->crq_pool, gfp_mask);
+ 	if (crq) {
+ 		RB_CLEAR(&crq->rb_node);
+@@ -1465,7 +1472,6 @@
+ 		crq->in_flight = crq->accounted = crq->is_sync = 0;
+ 		crq->is_write = rw;
+ 		rq->elevator_private = crq;
+-		cfqq->allocated[rw]++;
+ 		cfqq->alloc_limit[rw] = 0;
+ 		return 0;
+ 	}
+@@ -1473,6 +1479,7 @@
+ 	put_io_context(cic->ioc);
+ err:
+ 	spin_lock_irqsave(q->queue_lock, flags);
++	cfqq->allocated[rw]--;
+ 	cfq_put_queue(cfqq);
+ out_lock:
+ 	spin_unlock_irqrestore(q->queue_lock, flags);
 
 -- 
-Thanks
-
-Jack Steiner (steiner@sgi.com)          651-683-5302
-Principal Engineer                      SGI - Silicon Graphics, Inc.
-
-
+Jens Axboe
 

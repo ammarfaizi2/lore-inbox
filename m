@@ -1,69 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265598AbUAGROW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 12:14:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266250AbUAGROW
+	id S265622AbUAGR2M (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 12:28:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266293AbUAGR2M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 12:14:22 -0500
-Received: from mail.kroah.org ([65.200.24.183]:49862 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265598AbUAGROP (ORCPT
+	Wed, 7 Jan 2004 12:28:12 -0500
+Received: from mail.kroah.org ([65.200.24.183]:11467 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265622AbUAGR1y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 12:14:15 -0500
-Date: Wed, 7 Jan 2004 09:14:03 -0800
+	Wed, 7 Jan 2004 12:27:54 -0500
+Date: Wed, 7 Jan 2004 09:27:50 -0800
 From: Greg KH <greg@kroah.com>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: Linus Torvalds <torvalds@osdl.org>, Daniel Jacobowitz <dan@debian.org>,
-       Rob Love <rml@ximian.com>, rob@landley.net,
-       Pascal Schmidt <der.eremit@email.de>, linux-kernel@vger.kernel.org
-Subject: Re: udev and devfs - The final word
-Message-ID: <20040107171403.GB31177@kroah.com>
-References: <Pine.LNX.4.58.0401041847370.2162@home.osdl.org> <20040105030737.GA29964@nevyn.them.org> <Pine.LNX.4.58.0401041918260.2162@home.osdl.org> <20040105132756.A975@pclin040.win.tue.nl> <Pine.LNX.4.58.0401050749490.21265@home.osdl.org> <20040105205228.A1092@pclin040.win.tue.nl> <Pine.LNX.4.58.0401051224480.2153@home.osdl.org> <20040106001326.A1128@pclin040.win.tue.nl> <20040106000014.GL30464@kroah.com> <20040106024115.B1153@pclin040.win.tue.nl>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Kernel development list <linux-kernel@vger.kernel.org>,
+       Patrick Mochel <mochel@digitalimplant.org>
+Subject: Re: Inconsistency in sysfs behavior?
+Message-ID: <20040107172750.GC31177@kroah.com>
+References: <Pine.LNX.4.44L0.0401071039150.850-100000@ida.rowland.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040106024115.B1153@pclin040.win.tue.nl>
+In-Reply-To: <Pine.LNX.4.44L0.0401071039150.850-100000@ida.rowland.org>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 06, 2004 at 02:41:15AM +0100, Andries Brouwer wrote:
-> On Mon, Jan 05, 2004 at 04:00:15PM -0800, Greg KH wrote:
+Note, Pat's email address has changed, I've changed in the CC:
+
+On Wed, Jan 07, 2004 at 10:48:44AM -0500, Alan Stern wrote:
+> The following appears to be an inconsistency in the way sysfs behaves.  
+> Tell me what you think...
 > 
-> > > > Have you even _tried_ udev?
-> > > 
-> > > Yes, and it works reasonably well. I have version 012 here.
-> > > Some flaws will be fixed in 013 or so.
-> > 
-> > What flaws would that be?  The short time delay for partitions?  Or
-> > something else?
+> When a user process parks its CWD in a kobject's sysfs directory and then
+> the kobject is unregistered, of course the directory is forced to remain
+> in existence (albeit unlinked) because of the reference held by the
+> process.  But it does not in turn hold a reference to the kobject; the
+> kobject will be deleted immediately if nothing else refers to it.
 > 
-> Yes, partitions are not handled very well.
-> So far I have never seen udev discover partitions on its own.
-
-That is because it can not.  Please see the current thread "removable
-media revalidation - udev vs. devfs or static /dev" on lkml for a
-solution to this.
-
-> > > Some difficulties are of a more fundamental type, not so easy to fix.
-> > 
-> > Such as?
+> On the other hand, if a user process opens a sysfs attribute file and then
+> sysfs_remove_file() is called, again the file is forced to remain in
+> existence (albeit unlinked) because of the reference held by the process.  
+> But now it _does_ hold a reference to the kobject; if the kobject is
+> unregistered it will not be deleted until the user process closes the
+> attribute file.
 > 
-> Udev cannot do anything when there are no events.
-> And media insertion or removal does not always give events.
+> Why this non-parallel behavior?
 
-Exactly.  That's why userspace needs to poll for this.
+Because it is very difficult to determine when a user goes into a
+directory because we are using the ramfs/libfs code.  It also does not
+cause any errors if the kobject is removed, as the vfs cleans up
+properly.
 
-> [By the way, a compilation warning for every C file:
-> % make
-> gcc  -pipe -Wall -Wmore.. -Os -fomit-frame-pointer -D_GNU_SOURCE \
->   -I/usr/lib/gcc-lib/i486-suse-linux/3.2/include -I.../udev-012/libsysfs
->   -c -o udev.o udev.c
-> cc1: warning: changing search order for system directory
->      "/usr/lib/gcc-lib/i486-suse-linux/3.2/include"
-> cc1: warning: as it has already been specified as a non-system directory]
+Only when a file is opened does a kobject need to be pinned, due to
+possible errors that could happen.
 
-Odd, it works here just fine on a number of different Red Hat boxes :)
-
-thanks,
+Hope this helps,
 
 greg k-h

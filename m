@@ -1,51 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269739AbUHZWZm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269155AbUHZWa0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269739AbUHZWZm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 18:25:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269707AbUHZWYo
+	id S269155AbUHZWa0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 18:30:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269732AbUHZW3O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 18:24:44 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:9732 "EHLO
-	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S269745AbUHZWU5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 18:20:57 -0400
-From: Felipe Alfaro Solana <lkml@felipe-alfaro.com>
-To: Rik van Riel <riel@redhat.com>
-Subject: Re: silent semantic changes with reiser4
-Date: Fri, 27 Aug 2004 00:20:38 +0200
-User-Agent: KMail/1.7
-Cc: Linus Torvalds <torvalds@osdl.org>, Diego Calleja <diegocg@teleline.es>,
-       jamie@shareable.org, christophe@saout.de,
-       vda@port.imtp.ilyichevsk.odessa.ua, christer@weinigel.se,
-       spam@tnonline.net, akpm@osdl.org, wichert@wiggy.net, jra@samba.org,
-       reiser@namesys.com, hch@lst.de, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, flx@namesys.com,
-       reiserfs-list@namesys.com
-References: <Pine.LNX.4.44.0408261607070.27909-100000@chimarrao.boston.redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0408261607070.27909-100000@chimarrao.boston.redhat.com>
+	Thu, 26 Aug 2004 18:29:14 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:9144 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S269707AbUHZW0k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 18:26:40 -0400
+Message-ID: <412E63A1.7080307@namesys.com>
+Date: Thu, 26 Aug 2004 15:26:41 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Michael Halcrow <mahalcro@us.ibm.com>
+CC: Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: silent semantic changes with reiser4
+References: <20040824202521.GA26705@lst.de> <412CEE38.1080707@namesys.com> <20040825200859.GA16345@lst.de> <Pine.LNX.4.58.0408251314260.17766@ppc970.osdl.org> <20040826135319.GA28811@halcrow.us>
+In-Reply-To: <20040826135319.GA28811@halcrow.us>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200408270020.39190.lkml@felipe-alfaro.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 26 August 2004 22:10, Rik van Riel wrote:
+Michael Halcrow wrote:
 
-> Do we really want to have a file paradigm that's different
-> from the other OSes out there ?
+> This is an issue that directly affects work I am doing in extended
 >
-> What happens when users want to transfer data from Linux
-> to another system ?
-
-I think it depends on the transport being used: some transports could allow 
-for metadata (i.e. a MIME-compatible transport) while some others don't. Of 
-course, the remote side needs to also support metadata (i,e. using a 
-MIME-compatible transport against a remote host that doesn't understand 
-metadata is certainly impossible).
-
-For example, with FTP transports, I guess the only possible option is to 
-transfer the unnamed/default stream. NFS should allow metadata, but this 
-probably needs some kind of extensions to the NFS protocol.
+>cryptfs:
+>
+>http://www.linuxsymposium.org/2004/view_abstract.php?content_key=55
+>http://halcrow.us/~mhalcrow/ols2004.pdf
+>http://halcrow.us/~mhalcrow/ols_cryptfs.sxi
+>
+>  
+>
+Reiser4 has an encryption plugin that will ship sometime this year.  You 
+might want to talk to edward@namesys.com about it.

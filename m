@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129731AbQKGPqp>; Tue, 7 Nov 2000 10:46:45 -0500
+	id <S129767AbQKGPzE>; Tue, 7 Nov 2000 10:55:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129767AbQKGPqe>; Tue, 7 Nov 2000 10:46:34 -0500
-Received: from ppp-96-111-an01u-dada6.iunet.it ([151.35.96.111]:17926 "HELO
-	home.bogus") by vger.kernel.org with SMTP id <S129731AbQKGPqT>;
-	Tue, 7 Nov 2000 10:46:19 -0500
-From: Davide Libenzi <davidel@xmail.virusscreen.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: A question about memory fragmentation
-Date: Tue, 7 Nov 2000 17:58:26 +0100
-X-Mailer: KMail [version 1.0.28]
-Content-Type: text/plain; charset=US-ASCII
-In-Reply-To: <CAEBJLAGJIDLDINHENLOGEMOCGAA.abel@trymedia.com> <20001107163325.F20883@arthur.ubicom.tudelft.nl>
-In-Reply-To: <20001107163325.F20883@arthur.ubicom.tudelft.nl>
-MIME-Version: 1.0
-Message-Id: <00110718025900.00535@linux1.home.bogus>
-Content-Transfer-Encoding: 7BIT
+	id <S130024AbQKGPyz>; Tue, 7 Nov 2000 10:54:55 -0500
+Received: from TSX-PRIME.MIT.EDU ([18.86.0.76]:13200 "HELO tsx-prime.MIT.EDU")
+	by vger.kernel.org with SMTP id <S129767AbQKGPyn>;
+	Tue, 7 Nov 2000 10:54:43 -0500
+Date: Tue, 7 Nov 2000 10:53:23 -0500
+Message-Id: <200011071553.KAA21829@tsx-prime.MIT.EDU>
+From: "Theodore Y. Ts'o" <tytso@MIT.EDU>
+To: drepper@cygnus.com
+CC: "Theodore Y. Ts'o" <tytso@MIT.EDU>,
+        George Talbot <george@brain.moberg.com>, Marc Lehmann <pcg@goof.com>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: Ulrich Drepper's message of 06 Nov 2000 10:50:37 -0800,
+	<m33dh5aq9u.fsf@otr.mynet.cygnus.com>
+Subject: Re: Can EINTR be handled the way BSD handles it? -- a plea from a user-land  programmer...
+Phone: (781) 391-3464
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 07 Nov 2000, Erik Mouw wrote:
-> 
-> > 	Is the kernel memory fragmentation a solved problem in Linux? (I wish it).
-> 
-> My guess is that the slab allocator solves this, but I don't know that
-> much about the MM.
+   From: Ulrich Drepper <drepper@redhat.com>
+   Date: 06 Nov 2000 10:50:37 -0800
 
-Linux lists implementation stores linking informations directly inside the
-block of data We're going to link.
-This has the advantage that no extra list nodes are allocated to store the data
-pointer but has the drawback that if We've to link the same data to more than
-one list We've to declare more than one listhead.
-See at the different links We've inside the task_struct for example.
+   > Arguably though the bug is in glibc, in that if it's using signals
+   > behinds the scenes, it should have passed SA_RESTART to sigaction.
 
+   Why are you talking  such a nonsense?
 
+The claim was made that pthreads was using signals behind the scenes, so
+that programs which weren't expecting that system calls to get
+interrupted were getting interrupted.  Hence, one could make the
+argument that if the pthreads code had used SA_RESTART to set up its
+signal handlers, then this situation wouldn't have come up.
 
-- Davide
+I haven't looked more deeply into this.  As far as I'm concerned,
+threads === "more rope" and use of threads should be avoided whenever
+possible, even if Linux had a decent threads implementation....
+
+						- Ted
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

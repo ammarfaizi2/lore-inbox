@@ -1,31 +1,33 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316884AbSFDWMn>; Tue, 4 Jun 2002 18:12:43 -0400
+	id <S316878AbSFDWNw>; Tue, 4 Jun 2002 18:13:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316882AbSFDWLG>; Tue, 4 Jun 2002 18:11:06 -0400
-Received: from air-2.osdl.org ([65.201.151.6]:2440 "EHLO geena.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S316884AbSFDWKi>;
-	Tue, 4 Jun 2002 18:10:38 -0400
-Date: Tue, 4 Jun 2002 15:06:40 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@geena.pdx.osdl.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: [2.5.19] Oops during PCI scan on Alpha
-In-Reply-To: <Pine.LNX.4.33.0206041502200.654-100000@geena.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.33.0206041506000.654-100000@geena.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316882AbSFDWMo>; Tue, 4 Jun 2002 18:12:44 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:13954 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S316891AbSFDWLH>;
+	Tue, 4 Jun 2002 18:11:07 -0400
+Date: Tue, 04 Jun 2002 15:07:57 -0700 (PDT)
+Message-Id: <20020604.150757.10296659.davem@redhat.com>
+To: paulus@samba.org
+Cc: mochel@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: kernel 2.5.20 on alpha
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <15613.14457.3095.983212@argo.ozlabs.ibm.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: Paul Mackerras <paulus@samba.org>
+   Date: Wed, 5 Jun 2002 08:00:25 +1000 (EST)
+   
+   I can see two solutions: either rename "unused_initcall" to "sys_init"
+   or something similar and use it for sys_bus_init
 
-On Tue, 4 Jun 2002, Patrick Mochel wrote:
+See similar postings on this topic, with Subject
+"Re: [2.5.19] Oops during PCI scan on Alpha"
 
-> 
-> > We're talking in circles and the fixes you're proposing are not
-> > going to fix the bug, just create new versions of the old bug.
-> 
-> Go crazy. Also available from bk://linux.bkbits.net/linux-2.5
-
-Erm, that should be bk://ldm.bkbits.net/linux-2.5
-
+There is a patch at the end of the thread which does
+exactly as you describe.

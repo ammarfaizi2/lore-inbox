@@ -1,68 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129226AbRAHUy0>; Mon, 8 Jan 2001 15:54:26 -0500
+	id <S131462AbRAHU5P>; Mon, 8 Jan 2001 15:57:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129387AbRAHUyP>; Mon, 8 Jan 2001 15:54:15 -0500
-Received: from lairdtest1.internap.com ([206.253.215.67]:17931 "EHLO
-	lairdtest1.internap.com") by vger.kernel.org with ESMTP
-	id <S129226AbRAHUyL>; Mon, 8 Jan 2001 15:54:11 -0500
-Date: Mon, 8 Jan 2001 12:54:04 -0800 (PST)
-From: Scott Laird <laird@internap.com>
-To: Chris Meadors <clubneon@hereintown.net>
-cc: Igmar Palsenberg <maillist@chello.nl>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Delay in authentication.
-In-Reply-To: <Pine.LNX.4.31.0101081043160.17858-100000@rc.priv.hereintown.net>
-Message-ID: <Pine.LNX.4.21.0101081253110.13252-100000@lairdtest1.internap.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131324AbRAHU5F>; Mon, 8 Jan 2001 15:57:05 -0500
+Received: from hera.cwi.nl ([192.16.191.1]:48557 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S129387AbRAHU4w>;
+	Mon, 8 Jan 2001 15:56:52 -0500
+Date: Mon, 8 Jan 2001 21:56:18 +0100 (MET)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200101082056.VAA147872.aeb@texel.cwi.nl>
+To: andrea@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: `rmdir .` doesn't work in 2.4
+Cc: viro@math.psu.edu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> why `rmdir .` is been deprecated in 2.4.x?
 
-Is syslog running correctly?  When syslog screws up, it very frequently
-results in this sort of problem.
+> `rmdir .` makes perfect sense, the cwd dentry remains pinned
 
+You think that it fails with EBUSY. That would be allowed but not required:
 
-Scott
+[EBUSY]: The directory to be removed is currently in use by
+         the system or some process and the implementation
+         considers this to be an error.
 
-On Mon, 8 Jan 2001, Chris Meadors wrote:
+Here we are free to consider this "in use" an error or not.
+But in fact it fails with EINVAL, and
 
-> On Mon, 8 Jan 2001, Igmar Palsenberg wrote:
-> 
-> > check /etc/pam.d/login
-> 
-> No pam.
-> 
-> > Could be kerberos that is biting you, althrough that doesn't explain the
-> > portmap story.
-> 
-> So no kerberos.
-> 
-> I just rebuilt the shadow suite (where my login comes from) to be on the
-> safe side.  But the problem is still there.
-> 
-> ldd login shows:
->         libshadow.so.0 => /lib/libshadow.so.0 (0x4001a000)
->         libcrypt.so.1 => /lib/libcrypt.so.1 (0x40033000)
->         libc.so.6 => /lib/libc.so.6 (0x40060000)
->         /lib/ld-linux.so.2 => /lib/ld-linux.so.2 (0x40000000)
-> 
-> I'm running glibc-2.2, but this problem also existed in 2.1.x (which I had
-> installed when I went to the 2.3 kernels that exposed this problem).
-> 
-> -Chris
-> -- 
-> Two penguins were walking on an iceberg.  The first penguin said to the
-> second, "you look like you are wearing a tuxedo."  The second penguin
-> said, "I might be..."                         --David Lynch, Twin Peaks
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
-> 
-> 
+[EINVAL]: The path argument contains a last component that is dot.
+
+(Quoted from the last Austin draft.)
+Thus, for POSIX compliance we do need the current behaviour.
+
+Also logically rmdir(".") is a doubtful operation.
+Indeed, rmdir("P/D") does roughly the following:
+(i) check that P/D is a directory
+(ii) check that P/D does not have entries other than . and ..
+(iii) delete the names . and .. from P/D
+(iv) delete the name D from P
+
+You see that rmdir("P/.") would have to do something other than (iv),
+namely deleting something from the parent directory of P.
+In cases where hard links to directories are permitted,
+it is not even clear we can talk about "the parent directory".
+So, I do not think that "rmdir ." makes perfect sense.
+
+Andries
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,40 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319115AbSHFNZE>; Tue, 6 Aug 2002 09:25:04 -0400
+	id <S318917AbSHFNkK>; Tue, 6 Aug 2002 09:40:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318917AbSHFNZE>; Tue, 6 Aug 2002 09:25:04 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:58873 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S319115AbSHFNZD>; Tue, 6 Aug 2002 09:25:03 -0400
-Subject: Re: i810 sound broken...
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Alexander Hoogerhuis <alexh@ihatent.com>
-Cc: venom@sns.it, Thomas Munck Steenholdt <tmus@get2net.dk>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <m31y9dt29p.fsf@lapper.ihatent.com>
-References: <Pine.LNX.4.43.0208051546120.8463-100000@cibs9.sns.it>
-	<1028561325.18478.55.camel@irongate.swansea.linux.org.uk> 
-	<m31y9dt29p.fsf@lapper.ihatent.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 06 Aug 2002 15:47:33 +0100
-Message-Id: <1028645253.18130.164.camel@irongate.swansea.linux.org.uk>
+	id <S319084AbSHFNkK>; Tue, 6 Aug 2002 09:40:10 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:18960 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id <S318917AbSHFNkJ>;
+	Tue, 6 Aug 2002 09:40:09 -0400
+Date: Tue, 6 Aug 2002 15:43:28 +0200
+From: Willy TARREAU <willy@w.ods.org>
+To: marcelo@conectiva.com.br
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] APM fix for 2.4.20pre1
+Message-ID: <20020806134328.GA587@pcw.home.local>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-08-05 at 22:38, Alexander Hoogerhuis wrote:
-> 
-> Different thing about 810, brand spanking new Compaq
-> Game^H^H^H^Hlaptop and it gives good sound, but shows this on boot:
-> 
-> i810: Intel ICH3 found at IO 0x4400 and 0x4000, IRQ 5
-> i810_audio: Audio Controller supports 6 channels.
-> ac97_codec: AC97 Audio codec, id: 0x4144:0x5363 (Unknown)
-> i810_audio: AC'97 codec 0 Unable to map surround DAC's (or DAC's \
-> not present), total channels = 2
+Hi Marcelo,
 
-Thats fine. Your chipset supports 6 channel surround sound. Your vendor
-didn't feel the need to fit codecs for anything more than stereo
+I resend you this patch against 2.4.19-rc5 which prevents my SMP box from
+randomly crashing at boot during APM initialization. It still applies to
+2.4.20-pre1. Alan included it in 19-ac4 too. Basically, it forces bios
+calls to be made only from CPU0.
+
+Please include it in 2.4.20-pre2.
+
+Thanks,
+Willy
+
+PS: people using O(1) scheduler should not use this patch, but Alan's.
+
+--- linux-2.4.19-rc5/arch/i386/kernel/apm.c	Thu Aug  1 22:07:39 2002
++++ linux-2.4.19-rc5-fix/arch/i386/kernel/apm.c	Fri Aug  2 01:52:55 2002
+@@ -862,14 +862,6 @@
+ 		apm_do_busy();
+ }
+ 
+-#ifdef CONFIG_SMP
+-static int apm_magic(void * unused)
+-{
+-	while (1)
+-		schedule();
+-}
+-#endif
+-
+ /**
+  *	apm_power_off	-	ask the BIOS to power off
+  *
+@@ -897,10 +889,11 @@
+ 	 */
+ #ifdef CONFIG_SMP
+ 	/* Some bioses don't like being called from CPU != 0 */
+-	while (cpu_number_map(smp_processor_id()) != 0) {
+-		kernel_thread(apm_magic, NULL,
+-			CLONE_FS | CLONE_FILES | CLONE_SIGHAND | SIGCHLD);
++	if (cpu_number_map(smp_processor_id()) != 0) {
++		current->cpus_allowed = 1;
+ 		schedule();
++		if (unlikely(cpu_number_map(smp_processor_id()) != 0))
++			BUG();
+ 	}
+ #endif
+ 	if (apm_info.realmode_power_off)
+@@ -1661,6 +1654,21 @@
+ 	strcpy(current->comm, "kapmd");
+ 	sigfillset(&current->blocked);
+ 
++#ifdef CONFIG_SMP
++	/* 2002/08/01 - WT
++	 * This is to avoid random crashes at boot time during initialization
++	 * on SMP systems in case of "apm=power-off" mode. Seen on ASUS A7M266D.
++	 * Some bioses don't like being called from CPU != 0.
++	 * Method suggested by Ingo Molnar.
++	 */
++	if (cpu_number_map(smp_processor_id()) != 0) {
++		current->cpus_allowed = 1;
++		schedule();
++		if (unlikely(cpu_number_map(smp_processor_id()) != 0))
++			BUG();
++	}
++#endif
++	
+ 	if (apm_info.connection_version == 0) {
+ 		apm_info.connection_version = apm_info.bios.version;
+ 		if (apm_info.connection_version > 0x100) {
+@@ -1707,7 +1715,7 @@
+ 		}
+ 	}
+ 
+-	if (debug && (smp_num_cpus == 1)) {
++	if (debug) {
+ 		error = apm_get_power_status(&bx, &cx, &dx);
+ 		if (error)
+ 			printk(KERN_INFO "apm: power status not available\n");
 

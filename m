@@ -1,31 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264423AbRF1VPE>; Thu, 28 Jun 2001 17:15:04 -0400
+	id <S264433AbRF1VRx>; Thu, 28 Jun 2001 17:17:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264433AbRF1VOo>; Thu, 28 Jun 2001 17:14:44 -0400
-Received: from adsl-64-175-255-50.dsl.sntc01.pacbell.net ([64.175.255.50]:48003
-	"HELO kobayashi.soze.net") by vger.kernel.org with SMTP
-	id <S264423AbRF1VN7>; Thu, 28 Jun 2001 17:13:59 -0400
-Date: Thu, 28 Jun 2001 14:17:17 -0700 (PDT)
-From: Justin Guyett <justin@soze.net>
-X-X-Sender: <tyme@gw.soze.net>
-To: Ralf Baechle <ralf@uni-koblenz.de>
-Cc: james bond <difda@hotmail.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: BIG PROBLEM
-In-Reply-To: <20010628225908.A7816@bacchus.dhis.org>
-Message-ID: <Pine.LNX.4.33.0106281413080.23200-100000@gw.soze.net>
+	id <S264447AbRF1VRn>; Thu, 28 Jun 2001 17:17:43 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:48024 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S264433AbRF1VRg>;
+	Thu, 28 Jun 2001 17:17:36 -0400
+Message-ID: <3B3B9F11.D83BDFDF@mandrakesoft.com>
+Date: Thu, 28 Jun 2001 17:18:09 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: tom_gall@vnet.ibm.com
+Cc: =?iso-8859-1?Q?G=E9rard?= Roudier <groudier@club-internet.fr>,
+        linux-kernel@vger.kernel.org
+Subject: Re: RFC: Changes for PCI
+In-Reply-To: <20010628223210.Q1578-100000@> <3B3B9D83.F95D4496@vnet.ibm.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Jun 2001, Ralf Baechle wrote:
+Tom Gall wrote:
+> Gérard Roudier wrote:
+> > The driver checks against PCI bus+dev+func in 2 situations:
+> >
+> > 1) To apply the boot order that user can set up in the controller NVRAMs.
+> > 2) To detect buggy double reporting of the same device by the kernel PCI
+> >    code (this made lot of troubles at some time).
+> 
+> Thanks much for the clarification. Do you still battle buggy double reporting?
+> Has this been fixed? Is it a bug on some specific architecture?
 
-> Some versions of the 3c59x driver emit a NUL character on bootup which makes
-> klogd suck CPU.  This is fixed in 2.4.5, dunno about 2.4.4.
+I've seen it occur in 2.2.x in buggy drivers, but in 2.4 the driver
+should -not- have to check for this.  The PCI core takes care of it.
 
-sysklogd 1.4.1 changelog lists a no busyloop fix.
-
-
-justin
-
+-- 
+Jeff Garzik      | Andre the Giant has a posse.
+Building 1024    |
+MandrakeSoft     |

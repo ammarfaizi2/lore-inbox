@@ -1,40 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316757AbSFGKwe>; Fri, 7 Jun 2002 06:52:34 -0400
+	id <S317266AbSFGL1s>; Fri, 7 Jun 2002 07:27:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317263AbSFGKwd>; Fri, 7 Jun 2002 06:52:33 -0400
-Received: from gateway.jabil.com ([198.51.174.14]:34945 "HELO
-	corrly01.jabil.com") by vger.kernel.org with SMTP
-	id <S316757AbSFGKwc>; Fri, 7 Jun 2002 06:52:32 -0400
-X-Server-Uuid: 492ed892-c84e-11d3-bc9a-0008c7b13976
-Message-ID: <86D0D7E1B6BA1049B4D0FDAE456354E3016F03A5@livmsgn10b>
-From: "Andrew Potter" <Andrew_Potter@Jabil.com>
-To: "'andre@linux-ide.org'" <andre@linux-ide.org>
-cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: BUG: cmd64x.c - CFR_INTR_CH0 - Kernel 2.4.x
-Date: Fri, 7 Jun 2002 06:52:33 -0400
+	id <S317267AbSFGL1r>; Fri, 7 Jun 2002 07:27:47 -0400
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:53998 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S317266AbSFGL1q>; Fri, 7 Jun 2002 07:27:46 -0400
+Date: Fri, 7 Jun 2002 13:28:03 +0200 (MET DST)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Andi Kleen <ak@suse.de>
+cc: Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] 4KB stack + irq stack for x86
+In-Reply-To: <p73lm9schms.fsf@oldwotan.suse.de>
+Message-ID: <Pine.GSO.3.96.1020607132043.16482F-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-X-WSS-ID: 111E4F04667138-01-02
-Content-Type: text/plain; 
- charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre,
+On 6 Jun 2002, Andi Kleen wrote:
 
-	It might just be me but I think there is an error within the defines
-of the cmd64x.c driver file.
+> Seems to be an old myth. Actually the 4K paged 64bit platforms are in the majority.
+> 
+> 64bit linux platforms:
+> 
+> 4K page: x86-64, ppc64, s390x, mips64, parisc64(?)
+> 8K:	 alpha, sparc64
+> 8-64K:   ia64
 
-	Looking through the specs for the cmd643 and cmd646 ( my laptop uses
-both chips, primary channels only and doesn't play very well with kernel
-2.4.x at the moment ) , they show that the configuration register (0x50) is
-using bit 2 for channel 0 interrupt status (CFR_INTR_CH0).
+ MIPS64 is 4K-16M (per page), currently fixed at 4K, but it can be changed
+if desireable.
 
-	The source specifies this as 0x02, should this not be 0x04 ?
-
-Regards
-
-	Andy - Learning Linux 1 day at a time
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 

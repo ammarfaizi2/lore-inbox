@@ -1,59 +1,33 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317167AbSEXO6S>; Fri, 24 May 2002 10:58:18 -0400
+	id <S317169AbSEXO7C>; Fri, 24 May 2002 10:59:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317166AbSEXO6R>; Fri, 24 May 2002 10:58:17 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:37129 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S317165AbSEXO6P>; Fri, 24 May 2002 10:58:15 -0400
-Date: Fri, 24 May 2002 16:58:17 +0200
-From: Jan Kara <jack@suse.cz>
-To: Nathan Scott <nathans@sgi.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Quota patches
-Message-ID: <20020524145817.GC31925@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20020523091626.GA8683@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.44.0205231002460.1006-100000@home.transmeta.com> <20020524123510.A180298@wobbly.melbourne.sgi.com>
-Mime-Version: 1.0
+	id <S317170AbSEXO7C>; Fri, 24 May 2002 10:59:02 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:16140 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S317169AbSEXO7B>; Fri, 24 May 2002 10:59:01 -0400
+Subject: Re: kernel 2.4.19-pre8 reboots instead of halt and 3com messages
+To: hilbert@hjb-design.com
+Date: Fri, 24 May 2002 16:19:01 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1022154900.3cecd894c6f95@webmail.freedom2surf.net> from "hilbert@hjb-design.com" at May 23, 2002 01:55:00 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E17BGqL-0006YL-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi all,
-  
-> On Thu, May 23, 2002 at 10:03:50AM -0700, Linus Torvalds wrote:
-> > 
-> > On Thu, 23 May 2002, Jan Kara wrote:
-> > > ... . If he has newer tools
-> > > (<3.05) he has to decide depending on format he wants to use...
->                       ^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 
-> > This makes me pretty certain we just do not want to have the backwards-
-> > compatibility layer in 2.5.x
-> > 
-> > Are there _any_ reasons to use the old stuff, if the fix is just to
-> > upgrade to a newer quota tool?
-> 
-> Moving to newer interfaces implies use of the new ondisk format
-> for the quota files (exclusively) - I'd imagine that's the main
-> reason behind providing a choice.  Whether or not that reason is
-> sufficently compelling though... dunno.  If one wanted to be able
-> to switch between booting either 2.4 (unpatched) and 2.5+, and
-> also maintain quota information on filestystems, then the choice
-> would be useful in that situation.
-  Latest quota interface is able to handle both formats together
-(structures passed throught Q_GETQUOTA, Q_SETQUOTA,... are independent
-of quota format and Q_QUOTAON takes as an argument in 'id' the quota format
-number). So if user wants to stay at old format he can...
-  So I think Linus is right here that there's no real reason for keeping
-compatibility code in 2.5... Linus, I'll send you the patch which kicks
-out the compatibility stuff.
+> Since I installed the 2.4.19-pre8 kernel on my Athlon 1,3 GHz machine.
+> The machine wont halt and poweroff any more it just reboots.
+> Systemhardware
+> AMD Irongate chipset
+> NVidia 2MX (nvidia drivers 2880)
 
-								Honza
--- 
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
+The Nvidia drivers are not supported by the open source community. 
+
+Firstly please boot without the Nvidia drivers getting loaded at all. If the
+problem still occurs check you built both the old and new kernel with the
+same APM options.

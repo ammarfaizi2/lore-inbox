@@ -1,76 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130327AbRBEV0V>; Mon, 5 Feb 2001 16:26:21 -0500
+	id <S130733AbRBEV3m>; Mon, 5 Feb 2001 16:29:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131567AbRBEV0K>; Mon, 5 Feb 2001 16:26:10 -0500
-Received: from pcow028o.blueyonder.co.uk ([195.188.53.124]:59914 "EHLO
-	blueyonder.co.uk") by vger.kernel.org with ESMTP id <S130327AbRBEVZ7>;
-	Mon, 5 Feb 2001 16:25:59 -0500
-Date: Mon, 5 Feb 2001 21:20:09 +0000
-From: Michael Pacey <michael@wd21.co.uk>
-To: Tom Sightler <ttsig@tuxyturvy.com>
-Cc: linux-kernel@vger.kernel.org, aia21@cam.ac.uk, michael@wd21.co.uk
-Subject: Re: [Patch] [Repost] 3Com 3c523: Can't load module in kernel 2.4.1
-Message-ID: <20010205212009.B425@kermit.wd21.co.uk>
-In-Reply-To: <Pine.LNX.4.30.0102051034450.22075-100000@iso-2146-l1.zeusinc.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <Pine.LNX.4.30.0102051034450.22075-100000@iso-2146-l1.zeusinc.com>; from ttsig@tuxyturvy.com on Mon, Feb 05, 2001 at 15:50:26 +0000
-X-Mailer: Balsa 1.0.pre5
+	id <S131567AbRBEV3c>; Mon, 5 Feb 2001 16:29:32 -0500
+Received: from chiara.elte.hu ([157.181.150.200]:29961 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S130733AbRBEV3T>;
+	Mon, 5 Feb 2001 16:29:19 -0500
+Date: Mon, 5 Feb 2001 22:28:37 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: Steve Lord <lord@sgi.com>, <linux-kernel@vger.kernel.org>,
+        <kiobuf-io-devel@lists.sourceforge.net>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
+ /notify + callback chains
+In-Reply-To: <20010205121921.C1167@redhat.com>
+Message-ID: <Pine.LNX.4.30.0102052213470.10520-100000@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Mon, 05 Feb 2001 15:50:26 Tom Sightler wrote:
+On Mon, 5 Feb 2001, Stephen C. Tweedie wrote:
 
-> Anyway, here's the patch again, hope it works this time.  It includes the
-> following changes:
-> 
-> - fix addresses with bus_to_virt
-> - reduce xmit buffers from 4 to 1 (puts driver in noop mode like ni52
-> driver)
-> - increase recv buffers from 6 to 9 (should help decrease dropped
-> packets)
-> - add short delay to detect routine (makes cards detectable on fast
-> machines)
-> - use eth_copy_and_sum for receiving packets
-> 
-> It passed basic stress testing with multiple, simultaneous ftp transfers.
-> 
-> Known bugs:
-> 
-> - Multicast still doesn't work at all (I have patches that seem to fix
-> this but they have other problems)
-> - Still drops packets under heavy traffic (can be reduced further by
-> lowering MTU on interface)
-> - Sometimes requires host to send a packet before it starts receiving (I
-> can't reproduce this on my equipment anymore, but needs more testing)
-> 
-> Anyone with this card please test and report back.
-> 
+> And no, the IO success is *not* necessarily sequential from the start
+> of the IO: if you are doing IO to raid0, for example, and the IO gets
+> striped across two disks, you might find that the first disk gets an
+> error so the start of the IO fails but the rest completes.  It's the
+> completion code which notifies the caller of what worked and what did
+> not.
 
-This works for me. I had to frig the patch file though (I think /my/ mailer
-(balsa) was screwing it up though).
+it's exactly these 'compound' structures i'm vehemently against. I do
+think it's a design nightmare. I can picture these monster kiobufs
+complicating the whole code for no good reason - we couldnt even get the
+bh-list code in block_device.c right - why do you think kiobufs *all
+across the kernel* will be any better?
 
-I did an NFS transfer of ~100Mb file (a tar of linux 2.4.1). Details:
+RAID0 is not an issue. Split it up, use separate kiobufs for every
+different disk. We need simple constructs - i do not believe why nobody
+sees that these big fat monster-trucks of IO workload are *trouble*. They
+keep things localized, instead of putting workload components into the
+system immediately. We'll have performance bugs nobody has seen before.
+bhs have one very nice property: they are simple, modularized. I think
+this is like CISC vs. RISC: CISC designs ended up splitting 'fat
+instructions' up into RISC-like instructions.
 
-10Base2 Co-ax segment, lightly used, shared with one other machine.
-Transfer rate: 5,854,215 Mbit/s
-Overruns: 18
+fragmented skbs are a different matter: they are simply a bit more generic
+abstractions of 'memory buffer'. Clear goal, clear solution. I do not
+think kiobufs have clear goals.
 
-I didn't check what the overruns were prior to the transfer but all I had
-done was the NFS mount and couple of directory listings.
+and i do not buy the performance arguments. In 2.4.1 we improved block-IO
+performance dramatically by fixing high-load IO scheduling. Write
+performance suddenly improved dramatically, there is a 30-40% improvement
+in dbench performance. To put in another way: *we needed 5 years to fix a
+serious IO-subsystem performance bug*. Block IO was already too complex -
+and Alex & Andrea have done a nice job streamlining and cleaning it up for
+2.4. We should simplify it further - and optimize the components, instead
+of bringing in yet another *big* complication into the API.
 
-I'm very happy with this; under 2.2.17 with this card, I was getting about
-1Mbyte per minute for an NFS transfer. My friend thanks you too.
+and what is the goal of having multi-page kiobufs. To avoid having to do
+multiple function calls via a simpler interface? Shouldnt we optimize that
+codepath instead?
 
---
-Michael Pacey
-michael@wd21.co.uk
-ICQ: 105498469
-
-wd21 ltd - world domination in the 21st century
+	Ingo
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

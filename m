@@ -1,53 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261317AbSJ1PxH>; Mon, 28 Oct 2002 10:53:07 -0500
+	id <S261327AbSJ1QBH>; Mon, 28 Oct 2002 11:01:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261318AbSJ1PxH>; Mon, 28 Oct 2002 10:53:07 -0500
-Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:6310 "EHLO
-	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S261317AbSJ1PxG>;
-	Mon, 28 Oct 2002 10:53:06 -0500
-Date: Mon, 28 Oct 2002 15:59:21 +0000
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Cc: Andi Kleen <ak@suse.de>, eggert@twinsun.com, linux-kernel@vger.kernel.org
-Subject: Re: nanosecond file timestamp resolution in filesystems, GNU make, etc.
-Message-ID: <20021028155921.GA16929@bjl1.asuk.net>
-References: <20021028151309.GB16546@bjl1.asuk.net> <Pine.GSO.3.96.1021028161702.977I-100000@delta.ds2.pg.gda.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.3.96.1021028161702.977I-100000@delta.ds2.pg.gda.pl>
-User-Agent: Mutt/1.4i
+	id <S261330AbSJ1QBH>; Mon, 28 Oct 2002 11:01:07 -0500
+Received: from hermes.univ-evry.fr ([194.199.90.32]:38564 "EHLO
+	hermes.univ-evry.fr") by vger.kernel.org with ESMTP
+	id <S261327AbSJ1QBC>; Mon, 28 Oct 2002 11:01:02 -0500
+Date: Mon, 28 Oct 2002 17:00:29 +0100 (CET)
+From: Daniel Goujot <Daniel.Goujot@maths.univ-evry.fr>
+To: <linux-kernel@vger.kernel.org>
+Subject: No rtl8139 found in menuconfig in linux-2.2.22
+Message-ID: <Pine.LNX.4.33L2.0210281646450.14810-100000@grozny.maths.univ-evry.fr>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maciej W. Rozycki wrote:
-> > It's already there.  The kernel stat64() syscall has a flags argument,
-> > which is unused at the moment.  I presume it's for this purpose.
-> 
->  Hmm, I haven't thought of this argument to be used this way.  Actually it
-> isn't currently initialized by glibc in any way, which makes its utility
-> questionable.
+[1.] No rtl8139 found in menuconfig in linux-2.2.22
+[2.] Full description of the problem/report:
+download http://www.kernel.org/pub/linux/kernel/v2.2/linux-2.2.22.tar.gz
+cd /usr/src
+mkdir linux-2.2.22
+ln -si linux-2.2.22 linux
+tar zxf linux-2.2.22.tar.gz
+cd /usr/src/linux
+make mrproper
+make menuconfig
+-- don't find the rtl8139 (I found the tulip network driver, not the rtl8139 network driver)
+make bzImage (it works, but without rtl8139)
+[3.] menuconfig rtl8139 2.2.22
+[4.] menuconfig problem
+[5.] Output of Oops.. message : None
+[6.] A small shell script or example program which triggers the
+     problem (if possible) : see above
+[7.] Environment
+[7.1.] Software (add the output of the ver_linux script here)
+Linux r22m73.cybercable.tm.fr 2.2.10 #1 Tue Jul 20 16:32:24 MEST 1999 i686 unknown
+Kernel modules         [5]
+Gnu C                  egcs-2.91.66
+Binutils               2.9.1.0.25
+Linux C Library        (manually, ldd --version) ldd (GNU libc) 2.1.1
+/usr/lib/libg++-1.so.2
+/usr/lib/libg++-2-libc6.1-1-2.8.1.3.a
+/usr/lib/libg++-2-libc6.1-1-2.8.1.3.so
+/usr/lib/libg++-libc6.1-1.a.2
+/usr/lib/libg++-libc6.1-1.so.2
+/usr/lib/libg++.so.2.7.2
+Procps                 1.2.11
+Mount                  2.9t
+Net-tools              (1999-04-20)
+Kbd                    0.99
+Sh-utils               1.16
+[7.2.] Processor information (from /proc/cpuinfo): no concern
+[7.3.] Module information (from /proc/modules): no concern
+[7.4.] SCSI information (from /proc/scsi/scsi): no concern
+[7.5.] Other information that might be relevant to the problem: none
+[X.] Other notes, patches, fixes, workarounds: no patch.
 
-You are right.  I just checked dietlibc and uclibc - neither of them
-initialise the flags argument.  It should be deleted from the kernel,
-because nobody can use it.
 
-On the bright side (for my specific request of st_resolution), it
-seems every architecture has a different size reserved for st_dev and
-st_rdev in struct stat64:
 
-	- i386: 12 bytes (8 bytes used by Glibc)
-	- SPARC: 8 bytes (all needed for 8 byte dev_t, but space elsewhere)
-	- ARM:  12 bytes
-	- MIPS: 16 bytes (!)
-	- S390: 12 bytes
-	- Alpha: not obvious what's used - is int 64 bits wide on Alpha?
-                 if it's not, other changes need for 64-bit dev_t anyway.
 
-All the architectures I've looked at have two words available in
-struct stat64, if they have struct stat64, but the available space is
-in different places for each architecture.
-
--- Jamie
 

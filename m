@@ -1,40 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277244AbRJIOT0>; Tue, 9 Oct 2001 10:19:26 -0400
+	id <S277247AbRJIOX0>; Tue, 9 Oct 2001 10:23:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277241AbRJIOTQ>; Tue, 9 Oct 2001 10:19:16 -0400
-Received: from quark.didntduck.org ([216.43.55.190]:25362 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP
-	id <S277244AbRJIOTK>; Tue, 9 Oct 2001 10:19:10 -0400
-Message-ID: <3BC30755.30F47321@didntduck.org>
-Date: Tue, 09 Oct 2001 10:19:01 -0400
-From: Brian Gerst <bgerst@didntduck.org>
-X-Mailer: Mozilla 4.76 [en] (WinNT; U)
-X-Accept-Language: en
+	id <S277248AbRJIOXQ>; Tue, 9 Oct 2001 10:23:16 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:35857 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S277247AbRJIOXG>; Tue, 9 Oct 2001 10:23:06 -0400
+Date: Tue, 9 Oct 2001 11:01:31 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: BALBIR SINGH <balbir.singh@wipro.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Andrea Arcangeli <andrea@suse.de>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: pre6 VM issues
+In-Reply-To: <3BC30701.2060908@wipro.com>
+Message-ID: <Pine.LNX.4.21.0110091057470.5604-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-To: Alejandro Conty <zz01f074@etsiig.uniovi.es>
-CC: Gergely Tamas <dice@mfa.kfki.hu>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] again: Re: Athlon kernel crash (i686 works)
-In-Reply-To: <LAW2-OE29ilTmbtQVi0000079ef@hotmail.com>
-		<Pine.LNX.4.33.0110091347001.12835-100000@falka.mfa.kfki.hu> <20011009155907.6c9e0b98.zz01f074@etsiig.uniovi.es>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alejandro Conty wrote:
-> 
-> Could my random kernel oopses be caused by that bug?
-> 
-> I have a VIA (ASUS A7V) cipset an K7 1000Mhz, and sometimes the kernel crash.
-> I just updated to kernel 2.4.10, and the first problem is that I get a random
-> oops if I try to load analog.o with modprobe. I sent a report of this problem
-> two days ago.
-> 
-> Could that patch solve my problem?
 
-The oops with the analog joystick driver is fixed in 2.4.11-preX.
 
---
+On Tue, 9 Oct 2001, BALBIR SINGH wrote:
 
-				Brian Gerst
+> Most of the traditional unices maintained a pool for each subsystem
+> (this is really useful when u have the memory to spare), so not matter
+> what they use memory only from their pool (and if needed peek outside),
+> but nobody else used the memory from the pool.
+> 
+> I have seen cases where, I have run out of physical memory on my system,
+> so I try to log in using the serial console, but since the serial driver
+> does get_free_page (this most likely fails) and the driver complains back.
+> So, I had suggested a while back that important subsystems should maintain
+> their own pool (it will take a new thread to discuss the right size of
+> each pool).
+> 
+> Why can't Linux follow the same approach? especially on systems with a lot
+> of memory.
+
+There is nothing which avoids us from doing that (there is one reserved
+pool I remeber right now: the highmem bounce buffering pool, but that one
+is a special case due to the way Linux does IO in high memory and its only
+needed on _real_ emergencies --- it will be removed in 2.5, I hope).
+
+In general, its a better approach to share the memory and have a unified
+pool. If a given subsystem is not using its own "reversed" memory, another
+subsystems can use it.
+
+The problem we are seeing now can be fixed even without the reserved
+pools.
+
+

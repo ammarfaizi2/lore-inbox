@@ -1,45 +1,116 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277723AbRJ1GKv>; Sun, 28 Oct 2001 01:10:51 -0500
+	id <S277727AbRJ1GZN>; Sun, 28 Oct 2001 01:25:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277725AbRJ1GKl>; Sun, 28 Oct 2001 01:10:41 -0500
-Received: from queen.bee.lk ([203.143.12.182]:15489 "EHLO queen.bee.lk")
-	by vger.kernel.org with ESMTP id <S277723AbRJ1GKg>;
-	Sun, 28 Oct 2001 01:10:36 -0500
-Date: Sun, 28 Oct 2001 12:11:27 +0600
-From: Anuradha Ratnaweera <anuradha@gnu.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Other computers HIGHLY degrading network performance (DoS?)
-Message-ID: <20011028121127.A21662@bee.lk>
-In-Reply-To: <20011026084328.A14814@bee.lk> <1004064922.21997.7.camel@Eleusis> <20011026090505.A15880@bee.lk> <20011026101313.A18310@bee.lk> <20011026145621.J41175@stingr.net> <20011027092802.A2651@bee.lk> <20011027140650.K41175@stingr.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011027140650.K41175@stingr.net>; from i@stingr.net on Sat, Oct 27, 2001 at 02:06:51PM +0400
+	id <S277728AbRJ1GZE>; Sun, 28 Oct 2001 01:25:04 -0500
+Received: from stephens.ittc.ku.edu ([129.237.125.220]:39555 "EHLO
+	stephens.ittc.ku.edu") by vger.kernel.org with ESMTP
+	id <S277727AbRJ1GYx>; Sun, 28 Oct 2001 01:24:53 -0500
+Date: Sun, 28 Oct 2001 01:25:28 -0500 (CDT)
+From: Amit Kucheria <amitk@ittc.ku.edu>
+To: <linux-kernel@vger.kernel.org>
+Subject: using objdump to debug some n/w code in kernel
+Message-ID: <Pine.LNX.4.33.0110280124540.16994-100000@havoc.ittc.ku.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 27, 2001 at 02:06:51PM +0400, Paul P Komkoff Jr wrote:
-> 
-> and if it is not duplex issue, then take lan tester and test your cabling ...
-> then hub ...
+Hi,
 
-It _is_ probably a duplex issue.  We have already tested cabling and hub.
+I am using the 'makelst' script in the scripts directory to generate
+interleaved source code and assembly listing. This script uses 'objdump'
 
-> then get rid of your "proprietary linux based product" :)
-                  ^^^^
-It is _not_ ours.  The router is controlled by the ISP.  Otherwise, we would
-have got rid of it long time ago ;)
+Now my problem is that the original C code and the .lst files dont seem to
+match. They are listed below.
 
-Cheers,
+I get an oops with EIP at c01b3230. But the corresponding C code for that
+(switch (n % 4)) isnt written by me!! In other words the instructions
+between c01b3223 - c01b3232 dont seem to make sense.
 
-Anuradha
+Can anybody throw any light on this 'phenomena' ?
+BTW, the string ': "memory");' seems to be repeating in a lot of
+places in the .lst file. Is there something about objdump that i havent
+read up on.
+
+Regards,
+Amit
+
+Original code:
+-------------
+/* .......
+   So host > network > gateway entries.
+*/
+    for (i=0; i < MAX_ROUTING_ENTRIES; i++)
+    {
+        /* copy the routing entry into our local variable..just to be safe
+           We will optimize later by doing without this copy */
+        memcpy(&tmp_entry, ptr_route, sizeof(struct routing_entry));
+
+        switch(tmp_entry.rt_flag)
+        {
+            case 'H':
+                /* if dest ip is a host entry */
+----- end original code -----------------
+
+Code generated using 'makelst:
+-------------------------------
+/* ....
+   So host > network > gateway entries.
+*/
+    for (i=0; i < MAX_ROUTING_ENTRIES; i++)
+c01b3206:       31 ed                   xor    %ebp,%ebp
+c01b3208:       8d 5c 24 48             lea    0x48(%esp,1),%ebx
+c01b320c:       8d 54 24 68             lea    0x68(%esp,1),%edx
+c01b3210:       8b 49 5c                mov    0x5c(%ecx),%ecx
+c01b3213:       89 4c 24 18             mov    %ecx,0x18(%esp,1)
+c01b3217:       89 54 24 10             mov    %edx,0x10(%esp,1)
+c01b321b:       8d 4c 24 28             lea    0x28(%esp,1),%ecx
+c01b321f:       89 4c 24 14             mov    %ecx,0x14(%esp,1)
+c01b3223:       90                      nop
+        : "memory");
+{
+        int d0, d1, d2;
+        switch (n % 4) {
+                case 0: COMMON(""); return to;
+c01b3224:       b9 08 00 00 00          mov    $0x8,%ecx
+c01b3229:       89 df                   mov    %ebx,%edi
+c01b322b:       8b 74 24 18             mov    0x18(%esp,1),%esi
+c01b322f:       fc                      cld
+c01b3230:       f3 a5                   repz movsl %ds:(%esi),%es:(%edi)
+    {
+        /* copy the routing entry into our local variable..just to be safe
+We will optimize later by doing without this copy */
+        memcpy(&tmp_entry, ptr_route, sizeof(struct routing_entry));
+
+        switch(tmp_entry.rt_flag)
+c01b3232:       8a 44 24 54             mov    0x54(%esp,1),%al
+c01b3236:       3c 48                   cmp    $0x48,%al
+c01b3238:       74 1a                   je     c01b3254
+<veth_route_lookup+0xa8>c01b323a:       7f 0c                   jg
+c01b3248 <veth_route_lookup+0x9c>c01b323c:       3c 47
+cmp    $0x47,%al
+c01b323e:       74 60                   je     c01b32a0
+<veth_route_lookup+0xf4>c01b3240:       e9 d9 00 00 00          jmp
+c01b331e <veth_route_lookup+0x172>
+c01b3245:       8d 76 00                lea    0x0(%esi),%esi
+c01b3248:       3c 4e                   cmp    $0x4e,%al
+c01b324a:       74 54                   je     c01b32a0
+<veth_route_lookup+0xf4>c01b324c:       e9 cd 00 00 00          jmp
+c01b331e <veth_route_lookup+0x172>
+c01b3251:       8d 76 00                lea    0x0(%esi),%esi
+        {
+            case 'H':
+                /* if dest ip is a host entry */
+ ------- end of makelst code ----------------
 
 -- 
+^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^
+                  Amit Kucheria
+          EECS Grad. Research Assistant
+         University of Kansas @ Lawrence
+   (R)+1-(785)-830 8521 ||| (O)+1-(785)-864 7774
+____________________________________________________
 
-Debian GNU/Linux (kernel 2.4.13)
 
-	"What time is it?"
-	"I don't know, it keeps changing."
 

@@ -1,202 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316951AbSHSBha>; Sun, 18 Aug 2002 21:37:30 -0400
+	id <S316933AbSHSByz>; Sun, 18 Aug 2002 21:54:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317003AbSHSBha>; Sun, 18 Aug 2002 21:37:30 -0400
-Received: from nycsmtp3fa.rdc-nyc.rr.com ([24.29.99.79]:9991 "EHLO si.rr.com")
-	by vger.kernel.org with ESMTP id <S316951AbSHSBh1>;
-	Sun, 18 Aug 2002 21:37:27 -0400
-Date: Sun, 18 Aug 2002 21:33:23 -0400 (EDT)
-From: Frank Davis <fdavis@si.rr.com>
-X-X-Sender: fdavis@localhost.localdomain
-To: linux-kernel@vger.kernel.org
-cc: fdavis@si.rr.com
-Subject: [PATCH] 2.5.31 : include/asm/a.out.h (last archs)
-Message-ID: <Pine.LNX.4.44.0208182128060.861-100000@localhost.localdomain>
+	id <S317054AbSHSByz>; Sun, 18 Aug 2002 21:54:55 -0400
+Received: from dp.samba.org ([66.70.73.150]:48280 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S316933AbSHSByy>;
+	Sun, 18 Aug 2002 21:54:54 -0400
+From: Paul Mackerras <paulus@samba.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15712.20532.996267.734044@argo.ozlabs.ibm.com>
+Date: Mon, 19 Aug 2002 11:56:04 +1000 (EST)
+To: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
+Subject: [PATCH] fix bug in yield()
+X-Mailer: VM 6.75 under Emacs 20.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
-  These patches against archs s390, s390x, sh, sparc, sparc64, x86_64 
-reflect the proposed additionm of creating an include/asm-generic/a.out.h 
-. Please review.
+This patch makes yield() actually call schedule.
 
-Regards,
-Frank
+Without this patch, 2.4.20-pre3 will hang on boot for me, looping in
+spawn_ksoftirqd waiting for ksoftirqd to start and calling yield().
+ksoftirqd never gets to run, however, because yield never actually
+calls schedule.  (Note that sys_sched_yield as a syscall is OK because
+the syscall exit path will check current->need_resched and call
+schedule).
 
---- include/asm-s390/a.out.h.old	Fri May 12 14:41:44 2000
-+++ include/asm-s390/a.out.h	Thu Aug  8 23:04:05 2002
-@@ -13,21 +13,7 @@
- #ifndef __S390_A_OUT_H__
- #define __S390_A_OUT_H__
- 
--struct exec
--{
--  unsigned long a_info;		/* Use macros N_MAGIC, etc for access */
--  unsigned a_text;		/* length of text, in bytes */
--  unsigned a_data;		/* length of data, in bytes */
--  unsigned a_bss;		/* length of uninitialized data area for file, in bytes */
--  unsigned a_syms;		/* length of symbol table data in file, in bytes */
--  unsigned a_entry;		/* start address */
--  unsigned a_trsize;		/* length of relocation info for text, in bytes */
--  unsigned a_drsize;		/* length of relocation info for data, in bytes */
--};
--
--#define N_TRSIZE(a)	((a).a_trsize)
--#define N_DRSIZE(a)	((a).a_drsize)
--#define N_SYMSIZE(a)	((a).a_syms)
-+#include <asm-generic/a.out.h>
- 
- #ifdef __KERNEL__
- 
- 
---- include/asm-s390x/a.out.h.old	Tue Feb 13 17:13:44 2001
-+++ include/asm-s390x/a.out.h	Thu Aug  8 23:09:27 2002
-@@ -13,21 +13,7 @@
- #ifndef __S390_A_OUT_H__
- #define __S390_A_OUT_H__
- 
--struct exec
--{
--  unsigned long a_info;		/* Use macros N_MAGIC, etc for access */
--  unsigned a_text;		/* length of text, in bytes */
--  unsigned a_data;		/* length of data, in bytes */
--  unsigned a_bss;		/* length of uninitialized data area for file, in bytes */
--  unsigned a_syms;		/* length of symbol table data in file, in bytes */
--  unsigned a_entry;		/* start address */
--  unsigned a_trsize;		/* length of relocation info for text, in bytes */
--  unsigned a_drsize;		/* length of relocation info for data, in bytes */
--};
--
--#define N_TRSIZE(a)	((a).a_trsize)
--#define N_DRSIZE(a)	((a).a_drsize)
--#define N_SYMSIZE(a)	((a).a_syms)
-+#include <asm-generic/a.out.h>
- 
- #ifdef __KERNEL__
- 
+Paul.
 
---- include/asm-sh/a.out.h.old	Mon Aug 30 21:12:59 1999
-+++ include/asm-sh/a.out.h	Thu Aug  8 23:11:00 2002
-@@ -1,21 +1,7 @@
- #ifndef __ASM_SH_A_OUT_H
- #define __ASM_SH_A_OUT_H
+diff -urN linux-2.4/kernel/sched.c pmac/kernel/sched.c
+--- linux-2.4/kernel/sched.c	Wed Aug  7 18:10:01 2002
++++ pmac/kernel/sched.c	Mon Aug 19 10:39:39 2002
+@@ -1081,6 +1081,7 @@
+ {
+ 	set_current_state(TASK_RUNNING);
+ 	sys_sched_yield();
++	schedule();
+ }
  
--struct exec
--{
--  unsigned long a_info;		/* Use macros N_MAGIC, etc for access */
--  unsigned a_text;		/* length of text, in bytes */
--  unsigned a_data;		/* length of data, in bytes */
--  unsigned a_bss;		/* length of uninitialized data area for file, in bytes */
--  unsigned a_syms;		/* length of symbol table data in file, in bytes */
--  unsigned a_entry;		/* start address */
--  unsigned a_trsize;		/* length of relocation info for text, in bytes */
--  unsigned a_drsize;		/* length of relocation info for data, in bytes */
--};
--
--#define N_TRSIZE(a)	((a).a_trsize)
--#define N_DRSIZE(a)	((a).a_drsize)
--#define N_SYMSIZE(a)	((a).a_syms)
-+#include <asm-generic/a.out.h>
- 
- #ifdef __KERNEL__
- 
-
---- include/asm-sparc/a.out.h.old	Thu Jan 13 15:03:00 2000
-+++ include/asm-sparc/a.out.h	Thu Aug  8 23:13:21 2002
-@@ -5,19 +5,7 @@
- #define SPARC_PGSIZE    0x2000        /* Thanks to the sun4 architecture... */
- #define SEGMENT_SIZE    SPARC_PGSIZE  /* whee... */
- 
--struct exec {
--	unsigned char a_dynamic:1;      /* A __DYNAMIC is in this image */
--	unsigned char a_toolversion:7;
--	unsigned char a_machtype;
--	unsigned short a_info;
--	unsigned long a_text;		/* length of text, in bytes */
--	unsigned long a_data;		/* length of data, in bytes */
--	unsigned long a_bss;		/* length of bss, in bytes */
--	unsigned long a_syms;		/* length of symbol table, in bytes */
--	unsigned long a_entry;		/* where program begins */
--	unsigned long a_trsize;
--	unsigned long a_drsize;
--};
-+#include <asm-generic/a.out.h>
- 
- /* Where in the file does the text information begin? */
- #define N_TXTOFF(x)     (N_MAGIC(x) == ZMAGIC ? 0 : sizeof (struct exec))
-@@ -37,10 +25,6 @@
-                       (N_TXTADDR(x) + (x).a_text)  \
-                        : (_N_SEGMENT_ROUND (_N_TXTENDADDR(x))))
- 
--#define N_TRSIZE(a)	((a).a_trsize)
--#define N_DRSIZE(a)	((a).a_drsize)
--#define N_SYMSIZE(a)	((a).a_syms)
--
- /*
-  * Sparc relocation types
-  */
-
---- include/asm-sparc64/a.out.h.old	Wed Feb 13 21:27:46 2002
-+++ include/asm-sparc64/a.out.h	Thu Aug  8 23:14:39 2002
-@@ -7,19 +7,7 @@
- 
- #ifndef __ASSEMBLY__
- 
--struct exec {
--	unsigned char a_dynamic:1;      /* A __DYNAMIC is in this image */
--	unsigned char a_toolversion:7;
--	unsigned char a_machtype;
--	unsigned short a_info;
--	unsigned int a_text;		/* length of text, in bytes */
--	unsigned int a_data;		/* length of data, in bytes */
--	unsigned int a_bss;		/* length of bss, in bytes */
--	unsigned int a_syms;		/* length of symbol table, in bytes */
--	unsigned int a_entry;		/* where program begins */
--	unsigned int a_trsize;
--	unsigned int a_drsize;
--};
-+#include <asm-generic/a.out.h>
- 
- #endif /* !__ASSEMBLY__ */
- 
-@@ -41,10 +29,6 @@
-                       (N_TXTADDR(x) + (x).a_text)  \
-                        : (unsigned long)(_N_SEGMENT_ROUND (_N_TXTENDADDR(x))))
- 
--#define N_TRSIZE(a)	((a).a_trsize)
--#define N_DRSIZE(a)	((a).a_drsize)
--#define N_SYMSIZE(a)	((a).a_syms)
--
- #ifndef __ASSEMBLY__
- 
- /*
-
---- include/asm-x86_64/a.out.h.old	Wed Feb 20 19:46:23 2002
-+++ include/asm-x86_64/a.out.h	Thu Aug  8 23:15:53 2002
-@@ -5,21 +5,7 @@
- /* Note: a.out is not supported in 64bit mode. This is just here to 
-    still let some old things compile. */ 
- 
--struct exec
--{
--  unsigned long a_info;		/* Use macros N_MAGIC, etc for access */
--  unsigned a_text;		/* length of text, in bytes */
--  unsigned a_data;		/* length of data, in bytes */
--  unsigned a_bss;		/* length of uninitialized data area for file, in bytes */
--  unsigned a_syms;		/* length of symbol table data in file, in bytes */
--  unsigned a_entry;		/* start address */
--  unsigned a_trsize;		/* length of relocation info for text, in bytes */
--  unsigned a_drsize;		/* length of relocation info for data, in bytes */
--};
--
--#define N_TRSIZE(a)	((a).a_trsize)
--#define N_DRSIZE(a)	((a).a_drsize)
--#define N_SYMSIZE(a)	((a).a_syms)
-+#include <asm-generic/a.out.h>
- 
- #ifdef __KERNEL__
- 
+ void __cond_resched(void)
 

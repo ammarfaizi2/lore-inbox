@@ -1,57 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264030AbUCZMTu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Mar 2004 07:19:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264026AbUCZMTu
+	id S264031AbUCZM0v (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Mar 2004 07:26:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264035AbUCZM0v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Mar 2004 07:19:50 -0500
-Received: from amalthea.dnx.de ([193.108.181.146]:55995 "EHLO amalthea.dnx.de")
-	by vger.kernel.org with ESMTP id S264030AbUCZMTq (ORCPT
+	Fri, 26 Mar 2004 07:26:51 -0500
+Received: from holomorphy.com ([207.189.100.168]:14732 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S264031AbUCZM0t (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Mar 2004 07:19:46 -0500
-Date: Fri, 26 Mar 2004 13:19:28 +0100
-From: Robert Schwebel <robert@schwebel.de>
-To: bert hubert <ahu@ds9a.nl>, David Brownell <david-b@pacbell.net>,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] RNDIS Gadget Driver
-Message-ID: <20040326121928.GC16461@pengutronix.de>
-References: <20040325221145.GJ10711@pengutronix.de> <20040326115947.GA22185@outpost.ds9a.nl>
+	Fri, 26 Mar 2004 07:26:49 -0500
+Date: Fri, 26 Mar 2004 04:26:36 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Rajesh Venkatasubramanian <vrajesh@umich.edu>, akpm@osdl.org,
+       torvalds@osdl.org, hugh@veritas.com, mbligh@aracnet.com,
+       riel@redhat.com, mingo@elte.hu, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: [RFC][PATCH 1/3] radix priority search tree - objrmap complexity fix
+Message-ID: <20040326122636.GX791@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrea Arcangeli <andrea@suse.de>,
+	Rajesh Venkatasubramanian <vrajesh@umich.edu>, akpm@osdl.org,
+	torvalds@osdl.org, hugh@veritas.com, mbligh@aracnet.com,
+	riel@redhat.com, mingo@elte.hu, linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org
+References: <Pine.LNX.4.44.0403150527400.28579-100000@localhost.localdomain> <Pine.GSO.4.58.0403211634350.10248@azure.engin.umich.edu> <20040325225919.GL20019@dualathlon.random>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040326115947.GA22185@outpost.ds9a.nl>
-User-Agent: Mutt/1.4i
-X-Scan-Signature: bdb6ba8b9184e0b6a72479d1f42a9fb8
+In-Reply-To: <20040325225919.GL20019@dualathlon.random>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 26, 2004 at 12:59:47PM +0100, bert hubert wrote:
-> > Unfortunately, although it works with the original Microsoft driver, you
-> > need an inf file on the windows side; you can download the template for
-> > that directly from M$. 
-> 
-> I don't understand this comment, it would probably be very wise to add
-> something to Documentation/ about this.
+On Thu, Mar 25, 2004 at 11:59:19PM +0100, Andrea Arcangeli wrote:
+> btw, the truncate of hugetlbfs didn't serialize correctly against the
+> do_no_page page faults, that's fixed too.
 
-You need such an .inf file on the windows side; M$ has a template where
-you simply need to insert your vendor/device ID and other stuff. I'm not
-sure about the license for these files, so I don't know if it is allowed
-to distribute them. 
+If a fault on hugetlb ever got as far as do_no_page() on ia32, the
+kernel would oops on the bogus struct page it gets out of the bogus
+pte.  I believe the way faults are handled in out-of-tree patches if by
+calling hugetlb-specific fault handling stacks instead of
+handle_mm_fault() if hugetlb vmas are found by arch code.
 
-> > -	.bDeviceClass =		DEV_CONFIG_CLASS,
-> > +	.bDeviceClass =		0x02,
-> 
-> Is this wise?
 
-Until now DEV_CONFIG_CLASS was 0xFF, which results in Windows getting
-hickup. If you directly set this to 0x02 (Network Device) Win is happy.
-Might be a good idea anyway. 
-
-Robert
--- 
- Dipl.-Ing. Robert Schwebel | http://www.pengutronix.de
- Pengutronix - Linux Solutions for Science and Industry
-   Handelsregister:  Amtsgericht Hildesheim, HRA 2686
-     Hornemannstraﬂe 12,  31137 Hildesheim, Germany
-    Phone: +49-5121-28619-0 |  Fax: +49-5121-28619-4
+-- wli

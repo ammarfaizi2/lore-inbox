@@ -1,73 +1,148 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318847AbSHETn2>; Mon, 5 Aug 2002 15:43:28 -0400
+	id <S318856AbSHETsI>; Mon, 5 Aug 2002 15:48:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318853AbSHETn2>; Mon, 5 Aug 2002 15:43:28 -0400
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:24962 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S318847AbSHETn1>; Mon, 5 Aug 2002 15:43:27 -0400
-Date: Mon, 5 Aug 2002 14:47:02 -0500 (CDT)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Patrick Mochel <mochel@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: driverfs API Updates
-In-Reply-To: <Pine.LNX.4.44.0208051216090.1241-100000@cherise.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.44.0208051438430.2694-100000@chaos.physics.uiowa.edu>
+	id <S318857AbSHETsI>; Mon, 5 Aug 2002 15:48:08 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:12980 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S318856AbSHETsG>; Mon, 5 Aug 2002 15:48:06 -0400
+Message-ID: <3D4ED69E.ABA2C737@us.ibm.com>
+Date: Mon, 05 Aug 2002 12:48:46 -0700
+From: mingming cao <cmm@us.ibm.com>
+Reply-To: cmm@us.ibm.com
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+CC: cmm@us.ibm.com
+Subject: [PATCH] Breaking down the global IPC locks
+Content-Type: multipart/mixed;
+ boundary="------------A575D5A2DFB6C66A5ED4DFEE"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 5 Aug 2002, Patrick Mochel wrote:
+This is a multi-part message in MIME format.
+--------------A575D5A2DFB6C66A5ED4DFEE
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-> [1]: The reason for the macro is because the driverfs internals
-> have changed enough to be able to support attributes of any type. In
-> order to do this in a type-safe manner, we have a generic object type
-> (struct attribute) that we use. We pass this to an intermediate layer
-> that does a container_of() on that object to obtain the specific
-> attribute type. 
+Hi Linus and All,
 
-Of course that means that it's not really type-safe, since it has no way 
-to check whether the object is embedded in the right type of struct, right 
-;) (But I think that's okay, C doesn't have provisions for real 
-inheritance)
+This patch breaks down the three global IPC locks into one lock per IPC
+ID. 
 
-> This means the specific attribute types have an embedded struct
-> attribute in them, making the initializers kinda ugly. I played with
-> anonymous structs and unions to have something that could
-> theoretically work, but they apparently don't like named
-> initializers. 
+In current implementation, the operations on any IPC semaphores are
+synchronized by one single IPC semaphore lock.  Changing the IPC locks
+from one lock per IPC resource type into one lock per IPC ID makes sense
+to me.  By doing so could reduce the possible lock contention in some
+applications where the IPC resources are heavily used.
 
-Have you considered just putting in the embedded part via some macro - 
-I think that's what NTFS does for compilers which don't support unnamed 
-structs.
+Test results from the LMbench Pipe and IPC latency test shows this patch 
+improves the performance of those functions from 1% to 9%.  
 
-Basically
+Patch applies to 2.5.30 kernel. Please consider it.
 
-#define EMB_ATTRIBUTE \
-	int emb1;
-	int emb2
+--
+Mingming Cao
+--------------A575D5A2DFB6C66A5ED4DFEE
+Content-Type: text/plain; charset=us-ascii;
+ name="ipclock.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ipclock.patch"
 
-struct my_attribute {
-	EMB_ATTRIBUTE
-	int my1;
-	int my2;
-};
+diff -urN -X ../dontdiff ../base/linux-2.5.30/ipc/util.c 2.5.30-ipc/ipc/util.c
+--- ../base/linux-2.5.30/ipc/util.c	Thu Aug  1 14:16:21 2002
++++ 2.5.30-ipc/ipc/util.c	Fri Aug  2 16:06:19 2002
+@@ -74,9 +74,11 @@
+ 		printk(KERN_ERR "ipc_init_ids() failed, ipc service disabled.\n");
+ 		ids->size = 0;
+ 	}
+-	ids->ary = SPIN_LOCK_UNLOCKED;
+-	for(i=0;i<ids->size;i++)
++	ids->ary_lock =RW_LOCK_UNLOCKED;
++	for(i=0;i<ids->size;i++) {
+ 		ids->entries[i].p = NULL;
++		ids->entries[i].lock = SPIN_LOCK_UNLOCKED;
++	}
+ }
+ 
+ /**
+@@ -119,14 +121,15 @@
+ 	memcpy(new, ids->entries, sizeof(struct ipc_id)*ids->size);
+ 	for(i=ids->size;i<newsize;i++) {
+ 		new[i].p = NULL;
++		new[i].lock = SPIN_LOCK_UNLOCKED;
+ 	}
+-	spin_lock(&ids->ary);
++	write_lock(&ids->ary_lock);
+ 
+ 	old = ids->entries;
+ 	ids->entries = new;
+ 	i = ids->size;
+ 	ids->size = newsize;
+-	spin_unlock(&ids->ary);
++	write_unlock(&ids->ary_lock);
+ 	ipc_free(old, sizeof(struct ipc_id)*i);
+ 	return ids->size;
+ }
+@@ -165,7 +168,8 @@
+ 	if(ids->seq > ids->seq_max)
+ 		ids->seq = 0;
+ 
+-	spin_lock(&ids->ary);
++	read_lock(&ids->ary_lock);
++	spin_lock(&ids->entries[id].lock);
+ 	ids->entries[id].p = new;
+ 	return id;
+ }
+diff -urN -X ../dontdiff ../base/linux-2.5.30/ipc/util.h 2.5.30-ipc/ipc/util.h
+--- ../base/linux-2.5.30/ipc/util.h	Thu Aug  1 14:16:28 2002
++++ 2.5.30-ipc/ipc/util.h	Fri Aug  2 16:06:19 2002
+@@ -20,11 +20,13 @@
+ 	unsigned short seq_max;
+ 	struct semaphore sem;	
+ 	spinlock_t ary;
++	rwlock_t ary_lock;
+ 	struct ipc_id* entries;
+ };
+ 
+ struct ipc_id {
+ 	struct kern_ipc_perm* p;
++	spinlock_t	lock;
+ };
+ 
+ 
+@@ -72,16 +74,25 @@
+ 	if(lid >= ids->size)
+ 		return NULL;
+ 
+-	spin_lock(&ids->ary);
++	/*spin_lock(&ids->ary);*/
++	read_lock(&ids->ary_lock);
++	spin_lock(&ids->entries[lid].lock);
+ 	out = ids->entries[lid].p;
+-	if(out==NULL)
+-		spin_unlock(&ids->ary);
++	if(out==NULL) {
++		spin_unlock(&ids->entries[lid].lock);
++		read_unlock(&ids->ary_lock);
++	}
+ 	return out;
+ }
+ 
+ extern inline void ipc_unlock(struct ipc_ids* ids, int id)
+ {
+-	spin_unlock(&ids->ary);
++	int lid = id % SEQ_MULTIPLIER;
++        if(lid >= ids->size)
++                return;
++
++	spin_unlock(&ids->entries[lid].lock);
++	read_unlock(&ids->ary_lock);
+ }
+ 
+ extern inline int ipc_buildid(struct ipc_ids* ids, int id, int seq)
 
-That'll work with named initializers just fine, so the users don't have to 
-deal with ugly DEVICE_ATTR macros, where one forgets if parameter #3 was 
-show or store ;) - It follows the common way of hiding away unavoidable 
-ugliness in some header.
-
-> [2]: I wanted to consolidate the first two parameters, but I couldn't
-> find a way to stringify ##name (or un-stringify "strname"). Is that
-> even possible? 
-
-Why would stringify (include/linux/stringify.h) not work? However, Al Viro 
-may get mad at you for generating ungreppable symbols either way ;-)
-
---Kai
-
-
+--------------A575D5A2DFB6C66A5ED4DFEE--
 

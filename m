@@ -1,41 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265531AbTGSLuf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jul 2003 07:50:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266018AbTGSLue
+	id S266018AbTGSMBy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jul 2003 08:01:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266169AbTGSMBy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jul 2003 07:50:34 -0400
-Received: from tazz.wtf.dk ([80.199.6.58]:2688 "EHLO sokrates")
-	by vger.kernel.org with ESMTP id S265531AbTGSLue (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jul 2003 07:50:34 -0400
-Date: Sat, 19 Jul 2003 14:05:30 +0200
-From: Michael Kristensen <michael@wtf.dk>
-To: Ian Hastie <ianh@iahastie.clara.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: More 2.6.0-test1-ac2 issues / nvidia kernel module
-Message-ID: <20030719120530.GA549@sokrates>
-References: <20030718154918.GA27176@charite.de> <200307190413.56193.ianh@iahastie.local.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Sat, 19 Jul 2003 08:01:54 -0400
+Received: from dclient217-162-108-200.hispeed.ch ([217.162.108.200]:32773 "EHLO
+	ritz.dnsalias.org") by vger.kernel.org with ESMTP id S266018AbTGSMBx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jul 2003 08:01:53 -0400
+From: Daniel Ritz <daniel.ritz@gmx.ch>
+To: Tom Sightler <ttsig@tuxyturvy.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG REPORT 2.6.0] cisco airo_cs scheduling while atomic
+Date: Sat, 19 Jul 2003 14:17:14 +0200
+User-Agent: KMail/1.5.2
+Cc: Jeff Garzik <jgarzik@pobox.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200307190413.56193.ianh@iahastie.local.net>
-User-Agent: Mutt/1.5.4i
+Message-Id: <200307191417.14321.daniel.ritz@gmx.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Ian Hastie <ianh@iahastie.clara.net> [2003-07-19 12:22:06]:
-> And that's the problem.  The new modprobe uses /etc/modprobe.conf rather than 
-> /etc/modules.conf.  In Debian you now need to put the component files into 
-> /etc/modprobe.d instead of /etc/modutils.  However the syntax appears to be 
-> mostly the same so the configuration files you already have should still 
-> work.
+> > Well Daniel Ritz has posted a big fix to the driver so I threw mine away. 
+> > I'll include it in the next -mm, so please test that.
+>
+> I've applied Daniel's patch to my 2.6.0-test1-mm1 tree on two of my test
+> systems (a PCMCIA and PCI version of the Aironet 350 series) and both
+> are working great.  His patches look pretty obviously correct to me and
+> are much cleaner than the hacked up patches I've been sending out to
+> people to get the card working on recent 2.5.7x kernels.  Just wanted to
+> report the success.
+>
 
-Oh! Thanks for this info. I have had problems figuring out why my
-aliases in /etc/modutils/aliases and other stuff didn't work... Now even
-ALSA runs perfectly on my system. Thank you very much.
+thanx...nice to hear that it works...
 
--- 
-Med Venlig Hilsen/Best Regards/Mit freundlichen Grüßen
-Michael Kristensen <michael@wtf.dk>
+> Later,
+> Tom
+>
+
+-daniel
+

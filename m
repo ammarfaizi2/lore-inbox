@@ -1,66 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262951AbUDUORh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262954AbUDUOUg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262951AbUDUORh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Apr 2004 10:17:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262954AbUDUORh
+	id S262954AbUDUOUg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Apr 2004 10:20:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262996AbUDUOUg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Apr 2004 10:17:37 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:5504 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262951AbUDUORe
+	Wed, 21 Apr 2004 10:20:36 -0400
+Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:53164 "EHLO
+	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S262974AbUDUOUe
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Apr 2004 10:17:34 -0400
-Date: Wed, 21 Apr 2004 10:17:50 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Graham Murray <graham@gmurray.org.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: vger.kernel.org is listed by spamcop
-In-Reply-To: <m3zn958me4.fsf@home.gmurray.org.uk>
-Message-ID: <Pine.LNX.4.53.0404211002170.1048@chaos>
-References: <200404210722.32253.lkml@kcore.org> <20040421084434.GL1749@mea-ext.zmailer.org>
- <buoad15hfp2.fsf@mcspd15.ucom.lsi.nec.co.jp> <m3zn958me4.fsf@home.gmurray.org.uk>
+	Wed, 21 Apr 2004 10:20:34 -0400
+Date: Wed, 21 Apr 2004 16:20:32 +0200 (CEST)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: john stultz <johnstul@us.ibm.com>
+Cc: Niclas Gustafsson <niclas.gustafsson@codesense.com>,
+       lkml <linux-kernel@vger.kernel.org>, Patricia Gaughen <gone@us.ibm.com>
+Subject: Re: Failing back to INSANE timesource :) Time stopped today.
+In-Reply-To: <1082495923.10026.36.camel@cog.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.55.0404211612010.28167@jurand.ds.pg.gda.pl>
+References: <1081416100.6425.45.camel@gmg.codesense.com> 
+ <1081465114.4705.4.camel@cog.beaverton.ibm.com>  <1081932857.17234.37.camel@gmg.codesense.com>
+  <Pine.LNX.4.55.0404151633100.17365@jurand.ds.pg.gda.pl> 
+ <1082048278.17234.144.camel@gmg.codesense.com>  <1082452873.20179.34.camel@gmg.codesense.com>
+  <Pine.LNX.4.55.0404201431360.28193@jurand.ds.pg.gda.pl>
+ <1082495923.10026.36.camel@cog.beaverton.ibm.com>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Apr 2004, Graham Murray wrote:
+On Tue, 20 Apr 2004, john stultz wrote:
 
-> Miles Bader <miles@lsi.nec.co.jp> writes:
->
-> > The spamcop report page seems to say that the listings are due to user
-> > reports; could the real problem be clueless users who don't understand
-> > the difference above?
->
-> They also tell you that you MUST NOT report spam received through a
-> mailing list. Only the mailing list administrators are supposed to
-> report spam sent to a mailing list.
-> -
+> >  If you are asking about the problematic code, then it's there since
+> > 2.3.x, so it's in 2.4, too.  It's a part of the NMI watchdog support,
+> > though it's used for ordinary timer interrupts for certain systems as
+> > well.
+> 
+> Are you saying that 2.4 will exhibit this problem as well, or that 2.4
+> already has an equivalent workaround?
 
-Spam-Cop is another Nazi-like organization that is clue-less.
-For instance, my email address and practically every email address
-in the known universe is routinely stolen by the spammers to do
-their dirty work. In the past month, I've gotten more email from
-the black-listers, telling me that I've been black-listed, than
-SPAM in a year! They just generate FUD.
+ The former.
 
-The company network administrator has been informed many times;
-"YOU HAVE BEEN WARNED!! Lawsuits may follow!" with big threatening
-letters about my machines defecating on the Internet. Yawn.
+> >  Apparently there are problems with the workaround on certain AMD
+> > Athlon-based systems.  I suppose they need to be resolved somehow first.
+> 
+> Can you point me to any threads on this issue. I'd like to do what I can
+> to help get this workaround in.
 
-Eventually very machine that routes on the Internet will filter and
-drop any packets that have my email or IP address. They will claim
-that my Linux machines, using pine, are infested with W$WORM-crap. I
-already have worm-mongers trying to sell me anti-virus software, claiming
-that my machine is infecting the universe.
+ Here's my reply to a report which seems not to have reached LKML archives
+for some reason:  
+"http://www.uwsg.indiana.edu/hypermail/linux/kernel/0403.2/0384".  The
+important part of the original mail is quoted.
 
-FYI, the open-source SpamCop project was killed. Some other
-organization claimed the name and became just another Net Nazi.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.26 on an i686 machine (5557.45 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
-
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +

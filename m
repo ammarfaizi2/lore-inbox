@@ -1,49 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264392AbUEEJzH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264396AbUEEJ4I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264392AbUEEJzH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 May 2004 05:55:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264405AbUEEJzH
+	id S264396AbUEEJ4I (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 May 2004 05:56:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264412AbUEEJ4I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 May 2004 05:55:07 -0400
-Received: from firewall.conet.cz ([213.175.54.250]:3265 "EHLO conet.cz")
-	by vger.kernel.org with ESMTP id S264392AbUEEJy6 (ORCPT
+	Wed, 5 May 2004 05:56:08 -0400
+Received: from mail.tpgi.com.au ([203.12.160.58]:24484 "EHLO mail2.tpgi.com.au")
+	by vger.kernel.org with ESMTP id S264396AbUEEJ4D (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 May 2004 05:54:58 -0400
-Date: Wed, 5 May 2004 11:54:06 +0200
-From: Libor Vanek <libor@conet.cz>
-To: Bart Samwel <bart@samwel.tk>
-Cc: "Richard B. Johnson" <root@chaos.analogic.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Read from file fails
-Message-ID: <20040505095406.GC5767@Loki>
-References: <20040503000004.GA26707@Loki> <Pine.LNX.4.53.0405030852220.10896@chaos> <20040503150606.GB6411@Loki> <Pine.LNX.4.53.0405032020320.12217@chaos> <20040504011957.GA20676@Loki> <4097A94C.8060403@samwel.tk>
+	Wed, 5 May 2004 05:56:03 -0400
+Subject: Re: swsusp documentation updates
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Andrew Morton <akpm@zip.com.au>,
+       Rusty trivial patch monkey Russell 
+	<trivial@rustcorp.com.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040505094719.GA4259@elf.ucw.cz>
+References: <20040505094719.GA4259@elf.ucw.cz>
+Content-Type: text/plain
+Message-Id: <1083750907.17294.27.camel@laptop-linux.wpcb.org.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4097A94C.8060403@samwel.tk>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.5-2.norlug 
+Date: Wed, 05 May 2004 19:55:07 +1000
+Content-Transfer-Encoding: 7bit
+X-TPG-Antivirus: Passed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 04, 2004 at 04:31:40PM +0200, Bart Samwel wrote:
-> Libor Vanek wrote:
-> >I know that kernel threads work. My question was more like: "I'd
-> > like to know, whether writing my module as kernel thread will make
-> > it able to read/write files".
-> [...]
-> >>>I think there are reasons (speed, speed, speed...)  why some things
-> >>> should be done kernel-space.
-> 
-> Using a kernel thread won't improve speed, because to do anything you 
-> will have to context-switch to the thread. For the stuff you want to do 
-> you are probably better off having a tiny kernel module to intercept the 
-> events that you're interested in, notifying a userspace process to do 
+Howdy.
 
-OK - how can I "notify" userspace process? Signals are "weak" - I need to send some data (filename etc.) to process. One solution is "on this signal call this syscall and result of this syscall will be data you need" - but I'd prefer to handle this in one "action".
+On Wed, 2004-05-05 at 19:47, Pavel Machek wrote:
+> +There are two solutions to this:
+> +
+> +* require half of memory to be free during suspend. That way you can
+> +read "new" data onto free spots, then cli and copy
 
-> the real work. Yes, it will be slower than in kernel space, but only 
-> slightly. Especially if you use sendfile from the userspace process. And 
-> it's also good to remember that Linux is optimized for running user 
-> space processes as fast as possible. :)
-> 
-> --Bart
+Would you consider adding:
+
+(Suspend2, which allows more than half of memory to be saved, is a
+variant on this).
+
+Regards,
+
+Nigel
+-- 
+Nigel & Michelle Cunningham
+C/- Westminster Presbyterian Church Belconnen
+61 Templeton Street, Cook, ACT 2614.
++61 (2) 6251 7727(wk); +61 (2) 6254 0216 (home)
+
+Evolution (n): A hypothetical process whereby infinitely improbable events occur 
+with alarming frequency, order arises from chaos, and no one is given credit.
+

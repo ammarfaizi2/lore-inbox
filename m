@@ -1,77 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131289AbRCNDzd>; Tue, 13 Mar 2001 22:55:33 -0500
+	id <S131300AbRCNE3c>; Tue, 13 Mar 2001 23:29:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131290AbRCNDzW>; Tue, 13 Mar 2001 22:55:22 -0500
-Received: from fepout2.telus.net ([199.185.220.237]:23768 "EHLO
-	priv-edtnes04-hme0.telusplanet.net") by vger.kernel.org with ESMTP
-	id <S131289AbRCNDzR>; Tue, 13 Mar 2001 22:55:17 -0500
-From: jens <psh1@telus.net>
-To: linux-kernel@vger.kernel.org
-Subject: Sound problems with Asus K7V board using the via82cxxx drivers (2.4.3-pre 3/4)
-Date: Tue, 13 Mar 2001 20:02:49 -0800
-Message-ID: <2lqtatgk6dtbok94na6a4ss86aenevkkoh@4ax.com>
-X-Mailer: Forte Agent 1.8/32.548
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S131304AbRCNE3X>; Tue, 13 Mar 2001 23:29:23 -0500
+Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:7675 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S131292AbRCNE3J>; Tue, 13 Mar 2001 23:29:09 -0500
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200103140427.f2E4R9C06455@webber.adilger.int>
+Subject: Re: (struct dentry *)->vfsmnt;
+In-Reply-To: <Pine.GSO.4.21.0103132130220.2506-100000@weyl.math.psu.edu> from
+ Alexander Viro at "Mar 13, 2001 09:32:38 pm"
+To: Alexander Viro <viro@math.psu.edu>
+Date: Tue, 13 Mar 2001 21:27:09 -0700 (MST)
+CC: Andreas Dilger <adilger@turbolinux.com>, LA Walsh <law@sgi.com>,
+        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there, I am not sure if this is a kernel problem or an operator
-problem but for some reason or other my sound is no longer working.
-More specifically when I run gmix it reports no mixers being found. I
-verified that the via82cxxx driver is compiled in (it worked before)
-and everything seems cosher. If anyone has a clue what would cause my
-lack of sound, I would be grateful.
+You write:
+> > What about if I want to know the mountpoint (inside the filesystem)
+> > when it is mounted?
+> 
+> Which mountpoint? There can be a lot of them (quite possibly - some
+> of them out of the chroot jail you are in, so "any" is unlikely to
+> do you any good).
 
-Jens
+How about the first one?  The one that calls the "read_super" method.
+AFAICT, only the first mount calls down to the FS anyways (the rest
+is VFS internal).
 
-
-I noted two items of interest: 
-During compile I get the following messages:
-***************
-/usr/bin/make -C sound
-make[3]: Entering directory `/root/kernel2.4.2/linux/drivers/sound'
-/usr/bin/make all_targets
-make[4]: Entering directory `/root/kernel2.4.2/linux/drivers/sound'
-gcc -D__KERNEL__ -I/root/kernel2.4.2/linux/include -Wall
--Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing
--pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4
--DEXPORT_SYMTAB -c sound_core.c
-gcc -D__KERNEL__ -I/root/kernel2.4.2/linux/include -Wall
--Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing
--pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4
--c -o sound_firmware.o sound_firmware.c
-ld -m elf_i386 -r -o soundcore.o sound_core.o sound_firmware.o
-gcc -D__KERNEL__ -I/root/kernel2.4.2/linux/include -Wall
--Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing
--pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4
--c -o via82cxxx_audio.o via82cxxx_audio.c
-via82cxxx_audio.c: In function `via_ac97_reset':
-via82cxxx_audio.c:1374: warning: unused variable `tmp8'
-gcc -D__KERNEL__ -I/root/kernel2.4.2/linux/include -Wall
--Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing
--pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4
--DEXPORT_SYMTAB -c ac97_codec.c
-rm -f sounddrivers.o
-ld -m elf_i386  -r -o sounddrivers.o soundcore.o via82cxxx_audio.o
-ac97_codec.o
-make[4]: Leaving directory `/root/kernel2.4.2/linux/drivers/sound'
-make[3]: Leaving directory `/root/kernel2.4.2/linux/drivers/sound'
-
-*****************
-
-Note the 'unused variable 'tmp8' ' error
-
-
-Also dmesg reports the following:
-*************
-Via 686a audio driver 1.1.14b
-PCI: Found IRQ 10 for device 00:04.5
-PCI: The same IRQ used for device 00:0a.0
-ac97_codec: AC97 Audio codec, id: 0x4352:0x5934 (Cirrus Logic CS4299)
-via82cxxx: board #1 at 0xA800, IRQ 10
-*************
-
-
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

@@ -1,42 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261168AbUC1LpH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Mar 2004 06:45:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261225AbUC1LpG
+	id S261170AbUC1Lrq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Mar 2004 06:47:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261203AbUC1Lrq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Mar 2004 06:45:06 -0500
-Received: from [80.72.36.106] ([80.72.36.106]:51347 "EHLO alpha.polcom.net")
-	by vger.kernel.org with ESMTP id S261168AbUC1LpD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Mar 2004 06:45:03 -0500
-Date: Sun, 28 Mar 2004 13:44:58 +0200 (CEST)
-From: Grzegorz Kulewski <kangur@polcom.net>
-To: Steve Kieu <s_kieu@hotmail.com>
-Cc: maxime@tralhalla.org, linux-kernel@vger.kernel.org
-Subject: Re: vmware and kernel 2.6 high cpu usage
-In-Reply-To: <Sea1-F108LM2ViWLEkY000116a9@hotmail.com>
-Message-ID: <Pine.LNX.4.58.0403281341010.343@alpha.polcom.net>
-References: <Sea1-F108LM2ViWLEkY000116a9@hotmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 28 Mar 2004 06:47:46 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:59401 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S261170AbUC1Lrp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Mar 2004 06:47:45 -0500
+Date: Sun, 28 Mar 2004 13:47:41 +0200
+From: Willy TARREAU <willy@w.ods.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.26-rc1
+Message-ID: <20040328114740.GA22214@pcw.home.local>
+References: <20040328042608.GA17969@logos.cnet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040328042608.GA17969@logos.cnet>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 28 Mar 2004, Steve Kieu wrote:
-> >can you try changing the value of HZ from 1000 to 100 like in a 2.4
-> >kernel? I bet this is it. Thanks,
-> 
-> yes it is fixed. Thanks. I reduce to 100 ; and try to notice the difference 
-> when running with 1000 for others apps, at first things seems to be a bit 
-> better (in general)
+Hi Marcelo,
 
-But why is the problem? Why vmware uses it and how can it (from user-level
-unix programmer point of view)?
+It's OK here on dual athlon, alpha is compiling. I identified a few
+warnings during the compilation. I'll send a few patches to fix them.
+The biggest one is on agpgart, when the agp_generic_* functions are
+not used, but fixing this needs a lot of #if and I feel like lazy
+right now :-)
 
-And can we cheat the value of HZ to be 100 to some broken apps while generally
-it is 1000? (I need 1000 for some reasons.)
-
-
-thanks in advance
-
-Grzegorz Kulewski
+Regards,
+Willy

@@ -1,37 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263607AbUBRHmK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 02:42:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263760AbUBRHmK
+	id S263942AbUBRIcG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 03:32:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263806AbUBRIcG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 02:42:10 -0500
-Received: from fw.osdl.org ([65.172.181.6]:60073 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263607AbUBRHmI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 02:42:08 -0500
-Date: Tue, 17 Feb 2004 23:43:14 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: linux-kernel@vger.kernel.org
-Cc: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: 2.6.3-mm1
-Message-Id: <20040217234314.1cbe76c3.akpm@osdl.org>
-In-Reply-To: <20040217232130.61667965.akpm@osdl.org>
-References: <20040217232130.61667965.akpm@osdl.org>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 18 Feb 2004 03:32:06 -0500
+Received: from kempelen.iit.bme.hu ([152.66.241.120]:47528 "EHLO
+	kempelen.iit.bme.hu") by vger.kernel.org with ESMTP id S263777AbUBRIcC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 03:32:02 -0500
+Date: Wed, 18 Feb 2004 09:31:51 +0100 (MET)
+Message-Id: <200402180831.i1I8VpE00710@kempelen.iit.bme.hu>
+From: Miklos Szeredi <mszeredi@inf.bme.hu>
+To: Rik van Riel <riel@redhat.com>
+CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-reply-to: <Pine.LNX.4.44.0402171657070.25294-100000@chimarrao.boston.redhat.com>
+	(message from Rik van Riel on Tue, 17 Feb 2004 16:59:25 -0500 (EST))
+Subject: Re: [RFC] [PATCH] allowing user mounts
+References: <Pine.LNX.4.44.0402171657070.25294-100000@chimarrao.boston.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
->
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.3/2.6.3-mm1/
 
-oops, it appears that rmmod hangs in D state all the time.  
+Rik van Riel wrote:
+> On Tue, 17 Feb 2004, Miklos Szeredi wrote:
+> 
+> > This patch (against 2.6.3-rc4) allows the use of the mount syscall by
+> > non-root users in a controlled, and secure (I hope) way.  I'd very
+> > much appreciate any comments,
+> 
+> Just as a curiosity, why not do this in userspace ?
 
-root      1381  0.0  0.0     0    0 ?        SW<  23:33   0:00  \_ [kstopmachine]
-root      1382  0.0  0.0     0    0 ?        Z<   23:33   0:00      \_ [kstopmachine <defunct>]
-root      1380  0.0  0.1  1356  392 pts/0    D    23:33   0:00  |           \_ rmmod 3c59x
+There's a simple enough reason: it can't be done securely.
 
+The reason is, that the path lookup for the mountpoint is performed by
+the mount syscall, so the permissions of the looked up inode can only
+be checked in the mount syscall.
 
+> You'll notice that /bin/mount already is a suid application,
+> so you could just add your functionality there, or write your
+> own suid mount application.
+
+Yeah, it's been done (fusermount in FUSE), but it cannot be made truly
+secure.
+
+> As an added bonus, you'd be able to have a more flexible
+> configuration framework then what would ever be accepted
+> into the kernel, without needing to go through the effort
+> of getting anything merged into the kernel.
+
+But you don't need a configuration framework for simple filesystem
+operations like mkdir, etc.  IMHO mount should be one of those simple
+operations, since it's a very powerful addition to the other
+filesystem tools.
+
+My feeling that it really can be done simply without a lot of
+framework in kernel.  I know Al Viro had some ideas about this (see
+the #ifdef in mount_is_safe() in fs/namespace.c), but he seems to be
+onto other things now, and doesn't care about the VFS any more ;-(.
+
+Thanks for your comments,
+Miklos

@@ -1,40 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132839AbRDPCke>; Sun, 15 Apr 2001 22:40:34 -0400
+	id <S132843AbRDPClQ>; Sun, 15 Apr 2001 22:41:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132843AbRDPCkY>; Sun, 15 Apr 2001 22:40:24 -0400
-Received: from mail.inconnect.com ([209.140.64.7]:16813 "HELO
-	mail.inconnect.com") by vger.kernel.org with SMTP
-	id <S132839AbRDPCkJ>; Sun, 15 Apr 2001 22:40:09 -0400
-Date: Sun, 15 Apr 2001 20:40:08 -0600 (MDT)
-From: Dax Kelson <dax@gurulabs.com>
-To: David Findlay <david_j_findlay@yahoo.com.au>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: IP Acounting Idea for 2.5
-In-Reply-To: <01041707532801.00352@workshop>
-Message-ID: <Pine.SOL.4.30.0104152031580.28965-100000@ultra1.inconnect.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132846AbRDPClG>; Sun, 15 Apr 2001 22:41:06 -0400
+Received: from geos.coastside.net ([207.213.212.4]:20619 "EHLO
+	geos.coastside.net") by vger.kernel.org with ESMTP
+	id <S132844AbRDPCk5>; Sun, 15 Apr 2001 22:40:57 -0400
+Mime-Version: 1.0
+Message-Id: <p05100b09b7000a8c3bc9@[207.213.214.34]>
+In-Reply-To: <01041521302600.15046@tabby>
+In-Reply-To: <E14oxbX-0000oM-00@sites.inka.de> <01041521302600.15046@tabby>
+Date: Sun, 15 Apr 2001 19:38:06 -0700
+To: linux-kernel@vger.kernel.org
+From: Jonathan Lundell <jlundell@pobox.com>
+Subject: Re: fsck, raid reconstruction & bad bad 2.4.3
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Findlay said once upon a time (Tue, 17 Apr 2001):
+At 9:23 PM -0500 2001-04-15, Jesse Pollard wrote:
+> >b) wait with fsck until rebuild is fixed
+>
+>Depends on your definition of "fixed". The most I can see to fix is
+>reduce the amount of continued update in favor of updating those blocks
+>being read (by fsck or anything else). This really ought to be a runtime
+>configuration option. If it is set to 0, then no automatic repair would
+>be done.
 
-> I am using the kernel IP Accounting in Linux to record the amount of data
-> transfered via my Linux internet gateway from individual IP addresses. This
-> currently requires me to set up an accounting rule for each IP address that I
-> want to record accounting info for. If I had 200 machines to individually log
-> this would require me to set 200 rules.
+The original post was referring to RAID 1; there's no repair necessary at the RAID level to give fsck the correct data. Seems to me the basic problem here is that the RAID re-sync is supposed to be throttling back to allow other activity to run, but that in the case of fsck the other activity is still slower by a large factor (compared to no RAID re-sync).
 
-In 1999 I setup a Linux kernel 2.2 box to monitor traffic for about 2500
-hosts.  I created two rules for each host (to monitor inbound and
-outbound).  I had over 5000 total rules on a Pentium II 300 Mhz box.  I
-wrote some perl glue so I could accounts on a per customer basis (each
-customer had one or more IPs, not necessarily contiguous) and graph the
-results in MRTG.
-
-There was ZERO performance problems on the box.  The box is still
-runningly happily today.  I don't there is a "problem" to fix.
-
-Dax
-
+Is this a pathological case because of the way fsck does business, or does the RAID re-sync affect any disk-bound process that severely?
+-- 
+/Jonathan Lundell.

@@ -1,95 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266253AbUGAUHx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266248AbUGAUS0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266253AbUGAUHx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 16:07:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266254AbUGAUHw
+	id S266248AbUGAUS0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 16:18:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266254AbUGAUS0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 16:07:52 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:8361 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S266253AbUGAUHl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 16:07:41 -0400
-Date: Thu, 1 Jul 2004 22:07:40 +0200
-From: Jan Kara <jack@suse.cz>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix minor quota race
-Message-ID: <20040701200740.GE3540@atrey.karlin.mff.cuni.cz>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="Yylu36WmvOXNoKYn"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+	Thu, 1 Jul 2004 16:18:26 -0400
+Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:28884 "EHLO
+	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP id S266248AbUGAUSX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jul 2004 16:18:23 -0400
+Message-ID: <40E470A9.3000908@pacbell.net>
+Date: Thu, 01 Jul 2004 13:14:33 -0700
+From: David Brownell <david-b@pacbell.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en, fr
+MIME-Version: 1.0
+To: James Bottomley <James.Bottomley@steeleye.com>
+CC: Ian Molton <spyro@f2s.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       tony@atomide.com, jamey.hicks@hp.com, joshua@joshuawise.com,
+       Russell King <rmk@arm.linux.org.uk>
+Subject: Re: [RFC] on-chip coherent memory API for DMA
+References: <1088518868.1862.18.camel@mulgrave>		<40E41BE1.1010003@pacbell.net> <1088692004.1887.8.camel@mulgrave> 	<40E42374.8060407@pacbell.net> <1088705063.1919.16.camel@mulgrave>
+In-Reply-To: <1088705063.1919.16.camel@mulgrave>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+James Bottomley wrote:
+> On Thu, 2004-07-01 at 09:45, David Brownell wrote:
+> 
+>>Seems unreasonable to me, unless there's also an API to change
+>>the mode of the dma_alloc_coherent() memory from the normal
+>>"CPU can read/write as usual" to the exotic "need to use special
+>>memory accessors".  (And another to report what mode the API is
+>>in at the current moment.)
+> 
+> 
+> No. That's why you specify how you'd like the memory to be treated.  If
+> you don't want the memory to be accessible only via IO accessors, then
+> you specify DMA_MEMORY_MAP and take the failure if the platform can't
+> handle it.
 
---Yylu36WmvOXNoKYn
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+That can work when the scope of "DMA" knowledge is just
+one driver ... but when that driver is plugging into a
+framework, it's as likely to be some other code (maybe
+a higher level driver) that just wants RAM address space
+which, for whatever reasons, is DMA-coherent.  And hey,
+the way to get this is dma_alloc_coherent ... or in some
+cases, pci_alloc_consistent.
 
-  Hello Andrew!
-
-  I'm sending one more quota fix - it fixes a possible race between
-quotaoff and prune_icache. The race could lead to some forgotten
-pointers to quotas in inodes leading later to BUG when invalidating
-quota structures. The patch is against 2.6.7. Please apply.
-
-							Honza
+Which is why my comment was that the new feature of
+returning some kind of memory cookie usable on that one
+IBM box (etc) should just use a different allocator API.
+It doesn't allocate RAM "similarly to __get_free_pages";
+it'd be returning something drivers can't treat as RAM.
 
 
---Yylu36WmvOXNoKYn
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="quota-2.6.7-2-quotaoff.diff"
+>>And I don't like modal APIs like that, which is why it'd make
+>>more sense to me to have a new allocator API for this new
+>>kind of DMA memory.  (Which IS for that IBM processor, yes?)
+> 
+> 
+> There is no "new" kind of memory.  This is currently how *all* I/O
+> memory is accessed.  DMA_MEMORY_MAP is actually the new bit since it
+> allows I/O memory to be treated as normal memory.
 
-diff -rpuX /home/jack/.kerndiffexclude linux-2.6.7-1-flagslock/fs/dquot.c linux-2.6.7-2-quotaoff/fs/dquot.c
---- linux-2.6.7-1-flagslock/fs/dquot.c	2004-07-01 20:49:27.000000000 +0200
-+++ linux-2.6.7-2-quotaoff/fs/dquot.c	2004-07-01 20:54:04.000000000 +0200
-@@ -114,9 +114,10 @@
-  * operations on dquots don't hold dq_lock as they copy data under dq_data_lock
-  * spinlock to internal buffers before writing.
-  *
-- * Lock ordering (including related VFS locks) is following:
-- *  i_sem > dqonoff_sem > journal_lock > dqptr_sem > dquot->dq_lock > dqio_sem
-- *  i_sem on quota files is special (it's below dqio_sem)
-+ * Lock ordering (including some related VFS locks) is the following:
-+ *   i_sem > dqonoff_sem > iprune_sem > journal_lock > dqptr_sem >
-+ *   > dquot->dq_lock > dqio_sem
-+ * i_sem on quota files is special (it's below dqio_sem)
-  */
- 
- spinlock_t dq_list_lock = SPIN_LOCK_UNLOCKED;
-@@ -726,14 +727,20 @@ static void put_dquot_list(struct list_h
- /* Function in inode.c - remove pointers to dquots in icache */
- extern void remove_dquot_ref(struct super_block *, int, struct list_head *);
- 
-+extern struct semaphore iprune_sem;
-+
- /* Gather all references from inodes and drop them */
- static void drop_dquot_ref(struct super_block *sb, int type)
- {
- 	LIST_HEAD(tofree_head);
- 
-+	/* We need to be guarded against prune_icache to reach all the
-+	 * inodes - otherwise some can be on the local list of prune_icache */
-+	down(&iprune_sem);
- 	down_write(&sb_dqopt(sb)->dqptr_sem);
- 	remove_dquot_ref(sb, type, &tofree_head);
- 	up_write(&sb_dqopt(sb)->dqptr_sem);
-+	up(&iprune_sem);
- 	put_dquot_list(&tofree_head);
- }
- 
-diff -rpuX /home/jack/.kerndiffexclude linux-2.6.7-1-flagslock/fs/inode.c linux-2.6.7-2-quotaoff/fs/inode.c
---- linux-2.6.7-1-flagslock/fs/inode.c	2004-06-30 23:17:12.000000000 +0200
-+++ linux-2.6.7-2-quotaoff/fs/inode.c	2004-07-01 00:27:08.000000000 +0200
-@@ -89,7 +89,7 @@ spinlock_t inode_lock = SPIN_LOCK_UNLOCK
-  * from its final dispose_list, the struct super_block they refer to
-  * (for inode->i_sb->s_op) may already have been freed and reused.
-  */
--static DECLARE_MUTEX(iprune_sem);
-+DECLARE_MUTEX(iprune_sem);
- 
- /*
-  * Statistics gathering..
+This isn't I/O address space, needing PIO I/O accessors,
+and as returned by the new DMA_MEMORY_IO mode.  (And why
+wouldn't ioremap already handle that?)
 
---Yylu36WmvOXNoKYn--
+This is how to allocate DMA-ready buffers that have certain
+characteristics aren't useful only to the lowest level
+drivers in the stack.  Drivers depend on alloc_coherent to
+behave in the way you (originally) said DMA_MEMORY_MAP works.
+The more detailed API specs (DMA-mapping.txt not DMA-API.txt)
+are very clear that the behavior is like RAM.
+
+
+>>So -- you're saying it's not a bug that a __GFP_NOFAIL|__GFP_WAIT
+>>allocation be able to fail?  Curious.  I'd have thought the API
+>>was clear about that.  Allocating 128 MB from a 1 MB region must
+>>of course fail, but allocating one page just needs a wait/wakeup.
+> 
+> 
+> It can *only* happen if you specify DMA_MEMORY_EXCLUSIVE; that preempts
+> the GFP_ flags and the application must be coded with this in mind. 
+> Otherwise it will respect the GFP_ flags.
+
+You'd have to change the spec to allow that.  Wouldn't it be
+a lot simpler to just pass the GFP flags down to that lowlevel
+code, so it can eventually start doing what the highlevel code
+told it to do?  :)
+
+Special cases make for fragile systems.
+
+- Dave
+
+
+

@@ -1,66 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316610AbSFDMqu>; Tue, 4 Jun 2002 08:46:50 -0400
+	id <S317487AbSFDMrI>; Tue, 4 Jun 2002 08:47:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317488AbSFDMqr>; Tue, 4 Jun 2002 08:46:47 -0400
-Received: from harrier.mail.pas.earthlink.net ([207.217.120.12]:58061 "EHLO
-	harrier.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S316610AbSFDMp7>; Tue, 4 Jun 2002 08:45:59 -0400
-Date: Tue, 4 Jun 2002 08:44:01 -0400
-To: andrea@suse.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19pre9aa2
-Message-ID: <20020604124401.GA13540@rushmore>
+	id <S317488AbSFDMqw>; Tue, 4 Jun 2002 08:46:52 -0400
+Received: from pop.gmx.de ([213.165.64.20]:6489 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S317487AbSFDMqe>;
+	Tue, 4 Jun 2002 08:46:34 -0400
+Date: Tue, 4 Jun 2002 14:46:19 +0200
+From: Sebastian Droege <sebastian.droege@gmx.de>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: torvalds@transmeta.com, kees.bakker@xs4all.nl, mochel@osdl.org,
+        aia21@cantab.net, anton@samba.org, linux-kernel@vger.kernel.org,
+        slomosnail666@gmx.net
+Subject: Re: [patch] PCI device matching fix
+Message-Id: <20020604144619.1353b46c.sebastian.droege@gmx.de>
+In-Reply-To: <3CFC0CC2.D69F2C57@zip.com.au>
+X-Mailer: Sylpheed version 0.7.6 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-From: rwhron@earthlink.net
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ boundary="=.:y?kYG+B8CyJSt"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> More benchmarks on quad Xeon at:
->> http://home.earthlink.net/~rwhron/kernel/bigbox.html
+--=.:y?kYG+B8CyJSt
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-> Just a note, watch the "File & VM system latencies in microseconds"
-> lmbench results, the creat become significantly slower, I'm wondering if
-> that's due the removal of the negative dcache after unlink. I think it's
-> still a global optimization (infact I think some of the dbench records
-> are also thanks to maximzing the useful cache information by dropping
-> immediatly negative dentries after unlink), but I wonder if the
-> benchmark is done in a way that generate false positives. To avoid false
-> positives and to really benchmark the whole "creat" path (that includes
-> in its non-cached form also a lookup in the lowlevel fs) lmbench should
-> rmdir; mkdir the directory where it wants to make the later creats
-> (rmdir/mkdir cycle will drop negative dentries in all 2.[245] kernels
-> too).  Otherwise at the moment I'm unsure what made creat slower between
-> pre8aa3 and pre9aa2, could it be a fake result of the benchmark? 
+On Mon, 03 Jun 2002 17:41:40 -0700
+Andrew Morton <akpm@zip.com.au> wrote:
 
-I'll send you the 25 samples each of pre9aa2 and pre8aa3 off list.
-All of the non-averaged lmbench results are currently at:
-http://home.earthlink.net/~rwhron/kernel/lmball.txt
+> The new pci_device_probe() is always passing the zeroeth
+> entry in the id_table to the device's probe method.  It
+> needs to scan that table for the correct ID first.
+> 
+> This fixes the recent 3c59x strangenesses.
 
-Some lmbench tests vary a lot.  The 0k and 10k creat tests were
-pretty consistent for these two kernels.
+This fixes the yamaha ymfpci misdetection, too... Thanks :)
 
-Other consistent tests that showed notable improvement were context
-switching at 8p/16K, 8p/64K, and 16p/16K.  The 16p/64K context switch
-latency became inconsistent and higher on pre9aa2.
+Bye
+--=.:y?kYG+B8CyJSt
+Content-Type: application/pgp-signature
 
-fork latency was consistent and improved by 10%.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
 
-> The pipe bandwith reported
-> by lmbench in pre9aa2 is also very impressive, that's Mike's patch and I
-> think it's also a very worthwhile optimizations since many tasks really
-> uses pipes to passthrough big loads of data.
+iD8DBQE8/Laee9FFpVVDScsRAkkqAKC9PcF35U2r4Smbf2B91R/j50Jx1ACfYYkS
+fHeoDczuhhybx/ETO6df3cA=
+=jfmU
+-----END PGP SIGNATURE-----
 
-Yeah, that is impressive.
-
-Glancing through the original lmbench logfiles, there are some results
-that aren't in any report.  creat 1k and 4k, and select on various 
-numbers of regular and tcp file descripters.  
-
-
--- 
-Randy Hron
+--=.:y?kYG+B8CyJSt--
 

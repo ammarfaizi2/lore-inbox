@@ -1,65 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262418AbSKRMrz>; Mon, 18 Nov 2002 07:47:55 -0500
+	id <S262469AbSKRNFj>; Mon, 18 Nov 2002 08:05:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262420AbSKRMrz>; Mon, 18 Nov 2002 07:47:55 -0500
-Received: from point41.gts.donpac.ru ([213.59.116.41]:47119 "EHLO orbita1.ru")
-	by vger.kernel.org with ESMTP id <S262418AbSKRMrw>;
-	Mon, 18 Nov 2002 07:47:52 -0500
-Date: Mon, 18 Nov 2002 15:54:13 +0300
-From: Andrey Panin <pazke@orbita1.ru>
-To: linux-kernel@vger.kernel.org
-Subject: [Q] is framebuffer console code in 2.5.4x functional ?
-Message-ID: <20021118125413.GA312@pazke.ipt>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	id <S262452AbSKRNFj>; Mon, 18 Nov 2002 08:05:39 -0500
+Received: from almesberger.net ([63.105.73.239]:54802 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id <S262783AbSKRNFg>; Mon, 18 Nov 2002 08:05:36 -0500
+Date: Mon, 18 Nov 2002 10:12:30 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: reneb@cistron.nl
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.48 Compilation Failure skbuff.c
+Message-ID: <20021118101230.N1407@almesberger.net>
+References: <slrnathnn0.aas.reneb@orac.aais.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="wRRV7LY7NUeQGEoC"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Uname: Linux pazke 2.2.17 
+In-Reply-To: <slrnathnn0.aas.reneb@orac.aais.org>; from reneb@orac.aais.org on Mon, Nov 18, 2002 at 01:36:48PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Rene Blokland wrote:
+> include/linux/crypto.h: In function `crypto_tfm_alg_modname':
+> include/linux/crypto.h:202: dereferencing pointer to incomplete type
+[...]
+> Any comments?
 
---wRRV7LY7NUeQGEoC
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Disabling modules should work around this. Alternatively, you can
+try the untested patch below. I also had to disable devfs to build
+2.4.58.
 
+- Werner
 
-Hi all,
+---------------------------------- cut here -----------------------------------
 
-I'm trying to resurrect SGI Visws support in 2.5 kernels and have two
-problems: frambuffer console doesn't show anything and legacy device=20
-interrupts not working. It's difficult to debug second problem without
-console :(
+--- ../linux-2.5.48.orig/include/linux/crypto.h	Mon Nov 18 01:29:29 2002
++++ linux-2.5.48/include/linux/crypto.h	Mon Nov 18 10:03:46 2002
+@@ -16,6 +16,7 @@
+ #ifndef _LINUX_CRYPTO_H
+ #define _LINUX_CRYPTO_H
+ 
++#include <linux/config.h>
+ #include <linux/module.h>
+ #include <linux/kernel.h>
+ #include <linux/types.h>
+@@ -196,12 +197,16 @@
+ 
+ static inline const char *crypto_tfm_alg_modname(struct crypto_tfm *tfm)
+ {
++#ifdef CONFIG_MODULES
+ 	struct crypto_alg *alg = tfm->__crt_alg;
+ 	
+ 	if (alg->cra_module)
+ 		return alg->cra_module->name;
+ 	else
+ 		return NULL;
++#else
++	return NULL;
++#endif
+ }
+ 
+ static inline u32 crypto_tfm_alg_type(struct crypto_tfm *tfm)
 
-Framebuffer driver sets needed video mode (checked with monitor's ods)
-and starts display dma engine successfuly (i can even draw lines on the
-screen using memset()'s). But the beautifull linux logo doesn't apear and
-console doesn't show a single pixel.
-
-Simple(silly) questions:
-	- is 2.5.4x framebuffer console code really functional ?
-	- if yes, where to start debugging this issue ?
-
-Best regards.
-
---=20
-Andrey Panin            | Embedded systems software developer
-pazke@orbita1.ru        | PGP key: wwwkeys.eu.pgp.net
---wRRV7LY7NUeQGEoC
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.1 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE92OL1Bm4rlNOo3YgRAgBGAJ9lj3ZhrNkFNPcW61NIEc8t8lBobgCff9VV
-t7p+KMGyt+bUBNZ8zmMy1CU=
-=fsbL
------END PGP SIGNATURE-----
-
---wRRV7LY7NUeQGEoC--
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

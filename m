@@ -1,36 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283432AbRLMFvk>; Thu, 13 Dec 2001 00:51:40 -0500
+	id <S283409AbRLMFrK>; Thu, 13 Dec 2001 00:47:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283438AbRLMFva>; Thu, 13 Dec 2001 00:51:30 -0500
-Received: from neuron.com ([209.61.186.37]:49415 "EHLO server1.neuron.com")
-	by vger.kernel.org with ESMTP id <S283432AbRLMFvZ>;
-	Thu, 13 Dec 2001 00:51:25 -0500
-Message-ID: <3C1841BB.8010003@neuron.com>
-Date: Thu, 13 Dec 2001 00:50:51 -0500
-From: Stewart Allen <stewart@neuron.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: passing params to boot readonly
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S283430AbRLMFrA>; Thu, 13 Dec 2001 00:47:00 -0500
+Received: from zok.sgi.com ([204.94.215.101]:20374 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S283409AbRLMFqn>;
+	Thu, 13 Dec 2001 00:46:43 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Rob Hensley <zoid@zoid.staticky.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: debian unstable and 2.4.16-pre8... 
+In-Reply-To: Your message of "Wed, 12 Dec 2001 21:33:44 CDT."
+             <Pine.LNX.4.33.0112122124480.21682-100000@localhost> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 13 Dec 2001 16:46:30 +1100
+Message-ID: <24459.1008222390@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm in a bit of a pickle and need to find a way to pass boot params to a 
-reiserfs rootfs to *prevent* it from replaying the journal on single-user 
-boot. This may seem like a strange request, but I've got a degraded RAID array 
-that I need to poke around in before deciding whether or not to send a disk 
-off to a rehab lab. If the replay occurs, it will potentially destroy the fs 
-since I'm using a degraded snapshot of the failed disk in hopes of reclaiming 
-*some* of my data. The system is running 2.2.x (can't remember and can't find 
-out w/out booting).
+On Wed, 12 Dec 2001 21:33:44 -0500 (EST), 
+Rob Hensley <zoid@zoid.staticky.com> wrote:
+>drivers/pcmcia/pcmcia.o(.data+0x1294): undefined reference to `local
+>symbols in discarded section .text.exit'
 
-Do I have a snowball's chance of pulling this off?
-
-thanks,
-
-stewart
+I might have missed a devexit_p or it might be a real bug.  Config
+please so I can reproduce it.  BTW, did you apply any patches beside
+2.4.17-pre8?
 

@@ -1,58 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265846AbRF2KOM>; Fri, 29 Jun 2001 06:14:12 -0400
+	id <S265830AbRF2KKM>; Fri, 29 Jun 2001 06:10:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265848AbRF2KOD>; Fri, 29 Jun 2001 06:14:03 -0400
-Received: from lsmls01.we.mediaone.net ([24.130.1.20]:64747 "EHLO
-	lsmls01.we.mediaone.net") by vger.kernel.org with ESMTP
-	id <S265846AbRF2KNy>; Fri, 29 Jun 2001 06:13:54 -0400
-Message-ID: <3B3C5571.3259CD32@kegel.com>
-Date: Fri, 29 Jun 2001 03:16:17 -0700
-From: Dan Kegel <dank@kegel.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.14-5.0 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S265846AbRF2KJx>; Fri, 29 Jun 2001 06:09:53 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:22972 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S265830AbRF2KJu>;
+	Fri, 29 Jun 2001 06:09:50 -0400
+Date: Fri, 29 Jun 2001 06:09:37 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: O_DIRECT please; Sybase 12.5
-In-Reply-To: <E15Fuul-0008SJ-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+cc: Edmund GRIMLEY EVANS <edmundo@rano.org>, linux-kernel@vger.kernel.org
+Subject: Re: directory order of files
+In-Reply-To: <E15FuhY-0008QC-00@the-village.bc.nu>
+Message-ID: <Pine.GSO.4.21.0106290546450.25765-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+
+
+On Fri, 29 Jun 2001, Alan Cox wrote:
+
+> > With Linux ext2, and some other systems, when you create files in a
+> > new directory, the file system remembers their order:
 > 
-> > the boss say "If Linux makes Sybase go through the page cache on
-> > reads, maybe we'll just have to switch to Solaris.  That's
-> > a serious performance problem."
+> No - it merely seems too. 
 > 
-> Thats something you'd have to benchmark. It depends on a very large number
-> of factors including whether the database uses mmap, the average I/O size
-> and the like
-
-I'll probably benchmark raw vs. non-raw I/O with Sybase ASE 12.5
-on our application once we've come up to speed on basic performance
-issues (we're database newbies).
- 
-> > It supports raw partitions, which is good; that might satisfy my
-> > boss (although the administration will be a pain, and I'm not
-> > sure whether it's really supported by Dell RAID devices).
-> > I'd prefer O_DIRECT :-(
+> > $ touch one two three four
+> > $ ls -U
+> > one  two  three  four
 > 
-> We already support raw direct I/O to devices themselves so they should support
-> that - if not then Oracle I believe already does.
+> Then try 'rm three; touch five'
 
-Haven't seen Sybase talk about O_DIRECT.  Not sure we want to
-pony up the Sybase license fees.  (I'm still in denial about
-databases in general, and hope I can switch to PostgreSQL
-at some point.)
+Moreover, it isn't true even for the case when we create a list of files
+in empty directory. Example: assuming that /tmp has 1Kb blocks,
 
-BTW, 
-http://eval.veritas.com/webfiles/whitepapers/sybaseedition/sybase14_performance_paper.pdf
-seems to show that raw beats O_DIRECT hands down on Solaris.
-Will that hold on Linux, or is your (forthcoming?) O_DIRECT
-higher performance than the one on Solaris?
+mkdir /tmp/A
+cd A
+touch `perl -e 'print "a"x255'`
+touch `perl -e 'print "b"x255'`
+touch `perl -e 'print "c"x255'`
+touch `perl -e 'print "d"x255'`
+touch A
+ls -U
 
-Thanks,
-Dan
+will give you (lots of a) (lots of b) (lots of c) A (lots of d).
+
+With 4Kb blocks you'll need 16 long names instead of 4 - the effect
+will be the same.
+
+The reason is quite simple - at some point you get no space for long
+name and it goes into the next directory block, but there's still enough
+for a short name, so it gets created in the first block.
+
+IOW, there's no warranties at all.
+

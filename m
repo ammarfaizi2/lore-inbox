@@ -1,64 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263275AbTDVQKJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 12:10:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263277AbTDVQKJ
+	id S263269AbTDVQJN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 12:09:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263272AbTDVQJN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 12:10:09 -0400
-Received: from lucidpixels.com ([66.45.37.187]:46020 "HELO lucidpixels.com")
-	by vger.kernel.org with SMTP id S263275AbTDVQKD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 12:10:03 -0400
-Date: Tue, 22 Apr 2003 12:22:06 -0400 (EDT)
-From: war <war@lucidpixels.com>
-X-X-Sender: war@p300
+	Tue, 22 Apr 2003 12:09:13 -0400
+Received: from host-62-245-209-215.customer.m-online.net ([62.245.209.215]:25480
+	"EHLO frodo.midearth.frodoid.org") by vger.kernel.org with ESMTP
+	id S263269AbTDVQJM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Apr 2003 12:09:12 -0400
 To: linux-kernel@vger.kernel.org
-cc: copycat@jx165.net
-Subject: HPT366/368/370 IDE/SCSI-EMULATION PROBLEMS (2.4.x)
-Message-ID: <Pine.LNX.4.55.0304221213510.25378@p300>
+Subject: kernel ring buffer accessible by users
+From: Julien Oster <frodo@dereference.de>
+Organization: FRODOID.ORG
+X-Face: #C"_SRmka_V!KOD9IoD~=}8-P'ekRGm,8qOM6%?gaT(k:%{Y+\Cbt.$Zs<[X|e)<BNuB($kI"KIs)dw,YmS@vA_67nR]^AQC<w;6'Y2Uxo_DT.yGXKkr/s/n'Th!P-O"XDK4Et{`Di:l2e!d|rQoo+C6)96S#E)fNj=T/rGqUo$^vL_'wNY\V,:0$q@,i2E<w[_l{*VQPD8/h5Y^>?:O++jHKTA(
+Date: Tue, 22 Apr 2003 18:21:16 +0200
+Message-ID: <frodoid.frodo.87wuhmh5ab.fsf@usenet.frodoid.org>
+User-Agent: Gnus/5.090018 (Oort Gnus v0.18) Emacs/21.2 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-war@p300:~$ find /usr/src/linux-2.4.20/Documentation/ | grep -i hpt
-war@p300:~$
 
-The top of /usr/src/linux-2.4.20/drivers/ide/hpt366.c does not offer much
-in terms of the documentation.
+Hello,
 
-Hopefully my question is simple, why does this card only seem to work with
-such a configuration?
+it's been quite a while that I noticed that any ordinary user, not
+just root, can type "dmesg" to see the kernel ring buffer.
 
-I have 3 cards, 12 HDD.
+My question now is: Why? I often saw things in the kernel ring buffer
+which I don't want every user to know (e.g. some telephone numbers with
+ISDN).
 
-If I try to boot with normal (no append), the box will sit there trying to
-find the hard drives.
+Are there any problems in just letting root get the contents of the
+kernel ring buffer?
 
-If I boot with the way most distros set it up (ie: sda=noprobe
-sdb=noprobe) and so on, this works, but then it uses SCSI-EMULATION.
-
-I am familiar with PROMISE BOARDS (100/133) and they do not have this
-problem.
-
-Is there something in particular one must do to achieve IDE access, to
-have the kernel see the HDD's as IDE devices and not use SCSI-EMULATION
-for HPT ROCKET ATA/100 cards?
-
-Also, when you cat /proc/ide/hpt* it gives a segfault and the kernel
-oopses, I've sent this e-mail a week or two ago.
-
-So, to summarize:
-
-Boot with IDE support only and no append, the box sits there looking for
-the other IDE hard drives (using intel i845 chipset btw).
-It looks forever, was on for 2 weeks, never found the disks.
-
-Switched over to distro method, sda=noprobe,sdb=noprobe and so on for all
-12 drives and testing with rh73/scsi-emulation/etc IS enabled, and the
-kernel does a lot of running around and sets them up as SCSI devices.
-
-Is it possible to have HPT rocket ATA/100 cards (3 of them) see hard
-drives as IDE and not SCSI?
-
-
+Julien

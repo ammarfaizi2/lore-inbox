@@ -1,55 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269550AbRHMVHY>; Mon, 13 Aug 2001 17:07:24 -0400
+	id <S269432AbRHMVHo>; Mon, 13 Aug 2001 17:07:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269767AbRHMVHP>; Mon, 13 Aug 2001 17:07:15 -0400
-Received: from hinako.ambusiness.com ([64.59.51.7]:48141 "EHLO
-	Hinako.AMBusiness.com") by vger.kernel.org with ESMTP
-	id <S269432AbRHMVHE>; Mon, 13 Aug 2001 17:07:04 -0400
-Message-ID: <010b01c1243b$df3509b0$0ac809c0@optima>
-From: "Anthony Barbachan" <barbacha@Hinako.AMBusiness.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <E15WOG9-0008A5-00@the-village.bc.nu>
+	id <S269782AbRHMVHf>; Mon, 13 Aug 2001 17:07:35 -0400
+Received: from cc668399-a.ewndsr1.nj.home.com ([24.180.97.113]:42489 "EHLO
+	eriador.mirkwood.net") by vger.kernel.org with ESMTP
+	id <S269432AbRHMVHW>; Mon, 13 Aug 2001 17:07:22 -0400
+Date: Mon, 13 Aug 2001 17:07:38 -0400 (EDT)
+From: PinkFreud <pf-kernel@mirkwood.net>
+To: linux-kernel@vger.kernel.org
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Subject: Re: Are we going too fast?
-Date: Mon, 13 Aug 2001 17:06:49 -0400
+Message-ID: <Pine.LNX.4.20.0108131656470.1037-100000@eriador.mirkwood.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > Welcome to wacky hardware. To get a G400 stable on x86 you need at
-least
-> > >
-> > > XFree86 4.1 if you are running hardware 3D (and DRM 4.1)
-> > > 2.4.8 or higher with the VIA fixes
-> > > Preferably a very recent BIOS update for the VIA box
-> >
-> > I'm sorry, but what "VIA fixes" are we referring to?
->
-> Certain VIA chipsets had some nasty bugs that caused corruption. The older
-> kernels have a workaround that mostly does the job but has a few side
-> effects. The 2.4.8 kernel has the official VIA provided workaround, which
-> makes sbpci128 cards work again, and sorts out some bus hangs, especially
-> with matrox cards
+> > of them have suffered from one malady or another - from the dual PIII with
+> > the VIA chipset and Matrox G400 card, which locks up nicely when I switch
+> 
+> Welcome to wacky hardware. To get a G400 stable on x86 you need at least
+> 
+> XFree86 4.1 if you are running hardware 3D (and DRM 4.1)
 
-    Could these "fixes" resolve any issues with the vt82c686a Southbridge?
-For the life of me I have yet to be able to get my FIC VA-503A (that uses a
-vt82c686a Southbridge for UDMA66 support) working correctly under Linux
-2.4.x (or 2.2.x with the enhanced IDE patch) with DMA enabled by default.
-And yes I have already tried switching the 80 pin cables 7 times.  Heck, I
-even get CRC errors on UDMA33 drives using 40 pin cables; albeit a lesser
-amount.  I have also noticed a hanging issue on a FIC VA-503+ board in which
-the PC speaker can hang, in mid beep, along with the system for a short
-while occasionally when the speaker issues a beep.  By the way, any ideas on
-how I can help debug this particular problem?  There is no Ooops so I am not
-sure how I can help out.  Both systems otherwise work very well and
-perfectly on Win9x, Win2k, FreeBSD, and OpenBSD.  I'm starting to take a
-very dim view of Linux on VIA boards.
+I run 4.1.0 on that system.  DRM, I don't believe, is currently enabled,
+though I'd like it to be.
+
+> 2.4.8 or higher with the VIA fixes
+
+Oooooh.  So .8 *does* have fixes for VIA... I think I'll give that a try now.
+
+> Preferably a very recent BIOS update for the VIA box
+
+Hmm.  I'll also check VIA to see if they have any updates for this system.
+Thanks for the suggestion.
+
+> Of those only the XFree hardware 3d stuff is software bug related.
+
+I'm not currently using 3D - yet the system insists on locking up when I
+switch from X to a text console and back.  Again, this only occurs with an
+SMP kernel (this is an SMP system).  This does NOT occur with a uniprocessor
+kernel.
+
+> > emergency sync) when attempting to use 'ls' on a mounted QNX filesystem
+> > (ls comes up fine, then system crashes - nothing sent to syslog, no errors
+> > on screen, nothing!) - and this latest is with 2.4.8!
+> 
+> The qnxfs code is experimental - so I can believe it might fail in 2.4. I'd
+> be very interested in info on that one.
+
+Unfortunately, that's all the info I have.  Console switching was still
+working, so I tried enabling logging to a console - no output.  System just
+hangs.  Any suggestions on what I might try to get more information for you?
+
+> > Should development continue on the latest and supposedly greatest
+> > drivers?  Or should the existing bugs be fixed first?  I've got at least
+> > three up there that need taking care of, and I'm sure others on this list
+> > have found more.  3 seperate crashes on 3 seperate installs on 3 seperate
+> > boxes - that's 100% failure rate.  If I get 100% failure on my installs,
+> > what are others seeing?
+> 
+> Near enough 0%. But then I try and avoid buying broken chipsets.
+
+I wasn't aware VIA nor Matrox were broken.  I've seen someone else mention in
+this thread that perhaps some old HOWTOs on hardware need to be maintained
+again - I think I agree with that.
+
+> > I like Linux.  I'd like to stick with it.  But if it's going to
+> > continually crash, I'm going to jump ship - and I'll start recommending to
+> 
+> If you want maximum stability you want to be running 2.2 or even 2.0. Newer
+> less tested code is always less table. 2.4 wont be as stable as 2.2 for a
+> year yet.
+
+Perhaps series name should be changed from 'stable' to something else - 
+'release'?
+
+> Alan
+
+
+	Mike Edwards
+
+Brainbench certified Master Linux Administrator
+http://www.brainbench.com/transcript.jsp?pid=158188
+-----------------------------------
+Unsolicited advertisments to this address are not welcome.
+
 

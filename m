@@ -1,43 +1,53 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130916AbRBWUhB>; Fri, 23 Feb 2001 15:37:01 -0500
+	id <S130333AbRBWUs3>; Fri, 23 Feb 2001 15:48:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129849AbRBWUUs>; Fri, 23 Feb 2001 15:20:48 -0500
-Received: from xanadu.kublai.com ([166.84.169.10]:896 "HELO xanadu.kublai.com")
-	by vger.kernel.org with SMTP id <S129193AbRBWUU3>;
-	Fri, 23 Feb 2001 15:20:29 -0500
-Date: Fri, 23 Feb 2001 15:20:29 -0500
-From: Brendan Cully <brendan@kublai.com>
+	id <S132021AbRBWUr3>; Fri, 23 Feb 2001 15:47:29 -0500
+Received: from jalon.able.es ([212.97.163.2]:15503 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S129669AbRBWUqW>;
+	Fri, 23 Feb 2001 15:46:22 -0500
+Date: Fri, 23 Feb 2001 21:46:02 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: regular lockup on 2.4.2 (w/oops)
-Message-ID: <20010223152029.A384@xanadu.kublai.com>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010223143458.A596@xanadu.kublai.com> <E14WOF1-0006yd-00@the-village.bc.nu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.2ac3
+Message-ID: <20010223214602.A3731@werewolf.able.es>
+In-Reply-To: <E14WOAk-0006y9-00@the-village.bc.nu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <E14WOF1-0006yd-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Feb 23, 2001 at 07:50:57PM +0000
-X-Operating-System: Linux 2.4.2 i686
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <E14WOAk-0006y9-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Feb 23, 2001 at 20:46:31 +0100
+X-Mailer: Balsa 1.1.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, 23 February 2001 at 19:50, Alan Cox wrote:
-> > I wonder if it's related to ACPI and/or IDE - I seem to get on
-> > occasion one ide_dmaproc: lost interrupt message during fsck - after a
-> > few seconds it recovers only to hang for good some 10-15 seconds
-> > later.
+
+On 02.23 Alan Cox wrote:
 > 
-> Turn off ACPI and try that kernel. If that one also causes problems then it
-> helps a lot as it implies its not ACPI. If it works then its ACPI and most
-> of us will be happy (except Andrew of course)
+>         Handle with care.. Its possible the ioremap debugging change
+>         might remove casts that hid older problems in a few drivers
+> 
+> 
+> 	ftp://ftp.kernel.org/pub/linux/kernel/people/alan/2.4/
+> 
+> 2.4.2-ac3
 
-Preliminary results indicate ACPI was the culprit. I brought up my
-system a couple times and SysRq-S,B'd, forcing full fsck's of all my
-filesystems. With ACPI enabled I never got through all of them, now
-everything appears ok. Will let you know if the problem reoccurs.
+make xconfig:
 
-Thanks,
-Brendan
+/tkparse < ../arch/i386/config.in >> kconfig.tk
+drivers/scsi/pcmcia/Config.in: 20: unterminated 'if' condition
+
+Misses a backslash at EOL.
+if [ "$CONFIG_PCMCIA_QLOGIC" = "y" -o "$CONFIG_PCMCIA_AHA152X" = "y" -o \
+     "$CONFIG_PCMCIA_FDOMAIN" = "y" -o "$CONFIG_PCMCIA_APA1480" = "y" -o
+                                                                      ^^^^^^^
+     "$CONFIG_PCMCIA_NINJA_SCSI" ]; then
+   define_bool CONFIG_PCMCIA_SCSICARD y
+fi
+
+-- 
+J.A. Magallon                                                      $> cd pub
+mailto:jamagallon@able.es                                          $> more beer
+
+Linux werewolf 2.4.2-ac1 #2 SMP Fri Feb 23 02:34:42 CET 2001 i686
+

@@ -1,56 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262432AbVC3UuH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261404AbVC3Uy2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262432AbVC3UuH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 15:50:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262442AbVC3Uqz
+	id S261404AbVC3Uy2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 15:54:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261271AbVC3UwO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 15:46:55 -0500
-Received: from fire.osdl.org ([65.172.181.4]:28874 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262432AbVC3Uo4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 15:44:56 -0500
-Date: Wed, 30 Mar 2005 12:44:56 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.12-rc1-mm3] BUG: atomic counter underflow in smbfs
-Message-Id: <20050330124456.3da2a2b8.akpm@osdl.org>
-In-Reply-To: <20050330201818.GA18967@ens-lyon.fr>
-References: <20050330201818.GA18967@ens-lyon.fr>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 30 Mar 2005 15:52:14 -0500
+Received: from mail-in-06.arcor-online.net ([151.189.21.46]:56810 "EHLO
+	mail-in-06.arcor-online.net") by vger.kernel.org with ESMTP
+	id S261686AbVC3Usp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 15:48:45 -0500
+Date: Wed, 30 Mar 2005 21:40:34 +0200 (CEST)
+From: Bodo Eggert <7eggert@gmx.de>
+To: Wiktor <victorjan@poczta.onet.pl>
+Cc: 7eggert@gmx.de, linux-kernel@vger.kernel.org
+Subject: Re: [RFD] 'nice' attribute for executable files
+In-Reply-To: <424ACEA9.6070401@poczta.onet.pl>
+Message-ID: <Pine.LNX.4.58.0503301939040.6713@be1.lrz>
+References: <fa.ed33rit.1e148rh@ifi.uio.no> <E1DGNaV-0005LG-9m@be1.7eggert.dyndns.org>
+ <424ACEA9.6070401@poczta.onet.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benoit Boissinot <benoit.boissinot@ens-lyon.org> wrote:
->
-> I had the following BUG with 2.6.12-rc1-mm3:
-> 
-> remote host is running 2.6.12-rc1-mm1 with samba 3.0.13.
-> 
-> [23156.357178] smb_lookup: find musique/Pink_Floyd-Dark_Side_of_the_Moon
-> failed, error=-512
-> [23157.057501] BUG: atomic counter underflow at:
-> [23157.057508]  [<c0103c27>] dump_stack+0x17/0x20
-> [23157.057516]  [<e0ed0f31>] smb_rput+0x51/0x60 [smbfs]
-> [23157.057530]  [<e0ecd497>] smb_proc_query_cifsunix+0x77/0xa0 [smbfs]
-> [23157.057538]  [<e0eca14c>] smb_newconn+0x2bc/0x310 [smbfs]
-> [23157.057546]  [<e0ed05ac>] smb_ioctl+0xfc/0x100 [smbfs]
-> [23157.057554]  [<c0162188>] do_ioctl+0x48/0x70
-> [23157.057559]  [<c01622f9>] vfs_ioctl+0x59/0x1b0
-> [23157.057563]  [<c0162489>] sys_ioctl+0x39/0x60
-> [23157.057582]  [<c0102d8f>] sysenter_past_esp+0x54/0x75
+On Wed, 30 Mar 2005, Wiktor wrote:
 
-Oh dear.  That warning is not necessarily telling us that there's a serious
-problem - often it's fairly harmless.  Did the filesytem misbehave in any
-other manner?
+> my xmms problem is unimportant here, i've posted this thread to propose 
+> some new feature in filesystem, not to solve problem with multimedia player!
 
-A problem we have here is that nobody really maintains smbfs any more, and
-it has problems.  I was hoping that the stock answer to that would be "use
-cifs", but for some reason that doesn't seem to be happening.  Have you
-tried it?  (Last time I looked, cifs didn't work against win98 servers -
-maybe that got fixed).
+You don't need a solution if there is no problem.
+
+> max renice ulimit is quite good idea, but it allows to change nice of 
+> *any* process user has permissions to.
+
+In both of your examples (including the one below), the same thing 
+applies.
+
+> it could be implemented also, but 
+>   the idea of 'nice' file attribute is to allow *only* some process be 
+> run with lower nice. what's more, that nice would be *always* the same 
+> (at process startup)!
+> example:
+> web server runs as user www. it spawns perl interpreter that root wants 
+>   to be run with lower nice, but he doesn't want to allow 'www' user to 
+>   renice *any* process (for eg. this user is shared with webmaster, and 
+> webmaster is malicious person; i know, the webmaster could have another 
+> accout, but maybe for some file-ownership reasons, root doesn't want to 
+> create special account for him).
+
+chown root.root /usr/local/cgi-bin/somescript
+chmod 755 /usr/local/cgi-bin/somescript
+
+---/etc/su1.priv---
+alias somescript /usr/bin/nice -n -5 su wwwrun -- exec /usr/local/cgi-bin/somescript.pl
+
+ask never
+allow wwwrun prefix somescript
+---
+
+ln -s /usr/bin/su1 /srv/wwwroot/cgi-bin/somescript
 
 
+If you need the same command for a group of users, you can use a wrapper 
+scritp that will look at the $HOME variable (which is set from 
+/etc/passwd)
+
+> in this situation, setting nice-attribute for /usr/bin/perl solves the 
+> problem.
+
+perl -e'exec("/bin/sh");' would grant nice privileges to anybody, and 
+that's not nice!
+
+> remember, that this feature would also provide an easy way to 
+> increase nice level.
+
+Not for running processes.
+
+> it can be done with shell script, but setting nice 
+> value in file attributes is cleaner and easier to manage.
+
+Obviously not.
+-- 
+Top 100 things you don't want the sysadmin to say:
+35. Ummm... Didn't you say you turned it off?

@@ -1,40 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266043AbSLNXGw>; Sat, 14 Dec 2002 18:06:52 -0500
+	id <S266042AbSLNXJY>; Sat, 14 Dec 2002 18:09:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266053AbSLNXGw>; Sat, 14 Dec 2002 18:06:52 -0500
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:18565 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S266043AbSLNXGv>; Sat, 14 Dec 2002 18:06:51 -0500
-Date: Sat, 14 Dec 2002 17:14:43 -0600 (CST)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Wolfgang Fritz <wolfgang.fritz@gmx.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: i4l dtmf errors
-In-Reply-To: <atg5jv$d73$1@fritz38552.news.dfncis.de>
-Message-ID: <Pine.LNX.4.44.0212141712410.7099-100000@chaos.physics.uiowa.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266064AbSLNXJY>; Sat, 14 Dec 2002 18:09:24 -0500
+Received: from mail.michigannet.com ([208.49.116.30]:53004 "EHLO
+	member.michigannet.com") by vger.kernel.org with ESMTP
+	id <S266042AbSLNXJX>; Sat, 14 Dec 2002 18:09:23 -0500
+Date: Sat, 14 Dec 2002 18:17:08 -0500
+From: Paul <set@pobox.com>
+To: Joe Thornber <joe@fib011235813.fsnet.co.uk>
+Cc: Linux Mailing List <linux-kernel@vger.kernel.org>, lvm-devel@sistina.com,
+       linux-lvm@sistina.com
+Subject: Re: New device-mapper patchset for 2.5.51
+Message-ID: <20021214231708.GB1432@squish.home.loc>
+Mail-Followup-To: Paul <set@pobox.com>,
+	Joe Thornber <joe@fib011235813.fsnet.co.uk>,
+	Linux Mailing List <linux-kernel@vger.kernel.org>,
+	lvm-devel@sistina.com, linux-lvm@sistina.com
+References: <20021213115014.GA15675@reti>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021213115014.GA15675@reti>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 14 Dec 2002, Wolfgang Fritz wrote:
-
-> > it seems isdn4linux detects DTMF tones from normal speach. This is
-> > rather annoying when using i4l for voice with Asterisk.org. This is
-> > tested on all recent kernels
+Joe Thornber <joe@fib011235813.fsnet.co.uk>, on Fri Dec 13, 2002 [11:50:14 AM] said:
+> If anyone was experiencing problems with dm could they please try this
+> patchset and give me feedback.
 > 
-> The DTMF detection is broken since kernel 2.0.x. I have a patch for a 
-> 2.2 kernel which may manually be applied 2.4 kernels with some manual 
-> work. It fixes an overflow problem in the goertzel algorithm (which 
-> does the basic tone detection) and changes the algorithm to detect the 
-> DTMF pairs. If interested, I can try to recover that patch.
+> Thanks,
+> 
+> - Joe
+> 
+> 
+> 
+> http://people.sistina.com/~thornber/patches/2.5-stable/2.5.51/2.5.51-dm-3.tar.bz2
+> 
 
-If you dig out that patch and submit it (to me), I'm pretty sure there's 
-a good chance of it going into the official kernel. ISTR there was talk 
-about that earlier, but nothing ever happened.
+	Hi;
 
---Kai
+	I havent tried 2.5.51 vanila, but 2.5.51 with dm-3 patch
+is working well so far for me on LVM system. (All other 2.5
+kernels tried would hit a BUG()-- already reported.)
+	If anyone wants me to recommend some sort of stress test
+let me know; Ive simpley constructed and populated several
+fileystems, md5sum'ed all the files, bzip2'd them, rm'd them,
+etc. Then several hours of looping kernel compiles.
+	Thanks for the work of the contributers.
 
-
+Paul
+set@pobox.com

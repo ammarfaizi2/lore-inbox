@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268543AbTBWUS6>; Sun, 23 Feb 2003 15:18:58 -0500
+	id <S268946AbTBWUNf>; Sun, 23 Feb 2003 15:13:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268545AbTBWUS6>; Sun, 23 Feb 2003 15:18:58 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:14720
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S268543AbTBWUS5>; Sun, 23 Feb 2003 15:18:57 -0500
-Subject: Re: [PATCH] Make hot unplugging of PCI buses work
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>, Greg KH <greg@kroah.com>,
-       Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-In-Reply-To: <20030223193229.F20405@flint.arm.linux.org.uk>
-References: <20030223173441.D20405@flint.arm.linux.org.uk>
-	 <Pine.LNX.4.44.0302231054420.11584-100000@home.transmeta.com>
-	 <20030223193229.F20405@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1046035789.1669.16.camel@irongate.swansea.linux.org.uk>
+	id <S268954AbTBWUNf>; Sun, 23 Feb 2003 15:13:35 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:10379 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S268946AbTBWUNb>; Sun, 23 Feb 2003 15:13:31 -0500
+Date: Sun, 23 Feb 2003 12:24:01 -0800
+From: Mike Anderson <andmike@us.ibm.com>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Bug with (maybe not *in*) sysfs
+Message-ID: <20030223202401.GA1452@beaverton.ibm.com>
+Mail-Followup-To: Patrick Mochel <mochel@osdl.org>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <5480000.1046028715@[10.10.2.4]> <Pine.LNX.4.33.0302231310500.923-100000@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 23 Feb 2003 21:29:49 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0302231310500.923-100000@localhost.localdomain>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.0.32 on an i486
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-02-23 at 19:32, Russell King wrote:
-> 1. discovering all devices
-> 2. apply any fixups needed
-> 3. initialise any resources that need initialising
-> 4. once all devices have been initialised, registering each
->    device with sysfs and thereby letting the drivers know.
+Patrick Mochel [mochel@osdl.org] wrote:
+> 
+> This is typically caused by the same object being added twice at the same 
+> level in the hierarchy, which appears to be happening. Is the ips driver 
+> calling pci_register_driver() twice? 
+> 
+> 	-pat
 
-There is an additional catch with the resources to be careful of.
-Some environments require we register/unregister additional
-IRQ routing tables. Thats a minor problem but does affect things
-like IBM thinkpad 600 docking station. Thats a transparent
-bridge with devices that appear and vanish stuck behind it.
-Similar problems - it needs
+It was possible in the past that pci_module_init could be called more
+than once with non-unique pci_driver names. It is fixed in the current
+trees, but I do not have the date when it was pushed. Here is some
+context mail links.
 
-	pci_attach_behind_bridge()
-	pci_destroy_behind_bridge()
+http://marc.theaimsgroup.com/?l=linux-scsi&m=104275858704733&w=2
 
-functionality just like the cardbus toys
+http://marc.theaimsgroup.com/?l=linux-scsi&m=104455557710731&w=2
+
+-andmike
+--
+Michael Anderson
+andmike@us.ibm.com
 

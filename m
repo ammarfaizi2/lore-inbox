@@ -1,28 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317597AbSFILCv>; Sun, 9 Jun 2002 07:02:51 -0400
+	id <S317513AbSFILKB>; Sun, 9 Jun 2002 07:10:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317599AbSFILCu>; Sun, 9 Jun 2002 07:02:50 -0400
-Received: from [62.65.151.174] ([62.65.151.174]:37580 "EHLO zeus")
-	by vger.kernel.org with ESMTP id <S317597AbSFILCu>;
-	Sun, 9 Jun 2002 07:02:50 -0400
-Date: Sun, 9 Jun 2002 12:44:08 +0200
-From: Mathias Gygax <mg@trash.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: ip_nat_irc & 2.4.18
-Message-ID: <20020609104408.GB1036@chiba.dyndns.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <1023530798.29159.2.camel@tux> <1023589926.8435.1.camel@tux>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	id <S317595AbSFILKA>; Sun, 9 Jun 2002 07:10:00 -0400
+Received: from p50887457.dip.t-dialin.net ([80.136.116.87]:25254 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S317513AbSFILJ7>; Sun, 9 Jun 2002 07:09:59 -0400
+Date: Sun, 9 Jun 2002 05:09:54 -0600 (MDT)
+From: Lightweight patch manager <patch@luckynet.dynu.com>
+X-X-Sender: patch@hawkeye.luckynet.adm
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+cc: Linus Torvalds <torvalds@transmeta.com>
+Subject: [PATCH][2.5] introduce list_move macros
+Message-ID: <Pine.LNX.4.44.0206090508330.22407-100000@hawkeye.luckynet.adm>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 08, 2002 at 10:32:06PM -0400, Nix N. Nix wrote:
-> ip_nat_irc.o doesn't track connection going to ports other than 6667. 
-> So, if, initially, you connect to, say, twisted.ma.us.dal.net:6668, then
-> ip_nat_irc doesn't track your connection. :o(
+This is the only _global_ patch about the list_move macros, which means 
+introducing them. Here they are:
 
-insmod ip_nat_irc ports=6667,6668,6669,7000 (etcetera)
+--- linus-2.5/include/linux/list.h	Sun Jun  9 04:17:14 2002
++++ thunder-2.5/include/linux/list.h	Sun Jun  9 05:07:02 2002
+@@ -174,6 +174,24 @@
+ 	for (pos = (head)->next, n = pos->next; pos != (head); \
+ 		pos = n, n = pos->next)
+ 
++/**
++ * list_move           - move a list entry from a right after b
++ * @list       the entry to move
++ * @head       the entry to move after
++ */
++#define list_move(list,head) \
++        list_del(list); \
++        list_add(list,head)
++
++/**
++ * list_move_tail      - move a list entry from a right before b
++ * @list       the entry to move
++ * @head       the entry that will come after ours
++ */
++#define list_move(list,head) \
++        list_del(list); \
++        list_add_tail(list,head)
++
+ #endif /* __KERNEL__ || _LVM_H_INCLUDE */
+ 
+ #endif
+
+-- 
+Lightweight patch manager using pine. If you have any objections, tell me.
+

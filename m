@@ -1,38 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292768AbSBZUJz>; Tue, 26 Feb 2002 15:09:55 -0500
+	id <S292778AbSBZUKz>; Tue, 26 Feb 2002 15:10:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292778AbSBZUJq>; Tue, 26 Feb 2002 15:09:46 -0500
-Received: from smtp3.cern.ch ([137.138.131.164]:24801 "EHLO smtp3.cern.ch")
-	by vger.kernel.org with ESMTP id <S292768AbSBZUJe>;
-	Tue, 26 Feb 2002 15:09:34 -0500
-To: Jason Lunz <j@trellisinc.com>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
-Subject: Re: Broadcom 5700/5701 Gigabit Ethernet Adapters
-In-Reply-To: <E16bhwo-0007GZ-00@bronto.zrz.TU-Berlin.DE> <3C6D07B9.596AD49E@mandrakesoft.com> <20020215150342.GA4347@trellisinc.com>
-From: Jes Sorensen <jes@sunsite.dk>
-Date: 26 Feb 2002 21:09:11 +0100
-In-Reply-To: Jason Lunz's message of "Fri, 15 Feb 2002 10:03:42 -0500"
-Message-ID: <d3it8kuhso.fsf@lxplus049.cern.ch>
-User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
+	id <S292777AbSBZUKq>; Tue, 26 Feb 2002 15:10:46 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:19474 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S292778AbSBZUKf>; Tue, 26 Feb 2002 15:10:35 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Tue, 26 Feb 2002 12:13:20 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: schedule()
+In-Reply-To: <Pine.LNX.3.95.1020226145622.5179A-100000@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.44.0202261211510.1544-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jason Lunz <j@trellisinc.com> writes:
+On Tue, 26 Feb 2002, Richard B. Johnson wrote:
 
-> In mlist.linux-kernel, you wrote:
-> > Cuz the driver is a piece of crap, and BroadCom isn't interested in
-> > working with the open source community to fix up the issues.
-> 
-> Can you elaborate? What are the issues? I've found the broadcomm driver
-> to be more robust than the in-kernel one for acenic cards. With acenic,
-> I've had a null-pointer deref on SMP and other lockups where I wasn't
-> lucky enough to get an oops.
+>
+>
+> I just read on this list that:
+>
+>     while(something)
+>     {
+>       current->policy |= SCHED_YIELD;
+>       schedule();
+>     }
+>
+> Will no longer be allowed in a kernel module! If this is true, how
+> do I loop, waiting for a bit in a port, without wasting CPU time?
+>
+> A lot of hardware does not generate interrupts upon a condition,
+> there is no CPU activity that could send a wake_up_interruptible()
+> to something sleeping.
+>
+> For instance, I need to write data to a hardware FIFO, one long-word
+> at a time, but I can't just write. I have to wait for a bit to be
+> set or reset for each and every write. I'm going to be burning a
+> lot of CPU cycles if I can't schedule() while the trickle-down-effect
+> of the hardware is happening.
 
-Ehm, it would be nice to get some more details on this. Few people
-have reported problems with the acenic driver for a long time, except
-for certain highmem configs and a problem with very old Tigon I cards.
+What did it do yield() to you ? Doesn't it work for your case ?
 
-Jes
+
+
+- Davide
+
+

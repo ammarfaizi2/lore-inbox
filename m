@@ -1,60 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261893AbTEVOaa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 May 2003 10:30:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261895AbTEVOaa
+	id S261904AbTEVOeL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 May 2003 10:34:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261906AbTEVOeL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 May 2003 10:30:30 -0400
-Received: from holomorphy.com ([66.224.33.161]:61067 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S261893AbTEVOa3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 May 2003 10:30:29 -0400
-Date: Thu, 22 May 2003 07:43:06 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: James Cleverdon <jamesclv@us.ibm.com>
-Cc: Gerrit Huizenga <gh@us.ibm.com>, "Nakajima, Jun" <jun.nakajima@intel.com>,
-       haveblue@us.ibm.com, pbadari@us.ibm.com, linux-kernel@vger.kernel.org,
-       johnstul@us.ibm.com, mannthey@us.ibm.com
-Subject: Re: userspace irq balancer
-Message-ID: <20030522144306.GQ8978@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	James Cleverdon <jamesclv@us.ibm.com>,
-	Gerrit Huizenga <gh@us.ibm.com>,
-	"Nakajima, Jun" <jun.nakajima@intel.com>, haveblue@us.ibm.com,
-	pbadari@us.ibm.com, linux-kernel@vger.kernel.org,
-	johnstul@us.ibm.com, mannthey@us.ibm.com
-References: <3014AAAC8E0930438FD38EBF6DCEB5640204334F@fmsmsx407.fm.intel.com> <E19Idxq-0001LD-00@w-gerrit2> <20030522020443.GN2444@holomorphy.com> <200305220718.06982.jamesclv@us.ibm.com>
+	Thu, 22 May 2003 10:34:11 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:26496 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261904AbTEVOeK (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Thu, 22 May 2003 10:34:10 -0400
+Message-Id: <200305221447.h4MElAKx003511@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Mike Galbraith <efault@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: web page on O(1) scheduler 
+In-Reply-To: Your message of "Thu, 22 May 2003 07:52:44 +0200."
+             <5.2.0.9.2.20030522063421.00cc3e90@pop.gmx.net> 
+From: Valdis.Kletnieks@vt.edu
+References: <5.2.0.9.2.20030521111037.01ed0d58@pop.gmx.net> <5.2.0.9.2.20030521111037.01ed0d58@pop.gmx.net>
+            <5.2.0.9.2.20030522063421.00cc3e90@pop.gmx.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200305220718.06982.jamesclv@us.ibm.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+Content-Type: multipart/signed; boundary="==_Exmh_-95293826P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Thu, 22 May 2003 10:47:10 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 22, 2003 at 07:18:06AM -0700, James Cleverdon wrote:
-> Here's my old very stupid TPR patch .  It lacks TPRing soft ints for kernel 
-> preemption, etc.  Because the xTPR logic only compares the top nibble of the 
-> TPR and I don't want to mask out IRQs unnecessarily, it only tracks busy/idle 
-> and IRQ/no-IRQ.
-> Simple enough for you, Bill?   8^)
+--==_Exmh_-95293826P
+Content-Type: text/plain; charset=us-ascii
 
-Simple enough, yes. But I hesitate to endorse it without making sure
-it's not too simple.
+On Thu, 22 May 2003 07:52:44 +0200, Mike Galbraith said:
 
-It's much closer to the right direction, which is actually following
-hardware docs and then punting the fancy (potentially more performant)
-bits up into userspace. When properly tuned, it should actually have a
-useful interaction with explicit irq balancing via retargeting IO-APIC
-RTE destinations as interrupts targeted at a destination specifying
-multiple cpus won't always target a single cpu when TPR's are adjusted.
+> It does consider cpu usage though.  Your run history is right there in your 
+> accumulated sleep_avg.  Unfortunately (in some ways, fortunate in others.. 
+> conflict) that information can be diluted down to nothing instantly by new 
+> input from one wakeup.
 
-The only real issue with the TPR is that it's an spl-like ranking of
-interrupts, assuming a static prioritization based on vector number.
-That doesn't really agree with the Linux model and is undesirable in
-various scenarios; however, it's how the hardware works and so can't
-be avoided (and the disastrous attempt to avoid it didn't DTRT anyway).
+Maybe there should be a scheduler tunable that says how much it should be
+diluted?
 
+--==_Exmh_-95293826P
+Content-Type: application/pgp-signature
 
--- wli
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE+zOLucC3lWbTT17ARArwdAJ4qBW9quX9fmz09kQsZs99EeJ7h+gCg2jsZ
+TuQ1EIowRA1fe4v1rxX9XTE=
+=SjTf
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-95293826P--

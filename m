@@ -1,48 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129839AbRBYWdo>; Sun, 25 Feb 2001 17:33:44 -0500
+	id <S129830AbRBYW2y>; Sun, 25 Feb 2001 17:28:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129843AbRBYWde>; Sun, 25 Feb 2001 17:33:34 -0500
-Received: from mercury.ST.HMC.Edu ([134.173.57.219]:8710 "HELO
-	mercury.st.hmc.edu") by vger.kernel.org with SMTP
-	id <S129839AbRBYWd2>; Sun, 25 Feb 2001 17:33:28 -0500
-From: Nate Eldredge <neldredge@hmc.edu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15001.34865.543658.820963@mercury.st.hmc.edu>
-Date: Sun, 25 Feb 2001 14:33:21 -0800
+	id <S129839AbRBYW2o>; Sun, 25 Feb 2001 17:28:44 -0500
+Received: from rachael.franken.de ([193.175.24.38]:41997 "EHLO
+	rachael.franken.de") by vger.kernel.org with ESMTP
+	id <S129830AbRBYW22>; Sun, 25 Feb 2001 17:28:28 -0500
+Date: Sun, 25 Feb 2001 23:22:17 +0100
+From: Matthias Bruestle <m@mbsks.franken.de>
 To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.2-ac3: loop threads in D state
-In-Reply-To: <15000.9242.867644.29523@mercury.st.hmc.edu>
-In-Reply-To: <15000.9242.867644.29523@mercury.st.hmc.edu>
-X-Mailer: VM 6.76 under Emacs 20.5.1
+Subject: Re: Power management on Sony C1Vx
+Message-ID: <20010225232217.F3253@mbsks.franken.de>
+In-Reply-To: <20010225205521.C3253@mbsks.franken.de> <15001.26086.318898.287148@champ.drew.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0i
+In-Reply-To: <15001.26086.318898.287148@champ.drew.net>; from drew@drewb.com on Sun, Feb 25, 2001 at 08:07:02PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nate Eldredge writes:
- > Kernel 2.4.2-ac3.
- > 
- >  FLAGS   UID   PID  PPID PRI  NI   SIZE   RSS WCHAN       STA TTY TIME COMMAND
- >     40     0   425     1  -1 -20      0     0 down        DW< ?   0:00 (loop0)
+Note as stated in the FAQ: I am not subscribed, so please CC also to me,
+when answering. (Or else my spies have to do this. :) )
 
-It looks like this has been addressed in the thread "242-ac3 loop
-bug".  Jens Axboe posted a patch, but the list archive I'm reading
-mangled it.  Jens, could you make this patch available somewhere, or
-at least email me a copy?  (If it's going in an upcoming -ac patch,
-then don't bother; I can wait until then.)
+Mahlzeit
 
-Thanks.
 
- > From a look at the source it seems that this may be normal behavior
- > (though I'm not sure).  However, it's still cosmetically annoying,
- > because it throws off the load average (a D state process is counted
- > as "running" for the loadavg calculation).
- > 
- > My loopback-mounted fs seems to be working fine, nevertheless, which
- > is a nice change from previous kernels.
+I played a bit around more. /proc/sys/acpi looks good. The disassembled
+output of FAC{SP} and DSDT o.s.l.t. looks "meaningfull". But I cannot
+see any events in /proc/sys/acpi/event. (This is with 2.4.2-ac3.)
+
+
+Thanks
+
+endergone Zwiebeltuete
 
 -- 
-
-Nate Eldredge
-neldredge@hmc.edu
+live free or die

@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268084AbTBYREP>; Tue, 25 Feb 2003 12:04:15 -0500
+	id <S268096AbTBYRHD>; Tue, 25 Feb 2003 12:07:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268091AbTBYREO>; Tue, 25 Feb 2003 12:04:14 -0500
-Received: from pirx.hexapodia.org ([208.42.114.113]:54415 "HELO
-	pirx.hexapodia.org") by vger.kernel.org with SMTP
-	id <S268084AbTBYREO>; Tue, 25 Feb 2003 12:04:14 -0500
-Date: Tue, 25 Feb 2003 11:14:28 -0600
-From: Andy Isaacson <adi@hexapodia.org>
-To: Diksha B Bhoomi <dikshabhoomi@rediffmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Writing new filesystem
-Message-ID: <20030225111428.A1666@hexapodia.org>
-References: <20030225083631.17493.qmail@webmail17.rediffmail.com>
+	id <S268097AbTBYRHD>; Tue, 25 Feb 2003 12:07:03 -0500
+Received: from [195.223.140.107] ([195.223.140.107]:51334 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S268096AbTBYRHC>;
+	Tue, 25 Feb 2003 12:07:02 -0500
+Date: Tue, 25 Feb 2003 18:17:27 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Hanna Linder <hannal@us.ibm.com>, lse-tech@lists.sf.et,
+       linux-kernel@vger.kernel.org
+Subject: Re: Minutes from Feb 21 LSE Call
+Message-ID: <20030225171727.GN29467@dualathlon.random>
+References: <96700000.1045871294@w-hlinder> <20030222192424.6ba7e859.akpm@digeo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030225083631.17493.qmail@webmail17.rediffmail.com>; from dikshabhoomi@rediffmail.com on Tue, Feb 25, 2003 at 08:36:31AM -0000
-X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
-X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
-X-Domestic-Surveillance: money launder bomb tax evasion
+In-Reply-To: <20030222192424.6ba7e859.akpm@digeo.com>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 25, 2003 at 08:36:31AM -0000, Diksha B Bhoomi wrote:
-> I am interested in writing a new filesystems. For that purpose I 
-> took thr src from msdos and tried to do the compiling. The 
-[snip]
-> new kernel but here again it does not take into account the new ly 
-> added dir. I then followed to make dep. In this it goes to myfs 
-> dir but no compiletion happens. It creates two files myfs.ver and 
-[snip]
+On Sat, Feb 22, 2003 at 07:24:24PM -0800, Andrew Morton wrote:
+> 2.4.21-pre4:                    8.10 seconds
+> 2.5.62-mm3 with objrmap:        9.95 seconds	(+1.85)
+> 2.5.62-mm3 without objrmap:     10.86 seconds   (+0.91)
+> 
+> Current 2.5 is 2.76 seconds slower, and this patch reclaims 0.91 of those
+> seconds.
+> 
+> 
+> So whole stole the remaining 1.85 seconds?   Looks like pte_highmem.
 
-Look at fs/Makefile, search for "ext2", and add your new fs directory in
-the appropriate spots.
+would you mind to add the line for 2.4.21-pre4aa3? it has pte-highmem so
+you can easily find it out for sure if it is pte_highmem that stole >10%
+of your fast cpu. A line for the 2.4-rmap patch would be also
+interesting.
 
-I would recommend using ext2 or something, rather than msdosfs, as your
-template.  The DOS filesystem is crufty.
+> Note one second spent in pte_alloc_one().
 
--andy
+note the seconds spent in the rmap affected paths too.
+
+Andrea

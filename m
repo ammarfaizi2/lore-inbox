@@ -1,32 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317591AbSHHPUE>; Thu, 8 Aug 2002 11:20:04 -0400
+	id <S317599AbSHHPXg>; Thu, 8 Aug 2002 11:23:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317598AbSHHPUE>; Thu, 8 Aug 2002 11:20:04 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:13527 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S317591AbSHHPUE>; Thu, 8 Aug 2002 11:20:04 -0400
-Subject: Re: bad: schedule() with irqs disabled! (+ ksymoops)
-From: Paul Larson <plars@austin.ibm.com>
-To: martin@dalecki.de
-Cc: Zwane Mwaikambo <zwane@linuxpower.ca>,
-       "Bill Huey (Hui)" <billh@gnuppy.monkey.org>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <3D524A67.7030407@evision.ag>
-References: <Pine.LNX.4.44.0208081218160.24255-100000@linux-box.realnet.co.sz> 
-	<3D524A67.7030407@evision.ag>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 08 Aug 2002 10:18:05 -0500
-Message-Id: <1028819895.22405.313.camel@plars.austin.ibm.com>
+	id <S317598AbSHHPXg>; Thu, 8 Aug 2002 11:23:36 -0400
+Received: from pop.gmx.net ([213.165.64.20]:807 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S317599AbSHHPWj>;
+	Thu, 8 Aug 2002 11:22:39 -0400
+Date: Thu, 8 Aug 2002 17:29:55 +0200
+From: gigerstyle@gmx.ch
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: /proc/net/dev and ifconfig
+Message-Id: <20020808172955.7af1bea1.gigerstyle@gmx.ch>
+X-Mailer: Sylpheed version 0.8.1claws (GTK+ 1.2.10; )
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I got the same error yesterday with preempt turned on.  Turned it off
-and it was no longer a problem but I hadn't had a chance to try
-reproducing it on a clean kernel yet.
+Hi
 
--Paul Larson
+A little question:
 
+I have a little server with kernel 2.4.16 running (without any problems, very stable).
+
+I noticed that when approximately 4 GB data are received (over Ethernet) then the counter in /proc/net/dev again begins to count from zero. 
+Is it normal? Does it depend on the Ethernet-Card? 
+It's a Realtek Semiconductor Co., Ltd. RTL-8029(AS)
+
+Should I update the kernel?
+
+greets
+
+Marc

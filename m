@@ -1,63 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264069AbTFPRqr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 13:46:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264072AbTFPRqq
+	id S264047AbTFPRtM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 13:49:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264066AbTFPRtK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 13:46:46 -0400
-Received: from bart.one-2-one.net ([217.115.142.76]:56072 "EHLO
-	bart.webpack.hosteurope.de") by vger.kernel.org with ESMTP
-	id S264069AbTFPRqb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 13:46:31 -0400
-Date: Mon, 16 Jun 2003 20:00:33 +0200 (CEST)
-From: Martin Diehl <lists@mdiehl.de>
-X-X-Sender: martin@notebook.home.mdiehl.de
-To: Russell King <rmk@arm.linux.org.uk>
-cc: Greg KH <greg@kroah.com>, Alan Stern <stern@rowland.harvard.edu>,
-       Patrick Mochel <mochel@osdl.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: Flaw in the driver-model implementation of attributes
-In-Reply-To: <20030616182003.D13312@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0306161937010.2079-100000@notebook.home.mdiehl.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 16 Jun 2003 13:49:10 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:57576 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264047AbTFPRrn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jun 2003 13:47:43 -0400
+Subject: Re: Linux 2.5.71
+From: John Cherry <cherry@osdl.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0306141411320.2156-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0306141411320.2156-100000@home.transmeta.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1055786648.8573.63.camel@cherrypit.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 16 Jun 2003 11:04:08 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Jun 2003, Russell King wrote:
+Compile statistics: 2.5.71
+Compiler: gcc 3.2.2
+Script: http://www.osdl.org/archive/cherry/stability/compregress.sh
 
-> On Mon, Jun 16, 2003 at 10:08:26AM -0700, Greg KH wrote:
-> > Then don't let your module unload until _all_ instances of your
-> > structures are gone.  You can tell if this is true or not, it's just up
-> > to the implementor :)
-> 
-> Greg, I believe Alan does have a valid concern.  Eg, how is the following
-> handled?
-> 
-> - PCI device driver module is loaded
-> - device driver gets handed a pci device
-> - device driver attaches a file to the struct device corresponding to the
->   PCI device.
+          bzImage       bzImage        modules
+        (defconfig)  (allmodconfig) (allmodconfig)
 
-with old procfs one would like to set the owner field of the 
-corresponding struct proc_dir_entry and/or file_operations at this point.
+2.5.71  6 warnings    11 warnings   1347 warnings
+        0 errors       0 errors       57 errors
 
-> - userspace opens new file (this does not increment the device drivers
->   use count.)
+2.5.70  7 warnings    10 warnings   1366 warnings
+        0 errors       0 errors       57 errors
 
-given owner=THIS_MODULE was set, this would bump the module's use count
+2.5.69  7 warnings    11 warnings   1567 warnings
+        0 errors       0 errors       57 errors
 
-> - device driver is rmmod'd
+2.5.68  7 warnings    11 warnings   1975 warnings
+        0 errors       6 errors       60 errors
 
-and this could never happen while the procfs file (or directory) is still 
-referenced
+2.5.67  8 warnings    12 warnings   2136 warnings
+        0 errors       6 errors       89 errros
 
-> - device driver removes its references to the pci device
-> - device driver unloads
-> - user reads from opened file.
 
-Admittedly I haven't looked deeper into sysfs yet, but I was under the
-assumption/hope there would be a similar approach to make module 
-refcounting working there?
+Compile statistics have been for kernel releases from 2.5.46 to 2.5.71
+at: www.osdl.org/archive/cherry/stability
 
-Martin
+
+Error Summary:
+ 
+   drivers/block: 2 warnings, 1 errors
+   drivers/char: 234 warnings, 6 errors
+   drivers/isdn: 221 warnings, 7 errors
+   drivers/media: 103 warnings, 5 errors
+   drivers/mtd: 53 warnings, 3 errors
+   drivers/net: 27 warnings, 6 errors
+   drivers/net: 333 warnings, 6 errors
+   drivers/scsi/aic7xxx: 0 warnings, 1 errors
+   drivers/scsi: 112 warnings, 14 errors
+   drivers/video: 75 warnings, 3 errors
+   sound/oss: 49 warnings, 3 errors
+   sound: 5 warnings, 3 errors
+                                                                                                                                                             
+Warning Summary:
+                                                                           
+   drivers/atm: 36 warnings, 0 errors
+   drivers/cdrom: 25 warnings, 0 errors
+   drivers/i2c: 3 warnings, 0 errors
+   drivers/ide: 30 warnings, 0 errors
+   drivers/ieee1394: 1 warnings, 0 errors
+   drivers/md: 2 warnings, 0 errors
+   drivers/message: 1 warnings, 0 errors
+   drivers/pci: 1 warnings, 0 errors
+   drivers/pcmcia: 3 warnings, 0 errors
+   drivers/scsi/aacraid: 1 warnings, 0 errors
+   drivers/scsi/pcmcia: 4 warnings, 0 errors
+   drivers/scsi/sym53c8xx_2: 1 warnings, 0 errors
+   drivers/serial: 1 warnings, 0 errors
+   drivers/telephony: 10 warnings, 0 errors
+   drivers/video/aty: 3 warnings, 0 errors
+   drivers/video/matrox: 5 warnings, 0 errors
+   drivers/video/sis: 2 warnings, 0 errors
+   fs/afs: 1 warnings, 0 errors
+   fs/intermezzo: 1 warnings, 0 errors
+   fs/lockd: 4 warnings, 0 errors
+   fs/nfsd: 2 warnings, 0 errors
+   fs/smbfs: 2 warnings, 0 errors
+   net: 27 warnings, 0 errors
+   sound/isa: 3 warnings, 0 errors
+John
 

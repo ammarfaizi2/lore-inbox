@@ -1,46 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271898AbTHMU5r (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 16:57:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275553AbTHMU5r
+	id S275592AbTHMVPh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 17:15:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275593AbTHMVPh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 16:57:47 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:45831 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S271898AbTHMU5q
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 16:57:46 -0400
-Date: Wed, 13 Aug 2003 16:49:23 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Andrew Theurer <habanero@us.ibm.com>
-cc: "Martin J. Bligh" <mbligh@aracnet.com>, Erich Focht <efocht@hpce.nec.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       LSE <lse-tech@lists.sourceforge.net>, Andi Kleen <ak@muc.de>,
-       torvalds@osdl.org
-Subject: Re: [patch] scheduler fix for 1cpu/node case
-In-Reply-To: <200307282124.28378.habanero@us.ibm.com>
-Message-ID: <Pine.LNX.3.96.1030813163849.12417I-100000@gatekeeper.tmr.com>
+	Wed, 13 Aug 2003 17:15:37 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:2727
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S275592AbTHMVPg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 17:15:36 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Timothy Miller <miller@techsource.com>, Voluspa <lista1@telia.com>
+Subject: Re: WINE + Galciv + 2.6.0-test3-mm1-O15
+Date: Thu, 14 Aug 2003 07:21:26 +1000
+User-Agent: KMail/1.5.3
+Cc: linux-kernel@vger.kernel.org
+References: <20030812172358.5afe0cc1.lista1@telia.com> <20030813025428.3569ffbc.lista1@telia.com> <3F3A8766.9050909@techsource.com>
+In-Reply-To: <3F3A8766.9050909@techsource.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308140721.26351.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 Jul 2003, Andrew Theurer wrote:
+On Thu, 14 Aug 2003 04:45, Timothy Miller wrote:
+> Voluspa wrote:
+> > When the blackout starts I no longer have to move the mouse, it is
+> > enough to hold down the button. The second I release it, the music
+> > returns.
+>
+> I think this sort of thing has been discussed before.  I get the
+> impression that xmms blocks on the X server, so when some app grabs the
+> server, then xmms gets blocked and stops.  I don't know why the display
+> code is not in a separate thread from the audio code; although maybe
+> they are but they interact somehow that causes this.
 
-> Personally, I'd like to see all systems use NUMA sched, non NUMA systems being 
-> a single node (no policy difference from non-numa sched), allowing us to 
-> remove all NUMA ifdefs.  I think the code would be much more readable.
+This is a pure sheduler starvation issue which I'm trying to fix.
 
-That sounds like a great idea, but I'm not sure it could be realized short
-of a major rewrite. Look how hard Ingo and Con are working just to get a
-single node doing a good job with interactive and throughput tradeoffs.
-
-Once they get a good handle on identifying process behaviour, and I
-believe they will, that information could be used in improving NUMA
-performance, by sending not just 'a job" but "the right job" if it exists.
-I'm sure there are still a few graduate theses possible on the topic!
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Con
 

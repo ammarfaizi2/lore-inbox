@@ -1,71 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265631AbUFDF4T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264367AbUFDGSY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265631AbUFDF4T (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 01:56:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265633AbUFDF4T
+	id S264367AbUFDGSY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 02:18:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264373AbUFDGSY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 01:56:19 -0400
-Received: from relay01.kbs.net.au ([203.220.32.149]:189 "EHLO
-	relay01.kbs.net.au") by vger.kernel.org with ESMTP id S265631AbUFDF4Q
+	Fri, 4 Jun 2004 02:18:24 -0400
+Received: from ausmtp01.au.ibm.com ([202.81.18.186]:28155 "EHLO
+	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP id S264367AbUFDGSV
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 01:56:16 -0400
-Date: Fri, 4 Jun 2004 15:56:13 +1000
-From: "Pods" <pods@dodo.com.au>
-To: linux-kernel@vger.kernel.org
-Reply-to: "Pods" <pods@dodo.com.au>
-Subject: lotsa oops - 2.6.5 (preempt + unable handle virutal address + more?)
-X-Priority: 3
-X-Mailer: Dodo Internet Webmail Server 
-X-Original-IP: 203.220.42.35
-Content-Transfer-Encoding: 7BIT
-X-MSMail-Priority: Medium
-Importance: Medium
-Content-Type: text/plain; charset=US-ASCII
-MIME-Version: 1.0
-Message-Id: <E1BW7gZ-00066c-00@mail.kbs.net.au>
+	Fri, 4 Jun 2004 02:18:21 -0400
+Subject: [PATCH] NUMA-aware per-cpu allocation
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Anton Blanchard <anton@samba.org>
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@muc.de>
+Content-Type: text/plain
+Message-Id: <1086329823.7990.1101.camel@bach>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 04 Jun 2004 16:17:04 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, sorry for the not very descriptive subject.
+Stolen from x86_64: if we have NUMA, then use alloc_bootmem_node.
 
-I have a problem with linux 2.6.5, it crashes, a lot. Some times it spews
-out oops at me, sometimes i dotn know if it oopsed or not because the
-machine doesnt respond.
+Can't hurt, I figure.
 
-I can reproduce this by several means, including playing a dvd, compiling
-firefox, mplayer or thunderbird and i can be doing something not quite a
-hard on the system such as browsing the web or chatting... It'll find some
-way to piss me off.
+In 2.7, my cunning plan is to require contiguous sections, and allocate
+similar sections for the dynamic per-cpu allocations, so this won't work
+(archs will need to use tricks to create virtually-contiguous memory
+from different NUMA nodes).  I have a bitrotted implementation.
 
-Now, i have supplied several oops, each on containing the full output of
-dmesg via the kernel logging daemon. I have also supplied my hardware specs
-(mobo + lspci -vvv) and out put of ver_linux?... All these files can be
-found @ http://users.quickfox.org/~pods/linux-issues/.
+Meanwhile, this compiles: does it help performance?
 
-I didnt want to post them here because each oops IIRC is different. Just to
-let you know if have tried several way in which to correct this.
+Name: Per-CPU Memory On Right Nodes
+Status: Untested
 
-* several different kernels ( 2.4.18-bf24, 2.4.26, 2.6.5 )
-** with ide shareirq
-** noapic
-** + apic
-** noacpi
-** + acpi
-** lots of other differences
+Stolen from x86_64: for NUMA machines, allocate the per-cpu memory
+using alloc_bootmem_node so it's optimally placed.
 
-* Recently i had turned to bios and have disabled many things including apic
-(just incase you where wondering, bios had mps @ 1.4)
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .1784-linux-2.6.7-rc2-bk4/include/asm-ppc64/percpu.h .1784-linux-2.6.7-rc2-bk4.updated/include/asm-ppc64/percpu.h
+--- .1784-linux-2.6.7-rc2-bk4/include/asm-ppc64/percpu.h	2004-02-04 15:39:11.000000000 +1100
++++ .1784-linux-2.6.7-rc2-bk4.updated/include/asm-ppc64/percpu.h	2004-06-04 14:49:59.000000000 +1000
+@@ -1,6 +1,8 @@
+ #ifndef __ARCH_PPC64_PERCPU__
+ #define __ARCH_PPC64_PERCPU__
+ 
++/* Big sloppy arch needs more per-cpu room than usual */
++#define PERCPU_ENOUGH_ROOM 65536
+ #include <asm-generic/percpu.h>
+ 
+ #endif /* __ARCH_PPC64_PERCPU__ */
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .1784-linux-2.6.7-rc2-bk4/init/main.c .1784-linux-2.6.7-rc2-bk4.updated/init/main.c
+--- .1784-linux-2.6.7-rc2-bk4/init/main.c	2004-05-31 09:57:40.000000000 +1000
++++ .1784-linux-2.6.7-rc2-bk4.updated/init/main.c	2004-06-04 14:53:17.000000000 +1000
+@@ -338,12 +338,26 @@ static void __init setup_per_cpu_areas(v
+ 		size = PERCPU_ENOUGH_ROOM;
+ #endif
+ 
++	/* Multiple allocs for non-NUMA just wastes memory. */
++#ifdef CONFIG_NUMA
++	for (i = 0; i < NR_CPUS; i++) { 
++		pg_data_t *pgdat;
++
++		pgdat = NODE_DATA(cpu_to_node(i));
++		ptr = alloc_bootmem_node(pgdat, size);
++		if (!ptr)
++			panic("Cannot allocate cpu data for CPU %ld\n", i);
++		__per_cpu_offset[i] = ptr - __per_cpu_start;
++		memcpy(ptr, __per_cpu_start, __per_cpu_end - __per_cpu_start);
++	}
++#else
+ 	ptr = alloc_bootmem(size * NR_CPUS);
+ 
+ 	for (i = 0; i < NR_CPUS; i++, ptr += size) {
+ 		__per_cpu_offset[i] = ptr - __per_cpu_start;
+ 		memcpy(ptr, __per_cpu_start, __per_cpu_end - __per_cpu_start);
+ 	}
++#endif /* CONFIG_NUMA */
+ }
+ #endif /* !__GENERIC_PER_CPU */
+ 
 
-If you would rather me add the very large amoung of oops to this email, tell
-me and i'll do so. Thanks in advance.
-
-P.S Im not subscribed to the list, i may consider it depending on the amount
-of feedback i get and how involved i need to be, but for now i'd rather if
-people could CC me their response. Thank you
-again.
-
-________________________________________________
-
-Message sent using
-Dodo Internet Webmail Server
+-- 
+Anyone who quotes me in their signature is an idiot -- Rusty Russell
 

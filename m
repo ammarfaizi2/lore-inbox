@@ -1,34 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272510AbRH3V5r>; Thu, 30 Aug 2001 17:57:47 -0400
+	id <S272498AbRH3V5H>; Thu, 30 Aug 2001 17:57:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272516AbRH3V5i>; Thu, 30 Aug 2001 17:57:38 -0400
-Received: from mail000.mail.bellsouth.net ([205.152.58.20]:60667 "EHLO
-	imf00bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S272510AbRH3V51>; Thu, 30 Aug 2001 17:57:27 -0400
-Date: Thu, 30 Aug 2001 16:57:36 -0500
-From: Matthew Fredrickson <matt@fredricknet.net>
-To: linux-kernel@vger.kernel.org
-Subject: IBM, are you there?
-Message-ID: <20010830165735.A2498@frednet.dyndns.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S272510AbRH3V45>; Thu, 30 Aug 2001 17:56:57 -0400
+Received: from oboe.it.uc3m.es ([163.117.139.101]:22282 "EHLO oboe.it.uc3m.es")
+	by vger.kernel.org with ESMTP id <S272498AbRH3V4m>;
+	Thu, 30 Aug 2001 17:56:42 -0400
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200108302156.f7ULujo24456@oboe.it.uc3m.es>
+Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
+In-Reply-To: <11528.999208069@redhat.com> from "David Woodhouse" at "Aug 30,
+ 2001 10:47:49 pm"
+To: "David Woodhouse" <dwmw2@infradead.org>
+Date: Thu, 30 Aug 2001 23:56:45 +0200 (MET DST)
+CC: ptb@it.uc3m.es, "Herbert Rosmanith" <herp@wildsau.idv-edu.uni-linz.ac.at>,
+        linux-kernel@vger.kernel.org, dhowells@cambridge.redhat.com
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is there anybody here from IBM that might be able to get in contact with
-me?  I need to ask some questions concerning getting some hardware
-documentation on the IBM Net Camera (produced by xirlink).  I've tried to
-get a hold of someone there that might be able to get me some
-documentation but all the seem to think I need is windows API docs
-*shrug*.  Here's a good chance for you guys to help linux without having
-to spend a billion dollars, lol :-D .  No offense intended of course.
-Just trying to write a driver for this webcam that I bought, thought it
-might be a bit easier to ask rather than trying to hack this out on my
-own.  Mostly what I'm concerned about is control documentation and the
-data compression format of the data coming from the camera.
+"A month of sundays ago David Woodhouse wrote:"
+> Code which relies on "if(0) __call_nonexistent_function();" actually compiling 
+> is just broken.
 
-Matthew Fredrickson
+You got me curious enough to try it.  It compiles and links fine with
+-O1 and higher under
 
+       gcc version 2.95.2 20000220 (Debian GNU/Linux)
+       gcc version 2.8.1
+       gcc version 2.7.2.3
+
+> You'd have thought we'd have learned by now to stop relying on the observed 
+> current behaviour of gcc and start trying to get it right, wouldn't you?
+
+One CAN rely on this behaviour so long as branch reduction (well,
+whatever it's called) is an optimizing step following constant
+expression evaluation.  The fn call will never make it outside of gcc's
+internal repreentation.
+
+> The answer in this case is that gcc can't safely do what we require for this
+> and for other compile-time checks, until something like David's
+> __builtin_ct_assertion() is added.
+
+
+Peter

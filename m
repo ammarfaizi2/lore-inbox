@@ -1,41 +1,102 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276057AbRKFALZ>; Mon, 5 Nov 2001 19:11:25 -0500
+	id <S281438AbRKFAVh>; Mon, 5 Nov 2001 19:21:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281438AbRKFALF>; Mon, 5 Nov 2001 19:11:05 -0500
-Received: from domino1.resilience.com ([209.245.157.33]:21477 "EHLO
-	intranet.resilience.com") by vger.kernel.org with ESMTP
-	id <S276057AbRKFALA>; Mon, 5 Nov 2001 19:11:00 -0500
-Message-ID: <3BE7294E.5050905@usa.net>
-Date: Mon, 05 Nov 2001 16:05:34 -0800
-From: Eric <ebrower@usa.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010802
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [Q] pivot_root and initrd
-In-Reply-To: <p05100304b80cbe9cf127@[10.128.7.49]>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S281440AbRKFAV2>; Mon, 5 Nov 2001 19:21:28 -0500
+Received: from ilm.mech.unsw.EDU.AU ([129.94.171.100]:48906 "EHLO
+	ilm.mech.unsw.edu.au") by vger.kernel.org with ESMTP
+	id <S281438AbRKFAVJ>; Mon, 5 Nov 2001 19:21:09 -0500
+Date: Tue, 6 Nov 2001 11:20:52 +1100
+To: Pavel Machek <pavel@suse.cz>
+Cc: linux-kernel@vger.kernel.org, Ian Maclaine-cross <iml@debian.org>
+Subject: Re: PROBLEM: Linux updates RTC secretly when clock synchronizes
+Message-ID: <20011106112052.A10721@ilm.mech.unsw.edu.au>
+In-Reply-To: <20011031113312.A8738@ilm.mech.unsw.edu.au> <20011102121602.A45@toy.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011102121602.A45@toy.ucw.cz>
+User-Agent: Mutt/1.3.23i
+From: Ian Maclaine-cross <iml@ilm.mech.unsw.edu.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas wrote:
+Hi Pavel,
+On Fri, Nov 02, 2001 at 12:16:03PM +0000, Pavel Machek wrote:
+> Hi!
+> 
+> > PROBLEM: Linux updates RTC secretly when clock synchronizes.
+> > 
+> > Please CC replies etc to Ian Maclaine-cross <iml@debian.org>.
+> > 
+> > When /usr/sbin/ntpd synchronizes the Linux kernel (or system) clock
+> > using the Network Time Protocol the kernel time is accurate to a few
+> > milliseconds. Linux then sets the Real Time (or Hardware or CMOS)
+> > Clock to this time at approximately 11 minute intervals. Typical RTCs
+> > drift less than 10 s/day so rebooting causes only millisecond errors.
+> > 
+> > Linux currently does not record the 11 minute updates to a log file.
+> > Clock programs (like hwclock) cannot correct RTC drift at boot without
+> > knowing when the RTC was last set. If NTP service is available after a
+> > long shutdown, ntpd may step the time.  Worse after a longer shutdown
+> > ntpd may drop out or even synchronize to the wrong time zone.  The
+> > workarounds are clumsy.
+> > 
+> > Please find following my small patch for linux/arch/i386/kernel/time.c
+> > which adds a KERN_NOTICE of each 11 minute update to the RTC. This is
+> > just for i386 machines at present. A script can search the logs for
+> > the last set time of the RTC and update /etc/adjtime.  Hwclock can
+> > then correct the RTC for drift and set the kernel clock.
+> 
+> That seems as very wrong solution.
+> 
+> What about just making kernel only _read_ system clock, and never set it? 
+> That looks way cleaner to me.
 
->> linuxrc does 'exec chroot', chroot does 'exec sh', 
->> sh does 'exec init'.
->> Thus init should end up with the same pid as linuxrc.
+QUESTION: What results in best timekeeping by the RTC, constant
+updates or logging the offset?
 
-Exactly, but if init does not have PID 1, we fail.  Kai,
-it works for HPA because of the magic kernel command line
-incantation:
+ANSWER: 
 
-	root=/dev/ram0 (apparently with or without devfs)
+The Linux kernel code for the 11 minute update in
+arch/i386/kernel/time.c has an RTC setting error of +-0.005 s.  The
+adjtimex source suggests an RTC reading error of +-0.000025 s.
 
-Without this, init does NOT get PID 1 and therefore it
-all goes south rather quickly.  The pivot_root syscall
-is handy, but its operation under 2.4.x is disingenuous
-at best.
+Accurate RTC timekeeping also requires an accurate value of average
+drift rate for typical use. Measuring this requires timing over a long
+unset period such as one month.
 
-E
+Logging the offset is more accurate per reading and allows
+more accurate measurement of drift than 11 minute updates.
 
+END ANSWER.
+
+RTC accuracy supports optionalizing the 11 minute update.
+
+Other reasons to optionalize the 11 minute update which various people
+suggest:
+
+1. The kernel should not dictate OS policy;
+
+2. Simplifies programming with /dev/rtc;
+
+3. Improves performance of /dev/rtc;
+
+4. Slightly reduced kernel size;
+
+5. Slightly faster timer_interrupt;
+
+6. Easier to use utilities like hwclock.
+
+I agree with you, Pavel. Commenting out the 11 minute update
+code is a better solution. :)
+
+> 								Pavel
+> -- 
+> Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+> details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+> 
+
+-- 
+Regards,
+Ian Maclaine-cross (iml@debian.org)

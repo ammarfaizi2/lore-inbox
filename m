@@ -1,31 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131244AbREHKL5>; Tue, 8 May 2001 06:11:57 -0400
+	id <S131497AbREHKnn>; Tue, 8 May 2001 06:43:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131407AbREHKLr>; Tue, 8 May 2001 06:11:47 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:28677 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S131244AbREHKLe>;
-	Tue, 8 May 2001 06:11:34 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: "Ben Castricum" <benc@inet.kpn.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.5-pre1 Unresolved symbol in module ide-mod.o 
-In-Reply-To: Your message of "Tue, 08 May 2001 11:07:38 +0200."
-             <000701c0d79e$667dd0e0$a10616c2@nmcgv> 
-Mime-Version: 1.0
+	id <S131481AbREHKnd>; Tue, 8 May 2001 06:43:33 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:61707 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131480AbREHKnX>; Tue, 8 May 2001 06:43:23 -0400
+Subject: Re: [PATCH] x86 page fault handler not interrupt safe
+To: torvalds@transmeta.com (Linus Torvalds)
+Date: Tue, 8 May 2001 11:45:28 +0100 (BST)
+Cc: bgerst@didntduck.org (Brian Gerst), nigel@nrg.org,
+        alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.31.0105071443080.1195-100000@penguin.transmeta.com> from "Linus Torvalds" at May 07, 2001 02:44:22 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 08 May 2001 20:11:25 +1000
-Message-ID: <21647.989316685@ocs3.ocs-net>
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14x4zi-0005RA-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 8 May 2001 11:07:38 +0200, 
-"Ben Castricum" <benc@inet.kpn.net> wrote:
->root@spike:~# depmod -ae 2.4.5-pre1
->depmod: *** Unresolved symbols in
->/lib/modules/2.4.5-pre1/kernel/drivers/ide/ide-mod.o
->depmod:         invalidate_device_R25a4b0b2
+> On Mon, 7 May 2001, Brian Gerst wrote:
+> >
+> > Keep in mind that regs->eflags could be from user space, and could have
+> > some undesirable flags set.  That's why I did a test/sti instead of
+> > reloading eflags.  Plus my patch leaves interrupts disabled for the
+> > minimum time possible.
+> 
+> The plain "popf" should be ok: the way intel works, you cannot actually
+> use popf to set any of the strange flags (if vm86 mode etc).
+> 
+> I like the size of this alternate patch.
 
-Try http://www.tux.org/lkml/#s8-8
+I dont see where the alternative patch ensures the user didnt flip the
+direction flag for one
 

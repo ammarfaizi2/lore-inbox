@@ -1,50 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261669AbSIXNgT>; Tue, 24 Sep 2002 09:36:19 -0400
+	id <S261674AbSIXNsM>; Tue, 24 Sep 2002 09:48:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261672AbSIXNgS>; Tue, 24 Sep 2002 09:36:18 -0400
-Received: from k7g317-2.kam.afb.lu.se ([130.235.57.218]:14733 "EHLO
-	cheetah.psv.nu") by vger.kernel.org with ESMTP id <S261669AbSIXNgS>;
-	Tue, 24 Sep 2002 09:36:18 -0400
-Date: Tue, 24 Sep 2002 15:40:18 +0200 (CEST)
-From: Peter Svensson <petersv@psv.nu>
-To: Michael Sinz <msinz@wgate.com>
-cc: "Bill Huey (Hui)" <billh@gnuppy.monkey.org>,
-       Peter Waechtler <pwaechtler@mac.com>, <linux-kernel@vger.kernel.org>,
-       ingo Molnar <mingo@redhat.com>
-Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
-In-Reply-To: <3D90547A.8070203@wgate.com>
-Message-ID: <Pine.LNX.4.44.0209241537340.2383-100000@cheetah.psv.nu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261675AbSIXNsM>; Tue, 24 Sep 2002 09:48:12 -0400
+Received: from node-d-1ef6.a2000.nl ([62.195.30.246]:32750 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S261674AbSIXNsL>; Tue, 24 Sep 2002 09:48:11 -0400
+Subject: Re: hpt370 raid driver
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Petr Slansky <slansky@usa.net>
+Cc: alan@redhat.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20020924132445Z261665-8740+289@vger.kernel.org>
+References: <20020924132445Z261665-8740+289@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-oQYeG72dlLiN6LjzsJZX"
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 24 Sep 2002 15:55:02 +0200
+Message-Id: <1032875703.2607.0.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 24 Sep 2002, Michael Sinz wrote:
 
-> The problem was very quickly noticed as other students quickly learned
-> how to make use of such "solutions" to their performance wants.  We
-> relatively quickly had to add process level accounting of thread CPU
-> usage such that any thread in a process counted to that process's
-> CPU usage/timeslice/etc.  It basically made the scheduler into a
-> 2-stage device - much like user threads but with the kernel doing
-> the work and all of the benefits of kernel threads.  (And did not
-> require any code recompile other than those people who were doing
-> the many-threads CPU hog type of thing ended up having to revert as
-> it was now slower than the single thread-per-CPU code...)
+--=-oQYeG72dlLiN6LjzsJZX
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Then you can just as well use fork(2) and split into processes with the 
-same result. The solution is not thread specific, it is resource limits 
-and/or per user cpu accounting. 
+On Tue, 2002-09-24 at 15:29, Petr Slansky wrote:
+> Hi Alan!
+> do you know that there is a source code of driver for HPT370 raid at the
+> manufacturer web?
+>=20
+> http://www.highpoint-tech.com/370drivers_down.htm
+> http://www.highpoint-tech.com/hpt3xx-opensource-v13.tgz
+>=20
+> Maybe that this can be added to the kernel, there are many motherboards o=
+n the
+> market with such controller onboard. Is there any poblem with this driver=
+?
 
-Several raytracers can (could?) split the workload into multiple 
-processes, some being started on other computers over rsh or similar.
+It's a binary only driver with some glue code.... not open source.
 
-Peter
---
-Peter Svensson      ! Pgp key available by finger, fingerprint:
-<petersv@psv.nu>    ! 8A E9 20 98 C1 FF 43 E3  07 FD B9 0A 80 72 70 AF
-------------------------------------------------------------------------
-Remember, Luke, your source will be with you... always...
+>=20
+> As I know, hpt370 is supported only in IDE mode by kernel 2.4.18.
 
+and in raid0 mode by hptraid
+
+Greetings,
+   Arjan van de Ven
+
+
+--=-oQYeG72dlLiN6LjzsJZX
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQA9kG62xULwo51rQBIRAhd4AJ9hYuJpAoOrmzuh9IaOclq/cIZM+ACgoGYh
+V5nCCMA/C/bMEa4IcpSQ6L0=
+=ZI4e
+-----END PGP SIGNATURE-----
+
+--=-oQYeG72dlLiN6LjzsJZX--
 

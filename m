@@ -1,44 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262906AbUFVNfw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262101AbUFVNo3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262906AbUFVNfw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 09:35:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263015AbUFVNfw
+	id S262101AbUFVNo3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 09:44:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263663AbUFVNo3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 09:35:52 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:59778 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262906AbUFVNfr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 09:35:47 -0400
-From: <gin@ginandtonic.ca>
-To: <linux-kernel@vger.kernel.org>
-Subject: Don't want to share interrupts
-Date: Tue, 22 Jun 2004 09:34:07 -0400
-Message-ID: <000001c4585d$98896340$0c501709@IBM3B3C778F126>
+	Tue, 22 Jun 2004 09:44:29 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8415 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262101AbUFVNo1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jun 2004 09:44:27 -0400
+Message-ID: <40D837AB.2000104@pobox.com>
+Date: Tue, 22 Jun 2004 09:44:11 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: Andi Kleen <ak@muc.de>
+CC: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] new device support for forcedeth.c fourth try
+References: <29ACK-1wm-17@gated-at.bofh.it> <29B5I-1QM-3@gated-at.bofh.it>	<29QeD-5kp-11@gated-at.bofh.it> <m3llifevr8.fsf@averell.firstfloor.org>
+In-Reply-To: <m3llifevr8.fsf@averell.firstfloor.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2627
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have been trying to get some platforms to work with a quad port
-Ethernet card.
-Some hardware is OK, others...well, not so OK.
+Andi Kleen wrote:
+> Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net> writes:
+> 
+> 
+>>Known Bug: You will get a "bad: scheduling while atomic" message because
+>>of the msleep(500) in PHY reset.
+>>
+>>Any suggestions how I can avoid this message? Using mdelay(500) has its
+>>share of problems too, because it will cause lost time.
+> 
+> 
+> Use schedule_work() to push it into a worker thread.
 
-An IBM x335 works OK under Linux (2.4.9) and Win2K3
-An IBM x365 Does not work under Linux.
 
-Looks like Linux shares an IRQ between all 4 ports whereas win2k3
-doesn't .... each is assigned it's own IRQ.  Is there anyway to
-duplicate this behavior under Linux? (i.e. have an IRQ assigned to each
-port instead of sharing one for the whole card?).
+Agreed.  This is what I am moving net drivers to, for slow path stuff 
+like chip reset or twiddling the phy.
 
-Thanks,
+	Jeff
 
--Garreth-
 

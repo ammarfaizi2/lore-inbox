@@ -1,40 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293593AbSBZMXY>; Tue, 26 Feb 2002 07:23:24 -0500
+	id <S293596AbSBZMXE>; Tue, 26 Feb 2002 07:23:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293595AbSBZMXO>; Tue, 26 Feb 2002 07:23:14 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:782 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S293593AbSBZMXB>; Tue, 26 Feb 2002 07:23:01 -0500
-Subject: Re: ISO9660 bug and loopback driver bug
-To: barubary@cox.net (Barubary)
-Date: Tue, 26 Feb 2002 12:37:36 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk (Alan Cox)
-In-Reply-To: <009201c1bebd$7a5f5910$a7eb0544@CX535256D> from "Barubary" at Feb 26, 2002 04:02:34 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S293595AbSBZMWy>; Tue, 26 Feb 2002 07:22:54 -0500
+Received: from butterblume.comunit.net ([192.76.134.57]:25348 "EHLO
+	butterblume.comunit.net") by vger.kernel.org with ESMTP
+	id <S293593AbSBZMWq>; Tue, 26 Feb 2002 07:22:46 -0500
+Date: Tue, 26 Feb 2002 13:22:43 +0100 (CET)
+From: Sven Koch <haegar@sdinet.de>
+X-X-Sender: haegar@space.comunit.de
+To: linux-kernel@vger.kernel.org
+cc: hermes@gibson.dropbear.id.au
+Subject: Problems with orinoco_cs and i810_audio
+Message-ID: <Pine.LNX.4.40.0202261314260.695-100000@space.comunit.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16fgrQ-0000Vo-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Why is it locale-dependent?  All ISO9660 file times are stored as Gregorian
-> calendar dates regardless of who made them, and the target (UNIX file time)
+hi...
 
-Thanks - I wasn't aware it was always defined to be the gregorian calendar
-in ISO9660. The orthodox calendar differs in computation (its more accurate)
-and the two actually diverge in 2800. (Pan Orthodox congress 1923 if anyone
-actually cares)
+Keywords: Kernel 2.4.18-pre7, orinoco_cs and i810_audio,
+	Toshiba Satellite Pro 4600 Built-In Wavelancard,
+	IRQ Sharing
 
-> isn't locale-dependent either.  Why would it affect the calculation if the
-> local system used the Muslim calendar?
+While playing streaming mp3 over the orinoco-network:
 
-Unix file time is clean of those problems 
+Feb 26 13:13:40 aurora kernel: i810_audio: Audio Controller supports 6
+channels.
+Feb 26 13:13:40 aurora kernel: ac97_codec: AC97 Audio codec, id:
+0x594d:0x4800 (
+Unknown)
+Feb 26 13:13:40 aurora kernel: i810_audio: only 48Khz playback available.
+Feb 26 13:13:40 aurora kernel: i810_audio: AC'97 codec 0 supports AMAP,
+total ch
+annels = 2
+Feb 26 13:13:40 aurora kernel: ac97_codec: AC97 Modem codec, id:
+0x5349:0x4c27 (
+Unknown)
+Feb 26 13:13:50 aurora kernel: i810_audio: timed out waiting for codec 1
+analog
+ready<4>eth1: Null event in orinoco_interrupt!
+Feb 26 13:13:50 aurora kernel: eth1: Null event in orinoco_interrupt!
+Feb 26 13:14:21 aurora last message repeated 2478 times
+Feb 26 13:15:22 aurora last message repeated 4866 times
+Feb 26 13:16:23 aurora last message repeated 4871 times
+Feb 26 13:17:24 aurora last message repeated 5026 times
 
-> Shouldn't there be a gregorian_date_to_unix_time() function in the kernel so
-> that every driver that needs such conversion can share that implementation?
-> It would keep date processing consistent and make it easy to spot date bugs.
 
-Not a bad idea if there are enough file systems doing it.
+Both sound and net work, but my syslog is spammed with this message. The
+same interrupt-message happens when I insert a pcmcia-card.
+My bios seems to put every interrupt onto irq 11, and there is no setting
+to move them somewhere else.
+
+aurora:~# cat /proc/interrupts
+           CPU0
+  0:    4648825          XT-PIC  timer
+  1:      32405          XT-PIC  keyboard
+  2:          0          XT-PIC  cascade
+  8:          4          XT-PIC  rtc
+ 11:     439062          XT-PIC  Texas Instruments PCI1410 PC card Cardbus
+Controller, Toshiba America Info Systems ToPIC95 PCI to Cardbus Bridge
+with ZV Support, Toshiba America Info Systems ToPIC95 PCI to Cardbus
+Bridge with ZV Support (#2), usb-uhci, usb-uhci, orinoco_cs, Intel ICH2
+ 12:     927659          XT-PIC  PS/2 Mouse
+ 14:     132987          XT-PIC  ide0
+ 15:          0          XT-PIC  ide1
+NMI:          0
+ERR:          0
+
+Please ask if you need more informations
+
+c'ya
+sven
+
+-- 
+
+The Internet treats censorship as a routing problem, and routes around it.
+(John Gilmore on http://www.cygnus.com/~gnu/)
+

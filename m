@@ -1,50 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267487AbSLLUNj>; Thu, 12 Dec 2002 15:13:39 -0500
+	id <S267492AbSLLURD>; Thu, 12 Dec 2002 15:17:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267484AbSLLUNj>; Thu, 12 Dec 2002 15:13:39 -0500
-Received: from host136-27.pool217141.interbusiness.it ([217.141.27.136]:32772
-	"EHLO mdvsrvsmtp01.north.h3g.it") by vger.kernel.org with ESMTP
-	id <S267482AbSLLUNh> convert rfc822-to-8bit; Thu, 12 Dec 2002 15:13:37 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
-Content-Class: urn:content-classes:message
+	id <S267495AbSLLURD>; Thu, 12 Dec 2002 15:17:03 -0500
+Received: from 24.213.60.109.up.mi.chartermi.net ([24.213.60.109]:47510 "EHLO
+	front3.chartermi.net") by vger.kernel.org with ESMTP
+	id <S267492AbSLLURC>; Thu, 12 Dec 2002 15:17:02 -0500
+Date: Thu, 12 Dec 2002 15:24:36 -0500 (EST)
+From: Nathaniel Russell <reddog83@chartermi.net>
+X-X-Sender: reddog83@reddog.example.net
+To: alan@redhat.com
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.4-ac] Via 8233 Sound
+Message-ID: <Pine.LNX.4.44.0212121521340.5002-200000@reddog.example.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Subject: R: Kernel bug handling TCP_RTO_MAX?
-Date: Thu, 12 Dec 2002 21:18:21 +0100
-Message-ID: <047ACC5B9A00D741927A4A32E7D01B73D66178@RMEXC01.h3g.it>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Kernel bug handling TCP_RTO_MAX?
-thread-index: AcKiGRE9dmZ5swlEQLyfhQEWHuvzWAAAIXdg
-From: "Andreani Stefano" <stefano.andreani.ap@h3g.it>
-To: "David S. Miller" <davem@redhat.com>
-Cc: <linux-kernel@vger.kernel.org>, <linux-net@vger.kernel.org>
-X-OriginalArrivalTime: 12 Dec 2002 20:18:22.0365 (UTC) FILETIME=[9E4FECD0:01C2A21B]
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1082962326-1039724676=:5002"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Never say never ;-) 
-I need to change it now as a temporary workaround for a problem in the UMTS core network of my company. But I think there could be thousands of situations where a fine tuning of this TCP parameter could be useful.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-Any contributes on the problem?
+--8323328-1082962326-1039724676=:5002
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-Stefano.
+Thank you Alan is this what you were talking about.
+It worked for me now i can use my onboard Sound. Thank you. Oh here is the
+patch for you.
+Nathaniel
+CC reddog83@chartermi.net not subscribed to list
 
------Messaggio originale-----
-Da: David S. Miller [mailto:davem@redhat.com]
-Inviato: giovedì 12 dicembre 2002 20.59
-A: Andreani Stefano
-Cc: linux-kernel@vger.kernel.org; linux-net@vger.kernel.org
-Oggetto: Re: Kernel bug handling TCP_RTO_MAX?
+--8323328-1082962326-1039724676=:5002
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="sound.diff"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.44.0212121524360.5002@reddog.example.net>
+Content-Description: Via 8233
+Content-Disposition: attachment; filename="sound.diff"
 
-
-   From: "Andreani Stefano" <stefano.andreani.ap@h3g.it>
-   Date: Thu, 12 Dec 2002 20:15:42 +0100
-
-   Problem: I need to change the max value of the TCP retransmission
-   timeout.
-
-Why?  There should be zero reason to change this value.
+ZGlmZiAtdXJOIGxpbnV4LWFjL2RyaXZlcnMvc291bmQvdmlhODJjeHh4X2F1
+ZGlvLmMgbGludXgvZHJpdmVycy9zb3VuZC92aWE4MmN4eHhfYXVkaW8uYw0K
+LS0tIGxpbnV4LWFjL2RyaXZlcnMvc291bmQvdmlhODJjeHh4X2F1ZGlvLmMJ
+MjAwMi0xMi0xMiAwMzoyMTowNC4wMDAwMDAwMDAgLTA1MDANCisrKyBsaW51
+eC9kcml2ZXJzL3NvdW5kL3ZpYTgyY3h4eF9hdWRpby5jCTIwMDItMTItMTIg
+MTQ6NTQ6MzYuMDAwMDAwMDAwIC0wNTAwDQpAQCAtODg1LDcgKzg4NSw3IEBA
+DQogDQogCXNwaW5fdW5sb2NrX2lycSAoJmNhcmQtPmxvY2spOw0KIA0KLQlz
+eW5jaHJvbml6ZV9pcnEoY2FyZC0+cGRldi0+aXJxKTsNCisJc3luY2hyb25p
+emVfaXJxKCk7IA0KIA0KIAlEUFJJTlRLICgiRVhJVFxuIik7DQogfQ0K
+--8323328-1082962326-1039724676=:5002--

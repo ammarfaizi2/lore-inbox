@@ -1,66 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264583AbUASLcI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 06:32:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264568AbUASLbq
+	id S264557AbUASLYN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jan 2004 06:24:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264559AbUASLYN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 06:31:46 -0500
-Received: from dp.samba.org ([66.70.73.150]:36570 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S264565AbUASLbj (ORCPT
+	Mon, 19 Jan 2004 06:24:13 -0500
+Received: from denise.shiny.it ([194.20.232.1]:3268 "EHLO denise.shiny.it")
+	by vger.kernel.org with ESMTP id S264557AbUASLYK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 06:31:39 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Hugh Dickins <hugh@veritas.com>
-Cc: tmolina@cablespeed.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.1-mm4 
-In-reply-to: Your message of "Sat, 17 Jan 2004 10:52:39 -0800."
-             <20040117105239.0b94f2b3.akpm@osdl.org> 
-Date: Mon, 19 Jan 2004 22:29:41 +1100
-Message-Id: <20040119113132.CB82E2C2A1@lists.samba.org>
+	Mon, 19 Jan 2004 06:24:10 -0500
+Message-ID: <XFMail.20040119122403.pochini@shiny.it>
+X-Mailer: XFMail 1.4.7 on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKKEPBJJAA.davids@webmaster.com>
+Date: Mon, 19 Jan 2004 12:24:03 +0100 (CET)
+From: Giuliano Pochini <pochini@shiny.it>
+To: David Schwartz <davids@webmaster.com>
+Subject: RE: License question
+Cc: linux-kernel@vger.kernel.org, Misshielle Wong <mwl@bajoo.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20040117105239.0b94f2b3.akpm@osdl.org> you write:
-> Yes.  ksoftirqd and the migration threads can now be killed off
-> with `kill -9'.
 
-Fix below.
+On 17-Jan-2004 David Schwartz wrote:
+>> > - Redistributions of source code must retain the above copyright
+>> > notice, this list of conditions and the following disclaimers.
+>
+>       Sorry, that's an "additional restriction" not permitted under the GPL.
 
-Thanks,
-Rusty.
+These are in fact the points I wished your opinion about...
+Actually these are requirements (like others said), not
+use restrictions. btw, IANAL and IP rights are a minefield.
+Since their code is C++ I already rewote everything in C, but it
+also contains the binary firmwares which I can't rewrite. That's
+why I asked you about the license.
+It's likely Echoaudio will change the license in the next release
+to a dual GPL/custom license, so this will be no more an issue.
+
+Thanks for you answers.
+
 --
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
-
-Name: Block Signals For Early Kthreads
-Author: Rusty Russell
-Status: Booted on 2.6.1-bk4
-Depends: Hotcpu-New-Kthread/use-kthread-simple.patch.gz
-
-D: Kthreads created at boot before "keventd" are spawned directly.
-D: However, this means that they don't have all signals blocked, and
-D: hence can be killed.  The simplest solution is to always explicitly
-D: block all signals in the kthread.
-
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .29870-linux-2.6.1-mm4/kernel/kthread.c .29870-linux-2.6.1-mm4.updated/kernel/kthread.c
---- .29870-linux-2.6.1-mm4/kernel/kthread.c	2004-01-19 18:12:53.000000000 +1100
-+++ .29870-linux-2.6.1-mm4.updated/kernel/kthread.c	2004-01-19 21:45:53.000000000 +1100
-@@ -32,12 +32,18 @@ static int kthread(void *_create)
- 	struct kthread_create_info *create = _create;
- 	int (*threadfn)(void *data);
- 	void *data;
-+	sigset_t blocked;
- 	int ret = -EINTR;
- 
- 	/* Copy data: it's on keventd's stack */
- 	threadfn = create->threadfn;
- 	data = create->data;
- 
-+	/* Block and flush all signals (in case we're not from keventd). */
-+	sigfillset(&blocked);
-+	sigprocmask(SIG_BLOCK, &blocked, NULL);
-+	flush_signals(current);
-+
- 	/* OK, tell user we're spawned, wait for stop or wakeup */
- 	__set_current_state(TASK_INTERRUPTIBLE);
- 	complete(&create->started);
+Giuliano.

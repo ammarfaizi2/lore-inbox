@@ -1,71 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264769AbTFBARi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jun 2003 20:17:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264771AbTFBARh
+	id S264772AbTFBAbY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jun 2003 20:31:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264776AbTFBAbX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jun 2003 20:17:37 -0400
-Received: from c16805.randw1.nsw.optusnet.com.au ([210.49.26.171]:11923 "EHLO
-	mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
-	id S264769AbTFBARg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jun 2003 20:17:36 -0400
-From: Peter Chubb <peter@chubb.wattle.id.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16090.39595.933087.45491@wombat.chubb.wattle.id.au>
-Date: Mon, 2 Jun 2003 10:30:35 +1000
-To: Vojtech Pavlik <vojtech@suse.cz>
-CC: linux-kernel@vger.kernel.org
-Subject: Fix PS/2 keyboard and mouse on I2000
-X-Mailer: VM 7.07 under 21.4 (patch 12) "Portable Code" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
+	Sun, 1 Jun 2003 20:31:23 -0400
+Received: from h-64-105-35-138.SNVACAID.covad.net ([64.105.35.138]:18304 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP id S264774AbTFBAbU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Jun 2003 20:31:20 -0400
+Date: Sun, 1 Jun 2003 17:45:09 -0700
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Message-Id: <200306020045.h520j9v15291@freya.yggdrasil.com>
+To: linux-ide@vger.kernel.org
+Subject: Re: 2.5.70-bk[56] breaks disk partitioning with multiple IDE disks
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+	To add to my own posting, here is a patch to 2.5.70-bk6
+that reverts only the changes that replaced ata_unused with
+idedeault_driver.drives.  This change makes bk6 work for me with
+multiple IDE disk drives present.
 
-Hi,
-	 The appended fix is needed on I2000 machines, to map the
-legacy ISA interrupt onto the actual interrupt provided.  Otherwise
-the mouse and keyboard won't work.  Patch against 2.5.70.
+	I have tried a number of smaller changes to stock
+2.5.70-bk6/drivers/ide/ide.c, but, I have not yet found a change
+simpler than this that works.
+
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Miplitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."
 
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1101  -> 1.1102 
-#	drivers/input/serio/i8042-io.h	1.4     -> 1.5    
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/05/27	peterc@gelato.unsw.edu.au	1.1102
-# IA64: Fix  I2000 no keyboard interrupt problem.
-# --------------------------------------------
-#
-diff -Nru a/drivers/input/serio/i8042-io.h b/drivers/input/serio/i8042-io.h
---- a/drivers/input/serio/i8042-io.h	Tue May 27 14:07:29 2003
-+++ b/drivers/input/serio/i8042-io.h	Tue May 27 14:07:29 2003
-@@ -20,11 +20,14 @@
-  */
+--- linux-2.5.70-bk6/drivers/ide/ide.c	2003-06-01 12:01:28.000000000 -0700
++++ linux/drivers/ide/ide.c	2003-06-01 16:52:28.000000000 -0700
+@@ -462,6 +462,7 @@
+ 	return -ENXIO;
+ }
  
- #ifdef __alpha__
--#define I8042_KBD_IRQ	1
--#define I8042_AUX_IRQ	(RTC_PORT(0) == 0x170 ? 9 : 12)	/* Jensen is special */
-+# define I8042_KBD_IRQ	1
-+# define I8042_AUX_IRQ	(RTC_PORT(0) == 0x170 ? 9 : 12)	/* Jensen is special */
-+#elif defined(__ia64__)
-+# define I8042_KBD_IRQ isa_irq_to_vector(1)
-+# define I8042_AUX_IRQ isa_irq_to_vector(12)
- #else
--#define I8042_KBD_IRQ	1
--#define I8042_AUX_IRQ	12
-+# define I8042_KBD_IRQ	1
-+# define I8042_AUX_IRQ	12
- #endif
++static LIST_HEAD(ata_unused);
+ static spinlock_t drives_lock = SPIN_LOCK_UNLOCKED;
+ static spinlock_t drivers_lock = SPIN_LOCK_UNLOCKED;
+ static LIST_HEAD(drivers);
+@@ -1436,6 +1437,9 @@
+ 	spin_unlock(&drivers_lock);
+ 	if(idedefault_driver.attach(drive) != 0)
+ 		panic("ide: default attach failed");
++	spin_lock(&drives_lock);
++	list_add_tail(&drive->list, &ata_unused);
++	spin_unlock(&drives_lock);
+ 	return 1;
+ }
  
- /*
-
+@@ -2379,8 +2383,8 @@
+ 	spin_unlock_irqrestore(&ide_lock, flags);
+ 	spin_lock(&drives_lock);
+ 	list_del_init(&drive->list);
++	list_add(&drive->list, &drive->driver->drives);
+ 	spin_unlock(&drives_lock);
+-	/* drive will be added to &idedefault_driver->drives in ata_attach() */
+ 	return 0;
+ }
+ 
+@@ -2403,9 +2407,9 @@
+ 	list_add(&driver->drivers, &drivers);
+ 	spin_unlock(&drivers_lock);
+ 
+-	INIT_LIST_HEAD(&list);
+ 	spin_lock(&drives_lock);
+-	list_splice_init(&idedefault_driver.drives, &list);
++	INIT_LIST_HEAD(&list);
++	list_splice_init(&ata_unused, &list);
+ 	spin_unlock(&drives_lock);
+ 
+ 	list_for_each_safe(list_loop, tmp_storage, &list) {

@@ -1,57 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262335AbUK3VfL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262325AbUK3VhH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262335AbUK3VfL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 16:35:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262345AbUK3VfL
+	id S262325AbUK3VhH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 16:37:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262331AbUK3VhG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 16:35:11 -0500
-Received: from mail.dif.dk ([193.138.115.101]:12731 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S262335AbUK3Vet (ORCPT
+	Tue, 30 Nov 2004 16:37:06 -0500
+Received: from petasus.ch.intel.com ([143.182.124.5]:32833 "EHLO
+	petasus.ch.intel.com") by vger.kernel.org with ESMTP
+	id S262325AbUK3Vgs convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 16:34:49 -0500
-Date: Tue, 30 Nov 2004 22:44:37 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Roger Luethi <rl@hellgate.ch>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] net/via-rhine: convert MODULE_PARM to module_param
-In-Reply-To: <20041130140309.GA6568@k3.hellgate.ch>
-Message-ID: <Pine.LNX.4.61.0411302241260.3635@dragon.hygekrogen.localhost>
-References: <Pine.LNX.4.61.0411300053190.3432@dragon.hygekrogen.localhost>
- <20041130140309.GA6568@k3.hellgate.ch>
+	Tue, 30 Nov 2004 16:36:48 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Walking all the physical memory in an x86 system
+Date: Tue, 30 Nov 2004 14:36:27 -0700
+Message-ID: <C863B68032DED14E8EBA9F71EB8FE4C2058057A1@azsmsx406>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Walking all the physical memory in an x86 system
+Thread-Index: AcTXI3+uzPbOQJnvROKMZe0B4m8APwAAJd8g
+From: "Hanson, Jonathan M" <jonathan.m.hanson@intel.com>
+To: <jengelh@linux01.gwdg.de>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 30 Nov 2004 21:36:28.0184 (UTC) FILETIME=[A6496980:01C4D724]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Nov 2004, Roger Luethi wrote:
 
-> On Tue, 30 Nov 2004 00:58:58 +0100, Jesper Juhl wrote:
-> > These warnings told me that it was time to move to module_param() :)
-> > 
-> > drivers/net/via-rhine.c:229: warning: `MODULE_PARM_' is deprecated (declared at include/linux/module.h:562)
-> > drivers/net/via-rhine.c:230: warning: `MODULE_PARM_' is deprecated (declared at include/linux/module.h:562)
-> > drivers/net/via-rhine.c:231: warning: `MODULE_PARM_' is deprecated (declared at include/linux/module.h:562)
-> > 
-> > So I made this small patch to do so.
-> > Compile and boot tested on my box, and it seems to work just fine, the 
-> > module works perfectly with my via-rhine card, and the parameters are 
-> > exposed through sysfs as expected : 
-> 
-> IIRC Jeff has already queued such a patch for 2.6.11. 
 
-Hmm, ok. I assume that's what's currently in -mm - I haven't been 
-following -mm lately so I missed the fact that the driver in there had 
-already moved to module_param().  There's one difference though, and I 
-think it matters; my patch sets the permission bits so that the parameters 
-get exposed in sysfs (which I think is very useful), the driver in -mm 
-sets the perms to 0 (zero) so nothing is exposed in sysfs (less useful).
+-----Original Message-----
+From: Jan Engelhardt [mailto:jengelh@linux01.gwdg.de] 
+Sent: Tuesday, November 30, 2004 2:28 PM
+To: Hanson, Jonathan M
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: Walking all the physical memory in an x86 system
 
->Thanks, though.
+>[Jon M. Hanson] I can read /dev/mem from a userspace application as
+root
+>with no problems and print out what it sees. However, things are not so
+>simple from a kernel module as I just can't call open() and read() on
+>/dev/mem because no such functions are exported from the kernel. Is
+>there a way to read the contents of /dev/mem from a kernel module?
 
-You are very welcome.
+You can use filp_open().
 
- 
+
+Jan Engelhardt
 -- 
-Jesper Juhl
+ENOSPC
+
+[Jon M. Hanson] I tried the filp_open() approach like this:
+
+struct file *mem_fd;
+
+mem_fd = filp_open("/dev/mem", O_RDONLY | O_LARGEFILE, 0);
+
+I then have a check if IS_ERR(mem_fd) is true immediately afterwards
+along with a printk saying it failed. This condition is true when I ran
+it.
 
 

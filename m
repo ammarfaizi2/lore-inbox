@@ -1,67 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314155AbSDLWv4>; Fri, 12 Apr 2002 18:51:56 -0400
+	id <S314156AbSDLXCz>; Fri, 12 Apr 2002 19:02:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314156AbSDLWvz>; Fri, 12 Apr 2002 18:51:55 -0400
-Received: from ool-182d14cd.dyn.optonline.net ([24.45.20.205]:58631 "HELO
-	osinvestor.com") by vger.kernel.org with SMTP id <S314155AbSDLWvy>;
-	Fri, 12 Apr 2002 18:51:54 -0400
-Date: Fri, 12 Apr 2002 18:51:50 -0400 (EDT)
-From: Rob Radez <rob@osinvestor.com>
-X-X-Sender: <rob@pita.lan>
-To: <linux-kernel@vger.kernel.org>
-Subject: See Spot Updates (More Watchdog stuff)
-Message-ID: <Pine.LNX.4.33.0204121839030.17511-100000@pita.lan>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314157AbSDLXCy>; Fri, 12 Apr 2002 19:02:54 -0400
+Received: from firewall.ill.fr ([193.49.43.1]:61323 "HELO out.esrf.fr")
+	by vger.kernel.org with SMTP id <S314156AbSDLXCx>;
+	Fri, 12 Apr 2002 19:02:53 -0400
+Date: Sat, 13 Apr 2002 01:02:29 +0200
+From: Samuel Maftoul <maftoul@esrf.fr>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: /dev/zero
+Message-ID: <20020413010229.B11097@pcmaftoul.esrf.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-See Spot.  See Spot Run.  Run Spot Run.
+On Fri, Apr 12, 2002 at 05:12:06PM +0200, Guillaume Gimenez wrote:
+> Samuel Maftoul a écrit:
+>     Samuel> It's just zeroes, so it allows you to test raw write speed on any
+>     Samuel> device:
+>     Samuel> dd if=/dev/zero of=/dev/hda to test your performances of hda ...
+>     Samuel> normally if I get it well, /dev/zero can't be you're bottleneck.
+>     Samuel>         Sam
+oops really sorry, It will really earase your disk.
+This morning I was really sleepy and wanted to write something other:
+time dd if=/dev/zero of=/mnt/ bs=1024 count=100000 
+and so you can know what's the speed not of your ide or scsi (or
+something other) which is given by hdparm but it will give you the speed
+through the used filesystem.
+Sorry about that.
+        Sam
 
-I've put up the newest set of my watchdog updates at:
-http://osinvestor.com/bigwatchdog-9.diff
-It's still against 2.4.19-pre5-ac3.
-
-The diff is now 108k and 4000 lines long with context.
-
- Documentation/pcwd-watchdog.txt       |  132 -----------
- Documentation/watchdog-api.txt        |  390 ----------------------------------
- Documentation/watchdog.txt            |  113 ---------
- Documentation/watchdog/api.txt        |  139 ++++++++++++
- Documentation/watchdog/howtowrite.txt |   62 +++++
- Documentation/watchdog/status.txt     |  137 +++++++++++
- drivers/char/acquirewdt.c             |  100 +++++---
- drivers/char/advantechwdt.c           |   88 ++++---
- drivers/char/alim7101_wdt.c           |   85 ++++---
- drivers/char/eurotechwdt.c            |   65 +++--
- drivers/char/i810-tco.c               |   77 ++++--
- drivers/char/ib700wdt.c               |   87 ++++---
- drivers/char/machzwd.c                |   96 ++++----
- drivers/char/mixcomwd.c               |   28 +-
- drivers/char/pcwd.c                   |   25 +-
- drivers/char/sbc60xxwdt.c             |  113 +++++----
- drivers/char/sc1200wdt.c              |   83 ++++---
- drivers/char/sc520_wdt.c              |  102 +++++---
- drivers/char/shwdt.c                  |   86 ++++---
- drivers/char/softdog.c                |   36 ++-
- drivers/char/w83877f_wdt.c            |   94 ++++----
- drivers/char/wafer5823wdt.c           |   65 ++++-
- drivers/char/wdt.c                    |   35 ++-
- drivers/char/wdt285.c                 |   26 --
- drivers/char/wdt977.c                 |  137 ++++++++---
- drivers/char/wdt_pci.c                |   25 --
- drivers/sbus/char/riowatchdog.c       |    6
- 27 files changed, 1246 insertions(+), 1186 deletions(-)
-
-The latest changes include a bunch of updates to inline comments and a fix for
-(yet another) stupid error I introduced.  Next up on my todo list so people
-know (especially if they want to help) is seeing if there's any way to
-reduce the includes in all of these files.  After that I guess I'll send
-individual patches off to any current maintainers, and just tag which files
-are unmaintained, and then see about syncing up 2.4 and 2.5.
-
-Regards,
-Rob Radez
-
-
+> 
+> Just to save Samuel's soul ;-)
+> the dd command supplied above will erase your primary hard drive
+> 
+> To see hard drive performances, hdparm -tT /dev/hda is better.
+> 
+> PS: Pas sympa Samuel
+> 
+> -- 
+> Guillaume Gimenez

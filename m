@@ -1,72 +1,100 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129518AbQLLUur>; Tue, 12 Dec 2000 15:50:47 -0500
+	id <S129257AbQLLUyg>; Tue, 12 Dec 2000 15:54:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129855AbQLLUug>; Tue, 12 Dec 2000 15:50:36 -0500
-Received: from tstac.esa.lanl.gov ([128.165.46.3]:519 "EHLO tstac.esa.lanl.gov")
-	by vger.kernel.org with ESMTP id <S129518AbQLLUuR>;
-	Tue, 12 Dec 2000 15:50:17 -0500
-From: Steven Cole <scole@lanl.gov>
-Reply-To: scole@lanl.gov
-Date: Tue, 12 Dec 2000 13:19:35 -0700
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain;
-  charset="US-ASCII"
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-To: Linus Torvalds <torvalds@transmeta.com>
-In-Reply-To: <Pine.LNX.4.10.10012121031200.2239-100000@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.10.10012121031200.2239-100000@penguin.transmeta.com>
-Subject: Re: UP 2.2.18 makes kernels 3% faster than UP 2.4.0-test12
-MIME-Version: 1.0
-Message-Id: <00121213193501.00861@spc.esa.lanl.gov>
-Content-Transfer-Encoding: 8bit
+	id <S129210AbQLLUy0>; Tue, 12 Dec 2000 15:54:26 -0500
+Received: from pnendick.cpe.dsl.enteract.com ([216.80.39.125]:773 "EHLO
+	thefunk.org") by vger.kernel.org with ESMTP id <S129257AbQLLUyJ>;
+	Tue, 12 Dec 2000 15:54:09 -0500
+Date: Mon, 11 Dec 2000 14:23:16 -0600
+From: " Paul C. Nendick " <pauly@enteract.com>
+To: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.2.16 SMP: mtrr errors
+Message-ID: <20001211142316.A1020@thefunk.org>
+In-Reply-To: <20001211140029.A828@thefunk.org> <Pine.LNX.4.10.10012121511190.28197-100000@coffee.psychology.mcmaster.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.10.10012121511190.28197-100000@coffee.psychology.mcmaster.ca>; from hahn@coffee.psychology.mcmaster.ca on Tue, Dec 12, 2000 at 03:14:22PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 12 December 2000 11:40, Linus Torvalds wrote:
-> On Tue, 12 Dec 2000, Steven Cole wrote:
-> > Executive summary: SMP 2.4.0 is 2% faster than SMP 2.2.18.
->
-> > I ran X and KDE 2.0 during the tests to provide a greater though
-> > reproducable load on the tested kernel.
->
-> You might want to do the same in 32-64MB of RAM. And actually move your
-> mouse around a bit to keep KDE/X from just being paged out, at which point
-> it turns un-interesting again. I don't know how to do that repeatably,
-> though, but one thing I occasionally do is to read my email (which is not
-> very CPU-intensive, but it does keep the desktop active and also gives me
-> a feel for interactive behaviour).
->
+See my answers inline below.  /paul
 
-Keeping the memory the same, I repeated the kernel builds
-while moving the mouse in a similar way, and switching the
-desktop 3 times, same desktops for each test. Yes, I know,
-this doesn't test much more, since nothing was swapped out.
+Mark Hahn (hahn@coffee.psychology.mcmaster.ca) said:
 
-These results are even closer. The differences are so slight,
-that they are not statistically significant. Hmmm, maybe no
-news is good news in this case.
+> > kernel: mtrr: base(0xd4000000) is not aligned on a size(0x1800000) boundary
+> 
+> X is trying to set an mtrr for the framebuffer.  the odd thing
+> is that its trying to set a 24M mtrr, which is pretty strange.
+> what does /proc/pci look like for the G450?
+> 
 
-Perhaps if anything is interesting from this test,
-it is the negative result: No significant performance
-difference for this particular CPU-intensive task on only
-two processors.  
+% cat /proc/pci
+PCI devices found:
+  Bus  0, device   0, function  0:
+    Host bridge: VIA Technologies Unknown device (rev 196).
+      Vendor id=1106. Device id=691.
+      Medium devsel.  Master Capable.  No bursts.  
+      Prefetchable 32 bit memory at 0xd0000000 [0xd0000008].
+  Bus  0, device   1, function  0:
+    PCI bridge: VIA Technologies VT 82C598 Apollo MVP3 AGP (rev 0).
+      Medium devsel.  Master Capable.  No bursts.  Min Gnt=12.
+  Bus  0, device   7, function  0:
+    ISA bridge: VIA Technologies VT 82C596 Apollo Pro (rev 35).
+      Medium devsel.  Master Capable.  No bursts.  
+  Bus  0, device   7, function  1:
+    IDE interface: VIA Technologies VT 82C586 Apollo IDE (rev 16).
+      Medium devsel.  Fast back-to-back capable.  Master Capable.  Latency=32.  
+      I/O at 0xe000 [0xe001].
+  Bus  0, device   7, function  2:
+    USB Controller: VIA Technologies VT 82C586 Apollo USB (rev 17).
+      Medium devsel.  IRQ 9.  Master Capable.  Latency=32.  
+      I/O at 0xe400 [0xe401].
+  Bus  0, device   7, function  3:
+    Host bridge: VIA Technologies Unknown device (rev 48).
+      Vendor id=1106. Device id=3050.
+      Medium devsel.  Fast back-to-back capable.  
+  Bus  0, device  17, function  0:
+    Multimedia audio controller: Ensoniq AudioPCI (rev 0).
+      Slow devsel.  IRQ 9.  Master Capable.  Latency=32.  Min Gnt=12.Max Lat=128.
+      I/O at 0xe800 [0xe801].
+  Bus  0, device  18, function  0:
+    Ethernet controller: Intel 82557 (rev 8).
+      Medium devsel.  Fast back-to-back capable.  IRQ 11.  Master Capable.  Latency=32.  Min Gnt=8.Max Lat=56.
+      Non-prefetchable 32 bit memory at 0xda100000 [0xda100000].
+      I/O at 0xec00 [0xec01].
+      Non-prefetchable 32 bit memory at 0xda000000 [0xda000000].
+  Bus  1, device   0, function  0:
+    VGA compatible controller: Matrox Unknown device (rev 130).
+      Vendor id=102b. Device id=525.
+      Medium devsel.  Fast back-to-back capable.  IRQ 10.  Master Capable.  Latency=64.  Min Gnt=16.Max Lat=32.
+      Prefetchable 32 bit memory at 0xd4000000 [0xd4000008].
+      Non-prefetchable 32 bit memory at 0xd6000000 [0xd6000000].
+      Non-prefetchable 32 bit memory at 0xd7000000 [0xd7000000].
 
-I'm sure it would be fun to try this test on a GS320 32-CPU Wildfire.  
-I believe a 24-CPU Sun E10000 built a 2.4.0-test7 kernel in about 20 seconds.
-Fun, but maybe not too meaningful. Sigh.
 
-Task: make -j3 bzImage for 2.4.0-test12-pre7 kernel tree.
-Numbers are seconds to build.
 
-New results (with fiddling with the desktop):
+> also, how do you like the G450?
 
- 1       2       3      ave.
-143     142     142     142.3   Running 2.2.18 SMP
-141     141     142     141.3   Running 2.4.0-test12-pre7 SMP
+My first impressions of the g450 are spectacular.  I know it's not supposed
+to be as fast as the dual Nvidia offerings, but I don't play games and Matrox
+has always been tops when it comes to text appearance.  It's fast as can be
+driving two monitors at 1600x1200 and not too expensive to boot.  I like it.
 
-Steven
 
+> > I would like to know what, if anything, is wrong and what I can do about it.
+> 
+> worst case is that X doesn't get to set the mtrr it wants.
+> this may have some performance effect, but no functionality effect.
+
+That's good enough for me!
+
+
+> regards, mark hahn.
+> 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

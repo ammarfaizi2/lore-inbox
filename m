@@ -1,52 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262822AbVBYXKS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262797AbVBYXSj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262822AbVBYXKS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 18:10:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262821AbVBYXKQ
+	id S262797AbVBYXSj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 18:18:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262794AbVBYXSj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 18:10:16 -0500
-Received: from animx.eu.org ([216.98.75.249]:16076 "EHLO animx.eu.org")
-	by vger.kernel.org with ESMTP id S262815AbVBYXGp (ORCPT
+	Fri, 25 Feb 2005 18:18:39 -0500
+Received: from fire.osdl.org ([65.172.181.4]:25010 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262797AbVBYXSH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 18:06:45 -0500
-Date: Fri, 25 Feb 2005 18:13:20 -0500
-From: Wakko Warner <wakko@animx.eu.org>
-To: linux-os <linux-os@analogic.com>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: [OT] Re: M$ gets into autos!
-Message-ID: <20050225231319.GC11557@animx.eu.org>
-Mail-Followup-To: linux-os <linux-os@analogic.com>,
-	Linux kernel <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.61.0502251614170.9736@chaos.analogic.com>
+	Fri, 25 Feb 2005 18:18:07 -0500
+Date: Fri, 25 Feb 2005 15:20:09 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] unexport do_settimeofday
+Message-Id: <20050225152009.14cdf450.akpm@osdl.org>
+In-Reply-To: <20050225230246.GI3311@stusta.de>
+References: <20050224233742.GR8651@stusta.de>
+	<20050224212448.367af4be.akpm@osdl.org>
+	<20050225214326.GE3311@stusta.de>
+	<20050225135504.7749942e.akpm@osdl.org>
+	<20050225230246.GI3311@stusta.de>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0502251614170.9736@chaos.analogic.com>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os wrote:
-> Sorry officer. I had to reboot!
+Adrian Bunk <bunk@stusta.de> wrote:
+>
+> > +#ifdef MODULE
+> > +#define __deprecated_in_modules __deprecated
+> > +#else
+> > +#define __deprecated_in_modules /* OK in non-modular code */
+> > +#endif
+> > +
+> >...
+> 
+> Looks good.
+> 
+> 
+> One more question:
+> 
+> You get a false positive if the file containing the symbol is itself a 
+> module.
 
-I'll keep all computer OS's from my car if I can help it !  =)
+I don't understand what you mean.
 
-> Microsoft collaborates with Samsung, ScanSoft, Siemens, SiRF, Xilinx
-> and auto component player Magneti Marelli to develop a telematics
-> system to be integrated into an Italian line of cars.
-> http://email.electronicnews.com/cgi-bin2/DM/y/ek4S0GGtJE0DbD0CQa30E3
+You mean that a module is doing an EXPORT_SYMBOL of a symbol which is on
+death row?
 
-Reminds me of the mechanical, electrical, and M$ engineer in a car and it
-stalls.
+If so: err, not sure.  I guess we could just live with the warning.
 
-mechanical engineer wants to disect the car to find a mechanical fault.
-electrical engineer wants to pull out all the wiring to find an electrical
-fault.
-M$ engineer suggests they roll up the windows, turn off the car, get out,
-close the doors, get back in and start the car again.
+> Is there any way to solve this without additional #define's and #ifdef's 
+> for each symbol?
 
-God imaging how many cars you'd see on the side of the road with people
-getting in and out to restart them.
-
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+Not that I can think of.

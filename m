@@ -1,117 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268771AbUJTStp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269039AbUJTS4C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268771AbUJTStp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 14:49:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268944AbUJTStJ
+	id S269039AbUJTS4C (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 14:56:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269063AbUJTSzX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 14:49:09 -0400
-Received: from wang.choosehosting.com ([212.42.1.230]:23249 "EHLO
-	wang.choosehosting.com") by vger.kernel.org with ESMTP
-	id S269056AbUJTSrS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 14:47:18 -0400
-From: Thomas Stewart <thomas@stewarts.org.uk>
-To: linux-kernel@vger.kernel.org
-Subject: belkin usb serial converter (mct_u232), break not working
-Date: Wed, 20 Oct 2004 19:46:35 +0100
-User-Agent: KMail/1.6.2
-X-PGP-Key: http://www.stewarts.org.uk/public-key.asc
+	Wed, 20 Oct 2004 14:55:23 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:30599 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S268937AbUJTSvT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 14:51:19 -0400
+Date: Wed, 20 Oct 2004 11:51:17 -0700
+From: Hanna Linder <hannal@us.ibm.com>
+To: lkml <linux-kernel@vger.kernel.org>,
+       kernel-janitors <kernel-janitors@lists.osdl.org>
+cc: Hanna Linder <hannal@us.ibm.com>, greg@kroah.com, davej@codemonkey.org.uk
+Subject: [RFT 2.6] generic.c: replace pci_find_device with pci_get_device
+Message-ID: <17100000.1098298277@w-hlinder.beaverton.ibm.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <200410201946.35514.thomas@stewarts.org.uk>
-X-Scanner: Exiscan on wang.choosehosting.com at 2004-10-20 19:47:14
-X-Spam-Score: 0.0
-X-Spam-Bars: /
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+As pci_find_device is going away soon I have converted this file to use
+pci_get_device instead. I have compile tested it. If anyone has this hardware
+and could test it that would be great.
 
-I'm having trouble with a Belkin USB serial adapter, I can't get it to send a 
-break down the serial cable to a console.
+Hanna Linder
+IBM Linux Technology Center
 
-I made a quick program to send a break to a port (mostly ripped off from 
-minicom). 
+Signed-off-by: Hanna Linder <hannal@us.ibm.com>
+---
 
-porttest.c:
-#include <sys/fcntl.h>
-#include <sys/ioctl.h>
-main () {
-        int fd = open("/dev/ttyS0", O_RDWR|O_NOCTTY);
-        ioctl(fd, TCSBRK, 0);
-        close(fd);
-}
+diff -Nrup linux-2.6.9cln/drivers/char/agp/generic.c linux-2.6.9patch/drivers/char/agp/generic.c
+--- linux-2.6.9cln/drivers/char/agp/generic.c	2004-10-18 16:35:52.000000000 -0700
++++ linux-2.6.9patch/drivers/char/agp/generic.c	2004-10-18 17:20:56.000000000 -0700
+@@ -507,7 +507,7 @@ u32 agp_collect_device_status(u32 mode, 
+ 	u32 tmp;
+ 	u32 agp3;
+ 
+-	while ((device = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, device)) != NULL) {
++	for_each_pci_dev(device) {
+ 		cap_ptr = pci_find_capability(device, PCI_CAP_ID_AGP);
+ 		if (!cap_ptr)
+ 			continue;
+@@ -551,7 +551,7 @@ void agp_device_command(u32 command, int
+ 	if (agp_v3)
+ 		mode *= 4;
+ 
+-	while ((device = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, device)) != NULL) {
++	for_each_pci_dev(device) {
+ 		u8 agp = pci_find_capability(device, PCI_CAP_ID_AGP);
+ 		if (!agp)
+ 			continue;
 
-Both minicom and my program send a break fine to a regular pc serial port (eg 
-ttyS0). In this case it drops my sun box to an "ok" prompt.
 
-However if I use the usb serial adapter both minicom and my program are unable 
-to send breaks, they just seem to get ignored.
-
-I loaded the modules with debugging information turned on:-
-modprobe usbserial debug=1
-modprobe mct_u232 debug=1
-
-$ sudo tail -f /var/log/syslog &
-$ ./porttest
-Oct 20 15:45:42 hydra kernel: drivers/usb/serial/usb-serial.c: serial_open
-Oct 20 15:45:42 hydra kernel: drivers/usb/serial/mct_u232.c: mct_u232_open 
-port 1
-Oct 20 15:45:42 hydra kernel: drivers/usb/serial/mct_u232.c: set_modem_ctrl: 
-state=0x6 ==> mcr=0xb
-Oct 20 15:45:42 hydra kernel: drivers/usb/serial/mct_u232.c: set_line_ctrl: 
-0x3
-Oct 20 15:45:42 hydra kernel: drivers/usb/serial/mct_u232.c: get_modem_stat: 
-0x30
-Oct 20 15:45:42 hydra kernel: drivers/usb/serial/mct_u232.c: msr_to_state: 
-msr=0x30 ==> state=0x126
-Oct 20 15:45:42 hydra kernel: drivers/usb/serial/usb-serial.c: 
-serial_chars_in_buffer = port 1
-Oct 20 15:45:42 hydra kernel: drivers/usb/serial/generic.c: 
-usb_serial_generic_chars_in_buffer - port 1
-Oct 20 15:45:42 hydra kernel: drivers/usb/serial/generic.c: 
-usb_serial_generic_chars_in_buffer - returns 0
-Oct 20 15:45:42 hydra kernel: drivers/usb/serial/usb-serial.c: serial_break - 
-port 1
-Oct 20 15:45:42 hydra kernel: drivers/usb/serial/mct_u232.c: 
-mct_u232_break_ctlstate=-1
-Oct 20 15:45:42 hydra kernel: drivers/usb/serial/mct_u232.c: set_line_ctrl: 
-0x43
-Oct 20 15:45:42 hydra kernel: drivers/usb/serial/usb-serial.c: serial_break - 
-port 1
-Oct 20 15:45:42 hydra kernel: drivers/usb/serial/mct_u232.c: 
-mct_u232_break_ctlstate=0
-Oct 20 15:45:42 hydra kernel: drivers/usb/serial/mct_u232.c: set_line_ctrl: 
-0x3
-Oct 20 15:45:42 hydra kernel: drivers/usb/serial/usb-serial.c: serial_close - 
-port 1
-Oct 20 15:45:42 hydra kernel: drivers/usb/serial/mct_u232.c: mct_u232_close 
-port 1
-Oct 20 15:45:42 hydra kernel: drivers/usb/serial/mct_u232.c: 
-mct_u232_read_int_callback - port 1
-Oct 20 15:45:42 hydra kernel: drivers/usb/serial/mct_u232.c: 
-mct_u232_read_int_callback - urb shutting down with status: -2
-Oct 20 15:45:42 hydra kernel: drivers/usb/serial/mct_u232.c: 
-mct_u232_read_int_callback - port 1
-Oct 20 15:45:42 hydra kernel: drivers/usb/serial/mct_u232.c: 
-mct_u232_read_int_callback - urb shutting down with status: -2
-
-set_line_ctrl gets changed from 0x3 to 0x43 and back to 0x3. According to 
-mct_u232.h the 6th bit of the line control register is the "set break" bit. 
-So It looks like it thinks its sending a break, but as far as I can tell it 
-is not actually sending it (because my sun box is not dropped to an ok 
-prompt)
-
-Anyone got any ideas about how to get it to work? (Or an alternative?)
-
-(Can replies be CC'ed to me as I'm not subscribed. Thanks)
-
-Regards
--- 
-Tom
-
-PGP Fingerprint [DCCD 7DCB A74A 3E3B 60D5  DF4C FC1D 1ECA 68A7 0C48]
-PGP Publickey   [http://www.stewarts.org.uk/public-key.asc]
-PGP ID  [0x68A70C48]

@@ -1,61 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318485AbSHENoa>; Mon, 5 Aug 2002 09:44:30 -0400
+	id <S318510AbSHENnO>; Mon, 5 Aug 2002 09:43:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318469AbSHENo3>; Mon, 5 Aug 2002 09:44:29 -0400
-Received: from cibs9.sns.it ([192.167.206.29]:56847 "EHLO cibs9.sns.it")
-	by vger.kernel.org with ESMTP id <S318802AbSHENoH>;
-	Mon, 5 Aug 2002 09:44:07 -0400
-Date: Mon, 5 Aug 2002 15:47:26 +0200 (CEST)
-From: venom@sns.it
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Thomas Munck Steenholdt <tmus@get2net.dk>, <linux-kernel@vger.kernel.org>
-Subject: Re: i810 sound broken...
-In-Reply-To: <1028552057.18130.6.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.43.0208051546120.8463-100000@cibs9.sns.it>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318505AbSHENnO>; Mon, 5 Aug 2002 09:43:14 -0400
+Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:52879 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id <S318502AbSHENnN>; Mon, 5 Aug 2002 09:43:13 -0400
+Date: Mon, 5 Aug 2002 15:46:07 +0200
+From: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
+To: Jeff Dike <jdike@karaya.com>
+Cc: alan@redhat.com, mingo@elte.hu, rz@linux-m68k.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: context switch vs. signal delivery [was: Re: Accelerating user mode
+Message-Id: <20020805154607.7c021c56.us15@os.inf.tu-dresden.de>
+In-Reply-To: <200208031529.KAA01655@ccure.karaya.com>
+References: <200208031233.g73CXUB02612@devserv.devel.redhat.com>
+	<200208031529.KAA01655@ccure.karaya.com>
+Organization: Disorganized
+X-Mailer: Sylpheed version 0.7.8claws (GTK+ 1.2.10; )
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Still OSS modules for i810 does not work with 2.5 kernels, actually 2.4
-is fine. No time to switch to alsa (and not interested for now too).
+On Sat, 03 Aug 2002 10:29:42 -0500
+Jeff Dike <jdike@karaya.com> wrote:
 
+> alan@redhat.com said:
+> > the alternatives like a seperate process and ptrace are not pretty either
 
+I have implemented a usermode version of the Fiasco µ-kernel that uses
+a seperate process for the kernel and one process for each task. The kernel
+process attaches to all tasks via ptrace.
+When the kernel wants to change the MM of a task it puts some trampoline code
+on a page mapped into each task's address space and has the task execute that
+code on behalf of the kernel.
+With that setup we have complete address space protection without all the
+trouble of jail at the expense of a few context switches for each mmap, munmap
+or mprotect operation.
 
-On 5 Aug 2002, Alan Cox wrote:
+I would also very much like an extension that would allow one process to modify
+the MM of another, possibly via an extended ptrace interface or a new syscall.
+Also it would be nice if there was an alternate way to get at the cr2 register,
+trap number and error code other than from a SIGSEGV handler.
 
-> Date: 05 Aug 2002 13:54:17 +0100
-> From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-> To: Thomas Munck Steenholdt <tmus@get2net.dk>
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Re: i810 sound broken...
->
-> On Mon, 2002-08-05 at 12:27, Thomas Munck Steenholdt wrote:
-> > I've noticed some writing on lkml on how i810(AC97) sound was broken.
-> > Aparantly a couple of fixes have been posted, but I couldn't see
-> > where(if at all) those patches have gone... 2.4.19 still does not work
-> > and 2.4.19-ac3 won't even load the i810 module.
-> >
-> > Does anybody know if the known i810 sound issue has, in fact, been fixed, and if so - in what kernel/patch?
->
-> Its working nicely for me in 2.4.19 and 2.4.19-ac1. The 2.4.19-ac3 tree
-> has a bug in pci_enable_device which will stop it working if built with
-> some compilers (by chance it works ok the way I tested it). Thats fixed
-> in ac4.
->
-> The changes in the recent i810 audio are
-> - Being more pessimistic in our interpretation of codec power up
-> - Turning on EAPD in case the BIOS didn't do so at boot up
->
-> Longer term full EAPD control as we do with the cs46xx is on my list,
-> paticularly as i8xx laptops are becoming common . (EAPD is the amplifier
-> power controller)
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+> All I would need to make this work is for one process to be able to change
+> the mm of another.
 
+Yes, exactly.
+
+> Then, the current UML tracing thread would handle the kernel side of things
+> and sit in its own address space nicely protected from its processes.
+
+Yes. I already have this part working for our kernel, so it's not just theory.
+I believe things could run yet another bit faster if we didn't have to do the
+trampoline map operations.
+
+-Udo.

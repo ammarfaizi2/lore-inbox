@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262444AbSI2LH7>; Sun, 29 Sep 2002 07:07:59 -0400
+	id <S262447AbSI2LVL>; Sun, 29 Sep 2002 07:21:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262445AbSI2LH7>; Sun, 29 Sep 2002 07:07:59 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:52872 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S262444AbSI2LH6>;
-	Sun, 29 Sep 2002 07:07:58 -0400
-Date: Sun, 29 Sep 2002 13:22:59 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] sigfix-2.5.39-C2
-Message-ID: <Pine.LNX.4.44.0209291320060.22646-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262448AbSI2LVL>; Sun, 29 Sep 2002 07:21:11 -0400
+Received: from harpo.it.uu.se ([130.238.12.34]:36787 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S262447AbSI2LVL>;
+	Sun, 29 Sep 2002 07:21:11 -0400
+Date: Sun, 29 Sep 2002 13:26:25 +0200 (MET DST)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200209291126.NAA21248@harpo.it.uu.se>
+To: greearb@candelatech.com, linux-kernel@vger.kernel.org
+Subject: Re: APIC error on CPU0: 00(02)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 28 Sep 2002 19:44:08 -0700, Ben Greear wrote:
+>Kernel: 2.4.20-pre8
+>
+>Machine: dual 1.66Ghz AMD machine, Tyan motherboard 64/66 PCI,
+>...
+>APIC error on CPU0: 00(02)
+>APIC error on CPU1: 00(02)
 
-the attached patch fixes thread-group SIGSTOP handling - the SIGSTOP
-notification was not propagated to the parent of the thread group leader.  
-Now Ctrl-Z-ing of thread groups works again.
+Receive Checksum Error on the APIC bus.
 
-	Ingo
+This indicates a hardware problem. Dual-Athlon boards
+have a reputation for being unstable unless everything
+is exactly right: power supply, cooling, not overclocked,
+MP not XP CPUs, correct type memory modules. BIOS MP 1.1
+or 1.4 settings may also be critical.
 
---- linux/kernel/signal.c.orig	Sun Sep 29 12:49:12 2002
-+++ linux/kernel/signal.c	Sun Sep 29 13:17:44 2002
-@@ -1127,8 +1127,6 @@
- 	struct siginfo info;
- 	int why, status;
- 
--	if (!tsk->ptrace && delay_group_leader(tsk))
--		return;
- 	if (sig == -1)
- 		BUG();
- 
+Also double-check all connectors between the mainboard and
+the case: at least one board (the ASUS a7m266-d I think)
+has or had bugs in its manual.
 
+/Mikael

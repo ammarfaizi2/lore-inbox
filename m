@@ -1,44 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262780AbSJTObO>; Sun, 20 Oct 2002 10:31:14 -0400
+	id <S262800AbSJTObz>; Sun, 20 Oct 2002 10:31:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262784AbSJTObO>; Sun, 20 Oct 2002 10:31:14 -0400
-Received: from faui80.informatik.uni-erlangen.de ([131.188.38.1]:6652 "EHLO
-	faui80.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id <S262780AbSJTObN>; Sun, 20 Oct 2002 10:31:13 -0400
-From: Richard Zidlicky <rdzidlic@immd8.informatik.uni-erlangen.de>
-Date: Sun, 20 Oct 2002 16:37:16 +0200 (MEST)
-Message-Id: <200210201437.g9KEbGk00427@faui8s7.informatik.uni-erlangen.de>
-To: axboe@suse.de, phillips@arcor.de
-Subject: Re: 2.4 mm trouble [possible lru race]
-Cc: riel@conectiva.com.br, zippel@linux-m68k.org,
-       linux-m68k@lists.linux-m68k.org, linux-kernel@vger.kernel.org
-X-Sun-Charset: US-ASCII
+	id <S262806AbSJTOby>; Sun, 20 Oct 2002 10:31:54 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:27124 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S262784AbSJTObu>; Sun, 20 Oct 2002 10:31:50 -0400
+Date: Sun, 20 Oct 2002 16:37:49 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+cc: linux-kernel@vger.kernel.org, <trivial@rustcorp.com.au>
+Subject: [2.5 patch] don't #include tqueue.h in drivers/net/wan/cycx_main.c
+Message-ID: <Pine.NEB.4.44.0210201634170.28761-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> On Tuesday 01 October 2002 20:04, Jens Axboe wrote:
-> > On Tue, Oct 01 2002, Daniel Phillips wrote:
-> > > On Tuesday 01 October 2002 19:31, Jens Axboe wrote:
-> > > > Again, m68k was the target.
-> > > 
-> > > Sure fine, no good reason to be cryptic about it though.
-> > > 
-> > >    #error "m68k doesn't do SMP yet"
-> > > 
-> > > So SMP must be off or the compile would abort.  Well, the only interesting
-> > 
-> > There's no CONFIG_SMP in the m68k arch config.in. Anyways, enough
-> > beating of dead horse :)
-> 
-> The horse isn't dead yet, it's still twitching a little.  At this
-> point we still need to speculate about wny anyone would want an SMP
-> Dragonball machine ;-)
 
-not on Dragonball but there were many 68040 SMP systems around long 
-before Intel had anything SMP capable. In the late 80'ies those were 
-considered real number crunchers :)
+There's the following compile error in 2.5.44:
 
-Richard
+<--  snip  -->
+
+...
+  gcc -Wp,-MD,drivers/net/wan/.cycx_main.o.d -D__KERNEL__ -Iinclude -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing
+-fno-common -pipe -mpreferred-stack-boundary=2 -march=k6
+-Iarch/i386/mach-generic -nostdinc -iwithprefix include    -DKBUILD_BASENAME=cycx_main   -c -o
+drivers/net/wan/cycx_main.o drivers/net/wan/cycx_main.c
+drivers/net/wan/cycx_main.c:47: linux/tqueue.h: No such file or directory
+make[3]: *** [drivers/net/wan/cycx_main.o] Error 1
+
+<--  snip  -->
+
+
+With the following trivial patch it compiles without errors or warnings:
+
+
+--- linux-2.5.44-full/drivers/net/wan/cycx_main.c.old	2002-10-20 16:20:02.000000000 +0200
++++ linux-2.5.44-full/drivers/net/wan/cycx_main.c	2002-10-20 16:20:25.000000000 +0200
+@@ -44,7 +44,6 @@
+ #include <linux/kernel.h>	/* printk(), and other useful stuff */
+ #include <linux/module.h>	/* support for loadable modules */
+ #include <linux/ioport.h>	/* request_region(), release_region() */
+-#include <linux/tqueue.h>	/* for kernel task queues */
+ #include <linux/wanrouter.h>	/* WAN router definitions */
+ #include <linux/cyclomx.h>	/* cyclomx common user API definitions */
+ #include <asm/uaccess.h>	/* kernel <-> user copy */
+
+
+cu
+Adrian
+
+-- 
+
+               "Is there not promise of rain?" Ling Tan asked suddenly out
+                of the darkness. There had been need of rain for many days.
+               "Only a promise," Lao Er said.
+                                               Pearl S. Buck - Dragon Seed
+
+
 

@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262974AbUC2P54 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 10:57:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262986AbUC2P5z
+	id S263026AbUC2QIw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 11:08:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262823AbUC2QIw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 10:57:55 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:60035 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262974AbUC2P5y
+	Mon, 29 Mar 2004 11:08:52 -0500
+Received: from mail4.speakeasy.net ([216.254.0.204]:58026 "EHLO
+	mail4.speakeasy.net") by vger.kernel.org with ESMTP id S263138AbUC2QBR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 10:57:54 -0500
-Date: Mon, 29 Mar 2004 10:59:52 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Siseci <siseci@postmark.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.x mount /dev/ram0 problem. 
-In-Reply-To: <BMEEKPMJDEAFABBKPBBNMELBCBAA.siseci@postmark.net>
-Message-ID: <Pine.LNX.4.53.0403291055450.16539@chaos>
-References: <BMEEKPMJDEAFABBKPBBNMELBCBAA.siseci@postmark.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 29 Mar 2004 11:01:17 -0500
+Message-Id: <6.0.1.1.0.20040329085820.0293aec0@no.incoming.mail>
+X-Mailer: QUALCOMM Windows Eudora Version 6.0.1.1
+Date: Mon, 29 Mar 2004 09:01:10 -0700
+To: Tomasz Rola <rtomek@cis.com.pl>
+From: Jeff Woods <Kazrak+kernel@cesmail.net>
+Subject: Re: who is merlin.fit.vutbr.cz?
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.3.96.1040329151755.5234B-100000@pioneer.space.nem
+ esis.pl>
+References: <200403290108.i2T18T8d024595@work.bitmover.com>
+ <Pine.LNX.3.96.1040329151755.5234B-100000@pioneer.space.nemesis.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Mar 2004, Siseci wrote:
+At 3/29/2004 03:32 PM +0200, Tomasz Rola wrote:
+>BTW, if I understand correctly, to read something from the tree one 
+>doesn't really need to lock it. Only writes should be locked.
 
->
-> Hi.
-> I have a problem about ramdisk.
-> Kernel version: 2.6.3 and 2.6.4
->
-[SNIPPED...]
+Locking on reads prevents getting a copy of the tree with half of someone 
+else's changes that were written during your read.  That gets more likely 
+as the time it takes to read the entire tree increases.
 
-Verify that /dev/ram0 is not still mounted on /initrd.
-I noticed that the stuff that uses initrd and pivot-root
-for booting, works 'strangely' compared to the past. You
-may find that /initrd remained mounted when you initialized
-its virtual device, confusing the issue.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
+--
+Jeff Woods <kazrak+kernel@cesmail.net> 
 
 

@@ -1,57 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262652AbUA0G4l (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 01:56:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262683AbUA0G4l
+	id S263062AbUA0Gtm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 01:49:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263107AbUA0Gtm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 01:56:41 -0500
-Received: from dp.samba.org ([66.70.73.150]:28572 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S262652AbUA0G4j (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 01:56:39 -0500
-Date: Tue, 27 Jan 2004 17:51:04 +1100
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: torvalds@osdl.org, stern@rowland.harvard.edu, greg@kroah.com,
-       linux-kernel@vger.kernel.org, mochel@digitalimplant.org
-Subject: Re: PATCH: (as177)  Add class_device_unregister_wait() and
- platform_device_unregister_wait() to the driver model core
-Message-Id: <20040127175104.48bd8664.rusty@rustcorp.com.au>
-In-Reply-To: <20040125202136.GR21151@parcelfarce.linux.theplanet.co.uk>
-References: <Pine.LNX.4.44L0.0401251224530.947-100000@ida.rowland.org>
-	<Pine.LNX.4.58.0401251054340.18932@home.osdl.org>
-	<20040125202136.GR21151@parcelfarce.linux.theplanet.co.uk>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 27 Jan 2004 01:49:42 -0500
+Received: from mailrelay.sony.de ([192.109.206.51]:40216 "EHLO
+	mailrelay.sony.de") by vger.kernel.org with ESMTP id S263062AbUA0Gtl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jan 2004 01:49:41 -0500
+Message-ID: <46C6A213F79E1D4DA73AB018C2CF615802E6FCD8@deatcsstrmsx03.wins.fb.sony.de>
+From: "GroupShield for Exchange (DEATCSSTRMSX03)" 
+	<NAISTCDEATCSSTRMSX03@sony.de>
+To: "'linux1394-devel@lists.sourceforge.net'" 
+	<linux1394-devel@lists.sourceforge.net>,
+       "'LKML'" <linux-kernel@vger.kernel.org>
+Subject: ALERT -  GroupShield ticket number OA454_1075186111_DEATCSSTRMSX0
+	3_3 was generated
+Date: Tue, 27 Jan 2004 07:49:31 +0100
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 25 Jan 2004 20:21:37 +0000
-viro@parcelfarce.linux.theplanet.co.uk wrote:
+Action Taken:
+The attachment was quarantined from the message and replaced with a text
+file informing the recipient of the action taken.
 
-> Basically, "protect the module" is wrong - it should be "protect specific
-> object" and we need that anyway.
+To:
+linux1394-devel@lists.sourceforge.net
+<linux1394-devel@lists.sourceforge.net>; LKML <linux-kernel@vger.kernel.org>
 
-Agreed.  You're oversimplifying a little, though.
+From:
+Jean Delvare <khali@linux-fr.org>
 
-In this model, the object here is the function text.  So if you hand out
-a pointer to the function text, you need to hold a refcount.
+Sent:
+-1232340736,29615265
 
-BUT since the module itself is the only one which can hand these out,
-and it unregisters everything it has registered, and all those references
-fall to zero, it's trivial to prove that there are no more references to
-the module functions.
+Subject:
+Message about PCILynx in kernel config
 
-This (as Al points out by referring to lifetime) is the same problem if you
-want to kfree() the thing you've registered: either deregistration is
-synchronous or it supplies a callback which does the actual kfree.  And most
-registration interfaces in the kernel are headed towards this model, and
-it can be pressed into service for module removal as well.
+Attachment Details:-
 
-Hope that clarifies,
-Rusty.
--- 
-   there are those who do and those who hang on and you don't see too
-   many doers quoting their contemporaries.  -- Larry McVoy
+Attachment Name: message.scr
+File: message.scr
+Infected? No
+Repaired? No
+Blocked? Yes
+Deleted? No
+Virus Name: 
+
+
+
+	

@@ -1,57 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288689AbSANCuF>; Sun, 13 Jan 2002 21:50:05 -0500
+	id <S288703AbSANCzQ>; Sun, 13 Jan 2002 21:55:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288703AbSANCt4>; Sun, 13 Jan 2002 21:49:56 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:36624 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S288689AbSANCtu>; Sun, 13 Jan 2002 21:49:50 -0500
-Date: Sun, 13 Jan 2002 18:55:35 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Jeff Dike <jdike@karaya.com>
-cc: mingo@elte.hu, <linux-kernel@vger.kernel.org>
-Subject: Re: The O(1) scheduler breaks UML
-In-Reply-To: <200201140239.VAA05307@ccure.karaya.com>
-Message-ID: <Pine.LNX.4.40.0201131853550.937-100000@blue1.dev.mcafeelabs.com>
+	id <S288697AbSANCzH>; Sun, 13 Jan 2002 21:55:07 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:56330 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S288703AbSANCyw>;
+	Sun, 13 Jan 2002 21:54:52 -0500
+Date: Mon, 14 Jan 2002 00:54:32 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Adam Kropelin <akropel1@rochester.rr.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.18pre3-ac1
+In-Reply-To: <028b01c19c90$87300760$02c8a8c0@kroptech.com>
+Message-ID: <Pine.LNX.4.33L.0201140052030.32617-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 13 Jan 2002, Jeff Dike wrote:
+On Sun, 13 Jan 2002, Adam Kropelin wrote:
 
-> The new scheduler holds IRQs off across the call to context_switch.  UML's
-> _switch_to expects them to be enabled when it is called, and things go
-> badly wrong when they are not.
+> From: "Alan Cox" <alan@redhat.com>
 >
-> Because UML has a host process for each UML thread, SIGIO needs to be
-> forwarded from one process to the next during a context switch.  A SIGIO
-> arriving during the window between the disabling of IRQs and forwarding of
-> IRQs to the next process will be trapped on the process going out of
-> context.  This happens fairly regularly and causes hangs because some process
-> is waiting for disk IO which never arrives because the process that was notified
-> of the completion is switched out.
->
-> So, is it possible to enable IRQs across the call to _switch_to?
+> > People keep bugging me about the -ac tree stuff so this is whats in my
+> > current internal diff with the ll patch and the ide changes excluded.
 
-Yes, this should work :
+> For the sake of completeness I ran my large inbound FTP transfer test
+> (details in the "Writeout in recent kernels..." thread) on this
+> release. Performance and observed writeout behavior was essentially
+> the same as for 2.4.17, both stock and with -rmap11a. Transfer time
+> was 6:56 and writeout was uneven. 2.4.13-ac7 is still the winner by a
+> significant margin.
 
+I'm looking into this bug, I just finished the first large
+dbench test set on 2.4.17-rmap11b with 512 MB RAM, tomorrow
+I'll run them with 128 and 32 MB of RAM.
 
-    if (likely(prev != next)) {
-        rq->nr_switches++;
-        rq->curr = next;
-        next->cpu = prev->cpu;
-        spin_unlock_irq(&rq->lock);
-        context_switch(prev, next);
-    } else
-        spin_unlock_irq(&rq->lock);
+Luckily you have already shown the other recent kernels to
+have the same performance, so I only have to do half a day
+of testing. I'll try to track down this bug and get it fixed.
 
-and there's no need for barrier() and rq reload in this way.
+regards,
 
+Rik
+-- 
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
 
-
-
-- Davide
-
+http://www.surriel.com/		http://distro.conectiva.com/
 

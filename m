@@ -1,35 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272234AbRIESKC>; Wed, 5 Sep 2001 14:10:02 -0400
+	id <S272206AbRIESIc>; Wed, 5 Sep 2001 14:08:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272235AbRIESJw>; Wed, 5 Sep 2001 14:09:52 -0400
-Received: from anime.net ([63.172.78.150]:54290 "EHLO anime.net")
-	by vger.kernel.org with ESMTP id <S272234AbRIESJj>;
-	Wed, 5 Sep 2001 14:09:39 -0400
-Date: Wed, 5 Sep 2001 11:07:20 -0700 (PDT)
-From: Dan Hollis <goemon@anime.net>
-To: noneuclidean <noneuclidean@ziplip.com>
-cc: <linux-kernel@vger.kernel.org>, <redelm@ev1.net>
-Subject: RE: Athlon doesn't like Athlon optimisation?
-In-Reply-To: <JK3MT4ZNAEJNIG1ZEGEDMAZMT10XZKMHVJEFFMME@ziplip.com>
-Message-ID: <Pine.LNX.4.30.0109051105190.14146-100000@anime.net>
+	id <S272239AbRIESIX>; Wed, 5 Sep 2001 14:08:23 -0400
+Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:5822 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S272234AbRIESIM>;
+	Wed, 5 Sep 2001 14:08:12 -0400
+Message-ID: <3B966B19.9558DA58@candelatech.com>
+Date: Wed, 05 Sep 2001 11:12:41 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies Inc
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: iSCSI support for Linux??
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 Sep 2001, noneuclidean wrote:
-> I have an Iwill KK266 (VIAKT133A chipset, latest BIOS) with an unlocked but not overclocked Athlon 950 (AMD Thunderbird, A4, Model 4). The system DOES suffer the Athlon optimisation problem.
-> I ran burnK7, burnK7 in linux 2.4.8ac11 (optimised for K6) and WinME for over 3 hours with no problems.
-> For ?fun? I also tried running 50 mulitiple instances (in total) of a mix of burnK7, burnMMX, burnBX, burnP6 and burnK6 in linux (with different memory settings for burnBX and burnMMX), while accessing floppy, CD-ROM, 2xHDDs, my SBLive card and my Geforce 2 to try and load my voltages... but again completely stable, if a bit... well very... jerky!.
-> I think the burnK7 program does not test enough K7 specific instruction sets to find the problem.
+Does anyone know of any efforts to support iSCSI in Linux?
 
-burnK7 doesnt test enough ram to expose the problem. burnK7 stays entirely
-inside cache and doesnt touch main memory, which is where the problem
-everyone is having is.
+Here's the ietf draft if anyone is curious:
 
--Dan
+http://www.globecom.net/ietf/draft/draft-ietf-ips-iscsi-02.html
+
 
 -- 
-[-] Omae no subete no kichi wa ore no mono da. [-]
-
+Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear

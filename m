@@ -1,45 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265348AbRF0SQo>; Wed, 27 Jun 2001 14:16:44 -0400
+	id <S265347AbRF0SSd>; Wed, 27 Jun 2001 14:18:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265347AbRF0SQd>; Wed, 27 Jun 2001 14:16:33 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:1545 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S265348AbRF0SQX>; Wed, 27 Jun 2001 14:16:23 -0400
-Date: Wed, 27 Jun 2001 15:16:09 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Chris Mason <mason@suse.com>
-Cc: Xuan Baldauf <xuan--lkml@baldauf.org>, <linux-kernel@vger.kernel.org>,
-        <andrea@suse.de>,
-        "reiserfs-list@namesys.com" <reiserfs-list@namesys.com>
-Subject: Re: VM deadlock
-In-Reply-To: <822790000.993654598@tiny>
-Message-ID: <Pine.LNX.4.33L.0106271515260.23373-100000@duckman.distro.conectiva>
+	id <S265350AbRF0SSX>; Wed, 27 Jun 2001 14:18:23 -0400
+Received: from xd1.xdrive.com ([65.166.147.200]:53230 "HELO hellman.xman.org")
+	by vger.kernel.org with SMTP id <S265347AbRF0SSH>;
+	Wed, 27 Jun 2001 14:18:07 -0400
+Date: Wed, 27 Jun 2001 11:16:08 -0700
+From: Christopher Smith <x@xman.org>
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>, Dan Kegel <dank@kegel.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: A signal fairy tale
+Message-ID: <53790000.993665768@hellman>
+In-Reply-To: <20010627111827.A22744@pcep-jamie.cern.ch>
+X-Mailer: Mulberry/2.0.8 (Linux/x86 Demo)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Jun 2001, Chris Mason wrote:
-> On Wednesday, June 27, 2001 04:27:45 PM +0200 Xuan Baldauf <xuan--lkml@baldauf.org> wrote:
->
-> > My linux box suddenly was not availbale using ssh|telnet,
-> > but it responded to pings. On console login, I could type
-> > "root", but after pressing "return", there was no reaction,
->
-> Sounds like a deadlock andrea recently found.
+--On Wednesday, June 27, 2001 11:18:28 +0200 Jamie Lokier 
+<lk@tantalophile.demon.co.uk> wrote:
+> Btw, this functionality is already available using sigaction().  Just
+> search for a signal whose handler is SIG_DFL.  If you then block that
+> signal before changing, checking the result, and unblocking the signal,
+> you can avoid race conditions too.  (This is what my programs do).
 
-It would be nice if Andrea would TELL US every
-once in a while what he found ;)
+It's more than whether a signal is blocked or not, unfortunately. Lots of 
+applications will invoke sigwaitinfo() on whatever the current signal mask 
+is, which means you can't rely on sigaction to solve your problems. :-(
 
-
-Rik
---
-Executive summary of a recent Microsoft press release:
-   "we are concerned about the GNU General Public License (GPL)"
-
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
-
+--Chris

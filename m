@@ -1,51 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287871AbSABSBJ>; Wed, 2 Jan 2002 13:01:09 -0500
+	id <S287874AbSABSC6>; Wed, 2 Jan 2002 13:02:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287886AbSABSA7>; Wed, 2 Jan 2002 13:00:59 -0500
-Received: from femail11.sdc1.sfba.home.com ([24.0.95.107]:9681 "EHLO
-	femail11.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S287871AbSABSAv>; Wed, 2 Jan 2002 13:00:51 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [patch] Re: Framebuffer...Why oh Why???
-Date: Tue, 1 Jan 2002 15:36:41 -0500
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org,
-        linux-fbdev-devel@lists.sourceforge.net (Linux Frame Buffer Device
-	Development)
-In-Reply-To: <E16LMNj-0008Gz-00@the-village.bc.nu>
-In-Reply-To: <E16LMNj-0008Gz-00@the-village.bc.nu>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020102180050.YPL2594.femail11.sdc1.sfba.home.com@there>
+	id <S287888AbSABSCs>; Wed, 2 Jan 2002 13:02:48 -0500
+Received: from chiark.greenend.org.uk ([212.22.195.2]:25362 "EHLO
+	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
+	id <S287883AbSABSCm>; Wed, 2 Jan 2002 13:02:42 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: [OT] Changing KB, MB, and GB to KiB, MiB, and GiB =?iso-8859-1?q?in	Configure=2Ehelp=2E?=
+Newsgroups: chiark.mail.linux-rutgers.kernel
+In-Reply-To: <a0133l$2ln$1@cesium.transmeta.com>
+In-Reply-To: <3C234CC100020E25@mta13n.bluewin.ch> <by> <postmaster@bluewin.ch)> <200112220214.fBM2EsSr022402@svr3.applink.net>
+Organization: Linux Unlimited
+Message-Id: <E16Lpir-00055o-00@chiark.greenend.org.uk>
+From: Jonathan Amery <jdamery@chiark.greenend.org.uk>
+Date: Wed, 02 Jan 2002 18:02:41 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 01 January 2002 05:42 am, Alan Cox wrote:
-> > > X11 isn't always an improvement.  I've got an X hang on my laptop
-> > > (about once a week) that freezes the keyboard and ignores mouse clicks.
-> > >  Numlock doesn't change the keyboard LEDs, CTRL-ALT-BACKSPACE won't do
-> > > a thing, and although I can ssh in and run top (and see the CPU-eating
-> > > loop), kill won't take X down and kill-9 leaves the video display up so
-> > > the console that thinks it's in text mode, but isn't, is still useless.
-> > >  (And that's assuming I'm plugged into the network and have another box
-> > > around to ssh in from...)
->
-> Neomagic Magicgraph 128XD ? If so check man neomagic first 8)
+In article <a0133l$2ln$1@cesium.transmeta.com> you write:
+>And all of us count that way.  Oh yes, the English unit is *so*
+>attuned to nature... this is why we have different measures for dry
+>volume, wet volume... avoirdupois versus troy weight... 
+>oh yes, energy
+>is measures in BTUs and power in horsepower... what is the conversion
+>factor between them (it has the dimension of time?)
 
-Neomagic 256AV.  I'll feed it the two disables the man page recommends and 
-see if that makes the problem go away.  (I can trigger it almost at will by 
-playing around with kmail with the threaded view of 2500+ linux-kernel 
-messages and paging up and down really fast.  Or by switching the display 
-when )
+ I think you've just answered your previous question - there are more
+than one because its generally more convenient.  If you're using
+horsepower for power then you should probably be using
+horsepower-hours rather than BTUs (which are an admittedly silly
+unit for most things).
 
-Kmail seems to be the only thing that actually triggers it.  I can't think of 
-a lockup where kmail wasn't involved, but killing kmail (or the whole of kde) 
-won't unfreeze the display and keyboard once it's borked, and when I ssh in 
-and run top it's X that's got the cpu pegged at 99%, not any of the kde 
-toys...
+You have: horsepower hours
+You want: btu
+        * 2544.4336
+        / 0.00039301478
 
-Rob
+>> Finally, Farhenheit units are smaller so that they make more convenient
+>> divisions: Eg.
+>Bullsh*t.  They seem more natural to you because you're more used to
+>them.  Anyone who hasn't grown up on the system think that Fahrenheit
+>is the ultimate in lunacy.
 
+ Centigrade/Celcius have little to recomend them either - Kelvin is
+the way forward, or Rankine.
+
+ Jonathan.

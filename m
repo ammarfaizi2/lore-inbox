@@ -1,40 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316199AbSHAR5q>; Thu, 1 Aug 2002 13:57:46 -0400
+	id <S316289AbSHAR7e>; Thu, 1 Aug 2002 13:59:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316235AbSHAR5q>; Thu, 1 Aug 2002 13:57:46 -0400
-Received: from to-velocet.redhat.com ([216.138.202.10]:27645 "EHLO
-	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
-	id <S316199AbSHAR5p>; Thu, 1 Aug 2002 13:57:45 -0400
-Date: Thu, 1 Aug 2002 14:01:12 -0400
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Chris Friesen <cfriesen@nortelnetworks.com>,
-       Pavel Machek <pavel@elf.ucw.cz>, Andrea Arcangeli <andrea@suse.de>,
-       linux-kernel@vger.kernel.org, linux-aio@kvack.org
-Subject: Re: [rfc] aio-core for 2.5.29 (Re: async-io API registration for 2.5.29)
-Message-ID: <20020801140112.G21032@redhat.com>
-References: <1028223041.14865.80.camel@irongate.swansea.linux.org.uk> <Pine.LNX.4.44.0208010924050.14765-100000@home.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0208010924050.14765-100000@home.transmeta.com>; from torvalds@transmeta.com on Thu, Aug 01, 2002 at 09:30:04AM -0700
+	id <S316397AbSHAR7e>; Thu, 1 Aug 2002 13:59:34 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:50574 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S316289AbSHAR7d>; Thu, 1 Aug 2002 13:59:33 -0400
+Message-ID: <3D4977C3.7050806@us.ibm.com>
+Date: Thu, 01 Aug 2002 11:02:43 -0700
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020728
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Dave Hansen <haveblue@us.ibm.com>
+CC: linux-kernel@vger.kernel.org, Rick Lindsley <ricklind@us.ibm.com>,
+       Greg KH <gregkh@us.ibm.com>
+Subject: Re: [RFC] Push BKL into chrdev opens
+References: <3D490BF2.2000709@us.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 01, 2002 at 09:30:04AM -0700, Linus Torvalds wrote:
-> Absolutely. I think "jiffies64" is fine (as long as is it converted to
-> some "standard" time-measure like microseconds or nanoseconds so that
-> people don't have to care about internal kernel state) per se.
+Dave Hansen wrote:
+> This patch adds the BKL to each character device's open() function. The 
+> BKL will remain in chrdev_open() until the module unload races are 
+> fixed, but this makes it unnecessary there for any other reason.
 
-Hmmm, it almost sounds like implementing clock_gettime as a syscall and 
-exporting jiffies as CLOCK_MONOTONIC is the way to go, as that gives a 
-nanosecond resolution export of jiffies.  Then, it would make sense to 
-use that as the basis for "when" timeouts.  Relative timeouts still have 
-a certain simplicity to them that is appealing, though.
+Greg KH noticed that I'd touched USB, and wondered about the places 
+where get/put_fops were used to make sure the driver gets called 
+directly the next time, instead of going through the subsystem.  I 
+don't believe that the BKL is needed in the devices in this case, only 
+in the subsystem itself.
 
-		-ben
+During inode init (init_special_inode) f_op is set to def_chr_fops, 
+which contains chrdev_open
+First open of char device file:
+         if (f->f_op && f->f_op->open) {
+                 error = f->f_op->open(inode,f);
+         }
+The ->open() call goes to chrdev_open
+USB is determined to handle the device
+BKL is grabbed in chrdev_open
+generic USB ->open() called (usb_open())
+driver ->open() is called
+f_op is replaced with the driver's f_op struct.
+BKL is released
+
+Subsequent calls:
+         if (f->f_op && f->f_op->open) {
+                 error = f->f_op->open(inode,f);
+         }
+->open() goes directly to driver.  No BKL grabbed after first call. 
+The drivers were only protected during the first call, not during 
+subsequent ones.  The addition of the BKL to usb_open() alone 
+duplicates this behavior.  Adding BKL to individual devices in cases 
+like this is not required.
+
+The tree is available for pulling from:
+http://linux-bkl.bkbits.net/linux-2.5-bkl
 -- 
-"You will be reincarnated as a toad; and you will be much happier."
+Dave Hansen
+haveblue@us.ibm.com
+

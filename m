@@ -1,69 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262467AbUKDWjA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262470AbUKDWi7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262467AbUKDWjA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 17:39:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262461AbUKDWiN
+	id S262470AbUKDWi7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 17:38:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262467AbUKDWi3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 17:38:13 -0500
-Received: from mail26.syd.optusnet.com.au ([211.29.133.167]:38870 "EHLO
-	mail26.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S262467AbUKDWcF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 17:32:05 -0500
+	Thu, 4 Nov 2004 17:38:29 -0500
+Received: from mx.inch.com ([216.223.198.27]:55050 "EHLO util.inch.com")
+	by vger.kernel.org with ESMTP id S262470AbUKDWa6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 17:30:58 -0500
+Date: Thu, 4 Nov 2004 17:30:49 -0500 (EST)
+From: John McGowan <jmcgowan@inch.com>
+To: Bill Davidsen <davidsen@tmr.com>
+cc: Dave Airlie <airlied@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.6.9: i810 video
+In-Reply-To: <418AA075.3070303@tmr.com>
+Message-ID: <20041104172521.I42459@shell.inch.com>
+References: <21d7e99704110314156bb270de@mail.gmail.com><20041102215308.GA3579@localhost.localdomain>
+ <20041103234045.G92772@shell.inch.com> <418AA075.3070303@tmr.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16778.44490.244730.653423@wombat.chubb.wattle.id.au>
-Date: Fri, 5 Nov 2004 09:31:38 +1100
-From: Peter Chubb <peterc@gelato.unsw.edu.au>
-To: Matthias Andree <matthias.andree@gmx.de>
-Cc: Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org
-Subject: Re: is killing zombies possible w/o a reboot?
-In-Reply-To: <20041104100749.GA23996@merlin.emma.line.org>
-References: <200411030751.39578.gene.heskett@verizon.net>
-	<200411031124.19179.gene.heskett@verizon.net>
-	<20041103201322.GA10816@hh.idb.hist.no>
-	<200411031540.03598.gene.heskett@verizon.net>
-	<20041104100749.GA23996@merlin.emma.line.org>
-X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Matthias" == Matthias Andree <matthias.andree@gmx.de> writes:
+On Thu, 4 Nov 2004, Bill Davidsen wrote:
 
-Matthias> On Wed, 03 Nov 2004, Gene Heskett wrote:
->> >Yes it does - the problem is that not all resources are managed
->> >by processes.  Some allocations are managed by drivers, so a
->> driver >bug can get the device into a unuseable state _and_ tie up
->> the >process(es) that were using the driver at the moment.
->> 
->> This from my viewpoint, is wrong.  The kernel, and only the kernel
->> should be ultimately responsible for handing out resources, and
->> reclaiming at its convienience.
+> John McGowan wrote:
+> > On Thu, 4 Nov 2004, Dave Airlie wrote:
+>
+> >>What chipset have you got?
+> >
+> >
+> > An HP 7850 - various motherboards used ... this one has an
+> > e-machine motherboard. Bios has no controls for the video
+> > chip. Does FW82810E sound line the chipset? It is mentioned
+> > somewhere in the motherboard doc I found on some site (not HP's
+> > so it may or may not be correct).
+>
+> I think the output of 'lspci' posted here will provide the information.
 
-Matthias> Linux's driver model is the way it is. If you want the
-Matthias> kernel to clean up after a driver has puked, you need
-Matthias> something like a microkernel I believe, where only a minimal
-Matthias> core kernel is a real kernel and where all the drivers are
-Matthias> actually in user-space, but that's no longer Linux then.
+00:00.0 Host bridge: Intel Corp. 82810E DC-133 GMCH [Graphics Memory Controller Hub] (rev 03)
+00:01.0 VGA compatible controller: Intel Corp. 82810E DC-133 CGC [Chipset Graphics Controller] (rev 03)
+00:1e.0 PCI bridge: Intel Corp. 82801AA PCI Bridge (rev 02)
+00:1f.0 ISA bridge: Intel Corp. 82801AA ISA Bridge (LPC) (rev 02)
+00:1f.1 IDE interface: Intel Corp. 82801AA IDE (rev 02)
+00:1f.2 USB Controller: Intel Corp. 82801AA USB (rev 02)
+00:1f.3 SMBus: Intel Corp. 82801AA SMBus (rev 02)
+00:1f.5 Multimedia audio controller: Intel Corp. 82801AA AC'97 Audio (rev 02)
+01:0d.0 Ethernet controller: Accton Technology Corporation SMC2-1211TX (rev 10)
 
-Matthias> I'm not reflecting the down- and upsides to of this as I
-Matthias> have no experience with microkernels (and have never used
-Matthias> OS9 or GNU Hurd either). I know there have been attempts to
-Matthias> port Linux to a Microkernel but I don't know what's come out
-Matthias> of it.
+By the way, the X server runs. There is no problem with that.
 
-There are actually several ports of Linux onto microkernels, but the
-only one I know anything about is the Wombat project here at UNSW.
+If I start it (say, with ICE as a window manager starting up an xterm)
+*immediately after boot* I get a clean, black screen. It should be dark
+green. I get the frame for the xterm. No xterm. I can right click to get
+the menu to display on the screen but it gets locked there. I can right
+click again to get a working menu and choose to logout.
 
-Linux running on the L4 microkernel runs at around the same speed as
-on the bare metal.  The home page is at
-http://www.disy.cse.unsw.edu.au/Software/Wombat/ but there's not much
-there yet.
+If I do something befor starting it, the screen is filled with junk.
+Something is writing to the video ram. If I close it and restar it,
+different junk.
 
--- 
-Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
-The technical we do immediately,  the political takes *forever*
+It seems that the initialization of the i810 is leaving its video ram
+free to be grabbed and used.
+
+I saw from the ChangeLog that the 810 initialization code was cleaned up.
+It used some strange work around to do something the author thought was
+unneccessary and which he cleaned up. It was changed, items reordered,
+etc. Might that have something to do with the problem?
+
+Regards from:
+
+    John McGowan  |  jmcgowan@inch.com                [Internet Channel]
+                  |  jmcgowan@coin.org                [COIN]
+    --------------+-----------------------------------------------------

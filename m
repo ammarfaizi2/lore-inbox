@@ -1,55 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131415AbRCOM6P>; Thu, 15 Mar 2001 07:58:15 -0500
+	id <S131694AbRCOM6F>; Thu, 15 Mar 2001 07:58:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131683AbRCOM6G>; Thu, 15 Mar 2001 07:58:06 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:28168 "HELO
+	id <S131683AbRCOM5P>; Thu, 15 Mar 2001 07:57:15 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:14344 "HELO
 	postfix.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S131415AbRCOM5e>; Thu, 15 Mar 2001 07:57:34 -0500
-Date: Thu, 15 Mar 2001 09:32:22 -0300 (BRST)
+	id <S131415AbRCOM5F>; Thu, 15 Mar 2001 07:57:05 -0500
+Date: Thu, 15 Mar 2001 09:24:59 -0300 (BRST)
 From: Rik van Riel <riel@conectiva.com.br>
-To: Mårten Wikström <Marten.Wikstrom@framfab.se>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-        netdev@oss.sgi.com
-Subject: Re: How to optimize routing performance
-In-Reply-To: <E6D22E487D45D411931B00508BCF93E75C0326@storeg001.framfab.se>
-Message-ID: <Pine.LNX.4.21.0103150929080.4165-100000@imladris.rielhome.conectiva>
+To: george anzinger <george@mvista.com>
+Cc: Alexander Viro <viro@math.psu.edu>, linux-mm@kvack.org, bcrl@redhat.com,
+        linux-kernel@vger.kernel.org
+Subject: changing mm->mmap_sem  (was: Re: system call for process information?)
+In-Reply-To: <Pine.LNX.4.33.0103141618320.21132-100000@duckman.distro.conectiva>
+Message-ID: <Pine.LNX.4.21.0103150919260.4165-100000@imladris.rielhome.conectiva>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 15 Mar 2001, [ISO-8859-1] Mårten Wikström wrote:
+On Wed, 14 Mar 2001, Rik van Riel wrote:
+> On Wed, 14 Mar 2001, george anzinger wrote:
+> 
+> > Is it REALLY necessary to prevent them from seeing an
+> > inconsistent state?  Seems to me that in the total picture (i.e.
+> > system wide) they will never see a consistent state, so why be
+> > concerned with a small corner of the system.
+> 
+> You're right.
 
-> I've performed a test on the routing capacity of a Linux 2.4.2 box
-> versus a FreeBSD 4.2 box. I used two Pentium Pro 200Mhz computers with
-> 64Mb memory, and two DEC 100Mbit ethernet cards. I used a Smartbits
-> test-tool to measure the packet throughput and the packet size was set
-> to 64 bytes. Linux dropped no packets up to about 27000 packets/s, but
-> then it started to drop packets at higher rates. Worse yet, the output
-> rate actually decreased, so at the input rate of 40000 packets/s
-> almost no packets got through. The behaviour of FreeBSD was different,
-> it showed a steadily increased output rate up to about 70000 packets/s
-> before the output rate decreased. (Then the output rate was apprx.
-> 40000 packets/s).
+Mmmm, I've looked at the code today and it turned out that
+we're NOT right ;)
 
-> So, my question is: are these figures true, or is it possible to
-> optimize the kernel somehow? The only changes I have made to the
-> kernel config was to disable advanced routing.
+The mmap_sem is used in procfs to prevent the list of VMAs
+from changing. In the page fault code it seems to be used
+to prevent other page faults to happen at the same time with
+the current page fault (and to prevent VMAs from changing
+while a page fault is underway).
 
-There are some flow control options in the kernel which should
-help. From your description, it looks like they aren't enabled
-by default ...
+Maybe we should change the mmap_sem into a R/W semaphore ?
 
-At the NordU/USENIX conference in Stockholm (this february) I
-saw a nice presentation on the flow control code in the Linux
-networking code and how it improved networking performance.
-I'm pretty convinced that flow control _should_ be saving your
-system in this case.
+Since page faults seem to be the "common cause" of blocking
+procfs access *and* since both page faults and procfs only
+need to prevent the VMA list from changing, a read lock would
+help here.
 
-OTOH, if they _are_ enabled, the networking people seem to have
-a new item for their TODO list. ;)
+Write locks would be used in the code where we actually want
+to change the VMA list and page faults would use an extra lock
+to protect against each other (possibly a per-pagetable lock so
+multithreaded apps can pagefault in different memory regions at
+the same time ???).
 
 regards,
 

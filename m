@@ -1,64 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271051AbTGPTSJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 15:18:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271033AbTGPTSI
+	id S271033AbTGPTTJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 15:19:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271059AbTGPTTJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 15:18:08 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:15489 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S271051AbTGPTSF (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 15:18:05 -0400
-Message-Id: <200307161932.h6GJWgup001735@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>, nuno.monteiro@ptnix.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: woes with 2.6.0-test1 and xscreensaver/xlock 
-In-Reply-To: Your message of "Wed, 16 Jul 2003 12:16:27 PDT."
-             <20030716121627.0ac0d238.rddunlap@osdl.org> 
-From: Valdis.Kletnieks@vt.edu
-References: <20030716172758.GA1792@hobbes.itsari.int> <Pine.LNX.4.53.0307161454180.32541@montezuma.mastecende.com>
-            <20030716121627.0ac0d238.rddunlap@osdl.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-863299688P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Wed, 16 Jul 2003 15:19:09 -0400
+Received: from freeside.toyota.com ([63.87.74.7]:12777 "EHLO
+	freeside.toyota.com") by vger.kernel.org with ESMTP id S271033AbTGPTTG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 15:19:06 -0400
+Message-ID: <3F15A8A5.4020603@tmsusa.com>
+Date: Wed, 16 Jul 2003 12:33:57 -0700
+From: jjs <jjs@tmsusa.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: woes with 2.6.0-test1 and xscreensaver/xlock
+References: <20030716172758.GA1792@hobbes.itsari.int> <Pine.LNX.4.53.0307161454180.32541@montezuma.mastecende.com> <20030716121627.0ac0d238.rddunlap@osdl.org> <Pine.LNX.4.53.0307161512060.32541@montezuma.mastecende.com>
+In-Reply-To: <Pine.LNX.4.53.0307161512060.32541@montezuma.mastecende.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Wed, 16 Jul 2003 15:32:42 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-863299688P
-Content-Type: text/plain; charset=us-ascii
+Zwane Mwaikambo wrote:
 
-On Wed, 16 Jul 2003 12:16:27 PDT, "Randy.Dunlap" said:
+>On Wed, 16 Jul 2003, Randy.Dunlap wrote:
+>
+>  
+>
+>>It happens to me all the time (so I stopped using xscreensaver).
+>>
+>>Alan says that it's fixed in RH 9 IIRC, but no details about the
+>>problem or the fix.... ?  Sounds a little like a userspace (library
+>>or syscall) issue.  Someone mentioned PAM also.
+>>    
+>>
+>
+>Aha! The machine i tested it on was RH9, i'll have to try this on 7.3 (w/o 
+>updates) but yes, it sounds like a userspace problem.
+>  
+>
+Yes, RH 9 ships with a version of xscreensaver (and whatever 
+infrastructure) which works with both 2.4 and 2.5/2.6 kernels.
 
-> Alan says that it's fixed in RH 9 IIRC, but no details about the
-> problem or the fix.... ?  Sounds a little like a userspace (library
-> or syscall) issue.  Someone mentioned PAM also.
- 
-I suspect it's the same bug that wedged PAM when the "child runs first"
-patch made its appearance:
+I reported the same xscreensaver problem on 2.5 kernels, but found that 
+it was automagically solved when I installed RH 9 -
 
-* Mon Apr 23 2001 Nalin Dahyabhai <nalin@redhat.com>
+Hope this helps,
 
-- merge up to 0.75
-- pam_unix: temporarily ignore SIGCHLD while running the helper
-- pam_pwdb: temporarily ignore SIGCHLD while running the helper
-- pam_dispatch: default to uncached behavior if the cached chain is empty
+Joe
 
-
-
---==_Exmh_-863299688P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE/FahacC3lWbTT17ARApfjAJ9Keg4JbYR+V1w2lRCb6asopa98xwCeMycV
-zWTQJYZtfODPR/H9snM99dk=
-=eAiA
------END PGP SIGNATURE-----
-
---==_Exmh_-863299688P--

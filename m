@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264549AbTK0Qfb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Nov 2003 11:35:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264553AbTK0Qfb
+	id S264568AbTK0QlM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Nov 2003 11:41:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264569AbTK0QlM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Nov 2003 11:35:31 -0500
-Received: from main.gmane.org ([80.91.224.249]:12703 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S264549AbTK0QfW (ORCPT
+	Thu, 27 Nov 2003 11:41:12 -0500
+Received: from main.gmane.org ([80.91.224.249]:16799 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S264568AbTK0QlL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Nov 2003 11:35:22 -0500
+	Thu, 27 Nov 2003 11:41:11 -0500
 X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
 From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: Selecting CPU frequency on Asus P4M laptop
-Date: Thu, 27 Nov 2003 17:35:20 +0100
-Message-ID: <yw1xsmk9bwhj.fsf@kth.se>
-References: <yw1x65h5ddbn.fsf@kth.se> <20031127161143.GA10634@localhost>
+Subject: Re: 2.6 not cat proof
+Date: Thu, 27 Nov 2003 17:41:09 +0100
+Message-ID: <yw1xoeuxbw7u.fsf@kth.se>
+References: <20031126201052.GA16106@outpost.ds9a.nl> <1069877780.7606.0.camel@laptop-linux>
+ <20031127073004.GB6275@vega.digitel2002.hu> <yw1xr7zutcmr.fsf@kth.se>
+ <20031127035755.2d960969.pj@sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 8bit
 X-Complaints-To: usenet@sea.gmane.org
 User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:YE/LqItwaHTB9EOR643AeDRLuYo=
+Cancel-Lock: sha1:p9oQpxhJaW6rw3H10JAt9YxKfwU=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marco Roeland <marco.roeland@xs4all.nl> writes:
+Paul Jackson <pj@sgi.com> writes:
 
-> On Thursday November 27th 2003 Måns Rullgård wrote:
+>> I had to "rm /bin/cat" nine times ...
 >
->> Is there any way to change which of these will be used after booting?
->
-> Have you already tried (as a module, *not* builtin) the SpeedStep
-> clockmod driver (CONFIG_X86_P4_CLOCKMOD=M) or, if your Southbridge is an
-> ICH[234], the ICH driver (CONFIG_X86_SPEEDSTEP_ICH=M)?
+> You're too cruel.
 
-I've tried them all.  Only acpi and p4-clockmod load successfully.
+Yes, it I shouldn't have done that.  A while after, the machine
+started feeling sluggish, and I started looking around.  I happened to
+ls /dev, and it was filled with mouse0, mouse1, mouse2, ...  They kept
+coming back after I removed them, too.
 
 -- 
 Måns Rullgård

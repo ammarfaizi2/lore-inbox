@@ -1,47 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314499AbSDRXi5>; Thu, 18 Apr 2002 19:38:57 -0400
+	id <S314500AbSDRXol>; Thu, 18 Apr 2002 19:44:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314500AbSDRXi4>; Thu, 18 Apr 2002 19:38:56 -0400
-Received: from quattro-eth.sventech.com ([205.252.89.20]:14085 "EHLO
-	quattro.sventech.com") by vger.kernel.org with ESMTP
-	id <S314499AbSDRXiy>; Thu, 18 Apr 2002 19:38:54 -0400
-Date: Thu, 18 Apr 2002 19:38:54 -0400
-From: Johannes Erdfelt <johannes@erdfelt.com>
-To: Michael West <neovorbis@comcast.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Possible bug in USB or HID on asus mobo with via kt266 a chipset
-Message-ID: <20020418193854.P22717@sventech.com>
-In-Reply-To: <3CBF5272.3030203@comcast.net>
+	id <S314501AbSDRXok>; Thu, 18 Apr 2002 19:44:40 -0400
+Received: from zero.tech9.net ([209.61.188.187]:34828 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S314500AbSDRXok> convert rfc822-to-8bit;
+	Thu, 18 Apr 2002 19:44:40 -0400
+Subject: Re: [PATCHSET] Linux 2.4.19-pre7-jam1
+From: Robert Love <rml@tech9.net>
+To: Dieter =?ISO-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Cc: "J.A. Magallon" <jamagallon@able.es>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        Andrew Morton <akpm@zip.com.au>, Ingo Molnar <mingo@redhat.com>,
+        Andrea Arcangeli <andrea@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <200204190136.15978.Dieter.Nuetzel@hamburg.de>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 18 Apr 2002 19:44:41 -0400
+Message-Id: <1019173481.5395.149.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 18, 2002, Michael West <neovorbis@comcast.net> wrote:
->     I recently changed motherboards on my linux box and one of my hid 
-> controllers (a psx-usb converter) stopped functioning correctly.  I was 
-> running a 2.4.18 kernel on both boards, and with the new asus board, 
-> apps reading from the /dev/input/js0 file seem to halt after the first 
-> 19 joystick messages are read.  I tried reproducing the problem on other 
-> kernel versions, and experienced the same problem with a smattering of 
-> previous kernels.  I'm using a hid mouse, as well as another hid 
-> controller, and both work correctly.  Not sure if its related or not, 
-> but I also seem to have some apparent irq problems, as newly plugged in 
-> usb devices (any) and by that I mean after the usb-uhci or uhci driver 
-> is loaded, throw "USB device not accepting new address - * (error = 
-> -110)" errors.  The situation in 2.4.19-pre2 changed a bit by completely 
-> breaking the psx-converter (joydev driver assigns no device) only on 
-> usb-uhci.  pre3 has the same origional problem, as well as 4 and 5. 
->  Pre6 and Pre7 seem to completely break all usb hid devices.  The irq 
-> (or whatever) problems go away and devices are hotplugged fine, but no 
-> hid devices are ever registered.  Sorry for my infamiliarity with the 
-> linux kernel source and terminology.  Thanks in advance.
+On Thu, 2002-04-18 at 19:36, Dieter Nützel wrote:
 
-Ahh, VIA. Their USB chipsets have some problems. Do you happen to get a
-BABBLE sometime before you start getting the error = -110 messages?
+> No uptodate O(1) patch for 2.4. Very sad.
+> So there isn't any change to see a current preemption patch on top of vm33 
+> and O(1).
 
-JE
+I am working on backports of all the O(1) scheduler changes in 2.5, the
+pending changes, and some other misc. bits.  I also have versions of the
+migration_thread and affinity stuff for 2.4.
+
+I will release a general O(1) patch and a patch for -ac soon - hopefully
+tomorrow or Monday.  I have no idea if it fixes the problems you are
+seeing, because I have no idea what caused a regression in the O(1)
+code.
+
+> No, lowlatency didn't come close to preemption+lock-break (best latency 
+> numbers for 2.4.17-preX-rml, were ~2.9ms max).
+
+Good to hear ;)
+
+> I'm under the impression that "all" development is focused on 2.5.x, now.
+> Even the VM stuff show no mayor growth ;-(
+
+That is the point of 2.5 :)
+
+Development => !Stability and people need to start using 2.4 to get work
+done, not reap faster and faster benchmarks times.  I seriously suspect
+2.4 is performing fine right now for what you are doing, anyhow.
+
+Also, a lot of VM work is happening in 2.4 (and not in 2.5 even, at the
+moment).  2.4.19-pre has seen a few of the -aa bits merged and should
+see most of the others in due time.
+
+There is also Rik's -rmap for 2.4 ...
+
+	Robert Love
 

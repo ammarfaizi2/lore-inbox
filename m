@@ -1,105 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268025AbTBRWVd>; Tue, 18 Feb 2003 17:21:33 -0500
+	id <S268080AbTBRWPu>; Tue, 18 Feb 2003 17:15:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268043AbTBRWVd>; Tue, 18 Feb 2003 17:21:33 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:21267 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S268025AbTBRWVb>; Tue, 18 Feb 2003 17:21:31 -0500
-Date: Tue, 18 Feb 2003 23:31:32 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Patrick Mochel <mochel@osdl.org>
-Cc: torvalds@transmeta.com, kernel list <linux-kernel@vger.kernel.org>,
-       ACPI mailing list <acpi-devel@lists.sourceforge.net>
-Subject: Re: Fixes to suspend-to-RAM
-Message-ID: <20030218223132.GH21974@atrey.karlin.mff.cuni.cz>
-References: <20030218220740.GD21974@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.33.0302181556480.1035-100000@localhost.localdomain>
+	id <S268083AbTBRWPt>; Tue, 18 Feb 2003 17:15:49 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:55775 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S268080AbTBRWPk>;
+	Tue, 18 Feb 2003 17:15:40 -0500
+Subject: [PATCH] mkinitrd fix for 2.5 modutils
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Rusty Russell <rusty@rustcorp.com.au>,
+       carbonated beverage <ramune@net-ronin.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: Open Source Devlopment Lab
+Message-Id: <1045607137.12949.146.camel@dell_ss3.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0302181556480.1035-100000@localhost.localdomain>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 18 Feb 2003 14:25:38 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+The following patch to mkinitrd allows it to correctly construct
+a ram disk with modules for both 2.4 and 2.5 kernels.  The problem is
+that the change in extension from .o to .ko confused it. Without the
+patch it is impossible to boot kernels that have ext3 as a module with
+an ext3 root file system.
 
-> > Bootmem needs to be reserved pretty soon in the boot process, that
-> > might be a problem.
-> 
-> That's not the issue. The call to the arch code would only check if the 
-> bootmem had been reserved, and as far the arch code knew, it was OK to 
-> enable S3.
+Not sure who the owner of mkinitrd is.
+Wonder what other utilities got busted as well?
+Patch is agains RHAT 8.0 other distro's may vary.
 
-Like this?
-
-> > Based on recent talk... Will you act as S3 maintainer so that I can
-> > submit patches to you and you'll take care of forwarding to Linus?
-> 
-> Yes, but please don't flood me with patches yet. I'm getting reacquainted 
-> with some of the more esoteric details of suspend states, and verifying 
-> that we have a working PM model for 2.6.
-
-I have maybe two more patches around this size (i.e. small). Will you
-take this?
-								Pavel
-
---- clean/arch/i386/kernel/acpi/sleep.c	2003-02-15 18:51:10.000000000 +0100
-+++ linux/arch/i386/kernel/acpi/sleep.c	2003-02-18 23:09:01.000000000 +0100
-@@ -2,6 +2,7 @@
-  * sleep.c - x86-specific ACPI sleep support.
-  *
-  *  Copyright (C) 2001-2003 Patrick Mochel
-+ *  Copyright (C) 2001-2003 Pavel Machek <pavel@suse.cz>
-  */
+--- mkinitrd.orig	2002-09-04 22:07:04.000000000 -0700
++++ mkinitrd	2003-02-18 14:15:16.000000000 -0800
+@@ -35,6 +35,7 @@
+ builtins=""
+ pivot=1
+ modulefile=/etc/modules.conf
++modext="o"
+ rc=0
  
- #include <linux/acpi.h>
-@@ -34,10 +35,8 @@
-  */
- int acpi_save_state_mem (void)
- {
--#if CONFIG_X86_PAE
--	panic("S3 and PAE do not like each other for now.");
--	return 1;
--#endif
-+	if (!acpi_wakeup_address)
-+		return 1;
- 	init_low_mapping(swapper_pg_dir, USER_PTRS_PER_PGD);
- 	memcpy((void *) acpi_wakeup_address, &wakeup_start, &wakeup_end - &wakeup_start);
- 	acpi_copy_wakeup_routine(acpi_wakeup_address);
-@@ -65,17 +64,24 @@
- /**
-  * acpi_reserve_bootmem - do _very_ early ACPI initialisation
-  *
-- * We allocate a page in low memory for the wakeup
-+ * We allocate a page from the first 1MB of memory for the wakeup
-  * routine for when we come back from a sleep state. The
-- * runtime allocator allows specification of <16M pages, but not
-- * <1M pages.
-+ * runtime allocator allows specification of <16MB pages, but not
-+ * <1MB pages.
-  */
- void __init acpi_reserve_bootmem(void)
- {
-+	if ((&wakeup_end - &wakeup_start) > PAGE_SIZE) {
-+		printk(KERN_ERR "ACPI: Wakeup code way too big, S3 disabled.\n");
-+		return;
-+	}
-+#if CONFIG_X86_PAE
-+	printk(KERN_ERR "ACPI: S3 and PAE do not like each other for now, S3 disabled.\n");
-+	return;
-+#endif
- 	acpi_wakeup_address = (unsigned long)alloc_bootmem_low(PAGE_SIZE);
--	if ((&wakeup_end - &wakeup_start) > PAGE_SIZE)
--		printk(KERN_CRIT "ACPI: Wakeup code way too big, will crash on attempt to suspend\n");
--	printk(KERN_DEBUG "ACPI: have wakeup address 0x%8.8lx\n", acpi_wakeup_address);
-+	if (!acpi_wakeup_address)
-+		printk(KERN_ERR "ACPI: Cannot allocate lowmem, S3 disabled.\n");
- }
+ if [ `uname -m` = "ia64" ]; then
+@@ -128,7 +129,7 @@
+ 	modName="sbp2"
+     fi
+     
+-    fmPath=`(cd /lib/modules/$kernel; echo find . -name $modName.o | /sbin/nash --quiet)`
++    fmPath=`(cd /lib/modules/$kernel; echo find . -name $modName.$modext | /sbin/nash --quiet)`
  
- static int __init acpi_sleep_setup(char *str)
+     if [ ! -f /lib/modules/$kernel/$fmPath ]; then
+ 	if [ -n "$skiperrors" ]; then
+@@ -276,6 +277,11 @@
+     exit 1
+ fi
+ 
++# Hack for module extension change in 2.5
++if [[ $kernel = 2.[56].* ]]; then
++    modext="ko"
++fi
++
+ # find a temporary directory which doesn't use tmpfs
+ TMPDIR=""
+ for t in /tmp /var/tmp /root ${PWD}; do
+@@ -461,7 +467,7 @@
+ 
+ dd if=/dev/zero of=$IMAGE bs=1k count=$IMAGESIZE 2> /dev/null || exit 1
+ 
+-LODEV=$(echo findlodev $modName.o | /sbin/nash --quiet)
++LODEV=$(echo findlodev $modName.$modext | /sbin/nash --quiet)
+ 
+ if [ -z "$LODEV" ]; then
+     rm -rf $MNTPOINT $IMAGE
+@@ -536,7 +542,7 @@
+ 
+ for MODULE in $MODULES; do
+     text=""
+-    module=`echo $MODULE | sed "s|.*/||" | sed "s/.o$//"`
++    module=`echo $MODULE | sed "s|.*/||" | sed "s/.$modext$//"`
+ 
+     options=`sed -n -e "s/^options[ 	][ 	]*$module[ 	][ 	]*//p" $modulefile 2>/dev/null`
+ 
+@@ -547,7 +553,7 @@
+         echo "Loading module $module$text"
+     fi
+     echo "echo \"Loading $module module\"" >> $RCFILE
+-    echo "insmod /lib/$module.o $options" >> $RCFILE
++    echo "insmod /lib/$module.$modext $options" >> $RCFILE
+ 
+     # Hack - we need a delay after loading usb-storage to give things
+     #        time to settle down before we start looking a block devices
 
 
--- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+

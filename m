@@ -1,39 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261706AbUB0Fyf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 00:54:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261705AbUB0Fyf
+	id S261704AbUB0GKo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 01:10:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbUB0GKn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 00:54:35 -0500
-Received: from mtvcafw.sgi.com ([192.48.171.6]:31518 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id S261706AbUB0Fye (ORCPT
+	Fri, 27 Feb 2004 01:10:43 -0500
+Received: from fw.osdl.org ([65.172.181.6]:12434 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261704AbUB0GKm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 00:54:34 -0500
-Date: Fri, 27 Feb 2004 16:53:34 +1100
-From: Nathan Scott <nathans@sgi.com>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Cc: Nico Schottelius <nico-kernel@schottelius.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: another hard disk broken or xfs problems?
-Message-ID: <20040227055334.GF732@frodo>
-References: <20040225220051.GA187@schottelius.org> <20040225223428.GD640@frodo> <20040225234944.GD187@schottelius.org> <20040226032741.GB1177@frodo> <20040226082551.GA218@schottelius.org> <20040226204615.A481868@wobbly.melbourne.sgi.com> <403E487B.8020707@matchmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <403E487B.8020707@matchmail.com>
-User-Agent: Mutt/1.5.3i
+	Fri, 27 Feb 2004 01:10:42 -0500
+Date: Thu, 26 Feb 2004 22:16:19 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Ulrich Drepper <drepper@redhat.com>
+cc: Jakub Jelinek <jakub@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Add getdents32t syscall
+In-Reply-To: <403E9E4D.6090301@redhat.com>
+Message-ID: <Pine.LNX.4.58.0402262212340.2563@ppc970.osdl.org>
+References: <20040226193819.GA3501@sunsite.ms.mff.cuni.cz>
+ <Pine.LNX.4.58.0402261411420.7830@ppc970.osdl.org>
+ <Pine.LNX.4.58.0402261415590.7830@ppc970.osdl.org>
+ <20040226223212.GA31589@devserv.devel.redhat.com>
+ <Pine.LNX.4.58.0402261504230.7830@ppc970.osdl.org> <403E9E4D.6090301@redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 26, 2004 at 11:26:51AM -0800, Mike Fedyk wrote:
+
+
+On Thu, 26 Feb 2004, Ulrich Drepper wrote:
 > 
-> I like this idea.
+> > In other words, why doesn't glibc ever just make a new major number and
+> > make its "struct dirent" be the 64-bit version?
 > 
-> Is it just calling dump_stack() based on error level?
+> You can't be serious.  Can you even imagine the pain this would cause?
 
-Yes, pretty much.
+Do you know how much pain it causes when you make changes and you do _not_ 
+change the major number?
 
-cheers.
+At some point you need to clean up. 
 
--- 
-Nathan
+This issue has been with us for years and years. I don't understand why
+you'd want to add a totally new system call now. Instead, I'd suggest you 
+just put this on the long list of things to fix for when a new major 
+number is to be used.
+
+And yes, you should use a new major number at some point. It is
+_senseless_ to never update the majors. Just make a clean break, go
+through every little nagging ugly thing (and there are a _lot_ of them 
+that have accumulated over the years), and make ready for "libc-3.0".
+
+No, I'm not suggesting you do it for this one thing, obviously. But 
+there's bound to be _thousands_ of these stupid things where glibc has 
+compatibility crap that makes no sense.
+
+		Linus

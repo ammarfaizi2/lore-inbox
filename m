@@ -1,105 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268861AbUIQRsv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268929AbUIQRwC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268861AbUIQRsv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 13:48:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268916AbUIQRsv
+	id S268929AbUIQRwC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 13:52:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268922AbUIQRwC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 13:48:51 -0400
-Received: from fw.osdl.org ([65.172.181.6]:62893 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268861AbUIQRsV (ORCPT
+	Fri, 17 Sep 2004 13:52:02 -0400
+Received: from mail4.bluewin.ch ([195.186.4.74]:14294 "EHLO mail4.bluewin.ch")
+	by vger.kernel.org with ESMTP id S268919AbUIQRvp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 13:48:21 -0400
-Date: Fri, 17 Sep 2004 10:43:34 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: olh@suse.de, akpm@osdl.org, sam@ravnborg.org
-Subject: [PATCH] kconfig: OVERRIDE: save kernel version in .config file
-Message-Id: <20040917104334.1b7d7d19.rddunlap@osdl.org>
-In-Reply-To: <20040917102024.50188756.rddunlap@osdl.org>
-References: <20040917154346.GA15156@suse.de>
-	<20040917102024.50188756.rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-vine-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Fri, 17 Sep 2004 13:51:45 -0400
+Date: Fri, 17 Sep 2004 19:51:30 +0200
+From: Roger Luethi <rl@hellgate.ch>
+To: Albert Cahalan <albert@users.sf.net>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: nproc: So?
+Message-ID: <20040917175130.GA7050@k3.hellgate.ch>
+Mail-Followup-To: Albert Cahalan <albert@users.sf.net>,
+	linux-kernel mailing list <linux-kernel@vger.kernel.org>
+References: <1095440131.3874.4626.camel@cube>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1095440131.3874.4626.camel@cube>
+X-Operating-System: Linux 2.6.9-rc2-bk1-nproc on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 Sep 2004 10:20:24 -0700 Randy.Dunlap wrote:
+On Fri, 17 Sep 2004 12:55:32 -0400, Albert Cahalan wrote:
+> Roger Luethi writes:
+> > I have received some constructive criticism and suggestions,
+> > but I didn't see any comments on the desirability of nproc in
+> > mainline. Initially meant to be a proof-of-concept, nproc has
+> > become an interface that is much cleaner and faster than procfs
+> > can ever hope to be (it takes some reading of procps or libgtop
+> > code to appreciate the complexity that is /proc file parsing today),
+> 
+> You spotted the perfect hash lookup? :-)
 
-| On Fri, 17 Sep 2004 17:43:46 +0200 Olaf Hering wrote:
-| 
-| | Randy,
-| | 
-| | we need a way to turn the timestamp off when running make oldconfig.
-| | Running make oldconfig gives always a delta, even if the .config is
-| | unchanged. This is bad for cvs repos, it generates conflicts now if 2
-| | people work on the same config file.
-| | Please provide a patch to not call ctime if a non-empty enviroment
-| | variable of your choice is set.
-| 
-| How's this?
+I never claimed nproc is perfect. Solutions with comparable performance
+and simplicity are conceivable, but none of them will work anything
+like procfs.
 
-Let's be a little safer in checking "NOTIMESTAMP".
+> The funny varargs/vsprintf/whatever encoding is useless to me,
 
-Omit .config file timestamp in the file if the environment variable
-"NOTIMESTAMP" exists and is non-null.
+Actually, that's just a by-product of the design. It is what you get when
+you put all the fields back to back. The only addition I made kernel-side
+to make this easy to exploit was the introduction of a NOP field.
 
-Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
+> as are the labels.
 
+Yup. The labels are not useful for the tools you maintain.
 
-diffstat:=
- scripts/kconfig/confdata.c |   16 ++++++++++++----
- 1 files changed, 12 insertions(+), 4 deletions(-)
+> The nicest think about netlink is, i think, that it might make
+> a practical interface for incremental update. As processes run
+> or get modified, monitoring apps might get notified. I did not
+> see mention of this being implemented, and I would take quite 
+> some time to support it, so it's a long-term goal. (of course,
+> people can always submit procps patches to support this)
 
-diff -Naurp ./scripts/kconfig/confdata.c~nostamp ./scripts/kconfig/confdata.c
---- ./scripts/kconfig/confdata.c~nostamp	2004-09-14 14:21:50.855120560 -0700
-+++ ./scripts/kconfig/confdata.c	2004-09-17 09:31:22.655220200 -0700
-@@ -270,6 +270,8 @@ int conf_write(const char *name)
- 	int type, l;
- 	const char *str;
- 	time_t now;
-+	int use_timestamp = 1;
-+	char *env;
- 
- 	dirname[0] = 0;
- 	if (name && name[0]) {
-@@ -306,22 +308,28 @@ int conf_write(const char *name)
- 	sym = sym_lookup("KERNELRELEASE", 0);
- 	sym_calc_value(sym);
- 	time(&now);
-+	env = getenv("NOTIMESTAMP");
-+	if (env && *env)
-+		use_timestamp = 0;
-+
- 	fprintf(out, "#\n"
- 		     "# Automatically generated make config: don't edit\n"
- 		     "# Linux kernel version: %s\n"
--		     "# %s"
-+		     "%s%s"
- 		     "#\n",
- 		     sym_get_string_value(sym),
--		     ctime(&now));
-+		     use_timestamp ? "# " : "",
-+		     use_timestamp ? ctime(&now) : "");
- 	if (out_h)
- 		fprintf(out_h, "/*\n"
- 			       " * Automatically generated C config: don't edit\n"
- 			       " * Linux kernel version: %s\n"
--			       " * %s"
-+			       "%s%s"
- 			       " */\n"
- 			       "#define AUTOCONF_INCLUDED\n",
- 			       sym_get_string_value(sym),
--			       ctime(&now));
-+			       use_timestamp ? " * " : "",
-+			       use_timestamp ? ctime(&now) : "");
- 
- 	if (!sym_change_count)
- 		sym_clear_all_valid();
+Sounds like what wli and I have discussed as differential updates a few
+weeks ago. I agree that would be nice, for now the goal was to suggest
+something that's cleaner and faster than procfs. Extensions are easy
+to add later.
 
+> I doubt that it is good to break down the data into so many
+> different items. It seems sensible to break down the data by 
+> locking requirements. 
 
---
+True if you consider a static set of fields that never changes. Problematic
+otherwise, because as soon as you start grouping fields together, you need
+an agreement between kernel and user-space on the contents of these groups.
+
+With nproc, the kernel is free to group fields together for computation
+(even the first release calculated all the fields that needed VMA walks
+in one go).
+
+> I could use an opaque per-process cookie for process identification.
+> This would protect from PID reuse, and might allow for faster
+> lookup. Perhaps it contains: PID, address of task_struct, and the
+> system-wide or per-cpu fork count from process creation.
+
+Agreed, that would be useful. And it would be easy to integrate with
+nproc. Just add a field to return the cookie and a selector based on
+cookies rather than PIDs.
+
+> Something like the stat() syscall would be pretty decent.
+
+You lost me there.
+
+Roger

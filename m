@@ -1,46 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312588AbSDOMRs>; Mon, 15 Apr 2002 08:17:48 -0400
+	id <S312601AbSDOM0k>; Mon, 15 Apr 2002 08:26:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312601AbSDOMRr>; Mon, 15 Apr 2002 08:17:47 -0400
-Received: from relay.planetinternet.be ([194.119.232.24]:22029 "EHLO
-	relay.planetinternet.be") by vger.kernel.org with ESMTP
-	id <S312588AbSDOMRq> convert rfc822-to-8bit; Mon, 15 Apr 2002 08:17:46 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Treeve Jelbert <treeve01@pi.be>
-Organization: Knowhow sc
-To: linux-kernel@vger.kernel.org
-Subject: PROBLEM linux-2.5.8 undefined reference to `setup_per_cpu_areas'
-Date: Mon, 15 Apr 2002 14:20:53 +0200
-X-Mailer: KMail [version 1.4]
+	id <S312612AbSDOM0j>; Mon, 15 Apr 2002 08:26:39 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:7181 "EHLO mail.stock-world.de")
+	by vger.kernel.org with ESMTP id <S312601AbSDOM0i>;
+	Mon, 15 Apr 2002 08:26:38 -0400
+Message-ID: <3CBAB86F.6000608@evision-ventures.com>
+Date: Mon, 15 Apr 2002 13:24:31 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200204151420.53495.treeve01@pi.be>
+To: admin@nextframe.net
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [COMMENTS IDE 2.5] - "idebus=66" in 2.5.8 results in "ide_setup:
+ idebus=66 -- BAD OPTION"
+In-Reply-To: <20020415112332.A181@sexything> <3CBA8E70.5010605@evision-ventures.com> <20020415141658.A140@sexything>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ld -m elf_i386 -T /usr/src/linux-2.5.8/arch/i386/vmlinux.lds -e stext 
-arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o 
-init/version.o init/do_mounts.o \
-        --start-group \
-        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o 
-fs/fs.o ipc/ipc.o \
-        /usr/src/linux-2.5.8/arch/i386/lib/lib.a 
-/usr/src/linux-2.5.8/lib/lib.a /usr/src/linux-2.5.8/arch/i386/lib/lib.a \
-         drivers/acpi/acpi.o drivers/base/base.o drivers/char/char.o 
-drivers/block/block.o drivers/misc/misc.o drivers/net/net.o 
-drivers/media/media.o drivers/char/drm/drm.o drivers/ide/idedriver.o 
-drivers/scsi/scsidrv.o drivers/cdrom/driver.o drivers/pci/driver.o 
-drivers/pnp/pnp.o drivers/video/video.o drivers/input/inputdrv.o \
-        net/network.o \
-        --end-group \
-        -o vmlinux
-init/main.o: In function `start_kernel':
-init/main.o(.text.init+0x621): undefined reference to `setup_per_cpu_areas'
- ! Problem Detected !
-make: *** [vmlinux] Error 1
+Morten Helgesen wrote:
+> Hey again, Martin :)
+> 
+> What do you think about the following :
 
+What I think? I think it's abviously right... Thank you very much
+and sorry for the inconvenience!
 
+And judging from the other typos fixed in patch number 34 I think
+that I should stick to my "principles" and don't write code past 02:00 o'clock
+... :-).
 
-Regards,  Treeve
+> 
+> --- clean-linux-2.5.8/drivers/ide/ide.c Sun Apr 14 21:18:52 2002
+> +++ patched-linux-2.5.8/drivers/ide/ide.c       Mon Apr 15 14:09:18 2002
+> @@ -3120,7 +3120,7 @@
+>         /*
+>          * Look for bus speed option:  "idebus="
+>          */
+> -       if (strncmp(s, "idebus", 6)) {
+> +       if (strncmp(s, "idebus", 6) == 0) {
+>                 if (match_parm(&s[6], NULL, vals, 1) != 1)
+>                         goto bad_option;
+>                 if (vals[0] >= 20 && vals[0] <= 66) {
+> 
+> gives :
+> 
+> Kernel command line: BOOT_IMAGE=2.5.8-without-TCQ ro root=303 video=matrox:vesa:0x118 idebus=66 profile=2
+> ide_setup: idebus=66
+> ide: system bus speed 66MHz
+> 
+> works like a charm :)
+

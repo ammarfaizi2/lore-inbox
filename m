@@ -1,77 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261786AbTJFWsV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 18:48:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261788AbTJFWsV
+	id S261626AbTJFWxX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 18:53:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261773AbTJFWxX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 18:48:21 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:52754
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S261786AbTJFWsT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 18:48:19 -0400
-Date: Mon, 6 Oct 2003 15:46:03 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Pascal Schmidt <der.eremit@email.de>
-cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-Subject: Re: freed_symbols [Re: People, not GPL [was: Re: Driver Model]]
-In-Reply-To: <E1A6aWv-0000rJ-00@neptune.local>
-Message-ID: <Pine.LNX.4.10.10310061532330.31134-100000@master.linux-ide.org>
+	Mon, 6 Oct 2003 18:53:23 -0400
+Received: from intra.cyclades.com ([64.186.161.6]:11440 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S261626AbTJFWxV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Oct 2003 18:53:21 -0400
+Date: Mon, 6 Oct 2003 19:56:07 -0300 (BRT)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@logos.cnet
+To: Andriy Rysin <arysin@bcsii.net>
+Cc: linux-kernel@vger.kernel.org, <sct@redhat.com>,
+       Andrew Morton <akpm@digeo.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: ext3 crash with 2.4.22: Assertion failure in journal_forget_R10d91946()
+In-Reply-To: <3F7C8742.5090907@bcsii.net>
+Message-ID: <Pine.LNX.4.44.0310061946290.2403-100000@logos.cnet>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Mon, 6 Oct 2003, Pascal Schmidt wrote:
+Andriy, 
 
-> On Mon, 06 Oct 2003 20:50:12 +0200, you wrote in linux.kernel:
+On Thu, 2 Oct 2003, Andriy Rysin wrote:
+
+> I am having crashes on ext3 with 2.4.22 kernel. System was up for 8 
+> days. I am not sure I can reproduce it real quick but we've seen it 
+> occasionly on 2.4.20 for about several months and after we updated to 
+> 2.4.22 it's here again.
 > 
-> > That has no bearing on the legalities.  A version of the kernel can't
-> > force the GPL on a driver that works with that version of the kernel
-> > because you can pull that driver out and drop in another.
+> please CC me if you answer or need more information.
 > 
-> Okay, I can see the boundary. We still have the problem that drivers
-> writers have to be very careful to not copy kernel code by accident
-> because the kernel changes often, which creates a temptation to look
-> closely at in-tree drivers to see how they do things. And if a
-> drivers writer then produces code that is essentialy the same as is
-> found in the kernel, only with changed indentation and variable names,
-> I think we both a agree that such a driver would be a derived work.
+> 
+> the log looks like this:
+> 
+> Sep 29 20:15:08 dunne-demo kernel: EXT3-fs error (device ide0(3,2)): 
+> ext3_free_blocks: Freeing blocks not in datazone - bloc
+> k = 2907885836, count = 1
+> Sep 29 20:15:08 dunne-demo kernel: EXT3-fs error (device ide0(3,2)): 
+> ext3_free_blocks: Freeing blocks not in datazone - bloc
+> k = 1660415916, count = 1
+> Sep 29 20:15:08 dunne-demo kernel: EXT3-fs error (device ide0(3,2)): 
+> ext3_free_blocks: Freeing blocks not in datazone - bloc
+> k = 1438298218, count = 1
+> Sep 29 20:15:08 dunne-demo kernel: EXT3-fs error (device ide0(3,2)): 
+> ext3_free_blocks: Freeing blocks not in datazone - bloc
+> k = 4209573569, count = 1
+> Sep 29 20:15:08 dunne-demo kernel: EXT3-fs error (device ide0(3,2)): 
+> ext3_free_blocks: Freeing blocks not in datazone - bloc
+> k = 2918065562, count = 1
+> ......
+> Sep 29 21:05:18 dunne-demo kernel: EXT3-fs error (device ide0(3,2)): 
+> ext3_free_blocks: bit already cleared for block 5970190
+> ......
+> Oct  2 00:43:53 dunne-demo kernel: hda: dma_timer_expiry: dma status == 0x20
+> Oct  2 00:43:53 dunne-demo kernel: hda: timeout waiting for DMA
+> Oct  2 00:43:53 dunne-demo kernel: hda: timeout waiting for DMA
+> Oct  2 00:43:53 dunne-demo kernel: hda: (__ide_dma_test_irq) called 
 
-You can look all you want, just can not touch.
+You are getting DMA timeouts and such. Try turning off the DMA.
 
-Simiar to the red light district in Holland, it costs alot to do more
-than look throught the glass.
-
-> Another problem is the fact that Linux kernel headers can contain code
-> in the form of macros. If a driver uses such a header, it links kernel
-> code with itself which can easily make it a derived work.
-
-No it can not, by only using the headers as the functional API for that
-snapshot verson of the kernel release, it is the standard means for
-functionality.  If the macro is require for any driver and or one in the
-kernel to function, and is listed in the headers, it is generally deemed
-to part of the unportected API.
-
-Again it is very simple declare, all modules which are not GPL and reject
-loading, and we can watch the death of linux as nobody will use it.  Again
-who cares, because it started out as fun for a Finn in 1991, and should
-never be of use or value outside of academics.
-
-All of the code monkeys here need to be equally exploited by all.  Some of
-the best marketing pitchs to date for some of the big companies who claim
-to be linux friends, their slogans translated:
-
-Use our hardware with Linux, there are a lot of suckers out there with
-talnet who will gladly help you with your support issues.  This reduces
-our support costs because we cans send you to join the rest of the
-monkeys, Pinocchio.
-
-Harsh and reality suck, but I could not believe this is what is being
-pitched at trade shows.
-
-Later ...
-
-Andre
-
+But anyway the ext3 fs errors shouldnt happen I guess. Andrew, Stephen?
 

@@ -1,211 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261524AbUCQQW4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Mar 2004 11:22:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261872AbUCQQWz
+	id S261671AbUCQQ3O (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Mar 2004 11:29:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261884AbUCQQ3O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Mar 2004 11:22:55 -0500
-Received: from ztxmail04.ztx.compaq.com ([161.114.1.208]:26117 "EHLO
-	ztxmail04.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id S261524AbUCQQWt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Mar 2004 11:22:49 -0500
-Message-ID: <405879BC.7060904@hp.com>
-Date: Wed, 17 Mar 2004 11:15:56 -0500
-From: Robert Picco <Robert.Picco@hp.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
+	Wed, 17 Mar 2004 11:29:14 -0500
+Received: from mail.eris.qinetiq.com ([128.98.1.1]:18356 "HELO
+	mail.eris.qinetiq.com") by vger.kernel.org with SMTP
+	id S261671AbUCQQ3H convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Mar 2004 11:29:07 -0500
+From: Mark Watts <m.watts@eris.qinetiq.com>
+Organization: QinetiQ
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: vmware on linux 2.6.4
+Date: Wed, 17 Mar 2004 16:19:43 +0000
+User-Agent: KMail/1.5.3
+References: <yw1xu10ogy4m.fsf@kth.se> <200403171119.48026@WOLK>
+In-Reply-To: <200403171119.48026@WOLK>
 MIME-Version: 1.0
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Jesse Barnes <jbarnes@sgi.com>, linux-kernel@vger.kernel.org,
-       colpatch@us.ibm.com, haveblue@us.ibm.com
-Subject: Re: boot time node and memory limit options
-References: <4057392A.8000602@hp.com> <20040316174329.GA29992@sgi.com> <34060000.1079465992@flay>
-In-Reply-To: <34060000.1079465992@flay>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: Text/Plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 8BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200403171619.43758.m.watts@eris.qinetiq.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Martin:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I did something like this before my posted patch in the IA64 ACPI NUMA 
-memory initialization code.  It wasn't posted or even reviewed by 
-peers.  Your patch below basically
-trims the NUMA node memory information before the X86 discontig code 
-calls the bootmem initialization routines.  The problem with coming up 
-with a solution at this level is each (at least ones I've looked at) 
-architecture handles low level memory initialization differently and 
-there needs to be a common way to parse early boot arguments.
 
-The patch I posted was arrived at after some people suggested an 
-architecture independent patch.  My patch
-basically allocates memory from the bootmem allocator before mem_init 
-calls free_all_bootmem_core.  It's architecture independent.  If the 
-real goal is to limit physical memory before the bootmem allocator is 
-initialized, then my current patch doesn't accomplish this. 
+> On Wednesday 17 March 2004 00:39, Måns Rullgård wrote:
+>
+> Hi Mans,
+>
+> > I tried to build the vmware modules for kernel 2.6.4 and got this oops
+> > when loading vmmon.o:
+> > vmmon: no version magic, tainting kernel.
+> > vmmon: module license 'unspecified' taints kernel.
+> > Unable to handle kernel NULL pointer dereference at virtual address
+> > Suggestions welcome.
+>
+> what vmware version do you use? Please make sure you've updated to latest
+> any-any update from (1.)
 
-thanks,
+What does this update actually do?
 
-Bob
-Martin J. Bligh wrote:
+I'm currently running VMWare 4.5.1 on mandrake 10.0 Community with their 2.6.3 
+kernel and VMWare is working just fine. Any compilation of modules was all 
+performed by vmware-install.pl
 
->--On Tuesday, March 16, 2004 09:43:29 -0800 Jesse Barnes <jbarnes@sgi.com> wrote:
->
->  
->
->>On Tue, Mar 16, 2004 at 12:28:10PM -0500, Robert Picco wrote:
->>    
->>
->>>This patch supports three boot line options.  mem_limit limits the
->>>amount of physical memory.  node_mem_limit limits the amount of
->>>physical memory per node on a NUMA machine.  nodes_limit reduces the
->>>number of NUMA nodes to the value specified.  On a NUMA machine an
->>>eliminated node's CPU(s) are removed from the cpu_possible_map.  
->>>
->>>The patch has been tested on an IA64 NUMA machine and uniprocessor X86
->>>machine.
->>>      
->>>
->>I think this patch will be really useful.  Matt and Martin, does it look
->>ok to you?  Given that discontiguous support is pretty platform specific
->>right now, I thought it might be less code if it was done in arch/, but
->>a platform independent version is awfully nice...
->>    
->>
->
->I haven't looked at your code yet, but I've had a similar patch in my tree
->from Dave Hansen for a while you might want to look at:
->
->diff -purN -X /home/mbligh/.diff.exclude 320-kcg/arch/i386/kernel/numaq.c 330-numa_mem_equals/arch/i386/kernel/numaq.c
->--- 320-kcg/arch/i386/kernel/numaq.c	2003-10-01 11:47:33.000000000 -0700
->+++ 330-numa_mem_equals/arch/i386/kernel/numaq.c	2004-03-14 09:54:00.000000000 -0800
->@@ -42,6 +42,10 @@ extern long node_start_pfn[], node_end_p
->  * function also increments numnodes with the number of nodes (quads)
->  * present.
->  */
->+extern unsigned long max_pages_per_node;
->+extern int limit_mem_per_node;
->+
->+#define node_size_pages(n) (node_end_pfn[n] - node_start_pfn[n])
-> static void __init smp_dump_qct(void)
-> {
-> 	int node;
->@@ -60,6 +64,8 @@ static void __init smp_dump_qct(void)
-> 				eq->hi_shrd_mem_start - eq->priv_mem_size);
-> 			node_end_pfn[node] = MB_TO_PAGES(
-> 				eq->hi_shrd_mem_start + eq->hi_shrd_mem_size);
->+			if (node_size_pages(node) > max_pages_per_node)
->+				node_end_pfn[node] = node_start_pfn[node] + max_pages_per_node;
-> 		}
-> 	}
-> }
->diff -purN -X /home/mbligh/.diff.exclude 320-kcg/arch/i386/kernel/setup.c 330-numa_mem_equals/arch/i386/kernel/setup.c
->--- 320-kcg/arch/i386/kernel/setup.c	2004-03-11 14:33:36.000000000 -0800
->+++ 330-numa_mem_equals/arch/i386/kernel/setup.c	2004-03-14 09:54:00.000000000 -0800
->@@ -142,7 +142,7 @@ static void __init probe_roms(void)
-> 	probe_extension_roms(roms);
-> }
-> 
->-static void __init limit_regions(unsigned long long size)
->+void __init limit_regions(unsigned long long size)
-> {
-> 	unsigned long long current_addr = 0;
-> 	int i;
->@@ -478,6 +478,7 @@ static void __init setup_memory_region(v
-> 	print_memory_map(who);
-> } /* setup_memory_region */
-> 
->+unsigned long max_pages_per_node = 0xFFFFFFFF; 
-> 
-> static void __init parse_cmdline_early (char ** cmdline_p)
-> {
->@@ -521,6 +522,14 @@ static void __init parse_cmdline_early (
-> 				userdef=1;
-> 			}
-> 		}
->+		
->+		if (c == ' ' && !memcmp(from, "memnode=", 8)) {
->+			unsigned long long node_size_bytes;
->+			if (to != command_line)
->+				to--;
->+			node_size_bytes = memparse(from+8, &from);
->+			max_pages_per_node = node_size_bytes >> PAGE_SHIFT;
->+		}
-> 
-> 		if (c == ' ' && !memcmp(from, "memmap=", 7)) {
-> 			if (to != command_line)
->diff -purN -X /home/mbligh/.diff.exclude 320-kcg/arch/i386/kernel/srat.c 330-numa_mem_equals/arch/i386/kernel/srat.c
->--- 320-kcg/arch/i386/kernel/srat.c	2003-10-01 11:47:33.000000000 -0700
->+++ 330-numa_mem_equals/arch/i386/kernel/srat.c	2004-03-14 09:54:01.000000000 -0800
->@@ -53,6 +53,10 @@ struct node_memory_chunk_s {
-> };
-> static struct node_memory_chunk_s node_memory_chunk[MAXCHUNKS];
-> 
->+#define chunk_start(i)	(node_memory_chunk[i].start_pfn)
->+#define chunk_end(i)	(node_memory_chunk[i].end_pfn)
->+#define chunk_size(i) 	(chunk_end(i)-chunk_start(i))
->+
-> static int num_memory_chunks;		/* total number of memory chunks */
-> static int zholes_size_init;
-> static unsigned long zholes_size[MAX_NUMNODES * MAX_NR_ZONES];
->@@ -198,6 +202,9 @@ static void __init initialize_physnode_m
-> 	}
-> }
-> 
->+extern unsigned long max_pages_per_node;
->+extern int limit_mem_per_node; 
->+
-> /* Parse the ACPI Static Resource Affinity Table */
-> static int __init acpi20_parse_srat(struct acpi_table_srat *sratp)
-> {
->@@ -281,23 +288,27 @@ static int __init acpi20_parse_srat(stru
-> 		       node_memory_chunk[j].start_pfn,
-> 		       node_memory_chunk[j].end_pfn);
-> 	}
->- 
->+
-> 	/*calculate node_start_pfn/node_end_pfn arrays*/
-> 	for (nid = 0; nid < numnodes; nid++) {
->-		int been_here_before = 0;
->+		unsigned long node_present_pages = 0;
-> 
->+		node_start_pfn[nid] = -1;
-> 		for (j = 0; j < num_memory_chunks; j++){
->-			if (node_memory_chunk[j].nid == nid) {
->-				if (been_here_before == 0) {
->-					node_start_pfn[nid] = node_memory_chunk[j].start_pfn;
->-					node_end_pfn[nid] = node_memory_chunk[j].end_pfn;
->-					been_here_before = 1;
->-				} else { /* We've found another chunk of memory for the node */
->-					if (node_start_pfn[nid] < node_memory_chunk[j].start_pfn) {
->-						node_end_pfn[nid] = node_memory_chunk[j].end_pfn;
->-					}
->-				}
->-			}
->+			unsigned long proposed_size;
->+
->+			if (node_memory_chunk[j].nid != nid)
->+				continue;
->+
->+			proposed_size = node_present_pages + chunk_size(j);
->+			if (proposed_size > max_pages_per_node)
->+				chunk_end(j) = chunk_start(j) +	
->+					max_pages_per_node - node_present_pages;
->+			node_present_pages += chunk_size(j);
->+
->+			if (node_start_pfn[nid] == -1)
->+				node_start_pfn[nid] = chunk_start(j);
->+			node_end_pfn[nid] = chunk_end(j);
-> 		}
-> 	}
-> 	return 1;
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
+Cheers.
+
+Mark
+
+
+- -- 
+Mark Watts
+Senior Systems Engineer
+QinetiQ TIM
+St Andrews Road, Malvern
+GPG Public Key ID: 455420ED
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQFAWHqfBn4EFUVUIO0RAoxfAKDcilnCVu4OFBD8QAmx9BVmIJfgZACeMkGe
+CBjhrmLC5D7l+Vch2SvM4As=
+=X4Zb
+-----END PGP SIGNATURE-----
 

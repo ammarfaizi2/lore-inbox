@@ -1,61 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261644AbTKBLET (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Nov 2003 06:04:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261645AbTKBLET
+	id S261656AbTKBLuV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Nov 2003 06:50:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261659AbTKBLuV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Nov 2003 06:04:19 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:1997 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261644AbTKBLER
+	Sun, 2 Nov 2003 06:50:21 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:43425 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S261656AbTKBLuT
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Nov 2003 06:04:17 -0500
-Date: Sun, 2 Nov 2003 11:04:16 +0000
-From: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
-To: Florian Reitmeir <squat@riot.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: many ide drives, raid0/raid5
-Message-ID: <20031102110416.GD762@gallifrey>
-References: <20031102031713.GA3464@squat.noreply.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031102031713.GA3464@squat.noreply.org>
-X-Chocolate: 70 percent or better cocoa solids preferably
-X-Operating-System: Linux/2.6.0-test9 (i686)
-X-Uptime: 11:00:30 up 1 day, 14:22,  1 user,  load average: 0.06, 0.34, 0.38
-User-Agent: Mutt/1.5.4i
+	Sun, 2 Nov 2003 06:50:19 -0500
+Message-ID: <3FA4EF79.5060708@namesys.com>
+Date: Sun, 02 Nov 2003 14:50:17 +0300
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Herbert Xu <herbert@gondor.apana.org.au>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0test9 Reiserfs boot time "buffer layer error at fs/buffer.c:431"
+References: <20031029141931.6c4ebdb5.akpm@osdl.org> <E1AGCUJ-00016g-00@gondolin.me.apana.org.au> <20031101233354.1f566c80.akpm@osdl.org> <20031102092723.GA4964@gondor.apana.org.au>
+In-Reply-To: <20031102092723.GA4964@gondor.apana.org.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Florian Reitmeir (squat@riot.org) wrote:
-> Hi,
-> 
-> i'm using on the machine kernel 2.6.0-test6-mm1 and 15 IDE
-> Drives. Everything worked fine (uptime about 30 days) > I used, some
-> raid5's, below some raid0's and on top evms.
+Herbert Xu wrote:
 
-> 
-> heres "cat /proc/mdstat" so its more clear
-> 
-> ============ cut 
-> Personalities : [raid0] [raid5]
-> md4 : active raid5 hdp[2] hdo[1] hdn[0]
->       120627072 blocks level 5, 32k chunk, algorithm 2 [4/3] [UUU_]
+>On Sat, Nov 01, 2003 at 11:33:54PM -0800, Andrew Morton wrote:
+>  
+>
+>>aargh.  I thought Debian's 2.6 kernels were unmodified.  Are they carrying
+>>any other changes?
+>>    
+>>
+>
+>Yes we are.  You can find the changes in
+>
+>http://http.us.debian.org/debian/pool/main/k/kernel-source-2.6.0-test9/
+>
+>  
+>
+>
+Why are you guys modifying the official kernel?  Are you seeking 
+advantage over the other distros or?  This was one of the nice things 
+about debian, that it didn't have unofficial destabilizing stuff in the 
+kernel like the other distros.
 
-This isn't too unusual; if as you say the drives are fine then I'd agree
-it is probably a controller issue.  I've got a RAID that does this
-regularly and you normally find in the log somewhere an IDE error of
-some type (typically it dropping out of DMA due to a busy or it not
-responding).
+-- 
+Hans
 
-I've given up using multiple IDE PCI cards for this - they only just
-work, and occasionally you'll get a glitch like this.  I've tried
-a mixture of Promise and HPT cards.  In the end I gave up and got
-a 3ware IDE RAID card which is working fine (you could just use it
-as a large multichannel IDE card and run soft raid if you want I think).
 
-Dave
- -----Open up your eyes, open up your mind, open up your code -------   
-/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
-\ gro.gilbert @ treblig.org | MIPS,x86,ARM,SPARC,PPC & HPPA | In Hex /
- \ _________________________|_____ http://www.treblig.org   |_______/

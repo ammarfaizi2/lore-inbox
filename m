@@ -1,53 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263430AbUJ2Rci@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263417AbUJ2Rj6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263430AbUJ2Rci (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 13:32:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263417AbUJ2RXl
+	id S263417AbUJ2Rj6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 13:39:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263464AbUJ2Rj1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 13:23:41 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:3818 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S263430AbUJ2RUl (ORCPT
+	Fri, 29 Oct 2004 13:39:27 -0400
+Received: from fw.osdl.org ([65.172.181.6]:30343 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263460AbUJ2Rfw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 13:20:41 -0400
-Date: Fri, 29 Oct 2004 19:21:51 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Florian Schmidt <mista.tapas@gmx.net>
-Cc: Paul Davis <paul@linuxaudiosystems.com>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       LKML <linux-kernel@vger.kernel.org>, Lee Revell <rlrevell@joe-job.com>,
-       mark_h_johnson@raytheon.com, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       jackit-devel <jackit-devel@lists.sourceforge.net>,
-       Rui Nuno Capela <rncbc@rncbc.org>
-Subject: Re: [Fwd: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4]
-Message-ID: <20041029172151.GB16276@elte.hu>
-References: <200410291101.i9TB1uhp002490@localhost.localdomain> <20041029111408.GA28259@elte.hu> <20041029161433.GA6717@elte.hu> <20041029183256.564897b2@mango.fruits.de> <20041029162316.GA7743@elte.hu> <20041029163155.GA9005@elte.hu> <20041029191652.1e480e2d@mango.fruits.de> <20041029170237.GA12374@elte.hu> <20041029170948.GA13727@elte.hu> <20041029193303.7d3990b4@mango.fruits.de>
+	Fri, 29 Oct 2004 13:35:52 -0400
+Date: Fri, 29 Oct 2004 10:35:46 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, Hans Reiser <reiser@namesys.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10-rc1-mm2: `key_init' multiple definition
+Message-ID: <20041029103546.G14339@build.pdx.osdl.net>
+References: <20041029014930.21ed5b9a.akpm@osdl.org> <20041029114511.GJ6677@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041029193303.7d3990b4@mango.fruits.de>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20041029114511.GJ6677@stusta.de>; from bunk@stusta.de on Fri, Oct 29, 2004 at 01:45:11PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Adrian Bunk (bunk@stusta.de) wrote:
+> On Fri, Oct 29, 2004 at 01:49:30AM -0700, Andrew Morton wrote:
+> >...
+> > Changes since 2.6.10-rc1-mm1:
+> >...
+> > +key_init-ordering-fix.patch
 
-* Florian Schmidt <mista.tapas@gmx.net> wrote:
+I don't think this is needed.  The fix in Linus's tree should be
+sufficient, which was simply:
 
->   CC      fs/ioctl.o
-> fs/ioctl.c: In function `sys_ioctl':
-> fs/ioctl.c:75: error: structure has no member named `ioctl_nobkl'
-> fs/ioctl.c:76: error: structure has no member named `ioctl_nobkl'
+-subsys_initcall(key_init);
++security_initcall(key_init);
 
-fs.h chunk went missing ... uploading -V0.5.14 in a minute.
+> >  Fix early oops with the key management code
+> >...
+> > All 381 patches:
+> >...
+> > reiser4-only.patch
+> >   reiser4: main fs
 
-	Ingo
+This should really be reiser_key_init, or similar.
+
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

@@ -1,97 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261487AbVB0TqE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261488AbVB0TwN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261487AbVB0TqE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Feb 2005 14:46:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261488AbVB0TqD
+	id S261488AbVB0TwN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Feb 2005 14:52:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261489AbVB0TwN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Feb 2005 14:46:03 -0500
-Received: from fire.osdl.org ([65.172.181.4]:29365 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261487AbVB0Tpu (ORCPT
+	Sun, 27 Feb 2005 14:52:13 -0500
+Received: from ipp23-131.piekary.net ([80.48.23.131]:51140 "EHLO spock.one.pl")
+	by vger.kernel.org with ESMTP id S261488AbVB0TwH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Feb 2005 14:45:50 -0500
-Date: Sun, 27 Feb 2005 11:46:49 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-cc: nuclearcat <nuclearcat@nuclearcat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: pty_chars_in_buffer NULL pointer (kernel oops)
-In-Reply-To: <20050227100000.GB22439@logos.cnet>
-Message-ID: <Pine.LNX.4.58.0502271130420.25732@ppc970.osdl.org>
-References: <20050227100000.GB22439@logos.cnet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 27 Feb 2005 14:52:07 -0500
+Date: Sun, 27 Feb 2005 20:52:06 +0100
+From: Michal Januszewski <spock@gentoo.org>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Pavel Machek <pavel@ucw.cz>, Greg KH <greg@kroah.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Bootsplash for 2.6.11-rc4
+Message-ID: <20050227195206.GA2202@spock.one.pl>
+References: <20050218165254.GA1359@elf.ucw.cz> <20050219011433.GA5954@spock.one.pl> <20050219230326.GB13135@kroah.com> <20050219232519.GC1372@elf.ucw.cz> <20050220132600.GA19700@spock.one.pl> <20050227165420.GD1441@elf.ucw.cz> <1109532700.15362.42.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="d6Gm4EdcadzBjdND"
+Content-Disposition: inline
+In-Reply-To: <1109532700.15362.42.camel@laptopd505.fenrus.org>
+X-PGP-Key: http://dev.gentoo.org/~spock/spock.gpg
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--d6Gm4EdcadzBjdND
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Sun, 27 Feb 2005, Marcelo Tosatti wrote:
-> 
-> Alan, Linus, what correction to the which the above thread discusses has 
-> been deployed? 
+On Sun, Feb 27, 2005 at 08:31:39PM +0100, Arjan van de Ven wrote:
 
-This is the hacky "hide the problem" patch that is in my current tree (and 
-was discussed in the original thread some time ago).
+> well.. how much does it really need in kernel space? I mean, with all
+> drivers as modules, and the "quiet" option, initramfs runs *really*
+> fast. And that can just bang a bitmap to the framebuffer as first
+> thing... (rhgb does it a bit later but that's a design choice in a
+> feature vs early-boot tradeoff).
 
-It's in no way "correct", in that the race hasn't actually gone away by 
-this patch, but the patch makes it unimportant. We may end up calling a 
-stale line discipline, which is still very wrong, but it so happens that 
-we don't much care in practice.
+Most of the code in fbsplash handles the so-called 'verbose' mode,
+ie. displaying a pretty picture in the background of the consoles.=20
+The 'silent' mode (progress bar and stuff) can be brought down to=20
+a single call to a userspace helper which can paint the initial bitmap
+or do whatever else it wants to do. In fact, this is how it works now.
+However, fbsplash currently not only calls the helper, but also tracks
+whether we're running in the 'silent' mode or in the 'verbose' mode.=20
+I plan to remove that functionality, so we'll be left with the
+following:=20
+- silent is handled 100% by userspace
+- verbose is handled by fbsplash (ie. kernelspace)
+- fbsplash takes care of the initial call to the userspace=20
+  helper when starting in the silent mode (splash=3Dsilent in
+  the kernel command line)
+=20
+Live long and prosper.
+--=20
+Michal 'Spock' Januszewski                        Gentoo Linux Developer
+cell: +48504917690                         http://dev.gentoo.org/~spock/
+JID: spock@im.gentoo.org               freenode: #gentoo-dev, #gentoo-pl
 
-I think that in a 2.4.x tree there are some theoretical SMP races with
-module unloading etc (which the 2.6.x code doesn't have because module
-unload stops the other CPU's - maybe that part got backported to 2.4.x?), 
-but quite frankly, I suspect that even in 2.4.x they are entirely 
-theoretical and impossible to actually hit.
 
-And again, in theory some line discipline might do something strange in
-it's "chars_in_buffer" routine that would be problematic. In practice
-that's just not the case: the "chars_in_buffer()" routine might return a
-bogus _value_ for a stale line discipline thing, but none of them seem to
-follow any pointers that might have become invalid (and in fact, most
-ldiscs don't even have that function).
+--d6Gm4EdcadzBjdND
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-So while this patch is wrogn in theory, it does have the advantage of
-being (a) very safe minimal patch and (b) fixing the problem in practice
-with no performance downside.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
 
-I still feel a bit guilty about it, though.
+iD8DBQFCIiTmaQ0HSaOUe+YRAsXBAJ9rVU2xjwYCltX2FeF8NgfG9ltfyQCeP/m9
+kq1D8GS65obiyuU95UEmIQc=
+=BBPD
+-----END PGP SIGNATURE-----
 
-			Linus
-
----
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2005/02/25 19:39:39-08:00 torvalds@ppc970.osdl.org 
-#   Fix possible pty line discipline race.
-#   
-#   This ain't pretty. Real fix under discussion.
-# 
-# drivers/char/pty.c
-#   2005/02/25 19:39:32-08:00 torvalds@ppc970.osdl.org +4 -2
-#   Fix possible pty line discipline race.
-#   
-#   This ain't pretty. Real fix under discussion.
-# 
-diff -Nru a/drivers/char/pty.c b/drivers/char/pty.c
---- a/drivers/char/pty.c	2005-02-27 11:31:57 -08:00
-+++ b/drivers/char/pty.c	2005-02-27 11:31:57 -08:00
-@@ -149,13 +149,15 @@
- static int pty_chars_in_buffer(struct tty_struct *tty)
- {
- 	struct tty_struct *to = tty->link;
-+	ssize_t (*chars_in_buffer)(struct tty_struct *);
- 	int count;
- 
--	if (!to || !to->ldisc.chars_in_buffer)
-+	/* We should get the line discipline lock for "tty->link" */
-+	if (!to || !(chars_in_buffer = to->ldisc.chars_in_buffer))
- 		return 0;
- 
- 	/* The ldisc must report 0 if no characters available to be read */
--	count = to->ldisc.chars_in_buffer(to);
-+	count = chars_in_buffer(to);
- 
- 	if (tty->driver->subtype == PTY_TYPE_SLAVE) return count;
- 
+--d6Gm4EdcadzBjdND--

@@ -1,74 +1,109 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129271AbRBZXuK>; Mon, 26 Feb 2001 18:50:10 -0500
+	id <S129272AbRBZXta>; Mon, 26 Feb 2001 18:49:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129274AbRBZXuB>; Mon, 26 Feb 2001 18:50:01 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:30111 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S129271AbRBZXtw>;
-	Mon, 26 Feb 2001 18:49:52 -0500
-From: "David S. Miller" <davem@redhat.com>
+	id <S129271AbRBZXtQ>; Mon, 26 Feb 2001 18:49:16 -0500
+Received: from [213.4.18.231] ([213.4.18.231]:40203 "EHLO fulanito.nisupu.com")
+	by vger.kernel.org with ESMTP id <S129268AbRBZXs6>;
+	Mon, 26 Feb 2001 18:48:58 -0500
+Message-ID: <11dd01c0a04e$98b92e60$f40237d1@MIACFERNANDEZ>
+From: "Carlos Fernandez Sanz" <cfernandez@myalert.com>
+To: <linux-kernel@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>
+Subject: Problem creating filesystem
+Date: Mon, 26 Feb 2001 18:48:16 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <15002.60104.350394.893905@pizda.ninka.net>
-Date: Mon, 26 Feb 2001 15:46:16 -0800 (PST)
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: netdev@oss.sgi.com,
-        Linux Knernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: New net features for added performance
-In-Reply-To: <3A9842DC.B42ECD7A@mandrakesoft.com>
-In-Reply-To: <3A9842DC.B42ECD7A@mandrakesoft.com>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have just purchased a new HD and I'm getting problems creating a
+filesystem for it. I've done some research and some people claim the problem
+might be kernel related so I'm asking here just in case.
 
-Jeff Garzik writes:
- > 1) Rx Skb recycling.
- ...
- > Advantages:  A de-allocation immediately followed by a reallocation is
- > eliminated, less L1 cache pollution during interrupt handling. 
- > Potentially less DMA traffic between card and host.
- ...
- > Disadvantages?
+The HD is a Maxtor 80 Gb, plugged to the Promise controller that comes with
+Asus A7V motherboards. The controller is ide2, and the HD is /dev/hde. ide0
+and ide1 are working with no problems.
 
-It simply cannot work, as Alexey stated, in normal circumstances
-netif_rx() queues until the user reads the data.  This is the whole
-basis of our receive packet processing model within softint/user
-context.
+-----------------
+fdisk shows some warnings (but doesn't refuse to create the partition):
 
-Secondly, I can argue that skb recycling can give _worse_ cache
-performance.  If the next use and access by the card to the
-skb data is deferred, this gives the cpu a chance to displace those
-lines in it's cache naturally via displacement instead of being forced
-quickly to do so when the device touches that data.
+[root@alhambra /sbin]# fdisk /dev/hde
+Device contains neither a valid DOS partition table, nor Sun, SGI or OSF
+disklabel
+Building a new DOS disklabel. Changes will remain in memory only,
+until you decide to write them. After that, of course, the previous
+content won't be recoverable.
 
-If the device forces the cache displacement, those cache lines become
-empty until filled with something later (smaller utilization of total
-cache contents) whereas natural displacement puts useful data into
-the cache at the time of the displacement (larger utilization of total
-cache contents).
+The number of cylinders for this disk is set to 15871.
+There is nothing wrong with that, but this is larger than 1024,
+and could in certain setups cause problems with:
+1) software that runs at boot time (e.g., old versions of LILO)
+2) booting and partitioning software from other OSs
+   (e.g., DOS FDISK, OS/2 FDISK)
+Warning: invalid flag 0xffffa855 of partition table 5 will be corrected by
+w(rite)
 
-It is an NT/windows driver API rubbish idea, and it is full crap.
+Command (m for help): n
+Command action
+   e   extended
+   p   primary partition (1-4)
+p
+Partition number (1-4): 1
+First cylinder (1-15871, default 1):
+Using default value 1
+Last cylinder or +size or +sizeM or +sizeK (1-15871, default 15871):
+Using default value 15871
 
- > 2) Tx packet grouping.
- ...
- > Disadvantages?
+Command (m for help): p
 
-See Torvalds vs. world discussion on this list about API entry points
-which pass multiple pages at a time versus simpler ones which pass
-only a single page at a time. :-)
+Disk /dev/hde: 16 heads, 63 sectors, 15871 cylinders
+Units = cylinders of 1008 * 512 bytes
 
- > 3) Slabbier packet allocation.
- ...
- > Disadvantages?  Doing this might increase cache pollution due to
- > increased code and data size, but I think the hot path is much improved
- > (dequeue a properly sized, initialized, skb-reserved'd skb off a list)
- > and would help mitigate the impact of sudden bursts of traffic.
+   Device Boot    Start       End    Blocks   Id  System
+/dev/hde1             1     15871   7998952+  83  Linux
 
-I don't know what I think about this one, but my hunch is that it will
-lead to worse data packing via such an allocator.
+Command (m for help): w
+The partition table has been altered!
 
-Later,
-David S. Miller
-davem@redhat.com
+Calling ioctl() to re-read partition table.
+
+WARNING: If you have created or modified any DOS 6.x
+partitions, please see the fdisk manual page for additional
+information.
+Syncing disks.
+------------------
+When trying to create the filesystem, I get this:
+
+[root@alhambra /sbin]# ./mke2fs /dev/hde1
+mke2fs 1.18, 11-Nov-1999 for EXT2 FS 0.5b, 95/08/09
+/dev/hde1: Invalid argument passed to ext2 library while setting up
+superblock
+-------------------
+
+I'm using
+Linux version 2.2.17-14 (root@porky.devel.redhat.com) (gcc version
+egcs-2.91.66 19990314/Linux (egcs-1.1.2 release)) #1 Mon Feb 5 16:02:20 EST
+2001
+
+The IDE controller is
+  Bus  0, device  17, function  0:
+    Unknown mass storage controller: Promise Technology Unknown device (rev
+2).
+      Vendor id=105a. Device id=d30.
+      Medium devsel.  IRQ 10.  Master Capable.  Latency=32.
+      I/O at 0x9000 [0x9001].
+      I/O at 0x8800 [0x8801].
+      I/O at 0x8400 [0x8401].
+      I/O at 0x8000 [0x8001].
+      I/O at 0x7800 [0x7801].
+      Non-prefetchable 32 bit memory at 0xdd800000 [0xdd800000].
+[root@alhambra /proc]#
+
+Any suggestion?
+

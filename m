@@ -1,70 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264809AbTE1RVU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 13:21:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264812AbTE1RVU
+	id S264801AbTE1Rpb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 13:45:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264804AbTE1Rpb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 13:21:20 -0400
-Received: from ik-dynamic-66-102-74-246.kingston.net ([66.102.74.246]:26120
-	"EHLO linux.interlinx.bc.ca") by vger.kernel.org with ESMTP
-	id S264809AbTE1RVT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 13:21:19 -0400
-Date: Wed, 28 May 2003 13:34:33 -0400
+	Wed, 28 May 2003 13:45:31 -0400
+Received: from verdi.et.tudelft.nl ([130.161.38.158]:48769 "EHLO
+	verdi.et.tudelft.nl") by vger.kernel.org with ESMTP id S264801AbTE1Rpa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 13:45:30 -0400
+Date: Wed, 28 May 2003 19:58:42 +0200
+From: Rob van Nieuwkerk <robn@verdi.et.tudelft.nl>
 To: linux-kernel@vger.kernel.org
-Subject: Re: local apic timer ints not working with vmware: nolocalapic
-Message-ID: <20030528173432.GA21379@linux.interlinx.bc.ca>
-References: <2C8EEAE5E5C@vcnet.vc.cvut.cz>
+Cc: robn@verdi.et.tudelft.nl
+Subject: 2.4 bug: fifo-write causes diskwrites to read-only fs !
+Message-ID: <20030528175842.GA13657@verdi.et.tudelft.nl>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="mYCpIKhGyMATD0i+"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <2C8EEAE5E5C@vcnet.vc.cvut.cz>
 User-Agent: Mutt/1.4.1i
-Mail-Followup-To: brian@interlinx.bc.ca, linux-kernel@vger.kernel.org
-From: brian@interlinx.bc.ca
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
 
---mYCpIKhGyMATD0i+
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+It turns out that Linux is updating inode timestamps of fifos (named
+pipes) that are written to while residing on a read-only filesystem.
+It is not only updating in-ram info, but it will issue *physical*
+writes to the read-only fs on the disk !
 
-On Wed, May 28, 2003 at 11:56:29AM +0200, Petr Vandrovec wrote:
->=20
-> Just get VMware 3 or 4
+I use a CompactFlash in an embedded application with a read-only root-fs
+on it.  There are several processes that communicate with each other
+via fifos.  This bug in Linux causes frequent writes to my CF and will
+shorten it's lifetime enormously ..
 
-Unfortunately, I cannot currently afford to buy (outright -- there is
-no upgrade path from 2 to 4) a newer version of VMware.  Really, other
-than this issue of the local APIC timer, I don't really need or care
-to have a newer version of VMware anyway.
+I've posted a report on the "mysterious writes" before:
+( http://www.ussg.iu.edu/hypermail/linux/kernel/0303.2/1753.html )
+(incorrectly) linking it to a possible bug in O_SYNC.  Nothing came out
+of it.
 
-> - they (properly) emulate APIC timer and you'll
-> get information that host bus is running at 66.xxxx MHz. With VMware 2
-> you have to boot with noapic.
+But now I've completely tracked down the bug (logging all diskaccesses
+and seeing it undoubtly write in disksectors containing time-stamp
+info of fifo's).  Looking back it would have been easier to prove that
+something is wrong: the modified time-stamps survive power-cycles.
+This is not supposed to happen on a read-only fs.
 
-If only this worked.  I tried noapic, but it still tries to use the
-local APIC timer interrupts.  noapic seems to only disable IO-APIC.
-That is why I was "proposing" a new kernel command line arg,
-"nolocalapic".
+I've tried reading the kernel source to find where the bug lives,
+But I'm not too familiar with it.  Anyone out there who can
+pin it down ?
 
-b.
+	greetings,
+	Rob van Nieuwkerk
 
---=20
-Brian J. Murrell
 
---mYCpIKhGyMATD0i+
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE+1PMol3EQlGLyuXARAp/xAKD1KhSTEn2ECWIPfLrvXb0C9qmn8wCeJO/w
-A6HnfdbpNKa+a4reRg/3FtA=
-=sWL5
------END PGP SIGNATURE-----
-
---mYCpIKhGyMATD0i+--
---mYCpIKhGyMATD0i+--
+Sysinfo:
+--------
+- various 2.4 kernels including RH-2.4.20-13.9,
+  but also straight 2.4(ac) ones.
+- CompactFlash (= IDE disk)
+- Geode GX1 CPU (i586 compatible)

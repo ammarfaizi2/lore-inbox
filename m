@@ -1,71 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293164AbSCOTLB>; Fri, 15 Mar 2002 14:11:01 -0500
+	id <S293167AbSCOTMl>; Fri, 15 Mar 2002 14:12:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293161AbSCOTKo>; Fri, 15 Mar 2002 14:10:44 -0500
-Received: from bitmover.com ([192.132.92.2]:47825 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S293162AbSCOTKX>;
-	Fri, 15 Mar 2002 14:10:23 -0500
-Date: Fri, 15 Mar 2002 11:10:22 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4 and BitKeeper
-Message-ID: <20020315111022.S29887@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020315103914.M29887@work.bitmover.com> <Pine.LNX.4.33.0203151039440.29289-100000@penguin.transmeta.com>
+	id <S293162AbSCOTMb>; Fri, 15 Mar 2002 14:12:31 -0500
+Received: from zero.tech9.net ([209.61.188.187]:51204 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S293161AbSCOTMT>;
+	Fri, 15 Mar 2002 14:12:19 -0500
+Subject: Re: 2.4.18 Preempt Freezeups
+From: Robert Love <rml@tech9.net>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <15506.7486.729120.64389@kim.it.uu.se>
+In-Reply-To: <3C9153A7.292C320@ianduggan.net>
+	<1016157250.4599.62.camel@phantasy> <3C91B2A1.48C74B82@ianduggan.net>
+	<1016202310.908.1.camel@phantasy>  <15506.7486.729120.64389@kim.it.uu.se>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.2.99 Preview Release
+Date: 15 Mar 2002 14:11:49 -0500
+Message-Id: <1016219530.904.21.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.33.0203151039440.29289-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Fri, Mar 15, 2002 at 11:01:22AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> But the thing is that if you do it my way, you _can_ have it both ways.
-> 
-> If you do it your way, you cannot.
+On Fri, 2002-03-15 at 11:11, Mikael Pettersson wrote:
 
-By "your way" you mean "the current way", right?  In which case, the future
-option I described is OK, right?  Or am I still missing something?
+> "more than likely": that's perhaps true for your average NIC/soundcard/
+> whatever driver, but things that poke the processor itself (like my
+> performance-monitoring counters driver) really do depend on not being
+> preempted. In my view, CONFIG_SMP is a minor triviality compared to
+> CONFIG_PREEMPT ...
 
-> Note that there is another way to do all this too: it would be quite nice
-> (and probably not too hard) to create a filesystem that exports a BK
-> archive, so that you could do something like
-> 
-> 	mount -o ro -tbk /home/BK/repository/xxxx xxx
+If you "poke the processor", to be SMP-safe, you should hold a lock to
+prevent multiple concurrent "pokings of the processor" - thus you become
+preempt-safe.
 
-I already did this a long time ago, and how the files are stored is completely
-orthogonal.  I used the user level NFS server and you could do a 
+It is a rare case where something does not hold lock, assumes some sort
+of non-reentrancy/concurrency, and is actually still SMP-safe.  The only
+nontrivial case I have seen is drivers that call disable_irq(n) and thus
+are assured they won't have another driver request and then go off to
+touch hardware.
 
-	mount -o ro,rev=v.2.5.5 -tnfs /home/BK/repository/xxxx v2.5.5
+In general, the sort of "non-preemptibility" you are requiring is also a
+requirement for non-reentrancy and non-concurrency and thus your
+measures to protect those (SMP locking, et al) assure you your
+preempt-kernel protection, too.
 
-and it worked just fine.  I personally hate this because there is no way that
-I have ever seen to make filesystem semantics == SCM semantics.  It turns into
-a hack for read/write.  If it made you happy to do this for read only, hey,
-there's a nice newbie project.
+	Robert Love
 
-> > 
-> > One gotcha, and we'll fix this now that I think of it, is that this only
-> > greps the revision history.
-> 
-> Oh, I've tried exactly that, and it doesn't work at all for a few reasons. 
-> 
-> Try
-> 
-> 	bk -r grep torvalds
 
-Whoops, sorry, try it with -Ur, the -U says "user files only, skip the BK crud"
 
-bk -Ur grep torvalds
-CREDITS 1.1     E: torvalds@transmeta.com
-README  1.1        them to me (torvalds@transmeta.com), and possibly to any other
-SubmittingDrivers       1.1             <torvalds@transmeta.com>.
-SubmittingPatches       1.1     Linux kernel.  His e-mail address is torvalds@transmeta.com.  He gets
-oops-tracing.txt        1.1     From: Linus Torvalds <torvalds@transmeta.com>
-CREDITS 1.1       Linus Torvalds <torvalds@transmeta.com>
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+

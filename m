@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264436AbRFOSBN>; Fri, 15 Jun 2001 14:01:13 -0400
+	id <S264471AbRFOSRk>; Fri, 15 Jun 2001 14:17:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264460AbRFOSBD>; Fri, 15 Jun 2001 14:01:03 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:61707 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S264436AbRFOSA5>; Fri, 15 Jun 2001 14:00:57 -0400
-Date: Fri, 15 Jun 2001 14:58:56 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: "Michael Nguyen" <mnguyen@ariodata.com>
-Cc: "David S. Miller" <davem@redhat.com>, "Petko Manolov" <pmanolov@Lnxw.COM>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: RE2: kmalloc
-Message-ID: <20010615145856.C960@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	"Michael Nguyen" <mnguyen@ariodata.com>,
-	"David S. Miller" <davem@redhat.com>,
-	"Petko Manolov" <pmanolov@Lnxw.COM>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <8A098FDFC6EED94B872CA2033711F86F01A9A2@orion.ariodata.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <8A098FDFC6EED94B872CA2033711F86F01A9A2@orion.ariodata.com>; from mnguyen@ariodata.com on Fri, Jun 15, 2001 at 10:41:59AM -0700
-X-Url: http://advogato.org/person/acme
+	id <S264470AbRFOSR2>; Fri, 15 Jun 2001 14:17:28 -0400
+Received: from [195.211.46.202] ([195.211.46.202]:58687 "EHLO serv02.lahn.de")
+	by vger.kernel.org with ESMTP id <S264467AbRFOSRJ>;
+	Fri, 15 Jun 2001 14:17:09 -0400
+Date: Fri, 15 Jun 2001 08:40:57 +0200 (CEST)
+From: Philipp Matthias Hahn <pmhahn@titan.lahn.de>
+Reply-To: <pmhahn@titan.lahn.de>
+To: Gregoire Favre <greg@ulima.unil.ch>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Zip: what does that mean?
+In-Reply-To: <20010614104350.A16562@ulima.unil.ch>
+Message-ID: <Pine.LNX.4.33.0106150836270.5555-100000@titan.lahn.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Fri, Jun 15, 2001 at 10:41:59AM -0700, Michael Nguyen escreveu:
-> Hi David,
-> 
-> >>Petko Manolov writes:
-> >> kmalloc fails to allocate more than 128KB of
-> >> memory regardless of the flags (GFP_KERNEL/USER/ATOMIC)
-> >> 
-> >> Any ideas?
-> 
-> >Yes, this is the limit.
-> 
-> Im relatively new to Linux. I would like to ask.
-> Is this limit per kmalloc()? Can I do this multiple times?
+On Thu, 14 Jun 2001, Gregoire Favre wrote:
 
-the limit is for a single invocation of kmalloc, yes, you can do it multiple
-times.
+> I have an IDE 250Mb Zip, it work fine, but I can see:
+>
+> Jun 11 23:52:35 greg kernel: ide-floppy: hdc: I/O error, pc = 5a, key =
+> 5, asc = 24, ascq =  0
+> Jun 11 23:52:37 greg kernel:  hdc: unknown partition table
+> Jun 11 23:52:37 greg kernel: hdc: 98304kB, 96/64/32 CHS, 4096 kBps, 512
+> sector size, 2941 rpm
+>
+> Could someone explain me what's wrong?
+Nothing. Somethings is reeding /proc/partitions which lists all known
+partitions. "fdisk" or "mount" do this.
 
-- Arnaldo
+When reading the file the kernel has to check the media in your zip-drive.
+Problem is, you havn't put in one. So there is no partition table to read
+and the kernel complains and returns the default values of a typical
+100MB zip media.
+
+BYtE
+Philipp
+-- 
+  / /  (_)__  __ ____  __ Philipp Hahn
+ / /__/ / _ \/ // /\ \/ /
+/____/_/_//_/\_,_/ /_/\_\ pmhahn@titan.lahn.de
+

@@ -1,59 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261217AbTD1RSm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Apr 2003 13:18:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261218AbTD1RSl
+	id S261216AbTD1RYe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Apr 2003 13:24:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261218AbTD1RYe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Apr 2003 13:18:41 -0400
-Received: from atlrel8.hp.com ([156.153.255.206]:2772 "EHLO atlrel8.hp.com")
-	by vger.kernel.org with ESMTP id S261217AbTD1RSk (ORCPT
+	Mon, 28 Apr 2003 13:24:34 -0400
+Received: from imap.gmx.net ([213.165.64.20]:26912 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261216AbTD1RX7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Apr 2003 13:18:40 -0400
-Message-ID: <3EAD6572.8622DDC3@hp.com>
-Date: Mon, 28 Apr 2003 11:31:30 -0600
-From: Alex Williamson <alex_williamson@hp.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.21-rc1 i686)
-X-Accept-Language: en
+	Mon, 28 Apr 2003 13:23:59 -0400
+Message-ID: <3EAD6688.7060809@gmx.net>
+Date: Mon, 28 Apr 2003 19:36:08 +0200
+From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
+X-Accept-Language: de, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 8250_pci include offset in iomap_base
-Content-Type: multipart/mixed;
- boundary="------------9D3F5432B968490E5772C96F"
+To: Dave Hansen <haveblue@us.ibm.com>
+CC: Andi Kleen <ak@suse.de>, Henti Smith <bain@tcsn.co.za>,
+       linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
+       Riley Williams <Riley@Williams.Name>
+Subject: Re: [Lse-tech] Re: maximum possible memory limit ..
+References: <20030424200524.5030a86b.bain@tcsn.co.za> <3EAD27B2.9010807@gmx.net> <20030428141023.GC4525@Wotan.suse.de> <3EAD5AC1.7090003@us.ibm.com> <3EAD5D90.7010101@gmx.net> <3EAD61FB.30907@us.ibm.com>
+In-Reply-To: <3EAD61FB.30907@us.ibm.com>
+X-Enigmail-Version: 0.71.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------9D3F5432B968490E5772C96F
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Dave Hansen wrote:
+> Carl-Daniel Hailfinger wrote:
+> 
+>>Cool. Sorry to be pestering about the 64-bit limits, but can we really
+>>use 2^64 bytes of memory on ia64/ppc64/x86-64 etc.? (AFAIK, 64-bit
+>>arches don't suffer from a small ZONE_LOWMEM.)
+> 
+> [...]
+> Don't forget that highmem starts to be needed before the 4G boundary.
+> The kernel has only 1GB of virtual space (look for PAGE_OFFSET, which
+> defines it), which means that you start needing to pull all of the
+> highmem trickery before you get to the actual limits.
+
+It seems I misunderstood the concept of highmem. I thought highmem was
+not needed on 64-bit arches. Thanks for pointing that out to me.
+> 
+> Nobody knows how far it will go.  It's fairly safe to say that, at this
+> rate, Linux will keep up with whatever hardware anyone produces.
+
+That is the answer the original poster was looking for.
+
+> Unless, of course, someone gets even more perverse than PAE. :)
+
+hehe ;-) Can you say PAE in userspace?
 
 
-   This one-liner is required for PCI serial ports that have multiple
-MMIO ports off a single PCI BAR.  Calls to request_mem_resource() fail
-after the first one otherwise.  Patch against 2.5.67.  Thanks,
-
-	Alex
-
---
-Alex Williamson                             HP Linux & Open Source Lab
---------------9D3F5432B968490E5772C96F
-Content-Type: text/plain; charset=us-ascii;
- name="8250_pci_mmio.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="8250_pci_mmio.diff"
-
---- linux-2.5.67.clean/drivers/serial/8250_pci.c	2003-04-07 11:32:18.000000000 -0600
-+++ linux-2.5.67/drivers/serial/8250_pci.c	2003-04-28 11:08:38.000000000 -0600
-@@ -126,7 +126,7 @@
- 			return -ENOMEM;
- 
- 		req->io_type = UPIO_MEM;
--		req->iomap_base = port;
-+		req->iomap_base = port + offset;
- 		req->iomem_base = priv->remapped_bar[bar] + offset;
- 		req->iomem_reg_shift = regshift;
- 	} else {
-
---------------9D3F5432B968490E5772C96F--
+Regards,
+Carl-Daniel
+-- 
+http://www.hailfinger.org/
 

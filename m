@@ -1,33 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271005AbRICB3A>; Sun, 2 Sep 2001 21:29:00 -0400
+	id <S271007AbRICBil>; Sun, 2 Sep 2001 21:38:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271007AbRICB2k>; Sun, 2 Sep 2001 21:28:40 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:50189 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S271005AbRICB22>; Sun, 2 Sep 2001 21:28:28 -0400
-Subject: Re: Editing-in-place of a large file
-To: ingo.oeser@informatik.tu-chemnitz.de (Ingo Oeser)
-Date: Mon, 3 Sep 2001 02:31:58 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org,
-        mcelrath+linux@draal.physics.wisc.edu (Bob McElrath)
-In-Reply-To: <20010903032439.A802@nightmaster.csn.tu-chemnitz.de> from "Ingo Oeser" at Sep 03, 2001 03:24:39 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S271019AbRICBib>; Sun, 2 Sep 2001 21:38:31 -0400
+Received: from sweetums.bluetronic.net ([66.57.88.6]:20637 "EHLO
+	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
+	id <S271007AbRICBiT>; Sun, 2 Sep 2001 21:38:19 -0400
+Date: Sun, 2 Sep 2001 21:38:32 -0400 (EDT)
+From: Ricky Beam <jfbeam@bluetopia.net>
+X-X-Sender: <jfbeam@sweetums.bluetronic.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
+Subject: Re: pvr2fb.c
+In-Reply-To: <E15dh74-0000d0-00@the-village.bc.nu>
+Message-ID: <Pine.GSO.4.33.0109022133470.23852-100000@sweetums.bluetronic.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15diak-0000mq-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Another solution for the original problem is to rewrite the file
-> in-place by coping from the end of the gap to the beginning of
-> the gap until the gap is shifted to the end of the file and thus
-> can be left to ftruncate().
+On Mon, 3 Sep 2001, Alan Cox wrote:
+>> PS: Compiling 2.4.9 on an Alpha is turning up all manner of weird stuff.  Like
+>>     a lot of drivers that aren't 64bit clean, missing parts of asm-alpha...
+>
+>Linus should have the main missing bits of asm-alpha in 2.4.10pre - although
+>on x86 that crashes rapidly for me.
 
-Another approach would be to keep your own index of blocks and use that
-for the data reads. Since fdelete and fzero wont actually relayout the files
-in order to make the data linear (even if such calls existed) there isnt
-much point performancewise doing it in kernel space - its a very specialised
-application
+No one said mine was bootable either :-)  It builds.  Booting has yet to be
+tested (must fix dinner first.)
+
+The things I go through for my "neat toys" (firewire on an alpha)  On a side
+note, the Alpha BIOS Emulation (tm) isn't exactly perfect... the Mylex RAID
+configuration stuff won't run -- I know I'm asking alot *grin*  I'll try it
+with the DPT (I20) controller in a while. (It ain't easy putting cards in
+my alpha.  I've bled on it a few times in the process already.)
+
+--Ricky
+
+

@@ -1,71 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266465AbRGCH0y>; Tue, 3 Jul 2001 03:26:54 -0400
+	id <S265580AbRGCHls>; Tue, 3 Jul 2001 03:41:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266462AbRGCH0o>; Tue, 3 Jul 2001 03:26:44 -0400
-Received: from [164.164.82.29] ([164.164.82.29]:6387 "EHLO subexgroup.com")
-	by vger.kernel.org with ESMTP id <S266465AbRGCH0a>;
-	Tue, 3 Jul 2001 03:26:30 -0400
-From: "Anil Kumar" <anilk@subexgroup.com>
-To: <kiran.thirumalai@in.ibm.com>, <linux-kernel@vger.kernel.org>
-Subject: RE: Validation of memory allocated through kmalloc
-Date: Tue, 3 Jul 2001 13:12:42 +0530
-Message-ID: <NEBBIIKAMMOCGCPMPBJOAEDMCHAA.anilk@subexgroup.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <20010610144501.A14342@localhost.in.ibm.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
-Importance: Normal
-X-Return-Path: anilk@subexgroup.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+	id <S266457AbRGCHli>; Tue, 3 Jul 2001 03:41:38 -0400
+Received: from deliverator.sgi.com ([204.94.214.10]:8822 "EHLO
+	deliverator.sgi.com") by vger.kernel.org with ESMTP
+	id <S265580AbRGCHlT>; Tue, 3 Jul 2001 03:41:19 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Erik Meusel <erik@wh58-709.st.uni-magdeburg.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: include/asm-i386/checksum.h 
+In-Reply-To: Your message of "Tue, 03 Jul 2001 08:50:32 +0200."
+             <Pine.LNX.4.33.0107030840070.15954-200000@wh58-709.st.uni-magdeburg.de> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 03 Jul 2001 17:41:07 +1000
+Message-ID: <2487.994146067@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-use sys_mprotect(...)  to verify the validity of the returned address.
+On Tue, 3 Jul 2001 08:50:32 +0200 (CEST), 
+Erik Meusel <erik@wh58-709.st.uni-magdeburg.de> wrote:
+>P.S.: would it be possible to patch the menuconfig in that way, that it
+>does look in the whole include-path for the <ncurses.h> and relating
+>files? they aren't in /usr/include/ in my system and I'm tired of patching
+>linux/scripts/lxdialog/Makefile all the time. :)
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of
-kiran.thirumalai@in.ibm.com
-Sent: Sunday, June 10, 2001 2:45 PM
-To: linux-kernel@vger.kernel.org
-Subject: Validation of memory allocated through kmalloc
-
-
-Hi,
-Is there some kernel api to validate memory allocated using kmalloc.
-Suppose, I allocate some memory using kmalloc and at a later point of
-execution
-I would like to validate if the memory allocated is not possibly freed by
-some other thread.
-
-Pls suggest a patch/pointers if any.
-I also noticed a commented 'CONFIG_DEBUG_MALLOC' config option  (2.4.3
-source),
-It doesn't seem to be functional.  Any pointers towards the history behind
-it would also be helpful.
-
-Thanks in advance,
-Kiran
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
-
-DISCLAIMER: This correspondence is confidential and intended for the named
-recipient(s) only. If you are not the named recipient and receive this
-correspondence in error, you must not copy, distribute or take any action in
-reliance on it and you should delete it from your system and notify the
-sender immediately. Unless otherwise stated, any views or opinions expressed
-are solely those of the author and do not represent those of Subex Systems
-Limited.
-
+Where is it on your system?  What patch do you apply?
 

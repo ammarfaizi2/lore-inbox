@@ -1,61 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270458AbTG1Toh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 15:44:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270479AbTG1Tog
+	id S270469AbTG1TzF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 15:55:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270479AbTG1TzF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 15:44:36 -0400
-Received: from maild.telia.com ([194.22.190.101]:33237 "EHLO maild.telia.com")
-	by vger.kernel.org with ESMTP id S270458AbTG1Toe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 15:44:34 -0400
-X-Original-Recipient: linux-kernel@vger.kernel.org
-To: Nico Schottelius <nico-kernel@schottelius.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: psmouse: synaptics (2.6.0-test1|2)
-References: <20030728081832.GA453@schottelius.org>
-From: Peter Osterlund <petero2@telia.com>
-Date: 28 Jul 2003 21:13:49 +0200
-In-Reply-To: <20030728081832.GA453@schottelius.org>
-Message-ID: <m265lmihw2.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+	Mon, 28 Jul 2003 15:55:05 -0400
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:30731 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S270469AbTG1TzD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jul 2003 15:55:03 -0400
+Date: Mon, 28 Jul 2003 20:55:01 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [Bug 999] New: Problem with the /dev/ptmx file
+Message-ID: <20030728205501.A26278@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <3897970000.1059421161@[10.10.2.4]>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3897970000.1059421161@[10.10.2.4]>; from mbligh@aracnet.com on Mon, Jul 28, 2003 at 12:39:21PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nico Schottelius <nico-kernel@schottelius.org> writes:
+He needs to compile in and use devpts.  But if he insists in the
+crappy bugzilla interface instead of lkml I won't tell him.
 
-> My questions:
->    3) how can I read /dev/misc/psaux in Linux 2.6 ?
-
-AFAIK, you can't.
-
->    1) why are you implementing drivers in the kernel?
-
-Because the raw psaux device is no longer exposed to user space.
-
->    2) what source of information do you use to program them?
-
-The synaptics touchpad interfacing guide. I think this link is still valid:
-
-        http://www.synaptics.com/decaf/utilities/ACF126.pdf
-
->    3.1) howto get gpm running?
-
-You have to hack gpm to add support for the 2.6 kernel driver. Until
-someone fixes gpm you have to use the "psmouse_noext=1" module
-option.
-
->    3.2) is the patch mentioned for X implemented in X cvs?
-
-No, not currently. Aside from technical considerations, there is also
-a license problem, because the synaptics driver is GPL:ed, which is
-not compatible (I think) with the license used by XFree86. This means
-that all copyright holders for the synaptics driver need to agree to
-change the license, or their contributions have to be removed and
-reimplemented.
-
--- 
-Peter Osterlund - petero2@telia.com
-http://w1.894.telia.com/~u89404340

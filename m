@@ -1,26 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136368AbRD2Upn>; Sun, 29 Apr 2001 16:45:43 -0400
+	id <S136354AbRD2UqD>; Sun, 29 Apr 2001 16:46:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136367AbRD2Uph>; Sun, 29 Apr 2001 16:45:37 -0400
-Received: from fenrus.demon.co.uk ([158.152.228.152]:14051 "EHLO
-	amadeus.home.nl") by vger.kernel.org with ESMTP id <S136354AbRD2UpZ>;
-	Sun, 29 Apr 2001 16:45:25 -0400
-Message-Id: <m14ty4B-000OWbC@amadeus.home.nl>
-Date: Sun, 29 Apr 2001 21:45:15 +0100 (BST)
-From: arjan@fenrus.demon.nl (Arjan van de Ven)
-To: ingo.oeser@informatik.tu-chemnitz.de (Ingo Oeser)
-Subject: Re: X15 alpha release: as fast as TUX but in user space (fwd)
-cc: linux-kernel@vger.kernel.org
-X-Newsgroups: fenrus.linux.kernel
-In-Reply-To: <Pine.LNX.4.33.0104281752290.10866-100000@localhost.localdomain> <20010428215301.A1052@gruyere.muc.suse.de> <200104282256.f3SMuRW15999@vindaloo.ras.ucalgary.ca> <9cg7t7$gbt$1@cesium.transmeta.com> <3AEBF782.1911EDD2@mandrakesoft.com> <15083.64180.314190.500961@pizda.ninka.net> <20010429153229.L679@nightmaster.csn.tu-chemnitz.de> <200104291848.f3TIm6821037@vindaloo.ras.ucalgary.ca> <20010429221159.U706@nightmaster.csn.tu-chemnitz.de>
-User-Agent: tin/pre-1.4-981002 ("Phobia") (UNIX) (Linux/2.2.18pre19 (i586))
+	id <S136357AbRD2Upx>; Sun, 29 Apr 2001 16:45:53 -0400
+Received: from 13dyn119.delft.casema.net ([212.64.76.119]:518 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S136354AbRD2Upo>; Sun, 29 Apr 2001 16:45:44 -0400
+Message-Id: <200104292045.WAA25392@cave.bitwizard.nl>
+Subject: Re: Sony Memory stick format funnies...
+In-Reply-To: <3AEC7A9F.17EBEE57@transmeta.com> from "H. Peter Anvin" at "Apr
+ 29, 2001 01:33:35 pm"
+To: "H. Peter Anvin" <hpa@transmeta.com>
+Date: Sun, 29 Apr 2001 22:45:41 +0200 (MEST)
+CC: Rogier Wolff <R.E.Wolff@BitWizard.nl>,
+        Gregory Maxwell <greg@linuxpower.cx>, "H. Peter Anvin" <hpa@zytor.com>,
+        linux-kernel@vger.kernel.org
+From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20010429221159.U706@nightmaster.csn.tu-chemnitz.de> you wrote:
-> Yes, but we currently have more than 10K cycles for doing
-> memset of a page.
+H. Peter Anvin wrote:
 
-make that 3800 or so..... (700 Mhz AMD Duron)
+> Rogier Wolff wrote:
 
+> > The image of the disk (including partition table) is at:
+> > 
+> >         ftp://ftp.bitwizard.nl/misc_junk/formatted.img.gz
+> > 
+> > It's 63kb and uncompresses to the 64Mb (almost) that it's sold as.
+> > 
+> 
+> And on at least this kernel (2.4.0) there is nothing funny about it:
+> 
+> : tazenda 13 ; ls -l /mnt
+> total 0
+> -r-xr-xr-x    1 root     root            0 May 23  2000 memstick.ind*
+> : tazenda 14 ; 
+> 
+> Mounting msdos, vfat or umsdos, no change.
+
+OK. I rebooted the laptop: 
+
+  Linux version 2.2.13 (root@Mandelbrot.suse.de) (gcc version
+  egcs-2.91.66 19990314/Linux (egcs-1.1.2 release)) #1 Mon Nov 8
+  15:37:25 CET 1999
+
+which seems to have cleared it. Somehow that directory was still
+cached somewhere (not in the buffer cache) from when there were images
+on the memory stick.
+
+So, I'm suspecting a dcache bug, that allows something to stay over
+after swapping a removable media device.... And all this is irrelevant
+as this was on a very old kernel. Sorry to have been wasting your
+time.
+
+			Roger.
+
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* There are old pilots, and there are bold pilots. 
+* There are also old, bald pilots. 

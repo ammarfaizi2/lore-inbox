@@ -1,91 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261427AbUCDD3X (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 22:29:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261429AbUCDD3X
+	id S261429AbUCDDaW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 22:30:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261430AbUCDDaW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 22:29:23 -0500
-Received: from fmr01.intel.com ([192.55.52.18]:4328 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id S261427AbUCDD3V (ORCPT
+	Wed, 3 Mar 2004 22:30:22 -0500
+Received: from fw.osdl.org ([65.172.181.6]:63135 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261429AbUCDDaS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 22:29:21 -0500
-Subject: Re: [ACPI] swsusp/s3: Assembly interactions need asmlinkage
-From: Len Brown <len.brown@intel.com>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Rusty trivial patch monkey Russell <trivial@rustcorp.com.au>,
-       Andrew Morton <akpm@zip.com.au>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Stefan Seyfried <seife@suse.de>,
-       ACPI Developers <acpi-devel@lists.sourceforge.net>
-In-Reply-To: <A6974D8E5F98D511BB910002A50A6647615F309E@hdsmsx402.hd.intel.com>
-References: <A6974D8E5F98D511BB910002A50A6647615F309E@hdsmsx402.hd.intel.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1078370935.12987.514.camel@dhcppc4>
+	Wed, 3 Mar 2004 22:30:18 -0500
+Date: Wed, 3 Mar 2004 19:30:25 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: VM patches in 2.6.4-rc1-mm2
+Message-Id: <20040303193025.68a16dc4.akpm@osdl.org>
+In-Reply-To: <40469E50.6090401@matchmail.com>
+References: <20040302201536.52c4e467.akpm@osdl.org>
+	<40469E50.6090401@matchmail.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 03 Mar 2004 22:28:56 -0500
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Applied.
+Mike Fedyk <mfedyk@matchmail.com> wrote:
+>
+> Andrew Morton wrote:
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.4-rc1/2.6.4-rc1-mm2/
+> > 
+> > - More VM tweaks and tuneups
+> 
+> Running 2.6.3-lofft-snsus-264rc1mm2vm (nfsd loff_t, sunrpc locking & -mm 
+> VM patches).  Seems to be working well.
 
-thanks,
--Len
+OK, good.
 
-On Tue, 2004-02-24 at 08:00, Pavel Machek wrote:
-> Hi!
-> 
-> swsusp/s3 assembly parts, and parts called from assembly are not
-> properly marked asmlinkage; that leads to double fault on resume when
-> someone compiles kernel with regparm. Thanks go to Stefan Seyfried for
-> discovering this. Please apply,
->                                                                 Pavel
-> 
-> --- tmp/linux/drivers/acpi/hardware/hwsleep.c   2004-02-05
-> 01:53:59.000000000 +0100
-> +++ linux/drivers/acpi/hardware/hwsleep.c       2004-02-23
-> 21:47:23.000000000 +0100
-> @@ -205,7 +205,7 @@
->   *
->  
-> ******************************************************************************/
->  
-> -acpi_status
-> +acpi_status asmlinkage
->  acpi_enter_sleep_state (
->         u8                              sleep_state)
->  {
-> --- tmp/linux/include/linux/suspend.h   2004-02-24 13:21:40.000000000
-> +0100
-> +++ linux/include/linux/suspend.h       2004-02-23 20:57:04.000000000
-> +0100
-> @@ -82,4 +82,10 @@
->  }
->  #endif /* CONFIG_PM */
->  
-> +asmlinkage extern void do_magic(int is_resume);
-> +asmlinkage extern void do_magic_resume_1(void);
-> +asmlinkage extern void do_magic_resume_2(void);
-> +asmlinkage extern void do_magic_suspend_1(void);
-> +asmlinkage extern void do_magic_suspend_2(void);
-> +
->  #endif /* _LINUX_SWSUSP_H */
-> 
-> -- 
-> When do you have a heart between your knees?
-> [Johanka's followup: and *two* hearts?]
-> 
-> 
-> -------------------------------------------------------
-> SF.Net is sponsored by: Speed Start Your Linux Apps Now.
-> Build and deploy apps & Web services for Linux with
-> a free DVD software kit from IBM. Click Now!
-> http://ads.osdn.com/?ad_id=1356&alloc_id=3438&op=click
-> _______________________________________________
-> Acpi-devel mailing list
-> Acpi-devel@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/acpi-devel
-> 
+> Most of the previous 2.6 kernels I was running on these servers would be 
+> lightly hitting swap by now.  This definitely looks better to me.
+
+It sounds worse to me.  "Lightly hitting swap" is good.  It gets rid of stuff,
+freeing up physical memory.
+
+But I do not see a lot of difference here.  The 900MB desktop machine is
+300M into swap after 24 hours.  That's usual.
 

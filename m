@@ -1,180 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262800AbREOP4w>; Tue, 15 May 2001 11:56:52 -0400
+	id <S262801AbREOPsw>; Tue, 15 May 2001 11:48:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262806AbREOP4m>; Tue, 15 May 2001 11:56:42 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:26310 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S262800AbREOP4d>;
-	Tue, 15 May 2001 11:56:33 -0400
-Date: Tue, 15 May 2001 11:56:31 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] turn device_init() into an initcall
-Message-ID: <Pine.GSO.4.21.0105151148580.21081-100000@weyl.math.psu.edu>
+	id <S262799AbREOPsm>; Tue, 15 May 2001 11:48:42 -0400
+Received: from g126.dialup.pcsystems.de ([212.63.44.126]:38648 "HELO
+	schottelius.org") by vger.kernel.org with SMTP id <S262801AbREOPs1>;
+	Tue, 15 May 2001 11:48:27 -0400
+Message-ID: <3B014FA5.D0BF4111@pcsystems.de>
+Date: Tue, 15 May 2001 17:47:49 +0200
+From: Nico Schottelius <nicos@pcsystems.de>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: mirabilos <eccesys@topmail.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Device Numbers, LILO
+In-Reply-To: <20010515121635.B5C402F84AC@www.topmail.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Patch below turns device_init() into initcall. Current tree
-calls it from fs/partitions/check.c::partitions_setup() - definitely
-odd place for that stuff.
 
-	Another thing done by partition_setup() is {init,}rd_load(). I.e.
-setting the contents of /dev/ram0 from initrd or floppies. That beast
-should be done after _all_ drivers' initialization, indeed - it belongs with
-mount_root()/mount_devfs()/etc. I took it to main/init.c - that way
-it's guaranteed to be called after all drivers initialization code and
-that's where we do the rest of late-boot stuff. partition_setup() is gone
-now.
+mirabilos wrote:
 
-	It allows to get mount_root() logics cleaned. Old sequence was
-device_init()
-load initrd
-register filesystems
-do initcalls for devices
-play with do_mount
+> >That's not the issue.  LILO takes whatever you pass to root= and converts
+> >it to a device number at /sbin/lilo time.  An idiotic practice on the
+> >part of LILO, in my opinion, that ought to have been fixed a long time
+> >ago.
+>
+> That's why you have to use append="root=blah" for devfs :)
 
-	New one is
-register filesystems
-device_init()
-other initcalls for devices
-load initrd
-do_mount
-	and that's not only obviously saner, but also allows to clean up
-do_mount/loading initrd logics (do_mount also has stuff with loading
-ramdisks, etc.). Besides, it allows to start turning functions called
-from device_init() into initcalls, thus getting rid of ifdef dungpiles
-in them.
+I don't really think you have to. With 'lba32'
+enabled (maybe also without that ... ) and just using lilo
+normally it works with devfs.
 
-	Patch is against 2.4.5-pre1, but applies to -pre2 as well.
-Please, apply.
-								Al
 
-diff -urN S5-pre1/drivers/block/genhd.c S5-pre1-device_init/drivers/block/genhd.c
---- S5-pre1/drivers/block/genhd.c	Fri Feb 16 18:37:04 2001
-+++ S5-pre1-device_init/drivers/block/genhd.c	Wed May  2 21:09:30 2001
-@@ -31,7 +31,7 @@
- extern int cpqarray_init(void);
- extern void ieee1394_init(void);
- 
--void __init device_init(void)
-+int __init device_init(void)
- {
- #ifdef CONFIG_PARPORT
- 	parport_init();
-@@ -64,4 +64,7 @@
- #ifdef CONFIG_VT
- 	console_map_init();
- #endif
-+	return 0;
- }
-+
-+__initcall(device_init);
-diff -urN S5-pre1/fs/partitions/check.c S5-pre1-device_init/fs/partitions/check.c
---- S5-pre1/fs/partitions/check.c	Thu Feb 22 06:45:26 2001
-+++ S5-pre1-device_init/fs/partitions/check.c	Wed May  2 21:09:30 2001
-@@ -33,10 +33,7 @@
- #include "ibm.h"
- #include "ultrix.h"
- 
--extern void device_init(void);
- extern int *blk_size[];
--extern void rd_load(void);
--extern void initrd_load(void);
- 
- struct gendisk *gendisk_head;
- int warn_no_part = 1; /*This is ugly: should make genhd removable media aware*/
-@@ -438,19 +435,3 @@
- 		blk_size[dev->major] = dev->sizes;
- 	}
- }
--
--int __init partition_setup(void)
--{
--	device_init();
--
--#ifdef CONFIG_BLK_DEV_RAM
--#ifdef CONFIG_BLK_DEV_INITRD
--	if (initrd_start && mount_initrd) initrd_load();
--	else
--#endif
--	rd_load();
--#endif
--	return 0;
--}
--
--__initcall(partition_setup);
-diff -urN S5-pre1/init/main.c S5-pre1-device_init/init/main.c
---- S5-pre1/init/main.c	Wed May  2 11:16:38 2001
-+++ S5-pre1-device_init/init/main.c	Wed May  2 21:09:30 2001
-@@ -638,9 +638,6 @@
-  */
- static void __init do_basic_setup(void)
- {
--#ifdef CONFIG_BLK_DEV_INITRD
--	int real_root_mountflags;
--#endif
- 
- 	/*
- 	 * Tell the world that we're going to be the grim
-@@ -707,13 +704,6 @@
- 	/* Networking initialization needs a process context */ 
- 	sock_init();
- 
--#ifdef CONFIG_BLK_DEV_INITRD
--	real_root_dev = ROOT_DEV;
--	real_root_mountflags = root_mountflags;
--	if (initrd_start && mount_initrd) root_mountflags &= ~MS_RDONLY;
--	else mount_initrd =0;
--#endif
--
- 	start_context_thread();
- 	do_initcalls();
- 
-@@ -724,6 +714,33 @@
- #ifdef CONFIG_PCMCIA
- 	init_pcmcia_ds();		/* Do this last */
- #endif
-+}
-+
-+extern void rd_load(void);
-+extern void initrd_load(void);
-+
-+/*
-+ * Prepare the namespace - decide what/where to mount, load ramdisks, etc.
-+ */
-+static void prepare_namespace(void)
-+{
-+#ifdef CONFIG_BLK_DEV_INITRD
-+	int real_root_mountflags = ROOT_DEV;
-+	real_root_mountflags = root_mountflags;
-+	if (!initrd_start)
-+		mount_initrd = 0;
-+	if (mount_initrd)
-+		root_mountflags &= ~MS_RDONLY;
-+#endif
-+
-+#ifdef CONFIG_BLK_DEV_RAM
-+#ifdef CONFIG_BLK_DEV_INITRD
-+	if (mount_initrd)
-+		initrd_load();
-+	else
-+#endif
-+	rd_load();
-+#endif
- 
- 	/* Mount the root filesystem.. */
- 	mount_root();
-@@ -755,6 +772,8 @@
- {
- 	lock_kernel();
- 	do_basic_setup();
-+
-+	prepare_namespace();
- 
- 	/*
- 	 * Ok, we have completed the initial bootup, and
+Nico
+
+ps: lilo.conf:
+
+boot=/dev/discs/disc0/disc
+lba32
+...
+image = /boot/244nospeak
+  root = /dev/root
+  label = nospeak
+  append = "LOC=HOME"
+
+
+
+flapp:~/bootdisk # lilo -V
+LILO version 21.6
+
 
 

@@ -1,274 +1,151 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264884AbUGGDui@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264890AbUGGEDZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264884AbUGGDui (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jul 2004 23:50:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264881AbUGGDui
+	id S264890AbUGGEDZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 00:03:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264894AbUGGEDY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jul 2004 23:50:38 -0400
-Received: from ngate.noida.hcltech.com ([202.54.110.230]:44702 "EHLO
-	ngate.noida.hcltech.com") by vger.kernel.org with ESMTP
-	id S264880AbUGGDt7 convert rfc822-to-8bit (ORCPT
+	Wed, 7 Jul 2004 00:03:24 -0400
+Received: from danga.com ([66.150.15.140]:19409 "EHLO danga.com")
+	by vger.kernel.org with ESMTP id S264890AbUGGEDH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jul 2004 23:49:59 -0400
-Subject: [PATCH] Pushing file size limits to 4TB on ext3
-Date: Wed, 7 Jul 2004 09:18:39 +0530
+	Wed, 7 Jul 2004 00:03:07 -0400
+Date: Tue, 6 Jul 2004 21:03:06 -0700 (PDT)
+From: Brad Fitzpatrick <brad@danga.com>
+X-X-Sender: bradfitz@danga.com
+To: linux-kernel@vger.kernel.org
+Subject: nfs_inode_cache not getting pruned
+Message-ID: <Pine.LNX.4.55.0407062045200.24800@danga.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-ID: <33BC33A9E76474479B76AD0DE8A169728DAF@exch-ntd.nec.noida.hcltech.com>
-Content-class: urn:content-classes:message
-X-MS-Has-Attach: 
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] Pushing file size limits to 4TB on ext3
-Thread-Index: AcRj1UngJFoBnVcNQa2uVq4/UHEtwQ==
-From: "Goldwyn Rodrigues" <Goldwynr@noida.hcltech.com>
-To: <linux-kernel@vger.kernel.org>, <linux-ia64@vger.kernel.org>
-Cc: <adilger@clusterfs.com>, <jbglaw@liug-owl.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello,
 
-This patch is to break the 2TB limit of the file size limit.
+I've got a couple boxes here that keep running out of lowmem after about a
+day of uptime, rendering them almost entirely unusable.  (OOM killer
+taking out processes left and right, despite 1.5 GB highmem available...)
 
-Though developed on i386, This patch may be benefeciary for ia64 systems as well.
+>From what I can tell, nfs_inode_cache isn't responding to memory pressure
+and cleaning itself (enough?).
 
-Current Limit: 
-The current limit of the file size is 2TB. this is from the fact that i_blocks, which holds the number of 512-byte blocks, is __u32. This is checked by ext3_max_size().
+Where slabinfo says "tunables", does that mean it's my job to limit each
+slab class to keep things stable?  I would guess not.
 
-New Limits after Patch:
-I have used a reserved field l_i_reserved1 of struct ext3_inode to store higher order 32 bits. Though this will not matter for Linux filesystems, this field maps to h_i_translator, which is used in HURD. 
+Any recommendations on how to keep this box alive more than a day?
 
+Is the 2GB/2GB split patch still floating about, or was the rmap/anonvma
+and/or heavier 4GB/4GB stuff supposed to solve all our lowmem woes?
 
-Working of Patch:
-Currently the file size limit is imposed by the number of 512-byte blocks maintained in the inode. The variable i_blocks is currently a 32 bit unsigned integer field. This limits the number of blocks it can store to 2^32-1, which keeps the file size limit below 2TB.
-
-In order to use more number of blocks. I have used a reserved field, namely l_i_reserved1 to keep the higher order bits.
-
-An RO_COMPAT flag has been added in order to protect the filesystem/file being corrupted (read as truncated) by previous versions of ext3 filesystems.
-
-There is a change in fs.h in the inode structure which I think should be incorporated, regardless of this patch. The change suggests conversion of the data type i_blocks from long to sector_t.
-
-The patch is applicable for Kernel version 2.6.7
-
-Limitation of Patch:
-Cannot be used with HURD since l_i_reserved maps to h_i_translator for HURD.
-
-Andreas suggested fields which deal with fragments could be used as they are not used by anyone. However, I did not get any response from anyone on whether those fields are being used. I did find the reference in the code, which ahs been used only for reading and writing inodes to disk. However, in order to change it to another 32-bit variable, #define i_blocks_high could be "redefined".
-
-Moreover, file operations on huge files would be expensive because of the triple indirect addressing. eg, unlink() would take time.
-
-Work Under progress (RFC):
-Alex is worrking on adding extents to ext3 filesystems. I am going through Alex's extents code on ext3, which uses a faster method of accessing files, and is not limited to the inode structures addressing. Probably this can be merged used in the same patch of using extents.
-
-As I mentioned before, I have also developed a patch to make 8TB files. I have done this by adding another triple indirect field. But accessing such a file would be expensive because of heavy triple indirection. Comments on this would be appreciated.
+Thanks!
+- Brad
 
 
-Thanks,
+# uname -r
+2.6.7
+
+# name            <active_objs> <num_objs> <objsize> <objperslab> <pagesperslab> : tunables <batchcount> <limit> <sharedfactor> : slabdata <active_slabs> <num_slabs> <sharedavail>
+nfs_inode_cache   883676 965706    640    6    1 : tunables   54   27    8 : slabdata 160951 160951      0
+dentry_cache      754857 930528    144   27    1 : tunables  120   60    8 : slabdata  34464  34464      0
+radix_tree_node   119204 120666    276   14    1 : tunables   54   27    8 : slabdata   8619   8619      0
+ip_dst_cache       62730  62730    256   15    1 : tunables  120   60    8 : slabdata   4182   4182      0
+size-4096            720    740   4096    1    1 : tunables   24   12    8 : slabdata    720    740     36
+size-2048            944   1154   2048    2    1 : tunables   24   12    8 : slabdata    577    577      0
+tcp_sock            2448   3507   1152    7    2 : tunables   24   12    8 : slabdata    501    501      0
+ext2_inode_cache    3339   3339    512    7    1 : tunables   54   27    8 : slabdata    477    477      0
+tcp_tw_bucket      11705  14167    128   31    1 : tunables  120   60    8 : slabdata    457    457    300
+sock_inode_cache    2413   3460    384   10    1 : tunables   54   27    8 : slabdata    346    346      0
+filp                2679   3750    256   15    1 : tunables  120   60    8 : slabdata    250    250      0
+skbuff_head_cache   2064   3225    256   15    1 : tunables  120   60    8 : slabdata    215    215    360
+inode_cache         1550   1550    384   10    1 : tunables   54   27    8 : slabdata    155    155      0
+size-1024            488    596   1024    4    1 : tunables   54   27    8 : slabdata    149    149    173
+size-64              755   8174     64   61    1 : tunables  120   60    8 : slabdata    134    134      0
+biovec-(256)         256    256   3072    2    2 : tunables   24   12    8 : slabdata    128    128      0
+size-512             555    936    512    8    1 : tunables   54   27    8 : slabdata    117    117    189
+eventpoll_epi       2358   3503    128   31    1 : tunables  120   60    8 : slabdata    113    113      0
+size-32             2376  13090     32  119    1 : tunables  120   60    8 : slabdata    110    110      0
+ext3_inode_cache     461    721    512    7    1 : tunables   54   27    8 : slabdata    103    103      0
+
+
+# cat /proc/meminfo
+MemTotal:      4025568 kB
+MemFree:       1547824 kB
+Buffers:          1232 kB
+Cached:        1519248 kB
+SwapCached:          0 kB
+Active:         277128 kB
+Inactive:      1334944 kB
+HighTotal:     3145152 kB
+HighFree:      1533312 kB
+LowTotal:       880416 kB
+LowFree:         14512 kB
+SwapTotal:           0 kB
+SwapFree:            0 kB
+Dirty:            1592 kB
+Writeback:           0 kB
+Mapped:          96800 kB
+Slab:           857372 kB
+Committed_AS:   152636 kB
+PageTables:        576 kB
+VmallocTotal:   114680 kB
+VmallocUsed:       304 kB
+VmallocChunk:   114376 kB
+
+# dmesg
+<snip>
+Out of Memory: Killed process 23405 (mogilefsd).
+Out of Memory: Killed process 24333 (mogilefsd).
+Out of Memory: Killed process 24341 (mogilefsd).
+Out of Memory: Killed process 24348 (mogilefsd).
+Out of Memory: Killed process 24351 (mogilefsd).
+Out of Memory: Killed process 24354 (mogilefsd).
+Out of Memory: Killed process 24355 (mogilefsd).
+Out of Memory: Killed process 25262 (mogilefsd).
+Out of Memory: Killed process 25263 (mogilefsd).
+Out of Memory: Killed process 25264 (mogilefsd).
+Out of Memory: Killed process 25268 (mogilefsd).
+Out of Memory: Killed process 26150 (mogilefsd).
+Out of Memory: Killed process 26172 (mogilefsd).
+Out of Memory: Killed process 26176 (mogilefsd).
+Out of Memory: Killed process 26177 (mogilefsd).
+Out of Memory: Killed process 26178 (mogilefsd).
+<snip>
+
+sto2:/sys# while true; do grep nfs_inode_cache /proc/slabinfo; sleep 1 ; done
+nfs_inode_cache   887611 965706    640    6    1 : tunables   54   27    8 : slabdata 160951 160951      0
+nfs_inode_cache   887665 965706    640    6    1 : tunables   54   27    8 : slabdata 160951 160951      0
+nfs_inode_cache   887719 965706    640    6    1 : tunables   54   27    8 : slabdata 160951 160951      0
+nfs_inode_cache   887746 965706    640    6    1 : tunables   54   27    8 : slabdata 160951 160951      0
+nfs_inode_cache   887816 965706    640    6    1 : tunables   54   27    8 : slabdata 160951 160951      0
+nfs_inode_cache   887843 965706    640    6    1 : tunables   54   27    8 : slabdata 160951 160951      0
+nfs_inode_cache   887870 965706    640    6    1 : tunables   54   27    8 : slabdata 160951 160951      0
+nfs_inode_cache   887951 965706    640    6    1 : tunables   54   27    8 : slabdata 160951 160951      0
+nfs_inode_cache   887978 965706    640    6    1 : tunables   54   27    8 : slabdata 160951 160951      0
+nfs_inode_cache   888032 965706    640    6    1 : tunables   54   27    8 : slabdata 160951 160951      0
+nfs_inode_cache   888032 965706    640    6    1 : tunables   54   27    8 : slabdata 160951 160951      0
+nfs_inode_cache   888086 965706    640    6    1 : tunables   54   27    8 : slabdata 160951 160951      0
+nfs_inode_cache   888113 965706    640    6    1 : tunables   54   27    8 : slabdata 160951 160951      0
+nfs_inode_cache   888113 965706    640    6    1 : tunables   54   27    8 : slabdata 160951 160951      0
+nfs_inode_cache   888194 965706    640    6    1 : tunables   54   27    8 : slabdata 160951 160951      0
+nfs_inode_cache   888221 965706    640    6    1 : tunables   54   27    8 : slabdata 160951 160951      0
+nfs_inode_cache   888275 965706    640    6    1 : tunables   54   27    8 : slabdata 160951 160951      0
+nfs_inode_cache   888275 965706    640    6    1 : tunables   54   27    8 : slabdata 160951 160951      0
+nfs_inode_cache   888356 965706    640    6    1 : tunables   54   27    8 : slabdata 160951 160951      0
+nfs_inode_cache   888383 965706    640    6    1 : tunables   54   27    8 : slabdata 160951 160951      0
+nfs_inode_cache   888437 965706    640    6    1 : tunables   54   27    8 : slabdata 160951 160951      0
+nfs_inode_cache   888464 965706    640    6    1 : tunables   54   27    8 : slabdata 160951 160951      0
+nfs_inode_cache   888464 965706    640    6    1 : tunables   54   27    8 : slabdata 160951 160951      0
+nfs_inode_cache   888545 965706    640    6    1 : tunables   54   27    8 : slabdata 160951 160951      0
+nfs_inode_cache   888599 965706    640    6    1 : tunables   54   27    8 : slabdata 160951 160951      0
+nfs_inode_cache   888599 965706    640    6    1 : tunables   54   27    8 : slabdata 160951 160951      0
+nfs_inode_cache   888626 965706    640    6    1 : tunables   54   27    8 : slabdata 160951 160951      0
+nfs_inode_cache   888707 965706    640    6    1 : tunables   54   27    8 : slabdata 160951 160951      0
+nfs_inode_cache   888815 965706    640    6    1 : tunables   54   27    8 : slabdata 160951 160951      0
+....
+ (always growing)
+
 
 -- 
-Goldwyn :o)
-
-
-diff -Nrup linux-2.6.7/fs/ext3/inode.c linux-2.6.7-4TB/fs/ext3/inode.c
---- linux-2.6.7/fs/ext3/inode.c	2004-07-01 11:40:30.000000000 +0530
-+++ linux-2.6.7-4TB/fs/ext3/inode.c	2004-07-02 18:19:36.000000000 +0530
-@@ -353,7 +353,7 @@ static inline int verify_chain(Indirect 
-  */
- 
- static int ext3_block_to_path(struct inode *inode,
--			long i_block, int offsets[4], int *boundary)
-+			sector_t i_block, int offsets[4], int *boundary)
- {
- 	int ptrs = EXT3_ADDR_PER_BLOCK(inode->i_sb);
- 	int ptrs_bits = EXT3_ADDR_PER_BLOCK_BITS(inode->i_sb);
-@@ -905,7 +905,7 @@ ext3_direct_io_get_blocks(struct inode *
-  * `handle' can be NULL if create is zero
-  */
- struct buffer_head *ext3_getblk(handle_t *handle, struct inode * inode,
--				long block, int create, int * errp)
-+				sector_t block, int create, int * errp)
- {
- 	struct buffer_head dummy;
- 	int fatal = 0, err;
-@@ -955,10 +955,10 @@ struct buffer_head *ext3_getblk(handle_t
- }
- 
- struct buffer_head *ext3_bread(handle_t *handle, struct inode * inode,
--			       int block, int create, int *err)
-+			       sector_t block, int create, int *err)
- {
- 	struct buffer_head * bh;
--	int prev_blocks;
-+	sector_t prev_blocks;
- 
- 	prev_blocks = inode->i_blocks;
- 
-@@ -2136,7 +2136,7 @@ void ext3_truncate(struct inode * inode)
- 	Indirect *partial;
- 	int nr = 0;
- 	int n;
--	long last_block;
-+	sector_t last_block;
- 	unsigned blocksize = inode->i_sb->s_blocksize;
- 	struct page *page;
- 
-@@ -2526,6 +2526,10 @@ void ext3_read_inode(struct inode * inod
- 					 * (for stat), not the fs block
- 					 * size */  
- 	inode->i_blocks = le32_to_cpu(raw_inode->i_blocks);
-+#ifdef CONFIG_EXT3_4TB_FILE_SUPPORT
-+	inode->i_blocks |= ((__u64)le32_to_cpu(raw_inode->i_blocks_high)) << 32;
-+#endif
-+
- 	ei->i_flags = le32_to_cpu(raw_inode->i_flags);
- #ifdef EXT3_FRAGMENTS
- 	ei->i_faddr = le32_to_cpu(raw_inode->i_faddr);
-@@ -2552,6 +2556,7 @@ void ext3_read_inode(struct inode * inod
- 	 */
- 	for (block = 0; block < EXT3_N_BLOCKS; block++)
- 		ei->i_data[block] = raw_inode->i_block[block];
-+	
- 	INIT_LIST_HEAD(&ei->i_orphan);
- 
- 	if (S_ISREG(inode->i_mode)) {
-@@ -2638,6 +2643,11 @@ static int ext3_do_update_inode(handle_t
- 	raw_inode->i_ctime = cpu_to_le32(inode->i_ctime.tv_sec);
- 	raw_inode->i_mtime = cpu_to_le32(inode->i_mtime.tv_sec);
- 	raw_inode->i_blocks = cpu_to_le32(inode->i_blocks);
-+#ifdef EXT3_4TB_FILE_SUPPORT
-+	raw_inode->i_blocks_high = cpu_to_le32(inode->i_blocks >> 32);
-+#endif
-+
-+
- 	raw_inode->i_dtime = cpu_to_le32(ei->i_dtime);
- 	raw_inode->i_flags = cpu_to_le32(ei->i_flags);
- #ifdef EXT3_FRAGMENTS
-@@ -2651,7 +2661,29 @@ static int ext3_do_update_inode(handle_t
- 	} else {
- 		raw_inode->i_size_high =
- 			cpu_to_le32(ei->i_disksize >> 32);
--		if (ei->i_disksize > 0x7fffffffULL) {
-+		
-+		if (ei->i_disksize > 0x1ffffffffffULL) {
-+			struct super_block *sb = inode->i_sb;
-+			if (!EXT3_HAS_RO_COMPAT_FEATURE(sb, EXT3_FEATURE_RO_COMPAT_4TB_FILE) || EXT3_SB(sb)->s_es->s_rev_level == cpu_to_le32(EXT3_GOOD_OLD_REV)) {
-+				/* If this is the first large file
-+				 * created, add a flag to the superblock.
-+				 */
-+				err = ext3_journal_get_write_access(handle,
-+						EXT3_SB(sb)->s_sbh);
-+				if (err)
-+					goto out_brelse;
-+				ext3_update_dynamic_rev(sb);
-+				
-+				if (!EXT3_HAS_RO_COMPAT_FEATURE(sb, 
-+							EXT3_FEATURE_RO_COMPAT_LARGE_FILE))
-+					EXT3_SET_RO_COMPAT_FEATURE(sb, 
-+							EXT3_FEATURE_RO_COMPAT_LARGE_FILE);				
-+				EXT3_SET_RO_COMPAT_FEATURE(sb, EXT3_FEATURE_RO_COMPAT_4TB_FILE);
-+				sb->s_dirt = 1;
-+				handle->h_sync = 1;
-+				err = ext3_journal_dirty_metadata(handle,EXT3_SB(sb)->s_sbh);
-+			} 
-+		} else if (ei->i_disksize > 0x7fffffffULL) {
- 			struct super_block *sb = inode->i_sb;
- 			if (!EXT3_HAS_RO_COMPAT_FEATURE(sb,
- 					EXT3_FEATURE_RO_COMPAT_LARGE_FILE) ||
-diff -Nrup linux-2.6.7/fs/ext3/super.c linux-2.6.7-4TB/fs/ext3/super.c
---- linux-2.6.7/fs/ext3/super.c	2004-07-01 11:40:30.000000000 +0530
-+++ linux-2.6.7-4TB/fs/ext3/super.c	2004-07-04 16:27:10.258452128 +0530
-@@ -1172,8 +1172,8 @@ static loff_t ext3_max_size(int bits)
- 	res += 1LL << (2*(bits-2));
- 	res += 1LL << (3*(bits-2));
- 	res <<= bits;
--	if (res > (512LL << 32) - (1 << bits))
--		res = (512LL << 32) - (1 << bits);
-+        if (res > (1024LL << 32) - (1 << bits))
-+                res = (1024LL << 32) - (1 << bits);
- 	return res;
- }
- 
-diff -Nrup linux-2.6.7/fs/Kconfig linux-2.6.7-4TB/fs/Kconfig
---- linux-2.6.7/fs/Kconfig	2004-07-01 11:40:29.000000000 +0530
-+++ linux-2.6.7-4TB/fs/Kconfig	2004-07-02 18:19:36.000000000 +0530
-@@ -114,6 +114,21 @@ config EXT3_FS
- 	  of your root partition (the one containing the directory /) cannot
- 	  be compiled as a module, and so this may be dangerous.
- 
-+config EXT3_LARGE_FILE_SUPPORT
-+	bool "Large File (>2TB) Support (EXPERIMENTAL)"
-+	depends on EXT3_FS
-+	depends on LBD
-+	default n
-+	help
-+	  Ext3 filesystem currently has a limit of 2TB. This experimental
-+	  release extends this limit to 8TB by using the reserved fields
-+	  in the inode. Thus, this feature can be used under Linux only.
-+	  This feature is compatible with existing EXT3 filesystem.
-+
-+	  If unsure say N.
-+		
-+
-+
- config EXT3_FS_XATTR
- 	bool "Ext3 extended attributes"
- 	depends on EXT3_FS
-diff -Nrup linux-2.6.7/include/linux/ext3_fs.h linux-2.6.7-4TB/include/linux/ext3_fs.h
---- linux-2.6.7/include/linux/ext3_fs.h	2004-07-01 11:26:55.000000000 +0530
-+++ linux-2.6.7-4TB/include/linux/ext3_fs.h	2004-07-02 18:19:36.000000000 +0530
-@@ -278,6 +278,10 @@ struct ext3_inode {
- #define i_gid_high	osd2.linux2.l_i_gid_high
- #define i_reserved2	osd2.linux2.l_i_reserved2
- 
-+#ifdef CONFIG_EXT3_4TB_FILE_SUPPORT
-+#define i_blocks_high		osd1.linux1.l_i_reserved1
-+#endif
-+
- #elif defined(__GNU__)
- 
- #define i_translator	osd1.hurd1.h_i_translator
-@@ -505,6 +509,7 @@ static inline struct ext3_inode_info *EX
- #define EXT3_FEATURE_RO_COMPAT_SPARSE_SUPER	0x0001
- #define EXT3_FEATURE_RO_COMPAT_LARGE_FILE	0x0002
- #define EXT3_FEATURE_RO_COMPAT_BTREE_DIR	0x0004
-+#define EXT3_FEATURE_RO_COMPAT_4TB_FILE		0x0008
- 
- #define EXT3_FEATURE_INCOMPAT_COMPRESSION	0x0001
- #define EXT3_FEATURE_INCOMPAT_FILETYPE		0x0002
-@@ -518,6 +523,7 @@ static inline struct ext3_inode_info *EX
- 					 EXT3_FEATURE_INCOMPAT_META_BG)
- #define EXT3_FEATURE_RO_COMPAT_SUPP	(EXT3_FEATURE_RO_COMPAT_SPARSE_SUPER| \
- 					 EXT3_FEATURE_RO_COMPAT_LARGE_FILE| \
-+					 EXT3_FEATURE_RO_COMPAT_4TB_FILE| \
- 					 EXT3_FEATURE_RO_COMPAT_BTREE_DIR)
- 
- /*
-@@ -718,8 +724,8 @@ extern unsigned long ext3_count_free (st
- 
- /* inode.c */
- extern int ext3_forget(handle_t *, int, struct inode *, struct buffer_head *, int);
--extern struct buffer_head * ext3_getblk (handle_t *, struct inode *, long, int, int *);
--extern struct buffer_head * ext3_bread (handle_t *, struct inode *, int, int, int *);
-+extern struct buffer_head * ext3_getblk (handle_t *, struct inode *, sector_t, int, int *);
-+extern struct buffer_head * ext3_bread (handle_t *, struct inode *, sector_t, int, int *);
- 
- extern void ext3_read_inode (struct inode *);
- extern void ext3_write_inode (struct inode *, int);
-diff -Nrup linux-2.6.7/include/linux/fs.h linux-2.6.7-4TB/include/linux/fs.h
---- linux-2.6.7/include/linux/fs.h	2004-07-01 11:40:45.000000000 +0530
-+++ linux-2.6.7-4TB/include/linux/fs.h	2004-07-02 18:19:36.000000000 +0530
-@@ -426,7 +426,7 @@ struct inode {
- 	unsigned int		i_blkbits;
- 	unsigned long		i_blksize;
- 	unsigned long		i_version;
--	unsigned long		i_blocks;
-+	sector_t		i_blocks;
- 	unsigned short          i_bytes;
- 	spinlock_t		i_lock;	/* i_blocks, i_bytes, maybe i_size */
- 	struct semaphore	i_sem;
-
-
-
-
+Brad Fitzpatrick
+brad@danga.com
+www.danga.com

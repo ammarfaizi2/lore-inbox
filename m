@@ -1,130 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266733AbUIIXE6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266741AbUIIXGN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266733AbUIIXE6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 19:04:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266741AbUIIXE6
+	id S266741AbUIIXGN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 19:06:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266798AbUIIXGN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 19:04:58 -0400
-Received: from fw.osdl.org ([65.172.181.6]:52161 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266733AbUIIXEx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 19:04:53 -0400
-Date: Thu, 9 Sep 2004 16:04:49 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] update: _working_ code to add device+inode check to ipt_owner.c
-Message-ID: <20040909160449.E1924@build.pdx.osdl.net>
-References: <20040909162200.GB9456@lkcl.net> <20040909091931.K1973@build.pdx.osdl.net> <20040909181034.GF10046@lkcl.net> <20040909114846.V1924@build.pdx.osdl.net> <20040909212514.GA10892@lkcl.net>
+	Thu, 9 Sep 2004 19:06:13 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:19079 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266741AbUIIXGF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 19:06:05 -0400
+Date: Thu, 9 Sep 2004 18:41:13 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] cacheline align pagevec structure
+Message-ID: <20040909214113.GB5723@logos.cnet>
+References: <20040909163929.GA4484@logos.cnet> <20040909154906.57f9391b.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20040909212514.GA10892@lkcl.net>; from lkcl@lkcl.net on Thu, Sep 09, 2004 at 10:25:14PM +0100
+In-Reply-To: <20040909154906.57f9391b.akpm@osdl.org>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Luke Kenneth Casson Leighton (lkcl@lkcl.net) wrote:
-> On Thu, Sep 09, 2004 at 11:48:46AM -0700, Chris Wright wrote:
+On Thu, Sep 09, 2004 at 03:49:06PM -0700, Andrew Morton wrote:
+> Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
+> >
+> > Right now it is 140 bytes on 64-bit and 72 bytes on 32-bit. Thats just a little bit more 
+> > than a power of 2 (which will cacheline align), so shrink it to be aligned: 64 bytes on 
+> > 32bit and 124bytes on 64-bit. 
+> > 
+> > It now occupies two cachelines most of the time instead of three. 
+> > 
+> > I changed nr and cold to "unsigned short" because they'll never reach 2 ^ 16.
+> > 
+> > I do not see a problem with changing pagevec to "15" page pointers either, 
+> > Andrew, is there a special reason for that "16"? Is intentional to align
+> > to 64 kbytes (IO device alignment)? I dont think that matters much because
+> > of the elevator which sorts and merges requests anyway?
+> > 
+> > 
+> > 
+> > Did some reaim benchmarking on 4way PIII (32byte cacheline), with 512MB RAM:
+> > 
+> > #### stock 2.6.9-rc1-mm4 ####
+> > 
+> > Peak load Test: Maximum Jobs per Minute 4144.44 (average of 3 runs)
+> > Quick Convergence Test: Maximum Jobs per Minute 4007.86 (average of 3 runs)
+> > 
+> > Peak load Test: Maximum Jobs per Minute 4207.48 (average of 3 runs)
+> > Quick Convergence Test: Maximum Jobs per Minute 3999.28 (average of 3 runs)
+> > 
+> > #### shrink-pagevec #####
+> > 
+> > Peak load Test: Maximum Jobs per Minute 4717.88 (average of 3 runs)
+> > Quick Convergence Test: Maximum Jobs per Minute 4360.59 (average of 3 runs)
+> > 
+> > Peak load Test: Maximum Jobs per Minute 4493.18 (average of 3 runs)
+> > Quick Convergence Test: Maximum Jobs per Minute 4327.77 (average of 3 runs)
 > 
-> > not really much different from comm match, right?  
-> 
->  based code on match_comm.
-> 
-> > other than it's a
-> > better match on the process?  
-> 
->  yes?
-> 
-> > i assume you look for a match then stop.
-> 
->  added match_inode() after match_comm().  cut/paste job (my favourite
->  way of programming).
-> 
-> > if the match is good, and the rule is allow...you have no idea who that
-> > packet will be delievered to.  
-> 
->  allow, allow...
-> 
-> > it's queued to the socket, and if more
-> > than one process is waiting on that socket, you don't know which one
-> > will be woken up.
-> 
->  well... okay, i must be missing something.
-> 
->  what's the disconnect between the task_list and the sockets (sk_buff)
->  that makes that [not knowing which one will be woken up] relevant?
+> I think the patch make sense, but I'm very sceptical about the benchmarks
+> ;)
 
-There's nothing stopping the following:  
+Why's that? You think changing to the number of pages in the pagevec to "15" instead
+"16" is the cause?
 
-exec good_proc
-	socket()
-	fork
-	exec bad_proc
+Or that the performance increase is not a direct effect of the one cacheline 
+saved per pagevec instance?
 
-Now good_proc and bad_proc are sharing a socket.  Packet comes in
-destined for that socket.  Rule says it's ok to deliver to socket
-(because of good_proc).  Packet delivered to socket, wakes up waiters
-(good and bad).  Now, what's stopping the bad_proc from reading from the
-socket?
+Or you think such benchmark is too specific to be interpreted as a broad
+vision of performance? 
 
->  so it's a socket: let's take an example - and i'm assuming for now
->  that things like passing file descriptors over unix-domain-sockets
->  between processes just ... doesn't happen, okay? :)
+:)
 
-These do happen, which is part of the problem ;-)
-
->  apache.
-> 
->  an executable named apache creates a TCP socket and binds to port 80,
->  and let's assume it's the prefork model, so it binds to port 80 and
->  then starts sharing that [as you say, with refs] between all the
->  apache processes.
-> 
->  in this instance, all the processes are going to be named "apache",
->  yes?
-> 
->  they'll all have the same inode number.
-> 
->  under these circumstances, i don't honestly think it makes
->  any difference as to whether one process named apache is
->  waiting on the socket and another process also named apache
->  (fired up from the same inode) gets woken up.
-
-Sure.  Now, take xinted...it happens to close all of the fds except for
-the one it's sending on down to the child from within the child just
-prior to exec, but you get the idea.
-
->  i mean, _yes_ it would be a problem if there really were two
->  apaches run from different configuration files [that bound to
->  different port numbers - i do this all the time and then run
->  *another* apache web server in a DMZ to do proxy redirects]
-> 
->  under these circumstances the best you could hope to do to get
->  some sort of separation would be to copy the apache binary
->  e.g. have an apache2-8000 and an apache2-80, and apply a
->  different set of rules to match each separate binary.
-
-*nod*, or have something that's labelling each context, and match on
-that.  even this isn't quite enough, w/out watching how fds get passed
-around.
-
->  _or_, is there something "odd" going on, that i've missed?
-> 
-> > so with this level of inaccuaracy, it's hard to say
-> > you are buying security...
-> 
->  well with a default rule of "deny"...
-> 
->  what have i missed?  i no unnerstand!
-> 
->  in match_inode, it's an "and" rule, i.e. _only_ tasks with
->  the right dev+inode, and then _only_ those tasks with sockets
->  matching the right one get through...
-
-it got through, but does the process you want get the packet?
-
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

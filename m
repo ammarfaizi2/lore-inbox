@@ -1,40 +1,24 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129155AbRCHPA3>; Thu, 8 Mar 2001 10:00:29 -0500
+	id <S129166AbRCHPHa>; Thu, 8 Mar 2001 10:07:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129146AbRCHPAU>; Thu, 8 Mar 2001 10:00:20 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:61611 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S129131AbRCHPAC>;
-	Thu, 8 Mar 2001 10:00:02 -0500
-Date: Thu, 8 Mar 2001 09:59:35 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: Question: fs meta data, page cache and locking
-In-Reply-To: <5.0.2.1.2.20010308131755.00a53990@pop.cus.cam.ac.uk>
-Message-ID: <Pine.GSO.4.21.0103080952001.7720-100000@weyl.math.psu.edu>
+	id <S129156AbRCHPHU>; Thu, 8 Mar 2001 10:07:20 -0500
+Received: from mail2.megatrends.com ([155.229.80.11]:27912 "EHLO
+	mail2.megatrends.com") by vger.kernel.org with ESMTP
+	id <S129137AbRCHPHE>; Thu, 8 Mar 2001 10:07:04 -0500
+Message-ID: <1355693A51C0D211B55A00105ACCFE64E952C3@ATL_MS1>
+From: Venkatesh Ramamurthy <Venkateshr@ami.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Microsoft begining to open source Windows 2000?
+Date: Thu, 8 Mar 2001 10:01:57 -0500 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2448.0)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Please check out this article. Looks like microsoft know open source is the
+thing of the future. I would consider that it is a begining step for full
+blown GPL!!!!
 
-
-On Thu, 8 Mar 2001, Anton Altaparmakov reposted:
-
-> >But user space will never see metadata pages anyway, so you
-> >should be the only one, who cares about them. Just be prepared to
-> >writepage() and readpage() and the like.
-
-ITYM ->prepare_write()/->commit_write().
-
-See ftp.math.psu.edu/pub/viro/ext2-dir-patch-S2.gz for example of
-metadata in pagecache. For deeper metadata (== stuff that can
-be needed to access with some pages locked, in case of ext2 that
-would be indirect blocks, inode/block bitmaps and group descriptors)
-you need to set ->gfp_mask of address_space to prohibit IO on
-allocation. See drivers/block/loop.c - it has to do the same to
-->i_mapping of underlying file.
-							Cheers,
-								Al
-
+http://www.zdnet.com/enterprise/stories/main/0,10228,2692987,00.html

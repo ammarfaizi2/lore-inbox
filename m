@@ -1,63 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132502AbRDDWZh>; Wed, 4 Apr 2001 18:25:37 -0400
+	id <S132507AbRDDWel>; Wed, 4 Apr 2001 18:34:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132503AbRDDWZ2>; Wed, 4 Apr 2001 18:25:28 -0400
-Received: from wpk-smtp-relay2.cwci.net ([195.44.63.19]:28563 "EHLO
-	wpk-smtp-relay.cwci.net") by vger.kernel.org with ESMTP
-	id <S132502AbRDDWZK>; Wed, 4 Apr 2001 18:25:10 -0400
-Date: Wed, 4 Apr 2001 23:25:12 +0100
-Message-Id: <200104042225.f34MPCv00980@Xerxes.buttmunch>
-From: Stuart McFadden <stuartymcf@netgames-uk.com>
-To: linux-kernel@vger.kernel.org
-Subject: Underscore in rivafb
+	id <S132511AbRDDWea>; Wed, 4 Apr 2001 18:34:30 -0400
+Received: from rachael.franken.de ([193.175.24.38]:30737 "EHLO
+	rachael.franken.de") by vger.kernel.org with ESMTP
+	id <S132507AbRDDWeT>; Wed, 4 Apr 2001 18:34:19 -0400
+Date: Wed, 4 Apr 2001 23:51:24 +0200
+From: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+To: Petr Vandrovec <vandrove@vc.cvut.cz>
+Cc: Wade Hampton <whampton@staffnet.com>,
+        Carsten Langgaard <carstenl@mips.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: pcnet32 (maybe more) hosed in 2.4.3
+Message-ID: <20010404235124.B3102@alpha.franken.de>
+In-Reply-To: <20010330190137.A426@indiana.edu> <Pine.LNX.4.30.0103311541300.406-100000@fs131-224.f-secure.com> <20010403202127.A316@bacchus.dhis.org> <3ACB2323.C1653236@mips.com> <3ACB3CA5.D978EF41@staffnet.com> <3ACB8098.DFEC12D7@vc.cvut.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <3ACB8098.DFEC12D7@vc.cvut.cz>; from vandrove@vc.cvut.cz on Wed, Apr 04, 2001 at 01:14:16PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-   The flashing block in rivafb was annoying me, so here is a diff (against 
-vanilla 2.4.3 ) of a quick hack in case anyone else was having the same problem.
+On Wed, Apr 04, 2001 at 01:14:16PM -0700, Petr Vandrovec wrote:
+> VMware is working on implementation PCnet 32bit mode in emulation (there
+> is no such thing now because of no OS except FreeBSD needs it). But
+> my question is - is there some real benefit in running chip in
+> 32bit mode?
 
-Stuarty,
+probably not.
 
-diff -urN linux.pure/drivers/video/riva/fbdev.c linux/drivers/video/riva/fbdev.c
---- linux.pure/drivers/video/riva/fbdev.c	Wed Apr  4 22:34:19 2001
-+++ linux/drivers/video/riva/fbdev.c	Wed Apr  4 22:26:43 2001
-@@ -534,7 +534,7 @@
- 	struct riva_cursor *c = rinfo->cursor;
- 	int i, j, idx;
- 
--	if (c) {
-+  	if (c) {
- 		if (width <= 0 || height <= 0) {
- 			width = 8;
- 			height = 16;
-@@ -547,13 +547,16 @@
- 		
- 		idx = 0;
- 
--		for (i = 0; i < height; i++) {
--			for (j = 0; j < width; j++,idx++)
--				c->image[idx] = CURSOR_COLOR;
--			for (j = width; j < MAX_CURS; j++,idx++)
-+		for (i = MAX_CURS; i > height + 2; i--) 
-+			for (j = 0; j < MAX_CURS; j++,idx++)
- 				c->image[idx] = TRANSPARENT_COLOR;
-+		for (i = height + 2; i > height; i--) {
-+			for (j = 0; j < width; j++,idx++)
-+			        c->image[idx] = CURSOR_COLOR;
-+			for (j = width; j < MAX_CURS;j++,idx++)
-+			        c->image[idx] = TRANSPARENT_COLOR;
- 		}
--		for (i = height; i < MAX_CURS; i++)
-+		for (i = height; i > 0; i--) 
- 			for (j = 0; j < MAX_CURS; j++,idx++)
- 				c->image[idx] = TRANSPARENT_COLOR;
- 	}
+> so is 32bit mode needed for bigendian ports, or what's reasoning
+> behind it?
 
+I've added 32bit mode for some IBM PowerPC machines. The firmware
+on this machines setup the chip to DWIO and I haven't found a way
+to switch it back to WIO.
 
+Thomas.
 
 -- 
-Start the day with a smile.  After that you can be your nasty old self again.
- - - - - - - - - - - - - - - - - - - - - -  
-Stuarty McFadden stuartymcf@netgames-uk.com 
+Crap can work. Given enough thrust pigs will fly, but it's not necessary a
+good idea.                                 [ Alexander Viro on linux-kernel ]

@@ -1,47 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129054AbRBNMbi>; Wed, 14 Feb 2001 07:31:38 -0500
+	id <S132093AbRBNMfI>; Wed, 14 Feb 2001 07:35:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129051AbRBNMb3>; Wed, 14 Feb 2001 07:31:29 -0500
-Received: from h-207-228-73-44.gen.cadvision.com ([207.228.73.44]:57349 "EHLO
-	mobilix.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S129054AbRBNMbQ>; Wed, 14 Feb 2001 07:31:16 -0500
-Date: Wed, 14 Feb 2001 05:31:08 -0700
-Message-Id: <200102141231.f1ECV8202834@mobilix.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com>
-Cc: Russell King <rmk@arm.linux.org.uk>,
-        Rick Hohensee <humbubba@smarty.smart.net>,
-        linux-kernel@vger.kernel.org
+	id <S132095AbRBNMe6>; Wed, 14 Feb 2001 07:34:58 -0500
+Received: from ncc1701.cistron.net ([195.64.68.38]:8206 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP
+	id <S132093AbRBNMeo>; Wed, 14 Feb 2001 07:34:44 -0500
+From: wichert@cistron.nl (Wichert Akkerman)
 Subject: Re: dropcopyright script
-In-Reply-To: <Pine.LNX.3.96.1010214015928.28011A-100000@mandrakesoft.mandrakesoft.com>
-In-Reply-To: <200102140755.f1E7t3W03637@flint.arm.linux.org.uk>
-	<Pine.LNX.3.96.1010214015928.28011A-100000@mandrakesoft.mandrakesoft.com>
+Date: 14 Feb 2001 13:34:27 +0100
+Organization: Cistron Internet Services
+Message-ID: <96du0j$ssn$1@picard.cistron.nl>
+In-Reply-To: <200102140647.BAA24740@smarty.smart.net>
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik writes:
-> On Wed, 14 Feb 2001, Russell King wrote:
-> 
-> > Rick Hohensee writes:
-> > > .......................................................................
-> > > ## drop copyright notices to the bottoms of C files in current dir and
-> > > #     subs. 
-> > 
-> > Please don't run this on any files maintained by myself.  I want the
-> > copyright notices to be prominently displayed at the top of the file
-> > so it can't be missed.
-> 
-> Ditto.  Don't touch drivers/net either.
+In article <200102140647.BAA24740@smarty.smart.net>,
+Rick Hohensee  <humbubba@smarty.smart.net> wrote:
+>.......................................................................
+>## drop copyright notices to the bottoms of C files in current dir and
+>#     subs. 
 
-Sames goes for arch/i386/kernel/mtrr.c and fs/devfs.
+Why would anyone want to do this?
 
-In fact, assume the default is that people don't want this done. Get
-permission from individual maintainers. If they don't respond, don't
-touch their files. Don't ask twice.
+Wichert.
+-- 
+   ________________________________________________________________
+ / Generally uninteresting signature - ignore at your convenience  \
+| wichert@cistron.nl                  http://www.liacs.nl/~wichert/ |
+| 1024D/2FA3BC2D 576E 100B 518D 2F16 36B0  2805 3CB8 9250 2FA3 BC2D |
 
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca

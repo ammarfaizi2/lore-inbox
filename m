@@ -1,53 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269407AbRHQOqe>; Fri, 17 Aug 2001 10:46:34 -0400
+	id <S269350AbRHQOtd>; Fri, 17 Aug 2001 10:49:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269350AbRHQOqP>; Fri, 17 Aug 2001 10:46:15 -0400
-Received: from irmgard.exp-math.uni-essen.de ([132.252.150.18]:42244 "EHLO
-	irmgard.exp-math.uni-essen.de") by vger.kernel.org with ESMTP
-	id <S269407AbRHQOqK>; Fri, 17 Aug 2001 10:46:10 -0400
-Date: Fri, 17 Aug 2001 16:46:22 +0200 (MESZ)
-From: "Dr. Michael Weller" <eowmob@exp-math.uni-essen.de>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: David Madore <david.madore@ens.fr>, linux-kernel@vger.kernel.org
-Subject: Re: broken memory chip -> software fix?
-In-Reply-To: <Pine.LNX.3.95.1010817101952.256A-100000@chaos.analogic.com>
-Message-Id: <Pine.A32.3.95.1010817163950.21198A-100000@werner.exp-math.uni-essen.de>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S271650AbRHQOtX>; Fri, 17 Aug 2001 10:49:23 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:30990 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S269350AbRHQOtM>; Fri, 17 Aug 2001 10:49:12 -0400
+Subject: Re: Kernel panic problem in 2.4.7
+To: antihong@tt.co.kr (=?ks_c_5601-1987?B?v8C0w7D6s7vAzyDIq7yuufw=?=)
+Date: Fri, 17 Aug 2001 15:51:49 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <no.id> from "=?ks_c_5601-1987?B?v8C0w7D6s7vAzyDIq7yuufw=?=" at Aug 17, 2001 11:36:35 PM
+X-Mailer: ELM [version 2.5 PL5]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15XkyT-0007Sf-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 Aug 2001, Richard B. Johnson wrote:
-
-> mmap(0x04d5a000, PAGE_SIZE, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_FIXED, fd,
->            ^^^^ page boundary
-> 0);
 > 
-> 'MAP_FIXED' is your friend. This will take the offending page size 
-> (0x1000) on x86, out of use and give it to you. 'fd' is initialized
-> by opening /dev/mem.
-
-Sorry, you are completely confusing things. MAP_FIXED in conjunction
-with 0x04d5a000 will (attempt to) map to address 0x04d5a000 in the virtual
-address space of the calling process. This has no relation what so ever to
-the physical memory addressed. Rather than that, use the 0x04d5a000 as the
-last argument to mmap (where we have the 0 above), the so called offset
-in the file (/dev/mem). You don't need to fiddle with MAP_FIXED or the
-first argument. It shouldn't matter to your program where the bad bit
-shows up in it's address space (as long as it knows the actual address
-chosen, cf. return value of mmap).
-
-While this gives your program access to the physical memory, it doesn't
-keep the kernel from using it as well. Use /dev/mem to access physical
-memory, not to reserve it. For that use the other hints given on the list
-aka mem= boot arg or kernel patch.
-
-Michael.
-
---
-
-Michael Weller: eowmob@exp-math.uni-essen.de, eowmob@ms.exp-math.uni-essen.de,
-or even mat42b@spi.power.uni-essen.de. If you encounter an eowmob account on
-any machine in the net, it's very likely it's me.
+> SGVsbG8uLiBBbGwNCg0KSSBoYXZlIG9wZXJhdGVkIFJlZGhhdCA2LjIgYmFzZWQgc3lzdGVtKGtl
+> cm5lbCAyLjQuNykgIHdoaWNoIGlzIER1YWwgQ1BVIGFuZCA1MTJNIFJhbS4NCg0KQSBmZXcgZGF5
+> cyBhZ28sIHRoaXMgc3lzdGVtIGlzIGRvd24gYW5kIHRoZSBtZXNzYWdlcyBsaWtlIGJlbG93Lg0K
+> DQpKdWwgMjIgMTQ6NTc6NDUgd3d3IGtlcm5lbDogS2VybmVsIHBhbmljOiBDUFUgY29udGV4dCBj
+> b3JydXB0DQpKdWwgMjUgMTk6MjU6MzAgd3d3IGtlcm5lbDogS2VybmVsIHBhbmljOiBDUFUgY29u
+> dGV4dCBjb3JydXB0DQpKdWwgMjcgMjM6NDM6MjIgd3d3IGtlcm5lbDogS2VybmVsIHBhbmljOiBD
+> UFUgY29udGV4dCBjb3JydXB0DQoNCnRoaXMgbWFpbGxpbmcgbGlzdCBzYXkgdGhhdCB0aGlzIGlz
+> IENQVSBQcm9ibGVtKG92ZXJjbG9ja2luZy4uLi5idXQgaXQgaXNuJ3QpLg0KU28gSSBjaGFuZ2Vk
+> IG90aGVyIENQVXMgdGhhdCBJIHRoaW5rICBubyBwcm9ibGVtLg0KDQpCdXQgYSBmZXcgZGF5cyBs
+> YXRlci4ga2VybmVsIHBhbmljIG9jY3VyZWQgYWdhaW4uDQooVGhlIHN5c3RlbSBpcyAyLjQuNykN
+> CnRoZSBtZXNzYWdlcyB3YXMgDQoNCktlcm5lbCBwYW5pYzpBaWVlLCBraWxsaW5nIGludGVycnVw
+> dCBoYW5kbGVyDQpJbiBpbnRlcnJ1cHQgaGFuZGxlciAtIG5vdCBzeW5jaW5nDQoNClRoaXMgbWVz
+> c2FnZSBpcyBvY2N1cmVkIHdoZW4gdGhlIHN5c3RlbSdzIGxvYWQgYXZlcmFnZSBpcyBhIGJpdCBo
+> aWdoLg0KKFdoZW4gSSBLZXJuZWwgY29tcGlsZSBvciBwYWNraW5nIHdpdGggdGFyLi4gc29tdGhp
+> bmcgbGlrZSB0aGF0Li4pDQoNCkkgc2VhcmNoZWQgYWxsIGxpc3RzLCBCdXQgSSBjb3VsZG4ndCBm
+> aW5kIHRoZSAicmVhc29uIiBhbmQgImFuc3dlciIuDQpJIHdvdWxkIGxpa2UgdG8ga25vdyB0aGUg
+> cmVhc29uIGFuZCBhbnN3ZXIuDQoNClBsZWFzZSBnaXZlIG1lIHNvbWUgYWR2aWNlIGFib3V0IHRo
+> ZXNlIHByb2JsZW1zLg0KDQogDQogVGhhbmtzIGZvciB5b3VyIGhlbHAuDQogIA0KIA0K
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

@@ -1,61 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131564AbQL1SwN>; Thu, 28 Dec 2000 13:52:13 -0500
+	id <S131562AbQL1Swg>; Thu, 28 Dec 2000 13:52:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131562AbQL1SwE>; Thu, 28 Dec 2000 13:52:04 -0500
-Received: from d185fcbd7.rochester.rr.com ([24.95.203.215]:3343 "EHLO
-	d185fcbd7.rochester.rr.com") by vger.kernel.org with ESMTP
-	id <S131560AbQL1Svy>; Thu, 28 Dec 2000 13:51:54 -0500
-Date: Thu, 28 Dec 2000 13:18:34 -0500
-From: Chris Mason <mason@suse.com>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Daniel Phillips <phillips@innominate.de>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: innd mmap bug in 2.4.0-test12
-Message-ID: <372790000.978027514@coffee>
-In-Reply-To: <Pine.LNX.4.21.0012281551030.14052-100000@duckman.distro.conectiva>
-X-Mailer: Mulberry/2.0.6b1 (Linux/x86)
+	id <S131560AbQL1SwZ>; Thu, 28 Dec 2000 13:52:25 -0500
+Received: from thales.casi.polymtl.ca ([132.207.73.32]:5390 "EHLO
+	thales.casi.polymtl.ca") by vger.kernel.org with ESMTP
+	id <S131562AbQL1SwO>; Thu, 28 Dec 2000 13:52:14 -0500
+Date: Thu, 28 Dec 2000 14:22:49 -0500 (EST)
+From: <fpieraut@casi.polymtl.ca>
+cc: David Huggins-Daines <dhd@eradicator.org>, linux-kernel@vger.kernel.org
+Subject: Re: Activating APIC on single processor
+In-Reply-To: <Pine.LNX.4.21.0012281741180.22864-100000@mrworry.compsoc.man.ac.uk>
+Message-ID: <Pine.LNX.4.10.10012281421100.9873-100000@thales.casi.polymtl.ca>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi
+
+I have try to activate APIC in my BIOS, but I didn't have this option.
+Have you ever try it?
+
+Tanks
+Francis Pieraut
 
 
-On Thursday, December 28, 2000 15:51:24 -0200 Rik van Riel
-<riel@conectiva.com.br> wrote:
+Francis Pieraut
 
-> On Thu, 28 Dec 2000, Chris Mason wrote:
+On Thu, 28 Dec 2000, John Levon wrote:
+
+> On 28 Dec 2000, David Huggins-Daines wrote:
 > 
->> I think a dirty page without a writepage func seems a bit
->> broken.  How about we give ramfs a writepage func that just
->> returns 1.  That way nobody does any special if
->> (ramfs_page(page)) kinds of tests...
+> > <fpieraut@casi.polymtl.ca> writes:
+> > 
+> > > I activate APIC interruption with the configuration of linux kernel
+> > > 2.4.0test-11. In the linux kernel configuration under processor type and
+> > > features I activate "APIC and IO-APIC support on uniprocessor",  and I
+> > > desactivate "Symmetric multi-processing support". The only way I found to
+> > > check APIC activation is looking into /proc/interrupts, no "IO-APIC" can
+> > > be found there. So I read IO-APIC.txt and I suppose there sould be
+> > > conflicts with IRQ of my PCI cards. So I remove all my PCI cards and still
+> > > have no APIC interrupt. 
+> > > Is there another way to check APIC activation? 
+> > > Am-I doing to right things to activate IO-APIC?
+> > 
+> > You might not actually have an IO-APIC or even a local APIC.  This is
+> > the case with the Mobile PIII for instance (I puzzled over this myself
+> > for a long time).
+> > 
+> > To find out for sure, run:
+> > 
+> > grep 'flags.*apic' /proc/cpuinfo
 > 
-> This will lead to the ramfs pages staying on the inactive_dirty
-> list forever, deadlocking the system.
+> This isn't for sure. I bet you *do* have a local APIC.
+> 
+> This flag is missing on a Pentium II here - I think the BIOS disables
+> it. However, it can be enabled in the normal way just fine.
+> 
+> The presence of an IO-APIC is a different matter.
+> 
+> thanks
+> john
+> 
+> --
+> "The majority of the stupid is invincible and guaranteed for all time. The
+>  terror of their tyranny, however, is alleviated by their lack of consistency."
+> 	- Albert Einstein
 > 
 
-
-This wouldn't be the first time this week I've read this part of
-page_launder wrong, but I don't see a difference between a NULL writepage
-func, and a writepage func that returns 1.  I read the code like this:
-
-if(PageDirty(page)) {
-...
-	if (!writepage)
-		goto page_active ;
-...
-	result = writepage(page)
-	if (result != 1)
-		continue ;
-	SetPageDirty(page);
-	goto page_active ;
-}
-
--chris
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,57 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265271AbSJXARs>; Wed, 23 Oct 2002 20:17:48 -0400
+	id <S265265AbSJXARN>; Wed, 23 Oct 2002 20:17:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265272AbSJXARs>; Wed, 23 Oct 2002 20:17:48 -0400
-Received: from pc132.utati.net ([216.143.22.132]:43393 "HELO
-	merlin.webofficenow.com") by vger.kernel.org with SMTP
-	id <S265271AbSJXARn> convert rfc822-to-8bit; Wed, 23 Oct 2002 20:17:43 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-Reply-To: landley@trommello.org
-To: "Guillaume Boissiere" <boissiere@adiglobal.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [STATUS 2.5]  October 23, 2002
-Date: Wed, 23 Oct 2002 14:23:50 -0500
-User-Agent: KMail/1.4.3
-References: <3DB60107.24661.691E895D@localhost>
-In-Reply-To: <3DB60107.24661.691E895D@localhost>
+	id <S265271AbSJXARN>; Wed, 23 Oct 2002 20:17:13 -0400
+Received: from fw-az.mvista.com ([65.200.49.158]:12540 "EHLO
+	zipcode.az.mvista.com") by vger.kernel.org with ESMTP
+	id <S265265AbSJXARM>; Wed, 23 Oct 2002 20:17:12 -0400
+Message-ID: <3DB73E2A.5090001@mvista.com>
+Date: Wed, 23 Oct 2002 17:26:18 -0700
+From: Steven Dake <sdake@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210231423.50073.landley@trommello.org>
+To: Greg KH <greg@kroah.com>
+CC: linux-kernel@vger.kernel.org, alan@lxorquk.ukuu.org.uk
+Subject: Re: [PATCH] Advanced TCA SCSI/FC disk hotswap driver for kernel 2.5.44
+References: <3DB7304A.3030903@mvista.com> <20021024001818.GH17413@kroah.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 23 October 2002 00:53, Guillaume Boissiere wrote:
-> Only a couple days to go before feature freeze.
-> And many changes since last week... due in large part
-> to recent discussions about what "mergeable" means.
+Greg,
+
+
+Greg KH wrote:
+
+>On Wed, Oct 23, 2002 at 04:27:06PM -0700, Steven Dake wrote:
+>  
 >
-> The Web version is as usual at:
->   http://www.kernelnewbies.org/status/
+>>Changes from kernel 2.4.19 to 2.5.44 release:
+>>    
+>>
 >
-> The list should map pretty closely to the latest
-> Crunch Time list sent out by Rob.
+>First off, your patch is line wrapped, please fix your email client.
 >
-> Enjoy!
+>Also, please read Documentation/CodingStyle and use tabs.  Unless this
+>is a side effect of your email client munging the patch.
+>  
 >
-> -- Guillaume
+Thanks yes, it is definately this brain dead mozilla mailer.  I did use 
+tabs of course.
 
-Oh fun, more work. :)
+>  
+>
+>>* ioctls deleted and replaced by ramfs scsi_hotswap_fs (suggested by
+>>Greg KH)
+>>    
+>>
+>
+>Any reason you can't use driverfs for the 2.5 code?
+>
+>  
+>
+I'm not sure how driverfs would be used by this particular patch.  Could 
+you be more specific in stating how this could be used?
 
-I can't figure out which specific patch you mean by "per-cpu hot and cold page 
-lists" (there's a half-dozen candidates, closest seems to be adding a tag to 
-pagevec, maybe I just missed it?)  And since there doesn't seem to be any API 
-change, this might possibly be able to go into the stable series?  (Does it 
-break other stuff?)
+>  
+>
+>>+/*
+>>+ * Core file read/write operations interfaces
+>>+ */
+>>+static char scsi_hotswap_insert_by_scsi_id_usage[] = {
+>>+    "Usage: echo \"[host] [channel] [lun] [id]\" > insert_by_scsi_id\n"
+>>+};
+>>    
+>>
+>
+>I really like this, a user friendly kernel interface :)
+>  
+>
+Think this looks good for inclusion in 2.5.45?
 
-People keep telling me zerocopy NFS is already in, you've got it in the ready 
-state...
+Thanks
+-steve
 
-I think a proper explanation of the chances of the digital video project 
-getting in from a standing start at this late date involve snowballs and 
-theology, but you never know, and it's not my call... :)
+>thanks,
+>
+>greg k-h
+>
+>
+>
+>  
+>
 
--- 
-http://penguicon.sf.net - Terry Pratchett, Eric Raymond, Pete Abrams, Illiad, 
-CmdrTaco, liquid nitrogen ice cream, and caffienated jello.  Well why not?

@@ -1,211 +1,246 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316289AbSHFWry>; Tue, 6 Aug 2002 18:47:54 -0400
+	id <S316309AbSHFWsI>; Tue, 6 Aug 2002 18:48:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316309AbSHFWry>; Tue, 6 Aug 2002 18:47:54 -0400
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:36362 "EHLO
+	id <S316408AbSHFWsI>; Tue, 6 Aug 2002 18:48:08 -0400
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:38922 "EHLO
 	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S316289AbSHFWru>; Tue, 6 Aug 2002 18:47:50 -0400
+	id <S316309AbSHFWsA>; Tue, 6 Aug 2002 18:48:00 -0400
 To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: [PATCH] module cleanup (1/5)
-Message-Id: <E17cDAk-0002ur-00@scrub.xs4all.nl>
+Subject: [PATCH] module cleanup (2/5)
+Message-Id: <E17cDAu-0002uy-00@scrub.xs4all.nl>
 From: Roman Zippel <zippel@linux-m68k.org>
-Date: Wed, 07 Aug 2002 00:51:26 +0200
+Date: Wed, 07 Aug 2002 00:51:36 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-This patch replaces get_mod_name/put_mod_name with getname/putname.
+This patch makes the various query functions more compact. It removes
+the second loop to calculate the required space and integrates it into
+the main loop.
 
 diff -ur linux-2.5/kernel/module.c linux-mod/kernel/module.c
 --- linux-2.5/kernel/module.c	Thu Aug  1 16:43:07 2002
 +++ linux-mod/kernel/module.c	Thu Aug  1 14:35:31 2002
-@@ -235,8 +235,6 @@
+@@ -677,40 +649,34 @@
+ {
+ 	struct module *mod;
+ 	size_t nmod, space, len;
++	int res = 0;
  
- #if defined(CONFIG_MODULES)	/* The rest of the source */
+ 	nmod = space = 0;
  
--static long get_mod_name(const char *user_name, char **buf);
--static void put_mod_name(char *buf);
- struct module *find_module(const char *name);
- void free_module(struct module *, int tag_freed);
+ 	for (mod=module_list; mod != &kernel_module; mod=mod->next, ++nmod) {
+ 		len = strlen(mod->name)+1;
+-		if (len > bufsize)
+-			goto calc_space_needed;
+-		if (copy_to_user(buf, mod->name, len))
+-			return -EFAULT;
+-		buf += len;
+-		bufsize -= len;
++		if (len <= bufsize) {
++			if (copy_to_user(buf, mod->name, len))
++				return -EFAULT;
++			buf += len;
++			bufsize -= len;
++		} else {
++			bufsize = 0;
++			res = -ENOSPC;
++		}
+ 		space += len;
+ 	}
  
-@@ -253,40 +251,6 @@
+-	if (put_user(nmod, ret))
+-		return -EFAULT;
+-	else
+-		return 0;
+-
+-calc_space_needed:
+-	space += len;
+-	while ((mod = mod->next) != &kernel_module)
+-		space += strlen(mod->name)+1;
+-
+-	if (put_user(space, ret))
+-		return -EFAULT;
+-	else
+-		return -ENOSPC;
++	if (put_user(res ? space : nmod, ret))
++		res = -EFAULT;
++	return res;
  }
  
- /*
-- * Copy the name of a module from user space.
-- */
--
--static inline long
--get_mod_name(const char *user_name, char **buf)
--{
--	unsigned long page;
--	long retval;
--
--	page = __get_free_page(GFP_KERNEL);
--	if (!page)
--		return -ENOMEM;
--
--	retval = strncpy_from_user((char *)page, user_name, PAGE_SIZE);
--	if (retval > 0) {
--		if (retval < PAGE_SIZE) {
--			*buf = (char *)page;
--			return retval;
--		}
--		retval = -ENAMETOOLONG;
--	} else if (!retval)
--		retval = -EINVAL;
--
--	free_page(page);
--	return retval;
--}
--
--static inline void
--put_mod_name(char *buf)
--{
--	free_page((unsigned long)buf);
--}
--
--/*
-  * Allocate space for a module.
-  */
+ static int
+ qm_deps(struct module *mod, char *buf, size_t bufsize, size_t *ret)
+ {
+ 	size_t i, space, len;
++	int res = 0;
  
-@@ -301,10 +265,12 @@
- 	if (!capable(CAP_SYS_MODULE))
- 		return -EPERM;
- 	lock_kernel();
--	if ((namelen = get_mod_name(name_user, &name)) < 0) {
--		error = namelen;
-+	name = getname(name_user);
-+	if (IS_ERR(name)) {
-+		error = PTR_ERR(name);
- 		goto err0;
- 	}
-+	namelen = strlen(name);
- 	if (size < sizeof(struct module)+namelen) {
- 		error = -EINVAL;
- 		goto err1;
-@@ -324,7 +290,7 @@
- 	mod->size = size;
- 	memcpy((char*)(mod+1), name, namelen+1);
+ 	if (mod == &kernel_module)
+ 		return -EINVAL;
+@@ -725,29 +691,21 @@
+ 		const char *dep_name = mod->deps[i].dep->name;
  
--	put_mod_name(name);
-+	putname(name);
- 
- 	spin_lock_irqsave(&modlist_lock, flags);
- 	mod->next = module_list;
-@@ -334,7 +300,7 @@
- 	error = (long) mod;
- 	goto err0;
- err1:
--	put_mod_name(name);
-+	putname(name);
- err0:
- 	unlock_kernel();
- 	return error;
-@@ -356,10 +322,12 @@
- 	if (!capable(CAP_SYS_MODULE))
- 		return -EPERM;
- 	lock_kernel();
--	if ((namelen = get_mod_name(name_user, &name)) < 0) {
--		error = namelen;
-+	name = getname(name_user);
-+	if (IS_ERR(name)) {
-+		error = PTR_ERR(name);
- 		goto err0;
- 	}
-+	namelen = strlen(name);
- 	if ((mod = find_module(name)) == NULL) {
- 		error = -ENOENT;
- 		goto err1;
-@@ -477,13 +445,14 @@
- 
- 	/* Check that the user isn't doing something silly with the name.  */
- 
--	if ((n_namelen = get_mod_name(mod->name - (unsigned long)mod
--				      + (unsigned long)mod_user,
--				      &n_name)) < 0) {
--		printk(KERN_ERR "init_module: get_mod_name failure.\n");
--		error = n_namelen;
-+	n_name = getname(mod->name - (unsigned long)mod
-+			 + (unsigned long)mod_user);
-+	if (IS_ERR(n_name)) {
-+		printk(KERN_ERR "init_module: getname failure.\n");
-+		error = PTR_ERR(n_name);
- 		goto err2;
- 	}
-+	n_namelen = strlen(n_name);
- 	if (namelen != n_namelen || strcmp(n_name, mod_tmp.name) != 0) {
- 		printk(KERN_ERR "init_module: changed module name to "
- 				"`%s' from `%s'\n",
-@@ -545,8 +514,8 @@
- 	}
- 
- 	/* Free our temporary memory.  */
--	put_mod_name(n_name);
--	put_mod_name(name);
-+	putname(n_name);
-+	putname(name);
- 
- 	/* Initialize the module.  */
- 	atomic_set(&mod->uc.usecount,1);
-@@ -566,12 +535,12 @@
- 	goto err0;
- 
- err3:
--	put_mod_name(n_name);
-+	putname(n_name);
- err2:
- 	*mod = mod_tmp;
- 	strcpy((char *)mod->name, name_tmp);	/* We know there is room for this */
- err1:
--	put_mod_name(name);
-+	putname(name);
- err0:
- 	unlock_kernel();
- 	kfree(name_tmp);
-@@ -606,14 +575,17 @@
- 
- 	lock_kernel();
- 	if (name_user) {
--		if ((error = get_mod_name(name_user, &name)) < 0)
-+		name = getname(name_user);
-+		if (IS_ERR(name)) {
-+			error = PTR_ERR(name);
- 			goto out;
+ 		len = strlen(dep_name)+1;
+-		if (len > bufsize)
+-			goto calc_space_needed;
+-		if (copy_to_user(buf, dep_name, len))
+-			return -EFAULT;
+-		buf += len;
+-		bufsize -= len;
++		if (len <= bufsize) {
++			if (copy_to_user(buf, dep_name, len))
++				return -EFAULT;
++			buf += len;
++			bufsize -= len;
++		} else {
++			bufsize = 0;
++			res = -ENOSPC;
 +		}
- 		error = -ENOENT;
- 		if ((mod = find_module(name)) == NULL) {
--			put_mod_name(name);
-+			putname(name);
- 			goto out;
- 		}
--		put_mod_name(name);
-+		putname(name);
- 		error = -EBUSY;
- 		if (mod->refs != NULL)
- 			goto out;
-@@ -896,16 +842,18 @@
- 		long namelen;
- 		char *name;
- 
--		if ((namelen = get_mod_name(name_user, &name)) < 0) {
--			err = namelen;
-+		name = getname(name_user);
-+		if (IS_ERR(name)) {
-+			err = PTR_ERR(name);
- 			goto out;
- 		}
-+		namelen = strlen(name);
- 		err = -ENOENT;
- 		if ((mod = find_module(name)) == NULL) {
--			put_mod_name(name);
-+			putname(name);
- 			goto out;
- 		}
--		put_mod_name(name);
-+		putname(name);
+ 		space += len;
  	}
  
- 	/* __MOD_ touches the flags. We must avoid that */
+-	if (put_user(i, ret))
+-		return -EFAULT;
+-	else
+-		return 0;
+-
+-calc_space_needed:
+-	space += len;
+-	while (++i < mod->ndeps)
+-		space += strlen(mod->deps[i].dep->name)+1;
+-
+-	if (put_user(space, ret))
+-		return -EFAULT;
+-	else
+-		return -ENOSPC;
++	if (put_user(res ? space : i, ret))
++		res = -EFAULT;
++	return res;
+ }
+ 
+ static int
+@@ -755,6 +713,7 @@
+ {
+ 	size_t nrefs, space, len;
+ 	struct module_ref *ref;
++	int res = 0;
+ 
+ 	if (mod == &kernel_module)
+ 		return -EINVAL;
+@@ -769,29 +728,21 @@
+ 		const char *ref_name = ref->ref->name;
+ 
+ 		len = strlen(ref_name)+1;
+-		if (len > bufsize)
+-			goto calc_space_needed;
+-		if (copy_to_user(buf, ref_name, len))
+-			return -EFAULT;
+-		buf += len;
+-		bufsize -= len;
++		if (len <= bufsize) {
++			if (copy_to_user(buf, ref_name, len))
++				return -EFAULT;
++			buf += len;
++			bufsize -= len;
++		} else {
++			bufsize = 0;
++			res = -ENOSPC;
++		}
+ 		space += len;
+ 	}
+ 
+-	if (put_user(nrefs, ret))
+-		return -EFAULT;
+-	else
+-		return 0;
+-
+-calc_space_needed:
+-	space += len;
+-	while ((ref = ref->next_ref) != NULL)
+-		space += strlen(ref->ref->name)+1;
+-
+-	if (put_user(space, ret))
+-		return -EFAULT;
+-	else
+-		return -ENOSPC;
++	if (put_user(res ? space : nrefs, ret))
++		res = -EFAULT;
++	return res;
+ }
+ 
+ static int
+@@ -801,6 +752,7 @@
+ 	struct module_symbol *s;
+ 	char *strings;
+ 	unsigned long *vals;
++	int res = 0;
+ 
+ 	if (!MOD_CAN_QUERY(mod))
+ 		if (put_user(0, ret))
+@@ -813,43 +765,37 @@
+ 	i = len = 0;
+ 	s = mod->syms;
+ 
+-	if (space > bufsize)
+-		goto calc_space_needed;
+-
+-	if (!access_ok(VERIFY_WRITE, buf, space))
+-		return -EFAULT;
++	if (space > bufsize) {
++		bufsize = 0;
++		res = -ENOSPC;
++	} else {
++		bufsize -= space;
++		if (!access_ok(VERIFY_WRITE, buf, space))
++			return -EFAULT;
++	}
+ 
+-	bufsize -= space;
+ 	vals = (unsigned long *)buf;
+ 	strings = buf+space;
+ 
+ 	for (; i < mod->nsyms ; ++i, ++s, vals += 2) {
+ 		len = strlen(s->name)+1;
+-		if (len > bufsize)
+-			goto calc_space_needed;
+-
+-		if (copy_to_user(strings, s->name, len)
+-		    || __put_user(s->value, vals+0)
+-		    || __put_user(space, vals+1))
+-			return -EFAULT;
++		if (len <= bufsize) {
++			if (copy_to_user(strings, s->name, len)
++			    || __put_user(s->value, vals+0)
++			    || __put_user(space, vals+1))
++				return -EFAULT;
+ 
+-		strings += len;
+-		bufsize -= len;
++			strings += len;
++			bufsize -= len;
++		} else {
++			bufsize = 0;
++			res = -ENOSPC;
++		}
+ 		space += len;
+ 	}
+-	if (put_user(i, ret))
+-		return -EFAULT;
+-	else
+-		return 0;
+-
+-calc_space_needed:
+-	for (; i < mod->nsyms; ++i, ++s)
+-		space += strlen(s->name)+1;
+-
+-	if (put_user(space, ret))
+-		return -EFAULT;
+-	else
+-		return -ENOSPC;
++	if (put_user(res ? space : i, ret))
++		res = -EFAULT;
++	return res;
+ }
+ 
+ static int

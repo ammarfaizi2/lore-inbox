@@ -1,66 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261370AbVA1Bdj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261374AbVA1Bll@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261370AbVA1Bdj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 20:33:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261374AbVA1Bdj
+	id S261374AbVA1Bll (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 20:41:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbVA1Bll
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 20:33:39 -0500
-Received: from [62.206.217.67] ([62.206.217.67]:21926 "EHLO kaber.coreworks.de")
-	by vger.kernel.org with ESMTP id S261370AbVA1Bdh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 20:33:37 -0500
-Message-ID: <41F99656.5040304@trash.net>
-Date: Fri, 28 Jan 2005 02:33:10 +0100
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.5) Gecko/20050106 Debian/1.7.5-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@davemloft.net>
-CC: David Brownell <david-b@pacbell.net>,
-       jf-ml-k1-1087813225@lk8rp.mail.xeon.eu.org,
-       david+challenge-response@blue-labs.org, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com, ahaas@airmail.net
-Subject: Re: 2.6.11-rc2 TCP ignores PMTU ICMP (Re: Linux 2.6.11-rc2)
-References: <200501232251.42394.david-b@pacbell.net>	<priv$1106815487.koan@shadow.banki.hu>	<200501271128.48411.david-b@pacbell.net>	<200501271511.58086.david-b@pacbell.net> <20050127154150.360f95e2.davem@davemloft.net>
-In-Reply-To: <20050127154150.360f95e2.davem@davemloft.net>
-Content-Type: multipart/mixed;
- boundary="------------070303040201060207090705"
+	Thu, 27 Jan 2005 20:41:41 -0500
+Received: from adsl-67-120-171-161.dsl.lsan03.pacbell.net ([67.120.171.161]:35090
+	"HELO linuxace.com") by vger.kernel.org with SMTP id S261374AbVA1Blk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jan 2005 20:41:40 -0500
+Date: Thu, 27 Jan 2005 17:41:39 -0800
+From: Phil Oester <kernel@linuxace.com>
+To: "David S. Miller" <davem@davemloft.net>, Robert.Olsson@data.slu.se,
+       akpm@osdl.org, torvalds@osdl.org, alexn@dsv.su.se, kas@fi.muni.cz,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: Memory leak in 2.6.11-rc1?
+Message-ID: <20050128014139.GA16371@linuxace.com>
+References: <20050123023248.263daca9.akpm@osdl.org> <20050123200315.A25351@flint.arm.linux.org.uk> <20050124114853.A16971@flint.arm.linux.org.uk> <20050125193207.B30094@flint.arm.linux.org.uk> <20050127082809.A20510@flint.arm.linux.org.uk> <20050127004732.5d8e3f62.akpm@osdl.org> <16888.58622.376497.380197@robur.slu.se> <20050127164918.C3036@flint.arm.linux.org.uk> <20050127123326.2eafab35.davem@davemloft.net> <20050128001701.D22695@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050128001701.D22695@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070303040201060207090705
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Fri, Jan 28, 2005 at 12:17:01AM +0000, Russell King wrote:
+> On Thu, Jan 27, 2005 at 12:33:26PM -0800, David S. Miller wrote:
+> > So they won't be listed in /proc/net/rt_cache (since they've been
+> > removed from the lookup table) but they will be accounted for in
+> > /proc/net/stat/rt_cache until the final release is done on the
+> > routing cache object and it can be completely freed up.
+> > 
+> > Do you happen to be using IPV6 in any way by chance?
+> 
+> Yes.  Someone suggested this evening that there may have been a recent
+> change to do with some IPv6 refcounting which may have caused this
+> problem.  Is that something you can confirm?
 
-David S. Miller wrote:
+FWIW, I do not use IPv6, and it is not compiled into the kernel.
 
->I've forwarded this to netfilter-devel for inspection.
->Thanks for collecting all the data points so well.
->
-Here is the fix for everyone. Please report back if it doesn't
-solve the problem. Thanks.
-
-
-
---------------070303040201060207090705
-Content-Type: text/plain;
- name="x"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="x"
-
-===== net/ipv4/netfilter/ip_nat_proto_tcp.c 1.10 vs edited =====
---- 1.10/net/ipv4/netfilter/ip_nat_proto_tcp.c	2005-01-17 23:00:55 +01:00
-+++ edited/net/ipv4/netfilter/ip_nat_proto_tcp.c	2005-01-28 02:13:06 +01:00
-@@ -105,7 +105,7 @@
- 		return 0;
- 
- 	iph = (struct iphdr *)((*pskb)->data + iphdroff);
--	hdr = (struct tcphdr *)((*pskb)->data + iph->ihl*4);
-+	hdr = (struct tcphdr *)((*pskb)->data + hdroff);
- 
- 	if (maniptype == IP_NAT_MANIP_SRC) {
- 		/* Get rid of src ip and src pt */
-
---------------070303040201060207090705--
+Phil

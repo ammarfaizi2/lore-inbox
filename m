@@ -1,82 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261753AbTLPN41 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Dec 2003 08:56:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261775AbTLPN41
+	id S261731AbTLPNxH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Dec 2003 08:53:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbTLPNxH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Dec 2003 08:56:27 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:7555 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261753AbTLPN4V
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Dec 2003 08:56:21 -0500
-Date: Tue, 16 Dec 2003 08:57:45 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-cc: George Anzinger <george@mvista.com>, linux-kernel@vger.kernel.org
-Subject: Re: Catching NForce2 lockup with NMI watchdog
-In-Reply-To: <Pine.LNX.4.55.0312161426060.8262@jurand.ds.pg.gda.pl>
-Message-ID: <Pine.LNX.4.53.0312160846530.17690@chaos>
-References: <3FD5F9C1.5060704@nishanet.com> <Pine.LNX.4.55.0312101421540.31543@jurand.ds.pg.gda.pl>
- <brcoob$a02$1@gatekeeper.tmr.com> <3FDA40DA.20409@mvista.com>
- <Pine.LNX.4.55.0312151412270.26565@jurand.ds.pg.gda.pl> <3FDE2AC6.30902@mvista.com>
- <Pine.LNX.4.55.0312161426060.8262@jurand.ds.pg.gda.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 16 Dec 2003 08:53:07 -0500
+Received: from smtp1.wanadoo.fr ([193.252.22.30]:14901 "EHLO
+	mwinf0101.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S261731AbTLPNxF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Dec 2003 08:53:05 -0500
+Date: Tue, 16 Dec 2003 14:53:06 +0100
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: Wakko Warner <wakko@animx.eu.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6 and IDE "geometry"
+Message-ID: <20031216135306.GA7292@iliana>
+References: <20031212131704.A26577@animx.eu.org> <20031212194439.GB11215@win.tue.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <20031212194439.GB11215@win.tue.nl>
+User-Agent: Mutt/1.5.4i
+From: Sven Luther <sven.luther@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Dec 2003, Maciej W. Rozycki wrote:
+On Fri, Dec 12, 2003 at 08:44:39PM +0100, Andries Brouwer wrote:
+> On Fri, Dec 12, 2003 at 01:17:04PM -0500, Wakko Warner wrote:
+> 
+> > Is there anyway to get kernel 2.6 to use the geometry
+> > the bios has for an IDE drive?
+> 
+> The kernel does not use any geometry.
+> 
+> > I have a installation setup that installs a non-linux os and I partition the
+> > drive under linux.  In 2.4 this has worked flawlessly, however, 2.6 reports
+> > as # cylinders/16 heads/63 sectors.
+> 
+> Aha. So your real question is:
+> "Is there any way to get *fdisk to use my favorite geometry?"
+> The answer is: all common fdisk versions allow you to set the geometry.
 
-> On Mon, 15 Dec 2003, George Anzinger wrote:
->
-> > >  Hmm, you could have simply asked... ;-)  Anyway, an inclusion is doable,
-> > > I guess.
-> >
-> > I suspect I did, but most likey the wrong place.  In any case, I would like to
-> > think that "read the source, Luke" is the right answer.
->
->  Certainly it is, but not necessarily the only one. ;-)
->
-> > So, while I am in the asking mode, is there a simple way to turn off the PIT
-> > interrupt without changing the PIT program?  I would like a way to stop the
-> > interrupts AND also stop the NMIs that it generates for the watchdog.  I suspect
-> > that this is a bit more complex that it would appear, due to how its wired.
->
->  Well, in PC/AT compatible implementations, the counter #0 of the PIT has
-> its gate hardwired to active, so you cannot mask the PIT output itself.
-> So the only other choices are either reprogramming the counter to a mode
-> that won't cause periodic triggers (which is probably the easiest way, but
-> you don't want to do that for some purpose, right?) or reprogramming
-> interrupt controllers not to accept interrupts arriving from the PIT.
->
->  Note that Linux may behave strangely then. ;-)
->
+I believe parted does not. Nor any of the libparted frontends. I may be
+wrong though.
 
-Masking OFF the timer channel 0 in the interrupt controller
-is probably the easiest thing to do. The port is read-write,
-and the OCW default to having it accessible.
+Friendly,
 
-	movw	$0x21, %dx	# Controller 0, mask register
-	inb	%dx, %al	# Get mask
-	orb	$1, %al		# Mask off bit 0
-	outb	%al, %dx	# Write it back
-
-You can reenable by:
-
-	movw	$0x21, %dx
-	inb	%dx, %al
-	andb	$~1, %al
-	outb	%al, %dx
-
-With port numbers less that 256, you actually don't need the
-DX register but I forget if the AT&T assembler needs a $ before
-the port number when doing this.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
-
+Sven Luther

@@ -1,65 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265323AbUEUBSq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265290AbUEUBaH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265323AbUEUBSq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 May 2004 21:18:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265326AbUEUBSq
+	id S265290AbUEUBaH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 May 2004 21:30:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265286AbUEUBaH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 May 2004 21:18:46 -0400
-Received: from hermes.py.intel.com ([146.152.216.3]:5564 "EHLO
-	hermes.py.intel.com") by vger.kernel.org with ESMTP id S265323AbUEUBSn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 May 2004 21:18:43 -0400
-Subject: Re: peculiar problem with 2.6, 8139too + ACPI
-From: Len Brown <len.brown@intel.com>
-To: Robert Fendt <fendt@physik.uni-dortmund.de>
-Cc: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
-In-Reply-To: <20040521015314.7001a9e9.fendt@physik.uni-dortmund.de>
-References: <A6974D8E5F98D511BB910002A50A6647615FB5FE@hdsmsx403.hd.intel.com>
-	 <1084584998.12352.306.camel@dhcppc4>
-	 <20040517123011.7e12d297.fendt@physik.uni-dortmund.de>
-	 <1084818282.12349.334.camel@dhcppc4>
-	 <20040521015314.7001a9e9.fendt@physik.uni-dortmund.de>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1085102192.12349.508.camel@dhcppc4>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 20 May 2004 21:16:32 -0400
+	Thu, 20 May 2004 21:30:07 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:44019 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S265328AbUEUBaD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 May 2004 21:30:03 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: brettspamacct@fastclick.com
+Subject: Re: How can I optimize a process on a NUMA architecture(x86-64 specifically)?
+Date: Thu, 20 May 2004 21:29:59 -0400
+User-Agent: KMail/1.6.2
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+References: <40AD52A4.3060607@fastclick.com>
+In-Reply-To: <40AD52A4.3060607@fastclick.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200405202129.59704.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-05-20 at 19:53, Robert Fendt wrote:
-> On 17 May 2004 14:24:42 -0400
+On Thursday, May 20, 2004 8:51 pm, Brett E. wrote:
+> Say you have a bunch of single-threaded processes on a NUMA machine.
+> Does the kernel make sure to prefer allocations using a certain CPU's
+> memory, preferring to run a given process on the CPU which contains its
+> memory?  
 
-> differing network topologies.
+Well, it'll allocate memory from the node containing the CPU that the process 
+is running on, so if you've pinned your process (e.g. with schedutils) you'll 
+be ok unless you're short on memory.  If it's not pinned, you'll run the risk 
+of having your process refer to memory on a remote node.  Depending on what 
+type of system you're running on, this could be a very small performance 
+issue or a large one.
 
-probably not important, just shows that this is timing dependent.
-System must be quiet enough that it gets into idle.
+> Or should I use the NUMA API(libnuma) to spell this out to the 
+> kernel? Does the kernel do the right thing in this case?
 
-> > Does
-> > cat /proc/acpi/processor/CPU0/power
-> > show any C3 usage?
-> 
-> Yes, if I read this correctly, it does. BTW, seemingly pretty much the same on AC or battery.
-> 
-> betazed:~# cat /proc/acpi/processor/CPU1/power
-> active state:            C2
-> default state:           C1
-> bus master activity:     ffffffff
-> states:
->     C1:                  promotion[C2] demotion[--] latency[000] usage[00000010]
->    *C2:                  promotion[C3] demotion[C1] latency[001] usage[00025200]
->     C3:                  promotion[--] demotion[C2] latency[101] usage[00024564]
-> 
+The kernel, by default, will allocate memory on the node where the process is 
+running, and fall back to other nodes based on distance.  That said, it's not 
+a bad idea to pin your process to a CPU and use libnuma to explicitly set 
+it's memory affinity.
 
-Please verify that the problem goes away when you exclude the
-acpi/processor module (CONFIG_ACPI_PROCESSOR) from the system.
-
-With the recent spate of C3 issues, we should make an easier way to
-disable C3 until it is fixed...
-
-thanks,
--Len
-
-
+Jesse

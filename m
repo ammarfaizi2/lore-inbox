@@ -1,55 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265849AbUAFXs1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 18:48:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265992AbUAFXs1
+	id S265992AbUAFXsz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 18:48:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266015AbUAFXsz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 18:48:27 -0500
-Received: from cibs9.sns.it ([192.167.206.29]:57861 "EHLO cibs9.sns.it")
-	by vger.kernel.org with ESMTP id S265849AbUAFXs0 (ORCPT
+	Tue, 6 Jan 2004 18:48:55 -0500
+Received: from [66.35.79.110] ([66.35.79.110]:19600 "EHLO www.hockin.org")
+	by vger.kernel.org with ESMTP id S265992AbUAFXsy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 18:48:26 -0500
-Date: Wed, 7 Jan 2004 00:48:14 +0100 (CET)
-From: venom@sns.it
-To: Hans Reiser <reiser@namesys.com>
-cc: Steve Glines <sglines@is-cs.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: file system technical comparisons
-In-Reply-To: <3FFAA4F6.5040501@namesys.com>
-Message-ID: <Pine.LNX.4.43.0401070036190.19759-100000@cibs9.sns.it>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 6 Jan 2004 18:48:54 -0500
+Date: Tue, 6 Jan 2004 15:47:35 -0800
+From: Tim Hockin <thockin@hockin.org>
+To: "Ogden, Aaron A." <aogden@unocal.com>
+Cc: thockin@Sun.COM, "H. Peter Anvin" <hpa@zytor.com>,
+       autofs mailing list <autofs@linux.kernel.org>,
+       Mike Waychison <Michael.Waychison@Sun.COM>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [autofs] [RFC] Towards a Modern Autofs
+Message-ID: <20040106234735.GA11952@hockin.org>
+References: <6AB920CC10586340BE1674976E0A991D0C6BE7@slexch2.sugarland.unocal.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <6AB920CC10586340BE1674976E0A991D0C6BE7@slexch2.sugarland.unocal.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Jan 2004, Hans Reiser wrote:
+On Tue, Jan 06, 2004 at 05:34:08PM -0600, Ogden, Aaron A. wrote:
+> autofs work like Solaris autofs.  Is Sun willing to devote man-hours to
+> help implement the new autofs?  I think Ian has done a tremendous job
 
-> balanced trees squish things together at every modification of the
-> tree.  Dancing trees squish things together when they get low on ram,
-> which is less often.  this means that we can afford to squish tighter
-> because we do it less often.
-
-This is generally true except some maior cases.
-
-A SAP server, for example, is "always" low on ram, not because of oracle, but
-because how the "disp+work" processes work.
-
-Another case I am thinking is a tibco server, when processes start to fork
-because of a lot of incoming messages from everywhere, and the DB really start
-to write a lot of stuff (all small writes).
-
-I am curious to make some test in those cases.
-
-Another think I am thinking about is an MC^2 lun. If all the I/O is resolved
-inside of the EMC cache, BTrees could be better than dancing trees? In fact
-in this case what matters is the CPU power you are using, since you de facto
-talk just with EMC cache.
-
-I know those are strange scenarios, but those are the scenarios I am actually
-working with. Since those are not typical situations, I think right now they are
-ininfluent, but in the future maybe more people will have to deal with them.
-
-Anyway untill I do not make some serious experiment mine are just
-speculations.
-
-Luigi
-
+Yes. :)

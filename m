@@ -1,118 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267448AbUGNQhe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267453AbUGNQix@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267448AbUGNQhe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 12:37:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267449AbUGNQhd
+	id S267453AbUGNQix (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 12:38:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267455AbUGNQix
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 12:37:33 -0400
-Received: from fire.osdl.org ([65.172.181.4]:17602 "EHLO fire-2.osdl.org")
-	by vger.kernel.org with ESMTP id S267448AbUGNQh2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 12:37:28 -0400
-Subject: Re: 2.6.8-rc1-mm1
-From: John Cherry <cherry@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040713182559.7534e46d.akpm@osdl.org>
-References: <20040713182559.7534e46d.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1089823011.9578.17.camel@cherrybomb.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Wed, 14 Jul 2004 09:36:51 -0700
-Content-Transfer-Encoding: 7bit
+	Wed, 14 Jul 2004 12:38:53 -0400
+Received: from web90007.mail.scd.yahoo.com ([66.218.94.65]:53378 "HELO
+	web90007.mail.scd.yahoo.com") by vger.kernel.org with SMTP
+	id S267453AbUGNQiq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jul 2004 12:38:46 -0400
+Message-ID: <20040714163846.13370.qmail@web90007.mail.scd.yahoo.com>
+Date: Wed, 14 Jul 2004 09:38:46 -0700 (PDT)
+From: Hlaing Oo <hlaing_1999@yahoo.com>
+Subject: Re: missing cdrom in new kernel 2.4.26
+To: Edward Macfarlane Smith <snowfire@blueyonder.co.uk>,
+       Martin Zwickel <martin.zwickel@technotrend.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200407141642.14047.snowfire@blueyonder.co.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The errors in the allyesconfig build stem from the following error...
+Dear Edward and Martin
 
-sound/pci/au88x0/snd-au8830.o(.rodata+0x45c): In function
-`vortex_wt_SetReg':
-sound/pci/au88x0/au88x0_synth.c:237: multiple definition of
-`vortex_asXtalkGainsAllChan'
-sound/pci/au88x0/snd-au8810.o(.rodata+0x43c):sound/pci/au88x0/au88x0_core.c:344: first defined here
-make[3]: [sound/pci/au88x0/built-in.o] Error 1 (ignored)
-
-
-Linux 2.6 (mm tree) Compile Statistics (gcc 3.2.2)
-
-Kernel            bzImage   bzImage  bzImage  modules  bzImage  modules
-                (defconfig) (allno) (allyes) (allyes) (allmod) (allmod)
---------------- ---------- -------- -------- -------- -------- --------
-2.6.8-rc1-mm1     0w/0e     0w/0e    88w/9e    5w/0e   1w/0e     87w/0e
-2.6.7-mm7         0w/0e     0w/0e    89w/9e    5w/0e   1w/0e     84w/0e
-2.6.7-mm6         0w/0e     0w/0e    85w/9e    5w/0e   1w/0e     80w/0e
-2.6.7-mm5         0w/0e     0w/0e    92w/0e    5w/0e   1w/0e     87w/0e
-2.6.7-mm4         0w/0e     0w/0e    94w/0e    5w/0e   1w/0e     89w/0e
-2.6.7-mm3         0w/0e     0w/0e    90w/6e    5w/0e   1w/0e     86w/0e
-2.6.7-mm2         0w/0e     0w/0e   109w/0e    7w/0e   1w/0e    106w/0e
-2.6.7-mm1         0w/0e     5w/0e   108w/0e    5w/0e   1w/0e    104w/0e
-2.6.7-rc3-mm2     0w/0e     5w/0e   105w/10e   5w/0e   2w/0e    100w/2e
-2.6.7-rc3-mm1     0w/0e     5w/0e   104w/10e   5w/0e   2w/0e    100w/2e
-2.6.7-rc2-mm2     0w/0e     5w/0e   109w/10e   5w/0e   2w/0e    105w/2e
-2.6.7-rc2-mm1     0w/0e    12w/0e   158w/13e   5w/0e   3w/0e    153w/4e
-2.6.7-rc1-mm1     0w/0e     6w/0e   108w/0e    5w/0e   2w/0e    104w/0e
-2.6.6-mm5         0w/0e     0w/0e   109w/5e    5w/0e   2w/0e    110w/0e
-2.6.6-mm4         0w/0e     0w/0e   112w/9e    5w/0e   2w/5e    106w/1e
-2.6.6-mm3         3w/9e     0w/0e   120w/26e   5w/0e   2w/0e    114w/10e
-2.6.6-mm2         4w/11e    0w/0e   120w/24e   6w/0e   2w/0e    118w/9e
-2.6.6-mm1         1w/0e     0w/0e   118w/25e   6w/0e   2w/0e    114w/10e
-2.6.6-rc3-mm2     0w/0e     0w/0e   117w/ 0e   8w/0e   2w/0e    116w/0e
-2.6.6-rc3-mm1     0w/0e     0w/0e   120w/10e   8w/0e   2w/0e    152w/2e
-2.6.6-rc2-mm2     0w/0e     1w/5e   118w/ 0e   8w/0e   3w/0e    118w/0e
-2.6.6-rc2-mm1     0w/0e     0w/0e   115w/ 0e   7w/0e   3w/0e    116w/0e
-2.6.6-rc1-mm1     0w/0e     0w/7e   122w/ 0e   7w/0e   4w/0e    122w/0e
-2.6.5-mm6         0w/0e     0w/0e   123w/ 0e   7w/0e   4w/0e    124w/0e
-2.6.5-mm5         0w/0e     0w/0e   119w/ 0e   7w/0e   4w/0e    120w/0e
-2.6.5-mm4         0w/0e     0w/0e   120w/ 0e   7w/0e   4w/0e    121w/0e
-2.6.5-mm3         0w/0e     1w/0e   121w/12e   7w/0e   3w/0e    123w/0e
-2.6.5-mm2         0w/0e     0w/0e   128w/12e   7w/0e   3w/0e    134w/0e
-2.6.5-mm1         0w/0e     5w/0e   122w/ 0e   7w/0e   3w/0e    124w/0e
-2.6.5-rc3-mm4     0w/0e     0w/0e   124w/ 0e   8w/0e   4w/0e    126w/0e
-2.6.5-rc3-mm3     0w/0e     5w/0e   129w/14e   8w/0e   4w/0e    129w/6e
-2.6.5-rc3-mm2     0w/0e     5w/0e   130w/14e   8w/0e   4w/0e    129w/6e
-2.6.5-rc3-mm1     0w/0e     5w/0e   129w/ 0e   8w/0e   4w/0e    129w/0e
-2.6.5-rc2-mm5     0w/0e     5w/0e   130w/ 0e   8w/0e   4w/0e    129w/0e
-2.6.5-rc2-mm4     0w/0e     5w/0e   134w/ 0e   8w/0e   3w/0e    133w/0e
-2.6.5-rc2-mm3     0w/0e     5w/0e   134w/ 0e   8w/0e   3w/0e    133w/0e
-2.6.5-rc2-mm2     0w/0e     5w/0e   137w/ 0e   8w/0e   3w/0e    134w/0e
-2.6.5-rc2-mm1     0w/0e     5w/0e   136w/ 0e   8w/0e   3w/0e    134w/0e
-2.6.5-rc1-mm2     0w/0e     5w/0e   135w/ 5e   8w/0e   3w/0e    133w/0e
-2.6.5-rc1-mm1     0w/0e     5w/0e   135w/ 5e   8w/0e   3w/0e    133w/0e
-2.6.4-mm2         1w/2e     5w/2e   144w/10e   8w/0e   3w/2e    144w/0e
-2.6.4-mm1         1w/0e     5w/0e   146w/ 5e   8w/0e   3w/0e    144w/0e
-2.6.4-rc2-mm1     1w/0e     5w/0e   146w/12e  11w/0e   3w/0e    147w/2e
-2.6.4-rc1-mm2     1w/0e     5w/0e   144w/ 0e  11w/0e   3w/0e    145w/0e
-2.6.4-rc1-mm1     1w/0e     5w/0e   147w/ 5e  11w/0e   3w/0e    147w/0e
-2.6.3-mm4         1w/0e     5w/0e   146w/ 0e   7w/0e   3w/0e    142w/0e
-2.6.3-mm3         1w/2e     5w/2e   146w/15e   7w/0e   3w/2e    144w/5e
-2.6.3-mm2         1w/8e     5w/0e   140w/ 0e   7w/0e   3w/0e    138w/0e
-2.6.3-mm1         1w/0e     5w/0e   143w/ 5e   7w/0e   3w/0e    141w/0e
-2.6.3-rc3-mm1     1w/0e     0w/0e   144w/13e   7w/0e   3w/0e    142w/3e
-2.6.3-rc2-mm1     1w/0e     0w/265e 144w/ 5e   7w/0e   3w/0e    145w/0e
-2.6.3-rc1-mm1     1w/0e     0w/265e 141w/ 5e   7w/0e   3w/0e    143w/0e
-2.6.2-mm1         2w/0e     0w/264e 147w/ 5e   7w/0e   3w/0e    173w/0e
-2.6.2-rc3-mm1     2w/0e     0w/265e 146w/ 5e   7w/0e   3w/0e    172w/0e
-2.6.2-rc2-mm2     0w/0e     0w/264e 145w/ 5e   7w/0e   3w/0e    171w/0e
-2.6.2-rc2-mm1     0w/0e     0w/264e 146w/ 5e   7w/0e   3w/0e    172w/0e
-2.6.2-rc1-mm3     0w/0e     0w/265e 144w/ 8e   7w/0e   3w/0e    169w/0e
-2.6.2-rc1-mm2     0w/0e     0w/264e 144w/ 5e  10w/0e   3w/0e    171w/0e
-2.6.2-rc1-mm1     0w/0e     0w/264e 144w/ 5e  10w/0e   3w/0e    171w/0e
-2.6.1-mm5         2w/5e     0w/264e 153w/11e  10w/0e   3w/0e    180w/0e
-2.6.1-mm4         0w/821e   0w/264e 154w/ 5e   8w/1e   5w/0e    179w/0e
-2.6.1-mm3         0w/0e     0w/0e   151w/ 5e  10w/0e   3w/0e    177w/0e
-2.6.1-mm2         0w/0e     0w/0e   143w/ 5e  12w/0e   3w/0e    171w/0e
-2.6.1-mm1         0w/0e     0w/0e   146w/ 9e  12w/0e   6w/0e    171w/0e
-2.6.1-rc2-mm1     0w/0e     0w/0e   149w/ 0e  12w/0e   6w/0e    171w/4e
-2.6.1-rc1-mm2     0w/0e     0w/0e   157w/15e  12w/0e   3w/0e    185w/4e
-2.6.1-rc1-mm1     0w/0e     0w/0e   156w/10e  12w/0e   3w/0e    184w/2e
-2.6.0-mm2         0w/0e     0w/0e   161w/ 0e  12w/0e   3w/0e    189w/0e
-2.6.0-mm1         0w/0e     0w/0e   173w/ 0e  12w/0e   3w/0e    212w/0e
-
-Web page with links to complete details:
-   http://developer.osdl.org/cherry/compile/
-
-John
+Got it!!
+Thank you very very much.
+I got more knowledge on kernel.
+thank you both.
+Regards
+hlaing oo
+--- Edward Macfarlane Smith
+<snowfire@blueyonder.co.uk> wrote:
+> On Wednesday 14 July 2004 13:17, Hlaing Oo wrote:
+> 
+> > >>>>> my new kernel dmesg is below
+> >
+> > #cat /var/log/dmesg
+> > Linux version 2.4.26 (root@localhost.localdomain)
+> (gcc
+> > version 3.2.2 20030222 (Red Hat Linux 3.2.2-5)) #3
+> SMP
+> 
+> > BIOS strings suggest APM reports battery life in
+> > minutes and wrong byte order.
+> > Kernel command line: ro root=/dev/hda2
+> hdc=ide-scsi
+> > ide_setup: hdc=ide-scsi
+> ---cut---
+> old
+> > EXT3-fs: mounted filesystem with ordered data
+> mode.
+> > SCSI subsystem driver Revision: 1.00
+> > scsi0 : SCSI host adapter emulation for IDE ATAPI
+> > devices
+> >   Vendor: MATSHITA  Model: UJDA310           Rev:
+> 1.34
+> >   Type:   CD-ROM                             ANSI
+> SCSI
+> > revision: 02
+> 
+> In both old and new you are passing in hdc=ide-scsi
+> on the boot line, telling 
+> the kernel to use ide-scsi  for hdc. (I'd guess that
+> /dev/cdrom points 
+> to /dev/sr0). The bit below shows that it has
+> correctly inserted the ide-scsi 
+> module in your old kernel and detected the cdrom.
+> That is missing from the 
+> new one. Are you sure you built the ide-scsi module
+> in your new kernel? Have 
+> you checked /var/log/messages or /var/log/warn to
+> see if there were any 
+> errors about problems with the ide-scsi module?
+> Fairly certain I remember getting the same error one
+> time when I forgot to 
+> build ide-scsi.
+> Regards,
+> Edward
+> 
+> -
+> To unsubscribe from this list: send the line
+> "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at 
+> http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
 
-
+		
+__________________________________
+Do you Yahoo!?
+Yahoo! Mail - 50x more storage than other providers!
+http://promotions.yahoo.com/new_mail

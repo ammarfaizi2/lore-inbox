@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262598AbTI1QBc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Sep 2003 12:01:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262601AbTI1QBc
+	id S262594AbTI1QFW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Sep 2003 12:05:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262597AbTI1QFW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Sep 2003 12:01:32 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:4490 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262598AbTI1QBa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Sep 2003 12:01:30 -0400
-Date: Sun, 28 Sep 2003 18:01:44 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Gabor MICSKO <gmicsko@szintezis.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] exec-shield-2.6.0-test6-G3
-In-Reply-To: <1064761054.29997.39.camel@sunshine>
-Message-ID: <Pine.LNX.4.56.0309281756530.17030@localhost.localdomain>
-References: <1064761054.29997.39.camel@sunshine>
+	Sun, 28 Sep 2003 12:05:22 -0400
+Received: from boss.staszic.waw.pl ([195.205.163.66]:59562 "EHLO
+	boss.staszic.waw.pl") by vger.kernel.org with ESMTP id S262594AbTI1QFS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Sep 2003 12:05:18 -0400
+From: Marek Szyprowski <march@staszic.waw.pl>
+To: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Date: Sun, 28 Sep 2003 17:59:08 +0100
+Message-ID: <yam9401.439.1201663704@boss.staszic.waw.pl>
+X-Mailer: YAM 2.4p1 [040] AmigaOS E-mail Client (c) 2000-2003 by YAM Open Source Team - http://www.yam.ch/
+Subject: [PATCH] ASFS filesystem patch, kernel 2.6.0test5
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-On Sun, 28 Sep 2003, Gabor MICSKO wrote:
+This patch is a quick port of my 2.4.x ASFS driver. It adds read-only
+support for Amiga SmartFileSystem. This filesystem is being used very
+commonly on AmigaOS and MorphOS systems. This patch has been tested on
+Linux/x86 machine. This patch is prepared for kernel 2.6.0test5.
 
-> I`ve made a port of the Ingo's last exec-shield patch. This is my second
-> patch, so please test this one carefully.
-> 
-> Against vanilla 2.6.0-test6:
+The patch is available on
+http://www.staszic.waw.pl/~march/asfs/asfs-0.6_patch_2.6.0t5.diff
+(because of the size, it has over 1000 lines).
 
-the test5-bk12 one applied cleanly to 2.6.0-test6 (except a Makefile
-reject), and i've renamed it to test6-G3 yesterday. Here is the full list
-of exec-shield patches:
+Regards
+-- 
+Marek Szyprowski .. GG:2309080 .. mailto:marek@amiga.pl ..
+...... happy AmigaOS, MacOS and Debian/Linux user ........
+........... http://march.home.staszic.waw.pl/ ............
 
-  redhat.com/~mingo/exec-shield/exec-shield-2.6.0-test6-G3
-
-  redhat.com/~mingo/exec-shield/exec-shield-2.4.22-G3
-
-  redhat.com/~mingo/exec-shield/exec-shield-2.4.22-ac1-nptl-G3
-
-	Ingo

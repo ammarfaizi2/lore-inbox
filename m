@@ -1,76 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262064AbTJST1v (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Oct 2003 15:27:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262066AbTJST1v
+	id S262114AbTJSTmr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Oct 2003 15:42:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262115AbTJSTmr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Oct 2003 15:27:51 -0400
-Received: from ncircle.nullnet.fi ([62.236.96.207]:23231 "EHLO
-	ncircle.nullnet.fi") by vger.kernel.org with ESMTP id S262064AbTJST1p
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Oct 2003 15:27:45 -0400
-Message-ID: <48981.192.168.9.10.1066591663.squirrel@ncircle.nullnet.fi>
-In-Reply-To: <006b01c39667$f32211c0$0514a8c0@HUSH>
-References: <00b801c3955c$7e623100$0514a8c0@HUSH>   
-    <48236.192.168.9.10.1066565636.squirrel@ncircle.nullnet.fi>   
-    <006501c39660$cf306cf0$0514a8c0@HUSH>
-    <40464.192.168.9.10.1066583818.squirrel@ncircle.nullnet.fi>
-    <006b01c39667$f32211c0$0514a8c0@HUSH>
-Date: Sun, 19 Oct 2003 22:27:43 +0300 (EEST)
+	Sun, 19 Oct 2003 15:42:47 -0400
+Received: from rrzd1.rz.uni-regensburg.de ([132.199.1.6]:22156 "EHLO
+	rrzd1.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
+	id S262114AbTJSTmp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Oct 2003 15:42:45 -0400
 Subject: Re: HighPoint 374
-From: "Tomi Orava" <Tomi.Orava@ncircle.nullnet.fi>
-To: "Carlos Fernandez Sanz" <cfs-lk@nisupu.com>
-Cc: linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3
-Importance: Normal
+From: Christian Guggenberger 
+	<christian.guggenberger@physik.uni-regensburg.de>
+Reply-To: christian.guggenberger@physik.uni-regensburg.de
+To: linux-kernel@vger.kernel.org, tomi.orava@ncircle.nullnet.fi
+Content-Type: text/plain
+Message-Id: <1066592564.745.12.camel@bonnie79>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sun, 19 Oct 2003 21:42:44 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
 >>
->> Very interesting. The other type of errors I have received (the last
->> time
->> with 2.4.23-pre4) were:
+>>> What's the current status of HPT 374 support? Is it working in any
+>>> kernel
+>>> version?
 >>
->> Sep 14 14:29:49 alderan kernel: hde: set_drive_speed_status: status=0xff
->> {
->> Busy }
->> Sep 14 14:29:49 alderan kernel: blk: queue c0492188, I/O limit 4095Mb
->> (mask 0xffffffff)
+>> In 2.4.21 and 2.4.22 it's working great for me.  I'm using the
+>> "experimental" IDE Raid with two disks on a HPT 374 controller with the
+>> drivers that come with the kernel.
 >
-> Same here.
+>I have tried these versions in the past as well without success.
+>However, I don't use HPT-raid features at all ie. I'm using the
+>disks as JBOD. What hardware do you have and have you enabled
+>ACPI/local-apic/io-apic ? What brand & model of disk-drives you
+>are using with HPT374 controller ? And finally what does
+>the /proc/interrupts show for you ?
 >
->> Currently my disk-drivers are made by 2*samsung (SV8004H) and
->> 2*Samsung(SV1604N), in case that changes anything.
->
-> I'm using two seagates (different models), one Samsung and one Maxtor,
-> this happens in all 4.
-> I'm not using any kind of RAID.
+>There really must be some explanation why some of us are
+>having really huge problems with HPT374-contollers while for
+>others it's working just fine. I haven't exactly heard anyone
+>been too succesfull for example with Epox 8K9A3+ motherboard
+>even on this mailing-list based on previous questions seen here.
 
-Hmm, if I checked correctly, your motherboard (Asus CUSL2) doesn't seem to
-include a HPT374 based (integrated) IDE-controller. Are you using some
-add-on PCI-card for IDE ? If yes, are you using older style Parallel-ATA
-or newer Serial-ATA interface ?
+well, it's not an Epox 8k9a3+ here, but an 8k5a3+ with two HPT374 onboard
+and it is working well with recent 2.6.0-test* kernels.
+I also just use JBOD - only one disk connected as /dev/hde to the first HPT 374, 
+an IBM-DTLA-305040, and I really don't see any probs here.
 
->>
->> And have you tried with ACPI on/off and io-apic on/off ?
->
-> No, to be honest I didn't even think of this. You think it could make a
-> difference? Given the fact that the card works correctly with the HPT
-> drivers, pretty much everything that does not relate directly to the IDE
-> drivers seems ruled out as the cause...
+Christian
 
-Based on previous questions and answers on this list, those settings
-might very well affect you, as they affect the way interrupts are handled
-in your system. Unfortunately, they haven't fixed my problems no matter
-what I combination I have tried.
 
-Regards,
-Tomi Orava
 
--- 
-Tomi.Orava@ncircle.nullnet.fi

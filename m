@@ -1,87 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262951AbUFFGHs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262960AbUFFGgK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262951AbUFFGHs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 02:07:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262905AbUFFGHs
+	id S262960AbUFFGgK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 02:36:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262905AbUFFGgK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 02:07:48 -0400
-Received: from fw.osdl.org ([65.172.181.6]:29376 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262954AbUFFGHp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 02:07:45 -0400
-Date: Sat, 5 Jun 2004 23:07:25 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Kalin KOZHUHAROV <kalin@ThinRope.net>
-cc: Davide Libenzi <davidel@xmailserver.org>, Robert Love <rml@ximian.com>,
-       Chris Wedgwood <cw@f00f.org>, Arjan van de Ven <arjanv@redhat.com>,
-       Russell Leighton <russ@elegant-software.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: clone() <-> getpid() bug in 2.6?
-In-Reply-To: <40C2A6E4.7020103@ThinRope.net>
-Message-ID: <Pine.LNX.4.58.0406052244290.7010@ppc970.osdl.org>
-References: <40C1E6A9.3010307@elegant-software.com> 
- <Pine.LNX.4.58.0406051341340.7010@ppc970.osdl.org> 
- <20040605205547.GD20716@devserv.devel.redhat.com>  <20040605215346.GB29525@taniwha.stupidest.org>
- <1086475663.7940.50.camel@localhost> <Pine.LNX.4.58.0406051553130.2261@bigblue.dev.mdolabs.com>
- <Pine.LNX.4.58.0406051610430.7010@ppc970.osdl.org> <40C2A6E4.7020103@ThinRope.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 6 Jun 2004 02:36:10 -0400
+Received: from spock.bluecherry.net ([66.138.159.248]:8355 "EHLO
+	spock.bluecherry.net") by vger.kernel.org with ESMTP
+	id S262960AbUFFGgF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jun 2004 02:36:05 -0400
+Date: Sun, 6 Jun 2004 02:35:59 -0400
+From: "Zephaniah E. Hull" <warp@babylon.d2dc.net>
+To: Duncan Sands <baldrick@free.fr>
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
+       "David A. Desrosiers" <desrod@gnu-designs.com>,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] Re: USBDEVFS_RESET deadlocks USB bus.
+Message-ID: <20040606063559.GA3018@babylon.d2dc.net>
+Mail-Followup-To: Duncan Sands <baldrick@free.fr>,
+	Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
+	"David A. Desrosiers" <desrod@gnu-designs.com>,
+	linux-usb-devel@lists.sourceforge.net
+References: <20040604193911.GA3261@babylon.d2dc.net> <200406042240.43490.baldrick@free.fr> <20040604213037.GA2881@babylon.d2dc.net> <200406050955.01677.baldrick@free.fr>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="4Ckj6UjgE2iN1+kY"
+Content-Disposition: inline
+In-Reply-To: <200406050955.01677.baldrick@free.fr>
+X-Notice-1: Unsolicited Commercial Email (Aka SPAM) to ANY systems under
+X-Notice-2: our control constitutes a $US500 Administrative Fee, payable
+X-Notice-3: immediately.  By sending us mail, you hereby acknowledge that
+X-Notice-4: policy and agree to the fee.
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--4Ckj6UjgE2iN1+kY
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Sun, 6 Jun 2004, Kalin KOZHUHAROV wrote:
->
-> Well, not exactly sure about my reply, but let me try.
-> 
-> The other day I was debugging some config problems with my qmail instalation and I ended up doing:
-> # strace -p 4563 -f -F
-> ...
-> [pid 13097] read(3, "\347\374\375TBH~\342\233\337\220\302l\220\317\237\37\25"..., 32) = 32
-> [pid 13097] close(3)                    = 0
-> [pid 13097] getpid()                    = 13097
-> [pid 13097] getpid()                    = 13097
-> [pid 13097] getuid32()                  = 89
-> [pid 13097] getpid()                    = 13097
-> [pid 13097] time(NULL)                  = 1086497450
-> [pid 13097] getpid()                    = 13097
-> [pid 13097] getpid()                    = 13097
-> [pid 13097] getpid()                    = 13097
+On Sat, Jun 05, 2004 at 09:55:01AM +0200, Duncan Sands wrote:
+> On Friday 04 June 2004 23:30, Zephaniah E. Hull wrote:
+> > On Fri, Jun 04, 2004 at 10:40:43PM +0200, Duncan Sands wrote:
+> > > > c4bae310 Call Trace:
+> > > >  [<c0336735>] __down+0x85/0x120
+> > > >  [<c033692f>] __down_failed+0xb/0x14
+> > > >  [<c026af27>] .text.lock.hub+0x69/0x82
+> > > >  [<c0272b7f>] usbdev_ioctl+0x19f/0x710
+> > > >  [<c015a45d>] file_ioctl+0x5d/0x170
+> > > >  [<c015a686>] sys_ioctl+0x116/0x250
+> > > >  [<c0103f8f>] syscall_call+0x7/0xb
+> > >
+> > > Does this help?
+> >
+> > I'm afraid not.
+>=20
+> Are you sure?  That seems impossible to me!  Can you
+> get a new call trace please.
 
-qmail is a piece of crap. The source code is completely unreadable, and it 
-seems to think that "getpid()" is a good source of random data. Don't ask 
-me why.
+Hrm, I could have sworn that the kernel I tested with was rebuilt with
+the patch, but now that I am trying it on rc2-mm1 with the patch, it
+does in fact seem to be working, mostly.
 
-It literally does things like
+Thanks a lot, and sorry for the previous report.
 
-	random = now() + (getpid() << 16);
+I seem to be seeing a locking related race condition on bulk reads and
+writes as well, should I start a new thread for those?
 
-and since there isn't a single comment in the whole source tree, it's
-pointless to wonder why. (In case you wonder, "now()" just does a
-"time(NULL)" call - whee.).
+--=20
+	1024D/E65A7801 Zephaniah E. Hull <warp@babylon.d2dc.net>
+	   92ED 94E4 B1E6 3624 226D  5727 4453 008B E65A 7801
+	    CCs of replies from mailing lists are requested.
 
-I don't understand why people bother with it. It's not like Dan Bernstein
-is so charming that it makes up for the deficiencies of his programs.
+* james would be more impressed if netgod's magic powers could stop the
+splits in the first place...
+* netgod notes debian developers are notoriously hard to impress
+        -- Seen on #Debian
 
-But no, even despite the strange usage, this isn't a performance issue.  
-qmail will call "getpid()" a few tens of times per connection because of
-the wonderful quality of randomness it provides, or something.
+--4Ckj6UjgE2iN1+kY
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-This is another gem you find when grepping for "getpid()" in qmail, and 
-apparently the source of most of them:
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-	if (now() - when < ((60 + (getpid() & 31)) << 6))
+iD8DBQFAwrtPRFMAi+ZaeAERAnSPAJsElpFyXWFBURQOZ7n/4x1qEZKRGgCeLQY3
+/Gdo5BKyQi7b9GVka8eyQ8Q=
+=27kk
+-----END PGP SIGNATURE-----
 
-Don't you love it how timeouts etc seem to be based on random values that 
-are calculated off the lower 5 bits of the process ID? And don't you find 
-the above (totally uncommented) line just a thing of beauty and clarity?
-
-Yeah. 
-
-Anyway, you did find something that used more than a handful of getpid() 
-calls, but no, it doesn't qualify as performance-critical, and even 
-despite it's peyote-induced (or hey, some people are just crazy on their 
-own) getpid() usage, it's not a reason to have a buggy glibc.
-
-		Linus
+--4Ckj6UjgE2iN1+kY--

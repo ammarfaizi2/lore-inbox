@@ -1,58 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263737AbTETL5e (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 May 2003 07:57:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263731AbTETL5d
+	id S263732AbTETL4c (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 May 2003 07:56:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263737AbTETL4c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 May 2003 07:57:33 -0400
-Received: from meg.hrz.tu-chemnitz.de ([134.109.132.57]:58829 "EHLO
+	Tue, 20 May 2003 07:56:32 -0400
+Received: from meg.hrz.tu-chemnitz.de ([134.109.132.57]:54989 "EHLO
 	meg.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id S263737AbTETL4e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 May 2003 07:56:34 -0400
-Date: Tue, 20 May 2003 11:12:28 +0200
+	id S263732AbTETL4a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 May 2003 07:56:30 -0400
+Date: Tue, 20 May 2003 13:17:17 +0200
 From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Ulrich Drepper <drepper@redhat.com>,
-       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] futex requeueing feature, futex-requeue-2.5.69-D3
-Message-ID: <20030520111228.I626@nightmaster.csn.tu-chemnitz.de>
-References: <20030520014836.C7BDE2C069@lists.samba.org> <Pine.LNX.4.44.0305200821010.2445-100000@localhost.localdomain> <20030520075627.A28002@infradead.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+       plars@austin.ibm.com, akpm@digeo.com
+Subject: Re: [PATCH] Exception trace for i386
+Message-ID: <20030520131717.J626@nightmaster.csn.tu-chemnitz.de>
+References: <20030519192814.GA975@averell.suse.lists.linux.kernel> <1053377808.588720@palladium.transmeta.com.suse.lists.linux.kernel> <p73k7cmzl7d.fsf@oldwotan.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2i
-In-Reply-To: <20030520075627.A28002@infradead.org>; from hch@infradead.org on Tue, May 20, 2003 at 07:56:27AM +0100
+In-Reply-To: <p73k7cmzl7d.fsf@oldwotan.suse.de>; from ak@suse.de on Mon, May 19, 2003 at 11:21:42PM +0200
 X-Spam-Score: -5.0 (-----)
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19I5vx-0000nB-00*75sg.VDA/FE*
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19I5vt-0000nB-00*yUMhcBCLBq6*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, May 19, 2003 at 11:21:42PM +0200, Andi Kleen wrote:
+> I especially like it being a global option. It has catched bugs on x86-64 
+> that were never noticed before (e.g. subprocesses silently segfaulting 
+> that nobody noticed doing the same on i386). Clearly it's an debugging 
+> thing and you definitely want an option to turn it off. But having 
+> the global option is useful.
 
-On Tue, May 20, 2003 at 07:56:27AM +0100, Christoph Hellwig wrote:
-> On Tue, May 20, 2003 at 08:27:03AM +0200, Ingo Molnar wrote:
-> > yes, but the damage has been done already, and now we've got to start the
-> > slow wait for the old syscall to flush out of our tree.
-> 
-> Actually it should go away before 2.6.0.  sys_futex never was part of a
-> released stable kernel so having the old_ version around is silly.  I
-> Think it's enough time until 2.6 hits the roads for people to have those
-> vendor libc flushed out that use it.  (and sys_futex still isn't used
-> in the glibc CVS, only in the addon nptl package with pre-1 release
-> numbers.)
+Would you consider doing the logging only, if the process has no
+real handler for that? (so it's blocking, ignoring or not caring
+about this signal)
 
-This sounds reasonable. The people who shipped that already to
-customers have so heavily patched kernels, that this simple patch
-for the old sys_futex shouldn't really matter.
-
-But cluttering the kernel with an API/ABI that was born in the
-same development cycle, where it has been obsoleted sounds not
-worth the bytes it consumes. And so we have a syscall slot
-available for the next development cycle.
-
-Or did anybody promise that this was final already? Usally this
-promise comes with x.even.y not with x.odd.y .
+This will reveal only the bugs and not disturb the applications,
+which do sth. useful with segfaults.
 
 Regards
 

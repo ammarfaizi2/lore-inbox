@@ -1,55 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264248AbTDWTY7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 15:24:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264259AbTDWTWt
+	id S264407AbTDWTY6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 15:24:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264268AbTDWTW5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 15:22:49 -0400
-Received: from marshall.modwest.com ([216.129.251.30]:4519 "EHLO
-	mail.modwest.com") by vger.kernel.org with ESMTP id S264408AbTDWTWO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 15:22:14 -0400
-From: Nils Holland <nils@ravishing.de>
-Organization: Ravishing Enterprises
-To: David van Hoose <davidvh@cox.net>, linux-kernel@vger.kernel.org
-Subject: Re: [2.4.21-rc1] USB Trackball broken
-Date: Wed, 23 Apr 2003 21:34:42 +0200
-User-Agent: KMail/1.5.1
-References: <3EA6C558.5040004@cox.net>
-In-Reply-To: <3EA6C558.5040004@cox.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 23 Apr 2003 15:22:57 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:9723 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S264420AbTDWTV6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 15:21:58 -0400
+Date: Wed, 23 Apr 2003 21:33:58 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Steven Whitehouse <steve@chygwyn.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: 2.5.68: net/decnet/dn_route.c doesn't compile
+Message-ID: <20030423193358.GU15833@fs.tum.de>
+References: <Pine.LNX.4.44.0304192002580.9909-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200304232134.42349.nils@ravishing.de>
+In-Reply-To: <Pine.LNX.4.44.0304192002580.9909-100000@penguin.transmeta.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 23 April 2003 18:54, David van Hoose wrote:
+On Sat, Apr 19, 2003 at 08:11:40PM -0700, Linus Torvalds wrote:
+>...
+> Summary of changes from v2.5.67 to v2.5.68
+> ============================================
+>...
+> Steven Whitehouse:
+>   o [DECNET]: DECnet routing fixes etc
+>...
 
-> I am running RedHat 9. Trackball is detected and works when using the
-> stock 2.4.20-9 kernel that RedHat provided.
->
-> With 2.4.21-rc1, I have included the USB and input devices in the
-> kernel, as modules, and as various combinations in between. My USB
-> Logitech Trackball shows up as being detected and setup, but it doesn't
-> work.
+This broke the compilation of net/decnet/dn_route.c
+#ifdef CONFIG_DECNET_ROUTE_FWMARK :
 
-I'm using a Logitech Cordless TrackMan here, and this works fine with 
-2.4.21-rc1. I don't know which trackball you have, but the Logitech input 
-devices all seem to be using more or less the same receiver, and this is what 
-the problem would be about.
+<--  snip  -->
 
-Anyway, if not done already, I would suggest that you plug the trackball right 
-into one of the computer's USB ports and not into an external hub to see if 
-that makes a difference.
+...
+  gcc -Wp,-MD,net/decnet/.dn_route.o.d -D__KERNEL__ -Iinclude -Wall 
+-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe 
+-mpreferred-stack-boundary=2 -march=k6 -Iinclude/asm-i386/mach-default -nostdinc 
+-iwithprefix include    -DKBUILD_BASENAME=dn_route -DKBUILD_MODNAME=decnet -c -o 
+net/decnet/dn_route.o net/decnet/dn_route.c
+net/decnet/dn_route.c: In function `dn_route_output_slow':
+net/decnet/dn_route.c:896: warning: deprecated use of label at end of 
+compound statement
+net/decnet/dn_route.c:1057: `flp' undeclared (first use in this function)
+net/decnet/dn_route.c:1057: (Each undeclared identifier is reported only once
+net/decnet/dn_route.c:1057: for each function it appears in.)
+net/decnet/dn_route.c: In function `dn_route_input_slow':
+net/decnet/dn_route.c:1182: structure has no member named `fwmark'
+make[2]: *** [net/decnet/dn_route.o] Error 1
 
-Greetings
-Nils
+<--  snip  -->
+
+cu
+Adrian
 
 -- 
-celine.ravishing.de
-Linux 2.4.21-rc1 #5 Tue Apr 22 13:12:21 CEST 2003 i686
-  9:30pm  up  2:10,  2 users,  load average: 0.00, 0.02, 0.00
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,56 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267083AbTCEELQ>; Tue, 4 Mar 2003 23:11:16 -0500
+	id <S267089AbTCEE17>; Tue, 4 Mar 2003 23:27:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267084AbTCEELQ>; Tue, 4 Mar 2003 23:11:16 -0500
-Received: from fmr09.intel.com ([192.52.57.35]:15598 "EHLO hermes.hd.intel.com")
-	by vger.kernel.org with ESMTP id <S267083AbTCEELP> convert rfc822-to-8bit;
-	Tue, 4 Mar 2003 23:11:15 -0500
-content-class: urn:content-classes:message
-Subject: RE: [PATCH][IO_APIC] 2.5.63bk7 irq_balance improvments / bug-fixes
-Date: Tue, 4 Mar 2003 20:21:10 -0800
-Message-ID: <E88224AA79D2744187E7854CA8D9131DA8B7E0@fmsmsx407.fm.intel.com>
+	id <S267091AbTCEE17>; Tue, 4 Mar 2003 23:27:59 -0500
+Received: from out006pub.verizon.net ([206.46.170.106]:64749 "EHLO
+	out006.verizon.net") by vger.kernel.org with ESMTP
+	id <S267089AbTCEE16>; Tue, 4 Mar 2003 23:27:58 -0500
+Message-ID: <3E657EBD.59E167D6@verizon.net>
+Date: Tue, 04 Mar 2003 20:36:13 -0800
+From: "Randy.Dunlap" <randy.dunlap@verizon.net>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.59 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH][IO_APIC] 2.5.63bk7 irq_balance improvments / bug-fixes
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6334.0
-Thread-Index: AcLiqZwk7ECO2Tr9TBKYEw35VbF7dQAI1jTg
-From: "Kamble, Nitin A" <nitin.a.kamble@intel.com>
-To: "Andrew Morton" <akpm@digeo.com>
-Cc: <linux-kernel@vger.kernel.org>, <kai.bankett@ontika.net>,
-       <mingo@redhat.com>, "Nakajima, Jun" <jun.nakajima@intel.com>,
-       "Mallick, Asit K" <asit.k.mallick@intel.com>,
-       "Saxena, Sunil" <sunil.saxena@intel.com>
-X-OriginalArrivalTime: 05 Mar 2003 04:21:10.0638 (UTC) FILETIME=[A69F18E0:01C2E2CE]
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: [PATCH] move SWAP option in menu
+Content-Type: multipart/mixed;
+ boundary="------------66783FF1E7355B54CB30A405"
+X-Authentication-Info: Submitted using SMTP AUTH at out006.verizon.net from [4.64.238.61] at Tue, 4 Mar 2003 22:38:22 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There are few issues we found with the user level daemon approach.
-  
-   Static binding compatibility: With the user level daemon, users can
-not  
-use the /proc/irq/i/smp_affinity interface for the static binding of
-interrupts.
+This is a multi-part message in MIME format.
+--------------66783FF1E7355B54CB30A405
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-  There is some information which is only available in the kernel today,
-Also the future implementation might need more kernel data. This is
-important for interfaces such as NAPI, where interrupts handling changes
-on the fly.
+Hi,
+
+Please apply this patch (option B of 2 choices) from
+Tomas Szepe to move the SWAP option into the General Setup
+menu.
+
+Patch is to 2.5.64.
 
 Thanks,
-Nitin
+~Randy
+--------------66783FF1E7355B54CB30A405
+Content-Type: text/plain; charset=us-ascii;
+ name="swap_option.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="swap_option.patch"
 
-> Now there has been some discssion as to whether these algorithmic
-> decisions
-> can be moved out of the kernel altogether.  And with periods of one
-and
-> five
-> seconds that does appear to be feasible.
-> 
-> I believe that you have looked at this before and encountered some
-problem
-> with it.  Could you please describe what happened there?
+diff -urN a/arch/i386/Kconfig b/arch/i386/Kconfig
+--- a/arch/i386/Kconfig	2003-03-03 20:04:08.000000000 +0100
++++ b/arch/i386/Kconfig	2003-03-03 19:58:48.000000000 +0100
+@@ -18,15 +18,6 @@
+ 	bool
+ 	default y
+ 
+-config SWAP
+-	bool "Support for paging of anonymous memory"
+-	default y
+-	help
+-	  This option allows you to choose whether you want to have support
+-	  for socalled swap devices or swap files in your kernel that are
+-	  used to provide more virtual memory than the actual RAM present
+-	  in your computer.  If unusre say Y.
+-
+ config SBUS
+ 	bool
+ 
+diff -urN a/init/Kconfig b/init/Kconfig
+--- a/init/Kconfig	2003-02-11 01:09:48.000000000 +0100
++++ b/init/Kconfig	2003-03-03 20:02:11.000000000 +0100
+@@ -34,9 +34,18 @@
+ 
+ endmenu
+ 
+-
+ menu "General setup"
+ 
++config SWAP
++	depends on X86
++	bool "Support for paging of anonymous memory"
++	default y
++	help
++	  This option allows you to choose whether you want to have support
++	  for the so-called swap devices or swap files.  There are used to
++	  provide more virtual memory than the actual RAM presents in your
++	  computer.  If unsure, say Y.
++
+ config SYSVIPC
+ 	bool "System V IPC"
+ 	---help---
+
+--------------66783FF1E7355B54CB30A405--
+

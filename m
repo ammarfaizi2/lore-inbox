@@ -1,81 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262207AbTHTTRn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 15:17:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262204AbTHTTRn
+	id S262156AbTHTTN0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 15:13:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262193AbTHTTNZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 15:17:43 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:47109 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S262202AbTHTTRi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 15:17:38 -0400
-Date: Wed, 20 Aug 2003 15:08:03 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: "David S. Miller" <davem@redhat.com>
-cc: dang@fprintf.net, alan@lxorguk.ukuu.org.uk, richard@aspectgroup.co.uk,
-       skraw@ithnet.com, willy@w.ods.org, carlosev@newipnet.com,
-       lamont@scriptkiddie.org, bloemsaa@xs4all.nl, marcelo@conectiva.com.br,
-       netdev@oss.sgi.com, linux-net@vger.kernel.org, layes@loran.com,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
-In-Reply-To: <20030820100044.3127d612.davem@redhat.com>
-Message-ID: <Pine.LNX.3.96.1030820150110.15623A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 20 Aug 2003 15:13:25 -0400
+Received: from main.gmane.org ([80.91.224.249]:991 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262156AbTHTTNX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Aug 2003 15:13:23 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: David Wuertele <dave-gnus@bfnet.com>
+Subject: 2.4.18 usb-storage hotplug implementation question
+Date: Wed, 20 Aug 2003 12:13:20 -0700
+Organization: Berkeley Fluent Network
+Message-ID: <m3d6f0xhv3.fsf@bfnet.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.090018 (Oort Gnus v0.18) Emacs/21.2 (gnu/linux)
+Cancel-Lock: sha1:9HbN7xpNYrmbbOIU1uao/dQpADs=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Aug 2003, David S. Miller wrote:
+I am trying to augment the 2.4.18 SCSI/USB code (usb-storage) code
+to be able to hot-plug and detect usb-memory cards when
+plugged in. I have things working, except when I pull
+out a card when a lot of I/O is happening.
 
-> On Wed, 20 Aug 2003 12:49:14 -0400 (EDT)
-> Bill Davidsen <davidsen@tmr.com> wrote:
-> 
-> > On 19 Aug 2003, Daniel Gryniewicz wrote:
-> > 
-> > I have been asking for a similar thing as well, David mentioned some
-> > things that would break, but I believe they break if you use source
-> > routing, so that seems not to be a real objection.
-> 
-> It's not about source routing.  It's about failover and being
-> able to use ARP on interfaces which don't have addresses assigned
-> to them yet.
+The general strategy that I am using is:
 
-David mentioned that you could solve the problem by using *rp_filter and
-source routing. I don't think that's entirely true, but doing so has the
-same drawbacks and breaks the same things as a flag to make Linux behave
-like Sun/BSD/Windows (and work with Cisco is the cases previously
-mentioned).
+1. a task polls (READ_CAPACITY) for the 3 LUNs that i have
+   (using a Phison chip).
+2. When it succeeds, it mounts the device
 
-> 
-> > I find it interesting that we can't change networking because a few
-> > complex systems would have to be reconfigured, but we *can* change modules
-> > which requires config changes on probably 90% of all systems (commercial
-> > distributions).
-> 
-> Decisions about Networking will always be in a different domain
-> because the way one behaves has effects upon other systems not
-> just the local one.
+-- user process does file i/o --
 
-Yes, that's exactly the point, the way Linux works has bad effects on
-certain other machines, as in leaves them disconnected to the Linux
-system.
+3. When the card is pulled, ideally, a READ_CAPACITY fails
+   and the processes with open files are sent a kill signal (SIGHUP)
+   and the device unmounted.
 
-> 
-> BTW, another thing which makes the source address selection for
-> outgoing ARPs a real touchy area is the following.  Some weird
-> configurations actually respond with different ARP answers based upon
-> the source address in the ARP request.  You can ask Julian Anastasov
-> about such (arguably pathological) setups.
-> 
+PROBLEM
+When a process is reading from the card, if the card is pulled
+the Phison chip sometimes locks up, so I:
+	1. reset the hub port
+	2. Fail the pending read
 
-I don't think anyone is asking for a change in the default behaviour
-(although my point about breaking modules does apply), people would be
-satisfied, even ecstatic, if we had a simple way (flag) to set to make
-Linux work without setting /proc filters, using arpfilter, applying source
-routes (David's suggestion) and generally jumping through hoops.
+However there is times when the usb (submit) does not come back
+fast enough, so the READ_10 times out (seems to take over 10 seconds).
+The abort handler is called (by scsi), which unlinks the urb
+and says ok (to abort). I then return a DID_ERROR to the
+SCSI-CMD. However the bottom half handler of this command
+says that since the timer went off, it returns doing nothing.
+In the meanwhile the user-process is stuck inside the file/io
+routines (waiting on the buffer completion - in TASK_UNINTERRUPTIBLE
+state). So I cannot unmount the device (or handle new mounts).
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Questions:
+
+1. Is there a better strategy than the above for dectecting
+   plug-unplug?
+
+2. How do i handle the failure?
+
+3. What am i supposed to do in abort handler, so that the SCSI
+   subsystem can continue working?
+
+Thanks,
+Dave
 

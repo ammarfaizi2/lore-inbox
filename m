@@ -1,97 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261268AbUBTS0l (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 13:26:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261280AbUBTSYr
+	id S261271AbUBTSYe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 13:24:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261277AbUBTSYe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 13:24:47 -0500
-Received: from fw.osdl.org ([65.172.181.6]:30595 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261268AbUBTSXh (ORCPT
+	Fri, 20 Feb 2004 13:24:34 -0500
+Received: from [61.95.227.64] ([61.95.227.64]:53634 "EHLO gateway.gsecone.com")
+	by vger.kernel.org with ESMTP id S261271AbUBTSWZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 13:23:37 -0500
-Date: Fri, 20 Feb 2004 10:16:04 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: DervishD <raul@pleyades.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Help with /proc/net/tcp fields
-Message-Id: <20040220101604.0686f351.rddunlap@osdl.org>
-In-Reply-To: <20040220105013.GA5606@DervishD>
-References: <20040220105013.GA5606@DervishD>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 20 Feb 2004 13:22:25 -0500
+Message-ID: <4036505B.1060002@gsecone.com>
+Date: Fri, 20 Feb 2004 18:22:19 +0000
+From: Vinay K Nallamothu <nvk@gsecone.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6.3][MTD] doc200X warning fixes
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Feb 2004 11:50:13 +0100 DervishD <raul@pleyades.net> wrote:
+Hi,
 
-|     Hi all :)
-| 
-|     I'm trying to decode what the field in the output of
-| /proc/net/tcp means, with little success. Apart from the fact that
-| the four last fields have no description (and looking at undocumented
-| sources is really a pain a very time-consuming), I have the following
-| doubts:
-| 
-|     - I assume that 'sl' is the socket number, but, what does 'sl'
-| stand for?
-
-'sl is just an index.  Maybe it means 'slot'.
-
-|     - What represents the 'st' field?
-
-socket 'state' -- enumerated in include/linux/tcp.h
-
-|     - I suppose that 'tr:tm->when' represents if there is any timer
-| on that socket (well, 'tr' is the number of timers), and when will
-| expire the nearest one, but I'm not sure.
-
-Looks right at a quick glance.
-
-|     - I suppose that 'timeout' is the time to die when the socket is
-| in FIN_WAIT state, but I'm afraid I'm wrong :(
-
-It's the value of 'probes_out', which has a comment (?) of:
-/* unanswered 0 window probes */
-
-|     - Does the 'retrnsmt' field show the retransmissions happened in
-| this socket?
-
-Looks like a counter that is incremented up to a threshold...
-For ACK handling.
-
-|     If anyone can explain me these fields (and the unnamed fields at
-| the end) I will be very grateful, and if someone could direct me to a
-| site with related information it will help, too.
-
-Last 2 - 7 unnamed fields:
-
-depending on 'state':
-
-case TCP_SEQ_STATE_TIME_WAIT:
-	refcnt bucket_pointer (no trailing 5 fields)
-
-case TCP_SEQ_STATE_OPENREQ:
-	refcnt open_request_pointer (no trailing 5 fields)
-
-case TCP_SEQ_STATE_LISTENING:
-case TCP_SEQ_STATE_ESTABLISHED:
-	refcnt socket_pointer rto ato qpp snd_cwnd snd_ssthresh
-where:
-  rto == retransmit_timeout
-  ato == delayed ACK predicted tick
-  qpp == (scheduled number of quick acks << 1) | pingpong(interactive)
-  snd_cwnd == sending congestion window
-  snd_ssthresh == slow start size threshold (-1 if >= 0xFFFF)
+This patch fixes the following warnings:
+drivers/mtd/devices/doc2000.c:567: warning: assignment from incompatible pointer type
+drivers/mtd/devices/doc2000.c:568: warning: assignment from incompatible pointer type
 
 
-I suggest asking such questions on the netdev mailing list
-(netdev@oss.sgi.com).
+ doc2000.c |    8 ++++----
+ doc2001.c |    8 ++++----
+ 2 files changed, 8 insertions(+), 8 deletions(-)
 
-HTH.
---
-~Randy
+
+diff -urN linux-2.6.2/drivers/mtd/devices/doc2000.c linux-2.6.2-nvk/drivers/mtd/devices/doc2000.c
+--- linux-2.6.2/drivers/mtd/devices/doc2000.c	2004-01-09 06:59:02.000000000 +0000
++++ linux-2.6.2-nvk/drivers/mtd/devices/doc2000.c	2004-02-07 22:11:31.000000000 +0000
+@@ -53,9 +53,9 @@
+ static int doc_write(struct mtd_info *mtd, loff_t to, size_t len,
+ 		     size_t *retlen, const u_char *buf);
+ static int doc_read_ecc(struct mtd_info *mtd, loff_t from, size_t len,
+-			size_t *retlen, u_char *buf, u_char *eccbuf, int oobsel);
++			size_t *retlen, u_char *buf, u_char *eccbuf, struct nand_oobinfo *oobsel);
+ static int doc_write_ecc(struct mtd_info *mtd, loff_t to, size_t len,
+-			 size_t *retlen, const u_char *buf, u_char *eccbuf, int oobsel);
++			 size_t *retlen, const u_char *buf, u_char *eccbuf, struct nand_oobinfo *oobsel);
+ static int doc_read_oob(struct mtd_info *mtd, loff_t ofs, size_t len,
+ 			size_t *retlen, u_char *buf);
+ static int doc_write_oob(struct mtd_info *mtd, loff_t ofs, size_t len,
+@@ -601,7 +601,7 @@
+ }
+ 
+ static int doc_read_ecc(struct mtd_info *mtd, loff_t from, size_t len,
+-			size_t * retlen, u_char * buf, u_char * eccbuf, int oobsel)
++			size_t * retlen, u_char * buf, u_char * eccbuf, struct nand_oobinfo *oobsel)
+ {
+ 	struct DiskOnChip *this = (struct DiskOnChip *) mtd->priv;
+ 	unsigned long docptr;
+@@ -750,7 +750,7 @@
+ 
+ static int doc_write_ecc(struct mtd_info *mtd, loff_t to, size_t len,
+ 			 size_t * retlen, const u_char * buf,
+-			 u_char * eccbuf, int oobsel)
++			 u_char * eccbuf, struct nand_oobinfo *oobsel)
+ {
+ 	struct DiskOnChip *this = (struct DiskOnChip *) mtd->priv;
+ 	int di; /* Yes, DI is a hangover from when I was disassembling the binary driver */
+diff -urN linux-2.6.2/drivers/mtd/devices/doc2001.c linux-2.6.2-nvk/drivers/mtd/devices/doc2001.c
+--- linux-2.6.2/drivers/mtd/devices/doc2001.c	2004-01-09 06:59:19.000000000 +0000
++++ linux-2.6.2-nvk/drivers/mtd/devices/doc2001.c	2004-02-07 21:59:26.000000000 +0000
+@@ -37,9 +37,9 @@
+ static int doc_write(struct mtd_info *mtd, loff_t to, size_t len,
+ 		     size_t *retlen, const u_char *buf);
+ static int doc_read_ecc(struct mtd_info *mtd, loff_t from, size_t len,
+-			size_t *retlen, u_char *buf, u_char *eccbuf, int oobsel);
++			size_t *retlen, u_char *buf, u_char *eccbuf, struct nand_oobinfo *oobsel);
+ static int doc_write_ecc(struct mtd_info *mtd, loff_t to, size_t len,
+-			 size_t *retlen, const u_char *buf, u_char *eccbuf, int oobsel);
++			 size_t *retlen, const u_char *buf, u_char *eccbuf, struct nand_oobinfo *oobsel);
+ static int doc_read_oob(struct mtd_info *mtd, loff_t ofs, size_t len,
+ 			size_t *retlen, u_char *buf);
+ static int doc_write_oob(struct mtd_info *mtd, loff_t ofs, size_t len,
+@@ -407,7 +407,7 @@
+ }
+ 
+ static int doc_read_ecc (struct mtd_info *mtd, loff_t from, size_t len,
+-			 size_t *retlen, u_char *buf, u_char *eccbuf, int oobsel)
++			 size_t *retlen, u_char *buf, u_char *eccbuf, struct nand_oobinfo *oobsel)
+ {
+ 	int i, ret;
+ 	volatile char dummy;
+@@ -533,7 +533,7 @@
+ }
+ 
+ static int doc_write_ecc (struct mtd_info *mtd, loff_t to, size_t len,
+-			  size_t *retlen, const u_char *buf, u_char *eccbuf, int oobsel)
++			  size_t *retlen, const u_char *buf, u_char *eccbuf, struct nand_oobinfo *oobsel)
+ {
+ 	int i,ret = 0;
+ 	volatile char dummy;
+
+
+

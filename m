@@ -1,124 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129408AbQLBE07>; Fri, 1 Dec 2000 23:26:59 -0500
+	id <S129385AbQLBEkn>; Fri, 1 Dec 2000 23:40:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129415AbQLBE0s>; Fri, 1 Dec 2000 23:26:48 -0500
-Received: from isis.its.uow.edu.au ([130.130.68.21]:58844 "EHLO
-	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S129408AbQLBE0e>; Fri, 1 Dec 2000 23:26:34 -0500
-Message-ID: <3A2873A1.3EFEA29@uow.edu.au>
-Date: Sat, 02 Dec 2000 14:59:30 +1100
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test12-pre3 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Stephen C. Tweedie" <sct@redhat.com>
-CC: Alexander Viro <viro@math.psu.edu>, Jonathan Hudson <jonathan@daria.co.uk>,
-        linux-kernel@vger.kernel.org
-Subject: Re: corruption
-In-Reply-To: <b09.3a269edc.6bd12@trespassersw.daria.co.uk> <Pine.GSO.4.21.0011301400290.20801-100000@weyl.math.psu.edu> <3A26C82D.26267202@uow.edu.au>,
-		<3A26C82D.26267202@uow.edu.au>; from andrewm@uow.edu.au on Fri, Dec 01, 2000 at 08:35:41AM +1100 <20001201141659.A4562@redhat.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129415AbQLBEke>; Fri, 1 Dec 2000 23:40:34 -0500
+Received: from freya.yggdrasil.com ([209.249.10.20]:57065 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S129385AbQLBEkV>; Fri, 1 Dec 2000 23:40:21 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Fri, 1 Dec 2000 20:09:54 -0800
+Message-Id: <200012020409.UAA04058@adam.yggdrasil.com>
+To: linux-kernel@vger.kernel.org
+Subject: Transmeta and Linux-2.4.0-test12-pre3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Stephen C. Tweedie" wrote:
-> 
-> Hi,
-> 
-> On Fri, Dec 01, 2000 at 08:35:41AM +1100, Andrew Morton wrote:
-> >
-> > I bet this'll catch it:
-> >
-> >  static __inline__ void list_del(struct list_head *entry)
-> >  {
-> >       __list_del(entry->prev, entry->next);
-> > +     entry->next = entry->prev = 0;
-> >  }
-> 
-> No, because the buffer hash list is never referenced unless
-> buffer->b_inode is non-null, so we can't ever do a double-list_del on
-> the buffer.
-> 
-> The patch below should fix it.  It has been sent to Linus.  The
-> important part is the first hunk of the inode.c diff.
+	Minutes after slashdot ran their article saying that the
+Transmeta recall was limited to about 300 Fujitsu computers, I ran
+to Fry's and bought a Sony PictureBook PCG-C1VN.  Thank heavens for
+those extended Christmas hours I thought, while praying that the
+statements about the Crusoe problems being that limited would turn
+out to be true.
 
-Testing test11-pre3 with your inode.c patch and the above list_del
-patch.  x86 dual processor, IDE.  Same workload as before, except
-I cut out misc001 (and the machine recovered almost immediately
-when I killed everything!  Need more testing to characterise this).
+	This device is the only commercially available computer in the
+world that uses a processor made by Transmeta (a 600MHz TMS5600, stepping
+03).  I thought surely that there would be a little subculture of
+Linux PictureBook users at transmeta making sure that this particular
+combination would work.
 
-kernel BUG at inode.c:83!  The trace is below.  Now, this was 
-probably triggered by my list_del change.  If so it means
-that we're doing a list_empty() test on a list_head which
-has actually been deleted from a list.  So it's possibly the
-actual assertion in destroy_inode() which is a little bogus.
+	Well, alas, it appears that linux-2.4.0-test12-pre3 freezes hard
+while reading the base address registers of the first PCI device
+(the "host bridge").  Actually, I think the problem is some kind of
+system management interrupt occuring at about this time, since the
+exact point where the printk's stop gets earlier as I add more
+printk's.  With few printk's the printk's stop while the 6th base
+address configuration register is being read; with more printk's it
+stops at the second one, and it will stop in different places with
+different boots, at least with the not-quite-stock kernels that I usually
+use.  Also, turning off interrupts during this code has no effect, so
+I do not think it is directly caused by the something in the PictureBook
+pepperring the processor with unexpected interrupts (I thought it might have
+to do with the USB-based floppy disk).
 
-But the wierd thing is that this BUG only hit a single time,
-after three hours of intensive testing.  If my theory is
-right, the BUG should hit every time.   Will investigate further...
+	Although the results of the debugging printk's that I added from
+a somewhat modified linux-2.4.0-tset12-pre3 built for CONFIG_M386, I
+also tried "pristine" linux-2.4.0-test12-pre3.  When built with
+CONFIG_M386 (which has historically been the way to get a kernel that
+runs on all x86 processors), I get no output or other apparent
+activity after the boot loader jumps to it.  When buid with
+CONFIG_MCRUSOE, it hangs after printing "PCI: Probing PCI Hardware",
+just like our kernels (which, oddly, do work up this point even though
+they are build with CONFIG_M386).  In case anyone is curious, I have
+put the .config file from the pristine CONFIG_MCRUOSOE build in
+ftp://ftp.yggdrasil.com/private/adam/linux-crusoe/.config.
 
+	My initial attempts to find a processor manual on the tms5600
+on the web and on Transmeta's web site have no yet turned up anything,
+and I understand that the tms5600 includes the north bridge.  So, I
+assume that that would be the first place to look for ideas about
+any weirdness that occurs during PCI initialization of the PCI host
+bridge.
 
+	One sin that I am committing in these builds is that I am bulding
+them under gcc-2.95.2, although I do not think this is the sort of
+behavior that an optimizer bug is likely to produce.
 
-ksymoops 0.7c on i686 2.4.0-test12-pre3.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.0-test12-pre3/ (default)
-     -m /usr/src/linux/System.map (default)
+	If anyone out there is using Linux 2.4.0-test on a Sony
+PictureBook PCG-C1VN (the Transmeta version), I would be interested in
+at least trying to build from your .config file.
 
-Warning: You did not tell me where to find symbol information.  I will
-assume that the log matches the kernel and modules that are running
-right now and I'll use the default options above for symbol resolution.
-If the current kernel and/or modules do not match the log, you can get
-more accurate output by telling me the kernel version and where to find
-map, modules, ksyms etc.  ksymoops -h explains the options.
+	Memo to Transmeta management: buy Linus a PictureBook. :-)
 
-Reading Oops report from the terminal
-Dec  2 13:15:45 mnm kernel: invalid operand: 0000
-Dec  2 13:15:45 mnm kernel: CPU:    0
-Dec  2 13:15:45 mnm kernel: EIP:    0010:[<c014570e>]
-Using defaults from ksymoops -t elf32-i386 -a i386
-Dec  2 13:15:45 mnm kernel: EFLAGS: 00010282
-Dec  2 13:15:45 mnm kernel: eax: 0000001a   ebx: c78686e0   ecx: 00000000   edx: 0000002f
-Dec  2 13:15:45 mnm kernel: esi: c025b800   edi: cd950960   ebp: c7869160   esp: ce611f3c
-Dec  2 13:15:45 mnm kernel: ds: 0018   es: 0018   ss: 0018
-Dec  2 13:15:45 mnm kernel: Process dbench (pid: 13094, stackpage=ce611000)
-Dec  2 13:15:45 mnm kernel: Stack: c021b7e5 c021b8a5 00000053 c78686e0 c0146916 c78686e0 c7869160 c78686e0
-Dec  2 13:15:45 mnm kernel:        c0145096 c78686e0 00000000 ce610000 c013de4d c7869160 c7869160 c9b1e000
-Dec  2 13:15:45 mnm kernel:        ce611fa4 c7869160 cd9509d0 c013df25 cd950960 c7869160 ce610000 bffff5ca
-Dec  2 13:15:45 mnm kernel: Call Trace: [<c021b7e5>] [<c021b8a5>] [<c0146916>] [<c0145096>] [<c013de4d>] [<c013df25>
-Dec  2 13:15:45 mnm kernel:        [<c010002b>]
-Dec  2 13:15:45 mnm kernel: Code: 0f 0b 83 c4 0c 53 a1 10 d1 2a c0 50 e8 cd 3d fe ff 83 c4 08
-
->>EIP; c014570e <destroy_inode+1e/34>   <=====
-Trace; c021b7e5 <tvecs+5a3d/1a3d8>
-Trace; c021b8a5 <tvecs+5afd/1a3d8>
-Trace; c0146916 <iput+18e/194>
-Trace; c0145096 <d_delete+66/ac>
-Trace; c013de4d <vfs_unlink+18d/1c0>
-Trace; c013df25 <sys_unlink+a5/118>
-Trace; c010002b <startup_32+2b/cb>
-Code;  c014570e <destroy_inode+1e/34>
-00000000 <_EIP>:
-Code;  c014570e <destroy_inode+1e/34>   <=====
-   0:   0f 0b                     ud2a      <=====
-Code;  c0145710 <destroy_inode+20/34>
-   2:   83 c4 0c                  add    $0xc,%esp
-Code;  c0145713 <destroy_inode+23/34>
-   5:   53                        push   %ebx
-Code;  c0145714 <destroy_inode+24/34>
-   6:   a1 10 d1 2a c0            mov    0xc02ad110,%eax
-Code;  c0145719 <destroy_inode+29/34>
-   b:   50                        push   %eax
-Code;  c014571a <destroy_inode+2a/34>
-   c:   e8 cd 3d fe ff            call   fffe3dde <_EIP+0xfffe3dde> c01294ec <kmem_cache_free+0/7c>
-Code;  c014571f <destroy_inode+2f/34>
-  11:   83 c4 08                  add    $0x8,%esp
-
-
-1 warning issued.  Results may not be reliable.
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,69 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129231AbRBLW4T>; Mon, 12 Feb 2001 17:56:19 -0500
+	id <S129047AbRBLXEW>; Mon, 12 Feb 2001 18:04:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129233AbRBLW4J>; Mon, 12 Feb 2001 17:56:09 -0500
-Received: from yellow.csi.cam.ac.uk ([131.111.8.67]:61847 "EHLO
-	yellow.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S129231AbRBLWz7>; Mon, 12 Feb 2001 17:55:59 -0500
-Date: Mon, 12 Feb 2001 22:55:21 +0000 (GMT)
-From: James Sutherland <jas88@cam.ac.uk>
-To: "H. Peter Anvin" <hpa@transmeta.com>
-cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: LILO and serial speeds over 9600
-In-Reply-To: <3A884D72.E0F3D354@transmeta.com>
-Message-ID: <Pine.SOL.4.21.0102122158510.22949-100000@yellow.csi.cam.ac.uk>
+	id <S129051AbRBLXEM>; Mon, 12 Feb 2001 18:04:12 -0500
+Received: from roc-24-95-203-215.rochester.rr.com ([24.95.203.215]:19981 "EHLO
+	d185fcbd7.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S129047AbRBLXD7>; Mon, 12 Feb 2001 18:03:59 -0500
+Date: Mon, 12 Feb 2001 18:03:32 -0500
+From: Chris Mason <mason@suse.com>
+To: Hans Reiser <reiser@namesys.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "reiserfs-list@namesys.com" <reiserfs-list@namesys.com>,
+        Alexander Zarochentcev <zam@namesys.com>
+Subject: Re: [reiserfs-list] Re: Apparent instability of reiserfs on 2.4.1
+Message-ID: <386960000.982019012@tiny>
+In-Reply-To: <3A884ABE.29F14A5D@namesys.com>
+X-Mailer: Mulberry/2.0.6b4 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Feb 2001, H. Peter Anvin wrote:
-> James Sutherland wrote:
-> > 
-> My thinking at the moment is to require kernel IP configuration (either
-> ip= or RARP/BOOTP/DHCP).  It seems to be the only practical way;
-> otherwise you miss too much at the beginning.  However, that mechanism is
-> already in place, and shouldn't be too hard to piggy-back on.
 
-Yes: that should be easy enough, specially DHCP and ip=.
 
-> > I'll do a server to receive these sessions - simple text (no vt100 etc),
-> > one window per session - and work on the protocol spec. Anyone willing
-> > to do the client end of things - lilo, grub, kernel, etc??
+On Monday, February 12, 2001 11:42:38 PM +0300 Hans Reiser
+<reiser@namesys.com> wrote:
+
+>> Chris,
+>> 
+>> Do you know if the people reporting the corruption with reiserfs on
+>> 2.4 were using IDE drives with PIO mode and IDE multicount turned on?
+>> 
+>> If so, it may be caused by the problem fixed by Russell King on
+>> 2.4.2-pre2.
+>> 
+>> Without his fix, I was able to corrupt ext2 while using PIO+multicount
+>> very very easily.
 > 
-> I'll do PXELINUX, for sure.  I'd prefer to do the protocol spec, if you
-> don't mind -- having done PXELINUX I think I know the kinds of pitfalls
-> that you run into doing an implementation in firmware or firmware-like
-> programming (PXELINUX isn't firmware, but it might as well be.)
 
-Fine by me: we seem to agree on the basic concept already, and there isn't
-going to be very much protocol involved!
+I suspect the bugfixes in pre2 will fix some of the more exotic corruption
+reports we've seen, but this one (nulls in log files) probably isn't caused
+by a random (or semi-random) lower layer corruption.  These users are not
+seeing random metadata corruption, so I suspect this bug is different (and
+reiserfs specific).
 
-> Doing it in LILO would be extremely difficult, since LILO has no ability
-> to handle networking, and no reasonable way to graft it on (you need a
-> driver for networking.)  GRUB I can't really comment on.
-
-I haven't seen much of GRUB, but it does seem to have DHCP support, so it
-must have some facility for sending/receiving packets. LILO's command-line
-approach would be better suited to this, really, though...
-
-> I might just decide to do the kernel as well.
+> Was the bug you describe also present in the 2.2.* series?  If not, then
+> the bugs are not the same.
 > 
-> Hmmm... this sounds like it's turning into a group effort.  Would you (or
-> someone else) like to set up a sourceforge project for this?  I would
-> prefer not to have to deal with that end myself.
 
-OK, I've filled in the paperwork - we should have a project account
-sometime tomorrow. I put the license type as "Other", since the heart of
-the project is the protocol, and patches to add support to the kernel,
-FreeBSD etc. will have to be under the license of the OS in question.
+In 2.2 code the only data file corruption I know if is caused by a crash....
 
-Title: "Network Console Protocol" for now?
-
-
-James.
-
+-chris
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,61 +1,98 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314634AbSE2J35>; Wed, 29 May 2002 05:29:57 -0400
+	id <S314690AbSE2KBm>; Wed, 29 May 2002 06:01:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314637AbSE2J34>; Wed, 29 May 2002 05:29:56 -0400
-Received: from vulcan.alphanet.ch ([62.2.159.14]:25620 "EHLO
-	vulcan.alphanet.ch") by vger.kernel.org with ESMTP
-	id <S314634AbSE2J34>; Wed, 29 May 2002 05:29:56 -0400
-Date: Wed, 29 May 2002 11:25:35 +0200 (MEST)
-From: Marc SCHAEFER <schaefer@alphanet.ch>
-Reply-To: Marc SCHAEFER <schaefer@alphanet.ch>
-To: linux-kernel@vger.kernel.org
-Subject: Re: IDE hotswap
-In-Reply-To: <Pine.LNX.3.96.1020528180129.20664B-100000@defian.alphanet.ch>
-Message-ID: <Pine.LNX.3.96.1020529111715.1628A-100000@defian.alphanet.ch>
+	id <S314707AbSE2KBm>; Wed, 29 May 2002 06:01:42 -0400
+Received: from web10401.mail.yahoo.com ([216.136.130.93]:47634 "HELO
+	web10401.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S314690AbSE2KBl>; Wed, 29 May 2002 06:01:41 -0400
+Message-ID: <20020529100141.98844.qmail@web10401.mail.yahoo.com>
+Date: Wed, 29 May 2002 03:01:41 -0700 (PDT)
+From: "D.J. Barrow" <barrow_dj@yahoo.com>
+Subject: softirq.c improvments
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Netfilter <netfilter-devel@lists.samba.org>,
+        Ralf Baechle <ralf@uni-koblenz.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/mixed; boundary="0-1365657282-1022666501=:98652"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 May 2002, Marc SCHAEFER wrote:
+--0-1365657282-1022666501=:98652
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> I would like to implement real hotswapping support with IDE drives in the
-> following setup:
+Hi,
 
-Ok, after a few more searches, and very nice help from a linux-kernel
-reader, I found notably a past thread which is full of very interesting
-information:
+Here is a new version of the softirq patch I posted on 14 May,
+I found a bug in intel where softirqs were being started when cpu_idle
+was the only process on the machine really early in bootup.
 
-   http://search.alphanet.ch/cgi-bin/search.cgi?subject=IDE+and+hot-swap+disk+caddies&max_results=10&type=long&domain=ml-linux-kernel
+My old patch didn't like this & could get caught in an infinite softirq loop.
 
-(put 31 instead of 10 if you want the whole thing in one page).
 
-We learn there that:
 
-   - someone else tried the module stuff, but failed (I had success)
+=====
+D.J. Barrow Linux kernel developer
+eMail: dj_barrow@ariasoft.ie 
+Home: +353-22-47196.
+Work: +353-91-758353
 
-        I have noticed, by creating a simple boot floppy with IDE modules
-        (ide_mod, ide_disk, ide_probe_mod), that if you remove ide_probe_mod, 
-        replace the disk, and reinsert ide_probe_mod, the disk is detected
-        correctly (geometry, size, etc) after reinsert or even type
-        change.
+__________________________________________________
+Do You Yahoo!?
+Yahoo! - Official partner of 2002 FIFA World Cup
+http://fifaworldcup.yahoo.com
+--0-1365657282-1022666501=:98652
+Content-Type: application/x-unknown; name="softirq_fix.v2.diff"
+Content-Transfer-Encoding: base64
+Content-Description: softirq_fix.v2.diff
+Content-Disposition: attachment; filename="softirq_fix.v2.diff"
 
-   - some chipset support tri-stating the bus (hdparm -b 2), I need
-     to investigate if this is implemented/works on my hardware. It seems
-     to work very well especially if you only put one device per bus,
-     which is my goal.
+ZGlmZiAtdSAtciBsaW51eC5vcmlnL2luY2x1ZGUvbGludXgvc2NoZWQuaCBs
+aW51eC5uZXcvaW5jbHVkZS9saW51eC9zY2hlZC5oCi0tLSBsaW51eC5vcmln
+L2luY2x1ZGUvbGludXgvc2NoZWQuaAlUaHUgQXByIDE4IDE3OjQ0OjE3IDIw
+MDIKKysrIGxpbnV4Lm5ldy9pbmNsdWRlL2xpbnV4L3NjaGVkLmgJV2VkIE1h
+eSAyOSAxMDo1NjoyOSAyMDAyCkBAIC05MjcsNiArOTI3LDE5IEBACiAJcmV0
+dXJuIHJlczsKIH0KIAorI2lmZGVmIENPTkZJR19TTVAKKworI2RlZmluZSBp
+ZGxlX3Rhc2soY3B1KSAoaW5pdF90YXNrc1tjcHVfbnVtYmVyX21hcChjcHUp
+XSkKKyNkZWZpbmUgY2FuX3NjaGVkdWxlKHAsY3B1KSBcCisJKChwKS0+Y3B1
+c19ydW5uYWJsZSAmIChwKS0+Y3B1c19hbGxvd2VkICYgKDEgPDwgY3B1KSkK
+KworI2Vsc2UKKworI2RlZmluZSBpZGxlX3Rhc2soY3B1KSAoJmluaXRfdGFz
+aykKKyNkZWZpbmUgY2FuX3NjaGVkdWxlKHAsY3B1KSAoMSkKKworI2VuZGlm
+CisKICNlbmRpZiAvKiBfX0tFUk5FTF9fICovCiAKICNlbmRpZgpPbmx5IGlu
+IGxpbnV4Lm5ldy9pbmNsdWRlL2xpbnV4OiBzY2hlZC5oLm9yaWcKZGlmZiAt
+dSAtciBsaW51eC5vcmlnL2tlcm5lbC9zY2hlZC5jIGxpbnV4Lm5ldy9rZXJu
+ZWwvc2NoZWQuYwotLS0gbGludXgub3JpZy9rZXJuZWwvc2NoZWQuYwlUdWUg
+QXByIDMwIDEyOjIyOjAyIDIwMDIKKysrIGxpbnV4Lm5ldy9rZXJuZWwvc2No
+ZWQuYwlXZWQgTWF5IDI5IDEwOjU2OjI5IDIwMDIKQEAgLTExMiwxOCArMTEy
+LDcgQEAKIHN0cnVjdCBrZXJuZWxfc3RhdCBrc3RhdDsKIGV4dGVybiBzdHJ1
+Y3QgdGFza19zdHJ1Y3QgKmNoaWxkX3JlYXBlcjsKIAotI2lmZGVmIENPTkZJ
+R19TTVAKIAotI2RlZmluZSBpZGxlX3Rhc2soY3B1KSAoaW5pdF90YXNrc1tj
+cHVfbnVtYmVyX21hcChjcHUpXSkKLSNkZWZpbmUgY2FuX3NjaGVkdWxlKHAs
+Y3B1KSBcCi0JKChwKS0+Y3B1c19ydW5uYWJsZSAmIChwKS0+Y3B1c19hbGxv
+d2VkICYgKDEgPDwgY3B1KSkKLQotI2Vsc2UKLQotI2RlZmluZSBpZGxlX3Rh
+c2soY3B1KSAoJmluaXRfdGFzaykKLSNkZWZpbmUgY2FuX3NjaGVkdWxlKHAs
+Y3B1KSAoMSkKLQotI2VuZGlmCiAKIHZvaWQgc2NoZWR1bGluZ19mdW5jdGlv
+bnNfc3RhcnRfaGVyZSh2b2lkKSB7IH0KIApkaWZmIC11IC1yIGxpbnV4Lm9y
+aWcva2VybmVsL3NvZnRpcnEuYyBsaW51eC5uZXcva2VybmVsL3NvZnRpcnEu
+YwotLS0gbGludXgub3JpZy9rZXJuZWwvc29mdGlycS5jCVdlZCBPY3QgMzEg
+MTg6MjY6MDIgMjAwMQorKysgbGludXgubmV3L2tlcm5lbC9zb2Z0aXJxLmMJ
+V2VkIE1heSAyOSAxMDo1Njo1OSAyMDAyCkBAIC02MCwxMSArNjAsMTEgQEAK
+IAogYXNtbGlua2FnZSB2b2lkIGRvX3NvZnRpcnEoKQogeworICAgICAgICBl
+eHRlcm4gc3RydWN0IHRhc2tfc3RydWN0ICpjaGlsZF9yZWFwZXI7CiAJaW50
+IGNwdSA9IHNtcF9wcm9jZXNzb3JfaWQoKTsKIAlfX3UzMiBwZW5kaW5nOwog
+CWxvbmcgZmxhZ3M7CiAJX191MzIgbWFzazsKLQogCWlmIChpbl9pbnRlcnJ1
+cHQoKSkKIAkJcmV0dXJuOwogCkBAIC05NSw3ICs5NSwxMCBAQAogCQlsb2Nh
+bF9pcnFfZGlzYWJsZSgpOwogCiAJCXBlbmRpbmcgPSBzb2Z0aXJxX3BlbmRp
+bmcoY3B1KTsKLQkJaWYgKHBlbmRpbmcgJiBtYXNrKSB7CisgICAgICAgICAg
+ICAgICAgLyogSWYgY2hpbGQgcmVhcGVyIT1pbml0X3Rhc2sgd2UgaGF2ZSBm
+aW5pc2hlZCB0aGUgaW5pdGlhbCBib290c3RyYXAgJiBoYXZlbid0IHJlY2Vp
+dmVkIGFuIGVhcmx5IHNvZnRpcnEgKi8KKyAgICAgICAgICAgICAgICAvKiB3
+aGVuIHRoZSBpZGxlX3Rhc2sgaXMgdGhlIG9ubHkgdGFzayBydW5uaW5nICov
+CisJCWlmICgocGVuZGluZyAmJiBjdXJyZW50PT1pZGxlX3Rhc2soY3B1KSAm
+JiAhY3VycmVudC0+bmVlZF9yZXNjaGVkICYmIGNoaWxkX3JlYXBlciAhPSAm
+aW5pdF90YXNrICkKKwkJICAgIHx8IChwZW5kaW5nICYgbWFzaykgKSB7CiAJ
+CQltYXNrICY9IH5wZW5kaW5nOwogCQkJZ290byByZXN0YXJ0OwogCQl9Cg==
 
-   - some disks can be marked `hotswap' (-x option of hdparam), no idea
-     what it means yet.
 
-So I am going to investigate in this direction, maybe combining the
-tristate with partial re-detection.
-
-(I also got mail asking me to sign before an NDA before telling me
-anything, that was a bit stupid. AFAIK saying `doing it without tristating
-can fry your hardware' is not patented yet. Maybe it's this world which is
-going insane because of patents).
-
-Thank you for your time.
-
+--0-1365657282-1022666501=:98652--

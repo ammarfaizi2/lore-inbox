@@ -1,75 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267592AbUIXAIy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267607AbUIXASQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267592AbUIXAIy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 20:08:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267518AbUIXAIj
+	id S267607AbUIXASQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 20:18:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267601AbUIXAQm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 20:08:39 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51844 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S267598AbUIXAGd
+	Thu, 23 Sep 2004 20:16:42 -0400
+Received: from science.horizon.com ([192.35.100.1]:19513 "HELO
+	science.horizon.com") by vger.kernel.org with SMTP id S267518AbUIXAJC
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 20:06:33 -0400
-Date: Thu, 23 Sep 2004 19:31:42 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: "Nakajima, Jun" <jun.nakajima@intel.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, arjanv@redhat.com, ak@suse.de,
-       "Saxena, Sunil" <sunil.saxena@intel.com>,
-       "Mallick, Asit K" <asit.k.mallick@intel.com>
-Subject: Re: [arjanv@redhat.com: Re: [PATCH] shrink per_cpu_pages to fit 32byte cacheline]
-Message-ID: <20040923223142.GA13915@logos.cnet>
-References: <7F740D512C7C1046AB53446D372001730249590A@scsmsx402.amr.corp.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <7F740D512C7C1046AB53446D372001730249590A@scsmsx402.amr.corp.intel.com>
-User-Agent: Mutt/1.5.5.1i
+	Thu, 23 Sep 2004 20:09:02 -0400
+Date: 24 Sep 2004 00:08:56 -0000
+Message-ID: <20040924000856.16796.qmail@science.horizon.com>
+From: linux@horizon.com
+To: helge.hafting@hist.no
+Subject: Re: truncate shows non zero data beyond the end of the inode with
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 23, 2004 at 01:24:49PM -0700, Nakajima, Jun wrote:
-> >From: Marcelo Tosatti [mailto:marcelo.tosatti@cyclades.com]
-> >Sent: Thursday, September 23, 2004 7:12 AM
-> >To: linux-kernel@vger.kernel.org
-> >Cc: Nakajima, Jun; akpm@osdl.org; arjanv@redhat.com; ak@suse.de
-> >Subject: [arjanv@redhat.com: Re: [PATCH] shrink per_cpu_pages to fit
-> 32byte
-> >cacheline]
-> >
-> >
-> >Forgot to CC linux-kernel, just in case someone else
-> >can have useful information on this matter.
-> >
-> >Andi says any additional overhead will be in the noise
-> >compared to cacheline saving benefit.
-> >
-> >***********
-> >
-> >Jun,
-> >
-> >We need some assistance here - you can probably help us.
-> >
-> >Within the Linux kernel we can benefit from changing some fields
-> >of commonly accessed data structures to 16 bit instead of 32 bits,
-> >given that the values for these fields never reach 2 ^ 16.
-> >
-> >Arjan warned me, however, that the prefix (in this case "data16") will
-> >cause an additional extra cycle in instruction decoding, per message
-> above.
-> 
-> On the Pentium4 core, this is not a big deal because it runs out of the
-> trace cache (i.e. decoded in advance). However, on the Pentium III/M
-> (aka P6) core (i.e. Penitum III, Banias, Dothan, Yonah, etc.),
-> especially when an operand size prefix (0x66) changes the # of bytes in
-> an instruction (usually by impacting the size of an immediate in the
-> instruction), the P6 core pays unnegligible penalty, slowing down
-> decoding.
+> Could this "garbage" possibly be confidential data?
+> I.e. one user repeatedly makes and mmaps a 1-byte file,
+> extends it to 4k, and looks at the 4095 bytes of "garbage".
+> Maybe he finds some "interesting stuff" when someone else's
+> confidential file just got dropped from pagecache
+> so he could mmap this 1-byte file?
 
-Jun,
+No, it couldn't.  The sequence of operations is:
 
-What you mean by "unnegligible penalty" ? 
+- char *p = mmap(1-byte file).  p[1] through p[4095] are guaranteed to be zero.
+- Write to p[1] through p[4095].  If the file is flushed at this point,
+  the extra bytes are guaranteed NOT to be written to disk.
+- ftruncate() the file to 4096 bytes
+- At this point, Linux may flush the non-zero bytes p[1]..p[4095] to disk.
 
-You mean its very small penalty (unconsiderable), or its considerable penalty?
+*That* is the issue being complained about.  If you write to p[1] through
+p[4095] *before* calling truncate(2) or ftruncate(2), it can get written
+back to disk.
 
-We are use one less cacheline for a very commonly used structure. 
+If you don't write past the EOF, it doesn't arise.
 
-Thanks and sorry for poor english :)
+The only security issue is that, although you technically are guaranteed
+access to the trailing partial page, so a correct program *could*
+rely on it, it's more commonly evidence of a bug, and bugs often have
+security implications.

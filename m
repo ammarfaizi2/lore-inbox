@@ -1,59 +1,64 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317439AbSFCRsr>; Mon, 3 Jun 2002 13:48:47 -0400
+	id <S317441AbSFCRv5>; Mon, 3 Jun 2002 13:51:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317440AbSFCRsq>; Mon, 3 Jun 2002 13:48:46 -0400
-Received: from pD952AF1C.dip.t-dialin.net ([217.82.175.28]:58499 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S317439AbSFCRsp>; Mon, 3 Jun 2002 13:48:45 -0400
-Date: Mon, 3 Jun 2002 11:48:42 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: "Martin.Knoblauch" <Martin.Knoblauch@teraport.de>
-cc: pwaechtler@loewe-komp.de, <linux-kernel@vger.kernel.org>
-Subject: Re: If you want kbuild 2.5, tell Linus
-In-Reply-To: <200206031933.50389.Martin.Knoblauch@teraport.de>
-Message-ID: <Pine.LNX.4.44.0206031143400.3833-100000@hawkeye.luckynet.adm>
+	id <S317442AbSFCRv4>; Mon, 3 Jun 2002 13:51:56 -0400
+Received: from mx3.fuse.net ([216.68.1.123]:58008 "EHLO mta03.fuse.net")
+	by vger.kernel.org with ESMTP id <S317441AbSFCRvy>;
+	Mon, 3 Jun 2002 13:51:54 -0400
+Message-ID: <3CFBACD2.4000904@fuse.net>
+Date: Mon, 03 Jun 2002 13:52:18 -0400
+From: Nathan <wfilardo@fuse.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/20020520 Debian/1.0rc2-3
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: Link order madness :-(
+In-Reply-To: <200206031729.g53HTwTo002828@pincoya.inf.utfsm.cl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Horst von Brand wrote:
 
-On Mon, 3 Jun 2002, Martin.Knoblauch wrote:
->  now my/the questions are:
-> 
-> - is what Kai is doing really leading to kbuild2.5
+>Jean Tourrilhes <jt@bougret.hpl.hp.com> said:
+>
+>[...]
+>
+>  
+>
+>>	The problem is *not* the networking initialisation (I wish
+>>people were *reading* my e-mails). The basic networking is initialised
+>>early enough. The various networking stacks could be initialised
+>>earlier, but I don't depend on them. Note that there might be a reason
+>>to initialise networking after the file system, so to do that we might
+>>need to insert a level between fs_initcall() and device_initcall().
+>>    
+>>
+>
+>If you insert enough levels, you are in another form of madness.
+>
+>There should be a way of saying "This must be initialized after this, and
+>before that" (the "before that" might perhaps be taken care of by the
+>"that" itself). Spiced with a few "barriers": "Networking inited", etc.
+>>From there the build system should figure it out by itself. tsort(1) on an
+>appropiate bunch of descriptive one-liners (extracted from the sources?)
+>should give the right initialization order, or error out.
+>
+>Yes, I know this has been proposed before and been thrown out (for no good
+>reason, AFAICS)
+>  
+>
 
-Not necessarily (Yet, it doesn't. It's just a plug of what was _indeed_ 
-corrected directly the like in kbuild-2.5.) But yet I'm confident we'll 
-get that done, but we all (even Kai) will have to change our attitudes. 
-However, I don't have prejudices for Kai, and I will try my best to get my 
-work done.
+Throwing in my $.02.  /etc/rc.d/* seems to have 100 levels (00 through 
+99) and it (so far) appears to be pretty sane, from my perspective. 
+ While 100 levels are perhaps too many, would it be more reasonable to 
+have, say _early_initcall, _initcall, and _late_initcall for each of the 
+categories (arch, fs, device, etc.)?  This would allow more granularity 
+within levels so things needn't ever be improperly promoted out of their 
+rightly-named level.  Prolly not, just thought I'd ask.
 
-> - how man iterations will it take, will it be ready for 2.6 (whenenvwer 
-> that is).
+--Nathan
 
-If it goes on the like it did for now, you'd better wait for linux-2.8. I 
-don't think it will get in like this.
-
-> - at what point will the kbuild-users have to learn new tricks, where is 
-> the point of no-return?
-
-The moment we merge Makefile-2.5 and Makefile, discarding compatibility 
-targets.
-
-However, try my linux-2.5.20-ct1, scheduled for somewhen until Wednesday. 
-You can get a clear insight on some things such as kbuild-2.5 then.
-
-> Martin
-
-Regards,
-Thunder
--- 
-ship is leaving right on time	|	Thunder from the hill at ngforever
-empty harbour, wave goodbye	|
-evacuation of the isle		|	free inhabitant not directly
-caveman's paintings drowning	|	belonging anywhere
 

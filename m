@@ -1,65 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319363AbSHVPUQ>; Thu, 22 Aug 2002 11:20:16 -0400
+	id <S319368AbSHVPiQ>; Thu, 22 Aug 2002 11:38:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319365AbSHVPUQ>; Thu, 22 Aug 2002 11:20:16 -0400
-Received: from gra-lx1.iram.es ([150.214.224.41]:43790 "EHLO gra-lx1.iram.es")
-	by vger.kernel.org with ESMTP id <S319363AbSHVPUP>;
-	Thu, 22 Aug 2002 11:20:15 -0400
-Message-ID: <3D65020D.5070201@iram.es>
-Date: Thu, 22 Aug 2002 15:23:57 +0000
-From: Gabriel Paubert <paubert@iram.es>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-CC: Yoann Vandoorselaere <yoann@prelude-ids.org>,
-       cpufreq@lists.arm.linux.org.uk, cpufreq@www.linux.org.uk,
+	id <S319371AbSHVPiQ>; Thu, 22 Aug 2002 11:38:16 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:14246 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S319368AbSHVPiP>; Thu, 22 Aug 2002 11:38:15 -0400
+Date: Thu, 22 Aug 2002 08:42:13 -0700
+From: Greg KH <gregkh@us.ibm.com>
+To: =?iso-8859-1?Q?G=E9rard?= Roudier <groudier@free.fr>
+Cc: Hanna Linder <hannal@us.ibm.com>, greg@kroah.com,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]: fix 32bits integer overflow in loops_per_jiffy calculation
-References: <3D64D51C.9040603@iram.es> <20020822143115.15323@192.168.4.1>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: PCI Cleanup
+Message-ID: <20020822154213.GB30158@us.ibm.com>
+References: <74760000.1029977971@w-hlinder> <20020822115025.B2502-100000@localhost.my.domain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20020822115025.B2502-100000@localhost.my.domain>
+User-Agent: Mutt/1.3.25i
+X-Operating-System: Linux 2.4.20-pre2 (i686)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt wrote:
->>Well, first on sane archs which have an easily accessible, fixed
->>frequency time counter, loops_per_jiffy should never have existed :-)
->>
->>Second, putting this code there means that one day somebody will
->>inevitably try to use it outside of its domain of operation (like it
->>happened for div64 a few months ago when I pointed out that it would not
->>work for divisors above 65535 or so).
+On Thu, Aug 22, 2002 at 12:11:41PM +0200, Gérard Roudier wrote:
 > 
 > 
-> Well... it's clearly located inside kernel/cpufreq.c, so there is
-> little risk, though it may be worth a big bold comment
-
-Hmm, in my experience people hardly ever read detailed comments even 
-when they are well-written. Perhaps if you called the function 
-imprecise_scale or coarse_scale, it might ring a bell.
-
-Besides that functions should do one thing and do that *well*[1]. Well, 
-I'm usually not too dogmatic, but this function breaks the second rule
-beyond what I find acceptable.
-
->>In this case a generic scaling function, while not a standard libgcc/C
->>library feature has potentially more applications than this simple 
->>cpufreq approximation. But I don't see very much the need for scaling a 
->>long (64 bit on 64 bit archs) value, 32 bit would be sufficient.
+> On Wed, 21 Aug 2002, Hanna Linder wrote:
 > 
+> > Here is the first part of the sh port of the pci_ops
+> > changes. If anyone can compile this for Sega let me
+> > know if there are any problems.
 > 
-> Well... if you can write one, go on then ;) In my case, I'm happy
-> with Yoann implementation for cpufreq right now. Though I agree that
-> could ultimately be moved to arch code.
+> The 'val' pointer is declared 'u32 *', then casted 'u8 *' or 'u16 *' if
+> needed. The compiler will not warn you. But user that wants to operate on
+> u8 or u16 has to cast the 'val' argument to 'u32 *' and should get a
+> warning from any decent C compiler. The normal C-way for such
+> 'sorry-typed' argument is 'void *val', IMO.
 
-Ok, I'll give it a try this week-end (PPC, i386 and all 64 bit should 
-archs should be trivial).
+We are filling up a u32 here (see the previous patches), so leaving this
+as a u32 * and casting for the other sizes makes sense in this
+situation.
 
-	Gabriel.
+thanks,
 
-[1] Documentation/CodingStyle, which also claims that functions should 
-be short and *sweet*. Well, I found the patch far too bitter ;-).
-
-
+greg k-h

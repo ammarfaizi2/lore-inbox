@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266533AbUBGDDq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 22:03:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266546AbUBGDDq
+	id S266546AbUBGDEr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 22:04:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266554AbUBGDEr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 22:03:46 -0500
-Received: from pirx.hexapodia.org ([65.103.12.242]:15279 "EHLO
-	pirx.hexapodia.org") by vger.kernel.org with ESMTP id S266533AbUBGDDo
+	Fri, 6 Feb 2004 22:04:47 -0500
+Received: from bay1-f23.bay1.hotmail.com ([65.54.245.23]:57095 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S266546AbUBGDEl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 22:03:44 -0500
-Date: Fri, 6 Feb 2004 21:03:43 -0600
-From: Andy Isaacson <adi@hexapodia.org>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: avoiding dirty code pages with fixups
-Message-ID: <20040207030343.GB21565@hexapodia.org>
-References: <20040203225453.GB18320@hexapodia.org> <20040207001317.GE12503@mail.shareable.org>
+	Fri, 6 Feb 2004 22:04:41 -0500
+X-Originating-IP: [65.25.165.241]
+X-Originating-Email: [jw2357@hotmail.com]
+From: "John William" <jw2357@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] killing the AMD53C974 and mac_NCR5380 drivers
+Date: Sat, 07 Feb 2004 03:04:39 +0000
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040207001317.GE12503@mail.shareable.org>
-User-Agent: Mutt/1.4.1i
-X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
-X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
-X-Domestic-Surveillance: money launder bomb tax evasion
+Content-Type: text/plain; format=flowed
+Message-ID: <BAY1-F23xAHXBejKV010001f615@hotmail.com>
+X-OriginalArrivalTime: 07 Feb 2004 03:04:40.0046 (UTC) FILETIME=[207398E0:01C3ED27]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 07, 2004 at 12:13:17AM +0000, Jamie Lokier wrote:
-> > The downside is the additional computation on page-in.
-> 
-> > It is a function of how many fixups there are per page, and of how
-> > much work ld.so does to satisfy a fixup.  I don't have a good feel
-> > for how expensive ld.so's fixup mechanism is... any comments?
-> 
-> The other downside of your idea is that every instance of a program
-> has more dirty pages.  While it is true that the pages do not require
-> disk I/O, they still take up RAM that could be used for other page
-> cache things.
+Removing the AM53C974 driver sounds like a good idea, but be aware that the 
+tmscsim driver included on the RedHat driver disks (for people who have to 
+boot by floppy) causes a panic on boot ever since 7.3 on XU 5/90 machines. 
+The AM53C974 driver is very minimalistic, but seems to work. Once the system 
+is installed, the AM53C974 driver isn't stable long-term and I have to use 
+tmscsim.
 
-Well, in the case I describe, currently they're done with MAP_PRIVATE
-mappings, so it's no net loss.
+So before deleting the driver, keep in mind that without it, there would be 
+no way to install RedHat's distros on the older Vectra's. Of course the 
+tmscsim driver included on the RedHat driver disk could be broken...
 
--andy
+- John
+
+_________________________________________________________________
+Choose now from 4 levels of MSN Hotmail Extra Storage - no more account 
+overload! http://click.atdmt.com/AVE/go/onm00200362ave/direct/01/
+

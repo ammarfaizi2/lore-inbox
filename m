@@ -1,39 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265775AbUFRX15@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265777AbUFRX2Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265775AbUFRX15 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 19:27:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265777AbUFRX14
+	id S265777AbUFRX2Y (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 19:28:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265768AbUFRX2R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 19:27:56 -0400
-Received: from outmail1.freedom2surf.net ([194.106.33.237]:26768 "EHLO
-	outmail.freedom2surf.net") by vger.kernel.org with ESMTP
-	id S264906AbUFRX1l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 19:27:41 -0400
-Date: Sat, 19 Jun 2004 00:26:18 +0100
-From: Ian Molton <spyro@f2s.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org, greg@kroah.com, tony@atomide.com,
-       david-b@pacbell.net, jamey.hicks@hp.com, joshua@joshuawise.com,
-       James.Bottomley@steeleye.com
-Subject: Re: DMA API issues
-Message-Id: <20040619002618.5650e16a.spyro@f2s.com>
-In-Reply-To: <40D359B3.6080400@pobox.com>
-References: <20040618175902.778e616a.spyro@f2s.com>
-	<40D359B3.6080400@pobox.com>
-Organization: The Dragon Roost
-X-Mailer: Sylpheed version 0.9.12-gtk2-20040617 (GTK+ 2.4.1; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 18 Jun 2004 19:28:17 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:48477 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S265781AbUFRX1H (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 19:27:07 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH] Add kallsyms_lookup() result cache
+Date: Fri, 18 Jun 2004 19:26:39 -0400
+User-Agent: KMail/1.6.2
+Cc: Brent Casavant <bcasavan@sgi.com>, linux-kernel@vger.kernel.org,
+       rusty@rustcorp.com.au
+References: <Pine.SGI.4.58.0406181435570.5029@kzerza.americas.sgi.com> <20040619000326.067c3ff6.ak@suse.de>
+In-Reply-To: <20040619000326.067c3ff6.ak@suse.de>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200406181926.39294.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Jun 2004 17:08:03 -0400
-Jeff Garzik <jgarzik@pobox.com> wrote:
+On Friday, June 18, 2004 6:03 pm, Andi Kleen wrote:
+> On Fri, 18 Jun 2004 15:03:00 -0500
+>
+> Brent Casavant <bcasavan@sgi.com> wrote:
+> > On 2.6 based systems, the top command utilizes /proc/[pid]/wchan to
+> > determine WCHAN symbol name information.  This information is provided
+> > by the kernel function kallsyms_lookup(), which expands a stem-compressed
+>
+> That sounds more like a bug in your top to me. /proc/*/wchan itself
+> does not access kallsyms, it just outputs a number.undisclosed-recipients:;
 
-> You _might_ convince the kernel DMA gurus that this could be done by 
-> creating a driver-specific bus, and pointing struct device to that 
-> internal bus, but that seems like an awful lot of work as opposed to the 
-> wrappers.
+No, it outputs a string:
+jbarnes@mill:~$ cat /proc/1/wchan
+do_select
 
-Its an awful lot less work than re-writing all those drivers!
+I haven't looked, but it's probably dependent on CONFIG_KALLSYMS.
+
+> Doing the cache in the kernel is the wrong place. This should be fixed
+> in user space.
+
+Sure, but that would be a change in behavior.  It's arguably the right thing 
+to do though.
+
+Jesse

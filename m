@@ -1,63 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132115AbRAER7u>; Fri, 5 Jan 2001 12:59:50 -0500
+	id <S130378AbRAESHp>; Fri, 5 Jan 2001 13:07:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132701AbRAER7k>; Fri, 5 Jan 2001 12:59:40 -0500
-Received: from [216.161.55.93] ([216.161.55.93]:23802 "EHLO blue.int.wirex.com")
-	by vger.kernel.org with ESMTP id <S132115AbRAER72>;
-	Fri, 5 Jan 2001 12:59:28 -0500
-Date: Fri, 5 Jan 2001 10:00:40 -0800
-From: Greg KH <greg@wirex.com>
-To: Heitzso <xxh1@cdc.gov>
-Cc: "'antirez@invece.org'" <antirez@invece.org>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-        "'Johannes Erdfelt'" <johannes@erdfelt.com>
-Subject: Re: USB broken in 2.4.0
-Message-ID: <20010105100040.A25217@wirex.com>
-Mail-Followup-To: Greg KH <greg@wirex.com>, Heitzso <xxh1@cdc.gov>,
-	"'antirez@invece.org'" <antirez@invece.org>,
-	"'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-	'Johannes Erdfelt' <johannes@erdfelt.com>
-In-Reply-To: <B7F9A3E3FDDDD11185510000F8BDBBF2049E7F99@mcdc-atl-5.cdc.gov>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <B7F9A3E3FDDDD11185510000F8BDBBF2049E7F99@mcdc-atl-5.cdc.gov>; from xxh1@cdc.gov on Fri, Jan 05, 2001 at 12:38:25PM -0500
-X-Operating-System: Linux 2.4.0-prerelease (i686)
+	id <S131624AbRAESHf>; Fri, 5 Jan 2001 13:07:35 -0500
+Received: from hermes.mixx.net ([212.84.196.2]:60944 "HELO hermes.mixx.net")
+	by vger.kernel.org with SMTP id <S130378AbRAESHV>;
+	Fri, 5 Jan 2001 13:07:21 -0500
+From: Daniel Phillips <phillips@innominate.de>
+To: Rik van Riel <riel@conectiva.com.br>, linux-mm@kvack.org
+Subject: Re: MM/VM todo list
+Date: Fri, 5 Jan 2001 18:58:22 +0100
+X-Mailer: KMail [version 1.0.28]
+Content-Type: text/plain; charset=US-ASCII
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0101051505430.1295-100000@duckman.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.21.0101051505430.1295-100000@duckman.distro.conectiva>
+MIME-Version: 1.0
+Message-Id: <01010519042301.00517@gimli>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 05, 2001 at 12:38:25PM -0500, Heitzso wrote:
-> I just tested with fresh-out-of-the-box
-> 2.4.0 and using the newer libusb 0.1.2 
-> as suggested by antirez  (see email chain
-> below for more info).  I compiled libusb
-> and s10sh code this AM under 2.4.0. 
+On Fri, 05 Jan 2001, Rik van Riel wrote:
+> Hi,
 > 
-> It blows up BAD by finding increasingly
-> larger photo images in the camera over
-> the usb link and extracting them to disk.
-> So by the third file you're trying to
-> extract gig sized files.  Obviously the
-> filesystem files up, the sytem chokes, etc.
+> here is a TODO list for the memory management area of the
+> Linux kernel, with both trivial things that could be done
+> for later 2.4 releases and more complex things that really
+> have to be 2.5 things.
 > 
-> This is the same code that works fine
-> under 2.2.18 kernel (I use it all of the
-> time there).
+> Most of these can be found on http://linux24.sourceforge.net/ too
+> 
+> Trivial stuff:
+> * VM: better IO clustering for swap (and filesystem) IO
+>   * Marcelo's swapin/out clustering code
+>   * ->writepage() IO clustering support
+>   * page_launder()/->writepage() working together in avoiding
+>     low-yield (small cluster) IO at first, ...
+> * VM: include Ben LaHaise's code, which moves readahead to the
+>   VMA level, this way we can do streaming swap IO, complete with
+>   drop_behind()
+> * VM: enforce RSS ulimit
+> 
+> 
+> Probably 2.5 era:
+> * VM: physical->virtual reverse mapping, so we can do much
+>   better page aging with less CPU usage spikes 
+> * VM: move all the global VM variables, lists, etc. into the
+>   pgdat struct for better NUMA scalability
+> * VM: per-node kswapd for NUMA
+> * VM: thrashing control, maybe process suspension with some
+>   forced swapping ?             (trivial only in theory)
+> * VM: experiment with different active lists / aging pages
+>   of different ages at different rates + other page replacement
+>   improvements
+> * VM: Quality of Service / fairness / ... improvements
+> 
+> 
+> Additions to this list are always welcome, I'll put it online
+> on the Linux-MM pages (http://www.linux.eu.org/Linux-MM/) soon.
 
-I made the same request to Jordan Mendelson yesterday, who has the same
-problem.  Could you be so kind as to try to narrow down which kernel
-version this broke on?  I have reports that it used to work on -test9
-but doesn't now.  Could you try -test10, etc and let me know?
-
-thanks,
-
-greg k-h
+I'd like to suggest variable sized pages as a research topic.  It's not
+clear whether we're talking 2.5 or 2.7 here.
 
 -- 
-greg@(kroah|wirex).com
-http://immunix.org/~greg
+Daniel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

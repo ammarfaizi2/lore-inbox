@@ -1,46 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265113AbRFZVmk>; Tue, 26 Jun 2001 17:42:40 -0400
+	id <S265115AbRFZVpJ>; Tue, 26 Jun 2001 17:45:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265115AbRFZVm3>; Tue, 26 Jun 2001 17:42:29 -0400
-Received: from zero.tech9.net ([209.61.188.187]:38916 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S265113AbRFZVm1>;
-	Tue, 26 Jun 2001 17:42:27 -0400
-Subject: Re: failed kernel 2.4.2 build after applying the patch ac28
-From: Robert Love <rml@tech9.net>
-To: "MEHTA,HIREN " "(A-SanJose,ex1)" <hiren_mehta@agilent.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-In-Reply-To: <FEEBE78C8360D411ACFD00D0B7477971880ACA@xsj02.sjs.agilent.com>
-In-Reply-To: <FEEBE78C8360D411ACFD00D0B7477971880ACA@xsj02.sjs.agilent.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.10.99 (Preview Release)
-Date: 26 Jun 2001 17:42:55 -0400
-Message-Id: <993591787.579.0.camel@phantasy>
+	id <S265117AbRFZVo7>; Tue, 26 Jun 2001 17:44:59 -0400
+Received: from amadeus.resilience.com ([209.245.157.29]:2398 "HELO jmcmullan")
+	by vger.kernel.org with SMTP id <S265115AbRFZVop>;
+	Tue, 26 Jun 2001 17:44:45 -0400
+Date: Tue, 26 Jun 2001 17:29:13 -0400
+From: Jason McMullan <jmcmullan@linuxcare.com>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Jason McMullan <jmcmullan@linuxcare.com>, linux-kernel@vger.kernel.org
+Subject: Re: VM Requirement Document - v0.0
+Message-ID: <20010626172913.A29829@jmcmullan.resilience.com>
+In-Reply-To: <20010626155838.A23098@jmcmullan.resilience.com> <Pine.LNX.4.33L.0106261819400.23373-100000@duckman.distro.conectiva>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <Pine.LNX.4.33L.0106261819400.23373-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Tue, Jun 26, 2001 at 06:21:21PM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 26 Jun 2001 15:35:09 -0600, MEHTA,HIREN (A-SanJose,ex1) wrote:
-> I tried to build the 2.4.2 kernel after applying patch ac28
-> (patch-2.4.2-ac28) and it failed :-((
+On Tue, Jun 26, 2001 at 06:21:21PM -0300, Rik van Riel wrote:
+> > 	* If we're getting low cache hit rates, don't flush
+> > 	  processes to swap.
+> > 	* If we're getting good cache hit rates, flush old, idle
+> > 	  processes to swap.
 > 
-> When it failed it gave the following message :
-> 
-> *** Install db development libraries
-> 
-> I thought kernel build should be independent of any userland libraries.
+> ... but I fail to see this one. If we get a low cache hit
+> rate, couldn't that just mean we allocated too little memory
+> for the cache ?
 
+	Hmmm. I didn't take that into consideration. But at the
+same time, shouldn't a VM be able to determine that its cache
+strategy is causing _more_ (absolute) misses by increasing it 
+cache size? The percentage of misses may go down, but total 
+device I/O may stay the same.
 
-i think this is because aicasm (the assembler for the aha7xxx scsi
-firmware) uses db1 to build itself.  are you compiling aha7xxx support
-into the kernel?
+	So let's see... I'll rephrase that 'Motiviation' as:
 
-upgrade to the newest kernel (2.4.5-ac18) and rebuilding the firmware is
-optional, so you won't need the berekely db libraries.
+	* Minimize the total medium/slow I/Os that occur over a 
+	  sliding window of time. 
+
+	Is that a more general case?
+ 
+> Also, how would we translate all these requirements into
+> VM strategies ?
+
+	First, I would like to translate them into measurements.
+Once we know how to measure these criteria, its possible to
+formalize the feedback mechanism/accounting that a VM should
+be aware of.
+
+	In the end, I would like a VM to have some idea of
+how well its performing, and be able to attempt various
+well-known strategies based upon its own performance.
 
 -- 
-Robert M. Love
-rml at ufl.edu
-rml at tech9.net
-
+Jason McMullan, Senior Linux Consultant
+Linuxcare, Inc. 412.432.6457 tel, 412.656.3519 cell
+jmcmullan@linuxcare.com, http://www.linuxcare.com/
+Linuxcare. Putting open source to work.

@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263711AbRFGXgU>; Thu, 7 Jun 2001 19:36:20 -0400
+	id <S263723AbRFHAE4>; Thu, 7 Jun 2001 20:04:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263723AbRFGXgK>; Thu, 7 Jun 2001 19:36:10 -0400
-Received: from t2.redhat.com ([199.183.24.243]:37370 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S263711AbRFGXf4>; Thu, 7 Jun 2001 19:35:56 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <Pine.LNX.4.33.0106071607180.3940-100000@shell1.aracnet.com> 
-In-Reply-To: <Pine.LNX.4.33.0106071607180.3940-100000@shell1.aracnet.com> 
-To: Paul Buder <paulb@aracnet.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Large ramdisk crashes system 
-Mime-Version: 1.0
+	id <S263726AbRFHAEq>; Thu, 7 Jun 2001 20:04:46 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:44038 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S263723AbRFHAEb>;
+	Thu, 7 Jun 2001 20:04:31 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200106080003.f5803wl370740@saturn.cs.uml.edu>
+Subject: Re: temperature standard - global config option?
+To: bootc@worldnet.fr (Chris Boot)
+Date: Thu, 7 Jun 2001 20:03:58 -0400 (EDT)
+Cc: dbr@greenhydrant.com (David Rees),
+        linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.org)
+In-Reply-To: <B745C09D.F8BF%bootc@worldnet.fr> from "Chris Boot" at Jun 07, 2001 11:37:01 PM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 08 Jun 2001 00:35:46 +0100
-Message-ID: <14555.991956946@redhat.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Chris Boot writes:
 
-paulb@aracnet.com said:
-> the kernel is 2.4.5 with 'Simple RAM-based file system support' turned on.
+>>>> Kelvins good idea in general - it is always positive ;-)
+>>>>
+>>>> 0.01*K fits in 16 bits and gives reasonable range.
+...
+> OK, I think by now we've all agreed the following:
+>  - The issue is NOT displaying temperatures to the user, but a userspace
+>    program reading them from the kernel.  The userspace program itself can
+>    do temperature conversions for the user if he/she wants.
+>  - The most preferable units would be decikelvins, as the value can give a
+>    relatively precise as well as wide range of numbers ranging from absolute
+>    zero to about 6340 degrees Celsius ((65535 / 10) - 273) which is well
+>    within anything that a computer can operate.  It also gives us a good
+>    base for all sorts of other temperature sensing devices.
+>
+> Do we all agree on those now?
 
-> I issued the following commands.
+I nearly do.
 
-> mkfs /dev/ram0 400000
-> mount /dev/ram0 /mnt
-> dd if=/dev/zero of=/mnt/junk bs=1024 count=500000 
-
-Why turn on ramfs if you're not going to use it? 
-
- mount -t ramfs none /mnt/junk
-
-Use the one in the -ac tree and you get resource limits, which will be 
-useful. The VM will still be broken, but you should get away with a little 
-more.
-
---
-dwmw2
-
-
+There isn't any need to cram the data into 16 bits.
+The offset to Celsius is 273.15 degrees.
+So hundredths of a degree, in Kelvin, is a better choice.

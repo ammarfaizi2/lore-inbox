@@ -1,42 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268177AbUHNHtN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268197AbUHNIDw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268177AbUHNHtN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Aug 2004 03:49:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268115AbUHNHtN
+	id S268197AbUHNIDw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Aug 2004 04:03:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268200AbUHNIDw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Aug 2004 03:49:13 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:13072 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S268177AbUHNHtJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Aug 2004 03:49:09 -0400
-Date: Sat, 14 Aug 2004 09:51:35 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       Florian Schmidt <mista.tapas@gmx.net>
-Subject: Re: [patch] voluntary-preempt-2.6.8-rc4-O8
-Message-ID: <20040814075135.GB20123@mars.ravnborg.org>
-Mail-Followup-To: Ingo Molnar <mingo@elte.hu>,
-	Lee Revell <rlrevell@joe-job.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-	Florian Schmidt <mista.tapas@gmx.net>
-References: <20040726204720.GA26561@elte.hu> <20040729222657.GA10449@elte.hu> <20040801193043.GA20277@elte.hu> <20040809104649.GA13299@elte.hu> <20040810132654.GA28915@elte.hu> <20040812235116.GA27838@elte.hu> <1092382825.3450.19.camel@mindpipe> <20040813104817.GI8135@elte.hu> <1092432929.3450.78.camel@mindpipe> <20040814072009.GA6535@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040814072009.GA6535@elte.hu>
-User-Agent: Mutt/1.5.6i
+	Sat, 14 Aug 2004 04:03:52 -0400
+Received: from marc2.theaimsgroup.com ([63.238.77.172]:50910 "EHLO
+	mailer.progressive-comp.com") by vger.kernel.org with ESMTP
+	id S268197AbUHNIDq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Aug 2004 04:03:46 -0400
+Date: Sat, 14 Aug 2004 04:03:41 -0400 (EDT)
+From: Hank Leininger <hlein@progressive-comp.com>
+X-X-Sender: Hank Leininger <hlein@progressive-comp.com>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: 2.4.26 OOPS in __kmem_cache_alloc
+In-Reply-To: <200408141039.05915.vda@port.imtp.ilyichevsk.odessa.ua>
+Message-ID: <010408140344290.12915@timmy.spinoli.org>
+References: <010408121718530.12915@timmy.spinoli.org>
+ <200408141039.05915.vda@port.imtp.ilyichevsk.odessa.ua>
+X-Marks-The: Spot
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 14, 2004 at 09:20:09AM +0200, Ingo Molnar wrote:
-> 
-> other changes in -O8: the massive kallsyms-lookup speedup from Paulo
-> Marque
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Do you have this as an independent patch - or an URL?
+On Sat, 14 Aug 2004, Denis Vlasenko wrote:
 
-	Sam
+> On Saturday 14 August 2004 06:43, Hank Leininger wrote:
+> > The primary MARC server has been out of production for, oh, about
+> >
+> > [horror story abridged]
+>
+> Oh no.
+>
+> > Unable to handle kernel NULL pointer dereference at virtual address
+> > 00000021 *pde = 00000000
+[snip]
+> > Code;  c01f20fb <__kmem_cache_alloc+b/130>
+> > 00000000 <_EIP>:
+> > Code;  c01f20fb <__kmem_cache_alloc+b/130>   <=====
+> >    0:   8b 5c 24 20               mov    0x20(%esp,1),%ebx   <=====
+> > Code;  c01f20ff <__kmem_cache_alloc+f/130>
+> >    4:   f7 c7 01 00 00 00         test   $0x1,%edi
+> > Code;  c01f2105 <__kmem_cache_alloc+15/130>
+> >    a:   0f 84 f5 00 00 00         je     105 <_EIP+0x105>
+> > Code;  c01f210b <__kmem_cache_alloc+1b/130>
+> >   10:   f6 43 30 01               testb  $0x1,0x30(%ebx)
+>
+> Strange. "Unable to handle kernel NULL pointer dereference
+> at virtual address 00000021". But %esp == 0xd426ddf8
+> and 0x20(%esp,1) == (%esp+0x20) != (0x00000021)....
+> Hmmm. But _%ebp_ is equal to 00000001!
+>
+> I just checked: "8b 5c 24 20" is indeed "mov 0x20(%esp,1),%ebx",
+> it's not a ksymoops bug...
+>
+> What kind of CPU do you use?
+
+When that OOPS was taken, an Athlon XP 2500+ Barton.  The kernel is
+still compiled for SMP (for when it was running with dual Athlon MP
+2400+'s; that's where the second, old, less reliable OOPS occurred).
+
+> Please send me your mm/slab.c and mm/slab.o (from
+> the kernel build directory).
+
+Sure (sent in a separate email off-list, to spare l-k, unless there is
+more interest).
+
+Thanks,
+
+Hank Leininger <hlein@progressive-comp.com>
+E407 AEF4 761E D39C D401  D4F4 22F8 EF11 861A A6F1
+-----BEGIN PGP SIGNATURE-----
+
+iD8DBQFBHcddIvjvEYYapvERAufTAJwInznww51XBpPi0/evrPgzinfBNQCfQqRY
+mcAOrBxNWrs6nPPL/38Oei8=
+=wevd
+-----END PGP SIGNATURE-----

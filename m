@@ -1,53 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291265AbSBMAD5>; Tue, 12 Feb 2002 19:03:57 -0500
+	id <S291269AbSBMAF0>; Tue, 12 Feb 2002 19:05:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291267AbSBMADr>; Tue, 12 Feb 2002 19:03:47 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59397 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S291265AbSBMADd>;
-	Tue, 12 Feb 2002 19:03:33 -0500
-Message-ID: <3C69AD53.40F82438@mandrakesoft.com>
-Date: Tue, 12 Feb 2002 19:03:31 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S291267AbSBMAFJ>; Tue, 12 Feb 2002 19:05:09 -0500
+Received: from [63.231.122.81] ([63.231.122.81]:38740 "EHLO lynx.adilger.int")
+	by vger.kernel.org with ESMTP id <S291269AbSBMAE4>;
+	Tue, 12 Feb 2002 19:04:56 -0500
+Date: Tue, 12 Feb 2002 17:03:13 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
 To: Andrew Morton <akpm@zip.com.au>
-CC: Jan Hudec <bulb@ucw.cz>, linux-kernel@vger.kernel.org,
-        Matt Gauthier <elleron@yahoo.com>
-Subject: Re: secure erasure of files?
-In-Reply-To: <Pine.LNX.4.30.0202121409150.18597-100000@mustard.heime.net> <Pine.LNX.4.33.0202121438560.7616-100000@unicef.org.yu> <20020212165504.A5915@devcon.net>,
-			<20020212165504.A5915@devcon.net>; from aferber@techfak.uni-bielefeld.de on Tue, Feb 12, 2002 at 04:55:04PM +0100 <20020212204710.A7416@artax.karlin.mff.cuni.cz> <3C697A1D.4599DDE@zip.com.au>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] ext2 synchronous mount speedup
+Message-ID: <20020212170313.V9826@lynx.turbolabs.com>
+Mail-Followup-To: Andrew Morton <akpm@zip.com.au>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <3C69A174.B092D044@zip.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3C69A174.B092D044@zip.com.au>; from akpm@zip.com.au on Tue, Feb 12, 2002 at 03:12:52PM -0800
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> 
-> Jan Hudec wrote:
-> >
-> > > I don't know if any filesystem currently relocates blocks if you
-> > > overwrite a file, but it's certainly possible and allowed (everything
-> > > else except the filesystem itself simply must not care where the data
-> > > actually ends up on the disk).
-> >
-> > AFAIK, ext2 tries to defragment files when possible.
-> 
-> We wish.
+On Feb 12, 2002  15:12 -0800, Andrew Morton wrote:
+> --- linux-2.4.18-pre9/include/linux/ext2_fs_i.h	Mon Sep 17 13:16:30 2001
+> +++ linux-akpm/include/linux/ext2_fs_i.h	Tue Feb 12 14:00:11 2002
+> @@ -25,7 +25,6 @@ struct ext2_inode_info {
+>  	__u32	i_faddr;
+>  	__u8	i_frag_no;
+>  	__u8	i_frag_size;
+> -	__u16	i_osync;
+>  	__u32	i_file_acl;
+>  	__u32	i_dir_acl;
+>  	__u32	i_dtime;
 
-ext2meta will defragment yer files for ya, though.  Coming soon to a
-kernel near you :)
+We should probably leave this in there as a placeholder (with a different
+name), just for alignment sake.
 
-My home directory disk, a raid-1 mirror, just crossed 15 percent
-fragmentation last week, I noticed...  The filesystem is maybe 1.5-2
-years old.
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 
-	Jeff
-
-
--- 
-Jeff Garzik      | "I went through my candy like hot oatmeal
-Building 1024    |  through an internally-buttered weasel."
-MandrakeSoft     |             - goats.com

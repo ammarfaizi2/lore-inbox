@@ -1,65 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261931AbVBOXdy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261938AbVBOXfp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261931AbVBOXdy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 18:33:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261938AbVBOXdy
+	id S261938AbVBOXfp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 18:35:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261949AbVBOXfo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 18:33:54 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:20231 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261931AbVBOXdt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 18:33:49 -0500
-Date: Wed, 16 Feb 2005 00:33:48 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: kraxel@bytesex.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/media/video/tvaudio.c: make some variables static
-Message-ID: <20050215233348.GA3248@stusta.de>
+	Tue, 15 Feb 2005 18:35:44 -0500
+Received: from gate.crashing.org ([63.228.1.57]:41358 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261938AbVBOXfa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Feb 2005 18:35:30 -0500
+Subject: Re: 2.6.10 on PowerMac9,1 G5 Fan problem
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Ajay Patel <patela@gmail.com>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <90f56e480502151527696ef315@mail.gmail.com>
+References: <90f56e480502151527696ef315@mail.gmail.com>
+Content-Type: text/plain
+Date: Wed, 16 Feb 2005 10:34:38 +1100
+Message-Id: <1108510478.13376.43.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes some needlessly global variables static.
+On Tue, 2005-02-15 at 15:27 -0800, Ajay Patel wrote:
+> Hi,
+> 
+> I have a single processor PowerMac G5 where
+> the model property is PowerMac9,1.
+> I do have therm_pm72 and I2C_keywest option
+> enabled in my config. Still fans are always on.
+> 
+> Any thermal control driver patch available for this newer G5?
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Hi !
 
----
+Not yet no. This one uses a new chip called the "SMU" that replace both
+the old PMU (power management) and the FCU (fan control unit). I don't
+know yet how to operate it to drive the fans, there is no open source
+darwin driver for it and no infos available from Apple  :(
 
- tvaudio.c |   22 +++++++++++-----------
- 1 files changed, 11 insertions(+), 11 deletions(-)
+Hopefully, I'll get an iMac G5 soon, which has a similar chip, so I'll
+be able to do some reverse engineering and eventually figure it out.
 
---- linux-2.6.11-rc3-mm2-full/drivers/media/video/tvaudio.c.old	2005-02-15 22:13:38.000000000 +0100
-+++ linux-2.6.11-rc3-mm2-full/drivers/media/video/tvaudio.c	2005-02-15 22:14:29.000000000 +0100
-@@ -1237,17 +1237,17 @@
- /* audio chip descriptions - struct CHIPDESC                              */
- 
- /* insmod options to enable/disable individual audio chips */
--int tda8425  = 1;
--int tda9840  = 1;
--int tda9850  = 1;
--int tda9855  = 1;
--int tda9873  = 1;
--int tda9874a = 1;
--int tea6300  = 0;  // address clash with msp34xx
--int tea6320  = 0;  // address clash with msp34xx
--int tea6420  = 1;
--int pic16c54 = 1;
--int ta8874z  = 0;  // address clash with tda9840
-+static int tda8425  = 1;
-+static int tda9840  = 1;
-+static int tda9850  = 1;
-+static int tda9855  = 1;
-+static int tda9873  = 1;
-+static int tda9874a = 1;
-+static int tea6300  = 0;  // address clash with msp34xx
-+static int tea6320  = 0;  // address clash with msp34xx
-+static int tea6420  = 1;
-+static int pic16c54 = 1;
-+static int ta8874z  = 0;  // address clash with tda9840
- 
- module_param(tda8425, int, 0444);
- module_param(tda9840, int, 0444);
+Ben.
+
 

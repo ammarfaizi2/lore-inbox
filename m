@@ -1,43 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263031AbREWJf1>; Wed, 23 May 2001 05:35:27 -0400
+	id <S263030AbREWJeH>; Wed, 23 May 2001 05:34:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263032AbREWJfR>; Wed, 23 May 2001 05:35:17 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:55823 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S263031AbREWJfG>; Wed, 23 May 2001 05:35:06 -0400
-Message-ID: <3B0B8416.7EA99502@idb.hist.no>
-Date: Wed, 23 May 2001 11:34:14 +0200
-From: Helge Hafting <helgehaf@idb.hist.no>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-pre2 i686)
-X-Accept-Language: no, en
+	id <S263031AbREWJd5>; Wed, 23 May 2001 05:33:57 -0400
+Received: from ns.digitalndigital.co.kr ([203.235.25.201]:13246 "EHLO
+	digital-digital.com") by vger.kernel.org with ESMTP
+	id <S263030AbREWJdx>; Wed, 23 May 2001 05:33:53 -0400
+Message-ID: <026201c0e36b$6d10d780$2502a8c0@flyduck.flyduck.com>
+From: =?ISO-8859-1?Q? "=C0=CC=C8=A3" ?= <i@flyduck.com>
+To: "Blesson Paul" <blessonpaul@usa.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: [Re: __asm__ ]
+Date: Wed, 23 May 2001 18:33:28 +0900
 MIME-Version: 1.0
-To: cacook@freedom.net, quantum7@freedom.net
-CC: linux-kernel@vger.kernel.org
-Subject: Re: write to dvd ram
-In-Reply-To: <20010522164700Z262628-933+213@vger.kernel.org>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="euc-kr"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 4.72.3110.5
+X-MimeOLE: Produced By Microsoft MimeOLE V4.72.3110.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-cacook@freedom.net wrote:
-> 
-> OK, I've asked this question four weeks in a row and received no response whatsoever.  
-This happens.  So what?  Nobody _promised_ you anything.
-> Linux is supposed to be the OS where you can turn to the newsgroups/IRC and get able help.
-Linux is the os where you often, but not necessarily will get help form
-newsgroups and mailinglists.  Particularly, try finding the _right_
-list.
- 
-> This is to those who couldn't lift a finger to help with this compile/driver problem:
-Why would anyone lift a finger for you?  Did _you_ ever help someone?
-I (and many others) couldn't help because we don't know anything about
-your driver and havent used UDF.  Seek out those few who knows.
-> Thanks for nothing, you arrogant snots.  You don't know how much damage you do.
 
-Damage?  Nobody did any damage by not helping you.  That's impossible
-per definition.  There are tasks for which linux aren't ready, maybe you
-found one of them.
+Blesson Paul Wrote:
+>                   Thanks for the reply. I am sorry that I misspelled the
+> line(__asm__(....)). It is from the get_current() function in
+> asm-i386/current.h. But I am not clear what is the whole meaning of that
+> line(__asm__(..)) in get_current(). I am doing a project in Linux related to
+> VFS. From VFS. this function is called to get the base of the file system. I
+> am not getting how this function will gave the base of the file system.
+> get_current() is called from lookup_dentry function.
+>              base=dget(current->fs->root)
 
-Helge Hafting
+get_current() returns the pointer to process descriptor 
+(struct task_struct). Kernel allocates 8KB per each process,
+which is used for the process descriptor of process, and
+process kernel stack. So masking out 13 LSB of stack
+poiniter yields the pointer to process descriptor. 
+
+You can find more explanation in the Chapter 3 of 
+<Understanding the Linux Kernel> 
+
+fs field in the process descriptor describes the root directory
+and the current working directory of the process. so
+current->fs->root is the pointer to the directory entry of 
+process' root directory. 
+
+*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*
+Lee, Ho. Software Engineer, Embedded Linux Dep, LinuxOne 
+ICQ : #52017992, Mail : flyduck@linuxone.co.kr, i@flyduck.com
+Homepage : http://flyduck.com, http://linuxkernel.to
+
+

@@ -1,38 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129197AbRBPGlV>; Fri, 16 Feb 2001 01:41:21 -0500
+	id <S129662AbRBPGol>; Fri, 16 Feb 2001 01:44:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129375AbRBPGlL>; Fri, 16 Feb 2001 01:41:11 -0500
-Received: from kamikazi.draper.net ([206.96.230.5]:43382 "EHLO
-	kamikazi.draper.net") by vger.kernel.org with ESMTP
-	id <S129197AbRBPGk7>; Fri, 16 Feb 2001 01:40:59 -0500
-Date: Fri, 16 Feb 2001 00:42:07 -0600
-From: kernel <kernel@draper.net>
-To: Elena Labruna <labruna@cli.di.unipi.it>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: longjmp problem
-Message-ID: <20010216004207.A2097@draper.net>
-In-Reply-To: <Pine.LNX.4.21.0102120802270.3423-100000@delta19.cli.di.unipi.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.5i
-In-Reply-To: <Pine.LNX.4.21.0102120802270.3423-100000@delta19.cli.di.unipi.it>; from Elena Labruna on Mon, Feb 12, 2001 at 08:10:01AM +0100
+	id <S129674AbRBPGob>; Fri, 16 Feb 2001 01:44:31 -0500
+Received: from www.lahn.de ([213.61.112.58]:33826 "EHLO serv02.lahn.de")
+	by vger.kernel.org with ESMTP id <S129668AbRBPGoV>;
+	Fri, 16 Feb 2001 01:44:21 -0500
+Date: Thu, 15 Feb 2001 08:59:34 +0100 (CET)
+From: Philipp Matthias Hahn <pmhahn@titan.lahn.de>
+Reply-To: <pmhahn@titan.lahn.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: ACPI <acpi@phobos.fachschaften.tu-muenchen.de>
+Subject: [PATCH] acpi/cpu.c on SMP
+Message-ID: <Pine.LNX.4.33.0102150854470.4480-100000@titan.lahn.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 12, 2001 at 08:10:01AM +0100, Elena Labruna wrote:
-> I'm working with a C package written by other
-> on a linux machine with kernel version 2.2.14,
-> often in a calls of longjmp routine
-> the system crash with a SIGSEGV signal. 
->  
-> Anyone can tell me if it can be a kernel problem ?
-> 
-> Elena Labruna.
-> 
+Hello!
 
-Fwiw, we issue(d) longjmp() in signal catching functions (including 
-segv) without difficulty on 2.2.14 kernels.  Perhaps your application 
-is not first calling setjmp() to save the stack context?
+acpi_idle is disabled on SMP systems with more then 1 cpu. The boot
+message sais otherwise. This patch corrects the message.
 
-Reed,
+--- linux-2.4.2/drivers/acpi/cpu.c.orig	Sat Feb 10 12:01:52 2001
++++ linux-2.4.2/drivers/acpi/cpu.c	Thu Feb 15 08:54:16 2001
+@@ -335,13 +335,12 @@
+
+ 	acpi_pm_timer_init();
+
+-	if (acpi_use_idle) {
+ #ifdef CONFIG_SMP
+-		if (smp_num_cpus == 1)
+-			pm_idle = acpi_idle;
++	if (acpi_use_idle && (smp_num_cpus == 1)) {
+ #else
+-		pm_idle = acpi_idle;
++	if (acpi_use_idle) {
+ #endif
++		pm_idle = acpi_idle;
+ 		printk(KERN_INFO "ACPI: Using ACPI idle\n");
+ 		printk(KERN_INFO "ACPI: If experiencing system slowness, try adding \"acpi=no-idle\" to cmdline\n");
+ 	}
+
+BYtE
+Philipp
+-- 
+  / /  (_)__  __ ____  __ Philipp Hahn
+ / /__/ / _ \/ // /\ \/ /
+/____/_/_//_/\_,_/ /_/\_\ pmhahn@titan.lahn.de
+

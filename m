@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264451AbRFIKMF>; Sat, 9 Jun 2001 06:12:05 -0400
+	id <S264453AbRFIKWZ>; Sat, 9 Jun 2001 06:22:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264452AbRFIKLz>; Sat, 9 Jun 2001 06:11:55 -0400
-Received: from ztxmail05.ztx.compaq.com ([161.114.1.209]:27140 "HELO
-	ztxmail05.ztx.compaq.com") by vger.kernel.org with SMTP
-	id <S264451AbRFIKLq>; Sat, 9 Jun 2001 06:11:46 -0400
-Message-ID: <22F662CDC53ED411B65700805F31DE1C135A70@exccop-01.dmo.cpqcorp.net>
-From: "Mathiasen, Torben" <Torben.Mathiasen@COMPAQ.COM>
-To: "'Paulo Afonso Graner Fessel'" <pafessel@zaz.com.br>,
-        linux-kernel@vger.kernel.org
-Cc: hollis@austin.rr.com
-Subject: RE: Probable endianess problem in TLAN driver
-Date: Sat, 9 Jun 2001 11:11:36 +0100 
+	id <S264456AbRFIKWP>; Sat, 9 Jun 2001 06:22:15 -0400
+Received: from elin.scali.no ([195.139.250.10]:24840 "EHLO elin.scali.no")
+	by vger.kernel.org with ESMTP id <S264453AbRFIKWH>;
+	Sat, 9 Jun 2001 06:22:07 -0400
+Message-ID: <3B21F856.D5A2DF6@scali.no>
+Date: Sat, 09 Jun 2001 12:20:06 +0200
+From: Steffen Persvold <sp@scali.no>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain
+To: "L. K." <lk@Aniela.EU.ORG>
+CC: Bill Pringlemeir <bpringle@sympatico.ca>,
+        "Michael H. Warfield" <mhw@wittsend.com>,
+        "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+        Chris Boot <bootc@worldnet.fr>,
+        mirabilos {Thorsten Glaser} <isch@ecce.homeip.net>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: temperature standard - global config option?
+In-Reply-To: <Pine.LNX.4.21.0106091257380.5416-100000@ns1.Aniela.EU.ORG>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paulo,
+"L. K." wrote:
+> I haven't encountered any CPU with builtin temperature sensors.
+> 
+Eh, all Pentium class cpus have a build in sensor for core temperature (I believe Athlons
+too). It's just the logic which is outside in form of a A/D converter connected to a I2C
+bus.
 
-Thanks for the update/patch. Sorry I missed your first email, bu I've been
-way too busy with other stuff the last couple of months.
-
-There's a lot of endianess issues in the tlan driver, but none really
-bothered fixing them. No one really assumed the tlan adapters would be used
-on bigendian machines. Well, let me say, you're probaly the first ;-).
-
-Now, I have pile of updates/issues for the tlan driver I need to check up
-on. Hopefully I'll have some sparetime within a reasonable future to address
-this.
-
-BTW. The project page on compaq.com is the "new" tlan site.
-
-Thanks,
-
-Torben Mathiasen
-
+Regards,
+-- 
+  Steffen Persvold               Systems Engineer
+  Email : mailto:sp@scali.no     Scali AS (http://www.scali.com)
+  Tlf   : (+47) 22 62 89 50      Olaf Helsets vei 6
+  Fax   : (+47) 22 62 89 51      N-0621 Oslo, Norway

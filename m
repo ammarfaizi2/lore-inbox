@@ -1,156 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263059AbUFTWs4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263184AbUFTWtE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263059AbUFTWs4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 18:48:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265978AbUFTWs4
+	id S263184AbUFTWtE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 18:49:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265978AbUFTWtE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 18:48:56 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:36292 "EHLO
+	Sun, 20 Jun 2004 18:49:04 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:37316 "EHLO
 	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S263059AbUFTWsu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 18:48:50 -0400
-Date: Sun, 20 Jun 2004 18:50:56 -0400 (EDT)
+	id S263184AbUFTWsz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jun 2004 18:48:55 -0400
+Date: Sun, 20 Jun 2004 18:51:01 -0400 (EDT)
 From: Zwane Mwaikambo <zwane@linuxpower.ca>
 To: Linux Kernel <linux-kernel@vger.kernel.org>
 Cc: Urban Widmark <urban@teststation.com>, Andrew Morton <akpm@osdl.org>
-Subject: [PATCH][2.6] Fix smbfs readdir oops
-Message-ID: <Pine.LNX.4.58.0406201834390.3273@montezuma.fsmlabs.com>
+Subject: [PATCH][2.6] Remove smbfs server->rcls/err
+Message-ID: <Pine.LNX.4.58.0406201842100.3260@montezuma.fsmlabs.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This has been reported a couple of times and is consistently causing some
-folks grief, so Urban, would you mind terribly if i send this patch to at
-least clear current bug reports. If there is additional stuff you want
-ontop of this let me know and i can send a follow up patch.
+This is a small cleanup requested by Urban, use the rcls/err in
+smb_request as opposed to smb_sb_info.
 
-The bug is that at times we haven't completed setting up the smb_ops so we
-have a temporary 'null' ops in place until the connection is completely
-up. With this setup it's possible to hit ->readdir() whilst the null
-ops are still in place, so we put the process to sleep until the
-connection setup is complete and then call the real ->readdir().
-
-This patch addresses the bugzilla report at
-http://bugzilla.kernel.org/show_bug.cgi?id=1671
-
- fs/smbfs/inode.c          |    1 +
- fs/smbfs/proc.c           |   44 ++++++++++++++++++++++++++++++++++++++++++--
- include/linux/smb_fs_sb.h |    3 ++-
- 3 files changed, 45 insertions(+), 3 deletions(-)
+ fs/smbfs/proc.c           |   12 ++++++------
+ include/linux/smb_fs_sb.h |    3 ---
+ 2 files changed, 6 insertions(+), 9 deletions(-)
 
 Signed-off-by: Zwane Mwaikambo <zwane@linuxpower.ca>
 
-Index: linux-2.6.7/include/linux/smb_fs_sb.h
+Index: linux-2.6.7-rc3-mm2/include/linux/smb_fs_sb.h
 ===================================================================
-RCS file: /home/cvsroot/linux-2.6.7/include/linux/smb_fs_sb.h,v
+RCS file: /home/cvsroot/linux-2.6.7-rc3-mm2/include/linux/smb_fs_sb.h,v
 retrieving revision 1.1.1.1
 diff -u -p -B -r1.1.1.1 smb_fs_sb.h
---- linux-2.6.7/include/linux/smb_fs_sb.h	16 Jun 2004 16:49:26 -0000	1.1.1.1
-+++ linux-2.6.7/include/linux/smb_fs_sb.h	20 Jun 2004 00:06:45 -0000
-@@ -57,7 +57,8 @@ struct smb_sb_info {
- 	unsigned int generation;
- 	pid_t conn_pid;
- 	struct smb_conn_opt opt;
--
-+	wait_queue_head_t conn_wq;
-+	int conn_complete;
+--- linux-2.6.7-rc3-mm2/include/linux/smb_fs_sb.h	14 Jun 2004 12:48:50 -0000	1.1.1.1
++++ linux-2.6.7-rc3-mm2/include/linux/smb_fs_sb.h	20 Jun 2004 22:47:59 -0000
+@@ -60,9 +60,6 @@ struct smb_sb_info {
+
  	struct semaphore sem;
 
-         unsigned short     rcls; /* The error codes we received */
-Index: linux-2.6.7/fs/smbfs/inode.c
+-        unsigned short     rcls; /* The error codes we received */
+-        unsigned short     err;
+-
+ 	unsigned char      header[SMB_HEADER_LEN + 20*2 + 2];
+ 	u32                header_len;
+ 	u32                smb_len;
+Index: linux-2.6.7-rc3-mm2/fs/smbfs/proc.c
 ===================================================================
-RCS file: /home/cvsroot/linux-2.6.7/fs/smbfs/inode.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 inode.c
---- linux-2.6.7/fs/smbfs/inode.c	16 Jun 2004 16:49:47 -0000	1.1.1.1
-+++ linux-2.6.7/fs/smbfs/inode.c	19 Jun 2004 21:19:04 -0000
-@@ -521,6 +521,7 @@ int smb_fill_super(struct super_block *s
- 	server->super_block = sb;
- 	server->mnt = NULL;
- 	server->sock_file = NULL;
-+	init_waitqueue_head(&server->conn_wq);
- 	init_MUTEX(&server->sem);
- 	INIT_LIST_HEAD(&server->entry);
- 	INIT_LIST_HEAD(&server->xmitq);
-Index: linux-2.6.7/fs/smbfs/proc.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.7/fs/smbfs/proc.c,v
+RCS file: /home/cvsroot/linux-2.6.7-rc3-mm2/fs/smbfs/proc.c,v
 retrieving revision 1.1.1.1
 diff -u -p -B -r1.1.1.1 proc.c
---- linux-2.6.7/fs/smbfs/proc.c	16 Jun 2004 16:49:47 -0000	1.1.1.1
-+++ linux-2.6.7/fs/smbfs/proc.c	20 Jun 2004 00:26:57 -0000
-@@ -56,6 +56,7 @@ static struct smb_ops smb_ops_os2;
- static struct smb_ops smb_ops_win95;
- static struct smb_ops smb_ops_winNT;
- static struct smb_ops smb_ops_unix;
-+static struct smb_ops smb_ops_null;
+--- linux-2.6.7-rc3-mm2/fs/smbfs/proc.c	14 Jun 2004 12:49:17 -0000	1.1.1.1
++++ linux-2.6.7-rc3-mm2/fs/smbfs/proc.c	20 Jun 2004 22:47:59 -0000
+@@ -2370,7 +2370,7 @@ smb_proc_readdir_long(struct file *filp,
+ 		if (req->rq_rcls != 0) {
+ 			result = smb_errno(req);
+ 			PARANOIA("name=%s, result=%d, rcls=%d, err=%d\n",
+-				 mask, result, server->rcls, server->err);
++				 mask, result, req->rq_rcls, req->rq_err);
+ 			break;
+ 		}
 
- static void
- smb_init_dirent(struct smb_sb_info *server, struct smb_fattr *fattr);
-@@ -981,6 +982,9 @@ smb_newconn(struct smb_sb_info *server,
- 	smbiod_wake_up();
- 	if (server->opt.capabilities & SMB_CAP_UNIX)
- 		smb_proc_query_cifsunix(server);
-+
-+	server->conn_complete++;
-+	wake_up_interruptible_all(&server->conn_wq);
- 	return error;
+@@ -2526,7 +2526,7 @@ smb_proc_getattr_ff(struct smb_sb_info *
+ 	result = smb_add_request(req);
+ 	if (result < 0)
+ 		goto out_free;
+-	if (server->rcls != 0) {
++	if (req->rq_rcls != 0) {
+ 		result = smb_errno(req);
+ #ifdef SMBFS_PARANOIA
+ 		if (result != -ENOENT)
+@@ -2639,7 +2639,7 @@ smb_proc_getattr_trans2(struct smb_sb_in
+ 	result = smb_add_request(req);
+ 	if (result < 0)
+ 		goto out;
+-	if (server->rcls != 0) {
++	if (req->rq_rcls != 0) {
+ 		VERBOSE("for %s: result=%d, rcls=%d, err=%d\n",
+ 			&param[6], result, req->rq_rcls, req->rq_err);
+ 		result = smb_errno(req);
+@@ -3218,7 +3218,7 @@ smb_proc_read_link(struct smb_sb_info *s
+ 	if (result < 0)
+ 		goto out_free;
+ 	DEBUG1("for %s: result=%d, rcls=%d, err=%d\n",
+-		&param[6], result, server->rcls, server->err);
++		&param[6], result, req->rq_rcls, req->rq_err);
 
- out:
-@@ -2794,10 +2798,45 @@ out:
- }
+ 	/* copy data up to the \0 or buffer length */
+ 	result = len;
+@@ -3268,7 +3268,7 @@ smb_proc_symlink(struct smb_sb_info *ser
+ 		goto out_free;
 
- static int
-+smb_proc_ops_wait(struct smb_sb_info *server)
-+{
-+	int result;
-+
-+	result = wait_event_interruptible_timeout(server->conn_wq,
-+				server->conn_complete, 30*HZ);
-+
-+	if (!result || signal_pending(current))
-+		return -EIO;
-+
-+	return 0;
-+}
-+
-+static int
- smb_proc_getattr_null(struct smb_sb_info *server, struct dentry *dir,
--		      struct smb_fattr *attr)
-+			  struct smb_fattr *fattr)
- {
--	return -EIO;
-+	int result;
-+
-+	if (smb_proc_ops_wait(server) < 0)
-+		return -EIO;
-+
-+	smb_init_dirent(server, fattr);
-+	result = server->ops->getattr(server, dir, fattr);
-+	smb_finish_dirent(server, fattr);
-+
-+	return result;
-+}
-+
-+static int
-+smb_proc_readdir_null(struct file *filp, void *dirent, filldir_t filldir,
-+		      struct smb_cache_control *ctl)
-+{
-+	struct smb_sb_info *server = server_from_dentry(filp->f_dentry);
-+
-+	if (smb_proc_ops_wait(server) < 0)
-+		return -EIO;
-+
-+	return server->ops->readdir(filp, dirent, filldir, ctl);
- }
+ 	DEBUG1("for %s: result=%d, rcls=%d, err=%d\n",
+-		&param[6], result, server->rcls, server->err);
++		&param[6], result, req->rq_rcls, req->rq_err);
+ 	result = 0;
 
- int
-@@ -3431,6 +3470,7 @@ static struct smb_ops smb_ops_unix =
- /* Place holder until real ops are in place */
- static struct smb_ops smb_ops_null =
- {
-+	.readdir	= smb_proc_readdir_null,
- 	.getattr	= smb_proc_getattr_null,
- };
+ out_free:
+@@ -3315,7 +3315,7 @@ smb_proc_link(struct smb_sb_info *server
+ 		goto out_free;
 
+ 	DEBUG1("for %s: result=%d, rcls=%d, err=%d\n",
+-	       &param[6], result, server->rcls, server->err);
++	       &param[6], result, req->rq_rcls, req->rq_err);
+ 	result = 0;
+
+ out_free:

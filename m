@@ -1,55 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261862AbUDTAbY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262062AbUDTAaA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261862AbUDTAbY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 20:31:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261981AbUDTAbX
+	id S262062AbUDTAaA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 20:30:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262043AbUDTA37
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 20:31:23 -0400
-Received: from gate.crashing.org ([63.228.1.57]:15526 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261862AbUDTAbS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 20:31:18 -0400
-Subject: Re: siginfo & 32 bits compat, what is the story ?
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andi Kleen <ak@muc.de>
-Cc: joe.korty@ccur.com, Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <m3vfjvtwor.fsf@averell.firstfloor.org>
-References: <1MBxZ-6l5-37@gated-at.bofh.it> <1MLe2-5WC-25@gated-at.bofh.it>
-	 <1MP7P-UD-13@gated-at.bofh.it>  <m3vfjvtwor.fsf@averell.firstfloor.org>
-Content-Type: text/plain
-Message-Id: <1082421048.1677.63.camel@gaston>
+	Mon, 19 Apr 2004 20:29:59 -0400
+Received: from mail.shareable.org ([81.29.64.88]:32676 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S261981AbUDTA36
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Apr 2004 20:29:58 -0400
+Date: Tue, 20 Apr 2004 01:29:50 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] dontneed nonlinear
+Message-ID: <20040420002950.GC15220@mail.shareable.org>
+References: <Pine.LNX.4.44.0404191848200.30692-100000@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 20 Apr 2004 10:30:48 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0404191848200.30692-100000@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hugh Dickins wrote:
+> (But this still leaves mincore unaware of nonlinear vmas: bigger job.)
 
-> Note that there are several kinds of x86-64 codes: the original one
-> and Joe's rewritten version in recent kernels. I don't know where
-> you heard it is broken, but maybe they were describing the older
-> code.
+mincore has other problems too: like giving useless results for
+private mappings.
 
-Discussing with Stephen, looking at the current code.
-
-> If they were refering to the recent version I assume they 
-> would have reported it to the maintainer. But they didn't ...
-> 
-> Anyways - i guess it's hard to make such a decision on hearsay.  I
-> would suggest you start with the x86-64 version and when there are
-> really problems you tell us about them and we fix them.
-> 
-> BTW there was a merged version from some PA-RISC person (with yet
-> another rewritten siginfo copy function) discussed, but for some
-> reason he dropped the ball. 
-
-So I suppose the decision to actually copy _and_ convert those 3 fields
-when moving a userland siginfo around is based on an analysis of what
-userland usually does ? What bothers me is that any app that uses a
-different siginfo layout will be broken between 32 bits and 32 bits
-with this scheme, but maybe that just never happens ?
-
-Ben.
-
-
+-- Jamie

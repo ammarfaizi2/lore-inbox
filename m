@@ -1,40 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312018AbSCQNFy>; Sun, 17 Mar 2002 08:05:54 -0500
+	id <S312020AbSCQNJE>; Sun, 17 Mar 2002 08:09:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312020AbSCQNFn>; Sun, 17 Mar 2002 08:05:43 -0500
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:14855 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S312018AbSCQNFc>; Sun, 17 Mar 2002 08:05:32 -0500
-Message-ID: <3C94948E.777B5BAF@linux-m68k.org>
-Date: Sun, 17 Mar 2002 14:05:18 +0100
-From: Roman Zippel <zippel@linux-m68k.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>,
-        kbuild-devel@lists.sourceforge.net
-Subject: alternative linux configurator prototype v0.2
-In-Reply-To: <3C9396F5.7319AB27@linux-m68k.org>
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 7bit
+	id <S312021AbSCQNIx>; Sun, 17 Mar 2002 08:08:53 -0500
+Received: from gold.MUSKOKA.COM ([216.123.107.5]:43788 "EHLO gold.muskoka.com")
+	by vger.kernel.org with ESMTP id <S312020AbSCQNIk>;
+	Sun, 17 Mar 2002 08:08:40 -0500
+Message-ID: <3C948C97.719B9FF0@yahoo.com>
+Date: Sun, 17 Mar 2002 07:51:19 -0500
+From: Paul Gortmaker <p_gortmaker@yahoo.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] no verify_write when CONFIG_WP_WORKS_OK=y
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Linus Torvalds wrote:
+ 
+> Note that the i386 has _long_ been a "stepchild", though: because of the
+> lack of WP, the kernel simply doesn't do threaded MM correctly on a 386.
 
-I wrote:
+That reminds me of a patch to gut verify_write when CONFIG_X86_WP_WORKS_OK=y.
+Saves a few bytes.  Patch is against 2.5.7pre2.
 
-> At http://www.xs4all.nl/~zippel/lc.tar.gz you can find a prototype for a
-> new linux configurator (see the included README for build/use
-> information). It has reached a point, where it's becoming usable and I
-> need some feedback on how/if to continue.
+We could bin the whole thing and stop exporting it, but there may be users 
+who try to load binary only modules that were built for 386 and hence expect 
+verify_write to be exported regardless of CPU type the kernel was built for.
 
-There is a new version at http://www.xs4all.nl/~zippel/lc/lc-0.2.tar.gz,
-this version also works with qt2.x.
-So far I hadn't very much feedback. What's up? Is everyone suddenly
-completely happy with cml2? Now is your chance to evaluate the
-alternatives or does this require too much work before you can start
-flaming?
+Paul.
 
-bye, Roman
+
+--- ../linux/arch/i386/mm/fault.c	Sun Mar 17 07:14:09 2002
++++ arch/i386/mm/fault.c	Sun Mar 17 07:02:21 2002
+@@ -4,6 +4,7 @@
+  *  Copyright (C) 1995  Linus Torvalds
+  */
+ 
++#include <linux/config.h>
+ #include <linux/signal.h>
+ #include <linux/sched.h>
+ #include <linux/kernel.h>
+@@ -29,6 +30,9 @@
+ 
+ extern int console_loglevel;
+ 
++#ifdef CONFIG_X86_WP_WORKS_OK
++int __verify_write(const void * addr, unsigned long size) {return 1;}
++#else
+ /*
+  * Ugly, ugly, but the goto's result in better assembly..
+  */
+@@ -93,6 +97,7 @@
+ 	}
+ 	goto bad_area;
+ }
++#endif
+ 
+ extern spinlock_t timerlist_lock;
+ 
+

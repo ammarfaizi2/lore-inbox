@@ -1,42 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261874AbSLMKrw>; Fri, 13 Dec 2002 05:47:52 -0500
+	id <S261908AbSLMLEg>; Fri, 13 Dec 2002 06:04:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261894AbSLMKrw>; Fri, 13 Dec 2002 05:47:52 -0500
-Received: from CPE-203-51-35-111.nsw.bigpond.net.au ([203.51.35.111]:1011 "EHLO
-	e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
-	id <S261874AbSLMKrv>; Fri, 13 Dec 2002 05:47:51 -0500
-Message-ID: <3DF9BCAA.C96AA165@eyal.emu.id.au>
-Date: Fri, 13 Dec 2002 21:55:38 +1100
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.20-ac1 i686)
-X-Accept-Language: en
+	id <S261934AbSLMLEg>; Fri, 13 Dec 2002 06:04:36 -0500
+Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:41460
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S261908AbSLMLEf>; Fri, 13 Dec 2002 06:04:35 -0500
+Date: Fri, 13 Dec 2002 06:15:11 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+cc: Adam Belay <ambx1@neo.rr.com>
+Subject: Re: [PATCH][2.5][CFT] ad1848 PnP updates + fixes
+In-Reply-To: <Pine.LNX.4.50.0212122048590.6931-100000@montezuma.mastecende.com>
+Message-ID: <Pine.LNX.4.50.0212130612330.12366-100000@montezuma.mastecende.com>
+References: <Pine.LNX.4.50.0212122048590.6931-100000@montezuma.mastecende.com>
 MIME-Version: 1.0
-To: Rik van Riel <riel@conectiva.com.br>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4.20-rmap15b - compile failure
-References: <Pine.LNX.4.50L.0212122349520.17748-100000@imladris.surriel.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I had a failure building NVIDIA_kernel/nv.c (the nvidia driver):
-http://download.nvidia.com/XFree86_40/1.0-4191/NVIDIA_kernel-1.0-4191.tar.gz
+Hi Adam,
+	I had the following hunk from the previous patch to this file, do
+we really want to disable that device here?
 
-It uses
-	pte = *pte_offset(pg_mid_dir, address);
-but this patch removes pte_offset().
+On Thu, 12 Dec 2002, Zwane Mwaikambo wrote:
 
-1) what is the correct fix (use pte_offset_kernel?)?
+>  #ifdef CONFIG_PNP
+> -	if(ad1848_dev){
+> -		if(audio_activated)
+> -			pnp_disable_dev(ad1848_dev);
+> -		put_device(&ad1848_dev->dev);
+> +{
+> +	ad1848_info *p;
+> +
+> +	if (audio_activated == 0)
+> +		return;
+> +
+> +	while (--nr_ad1848_devs >= 0) {
+> +		p = &adev_info[nr_ad1848_devs];
+> +		pnp_disable_dev(p->pnp_dev);	/* XXX Should this be done here? */
+> +		put_device(&p->pnp_dev->dev);
+>  	}
+> +	pnp_unregister_driver(&ad1848_driver);
+> +}
+>  #endif
 
-2) in general, is it wise to remove pte_offset() or should it
-   be left for compatability?
-
-I should clearly say that I am not familiar with the workings of this
-patch, but find that it is likely to break drivers that are not in
-the kernel tree (assuming you patch them).
-
---
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
+-- 
+function.linuxpower.ca

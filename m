@@ -1,50 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291214AbSBXUwh>; Sun, 24 Feb 2002 15:52:37 -0500
+	id <S289226AbSBXVAs>; Sun, 24 Feb 2002 16:00:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291246AbSBXUw1>; Sun, 24 Feb 2002 15:52:27 -0500
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:32772 "HELO
-	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
-	id <S291214AbSBXUwP>; Sun, 24 Feb 2002 15:52:15 -0500
-Date: Sun, 24 Feb 2002 21:52:02 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Troy Benjegerdes <hozer@drgw.net>, Linus Torvalds <torvalds@transmeta.com>,
-        Andre Hedrick <andre@linuxdiskcert.org>,
-        Rik van Riel <riel@conectiva.com.br>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Flash Back -- kernel 2.1.111
-Message-ID: <20020224215202.A1706@ucw.cz>
-In-Reply-To: <Pine.LNX.4.10.10202232136560.5715-100000@master.linux-ide.org> <Pine.LNX.4.33.0202232152200.26469-100000@home.transmeta.com> <20020224013038.G10251@altus.drgw.net> <3C78DA19.4020401@evision-ventures.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3C78DA19.4020401@evision-ventures.com>; from dalecki@evision-ventures.com on Sun, Feb 24, 2002 at 01:18:33PM +0100
+	id <S291281AbSBXVAi>; Sun, 24 Feb 2002 16:00:38 -0500
+Received: from lsanca1-ar27-4-63-184-089.lsanca1.vz.dsl.gtei.net ([4.63.184.89]:2688
+	"EHLO barbarella.hawaga.org.uk") by vger.kernel.org with ESMTP
+	id <S291251AbSBXVAT>; Sun, 24 Feb 2002 16:00:19 -0500
+Date: Sun, 24 Feb 2002 13:00:00 -0800 (PST)
+From: Ben Clifford <benc@hawaga.org.uk>
+To: Vojtech Pavlik <vojtech@suse.cz>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.5-dj1 - problem with /dev/input/mice
+In-Reply-To: <20020222022329.A3533@suse.cz>
+Message-ID: <Pine.LNX.4.33.0202241249540.11220-100000@barbarella.hawaga.org.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 24, 2002 at 01:18:33PM +0100, Martin Dalecki wrote:
-> > Ummm, how does this work if I have two PCI ide cards, one on a 66mhz PCI 
-> > bus, and one on a 33mhz PCI bus?
-> > 
-> > Or am I missing something?
-> 
-> You are missing the fact that it didn't work before.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Actually, no. The parameter is a 'base clock', it isn't related to the
-66 MHz - if you set it to for example 25, the drivers will know that if
-you have a PCI 66 MHz bus, it's running only on 2*25 = 50 MHz. The
-multiplier is known from PCI config and isn't related to this parameter.
 
-The parameter is also used for VLB, where it is more important, because
-VLB has no standard clock - it can run at 33, 40 or 50 MHz.
+> >  -dj includes a different input layer to Linus' tree, which requires
 
-Let me also note here that the bus speed value here doesn't have the
-necessary precision to compute the IDE timings correctly for higher UDMA
-speeds, and that most drivers either assume 33 MHz PCI blindly or have a
-set of fixed values they know.
+I've just moved from Linus 2.5.3 to 2.5.5-dj1.
 
--- 
-Vojtech Pavlik
-SuSE Labs
+I've tried the following both with modules and linked into bzImage.
+
+I've tried pointing the software at /dev/input/mice and also at /dev/psaux
+which I created as a symlink to /dev/input/mice (to maintain compatibility
+with my working 2.5.3 setup)
+
+I have a PS/2 mouse.
+
+I've loaded mousedev.o and psmouse.o
+
+gpm works. (**1)
+
+cat /dev/input/mice
+gives random binary spew that looks pretty much like mouse input.
+
+When I run my Xserver, the mouse pointer doesn't move. If I then kill off
+the Xserver, gpm doesn't work any more and cat/dev/input/mice doesn't
+generate anything any more.
+
+If I unload psmouse.o and then load it again, I am back to (**1) until I
+load the Xserver again.
+
+- -- 
+Ben Clifford     benc@hawaga.org.uk     GPG: 30F06950
+Job Required in Los Angeles - Will do most things unix or IP for money.
+http://www.hawaga.org.uk/resume/resume001.pdf
+Live Ben-cam: http://barbarella.hawaga.org.uk/benc-cgi/watchers.cgi
+
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE8eVRTsYXoezDwaVARAv8nAJ4s0sH7Zh295dna6i7UI1PML0JavgCcCtS5
+mrYEP5nWJ2i6eCqp4hncSG0=
+=sfBd
+-----END PGP SIGNATURE-----
+

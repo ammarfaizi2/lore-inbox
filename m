@@ -1,54 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262592AbUCRMpU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 07:45:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262598AbUCRMpU
+	id S262596AbUCRMs6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 07:48:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262605AbUCRMs6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 07:45:20 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:30706 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S262592AbUCRMpP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 07:45:15 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16473.39381.452618.398385@alkaid.it.uu.se>
-Date: Thu, 18 Mar 2004 13:45:09 +0100
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: Jeff Garzik <jgarzik@pobox.com>
+	Thu, 18 Mar 2004 07:48:58 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:6118 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S262596AbUCRMs5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Mar 2004 07:48:57 -0500
+Date: Thu, 18 Mar 2004 13:48:56 +0100
+From: Karel Kulhavy <clock@atrey.karlin.mff.cuni.cz>
+To: Matthew Reppert <repp0017@umn.edu>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: tulip (pnic) errors in 2.6.5-rc1
-In-Reply-To: <40597E68.7090908@pobox.com>
-References: <16473.28514.341276.209224@alkaid.it.uu.se>
-	<40597123.8020903@pobox.com>
-	<405971B3.3080700@pobox.com>
-	<16473.32039.160055.63522@alkaid.it.uu.se>
-	<40597E68.7090908@pobox.com>
-X-Mailer: VM 7.17 under Emacs 20.7.1
+Subject: Re: SCSI emulation - CD-R
+Message-ID: <20040318124856.GB28402@atrey.karlin.mff.cuni.cz>
+References: <200403172109.i2HL9RcP007960@qix.software.umn.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200403172109.i2HL9RcP007960@qix.software.umn.edu>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik writes:
- > Mikael Pettersson wrote:
- > > Jeff Garzik writes:
- > >  > er, oops... lemme find the right patch...
- > > 
- > > No change, still a flood of those tulip_rx() interrupt messages.
- > 
- > hmmm.  Well, it is something unrelated to tulip driver, then.
- > 
- > Did you recently change module options, or forget to disable tulip_debug 
- > in modprobe.conf or modules.conf ?
- > 
- >          if (tulip_debug > 4)
- >                  printk(KERN_DEBUG "%s: exiting interrupt, csr5=%#4.4x.\n",
- >                             dev->name, inl(ioaddr + CSR5));
- > 
- > Those messages only appear if a non-default verbosity has been selected.
+> The first time I had to set up a CD writer to work with Linux, I checked
+> (what is now) the Linux Documentation Project http://www.tldp.org/ which
+> has a nice CD-writer HOWTO document, detailing not only how you need to
+> configure your kernel, but also how to use the userspace tools to burn
+> CDs.
+> 
+> However, with recent kernels and tools, you don't need to (and shouldn't)
+> use ide-scsi to use ATAPI CD writers. cdrecord dev=/dev/hdc (assuming
+> that's
+> the correct IDE device) works just fine.
 
-I had the same .config and kernel boot parameters as for 2.6.4,
-except I disabled modules and everything non-essential, and
-didn't apply my private patches.
+Now it works. The trick was to disable the support for ATAPI CD-ROM
 
-440BX chipset, no I/O-APIC, no ACPI, no PREEMPT, direct PCI access,
-two FA310TXs (eth0 idle, eth1 had light traffic).
+Cl<

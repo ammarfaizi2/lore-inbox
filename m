@@ -1,59 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264937AbUHWPa0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265106AbUHWPaL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264937AbUHWPa0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 11:30:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265044AbUHWPaU
+	id S265106AbUHWPaL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 11:30:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265086AbUHWPaK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 11:30:20 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:48568 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S265108AbUHWPEV
+	Mon, 23 Aug 2004 11:30:10 -0400
+Received: from mailer.nec-labs.com ([138.15.108.3]:27754 "EHLO
+	mailer.nec-labs.com") by vger.kernel.org with ESMTP id S265106AbUHWPEU
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 11:04:21 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Jens Axboe <axboe@suse.de>
-Subject: Re: serialize access to ide device
-Date: Mon, 23 Aug 2004 17:02:54 +0200
-User-Agent: KMail/1.6.2
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20040802131150.GR10496@suse.de> <200408211913.47982.bzolnier@elka.pw.edu.pl> <20040823121540.GN2301@suse.de>
-In-Reply-To: <20040823121540.GN2301@suse.de>
+	Mon, 23 Aug 2004 11:04:20 -0400
+Message-ID: <412A077C.1080501@nec-labs.com>
+Date: Mon, 23 Aug 2004 11:04:28 -0400
+From: Lei Yang <leiyang@nec-labs.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040114
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: root@chaos.analogic.com
+CC: Lee Revell <rlrevell@joe-job.com>, Sam Ravnborg <sam@ravnborg.org>,
+       Kernel Newbies Mailing List <kernelnewbies@nl.linux.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Problems compiling kernel modules
+References: <4127A15C.1010905@nec-labs.com>  <20040821214402.GA7266@mars.ravnborg.org> <4127A662.2090708@nec-labs.com>  <20040821215055.GB7266@mars.ravnborg.org>  <4127B49A.6080305@nec-labs.com> <1093121824.854.167.camel@krustophenia.net> <4129FAC8.3040502@nec-labs.com> <Pine.LNX.4.53.0408231018001.7732@chaos> <412A01AC.5020108@nec-labs.com> <Pine.LNX.4.53.0408231046190.7816@chaos>
+In-Reply-To: <Pine.LNX.4.53.0408231046190.7816@chaos>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200408231702.54426.bzolnier@elka.pw.edu.pl>
+X-OriginalArrivalTime: 23 Aug 2004 15:04:20.0533 (UTC) FILETIME=[77D18650:01C48922]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 23 August 2004 14:15, Jens Axboe wrote:
-> On Sat, Aug 21 2004, Bartlomiej Zolnierkiewicz wrote:
-> > On Saturday 21 August 2004 18:21, Jens Axboe wrote:
-> > > On Sat, Aug 21 2004, Bartlomiej Zolnierkiewicz wrote:
-> > > > On Saturday 21 August 2004 12:32, Jens Axboe wrote:
-> > > > > > What about adding new kind of REQ_SPECIAL request and converting
-> > > > > > set_using_dma(), set_xfer_rate(), ..., to be callback functions
-> > > > > > for this request?
-> > > > > >
-> > > > > > This should be a lot cleaner and will cover 100% cases.
-> > > > >
-> > > > > That will still only serialize per-channel. But yes, a lot cleaner.
-> > > >
-> > > > per hwgroup not per channel
-> > > > (serializing per host device will be better but requires even more
-> > > > work)
-> > >
-> > > Sorry yes hwgroup, that's what I meant. The case I worried about in my
-> > > patch (and noted) is that it doesn't cover per-hwif and neither would a
-> > > special request.
-> >
-> > I guess you meant 'per-host' because hwif == channel.
-> >
-> > [ You are of course right for about 'per-host' case. ]
->
-> Yep, per host. So REQ_SPECIAL-like approach is cleaner, but doesn't
-> cover more cases than a simple hwif pinning would anyways. You'd need
-> some code to quisce the host in any case.
+Richard B. Johnson wrote:
+> On Mon, 23 Aug 2004, Lei Yang wrote:
+> 
+> 
+>>Richard B. Johnson wrote:
+>>
+>>
+>>>Do `depmod -e test.ko` to see what it's complaining about. You
+>>>can see all the symbols by using `nm`. Try it. Your code
+>>>probably didn't define the necessary stuff to make a module.
+>>>You need to look at a typical module (driver) that comes with the
+>>>kernel. Just find one of the shortest ".c" files in the driver
+>>>tree.
+>>
+>>Thanks! I did less /var/log/messages, and got the unknown symbols
+>>Unknown symbol __divsf3
+>>Unknown symbol __fixsfsi
+>>Unknown symbol __subsf3
+>>Unknown symbol __floatsisf
+>>Unknown symbol __mulsf3
+>>Unknown symbol __gesf2
+>>Unknown symbol __addsf3
+>>
+>>However, I don't know what those symbols are :( I am a bit worried that
+>>maybe I've done something that is not supported by the kernel, like
+>>left-shift 16 bits of an int, or floating operations.
+>>
+>>Any hints?
+>>
+>>Thanks a lot!
+>>Lei
+> 
+> 
+> You cannot use floating-point in the kernel. It appears that you
+> are trying to make user-mode code execute within the kernel. It
+> can't. That's not what a module does. The kernel executes code
+> on behalf of the user-mode caller, in the context of the caller.
+> It does things, on behalf of the user, that the user can't
+> be trusted to do properly by himself. That's all the kernel
+> is for! Any calculations and similar stuff can be done in
+> regular user-mode code.
 
-No, REQ_SPECIAL-like approach would serialize per ide_hwgroup_t and 
-ide_hwgroup_t may serialize more then one ide_hwif_t.  See ide-probe.c.
+Sort of, I am trying to make a usr mode library work with kernel. 
+However, floating point operation is necessary in the algorithm. You 
+mean that this can never be done? Is changing floating-point the only 
+thing I can do now?
+
+Thanks!
+Lei
+
+> Cheers,
+> Dick Johnson
+> Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
+>             Note 96.31% of all statistics are fiction.
+> 
+> 

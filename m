@@ -1,78 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265503AbUEZLpw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265510AbUEZLuu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265503AbUEZLpw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 07:45:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265506AbUEZLpw
+	id S265510AbUEZLuu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 07:50:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265509AbUEZLuu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 07:45:52 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:60055 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S265503AbUEZLp3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 07:45:29 -0400
-From: "Buddy Lumpkin" <b.lumpkin@comcast.net>
-To: "'Denis Vlasenko'" <vda@port.imtp.ilyichevsk.odessa.ua>,
-       "'William Lee Irwin III'" <wli@holomorphy.com>
-Cc: <orders@nodivisions.com>, <linux-kernel@vger.kernel.org>
-Subject: RE: why swap at all?
-Date: Wed, 26 May 2004 04:49:09 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-In-Reply-To: <200405261344.36724.vda@port.imtp.ilyichevsk.odessa.ua>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
-Thread-Index: AcRDDuoj4Vs7N9bsSRSmZJs7XGV3HgACIJNw
-Message-Id: <S265503AbUEZLp3/20040526114530Z+465@vger.kernel.org>
+	Wed, 26 May 2004 07:50:50 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:55981 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S265506AbUEZLuM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 May 2004 07:50:12 -0400
+Date: Wed, 26 May 2004 17:21:36 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: torvalds@osdl.org, Ashok Raj <ashok.raj@intel.com>,
+       nickpiggin@yahoo.com.au, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [CPU Hotplug PATCH] Restore Idle task's priority during CPU_DEAD notification
+Message-ID: <20040526115136.GB20010@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <A28EFEDC5416054BA1026D892753E9AF059A50EC@orsmsx404.amr.corp.intel.com> <1085537205.2639.61.camel@bach> <20040526061613.GA18314@in.ibm.com> <20040526112726.GA8499@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040526112726.GA8499@elte.hu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have no bug to report.
+On Wed, May 26, 2004 at 01:27:26PM +0200, Ingo Molnar wrote:
+> Looks good. A small nit: while your patch creates a perfectly correct
+> idle thread too, i'd prefer the modified variant below. The
+> __setscheduler() call is (technically) incorrect because in the
+> SCHED_NORMAL case the prio should be zero. So it's a bit cleaner to set
+> up the static priority to MAX_PRIO and then revert the policy to
+> SCHED_NORMAL via __setscheduler(). Ok?
 
------Original Message-----
-From: Denis Vlasenko [mailto:vda@port.imtp.ilyichevsk.odessa.ua] 
-Sent: Wednesday, May 26, 2004 3:45 AM
-To: Buddy Lumpkin; 'William Lee Irwin III'
-Cc: orders@nodivisions.com; linux-kernel@vger.kernel.org
-Subject: RE: why swap at all?
+Fine. Since we will have to setup the static priority everytime CPU_DEAD is
+invoked, would it make sense if we setup this static priority (once and for
+all) in init_idle instead?
 
-On Wednesday 26 May 2004 11:30, Buddy Lumpkin wrote:
-> As for your short, two sentence comment below, let me save you the energy
-> of insinuations and translate your message the way I read it:
-> 
-> -------------------------------------------------------------------------
-> I don't recognize your name, therefore you can't possibly have a valuable
-> opinion on the direction VM system development should go. I doubt you have
-> an actual performance problem to share, but if you do, please share it and
-> go away so that we can work on solving the problem.
-> --------------------------------------------------------------------------
+Untested patch below:
 
-He was asking for proper bugreport.
 
-Preparing bug report:
-=====================
-How To Ask Questions The Smart Way:
-    http://www.catb.org/~esr/faqs/smart-questions.html
-        Anybody who has written software for public use will
-        probably have received at least one bad bug report.
-        Reports that say nothing ("It doesn't work!");
-        reports that make no sense; reports that don't give
-        enough information; reports that give wrong information.
-How to Report Bugs Effectively:
-    http://www.chiark.greenend.org.uk/~sgtatham/bugs.html
-        Before asking a technical question by email, or in
-        a newsgroup, or on a website chat board, do the following:
-        * Try to find an answer by searching the Web.
-        * Try to find an answer by reading the manual.
-        * Try to find an answer by reading a FAQ.
-        * Try to find an answer by inspection or experimentation.
-        * Try to find an answer by reading the source code.
-Compile problems: report GCC output and result of
-        "grep '^CONFIG_' .config"
-Oops: decode it with ksymoops (or use 2.6 with kksymoops enabled ;).
-Unkillable process: Alt-SysRq-T and ksymoops relevant part.
-Yes it means you should have ksymoops installed and tested,
-which is easy to get wrong. I've done that too often.
+---
+
+ linux-2.6.7-rc1-vatsa/kernel/sched.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff -puN kernel/sched.c~restore_idle_prio kernel/sched.c
+--- linux-2.6.7-rc1/kernel/sched.c~restore_idle_prio	2004-05-25 17:04:19.000000000 +0530
++++ linux-2.6.7-rc1-vatsa/kernel/sched.c	2004-05-26 17:17:44.000000000 +0530
+@@ -3246,7 +3246,7 @@ void __devinit init_idle(task_t *idle, i
+ 	idle_rq->curr = idle_rq->idle = idle;
+ 	deactivate_task(idle, rq);
+ 	idle->array = NULL;
+-	idle->prio = MAX_PRIO;
++	idle->prio = idle->static_prio = MAX_PRIO;
+ 	idle->state = TASK_RUNNING;
+ 	set_task_cpu(idle, cpu);
+ 	double_rq_unlock(idle_rq, rq);
+@@ -3568,7 +3568,7 @@ static int migration_call(struct notifie
+ 		/* Idle task back to normal (off runqueue, low prio) */
+ 		rq = task_rq_lock(rq->idle, &flags);
+ 		deactivate_task(rq->idle, rq);
+-		__setscheduler(rq->idle, SCHED_NORMAL, MAX_PRIO);
++		__setscheduler(rq->idle, SCHED_NORMAL, 0);
+ 		task_rq_unlock(rq, &flags);
+  		BUG_ON(rq->nr_running != 0);
+ 
+
+_
+
+
+
 -- 
-vda
 
+
+Thanks and Regards,
+Srivatsa Vaddagiri,
+Linux Technology Center,
+IBM Software Labs,
+Bangalore, INDIA - 560017

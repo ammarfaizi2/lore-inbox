@@ -1,49 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261538AbUJZXZc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261541AbUJZX3A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261538AbUJZXZc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 19:25:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbUJZXZb
+	id S261541AbUJZX3A (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 19:29:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261544AbUJZX3A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 19:25:31 -0400
-Received: from fw.osdl.org ([65.172.181.6]:32641 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261538AbUJZXZ1 (ORCPT
+	Tue, 26 Oct 2004 19:29:00 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:31892 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261541AbUJZX25 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 19:25:27 -0400
-Date: Tue, 26 Oct 2004 16:29:22 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: tharbaugh@lnxi.com
-Cc: klibc@zytor.com, linux-kernel@vger.kernel.org,
-       linux-hotplug-devel@lists.sourceforge.net
-Subject: Re: chicken/egg between pipefs and initramfs/hotplug
-Message-Id: <20041026162922.0e9f7f88.akpm@osdl.org>
-In-Reply-To: <1098729008.19348.80.camel@tubarao>
-References: <1098729008.19348.80.camel@tubarao>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Tue, 26 Oct 2004 19:28:57 -0400
+Date: Tue, 26 Oct 2004 19:28:28 -0400
+From: Dave Jones <davej@redhat.com>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: "O.Sezer" <sezeroz@ttnet.net.tr>, linux-kernel@vger.kernel.org,
+       Russell King <rmk+lkml@arm.linux.org.uk>,
+       Pete Zaitcev <zaitcev@redhat.com>, jgarzik@pobox.com,
+       tglx@linutronix.de, Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Subject: Re: Linux 2.4.28-rc1
+Message-ID: <20041026232828.GH2307@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+	"O.Sezer" <sezeroz@ttnet.net.tr>, linux-kernel@vger.kernel.org,
+	Russell King <rmk+lkml@arm.linux.org.uk>,
+	Pete Zaitcev <zaitcev@redhat.com>, jgarzik@pobox.com,
+	tglx@linutronix.de, Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+References: <417E5904.9030107@ttnet.net.tr> <20041026203334.GB29688@logos.cnet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041026203334.GB29688@logos.cnet>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thayne Harbaugh <tharbaugh@lnxi.com> wrote:
->
-> It appears that linux/init/main.c:init() has a chicken/egg problem.
-> Apparently modprobe and other programs need a pipe and pipefs isn't
-> mounted until later on in do_basic_setup()/do_initcalls().  That means
-> that linux/fs/pipe.c:static struct vfsmount *pipe_mnt;  isn't
-> initialized and blows up when it's derefernced in
-> linux/fs/pipe.c:get_pipe_inode().
-
-That's a bit sad.  Does this fix it?
-
---- 25/fs/pipe.c~a	Tue Oct 26 16:28:44 2004
-+++ 25-akpm/fs/pipe.c	Tue Oct 26 16:28:52 2004
-@@ -718,5 +718,5 @@ static void __exit exit_pipe_fs(void)
- 	mntput(pipe_mnt);
- }
+On Tue, Oct 26, 2004 at 06:33:34PM -0200, Marcelo Tosatti wrote:
  
--module_init(init_pipe_fs)
-+fs_initcall(init_pipe_fs)
- module_exit(exit_pipe_fs)
-_
+ > > - Dave Jones:  AMD K7 MCE changes backported from 2.6.
+ > >   http://marc.theaimsgroup.com/?l=linux-kernel&m=106521456014393&w=2
+ > 
+ > Should be merged - Dave?
 
+yep.
+
+		Dave

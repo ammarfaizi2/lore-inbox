@@ -1,46 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265405AbUFTP0O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265490AbUFTPjZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265405AbUFTP0O (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 11:26:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265493AbUFTP0O
+	id S265490AbUFTPjZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 11:39:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265493AbUFTPjZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 11:26:14 -0400
-Received: from out005pub.verizon.net ([206.46.170.143]:50856 "EHLO
-	out005.verizon.net") by vger.kernel.org with ESMTP id S265405AbUFTP0K
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 11:26:10 -0400
-Message-ID: <02d701c456da$ee397a20$6401a8c0@waterdell>
-From: "Arun Sen" <arunsen@verizon.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Restating the questions
-Date: Sun, 20 Jun 2004 10:26:16 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-X-Authentication-Info: Submitted using SMTP AUTH at out005.verizon.net from [4.10.168.165] at Sun, 20 Jun 2004 10:26:08 -0500
+	Sun, 20 Jun 2004 11:39:25 -0400
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:32458 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S265490AbUFTPjX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jun 2004 11:39:23 -0400
+Date: Sun, 20 Jun 2004 11:39:22 -0400
+From: Tom Vier <tmv@comcast.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.7: preempt + sysfs = BUG on ppc
+Message-ID: <20040620153922.GA20103@zero>
+Reply-To: Tom Vier <tmv@comcast.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Earlier I submitted two questions for patches.  I received some responses.
-But as the questions were not properly stated, the responses were not very
-useful.  so, I am restating the questions once again hoping to clear them
-up.  By the way, I am working on a research project that is studying the
-kernel patches of all kind.
+i forgot to exclude /sys when i ran rsync. this is easily reproducable.
 
+kernel BUG in fill_read_buffer at fs/sysfs/file.c:92!
+Oops: Exception in kernel mode, sig: 5 [#1]
+PREEMPT 
+NIP: C009687C LR: C0096870 SP: D1587EA0 REGS: d1587df0 TRAP: 0700    Not tainted
+MSR: 00029032 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11
+TASK = c07b4060[879] 'rsync' THREAD: d1586000Last syscall: 3 
+GPR00: 00000001 D1587EA0 C07B4060 FFFFFFEA C7E38000 D327F000 00007F11 00000000 
+GPR08: 00000000 00000000 00000000 D1586000 20002442 1004CFE4 00000000 00000000 
+GPR16: 00001000 10040000 10040000 10040000 10040000 00000003 00001000 00000000 
+GPR24: 00001000 00000000 00000000 00000000 C010E348 C0264BEC D1B64F1C C079F1A8 
+NIP [c009687c] fill_read_buffer+0x70/0xb4
+LR [c0096870] fill_read_buffer+0x64/0xb4
+Call trace:
+ [c0096a28] sysfs_read_file+0x5c/0x78
+ [c005ad68] vfs_read+0xdc/0x128
+ [c005afd8] sys_read+0x40/0x74
+ [c0005b20] ret_from_syscall+0x0/0x44
 
-Q1.  I want to find out what the steps are for submitting and approving a
-patch in the Linux kernel?   I know that Linus has sent out an email
-regarding the patch approval process and I have read it.
+kernel BUG in fill_read_buffer at fs/sysfs/file.c:92!
+Oops: Exception in kernel mode, sig: 5 [#2]
+PREEMPT 
+NIP: C009687C LR: C0096870 SP: C577FEA0 REGS: c577fdf0 TRAP: 0700    Not tainted
+MSR: 00029032 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11
+TASK = c07b4060[1230] 'rsync' THREAD: c577e000Last syscall: 3 
+GPR00: 00000001 C577FEA0 C07B4060 FFFFFFEA C4828000 D327F000 00007F11 00000000 
+GPR08: 00000000 00000000 00000000 C577E000 20002442 1004CFE4 00000000 00000000 
+GPR16: 00001000 10040000 10040000 10040000 10040000 00000003 00001000 00000000 
+GPR24: 00001000 00000000 00000000 00000000 C010E348 C0264BEC D1B6433C C079F1A8 
+NIP [c009687c] fill_read_buffer+0x70/0xb4
+LR [c0096870] fill_read_buffer+0x64/0xb4
+Call trace:
+ [c0096a28] sysfs_read_file+0x5c/0x78
+ [c005ad68] vfs_read+0xdc/0x128
+ [c005afd8] sys_read+0x40/0x74
+ [c0005b20] ret_from_syscall+0x0/0x44
 
-Q2.  I have looked into a mirror site for the kernel (in the university of
-Wisconsin web site) for all kinds of patches for the kernel.  I am looking
-at all patches for all versions of the kernel.  I would like to find out who
-the authors are of these patches.  Can you help me find this info?
-
-Thanks -  Arun
+-- 
+Tom Vier <tmv@comcast.net>
+DSA Key ID 0x15741ECE
 

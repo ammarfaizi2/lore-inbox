@@ -1,41 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261785AbUCKWRS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 17:17:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261793AbUCKWRR
+	id S261773AbUCKWUd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 17:20:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261783AbUCKWUd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 17:17:17 -0500
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:9415 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S261785AbUCKWRK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 17:17:10 -0500
-Date: Thu, 11 Mar 2004 17:17:08 -0500 (EST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Richard Browning <richard@redline.org.uk>
-Cc: Len Brown <len.brown@intel.com>, linux-kernel@vger.kernel.org
-Subject: Re: SMP + Hyperthreading / Asus PCDL Deluxe / Kernel 2.4.x 2.6.x /
- Crash/Freeze
-In-Reply-To: <200403111819.25819.richard@redline.org.uk>
-Message-ID: <Pine.LNX.4.58.0403111715560.29087@montezuma.fsmlabs.com>
-References: <A6974D8E5F98D511BB910002A50A6647615F4B99@hdsmsx402.hd.intel.com>
- <1078987834.2556.84.camel@dhcppc4> <200403111819.25819.richard@redline.org.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 11 Mar 2004 17:20:33 -0500
+Received: from fw.osdl.org ([65.172.181.6]:49086 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261773AbUCKWU1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 17:20:27 -0500
+Date: Thu, 11 Mar 2004 14:22:29 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: jlnance@unity.ncsu.edu
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.4-mm1
+Message-Id: <20040311142229.1918500f.akpm@osdl.org>
+In-Reply-To: <20040311134017.GA2813@ncsu.edu>
+References: <20040310233140.3ce99610.akpm@osdl.org>
+	<20040311134017.GA2813@ncsu.edu>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Mar 2004, Richard Browning wrote:
-
-> I've now updated the BIOS to the latest version available on Asus' site. The
-> crash occurs even earlier - during bootup this time. Exactly:
+jlnance@unity.ncsu.edu wrote:
 >
-> CPU2: Machine Check Exception: 000.0004
-> CPU3: Machine Check Exception: 000.0004
-> Bank 0: a20000008c010400Bank0: a20000008c010400
-> Kernel Panic: CPU context corrupt
-> In idle task - not syncing
->
-> Again, disabling hyperthreading allows the system to operate normally.
+> On Wed, Mar 10, 2004 at 11:31:40PM -0800, Andrew Morton wrote:
+> >   This affects I/O scheduling potentially quite significantly.  It is no
+> >   longer the case that the kernel will submit pages for I/O in the order in
+> >   which the application dirtied them.  We instead submit them in file-offset
+> >   order all the time.
+> 
+> Hi Andrew,
+>     I have a feeling this change might significantly improve the external
+> sorting benchmark I emailed you ( http://lkml.org/lkml/2003/12/20/46 ).
+> I will try running it when I get a chance and let you know.
 
-For my own curiosity, does switching the processors around do anything?
-Those MCEs look confined to the non bootstrap processor package.
+That thing's still sitting in by Inbox awaiting attention :(
+
+I just took a quick peek.  The `testfile' file which it lays out is well
+laid-out so yes, if you're seeking all over that file then 2.6.4-mm1 may
+indeed help throughput.
+
+But `tesfile.tmp' is not well laid-out.  Looks like it was created seekily,
+so its blocks are all jumbled up.
+
+The code in 2.6.4-mm1 favours unjumbled-up files.  The code in 2.4 and
+2.6.4 favours jumbled-up files.
+
+When kjournald performs writeback it favours jumbled-up files, even in
+2.6.4-mm1.
+
+So it's hard to say what will happen ;)  I'll take a look later.
+
+> It gives me a good excuse to get 2.6 kernels working on my systems :-)
+
+Luddite.

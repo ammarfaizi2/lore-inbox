@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283310AbRK2Qfk>; Thu, 29 Nov 2001 11:35:40 -0500
+	id <S283316AbRK2QhA>; Thu, 29 Nov 2001 11:37:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283311AbRK2Qfa>; Thu, 29 Nov 2001 11:35:30 -0500
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:29688 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S283310AbRK2QfW>;
-	Thu, 29 Nov 2001 11:35:22 -0500
-Date: Thu, 29 Nov 2001 09:35:02 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: Petr Titera <P.Titera@century.cz>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: [Patch] Windows CP1250 support
-Message-ID: <20011129093502.D29249@lynx.no>
-Mail-Followup-To: Petr Titera <P.Titera@century.cz>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <3C065CEC.8090201@century.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <3C065CEC.8090201@century.cz>; from P.Titera@century.cz on Thu, Nov 29, 2001 at 05:06:04PM +0100
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S283314AbRK2Qgl>; Thu, 29 Nov 2001 11:36:41 -0500
+Received: from tomts11.bellnexxia.net ([209.226.175.55]:32252 "EHLO
+	tomts11-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S283313AbRK2QgY>; Thu, 29 Nov 2001 11:36:24 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Nav Mundi <nmundi@karthika.com>
+Date: Thu, 29 Nov 2001 11:36:14 -0500
+X-Mailer: KMail [version 1.3.2]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org
+Subject: Kernal <-> Block Driver <-> Storage Device
+Message-Id: <20011129163618.EMQJ24249.tomts11-srv.bellnexxia.net@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Nov 29, 2001  17:06 +0100, Petr Titera wrote:
-> Linux contains two codepages for Central European languages (CP852 and
-> iso8859-2) but neither one is correct for character encoding used in 
-> Central European version of Windows (which uses Microsoft's CP1250). 
-> This patch adds support for this codepage.
-> 
-> +MODULE_LICENSE("BSD without advertising clause");
+Scenario:
+1) Interupt requests from Kernal to read information.
+2) Kernel asks block driver to fetch some information from the storage device
+3) The block driver fetchs this information and stores it in the DMA
+4) The storage device then interupts the Kernal OR Driver to signal that it 
+is finished reading. 
 
-Can you please pick a valid license for new files?  ("Dual GPL/BSD" is
-probably what you want).
+Questions:
+1) In step 4), does the storage device interupt the Kernal or the Driver when 
+it is finished reading information to the DMA?  
+2) If the Kernal is interrupted what does the Kernel do then?  
+3) If the Block Driver is interrupted, what does the Driver do then?
+4) Where is the code located for Questions 1) -> 3)
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+Please advise. Thanks.
+-Nav
+
+
+
+
 

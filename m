@@ -1,54 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267335AbTBUANb>; Thu, 20 Feb 2003 19:13:31 -0500
+	id <S267339AbTBUAO5>; Thu, 20 Feb 2003 19:14:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267337AbTBUANb>; Thu, 20 Feb 2003 19:13:31 -0500
-Received: from pine.compass.com.ph ([202.70.96.37]:36165 "HELO
-	pine.compass.com.ph") by vger.kernel.org with SMTP
-	id <S267335AbTBUANa>; Thu, 20 Feb 2003 19:13:30 -0500
-Subject: Re: [Linux-fbdev-devel] Re: FBdev updates.
-From: Antonino Daplas <adaplas@pol.net>
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-Cc: Dave Jones <davej@codemonkey.org.uk>,
-       James Simmons <jsimmons@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-In-Reply-To: <20030220182941.GK14445@vana.vc.cvut.cz>
-References: <Pine.LNX.4.44.0302200108090.20350-100000@phoenix.infradead.org>
-	<20030220150201.GD13507@codemonkey.org.uk> 
-	<20030220182941.GK14445@vana.vc.cvut.cz>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1045787031.2051.9.camel@localhost.localdomain>
+	id <S267340AbTBUAO5>; Thu, 20 Feb 2003 19:14:57 -0500
+Received: from octopussy.utanet.at ([213.90.36.45]:47843 "EHLO
+	octopussy.utanet.at") by vger.kernel.org with ESMTP
+	id <S267339AbTBUAOz>; Thu, 20 Feb 2003 19:14:55 -0500
+Date: Fri, 21 Feb 2003 01:24:57 +0100
+From: Dejan Muhamedagic <dejan@hello-penguin.com>
+To: Rik van Riel <riel@imladris.surriel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: vm issues on sap app server
+Message-ID: <20030221002456.GB8096@lilith.homenet>
+Reply-To: Dejan Muhamedagic <dejan@hello-penguin.com>
+References: <20030219171432.A6059@smp.colors.kwc> <Pine.LNX.4.50L.0302192004410.2329-100000@imladris.surriel.com> <20030220124833.GB4051@lilith.homenet> <Pine.LNX.4.50L.0302201019250.2329-100000@imladris.surriel.com> <20030220150559.A27331@smp.colors.kwc> <Pine.LNX.4.50L.0302201258070.2329-100000@imladris.surriel.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 21 Feb 2003 08:24:17 +0800
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.50L.0302201258070.2329-100000@imladris.surriel.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-02-21 at 02:29, Petr Vandrovec wrote:
+Rik,
+
+On Thu, Feb 20, 2003 at 01:00:12PM -0300, Rik van Riel wrote:
+> On Thu, 20 Feb 2003, Dejan Muhamedagic wrote:
+> > > >
+> > > > AIX vmtune -P is equivalent to the Linux cache-max, but cache-max
+> > > > is not implemented.
 > 
-> I was for five weeks in U.S., so I did not do anything with
-> matroxfb during that time. I plan to use fillrect and copyrect
-> from generic code (although it means unnecessary multiply on
-> generic side, and division in matroxfb, but well, if we gave
-> up on reasonable speed for fbdev long ago...). But I simply
-> want loadfont and putcs hooks for character painting. And if 
-> fbdev maintainer does not want to give me them, well, then 
-> matroxfb and fbdev are not compatible.
+> OK, vmtune -p is equivalent to cache-min, vmtune -P is
+> equivalent to cache-borrow ...
 
-Petr,
+Yes, I was wrong ...
 
-I submitted the Tile Blitting patch to James some time ago, it has
-tilefill, tilecopy and tileblit hooks.  These hooks should eliminate the
-"multiply in fbcon, divide in driver" bottleneck.
+> It looks like AIX doesn't have a cache-max, either.
 
-It should result in the same behavior as you would expect in the the 2.4
-API, so you can use text mode with your matroxfb driver.  These same
-hooks will also help optimize drawing if we need to use fonts like
-12x22.
+... and now I can't think of a good reason for implementing
+cache-max at all.
 
-Tony
+Cheers!
 
-
+Dejan

@@ -1,45 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265191AbSJPQiJ>; Wed, 16 Oct 2002 12:38:09 -0400
+	id <S265181AbSJPQf0>; Wed, 16 Oct 2002 12:35:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265192AbSJPQiJ>; Wed, 16 Oct 2002 12:38:09 -0400
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:5539 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S265191AbSJPQiH>; Wed, 16 Oct 2002 12:38:07 -0400
-Date: Wed, 16 Oct 2002 11:43:57 -0500 (CDT)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Matthew Wilcox <willy@debian.org>
-cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
-       Russell King <rmk@arm.linux.org.uk>
-Subject: Re: [PATCH] Allow compilation with -ffunction-sections
-In-Reply-To: <20021016145113.E15163@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Pine.LNX.4.44.0210161140300.1904-100000@chaos.physics.uiowa.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265180AbSJPQf0>; Wed, 16 Oct 2002 12:35:26 -0400
+Received: from probity.mcc.ac.uk ([130.88.200.94]:30479 "EHLO
+	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S265181AbSJPQfK>; Wed, 16 Oct 2002 12:35:10 -0400
+Date: Wed, 16 Oct 2002 17:40:57 +0100
+From: John Levon <levon@movementarian.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: weigand@immd1.informatik.uni-erlangen.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [8/7] oprofile - dcookies need to use u32
+Message-ID: <20021016164057.GB85246@compsoc.man.ac.uk>
+References: <200210160156.DAA25005@faui11.informatik.uni-erlangen.de> <20021015.190019.41374479.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021015.190019.41374479.davem@redhat.com>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Mr. Scruff - Trouser Jazz
+X-Scanner: exiscan *181rE9-000Gyq-00*SD6MToojF2g* (Manchester Computing, University of Manchester)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Oct 2002, Matthew Wilcox wrote:
+On Tue, Oct 15, 2002 at 07:00:19PM -0700, David S. Miller wrote:
 
-> If you compile the kernel with -ffunction-sections, each function gets
-> put in a section .text.function_name.  This collides with our current use
-> of .text.init.  So here's a patch which converts x86 to use .init.text
-> instead.
+>    +               return (u32)dentry;
+>    
+>    Um, isn't this supposed to uniquely identify the dentry?
+>    On a platform with 64-bit pointers there's now the theoretical
+>    possibility of different dentries getting the same cookie ...
 > 
-> I've tested it on x86 and it still frees 120k of ram, so it seems to work.
-> Other architectures will need to change their vmlinux.lds appropriately,
-> and may need other changes (arm, m68k seem to use .text.init verbatim).
+> That's true.
+> 
+> We dealt with this (trying to use a kernel pointer as a cache held by
+> userspace) in tcp_diag by making the actual object opaque.  It was
+> actually two u32's, and that way it worked independant of kernel
+> vs. user word size.
 
-Just in case anybody feels bored, maybe someone wants to come up with a
-include/asm-generic/vmlinux.lds.S (or a better name) which has the common 
-part of all the arch's vmlinux.lds.S - so we could make such changes like
-you're proposing at one place in the future.
+I'm not sure that's an option :
 
-Since all vmlinux.lds.S get preprocessed by the C preprocessor, putting
-an "#include <asm-generic/vmlinux.lds.S>" in there should be easy enough 
-instead of all the current duplication.
+o userspace needs to know the size of the cookie in the event buffer
+o userspace would like to use the cookie as a hash value to avoid
+  repeated lookups
 
---Kai
+Perhaps the best solution would be to use a separate u32 ID value,
+allocated linearly. I could just refuse to allocate new dcookies in
+theoretical case of overflow.
 
+The other possibility is a dcookiefs (cat
+/dev/oprofile/dcookie/34343234) but that's a lot of extra
+code/complexity ...
 
+regards
+john
+-- 
+"It's a cardboard universe ... and if you lean too hard against it, you fall
+ through." 
+	- Philip K. Dick 

@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263843AbUCZNxI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Mar 2004 08:53:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264058AbUCZNxI
+	id S261815AbUCZOGt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Mar 2004 09:06:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261915AbUCZOGt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Mar 2004 08:53:08 -0500
-Received: from sa-2.airstreamcomm.net ([64.33.192.162]:8459 "EHLO
-	sa-2.airstreamcomm.net") by vger.kernel.org with ESMTP
-	id S263843AbUCZNxF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Mar 2004 08:53:05 -0500
-To: 239952@bugs.debian.org, debian-devel@lists.debian.org,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: Binary-only firmware covered by the GPL?
-References: <E1B6Izr-0002Ai-00@r063144.stusta.swh.mhn.de>
-	<20040325082949.GA3376@gondor.apana.org.au>
-	<20040325220803.GZ16746@fs.tum.de> <40635DD9.8090809@pobox.com>
-	<20040326003339.GD25059@parcelfarce.linux.theplanet.co.uk>
-	<81ptb0wh45.wl@omega.webmasters.gr.jp> <4063EFA5.5070001@stesmi.com>
-	<200403260912.i2Q9CdLU000531@81-2-122-30.bradfords.org.uk>
-From: John Hasler <john@dhh.gt.org>
-Date: Fri, 26 Mar 2004 07:59:19 -0600
-In-Reply-To: <200403260912.i2Q9CdLU000531@81-2-122-30.bradfords.org.uk> (John
- Bradford's message of "Fri, 26 Mar 2004 09:12:39 GMT")
-Message-ID: <87brmjaevc.fsf@toncho.dhh.gt.org>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.2 (gnu/linux)
-MIME-Version: 1.0
+	Fri, 26 Mar 2004 09:06:49 -0500
+Received: from zcamail03.zca.compaq.com ([161.114.32.103]:29455 "EHLO
+	zcamail03.zca.compaq.com") by vger.kernel.org with ESMTP
+	id S261815AbUCZOGs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Mar 2004 09:06:48 -0500
+Date: Fri, 26 Mar 2004 08:19:46 -0600
+From: mike.miller@hp.com
+To: akpm@osdl.org, axboe@suse.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: FW: cciss update for 2.6 -- resubmit
+Message-ID: <20040326141946.GF4456@beardog.cca.cpqcorp.net>
+Reply-To: mike.miller@hp.com, mikem@beardog.cca.cpqcorp.net
+References: <D4CFB69C345C394284E4B78B876C1CF105BC1F6E@cceexc23.americas.cpqcorp.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <D4CFB69C345C394284E4B78B876C1CF105BC1F6E@cceexc23.americas.cpqcorp.net>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Bradford writes:
-> Then why didn't the original programmer leave a patch space to allow for
-> such modifications?  Surely that could be considered part of the
-> 'preferred form'.
+This is the right patch for 2.6. Sorry for my confusion.
 
-It would be the 'preferred form' if and only if it's the form in which he
-wrote it, patch space or no.
--- 
-John Hasler
-john@dhh.gt.org (John Hasler)
-Dancing Horse Hill
-Elmwood, WI
+ cciss.c |    7 ++-----
+ 1 files changed, 2 insertions(+), 5 deletions(-)
+-------------------------------------------------------------------------------
+diff -burpN lx265-rc2.orig/drivers/block/cciss.c lx265-rc2/drivers/block/cciss.c
+--- lx265-rc2.orig/drivers/block/cciss.c	2004-03-12 10:10:47.000000000 -0600
++++ lx265-rc2/drivers/block/cciss.c	2004-03-26 08:09:52.000000000 -0600
+@@ -469,11 +469,8 @@ static int cciss_ioctl(struct inode *ino
+                         driver_geo.heads = drv->heads;
+                         driver_geo.sectors = drv->sectors;
+                         driver_geo.cylinders = drv->cylinders;
+-                } else {
+-                        driver_geo.heads = 0xff;
+-                        driver_geo.sectors = 0x3f;
+-                        driver_geo.cylinders = (int)drv->nr_blocks / (0xff*0x3f);
+-                }
++                } else
++			return -ENXIO;
+                 driver_geo.start= get_start_sect(inode->i_bdev);
+                 if (copy_to_user((void *) arg, &driver_geo,
+                                 sizeof( struct hd_geometry)))

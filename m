@@ -1,70 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131708AbRDDBOt>; Tue, 3 Apr 2001 21:14:49 -0400
+	id <S131724AbRDDBVU>; Tue, 3 Apr 2001 21:21:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131730AbRDDBOk>; Tue, 3 Apr 2001 21:14:40 -0400
-Received: from chromium11.wia.com ([207.66.214.139]:32005 "EHLO
-	neptune.kirkland.local") by vger.kernel.org with ESMTP
-	id <S131724AbRDDBOg>; Tue, 3 Apr 2001 21:14:36 -0400
-Message-ID: <3ACA7629.E8C54D13@chromium.com>
-Date: Tue, 03 Apr 2001 18:17:30 -0700
-From: Fabio Riccardi <fabio@chromium.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: a quest for a better scheduler
-In-Reply-To: <E14kbH2-0000qX-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S131730AbRDDBVK>; Tue, 3 Apr 2001 21:21:10 -0400
+Received: from [204.244.205.25] ([204.244.205.25]:29008 "HELO post.gateone.com")
+	by vger.kernel.org with SMTP id <S131724AbRDDBUv>;
+	Tue, 3 Apr 2001 21:20:51 -0400
+Subject: Re: goodbye
+From: Michael Peddemors <michael@linuxmagic.com>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0104031800030.14090-100000@imladris.rielhome.conectiva>
+Content-Type: text/plain
+X-Mailer: Evolution (0.9 - Preview Release)
+Date: 03 Apr 2001 18:14:33 -0700
+Mime-Version: 1.0
+Message-Id: <20010404012102Z131724-406+7418@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+This would be a shame, as he has been a valuable resource..
+Why has the list become more restrictive?
 
-> > for the "normal case" performance see my other message.
->
-> I did - and with a lot of interest
+I think that this is one list where we have to keep the ability to post
+from individuals separate from the need to make sure that their ISP or
+company is compliant to a set a of rules..  The LKML can't toe the
+strictest of lines, without loosing some possibly valuable
+contributors..
 
-thanks! :)
+On 03 Apr 2001 18:01:42 -0300, Rik van Riel wrote:
+> Hi,
+> 
+> this will be my last email to linux-kernel for a while since
+> davem and matti are using DUL on vger.kernel.org
+> 
+> If you need to know something, don't count on me posting
+> anything here. For memory management things, please use
+> linux-mm@kvack.org instead.
+> 
+> Rik
+> --
+> Virtual memory is like a game you can't win;
+> However, without VM there's truly nothing to lose...
+> 
+>               http://www.surriel.com/
+> http://www.conectiva.com/     http://distro.conectiva.com.br/
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-> > I agree that a better threading model would surely help in a web server, but to
-> > me this is not an excuse to live up with a broken scheduler.
->
-> The problem has always been - alternative scheduler, crappier performance for
-> 2 tasks running (which is most boxes). If your numbers are right then the
-> HP patch is working as well for 1 or 2 tasks too
 
-Please verify them if you have a couple of spare hours.
 
-BTW: I measured similar results for the "scalability" patches on a 2.4.1 kernel, it
-would be worth the effort to seriously compare them from an architectural point of
-view, but I don't have the time right now...
-
-> > Unless we want to maintain the position tha the only way to achieve good
-> > performance is to embed server applications in the kernel, some minimal help
-> > should be provided to goodwilling user applications :)
->
-> Indeed. I'd love to see you beat tux entirely in userspace.  It proves the
-> rest of the API for the kernel is right
-
-Indeed, I'm using RT sigio/sigwait event scheduling, bare clone threads and
-zero-copy io.
-
-If only I had a really asynchronous sendfile, or a smarter madvise that wouldn't
-require to map files :)
-
-My server cannot execute dynamic stuff yet, it relies on Apache for that.
-
-Running X15 and TUX in the same conditions (i.e. dynamic code in Apache) I get
-exactly the same score in both cases.
-
-I'm adding a TUX-like dynamic interface, I hope to get it to work by next week, then
-I'll make a real confrontation.
-
-Regards, ciao,
-
- - Fabio
-
+-- 
+"Catch the Magic of Linux..."
+--------------------------------------------------------
+Michael Peddemors - Senior Consultant
+LinuxAdministration - Internet Services
+NetworkServices - Programming - Security
+WizardInternet Services http://www.wizard.ca
+Linux Support Specialist - http://www.linuxmagic.com
+--------------------------------------------------------
+(604)589-0037 Beautiful British Columbia, Canada
 

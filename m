@@ -1,52 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266031AbRGLPhN>; Thu, 12 Jul 2001 11:37:13 -0400
+	id <S266133AbRGLPkX>; Thu, 12 Jul 2001 11:40:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266062AbRGLPhD>; Thu, 12 Jul 2001 11:37:03 -0400
-Received: from motgate4.mot.com ([144.189.100.102]:39056 "EHLO
-	motgate4.mot.com") by vger.kernel.org with ESMTP id <S266031AbRGLPgq>;
-	Thu, 12 Jul 2001 11:36:46 -0400
-Message-Id: <3B4DC2CD.81DBB351@crm.mot.com>
-Date: Thu, 12 Jul 2001 17:31:25 +0200
-From: Emmanuel Varagnat <varagnat@crm.mot.com>
-Organization: Motorola
-X-Mailer: Mozilla 4.61 [en] (X11; I; Linux 2.4.3 i686)
-X-Accept-Language: en
+	id <S266132AbRGLPkN>; Thu, 12 Jul 2001 11:40:13 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:54543 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S266086AbRGLPj4>;
+	Thu, 12 Jul 2001 11:39:56 -0400
+Date: Thu, 12 Jul 2001 12:39:55 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: "C. Slater" <cslater@wcnet.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Switching Kernels without Rebooting?
+In-Reply-To: <000901c10a70$6acb2e40$0200000a@laptop>
+Message-ID: <Pine.LNX.4.33L.0107121236310.20836-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: Giacomo Catenazzi <cate@debian.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Makefile problem and modules
-In-Reply-To: <fa.fo00suv.1ug283k@ifi.uio.no> <3B4DBFC9.4040108@debian.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Giacomo Catenazzi wrote:
-> 
-> Emmanuel Varagnat wrote:
-> 
-> > I wrote a module for IPv6 but there is a case when it is
-> > compiled.
-> > (For the moment my code can only work as a module...)
-> > When IPv6 is compiled as a module, my module is well compiled.
-> > But if IPv6 is directly in the kernel, my module is not take
-> > into account (I've got no object file).
-> >
-> > Here is the only line I added to the Makefile (near the end):
-> >
-> > obj-$(CONFIG_IPV6_MYSTUFF)  += mystuff.o
-> >
-> 
-> Changes in the Config.in file?
+On Wed, 11 Jul 2001, C. Slater wrote:
 
-Yes just a tristate option.
-And after doing config/menuconfig/xconfig, the .config file
-contain a line with CONFIG_IPV6_MYSTUFF=m
+> > a) we want this "sounds real good" feature
+>  But at least it sounds good.
 
-I can't figure out where it comes from.
-I must say I also read Documentation/kbuild/makefiles.txt.
+And nothing wrong with that. It seems an excelent
+opportunity to learn lots about every part of the
+kernel.
 
-Thanks.
+> > b) we don't know how we will do it, beyond some hand waving ideas
+> We don't. We would like to change that.
+>
+> > c) we want kernel experts who know what they are doing to help us
+>   Quite correct
 
--Manu
+I guess there are two things to do here:
+
+(1) analyse the general idea of what you want to achieve,
+    breaking it down in sub-goals which may be achievable
+
+(2) learn about how the kernel works, you may want to go to
+
+	http://kernelnewbies.org/
+
+I won't have time to put in a project as huge and difficult
+as upgrading the kernel "live", but I'll be around to try
+and teach people about how the kernel works.
+
+regards,
+
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+

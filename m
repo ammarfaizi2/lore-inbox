@@ -1,53 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262167AbUB2W1j (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Feb 2004 17:27:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262168AbUB2W1i
+	id S262205AbUB2Waj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Feb 2004 17:30:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262195AbUB2Waj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Feb 2004 17:27:38 -0500
-Received: from pop.gmx.de ([213.165.64.20]:11464 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262167AbUB2W1g convert rfc822-to-8bit
+	Sun, 29 Feb 2004 17:30:39 -0500
+Received: from fw.osdl.org ([65.172.181.6]:6854 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262205AbUB2Wai convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Feb 2004 17:27:36 -0500
-X-Authenticated: #1226656
-Date: Sun, 29 Feb 2004 23:27:34 +0100
-From: Marc Giger <gigerstyle@gmx.ch>
-To: Andrew Morton <akpm@osdl.org>
-Cc: mru@kth.se (=?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?=),
-       linux-kernel@vger.kernel.org
-Subject: Re: kernel unaligned acc on Alpha
-Message-Id: <20040229232734.1d9266f9.gigerstyle@gmx.ch>
-In-Reply-To: <20040229142218.08c3d6bc.akpm@osdl.org>
-References: <20040229215546.065f42e9.gigerstyle@gmx.ch>
-	<yw1xvflp1sv6.fsf@kth.se>
-	<20040229142218.08c3d6bc.akpm@osdl.org>
-X-Mailer: Sylpheed version 0.9.7claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sun, 29 Feb 2004 17:30:38 -0500
+Date: Sun, 29 Feb 2004 14:31:45 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.4-rc1-mm1
+Message-Id: <20040229143145.1499e568.akpm@osdl.org>
+In-Reply-To: <20040229222415.A32236@infradead.org>
+References: <20040229140617.64645e80.akpm@osdl.org>
+	<20040229222415.A32236@infradead.org>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 29 Feb 2004 14:22:18 -0800
-Andrew Morton <akpm@osdl.org> wrote:
-
-> mru@kth.se (Måns Rullgård) wrote:
-> >
-> > > Hi All,
-> >  >
-> >  > I have a lot of unaligned accesses in kernel space:
-> >  >
-> >  > kernel unaligned acc    : 2191330
-> >  > (pc=fffffffc002557d8,va=fffffffc00256059)
-> >  >
-> >  > It seems to be located in the networking part (iptables?) from
-> >  > the kernel. Can someone please help me how to find the location
-> >  > of these uac's? I already have recompiled the kernel with
-> >  > debugging enabled and tried to debug it with gdb. 
+Christoph Hellwig <hch@infradead.org> wrote:
+>
+> On Sun, Feb 29, 2004 at 02:06:17PM -0800, Andrew Morton wrote:
+> > +scsi-external-build-fix.patch
 > > 
-> >  Find the matching function in System.map.
+> > Fix scsi.h for inclusion by userspace apps - it used to work, so...
 > 
-> If this is 2.6, that message should be augmented to use
-> print_symbol().
+> This has been rejected on linux-scsi a few times.  Don't use include/scsi/
+> from the kerneltree - there's alredy a /usr/include/scsi from glibc anyway,
+> so the situation is even more clear thæn the general you should not include
+> kernel headers thing.
 
-It's 2.4, and accessed via /proc/cpuinfo.
+hm, OK.  If it works in 2.4 and doesn't work in 2.6 I'd consider that a
+regression.  And as the fix is so trivial, I'd consider failure to fix it
+as pure dogmatism.  But whatever, I'm utterly bored of this discussion. 
+Consider it dropped.
+

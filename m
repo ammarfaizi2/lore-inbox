@@ -1,75 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261336AbTJHKCK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Oct 2003 06:02:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261345AbTJHKCK
+	id S261305AbTJHJ7C (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Oct 2003 05:59:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261328AbTJHJ7C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Oct 2003 06:02:10 -0400
-Received: from gaia.cela.pl ([213.134.162.11]:52748 "EHLO gaia.cela.pl")
-	by vger.kernel.org with ESMTP id S261336AbTJHKCG (ORCPT
+	Wed, 8 Oct 2003 05:59:02 -0400
+Received: from fmr06.intel.com ([134.134.136.7]:48791 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261305AbTJHJ7A convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Oct 2003 06:02:06 -0400
-Date: Wed, 8 Oct 2003 12:01:01 +0200 (CEST)
-From: Maciej Zenczykowski <maze@cela.pl>
-To: "Tian, Kevin" <kevin.tian@intel.com>
-cc: Andries Brouwer <aebr@win.tue.nl>, Andrew Morton <akpm@osdl.org>,
-       "Sharma, Arun" <arun.sharma@intel.com>, <linux-kernel@vger.kernel.org>,
-       Matthew Wilcox <willy@debian.org>
-Subject: RE: [PATCH] incorrect use of sizeof() in ioctl definitions
-In-Reply-To: <571ACEFD467F7749BC50E0A98C17CDD8F3283B@pdsmsx403.ccr.corp.intel.com>
-Message-ID: <Pine.LNX.4.44.0310081153400.31957-100000@gaia.cela.pl>
+	Wed, 8 Oct 2003 05:59:00 -0400
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: [PATCH] incorrect use of sizeof() in ioctl definitions
+Date: Wed, 8 Oct 2003 17:58:53 +0800
+Message-ID: <571ACEFD467F7749BC50E0A98C17CDD8F3283C@pdsmsx403.ccr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] incorrect use of sizeof() in ioctl definitions
+Thread-Index: AcOHs4XoK9QAuwezQsqz1nwTtB99fwFvRU1gAAPxyPA=
+From: "Tian, Kevin" <kevin.tian@intel.com>
+To: "Tian, Kevin" <kevin.tian@intel.com>, "Andries Brouwer" <aebr@win.tue.nl>
+Cc: "Andrew Morton" <akpm@osdl.org>, "Sharma, Arun" <arun.sharma@intel.com>,
+       <linux-kernel@vger.kernel.org>, "Matthew Wilcox" <willy@debian.org>
+X-OriginalArrivalTime: 08 Oct 2003 09:58:53.0958 (UTC) FILETIME=[C8241A60:01C38D82]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 	Maybe I got something wrong, but could someone please help me to
-> understand why introduce _IOR_BAD here? Thanks first! :)
-
-So as not to break userspace we must still support old values, at the same 
-time we want new programs to start using the new correct values - hence 
-the introduction of _backward compatibility_ values.
-
-> (old)	#define MATROXFB_SET_OUTPUT_MODE
-> _IOW('n',0xFA,sizeof(struct matroxioc_output_mode))
-> (now)	#define MATROXFB_SET_OUTPUT_MODE        _IOW('n',0xFA,size_t)
-
-the old was bad since it was sizeof(sizeof(...)) - it so happens that by 
-def sizeof(anything) is a size_t - thus replacing sizeof(sizeof(..)) with 
-sizeof(size_t) changes nothing - just shortens the code...
-Of course what we probably should really have is the above (now) code 
-defined as "BAD" and the previous (old) define without the sizeof as the 
-current (no BAD prefix).
-
-> 	The size of matroxioc_output_mode is 8 bytes on all platforms,
-> however size_t will be calculated as 4 bytes on 32bit arch and 8 bytes
-> on 64bit arch. So this is also like using sizeof(), which imposes the
-> difference between 32bit ioctl number and 64bit ioctl number. However in
-> standard manner, I mean:
-> 	#define MATROXFB_SET_OUTPUT_MODE        _IOW('n',0xFA,struct
-> matroxioc_output_mode)
->  	The value should be identical on all platforms, which save our
-> efforts to do useless conversion when running 32bit apps on 64bit
-> platform.
-
-Precisely - unfortunately due to coding errors (the erroneous double 
-sizeof invocation) this isn't the way it is - and for backwards 
-compatibility it can't be broken... sad, really...
-
-> 
-> 	The most important is: to use sizeof() or size_t here both
-> messed the ioctl definition, which violate the initial motivation of
-> _IO**, is it?
-
-Yap, both violate.  It is a mess and there is no easy fix due to the need
-to retain the old invalid ioctl's as well... and the real 'tough' mess is
-on platforms where due to type sizes both the OLD and the NEW defines
-result in the same IOCTL define value... that'll probably screw over
-switch statements (I'm not sure - but I think you can't have the same
-value twice in a case statement).  If this happens on all platforms than 
-the conversion OLD==BAD to NEW can be done quietly - otherwise... we've 
-got hell.
-
-Cheers,
-MaZe.
-
+Well, I may misunderstand the measurement here. By previous comment from
+Matthew Wilcox, I see "Clearly it's too late to change the ioctl
+definitions...". Er, so all things like IOR_BAD and size_t are just to
+keep current API untouched, while warning subsequent guys right way to
+populate ioctls. :) Then the last question is: is it worthy of some
+efforts to modify these APIs completely? Maybe the bee just bites
+once...

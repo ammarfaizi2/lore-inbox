@@ -1,52 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263961AbRFKUId>; Mon, 11 Jun 2001 16:08:33 -0400
+	id <S263994AbRFKURo>; Mon, 11 Jun 2001 16:17:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263957AbRFKUIY>; Mon, 11 Jun 2001 16:08:24 -0400
-Received: from gandalf.uznam.net.pl ([195.205.28.2]:12807 "EHLO
-	gandalf.uznam.net.pl") by vger.kernel.org with ESMTP
-	id <S263870AbRFKUIN>; Mon, 11 Jun 2001 16:08:13 -0400
-Date: Mon, 11 Jun 2001 22:03:01 +0200
-From: Michal Margula <alchemyx@uznam.net.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Disaster under heavy network load on 2.4.x
-Message-ID: <20010611220301.A6852@cerber.uznam.net.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.18i
-X-Operating-System: Linux 2.2.19 i686
+	id <S263971AbRFKURe>; Mon, 11 Jun 2001 16:17:34 -0400
+Received: from zikova.cvut.cz ([147.32.235.100]:28431 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S263994AbRFKUR1>;
+	Mon, 11 Jun 2001 16:17:27 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: "Matthew G. Marsh" <mgm@paktronix.com>
+Date: Mon, 11 Jun 2001 22:15:50 MET-1
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: IPX to Netware 5.1
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+X-mailer: Pegasus Mail v3.40
+Message-ID: <58A756348DA@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On 11 Jun 01 at 14:56, Matthew G. Marsh wrote:
+> On Mon, 11 Jun 2001, Lauri Tischler wrote:
+> 
+> > I've been mounting Netware volumes from Netware 4.1x to linux for
+> > a quite a while now, works just fine.
+> > We installed new Netware server with Netware 5.1 and I can't now
+> > mount any volumes.  The error message is:
+> >   ncpmount: Unknown Server error (0x8901) in nds login
+> >   Login denied.
+> 
+> Yep. We did some testing and found that if the server has a RW replica
+> of the partition your user ID exists in then the NDS login will work.
+> Otherwise nothing works. Also if you have password restrictions such as
+> minumum number of characters then most users must have a password that is
+> exactly the minimum number of characters unless they have admin
+> (supervisor) priviledges. Has us baffled.
+> 
+> We ended up making sure that the servers we use have RW replicas and that
+> we use full context NDS logins.
 
-My friend told me to noticed you about problems I had with 2.4.x line of
-kernels. I started up from 2.4.3. Under heavy load I was getting
-messages from telnet, ping, nmap "No buffer space available". Strace
-told me it was error marked as ENOBUFS.
+Are you sure that you are using ncpfs-2.2.0.18? In that case try
+ncpfs-2.2.0.19.pre56 (ftp://platan.vc.cvut.cz/private/ncpfs).
 
-First thought was it was my fault. I asked many people and nobody could
-help me. So I tried 2.4.5. It was a disaster also (should I mention few
-oopses?:>).
-
-Second thought was to try 2.2.19 and it was good choice. Now there are
-almost no messags like those above. Only thing that still happens is
-"Neihgbour table overflow".
-
-Some data about my Linux box:
-
-2 x PIII 800 MHz/1024 MB; 2 x Intel EExpres 100; 3 x 3com 3c900B-Combo.
-Summarizing all traffic about 5mbit at the moment.
-
-# arp -an | wc -l
-   1018
-
-Any more info needed?
-
-PS. It would be nice to be CCed with replies, beacause I am not
-subscribed to LKML.
-
--- 
-Michal Margula, alchemyx@uznam.net.pl, ICQ UIN 12267440, +)
-http://uznam.net.pl/~alchemyx/, Polish section of Linux Counter maintainer
+But RO/no replicas should not affect bindery login. Are you sure that
+you really tried bindery ncpmount (with -b option)?
+                                        Best regards,
+                                                Petr Vandrovec
+                                                vandrove@vc.cvut.cz
+                                                
+                                

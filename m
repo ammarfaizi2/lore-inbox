@@ -1,61 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287817AbSCRQNf>; Mon, 18 Mar 2002 11:13:35 -0500
+	id <S286825AbSCRQVR>; Mon, 18 Mar 2002 11:21:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288071AbSCRQNZ>; Mon, 18 Mar 2002 11:13:25 -0500
-Received: from air-2.osdl.org ([65.201.151.6]:56850 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S287817AbSCRQNP>;
-	Mon, 18 Mar 2002 11:13:15 -0500
-Date: Mon, 18 Mar 2002 08:12:48 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Nayyer Tiger <tigerkhan_1@hotmail.com>
-cc: <faheemullahkhan101@aol.com>, <zohair420@hotmail.com>,
-        <danish4000@hotmail.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.help
-In-Reply-To: <F184dEXWU5oIvIZZwmo0000bd87@hotmail.com>
-Message-ID: <Pine.LNX.4.33L2.0203180809120.2434-100000@dragon.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S288019AbSCRQVH>; Mon, 18 Mar 2002 11:21:07 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:23278
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S286825AbSCRQVA>; Mon, 18 Mar 2002 11:21:00 -0500
+Date: Mon, 18 Mar 2002 08:22:09 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Adam Johansson <macadam@madsci.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Suspicious about 2.4.18
+Message-ID: <20020318162209.GG2254@matchmail.com>
+Mail-Followup-To: Adam Johansson <macadam@madsci.se>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200203180743.g2I7hfmj007702@bert.webservepro.com> <Pine.LNX.4.33.0203181010520.7930-100000@macadam.madscilab.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Mar 2002, Nayyer Tiger wrote:
+On Mon, Mar 18, 2002 at 10:20:50AM +0100, Adam Johansson wrote:
+> // --- start ---
+> #!/bin/tcsh
+> while (1)
+>   date
+> end
+> // --- end ---
+> 
+> ./timescript > output
+> 
+> output gives me this;
+> Fri Mar 15 10:17:12 CET 2002
+> Fri Mar 15 10:17:12 CET 2002
+> Fri Mar 15 10:17:12 CET 2002
+> Fri Mar 15 10:17:12 CET 2002
+> Fri Mar 15 10:17:12 CET 2002
+> Fri Mar 15 10:17:12 CET 2002
+> Fri Mar 15 11:29:43 CET 2002
+> Fri Mar 15 11:29:43 CET 2002
+> Fri Mar 15 11:29:43 CET 2002
+> Fri Mar 15 10:17:13 CET 2002
+> Fri Mar 15 10:17:13 CET 2002
+> Fri Mar 15 10:17:13 CET 2002
+> Fri Mar 15 10:17:13 CET 2002
+> Fri Mar 15 10:17:13 CET 2002
+> Fri Mar 15 10:17:13 CET 2002
+> 
+> 
+> Which clearly shows that something is very very strange.
+> I've no idea where or why this happens but since upgrading to 2.4.19pre3
+> helped I assume that there is something in the kernel that is wrong.
+> I run SuSE7.2 with a vanilla 2.4.18 (now 2.4.19pre3).
+> 
 
-| I see that in the very latest Configure.help version, 2.76, available at
-| http:/www.tuxedo.org/~esr/cml2/
-| Eric has decided to follow the following standard:
-| IEC 60027-2, Second edition, 2000-11, Letter symbols to be used in
-| electrical technology - Part 2: Telecommunications and electronics.
-| and has changed all the abbreviations for Kilobyte (KB) to KiB, Megabyte
-| (MB) to MiB, etc, etc.
-|
-| Now, granted that this is the "standard", should there be some discussion
-| related to this
-| change, or is everyone comfortable with this?  It certainly made me do a
-| double take.
-
-Either decision will be disliked.  I don't care for the new/standard
-abbreviations, but I can get used to them, and I expect that most
-people can.
-
-Let's get over it and back to the good stuff.
-
-~Randy
-
-and who are all these anon. people you copied?!?
-
-| Here is a snippet from the diff between versions 2.75 and 2.76 of
-| Configure.help:
-|
-| @@ -344,8 +344,8 @@
-|    If you are compiling a kernel which will never run on a machine with
-|    more than 960 megabytes of total physical RAM, answer "off" here
-|    (default choice and suitable for most users). This will result in a
-| -  "3GB/1GB" split: 3GB are mapped so that each process sees a 3GB
-| -  virtual memory space and the remaining part of the 4GB virtual memory
-| +  "3GiB/1GiB" split: 3GiB are mapped so that each process sees a 3GiB
-| +  virtual memory space and the remaining part of the 4GiB virtual memory
-|    space is used by the kernel to permanently map as much physical memory
-|    as possible.
-
+Can you try to reproduce with pre1 and pre2?

@@ -1,44 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261867AbTDLAKP (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 20:10:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262219AbTDLAKP (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 20:10:15 -0400
-Received: from uucp.cistron.nl ([62.216.30.38]:43019 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id S261867AbTDLAKN (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Apr 2003 20:10:13 -0400
-From: miquels@cistron-office.nl (Miquel van Smoorenburg)
-Subject: Re: [ANNOUNCE] udev 0.1 release
-Date: Sat, 12 Apr 2003 00:21:53 +0000 (UTC)
-Organization: Cistron Group
-Message-ID: <b77m71$7bs$1@news.cistron.nl>
-References: <20030411172011.GA1821@kroah.com> <20030411190717.GH1821@kroah.com> <b77jmr$31d$1@news.cistron.nl> <20030412000829.GL4539@kroah.com>
+	id S261839AbTDLA2t (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 20:28:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262219AbTDLA2t (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 20:28:49 -0400
+Received: from dsl081-067-005.sfo1.dsl.speakeasy.net ([64.81.67.5]:38596 "EHLO
+	renegade") by vger.kernel.org with ESMTP id S261839AbTDLA2r (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Apr 2003 20:28:47 -0400
+Date: Fri, 11 Apr 2003 17:40:24 -0700
+From: Zack Brown <zbrown@tumblerings.org>
+To: Robert Love <rml@tech9.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: matching names to email addresses
+Message-ID: <20030412004024.GA10266@renegade>
+References: <20030411204352.GA2091@renegade> <1050094333.2291.340.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: ncc1701.cistron.net 1050106913 7548 62.216.29.200 (12 Apr 2003 00:21:53 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1050094333.2291.340.camel@localhost>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20030412000829.GL4539@kroah.com>,
-Greg KH  <greg@kroah.com> wrote:
->On Fri, Apr 11, 2003 at 11:39:07PM +0000, Miquel van Smoorenburg wrote:
->> Why not serialize /sbin/hotplug at the kernel level. Queue hotplug
->> events and only allow one /sbin/hotplug to run at the same time.
->
->We don't want the kernel to stop based on a user program.
+On Fri, Apr 11, 2003 at 04:52:13PM -0400, Robert Love wrote:
+> On Fri, 2003-04-11 at 16:43, Zack Brown wrote:
+> 
+> Hi Zack,
 
-It would not stop if you queued the events.
+Hey Robert,
 
-What is the difference between queueing events to be read from
-a pipe or socket or queueing them for a kernel thread that empties
-the queue by executing /sbin/hotplug for each entry in the queue.
+Thanks for the names. Between the list, private replies, and creative
+googling, the list is down to 14 addresses:
 
-The pipe/socket solution is probably better anyway, I was just
-wondering why /sbin/hotplug wasn't serialized from the start.
- 
-Mike.
+antoine hat ausone.whoknows
+dmitri hat users.sourceforge.net
+jackson hat realtek.com.tw
+kafai0928 hat yahoo.com
+linux-m68k.org hat mandrakesoft.com
+patch hat luckynet.dynu.com
+redbliss hat libero.it
+rfjak hat eircom.net
+rgcrettol hat datacomm.ch
+sam hat minnie.(none)
+sawa hat yamamoto.gr.jp
+suse.cz hat mastika.lnxw.com
+taral hat taral.net
+thchou hat ali.com.tw
 
+I suspect at least 6 or 7 of those are actual people or organizations who
+wouldn't mind being found.
+
+Be well,
+Zack
+
+> 
+> > These folks have been mentioned in changelogs, but their real names are hard
+> > to find, or maybe I'm just all googled out right now. Change " followedby "
+> > to "@" (not that it matters for some of these)
+> 
+> Cause a lot of these are not email addresses but BK hosts Linus did a
+> pull from.
+> 
+> > hch followedby com.rmk.(none)
+> > hch followedby de.rmk.(none)
+> 
+> Christoph Hellwig.
+> 
+> > src followedby flint.arm.linux.org.uk
+> 
+> Russell King
+> 
+> > vs followedby tribesman.namesys.com
+> 
+> Vladimir Saveliev
+> 
+> 	Robert Love
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+-- 
+Zack Brown

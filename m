@@ -1,44 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261729AbSJMWAA>; Sun, 13 Oct 2002 18:00:00 -0400
+	id <S261725AbSJMWIo>; Sun, 13 Oct 2002 18:08:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261733AbSJMWAA>; Sun, 13 Oct 2002 18:00:00 -0400
-Received: from mailout09.sul.t-online.com ([194.25.134.84]:23728 "EHLO
-	mailout09.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S261729AbSJMV77>; Sun, 13 Oct 2002 17:59:59 -0400
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFC] 2.5.42: remove capable(CAP_SYS_RAWIO) check from
- open_kmem
-References: <3DA985E6.6090302@colorfullife.com>
-	<87adliuyp6.fsf@goat.bogus.local> <3DA99A8B.5050102@colorfullife.com>
-	<873crauw1m.fsf@goat.bogus.local> <3DA9A796.4070600@colorfullife.com>
-From: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
-Date: Mon, 14 Oct 2002 00:05:40 +0200
-Message-ID: <87y992805n.fsf@goat.bogus.local>
-User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Honest Recruiter,
- i386-debian-linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S261736AbSJMWIn>; Sun, 13 Oct 2002 18:08:43 -0400
+Received: from h-64-105-34-19.SNVACAID.covad.net ([64.105.34.19]:28546 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S261725AbSJMWIm>; Sun, 13 Oct 2002 18:08:42 -0400
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Sun, 13 Oct 2002 15:14:27 -0700
+Message-Id: <200210132214.PAA00953@adam.yggdrasil.com>
+To: ebiederm@xmission.com
+Subject: Re: Patch: linux-2.5.42/kernel/sys.c - warm reboot should not suspend devices
+Cc: eblade@blackmagik.dynup.net, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manfred Spraul <manfred@colorfullife.com> writes:
+Eric W. Biederman writes:
+>Eric Blade <eblade@blackmagik.dynup.net> writes:
 
-> Olaf Dietsche wrote:
->> Now, I have to run this process as root, regardless of filesystem
->> permissions. So, if I trust this particular process with full
->> privileges now, there's no problem in reducing its power a little bit.
->>
-> What about writing a small wrapper application that drops all
-> priveleges except CAP_RAWIO, switches to user to the user you want,
-> then execs the target application that needs to access /dev/kmem?
+>> On Sun, 2002-10-13 at 15:24, Adam J. Richter wrote:
+>> > 	At first, I suspected IDE, but I think the new behavior in IDE
+>> > of spinning down the hard drives on suspend is correct.  The problem
+>> > is that the warm reboot system call is trying to suspend all of the
+>> > devices before a warm reboot for no reason.
 
-I just tried this, but I didn't succeed. :-(
 
-> Or store the capabilities in the filesystem, but I don't know which
-> filesystem supports that.
+>There is a very good reason for calling the driver->remove() function
+>on a reboot so that we place the devices in a consistent state.  And
+>stop any on going DMA etc.
 
-There's none so far.
+	A warm reboot is supposed to do this by the platform dependent
+machine_restart(), and whatever processes machine_restart sets off
+(e.g., by making a RESET signal active).  If a device driver needs
+some special processing prior to that, that is what the reboot
+notifier chain is for.
 
-Regards, Olaf.
+>The reboot notifier call chain, is highly underused, and all of the drivers
+>already have the code they need in their remove function.
+
+	What specific drivers are you referring to that meet all three
+of the criteria you have stated?:
+
+		1. They need to use reboot_notifier because the
+		   machine_restart() is not enough to reset them,
+
+		2. They do not currently use reboot_notifier,
+
+		3. They have a device->remove() that does what the
+		   reboot_notifier should do (shuts down ongoing DMA,
+		   because they have a some device that ignores a reset
+		   signal or something like that).
+
+	In general I would expective that a driver->remove(device)
+function would not be able to touch much of the hardware at all,
+because it would have to assume that the device has been or is being
+physically yanked out of the computer, so it should do software cleanup
+and maybe talk to the PCMCIA socket, USB hub port, etc. that previously
+held the device.
+
+	If you have a platform where, for example, somehow PCI devices
+are able to continue jabbering away after the computer has been reset,
+then that could probably be done more consistently for most drivers by
+having machine_restart on that platform walk the PCI bus and shut down
+everything (drivers that need to do something really special would
+still use the reboot notifier).
+
+	I could even see calling device_shutdown from machine_restart
+on that platform only, and I could even image
+"if(buggy_motherboard) device_shutdown();", but I would be really
+surprised to learn that sort of thorough resetting is necessary for
+most hardware on ordinary x86 PC's.
+
+	I could also understand something like your system call for
+booting Linux from Linux needing to do more thorough shutdowns and
+resets, but not something that uses machine_restart().
+
+>> I am not talking about
+>> > eliminating that.  I am only talking about the soft reboot putting
+>> > devices into a power saving mode that is allowed to take a long
+>> > recovery time, especially given that the reboot is likely to want to
+>> > talk to every hardware device connected to the system.
+
+>If 
+>driver->remove() 
+>does that it is an issue with that device driver.
+
+	device_shutdown and device_suspend are for power management.
+It is important to turn the device off as soon as possible if a power
+management routine has told you that the device is not going to be
+used any more.
+
+	If you've identified a bunch of devices that need
+reboot_notifier, please list them so we can fix them rather than
+taxing the users with unnecessarily slow reboots or poor battery life
+(due to device not being shut down when they are no longer being used).
+
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."

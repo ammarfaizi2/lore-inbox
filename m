@@ -1,43 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266538AbUG0S3F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266548AbUG0Sah@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266538AbUG0S3F (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 14:29:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266549AbUG0S3F
+	id S266548AbUG0Sah (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 14:30:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266545AbUG0Sag
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 14:29:05 -0400
-Received: from natnoddy.rzone.de ([81.169.145.166]:62701 "EHLO
-	natnoddy.rzone.de") by vger.kernel.org with ESMTP id S266538AbUG0S3D
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 14:29:03 -0400
-Date: Tue, 27 Jul 2004 20:27:50 +0200
-From: Dominik Brodowski <linux@dominikbrodowski.de>
-To: Adam Belay <ambx1@neo.rr.com>, linux-kernel@vger.kernel.org,
-       rmk@arm.linux.org.uk, akpm@osdl.org, rml@ximian.com, greg@kroah.com
-Subject: Re: [RFC][PATCH] driver model and sysfs support for PCMCIA (1/3)
-Message-ID: <20040727182750.GA7884@dominikbrodowski.de>
-Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.de>,
-	Adam Belay <ambx1@neo.rr.com>, linux-kernel@vger.kernel.org,
-	rmk@arm.linux.org.uk, akpm@osdl.org, rml@ximian.com, greg@kroah.com
-References: <20040628200224.GE5175@neo.rr.com> <20040629190948.GA8659@dominikbrodowski.de> <20040705224704.GA4090@neo.rr.com> <20040719080237.GB9494@dominikbrodowski.de> <20040726135313.GB3219@neo.rr.com>
+	Tue, 27 Jul 2004 14:30:36 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:44010 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266549AbUG0SaP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jul 2004 14:30:15 -0400
+Date: Tue, 27 Jul 2004 11:30:08 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: <marcelo.tosatti@cyclades.com>
+Cc: zaitcev@redhat.com, linux-kernel@vger.kernel.org
+Subject: USB: GET_ID from nonzero interface
+Message-Id: <20040727113008.57ae918a@lembas.zaitcev.lan>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040726135313.GB3219@neo.rr.com>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 26, 2004 at 01:53:13PM +0000, Adam Belay wrote:
-> I agree that the current resources_ready flag could create potential problems.
-> I've created another patch against the previous three that removes its usage,
-> and relies entirely on DS_BIND_REQUEST.  Devices are now removed but never
-> added during hardware events.  As for "hotplug", I was just trying to create
-> a complete driver model implementation.  I don't expect it to be used much now,
-> but it is an official driver model feature.
+Synopsys: Fix GET_ID for nonzero interface. IIRC, it's HP-1300 combo.
 
-The problem are the "values" you export by the hotplug call: if your patch
-is merged "as is", then the values you make available to userspace will need
-to be supported for a long time, even if this means it'll cause difficulties
-once pcmcia becomes fully integrated into the driver model.
+The patch looks bizzare, but it is actually correct and the code is
+not too bad. The 2.6 patch from errandir_news@mph.eclipse.co.uk, this
+is a backport.
 
-	Dominik
+I must admit I didn't hear from anyone using the stock 2.4
+having this problem, but I had a couple of users on RHL.
+
+diff -urp -X dontdiff linux-2.4.27-rc3/drivers/usb/printer.c linux-2.4.27-rc3-usbx/drivers/usb/printer.c
+--- linux-2.4.27-rc3/drivers/usb/printer.c	2004-07-25 23:00:17.000000000 -0700
++++ linux-2.4.27-rc3-usbx/drivers/usb/printer.c	2004-07-27 10:28:53.000000000 -0700
+@@ -1,9 +1,9 @@
+ /*
+- * printer.c  Version 0.11
++ * printer.c  Version 0.13
+  *
+  * Copyright (c) 1999 Michael Gee	<michael@linuxspecific.com>
+  * Copyright (c) 1999 Pavel Machek	<pavel@suse.cz>
+- * Copyright (c) 2000 Randy Dunlap	<randy.dunlap@intel.com>
++ * Copyright (c) 2000 Randy Dunlap	<rddunlap@osdl.org>
+  * Copyright (c) 2000 Vojtech Pavlik	<vojtech@suse.cz>
+  # Copyright (c) 2001 Pete Zaitcev	<zaitcev@redhat.com>
+  # Copyright (c) 2001 David Paschal	<paschal@rcsis.com>
+@@ -230,11 +230,21 @@ static DECLARE_MUTEX(usblp_sem);	/* lock
+ 
+ static int usblp_ctrl_msg(struct usblp *usblp, int request, int type, int dir, int recip, int value, void *buf, int len)
+ {
+-	int retval = usb_control_msg(usblp->dev,
++	int retval;
++	int index = usblp->ifnum;
++
++	/* High byte has the interface index.
++	   Low byte has the alternate setting.
++	 */
++	if ((request == USBLP_REQ_GET_ID) && (type == USB_TYPE_CLASS)) {
++	  index = (usblp->ifnum<<8)|usblp->protocol[usblp->current_protocol].alt_setting;
++	}
++
++	retval = usb_control_msg(usblp->dev,
+ 		dir ? usb_rcvctrlpipe(usblp->dev, 0) : usb_sndctrlpipe(usblp->dev, 0),
+-		request, type | dir | recip, value, usblp->ifnum, buf, len, USBLP_WRITE_TIMEOUT);
+-	dbg("usblp_control_msg: rq: 0x%02x dir: %d recip: %d value: %d len: %#x result: %d",
+-		request, !!dir, recip, value, len, retval);
++		request, type | dir | recip, value, index, buf, len, USBLP_WRITE_TIMEOUT);
++	dbg("usblp_control_msg: rq: 0x%02x dir: %d recip: %d value: %d idx: %d len: %#x result: %d",
++		request, !!dir, recip, value, index, len, retval);
+ 	return retval < 0 ? retval : 0;
+ }
+ 

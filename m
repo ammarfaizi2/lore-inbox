@@ -1,54 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264018AbTKLSUS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Nov 2003 13:20:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264055AbTKLSUS
+	id S264128AbTKLSWX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Nov 2003 13:22:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264141AbTKLSWX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Nov 2003 13:20:18 -0500
-Received: from mail3-126.ewetel.de ([212.6.122.126]:23681 "EHLO
-	mail3.ewetel.de") by vger.kernel.org with ESMTP id S264018AbTKLSUP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Nov 2003 13:20:15 -0500
-Date: Wed, 12 Nov 2003 19:20:05 +0100 (CET)
-From: Pascal Schmidt <der.eremit@email.de>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Jens Axboe <axboe@suse.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
-In-Reply-To: <Pine.LNX.4.44.0311111706530.1694-100000@home.osdl.org>
-Message-ID: <Pine.LNX.4.44.0311121910010.983-100000@neptune.local>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-CheckCompat: OK
+	Wed, 12 Nov 2003 13:22:23 -0500
+Received: from continuum.cm.nu ([216.113.193.225]:12162 "EHLO continuum.cm.nu")
+	by vger.kernel.org with ESMTP id S264128AbTKLSWW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Nov 2003 13:22:22 -0500
+Date: Wed, 12 Nov 2003 10:22:19 -0800
+From: Shane Wegner <shane-keyword-kernel.a35a91@cm.nu>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.23 crash on Intel SDS2
+Message-ID: <20031112182219.GA2921@cm.nu>
+References: <Pine.LNX.4.44.0311120857020.14144-100000@logos.cnet> <Pine.LNX.4.44.0311120920220.14144-100000@logos.cnet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0311120920220.14144-100000@logos.cnet>
+X-No-Archive: yes
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 11 Nov 2003, Linus Torvalds wrote:
+On Wed, Nov 12, 2003 at 09:21:59AM -0200, Marcelo Tosatti wrote:
+> > It's an Intel server board model SDS2 with a dual Pentium
+> > III tualatin 1.13ghz.  I am attaching the dmesg output from
+> > the kernel in case it is helpful but as there is no panics
+> > or oops being printed, I am not sure how best I can help
+> > track this down.  If there is anything further I can do or
+> > any other information needed, let me know.
+> 
+> > On node 0 totalpages: 262144
+> > > zone(0): 4096 pages.
+> > zone(1): 225280 pages.
+> > zone(2): 32768 pages.
+> 
+> > What do you (what is your workload) during the few minutes before the
+> > crash?
 
-> Does it work if you change the order of those two things in ide-cd.c (or
-> just remove the call to "cdrom_get_last_written()" entirely, so that it
-> always just does the sane thing).
+It's a database machine running MySQL and Postgres.  The
+MySQL server runs about 4 queries/sec and PostGres only as
+needed.  It also does some minor mail service, say 2
+messages per minute and runs apache at about 10 requests
+per minute.
 
-I've moved the cdrom_read_capacity() to the top of cdrom_read_toc and
-now the capacity gets set correctly and everything seems to work just 
-fine.
+> > There are no significant driver changes in -pre4 that could affect you.
+> > 
+> > Can you please try with mem=900M? I suspect something in the VM changes
+> > might be causing this.
 
-dd to and from the raw device works, as do mke2fs and e2fsck. I could
-also mount the disk read-write, write a 10MB file to it, and umount
-again without problems. Then I rebooted into 2.4 and verified that the
-filesystem is okay and the 10MB file made it to disk correctly.
+Just tried with mem=900m and subsequently mem=850m so as no
+himem pages were available with no effect.  Machine still
+crashed.
 
-Lookin' good so far.
+> Ah, have you tried to boot with "nmi_watchdog=1"  as Mikael suggested?
 
-Now, assuming there is a reason that the cdrom_read_capacity() function
-is only used as a fallback for normal ide-cd devices, my change might
-break non-MO devices. I also don't know what to do when read_capacity
-fails - setting capacity to 0 obviously breaks as we've seen before,
-so maybe setting it to the lowest possible MO size (128M) would be a
-good way to handle that situation.
+Will try that next, thanks.
 
-Jens, what do you think?
-
--- 
-Ciao,
-Pascal
-
+Shane

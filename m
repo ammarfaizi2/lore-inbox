@@ -1,62 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267662AbTAQUjH>; Fri, 17 Jan 2003 15:39:07 -0500
+	id <S261354AbTAQUmB>; Fri, 17 Jan 2003 15:42:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267663AbTAQUjH>; Fri, 17 Jan 2003 15:39:07 -0500
-Received: from natsmtp01.webmailer.de ([192.67.198.81]:2801 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S267662AbTAQUjG>; Fri, 17 Jan 2003 15:39:06 -0500
-Date: Fri, 17 Jan 2003 21:48:58 +0100
-From: Dominik Brodowski <linux@brodo.de>
-To: Jeff Garzik <jgarzik@pobox.com>, rmk@arm.linux.org.uk
-Cc: linux-kernel@vger.kernel.org, kai@tp1.ruhr-uni-bochum.de
-Subject: Re: Initcall / device model meltdown?
-Message-ID: <20030117204858.GA2359@brodo.de>
-References: <20030117193256.GE8304@gtf.org> <3104.1042835842@www5.gmx.net>
+	id <S261529AbTAQUmB>; Fri, 17 Jan 2003 15:42:01 -0500
+Received: from [209.184.141.189] ([209.184.141.189]:54065 "HELO ubergeek")
+	by vger.kernel.org with SMTP id <S261354AbTAQUmA>;
+	Fri, 17 Jan 2003 15:42:00 -0500
+Subject: Two on the kernel.
+From: GrandMasterLee <masterlee@digitalroadkill.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1042836639.1292.16.camel@UberGeek>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3104.1042835842@www5.gmx.net>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 17 Jan 2003 14:50:39 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 17, 2003 at 09:37:22PM +0100, Jeff Garzik wrote:
-> On Fri, Jan 17, 2003 at 07:23:56PM +0000, Russell King wrote:
-> > 1. the device model requires a certain initialisation order.
-> > 2. modules need to use module_init() which means the initialisation order
-> >    is link-order dependent, despite our multi-level initialisation system.
-
-modules don't really need module_init() -- you can use the others, too:
-in include/linux/init.h:
-
-/* Don't use these in modules, but some people do... */
-#define core_initcall(fn)               module_init(fn)
-#define postcore_initcall(fn)           module_init(fn)
-#define arch_initcall(fn)               module_init(fn)
-#define subsys_initcall(fn)             module_init(fn)
-#define fs_initcall(fn)                 module_init(fn)
-#define device_initcall(fn)             module_init(fn)
-#define late_initcall(fn)               module_init(fn)
+Hey all, 
+I've got two issues here. Both issues were seen with 2.4.19aa1. The
+second issue was seen with 2.4.20aa1 also.
 
 
-So it makes sense to use the appropriate initcall level even in files that
-can be compiled as modules, these #defines do their work for you. We should
-update that comment, though.
+1. This message between two linux machines during backup (rsync), across
+GBE:
 
-	Dominik
+"TCP: Treason uncloaked! Peer 10.1.1.40:37859/873 shrinks window
+2430745930:2430747378. Repaired."
+"TCP: Treason uncloaked! Peer 10.1.1.40:37859/873 shrinks window
+2430745930:2430747378. Repaired.
+XFS mounting file"
 
---- linux-original/include/linux/init.h	2003-01-17 16:51:23.000000000 +0100
-+++ linux/include/linux/init.h	2003-01-17 21:46:34.000000000 +0100
-@@ -129,7 +129,10 @@
- 
- #else /* MODULE */
- 
--/* Don't use these in modules, but some people do... */
-+/* Alternatively, you can still use these initcall levels to
-+ * ensure proper initialization order when modularized stuff
-+ * is compiled into the kernel.
-+ */
- #define core_initcall(fn)		module_init(fn)
- #define postcore_initcall(fn)		module_init(fn)
- #define arch_initcall(fn)		module_init(fn)
+I saw some info on LKML archives about this, but no resolution or
+reason. The system reporting the errors has an EEPRO1000 and is
+connected via crossover to a system with embedded BCM5700s. MTU is 9000
+
+2. tar xjvf breaks the machine: Usually black-screens.
+
+When untarring say, bzipped kernel source, though other tars have caused
+this too, the system will get very slow, the untarring will stop, and
+then about 2 - 5 mins later, everything stops. Sometimes this causes a
+black screen, other times, it's just frozen with whatever's on the
+screen. The system must be hard booted for it to recover, usually
+needing to hold the power button down till forced power off too.(5
+seconds)
+
+I thought this might be memory related, so I umounted /dev/shm after a
+reboot, and tried my untar test again. Usually I could untar 2 times
+before the system entered the aforementioned state. I then tried
+2.4.20aa1, and got the same result. I then tried just 2.4.20 + XFS
+patches, and now my system is actually faster at most things than it was
+prior. I'm not sure why.
+
+The system mentioned in #2 is an AMD Athlon-C with 512MB RAM two HDDs a
+CDRW and a DVD-ROM drive. It is 100% XFS and LVM is used for 5 volumes,
+but not / .
+
+Any help with this would be greatly appreciated.
+
+
+
+
+-- 
+GrandMasterLee <masterlee@digitalroadkill.net>

@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318382AbSGRWVI>; Thu, 18 Jul 2002 18:21:08 -0400
+	id <S318428AbSGRWaH>; Thu, 18 Jul 2002 18:30:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318394AbSGRWVI>; Thu, 18 Jul 2002 18:21:08 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:3085 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S318382AbSGRWTm>; Thu, 18 Jul 2002 18:19:42 -0400
-Date: Thu, 18 Jul 2002 19:22:17 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Szakacsits Szabolcs <szaka@sienet.hu>
-cc: Robert Love <rml@tech9.net>, <linux-mm@kvack.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] strict VM overcommit for stock 2.4
-In-Reply-To: <Pine.LNX.4.30.0207181930170.30902-100000@divine.city.tvnet.hu>
-Message-ID: <Pine.LNX.4.44L.0207181921500.12241-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S318427AbSGRWaH>; Thu, 18 Jul 2002 18:30:07 -0400
+Received: from [203.24.179.114] ([203.24.179.114]:59407 "HELO aimedics.com")
+	by vger.kernel.org with SMTP id <S318428AbSGRWaG> convert rfc822-to-8bit;
+	Thu, 18 Jul 2002 18:30:06 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: nejhdeh <nejhdeh@aimedics.com>
+Organization: AiMedics Pty. Ltd.
+To: linux-kernel@vger.kernel.org
+Subject: Basic question
+Date: Fri, 19 Jul 2002 08:31:55 +1000
+User-Agent: KMail/1.4.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200207190831.55757.nejhdeh@aimedics.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Jul 2002, Szakacsits Szabolcs wrote:
-> On Thu, 18 Jul 2002, Szakacsits Szabolcs wrote:
-> > And my point (you asked for comments) was that, this is only (the
-> > harder) part of the solution making Linux a more reliable (no OOM
-> > killing *and* root always has the control) and cost effective platform
-> > (no need for occasionally very complex and continuous resource limit
-> > setup/adjusting, especially for inexpert home/etc users).
->
-> Ahh, I figured out your target, embedded devices. Yes it's good for
-> that but not enough for general purpose.
+Hi,
 
-However, you NEED this patch in order to implement something
-that is good enough for general purpose (ie. per-user resource
-accounting).
+Thanks to your reply erlier. I successfult compiled my device driver separatly 
+as module.o and then ran a script to insmod into the kernel.
 
-regards,
+I have another basic question.
 
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
+I have two PC systems. First one acts as my development system which I 
+develope code using KDevelop running Red Hat linux (2.4.18). When I compile 
+my application code (say app.0) and my device driver code (say module.o) then 
+I FTP these files into my target system which is a scalled down single-board 
+computer (with minimal RAM and disk) which runs linux 2.2.20.
 
-http://www.surriel.com/		http://distro.conectiva.com/
+Most of the time everything is O.K. However, when it comes to the device 
+driver module (module.o), I get some kernel mismatch problems (obvisouly).
+
+E.g. the file_operations struct in 2.2.20 is different to 2.4.18
+
+My question is: How can I tell gcc or even within the module itself (e.g. 
+KERNEL_VERSION) to compile for lower version kernel (i.e tell kernel 2.4.18 
+to compile for 2.2.20)
+
+Regards
+
+Nejhdeh Ghevondian
 

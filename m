@@ -1,42 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261552AbSJCBub>; Wed, 2 Oct 2002 21:50:31 -0400
+	id <S262716AbSJCCEd>; Wed, 2 Oct 2002 22:04:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262716AbSJCBub>; Wed, 2 Oct 2002 21:50:31 -0400
-Received: from dp.samba.org ([66.70.73.150]:7895 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S261552AbSJCBub>;
-	Wed, 2 Oct 2002 21:50:31 -0400
-Date: Thu, 3 Oct 2002 11:24:57 +1000
-From: David Gibson <hermes@gibson.dropbear.id.au>
-To: Paul Larson <plars@linuxtestproject.org>
-Cc: pee@erkkila.org, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: compile failure in orinoco_cs.c (from bk pull)
-Message-ID: <20021003012457.GF1102@zax>
-Mail-Followup-To: David Gibson <hermes@gibson.dropbear.id.au>,
-	Paul Larson <plars@linuxtestproject.org>, pee@erkkila.org,
-	lkml <linux-kernel@vger.kernel.org>
-References: <3D9B689B.2040807@erkkila.org> <1033595826.11325.11.camel@plars>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1033595826.11325.11.camel@plars>
-User-Agent: Mutt/1.4i
+	id <S262717AbSJCCEd>; Wed, 2 Oct 2002 22:04:33 -0400
+Received: from modemcable061.219-201-24.mtl.mc.videotron.ca ([24.201.219.61]:36764
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S262716AbSJCCEd>; Wed, 2 Oct 2002 22:04:33 -0400
+Date: Wed, 2 Oct 2002 20:58:51 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Andrew Morton <akpm@digeo.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Oops on 2.5.40, flush_tlb_mm
+In-Reply-To: <3D9BA086.76B60194@digeo.com>
+Message-ID: <Pine.LNX.4.44.0210022057550.14293-100000@montezuma.mastecende.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 02, 2002 at 04:57:06PM -0500, Paul Larson wrote:
-> On Wed, 2002-10-02 at 16:43, Paul E. Erkkila wrote:
-> > The orinoco_cs.c wireless driver no longer compiles after yesterdays
-> > tree changes.
-> I think you posted this simultaneous to someone posting a patch for it.
-> Basically just remove the #include <linux/tqueue.h> line and all should
-> be good.
+On Wed, 2 Oct 2002, Andrew Morton wrote:
 
-Bah!  No sooner do I include tqueue.h to fix compile problems than it
-disappears ;-/
+> You need Hugh's patch.  Was sent to Linus yesterday...
+
+Oh, thanks, sucks being in the dark like this :/
+
+> 
+> Patch from Hugh Dickins
+> 
+> Our earlier fix for mprotect_fixup was broken - passing an
+> already-freed VMA to change_protection().
+> 
+> 
+> 
+>  mm/mprotect.c |    4 +++-
+>  1 files changed, 3 insertions(+), 1 deletion(-)
+> 
+> --- 2.5.40/mm/mprotect.c~hugh-mprotect-fix	Tue Oct  1 23:43:14 2002
+> +++ 2.5.40-akpm/mm/mprotect.c	Tue Oct  1 23:43:14 2002
+> @@ -186,8 +186,10 @@ mprotect_fixup(struct vm_area_struct *vm
+>  		/*
+>  		 * Try to merge with the previous vma.
+>  		 */
+> -		if (mprotect_attempt_merge(vma, *pprev, end, newflags))
+> +		if (mprotect_attempt_merge(vma, *pprev, end, newflags)) {
+> +			vma = *pprev;
+>  			goto success;
+> +		}
+>  	} else {
+>  		error = split_vma(mm, vma, start, 1);
+>  		if (error)
+> 
+> .
+> 
 
 -- 
-David Gibson			| For every complex problem there is a
-david@gibson.dropbear.id.au	| solution which is simple, neat and
-				| wrong.
-http://www.ozlabs.org/people/dgibson
+function.linuxpower.ca
+

@@ -1,78 +1,176 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265791AbTAOP0K>; Wed, 15 Jan 2003 10:26:10 -0500
+	id <S266627AbTAOP3M>; Wed, 15 Jan 2003 10:29:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266006AbTAOP0K>; Wed, 15 Jan 2003 10:26:10 -0500
-Received: from holomorphy.com ([66.224.33.161]:34187 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S265791AbTAOP0I>;
-	Wed, 15 Jan 2003 10:26:08 -0500
-Date: Wed, 15 Jan 2003 07:34:53 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 48GB NUMA-Q boots, with major IO-APIC hassles
-Message-ID: <20030115153453.GK919@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org
-References: <20030115105802.GQ940@holomorphy.com> <840980000.1042644279@titus>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <840980000.1042644279@titus>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S266637AbTAOP3L>; Wed, 15 Jan 2003 10:29:11 -0500
+Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:39067 "EHLO
+	epoch.ncsc.mil") by vger.kernel.org with ESMTP id <S266627AbTAOP3E>;
+	Wed, 15 Jan 2003 10:29:04 -0500
+Message-Id: <200301151544.KAA17539@moss-shockers.ncsc.mil>
+Date: Wed, 15 Jan 2003 10:44:52 -0500 (EST)
+From: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
+Reply-To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
+Subject: Re: [RFC] Changes to the LSM file-related hooks for 2.5.58
+To: ak@muc.de
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       linux-security-module@wirex.com, viro@math.psu.edu, sds@epoch.ncsc.mil
+MIME-Version: 1.0
+Content-Type: TEXT/plain; charset=us-ascii
+Content-MD5: /Mjw1bBEGtPmtGuIQo/F6g==
+X-Mailer: dtmail 1.2.0 CDE Version 1.2 SunOS 5.6 sun4u sparc 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At some point in the past, I wrote:
->> (2) MAX_IO_APIC's got clobbered in the subarch cleanups.
->> 	-- CONFIG_X86_NUMA was removed, use CONFIG_X86_NUMAQ
->> 	-- this is greppable, folks...
 
-On Wed, Jan 15, 2003 at 07:24:40AM -0800, Martin J. Bligh wrote:
-> That wasn't the subarch cleanups that removed it, please be careful
-> what you're saying. I plead not guilty to that one.
+"Andi Kleen" <ak@muc.de> writes:
+> Adding release_private_file requires fixing all code that uses 
+> init_private_file (including possible third party code). Otherwise
+> you have some subtle leak. It would better to rename init_private_file to
+> some other name and add appropiate comments so that this can be catched 
+> easily at compile time.
 
-Eh? You aren't doing all of them. I think we both know who did this
-one (with good intentions, even).
+Thanks for the suggestion.  I've split out this logical change into a
+separate patch and reworked it in accordance with your suggestion.  See
+below.  Let me know if this does not address your concern.
+
+ fs/exportfs/expfs.c |    5 ++---
+ fs/file_table.c     |   33 ++++++++++++++++++++++++++-------
+ fs/nfsd/vfs.c       |    5 ++---
+ include/linux/fs.h  |    5 ++++-
+ kernel/ksyms.c      |    3 ++-
+ 5 files changed, 36 insertions(+), 15 deletions(-)
+-----
+
+===== fs/file_table.c 1.16 vs edited =====
+--- 1.16/fs/file_table.c	Tue Nov 26 14:29:39 2002
++++ edited/fs/file_table.c	Wed Jan 15 09:39:17 2003
+@@ -93,11 +93,13 @@
+ 
+ /*
+  * Clear and initialize a (private) struct file for the given dentry,
+- * and call the open function (if any).  The caller must verify that
+- * inode->i_fop is not NULL.
++ * allocate the security structure, and call the open function (if any).  The 
++ * caller must verify that inode->i_fop is not NULL.  The file should
++ * be released using close_private_file.
+  */
+-int init_private_file(struct file *filp, struct dentry *dentry, int mode)
++int open_private_file(struct file *filp, struct dentry *dentry, int mode)
+ {
++	int error;
+ 	memset(filp, 0, sizeof(*filp));
+ 	eventpoll_init_file(filp);
+ 	filp->f_mode   = mode;
+@@ -106,10 +108,27 @@
+ 	filp->f_uid    = current->fsuid;
+ 	filp->f_gid    = current->fsgid;
+ 	filp->f_op     = dentry->d_inode->i_fop;
+-	if (filp->f_op->open)
+-		return filp->f_op->open(dentry->d_inode, filp);
+-	else
+-		return 0;
++	error = security_file_alloc(filp);
++	if (!error)
++		if (filp->f_op->open) {
++			error = filp->f_op->open(dentry->d_inode, filp);
++			if (error)
++				security_file_free(filp);
++		}
++	return error;
++}
++
++/*
++ * Release a private file by calling the release function (if any) and
++ * freeing the security structure.
++ */
++void close_private_file(struct file *file)
++{
++	struct inode * inode = file->f_dentry->d_inode;
++
++	if (file->f_op && file->f_op->release)
++		file->f_op->release(inode, file);
++	security_file_free(file);
+ }
+ 
+ void fput(struct file * file)
+===== fs/exportfs/expfs.c 1.9 vs edited =====
+--- 1.9/fs/exportfs/expfs.c	Thu Oct 10 19:07:34 2002
++++ edited/fs/exportfs/expfs.c	Wed Jan 15 09:38:53 2003
+@@ -353,7 +353,7 @@
+ 	/*
+ 	 * Open the directory ...
+ 	 */
+-	error = init_private_file(&file, dentry, FMODE_READ);
++	error = open_private_file(&file, dentry, FMODE_READ);
+ 	if (error)
+ 		goto out;
+ 	error = -EINVAL;
+@@ -381,8 +381,7 @@
+ 	}
+ 
+ out_close:
+-	if (file.f_op->release)
+-		file.f_op->release(dir, &file);
++	close_private_file(&file);
+ out:
+ 	return error;
+ }
+===== fs/nfsd/vfs.c 1.55 vs edited =====
+--- 1.55/fs/nfsd/vfs.c	Fri Jan 10 20:00:12 2003
++++ edited/fs/nfsd/vfs.c	Wed Jan 15 09:39:35 2003
+@@ -468,7 +468,7 @@
+ 		DQUOT_INIT(inode);
+ 	}
+ 
+-	err = init_private_file(filp, dentry, mode);
++	err = open_private_file(filp, dentry, mode);
+ 	if (!err) {
+ 		filp->f_flags = flags;
+ 		filp->f_vfsmnt = fhp->fh_export->ex_mnt;
+@@ -491,8 +491,7 @@
+ 	struct dentry	*dentry = filp->f_dentry;
+ 	struct inode	*inode = dentry->d_inode;
+ 
+-	if (filp->f_op->release)
+-		filp->f_op->release(inode, filp);
++	close_private_file(filp);
+ 	if (filp->f_mode & FMODE_WRITE)
+ 		put_write_access(inode);
+ }
+===== include/linux/fs.h 1.210 vs edited =====
+--- 1.210/include/linux/fs.h	Wed Jan  8 15:37:23 2003
++++ edited/include/linux/fs.h	Wed Jan 15 09:41:28 2003
+@@ -492,7 +492,10 @@
+ #define get_file(x)	atomic_inc(&(x)->f_count)
+ #define file_count(x)	atomic_read(&(x)->f_count)
+ 
+-extern int init_private_file(struct file *, struct dentry *, int);
++/* Initialize and open a private file and allocate its security structure. */
++extern int open_private_file(struct file *, struct dentry *, int);
++/* Release a private file and free its security structure. */
++extern void close_private_file(struct file *file);
+ 
+ #define	MAX_NON_LFS	((1UL<<31) - 1)
+ 
+===== kernel/ksyms.c 1.178 vs edited =====
+--- 1.178/kernel/ksyms.c	Mon Jan 13 04:24:04 2003
++++ edited/kernel/ksyms.c	Wed Jan 15 09:41:47 2003
+@@ -179,7 +179,8 @@
+ EXPORT_SYMBOL(end_buffer_io_sync);
+ EXPORT_SYMBOL(__mark_inode_dirty);
+ EXPORT_SYMBOL(get_empty_filp);
+-EXPORT_SYMBOL(init_private_file);
++EXPORT_SYMBOL(open_private_file);
++EXPORT_SYMBOL(close_private_file);
+ EXPORT_SYMBOL(filp_open);
+ EXPORT_SYMBOL(filp_close);
+ EXPORT_SYMBOL(put_filp);
 
 
-At some point in the past, I wrote:
->> (4) PCI bridges get misnumbered children.
->> 	-- Brew up a PCI hook for giving child buses their bus numbers.
->> 	-- Basically, fwd port mbligh's fix for 2.4.x more cleanly.
->> 	-- Okay, not IO-APIC-related, but it annoys me greatly.
->> 	-- ink is at least trying to steer me in the right direction here.
-
-On Wed, Jan 15, 2003 at 07:24:40AM -0800, Martin J. Bligh wrote:
-> Additional PCI-PCI bridges (eg starfire cards) have never been supported 
-> in non-boot quads. It's not impossible, but don't be suprised if it 
-> doesn't work.
-
-It should be fine once the bus numbering, io resources, and IO-APIC's
-are dealt with. The bus numbering stuff is out there, io resource stuff
-is an open question, and IO-APIC stuff looks uglier than sin (as usual).
-Basically, a good chunk of rotorooting appears to be necessary to
-assign deal with a number of IRQ sources large enough to make
-assign_irq_vector() wrap current_vector, possibly something as
-invasive as supporting non-unique vectors for irq_desc's.
 
 
-At some point in the past, I wrote:
->> (5) Booting with notsc panic()'s.
->> 	-- Remove tsc_disable assignment in the __setup() call.
->> 	-- I'd be much obliged if the SMP TSC issues were at long
->> 	-- last conclusively dealt with. Not IO-APIC-related either,
->> 	-- but also very annoying.
 
-On Wed, Jan 15, 2003 at 07:24:40AM -0800, Martin J. Bligh wrote:
-> You don't have PIT support compiled in, and you turned off TSC support,
-> leaving yourself with no timer. There's a patch in my tree to force on
-> PIT support for NUMA-Q.
+--
+Stephen Smalley, NSA
+sds@epoch.ncsc.mil
 
-Sounds like a conclusive answer to the TSC for me.
-
-
-Cheers,
-Bill

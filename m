@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135785AbRAHSBf>; Mon, 8 Jan 2001 13:01:35 -0500
+	id <S135538AbRAHSCz>; Mon, 8 Jan 2001 13:02:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135990AbRAHSBP>; Mon, 8 Jan 2001 13:01:15 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:41972 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S135785AbRAHSBI>; Mon, 8 Jan 2001 13:01:08 -0500
-Date: Mon, 8 Jan 2001 16:00:45 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: "Sergey E. Volkov" <sve@raiden.bancorp.ru>
-cc: linux-kernel@vger.kernel.org, Christoph Rohland <cr@sap.com>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: VM subsystem bug in 2.4.0 ?
-In-Reply-To: <3A597E77.FF3011DD@raiden.bancorp.ru>
-Message-ID: <Pine.LNX.4.21.0101081550590.21675-100000@duckman.distro.conectiva>
+	id <S136199AbRAHSCp>; Mon, 8 Jan 2001 13:02:45 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:13836 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S136080AbRAHSCj>; Mon, 8 Jan 2001 13:02:39 -0500
+Date: Mon, 8 Jan 2001 10:02:12 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Subtle MM bug
+In-Reply-To: <Pine.LNX.4.21.0101081518530.21675-100000@duckman.distro.conectiva>
+Message-ID: <Pine.LNX.4.10.10101080958440.3750-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Jan 2001, Sergey E. Volkov wrote:
 
-> I have a problem with 2.4.0
+
+On Mon, 8 Jan 2001, Rik van Riel wrote:
 > 
-> I'm testing Informix IIF-2000 database server running on dual
-> Intel Pentium II - 233. When I run 'make -j30 bzImage' in the
-> kernel source, my Linux box hangs without any messages.
+> You are right in that we need to refill the inactive list
+> before calling page_launder(), but we'll also need a few
+> other modifications:
 
-> Informix allocate about to 50% of memory as LOCKED shared memory
-> segments.  I'm thinking the reason in this. Kernel wants, but
-> can't to swap out locked shm's segments.
+NONE of your three additions do _anything_ to help us at all if we don't
+even see the dirty bit because the page is on the active list and the
+dirty bit is in somebodys VM space.
 
-You are right. I have seen this bug before with the kernel
-moving unswappable pages from the active list to the
-inactive_dirty list and back.
+I agree that they look ok, but they are all complicating the code. I
+propose getting rid of complications, and getting rid of the precarious
+"when do we actually scan the VM tables" balancing issue.
 
-We need a check in deactivate_page() to prevent the kernel
-from moving pages from locked shared memory segments to the
-inactive_dirty list.
+Quite frankly, I'd rather see somebody try the vmscan stuff FIRST. Your
+suggestions look fine, but apart from the "let dirty pages go twice
+through the list" they look like tweaks that would need re-tweaking after
+the balancing stuff is ripped out.
 
-Christoph?  Linus?
-
-regards,
-
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
+		Linus
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,64 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263072AbREWMgp>; Wed, 23 May 2001 08:36:45 -0400
+	id <S263422AbREXI6o>; Thu, 24 May 2001 04:58:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263073AbREWMgf>; Wed, 23 May 2001 08:36:35 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:3593 "EHLO mail.stock-world.de")
-	by vger.kernel.org with ESMTP id <S263072AbREWMgV>;
-	Wed, 23 May 2001 08:36:21 -0400
-Message-ID: <3B0BAE83.24DCBFC4@evision-ventures.com>
-Date: Wed, 23 May 2001 14:35:15 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en, de
+	id <S263425AbREXI6f>; Thu, 24 May 2001 04:58:35 -0400
+Received: from zeus.kernel.org ([209.10.41.242]:45209 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S263427AbREXI6V>;
+	Thu, 24 May 2001 04:58:21 -0400
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200105222010.f4MKAWZk011755@webber.adilger.int>
+Subject: Re: Why side-effects on open(2) are evil. (was Re: [RFD  w/info-PATCH]device
+ arguments from lookup)
+In-Reply-To: <Pine.LNX.4.33.0105221311430.1296-100000@lustre.us.mvd>
+ "from Peter J. Braam at May 22, 2001 01:16:42 pm"
+To: "Peter J. Braam" <braam@mountainviewdata.com>
+Date: Tue, 22 May 2001 14:10:32 -0600 (MDT)
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        Andreas Dilger <adilger@turbolinux.com>,
+        Alexander Viro <viro@math.psu.edu>, Edgar Toernig <froese@gmx.de>,
+        Ben LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL87 (25)]
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Jeff Garzik <jgarzik@mandrakesoft.com>, Andries.Brouwer@cwi.nl,
-        linux-kernel@vger.kernel.org, viro@math.psu.edu, axboe@suse.de
-Subject: Re: [PATCH] struct char_device
-In-Reply-To: <Pine.LNX.4.21.0105221938080.4713-100000@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+Peter Braam writes:
+> On Tue, 22 May 2001, Andreas Dilger wrote:
+> > Actually, the LVM snapshot
+> > interface has (optional) hooks into the filesystem to ensure that it
+> > is consistent at the time the snapshot is created.
 > 
-> On Tue, 22 May 2001, Jeff Garzik wrote:
-> >
-> > IMHO it would be nice to (for 2.4) create wrappers for accessing the
-> > block arrays, so that we can more easily dispose of the arrays when 2.5
-> > rolls around...
-> 
-> No.
-> 
-> We do not create wrappers "so that we can easily change the implementation
-> when xxx happens".
-> 
-> That way lies bad implementations.
+> File system journal recovery can corrupt a snapshot, because it copies
+> data that needs to be preserved in a snapshot. During journal replay such
+> data may be copied again, but the source can have new data already.
 
-However Linus please note that in the case of the bould arrays
-used in device handling code we have code patterns like this:
+The way it is implemented in reiserfs is to wait for existing transactions
+to complete, entirely flush the journal and block all new transactions from
+starting.  Stephen implemented a journal flush API to do this for ext3, but
+the hooks to call it from LVM are not in place yet.  This way the journal is
+totally empty at the time the snapshot is done, so the read-only copy does
+not need to do journal recovery, so no problems can arise.
 
-	if (blah[major]) {
-		size = blah[major][minor]
-	} else
-		size = some default;
-
-And those have to by dragged throughout the whole places where
-the arrays get used. Thus making some wrappers (many are already in
-place):
-
-1. Prevents typo kind of programming errors.
-
-2. Possibly make the code more explicit.
-
-and please don't forget:
-
-3. Allows to change the underlying implementation in some soon point in
-time.
-
-However I agree that *without* the above arguments such kind of wrappers
-would make the overall code as unreadable as C++ code frequently is,
-which
-tryies to preserve private: attributes at simple field cases..
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

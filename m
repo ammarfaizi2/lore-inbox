@@ -1,83 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131803AbQLHWzk>; Fri, 8 Dec 2000 17:55:40 -0500
+	id <S132050AbQLHWzU>; Fri, 8 Dec 2000 17:55:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132049AbQLHWza>; Fri, 8 Dec 2000 17:55:30 -0500
-Received: from mail-03-real.cdsnet.net ([63.163.68.110]:58122 "HELO
-	mail-03-real.cdsnet.net") by vger.kernel.org with SMTP
-	id <S131803AbQLHWzO>; Fri, 8 Dec 2000 17:55:14 -0500
-Message-ID: <3A315867.942F4EE9@mvista.com>
-Date: Fri, 08 Dec 2000 13:53:43 -0800
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Mike Kravetz <mkravetz@sequent.com>
-CC: "linux-kernel@vger.redhat.com" <linux-kernel@vger.kernel.org>,
-        Andrew Morton <andrewm@uow.edu.au>
-Subject: Re: Lock ordering, inquiring minds want to know.
-In-Reply-To: <3A301826.B483D19D@mvista.com> <20001207175336.A15623@w-mikek.des.sequent.com>
+	id <S132049AbQLHWzC>; Fri, 8 Dec 2000 17:55:02 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:3282 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S131803AbQLHWy4>;
+	Fri, 8 Dec 2000 17:54:56 -0500
+Date: Fri, 8 Dec 2000 14:24:27 -0800
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, "David S . Miller" <davem@redhat.com>,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: GlobeCom 2000 -> Networking papers
+Message-ID: <20001208142427.C26305@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Kravetz wrote:
-> 
-> George,
-> 
-> I can't answer your question.  However, have  you noticed that this
-> lock ordering has changed in the test11 kernel.  The new sequence is:
-> 
->         read_lock_irq(&tasklist_lock);
->         spin_lock(&runqueue_lock);
-> 
-> Perhaps the person who made this change could provide their reasoning.
-> 
-> An additional question I have is:  Is it really necessary to hold
-> the runqueue lock (with interrupts disabled) for as long as we do
-> in this routine (setscheduler())?  I suspect we only need the
-> tasklist_lock while calling find_process_by_pid().  Isn't it
-> possible to do the error checking (parameter validation) with just
-> the tasklist_lock held?  Seems that we would only need to acquire
-> the runqueue_lock (and disable interrupts) if we are in fact
-> changing the task's scheduling policy.
+	Hi,
 
-Yes, I think this is true.  The runqueue_lock should only be needed
-after the error checks.  Still, the error checks don't take all that
-long...
+	I was a GlobeCom 2 weeks ago, and I noticed a few articles
+relevant to Linux networking that you might be interested in
+reading...
 
-George
-> -
-> Mike
-> 
-> On Thu, Dec 07, 2000 at 03:07:18PM -0800, george anzinger wrote:
-> > In looking over sched.c I find:
-> >
-> >       spin_lock_irq(&runqueue_lock);
-> >       read_lock(&tasklist_lock);
-> >
-> >
-> > This seems to me to be the wrong order of things.  The read lock
-> > unavailable (some one holds a write lock) for relatively long periods of
-> > time, for example, wait holds it in a while loop.  On the other hand the
-> > runqueue_lock, being a "irq" lock will always be held for short periods
-> > of time.  It would seem better to wait for the runqueue lock while
-> > holding the read_lock with the interrupts on than to wait for the
-> > read_lock with interrupts off.  As near as I can tell this is the only
-> > place in the system that both of these locks are held (of course, all
-> > cases of two locks being held at the same time, both locker must use the
-> > same order).  So...
-> >
-> >
-> > What am I missing here?
-> >
-> > George
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+On ECN :
+------
+	Archan Misra, John Baras & Teunis Ott. Generalised TCP
+Congestion Avoidance and its Effect on Bandwidth Sharing and
+Variability. GlobeCom 2000 (GI2b-2).
+	The response to an ECN by the end node should not be as
+drastic as to a packet loss (divide window by two) to make traffic
+smoother. Can't find paper on the web, but they have the full PhD
+Dissertation :
+		http://www.isr.umd.edu/TechReports/CSHCN/2000/CSHCN_PhD_2000-1/CSHCN_PhD_2000-1.pdf
+
+	Srisankar Kunniyur & R. Srikant. A Decentralised Adaptive ECN
+Marking Algorithm.
+	How to optiomally mark packets with ECN in the routers. Good,
+but fail to address cohexistence problem (mix of ECN and non ECN
+traffic). Available at :
+		http://www.comm.csl.uiuc.edu/~kunniyur/research.html
+
+On Header compression :
+---------------------
+	Lars-Ake Larzon, Hans Hannu, Lars-Erik Jonsson, Krister
+Svanbro. Efficient Transport of Voice over IP over Cellular Links.
+	Describes ROCCO, a RTP robust header compression scheme. No
+paper available, but the IETF working group has more recent work :
+		http://www.ietf.org/ids.by.wg/rohc.html
+
+	My personal comment : It would be nice if someone would allow
+the use of those header compression schemes (ROCCO as well as regular
+VJ) over regular Ethernet adapters and not only within PPP.
+	The reason is that IP over IrDA (IrLAN) and IP over BlueTooth
+(PAN) use Ethernet encapsulation, and don't use PPP. 802.11 and other
+wireless LANs use regular Ethernet frames natively. All those
+technologies, due to their low bandwidth, could make good use of it...
+
+	Have fun...
+
+	Jean
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,72 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261678AbUKOUDS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261673AbUKOUDU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261678AbUKOUDS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Nov 2004 15:03:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261677AbUKOUCu
+	id S261673AbUKOUDU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Nov 2004 15:03:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261682AbUKOUCa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Nov 2004 15:02:50 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:29928 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S261678AbUKOT4T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Nov 2004 14:56:19 -0500
-Date: Mon, 15 Nov 2004 13:55:52 -0600
-From: Robin Holt <holt@sgi.com>
-To: linux-kernel@vger.kernel.org
-Cc: dev@sw.ru, wli@holomorphy.com, steiner@sgi.com, sandeen@sgi.com
-Subject: 21 million inodes is causing severe pauses.
-Message-ID: <20041115195551.GA15380@lnx-holt.americas.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Mon, 15 Nov 2004 15:02:30 -0500
+Received: from fire.osdl.org ([65.172.181.4]:54722 "EHLO fire-1.osdl.org")
+	by vger.kernel.org with ESMTP id S261673AbUKOTzb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Nov 2004 14:55:31 -0500
+Message-ID: <419906BB.9080405@osdl.org>
+Date: Mon, 15 Nov 2004 11:42:51 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: lkml <linux-kernel@vger.kernel.org>, ak@suse.de, discuss@x86-64.org
+Subject: [PATCH] x8664 hpet: fix function warning
+Content-Type: multipart/mixed;
+ boundary="------------020705000704080309000604"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------020705000704080309000604
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-The subject line is a little deceiving.  That number comes from using
-XFS on a 2.4 kernel.  With a 2.6 kernel, we see problems similar to the
-ones we are experiencing on 2.4, only less severe.
 
-Digging into this some more, we determined the problem is the large number
-of inodes and dentry items held.  For a machine with 32GB of memory and
-8 cpus doing build type activity, we have found it stabilizes at between
-2 and 8 million entries.
+put function prototype outside of #ifdef block, to fix:
+arch/x86_64/kernel/time.c:941: warning: implicit declaration of
+function `oem_force_hpet_timer'
 
-One significant problem we are running into is autofs trying to umount the
-file systems.  This results in the umount grabbing the BKL and inode_lock,
-holding it while it scans through the inode_list and others looking for
-inodes used by this super block and attempting to free them.
+diffstat:=
+   include/asm-x86_64/hpet.h |    2 +-
+   1 files changed, 1 insertion(+), 1 deletion(-)
 
-We patched a SLES9 kernel with the patch found in the -mm tree which
-attempts to address this problem by linking inodes off the sb structure.
-This does make the umount somewhat quicker, but on a busy nfs mounted
-filesystem, the BKL and inode_lock do still get in the way causing
-frequent system pauses on the order of seconds.  This is on a SLES9
-kernel which we just put into a test production environment last Thursday.
-By 8:00 AM Friday, the system was unusable.
+Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
+-- 
 
-Additionally, we experience NULL pointer dereferences during
-remove_inode_buffers.  I have not looked for additional patches in the
--mm tree to address that problem.
 
-While discussing this in the hallway, we have come up with a few possible
-alternatives.
+--------------020705000704080309000604
+Content-Type: text/x-patch;
+ name="hpet_force.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="hpet_force.patch"
 
-1) Have the dentry and inode sizes limited on a per sb basis
-   with a mount option as an override for the default setting.
+diff -Naurp ./include/asm-x86_64/hpet.h~hpet_force ./include/asm-x86_64/hpet.h
+--- ./include/asm-x86_64/hpet.h~hpet_force	2004-11-15 10:02:01.442748048 -0800
++++ ./include/asm-x86_64/hpet.h	2004-11-15 10:51:53.284918904 -0800
+@@ -46,6 +46,7 @@
+ 
+ extern int is_hpet_enabled(void);
+ extern int hpet_rtc_timer_init(void);
++extern int oem_force_hpet_timer(void);
+ 
+ #ifdef CONFIG_HPET_EMULATE_RTC
+ extern int hpet_mask_rtc_irq_bit(unsigned long bit_mask);
+@@ -54,7 +55,6 @@ extern int hpet_set_alarm_time(unsigned 
+ extern int hpet_set_periodic_freq(unsigned long freq);
+ extern int hpet_rtc_dropped_irq(void);
+ extern int hpet_rtc_timer_init(void);
+-extern int oem_force_hpet_timer(void);
+ #endif /* CONFIG_HPET_EMULATE_RTC */
+ 
+ #endif
 
-2) Have the vfs limit dentry and inode cache sizes based on
-   slab usage (ie, nfs, ext2, and xfs slab sizes are limited independently
-   of each other.
 
-3) Have the vfs limit it based on total inode_list entries.
-
-We are not sure which if any is the right direction to go at this time.
-We are only hoping to start a discussion.  Any guidance would be
-appreciated.
-
-Thank you,
-Robin Holt
-
-PS:  The patch referred to above is:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=109474397830096&w=2
+--------------020705000704080309000604--

@@ -1,63 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262866AbUCWVry (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Mar 2004 16:47:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262881AbUCWVry
+	id S262887AbUCWVqv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Mar 2004 16:46:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262886AbUCWVqv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Mar 2004 16:47:54 -0500
-Received: from fw.osdl.org ([65.172.181.6]:30434 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262866AbUCWVrq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Mar 2004 16:47:46 -0500
-Date: Tue, 23 Mar 2004 13:47:45 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Daniel McNeil <daniel@osdl.org>
-Cc: mason@suse.com, linux-kernel@vger.kernel.org, linux-aio@kvack.org
-Subject: Re: 2.6.5-rc1-mm2 and direct_read_under and wb
-Message-Id: <20040323134745.37c3e847.akpm@osdl.org>
-In-Reply-To: <1080077881.2410.18.camel@ibm-c.pdx.osdl.net>
-References: <20040314172809.31bd72f7.akpm@osdl.org>
-	<20040317155111.49d09a87.akpm@osdl.org>
-	<1079568387.4186.1964.camel@watt.suse.com>
-	<20040317161338.28b21c35.akpm@osdl.org>
-	<1079569870.4186.1967.camel@watt.suse.com>
-	<20040317163332.0385d665.akpm@osdl.org>
-	<1079572511.6930.5.camel@ibm-c.pdx.osdl.net>
-	<1079632431.6930.30.camel@ibm-c.pdx.osdl.net>
-	<1079635678.4185.2100.camel@watt.suse.com>
-	<1079637004.6930.42.camel@ibm-c.pdx.osdl.net>
-	<1079714990.6930.49.camel@ibm-c.pdx.osdl.net>
-	<1079715901.6930.52.camel@ibm-c.pdx.osdl.net>
-	<1079879799.11062.348.camel@watt.suse.com>
-	<1079979016.6930.62.camel@ibm-c.pdx.osdl.net>
-	<1079980512.11058.524.camel@watt.suse.com>
-	<1079981473.6930.71.camel@ibm-c.pdx.osdl.net>
-	<20040322151312.6b629736.akpm@osdl.org>
-	<1080003067.6930.78.camel@ibm-c.pdx.osdl.net>
-	<20040323012514.7670f622.akpm@osdl.org>
-	<1080061501.6930.84.camel@ibm-c.pdx.osdl.net>
-	<20040323095953.72786ccc.akpm@osdl.org>
-	<1080077881.2410.18.camel@ibm-c.pdx.osdl.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 23 Mar 2004 16:46:51 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:64240 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S262882AbUCWVpr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Mar 2004 16:45:47 -0500
+Message-ID: <4060B005.4020804@mvista.com>
+Date: Tue, 23 Mar 2004 13:45:41 -0800
+From: George Anzinger <george@mvista.com>
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andi Kleen <ak@muc.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]Call frame debug info for 2.6 kernel
+References: <1AR5s-75I-27@gated-at.bofh.it> <1CHY0-1Uw-9@gated-at.bofh.it> <m3n0685nfp.fsf@averell.firstfloor.org>
+In-Reply-To: <m3n0685nfp.fsf@averell.firstfloor.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel McNeil <daniel@osdl.org> wrote:
->
->  It looks like every place wbc->nonblocking is set to 1, sync_mode
->  is set to WB_SYNC_NONE, but there are places where WB_SYNC_NONE is
->  used and nonblocking is NOT set: 
->  	balance_dirty_pages()
->  	try_to_unuse()
+Andi Kleen wrote:
+> George Anzinger <george@mvista.com> writes:
 > 
->  So your patch makes balance_dirty_pages() do the lock_buffer()
->  in __block_write_full_page() instead of skipping and redirtying
->  the page.
 > 
->  I just making sure I understand.
->  So, WB_SYNC_ALL and nonblocking=1 should never be used?
+>>This patch adds call frame debug record generation for entry.S frames.
+> 
+> 
+> [...]
+> 
+> Sorry, but that's quite ugly and will be hard to maintain (kinda like
+> maintaining an own assembler on your own) I think it would be far
+> better to require recent binutils for DEBUG_INFO builds and use the
+> .cfi_* mnemonics. They make dwarf2 code *much* simpler and cleaner.
+> 
+> Overall I think it's a good idea to add full dwarf2 annotation to
+> the i386 kernel, but not without assembler please.
 
-Correct, setting both WB_SYNC_ALL and nonblocking=1 doesn't make sense.
+Hi Andi,
+
+I just knew you would say that :).
+
+I think I have said before that the current .cfi support in the assembler is not 
+up to the job.  In fact gdb 6.0 also has a nasty bug that this code works 
+around.  The main issue is the ability to use the dwarf2 cfi expression to build 
+a call frame that determines if the interrupt/ trap frame returns to user space 
+or to the kernel.  I think (I confess I have not tried) this may be doable with 
+the .cfi escape op code, but I suspect the result would be just as ugly as this 
+patch is.  You would have to roll your own .uleb128 and .sleb128 numbers, for 
+example.   Also, you would need to be able to define labels in the dwarf code 
+(or intuit how var the assembler is going to put your target and use that offset).
+
+The long and short of it is, to do it at all, you need to have a fair knowledge 
+of dwarf2.  Once you get to that, I suspect one way is as good as another.
+
+At this point, the code works with kgdb, which, itself is not in the kernel.  I 
+welcome any one who wants to help do it correctly.
+
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+

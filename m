@@ -1,105 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282843AbSAASIu>; Tue, 1 Jan 2002 13:08:50 -0500
+	id <S282845AbSAASQl>; Tue, 1 Jan 2002 13:16:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282687AbSAASIl>; Tue, 1 Jan 2002 13:08:41 -0500
-Received: from [206.98.161.5] ([206.98.161.5]:64385 "HELO
-	blossom.learningpatterns.com") by vger.kernel.org with SMTP
-	id <S282845AbSAASI1>; Tue, 1 Jan 2002 13:08:27 -0500
-Subject: RE: Problems booting 2.4.17
-From: Edward Muller <emuller@learningpatterns.com>
-To: chris.lo@corp.sunday.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3C31405E.6030209@corp.sunday.com>
-In-Reply-To: <3C31405E.6030209@corp.sunday.com>
-Content-Type: text/plain
+	id <S282799AbSAASQU>; Tue, 1 Jan 2002 13:16:20 -0500
+Received: from mail3.aracnet.com ([216.99.193.38]:31506 "EHLO
+	mail3.aracnet.com") by vger.kernel.org with ESMTP
+	id <S282845AbSAASQO>; Tue, 1 Jan 2002 13:16:14 -0500
+From: "M. Edward Borasky" <znmeb@aracnet.com>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+        "Harald Holzer" <harald.holzer@eunet.at>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: i686 SMP systems with more then 12 GB ram with 2.4.x kernel ?
+Date: Tue, 1 Jan 2002 10:15:59 -0800
+Message-ID: <HBEHIIBBKKNOBLMPKCBBMEAHEFAA.znmeb@aracnet.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 01 Jan 2002 13:07:41 -0500
-Message-Id: <1009908461.12587.3.camel@cc234543-a>
-Mime-Version: 1.0
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <E16KOTk-0005F3-00@the-village.bc.nu>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For now I've moved back to 2.4.16, which boots without a problem. I had
-lots of work to do to get those systems up and configured so I haven't
-had time to play.
+> Because much of the memory cannot be used for kernel objects there is an
+> imbalance in available resources and its very hard to balance them sanely.
 
-I'm not sure what is causing the problem. I know how to make an initrd
-image and it's there. It may be a problem with devfs because I remember
-that Mandrake based their devfs scripts on some very very very old stuff
-from the devfs ditribution (which is being removed IIRC).
+As I understand it, in a Linux / i686 system, there are three zones: DMA
+(0 - 2^24-1), low (2^24 - 2^30-1) and high (2^30 and up). And the hardware
+(PAE) apparently distinguishes memory addresses above 2^32-1 as well.
+Questions:
 
-It's probably not fs based as you are using reiserfs and I'm using ext3.
+1. Shouldn't there be *four* zones: (DMA, low, high and PAE)?
 
-Anyway ... For now I've gone back to 2.4.16, but I'd like to try 2.4.17.
-So if you happen to have some time and figure it out, please let me
-know.
+2. Isn't the boundary at 2^30 really irrelevant and the three "correct"
+zones are (0 - 2^24-1), (2^24 - 2^32-1) and (2^32 - 2^36-1)?
 
-On Mon, 2001-12-31 at 23:51, Chris Lo wrote:
-> Good Morning,
-> 
-> I had the same problem, with resierfs. Any workaround 
-> found?
-> 
-> Have a happy new year!!
-> 
-> Regards,
-> Chris
-> 
-> 
-> 
-> 
-> Hello all.
-> 
-> I'm having problems booting 2.4.17 on a Mandrake 8.1 system (with all
-> current updates).
-> 
-> When I boot 2.4.17 (with an initrd image) I get the following...
-> 
-> kernel boots ...
-> Creating root device
-> mkrootdev: mknod failed: 17
-> Mounting root filesyste with flags data=ordered
-> Mount: error 16 mounting ext3 flags data=ordered
-> ...Tried to remount without flags and fails with the same error...
-> Kernel Panic: No initrd found ...
-> 
-> I am using ext3 / /boot /usr /var & /home filesystems
-> 
-> 2.4.8-34.1mdk boots fine however.
-> 
-> I'm about to go try 2.4.16 (it was working with reiserfs partitions
-> before).
-> 
-> The machine is an AMD Athalon 1.3 Ghz on an EPOC board with a 3ware 7800
-> series RAID card, with three 75/80 GB drives in a RAID 5 array.
-> 
-> Anyone else run into something like this? 
-> 
-> I'll report back about 2.4.16 and if anyone would like more info, just
-> shout.
-> 
-> 
-> -- 
-> -------------------------------
-> Edward Muller
-> Director of IS
-> 
-> 973-715-0230 (cell)
-> 212-487-9064 x115 (NYC)
-> 
-> http://www.learningpatterns.com
-> -------------------------------
-> 
--- 
--------------------------------
-Edward Muller
-Director of IS
+3. On a system without ISA DMA devices, can DMA and low be merged into a
+single zone?
 
-973-715-0230 (cell)
-212-487-9064 x115 (NYC)
+4. It's pretty obvious exactly which functions require memory under 2^24 --
+ISA DMA. But exactly which functions require memory under 2^30 and which
+functions require memory under 2^32? It seems relatively easy to write a
+Perl script to truck through the kernel source and figure this out; has
+anyone done it? It would seem to me a valuable piece of information -- what
+the demands are for the relatively precious areas of memory under 1 GB and
+under 4 GB.
+--
+M. Edward Borasky
 
-http://www.learningpatterns.com
--------------------------------
+znmeb@borasky-research.net
+http://www.borasky-research.net
 

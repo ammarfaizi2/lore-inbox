@@ -1,88 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129321AbRCBRHD>; Fri, 2 Mar 2001 12:07:03 -0500
+	id <S129319AbRCBRFW>; Fri, 2 Mar 2001 12:05:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129323AbRCBRGx>; Fri, 2 Mar 2001 12:06:53 -0500
-Received: from colorfullife.com ([216.156.138.34]:47621 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S129321AbRCBRGp>;
-	Fri, 2 Mar 2001 12:06:45 -0500
-Message-ID: <3A9FD2FD.8D80E684@colorfullife.com>
-Date: Fri, 02 Mar 2001 18:06:05 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.17-14 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: olonho@hotmail.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: strange nonmonotonic behavior of gettimeoftheday
-Content-Type: multipart/mixed;
- boundary="------------BB5831E01C8A4E1D0B0CD7DA"
+	id <S129324AbRCBRFN>; Fri, 2 Mar 2001 12:05:13 -0500
+Received: from mask.uits.indiana.edu ([129.79.6.184]:55819 "EHLO
+	mask.uits.indiana.edu") by vger.kernel.org with ESMTP
+	id <S129319AbRCBRFA>; Fri, 2 Mar 2001 12:05:00 -0500
+Date: Fri, 2 Mar 2001 12:04:59 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Linux 2.4.2 Kernel bug in page_alloc:75
+Message-ID: <20010302120458.A1013@indiana.edu>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="tKW2IUtsqtDRztdT"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+From: "Scott G. Miller" <scgmille@indiana.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------BB5831E01C8A4E1D0B0CD7DA
+
+--tKW2IUtsqtDRztdT
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
->
-> on AMD K6, VIA Technologies VT 82C586, Compaq Presario XL119. 
-> [snip]
-> gives following result on box in question 
-> root@******:# ./clo 
-> Leap found: -1687 msec 
-> and prints nothing on all other my boxes. 
+Linux 2.4.2 SMP Kernel died while I was logged in remotely.  When I got
+back to the box, the Kernel had spit out a kernel bug.  Here's what I
+copied down (didn't get the registers or stack trace, will do if it
+happens again):
 
-Perhaps APM or SMI problems?
-Could you run the attached program?
+bug in page_alloc:75
+invalid operand: 0000
+CPU: 1
+EIP: 0010:[<c012d37e>]
+Eflags: 00010282
+Code: 0f 0b 83 c4 0c 89 d8 2b 05 38 d8 27 c0 69 c0 f1 f0 f0 f0 c1
 
---
-	Manfred
---------------BB5831E01C8A4E1D0B0CD7DA
-Content-Type: text/plain; charset=us-ascii;
- name="ms.c"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="ms.c"
+        Scott
 
-#include <stdio.h>
-#include <sys/time.h>
-#include <unistd.h>
-#include <time.h>
+--tKW2IUtsqtDRztdT
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-static unsigned long long get_tsc(void)
-{
-    	unsigned long v1;
-	unsigned long v2;
-	__asm__ __volatile__(
-		"rdtsc\n\t"
-		: "=a" (v1), "=d" (v2));
-	return (((unsigned long long)v2)<<32)+v1;
-}
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-int main(int argc, char** argv)
-{
-	unsigned long long t1;
-	unsigned long long t2;
+iD8DBQE6n9K6r9IW4v3mHtQRAjFQAJ0bILXu/Dp8GBI0xKPnPIPMHIdkowCfbhvE
+0gfYDObu1kqqj22piJKyKLE=
+=ysnO
+-----END PGP SIGNATURE-----
 
-	printf("RDTSC tester\n");
-	t1 = get_tsc();
-	for(;;) {
-		t2 = get_tsc();
-		if(t1 > t2) {
-			printf("tsc jumped backwards: from %lld to %lld.\n",
-					t1, t2);
-		}
-#if 0
-		printf("diff is %lld-%lld=%d.\n",t2,t1,t2-t1);
-#endif
-		t1 = t2;
-	
-	}
-	return 1;
-}
-
-
---------------BB5831E01C8A4E1D0B0CD7DA--
-
-
+--tKW2IUtsqtDRztdT--

@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318249AbSHSJIv>; Mon, 19 Aug 2002 05:08:51 -0400
+	id <S318209AbSHSJOR>; Mon, 19 Aug 2002 05:14:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318250AbSHSJIv>; Mon, 19 Aug 2002 05:08:51 -0400
-Received: from 5.Red-80-32-157.pooles.rima-tde.net ([80.32.157.5]:43280 "EHLO
-	smtp.newipnet.com") by vger.kernel.org with ESMTP
-	id <S318249AbSHSJIo> convert rfc822-to-8bit; Mon, 19 Aug 2002 05:08:44 -0400
-Message-ID: <200208191110450791.0D42F6D9@192.168.128.16>
-References: <200208191108120240.0D409F0A@192.168.128.16>
-X-Mailer: Calypso Version 3.30.00.00 (4)
-Date: Mon, 19 Aug 2002 11:10:45 +0200
-From: "Carlos Velasco" <carlosev@newipnet.com>
-To: linux-kernel@vger.kernel.org
-Subject: Serial Console
+	id <S318210AbSHSJOR>; Mon, 19 Aug 2002 05:14:17 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:44301 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318209AbSHSJOR>; Mon, 19 Aug 2002 05:14:17 -0400
+Date: Mon, 19 Aug 2002 10:18:14 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Carlos Velasco <carlosev@newipnet.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Serial Console
+Message-ID: <20020819101814.A16410@flint.arm.linux.org.uk>
+References: <200208191108120240.0D409F0A@192.168.128.16> <200208191110450791.0D42F6D9@192.168.128.16>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200208191110450791.0D42F6D9@192.168.128.16>; from carlosev@newipnet.com on Mon, Aug 19, 2002 at 11:10:45AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Aug 19, 2002 at 11:10:45AM +0200, Carlos Velasco wrote:
+>   append="console=ttyS0,115200n8r console=tty0 vga=0x0301"
+                                  ^
+The 'r' means "use rts/cts flow control".  If CTS is not active, the
+kernel will spin waiting to write the next characters to the serial
+console.
 
-I have configured kernel to do output to tty0 and ttyS0 (serial console).
+> Is there something to solve this issue?
 
-LILO:
-image = /boot/vmlinuz_2419
-  root = /dev/hda3
-  label = linux_2419
-  append="console=ttyS0,115200n8r console=tty0 vga=0x0301"
+Don't specify 'r' in the append line.
 
-
-However I have seen that if I don't open the serial port from another machine, I can't reboot or boot kernel, as the output seems to freeze until port is open. When I open the serial port, normal operation is resumed.
-Is there something to solve this issue?
-I would like to use the serial console only when needed not always that I want boot or reboot machine.
-
-Regards,
-Carlos Velasco
-
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

@@ -1,51 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262780AbVDAQOT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262778AbVDAQOu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262780AbVDAQOT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 11:14:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262778AbVDAQOT
+	id S262778AbVDAQOu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 11:14:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262810AbVDAQOu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 11:14:19 -0500
-Received: from wproxy.gmail.com ([64.233.184.196]:59776 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262805AbVDAQOG (ORCPT
+	Fri, 1 Apr 2005 11:14:50 -0500
+Received: from main.gmane.org ([80.91.229.2]:10460 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S262778AbVDAQOk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 11:14:06 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=lG7rn3rQHXgMcZRubGaCns2WcT8jDyxrJNqw5tZ85ZrGCPyAEcoMEqGty/0YViYXpc0PfatRLVgAcOYj2tCEiNLv6ziIo5ypqsLFqOb83uVZKZyl1IZBWPlniIQjHV3xlDFomWZHsiYSycmW2JATLXvnNWFsiT0qpwCek0ECm+k=
-Message-ID: <40f323d0050401081423650536@mail.gmail.com>
-Date: Fri, 1 Apr 2005 18:14:04 +0200
-From: Benoit Boissinot <bboissin@gmail.com>
-Reply-To: Benoit Boissinot <bboissin@gmail.com>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Subject: Re: 2.6.12-rc1 swsusp broken [Was Re: swsusp not working for me on a PREEMPT 2.6.12-rc1 and 2.6.12-rc1-mm3 kernel]
-Cc: romano@dea.icai.upco.es, Pavel Machek <pavel@ucw.cz>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <200503311309.50165.dtor_core@ameritech.net>
+	Fri, 1 Apr 2005 11:14:40 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
+Subject: Re: [RFD] 'nice' attribute for executable files
+Date: Fri, 01 Apr 2005 18:12:21 +0200
+Message-ID: <yw1xy8c2pjbu.fsf@ford.inprovide.com>
+References: <200503311556.j2VFu9Hc007903@laptop11.inf.utfsm.cl> <424D6B54.2090200@poczta.onet.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-References: <20050329110309.GA17744@pern.dea.icai.upco.es>
-	 <d120d5000503310715cbc917@mail.gmail.com>
-	 <20050331165007.GA29674@pern.dea.icai.upco.es>
-	 <200503311309.50165.dtor_core@ameritech.net>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 76.80-203-227.nextgentel.com
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+Cancel-Lock: sha1:LmX7ziEqd/IIPWkCGhjdAlBoK/U=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mar 31, 2005 8:09 PM, Dmitry Torokhov <dtor_core@ameritech.net> wrote:
-> > It works, too. Which one is the best one?
-> >
-> 
-> Both of them are needed as they address two different problems.
-> 
-I tried to boot with the 2 patches applied (and the patch which solves
-noresume) and now touchpad/touchpoint no longer works (with this
-kernel or with an older kernel).
+Wiktor <victorjan@poczta.onet.pl> writes:
 
-Were the 2 patches safe or is it unrelated ?
+> Horst von Brand wrote:
+>> Even better: Write a C wrapper for each affected program that just
+>> renices
+>> it as needed.
+>
+> I suggest to implement scalable solution, so the final user wont't
+> have to write separate wrapper for *each* program. universal wrapper
+> is better solution, but (now i know, that implementing something that
+> can be dangerous if used incorrectly is so evil, that only the devil
+> could have proposed it) it forces use of database (that normally would
+> be kept in filesystem's file metadata)
 
-Is there an easy way to get the touchpad back ?
+A userspace solution could still use POSIX extended attributes.
 
-regards,
+> and if some-malicious-person would have accessed it in write mode
+> (as result of wrong file permissions), the system performerance
+> would be in danger. in my solution, there is per-file attribute,
+> accessible only for root, and if hacker has root permissions,
+> existence of nice attribute is meaningless.
 
-Benoit
+You forgot something: this idea of yours needs to be implemented,
+tested, and debugged.  Those things take time, and effort, and are
+still of very little value.
+
+-- 
+Måns Rullgård
+mru@inprovide.com
+

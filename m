@@ -1,43 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265754AbUBBRL7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 12:11:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265756AbUBBRL7
+	id S265756AbUBBRMJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 12:12:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265757AbUBBRMI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 12:11:59 -0500
-Received: from kinesis.swishmail.com ([209.10.110.86]:55557 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S265754AbUBBRL5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 12:11:57 -0500
-Message-ID: <401E85EA.7010209@techsource.com>
-Date: Mon, 02 Feb 2004 12:16:26 -0500
-From: Timothy Miller <miller@techsource.com>
+	Mon, 2 Feb 2004 12:12:08 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:51434 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S265756AbUBBRMD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Feb 2004 12:12:03 -0500
+Date: Mon, 2 Feb 2004 18:11:55 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Timothy Miller <miller@techsource.com>
+cc: John Bradford <john@grabjohn.com>, chakkerz@optusnet.com.au,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] Crazy idea:  Design open-source graphics chip
+In-Reply-To: <401E8536.5000805@techsource.com>
+Message-ID: <Pine.GSO.4.58.0402021810340.19699@waterleaf.sonytel.be>
+References: <4017F2C0.4020001@techsource.com> <200401291211.05461.chakkerz@optusnet.com.au>
+ <40193136.4070607@techsource.com> <200401291629.i0TGTN7S001406@81-2-122-30.bradfords.org.uk>
+ <40193A67.7080308@techsource.com> <200401291718.i0THIgbb001691@81-2-122-30.bradfords.org.uk>
+ <4019472D.70604@techsource.com> <200401291855.i0TItHoU001867@81-2-122-30.bradfords.org.uk>
+ <40195AE0.2010006@techsource.com> <Pine.GSO.4.58.0402011123010.20933@waterleaf.sonytel.be>
+ <401E8536.5000805@techsource.com>
 MIME-Version: 1.0
-To: DaMouse Networks <damouse@ntlworld.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [OT] Crazy idea: Design open-source graphics chip
-References: <20040201145827.059332d3@EozVul.WORKGROUP>
-In-Reply-To: <20040201145827.059332d3@EozVul.WORKGROUP>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2 Feb 2004, Timothy Miller wrote:
+> Geert Uytterhoeven wrote:
+> > On Thu, 29 Jan 2004, Timothy Miller wrote:
+> >>Oh, there's one thing I forgot.  It would have to support VGA.  There is
+> >>a VGA core on opencores.org that we could use, but its logic area would
+> >>probably push up the FPGA cost so that the board was in the $100 range.
+> >>  Probably more.
+> >
+> >
+> > Why support legacy VGA? It makes things more complex and expensive, and doesn't
+> > give us much, especially for a SoC.
+>
+> It's all about console support in a PC.
+>
+> BTW, What is SoC?
 
+System-on-a-Chip, i.e. a complete solution in one chip.
 
-DaMouse Networks wrote:
->>A cheap cludge would be an optional second GPU on the card just to do
->>the required VGA modes, with an analogue video pass-through. That
->>would make the VGA cards more expensive than a single GPU which
->>incorporated VGA, but add almost nothing in cost or complexity terms
->>to the non-VGA cards.
-> 
-> 
-> I was thinking of suggesting something similar as I browsed the thread. I would think that having Linux instead of the BIOS would be good since you would only need a small cut-down Linux that has drivers for a VGA->FB interface or something similar. The SMP approach from XGI might work in this since Linux supports SMP very well and  it could perform well with up to like 4+ GPUs? (thinking of the card size that might limit this you could have them stacked :) )
-> 
-> I think I'm gonna have to follow this thread closely :)
+Gr{oetje,eeting}s,
 
+						Geert
 
-So, do you all honestly think that adding cost to the board is going to 
-make it sell?
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

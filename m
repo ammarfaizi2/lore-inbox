@@ -1,33 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129601AbQLUBS1>; Wed, 20 Dec 2000 20:18:27 -0500
+	id <S129781AbQLUBTR>; Wed, 20 Dec 2000 20:19:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129781AbQLUBSS>; Wed, 20 Dec 2000 20:18:18 -0500
-Received: from sdsl-208-184-147-195.dsl.sjc.megapath.net ([208.184.147.195]:17440
-	"EHLO bitmover.com") by vger.kernel.org with ESMTP
-	id <S129601AbQLUBSK>; Wed, 20 Dec 2000 20:18:10 -0500
-Date: Wed, 20 Dec 2000 16:47:42 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: linux-kernel@vger.kernel.org
-Subject: fs corruption in 2.4.0-test11?
-Message-ID: <20001220164742.A3756@work.bitmover.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	id <S130462AbQLUBTH>; Wed, 20 Dec 2000 20:19:07 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:47115 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S130439AbQLUBS4>; Wed, 20 Dec 2000 20:18:56 -0500
+Subject: Re: Extreme IDE slowdown with 2.2.18
+To: ja@ssi.bg (Julian Anastasov)
+Date: Thu, 21 Dec 2000 00:49:45 +0000 (GMT)
+Cc: robho956@student.liu.se (Robert Högberg),
+        linux-kernel@vger.kernel.org (linux-kernel)
+In-Reply-To: <Pine.LNX.4.21.0012202246510.6151-100000@u> from "Julian Anastasov" at Dec 20, 2000 11:00:55 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre3i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E148tvX-0002Jp-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just need a sanity check - do other pages/blocks sometimes show up in
-recently created files in 2.4.0-test11?
+> > known problem with the 2.2.18 kernel?
+> 
+> 	Yes, 2.2.18 is not friendly to all MVP3 users. The autodma
+> detection was disabled for the all *VP3 users in drivers/block/ide-pci.=
+> c.
 
-I have a (so far) non-reproducible case where the wrong data showed up in
-a new file.  The nice part is that it was when I was imploding a large
-BitKeeper patch so I can run the test case over and over if that would 
-help find it.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+Because it was causing disk corruption for some people. It took a lot of 
+tracking down and I want the shipped kernel safe. I now know I'm covering too
+many chip versions so 2.2.19 I can get the later VP3's back okay
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

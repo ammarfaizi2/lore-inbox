@@ -1,62 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263270AbVCJWLf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262097AbVCJWLg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263270AbVCJWLf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 17:11:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262097AbVCJWHL
+	id S262097AbVCJWLg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 17:11:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262913AbVCJWDa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 17:07:11 -0500
-Received: from franklin.nevis.columbia.edu ([129.236.252.8]:29392 "EHLO
-	franklin.nevis.columbia.edu") by vger.kernel.org with ESMTP
-	id S263274AbVCJV6w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 16:58:52 -0500
-Date: Thu, 10 Mar 2005 16:58:51 -0500 (EST)
-From: Felix Matathias <felix@nevis.columbia.edu>
-To: linux-kernel@vger.kernel.org
-Subject: select() doesn't respect SO_RCVLOWAT ?
-Message-ID: <Pine.LNX.4.61.0503101645190.29442@shang.nevis.columbia.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 10 Mar 2005 17:03:30 -0500
+Received: from pimout1-ext.prodigy.net ([207.115.63.77]:2799 "EHLO
+	pimout1-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S262806AbVCJVvU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 16:51:20 -0500
+Date: Thu, 10 Mar 2005 13:33:09 -0800
+From: Chris Wedgwood <cw@f00f.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] 2.4.x --- early boot code references check_acpi_pci()
+Message-ID: <20050310213309.GA17298@taniwha.stupidest.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+For x86 (and friends) ACPI_BOOT=y (always) and this code wants to call
+check_acpi_pci().
 
-Dear all,
+Signed-off-by: Chris Wedgwood <cw@f00f.org>
 
-I am running a 2.4.21-9.0.3.ELsmp #1 kernel and I can setsockopt and 
-getsockopt correctly the SO_RCVLOWAT option, but select() seems to mark a 
-socket readable even if a single byte is ready to be read. Then, a read() 
-blocks until the specified number of bytes in SO_RCVLOWAT makes it to the 
-socket buffer.
-
-This is the exact opposite behaviour of what I yould have 
-expected/desired. Our application receives data at many Khz rate and we 
-want to avoid reading the socket until a predetermined amount of data is 
-sent, to avoid partial reads. SO_RCVLOWAT seemed to be a nice way to 
-implement that.
-
-An earlier message by Alan Cox was a bit cryptic:
-
-"But is the cost of all those special case checks and all the handling
-for it such as select computing if enough tcp packets together accumulated
-worth the cost on every app not using LOWAT for the microscopic gain given
-that essentially nobody uses it."
-
-Does this mean that select() in Linux will wake up no matter what 
-SO_RCVLOWAT is set to ?
-
-Best Regards,
-Felix Matathias
-
-P.S. I would appreciate if you could also cc your response to me.
-
--- 
-
-______________________________________________________________________
-Felix Matathias of Columbia University, Nevis Labs
-
-Brookhaven National Lab           cell : 631-988-3694
-Bldg 1005, 3-304                  web  : http://www.matathias.com
-Upton, NY, 11973                  photo: http://www.pbase.com/matathias
-tel/fax :631-344-7622/3253        email: felix@nevis.columbia.edu
-_______________________________________________________________________
-
+===== arch/i386/kernel/earlyquirk.c 1.1 vs edited =====
+--- 1.1/arch/i386/kernel/earlyquirk.c	2005-02-18 06:53:58 -08:00
++++ edited/arch/i386/kernel/earlyquirk.c	2005-03-10 13:29:55 -08:00
+@@ -8,7 +8,7 @@
+ #include <asm/pci-direct.h>
+ #include <asm/acpi.h>
+ 
+-#ifdef CONFIG_ACPI
++#ifdef CONFIG_ACPI_BOOT
+ static int __init check_bridge(int vendor, int device) 
+ {
+ 	/* According to Nvidia all timer overrides are bogus. Just ignore

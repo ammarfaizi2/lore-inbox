@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267513AbRGXMwV>; Tue, 24 Jul 2001 08:52:21 -0400
+	id <S267514AbRGXNDD>; Tue, 24 Jul 2001 09:03:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267514AbRGXMwL>; Tue, 24 Jul 2001 08:52:11 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:2783 "HELO havoc.gtf.org")
-	by vger.kernel.org with SMTP id <S267513AbRGXMv5>;
-	Tue, 24 Jul 2001 08:51:57 -0400
-Message-ID: <3B5D6F95.E1080FFA@mandrakesoft.com>
-Date: Tue, 24 Jul 2001 08:52:37 -0400
-From: jgarzik@mandrakesoft.com
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Daniel A. Nobuto" <ramune@bigfoot.com>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-        Manfred Spraul <manfred@colorfullife.com>
-Subject: Re: natsemi.c patch
-In-Reply-To: <20010724000313.A591@bigfoot.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S267516AbRGXNCy>; Tue, 24 Jul 2001 09:02:54 -0400
+Received: from dsl-64135210.acton.ma.internetconnect.net ([64.13.5.210]:58810
+	"EHLO alliance.centerclick.org") by vger.kernel.org with ESMTP
+	id <S267514AbRGXNCf>; Tue, 24 Jul 2001 09:02:35 -0400
+Mime-Version: 1.0
+Message-Id: <v04210100b783212ef7bd@[10.0.2.30]>
+In-Reply-To: <20010724102526.K4221@suse.de>
+In-Reply-To: <v04210101b781c827accb@[10.0.2.30]>
+ <20010724102526.K4221@suse.de>
+X-Mailer: QUALCOMM MacOS Eudora Pro Version 4.2.1 (PPC)
+Date: Tue, 24 Jul 2001 09:02:33 -0400
+To: Jens Axboe <axboe@suse.de>
+From: David Johnson <dave-kernel-list@centerclick.org>
+Subject: Re: DVD-RAM media detected with wrong number of blocks (2.4.7)
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-"Daniel A. Nobuto" wrote:
-> 
-> Hi Linus,
-> 
->         Here's the patch Manfred Spraul made for natsemi.c
-> in 2.4.6 to work around a gcc bug, updated for 2.4.7.
-> Without this patch, my natsemi card just keeps spitting out
-> errors into syslog and doesn't send packets.
-> 
->         Can this be put in for 2.4.8?
+On 7/24/01, Jens Axboe wrote:
+>On Mon, Jul 23 2001, David Johnson wrote:
+>> When attempting to create an ext2 partition on a dvd-ram (2.6G/5.2G)
+>> media the number of blocks is detected wrong causing only half of the
+>> disk to be usable.  When creating the filesystem with mke2fs only
+>> 609480 2K blocks are allowed instead of 1218960 2K blocks, and I end
+>> up with a 1.2GB partition instead of 2.4GB one.  The 1.2GB fs works
+>> fine, it's just a bit small :(
+>>
+>> This is with 2.4.7 using a Creative DVD-RAM drive (1216S) on an Adaptec
+>> 2940UW.
+>>
+>> The correct number of blocks is detected in 2.4.6
+>
+>Does this work?
+>
 
-Linus please DO NOT apply this patch.  There are other fixes queued in
-addition, and this patch appears to be corrupted from a whitespace
-perspective as well.  There should be a better patch coming to you late
-this week.
+Shifting another bit causes the size to get cut in half again, not 
+shifting at all appears to be the correct thing to do.
 
--- 
-Jeff Garzik      | "I use Mandrake Linux for the same reason I turn
-Building 1024    |  the light switch on and off 17 times before leaving
-MandrakeSoft     |  the room.... If I don't my family will die."
-                 |            -- slashdot.org comment

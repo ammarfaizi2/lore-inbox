@@ -1,57 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261706AbULTXZr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261694AbULTXZM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261706AbULTXZr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 18:25:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261701AbULTXZr
+	id S261694AbULTXZM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 18:25:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261683AbULTXWY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 18:25:47 -0500
-Received: from mail.dif.dk ([193.138.115.101]:44168 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S261706AbULTXXI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 18:23:08 -0500
-Date: Tue, 21 Dec 2004 00:33:49 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH] kill access_ok() call from copy_siginfo_to_user() that we
- might as well avoid.
-Message-ID: <Pine.LNX.4.61.0412210025100.3581@dragon.hygekrogen.localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 20 Dec 2004 18:22:24 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:14764 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261675AbULTXVc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Dec 2004 18:21:32 -0500
+Subject: Re: [2.6 patch] ieee1394_core.c: remove unneeded EXPORT_SYMBOL's
+From: Lee Revell <rlrevell@joe-job.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Dan Dennedy <dan@dennedy.org>, Ben Collins <bcollins@debian.org>,
+       Linux1394-Devel <linux1394-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20041220230222.GA21288@stusta.de>
+References: <20041220015320.GO21288@stusta.de>
+	 <1103508610.3724.69.camel@kino.dennedy.org>
+	 <20041220022503.GT21288@stusta.de>
+	 <1103510535.1252.18.camel@krustophenia.net>
+	 <1103516870.3724.103.camel@kino.dennedy.org>
+	 <20041220225324.GY21288@stusta.de>
+	 <1103583486.1252.102.camel@krustophenia.net>
+	 <20041220230222.GA21288@stusta.de>
+Content-Type: text/plain
+Date: Mon, 20 Dec 2004 18:21:25 -0500
+Message-Id: <1103584886.1252.109.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2004-12-21 at 00:02 +0100, Adrian Bunk wrote:
+> On Mon, Dec 20, 2004 at 05:58:06PM -0500, Lee Revell wrote:
+> > On Mon, 2004-12-20 at 23:53 +0100, Adrian Bunk wrote:
+> > > On Sun, Dec 19, 2004 at 11:27:50PM -0500, Dan Dennedy wrote:
+> > > > On Sun, 2004-12-19 at 21:42 -0500, Lee Revell wrote:
+> > > > > What do you tell a vendor who wants to write a driver for their device?
+> > > > > "OK, about half the functions you need are in the kernel, the other half
+> > > > > you have to port from this old kernel because we removed them.  Maybe we
+> > > > > will put them back if we really like your driver"?
+> > > > 
+> > > > While I think some of Adrian's points are valid, I am exercising caution
+> > > > because I am a new maintainer for linux1394 (although not new to the
+> > > > project in general). This is an interface version management issue IMHO.
+> > > > Adrian is not suggesting to remove the functions yet, but it is
+> > > > effectively the same thing to an outsider. A vendor or services provider
+> > > > would have to modify kernel source to let their driver work again, which
+> > > > is not technically challenging to kernel hackers, but frustrating
+> > > > situation to be in as a vendor or customer. It creates a mess in
+> > > > support, distribution, deployment, etc.
+> > > 
+> > > The solution is simple:
+> > > The vendor or services provider submits his driver for inclusion into 
+> > > the kernel which is the best solution for everyone.
+> > > 
+> > 
+> > What if the driver is under development and doesn't work yet?
+> 
+> For a driver developer, it shouldn't be a big problem to re-add an 
+> EXPORT_SYMBOL or even to undo an #if 0 of a currently unused function.
+> 
 
-Hi,
+OK, fair enough.  The lack of any IEEE-1394 audio support has been a big
+topic on alsa-devel and I just want to make sure we don't do anything
+that would make life more difficult for vendors trying to get their
+hardware supported.  Keep in mind that many vendors only have dealt with
+Windows and OSX drivers, so their driver developers might be very
+skilled but have not dealt with Linux before - they are used to working
+with published APIs.
 
-In kernel/signal.c::copy_siginfo_to_user() we are calling access_ok() 
-unconditionally. As I see it there's no need for this since we might as 
-well just call copy_to_user() instead of __copy_to_user() later on and 
-then only get the overhead of the access_ok() check (inside 
-copy_to_user()) when the  if (from->si_code < 0)  branch is actually taken.
-In the case where the branch is taken the cost is the same, but when the 
-branch is not taken this patch will save us an access_ok() call.
+Anyway since the freebob project does not care about these I have no
+objection to unexporting them.
 
-Comments are always welcome.
-
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
-
-diff -up linux-2.6.10-rc3-bk13-orig/kernel/signal.c linux-2.6.10-rc3-bk13/kernel/signal.c
---- linux-2.6.10-rc3-bk13-orig/kernel/signal.c	2004-12-06 22:24:56.000000000 +0100
-+++ linux-2.6.10-rc3-bk13/kernel/signal.c	2004-12-21 00:23:46.000000000 +0100
-@@ -2070,10 +2070,8 @@ int copy_siginfo_to_user(siginfo_t __use
- {
- 	int err;
- 
--	if (!access_ok (VERIFY_WRITE, to, sizeof(siginfo_t)))
--		return -EFAULT;
- 	if (from->si_code < 0)
--		return __copy_to_user(to, from, sizeof(siginfo_t))
-+		return copy_to_user(to, from, sizeof(siginfo_t))
- 			? -EFAULT : 0;
- 	/*
- 	 * If you change siginfo_t structure, please be sure
-
-
-
+Lee
 

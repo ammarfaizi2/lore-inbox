@@ -1,69 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272856AbTG3M5J (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 08:57:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272857AbTG3M5J
+	id S272878AbTG3NHV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 09:07:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272880AbTG3NHU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 08:57:09 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:30893 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S272856AbTG3M5F (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 08:57:05 -0400
-Date: Wed, 30 Jul 2003 14:57:04 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: linux-kernel@vger.kernel.org
-Cc: Larry McVoy <lm@work.bitmover.com>
-Subject: Re: BK2CVS up to date
-Message-ID: <20030730125704.GX1873@lug-owl.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Larry McVoy <lm@work.bitmover.com>
-References: <20030730124515.GA19748@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="1IWgL8yD8uKyf/Tu"
-Content-Disposition: inline
-In-Reply-To: <20030730124515.GA19748@work.bitmover.com>
-X-Operating-System: Linux mail 2.4.18 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.4i
+	Wed, 30 Jul 2003 09:07:20 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:2176 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S272878AbTG3NHT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 09:07:19 -0400
+Date: Wed, 30 Jul 2003 09:07:18 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Erik Andersen <andersen@codepoet.org>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Turning off automatic screen clanking
+In-Reply-To: <20030730061454.GA19808@codepoet.org>
+Message-ID: <Pine.LNX.4.53.0307300855540.193@chaos>
+References: <20030730061454.GA19808@codepoet.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 30 Jul 2003, Erik Andersen wrote:
 
---1IWgL8yD8uKyf/Tu
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+>
+> Here ya go...  This rips out the screen blanking code by the
+> roots since the kind and gentle approach didn't seem to be what
+> you were looking for.  :-)
 
-On Wed, 2003-07-30 05:45:15 -0700, Larry McVoy <lm@bitmover.com>
-wrote in message <20030730124515.GA19748@work.bitmover.com>:
-> There was a pause in the updating of the 2.5 CVS tree exported from the
-> 2.5 BK tree; it was related to the move to the new colo.  The trees are
-> up to date now and I suspect that Ben's BK2SVN mirror will be updated
-> soon as well.
+Come on...
 
-Fine, thanks.
+That's not necessary! I'm looking for either making it default
+to "no blanking" so startup scripts need to enable this feature,
+or an ioctl to turn it off.
 
-MfG, JBG
+The 'kindest and gentlist' approach was to simply set the timer
+variable "blankinterval" (line 165 in console.c) to 0 instead of
+10*60*HZ. This doesn't work. The screen still blanks in 10 minutes.
 
---=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
-k!
-      ret =3D do_actions((curr | FREE_SPEECH) & ~(IRAQ_WAR_2 | DRM | TCPA));
+The next approach was to make an ioctl function. I was supplied with
+1/2 what was necessary and, if I add the rest (a trivial call), it
+will work, however that extra code may probably be rejected as
+'bloat'.
 
---1IWgL8yD8uKyf/Tu
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+What I'm working on now, when I can get the time, is trying to
+find out how come initialization to zero doesn't work and making
+it work. Once this is done, there should not be any technical
+reasons why it can't be included in the standard kernel.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+The current enabling of the blanker by default is clearly policy
+and it has been well established that policy decisions should be
+outside the kernel.
 
-iD8DBQE/J8CgHb1edYOZ4bsRAjXFAJ9opDbsp8UHHbtlU8unvjrp6Leb1gCgj5DZ
-V3Xjk4wfeWFPUbY8bTDY19k=
-=UG6Z
------END PGP SIGNATURE-----
+[SNIPPED (neat) patch...]
 
---1IWgL8yD8uKyf/Tu--
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
+

@@ -1,122 +1,259 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317351AbSH0UyQ>; Tue, 27 Aug 2002 16:54:16 -0400
+	id <S317194AbSH0Uud>; Tue, 27 Aug 2002 16:50:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317371AbSH0UyQ>; Tue, 27 Aug 2002 16:54:16 -0400
-Received: from hq.fsmlabs.com ([209.155.42.197]:155 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S317351AbSH0UyN>;
-	Tue, 27 Aug 2002 16:54:13 -0400
-Date: Tue, 27 Aug 2002 14:56:31 -0600
-From: yodaiken@fsmlabs.com
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: yodaiken@fsmlabs.com, Mark Hounschell <markh@compro.net>,
-       "Wessler, Siegfried" <Siegfried.Wessler@de.hbm.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: interrupt latency
-Message-ID: <20020827145631.B877@hq.fsmlabs.com>
-References: <20020827135400.A31990@hq.fsmlabs.com> <Pine.LNX.3.95.1020827160243.11549A-100000@chaos.analogic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.3.95.1020827160243.11549A-100000@chaos.analogic.com>; from root@chaos.analogic.com on Tue, Aug 27, 2002 at 04:44:34PM -0400
-Organization: FSM Labs
+	id <S317251AbSH0Uuc>; Tue, 27 Aug 2002 16:50:32 -0400
+Received: from gzp11.gzp.hu ([212.40.96.53]:42756 "EHLO gzp11.gzp.hu")
+	by vger.kernel.org with ESMTP id <S317194AbSH0UuW>;
+	Tue, 27 Aug 2002 16:50:22 -0400
+To: linux-kernel@vger.kernel.org
+From: "Gabor Z. Papp" <gzp@myhost.mynet>
+Subject: Re: Linux v2.5.32
+References: <Pine.LNX.4.33.0208271239580.2564-100000@penguin.transmeta.com> <Pine.LNX.4.33.0208271239580.2564-100000@penguin.transmeta.com> <20020827202250.GA24265@debian>
+User-Agent: tin/1.5.14-20020814 ("Chop Suey!") (UNIX) (Linux/2.4.18 (i686))
+Message-ID: <6e0.3d6be706.b5d05@gzp1.gzp.hu>
+Date: Tue, 27 Aug 2002 20:54:30 -0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 27, 2002 at 04:44:34PM -0400, Richard B. Johnson wrote:
-> On Tue, 27 Aug 2002 yodaiken@fsmlabs.com wrote:
-> 
-> > On Tue, Aug 27, 2002 at 02:01:43PM -0400, Richard B. Johnson wrote:
-> > > This cannot be. A stock kernel-2.4.18, running a 133 MHz AMD-SC520,
-> > > (like a i586) with a 33 MHz bus, handles interrupts off IRQ7 (the lowest
-> > > priority), from the 'printer port' at well over 75,000 per second without
-> > > skipping a beat or missing an edge. This means that latency is at least
-> > > as good as 1/57,000 sec = 0.013 microseconds.
-> > 
-> > Assuming you mean 75,000 then ... 
-> > Thats 0.013 MILLISECONDS which is 13 microseconds and its not likely.
-> 
-> Yes 13 microseconds.
-> 
-> > I bet that your data source drops data or looks at some handshake
-> > pins on the parallel connect.
-> > 
-> 
-> No. You can easily read into memory 75,000 bytes per second from the
-> parallel port, hell RS-232C will do 22,400++ bytes per second (224,000
-> baud) on a Windows machine, done all the while to feed a PROM burner. I
+* Stephane Wirtel <stephane.wirtel@belgacom.net>:
 
-You can do it in a tight loop. But you cannot do it otherwise.  RS232 works
-because most UARTs have fifo buffers.  Old Windows did pretty well, because
-you could grab the machine and let nothing else happen.
+| a small compile error 
 
-What makes me dubious about your claim is that it is easy to test
-and see that a single ISA operation can take 18 microseconds
-on most PC hardware.
+More compile errors:
 
-try:
-	cli
-	loop:
-		read tsc
-		inb 
-		read tsc
-		compute difference
-		print worst case every 1000000 times.
+make[3]: Entering directory `/usr/src/linux-2.5.32-gzp3/drivers/serial'
+  gcc -Wp,-MD,./.core.o.d -D__KERNEL__ -I/usr/src/linux-2.5.32-gzp3/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -nostdinc -iwithprefix include -DMODULE -include /usr/src/linux-2.5.32-gzp3/include/linux/modversions.h   -DKBUILD_BASENAME=core -DEXPORT_SYMTAB  -c -o core.o core.c
+  gcc -Wp,-MD,./.8250.o.d -D__KERNEL__ -I/usr/src/linux-2.5.32-gzp3/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -nostdinc -iwithprefix include -DMODULE -include /usr/src/linux-2.5.32-gzp3/include/linux/modversions.h   -DKBUILD_BASENAME=8250 -DEXPORT_SYMTAB  -c -o 8250.o 8250.c
+In file included from 8250.c:34:
+/usr/src/linux-2.5.32-gzp3/include/linux/serialP.h:50: field `icount' has incomplete type
+8250.c:106: `ASYNC_BOOT_AUTOCONF' undeclared here (not in a function)
+8250.c:106: `ASYNC_SKIP_TEST' undeclared here (not in a function)
+8250.c:106: initializer element is not constant
+8250.c:106: (near initialization for `old_serial_port[0].flags')
+8250.c:106: `ASYNC_BOOT_AUTOCONF' undeclared here (not in a function)
+8250.c:106: `ASYNC_SKIP_TEST' undeclared here (not in a function)
+8250.c:106: initializer element is not constant
+8250.c:106: (near initialization for `old_serial_port[1].flags')
+8250.c:106: `ASYNC_BOOT_AUTOCONF' undeclared here (not in a function)
+8250.c:106: `ASYNC_SKIP_TEST' undeclared here (not in a function)
+8250.c:106: initializer element is not constant
+8250.c:106: (near initialization for `old_serial_port[2].flags')
+8250.c:106: `ASYNC_BOOT_AUTOCONF' undeclared here (not in a function)
+8250.c:106: initializer element is not constant
+8250.c:106: (near initialization for `old_serial_port[3].flags')
+8250.c:106: `ASYNC_FOURPORT' undeclared here (not in a function)
+8250.c:106: initializer element is not constant
+8250.c:106: (near initialization for `old_serial_port[4].flags')
+8250.c:106: `ASYNC_FOURPORT' undeclared here (not in a function)
+8250.c:106: initializer element is not constant
+8250.c:106: (near initialization for `old_serial_port[5].flags')
+8250.c:106: `ASYNC_FOURPORT' undeclared here (not in a function)
+8250.c:106: initializer element is not constant
+8250.c:106: (near initialization for `old_serial_port[6].flags')
+8250.c:106: `ASYNC_FOURPORT' undeclared here (not in a function)
+8250.c:106: initializer element is not constant
+8250.c:106: (near initialization for `old_serial_port[7].flags')
+8250.c:106: `ASYNC_FOURPORT' undeclared here (not in a function)
+8250.c:106: initializer element is not constant
+8250.c:106: (near initialization for `old_serial_port[8].flags')
+8250.c:106: `ASYNC_FOURPORT' undeclared here (not in a function)
+8250.c:106: initializer element is not constant
+8250.c:106: (near initialization for `old_serial_port[9].flags')
+8250.c:106: `ASYNC_FOURPORT' undeclared here (not in a function)
+8250.c:106: initializer element is not constant
+8250.c:106: (near initialization for `old_serial_port[10].flags')
+8250.c:106: `ASYNC_FOURPORT' undeclared here (not in a function)
+8250.c:106: initializer element is not constant
+8250.c:106: (near initialization for `old_serial_port[11].flags')
+8250.c:145: elements of array `uart_config' have incomplete type
+8250.c:146: warning: excess elements in struct initializer
+8250.c:146: warning: (near initialization for `uart_config[0]')
+8250.c:146: warning: excess elements in struct initializer
+8250.c:146: warning: (near initialization for `uart_config[0]')
+8250.c:146: warning: excess elements in struct initializer
+8250.c:146: warning: (near initialization for `uart_config[0]')
+8250.c:147: warning: excess elements in struct initializer
+8250.c:147: warning: (near initialization for `uart_config[1]')
+8250.c:147: warning: excess elements in struct initializer
+8250.c:147: warning: (near initialization for `uart_config[1]')
+8250.c:147: warning: excess elements in struct initializer
+8250.c:147: warning: (near initialization for `uart_config[1]')
+8250.c:148: warning: excess elements in struct initializer
+8250.c:148: warning: (near initialization for `uart_config[2]')
+8250.c:148: warning: excess elements in struct initializer
+8250.c:148: warning: (near initialization for `uart_config[2]')
+8250.c:148: warning: excess elements in struct initializer
+8250.c:148: warning: (near initialization for `uart_config[2]')
+8250.c:149: warning: excess elements in struct initializer
+8250.c:149: warning: (near initialization for `uart_config[3]')
+8250.c:149: warning: excess elements in struct initializer
+8250.c:149: warning: (near initialization for `uart_config[3]')
+8250.c:149: warning: excess elements in struct initializer
+8250.c:149: warning: (near initialization for `uart_config[3]')
+8250.c:150: warning: excess elements in struct initializer
+8250.c:150: warning: (near initialization for `uart_config[4]')
+8250.c:150: warning: excess elements in struct initializer
+8250.c:150: warning: (near initialization for `uart_config[4]')
+8250.c:150: `UART_CLEAR_FIFO' undeclared here (not in a function)
+8250.c:150: `UART_USE_FIFO' undeclared here (not in a function)
+8250.c:150: warning: excess elements in struct initializer
+8250.c:150: warning: (near initialization for `uart_config[4]')
+8250.c:151: warning: excess elements in struct initializer
+8250.c:151: warning: (near initialization for `uart_config[5]')
+8250.c:151: warning: excess elements in struct initializer
+8250.c:151: warning: (near initialization for `uart_config[5]')
+8250.c:151: warning: excess elements in struct initializer
+8250.c:151: warning: (near initialization for `uart_config[5]')
+8250.c:152: warning: excess elements in struct initializer
+8250.c:152: warning: (near initialization for `uart_config[6]')
+8250.c:152: warning: excess elements in struct initializer
+8250.c:152: warning: (near initialization for `uart_config[6]')
+8250.c:152: `UART_CLEAR_FIFO' undeclared here (not in a function)
+8250.c:152: `UART_STARTECH' undeclared here (not in a function)
+8250.c:152: warning: excess elements in struct initializer
+8250.c:152: warning: (near initialization for `uart_config[6]')
+8250.c:153: warning: excess elements in struct initializer
+8250.c:153: warning: (near initialization for `uart_config[7]')
+8250.c:153: warning: excess elements in struct initializer
+8250.c:153: warning: (near initialization for `uart_config[7]')
+8250.c:153: `UART_CLEAR_FIFO' undeclared here (not in a function)
+8250.c:153: `UART_USE_FIFO' undeclared here (not in a function)
+8250.c:153: `UART_STARTECH' undeclared here (not in a function)
+8250.c:153: warning: excess elements in struct initializer
+8250.c:153: warning: (near initialization for `uart_config[7]')
+8250.c:154: warning: excess elements in struct initializer
+8250.c:154: warning: (near initialization for `uart_config[8]')
+8250.c:154: warning: excess elements in struct initializer
+8250.c:154: warning: (near initialization for `uart_config[8]')
+8250.c:154: `UART_CLEAR_FIFO' undeclared here (not in a function)
+8250.c:154: `UART_USE_FIFO' undeclared here (not in a function)
+8250.c:154: warning: excess elements in struct initializer
+8250.c:154: warning: (near initialization for `uart_config[8]')
+8250.c:155: warning: excess elements in struct initializer
+8250.c:155: warning: (near initialization for `uart_config[9]')
+8250.c:155: warning: excess elements in struct initializer
+8250.c:155: warning: (near initialization for `uart_config[9]')
+8250.c:155: warning: excess elements in struct initializer
+8250.c:155: warning: (near initialization for `uart_config[9]')
+8250.c:156: warning: excess elements in struct initializer
+8250.c:156: warning: (near initialization for `uart_config[10]')
+8250.c:156: warning: excess elements in struct initializer
+8250.c:156: warning: (near initialization for `uart_config[10]')
+8250.c:156: `UART_CLEAR_FIFO' undeclared here (not in a function)
+8250.c:156: `UART_USE_FIFO' undeclared here (not in a function)
+8250.c:156: warning: excess elements in struct initializer
+8250.c:156: warning: (near initialization for `uart_config[10]')
+8250.c:157: warning: excess elements in struct initializer
+8250.c:157: warning: (near initialization for `uart_config[11]')
+8250.c:157: warning: excess elements in struct initializer
+8250.c:157: warning: (near initialization for `uart_config[11]')
+8250.c:157: `UART_CLEAR_FIFO' undeclared here (not in a function)
+8250.c:157: `UART_USE_FIFO' undeclared here (not in a function)
+8250.c:157: `UART_STARTECH' undeclared here (not in a function)
+8250.c:157: warning: excess elements in struct initializer
+8250.c:157: warning: (near initialization for `uart_config[11]')
+8250.c:158: warning: excess elements in struct initializer
+8250.c:158: warning: (near initialization for `uart_config[12]')
+8250.c:158: warning: excess elements in struct initializer
+8250.c:158: warning: (near initialization for `uart_config[12]')
+8250.c:158: `UART_CLEAR_FIFO' undeclared here (not in a function)
+8250.c:158: `UART_USE_FIFO' undeclared here (not in a function)
+8250.c:158: `UART_STARTECH' undeclared here (not in a function)
+8250.c:158: warning: excess elements in struct initializer
+8250.c:158: warning: (near initialization for `uart_config[12]')
+8250.c:159: warning: excess elements in struct initializer
+8250.c:159: warning: (near initialization for `uart_config[13]')
+8250.c:159: warning: excess elements in struct initializer
+8250.c:159: warning: (near initialization for `uart_config[13]')
+8250.c:159: `UART_CLEAR_FIFO' undeclared here (not in a function)
+8250.c:159: `UART_USE_FIFO' undeclared here (not in a function)
+8250.c:159: warning: excess elements in struct initializer
+8250.c:159: warning: (near initialization for `uart_config[13]')
+8250.c:160: invalid use of undefined type `struct serial_uart_config'
+8250.c: In function `serial_in':
+8250.c:167: `SERIAL_IO_HUB6' undeclared (first use in this function)
+8250.c:167: (Each undeclared identifier is reported only once
+8250.c:167: for each function it appears in.)
+8250.c:171: `SERIAL_IO_MEM' undeclared (first use in this function)
+8250.c:168: warning: unreachable code at beginning of switch statement
+8250.c: In function `serial_out':
+8250.c:185: `SERIAL_IO_HUB6' undeclared (first use in this function)
+8250.c:190: `SERIAL_IO_MEM' undeclared (first use in this function)
+8250.c:186: warning: unreachable code at beginning of switch statement
+8250.c: In function `autoconfig':
+8250.c:457: `ASYNC_BUGGY_UART' undeclared (first use in this function)
+8250.c:503: `ASYNC_SKIP_TEST' undeclared (first use in this function)
+8250.c:600: invalid use of undefined type `struct serial_uart_config'
+8250.c: In function `autoconfig_irq':
+8250.c:640: `ASYNC_FOURPORT' undeclared (first use in this function)
+8250.c: In function `serial8250_startup':
+8250.c:1121: invalid use of undefined type `struct serial_uart_config'
+8250.c:1121: `UART_CLEAR_FIFO' undeclared (first use in this function)
+8250.c:1141: `ASYNC_BUGGY_UART' undeclared (first use in this function)
+8250.c:1171: `ASYNC_FOURPORT' undeclared (first use in this function)
+8250.c: In function `serial8250_shutdown':
+8250.c:1225: `ASYNC_FOURPORT' undeclared (first use in this function)
+8250.c: In function `serial8250_change_speed':
+8250.c:1307: invalid use of undefined type `struct serial_uart_config'
+8250.c:1307: `UART_USE_FIFO' undeclared (first use in this function)
+8250.c:1363: invalid use of undefined type `struct serial_uart_config'
+8250.c:1363: `UART_STARTECH' undeclared (first use in this function)
+8250.c: In function `serial8250_pm':
+8250.c:1391: invalid use of undefined type `struct serial_uart_config'
+8250.c:1391: `UART_STARTECH' undeclared (first use in this function)
+8250.c:1410: invalid use of undefined type `struct serial_uart_config'
+8250.c: In function `serial8250_request_std_resource':
+8250.c:1467: `SERIAL_IO_MEM' undeclared (first use in this function)
+8250.c:1475: `SERIAL_IO_HUB6' undeclared (first use in this function)
+8250.c:1476: `SERIAL_IO_PORT' undeclared (first use in this function)
+8250.c:1468: warning: unreachable code at beginning of switch statement
+8250.c: In function `serial8250_request_rsa_resource':
+8250.c:1493: `SERIAL_IO_MEM' undeclared (first use in this function)
+8250.c:1503: `SERIAL_IO_HUB6' undeclared (first use in this function)
+8250.c:1504: `SERIAL_IO_PORT' undeclared (first use in this function)
+8250.c:1494: warning: unreachable code at beginning of switch statement
+8250.c: In function `serial8250_release_port':
+8250.c:1529: `SERIAL_IO_MEM' undeclared (first use in this function)
+8250.c:1545: `SERIAL_IO_HUB6' undeclared (first use in this function)
+8250.c:1546: `SERIAL_IO_PORT' undeclared (first use in this function)
+8250.c:1530: warning: unreachable code at beginning of switch statement
+8250.c: In function `serial8250_request_port':
+8250.c:1576: `SERIAL_IO_MEM' undeclared (first use in this function)
+8250.c: In function `serial8250_verify_port':
+8250.c:1639: dereferencing pointer to incomplete type
+8250.c:1639: dereferencing pointer to incomplete type
+8250.c:1640: dereferencing pointer to incomplete type
+8250.c:1640: dereferencing pointer to incomplete type
+8250.c:1641: dereferencing pointer to incomplete type
+8250.c:1641: dereferencing pointer to incomplete type
+8250.c:1642: dereferencing pointer to incomplete type
+8250.c: In function `serial8250_type':
+8250.c:1652: sizeof applied to an incomplete type
+8250.c:1652: invalid use of undefined type `struct serial_uart_config'
+8250.c:1654: invalid use of undefined type `struct serial_uart_config'
+8250.c:1655: warning: control reaches end of non-void function
+8250.c: In function `__register_serial':
+8250.c:1865: dereferencing pointer to incomplete type
+8250.c:1866: dereferencing pointer to incomplete type
+8250.c:1867: dereferencing pointer to incomplete type
+8250.c:1868: dereferencing pointer to incomplete type
+8250.c:1869: dereferencing pointer to incomplete type
+8250.c:1870: dereferencing pointer to incomplete type
+8250.c:1871: dereferencing pointer to incomplete type
+8250.c:1872: dereferencing pointer to incomplete type
+8250.c:1872: `ASYNC_BOOT_AUTOCONF' undeclared (first use in this function)
+8250.c:1876: dereferencing pointer to incomplete type
+8250.c: In function `early_serial_setup':
+8250.c:1908: dereferencing pointer to incomplete type
+make[3]: *** [8250.o] Error 1
+make[3]: Leaving directory `/usr/src/linux-2.5.32-gzp3/drivers/serial'
+make[2]: *** [serial] Error 2
+make[2]: Leaving directory `/usr/src/linux-2.5.32-gzp3/drivers'
+make[1]: *** [drivers] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.5.32-gzp3'
+make: *** [modules] Error 2
 
-	sti
-
-run for an hour on a busy machine.
-
-
-
-> On a faster machine, i.e., an ordinary 400 MHz Pentium, we have a
-> complete Tomographic Imaging machine that gets triggers from the
-> parallel port.
-> 
-> Off the parallel port, hardware writes a byte and sets the interrupt
-> line. There is no hand-shake with incoming data. It comes off a
-> trigger board that will generate between 50 and 80 thousand
-> triggers per second, depending upon some wheel speed. FYI, these
-> triggers mark the position at which an X-Ray beam generated image
-> data. If we missed a trigger, we end up losing a whole ray of
-> image data, which would be a mess.
-> 
-> Software reads then writes the byte into memory and executes 
-> wake_up_interruptible() for somebody sleeping in poll(). There is a
-> fixed-length circular buffer with no dynamic allocation. This is
-> the only thing that could possibly make it fast.
-> 
-> At the same time, a high-speed data-link, interfacing to the PCI/Bus
-> gets 2k of data per trigger so the machine is not exactly idle
-> when the triggers are coming into the parallel port. Software
-> correlates the trigger data with the image data as part of a
-> tomographic reconstruction.
-> 
-> That's 2048 * 80,000 = ~163 MB/s over the PCI with 80,000 b/s over
-> the parallel port at the same time. We originally had a hardware
-> "funnel" to combine 4 bytes before generating an interrupt. This
-> turned out to be a synchronization nightmare and was scrapped once
-> it was found that Linux interrupted fast enough.
-> 
-> Make a simple module, create an ISR off the printer port, enable
-> the printer port (hardware) interrupt line, then use a function
-> generator to toggle the printer port interrupt line. You can then
-> do all kinds of diagnostics to find out the max rate you can
-> interrupt --and the maximum amount of code you can use in that
-> ISR before you get overruns. This is what I did before I ever
-> signed up to use a ^$@^$!(-@ printer-port for something important.
-> 
-> 
-> Cheers,
-> Dick Johnson
-> Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-> The US military has given us many words, FUBAR, SNAFU, now ENRON.
-> Yes, top management were graduates of West Point and Annapolis.
-
--- 
----------------------------------------------------------
-Victor Yodaiken 
-Finite State Machine Labs: The RTLinux Company.
- www.fsmlabs.com  www.rtlinux.com
+$ gcc --version
+2.95.4
 

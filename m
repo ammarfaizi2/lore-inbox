@@ -1,51 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262524AbULOWwo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262525AbULOWyT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262524AbULOWwo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 17:52:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262525AbULOWwo
+	id S262525AbULOWyT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 17:54:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262526AbULOWyT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 17:52:44 -0500
-Received: from fw.osdl.org ([65.172.181.6]:62916 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262524AbULOWwY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 17:52:24 -0500
-Date: Wed, 15 Dec 2004 14:52:22 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@osdl.org>,
-       Stephen Smalley <sds@epoch.ncsc.mil>, James Morris <jmorris@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Split bprm_apply_creds into two functions
-Message-ID: <20041215145222.V469@build.pdx.osdl.net>
-References: <20041215200005.GB3080@IBM-BWN8ZTBWA01.austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20041215200005.GB3080@IBM-BWN8ZTBWA01.austin.ibm.com>; from serue@us.ibm.com on Wed, Dec 15, 2004 at 02:00:05PM -0600
+	Wed, 15 Dec 2004 17:54:19 -0500
+Received: from lakermmtao11.cox.net ([68.230.240.28]:16795 "EHLO
+	lakermmtao11.cox.net") by vger.kernel.org with ESMTP
+	id S262525AbULOWyN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Dec 2004 17:54:13 -0500
+In-Reply-To: <BAY14-F1340F1BEA5470EBDE3DD2095AD0@phx.gbl>
+References: <BAY14-F1340F1BEA5470EBDE3DD2095AD0@phx.gbl>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <3CBFF1DE-4EEC-11D9-B94B-000393ACC76E@mac.com>
+Content-Transfer-Encoding: 7bit
+Cc: linux-kernel@vger.kernel.org
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: OS I/O operations concepts
+Date: Wed, 15 Dec 2004 17:54:12 -0500
+To: tony osborne <tonyosborne_a@hotmail.com>
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Serge E. Hallyn (serue@us.ibm.com) wrote:
-> The security_bprm_apply_creds() function is called from
-> fs/exec.c:compute_creds() under task_lock(current).  SELinux must
-> perform some work which is unsafe in that context, and therefore
-> explicitly drops the task_lock, does the work, and re-acquires the
-> task_lock.  This is unsafe if other security modules are stacked after
-> SELinux, as their bprm_apply_creds assumes that the 'unsafe' variable is
-> still meaningful, that is, that the task_lock has not been dropped.
+On Dec 15, 2004, at 16:10, tony osborne wrote:
 
-I don't like this approach.  The whole point is to ensure safety, and
-avoid races that have been found in the past.  This gives a new interface
-that could be easily used under the wrong conditions, and breaking
-the interface into two pieces looks kinda hackish.  Is there no other
-solution?  I looked at this once before and wondered why task_unlock()
-is needed to call avc_audit?  audit should be as lock friendly as printk
-IMO, and I don't recall seeing any deadlock after short review of it.
-But I didn't get much beyond that.  Is it all the flushing that can't
-hold task_lock?
+[snipped Java efficiency questions]
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Overall, the Linux kernel is sufficiently fast and good at scheduling 
+IO that
+unless you're using well optimized C or assembly, you'll never be able 
+to get
+better IO results than by just letting the kernel manage it for you.  
+Java has
+sufficiently many extra layers of indirection that any slowdowns due to 
+the
+fact that Java is a heavily interpreted language are orders of magnitude
+bigger  than any slowdowns from improper IO scheduling.
+
+Cheers,
+Kyle Moffett
+
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
+L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
+PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
+!y?(-)
+------END GEEK CODE BLOCK------
+
+

@@ -1,60 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264233AbTDWVgw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 17:36:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264246AbTDWVgw
+	id S263625AbTDWVes (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 17:34:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263631AbTDWVes
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 17:36:52 -0400
-Received: from [12.47.58.232] ([12.47.58.232]:40863 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S264233AbTDWVgv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 17:36:51 -0400
-Date: Wed, 23 Apr 2003 14:46:48 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.68-mm2
-Message-Id: <20030423144648.5ce68d11.akpm@digeo.com>
-In-Reply-To: <18400000.1051109459@[10.10.2.4]>
-References: <20030423012046.0535e4fd.akpm@digeo.com>
-	<18400000.1051109459@[10.10.2.4]>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 23 Apr 2003 17:34:48 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:43705 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S263625AbTDWVer
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 17:34:47 -0400
+Date: Wed, 23 Apr 2003 14:36:21 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Werner Almesberger <wa@almesberger.net>
+cc: Matthias Schniedermeyer <ms@citd.de>, Marc Giger <gigerstyle@gmx.ch>,
+       linux-kernel <linux-kernel@vger.kernel.org>, pat@suwalski.net
+Subject: Re: [Bug 623] New: Volume not remembered.
+Message-ID: <1560860000.1051133781@flay>
+In-Reply-To: <20030423183413.C1425@almesberger.net>
+References: <21660000.1051114998@[10.10.2.4]> <20030423164558.GA12202@citd.de> <1508310000.1051116963@flay> <20030423183413.C1425@almesberger.net>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 23 Apr 2003 21:48:51.0721 (UTC) FILETIME=[20FCE790:01C309E2]
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" <mbligh@aracnet.com> wrote:
->
-> > . I got tired of the objrmap code going BUG under stress, so it is now in
-> >   disgrace in the experimental/ directory.
+>> Actually, I agree with the submitter. Having the volume default to 0
+>> is stupid - userspace tools are all very well, but no substitute for
+>> sensible kernel defaults.
 > 
-> Any chance of some more info on that? BUG at what point in the code,
-> and with what test to reproduce?
+> You've obviously never been to a meeting/conference and booted
+> a Linux notebook with a kernel that sets things to a non-zero
+> default :-)
 
-A bash-shared-mapping (from ext3 CVS) will quickly knock it over.  It gets
-its PageAnon/page->mapping state tangled up.
+Irrelevant really, since everyone's proposition is that the distro should
+save and restore it from userspace. Which I actually agree with.
 
-Must confess that I have trouble getting excited over objrmap.  It introduces
+I'm more concerned with new installs, and the poor user having no idea
+why his sound card "doesn't work". Been there myself. Pain in the ass.
 
-- inconsistency (pte_chains versus vma-list scanning)
-
-- code complexity
-
-- a quadratic search
-
-- nasty, nasty problems with remap_file_pages().  I'd rather not have to
-  nobble remap_file_pages() functionality for this reason.
-
-and what do we gain from it all?  The small fork/exec boost isn't very
-significant.  What we gain is more lowmem space on
-going-away-real-soon-now-we-sincerely-hope highmem boxes.
-
-Ingo-rmap seems a better solution to me.  It would be a fairly large change
-though - we'd have to hold the four atomic kmaps across an entire pte page
-in copy_page_range(), for example.  But it will then have good locality of
-reference between adjacent pages and may well be quicker than pte_chains.
-
+M.
 

@@ -1,62 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271007AbUJUVqQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270992AbUJUVdW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271007AbUJUVqQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 17:46:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271003AbUJUVnF
+	id S270992AbUJUVdW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 17:33:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270972AbUJUVdL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 17:43:05 -0400
-Received: from fw.osdl.org ([65.172.181.6]:48533 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S270836AbUJUVli (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 17:41:38 -0400
-Date: Thu, 21 Oct 2004 14:45:31 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Dave Kleikamp <shaggy@austin.ibm.com>
-Cc: andrea@novell.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH] zap_pte_range should not mark non-uptodate pages dirty
-Message-Id: <20041021144531.22dd0d54.akpm@osdl.org>
-In-Reply-To: <1098393346.7157.112.camel@localhost>
-References: <1098393346.7157.112.camel@localhost>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Thu, 21 Oct 2004 17:33:11 -0400
+Received: from rrcs-24-123-59-149.central.biz.rr.com ([24.123.59.149]:47428
+	"EHLO galon.ev-en.org") by vger.kernel.org with ESMTP
+	id S270983AbUJUVcg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 17:32:36 -0400
+Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
+From: Baruch Even <baruch@ev-en.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <4177FB73.10101@techsource.com>
+References: <82D5E38355314D46AF3015FF55F6955802F83513@CORPMAIL3>
+	 <4177FB73.10101@techsource.com>
+Content-Type: text/plain
+Message-Id: <1098394352.5455.4.camel@baruch.hamilton.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 21 Oct 2004 22:32:32 +0100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Kleikamp <shaggy@austin.ibm.com> wrote:
->
-> Doing O_DIRECT writes to an mmapped file caused pages in the page cache to
-> be marked dirty but not uptodate.  This led to a bug in mpage_writepage.
-> 
+On Thu, 2004-10-21 at 19:09, Timothy Miller wrote:
+> I have before thought of the idea of selling a "card full of FPGAs" that 
+> developers could use for all sorts of compute-intensive projects.  You 
+> could program them to do rendering or protein folding or FFT's for SETI. 
+>   But in that case, I'm not sure what Tech-Source's value add would be, 
+> since you'd have to get all of your software tools from the FPGA vendor.
 
-Methinks this merely reduces the probability of the BUG.
+Something like this http://www.fpga4fun.com/board_dragon.html with this
+http://www.fpga4fun.com/PongGame.html
 
-> diff -urp linux-2.6.9/mm/memory.c linux/mm/memory.c
-> --- linux-2.6.9/mm/memory.c	2004-10-21 10:49:26.598031488 -0500
-> +++ linux/mm/memory.c	2004-10-21 16:01:44.902376232 -0500
-> @@ -414,7 +414,15 @@ static void zap_pte_range(struct mmu_gat
->  			    && linear_page_index(details->nonlinear_vma,
->  					address+offset) != page->index)
->  				set_pte(ptep, pgoff_to_pte(page->index));
-> -			if (pte_dirty(pte))
-> +			/*
-> +			 * PG_uptodate can be cleared by
-> +			 * invalidate_inode_pages2, so we must not try to write
-> +			 * not uptodate pages.  Otherwise we risk invalidating
-> +			 * underlying O_DIRECT writes, and secondly because
-> +			 * pdflush would BUG().  Coherency of mmaps against
-> +			 * O_DIRECT still cannot be guaranteed though.
-> +			 */
-> +			if (pte_dirty(pte) && PageUptodate(page))
+That covers the base to do VGA display with an FPGA. But the cost is
+pretty much prohibitive at over $250 per unit.
 
-	invalidate_inode_pages2 runs ClearPageUptodate() here
+Baruch
 
->  				set_page_dirty(page);
->  			if (pte_young(pte) && !PageAnon(page))
->  				mark_page_accessed(page);
-
-Maybe we should revisit invalidate_inode_pages2().  It used to be an
-invariant that "pages which are mapped into process address space are
-always uptodate".  We broke that (good) invariant and we're now seeing
-some fallout.  There may be more.

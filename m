@@ -1,62 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270525AbRHHRI1>; Wed, 8 Aug 2001 13:08:27 -0400
+	id <S270530AbRHHRJr>; Wed, 8 Aug 2001 13:09:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270527AbRHHRIR>; Wed, 8 Aug 2001 13:08:17 -0400
-Received: from www.grips.com ([62.144.214.31]:33800 "EHLO grips_nts2.grips.com")
-	by vger.kernel.org with ESMTP id <S270525AbRHHRID>;
-	Wed, 8 Aug 2001 13:08:03 -0400
-Message-ID: <3B717220.8050308@grips.com>
-Date: Wed, 08 Aug 2001 19:08:48 +0200
-From: jury gerold <geroldj@grips.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2) Gecko/20010701
-X-Accept-Language: de-at, en
+	id <S270528AbRHHRJ1>; Wed, 8 Aug 2001 13:09:27 -0400
+Received: from ns1.austin.rr.com ([24.93.35.62]:56848 "EHLO ns1.austin.rr.com")
+	by vger.kernel.org with ESMTP id <S270527AbRHHRJW>;
+	Wed, 8 Aug 2001 13:09:22 -0400
+From: "Rob" <rwideman@austin.rr.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: configuring the kernel
+Date: Wed, 8 Aug 2001 12:11:44 -0500
+Message-ID: <LHEGJICMMCCGOHKDFALMOEMHCAAA.rwideman@austin.rr.com>
 MIME-Version: 1.0
-To: Gerbrand van der Zouw <g.vanderzouw@chello.nl>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Athlon/MSI mobo combo broken?
-In-Reply-To: <20010723180201.A10557@convergence.de> <20010723183204.B27310@lightning.swansea.linux.org.uk> <3B6071F8.5090104@chello.nl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If you have PC100 SDRAM try to replace it with PC133.
-This worked for my motherboard. (Gigabyte GA-7ZXR, VIA-KT133A, Athlon 
-1.1MHz)
+I have a couple questions of which i am unsure of.  Last nite i did my first
+kernel compilation and i am thinking that i might have been too tired for
+doing this at 6A (yes stayed up all nite).  I might have said yes to a few
+things and no to a few things that i shouldnt have and want to reconfigure
+the kernel.  The only problem is i am not sitting through another 1.5 hrs of
+Y/N questions on which 75% i am not sure of while not having any sleep for
+about 25 hrs. I would rather install RH 2 or 3 before going through that
+again.
+I have RH 7.1 and want to update to 2.4.7. I have the most basic install
+(the only thing i selected during isntall was kernel development and
+development so i can compile and redo the kernel of course).
 
-Cheers too
-
-Gerold
-
-Gerbrand van der Zouw wrote:
-
-> Hi,
->
-> Alan Cox wrote:
->
->> I'd be interested to know if 2.4.6-ac5 Athlon optimised works on your 
->> board.
->> The reason for this is that it contains the official VIA fixes for 
->> their IDE
->> corruption problem rather than our own.
->
->
-> I have a MSI K7T Turbo (MS-6330) mobo (VIA-KT133A chipset) and had a 
-> go with the 2.4.6-ac5 kernel with Athlon optimisations on. The overall 
-> impression is that the combination is slightly more stable than 
-> kernels without the Southbridge fix. I.e. I now manage to boot in 
-> single user mode, however running anything as advanced as gcc is out 
-> of the question: oopses all over the place and also some complaints 
-> from the VM-system.
->
-> I am in no way qualified enough to go hacking around in the kernel 
-> myself, but am quite willing to test any patches that might help 
-> towards solving the problem.
->
-> Cheers,
->
-> Gerbrand van der Zouw
->
-
+Qustions:
+1-does "make menuconfig" require X to be installed? I dont have X, i just
+have RH 7.1 with kernel dev and kernel sources installed (atleast those were
+the ONLY things i had selected during install).
+2-if i untared/unpacked the kernel to the folder /root/newkern (here is
+where i did the "gzip -cd linux 2.4.7...... |tar xvf -" command) is it ok to
+delete the newkern folder and unpack nd then do the "make menuconfig"?
 

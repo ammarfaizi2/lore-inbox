@@ -1,53 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136512AbREDVMu>; Fri, 4 May 2001 17:12:50 -0400
+	id <S136510AbREDVNw>; Fri, 4 May 2001 17:13:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136511AbREDVMb>; Fri, 4 May 2001 17:12:31 -0400
-Received: from klawatti.watchguard.com ([64.74.30.161]:17672 "EHLO
-	klawatti.watchguard.com") by vger.kernel.org with ESMTP
-	id <S136510AbREDVMT>; Fri, 4 May 2001 17:12:19 -0400
-From: bp@terran.org
-Date: Fri, 4 May 2001 14:09:16 -0700 (PDT)
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Sending packets from within the kernel
-Message-ID: <Pine.LNX.4.31.0105041356080.13540-100000@uranus.terran>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S136513AbREDVNr>; Fri, 4 May 2001 17:13:47 -0400
+Received: from dsl081-246-098.sfo1.dsl.speakeasy.net ([64.81.246.98]:26120
+	"EHLO are.twiddle.net") by vger.kernel.org with ESMTP
+	id <S136510AbREDVMt>; Fri, 4 May 2001 17:12:49 -0400
+Date: Fri, 4 May 2001 14:12:40 -0700
+From: Richard Henderson <rth@twiddle.net>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] 2.4.4 alpha semaphores optimization
+Message-ID: <20010504141240.A11122@twiddle.net>
+Mail-Followup-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010503194747.A552@jurassic.park.msu.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010503194747.A552@jurassic.park.msu.ru>; from ink@jurassic.park.msu.ru on Thu, May 03, 2001 at 07:47:47PM +0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Thu, May 03, 2001 at 07:47:47PM +0400, Ivan Kokshaysky wrote:
+>  - removed some mb's for non-SMP
 
-Hello,
+This isn't correct.  Either you need atomic updates or you don't.
+If you don't, then you shouldn't be using ll/sc at all.  If you do
+(perhaps to coordinate with devices) then the barriers are required.
 
-I am working on an kernel module which forwards TCP segments from one
-interface to another (basic routing, no proxy or listener socket), but
-which needs to be able to generate some segments completely independently
-of the client<-->server data stream.  For example, when receiving a SYN
-segment from the client, I want the module to be able to respond itself
-with a SYN+ACK on behalf of the server (and drop the SYN).
+>  - removed non-inline up()/down_xx() when semaphore/waitqueue debugging
+>    isn't enabled.
 
-I understand how silly this sounds.  Setting aside the reasoning and
-pitfalls of such a desire, technically what is the best way to do it?  I've
-reviewed the SYN_COOKIE and RST_COOKIE logic and it seems we must create a
-dummy socket which is not attached to any inode.
+They should still be exported for module compatibility.
 
-Is there a cheaper way of accomplishing the same thing, assuming I don't
-need to record any state for the endpoints?
 
-Sincerely,
-- -bp
-- --
-# bp at terran dot org
-# http://www.terran.org/~bryan
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE68xp/qAGIoYtXZJERAtvDAJ0QCgrfzdoqnRr5hWNpuersTtKpSwCgrtNl
-gnGcBjCt+W41tHunmyTuFAM=
-=GCRW
------END PGP SIGNATURE-----
-
+r~

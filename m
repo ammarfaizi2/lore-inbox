@@ -1,27 +1,26 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267459AbTBLTvK>; Wed, 12 Feb 2003 14:51:10 -0500
+	id <S267415AbTBLT5C>; Wed, 12 Feb 2003 14:57:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267554AbTBLTvK>; Wed, 12 Feb 2003 14:51:10 -0500
-Received: from phoenix.mvhi.com ([195.224.96.167]:22802 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S267459AbTBLTvK>; Wed, 12 Feb 2003 14:51:10 -0500
-Date: Wed, 12 Feb 2003 20:00:58 +0000 (GMT)
-From: James Simmons <jsimmons@infradead.org>
-To: Alvaro Lopez Ortega <alvaro@alobbs.com>
-cc: linux-kernel@vger.kernel.org, Ani Joshi <ajoshi@unixbox.com>
-Subject: Re: radeonfb and `Radeon Mobility 9000'
-In-Reply-To: <200301271635.52796.alvaro@alobbs.com>
-Message-ID: <Pine.LNX.4.44.0302122000490.31435-100000@phoenix.infradead.org>
+	id <S267554AbTBLT5C>; Wed, 12 Feb 2003 14:57:02 -0500
+Received: from [212.122.164.10] ([212.122.164.10]:50820 "EHLO
+	pechkin.minfin.bg") by vger.kernel.org with ESMTP
+	id <S267415AbTBLT5C>; Wed, 12 Feb 2003 14:57:02 -0500
+Message-ID: <3E4AA8F0.7040601@minfin.bg>
+Date: Wed, 12 Feb 2003 22:05:04 +0200
+From: Kostadin Karaivanov <larry@minfin.bg>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030112
+X-Accept-Language: en-us, en, bg
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: [RE] Strange TCP with 2.5.60
+X-Enigmail-Version: 0.71.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> > 	This little patch adds `Radeon Mobility 9000' support to the Radeon
-> > Framebuffer driver.
-> 
-> 	Sorry, I made a mistake..
-> 	This is the right patch file, please ignore previous one.
+Yes, the patch helps !
+10x a lot
 

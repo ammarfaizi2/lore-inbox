@@ -1,87 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312600AbSEVMKy>; Wed, 22 May 2002 08:10:54 -0400
+	id <S312601AbSEVMOt>; Wed, 22 May 2002 08:14:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312601AbSEVMKy>; Wed, 22 May 2002 08:10:54 -0400
-Received: from eventhorizon.antefacto.net ([193.120.245.3]:6347 "EHLO
-	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
-	id <S312600AbSEVMKx>; Wed, 22 May 2002 08:10:53 -0400
-Message-ID: <3CEB8A8E.6090401@antefacto.com>
-Date: Wed, 22 May 2002 13:09:50 +0100
-From: Padraig Brady <padraig@antefacto.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/20020510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	id <S312938AbSEVMOs>; Wed, 22 May 2002 08:14:48 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:60177 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S312601AbSEVMOr>; Wed, 22 May 2002 08:14:47 -0400
+Date: Wed, 22 May 2002 13:14:41 +0100
+From: Russell King <rmk@arm.linux.org.uk>
 To: Martin Dalecki <dalecki@evision-ventures.com>
-CC: Nick Kurshev <nickols_k@mail.ru>, linux-kernel@vger.kernel.org
-Subject: Re: /dev/port BUG and possible workaround
-In-Reply-To: <20020522124116.680f59b8.nickols_k@mail.ru> <3CEB4E43.5020203@evision-ventures.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Cc: jack@suse.cz, Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.5.17
+Message-ID: <20020522131441.C16934@flint.arm.linux.org.uk>
+In-Reply-To: <Pine.LNX.4.44.0205202211040.949-100000@home.transmeta.com> <3CEB78D7.7070107@evision-ventures.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Dalecki wrote:
-> Uz.ytkownik Nick Kurshev napisa?:
-> 
-> ...
-> 
->> 800=inl(CFC)
->> 2. Wrong log with using of /dev/port:
-> 
-> ...
-> 
->> But it seems that nobody uses this device. Then what is goal
->> of implementing of this device?
-> 
-> Basically the goal is that contrary to some silly /proc
-> stuff which is "en vouge" nowadays you have the ability to
-> controll port access by using normal user permission control
-> semantics of unix file access permissions, by giving /dev/port
-> a proper group and so on. This is legacy crap of course, since
-> the above goal can be reached by using a apache-suexec alike wrapper
-> as well... even with more fine grained resolution of access controll.
+On Wed, May 22, 2002 at 12:54:15PM +0200, Martin Dalecki wrote:
+> Please put the following crap under /proc/sys/fs,
+> where it belongs. OK?
 
-It also allows you to write a watchdog driver in shell :-)
+/proc/sys is for sysctls, not random proc junk.  Therefore, putting the
+random crap you point out that's currently in /proc/fs in /proc/sys/fs:
 
-#!/bin/sh
-# Padraig@antefacto.com
-# This supports both the Ibase MB700 and Advantech PCM9576
+> [root@kozaczek fs]# pwd
+> /proc/fs
+> [root@kozaczek fs]# cat quota
+> Version 60501
+> Formats
+> 0 0 0 0 0 0 0 8
+> [root@kozaczek fs]#
 
-usage() {
-     echo "Usage: `basename $0` [pat] [playdead]"
-     exit 1
-}
+is even worse.
 
-if [ $# != 1 ]; then usage; fi;
-if [ $1 != "pat" ]; then
-     if [ $1 != "playdead" ]; then
-         usage
-     fi
-fi
+/proc/sys has a clean and clear purpose.
 
-HW_VERSION=`cat /var/run/HW_VERSION`
-
-if [ "$HW_VERSION" == "IBASE MB700" ];
-     ENABLE_PORT=`printf %d 0x443`
-     DISABLE_PORT=`printf %d 0x441`
-
-     if [ $1 == "pat" ]; then
-         TIMEOUT='\x5' #20 seconds (0=30s, 1=28s, ..., F=0s)
-         printf "$TIMEOUT" | dd bs=1 seek=$ENABLE_PORT of=/dev/port
-     else
-         #write any value to port to disable
-         printf "\001" | dd bs=1 seek=$DISABLE_PORT of=/dev/port
-     fi
-elif [ "$HW_VERSION" == "Advantech PCM9576" ]; then
-     DISENABLE_PORT=`printf %d 0x443`
-
-     if [ $1 == "pat" ]; then
-         TIMEOUT='\x14' #20 seconds (1=1s, 2=2s, ..., 3E=62s)
-         printf "$TIMEOUT" | dd bs=1 seek=$DISENABLE_PORT of=/dev/port
-     else
-         #read from port to disable
-         dd bs=1 count=1 skip=$DISENABLE_PORT if=/dev/port of=/dev/null
-     fi
-fi
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

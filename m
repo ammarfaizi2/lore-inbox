@@ -1,69 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285025AbRLZXdc>; Wed, 26 Dec 2001 18:33:32 -0500
+	id <S285047AbRLZXhc>; Wed, 26 Dec 2001 18:37:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285031AbRLZXdX>; Wed, 26 Dec 2001 18:33:23 -0500
-Received: from mail.libertysurf.net ([213.36.80.91]:24866 "EHLO
-	mail.libertysurf.net") by vger.kernel.org with ESMTP
-	id <S285025AbRLZXdQ> convert rfc822-to-8bit; Wed, 26 Dec 2001 18:33:16 -0500
-Date: Thu, 27 Dec 2001 01:35:27 +0100 (CET)
-From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
-X-X-Sender: <groudier@gerard>
-To: Arturas V <arturasv@hotmail.com>
-cc: <linux-kernel@vger.kernel.org>, <avaitaitis@bloomberg.net>
-Subject: Re: Proliant hangs with 2.4 but works with 2.2. 
-In-Reply-To: <F105uevz176RbFGIUUJ0000fff8@hotmail.com>
-Message-ID: <20011227011424.P1028-100000@gerard>
+	id <S285048AbRLZXhX>; Wed, 26 Dec 2001 18:37:23 -0500
+Received: from odin.allegientsystems.com ([208.251.178.227]:17280 "EHLO
+	lasn-001.allegientsystems.com") by vger.kernel.org with ESMTP
+	id <S285047AbRLZXhO>; Wed, 26 Dec 2001 18:37:14 -0500
+Message-ID: <3C2A5F24.6090501@allegientsystems.com>
+Date: Wed, 26 Dec 2001 18:37:08 -0500
+From: Nathan Bryant <nbryant@allegientsystems.com>
+Organization: Allegient Systems
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+To: saidani@info.unicaen.fr, dledford@redhat.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] TEST of patch proposed for i810 audio
+In-Reply-To: <3C2A56C7.5050801@allegientsystems.com>
+Content-Type: multipart/mixed;
+ boundary="------------030305030506080109010702"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------030305030506080109010702
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
+Nathan Bryant wrote:
 
-On Wed, 26 Dec 2001, Arturas V wrote:
-
-> lafanga lafanga wrote:
-> >I have a Compaq Proliant 1600 server which can be hung on demand with >all
-> >the 2.4 series kernels I have tried (2.4, 2.4.1 & 2.4.2-pre3). >Kernel
-> >2.2.16 runs perfectly (from a default RH7.0).
 >
-> >I have ensured that the server meets the necessary requirements for >the
-> >2.4 kernels (modutils etc) and I have tried kgcc and various gcc versions.
-> > >When compiling I have tried default configs and also minimalist configs
-> >(with only cpqarray and tlan). I have also ensured that I have the latest
-> > >current SmartStart CD (4.9) and have setup the firmware for installing
-> >Linux.
+> maybe this patch will solve your problem, samir, maybe it won't; 
+> regardless, it should fix at least one corner case and is either 
+> obviously correct or start_*c is not ;-)
 >
-> I had similar problem with 2.4.5 Kernel. I managed to solve the problem by
-> configuring a working verion of kernel with
-> NCR53C8XX SCSI support as well as SYM53C8XX. As far as I understood
-> SYM53C8xx support covers 53C8xx chips better than NCR53C8xx and that makes
-> all the difference. Anyone understands why?
+> patch is against doug's 0.12.
 
-- NCR53C8XX supports all chips except the 53C1010 (33MHz and 66MHz
-  PCI) Ultra-160 controllers.
+[snip]
 
-- SYM53C8XX supports chips that implement LOAD/STORE scripts
-  instructions. As a result the 53C1010 Ultra-160 controllers are
-  supported (+810A,860,875,895,895A,896).
+attached is a slightly more anal retentive version of my previous patch. 
+as in the previous patch, the goal is to make update_lvi completely 
+self-contained, ie resistant to changes in higher-level code, ie not 
+deadlock even if somebody really sets it up with bad state, also 
+eliminates one if/then/else thinko in 0.12 that could theoretically 
+cause dac to be started when you're trying to record, which would cause 
+a deadlock.
 
-- SYM53C8XX_2 (aka sym-2) supports all chips from earliest 810 rev.1 to
-  latest 53C1010-66. Hopefully will replace SYM53C8XX/NCR53C8XX bundle.
+--------------030305030506080109010702
+Content-Type: text/plain;
+ name="new.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="new.diff"
 
-(In fact, NCR53C8XX was only useful for 810 and 815 controllers)
+--- i810_audio.c.12	Wed Dec 19 02:04:06 2001
++++ linux/drivers/sound/i810_audio.c	Wed Dec 26 18:22:37 2001
+@@ -952,12 +952,16 @@
+ 	 * the CIV value to the next sg segment to be played so that when
+ 	 * we call start_{dac,adc}, things will operate properly
+ 	 */
+-	if (!dmabuf->enable && dmabuf->trigger) {
+-		if(rec && dmabuf->count != dmabuf->dmasize) {
++	if (!dmabuf->enable && dmabuf->ready) {
++		if(rec && dmabuf->count < dmabuf->dmasize &&
++		   (dmabuf->trigger & PCM_ENABLE_INPUT))
++		{
+ 			outb((inb(port+OFF_CIV)+1)&31, port+OFF_LVI);
+ 			__start_adc(state);
+ 			while( !(inb(port + OFF_CR) & ((1<<4) | (1<<2))) ) ;
+-		} else if(dmabuf->count) {
++		} else if (!rec && dmabuf->count &&
++			   (dmabuf->trigger & PCM_ENABLE_OUTPUT))
++		{
+ 			outb((inb(port+OFF_CIV)+1)&31, port+OFF_LVI);
+ 			__start_dac(state);
+ 			while( !(inb(port + OFF_CR) & ((1<<4) | (1<<2))) ) ;
 
-For chips that support LOAD/STORE, the SYM53C8XX and SYM53C8XX_2 drivers
-care about the chips not mastering themselves over the PCI, as required by
-PCI 2.2 specifications.
-
-NCR53C8XX and SYM53C8XX interface with scsi layer using the scsi-obsolete
-interface. SYM53C8XX_2 uses the EH interface.
-
-You are encouraged to use SYM53C8XX_2 (aka sym-2, aka SYM53C8XX version
-2). The driver is available in latest 2.4 and 2.5 kernels and can also be
-used on 2.2 kernel.
-
-  Gérard.
+--------------030305030506080109010702--
 

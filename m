@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263879AbTDVWis (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 18:38:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263884AbTDVWis
+	id S263893AbTDVW7v (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 18:59:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263896AbTDVW7v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 18:38:48 -0400
-Received: from siaag2ae.compuserve.com ([149.174.40.135]:56820 "EHLO
-	siaag2ae.compuserve.com") by vger.kernel.org with ESMTP
-	id S263879AbTDVWir (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 18:38:47 -0400
-Date: Tue, 22 Apr 2003 18:47:33 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: 2.5.68 IDE Oops at boot [working now]
-To: "digitale@digitaleric.net" <digitale@digitaleric.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200304221850_MC3-1-3587-B664@compuserve.com>
-MIME-Version: 1.0
+	Tue, 22 Apr 2003 18:59:51 -0400
+Received: from 205-158-62-136.outblaze.com ([205.158.62.136]:47241 "HELO
+	fs5-4.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S263893AbTDVW7v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Apr 2003 18:59:51 -0400
+Subject: Re: 2.5 kernel hangs system
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: root@chaos.analogic.com
+Cc: Dave Mehler <dmehler26@woh.rr.com>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.53.0304221649050.17809@chaos>
+References: <000501c3090c$71683c60$0200a8c0@satellite>
+	 <Pine.LNX.4.53.0304221649050.17809@chaos>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1051053106.710.4.camel@teapot.felipe-alfaro.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 (1.2.3-1) 
+Date: 23 Apr 2003 01:11:46 +0200
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2003-04-22 at 23:00, Richard B. Johnson wrote:
+> First, I don't understand how as you say, "suggestions are
+> desperately needed" on a developmental kernel. These things are
+> not known to work on all configurations and some information like
+> "It gives me hex codes..." is worthless. Please write down
+> these "hex-codes" and, after booting a version the works, run them
+> through ksymoops. If you don't know what that is:
 
-> This fixes it, thank you very much!  I am currently running 2.5.68 with your 
-> IDE patch.  One annoyance is that the order of IDE channels is different 
-> between 2.4.20 and 2.5.68 - the Silicon Image SATA controller is detected 
-> first on 2.5 but not on 2.4.  I've just put a simple script to swap 
-> /etc/fstab at boot based on the running kernel, but the device swap is not 
-> very user-friendly.  Other than that, I've got no complaints - the system is 
-> running quite well!
+ksymoops? I thought 2.5 kernels didn't need ksymoops anymore and that
+function names were automatically "guessed" in call stack traces.
 
+-- 
+Please AVOID sending me WORD, EXCEL or POWERPOINT attachments.
+See http://www.fsf.org/philosophy/no-word-attachments.html
+Linux Registered User #287198
 
-  Try 2.5.68-ce2, which I just posted to the list.
-
-  It has the bus order fix and has Manfred's patch as well, though I
-couldn't test his fix on my setup.
-
-------
- Chuck

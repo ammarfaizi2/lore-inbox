@@ -1,73 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262310AbTKIKIU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Nov 2003 05:08:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262315AbTKIKIU
+	id S262315AbTKIKU6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Nov 2003 05:20:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262328AbTKIKU6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Nov 2003 05:08:20 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:64220
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S262310AbTKIKIR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Nov 2003 05:08:17 -0500
-From: Rob Landley <rob@landley.net>
-Reply-To: rob@landley.net
-To: mochel@osdl.org
-Subject: Patrick's Test9 suspend code.
-Date: Sun, 9 Nov 2003 04:04:40 -0600
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200311090404.40327.rob@landley.net>
+	Sun, 9 Nov 2003 05:20:58 -0500
+Received: from diale202.ppp.lrz-muenchen.de ([129.187.28.202]:11477 "EHLO
+	karin.de.interearth.com") by vger.kernel.org with ESMTP
+	id S262315AbTKIKTM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Nov 2003 05:19:12 -0500
+Subject: Re: Re:No backlight control on PowerBook G4
+From: Daniel Egger <degger@fhm.edu>
+To: benh@kernel.crashing.org
+Cc: Dustin Lang <dalang@cs.ubc.ca>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <1068346792.673.25.camel@gaston>
+References: <Pine.GSO.4.53.0311021038450.3818@columbia.cs.ubc.ca>
+	 <1067820334.692.38.camel@gaston>  <1067878624.7695.15.camel@sonja>
+	 <1067896476.692.36.camel@gaston>  <1067976347.945.4.camel@sonja>
+	 <1068078504.692.175.camel@gaston>  <1068198639.796.109.camel@sonja>
+	 <1068346792.673.25.camel@gaston>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-9iGDWYH23oAhmSkVBNI1"
+Message-Id: <1068371734.797.506.camel@sonja>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sun, 09 Nov 2003 10:55:34 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-So a few idiosyncrasies using patrick's suspend code (I.E. the one that 
-actually works for me.  Mostly).
 
-1) If you suspend a process (ctrl-z), suspend to disk, and the resume, the 
-suspended process is unfrozen.  (Needless to say, this confuses bash job 
-control a bit, since my shell is also unfrozen, so ctrl-c isn't doing 
-anything here...)  Try it with a big make, it's fun. :)
+--=-9iGDWYH23oAhmSkVBNI1
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-2) "Snapshotting memory" is _really_slow_ for a CPU bound task on a 900 mhz 
-celeron scanning the memory of a machine that has less than 200 megs of ram.  
-My guess is that the "suspend all the hardware" phase accidentally put the 
-CPU (or memory bus or some such) into a low-power state where it's still 
-running, but at maybe 1/10th normal speed.
+Am Son, den 09.11.2003 schrieb Benjamin Herrenschmidt um 03:59:
 
-3) Suspend works about 90% of the time (echo -e "disk" > /sys/blah), but every 
-once in a while I have one of two failure cases:
+> > Still cannot try this because your kernel wouldn't even survive yaboot.
 
-A) Either it panics (and then blanks the screen on my a few seconds later, yes 
-I've tried switching that off with setterm -blank, if anything that made it 
-happen faster after a panic.)
+> Can you give details ? It should work just fine, except if I broke
+> something in the past few days when getting G5 support in, but I didn't
+> have any other report of this, so...
 
-B) Or it resumes after the snapshot, booting back up to the desktop.  No 
-"writing pages to disk" phase (that I've noticed).  Repeatedly telling it to 
-suspend when it does this fails the same way, although I got it to suspend by 
-exiting X afterwards and suspending from the console.  It's like there's an 
-uninitialized variable on the stack that's getting crap in it, or something.  
-(Nothing in the log about snapshotting having failed...)
+The report on the chrp image is all I have right now because every other
+image will result in a hang right after downloading the kernel via tftp.
 
-This brings us to 2B) Snapshotting is way too opaque.  It sits there for 15 
-seconds sometimes doing inscrutable things, with no progress indicator or 
-anything, and then either suspends, panics, or fails and fires the desktop 
-back up with no diagnostic message.
+Which of the two radeon drivers should I use anyway?
 
-On the whole, this is really really cool, and if you have any suggestions how 
-I could help, I'm all ears.  (I'm unlikely to poke into the code too 
-extensively this week, converting the bzip compression-side code to C is 
-still taking up my free time.  I may take a whack at it for kicks if there's 
-some low hanging fruit, though.  But that tends to lead me down ratholes (see 
-"bzip")...)
+> Well, you are not supposed to use the zImage.chrp on a PowerMac,
+> and definitely not from yaboot.
 
-Rob
+With the Linus kernel it's the only one that works.
 
-P.S.  Is there a mailing list to discuss this on?  I asked on the swsusp list 
-and they said no, that was for discussing the work of nigel and pavel, and 
-their stuff doesn't work for me.  I'm happy to be a guinea pig to test out 
-new versions.  I backup my laptop regularly. :)
+> Last I tried, then just netbooting vmlinux.elf-pmac worked fine
+> on all the "newworld" models I have here). For yaboot, you need
+> to load a plain vmlinux binary.
+
+Yes, but the image is too big for yaboot. I'll have to patch it first.
+
+--=20
+Servus,
+       Daniel
+
+--=-9iGDWYH23oAhmSkVBNI1
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQA/rg8Wchlzsq9KoIYRAr9OAJkB4CNG/pGcSY+eAlpfZespzwczFwCfaabm
+h9WBPfQeDBj4sRF/vfYs3Iw=
+=CD/Y
+-----END PGP SIGNATURE-----
+
+--=-9iGDWYH23oAhmSkVBNI1--
+

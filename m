@@ -1,83 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280307AbRK1TUJ>; Wed, 28 Nov 2001 14:20:09 -0500
+	id <S280251AbRK1TVJ>; Wed, 28 Nov 2001 14:21:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280257AbRK1TUF>; Wed, 28 Nov 2001 14:20:05 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:53770 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S280084AbRK1TSU>;
-	Wed, 28 Nov 2001 14:18:20 -0500
-Date: Wed, 28 Nov 2001 20:18:14 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: shutdown problem
-Message-Id: <20011128201814.180c6986.skraw@ithnet.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S280153AbRK1TU4>; Wed, 28 Nov 2001 14:20:56 -0500
+Received: from [209.113.159.17] ([209.113.159.17]:30850 "HELO
+	gold.auroratech.com") by vger.kernel.org with SMTP
+	id <S280084AbRK1TUJ>; Wed, 28 Nov 2001 14:20:09 -0500
+Message-ID: <3C053888.89D3FD82@aol.com>
+Date: Wed, 28 Nov 2001 14:18:32 -0500
+From: Joachim Martillo <ThorsProvoni@aol.com>
+Organization: Anbaric Pinscher, Inc.
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-4GB i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: martillo@telfordtools.com
+Subject: 3 Questions
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+1) I have built a multifunction driver to support the Aurora
+Technologies, Inc. serial adapter cards and expansion units that use
+Siemens/Infineon SAB 82532 and SAB 82538 (ESCC2 and ESCC8) enhanced
+serial communications controllers.  This driver supports asynchronous
+TTYs, synchronous TTYs, an Ethernet-like synchronous serial Network
+driver, and a packet-oriented character device to facilitate the
+portation to Linux of synchronous protocol applications that have been
+implemented with putmsg and getmsg on proprietary Unix systems.  (A
+patch for those interested in trying the driver will be put up on one
+of my web pages shortly.)  I took the SPARC Linux SAB 82532 serial
+asynchronous TTY driver as a starting point and kept the
+block_til_ready logic that arbitrates access between the cua and ttyS
+devices because it seemed helpful in arbitrating access to a physical
+port among the asynchronous TTY, asynchronous call out, synchronous
+TTY, Network and character device functionalities.  From reviewing the
+archive, I noticed that the cua devices have been deprecated, and that
+now apparently callout and asynchronous terminal connectivity are
+supposed to be managed through a single port.  I am not sure how
+asynchronous dialout for synchronous TTYs, synchronous Network devices
+and the synchronous character device can be managed without a separate
+asynchronous callout device to communicate with the modem before the
+synchronous connection is set up.  I suppose I could modify the
+asynchronous TTY device so that it could be bimodal and switch back
+and forth between synchronous and asynchronous mode, but a similar
+procedure would be hard for the synchronous character device and very
+hard for the synchronous network device.  How is dialout supposed to
+be handled for asynchronous dialup modems that can set up synchronous
+point-to-point connections on demand?
 
-It noticed the following while shuting down a SMP system. Since it happened
-twice, maybe anybody can tell me what this means. I see it only during shutdown
-phase, never during "normal" run. This is kernel 2.4.16-pre1.
+2) Are the other PCI or (E)ISA serial adapter cards that use the
+SAB82532 and SAB82538 enhanced serial communications controller?
+I could add support for them into this driver.
 
-Nov 25 14:47:31 admin kdm[664]: Unknown session exit code 2816 from process 707
-Nov 25 14:47:31 admin kernel: invalid operand: 0000
-Nov 25 14:47:31 admin kernel: CPU:    1
-Nov 25 14:47:31 admin kernel: EIP:    0010:[__free_pages_ok+75/508]    Not
-tainted
-Nov 25 14:47:31 admin kernel: EFLAGS: 00210202
-Nov 25 14:47:31 admin kernel: eax: 00000040   ebx: c1d520c0   ecx: c1d520c0  
-edx: 00000000
-Nov 25 14:47:31 admin kernel: esi: 00000000   edi: 00000000   ebp: 00000000  
-esp: f6175f24
-Nov 25 14:47:31 admin kernel: ds: 0018   es: 0018   ss: 0018
-Nov 25 14:47:31 admin kernel: Process kdm (pid: 707, stackpage=f6175000)
-Nov 25 14:47:31 admin kernel: Stack: f7b0aee0 00000000 f54830c8 00000000
-00210202 f7b0aee0 00000000 f54830c8
-Nov 25 14:47:31 admin kernel:        c014d89b c012cea8 c012cec6 c014d8df
-f6310920 40484000 00000000 00001000
-Nov 25 14:47:31 admin kernel:        f7b0aefc 00000000 00004000 000000c8
-f5483000 f55f9000 c014b180 c1e14000
-Nov 25 14:47:31 admin kernel: Call Trace: [proc_pid_read_maps+443/524]
-[__free_pages+28/32] [free_pages+26/28] [proc_pid_read_maps+511/524]
-[pid_maps_read+40/48]
-Nov 25 14:47:31 admin kernel:    [sys_read+143/196] [system_call+51/56]
-Nov 25 14:47:31 admin kernel:
-Nov 25 14:47:31 admin kernel: Code: 0f 0b 8b 43 18 a8 80 74 02 0f 0b b9 00 e0
-ff ff 21 e1 80 63
+3) Aurora wants to track the driver in its source control system, but
+they have ISO 900X procedures that require maintaining the build
+environment under CVS.  The build environment is basically the kernel
+against which it is developed.  But new developer kernels are released
+fairly regularly (unlike new versions of Solaris or True64).  Do
+maintainers of such driver software commonly maintain development
+environments across a complete range (e.g., all 2.4.* kernels)?  Is
+there a FAQ with recommendations to help a hardware vendor deal with
+the nitty gritty details of making sure its driver software works
+properly across such a range of rapidly changing development
+environments?
 
 
-Nov 25 15:33:04 admin kernel: invalid operand: 0000
-Nov 25 15:33:04 admin kernel: CPU:    1
-Nov 25 15:33:04 admin kernel: EIP:    0010:[__free_pages_ok+75/508]    Not
-tainted
-Nov 25 15:33:04 admin kernel: EFLAGS: 00210202
-Nov 25 15:33:04 admin kernel: eax: 00000040   ebx: c1d48640   ecx: c1d48640  
-edx: 00000000
-Nov 25 15:33:04 admin kernel: esi: 00000000   edi: 00000000   ebp: dc072980  
-esp: f5ebff24
-Nov 25 15:33:04 admin kernel: ds: 0018   es: 0018   ss: 0018
-Nov 25 15:33:04 admin kernel: Process kdm (pid: 713, stackpage=f5ebf000)
-Nov 25 15:33:04 admin kernel: Stack: e6b9e3e0 00000000 f5219400 dc072980
-c024ac48 c1040000 00200203 ffffffff
-Nov 25 15:33:04 admin kernel:        0001a107 c012cea8 c012cec6 c014d8df
-ed07fce0 40484000 00000000 00000400 
-Nov 25 15:33:04 admin kernel:        e6b9e3fc 0000000a 00011000 00000400
-f5219000 f520f000 c014b180 e8fa2000
-Nov 25 15:33:04 admin kdm[669]: Unknown session exit code 2816 from process 713
- 
-Nov 25 15:33:04 admin kernel: Call Trace: [__free_pages+28/32]
-[free_pages+26/28] [proc_pid_read_maps+511/524] [pid_maps_read+40/48]
-[sys_read+143/196]
-Nov 25 15:33:04 admin kernel:    [system_call+51/56]
-Nov 25 15:33:04 admin kernel: 
-Nov 25 15:33:04 admin kernel: Code: 0f 0b 8b 43 18 a8 80 74 02 0f 0b b9 00 e0
-ff ff 21 e1 80 63
+Joachim Martillo
+Telford Tools, Inc.
+martillo@telfordtools.com
 
-Regards,
-Stephan

@@ -1,64 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261317AbVCKUfo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261388AbVCKUaC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261317AbVCKUfo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 15:35:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261284AbVCKUan
+	id S261388AbVCKUaC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 15:30:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261268AbVCKU1m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 15:30:43 -0500
-Received: from franklin.nevis.columbia.edu ([129.236.252.8]:26753 "EHLO
-	franklin.nevis.columbia.edu") by vger.kernel.org with ESMTP
-	id S261702AbVCKU0u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 15:26:50 -0500
-Date: Fri, 11 Mar 2005 15:26:38 -0500 (EST)
-From: Felix Matathias <felix@nevis.columbia.edu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: select() doesn't respect SO_RCVLOWAT ?
-In-Reply-To: <1110568180.17740.69.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.61.0503111434040.30914@shang.nevis.columbia.edu>
-References: <Pine.LNX.4.61.0503101645190.29442@shang.nevis.columbia.edu>
- <1110568180.17740.69.camel@localhost.localdomain>
+	Fri, 11 Mar 2005 15:27:42 -0500
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:26256 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261563AbVCKUSL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Mar 2005 15:18:11 -0500
+Message-ID: <4231FE29.7090109@tmr.com>
+Date: Fri, 11 Mar 2005 15:23:05 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Rob Landley <rob@landley.net>
+CC: user-mode-linux-devel@lists.sourceforge.net, Jeff Dike <jdike@addtoit.com>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [uml-devel] [PATCH 3/9] UML - "Hardware" random number generator
+References: <200503100215.j2A2FuDN015227@ccure.user-mode-linux.org><200503100215.j2A2FuDN015227@ccure.user-mode-linux.org> <200503101341.37346.rob@landley.net>
+In-Reply-To: <200503101341.37346.rob@landley.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Rob Landley wrote:
+> On Wednesday 09 March 2005 09:15 pm, Jeff Dike wrote:
+> 
+>>This implements a hardware random number generator for UML which attaches
+>>itself to the host's /dev/random.
+> 
+> 
+> Direct use of /dev/random always makes me nervous.  I've had a recurring 
+> problem with /dev/random blocking, and generally configure as much as 
+> possible to use /dev/urandom instead.  It's really easy for a normal user to 
+> drain the /dev/random entropy pool on a server (at least one that doesn't 
+> have a sound card you can tell it to read white noise from).  cat /dev/random 
+> 
+>>/dev/null
+> 
+> 
+> I like /dev/urandom because it'll feed you as much entropy as it's got, but 
+> won't block, and will presumably round-robin insert real entropy in the 
+> streams that multiple users get from /dev/urandom.  (I realize this may not 
+> be the best place to get gpg keys from.)
+> 
+> I'm just thinking about those UML hosting farms, with several UML instances 
+> per machine, on machines which haven't got a keyboard attached constantly 
+> feeding entropy into the pool.  If just ONE of them is serving ssl 
+> connections from its own /dev/urandom, that would drain the /dev/random 
+> entropy pool on the host machine almost immediately...
+> 
+> Admittedly if UML used /dev/urandom instead of /dev/random, it wouldn't know 
+> how much "real" randomness it was getting and how much synthetic randomness, 
+> but this makes predicting the numbers it's producing easier how?
 
-Dear Alan,
-
-I am positive. I can setsockopt, and then, getsockopt returns the value 
-that I requested.
-
-Stevens very clearly states that SO_RCVLOWAT has a direct impact on 
-select() and I assumed that this would be the case for Linux.
-What is the rationale for not complying with that ? Is it the micromanagement
-of select() that you dislike ? Isn't a significant reduction in the
-amount of read operations a real gain in high speed networking ?
-
-Best Regards,
-Felix
-
-
-On Fri, 11 Mar 2005, Alan Cox wrote:
-
-> On Iau, 2005-03-10 at 21:58, Felix Matathias wrote:
->> Dear all,
->>
->> I am running a 2.4.21-9.0.3.ELsmp #1 kernel and I can setsockopt and
->> getsockopt correctly the SO_RCVLOWAT option
->
-> The only value the code at least used to support was setting it to 1.
-> Are you sure you are actually setting/checking ok ?
->
+Use of a "hardware" RNG patch without a real hardware RNG could do all 
+that. I would add a caution to the help warning of this problem if you 
+lack real hardware RNG capability. The really paranoid could insist that 
+at least one hardware driver be configured, but how much do you need to 
+protect people from themselves?
 
 -- 
-
-______________________________________________________________________
-Felix Matathias of Columbia University, Nevis Labs
-
-Brookhaven National Lab           cell : 631-988-3694
-Bldg 1005, 3-304                  web  : http://www.matathias.com
-Upton, NY, 11973                  photo: http://www.pbase.com/matathias
-tel/fax :631-344-7622/3253        email: felix@nevis.columbia.edu
-_______________________________________________________________________
-
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

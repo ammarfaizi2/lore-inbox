@@ -1,96 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293519AbSBZEty>; Mon, 25 Feb 2002 23:49:54 -0500
+	id <S293517AbSBZEwY>; Mon, 25 Feb 2002 23:52:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293518AbSBZEtf>; Mon, 25 Feb 2002 23:49:35 -0500
-Received: from unused-36-130.ixpres.com ([216.105.36.130]:47631 "EHLO
-	ajanta.ghen.net") by vger.kernel.org with ESMTP id <S293517AbSBZEtc> convert rfc822-to-8bit;
-	Mon, 25 Feb 2002 23:49:32 -0500
-Message-Id: <200202260453.g1Q4rnm08770@ajanta.ghen.net>
-Date: Mon, 25 Feb 2002 20:53:49 -0800
-From: "Rajagopal S. Iyer" <rajsand@hindunet.com>
-Subject: Scheduling algorithm  - Suggestion 
-To: linux-kernel@vger.kernel.org
-Cc: rajsand@rediffmail.com, lok@vsnl.com
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Mime-Version: 1.0
-Reply-To: rajsand@hindunet.com
+	id <S293518AbSBZEwO>; Mon, 25 Feb 2002 23:52:14 -0500
+Received: from dsl-213-023-039-132.arcor-ip.net ([213.23.39.132]:28550 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S293517AbSBZEwC>;
+	Mon, 25 Feb 2002 23:52:02 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+        Shawn Starr <spstarr@sh0n.net>, Linux <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.19-preX: What we really need: -AA patches finally in =?iso-8859-1?q?the	tree?=
+Date: Sun, 24 Feb 2002 06:44:36 +0100
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <200202260135.18913.Dieter.Nuetzel@hamburg.de> <1014686150.18834.2.camel@coredump> <4360000.1014687125@flay>
+In-Reply-To: <4360000.1014687125@flay>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16erSe-0001Qn-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Respected Community members,
+On February 26, 2002 02:32 am, Martin J. Bligh wrote:
+> > Not to begin the flamewar, but no thanks. rmap-12f blows -aa away AFAIK
+> > on this P200 w/ 64MB ram.
+> 
+> rmap still sucks on large systems though.
 
-Consider the kernel just having to do the scheduling as follows (the thought just occured.. I do not have mathematical proof): 
+But this is not a fundamental issue, it's implementation.  Whereas non-rmap
+will always suck on large systems, for fundamental reasons that are unrelated
+to the quality of the implementation.
 
-The suggested duration for 0-7 could be rounded off to match line frequency of the respective countries.
+> I'd love to see rmap
+> in the main kernel, but it needs to get the scalability fixed first.
 
-The suggested scheduling is sequence (In the Real time)
- 0-->1-->1-->0-->0-->1-->2-->2-->1-->0-->0-->1-->2;
- 1-->2-->2-->1-->1-->2-->3-->3-->2-->1-->1-->2-->3. (VM0)
-  |
-  v
- 4
-  |
-  v
- 0-->1-->1-->0-->0-->1-->2-->2-->1-->0-->0-->1-->2;
- 1-->2-->2-->1-->1-->2-->3-->3-->2-->1-->1-->2-->3. (VM1)
-  |
-  v
- 5
-  |
-  v
- 6
-  |
-  v
- 7
+Yes.
 
-0. Running
- 
-   In this state the process is actually run
- 
- 1. Preparatory
- 
-  In this state the necessary resource allocations for running the process is prepared
- 
-  1. Read the Process Table
-  2. allocate necessary resources
-  3. signal to run the process
- 
- 2. Wait State
- 
- This is the stage the machine execute the heartbeat function which consists of
+> The main problem seems to be pagemap_lru_lock ... Rik & crew 
+> know about this problem, but let's give them some time to fix it 
+> before rmap gets put into mainline ....
 
-  1. read any error status from the heartbeat messages of other nodes
-  2. prepare the status report
-  3. write error / log messages in the respective locations
- 
- 3. Review
- 
-    In this state, the messages after running of the process and the necessary
-    steps for transmitting the messages to the next process are taken
+Yes, yes and yes.
 
- 4. Reorder states
- In this stage, the states of the two processes are altered
-     (If the state of the process 0 is 0123 then 1032
-          and of the process 1 is 1032 change to 0123)
- 
- 5. Cycle Complete state
- 
-In this state the Necessary logging of Machine state and heartbeat, Cycle
-No Detail Stamping is to be taken care of (Fill details here)
- 
-
- 6. State Increment State
-  This is the crucial state where the promotion of state is done.
- 
- 7. respawn state
-   process with incremented states will 0 will be 1 and so on...
-
-
-VM0 and VM1 are two virtual machines tasks
- 
---
-This email was brought to you by Hindunet Mail
-http://www.hindunet.com/freemail/
-
+-- 
+Daniel

@@ -1,62 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266792AbTAZRAP>; Sun, 26 Jan 2003 12:00:15 -0500
+	id <S266840AbTAZRTZ>; Sun, 26 Jan 2003 12:19:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266840AbTAZRAP>; Sun, 26 Jan 2003 12:00:15 -0500
-Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:7177 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S266792AbTAZRAO>; Sun, 26 Jan 2003 12:00:14 -0500
-Date: Sun, 26 Jan 2003 18:09:27 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Aic7xxx 6.2.28 and Aic79xx 1.3.0 Released
-Message-ID: <20030126170927.GA14059@merlin.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <739810000.1043382396@aslan.scsiguy.com> <20030123.202727.102788332.davem@redhat.com> <756820000.1043384077@aslan.scsiguy.com> <20030123.205853.127871890.davem@redhat.com>
+	id <S266851AbTAZRTZ>; Sun, 26 Jan 2003 12:19:25 -0500
+Received: from 81-5-136-19.dsl.eclipse.net.uk ([81.5.136.19]:54146 "EHLO
+	vlad.carfax.org.uk") by vger.kernel.org with ESMTP
+	id <S266840AbTAZRTY>; Sun, 26 Jan 2003 12:19:24 -0500
+Date: Sun, 26 Jan 2003 17:28:37 +0000
+From: Hugo Mills <hugo-lkml@carfax.org.uk>
+To: sundara raman <sundararamand@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: doubts in INIT - while system booting up
+Message-ID: <20030126172837.GA1196@carfax.org.uk>
+Mail-Followup-To: Hugo Mills <hugo-lkml@carfax.org.uk>,
+	sundara raman <sundararamand@yahoo.com>,
+	linux-kernel@vger.kernel.org
+References: <20030126170034.30209.qmail@web20507.mail.yahoo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="u3/rZRmxL6MmkK24"
 Content-Disposition: inline
-In-Reply-To: <20030123.205853.127871890.davem@redhat.com>
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <20030126170034.30209.qmail@web20507.mail.yahoo.com>
+User-Agent: Mutt/1.4i
+X-GPG-Fingerprint: B997 A9F1 782D D1FD 9F87  5542 B2C2 7BC2 1C33 5860
+X-GPG-Key: 1C335860
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 23 Jan 2003, David S. Miller wrote:
 
-> I'm glad that we've established that we both provide endless amounts
-> of comedy for each other.
+--u3/rZRmxL6MmkK24
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Sun, Jan 26, 2003 at 09:00:34AM -0800, sundara raman wrote:
+
+> 8) while system booting up, it shows the following
+> error
 > 
-> Look Justin, the fact remains that you get paid top dollar to maintain
-> the Linux Adaptec driver.  If you can't be bothered to reliably
-> integrate fixes that show up in Linus's and Marcelo's tree, then
-> that's regretfully sad given your circumstances.
-> 
-> Now that is what makes me laugh!
+> 	 INIT: Id "x" respawing too fast: disabled for 5
+> minutes
 
-David,
+   It's not a kernel problem -- there's something broken in your X
+Windows configuration. xdm (or kdm or gdm) keeps trying to start and
+fails, and init is restarting it, and it fails...
 
-this is not how distributed development can work. The communication
-clearly is broken here.
+   Take a look in your X logs (I run Debian and mine are in
+/var/log/XFree86.log.0 -- yours may be somewhere else) for the cause
+of X not starting.
 
-Regardless of whether Linus' tree is broken or no, ALWAYS Cc: the fixes
--- even if trivial -- to the driver maintainer.  It's as simple as that.
-
-Same about complaints. If a tree breaks, complaining to the maintainer
-in addition to Linus/Marcelo/Alan may yield a "Linus' merge is
-incomplete, here's the missing bit" message from the maintainer.
-
-It's all about communication. If maintainers drown in messages, they'll
-tell this (Linus for example is notorious for dropping messages).
-
-I don't mean to offend anyone, but what you expect looks like
-clairvoyance to me, regardless of whether Justin gets paid or not, this
-is simply not reasonable to expect.
-
-Unless someone comes up with a "watchmydriver" script that checks the
-ChangeSet figures of a set of files after every bk pull and complains if
-Linus' tree complains unauthorized ChangeSets. I'm not sure if there is
-an invariant tag that remains across getting bk patches applied or if
-real diffs are needed. Larry or other BK experts might know more.
+   Hope this helps,
+   Hugo.
 
 -- 
-Matthias Andree
+=== Hugo Mills: hugo@... carfax.org.uk | darksatanic.net | lug.org.uk ===
+  PGP key: 1C335860 from wwwkeys.eu.pgp.net or http://www.carfax.org.uk
+              --- w.w.w.  : England's batting scorecard ---              
+
+--u3/rZRmxL6MmkK24
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
+
+iD8DBQE+NBrFssJ7whwzWGARAtFKAJ9ZMN4X+YU6hWfd8he5bMUvtarHFwCgslNm
+GTuZ/r5vbOI+dtZtLLOUuIM=
+=LzRr
+-----END PGP SIGNATURE-----
+
+--u3/rZRmxL6MmkK24--

@@ -1,45 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269213AbUINIyX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269215AbUINI4L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269213AbUINIyX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 04:54:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269215AbUINIyX
+	id S269215AbUINI4L (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 04:56:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269216AbUINI4K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 04:54:23 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:53514 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S269213AbUINIyV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 04:54:21 -0400
-Date: Tue, 14 Sep 2004 09:54:14 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Eric Valette <eric.valette@free.fr>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: linux-2.6.9-rc2 : hardirq.h broken if PREEMPT enabled
-Message-ID: <20040914095414.A5241@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Eric Valette <eric.valette@free.fr>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <41460CC3.6000201@free.fr>
+	Tue, 14 Sep 2004 04:56:10 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:46246 "EHLO
+	baythorne.infradead.org") by vger.kernel.org with ESMTP
+	id S269215AbUINIzy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 04:55:54 -0400
+Subject: Re: Add skeleton "generic IO mapping" infrastructure.
+From: David Woodhouse <dwmw2@infradead.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: jgarzik@pobox.com
+In-Reply-To: <200409132206.i8DM6dSC030620@hera.kernel.org>
+References: <200409132206.i8DM6dSC030620@hera.kernel.org>
+Content-Type: text/plain
+Message-Id: <1095152147.9144.254.camel@imladris.demon.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <41460CC3.6000201@free.fr>; from eric.valette@free.fr on Mon, Sep 13, 2004 at 11:10:27PM +0200
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
+Date: Tue, 14 Sep 2004 09:55:47 +0100
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by baythorne.infradead.org
 	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 13, 2004 at 11:10:27PM +0200, Eric Valette wrote:
-> Christoph Hellwig  posted this patch but it was unfortunately not 
-> included in linux-2.6.9-rc2. As I see oops reports with PREEMPT enabled, 
-> I think people should make sure to apply this patch first.
+On Mon, 2004-09-13 at 18:32 +0000, Linux Kernel Mailing List wrote:
+> ChangeSet 1.1869, 2004/09/13 11:32:00-07:00, torvalds@ppc970.osdl.org
 > 
-> <http://www.ussg.iu.edu/hypermail/linux/kernel/0409.1/1227.html>
+> 	Add skeleton "generic IO mapping" infrastructure.
+> 	
+> 	Jeff wants to use this to clean up SATA and some network drivers.
 
-this can't lead to an oops, the worst thing that could happen would
-be acompile failure.  But as about half of the old <asm/hardirq.h> instances
-didn't have the include either there's no driver I saw that actually
-broke.
+
+> + * Read/write from/to an (offsettable) iomem cookie. It might be a PIO
+> + * access or a MMIO access, these functions don't care. The info is
+> + * encoded in the hardware mapping set up by the mapping functions
+> + * (or the cookie itself, depending on implementation and hw).
+> + *
+> + * The generic routines don't assume any hardware mappings, and just
+> + * encode the PIO/MMIO as part of the cookie. They coldly assume that
+> + * the MMIO IO mappings are not in the low address range.
+> + *
+> + * Architectures for which this is not true can't use this generic
+> + * implementation and should do their own copy.
+> + *
+> + * We encode the physical PIO addresses (0-0xffff) into the
+> + * pointer by offsetting them with a constant (0x10000) and
+> + * assuming that all the low addresses are always PIO. That means
+> + * we can do some sanity checks on the low bits, and don't
+> + * need to just take things for granted.
+> + */
+> +#define PIO_OFFSET	0x10000
+> +#define PIO_MASK	0x0ffff
+> +#define PIO_RESERVED	0x40000
+
+> +#define IO_COND(addr, is_pio, is_mmio) do {			\
+> +	unsigned long port = (unsigned long __force)addr;	\
+> +	if (port < PIO_RESERVED) {				\
+> +		VERIFY_PIO(port);				\
+> +		port &= PIO_MASK;				\
+> +		is_pio;						\
+> +	} else {						\
+> +		is_mmio;					\
+> +	}							\
+> +} while (0)
+
+Argh! Please no. You can't infer the IO space from the address. Provide
+a cookie containing {space, address} instead -- or indeed {bus,
+address}. Let some architectures optimise that by ignoring the bus and
+working it out from the address if you must, but don't put that in the
+generic version.
+
+-- 
+dwmw2
+
 

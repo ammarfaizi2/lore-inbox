@@ -1,56 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265564AbSKTCME>; Tue, 19 Nov 2002 21:12:04 -0500
+	id <S265567AbSKTC1s>; Tue, 19 Nov 2002 21:27:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265567AbSKTCME>; Tue, 19 Nov 2002 21:12:04 -0500
-Received: from imrelay-2.zambeel.com ([209.240.48.8]:50444 "EHLO
-	imrelay-2.zambeel.com") by vger.kernel.org with ESMTP
-	id <S265564AbSKTCMD>; Tue, 19 Nov 2002 21:12:03 -0500
-Message-ID: <233C89823A37714D95B1A891DE3BCE5202AB1959@xch-a.win.zambeel.com>
-From: Manish Lachwani <manish@Zambeel.com>
-To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
-       Miguel S Filipe <m3thos@netcabo.pt>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: RE: Disk Performance Issues [AMD Viper plus IDE chipset problems.
-	 (wrong udma "autodetection")]
-Date: Tue, 19 Nov 2002 18:18:53 -0800
+	id <S265570AbSKTC1s>; Tue, 19 Nov 2002 21:27:48 -0500
+Received: from aslan.scsiguy.com ([63.229.232.106]:32268 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S265567AbSKTC1r>; Tue, 19 Nov 2002 21:27:47 -0500
+Date: Tue, 19 Nov 2002 19:32:49 -0700
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: Raptorfan <raptorfan@earthlink.net>, linux-kernel@vger.kernel.org
+Subject: Re: aic7xxx driver failing (2.4.19-ac4)
+Message-ID: <763600000.1037759569@aslan.scsiguy.com>
+In-Reply-To: <000e01c29036$8bdc2790$420aa8c0@beast>
+References: <001b01c28ff8$61ad1670$420aa8c0@beast>
+ <1604970000.1037732321@aslan.btc.adaptec.com>
+ <000e01c29036$8bdc2790$420aa8c0@beast>
+X-Mailer: Mulberry/3.0.0a5 (Linux/x86)
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have actually used the ASUS motherboard with the amd768 southbridge. It is
-also the 760MPX solution. And after making changes to the
-config_chipset_for_dma function, you can get it to work at udma 100 ...
+> A slight improvement: the kernel no longer oopses but still never
+> completely makes it thru boot.
 
-Thanks
-Manish
+Are you running with memory mapped I/O enabled?  Since you have a VIA
+chipset, using memory mapped I/O can be problematic.  If using PIO
+works for you, I'd like to work with you toward making the memory mapped
+I/O test in the driver automatically detect configurations such as yours
+that do not function correctly when mem I/O is used.  You should be able
+to disable mmap I/O in 6.2.21 via kernel config or by setting an aic7xxx
+option on the command line (nomemio I think, but I don't have the sources
+in front of me right now).
 
------Original Message-----
-From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk]
-Sent: Saturday, November 16, 2002 3:34 PM
-To: Miguel S Filipe
-Cc: Linux Kernel Mailing List
-Subject: Re: Disk Performance Issues [AMD Viper plus IDE chipset
-problems. (wrong udma "autodetection")]
-
-
-On Sat, 2002-11-16 at 20:19, Miguel S Filipe wrote:
-> Hello there,
-> 
->   I'm sending this email about a problem with udma settings
-> in a TigerMP motherboard, wich supports UDMA 100.
->   I've send it to my distribution mailing list, and several others, to no
-> avail, so, has a last resort I send it now to the Linux ML.
->   I'm using pure vanilla linux-2.4.19, and I tried all possible configs
-> settings that I though that could affect this problem.
-
-If I remember rightly 2.4.19 doesnt have full support for the AMD
-760MP/X although 
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+--
+Justin

@@ -1,93 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264409AbUE0Njs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264482AbUE0NpS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264409AbUE0Njs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 09:39:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264513AbUE0Njs
+	id S264482AbUE0NpS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 09:45:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264500AbUE0NpS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 09:39:48 -0400
-Received: from natnoddy.rzone.de ([81.169.145.166]:46842 "EHLO
-	natnoddy.rzone.de") by vger.kernel.org with ESMTP id S264409AbUE0Njj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 09:39:39 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Martin Josefsson <gandalf@wlug.westbo.se>
-Subject: Re: [PATCH 3/4] Consolidate sys32 select
-Date: Thu, 27 May 2004 15:39:01 +0200
-User-Agent: KMail/1.6.1
-Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-       ultralinux@vger.kernel.org
-References: <26879984$108552555440b3ce3274ba74.46765993@config21.schlund.de> <1085551771.969.109.camel@tux.rsn.bth.se>
-In-Reply-To: <1085551771.969.109.camel@tux.rsn.bth.se>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_49etAllAgQ2zWrw";
-  charset="iso-8859-1"
+	Thu, 27 May 2004 09:45:18 -0400
+Received: from rs1.physik.Uni-Dortmund.DE ([129.217.168.30]:43149 "EHLO
+	rs1.physik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S264482AbUE0NpO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 May 2004 09:45:14 -0400
+Date: Thu, 27 May 2004 15:45:09 +0200
+From: Robert Fendt <fendt@physik.uni-dortmund.de>
+To: linux-kernel@vger.kernel.org
+Cc: Len Brown <len.brown@intel.com>
+Subject: Re: peculiar problem with 2.6, 8139too + ACPI
+Message-Id: <20040527154509.37350580.fendt@physik.uni-dortmund.de>
+In-Reply-To: <1085102192.12349.508.camel@dhcppc4>
+References: <A6974D8E5F98D511BB910002A50A6647615FB5FE@hdsmsx403.hd.intel.com>
+	<1084584998.12352.306.camel@dhcppc4>
+	<20040517123011.7e12d297.fendt@physik.uni-dortmund.de>
+	<1084818282.12349.334.camel@dhcppc4>
+	<20040521015314.7001a9e9.fendt@physik.uni-dortmund.de>
+	<1085102192.12349.508.camel@dhcppc4>
+Organization: Lehrstuhl =?ISO-8859-1?B?Zvxy?= experimentelle Physik I,
+ =?ISO-8859-1?B?VW5pdmVyc2l05HQ=?= Dortmund
+X-Mailer: Sylpheed version 0.7.4claws (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200405271539.05069.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 20 May 2004 21:16:32 -0400
+Len Brown <len.brown@intel.com> wrote:
 
---Boundary-02=_49etAllAgQ2zWrw
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+> Please verify that the problem goes away when you exclude the
+> acpi/processor module (CONFIG_ACPI_PROCESSOR) from the system.
+> 
+> With the recent spate of C3 issues, we should make an easier way to
+> disable C3 until it is fixed...
 
-On Wednesday 26 May 2004 08:09, Martin Josefsson wrote:
+Sorry for the delay, but I could not do further tests before now. I have
+now at least managed to get 2.6.6 to boot on the box (although it breaks
+the synaptics mouse pad driver, but that's a different matter; this too
+seems to be ACPI-related, though). The boot problem was the new cpufreq
+detection mode producing a seg'fault during boot (and guess what: ACPI
+again).
 
-> Your patch will fix the problem, I don't even need to test it.
-> Thanks, looking forward to see a fix in mainline :)
+So far I can confirm the following: 1) the problem still exists in 2.6.6
+and 2) the problem can be switched on and off be (un)loading the
+'processor' module. Test environment is still Debian-unstable, this time
+with 2.6.6 vanilla kernel in Debian distro config (a.k.a. pretty bloated
+but most things as modules).
 
-I have thought about it again and am no longer sure it is really=20
-the right fix. Can anyone explain why this problem only happens=20
-for the fifth argument, but not for the other pointers (inp, outp,
-exp)?
+I do not expect different results when disabling processor support
+during kernel compile. Of course I can try this, if wanted. Any patch
+suggestions to try out so far?
 
-If sparc64 has this problem only for the fifth syscall argument,=20
-does that mean that e.g. compat_sys_futex and=20
-compat_sys_mq_timed{send,receive} have the same bug? If this is
-a more general, i.e. not limited to the last argument, there is a
-potential problem in lots of syscalls.
-
-	Arnd <><
-
-> > =3D=3D=3D=3D=3D fs/compat.c 1.24 vs edited =3D=3D=3D=3D=3D
-> > --- 1.24/fs/compat.c=A0=A0Sat May 22 06:31:47 2004
-> > +++ edited/fs/compat.c=A0=A0=A0=A0=A0=A0=A0=A0Wed May 26 00:57:49 2004
-> > @@ -1300,13 +1300,15 @@
-> > =A0
-> > =A0asmlinkage long
-> > =A0compat_sys_select(int n, compat_ulong_t __user *inp, compat_ulong_t
-> > __user *outp,
-> > -=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0compat_ulong_t __user *exp, str=
-uct compat_timeval __user *tvp)
-> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0compat_ulong_t __user *exp, com=
-pat_uptr_t utv)
-> > =A0{
-> > =A0=A0=A0=A0=A0=A0fd_set_bits fds;
-> > +=A0=A0=A0=A0=A0struct compat_timeval __user *tvp;
-> > =A0=A0=A0=A0=A0=A0char *bits;
-> > =A0=A0=A0=A0=A0=A0long timeout;
-> > =A0=A0=A0=A0=A0=A0int ret, size, max_fdset;
-> > =A0
-> > +=A0=A0=A0=A0=A0tvp =3D compat_ptr(utv);
-> > =A0=A0=A0=A0=A0=A0timeout =3D MAX_SCHEDULE_TIMEOUT;
-> > =A0=A0=A0=A0=A0=A0if (tvp) {
-> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0time_t sec, usec;
-
---Boundary-02=_49etAllAgQ2zWrw
-Content-Type: application/pgp-signature
-Content-Description: signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBAte945t5GS2LDRf4RAvP6AJ49HaqqHZLigQC+6wrCmW2B7qY9BACfWZrg
-oepLKPiPzWnX0G0hZWUgV6Y=
-=feld
------END PGP SIGNATURE-----
-
---Boundary-02=_49etAllAgQ2zWrw--
+Regards,
+Robert

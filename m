@@ -1,66 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266145AbVBDVwh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261790AbVBDWEp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266145AbVBDVwh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 16:52:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266453AbVBDVtR
+	id S261790AbVBDWEp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 17:04:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266428AbVBDVsG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 16:49:17 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:49912 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S264485AbVBDVhd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 16:37:33 -0500
-Subject: Re: [PATCH 1/1] tpm: implement use of sysfs classes
-From: Kylene Hall <kjhall@us.ibm.com>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, Emily Ratliff <emilyr@us.ibm.com>,
-       Tom Lendacky <toml@us.ibm.com>, tpmdd-devel@lists.sourceforge.net
-In-Reply-To: <20050204205226.GA26780@kroah.com>
-References: <Pine.LNX.4.58.0412201146060.10943@jo.austin.ibm.com>
-	 <29495f1d041221085144b08901@mail.gmail.com>
-	 <Pine.LNX.4.58.0412211209410.14092@jo.austin.ibm.com>
-	 <Pine.LNX.4.58.0501121236180.2453@jo.austin.ibm.com>
-	 <Pine.LNX.4.58.0501181621200.2473@jo.austin.ibm.com>
-	 <Pine.LNX.4.58.0501181735110.13908@jo.austin.ibm.com>
-	 <Pine.LNX.4.58.0501281539340.6360@jo.austin.ibm.com>
-	 <Pine.LNX.4.58.0501311322380.9872@jo.austin.ibm.com>
-	 <Pine.LNX.4.58.0502031034290.18135@jo.austin.ibm.com>
-	 <Pine.LNX.4.58.0502041405230.22211@jo.austin.ibm.com>
-	 <20050204205226.GA26780@kroah.com>
-Content-Type: text/plain
-Message-Id: <1107553040.22140.30.camel@jo.austin.ibm.com>
+	Fri, 4 Feb 2005 16:48:06 -0500
+Received: from wproxy.gmail.com ([64.233.184.206]:15334 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S266203AbVBDV1P (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 16:27:15 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=go5g2RtLSjspl8fd5ufocy7yipTFdJmqCrYBDcNik8Rj73/YYTJYRWyDa5R6tBqTcagAzXjgxPuLp4BbH7DgNhq0ZgjrN1Vy1UwztF/jD7lldQ37/YJ3aWKEWS3y/TGjmiKB/4B3DLskLLlpXO6/BqOpy9qnKQT1Jf4Isy0HEFc=
+Message-ID: <40f323d0050204132737396647@mail.gmail.com>
+Date: Fri, 4 Feb 2005 22:27:09 +0100
+From: Benoit Boissinot <bboissin@gmail.com>
+Reply-To: Benoit Boissinot <bboissin@gmail.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Subject: Re: Patch 1/6 introduce sysctl
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050127101201.GB9760@infradead.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 04 Feb 2005 15:37:20 -0600
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <20050127101117.GA9760@infradead.org>
+	 <20050127101201.GB9760@infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-02-04 at 14:52, Greg KH wrote:
-> On Fri, Feb 04, 2005 at 02:12:50PM -0600, Kylene Hall wrote:
-> > +static struct class tpm_class = {
-> > +	.name = "tpm",
-> > +	.class_dev_attrs = tpm_attrs,
-> > +};
+On Thu, 27 Jan 2005 10:12:01 +0000, Arjan van de Ven
+<arjan@infradead.org> wrote:
 > 
-> Where is your release function?  Did you see any warnings from the
-> kernel when you removed any of these class devices?  Why did you ignore
-> it?
+> This first patch of the series introduces a sysctl (default off) that
+> enables/disables the randomisation feature globally. Since randomisation may
+> make it harder to debug really tricky situations (reproducability goes
+> down), the sysadmin needs a way to disable it globally.
 > 
-Sorry, I missed the warning message.  I have looked at some other
-instances for what I might need to put in that function and I'm
-stumped.  I didn't kmalloc my class_device structure so I don't need to
-kfree it.  I am using this mechanism so that my sysfs stuff is in a
-predictable place.  It is also very convient how the driver and device
-links as well as all my class specific files get created for me in the
-register and likewise removed in the unregister.  I call the register
-from the pci probe path and the unregister from the pci remove path. 
-What might I need to put in this function?
+> Signed-off-by: Arjan van de Ven <arjan@infradead.org>
+> 
+> diff -purN linux-2.6.11-rc2-bk4/include/linux/kernel.h linux-step-1/include/linux/kernel.h
+> --- linux-2.6.11-rc2-bk4/include/linux/kernel.h 2005-01-26 18:24:39.000000000 +0100
+> +++ linux-step-1/include/linux/kernel.h 2005-01-26 19:04:58.016540168 +0100
+> @@ -278,6 +278,9 @@ struct sysinfo {
+>  extern void BUILD_BUG(void);
+>  #define BUILD_BUG_ON(condition) do { if (condition) BUILD_BUG(); } while(0)
+> 
+> +
+> +extern int randomize_va_space;
+> +
+>  /* Trap pasters of __FUNCTION__ at compile-time */
+>  #if __GNUC__ > 2 || __GNUC_MINOR__ >= 95
+>  #define __FUNCTION__ (__func__)
+> [snip]
+>
+> diff -purN linux-2.6.11-rc2-bk4/kernel/sysctl.c linux-step-1/kernel/sysctl.c
+> --- linux-2.6.11-rc2-bk4/kernel/sysctl.c        2005-01-26 18:24:39.000000000 +0100
+> +++ linux-step-1/kernel/sysctl.c        2005-01-26 19:03:44.000000000 +0100
+> @@ -122,6 +122,8 @@ extern int sysctl_hz_timer;
+>  extern int acct_parm[];
+>  #endif
+> 
+> +int randomize_va_space = 0;
+> +
+>  static int parse_table(int __user *, int, void __user *, size_t __user *, void __user *, size_t,
+>                        ctl_table *, void **);
+>  static int proc_doutsstring(ctl_table *table, int write, struct file *filp,
+>
+> [snip]
 
-Thanks,
-Kylie
+This breaks the compilation with allnoconfig (since CONFIG_SYSCTL is
+not defined):
 
-> thanks,
-> 
-> greg k-h
-> 
+arch/i386/kernel/built-in.o(.text+0xf92): In function `arch_align_stack':
+: undefined reference to `randomize_va_space'
 
+maybe randomize_va_space should be defined as extern in sysctl.c and
+put elsewhere.
+
+regards,
+
+Benoit

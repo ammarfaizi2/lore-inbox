@@ -1,41 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263282AbTEMIoU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 04:44:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263286AbTEMIoU
+	id S263286AbTEMIu0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 04:50:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263307AbTEMIu0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 04:44:20 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:40196 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP id S263282AbTEMIoT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 04:44:19 -0400
-Date: Tue, 13 May 2003 10:55:25 +0200
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       Alexander Hoogerhuis <alexh@ihatent.com>,
-       James Simmons <jsimmons@infradead.org>
+	Tue, 13 May 2003 04:50:26 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:39565 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S263286AbTEMIuZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 04:50:25 -0400
+Date: Tue, 13 May 2003 02:04:14 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Helge Hafting <helgehaf@aitel.hist.no>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, alexh@ihatent.com,
+       jsimmons@infradead.org
 Subject: Re: 2.5.69-mm4
-Message-ID: <20030513085525.GA7730@hh.idb.hist.no>
-References: <20030512225504.4baca409.akpm@digeo.com> <87vfwf8h2n.fsf@lapper.ihatent.com> <20030513001135.2395860a.akpm@digeo.com> <87n0hr8edh.fsf@lapper.ihatent.com>
+Message-Id: <20030513020414.5ca41817.akpm@digeo.com>
+In-Reply-To: <20030513085525.GA7730@hh.idb.hist.no>
+References: <20030512225504.4baca409.akpm@digeo.com>
+	<87vfwf8h2n.fsf@lapper.ihatent.com>
+	<20030513001135.2395860a.akpm@digeo.com>
+	<87n0hr8edh.fsf@lapper.ihatent.com>
+	<20030513085525.GA7730@hh.idb.hist.no>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87n0hr8edh.fsf@lapper.ihatent.com>
-User-Agent: Mutt/1.5.4i
-From: Helge Hafting <helgehaf@aitel.hist.no>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 13 May 2003 09:03:06.0034 (UTC) FILETIME=[777C7120:01C3192E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 13, 2003 at 10:00:58AM +0200, Alexander Hoogerhuis wrote:
-> And this one :)
+Helge Hafting <helgehaf@aitel.hist.no> wrote:
+>
+> > : undefined reference to `active_load_balance'
 > 
->         ld -m elf_i386  -T arch/i386/vmlinux.lds.s arch/i386/kernel/head.o arch/i386/kernel/init_task.o   init/built-in.o --start-group  usr/built-in.o  arch/i386/kernel/built-in.o  arch/i386/mm/built-in.o  arch/i386/mach-default/built-in.o  kernel/built-in.o  mm/built-in.o  fs/built-in.o  ipc/built-in.o  security/built-in.o  crypto/built-in.o  lib/lib.a  arch/i386/lib/lib.a  drivers/built-in.o  sound/built-in.o  arch/i386/pci/built-in.o  net/built-in.o --end-group  -o .tmp_vmlinux1
-> kernel/built-in.o(.text+0x1005): In function `schedule':
-> : undefined reference to `active_load_balance'
+>  I got this one too
 
-I got this one too, as well as:
-drivers/built-in.o(.text+0x7d534): In function `fb_prepare_logo':
-: undefined reference to `find_logo'
+I don't think so.  Please do a `make clean' and try again.
 
-Helge Hafting
+>, as well as:
+>  drivers/built-in.o(.text+0x7d534): In function `fb_prepare_logo':
+>  : undefined reference to `find_logo'
+
+Is that thing _still_ there?
+
+Does this fix?
+
+diff -puN drivers/video/fbmem.c~fbmem-linkage-fix drivers/video/fbmem.c
+--- 25/drivers/video/fbmem.c~fbmem-linkage-fix	2003-05-13 02:03:38.000000000 -0700
++++ 25-akpm/drivers/video/fbmem.c	2003-05-13 02:03:42.000000000 -0700
+@@ -655,7 +655,7 @@ int fb_prepare_logo(struct fb_info *info
+ 	}
+ 
+ 	/* Return if no suitable logo was found */
+-	fb_logo.logo = find_logo(info->var.bits_per_pixel);
++	fb_logo.logo = fb_find_logo(info->var.bits_per_pixel);
+ 	
+ 	if (!fb_logo.logo || fb_logo.logo->height > info->var.yres) {
+ 		fb_logo.logo = NULL;
+
+_
 

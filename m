@@ -1,93 +1,131 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263184AbUB0WwH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 17:52:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263187AbUB0Wuj
+	id S263192AbUB0Wx0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 17:53:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263191AbUB0Wwr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 17:50:39 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:41711 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S263174AbUB0Wtp
+	Fri, 27 Feb 2004 17:52:47 -0500
+Received: from fed1mtao03.cox.net ([68.6.19.242]:27810 "EHLO
+	fed1mtao03.cox.net") by vger.kernel.org with ESMTP id S263180AbUB0Wu2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 17:49:45 -0500
-Message-ID: <403FC980.8040905@mvista.com>
-Date: Fri, 27 Feb 2004 14:49:36 -0800
-From: George Anzinger <george@mvista.com>
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Tom Rini <trini@kernel.crashing.org>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Pavel Machek <pavel@suse.cz>, "Amit S. Kale" <amitkale@emsyssoft.com>,
-       kgdb-bugreport@lists.sourceforge.net
-Subject: Re: [Kgdb-bugreport] [KGDB PATCH][3/7] SysRq-G
-References: <20040227212301.GC1052@smtp.west.cox.net> <20040227212548.GD1052@smtp.west.cox.net> <20040227213254.GE1052@smtp.west.cox.net>
-In-Reply-To: <20040227213254.GE1052@smtp.west.cox.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 27 Feb 2004 17:50:28 -0500
+Date: Fri, 27 Feb 2004 15:50:27 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: George Anzinger <george@mvista.com>
+Cc: "Amit S. Kale" <amitkale@emsyssoft.com>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Pavel Machek <pavel@suse.cz>, kgdb-bugreport@lists.sourceforge.net
+Subject: Re: [Kgdb-bugreport] [PATCH][3/3] Update CVS KGDB's wrt connect / detach
+Message-ID: <20040227225026.GL1052@smtp.west.cox.net>
+References: <20040225213626.GF1052@smtp.west.cox.net> <20040225214343.GG1052@smtp.west.cox.net> <20040225215309.GI1052@smtp.west.cox.net> <200402261344.49261.amitkale@emsyssoft.com> <403E8180.1060008@mvista.com> <20040226235915.GV1052@smtp.west.cox.net> <403EA407.1010405@mvista.com> <20040227154920.GX1052@smtp.west.cox.net> <403FC0AA.6040205@mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <403FC0AA.6040205@mvista.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There may be a need to change the keyboard driver for this.  I have had trouble 
-with it in the past.  Seems it doesn't like to not get control back for a very 
-long time.  I am not sure what the problem is but, be warned.
+On Fri, Feb 27, 2004 at 02:11:54PM -0800, George Anzinger wrote:
 
--g
+> Tom Rini wrote:
+> >On Thu, Feb 26, 2004 at 05:57:27PM -0800, George Anzinger wrote:
+> >
+> >
+> >>Tom Rini wrote:
+> >>
+> >>>On Thu, Feb 26, 2004 at 03:30:08PM -0800, George Anzinger wrote:
+> >>>
+> >>>
+> >>>>Amit S. Kale wrote:
+> >>>>
+> >>>>
+> >>>>>On Thursday 26 Feb 2004 3:23 am, Tom Rini wrote:
+> >>>>>
+> >>>>>
+> >>>>>
+> >>>>>>The following patch fixes a number of little issues here and there, 
+> >>>>>>and
+> >>>>>>ends up making things more robust.
+> >>>>>>- We don't need kgdb_might_be_resumed or kgdb_killed_or_detached.
+> >>>>>>GDB attaching is GDB attaching, we haven't preserved any of the
+> >>>>>>previous context anyhow.
+> >>>>>
+> >>>>>
+> >>>>>If gdb is restarted, kgdb has to remove all breakpoints. Present kgdb 
+> >>>>>does that in the code this patch removes:
+> >>>>>
+> >>>>>-		if (remcom_in_buffer[0] == 'H' && remcom_in_buffer[1] == 
+> >>>>>'c') {
+> >>>>>-			remove_all_break();
+> >>>>>-			atomic_set(&kgdb_killed_or_detached, 0);
+> >>>>>-			ok_packet(remcom_out_buffer);
+> >>>>>
+> >>>>>If we don't remove breakpoints, they stay in kgdb without gdb not 
+> >>>>>knowing it and causes consistency problems.
+> >>>>
+> >>>>I wonder if this is worth the trouble.  Does kgdb need to know about 
+> >>>>breakpoints at all?  Is there some other reason it needs to track them?
+> >>>
+> >>>
+> >>>I don't know if it's strictly needed, but it's not the hard part of this
+> >>>particular issue (as I suggested in another thread, remove_all_break()
+> >>>on a ? packet works).
+> >>>
+> >>>
+> >>>
+> >>>>>>- Don't try and look for a connection in put_packet, after we've tried
+> >>>>>>to put a packet.  Instead, when we receive a packet, GDB has
+> >>>>>>connected.
+> >>>>>
+> >>>>>
+> >>>>>We have to check for gdb connection in putpacket or else following 
+> >>>>>problem occurs.
+> >>>>>
+> >>>>>1. kgdb console messages are to be put.
+> >>>>>2. gdb dies
+> >>>>>3. putpacket writes the packet and waits for a '+'
+> >>>>
+> >>>>Oops!  Tom, this '+' will be sent under interrupt and while kgdb is not 
+> >>>>connected.  Looks like it needs to be passed through without causing a 
+> >>>>breakpoint.  Possible salvation if we disable interrupts while waiting 
+> >>>>for the '+' but I don't think that is a good idea.
+> >>>
+> >>>
+> >>>I don't think this is that hard of a problem anymore.  I haven't enabled
+> >>>console messages, but I've got the following being happy now:
+> >>
+> >>console pass through is the hard one as it is done outside of kgdb under 
+> >>interrupt control.  Thus the '+' will come to the interrupt handler.
+> >>
+> >>There is a bit of a problem here WRT hiting a breakpoint while waiting 
+> >>for this '+'.  Should only happen on SMP systems, but still....
+> >
+> >
+> >Here's why I don't think it's a problem (I'll post the new patch
+> >shortly, getting from quilt to a patch against previous is still a
+> >pain).  What happens is:
+> >1. kgdb console tried to send a packet.
+> >2. before ACK'ing the above, gdb dies.
+> 
+> What I am describing does not have anything to do with gdb going away.  It 
+> is that in "normal" operation the console output is done with the 
+> interrupts on (i.e. we are not in kgdb as a result of a breakpoint, but 
+> only to do console output).  This means that the interrupt that is 
+> generated by the '+' from gdb may well happen and the kgdb interrupt 
+> handler will see the '+' and, with the interrupt handler changes, generate 
+> a breakpoint.  All we really want to do is to pass the '+' through to 
+> putpacket.  In a UP machine, I think the wait for the '+' is done with the 
+> interrupt system off, however, in an SMP machine, other cpus may see it and 
+> interrupt...  At the very least, the interrupt code needs to be able to 
+> determine that no character came in and ignore the interrupt.
 
-Tom Rini wrote:
-> Hello.  The following adds SysRq-G.  This is always configured in on
-> CONFIG_KGDB && CONFIG_SYSRQ.
-> 
-> diff -zrupN linux-2.6.3+config+serial/drivers/char/sysrq.c linux-2.6.3+config+serial+sysrq+arch_hooks/drivers/char/sysrq.c
-> --- linux-2.6.3+config+serial/drivers/char/sysrq.c	2004-02-27 12:06:22.000000000 -0700
-> +++ linux-2.6.3+config+serial+sysrq+arch_hooks/drivers/char/sysrq.c	2004-02-27 12:16:14.000000000 -0700
-> @@ -31,6 +31,7 @@
->  #include <linux/suspend.h>
->  #include <linux/writeback.h>
->  #include <linux/buffer_head.h>		/* for fsync_bdev() */
-> +#include <linux/kgdb.h>			/* for breakpoint() */
->  
->  #include <linux/spinlock.h>
->  
-> @@ -44,6 +45,25 @@ int sysrq_enabled = 1;
->  /* Machine specific power off function */
->  void (*sysrq_power_off)(void);
->  
-> +/* Make a breakpoint() right now. */
-> +#ifdef CONFIG_KGDB
-> +#define  GDB_OP &kgdb_op
-> +static void kgdb_sysrq(int key, struct pt_regs *pt_regs, struct tty_struct *tty)
-> +{
-> +	printk("kgdb sysrq\n");
-> +	breakpoint();
-> +}
-> +
-> +static struct sysrq_key_op kgdb_op = {
-> +	.handler	= kgdb_sysrq,
-> +	.help_msg	= "kGdb|Fgdb",
-> +	.action_msg	= "Debug breakpoint\n",
-> +};
-> +
-> +#else
-> +#define  GDB_OP NULL
-> +#endif
-> +
->  /* Loglevel sysrq handler */
->  static void sysrq_handle_loglevel(int key, struct pt_regs *pt_regs,
->  				  struct tty_struct *tty) 
-> @@ -239,7 +259,7 @@ static struct sysrq_key_op *sysrq_key_ta
->  /* d */	NULL,
->  /* e */	&sysrq_term_op,
->  /* f */	NULL,
-> -/* g */	NULL,
-> +/* g */	GDB_OP,
->  /* h */	NULL,
->  /* i */	&sysrq_kill_op,
->  /* j */	NULL,
-> 
+Today might not be a "smart day" for me, so perhaps I'm just not doing
+what's need to trigger this, or I'm misreading (but if you can trigger
+it, w/ Amit's patches in CVS and my 1/2 from yesterday and then my 7
+from today, I'd be grateful) but UP and SMP on a UP box both have
+KGDB_CONSOLE behaving correctly.
 
 -- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
-
+Tom Rini
+http://gate.crashing.org/~trini/

@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263028AbUDLTKs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Apr 2004 15:10:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263031AbUDLTKs
+	id S263032AbUDLTSF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Apr 2004 15:18:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263037AbUDLTSF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Apr 2004 15:10:48 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:15860 "EHLO
-	MTVMIME02.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S263028AbUDLTKq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Apr 2004 15:10:46 -0400
-Date: Mon, 12 Apr 2004 20:10:38 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Rajesh Venkatasubramanian <vrajesh@umich.edu>
-Subject: Re: [PATCH] anobjrmap 9 priority mjb tree
-In-Reply-To: <3360000.1081796512@[10.10.2.4]>
-Message-ID: <Pine.LNX.4.44.0404122006050.10504-100000@localhost.localdomain>
+	Mon, 12 Apr 2004 15:18:05 -0400
+Received: from smtp05.web.de ([217.72.192.209]:61080 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id S263032AbUDLTSD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Apr 2004 15:18:03 -0400
+Message-ID: <407AEBB0.1050305@web.de>
+Date: Mon, 12 Apr 2004 21:19:12 +0200
+From: Marcus Hartig <m.f.h@web.de>
+Organization: Linux of Borgs
+User-Agent: Mozilla Thunderbird 0.5+ (X11/20040406)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.5-mm4
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Apr 2004, Martin J. Bligh wrote:
-> 
-> If it were just a list, maybe RCU would be appropriate. It might be
-> rather write-heavy though ? I think I played with an rwsem instead
-> of a sem in the past too (though be careful if you try this, as for
-> no good reason the return codes are inverted ;-()
+Hello,
 
-Yes, I think all the common paths have to write, in case the
-uncommon paths (truncation and swapout) want to read: the wrong
-way round for any kind of read-write optimization, isn't it?
+patch: "kbuild-external-module-support" ?
 
-Hugh
+brakes nicely my nVidia driver for installation at stage 2. Happy easter 
+gift. No setting of KBUILD_EXTMOD or editing the install script helps, 
+nice job.
 
+Sorry to say this, but I do not believe, that we get more support, if the 
+Linux kernel breaks with every version all good drivers, also 
+closed-source, but the best, fastest and stable 3D drivers you can get at 
+this time. I hope it goes not in the stable line so soon.
+
+Marcus

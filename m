@@ -1,84 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265946AbUFDTTO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265951AbUFDTc5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265946AbUFDTTO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 15:19:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265942AbUFDTTN
+	id S265951AbUFDTc5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 15:32:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265953AbUFDTc5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 15:19:13 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:51532 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S265938AbUFDTSk
+	Fri, 4 Jun 2004 15:32:57 -0400
+Received: from dirac.phys.uwm.edu ([129.89.57.19]:1665 "EHLO
+	dirac.phys.uwm.edu") by vger.kernel.org with ESMTP id S265951AbUFDTcy
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 15:18:40 -0400
-Date: Fri, 4 Jun 2004 21:23:04 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Jari Ruusu <jariruusu@users.sourceforge.net>
-Cc: Sam Ravnborg <sam@ravnborg.org>,
-       =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>,
+	Fri, 4 Jun 2004 15:32:54 -0400
+Date: Fri, 4 Jun 2004 14:32:48 -0500 (CDT)
+From: Bruce Allen <ballen@gravity.phys.uwm.edu>
+To: Rick Jansen <rick@rockingstone.nl>
+cc: John Bradford <john@grabjohn.com>, Daniel Egger <de@axiros.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Symlinks for building external modules
-Message-ID: <20040604192304.GB3530@mars.ravnborg.org>
-Mail-Followup-To: Jari Ruusu <jariruusu@users.sourceforge.net>,
-	Sam Ravnborg <sam@ravnborg.org>,
-	=?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>,
-	linux-kernel@vger.kernel.org
-References: <200406031858.09178.agruen@suse.de> <yw1x8yf44lgp.fsf@kth.se> <20040603173656.GA2301@mars.ravnborg.org> <40C0AE16.F4F222DD@users.sourceforge.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40C0AE16.F4F222DD@users.sourceforge.net>
-User-Agent: Mutt/1.4.1i
+Subject: Re: DriveReady SeekComplete Error
+In-Reply-To: <20040604141804.GF1684@web1.rockingstone.nl>
+Message-ID: <Pine.GSO.4.21.0406041427390.12514-100000@dirac.phys.uwm.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 04, 2004 at 08:15:02PM +0300, Jari Ruusu wrote:
+Hi Rick,
+
+> smartctl version 5.30 Copyright (C) 2002-4 Bruce Allen
+> Home page is http://smartmontools.sourceforge.net/
+
+Some comments below.
+
+> Device Model:     Maxtor 6Y120P0
+> Serial Number:    Y43XXY5E
+> Firmware Version: YAR41BW0
+> Device is:        In smartctl database [for details use: -P show]
+> ATA Version is:   7
+
+You can use selective self-tests on this drive.  You'll need smartmontools
+version 5.31 or greater.  This will help you pin down the bad LBAs
+quickly.
+
+> Self-test execution status:      ( 118)	The previous self-test completed having
+> 					the read element of the test failed.
+
+You have some unreadable disk sectors.
+
+> 					Selective Self-test supported.
+
+This is a very useful disk feature!
+
+>   5 Reallocated_Sector_Ct   0x0033   252   252   063    Pre-fail  Always       -       15
+
+Your disk has already reallocated 15 bad sectors.
+
+> 197 Current_Pending_Sector  0x0008   252   252   000    Old_age   Offline      -       13
+> 198 Offline_Uncorrectable   0x0008   252   252   000    Old_age   Offline      -       1
+
+There are 13 unreadable disk sectors that the OS has tried to access, and
+one additional unreadable disk sector found in an off-line scan.
+
+> Error 440 occurred at disk power-on lifetime: 843 hours
+>   When the command that caused the error occurred, the device was in an unknown state.
 > 
-> How long have you recommended building external modules like this:
-> 
->  make -C /lib/modules/`uname -r`/build modules SUBDIRS=`pwd`
->   or
->  make -C /lib/modules/`uname -r`/build modules M=`pwd`
-> 
-> Now they all have to be changed to:
-> 
->  make -C /lib/modules/`uname -r`/source modules SUBDIRS=`pwd`
->   or
->  make -C /lib/modules/`uname -r`/source modules M=`pwd`
+>   After command completion occurred, registers were:
+>   ER ST SC SN CL CH DH
+>   -- -- -- -- -- -- --
+>   40 51 03 77 dd 8b ed  Error: UNC 3 sectors at LBA = 0x0d8bdd77 = 227270007
 
-That would not work either.
-You need to tell kbuild both where to find the source and the output files.
-So you have to specify both -C ... and O=...
-KERNEL=/lib/modules/`uname -r`
-make -C $KERNEL/source O=$KERNEL/build M=`pwd`
+This is a typical read that failed at LBA 227270007.
 
-There is no way to do the proposed chang and be backward compatible
-when the kernel is build using seperate output directories.
+> SMART Self-test log structure revision number 1
+> Num  Test_Description    Status                  Remaining  LifeTime(hours)  LBA_of_first_error
+> # 1  Short offline       Completed: read failure       60%       839         0x0d8bdd7c
+> # 2  Short offline       Completed: read failure       60%       816         0x0d8bdd7c
+> # 3  Short offline       Completed: read failure       60%       805         0x0d8bdd7c
 
-Think of the following situation
-/usr/src/linux-2.6.6-xx/  <= kernel src
+See http://smartmontools.sourceforge.net/BadBlockHowTo.txt for info on how
+to locate and force reallocation of the bad sectors.  When you are done
+you should be able to run a long self-test (-t long) with no errors found.
+You can use selective self-tests (-t select,M-N) to help locate the bad
+sectors.
 
-/lib/modules/linux-2.6.6-xx-smp/build/ <= output files (or a symlink to them)
-/lib/modules/linux-2.6.6-xx-smp/source/ <= symlink to kernel src
-
-/lib/modules/linux-2.6.6-xx-up/build/ <= output files (or symlink)
-/lib/modules/linux-2.6.6-xx-up/source/ <= symlink to kernel src
-
-/lib/modules/linux-2.6.6-xx-4g/build/ <= output files (or symlink)
-/lib/modules/linux-2.6.6-xx-4g/source/ <= symlink to kernel src
-
-Notice they all share the _same_ kernel src.
-We just have three different .config files.
-
-If there is a way to be backward compatible with
-this feature please demonstrate it.
-
-Plese note that the patch Andreas made did not break existing setups
-if a seperate output directory was not used. The only effect
-would be an additional symlink to the same dir. (build and source would
-be links to the same dir).
-
-
-Andreas - please expalin why you want build to be a symlink, and not
-the directory used when actually building the kernel.
- 
-	Sam
+Bruce
 

@@ -1,72 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264790AbSLTSS3>; Fri, 20 Dec 2002 13:18:29 -0500
+	id <S263977AbSLTSbu>; Fri, 20 Dec 2002 13:31:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264907AbSLTSS2>; Fri, 20 Dec 2002 13:18:28 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:38120 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S264790AbSLTSS1>;
-	Fri, 20 Dec 2002 13:18:27 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	id <S264688AbSLTSbu>; Fri, 20 Dec 2002 13:31:50 -0500
+Received: from conductor.synapse.net ([199.84.54.18]:18703 "HELO
+	conductor.synapse.net") by vger.kernel.org with SMTP
+	id <S263977AbSLTSbr> convert rfc822-to-8bit; Fri, 20 Dec 2002 13:31:47 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: "D.A.M. Revok" <marvin@synapse.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Right, I tried flashing the BIOS, as suggested, and /still/ can't enable SMART
+Date: Fri, 20 Dec 2002 13:38:45 -0500
+User-Agent: KMail/1.4.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15875.24790.221094.202859@napali.hpl.hp.com>
-Date: Fri, 20 Dec 2002 10:26:30 -0800
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: davidm@hpl.hp.com, linux-kernel@vger.kernel.org
-Subject: Re: PATCH 2.5.x disable BAR when sizing
-In-Reply-To: <Pine.LNX.4.44.0212200849090.2035-100000@home.transmeta.com>
-References: <15874.58889.846488.868570@napali.hpl.hp.com>
-	<Pine.LNX.4.44.0212200849090.2035-100000@home.transmeta.com>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200212201338.45492.marvin@synapse.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Fri, 20 Dec 2002 09:05:53 -0800 (PST), Linus Torvalds <torvalds@transmeta.com> said:
+on the Promise U100 controller without blowing the system - terminally.
 
-  Linus> On Fri, 20 Dec 2002, David Mosberger wrote:
-  >>  Could you please stop this ia64 paranoia and instead explain to
-  >> me why it's OK to relocate a PCI device to
-  >> (0x100000000-PCI_dev_size) temporarily?  That just seems horribly
-  >> unsafe to me.
+I give up.
 
-  Linus> No. It's not horribly unsafe at all. It's very safe, for one
-  Linus> simple reason: it's how PCI probing has _always_ been
-  Linus> done. Exactly because the alternatives simply do not work.
+According to what I can figure-out from the programmers' comments, it 
+/isn't possible/ to correct that with the Promise chip, because of some 
+peculiarity they engineered-in,... BUT...
 
-  Linus> I can also tell you why it does work, and why it's supposed
-  Linus> to work: by writing 0xffffffff to the BAR register, you
-  Linus> basically move the BAR to high PCI memory - even if it was
-  Linus> enabled before. Which is fine, as long as nobody else is in
-  Linus> that high memory. So the secondary rule to "don't turn off
-  Linus> MEM or IO accesses" is "never allocate real PCI BAR resources
-  Linus> at the top of memory".
+When the motherboard's BIOS initializes the chip I /can/ enable SMART, 
+but then...
 
-A 32-bit PCI device can decode up to 2GB of memory.  I doubt any PC
-firmware is reserving the top 2GB for BAR-sizing.  Without a
-reasonably small a-priori limit on the address window size of device,
-this method isn't safe.
+I can't boot without having my boot-system on /dev/hde, rather than 
+/dev/hda...
 
-  Linus> Let me re-iterate the "turn power off at the master switch in
-  Linus> a house when switching a light bulb" analogy. Yes, it's a
-  Linus> good idea if you are nervous, but you do that only when you
-  Linus> _know_ who is in the house and you know what they are doing
-  Linus> and it's ok by them.
+Fuck it.
 
-That's a poor analogy.  What you're suggesting is more like replacing
-the light bulb while it's powered on.  Yes, it can be done, but people
-do get burned and electrocuted that way.
+I /think/ that if the BIOS can initialize the Promise chip, that it is 
+(theoretically) possible for the kernel to initialize the chip to 
+function correctly, but if Promise /won't allow/ paid-for chips to 
+function in a way that gives us the reliability-system we paid-for, then 
+the simplest solution is:
 
-  Linus> One solution in the long term may be to not even probe the
-  Linus> BAR's at all in generic code, and only do it in the
-  Linus> pci_enable_dev() stuff. That way it would literally only be
-  Linus> done by the driver, who can hopefully make sure that the
-  Linus> device is ok with it.
+1. note it in the config helpfile ( Promise-controller-section ) to NEVER 
+cat /proc/ide/hde/identify
+smartctl -e
+smartctl -a
+hdparm -I ( capital i )
+&c.
+unless the Promise-BIOS is enabled in the motherboard's BIOS settings ( 
+this will reduce systems trashed due-to-ignorance in linux )
 
-Yes, I see now that the method in the PCI spec isn't really safe
-either, so BAR-sizing probably shouldn't be done in generic code at
-all.
+2. cease buying Promise chip-based systems for reliable-systems running 
+linux, until they decide that customers are good, IF they decide 
+customers are good...
 
-	--david
+3. maybe see what the mobos BIOS does and see if the kernel-driver could 
+do that to get SMART to be useable on these chips irregardless ( 
+love-that-word ) of the BIOS's settings
+
+Thanks for helping me understand, and as Jeff Dunteman says...
+
+   Keep on hacking
+
+      -me
+
+-- 
+http://www.drawright.com/
+ - "The New Drawing on the Right Side of the Brain" ( Betty Edwards, 
+check "Theory", "Gallery", and "Exercises" )
+http://www.ldonline.org/ld_indepth/iep/seven_habits.html
+ - "The 7 Habits of Highly Effective People" ( this site is same 
+principles as Covey's book )
+http://www.eiconsortium.org/research/ei_theory_performance.htm
+ - "Working With Emotional Intelligence" ( Goleman: this link is 
+/revised/ theory, "Working. . . " is practical )
+http://www.leadershipnow.com/leadershop/1978-5.html
+ - Corps Business: The 30 /Management Principles/ of the U.S. Marines ( 
+David Freedman )

@@ -1,41 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316384AbSETVQm>; Mon, 20 May 2002 17:16:42 -0400
+	id <S316392AbSETVVU>; Mon, 20 May 2002 17:21:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316385AbSETVQl>; Mon, 20 May 2002 17:16:41 -0400
-Received: from ktk.bidmc.harvard.edu ([134.174.237.112]:14340 "EHLO
-	ktk.bidmc.harvard.edu") by vger.kernel.org with ESMTP
-	id <S316384AbSETVQk>; Mon, 20 May 2002 17:16:40 -0400
-Message-ID: <3CE967B3.1F6DE1E2@bigfoot.com>
-Date: Mon, 20 May 2002 17:16:35 -0400
-From: "Kristofer T. Karas" <ktk@bigfoot.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en-GB, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Will Newton <will@misconception.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.4.18 and VIA USB
-In-Reply-To: <E179T0J-0002gQ-00.2002-05-19-16-53-53@mail6.svr.pol.co.uk> <20020520175353.GB24443@kroah.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S316393AbSETVVT>; Mon, 20 May 2002 17:21:19 -0400
+Received: from jalon.able.es ([212.97.163.2]:58606 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S316392AbSETVVS>;
+	Mon, 20 May 2002 17:21:18 -0400
+Date: Mon, 20 May 2002 23:21:09 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Anton Blanchard <anton@samba.org>
+Cc: Dipankar Sarma <dipankar@in.ibm.com>, linux-kernel@vger.kernel.org,
+        Ingo Molnar <mingo@elte.hu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Dave Miller <davem@redhat.com>
+Subject: Re: [RFC][PATCH] TIMER_BH-less smptimers
+Message-ID: <20020520212109.GA5821@werewolf.able.es>
+In-Reply-To: <20020516185448.A8069@in.ibm.com> <20020520085500.GB14488@krispykreme>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.3.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
 
-> On Sun, May 19, 2002 at 04:56:19PM +0100, Will Newton wrote:
-> > hub.c: Cannot enable port 2 of hub 1, disabling port.
-> > hub.c: Maybe the USB cable is bad?
+On 2002.05.20 Anton Blanchard wrote:
 >
-> Which USB host controller driver are you using?
-> And are you sure your cable isn't bad?  :)
+>Hi Dipankar,
+>
+>> I have been experimenting with Ingo's smptimers and I ended up
+>> extending it a little bit. I would really appreciate comments
+>> on whether these things make sense or not.
+>
+>I tried it out and found that we were context switching like crazy.
+>It seems we were always running the timers out of a tasklet because
+>we never unlocked the net_bh_lock.
+>
 
-Just a long shot, but ....
+The patch for 2.4 in
 
-I get this message when I plug my Microsoft Internet keyboard (which has both PS/2
-and USB interfaces) into my VIA-based MB, with both cables connected; if the
-legacy PS/2 cable is in use, it causes the USB interface internal to the keyboard
-to claim itself dead.  A feature, not a bug.
+http://people.redhat.com/mingo/scalable-timers-patches/
 
-Kris
+does not acquire net_bh_lock. Then I suppose it does not apply to that ?
 
+So this patch is a little outdated wrt the one for 2.5. Is there any
+updated version available for 2.4 ?
+Can I try your patch for 2.5 on 2.4 or is there any infrastructure
+missing ?
+
+TIA
+
+-- 
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.3 (Cooker) for i586
+Linux werewolf 2.4.19-pre8-jam3 #1 SMP dom may 19 21:07:40 CEST 2002 i686

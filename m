@@ -1,65 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262692AbUKXVrp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261591AbUKXVrq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262692AbUKXVrp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 16:47:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261591AbUKXVps
+	id S261591AbUKXVrq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 16:47:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262868AbUKXVp2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 16:45:48 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:43399 "EHLO
-	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S262692AbUKXVop (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 16:44:45 -0500
-Date: Wed, 24 Nov 2004 21:41:26 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Michael Kerrisk <mtk-lkml@gmx.net>
-cc: Rik van Riel <riel@redhat.com>, Chris Wright <chrisw@osdl.org>,
-       Manfred Spraul <manfred@colorfullife.com>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       <michael.kerrisk@gmx.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: Further shmctl() SHM_LOCK strangeness
-In-Reply-To: <7379.1101327249@www30.gmx.net>
-Message-ID: <Pine.LNX.4.44.0411242124400.2769-100000@localhost.localdomain>
+	Wed, 24 Nov 2004 16:45:28 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:55205 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S262778AbUKXVpD convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 16:45:03 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: [PATCH] cciss: Off-by-one error causing oops in CCISS_GETLUNIFOioctl
+Date: Wed, 24 Nov 2004 14:58:09 -0600
+Message-ID: <D4CFB69C345C394284E4B78B876C1CF107DC005B@cceexc23.americas.cpqcorp.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] cciss: Off-by-one error causing oops in CCISS_GETLUNIFOioctl
+Thread-Index: AcTSUzqYWQ4QEVyIRjKBigmnTg/1PgAFAOdg
+From: "Miller, Mike (OS Dev)" <mike.miller@hp.com>
+To: "Patterson, Andrew D (Linux R&D)" <andrew.patterson@hp.com>,
+       <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 24 Nov 2004 20:58:10.0405 (UTC) FILETIME=[4E39A950:01C4D268]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 24 Nov 2004, Michael Kerrisk wrote:
+> This patch fixes an an "off-by-one" error found in the CCISS_GETLUNIFO
+> ioctl in the cciss driver.  It is cycling through the part 
+> table of the
+> gendisk structure which is a zero-based array, not a one-based array.
+> This often causes an oops when referencing the out-of-bounds 
+> element.  
 > 
-> While studying the RLIMIT_MEMLOCK stuff further, I came 
-> up with another observation: a process can perform a
-> shmctl(SHM_LOCK) on *any* System V shared memory segment, 
-> regardles of the segment's ownership or permissions,
-> providing the size of the segment falls within the 
-> process's RLIMIT_MEMLOCK limit.
+> Signed-off by: Andrew Patterson <andrew.patterson@hp.com>
+> ---
+Thanks, Andrew, but I was informed in no uncertain terms that my driver has "no damn business" reading the part table struct. This ioctl will be removed in the next version of the driver. Applications that use this should be changed to use readdir.
 
-That's a very good observation.
+Thanks,
+mikem
 
-I think it's unintended, but I'm not sure.
-I've forgotten what can_do_mlock on shm was about.
-
-Offhand I find it hard to grasp whether it's harmless or bad,
-but inclined to think bad - if there happen to be lots of small
-enough shared memory segments on the system, a series of processes
-run by one unprivileged user can lock down lots of memory?
-
-Isn't it further the case that any process can now SHM_UNLOCK
-any segment?  That would surely be wrong.
-
-I've added Rik and Chris to the CC list, they seem to be the
-main can_do_mlock guys, hope they can answer.
-
-Hugh
-
-> Is this intended behaviour?  For most other System V IPC 
-> "ctl" operations the process must either:
 > 
-> 1. be the owner of the object or have an appropriate 
->    capability, or
+> --- linux-2.6.9/drivers/block/cciss.c.orig	2004-11-24 
+> 10:22:30.000000000 -0700
+> +++ linux-2.6.9/drivers/block/cciss.c	2004-11-24 
+> 10:27:38.000000000 -0700
+> @@ -799,7 +799,7 @@
+>   		luninfo.num_opens = drv->usage_count;
+>   		luninfo.num_parts = 0;
+>   		/* count partitions 1 to 15 with sizes > 0 */
+> - 		for(i=1; i <MAX_PART; i++) {
+> + 		for(i=0; i <MAX_PART-1; i++) {
+>  			if (!disk->part[i])
+>  				continue;
+>  			if (disk->part[i]->nr_sects != 0)
 > 
-> 2. have suitable permissions on the object.
 > 
-> Which of these two conditions applies depends on the
-> "ctl" operation.
-
+> 

@@ -1,52 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261245AbTJHHs2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Oct 2003 03:48:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261262AbTJHHs2
+	id S261262AbTJHHts (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Oct 2003 03:49:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261326AbTJHHts
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Oct 2003 03:48:28 -0400
-Received: from TYO201.gate.nec.co.jp ([202.32.8.214]:50079 "EHLO
-	TYO201.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S261245AbTJHHs0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Oct 2003 03:48:26 -0400
-To: linux-kernel@vger.kernel.org
-Subject: initcall ordering of driver w/respect to tty_init?
-Reply-To: Miles Bader <miles@gnu.org>
-System-Type: i686-pc-linux-gnu
-Blat: Foop
-From: Miles Bader <miles@lsi.nec.co.jp>
-Date: 08 Oct 2003 16:48:17 +0900
-Message-ID: <buo65j0f9vi.fsf@mcspd15.ucom.lsi.nec.co.jp>
-MIME-Version: 1.0
+	Wed, 8 Oct 2003 03:49:48 -0400
+Received: from mail1.bluewin.ch ([195.186.1.74]:21473 "EHLO mail1.bluewin.ch")
+	by vger.kernel.org with ESMTP id S261262AbTJHHtr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Oct 2003 03:49:47 -0400
+Date: Wed, 8 Oct 2003 09:49:37 +0200
+From: Roger Luethi <rl@hellgate.ch>
+To: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+Subject: resent [PATCH][2.6] Fix early __might_sleep() calls
+Message-ID: <20031008074937.GA20511@k3.hellgate.ch>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	trivial@rustcorp.com.au
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a tty driver, arch/v850/kernel/simcons.c, who's init function is
-called via __initcall:
+__might_sleep prints warnings only after jiffies wrap (typically after 5
+minutes of uptime).
 
-   int __init simcons_tty_init (void)
-   {
-           struct tty_driver *driver = alloc_tty_driver(1);
-   ...
-           err = tty_register_driver(driver);
-   }
-   __initcall (simcons_tty_init);
+Patch against 2.6 CVS.
 
-I'm getting errors because this init function is being called _before_
-tty_init, and tty_kobj (which is the `parent' kobj of simcon's kobj) is
-apparently not setup correctly yet when the simcons_tty_init calls
-tty_register_driver.
+Roger
 
-Since there seems to be no way of ordering basic initcalls, I can see
-why it's happening.  But what's the proper way to avoid this?  Other
-tty drivers that call tty_register_driver also seem to get initialized
-via initcalls (usually declared with module_init), so maybe this
-problem exists for other drivers too.
-
-Thanks,
-
--Miles
--- 
-Come now, if we were really planning to harm you, would we be waiting here, 
- beside the path, in the very darkest part of the forest?
+--- linux-2.5/kernel/sched.c.orig	2003-10-06 20:58:47.258167317 +0200
++++ linux-2.5/kernel/sched.c	2003-10-06 21:31:32.676707449 +0200
+@@ -2847,7 +2847,7 @@ void __might_sleep(char *file, int line)
+ 	static unsigned long prev_jiffy;	/* ratelimiting */
+ 
+ 	if (in_atomic() || irqs_disabled()) {
+-		if (time_before(jiffies, prev_jiffy + HZ))
++		if (time_before(jiffies, prev_jiffy + HZ) && prev_jiffy)
+ 			return;
+ 		prev_jiffy = jiffies;
+ 		printk(KERN_ERR "Debug: sleeping function called from invalid"

@@ -1,63 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265140AbSLIL2d>; Mon, 9 Dec 2002 06:28:33 -0500
+	id <S265098AbSLIKxR>; Mon, 9 Dec 2002 05:53:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265143AbSLIL2d>; Mon, 9 Dec 2002 06:28:33 -0500
-Received: from 213-187-164-3.dd.nextgentel.com ([213.187.164.3]:7905 "EHLO
-	mail.pronto.tv") by vger.kernel.org with ESMTP id <S265140AbSLIL2c> convert rfc822-to-8bit;
-	Mon, 9 Dec 2002 06:28:32 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Organization: ProntoTV AS
-To: Zwane Mwaikambo <zwane@holomorphy.com>
-Subject: Re: BUG in 2.5.50
-Date: Mon, 9 Dec 2002 12:36:06 +0100
-User-Agent: KMail/1.4.1
-Cc: Kernel mailing list <linux-kernel@vger.kernel.org>,
-       Jens Axboe <axboe@suse.de>
-References: <200212091056.08860.roy@karlsbakk.net> <Pine.LNX.4.50.0212090508390.2139-100000@montezuma.mastecende.com>
-In-Reply-To: <Pine.LNX.4.50.0212090508390.2139-100000@montezuma.mastecende.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200212091236.06966.roy@karlsbakk.net>
+	id <S265099AbSLIKxR>; Mon, 9 Dec 2002 05:53:17 -0500
+Received: from smtp.laposte.net ([213.30.181.11]:12021 "EHLO smtp.laposte.net")
+	by vger.kernel.org with ESMTP id <S265098AbSLIKxQ>;
+	Mon, 9 Dec 2002 05:53:16 -0500
+Subject: Re: /proc/pci deprecation?
+From: Nicolas Mailhot <Nicolas.Mailhot@laposte.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ob27XeyK9bSmA359scTc"
+Organization: 
+Message-Id: <1039431647.16940.14.camel@ulysse.olympe.o2t>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.0 (1.2.0-3) 
+Date: 09 Dec 2002 12:00:47 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Perhaps this might help with debugging;
->
-> He has CONFIG_BLK_DEV_IDE_TCQ enabled and his IBM supports it,
->
-> when he gets to do_rw_disk();
->
-> We know its a READ request
-> 	if (rq_data_dir(rq) == READ) {
-> 		if (blk_rq_tagged(rq))
-> 			return hwif->ide_dma_queued_read(drive);
->
-> ... the request isn't tagged so we drop down here...
->
-> 		if (drive->using_dma && !hwif->ide_dma_read(drive))
-> 			return ide_started;
->
-> int __ide_dma_read (ide_drive_t *drive)
-> ...
-> 	if (HWGROUP(drive)->handler != NULL)
-> 		BUG();
->
-> and ->handler = ?
->
-> Is this reproducible? If so without CONFIG_PREEMPT?
 
-I found it easily reproducable - I just did the same old 'make 
-modules_install' from the kernel dir, and BUG. Witout CONFIG_PREEMPT, 
-however, I was not, and I tried to stress it quite a bit
+--=-ob27XeyK9bSmA359scTc
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: quoted-printable
 
-roy
--- 
-Roy Sigurd Karlsbakk, Datavaktmester
-ProntoTV AS - http://www.pronto.tv/
-Tel: +47 9801 3356
+[Please CC me replies as I'm not on the list ]
 
-Computers are like air conditioners.
-They stop working when you open Windows.
+Hi
+
+	When I added kt400 agp support recently (just a ID declaration since
+generic via routines work fine on my box), I had to declare the KT400
+pci id in gart. Which was the only thing really needed (or so I thought
+in a sane world).
+
+	Then I did the 2.4 patch. And guess what ? I found I had to declare it
+in dri (two times, ie for each versions supported) and in the pci id
+database. What kind of madness is it ? How many people do you expect to
+update *four* lists with the same info (and btw the last time I checked
+2.4 followups were not merged in 2.5) ?
+
+	And all this time lspci knew my chip. In fact, I *used* lspci info to
+get the right info to put in the kernel. And to this day since not
+everything was merged in 2.5 lspci is more accurate than the kernel.
+
+	So from my very na=EFve point of view /proc/pci wouldn't be mourned,
+quite the contrary.
+
+Regards,
+
+--=20
+Nicolas Mailhot
+
+--=-ob27XeyK9bSmA359scTc
+Content-Type: application/pgp-signature; name=signature.asc
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA99HffI2bVKDsp8g0RAmMcAKD1u4rrECDOnoGC4rM3UNAMvkjJhgCgh4UB
+sYIm2oLu027MxN0V5RXwlds=
+=b6LE
+-----END PGP SIGNATURE-----
+
+--=-ob27XeyK9bSmA359scTc--
 

@@ -1,71 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261346AbUJZRfJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261353AbUJZRhf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261346AbUJZRfJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 13:35:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261347AbUJZRfJ
+	id S261353AbUJZRhf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 13:37:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261347AbUJZRhe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 13:35:09 -0400
-Received: from pop.gmx.de ([213.165.64.20]:2442 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261346AbUJZRfC (ORCPT
+	Tue, 26 Oct 2004 13:37:34 -0400
+Received: from petasus.ch.intel.com ([143.182.124.5]:56909 "EHLO
+	petasus.ch.intel.com") by vger.kernel.org with ESMTP
+	id S261353AbUJZRhV convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 13:35:02 -0400
-X-Authenticated: #8834078
-From: Dominik Karall <dominik.karall@gmx.net>
-To: Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Neighbour table overflow.
-Date: Tue, 26 Oct 2004 19:39:31 +0200
-User-Agent: KMail/1.7
+	Tue, 26 Oct 2004 13:37:21 -0400
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart5067748.EOvdfUQrjE";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200410261939.33541.dominik.karall@gmx.net>
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Subject: Accessing a user-mode stack from the kernel
+Date: Tue, 26 Oct 2004 10:37:15 -0700
+Message-ID: <C863B68032DED14E8EBA9F71EB8FE4C2051E1A3B@azsmsx406>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Accessing a user-mode stack from the kernel
+Thread-Index: AcS7gm8fODQFnBxITSykYZ0/YHG3mg==
+From: "Hanson, Jonathan M" <jonathan.m.hanson@intel.com>
+To: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 26 Oct 2004 17:37:16.0597 (UTC) FILETIME=[6F9DC650:01C4BB82]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart5067748.EOvdfUQrjE
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+	I've written a kernel module that is triggered by an IOCTL from
+a user-space application. My kernel module needs to access the context
+(x86, by the way) of the user process. So I have a call stack that looks
+like this:
 
-can anybody explain why i get thousands of "Neighbour table overflow."=20
-messages? i didn't get such ones with older kernels (~2.6.6).
-here is a dmesg output:
+User application
+        |
+        V
+IOCTL glibc wrapper
+        |
+        V
+Kernel module
 
-printk: 54050 messages suppressed.
-Neighbour table overflow.
-printk: 10403 messages suppressed.
-Neighbour table overflow.
-Neighbour table overflow.
-Neighbour table overflow.
-Neighbour table overflow.
-Neighbour table overflow.
-Neighbour table overflow.
-Neighbour table overflow.
-Neighbour table overflow.
-Neighbour table overflow.
-Neighbour table overflow.
-printk: 58524 messages suppressed.
-
-this couldn't be ok, or?
-
-best regards,
-dominik
-
---nextPart5067748.EOvdfUQrjE
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iQCVAwUAQX6L1QvcoSHvsHMnAQK1MwQAjwCZfw/cHLNoffKUIsShbkvNLlw/Kf94
-Gjurmsmuh8KAgl5i/+0iZZ0p6AZUvs5cYVUvxQxuO9zv+tYXs6u2XVRqbt/lHyKv
-YaHA2lxXg69b70mGsBOt8uW5woc/YeOPVkV8vFm5ABa2t1Zd4/LYJY0QSA6K7RPw
-/rcoI57JoG4=
-=B1/V
------END PGP SIGNATURE-----
-
---nextPart5067748.EOvdfUQrjE--
+>From what I've been doing, I believe that I can get the context of the
+IOCTL glibc wrapper without any problems. However, I need the next stack
+frame up but have been unsuccessful in finding this stack frame from the
+kernel's context (I stick 0xdeadcafe in EBX just before the IOCTL call
+in the user application so I'll know when I see it).
+	I've lifted portions on the ptrace() code into my kernel module
+but that seems to return the IOCTL context when I use the getreg()
+calls.
+	Can anyone offer any advice? It would be much appreciated.

@@ -1,87 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266349AbUH0Ptt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266275AbUH0PtT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266349AbUH0Ptt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 11:49:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266308AbUH0Ptn
+	id S266275AbUH0PtT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 11:49:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266349AbUH0Psy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 11:49:43 -0400
-Received: from atlrel6.hp.com ([156.153.255.205]:2235 "EHLO atlrel6.hp.com")
-	by vger.kernel.org with ESMTP id S266256AbUH0PnP (ORCPT
+	Fri, 27 Aug 2004 11:48:54 -0400
+Received: from daq3.if.pw.edu.pl ([194.29.174.23]:32896 "HELO milosz.na.pl")
+	by vger.kernel.org with SMTP id S266275AbUH0Ppm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 11:43:15 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-Subject: Re: e1000 driver failed to call pci_enable_device
-Date: Fri, 27 Aug 2004 09:42:57 -0600
+	Fri, 27 Aug 2004 11:45:42 -0400
+From: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
+Reply-To: bzolnier@milosz.na.pl
+To: Justin Piszcz <jpiszcz@lucidpixels.com>
+Subject: Re: A few filesystem benchmarks w/ReiserFS4 vs Other Filesystems
+Date: Fri, 27 Aug 2004 17:45:41 +0200
 User-Agent: KMail/1.6.2
-References: <20040827114408.GA6490@frec.bull.fr>
-In-Reply-To: <20040827114408.GA6490@frec.bull.fr>
-Cc: Andrew Morton <akpm@osdl.org>, linux.nics@intel.com,
-       linux-kernel@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.61.0408271037080.15499@p500>
+In-Reply-To: <Pine.LNX.4.61.0408271037080.15499@p500>
 MIME-Version: 1.0
 Content-Disposition: inline
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200408270942.57621.bjorn.helgaas@hp.com>
+Message-Id: <200408271745.41722.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 27 August 2004 5:44 am, you wrote:
->  I tried to boot the linux-2.6.9-rc1-mm1 kernel and it generates an oops
-> because the e1000 driver failed to call pci_enable_device(). The kernel
-> boots normally with "pci=routeirq" argument sets. I copy the output of
-> "lspci" and also the oops message generated during the boot.
-> ...
-> ----[the oops message]----
-> Bringing up interface eth0:  Unable to handle kernel paging request at virtual
-> ddress c0500eb0
->  printing eip:
-> *pde = 00582027
-> Oops: 0000 [#1]
-> PREEMPT SMP DEBUG_PAGEALLOC
-> Modules linked in: e1000
-> CPU:    0
-> EIP:    0060:[<c0500eb0>]    Not tainted VLI
-> EFLAGS: 00010282   (2.6.9-rc1-mm1)
-> EIP is at assign_irq_vector+0x0/0x87
-> eax: 00000004   ebx: 00000034   ecx: 00000080   edx: c0545a70
-> esi: 00000004   edi: 00000002   ebp: 00000001   esp: f7f0dda4
-> ds: 007b   es: 007b   ss: 0068
-> Process modprobe (pid: 1760, threadinfo=f7f0c000 task=f7faeb70)
-> Stack: c011751e 00000034 00000002 00000004 00000008 0000000c 00000097 f7f0c000
->        00000286 c2223480 00000001 0001a900 03000000 00000004 00000034 00000002
->        00000010 c0114d43 00000002 00000004 00000034 00000001 00000001 00000001
-> Call Trace:
->  [<c011751e>] io_apic_set_pci_routing+0x7f/0x222
-> ...
 
-Thanks very much for your testing and detailed problem report.  This
-problem actually isn't in e1000.  Can you try the attached patch,
-please?  I thought I'd seen this patch before, but it doesn't seem to
-be in -mm yet.
+Hi,
 
+On Friday 27 August 2004 16:39, Justin Piszcz wrote:
+> Are balanced b-trees better for removing many files over dancing onces?
+> See rm -rf benchmark.
+>
+> # -------------------------------------------------------------------- #
+> Filesystems to test:
+> # -------------------------------------------------------------------- #
+> Each file system was created with fdisk to be +1024MB.
+> # -------------------------------------------------------------------- #
+> With default initilization commands: mkfs.fs /dev/hdb[1-7]
+> # -------------------------------------------------------------------- #
+> Filesystem            Size  Used Avail Use% Mounted on
+> /dev/hdb1             962M   20K  913M   1% /fs/ext2
+> /dev/hdb2             962M   17M  897M   2% /fs/ext3
+> /dev/hdb3             977M   33M  945M   4% /fs/reiser3
+> /dev/hdb5             929M  144K  929M   1% /fs/reiser4
+> /dev/hdb6             973M  256K  973M   1% /fs/jfs
+> /dev/hdb7             973M  144K  972M   1% /fs/xfs
 
-Make assign_irq_vector() non-__init always (it's called from
-io_apic_set_pci_routing(), which is used in the pci_enable_device()
-path).
+Sorry to say this but your testing procedure is flakey because outer disk 
+tracks are much faster so you should repeat all tests using different 
+filesystems on i.e. only /dev/hdb1.  The other thing is to get caching out of 
+picture - you should do reboots between tests - create fs, reboot, test, 
+create fs... cycle.
 
-Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
+PS my mail account is temporary defunct so please use Reply-To:
 
-===== arch/i386/kernel/io_apic.c 1.109 vs edited =====
---- 1.109/arch/i386/kernel/io_apic.c	2004-08-24 03:08:37 -06:00
-+++ edited/arch/i386/kernel/io_apic.c	2004-08-27 09:30:37 -06:00
-@@ -1120,11 +1120,7 @@
- /* irq_vectors is indexed by the sum of all RTEs in all I/O APICs. */
- u8 irq_vector[NR_IRQ_VECTORS] = { FIRST_DEVICE_VECTOR , 0 };
- 
--#ifdef CONFIG_PCI_MSI
- int assign_irq_vector(int irq)
--#else
--int __init assign_irq_vector(int irq)
--#endif
- {
- 	static int current_vector = FIRST_DEVICE_VECTOR, offset = 0;
- 
-
-
+> # -------------------------------------------------------------------- #
+> Untar the Linux 2.6.8.1 tarball on each file system.
+> # -------------------------------------------------------------------- #
+> ext2 | 46.88 sec @ 10% cpu
+> ext3 | 44.44 sec @ 12% cpu
+>   jfs | 57.36 sec @ 15% cpu
+>   rs3 | 37.03 sec @ 23% cpu
+>   rs4 | 27.42 sec @ 42% cpu
+>   xfs | 49.74 sec @ 17% cpu
+> # -------------------------------------------------------------------- #
+> Execute rm -rf linux-2.6.8.1 on each file system.
+> # -------------------------------------------------------------------- #
+> ext2 | 10.26 sec @ 22% cpu
+> ext3 | 10.02 sec @ 25% cpu
+>   jfs | 26.67 sec @ 27% cpu
+>   rs3 | 03.22 sec @ 74% cpu
+>   rs4 | 25.58 sec @ 50% cpu <- What happened to reiserfs4 here?
+>   xfs | 12.51 sec @ 47% cpu
+> # -------------------------------------------------------------------- #
+> Create a 500MB file with dd to each filesystem with 1MB blocks.
+> # -------------------------------------------------------------------- #
+> ext2 | 15.72 sec @ 26% cpu
+> ext3 | 17.04 sec @ 31% cpu
+>   jfs | 29.57 sec @ 25% cpu
+>   rs3 | 15.21 sec @ 27% cpu
+>   rs4 | 23.96 sec @ 23% cpu <- What happened to reiserfs4 here?
+>   xfs | 19.07 sec @ 29% cpu

@@ -1,36 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281854AbRLDFTI>; Tue, 4 Dec 2001 00:19:08 -0500
+	id <S281820AbRLDFVI>; Tue, 4 Dec 2001 00:21:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281844AbRLDFS6>; Tue, 4 Dec 2001 00:18:58 -0500
-Received: from odin.allegientsystems.com ([208.251.178.227]:27520 "EHLO
-	lasn-001.allegientsystems.com") by vger.kernel.org with ESMTP
-	id <S281777AbRLDFSp>; Tue, 4 Dec 2001 00:18:45 -0500
-Message-ID: <3C0C5CB2.6000602@optonline.net>
-Date: Tue, 04 Dec 2001 00:18:42 -0500
-From: Nathan Bryant <nbryant@optonline.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en-us
+	id <S281815AbRLDFU6>; Tue, 4 Dec 2001 00:20:58 -0500
+Received: from www.wen-online.de ([212.223.88.39]:10001 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S281820AbRLDFUs>;
+	Tue, 4 Dec 2001 00:20:48 -0500
+Date: Tue, 4 Dec 2001 06:22:31 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: "Udo A. Steinberg" <reality@delusion.de>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [OOPS]: Linux-2.5.1-pre5
+In-Reply-To: <3C0BA978.A26EF6C0@delusion.de>
+Message-ID: <Pine.LNX.4.33.0112040617530.876-100000@mikeg.weiden.de>
 MIME-Version: 1.0
-To: Doug Ledford <dledford@redhat.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: i810 audio patch
-In-Reply-To: <3C0C16E7.70206@optonline.net> <3C0C508C.40407@redhat.com> <3C0C58DE.9020703@optonline.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nathan Bryant wrote
+On Mon, 3 Dec 2001, Udo A. Steinberg wrote:
 
-> - I haven't seen those oopses again either; they may have been caused 
-> by i810_configure_clocking being called twice during the 
-> initialization due to a merging goof on my part... 
+> keyboard: Timeout - AT keyboard not present?(f4)
+> keyboard: Timeout - AT keyboard not present?(f4)
 
-Ok, I spoke too soon. That piece of code couldn't cause the problem, 
-because of the surrounding if (clocking==...
+I see those too.  (the way it's written reminds me of a joke about silly
+MSDOS startup messages.. keyboard not detected, press F1 to continue:)
 
-So there may be some VM/buffer related problem lurking under the covers 
-still. Originally the oops popped up in kswapd, for me, but I can't 
-trigger it again.
+	-Mike
 

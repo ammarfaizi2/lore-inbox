@@ -1,72 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262875AbTIANAp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 09:00:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262877AbTIANAp
+	id S262877AbTIANPz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 09:15:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262880AbTIANPz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 09:00:45 -0400
-Received: from sunpizz1.rvs.uni-bielefeld.de ([129.70.123.31]:16864 "EHLO
-	mail.rvs.uni-bielefeld.de") by vger.kernel.org with ESMTP
-	id S262875AbTIANAo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 09:00:44 -0400
-Subject: Re: request_firmware() backport to 2.4
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Marcelo Tosatti <marcelo@parcelfarce.linux.theplanet.co.uk>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0309010859250.2504-100000@logos.cnet>
-References: <Pine.LNX.4.44.0309010859250.2504-100000@logos.cnet>
-Content-Type: text/plain
+	Mon, 1 Sep 2003 09:15:55 -0400
+Received: from shower.ispgateway.de ([62.67.200.219]:39054 "HELO
+	shower.ispgateway.de") by vger.kernel.org with SMTP id S262877AbTIANPw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Sep 2003 09:15:52 -0400
+Message-ID: <3F534686.1090106@dot-heine.de>
+Date: Mon, 01 Sep 2003 15:15:50 +0200
+From: Claus-Justus Heine <ch@dot-heine.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030806
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test4: bug WRT lazy FPU switching and CONFIG_PREEMPT
+References: <qCCS.70v.9@gated-at.bofh.it>
+In-Reply-To: <qCCS.70v.9@gated-at.bofh.it>
+X-Enigmail-Version: 0.76.4.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 01 Sep 2003 15:00:18 +0200
-Message-Id: <1062421224.13730.111.camel@pegasus>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
+Claus-Justus Heine wrote:
 
-> > I have collected the patches for the request_firmware() interface
-> > backport for 2.4 done by Manuel Estrada Sainz. It is now in -ac for a
-> > while and I have used it in my -mh patches. It works fine and seems to
-> > be clean and very stable. Karsten Keil has tested it together with my
-> > ported bfusb.o Bluetooth driver on AMD64.
-> > 
-> > Please do a
-> > 
-> >         bk pull http://linux-mh.bkbits.net/fw-loader-2.4
-> > 
-> > This will update the following files:
-> > 
-> >  drivers/bluetooth/bfusb.h                             |52261 ------------------
-> 
-> Now bfusb loads "bfubase.frm", but stock kernel has no such thing. 
-> 
-> I assume that breaks bfusb?
+[snip]
+> diff -u --recursive --new-file linux-2.6.0-test4/include/asm-i386/i387.h linux-2.6.0-test4-mine/include/asm-i386/i387.h
+[snip]
+> --- linux-2.6.0-test4/include/asm-i386/i387.h    2003-07-27 19:06:54.000000000 +0200
+> +++ linux-2.6.0-test4-mine/include/asm-i386/i387.h    2003-08-31 15:39:04.000000000 +0200
+> @@ -30,7 +30,7 @@
+>  static inline void __save_init_fpu( struct task_struct *tsk )
+>  {
+>      if ( cpu_has_fxsr ) {
+> -        asm volatile( "fxsave %0 ; fnclex"
+> +        asm volatile( "fxsave %0 ; fclex"
 
-no, the bfubase.frm is the original firmware file from AVM. This file
-have to be placed somewhere on the filesystem. And if you call
-request_firmware() this will call the firmware.agent hotplug script,
-which loads it into the kernel through the /proc interface. This is the
-big advantage of the request_firmware() architecture, because we don't
-have to place the firmware as header file in the kernel source. The
-firmware can be replaced with a newer version without recompiling the
-kernel, because the only thing you have to do is to unplug and replug
-the device. This also solves some legal problems with firmwares from
-companies who are not so Linux friendly like AVM.
+I'm sorry, changing "fnclex" to "fclex" was a stupid idea, can lead to deadlocks. So that
+patch should have looked like this:
 
-I have some short infos about the driver itself under
+#########################################################################################################################
+diff -u --recursive --new-file linux-2.6.0-test4/arch/i386/kernel/traps.c linux-2.6.0-test4-mine/arch/i386/kernel/traps.c
+--- linux-2.6.0-test4/arch/i386/kernel/traps.c    2003-08-31 15:22:42.000000000 +0200
++++ linux-2.6.0-test4-mine/arch/i386/kernel/traps.c    2003-08-31 15:35:49.000000000 +0200
+@@ -605,7 +605,10 @@
+       * Save the info for the exception handler and clear the error.
+       */
+      task = current;
+-    save_init_fpu(task);
++    /* don't trigger an unnecessary math_state_restore() */
++    if (task->thread_info->status & TS_USEDFPU) {
++        save_init_fpu(task);
++    }
+      task->thread.trap_no = 16;
+      task->thread.error_code = 0;
+      info.si_signo = SIGFPE;
+@@ -667,7 +670,10 @@
+       * Save the info for the exception handler and clear the error.
+       */
+      task = current;
+-    save_init_fpu(task);
++    /* don't trigger an unnecessary math_state_restore() */
++    if (task->thread_info->status & TS_USEDFPU) {
++        save_init_fpu(task);
++    }
+      task->thread.trap_no = 19;
+      task->thread.error_code = 0;
+      info.si_signo = SIGFPE;
+diff -u --recursive --new-file linux-2.6.0-test4/include/asm-i386/i387.h linux-2.6.0-test4-mine/include/asm-i386/i387.h
+--- linux-2.6.0-test4/include/asm-i386/i387.h    2003-07-27 19:06:54.000000000 +0200
++++ linux-2.6.0-test4-mine/include/asm-i386/i387.h    2003-08-31 15:39:04.000000000 +0200
+@@ -41,8 +41,10 @@
 
-	http://www.holtmann.org/linux/bluetooth/bfusb.html
+  static inline void save_init_fpu( struct task_struct *tsk )
+  {
++    preempt_disable();
+      __save_init_fpu(tsk);
+      stts();
++    preempt_enable_no_resched();
+  }
 
-Another driver which makes use of request_firmware() interface at the
-moment is the orinoco_usb.o wireless lan driver:
 
-	http://orinoco-usb.alioth.debian.org
+@@ -53,11 +55,13 @@
 
-Regards
+  #define clear_fpu( tsk )                    \
+  do {                                \
++    preempt_disable();                    \
+      if ((tsk)->thread_info->status & TS_USEDFPU) {        \
+          asm volatile("fwait");                \
+          (tsk)->thread_info->status &= ~TS_USEDFPU;    \
+          stts();                        \
+      }                            \
++    preempt_enable_no_resched();                \
+  } while (0)
 
-Marcel
+  /*
+##########################################################################################################################################
 
 

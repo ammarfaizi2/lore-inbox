@@ -1,123 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267317AbSLRSiB>; Wed, 18 Dec 2002 13:38:01 -0500
+	id <S267335AbSLRSeK>; Wed, 18 Dec 2002 13:34:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267318AbSLRSiB>; Wed, 18 Dec 2002 13:38:01 -0500
-Received: from mrelay1.cc.umr.edu ([131.151.1.120]:41930 "EHLO smtp.umr.edu")
-	by vger.kernel.org with ESMTP id <S267317AbSLRShy> convert rfc822-to-8bit;
-	Wed, 18 Dec 2002 13:37:54 -0500
-X-MIMEOLE: Produced By Microsoft Exchange V6.0.6249.0
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: 3ware driver in 2.4.x and 2.5.x not compatible with 6x00 series cards
-Date: Wed, 18 Dec 2002 12:45:51 -0600
-Message-ID: <B578DAA4FD40684793C953B491D4879110D6E5@umr-mail7.umr.edu>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 3ware driver in 2.4.x and 2.5.x not compatible with 6x00 series cards
-Thread-Index: AcKmxMkiqCnsIAbrQCScD/dq3TxElwAAAzZw
-From: "Neulinger, Nathan" <nneul@umr.edu>
-To: "Adam Radford" <aradford@3WARE.com>,
-       "Dave Jones" <davej@codemonkey.org.uk>
-Cc: <linux-kernel@vger.kernel.org>, "Uetrecht, Daniel J." <uetrecht@umr.edu>
+	id <S267336AbSLRSeK>; Wed, 18 Dec 2002 13:34:10 -0500
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:27145 "EHLO
+	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id <S267335AbSLRSeJ>; Wed, 18 Dec 2002 13:34:09 -0500
+Message-Id: <200212181841.gBIIfd0I008213@pincoya.inf.utfsm.cl>
+To: Dave Jones <davej@codemonkey.org.uk>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: Intel P6 vs P7 system call performance 
+In-Reply-To: Message from Dave Jones <davej@codemonkey.org.uk> 
+   of "Wed, 18 Dec 2002 16:41:19 -0000." <20021218164119.GC27695@suse.de> 
+Date: Wed, 18 Dec 2002 15:41:39 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Your statement makes a hell of a lot more sense to me, but I'm just
-going on what I was told, and observed behavior.
+Dave Jones <davej@codemonkey.org.uk> said:
+> On Wed, Dec 18, 2002 at 10:40:24AM -0300, Horst von Brand wrote:
+>  > [Extremely interesting new syscall mechanism tread elided]
+>  > 
+>  > What happened to "feature freeze"?
 
-As soon as I followed his instructions, the symptom went away. Basically
-on this one machine, I'm getting tons of command timed out, resetting
-card messages. Along with unknown ioctl messages. Snippet from dmesg
-follows:
+> *bites lip* it's fairly low impact *duck*.
+> Given the wins seem to be fairly impressive across the board, spending
+> a few days on getting this right isn't going to push 2.6 back any
+> noticable amount of time.
 
-3w-xxxx: scsi0: Unit #0: Command (0xdfeb4400) timed out, resetting card.
-3w-xxxx: Unknown ioctl 0x46.
-3w-xxxx: Unknown ioctl 0x46.
-3w-xxxx: Unknown ioctl 0x46.
-3w-xxxx: scsi0: Unit #0: Command (0xdfeb4400) timed out, resetting card.
-3w-xxxx: Unknown ioctl 0x46.
-3w-xxxx: Unknown ioctl 0x46.
-3w-xxxx: Unknown ioctl 0x46.
-3w-xxxx: Unknown ioctl 0x46.
-3w-xxxx: Unknown ioctl 0x46.
-3w-xxxx: scsi0: Unit #0: Command (0xdfeb4800) timed out, resetting card.
-3w-xxxx: Unknown ioctl 0x46.
-3w-xxxx: Unknown ioctl 0x46.
-3w-xxxx: Unknown ioctl 0x46.
-3w-xxxx: scsi0: Unit #0: Command (0xdfeb4800) timed out, resetting card.
+Ever hear Larry McVoy's [I think, please correct me if wrong] standard
+rant of how $UNIX_FROM_BIG_VENDOR sucks, one "almost unnoticeable
+performance impact" feature at a time? 
 
-Have not seen any of those with the .016 driver.
+Similarly, Fred Brooks tells in "The Mythical Man Month" how schedules
+don't slip by months, they slip a day at a time...
 
-I'm more than happy to test any changes/etc. to make this go away with
-current drivers, but it'll need to be code for 2.4.x as I haven't
-started doing anything with 2.5/2.6 yet. 
-
--- Nathan
-
-------------------------------------------------------------
-Nathan Neulinger                       EMail:  nneul@umr.edu
-University of Missouri - Rolla         Phone: (573) 341-4841
-Computing Services                       Fax: (573) 341-4216
-
-
-> -----Original Message-----
-> From: Adam Radford [mailto:aradford@3WARE.com] 
-> Sent: Wednesday, December 18, 2002 12:42 PM
-> To: 'Dave Jones'; Neulinger, Nathan
-> Cc: linux-kernel@vger.kernel.org; Uetrecht, Daniel J.
-> Subject: RE: 3ware driver in 2.4.x and 2.5.x not compatible 
-> with 6x00 series cards
-> 
-> 
-> Who from 3ware told you it isn't compatible?  That's totally bogus.  
-> It's completely compatible.
-> 
-> 3ware supports 6, 7, and 8000 series cards with a single driver in 
-> 2.2, 2.4, and 2.5 trees.
-> 
-> If it isn't working for you, let me know.
-> 
-> -Adam
-> 
-> -----Original Message-----
-> From: Dave Jones [mailto:davej@codemonkey.org.uk]
-> Sent: Wednesday, December 18, 2002 10:26 AM
-> To: Nathan Neulinger
-> Cc: linux-kernel@vger.kernel.org; uetrecht@umr.edu
-> Subject: Re: 3ware driver in 2.4.x and 2.5.x not compatible with 6x00
-> series cards
-> 
-> 
-> On Wed, Dec 18, 2002 at 12:10:54PM -0600, Nathan Neulinger wrote:
->  > According to 3Ware, the driver in the 2.4.x and (I assume) 
-> 2.5.x is no
->  > longer compatible with the 6xxx series cards. 
->  > I don't know what we'll do with this situation when we 
-> move to 2.6, cause
->  > right now, it looks like we are completely screwed. The old driver 
->  > obviously will not compile on 2.6 since the API's have changed. 
-> 
-> Any idea at which point the 2.5 driver stopped working ?
-> It may not be that much work to bring that version up to date as
-> a 3ware-old.c driver in a worse-case scenario.
-> 
-> This would be huge code duplication however, and would be much
-> better fixed by having the driver detect which card its running
-> on, and 'do the right thing' wrt which firmware it needs.
+> This stuff is mostly of the case "it either works, or it doesn't".
+> And right now, corner cases like apm aside, it seems to be holding up
+> so far. This isn't as far reaching as it sounds. There are still
+> drivers being turned upside down which are changing things in a
+> lot bigger ways than this[1]
 > 
 > 		Dave
 > 
-> -- 
-> | Dave Jones.        http://www.codemonkey.org.uk
-> | SuSE Labs
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> [1] Myself being one of the guilty parties there, wrt agp.
+
+Fixing a broken feature is in for me. Adding new features is supposed to be
+out until 2.7 opens.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

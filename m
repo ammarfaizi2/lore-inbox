@@ -1,35 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277727AbRJLPMd>; Fri, 12 Oct 2001 11:12:33 -0400
+	id <S277725AbRJLPQN>; Fri, 12 Oct 2001 11:16:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277725AbRJLPMZ>; Fri, 12 Oct 2001 11:12:25 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:3086 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S277727AbRJLPMJ>; Fri, 12 Oct 2001 11:12:09 -0400
-Subject: Re: Linux 2.4.12-ac1
-To: trini@kernel.crashing.org (Tom Rini)
-Date: Fri, 12 Oct 2001 16:17:39 +0100 (BST)
-Cc: laughing@shared-source.org (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <20011012072910.N21564@cpe-24-221-152-185.az.sprintbbd.net> from "Tom Rini" at Oct 12, 2001 07:29:10 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S277728AbRJLPQD>; Fri, 12 Oct 2001 11:16:03 -0400
+Received: from dialup.ceniai.inf.cu ([169.158.131.111]:63236 "EHLO gecyt.cu")
+	by vger.kernel.org with ESMTP id <S277725AbRJLPPy>;
+	Fri, 12 Oct 2001 11:15:54 -0400
+From: tomas@gecyt.cu
+Subject: I have a small problem with kernel 2.19
+To: linux-kernel@vger.kernel.org
+X-Mailer: CommuniGate Pro Web Mailer v.3.4
+Date: Fri, 12 Oct 2001 11:01:08 -0400
+Message-ID: <web-412471@gecyt.cu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15s44B-0007Vk-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Fri, Oct 12, 2001 at 02:17:26PM +0100, Alan Cox wrote:
-> 
-> > 2.4.12-ac1
-> > o	Merge the majority of 2.4.11/12
-> > 	-	Fall back to the Linus reiserfs code set
-> [snip]
-> 
-> The endian-safe patches will come back tho, right?  I don't think those
-> have made it into Linus' tree yet...
+Hi. 
+I need some help with kernel 2.19, my problems is, when the
+System wake up and system file point mount, a messages is
+show  in the display. 
 
-Really what needs to happen is the important bits that were tested and
-the reiser folks were happy with get pushed back bit by bit into both trees
-now
+The messages is following
+KERNEL PANIC not Mount VFS, The server have 2  HDD SCSI, and
+2 Microprocesor and the system is Linux Red Hat 6.2
+
+I need help. please somebody can help me.
+
+Ing. Tomás Rodriguez Orta
+Administrador de Red, GECYT

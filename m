@@ -1,79 +1,181 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
+thread-index: AcQVpN+sMTHkBL3oRHOnKqLzwvZYDQ==
 Envelope-to: paul@sumlocktest.fsnet.co.uk
-Delivery-date: Mon, 05 Jan 2004 21:22:07 +0000
-Message-ID: <03b501c415a4$d9637410$d100000a@sbs2003.local>
+Delivery-date: Mon, 05 Jan 2004 22:49:34 +0000
+Message-ID: <03e501c415a4$dfaccc40$d100000a@sbs2003.local>
+Content-Transfer-Encoding: 7bit
 X-Mailer: Microsoft CDO for Exchange 2000
 Content-Class: urn:content-classes:message
 Importance: normal
 Priority: normal
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
 X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.0
-Subject: FW: [PATCH] MSI broke voyager build
-Date: Mon, 29 Mar 2004 16:45:23 +0100
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: FW: [PATCH] MSI broke voyager build
-thread-index: AcPT0YrFACJS2TTAQVyBxtAPsjbkDg==
-From: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+Date: Mon, 29 Mar 2004 16:45:34 +0100
+From: "Matthew Dobson" <colpatch@us.ibm.com>
+Reply-To: <colpatch@us.ibm.com>
+Organization: IBM LTC
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: <Administrator@osdl.org>
-Cc: <akpm@osdl.org>, "Nguyen, Tom L" <tom.l.nguyen@intel.com>
-X-OriginalArrivalTime: 05 Jan 2004 21:19:04.0964 (UTC) FILETIME=[8C292C40:01C3D3D1]
+Cc: "Andrew Morton" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
+        <mbligh@aracnet.com>
+Subject: Re: [PATCH] Simplify node/zone field in page->flags
+References: <3FE74B43.7010407@us.ibm.com> <20031222131126.66bef9a2.akpm@osdl.org> <3FF9D5B1.3080609@us.ibm.com> <20040105213736.GA19859@sgi.com>
+Content-Type: multipart/mixed;
+	boundary="------------090503010503060607030209"
 Sender: <linux-kernel-owner@vger.kernel.org>
 X-Mailing-List: linux-kernel@vger.kernel.org
+X-OriginalArrivalTime: 29 Mar 2004 15:45:36.0562 (UTC) FILETIME=[E0EC5120:01C415A4]
 
-Wednesday, December 31, 2003 2:59 PM, James Bottomley wrote:
-> The author made the arch/i386 compile depend on NR_VECTORS being
-> defined.
-> 
-> This symbol, however, was put only into mach-default/irq_vectors.h
-> 
-> The attached patch adds it to voyager; visws and pc9800 however, are
-> still broken.
-> 
-> The code that breaks is this (in arch/i386/kernel/i8259.c):
-> 
->  	 * us. (some of these will be overridden and become
->  	 * 'special' SMP interrupts)
->  	 */
-> -	for (i = 0; i < NR_IRQS; i++) {
-> +	for (i = 0; i < (NR_VECTORS - FIRST_EXTERNAL_VECTOR); i++) {
->  		int vector = FIRST_EXTERNAL_VECTOR + i;
-> +		if (i >= NR_IRQS)
-> +			break;
->  		if (vector != SYSCALL_VECTOR)
->  			set_intr_gate(vector, interrupt[i]);
-> 
-> as far as I can see, with NR_VECTORS set at 256, FIRST_EXTERNAL_VECTOR
-> at 32 and NR_IRQS set at 224 the two forms of the loop are identical.
-> The only case it would make a difference would be for NR_IRQ >
-> NR_VECTORS + FIRST_EXTERNAL_VECTOR which doesn't seem to make any
-> sense.  Perhaps just backing this change out of i8259.c would be
-> better?  NR_VECTORS seems to have no other defined use in the MSI code.
+This is a multi-part message in MIME format.
 
->> It would make a significant difference when CONFIG_PCI_USE_VECTOR is 
->> set to "Y" by users to enable MSI support. The setting of 
->> CONFIG_PCI_USE_VECTOR to "Y" sets NR_IRQS at 239 (FIRST_SYSTEM_VECTOR)
->> instead of 224.
+--------------090503010503060607030209
+Content-Type: text/plain;
+	format=flowed;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 
-
-> ===== include/asm-i386/mach-voyager/irq_vectors.h 1.4 vs edited =====
-> --- 1.4/include/asm-i386/mach-voyager/irq_vectors.h	Wed Oct 22 11:34:51
-> 2003
-> +++ edited/include/asm-i386/mach-voyager/irq_vectors.h	Wed Dec 31
-> 16:30:15 2003
-> @@ -55,6 +55,7 @@
->  #define VIC_CPU_BOOT_CPI		VIC_CPI_LEVEL0
->  #define VIC_CPU_BOOT_ERRATA_CPI		(VIC_CPI_LEVEL0 + 8)
+Jesse Barnes wrote:
+> On Mon, Jan 05, 2004 at 01:22:57PM -0800, Matthew Dobson wrote:
 > 
-> +#define NR_VECTORS 256
->  #define NR_IRQS 224
->  #define NR_IRQ_VECTORS NR_IRQS
+>>Jesse had acked the patch in an earlier itteration.  The only thing 
+>>that's changed is some line offsets whilst porting the patch forward.
+>>
+>>Jesse (or anyone else?), any objections to this patch as a superset of 
+>>yours?
+> 
+> 
+> No objections here.  Of course, you'll have to rediff against the
+> current tree since that stuff has been merged for awhile now.  On a
+> somewhat related note, Martin mentioned that he'd like to get rid of
+> memblks.  I'm all for that too; they just seem to get in the way.
+> 
+> Jesse
 > 
 
->> Thanks for providing a fix. The fix looks fine to me.
+Yeah... didn't actually attatch the patch to that last email, did I? 
+Brain slowly transitioning back into "on" mode after a couple weeks 
+solidly in the "off" position.
 
-Thanks,
-Long
+-Matt
+
+--------------090503010503060607030209
+Content-Type: text/plain;
+	name="nodezone.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+	filename="nodezone.patch"
+
+diff -Nurp --exclude-from=/home/mcd/.dontdiff linux-2.6.1-rc1/include/linux/mm.h linux-2.6.1-rc1+nodezone/include/linux/mm.h
+--- linux-2.6.1-rc1/include/linux/mm.h	Mon Jan  5 12:36:24 2004
++++ linux-2.6.1-rc1+nodezone/include/linux/mm.h	Mon Jan  5 14:26:28 2004
+@@ -322,23 +322,33 @@ static inline void put_page(struct page 
+ /*
+  * The zone field is never updated after free_area_init_core()
+  * sets it, so none of the operations on it need to be atomic.
+- * We'll have up to log2(MAX_NUMNODES * MAX_NR_ZONES) zones
+- * total, so we use NODES_SHIFT here to get enough bits.
++ * We'll have up to (MAX_NUMNODES * MAX_NR_ZONES) zones total, 
++ * so we use (MAX_NODES_SHIFT + MAX_ZONES_SHIFT) here to get enough bits.
+  */
+-#define ZONE_SHIFT (BITS_PER_LONG - NODES_SHIFT - MAX_NR_ZONES_SHIFT)
++#define NODEZONE_SHIFT (BITS_PER_LONG - MAX_NODES_SHIFT - MAX_ZONES_SHIFT)
++#define NODEZONE(node, zone)	((node << ZONES_SHIFT) | zone)
++
++static inline unsigned long page_zonenum(struct page *page)
++{
++	return (page->flags >> NODEZONE_SHIFT) & (~(~0UL << ZONES_SHIFT));
++}
++static inline unsigned long page_nodenum(struct page *page)
++{
++	return (page->flags >> NODEZONE_SHIFT + ZONES_SHIFT);
++}
+ 
+ struct zone;
+ extern struct zone *zone_table[];
+ 
+ static inline struct zone *page_zone(struct page *page)
+ {
+-	return zone_table[page->flags >> ZONE_SHIFT];
++	return zone_table[page->flags >> NODEZONE_SHIFT];
+ }
+ 
+-static inline void set_page_zone(struct page *page, unsigned long zone_num)
++static inline void set_page_zone(struct page *page, unsigned long nodezone_num)
+ {
+-	page->flags &= ~(~0UL << ZONE_SHIFT);
+-	page->flags |= zone_num << ZONE_SHIFT;
++	page->flags &= ~(~0UL << NODEZONE_SHIFT);
++	page->flags |= nodezone_num << NODEZONE_SHIFT;
+ }
+ 
+ #ifndef CONFIG_DISCONTIGMEM
+diff -Nurp --exclude-from=/home/mcd/.dontdiff linux-2.6.1-rc1/include/linux/mmzone.h linux-2.6.1-rc1+nodezone/include/linux/mmzone.h
+--- linux-2.6.1-rc1/include/linux/mmzone.h	Mon Jan  5 12:36:24 2004
++++ linux-2.6.1-rc1+nodezone/include/linux/mmzone.h	Mon Jan  5 14:04:46 2004
+@@ -160,8 +160,8 @@ struct zone {
+ #define ZONE_NORMAL		1
+ #define ZONE_HIGHMEM		2
+ 
+-#define MAX_NR_ZONES		3	/* Sync this with MAX_NR_ZONES_SHIFT */
+-#define MAX_NR_ZONES_SHIFT	2	/* ceil(log2(MAX_NR_ZONES)) */
++#define MAX_NR_ZONES		3	/* Sync this with ZONES_SHIFT */
++#define ZONES_SHIFT		2	/* ceil(log2(MAX_NR_ZONES)) */
+ 
+ #define GFP_ZONEMASK	0x03
+ 
+@@ -311,7 +311,7 @@ extern struct pglist_data contig_page_da
+ 
+ #if BITS_PER_LONG == 32
+ /*
+- * with 32 bit flags field, page->zone is currently 8 bits.
++ * with 32 bit page->flags field, we reserve 8 bits for node/zone info.
+  * there are 3 zones (2 bits) and this leaves 8-2=6 bits for nodes.
+  */
+ #define MAX_NODES_SHIFT		6
+@@ -328,6 +328,13 @@ extern struct pglist_data contig_page_da
+ #error NODES_SHIFT > MAX_NODES_SHIFT
+ #endif
+ 
++/* There are currently 3 zones: DMA, Normal & Highmem, thus we need 2 bits */
++#define MAX_ZONES_SHIFT		2
++
++#if ZONES_SHIFT > MAX_ZONES_SHIFT
++#error ZONES_SHIFT > MAX_ZONES_SHIFT
++#endif
++
+ extern DECLARE_BITMAP(node_online_map, MAX_NUMNODES);
+ extern DECLARE_BITMAP(memblk_online_map, MAX_NR_MEMBLKS);
+ 
+diff -Nurp --exclude-from=/home/mcd/.dontdiff linux-2.6.1-rc1/mm/page_alloc.c linux-2.6.1-rc1+nodezone/mm/page_alloc.c
+--- linux-2.6.1-rc1/mm/page_alloc.c	Mon Jan  5 12:36:24 2004
++++ linux-2.6.1-rc1+nodezone/mm/page_alloc.c	Mon Jan  5 14:04:46 2004
+@@ -50,7 +50,7 @@ EXPORT_SYMBOL(nr_swap_pages);
+  * Used by page_zone() to look up the address of the struct zone whose
+  * id is encoded in the upper bits of page->flags
+  */
+-struct zone *zone_table[MAX_NR_ZONES*MAX_NUMNODES];
++struct zone *zone_table[1 << (ZONES_SHIFT + NODES_SHIFT)];
+ EXPORT_SYMBOL(zone_table);
+ 
+ static char *zone_names[MAX_NR_ZONES] = { "DMA", "Normal", "HighMem" };
+@@ -1212,7 +1212,7 @@ void __init memmap_init_zone(struct page
+ 	struct page *page;
+ 
+ 	for (page = start; page < (start + size); page++) {
+-		set_page_zone(page, nid * MAX_NR_ZONES + zone);
++		set_page_zone(page, NODEZONE(nid, zone));
+ 		set_page_count(page, 0);
+ 		SetPageReserved(page);
+ 		INIT_LIST_HEAD(&page->list);
+@@ -1253,7 +1253,7 @@ static void __init free_area_init_core(s
+ 		unsigned long size, realsize;
+ 		unsigned long batch;
+ 
+-		zone_table[nid * MAX_NR_ZONES + j] = zone;
++		zone_table[NODEZONE(nid, j)] = zone;
+ 		realsize = size = zones_size[j];
+ 		if (zholes_size)
+ 			realsize -= zholes_size[j];
+
+--------------090503010503060607030209--

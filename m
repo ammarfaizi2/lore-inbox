@@ -1,56 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261301AbTEQIER (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 May 2003 04:04:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261308AbTEQIER
+	id S261300AbTEQIDl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 May 2003 04:03:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261301AbTEQIDl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 May 2003 04:04:17 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:1182 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261301AbTEQIEO (ORCPT
+	Sat, 17 May 2003 04:03:41 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:17599 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S261300AbTEQIDk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 May 2003 04:04:14 -0400
-Date: Sat, 17 May 2003 10:16:58 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] laptop mode, #2
-Message-ID: <20030517081658.GU812@suse.de>
-References: <20030516113309.GY812@suse.de> <20030516195535.GC372@elf.ucw.cz>
+	Sat, 17 May 2003 04:03:40 -0400
+Date: Sat, 17 May 2003 10:16:03 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Lionel.Bouton@inet6.fr,
+       alan@lxorguk.ukuu.org.uk, marcelo@conectiva.com.br,
+       torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [patch] Support for SiS 961/961B/962/963/630S/630ET/633/733 IDE
+Message-ID: <20030517101603.B25569@ucw.cz>
+References: <20030516143021.A17346@ucw.cz> <Pine.SOL.4.30.0305161903590.16125-100000@mion.elka.pw.edu.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030516195535.GC372@elf.ucw.cz>
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.SOL.4.30.0305161903590.16125-100000@mion.elka.pw.edu.pl>; from B.Zolnierkiewicz@elka.pw.edu.pl on Fri, May 16, 2003 at 07:14:36PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 16 2003, Pavel Machek wrote:
-> Hi!
-> 
-> > Made a few tweaks and adjustments:
-> > 
-> > - If block_dump is set, also dump who is marking a page/buffer as dirty.
-> >   akpm recommended this.
-> > 
-> > - Don't touch default bdflush parameters (see script)
-> > 
-> > That's about it. I've gotten several mails who really like the patch and
-> > that it really adds a non-significant amount of extra battery
-> > time. I
-> 
-> Non-significant? Like it adds no time at all?
+On Fri, May 16, 2003 at 07:14:36PM +0200, Bartlomiej Zolnierkiewicz wrote:
 
-Woops, that was reversed :)
-
-> > consider the patch final at this point.
-> > 
-> > Patch is against 2.4.21-rc2 (ish)
+> Good job, but...
 > 
-> It looks nice, but without Documentation/laptop_mode, I can't say much
-> more ;-)))).
+> On Fri, 16 May 2003, Vojtech Pavlik wrote:
+> > And while doing the changes I did also some cleanups, mainly removing a
+> > bunch of debug code that doesn't seem very useful when lspci does the
+> > same job. And removing the config_drive_xfer_rate in favor of functions
+> > from ide-timing.h.
+> 
+> Debug code in fe. SiS IDE driver does the same as lspci given you get to
+> the point you can run lspci. Dumping of PCI conf regs should be moved to
+> generic IDE PCI code as it might be useful for other IDE PCI drivers.
 
-The attached script basically explained everything, but yes I will add a
-laptop_mode file as well.
+Yes, that would be useful. 
+
+> Removing config_drive_xfer_rate() is bad,
+> fe. you don't check for bad drives now.
+
+True. That needs to be added to ide_find_best_mode in ide-timing.h.
+Which needs to be converted to ide-timing.c.
 
 -- 
-Jens Axboe
-
+Vojtech Pavlik
+SuSE Labs, SuSE CR

@@ -1,38 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267566AbTBDXXg>; Tue, 4 Feb 2003 18:23:36 -0500
+	id <S267568AbTBDXcf>; Tue, 4 Feb 2003 18:32:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267562AbTBDXXg>; Tue, 4 Feb 2003 18:23:36 -0500
-Received: from dp.samba.org ([66.70.73.150]:9893 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S267566AbTBDXXf>;
-	Tue, 4 Feb 2003 18:23:35 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
-Cc: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-       linux-kernel@vger.kernel.org, greg@kroah.com, jgarzik@pobox.com
-Subject: Re: [PATCH] Module alias and device table support. 
-In-reply-to: Your message of "Tue, 04 Feb 2003 09:05:46 BST."
-             <200302040805.h1485lhI002898@eeyore.valparaiso.cl> 
-Date: Tue, 04 Feb 2003 19:51:23 +1100
-Message-Id: <20030204233310.AD6AF2C04E@lists.samba.org>
+	id <S267571AbTBDXcf>; Tue, 4 Feb 2003 18:32:35 -0500
+Received: from jive.SoftHome.net ([66.54.152.27]:32419 "HELO jive.SoftHome.net")
+	by vger.kernel.org with SMTP id <S267568AbTBDXce>;
+	Tue, 4 Feb 2003 18:32:34 -0500
+References: <1044385759.1861.46.camel@localhost.localdomain>
+            <200302041935.h14JZ69G002675@darkstar.example.net>
+            <b1pbt8$2ll$1@penguin.transmeta.com>
+            <20030204232101.GA9034@work.bitmover.com>
+In-Reply-To: <20030204232101.GA9034@work.bitmover.com> 
+From: b_adlakha@softhome.net
+To: linux-kernel@vger.kernel.org
+Subject: Re: gcc 2.95 vs 3.21 performance
+Date: Tue, 04 Feb 2003 16:42:08 -0700
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [210.214.82.90]
+Message-ID: <courier.3E404FD0.00004E4F@softhome.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <200302040805.h1485lhI002898@eeyore.valparaiso.cl> you write:
-> > It's undefined for the "in the config file case" (they curently *do*
-> > override, but that's an implementation detail).  It'd be clearer to
-> > explicitly say "you can't override module names with "alias", use
-> > "install" instead, IMHO.
-> 
-> Urgh. What is "alias" then for? It has been used for ages as a way of "call
-> module foo by name bar, possibly with this further arguments". Why change
-> that gratuitously?
+>> I'd love to see a small - and fast - C compiler, and I'd be willing to
+>> make kernel changes to make it work with it.  
 
-I'm going to stop here, since I don't think you understand what I am
-proposing, nor how the current system works: this makes is extremely
-difficult to describe changes, and time consuming.
+tcc looks like a cool project to me...
+Its small enough to be distributed through this mailing list! 
 
-Sorry,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+and the "C scripts" looks like a cool feature... 
+

@@ -1,62 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262713AbVA0Tvc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262715AbVA0TyQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262713AbVA0Tvc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 14:51:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262715AbVA0Tvc
+	id S262715AbVA0TyQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 14:54:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262717AbVA0TyQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 14:51:32 -0500
-Received: from p-mail1.rd.francetelecom.com ([195.101.245.15]:16905 "EHLO
-	p-mail1.rd.francetelecom.com") by vger.kernel.org with ESMTP
-	id S262713AbVA0TvO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 14:51:14 -0500
-Message-ID: <41F94661.9090002@francetelecom.REMOVE.com>
-Date: Thu, 27 Jan 2005 20:52:01 +0100
-From: Julien TINNES <julien.tinnes.NOSPAM@francetelecom.REMOVE.com>
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-Newsgroups: gmane.linux.kernel
-To: linux-os@analogic.com
-CC: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Patch 4/6  randomize the stack pointer
-References: <20050127101117.GA9760@infradead.org>  <20050127101322.GE9760@infradead.org>  <41F92721.1030903@comcast.net> <1106848051.5624.110.camel@laptopd505.fenrus.org> <41F92D2B.4090302@comcast.net> <Pine.LNX.4.58.0501271010130.2362@ppc970.osdl.org> <Pine.LNX.4.61.0501271414010.23221@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0501271414010.23221@chaos.analogic.com>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 27 Jan 2005 14:54:16 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:6414 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S262715AbVA0Txt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jan 2005 14:53:49 -0500
+Subject: Re: Patch 1/6  introduce sysctl
+From: Arjan van de Ven <arjan@infradead.org>
+To: Dave Jones <davej@redhat.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Pavel Machek <pavel@ucw.cz>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org
+In-Reply-To: <20050127194603.GA31127@redhat.com>
+References: <20050127101117.GA9760@infradead.org>
+	 <20050127101201.GB9760@infradead.org> <20050127181525.GA4784@elf.ucw.cz>
+	 <20050127191120.GA10460@elte.hu>  <20050127194603.GA31127@redhat.com>
+Content-Type: text/plain
+Date: Thu, 27 Jan 2005 20:53:36 +0100
+Message-Id: <1106855616.5624.125.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 27 Jan 2005 19:51:10.0532 (UTC) FILETIME=[8CA1B840:01C504A9]
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> Gentlemen,
+On Thu, 2005-01-27 at 14:46 -0500, Dave Jones wrote:
+> On Thu, Jan 27, 2005 at 08:11:20PM +0100, Ingo Molnar wrote:
 > 
-> Isn't the return address on the stack an offset in the
-> code (.text) segment?
+>  > so, i'm glad to report, it's a non-issue. Sometimes developers want to
+>  > disable randomisation during development (quick'n'easy hacks get quicker
+>  > and easier - e.g. if you watch an address within gdb), so having the
+>  > capability for unprivileged users to disable randomisation on the fly is
+>  > useful and Fedora certainly offers that, but from a support and
+>  > bug-reporting POV it's not a problem.
 > 
-> How would a random stack-pointer value help? I think you would
-> need to start a program at a random offset, not the stack!
-> No stack-smasher that worked would care about the value of
-> the stack-pointer.
+> It's worth noting that some users have found the randomisation disable useful
+> for running things like xine/mplayer etc with win32 codecs that seem
+> to just segfault otherwise.  These things seem to be incredibly fragile
+> to address space layout changes, which is a good argument for trying to
+> avoid these wierdo formats where possible in favour of free codecs.
 
-While exploiting a stacks buffer overflow you can do at least two things:
-* Changing the execution flow by overwriting return address or saved EBP.
-* Injecting new executable code in the stack.
+actually that's because windows has a different initial stack alignment
+that wine compensates but I guess xine/mplayer don't.
+with p4's you get that anyway (and glibc and ..)
 
-"Standard" stack smashing is doing both. The purpose of stack 
-randomization is to make it harder to jump to code injected into the 
-stack. If enough bits are randomized it's unlikely that an exploit will 
-find the correct address at the first try. Now all you need is to make 
-sure the vulnerable program won't be relaunched after a given number of 
-crashes (or the chances that the exploit find the correct address will 
-raise).
 
-Of course you could inject code in other places or use existing code in 
-address space (libc or running program) but this is at least a first 
-layer of protection and adding layers is exactly what security is about.
 
--- 
-Julien TINNES - & france telecom - R&D Division/MAPS/NSS
-Research Engineer - Internet/Intranet Security
-GPG: C050 EF1A 2919 FD87 57C4 DEDD E778 A9F0 14B9 C7D6

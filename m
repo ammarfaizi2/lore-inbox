@@ -1,117 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316635AbSEVSR5>; Wed, 22 May 2002 14:17:57 -0400
+	id <S316642AbSEVSTf>; Wed, 22 May 2002 14:19:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316640AbSEVSR4>; Wed, 22 May 2002 14:17:56 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:28934 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S316635AbSEVSRv>; Wed, 22 May 2002 14:17:51 -0400
-Date: Wed, 22 May 2002 20:17:53 +0200
-From: Jan Kara <jack@suse.cz>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Jan Kara <jack@suse.cz>, Linus Torvalds <torvalds@transmeta.com>,
-        Russell King <rmk@arm.linux.org.uk>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.5.17
-Message-ID: <20020522181753.GE24755@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <Pine.LNX.4.44.0205220901430.7580-100000@home.transmeta.com> <3CEBB385.5040904@evision-ventures.com> <20020522165834.GD12982@atrey.karlin.mff.cuni.cz> <3CEBC29B.2050601@evision-ventures.com> <20020522175636.GB24755@atrey.karlin.mff.cuni.cz> <3CEBCDCA.8030905@evision-ventures.com>
-Mime-Version: 1.0
+	id <S316641AbSEVSTd>; Wed, 22 May 2002 14:19:33 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:48901 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S316642AbSEVSSZ>; Wed, 22 May 2002 14:18:25 -0400
+Subject: Re: Linux crypto?
+To: imipak@yahoo.com (Myrddin Ambrosius)
+Date: Wed, 22 May 2002 19:38:46 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020522180350.28170.qmail@web12307.mail.yahoo.com> from "Myrddin Ambrosius" at May 22, 2002 11:03:50 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E17Ab0Y-0002We-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Uz.ytkownik Jan Kara napisa?:
-> >>Uz.ytkownik Jan Kara napisa?:
-> >>
-> >>>>Uz.ytkownik Linus Torvalds napisa?:
-> >>>>
-> >>>>
-> >>>>>On Wed, 22 May 2002, Russell King wrote:
-> >>>>>
-> >>>>>
-> >>>>>
-> >>>>>>/proc/sys has a clean and clear purpose.
-> >>>>>
-> >>>>>
-> >>>>>Yes, but it _:would_ be good to make the quota stuff use the existign
-> >>>>>helper functions to make it much cleaner.
-> >>>>>
-> >>>>>And some of those helper functions are definitely from sysctl's: 
-> >>>>>splitting
-> >>>>>up the quota file into multiple sysctls (_and_ moving it to 
-> >>>>>/proc/sys/fs)
-> >>>>>sounds like a good idea to me.
-> >>>>
-> >>>>Well I'm actually coding this right now :-).
-> >>>
-> >>>Thanks. I'll update quota tools to use your new files if you send me
-> >>>new layout of interface...
-> >>
-> >>I'm not ready right now but...
-> >>Well actually I went the cheapest way possible:
-> >>
-> >>
-> >>Here is the layout of the /proc/sys/fs/dquotas array:
-> >>
-> >>/*
-> >>* Statistics about disc quota.
-> >>*/
-> >>enum {
-> >>	DQSTATS_LOOKUPS,
-> >>	DQSTATS_DROPS,
-> >>	DQSTATS_READS,
-> >>	DQSTATS_WRITES,
-> >>	DQSTATS_CACHE_HITS,
-> >>	DQSTATS_ALLOCATED, // formerly known as nr_dquts inside kernel.
-> >>	DQSTATS_FREE,       // formerly known as nr_free_dquots inside 
-> >>	kernel.
-> >>	DQSTATS_SYNCS,
-> >>	DQSTATS_SIZE
-> >>};
-> >>
-> >>extern __u32 dqstats_array[DQSTATS_SIZE];
-> >>
-> >>And here is the allocated sysctl id number:
-> >>
-> >>	FS_DQSTATS=16,	/* int: disc quota suage statistics *
-> >>
-> >>All of this appears under:
-> >>
-> >>static ctl_table fs_table[] = {
-> >>	{FS_DQSTATS, "dqstats", dqstats_array, sizeof(dqstats_array), 0444, 
-> >>	NULL, &proc_dointvec},
-> >>	{},
-> >>};
-> >>
-> >>inside /proc/sys/fs/dqstats
-> >>
-> >>I dodn't think the particular fields are subject to change soon
-> >>so I wen't for the array.
-> >>If yes - please feel rather free to complain :-).
-> >>Switch over to sysctl() and see the client code
-> >>melting down :-).
-> >
-> >  The array is OK (I don't expect any changes in statistics too).
-> >I'd just like to have that 'version' and 'formats' fields somewhere.
-> >Otherwise it's rather hard for quota tools to recognize quota
-> >interface...
+> I noticed that Motorola has published a set of tech
+> docs for their S1-range of crypto co-processors, which
+> look pretty comprehensive. (The 190 looks to be a very
+> nice chip, which -as best as I can tell- just plugs
+> straight onto a PCI bus.) Other co-pro manufacturers
+> (such as HIFN) seem to also have humungous tech
+> manuals for their crypto chips.
 > 
-> You have the sysctl id number for this purpose and the /proc/sys/fs file
-> name is right now unique. So there is no need for more
-> treatment here then just trying to stick to what we get once it's there.
-> The versioning of syscall returns I will just preserve.
-> 
-> Going through sysctl *will be much easier* in code
-> then fs lookup of the file above.
-  OK. You convinced me that 'version' isn't needed. But how about
-'formats'? Currently quotaon(8) uses this field to check which format it
-should try to turn on... I can live without it as quotaon(8) might try
-new format and if it doesn't succeed it will try the old one but
-anyway...
+> Is anyone working on drivers for these beasties?
 
-							Honza
--- 
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
+You might want to check on the apache and openssl lists. A lot of
+crypto drivers are handled from userspace directly or with modules
+that don't hit the base kernel.
+
+> Given the ipfilter design, would there be any way to
+> use those chips as an additional networking layer?
+> (And, just as importantly, would there be any point?)
+
+Some of that probably can be offloaded. You'd need code (preferably in
+the user tools) that can compute if a given path through the ipchains
+rules is expressable in the hardware and if so to enable it. In terms
+of things like flow control and other magic try netdev@oss.sgi.com. Dave
+and Jamal get very excited when they talk about NAPI but it just makes
+my head hurt 8)
+
+> Ignoring, for a second, the US export laws (which are
+> no longer an issue, anyway), is there some fundamental
+> reason why the IKP seems to be ignored? If there is,
+> then does anyone know of any re-design/re-write
+> effort?
+
+What of it do you actually need in kernel space - encrypted file systems
+certainly ought to be there but are not very well handled in Linux proper
+right now - but anything else ?
+

@@ -1,99 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129370AbQLYLkk>; Mon, 25 Dec 2000 06:40:40 -0500
+	id <S129408AbQLYLkl>; Mon, 25 Dec 2000 06:40:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129408AbQLYLka>; Mon, 25 Dec 2000 06:40:30 -0500
-Received: from cicero0.cybercity.dk ([212.242.40.52]:15627 "HELO
-	cicero0.cybercity.dk") by vger.kernel.org with SMTP
-	id <S129370AbQLYLkU>; Mon, 25 Dec 2000 06:40:20 -0500
-Date: Mon, 25 Dec 2000 12:10:28 +0100
+	id <S129523AbQLYLka>; Mon, 25 Dec 2000 06:40:30 -0500
+Received: from cicero1.cybercity.dk ([212.242.40.4]:54797 "HELO
+	cicero1.cybercity.dk") by vger.kernel.org with SMTP
+	id <S129408AbQLYLk0>; Mon, 25 Dec 2000 06:40:26 -0500
+Date: Mon, 25 Dec 2000 12:10:37 +0100
 From: Jens Axboe <axboe@suse.de>
-To: Stelian Pop <stelian.pop@alcove.fr>
+To: Dave Gilbert <gilbertd@treblig.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Driver for emulating a tape device on top of a cd writer...
-Message-ID: <20001225121028.A303@suse.de>
-In-Reply-To: <20001218112529.B6315@wiliam.alcove-int> <20001218190442.B473@suse.de> <20001219104512.A10971@wiliam.alcove-int>
+Subject: Re: css hang; somewhere between test12 and test13pre4ac2
+Message-ID: <20001225121037.B303@suse.de>
+In-Reply-To: <Pine.LNX.4.10.10012242340530.666-100000@tardis.home.dave>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20001219104512.A10971@wiliam.alcove-int>; from stelian.pop@alcove.fr on Tue, Dec 19, 2000 at 10:45:12AM +0100
+In-Reply-To: <Pine.LNX.4.10.10012242340530.666-100000@tardis.home.dave>; from gilbertd@treblig.org on Sun, Dec 24, 2000 at 11:42:47PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 19 2000, Stelian Pop wrote:
-> > > Basically, I would like to be able to use a cdwriter as a tape
-> > > device, with software like dump(8) or tar(1). With /dev/tcdw
-> > > as name (for example), I'd like to be able to do:
-> > > [...]
+On Sun, Dec 24 2000, Dave Gilbert wrote:
+> Hi,
+>   Somewhere between test12 and test13pre4ac2 (sheesh the version
+> numbers.....) CSS on ATAPI DVD ROM drives has stopped working.
 > 
-> > What you describe is actually one of the goals of the packet writing
-> > driver. To do this reliably you need packet writing, I won't even
-> > start to think about the headaches wihtout it...
+> Playing a CSS disc (using xine) causes a complete system hang (machine
+> doesn't ping - sysrq-b still works) on test13pre4ac2.  On test12 it is
+> still OK.
 > 
-> Yes, I saw your patch for packet writing but:
-> - the CD written with packet writing software may not be readable
->   on standard CD-ROM drives (and I want that, because almost 
->   everybody has one).
+> This is on an Alpha LX164.
 
-On CD drives sold during the last two years or so, and of course
-all DVD drives they are readable. But of course of you want 100%
-coverage, it isn't good enough.
+The most likely suspect (as someone else pointed out) is not at
+all css (I'm not even sure what you mean by css hang?) but UDF.
+Given the fs changes. Since sysrq still works, it would help a
+lot if you could capture sysrq-p repeatedly and send it in.
 
-> - using packet writing you basically write _files_ on top of an
->   UDF filesystem. Tar and dump (or afio, cpio etc) does not
->   support that kind of access, they expect to be given a character
->   device they can stream data to. (Of course, it is possible to
->   add some additionnal level of indirection on top of the packet
->   device and provide character based access to the UDF files, but
->   IMHO _this_ would be overkill).
-
-Why would you even want to use UDF for this? You want raw access
-to the device. Packet writing or not, this is totally unrelated.
-
-> - data backups are expected to be fast. Writing data in DAO/TAO
->   mode is much quicker than in packet mode.
-
-No no no, not much quicker. Write large packets and it's just
-as fast as dao/tao. 64Kb packets are a bit slower because of
-run-in, run-out block over head, but using larger packets this
-isn't the noticable. And packet writing has so many other
-advantages...
-
-> - reliability is a question of implementation. cdrecord can
->   be very reliable. If a user space application can provide this
->   level of reliability, it should be even simpler to achieve it
->   in kernel space (and I plan to use the BurnProof/etc extensions
->   which will be present on all future cdwriters).
-
-Even simpler to achieve reliability in the kernel? I gather you
-mean feeding-data reliability, and not stability.
-
-> > > I'll start to work on this, probably by looking at the cdrecord 
-> > > low level code and porting it into kernel space.
-> > 
-> > Oh god no! You can do all this from user space.
-> 
-> Please pay attention to the fact that I was refering to the 'low level
-> code'. I don't intend to write a driver who can replace cdrecord. 
-> _This_ would be madness.
-
-Very much so
-
-> What I indend to do is just a 'small' driver, which supports only the
-> mmc drives. I expect the driver to be only some hundreds lines long.
-
-A few hundred lines? *This* I look forward to seeing :)
-
-> Doing that from user space would mean propagating the data from
-> the user space application (dump or tar) to a character mode
-> driver, and back to a user space application (something like a hacked 
-> cdrecord), which will return in kernel space using sg interface...
-> It could be easier to write (even if I don't exactly feel confident
-> about hacking the cdrecord source :) ), but the reliability and
-> the performance would be far far away...
-
-Pipes and 100% user space based, then pass to sg? I don't see the
-problem.
+Do you have any non-css discs to beat on UDF?
 
 -- 
 * Jens Axboe <axboe@suse.de>

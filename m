@@ -1,50 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263879AbUECUGv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263875AbUECUGQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263879AbUECUGv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 May 2004 16:06:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263881AbUECUGv
+	id S263875AbUECUGQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 May 2004 16:06:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263879AbUECUGQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 May 2004 16:06:51 -0400
-Received: from box.punkt.pl ([217.8.180.66]:24334 "HELO box.punkt.pl")
-	by vger.kernel.org with SMTP id S263879AbUECUG1 (ORCPT
+	Mon, 3 May 2004 16:06:16 -0400
+Received: from fw.osdl.org ([65.172.181.6]:11453 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263875AbUECUGJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 May 2004 16:06:27 -0400
-From: Mariusz Mazur <mmazur@kernel.pl>
-To: Christoph Hellwig <hch@infradead.org>,
-       "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] linux-libc-headers 2.6.5.1
-Date: Mon, 3 May 2004 22:05:46 +0200
-User-Agent: KMail/1.6.1
-References: <200405030111.49802.mmazur@kernel.pl> <40969C87.4060804@backtobasicsmgmt.com> <20040503203156.A14171@infradead.org>
-In-Reply-To: <20040503203156.A14171@infradead.org>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
+	Mon, 3 May 2004 16:06:09 -0400
+Date: Mon, 3 May 2004 13:08:29 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: vatsa@in.ibm.com
+Cc: rusty@rustcorp.com.au, mingo@elte.hu, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix deadlock in __create_workqueue
+Message-Id: <20040503130829.5c43c6fe.akpm@osdl.org>
+In-Reply-To: <20040503122412.GB7143@in.ibm.com>
+References: <20040430113751.GA18296@in.ibm.com>
+	<20040430191901.510ae947.akpm@osdl.org>
+	<20040503122412.GB7143@in.ibm.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200405032205.46882.mmazur@kernel.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On pon 3. maja 2004 21:31, Christoph Hellwig wrote:
-> On Mon, May 03, 2004 at 12:24:55PM -0700, Kevin P. Fleming wrote:
-> > Mariusz' headers work really well; there are people building complete
-> > systems (X/KDE/GNOME/etc.) using them without any difficulties at this
-> > point.
+Srivatsa Vaddagiri <vatsa@in.ibm.com> wrote:
 >
-> The thing is they're still conceptually wrong.  Glibc should provide
-> working and full-featured networking headers.
+> On Fri, Apr 30, 2004 at 07:19:01PM -0700, Andrew Morton wrote:
+> > Yes, the logic in worker_thread() is a bit dorky, but I
+> > don't believe that there is a race in there.
+> 
+> worker_thread examines kthread_should_stop() while its state
+> is TASK_RUNNING, after which it sets its state to TASK_INTERRUPTIBLE.
+> If kthread_stop were to come after kthread_should_stop and before
+> worker_thread has set its state to TASK_INTERRUPTIBLE (which is possible
+> because of a CPU going dead), wouldn't kthread_stop block forever? 
+> Note that in case of CPU going dead, it is possible that a worker
+> thread bound to the dead cpu continues executing on a different cpu 
+> before it is killed in CPU_DEAD processing.
 
-Or should have a mechanism for linux headers to provide them in a clean way 
-(which is probably a better option since glibc will always lack behind linux' 
-functionality). Either way it's not in my power to introduce the proper fix. 
-Care to do The Right Thing (tm)? :)
+yup, sorry, I misread the code.  Like this?
 
 
--- 
-In the year eighty five ten
-God is gonna shake his mighty head
-He'll either say,
-"I'm pleased where man has been"
-Or tear it down, and start again
+--- 25/kernel/workqueue.c~worker_thread-race-fix	Mon May  3 13:02:25 2004
++++ 25-akpm/kernel/workqueue.c	Mon May  3 13:07:34 2004
+@@ -201,19 +201,20 @@ static int worker_thread(void *__cwq)
+ 	siginitset(&sa.sa.sa_mask, sigmask(SIGCHLD));
+ 	do_sigaction(SIGCHLD, &sa, (struct k_sigaction *)0);
+ 
++	set_current_state(TASK_INTERRUPTIBLE);
+ 	while (!kthread_should_stop()) {
+-		set_task_state(current, TASK_INTERRUPTIBLE);
+-
+ 		add_wait_queue(&cwq->more_work, &wait);
+ 		if (list_empty(&cwq->worklist))
+ 			schedule();
+ 		else
+-			set_task_state(current, TASK_RUNNING);
++			__set_current_state(TASK_RUNNING);
+ 		remove_wait_queue(&cwq->more_work, &wait);
+ 
+ 		if (!list_empty(&cwq->worklist))
+ 			run_workqueue(cwq);
++		set_current_state(TASK_INTERRUPTIBLE);
+ 	}
++	__set_current_state(TASK_RUNNING);
+ 	return 0;
+ }
+ 
+
+_
+

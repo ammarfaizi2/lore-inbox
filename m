@@ -1,68 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261270AbTLBGjS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 01:39:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261294AbTLBGjS
+	id S261294AbTLBG6u (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 01:58:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261332AbTLBG6u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 01:39:18 -0500
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:7340 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S261270AbTLBGjQ (ORCPT
+	Tue, 2 Dec 2003 01:58:50 -0500
+Received: from dp.samba.org ([66.70.73.150]:22488 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S261294AbTLBG6t (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 01:39:16 -0500
-Date: Tue, 2 Dec 2003 07:39:12 +0100
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4 future
-Message-ID: <20031202063912.GD16507@lug-owl.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0312011212090.13692-100000@logos.cnet> <Pine.LNX.4.44.0312012302310.9674-100000@raven.themaw.net> <20031201153316.B3879@infradead.org> <200312020223.55505.snpe@snpe.co.yu>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="LKTjZJSUETSlgu2t"
-Content-Disposition: inline
-In-Reply-To: <200312020223.55505.snpe@snpe.co.yu>
-X-Operating-System: Linux mail 2.4.18 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.4i
+	Tue, 2 Dec 2003 01:58:49 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Patrick McHardy <kaber@trash.net>
+Cc: James Bourne <jbourne@hardrock.org>, linux-kernel@vger.kernel.org,
+       coreteam@netfilter.org
+Subject: Re: [netfilter-core] 2.4.23/others and ip_conntrack causing hangs 
+In-reply-to: Your message of "Tue, 02 Dec 2003 01:20:15 BST."
+             <3FCBDABF.6080804@trash.net> 
+Date: Tue, 02 Dec 2003 17:33:26 +1100
+Message-Id: <20031202065849.779362C085@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In message <3FCBDABF.6080804@trash.net> you write:
+> Rusty Russell wrote:
+> 
+> >Unfortunately, some packets are still referencing connections, so the
+> >module *cannot* go away.  Figuring out exactly where the packets are
+> >referenced from is the fun part.  We explicitly drop the reference in
+> >ip_local_deliver_finish() for exactly this reason.  Perhaps there is
+> >somewhere else we should be doing the same thing.
+> >  
+> >
+> Perhaps in dev_queue_xmit ? Otherwise packets stuck in queues hold
+> references to conntracks. Loopback traffic might cause some trouble
+> because the "previously seen?" expection in ip_conntrack_core wouldn't
+> work anymore.
 
---LKTjZJSUETSlgu2t
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+But I wouldn't expect packets there to be held indefinitely, so I
+never worried about it.
 
-On Tue, 2003-12-02 02:23:55 +0000, snpe <snpe@snpe.co.yu>
-wrote in message <200312020223.55505.snpe@snpe.co.yu>:
-> Is there linux-abi for 2.6 kernel ?
-
-Nobody really cares about ABI (at least, not enough to keep one stable)
-while there's a good API. That requires sources, though, but that's a
-good thing...
-
-MfG, JBG
-
---=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
-k!
-   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
-PA));
-
---LKTjZJSUETSlgu2t
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/zDOPHb1edYOZ4bsRAsvpAJ9VHllEan93oPNIQ0UnpLXUoO123QCeLzAL
-056GuFFJsBmVAFrzUbt8Fa0=
-=EgR2
------END PGP SIGNATURE-----
-
---LKTjZJSUETSlgu2t--
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

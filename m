@@ -1,67 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263412AbTJUWBl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 18:01:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263418AbTJUWBl
+	id S263423AbTJUWCv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 18:02:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263424AbTJUWCv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 18:01:41 -0400
-Received: from ausadmmsps307.aus.amer.dell.com ([143.166.224.102]:48388 "HELO
-	AUSADMMSPS307.aus.amer.dell.com") by vger.kernel.org with SMTP
-	id S263411AbTJUWBh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 18:01:37 -0400
-X-Server-Uuid: 82a6c0aa-b49f-4ad3-8d2c-07dae6b04e32
-Message-ID: <CE41BFEF2481C246A8DE0D2B4DBACF4F128A38@ausx2kmpc106.aus.amer.dell.com>
-From: Stuart_Hayes@Dell.com
-To: B.Zolnierkiewicz@elka.pw.edu.pl
-cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: IDE "logical" geometry & partition tables (problem with 2.4
- kerne l, also seems to apply to 2.6)
-Date: Tue, 21 Oct 2003 17:00:54 -0500
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-X-WSS-ID: 138B73231101303-01-01
-Content-Type: text/plain; 
- charset=iso-8859-2
-Content-Transfer-Encoding: 7bit
+	Tue, 21 Oct 2003 18:02:51 -0400
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:52751 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id S263423AbTJUWCX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Oct 2003 18:02:23 -0400
+Date: Tue, 21 Oct 2003 23:20:22 +0200
+From: Erik van Konijnenburg <ekonijn@xs4all.nl>
+To: rusty@rustcorp.com.au
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6.0-test8] MODULE_ALIAS_BLOCK
+Message-ID: <20031021232022.A19672@banaan.localdomain>
+Mail-Followup-To: Erik van Konijnenburg <ekonijn@xs4all.nl>,
+	rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Bart --
+Hi Rusty,
 
-I have discovered a problem with how Linux determines IDE disk "logical"
-(BIOS) geometry.  It only happens under certain unlikely conditions, but I
-think it is worthy of attention.  Please let me know if you see a problem
-with my analysis!
+Automatic loading of the loop device does not work under 2.6.0-test8
+unless the loop device is explicitly mentioned in /etc/modules.conf.
+This shows up when doing a kernel make install: mkinitrd uses the
+loopback device.
 
-If an IDE hard drive has no partition table when Linux is booted, *and* if
-the hard drive is on a PCI IDE controller (a controller that isn't at I/O
-address 1f0h), *and* if the drive doesn't support 48-bit addressing, Linux
-will just use the geometry that is reported by the drive in with the
-"identify device" command, rather than getting the geometry used by the IDE
-BIOS by doing an int13 function 8 call.  If a partition table is then
-created on the drive using this geometry, the CHS values in the partition
-table will not be correct.
+This is because loop.c does not have MODULE_ALIAS_BLOCKDEV.
+After adding that, the following problem shows: a mismatch between
+the use of request_module in drivers/block/genhd.c:
 
-This will cause the drive not to boot if an MBR is used that does CHS
-addressing (rather than LBA addressing)--or if the IDE BIOS doesn't support
-the int13 extentions that allow LBA addressing.
+	request_module("block-major-%d", MAJOR(dev));
 
-If the drive is on an IDE controller that's at 1F0h (like the primary
-channel on CSB5/ICH5 south bridge controllers), Linux seems to get the
-correct geometry from the BIOS tables (I believe the 2.6 kernel doesn't even
-do this).  Also, if the drive supports 48-bit addressing, Linux assumes 255
-heads/63 sectors, which is probably correct for all PCI IDE controllers.
-Or, if the drive has an existing partition table, Linux is typically able to
-figure out the correct geometry to use by looking at that table.
+and the definition of MODULE_ALIAS_BLOCK in blkdev.h:
 
-I would think that the best solution might be either to use an int13
-function 8 call, or assuming 255 heads 63 sectors, if the drive geometry
-can't be read from the BIOS table or figured out from an existing partition
-table.  The geometry reported by the drive itself is almost certain to be
-different from the BIOS geometry.
+	MODULE_ALIAS("block-major-" __stringify(major) "-*")
 
-Thanks,
-Stuart
-stuart_hayes@dell.com
+The following patch applies to 2.6.0-test8.  I tested under (mostly) RH9 that
+automatic loading of loop.ko works with this patch but not without it.
+The only other user of MODULE_ALIAS_BLOCK, floppy.c, also worked for
+me with this patch, no idea whether it works without.
 
+Regards,
+Erik
+
+
+diff -r -U3 2.6.0-test8/drivers/block/loop.c 2.6.0-test8-play/drivers/block/loop.c
+--- 2.6.0-test8/drivers/block/loop.c	2003-10-18 10:01:44.000000000 +0200
++++ 2.6.0-test8-play/drivers/block/loop.c	2003-10-19 20:48:15.000000000 +0200
+@@ -55,6 +55,7 @@
+ #include <linux/errno.h>
+ #include <linux/major.h>
+ #include <linux/wait.h>
++#include <linux/blkdev.h>
+ #include <linux/blkpg.h>
+ #include <linux/init.h>
+ #include <linux/devfs_fs_kernel.h>
+@@ -1124,6 +1125,7 @@
+ MODULE_PARM(max_loop, "i");
+ MODULE_PARM_DESC(max_loop, "Maximum number of loop devices (1-256)");
+ MODULE_LICENSE("GPL");
++MODULE_ALIAS_BLOCKDEV_MAJOR(LOOP_MAJOR);
+ 
+ int loop_register_transfer(struct loop_func_table *funcs)
+ {
+diff -r -U3 2.6.0-test8/include/linux/blkdev.h 2.6.0-test8-play/include/linux/blkdev.h
+--- 2.6.0-test8/include/linux/blkdev.h	2003-10-18 10:00:05.000000000 +0200
++++ 2.6.0-test8-play/include/linux/blkdev.h	2003-10-19 22:52:04.000000000 +0200
+@@ -678,7 +678,7 @@
+ #define MODULE_ALIAS_BLOCKDEV(major,minor) \
+ 	MODULE_ALIAS("block-major-" __stringify(major) "-" __stringify(minor))
+ #define MODULE_ALIAS_BLOCKDEV_MAJOR(major) \
+-	MODULE_ALIAS("block-major-" __stringify(major) "-*")
++	MODULE_ALIAS("block-major-" __stringify(major))
+ 
+ 
+ #endif

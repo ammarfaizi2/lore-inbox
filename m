@@ -1,109 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261734AbUJ1Pwp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261760AbUJ1Pwf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261734AbUJ1Pwp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 11:52:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261750AbUJ1Pnq
+	id S261760AbUJ1Pwf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 11:52:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261713AbUJ1PsZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 11:43:46 -0400
-Received: from main.gmane.org ([80.91.229.2]:17336 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261746AbUJ1Pll (ORCPT
+	Thu, 28 Oct 2004 11:48:25 -0400
+Received: from pat.uio.no ([129.240.130.16]:55291 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S261727AbUJ1Ppq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 11:41:41 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Kalin KOZHUHAROV <kalin@thinrope.net>
-Subject: Re: Intel also needs convincing on firmware licensing.
-Date: Fri, 29 Oct 2004 00:41:31 +0900
-Message-ID: <clr3vb$ki6$1@sea.gmane.org>
-References: <20041028022532.GX26130@boetes.org> <200410272346.12283.gene.heskett@verizon.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: j110113.ppp.asahi-net.or.jp
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041016
-X-Accept-Language: bg, en, ja, ru, de
-In-Reply-To: <200410272346.12283.gene.heskett@verizon.net>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+	Thu, 28 Oct 2004 11:45:46 -0400
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Seiichi Nakashima <nakasima@kumin.ne.jp>, linux-kernel@vger.kernel.org,
+       Netdev <netdev@oss.sgi.com>
+Subject: Re: linux-2.6.9 eepro100 warning
+References: <200410232313.AA00003@prism.kumin.ne.jp>
+	<417C9A4E.3030909@pobox.com> <wxxr7nma801.fsf@nommo.uio.no>
+	<418077BC.10806@pobox.com>
+From: Terje Kvernes <terjekv@math.uio.no>
+Organization: The friends of mr. Tux
+X-URL: http://terje.kvernes.no/
+Date: Thu, 28 Oct 2004 17:45:37 +0200
+In-Reply-To: <418077BC.10806@pobox.com> (Jeff Garzik's message of "Thu, 28
+ Oct 2004 00:38:20 -0400")
+Message-ID: <wxxekjiq21q.fsf@nommo.uio.no>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.1 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
+X-UiO-MailScanner: No virus found
+X-UiO-Spam-info: not spam, SpamAssassin (score=-5, required 12,
+	UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jeff Garzik <jgarzik@pobox.com> writes:
 
-Just one statement (below)...
+  [ ... ]
 
-Gene Heskett wrote:
-> On Wednesday 27 October 2004 22:25, Han Boetes wrote:
-> 
->>Hi,
->>
->>The people from the OpenBSD project are currently lobbying to get
->>the firmware for Intel wireless chipsets under a license suitable
->>for Open Source.
->>
->>Since this will not only benefit BSD but also the Linux Project (and
->>even Intel) I would like to mention the URL here for people who want
->>to help writing to Intel.
->>
->> http://undeadly.org/cgi?action=article&sid=20041027193425
->>
-> 
-> Please be aware that for the so-called "software radios" 
-> chips/chipsets, the FCC, and other similar regulating bodies in other 
-> countries has made access to the data quite restrictive in an attempt 
-> to keep the less ruly among us from putting them on frequencies they 
-> aren't authorized to use, or to set the power levels above whats 
-> allowed.  These restrictions can vary from governing body to 
-> governing body so the software is generally supplied according to 
-> where the chipset is being shipped.  The potential for mischief, and 
-> legal/monetary reprecussions is sufficiently great that I have 
-> serious doubts that Intel will budge from their current position 
-> unless we can prove, beyond any doubt, that the regulatory 
-> limitations imposed will not be violated.
-> 
-> Since open source, where anyone who can read the code can see exactly 
-> what the limits are, and 'adjust to suit', virtually guarantees 
-> miss-use, sooner if not later, for no other reason than its human 
-> nature to experiment, Intel/moto/etc therefore has very good reasons 
-> to treat its chip<->software interface as highly secret & 
-> proprietary.
-To own a gun (in USA at least) is legal and easy.
-To use it is your choice.
-It may be illegel at times, but you still can (legally) have one.
+> If there are e100 problems, report them to the maintainers so we can
+> get them resolved ASAP...
+
+  I got a very nice mail from Jesse Brandeburg saying pretty much the
+  same thing...  so, I've pushed kernels for around 75 boxen over to
+  e100 today, from eepro100.  I'm not _quite_ sure when I'll have the
+  chance to boot them all, but when they do, and if they have
+  problems, I'll report back.
  
-> Thats not saying that they may at some point furnish a 'filter' that 
-> presents the rest of the world with a usable API to control it, but 
-> the filter will see to it that attempted illegal settings are 
-> ignored.  The only way I can see that actually working is to actually 
-> put that filter inside the chip, customized for the locale its being 
-> shipped to.  The radio control portion of the chip itself wouldn't 
-> even be bonded out to external world pins or bga contacts, just the 
-> port of the filter that the outside world talks to.
+> INTEL PRO/100 ETHERNET SUPPORT
+> P:      John Ronciak
+> M:      john.ronciak@intel.com
+> P:      Ganesh Venkatesan
+> M:      ganesh.venkatesan@intel.com
+> P:      Scott Feldman
+> M:      scott.feldman@intel.com
+> W:      http://sourceforge.net/projects/e1000/
+> S:      Supported
 > 
-> I'd rather doubt they want to make 20 to 40 different filtered 
-> versions of the same chipset just to satisfy TPTB in some 3rd world 
-> country thats less than 1% of the total sales.  Even the relatively 
-> dense market where Han lives is probably less than 5% of the total 
-> for a popular chipset. 
-> 
-> I'm a broadcast engineer who has been dealing at times with the FCC 
-> for over 40 years, so you could say I'm biased.  But thats not real 
-> bias, its just from being fairly familiar with the regulatory 
-> territory.
-> 
-> I'd like to see an open source solution to this problem myself, but 
-> just because its open source we are asking for, with the attendent 
-> liabilities that implies, I would not hold my breath till it happens. 
-> 
-> If you do, you'll probably be talking to the rest of the world through 
-> a Ouija board.
-> 
+> (and of course netdev@oss.sgi.com as well)
 
-Just stirring the soup you see,
-Kalin.
+  ack.
 
 -- 
- || ~~~~~~~~~~~~~~~~~~~~~~ ||
-(  ) http://ThinRope.net/ (  )
- || ______________________ ||
-
+Terje - still waiting to test hotswap SATA.   =)

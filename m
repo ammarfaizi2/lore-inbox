@@ -1,54 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262280AbTKGA5x (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Nov 2003 19:57:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262330AbTKGA5x
+	id S261271AbTKGAwy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Nov 2003 19:52:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262280AbTKGAwy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Nov 2003 19:57:53 -0500
-Received: from fep06-svc.mail.telepac.pt ([194.65.5.211]:36040 "EHLO
-	fep06-svc.mail.telepac.pt") by vger.kernel.org with ESMTP
-	id S262280AbTKGA5v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Nov 2003 19:57:51 -0500
-Message-ID: <3FAAED89.3060909@vgertech.com>
-Date: Fri, 07 Nov 2003 00:55:37 +0000
-From: Nuno Silva <nuno.silva@vgertech.com>
-Organization: VGER, LDA
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031024 Debian/1.5-2
-X-Accept-Language: en-us, pt
-MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] SMP signal latency fix up.
-References: <1068158989.3555.43.camel@localhost.localdomain>	 <3FAAD8AA.8060303@nortelnetworks.com> <1068161721.3555.58.camel@localhost.localdomain>
-In-Reply-To: <1068161721.3555.58.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 6 Nov 2003 19:52:54 -0500
+Received: from mailrelay.yorku.ca ([130.63.236.144]:22689 "EHLO
+	sungoddess.ccs.yorku.ca") by vger.kernel.org with ESMTP
+	id S261271AbTKGAww (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Nov 2003 19:52:52 -0500
+Subject: New MSI USB device won't accept address
+From: Austin <aacton@yorku.ca>
+Reply-To: aacton@yorku.ca
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: GNU Linux
+Message-Id: <1068166362.2328.6.camel@gamma373-179.portable.resnet.yorku.ca>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4-9mdk 
+Date: Thu, 06 Nov 2003 19:52:44 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I just tried this device out for fun, although I would really like to
+use it.  It's a USB 802.11b interface, UB11B (MS-6823).  I tried it on
+three VERY different motherboards, both with 2.4.22 and 2.6test8
+kernels: exact same error, so I'm pretty sure it's specific to this
+device.
 
+Nov  6 19:36:38 gamma373-179 kernel: hub 2-0:1.0: new USB device on port
+1, assigned address 2
+Nov  6 19:36:38 gamma373-179 kernel: [deb94240] link (1eb941e2) element
+(016bc080)
+Nov  6 19:36:38 gamma373-179 kernel:  Element != First TD
+Nov  6 19:36:38 gamma373-179 kernel:   0: [c16bc040] link (016bc080) e3
+Length=7 MaxLen=7 DT0 EndPt=0 Dev=0, PID=2d(SETUP) (buf=1c61d4e0)
+Nov  6 19:36:38 gamma373-179 kernel:   1: [c16bc080] link (00000001) e3
+IOC Stalled Babble Length=7ff MaxLen=7ff DT1 EndPt=0 Dev=0, PID=69(IN)
+(buf=00000000)
+Nov  6 19:36:38 gamma373-179 kernel:
+Nov  6 19:36:39 gamma373-179 kernel: [deb94240] link (1eb941e2) element
+(016bc040)
+Nov  6 19:36:39 gamma373-179 kernel:   0: [c16bc040] link (016bc080) e0
+Stalled CRC/Timeo Length=7 MaxLen=7 DT0 EndPt=0 Dev=0, PID=2d(SETUP)
+(buf=1c61d4e0)
+Nov  6 19:36:39 gamma373-179 kernel:   1: [c16bc080] link (00000001) e3
+IOC Active Length=0 MaxLen=7ff DT1 EndPt=0 Dev=0, PID=69(IN)
+(buf=00000000)
+Nov  6 19:36:39 gamma373-179 kernel:
+Nov  6 19:36:39 gamma373-179 kernel: usb 2-1: device not accepting
+address 2, error -110
 
-Mark Gross wrote:
+Device info here:
+http://www.msicomputer.com/product/detail_spec/product_detail.asp?model=UB11B
 
-[...]
+Unfortunately it doesn't specify the chipset anywhere in the
+documentation.
 
-> 
-> I can re-send if you like, but I have a feeling Linux and Ingo are going
-> to work something slightly different out.  So I'll hold off.
-> 
+Please CC me if you need any more information or a sample of the windows
+driver or the hardware.
 
-Yeah, that *Linux* Torvalds guy is a dictator! And IngO(1) is no 
-different! :-)
+Thanks for your help, 
+Austin
+-- 
+                                 Austin Acton
+        Synthetic Organic Chemist, Teaching Assistant, Ph.D. Candidate
+               Department of Chemistry, York University, Toronto
+        MandrakeLinux Volunteer Developer, homepage: www.groundstate.ca
 
-Ehehehe couldn't resist...
-
-> Sorry about that.
-
-...I'm sorry too :-)
-
-Regards,
-Nuno Silva
-
-> 
-> --mgross
-> 
 

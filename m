@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265876AbSKBEwB>; Fri, 1 Nov 2002 23:52:01 -0500
+	id <S265874AbSKBErw>; Fri, 1 Nov 2002 23:47:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265877AbSKBEwB>; Fri, 1 Nov 2002 23:52:01 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:11795 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S265876AbSKBEwA>; Fri, 1 Nov 2002 23:52:00 -0500
-Date: Fri, 1 Nov 2002 23:57:23 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: "Craig I. Hagan" <hagan@cih.com>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-       "Matt D. Robinson" <yakker@aparity.com>,
-       Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
-       lkcd-general@lists.sourceforge.net, lkcd-devel@lists.sourceforge.net
-Subject: Re: What's left over.
-In-Reply-To: <Pine.LNX.4.44.0211010013490.3873-100000@svr.cih.com>
-Message-ID: <Pine.LNX.3.96.1021101235350.29692A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265875AbSKBErw>; Fri, 1 Nov 2002 23:47:52 -0500
+Received: from findaloan-online.cc ([216.209.85.42]:45838 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id <S265874AbSKBErw>;
+	Fri, 1 Nov 2002 23:47:52 -0500
+Date: Fri, 1 Nov 2002 23:55:35 -0500
+From: Mark Mielke <mark@mark.mielke.cc>
+To: John Gardiner Myers <jgmyers@netscape.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-aio@kvack.org, lse-tech@lists.sourceforge.net
+Subject: Re: Unifying epoll,aio,futexes etc. (What I really want from epoll)
+Message-ID: <20021102045535.GA21356@mark.mielke.cc>
+References: <20021031230215.GA29671@bjl1.asuk.net> <Pine.LNX.4.44.0210311642300.1562-100000@blue1.dev.mcafeelabs.com> <20021101020119.GC30865@bjl1.asuk.net> <3DC30DED.6040207@netscape.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3DC30DED.6040207@netscape.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Nov 2002, Craig I. Hagan wrote:
+On Fri, Nov 01, 2002 at 03:27:41PM -0800, John Gardiner Myers wrote:
+> There's also the oddity that I noticed this week: pipes don't report 
+> POLLOUT readiness through the classic poll interface until the pipe's 
+> buffer is completely empty.  Changing this to report POLLOUT readiness 
+> when the pipe's buffer is not full apparently causes NIS to break.
 
-> If it becomes apparent through empirical data that crash dumps are a useful
-> tool, I'm sure that Linus will become far more amenable. Until then, lets let
-> him handle all of his other work which needs to get done.
+These seems deficient. Does this mean that pipes managed via poll() are
+not able to maximum throughput?
 
-Since he doesn't have the problem he will ignore the proof. Better be sure
-we can generate ksymoops reports from the dump, so we can post them asking
-for help. Anything else will get the old "I don't use that tool, can't
-help." Or like Nvidia problems the "try it without the crash dump code,"
-routine.
+mark
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
+
+                           http://mark.mielke.cc/
 

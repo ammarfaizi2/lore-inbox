@@ -1,61 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261371AbVCVPYu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261377AbVCVP3Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261371AbVCVPYu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 10:24:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261377AbVCVPYu
+	id S261377AbVCVP3Z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 10:29:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261396AbVCVP3X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 10:24:50 -0500
-Received: from bay10-f33.bay10.hotmail.com ([64.4.37.33]:46887 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S261371AbVCVPYN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 10:24:13 -0500
-Message-ID: <BAY10-F335FA2EF6409398E7CCF3FD64E0@phx.gbl>
-X-Originating-IP: [61.247.244.67]
-X-Originating-Email: [agovinda04@hotmail.com]
-From: "govind raj" <agovinda04@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: kernel-2.4.29 and atheros
-Date: Tue, 22 Mar 2005 20:54:07 +0530
+	Tue, 22 Mar 2005 10:29:23 -0500
+Received: from mummy.ncsc.mil ([144.51.88.129]:49076 "EHLO jazzhorn.ncsc.mil")
+	by vger.kernel.org with ESMTP id S261377AbVCVP1i (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 10:27:38 -0500
+Subject: Re: [patch 1/4 with proper signed-off]
+	security/selinux/ss/policydb.c: fix sparse warnings
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Domen Puncer <domen@coderock.org>
+Cc: jmorris@redhat.com, linux-kernel@vger.kernel.org, adobriyan@mail.ru
+In-Reply-To: <20050320115916.GT14273@nd47.coderock.org>
+References: <20050319131938.E04781ECA8@trashy.coderock.org>
+	 <20050320115916.GT14273@nd47.coderock.org>
+Content-Type: text/plain
+Organization: National Security Agency
+Date: Tue, 22 Mar 2005 10:19:35 -0500
+Message-Id: <1111504775.15346.88.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 22 Mar 2005 15:24:07.0945 (UTC) FILETIME=[30BB7790:01C52EF3]
+X-Mailer: Evolution 2.0.2 (2.0.2-8) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Sun, 2005-03-20 at 12:59 +0100, Domen Puncer wrote:
+> Signed-off-by: Alexey Dobriyan <adobriyan@mail.ru>
+> Signed-off-by: Domen Puncer <domen@coderock.org>
+> ---
+> 
+> 
+>  kj-domen/security/selinux/ss/policydb.c |   35 ++++++++++++++++++--------------
+>  1 files changed, 20 insertions(+), 15 deletions(-)
+> 
+> diff -puN security/selinux/ss/policydb.c~sparse-security_selinux_ss_policydb security/selinux/ss/policydb.c
+> --- kj/security/selinux/ss/policydb.c~sparse-security_selinux_ss_policydb	2005-03-20 12:11:25.000000000 +0100
+> +++ kj-domen/security/selinux/ss/policydb.c	2005-03-20 12:11:25.000000000 +0100
+> @@ -1494,9 +1497,11 @@ int policydb_read(struct policydb *p, vo
+>  		goto bad;
+>  	}
+>  
+> -	if (buf[2] != info->sym_num || buf[3] != info->ocon_num) {
+> +	if (le32_to_cpu(buf[2]) != info->sym_num ||
+> +	    le32_to_cpu(buf[3]) != info->ocon_num) {
+>  		printk(KERN_ERR "security:  policydb table sizes (%d,%d) do "
+> -		       "not match mine (%d,%d)\n", buf[2], buf[3],
+> +		       "not match mine (%d,%d)\n",
+> +		       le32_to_cpu(buf[2]), le32_to_cpu(buf[3]),
+>  		       info->sym_num, info->ocon_num);
+>  		goto bad;
+>  	}
+> _
 
-kernel version:2.4.29
-board :net4521
-wireless card : Atheros
-diriver  madwifi-cvs-current.tar.bz2
+You didn't remove the loop that already converted these values to little
+endian already (no that isn't the same as the earlier loop that you did
+remove), so now you are converting them twice.  And why is this new code
+better even if you fix this omission?  
 
-I built the customized image  from 2.4.29 and  booted from this image
-
-The following sequence restarts the board
-
-modprobe ath_pci xchanmode=0
-ifup ath0
-
-The board and Atheros work fine up to this point. After this once we give 
-the
-command
-
-iwconfig
-
-the system gets restarted. No error messages are printed.
-
-
-
-Has any one faced this problem before?
-
-What could be the possible cause?
-
-
-Thanks in advance
-  Govind
-
-_________________________________________________________________
-Make money with Zero Investment. 
-http://adfarm.mediaplex.com/ad/ck/4686-26272-10936-31?ck=RegSell Start your 
-business.
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 

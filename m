@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267219AbTA0QRF>; Mon, 27 Jan 2003 11:17:05 -0500
+	id <S267217AbTA0QOu>; Mon, 27 Jan 2003 11:14:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267221AbTA0QRF>; Mon, 27 Jan 2003 11:17:05 -0500
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:11980 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S267219AbTA0QRF>; Mon, 27 Jan 2003 11:17:05 -0500
-Date: Mon, 27 Jan 2003 10:25:53 -0600 (CST)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: David Woodhouse <dwmw2@infradead.org>
-cc: Christian Zander <zander@minion.de>, Mark Fasheh <mark.fasheh@oracle.com>,
-       Thomas Schlichter <schlicht@uni-mannheim.de>,
-       "Randy.Dunlap" <rddunlap@osdl.org>, Sam Ravnborg <sam@ravnborg.org>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: no version magic, tainting kernel. 
-In-Reply-To: <31172.1043622971@passion.cambridge.redhat.com>
-Message-ID: <Pine.LNX.4.44.0301271019560.18686-100000@chaos.physics.uiowa.edu>
+	id <S267218AbTA0QOt>; Mon, 27 Jan 2003 11:14:49 -0500
+Received: from quark.didntduck.org ([216.43.55.190]:36870 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP
+	id <S267217AbTA0QOt>; Mon, 27 Jan 2003 11:14:49 -0500
+Message-ID: <3E355D1F.1080007@didntduck.org>
+Date: Mon, 27 Jan 2003 11:23:59 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla/5.0 (Windows; U; WinNT4.0; en-US; rv:1.2.1) Gecko/20021130
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Mauricio Martinez <mauricio@coe.neu.edu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: OOPS in read_cd... what to do?
+References: <Pine.GSO.4.33.0301270937370.18209-100000@Amps.coe.neu.edu>
+In-Reply-To: <Pine.GSO.4.33.0301270937370.18209-100000@Amps.coe.neu.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 26 Jan 2003, David Woodhouse wrote:
+Mauricio Martinez wrote:
+> I reported twice (Jan 15 the last time) to this list a kernel oops when
+> reading a CD in a SONY CDU-31A unit with kernels 2.4.18 - 2.4.20 (and
+> probably all the 2.4 series), which works fine on 2.2.x (and even
+> 1.2.x!!), maybe the maintainer of this part os the code is offline... Are
+> there any alternatives to fix this problem? Thank you.
 
-> For older kernels you must set O_TARGET, for 2.5 I think the mere act of
-> setting it causes the build to break -- that one is gratuitously making it
-> harder to make external modules which compile in both and I've complained
-> about it before.
+Drivers for older hardware like this are more than likely unmaintained, 
+and suffer from bit-rot.  I don't have this hardware, but I can offer a 
+bit of analysis to help you debug this further.  From the oops message 
+in your previous email, it looks like the oops occurred on line 1326 of 
+cdu31a.c.  From the stack dump, I can see that input_data was called 
+with bytesleft=0x4000.  This caused readahead_buffer + bytesleft to go 
+past the end of the module and oops.
 
-Okay, I might get persuaded to take that check out if it really makes life 
-harder. Wouldn't it work to not have O_TARGET in the Makefile at all, I 
-think 2.4 shouldn't care as long as you just "make modules"?
-
-> Per-file CFLAGS must have a full path specified now in 2.5, whereas in 2.4 
-> and earlier it was just 'CFLAGS_filename.o'.
-
-It shouldn't, I kinda deliberately decided to keep the old syntax for 
-this. So it would be a bug.
-
---Kai
+--
+				Brian Gerst
 

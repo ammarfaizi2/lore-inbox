@@ -1,56 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266792AbSLPOEZ>; Mon, 16 Dec 2002 09:04:25 -0500
+	id <S266735AbSLPOGx>; Mon, 16 Dec 2002 09:06:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266794AbSLPOEZ>; Mon, 16 Dec 2002 09:04:25 -0500
-Received: from vsmtp2.tin.it ([212.216.176.222]:21716 "EHLO smtp2.cp.tin.it")
-	by vger.kernel.org with ESMTP id <S266792AbSLPOEX>;
-	Mon, 16 Dec 2002 09:04:23 -0500
-Message-ID: <3DFDDF8C.8030609@tin.it>
-Date: Mon, 16 Dec 2002 15:13:32 +0100
-From: AnonimoVeneziano <voloterreno@tin.it>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021210 Debian/1.2.1-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Vojtech Pavlik <vojtech@suse.cz>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: IDE-CD and VT8235 issue!!!
-References: <3DFB7B21.7040004@tin.it> <3DFBC4F3.2070603@tin.it> <20021215215057.A12689@ucw.cz> <200212152256.25266.black666@inode.at> <20021216113458.A31837@ucw.cz> <3DFDD2FC.2030700@tin.it> <20021216141945.A32729@ucw.cz>
-In-Reply-To: <20021216141945.A32729@ucw.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S266772AbSLPOGx>; Mon, 16 Dec 2002 09:06:53 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:36061
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S266735AbSLPOGw>; Mon, 16 Dec 2002 09:06:52 -0500
+Subject: Re: [2.4.20] via82cxxx goes postal and locks system, no full
+	duplex(?)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Mark Rutherford <mark@justirc.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3DFBFD61.1B367CD2@justirc.net>
+References: <3DFBFD61.1B367CD2@justirc.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 16 Dec 2002 14:54:13 +0000
+Message-Id: <1040050453.13787.20.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik wrote:
+On Sun, 2002-12-15 at 03:56, Mark Rutherford wrote:
+> this is the second failure in getting a via board to work.
+> I also have a kt400/8235 machine that has no driver, so im really
+> screwed :(
 
->On Mon, Dec 16, 2002 at 02:19:56PM +0100, AnonimoVeneziano wrote:
->  
->
->>>>Thanks for all your effort here. It's great to see such a good 
->>>>community.
->>>>        
->>>>
->>>If you can, please try 2.4.20 with this patch.
->>>
->>>      
->>>
->>This patch works great!! I've solved with this patch, very good work
->>
->>Thank you very much Pavlik!
->>    
->>
->
->Can you try another patch (on top of the previous one?)? It might still
->work, and be less intrusive ... (attached)
->
->  
->
-I don't know what u have changed in this patch, but this work great too. ;-)
-
-Thank you very much again
-
-Byez
-
+8235 is supported in the latest -ac code. I sent Jeff the patches, or
+by ALSA
 
 

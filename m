@@ -1,62 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265229AbUGOAqn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266052AbUGOAuI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265229AbUGOAqn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 20:46:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266117AbUGOAe4
+	id S266052AbUGOAuI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 20:50:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266131AbUGOAsh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 20:34:56 -0400
-Received: from mail.kroah.org ([69.55.234.183]:41088 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266071AbUGOAUI convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 20:20:08 -0400
-X-Donotread: and you are reading this why?
-Subject: Re: [PATCH] Driver Core patches for 2.6.8-rc1
-In-Reply-To: <10898507032619@kroah.com>
-X-Patch: quite boring stuff, it's just source code...
-Date: Wed, 14 Jul 2004 17:18:23 -0700
-Message-Id: <10898507032799@kroah.com>
+	Wed, 14 Jul 2004 20:48:37 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:59024 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S266129AbUGOAsD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jul 2004 20:48:03 -0400
+Subject: Re: gettimeofday nanoseconds patch (makes it possible for the
+	posix-timer functions to return higher accuracy)
+From: john stultz <johnstul@us.ibm.com>
+To: Christoph Lameter <clameter@sgi.com>, george anzinger <george@mvista.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, ia64 <linux-ia64@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0407141703360.17055@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.58.0407140940260.14704@schroedinger.engr.sgi.com>
+	 <1089835776.1388.216.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.58.0407141323530.15874@schroedinger.engr.sgi.com>
+	 <1089839740.1388.230.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.58.0407141703360.17055@schroedinger.engr.sgi.com>
+Content-Type: text/plain
+Message-Id: <1089852486.1388.256.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Wed, 14 Jul 2004 17:48:06 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1784.12.6, 2004/07/14 16:09:44-07:00, dtor_core@ameritech.net
+On Wed, 2004-07-14 at 17:08, Christoph Lameter wrote:
+> On Wed, 14 Jul 2004, john stultz wrote:
+> > On Wed, 2004-07-14 at 13:28, Christoph Lameter wrote:
+> > > > None the less, I do understand the desire for the change (and am working
+> > > > to address it in 2.7), so could you at least use a better name then
+> > > > gettimeofday()? Maybe get_ns_time() or something? Its just too similar
+> > > > to do_gettimeofday and the syscall gettimeofday().
+> > >
+> > > Right. I had it named getnstimeofday before but the feeling was that the
+> > > patch should not introduce a new name. Any approach that would allow
+> > > progress on the issue would be fine with me.
+> >
+> > Fair enough. getnstimeofday() sounds good enough for me.
+> 
+> Ok. A modified patch is following.
 
-[PATCH] Driver core: Fix OOPS in device_platform_unregister
+I guess it looks good enough for me. I'd say send it to Andrew when
+you're ready.
 
-Driver core: platform_device_unregister should release resources first
-             and only then call device_unregister, otherwise if there
-             are no more references to the device it will be freed and
-             the fucntion will try to access freed memory.
+George, do you have any additional comments?
 
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
-Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
+Although you still have the issue w/ NTP adjustments being ignored, but
+last time I looked at the time_interpolator code, it seemed it was being
+ignored there too, so at least your not doing worse then the ia64
+do_gettimeofday(). [If I'm doing the time_interpolator code a great
+injustice with the above, someone please correct me]
 
+> > > > Really, I feel the cleaner method is to fix do_gettimeofday() so it
+> > > > returns a timespec and then convert it to a timeval in
+> > > > sys_gettimeofday(). However this would add overhead to the syscall, so I
+> > > > doubt folks would go for it.
+> > >
+> > > do_gettimeofday is used all over the linux kernel for a variety of
+> > > purposes and lots of code depends on the presence of a timeval struct.
+> >
+> > Indeed, it would be a decent amount of work to clean that up as well.
+> 
+> The cleanup can be done gradually after this patch is in. I volunteer
+> to work on this (hoping that my employer may support that  ;-) ).
 
- drivers/base/platform.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+I'll try to remember to cc you on the 2.7 code when I get the first pass
+ready (re-implementing the NTP mechanism is the last blocker). I'm sure
+to appreciate additional feedback from non i386 arch specific views.
 
-
-diff -Nru a/drivers/base/platform.c b/drivers/base/platform.c
---- a/drivers/base/platform.c	2004-07-14 17:11:09 -07:00
-+++ b/drivers/base/platform.c	2004-07-14 17:11:09 -07:00
-@@ -146,13 +146,13 @@
- 	int i;
- 
- 	if (pdev) {
--		device_unregister(&pdev->dev);
--
- 		for (i = 0; i < pdev->num_resources; i++) {
- 			struct resource *r = &pdev->resource[i];
- 			if (r->flags & (IORESOURCE_MEM|IORESOURCE_IO))
- 				release_resource(r);
- 		}
-+
-+		device_unregister(&pdev->dev);
- 	}
- }
- 
+thanks
+-john
 

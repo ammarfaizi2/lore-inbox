@@ -1,1264 +1,302 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263178AbSJ1IM5>; Mon, 28 Oct 2002 03:12:57 -0500
+	id <S263181AbSJ1ITJ>; Mon, 28 Oct 2002 03:19:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263181AbSJ1IM5>; Mon, 28 Oct 2002 03:12:57 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:36918 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S263178AbSJ1IMj>; Mon, 28 Oct 2002 03:12:39 -0500
-To: linux-kernel@vger.kernel.org
-Cc: Suparna Bhattacharya <suparna@in.ibm.com>,
-       Petr Vandrovec <VANDROVE@vc.cvut.cz>, fastboot@osdl.org,
-       Werner Almesberger <wa@almesberger.net>, Pavel Machek <pavel@ucw.cz>,
-       Andy Pfiffer <andyp@osdl.org>, "Ph. Marek" <marek@bmlv.gv.at>,
-       Pavel Roskin <proski@gnu.org>, Torrey Hoffman <thoffman@arnor.net>,
-       "Rob Landley" <landley@trommello.org>,
-       Kasper Dupont <kasperd@daimi.au.dk>
-Subject: [CFT] [PATCH] kexec 2.5.44 (minimal)
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 28 Oct 2002 01:16:46 -0700
-In-Reply-To: <20021020190939.GA913@elf.ucw.cz>
-Message-ID: <m1lm4jj7v5.fsf_-_@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S263188AbSJ1ITJ>; Mon, 28 Oct 2002 03:19:09 -0500
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:63244 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S263181AbSJ1ITG>; Mon, 28 Oct 2002 03:19:06 -0500
+Message-Id: <200210280819.g9S8Jfp25782@Port.imtp.ilyichevsk.odessa.ua>
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+       Momchil Velikov <velco@fadata.bg>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: New csum and csum_copy routines - and a test/benchmark program
+Date: Mon, 28 Oct 2002 11:12:01 -0200
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_1O0PKCL9EBHICL9OPYT1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-kexec is a system call that allows you to load another kernel from the
-currently executing Linux kernel.  The current implementation has only
-been tested, and had the kinks worked out on x86, but the generic
-code should work on any architecture.
+--------------Boundary-00=_1O0PKCL9EBHICL9OPYT1
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8bit
 
-Some machines have BIOSes that are either extremely slow to reboot,
-or that cannot reliably perform a reboot.  In which case kexec
-may be the only alternative to reboot in a reliable and timely manner.
+I took some time to develop a little test/benchmark program
+for csum and csum_copy routines (used in networking).
+It has grown to include following features:
 
-The patch is archived at:
-http://www.xmission.com/~ebiederm/files/kexec/
+* Total buffer size #define-selectable, hence you can measure
+  cache-hot and cache-cold performance.
 
-And is currently kept in two pieces.
-The pure system call.
-http://www.xmission.com/~ebiederm/files/kexec/linux-2.5.44.x86kexec-2.diff
+* It does not simply checksum entire buffer, you can do it in 'chunks'.
+  Chunk size is a #define too. Chunk order is randomized for eash run
+  (this is done to stop fooling us with prefetch from prev chunk to next).
+  But you are guaranteed to walk entire buffer.
 
-And the set of hardware fixes known to help kexec.
-http://www.xmission.com/~ebiederm/files/kexec/linux-2.5.44.x86kexec-hwfixes.diff
+* Buffer contents are randomized at each run. Csum correctness is checked.
 
-A compatible user space is at:
-http://www.xmission.com/~ebiederm/files/kexec/kexec-tools-1.?.tar.gz
-This code boots either a static ELF executable or a bzImage.
+* Buffer copy correctness verified for csum_copy.
 
-A kernel reformater that bypasses setup.S in favor of a version that
-uses fewer BIOS calls, (increasing the reliability) is at:
-ftp://ftp.lnxi.com/pub/mkelfImage/mkelfImage-1.17.tar.gz
+* You can set random (up to a #defined value) start and end offset for each
+  chunk. Gaps are poisoned before each csum_copy and verified afterwards.
+  This has already caught two bugs.
 
-In bug reports please include the serial console output of 
-kexec kexec_test.  kexec_test exercises most of the interesting code
-paths that are needed to load a kernel (mainly BIOS calls) with lots
-of debugging print statements, so hangs can easily be detected.  
+* It benchmarks each routine by running it #defined number of times
+  and reporting min/max cycles per kb taken.
 
-I have been using this technique for the last several years and 
-what the kernel needs to do is well understood, and currently
-implemented.  I have also been working with etherboot which is a very 
-minimal kernel whose sole purpose is to download a kernel over the
-network and boot it.   
+* It is easy to add/remove C and asm test routines.
 
->From etherboot it is possible to download a DOS image and run it.
-I have not yet reached this level of firmware reliably after using the
-kexec syscall, but the fact that etherboot does it shows it can be
-done.  Having worked with etherboot as a primary bootloader I had
-forgotten how challenging it is theoretically to shut down a kernel
-that uses it's own hardware drivers and have the firmware still work
-reliably. 
+* Easily adaptable for SSE and MMX instruction sets.
 
-My expectation is that I can have complete BIOS functionality when
-I compile a kernel whose sole user space is a ramdisk, the kernel has
-no hardware drivers, and I use a bootloader that does not mess up
-the BIOS.  And I expect that using kernel drivers will only mess up
-the firmware drivers where they work with the same hardware.
+* It can make coffee for you. ;)
 
-So far failures have broken into three categories.  Broken kernels
-even without kexec.  Kernels that hang when running setup.S during
-bootup.  Kernels that don't quite boot because a the kernel driver
-cannot reinitialize the hardware from the state that same driver left
-the hardware in.
+I'm thinking on how to collect 2-5 best routines and
+make 'em compete at kernel init time for the right
+to be used for blazing network performance, but did not
+even start to code this. Similar approach can be taken
+for page clear/copy and copy to/from user routines.
 
-For failures during setup.S I have seen three cases.  DOS running
-before loadlin modified the real mode IDT so as to be useless without
-DOS.  Interrupt 0x13 ah=0x15 print dasd type.  And the new EDD code.
-These failures fall into the expected cases.  But except for the loadlin
-case which is hopeless have not been completely tracked.
+Election of 'best' routine by lkml posts is:
+1. Slow
+2. Doesn't fit given combination of CPU/mem/mobo
+so do _not_ send your results to lkml unless you think
+you found something interesting.
 
-In the plan forward there are several goals.  To find what it takes
-to have the BIOS work reliably after a kexec system call.  To boot
-bzImages reliably, by bypassing setup.S completely.  To fix the linux
-device drivers that prevent a kernel called with sys_kexec from
-initializing. 
+FYI, my last results below. kpf_XXX routines are newest'n'greatest.
+I found out to my surprize that shortening unrolled loop
+on Duron has positive effect.
 
-An important point is that none of these future projects require
-modifying the current kexec system call.  The needed work is either in
-user space or in the device drivers.
+Coders with 'prefetchless' CPUs are encouraged to write up
+their own versions of prefetch-like routines (you may use
+mov [mem],reg as a prefetch in the hopes CPU will reorder
+instructions and will happily csum older data while such mov
+is waiting for data to be fetched. But this needs testing.
+That's what this program is for! :-)
+--
+vda
 
-Shortly Linus will be getting back and I will be submitting the kexec
-system call to him.  Below is the patch I will be aiming at getting into
-the kernel.  All of the device driver fixes have been removed in the
-interest of having a clean patch to submit.  In particular to use this
-from an SMP kernel you will also need to apply
-linux-2.5.44.x86kexec-hwfixes.diff.  
+Duron 650
+=========
+Csum benchmark program
+buffer size: 4 Mb
+Each test tried 32 times, max and min CPU cycles are reported.
+Please disregard max values. They are due to system interference only.
+csum tests:
+                     kernel_csum - took  2612 max, 1887 min cycles per kb. sum=0xfad28968
+                     kernel_csum - took  2654 max, 1887 min cycles per kb. sum=0xfad28968
+                     kernel_csum - took  2105 max, 1887 min cycles per kb. sum=0xfad28968
+                    kernel2_csum - took  2636 max, 1925 min cycles per kb. sum=0xfad28968
+                  kernelpii_csum - took 11879 max, 1735 min cycles per kb. sum=0xaeffd53b
+                kernelpiipf_csum - took  2565 max, 1642 min cycles per kb. sum=0xaeffd53b
+                        kpf_csum - took  1280 max, 1037 min cycles per kb. sum=0xaeffd53b
+                        kpf_csum - took  1298 max, 1037 min cycles per kb. sum=0xaeffd53b
+                        kpf_csum - took  1285 max, 1035 min cycles per kb. sum=0xaeffd53b
+                        kpf_csum - took  1893 max, 1037 min cycles per kb. sum=0xaeffd53b
+copy tests:
+                     kernel_copy - took  5812 max, 4854 min cycles per kb. sum=0xfad28968
+                     kernel_copy - took  5741 max, 4854 min cycles per kb. sum=0xfad28968
+                     kernel_copy - took 17680 max, 4859 min cycles per kb. sum=0xfad28968
+                  kernelpii_copy - took  7204 max, 6381 min cycles per kb. sum=0xe3bca07e
+                kernelpiipf_copy - took  8429 max, 7477 min cycles per kb. sum=0xe3bca07e
+                        kpf_copy - took 12806 max, 2471 min cycles per kb. sum=0xfad28968
+                        kpf_copy - took  3181 max, 2470 min cycles per kb. sum=0xfad28968
+                        kpf_copy - took  3327 max, 2471 min cycles per kb. sum=0xfad28968
+                        kpf_copy - took 11967 max, 2471 min cycles per kb. sum=0xfad28968
+Done
 
-Thanks to everyone who has provided me with feedback so far.
+Celeron 1200
+============
+Csum benchmark program
+buffer size: 4 Mb
+Each test tried 32 times, max and min CPU cycles are reported.
+Please disregard max values. They are due to system interference only.
+csum tests:
+                     kernel_csum - took  7368 max, 6833 min cycles per kb. sum=0x291132e0
+                     kernel_csum - took  9038 max, 6845 min cycles per kb. sum=0x291132e0
+                     kernel_csum - took  7112 max, 6836 min cycles per kb. sum=0x291132e0
+                    kernel2_csum - took  7254 max, 6871 min cycles per kb. sum=0x291132e0
+                  kernelpii_csum - took  4696 max, 4109 min cycles per kb. sum=0x484713aa
+                kernelpiipf_csum - took  4715 max, 4271 min cycles per kb. sum=0x484713aa
+                        kpf_csum - took  3295 max, 2780 min cycles per kb. sum=0x484713aa
+                        kpf_csum - took  3091 max, 2793 min cycles per kb. sum=0x484713aa
+                        kpf_csum - took 14580 max, 2833 min cycles per kb. sum=0x484713aa
+                        kpf_csum - took  3292 max, 2833 min cycles per kb. sum=0x484713aa
+copy tests:
+                     kernel_copy - took 13927 max,13450 min cycles per kb. sum=0x291132e0
+                     kernel_copy - took 14009 max,13406 min cycles per kb. sum=0x291132e0
+                     kernel_copy - took 13957 max,13447 min cycles per kb. sum=0x291132e0
+                  kernelpii_copy - took 15039 max,11335 min cycles per kb. sum=0x5474077d
+                kernelpiipf_copy - took 14137 max,13059 min cycles per kb. sum=0x5474077d
+                        kpf_copy - took  8226 max, 7857 min cycles per kb. sum=0x291132e0
+                        kpf_copy - took 20698 max, 7886 min cycles per kb. sum=0x291132e0
+                        kpf_copy - took  8504 max, 7897 min cycles per kb. sum=0x291132e0
+                        kpf_copy - took  8245 max, 7893 min cycles per kb. sum=0x291132e0
+Done
 
-Eric
+--------------Boundary-00=_1O0PKCL9EBHICL9OPYT1
+Content-Type: application/x-bzip2;
+  name="timing_csum_copy.3.tar.bz2"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="timing_csum_copy.3.tar.bz2"
 
- MAINTAINERS                        |    7 
- arch/i386/Config.help              |   14 
- arch/i386/config.in                |    3 
- arch/i386/kernel/Makefile          |    1 
- arch/i386/kernel/entry.S           |    1 
- arch/i386/kernel/machine_kexec.c   |  142 ++++++++
- arch/i386/kernel/relocate_kernel.S |   99 +++++
- include/asm-i386/kexec.h           |   25 +
- include/asm-i386/unistd.h          |    2 
- include/linux/kexec.h              |   48 ++
- kernel/Makefile                    |    1 
- kernel/kexec.c                     |  624 +++++++++++++++++++++++++++++++++++++
- kernel/sys.c                       |   61 +++
- 13 files changed, 1027 insertions, 1 deletion
+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
 
-diff -uNr linux-2.5.44/MAINTAINERS linux-2.5.44.x86kexec-2/MAINTAINERS
---- linux-2.5.44/MAINTAINERS	Sat Oct 19 00:57:56 2002
-+++ linux-2.5.44.x86kexec-2/MAINTAINERS	Sun Oct 27 15:21:51 2002
-@@ -934,6 +934,13 @@
- W:	http://www.cse.unsw.edu.au/~neilb/patches/linux-devel/
- S:	Maintained
- 
-+KEXEC
-+P:	Eric Biederman
-+M:	ebiederm@xmission.com
-+M:	ebiederman@lnxi.com
-+L:	linux-kernel@vger.kernel.org
-+S:	Maintained
-+
- LANMEDIA WAN CARD DRIVER
- P:	Andrew Stanley-Jones
- M:	asj@lanmedia.com
-diff -uNr linux-2.5.44/arch/i386/Config.help linux-2.5.44.x86kexec-2/arch/i386/Config.help
---- linux-2.5.44/arch/i386/Config.help	Sat Oct 19 00:57:56 2002
-+++ linux-2.5.44.x86kexec-2/arch/i386/Config.help	Sun Oct 27 15:57:34 2002
-@@ -417,6 +417,20 @@
-   you have use for it; the module is called binfmt_misc.o. If you
-   don't know what to answer at this point, say Y.
- 
-+CONFIG_KEXEC
-+  kexec is a system call that implements the ability to  shutdown your
-+  current kernel, and to start another kernel.  It is like a reboot
-+  but it is indepedent of the system firmware.   And like a reboot the
-+  you can start any kernel with it not just Linux.  
-+
-+  The name comes from the similiarity to the exec system call. 
-+
-+  It is on an going process to be certain the hardware in a machine
-+  is properly shutdown, so do not be surprised if this code does not
-+  initially work for you.  It may help to enable device hotplugging
-+  support.  As of this writing the exact hardware interface is
-+  strongly in flux, so no good recommendation can be made.
-+
- CONFIG_M386
-   This is the processor type of your CPU. This information is used for
-   optimizing purposes. In order to compile a kernel that can run on
-diff -uNr linux-2.5.44/arch/i386/config.in linux-2.5.44.x86kexec-2/arch/i386/config.in
---- linux-2.5.44/arch/i386/config.in	Sat Oct 19 00:57:56 2002
-+++ linux-2.5.44.x86kexec-2/arch/i386/config.in	Sun Oct 27 15:32:53 2002
-@@ -247,6 +247,9 @@
-    fi
- fi
- 
-+if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
-+   bool 'kexec system call (EXPERIMENTAL)' CONFIG_KEXEC
-+fi
- endmenu
- 
- mainmenu_option next_comment
-diff -uNr linux-2.5.44/arch/i386/kernel/Makefile linux-2.5.44.x86kexec-2/arch/i386/kernel/Makefile
---- linux-2.5.44/arch/i386/kernel/Makefile	Sat Oct 19 00:57:56 2002
-+++ linux-2.5.44.x86kexec-2/arch/i386/kernel/Makefile	Sun Oct 27 15:21:51 2002
-@@ -25,6 +25,7 @@
- obj-$(CONFIG_X86_MPPARSE)	+= mpparse.o
- obj-$(CONFIG_X86_LOCAL_APIC)	+= apic.o nmi.o
- obj-$(CONFIG_X86_IO_APIC)	+= io_apic.o
-+obj-$(CONFIG_KEXEC)		+= machine_kexec.o relocate_kernel.o
- obj-$(CONFIG_SOFTWARE_SUSPEND)	+= suspend.o
- obj-$(CONFIG_X86_NUMAQ)		+= numaq.o
- obj-$(CONFIG_PROFILING)		+= profile.o
-diff -uNr linux-2.5.44/arch/i386/kernel/entry.S linux-2.5.44.x86kexec-2/arch/i386/kernel/entry.S
---- linux-2.5.44/arch/i386/kernel/entry.S	Fri Oct 18 11:59:14 2002
-+++ linux-2.5.44.x86kexec-2/arch/i386/kernel/entry.S	Sun Oct 27 15:21:51 2002
-@@ -737,6 +737,7 @@
- 	.long sys_free_hugepages
- 	.long sys_exit_group
- 	.long sys_lookup_dcookie
-+	.long sys_kexec
- 
- 	.rept NR_syscalls-(.-sys_call_table)/4
- 		.long sys_ni_syscall
-diff -uNr linux-2.5.44/arch/i386/kernel/machine_kexec.c linux-2.5.44.x86kexec-2/arch/i386/kernel/machine_kexec.c
---- linux-2.5.44/arch/i386/kernel/machine_kexec.c	Wed Dec 31 17:00:00 1969
-+++ linux-2.5.44.x86kexec-2/arch/i386/kernel/machine_kexec.c	Sun Oct 27 15:57:10 2002
-@@ -0,0 +1,142 @@
-+#include <linux/config.h>
-+#include <linux/mm.h>
-+#include <linux/kexec.h>
-+#include <linux/delay.h>
-+#include <asm/pgtable.h>
-+#include <asm/pgalloc.h>
-+#include <asm/tlbflush.h>
-+#include <asm/io.h>
-+#include <asm/apic.h>
-+
-+
-+/*
-+ * machine_kexec
-+ * =======================
-+ */
-+
-+
-+static void set_idt(void *newidt, __u16 limit)
-+{
-+	unsigned char curidt[6];
-+
-+	/* ia32 supports unaliged loads & stores */
-+	(*(__u16 *)(curidt)) = limit;
-+	(*(__u32 *)(curidt +2)) = (unsigned long)(newidt);
-+
-+	__asm__ __volatile__ (
-+		"lidt %0\n" 
-+		: "=m" (curidt)
-+		);
-+};
-+
-+
-+static void set_gdt(void *newgdt, __u16 limit)
-+{
-+	unsigned char curgdt[6];
-+
-+	/* ia32 supports unaliged loads & stores */
-+	(*(__u16 *)(curgdt)) = limit;
-+	(*(__u32 *)(curgdt +2)) = (unsigned long)(newgdt);
-+
-+	__asm__ __volatile__ (
-+		"lgdt %0\n" 
-+		: "=m" (curgdt)
-+		);
-+};
-+
-+static void load_segments(void)
-+{
-+#define __STR(X) #X
-+#define STR(X) __STR(X)
-+
-+	__asm__ __volatile__ (
-+		"\tljmp $"STR(__KERNEL_CS)",$1f\n"
-+		"\t1:\n"
-+		"\tmovl $"STR(__KERNEL_DS)",%eax\n"
-+		"\tmovl %eax,%ds\n"
-+		"\tmovl %eax,%es\n"
-+		"\tmovl %eax,%fs\n"
-+		"\tmovl %eax,%gs\n"
-+		"\tmovl %eax,%ss\n"
-+		);
-+#undef STR
-+#undef __STR
-+}
-+
-+static void identity_map_page(unsigned long address)
-+{
-+	/* This code is x86 specific...
-+	 * general purpose code must be more carful 
-+	 * of caches and tlbs...
-+	 */
-+	pgd_t *pgd;
-+	pmd_t *pmd;
-+	struct mm_struct *mm = current->mm;
-+	spin_lock(&mm->page_table_lock);
-+	
-+	pgd = pgd_offset(mm, address);
-+	pmd = pmd_alloc(mm, pgd, address);
-+
-+	if (pmd) {
-+		pte_t *pte = pte_alloc_map(mm, pmd, address);
-+		if (pte) {
-+			set_pte(pte, 
-+				mk_pte(virt_to_page(phys_to_virt(address)), 
-+					PAGE_SHARED));
-+			__flush_tlb_one(address);
-+		}
-+	}
-+	spin_unlock(&mm->page_table_lock);
-+}
-+
-+
-+typedef void (*relocate_new_kernel_t)(
-+	unsigned long indirection_page, unsigned long reboot_code_buffer,
-+	unsigned long start_address);
-+
-+const extern unsigned char relocate_new_kernel[];
-+extern void relocate_new_kernel_end(void);
-+const extern unsigned int relocate_new_kernel_size;
-+
-+void machine_kexec(struct kimage *image)
-+{
-+	unsigned long *indirection_page;
-+	void *reboot_code_buffer;
-+	relocate_new_kernel_t rnk;
-+
-+	/* Interrupts aren't acceptable while we reboot */
-+	local_irq_disable();
-+	reboot_code_buffer = image->reboot_code_buffer;
-+	indirection_page = phys_to_virt(image->head & PAGE_MASK);
-+
-+	identity_map_page(virt_to_phys(reboot_code_buffer));
-+
-+	/* copy it out */
-+	memcpy(reboot_code_buffer, relocate_new_kernel, 
-+		relocate_new_kernel_size);
-+
-+	/* The segment registers are funny things, they are
-+	 * automatically loaded from a table, in memory wherever you
-+	 * set them to a specific selector, but this table is never
-+	 * accessed again you set the segment to a different selector.
-+	 *
-+	 * The more common model is are caches where the behide
-+	 * the scenes work is done, but is also dropped at arbitrary
-+	 * times.
-+	 *
-+	 * I take advantage of this here by force loading the
-+	 * segments, before I zap the gdt with an invalid value.
-+	 */
-+	load_segments();
-+	/* The gdt & idt are now invalid.
-+	 * If you want to load them you must set up your own idt & gdt.
-+	 */
-+	set_gdt(phys_to_virt(0),0);
-+	set_idt(phys_to_virt(0),0);
-+
-+	/* now call it */
-+	rnk = (relocate_new_kernel_t) virt_to_phys(reboot_code_buffer);
-+	(*rnk)(virt_to_phys(indirection_page), virt_to_phys(reboot_code_buffer), 
-+		image->start);
-+}
-+
-diff -uNr linux-2.5.44/arch/i386/kernel/relocate_kernel.S linux-2.5.44.x86kexec-2/arch/i386/kernel/relocate_kernel.S
---- linux-2.5.44/arch/i386/kernel/relocate_kernel.S	Wed Dec 31 17:00:00 1969
-+++ linux-2.5.44.x86kexec-2/arch/i386/kernel/relocate_kernel.S	Sun Oct 27 15:21:51 2002
-@@ -0,0 +1,99 @@
-+#include <linux/config.h>
-+#include <linux/linkage.h>
-+
-+	/* Must be relocatable PIC code callable as a C function, that once
-+	 * it starts can not use the previous processes stack.
-+	 *
-+	 */
-+	.globl relocate_new_kernel
-+relocate_new_kernel:
-+	/* read the arguments and say goodbye to the stack */
-+	movl  4(%esp), %ebx /* indirection_page */
-+	movl  8(%esp), %ebp /* reboot_code_buffer */
-+	movl  12(%esp), %edx /* start address */
-+
-+	/* zero out flags, and disable interrupts */
-+	pushl $0
-+	popfl
-+
-+	/* set a new stack at the bottom of our page... */
-+	lea   4096(%ebp), %esp
-+
-+	/* store the parameters back on the stack */
-+	pushl   %edx /* store the start address */
-+
-+	/* Set cr0 to a known state:
-+	 * 31 0 == Paging disabled
-+	 * 18 0 == Alignment check disabled
-+	 * 16 0 == Write protect disabled
-+	 * 3  0 == No task switch
-+	 * 2  0 == Don't do FP software emulation.
-+	 * 0  1 == Proctected mode enabled
-+	 */
-+	movl	%cr0, %eax
-+	andl	$~((1<<31)|(1<<18)|(1<<16)|(1<<3)|(1<<2)), %eax
-+	orl	$(1<<0), %eax
-+	movl	%eax, %cr0
-+	jmp 1f
-+1:	
-+
-+	/* Flush the TLB (needed?) */
-+	xorl	%eax, %eax
-+	movl	%eax, %cr3
-+
-+	/* Do the copies */
-+	cld
-+0:	/* top, read another word for the indirection page */
-+	movl    %ebx, %ecx
-+	movl	(%ebx), %ecx
-+	addl	$4, %ebx
-+	testl	$0x1,   %ecx  /* is it a destination page */
-+	jz	1f
-+	movl	%ecx,	%edi
-+	andl	$0xfffff000, %edi
-+	jmp     0b
-+1:
-+	testl	$0x2,	%ecx  /* is it an indirection page */
-+	jz	1f
-+	movl	%ecx,	%ebx
-+	andl	$0xfffff000, %ebx
-+	jmp     0b
-+1:
-+	testl   $0x4,   %ecx /* is it the done indicator */
-+	jz      1f
-+	jmp     2f
-+1:
-+	testl   $0x8,   %ecx /* is it the source indicator */
-+	jz      0b	     /* Ignore it otherwise */
-+	movl    %ecx,   %esi /* For every source page do a copy */
-+	andl    $0xfffff000, %esi
-+
-+	movl    $1024, %ecx
-+	rep ; movsl
-+	jmp     0b
-+
-+2:
-+
-+	/* To be certain of avoiding problems with self modifying code
-+	 * I need to execute a serializing instruction here.
-+	 * So I flush the TLB, it's handy, and not processor dependent.
-+	 */
-+	xorl	%eax, %eax
-+	movl	%eax, %cr3
-+	
-+	/* set all of the registers to known values */
-+	/* leave %esp alone */
-+	
-+	xorl	%eax, %eax
-+	xorl	%ebx, %ebx
-+	xorl    %ecx, %ecx
-+	xorl    %edx, %edx
-+	xorl    %esi, %esi
-+	xorl    %edi, %edi
-+	xorl    %ebp, %ebp
-+	ret
-+relocate_new_kernel_end:
-+
-+	.globl relocate_new_kernel_size
-+relocate_new_kernel_size:	
-+	.long relocate_new_kernel_end - relocate_new_kernel
-diff -uNr linux-2.5.44/include/asm-i386/kexec.h linux-2.5.44.x86kexec-2/include/asm-i386/kexec.h
---- linux-2.5.44/include/asm-i386/kexec.h	Wed Dec 31 17:00:00 1969
-+++ linux-2.5.44.x86kexec-2/include/asm-i386/kexec.h	Sun Oct 27 15:21:51 2002
-@@ -0,0 +1,25 @@
-+#ifndef _I386_KEXEC_H
-+#define _I386_KEXEC_H
-+
-+#include <asm/fixmap.h>
-+
-+/*
-+ * KEXEC_SOURCE_MEMORY_LIMIT maximum page get_free_page can return.
-+ * I.e. Maximum page that is mapped directly into kernel memory,
-+ * and kmap is not required.
-+ *
-+ * Someone correct me if FIXADDR_START - PAGEOFFSET is not the correct
-+ * calculation for the amount of memory directly mappable into the
-+ * kernel memory space.
-+ */
-+
-+/* Maximum physical address we can use pages from */
-+#define KEXEC_SOURCE_MEMORY_LIMIT (FIXADDR_START - PAGE_OFFSET) 
-+/* Maximum address we can reach in physical address mode */
-+#define KEXEC_DESTINATION_MEMORY_LIMIT (-1UL)
-+
-+#define KEXEC_REBOOT_CODE_SIZE	4096
-+#define KEXEC_REBOOT_CODE_ALIGN 0
-+
-+
-+#endif /* _I386_KEXEC_H */
-diff -uNr linux-2.5.44/include/asm-i386/unistd.h linux-2.5.44.x86kexec-2/include/asm-i386/unistd.h
---- linux-2.5.44/include/asm-i386/unistd.h	Fri Oct 18 11:59:28 2002
-+++ linux-2.5.44.x86kexec-2/include/asm-i386/unistd.h	Sun Oct 27 15:21:51 2002
-@@ -258,7 +258,7 @@
- #define __NR_free_hugepages	251
- #define __NR_exit_group		252
- #define __NR_lookup_dcookie	253
--  
-+#define __NR_kexec		254
- 
- /* user-visible error numbers are in the range -1 - -124: see <asm-i386/errno.h> */
- 
-diff -uNr linux-2.5.44/include/linux/kexec.h linux-2.5.44.x86kexec-2/include/linux/kexec.h
---- linux-2.5.44/include/linux/kexec.h	Wed Dec 31 17:00:00 1969
-+++ linux-2.5.44.x86kexec-2/include/linux/kexec.h	Sun Oct 27 15:21:51 2002
-@@ -0,0 +1,48 @@
-+#ifndef LINUX_KEXEC_H
-+#define LINUX_KEXEC_H
-+
-+#if CONFIG_KEXEC
-+#include <linux/types.h>
-+#include <asm/kexec.h>
-+
-+/* 
-+ * This structure is used to hold the arguments that are used when loading
-+ * kernel binaries.
-+ */
-+
-+typedef unsigned long kimage_entry_t;
-+#define IND_DESTINATION  0x1
-+#define IND_INDIRECTION  0x2
-+#define IND_DONE         0x4
-+#define IND_SOURCE       0x8
-+
-+struct kimage {
-+	kimage_entry_t head;
-+	kimage_entry_t *entry;
-+	kimage_entry_t *last_entry;
-+
-+	unsigned long destination;
-+	unsigned long offset;
-+
-+	unsigned long start;
-+	void *reboot_code_buffer;
-+};
-+
-+/* kexec helper functions */
-+void kimage_init(struct kimage *image);
-+void kimage_free(struct kimage *image);
-+
-+struct kexec_segment {
-+	void *buf;
-+	size_t bufsz;
-+	void *mem;
-+	size_t memsz;
-+};
-+
-+/* kexec interface functions */
-+extern void machine_kexec(struct kimage *image);
-+extern int do_kexec(unsigned long entry, long nr_segments, 
-+	struct kexec_segment *segments, struct kimage *image);
-+#endif
-+#endif /* LINUX_KEXEC_H */
-+
-diff -uNr linux-2.5.44/kernel/Makefile linux-2.5.44.x86kexec-2/kernel/Makefile
---- linux-2.5.44/kernel/Makefile	Fri Oct 18 11:59:29 2002
-+++ linux-2.5.44.x86kexec-2/kernel/Makefile	Sun Oct 27 15:21:51 2002
-@@ -21,6 +21,7 @@
- obj-$(CONFIG_CPU_FREQ) += cpufreq.o
- obj-$(CONFIG_BSD_PROCESS_ACCT) += acct.o
- obj-$(CONFIG_SOFTWARE_SUSPEND) += suspend.o
-+obj-$(CONFIG_KEXEC) += kexec.o
- 
- ifneq ($(CONFIG_IA64),y)
- # According to Alan Modra <alan@linuxcare.com.au>, the -fno-omit-frame-pointer is
-diff -uNr linux-2.5.44/kernel/kexec.c linux-2.5.44.x86kexec-2/kernel/kexec.c
---- linux-2.5.44/kernel/kexec.c	Wed Dec 31 17:00:00 1969
-+++ linux-2.5.44.x86kexec-2/kernel/kexec.c	Sun Oct 27 15:21:51 2002
-@@ -0,0 +1,624 @@
-+#include <linux/mm.h>
-+#include <linux/file.h>
-+#include <linux/slab.h>
-+#include <linux/fs.h>
-+#include <linux/version.h>
-+#include <linux/compile.h>
-+#include <linux/kexec.h>
-+#include <net/checksum.h>
-+#include <asm/page.h>
-+#include <asm/uaccess.h>
-+#include <asm/io.h>
-+
-+#define DEBUG 0
-+
-+/* As designed kexec can only use the memory that you don't
-+ * need to use kmap to access.  Memory that you can use virt_to_phys()
-+ * on an call get_free_page to allocate.
-+ *
-+ * In the best case you need one page for the transition from
-+ * virtual to physical memory.  And this page must be identity
-+ * mapped.  Which pretty much leaves you with pages < PAGE_OFFSET
-+ * as you can only mess with user pages.
-+ * 
-+ * As the only subset of memory that it is easy to restrict allocation
-+ * to is the physical memory mapped into the kernel, I do that
-+ * with get_free_page and hope it is enough.
-+ *
-+ * I don't know of a good way to do this calcuate which pages get_free_page
-+ * will return independent of architecture so I depend on
-+ * <asm/kexec.h> to properly set 
-+ * KEXEC_SOURCE_MEMORY_LIMIT and KEXEC_DESTINATION_MEMORY_LIMIT
-+ * 
-+ */
-+
-+void kimage_init(struct kimage *image)
-+{
-+	memset(image, 0, sizeof(*image));
-+	image->head = 0;
-+	image->entry = &image->head;
-+	image->last_entry = &image->head;
-+}
-+static int kimage_add_entry(struct kimage *image, kimage_entry_t entry)
-+{
-+	if (image->offset != 0) {
-+		image->entry++;
-+	}
-+	if (image->entry == image->last_entry) {
-+		kimage_entry_t *ind_page;
-+		ind_page = (void *)__get_free_page(GFP_KERNEL);
-+		if (!ind_page) {
-+			return -ENOMEM;
-+		}
-+		*image->entry = virt_to_phys(ind_page) | IND_INDIRECTION;
-+		image->entry = ind_page;
-+		image->last_entry = 
-+			ind_page + ((PAGE_SIZE/sizeof(kimage_entry_t)) - 1);
-+	}
-+	*image->entry = entry;
-+	image->entry++;
-+	image->offset = 0;
-+	return 0;
-+}
-+
-+static int kimage_verify_destination(unsigned long destination)
-+{
-+	int result;
-+	
-+	/* Assume the page is bad unless we pass the checks */
-+	result = -EADDRNOTAVAIL;
-+
-+	if (destination >= KEXEC_DESTINATION_MEMORY_LIMIT) {
-+		goto out;
-+	}
-+
-+	/* FIXME:
-+	 * add checking to ensure the new image doesn't go into
-+	 * invalid or reserved areas of RAM.
-+	 */
-+	result =  0;
-+out:
-+	return result;
-+}
-+
-+static int kimage_set_destination(
-+	struct kimage *image, unsigned long destination) 
-+{
-+	int result;
-+	destination &= PAGE_MASK;
-+	result = kimage_verify_destination(destination);
-+	if (result) {
-+		return result;
-+	}
-+	result = kimage_add_entry(image, destination | IND_DESTINATION);
-+	if (result == 0) {
-+		image->destination = destination;
-+	}
-+	return result;
-+}
-+
-+
-+static int kimage_add_page(struct kimage *image, unsigned long page)
-+{
-+	int result;
-+	page &= PAGE_MASK;
-+	result = kimage_verify_destination(image->destination);
-+	if (result) {
-+		return result;
-+	}
-+	result = kimage_add_entry(image, page | IND_SOURCE);
-+	if (result == 0) {
-+		image->destination += PAGE_SIZE;
-+	}
-+	return result;
-+}
-+
-+
-+static int kimage_terminate(struct kimage *image)
-+{
-+	int result;
-+	result = kimage_add_entry(image, IND_DONE);
-+	if (result == 0) {
-+		/* Point at the terminating element */
-+		image->entry--;
-+	}
-+	return result;
-+}
-+
-+#define for_each_kimage_entry(image, ptr, entry) \
-+	for (ptr = &image->head; (entry = *ptr) && !(entry & IND_DONE); \
-+		ptr = (entry & IND_INDIRECTION)? \
-+			phys_to_virt((entry & PAGE_MASK)): ptr +1)
-+
-+void kimage_free(struct kimage *image)
-+{
-+	kimage_entry_t *ptr, entry;
-+	kimage_entry_t ind = 0;
-+	for_each_kimage_entry(image, ptr, entry) {
-+		if (entry & IND_INDIRECTION) {
-+			/* Free the previous indirection page */
-+			if (ind & IND_INDIRECTION) {
-+				free_page((unsigned long)phys_to_virt(ind & PAGE_MASK));
-+			}
-+			/* Save this indirection page until we are
-+			 * done with it.
-+			 */
-+			ind = entry;
-+		}
-+		else if (entry & IND_SOURCE) {
-+			free_page((unsigned long)phys_to_virt(entry & PAGE_MASK));
-+		}
-+	}
-+}
-+
-+#if DEBUG
-+static void kimage_print_image(struct kimage *image)
-+{
-+	kimage_entry_t *ptr, entry;
-+	int i;
-+	printk(KERN_EMERG "kimage_print_image\n");
-+	i = 0;
-+	for_each_kimage_entry(image, ptr, entry) {
-+		if (entry & IND_DESTINATION) {
-+			printk(KERN_EMERG "%5d DEST\n", i);
-+		}
-+		else if (entry & IND_INDIRECTION) {
-+			printk(KERN_EMERG "%5d IND\n", i);
-+		}
-+		else if (entry & IND_SOURCE) {
-+			printk(KERN_EMERG "%5d SOURCE\n", i);
-+		}
-+		else if (entry & IND_DONE) {
-+			printk(KERN_EMERG "%5d DONE\n", i);
-+		}
-+		else {
-+			printk(KERN_EMERG "%5d ?\n", i);
-+		}
-+		i++;
-+	}
-+	printk(KERN_EMERG "kimage_print_image: %5d\n", i);
-+}
-+#endif
-+static int kimage_is_destination_page(
-+	struct kimage *image, unsigned long page)
-+{
-+	kimage_entry_t *ptr, entry;
-+	unsigned long destination;
-+	destination = 0;
-+	page &= PAGE_MASK;
-+	for_each_kimage_entry(image, ptr, entry) {
-+		if (entry & IND_DESTINATION) {
-+			destination = entry & PAGE_MASK;
-+		}
-+		else if (entry & IND_SOURCE) {
-+			if (page == destination) {
-+				return 1;
-+			}
-+			destination += PAGE_SIZE;
-+		}
-+	}
-+	return 0;
-+}
-+
-+static int kimage_get_unused_area(
-+	struct kimage *image, unsigned long size, unsigned long align,
-+	unsigned long *area)
-+{
-+	/* Walk through mem_map and find the first chunk of
-+	 * ununsed memory that is at least size bytes long.
-+	 */
-+	/* Since the kernel plays with Page_Reseved mem_map is less
-+	 * than ideal for this purpose, but it will give us a correct
-+	 * conservative estimate of what we need to do. 
-+	 */
-+	/* For now we take advantage of the fact that all kernel pages
-+	 * are marked with PG_resereved to allocate a large
-+	 * contiguous area for the reboot code buffer.
-+	 */
-+	unsigned long addr;
-+	unsigned long start, end;
-+	unsigned long mask;
-+	mask = ((1 << align) -1);
-+	start = end = PAGE_SIZE;
-+	for(addr = PAGE_SIZE; addr < KEXEC_SOURCE_MEMORY_LIMIT; addr += PAGE_SIZE) {
-+		struct page *page;
-+		unsigned long aligned_start;
-+		page = virt_to_page(phys_to_virt(addr));
-+		if (PageReserved(page) ||
-+			kimage_is_destination_page(image, addr)) {
-+			/* The current page is reserved so the start &
-+			 * end of the next area must be atleast at the
-+			 * next page.
-+			 */
-+			start = end = addr + PAGE_SIZE;
-+		}
-+		else {
-+			/* O.k.  The current page isn't reserved
-+			 * so push up the end of the area.
-+			 */
-+			end = addr;
-+		}
-+		aligned_start = (start + mask) & ~mask;
-+		if (aligned_start > start) {
-+			continue;
-+		}
-+		if (aligned_start > end) {
-+			continue;
-+		}
-+		if (end - aligned_start >= size) {
-+			*area = aligned_start;
-+			return 0;
-+		}
-+	}
-+	*area = 0;
-+	return -ENOSPC;
-+}
-+
-+static kimage_entry_t *kimage_dst_conflict(
-+	struct kimage *image, unsigned long page, kimage_entry_t *limit)
-+{
-+	kimage_entry_t *ptr, entry;
-+	unsigned long destination = 0;
-+	for_each_kimage_entry(image, ptr, entry) {
-+		if (ptr == limit) {
-+			return 0;
-+		}
-+		else if (entry & IND_DESTINATION) {
-+			destination = entry & PAGE_MASK;
-+		}
-+		else if (entry & IND_SOURCE) {
-+			if (page == destination) {
-+				return ptr;
-+			}
-+			destination += PAGE_SIZE;
-+		}
-+	}
-+	return 0;
-+}
-+
-+static kimage_entry_t *kimage_src_conflict(
-+	struct kimage *image, unsigned long destination, kimage_entry_t *limit)
-+{
-+	kimage_entry_t *ptr, entry;
-+	for_each_kimage_entry(image, ptr, entry) {
-+		unsigned long page;
-+		if (ptr == limit) {
-+			return 0;
-+		}
-+		else if (entry & IND_DESTINATION) {
-+			/* nop */
-+		}
-+		else if (entry & IND_DONE) {
-+			/* nop */
-+		}
-+		else {
-+			/* SOURCE & INDIRECTION */
-+			page = entry & PAGE_MASK;
-+			if (page == destination) {
-+				return ptr;
-+			}
-+		}
-+	}
-+	return 0;
-+}
-+
-+static int kimage_get_off_destination_pages(struct kimage *image)
-+{
-+	kimage_entry_t *ptr, *cptr, entry;
-+	unsigned long buffer, page;
-+	unsigned long destination = 0;
-+
-+	/* Here we implement safe guards to insure that
-+	 * a source page is not copied to it's destination
-+	 * page before the data on the destination page is
-+	 * no longer useful.
-+	 *
-+	 * To make it work we actually wind up with a 
-+	 * stronger condition.  For every page considered
-+	 * it is either it's own destination page or it is
-+	 * not a destination page of any page considered.
-+	 *
-+	 * Invariants 
-+	 * 1. buffer is not a destination of a previous page.
-+	 * 2. page is not a destination of a previous page.
-+	 * 3. destination is not a previous source page.
-+	 *
-+	 * Result: Either a source page and a destination page 
-+	 * are the same or the page is not a destination page.
-+	 *
-+	 * These checks could be done when we allocate the pages,
-+	 * but doing it as a final pass allows us more freedom
-+	 * on how we allocate pages.
-+	 * 
-+	 * Also while the checks are necessary, in practice nothing
-+	 * happens.  The destination kernel wants to sit in the
-+	 * same physical addresses as the current kernel so we never
-+	 * actually allocate a destination page.
-+	 *
-+	 * BUGS: This is a O(N^2) algorithm.
-+	 */
-+
-+	
-+	buffer = __get_free_page(GFP_KERNEL);
-+	if (!buffer) {
-+		return -ENOMEM;
-+	}
-+	buffer = virt_to_phys((void *)buffer);
-+	for_each_kimage_entry(image, ptr, entry) {
-+		/* Here we check to see if an allocated page */
-+		kimage_entry_t *limit;
-+		if (entry & IND_DESTINATION) {
-+			destination = entry & PAGE_MASK;
-+		}
-+		else if (entry & IND_INDIRECTION) {
-+			/* Indirection pages must include all of their
-+			 * contents in limit checking.
-+			 */
-+			limit = phys_to_virt(page + PAGE_SIZE - sizeof(*limit));
-+		}
-+		if (!((entry & IND_SOURCE) | (entry & IND_INDIRECTION))) {
-+			continue;
-+		}
-+		page = entry & PAGE_MASK;
-+		limit = ptr;
-+
-+		/* See if a previous page has the current page as it's 
-+		 * destination.
-+		 * i.e. invariant 2
-+		 */
-+		cptr = kimage_dst_conflict(image, page, limit);
-+		if (cptr) {
-+			unsigned long cpage;
-+ 			kimage_entry_t centry;
-+			centry = *cptr;
-+			cpage = centry & PAGE_MASK;
-+			memcpy(phys_to_virt(buffer), phys_to_virt(page), PAGE_SIZE);
-+			memcpy(phys_to_virt(page), phys_to_virt(cpage), PAGE_SIZE);
-+			*cptr = page | (centry & ~PAGE_MASK);
-+			*ptr = buffer | (entry & ~PAGE_MASK);
-+			buffer = cpage;
-+		}
-+		if (!(entry & IND_SOURCE)) {
-+			continue;
-+		}
-+
-+		/* See if a previous page is our destination page.
-+		 * If so claim it now.
-+		 * i.e. invariant 3
-+		 */
-+		cptr = kimage_src_conflict(image, destination, limit);
-+		if (cptr) {
-+			unsigned long cpage;
-+ 			kimage_entry_t centry;
-+			centry = *cptr;
-+			cpage = centry & PAGE_MASK;
-+			memcpy(phys_to_virt(buffer), phys_to_virt(cpage), PAGE_SIZE);
-+			memcpy(phys_to_virt(cpage), phys_to_virt(page), PAGE_SIZE);
-+			*cptr = buffer | (centry & ~PAGE_MASK);
-+			*ptr = cpage | ( entry & ~PAGE_MASK);
-+			buffer = page;
-+		}
-+		/* If the buffer is my destination page do the copy now 
-+		 * i.e. invariant 3 & 1
-+		 */
-+		if (buffer == destination) {
-+			memcpy(phys_to_virt(buffer), phys_to_virt(page), PAGE_SIZE);
-+			*ptr = buffer | (entry & ~PAGE_MASK);
-+			buffer = page;
-+		}
-+	}
-+	free_page((unsigned long)phys_to_virt(buffer));
-+	return 0;
-+}
-+
-+static int kimage_add_empty_pages(struct kimage *image,
-+	unsigned long len)
-+{
-+	unsigned long pos;
-+	int result;
-+	for(pos = 0; pos < len; pos += PAGE_SIZE) {
-+		char *page;
-+		result = -ENOMEM;
-+		page = (void *)__get_free_page(GFP_KERNEL);
-+		if (!page) {
-+			goto out;
-+		}
-+		result = kimage_add_page(image, virt_to_phys(page));
-+		if (result) {
-+			goto out;
-+		}
-+	}
-+	result = 0;
-+ out:
-+	return result;
-+}
-+
-+
-+static int kimage_load_segment(struct kimage *image,
-+	struct kexec_segment *segment)
-+{	
-+	unsigned long mstart;
-+	int result;
-+	unsigned long offset;
-+	unsigned long offset_end;
-+	unsigned char *buf;
-+
-+	result = 0;
-+	buf = segment->buf;
-+	mstart = (unsigned long)segment->mem;
-+
-+	offset_end = segment->memsz;
-+
-+	result = kimage_set_destination(image, mstart);
-+	if (result < 0) {
-+		goto out;
-+	}
-+	for(offset = 0;  offset < segment->memsz; offset += PAGE_SIZE) {
-+		char *page;
-+		size_t size, leader;
-+		page = (char *)__get_free_page(GFP_KERNEL);
-+		if (page == 0) {
-+			result  = -ENOMEM;
-+			goto out;
-+		}
-+		result = kimage_add_page(image, virt_to_phys(page));
-+		if (result < 0) {
-+			goto out;
-+		}
-+		if (segment->bufsz < offset) {
-+			/* We are past the end zero the whole page */
-+			memset(page, 0, PAGE_SIZE);
-+			continue;
-+		}
-+		size = PAGE_SIZE;
-+		leader = 0;
-+		if ((offset == 0)) {
-+			leader = mstart & ~PAGE_MASK;
-+		}
-+		if (leader) {
-+			/* We are on the first page zero the unused portion */
-+			memset(page, 0, leader);
-+			size -= leader;
-+			page += leader;
-+		}
-+		if (size > (segment->bufsz - offset)) {
-+			size = segment->bufsz - offset;
-+		}
-+		result = copy_from_user(page, buf + offset, size);
-+		if (result) {
-+			result = (result < 0)?result : -EIO;
-+			goto out;
-+		}
-+		if (size < (PAGE_SIZE - leader)) {
-+			/* zero the trailing part of the page */
-+			memset(page + size, 0, (PAGE_SIZE - leader) - size);
-+		}
-+	}
-+ out:
-+	return result;
-+}
-+
-+
-+/* do_kexec executes a new kernel 
-+ */
-+int do_kexec(unsigned long start, long nr_segments,
-+	struct kexec_segment *arg_segments, struct kimage *image)
-+{
-+	struct kexec_segment *segments;
-+	size_t segment_bytes;
-+	int i;
-+
-+	int result; 
-+	unsigned long reboot_code_buffer;
-+	kimage_entry_t *end;
-+
-+	/* Initialize variables */
-+	segments = 0;
-+
-+	/* We only trust the superuser with rebooting the system. */
-+	if (nr_segments <= 0) {
-+		result = -EINVAL;
-+		goto out;
-+	}
-+	segment_bytes = nr_segments * sizeof(*segments);
-+	segments = kmalloc(GFP_KERNEL, segment_bytes);
-+	if (segments == 0) {
-+		result = -ENOMEM;
-+		goto out;
-+	}
-+	result = copy_from_user(segments, arg_segments, segment_bytes);
-+	if (result) {
-+		goto out;
-+	}
-+#if DEBUG
-+	for(i = 0; i < nr_segments; i++) {
-+		printk(KERN_EMERG "k_segment[%d].buf   = %p\n",   i, segments[i].buf);
-+		printk(KERN_EMERG "k_segment[%d].bufsz = 0x%x\n", i, segments[i].bufsz);
-+		printk(KERN_EMERG "k_segment[%d].mem   = %p\n",   i, segments[i].mem);
-+		printk(KERN_EMERG "k_segment[%d].memsz = 0x%x\n", i, segments[i].memsz);
-+	}
-+	printk(KERN_EMERG "k_entry       = 0x%08lx\n", start);
-+	printk(KERN_EMERG "k_nr_segments = %d\n", nr_segments);
-+	printk(KERN_EMERG "k_segments    = %p\n", segments);
-+#endif
-+
-+	/* Read in the data from user space */
-+	image->start = start;
-+	for(i = 0; i < nr_segments; i++) {
-+		result = kimage_load_segment(image, &segments[i]);
-+		if (result) {
-+			goto out;
-+		}
-+	}
-+	
-+	/* Terminate early so I can get a place holder. */
-+	result = kimage_terminate(image);
-+	if (result)
-+		goto out;
-+	end = image->entry;
-+
-+	/* Usage of the reboot code buffer is subtle.  We first
-+	 * find a continguous area of ram, that is not one
-+	 * of our destination pages.  We do not allocate the ram.
-+	 *
-+	 * The algorithm to make certain we do not have address
-+	 * conflicts requires each destination region to have some
-+	 * backing store so we allocate abitrary source pages.
-+	 *
-+	 * Later in machine_kexec when we copy data to the
-+	 * reboot_code_buffer it still may be allocated for other
-+	 * purposes, but we do know there are no source or destination
-+	 * pages in that area.  And since the rest of the kernel
-+	 * is already shutdown those pages are free for use,
-+	 * regardless of their page->count values.
-+	 */
-+	result = kimage_get_unused_area(
-+		image, KEXEC_REBOOT_CODE_SIZE, KEXEC_REBOOT_CODE_ALIGN,
-+		&reboot_code_buffer);
-+	if (result) 
-+		goto out;
-+
-+	/* Allocating pages we should never need  is silly but the
-+	 * code won't work correctly unless we have dummy pages to
-+	 * work with. 
-+	 */
-+	result = kimage_set_destination(image, reboot_code_buffer);
-+	if (result) 
-+		goto out;
-+	result = kimage_add_empty_pages(image, KEXEC_REBOOT_CODE_SIZE);
-+	if (result)
-+		goto out;
-+	image->reboot_code_buffer = phys_to_virt(reboot_code_buffer);
-+
-+	result = kimage_terminate(image);
-+	if (result)
-+		goto out;
-+
-+	result = kimage_get_off_destination_pages(image);
-+	if (result)
-+		goto out;
-+
-+#if DEBUG
-+	kimage_print_image(image);
-+#endif
-+
-+	/* Now hide the extra source pages for the reboot code buffer 
-+	 * What is the logic with the reboot code buffer, should it
-+	 * be mapped 1-1 by this point FIXME verify this?
-+	 */
-+	image->entry = end;
-+	result = kimage_terminate(image);
-+	if (result)
-+		goto out;
-+
-+#if DEBUG
-+	kimage_print_image(image);
-+#endif
-+
-+	result = 0;
-+ out:
-+	/* cleanup and exit */
-+	if (segments)	kfree(segments);
-+	return result;
-+}
-+
-diff -uNr linux-2.5.44/kernel/sys.c linux-2.5.44.x86kexec-2/kernel/sys.c
---- linux-2.5.44/kernel/sys.c	Fri Oct 18 11:59:29 2002
-+++ linux-2.5.44.x86kexec-2/kernel/sys.c	Sun Oct 27 15:21:51 2002
-@@ -16,6 +16,7 @@
- #include <linux/init.h>
- #include <linux/highuid.h>
- #include <linux/fs.h>
-+#include <linux/kexec.h>
- #include <linux/workqueue.h>
- #include <linux/device.h>
- #include <linux/times.h>
-@@ -430,6 +431,66 @@
- 	unlock_kernel();
- 	return 0;
- }
-+
-+#ifdef CONFIG_KEXEC
-+/*
-+ * Exec Kernel system call: for obvious reasons only root may call it.
-+ * 
-+ * This call breaks up into three pieces.  
-+ * - A generic part which loads the new kernel from the current
-+ *   address space, and very carefully places the data in the
-+ *   allocated pages.
-+ *
-+ * - A generic part that interacts with the kernel and tells all of
-+ *   the devices to shut down.  Preventing on-going dmas, and placing
-+ *   the devices in a consistent state so a later kernel can
-+ *   reinitialize them.
-+ *
-+ * - A machine specific part that includes the syscall number
-+ *   and the copies the image to it's final destination.  And
-+ *   jumps into the image at entry.
-+ *
-+ * kexec does not sync, or unmount filesystems so if you need
-+ * that to happen you need to do that yourself.
-+ */
-+asmlinkage long sys_kexec(unsigned long entry, long nr_segments, 
-+	struct kexec_segment *segments)
-+{
-+	/* Am I using to much stack space here? */
-+	struct kimage image;
-+	int result;
-+		
-+	/* We only trust the superuser with rebooting the system. */
-+	if (!capable(CAP_SYS_BOOT))
-+		return -EPERM;
-+
-+	lock_kernel();
-+	kimage_init(&image);
-+	result = do_kexec(entry, nr_segments, segments, &image);
-+	if (result) {
-+		kimage_free(&image);
-+		unlock_kernel();
-+		return result;
-+	}
-+	
-+	/* The point of no return is here... */
-+	notifier_call_chain(&reboot_notifier_list, SYS_RESTART, NULL);
-+	system_running = 0;
-+	device_shutdown();
-+	printk(KERN_EMERG "kexecing image\n");
-+	machine_kexec(&image);
-+	/* We never get here but... */
-+	kimage_free(&image);
-+	unlock_kernel();
-+	return -EINVAL; 
-+}
-+#else
-+asmlinkage long sys_kexec(unsigned long entry, long nr_segments,
-+	struct kexec_segment *segments)
-+{
-+	return -ENOSYS;
-+}
-+#endif /* CONFIG_KEXEC */
- 
- static void deferred_cad(void *dummy)
- {
-
+--------------Boundary-00=_1O0PKCL9EBHICL9OPYT1--

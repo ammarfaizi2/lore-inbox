@@ -1,49 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129896AbQJaOlo>; Tue, 31 Oct 2000 09:41:44 -0500
+	id <S129074AbQJaOpZ>; Tue, 31 Oct 2000 09:45:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130172AbQJaOle>; Tue, 31 Oct 2000 09:41:34 -0500
-Received: from ns.dce.bg ([212.50.14.242]:21259 "HELO home.dce.bg")
-	by vger.kernel.org with SMTP id <S129896AbQJaOlZ>;
-	Tue, 31 Oct 2000 09:41:25 -0500
-Message-ID: <39FEDA00.706D11EA@dce.bg>
-Date: Tue, 31 Oct 2000 16:41:04 +0200
-From: Petko Manolov <petkan@dce.bg>
-Organization: Deltacom Electronics
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
-X-Accept-Language: en, bg
-MIME-Version: 1.0
-To: Keith Owens <kaos@ocs.com.au>
-CC: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: changed section attributes
-In-Reply-To: <17144.973002851@ocs3.ocs-net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129130AbQJaOpR>; Tue, 31 Oct 2000 09:45:17 -0500
+Received: from jhuml1.hcf.jhu.edu ([128.220.2.66]:44986 "EHLO jhuml3.jhu.edu")
+	by vger.kernel.org with ESMTP id <S129074AbQJaOo7>;
+	Tue, 31 Oct 2000 09:44:59 -0500
+Date: Tue, 31 Oct 2000 09:43:21 -0500 (EST)
+From: afei@jhu.edu
+Subject: Re: kmalloc() allocation.
+In-Reply-To: <20001031114851.D7204@nightmaster.csn.tu-chemnitz.de>
+To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+Cc: Rik van Riel <riel@conectiva.com.br>,
+        "Richard B. Johnson" <root@chaos.analogic.com>,
+        Linux kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+Message-id: <Pine.GSO.4.05.10010310940410.18461-100000@aa.eps.jhu.edu>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens wrote:
+
+
+On Tue, 31 Oct 2000, Ingo Oeser wrote:
+
+> On Mon, Oct 30, 2000 at 02:40:16PM -0200, Rik van Riel wrote:
+> > > There are 256 megabytes of SDRAM available. I don't think it's
+> > > reasonable that a 1/2 megabyte allocation would fail, especially
+> > > since it's the first module being installed.
+> > If you write the defragmentation code for the VM, I'll
+> > be happy to bump up the limit a bit ...
 > 
-> On Tue, 31 Oct 2000 16:29:16 +0200,
-> Petko Manolov <petkan@dce.bg> wrote:
-> >I wonder why the compiler decides to add ".section
-> >.modinfo,"a",@progbits"
-> >May be this is the thing which should be fixed.
+> Should become easier once we start doing physical page scannings.
 > 
-> That is just gcc speak for section .modinfo is marked as allocated,
-> type progbits.  Read the ELF standard if you want to know more.
+> We could record physical continous freeable areas on the fly
+> then. If someone asks for them later, we recheck whether they
+> still exists and free (inactive_clean) or remap (active or
+> inactive_dirty) the whole area, whether they are used or not. 
 
+I am confused. Why cannot one simply audit the memory usage and always
+have an up-to-date list of free memory pages? When a page is allocated,
+the allocator should make a call to move that page outside of the
+freelist; and when it is free, just move it back to the free list. Is it
+because of the overhead? 
 
-I already red the info as pages, but the description was too brief.
+Fei
+> 
+> This could still be improved by using up smallest fit areas
+> first for kmalloc() based on these areas.
+> 
+> But beware: We just have a good hint here, which needs to be
+>    rechecked every time we allocate such areas to become
+>    guarantee.
+> 
+> Rik: What do you think about this (physical cont. area cache) for 2.5?
+> 
+> Regards
+> 
+> Ingo Oeser
+> -- 
+> Feel the power of the penguin - run linux@your.pc
+> <esc>:x
+> --
+> To unsubscribe, send a message with 'unsubscribe linux-mm' in
+> the body to majordomo@kvack.org.  For more info on Linux MM,
+> see: http://www.linux.eu.org/Linux-MM/
+> 
 
-If this is default gcc behavior then it seems that changing to latest
-modutils is the only option ;-)
-
-I wonder if Linus will apply your patch.
-
-
-best,
-Petkan
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

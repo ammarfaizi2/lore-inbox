@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292395AbSB0O2n>; Wed, 27 Feb 2002 09:28:43 -0500
+	id <S292482AbSB0O30>; Wed, 27 Feb 2002 09:29:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292399AbSB0O2c>; Wed, 27 Feb 2002 09:28:32 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:23180 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S292511AbSB0O2I>; Wed, 27 Feb 2002 09:28:08 -0500
-Date: Wed, 27 Feb 2002 09:29:58 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Jesper Juhl <jju@dif.dk>
-cc: barubary@cox.net, alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: ISO9660 bug and loopback driver bug - a bigger problem then it would appear?
-In-Reply-To: <3C7C1797.7050604@dif.dk>
-Message-ID: <Pine.LNX.3.95.1020227092650.12981A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S292529AbSB0O3G>; Wed, 27 Feb 2002 09:29:06 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:27816 "HELO
+	outpost.powerdns.com") by vger.kernel.org with SMTP
+	id <S292482AbSB0O3A>; Wed, 27 Feb 2002 09:29:00 -0500
+Date: Wed, 27 Feb 2002 15:28:56 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: Zhu Ying Jie <zhuyingj@comp.nus.edu.sg>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: How to disable TCP's checksum
+Message-ID: <20020227152856.B18366@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Zhu Ying Jie <zhuyingj@comp.nus.edu.sg>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.21.0202272215080.21508-100000@sf3.comp.nus.edu.sg>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.GSO.4.21.0202272215080.21508-100000@sf3.comp.nus.edu.sg>; from zhuyingj@comp.nus.edu.sg on Wed, Feb 27, 2002 at 02:20:11PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Feb 2002, Jesper Juhl wrote:
-[SNIPPED year 2100 "bug"]
-[SNIPPED year 2100 "bug" --fix!]
+On Wed, Feb 27, 2002 at 02:20:11PM +0000, Zhu Ying Jie wrote:
+> Hi,
+>   I am currently using kernel version 2.4.2 and trying to disable
+> tcp_input's checksum function. However, even I comment all the csum_error
+> in the file tcp_input.c, the packet (with wrong checksum) seems still will
+> be dropped. Can anyone tell me how to do the work? 
 
-> 
-> If the above is indeed correct, wouldn't it then be better to just do 
-> those changes in 2.5.x instead of 2.4.x (and then maybe backport them 
-> later)...
+Perhaps the ip checksum is also incorrect?
 
-I suggest the changes wait until Version 99.99.  Many of the File Systems
-affected won't even exist 98 years from now -and an 'int' will probably
-be 256 bits.
+Regards,
 
+bert
 
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
-
-        111,111,111 * 111,111,111 = 12,345,678,987,654,321
-
+-- 
+http://www.PowerDNS.com          Versatile DNS Software & Services
+http://www.tk                              the dot in .tk
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

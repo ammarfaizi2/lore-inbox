@@ -1,61 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264506AbUAVN74 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jan 2004 08:59:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264538AbUAVN74
+	id S266202AbUAVKsd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jan 2004 05:48:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266209AbUAVKsd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jan 2004 08:59:56 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:23729 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S264506AbUAVN7x (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jan 2004 08:59:53 -0500
+	Thu, 22 Jan 2004 05:48:33 -0500
+Received: from catv-5062a04e.szolcatv.broadband.hu ([80.98.160.78]:61840 "EHLO
+	catv-5062a04e.szolcatv.broadband.hu") by vger.kernel.org with ESMTP
+	id S266202AbUAVKsb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jan 2004 05:48:31 -0500
+Message-ID: <400FAA7D.1010807@freemail.hu>
+Date: Thu, 22 Jan 2004 11:48:29 +0100
+From: Boszormenyi Zoltan <zboszor@freemail.hu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; hu-HU; rv:1.4.1) Gecko/20031114
+X-Accept-Language: hu, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16399.55109.244040.516731@alkaid.it.uu.se>
-Date: Thu, 22 Jan 2004 14:59:33 +0100
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: Karol Kozimor <sziwan@hell.org.pl>
-Cc: "Georg C. F. Greve" <greve@gnu.org>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>,
-       Martin Loschwitz <madkiss@madkiss.org>, linux-kernel@vger.kernel.org,
-       "Brown, Len" <len.brown@intel.com>, acpi-devel@lists.sourceforge.net
-Subject: Re: [ACPI] Re: PROBLEM: ACPI freezes 2.6.1 on boot
-In-Reply-To: <20040122120854.GB3534@hell.org.pl>
-References: <7F740D512C7C1046AB53446D3720017361885C@scsmsx402.sc.intel.com>
-	<m3u12pgfpr.fsf@reason.gnu-hamburg>
-	<m3ptddgckg.fsf@reason.gnu-hamburg>
-	<20040122120854.GB3534@hell.org.pl>
-X-Mailer: VM 7.17 under Emacs 20.7.1
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.6.1-mm4/5 dies booting on an Athlon64
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Karol Kozimor writes:
- > Thus wrote Georg C. F. Greve:
- > > So the problem we've been seeing seems to be related to the
- > > interaction between local APIC support and ACPI.
- > 
- > We've definitely had those problems before (with ASUS L3800C), there's 
- > even a patch fixing this issue (attached below) you might try.
- > I guess that's another of those lost and forgotten bugzilla bugs :)
- > 
- > -- 
- > Karol 'sziwan' Kozimor
- > sziwan@hell.org.pl
- > 
- > 
- > diff -Bru linux-2.6.0-test8/arch/i386/kernel/apic.c patched/arch/i386/kernel/apic.c
- > --- linux-2.6.0-test8/arch/i386/kernel/apic.c	2003-10-18 05:43:36.000000000 +0800
- > +++ patched/arch/i386/kernel/apic.c	2003-10-30 23:17:50.000000000 +0800
- > @@ -836,8 +836,8 @@
- >  {
- >  	unsigned int lvtt1_value, tmp_value;
- >  
- > -	lvtt1_value = SET_APIC_TIMER_BASE(APIC_TIMER_BASE_DIV) |
- > -			APIC_LVT_TIMER_PERIODIC | LOCAL_TIMER_VECTOR;
- > +	lvtt1_value = APIC_LVT_TIMER_PERIODIC | LOCAL_TIMER_VECTOR;
- > +
- >  	apic_write_around(APIC_LVTT, lvtt1_value);
+Hi,
 
-What is the purpose of this change?
-I don't remember seeing this before on LKML. (I don't have time to read bugzilla.)
+> Boszormenyi Zoltan writes:
+>  > Hi,
+>  > 
+>  > mainboard is MSI K8T Neo, Athlon64 3200+.
+>  > It does not boot successfully without the "nolapic"
+>  > option. "noapic" does not make any difference, "nolapic" does.
+>  > Kernel is compiled on a 32bit Fedora,
+>  > K7/Athlon and Hammer/Opteron/Athlon64
+>  > are selected under CPU support.
+> 
+> 1. "does not boot successfully" is extremely vague.
+>    Please supply a boot log or decoded kernel oops.
+
+Uncompressing kernel... and then nothing. Even the screen is emptied,
+cursor blinks in column 0 of line approx. 8, at about 1/3 of the screen.
+
+> 2. Does this also occur with 2.6.1 or 2.6.2-rc1?
+>    If so, what was the last standard 2.6 kernel that worked?
+> 3. Does 2.4.25-pre6 work?
+
+I will try these. FC1 2.4.22-2149 definitely works.
+
+> 4. Try a minimal .config w/o any non-essential features.
+>    (Where non-essential mean anything not needed to boot
+>    and get to a login prompt.)
+
+OK.
+
+-- 
+Best regards,
+Zoltán Böszörményi
+
+---------------------
+What did Hussein say about his knife?
+One in Bush worth two in the hand.
+

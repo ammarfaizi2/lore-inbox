@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282114AbRK1KRc>; Wed, 28 Nov 2001 05:17:32 -0500
+	id <S282105AbRK1KWO>; Wed, 28 Nov 2001 05:22:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282103AbRK1KRX>; Wed, 28 Nov 2001 05:17:23 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:41477 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S282114AbRK1KRF>; Wed, 28 Nov 2001 05:17:05 -0500
-Message-ID: <3C04B750.AC70B357@evision-ventures.com>
-Date: Wed, 28 Nov 2001 11:07:12 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-Reply-To: dalecki@evision.ag
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: sebastian.droege@gmx.de
-CC: linux-kernel@vger.kernel.org
+	id <S282118AbRK1KWF>; Wed, 28 Nov 2001 05:22:05 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:27654 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S282105AbRK1KVw>;
+	Wed, 28 Nov 2001 05:21:52 -0500
+Date: Wed, 28 Nov 2001 11:21:26 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Slo Mo Snail <slomosnail@gmx.net>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
 Subject: Re: 2.5.1-pre2 compile error in ide-scsi.o ide-scsi.c
-In-Reply-To: <20011127204819Z282941-17408+21242@vger.kernel.org>
-Content-Type: text/plain; charset=iso-8859-2
-Content-Transfer-Encoding: 8bit
+Message-ID: <20011128112126.P23858@suse.de>
+In-Reply-To: <20011127204819Z282941-17408+21242@vger.kernel.org> <20011127213632Z282969-17409+18118@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011127213632Z282969-17409+18118@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sebastian Dröge wrote:
-> 
+On Tue, Nov 27 2001, Slo Mo Snail wrote:
 > -----BEGIN PGP SIGNED MESSAGE-----
 > Hash: SHA1
 > 
-> ok
-> I've corrected it myself I think
-> The patch is attached
-> Hopefully it doesn't break something :)
-> It's my first patch so please don't kill me
-> Bye
+> I think the patch doesn't work :(
+> When I try to mount a CD over SCSI emulation I get this nice oops:
 
-You patch is reverted and I don't think it will cut it,
-since I tries this myself and it didn't work out.
+Please try this patch, ide-scsi is over writing the io veclist (longer
+story: the io_vec_list used to be embedded so memset'ing the bio would
+be ok).
 
-BTW>. Anybody out there who managed to make
-SCSI gogin on 2.5.1-pre2... I only have PPA ZIP and
-IDE-SCSI at my home machine, and both fail with a bad
-pointer derefference...
+BTW, this could be handled smarter with the new scheme -- no need to
+link the bio, more segments can be crammed into just one. Someone
+playing around with making ide-scsi faster can do that though, I'm just
+making it work :-)
+
+kernel.org/pub/linux/kernel/people/axboe/patches/v2.5/2.5.1-pre2/bio-pre2-2
+
+-- 
+Jens Axboe
+

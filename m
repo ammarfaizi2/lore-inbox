@@ -1,52 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268698AbUJPLaP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268701AbUJPLck@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268698AbUJPLaP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Oct 2004 07:30:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268700AbUJPLaP
+	id S268701AbUJPLck (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Oct 2004 07:32:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268700AbUJPLcj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Oct 2004 07:30:15 -0400
-Received: from puzzle.sasl.smtp.pobox.com ([207.8.226.4]:11137 "EHLO
-	sasl.smtp.pobox.com") by vger.kernel.org with ESMTP id S268698AbUJPLaK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Oct 2004 07:30:10 -0400
-Date: Sat, 16 Oct 2004 04:30:07 -0700
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.28-pre4
-Message-ID: <20041016113007.GA22527@ip68-4-98-123.oc.oc.cox.net>
-References: <20041008112135.GG16028@logos.cnet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041008112135.GG16028@logos.cnet>
-User-Agent: Mutt/1.5.5.1i
+	Sat, 16 Oct 2004 07:32:39 -0400
+Received: from mail4.bluewin.ch ([195.186.4.74]:32661 "EHLO mail4.bluewin.ch")
+	by vger.kernel.org with ESMTP id S268701AbUJPLcg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Oct 2004 07:32:36 -0400
+Date: Sat, 16 Oct 2004 12:32:35 +0100
+Message-ID: <412EB75E00164E05@mssazhh-int.msg.bluewin.ch>
+From: christophpfister@bluemail.ch
+Subject: failure in /mm/memory.c
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Bluewin WebMail / BlueMail
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 08, 2004 at 08:21:35AM -0300, Marcelo Tosatti wrote:
-> From now on can now change only what is necessary and let 
-> the 2.4 tree in peace :)
+hello
 
-Is it still possible to add this patch to 2.4 (i.e. 2.4.28 or 2.4.29),
-or is it too late/too invasive?
+i found a failure in function remap_pte_range in memory.c
 
-[PATCH] fix ELF exec with huge bss
-http://linux.bkbits.net:8080/linux-2.5/cset@3ff112802L-9-rs0BbkozDnTnpch9w
+static inline void remap_pte_range(...)
+{
+unsigned long end;
+unsigned long pfn;
+address &= ~PMD_MASK;
+end = address + size;
+if (end > PMD_SIZE)
+    end = PMD_SIZE;
+pfn = phys_addr >> PAGE_SHIFT;
+do {
+    BUG_ON(!pte_none(*pte));
+    if (!pfn_valid(pfn) || PageReserved(pfn_to_page(pfn))) *****
+      set_pte(pte, pfn_pte(pfn, prot));
+    address += PAGE_SIZE;
+    pfn++;
+    pte++;
+    } while (address && (address < end));
+}
 
-AFAIK, this patch has been in 2.6 for several months and has been in Red
-Hat Enterprise Linux 3 kernels for a long while too. The reason I'd like
-to see it in a future 2.4 kernel is that it fixes some crashes that some
-of my users are seeing (e.g. with a Fortran 77 program that has a BSS
-larger than 2GB).
+by ****
 
+the condition is wrong, because it just maps the page, if it's invalid or
+reserved
 
-BTW, if the above patch is added to 2.4, maybe this patch is also needed
-to handle a corner case (like the previous patch, it's been in 2.6 for
-several months and RHEL 3 for a long time):
+correct: if (!(pfn_valid(pfn) || PageReserved(pfn_to_page(pfn))))
 
-[PATCH] binfmt_elf.c fix for 32-bit apps with large bss
-http://linux.bkbits.net:8080/linux-2.5/cset@407afc8e4kEZSl4pklf3Ptrl2ZzkeA
+(it doesn't seems to be used, otherwise there must be bugs)
 
--Barry K. Nathan <barryn@pobox.com>
+Yours sincerely,
+
+Christoph Pfister
 

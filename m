@@ -1,45 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264711AbSKIMVK>; Sat, 9 Nov 2002 07:21:10 -0500
+	id <S264715AbSKIMiH>; Sat, 9 Nov 2002 07:38:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264712AbSKIMVK>; Sat, 9 Nov 2002 07:21:10 -0500
-Received: from mhw.ulib.iupui.edu ([134.68.164.123]:39136 "EHLO
-	mhw.ulib.iupui.edu") by vger.kernel.org with ESMTP
-	id <S264711AbSKIMVK>; Sat, 9 Nov 2002 07:21:10 -0500
-Date: Sat, 9 Nov 2002 07:24:35 -0500 (EST)
-From: "Mark H. Wood" <mwood@IUPUI.Edu>
-X-X-Sender: <mwood@mhw.ULib.IUPUI.Edu>
-To: Bill Davidsen <davidsen@tmr.com>
-cc: Rusty Russell <rusty@rustcorp.com.au>,
-       Werner Almesberger <wa@almesberger.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Module loader against 2.5.46: 8/9 
-In-Reply-To: <Pine.LNX.3.96.1021108161011.4445C-100000@gatekeeper.tmr.com>
-Message-ID: <Pine.LNX.4.33.0211090711180.3927-100000@mhw.ULib.IUPUI.Edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264718AbSKIMiH>; Sat, 9 Nov 2002 07:38:07 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:49310 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S264715AbSKIMiG>; Sat, 9 Nov 2002 07:38:06 -0500
+Subject: Re: No such file or directory when compiling 2.5.46: sd.h
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Mario Pereyra <beto@telematica.com.uy>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1036813787.667.74.camel@dbeto.gmc.com.uy>
+References: <1036813787.667.74.camel@dbeto.gmc.com.uy>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 09 Nov 2002 13:07:37 +0000
+Message-Id: <1036847257.20393.4.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Nov 2002, Bill Davidsen wrote:
-> On Thu, 7 Nov 2002, Rusty Russell wrote:
-> > In message <Pine.LNX.3.96.1021106113408.24531B-100000@gatekeeper.tmr.com> you w
-> > rite:
-[snip]
-> > > Eschew obfuscation.
-> >
-> > Sorry, I don't understand?
-> eschew = roughly "avoid" or "stay away from"
-Or "choose not to use".  One does not say, "eschew that bear."
-> obfuscation = the process of making something obscure
+On Sat, 2002-11-09 at 03:49, Mario Pereyra wrote:
+> I get the following error when compiling 2.5.46
+> 
+> Where is that file?
 
-And the whole thing ("eschew obfuscation") is a stock expression in
-English, meaning "don't use unfamiliar words when familiar words will
-express what you mean."  There's an implied self-reference:  "eschew
-obfuscation" is a very obscure way of saying "keep it simple".  It's
-mildly funny.
-
--- 
-Mark H. Wood, amateur linguist   mwood@IUPUI.Edu
-MS Windows *is* user-friendly, but only for certain values of "user".
+Its no longer needed. Once 2.5.47 is out I'll put out a -ac (.46 hasnt
+passed my test sets)
 

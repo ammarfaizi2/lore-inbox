@@ -1,47 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277275AbRJDXvm>; Thu, 4 Oct 2001 19:51:42 -0400
+	id <S277271AbRJDXwC>; Thu, 4 Oct 2001 19:52:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277271AbRJDXvc>; Thu, 4 Oct 2001 19:51:32 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:26377 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S277270AbRJDXvM>;
-	Thu, 4 Oct 2001 19:51:12 -0400
-Date: Thu, 4 Oct 2001 20:51:21 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
-Cc: <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [DATAPOINT] how max_readahead settings affect streaming throughput
-In-Reply-To: <200110042306.f94N69W22095@mailb.telia.com>
-Message-ID: <Pine.LNX.4.33L.0110042049450.4835-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S277270AbRJDXvy>; Thu, 4 Oct 2001 19:51:54 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:50951 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S277273AbRJDXvn>; Thu, 4 Oct 2001 19:51:43 -0400
+Date: Thu, 4 Oct 2001 16:51:12 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Robert Love <rml@tech9.net>
+cc: Benjamin LaHaise <bcrl@redhat.com>,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>, <mingo@elte.hu>,
+        jamal <hadi@cyberus.ca>, <linux-kernel@vger.kernel.org>,
+        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+        Robert Olsson <Robert.Olsson@data.slu.se>, <netdev@oss.sgi.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Simon Kirby <sim@netnation.com>
+Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
+In-Reply-To: <1002239236.872.8.camel@phantasy>
+Message-ID: <Pine.LNX.4.33.0110041650410.975-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 5 Oct 2001, Roger Larsson wrote:
 
-> I question the decision to use 124 kB as default read ahead maximum.
+On 4 Oct 2001, Robert Love wrote:
+>
+> Agreed.  I am actually amazed that the opposite of what is happening
+> does not happen -- that more people aren't clamoring for this solution.
 
-> The example cited was a FTP server serving 100 clients. With standard
-> readahead it would give 12.8 MB readahead
+Ehh.. I think that most people who are against Ingo's patches are so
+mainly because there _is_ an alternative that looks nicer.
 
-	[snip]
-
-Ideally the readahead code would scale itself to use as much
-memory is available, but no more and without putting pressure
-on the working set too much.
-
-I have some ideas on how to implement this and will start
-testing them as soon as I have a nice test program for this.
-
-regards,
-
-Rik
--- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/  (volunteers needed)
-
-http://www.surriel.com/		http://distro.conectiva.com/
+		Linus
 

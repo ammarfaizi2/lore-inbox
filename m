@@ -1,89 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280537AbRKSSWq>; Mon, 19 Nov 2001 13:22:46 -0500
+	id <S276424AbRKSSYT>; Mon, 19 Nov 2001 13:24:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276424AbRKSSW0>; Mon, 19 Nov 2001 13:22:26 -0500
-Received: from mons.uio.no ([129.240.130.14]:8165 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S275990AbRKSSWR>;
-	Mon, 19 Nov 2001 13:22:17 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15353.19920.461805.879956@charged.uio.no>
-Date: Mon, 19 Nov 2001 19:22:08 +0100
-To: Birger Lammering <b.lammering@science-computing.de>
-Cc: linux-kernel@vger.kernel.org, kuznet@ms2.inr.ac.ru
-Subject: more tcpdumpinfo for nfs3 problem: aix-server --- linux 2.4.15pre5 client
-In-Reply-To: <15353.13652.591045.916300@stderr.science-computing.de>
-In-Reply-To: <15352.56551.709659.146271@stderr.science-computing.de>
-	<E165mPr-0006F5-00@the-village.bc.nu>
-	<15353.13652.591045.916300@stderr.science-computing.de>
-X-Mailer: VM 6.92 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
+	id <S276751AbRKSSYF>; Mon, 19 Nov 2001 13:24:05 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:41117 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S276424AbRKSSXj>; Mon, 19 Nov 2001 13:23:39 -0500
+Date: Mon, 19 Nov 2001 11:23:23 -0700
+Message-Id: <200111191823.fAJINNb30280@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Andi Kleen <ak@suse.de>
+Cc: Mike Kravetz <kravetz@us.ibm.com>,
+        Davide Libenzi <davidel@xmailserver.org>,
+        lse-tech@lists.sourceforge.net, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [Lse-tech] Re: Real Time Runqueue
+In-Reply-To: <20011119173022.A19740@wotan.suse.de>
+In-Reply-To: <20011116154701.G1152@w-mikek2.des.beaverton.ibm.com>
+	<Pine.LNX.4.40.0111161620050.998-100000@blue1.dev.mcafeelabs.com>
+	<20011116163224.H1152@w-mikek2.des.beaverton.ibm.com>
+	<20011119173022.A19740@wotan.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Birger Lammering <b.lammering@science-computing.de> writes:
+Andi Kleen writes:
+> On Fri, Nov 16, 2001 at 04:32:24PM -0800, Mike Kravetz wrote:
+> > The reason I ask is that we went through the pains of a separate
+> > realtime RQ in our MQ scheduler.  And yes, it does hurt the common
+> > case, not to mention the extra/complex code paths.  I was hoping
+> > that someone in the know could enlighten us as to how RT semantics
+> > apply to SMP systems.  If the semantics I suggest above are required,
+> > then it implies support must be added to any possible future
+> > scheduler implementations.
+> 
+> It seems a lot of applications/APIs do not care about global RT
+> semantics, but about RT semantics for groups of threads or processes
+> (e.g. java or ada applications). Linux currently simulates this only
+> for root and with a global runqueue. I don't think it makes too much
+> sense to have an global rt queue on a multi processor system, but
+> there should be some way to define "scheduling groups" where rt
+> semantics are followed inside.  Such a scheduling group could be a
+> clone flag or default to CLONE_VM for example for compatibility.  A
+> scheduling group would also make it possible to support simple rt
+> semantics for thread groups as non root.  Then one could run a rt
+> queue per scheduling group, and simulate global rt run queue or per
+> cpu rt run queue as needed by appropiate setup.
 
-     > 3133:3289(156) ack 514936 win 60032 16:27:26.282843 >
-     > capc25.muc.799 > caes04.muc.nfs: . 514936:514936(0) ack 3289
-     > win 8576 (DF)
+We have to continue providing global RT semantics. However, a
+non-privileged scheduling class which gives RT-like behaviour within a
+scheduling group would be *great*! I've wished for such a facility
+myself.
 
-     > from now on we get lot's of these:
+				Regards,
 
-     > 16:27:26.489024 > capc25.muc.576126976 > caes04.muc.nfs: 40
-     > null (DF) 16:27:26.489647 < caes04.muc.nfs >
-     > capc25.muc.576126976: reply ok 24 null
-
-     > The cp command on the Linux nfs3-client side hangs and cannot
-     > be killed. We get:
-
-     > dmesg: nfs: server caes04 not responding, still trying
-
-     > then after a while: dmesg: nfs: server caes04 OK
-
-     > qx09820@capc25 /home/qx09820 > netstat | grep caes04 tcp 0 0
-     > capc25.muc:798 caes04.muc:nfs ESTABLISHED
-
-Ho hum... It looks to me as if the problem is that the Linux NFS
-client is falling asleep before a write, and then not waking
-up. That sort of points at the write_space() callback.
-
-When the socket buffer is full, and we get an EAGAIN response to our
-sendmsg() request, we normally put the request to sleep, block the
-socket, and rely on write_space() to wake us up when there is enough
-memory to proceed.
-
-Assuming that this is the case, there are 2 possible causes:
-
-   1) A bug in the IPV4 TCP layer in which we don't call write_space()
-      despite having liberated enough memory to proceed.
-
-   2) I've misunderstood the IPV4 tcp api, and so the check for
-      sock_writeable() in net/sunrpc/xprt.c:tcp_write_space() is
-      incorrect.
-
-Alexey: Do you have any comments? Is it correct to check for
-sock_writeable() on a TCP socket?
-
-
-Birger: could you try the following patch, that simply removes the
-check for sock_writeable()?
-
-Cheers,
-  Trond
-
---- linux-2.4.15-pre6/net/sunrpc/xprt.c.orig	Mon Oct  8 21:36:07 2001
-+++ linux-2.4.15-pre6/net/sunrpc/xprt.c	Mon Nov 19 19:07:09 2001
-@@ -1071,10 +1071,6 @@
- 	if (xprt->shutdown)
- 		return;
- 
--	/* Wait until we have enough socket memory */
--	if (!sock_writeable(sk))
--		return;
--
- 	if (!xprt_test_and_set_wspace(xprt)) {
- 		spin_lock(&xprt->sock_lock);
- 		if (xprt->snd_task && xprt->snd_task->tk_rpcwait == &xprt->sending)
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

@@ -1,55 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267258AbUH1Pgh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267250AbUH1Pgb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267258AbUH1Pgh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 11:36:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267237AbUH1Pgh
+	id S267250AbUH1Pgb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 11:36:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267259AbUH1Pgb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 11:36:37 -0400
-Received: from smtp-vbr9.xs4all.nl ([194.109.24.29]:53265 "EHLO
-	smtp-vbr9.xs4all.nl") by vger.kernel.org with ESMTP id S267258AbUH1Pdg
+	Sat, 28 Aug 2004 11:36:31 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:48276 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S267250AbUH1PdS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 11:33:36 -0400
-Date: Sat, 28 Aug 2004 17:33:10 +0200
-From: Jurriaan <thunder7@xs4all.nl>
-To: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: 2.6.9-rc1 & 2.6.9-rc1-mm1: can't shutdown / unregister_netdevice complains about my ipv6-in-ipv4 tunnel
-Message-ID: <20040828153310.GA25626@middle.of.nowhere>
-Reply-To: Jurriaan <thunder7@xs4all.nl>
+	Sat, 28 Aug 2004 11:33:18 -0400
+Subject: Re: PWC issue
+From: Kasper Sandberg <lkml@metanurb.dk>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Greg KH <greg@kroah.com>, adam@yggdrasil.com, steve@steve-parker.org,
+       LKML Mailinglist <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040828081100.6b6c9f8c.rddunlap@osdl.org>
+References: <200408281750.i7SHo5C05936@freya.yggdrasil.com>
+	 <20040828051919.GC10151@kroah.com>
+	 <20040828081100.6b6c9f8c.rddunlap@osdl.org>
+Content-Type: text/plain
+Date: Sat, 28 Aug 2004 17:33:16 +0200
+Message-Id: <1093707197.12690.5.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Message-Flag: Still using Outlook? As you can see, it has some errors.
-User-Agent: Mutt/1.5.6+20040818i
+X-Mailer: Evolution 1.5.93 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When trying to shutdown my system with both 2.6.9-rc1 and 2.6.9-rc1-mm1,
-I see:
+On Sat, 2004-08-28 at 08:11 -0700, Randy.Dunlap wrote:
+> On Fri, 27 Aug 2004 22:19:19 -0700 Greg KH wrote:
+> 
+> | On Sat, Aug 28, 2004 at 10:50:05AM -0700, Adam J. Richter wrote:
+> | > 
+> | > 	By the way, I have a long running dispute with Greg K-H
+> | > about his refusal so far to remove replace the GPL incompatible
+> | > firmware in certain USB serial drivers with such a user level
+> | > loading mechanism.  Go figure.
+> | 
+> | Send me a patch to do so, and I will apply it (must include userspace
+> | files so that hotplug can load them properly.)
+> | 
+> | The last time we went around about this I rejected it as we were in a
+> | stable kernel series.  As that is now not true, I'm open to the patch.
+> 
+> Which part is now not true?
+i believe what he means is, that the new development model permits doing
+such stuff even now where 2.6 is a stable release
+> 
+> | It's not an idealogical issue for me, given Linus's statements about
+> | firmware in the kernel, but I do agree that it is a better thing as we
+> | have used up less kernel memory.
+> 
+> 
+> --
+> ~Randy
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-unregister_netdevice: waiting for xs6all to become free
-
-etc. when trying to reboot or shutdown.
-
-I didn't see this in 2.6.8.1 nor in 2.6.8.1-mm1.
-
-This is a plain ipv6-over-ipv4 tunnel like this:
-
-/etc/network/interfaces:
-auto xs6all
-iface xs6all inet6 v4tunnel
-        endpoint xxx.xxx.xxx.xxx
-        up ip route add 2000::0/3 via xxx:xxx:xxx:xxx:xxx:xxx
-        address xxx:xxx:xxx:xxx:xxx:xxx
-        netmask 64
-        up ip tunnel change xs6all ttl 64
-
-I'm running Debian Unstable with all the latest updates as of today.
-
-Thanks for any hints,
-Jurriaan
--- 
-If an elderly but distinguished scientist says that something is possible
-he is almost certainly right, but if he says that it is impossible he is
-very probably wrong.
-	Arthur C Clarke
-Debian (Unstable) GNU/Linux 2.6.7-mm5 2x6078 bogomips load 0.15

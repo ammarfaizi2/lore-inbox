@@ -1,49 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262013AbUBWTqU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 14:46:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262015AbUBWTqU
+	id S262014AbUBWTr5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 14:47:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262015AbUBWTr5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 14:46:20 -0500
-Received: from inova102.correio.tnext.com.br ([200.222.67.102]:18608 "HELO
-	trinity-auth.correio.tnext.com.br") by vger.kernel.org with SMTP
-	id S262013AbUBWTqT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 14:46:19 -0500
-X-qfilter-stat: ok
-X-Analyze: Velop Mail Shield v0.0.4
-Date: Mon, 23 Feb 2004 16:46:16 -0300 (BRT)
-From: =?ISO-8859-1?Q?Fr=E9d=E9ric_L=2E_W=2E_Meunier?= <1@pervalidus.net>
-To: Nick Warne <nick@ukfsn.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: (Fwd) Re: 2.6.3 RT8139too NIC problems [resolved]
-In-Reply-To: <403A4B8B.14358.FE1FB73@localhost>
-Message-ID: <Pine.LNX.4.58.0402231640400.30744@pervalidus.dyndns.org>
-References: <403A4B8B.14358.FE1FB73@localhost>
-X-Archive: encrypt
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 23 Feb 2004 14:47:57 -0500
+Received: from fed1mtao01.cox.net ([68.6.19.244]:30188 "EHLO
+	fed1mtao01.cox.net") by vger.kernel.org with ESMTP id S262014AbUBWTrw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Feb 2004 14:47:52 -0500
+Date: Mon, 23 Feb 2004 12:50:39 -0700
+From: Jesse Allen <the3dfxdude@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6, 2.4, Nforce2, Experimental idle halt workaround instead of apic ack delay.
+Message-ID: <20040223195039.GB755@tesore.local>
+Mail-Followup-To: Jesse Allen <the3dfxdude@hotmail.com>,
+	linux-kernel@vger.kernel.org
+References: <200402120122.06362.ross@datscreative.com.au> <402CB24E.3070105@gmx.de> <200402140041.17584.ross@datscreative.com.au> <200402141124.50880.ross@datscreative.com.au> <40395872.2030007@gmx.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40395872.2030007@gmx.de>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 23 Feb 2004, Nick Warne wrote:
+On Mon, Feb 23, 2004 at 02:33:38AM +0100, Prakash K. Cheemplavam wrote:
+> >>Here are some temperatures from my machine read from the bios on reboot.
+> >>I gave it minimal activity for the minutes prior to reboot.
+> >>
+> >>Win98, 47C
+> >>XPHome, 42C
+> >>Patched Linux 2.4.24 (1000Hz), 40C
+> >>Patched Linux 2.6.3-rc1-mm1, 53C  OUCH!
+> >
+> >Found the problem for 2.6
+> >
+> >After fixing it the 2.6 temperature is
+> >Patched Linux 2.6.3-rc1-mm1, 38C
+> >Ambient today is 1C cooler also.
+> 
+> Well, I hate to say it, but it seems, it doesn't work, or at least not 
+> so well, (running hot, but stability seems to be there) with 2.6.3-mm2. 
+> Like I had 52?C mostly idle with your patch and APIC just a few moments 
+> ago. Now back to PIC within a few minutes I am back to 45?C...7?C is too 
+> much of a difference for me.
+> 
 
-> "This is usually irq routing related...  Try booting with 'noapic' or
-> similar. Jeff"
->
-> OK, this was the solution.  I am right bloody idiot.  Good call Jeff.
->
-> Sorry to bother you guys when nothing is wrong, and I apologise for
-> me being a dipstick twice over :/
+While on the subject of tempertures,  I found something a bit weird.  In linux 
+with C1 disconnects enabled, the system temperature was 36 C.  I rebooted to 
+BIOS setup and watched the temperatures there.  For some weird reason, the 
+system temperature rose from 36 C, to about 41 C.  And I also watched the CPU 
+temp rise from about 41 C to about 51 C !  I boot back into linux, and I watched
+the system temperature _drop_ to 36 C again.  What is C1 disconnects disabled 
+during POST now on my BIOS?  I have done this before when I first got it and 
+never noticed something like this.
 
-Sure something is. APIC is broken for you, right ? As it's for
-me - see
-http://marc.theaimsgroup.com/?l=linux-kernel&m=107721911802649&w=2
 
-Yes, it'd be nice to get it working without ACPI, but it's an
-improvement that ACPI now works (also in 2.4.25).
+Jesse
 
-But you wrote "This happens about once every 3 hours.", so it
-doesn't seem to be completely broken as it's for me.
-
--- 
-http://www.pervalidus.net/contact.html

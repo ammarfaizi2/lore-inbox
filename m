@@ -1,79 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262138AbVC2BZL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262115AbVC2B2d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262138AbVC2BZL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Mar 2005 20:25:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262139AbVC2BZC
+	id S262115AbVC2B2d (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Mar 2005 20:28:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262139AbVC2B2d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Mar 2005 20:25:02 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:39057 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262138AbVC2BYs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Mar 2005 20:24:48 -0500
-Date: Mon, 28 Mar 2005 17:24:41 -0800
-Message-Id: <200503290124.j2T1OfFA021493@magilla.sf.frob.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 28 Mar 2005 20:28:33 -0500
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:1268 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S262115AbVC2B2G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Mar 2005 20:28:06 -0500
+Subject: Re: Can't use SYSFS for "Proprietry" driver modules !!!.
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: floam@sh.nu, LKML <linux-kernel@vger.kernel.org>, arjan@infradead.org,
+       Paul Jackson <pj@engr.sgi.com>, gilbertd@treblig.org,
+       vonbrand@inf.utfsm.cl, bunk@stusta.de
+In-Reply-To: <c4ce304162b3d2a3ad78dc9e0bc455f5@mac.com>
+References: <200503280154.j2S1s9e6009981@laptop11.inf.utfsm.cl>
+	 <1112011441.27381.31.camel@localhost.localdomain>
+	 <1112016850.6003.13.camel@laptopd505.fenrus.org>
+	 <1112018265.27381.63.camel@localhost.localdomain>
+	 <20050328154338.753f27e3.pj@engr.sgi.com>
+	 <1112055671.3691.8.camel@localhost.localdomain>
+	 <c4ce304162b3d2a3ad78dc9e0bc455f5@mac.com>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Mon, 28 Mar 2005 20:27:21 -0500
+Message-Id: <1112059642.3691.15.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-X-Fcc: ~/Mail/linus
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch] posix-cpu-timers and cputime_t divisons.
-In-Reply-To: Martin Schwidefsky's message of  Thursday, 17 March 2005 15:59:56 +0100 <20050317145956.GI4807@mschwid3.boeblingen.de.ibm.com>
-X-Antipastobozoticataclysm: Bariumenemanilow
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry I was not able to get back to you on this sooner.
+On Mon, 2005-03-28 at 19:56 -0500, Kyle Moffett wrote:
+> On Mar 28, 2005, at 19:21, Steven Rostedt wrote:
+> > So you are saying that a stand alone section of code, that needs
+> > wrappers to work with Linux is a derived work of Linux? If there's
+> > some functionality, that you make, and it just happens to need
+> > some kind of operating system to work. Does that make it a derived
+> > work of any operating system?
+> 
+> It depends on how special and different the wrappers for Linux are
+> from the wrappers for other operating systems.  Like, for example,
+> the sysfs stuff is so radically different from the APIs that other
+> operating systems provide that anything using it is most likely
+> copied from other in-kernel sysfs code, and is therefore derived
+> from the Linux kernel.
+> 
 
-The various cputime-related fixes here are all fine and should go in.  As
-you can see, I merged my code with the cputime stuff late in the game and
-quickly (and apparently somewhat carelessly).  (I knew that you were going
-to have to add cputime_div, but I left it to you since cputime is your baby.)
+If your stand alone code has it's own API and your GPL wrapper handles
+the sysfs interface, then this might get around it.
 
-You are right about the incorrect use of do_div because the divisor is 64
-bits, thanks for noticing that.  But I'd like to see this fixed in a way that
-doesn't penalize the 64-bit platforms where using normal 64-bit division is
-perfectly fine to do.  Probably BITS_PER_LONG==BITS_PER_LONG_LONG is a
-reasonable test for that.
+> > OK, I took your advise and found this from googling:
+> >
+> > http://www.pbwt.com/Attorney/files/ravicher_1.pdf
+> 
+> Mmm, good reference, thanks!
+> 
 
-This patch as it is seems like a fine enough starting point, and fixes
-existing problems on 32-bit platforms.  A fix to restore 64-bit platforms
-to the simple solution could come after.
+You're welcome!
 
-> What still worries me a bit is to use "timer->it.cpu.incr.sched == 0"
-> as check if the timer is armed at all. It should work but its not
-> really clean.
+> > Unless you misunderstood me, and thought that I was talking
+> > about taking some part of Linux and making it work under another
+> > OS, I still stand by my statement.
+> 
+> I think it really depends on the APIs implemented.  Anything based
+> on the sysfs code, even if only using the APIs, will probably be
+> found to be a derivative work (NOTE: IANAL) because the sysfs API
+> is so very different from everything else.  Other interfaces like
+> PCI management, memory management, etc, may not be so protectable,
+> because they are standard across many systems.  If Linux got a
+> new and unique memory hotplug API, however, that might be a very
+> different story.  Similar things could be said about integration
+> between drivers and the new Unified Driver Model, which appears to
+> be quite original.
+> 
 
-It is not used that way.  The only case of the expression you quoted is the
-one in bump_cpu_timer, which is checking whether the timer is set to reload
-or not.  All-zeros is what the user interface is for indicating this (in
-timer_settime and setitimer).  (bump_cpu_timer short-circuits the no-reload
-case to avoid trying divison by zero in the reload code path.)
+Yes, but as the article states, ideas are not protected under copyright
+law. So an unique idea to handle hotplug then it may still not be
+covered.  This is all very ambiguous, and is too confusing. I'll leave
+it up to the lawers!
 
-Perhaps you meant the "expires.sched" field?  It is true that an expiry
-time of zero is used to mean a disabled timer.  That is consistent with
-what's been done with jiffies timers in the past.  It is clean enough in
-that 0 is never going to be the real expiry time of the timer, and moreover
-the user interface is the same (a timespec of zeros to disarm a timer).
+-- Steve
 
-Or perhaps you are referring to using the ".sched == 0" tests for the
-disabled-zero value (for expiry and reload, in various places in the code),
-regardless of the flavor of value in the union actually in use?  That is
-indeed not so clean.  It seemed reasonable enough when the union members
-were unsigned long and unsigned long long.  Now with cputime_t, it is
-theoretically opaque and you could be storing the value with a bias of -427
-for all I know.  (But, there may be other places we have around that assume
-that zeroed data structures including cputime_t's match cputime_zero.)
-These could at least be made a macro or inline to consolidate the slightly
-magic assumptions in a single spot.  I wouldn't object to changing it to do
-something more fully kosher where we now have .sched = 0 assignments to
-clear any flavor or .sched == 0 tests to check any flavor for
-disarmed/no-reload, but only if it doesn't make the code gcc produces less
-optimal than we get now.  Unfortunately gcc on x86 produces more code for
-".sched == 0 && .cpu == 0" than the optimal code it yields for ".sched == 0"
-alone, though the two are functionally identical given the data layout.
-
-
-Thanks,
-Roland

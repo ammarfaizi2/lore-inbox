@@ -1,51 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261405AbUGXQZ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261610AbUGXQoe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261405AbUGXQZ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jul 2004 12:25:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261610AbUGXQZ0
+	id S261610AbUGXQoe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jul 2004 12:44:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261638AbUGXQoe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jul 2004 12:25:26 -0400
-Received: from 30.Red-80-36-33.pooles.rima-tde.net ([80.36.33.30]:60882 "EHLO
-	linalco.com") by vger.kernel.org with ESMTP id S261405AbUGXQZY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jul 2004 12:25:24 -0400
-Date: Sat, 24 Jul 2004 18:21:11 +0200
-From: Ragnar Hojland Espinosa <ragnar.hojland@linalco.com>
-To: szonyi calin <caszonyi@yahoo.com>
-Cc: Paul Jackson <pj@sgi.com>, Adrian Bunk <bunk@fs.tum.de>, akpm@osdl.org,
-       corbet@lwn.net, linux-kernel@vger.kernel.org
-Subject: Re: New dev model (was [PATCH] delete devfs)
-Message-ID: <20040724162111.GA22206@linalco.com>
-References: <20040722152839.019a0ca0.pj@sgi.com> <20040723081637.93875.qmail@web52903.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040723081637.93875.qmail@web52903.mail.yahoo.com>
-X-Edited-With-Muttmode: muttmail.sl - 2001-09-27
-User-Agent: Mutt/1.5.6i
+	Sat, 24 Jul 2004 12:44:34 -0400
+Received: from odin.allegientsystems.com ([208.251.178.227]:47879 "EHLO
+	pegasus.lawaudit.com") by vger.kernel.org with ESMTP
+	id S261610AbUGXQoc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jul 2004 12:44:32 -0400
+Message-ID: <41029215.1030406@optonline.net>
+Date: Sat, 24 Jul 2004 12:45:09 -0400
+From: Nathan Bryant <nbryant@optonline.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031114
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+CC: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Pavel Machek <pavel@ucw.cz>
+Subject: Re: device_suspend() levels [was Re: [patch] ACPI work on aic7xxx]
+References: <40FD38A0.3000603@optonline.net> <20040720155928.GC10921@atrey.karlin.mff.cuni.cz> <40FD4CFA.6070603@optonline.net> <20040720174611.GI10921@atrey.karlin.mff.cuni.cz> <40FD6002.4070206@optonline.net> <1090347939.1993.7.camel@gaston> <40FD65C2.7060408@optonline.net> <1090350609.2003.9.camel@gaston> <40FD82B1.8030704@optonline.net> <1090356079.1993.12.camel@gaston> <40FD85A3.2060502@optonline.net> <1090357324.1993.15.camel@gaston> <410280E9.5040001@optonline.net> <1090684826.1963.6.camel@gaston>
+In-Reply-To: <1090684826.1963.6.camel@gaston>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 23, 2004 at 10:16:37AM +0200, szonyi calin wrote:
-> Are you sure ? There are a number of distribution who use the
->  stable kernel from kernel.org and some of them are much faster
-> (if you remember, compiling a kernel to suit your needs
->  sometimes improve performance). 
-> One size _does not_ fit all.
+Benjamin Herrenschmidt wrote:
+> sysfs only takes care about the bus hierarchy as far as suspend/resume
+> is concerned (which is the only sane way to do it imho)
 
-Right.  Aaaand if I remember correctly you may download the source
-for, say, a RHEL kernel for gratis from Redhat (or a whitebox distro)
-and make menuconfig it and compile it the same way you do vanilla
-kernels.
+I saw comments in one of the PCI IDE driver pcidev->suspend routines 
+that say "we don't need to iterate over the list of drives, sysfs does 
+that for us."
 
-In fact, a single tree is far better for stable development in general.
-Vanilla things that break get spotted sooner, we avoid 2.x.0 the
-syndrome, and distro kernels in general may get more eyes from clueful
-people that otherwise would ignore them and leave the problems to
-less resourceful users.
+> No, the ordering cannot be dictated by the upper layer, but by the
+> physical bus hierarchy. The low level driver gets the suspend callback
+> and need to notify the parent. The md/multipath must keep track that one
+> of the device it relies on is going away and thus block the queues.
+> 
+> That is at least for machine suspend/resume.
 
-"Dont Panic" :)
--- 
-Ragnar Hojland - Project Manager
-Linalco "Specialists in Linux and Free Software"
-http://www.linalco.com  Tel: +34-91-4561700
+We're talking past each other. I'm saying you take into consideration 
+the physical bus hierarchy: PCI bus x is a parent of SCSI bus y which is 
+a parent of SCSI disk drive z. Suspend disk z, with involvement from the 
+block layer and scsi midlayer, before even calling the actual 
+pcidev->suspend routine on the SCSI bus adapter. Shouldn't require more 
+than minimal LLD involvement.
+
+>>Looking in /sys/devices shows that sysfs already knows that 'host0' is a 
+>>child of a SCSI PCI device.
+> 
+> 
+> Yes, but the PM herarchy is the bus hierarchy, I don't see a simple way
+> of going through both in this case ...
+
+In the case of IDE, IDE is registered as a bus_type and has generic 
+suspend code for the whole bus that is unrelated to the pcidev. The PIIX 
+IDE (Intel chipsets) PCI pcidev struct doesn't even have suspend and 
+resume callbacks filled in, but it works fine!
+

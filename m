@@ -1,52 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130654AbRBGAlW>; Tue, 6 Feb 2001 19:41:22 -0500
+	id <S130738AbRBGAnw>; Tue, 6 Feb 2001 19:43:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130671AbRBGAlC>; Tue, 6 Feb 2001 19:41:02 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:63201 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S130654AbRBGAlA>;
-	Tue, 6 Feb 2001 19:41:00 -0500
-Date: Wed, 7 Feb 2001 00:36:29 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Ingo Molnar <mingo@redhat.com>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>, Ingo Molnar <mingo@elte.hu>,
-        Ben LaHaise <bcrl@redhat.com>, Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Manfred Spraul <manfred@colorfullife.com>, Steve Lord <lord@sgi.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        kiobuf-io-devel@lists.sourceforge.net
-Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
-Message-ID: <20010207003629.M1167@redhat.com>
-In-Reply-To: <20010207002107.L1167@redhat.com> <Pine.LNX.4.32.0102061924300.24366-100000@devserv.devel.redhat.com>
-Mime-Version: 1.0
+	id <S130638AbRBGAnm>; Tue, 6 Feb 2001 19:43:42 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:39433
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S130738AbRBGAnZ>; Tue, 6 Feb 2001 19:43:25 -0500
+Date: Tue, 6 Feb 2001 16:42:32 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+cc: David Woodhouse <dwmw2@infradead.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Anders Eriksson <aer-list@mailandnews.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: sync & asyck i/o
+In-Reply-To: <20010206232119.K1167@redhat.com>
+Message-ID: <Pine.LNX.4.10.10102061630490.2656-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.LNX.4.32.0102061924300.24366-100000@devserv.devel.redhat.com>; from mingo@redhat.com on Tue, Feb 06, 2001 at 07:25:19PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 6 Feb 2001, Stephen C. Tweedie wrote:
 
-On Tue, Feb 06, 2001 at 07:25:19PM -0500, Ingo Molnar wrote:
-> 
-> On Wed, 7 Feb 2001, Stephen C. Tweedie wrote:
-> 
-> > No, it is a problem of the ll_rw_block interface: buffer_heads need to
-> > be aligned on disk at a multiple of their buffer size.  Under the Unix
-> > raw IO interface it is perfectly legal to begin a 128kB IO at offset
-> > 512 bytes into a device.
-> 
-> then we should either fix this limitation, or the raw IO code should split
-> the request up into several, variable-size bhs, so that the range is
-> filled out optimally with aligned bhs.
+> The ll_rw_block interface is perfectly clear: it expects the data to
+> be written to persistent storage once the buffer_head end_io is
+> called.  If that's not the case, somebody needs to fix the lower
+> layers.
 
-That gets us from 512-byte blocks to 4k, but no more (ll_rw_block
-enforces a single blocksize on all requests but that relaxing that
-requirement is no big deal).  Buffer_heads can't deal with data which
-spans more than a page right now.
+Sure in 2.5 when I have a cleaner method of setting up hooks to allow
+testing and changing of the mode but you can not assume that this stuff is
+off by default and will stay that way.
 
---Stephen
+At this time I am working to clean up an IBM mess of drives that do random
+dumping of the drive cache to the platters when power is pulled.  This is
+a nice dirty errata that I have heard about but have never seen, but can
+believe that it is real.  The painful part is now that drives have these
+huge buffers of upto 4MB, we have only a second or two to hit the platters
+before the head float and spindle sync for writing depart from the
+allowable range and it does not get to disk....OOPS!
+
+I suspect that with all of the new NVRAM HOSTS coming to market soon we
+will see more fs death in the future until things settle.
+
+Cheers,
+
+Andre Hedrick
+Linux ATA Development
+ASL Kernel Development
+-----------------------------------------------------------------------------
+ASL, Inc.                                     Toll free: 1-877-ASL-3535
+1757 Houret Court                             Fax: 1-408-941-2071
+Milpitas, CA 95035                            Web: www.aslab.com
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,95 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129029AbQJ3G5p>; Mon, 30 Oct 2000 01:57:45 -0500
+	id <S129042AbQJ3G54>; Mon, 30 Oct 2000 01:57:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129042AbQJ3G5g>; Mon, 30 Oct 2000 01:57:36 -0500
-Received: from ra.lineo.com ([207.179.37.37]:14021 "EHLO thor.lineo.com")
-	by vger.kernel.org with ESMTP id <S129029AbQJ3G5T>;
-	Mon, 30 Oct 2000 01:57:19 -0500
-Message-ID: <39FD1C89.818B9821@lineo.com>
-Date: Mon, 30 Oct 2000 00:00:26 -0700
-From: pierre@lineo.com
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrey Savochkin <saw@saw.sw.com.sg>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+	id <S129061AbQJ3G5p>; Mon, 30 Oct 2000 01:57:45 -0500
+Received: from twilight.cs.hut.fi ([130.233.40.5]:40521 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S129035AbQJ3G52>; Mon, 30 Oct 2000 01:57:28 -0500
+Date: Mon, 30 Oct 2000 08:57:20 +0200
+From: Ville Herva <vherva@mail.niksula.cs.hut.fi>
+To: linux-kernel@vger.kernel.org
 Subject: Re: eepro100: card reports no resources [was VM-global...]
+Message-ID: <20001030085720.E1248@niksula.cs.hut.fi>
 In-Reply-To: <20001026193508.A19131@niksula.cs.hut.fi> <20001030142356.A3800@saw.sw.com.sg>
-X-MIMETrack: Serialize by Router on thor/Lineo(Release 5.0.5 |September 22, 2000) at 10/29/2000
- 11:57:18 PM,
-	Serialize complete at 10/29/2000 11:57:18 PM
-Content-Type: multipart/alternative;
- boundary="------------29338EB3563DE90613B9FA2A"
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0pre3i
+In-Reply-To: <20001030142356.A3800@saw.sw.com.sg>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---------------29338EB3563DE90613B9FA2A
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=us-ascii
-
-Andrey Savochkin wrote:
-
+On Mon, Oct 30, 2000 at 02:23:56PM +0800, you [Andrey Savochkin] claimed:
+> Hello,
+> 
+> On Thu, Oct 26, 2000 at 07:35:08PM +0300, Ville Herva wrote:
+> > Markus Pfeiffer <profmakx@profmakx.de> wrote:
+> > > 
+> > > > Oct 26 11:24:13 ns29 kernel: eth0: card reports no resources.
+> > > > Oct 26 11:24:15 ns29 kernel: eth0: card reports no resources.
+> > > > Oct 26 12:22:21 ns29 kernel: eth0: card reports no resources.
+> > > > Oct 26 16:16:59 ns29 kernel: eth0: card reports no resources.
+> > > > Oct 26 16:28:37 ns29 kernel: eth0: card reports no resources.
 > > > > Oct 26 16:38:01 ns29 kernel: eth0: card reports no resources.
-> > > >
+> > > > 
 > > > let me guess: intel eepro100 or similar??
-> >
+> > > Well known problem with that one. dont know if its fully fixed ... With
+> > 
+> > Happens here too, with 2xPPro200, 2.2.18pre17, Eepro100 and light load.
+> > The network stalls for several minutes when it happens.
+> > 
 > > > 2.4.0-test9-pre3 it doesnt happen on my machine ...
+> > 
+> > What about a fix for a 2.2.x...?
+> 
+> The exact reason for this problem is still unknown.
 
-I run 2.4.0-test10-pre5 and it still does it.
-
-Trick : "ifconfig eth0 down" then "ifconfig eth0 up" stops the problem for me
-when it occurs.
-
-
-                ////\
-                (@ @)
-------------oOOo-(_)-oOOo-------------
-Pierre-Philippe Coupard
-Software Engineer, Lineo, Inc.
-Email : pierre@lineo.com
-Phone : (801) 426-5001 x 208
---------------------------------------
-
-Auribus teneo lupum.
-        [I hold a wolf by the ears.]
-        [Boy, it *sounds* good.  But what does it *mean*?]
+I have to take some of what I said back. The network stalls were actually       
+due to a lot more stupid problem: the server went into a power saving           
+state and the NIC IRQ didn't wake it up (mouse did). After I disabled the       
+the relevant stupidnesses from the BIOS setup, it now works.                    
+                                                                                
+The error message, however, does appear with the 2.2.18pre17 eepro100.c,        
+while as the Becker's version does not show it for whatever reason.             
 
 
+-- v --
 
---------------29338EB3563DE90613B9FA2A
-Content-Transfer-Encoding: 7bit
-Content-Type: text/html; charset=us-ascii
-
-<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
-<html>
-Andrey Savochkin wrote:
-<blockquote TYPE=CITE>> > > Oct 26 16:38:01 ns29 kernel: eth0: card reports
-no resources.
-<br>> > >
-<br>> > let me guess: intel eepro100 or similar??
-<br>>
-<br>> > 2.4.0-test9-pre3 it doesnt happen on my machine ...</blockquote>
-I run 2.4.0-test10-pre5 and it still does it.
-<p>Trick : "ifconfig eth0 down" then "ifconfig eth0 up" stops the problem
-for me when it occurs.
-<pre>&nbsp;
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ////\
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (@ @)
-------------oOOo-(_)-oOOo-------------
-Pierre-Philippe Coupard
-Software Engineer, Lineo, Inc.
-Email : pierre@lineo.com
-Phone : (801) 426-5001 x 208
---------------------------------------
-
-Auribus teneo lupum.
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [I hold a wolf by the ears.]
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Boy, it *sounds* good.&nbsp; But what does it *mean*?]</pre>
-&nbsp;</html>
-
---------------29338EB3563DE90613B9FA2A--
-
+v@iki.fi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

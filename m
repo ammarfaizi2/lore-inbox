@@ -1,50 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268744AbUHLU35@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268740AbUHLU3l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268744AbUHLU35 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 16:29:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268747AbUHLU34
+	id S268740AbUHLU3l (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 16:29:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268750AbUHLU3l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 16:29:56 -0400
-Received: from mail.tmr.com ([216.238.38.203]:14354 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S268744AbUHLU3e (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 16:29:34 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Bill Davidsen <davidsen@tmr.com>
-Newsgroups: mail.linux-kernel
-Subject: BitTorrent and iptables (was: Can not read UDF CD)
-Date: Thu, 12 Aug 2004 16:33:16 -0400
-Organization: TMR Associates, Inc
-Message-ID: <cfgjk6$gbi$1@gatekeeper.tmr.com>
-References: <B1ECE240295BB146BAF3A94E00F2DBFF090213@piramida.hermes.si>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Trace: gatekeeper.tmr.com 1092342214 16754 192.168.12.100 (12 Aug 2004 20:23:34 GMT)
-X-Complaints-To: abuse@tmr.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-In-Reply-To: <B1ECE240295BB146BAF3A94E00F2DBFF090213@piramida.hermes.si>
+	Thu, 12 Aug 2004 16:29:41 -0400
+Received: from web14928.mail.yahoo.com ([216.136.225.87]:64112 "HELO
+	web14928.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S268740AbUHLU2J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 16:28:09 -0400
+Message-ID: <20040812202808.19586.qmail@web14928.mail.yahoo.com>
+Date: Thu, 12 Aug 2004 13:28:08 -0700 (PDT)
+From: Jon Smirl <jonsmirl@yahoo.com>
+Subject: Re: [PATCH] add PCI ROMs to sysfs
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Greg KH <greg@kroah.com>, Jesse Barnes <jbarnes@engr.sgi.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Martin Mares <mj@ucw.cz>, linux-pci@atrey.karlin.mff.cuni.cz,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Petr Vandrovec <VANDROVE@vc.cvut.cz>
+In-Reply-To: <1092311491.21995.19.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Balazic wrote:
-> OK, I put the ISO image and the udf checker outputs on BitTorrent,
-> the torrent file is avaliable at
-> http://lizika.pfmb.uni-mb.si/~stein/UDF_image_and_reports.torrent
+--- Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+
+> On Iau, 2004-08-12 at 00:31, Jon Smirl wrote:
+> > How are we supposed to implement this without a copy? Once the
+> device
+> > driver is loaded there is never a safe way access the ROM again
+> because
+> > an interrupt or another CPU might use the PCI decoders to access
+> the
+> > other hardware and disrupt the ROM read. You have to copy the ROM
+> when
+> > the driver says it is safe.
 > 
-> In case you don't have a BitTorrent client, one can be had at
-> http://bitconjurer.org/BitTorrent/download.html
-> ( even a commandline version , written in python )
+> It's never safe essentially. The only way you can make it safe for
+> this
+> case is to put the knowledge in the device driver for that specific
+> card
+> rather than sysfs.
 
-I used torrent to pull something the other day, and while I could pull, 
-no one could connect to get data from me. I have my iptables set to 
-ESTABLISHED,RELATED so iptables may not know about torrent.
+I added these two calls to the pci API just for the case of partially
+decoded hardware. The device driver for the hardware needs to make
+these calls.
 
-Just a thought, since you have set up this way.
+unsigned char *pci_map_rom_copy(struct pci_dev *dev, size_t *size);
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+Call this one from the driver when it is safe to read the ROM. It will
+copy it and then provide a virtual address so that you can read it. The
+copy is stored in the kernel so that the sysfs attribute will work
+right.
+
+void pci_remove_rom(struct pci_dev *dev);
+
+Call this one from the driver to simply remove the ROM attribute.
+
+Before the driver is loaded we have to assume that it safe to read the
+ROM normally and the sysfs attribute will directly access the ROM.
+
+
+unsigned char *pci_map_rom(struct pci_dev *dev, size_t *size);
+
+For normal hardware that implements full decoding use this call. It
+will automatically sort out the need to use the real ROM or a shadow
+copy.
+
+void pci_unmap_rom(struct pci_dev *dev, unsigned char *rom);
+
+When you are done with a mapping use this
+
+Normal ROMs do not make copies. The only time a copy happens is when a
+device driver for a partially decoded device calls pci_map_rom_copy().
+
+=====
+Jon Smirl
+jonsmirl@yahoo.com
+
+
+		
+__________________________________
+Do you Yahoo!?
+New and Improved Yahoo! Mail - Send 10MB messages!
+http://promotions.yahoo.com/new_mail 

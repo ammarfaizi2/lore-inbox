@@ -1,59 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262039AbVCUVk2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262031AbVCUVka@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262039AbVCUVk2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 16:40:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261976AbVCUVLV
+	id S262031AbVCUVka (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 16:40:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261975AbVCUVLI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 16:11:21 -0500
-Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:58246 "EHLO
-	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id S261915AbVCUU7W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 15:59:22 -0500
-Date: Mon, 21 Mar 2005 21:59:15 +0100
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: linux-usb-devel@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>,
+	Mon, 21 Mar 2005 16:11:08 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:64369 "EHLO
+	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261920AbVCUU6u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 15:58:50 -0500
+Date: Mon, 21 Mar 2005 20:57:47 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Andrew Morton <akpm@osdl.org>
+cc: Nick Piggin <nickpiggin@yahoo.com.au>,
+       "David S. Miller" <davem@davemloft.net>,
+       "Luck, Tony" <tony.luck@intel.com>,
+       Ben Herrenschmidt <benh@kernel.crashing.org>,
        linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] Problems with connect/disconnect cycles
-Message-ID: <20050321205915.GA29072@gamma.logic.tuwien.ac.at>
-References: <20050321090537.GI14614@gamma.logic.tuwien.ac.at> <Pine.LNX.4.44L0.0503211513090.2329-100000@ida.rowland.org> <20050321203240.GA26901@gamma.logic.tuwien.ac.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050321203240.GA26901@gamma.logic.tuwien.ac.at>
-User-Agent: Mutt/1.3.28i
-From: Norbert Preining <preining@logic.at>
+Subject: [PATCH 4/5] freepgt: remove arch pgd_addr_end
+In-Reply-To: <Pine.LNX.4.61.0503212048040.1970@goblin.wat.veritas.com>
+Message-ID: <Pine.LNX.4.61.0503212056460.1970@goblin.wat.veritas.com>
+References: <Pine.LNX.4.61.0503212048040.1970@goblin.wat.veritas.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan!
+ia64 and sparc64 hurriedly had to introduce their own variants of
+pgd_addr_end, to leapfrog over the holes in their virtual address spaces
+which the final clear_page_range suddenly presented when converted from
+pgd_index to pgd_addr_end.  But now that free_pgtables respects the vma
+list, those holes are never presented, and the arch variants can go.
 
-On Mon, 21 Mär 2005, preining wrote:
-> I will try 2.6.10-mm3 where I have a home made .deb lying around and
-> will report back.
+Signed-off-by: Hugh Dickins <hugh@veritas.com>
+---
 
-I tried with 2.6.10-mm3 but couldn't find any instance of the problem:
-BUT: I couldn't find it in the short time here now also with 2.6.11-mm4.
+ include/asm-generic/pgtable.h |    8 +++-----
+ include/asm-ia64/pgtable.h    |   26 --------------------------
+ include/asm-sparc64/pgtable.h |   15 ---------------
+ 3 files changed, 3 insertions(+), 46 deletions(-)
 
-I skimmed over all my logrotated syslog files and found that in *most*
-cases (but not all, at least I believe I saw another case, too) the
-disconnect/reconnect cycles appeared when the laptop was running on
-battery.
-
-Does this ring any bell maybe?
-
-I will try to give 2.6.10-mm3 and 2.6.12-rc1-mm1 a longer testing time
-tomorrow, but now I have to go to bed.
-
-Best wishes
-
-Norbert
-
--------------------------------------------------------------------------------
-Norbert Preining <preining AT logic DOT at>                 Università di Siena
-sip:preining@at43.tuwien.ac.at                             +43 (0) 59966-690018
-gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
--------------------------------------------------------------------------------
-LUTON (n.)
-The horseshoe-shaped rug which goes around a lavatory seat.
-			--- Douglas Adams, The Meaning of Liff
+--- freepgt3/include/asm-generic/pgtable.h	2005-03-18 10:22:40.000000000 +0000
++++ freepgt4/include/asm-generic/pgtable.h	2005-03-21 19:07:13.000000000 +0000
+@@ -136,17 +136,15 @@ static inline void ptep_set_wrprotect(st
+ #endif
+ 
+ /*
+- * When walking page tables, get the address of the next boundary, or
+- * the end address of the range if that comes earlier.  Although end might
+- * wrap to 0 only in clear_page_range, __boundary may wrap to 0 throughout.
++ * When walking page tables, get the address of the next boundary,
++ * or the end address of the range if that comes earlier.  Although no
++ * vma end wraps to 0, rounded up __boundary may wrap to 0 throughout.
+  */
+ 
+-#ifndef pgd_addr_end
+ #define pgd_addr_end(addr, end)						\
+ ({	unsigned long __boundary = ((addr) + PGDIR_SIZE) & PGDIR_MASK;	\
+ 	(__boundary - 1 < (end) - 1)? __boundary: (end);		\
+ })
+-#endif
+ 
+ #ifndef pud_addr_end
+ #define pud_addr_end(addr, end)						\
+--- freepgt3/include/asm-ia64/pgtable.h	2005-03-21 19:07:01.000000000 +0000
++++ freepgt4/include/asm-ia64/pgtable.h	2005-03-21 19:07:13.000000000 +0000
+@@ -551,32 +551,6 @@ do {											\
+ #define __HAVE_ARCH_PTE_SAME
+ #define __HAVE_ARCH_PGD_OFFSET_GATE
+ 
+-/*
+- * Override for pgd_addr_end() to deal with the virtual address space holes
+- * in each region.  In regions 0..4 virtual address bits are used like this:
+- *      +--------+------+--------+-----+-----+--------+
+- *      | pgdhi3 | rsvd | pgdlow | pmd | pte | offset |
+- *      +--------+------+--------+-----+-----+--------+
+- *  'pgdlow' overflows to pgdhi3 (a.k.a. region bits) leaving rsvd==0
+- */
+-#define IA64_PGD_OVERFLOW (PGDIR_SIZE << (PAGE_SHIFT-6))
+-
+-#define pgd_addr_end(addr, end)						\
+-({	unsigned long __boundary = ((addr) + PGDIR_SIZE) & PGDIR_MASK;	\
+- 	if (REGION_NUMBER(__boundary) < 5 && 				\
+-	    __boundary & IA64_PGD_OVERFLOW)				\
+-		__boundary += (RGN_SIZE - 1) & ~(IA64_PGD_OVERFLOW - 1);\
+-	(__boundary - 1 < (end) - 1)? __boundary: (end);		\
+-})
+-
+-#define pmd_addr_end(addr, end)						\
+-({	unsigned long __boundary = ((addr) + PMD_SIZE) & PMD_MASK;	\
+- 	if (REGION_NUMBER(__boundary) < 5 &&				\
+-	    __boundary & IA64_PGD_OVERFLOW)				\
+-		__boundary += (RGN_SIZE - 1) & ~(IA64_PGD_OVERFLOW - 1);\
+-	(__boundary - 1 < (end) - 1)? __boundary: (end);		\
+-})
+-
+ #include <asm-generic/pgtable-nopud.h>
+ #include <asm-generic/pgtable.h>
+ 
+--- freepgt3/include/asm-sparc64/pgtable.h	2005-03-18 10:22:42.000000000 +0000
++++ freepgt4/include/asm-sparc64/pgtable.h	2005-03-21 19:07:13.000000000 +0000
+@@ -432,21 +432,6 @@ extern int io_remap_page_range(struct vm
+ 			       unsigned long offset,
+ 			       unsigned long size, pgprot_t prot, int space);
+ 
+-/* Override for {pgd,pmd}_addr_end() to deal with the virtual address
+- * space hole.  We simply sign extend bit 43.
+- */
+-#define pgd_addr_end(addr, end)						\
+-({	unsigned long __boundary = ((addr) + PGDIR_SIZE) & PGDIR_MASK;	\
+-	__boundary = ((long) (__boundary << 20)) >> 20;			\
+-	(__boundary - 1 < (end) - 1)? __boundary: (end);		\
+-})
+-
+-#define pmd_addr_end(addr, end)						\
+-({	unsigned long __boundary = ((addr) + PMD_SIZE) & PMD_MASK;	\
+-	__boundary = ((long) (__boundary << 20)) >> 20;			\
+-	(__boundary - 1 < (end) - 1)? __boundary: (end);		\
+-})
+-
+ #include <asm-generic/pgtable.h>
+ 
+ /* We provide our own get_unmapped_area to cope with VA holes for userland */

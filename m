@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268145AbRHaQ5e>; Fri, 31 Aug 2001 12:57:34 -0400
+	id <S268342AbRHaRG6>; Fri, 31 Aug 2001 13:06:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268286AbRHaQ5Y>; Fri, 31 Aug 2001 12:57:24 -0400
-Received: from relay1.zonnet.nl ([62.58.50.37]:22707 "EHLO relay1.zonnet.nl")
-	by vger.kernel.org with ESMTP id <S268217AbRHaQ5P>;
-	Fri, 31 Aug 2001 12:57:15 -0400
-Message-ID: <3B8FC1E7.44B72F2E@linux-m68k.org>
-Date: Fri, 31 Aug 2001 18:57:11 +0200
-From: Roman Zippel <zippel@linux-m68k.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: ctm@ardi.com
-CC: Linus Torvalds <torvalds@transmeta.com>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        David Lang <david.lang@digitalinsight.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
-In-Reply-To: <fa.ehba65v.10i6abc@ifi.uio.no> <fa.odqvefv.g4k4j6@ifi.uio.no> <vy1d75c2pxy.fsf@w2k.ardi.com>
+	id <S268432AbRHaRGs>; Fri, 31 Aug 2001 13:06:48 -0400
+Received: from [195.89.159.99] ([195.89.159.99]:11773 "EHLO
+	kushida.degree2.com") by vger.kernel.org with ESMTP
+	id <S268342AbRHaRGb>; Fri, 31 Aug 2001 13:06:31 -0400
+Date: Fri, 31 Aug 2001 18:07:07 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Cc: Keith Owens <kaos@ocs.com.au>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Alan Cox <laughing@shared-source.org>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.9-ac5
+Message-ID: <20010831180707.B25490@thefinal.cern.ch>
+In-Reply-To: <9293.999222514@kao2.melbourne.sgi.com> <200108310543.f7V5h3S452102@saturn.cs.uml.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200108310543.f7V5h3S452102@saturn.cs.uml.edu>; from acahalan@cs.uml.edu on Fri, Aug 31, 2001 at 01:43:03AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Albert D. Cahalan wrote:
+> The LGPL, X11, and 2-clause BSD licenses shouldn't set the tainted flag.
+> Perhaps the licenses should simply be listed.
+> 
+> $ cat /proc/sys/kernel/licenses
+> GPL
+> Public Domain
+> unknown
+> BSD(2)
+> Microsoft-EULA-v666
 
-ctm@ardi.com wrote:
+Print the loaded modules, and their licenses, one per line?
+"Microsoft-EULA-v666" is a bit confusing if you don't know where it came
+from.
 
-> I don't maintain any linux kernel code, so I'm not lobbying for this
-> particular solution.  I just don't think Linus's example is _good_
-> code.  I think it's correct, but misleading, code.
+Also, I see "GPL".  With Linus' and Alan's declarations last year,
+shouldn't it be:
 
-True, but the only argument I heard from Linus lately is, how bad
-Wsign-compare is. It's not that difficult to prove that gcc produces
-false warnings, even if it has the information to know better. That's
-not the point.
-What started the discussion is that Linus introduced a new version of
-min/max macros. I brought up arguments, why I think these macros are
-unsafe and I got no response to this. I made the mistake of mentioning
--Wsign-compare and I get a long explanation instead, how bad it is.
-In the meantime people are trying to fix bugs without defining them,
-ignoring the fact that there are already tools, which can help finding
-real bugs. If the tool is too coarse, use it only from time to time or
-use a different tool.
+  GPL version 2 only
+  GPL version 2 (or, at your option, any later version)
 
-bye, Roman
+;-) no that's not a serious suggestion.
+
+-- Jamie
+
+

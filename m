@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266537AbTABVYh>; Thu, 2 Jan 2003 16:24:37 -0500
+	id <S266540AbTABVXs>; Thu, 2 Jan 2003 16:23:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266546AbTABVYf>; Thu, 2 Jan 2003 16:24:35 -0500
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:19420 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S266537AbTABVYa>; Thu, 2 Jan 2003 16:24:30 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Date: Fri, 3 Jan 2003 08:32:48 +1100
-MIME-Version: 1.0
+	id <S266537AbTABVXs>; Thu, 2 Jan 2003 16:23:48 -0500
+Received: from louise.pinerecords.com ([213.168.176.16]:45508 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S266535AbTABVXr>; Thu, 2 Jan 2003 16:23:47 -0500
+Date: Thu, 2 Jan 2003 22:31:55 +0100
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: jgarzik@pobox.com, zaitcev@redhat.com, davem@redhat.com,
+       linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org,
+       linux-m68k@lists.linux-m68k.org, netfilter-devel@lists.samba.org,
+       phillim2@comcast.net, rmk@arm.linux.org.uk
+Subject: Re: [PATCHSET] Multiarch kconfig cleanup
+Message-ID: <20030102213155.GF17053@louise.pinerecords.com>
+References: <20030102182038.GZ17053@louise.pinerecords.com> <Pine.LNX.4.44.0301021152350.3665-100000@home.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15892.45056.772569.433906@notabene.cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: RAID0 problems with 2.4.21-BK current
-In-Reply-To: message from Marc-Christian Petersen on Thursday January 2
-References: <200212292012.11556.m.c.p@wolk-project.de>
-	<15891.33615.121943.544956@notabene.cse.unsw.edu.au>
-	<200301021651.59376.m.c.p@wolk-project.de>
-X-Mailer: VM 7.07 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0301021152350.3665-100000@home.transmeta.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday January 2, m.c.p@wolk-project.de wrote:
-> On Thursday 02 January 2003 01:09, Neil Brown wrote:
+> [torvalds@transmeta.com]
+>
+> > This is the first time I'm trying to get more than 3 people to work
+> > together so I'd be grateful if you didn't kick me too hard should I have
+> > screwed up.
 > 
-> Hi Neil,
+> I'd really like to see the organizational patches first (ie the 
+> net/Kconfig type of changes), and leave the "conditional menu" patches for 
+> later, especially as they would seem to be improved by an extension to the 
+> config language (ie the "menucond" thing).
 > 
-> > Is your raid0 ontop of a raid1 ???
-> > If so, this patch is needed.
-> nope, surely not ;) ... Plain raid0.
+> Also, I don't fetch patches, I'd much rather just be mailbombed.
 
-Hmmm...  Can you tell me anything else about your set up that might be
-different to mine?
-What drives are you using? Which driver do they use?  i386? anything
-else?
+In a minute, I'm sending the organizational stuff rediffed,
+that's patches 15-36 from the original batch as 1-22.  I'll
+only send to Linus & CC lkml.
 
-NeilBrown
+-- 
+Tomas Szepe <szepe@pinerecords.com>

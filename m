@@ -1,34 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276911AbRJCI0M>; Wed, 3 Oct 2001 04:26:12 -0400
+	id <S276050AbRJCIgo>; Wed, 3 Oct 2001 04:36:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276914AbRJCI0B>; Wed, 3 Oct 2001 04:26:01 -0400
-Received: from csa.iisc.ernet.in ([144.16.67.8]:63239 "EHLO csa.iisc.ernet.in")
-	by vger.kernel.org with ESMTP id <S276911AbRJCIZo>;
-	Wed, 3 Oct 2001 04:25:44 -0400
-Date: Wed, 3 Oct 2001 13:55:32 +0530 (IST)
-From: "M.Gopi Krishna" <mgopi@csa.iisc.ernet.in>
-To: linux-kernel@vger.kernel.org
-Subject: wait_event() :(
-Message-ID: <Pine.LNX.4.21.0110031351580.21283-100000@opal.csa.iisc.ernet.in>
+	id <S276072AbRJCIgf>; Wed, 3 Oct 2001 04:36:35 -0400
+Received: from chiara.elte.hu ([157.181.150.200]:12807 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S276050AbRJCIgX>;
+	Wed, 3 Oct 2001 04:36:23 -0400
+Date: Wed, 3 Oct 2001 10:34:23 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: jamal <hadi@cyberus.ca>
+Cc: <linux-kernel@vger.kernel.org>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+        Robert Olsson <Robert.Olsson@data.slu.se>,
+        Benjamin LaHaise <bcrl@redhat.com>, <netdev@oss.sgi.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Simon Kirby <sim@netnation.com>
+Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
+In-Reply-To: <Pine.GSO.4.30.0110021739160.2323-100000@shell.cyberus.ca>
+Message-ID: <Pine.LNX.4.33.0110031025530.1694-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a doubt regarding wait_event.
-In the macro __wait_event, the calling process changes its state to
-TASK_UNINTERRUPTIBLE and calls schedule.
-And does this in infinite loop.
-After the loop, it itself changes its state to TASK_RUNNING.
 
-Once it calls schedule(), the scheduler will remove it from task list as
-it is in uninterruptible mode.
-Then when does it come again into running state to check the condition.
+On Tue, 2 Oct 2001, jamal wrote:
 
-kindly cc the reply to me as i'm not subscribed to the list
-thanks
+> [...] please have the courtesy of at least posting results/numbers of
+> how this improved things and under what workloads and conditions.
+> [...]
 
--- 
-gopi.
+500 MHz PIII UP server, 433 MHz client over a single 100 mbit ethernet
+using Simon Kirby's udpspam tool to overload the server. Result: 2.4.10
+locks up before the patch. 2.4.10 with the first generation irqrate patch
+applied protects against the lockup (if max_rate is correct), but results
+in dropped packets. The auto-tuning+polling patch results in a working
+system and working network, no lockup and no dropped packets. Why this
+happened and how it happened has been discussed extensively.
+
+(the effect of polling-driven networking is just an extra and unintended
+bonus side-effect.)
+
+	Ingo
 

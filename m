@@ -1,108 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266678AbUF3OVN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266681AbUF3OXK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266678AbUF3OVN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jun 2004 10:21:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266679AbUF3OVN
+	id S266681AbUF3OXK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jun 2004 10:23:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266680AbUF3OXJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jun 2004 10:21:13 -0400
-Received: from pop.gmx.de ([213.165.64.20]:34715 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S266678AbUF3OVI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jun 2004 10:21:08 -0400
-Date: Wed, 30 Jun 2004 16:21:06 +0200 (MEST)
-From: "Michael Kerrisk" <mtk-lkml@gmx.net>
-To: Jacky Malcles <Jacky.Malcles@bull.net>
+	Wed, 30 Jun 2004 10:23:09 -0400
+Received: from mail.shareable.org ([81.29.64.88]:12205 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S266681AbUF3OWM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jun 2004 10:22:12 -0400
+Date: Wed, 30 Jun 2004 15:21:16 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Ingo Molnar <mingo@elte.hu>
 Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-References: <40E2C888.BB5BB7F1@bull.net>
-Subject: Re: A question about extended attributes of filesystem objects (setfattr command)
-X-Priority: 3 (Normal)
-X-Authenticated: #23581172
-Message-ID: <30493.1088605266@www51.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Subject: Re: Do x86 NX and AMD prefetch check cause page fault infinite loop?
+Message-ID: <20040630142116.GC29285@mail.shareable.org>
+References: <20040630013824.GA24665@mail.shareable.org> <20040630055041.GA16320@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040630055041.GA16320@elte.hu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Salut Jacky,
+Ingo Molnar wrote:
+> i understand what you mean, but for this to trigger one would have to
+> trigger the prefetch erratum _and_ then turn off executability in
+> parallel, right? So the question is, is there a reliable way to trigger
+> the pagefault situation, and if yes, how do you turn on NX - because
+> right before the fault the instruction had to be executable.
 
-> > > I have a question regarding
-> > >  Attributes of symlinks vs. the files pointed to
-> > >
-> > > If I try to attach name:value pair to object symlink file
-> > > then I'll get: "Operation not permitted"
-> > 
-> > What file system are you using?  If ext2, ext3 (or patched kernel
-> > supporting Reiserfs EAs), did you mount with "-o user_xattr?
-> > (The above error suggests you haven't used this option.)
-> 
-> # mount
-> /dev/sdb3 on /a type ext3 (rw,acl,user_xattr)
-> ...etc...
+No need for anything in parallel.
 
-Okay.
+I think you can trigger it by jumping to a non-PROT_EXEC page where
+the target address is a prefetch -- or by falling through from the end
+of a PROT_EXEC page to a non-PROT_EXEC one.
 
-> > > reading the man pages of setfattr (or attr) I thought that it operates
-> > > on the attributes of  the  symbolic link itself.
-> > 
-> > No, these commands follow symbolic links.
-> > 
-> > > show:
-> > > -----
-> > > touch f
-> > > ln -s f l
-> > > setfattr -n user.filename -v ascii1 f l
-> > > setfattr -h -n user.filename  -v ascii2 f
-> > > getfattr -d f l
-> > > setfattr -h -n user.filename  -v ascii3 l
-> > > setfattr -h --no-dereference -n user.filename  -v ascii4 l
+To be sure both cases are obscure, but the resulting loop is still wrong.
 
-I'm sorry -- I missed the above "--no-dereference"; that's why
-my point below becomes relevant.
+Who knows, perhaps internal conditions of the chip prevent these
+particular prefetches from triggering the fault.  After all, we're
+told that on returning from the fault handler, the prefetch won't
+fault again, and it's not obvious why that should be.  It'd be very
+subtle though, and deserve a comment.
 
-> > > getfattr -d f l
-> > >
-> > > so, my question is : what is expected ?
-> should have added this:
-> 
-> [root@t20 acl]# show
-> # file: f
-> user.filename="ascii2"
-> 
-> # file: l
-> user.filename="ascii2"
-> 
-> setfattr: l: Operation not permitted
-> setfattr: l: Operation not permitted
-> # file: f
-> user.filename="ascii2"
-> 
-> # file: l
-> user.filename="ascii2"
-> 
-> [root@t20 acl]#
-
-But note the following:
-
-> > attr(5) specifically notes that USER EAs are disallowed on
-> > symbolic links, but this is rather an issu that affects the
-> > use of lsetxattr(2).
-
-or setfattr if you specify "--no-dereference"...
-
-There is a reason for this restriction: for a symbolic link, all 
-permissions are enabled for all users, and these permissions 
-cannot be changed. This means that permissions cannot be used (as 
-they would be with regular files) to prevent arbitrary users from 
-placing user EAs on a symbolic link.  Thus all users are 
-prevented from creating user EAs on the symbolic link.
-
-Michael
-
-
--- 
-+++ Jetzt WLAN-Router für alle DSL-Einsteiger und Wechsler +++
-GMX DSL-Powertarife zudem 3 Monate gratis* http://www.gmx.net/dsl
+-- Jamie
 

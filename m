@@ -1,46 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261357AbUK0WoE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261363AbUK0XBf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261357AbUK0WoE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Nov 2004 17:44:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261360AbUK0WoE
+	id S261363AbUK0XBf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Nov 2004 18:01:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261362AbUK0XAv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Nov 2004 17:44:04 -0500
-Received: from 80.178.41.228.forward.012.net.il ([80.178.41.228]:32682 "EHLO
-	linux15") by vger.kernel.org with ESMTP id S261357AbUK0WoC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Nov 2004 17:44:02 -0500
-From: Oded Shimon <ods15@ods15.dyndns.org>
-To: Lee Revell <rlrevell@joe-job.com>
-Subject: Re: RivaFB and GeForce FX
-Date: Sun, 28 Nov 2004 00:43:49 +0200
-User-Agent: KMail/1.7.1
-References: <200411242347.07911.ods15@ods15.dyndns.org> <1101592907.15635.5.camel@krustophenia.net>
-In-Reply-To: <1101592907.15635.5.camel@krustophenia.net>
-Cc: linux-kernel@vger.kernel.org
+	Sat, 27 Nov 2004 18:00:51 -0500
+Received: from natmwynyy.rzone.de ([81.169.145.169]:1752 "EHLO
+	natmwynyy.rzone.de") by vger.kernel.org with ESMTP id S261361AbUK0XAk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Nov 2004 18:00:40 -0500
+From: Arnd Bergmann <arnd@arndb.de>
+To: David Woodhouse <dwmw2@infradead.org>
+Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
+Date: Sat, 27 Nov 2004 23:53:49 +0100
+User-Agent: KMail/1.6.2
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>, Matthew Wilcox <matthew@wil.cx>,
+       Tonnerre <tonnerre@thundrix.ch>, David Howells <dhowells@redhat.com>,
+       torvalds@osdl.org, hch@infradead.org, aoliva@redhat.com,
+       linux-kernel@vger.kernel.org, libc-hacker@sources.redhat.com
+References: <19865.1101395592@redhat.com> <41A8AF8F.8060005@osdl.org> <1101575782.21273.5347.camel@baythorne.infradead.org>
+In-Reply-To: <1101575782.21273.5347.camel@baythorne.infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-8-i"
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_BWQqB6g36CvIFi9";
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200411280043.49494.ods15@ods15.dyndns.org>
+Message-Id: <200411272353.54056.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 28 November 2004 00:01, Lee Revell wrote:
-> Are you asking "how do I reverse engineer a binary driver"?  One method
-> is to run it under an emulator, and capture the PCI bus traffic.  Then
-> there are tried and true methods like IDA Pro.
->
-Well, I was sort of hoping there might be something better/easier than working 
-on the binary driver (which btw is illegal.. oh well :).
 
-Like I said I know very little about kernel hacking, this is really my first 
-experience with it ever. I know simple wrapper C, I'm new at low level 
-programming.
+--Boundary-02=_BWQqB6g36CvIFi9
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-I have heard of IDA Pro, its a disassembler to COBOL, right?
+On S=FCnnavend 27 November 2004 18:16, you wrote:
+> On Sat, 2004-11-27 at 08:47 -0800, Randy.Dunlap wrote:
+> > Speaking of more explicit, there are various asm-ARCH header
+> > files that do or do not hide (via __KERNEL__) interfaces
+> > such as:=A0=A0=A0=A0=A0=A0get_unaligned()
+> > and the atomic operations.
+> >=20
+> > So are these Linux kernel exported APIs, or do they belong
+> > in some library?
+>=20
+> Both of those are kernel-private and should not be visible.
 
-If I go down the emulator idea, how do I do that?... could you give me a good 
-starting point to continue from or link me to a good guide?...
+The problem with these (atomic.h, bitops.h, byteorder.h, div64.h,
+list.h, spinlock.h, unaligned.h and xor.h) is that they provide
+functionality that is needed by many user application but not
+provided by the compiler or libc.=20
 
-- ods15
+While I agree that it is an absolutely evil concept to include
+them from the kernel headers, we have to face that by not installing
+them, lots of this existing evil user code will be broken even
+more and someone has to pick up the pieces.
+
+	Arnd <><
+
+--Boundary-02=_BWQqB6g36CvIFi9
+Content-Type: application/pgp-signature
+Content-Description: signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBqQWB5t5GS2LDRf4RAmROAJ4r1SA0KQNOR1RmccJk44d3QGEj3QCeNaFz
+AkTUn5kS3vz4DYchBobhwRo=
+=JRSe
+-----END PGP SIGNATURE-----
+
+--Boundary-02=_BWQqB6g36CvIFi9--

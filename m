@@ -1,39 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262404AbTEBO7m (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 May 2003 10:59:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262405AbTEBO7m
+	id S262934AbTEBPZD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 May 2003 11:25:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262946AbTEBPZC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 May 2003 10:59:42 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:36241 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262404AbTEBO7l
+	Fri, 2 May 2003 11:25:02 -0400
+Received: from h-68-165-86-241.DLLATX37.covad.net ([68.165.86.241]:61483 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S262934AbTEBPY7
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 May 2003 10:59:41 -0400
-Date: Fri, 2 May 2003 11:14:11 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: "Downing, Thomas" <Thomas.Downing@ipc.com>
-cc: jlnance@unity.ncsu.edu, Christoph Hellwig <hch@infradead.org>,
-       linux-kernel@vger.kernel.org
-Subject: RE: Did the SCO Group plant UnixWare source in the Linux kernel?
-In-Reply-To: <170EBA504C3AD511A3FE00508BB89A9202085431@exnanycmbx4.ipc.com>
-Message-ID: <Pine.LNX.4.53.0305021113280.9129@chaos>
-References: <170EBA504C3AD511A3FE00508BB89A9202085431@exnanycmbx4.ipc.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 2 May 2003 11:24:59 -0400
+Subject: [PATCH] pci.ids 2.5.68 (and question)
+From: Paul Fulghum <paulkf@microgate.com>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: "torvalds@transmeta.com" <torvalds@transmeta.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1051889846.1718.9.camel@diemos>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 02 May 2003 10:37:27 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2 May 2003, Downing, Thomas wrote:
+This patch adds new PCI IDs to the drivers/pci/pci.ids file.
 
-> Has anybody had a look at VxWorks code?  Some of it looks
-> suspicious to me...
+I've also submitted a (different) patch to pci-ids@ucw.cz 
 
-ALL but the signon.
+I noticed that the kernel 2.5.68 pci.ids file is significantly
+out of date with the latest at pciids.sourceforge.net
+so I generated this patch for the current kernel.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
+Is this the correct thing to do, or should I just wait for
+the pciids.sourceforge.net copy to eventually trickle
+into the latest kernel source?
+
+--- linux-2.5.68/drivers/pci/pci.ids	2003-04-07 12:31:24.000000000 -0500
++++ linux-2.5.68-mg/drivers/pci/pci.ids	2003-05-01 15:41:38.000000000 -0500
+@@ -4815,7 +4815,10 @@
+ 13be  Miroku Jyoho Service Co. Ltd
+ 13bf  Sharewave Inc
+ 13c0  Microgate Corporation
+-	0010  SyncLink WAN Adapter
++	0010  SyncLink Adapter v1
++	0020  SyncLink SCC Adapter
++	0030  SyncLink Multiport Adapter
++	0210  SyncLink Adapter v2
+ 13c1  3ware Inc
+ 	1000  3ware ATA-RAID
+ 	1001  3ware 7000-series ATA-RAID
+
+
+-- 
+Paul Fulghum, paulkf@microgate.com
+Microgate Corporation, http://www.microgate.com
+
 

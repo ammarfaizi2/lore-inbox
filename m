@@ -1,238 +1,237 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264580AbTCZDW7>; Tue, 25 Mar 2003 22:22:59 -0500
+	id <S264585AbTCZDWl>; Tue, 25 Mar 2003 22:22:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264582AbTCZDW7>; Tue, 25 Mar 2003 22:22:59 -0500
-Received: from phoenix.infradead.org ([195.224.96.167]:4369 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S264580AbTCZDWX>; Tue, 25 Mar 2003 22:22:23 -0500
-Date: Wed, 26 Mar 2003 03:33:31 +0000 (GMT)
-From: James Simmons <jsimmons@infradead.org>
-To: =?ISO-8859-2?Q?Pawe=B3_Go=B3aszewski?= <blues@ds.pg.gda.pl>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.66
-In-Reply-To: <Pine.LNX.4.51L.0303260335420.24751@piorun.ds.pg.gda.pl>
-Message-ID: <Pine.LNX.4.44.0303260331580.10852-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264582AbTCZDWj>; Tue, 25 Mar 2003 22:22:39 -0500
+Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:54926 "EHLO
+	neo.rr.com") by vger.kernel.org with ESMTP id <S264579AbTCZDWQ>;
+	Tue, 25 Mar 2003 22:22:16 -0500
+Date: Tue, 25 Mar 2003 22:35:59 +0000
+From: Adam Belay <ambx1@neo.rr.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] PnP Changes for 2.5.66
+Message-ID: <20030325223559.GF1083@neo.rr.com>
+Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
+	linux-kernel@vger.kernel.org
+References: <20030325223319.GC1083@neo.rr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030325223319.GC1083@neo.rr.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> * And this changes aren't good for tdfx driver :(
-
-Sorry I haven't got around to the driver. 
-
-> The most important thing - I have a lot of oops in my logs. ~ 1 per 2 
-> seconds
-
-Try this patch and let me know how it works.
-
-diff -urN -X /home/jsimmons/dontdiff linus-2.5/drivers/video/console/fbcon.c fbdev-2.5/drivers/video/console/fbcon.c
---- linus-2.5/drivers/video/console/fbcon.c	Sat Mar 22 21:45:23 2003
-+++ fbdev-2.5/drivers/video/console/fbcon.c	Tue Mar 25 12:03:56 2003
-@@ -172,8 +172,9 @@
-  *  Internal routines
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.985.1.95 -> 1.985.1.96
+#	  sound/isa/als100.c	1.10    -> 1.11   
+#	sound/isa/sb/es968.c	1.9     -> 1.10   
+#	 sound/oss/sb_card.h	1.2     -> 1.3    
+#	 sound/oss/sb_card.c	1.17    -> 1.18   
+#	drivers/isdn/hisax/hisax_fcpcipnp.c	1.15    -> 1.16   
+#	  drivers/pnp/card.c	1.11    -> 1.12   
+#	 include/linux/pnp.h	1.18    -> 1.19   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 03/03/25	ambx1@neo.rr.com	1.985.1.96
+# [PATCH 2.5] PnP changes to allow MODULE_DEVICE_TABLE()
+# 
+# This patch fixes the MODULE_DEVICE_TABLE problems, the correct code was
+# accidentally lost a few merges back.  It is from Daniel Ritz
+# <daniel.ritz@gmx.ch>, below is the original message.
+# 
+# hello adam, jaroslav, list
+# 
+# this patch does:
+# - rename struct pnp_card_id to pnp_card_device_id
+# - fix all references to it
+# 
+# this is needed for the MODULE_DEVICE_TABLE() macro to work with pnp_card's.
+# jaroslav did this a while ago (changeset 1.879.79.1), but adam undid it a bit
+# later (changeset 1.889.202.3). but why?
+# 
+# w/o the patch gcc dies when compiling als100.c with the message 'storage size
+# of __mod_pnp_card_device_table unknown' (this is from the macro).
+# 
+# any reasons why i should not send this to linus?
+# against 2.5.65-bk
+# 
+# rgds
+# -daniel
+# --------------------------------------------
+#
+diff -Nru a/drivers/isdn/hisax/hisax_fcpcipnp.c b/drivers/isdn/hisax/hisax_fcpcipnp.c
+--- a/drivers/isdn/hisax/hisax_fcpcipnp.c	Tue Mar 25 21:44:55 2003
++++ b/drivers/isdn/hisax/hisax_fcpcipnp.c	Tue Mar 25 21:44:55 2003
+@@ -909,7 +909,7 @@
+ #ifdef CONFIG_PNP_CARD
+ 
+ static int __devinit fcpnp_probe(struct pnp_card *card,
+-				 const struct pnp_card_id *card_id)
++				 const struct pnp_card_device_id *card_id)
+ {
+ 	struct fritz_adapter *adapter;
+ 	struct pnp_dev *pnp_dev;
+@@ -955,7 +955,7 @@
+ 	delete_adapter(adapter);
+ }
+ 
+-static struct pnp_card_id fcpnp_ids[] __devinitdata = {
++static struct pnp_card_device_id fcpnp_ids[] __devinitdata = {
+ 	{ .id          = "AVM0900", 
+ 	  .driver_data = (unsigned long) "Fritz!Card PnP",
+ 	  .devs        = { { "AVM0900" } },
+diff -Nru a/drivers/pnp/card.c b/drivers/pnp/card.c
+--- a/drivers/pnp/card.c	Tue Mar 25 21:44:55 2003
++++ b/drivers/pnp/card.c	Tue Mar 25 21:44:55 2003
+@@ -22,9 +22,9 @@
+ LIST_HEAD(pnp_card_drivers);
+ 
+ 
+-static const struct pnp_card_id * match_card(struct pnp_card_driver * drv, struct pnp_card * card)
++static const struct pnp_card_device_id * match_card(struct pnp_card_driver * drv, struct pnp_card * card)
+ {
+-	const struct pnp_card_id * drv_id = drv->id_table;
++	const struct pnp_card_device_id * drv_id = drv->id_table;
+ 	while (*drv_id->id){
+ 		if (compare_pnp_id(card->id,drv_id->id))
+ 			return drv_id;
+@@ -52,7 +52,7 @@
+ 
+ static int card_probe(struct pnp_card * card, struct pnp_card_driver * drv)
+ {
+-	const struct pnp_card_id *id = match_card(drv,card);
++	const struct pnp_card_device_id *id = match_card(drv,card);
+ 	if (id) {
+ 		struct pnp_card_link * clink = pnp_alloc(sizeof(struct pnp_card_link));
+ 		if (!clink)
+diff -Nru a/include/linux/pnp.h b/include/linux/pnp.h
+--- a/include/linux/pnp.h	Tue Mar 25 21:44:55 2003
++++ b/include/linux/pnp.h	Tue Mar 25 21:44:55 2003
+@@ -295,7 +295,7 @@
+ 	unsigned long driver_data;	/* data private to the driver */
+ };
+ 
+-struct pnp_card_id {
++struct pnp_card_device_id {
+ 	char id[PNP_ID_LEN];
+ 	unsigned long driver_data;	/* data private to the driver */
+ 	struct {
+@@ -317,9 +317,9 @@
+ struct pnp_card_driver {
+ 	struct list_head global_list;
+ 	char * name;
+-	const struct pnp_card_id *id_table;
++	const struct pnp_card_device_id *id_table;
+ 	unsigned int flags;
+-	int  (*probe)  (struct pnp_card_link *card, const struct pnp_card_id *card_id);
++	int  (*probe)  (struct pnp_card_link *card, const struct pnp_card_device_id *card_id);
+ 	void (*remove) (struct pnp_card_link *card);
+ 	struct pnp_driver link;
+ };
+diff -Nru a/sound/isa/als100.c b/sound/isa/als100.c
+--- a/sound/isa/als100.c	Tue Mar 25 21:44:55 2003
++++ b/sound/isa/als100.c	Tue Mar 25 21:44:55 2003
+@@ -98,7 +98,7 @@
+ 	struct pnp_dev *devopl;
+ };
+ 
+-static struct pnp_card_id snd_als100_pnpids[] __devinitdata = {
++static struct pnp_card_device_id snd_als100_pnpids[] __devinitdata = {
+ 	/* ALS100 - PRO16PNP */
+ 	{ .id = "ALS0001", .devs = { { "@@@0001" }, { "@X@0001" }, { "@H@0001" }, } },
+ 	/* ALS110 - MF1000 - Digimate 3D Sound */
+@@ -118,7 +118,7 @@
+ 
+ static int __devinit snd_card_als100_isapnp(int dev, struct snd_card_als100 *acard,
+ 					    struct pnp_card_link *card,
+-					    const struct pnp_card_id *id)
++					    const struct pnp_card_device_id *id)
+ {
+ 	struct pnp_dev *pdev;
+ 	struct pnp_resource_table * cfg = kmalloc(GFP_ATOMIC, sizeof(struct pnp_resource_table));
+@@ -210,7 +210,7 @@
+ 
+ static int __init snd_card_als100_probe(int dev,
+ 					struct pnp_card_link *pcard,
+-					const struct pnp_card_id *pid)
++					const struct pnp_card_device_id *pid)
+ {
+ 	int error;
+ 	sb_t *chip;
+@@ -288,7 +288,7 @@
+ }
+ 
+ static int __devinit snd_als100_pnp_detect(struct pnp_card_link *card,
+-					   const struct pnp_card_id *id)
++					   const struct pnp_card_device_id *id)
+ {
+ 	static int dev;
+ 	int res;
+diff -Nru a/sound/isa/sb/es968.c b/sound/isa/sb/es968.c
+--- a/sound/isa/sb/es968.c	Tue Mar 25 21:44:55 2003
++++ b/sound/isa/sb/es968.c	Tue Mar 25 21:44:55 2003
+@@ -69,7 +69,7 @@
+ 	struct pnp_dev *dev;
+ };
+ 
+-static struct pnp_card_id snd_es968_pnpids[] __devinitdata = {
++static struct pnp_card_device_id snd_es968_pnpids[] __devinitdata = {
+ 	{ .id = "ESS0968", .devs = { { "@@@0968" }, } },
+ 	{ .id = "", } /* end */
+ };
+@@ -92,7 +92,7 @@
+ 
+ static int __devinit snd_card_es968_isapnp(int dev, struct snd_card_es968 *acard,
+ 					struct pnp_card_link *card,
+-					const struct pnp_card_id *id)
++					const struct pnp_card_device_id *id)
+ {
+ 	struct pnp_dev *pdev;
+ 	struct pnp_resource_table * cfg = kmalloc(GFP_ATOMIC, sizeof(struct pnp_resource_table));
+@@ -133,7 +133,7 @@
+ 
+ static int __init snd_card_es968_probe(int dev,
+ 					struct pnp_card_link *pcard,
+-					const struct pnp_card_id *pid)
++					const struct pnp_card_device_id *pid)
+ {
+ 	int error;
+ 	sb_t *chip;
+@@ -188,7 +188,7 @@
+ }
+ 
+ static int __devinit snd_es968_pnp_detect(struct pnp_card_link *card,
+-                                          const struct pnp_card_id *id)
++                                          const struct pnp_card_device_id *id)
+ {
+ 	static int dev;
+ 	int res;
+diff -Nru a/sound/oss/sb_card.c b/sound/oss/sb_card.c
+--- a/sound/oss/sb_card.c	Tue Mar 25 21:44:55 2003
++++ b/sound/oss/sb_card.c	Tue Mar 25 21:44:55 2003
+@@ -224,7 +224,7 @@
+ }
+ 
+ /* Probe callback function for the PnP API */
+-static int sb_pnp_probe(struct pnp_card_link *card, const struct pnp_card_id *card_id)
++static int sb_pnp_probe(struct pnp_card_link *card, const struct pnp_card_device_id *card_id)
+ {
+ 	struct sb_card_config *scc;
+ 	struct sb_module_options sbmo = {0}; /* Default to 0 for PnP */
+diff -Nru a/sound/oss/sb_card.h b/sound/oss/sb_card.h
+--- a/sound/oss/sb_card.h	Tue Mar 25 21:44:55 2003
++++ b/sound/oss/sb_card.h	Tue Mar 25 21:44:55 2003
+@@ -23,7 +23,7 @@
   */
- static void fbcon_set_display(struct vc_data *vc, int init, int logo);
-+static void accel_cursor(struct vc_data *vc, struct fb_info *info,
-+			 struct fb_cursor *cursor, int yy);
- static __inline__ int real_y(struct display *p, int ypos);
--static void fb_vbl_handler(int irq, void *dummy, struct pt_regs *fp);
- static __inline__ void updatescrollmode(struct display *p, struct vc_data *vc);
- static __inline__ void ywrap_up(struct vc_data *vc, int count);
- static __inline__ void ywrap_down(struct vc_data *vc, int count);
-@@ -194,6 +195,34 @@
- }
- #endif
-
-+static void fb_callback(void *private)
-+{
-+	struct fb_info *info = (struct fb_info *) private;
-+	struct display *p = &fb_display[fg_console];
-+	struct vc_data *vc = vc_cons[fg_console].d;
-+	struct fb_cursor cursor;
-+
-+	if (!info || !cursor_on)
-+		return;
-+
-+	if (vbl_cursor_cnt && --vbl_cursor_cnt == 0) {
-+		cursor.set = 0;
-+
-+		if (!cursor_drawn)
-+			cursor.set = FB_CUR_SETCUR;
-+		accel_cursor(vc, info, &cursor, real_y(p, vc->vc_y));
-+		cursor_drawn ^= 1;
-+		vbl_cursor_cnt = cursor_blink_rate;
-+	}
-+}
-+
-+static void fb_vbl_handler(int irq, void *dev_id, struct pt_regs *fp)
-+{
-+	struct fb_info *info = dev_id;
-+
-+	schedule_work(&info->queue);
-+}
-+
- static void cursor_timer_handler(unsigned long dev_addr);
-
- static struct timer_list cursor_timer =
-@@ -203,7 +232,7 @@
- {
- 	struct fb_info *info = (struct fb_info *) dev_addr;
-
--	fb_vbl_handler(0, info, NULL);
-+	schedule_work(&info->queue);
- 	cursor_timer.expires = jiffies + HZ / 50;
- 	add_timer(&cursor_timer);
- }
-@@ -290,14 +319,14 @@
- 			    const unsigned short *s)
- {
- 	unsigned short charmask = vc->vc_hi_font_mask ? 0x1ff : 0xff;
--	unsigned int width = (vc->vc_font.width + 7)/8;
-+	unsigned int width = (vc->vc_font.width + 7) >> 3;
- 	unsigned int cellsize = vc->vc_font.height * width;
- 	unsigned int maxcnt = info->pixmap.size/cellsize;
- 	unsigned int shift_low = 0, mod = vc->vc_font.width % 8;
- 	unsigned int shift_high = 8, size, pitch, cnt, k;
- 	unsigned int buf_align = info->pixmap.buf_align - 1;
- 	unsigned int scan_align = info->pixmap.scan_align - 1;
--	unsigned int idx = vc->vc_font.width/8;
-+	unsigned int idx = vc->vc_font.width >> 3;
- 	u8 mask, *src, *dst, *dst0;
-
- 	while (count) {
-@@ -307,7 +336,7 @@
- 			cnt = k = count;
-
- 		image->width = vc->vc_font.width * cnt;
--		pitch = (image->width + 7)/8 + scan_align;
-+		pitch = ((image->width + 7) >> 3) + scan_align;
- 		pitch &= ~scan_align;
- 		size = pitch * vc->vc_font.height + buf_align;
- 		size &= ~buf_align;
-@@ -338,7 +367,7 @@
- 			  const unsigned short *s)
- {
- 	unsigned short charmask = vc->vc_hi_font_mask ? 0x1ff : 0xff;
--	unsigned int width = vc->vc_font.width/8;
-+	unsigned int width = vc->vc_font.width >> 3;
- 	unsigned int cellsize = vc->vc_font.height * width;
- 	unsigned int maxcnt = info->pixmap.size/cellsize;
- 	unsigned int scan_align = info->pixmap.scan_align - 1;
-@@ -411,7 +440,7 @@
-                       int c, int ypos, int xpos)
- {
- 	unsigned short charmask = vc->vc_hi_font_mask ? 0x1ff : 0xff;
--	unsigned int width = (vc->vc_font.width + 7)/8;
-+	unsigned int width = (vc->vc_font.width + 7) >> 3;
- 	unsigned int scan_align = info->pixmap.scan_align - 1;
- 	unsigned int buf_align = info->pixmap.buf_align - 1;
- 	int bgshift = (vc->vc_hi_font_mask) ? 13 : 12;
-@@ -559,6 +588,15 @@
-
- 	vc = (struct vc_data *) kmalloc(sizeof(struct vc_data), GFP_ATOMIC);
-
-+	if (!vc) {
-+		if (softback_buf)
-+			kfree((void *) softback_buf);
-+		return NULL;
-+	}
-+
-+	/* Initialize the work queue */
-+	INIT_WORK(&info->queue, fb_callback, info);
-+
- 	/* Setup default font */
- 	vc->vc_font.data = font->data;
- 	vc->vc_font.width = font->width;
-@@ -956,8 +994,8 @@
- 	accel_putcs(vc, info, s, count, real_y(p, ypos), xpos);
- }
-
--void accel_cursor(struct vc_data *vc, struct fb_info *info, struct fb_cursor *cursor,
--		  int yy)
-+static void accel_cursor(struct vc_data *vc, struct fb_info *info,
-+			 struct fb_cursor *cursor, int yy)
- {
- 	unsigned short charmask = vc->vc_hi_font_mask ? 0x1ff : 0xff;
- 	int bgshift = (vc->vc_hi_font_mask) ? 13 : 12;
-@@ -986,7 +1024,15 @@
- 	size = ((width + 7) >> 3) * height;
-
- 	data = kmalloc(size, GFP_KERNEL);
-+
-+	if (!data) return;
-+
- 	mask = kmalloc(size, GFP_KERNEL);
-+
-+	if (!mask) {
-+		kfree(data);
-+		return;
-+	}
-
- 	if (cursor->set & FB_CUR_SETSIZE) {
- 		memset(data, 0xff, size);
-@@ -1101,27 +1147,6 @@
- 	}
- }
-
--static void fb_vbl_handler(int irq, void *dev_id, struct pt_regs *fp)
--{
--	struct fb_info *info = dev_id;
--	struct display *p = &fb_display[fg_console];
--	struct vc_data *vc = vc_cons[fg_console].d;
--	struct fb_cursor cursor;
--
--	if (!cursor_on)
--		return;
--
--	if (vbl_cursor_cnt && --vbl_cursor_cnt == 0) {
--		cursor.set = 0;
--
--		if (!cursor_drawn)
--			cursor.set = FB_CUR_SETCUR;
--		accel_cursor(vc, info, &cursor, real_y(p, vc->vc_y));
--		cursor_drawn ^= 1;
--		vbl_cursor_cnt = cursor_blink_rate;
--	}
--}
--
- static int scrollback_phys_max = 0;
- static int scrollback_max = 0;
- static int scrollback_current = 0;
-diff -urN -X /home/jsimmons/dontdiff linus-2.5/drivers/video/softcursor.c fbdev-2.5/drivers/video/softcursor.c
---- linus-2.5/drivers/video/softcursor.c	Sat Mar 22 21:45:22 2003
-+++ fbdev-2.5/drivers/video/softcursor.c	Tue Mar 25 11:41:28 2003
-@@ -44,6 +44,7 @@
- 		if (info->cursor.mask)
- 			kfree(info->cursor.mask);
- 		info->cursor.mask = kmalloc(dsize, GFP_KERNEL);
-+		if (!info->cursor.mask) return -ENOMEM;
- 		if (cursor->mask)
- 			memcpy(info->cursor.mask, cursor->mask, dsize);
- 		else
-diff -urN -X /home/jsimmons/dontdiff linus-2.5/include/linux/fb.h fbdev-2.5/include/linux/fb.h
---- linus-2.5/include/linux/fb.h	Sat Mar 22 21:45:25 2003
-+++ fbdev-2.5/include/linux/fb.h	Tue Mar 25 12:00:20 2003
-@@ -2,6 +2,7 @@
- #define _LINUX_FB_H
-
- #include <linux/tty.h>
-+#include <linux/workqueue.h>
- #include <asm/types.h>
- #include <asm/io.h>
-
-@@ -406,8 +407,9 @@
-    struct fb_fix_screeninfo fix;        /* Current fix */
-    struct fb_monspecs monspecs;         /* Current Monitor specs */
-    struct fb_cursor cursor;		/* Current cursor */
--   struct fb_cmap cmap;                 /* Current cmap */
-+   struct work_struct queue;		/* Framebuffer event queue */
-    struct fb_pixmap pixmap;	        /* Current pixmap */
-+   struct fb_cmap cmap;                 /* Current cmap */
-    struct fb_ops *fbops;
-    char *screen_base;                   /* Virtual address */
-    struct vc_data *display_fg;		/* Console visible on this display */
-
-
+ 
+ /* Card PnP ID Table */
+-static struct pnp_card_id sb_pnp_card_table[] = {
++static struct pnp_card_device_id sb_pnp_card_table[] = {
+ 	/* Sound Blaster 16 */
+ 	{.id = "CTL0024", .driver_data = 0, devs : { {.id="CTL0031"}, } },
+ 	/* Sound Blaster 16 */

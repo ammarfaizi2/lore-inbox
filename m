@@ -1,69 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264067AbTDOUaw (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 16:30:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264071AbTDOUav 
+	id S264066AbTDOU2v (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 16:28:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264069AbTDOU2v 
 	(for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 16:30:51 -0400
-Received: from smtp.hccnet.nl ([62.251.0.13]:29123 "EHLO smtp.hccnet.nl")
-	by vger.kernel.org with ESMTP id S264067AbTDOUau 
-	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Apr 2003 16:30:50 -0400
-Message-ID: <3E9C6F10.10001@hccnet.nl>
-Date: Tue, 15 Apr 2003 22:44:00 +0200
-From: Gert Vervoort <gert.vervoort@hccnet.nl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Patrick Mansfield <patmans@us.ibm.com>
-CC: tconnors@astro.swin.edu.au, Robert Love <rml@tech9.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: 2.5.67: ppa driver & preempt == oops
-References: <3E982AAC.3060606@hccnet.nl> <1050172083.2291.459.camel@localhost> <3E993C54.40805@hccnet.nl> <1050255133.733.6.camel@localhost> <3E99A1E4.30904@hccnet.nl> <20030415120000.A30422@beaverton.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 15 Apr 2003 16:28:51 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:55761 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S264066AbTDOU2t (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 15 Apr 2003 16:28:49 -0400
+Date: Tue, 15 Apr 2003 22:40:35 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.4 patch] Re: 2.4.21-pre7: error compiling aic7(censored)/aicasm/aicasm.c
+Message-ID: <20030415204034.GT9640@fs.tum.de>
+References: <20030406125804.GW20044@fs.tum.de> <539290000.1049994210@aslan.btc.adaptec.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <539290000.1049994210@aslan.btc.adaptec.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick Mansfield wrote:
+On Thu, Apr 10, 2003 at 11:03:30AM -0600, Justin T. Gibbs wrote:
+> > <--  snip  -->
+> > 
+> > gcc-2.95 -D__KERNEL__ 
+> > -I/home/bunk/linux/kernel-2.4/linux-2.4.21-pre7-full-nohotplug/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 
+> > -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=k6  -D__KERNEL__ 
+> > -I/home/bunk/linux/kernel-2.4/linux-2.4.21-pre7-full-nohotplug/include -e stext  
+> > aicasm/aicasm.c   -o aicasm/aicasm
+> > /usr/bin/ld: warning: cannot find entry symbol stext; defaulting to 08048760
+> 
+> This is probably due to the misplaced endif in the currently committed
+> drivers/scsi/aic7xxx/Makefile.  Updated versions of the Makefile/driver
+> can be found here:
+> 
+> http://people.FreeBSD.org/~gibbs/linux/SRC/
 
->On Sun, Apr 13, 2003 at 07:44:04PM +0200, Gert Vervoort wrote:
->
->Here is a patch against 2.5.67, can you try it out?
->
->I did not compile let alone run with this patch.
->  
->
-The patch compiles and the warning messages are gone now.
-But, I still can't mount a zip disk.
+Yes, thanks, this fixed it.
 
-Kernel messages after mounting a zip disk (mount -t ext2 /dev/sda1 
-/mnt/zip):
+Marcelo:
+Below is the fix by Justin, please apply.
 
-SCSI device sda: 196608 512-byte hdwr sectors (101 MB)
-sda: Write Protect is off
-sda: Mode Sense: 25 00 00 08
-sda: cache data unavailable
-sda: assuming drive cache: write through
-SCSI device sda: 196608 512-byte hdwr sectors (101 MB)
-sda: Write Protect is off
-sda: Mode Sense: 25 00 00 08
-sda: cache data unavailable
-sda: assuming drive cache: write through
- sda:
+> Justin
 
-The kernel messages are showing twice, does it try to mount the zip disk 
-two times?
+cu
+Adrian
 
-At this point the mount process is stuck:
-
-[root@viper root]# ps -ax | grep zip
-  998 tty1     D      0:00 mount -t ext2 /dev/sda1 /mnt/zip
- 1057 tty2     S      0:00 grep zip
-[gert@viper root]$
-
-
-    Gert
-
-
-
-
+--- linux-2.4.21-pre7-full/drivers/scsi/aic7xxx/Makefile.old	2003-04-15 22:31:43.000000000 +0200
++++ linux-2.4.21-pre7-full/drivers/scsi/aic7xxx/Makefile	2003-04-15 22:31:47.000000000 +0200
+@@ -83,7 +83,7 @@
+ endif
+ $(aic79xx_gen): aic79xx.seq aic79xx.reg aicasm/aicasm
+ 	$(aic79xx_asm_cmd)
++endif
+ 
+ aicasm/aicasm: aicasm/*.[chyl]
+ 	$(MAKE) -C aicasm
+-endif

@@ -1,53 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263168AbUKTTdx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263165AbUKTTsh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263168AbUKTTdx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 14:33:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263167AbUKTTdx
+	id S263165AbUKTTsh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 14:48:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263166AbUKTTsh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 14:33:53 -0500
-Received: from holomorphy.com ([207.189.100.168]:39304 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S263165AbUKTTdk (ORCPT
+	Sat, 20 Nov 2004 14:48:37 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:9692 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S263165AbUKTTse (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 14:33:40 -0500
-Date: Sat, 20 Nov 2004 11:33:25 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
-       clameter@sgi.com, benh@kernel.crashing.org, hugh@veritas.com,
-       linux-mm@kvack.org, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: page fault scalability patch V11 [0/7]: overview
-Message-ID: <20041120193325.GZ2714@holomorphy.com>
-References: <20041120053802.GL2714@holomorphy.com> <419EDB21.3070707@yahoo.com.au> <20041120062341.GM2714@holomorphy.com> <419EE911.20205@yahoo.com.au> <20041119225701.0279f846.akpm@osdl.org> <419EEE7F.3070509@yahoo.com.au> <1834180000.1100969975@[10.10.2.4]> <Pine.LNX.4.58.0411200911540.20993@ppc970.osdl.org> <20041120190818.GX2714@holomorphy.com> <Pine.LNX.4.58.0411201112200.20993@ppc970.osdl.org>
+	Sat, 20 Nov 2004 14:48:34 -0500
+Date: Sat, 20 Nov 2004 20:47:57 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Alan Chandler <alan@chandlerfamily.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ide-cd problem
+Message-ID: <20041120194756.GU26240@suse.de>
+References: <200411201842.15091.alan@chandlerfamily.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0411201112200.20993@ppc970.osdl.org>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <200411201842.15091.alan@chandlerfamily.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 20 Nov 2004, William Lee Irwin III wrote:
->> "The perfect is the enemy of the good."
+On Sat, Nov 20 2004, Alan Chandler wrote:
+> I have been trying to track down why all attempts to burn a cd on my
+> ide cdrw fails (see bug #3741 on bugzilla ), with a subprocess of
+> cdrecord ending up hanging in uninterruptable sleep state.
+> 
+> I think I understand what is happening, I just don't know what to do
+> about it.
+> 
+> Inside drivers/ide/ide-cd.c
+> 
+> the ide_do_rw_cdrom routine has been called via a request with the
+> request flags having the REQ_BLOCK_PC flag set.  The request->data_len
+> of this request is set to 0.
+> 
+> This request is sent to the device and it generates interrupts to
+> eventually land it up inside the routine cdrom_newpc_intr.
+> 
+> At this point the status register on the hardware is set to 0x58 -
+> implying, I think that the DRQ_STAT bit is set and that something
+> should be sent to the device.
+> 
+> Normally, because the requested data_len is not zero, the data is
+> sent.  In this case however, because the original request had nothing
+> to send, the while/if clauses to initiate a new transfer are skipped
+> and the routine ends up setting a new interrupt handler address and
+> returning to await an interrupt that will never come.
 
-On Sat, Nov 20, 2004 at 11:16:12AM -0800, Linus Torvalds wrote:
-> Yes. But in this case, my suggestion _is_ the good. You seem to be pushing 
-> for a really horrid thing which allocates a per-cpu array for each 
-> mm_struct. 
-> What is it that you have against the per-thread rss? We already have 
-> several places that do the thread-looping, so it's not like "you can't do 
-> that" is a valid argument.
+The big question is - what does the original command look like? Just
+dumping rq->cmd[0] would be a big help, but really just put code in
+sg_io() in block/scsi_ioctl.c to dump the completed sg_io_hdr_t and send
+that.
 
-Okay, first thread groups can share mm's, so it's worse than iterating
-over a thread group. Second, the long loops under tasklist_lock didn't
-stop causing rwlock starvation because what patches there were to do
-something about them didn't get merged.
+> Question: should something validate that the request length is not
+> zero earlier, or should there be a check in ide-cd.c, or is it my
+> hardware (its a generic cd read/rewriter which announces itself as
+> 'CW078D CD-R/RW')
 
-I'm not particularly "stuck on" the per-cpu business, it was merely the
-most obvious method of splitting the RSS counter without catastrophes
-elsewhere. Robin Holt's 2.4 performance studies actually show that
-splitting the counter is not even essential.
+It's hard to know, you would have to parse every command type to verify
+if the dxfer_len made sense or not. It's perfectly possible to generate
+a command that would hang the drive as you describe above, only to be
+aborted after it times out.
 
+-- 
+Jens Axboe
 
--- wli

@@ -1,126 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266281AbUA2TIK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jan 2004 14:08:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266291AbUA2TIK
+	id S266274AbUA2TQP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jan 2004 14:16:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266291AbUA2TQP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jan 2004 14:08:10 -0500
-Received: from kinesis.swishmail.com ([209.10.110.86]:50702 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S266281AbUA2TID (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jan 2004 14:08:03 -0500
-Message-ID: <40195AE0.2010006@techsource.com>
-Date: Thu, 29 Jan 2004 14:11:28 -0500
-From: Timothy Miller <miller@techsource.com>
-MIME-Version: 1.0
-To: John Bradford <john@grabjohn.com>
-CC: chakkerz@optusnet.com.au,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] Crazy idea:  Design open-source graphics chip
-References: <4017F2C0.4020001@techsource.com> <200401291211.05461.chakkerz@optusnet.com.au> <40193136.4070607@techsource.com> <200401291629.i0TGTN7S001406@81-2-122-30.bradfords.org.uk> <40193A67.7080308@techsource.com> <200401291718.i0THIgbb001691@81-2-122-30.bradfords.org.uk> <4019472D.70604@techsource.com> <200401291855.i0TItHoU001867@81-2-122-30.bradfords.org.uk>
-In-Reply-To: <200401291855.i0TItHoU001867@81-2-122-30.bradfords.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 29 Jan 2004 14:16:15 -0500
+Received: from mail.shareable.org ([81.29.64.88]:2176 "EHLO mail.shareable.org")
+	by vger.kernel.org with ESMTP id S266274AbUA2TQN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jan 2004 14:16:13 -0500
+Date: Thu, 29 Jan 2004 19:15:00 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH] linux-2.6.2-rc2_vsyscall-gtod_B1.patch
+Message-ID: <20040129191500.GA1027@mail.shareable.org>
+References: <1075344395.1592.87.camel@cog.beaverton.ibm.com> <401894DA.7000609@redhat.com> <20040129132623.GB13225@mail.shareable.org> <40194B6D.6060906@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40194B6D.6060906@redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ulrich Drepper wrote:
+> And they require the syscall stubs to suddenly set up the usual PIC
+> infrastructure since a jump through the PLT is used.
 
+As this is x86, can't the syscall routines in Glibc call directly
+without a PLT entry?  With prelinking, because the vdso is always
+located at the same address, there isn't even a dirty page overhead to
+using non-PIC in this case.
 
-John Bradford wrote:
->>>Well, the cost of fabricating depends on the device.  I was basically
->>>thinking of a 68000, an EPROM and a SIMM on a piece of stripboard,
->>>some ribbon cable and a DB-25 connector.
->>>
->>>Maybe our goals are somewhat different :-)
->>
->>Very different.  What you're describing is a dumb terminal.
-> 
-> 
-> Hardly.  It's nothing like a dumb terminal whatsoever.
-> 
-> It's a simple framebuffer, possibly with line drawing, and box filling
-> capabilities.  Nevertheless, it could be used as a general purpose X
-> display, for spreadsheets, simple to moderate wordprocessing,
-> (I.E. probably not DTP-like applications), status displays for various
-> systems, etc.
-> 
-> So, it does have real world uses.
+> This is much slower than the extra indirection the vdso could do.
 
-But wouldn't it be painfully slow?
+If you have to use a PLT entry it is.  If you can do it without a PLT,
+direct jump to the optimised syscall address is fastest.
 
-> 
-> 
->>What I'm describing is a PC console graphics card that will let someone 
->>play Quake III at a reasonable framerate.
->>
->>Isn't that what most people want?
-> 
-> 
-> In the embedded and server markets, I don't see it being a major
-> requirement, actually.
-> 
-> Just because a standard graphics card is going to do all they want and
-> be cheaper to develop, doesn't make it a requirement.
+> The vdso is just one of the DSOs in the search path and usually the very
+> last.  So there would be possible many objects which are looked at
+> first, unsuccessfully.
 
-Have you ever used a graphics card in VESA mode?  Dragging a window 
-around the screen and watching it repaint can be a very unenjoyable 
-thing to watch.  From what you've described, this is the sort of thing 
-you'd get.
+Being Glibc, you could always tweak ld.so to only look at the last one
+if this were really a performance issue.  Btw, every syscall used by
+the program requires at least one symbol lookup, usually over the
+whole search path, anyway.
 
-> 
-> 
->>And the performance disparity between what you're describing and what 
->>I'm describing is enormous!
-> 
-> 
-> Your arguments seem to be based on the fact that fabricating an ASIC
-> is out of the budget of most individuals, and that no large company
-> would want to develop open source graphics hardware when they can buy
-> $15 graphics cards.  That argument is perfectly valid, but it's
-> incomplete.
-> 
-> What _is_ within the budget of most interested individuals are things
-> like general purpose CPUs, generic video sync generation ICs, SIMMs.
-> The parallel port remains far easier to interface to than the PCI bus,
-> and can easily provide enough bandwidth for experimenting with simple
-> 640x480 framebuffer graphics type applications.
+> And another problem I should have mentioned last night: in statically
+> linked applications the vDSO isn't used this way.  Do dynamic linker
+> functionality is available.  We find the vDSO through the auxiliary
+> vector and use the absolute address, not the symbol table of the vDSO.
+> If the syscall entry in the vDSO would do the dispatch automatically,
+> statically linked apps would benefit from the optimizations, too.
+> Otherwise they are left out.
 
-Interfacing with the PCI bus is easy enough in an FPGA.  If all you want 
-is a dumb framebuffer, you can fit that logic into a very small, 
-inexpensive Xilinx part.  All you need is a DAC and some memory chips, 
-and you're set.
+I hear what you're saying.  These are the things which bother me:
 
-But even PCI can be very slow, particularly for image loads.
+   1. There are already three indirect jumps to make a syscall.
+      (PLT to libc function, indirect jump to vsyscall entry, indirect
+      jump inside kernel).  Another is not necessary (in fact two of
+      those aren't necessary either), why add more?
 
-> 
-> So, we can either do something interesting with the above, or sit
-> around discussing how expensive it is to make a graphics card.
-> 
-> At least it provides a way for us to create the first generation of
-> open graphics hardware cheaply, and experiment with various ideas.
-> 
-> Besides, this is just the first stage - once we have the graphics
-> card, we can move on to other things like the 9-track tape drive
-> discussed on LKML a while ago:
+   2. Table makes the stub for all syscalls slower.
 
+All this is moot, though, because in reality only very few syscalls
+will be optimised, and it doesn't really matter if an older Glibc
+doesn't take advantage of a newer kernel's optimised version.  If
+someone would like the performance, installing an up to date Glibc is
+no big deal.
 
-Ok, so, how about this idea:
+So pragmatically John's solution, with Glibc looking in the vdso just
+for syscalls it knows have an optimised implementation (i.e. just
+gettimeofday so far), is best IMHO.
 
-- Small Xilinx FPGA, 16M of RAM, and a DAC on a board.
-- AGP 2X
-- Up to 2048x2048 resolution at 8, 16, and 32 bpp.
-- Acceleration ONLY for solid fills and bitblts on-screen.
-
-Given that so little is accelerated, there is no point in putting more 
-than the viewable framebuffer on the card, hense the 16 megs.  It would 
-probably actually HURT performance to cache pixmaps on the card.
-
-
-Oh, there's one thing I forgot.  It would have to support VGA.  There is 
-a VGA core on opencores.org that we could use, but its logic area would 
-probably push up the FPGA cost so that the board was in the $100 range. 
-  Probably more.
-
-<sigh>
-
-
+-- Jamie

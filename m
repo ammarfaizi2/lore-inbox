@@ -1,70 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281781AbRKZP0W>; Mon, 26 Nov 2001 10:26:22 -0500
+	id <S281773AbRKZPaM>; Mon, 26 Nov 2001 10:30:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281766AbRKZP0J>; Mon, 26 Nov 2001 10:26:09 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:47839 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S281771AbRKZPYv>;
-	Mon, 26 Nov 2001 10:24:51 -0500
-Date: Mon, 26 Nov 2001 18:22:25 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Momchil Velikov <velco@fadata.bg>
-Cc: <linux-kernel@vger.kernel.org>, "David S. Miller" <davem@redhat.com>
-Subject: Re: [PATCH] Scalable page cache
-In-Reply-To: <87elml4ssx.fsf@fadata.bg>
-Message-ID: <Pine.LNX.4.33.0111261753480.10763-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S281778AbRKZPaD>; Mon, 26 Nov 2001 10:30:03 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:23314 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S281773AbRKZP3y>; Mon, 26 Nov 2001 10:29:54 -0500
+Date: Mon, 26 Nov 2001 16:29:58 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: "Rechenberg, Andrew" <ARechenberg@shermanfinancialgroup.com>
+Cc: "'Ken Brownfield'" <brownfld@irridia.com>,
+        "'linux-mm@kvack.org'" <linux-mm@kvack.org>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: kupdated high load with heavy disk I/O
+Message-ID: <20011126162958.O14196@athlon.random>
+In-Reply-To: <35F52ABC3317D511A55300D0B73EB8056FCC50@cinshrexc01.shermfin.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <35F52ABC3317D511A55300D0B73EB8056FCC50@cinshrexc01.shermfin.com>; from ARechenberg@shermanfinancialgroup.com on Mon, Nov 26, 2001 at 10:08:27AM -0500
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Nov 26, 2001 at 10:08:27AM -0500, Rechenberg, Andrew wrote:
+> Ken,
+> 
+> The 2.4.15pre7 kernel seems to have fixed my issue with kupdated and 4GB
+> RAM.  We did some testing over the weekend and the box was still interactive
+> with a load of 7+.  There still seems to be a lot of swapping going on
+> though.  I've read from previous threads that 2.4 uses swap more readily
+> than 2.2 did, but should it use 10% of my swap and have almost 8MB
+> SwapCached?
 
-On 26 Nov 2001, Momchil Velikov wrote:
+if it only swapouts at a very slow rate over the time and it never
+swapin, then yes it seems sane. You may also give a spin to 2.4.15aa1
+that should swap a bit less.
 
-> Hi,
->
-> This patch:
->
->         - replaces the global page cache hash table with a per mapping
->           splay tree;
->
->         - eliminates the ``pagecache_lock'', instead ``i_shared_lock''
->           is used so serialize access during insertion/deletion
->           into/from the tree;
->
-> The goals of the patch are to:
->
->         - to improve scalability (via the elimination of the global
->           lock);
->
->         - reduce the memory/cache footprint (via to the
->           ``page_hash_table'' elimination);
->
-> The patch is against 2.4.16-pre1. Comments are welcome.
-
-are you aware of the following patch? (written by David Miller and me.)
-
-  http://people.redhat.com/mingo/smp-pagecache-patches/pagecache-2.4.10-A3
-
-it gets rid of the pagecache lock without introducing a tree.
-
-while reducing memory footprint is a goal we want to achieve, the
-pagecache hash is such a critical piece of data structure that we want
-O(1)-type search properties, not a tree. The pagetable hash takes up 0.2%
-of RAM currently. (but we could cut the size of the hash in half i think,
-it's a bit over-sized currently - it has as many entries.)
-
-The problem with the tree is that if we have a big, eg. 16 GB pagecache,
-then even assuming a perfectly balanced tree, it takes more than 20
-iterations to find the page in the tree.  (which also means 20 cachelines
-touched per tree node we pass.) Such an overhead (both algorithmic and
-cache-footprint overhead) is absolutely out of question - and it will only
-get worse with more RAM, which isnt a good property.
-
-hashes on the other hand are simple and fast, and we can always balance
-performance against cache footprint and hash-table memory usage. This is
-one reason why we keept the pagetable hash in our patch.
-
-	Ingo
-
+Andrea

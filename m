@@ -1,49 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132690AbRDCHiy>; Tue, 3 Apr 2001 03:38:54 -0400
+	id <S132686AbRDCHjY>; Tue, 3 Apr 2001 03:39:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132686AbRDCHip>; Tue, 3 Apr 2001 03:38:45 -0400
-Received: from dns.ipv6.univ-nantes.fr ([193.52.101.20]:57873 "HELO
-	popeye.ipv6.univ-nantes.fr") by vger.kernel.org with SMTP
-	id <S132673AbRDCHif>; Tue, 3 Apr 2001 03:38:35 -0400
-Subject: Re: Oracle 8I & Kernel 2.4.3 : Sane ?
-From: Yann Dupont <Yann.Dupont@IPv6.univ-nantes.fr>
+	id <S132673AbRDCHjO>; Tue, 3 Apr 2001 03:39:14 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:57870 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S132686AbRDCHjD>; Tue, 3 Apr 2001 03:39:03 -0400
+Message-ID: <3AC97AF0.C5D6EDA7@evision-ventures.com>
+Date: Tue, 03 Apr 2001 09:25:36 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: en, de
+MIME-Version: 1.0
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E14kCRR-0006ob-00@the-village.bc.nu>
-In-Reply-To: <E14kCRR-0006ob-00@the-village.bc.nu>
-Content-Type: text/plain; charset=ISO-8859-1
-X-Mailer: Evolution/0.10+cvs.2001.04.01.08.00 (Preview Release)
-Date: 03 Apr 2001 09:37:44 +0200
-Message-Id: <986283464.10243.0.camel@olive>
-Mime-Version: 1.0
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        "H. Peter Anvin" <hpa@transmeta.com>, Andries.Brouwer@cwi.nl,
+        linux-kernel@vger.kernel.org, tytso@MIT.EDU
+Subject: Re: Larger dev_t
+In-Reply-To: <E14kAWs-0006cZ-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le 02 Apr 2001 23:04:50 +0100, Alan Cox a écrit :
-> > I noticed that 2.4.3 contains some fixs for shared memory -
-> > So the final question IS :
-> > 
-> > Is oracle 8.1.5 + Kernel 2.4.3 a sane combination ?
+Alan Cox wrote:
 > 
-> Probably not yet but getting closer.
-
-Ok, thanks for the quick answer. That's good news.
-
+> > So change them as well for a new distribution. What's there problem.
+> > There isn't anything out there you can't do by hand.
+> > Fortunately so!
 > 
-> > In general is oracle + Kernel 2.4 working ? 
-> 
-> Ditto.
-> 
-> The shm and rawio fixes are very recent
-> 
+> So users cannot go back and forward between new and old kernels. Very good.
+> Try explaining that to serious production -users- of a system and see how
+> it goes down
 
-Ok. That needs some test ...
-
-Yann Dupont.
--- 
-\|/ ____ \|/ Fac. des sciences de Nantes-Linux-Python-IPv6-ATM-BONOM....
-"@'/ ,. \@"  Tel :(+33) [0]251125865(AM)[0]251125857(PM)[0]251125868(Fax)
-/_| \__/ |_\ Yann.Dupont@sciences.univ-nantes.fr
-   \__U_/    http://www.unantes.univ-nantes.fr/~dupont
-
+If anything I'm a *SERIOUS* production user. And I wouldn't allow
+*ANYBODY* here to run am explicitly tagged as developement kernel
+here anyway in an production enviornment. That's what releases are for
+damn.
+Or do you think that Linux should still preserve DOS compatibility
+in to the eternity as other "popular" systems do?

@@ -1,45 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268155AbUHKR63@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268140AbUHKR64@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268155AbUHKR63 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 13:58:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268142AbUHKRzy
+	id S268140AbUHKR64 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 13:58:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268142AbUHKR64
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 13:55:54 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:57517 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S268139AbUHKRyS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 13:54:18 -0400
-Message-ID: <411A5D3B.3010808@pobox.com>
-Date: Wed, 11 Aug 2004 13:54:03 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: Christoph Hellwig <hch@infradead.org>,
-       Jeff Chua <jeffchua@silk.corp.fedex.com>,
-       Tomas Szepe <szepe@pinerecords.com>, netdev@oss.sgi.com,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Jouni Malinen <jkmaline@cc.hut.fi>
-Subject: Re: ipw2100 wireless driver
-References: <20040714114135.GA25175@elf.ucw.cz> <Pine.LNX.4.60.0407141947270.27995@boston.corp.fedex.com> <20040714115523.GC2269@elf.ucw.cz> <20040809201556.GB9677@louise.pinerecords.com> <Pine.LNX.4.61.0408101258130.1290@boston.corp.fedex.com> <20040810075558.A14154@infradead.org> <20040810101640.GF9034@atrey.karlin.mff.cuni.cz> <20040810113439.A15100@infradead.org> <20040811121735.GA31171@elf.ucw.cz>
-In-Reply-To: <20040811121735.GA31171@elf.ucw.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 11 Aug 2004 13:58:56 -0400
+Received: from mail.kroah.org ([69.55.234.183]:29348 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S268140AbUHKR54 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 13:57:56 -0400
+Date: Wed, 11 Aug 2004 10:28:00 -0700
+From: Greg KH <greg@kroah.com>
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: Jon Smirl <jonsmirl@yahoo.com>, Martin Mares <mj@ucw.cz>,
+       linux-pci@atrey.karlin.mff.cuni.cz, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Petr Vandrovec <VANDROVE@vc.cvut.cz>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH] add PCI ROMs to sysfs
+Message-ID: <20040811172800.GB14979@kroah.com>
+References: <20040806211413.77833.qmail@web14926.mail.yahoo.com> <200408111004.02995.jbarnes@engr.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200408111004.02995.jbarnes@engr.sgi.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> Hmm, strange, one merge in last 8 weeks. That's not too active
-> project. Are you sure this is the right tree to work against?
+On Wed, Aug 11, 2004 at 10:04:02AM -0700, Jesse Barnes wrote:
+> On Friday, August 6, 2004 2:14 pm, Jon Smirl wrote:
+> > Please check the code out and give it some testing. It will probably
+> > needs some adjustment for other platforms.
+> 
+> Jon, this works on my machine too.  Greg, if it looks ok can you pull it in?  
+> And can you add:
+> 
+>  * (C) Copyright 2004 Silicon Graphics, Inc.
+>  *       Jesse Barnes <jbarnes@sgi.com>
+> 
+> to pci-sysfs.c if you do?
 
+Care to send me a new patch?  Oh, and that copyright line needs to look
+like:
+* Copyright (c) 2004 Silicon Graphics, Inc. Jesse Barnes <jbarnes@sgi.com>
 
-It's the right tree, but wireless development hasn't coalesced yet on 
-that tree it appears.  It sounds like the Intel folks are interested in 
-working on that tree, and others have mentioned they are interested as well.
+to make it legal, or so my lawyers say :)
 
-Waiting for people step up, and put their code where their mouth is...
+> Greg was a little worried that your comment
+> 	/* .size is set individually for each device, sysfs copies it into dentry */
+> might not be correct.
 
-	Jeff
+I looked at the code, and he's right.  But it's pretty scary that it
+works correctly so I'd prefer to do it the way your patch did it (create
+a new attribute for every entry.)
 
+thnaks,
 
+greg k-h

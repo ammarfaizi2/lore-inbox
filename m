@@ -1,55 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261295AbUKNMgi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261296AbUKNM43@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261295AbUKNMgi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Nov 2004 07:36:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261297AbUKNMgh
+	id S261296AbUKNM43 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Nov 2004 07:56:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261297AbUKNM43
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Nov 2004 07:36:37 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:40092 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261295AbUKNMgg (ORCPT
+	Sun, 14 Nov 2004 07:56:29 -0500
+Received: from mail.gmx.net ([213.165.64.20]:30086 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261296AbUKNM4Z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Nov 2004 07:36:36 -0500
-Date: Sun, 14 Nov 2004 13:38:18 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Gunther Persoons <gunther_persoons@spymac.com>
-Cc: linux-kernel@vger.kernel.org, Karsten Wiese <annabellesgarden@yahoo.de>
+	Sun, 14 Nov 2004 07:56:25 -0500
+X-Authenticated: #4399952
+Date: Sun, 14 Nov 2004 13:56:56 +0100
+From: Florian Schmidt <mista.tapas@gmx.net>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
+       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>
 Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm3-V0.7.25-1
-Message-ID: <20041114123818.GA10772@elte.hu>
-References: <20041103105840.GA3992@elte.hu> <20041106155720.GA14950@elte.hu> <20041108091619.GA9897@elte.hu> <20041108165718.GA7741@elte.hu> <20041109160544.GA28242@elte.hu> <20041111144414.GA8881@elte.hu> <20041111215122.GA5885@elte.hu> <41951380.2080801@spymac.com> <20041112201936.GA15133@elte.hu> <419694EC.7090701@spymac.com>
+Message-ID: <20041114135656.7aa3b95b@mango.fruits.de>
+In-Reply-To: <20041111215122.GA5885@elte.hu>
+References: <20041022155048.GA16240@elte.hu>
+	<20041022175633.GA1864@elte.hu>
+	<20041025104023.GA1960@elte.hu>
+	<20041027001542.GA29295@elte.hu>
+	<20041103105840.GA3992@elte.hu>
+	<20041106155720.GA14950@elte.hu>
+	<20041108091619.GA9897@elte.hu>
+	<20041108165718.GA7741@elte.hu>
+	<20041109160544.GA28242@elte.hu>
+	<20041111144414.GA8881@elte.hu>
+	<20041111215122.GA5885@elte.hu>
+X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <419694EC.7090701@spymac.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 11 Nov 2004 22:51:22 +0100
+Ingo Molnar <mingo@elte.hu> wrote:
 
-* Gunther Persoons <gunther_persoons@spymac.com> wrote:
+> i have released the -V0.7.25-1 Real-Time Preemption patch, which can be
+> downloaded from the usual place:
+> 
+>     http://redhat.com/~mingo/realtime-preempt/
 
-> this bug i got with .26
-> wget:12388 BUG: lock held at task exit time!
-> [c03ec764] {kernel_sem.lock}
-> .. held by:              wget:12388 [c87d2680, 116]
-> ... acquired at:  __lock_text_start+0x2c/0x63
+Hi,
 
-i've uploaded .26-1 which has special BKL-debugging code added, which
-will (hopefully) pinpoint where the BKL count leaked. (Karsten had
-similar problems, with NFS.)
+i just build and booted into 26-3 (w/o debugging stuff) and put a little
+load on the system (find /'s plus kernel compile plus rtc_wakeup -f 8192).
+Got this on the console:
 
-so, could you try .26-1 from the usual place:
+`IRQ 8` [14] is being piggy. need_resched=0, cpu=0
 
-    http://redhat.com/~mingo/realtime-preempt/
+and the machine locked. will build with debugging and try to reproduce.
 
-and make sure you still have CONFIG_RT_DEADLOCK_DETECT enabled. When
-this warning message hits next time around it should print some more
-info about the place that last acquired the BKL.
-
-	Ingo
+flo

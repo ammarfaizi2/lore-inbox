@@ -1,45 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262914AbUDYEL6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262936AbUDYEXo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262914AbUDYEL6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Apr 2004 00:11:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262906AbUDYEL5
+	id S262936AbUDYEXo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Apr 2004 00:23:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262930AbUDYEXo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Apr 2004 00:11:57 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:50629 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S262914AbUDYELN (ORCPT
+	Sun, 25 Apr 2004 00:23:44 -0400
+Received: from ns.clanhk.org ([69.93.101.154]:12234 "EHLO mail.clanhk.org")
+	by vger.kernel.org with ESMTP id S262904AbUDYEXm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Apr 2004 00:11:13 -0400
-Message-Id: <200404240118.i3O1IuZt002673@pincoya.inf.utfsm.cl>
-To: root@chaos.analogic.com
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: File system compression, not at the block layer 
-In-Reply-To: Your message of "Fri, 23 Apr 2004 16:34:21 -0400."
-             <Pine.LNX.4.53.0404231624010.1352@chaos> 
-X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 14)
-Date: Fri, 23 Apr 2004 21:18:56 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Sun, 25 Apr 2004 00:23:42 -0400
+Message-ID: <408B3D76.4070601@clanhk.org>
+Date: Sat, 24 Apr 2004 23:24:22 -0500
+From: "J. Ryan Earl" <heretic@clanhk.org>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-ide@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [sata] libata update
+References: <408B26FC.30101@pobox.com>
+In-Reply-To: <408B26FC.30101@pobox.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" <root@chaos.analogic.com> said:
+Jeff Garzik wrote:
 
-[...]
+> interesting features to appear in rapid succession: hotplug, random 
+> taskfile submission (SMART!), and ATAPI.
 
-> If you want to have fast disks, then you should do what I
-> suggested to Digital 20 years ago when they had ST-506
-> interfaces and SCSI was available only from third-parties.
-> It was called "striping" (I'm serious!). Not the so-called
-> RAID crap that took the original idea and destroyed it.
-> If you have 32-bits, you design an interface board for 32
-> disks. The interface board strips each bit to the data that
-> each disk gets. That makes the whole array 32 times faster
-> than a single drive and, of course, 32 times larger.
+Nice.  Many will love you for hotplug.
 
-But seeks are just as slow as before... and weigh in more as sectors are
-shorter (for the same visible sector size, 1/32th). I'm not so sure this is
-a win overall.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+-ryan

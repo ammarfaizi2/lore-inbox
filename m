@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265342AbTLNE3k (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Dec 2003 23:29:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265343AbTLNE3k
+	id S265343AbTLNEdH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Dec 2003 23:33:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265345AbTLNEdH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Dec 2003 23:29:40 -0500
-Received: from smtp-out.attla.net.ar ([200.61.58.140]:24903 "EHLO
-	pop3.attla.net.ar") by vger.kernel.org with ESMTP id S265342AbTLNE3i
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Dec 2003 23:29:38 -0500
-Message-ID: <006501c3c1fa$e1fb8d90$0200000a@heretic>
-From: "Alexis" <alexis@attla.net.ar>
-To: <linux-kernel@vger.kernel.org>
-Subject: modules in 2.6.0-test11
-Date: Sun, 14 Dec 2003 01:29:36 -0300
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Sat, 13 Dec 2003 23:33:07 -0500
+Received: from mail.jlokier.co.uk ([81.29.64.88]:5764 "EHLO mail.shareable.org")
+	by vger.kernel.org with ESMTP id S265343AbTLNEdE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Dec 2003 23:33:04 -0500
+Date: Sun, 14 Dec 2003 04:32:45 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: bill davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
+Subject: Re: [CFT][RFC] HT scheduler
+Message-ID: <20031214043245.GC21241@mail.shareable.org>
+References: <20031213022038.300B22C2C1@lists.samba.org> <3FDAB517.4000309@cyberone.com.au> <brgeo7$huv$1@gatekeeper.tmr.com> <3FDBC876.3020603@cyberone.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3FDBC876.3020603@cyberone.com.au>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ive compilled and installed 2.6.0-test11 on redhat 8 in order to filter
-packets based on some patterns in layer 7 (l7-filter.sourceforge.net)
+Nick Piggin wrote:
+> >Shared runqueues sound like a simplification to describe execution units
+> >which have shared resourses and null cost of changing units. You can do
+> >that by having a domain which behaved like that, but a shared runqueue
+> >sounds better because it would eliminate the cost of even considering
+> >moving a process from one sibling to another.
+> 
+> You are correct, however it would be a miniscule cost advantage,
+> possibly outweighed by the shared lock, and overhead of more
+> changing of CPUs (I'm sure there would be some cost).
 
-So, ive installed the kernel, and installed module-init-tools-0.9.14 too.
+Regarding the overhead of the shared runqueue lock:
 
-The kernel works fine, all modules too but i have to insert them with insmod
-or modprobe, i cannot make that modules became loaded automatically.
+Is the "lock" prefix actually required for locking between x86
+siblings which share the same L1 cache?
 
-Ive compiled the kernel with CONFIG_KMOD=Y
-
-any help?
-
-Thanks
-
-
-
---
-A man in black on a snow white horse,
-A pointless life has run its course,
-The red rimmed eyes, the tears still run
-As he fades into the setting sun
-
-
+-- Jaime

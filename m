@@ -1,254 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262541AbVCSOwn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261514AbVCSPDO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262541AbVCSOwn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Mar 2005 09:52:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262555AbVCSOwn
+	id S261514AbVCSPDO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Mar 2005 10:03:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262562AbVCSPDO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Mar 2005 09:52:43 -0500
-Received: from mail-in-07.arcor-online.net ([151.189.21.47]:2192 "EHLO
-	mail-in-07.arcor-online.net") by vger.kernel.org with ESMTP
-	id S262541AbVCSOwS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Mar 2005 09:52:18 -0500
-Date: Sat, 19 Mar 2005 15:56:32 +0100 (CET)
-From: Bodo Eggert <7eggert@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6.11.2][RFC] printk with antisp am-feature
-Message-ID: <Pine.LNX.4.58.0503191554240.3024@be1.lrz>
-MIME-Version: 1.0
-Content-Type: MULTIPART/Mixed; BOUNDARY="-1463760639-1199172649-1111188901=:4541"
-Content-ID: <Pine.LNX.4.58.0503191554250.3024@be1.lrz>
+	Sat, 19 Mar 2005 10:03:14 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:49670 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261514AbVCSPDF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Mar 2005 10:03:05 -0500
+Date: Sat, 19 Mar 2005 16:02:44 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: aeb@cwi.nl, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] small partitions/msdos cleanups
+Message-ID: <20050319150244.GA5349@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+This patch makes the following changes to the msdos partition code:
+- remove CONFIG_NEC98_PARTITION leftovers
+- make parse_bsd static
+
+This patch was already ACK'ed by Andries Brouwer.
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+---
+
+@Andrew:
+I've removed the accidental double slashes from the pathnames that 
+worked fine with GNU patch but might have confused your scripts.
+
+This patch was already sent on:
+- 11 Mar 2005
+- 25 Feb 2005
+- 1 Feb 2005
+- 7 Jan 2005
+- 14 Dec 2004
+- 7 Dec 2004
+- 30 Oct 2004
+
+diffstat output:
+ fs/partitions/Makefile |    1 -
+ fs/partitions/check.c  |    3 ---
+ fs/partitions/check.h  |    4 ----
+ fs/partitions/msdos.c  |    4 ++--
+ 4 files changed, 2 insertions(+), 10 deletions(-)
+
+--- linux-2.6.10-rc1-mm2-full/fs/partitions/Makefile.old	2004-10-30 14:42:03.000000000 +0200
++++ linux-2.6.10-rc1-mm2-full/fs/partitions/Makefile	2004-10-30 14:42:13.000000000 +0200
+@@ -17,4 +17,3 @@
+ obj-$(CONFIG_ULTRIX_PARTITION) += ultrix.o
+ obj-$(CONFIG_IBM_PARTITION) += ibm.o
+ obj-$(CONFIG_EFI_PARTITION) += efi.o
+-obj-$(CONFIG_NEC98_PARTITION) += nec98.o msdos.o
+--- linux-2.6.10-rc1-mm2-full/fs/partitions/check.h.old	2004-10-30 14:40:20.000000000 +0200
++++ linux-2.6.10-rc1-mm2-full/fs/partitions/check.h	2004-10-30 14:40:41.000000000 +0200
+@@ -30,7 +30,3 @@
+ 
+ extern int warn_no_part;
+ 
+-extern void parse_bsd(struct parsed_partitions *state,
+-			struct block_device *bdev, u32 offset, u32 size,
+-			int origin, char *flavour, int max_partitions);
+-
+--- linux-2.6.10-rc1-mm2-full/fs/partitions/check.c.old	2004-10-30 14:41:32.000000000 +0200
++++ linux-2.6.10-rc1-mm2-full/fs/partitions/check.c	2004-10-30 14:41:43.000000000 +0200
+@@ -76,9 +76,6 @@
+ #ifdef CONFIG_LDM_PARTITION
+ 	ldm_partition,		/* this must come before msdos */
+ #endif
+-#ifdef CONFIG_NEC98_PARTITION
+-	nec98_partition,	/* must be come before `msdos_partition' */
+-#endif
+ #ifdef CONFIG_MSDOS_PARTITION
+ 	msdos_partition,
+ #endif
+--- linux-2.6.10-rc1-mm2-full/fs/partitions/msdos.c.old	2004-10-30 14:38:38.000000000 +0200
++++ linux-2.6.10-rc1-mm2-full/fs/partitions/msdos.c	2004-10-30 14:41:57.000000000 +0200
+@@ -202,12 +202,12 @@
+ #endif
+ }
+ 
+-#if defined(CONFIG_BSD_DISKLABEL) || defined(CONFIG_NEC98_PARTITION)
++#if defined(CONFIG_BSD_DISKLABEL)
+ /* 
+  * Create devices for BSD partitions listed in a disklabel, under a
+  * dos-like partition. See parse_extended() for more information.
+  */
+-void
++static void
+ parse_bsd(struct parsed_partitions *state, struct block_device *bdev,
+ 		u32 offset, u32 size, int origin, char *flavour,
+ 		int max_partitions)
 
----1463760639-1199172649-1111188901=:4541
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.LNX.4.58.0503191554251.3024@be1.lrz>
-
-Issue:
-
-On some conditions, the dmesg is spammed with repeated warnings about the
-same issue which is neither critical nor going to be fixed. This may
-result in losing the boot messages or missing other important messages.
-
-Examples are:
-
-nfs warning: mount version older than kernel
- (my mount is newer than documented to be required)
-
-atkbd.c: Keyboard on isa0060/serio0 reports too many keys pressed.
- (I'm using a keyboard switch and a IBM PS/2 keyboard)
-
-program smartd is using a deprecated SCSI ioctl, please convert it to SG_IO
- (I'll use the latest version as soon as I need to)
-
-
-
-Rate-limiting these messages is won't help, since it would still allow
-these messages to (slowly or in a burst) spam the log.
-
-Printing these messages only once after booting might result in missing
-important messages, especially on long-running systems (e.g. if my
-keyboard really breaks after I have used the keyboard switch).
-
-
-Suggested solution:
-
-Instead, I decided to use a global flag with a semi-random magic number,
-which will indicate the last printk being supposed to be limited, and to
-reset this flag on each normal printk. By doing this, dmesg will not be
-spammed, but the latest issue is displayed last.
-
-(I suggest using the first value from "cksum file.c" as the magic number
-unless there are thousands of printks to convert.)
-
-The magic number depends on the CPU being able to read and write a
-complete int at once *or* being lucky not to have a magic value that can
-be constructed by combining some other magic numbers and printking with
-exactly that magic number while the update happens. I can convert the
-variable to an atomic type if it is a concern, but that would increase the
-chances of a clash due to the 24 bit limit.
-
-The patch increases the size of vmlinux by 141 bytes.
--- 
-The programmer's National Anthem is 'AAAAAAAAHHHHHHHH' 
----1463760639-1199172649-1111188901=:4541
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="printk_nospam.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.58.0503182303270.4541@be1.lrz>
-Content-Description: 
-Content-Disposition: ATTACHMENT; FILENAME="printk_nospam.patch"
-
-ZGlmZiAtdXByTiBsaW51eC0yLjYuMTEvZHJpdmVycy9ibG9jay9zY3NpX2lv
-
-Y3RsLmMgbGludXgtMi42LjExLm5ldy9kcml2ZXJzL2Jsb2NrL3Njc2lfaW9j
-
-dGwuYw0KLS0tIGxpbnV4LTIuNi4xMS9kcml2ZXJzL2Jsb2NrL3Njc2lfaW9j
-
-dGwuYwkyMDA1LTAzLTAzIDE1OjQxOjI4LjAwMDAwMDAwMCArMDEwMA0KKysr
-
-IGxpbnV4LTIuNi4xMS5uZXcvZHJpdmVycy9ibG9jay9zY3NpX2lvY3RsLmMJ
-
-MjAwNS0wMy0xOCAyMjowODozNS4wMDAwMDAwMDAgKzAxMDANCkBAIC01NDcs
-
-NyArNTQ3LDcgQEAgaW50IHNjc2lfY21kX2lvY3RsKHN0cnVjdCBmaWxlICpm
-
-aWxlLCBzdA0KIAkJICogb2xkIGp1bmsgc2NzaSBzZW5kIGNvbW1hbmQgaW9j
-
-dGwNCiAJCSAqLw0KIAkJY2FzZSBTQ1NJX0lPQ1RMX1NFTkRfQ09NTUFORDoN
-
-Ci0JCQlwcmludGsoS0VSTl9XQVJOSU5HICJwcm9ncmFtICVzIGlzIHVzaW5n
-
-IGEgZGVwcmVjYXRlZCBTQ1NJIGlvY3RsLCBwbGVhc2UgY29udmVydCBpdCB0
-
-byBTR19JT1xuIiwgY3VycmVudC0+Y29tbSk7DQorCQkJcHJpbnRrX25vc3Bh
-
-bSgyMjk2MTU5NTkxLCBLRVJOX1dBUk5JTkcgInByb2dyYW0gJXMgaXMgdXNp
-
-bmcgYSBkZXByZWNhdGVkIFNDU0kgaW9jdGwsIHBsZWFzZSBjb252ZXJ0IGl0
-
-IHRvIFNHX0lPXG4iLCBjdXJyZW50LT5jb21tKTsNCiAJCQllcnIgPSAtRUlO
-
-VkFMOw0KIAkJCWlmICghYXJnKQ0KIAkJCQlicmVhazsNCmRpZmYgLXVwck4g
-
-bGludXgtMi42LjExL2RyaXZlcnMvaW5wdXQva2V5Ym9hcmQvYXRrYmQuYyBs
-
-aW51eC0yLjYuMTEubmV3L2RyaXZlcnMvaW5wdXQva2V5Ym9hcmQvYXRrYmQu
-
-Yw0KLS0tIGxpbnV4LTIuNi4xMS9kcml2ZXJzL2lucHV0L2tleWJvYXJkL2F0
-
-a2JkLmMJMjAwNS0wMy0wMyAxNTo0MTozMy4wMDAwMDAwMDAgKzAxMDANCisr
-
-KyBsaW51eC0yLjYuMTEubmV3L2RyaXZlcnMvaW5wdXQva2V5Ym9hcmQvYXRr
-
-YmQuYwkyMDA1LTAzLTE4IDIyOjQ1OjQyLjAwMDAwMDAwMCArMDEwMA0KQEAg
-
-LTMyMCw3ICszMjAsNyBAQCBzdGF0aWMgaXJxcmV0dXJuX3QgYXRrYmRfaW50
-
-ZXJydXB0KHN0cnVjDQogCQkJYXRrYmRfcmVwb3J0X2tleSgmYXRrYmQtPmRl
-
-diwgcmVncywgS0VZX0hBTkpBLCAzKTsNCiAJCQlnb3RvIG91dDsNCiAJCWNh
-
-c2UgQVRLQkRfUkVUX0VSUjoNCi0JCQlwcmludGsoS0VSTl9ERUJVRyAiYXRr
-
-YmQuYzogS2V5Ym9hcmQgb24gJXMgcmVwb3J0cyB0b28gbWFueSBrZXlzIHBy
-
-ZXNzZWQuXG4iLCBzZXJpby0+cGh5cyk7DQorCQkJcHJpbnRrX25vc3BhbSgy
-
-MjYwNjIwMTU4LCBLRVJOX0RFQlVHICJhdGtiZC5jOiBLZXlib2FyZCBvbiAl
-
-cyByZXBvcnRzIHRvbyBtYW55IGtleXMgcHJlc3NlZC5cbiIsIHNlcmlvLT5w
-
-aHlzKTsNCiAJCQlnb3RvIG91dDsNCiAJfQ0KIA0KZGlmZiAtdXByTiBsaW51
-
-eC0yLjYuMTEvZnMvbmZzL2lub2RlLmMgbGludXgtMi42LjExLm5ldy9mcy9u
-
-ZnMvaW5vZGUuYw0KLS0tIGxpbnV4LTIuNi4xMS9mcy9uZnMvaW5vZGUuYwky
-
-MDA1LTAzLTAzIDE1OjQxOjU5LjAwMDAwMDAwMCArMDEwMA0KKysrIGxpbnV4
-
-LTIuNi4xMS5uZXcvZnMvbmZzL2lub2RlLmMJMjAwNS0wMy0xOCAyMjo0ODow
-
-OS4wMDAwMDAwMDAgKzAxMDANCkBAIC0xMzg2LDcgKzEzODYsNyBAQCBzdGF0
-
-aWMgc3RydWN0IHN1cGVyX2Jsb2NrICpuZnNfZ2V0X3NiKHN0DQogCWluaXRf
-
-bmZzdjRfc3RhdGUoc2VydmVyKTsNCiANCiAJaWYgKGRhdGEtPnZlcnNpb24g
-
-IT0gTkZTX01PVU5UX1ZFUlNJT04pIHsNCi0JCXByaW50aygibmZzIHdhcm5p
-
-bmc6IG1vdW50IHZlcnNpb24gJXMgdGhhbiBrZXJuZWxcbiIsDQorCQlwcmlu
-
-dGtfbm9zcGFtKDEzNzc0ODEwMzYsICJuZnMgd2FybmluZzogbW91bnQgdmVy
-
-c2lvbiAlcyB0aGFuIGtlcm5lbFxuIiwNCiAJCQlkYXRhLT52ZXJzaW9uIDwg
-
-TkZTX01PVU5UX1ZFUlNJT04gPyAib2xkZXIiIDogIm5ld2VyIik7DQogCQlp
-
-ZiAoZGF0YS0+dmVyc2lvbiA8IDIpDQogCQkJZGF0YS0+bmFtbGVuID0gMDsN
-
-CmRpZmYgLXVwck4gbGludXgtMi42LjExL2luY2x1ZGUvbGludXgva2VybmVs
-
-LmggbGludXgtMi42LjExLm5ldy9pbmNsdWRlL2xpbnV4L2tlcm5lbC5oDQot
-
-LS0gbGludXgtMi42LjExL2luY2x1ZGUvbGludXgva2VybmVsLmgJMjAwNS0w
-
-My0wMyAxNTo0MjoxMy4wMDAwMDAwMDAgKzAxMDANCisrKyBsaW51eC0yLjYu
-
-MTEubmV3L2luY2x1ZGUvbGludXgva2VybmVsLmgJMjAwNS0wMy0xOCAyMjow
-
-Njo0Mi4wMDAwMDAwMDAgKzAxMDANCkBAIC0xMDQsNiArMTA0LDEwIEBAIGV4
-
-dGVybiBpbnQgc2Vzc2lvbl9vZl9wZ3JwKGludCBwZ3JwKTsNCiBhc21saW5r
-
-YWdlIGludCB2cHJpbnRrKGNvbnN0IGNoYXIgKmZtdCwgdmFfbGlzdCBhcmdz
-
-KTsNCiBhc21saW5rYWdlIGludCBwcmludGsoY29uc3QgY2hhciAqIGZtdCwg
-
-Li4uKQ0KIAlfX2F0dHJpYnV0ZV9fICgoZm9ybWF0IChwcmludGYsIDEsIDIp
-
-KSk7DQorYXNtbGlua2FnZSBpbnQgcHJpbnRrX25vc3BhbShpbnQgbWFnaWMs
-
-IGNvbnN0IGNoYXIgKiBmbXQsIC4uLikNCisJX19hdHRyaWJ1dGVfXyAoKGZv
-
-cm1hdCAocHJpbnRmLCAyLCAzKSkpOw0KKy8qIHVzZSBhIHJhbmRvbSB2YWx1
-
-ZSBmb3IgdGhlIG1hZ2ljLCBlLmcuIHRoZSBmaXJzdCB2YWx1ZSBmcm9tDQor
-
-ICAgY2tzdW0gb24gdGhlIGZpbGUgeW91J3JlIGVkaXRpbmcgKi8NCiANCiB1
-
-bnNpZ25lZCBsb25nIGludF9zcXJ0KHVuc2lnbmVkIGxvbmcpOw0KIA0KZGlm
-
-ZiAtdXByTiBsaW51eC0yLjYuMTEva2VybmVsL3ByaW50ay5jIGxpbnV4LTIu
-
-Ni4xMS5uZXcva2VybmVsL3ByaW50ay5jDQotLS0gbGludXgtMi42LjExL2tl
-
-cm5lbC9wcmludGsuYwkyMDA1LTAzLTE4IDIxOjU0OjM1LjAwMDAwMDAwMCAr
-
-MDEwMA0KKysrIGxpbnV4LTIuNi4xMS5uZXcva2VybmVsL3ByaW50ay5jCTIw
-
-MDUtMDMtMTggMjI6NDA6MDIuMDAwMDAwMDAwICswMTAwDQpAQCAtMTE1LDYg
-
-KzExNSw4IEBAIHN0YXRpYyBpbnQgcHJlZmVycmVkX2NvbnNvbGUgPSAtMTsN
-
-CiAvKiBGbGFnOiBjb25zb2xlIGNvZGUgbWF5IGNhbGwgc2NoZWR1bGUoKSAq
-
-Lw0KIHN0YXRpYyBpbnQgY29uc29sZV9tYXlfc2NoZWR1bGU7DQogDQorc3Rh
-
-dGljIGludCBhbnRpc3BhbV9tYWdpYzsNCisNCiAvKg0KICAqCVNldHVwIGEg
-
-bGlzdCBvZiBjb25zb2xlcy4gQ2FsbGVkIGZyb20gaW5pdC9tYWluLmMNCiAg
-
-Ki8NCkBAIC01MTcsNiArNTE5LDI0IEBAIGFzbWxpbmthZ2UgaW50IHByaW50
-
-ayhjb25zdCBjaGFyICpmbXQsIC4NCiAJdmFfbGlzdCBhcmdzOw0KIAlpbnQg
-
-cjsNCiANCisJYW50aXNwYW1fbWFnaWMgPSAwOw0KKw0KKwl2YV9zdGFydChh
-
-cmdzLCBmbXQpOw0KKwlyID0gdnByaW50ayhmbXQsIGFyZ3MpOw0KKwl2YV9l
-
-bmQoYXJncyk7DQorDQorCXJldHVybiByOw0KK30NCisNCithc21saW5rYWdl
-
-IGludCBwcmludGtfbm9zcGFtKGludCBtYWdpYywgY29uc3QgY2hhciAqZm10
-
-LCAuLi4pDQorew0KKwl2YV9saXN0IGFyZ3M7DQorCWludCByOw0KKwkNCisJ
-
-aWYgKG1hZ2ljID09IGFudGlzcGFtX21hZ2ljKQ0KKwkJcmV0dXJuIDA7DQor
-
-CWFudGlzcGFtX21hZ2ljID0gbWFnaWM7DQorDQogCXZhX3N0YXJ0KGFyZ3Ms
-
-IGZtdCk7DQogCXIgPSB2cHJpbnRrKGZtdCwgYXJncyk7DQogCXZhX2VuZChh
-
-cmdzKTsNCkBAIC01OTEsNiArNjExLDcgQEAgb3V0Og0KIAlyZXR1cm4gcHJp
-
-bnRlZF9sZW47DQogfQ0KIEVYUE9SVF9TWU1CT0wocHJpbnRrKTsNCitFWFBP
-
-UlRfU1lNQk9MKHByaW50a19ub3NwYW0pOw0KIEVYUE9SVF9TWU1CT0wodnBy
-
-aW50ayk7DQogDQogLyoqDQo=
-
-
----1463760639-1199172649-1111188901=:4541--

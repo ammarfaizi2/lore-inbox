@@ -1,41 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269968AbUJHNWm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269971AbUJHN1r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269968AbUJHNWm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 09:22:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269967AbUJHNVJ
+	id S269971AbUJHN1r (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 09:27:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269957AbUJHN1r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 09:21:09 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:26035 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S269970AbUJHNT5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 09:19:57 -0400
-Subject: Re: Possible GPL Violation of Linux in Amstrad's E3 Videophone
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: "Jeff V. Merkey" <jmerkey@drdos.com>,
-       "jmerkey@comcast.net" <jmerkey@comcast.net>, jonathan@jonmasters.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <8550FDB8-18AC-11D9-ABEB-000393ACC76E@mac.com>
-References: <100120041740.9915.415D967600014EC2000026BB2200758942970A059D0A0306@comcast.net>
-	 <35fb2e590410011509712b7d1@mail.gmail.com> <415DD1ED.6030101@drdos.com>
-	 <1096738439.25290.13.camel@localhost.localdomain>
-	 <41659748.9090906@drdos.com> <8B592DC4-18A9-11D9-ABEB-000393ACC76E@mac.com>
-	 <4165B265.2050506@drdos.com> <8550FDB8-18AC-11D9-ABEB-000393ACC76E@mac.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1097237805.2297.0.camel@localhost.localdomain>
+	Fri, 8 Oct 2004 09:27:47 -0400
+Received: from iua-mail.upf.es ([193.145.55.10]:37308 "EHLO iua-mail.upf.es")
+	by vger.kernel.org with ESMTP id S269971AbUJHNUt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 09:20:49 -0400
+Date: Fri, 8 Oct 2004 15:20:44 +0200
+From: Maarten de Boer <mdeboer@iua.upf.es>
+To: linux-kernel@vger.kernel.org
+Subject: e100 not working with 2.6.9-rc3-mm3-vp-t3
+Message-Id: <20041008152044.2e92ea80.mdeboer@iua.upf.es>
+Organization: IUA-MTG
+X-Mailer: Sylpheed version 0.9.9-gtk2-20040229 (GTK+ 2.4.9; i386-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 08 Oct 2004 13:16:49 +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-MTG-MailScanner: Found to be clean
+X-MTG-MailScanner-SpamCheck: not spam (whitelisted),
+	SpamAssassin (score=-2.599, required 5, autolearn=disabled,
+	BAYES_00 -2.60)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2004-10-07 at 23:02, Kyle Moffett wrote:
-> In any case, Alan Cox's "offer" was for $100,000 per copy, not $50,000 
-> for an eternal
-> license.  :-D
+Hello,
 
-And for a specific piece of code not the entire system. It was
-speculation on ways to assist the legal system in identifying
-crystalised (ie cash value) damages for violations
+(Please Cc: me on reply - I am not on the list)
+
+I still can not get my e100 (Intel Corp. 82562EZ 10/100 Ethernet
+Controller - rev 01) to work with the latest vp-patched kernel.
+
+I initially tried with a debian style kernel, but now I moved to a
+custom, minimally-configured, kernel, and  have tried several
+configurations (with, without ACPI)
+
+The module loads correctly, I can configure the interface, but no
+packages are either transmitted or received.
+
+The e100 works correctly with (debian) kernel 2.6.7. I have not tried
+intermediate or partially patched (as in only rc3, only rc3-mm3)
+kernels.
+
+Any suggestions? I'd really love to play with the voluntary
+preempt patch!
+
+Maarten
 

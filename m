@@ -1,52 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264947AbTLMMDj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Dec 2003 07:03:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264966AbTLMMDj
+	id S264496AbTLMMAP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Dec 2003 07:00:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264563AbTLMMAP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Dec 2003 07:03:39 -0500
-Received: from holomorphy.com ([199.26.172.102]:48001 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S264947AbTLMMDh (ORCPT
+	Sat, 13 Dec 2003 07:00:15 -0500
+Received: from mail.epost.de ([193.28.100.165]:18597 "EHLO mail.epost.de")
+	by vger.kernel.org with ESMTP id S264496AbTLMMAJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Dec 2003 07:03:37 -0500
-Date: Sat, 13 Dec 2003 04:03:34 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: neel vanan <neelvanan@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: acpi related error.....
-Message-ID: <20031213120334.GP8039@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	neel vanan <neelvanan@yahoo.com>, linux-kernel@vger.kernel.org
-References: <20031206054720.GN8039@holomorphy.com> <20031213115733.79739.qmail@web9505.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 13 Dec 2003 07:00:09 -0500
+From: Marcus Blomenkamp <Marcus.Blomenkamp@epost.de>
+To: linux-kernel@vger.kernel.org
+Subject: r8169 GigE driver problem, locks up 2.4.23 NFS subsystem
+Date: Sat, 13 Dec 2003 13:00:05 +0100
+User-Agent: KMail/1.5.3
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20031213115733.79739.qmail@web9505.mail.yahoo.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200312131300.05847.Marcus.Blomenkamp@epost.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 13, 2003 at 03:57:33AM -0800, neel vanan wrote:
-> Currently i am working on RedHat9.0 kernel 2.4.20-8, i
-> am compiling kernel 2.6.0-test11 with NUMA and SMP
-> enabled. I had selected summit though i am having
-> non-summit box. When i am trying to make bzImage in
-> the last i get this message:
-> drivers/built-in.o(.init.text+0x30cf): In function
-> `acpi_parse_slit':
-> : undefined reference to `acpi_numa_slit_init'
-> drivers/built-in.o(.init.text+0x30f0): In function
-> `acpi_parse_processor_affinity':
-> : undefined reference to
-> `acpi_numa_processor_affinity_init'
+Hi all.
 
-You are likely enabling CONFIG_NUMA on a PC subarch or trying to build
-CONFIG_X86_SUMMIT without CONFIG_ACPI; this is ridiculous as PC means
-non-NUMA and Summit means ACPI. I'm not sure how you selected this
-combination.
+Since ugrading from a realtek-8139 based nic to a realtek-6139 gigabit one i 
+am experiencing strange network problems. Particularly it locks up the NFS 
+subsystem on writing to remote files.
 
-Best to turn off CONFIG_NUMA unless you have an x440, x445, or NUMA-Q.
+I tried to narrow it down using several TCP/UDP traffic tools such as 
+'netpipe' and 'netcat' and different kernel r8169 driver versions. 
 
+I restricted the network to a single 100mbit crossover cable between a machine 
+with said gig-nic and a file server which has not been modified yet.
 
--- wli
+File server:	'kartoffel', RTL-8139, linux-2.4.20
+Client machine:	'zwiebel', RTL-8169S, linux-2.4.23-pre9, linux-2.6.0-test11
+
+I tried 2.4.23-pre9 and 2.6.0-test11 vanilla drivers and a special realtek 
+supplied version for linux-2.4. With respect to basic TCP and UDP transfer 
+their behaviour was identical. However 2.6 NFS subsystem was able to recover 
+from the network stalls, while 2.4 NFS did not release processes from 'D' 
+state.
+
+My suspicion is that something related to UDP datagram to IP-over-ethernet 
+frame fragmentation is broken. TCP transfers in both directions work fine 
+while UDP transmissions over a specific datagram size stall after sending a 
+few k. 
+
+These objections manifest into NFS running fine over TCP and running fine over 
+UDP with wsize<=4096, while standard NFS mount option wsize=8192 fails.
+
+If anyone is interested, i have dmesg output and ethereal log files handy.
+
+Best regards, Marcus
+

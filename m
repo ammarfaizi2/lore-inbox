@@ -1,75 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265395AbUIOB3X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266566AbUIOBje@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265395AbUIOB3X (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 21:29:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265795AbUIOB3X
+	id S266566AbUIOBje (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 21:39:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266595AbUIOBje
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 21:29:23 -0400
-Received: from mta5.srv.hcvlny.cv.net ([167.206.5.78]:49305 "EHLO
-	mta5.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S265395AbUIOB3U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 21:29:20 -0400
-Date: Tue, 14 Sep 2004 21:29:44 -0400
-From: Avi Norowitz <anorowitz@fortressitx.com>
-Subject: High Memory Results in Poor Performance on Asus P4P800-MX Motherboard
-To: linux-kernel@vger.kernel.org
-Message-id: <009f01c49ac3$7b04aa20$0100000a@FIRE>
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
-X-Mailer: Microsoft Outlook Express 6.00.2800.1437
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-X-Priority: 3
-X-MSMail-priority: Normal
+	Tue, 14 Sep 2004 21:39:34 -0400
+Received: from holomorphy.com ([207.189.100.168]:5528 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S266566AbUIOBjc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 21:39:32 -0400
+Date: Tue, 14 Sep 2004 18:39:25 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Andrea Arcangeli <andrea@novell.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] sched: fix scheduling latencies for !PREEMPT kernels
+Message-ID: <20040915013925.GF9106@holomorphy.com>
+References: <20040914110611.GA32077@elte.hu> <20040914112847.GA2804@elte.hu> <20040914114228.GD2804@elte.hu> <4146EA3E.4010804@yahoo.com.au> <20040914132225.GA9310@elte.hu> <4146F33C.9030504@yahoo.com.au> <20040914140905.GM4180@dualathlon.random> <41470021.1030205@yahoo.com.au> <20040914150316.GN4180@dualathlon.random> <1095210126.2406.70.camel@krustophenia.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1095210126.2406.70.camel@krustophenia.net>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings,
+On Tue, Sep 14, 2004 at 09:02:07PM -0400, Lee Revell wrote:
+> For a generic desktop I don't think any of this makes much of a
+> difference; AFAIK none of the VP testers have reported a perceptible
+> difference in system responsiveness.  A good point of comparison here is
+> what Microsoft OS'es can do.  My Windows XP setup works pretty well with
+> a latency of 2.66ms or 128 frames at 48KHZ, and is rock solid at 256
+> frames or 5.33ms.
+> However for low latency audio Mac OS X is our real competition.  OS X
+> can deliver audio latencies of probably 0.5ms.  There is not much point
+> in going much lower than this because the difference becomes
+> imperceptible and the more frequent cache thrashing becomes an issue;
+> this is close enough to the limits of what sound hardware is capable of
+> anyway.
+> With Ingo's patches the worst case latency on the same machine as my XP
+> example is about 150 usecs.  So, it seems to me that Ingo's patches can
+> achieve results as good or better than OSX even without the one or two
+> "dangerous" changes, like the removal of lock_kernel around
+> do_tty_write.
 
-At the dedicated hosting company I work for we have been having some serious
-performance problems with Linux 2.6.8.1 on Pentium 4 servers running the
-Asus P4P800-MX motherboard. Some of these servers run as if they were
-Pentium 1s, while others run as if they were 386s. (I am not exaggerating.)
+The code we're most worried is buggy, not just nonperformant.
 
-Eventually I found that this problem is resolved with a compiled kernel with
-high memory disabled. Of course, this is not an attractive solution, since
-many of our servers have over 1GB of memory. However, I came across this
-solution on linux-kernel, archived at Google:
 
-http://groups.google.com/groups?selm=1bD5H-1aI-9%40gated-at.bofh.it
-
-This solution worked for servers with 1GB of memory, but not servers with
-1.5GB. However, I was able to modify the commands so it worked with servers
-with 1.5GB of memory, and presumably servers up to 4GB:
-
-echo "disable=9" >| /proc/mtrr
-echo "disable=8" >| /proc/mtrr
-echo "disable=7" >| /proc/mtrr
-echo "disable=6" >| /proc/mtrr
-echo "disable=5" >| /proc/mtrr
-echo "disable=4" >| /proc/mtrr
-echo "disable=3" >| /proc/mtrr
-echo "disable=2" >| /proc/mtrr
-echo "disable=1" >| /proc/mtrr
-echo "disable=0" >| /proc/mtrr
-echo "base=0x00000000 size=0x100000000 type=write-back" > /proc/mtrr
-
-I am very glad that I was able to resolve the problem, but I have three
-further questions.
-
-1. Is there a better fix to use than to have the above commands run at boot?
-
-2. Which is at fault: the motherboard or the Linux kernel?
-
-3. Should I expect this problem to be resolved in future kernels?
-
-If any developers would like root access to a test server having this
-problem to investigate the problem, please let me know.
-
-Thank you for your time.
-
-Sincerely,
-Avi Norowitz
-Unix Technical Support
-Fortress ITX / DedicatedNOW / Pegasus Web Technologies
-
+-- wli

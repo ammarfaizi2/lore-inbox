@@ -1,46 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277288AbRJEBfN>; Thu, 4 Oct 2001 21:35:13 -0400
+	id <S277297AbRJECEz>; Thu, 4 Oct 2001 22:04:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277298AbRJEBey>; Thu, 4 Oct 2001 21:34:54 -0400
-Received: from femail7.sdc1.sfba.home.com ([24.0.95.87]:61871 "EHLO
-	femail7.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S277297AbRJEBeb>; Thu, 4 Oct 2001 21:34:31 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-Reply-To: landley@trommello.org
-Organization: Boundaries Unlimited
-To: Vojtech Pavlik <vojtech@suse.cz>, Pavel Machek <pavel@suse.cz>
-Subject: Re: Ethernet Error Correction
-Date: Thu, 4 Oct 2001 17:34:17 -0400
-X-Mailer: KMail [version 1.2]
-Cc: Matti Aarnio <matti.aarnio@zmailer.org>,
-        Karel Kulhavy <clock@atrey.karlin.mff.cuni.cz>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20010925223437.A21831@atrey.karlin.mff.cuni.cz> <20011002114801.A19015@atrey.karlin.mff.cuni.cz> <20011002115531.A7176@suse.cz>
-In-Reply-To: <20011002115531.A7176@suse.cz>
+	id <S277299AbRJECEp>; Thu, 4 Oct 2001 22:04:45 -0400
+Received: from shell.cyberus.ca ([209.195.95.7]:42683 "EHLO shell.cyberus.ca")
+	by vger.kernel.org with ESMTP id <S277297AbRJECE3>;
+	Thu, 4 Oct 2001 22:04:29 -0400
+Date: Thu, 4 Oct 2001 22:01:56 -0400 (EDT)
+From: jamal <hadi@cyberus.ca>
+To: Ben Greear <greearb@candelatech.com>
+cc: Linus Torvalds <torvalds@transmeta.com>, Robert Love <rml@tech9.net>,
+        Benjamin LaHaise <bcrl@redhat.com>,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>, <mingo@elte.hu>,
+        <linux-kernel@vger.kernel.org>,
+        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+        Robert Olsson <Robert.Olsson@data.slu.se>, <netdev@oss.sgi.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Simon Kirby <sim@netnation.com>
+Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
+In-Reply-To: <3BBCF802.1B650B20@candelatech.com>
+Message-ID: <Pine.GSO.4.30.0110042151440.13257-100000@shell.cyberus.ca>
 MIME-Version: 1.0
-Message-Id: <01100417341701.02393@localhost.localdomain>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 02 October 2001 05:55, Vojtech Pavlik wrote:
-> On Tue, Oct 02, 2001 at 11:48:01AM +0200, Pavel Machek wrote:
+
+
+On Thu, 4 Oct 2001, Ben Greear wrote:
+
+> Linus Torvalds wrote:
+> >
+> > On 4 Oct 2001, Robert Love wrote:
+> > >
+> > > Agreed.  I am actually amazed that the opposite of what is happening
+> > > does not happen -- that more people aren't clamoring for this solution.
+> >
+> > Ehh.. I think that most people who are against Ingo's patches are so
+> > mainly because there _is_ an alternative that looks nicer.
+> >
+> >                 Linus
 >
-> Well, if you checked all the cables, you'd most likely find the device
-> capable of sending the bad CRC frames. Also, if you use a switch (not ha
-> hub or coax), it won't work at all.
+> The alternative (NAPI) only works with Tulip and Intel NICs, it seems.
+> When the alternative works for every driver known (including 3rd party
+> ones, like the e100), then it will truly be an alternative.  Untill
+> then, it will be a great feature for those who can use it, and the
+> rest of the poor folks will need a big generic hammer.
+>
 
-You can cause a lot of switches to degrate to HUB mode by overloading their 
-arp cache mac address table thingy.  (Fun for packet sniffing when you've got 
-a card that can change its mac address in software.  Send packets originating 
-from a few thousand different mac IDs and watch the switch throw up its hands 
-and go "AAAAAH!".  Sniffing the right init sequence for a pppoe connection 
-with nonstandard authentication can be a bit difficult otherwise, with modern 
-hardware... :)
+Ben,
+Lets put some reality check and history just for entertainment value:
+It took ten years of Linux existence (and i am just using you
+as an example no pun intended) to realize your life was actually
+an emergency that depended  on Ingos patch. Maybe i am being cruel,
+so lets backtrack only over the last 4 years when Alexey first had the
+HFC in there; i am willing to bet a large amount of money that you didnt
+once use it or even care to post a query if such a thing existed. Ok, so
+lets assume you didnt know it existed ... over a year back i posted widely
+on it with conjunction to the return code to the netif_rx() extension ...
+and still you didnt care that much although you seem to be a user of one
+of the converted drivers -- the tulip and in particular the znyx hardware
+which was used in the testing. IIRC, you actually said something on that
+post .. Then one bright early morn, Eastern time zone, Ingo appears, not
+in the form of atoms rather electrons masquareding as bits ...
 
-I haven't tried it on a very wide variety of manufacturer's switches, though. 
- And I dunno how that relates to CRC behavior...
+cheers,
+jamal
 
-Rob
+PS:- I am going to try and mitigate myself from this thread now; my
+email-sending rate will be drastically reduced.
+

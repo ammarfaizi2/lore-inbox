@@ -1,156 +1,212 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315709AbSG1L0Z>; Sun, 28 Jul 2002 07:26:25 -0400
+	id <S315708AbSG1LU0>; Sun, 28 Jul 2002 07:20:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315721AbSG1L0Z>; Sun, 28 Jul 2002 07:26:25 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:39111 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S315709AbSG1L0Y>;
-	Sun, 28 Jul 2002 07:26:24 -0400
-Date: Sun, 28 Jul 2002 13:28:34 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org, Arjan van de Ven <arjanv@redhat.com>
-Subject: [patch] APM fixes, 2.5.29
-In-Reply-To: <Pine.LNX.4.44.0207281152430.12794-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0207281326150.21244-100000@localhost.localdomain>
+	id <S315709AbSG1LU0>; Sun, 28 Jul 2002 07:20:26 -0400
+Received: from mail2.alphalink.com.au ([202.161.124.58]:20799 "EHLO
+	mail2.alphalink.com.au") by vger.kernel.org with ESMTP
+	id <S315708AbSG1LUY>; Sun, 28 Jul 2002 07:20:24 -0400
+Message-ID: <3D43D3ED.32D803BB@alphalink.com.au>
+Date: Sun, 28 Jul 2002 21:22:21 +1000
+From: Greg Banks <gnb@alphalink.com.au>
+Organization: Corpus Canem Pty Ltd
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [MOAN] CONFIG_SERIAL_CONSOLE
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+G'day,
 
-the attached patch fixes two things:
+Russell King wrote:
+> Since ppc also include{s,d} drivers/char/Config.in, this means there was
+> a define_bool _and_ bool for the same configuration variable.  This sounds
+> contary to the shell-nature of the configure scripts, and therefore illegal,
+> and as such gets broken when changes happen.
 
- - a TLS related bug noticed by Arjan van de Ven: apm_init() should set up 
-   all CPU's gdt entries - just in case some code happens to call in the
-   APM BIOS on the wrong CPU. This should also handle the case when some 
-   APM code gets triggered (by suspend or power button or something).
+Thanks to Russell for pointing out a problem I had not been aware of.
 
- - compilation problem
+There are quite a few similar errors in the CML1 corpus, where a query and a
+define for the same symbol exist with conditions that can overlap.  A synthetic
+example of the problem is
 
-	Ingo
+bool 'foo' CONFIG_FOO
 
---- linux/arch/i386/kernel/apm.c.orig	Sun Jul 28 11:58:55 2002
-+++ linux/arch/i386/kernel/apm.c	Sun Jul 28 13:27:54 2002
-@@ -1589,7 +1589,7 @@
- 
- 	p = buf;
- 
--	if ((num_possible_cpus() == 1) &&
-+	if ((num_online_cpus() == 1) &&
- 	    !(error = apm_get_power_status(&bx, &cx, &dx))) {
- 		ac_line_status = (bx >> 8) & 0xff;
- 		battery_status = bx & 0xff;
-@@ -1720,7 +1720,7 @@
- 		}
- 	}
- 
--	if (debug && (num_possible_cpus() == 1)) {
-+	if (debug && (num_online_cpus() == 1)) {
- 		error = apm_get_power_status(&bx, &cx, &dx);
- 		if (error)
- 			printk(KERN_INFO "apm: power status not available\n");
-@@ -1764,7 +1764,7 @@
- 		pm_power_off = apm_power_off;
- 	register_sysrq_key('o', &sysrq_poweroff_op);
- 
--	if (num_possible_cpus() == 1) {
-+	if (num_online_cpus() == 1) {
- #if defined(CONFIG_APM_DISPLAY_BLANK) && defined(CONFIG_VT)
- 		console_blank_hook = apm_console_blank;
- #endif
-@@ -1853,6 +1853,7 @@
- static int __init apm_init(void)
- {
- 	struct proc_dir_entry *apm_proc;
-+	int i;
- 
- 	if (apm_info.bios.version == 0) {
- 		printk(KERN_INFO "apm: BIOS not found.\n");
-@@ -1907,7 +1908,7 @@
- 		printk(KERN_NOTICE "apm: disabled on user request.\n");
- 		return -ENODEV;
- 	}
--	if ((num_possible_cpus() > 1) && !power_off) {
-+	if ((num_online_cpus() > 1) && !power_off) {
- 		printk(KERN_NOTICE "apm: disabled - APM is not SMP safe.\n");
- 		return -ENODEV;
- 	}
-@@ -1926,37 +1927,39 @@
- 	 * NOTE: on SMP we call into the APM BIOS only on CPU#0, so it's
- 	 * enough to modify CPU#0's GDT.
- 	 */
--	set_base(cpu_gdt_table[0][APM_40 >> 3],
--		 __va((unsigned long)0x40 << 4));
--	_set_limit((char *)&cpu_gdt_table[0][APM_40 >> 3], 4095 - (0x40 << 4));
--
--	apm_bios_entry.offset = apm_info.bios.offset;
--	apm_bios_entry.segment = APM_CS;
--	set_base(cpu_gdt_table[0][APM_CS >> 3],
--		 __va((unsigned long)apm_info.bios.cseg << 4));
--	set_base(cpu_gdt_table[0][APM_CS_16 >> 3],
--		 __va((unsigned long)apm_info.bios.cseg_16 << 4));
--	set_base(cpu_gdt_table[0][APM_DS >> 3],
--		 __va((unsigned long)apm_info.bios.dseg << 4));
-+	for (i = 0; i < NR_CPUS; i++) {
-+		set_base(cpu_gdt_table[i][APM_40 >> 3],
-+			 __va((unsigned long)0x40 << 4));
-+		_set_limit((char *)&cpu_gdt_table[i][APM_40 >> 3], 4095 - (0x40 << 4));
-+
-+		apm_bios_entry.offset = apm_info.bios.offset;
-+		apm_bios_entry.segment = APM_CS;
-+		set_base(cpu_gdt_table[i][APM_CS >> 3],
-+			 __va((unsigned long)apm_info.bios.cseg << 4));
-+		set_base(cpu_gdt_table[i][APM_CS_16 >> 3],
-+			 __va((unsigned long)apm_info.bios.cseg_16 << 4));
-+		set_base(cpu_gdt_table[i][APM_DS >> 3],
-+			 __va((unsigned long)apm_info.bios.dseg << 4));
- #ifndef APM_RELAX_SEGMENTS
--	if (apm_info.bios.version == 0x100) {
-+		if (apm_info.bios.version == 0x100) {
- #endif
--		/* For ASUS motherboard, Award BIOS rev 110 (and others?) */
--		_set_limit((char *)&cpu_gdt_table[0][APM_CS >> 3], 64 * 1024 - 1);
--		/* For some unknown machine. */
--		_set_limit((char *)&cpu_gdt_table[0][APM_CS_16 >> 3], 64 * 1024 - 1);
--		/* For the DEC Hinote Ultra CT475 (and others?) */
--		_set_limit((char *)&cpu_gdt_table[0][APM_DS >> 3], 64 * 1024 - 1);
-+			/* For ASUS motherboard, Award BIOS rev 110 (and others?) */
-+			_set_limit((char *)&cpu_gdt_table[i][APM_CS >> 3], 64 * 1024 - 1);
-+			/* For some unknown machine. */
-+			_set_limit((char *)&cpu_gdt_table[i][APM_CS_16 >> 3], 64 * 1024 - 1);
-+			/* For the DEC Hinote Ultra CT475 (and others?) */
-+			_set_limit((char *)&cpu_gdt_table[i][APM_DS >> 3], 64 * 1024 - 1);
- #ifndef APM_RELAX_SEGMENTS
--	} else {
--		_set_limit((char *)&cpu_gdt_table[0][APM_CS >> 3],
--			(apm_info.bios.cseg_len - 1) & 0xffff);
--		_set_limit((char *)&cpu_gdt_table[0][APM_CS_16 >> 3],
--			(apm_info.bios.cseg_16_len - 1) & 0xffff);
--		_set_limit((char *)&cpu_gdt_table[0][APM_DS >> 3],
--			(apm_info.bios.dseg_len - 1) & 0xffff);
--	}
-+		} else {
-+			_set_limit((char *)&cpu_gdt_table[i][APM_CS >> 3],
-+				(apm_info.bios.cseg_len - 1) & 0xffff);
-+			_set_limit((char *)&cpu_gdt_table[i][APM_CS_16 >> 3],
-+				(apm_info.bios.cseg_16_len - 1) & 0xffff);
-+			_set_limit((char *)&cpu_gdt_table[i][APM_DS >> 3],
-+				(apm_info.bios.dseg_len - 1) & 0xffff);
-+		}
- #endif
-+	}
- 
- 	apm_proc = create_proc_info_entry("apm", 0, NULL, apm_get_info);
- 	if (apm_proc)
-@@ -1964,7 +1967,7 @@
- 
- 	kernel_thread(apm, NULL, CLONE_FS | CLONE_FILES | CLONE_SIGHAND | SIGCHLD);
- 
--	if (num_possible_cpus() > 1) {
-+	if (num_online_cpus() > 1) {
- 		printk(KERN_NOTICE
- 		   "apm: disabled - APM is not SMP safe (power off active).\n");
- 		return 0;
+if [ "$CONFIG_FOO" = "y" ]; then
+    define_bool CONFIG_BAR y
+fi
 
+bool 'bar' CONFIG_BAR
+
+There are at least eight variants of this problem, depending on the order
+of the query and the define, which is conditional, and whether they're in
+the same menu.  All break at least one of the configurators.  The symptoms
+vary in severity (mildest first)
+
+*  .config has two copies of the correct value: BAR=y BAR=y
+*  .config has two different values, correct one last: BAR=n BAR=y
+*  .config has two different values, incorrect one last: BAR=y BAR=n
+*  configurator incorrectly displays query and correctly prevents
+   user from entering anything except the one valid value
+*  configurator incorrectly does not allow user to set a valid value
+*  configurator accepts a valid value from the user and saves a
+   different value to the .config file.
+
+Also it is typical that different configurators will generate different
+.config files in response to the same sequence of selections.
+
+I'm modifying gcml2 to try and detect these problems.  In the meantime, here
+are some examples of this problem from 2.5.26, found using a preliminary
+version of the overlap detector.
+
+    CONFIG_ACPI_BUS
+	drivers/acpi/Config.in:52
+	drivers/acpi/Config.in:73
+    	
+    CONFIG_ACPI_BUTTON
+	drivers/acpi/Config.in:57
+	drivers/acpi/Config.in:77
+    	
+    CONFIG_ACPI_FAN
+	drivers/acpi/Config.in:58
+	drivers/acpi/Config.in:78
+
+    CONFIG_ACPI_INTERPRETER
+    	arch/ia64/config.in:45
+	drivers/acpi/Config.in:53
+	drivers/acpi/Config.in:74
+    	
+    CONFIG_ACPI_PCI
+	drivers/acpi/Config.in:54
+	drivers/acpi/Config.in:68
+    	
+    CONFIG_ACPI_POWER
+	drivers/acpi/Config.in:55
+	drivers/acpi/Config.in:75
+    	
+    CONFIG_ACPI_PROCESSOR
+	drivers/acpi/Config.in:59
+	drivers/acpi/Config.in:79
+
+    CONFIG_ACPI_SYSTEM
+	drivers/acpi/Config.in:56
+	drivers/acpi/Config.in:76
+
+    CONFIG_ACPI_THERMAL
+	drivers/acpi/Config.in:60
+	drivers/acpi/Config.in:80
+    	
+    CONFIG_ALPHA_AVANTI
+    	arch/alpha/config.in:16
+	arch/alpha/config.in:218
+
+    CONFIG_ALPHA_EB64P
+    	arch/alpha/config.in:16
+    	arch/alpha/config.in:89
+
+    CONFIG_ALPHA_NONAME
+    	arch/alpha/config.in:16
+    	arch/alpha/config.in:73
+
+    CONFIG_BUSMOUSE
+    	drivers/char/Config.in:116
+    	arch/ppc/config.in:384
+    
+    CONFIG_CD_NO_IDESCSI
+    	arch/ppc64/config.in:137
+        arch/ppc64/config.in:186
+
+    CONFIG_CD_NO_IDESCSI
+    	arch/ppc/config.in:469
+    	arch/ppc/config.in:506
+
+    CONFIG_DEBUG_SPINLOCK
+    	arch/x86_64/config.in:225
+    	arch/x86_64/config.in:228
+    
+    CONFIG_DEVFS_FS
+    	arch/ia64/config.in:77
+	fs/Config.in:78
+    
+    CONFIG_FB
+    	drivers/video/Config.in:8
+    	arch/ppc/config.in:382
+
+    CONFIG_IDE
+    	arch/cris/config.in:147
+	arch/cris/drivers/Config.in:114,130
+
+    CONFIG_PARPORT
+    	arch/cris/drivers/Config.in:97,101
+	drivers/parport/Config.in:11
+
+    CONFIG_PARPORT_1284
+    	arch/cris/drivers/Config.in:98
+	drivers/parport/Config.in:68
+
+    CONFIG_PC_KEYB (mx,ds,bc,dm)
+    	arch/mips/config.in:188
+    	arch/mips/config.in:53
+	
+    CONFIG_PRINTER
+    	arch/cris/drivers/Config.in:99
+	drivers/char/Config.in:103
+
+    CONFIG_MTD
+    	drivers/mtd/Config.in:7
+	arch/cris/drivers/Config.in:139
+    		
+    CONFIG_MTD_AMDSTD
+    	drivers/mtd/chips/Config.in:52
+	arch/cris/drivers/Config.in:145
+    		
+    CONFIG_MTD_BLOCK
+    	drivers/mtd/Config.in:23
+	arch/cris/drivers/Config.in:148
+    		
+    CONFIG_MTD_CHAR
+    	drivers/mtd/Config.in:22
+	arch/cris/drivers/Config.in:147
+    		
+    CONFIG_MTD_CFI
+    	drivers/mtd/chips/Config.in:9
+	arch/cris/drivers/Config.in:141
+    		
+    CONFIG_MTD_CFI_AMDSTD
+    	drivers/mtd/chips/Config.in:45
+	arch/cris/drivers/Config.in:143
+    		
+    CONFIG_MTD_CFI_INTELEXT
+    	drivers/mtd/chips/Config.in:44
+	arch/cris/drivers/Config.in:142
+    		
+    CONFIG_MTD_PARTITIONS
+    	drivers/mtd/Config.in:14
+	arch/cris/drivers/Config.in:149
+    		
+    CONFIG_SOUND_CMPCI_FMIO
+	sound/oss/Config.in:14
+	sound/oss/Config.in:15
+    	
+    CONFIG_SYSCLK_100
+    	arch/mips/config.in:140
+    	arch/mips/config.in:24
+
+    CONFIG_VIDEO_SELECT
+	drivers/video/Config.in:101
+	arch/i386/config.in:387
+
+    CONFIG_VIDEO_SELECT
+    	drivers/video/Config.in:101
+    	arch/x86_64/config.in:196
+
+
+Greg.
+-- 
+the price of civilisation today is a courageous willingness to prevail,
+with force, if necessary, against whatever vicious and uncomprehending
+enemies try to strike it down.	   - Roger Sandall, The Age, 28Sep2001.

@@ -1,81 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264734AbSKDOxi>; Mon, 4 Nov 2002 09:53:38 -0500
+	id <S264695AbSKDOyo>; Mon, 4 Nov 2002 09:54:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264736AbSKDOxh>; Mon, 4 Nov 2002 09:53:37 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:14096 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S264734AbSKDOxS>; Mon, 4 Nov 2002 09:53:18 -0500
-Date: Mon, 4 Nov 2002 06:59:59 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: benh@kernel.crashing.org
-cc: Pavel Machek <pavel@ucw.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: swsusp: don't eat ide disks
-In-Reply-To: <20021104080838.19142@smtp.wanadoo.fr>
-Message-ID: <Pine.LNX.4.44.0211040638000.771-100000@home.transmeta.com>
+	id <S264698AbSKDOyn>; Mon, 4 Nov 2002 09:54:43 -0500
+Received: from hellcat.admin.navo.hpc.mil ([204.222.179.34]:46277 "EHLO
+	hellcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S264695AbSKDOy1> convert rfc822-to-8bit; Mon, 4 Nov 2002 09:54:27 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Jesse Pollard <pollard@admin.navo.hpc.mil>
+To: Linus Torvalds <torvalds@transmeta.com>, "Theodore Ts'o" <tytso@mit.edu>
+Subject: Re: Filesystem Capabilities in 2.6?
+Date: Mon, 4 Nov 2002 08:58:54 -0600
+User-Agent: KMail/1.4.1
+Cc: Dax Kelson <dax@gurulabs.com>, Rusty Russell <rusty@rustcorp.com.au>,
+       <linux-kernel@vger.kernel.org>, <davej@suse.de>
+References: <Pine.LNX.4.44.0211021025420.2413-100000@home.transmeta.com>
+In-Reply-To: <Pine.LNX.4.44.0211021025420.2413-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200211040858.54578.pollard@admin.navo.hpc.mil>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Saturday 02 November 2002 12:47 pm, Linus Torvalds wrote:
+> Clearly inode numbers are a bad way to handle it, but I don't think inode
+> attributes are that great either. I would personally prefer directory
+> entry attributes, so that the same file can show up with different
+> behaviour in different places.
 
-On Mon, 4 Nov 2002 benh@kernel.crashing.org wrote:
->
-> >Note that "should work" does not necessarily mean "does work". For
-> >example, in the IDE world, some of the generic packet command stuff is
-> >only understood by ide-cd.c, and the generic IDE layer doesn't necessarily
-> >understand it even if you have a disk that speaks ATAPI. I think Jens will 
-> >fix that wart.
-> 
-> Which is why, IMHO (am I repeating myself ? :) that command has to
-> be sent down the queue by the _lowest_ level device driver, that
-> is ide-cd, ide-disk, etc...
+So how would hard links be handled? Ignore the capability specified for
+the file?
 
-I would agree with you, but for the fact that:
+> I think it was a mistake to have permissions be part of the inode in the
+> first place, but that's UNIX for you. A direntry-based approach is _so_
+> much more flexible, and doesn't really have any downsides.
 
- - I really think we want to have the drivers try to translate SCSI
-   commands _anyway_.
+That was a conscious decision to ensure that the ownership, and mode
+bits remained associated with a file no matter how the file is accessed (full
+path, relative path, hard link, or inode number). It also meant that there was
+only one place that might need to be updated if the permissions were
+changed. If they were in directories then all directories containing a
+link to the file would have to be updated (assuming you could find them
+efficiently).
 
- - that request queue is _damn_important_ in also acting as a 
-   synchronization barrier.
+Since all accesses HAD to go through the inode, it forced the security
+information to be united with the file, and could not be misplaced.
 
-The thing is, many of these commands might well be things user space wants 
-to do as well, and you have two choices:
+> (Having attributes in the direntry also makes it possible to much more
+> efficiently scan directories for types of files without having to look up
+> the inode information).
 
- - add an ioctl for each kind of command you want to do, and let the 
-   low-level driver do it.
+True, but a hard link would bypass whatever capabilities were assigned
+to the file. Also, what happens on things like mv or cp. Since mv
+only puts a name in the target directory with the inode number it
+would appear that any capabilities assigned to the file would be lost.
+Although cp should loose the capabilities, I would expect mv to preserve them.
 
-   Oh, and btw, we've largely done it this way in the past, and they have 
-   pretty much _all_ gotten the synchronization wrong.
+-- 
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
 
- - add one generic ioctl (already done), which pushes a SCSI command down 
-   the pipe, and let the pipe be the synchronization, and cause the switch
-   to be at run-time.
-
-The thing is, you need to have a case statement for the ioctl, and you 
-need to have a case statement for the command byte to parse it. And the 
-SCSI command vs ioctl has a number of advantages:
-
- - you can think of the SCSI command as an ioctl with a standard 
-   numbering and automatic synchronization with the queue.
-
- - a lot of devices can use the raw command as-is, with no case statements 
-   or translation what-so-ever.
-
-Anyway, this is why I'd much rather have higher layers use a standardized
-queue packet (a SCSI command) to inform lower-level drivers about special
-events, rather than have the lower levels decide on their own command set
-and have specialized ways to try to tell them to use that specialized
-command some other way (a bdev "ops" structure would probably be the way
-we'd go).
-
-So assuming that drivers will accepts commands down the request queue 
-anyway (because it's the only sane way to push them down and get any kind 
-of reasonable ordering), then that would make it a waste of time and extra 
-complexity to _also_ have another interface to push special commands. 
-Especially as that other interface would end up being almost certainly 
-broken wrt synchronization (proof: look at the current mess).
-
-		Linus
-
+Any opinions expressed are solely my own.

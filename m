@@ -1,34 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262758AbTI1WHI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Sep 2003 18:07:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262760AbTI1WHI
+	id S262716AbTI1WQP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Sep 2003 18:16:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262729AbTI1WQP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Sep 2003 18:07:08 -0400
-Received: from fw.osdl.org ([65.172.181.6]:20411 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262758AbTI1WHH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Sep 2003 18:07:07 -0400
-Date: Sun, 28 Sep 2003 15:07:40 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "P. Christeas" <p_christ@hol.gr>
-Cc: linux-kernel@vger.kernel.org, "Justin T. Gibbs" <gibbs@scsiguy.com>
-Subject: Re: [aic7xxx]: Scheduling while atomic on rmmod - 2.6.0-test5,6
-Message-Id: <20030928150740.148122eb.akpm@osdl.org>
-In-Reply-To: <200309290015.26280.p_christ@hol.gr>
-References: <200309290015.26280.p_christ@hol.gr>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 28 Sep 2003 18:16:15 -0400
+Received: from amsfep14-int.chello.nl ([213.46.243.22]:31789 "EHLO
+	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
+	id S262716AbTI1WQO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Sep 2003 18:16:14 -0400
+Date: Sun, 28 Sep 2003 14:55:33 +0200
+Message-Id: <200309281255.h8SCtXLS005612@callisto.of.borg>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH 323] Amiga Retina Z3 frame buffer device is broken
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"P. Christeas" <p_christ@hol.gr> wrote:
->
-> I (always) get the same 'scheduling while atomic' error whenever I try to 
->  rmmod the aic7xxx module or try to suspend.
+Amiga Retina Z3 frame buffer device is broken (needs update to new fbdev
+framework)
 
-That's because ahc_linux_exit() takes ahc_list_spinlock then calls
-ahc_linux_kill_dv_thread(), which downs a semaphore.
+--- linux-2.6.0-test6/drivers/video/Kconfig	Tue Sep  9 10:13:11 2003
++++ linux-m68k-2.6.0-test6/drivers/video/Kconfig	Fri Sep 19 14:32:14 2003
+@@ -212,8 +212,8 @@
+ 	  Cybervision 64 card, as they use incompatible video chips.
+ 
+ config FB_RETINAZ3
+-	tristate "Amiga RetinaZ3 support"
+-	depends on FB && ZORRO
++	tristate "Amiga Retina Z3 support"
++	depends on FB && ZORRO && BROKEN
+ 	help
+ 	  This enables support for the Retina Z3 graphics card. Say N unless
+ 	  you have a Retina Z3 or plan to get one before you next recompile
 
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

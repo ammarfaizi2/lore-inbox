@@ -1,47 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131893AbRCXXmV>; Sat, 24 Mar 2001 18:42:21 -0500
+	id <S131894AbRCXXyB>; Sat, 24 Mar 2001 18:54:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131887AbRCXXmM>; Sat, 24 Mar 2001 18:42:12 -0500
-Received: from balzac.cybercable.fr ([212.198.0.198]:61553 "HELO
-	balzac.cybercable.fr") by vger.kernel.org with SMTP
-	id <S131897AbRCXXmF>; Sat, 24 Mar 2001 18:42:05 -0500
-Message-ID: <00d801c0b4bb$e7a04be0$0201a8c0@cybercable.fr>
-From: "Benoit Garnier" <bunch@wanadoo.fr>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Prevent OOM from killing init
-Date: Sun, 25 Mar 2001 00:41:10 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+	id <S131889AbRCXXxm>; Sat, 24 Mar 2001 18:53:42 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:36612 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S131887AbRCXXxi>;
+	Sat, 24 Mar 2001 18:53:38 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Pete Toscano <pete.lkml@toscano.org>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Constant Crash in scsi_eh_0 
+In-Reply-To: Your message of "Sat, 24 Mar 2001 15:06:23 EST."
+             <20010324150623.A27902@bubba.toscano.org> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 25 Mar 2001 09:52:52 +1000
+Message-ID: <323.985477972@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Szabolcs Szakacsits wrote :
+On Sat, 24 Mar 2001 15:06:23 -0500, 
+Pete Toscano <pete.lkml@toscano.org> wrote:
+>[0]kdb> btp 862
+>    EBP       EIP         Function(args)
+>0xe2bdbf6c 0xc011526a schedule+0x41e (0xe2ce0960, 0xe2bda000)
+>0xe2bdbf9c 0xc0107bb8 __down_interruptible+0x94
+>0xe2bdbfac 0xc0107c96 __down_failed_interruptible+0xa (0x100, 0xe2c9dd14, 0xe2c9dd6c, 0xe2bdbfd8, 0x0)
+>           0xeaf94d7f [scsi_mod].text.lock+0x1fb
+>0xe2bdbfec 0xeaf90281 [scsi_mod]scsi_error_handler+0x101
+>           0xc0107547 kernel_thread+0x23
 
-> But if you start
-> to think you get the conclusion that process killing can't be avoided if
-> you want the system keep running.
+scsi_error_handler has tried to get a lock and somebody else has
+already got it and is not letting go.  It is not clear from the source
+of scsi_error_handler which lock is the problem.
 
-What's the point in keeping the OS running if the applications are silently
-killed?
+objdump -S --start-address=0xeaf90180 --end-address=0xeaf902f0 vmlinux
 
-If your box is running for example a mail server, and it appears that
-another process is juste eating the free memory, do you really want to kill
-the mail server, just because it's the main process and consuming more
-memory and CPU than others?
+will disassemble the scsi_error_handler routine, the object code will
+probably mean something to the scsi maintainers.
 
-Well, fine, your OS is up, but your application is not here anymore.
+The trick is to find out which routine is holding the lock.  It could
+be an active routine or it could be caused by code that failed to
+release a lock when it should.  To check for active routines, in kdb
 
-I just think there's no general solution, users must have the chance to
-choose processes not to be killed, or malloc() returning errors.
+set BTSECT=0
+bta
 
-----
-Benoît GARNIER
+that will do a backtrace on every process, without the section lines.
+Look for any other process with scsi code in its backtrace, it is
+suspect.
 
+kdb can help diagnose the problem but the fix will have to come from
+the scsi maintainers.
 

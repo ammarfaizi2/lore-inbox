@@ -1,128 +1,316 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262001AbTKVEm1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Nov 2003 23:42:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262030AbTKVEm1
+	id S262041AbTKVFtb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Nov 2003 00:49:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262030AbTKVFtb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Nov 2003 23:42:27 -0500
-Received: from CPE-144-136-188-60.sa.bigpond.net.au ([144.136.188.60]:64009
-	"EHLO bubble.modra.org") by vger.kernel.org with ESMTP
-	id S262001AbTKVEmY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Nov 2003 23:42:24 -0500
-Date: Sat, 22 Nov 2003 15:12:21 +1030
-From: Alan Modra <amodra@bigpond.net.au>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Pavel Machek <pavel@suse.cz>, Jens Axboe <axboe@suse.de>,
-       bug-binutils@gnu.org, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ionice kills vanilla 2.6.0-test9 was [Re: [PATCH] cfq + io priorities (fwd)]
-Message-ID: <20031122044221.GN2900@bubble.sa.bigpond.net.au>
-References: <Pine.LNX.4.44.0311211439120.13789-100000@home.osdl.org> <Pine.LNX.4.44.0311211455510.13789-100000@home.osdl.org>
+	Sat, 22 Nov 2003 00:49:31 -0500
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:26387 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id S262041AbTKVFtX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Nov 2003 00:49:23 -0500
+Date: Sat, 22 Nov 2003 06:49:04 +0100
+From: Jurriaan <thunder7@xs4all.nl>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0-test9-mm4 oops
+Message-ID: <20031122054904.GA3656@middle.of.nowhere>
+Reply-To: Jurriaan <thunder7@xs4all.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0311211455510.13789-100000@home.osdl.org>
-User-Agent: Mutt/1.4i
+X-Message-Flag: Still using Outlook? Please Upgrade to real software!
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 21, 2003 at 03:05:23PM -0800, Linus Torvalds wrote:
-> So it definitely _does_ work in some versions, and the bug appears to be 
-> new to binutils 2.14, with 2.13 doing the right thing.
-> 
-> You can trivially see if with a simple assembly file like
-> 
-> 	start:
-> 		.long 1,2,3,a
-> 	a=(.-start)/4
+Nov 21 21:25:40 middle kernel: ------------[ cut here ]------------
+Nov 21 21:25:40 middle kernel: kernel BUG at arch/i386/mm/fault.c:357!
+Nov 21 21:25:40 middle kernel: invalid operand: 0000 [#1]
+Nov 21 21:25:40 middle kernel: PREEMPT
+Nov 21 21:25:40 middle kernel: CPU:    0
+Nov 21 21:25:40 middle kernel: EIP:    0060:[schedule+1185/1456]    Not tainted VLI
+Nov 21 21:25:40 middle kernel: EFLAGS: 00010297
+Nov 21 21:25:40 middle kernel: EIP is at do_page_fault+0x371/0x50b
+Nov 21 21:25:40 middle kernel: eax: f39c0280   ebx: f39c0280   ecx: 00000000   edx: f39c0280
+Nov 21 21:25:40 middle kernel: esi: f39c02a0   edi: cebfa2c0   ebp: cfe9dfb4   esp: cfe9df0c
+Nov 21 21:25:40 middle kernel: ds: 007b   es: 007b   ss: 0068
+Nov 21 21:25:40 middle kernel: Process aplay (pid: 8321, threadinfo=cfe9c000 task=f39d1940)
+Nov 21 21:25:40 middle kernel: Stack: f39c0280 cebfa2c0 40019004 00000001 00000001 40019004 f39d1940 f5ac6340
+Nov 21 21:25:40 middle kernel:        40237000 00030002 cfe9df8c c014b86f f39c0280 f5ac6340 f5ac6640 f5ac6660
+Nov 21 21:25:40 middle kernel:        f5ac6658 000800fb f5ab8ec0 00000000 00000000 00000000 00000000 001000fb
+Nov 21 21:25:40 middle kernel: Call Trace:
+Nov 21 21:25:40 middle kernel:  [shmem_truncate+895/1008] do_mmap_pgoff+0x35f/0x660
+Nov 21 21:25:40 middle kernel:  [set_fpregs+28/80] sys_mmap2+0x9c/0xb0
+Nov 21 21:25:40 middle kernel:  [schedule+304/1456] do_page_fault+0x0/0x50b
+Nov 21 21:25:40 middle kernel:  [__func__.4+176444/376069] error_code+0x2f/0x38
+Nov 21 21:25:40 middle kernel:
+Nov 21 21:25:40 middle kernel: Code: 9e 8b 85 70 ff ff ff c7 04 24 af a3 49 c0 05 02 03 00 00 89 44 24 04 e8 0e 5f 00 00 f6 45 0c 04
+0f 84 ae fd ff ff e9 80 fe ff ff <0f> 0b 65 01 c7 a3 49 c0 8b 55 08 f6 42 32 02 74 27 8b 8d 6c ff
 
-Broken with http://sources.redhat.com/ml/binutils/2003-04/msg00412.html
-and http://sources.redhat.com/ml/binutils/2003-04/msg00414.html.
-That '/' is being treated as a start of line comment char, thus trimming
-the rest of the line.
+single cpu Athlon XP system, .config:
 
-I think gas/app.c:do_scrub_chars is such an awful mess that it's
-impossible to get right.  Needs to be tossed out and rewritten.  The
-fundamental problem is that you can't track which component of an
-assember input line you're preprocessing without more information on the
-particular target syntax.  And most of the current complexity is just
-for deciding whether to remove whitespace!  That at least needs to go.
-
-For now, I'm reverting HJ's patches and including your testcase in
-the gas testsuite.
-
-gas/ChangeLog
-	* app.c (do_scrub_chars): Revert 2003-04-23 and 2003-04-22.
-
-gas/testsuite/ChangeLog
-	* gas/i386/divide.s: New.
-	* gas/i386/divide.d: New.
-	* gas/i386/i386.exp (gas_32_check): Run it.
-
-Index: app.c
-===================================================================
-RCS file: /cvs/src/src/gas/app.c,v
-retrieving revision 1.26
-diff -u -p -r1.26 app.c
---- app.c	21 Nov 2003 01:52:16 -0000	1.26
-+++ app.c	22 Nov 2003 04:24:01 -0000
-@@ -1308,13 +1308,11 @@ do_scrub_chars (int (*get) (char *, int)
- 	  /* Some relatively `normal' character.  */
- 	  if (state == 0)
- 	    {
--	      if (IS_SYMBOL_COMPONENT (ch))
--		state = 11;	/* Now seeing label definition.  */
-+	      state = 11;	/* Now seeing label definition.  */
- 	    }
- 	  else if (state == 1)
- 	    {
--	      if (IS_SYMBOL_COMPONENT (ch))
--		state = 2;	/* Ditto.  */
-+	      state = 2;	/* Ditto.  */
- 	    }
- 	  else if (state == 9)
- 	    {
-Index: testsuite/gas/i386/divide.d
-===================================================================
-RCS file: testsuite/gas/i386/divide.d
-diff -N testsuite/gas/i386/divide.d
---- /dev/null	1 Jan 1970 00:00:00 -0000
-+++ testsuite/gas/i386/divide.d	22 Nov 2003 04:41:09 -0000
-@@ -0,0 +1,8 @@
-+#objdump: -s
-+#name: i386 divide
-+
-+.*: +file format .*
-+
-+Contents of section .*
-+ 0000 01000000 02000000 03000000 04000000 .*
-+ 0010 05000000 .*
-Index: testsuite/gas/i386/divide.s
-===================================================================
-RCS file: testsuite/gas/i386/divide.s
-diff -N testsuite/gas/i386/divide.s
---- /dev/null	1 Jan 1970 00:00:00 -0000
-+++ testsuite/gas/i386/divide.s	22 Nov 2003 04:41:09 -0000
-@@ -0,0 +1,4 @@
-+start:
-+ .long 1,2,3,a,b
-+ a=(.-start)/4-1
-+b=(.-start)/4
-Index: testsuite/gas/i386/i386.exp
-===================================================================
-RCS file: /cvs/src/src/gas/testsuite/gas/i386/i386.exp,v
-retrieving revision 1.19
-diff -u -p -r1.19 i386.exp
---- testsuite/gas/i386/i386.exp	23 Jun 2003 20:15:33 -0000	1.19
-+++ testsuite/gas/i386/i386.exp	22 Nov 2003 04:41:09 -0000
-@@ -57,6 +57,7 @@ if [expr ([istarget "i*86-*-*"] ||  [ist
-     run_dump_test "pcrel"
-     run_dump_test "sub"
-     run_dump_test "prescott"
-+    run_dump_test "divide"
- 
-     # PIC is only supported on ELF targets.
-     if { ([istarget "*-*-elf*"] || [istarget "*-*-linux*"] )
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_UID16=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_BROKEN=y
+CONFIG_BROKEN_ON_SMP=y
+CONFIG_SWAP=y
+CONFIG_SYSVIPC=y
+CONFIG_SYSCTL=y
+CONFIG_LOG_BUF_SHIFT=16
+CONFIG_IKCONFIG=y
+CONFIG_IKCONFIG_PROC=y
+CONFIG_KALLSYMS=y
+CONFIG_FUTEX=y
+CONFIG_EPOLL=y
+CONFIG_IOSCHED_NOOP=y
+CONFIG_IOSCHED_AS=y
+CONFIG_IOSCHED_DEADLINE=y
+CONFIG_IOSCHED_CFQ=y
+CONFIG_MODULES=y
+CONFIG_MODULE_UNLOAD=y
+CONFIG_OBSOLETE_MODPARM=y
+CONFIG_KMOD=y
+CONFIG_X86_PC=y
+CONFIG_MK7=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_L1_CACHE_SHIFT=6
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_INTEL_USERCOPY=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_X86_USE_3DNOW=y
+CONFIG_HPET_TIMER=y
+CONFIG_HPET_EMULATE_RTC=y
+CONFIG_PREEMPT=y
+CONFIG_X86_UP_APIC=y
+CONFIG_X86_UP_IOAPIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_IO_APIC=y
+CONFIG_X86_TSC=y
+CONFIG_X86_MCE=y
+CONFIG_X86_MCE_NONFATAL=y
+CONFIG_HIGHMEM4G=y
+CONFIG_HIGHMEM=y
+CONFIG_HIGHPTE=y
+CONFIG_MTRR=y
+CONFIG_HAVE_DEC_LOCK=y
+CONFIG_PM=y
+CONFIG_ACPI=y
+CONFIG_ACPI_BOOT=y
+CONFIG_ACPI_INTERPRETER=y
+CONFIG_ACPI_SLEEP=y
+CONFIG_ACPI_SLEEP_PROC_FS=y
+CONFIG_ACPI_AC=y
+CONFIG_ACPI_BUTTON=y
+CONFIG_ACPI_FAN=y
+CONFIG_ACPI_PROCESSOR=y
+CONFIG_ACPI_THERMAL=y
+CONFIG_ACPI_DEBUG=y
+CONFIG_ACPI_BUS=y
+CONFIG_ACPI_EC=y
+CONFIG_ACPI_POWER=y
+CONFIG_ACPI_PCI=y
+CONFIG_ACPI_SYSTEM=y
+CONFIG_ACPI_RELAXED_AML=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_NAMES=y
+CONFIG_ISA=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_AOUT=y
+CONFIG_BINFMT_MISC=y
+CONFIG_PARPORT=y
+CONFIG_PARPORT_PC=y
+CONFIG_PARPORT_PC_CML1=y
+CONFIG_PARPORT_1284=y
+CONFIG_BLK_DEV_FD=y
+CONFIG_BLK_DEV_LOOP=y
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_BLK_DEV_IDECD=y
+CONFIG_BLK_DEV_IDESCSI=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_BLK_DEV_AMD74XX=y
+CONFIG_BLK_DEV_HPT366=y
+CONFIG_BLK_DEV_PDC202XX_OLD=y
+CONFIG_BLK_DEV_VIA82CXXX=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_SCSI=y
+CONFIG_SCSI_PROC_FS=y
+CONFIG_BLK_DEV_SD=y
+CONFIG_MAX_SD_DISKS=2
+CONFIG_CHR_DEV_ST=y
+CONFIG_BLK_DEV_SR=y
+CONFIG_CHR_DEV_SG=y
+CONFIG_SCSI_MULTI_LUN=y
+CONFIG_SCSI_REPORT_LUNS=y
+CONFIG_SCSI_CONSTANTS=y
+CONFIG_SCSI_SYM53C8XX_2=y
+CONFIG_SCSI_SYM53C8XX_DMA_ADDRESSING_MODE=1
+CONFIG_SCSI_SYM53C8XX_DEFAULT_TAGS=16
+CONFIG_SCSI_SYM53C8XX_MAX_TAGS=64
+CONFIG_MD=y
+CONFIG_BLK_DEV_MD=y
+CONFIG_MD_LINEAR=y
+CONFIG_MD_RAID0=y
+CONFIG_MD_RAID1=y
+CONFIG_MD_RAID5=y
+CONFIG_NET=y
+CONFIG_PACKET=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+CONFIG_IP_ADVANCED_ROUTER=y
+CONFIG_IP_ROUTE_VERBOSE=y
+CONFIG_SYN_COOKIES=y
+CONFIG_IPV6_SCTP__=y
+CONFIG_NETDEVICES=y
+CONFIG_DUMMY=y
+CONFIG_NET_ETHERNET=y
+CONFIG_MII=y
+CONFIG_NET_TULIP=y
+CONFIG_TULIP=y
+CONFIG_TULIP_MWI=y
+CONFIG_TULIP_MMIO=y
+CONFIG_NET_PCI=y
+CONFIG_E100=y
+CONFIG_8139CP=y
+CONFIG_8139TOO=y
+CONFIG_VIA_RHINE=y
+CONFIG_VIA_RHINE_MMIO=y
+CONFIG_INPUT=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+CONFIG_SOUND_GAMEPORT=y
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_SERIO_SERPORT=y
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y
+CONFIG_INPUT_MISC=y
+CONFIG_INPUT_PCSPKR=y
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+CONFIG_SERIAL_8250=y
+CONFIG_SERIAL_8250_NR_UARTS=4
+CONFIG_SERIAL_CORE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
+CONFIG_PRINTER=y
+CONFIG_I2C=m
+CONFIG_I2C_CHARDEV=m
+CONFIG_I2C_ALGOBIT=m
+CONFIG_I2C_ISA=m
+CONFIG_I2C_VIAPRO=m
+CONFIG_I2C_SENSOR=m
+CONFIG_SENSORS_EEPROM=m
+CONFIG_SENSORS_VIA686A=m
+CONFIG_SENSORS_W83781D=m
+CONFIG_WATCHDOG=y
+CONFIG_SOFT_WATCHDOG=y
+CONFIG_RTC=y
+CONFIG_AGP=y
+CONFIG_AGP_VIA=y
+CONFIG_DRM=y
+CONFIG_DRM_MGA=y
+CONFIG_RAW_DRIVER=y
+CONFIG_MAX_RAW_DEVS=256
+CONFIG_FB=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_FB_MATROX=y
+CONFIG_FB_MATROX_G450=y
+CONFIG_FB_MATROX_G100=y
+CONFIG_VGA_CONSOLE=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_FRAMEBUFFER_CONSOLE=y
+CONFIG_PCI_CONSOLE=y
+CONFIG_FONTS=y
+CONFIG_FONT_SUN12x22=y
+CONFIG_LOGO=y
+CONFIG_LOGO_LINUX_MONO=y
+CONFIG_LOGO_LINUX_VGA16=y
+CONFIG_LOGO_LINUX_CLUT224=y
+CONFIG_SOUND=y
+CONFIG_SND=y
+CONFIG_SND_SEQUENCER=y
+CONFIG_SND_OSSEMUL=y
+CONFIG_SND_MIXER_OSS=y
+CONFIG_SND_PCM_OSS=y
+CONFIG_SND_SEQUENCER_OSS=y
+CONFIG_SND_RTCTIMER=y
+CONFIG_SND_EMU10K1=y
+CONFIG_SND_CMIPCI=y
+CONFIG_SND_INTEL8X0=y
+CONFIG_SND_VIA82XX=y
+CONFIG_USB=y
+CONFIG_USB_DEVICEFS=y
+CONFIG_USB_EHCI_HCD=y
+CONFIG_USB_UHCI_HCD=y
+CONFIG_USB_PRINTER=y
+CONFIG_USB_HID=y
+CONFIG_USB_HIDINPUT=y
+CONFIG_USB_SCANNER=y
+CONFIG_EXT2_FS=y
+CONFIG_EXT3_FS=y
+CONFIG_EXT3_FS_XATTR=y
+CONFIG_JBD=y
+CONFIG_FS_MBCACHE=y
+CONFIG_REISERFS_FS=y
+CONFIG_XFS_FS=y
+CONFIG_ISO9660_FS=y
+CONFIG_JOLIET=y
+CONFIG_UDF_FS=y
+CONFIG_FAT_FS=y
+CONFIG_VFAT_FS=y
+CONFIG_NTFS_FS=y
+CONFIG_PROC_FS=y
+CONFIG_PROC_KCORE=y
+CONFIG_DEVPTS_FS=y
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_NFS_FS=y
+CONFIG_NFS_V3=y
+CONFIG_LOCKD=y
+CONFIG_LOCKD_V4=y
+CONFIG_SUNRPC=y
+CONFIG_MSDOS_PARTITION=y
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_NLS_CODEPAGE_437=y
+CONFIG_NLS_ISO8859_1=y
+CONFIG_DEBUG_KERNEL=y
+CONFIG_MAGIC_SYSRQ=y
+CONFIG_FRAME_POINTER=y
+CONFIG_X86_EXTRA_IRQS=y
+CONFIG_X86_FIND_SMP_CONFIG=y
+CONFIG_X86_MPPARSE=y
+CONFIG_CRC32=y
+CONFIG_X86_BIOS_REBOOT=y
+CONFIG_PC=y
 
 -- 
-Alan Modra
-IBM OzLabs - Linux Technology Centre
+Pay attention, the wreckage seemed to declare. Some things cannot be
+undone, short of time pivoting in its groove and crawling back on itself.
+	Tad Williams - Otherland
+Debian (Unstable) GNU/Linux 2.6.0-test9-mm4 4276 bogomips 0.71 0.44

@@ -1,88 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261768AbVBSTCI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261769AbVBSTMf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261768AbVBSTCI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Feb 2005 14:02:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261769AbVBSTCH
+	id S261769AbVBSTMf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Feb 2005 14:12:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261770AbVBSTMf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Feb 2005 14:02:07 -0500
-Received: from mail00.svc.cra.dublin.eircom.net ([159.134.118.16]:35689 "HELO
-	mail00.svc.cra.dublin.eircom.net") by vger.kernel.org with SMTP
-	id S261768AbVBSTCA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Feb 2005 14:02:00 -0500
-Subject: [PATCH] Remove unnecessary addition operations from usb/core/hub.c
-From: Telemaque Ndizihiwe <telendiz@eircom.net>
-To: rddunlap@osdl.org, bhards@bigpond.net.au
-Cc: torvalds@osdl.org, akpm@osdl.org, trivial@rustcorp.com.au,
-       linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Sat, 19 Feb 2005 19:03:27 +0000
-Message-Id: <1108839807.7748.24.camel@localhost.localdomain>
+	Sat, 19 Feb 2005 14:12:35 -0500
+Received: from bbned23-32-100.dsl.hccnet.nl ([80.100.32.23]:35034 "EHLO
+	fw-loc.vanvergehaald.nl") by vger.kernel.org with ESMTP
+	id S261769AbVBSTMc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Feb 2005 14:12:32 -0500
+Date: Sat, 19 Feb 2005 20:12:08 +0100
+From: Toon van der Pas <toon@hout.vanvergehaald.nl>
+To: mike.miller@hp.com
+Cc: linux-kernel@vger.kernel.org, mochel@osdl.org, akpm@osdl.org,
+       eric.moore@lsil.com
+Subject: Re: cciss CSMI via sysfs for 2.6
+Message-ID: <20050219191208.GA30401@hout.vanvergehaald.nl>
+References: <20050216164512.GA5734@beardog.cca.cpqcorp.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050216164512.GA5734@beardog.cca.cpqcorp.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This Patch removes unnecessary addition operations from
-usb/core/hub.c in kernel 2.6.10.
+On Wed, Feb 16, 2005 at 10:45:12AM -0600, mike.miller@hp.com wrote:
+> +static ssize_t cciss_phyinfo_show(struct device *dev, char *buf)
+> +{
+> +	ctlr_info_t *h = dev->driver_data;
+> +	unsigned long flags;
+> +	CommandList_struct *c;
+> +	CSMI_SAS_PHY_INFO_BUFFER iocommand;
+> +	CSMI_SAS_IDENTIFY p;
+> +	u64bit temp64;
+> +	DECLARE_COMPLETION(wait);
+> +
+> +	printk(KERN_WARNING "cciss: into cciss_phyinfo_show\n");
+> +	memset(&iocommand, 0, sizeof(CSMI_SAS_PHY_INFO_BUFFER));
+> +	memset(&p, 0, sizeof(CSMI_SAS_IDENTIFY));
+> +
+> +	/* allocate and fill in the command */
+> +	if ((c = cmd_alloc(h, 0)) == NULL)
+> +		return -ENOMEM;
+> +
+> +	iocommand.IoctlHeader.Length = sizeof(CSMI_SAS_PHY_INFO_BUFFER);
+> +	c->cmd_type = CMD_IOCTL_PEND;
+> +	c->Header.ReplyQueue = 0;
+> +		
+> +	//Do we send the whole buffer?
+> +	if (iocommand.IoctlHeader.Length > 0){
 
-	usb_disable_endpoint(udev, 0 + USB_DIR_IN);   //replaced by
-	usb_disable_endpoint(udev, USB_DIR_IN);
+This test will always be true, no?
 
-	usb_disable_endpoint(udev, 0 + USB_DIR_OUT);  //replaced by	
-	usb_disable_endpoint(udev, USB_DIR_OUT);
+> +		c->Header.SGList = 1;
+> +		c->Header.SGTotal = 1;
+> +	} else {
+> +		c->Header.SGList = 0;
+> +		c->Header.SGTotal = 0;
+> +	}
 
-
-Signed-off-by: Telemaque Ndizihiwe <telendiz@eircom.net>
-
-
---- linux-2.6.10/drivers/usb/core/hub.c.orig	2005-02-19
-12:26:28.682067480 +0000
-+++ linux-2.6.10/drivers/usb/core/hub.c	2005-02-19 12:38:55.059600848
-+0000
-@@ -2044,8 +2044,8 @@ static int hub_set_address(struct usb_de
- 		int m = udev->epmaxpacketin[0];
- 
- 		usb_set_device_state(udev, USB_STATE_ADDRESS);
--		usb_disable_endpoint(udev, 0 + USB_DIR_IN);
--		usb_disable_endpoint(udev, 0 + USB_DIR_OUT);
-+		usb_disable_endpoint(udev, USB_DIR_IN);
-+		usb_disable_endpoint(udev, USB_DIR_OUT);
- 		udev->epmaxpacketin[0] = udev->epmaxpacketout[0] = m;
- 	}
- 	return retval;
-@@ -2244,8 +2244,8 @@ hub_port_init (struct usb_device *hdev, 
- 	i = udev->descriptor.bMaxPacketSize0;
- 	if (udev->epmaxpacketin[0] != i) {
- 		dev_dbg(&udev->dev, "ep0 maxpacket = %d\n", i);
--		usb_disable_endpoint(udev, 0 + USB_DIR_IN);
--		usb_disable_endpoint(udev, 0 + USB_DIR_OUT);
-+		usb_disable_endpoint(udev, USB_DIR_IN);
-+		usb_disable_endpoint(udev, USB_DIR_OUT);
- 		udev->epmaxpacketin[0] = udev->epmaxpacketout[0] = i;
- 	}
-   
-@@ -2508,8 +2508,8 @@ static void hub_port_connect_change(stru
- 
- loop:
- 		hub_port_disable(hdev, port);
--		usb_disable_endpoint(udev, 0 + USB_DIR_IN);
--		usb_disable_endpoint(udev, 0 + USB_DIR_OUT);
-+		usb_disable_endpoint(udev, USB_DIR_IN);
-+		usb_disable_endpoint(udev, USB_DIR_OUT);
- 		release_address(udev);
- 		usb_put_dev(udev);
- 		if (status == -ENOTCONN)
-@@ -2893,8 +2893,8 @@ int usb_reset_device(struct usb_device *
- 
- 		/* ep0 maxpacket size may change; let the HCD know about it.
- 		 * Other endpoints will be handled by re-enumeration. */
--		usb_disable_endpoint(udev, 0 + USB_DIR_IN);
--		usb_disable_endpoint(udev, 0 + USB_DIR_OUT);
-+		usb_disable_endpoint(udev, USB_DIR_IN);
-+		usb_disable_endpoint(udev, USB_DIR_OUT);
- 		ret = hub_port_init(parent, udev, port, i);
- 		if (ret >= 0)
- 			break;
-
-
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

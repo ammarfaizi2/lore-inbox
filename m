@@ -1,67 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129351AbRCHReP>; Thu, 8 Mar 2001 12:34:15 -0500
+	id <S129413AbRCHRjZ>; Thu, 8 Mar 2001 12:39:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129346AbRCHReG>; Thu, 8 Mar 2001 12:34:06 -0500
-Received: from navy.csi.cam.ac.uk ([131.111.8.49]:14819 "EHLO
-	navy.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S129290AbRCHRdz>; Thu, 8 Mar 2001 12:33:55 -0500
-Date: Thu, 8 Mar 2001 17:36:44 +0000 (GMT)
-From: "James A. Sutherland" <jas88@cam.ac.uk>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-cc: Venkatesh Ramamurthy <Venkateshr@ami.com>, <linux-kernel@vger.kernel.org>
-Subject: RE: Microsoft begining to open source Windows 2000?
-In-Reply-To: <5.0.2.1.2.20010308162515.00a63a80@pop.cus.cam.ac.uk>
-Message-ID: <Pine.LNX.4.30.0103081733420.13093-100000@dax.joh.cam.ac.uk>
+	id <S129417AbRCHRjP>; Thu, 8 Mar 2001 12:39:15 -0500
+Received: from anchor-post-33.mail.demon.net ([194.217.242.91]:32007 "EHLO
+	anchor-post-33.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S129413AbRCHRjF>; Thu, 8 Mar 2001 12:39:05 -0500
+From: rjd@xyzzy.clara.co.uk
+Message-Id: <200103081738.f28HcDC03173@xyzzy.clara.co.uk>
+Subject: Re: [OT] Re: Microsoft begining to open source Windows 2000?
+To: stuartm@connecttech.com (Stuart MacDonald)
+Date: Thu, 8 Mar 2001 17:38:13 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <08f901c0a7f4$2cb9b240$294b82ce@connecttech.com> from "Stuart MacDonald" at Mar 08, 2001 05:27:15 
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 8 Mar 2001, Anton Altaparmakov wrote:
+Stuart MacDonald wrote:
+> 
+> It seems to me this might be an opportunity...
 
-> At 16:04 08/03/01, Venkatesh Ramamurthy wrote:
-> >My initial thought after seeing this article was that microsoft was testing
-> >its waters on open sourcing. If i have 1500 licenses then i would get the
-> >source. If i find any bug in thier source , i  would report to microsoft or
-> >send a patch and they would put it in thier next version. Is this not the
-> >same way Linux Kernel is developed?. Only thing microsoft does not want to
-> >immediately go full open sourcing and get embarrased at the hands of linux
-> >people.
->
-> You are not reading the article carefully enough.
->
-> With Linux, everyone is free to make their own changes which suit their
-> particular setup, recompile the kernel, and run their own linux kernel on
-> their site / server / workstation / whatever.
->
-> Microsoft specifically forbids this in their license!
+Or a trap. I'm not about to go anywhere near this and won't even look at
+the licience but I bet the M$ argument will go something like:
 
-Yes. It's a pretty crappy license - but still beats the previous one (if
-you want to worship our almighty code, hand over your firstborn. Oh, and
-leave your brain with us for safekeeping, and you're not allowed to do any
-programming ever again, except for us.)
-
-> It is a "look but don't touch" license which is as far away from the ideas
-> of the GPL as you can possibly get.
-
-Is it? Going from "totally closed" to "we might let you see the code if
-you grovel" is a step in the right direction, at least.
-
-> Even submitting them a patch is technically violating their license as a
-> patch implies that you have modified their code already, which is forbidden!
-
-Hmm... Perhaps. I doubt they'd object, particularly if the patch worked :P
-
-> The only change from before that I can see is that Microsoft is going to
-> make even more money now, because they will collect the money from ~1000
-> instead of ~10 people. No other news there.
-
-They do already license the source to a few trusted companies (Executive
-Software used to ship modified NTFS drivers for NT 3.51 as part of
-Diskeeper, IIRC). They are inching ever so slowly towards letting human
-beings (cf MS drones) read their code...
+   You've looked at the code.
+   You now know things that are propriatary to M$.
+   You are not allowed to apply it to anything outside M$.
+   Stop working on those free sources the forbidden knowledge might leak.
+   You have me assimilated.
 
 
-James.
-
+-- 
+	Bob Dunlop	rjd@xyzzy.clara.co.uk

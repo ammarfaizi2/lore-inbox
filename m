@@ -1,40 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265573AbUBAXnd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Feb 2004 18:43:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265567AbUBAXnd
+	id S265530AbUBAXxJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Feb 2004 18:53:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265531AbUBAXxJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Feb 2004 18:43:33 -0500
-Received: from s4.uklinux.net ([80.84.72.14]:37844 "EHLO mail2.uklinux.net")
-	by vger.kernel.org with ESMTP id S265573AbUBAXnc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Feb 2004 18:43:32 -0500
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.1 slower than 2.4, smp/scsi/sw-raid/reiserfs
-References: <87oesieb75.fsf@codematters.co.uk>
-	<20040201151111.4a6b64c3.akpm@osdl.org>
-From: Philip Martin <philip@codematters.co.uk>
-Date: Sun, 01 Feb 2004 23:42:55 +0000
-In-Reply-To: <20040201151111.4a6b64c3.akpm@osdl.org> (Andrew Morton's
- message of "Sun, 1 Feb 2004 15:11:11 -0800")
-Message-ID: <87k736e58g.fsf@codematters.co.uk>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Common Lisp, linux)
+	Sun, 1 Feb 2004 18:53:09 -0500
+Received: from mail-03.iinet.net.au ([203.59.3.35]:27360 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S265530AbUBAXw4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Feb 2004 18:52:56 -0500
+Message-ID: <401D9154.9060903@cyberone.com.au>
+Date: Mon, 02 Feb 2004 10:52:52 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Andrew Morton <akpm@osdl.org>
+CC: Philip Martin <philip@codematters.co.uk>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.1 slower than 2.4, smp/scsi/sw-raid/reiserfs
+References: <87oesieb75.fsf@codematters.co.uk> <20040201151111.4a6b64c3.akpm@osdl.org>
+In-Reply-To: <20040201151111.4a6b64c3.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
 
-> Philip Martin <philip@codematters.co.uk> wrote:
->>
->>  My test is a software build of about 200 source files (written in C)
->>  that I usually build using "nice make -j4".
+
+Andrew Morton wrote:
+
+>Philip Martin <philip@codematters.co.uk> wrote:
 >
-> Tried -j3?
+>>The machine is a dual P3 450MHz, 512MB, aic7xxx, 2 disk RAID-0 and
+>> ReiserFS.  It's a few years old and has always run Linux, most
+>> recently 2.4.24.  I decided to try 2.6.1 and the performance is
+>> disappointing.
+>>
+>
+>2.6 has a few performance problems under heavy pageout at present.  Nick
+>Piggin has some patches which largely fix it up.
+>
+>
+>> My test is a software build of about 200 source files (written in C)
+>> that I usually build using "nice make -j4".
+>>
+>
+>Tried -j3?
+>
+>
 
-I've tried -j2 and -j3, the results are much the same as -j4.
+Its got 512MB RAM though so its not swapping, is it?
 
--- 
-Philip Martin
+Philip, can you please send about 30 seconds of vmstat 1
+output for 2.4 and 2.6 while the test is running. Thanks
+

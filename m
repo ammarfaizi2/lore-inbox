@@ -1,46 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273666AbRI3QAX>; Sun, 30 Sep 2001 12:00:23 -0400
+	id <S273702AbRI3QFo>; Sun, 30 Sep 2001 12:05:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273691AbRI3QAO>; Sun, 30 Sep 2001 12:00:14 -0400
-Received: from fw.sthlm.cendio.se ([213.212.13.67]:15609 "EHLO
-	jarlsberg.sthlm.cendio.se") by vger.kernel.org with ESMTP
-	id <S273666AbRI3P77>; Sun, 30 Sep 2001 11:59:59 -0400
-To: mingo@elte.hu (Ingo Molnar)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] netconsole-2.4.10-B1
-In-Reply-To: <3BB52510.7D41538A@osdlab.org>
-	<Pine.LNX.4.33.0109291146440.1715-100000@localhost.localdomain>
-From: Marcus Sundberg <marcus@cendio.se>
-Date: 30 Sep 2001 18:00:10 +0200
-In-Reply-To: <Pine.LNX.4.33.0109291146440.1715-100000@localhost.localdomain>
-Message-ID: <ven13cd5yt.fsf@inigo.sthlm.cendio.se>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+	id <S273701AbRI3QFY>; Sun, 30 Sep 2001 12:05:24 -0400
+Received: from [212.113.174.249] ([212.113.174.249]:14115 "EHLO
+	smtp.netcabo.pt") by vger.kernel.org with ESMTP id <S273703AbRI3QFV>;
+	Sun, 30 Sep 2001 12:05:21 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Ricardo Ferreira <stormlabs@gmx.net>
+To: linux-kernel@vger.kernel.org
+Subject: Poor 8139 network card performance when sharing IRQ
+Date: Sun, 30 Sep 2001 17:05:25 +0100
+X-Mailer: KMail [version 1.3.5]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7BIT
+Message-ID: <EXCH02SMTP02UR7BED00000751b@smtp.netcabo.pt>
+X-OriginalArrivalTime: 30 Sep 2001 16:03:17.0716 (UTC) FILETIME=[6B195140:01C149C9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mingo@elte.hu (Ingo Molnar) writes:
+I have a dual p3-1Ghz on a Abit VP6 board. Everything is working well except 
+the network card. I have some nfs mounts and i'm using 4096 wsize and rsize 
+for performance. However when eth0 and any other card are sharing an IRQ the 
+result of a ping to the server with a packetsize of 4096 is this:
 
-> sorry :-) definitions of netconsole-terms:
-> 
-> 'server': the host that is the source of the messages. Ie. the box that
->           runs the netconsole.o module. It serves log messages to the
->           client.
-> 
-> 'client': the host that receives the messages. This box is running the
->           netconsole-client.c program.
+$ ping -s 4096 fs
+PING loki.internal (192.168.0.40): 4096 data bytes
+4104 bytes from 192.168.0.40: icmp_seq=0 ttl=255 time=1.6 ms
+4104 bytes from 192.168.0.40: icmp_seq=1 ttl=255 time=283.5 ms
+4104 bytes from 192.168.0.40: icmp_seq=2 ttl=255 time=755.3 ms
+4104 bytes from 192.168.0.40: icmp_seq=3 ttl=255 time=2.1 ms
+4104 bytes from 192.168.0.40: icmp_seq=4 ttl=255 time=1.6 ms
+4104 bytes from 192.168.0.40: icmp_seq=5 ttl=255 time=2.1 ms
+4104 bytes from 192.168.0.40: icmp_seq=6 ttl=255 time=1.8 ms
+4104 bytes from 192.168.0.40: icmp_seq=7 ttl=255 time=284.1 ms
+4104 bytes from 192.168.0.40: icmp_seq=8 ttl=255 time=2.0 ms
+4104 bytes from 192.168.0.40: icmp_seq=9 ttl=255 time=284.4 ms
+4104 bytes from 192.168.0.40: icmp_seq=10 ttl=255 time=2.0 ms
+4104 bytes from 192.168.0.40: icmp_seq=11 ttl=255 time=2.2 ms
+4104 bytes from 192.168.0.40: icmp_seq=12 ttl=255 time=754.9 ms
+4104 bytes from 192.168.0.40: icmp_seq=13 ttl=255 time=283.7 ms
+4104 bytes from 192.168.0.40: icmp_seq=14 ttl=255 time=391.9 ms
+ 
+--- loki.internal ping statistics ---
+15 packets transmitted, 15 packets received, 0% packet loss
+round-trip min/avg/max = 1.6/203.5/755.3 ms
 
-Then I guess you consider Mozilla to be a http-server, as it serves
-http-requests to http-clients like Apache? ;)
+... but if i remove the other card (in this case a Miro Video TV Card) the 
+ping times all drop to about 2ms. 
 
-Well, in any case it's a great patch even though the terminology is
-backwards.
+Is this drop in performance normal or is it a bug ? As an aside, anything 
+lower than 1024 packetsize doesn't slowdown.
 
-//Marcus
+Thanks
 -- 
----------------------------------+---------------------------------
-         Marcus Sundberg         |      Phone: +46 707 452062
-   Embedded Systems Consultant   |     Email: marcus@cendio.se
-        Cendio Systems AB        |      http://www.cendio.com
+[------------------------------------------------][-------------------------]
+|"One World, One Web, One Program" - Microsoft Ad||    stormlabs@gmx.net    |
+|"Ein Volk, Ein Reich, Ein Fuhrer" - Adolf Hitler||http://storm.superzip.net|
+[------------------------------------------------][-------------------------]
+       --> thor up 2 days | sentinel up 59 days | loki up 59 days <--

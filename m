@@ -1,40 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261845AbTCZSEo>; Wed, 26 Mar 2003 13:04:44 -0500
+	id <S261354AbTCZSOR>; Wed, 26 Mar 2003 13:14:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261848AbTCZSEo>; Wed, 26 Mar 2003 13:04:44 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:57094 "EHLO
+	id <S261481AbTCZSOR>; Wed, 26 Mar 2003 13:14:17 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:59398 "EHLO
 	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S261845AbTCZSEn>; Wed, 26 Mar 2003 13:04:43 -0500
-Date: Wed, 26 Mar 2003 13:11:19 -0500 (EST)
+	id <S261354AbTCZSOR>; Wed, 26 Mar 2003 13:14:17 -0500
+Date: Wed, 26 Mar 2003 13:17:56 -0500 (EST)
 From: Bill Davidsen <davidsen@tmr.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Ron House <house@usq.edu.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: hdparm and removable IDE?
-In-Reply-To: <1048689184.31839.7.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.3.96.1030326130640.8110B-100000@gatekeeper.tmr.com>
+To: Greg KH <greg@kroah.com>
+cc: torvalds@transmeta.com, linux-usb-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] USB changes for 2.5.66
+In-Reply-To: <20030326005417.GA19868@kroah.com>
+Message-ID: <Pine.LNX.3.96.1030326131317.8110E-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 26 Mar 2003, Alan Cox wrote:
+On Tue, 25 Mar 2003, Greg KH wrote:
 
-> IDE hotswap at drive level is not supported by Linux. It might work ok. 
-> Providing you shut the drive down fully and flush the cache before you
-> unregister/unplug and replug before registering the new interface
+> Hi,
+> 
+> Here are some small USB changes.  Basically all little cleanups and
+> bugfixes, nothing major.
+> 
+> Please pull from:  bk://linuxusb.bkbits.net/linus-2.5
 
-There was a bunch of discussion of this, possibly on this list, and I
-believe that the whole cable has to be unregistered or some such. I've
-done it with only one drive on a cable, and it seemed to work. On the
-other hand I was only playing.
-
-I've seen some note regarding using ide-floppy for the whole drive instead
-of the media, but I have never had the urge to try that.
-
-WARNING: removable and hot swapable bays are not the same, had a client
-prove that to herself the hard way.
+Another "bk-only" patch. Guess I'd better look at the free (as in license,
+not cost) clone again.
 
 -- 
 bill davidsen <davidsen@tmr.com>

@@ -1,80 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265844AbSKTGay>; Wed, 20 Nov 2002 01:30:54 -0500
+	id <S265819AbSKTGcp>; Wed, 20 Nov 2002 01:32:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265851AbSKTGay>; Wed, 20 Nov 2002 01:30:54 -0500
-Received: from bg77.anu.edu.au ([150.203.223.77]:23216 "EHLO lassus.himi.org")
-	by vger.kernel.org with ESMTP id <S265844AbSKTGaw>;
-	Wed, 20 Nov 2002 01:30:52 -0500
-Date: Wed, 20 Nov 2002 17:37:55 +1100
-To: linux-kernel@vger.kernel.org
-Subject: Re: Separate obj/src dir
-Message-ID: <20021120063754.GE21437@himi.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20021119201110.GA11192@mars.ravnborg.org> <20021119205154.9616.qmail@escalade.vistahp.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="m1UC1K4AOz1Ywdkx"
-Content-Disposition: inline
-In-Reply-To: <20021119205154.9616.qmail@escalade.vistahp.com>
-User-Agent: Mutt/1.3.28i
-From: simon@himi.org (Simon Fowler)
+	id <S265851AbSKTGcp>; Wed, 20 Nov 2002 01:32:45 -0500
+Received: from c16410.randw1.nsw.optusnet.com.au ([210.49.25.29]:57081 "EHLO
+	mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
+	id <S265819AbSKTGco>; Wed, 20 Nov 2002 01:32:44 -0500
+From: Peter Chubb <peter@chubb.wattle.id.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15835.11826.442334.667711@wombat.chubb.wattle.id.au>
+Date: Wed, 20 Nov 2002 17:39:46 +1100
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: Peter Chubb <peter@chubb.wattle.id.au>, linux-kernel@vger.kernel.org
+Subject: Re: rpc.mountd problem in 2.5.48
+In-Reply-To: <15835.3154.178557.663327@notabene.cse.unsw.edu.au>
+References: <15834.1952.674371.221691@wombat.chubb.wattle.id.au>
+	<15834.49275.238123.495190@notabene.cse.unsw.edu.au>
+	<15834.51557.836769.918443@wombat.chubb.wattle.id.au>
+	<15835.3154.178557.663327@notabene.cse.unsw.edu.au>
+X-Mailer: VM 7.04 under 21.4 (patch 10) "Military Intelligence" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> "Neil" == Neil Brown <neilb@cse.unsw.edu.au> writes:
 
---m1UC1K4AOz1Ywdkx
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Neil> On Wednesday November 20, peter@chubb.wattle.id.au wrote:
+>>
+Neil> I suspec that adding 'insecure' did not fix the problem, but
+Neil> rather it was trying again that fixed the problem.
+>> Removing `insecure' and doing exportfs -r -a brings the problem
+>> back again.
 
-On Tue, Nov 19, 2002 at 02:51:54PM -0600, Brian Jackson wrote:
-> Sam Ravnborg writes:=20
->=20
-> <snip>
-> >Another drawback is that when a .h file exist in the
-> >SRCTREE but not in the OBJTREE the generated dependencies
-> >will point out the .h file located in SRCTREE.
-> >This happens for generated .h files, and therefore a simple
-> >check is made in kbuild to check that the SRCTREE is
-> >cleaned/mrpropered.
->=20
-> I wonder how hard it would be to do this for other files types. It would =
-be=20
-> sort of handy to be able to copy a single file out of the source tree int=
-o=20
-> the build tree, and have the build use the copy in the build tree. Exampl=
-e:=20
-> you want to test a one liner in drivers/scsi/sd.c, you could just copy sd=
-.c=20
-> into the build tree, and make the change and test it out. That could be a=
-=20
-> huge space savings. That would help out those of us that are stuck with=
-=20
-> tiny hard drives in our laptops :)=20
->=20
-For that you probably want to use the hardlinked trees approach.
-Just do a cp -al linux-2.5 scratch; then change your file and build
-from the copy.
+Neil> Extremely odd as the presence or absense of 'insecure' cannot
+Neil> (as far as I can see) affect any of the messages that you are
+Neil> seeing.
 
-Simon
+Even stranger is that I can now no longer reproduce the problem.
+Grrrrr.
 
---=20
-PGP public key Id 0x144A991C, or http://himi.org/stuff/himi.asc
-(crappy) Homepage: http://himi.org
-doe #237 (see http://www.lemuria.org/DeCSS)=20
-My DeCSS mirror: ftp://himi.org/pub/mirrors/css/=20
-
---m1UC1K4AOz1Ywdkx
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE92y3CQPlfmRRKmRwRAg7AAKC46+HS864YnCYzPTN6rV59K8vEbwCeINOm
-XpIcqsjpGSZmQJsoD2HhNWw=
-=sOV1
------END PGP SIGNATURE-----
-
---m1UC1K4AOz1Ywdkx--
+Peter c

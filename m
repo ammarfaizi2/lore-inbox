@@ -1,70 +1,113 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265943AbTGHAvg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jul 2003 20:51:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265946AbTGHAvg
+	id S265946AbTGHBGn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jul 2003 21:06:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265948AbTGHBGn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jul 2003 20:51:36 -0400
-Received: from mail-in-02.arcor-online.net ([151.189.21.42]:19666 "EHLO
-	mail-in-02.arcor-online.net") by vger.kernel.org with ESMTP
-	id S265943AbTGHAvf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jul 2003 20:51:35 -0400
-From: Daniel Phillips <phillips@arcor.de>
-To: Davide Libenzi <davidel@xmailserver.org>
-Subject: Re: 2.5.74-mm1
-Date: Tue, 8 Jul 2003 03:07:18 +0200
-User-Agent: KMail/1.5.2
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030703023714.55d13934.akpm@osdl.org> <200307080213.53203.phillips@arcor.de> <Pine.LNX.4.55.0307071724540.3524@bigblue.dev.mcafeelabs.com>
-In-Reply-To: <Pine.LNX.4.55.0307071724540.3524@bigblue.dev.mcafeelabs.com>
+	Mon, 7 Jul 2003 21:06:43 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:11136 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S265946AbTGHBGk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jul 2003 21:06:40 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Mon, 7 Jul 2003 18:13:33 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mcafeelabs.com
+To: Jamie Lokier <jamie@shareable.org>
+cc: Eric Varsanyi <e0216@foo21.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: epoll vs stdin/stdout
+In-Reply-To: <20030708005226.GD12127@mail.jlokier.co.uk>
+Message-ID: <Pine.LNX.4.55.0307071802360.3531@bigblue.dev.mcafeelabs.com>
+References: <20030707154823.GA8696@srv.foo21.com>
+ <Pine.LNX.4.55.0307071153270.4704@bigblue.dev.mcafeelabs.com>
+ <20030707194736.GF9328@srv.foo21.com> <Pine.LNX.4.55.0307071511550.4704@bigblue.dev.mcafeelabs.com>
+ <Pine.LNX.4.55.0307071624550.4704@bigblue.dev.mcafeelabs.com>
+ <20030708003247.GB12127@mail.jlokier.co.uk>
+ <Pine.LNX.4.55.0307071730190.3524@bigblue.dev.mcafeelabs.com>
+ <20030708005226.GD12127@mail.jlokier.co.uk>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200307080307.18018.phillips@arcor.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 08 July 2003 02:29, Davide Libenzi wrote:
-> On Tue, 8 Jul 2003, Daniel Phillips wrote:
-> > On Tuesday 08 July 2003 00:03, Davide Libenzi wrote:
-> > > > > Try to play with SNDCTL_DSP_SETFRAGMENT. Last time I checked the
-> > > > > kernel let you set a dma buf for 0.5 up to 1 sec of play (upper
-> > > > > limited by 64Kb). Feeding the sound card with 4Kb writes will make
-> > > > > you skip after about 50ms CPU blackout at 44KHz 16 bit. RealPlayer
-> > > > > uses 16Kb feeding chunks that makes it able to sustain up to 200ms
-> > > > > of blackout.
-> > > >
-> > > > That's just fiddling, it doesn't deal with the basic problem. 
-> > > > Anyway, big buffers have their own annoyances.  Have you tried the
-> > > > graphic equalizer in xmms lately?  A one second lag on slider
-> > > > adjustment is not nice.
-> > >
-> > > That's not fiddling. It is tuning your app so that it won't require
-> > > realtime when it is not needed.
-> >
-> > But realtime is needed, because there is a deadline for each buffer-fill.
+On Tue, 8 Jul 2003, Jamie Lokier wrote:
+
+> The old code didn't need to do it, because the events were registered
+> for all the fd values pointing to a single file *.  That's cool -
+> that's exactly what anyone would expect.  The point of dup2() is that
+> the fds are equivalent, and share state (such as seek pointer).
 >
-> Yes, in theory it is needed since you have to meet a deadline. But if
-> you program you timings such that your deadline is 400-500ms it is really
-> hard to lose it against one of 50-100ms.
+> Now you have two strange (IMHO unclean) behaviours, that an
+> application programmer needs to be aware of:
+>
+>    1. Duplicate fds don't share registered event state.
 
-1. 400ms buffers are hated by users, as was noted previously.  They are 
-passable for some applications, but way too laggy for others.
+That's no unclean. It is the purpose of the patch. You can do now :
 
-2. Even if you are will to have a 400-500 ms buffer, if you can prove that you 
-will always meet that deadline, then it's a realtime system.
+	/* Remotely */
+	dup2(3, 4);
+	...
+	evt.data.ptr = mydata0;
+	evt.event = EPOLLIN | EPOLLET;
+	epoll_ctl(epfd, EPOLL_CTL_ADD, 3, &evt);
+	evt.data.ptr = mydata1;
+	evt.event = EPOLLOUT | EPOLLET;
+	epoll_ctl(epfd, EPOLL_CTL_ADD, 4, &evt);
 
-3. If you can show logically that you will nearly always meet the deadline, 
-it's a soft realtime system.  That's what we're after here.  From a design 
-standpoint, there are elegant soft realtime systems, and there are sucky 
-ones.
+And receive two different events for "mydata0" and "mydata1". That's what
+you really link to.
 
-4. So how do you propose to "program timings" so that it's really hard to miss  
-those deadlines?
 
-Regards,
 
-Daniel
+>    2. When process A sends an fd to process B, the events will appear
+>       in process B _iff_ the fd number in B happens to be the same
+>       value as in process A.  (Without your patch, the events will always
+>       appear in process B).
+>
+>       Furthermore, when process B dups the fd or passes it elsewhere,
+>       events will appear if the new fd happens to be the same as the
+>       original fd number in A.
+>
+>       The only correct application code in this case is to use
+>       EPOLL_CTL_DEL in A and EPOLL_CTL_ADD in B, although it is
+>       confusing because you'll have programs which _sometimes_ work
+>       without that.
+
+This is false. Internally it's the file* that is the sink for events. So
+they will receive events as long as the originator file* is alive.
+
+
+
+> Oh, and:
+>
+>    3. It's almost a memory leak.  Not quite because it's cleaned up
+>       eventually.  But it looks and feels just like one.
+
+This is false too. When the last user (file count) of the underneath file*
+will drop it, it will be cleaned. This is not a memory leak in books where
+I studied. Is like saying that :
+
+int main() {
+	int i;
+	for (i = 0; i < 1000; i++)
+		open(...);
+	for (;;)
+		sleep(1);
+	return 0;
+}
+
+is a memory leak ;)
+
+
+
+> I guess what I'm saying is that hashing on fd number is quite simply
+> wrong.  The fundamental object is the file *, that's how its meant to be.
+
+The architecture is all based on the file*, it is there that events shows
+up. The (file*, fd) key is a constraint.
+
+
+
+- Davide
 

@@ -1,46 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293465AbSCUHZA>; Thu, 21 Mar 2002 02:25:00 -0500
+	id <S293503AbSCUHaK>; Thu, 21 Mar 2002 02:30:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293503AbSCUHYv>; Thu, 21 Mar 2002 02:24:51 -0500
-Received: from lakemtao03.cox.net ([68.1.17.242]:9655 "EHLO lakemtao03.cox.net")
-	by vger.kernel.org with ESMTP id <S293465AbSCUHYh> convert rfc822-to-8bit;
-	Thu, 21 Mar 2002 02:24:37 -0500
-Message-ID: <000a01c1d0a9$d9e50580$de490544@home>
-From: "Al Figlioli" <figrec@cox.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: IBM DEALS
+	id <S293513AbSCUHaA>; Thu, 21 Mar 2002 02:30:00 -0500
+Received: from swazi.realnet.co.sz ([196.28.7.2]:30434 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S293503AbSCUH3v>; Thu, 21 Mar 2002 02:29:51 -0500
+Date: Thu, 21 Mar 2002 09:19:41 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: James Washer <washer@us.ibm.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
+Subject: Re: Bad Illegal instruction traps on dual-Xeon (p4) Linux Dell box
+In-Reply-To: <OF144873DD.BC645CDA-ON87256B83.0000EE37@boulder.ibm.com>
+Message-ID: <Pine.LNX.4.44.0203210912020.1140-100000@netfinity.realnet.co.sz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Date: Thu, 21 Mar 2002 02:24:28 -0500
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-IN STOCK DEALS!!
-  
-02K6900        IBM TP 1400 ac adapter                  350                          20.00 new
-10L1259        IBM TP 770Z system board                50                          150.00 new
-12J1944        IBM TP 365x keyboard                     403                           10.00 new
-12J2005        IBM TP 770 keyboard assembly/unit  500                          15.00 new
-30L2533       IBM TP 770x system board                 59                          150.00 new
-30L2736       IBM TP 570 system board                  140                         145.00 new
-08K3315       IBM TP A20m system board Celeron   200                         280.00 ref
-13P3156       IBM TP A20m sys board PIII 750         150                         355.00 new
-10L1353        IBM TP SYS BD TP600X 2645        3                            350.00 NEW
-02k6639         IBM TP 570 BATTERY LITH/ION          30                            35.00 NEW
-PA2450U      Toshiba AC ADAPTER TECRA 530 550 8000 P7000 100          29.00NEW
-29H9395        KEYBOARD IBM TP 760C/CD /ED 760EL/ L/LD       300              10.00NEW
-29H9226        11.1 TFT LCD IBM TP 760C/CD /ED 760EL/ L/LD       100               26.00NEW
-45H5735         12.1 TFT LCD IBM TP 760C/CD /ED 760EL/ L/LD       100                28.00NEW 
-19K5686          IBM IEEE 1394 PCMCIA CARD BUS                        200                28.00NEW
-DDYS-T36950   IBM 36.7 GB 10K RPM P/N 07N3235                       100                 225.00NEW
- 
- 
+On Wed, 20 Mar 2002, James Washer wrote:
 
-SOLID TECHNOLOGY
-1599 Superior Ave. A2
-Costa Mesa, CA 92627
-949-646-2181 / FAX 949-646-2185
+> 
+> The iTLB would be flushed when he did the reload of cr3 ( per your
+> suggestion ) UNLESS the G bit was set.
+> I suppose theres some small chance, that at the time this instruction was
+> first cached and its corresponding iTLB entry was loaded, the G bit may
+> have been set.. Seems unlikely. but I'll hack up something to
+> unconditionally flush the iTLB.
+
+I find vol3 somewhat confusing in this regard...
+
+P104 - The only ways to deterministically invalidate global page entries 
+are as follows:
+o Clear the PGE flag and then invalidate the TLBs.
+o Execute the INVLPG instruction to invalidate individual page-directory 
+  or page-table entries in the TLBs.
+o Write to control register CR3 to invalidate all TLB entries.
+
+Then on page 381.
+
+The following operations invalidate all TLB entries except global entries. 
+(A global entry is one for which the G (global) flag is set in its 
+corresponding page-directory or page-table entry. The global flag was 
+introduced into the IA-32 architecture in the P6 family processors, see 
+Section 10.5.,  Cache Control .)
+
+o Writing to control register CR3.
+o A task switch that changes control register CR3.
+
+I would reckon reference 1 (p104) is incorrect, can someone shed some 
+light?
+
+Thanks,
+	Zwane
+
+

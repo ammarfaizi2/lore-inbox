@@ -1,39 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135942AbRDVI6P>; Sun, 22 Apr 2001 04:58:15 -0400
+	id <S135950AbRDVJXa>; Sun, 22 Apr 2001 05:23:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135947AbRDVI6G>; Sun, 22 Apr 2001 04:58:06 -0400
-Received: from CPE-61-9-151-92.vic.bigpond.net.au ([61.9.151.92]:50427 "EHLO
-	eyal.emu.id.au") by vger.kernel.org with ESMTP id <S135942AbRDVI5z>;
-	Sun, 22 Apr 2001 04:57:55 -0400
-Message-ID: <3AE29CFD.C438C8B9@eyal.emu.id.au>
-Date: Sun, 22 Apr 2001 18:57:33 +1000
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-pre5 i686)
+	id <S135965AbRDVJXV>; Sun, 22 Apr 2001 05:23:21 -0400
+Received: from WARSL401PIP3.highway.telekom.at ([195.3.96.75]:1607 "HELO
+	email02.aon.at") by vger.kernel.org with SMTP id <S135950AbRDVJXH>;
+	Sun, 22 Apr 2001 05:23:07 -0400
+Message-ID: <3AE2A2D0.80388594@violin.dyndns.org>
+Date: Sun, 22 Apr 2001 11:22:24 +0200
+From: Hermann Himmelbauer <dusty@violin.dyndns.org>
+Reply-To: dusty@strike.wu-wien.ac.at
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.3-ac12
-In-Reply-To: <E14rA0N-0004sv-00@the-village.bc.nu>
+To: Karsten Keil <kkeil@suse.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: APIC-Errors+Crashes on GA 586DX, 2.2.17/2.4.3
+In-Reply-To: <3AE1860A.390E301@violin.dyndns.org> <20010421180435.A22420@pingi.muc.suse.de>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 2.4.3-ac12
+Karsten Keil wrote:
+> 
+> I have here the same board with 2*233 MMX and don't see this kind of ISDN
+> error on recent 2.2 kernels, but got also lot of APIC errors with the
+> 2.3/2.4, because the APIC errors are only reported in 2.3/4.
 
-gcc -D__KERNEL__ -I/data2/usr/local/src/linux-2.4/include -Wall
--Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe
--mpreferred-stack-boundary=2 -march=i686 -malign-functions=4  -DMODULE
--DMODVERSIONS -include
-/data2/usr/local/src/linux-2.4/include/linux/modversions.h   -c -o
-inode.o inode.c
-inode.c: In function `affs_notify_change':
-inode.c:236: void value not ignored as it ought to be
-make[2]: *** [inode.o] Error 1
-make[2]: Leaving directory `/data2/usr/local/src/linux-2.4/fs/affs'
+Right - same behavior here, no APIC errors with 2.2 (as they are not
+reported). The ISDN error happens very seldom (4 times last year) and is
+not reproducable - which is not so with the eth0 errors (as eth0 locks
+at around 500-1000MB while copying data).
 
---
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.anu.edu.au/eyal/>
+> > kernel with the "noapic" parameter. The strange thing is that the APIC
+> > errors are still there, at least there are a lot less than before,
+> > moreover the system seems slower but at least more stable. BTW, why are
+> > there still APIC errors although there are no interrupts assigned to
+> > CPU1 (as seen in /proc/interrupts).
+> >
+> 
+> Yes, no APIC means all IRQ are handled by one CPU only, so communication
+> errors about IRQ events on the APIC bus don't care.
+
+Hmmm, so does that mean that those checksum errors have no effect on the
+stability of my system?
+ 
+> > What I wonder is why linux outputs a line like this (with noapic):
+> > <4>Intel MultiProcessor Specification v1.1
+> > <4>    Virtual Wire compatibility mode.
+> >
+> > although the board seems to be capable of MPS 1.4 (as there is a Bios
+> > option "MPS 1.4 for single Processor).
+> >
+> 
+> One or 2 years ago I was playing with these options, it seemed that setting
+> it to 1.1 reduce the error count a little bit, but this maybe a
+> misinterpretation.
+
+How did you do that? The BIOS Option only enables the use of MPS 1.4 for
+single CPU but I could not find an option for switching between 1.1/1.4.
+Is there a way to force the Linux kernel to use 1.4?
+
+Many thanks for your quick answer!
+
+		Best Regards,
+		Hermann
+
+-- 
+ ,_,
+(O,O)     "There is more to life than increasing its speed."
+(   )     -- Gandhi
+-"-"--------------------------------------------------------------

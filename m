@@ -1,50 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293549AbSCLAI7>; Mon, 11 Mar 2002 19:08:59 -0500
+	id <S293539AbSCLAPK>; Mon, 11 Mar 2002 19:15:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310227AbSCLAIj>; Mon, 11 Mar 2002 19:08:39 -0500
-Received: from twilight.cs.hut.fi ([130.233.40.5]:56274 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S310223AbSCLAIe>; Mon, 11 Mar 2002 19:08:34 -0500
-Date: Tue, 12 Mar 2002 02:08:28 +0200
-From: Ville Herva <vherva@niksula.hut.fi>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: zlib vulnerability and modutils
-Message-ID: <20020312000828.GB132950@niksula.cs.hut.fi>
-Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
-	David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020311234516.GC128921@niksula.cs.hut.fi> <4394.1015887380@kao2.melbourne.sgi.com> <14719.1015891493@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <14719.1015891493@redhat.com>
-User-Agent: Mutt/1.3.25i
+	id <S310223AbSCLAPB>; Mon, 11 Mar 2002 19:15:01 -0500
+Received: from falcon.mail.pas.earthlink.net ([207.217.120.74]:36752 "EHLO
+	falcon.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S293539AbSCLAOs>; Mon, 11 Mar 2002 19:14:48 -0500
+Reply-To: <robertp@ustri.com>
+From: "Robert Pfister" <robertp@ustri.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: RE: linux-2.5.4-pre1 - bitkeeper testing
+Date: Mon, 11 Mar 2002 17:14:33 -0700
+Message-ID: <001301c1c95a$e3adc3a0$1e00a8c0@nomaam>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <200203112134.OAA12196@tstac.esa.lanl.gov>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 12, 2002 at 12:04:53AM +0000, you [David Woodhouse] wrote:
-> 
-> vherva@niksula.hut.fi said:
-> >  Is there a patch for the kernel ppp zlib implementation available
-> > somewhere? I'd like to patch the kernels I'm running rather than
-> > stuffing a random vendor kernel to the boxes... 
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/dwmw2/linux-2.4.19-shared-zlib.bz2
-> 
-> That's a backport of the shared zlib from 2.5.6. As it does all its 
-> memory allocation beforehand, I _assume_ it doesn't suffer the same problem.
+Steven Cole writes:
 
-Thanks.
- 
-> It may be a little more intrusive than you wanted though.
+>Sure, that cleans up everything and sets all the version numbers back to
+;1,
+>but what I was pointing out is that previously created directories and
+previously
+>created files retain whatever version_limit setting they were created with.
+After
+>running your four lines, the disk is cleaner, but you'll still get multiple
+versions
+>even if you don't want multiple versions for those previously created
+directories
+>and files.  I know, I just tried it with VMS 5.5-2.
 
-Quite possibly -- at least considering that some of the kernels I run are
-still 2.2.x and even 2.0.x...
+There are two different commands in VMS:
 
-I'll have a look anyway.
+$ set directory /limit=1 {directory name}
 
+this sets the default behavior from that point down for new files
 
--- v --
+$ set file/limit=1  {list of files}
 
-v@iki.fi
+which sets the limit explicitly on files, and overrides the default for that
+directory. You can specify [...]*.* to recurse through and set everything,
+sort
+of like a bash script of "$ for j in 'find .' ; do xxx $j ; done"
+
+>But this is all rather moot,
+>since the real topic at hand is not what VMS does or didn't do in the past,
+but
+>rather what we _might_ want certain linux filesystems to do (and not do) in
+the
+>future.
+
+With VMS, the default behavior is on, and it is a pain to turn off.
+
+Under VMS, the versioning behavior is inherited from the parent directory
+that you are affecting a file in, if that directory has no attributes, it
+defers to the parent. (default file protection's work in this manner as
+well)
+
+Alternatively, storing a versioning attribute at every directory, with
+"blank" meaning no versioning might be a better fit.  It would certainly
+make a mixed filesystem environment easier to handle.
+
+Robb
+

@@ -1,91 +1,130 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264887AbSKEQYe>; Tue, 5 Nov 2002 11:24:34 -0500
+	id <S264892AbSKEQhE>; Tue, 5 Nov 2002 11:37:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264890AbSKEQYd>; Tue, 5 Nov 2002 11:24:33 -0500
-Received: from ulima.unil.ch ([130.223.144.143]:34951 "HELO ulima.unil.ch")
-	by vger.kernel.org with SMTP id <S264887AbSKEQYb>;
-	Tue, 5 Nov 2002 11:24:31 -0500
-Date: Tue, 5 Nov 2002 17:31:06 +0100
-From: Gregoire Favre <greg@ulima.unil.ch>
-To: linux-kernel@vger.kernel.org
-Cc: linux-dvb@linuxtv.org
-Subject: 2.5.46: DVB don't work...
-Message-ID: <20021105163106.GA5169@ulima.unil.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4i
+	id <S264894AbSKEQhE>; Tue, 5 Nov 2002 11:37:04 -0500
+Received: from fmr02.intel.com ([192.55.52.25]:47817 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S264892AbSKEQhC>; Tue, 5 Nov 2002 11:37:02 -0500
+Message-ID: <001a01c284ea$6f927c80$6601a8c0@amr.corp.intel.com>
+From: "Rusty Lynch" <rusty@linux.co.intel.com>
+To: "Geoff Gustafson" <geoff@linux.co.intel.com>,
+       "Stephanie Glass" <sglass@us.ibm.com>
+Cc: "Dan Kegel" <dkegel@ixiacom.com>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+References: <OF1545C7D1.9A1FE355-ON86256C68.00565997@pok.ibm.com>
+Subject: Re: [ANNOUNCE] Open POSIX Test Suite
+Date: Tue, 5 Nov 2002 08:43:12 -0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Stephanie,
 
-from dmesg:
+All test are GPL, so anyone can do anything they want with them.  We would
+be happy to donate test to any project.
 
-Unable to handle kernel paging request at virtual address e2cd9f4a
- printing eip:
-e2cd9f4a
-*pde = 1713a067
-*pte = 00000000
-Oops: 0000
-floppy alps_bsrv2 eepro100 mii ehci-hcd usbcore  
-CPU:    0
-EIP:    0060:[<e2cd9f4a>]    Not tainted
-EFLAGS: 00010206
-EIP is at E __insmod_alps_bsrv2_S.data_L342+0x2b4a/0x158 [alps_bsrv2]
-eax: d555ff6c   ebx: d6e3a100   ecx: d7db83b0   edx: d6e3a100
-esi: d555ffdc   edi: 80046f45   ebp: d555ffdc   esp: d555ff58
-ds: 0068   es: 0068   ss: 0068
-Process kdvb-fe (pid: 1084, threadinfo=d555e000 task=d779cd80)
-Stack: e2cd6162 d6e3a100 d555ff6c 00000002 0e000054 00000008 00000002 d555ff6a 
-       00010008 00000001 d555ff69 0000001f d555e000 e2cd693f d6e3a100 0000000e 
-       d779cd80 ffffffa1 d7db8204 c0262267 d7db8204 80046f45 d555ffdc d7db8200 
-Call Trace:
- [<e2cd6162>] ves1893_readreg+0x68/0x9a [alps_bsrv2]
- [<e2cd693f>] bsrv2_ioctl+0x181/0x344 [alps_bsrv2]
- [<c0262267>] dvb_frontend_internal_ioctl+0x5b/0xa0
- [<c0262c54>] dvb_frontend_thread+0x12e/0x250
- [<c0262b26>] dvb_frontend_thread+0x0/0x250
- [<c01070c1>] kernel_thread_helper+0x5/0xc
+The truth is that we modeled test cases after LTP, meaning that a test case
+is
+a simple executable that returns 0 for success and anything else to indicate
+failure, so copying a test from posixtest to LTP should be very easy.
 
-Code:  Bad EIP value.
- <1>Unable to handle kernel paging request at virtual address 0000ae18
- printing eip:
-e2cdfd88
-*pde = 00000000
-Oops: 0000
-dvb-ttpci floppy alps_bsrv2 eepro100 mii ehci-hcd usbcore  
-CPU:    0
-EIP:    0060:[<e2cdfd88>]    Not tainted
-EFLAGS: 00010246
-EIP is at outcom+0x56/0xd4 [dvb-ttpci]
-eax: 00000000   ebx: d61e5ec0   ecx: d61e5f00   edx: 00000001
-esi: 00000001   edi: 00000003   ebp: d61e5ee4   esp: d61e5eb0
-ds: 0068   es: 0068   ss: 0068
-Process insmod (pid: 2026, threadinfo=d61e4000 task=d7db0080)
-Stack: c15bb450 c15bb460 c022b313 00000246 0001010b c0490001 e2d2b180 00000000 
-       d61e4000 d61e5ec8 00000000 00000000 00000000 e2cd9000 e2cde65c 00000000 
-       00000001 0000000b 00000001 00000001 e2ce7590 00000000 00000001 00000001 
-Call Trace:
- [<c022b313>] driver_attach+0x49/0x7e
- [<e2d2b180>] input_dev+0x0/0x638 [dvb-ttpci]
- [<e2cde65c>] av7110_setup_irc_config+0x38/0x44 [dvb-ttpci]
- [<e2ce7590>] av7110_ir_init+0x52/0x9c [dvb-ttpci]
- [<e2cdad7b>] saa7146_init_module+0x49/0x78 [dvb-ttpci]
- [<e2cec280>] saa7146_driver+0x0/0xa0 [dvb-ttpci]
- [<c011e495>] sys_init_module+0x4eb/0x62e
- [<e2cd9060>] i2c_status_check+0x0/0x3a [dvb-ttpci]
- [<e2cd9060>] i2c_status_check+0x0/0x3a [dvb-ttpci]
- [<c0108f93>] syscall_call+0x7/0xb
+I was under the impression that LTP did not want to accept a bunch of test
+cases that did not currently have an associated implementation in Linux.
+It sounds like this is not exactly correct.  How about test cases that will
+probably
+always be implemented in user space?  Isn't LTP specific to kernel testing?
 
-Code: 8b 80 18 ae 00 00 85 c0 75 12 ba ff ff ff ff 8b 65 f0 89 d0 
+    -rusty
 
-It was perfectly working under 2.5.45...
+----- Original Message -----
+From: "Stephanie Glass" <sglass@us.ibm.com>
+To: "Geoff Gustafson" <geoff@linux.co.intel.com>
+Cc: "Dan Kegel" <dkegel@ixiacom.com>; "Linux Kernel Mailing List"
+<linux-kernel@vger.kernel.org>
+Sent: Tuesday, November 05, 2002 7:49 AM
+Subject: Re: [ANNOUNCE] Open POSIX Test Suite
 
-Thank you, 
 
-	Grégoire
-________________________________________________________________
-http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch
+>
+> Geoff,
+> The LTP would be happy to have anyone in the Linux community donate test
+> cases.  This includes any POSIX tests.
+> The LTP would not be advertised as a POSIX compliance test, that would be
+> up to LSB to handle.  These tests
+> would only increase the overall LTP api coverages.
+>
+> Does your group own these tests?  Do you want to donate them to the LTP?
+>
+> Stephanie
+>
+> Linux Technology Center
+>  IBM, 11400 Burnet Road, Austin, TX  78758
+>  Phone: (512) 838-9284   T/L: 678-9284  Fax: (512) 838-3882
+>  E-Mail: sglass@us.ibm.com
+>
+>
+>
+>                       "Geoff Gustafson"
+>                       <geoff@linux.co.i        To:       "Dan Kegel"
+<dkegel@ixiacom.com>, "Linux Kernel Mailing List"
+>                       ntel.com>                 <linux-kernel@vger.kernel.
+org>
+>                                                cc:       Stephanie
+Glass/Austin/IBM@IBMUS
+>                       11/04/2002 06:04         Subject:  Re: [ANNOUNCE]
+Open POSIX Test Suite
+>                       PM
+>
+>
+>
+>
+>
+> > You are about to duplicate http://ltp.sf.net
+>
+> My understanding is that LTP is focused on current mainline kernel
+testing,
+> while this project's initial concern is areas that are not currently in
+> Linux
+> like POSIX message queues, semaphores, and full support for POSIX threads.
+> I see
+> this as being used to evaluate different implementations that are being
+> considered for inclusion in the kernel, glibc, etc.
+>
+> This project is concerned with the POSIX APIs regardless of where they are
+> implemented (kernel, glibc, etc.). Thus it can focus on POSIX, independent
+> of
+> implementation. This project will be more concerned with traceability back
+> to
+> the POSIX specification, and completeness of coverage, than I would expect
+> from
+> LTP.
+>
+> That said, there is some overlap, and an exchange of test cases between
+the
+> projects may be very useful.
+>
+> I've copied Stephanie from LTP to get her reaction.
+>
+> -- Geoff Gustafson
+>
+> These are my views and not necessarily those of my employer.
+>
+>
+>
+>
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+

@@ -1,46 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289889AbSBOQFT>; Fri, 15 Feb 2002 11:05:19 -0500
+	id <S289917AbSBOQMK>; Fri, 15 Feb 2002 11:12:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289888AbSBOQE7>; Fri, 15 Feb 2002 11:04:59 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:29198 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S289889AbSBOQEu>;
-	Fri, 15 Feb 2002 11:04:50 -0500
-Date: Fri, 15 Feb 2002 08:00:32 -0800
-From: Greg KH <greg@kroah.com>
-To: Con Kolivas <conman@kolivas.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Wrong priority reporting with new 0(1) scheduler;  USB changes to 2.4.18 pre/rc1 breaks HPOJ
-Message-ID: <20020215160032.GC1695@kroah.com>
-In-Reply-To: <20020215142941.79B12942@pc.kolivas.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020215142941.79B12942@pc.kolivas.net>
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Fri, 18 Jan 2002 13:35:02 -0800
+	id <S289918AbSBOQMA>; Fri, 15 Feb 2002 11:12:00 -0500
+Received: from mailsorter.ma.tmpw.net ([63.112.169.25]:43552 "EHLO
+	mailsorter.ma.tmpw.net") by vger.kernel.org with ESMTP
+	id <S289917AbSBOQLr>; Fri, 15 Feb 2002 11:11:47 -0500
+Message-ID: <3AB544CBBBE7BF428DA7DBEA1B85C79C01101F0C@nocmail.ma.tmpw.net>
+From: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
+To: "'davem@redhat.com'" <davem@redhat.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: MAX_RT_PRIO in 2.5.5pre1 (Was:  build problem on Sparc64)
+Date: Fri, 15 Feb 2002 11:11:35 -0500
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 16, 2002 at 01:29:41AM +1100, Con Kolivas wrote:
-> 
-> The USB changes after 2.4.17 up to and including 2.4.18 rc1 cause the hp 
-> officejet drivers to fail on my machine. While the usb mouse continues to 
-> work, the hp ptal-init probe cannot find the device when scanning 
-> /dev/usb/lp0. The device is still reported correctly in 
-> /proc/bus/usb/devices. This is with both the usb-uhci and the uhci drivers.
+I see that the #define for MAX_RT_PRIO was moved from:
+/include/linux/sched.h
+To:
+/kernel/sched.c
 
-There have been some "interesting" discussions about HP printers on the
-linux-usb-devel mailing list :)
+This caused the build to fail on Sparc64, and maybe others, because of what
+looks to be an unfinished function define in /asm/mmu_context.h.  I am not
+sure what the function is supposed to be defined at all, as it looks to be
+unfinished.  To get the build further along, I commented the unfinished one
+out.  Not sure if this is the correct way to go, but I don't see it as doing
+anything effective with it in.  I included a diff for you against 2.5.4, if
+you want it. 
 
-A very simple patch that might work for you is at:
-	http://marc.theaimsgroup.com/?l=linux-usb-devel&m=101338636901219
-while a more "correct" patch is at:
-	http://marc.theaimsgroup.com/?l=linux-usb-devel&m=101366701613394
+Thanks,
+Bruce H.
 
-Please let me know if either of these patches fix your problem.
+diff -Nru ../linux-2.5.4/include/asm-sparc64/mmu_context.h
+./include/asm-sparc64/mmu_context.h                        
+--- ../linux-2.5.4/include/asm-sparc64/mmu_context.h    Thu Feb 14 14:28:10
+2002
+ 
 
-thanks,
++++ ./include/asm-sparc64/mmu_context.h Fri Feb 15 10:59:45 2002
 
-greg k-h
+@@ -28,14 +28,18 @@
+
+ #include <asm/spitfire.h>
+
+ 
+
+ /*
+
++ * ??? Does This Belong Here?  Build failed after Define for MAX_RT_PRIO
+
++ * was moved from /kernel/sched.h to /kernel/sched.c
+
++ *
+
+  * Every architecture must define this function. It's the fastest
+
+  * way of searching a 168-bit bitmap where the first 128 bits are
+
+  * unlikely to be set. It's guaranteed that at least one of the 168
+
+  * bits is cleared.
+
++ *
+
++ * #if MAX_RT_PRIO != 128 || MAX_PRIO != 168
+
++ * # error update this function.
+
++ * #endif
+
+  */
+
+-#if MAX_RT_PRIO != 128 || MAX_PRIO != 168
+
+-# error update this function.
+
+-#endif
+
+ 
+
+ static inline int sched_find_first_bit(unsigned long *b)
+
+ {
+

@@ -1,58 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267356AbUHWEFu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267381AbUHWEYJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267356AbUHWEFu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 00:05:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267362AbUHWEFu
+	id S267381AbUHWEYJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 00:24:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267383AbUHWEYJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 00:05:50 -0400
-Received: from gull.mail.pas.earthlink.net ([207.217.120.84]:61092 "EHLO
-	gull.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id S267356AbUHWEFs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 00:05:48 -0400
-Subject: PROBLEM: Linux system clock is running 3x too fast
-From: Fast Clock <fastclock@earthlink.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1093233957.3094.49.camel@apc>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 22 Aug 2004 23:05:57 -0500
-Content-Transfer-Encoding: 7bit
+	Mon, 23 Aug 2004 00:24:09 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:61096 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S267381AbUHWEYD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 00:24:03 -0400
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/14] kexec: i8259-sysfs.x86_64
+References: <m1zn4p66c2.fsf@ebiederm.dsl.xmission.com>
+	<20040821162417.7bad0b08.akpm@osdl.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 22 Aug 2004 22:22:43 -0600
+In-Reply-To: <20040821162417.7bad0b08.akpm@osdl.org>
+Message-ID: <m1d61i4h64.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My Athlon 64 laptop (HP Pavilion zv5000z) dual-boots Linux and Windows
-XP. The Windows system clock is running accurately but the Linux system
-clock is running 3 times too fast.
+Andrew Morton <akpm@osdl.org> writes:
 
-The problem occurs in all of the Linux distributions and releases that
-I've tried, including Suse 9.1, Fedora Core 1 & 2, kernel versions
-2.4.x, 2.6.x (up to 2.6.8-1.521), 32-bit & 64-bit releases.
+> ebiederm@xmission.com (Eric W. Biederman) wrote:
+> >
+> > The i8259 does not yet have sysfs support on x86_64
+> 
+> umm, yes it does.  It went into Linus's tree post 2.6.8.1.
 
-The Linux system clock problem is also intermittent. Approximately 1 of
-10 (cold) boots could yield an accurately running Linux system clock...
-I've tried kernel boot options "clock=tsc", "clock=pit", "clock=pmtmr"
-and have seen about the same 1/10 (failed/passed) ratio for each of
-them. I've also tried kernel boot options "acpi=on" & "acpi=off" but
-they don't seem to have any affect on the problem.
+Sorry I missed that one.  I'm surprised I did not get a reject
+when I rebuilt that one against mm2.  It appears I was in a bit
+of a rush.
 
-The differences in dmesg outputs between "good" and "bad" boots are as
-followed.
+Or why it would be nice for this code to be merged :)
 
-good:	time.c: Detected 797.952 MHz processor.
-bad:	time.c: Detected 265.995 MHz processor.
+> I added the below make-it-compile patch.  Please check it.
 
-good:	Calibrating delay loop... 1576.96 BogoMIPS
-bad:	Calibrating delay loop... 516.09 BogoMIPS
+Please just remove the previous patch and it's fix from your patchset,
+as together they are a noop.
 
-good:	Detected 12.468 MHz APIC timer.
-bad:	Detected 4.156 MHz APIC timer.
+The following patch simply adds a shutdown method to the x86_64
+i8259 code. That is what I care about in the context of kexec.
 
-good:	intel8x0_measure_ac97_clock: measured 49383 usecs
-	intel8x0: clocking to 47408
-bad:	intel8x0_measure_ac97_clock: measured 48347 usecs
-	intel8x0: measured clock 16547 rejected
-	intel8x0: clocking to 48000
+While testing this I found a minor ide bug. I will have a patch for
+that in a second. 
 
-Full dmesg logs (goods and bads) are available upon request.
+Eric
+
+diff -uNr linux-2.6.8.1-mm4/arch/x86_64/kernel/i8259.c linux-2.6.8.1-mm4-i8259-shutdown-x86_64/arch/x86_64/kernel/i8259.c
+--- linux-2.6.8.1-mm4/arch/x86_64/kernel/i8259.c	Sun Aug 22 20:56:01 2004
++++ linux-2.6.8.1-mm4-i8259-shutdown-x86_64/arch/x86_64/kernel/i8259.c	Sun Aug 22 21:00:23 2004
+@@ -416,10 +416,24 @@
+ 	return 0;
+ }
+ 
++
++
++static int i8259A_shutdown(struct sys_device *dev)
++{
++	/* Put the i8259A into a quiescent state that
++	 * the kernel initialization code can get it
++	 * out of.
++	 */
++	outb(0xff, 0x21);	/* mask all of 8259A-1 */
++	outb(0xff, 0xA1);	/* mask all of 8259A-1 */
++	return 0;
++}
++
+ static struct sysdev_class i8259_sysdev_class = {
+ 	set_kset_name("i8259"),
+ 	.suspend = i8259A_suspend,
+ 	.resume = i8259A_resume,
++	.shutdown = i8259A_shutdown,
+ };
+ 
+ static struct sys_device device_i8259A = {
+
 

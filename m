@@ -1,30 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135906AbREIIn6>; Wed, 9 May 2001 04:43:58 -0400
+	id <S135912AbREIIqk>; Wed, 9 May 2001 04:46:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135912AbREIInt>; Wed, 9 May 2001 04:43:49 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:37384 "EHLO
+	id <S135913AbREIIqY>; Wed, 9 May 2001 04:46:24 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:38152 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S135906AbREIIno>; Wed, 9 May 2001 04:43:44 -0400
-Subject: Re: 2.4.4 Kernel - ASUS CUV4X-DLS Question
-To: ankh@canuck.gen.nz (J. S. Connell)
-Date: Wed, 9 May 2001 09:47:30 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0105081841530.12740-100000@canuck.gen.nz> from "J. S. Connell" at May 08, 2001 06:57:50 PM
+	id <S135912AbREIIpc>; Wed, 9 May 2001 04:45:32 -0400
+Subject: Re: REVISED: Experimentation with Athlon and fast_page_copy
+To: tleete@mountain.net (Tom Leete)
+Date: Wed, 9 May 2001 09:49:28 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <3AF8A73A.C02F119E@mountain.net> from "Tom Leete" at May 08, 2001 10:11:06 PM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14xPd8-0001pf-00@the-village.bc.nu>
+Message-Id: <E14xPf0-0001pn-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> When it gets to the point of activating the second processor, kernel
-> 2.4.3-ac13 starts spewing:
+> > What still stands out is that exactly _zero_ people have reported the same
+> > problem with non VIA chipset Athlons.
 > 
-> probable hardware bug: clock timer configuration lost - probably a VIA686a motherboard.
-> probable hardware bug: restoring chip configuration.
+> Not any more :-(
 
-That is useful informtion. The kernel is seeing the interval timer overrun
-which implies things are very very stuck
+Still the same
+
+> IIRC this thread is about boot going catatonic right after unloading
+> __initmem.
+
+Nope. Its about memory corruptions. Your bug sounds very different
+
+> Earlier, it looks like handle_mm_fault is being triggered from
+> fast_clear_page.
+
+That would be messy. The other way around is sane but not that way

@@ -1,54 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279860AbRKIMcn>; Fri, 9 Nov 2001 07:32:43 -0500
+	id <S279865AbRKIMne>; Fri, 9 Nov 2001 07:43:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279865AbRKIMcd>; Fri, 9 Nov 2001 07:32:33 -0500
-Received: from mailer.zib.de ([130.73.108.11]:12994 "EHLO mailer.zib.de")
-	by vger.kernel.org with ESMTP id <S279860AbRKIMcU>;
-	Fri, 9 Nov 2001 07:32:20 -0500
-Date: Fri, 9 Nov 2001 13:32:15 +0100
-From: Sebastian Heidl <heidl@zib.de>
-To: Matthew Clark <matt@eee.nott.ac.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: dev driver / pci throughput
-Message-ID: <20011109133215.A792@csr-pc1.zib.de>
-In-Reply-To: <Pine.OSF.4.31.0111091022010.26869-100000@perry>
+	id <S279878AbRKIMnZ>; Fri, 9 Nov 2001 07:43:25 -0500
+Received: from [194.51.220.145] ([194.51.220.145]:43625 "EHLO emeraude")
+	by vger.kernel.org with ESMTP id <S279873AbRKIMnM>;
+	Fri, 9 Nov 2001 07:43:12 -0500
+Date: Fri, 9 Nov 2001 13:34:53 +0100
+From: Stephane Jourdois <stephane@tuxfinder.org>
+To: Massimo Dal Zotto <dz@cs.unitn.it>
+Cc: LKLM <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] SMM BIOS on Dell i8100
+Message-ID: <20011109133453.A8130@emeraude.kwisatz.net>
+Reply-To: stephane@tuxfinder.org
+In-Reply-To: <200111081814.fA8IE4qi003266@dizzy.dz.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="DocE+STaALJfprDB"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.OSF.4.31.0111091022010.26869-100000@perry>; from matt@eee.nott.ac.uk on Fri, Nov 09, 2001 at 10:48:58AM +0000
-X-www.distributed.net: 27 OGR packets (3.56 Tnodes) [4.21 Mnodes/s]
+In-Reply-To: <200111081814.fA8IE4qi003266@dizzy.dz.net>
+User-Agent: Mutt/1.3.23i
+X-Operating-System: Linux 2.4.15-pre1
+X-Send-From: emeraude
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 09, 2001 at 10:48:58AM +0000, Matthew Clark wrote:
-> #define CHUNK	512->4096 depending on implementation
-> 
-> static ssize_t BSL_write(..., const char *buf, size_t count..){
-> char chunk[CHUNK];
-> int	i,pos,
-> 	for(i=0,pos=0;i<amount of data;i++,pos+=CHUNK){
-> 		copy_from_user(buff,buf+pos,CHUNK);
-> 		/* reorder data				*/
-> 		/* not significant in throughput	*/
-> 		for(k=0;k<CHUNK;k++){
->                         chunk[k]=buff[B_SM(j+k)];
-> 			}
-> 		memcpy_toio(MEM_reg+pos+i*CHUNK+j,chunk,CHUNK);
-> 		}
-> 	return count;
-> 	}
-> + lots of not important details-----
-> 
-> MEM_reg=ioremap(pci_resource_start(dev,B_SM_MEM)&PCI_BASE_ADDRESS_MEM_MASK,REG_SIZE);
 
-Don't know if this will improve the performance much but if you checked the
-area you are copying from with access_ok you can replace copy_from_user by
-__copy_from_user. The second version does not check the area and so saves some
-cycles.
+--DocE+STaALJfprDB
+Content-Type: text/plain; charset=unknown-8bit
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-regards,
-_sh_
+On Thu, Nov 08, 2001 at 07:14:03PM +0100, Massimo Dal Zotto wrote:
+> I have released version 1.4 of my package with a new kernel module and
+> some enhancements to the i8kmon utility.
 
+hello,
 
+[no patch today :-)]
+
+here is what top gives me :
+  PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
+ 8102 kwisatz   15   0  2612 2612  1804 S     1.3  0.5   0:01 tclsh
+ 1663 kwisatz   10   0  3172 2436  2028 S     0.1  0.4   0:25 gkrellm
+
+It seems that gkrellm (which monitors more than 20 things on my laptop)
+takes only 0.1% of cpu, whereas i8kmon takes 1.3%...
+I have absolutely no idea how to improve that, but I think that should
+be the first thing on the TODO :-)
+
+++
+
+--=20
+ ///  Stephane Jourdois        	/"\  ASCII RIBBON CAMPAIGN \\\
+(((    Ing=E9nieur d=E9veloppement 	\ /    AGAINST HTML MAIL    )))
+ \\\   6, av. de la Belle Image	 X                         ///
+  \\\  94440 Marolles en Brie  	/ \    +33 6 8643 3085    ///
+
+--DocE+STaALJfprDB
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iEYEARECAAYFAjvrzW0ACgkQk2dpMN4A2NMNWgCeIbbDQl5QsK4dY8wkw/qLhW+Q
+OuoAnAm6CnigWmpzYW8i8FdCxkZb6K2F
+=a6BO
+-----END PGP SIGNATURE-----
+
+--DocE+STaALJfprDB--

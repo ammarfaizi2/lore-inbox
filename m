@@ -1,60 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286263AbRLTOdq>; Thu, 20 Dec 2001 09:33:46 -0500
+	id <S286268AbRLTOj4>; Thu, 20 Dec 2001 09:39:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286261AbRLTOdg>; Thu, 20 Dec 2001 09:33:36 -0500
-Received: from gateway-2.hyperlink.com ([213.52.152.2]:23824 "EHLO
-	core-gateway-1.hyperlink.com") by vger.kernel.org with ESMTP
-	id <S286260AbRLTOdY>; Thu, 20 Dec 2001 09:33:24 -0500
-Subject: Re: asymmetric multiprocessing
-From: "Martin A. Brooks" <martin@jtrix.com>
-To: Mark Hahn <hahn@physics.mcmaster.ca>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0112200912480.7795-100000@coffee.psychology.mcmaster.ca>
-In-Reply-To: <Pine.LNX.4.33.0112200912480.7795-100000@coffee.psychology.mcmaster.ca>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-BpgmAwUoebS95qCicxH3"
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 20 Dec 2001 14:33:22 +0000
-Message-Id: <1008858802.431.43.camel@unhygienix>
-Mime-Version: 1.0
+	id <S286267AbRLTOjh>; Thu, 20 Dec 2001 09:39:37 -0500
+Received: from Expansa.sns.it ([192.167.206.189]:30724 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id <S286261AbRLTOj1>;
+	Thu, 20 Dec 2001 09:39:27 -0500
+Date: Thu, 20 Dec 2001 15:38:49 +0100 (CET)
+From: Luigi Genoni <kernel@Expansa.sns.it>
+To: "David S. Miller" <davem@redhat.com>
+cc: <billh@tierra.ucsd.edu>, <bcrl@redhat.com>, <torvalds@transmeta.com>,
+        <linux-kernel@vger.kernel.org>, <linux-aio@kvack.org>
+Subject: Re: aio
+In-Reply-To: <20011219.191354.65000844.davem@redhat.com>
+Message-ID: <Pine.LNX.4.33.0112201533320.18275-100000@Expansa.sns.it>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-BpgmAwUoebS95qCicxH3
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
 
-On Thu, 2001-12-20 at 14:13, Mark Hahn wrote:
-> not supported (and frowned upon by the spec).  the issue is TSC,
-> of course, and it's definitely not clear whether the normal case
-> (correctly configured SMP) should be burdoned by support for=20
-> mixed-clock chips.
+On Wed, 19 Dec 2001, David S. Miller wrote:
 
-I'm no expert on MP, hence I fail to see why differing clock speeds
-between CPUs should be a problem providing the system bus rates are
-constant. As each CPU would be rated differently as far as bogomips are
-concerned, couldn't the scheduler apply load accordingly?
+>    From: Bill Huey <billh@tierra.ucsd.edu>
+>    Date: Wed, 19 Dec 2001 19:07:16 -0800
+>
+>    And using lkml as a AIO forum is probably outside of the scope of this list
+>    and group.
+>
+> This whole thread exists because Linus wants public general and
+> technical discussion on lkml of new features to happen before he
+> considers putting them into the tree, and the fact that they are not
+> in the tree because he isn't seeing such enthusiastic discussions
+> happening at all.
+>
+YES, and he is right doing so.
 
+> I don't think AIO, because of it's non-trivial impact to the tree, is
+> at all outside the scope of this list.  This is in fact the place
+> where major stuff like AIO is meant to be discussed, not some special
+> list where only "AIO people" hang out, of course people on that list
+> will be enthusiastic about AIO!
+agreed
+>
+> Frankly, on your other comments, I don't give a rats ass what BSD/OS
+> people are doing about, nor how highly they rate, Java.  That is
+> neither here nor there.  Java is going to be dead in a few years, and
+> let's just agree to disagree about this particular point ok?
+mmhh, java will not be death untill a lot of commecial software will use
+it for graphical interfaces.
+Infact it is simpler and cheaper for them to use java, and so we have to
+deal with this bad future, where a dead language will be keept alive by
+software houses.
+That said, should we care about this? In my opinion, NO. and why we
+should? when there are no good technical reasons, political reasons should
+please disappear.
 
---=20
-Martin A. Brooks   Systems Administrator
-Jtrix Ltd          t: +44 7395 4990
-57-59 Neal Street  f: +44 7395 4991
-London, WC2H 9PP   e: martin@jtrix.com
-
---=-BpgmAwUoebS95qCicxH3
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iEYEABECAAYFAjwh9rIACgkQwgE0gTKdDobL4gCggWd+Vfz+PuzonBXX+VyxB7Sj
-Ms8An1QUlRcC1Y4oIyj8m6XacjUFt7Vq
-=rFsD
------END PGP SIGNATURE-----
-
---=-BpgmAwUoebS95qCicxH3--
+Luigi
 

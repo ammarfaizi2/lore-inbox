@@ -1,61 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267117AbSLSV47>; Thu, 19 Dec 2002 16:56:59 -0500
+	id <S267189AbSLSV5Q>; Thu, 19 Dec 2002 16:57:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267173AbSLSV47>; Thu, 19 Dec 2002 16:56:59 -0500
-Received: from smtp08.iddeo.es ([62.81.186.18]:41686 "EHLO smtp08.retemail.es")
-	by vger.kernel.org with ESMTP id <S267117AbSLSV46>;
-	Thu, 19 Dec 2002 16:56:58 -0500
-Date: Thu, 19 Dec 2002 23:04:55 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Andrew Burgess <aab@cichlid.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: HT Benchmarks (was: /proc/cpuinfo and hyperthreading)
-Message-ID: <20021219220455.GA26489@werewolf.able.es>
-References: <1_0212161441436926@cichlid.com> <200212181756.gBIHuud27855@athlon.cichlid.com>
+	id <S267218AbSLSV5Q>; Thu, 19 Dec 2002 16:57:16 -0500
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:17674 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id <S267189AbSLSV5P>;
+	Thu, 19 Dec 2002 16:57:15 -0500
+Date: Thu, 19 Dec 2002 23:04:11 +0100
+From: romieu@fr.zoreil.com
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Are working modules going to be in 2.6?
+Message-ID: <20021219230411.A2032@electric-eye.fr.zoreil.com>
+References: <Pine.LNX.3.96.1021219154713.29567A-100000@gatekeeper.tmr.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <200212181756.gBIHuud27855@athlon.cichlid.com>; from aab@cichlid.com on Wed, Dec 18, 2002 at 18:56:56 +0100
-X-Mailer: Balsa 1.4.1
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.3.96.1021219154713.29567A-100000@gatekeeper.tmr.com>; from davidsen@tmr.com on Thu, Dec 19, 2002 at 03:58:11PM -0500
+X-Organisation: Marie's fan club - III
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Bill Davidsen <davidsen@tmr.com> :
+[...]
+> I have downloaded any number of modutil this and init-mod that, built them
+> static, rolled my own initrd files, and as far as I can tell it just
+> doesn't work with 2.5.48+.
 
-On 2002.12.18 Andrew Burgess wrote:
->>Number of threads	Elapsed time   User Time   System Time
->>1                   53:216           53:220    00:000
->>2                   29:272           58:180    00:320
->>3                   27:162         1:21:450    00:540
->>4                   25:094         1:41:080    01:250
->
->>Elapsed is measured by the parent thread, that is not doing anything
->>but wait on a pthread_join. User and system times are the sum of
->>times for all the children threads, that do real work.
->
->>The jump from 1->2 threads is fine, the one from 2->4 is ridiculous...
->>I have my cpus doubled but each one has half the pipelining for floating
->>point...see the user cpu time increased due to 'worst' processors and
->>cache pollution on each package.
->
->>So, IMHO and for my apps, HyperThreading is just a bad joke.
->
->Why do you care about user time? The elapsed time went down by
->4 minutes (2->4 threads), if that's a joke I don't get it :-)
->
->New Intel Ad: "What are you going to do with your 4 minutes today?"
->
+Here it worked with 2.5.50 + module-init-tools-0.9. No special magic.
+In-kernel 3c59x + initrd + (really gory style) nfs root.
 
-Of course I gain something. The problem is the price you pay for the
-gain.
+If you're interested, kernel .config is available at:
+http://electric-eye.fr.zoreil.com/2.5.50/misc/config.gz
 
-Prices in Spain: a P4 with 512Kb cache, 210 euros. Equal features (freq,
-cache), but Xeon version, 320 euros. So you pay 50% more money for
-10% more performance. Not too fair...
-
--- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.1 (Cooker) for i586
-Linux 2.4.20-jam2 (gcc 3.2 (Mandrake Linux 9.1 3.2-4mdk))
+--
+Ueimor

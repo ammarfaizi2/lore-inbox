@@ -1,83 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131026AbRBCWyF>; Sat, 3 Feb 2001 17:54:05 -0500
+	id <S130762AbRBCXB2>; Sat, 3 Feb 2001 18:01:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129699AbRBCWx4>; Sat, 3 Feb 2001 17:53:56 -0500
-Received: from [63.89.188.10] ([63.89.188.10]:10761 "EHLO xchange.zambeel.com")
-	by vger.kernel.org with ESMTP id <S131026AbRBCWxo>;
-	Sat, 3 Feb 2001 17:53:44 -0500
-From: Mohit Aron <aron@Zambeel.com>
-To: linux-kernel@vger.kernel.org
-Message-Id: <200102032253.OAA08890@mohit-linux.zambeel.com>
-Subject: system call sched_yield() doesn't work on Linux 2.2
-Date: Sat, 3 Feb 2001 14:53:26 -0800 (PST)
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="%--multipart-mixed-boundary-1.8886.981240806--%"
+	id <S130843AbRBCXBT>; Sat, 3 Feb 2001 18:01:19 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:50190 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S130762AbRBCXBI>;
+	Sat, 3 Feb 2001 18:01:08 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Viktor Rosenfeld <rosenfel@informatik.hu-berlin.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUG?] ISA-PnP and 3c509 NIC won't work together 
+In-Reply-To: Your message of "Sat, 03 Feb 2001 18:54:44 BST."
+             <3A7C45E4.15C470A3@informatik.hu-berlin.de> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 04 Feb 2001 10:01:00 +1100
+Message-ID: <17882.981241260@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 03 Feb 2001 18:54:44 +0100, 
+Viktor Rosenfeld <rosenfel@informatik.hu-berlin.de> wrote:
+>With ISA-PnP compiled in, and 3c509 support compiled as module:
+># modprobe 3c509
+>/lib/modules/2.4.1/kernel/drivers/net/3c509.o: invalid parameter parm_io
+>/lib/modules/2.4.1/kernel/drivers/net/3c509.o: insmod
+>/lib/modules/2.4.1/kernel/drivers/net/3c509.o failed
+>/lib/modules/2.4.1/kernel/drivers/net/3c509.o: insmod 3c509 failed
 
---%--multipart-mixed-boundary-1.8886.981240806--%
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+You passed an unknown parameter io_parm to 3c509 and insmod rejected
+it.  This has nothing to do with isa-pnp nor the 3c509, it is a pure
+user error.  Correct modules.conf before doing anything else.
 
-Hi,
-	the system call sched_yield() doesn't seem to work on Linux 2.2. Does
-anyone know of a kernel patch that fixes this ? 
-
-Attached below is a small program that uses pthreads and demonstrates that
-sched_yield() doesn't work. Basically, the program creates two threads that
-alternatively try to yield CPU to each other.
-
-
-- Mohit
-
-
---%--multipart-mixed-boundary-1.8886.981240806--%
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline; filename="sched_yield.c"
-
-#include <stdio.h>
-#include <sched.h>
-#include <pthread.h>
-
-static pthread_t thread1, thread2;
-
-
-static void *thread1_func(void *arg)
-{
-  int i;
-
-  for (i=0; i < 5 ;i++) {
-    printf("Thread1\n");
-    if (sched_yield()) printf("error in yielding\n");
-  }
-}
-
-static void *thread2_func(void *arg)
-{
-  int i;
-
-  for (i=0; i < 5 ;i++) {
-    printf("Thread2\n");
-    if (sched_yield()) printf("error in yielding\n");
-  }
-}
-
-
-int main(int argc, char **argv)
-{
-  pthread_create(&thread1, NULL, thread1_func, NULL);
-  pthread_create(&thread2, NULL, thread2_func, NULL);
-
-  sleep(10);
-
-  return 0;
-}
-
---%--multipart-mixed-boundary-1.8886.981240806--%--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,71 +1,118 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313711AbSGYNci>; Thu, 25 Jul 2002 09:32:38 -0400
+	id <S313571AbSGYNXr>; Thu, 25 Jul 2002 09:23:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314551AbSGYNbQ>; Thu, 25 Jul 2002 09:31:16 -0400
-Received: from pump3.york.ac.uk ([144.32.128.131]:965 "EHLO pump3.york.ac.uk")
-	by vger.kernel.org with ESMTP id <S314403AbSGYNaJ>;
-	Thu, 25 Jul 2002 09:30:09 -0400
-Date: Thu, 25 Jul 2002 14:42:13 +0100 (BST)
-From: Ewan Mac Mahon <ecm103@york.ac.uk>
-X-X-Sender: ewan@kitt.york.ac.uk
-To: James Simmons <jsimmons@transvirtual.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux console project <linuxconsole-dev@lists.sourceforge.net>
-Subject: Re: [PATCH] Second set of console changes.
-In-Reply-To: <Pine.LNX.4.44.0207242326520.29650-100000@www.transvirtual.com>
-Message-ID: <Pine.LNX.4.44.0207251402530.31229-100000@kitt.york.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S313477AbSGYNXr>; Thu, 25 Jul 2002 09:23:47 -0400
+Received: from harpo.it.uu.se ([130.238.12.34]:64156 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S313638AbSGYNXJ>;
+	Thu, 25 Jul 2002 09:23:09 -0400
+Date: Thu, 25 Jul 2002 15:26:19 +0200 (MET DST)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200207251326.PAA25534@harpo.it.uu.se>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH][2.5.28] broken floppy driver workarounds, take 4
+Cc: davej@suse.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 24 Jul 2002, James Simmons wrote:
->  
->    To the people with the devfs issues. Please send me a log of what
-> exactly happened and a detail ksymoop if you can. I just tried it on my
-> system with devfs enabled and it works for me. 
+Here's the 4th version of my patch to "fix" the floppy driver which
+got broken by the 2.5.13-2.5.19 and 2.5.28 block dev changes.
 
-It doesn't oops, it just doesn't register the devices so you can't open 
-gettys on them. Other than that the kernel boots fine and you can log in 
-over the network. Doing that you can see a couple of big difference in 
-/dev:
+In 2.5.28 there was a change in fs/block_dev.c which set the
+floppy block dev's size to 0, and this causes ENOSPC errors on writes
+to the floppy dev. This 4th version of the patch adds a workaround
+for this problem.
 
-2.5.28 without fix:
+Partial VFS access _may_ work now. I created an ext2 fs on /dev/fd0
+under 2.5.28+this patch, and it fsck'd ok under both 2.5.28 and
+2.4.19rc3. However, when I attempted to put lilo on that floppy
+the kernel oopsed with a "buffer layer error at buffer.c:403", so
+things are still not quite right.
 
-$ ls -l /dev/vc
-total 0
-crw-------    1 root     root       4,   0 Jan  1  1970 0
+/Mikael
 
-$ ls -l /dev/tty*
-crw-rw-rw-    1 root     root       5,   0 Jan  1  1970 /dev/tty
-lr-xr-xr-x    1 root     root            4 Jul 25 14:17 /dev/tty0 -> vc/0
-
-
-Whereas with the fix to add a call to con_init_devfs() near the end of 
-vty_init() it all works and you can see the following:
-
-ls -l /dev/vc
-total 0
-crw-------    1 root     root       4,   0 Jan  1  1970 0
-crw-------    1 root     root       4,   1 Jul 25 14:09 1
-crw-------    1 root     root       4,  10 Jan  1  1970 10
-crw-------    1 root     root       4,  11 Jan  1  1970 11
-etc...
-crw-------    1 root     root       4,  63 Jan  1  1970 63
-
-$ ls -l /dev/tty*
-crw-rw-rw-    1 root     root       5,   0 Jan  1  1970 /dev/tty
-lr-xr-xr-x    1 root     root            4 Jul 25 14:25 /dev/tty0 -> vc/0
-lr-xr-xr-x    1 root     root            4 Jul 25 14:25 /dev/tty1 -> vc/1
-lr-xr-xr-x    1 root     root            5 Jul 25 14:25 /dev/tty10 -> vc/10
-lr-xr-xr-x    1 root     root            5 Jul 25 14:25 /dev/tty11 -> vc/11
-etc...
-lr-xr-xr-x    1 root     root            5 Jul 25 14:25 /dev/tty63 -> vc/63
-
-
-If the system can still see static device nodes for the devices it can, of 
-course, still ue them even with devfs built into the kernel.
-
-Ewan
-
+diff -ruN linux-2.5.28/drivers/block/floppy.c linux-2.5.28.fix-floppy/drivers/block/floppy.c
+--- linux-2.5.28/drivers/block/floppy.c	Thu Jul 25 01:27:30 2002
++++ linux-2.5.28.fix-floppy/drivers/block/floppy.c	Thu Jul 25 14:33:49 2002
+@@ -3699,6 +3699,10 @@
+ 		UDRS->fd_ref = 0;
+ 	}
+ 	floppy_release_irq_and_dma();
++
++	/* undo ++bd_openers in floppy_open() */
++	--inode->i_bdev->bd_openers;
++
+ 	return 0;
+ }
+ 
+@@ -3791,6 +3795,43 @@
+ 		invalidate_buffers(mk_kdev(FLOPPY_MAJOR,old_dev));
+ 	}
+ 
++	/* Problems:
++	 * 1. floppy_open() triggers a call to submit_bio(), but
++	 *    bdev->bd_queue may be NULL since it is not set up until
++	 *    after floppy_open() has returned. Prior to 2.5.18, NULL
++	 *    queues were initialised when needed.
++	 * 2. fs/block_dev.c:do_open() changes bdev's block size
++	 *    after floppy_open() has returned. For some reason, this
++	 *    causes data corruption durings writes.
++	 * 3. fs/block_dev.c:do_open() sets bdev->bd_inode->i_size to 0
++	 *    after floppy_open() has returned. This cases ENOSPC errors
++	 *    on writes.
++	 * Workarounds:
++	 * 1. bdev->bd_queue is initialised here.
++	 * 2. Set bdev block size equal to the hardsect/queue size.
++	 *    This seems to cure the data corruption problem for raw
++	 *    accesses. VFS accesses to mounted floppies still cause
++	 *    data corruption for unknown reasons.
++	 * 3. Set i_size to 1.44M and bd_offset to 0.
++	 * 2&3. ++bdev->bd_openers to bypass do_open()'s changes.
++	 *    floppy_release() does a --bdev->bd_openers.
++	 */
++	{
++		struct block_device *bdev = inode->i_bdev;
++		kdev_t dev = inode->i_rdev;
++		struct blk_dev_struct *p = blk_dev + major(dev);
++
++		if (p->queue)
++			bdev->bd_queue = p->queue(dev);
++		else
++			bdev->bd_queue = &p->request_queue;
++		bdev->bd_block_size = bdev_hardsect_size(bdev);
++		bdev->bd_inode->i_blkbits = blksize_bits(block_size(bdev));
++		bdev->bd_offset = 0;
++		bdev->bd_inode->i_size = 1440 * 1024;
++		++bdev->bd_openers;
++	}
++
+ 	/* Allow ioctls if we have write-permissions even if read-only open.
+ 	 * Needed so that programs such as fdrawcmd still can work on write
+ 	 * protected disks */
+@@ -4228,8 +4269,6 @@
+ {
+ 	int i,unit,drive;
+ 
+-	register_sys_device(&device_floppy);
+-
+ 	raw_cmd = NULL;
+ 
+ 	devfs_handle = devfs_mk_dir (NULL, "floppy", NULL);
+@@ -4356,6 +4395,9 @@
+ 			register_disk(NULL, mk_kdev(MAJOR_NR,TOMINOR(drive)+i*4),
+ 					1, &floppy_fops, 0);
+ 	}
++
++	register_sys_device(&device_floppy);
++
+ 	return have_no_fdc;
+ }
+ 
+@@ -4538,6 +4580,7 @@
+ {
+ 	int dummy;
+ 		
++	unregister_sys_device(&device_floppy);
+ 	devfs_unregister (devfs_handle);
+ 	devfs_unregister_blkdev(MAJOR_NR, "fd");
+ 

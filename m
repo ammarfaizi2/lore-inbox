@@ -1,51 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264582AbRGLOEK>; Thu, 12 Jul 2001 10:04:10 -0400
+	id <S264624AbRGLOFB>; Thu, 12 Jul 2001 10:05:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264752AbRGLOEA>; Thu, 12 Jul 2001 10:04:00 -0400
-Received: from adsl-64-175-255-50.dsl.sntc01.pacbell.net ([64.175.255.50]:20098
-	"HELO kobayashi.soze.net") by vger.kernel.org with SMTP
-	id <S264582AbRGLODo>; Thu, 12 Jul 2001 10:03:44 -0400
-Date: Thu, 12 Jul 2001 07:03:46 -0700 (PDT)
-From: Justin Guyett <justin@soze.net>
-X-X-Sender: <tyme@kobayashi.soze.net>
-To: Nitin Dhingra <nitin.dhingra@dcmtech.co.in>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: IPsec in Kernel??
-In-Reply-To: <7FADCB99FC82D41199F9000629A85D1A01C65051@dcmtechdom.dcmtech.co.in>
-Message-ID: <Pine.LNX.4.33.0107120544310.13780-100000@kobayashi.soze.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264663AbRGLOEu>; Thu, 12 Jul 2001 10:04:50 -0400
+Received: from smtp1.cern.ch ([137.138.128.38]:22289 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S264624AbRGLOEn>;
+	Thu, 12 Jul 2001 10:04:43 -0400
+Date: Thu, 12 Jul 2001 16:04:36 +0200
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Pedantry.
+Message-ID: <20010712160436.A31054@pcep-jamie.cern.ch>
+In-Reply-To: <6845.994929684@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <6845.994929684@redhat.com>; from dwmw2@infradead.org on Thu, Jul 12, 2001 at 10:21:24AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Jul 2001, Nitin Dhingra wrote:
+David Woodhouse wrote:
+> AFAIK "Uncompressing" is not a real word even in American.
 
-> Is there any possibility that IPsec will be provided in
-> the kernel ?
+Depends how you parse it.  With uncompress-ing, the word "uncompress" is
+actually a pronoun -- it is the name of the traditional uncompress
+program.  Being a name, it does not have to be a real word. :-)
 
-The maintainers won't accept code from anyone in the US for fear that
-export regulations may tighten again retroactively, so any merge into the
-kernel would require a seperate maintainer either to maintain the fork,
-and/or to constantly merge in new changes from the original freeswan
-project.
+Now really, the kernel is not "compress"-ed per se, it's "zipped".
 
-The current in-kernel portion of freeswan doesn't get along well with
-advanced routing, and doesn't take advantage of SMP, so I'd be rather
-disappointed if it got forked and merged in its current form.
-
-Some things that would be nice:
- integration with advanced routing
- /proc interface so connections can be added on the fly
- module-only option (freeswan's latest snapshots seem to have this)
- take advantage of SMP
- implement AES
- use of kernel crypto patch / openssl for userland rsa stuff
- move all non-optional parts of the updown scripts into the ipsec program,
-  a la openbsd where the shell script portion isn't hundreds of lines for
-  one tunnel.
- no bloat (a 3.5 meg ipsec module doesn't seem very reasonable)
+So may I suggest:
 
 
-justin
+  Unzipping linux.... done <grin>
 
+
+cheers,
+-- Jamie

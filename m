@@ -1,49 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265622AbUAPSnN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 13:43:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265628AbUAPSnN
+	id S265258AbUAPTBs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 14:01:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265280AbUAPTBs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 13:43:13 -0500
-Received: from fw.osdl.org ([65.172.181.6]:52457 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265622AbUAPSnD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 13:43:03 -0500
-Date: Fri, 16 Jan 2004 10:43:10 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Cc: hugh@veritas.com, marcel@kriminell.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.1: kernel BUG at mm/swapfile.c:806
-Message-Id: <20040116104310.0a5e70cd.akpm@osdl.org>
-In-Reply-To: <20040116182915.GL1748@srv-lnx2600.matchmail.com>
-References: <400787F7.4030005@kriminell.com>
-	<Pine.LNX.4.44.0401161618310.7487-100000@localhost.localdomain>
-	<20040116182915.GL1748@srv-lnx2600.matchmail.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 16 Jan 2004 14:01:48 -0500
+Received: from wblv-238-222.telkomadsl.co.za ([165.165.238.222]:46991 "EHLO
+	gateway.lan") by vger.kernel.org with ESMTP id S265258AbUAPTBq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jan 2004 14:01:46 -0500
+Subject: Re: [PATCH] add sysfs class support for vc devices [10/10]
+From: Martin Schlemmer <azarah@nosferatu.za.org>
+Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Greg KH <greg@kroah.com>,
+       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>,
+       linux-hotplug-devel@lists.sourceforge.net
+In-Reply-To: <20040115201358.75ffc660.akpm@osdl.org>
+References: <20040115204048.GA22199@kroah.com>
+	 <20040115204111.GB22199@kroah.com> <20040115204125.GC22199@kroah.com>
+	 <20040115204138.GD22199@kroah.com> <20040115204153.GE22199@kroah.com>
+	 <20040115204209.GF22199@kroah.com> <20040115204241.GG22199@kroah.com>
+	 <20040115204259.GH22199@kroah.com> <20040115204311.GI22199@kroah.com>
+	 <20040115204329.GJ22199@kroah.com> <20040115204356.GK22199@kroah.com>
+	 <20040115201358.75ffc660.akpm@osdl.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-KLoD51gdwzZh/EdeiQWZ"
+Message-Id: <1074279897.23742.754.camel@nosferatu.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 16 Jan 2004 21:04:57 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Fedyk <mfedyk@matchmail.com> wrote:
->
-> On Fri, Jan 16, 2004 at 05:05:55PM +0000, Hugh Dickins wrote:
-> > On Fri, 16 Jan 2004, marcel cotta wrote:
-> > > i just tried to less it - the process went right into D state :p
-> > 
-> > That sounds like an issue that came up a month or two back: seems that
-> > sys_swapon intentionally leaves a semaphore down on a swapfile, until
-> > sys_swapoff.  I don't like that at all!  The noble reason was to stop
-> > that file from being deleted or truncated while in use for swap,
-> > but perhaps we can devise a better way to achieve that sometime -
-> > set S_IMMUTABLE?
-> 
-> Can't the kernel just keep a reference to the inode while it is used for
-> swap, and let it unlink after swapoff (and all other refs are gone) using
-> normal unix semantics? 
 
-Unlink is not the problem.  The problem is truncation.  swapon holds i_sem
-to prevent people from adding or removing blocks while the swapfile is in
-use.
+--=-KLoD51gdwzZh/EdeiQWZ
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+On Fri, 2004-01-16 at 06:13, Andrew Morton wrote:
+> Greg KH <greg@kroah.com> wrote:
+> >
+> > This patch add sysfs support for vc char devices.
+> >=20
+> >  Note, Andrew Morton has reported some very strange oopses with this
+> >  patch, that I can not reproduce at all.  If anyone else also has
+> >  problems with this patch, please let me know.
+>=20
+> It seems to have magically healed itself :(
+>=20
+> Several people were hitting it.  We shall see.
+
+Might it be due to the vt-locking-fixes patch?
+
+
+--=20
+Martin Schlemmer
+
+--=-KLoD51gdwzZh/EdeiQWZ
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBACDXZqburzKaJYLYRAi4uAJ9Jyj7Wc0e3jk7WuqyoLuw8ctsingCfU9Qo
+btj2AqAKv5gnyxeOkYB4yAI=
+=O51n
+-----END PGP SIGNATURE-----
+
+--=-KLoD51gdwzZh/EdeiQWZ--
 

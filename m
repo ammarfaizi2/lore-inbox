@@ -1,54 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263379AbRFKDmS>; Sun, 10 Jun 2001 23:42:18 -0400
+	id <S263406AbRFKEl3>; Mon, 11 Jun 2001 00:41:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263381AbRFKDmI>; Sun, 10 Jun 2001 23:42:08 -0400
-Received: from dryline-fw.yyz.somanetworks.com ([216.126.67.45]:22552 "EHLO
-	dryline-fw.wireless-sys.com") by vger.kernel.org with ESMTP
-	id <S263379AbRFKDmC>; Sun, 10 Jun 2001 23:42:02 -0400
-Date: Sun, 10 Jun 2001 23:41:54 -0400 (EDT)
-From: Scott Murray <scottm@somanetworks.com>
-To: John Fremlin <vii@users.sourceforge.net>
-cc: <perex@suse.cz>, Robin Cull <kernel-list@phaderunner.demon.co.uk>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.4 isapnp - wrong set of resources chosen
-In-Reply-To: <m23d97aod9.fsf@boreas.yi.org.>
-Message-ID: <Pine.LNX.4.30.0106102332170.18866-100000@rancor.yyz.somanetworks.com>
+	id <S263404AbRFKElS>; Mon, 11 Jun 2001 00:41:18 -0400
+Received: from 202-54-39-145.tatainfotech.co.in ([202.54.39.145]:52741 "EHLO
+	brelay.tatainfotech.com") by vger.kernel.org with ESMTP
+	id <S263405AbRFKElM>; Mon, 11 Jun 2001 00:41:12 -0400
+Date: Mon, 11 Jun 2001 10:29:34 +0530 (IST)
+From: "SATHISH.J" <sathish.j@tatainfotech.com>
+To: linux-kernel@vger.kernel.org
+Subject: exec format error
+In-Reply-To: <Pine.LNX.4.10.10106031716330.3971-100000@blrmail>
+Message-ID: <Pine.LNX.4.10.10106111022240.7084-100000@blrmail>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11 Jun 2001, John Fremlin wrote:
+Hi,
+Sorry to disturb you.
 
-> Hi!
->
-> Robin Cull and I have OPL3-SA2 isapnp cards. Sometimes we get assigned
-> the wrong resource set. These cards do not take kindly to Alternate
-> resources 0:1 Priority acceptable, in fact they are completely broke,
-> so it is important to us that they get their first choice ;-)
->
-> The trouble is that isapnp auto conf does not always take the first
-> choice, even when it is available! This happens to me everytime I
-> unload and reload the opl3sa2 module, but can also be seen after
-> unloading the module by doing
-[snip]
+I have written a file system in 2.2.14 kernel similar to ramfs on 2.5
+kernel. I am able to register,mount and do file and directory operations.
+I tried to write a C program and compile it. The compilation gave me the
+object file. When i tried to run the object file it gave me an error 
+" cannot execute binary file". I entered gdb and  I could get the error
+"exec format error". What is exec format error and what is it because of?
+Please help me out with this info.
 
-Hmmm, interesting.  I'd noticed this when testing the ISA PnP changes
-to the driver, but since the config the in-kernel PnP code was picking
-worked on the two machines I tried, I thought it was a relatively
-harmless glitch.  I had little success parsing the PnP driver myself
-when I tried, and unfortunately I've little time for working in depth
-on sound stuff at the moment.  I'm willing to test out any suggestions,
-though.
+Thanks in advance,
 
-Scott
+Regards,
+sathish
 
-
--- 
-Scott Murray
-SOMA Networks, Inc.
-Toronto, Ontario
-Work e-mail: scottm@somanetworks.com
-Home e-mail: scott@spiteful.org
 

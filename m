@@ -1,51 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261726AbREPAO5>; Tue, 15 May 2001 20:14:57 -0400
+	id <S261724AbREPAPQ>; Tue, 15 May 2001 20:15:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261725AbREPAOq>; Tue, 15 May 2001 20:14:46 -0400
-Received: from mta1.snfc21.pbi.net ([206.13.28.122]:49606 "EHLO
-	mta1.snfc21.pbi.net") by vger.kernel.org with ESMTP
-	id <S261724AbREPAOc>; Tue, 15 May 2001 20:14:32 -0400
-Date: Tue, 15 May 2001 17:13:12 -0700
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: LANANA: To Pending Device Number Registrants
-To: Alexander Viro <viro@math.psu.edu>
-Cc: mjfrazer@somanetworks.com, lkml <linux-kernel@vger.kernel.org>
-Message-id: <049e01c0dd9c$ff9eae80$6800000a@brownell.org>
-MIME-version: 1.0
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-Content-type: text/plain; charset="iso-8859-1"
-Content-transfer-encoding: 7bit
-X-MSMail-Priority: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-In-Reply-To: <Pine.GSO.4.21.0105151927480.22958-100000@weyl.math.psu.edu>
-X-Priority: 3
+	id <S261727AbREPAPH>; Tue, 15 May 2001 20:15:07 -0400
+Received: from filesrv1.baby-dragons.com ([199.33.245.55]:25350 "EHLO
+	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
+	id <S261725AbREPAO6>; Tue, 15 May 2001 20:14:58 -0400
+Date: Tue, 15 May 2001 17:14:54 -0700 (PDT)
+From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+To: Tim Waugh <twaugh@redhat.com>
+cc: Linux Kernel Maillist <linux-kernel@vger.kernel.org>
+Subject: Re: Is printing broke on sparc ?
+In-Reply-To: <Pine.LNX.4.32.0104171707310.22166-100000@filesrv1.baby-dragons.com>
+Message-ID: <Pine.LNX.4.32.0105151712060.10349-100000@filesrv1.baby-dragons.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I suppose that for network interface names, some convention for
-> > interface ioctls would suffice to solve that "identify" step.  PCI
-> > devices would return the slot_name, USB devices need something
-> > like a patch I posted to linux-usb-devel a few months back.
-> 
-> This is crap.
 
-Only the ioctl part, though I confess to trolling for a better proposal ... :)
+	Hello Tim ,
 
+On Tue, 17 Apr 2001, Mr. James W. Laferriere wrote:
+> On Tue, 17 Apr 2001, Tim Waugh wrote:
+> > On Mon, Apr 16, 2001 at 05:54:41PM -0700, Mr. James W. Laferriere wrote:
+> > > # /etc/printcap
+> > > # Please don't edit this file directly unless you know what you are doing!
+> > > # Be warned that the control-panel printtool requires a very strict format!
+> > > # Look at the printcap(5) man page for more info.
+> > > # This file can be edited with the printtool in the control-panel.
+> > > ##PRINTTOOL3## LOCAL POSTSCRIPT 300x300 letter {} PostScript Default {}
+> > > lp:\
+> > > 	:sd=/var/spool/lpd/lp:\
+> > > 	:mx#0:\
+> > > 	:sh:\
+> > > 	:lp=/dev/lp0:\
+> > > 	:if=/var/spool/lpd/lp/filter:
+> > [...]
+> > > /c#eodiecnyotai rhernili s to rpaemn
+> > >                                     s eehpo o-.ROLPR0 roif{\=sl:x
+> > >                                                                  	/p:ao/lr
 
-> If you want to do it - do it right. Accessing /dev/eth/<n>/MAC
-> is trivial. Wanking with ioctls is not. And populating such tree
-> is as simple as it gets.
+> > Please try adjusting the 'udelay (1)' lines in
+> > drivers/parport/ieee1284_ops.c:parport_ieee1284_write_compat to be
+> > larger delays (for example, try replacing the 1s with 2s, or 5s, and
+> > see if that makes things better).
+> 	I am going to look and see if there might be a ioctl for that
+> 	function .  Failing that I shall recompile the kernel with each
+> 	of those values & test until successful or it seems futile .
+	Tries both 2's & 5's , Both did the leaving things out .  Although
+	in a differant pattern with each .  Am going to try 10's next just
+	for grins .   Twyl ,  JimL
 
-For links without a stable MAC, /.../net/<ifname>/{pci-slot,usb-path,...}
-is more like it, but I think that class of solution should be fine.
-
-Now ... what should be the roles of "regular" file ops, devfs, usbdevfs,
-procfs, and "devreg" ?  That's the part that doesn't seem simple yet.
-I'd expect a few rounds of code/design changes.
-
-- Dave
-
-
-
+       +----------------------------------------------------------------+
+       | James   W.   Laferriere | System  Techniques | Give me VMS     |
+       | Network        Engineer | 25416      22nd So |  Give me Linux  |
+       | babydr@baby-dragons.com | DesMoines WA 98198 |   only  on  AXP |
+       +----------------------------------------------------------------+
 

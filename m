@@ -1,46 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271805AbRICUkN>; Mon, 3 Sep 2001 16:40:13 -0400
+	id <S271808AbRICUld>; Mon, 3 Sep 2001 16:41:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271806AbRICUkE>; Mon, 3 Sep 2001 16:40:04 -0400
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:53252
-	"EHLO ani.animx.eu.org") by vger.kernel.org with ESMTP
-	id <S271805AbRICUjq>; Mon, 3 Sep 2001 16:39:46 -0400
-Date: Mon, 3 Sep 2001 16:49:53 -0400
-From: Wakko Warner <wakko@animx.eu.org>
-To: Simon Hay <simon@haywired.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Multiple monitors
-Message-ID: <20010903164953.A3243@animx.eu.org>
-In-Reply-To: <20010903214829.B17488@unthought.net> <Pine.LNX.4.33.0109032107280.2297-100000@localhost.localdomain>
+	id <S271806AbRICUlX>; Mon, 3 Sep 2001 16:41:23 -0400
+Received: from are.twiddle.net ([64.81.246.98]:39812 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id <S271808AbRICUlI>;
+	Mon, 3 Sep 2001 16:41:08 -0400
+Date: Mon, 3 Sep 2001 13:41:25 -0700
+From: Richard Henderson <rth@twiddle.net>
+To: David Mosberger <davidm@hpl.hp.com>
+Cc: Paul Mackerras <paulus@samba.org>, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org, davem@redhat.com
+Subject: Re: [PATCH] avoid unnecessary cache flushes
+Message-ID: <20010903134125.B16069@twiddle.net>
+Mail-Followup-To: David Mosberger <davidm@hpl.hp.com>,
+	Paul Mackerras <paulus@samba.org>, torvalds@transmeta.com,
+	linux-kernel@vger.kernel.org, davem@redhat.com
+In-Reply-To: <15247.29338.3671.548678@cargo.ozlabs.ibm.com> <20010903131436.A16069@twiddle.net> <15251.59286.154267.431231@napali.hpl.hp.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.3i
-In-Reply-To: <Pine.LNX.4.33.0109032107280.2297-100000@localhost.localdomain>; from Simon Hay on Mon, Sep 03, 2001 at 09:11:24PM +0100
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <15251.59286.154267.431231@napali.hpl.hp.com>; from davidm@hpl.hp.com on Mon, Sep 03, 2001 at 01:27:02PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > XFree86 has pretty good support for multiple heads.
-> >
-> > If you tie an xterm to the root window, I guess you would get something
-> > pretty close to what you're looking for.  Or, configure some window manager
-> > properly to do exactly what you want.
-> >
+On Mon, Sep 03, 2001 at 01:27:02PM -0700, David Mosberger wrote:
+>   >> +		if (!test_bit(PG_arch_1, &page->flags)) {
+>   >> +			__flush_dcache_icache((unsigned long)kmap(page));
+>   >> +			kunmap(page);
+>   >> +			set_bit(PG_arch_1, &page->flags);
 > 
-> I had considered doing that - I believe that some of the framebuffer
-> code supports multiple heads as well(?) - but in this particular case it
-> wasn't appropriate - the whole point was to demonstrate what could be
-> achieved using only a command line ;-)  Also, though, on dedicated servers
-> etc. I'd rather not be running X if I didn't have to.  Would this be a
-> particularly difficult thing to implement as a kernel patch?  I'd like to
-> try to get involved in kernel development at some point and am looking for
-> something to ease myself in slowly - preferably something useful but
-> unimportant ;-)  Are there any show stoppers involved here - or does
-> anyone have any other ideas?
+>   Richard> Race.  Use test_and_set_bit.
+> 
+> Nope, the old code is correct: you must turn on PG_arch_1 *after*
+> flushing the cache.  Yes, you might sometimes double flush, but that's
+> both safe and rare.
 
-I thought of doing something like this but using a matrox g400 or g450 dual
-head card.  primary would be for X, secondary would be a console.  Not sure
-if that's more difficult or not.  Something I'd like to have, however.
+You can get a missed flush from
 
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+	bit == 0
+	flush cache
+
+				modify page
+				bit = 0
+
+	bit = 1
+
+unless this is protected from some outer lock of which 
+I am not aware.
+
+I do see your point about the early set though.
+
+
+r~

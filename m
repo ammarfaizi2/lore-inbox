@@ -1,63 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265810AbTGKUOg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 16:14:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265325AbTGKUOY
+	id S266599AbTGKUTR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 16:19:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266266AbTGKUSH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 16:14:24 -0400
-Received: from blis-tech.demon.co.uk ([80.177.20.20]:53243 "EHLO
-	homer.exize.com") by vger.kernel.org with ESMTP id S264679AbTGKUMR
+	Fri, 11 Jul 2003 16:18:07 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:59792 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S266215AbTGKUQf
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 16:12:17 -0400
-Subject: Re: PATCH: AC97 updates from 2.4
-From: Liam Girdwood <liam@exize.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-       torvalds@transmeta.com, Liam Girdwood <liam.girdwood@wolfsonmicro.com>
-In-Reply-To: <20030711184706.GD16037@gtf.org>
-References: <200307111809.h6BI9Zd5017272@hraefn.swansea.linux.org.uk>
-	 <20030711184706.GD16037@gtf.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1057955207.3607.25.camel@odin>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 11 Jul 2003 21:26:47 +0100
+	Fri, 11 Jul 2003 16:16:35 -0400
+From: Andrew Theurer <habanero@us.ibm.com>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Subject: Re: 2.5 'what to expect'
+Date: Fri, 11 Jul 2003 15:30:55 -0500
+User-Agent: KMail/1.5
+Cc: Dave Jones <davej@codemonkey.org.uk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20030711140219.GB16433@suse.de> <200307111437.12648.habanero@us.ibm.com> <20030711195920.GD976@matchmail.com>
+In-Reply-To: <20030711195920.GD976@matchmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200307111530.55363.habanero@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-07-11 at 19:47, Jeff Garzik wrote:
-> On Fri, Jul 11, 2003 at 07:09:35PM +0100, Alan Cox wrote:
-> > 
-> > This deals with several things
-> > - Codecs that think they are modems but are not
-> > - Abstracting modem detection out of drivers
-> > - Abstracting digital switching out of drivers
-> > - Codecs that have no volume control
-> > - Codec plugins for specific setups
-> > - Codec plugins for things like touchscreen/batmon on AC97
-> > - More codec handlers
-> > 
-> > The plugin API is intentionally modelled on the other driver_register
-> > type interfaces.
-> 
-> Adding another relevant point:
-> Only weirdos like me use the old OSS drivers, so this patch does not
-> affect the current (rather than deprecated) audio drivers.
-> 
+On Friday 11 July 2003 14:59, Mike Fedyk wrote:
+> On Fri, Jul 11, 2003 at 02:37:12PM -0500, Andrew Theurer wrote:
+> > On Friday 11 July 2003 09:02, Dave Jones wrote:
+> > > Process scheduler improvements.
+> > > ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> > > - Scheduler is now Hyperthreading SMP aware and will disperse processes
+> > >   over physically different CPUs, instead of just over logical CPUs.
+> >
+> > I'm pretty sure this is not in 2.5 (unless it's in bk after 2.5.75)
+>
+> wasn't this merged back in 2.4.6x?
 
-I would eventually like to see something similar to this in ALSA. 
+I believe that was support of, not enhancement for HT.  Actually there may 
+have been some enhancements in other areas, but not scheduler.
 
-I wrote the touchscreen driver plugin and an ALSA AC97 plugin API will
-probably be needed before this time next year to keep Linux up to date
-in the PDA/Tablet/Portable space. Eventually we may need an I2S and/or
-Azalia (next gen audio) API layer for such devices.
-
-I intend to speak to the ALSA guys as soon as the OSS plugin driver has
-stabilised. 
-
-Cheers
-
-Liam  
-
+-Andrew Theurer

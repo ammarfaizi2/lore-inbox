@@ -1,35 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262046AbTDAEvs>; Mon, 31 Mar 2003 23:51:48 -0500
+	id <S261453AbTCYEXg>; Mon, 24 Mar 2003 23:23:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262048AbTDAEvs>; Mon, 31 Mar 2003 23:51:48 -0500
-Received: from mta01.alltel.net ([166.102.165.143]:56248 "EHLO
-	mta01-srv.alltel.net") by vger.kernel.org with ESMTP
-	id <S262046AbTDAEvs>; Mon, 31 Mar 2003 23:51:48 -0500
-Message-ID: <3E891D8E.9E534400@alltel.net>
-Date: Tue, 01 Apr 2003 00:03:10 -0500
-From: "Paul Clements (home)" <pclements@alltel.net>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-4GB i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: unexporting sys_call_table a good idea?
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S261452AbTCYEXg>; Mon, 24 Mar 2003 23:23:36 -0500
+Received: from f111.pav2.hotmail.com ([64.4.37.111]:56580 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S261447AbTCYEXe>;
+	Mon, 24 Mar 2003 23:23:34 -0500
+X-Originating-IP: [202.54.64.9]
+X-Originating-Email: [senthil_gowran@hotmail.com]
+From: "Senthil Kumar" <senthil_gowran@hotmail.com>
+To: linux-kernel@vger.kernel.org, majordomo@vger.kernel.org
+Subject: Please send a reply to me....
+Date: Tue, 25 Mar 2003 04:34:37 +0000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F111KV6aGHW5uUJvf5w0000e9f0@hotmail.com>
+X-OriginalArrivalTime: 25 Mar 2003 04:34:38.0288 (UTC) FILETIME=[D847B500:01C2F287]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
 
-given the recent ptrace-related security bug, it sure would be nice to
-have sys_call_table exported, so that I could just disable ptrace
-altogether on affected systems (where no one is doing any debugging or
-devel work, anyway)... I realize that there are race conditions, etc.,
-with replacing syscalls, but could those not be solved?... as it is,
-rather than being able to simply compile an external module (which
-disables ptrace) and load it on affected systems, I am forced to
-recompile an entire kernel, install it on the affected systems, and
-reboot them all...
+Dear All,
 
-Thanks,
-Paul
+   Please give me some idea to play the extracted data from mp3 in real time 
+application.
+i. e. From the mp3 file i extracted the data to be played alone to my local 
+buffer leaving the Frame information of 32 bits.
+
+Then through ioctl() function i wrote the channel, bitrate and Format.
+Then through write function i wrote the data captured in the local buffer to 
+the dsp device /dev/dsp.
+But i am getting only the irregular noise.
+
+Is any uncompression should be done for data and written.
+Is so how the uncompression should be done..
+with thanks and regards
+Senthil
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Dear All,
+
+   Please give me some idea to play the extracted data from mp3 in real time 
+application.
+i. e. From the mp3 file i extracted the data to be played alone to my local 
+buffer leaving the Frame information of 32 bits.
+
+Then through ioctl() function i wrote the channel, bitrate and Format.
+Then through write function i wrote the data captured in the local buffer to 
+the dsp device /dev/dsp.
+But i am getting only the irregular noise.
+
+Is any uncompression should be done for data and written.
+Is so how the uncompression should be done..
+with thanks and regards
+Senthil
+
+
+
+
+_________________________________________________________________
+Get ball by ball action on your desktop. 
+http://server1.msn.co.in/msnspecials/cricketdownload/contest.asp Get Hutch 
+MSN Cricketer
+

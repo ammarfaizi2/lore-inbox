@@ -1,61 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262620AbTDESxo (for <rfc822;willy@w.ods.org>); Sat, 5 Apr 2003 13:53:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262623AbTDESxo (for <rfc822;linux-kernel-outgoing>); Sat, 5 Apr 2003 13:53:44 -0500
-Received: from node181b.a2000.nl ([62.108.24.27]:7568 "EHLO ddx.a2000.nu")
-	by vger.kernel.org with ESMTP id S262620AbTDESxn (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Apr 2003 13:53:43 -0500
-Date: Sat, 5 Apr 2003 21:05:37 +0200 (CEST)
-From: Stephan van Hienen <kernel@ddx.a2000.nu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: onboard ICH4 seen as ICH3 (ultra100 controller onboard)
- (2.4.20/2.4.21-pre7)
-In-Reply-To: <1049560763.25700.2.camel@dhcp22.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.53.0304052103160.13718@ddx.a2000.nu>
-References: <Pine.LNX.4.53.0304051145500.32647@ddx.a2000.nu>
- <1049560763.25700.2.camel@dhcp22.swansea.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id S262600AbTDESvW (for <rfc822;willy@w.ods.org>); Sat, 5 Apr 2003 13:51:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262603AbTDESvW (for <rfc822;linux-kernel-outgoing>); Sat, 5 Apr 2003 13:51:22 -0500
+Received: from mail-6.tiscali.it ([195.130.225.152]:62569 "EHLO
+	mail.tiscali.it") by vger.kernel.org with ESMTP id S262600AbTDESvU (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Apr 2003 13:51:20 -0500
+Date: Sat, 5 Apr 2003 21:01:53 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andrew Morton <akpm@digeo.com>
+Cc: mbligh@aracnet.com, mingo@elte.hu, hugh@veritas.com, dmccr@us.ibm.com,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: objrmap and vmtruncate
+Message-ID: <20030405190153.GF1326@dualathlon.random>
+References: <20030404163154.77f19d9e.akpm@digeo.com> <12880000.1049508832@flay> <20030405024414.GP16293@dualathlon.random> <20030404192401.03292293.akpm@digeo.com> <20030405040614.66511e1e.akpm@digeo.com> <20030405163003.GD1326@dualathlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030405163003.GD1326@dualathlon.random>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 5 Apr 2003, Alan Cox wrote:
+On Sat, Apr 05, 2003 at 06:30:03PM +0200, Andrea Arcangeli wrote:
+> On Sat, Apr 05, 2003 at 04:06:14AM -0800, Andrew Morton wrote:
+> > The -aa VM failed in this test.
+> > 
+> > 	__alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
+> > 	VM: killing process rmap-test
+> 
+> I'll work on it. Many thanks. I wonder if it could be related to the
+> mixture of the access bit with the overcomplexity of the algorithm that
+> makes the passes over so many vmas useless. Certainly this workload
+> isn't common. I guess what I will try to do first is to simply ignore
+> the accessed bitflag after half of the passes failed. What do you think?
 
-> On Sad, 2003-04-05 at 10:53, kernel@ddx.a2000.nu wrote:
-> > mainbord is an intel se7500cw2 (dual xeon)
-> > same problem with 2.4.20 and 2.4.21-pre7
->
-> I'll take a look. Its probably just a typo in the list of names.
-> Its doing UDMA100 so it got the rest of it right 8)
+unfortunately I can't reproduce. Booted with mem=256m on a 4-way xeon 2.5ghz:
 
-I don't think it is doing U100 :
+jupiter:~ # ./rmap-test -vv -V 2 -r -i 1 -n 100 -s 600 -t 100 foo
+[..]
+vma 1/100 done
+0/1
+vma 1/100 done
+0/1
+vma 1/100 done
+0/1
+vma 1/100 done
+0/1
+vma 1/100 done
+0/1
+vma 1/100 done
+0/1
+vma 1/100 done
+0/1
+vma 1/100 done
+0/1
+vma 1/100 done
+0/1
+vma 1/100 done
+0/1
+vma 1/100 done
+0/1
+vma 1/100 done
+0/1
+vma 1/100 done
+0/1
+jupiter:~ # free
+             total       used       free     shared    buffers     cached
+Mem:        245804     236272       9532          0        688     216620
+-/+ buffers/cache:      18964     226840
+Swap:       265032       3732     261300
+jupiter:~ # 
 
-]# hdparm -Tt /dev/hda
+maybe it's a timing issue because I've an extremely fast storage? Or
+maybe it's ext3 related, you're flushing on the filesystem and you need
+to journal the inode updates at least. So maybe it's an ext3 bug not a
+vm bug. I can't say it's an obvious vm bug at least, since I can't
+reproduce in any way with such command line and such amount of ram (and
+you see I've almost no swap and it's not even swapping heavily, it's a
+server box without the 100mbyte of GUI).
 
-/dev/hda:
- Timing buffer-cache reads:   128 MB in  0.27 seconds =474.07 MB/sec
- Timing buffered disk reads:  64 MB in  2.54 seconds = 25.20 MB/sec
+could you try to run it on ext2?  I'm running it on top of ext2 at the
+moment and it works flawlessy so far in this 256m configuration 4-way
+(more cpus should not make differences but I can try again with 1 cpu if
+you can reproduce on ext2 too).
 
-]# hdparm -Tt /dev/hdc
+Not a single failure, I started now an infinite loop now.
 
-/dev/hdc:
- Timing buffer-cache reads:   128 MB in  0.27 seconds =474.07 MB/sec
- Timing buffered disk reads:  64 MB in  2.58 seconds = 24.81 MB/sec
+btw, I'm not running exactly 2.4.21pre5aa2, but there is not a single vm
+difference between the kernel I'm testing on and 2.4.21pre5aa2, so it
+shouldn't really matter.
 
-]# hdparm -Tt /dev/hde
+I will try later with ext3, but now I'll leave it running for a while
+with ext2 to make sure it never happens with ext2 in my hardware at
+least.
 
-/dev/hde:
- Timing buffer-cache reads:   128 MB in  0.27 seconds =474.07 MB/sec
- Timing buffered disk reads:  64 MB in  1.37 seconds = 46.72 MB/sec
-
-(hde= promise U100)
-
-]# hdparm -X69 /dev/hda
-
-/dev/hda:
- setting xfermode to 69 (UltraDMA mode5)
-
-dmesg gives me :
-
-ide0: Speed warnings UDMA 3/4/5 is not functional.
+Andrea

@@ -1,77 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266292AbSLCMCF>; Tue, 3 Dec 2002 07:02:05 -0500
+	id <S265414AbSLCMKV>; Tue, 3 Dec 2002 07:10:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266295AbSLCMCF>; Tue, 3 Dec 2002 07:02:05 -0500
-Received: from pc3-stoc3-4-cust114.midd.cable.ntl.com ([80.6.255.114]:51977
-	"EHLO buzz.ichilton.co.uk") by vger.kernel.org with ESMTP
-	id <S266292AbSLCMCD>; Tue, 3 Dec 2002 07:02:03 -0500
-Date: Tue, 3 Dec 2002 12:09:29 +0000
-From: Ian Chilton <ian@ichilton.co.uk>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.20 Compile Failure
-Message-ID: <20021203120928.GC8351@buzz.ichilton.co.uk>
-Reply-To: Ian Chilton <ian@ichilton.co.uk>
+	id <S266271AbSLCMKV>; Tue, 3 Dec 2002 07:10:21 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:42676 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S265414AbSLCMKU>;
+	Tue, 3 Dec 2002 07:10:20 -0500
+Date: Tue, 3 Dec 2002 12:15:21 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Valdis.Kletnieks@vt.edu
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: lkml, bugme.osdl.org?
+Message-ID: <20021203121521.GB30431@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
+References: <200212030724.gB37O4DL001318@turing-police.cc.vt.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <200212030724.gB37O4DL001318@turing-police.cc.vt.edu>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Tue, Dec 03, 2002 at 02:24:04AM -0500, Valdis.Kletnieks@vt.edu wrote:
+ > Out of curiosity, is it preferred that if bugs/patches get found, that they
+ > be posted here, to the Bugzilla database, or both?  I've been putting them
+ > at both places, so there's discussion here and a history there...
 
-I'm not on linux-kernel at the moment so please cc any replies directly.
+- simple things like compile errors
+  here. no need to clog up bugzilla with lots of trivial things.
 
-I get the following error when compiling
-2.4.20-fairsched-kpreempt-skas3.
+- architecture xxx doesn't compile
+  there's a few of these now in bugzilla, and personally I don't think
+  they belong there. Any arch other than i386 is always going to be
+  playing catchup, and is nearly always out of date in mainline.
 
-If I remove this..:
---- DRM 4.1 drivers
-<*>   SiS
-...it works fine.
+- trivial patches
+  send to rusty, cc here.
 
+- anything else
+  here. if you don't get a quick-fix, bugzilla it too.
+  this way important bugs won't get lost amongst the archives.
+  (as long as bugzilla remains usable)
 
-Here is the error:
+whilst on the subject of bugzilla:
+a few people (myself included) go through the bug database once a week
+or so pruning out-of-date/fixed entries. So far the ones I've closed have
+been quite sensible, but there are a few there of the form..
 
-ld -m elf_i386 -T /usr/src/linux-2.4.20/arch/i386/vmlinux.lds -e stext
-arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o
-init/version.o init/do_mounts.o \
-        --start-group \
-        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o
-mm/mm.o fs/fs.o ipc/ipc.o \
-         drivers/acpi/acpi.o drivers/parport/driver.o
-drivers/char/char.o drivers/block/block.o drivers/misc/misc.o
-drivers/net/net.o drivers/media/media.o drivers/char/agp/agp.o
-drivers/char/drm/drm.o drivers/ide/idedriver.o drivers/scsi/scsidrv.o
-drivers/cdrom/driver.o drivers/pci/driver.o drivers/pnp/pnp.o
-drivers/video/video.o drivers/usb/usbdrv.o drivers/input/inputdrv.o \
-        net/network.o \
-        /usr/src/linux-2.4.20/arch/i386/lib/lib.a
-/usr/src/linux-2.4.20/lib/lib.a
-/usr/src/linux-2.4.20/arch/i386/lib/lib.a \
-        --end-group \
-        -o vmlinux
-drivers/char/drm/drm.o: In function `sis_fb_alloc':
-drivers/char/drm/drm.o(.text+0x73d8): undefined reference to
-`sis_malloc'
-drivers/char/drm/drm.o(.text+0x7486): undefined reference to `sis_free'
-drivers/char/drm/drm.o: In function `sis_fb_free':
-drivers/char/drm/drm.o(.text+0x74f9): undefined reference to `sis_free'
-drivers/char/drm/drm.o: In function `sis_final_context':
-drivers/char/drm/drm.o(.text+0x791f): undefined reference to `sis_free'
-make: *** [vmlinux] Error 1
+"xxx doesn't work in 2.5.47", then Rusty's module rewrite happened,
+and the tester didn't (or couldn't) see if it got fixed in subsequent
+kernels. I'll send out pings to such reports when they get to something
+like 5 kernels old. If the problem then doesn't get re-ACKed, I'll
+close it. Any objections?
 
+		Dave
 
-[root@jester linux]# gcc -v
-Reading specs from /usr/lib/gcc-lib/i686-pc-linux-gnu/3.2/specs
-Configured with: ../gcc-3.2/configure --prefix=/usr --enable-shared
---enable-languages=c,c++ --enable-threads=posix --with-slibdir=/lib
-Thread model: posix
-gcc version 3.2
-[root@jester linux]#
-
-
-Bye for Now,
-
-Ian
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

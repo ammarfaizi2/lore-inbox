@@ -1,52 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262301AbTEHX1X (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 19:27:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262305AbTEHX1W
+	id S262156AbTEHXci (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 19:32:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262253AbTEHXci
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 19:27:22 -0400
-Received: from natsmtp00.webmailer.de ([192.67.198.74]:20361 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP id S262301AbTEHX1U
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 19:27:20 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Pavel Machek <pavel@ucw.cz>, "David S. Miller" <davem@redhat.com>
-Subject: Re: ioctl cleanups: enable sg_io and serial stuff to be shared
-Date: Fri, 9 May 2003 01:35:39 +0200
-User-Agent: KMail/1.5.1
-Cc: hch@infradead.org, linux-kernel@vger.kernel.org
-References: <20030507152856.GF412@elf.ucw.cz> <20030508.134300.122085520.davem@redhat.com> <20030508230337.GA139@elf.ucw.cz>
-In-Reply-To: <20030508230337.GA139@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="euc-jp"
+	Thu, 8 May 2003 19:32:38 -0400
+Received: from NODE-1.HOSTING-NETWORK.COM ([66.186.193.1]:19218 "HELO
+	unix113.hosting-network.com") by vger.kernel.org with SMTP
+	id S262156AbTEHXce (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 May 2003 19:32:34 -0400
+X-Comments: BlackMail headers - Mail to abuse@featureprice.com to report spam.
+X-Authenticated-Connect: 64.122.104.99
+X-Authenticated-Timestamp: 19:50:27(EDT) on May 08, 2003
+X-HELO-From: [10.134.0.76]
+X-Mail-From: <thoffman@arnor.net>
+X-Sender-IP-Address: 64.122.104.99
+Subject: ALSA busted in 2.5.69
+From: Torrey Hoffman <thoffman@arnor.net>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1052437191.1205.4.camel@torrey.et.myrio.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 08 May 2003 16:39:51 -0700
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200305090135.39944.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 09 May 2003 01:03, Pavel Machek wrote:
+ALSA isn't working for me in 2.5.69.  It appears to be because
+/proc/asound/dev is missing the control devices.
 
-> > Suggest something sane like defining a macro such as
-> > "compat_task(tsk)" that can be tested by various bits of
-> > code.
->
-> That makes more sense. Unfortunately, that means that case "okay, it
-> is compatible" can not be told from "we did not bother to check
-> compat_task()". :-(. Nor do I see a transition phase.
+lsmod says I have:
 
-You still need to list them as COMPATIBLE_IOCTL() or call
-register_ioctl32_conversion(IOCTLNO, 0) when the ioctl has been
-made compatible. Unless we are sure that every single ioctl
-has been made compatible (probably never), the default must
-be to call sys_ioctl from compat_sys_ioctl only if the number
-is explicitly listed. This should solve both problems you
-mentioned.
+Module                  Size  Used by
+snd_cmipci             22168  -
+snd_pcm                59968  -
+snd_page_alloc          4140  -
+snd_opl3_lib            5896  -
+snd_timer              13888  -
+snd_hwdep               4096  -
+snd_mpu401_uart         3144  -
+snd_rawmidi            12768  -
+snd                    29156  -
+soundcore               3296  -
 
-One minor remaining problem is that if multiple files contain
-handlers for the same ioctl number, they have to be converted
-at the same time because the number can not both be compatible
-and incompatible at the same time.
+and no errors were reported while loading those modules,
+but "ls -l /proc/asound/dev" shows only:
+total 0
+crw-rw-rw-    1 root     root     116,  33 May  8 16:37 timer
 
-	Arnd <><
+and all the alsa utilities die trying to open other entries under
+/dev/snd, which is a symlink to /proc/asound/dev (as set up by the
+ALSA script.)
+
+For instance, strace alsamixer shows this at the end:
+
+access("/etc/asound.conf", R_OK)        = -1 ENOENT (No such file or
+directory)
+access("/root/.asoundrc", R_OK)         = -1 ENOENT (No such file or
+directory)
+open("/dev/snd/controlC0", O_RDONLY)    = -1 ENOENT (No such file or
+directory)
+open("/dev/aloadC0", O_RDONLY)          = -1 ENODEV (No such device)
+open("/dev/snd/controlC0", O_RDWR)      = -1 ENOENT (No such file or
+directory)
+open("/dev/snd/controlC0", O_RDONLY)    = -1 ENOENT (No such file or
+directory)
+open("/dev/aloadC0", O_RDONLY)          = -1 ENODEV (No such device)
+open("/dev/snd/controlC0", O_RDWR)      = -1 ENOENT (No such file or
+directory)
+fstat64(1, {st_mode=S_IFCHR|0620, st_rdev=makedev(136, 0), ...}) = 0
+mmap2(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1,
+0) = 0x40017000
+write(1, "\n", 1
+)                       = 1
+write(2, "alsamixer: function snd_ctl_open"..., 79alsamixer: function
+snd_ctl_open failed for default: No such file or directory
+) = 79
+munmap(0x40017000, 4096)                = 0
+exit_group(1)                           = ?
+
+Suggestions???
+
+
+-- 
+Torrey Hoffman <thoffman@arnor.net>
+

@@ -1,69 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263429AbTDDI7j (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 03:59:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263441AbTDDI7i (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 03:59:38 -0500
-Received: from mail.explainerdc.com ([212.72.36.220]:48545 "EHLO
-	mail.explainerdc.com") by vger.kernel.org with ESMTP
-	id S263429AbTDDI71 convert rfc822-to-8bit 
-	(for <rfc822;linux-kernel@vger.kernel.org>); Fri, 4 Apr 2003 03:59:27 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: Promise TX4 100: neither IDE port enabled
-Date: Fri, 4 Apr 2003 11:10:56 +0200
-Message-ID: <73300040777B0F44B8CE29C87A0782E101FA982C@exchange.explainerdc.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Promise TX4 100: neither IDE port enabled
-Thread-Index: AcL6ihkH70lwH9+eTYKDuXL0JFI6kA==
-From: "Jonathan Vardy" <jonathan@explainerdc.com>
-To: <linux-kernel@vger.kernel.org>
+	id S263473AbTDDJOQ (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 04:14:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263475AbTDDJOQ (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 04:14:16 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:12293 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S263473AbTDDJOJ (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 4 Apr 2003 04:14:09 -0500
+Date: Fri, 4 Apr 2003 10:25:35 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: jt@hpl.hp.com
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: uart_ioctl OOPS with irtty-sir
+Message-ID: <20030404102535.A29313@flint.arm.linux.org.uk>
+Mail-Followup-To: jt@hpl.hp.com,
+	Linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <20030404013405.GA19446@bougret.hpl.hp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030404013405.GA19446@bougret.hpl.hp.com>; from jt@bougret.hpl.hp.com on Thu, Apr 03, 2003 at 05:34:05PM -0800
+X-Message-Flag: Your copy of Microsoft Outlook is vurnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Apr 03, 2003 at 05:34:05PM -0800, Jean Tourrilhes wrote:
+> 	Unfortunately, the irtty-sir driver, which is a TTY line
+> discipline and a network driver, need to be able to change the RTS and
+> DTR line from a kernel thread.
 
-I am having trouble getting my promise fasttrak TX4 running with Red
-Hat. I am using kerner 2.4.21-pre6 compiled with 
+I'd prefer if we added an tty API to allow line disciplines to read/set
+the modem control lines to the tty later, rather than having line
+disciplines play games with IOCTLs.
 
-PROMISE PDC202{46|62|65|67} support
-Special UDMA Feature
-PROMISE PDC202{68|69|70|71|75|76|77} support
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-But without Special FastTrak Feature and Support for IDE Raid
-controllers (EXPERIMENTAL)
-
-While booting I get the following results:
-
-ide: Assuming 33MHz system bus speed for PIO modes; override with
-idebus=xx
-PIIX4: IDE controller at PCI slot 00:04.1
-PIIX4: chipset revision 1
-PIIX4: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0xd800-0xd807, BIOS settings: hda:DMA, hdb:pio
-    ide1: BM-DMA at 0xd808-0xd80f, BIOS settings: hdc:pio, hdd:pio
-PDC20270: IDE controller at PCI slot 02:01.0
-PDC20270: chipset revision 2
-PDC20270: not 100% native mode: will probe irqs later
-PDC20270: neither IDE port enabled (BIOS)
-PDC20270: neither IDE port enabled (BIOS)
-hda: Maxtor 2B020H1, ATA DISK drive
-blk: queue c0395860, I/O limit 4095Mb (mask 0xffffffff)
-hdc: WDC WD1200BB-00CAA1, ATA DISK drive
-blk: queue c0395cd0, I/O limit 4095Mb (mask 0xffffffff)
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: host protected area => 1
-hda: 39062500 sectors (20000 MB) w/2048KiB Cache, CHS=2431/255/63,
-UDMA(33)
-hdc: host protected area => 1
-hdc: 234441648 sectors (120034 MB) w/2048KiB Cache, CHS=232581/16/63,
-UDMA(33)
-
-As you can see the Promise card is not functioning at all. Doen anyone
-have any ideas why it is not functioning?
-
-Thanks, Jonathan Vardy

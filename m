@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129597AbQKFRJO>; Mon, 6 Nov 2000 12:09:14 -0500
+	id <S129381AbQKFRQO>; Mon, 6 Nov 2000 12:16:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129222AbQKFRJE>; Mon, 6 Nov 2000 12:09:04 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:62475 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S129115AbQKFRI5>; Mon, 6 Nov 2000 12:08:57 -0500
-Message-ID: <3A06F1C4.CB25FA8C@evision-ventures.com>
-Date: Mon, 06 Nov 2000 19:00:36 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.2.16-1 i686)
-X-Accept-Language: en
+	id <S129713AbQKFRQE>; Mon, 6 Nov 2000 12:16:04 -0500
+Received: from ns.sysgo.de ([213.68.67.98]:9456 "EHLO rob.devdep.sysgo.de")
+	by vger.kernel.org with ESMTP id <S129381AbQKFRPt>;
+	Mon, 6 Nov 2000 12:15:49 -0500
+From: Robert Kaiser <rob@sysgo.de>
+Reply-To: rob@sysgo.de
+To: linux-kernel@vger.kernel.org
+Subject: unresolved reference to hd_init (2.4.0-test10, ll_rw_blk.c)
+Date: Mon, 6 Nov 2000 18:09:08 +0100
+X-Mailer: KMail [version 1.0.28]
+Content-Type: text/plain; charset=US-ASCII
 MIME-Version: 1.0
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-CC: David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page]
-In-Reply-To: <200011061631.eA6GVkw07051@pincoya.inf.utfsm.cl>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <00110618154301.11022@rob>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horst von Brand wrote:
-> 
-> David Woodhouse <dwmw2@infradead.org> said:
-> > jas88@cam.ac.uk said:
-> > >  Irrelevant. The current mixer settings don't matter: what matters is
-> > > that the driver does not change them.
-> 
-> > It does matter. The sound driver needs to be able to _read_ the current
-> > levels. Almost all mixer programs will start by doing this, to set the
-> > slider to the correct place.
-> 
-> OK, how then using _2_ modules, data and worker:
+Hi,
 
-People that's all designing for the sake of design.
-And it's trying to solve a non existant problem:
-Just load the damn module once and leave it there where it is.
-Drivers are supposed to handle present hardware - if the hardware
-is there - there should be a driver handling it as well.
-The argument for saving some memmory is nonapplicable becouse in
-the case of expected usage in the future you have anyway to assume that
-in this futere there will be sufficient memmory for it there. And then
-please remember that all possible space savings are in the granularity
-of
-pages!
+I just ran into a small problem trying to build the 2.4.0-test10 kernel with
+only the "Old hard disk (MFM/RLL/IDE) driver" enabled. The following patch
+fixed this for me, (though I'm not sure I haven't broken anything else with it).
 
-Could some one add this to the FAQ ... please!
+diff -ur linux-2.4.0-test10/drivers/block/ll_rw_blk.c linux/drivers/block/ll_rw_blk.c
+--- linux-2.4.0-test10/drivers/block/ll_rw_blk.c	Fri Oct 27 08:35:47 2000
++++ linux/drivers/block/ll_rw_blk.c	Mon Nov  6 17:34:39 2000
+@@ -1063,7 +1063,7 @@
+ #if defined(CONFIG_IDE) && defined(CONFIG_BLK_DEV_IDE)
+ 	ide_init();		/* this MUST precede hd_init */
+ #endif
+-#if defined(CONFIG_IDE) && defined(CONFIG_BLK_DEV_HD)
++#if defined(CONFIG_IDE) && defined(CONFIG_BLK_DEV_HD) && !defined(CONFIG_BLK_DEV_HD_ONLY)
+ 	hd_init();
+ #endif
+ #ifdef CONFIG_BLK_DEV_PS2
+
+
+----------------------------------------------------------------
+Robert Kaiser                         email: rkaiser@sysgo.de
+SYSGO RTS GmbH
+Am Pfaffenstein 14                    phone: (49) 6136 9948-762
+D-55270 Klein-Winternheim / Germany   fax:   (49) 6136 9948-10
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

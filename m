@@ -1,58 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264457AbUAMRam (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 12:30:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264463AbUAMRal
+	id S265376AbUAMRxb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 12:53:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265377AbUAMRxb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 12:30:41 -0500
-Received: from certiflexdimension.com ([66.137.233.209]:49563 "EHLO
-	werewolf.certiflexdimension.com") by vger.kernel.org with ESMTP
-	id S264457AbUAMR3h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 12:29:37 -0500
-Date: Tue, 13 Jan 2004 11:30:00 -0600
-From: Jonathan Angliss <jon@netdork.net>
-Reply-To: Jonathan Angliss <jon@netdork.net>
-X-Priority: 3 (Normal)
-Message-ID: <398633829.20040113113000@netdork.net>
-To: linux-kernel@vger.kernel.org
-Subject: athlon-xp header issue
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 13 Jan 2004 12:53:31 -0500
+Received: from fw.osdl.org ([65.172.181.6]:18825 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265376AbUAMRxX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jan 2004 12:53:23 -0500
+Date: Tue, 13 Jan 2004 09:54:28 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.6.1-mm2
+Message-Id: <20040113095428.440762f7.akpm@osdl.org>
+In-Reply-To: <4003F34E.5080508@gmx.de>
+References: <20040110014542.2acdb968.akpm@osdl.org>
+	<4003F34E.5080508@gmx.de>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey guys,
+"Prakash K. Cheemplavam" <PrakashKC@gmx.de> wrote:
+>
+> Hi,
+> 
+> mm2 (or even mm1 or even vanilla, have not tested (long enough)) locks 
+> hard on my and someone else' machine. Sometimes we get this line in our 
+> logs before the lock happens:
+> 
+> kernel: Badness in pci_find_subsys at drivers/pci/search.c:132
+> 
+> Any ideas? Or do you need detailed kernel config and dmesg? I thought 
+> you might have an idea which atch caused this... My and his system are 
+> quite differnt. Major Common element seems only use of Athlon XP. He has 
+> VIA KT based system and I have nforce2. I thought it might be APIC, but 
+> I also got a lock up without APIC. (Though it seems more stable without 
+> APIC.)
 
-I'm using a gentoo copy of the 2.4.22 kernel, with various patches
-applied to fix various issues, but this issue exists in the 2.4.24
-kernel source code that I downloaded from the kernel.org site.
+If you could send us the stack backtrace that would help.  Make sure that
+you have CONFIG_KALLSYMS enabled.  If you have to type it by hand, just the
+symbol names will suffice - leave out the hex numbers.
 
-When I set the kernel model to athlon-xp in "menuconfig", it sets
-CONFIG_MK7XP=y which is what I'd expect. However the issue comes when
-I try to issue "make bzImage", it fails reporting various issues with:
-
-  `CONFIG_X86_L1_CACHE_SHIFT' undeclared here (not in a function)
-
-in a number of files. I did a google search for the error, and didn't
-find anything helpful, in fact most of the results appeared to be
-about nVidia graphics drivers. I'm no coder, but with a little help
-from Jason Munro, I managed to track down the cause of the issue. He
-pointed me to this email:
-
-  http://www.ussg.iu.edu/hypermail/linux/kernel/0309.0/2036.html
-
-This gave me a hint. So I took a look in arch/i386/config.in and
-noticed that the check for CONFIG_MK7XP is missing. This results in
-the appropriate settings not being set. Is this intentional? Or am I
-looking in the wrong area for my problem?
-
-If this email warrants a reply, please CC my address, as I am not a
-member of this list.
-
--- 
-Jonathan Angliss
-(jon@netdork.net)
-
-Insanity is my only means of relaxation
-
+Thanks.

@@ -1,45 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261366AbUKGF6Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261541AbUKGGBA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261366AbUKGF6Y (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Nov 2004 00:58:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261542AbUKGF6Y
+	id S261541AbUKGGBA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Nov 2004 01:01:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261544AbUKGGBA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Nov 2004 00:58:24 -0500
-Received: from siaag2af.compuserve.com ([149.174.40.136]:31974 "EHLO
-	siaag2af.compuserve.com") by vger.kernel.org with ESMTP
-	id S261366AbUKGF6N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Nov 2004 00:58:13 -0500
-Date: Sun, 7 Nov 2004 00:55:21 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: deadlock with 2.6.9
-To: Chris Stromsoe <cbs@cts.ucla.edu>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200411070058_MC3-1-8E27-AAEF@compuserve.com>
+	Sun, 7 Nov 2004 01:01:00 -0500
+Received: from serio.al.rim.or.jp ([202.247.191.123]:23255 "EHLO
+	serio.al.rim.or.jp") by vger.kernel.org with ESMTP id S261541AbUKGGAm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Nov 2004 01:00:42 -0500
+Message-ID: <418DB9F4.8030301@yk.rim.or.jp>
+Date: Sun, 07 Nov 2004 15:00:20 +0900
+From: Chiaki <ishikawa@yk.rim.or.jp>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: ja, en-us, en
 MIME-Version: 1.0
+To: Hugh Dickins <hugh@veritas.com>
+CC: linux-kernel@vger.kernel.org, mru@inprovide.com, anton@samba.org
+Subject: Re: Configuration system bug? : tmpfs listing in /proc/filesystems
+    when TMPFS was not configured!?
+References: <Pine.LNX.4.44.0411070436080.12803-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.44.0411070436080.12803-100000@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Stromsoe wrote:
+Hugh Dickins wrote:
 
-> I had a third lockup, this time not related to burning a dvd.  As before, 
-> the bulk of the processes that were hung were cron
+> On Sun, 7 Nov 2004, Chiaki wrote:
+> 
+>>Should not this line be ifdef'ed out???
+>>That is, should we modify the line like this?
+>>
+>>#ifdef CONFIG_TMPFS
+>>	error = register_filesystem(&tmpfs_fs_type);
+>>#endif
+> 
+> 
+> I'd be more inclined to register under a different
+> name than "tmpfs" in the !CONFIG_TMPFS case.
 
- Why so many cron processes?  Is this normal on your system, or does it
-look like cron keeps spawning processes because it gets no response on the
-sockets?
+Something like "tMpfs" might be a good idea to
+show the strange setting :-)
 
-> The box is P3 SMP
+> 
+> But as I said in my earlier reply to you (which you should have
+> received before you sent this?), it's been like this ever since
+> 2.4.4 when "tmpfs" and CONFIG_TMPFS came into being, so I don't
+> see why we need to change it now.
 
- Can you try a uniprocessor kernel?
+Thank you for your previous e-mail.
+I didn't know it reached my computer since my mozilla e-mail
+filtering mitakingly classified your kind response into
+an unexpected folder. I searched after reading the above paragraph
+and found your previous e-mail.
 
-> syslog logs to a stripe of two mirrors, built with mdadm.
+> The real 2.4.9 error is fixed by the patch below that I sent then:
+> does that solve your problems?
 
- Get a real RAID controller (3Ware, not some crappy pseudo-RAID junk.)  They are
-much more reliable than software RAID.
+YES!
+
+With the original 2.6.9, the mount didn't complain at all, and
+then I got bizarre behavir afterward and udev script and booting
+stopped at that point.
+
+But wih your patch, now mount fails.
+So now it is a matter of fixing udev script to
+take care of the case of failing tmpfs mounting.
+I will re-open the debian bugzilla entry concerning this
+so that Debian udev package and possibly an upstream package
+can be fixed.
 
 
---Chuck Ebbert  07-Nov-04  00:28:44
+
+tmpfs mount failure example: (I had created /tmp/t-dir.)
+
+duron:/home/ishikawa# mount -n -o size=1m,mode=0755 -t tmpfs none /tmp/t-dir
+mount: wrong fs type, bad option, bad superblock on none,
+        or too many mounted file systems
+duron:/home/ishikawa#
+
+
+> Hugh
+> 
+> --- 2.6.9/mm/shmem.c	2004-10-18 22:56:29.000000000 +0100
+> +++ linux/mm/shmem.c	2004-11-06 21:04:41.743173040 +0000
+> @@ -1904,6 +1904,8 @@ static int shmem_fill_super(struct super
+>  		sbinfo->max_inodes = inodes;
+>  		sbinfo->free_inodes = inodes;
+>  	}
+> +#else
+> +	sb->s_flags |= MS_NOUSER;
+>  #endif
+>  
+>  	sb->s_maxbytes = SHMEM_MAX_BYTES;
+> 
+> 
+> 
+
+
+Thank you very much!
+
+
+
+-- 
+int main(void){int j=2003;/*(c)2003 cishikawa. */
+char t[] ="<CI> @abcdefghijklmnopqrstuvwxyz.,\n\"";
+char *i ="g>qtCIuqivb,gCwe\np@.ietCIuqi\"tqkvv is>dnamz";
+while(*i)((j+=strchr(t,*i++)-(int)t),(j%=sizeof t-1),
+(putchar(t[j])));return 0;}/* under GPL */

@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266736AbTBCQHL>; Mon, 3 Feb 2003 11:07:11 -0500
+	id <S266765AbTBCQMp>; Mon, 3 Feb 2003 11:12:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266761AbTBCQHL>; Mon, 3 Feb 2003 11:07:11 -0500
-Received: from d12lmsgate-3.de.ibm.com ([194.196.100.236]:10184 "EHLO
-	d12lmsgate-3.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S266736AbTBCQHK>; Mon, 3 Feb 2003 11:07:10 -0500
-Importance: Normal
-Sensitivity: 
-Subject: Re: [PATCH] s390 fixes (10/12).
-To: Christoph Hellwig <hch@infradead.org>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
-Message-ID: <OF8CBA41C2.86FFFA68-ONC1256CC2.0058AD2A@de.ibm.com>
-From: "Martin Schwidefsky" <schwidefsky@de.ibm.com>
-Date: Mon, 3 Feb 2003 17:12:54 +0100
-X-MIMETrack: Serialize by Router on D12ML016/12/M/IBM(Release 5.0.9a |January 7, 2002) at
- 03/02/2003 17:15:43
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S266792AbTBCQMo>; Mon, 3 Feb 2003 11:12:44 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:41873
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S266765AbTBCQMo>; Mon, 3 Feb 2003 11:12:44 -0500
+Subject: Re: [BUG] vmalloc, kmalloc - 2.4.x
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Grzegorz Jaskiewicz <gj@pointblue.com.pl>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1044286828.2397.26.camel@gregs>
+References: <1044284924.2402.12.camel@gregs>
+	 <1044289102.21009.1.camel@irongate.swansea.linux.org.uk>
+	 <1044286828.2397.26.camel@gregs>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1044292722.21009.9.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 03 Feb 2003 17:18:42 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2003-02-03 at 15:40, Grzegorz Jaskiewicz wrote:
+> On Mon, 2003-02-03 at 16:18, Alan Cox wrote:
+> 
+> > Firstly vmalloc isnt permitted in interrupt context (use kmalloc with GFP_KERNEL),
+> > although for such small chunks you might want to vmalloc a bigger buffer once
+> > at startup.
+> i've allso tried kmalloc with the same result.
+> Also, in this example it is timer - module isn't cleanly wroted becouse
+> it supose to be only an example.
 
-> > updates for s390 scsi support
->
-> Hmm, I can't find a single s390 scsi driver in the tree..
+If I build the example using the cleanups I suggested it works for me. The FPU one btw
+seems to be a red herring, my gcc is outputting a precomputed integer constant
 
-Yes, the description is a bit confusing. There is a scsi driver
-for s/390 but it is not in the tree. But the fsf.h include file
-is and this is part of the zfcp scsi driver. This include file
-doesn't make sense on its own and the driver is still changing.
-So it's best to remove the file. You could argue if this is an
-update...
-
-blue skies,
-   Martin
-
+Alan
 

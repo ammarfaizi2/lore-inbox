@@ -1,377 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265092AbTBBBDA>; Sat, 1 Feb 2003 20:03:00 -0500
+	id <S265095AbTBBBW5>; Sat, 1 Feb 2003 20:22:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265094AbTBBBDA>; Sat, 1 Feb 2003 20:03:00 -0500
-Received: from 12-252-67-253.client.attbi.com ([12.252.67.253]:8576 "EHLO
-	morningstar.nowhere.lie") by vger.kernel.org with ESMTP
-	id <S265092AbTBBBCz>; Sat, 1 Feb 2003 20:02:55 -0500
-From: "John W. M. Stevens" <john@betelgeuse.us>
-Date: Sat, 1 Feb 2003 18:12:23 -0700
+	id <S265096AbTBBBW5>; Sat, 1 Feb 2003 20:22:57 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:15631 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id <S265095AbTBBBW4>;
+	Sat, 1 Feb 2003 20:22:56 -0500
+Date: Sun, 2 Feb 2003 02:28:20 +0100
+From: Willy Tarreau <willy@w.ods.org>
 To: linux-kernel@vger.kernel.org
-Subject: Defect (Bug) Report
-Message-ID: <20030202011223.GC5432@morningstar.nowhere.lie>
+Cc: Simon Kirby <sim@netnation.com>
+Subject: [Nearly Solved]: APIC routing broken on ASUS P2B-DS
+Message-ID: <20030202012820.GB19346@alpha.home.local>
+References: <20030128004906.GA3439@netnation.com> <20030128060629.GA19346@alpha.home.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20030128060629.GA19346@alpha.home.local>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[1.] One line summary of the problem:
+On Tue, Jan 28, 2003 at 07:06:29AM +0100, Willy Tarreau wrote:
+> On Mon, Jan 27, 2003 at 04:49:06PM -0800, Simon Kirby wrote:
+> > Something broke between 2.4.20 and 2.4.21-pre3 which is causing
+> > interrupts to not be routed the second CPU.  I saw the problem on one box
+> > and copied the kernel to another which then had the same problem (both
+> > ASUS P2B-DS boards, one with PIII CPUs, one with PII CPUs).  
 
-   Defect is kernel hang on Dual Processor, Athlon MP system.
+Hi !
 
-[2.] Full description of the problem/report:
+I noticed that 2.4.21-pre4 had the same problem whereas -ac1 and -aa1 worked
+fine. But unfortunately, this was unrelated since both use irq_balance which
+seems to work around or fix the problem. So I searched back the earlier
+versions, and finally narrowed this problem down to the introduction of
+CONFIG_X86_NUMA and associated code in 2.4.21pre1.
 
-   The system regularly experiences short (from 1 to 5 seconds)
-   hangs where both processors appear to be "hung".  Most often,
-   the system will recover, but in three different cases the
-   system has hung "permanently" (for values of "permanently"
-   ranging from 10 minutes, to at most four hours before I gave
-   up and hit reset).
+If I compile my kernel for an SMP K7, only CPU0 gets the interrupts. But if
+I enable CONFIG_X86_CLUSTERED_APIC by enabling either CONFIG_X86_NUMAQ or
+CONFIG_X86_SUMMIT (CONFIG_X86_NUMA alone isn't enough), then I get my interrupts
+distributed across both CPUs. This is on an Asus A7M266D with 2 Athlon XP 1800+.
+I don't know if this option can affect performance or stability.
+BTW, the system runs in Flat APIC mode, as reported at boot time. I can provide
+dmesg on request, but didn't want to pollute the list.
 
-[3.] Keywords (i.e., modules, networking, kernel):
+I looked through the code but since I don't know much about APIC, I didn't
+understand the changes nor how they would affect what I observed.
 
-   SMP issue.  My current WAG is that this is some kind of spinlock
-   issue related to allocating huge amounts of memory in user space
-   programs (up to three times the actual installed core).
+Anyone has any clue ?
 
-[4.] Kernel version (from /proc/version):
+Cheers,
+Willy
 
-   Linux version 2.4.18 (root@morningstar) (gcc version 2.95.4 
-   20011002 (Debian prerelease)) #13 SMP Sat Jan 18 13:21:01 MST 2003
-
-[5.] Output of Oops.
-
-   Sorry, but since the system hung, there was no Oops.
-
-   I am an HPUX kernel developer in my "real job".  On our systems,
-   in this situation, I would execute a TOC (transfer of control)
-   then attempt to analyze the dump to see what the processors
-   where doing.
-
-   Is there a recognized standard procedure for creating such a
-   dump under Linux?
-
-   Sadly, PC hardware does not have support for "TOC", but if
-   there is some other method that has been developed to do
-   this, one that does not negatively impact normal system operation
-   and performance, I will set it up.
-
-[6.] A small shell script or example program which triggers the
-	 problem (if possible)
-
-   Sorry, but this seems to be intermittent.  Attempts to reproduce
-   this have generated intermittent hangs (allocate from three to
-   four times MAX physical core), but do not guarantee a complete
-   system hang.
-
-[7.] Environment
-
-   ???
-
-   Is this physical, network, hardware, what?
-
-   OK, hardware then:
-
-   Memory      : 512 MBytes, ECC, 266 MHz FSB.
-   Disk        : All SCSI.  See below.
-   Mother Board: Tyan Tiger MPX S2466N
-   Networking  : Two ethernet cards, one 10 Mbps, one 100 Mbps.
-
-   Adquate cooling and power.
-
-[7.1.] Software (add the output of the ver_linux script here)
-
-
-If some fields are empty or look unusual you may have an old version.
-   Compare to the current minimal requirements in Documentation/Changes.
- 
-   Linux morningstar 2.4.18 #13 SMP Sat Jan 18 13:21:01 MST 2003 i686 unknown
- 
-   Gnu C                  2.95.4
-   Gnu make               3.79.1
-   util-linux             2.11n
-   mount                  2.11n
-   modutils               2.4.15
-   e2fsprogs              1.27
-   PPP                    2.4.1
-   Linux C Library        2.2.5
-   Dynamic linker (ldd)   2.2.5
-   Procps                 2.0.7
-   Net-tools              1.60
-   Console-tools          0.2.3
-   Sh-utils               2.0.11
-   Modules Loaded         
-
-[7.2.] Processor information (from /proc/cpuinfo):
-
-   processor	: 0
-   vendor_id	: AuthenticAMD
-   cpu family	: 6
-   model		: 6
-   model name	: AMD Athlon(tm) MP 1900+
-   stepping	: 2
-   cpu MHz		: 1600.063
-   cache size	: 256 KB
-   fdiv_bug	: no
-   hlt_bug		: no
-   f00f_bug	: no
-   coma_bug	: no
-   fpu		: yes
-   fpu_exception	: yes
-   cpuid level	: 1
-   wp		: yes
-   flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr sse syscall mmxext 3dnowext 3dnow
-   bogomips	: 3191.60
-
-   processor	: 1
-   vendor_id	: AuthenticAMD
-   cpu family	: 6
-   model		: 6
-   model name	: AMD Athlon(tm) Processor
-   stepping	: 2
-   cpu MHz		: 1600.063
-   cache size	: 256 KB
-   fdiv_bug	: no
-   hlt_bug		: no
-   f00f_bug	: no
-   coma_bug	: no
-   fpu		: yes
-   fpu_exception	: yes
-   cpuid level	: 1
-   wp		: yes
-   flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr sse syscall mmxext 3dnowext 3dnow
-   bogomips	: 3198.15
-
-[7.3.] Module information (from /proc/modules):
-
-   This is an entirely static system . . . no modules.
-
-[7.4.] Loaded driver and hardware information (/proc/ioports, /proc/iomem)
-
-0000-001f : dma1
-0020-003f : pic1
-0040-005f : timer
-0060-006f : keyboard
-0080-008f : dma page reg
-00a0-00bf : pic2
-00c0-00df : dma2
-00f0-00ff : fpu
-01f0-01f7 : ide0
-02f8-02ff : serial(auto)
-0378-037a : parport0
-037b-037f : parport0
-03c0-03df : vga+
-03f6-03f6 : ide0
-03f8-03ff : serial(set)
-0cf8-0cff : PCI conf1
-1010-1013 : PCI device 1022:700c (Advanced Micro Devices [AMD])
-2000-2fff : PCI Bus #02
-  2000-20ff : Adaptec AHA-2940U2/W
-    2000-20ff : aic7xxx
-  2400-247f : Digital Equipment Corporation DECchip 21041 [Tulip Pass 3]
-    2400-247f : tulip
-  2480-24ff : 3Com Corporation 3c905C-TX [Fast Etherlink]
-    2480-24ff : 02:08.0
-  2800-283f : Ensoniq ES1371 [AudioPCI-97]
-    2800-283f : es1371
-f000-f00f : Advanced Micro Devices [AMD] AMD-768 [??] IDE
-  f000-f007 : ide0
-  f008-f00f : ide1
-
-00000000-0009f7ff : System RAM
-0009f800-0009ffff : reserved
-000a0000-000bffff : Video RAM area
-000c0000-000c7fff : Video ROM
-000cc800-000ccfff : Extension ROM
-000cd000-000d27ff : Extension ROM
-000e0000-000effff : Extension ROM
-000f0000-000fffff : System ROM
-00100000-1feeffff : System RAM
-  00100000-002ab6e4 : Kernel code
-  002ab6e5-0033487f : Kernel data
-1fef0000-1fefefff : ACPI Tables
-1feff000-1fefffff : ACPI Non-volatile Storage
-1ff00000-1ff7ffff : System RAM
-1ff80000-1fffffff : reserved
-e8000000-e8ffffff : PCI Bus #01
-  e8000000-e8ffffff : nVidia Corporation NV11 (GeForce2 MX)
-e9000000-e90fffff : PCI Bus #02
-  e9000000-e9000fff : Advanced Micro Devices [AMD] AMD-768 [??] USB
-    e9000000-e9000fff : usb-ohci
-  e9001000-e9001fff : Adaptec AHA-2940U2/W
-    e9001000-e9001fff : aic7xxx
-  e9002000-e900207f : Digital Equipment Corporation DECchip 21041 [Tulip Pass 3]
-    e9002000-e900207f : tulip
-  e9002400-e900247f : 3Com Corporation 3c905C-TX [Fast Etherlink]
-e9300000-e9300fff : PCI device 1022:700c (Advanced Micro Devices [AMD])
-ec000000-efffffff : PCI device 1022:700c (Advanced Micro Devices [AMD])
-f0000000-f7ffffff : PCI Bus #01
-  f0000000-f7ffffff : nVidia Corporation NV11 (GeForce2 MX)
-fec00000-fec03fff : reserved
-fee00000-fee00fff : reserved
-fff80000-ffffffff : reserved
-
-[7.5.] PCI information ('lspci -vvv' as root)
-
-
-00:00.0 Host bridge: Advanced Micro Devices [AMD]: Unknown device 700c (rev 11)
-	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
-	Latency: 64
-	Region 0: Memory at ec000000 (32-bit, prefetchable) [size=64M]
-	Region 1: Memory at e9300000 (32-bit, prefetchable) [size=4K]
-	Region 2: I/O ports at 1010 [disabled] [size=4]
-	Capabilities: [a0] AGP version 2.0
-		Status: RQ=15 SBA+ 64bit- FW- Rate=x1,x2
-		Command: RQ=0 SBA+ AGP+ 64bit- FW- Rate=<none>
-
-00:01.0 PCI bridge: Advanced Micro Devices [AMD]: Unknown device 700d (prog-if 00 [Normal decode])
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 99
-	Bus: primary=00, secondary=01, subordinate=01, sec-latency=68
-	I/O behind bridge: 0000f000-00000fff
-	Memory behind bridge: e8000000-e8ffffff
-	Prefetchable memory behind bridge: f0000000-f7ffffff
-	BridgeCtl: Parity- SERR- NoISA+ VGA+ MAbort- >Reset- FastB2B-
-
-00:07.0 ISA bridge: Advanced Micro Devices [AMD]: Unknown device 7440 (rev 05)
-	Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 0
-
-00:07.1 IDE interface: Advanced Micro Devices [AMD]: Unknown device 7441 (rev 04) (prog-if 8a [Master SecP PriP])
-	Subsystem: Advanced Micro Devices [AMD]: Unknown device 7441
-	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 0
-	Region 4: I/O ports at f000 [size=16]
-
-00:07.3 Bridge: Advanced Micro Devices [AMD]: Unknown device 7443 (rev 03)
-	Subsystem: Advanced Micro Devices [AMD]: Unknown device 7443
-	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-
-00:10.0 PCI bridge: Advanced Micro Devices [AMD]: Unknown device 7448 (rev 05) (prog-if 00 [Normal decode])
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
-	Latency: 64
-	Bus: primary=00, secondary=02, subordinate=02, sec-latency=168
-	I/O behind bridge: 00002000-00002fff
-	Memory behind bridge: e9000000-e90fffff
-	Prefetchable memory behind bridge: fff00000-000fffff
-	BridgeCtl: Parity- SERR- NoISA+ VGA- MAbort- >Reset- FastB2B-
-
-01:05.0 VGA compatible controller: nVidia Corporation NV11 (GeForce2 MX) (rev b2) (prog-if 00 [VGA])
-	Subsystem: VISIONTEK: Unknown device 0023
-	Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Interrupt: pin A routed to IRQ 18
-	Region 0: Memory at e8000000 (32-bit, non-prefetchable) [size=16M]
-	Region 1: Memory at f0000000 (32-bit, prefetchable) [size=128M]
-	Expansion ROM at <unassigned> [disabled] [size=64K]
-	Capabilities: [60] Power Management version 2
-		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-	Capabilities: [44] AGP version 2.0
-		Status: RQ=31 SBA- 64bit- FW+ Rate=x1,x2
-		Command: RQ=0 SBA- AGP- 64bit- FW- Rate=<none>
-
-02:00.0 USB Controller: Advanced Micro Devices [AMD]: Unknown device 7449 (rev 07) (prog-if 10 [OHCI])
-	Subsystem: Advanced Micro Devices [AMD]: Unknown device 7449
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR+
-	Latency: 64 (20000ns max)
-	Interrupt: pin D routed to IRQ 19
-	Region 0: Memory at e9000000 (32-bit, non-prefetchable) [size=4K]
-
-02:04.0 SCSI storage controller: Adaptec AHA-2940U2/W
-	Subsystem: Adaptec: Unknown device a180
-	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 64 (9750ns min, 6250ns max), cache line size 10
-	Interrupt: pin A routed to IRQ 16
-	BIST result: 00
-	Region 0: I/O ports at 2000 [disabled] [size=256]
-	Region 1: Memory at e9001000 (64-bit, non-prefetchable) [size=4K]
-	Expansion ROM at <unassigned> [disabled] [size=128K]
-	Capabilities: [dc] Power Management version 1
-		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-02:05.0 Ethernet controller: Digital Equipment Corporation DECchip 21041 [Tulip Pass 3] (rev 21)
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 64
-	Interrupt: pin A routed to IRQ 17
-	Region 0: I/O ports at 2400 [size=128]
-	Region 1: Memory at e9002000 (32-bit, non-prefetchable) [size=128]
-	Expansion ROM at <unassigned> [disabled] [size=256K]
-
-02:07.0 Multimedia audio controller: Ensoniq ES1371 [AudioPCI-97] (rev 08)
-	Subsystem: Ensoniq Creative Sound Blaster AudioPCI64V, AudioPCI128
-	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=slow >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 64 (3000ns min, 32000ns max)
-	Interrupt: pin A routed to IRQ 19
-	Region 0: I/O ports at 2800 [size=64]
-	Capabilities: [dc] Power Management version 1
-		Flags: PMEClk- DSI+ D1- D2+ AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-02:08.0 Ethernet controller: 3Com Corporation 3c905C-TX [Fast Etherlink] (rev 78)
-	Subsystem: Tyan Computer: Unknown device 2466
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 80 (2500ns min, 2500ns max), cache line size 10
-	Interrupt: pin A routed to IRQ 19
-	Region 0: I/O ports at 2480 [size=128]
-	Region 1: Memory at e9002400 (32-bit, non-prefetchable) [size=128]
-	Expansion ROM at <unassigned> [disabled] [size=128K]
-	Capabilities: [dc] Power Management version 2
-		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
-		Status: D0 PME-Enable- DSel=0 DScale=2 PME-
-
-[7.6.] SCSI information (from /proc/scsi/scsi)
-
-Attached devices: 
-Host: scsi0 Channel: 00 Id: 00 Lun: 00
-  Vendor: QUANTUM  Model: ATLAS10K2-TY092L Rev: DA40
-  Type:   Direct-Access                    ANSI SCSI revision: 03
-Host: scsi0 Channel: 00 Id: 01 Lun: 00
-  Vendor: QUANTUM  Model: ATLAS10K2-TY092L Rev: DA40
-  Type:   Direct-Access                    ANSI SCSI revision: 03
-Host: scsi0 Channel: 00 Id: 02 Lun: 00
-  Vendor: QUANTUM  Model: ATLAS10K2-TY092L Rev: DA40
-  Type:   Direct-Access                    ANSI SCSI revision: 03
-Host: scsi1 Channel: 00 Id: 00 Lun: 00
-  Vendor: SAMSUNG  Model: CD-R/RW SW-240B  Rev: R401
-  Type:   CD-ROM                           ANSI SCSI revision: 02
-
-[7.7.] Other information that might be relevant to the problem
-(please look in /proc and include all information that you
-think to be relevant):
-
-   I had a great deal of difficulty getting an IDE based SamSung
-   CD/RW drive working on this system.
-
-   I had to play around with "Sharing PCI IDE interrupts support",
-   and "Use PCI DMA by default when available" options in the
-   kernel configuration to find a configuration that would not
-   hang the kernel when attempting to burn a CDR.
-
-So, to obtain further information, I would need some kind of ability
-to force an Oops . . . can this be done with SysReq hot keys?  There
-doesn't appear to be any indication that this is the case.
-
-For starters, I've gone in and activated Magic SysReq key (just in case),
-spinlock debugging (best guess as to reason of hang), and verbose BUG
-reporting (for luck!).
-
-Any other suggestions, or recommendations to get more info?
-
-Thanks,
-John S.

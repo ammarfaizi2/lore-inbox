@@ -1,80 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261858AbTELB7Y (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 May 2003 21:59:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261860AbTELB7Y
+	id S261863AbTELCAS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 May 2003 22:00:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261861AbTELCAR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 May 2003 21:59:24 -0400
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:56990 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id S261858AbTELB7X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 May 2003 21:59:23 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: linux-kernel@vger.kernel.org
-Date: Mon, 12 May 2003 12:11:59 +1000
+	Sun, 11 May 2003 22:00:17 -0400
+Received: from siaag2ad.compuserve.com ([149.174.40.134]:51408 "EHLO
+	siaag2ad.compuserve.com") by vger.kernel.org with ESMTP
+	id S261860AbTELCAM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 May 2003 22:00:12 -0400
+Date: Sun, 11 May 2003 22:10:07 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Two RAID1 mirrors are faster than three
+To: linux-raid <linux-raid@vger.kernel.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200305112212_MC3-1-386B-32BF@compuserve.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <16063.751.11951.951210@notabene.cse.unsw.edu.au>
-Subject: PATCH/RFC - process limits problem
-X-Mailer: VM 7.14 under Emacs 21.3.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Here is the problem:
- We have a multi-user server that has lots of people logging on to
- it and doing all sorts of weird things.  To help keep them contained
- we set the per-user process limit to 256.
- If this server happens to have 256 or more processes running as root
- (which happens from time to time), then ordinary users cannot 
- run "lpr" (lprng version) because it tries to fork and fails: EAGAIN.
+  All these tests were run on 2.4.21-rc2-ac1...
 
- What appears to be happening is lpr tries to fork while it has it's
- effective uid restored to the calling user's uid, but it's real user
- is still root.
+  We start out with a three disk raid1 array in failure mode:
+        md21 : active raid1 hdi9[1] hdg9[2]
+              3145856 blocks [3/2] [_UU]
+        
+  There are three 500 MiB contiguous files in the volume root:
+        -rw-r--r--    1 root     root     524288000 May 11 13:53 file1
+        -rw-r--r--    1 root     root     524288000 May 11 13:54 file2
+        -rw-r--r--    1 root     root     524288000 May 11 13:55 file3
 
- Because real uid is root, process accounting is done against root's
- processes, and because euid is not root, capabilities have been
- dropped and the process is not allowed to exceed this limit.
+  First test is a single sequential stream:
+        # umount /mnt/md21; mount /mnt/md21
+        # time dd if=/mnt/md21/file1 of=/dev/null bs=64k &
+        real    0m18.230s   <==== 27.5 MiB/s 
+        user    0m0.020s
+        sys     0m3.760s
 
- This doesn't seem fair: to count the usage as though the process were
- root, but to limit it as though the process wasn't root.
+  Now two streams:
+        # umount /mnt/md21; mount /mnt/md21
+        # time dd if=/mnt/md21/file1 of=/dev/null bs=64k &
+        # time dd if=/mnt/md21/file2 of=/dev/null bs=64k &
+        real    0m18.065s   <==== 27.6 MiB/s
+        user    0m0.040s
+        sys     0m4.280s
+        real    0m23.197s   <==== 21.6 MiB/s
+        user    0m0.020s
+        sys     0m4.250s
 
- It is not obvious to me how best to fix this problem.
- One approach would be to modify lpr to use capset(2) to claim
- CAP_SYS_RESOURCE before forking, but this seems to be fixing the
- symptom rather than the problem.
+  Add the third disk back into the array:
+        # raidhotadd /dev/md21 /dev/hde9
+        [rebuilt 3000MiB in 313s == (3000+3000)/313 == 19MiB/s throughput]
+        
+  Now rerun the two streams test:
+        # umount /mnt/md21; mount /mnt/md21
+        # time dd if=/mnt/md21/file1 of=/dev/null bs=64k &
+        # time dd if=/mnt/md21/file2 of=/dev/null bs=64k &
+        real    0m50.336s   <==== 9.94 MiB/s (!)
+        user    0m0.030s
+        sys     0m4.350s
+        real    0m50.431s   <==== 9.91 MiB/s (!)
+        user    0m0.030s
+        sys     0m4.200s
 
- Another approach is embodied in the patch below which makes a special
- case for root_user and not to impose any limits on root.  I think
- this is better but I would appreciate hearing other perspectives.
-
- In brief, my view is that it seems odd to use per-process attibutes
- (such as capabilites and even rlim) when limiting a per-user resource,
- such as number of processes.  I appreciate that for compatability
- reasons we really have to store the limit per-process rather than
- per-user, but I don't think it makes sense to use a per-process
- capability to over-ride a per-user limit.  It should be a per-user
- capability.
-
-NeilBrown
-
-
+  So 50% more hardware (disks, channels) gives a 60% performance drop
+  when using raid1 with sequential reads... and raid1.c:read_balance()
+  is the culprit.
 
 
+Uniform Multi-Platform E-IDE driver Revision: 7.00beta3-.2.4
+  
+HPT370: IDE controller at PCI slot 00:0d.0  
+HPT370: chipset revision 3
 
-diff ./kernel/fork.c~current~ ./kernel/fork.c
---- ./kernel/fork.c~current~	2003-05-12 11:51:28.000000000 +1000
-+++ ./kernel/fork.c	2003-05-12 11:53:44.000000000 +1000
-@@ -636,6 +636,7 @@ int do_fork(unsigned long clone_flags, u
- 	 * than the amount of processes root is running. -- Rik
- 	 */
- 	if (atomic_read(&p->user->processes) >= p->rlim[RLIMIT_NPROC].rlim_cur
-+		      && p->user != &root_user
- 	              && !capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_RESOURCE))
- 		goto bad_fork_free;
+PDC20262: IDE controller at PCI slot 00:10.0
+PDC20262: chipset revision 1
+
+hde: MAXTOR 4K060H3, ATA DISK drive
+hdg: MAXTOR 4K060H3, ATA DISK drive
+hdi: MAXTOR 4K060H3, ATA DISK drive
+
+ hde: hde1 hde2 hde3 hde4 < hde5 hde6 hde7 hde8 hde9 hde10 >
+ hdg: hdg1 hdg2 hdg3 hdg4 < hdg5 hdg6 hdg7 hdg8 hdg9 hdg10 >
+ hdi: hdi1 hdi2 hdi3 hdi4 < hdi5 hdi6 hdi7 hdi8 hdi9 hdi10 >
  

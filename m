@@ -1,50 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264029AbUD1Lhr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264737AbUD1Lne@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264029AbUD1Lhr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 07:37:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264752AbUD1Lhr
+	id S264737AbUD1Lne (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 07:43:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264750AbUD1Lne
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 07:37:47 -0400
-Received: from math.ut.ee ([193.40.5.125]:19842 "EHLO math.ut.ee")
-	by vger.kernel.org with ESMTP id S264029AbUD1Lhq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 07:37:46 -0400
-Date: Wed, 28 Apr 2004 14:37:36 +0300 (EEST)
-From: Meelis Roos <mroos@linux.ee>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: modular vga16fb on PPC32
-In-Reply-To: <Pine.GSO.4.58.0404231128120.11983@waterleaf.sonytel.be>
-Message-ID: <Pine.GSO.4.44.0404281432330.20595-100000@math.ut.ee>
+	Wed, 28 Apr 2004 07:43:34 -0400
+Received: from ns3.twi.com.br.60.192.200.in-addr.arpa ([200.192.60.5]:20125
+	"HELO ns3.twi.com.br") by vger.kernel.org with SMTP id S264737AbUD1Lnc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 07:43:32 -0400
+Date: 28 Apr 2004 08:36:23 -0300
+From: "System Anti-Virus Administrator" <virusadmin@twi.com.br>
+To: linux-kernel@vger.kernel.org
+Subject: [VIRUS] virus encontrado em mensagem enviada "Re: Old photos"
+Message-ID: <ns3.twi.com.br10831521834618866@ns3.twi.com.br>
+X-Tnz-Problem-Type: 40
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > *** Warning: "vgacon_remap_base" [drivers/video/vga16fb.ko] undefined!
-> >
-> > Do we need to export vgacon_remap_base?
->
-> Yes. It's been a while ago I tried, but vga16fb used to work on the S3 in my
-> LongTrail after I initialized that card using the video BIOS emulator.
 
-This patch makes it not complain. Can't test because current 2.6 does
-not boot on my PReP Powerstack.
-
-===== arch/ppc/kernel/setup.c 1.53 vs edited =====
---- 1.53/arch/ppc/kernel/setup.c	Thu Feb 19 05:42:24 2004
-+++ edited/arch/ppc/kernel/setup.c	Wed Apr 28 14:27:12 2004
-@@ -83,6 +83,7 @@
-
- #ifdef CONFIG_VGA_CONSOLE
- unsigned long vgacon_remap_base;
-+EXPORT_SYMBOL(vgacon_remap_base);
- #endif
-
- struct machdep_calls ppc_md;
-
--- 
-Meelis Roos (mroos@linux.ee)
+Atencao: linux-kernel@vger.kernel.org
 
 
+Um virus foi encontrado em uma mensagem de Email que acabou de
+ser enviada por voce. 
+Este scanner de Email a interceptou e impediu a mensagem de chegar
+no seu destino.
 
+O virus foi reportado como sendo: 
+
+ the W32/Netsky.p@MM!zip virus !!!
+
+
+Por favor atualize seu antivirus ou contate o seu suporte tecnico
+o mais rapido possivel pois voce tem um virus no seu computador.
+
+
+Sua mensagem foi enviada com o seguinte envelope:
+
+REMETENTE:    linux-kernel@vger.kernel.org
+DESTINATARIO: presidente@fgt.org.br 
+
+... e com o seguinte cabecalho:
+
+---
+MAILFROM: linux-kernel@vger.kernel.org
+Received: from unknown (HELO fgt.org.br) (200.165.115.124)
+  by twi-mail.freebsdbrasil.com.br with SMTP; 28 Apr 2004 08:35:54 -0300
+From: linux-kernel@vger.kernel.org
+To: presidente@fgt.org.br
+Subject: Re: Old photos
+Date: Wed, 28 Apr 2004 08:36:07 -0300
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_000_0016----=_NextPart_000_0016"
+X-Priority: 3
+X-MSMail-Priority: Normal
+
+
+---

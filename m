@@ -1,55 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263466AbUAISNW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jan 2004 13:13:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263518AbUAISNV
+	id S262805AbUAISLN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jan 2004 13:11:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263130AbUAISLN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jan 2004 13:13:21 -0500
-Received: from [193.138.115.2] ([193.138.115.2]:41224 "HELO
-	diftmgw.backbone.dif.dk") by vger.kernel.org with SMTP
-	id S263466AbUAISNU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jan 2004 13:13:20 -0500
-Date: Fri, 9 Jan 2004 19:10:31 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: lkml@nitwit.de
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6: The hardware reports a non fatal, correctable incident
- occured on CPU 0.
-In-Reply-To: <200401091856.16120.lkml@nitwit.de>
-Message-ID: <Pine.LNX.4.56.0401091903170.12889@jju_lnx.backbone.dif.dk>
-References: <200401091748.10859.lkml@nitwit.de>
- <8A43C34093B3D5119F7D0004AC56F4BC0751591E@difpst1a.dif.dk>
- <200401091856.16120.lkml@nitwit.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 9 Jan 2004 13:11:13 -0500
+Received: from null.rsn.bth.se ([194.47.142.3]:54428 "EHLO null.rsn.bth.se")
+	by vger.kernel.org with ESMTP id S262805AbUAISLI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jan 2004 13:11:08 -0500
+Subject: Re: stability problems with 2.4.24/Software RAID/ext3
+From: Martin Josefsson <gandalf@wlug.westbo.se>
+To: martin f krafft <madduck@madduck.net>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040108151225.GA11740@piper.madduck.net>
+References: <20040108151225.GA11740@piper.madduck.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-fj0c3QUeo6KyXcmsHJgz"
+Message-Id: <1073671862.24706.13.camel@tux.rsn.bth.se>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 09 Jan 2004 19:11:03 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Fri, 9 Jan 2004 lkml@nitwit.de wrote:
+--=-fj0c3QUeo6KyXcmsHJgz
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> On Friday 09 January 2004 18:35, Jesper Juhl wrote:
-> > It's nothing to do with the OS most likely. Some BIOS's modify the FSB
-> > speed and other settings as a way to provide a sort of "fail safe" boot
-> > mode if a problem was detected.
->
-> So, in your opinion I really have hardware problems (which yet didn't notice
-> and also for 3,5h did not recurr)?
->
-All I'm saying is that I know for a fact that some BIOS's will do this
-(set bus speed to 100) if they detect problems - I know mine does.
+On Thu, 2004-01-08 at 16:12, martin f krafft wrote:
+> Hi all,
+>=20
+> I operate a groupware server which is giving me a very hard time.
+> It's an AMD Athlon XP 3000+ with 1Gb of RAM, and four 7200 UPM IDE
+> harddrives, two attached to the primary channels of the onboard
+> controller, and two to the primary channels of a Promise 20269 EIDE
+> controller. The kernel is a 2.4.24 with the configuration I placed
+> here:
 
-It's just one possibility. I don't actually /know/ what causes what you
-experienced.
-I guess it's possible that something the kernel did caused the BIOS to
-think there was a problem even though there was not...
-Or it could be something else entirely.
-I don't know for sure. All I can do is suggest that maybe you should check
-your motherboard manual for any hints on this behaviour and maybe try and
-test your hardware just to be safe...
+Try replacing the Promise controllers with something diffrent (doesn't
+really matter what). I've helped a friend with a server that hung all
+the time, it had a few promise-controllers. After it had hung _lots_ of
+times we came to the conclusion that we should try some other IDE
+controllers (we had replaced everything else) and we borrowed a few
+HighPoint controllers. Guess what, the machine is stable with these
+controllers :)
+I don't have any more data than this.
+If you manage to get it stable with another controller, maybe you are
+willing to try to find out what the possible problems with the
+promise-driver (or hardware) is.
 
-Other people probably have better advice for you.
+The machine in question had two pdc20268 and two pdc20269 controllers
+(we tried with to combine them in all possible combinations, it hung
+anyway)
 
+So if you can, try some other controllers.
 
--- Jesper Juhl
+I personally have a pdc20267 in my workstation that I stress quite
+heavily sometimes and I've never had any problems with it.
 
+--=20
+/Martin
+
+--=-fj0c3QUeo6KyXcmsHJgz
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQA//u62Wm2vlfa207ERApZCAJ92PrzHjelsrkw8l7+YnUYkAj+wwACfdZn7
+QKtaBY7AgW20vSpww+NfTAE=
+=VroZ
+-----END PGP SIGNATURE-----
+
+--=-fj0c3QUeo6KyXcmsHJgz--

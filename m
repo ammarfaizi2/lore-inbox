@@ -1,79 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285000AbRL3VDq>; Sun, 30 Dec 2001 16:03:46 -0500
+	id <S284998AbRL3VBy>; Sun, 30 Dec 2001 16:01:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284987AbRL3VDg>; Sun, 30 Dec 2001 16:03:36 -0500
-Received: from mail.gmx.de ([213.165.64.20]:34403 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S285000AbRL3VD3>;
-	Sun, 30 Dec 2001 16:03:29 -0500
-Message-ID: <3C2F8100.6070701@GMX.li>
-Date: Sun, 30 Dec 2001 22:02:56 +0100
-From: Jan Schubert <Jan.Schubert@GMX.li>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011221
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, linux-video@atrey.karlin.mff.cuni.cz
-Subject: [PATCH] drivers/video/mdacon.c
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S284987AbRL3VBp>; Sun, 30 Dec 2001 16:01:45 -0500
+Received: from t2.redhat.com ([199.183.24.243]:53744 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S284998AbRL3VB3>; Sun, 30 Dec 2001 16:01:29 -0500
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20011229191444.A16473@suse.de> 
+In-Reply-To: <20011229191444.A16473@suse.de> 
+To: Dave Jones <davej@suse.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.1-dj8 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 30 Dec 2001 21:01:28 +0000
+Message-ID: <1365.1009746088@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch is against linux-2417/drivers/video/mdacon.c to get 
-non-Hercules MDA working. Actually it does nothing, than assume a non 
-Hercules-MDA is compatible to "normal" Hercules. The current behaviour 
-is something confussing...
 
-The problem whith the current version is, if you have such a 
-non-Hercules MDA it will detected while booting the kernel and you see a 
-message like "MDA with 8k RAM detected". Unfortunatley this message is 
-printed, but your card will _not_ be initialized, is it not recognized 
-as Hercules-compatible. So you will see the boot-message (and assume it 
-is working), but nothing on your MDA-console/monitor. So we have to 
-change this. It would be correct, to modify mdacon.c to _not_ print a 
-message about detecting a MDA is it not Hercules-compatible. But as i 
-mentioned above, at least my card is detected as non-Hercules but seems 
-fully compatible. So I would prefer, to consider any detected 
-non-Hercules MDA as Hercules-compatible. Please note, there is also some 
-special detection of "HerculesPlus" and "HerculesColor" in mdacon.c. 
-Does anybody know about any non Hercules compatible MDA ?
+(for the benefit of the peanut gallery)
 
-TiA,
-Jan
+davej@suse.de said:
+> o   Remove bogus <asm/segment.h> includes.		(David Woodhouse) 
 
-------------------
+In a fit of stupidity, I sent you the wrong patch - the one I sent was the
+original version which removed far too many instances of asm/segment.h.
 
---- drivers/video/mdacon.c.orig    Sun Dec 30 02:44:25 2001
-+++ drivers/video/mdacon.c    Sun Dec 30 21:36:50 2001
-@@ -24,6 +24,7 @@
-  *
-  *  Changelog:
-  *  Paul G. (03/2001) Fix mdacon= boot prompt to use __setup().
-+ *  20011230 Jan.Schubert@GMX.li - consider non-Hercules MDA compatible
-  */
+I've just sent you the correct one.
 
- #include <linux/types.h>
-@@ -291,6 +292,10 @@
-                                break;
-                }
-        }
-+       else {  /* consider non-Hercules as Hercules-compatible */
-+               mda_type = TYPE_HERC;
-+               mda_type_name = "Hercules compatible (hopefully)";
-+       }
+--
+dwmw2
 
-        return 1;
- }
-@@ -342,9 +347,8 @@
-                return NULL;
-        }
-
--       if (mda_type != TYPE_MDA) {
--               mda_initialize();
--       }
-+       /* at this point, we found an MDA */
-+       mda_initialize();
-
-        /* cursor looks ugly during boot-up, so turn it off */
-        mda_set_cursor(mda_vram_len - 1);
 

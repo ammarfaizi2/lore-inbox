@@ -1,69 +1,106 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262425AbRENTnw>; Mon, 14 May 2001 15:43:52 -0400
+	id <S262431AbRENTsw>; Mon, 14 May 2001 15:48:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262431AbRENTnm>; Mon, 14 May 2001 15:43:42 -0400
-Received: from minus.inr.ac.ru ([193.233.7.97]:39176 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S262425AbRENTnd>;
-	Mon, 14 May 2001 15:43:33 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200105141942.XAA16515@ms2.inr.ac.ru>
-Subject: Re: NETDEV_CHANGE events when __LINK_STATE_NOCARRIER is modified
-To: jgarzik@mandrakesoft.com (Jeff Garzik)
-Date: Mon, 14 May 2001 23:42:46 +0400 (MSK DST)
-Cc: andrewm@uow.edu.au, davem@redhat.COM, linux-kernel@vger.kernel.org
-In-Reply-To: <3B0031A0.25C332D2@mandrakesoft.com> from "Jeff Garzik" at May 14, 1 03:27:28 pm
-X-Mailer: ELM [version 2.4 PL24]
-MIME-Version: 1.0
+	id <S262436AbRENTsm>; Mon, 14 May 2001 15:48:42 -0400
+Received: from inet.connecttech.com ([206.130.75.2]:13768 "EHLO
+	inet.connecttech.com") by vger.kernel.org with ESMTP
+	id <S262431AbRENTsb>; Mon, 14 May 2001 15:48:31 -0400
+Message-ID: <033101c0dcaf$10557f40$294b82ce@connecttech.com>
+From: "Stuart MacDonald" <stuartm@connecttech.com>
+To: "Val Henson" <val@nmt.edu>, "Theodore Tso" <tytso@valinux.com>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010511182723.M18959@boardwalk>
+Subject: Re: [PATCH] drivers/char/serial.c bug in ST16C654 detection
+Date: Mon, 14 May 2001 15:50:01 -0400
+Organization: Connect Tech Inc.
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+From: "Val Henson" <val@nmt.edu>
+> This fixes a bug in the autoconfig_startech_uarts function in
+> serial.c.  The problem is that 0's are written to the baud rate
+> registers in order to detect an XR16C850 or XR16C854.  This makes the
+> Exar ST16C654 go kablooey.  Saving and restoring the baud rate
+> registers after the test fixes it.
 
-> Each bus should 
+What version of serial.c? I'm assuming 5.05.
 
-Not all the device are bound to some "bus".
+Define "go kablooey". We haven't noticed any problems, and we supplied
+this bit of code.
+
+The size_fifo() routine supplies its own baud rate divisor, and
+on any rs_open() change_speed() sets the baud rate properly.
+I can't figure what you might be seeing.
+
+> I'm assuming that the XR16C85[04] detection works as is and doesn't
+> need the original baud rate restored.  If I'm wrong, I'll rewrite the
+> patch.
+
+You're correct that the detection works as is, except that you
+broke it in your patch. See below.
+
+> --- linux-2.4.5-pre1/drivers/char/serial.c Thu Apr 19 00:26:34 2001
+> +++ linux/drivers/char/serial.c Sat May 12 05:19:26 2001
+> @@ -3507,7 +3507,7 @@
+>         struct serial_state *state,
+>         unsigned long flags)
+>  {
+> - unsigned char scratch, scratch2, scratch3;
+> + unsigned char scratch, scratch2, scratch3, scratch4;
+>
+>   /*
+>   * First we check to see if it's an Oxford Semiconductor UART.
+> @@ -3551,17 +3551,32 @@
+>   * XR16C854.
+>   *
+>   */
+> +
+> + /* Save the DLL and DLM */
+> +
+>   serial_outp(info, UART_LCR, UART_LCR_DLAB);
+> + scratch3 = serial_inp(info, UART_DLL);
+> + scratch4 = serial_inp(info, UART_DLM);
+> +
+>   serial_outp(info, UART_DLL, 0);
+>   serial_outp(info, UART_DLM, 0);
+> - state->revision = serial_inp(info, UART_DLL);
+> + scratch2 = serial_inp(info, UART_DLL);
+
+This isn't necessary. The revision field is only checked
+for 950s, so setting it here doesn't harm anything. If the
+current (only) example of checking it is followed as normal
+procedure, the port type will always be checked first, before
+checking the revision, ensuring only valid revisions are
+referenced.
+
+>   scratch = serial_inp(info, UART_DLM);
+>   serial_outp(info, UART_LCR, 0);
+> +
+>   if (scratch == 0x10 || scratch == 0x14) {
+> + if (scratch == 0x10)
+> + state->revision = scratch2;
+>   state->type = PORT_16850;
+>   return;
+>   }
+
+Only saving the revision for 850s is probably wrong. It should
+be saved for all the 85x uarts.
+
+> + /* Restore the DLL and DLM */
+> +
+> + serial_outp(info, UART_LCR, UART_LCR_DLAB);
+> + serial_outp(info, UART_DLL, scratch3);
+> + serial_outp(info, UART_DLM, scratch4);
+> + serial_outp(info, UART_LCR, 0);
+>   /*
+>   * We distinguish between the '654 and the '650 by counting
+>   * how many bytes are in the FIFO.  I'm using this for now,
+
+..Stu
 
 
-
-> Are you talking about his 140k patch?
-
-Yes!
-
-Size of patch and "simplicity" are orthogonal things.
-It was simple like potatoe.
-
-
-> I think a key point of my patch is that drivers now follow the method of
-> other kernel drivers: perform all setup necessary, and then register the
-> device in a single operation.
-
-Nice. I agreed. I talk about other thing: after applying Andrew's patch
-I saw good correct code. After you will fix all the devices, your patch will
-be the same 140K or more due to killing refs t dev->name announced
-to be illegal. 8)
-
-
->				 After register_foo(dev), all members of
-> 'dev' are assumed to be filled in and ready for use.  This is not the
-> case ....................... using dev->init()...
-
-Sorry? Why?
-
-
-> Tangent - IMHO having register_netdev call dev->init is ugly and unusual
-> compared to other driver APIs in the kernel.  Your register function
-> should not call out to driver functions, it should just register a new,
-> already-set-up device in the subsystem and return.
-
-Provided you teach me some way to generate unique identifiers, different
-of device names.
-
-
-> So you say a fatal bug remains in 2.4.5-pre1?  If so please elaborate...
-
-
-Probably, I am looking into different code, but I found only 15 references
-to new interface.
-
-Alexey

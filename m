@@ -1,61 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263249AbTCNGQL>; Fri, 14 Mar 2003 01:16:11 -0500
+	id <S263251AbTCNGRG>; Fri, 14 Mar 2003 01:17:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263251AbTCNGQL>; Fri, 14 Mar 2003 01:16:11 -0500
-Received: from mail.coastside.net ([207.213.212.6]:1243 "EHLO
-	mail.coastside.net") by vger.kernel.org with ESMTP
-	id <S263249AbTCNGQK>; Fri, 14 Mar 2003 01:16:10 -0500
+	id <S263254AbTCNGRG>; Fri, 14 Mar 2003 01:17:06 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:59844 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S263251AbTCNGRF>;
+	Fri, 14 Mar 2003 01:17:05 -0500
+Date: Fri, 14 Mar 2003 12:01:55 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: bcrl@redhat.com, akpm@digeo.com
+Cc: linux-aio@kvack.org, linux-kernel@vger.kernel.org
+Subject: [PATCH][FIX] kiocbClear should use clear_bit instead of set_bit
+Message-ID: <20030314120155.A2370@in.ibm.com>
+Reply-To: suparna@in.ibm.com
 Mime-Version: 1.0
-Message-Id: <p05210502ba97239e44cf@[207.213.214.37]>
-In-Reply-To: <33130.4.64.238.61.1047616146.squirrel@www.osdl.org>
-References: <Pine.LNX.4.44.0303131522390.23207-100000@home.transmeta.com> 
-       <p05210514ba96db3fb9e9@[10.2.0.101]>
- <33130.4.64.238.61.1047616146.squirrel@www.osdl.org>
-Date: Thu, 13 Mar 2003 22:26:39 -0800
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-From: Jonathan Lundell <jlundell@lundell-bros.com>
-Subject: Re: 2.5.63 accesses below %esp (was: Re: ntfs OOPS (2.5.63))
-Cc: <torvalds@transmeta.com>, <vonbrand@inf.utfsm.cl>,
-       <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 8:29pm -0800 3/13/03, Randy.Dunlap wrote:
->  > If you've got a symbol some reasonable distance before EIP, you could
->>  decode from there. I wrote a little code that does that (using
->>  kallsyms) very crudely in the stack trace in order to give the reader  a
->>  hint about stack frames. Go to the prior symbol, which is usually  an entry
->>  point, and find the %esp arithmetic. Works pretty well for  figuring out the
->>  real call chain.
->
->as long as it's not a data symbol...
->can you determine that?
+Just an obvious fix.
+The kiocbClearX macros were doing a set_bit !
+They should be calling clear_bit.
+Ran into this now that I'm actually using kiocbClearKicked.
 
-Sometimes/mostly, and btw my code is i386-only. The trace is question 
-is arch/i386/kernel/traps.c:show_trace(). It already makes the test 
-kernel_text_address(), which works in the kernel, but not for modules 
-(at least in the kernel I'm using: 2.4.9 (don't ask)).
+Regards
+Suparna
 
-For addresses in the trace (as opposed to the trapped EIP), I look 
-for a call instruction preceding the putative return address. That's 
-backwards assembly, but since there are relatively few possibilities, 
-it seems to work fairly well.
+diff -ur linux-2.5.62/include/linux/aio.h linux-2.5.62-aio/include/linux/aio.h
+--- linux-2.5.62/include/linux/aio.h	Tue Feb 18 04:25:50 2003
++++ linux-2.5.62-aio/include/linux/aio.h	Tue Mar 11 21:31:22 2003
+@@ -37,9 +37,9 @@
+ #define kiocbSetKicked(iocb)	set_bit(KIF_KICKED, &(iocb)->ki_flags)
+ #define kiocbSetCancelled(iocb)	set_bit(KIF_CANCELLED, &(iocb)->ki_flags)
+ 
+-#define kiocbClearLocked(iocb)	set_bit(KIF_LOCKED, &(iocb)->ki_flags)
+-#define kiocbClearKicked(iocb)	set_bit(KIF_KICKED, &(iocb)->ki_flags)
+-#define kiocbClearCancelled(iocb)	set_bit(KIF_CANCELLED, &(iocb)->ki_flags)
++#define kiocbClearLocked(iocb)	clear_bit(KIF_LOCKED, &(iocb)->ki_flags)
++#define kiocbClearKicked(iocb)	clear_bit(KIF_KICKED, &(iocb)->ki_flags)
++#define kiocbClearCancelled(iocb)	clear_bit(KIF_CANCELLED, &(iocb)->ki_flags)
+ 
+ #define kiocbIsLocked(iocb)	test_bit(0, &(iocb)->ki_flags)
+ #define kiocbIsKicked(iocb)	test_bit(1, &(iocb)->ki_flags)
 
-So finding a call is a good clue that we're looking at text. Look 
-back from the call for argument pushes (I stop at the first non-push, 
-because of the backwards-disassembly problem), then go to the 
-previous symbol and scan forward for pushes and subtracts from %esp. 
-The sum of all those, plus four bytes for the return link, gives me a 
-lower limit on frame size. It's not perfect; a real disassembly 
-forward from the symbol would maybe be better, but that seems like 
-overkill (what to do with branches, etc).
-
-The idea isn't to be perfect anyway, but to give me hints for 
-manually reconstructing the call chain. Way better than nothing.
-
-But for your purposes, disassembling from the previous symbol gives 
-you a code dump, and you know that EIP had better be pointing to text.
 -- 
-/Jonathan Lundell.
+Suparna Bhattacharya (suparna@in.ibm.com)
+Linux Technology Center
+IBM Software Labs, India
+

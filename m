@@ -1,48 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272467AbRIRQUN>; Tue, 18 Sep 2001 12:20:13 -0400
+	id <S272516AbRIRQkH>; Tue, 18 Sep 2001 12:40:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272493AbRIRQUD>; Tue, 18 Sep 2001 12:20:03 -0400
-Received: from smtp.alcove.fr ([212.155.209.139]:20499 "EHLO smtp.alcove.fr")
-	by vger.kernel.org with ESMTP id <S272467AbRIRQTt>;
-	Tue, 18 Sep 2001 12:19:49 -0400
-Date: Tue, 18 Sep 2001 18:20:11 +0200
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Knut.Neumann@rz.uni-duesseldorf.de
-Subject: Re: SonyPI Driver
-Message-ID: <20010918182011.G14639@come.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.20i
+	id <S272531AbRIRQj5>; Tue, 18 Sep 2001 12:39:57 -0400
+Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:57988 "EHLO
+	mirai.cx") by vger.kernel.org with ESMTP id <S272516AbRIRQjr>;
+	Tue, 18 Sep 2001 12:39:47 -0400
+Message-ID: <3BA778E5.B1741B42@pobox.com>
+Date: Tue, 18 Sep 2001 09:40:05 -0700
+From: J Sloan <jjs@pobox.com>
+Organization: J S Concepts
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.10-pre11 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Dan Kegel <dank@kegel.com>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: ext3/ext2 compatibility; time for ext3 in mainline kernel?
+In-Reply-To: <3BA76A01.C2B5E701@kegel.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I noticed that when running the sonypi driver on my VAIO z600tek, APM Suspend
-> does no longer work: The power button (to suspend) does no longer work and -
-> well - it will still suspend if I force it to, by apm -s but it does not
-> resume (powers on, but blank screen and no input gets processed).
+First beta or second?
 
-Yep, using the sonypi driver switches the laptop in a pseudo acpi
-mode and APM based suspend will get disabled.
+The first was full of weird bugs like that -
 
-This is a known problem and there is currently no workaround
-(especially since on my Vaio - a C1VE model, even the APM suspend
-hangs).
+The second beta has been running solidly here.
 
-You'll have to wait for ACPI suspend support in the kernel
-(some support will get into the 2.5 kernel series) or choose between
-the sonypi driver and APM suspend.
+cu
 
-Of course, you can always find a workaround, in which case I and many
-other Vaio owners will be grateful to you :-).
+jjs
 
-Stelian.
--- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-|---------------- Free Software Engineer -----------------|
-| Alcôve - http://www.alcove.com - Tel: +33 1 49 22 68 00 |
-|------------- Alcôve, liberating software ---------------|
+Dan Kegel wrote:
+
+> I installed Red Hat 7.2beta, and chose its nifty ext3 option when
+> setting up my partitions.  But now when I boot into vanilla 2.4.9,
+> some files are mysteriously missing, notably /usr/bin/id and
+> /usr/lib/libreadline.so.3, judging from the error messages that spew
+> when I try to do anything.
+>
+> I guess either a) there's a bug, or b) ext3 isn't so compatible with ext2
+> that you can just boot into an ext2-only kernel and expect things to work.
+>
+> If b) is true, I'd really really like vanilla 2.4.11 or so to support ext3.
+> Isn't it about time?
+>
+> - Dan
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+

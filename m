@@ -1,36 +1,111 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264645AbRFPSgI>; Sat, 16 Jun 2001 14:36:08 -0400
+	id <S264610AbRFPTHn>; Sat, 16 Jun 2001 15:07:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264647AbRFPSf6>; Sat, 16 Jun 2001 14:35:58 -0400
-Received: from adsl-206-170-148-147.dsl.snfc21.pacbell.net ([206.170.148.147]:57608
-	"HELO gw.goop.org") by vger.kernel.org with SMTP id <S264645AbRFPSfy>;
-	Sat, 16 Jun 2001 14:35:54 -0400
-Subject: Re: Buffer management - interesting idea
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-To: Helge Hafting <helgehaf@idb.hist.no>
-Cc: Ivan Schreter <is@zapwerk.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <3B29D048.4E19D545@idb.hist.no>
-In-Reply-To: <01060613422800.07218@linux>  <3B29D048.4E19D545@idb.hist.no>
+	id <S264620AbRFPTHd>; Sat, 16 Jun 2001 15:07:33 -0400
+Received: from 513.holly-springs.nc.us ([216.27.31.173]:52489 "EHLO
+	513.holly-springs.nc.us") by vger.kernel.org with ESMTP
+	id <S264610AbRFPTHT>; Sat, 16 Jun 2001 15:07:19 -0400
+Subject: Re: threading question
+From: Michael Rothwell <rothwell@holly-springs.nc.us>
+To: Russell Leighton <russell.leighton@247media.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3B2BA68D.984A2808@247media.com>
+In-Reply-To: <E15BHrC-0008Ba-00@the-village.bc.nu> 
+	<3B2BA68D.984A2808@247media.com>
 Content-Type: text/plain
 X-Mailer: Evolution/0.10 (Preview Release)
-Date: 16 Jun 2001 11:35:25 -0700
-Message-Id: <992716525.22810.2.camel@ixodes.goop.org>
+Date: 16 Jun 2001 15:06:44 -0400
+Message-Id: <992718405.913.0.camel@gromit>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 15 Jun 2001 11:07:20 +0200, Helge Hafting wrote:
-> The "resistance to scanning" seemed interesting, maybe one-time
-> activities like a "find" run or big cat/dd will have less impact with
-> this.
+Try this:
 
-It should also be good for streaming file use.  It gives a natural way
-of detecting when you should be doing drop-behind (things fall out of
-the fifo without ever making it into the LRU); doubly nice because it
-works for both reads and writes without needing to treat them
-differently.  It's also nice that it gives a natural interpretation to
-the various madvise() flags.
+http://lecker.essen.de/~froese/coro/
 
-    J
+-M
+
+On 16 Jun 2001 14:33:50 -0400, Russell Leighton wrote:
+> 
+> Is there a user-space implemenation (library?) for coroutines that would work from C?
+> 
+> 
+> Alan Cox wrote:
+> 
+> > > Can you provide any info and/or examples of co-routines? I'm curious to
+> > > see a good example of co-routines' "betterness."
+> >
+> > With co-routines you don't need
+> >
+> >         8K of kernel stack
+> >         Scheduler overhead
+> >         Fancy locking
+> >
+> > You don't get the automatic thread switching stuff though.
+> >
+> > So you might get code that reads like this (note that aio_ stuff works rather
+> > well combined with co-routines as it fixes a lack of asynchronicity in the
+> > unix disk I/O world)
+> >
+> >         select(....)
+> >
+> >         if(FD_ISSET(copier_fd))
+> >                 run_coroutine(&copier_state);
+> >
+> >         ...
+> >
+> > and the copier might be something like
+> >
+> >         while(1)
+> >         {
+> >                 // Yes 1 at a time is dumb but this is an example..
+> >                 // Yes Im ignoring EOF for this
+> >                 if(read(copier_fd, buf[bufptr], 1)==-1)
+> >                 {
+> >                         if(errno==-EWOULDBLOCK)
+> >                         {
+> >                                 coroutine_return();
+> >                                 continue;
+> >                         }
+> >                 }
+> >                 if(bufptr==255  || buf[bufptr]=='\n')
+> >                 {
+> >                         run_coroutine(run_command, buf);
+> >                         bufptr=0;
+> >                 }
+> >                 else
+> >                         bufptr++;
+> >         }
+> >
+> > it lets you express a state machine as a set of multiple such small state
+> > machines instead.  run_coroutine() will continue a routine where it last
+> > coroutine_return()'d from. Thus in the above case we are expressing read
+> > bytes until you see a new line cleanly - not mangled in with keeping state
+> > in global structures but by using natural C local variables and code flow
+> >
+> > Alan
+> >
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> --
+> ---------------------------------------------------
+> Russell Leighton    russell.leighton@247media.com
+> ---------------------------------------------------
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+--
+Michael Rothwell
+rothwell@holly-springs.nc.us
+
 

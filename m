@@ -1,59 +1,231 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313089AbSDLAUj>; Thu, 11 Apr 2002 20:20:39 -0400
+	id <S313091AbSDLAZo>; Thu, 11 Apr 2002 20:25:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313091AbSDLAUi>; Thu, 11 Apr 2002 20:20:38 -0400
-Received: from [195.223.140.120] ([195.223.140.120]:22850 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S313089AbSDLAUi>; Thu, 11 Apr 2002 20:20:38 -0400
-Date: Fri, 12 Apr 2002 02:20:46 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Aviv Shavit <avivshavit@yahoo.com>
-Cc: Ken Brownfield <ken@irridia.com>, linux-kernel@vger.kernel.org
-Subject: Re: vm-33, strongly recommended [Re: [2.4.17/18pre] VM and swap - it's really unusable]
-Message-ID: <20020412022046.B31905@dualathlon.random>
-In-Reply-To: <20020411183443.A21005@asooo.flowerfire.com> <20020411235015.78405.qmail@web13203.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S313096AbSDLAZn>; Thu, 11 Apr 2002 20:25:43 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:54030 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S313091AbSDLAZm>; Thu, 11 Apr 2002 20:25:42 -0400
+Date: Thu, 11 Apr 2002 21:25:31 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@duckman.distro.conectiva
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] for_each_zone / for_each_pgdat
+Message-ID: <Pine.LNX.4.44L.0204112123480.31387-100000@duckman.distro.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 11, 2002 at 04:50:15PM -0700, Aviv Shavit wrote:
-> This goes back to my previous post - 
-> Applying only the vm patches didn't get me far.
-> 
-> I'm still trying to pin point what it is thats helping
-> me out in -aa
+replace slightly obscure while loops with for_each_zone and
+for_each_pgdat macros, this version has the added optimisation
+of skipping empty zones       (thanks to William Lee Irwin)
 
-For the level of cache during your workload (you mentioned that variable
-in the previous email) what matters mostly is the vm-33 patch. Do you
-get significantly different levels of cache with only the vm-33 patch
-compared to the whole latest -aa? (there are other variables too that
-could influence the level of cache, the readahead boost for example, but
-they're much less likely to influence the cache levels than the vm-33
-patch)
+-- 
+Hi Linus,
 
-It maybe the benefit you see is not only in the VM part, but it could
-came also the dozen of other fixes and improvements. For example
-starting from the lowlatency fixes from Andrew (note: _fixes_) to highio
-(from Jens) if you've highmem, to the dyn-sched (from Davide) if you've
-tons of sleeping tasks or interactive processes etc...
+this patch cleans up the VM a little bit and has a microoptimisation
+to skip zones of size zero.  You can apply this mail or pull the
+changes from:
 
-The reason I maintain the main patches like the vm one also against
-mainline, is exactly to address Ken's concern about being able to apply
-just one patch if he's not confortable with the whole patchkit, and
-secondly to be able to test it separately without the pollution. I feel
-the vm patch is one of the most important and that's why I mentioned it
-in particular, but the lowlatency fixes and lots of other stuff is
-important too. But I've also the feeling the other stuff [modulo the
-major things like pte-highmem and highio that at least affects only the
-x86 high-end and not that much desktops or little server] is much much
-easier to get integrated and that's why I worry much less about it.
+	bk://linuxvm.bkbits.net/linux-2.5-for-linus/
 
-Thanks for all the feedback and testing!
+please apply,
 
-Andrea
+thanks,
+
+Rik
+
+
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.456   -> 1.457
+#	include/linux/mmzone.h	1.8     -> 1.9
+#	     mm/page_alloc.c	1.44    -> 1.45
+#	         mm/vmscan.c	1.59    -> 1.60
+#	        mm/bootmem.c	1.8     -> 1.9
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/04/11	riel@duckman.distro.conectiva	1.457
+# replace slightly obscure while loops with for_each_zone and
+# for_each_pgdat macros, this version has the added optimisation
+# of skipping empty zones       (thanks to William Lee Irwin)
+# --------------------------------------------
+#
+diff -Nru a/include/linux/mmzone.h b/include/linux/mmzone.h
+--- a/include/linux/mmzone.h	Thu Apr 11 21:23:50 2002
++++ b/include/linux/mmzone.h	Thu Apr 11 21:23:50 2002
+@@ -157,6 +157,62 @@
+
+ extern pg_data_t contig_page_data;
+
++/**
++ * for_each_pgdat - helper macro to iterate over all nodes
++ * @pgdat - pg_data_t * variable
++ *
++ * Meant to help with common loops of the form
++ * pgdat = pgdat_list;
++ * while(pgdat) {
++ *     ...
++ *     pgdat = pgdat->node_next;
++ * }
++ */
++#define for_each_pgdat(pgdat) \
++	for (pgdat = pgdat_list; pgdat; pgdat = pgdat->node_next)
++
++/*
++ * next_zone - helper magic for for_each_zone()
++ * Thanks to William Lee Irwin III for this piece of ingenuity.
++ */
++static inline zone_t *next_zone(zone_t *zone)
++{
++	pg_data_t *pgdat = zone->zone_pgdat;
++
++	do {
++		if (zone - pgdat->node_zones < MAX_NR_ZONES - 1)
++			zone++;
++
++		else if (pgdat->node_next) {
++			pgdat = pgdat->node_next;
++			zone = pgdat->node_zones;
++		} else
++			zone = NULL;
++	/* Skip zones of size 0 ... */
++	} while (zone && !zone->size);
++
++	return zone;
++}
++
++/**
++ * for_each_zone - helper macro to iterate over all memory zones
++ * @zone - zone_t * variable
++ *
++ * The user only needs to declare the zone variable, for_each_zone
++ * fills it in. This basically means for_each_zone() is an
++ * easier to read version of this piece of code:
++ *
++ * for(pgdat = pgdat_list; pgdat; pgdat = pgdat->node_next)
++ *     for(i = 0; i < MAX_NR_ZONES; ++i) {
++ *             zone_t * z = pgdat->node_zones + i;
++ *             ...
++ *     }
++ * }
++ */
++#define for_each_zone(zone) \
++	for(zone = pgdat_list->node_zones; zone; zone = next_zone(zone))
++
++
+ #ifndef CONFIG_DISCONTIGMEM
+
+ #define NODE_DATA(nid)		(&contig_page_data)
+diff -Nru a/mm/bootmem.c b/mm/bootmem.c
+--- a/mm/bootmem.c	Thu Apr 11 21:23:50 2002
++++ b/mm/bootmem.c	Thu Apr 11 21:23:50 2002
+@@ -338,12 +338,11 @@
+ 	pg_data_t *pgdat = pgdat_list;
+ 	void *ptr;
+
+-	while (pgdat) {
++	for_each_pgdat(pgdat)
+ 		if ((ptr = __alloc_bootmem_core(pgdat->bdata, size,
+ 						align, goal)))
+ 			return(ptr);
+-		pgdat = pgdat->node_next;
+-	}
++
+ 	/*
+ 	 * Whoops, we cannot satisfy the allocation request.
+ 	 */
+diff -Nru a/mm/page_alloc.c b/mm/page_alloc.c
+--- a/mm/page_alloc.c	Thu Apr 11 21:23:50 2002
++++ b/mm/page_alloc.c	Thu Apr 11 21:23:50 2002
+@@ -482,14 +482,10 @@
+ {
+ 	unsigned int sum;
+ 	zone_t *zone;
+-	pg_data_t *pgdat = pgdat_list;
+
+ 	sum = 0;
+-	while (pgdat) {
+-		for (zone = pgdat->node_zones; zone < pgdat->node_zones + MAX_NR_ZONES; zone++)
++	for_each_zone(zone)
+ 			sum += zone->free_pages;
+-		pgdat = pgdat->node_next;
+-	}
+ 	return sum;
+ }
+
+@@ -501,7 +497,7 @@
+ 	pg_data_t *pgdat = pgdat_list;
+ 	unsigned int sum = 0;
+
+-	do {
++	for_each_pgdat(pgdat) {
+ 		zonelist_t *zonelist = pgdat->node_zonelists + (GFP_USER & GFP_ZONEMASK);
+ 		zone_t **zonep = zonelist->zones;
+ 		zone_t *zone;
+@@ -512,9 +508,7 @@
+ 			if (size > high)
+ 				sum += size - high;
+ 		}
+-
+-		pgdat = pgdat->node_next;
+-	} while (pgdat);
++	}
+
+ 	return sum;
+ }
+@@ -522,13 +516,12 @@
+ #if CONFIG_HIGHMEM
+ unsigned int nr_free_highpages (void)
+ {
+-	pg_data_t *pgdat = pgdat_list;
++	pg_data_t *pgdat;
+ 	unsigned int pages = 0;
+
+-	while (pgdat) {
++	for_each_pgdat(pgdat)
+ 		pages += pgdat->node_zones[ZONE_HIGHMEM].free_pages;
+-		pgdat = pgdat->node_next;
+-	}
++
+ 	return pages;
+ }
+ #endif
+diff -Nru a/mm/vmscan.c b/mm/vmscan.c
+--- a/mm/vmscan.c	Thu Apr 11 21:23:50 2002
++++ b/mm/vmscan.c	Thu Apr 11 21:23:50 2002
+@@ -655,10 +655,8 @@
+
+ 	do {
+ 		need_more_balance = 0;
+-		pgdat = pgdat_list;
+-		do
++		for_each_pgdat(pgdat)
+ 			need_more_balance |= kswapd_balance_pgdat(pgdat);
+-		while ((pgdat = pgdat->node_next));
+ 	} while (need_more_balance);
+ }
+
+@@ -681,12 +679,11 @@
+ {
+ 	pg_data_t * pgdat;
+
+-	pgdat = pgdat_list;
+-	do {
++	for_each_pgdat(pgdat) {
+ 		if (kswapd_can_sleep_pgdat(pgdat))
+ 			continue;
+ 		return 0;
+-	} while ((pgdat = pgdat->node_next));
++	}
+
+ 	return 1;
+ }
+

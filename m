@@ -1,55 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262476AbUDAKZJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 05:25:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262826AbUDAKZJ
+	id S262825AbUDAKaJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 05:30:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262827AbUDAKaJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 05:25:09 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:40355 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262476AbUDAKZF (ORCPT
+	Thu, 1 Apr 2004 05:30:09 -0500
+Received: from [202.125.86.130] ([202.125.86.130]:40621 "EHLO
+	ns2.astrainfonets.net") by vger.kernel.org with ESMTP
+	id S262825AbUDAKaH convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 05:25:05 -0500
-Subject: Re: Flash Media block driver problem!
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: "Jinu M." <jinum@esntechnologies.co.in>
-Cc: linux-kernel@vger.kernel.org,
+	Thu, 1 Apr 2004 05:30:07 -0500
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: Flash Media block driver problem!
+Date: Thu, 1 Apr 2004 15:53:41 +0530
+X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
+Message-ID: <1118873EE1755348B4812EA29C55A972176F95@esnmail.esntechnologies.co.in>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Flash Media block driver problem!
+Thread-Index: AcQX0roRki2hggxwQbm6Fjiph6ZeegAAFvuA
+From: "Jinu M." <jinum@esntechnologies.co.in>
+To: <arjanv@redhat.com>
+Cc: <linux-kernel@vger.kernel.org>,
        "Surendra I." <surendrai@esntechnologies.co.in>
-In-Reply-To: <1118873EE1755348B4812EA29C55A972176F8E@esnmail.esntechnologies.co.in>
-References: <1118873EE1755348B4812EA29C55A972176F8E@esnmail.esntechnologies.co.in>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-nNyt6qZdiD93inuzdNN3"
-Organization: Red Hat, Inc.
-Message-Id: <1080815095.4680.11.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Thu, 01 Apr 2004 12:24:55 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-nNyt6qZdiD93inuzdNN3
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
 On Thu, 2004-04-01 at 12:03, Jinu M. wrote:
 > Hi All,
->=20
-> We are developing a block device driver (2.4.x kernel) for Flash Media de=
-vices
+> 
+> We are developing a block device driver (2.4.x kernel) for Flash Media devices
 why?
 aren't the existing usb/IDE drivers working for you ??
 
---=-nNyt6qZdiD93inuzdNN3
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQBAa+32xULwo51rQBIRAhe5AJ0QiuoxByyYsr11fd/6arf4tFZ2vwCfZ/Ep
-lXtj4sGkEFtpLs0ejHCLHK8=
-=itt0
------END PGP SIGNATURE-----
-
---=-nNyt6qZdiD93inuzdNN3--
-
+[jinum] This is not a USB/IDE(ATA)/SCSI based device. The controller is directly mapped to the PCI Bus. So we basically write a device driver like the once which are in drivers/block/*.c (non-IDE).

@@ -1,58 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312954AbSCZF3e>; Tue, 26 Mar 2002 00:29:34 -0500
+	id <S312959AbSCZGzO>; Tue, 26 Mar 2002 01:55:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312957AbSCZF3Y>; Tue, 26 Mar 2002 00:29:24 -0500
-Received: from ip68-7-112-74.sd.sd.cox.net ([68.7.112.74]:9235 "EHLO
-	clpanic.kennet.coplanar.net") by vger.kernel.org with ESMTP
-	id <S312956AbSCZF3R>; Tue, 26 Mar 2002 00:29:17 -0500
-Message-ID: <01c501c1d487$14ce9180$7e0aa8c0@bridge>
-From: "Jeremy Jackson" <jerj@coplanar.net>
-To: "John Summerfield" <summer@os2.ami.com.au>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <200203252316.g2PNGD011116@numbat.Os2.Ami.Com.Au>
-Subject: Re: IDE and hot-swap disk caddies 
-Date: Mon, 25 Mar 2002 21:28:21 -0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+	id <S312960AbSCZGzE>; Tue, 26 Mar 2002 01:55:04 -0500
+Received: from SNAP.THUNK.ORG ([216.175.175.173]:21011 "EHLO snap.thunk.org")
+	by vger.kernel.org with ESMTP id <S312959AbSCZGy4>;
+	Tue, 26 Mar 2002 01:54:56 -0500
+Date: Tue, 26 Mar 2002 01:54:40 -0500
+From: Theodore Tso <tytso@mit.edu>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Theodore Tso <tytso@mit.edu>, "H . J . Lu" <hjl@lucon.org>,
+        linux-mips@oss.sgi.com, linux kernel <linux-kernel@vger.kernel.org>,
+        GNU C Library <libc-alpha@sources.redhat.com>
+Subject: Re: Does e2fsprogs-1.26 work on mips?
+Message-ID: <20020326015440.A12162@thunk.org>
+Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
+	Andrew Morton <akpm@zip.com.au>, "H . J . Lu" <hjl@lucon.org>,
+	linux-mips@oss.sgi.com, linux kernel <linux-kernel@vger.kernel.org>,
+	GNU C Library <libc-alpha@sources.redhat.com>
+In-Reply-To: <20020323140728.A4306@lucon.org> <3C9D1C1D.E30B9B4B@zip.com.au> <20020323221627.A10953@lucon.org> <3C9D7A42.B106C62D@zip.com.au> <20020324012819.A13155@lucon.org> <20020325003159.A2340@thunk.org> <3C9EB8F6.247C7C3B@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At the interface level, there is some support.
-Look at hdparm's -b option to tristate the bus.
-But that's the whole bus.  If the controller implements
-master/slave on one cable, you're hosed, electrically.
-It's the whole interface.  95% of controlers are like this.
-
-Intel's PIIX can do master/slave on separate ports, but
-then you loose one bus.  Laptops with bays also do things
-like this, but that's special hardware, hard to get programming
-specs for.
-
-I think if you add the drive *after* boot, it doesn't
-have the benefit of the BIOS setting up PIO/UDMA modes,
-so I would try the hdparm -X speed settings also.
-
-Jeremy
-
------ Original Message ----- 
-From: "John Summerfield" <summer@os2.ami.com.au>
-Sent: Monday, March 25, 2002 3:16 PM
-Subject: Re: IDE and hot-swap disk caddies 
- 
-> > > The device is hot-swap capable and has a switch (others have a key) 
-> > > that locks the drive in and powers it up; in the other position the 
-> > > drive is powered down and can be removed.
+On Sun, Mar 24, 2002 at 09:43:18PM -0800, Andrew Morton wrote:
+> Theodore Tso wrote:
 > > 
-> > Linux doesn't support IDE hot swap at the drive level. Its basically
-> > waiting people to want it enough to either fund it or go write the code
-> > 
+> > And just to be clear ---- although in the past I've been really
+> > annoyed when glibc has made what I've considered to be arbitrary
+> > changes which have screwed ABI, compile-time, or link-time
+> > compatibility, and have spoken out against it --- in this particular
+> > case, I consider the fault to be purely the fault of the kernel
+> > developers, so there's no need having the glibc folks get all
+> > defensive....
 > 
-> What needs to be done? How extensive is the surgery needed?
+> So... Does the kernel need fixing? If so, what would you
+> recommend?
+
+1) Created a new syscall for the unsinged setrlimit, not just for
+getrlimit.  This should have been done from the very beginning, IMHO.
+
+2) If the old value of RLIM_INFINITY is passed to the old setrlimit,
+translate it to the new value of RLIM_INFINITY.  (This would not have
+been strictly necessary of glibc wasn't playing RLIM_INIFITY capping
+games; as it turns out, if you pass the "new" version of RLIM_INIFITY
+to an "old" 2.2 kernel, the right thing happens.  So there really is
+no need for glibc to cap the limit of RLIM_INFINITY to the old value.)
+
+3)  RLIMIT_FILESIZE should not apply to block devices!!!
+
+							- Ted
 

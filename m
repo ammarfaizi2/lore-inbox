@@ -1,60 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261779AbSJIOj2>; Wed, 9 Oct 2002 10:39:28 -0400
+	id <S261793AbSJIPB0>; Wed, 9 Oct 2002 11:01:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261815AbSJIOj2>; Wed, 9 Oct 2002 10:39:28 -0400
-Received: from smtp09.iddeo.es ([62.81.186.19]:49317 "EHLO smtp09.retemail.es")
-	by vger.kernel.org with ESMTP id <S261779AbSJIOjX>;
-	Wed, 9 Oct 2002 10:39:23 -0400
-Date: Wed, 9 Oct 2002 16:45:02 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Brendan J Simon <brendan.simon@bigpond.com>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       kbuild-devel <kbuild-devel@lists.sourceforge.net>
-Subject: Re: [kbuild-devel] Re: linux kernel conf 0.8
-Message-ID: <20021009144502.GD2954@werewolf.able.es>
-References: <Pine.LNX.4.33L2.0210090730450.1001-100000@dragon.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <Pine.LNX.4.33L2.0210090730450.1001-100000@dragon.pdx.osdl.net>; from rddunlap@osdl.org on Wed, Oct 09, 2002 at 16:34:04 +0200
-X-Mailer: Balsa 1.4.1
+	id <S261795AbSJIPB0>; Wed, 9 Oct 2002 11:01:26 -0400
+Received: from ns.suse.de ([213.95.15.193]:54789 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S261793AbSJIPBZ>;
+	Wed, 9 Oct 2002 11:01:25 -0400
+To: root@chaos.analogic.com
+Cc: "J.A. Magallon" <jamagallon@able.es>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Writable global section?
+References: <Pine.LNX.3.95.1021009103521.3016B-100000@chaos.analogic.com>
+X-Yow: We have DIFFERENT amounts of HAIR --
+From: Andreas Schwab <schwab@suse.de>
+Date: Wed, 09 Oct 2002 17:06:55 +0200
+In-Reply-To: <Pine.LNX.3.95.1021009103521.3016B-100000@chaos.analogic.com> ("Richard
+ B. Johnson"'s message of "Wed, 9 Oct 2002 10:49:57 -0400 (EDT)")
+Message-ID: <jen0pn1wj4.fsf@sykes.suse.de>
+User-Agent: Gnus/5.090007 (Oort Gnus v0.07) Emacs/21.3.50 (ia64-suse-linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Richard B. Johnson" <root@chaos.analogic.com> writes:
 
-On 2002.10.09 Randy.Dunlap wrote:
->On Thu, 10 Oct 2002, Brendan J Simon wrote:
->
->| Roman Zippel wrote:
->|
->| >>But the fact that xconfig depends on QT is going to make some people hate
->| >>it.
->| >>
-...
->| This is a difficult one.  GUI's toolkits are a bit of religion
->| (fundamentalist types too).
->|
-...
->
->stick with TCL/TK, like xconfig currently uses ?
->or is it not sufficient?  or just too ugly?
->
+|> If a variable is in the ".data" section, it is "seen" by all procedures
+|> that are linked to the shared library, but any attempt to write to this
+|> variable will seg-fault the task that attempts to modify it.
 
-What is linux kernel conf written in ?
-- perl: use perl-gtk (I think there is also a perl-qt)
-- python: use py-gtk...
+Your tests must be flawed, because a .data section *is* writable.  The
+only difference between .data and .bss is that the latter has no
+allocation in the image file, but they are mapped to the same, writable
+segment.
 
-Use whatever the language gives. I never undestook why use tcl/tk
-on a perl/python config system.
-
+Andreas.
 
 -- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.1 (Cooker) for i586
-Linux 2.4.20-pre10-jam1 (gcc 3.2 (Mandrake Linux 9.0 3.2-2mdk))
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Deutschherrnstr. 15-19, D-90429 Nürnberg
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

@@ -1,83 +1,141 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262038AbTLPRuK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Dec 2003 12:50:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262030AbTLPRuK
+	id S261875AbTLPRsP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Dec 2003 12:48:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261936AbTLPRre
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Dec 2003 12:50:10 -0500
-Received: from node-d-1fcf.a2000.nl ([62.195.31.207]:22148 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP id S261936AbTLPRtQ
+	Tue, 16 Dec 2003 12:47:34 -0500
+Received: from imag.imag.fr ([129.88.30.1]:56201 "EHLO imag.imag.fr")
+	by vger.kernel.org with ESMTP id S262040AbTLPRqV convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Dec 2003 12:49:16 -0500
-Subject: Re: PCI Express support for 2.4 kernel
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Vladimir Kondratiev <vladimir.kondratiev@intel.com>,
-       Linus Torvalds <torvalds@osdl.org>, greg@kroah.com,
-       linux-kernel@vger.kernel.org, Alan Cox <alan@redhat.com>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>, Martin Mares <mj@ucw.cz>
-In-Reply-To: <3FDF3C6C.9030609@pobox.com>
-References: <3FDCC171.9070902@intel.com> <3FDCCC12.20808@pobox.com>
-	 <3FDD8691.80206@intel.com> <20031215103142.GA8735@iram.es>
-	 <3FDDACA9.1050600@intel.com> <1071494155.5223.3.camel@laptop.fenrus.com>
-	 <3FDDBDFE.5020707@intel.com>
-	 <Pine.LNX.4.58.0312151154480.1631@home.osdl.org>
-	 <3FDEDC77.9010203@intel.com>  <3FDF3C6C.9030609@pobox.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-d7AGdRLsbjGx/GCwFG79"
-Organization: Red Hat, Inc.
-Message-Id: <1071596889.5223.7.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Tue, 16 Dec 2003 18:48:10 +0100
+	Tue, 16 Dec 2003 12:46:21 -0500
+Date: Tue, 16 Dec 2003 18:37:53 +0100
+Subject: Re: PCI lib for 2.4 //kwds: pci, dma, mapping memory, kernel vs. user-space.
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Mime-Version: 1.0 (Apple Message framework v552)
+Cc: linux-kernel@vger.kernel.org, Martin Mares <mj@ucw.cz>
+To: Peter Chubb <peter@chubb.wattle.id.au>
+From: =?ISO-8859-1?Q?Damien_Courouss=E9?= <damien.courousse@imag.fr>
+In-Reply-To: <16350.12846.591123.874866@wombat.chubb.wattle.id.au>
+Message-Id: <93DFAFF4-2FEE-11D8-92AC-000393C76BFA@imag.fr>
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Apple Mail (2.552)
+X-IMAG-MailScanner: Found to be clean
+X-IMAG-MailScanner-Information: Please contact the ISP for more information
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Martin,
 
---=-d7AGdRLsbjGx/GCwFG79
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Thanks for your answer.
 
-On Tue, 2003-12-16 at 18:10, Jeff Garzik wrote:
+% 2 pci.h files %
+I had a look at example code that comes with libpci.a. Actually, that's 
+what I had done since that's the only way I may do it.
 
-> > +	spin_lock_irqsave(&pci_config_lock, flags);
-> > +	pci_exp_set_dev_base(bus, dev, fn);
-> > +	switch (len) {
-> > +	case 1:
-> > +		writeb(value, addr);
-> > +		break;
-> > +	case 2:
-> > +		writew(value, addr);
-> > +		break;
-> > +	case 4:
-> > +		writel(value, addr);
-> > +		break;
-> > +	}
-> > +	/* dummy read to flush PCI write */
-> > +	readb(addr);
->=20
-> This is going to choke some hardware, I guarantee.
->=20
-> You always want to make sure your flush is of the same size at the=20
-> write.  Reading a byte from an address that the hardware defines as=20
-> "32-bit writes only" can get ugly real quick ;-)
+I did not yet understand why I find two differents pci.h files, and why 
+I cannot use one of them (since my compiler can't link with the lib)... 
+Is there a specific way of using the second one, which I did not 
+understand?
 
-also reading back addr might not be the best choice in case some
-registers have side effects on reading, it's probably better to read
-back an address that is known to be ok to read (like the vendor ID
-field)
+I work on RedHat 8, kernel 2.4.18-14
+- pci.h No 1 is in /usr/include/pci , linked with /usr/include/linux 
+ >>> the one I can use
+
+- No 2 is in /usr/src/linux2.4.18-14/include/linux >>> the one I can't 
+use, but I'd like to.
 
 
---=-d7AGdRLsbjGx/GCwFG79
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+% dma support %
+It should be OK like that, but my driver will have to support dma 
+features... and I don't have available functions to do it, since I may 
+not use pci.h file Number 2.
+Do I have any other solution?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
 
-iD8DBQA/30VZxULwo51rQBIRAuw+AKCadM3VptRJX+0onfsYwLZZFoiIlwCfSQGv
-YR8PPLKQhIjluQUXzufYw4Q=
-=xYnJ
------END PGP SIGNATURE-----
+% mapping memory %
+It seems I have many(?) ways for mapping memory, depending if the 
+driver will be in kernel or user-space:
+- I could use 'ioremap', but it seems to be designed for kernel-driver. 
+And that's again the same thing, since I cannot use it. My <asm/io.h> 
+file does not support it. (ugh?) I think I should find it here, as all 
+documentation I found says that.
+- I may use mmap too.
 
---=-d7AGdRLsbjGx/GCwFG79--
+% kernel/user-space %
+I have to develop a driver for a card designed for data-acquisition. 
+The stream of data will have to be as fast as possible, since the card 
+will have to support high data-rates.
+What is the best, do  you think, to develop a driver. Should I do it in 
+kernel or user-space? I mean, it seems that kernel accesses cost many 
+CPU resources, whereas in user-space, I could have better performances 
+if kernel accesses are limited...
+
+Damien
+
+
+
+
+Le lundi, 15 déc 2003, à 23:14 Europe/Paris, Peter Chubb a écrit :
+
+>>>>>> "Damien" == Damien Courouss <Damien> writes:
+>
+> Damien> Hi, Actually, it will be first a user-space driver.
+>
+> Damien> Maybe I wasn't clear:
+>
+> The user-space libpci.a has headers in /usr/include/pci/pci.h
+> Do #include <pci/pci.h> to get at them.
+> On debian, at least, you need the pciutils-dev package.
+> Unfortunately, there are no manual pages (yet?)
+>
+> And *do* look at the example code that comes with libpci.a
+>
+> pci_resource_start() and so on are kernel functions; you get the same
+> info in a different way using libpci.a -- Look at the source of lspci
+> to see what you can do.
+>
+> (In brief:
+>         struct pci_access *pacc;
+>         struct pci_dev *dev;
+>
+> 	pacc = pci_alloc();
+>
+>         pci_init(pacc);
+>         pci_scan_bus(pacc);
+>         for (dev = pacc->devices; dev; dev = dev->next)
+>         {
+>                 if (dev->vendor_id == PCI_VENDOR_ID_AAA &&
+>                     dev->device_id == PCI_DEVICE_ID_AAA_BBB)
+>                     break;
+>         }
+>         if (dev == NULL){
+>                 fprintf(stderr, "No AAA BBB device\n");
+> 		exit(1);
+> 	}
+>
+>         pciconf = xmalloc(sizeof *pciconf);
+>         pciconf->pciconfig.accesstype = PCI_CONFIG;
+>         pciconf->pciconfig.devp = dev;
+>
+>         pci_fill_info(dev, PCI_FILL_IDENT | PCI_FILL_BASES | 
+> PCI_FILL_IRQ);
+>
+>         /*
+>          * Get the first 64-bytes of config space
+>          */
+>         pci_read_block(dev, 0, config, 64);
+> )
+>
+> --
+> Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT 
+> gelato.unsw.edu.au
+> The technical we do immediately,  the political takes *forever*
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+

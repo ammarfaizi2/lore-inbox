@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131191AbRBETS2>; Mon, 5 Feb 2001 14:18:28 -0500
+	id <S130889AbRBETWS>; Mon, 5 Feb 2001 14:22:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130889AbRBETST>; Mon, 5 Feb 2001 14:18:19 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:13830 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130332AbRBETSE>; Mon, 5 Feb 2001 14:18:04 -0500
-Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Mon, 5 Feb 2001 19:16:55 +0000 (GMT)
-Cc: sct@redhat.com (Stephen C. Tweedie), alan@lxorguk.ukuu.org.uk (Alan Cox),
-        manfred@colorfullife.com (Manfred Spraul),
-        hch@caldera.de (Christoph Hellwig), lord@sgi.com (Steve Lord),
-        linux-kernel@vger.kernel.org, kiobuf-io-devel@lists.sourceforge.net
-In-Reply-To: <Pine.LNX.4.10.10102051101100.31165-100000@penguin.transmeta.com> from "Linus Torvalds" at Feb 05, 2001 11:09:45 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S131638AbRBETWK>; Mon, 5 Feb 2001 14:22:10 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:1284 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S130889AbRBETWB>;
+	Mon, 5 Feb 2001 14:22:01 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Peter Horton <pdh@colonel-panic.com>
+Date: Mon, 5 Feb 2001 20:20:41 MET-1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14Pr8G-0003zV-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: VIA silent disk corruption - patch
+CC: linux-kernel@vger.kernel.org, andre@linux-ide.org
+X-mailer: Pegasus Mail v3.40
+Message-ID: <14A3825B3E3F@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Stop this idiocy, Stephen. You're _this_ close to be the first person I
-> ever blacklist from my mailbox. 
+On  5 Feb 01 at 19:05, Peter Horton wrote:
 
-I think I've just figured out what the miscommunication is around here
+> Okay, looks like this fixes it (for me anyways).
 
-kiovecs can describe arbitary scatter gather
+> +    *  VIA VT8363 host bridge has broken feature 'PCI Master Read
+> +    *  Caching'. It caches more than is good for it, sometimes
+> +    *  serving the bus master with stale data. Some BIOSes enable
+> +    *  it by default, so we disable it.
 
-its just that they can also cleanly describe the common case of contiguous
-pages in one entry.
-
-After all a subpage block is simply a contiguous set of 1 page.
-
-Alan
-
-
+Hi,
+  I'll try it today, though I'm not sure that it will fix lost last
+dword on read. But at least it should stop corruption on write...
+  After your mail I noticed that there is couple of `unsettable'
+options in BIOS, and I did not tried switching BIOS from optimal to
+slow setting yet, so maybe there are more broken optimizations?
+  I'll keep you informed.
+                                    Thanks,
+                                        Petr Vandrovec
+                                        vandrove@vc.cvut.cz
+                                        
+                                    
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

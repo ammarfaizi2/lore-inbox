@@ -1,61 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264955AbUFRCYQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264961AbUFRCdk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264955AbUFRCYQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 22:24:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264961AbUFRCYQ
+	id S264961AbUFRCdk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 22:33:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264963AbUFRCdk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 22:24:16 -0400
-Received: from ns1.lanforge.com ([66.165.47.210]:57294 "EHLO www.lanforge.com")
-	by vger.kernel.org with ESMTP id S264955AbUFRCYO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 22:24:14 -0400
-Message-ID: <40D25247.3050509@candelatech.com>
-Date: Thu, 17 Jun 2004 19:24:07 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+	Thu, 17 Jun 2004 22:33:40 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:16602 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S264961AbUFRCdj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jun 2004 22:33:39 -0400
+Message-ID: <40D25477.1050006@opensound.com>
+Date: Thu, 17 Jun 2004 19:33:27 -0700
+From: 4Front Technologies <dev@opensound.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: poll
-References: <Pine.LNX.4.53.0406170954190.702@chaos> <40D21C8E.4040500@candelatech.com> <Pine.LNX.4.53.0406171958570.3414@chaos>
-In-Reply-To: <Pine.LNX.4.53.0406171958570.3414@chaos>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Stop the linux kernel madness - SOLVED!
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard B. Johnson wrote:
-> On Thu, 17 Jun 2004, Ben Greear wrote:
-> 
-> 
->>Richard B. Johnson wrote:
->>
->>>Hello,
->>>Is it okay to use the 'extra' bits in the poll return value for
->>>something? In other words, is the kernel going to allow a user-space
->>>program to define some poll-bits that it waits for, these bits
->>>having been used in the driver?
->>
->>Can't you just do a read and determine from the results of the read
->>what you actually got?  If not, add framing to your message so that
->>you *CAN* determine one message type from another...
->>
->>Ben
->>
-> 
-> 
-> The mailbox read(s) is/are 32-bit int(s). There is no way to identify
-> it as being "new" or something that was written two weeks ago.
-> That's why we use poll. Poll says 'I got something new for you'.
+Hi Folks,
 
-Then use 3 different file descriptors to poll/read.  That seems more
-efficient anyway as it doesn't wake the folks who don't care.
+Here's the solution we have found:
 
-Ben
+With the latest SuSE 2.6.5-7.75 kernel sources:
 
--- 
-Ben Greear <greearb@candelatech.com>
-Candela Technologies Inc  http://www.candelatech.com
+The problem is that /lib/modules/2.6.5-7.75/build points to
+/usr/src/linux-2.6.5-7.75-obj which is some kind of wierd directory
+that has:
+
+.  ..  bigsmp  debug  default  out  smp
+
+So simply removing this symlink and putting back a link to
+/usr/src/linux-2.6.5-7.75 fixes our problems.
+
+So the question is who is at fault here?. We used KBUILD to
+build our modules and obviously the build link in /lib/modules/<kernel>/build
+isn't pointing to the correct source tree.
+
+
+best regards
+Dev Mazumdar
+---------------------------------------------------------------------
+4Front Technologies
+4035 Lafayette Place, Unit F, Culver City, CA 90232, USA
+Tel: 310 202 8530   Fax: 310 202 0496   URL: http://www.opensound.com
+---------------------------------------------------------------------
 

@@ -1,41 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129051AbRBBNVt>; Fri, 2 Feb 2001 08:21:49 -0500
+	id <S129074AbRBBN3K>; Fri, 2 Feb 2001 08:29:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129074AbRBBNVk>; Fri, 2 Feb 2001 08:21:40 -0500
-Received: from ferret.lmh.ox.ac.uk ([163.1.138.204]:31756 "HELO
-	ferret.lmh.ox.ac.uk") by vger.kernel.org with SMTP
-	id <S129051AbRBBNVY>; Fri, 2 Feb 2001 08:21:24 -0500
-Date: Fri, 2 Feb 2001 13:21:21 +0000 (GMT)
-From: Chris Evans <chris@scary.beasts.org>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        "Stephen C. Tweedie" <sct@redhat.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: sard on kernel 2.4
-In-Reply-To: <Pine.LNX.4.21.0102012322560.18665-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.30.0102021320390.17125-100000@ferret.lmh.ox.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129158AbRBBN2u>; Fri, 2 Feb 2001 08:28:50 -0500
+Received: from dell-pe2450-1.cambridge.redhat.com ([172.16.18.1]:54532 "HELO
+	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
+	id <S129074AbRBBN2i>; Fri, 2 Feb 2001 08:28:38 -0500
+To: aviro@redhat.com
+Cc: linux-kernel@vger.kernel.org, dhowells@redhat.com
+Subject: [BUG] directory renaming/removal
+Date: Fri, 02 Feb 2001 13:28:28 +0000
+Message-ID: <4260.981120508@warthog.cambridge.redhat.com>
+From: David Howells <dhowells@cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Fri, 2 Feb 2001, Marcelo Tosatti wrote:
+Run the following script (It's been tried on linux-2.2.x and linux-2.4.x):
 
->
-> Linus,
->
-> There is a significative amount of people who use sard's additional block
-> layer statistics (I'm one of them). It would be nice to have it in the
-> official free.
+#!/bin/sh
+cd /tmp
+mkdir x
+cd x
+mkdir x y z
+strace -etrace=rename,mkdir,rmdir,chmod mv x z
+echo ---------
+chmod -w y
+strace -etrace=rename,mkdir,rmdir,chmod mv y z
 
-Definitely.
+The output:
 
-Cheers
-Chris
+rename("x", "z/x")                      = 0
+---------
+rename("y", "z/y")                      = -1 EACCES (Permission denied)
+mkdir("z/y", 040755)                    = 0
+chmod("z/y", 040555)                    = 0
+rmdir("y")                              = 0
 
+You'll notice the following:
+
+ (1) Linux can't rename directories that are marked as read-only. This is
+     strange because the directories actually being modified _do_ have write
+     permission.
+
+ (2) You can _remove_ a read-only directory.
+
+David
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,72 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266591AbUG0TGk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266572AbUG0TGl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266591AbUG0TGk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 15:06:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266572AbUG0TDv
+	id S266572AbUG0TGl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 15:06:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266575AbUG0TEJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 15:03:51 -0400
-Received: from smtp.golden.net ([199.166.210.31]:35850 "EHLO smtp.golden.net")
-	by vger.kernel.org with ESMTP id S266607AbUG0TCd (ORCPT
+	Tue, 27 Jul 2004 15:04:09 -0400
+Received: from fw.osdl.org ([65.172.181.6]:4061 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266568AbUG0TC5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 15:02:33 -0400
-Date: Tue, 27 Jul 2004 15:02:11 -0400
-From: Paul Mundt <lethal@linux-sh.org>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: [PATCH] Kconfig.debug: combine Kconfig debug options
-Message-ID: <20040727190210.GE20740@linux-sh.org>
-Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
-	"Randy.Dunlap" <rddunlap@osdl.org>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	linux-kernel@vger.kernel.org, akpm@osdl.org
-References: <20040723231158.068d4685.rddunlap@osdl.org> <Pine.GSO.4.58.0407271451130.19529@waterleaf.sonytel.be> <20040727104737.0de2da5b.rddunlap@osdl.org>
+	Tue, 27 Jul 2004 15:02:57 -0400
+Date: Tue, 27 Jul 2004 12:01:25 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Cc: ak@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][2.6] Allow x86_64 to reenable interrupts on contention
+Message-Id: <20040727120125.0ec751a3.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0407271006290.23985@montezuma.fsmlabs.com>
+References: <Pine.LNX.4.58.0407270432470.23989@montezuma.fsmlabs.com>
+	<20040727132638.7d26e825.ak@suse.de>
+	<Pine.LNX.4.58.0407271006290.23985@montezuma.fsmlabs.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="WYTEVAkct0FjGQmd"
-Content-Disposition: inline
-In-Reply-To: <20040727104737.0de2da5b.rddunlap@osdl.org>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Zwane Mwaikambo <zwane@linuxpower.ca> wrote:
+>
+> On Tue, 27 Jul 2004, Andi Kleen wrote:
+> 
+>  > On Tue, 27 Jul 2004 05:29:10 -0400 (EDT)
+>  > Zwane Mwaikambo <zwane@linuxpower.ca> wrote:
+>  >
+>  > > This is a follow up to the previous patches for ia64 and i386, it will
+>  > > allow x86_64 to reenable interrupts during contested locks depending on
+>  > > previous interrupt enable status. It has been runtime and compile tested
+>  > > on UP and 2x SMP Linux-tiny/x86_64.
+>  >
+>  > This will likely increase code size. Do you have numbers by how much? And is it
+>  > really worth it?
+> 
+>  Yes there is a growth;
+> 
+>     text    data     bss     dec     hex filename
+>  3655358 1340511  486128 5481997  53a60d vmlinux-after
+>  3648445 1340511  486128 5475084  538b0c vmlinux-before
 
---WYTEVAkct0FjGQmd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The growth is all in the out-of-line section, so there should be no
+significant additional icache pressure.
 
-On Tue, Jul 27, 2004 at 10:47:37AM -0700, Randy.Dunlap wrote:
-> DEBUG_SLAB is not available in cris, h8300, m68knommu, sh, sh64,
-> or v850 AFAICT.  Yes/no ?
->=20
-This can be set for sh/sh64 just fine, it is pretty much generic anyways.
-So placing this in a common Kconfig seems reasonable.
-
-> | (didn't check the whole list) Perhaps the first instance of DEBUG_INFO
-> | can depend on !SUPERH64 && !USERMODE only?
->=20
-> It could.  It depends on one's config (or code/patch) philosophy.
-> I was trying to be explicit about which arches support a config option
-> by including each arch in a list ("inclusion").  Or I could exclude
-> certain arches from config options ("exclusion").  The inclusion
-> method seems safer and more readable/maintainable to me, but that's
-> just one opinion.
->=20
-There's no need for the !SUPERH64 dependancy for DEBUG_INFO either, so
-feel free to drop that if that's the way you end up going.
-
-
---WYTEVAkct0FjGQmd
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFBBqay1K+teJFxZ9wRAvHAAJsHtDmUpNJ08OR5M1ryxvaryrPGmQCeOFin
-l7Qk8SfjuGEQ04Hwmv4f6lQ=
-=rE3l
------END PGP SIGNATURE-----
-
---WYTEVAkct0FjGQmd--

@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263323AbTD0DPO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Apr 2003 23:15:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263337AbTD0DPO
+	id S263337AbTD0DT7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Apr 2003 23:19:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263343AbTD0DT7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Apr 2003 23:15:14 -0400
-Received: from colin.muc.de ([193.149.48.1]:12555 "HELO colin.muc.de")
-	by vger.kernel.org with SMTP id S263323AbTD0DPN (ORCPT
+	Sat, 26 Apr 2003 23:19:59 -0400
+Received: from holomorphy.com ([66.224.33.161]:41148 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S263337AbTD0DT6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Apr 2003 23:15:13 -0400
-Message-ID: <20030427052713.19557@colin.muc.de>
-Date: Sun, 27 Apr 2003 05:27:13 +0200
-From: Andi Kleen <ak@muc.de>
+	Sat, 26 Apr 2003 23:19:58 -0400
+Date: Sat, 26 Apr 2003 20:32:06 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
 To: Linus Torvalds <torvalds@transmeta.com>
 Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] Alternative patching for prefetches & cleanup
+Message-ID: <20030427033206.GX8978@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Linus Torvalds <torvalds@transmeta.com>, Andi Kleen <ak@muc.de>,
+	linux-kernel@vger.kernel.org
 References: <20030427051451.43064@colin.muc.de> <Pine.LNX.4.44.0304262021190.25498-100000@home.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.88e
-In-Reply-To: <Pine.LNX.4.44.0304262021190.25498-100000@home.transmeta.com>; from Linus Torvalds on Sun, Apr 27, 2003 at 05:22:58AM +0200
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0304262021190.25498-100000@home.transmeta.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 27, 2003 at 05:22:58AM +0200, Linus Torvalds wrote:
-> 
-> On Sun, 27 Apr 2003, Andi Kleen wrote:
-> > 
-> > Hmm. I thought using the Fibonaci sequence for this was clever :-)
-> 
+On Sun, 27 Apr 2003, Andi Kleen wrote:
+>> Hmm. I thought using the Fibonaci sequence for this was clever :-)
+
+On Sat, Apr 26, 2003 at 08:22:58PM -0700, Linus Torvalds wrote:
 > That's not the fibonacci sequence, that's just a regular sigma(i)  
 > (i=1..n) sequence. And if you were to generate the sequence numbers at
 > compile-time I might agree with you, if you also were to avoid using 
 > inline asms.
 
-True %)
+Such things may be checked with:
 
-The real reason I did it was to avoid having two sets of macros - one
-with .byte 0x... and another with string "\x..\x..."
+http://www.research.att.com/~njas/sequences/index.html
 
-Now it needs duplication.
 
--Andi
+-- wli

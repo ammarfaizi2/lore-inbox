@@ -1,88 +1,158 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263228AbTLOGHy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 01:07:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263172AbTLOGHy
+	id S263310AbTLOGLy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 01:11:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263325AbTLOGKE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 01:07:54 -0500
-Received: from adsl-67-114-19-185.dsl.pltn13.pacbell.net ([67.114.19.185]:21184
-	"EHLO bastard") by vger.kernel.org with ESMTP id S263228AbTLOGHs
+	Mon, 15 Dec 2003 01:10:04 -0500
+Received: from ausmtp02.au.ibm.com ([202.81.18.187]:10462 "EHLO
+	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP id S263269AbTLOGI6
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 01:07:48 -0500
-Message-ID: <3FDD4FB2.8020607@tupshin.com>
-Date: Sun, 14 Dec 2003 22:07:46 -0800
-From: Tupshin Harper <tupshin@tupshin.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031206 Thunderbird/0.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Larry McVoy <lm@bitmover.com>
+	Mon, 15 Dec 2003 01:08:58 -0500
+From: Rusty Russell <rusty@au1.ibm.com>
+To: paulmck@us.ibm.com
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: RFC - tarball/patch server in BitKeeper
-References: <20031214172156.GA16554@work.bitmover.com> <3FDCEF70.5040808@tupshin.com> <20031214234348.GA15850@work.bitmover.com> <3FDCFE17.5010309@tupshin.com> <20031215034627.GB16554@work.bitmover.com>
-In-Reply-To: <20031215034627.GB16554@work.bitmover.com>
-X-Enigmail-Version: 0.82.4.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: [DOCUMENTATION] Revised Unreliable Kernel Locking Guide 
+In-reply-to: Your message of "Fri, 12 Dec 2003 11:35:59 -0800."
+             <20031212193559.GA1614@us.ibm.com> 
+Date: Mon, 15 Dec 2003 16:17:47 +1100
+Message-Id: <20031215060851.1882C189E1@ozlabs.au.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy wrote:
+In message <20031212193559.GA1614@us.ibm.com> you write:
+> On Fri, Dec 12, 2003 at 04:24:18PM +1100, Rusty Russell wrote:
+> > OK, I've put the html version up for your reading pleasure: the diff
+> > is quite extensive and hard to read.
+> > 
+> > http://www.kernel.org/pub/linux/kernel/people/rusty/kernel-locking/
+> > 
+> > Feedback welcome,
+> > Rusty.
+> > --
+> >   Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+> 
+> Hello, Rusty,
+> 
+> Good stuff!  A few comments, as always!
+> 
+> 						Thanx, Paul
+> 
+> Glossary:
+> 
+> o	Hardware Interrupt / Hardware IRQ: How does in_irq()
+> 	know that interrupts have been blocked?  The local_irq_disable()
+> 	does not seem to mess with the counter, and preempt_disable()
+> 	just does the standard inc/dec stuff...
 
- > On Sun, Dec 14, 2003 at 04:19:35PM -0800, Tupshin Harper wrote:
- >
- >>> I'm sure you do, I've read your postings on various SCM mailing
- >>> lists. You'll have to get your test data elsewhere, sorry,
- >>> we're not in the business of helping you develop a competing
- >>> product.  Using BK to do that is a violation of the free use
- >>> license and I'm sure you are aware of that.
- >>>
- >> Of course...that's the only reason why it's an issue.
- >
- >
- > Great, glad you understand that you are crossing the legal line.
+You're right, it doesn't.
 
-??? what line am I crossing? Or do you mean that I would be if I were
-to do something, and if so, what is that something? I informed you the
-day that  decided I was interested in exploring the internals of other
-SCM products, and deleted the bk binaries from my machine at the same
-time.
+> 	o	in_irq() is hardirq_count().
+> 	o	hardirq_count() is (preempt_count() & HARDIRQ_MASK).
+> 	o	preempt_count is an integer, HARDIRQ_MASK is a constant that
+> 		is out of the normal inc/dec range.
+> 
+> 	I see how an interrupt handler causes in_irq() to do its thing
+> 	via the irq_enter() and irq_exit() macros, but I don't see how
+> 	masking interrupts makes this happen.
+> 
+> 	Probably just my confusion, but...
+> 
+> 	Ditto for "in_interrupt()".  That would be for both the
+> 	analysis and the probable confusion on my part.
 
- >
- >> What are are effectively doing, then, is creating vendor lock-in
- >> based on file format...a very Microsoftian approach. You are
- >> encouraging developers to adopt your tool, but then telling them
- >> that if they ever want to adopt a different tool, then they will
- >> have to forego using some of the information that they created
- >> using your tool. So the decision of which tool to be used becomes
- >> based on pain of switching, and not based on technical merit.
- >> Hmmm.
- >
- >
- > What a pile of nonsense.  Let's translate this to reality.  You
- > can't figure out how to build the right answer and you have decided
- > you need access to internal information created by BitKeeper to
- > reverse engineer BitKeeper and you are complaining because we don't
- > feel obligated to give you that.
+Yes.  I've removed both those: AFAICT they were never true.
 
-That's nonsense. There are plenty of bk changesets that I could
-download from numerous public sources. They would provide just as much
-information about bk internals as any other bk changesets. There are
-complete (non-Linus) linux trees available in changeset form. If
-reverse engineering were my goal, then those would be sufficient. The
-question is one of ownership. Does bitmover own the changeset or does
-the developer own the changeset?
+> o	Software Interrupt / softirq: formatting botch "of'software".
+> 	This would be "o'software", right?
 
- > If you think you can create a better answer on your own, by all
- > means, do so, nobody is stopping you.  But whining that you aren't
- > being helped by the people who have figured it out is not exactly
- > inspiring.  I can assure you that I am not inspired to help you and
- > I'm disgusted that yet again an you have taken something that we
- > are trying to do to help people and turned it into a whine fest for
- > your personal agenda.
+Looks ok here:
+	Tasklets and softirqs both fall into the category of 'software interrupts'.
 
-You specifically asked if it would address people's issues. I could
-only speak for myself...and I did.
+> o	Preemption: Would it be worth changing the first bit
+> 	of the second sentence to read something like: "In 2.5.4
+> 	and later, when CONFIG_PREEMPT is set, this changes:"?
 
--Tupshin
+I was trying to make it a little future-proof: I think CONFIG_PREEMPT
+should go away some day.
 
+> Overzealous Prevention Of Deadlocks:  Cute!!!
+
+This is untouched from the old version of the document.  I had a
+troubled youth...
+
+> Avoiding Locks: Read Copy Update
+> 
+> o	Might be worth noting explicitly early on that updaters are
+> 	running concurrently with readers.  Should be obvious given
+> 	that the readers aren't doing any explicit synchronization,
+> 	but I have run into confusion on this point surprisingly often.
+
+OK.  Changed the second paragraph from:
+
+	How do we get rid of read locks?  That is actually quite simple:
+
+to:
+
+	How do we get rid of read locks?  Getting rid of read locks
+	means that writers may be changing the list underneath the readers.
+	That is actually quite simple:
+
+
+> o	Please add a note to the list_for_each_entry_rcu() description
+> 	saying that writers (who hold appropriate locks) need not use
+> 	the _rcu() variant.
+
+OK:
+
+      Once again, there is a
+      <function>list_for_each_entry_rcu()</function>
+      (<filename>include/linux/list.h</filename>) to help you.  Of
+      course, writers can just use
+      <function>list_for_each_entry()</function>, since there cannot
+      be two simultaneous writers.
+
+> o	Don't understand the blank line before and after the
+> 	"struct rcu_head rcu;", but clearly doesn't affect
+> 	functionality.  ;-)
+
+Hmm, it would logically be at the start of the structure.  I think I
+wanted to avoid associating it with the refcnt_t.
+
+> o	If nothing blocks between the call to __cache_find() and the
+> 	eventual object_put(), it is worthwhile to avoid the
+> 	reference-count manipulation.  This would make all of
+> 	cache_find() be almost as fast as UP, rather than just
+> 	__cache_find().
+
+Good point.  Text added at the bottom of that section:
+
+<para>
+There is a furthur optimization possible here: remember our original
+cache code, where there were no reference counts and the caller simply
+held the lock whenever using the object?  This is still possible: if
+you hold the lock, noone can delete the object, so you don't need to
+get and put the reference count.
+</para>
+
+<para>
+Now, because the 'read lock' in RCU is simply disabling preemption, a
+caller which always preemption disabled between calling
+<function>cache_find()</function> and
+<function>object_put()</function> does not need to actually get and
+put the reference count: we could expose
+<function>__cache_find()</function> by making it non-static, and
+such callers could simply call that.
+</para>
+<para>
+The benefit here is that the reference count is not written to: the
+object is not altered in any way, which is much faster on SMP
+machines due to caching.
+</para>
+
+I've uploaded a new draft with these and other fixes...
+
+Thanks!
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

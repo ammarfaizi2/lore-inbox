@@ -1,49 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268263AbUIBMBr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268265AbUIBMEH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268263AbUIBMBr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 08:01:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268265AbUIBMBr
+	id S268265AbUIBMEH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 08:04:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268266AbUIBMEH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 08:01:47 -0400
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:54244 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S268263AbUIBMBo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 08:01:44 -0400
-From: Einar Lueck <elueck@de.ibm.com>
-Reply-To: lkml@einar-lueck.de
-Organization: IBM Deutschland Entwicklung GmbH
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] net/ipv4 for Source VIPA support, kernel BK Head
-Date: Thu, 2 Sep 2004 14:01:42 +0200
-User-Agent: KMail/1.6.2
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
+	Thu, 2 Sep 2004 08:04:07 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:1233 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S268265AbUIBMEC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 08:04:02 -0400
+Subject: Re: [patch] kernel sysfs events layer
+From: Daniel Stekloff <dsteklof@us.ibm.com>
+To: Greg KH <greg@kroah.com>
+Cc: Robert Love <rml@ximian.com>, akpm@osdl.org, kay.sievers@vrfy.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20040902083407.GC3191@kroah.com>
+References: <1093988576.4815.43.camel@betsy.boston.ximian.com>
+	 <20040831145643.08fdf612.akpm@osdl.org>
+	 <1093989513.4815.45.camel@betsy.boston.ximian.com>
+	 <20040831150645.4aa8fd27.akpm@osdl.org>
+	 <1093989924.4815.56.camel@betsy.boston.ximian.com>
+	 <20040902083407.GC3191@kroah.com>
+Content-Type: text/plain
+Message-Id: <1094126565.1761.25.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Thu, 02 Sep 2004 05:02:46 -0700
 Content-Transfer-Encoding: 7bit
-Message-Id: <200409021401.42255.elueck@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2004-09-01 at 14:25, ?Alan Cox wrote:
-> Is there anything here that cannot already be done by the ip route
-> command and iptables nat ?
-Our experiences with customers operating high-available enterprise
-installations indicate that ip route and iptables nat do not fullfill all the 
-relevant requirements:
-The high-availability requirements drive those customers to ensure that 
-all routes are dynamic which is not possible with the proposed ip route 
-approach.
-The complexity of the relevant setups necessitates an easy and 
-requirements-driven configuration and solution approach. The overall 
-concept of setting up a virtual device with a virtual IP adress and 
-assigning this virtual IP adress as a Source VIPA to the devices which should
-allow for a failover is well known from other operating system and expected 
-by relevant enterprise customers.  IP routes and NAT allow to achieve the 
-same effect with the exception mentioned above, but the corresponding 
-configuration overhead is in the opinion of customers having enterprise 
-setups too complex and complicated.  Our overall approach introduces 
-this concept as a facility to address these requirements very clearly. 
+On Thu, 2004-09-02 at 01:34, Greg KH wrote:
+> On Tue, Aug 31, 2004 at 06:05:24PM -0400, Robert Love wrote:
+> > +int send_kevent(enum kevent type, struct kset *kset,
+> > +		struct kobject *kobj, const char *signal);
+> 
+> Why is the kset needed?  We can determine that from the kobject.
+> 
+> How about changing this to:
+> 	int send_kevent(struct kobject *kobj, struct attribute *attr);
+> which just tells userspace that a specific attribute needs to be read,
+> as something "important" has changed.
 
-Einar
+
+Do all events require an attribute? What about the "overheating"
+example? Would you need an attribute or would getting a "signal" for a
+specific kobj be enough? 
+
+Binding an attribute to an event would at least tell you the name of the
+attribute to check. Otherwise, how does an app know the name of the
+attribute that changed? Or am I missing something?
+
+Thanks,
+
+Dan
+
+
+
+> Will passing the attribute name be able to successfully handle the 
+> "enum kevent" and "signal" combinations?
+> 
+> thanks,
+> 
+> greg k-h
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+

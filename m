@@ -1,47 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269200AbTGUCkr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jul 2003 22:40:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269202AbTGUCkr
+	id S269211AbTGUDfP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jul 2003 23:35:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269212AbTGUDfP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jul 2003 22:40:47 -0400
-Received: from [216.208.38.106] ([216.208.38.106]:46574 "EHLO
-	lapdancer.baythorne.internal") by vger.kernel.org with ESMTP
-	id S269200AbTGUCkq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jul 2003 22:40:46 -0400
-Subject: Re: [PATCH] Washing suspend code
-From: David Woodhouse <dwmw2@infradead.org>
-To: Dave Jones <davej@codemonkey.org.uk>
-Cc: ffrederick@prov-liege.be, linux-kernel@vger.kernel.org
-In-Reply-To: <20030702131047.GA9779@suse.de>
-References: <S263945AbTGBIGc/20030702080632Z+4079@vger.kernel.org>
-	 <20030702131047.GA9779@suse.de>
-Content-Type: text/plain
-Message-Id: <1058727060.1091.2.camel@lapdancer.baythorne.internal>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.1 (dwmw2) 
-Date: Mon, 21 Jul 2003 03:55:30 +0100
+	Sun, 20 Jul 2003 23:35:15 -0400
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:34210 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S269211AbTGUDfN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jul 2003 23:35:13 -0400
+Message-ID: <3F1B4695.5020507@cornell.edu>
+Date: Sun, 20 Jul 2003 21:49:09 -0400
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5a) Gecko/20030708 Thunderbird/0.1a
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Charles Lepple <clepple@ghz.cc>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6-test1 startup messages?
+References: <20030720140035.GC20163@rdlg.net> <3F1AD2AA.9010603@cornell.edu> <yw1xbrvpuew9.fsf@users.sourceforge.net> <3F1B5312.9040502@ghz.cc>
+In-Reply-To: <3F1B5312.9040502@ghz.cc>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-07-02 at 14:10, Dave Jones wrote:
-> On Wed, Jul 02, 2003 at 10:43:11AM +0200, ffrederick@prov-liege.be wrote:
->  >  }
->  > +int touchable_process (struct task_struct *p)
->  > +{
->  > +	return(!((p->flags & PF_IOTHREAD) || (p == current) || (p->state == TASK_ZOMBIE)))
->  > +
->  > +}
-> 
-> *horror*. Please keep the formatting of the original macro.
-> It's a) more readable, and b) Documentation/CodingStyle compliant.
 
-Bugger the formatting. The original macro invocation 'INTERESTING(p)'
-may invoke 'continue;' and change the flow of execution in an utterly
-unobvious manner. The 'if (something) continue;' form is _definitely_
-better.
+> couldn't you just set the 'install' action for "/dev/tts", etc. to
+> '/bin/true'?
 
--- 
-dwmw2
+You'd have to do that for every single device program x.y.z might try to 
+find in /dev. I, personally, get at least 25 warnings on boot.
 

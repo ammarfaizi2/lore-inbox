@@ -1,47 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262358AbTEPVjm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 May 2003 17:39:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262676AbTEPVjm
+	id S262709AbTEPVhy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 May 2003 17:37:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263718AbTEPVhy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 May 2003 17:39:42 -0400
-Received: from fmr06.intel.com ([134.134.136.7]:53968 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S262358AbTEPVjl convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 May 2003 17:39:41 -0400
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-x-mimeole: Produced By Microsoft Exchange V6.0.6375.0
-Subject: APM sysenter MSR restore patch breaks ACPI
-Date: Fri, 16 May 2003 14:52:27 -0700
-Message-ID: <F760B14C9561B941B89469F59BA3A84725A2A5@orsmsx401.jf.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: APM sysenter MSR restore patch breaks ACPI
-Thread-Index: AcMb9XBGEv9l/zRUQP6rmGvEZC9VMA==
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: <mikepe@csd.uu.se>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 16 May 2003 21:52:27.0941 (UTC) FILETIME=[715DB550:01C31BF5]
+	Fri, 16 May 2003 17:37:54 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:54183
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S262709AbTEPVhx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 May 2003 17:37:53 -0400
+Subject: Re: [PATCH] Use MTRRs by default for vesafb on x86-64
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Dave Jones <davej@codemonkey.org.uk>
+Cc: Andi Kleen <ak@muc.de>, kraxel@suse.de, jsimmons@infradead.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030515151633.GA6128@suse.de>
+References: <20030515145640.GA19152@averell> <20030515151633.GA6128@suse.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1053118296.5599.27.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 16 May 2003 21:51:36 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Iau, 2003-05-15 at 16:16, Dave Jones wrote:
+> There are PCI ET4000's too.  Though if we can get the PCI IDs for those,
+> we can work around them with a quirk.  I have one *somewhere*, but it'll
+> take me a while to dig it out.
 
-I think moving the saved_context_* variables into suspend_asm.S broke
-the build if CONFIG_ACPI and CONFIG_SOFTWARE_SUSPEND. It looks like
-arch/i386/kernel/acpi/wakeup.S makes use of those, too.
-
-Could you fix this?
-
-Thanks -- Regards -- Andy
-
------------------------------
-Andrew Grover
-Intel Labs / Mobile Architecture
-andrew.grover@intel.com
+Some older SiS cards have problems too. I have a 6326 that doesn't work
+with sisfb (too old) and vesafb with mtrr fails.
 

@@ -1,73 +1,111 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311353AbSCLVqs>; Tue, 12 Mar 2002 16:46:48 -0500
+	id <S311351AbSCLVu0>; Tue, 12 Mar 2002 16:50:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311351AbSCLVqh>; Tue, 12 Mar 2002 16:46:37 -0500
-Received: from exchange.macrolink.com ([64.173.88.99]:11793 "EHLO
-	exchange.macrolink.com") by vger.kernel.org with ESMTP
-	id <S311352AbSCLVqR>; Tue, 12 Mar 2002 16:46:17 -0500
-Message-ID: <11E89240C407D311958800A0C9ACF7D13A76F4@EXCHANGE>
-From: Ed Vance <EdV@macrolink.com>
-To: "'alexisr'" <alexisr@host.alphalink.fr>
-Cc: "'linux-serial'" <linux-serial@vger.kernel.org>,
-        "'linux-kernel'" <linux-kernel@vger.kernel.org>
-Subject: RE: about the Oxford 16pci952
-Date: Tue, 12 Mar 2002 13:46:15 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S311354AbSCLVuH>; Tue, 12 Mar 2002 16:50:07 -0500
+Received: from mail12.speakeasy.net ([216.254.0.212]:42148 "EHLO
+	mail12.speakeasy.net") by vger.kernel.org with ESMTP
+	id <S311351AbSCLVtz>; Tue, 12 Mar 2002 16:49:55 -0500
+Subject: [PATCH]  Missing PPPoE patch from 2.4.19-pre3
+From: Michal Ostrowski <mostrows@speakeasy.net>
+To: Paul MacKerras <paulus@samba.org>, marcelo@conectiva.com.br,
+        skraw@ithnet.com, jojo.escubil@compass.com.ph
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <15502.27007.923468.211270@argo.ozlabs.ibm.com>
+In-Reply-To: <15502.27007.923468.211270@argo.ozlabs.ibm.com>
+Content-Type: multipart/mixed; boundary="=-3hjXR9g+U7LPsIxC21UZ"
+X-Mailer: Ximian Evolution 1.0.2.99 Preview Release
+Date: 12 Mar 2002 16:49:51 -0500
+Message-Id: <1015969792.12701.1588.camel@brick.watson.ibm.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue Mar 12, 2002, alexisr@host.alphalink.fr wrote:
+
+--=-3hjXR9g+U7LPsIxC21UZ
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
+Part of Paul MacKerras's PPP patches got dropped somewhere.
+
+Here's the missing part.
+
+Michal Ostrowski
+mostrows@speakeasy.net
+
+> ---------- Forwarded message ----------
+> Date: Mon, 11 Mar 2002 23:55:23 +0100
+> From: Stephan von Krawczynski <skraw@ithnet.com>
+> To: Marcelo Tosatti <marcelo@conectiva.com.br>
+> Cc: lkml <linux-kernel@vger.kernel.org>
+> Subject: Re: Linux 2.4.19-pre3
 > 
-> Is someone know howto change, in the serial sources, the frequency 
-> of the Oxford's oscillator that is set to 14,7456 Mhz
+> >                                                                     
+> > Hi,                                                                 
+> >                                                                     
+> > Here goes -pre3, with the new IDE code. It has been stable enough   
+> time in                                                               
+> > the -ac tree, in my and Alan's opinion.                             
+> >                                                                     
+> > The inclusion of the new IDE code makes me want to have a longer    
+> 2.4.19                                                                
+> > release cycle, for stress-testing reasons.                          
+> >                                                                     
+> > Please stress test it with huge amounts of data ;)                  
+>                                                                       
+> Would like to, but:                                                   
+>                                                                       
+> gcc -D__KERNEL__ -I/usr/src/linux-2.4.19-pre3/include -Wall           
+> -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer           
+> -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2   
+> -march=i686 -DMODULE  -DKBUILD_BASENAME=pppoe  -c -o pppoe.o pppoe.c  
+> pppoe.c: In function `pppoe_flush_dev':                               
+> pppoe.c:282: `PPPOX_ZOMBIE' undeclared (first use in this function)   
+> pppoe.c:282: (Each undeclared identifier is reported only once        
+> pppoe.c:282: for each function it appears in.)                        
+> pppoe.c: In function `pppoe_disc_rcv':                                
+> pppoe.c:446: `PPPOX_ZOMBIE' undeclared (first use in this function)   
+> pppoe.c: In function `pppoe_ioctl':                                   
+> pppoe.c:730: `PPPOX_ZOMBIE' undeclared (first use in this function)   
+> make[2]: *** [pppoe.o] Error 1                                        
+> make[2]: Leaving directory `/usr/src/linux-2.4.19-pre3/drivers/net'   
+> make[1]: *** [_modsubdir_net] Error 2                                 
+> make[1]: Leaving directory `/usr/src/linux-2.4.19-pre3/drivers'       
+> make: *** [_mod_drivers] Error 2                                      
+>                                                                       
+>                                                                       
+> Regards,                                                              
+> Stephan                                                               
+> 
 
-Assuming the rev 5.05 serial driver package on SourceForge (I think that's
-what you said you were using last time), in file serial.c at line 4341,
-change the 16PCI952 table entry from this:
 
-	{	PCI_VENDOR_ID_OXSEMI, PCI_DEVICE_ID_OXSEMI_16PCI952,
-		PCI_ANY_ID, PCI_ANY_ID,
-		SPCI_FL_BASE0 , 2, 115200 },
+--=-3hjXR9g+U7LPsIxC21UZ
+Content-Disposition: attachment; filename=pppoe.patch3
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/x-patch; charset=ISO-8859-1
 
-To this:
+diff -r -u linux.old/include/linux/if_pppox.h linux/include/linux/if_pppox.=
+h
+--- linux.old/include/linux/if_pppox.h	Thu Nov 22 14:47:14 2001
++++ linux/include/linux/if_pppox.h	Fri Jan 25 07:39:15 2002
+@@ -126,13 +126,14 @@
+ extern int pppox_channel_ioctl(struct ppp_channel *pc, unsigned int cmd,
+ 			       unsigned long arg);
+=20
+-/* PPPoE socket states */
++/* PPPoX socket states */
+ enum {
+     PPPOX_NONE		=3D 0,  /* initial state */
+     PPPOX_CONNECTED	=3D 1,  /* connection established =3D=3DTCP_ESTABLISHE=
+D */
+     PPPOX_BOUND		=3D 2,  /* bound to ppp device */
+     PPPOX_RELAY		=3D 4,  /* forwarding is enabled */
+-    PPPOX_DEAD		=3D 8
++    PPPOX_ZOMBIE	=3D 8,  /* dead, but still bound to ppp device */
++    PPPOX_DEAD		=3D 16  /* dead, useless, please clean me up!*/
+ };
+=20
+ extern struct ppp_channel_ops pppoe_chan_ops;
 
-	{	PCI_VENDOR_ID_OXSEMI, PCI_DEVICE_ID_OXSEMI_16PCI952,
-		PCI_ANY_ID, PCI_ANY_ID,
-		SPCI_FL_BASE0 | SPCI_FL_BASE_TABLE , 2, 921600 },
-
-The SPCI_FL_BASE_TABLE flag means that the second port is addressed by the
-next BAR instead of at a higher address in the first BAR. According to the
-data sheet, the OX16PCI952 has port 0 in BAR0 and port 1 in BAR1. (unlike
-the OX16C954, BTW) The 921600 base baud value is your oscillator rate
-divided by the default oversample rate, 16. 
-
-This is valid if the prescalar is not used. It is enabled by setting bit
-MCR[7] to 1. The MCR value is initialized to zero at line 1360. I looked
-through the driver for any code that would set bit MCR[7] and did not find
-any. That means the prescalar is not used, so the only scale factor on your
-oscillator rate would be the x16 oversample rate. 
-
-In file serial_compat.h at line 394, an incorrect PCI device ID is defined.
-Change this line:
-
-#define PCI_DEVICE_ID_OXSEMI_16PCI952	0x950A
-
-to this:
-
-#define PCI_DEVICE_ID_OXSEMI_16PCI952	0x9521
-
-Also check your kernel file /usr/src/linux/include/linux/pci_ids.h for this
-same define. If it is present, it must also be changed to 0x9521. 
-
-Good Luck.
-
-Best regards,
----------------------------------------------------------------- 
-Ed Vance              serial24@macrolink.com
-Macrolink, Inc.       1500 N. Kellogg Dr  Anaheim, CA  92807
-----------------------------------------------------------------
+--=-3hjXR9g+U7LPsIxC21UZ--
 

@@ -1,40 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261785AbUC0POH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Mar 2004 10:14:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261786AbUC0POH
+	id S261786AbUC0PRj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Mar 2004 10:17:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261792AbUC0PRj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Mar 2004 10:14:07 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:54442 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261785AbUC0POF (ORCPT
+	Sat, 27 Mar 2004 10:17:39 -0500
+Received: from waste.org ([209.173.204.2]:11490 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261786AbUC0PRi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Mar 2004 10:14:05 -0500
-Date: Sat, 27 Mar 2004 10:13:41 -0500
-From: Jakub Jelinek <jakub@redhat.com>
+	Sat, 27 Mar 2004 10:17:38 -0500
+Date: Sat, 27 Mar 2004 09:17:29 -0600
+From: Matt Mackall <mpm@selenic.com>
 To: Jamie Lokier <jamie@shareable.org>
-Cc: Daniel Forrest <forrest@lmcg.wisc.edu>, linux-kernel@vger.kernel.org
-Subject: Re: Somewhat OT: gcc, x86, -ffast-math, and Linux
-Message-ID: <20040327151341.GP31589@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-References: <200403262054.i2QKsV223748@rda07.lmcg.wisc.edu> <20040327142459.GF21884@mail.shareable.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 21/22] /dev/random: kill batching of entropy mixing
+Message-ID: <20040327151728.GA6248@waste.org>
+References: <21.524465763@selenic.com> <22.524465763@selenic.com> <20040327135245.GD21884@mail.shareable.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040327142459.GF21884@mail.shareable.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040327135245.GD21884@mail.shareable.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 27, 2004 at 02:24:59PM +0000, Jamie Lokier wrote:
-> GCC's manual claims that fsin, fcos and fsqrt instructions are only
-> used if the -funsafe-math-optimizations flag is also used, if the GCC
-> version is >= 2.6.1.  However you may find that Glibc's <math.h> ends
-> up using those instructions when -ffast-math is used alone.
+On Sat, Mar 27, 2004 at 01:52:45PM +0000, Jamie Lokier wrote:
+> Matt Mackall wrote:
+> > Rather than batching up entropy samples, resulting in longer lock hold
+> > times when we actually process the samples, mix in samples
+> > immediately. The trickle code should eliminate almost all the
+> > additional interrupt-time overhead this would otherwise incur, with or
+> > without locking.
+> 
+> What do you mean by "the trickle code"?  I didn't see anything in your
+> patch set which makes the interrupt-time overhead faster.
 
-Well, -ffast-math sets -funsafe-math-optimizations, unless you do
--ffast-math -fno-unsafe-math-optimizations, so the difference is not that
-big.  glibc math inlines will be eventually replaced by GCC builtins as soon
-as GCC is known to optimize at least as good as glibc's math inlines and so
-even that difference will cease to exist.
+This code which is in the existing driver to prevent pathological lock
+contention on large SMP:
 
-	Jakub
+        /* if over the trickle threshold, use only 1 in 4096 samples
+	*/
+        if ( input_pool.entropy_count > trickle_thresh &&
+             (__get_cpu_var(trickle_count)++ & 0xfff))
+                return;
+
+-- 
+Matt Mackall : http://www.selenic.com : Linux development and consulting

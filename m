@@ -1,60 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262753AbTIQNXh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Sep 2003 09:23:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262754AbTIQNXh
+	id S262755AbTIQNlv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Sep 2003 09:41:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262757AbTIQNlv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Sep 2003 09:23:37 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:39335 "EHLO
+	Wed, 17 Sep 2003 09:41:51 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:42151 "EHLO
 	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262753AbTIQNXf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Sep 2003 09:23:35 -0400
-Subject: Re: i810_audio bug (?)
+	id S262755AbTIQNlu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Sep 2003 09:41:50 -0400
+Subject: Re: Rik's list of CS challenges
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Reza Naima <reza@reza.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030917104237.GB21397@boom.net>
-References: <20030917104237.GB21397@boom.net>
+To: Terje Eggestad <terje.eggestad@scali.com>
+Cc: Rik van Riel <riel@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1063792350.2853.73.camel@pc-16.office.scali.no>
+References: <Pine.LNX.4.44.0309101540270.27932-100000@chimarrao.boston.redhat.com>
+	 <1063792350.2853.73.camel@pc-16.office.scali.no>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1063804925.12279.13.camel@dhcp23.swansea.linux.org.uk>
+Message-Id: <1063806002.12270.31.camel@dhcp23.swansea.linux.org.uk>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.4 (1.4.4-6) 
-Date: Wed, 17 Sep 2003 14:22:06 +0100
+Date: Wed, 17 Sep 2003 14:40:02 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2003-09-17 at 11:42, Reza Naima wrote:
-> 1) first, the original rate (32000) is converted to a new rate ..
-> 
-> 	rate = (rate * clocking)/48000
-> 
-> 	where clocking, in my case, is 48566. 
+On Mer, 2003-09-17 at 10:52, Terje Eggestad wrote:
+> What become more interesting is that while you may have NV RAM, it's not
+> likely that MRAM is viable on the processor chip. The manufacture
+> process may be too expensive, or outright impossible, (polymers on chips
+> that hold 80 degrees C in not likely), leaving you with volatile
+> register and cache but NV Main RAM. 
 
-We measure the bitrate of the codec, because a lot of them are clocked
-at odd frequencies not the official 48000 (I gather it saves parts). We
-then adjust the rate to get what should be the right one.
+We effectively handle that case now with the suspend-to-ram feature.
 
-> 3) This results in the value 31627 that I'm seeing.  Now, is this the
->    actual sample rate, or some internal value used to generate a 32000kbps
->    sample rate?  If so, is it perhaps a bug that dmabuf->rate is being
->    returned rather than newrate?
+> A merge of FS and RAM? (didn't the AS/400 have mmap'ed disks?)
 
-We take the rate you want, shift it for the 48Khz clock offset then ask
-the codec to do that rate. ac97_set_dac_rate returns the value the codec
-actually used (which may be quite different), and we then bend that back
-the other way for the clocking.
-
-So in your case it is going
-
-         I want 32000
-         I need to ask the codec for an adjusted value
-         Write codec
-         Read codec
-         Codec replies 32000 (ie it doesnt do a full range of clocking)
-         We realise it means you get 31627
-
-Btw - from my experience with video playback audio clocks are +/- 5%
-some of the time even when you ask for a rate it can do so software
-needs to be fairly adaptive to such things.
-
+Persistant storage systems. These tend to look very unlike Linux because
+they throw out the idea of a file system as such. The issues with
+debugging if they break and backups make my head hurt but other folk
+seem to think they are solved problems

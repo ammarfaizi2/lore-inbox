@@ -1,118 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262665AbVA0RQA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262675AbVA0R12@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262665AbVA0RQA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 12:16:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262677AbVA0RPE
+	id S262675AbVA0R12 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 12:27:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262679AbVA0RYw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 12:15:04 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:61663 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S262665AbVA0ROO convert rfc822-to-8bit
+	Thu, 27 Jan 2005 12:24:52 -0500
+Received: from relay1.tiscali.de ([62.26.116.129]:57085 "EHLO
+	webmail.tiscali.de") by vger.kernel.org with ESMTP id S262681AbVA0RYX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 12:14:14 -0500
-Subject: [PATCH 2/6] Handle -EILSEQ return code in the HID driver
-In-Reply-To: <1106846038373@twilight.ucw.cz>
-X-Mailer: gregkh_patchbomb_levon_offspring
-Date: Thu, 27 Jan 2005 18:13:58 +0100
-Message-Id: <11068460381254@twilight.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: torvalds@osdl.org, vojtech@ucw.cz, linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Vojtech Pavlik <vojtech@suse.cz>
+	Thu, 27 Jan 2005 12:24:23 -0500
+Message-ID: <41F93FE1.7080708@tiscali.de>
+Date: Thu, 27 Jan 2005 19:24:17 +0000
+From: Matthias-Christian Ott <matthias.christian@tiscali.de>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050108)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Chris Wedgwood <cw@f00f.org>
+CC: Steve Lord <lord@xfs.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Preempt & Xfs Question
+References: <41F91470.6040204@tiscali.de> <41F908C4.4080608@xfs.org> <20050127154017.GA12493@taniwha.stupidest.org> <41F9290E.1050209@tiscali.de> <20050127155338.GB12493@taniwha.stupidest.org> <41F931CD.5030401@tiscali.de> <20050127165145.GA13181@taniwha.stupidest.org>
+In-Reply-To: <20050127165145.GA13181@taniwha.stupidest.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You can pull this changeset from:
-	bk://kernel.bkbits.net/vojtech/for-linus
+Chris Wedgwood wrote:
 
-===================================================================
+>On Thu, Jan 27, 2005 at 06:24:13PM +0000, Matthias-Christian Ott wrote:
+>
+>  
+>
+>>Well calling such a internal function (__function) is not a cleaning
+>>coding style but works best :-) .
+>>    
+>>
+>
+>__foo does NOT mean it's an internal function necessarily or that it's
+>unclean to use it (sadly Linux has pretty vague (nothing consistent)
+>rules on how to interpret __foo versus foo really.
+>
+>  
+>
+>>Combined with the current_cpu() fixes I mentioned, it looks like
+>>this:
+>>    
+>>
+>
+>(1) your patch is mangled/wrapped
+>
+>(2) this is fixed in CVS already (for maybe a week or so now?)
+>
+>  
+>
+>>I'll submit it to the mailinglist as a seperate patch, so Linus can
+>>apply it to the current Kernel.
+>>    
+>>
+>
+>XFS patches/suggestions should go to linux-xfs@oss.sgi.com and the
+>maintainers there can comment as needed.
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
+Hi!
+I didn't know about the xfs development status. But it's good to hear 
+that it's already fixed. When will it be included to the Kernel?
 
-ChangeSet@1.1972, 2005-01-13 13:32:43+01:00, vojtech@suse.cz
-  input: Handle -EILSEQ return code in the HID driver completion
-         handlers as unplug.
-         Flush request queue on unplug, too.
-  
-  Signed-off-by: Vojtech Pavlik <vojtech@suse.cz>
+Matthias-Christian Ott
 
-
- hid-core.c |   23 ++++++++++++++++++-----
- 1 files changed, 18 insertions(+), 5 deletions(-)
-
-===================================================================
-
-diff -Nru a/drivers/usb/input/hid-core.c b/drivers/usb/input/hid-core.c
---- a/drivers/usb/input/hid-core.c	2005-01-27 17:48:07 +01:00
-+++ b/drivers/usb/input/hid-core.c	2005-01-27 17:48:07 +01:00
-@@ -925,8 +925,9 @@
- 			break;
- 		case -ECONNRESET:	/* unlink */
- 		case -ENOENT:
--		case -ESHUTDOWN:
- 		case -EPERM:
-+		case -ESHUTDOWN:	/* unplug */
-+		case -EILSEQ:		/* unplug timeout on uhci */
- 			return;
- 		case -ETIMEDOUT:	/* NAK */
- 			break;
-@@ -1136,12 +1137,15 @@
- {
- 	struct hid_device *hid = urb->context;
- 	unsigned long flags;
-+	int unplug = 0;
- 
- 	switch (urb->status) {
- 		case 0:			/* success */
-+		case -ESHUTDOWN:	/* unplug */
-+		case -EILSEQ:		/* unplug timeout on uhci */
-+			unplug = 1;
- 		case -ECONNRESET:	/* unlink */
- 		case -ENOENT:
--		case -ESHUTDOWN:
- 			break;
- 		default:		/* error */
- 			warn("output irq status %d received", urb->status);
-@@ -1149,7 +1153,10 @@
- 
- 	spin_lock_irqsave(&hid->outlock, flags);
- 
--	hid->outtail = (hid->outtail + 1) & (HID_OUTPUT_FIFO_SIZE - 1);
-+	if (unplug)
-+		hid->outtail = hid->outhead;
-+	else
-+		hid->outtail = (hid->outtail + 1) & (HID_OUTPUT_FIFO_SIZE - 1);
- 
- 	if (hid->outhead != hid->outtail) {
- 		if (hid_submit_out(hid)) {
-@@ -1173,6 +1180,7 @@
- {
- 	struct hid_device *hid = urb->context;
- 	unsigned long flags;
-+	int unplug = 0;
- 
- 	spin_lock_irqsave(&hid->ctrllock, flags);
- 
-@@ -1180,16 +1188,21 @@
- 		case 0:			/* success */
- 			if (hid->ctrl[hid->ctrltail].dir == USB_DIR_IN) 
- 				hid_input_report(hid->ctrl[hid->ctrltail].report->type, urb, regs);
-+		case -ESHUTDOWN:	/* unplug */
-+		case -EILSEQ:		/* unplug timectrl on uhci */
-+			unplug = 1;
- 		case -ECONNRESET:	/* unlink */
- 		case -ENOENT:
--		case -ESHUTDOWN:
- 		case -EPIPE:		/* report not available */
- 			break;
- 		default:		/* error */
- 			warn("ctrl urb status %d received", urb->status);
- 	}
- 
--	hid->ctrltail = (hid->ctrltail + 1) & (HID_CONTROL_FIFO_SIZE - 1);
-+	if (unplug)
-+		hid->ctrltail = hid->ctrlhead;
-+	else
-+		hid->ctrltail = (hid->ctrltail + 1) & (HID_CONTROL_FIFO_SIZE - 1);
- 
- 	if (hid->ctrlhead != hid->ctrltail) {
- 		if (hid_submit_ctrl(hid)) {
+-- 
+http://unixforge.org/~matthias-christian-ott/
 

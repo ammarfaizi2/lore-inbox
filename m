@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268985AbTCAR5V>; Sat, 1 Mar 2003 12:57:21 -0500
+	id <S268949AbTCARxm>; Sat, 1 Mar 2003 12:53:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268980AbTCAR5T>; Sat, 1 Mar 2003 12:57:19 -0500
-Received: from verein.lst.de ([212.34.181.86]:64779 "EHLO verein.lst.de")
-	by vger.kernel.org with ESMTP id <S268979AbTCAR5I>;
-	Sat, 1 Mar 2003 12:57:08 -0500
-Date: Sat, 1 Mar 2003 19:07:24 +0100
+	id <S268958AbTCARxm>; Sat, 1 Mar 2003 12:53:42 -0500
+Received: from verein.lst.de ([212.34.181.86]:61451 "EHLO verein.lst.de")
+	by vger.kernel.org with ESMTP id <S268949AbTCARxk>;
+	Sat, 1 Mar 2003 12:53:40 -0500
+Date: Sat, 1 Mar 2003 19:03:55 +0100
 From: Christoph Hellwig <hch@lst.de>
 To: torvalds@transmeta.com
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] remove DEVFS_FL_AUTO_DEVNUM
-Message-ID: <20030301190724.B1900@lst.de>
+Subject: [PATCH] die kdevname(), die!
+Message-ID: <20030301190355.A1900@lst.de>
 Mail-Followup-To: Christoph Hellwig <hch@lst.de>, torvalds@transmeta.com,
 	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
@@ -21,197 +21,127 @@ User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove the DEVFS_FL_AUTO_DEVNUM flag that makes devfs_register()
-allocate a dev_t for it's caller.
+Remove the three remaining uses of kdevname():
 
-Rationale:  while dynamic major/minors are a good idea, devfs is the
-wrong layer to do it because all code relying on it would break with
-out devfs.
+fs/locks.c:
+	use MAJOR/MINOR directly as userspace is stupid, this part of the
+	patch is from the maintainer of that piece of code, Matthew Wilcox.
+fs/intermezzo/sysctl.c:
+	printk removed as suggested by you, surrunding code is far from
+	beeing compilable anyway.
+fs/partitions/check.c:
+	replace with __bdevname
 
-There were three users (outside the SN1 IRIX compat layer that needs
-a large rewrite for 2.5/2.6 anyway):
-
-drivers/media/dvb/dvb-core/dvbdev.c:
-	only used under CONFIG_DVB_DEVFS_ONLY, which isn't exposed in
-	the kernel configurator, removed that code.
-drivers/media/radio/miropcm20-rds.c:
-	driver was devfs-only.  Add a miscdevice with dynamic minor
-	allocation.
+and the function plus it's two prototypes in the headers.
 
 
---- 1.12/Documentation/filesystems/devfs/README	Wed Aug 21 00:09:12 2002
-+++ edited/Documentation/filesystems/devfs/README	Sat Mar  1 11:17:22 2003
-@@ -1466,13 +1466,6 @@
- keep using the old major and minor numbers. Devfs will take whatever
- values are given for major&minor and pass them onto userspace.
- 
--Alternatively, you can have devfs choose unique device numbers for
--you. When you register a character or block device using
--devfs_register you can provide the optional
--DEVFS_FL_AUTO_DEVNUM flag, which will then automatically allocate a
--unique device number (the allocation is separated for the character
--and block devices).
+--- 1.14/fs/libfs.c	Tue Dec 31 20:18:35 2002
++++ edited/fs/libfs.c	Sat Mar  1 11:23:49 2003
+@@ -332,14 +332,3 @@
+ 	set_page_dirty(page);
+ 	return 0;
+ }
 -
- This device number is a 16 bit number, so this leaves plenty of space
- for large numbers of discs and partitions. This scheme can also be
- used for character devices, in particular the tty devices, which are
---- 1.3/drivers/media/dvb/dvb-core/dvbdev.c	Mon Nov 25 10:57:37 2002
-+++ edited/drivers/media/dvb/dvb-core/dvbdev.c	Sat Mar  1 11:57:26 2003
-@@ -21,8 +21,6 @@
-  *
-  */
- 
--/*#define CONFIG_DVB_DEVFS_ONLY 1*/
--
- #include <linux/config.h>
- #include <linux/version.h>
- #include <linux/module.h>
-@@ -56,18 +54,8 @@
- };
- 
- 
--#ifdef CONFIG_DVB_DEVFS_ONLY
--
--	#define DVB_MAX_IDS              ~0
--	#define nums2minor(num,type,id)  0
--	#define DVB_DEVFS_FLAGS          (DEVFS_FL_DEFAULT|DEVFS_FL_AUTO_DEVNUM)
--
--#else
--
--	#define DVB_MAX_IDS              4
--	#define nums2minor(num,type,id)  ((num << 6) | (id << 4) | type)
--	#define DVB_DEVFS_FLAGS          (DEVFS_FL_DEFAULT)
--
-+#define DVB_MAX_IDS              4
-+#define nums2minor(num,type,id)  ((num << 6) | (id << 4) | type)
- 
- static
- struct dvb_device* dvbdev_find_device (int minor)
-@@ -122,9 +110,6 @@
- 	.owner =	THIS_MODULE,
- 	.open =		dvb_device_open,
- };
--#endif /* CONFIG_DVB_DEVFS_ONLY */
--
--
- 
- int dvb_generic_open(struct inode *inode, struct file *file)
- {
-@@ -234,7 +219,7 @@
- 
- 	sprintf(name, "%s%d", dnames[type], id);
- 	dvbdev->devfs_handle = devfs_register(adap->devfs_handle, name,
--					      DVB_DEVFS_FLAGS,
-+					      DEVFS_FL_DEFAULT,
- 					      DVB_MAJOR,
- 					      nums2minor(adap->num, type, id),
- 					      S_IFCHR | S_IRUSR | S_IWUSR,
-===== drivers/media/radio/miropcm20-rds.c 1.6 vs edited =====
---- 1.6/drivers/media/radio/miropcm20-rds.c	Wed Jan  1 14:31:32 2003
-+++ edited/drivers/media/radio/miropcm20-rds.c	Sat Mar  1 11:16:45 2003
-@@ -12,8 +12,9 @@
- #include <linux/module.h>
- #include <linux/init.h>
- #include <linux/slab.h>
--#include <asm/uaccess.h>
-+#include <linux/miscdevice.h>
- #include <linux/devfs_fs_kernel.h>
-+#include <asm/uaccess.h>
- #include "miropcm20-rds-core.h"
- 
- static char * text_buffer;
-@@ -103,28 +104,39 @@
+-/*
+- * Print device name (in decimal, hexadecimal or symbolic)
+- * Note: returns pointer to static data!
+- */
+-const char * kdevname(kdev_t dev)
+-{
+-	static char buffer[32];
+-	sprintf(buffer, "%02x:%02x", major(dev), minor(dev));
+-	return buffer;
+-}
+--- 1.37/fs/locks.c	Thu Feb 13 12:25:01 2003
++++ edited/fs/locks.c	Sat Mar  1 11:22:36 2003
+@@ -1785,19 +1785,20 @@
+ 			       ? (fl->fl_type & F_UNLCK) ? "UNLCK" : "READ "
+ 			       : (fl->fl_type & F_WRLCK) ? "WRITE" : "READ ");
  	}
- }
- 
--static struct file_operations rds_f_ops = {
-+static struct file_operations rds_fops = {
- 	.owner		= THIS_MODULE,
- 	.read		= rds_f_read,
- 	.open		= rds_f_open,
- 	.release	= rds_f_release
- };
- 
-+static struct miscdevice rds_miscdev = {
-+	.minor		= MISC_DYNAMIC_MINOR,
-+	.name		= "radiotext"
-+	.fops		= &rds_fops,
-+};
- 
- static int __init miropcm20_rds_init(void)
- {
--	if (!devfs_register(NULL, "v4l/rds/radiotext", 
--				   DEVFS_FL_DEFAULT | DEVFS_FL_AUTO_DEVNUM,
--				   0, 0, S_IRUGO | S_IFCHR, &rds_f_ops, NULL))
--		return -EINVAL;
-+	int error;
- 
--	printk("miropcm20-rds: userinterface driver loaded.\n");
--	return 0;
-+	error = misc_register(&rds_miscdev);
-+	if (error)
-+		return error;
+-#if WE_CAN_BREAK_LSLK_NOW
+ 	if (inode) {
++#if WE_CAN_BREAK_LSLK_NOW
+ 		out += sprintf(out, "%d %s:%ld ", fl->fl_pid,
+ 				inode->i_sb->s_id, inode->i_ino);
++#else
++		/* userspace relies on this representation of dev_t ;-( */
++		out += sprintf(out, "%d %02x:%02x:%ld ", fl->fl_pid,
++				MAJOR(inode->i_sb->s_dev),
++				MINOR(inode->i_sb->s_dev), inode->i_ino);
++#endif
+ 	} else {
+ 		out += sprintf(out, "%d <none>:0 ", fl->fl_pid);
+ 	}
+-#else
+-	/* kdevname is a broken interface.  but we expose it to userspace */
+-	out += sprintf(out, "%d %s:%ld ", fl->fl_pid,
+-			inode ? kdevname(to_kdev_t(inode->i_sb->s_dev)) : "<none>",
+-			inode ? inode->i_ino : 0);
+-#endif
 +
-+	error = devfs_mk_symlink(NULL, "v4l/rds/radiotext", 0,
-+				 "../misc/radiotext", NULL, NULL);
-+	if (error)
-+		misc_deregister(&rds_miscdev)
-+
-+	return error;
- }
+ 	if (IS_POSIX(fl)) {
+ 		if (fl->fl_end == OFFSET_MAX)
+ 			out += sprintf(out, "%Ld EOF\n", fl->fl_start);
+--- 1.7/fs/intermezzo/sysctl.c	Fri Dec 13 20:27:19 2002
++++ edited/fs/intermezzo/sysctl.c	Sat Mar  1 11:22:55 2003
+@@ -175,9 +175,6 @@
+ 		if (errorval < 0) {
+ 			if (newval == 0)
+ 				set_device_ro(-errorval, 0);
+-			else
+-				CERROR("device %s already read only\n",
+-				       kdevname(-errorval));
+ 		} else {
+ 			if (newval < 0)
+ 				set_device_ro(-newval, 1);
+--- 1.95/fs/partitions/check.c	Tue Feb 11 02:22:51 2003
++++ edited/fs/partitions/check.c	Sat Mar  1 11:23:32 2003
+@@ -544,7 +544,6 @@
+ 	}
  
- static void __exit miropcm20_rds_cleanup(void)
+ 	dname = kmalloc(sizeof(*dname), GFP_KERNEL);
+-
+ 	if (!dname)
+ 		return nomem;
+ 	/*
+@@ -558,7 +557,7 @@
+ 		put_disk(hd);
+ 	}
+ 	if (!dname->name) {
+-		sprintf(dname->namebuf, "[dev %s]", kdevname(to_kdev_t(dev)));
++		sprintf(dname->namebuf, "[dev %s]", __bdevname(dev));
+ 		dname->name = dname->namebuf;
+ 	}
+ 
+--- 1.221/include/linux/fs.h	Tue Feb 25 11:21:08 2003
++++ edited/include/linux/fs.h	Sat Mar  1 11:24:06 2003
+@@ -1069,7 +1069,6 @@
+ extern void close_bdev_excl(struct block_device *, int);
+ 
+ extern const char * cdevname(kdev_t);
+-extern const char * kdevname(kdev_t);
+ extern void init_special_inode(struct inode *, umode_t, dev_t);
+ 
+ /* Invalid inode operations -- fs/bad_inode.c */
+--- 1.7/include/linux/kdev_t.h	Fri Nov  1 07:28:19 2002
++++ edited/include/linux/kdev_t.h	Sat Mar  1 11:24:02 2003
+@@ -101,8 +101,6 @@
+ #define NODEV		(mk_kdev(0,0))
+ #define B_FREE		(mk_kdev(0xff,0xff))
+ 
+-extern const char * kdevname(kdev_t);	/* note: returns pointer to static data! */
+-
+ static inline int kdev_same(kdev_t dev1, kdev_t dev2)
  {
- 	devfs_remove("v4l/rds/radiotext");
-+	misc_deregister(&rds_miscdev)
- }
- 
- module_init(miropcm20_rds_init);
---- 1.71/fs/devfs/base.c	Tue Feb 25 13:47:06 2003
-+++ edited/fs/devfs/base.c	Sat Mar  1 18:05:46 2003
-@@ -773,7 +773,6 @@
- {
-     struct block_device_operations *ops;
-     dev_t dev;
--    unsigned char autogen:1;
-     unsigned char removable:1;
- };
- 
-@@ -938,8 +937,6 @@
-     if ( S_ISLNK (de->mode) ) kfree (de->u.symlink.linkname);
-     if ( S_ISCHR (de->mode) && de->u.cdev.autogen )
- 	devfs_dealloc_devnum (de->mode, de->u.cdev.dev);
--    if ( S_ISBLK (de->mode) && de->u.bdev.autogen )
--	devfs_dealloc_devnum (de->mode, de->u.bdev.dev);
-     WRITE_ENTRY_MAGIC (de, 0);
- #ifdef CONFIG_DEVFS_DEBUG
-     spin_lock (&stat_lock);
-@@ -1494,17 +1491,6 @@
-     {
- 	PRINTK ("(%s): creating symlinks is not allowed\n", name);
- 	return NULL;
--    }
--    if ( ( S_ISCHR (mode) || S_ISBLK (mode) ) &&
--	 (flags & DEVFS_FL_AUTO_DEVNUM) )
--    {
--	devnum = devfs_alloc_devnum (mode);
--	if (!devnum) {
--	    PRINTK ("(%s): exhausted %s device numbers\n",
--		    name, S_ISCHR (mode) ? "char" : "block");
--	    return NULL;
--	}
--	dev = devnum;
-     }
-     if ( ( de = _devfs_prepare_leaf (&dir, name, mode) ) == NULL )
-     {
---- 1.28/include/linux/devfs_fs_kernel.h	Wed Jan 15 15:56:40 2003
-+++ edited/include/linux/devfs_fs_kernel.h	Sat Mar  1 11:43:44 2003
-@@ -13,8 +13,6 @@
- 
- #define DEVFS_FL_NONE           0x000 /* This helps to make code more readable
- 				       */
--#define DEVFS_FL_AUTO_DEVNUM    0x002 /* Automatically generate device number
--				       */
- #define DEVFS_FL_REMOVABLE      0x008 /* This is a removable media device    */
- #define DEVFS_FL_WAIT           0x010 /* Wait for devfsd to finish           */
- #define DEVFS_FL_CURRENT_OWNER  0x020 /* Set initial ownership to current    */
+ 	return dev1.value == dev2.value;
+--- 1.184/kernel/ksyms.c	Tue Feb 18 21:58:45 2003
++++ edited/kernel/ksyms.c	Sat Mar  1 11:23:54 2003
+@@ -517,7 +517,6 @@
+ EXPORT_SYMBOL(vsprintf);
+ EXPORT_SYMBOL(vsnprintf);
+ EXPORT_SYMBOL(vsscanf);
+-EXPORT_SYMBOL(kdevname);
+ EXPORT_SYMBOL(__bdevname);
+ EXPORT_SYMBOL(cdevname);
+ EXPORT_SYMBOL(simple_strtoull);
+	

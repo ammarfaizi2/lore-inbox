@@ -1,73 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131560AbRAQKPt>; Wed, 17 Jan 2001 05:15:49 -0500
+	id <S129873AbRAQKUT>; Wed, 17 Jan 2001 05:20:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132816AbRAQKPn>; Wed, 17 Jan 2001 05:15:43 -0500
-Received: from slc70.modem.xmission.com ([166.70.9.70]:55309 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S132782AbRAQKPc>; Wed, 17 Jan 2001 05:15:32 -0500
-To: Anton Blanchard <anton@linuxcare.com.au>
-Cc: Ralf Baechle <ralf@uni-koblenz.de>, linux-kernel@vger.kernel.org,
-        linux-mm@frodo.biederman.org
-Subject: Re: Caches, page coloring, virtual indexed caches, and more
-In-Reply-To: <Pine.LNX.4.10.10101101100001.4457-100000@penguin.transmeta.com> <E14GR38-0000nM-00@the-village.bc.nu> <20010111005657.B2243@khan.acc.umu.se> <20010112035620.B1254@bacchus.dhis.org> <m17l40hhtd.fsf@frodo.biederman.org> <20010115005315.D1656@bacchus.dhis.org> <m1snmlfbrx.fsf_-_@frodo.biederman.org> <20010115095432.A14351@bacchus.dhis.org> <20010115235340.B31461@linuxcare.com> <m1itnfg7rk.fsf@frodo.biederman.org> <20010117154301.B7525@linuxcare.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 17 Jan 2001 01:35:56 -0700
-In-Reply-To: Anton Blanchard's message of "Wed, 17 Jan 2001 15:43:01 +1100"
-Message-ID: <m1ae8qfudv.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
+	id <S131001AbRAQKUJ>; Wed, 17 Jan 2001 05:20:09 -0500
+Received: from [24.65.192.120] ([24.65.192.120]:52974 "EHLO webber.adilger.net")
+	by vger.kernel.org with ESMTP id <S131399AbRAQKUA>;
+	Wed, 17 Jan 2001 05:20:00 -0500
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200101171019.f0HAJSM04596@webber.adilger.net>
+Subject: Re: Linux not adhering to BIOS Drive boot order?
+In-Reply-To: <3A656C09.4A40BBF5@mandrakesoft.com> "from Jeff Garzik at Jan 17,
+ 2001 04:55:21 am"
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Date: Wed, 17 Jan 2001 03:19:28 -0700 (MST)
+CC: David Woodhouse <dwmw2@infradead.org>,
+        Andreas Dilger <adilger@turbolinux.com>,
+        Venkatesh Ramamurthy <Venkateshr@ami.com>,
+        "'Bryan Henderson'" <hbryan@us.ibm.com>, linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL73 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Blanchard <anton@linuxcare.com.au> writes:
-
-> Hi,
->  
-> > Where do you do this?  And how do you handle the case of aliases with kseg,
-> > the giant kernel mapping.
+Jeff writes:
+> David Woodhouse wrote:
+> > 
+> > adilger@turbolinux.com said:
+> > >  One reason why this may NOT ever make it into the kernel is that I
+> > > know "kernel poking at devices" is really frowned upon.
+> > 
+> > A possible alternative is to specify drives by serial number.
 > 
-> Aliases between user and kernel mappings of a page are handled by
-> flush_page_to_ram the old interface) or {copy,clear}_user_page,
-> flush_dcache_page and update_mmu_cache (new interface). Sparc64 already
-> uses the new interface and there are patches for ppc and ia64 to use it.
-> 
-> The new interface allows flushes to be avoided, leading to rather nice
-> performance increases.
-> 
-> See Documentation/cachetlb.txt for more info.
+> Currently mount(8) supports mounting by '-L <label>' and '-U <UUID>'. 
+> Most modern mke2fs proggies will assign a UUID to each newly created
+> filesystem.  For /etc/fstab, you can specify LABEL=xxx or UUID=xxx
+> instead of a device name.
 
-Thanks,
+> The one thing I don't know is... can the kernel mount the root fs if
+> only given the uuid?
 
-Well they are a step in the right direction....
-But they are still racy, especially on SMP.
+You missed the context.  I was referring to the 2.2.5? patch that allowed
+you to do exactly that - specify a kernel parameter "root=UUID:foo" or
+"root=LABEL:bar".  I've re-worked it and will post after testing a bit.
+My only hesitation was that kernel probing is frowned upon.  When UUID/LABEL
+support for devfs came up at the Miami Linux Storage Workshop, it was
+given the thumbs down.
 
-The bad case is:
-Process A in kernel space calls flush_dcache_page.
-Then process B in a separate thread writes to the first word in a
-cache line. The Process A writes to the last word in the cache line. 
+If I get a chance I will also fix LILO to allow UUID/LABEL for root as well.
 
-Assuming the virtual addresses from Process A and Process B are of a
-different color this gives two non overlapping writes with a well
-defined meaning, which the kernel gets wrong.  In particular the ram
-will only see one write or the other not both.
-
-What it looks like to me is that SHMLBA needs to be extended to normal
-mmapings, making all pages in user space
-(page->index << PAGE_SHIFT) % SHMLBA 
-virtually aligned.
-
-And whenever we access a page in the page cache that is not
-appropriately virtually aligned in the fixed kernel mapping, 
-we can use the kmap infrastructure to map it to a better kernel
-location.  If we reuse the same optimizations from flush_dcache_page
-it shouldn't be any worse, and in the pathological cases it will be
-faster.   While removing the races seen above.
-
-Any thoughts?
-
-Eric
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,79 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264194AbTCXNJm>; Mon, 24 Mar 2003 08:09:42 -0500
+	id <S264190AbTCXNDY>; Mon, 24 Mar 2003 08:03:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264199AbTCXNJm>; Mon, 24 Mar 2003 08:09:42 -0500
-Received: from paris.xisl.com ([193.112.238.192]:11935 "EHLO paris.xisl.com")
-	by vger.kernel.org with ESMTP id <S264194AbTCXNJe>;
-	Mon, 24 Mar 2003 08:09:34 -0500
-Message-ID: <3E7F0625.2080406@xisl.com>
-Date: Mon, 24 Mar 2003 13:20:37 +0000
-From: John M Collins <jmc@xisl.com>
-Organization: Xi Software Ltd
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20021120 Netscape/7.01
-X-Accept-Language: en-us, en-gb
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Query about SIS963 Bridges
-References: <3E7E43C3.2080605@xisl.com>	 <1048467041.10727.100.camel@irongate.swansea.linux.org.uk>	 <3E7EABB0.9010505@xisl.com> <1048514988.25140.11.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S264191AbTCXNDX>; Mon, 24 Mar 2003 08:03:23 -0500
+Received: from chii.cinet.co.jp ([61.197.228.217]:19840 "EHLO
+	yuzuki.cinet.co.jp") by vger.kernel.org with ESMTP
+	id <S264190AbTCXNDU>; Mon, 24 Mar 2003 08:03:20 -0500
+Date: Mon, 24 Mar 2003 22:13:31 +0900
+From: Osamu Tomita <tomita@cinet.co.jp>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [PATCH 2.5.65-ac4] Complete support for PC-9800 sub-arch (8/9) PCMCIA
+Message-ID: <20030324131331.GH2508@yuzuki.cinet.co.jp>
+References: <20030324130025.GA2465@yuzuki.cinet.co.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030324130025.GA2465@yuzuki.cinet.co.jp>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+This is the patch to support NEC PC-9800 subarchitecture
+against 2.5.65-ac4. (8/9)
 
->Can you try
->
->	lspci -vxx -H1 -M
->
->and see if thats different
->  
->
-Here's the output
+Small change for PCMCIA (16bits) support.
+For fix usable IRQ number.
 
-00:00.0 Host bridge: Silicon Integrated Systems [SiS]: Unknown device 
-0648 (rev 02)
-        Subsystem: Asustek Computer, Inc.: Unknown device 8086
-        Flags: bus master, medium devsel, latency 32
-        Memory at d0000000 (32-bit, non-prefetchable)
-        Capabilities: [c0] AGP version 3.0
-00: 39 10 48 06 07 00 10 22 02 00 00 06 00 20 80 00
-10: 00 00 00 d0 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 43 10 86 80
-30: 00 00 00 00 c0 00 00 00 00 00 00 00 00 00 00 00
+Regards,
+Osamu Tomita
 
-00:01.0 PCI bridge: Silicon Integrated Systems [SiS] 5591/5592 AGP 
-(prog-if 00 [Normal decode])
-        Flags: bus master, fast devsel, latency 0
-        Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
-        Memory behind bridge: cf000000-cfffffff
-        Prefetchable memory behind bridge: eff00000-febfffff
-00: 39 10 01 00 07 00 00 00 00 00 04 06 00 00 01 00
-10: 00 00 00 00 00 00 00 00 00 01 01 00 e0 d0 00 20
-20: 00 cf f0 cf f0 ef b0 fe 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 08 00
-
-## 00.01:0 is a bridge from 00 to 01-01        {ONLY DIFFERENT LINE}
-00:02.0 ISA bridge: Silicon Integrated Systems [SiS]: Unknown device 
-0963 (rev 04)
-        Flags: bus master, medium devsel, latency 0
-00: 39 10 63 09 0f 00 00 02 04 00 01 06 00 00 80 00
-10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-And at the end we get:
-
-Summary of buses:
-
-00: Primary host bus
-        01.0 Bridge to 01-01
-01: Entered via 00:01.0
-
--- 
-John Collins Xi Software Ltd www.xisl.com
-
-
-
+diff -Nru linux-2.5.62-ac1/drivers/pcmcia/i82365.c linux98-2.5.62-ac1/drivers/pcmcia/i82365.c
+--- linux-2.5.62-ac1/drivers/pcmcia/i82365.c	2003-02-18 07:56:55.000000000 +0900
++++ linux98-2.5.62-ac1/drivers/pcmcia/i82365.c	2003-02-21 11:14:30.000000000 +0900
+@@ -188,7 +188,11 @@
+ };
+ 
+ /* Default ISA interrupt mask */
++#ifndef CONFIG_X86_PC9800
+ #define I365_MASK	0xdeb8	/* irq 15,14,12,11,10,9,7,5,4,3 */
++#else
++#define I365_MASK	0xd668	/* irq 15,14,12,10,9,6,5,3 */
++#endif
+ 
+ #ifdef CONFIG_ISA
+ static int grab_irq;

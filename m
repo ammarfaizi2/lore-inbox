@@ -1,82 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266481AbUIOPhV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266485AbUIOPii@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266481AbUIOPhV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 11:37:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266485AbUIOPhV
+	id S266485AbUIOPii (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 11:38:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266486AbUIOPih
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 11:37:21 -0400
-Received: from pauli.thundrix.ch ([213.239.201.101]:64722 "EHLO
-	pauli.thundrix.ch") by vger.kernel.org with ESMTP id S266481AbUIOPg6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 11:36:58 -0400
-Date: Wed, 15 Sep 2004 17:35:28 +0200
-From: Tonnerre <tonnerre@thundrix.ch>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.8.1/x86] The kernel is _always_ compiled with -msoft-float
-Message-ID: <20040915153528.GE24818@thundrix.ch>
-References: <20040915021418.A1621@natasha.ward.six>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="0H629O+sVkh21xTi"
-Content-Disposition: inline
-In-Reply-To: <20040915021418.A1621@natasha.ward.six>
-X-GPG-KeyID: 0x8BE1C38D
-X-GPG-Fingerprint: 1AB0 9AD6 D0C8 B9D5 C5C9  9C2A FF86 CBEE 8BE1 C38D
-X-GPG-KeyURL: http://users.thundrix.ch/~tonnerre/tonnerre.asc
-User-Agent: Mutt/1.5.6+20040803i
+	Wed, 15 Sep 2004 11:38:37 -0400
+Received: from mail.tmr.com ([216.238.38.203]:42000 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S266485AbUIOPi3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 11:38:29 -0400
+Date: Wed, 15 Sep 2004 11:31:25 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Tigran Aivazian <tigran@veritas.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Latest microcode data from Intel.
+In-Reply-To: <Pine.LNX.4.44.0409101641220.1294-100000@einstein.homenet>
+Message-ID: <Pine.LNX.3.96.1040915111445.10950I-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 10 Sep 2004, Tigran Aivazian wrote:
 
---0H629O+sVkh21xTi
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> On Fri, 10 Sep 2004, Bill Davidsen wrote:
+> 
+> > Tigran Aivazian wrote:
+> > > Hello,
+> > > 
+> > > I have received and tested the latest microcode data file from Intel, The
+> > > file is dated 2nd September 2004. You can download it both as standalone
+> > > (bzip2-ed) text file and bundled with microcode_ctl utility from the
+> > > Download section of the website:
+> > > 
+> > > http://urbanmyth.org/microcode/
+> > > 
+> > > Please let me know if you find any problems with this data file or with
+> > > the Linux microcode driver. Thank you.
+> > 
+> > Why are you using /dev/cpu/microcode instead of /dev/cpu/N/microcode for 
+> > each CPU? Today they are all the same device, but for the future I would 
+> > think this was an obvious CYA.
+> 
+> I have two questions:
+> 
+> 1. What does "CYA" mean?
 
-Salut,
+Cover Your Ass - or more politely, plan for likely future changes if there
+isn't a high cost doing so.
+> 
+> 2. How do you know which device nodes exist on my workstation?
 
-On Wed, Sep 15, 2004 at 02:14:18AM +0600, Denis Zaitsev wrote:
-> Why this kernel is always compiled with the FP emulation for x86?
-> This is the line from the beginning of arch/i386/Makefile:
->=20
-> CFLAGS +=3D -pipe -msoft-float
->=20
-> And it's hardcoded, it does not depend on CONFIG_MATH_EMULATION.  So,
-> is this just a typo or not?
+I don't need to... the stat() call will tell me. If a /dev/cpu/0/microcode
+exists it is more likely to be the correct loader for CPU0 than some
+generic loader. Obviously if the user provides a name use it.
+> 
+> Actually, I am using /dev/cpu/0/microcode as the device node (entry point
+> into the microcode driver) because that is what is in the distribution I
+> am running (old Red Hat).
 
-The problem  is that  the kernel can't  use the  FPU. I think  this is
-because  its context  is  not  saved on  context  switch (userland  ->
-kernel),  so  we'd end  up  messing up  the  FPU  state, and  userland
-applications  would get  silly results  for calculations  with context
-switches in between.
+That's exactly why I mentioned using the per-cpu device if present. While
+having CPUs with different loaders is not a feature today, I wouldn't bet
+that will always be true. We know that AMD expects to ship dual core CPUs
+in an Opteron form factor. If I have a dual opteron system and replace one
+CPU with dual core, will I need a different loader? I have no idea, but
+since it's easy to use the per-CPU microcode I would.
 
-Thus  we force gcc  to use  the library  functions for  floating point
-arith, and  since we  don't link  against gcc's lib,  FPU users  get a
-fancy linker error.
+> 
+> The microcode_ctl utility had a hardcoded default "/dev/cpu/microcode" and 
+> there is no real reason to change it because different distributions 
+> prefer a different value, so how to decide who is "right"?
 
-If  you want to  use floating  point arith  inside the  kernel, you're
-probably wrong wanting it. If you really need it, you can
+The obvious seems to be to see if the per-CPU device is present, and use
+it if possible. I can't believe that it would be (by design) less correct
+than the generic device.
+> 
+> Also, there is no obvious reason why the future has to be in any way
+> different from the present (or the past :)
 
-a) emulate it using fixed-point math on unsigned long or
-b) manually save the FPU state, load your operations into it, operate,
-   get the results and restore the FPU state.
+Your distro and mine already have per-CPU microcode, that's the present.
+Lots of people just compile and run, that's the present. It's easy to
+check for /dev/cpu/N/micorcode first, then /dev/cpu/microcode, I think
+that's the future. I just like having code try a little harder to do the
+right thing, Linux should be easy.
 
-I have yet to see someone  who really needs to do floating point maths
-inside the kernel.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 
-			    Tonnerre
-
---0H629O+sVkh21xTi
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.9.2 (GNU/Linux)
-
-iD8DBQFBSGE//4bL7ovhw40RAjQ+AJ95LaxvepvOXyLz4fXlulAhR6nBkACeM3I8
-J7B0uYaFsdEnXNnyDGSSQIs=
-=MI0z
------END PGP SIGNATURE-----
-
---0H629O+sVkh21xTi--

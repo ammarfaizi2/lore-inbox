@@ -1,57 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266091AbRGDRPS>; Wed, 4 Jul 2001 13:15:18 -0400
+	id <S266097AbRGDRTI>; Wed, 4 Jul 2001 13:19:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266089AbRGDRPI>; Wed, 4 Jul 2001 13:15:08 -0400
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:880 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S266091AbRGDROy>; Wed, 4 Jul 2001 13:14:54 -0400
-Date: Wed, 4 Jul 2001 18:14:52 +0100
-From: Tim Waugh <twaugh@redhat.com>
-To: John Weber <weber@nyc.rr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linus vs. AC kernels
-Message-ID: <20010704181452.L5254@redhat.com>
-In-Reply-To: <3B434B1A.1070809@nyc.rr.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="x4r6DwZcugHrY484"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3B434B1A.1070809@nyc.rr.com>; from weber@nyc.rr.com on Wed, Jul 04, 2001 at 12:58:02PM -0400
+	id <S266093AbRGDRS7>; Wed, 4 Jul 2001 13:18:59 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:262 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S266096AbRGDRSr>; Wed, 4 Jul 2001 13:18:47 -0400
+Date: Wed, 4 Jul 2001 10:05:00 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Dave J Woolley <david.woolley@bts.co.uk>, <andrew.grover@intel.com>,
+        <jgarzik@mandrakesoft.com>, <linux-kernel@vger.kernel.org>,
+        <acpi@phobos.fachschaften.tu-muenchen.de>
+Subject: Re: [Acpi] Re: ACPI fundamental locking problems
+In-Reply-To: <E15HkR1-0000lb-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0107040956310.1668-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---x4r6DwZcugHrY484
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Wed, 4 Jul 2001, Alan Cox wrote:
+>
+> > I argued this at the very beginning, but there was a very strong
+> > view that you needed to run most of the code before you had a user
+> > space to run it in.  I've not followed things closely enough to
+>
+> That bit is clearly untrue.
 
-On Wed, Jul 04, 2001 at 12:58:02PM -0400, John Weber wrote:
+It's untrue only in the sense of "it is technically possible to do it",
+but it _is_ true that right now it's not very convenient to set up an easy
+initrd system.
 
-> Is there any way to find out up to what ac# level has been merged with=20
-> the current kernel releases (including the pre kernels)?
+We migth want to just make initrd a built-in thing in the kernel,
+something that you simply cannot avoid. A lot of these things (ie dhcp for
+NFS root etc) are right now done in kernel space, simply because we don't
+want to depend on initrd, and people want to use old loaders.
 
-You can get a diff between two arbitrary patches against the same
-thing using interdiff from patchutils.  For example:
+I don't like the current initrd very much myself, I have to admit. I'm not
+going to accept a "you have to have a ramdisk" approach - I think the
+ramdisks are really broken.
 
-interdiff -h <(bzcat patch-2.4.6-pre5) <(bzcat patch-2.4.5-ac24.bz2)
+But I've seen a "populate ramfs from a tar-file built into 'bzImage'"
+patch somewhere, and that would be a whole lot more palatable to me.
 
-Tim.
-*/
+If anybody were to send me a patch that just unconditionally does this, I
+would probably not be adverse to putting it into 2.5.x. We have all the
+infrastructure to make all this a lot cleaner than it used to be (ie the
+"pivot_root()" stuff etc means that we can _truly_ do things from user
+mode, with no magic kernel flags).
 
---x4r6DwZcugHrY484
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+But if we do this, then we should _truly_ get rid of all the root device
+etc setup crap (and the "search for init" etc stuff - it _is_ going to be
+there, and THAT process is the one that should then search for the real
+init once it has booted).
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+That, together with reasonable interfaces to let ACPI set irq data for the
+kernel etc, might make moving ACPI back into user space possible in
+_practice_ and not just in theory.
 
-iD8DBQE7Q08MONXnILZ4yVIRApFvAJ4lRJqN9hClhltwe/pM/ntjXkKpVACfdIQR
-Uj66pz9Yvz+4UsFv1XFn1iw=
-=Oj0G
------END PGP SIGNATURE-----
+		Linus
 
---x4r6DwZcugHrY484--

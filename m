@@ -1,59 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268083AbUIPOSb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268086AbUIPOUr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268083AbUIPOSb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 10:18:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268086AbUIPOSb
+	id S268086AbUIPOUr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 10:20:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268090AbUIPOUr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 10:18:31 -0400
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:59859 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S268083AbUIPOSX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 10:18:23 -0400
-Subject: Re: get_current is __pure__, maybe __const__ even
-From: Albert Cahalan <albert@users.sf.net>
-To: Andi Kleen <ak@muc.de>
-Cc: Albert Cahalan <albert@users.sourceforge.net>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <m3llfaya29.fsf@averell.firstfloor.org>
-References: <2ER4z-46B-17@gated-at.bofh.it>
-	 <m3llfaya29.fsf@averell.firstfloor.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1095344098.3866.1396.camel@cube>
+	Thu, 16 Sep 2004 10:20:47 -0400
+Received: from holomorphy.com ([207.189.100.168]:46500 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S268086AbUIPOU0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 10:20:26 -0400
+Date: Thu, 16 Sep 2004 07:20:18 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc2-mm1
+Message-ID: <20040916142018.GS9106@holomorphy.com>
+References: <20040916024020.0c88586d.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 16 Sep 2004 10:14:58 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040916024020.0c88586d.akpm@osdl.org>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-09-16 at 02:58, Andi Kleen wrote:
-> Albert Cahalan <albert@users.sf.net> writes:
-> 
-> > Andi Kleen writes:
-> >
-> >> Please CSE "current" manually. It generates
-> >> much better code on some architectures
-> >> because the compiler cannot do it for you.
-> >
-> > This looks fixable.
-> 
-> I tried it some years ago, but I ran into problems with the scheduler
-> and some other code and dropped it.
+On Thu, Sep 16, 2004 at 02:40:20AM -0700, Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc2/2.6.9-rc2-mm1/
+> - Added lots of Ingo's low-latency patches
+> - Lockmeter doesn't compile.  Don't enable CONFIG_LOCKMETER.
+> - Several architecture updates
 
-Right now, I'm thinking the switch_to assembly
-has bad asm constraints.
-
-I count 8 items passed in or out of the asm.
-I count 11 clobbers. You don't have 19 registers.
-
-If you pass something in and then destroy it,
-you're supposed to use a dummy output. Look at
-the i386 version, where esi and edi are dummy
-outputs for this reason.
-
-I recall seeing i386 compilers complain about
-clobbered inputs. I guess the x86-64 gcc needs
-to have this warning added?
+Please remove include/asm-sh64/smp_lock.h; they missed the smp_lock.h
+consolidation while sitting out-of-tree and/or in the process of
+forward porting to 2.6
 
 
+-- wli

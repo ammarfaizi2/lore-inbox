@@ -1,69 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264901AbTK3NYP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Nov 2003 08:24:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264907AbTK3NYP
+	id S261500AbTK3Nfe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Nov 2003 08:35:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263787AbTK3Nfe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Nov 2003 08:24:15 -0500
-Received: from dbl.q-ag.de ([80.146.160.66]:56729 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S264901AbTK3NX7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Nov 2003 08:23:59 -0500
-Message-ID: <3FC9EF65.8040807@colorfullife.com>
-Date: Sun, 30 Nov 2003 14:23:49 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031030
-X-Accept-Language: en-us, en
+	Sun, 30 Nov 2003 08:35:34 -0500
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:9702 "EHLO
+	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
+	id S261500AbTK3Nfc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Nov 2003 08:35:32 -0500
+Date: Sun, 30 Nov 2003 14:35:27 +0100 (MET)
+From: Sebastiaan <S.Breedveld@ewi.tudelft.nl>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+cc: S.Breedveld@ewi.tudelft.nl, <linux-kernel@vger.kernel.org>
+Subject: Re: PowerMac floppy (SWIM-3) doesn't compile
+In-Reply-To: <200311301125.hAUBPRC4029084@harpo.it.uu.se>
+Message-ID: <Pine.GHP.4.44.0311301430150.29980-100000@elektron.its.tudelft.nl>
 MIME-Version: 1.0
-To: "john smith" <john.smith77@gmx.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Kernel modul licensing issues
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John wrote:
+Hi,
 
->I have some licensing issues with the linux GPL and the implications
->on a project which incorporates partial non-GPL code which I want
->to release as linux kernel module.
->  
->
-Wrong mailing list.
-You must find a lawyer, and he'll answer your questions.
+On Sun, 30 Nov 2003, Mikael Pettersson wrote:
 
->I have implemented a proprietary algorithm in user space which I'm not
->allowed to release under the GPL. From a _technical_ point of view I
->could compile the code as kernel module which offers a certain API.
->Note that the kernel module would have only very limited dependency
->on the kernel, i.e. apart from memory allocation functions (kmalloc,
->kfree, vmalloc, vfree) and potentially some "locks" (spinlock, big
->reader lock or rcu) the code is totally independent from the kernel.
+> On Sun, 30 Nov 2003 10:19:07 +0100 (MET), Sebastiaan <S.Breedveld@ewi.tudelft.nl> wrote:
+> >I am trying to build the 2.6.0-test11 kernel for my PowerMac 7300/166, but
+> >the floppy controller doesn't want to compile. I have:
 >
-RCU is a patented algorithm - mention that to your lawyer. Your creation 
-must not be derived from the kernel (because creating derived works is 
-an exclusive right of the copyright owner, and you don't have and won't 
-get a permission), and it must not infringe the RCU patents.
+> Known problem. Has been reported several times, but the PPC
+> maintainers haven't bothered merging the fix yet.
+>
+> I'm using the patch below since the 2.5.7x kernels.
+> (Paul Mackerras' 2.4 swim3 rework forward-ported to 2.5 by me.)
+> There's also an "official" powermac tree somewhere which
+> includes some swim3 patch, but I don't know if it's the same
+> as this one.
+>
+Thanks, the patch works fine :).
 
->As far as the interaction with the algorithm API is concerned the
->frontend submits kernel data structures to the algorithm module _but_ 
->since the algorithm has no declaration of kernel structures it does
->neither use nor modify the kernel data. It's just stored and returned
->to the user via certain API functions.
+> As for the boot problem you reported, please try a newer gcc
+> like 3.2.3 or 3.3.2. I had lots of wierd problems with 2.95.3
+> and the 2.4 kernels on ppc before I switched to gcc-3.x.x.
 >
-You have written an algorithm module that is tightly coupled to the 
-Linux kernel, and you think it's not derived from the kernel, correct? 
-As a non-lawyer, it'd say that's wrong.
-"Derived work" is a legal term, your lawyer might be able to figure out 
-if your combination is a derived work.
-The drivers that are more or less accepted as not-derived run on 
-multiple operating systems - e.g. the nvidia ethernet driver uses the 
-same source code for Windows and Linux, and nvlib.o works on Linux and 
-FreeBSD.
+I have upgraded to 3.3.2 but the problem remains.
+
+Thanks,
+Sebastiaan
+
 
 --
-    Manfred
-P.S.: You might need a team of lawyers: the definition of derived work 
-differs from country to country.
+
+English written by Dutch people is easily recognized by the improper use of 'In principle ...'
+
+The software box said 'Requires Windows 95 or better', so I installed Linux.
+
+Als Pacman in de jaren '80 de kinderen zo had be?nvloed zouden nu veel jongeren rondrennen
+in donkere zalen terwijl ze pillen eten en luisteren naar monotone electronische muziek.
+(Kristian Wilson, Nintendo, 1989)
+
 

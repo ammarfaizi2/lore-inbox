@@ -1,51 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265289AbTLGA45 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Dec 2003 19:56:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265291AbTLGA45
+	id S265279AbTLGAzk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Dec 2003 19:55:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265280AbTLGAzk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Dec 2003 19:56:57 -0500
-Received: from relay01.uchicago.edu ([128.135.12.136]:40424 "EHLO
-	relay01.uchicago.edu") by vger.kernel.org with ESMTP
-	id S265289AbTLGA4z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Dec 2003 19:56:55 -0500
-Date: Sat, 6 Dec 2003 18:56:54 -0600 (CST)
-From: Ryan Reich <ryanr@uchicago.edu>
-Reply-To: Ryan Reich <ryanr@uchicago.edu>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.23-ck1 w/grsec patch build fails
-Message-ID: <Pine.LNX.4.58.0312061854450.9348@ryanr.localdomain>
+	Sat, 6 Dec 2003 19:55:40 -0500
+Received: from turing.informatik.Uni-Halle.DE ([141.48.9.50]:3802 "EHLO
+	turing.informatik.uni-halle.de") by vger.kernel.org with ESMTP
+	id S265279AbTLGAzi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Dec 2003 19:55:38 -0500
+Message-ID: <3FD27A88.2050802@abeckmann.de>
+Date: Sun, 07 Dec 2003 01:55:36 +0100
+From: Andreas Beckmann <sparclinux@abeckmann.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6] spelling: "Unix 98" -> "Unix98"
+Content-Type: multipart/mixed;
+ boundary="------------050603090300010703050301"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I get the following linking error when I build this:
+This is a multi-part message in MIME format.
+--------------050603090300010703050301
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-ld -m elf_i386 -T /usr/src/structural/system/linux-2.4.23/arch/i386/vmlinux.lds
--e stext arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o
-init/version.o init/do_mounts.o \
-        --start-group \
-        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o
-fs/fs.o ipc/ipc.o \
-         drivers/acpi/acpi.o drivers/char/char.o drivers/block/block.o
-drivers/misc/misc.o drivers/net/net.o drivers/char/drm/drm.o
-drivers/ide/idedriver.o drivers/scsi/scsidrv.o drivers/ieee1394/ieee1394drv.o
-drivers/cdrom/driver.o drivers/sound/sounddrivers.o drivers/pci/driver.o
-drivers/video/video.o drivers/usb/usbdrv.o drivers/media/media.o crypto/crypto.o
-\
-        net/network.o \
-        grsecurity/grsec.o \
-        /usr/src/structural/system/linux-2.4.23/arch/i386/lib/lib.a
-/usr/src/structural/system/linux-2.4.23/lib/lib.a
-/usr/src/structural/system/linux-2.4.23/arch/i386/lib/lib.a \
-        --end-group \
-        -o vmlinux
-grsecurity/grsec.o: In function `gr_acl_handle_psacct':
-grsecurity/grsec.o(.text+0xfc80): undefined reference to `__udivdi3'
-make: *** [vmlinux] Error 1
+"Unix98" is spelled as "Unix 98" at two locations: the Kconfig files for 
+the architectures sparc64 and sh.
+My patch changes these to be "Unix98" like everywhere else.
+The defconfig files for these architectures could be regenerated to 
+match these changes.
 
-I have the grsec-fix patch also, not that it should matter since it only changes
-one line in the chroot module.  Compiler is gcc-3.2.1.
 
-Ryan Reich
+Andreas
+Please CC: me in your replies.
+
+--------------050603090300010703050301
+Content-Type: text/plain;
+ name="2.6_spelling_Unix98.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="2.6_spelling_Unix98.diff"
+
+--- linux-2.6.0-test11/arch/sparc64/Kconfig.orig	2003-11-26 21:45:28.000000000 +0100
++++ linux-2.6.0-test11/arch/sparc64/Kconfig	2003-12-07 01:45:01.000000000 +0100
+@@ -655,7 +655,7 @@
+ 
+ # This one must be before the filesystem configs. -DaveM
+ 
+-menu "Unix 98 PTY support"
++menu "Unix98 PTY support"
+ 
+ config UNIX98_PTYS
+ 	bool "Unix98 PTY support"
+--- linux-2.6.0-test11/arch/sh/Kconfig.orig	2003-11-26 21:45:53.000000000 +0100
++++ linux-2.6.0-test11/arch/sh/Kconfig	2003-12-07 01:48:35.000000000 +0100
+@@ -887,7 +887,7 @@
+ 
+ 	  If unsure, say N.
+ 
+-comment "Unix 98 PTY support"
++comment "Unix98 PTY support"
+ 
+ config UNIX98_PTYS
+ 	bool "Unix98 PTY support"
+
+--------------050603090300010703050301--
+

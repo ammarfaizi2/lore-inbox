@@ -1,73 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268892AbUH3TnS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268847AbUH3TpZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268892AbUH3TnS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 15:43:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268847AbUH3TnR
+	id S268847AbUH3TpZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 15:45:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268883AbUH3TpY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 15:43:17 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:521 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S268882AbUH3Tlu
+	Mon, 30 Aug 2004 15:45:24 -0400
+Received: from ppp-62-11-78-150.dialup.tiscali.it ([62.11.78.150]:60545 "EHLO
+	zion.localdomain") by vger.kernel.org with ESMTP id S268847AbUH3TpS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 15:41:50 -0400
-Date: Mon, 30 Aug 2004 21:43:35 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: linux-kernel@vger.kernel.org
-Subject: kbuild: Update help text
-Message-ID: <20040830194335.GD18518@mars.ravnborg.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20040830193915.GA18518@mars.ravnborg.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040830193915.GA18518@mars.ravnborg.org>
-User-Agent: Mutt/1.5.6i
+	Mon, 30 Aug 2004 15:45:18 -0400
+Subject: [patch 3/3] uml-remove-LDFLAGS_BLOB
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, blaisorblade_spam@yahoo.it
+From: blaisorblade_spam@yahoo.it
+Date: Mon, 30 Aug 2004 16:10:53 +0200
+Message-Id: <20040830141053.4DBB7529B@zion.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2004/08/30 21:23:24+02:00 sam@mars.ravnborg.org 
-#   kbuild: Add stactic analyser tools to make help
-#   
-#   Added the tools that seems to be maintained.
-#   There is a bunch that has not been touched for a while - ignore them for now.
-#   
-#   Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-# 
-# Makefile
-#   2004/08/30 21:23:05+02:00 sam@mars.ravnborg.org +9 -3
-#   Updated help and use $(srctree) as replacement for $(src)
-# 
-diff -Nru a/Makefile b/Makefile
---- a/Makefile	2004-08-30 21:26:19 +02:00
-+++ b/Makefile	2004-08-30 21:26:20 +02:00
-@@ -963,7 +963,13 @@
- 	@echo  '  rpm		  - Build a kernel as an RPM package'
- 	@echo  '  tags/TAGS	  - Generate tags file for editors'
- 	@echo  '  cscope	  - Generate cscope index'
-+	@echo  ''
-+	@echo  'Static analysers'
-+	@echo  '  buildcheck      - List dangling references to vmlinux discarded sections'
-+	@echo  '                    and init sections from non-init sections'
- 	@echo  '  checkstack      - Generate a list of stack hogs'
-+	@echo  '  namespacecheck  - Name space analysis on compiled kernel'
-+	@echo  ''
- 	@echo  'Kernel packaging:'
- 	@$(MAKE) -f $(package-dir)/Makefile help
- 	@echo  ''
-@@ -1123,11 +1129,11 @@
- 		| xargs $(PERL) -w scripts/checkversion.pl
+
+LDFLAGS_BLOB is now unused, so remove it from UML.
+
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
+---
+
+ uml-linux-2.6.8.1-paolo/arch/um/Makefile-i386 |    1 -
+ 1 files changed, 1 deletion(-)
+
+diff -puN arch/um/Makefile-i386~uml-remove-LDFLAGS_BLOB arch/um/Makefile-i386
+--- uml-linux-2.6.8.1/arch/um/Makefile-i386~uml-remove-LDFLAGS_BLOB	2004-08-29 14:40:58.781275664 +0200
++++ uml-linux-2.6.8.1-paolo/arch/um/Makefile-i386	2004-08-29 14:40:58.783275360 +0200
+@@ -20,7 +20,6 @@ ELF_ARCH = $(SUBARCH)
+ ELF_FORMAT = elf32-$(SUBARCH)
  
- buildcheck:
--	$(PERL) $(src)/scripts/reference_discarded.pl
--	$(PERL) $(src)/scripts/reference_init.pl
-+	$(PERL) $(srctree)/scripts/reference_discarded.pl
-+	$(PERL) $(srctree)/scripts/reference_init.pl
+ OBJCOPYFLAGS  := -O binary -R .note -R .comment -S
+-LDFLAGS_BLOB	:= --format binary --oformat elf32-i386
  
- namespacecheck:
--	$(PERL) $(src)/scripts/namespace.pl
-+	$(PERL) $(srctree)/scripts/namespace.pl
- 
- endif #ifeq ($(config-targets),1)
- endif #ifeq ($(mixed-targets),1)
+ SYS_DIR		:= $(ARCH_DIR)/include/sysdep-i386
+ SYS_UTIL_DIR	:= $(ARCH_DIR)/sys-i386/util
+_

@@ -1,36 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262690AbREOJBl>; Tue, 15 May 2001 05:01:41 -0400
+	id <S262692AbREOJFb>; Tue, 15 May 2001 05:05:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262692AbREOJBb>; Tue, 15 May 2001 05:01:31 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:26126 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262690AbREOJBP>; Tue, 15 May 2001 05:01:15 -0400
-Subject: Re: LANANA: To Pending Device Number Registrants
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Tue, 15 May 2001 09:57:24 +0100 (BST)
-Cc: neilb@cse.unsw.edu.au (Neil Brown), jgarzik@mandrakesoft.com (Jeff Garzik),
-        alan@lxorguk.ukuu.org.uk (Alan Cox),
-        hpa@transmeta.com (H. Peter Anvin),
-        linux-kernel@vger.kernel.org (Linux Kernel Mailing List),
-        viro@math.psu.edu
-In-Reply-To: <Pine.LNX.4.21.0105142332550.23955-100000@penguin.transmeta.com> from "Linus Torvalds" at May 14, 2001 11:41:15 PM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14zadw-0002DZ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S262693AbREOJFV>; Tue, 15 May 2001 05:05:21 -0400
+Received: from gnu.in-berlin.de ([192.109.42.4]:4113 "EHLO gnu.in-berlin.de")
+	by vger.kernel.org with ESMTP id <S262692AbREOJFL>;
+	Tue, 15 May 2001 05:05:11 -0400
+X-Envelope-From: news@bytesex.org
+To: linux-kernel@vger.kernel.org
+Path: kraxel
+From: Gerd Knorr <kraxel@bytesex.org>
+Newsgroups: lists.linux.kernel
+Subject: Re: mmap
+Date: 15 May 2001 07:33:12 GMT
+Organization: [x] network byte order
+Message-ID: <slrn9g1mto.74g.kraxel@bytesex.org>
+In-Reply-To: <CA256A4D.00256728.00@d73mta05.au.ibm.com>
+NNTP-Posting-Host: localhost
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Trace: bytesex.org 989911992 7324 127.0.0.1 (15 May 2001 07:33:12 GMT)
+User-Agent: slrn/0.9.7.0 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The fact that it already exists, and has existed for 5+ years, but that
-> nobody really uses it?
-> 
-> Nobody really uses it because it would require you to add a line or two to
-> your init scripts to pick up the major number from /proc/devices, and
-> that's obviously too hard. Much better to just hardcode randome numbers,
-> right?
+mdaljeet@in.ibm.com wrote:
+>  I am doing the following:
+>  
+>     malloc some memory is user space
+>     pass its pointer to some kernel module
+>     in the kernel module...do a pci_alloc_consistent so that i get a memory
+>     region for PCI DMA operations
 
-modprobe ?
+Wrong approach, you can use kiobufs if you want DMA to the malloc()ed
+userspace memory:
 
+ * lock down the user memory using map_user_kiobuf() + lock_kiovec()
+   (see linux/iobuf.h).
+ * translate the iobuf->maplist into a scatterlist [1]
+ * feed pci_map_sg() with the scatterlist to get DMA addresses.
+   you can pass to the hardware.
+
+And the reverse to free everything when you are done of course.
+
+  Gerd
+
+[1] IMHO it would be more useful if iobufs would use a scatterlist
+    instead of an struct page* array.
+
+
+-- 
+Gerd Knorr <kraxel@bytesex.org>  --  SuSE Labs, Auﬂenstelle Berlin

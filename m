@@ -1,83 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264496AbTLQSSE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Dec 2003 13:18:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264501AbTLQSSD
+	id S264515AbTLQSeX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Dec 2003 13:34:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264518AbTLQSeX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Dec 2003 13:18:03 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:44511 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S264496AbTLQSRn convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Dec 2003 13:17:43 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Stekloff <dsteklof@us.ibm.com>
-To: azarah@gentoo.org,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-Subject: Re: scsi_id segfault with udev-009
-Date: Wed, 17 Dec 2003 10:17:28 -0800
-User-Agent: KMail/1.4.1
-Cc: Greg KH <greg@kroah.com>
-References: <1071682198.5067.17.camel@nosferatu.lan>
-In-Reply-To: <1071682198.5067.17.camel@nosferatu.lan>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200312171017.28358.dsteklof@us.ibm.com>
+	Wed, 17 Dec 2003 13:34:23 -0500
+Received: from mail.kroah.org ([65.200.24.183]:13198 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264515AbTLQSeR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Dec 2003 13:34:17 -0500
+Date: Wed, 17 Dec 2003 10:34:06 -0800
+From: Greg KH <greg@kroah.com>
+To: Adam Kropelin <akropel1@rochester.rr.com>
+Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] udev-009: Allow build with empty EXTRAS
+Message-ID: <20031217183406.GH6487@kroah.com>
+References: <20031216220406.A23608@mail.kroptech.com> <20031217083100.GA2126@kroah.com> <20031217111114.A3931@mail.kroptech.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031217111114.A3931@mail.kroptech.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 17 December 2003 09:29 am, Martin Schlemmer wrote:
-> Hi
->
-> Getting this with scsi_id and udev-009:
+On Wed, Dec 17, 2003 at 11:11:14AM -0500, Adam Kropelin wrote:
+> On Wed, Dec 17, 2003 at 12:31:00AM -0800, Greg KH wrote:
+> > On Tue, Dec 16, 2003 at 10:04:06PM -0500, Adam Kropelin wrote:
+> > > Need to let the shell expand $EXTRAS so it can properly detect an empty
+> > > list. Without this patch, the build fails whenever $EXTRAS is empty.
+> > 
+> > $ export EXTRAS=
+> > $ make
+> > $ set | grep EXTRA
+> > EXTRAS=
+> > $ 
+> > 
+> > I can't duplicate this problem at all.  Someone else once reported it on
+> > the linux-hotplug-devel list, with much the same fix up patch, but later
+> > said they couldn't reproduce it either.
+> > 
+> > What version of make are you using?
+> 
+> It's actually the version of bash that's important. Prior to 2.05a, bash
+> was unable to handle for loops with empty words lists. From the
+> bash-2.05a changelog:
+> 
+> 	p.  `for' loops now allow empty word lists after `in', like the 
+> 	    latest POSIX drafts require.
+> 
+> So bash-2.05 dies on...
+> 
+> 	for test in ; do echo $test ; done
+> 
+> ...while bash-2.05a accepts it just fine.
+> 
+> Both versions can handle this case if the shell itself does the
+> expansion that results in the empty list. So that's where my workaround
+> came from.
 
+Ah, ok, thanks for the explaination.  I've applied this patch.
 
-Hi,
-
-Scsi_id hasn't been changed to use the latest libsysfs changes. The 
-"directory" in the sysfs_class_device is now considered "private" and only 
-should be accessed using functions. Treating the structures as handles lets 
-us only load information when it's needed, reducing caching or stale 
-information and also helping performance. 
-
-Here's the problem.
-
-static inline char *sysfs_get_attr(struct sysfs_class_device *dev,
-                                    const char *attr)
-{
-        return sysfs_get_value_from_attributes(dev->directory->attributes,
-                                               attr);
-}
-
-Please try this quick fix:
-
---- udev/extras/scsi_id/scsi_id.h	2003-12-08 01:42:46.000000000 -0800
-+++ udev-fix/extras/scsi_id/scsi_id.h	2003-12-17 09:52:31.032184768 -0800
-@@ -42,8 +42,14 @@
- static inline char *sysfs_get_attr(struct sysfs_class_device *dev,
- 				    const char *attr)
- {
--	return sysfs_get_value_from_attributes(dev->directory->attributes,
--					       attr);
-+	struct dlist *attributes = NULL;
-+
-+	attributes = sysfs_get_classdev_attributes(dev);
-+
-+	if (attributes == NULL)
-+		return NULL;
-+
-+	return sysfs_get_value_from_attributes(attributes, attr);
- }
- 
- extern int scsi_get_serial (struct sysfs_class_device *scsi_dev,
---- udev/extras/scsi_id/scsi_id.c	2003-12-08 01:42:46.000000000 -0800
-+++ udev-fix/extras/scsi_id/scsi_id.c	2003-12-17 09:55:54.113311744 -0800
-@@ -133,7 +133,7 @@
- 		return -1;
- 
- 	snprintf(bus_dev_name, MAX_NAME_LEN, "%s/%s/%s/%s/%s", sysfs_mnt_path,
--		 SYSFS_BUS_DIR, bus, SYSFS_DEVICES_NAME, bus_id);
-+		 SYSFS_BUS_NAME, bus, SYSFS_DEVICES_NAME, bus_id);
- 
- 	if (stat(sysfs_path, &stat_buf))
- 		return -1;
-
+greg k-h

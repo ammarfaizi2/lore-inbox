@@ -1,79 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313384AbSDJR6Z>; Wed, 10 Apr 2002 13:58:25 -0400
+	id <S313415AbSDJSHP>; Wed, 10 Apr 2002 14:07:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313392AbSDJR6Y>; Wed, 10 Apr 2002 13:58:24 -0400
-Received: from air-2.osdl.org ([65.201.151.6]:46347 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S313384AbSDJR6Y>;
-	Wed, 10 Apr 2002 13:58:24 -0400
-Subject: Re: Faster reboots (and a better way of taking crashdumps?)
-From: Andy Pfiffer <andyp@osdl.org>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: suparna@in.ibm.com, "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <m1y9fvlfyb.fsf@frodo.biederman.org>
-Content-Type: text/plain
+	id <S313425AbSDJSHO>; Wed, 10 Apr 2002 14:07:14 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:5648 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S313415AbSDJSHN>;
+	Wed, 10 Apr 2002 14:07:13 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200204101807.g3AI79Q46938@saturn.cs.uml.edu>
+Subject: Re: implementing soft-updates
+To: kubla@sciobyte.de (Dominik Kubla)
+Date: Wed, 10 Apr 2002 14:07:09 -0400 (EDT)
+Cc: acahalan@cs.uml.edu (Albert D. Cahalan),
+        alexis@cecm.usp.br (Alexis S. L. Carvalho),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20020410092807.GA4015@duron.intern.kubla.de> from "Dominik Kubla" at Apr 10, 2002 11:28:07 AM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 10 Apr 2002 10:58:42 -0700
-Message-Id: <1018461522.4453.212.camel@andyp>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-04-10 at 08:40, Eric W. Biederman wrote:
+Dominik Kubla writes:
+> On Tue, Apr 09, 2002 at 08:41:28PM -0400, Albert D. Cahalan wrote:
 
-> Unless I missed something the Linux kernel won't work on smp though.
-> It is a matter of resetting the state of the apics, and ensuring you
-> are running on the first processor.  I don't believe bootimg did/does that.
-> 
+>> While ext2 fsck doesn't guarantee anything, in practice it is far
+>> more reliable than ufs fsck. If you change the algorithms to be
+>> like those used by BSD, then you may lose some of the ability to
+>> recover. Remember, fsck isn't just for power failures. It tries
+>> to piece together a filesystem that has suffered disk corruption
+>> caused by attackers, kernel bugs, fdisk screwups, MS-DOS writing
+>> past the end of a partition, Windows NT Disk Manager, viruses,
+>> disk head crashes, and every other cause you can imagine. If you
+>> change fsck to make BSD-style assumptions about write ordering,
+>> you weaken the ability to deal with disasters.
+>
+> I disagree. In fact the current BSD softupdate code guarantees that all
+> that ever happens is that freed blocks are not entered into the free
+> block list. Something fsck can fix in background on a life system. See
+> M. Kirk McKusicks BSDcon 02 paper 'Running fsck in background.'
 
-The copy of bootimg that I have makes no effort to offline CPU's or
-reset the APICs.  If there is a newer version, I could not find it.
+Two cases:
 
-I have tried 3 different solutions for for Linux-reloading-linux
-(bootimg, two-kernel monte, and kexec), and none of them fully support
-the kinds of enterprise-class systems we (OSDL) care about:
+a. proper shutdown -- somewhat OK to never fsck
+b. unclean shutdown -- may involve kernel crashing
 
-	1. multiprocessor x86 (p3, p4, +xeons) with APICs
-	2. >4GB memory
-	3. CPU hotplug
-	4. device hotplug
-	5. >= 2.5.x kernel
+So with an unclean filesystem, _any_ avoidance of fsck is
+suspect. I have a UPS; when my system boots on an unclean
+filesystem it's because XFree86 thought it could run a
+hardware driver in userspace.
 
-In fact, I have yet to find any variation of linux-loading-linux that
-works at all on the 2-way P4-Xeon under my desk or the 8-way P3-Xeon in
-the lab.  The only system I have ever seen Two Kernel Monte work on here
-is a Celeron-based machine in a nearby cube.
+Journalling gives you a nice list of recently-touched data
+structures to examine. The phase-tree algorithm can support
+low-cost incremental checksumming of the whole filesystem.
+Soft-updates leave you with... well, is prayer any good?
+You'd better run fsck at boot, which AFAIK is exactly what
+is done; you even say "not include [...] background fsck".
 
-Why do we care about this?  Rebooting these kinds of sytsems can take
-several minutes, and in my sample of the systems in the lab, ~80% of the
-reboot time is spent slogging through the platform's firmware, ~20% of
-the time is spent between LILO and login:.  80% of several minutes is
-often greater than the allowable annual downtime for some enterprise
-systems.
+> The fact that the BSD FFS in it's currently released version (which does
+> not include snapshot and background fsck capability) is considered to be
+> one of the more reliable file systems around, even when softupdates are
+> enabled, speaks for itself. So please just as you don't want horror
+> stories about Linux ext2 spread: don't do it yourself.
 
-What about LinxuBIOS?  While an attractive solution for many, it is a
-long, uphill battle to add support for chipset after chipset, and
-motherboard after motherboard.
-
-The >4GB of memory problem is an interesting quirk -- if the
-linux-loading-linux implementation assumes that it can perform the final
-copy in 32-bit protected mode *without* paging enabled, it won't
-reliably work on >4GB systems.
-
-> In general yes.  There are some interesting side effects though.
-> Going through the pci bus and shutting off bus masters is a good
-> first approximation of what needs to happen.
-> 
-
-The new device model from Pat (mochel@osdl.org) is probably the best way
-to go here; you'll be able to walk the driver tree and reliably turn off
-devices.
-
-For the CPU side of things, the CPU hotplug work looks promising as
-well.
-
-Andy
-
-
+I'm just tired of this: "Back when I used to use Linux 2.1.44 my
+disks were trashed so bad that I lost everything! So use BSD."
+Last time I checked, BSD fsck didn't have a set of regression tests
+like ext2 fsck does. On the BSD mailing lists you can read about
+fsck getting signal 11. So it's not God's Glorious Filesystem by
+any means.

@@ -1,56 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262014AbSI3K6R>; Mon, 30 Sep 2002 06:58:17 -0400
+	id <S262018AbSI3LCV>; Mon, 30 Sep 2002 07:02:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262016AbSI3K6R>; Mon, 30 Sep 2002 06:58:17 -0400
-Received: from c0202001.roe.itnq.net ([217.112.132.110]:4480 "EHLO
-	thinkpad.objectsecurity.cz") by vger.kernel.org with ESMTP
-	id <S262014AbSI3K6Q>; Mon, 30 Sep 2002 06:58:16 -0400
-Date: Mon, 30 Sep 2002 13:03:19 +0200 (CEST)
-From: Karel Gardas <kgardas@objectsecurity.com>
-X-X-Sender: karel@thinkpad.objectsecurity.cz
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] apm resume hangs on IBM T22 with 2.4.19 (harddrive sleeps
- forever)
-In-Reply-To: <20020925225230.0028639b.sfr@canb.auug.org.au>
-Message-ID: <Pine.LNX.4.43.0209301300200.462-100000@thinkpad.objectsecurity.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262016AbSI3LCV>; Mon, 30 Sep 2002 07:02:21 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:19353 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S262015AbSI3LCU>; Mon, 30 Sep 2002 07:02:20 -0400
+Date: Mon, 30 Sep 2002 16:43:14 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.5.39-mm1 fixes 1/3
+Message-ID: <20020930164314.A27121@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 25 Sep 2002, Stephen Rothwell wrote:
+Hi Andrew,
 
-> On Wed, 25 Sep 2002 12:58:11 +0200 (CEST) Karel Gardas <kgardas@objectsecurity.com> wrote:
-> >
-> > I have problem with resume from suspend on IBM T22 with kernel 2.4.19
-> > patched with rmap-14a and usagi-20020916. Actually the problem is that OS
-> > resume well from suspend (it prints some messages to console for example
-> > from FW droping some packets), but harddisc is still sleeping and never
-> > wake up...
->
-> I have a T22 and run 2.4.20-pre5 and 2.4.19-pre8 with no patches and
-> have no problems resuming from suspend.
+rcu_ltimer was used mostly for performance measurements and wasn't
+completely preemption friendly. With this fix (against 2.5.39-mm1), 
+it should be now.
 
-But you don't have clean 2.4.19.
+Thanks
+-- 
+Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
+Linux Technology Center, IBM Software Lab, Bangalore, India.
 
-[...]
 
-> All I can suggest is that you try 2.4.19 without any patches, then with
-> the rmap patch and then with only the USAGI patch and see if that makes
-> any difference.
-
-I've done it right now and it seems 2.4.19 w/o any patch is broken for me.
-i.e. it behaves the same wrong way and hd is sleeping forevere after apm
-resume...
-
-Anything what should I test now?
-
-Thanks a lot,
-
-Karel
---
-Karel Gardas                  kgardas@objectsecurity.com
-ObjectSecurity Ltd.           http://www.objectsecurity.com
-
+--- kernel/rcupdate.c.orig	Mon Sep 30 13:55:15 2002
++++ kernel/rcupdate.c	Mon Sep 30 13:55:29 2002
+@@ -60,12 +60,13 @@
+  */
+ void call_rcu(struct rcu_head *head, void (*func)(void *arg), void *arg)
+ {
+-	int cpu = smp_processor_id();
++	int cpu;
+ 	unsigned long flags;
+ 
+ 	head->func = func;
+ 	head->arg = arg;
+ 	local_irq_save(flags);
++	cpu = smp_processor_id();
+ 	list_add_tail(&head->list, &RCU_nxtlist(cpu));
+ 	local_irq_restore(flags);
+ }

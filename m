@@ -1,51 +1,241 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265970AbUFDUJA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265964AbUFDUOx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265970AbUFDUJA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 16:09:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265971AbUFDUJA
+	id S265964AbUFDUOx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 16:14:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265974AbUFDUOv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 16:09:00 -0400
-Received: from mail.kroah.org ([65.200.24.183]:45034 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265970AbUFDUIq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 16:08:46 -0400
-Date: Fri, 4 Jun 2004 13:07:48 -0700
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org,
-       "David A. Desrosiers" <desrod@gnu-designs.com>,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: USBDEVFS_RESET deadlocks USB bus.
-Message-ID: <20040604200748.GA12855@kroah.com>
-References: <20040604193911.GA3261@babylon.d2dc.net> <20040604195247.GA12688@kroah.com> <20040604200211.GB3261@babylon.d2dc.net>
+	Fri, 4 Jun 2004 16:14:51 -0400
+Received: from zcamail04.zca.compaq.com ([161.114.32.104]:15622 "EHLO
+	zcamail04.zca.compaq.com") by vger.kernel.org with ESMTP
+	id S265964AbUFDUOU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jun 2004 16:14:20 -0400
+Date: Wed, 2 Jun 2004 15:13:26 -0500
+From: mikem@beardog.cca.cpqcorp.net
+To: akpm@osdl.org, axboe@suse.de
+Cc: linux-kernel@vger.kernel.org
+Subject: cciss update for 2.6.7-rc1
+Message-ID: <20040602201326.GA1346@beardog.cca.cpqcorp.net>
+Reply-To: mike.miller@hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040604200211.GB3261@babylon.d2dc.net>
-User-Agent: Mutt/1.5.6i
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 04, 2004 at 04:02:11PM -0400, Zephaniah E. Hull wrote:
-> 
-> lt-pilot-xfer D 00000000     0 11415   2709                     (NOTLB)
-> d2ad3eb0 00000086 c022391a 00000000 3231203a 000a2e35 00000001 d2ad3ea7
->        d4edd000 d7fc8a00 c8449790 00000000 abb31900 000f447a c4bae4b8 c977d824
->        00000246 d2ad2000 d2ad3eec c0336735 c977d82c c4bae310 00000001 c4bae310
-> Call Trace:
->  [<c0336735>] __down+0x85/0x120
->  [<c033692f>] __down_failed+0xb/0x14
->  [<c026af27>] .text.lock.hub+0x69/0x82
->  [<c0272b7f>] usbdev_ioctl+0x19f/0x710
->  [<c015a45d>] file_ioctl+0x5d/0x170
->  [<c015a686>] sys_ioctl+0x116/0x250
->  [<c0103f8f>] syscall_call+0x7/0xb
-> 
-> This is on 2.6.7-rc2-mm1.
+I was having problems with my mailer. Not sure if this made it or not. Sorry for any duplication.
 
-Ah, can you not try the -mm1 kernel?  This problem should not be in the
-mainline kernel.  There was a locking issue in the last bk-usb patch
-that made it into the -mm1 kernel that was fixed yesterday.
+This patch provides a conversion routine for 32-bit user space apps that call into a 64-bit kernel on x86_64 architectures. This is required for the HP Array Configuration utility and the HP management agents. Without this patch the apps will not function. The 2 ioctls affected are the cciss pass thru ioctls.
+Caveat: it spits out 2 warnings during compilation. I've tried everything I can think of to clean them up, but...
+If anyone has any helpful suggestions I'm all ears.
 
-thanks,
+Code by Stephen Cameron
+Tested by Stephen Cameron & Mike Miller
 
-greg k-h
+Please consider this for inclusion.
+
+Thanks,
+mikem
+--------------------------------------------------------------------------------
+ drivers/block/cciss.c       |  136 ++++++++++++++++++++++++++++++++++++++++++++ include/linux/cciss_ioctl.h |   28 +++++++++
+ 2 files changed, 164 insertions(+)
+
+diff -burpN lx267-rc1.orig/drivers/block/cciss.c lx267-rc1/drivers/block/cciss.c
+--- lx267-rc1.orig/drivers/block/cciss.c	2004-05-09 21:33:20.000000000 -0500
++++ lx267-rc1/drivers/block/cciss.c	2004-05-28 10:34:17.000000000 -0500
+@@ -451,6 +451,140 @@ static int cciss_release(struct inode *i
+ 	return 0;
+ }
+ 
++#ifdef __x86_64__
++/* for AMD 64 bit kernel compatibility with 32-bit userland ioctls */
++#include <linux/syscalls.h>
++extern int 
++register_ioctl32_conversion(unsigned int cmd, int (*handler)(unsigned int,
++      unsigned int, unsigned long, struct file *));
++extern int unregister_ioctl32_conversion(unsigned int cmd);
++
++static int cciss_ioctl32_passthru(unsigned int fd, unsigned cmd, unsigned long arg, struct file *file);
++static int cciss_ioctl32_big_passthru(unsigned int fd, unsigned cmd, unsigned long arg, 
++	struct file *file);
++
++typedef int (*handler_type) (unsigned int, unsigned int, unsigned long, struct file *);
++
++static struct ioctl32_map {
++	unsigned int cmd; 
++	handler_type handler;
++	int registered;
++} cciss_ioctl32_map[] = {
++	{ CCISS_GETPCIINFO,	(handler_type) sys_ioctl, 0 },
++	{ CCISS_GETINTINFO,	(handler_type) sys_ioctl, 0 },
++	{ CCISS_SETINTINFO,	(handler_type) sys_ioctl, 0 },
++	{ CCISS_GETNODENAME,	(handler_type) sys_ioctl, 0 },
++	{ CCISS_SETNODENAME,	(handler_type) sys_ioctl, 0 },
++	{ CCISS_GETHEARTBEAT,	(handler_type) sys_ioctl, 0 },
++	{ CCISS_GETBUSTYPES,	(handler_type) sys_ioctl, 0 },
++	{ CCISS_GETFIRMVER,	(handler_type) sys_ioctl, 0 },
++	{ CCISS_GETDRIVVER,	(handler_type) sys_ioctl, 0 },
++	{ CCISS_REVALIDVOLS,	(handler_type) sys_ioctl, 0 },
++	{ CCISS_PASSTHRU32,	cciss_ioctl32_passthru, 0 },
++	{ CCISS_DEREGDISK,	(handler_type) sys_ioctl, 0 },
++	{ CCISS_REGNEWDISK,	(handler_type) sys_ioctl, 0 },
++	{ CCISS_REGNEWD,	(handler_type) sys_ioctl, 0 },
++	{ CCISS_RESCANDISK,	(handler_type) sys_ioctl, 0 },
++	{ CCISS_GETLUNINFO,	(handler_type) sys_ioctl, 0 },
++	{ CCISS_BIG_PASSTHRU32,	cciss_ioctl32_big_passthru, 0 },
++};
++#define NCCISS_IOCTL32_ENTRIES (sizeof(cciss_ioctl32_map) / sizeof(cciss_ioctl32_map[0]))
++static void register_cciss_ioctl32(void)
++{
++	int i, rc;
++
++	for (i=0; i < NCCISS_IOCTL32_ENTRIES; i++) {
++		rc = register_ioctl32_conversion(
++			cciss_ioctl32_map[i].cmd,
++			cciss_ioctl32_map[i].handler);
++		if (rc != 0) {
++			printk(KERN_WARNING "cciss: failed to register "
++				"32 bit compatible ioctl 0x%08x\n", 
++				cciss_ioctl32_map[i].cmd);
++			cciss_ioctl32_map[i].registered = 0;
++		} else
++			cciss_ioctl32_map[i].registered = 1;
++	}
++}
++static void unregister_cciss_ioctl32(void)
++{
++	int i, rc;
++
++	for (i=0; i < NCCISS_IOCTL32_ENTRIES; i++) {
++		if (!cciss_ioctl32_map[i].registered)
++			continue;
++		rc = unregister_ioctl32_conversion(
++			cciss_ioctl32_map[i].cmd);
++		if (rc == 0) {
++			cciss_ioctl32_map[i].registered = 0;
++			continue;
++		}
++		printk(KERN_WARNING "cciss: failed to unregister "
++			"32 bit compatible ioctl 0x%08x\n",
++			cciss_ioctl32_map[i].cmd);
++	}
++}
++int cciss_ioctl32_passthru(unsigned int fd, unsigned cmd, unsigned long arg, 
++	struct file *file)
++{
++	IOCTL32_Command_struct *arg32 = 
++		(IOCTL32_Command_struct *) arg;
++	IOCTL_Command_struct arg64;
++	mm_segment_t old_fs; 
++	int err;
++
++	err = 0;
++	err |= copy_from_user(&arg64.LUN_info, &arg32->LUN_info, sizeof(arg64.LUN_info));
++	err |= copy_from_user(&arg64.Request, &arg32->Request, sizeof(arg64.Request));
++	err |= copy_from_user(&arg64.error_info, &arg32->error_info, sizeof(arg64.error_info));
++	err |= get_user(arg64.buf_size, &arg32->buf_size);
++	err |= get_user(arg64.buf, &arg32->buf);
++	if (err) 
++		return -EFAULT; 
++
++	old_fs = get_fs();
++	set_fs(KERNEL_DS);
++	err = sys_ioctl(fd, CCISS_PASSTHRU, (unsigned long) &arg64);
++	set_fs(old_fs);
++	if (err)
++		return err;
++	err |= copy_to_user(&arg32->error_info, &arg64.error_info, sizeof(&arg32->error_info));
++	if (err) 
++		return -EFAULT; 
++	return err;
++}
++int cciss_ioctl32_big_passthru(unsigned int fd, unsigned cmd, unsigned long arg, 
++	struct file *file)
++{
++	BIG_IOCTL32_Command_struct *arg32 = 
++		(BIG_IOCTL32_Command_struct *) arg;
++	BIG_IOCTL_Command_struct arg64;
++	mm_segment_t old_fs; 
++	int err;
++
++	err = 0;
++	err |= copy_from_user(&arg64.LUN_info, &arg32->LUN_info, sizeof(arg64.LUN_info));
++	err |= copy_from_user(&arg64.Request, &arg32->Request, sizeof(arg64.Request));
++	err |= copy_from_user(&arg64.error_info, &arg32->error_info, sizeof(arg64.error_info));
++	err |= get_user(arg64.buf_size, &arg32->buf_size);
++	err |= get_user(arg64.malloc_size, &arg32->malloc_size);
++	err |= get_user(arg64.buf, &arg32->buf);
++	if (err) return -EFAULT; 
++	old_fs = get_fs();
++	set_fs(KERNEL_DS);
++	err = sys_ioctl(fd, CCISS_BIG_PASSTHRU, (unsigned long) &arg64);
++	set_fs(old_fs);
++	if (err)
++		return err;
++	err |= copy_to_user(&arg32->error_info, &arg64.error_info, sizeof(&arg32->error_info));
++	if (err) 
++		return -EFAULT; 
++	return err;
++}
++#else 
++static inline void register_cciss_ioctl32(void) {}
++static inline void unregister_cciss_ioctl32(void) {}
++#endif
+ /*
+  * ioctl 
+  */
+@@ -2729,6 +2863,7 @@ int __init cciss_init(void)
+ 
+ static int __init init_cciss_module(void)
+ {
++	register_cciss_ioctl32();
+ 	return ( cciss_init());
+ }
+ 
+@@ -2736,6 +2871,7 @@ static void __exit cleanup_cciss_module(
+ {
+ 	int i;
+ 
++	unregister_cciss_ioctl32();
+ 	pci_unregister_driver(&cciss_pci_driver);
+ 	/* double check that all controller entrys have been removed */
+ 	for (i=0; i< MAX_CTLR; i++) 
+diff -burpN lx267-rc1.orig/include/linux/cciss_ioctl.h lx267-rc1/include/linux/cciss_ioctl.h
+--- lx267-rc1.orig/include/linux/cciss_ioctl.h	2004-05-09 21:32:29.000000000 -0500
++++ lx267-rc1/include/linux/cciss_ioctl.h	2004-05-28 10:34:17.000000000 -0500
+@@ -206,7 +206,35 @@ typedef struct _LogvolInfo_struct{
+ #define CCISS_REGNEWDISK  _IOW(CCISS_IOC_MAGIC, 13, int)
+ 
+ #define CCISS_REGNEWD	   _IO(CCISS_IOC_MAGIC, 14)
++#define CCISS_RESCANDISK   _IO(CCISS_IOC_MAGIC, 16)
+ #define CCISS_GETLUNINFO   _IOR(CCISS_IOC_MAGIC, 17, LogvolInfo_struct)
+ #define CCISS_BIG_PASSTHRU _IOWR(CCISS_IOC_MAGIC, 18, BIG_IOCTL_Command_struct)
+ 
++#ifdef __KERNEL__
++#ifdef __x86_64__
++
++/* 32 bit compatible ioctl structs */ 
++typedef struct _IOCTL32_Command_struct {
++  LUNAddr_struct	   LUN_info;
++  RequestBlock_struct      Request;
++  ErrorInfo_struct  	   error_info; 
++  WORD			   buf_size;  /* size in bytes of the buf */
++  __u32			   buf; /* 32 bit pointer to data buffer */
++} IOCTL32_Command_struct;
++
++typedef struct _BIG_IOCTL32_Command_struct {
++  LUNAddr_struct	   LUN_info;
++  RequestBlock_struct      Request;
++  ErrorInfo_struct  	   error_info; 
++  DWORD			   malloc_size; /* < MAX_KMALLOC_SIZE in cciss.c */
++  DWORD			   buf_size;    /* size in bytes of the buf */
++  				        /* < malloc_size * MAXSGENTRIES */
++  __u32 		buf;	/* 32 bit pointer to data buffer */
++} BIG_IOCTL32_Command_struct;
++
++#define CCISS_PASSTHRU32   _IOWR(CCISS_IOC_MAGIC, 11, IOCTL32_Command_struct)
++#define CCISS_BIG_PASSTHRU32 _IOWR(CCISS_IOC_MAGIC, 18, BIG_IOCTL32_Command_struct)
++
++#endif /* __x86_64__ */
++#endif /* __KERNEL__ */
+ #endif  

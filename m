@@ -1,39 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265108AbTFEUAL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jun 2003 16:00:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265102AbTFEUAK
+	id S265082AbTFEUDa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jun 2003 16:03:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265089AbTFEUDa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jun 2003 16:00:10 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:55201 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S265020AbTFEUAJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jun 2003 16:00:09 -0400
-From: Alan Cox <alan@redhat.com>
-Message-Id: <200306052013.h55KDcP12104@devserv.devel.redhat.com>
-Subject: Re: SiI3112 (Adaptec 1210SA): no devices
-To: hugo-lkml@carfax.org.uk (Hugo Mills)
-Date: Thu, 5 Jun 2003 16:13:38 -0400 (EDT)
-Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
-       andre@linux-ide.org, alan@redhat.com
-In-Reply-To: <20030605193514.GB1542@carfax.org.uk> from "Hugo Mills" at Meh 05, 2003 08:35:14 
-X-Mailer: ELM [version 2.5 PL6]
+	Thu, 5 Jun 2003 16:03:30 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:19328 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S265082AbTFEUD3 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jun 2003 16:03:29 -0400
+Date: Thu, 5 Jun 2003 16:17:52 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+       Steven Cole <elenstev@mesatop.com>, linux-kernel@vger.kernel.org
+Subject: Re: [Patch] 2.5.70-bk9 kick FAR out of the zlib
+In-Reply-To: <20030605194644.GA22439@wohnheim.fh-wedel.de>
+Message-ID: <Pine.LNX.4.53.0306051607260.2391@chaos>
+References: <20030605194644.GA22439@wohnheim.fh-wedel.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->    I've just taken delivery of a shiny new Adaptec 1210SA Serial-ATA
-> adapter and a 120Gb Seagate Barracuda native SATA drive. Problem is,
-> the kernel driver doesn't seem to notice this device on boot --
+On Thu, 5 Jun 2003, [iso-8859-1] Jörn Engel wrote:
 
-Its not a PCI identifier I've ever seen before
+> A while back:
+>
+> On Fri, 30 May 2003 14:38:07 -0700, Linus Torvalds wrote:
+> > On Fri, 30 May 2003, Jörn Engel wrote:
+> > >
+> > > How about an all or nothing approach?  If you really want to get rid
+> > > of K&R, change indentation as well, rip out some of the rather
+> > > tasteless macros (ZEXPORT, ZEXPORTVA, ZEXTERN, FAR, ...) and so on.
+> >
+> > I'd love to, but I suspect we lack the motivation to do so, and there
+> > aren't any obvious upsides. Yes, the code is ugly, but it's also fairly
+> > stable so people seldom need to look at it.
+>
+> Today was a lazy day and that is often motivation enough.  The patch
+> below removes FAR, the typedefs using FAR (Bytef and friends) and the
+> function prototypes for zalloc and zfree that should have gone earlier
+> already.
+>
+> Hope you like it.
+>
+> Jörn
 
-> 00:0b.0 RAID bus controller: CMD Technology Inc: Unknown device 0240 (rev 02) (prog-if 01)
+[SNIPPED patch]
 
-So its some kind of CMD now SIS device, either an SI680 or SI3112 with a 
-weird PCI ID
+But you just removed the portability hooks. The current code worked
+in DOS, on Windows, etc., as will as Linux. This means that if some-
+body, as unlikely as it may seem, develops a better/quicker
+version using M$ Visual C/C++, you can't get a patch. In particular,
+FAR is your friend. A simple #define makes it disappear when you
+are not using a segmented architecture, but allows the use of
+large arrays when you are.
 
+These kinds of things don't make the code 'pure'. It just prevents
+future enhancements. Look in the 'C' header files and see all the
+macros that disappear under the right conditions. Would you
+justify getting rid of __P in those headers? If not, please don't
+eliminate FAR.
 
-Does it have any option to put it into non raid mode in its bios ?
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
+

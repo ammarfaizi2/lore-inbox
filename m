@@ -1,67 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261247AbVCGTKz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261257AbVCGTM0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261247AbVCGTKz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 14:10:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261243AbVCGTJr
+	id S261257AbVCGTM0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 14:12:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261291AbVCGTMG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 14:09:47 -0500
-Received: from lakshmi.addtoit.com ([198.99.130.6]:4358 "EHLO
-	lakshmi.solana.com") by vger.kernel.org with ESMTP id S261251AbVCGTHm
+	Mon, 7 Mar 2005 14:12:06 -0500
+Received: from one.firstfloor.org ([213.235.205.2]:677 "EHLO
+	one.firstfloor.org") by vger.kernel.org with ESMTP id S261257AbVCGTIL
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 14:07:42 -0500
-Message-Id: <200503072038.j27Kcjbc003998@ccure.user-mode-linux.org>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.1-RC1
-To: Linus Torvalds <torvalds@osdl.org>
-cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
-Subject: [PATCH 12/16] UML - Remove useless sys_mount wrapper
-Mime-Version: 1.0
+	Mon, 7 Mar 2005 14:08:11 -0500
+To: Corey Minyard <minyard@acm.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, akpm@osdl.org
+Subject: Re: [PATCH] NMI/CMOS RTC race fix for x86-64
+References: <422CA1FA.1010903@acm.org>
+From: Andi Kleen <ak@muc.de>
+Date: Mon, 07 Mar 2005 20:08:07 +0100
+In-Reply-To: <422CA1FA.1010903@acm.org> (Corey Minyard's message of "Mon, 07
+ Mar 2005 12:48:26 -0600")
+Message-ID: <m1ll8zmfzc.fsf@muc.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 07 Mar 2005 15:38:45 -0500
-From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-um_mount did nothing but turn around and call sys_mount with the same 
-arguments.  This makes it useless code, and it has been duly removed.
-Index: linux-2.6.11/arch/um/kernel/sys_call_table.c
+Corey Minyard <minyard@acm.org> writes:
 
-Signed-off-by: Jeff Dike <jdike@addtoit.com>
+> This patch fixes a race between the CMOS clock setting and the NMI
+> code.  The NMI code indiscriminatly sets index registers and values
+> in the same place the CMOS clock is set.  If you are setting the
+> CMOS clock and an NMI occurs, Bad values could be written to or
+> read from the CMOS RAM, or the NMI operation might not occur
+> correctly.
+>
 
-===================================================================
---- linux-2.6.11.orig/arch/um/kernel/sys_call_table.c	2005-03-05 12:07:32.000000000 -0500
-+++ linux-2.6.11/arch/um/kernel/sys_call_table.c	2005-03-05 12:19:52.000000000 -0500
-@@ -31,7 +31,6 @@
- extern syscall_handler_t sys_fork;
- extern syscall_handler_t sys_execve;
- extern syscall_handler_t um_time;
--extern syscall_handler_t um_mount;
- extern syscall_handler_t um_stime;
- extern syscall_handler_t sys_pipe;
- extern syscall_handler_t sys_olduname;
-@@ -77,7 +76,7 @@
- 	[ __NR_lchown ] = (syscall_handler_t *) sys_lchown16,
- 	[ __NR_lseek ] = (syscall_handler_t *) sys_lseek,
- 	[ __NR_getpid ] = (syscall_handler_t *) sys_getpid,
--	[ __NR_mount ] = um_mount,
-+	[ __NR_mount ] = (syscall_handler_t *) sys_mount,
- 	[ __NR_setuid ] = (syscall_handler_t *) sys_setuid16,
- 	[ __NR_getuid ] = (syscall_handler_t *) sys_getuid16,
-  	[ __NR_ptrace ] = (syscall_handler_t *) sys_ptrace,
-Index: linux-2.6.11/arch/um/kernel/syscall_kern.c
-===================================================================
---- linux-2.6.11.orig/arch/um/kernel/syscall_kern.c	2005-03-05 12:18:28.000000000 -0500
-+++ linux-2.6.11/arch/um/kernel/syscall_kern.c	2005-03-05 12:19:52.000000000 -0500
-@@ -27,12 +27,6 @@
- /*  Unlocked, I don't care if this is a bit off */
- int nsyscalls = 0;
- 
--long um_mount(char __user * dev_name, char __user * dir_name,
--	      char __user * type, unsigned long new_flags, void __user * data)
--{
--	return(sys_mount(dev_name, dir_name, type, new_flags, data));
--}
--
- long sys_fork(void)
- {
- 	long ret;
+In general you should send all x86-64 patches to me. I would have
+eventually merged it from i386 anyways if it was good.
 
+But in this case it isnt. Instead of all this complexity 
+just remove the NMI reassert code from the NMI handler.
+It is oudated and mostly useless on modern systems anyways.
+
+Since the NMI watchdog runs regularly even if an NMI is missed
+it will be eventually handled. And even when it doesn't run
+it doesn't matter much because NMI does nothing essential.
+
+-Andi

@@ -1,81 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268457AbUIQFQj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268420AbUIQFT3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268457AbUIQFQj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 01:16:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268470AbUIQFQj
+	id S268420AbUIQFT3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 01:19:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268474AbUIQFT2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 01:16:39 -0400
-Received: from fw.osdl.org ([65.172.181.6]:59277 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268457AbUIQFQJ (ORCPT
+	Fri, 17 Sep 2004 01:19:28 -0400
+Received: from usbb-lacimss2.unisys.com ([192.63.108.52]:20229 "EHLO
+	usbb-lacimss2.unisys.com") by vger.kernel.org with ESMTP
+	id S268420AbUIQFTP convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 01:16:09 -0400
-Date: Thu, 16 Sep 2004 22:14:06 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Li Shaohua <shaohua.li@intel.com>
-Cc: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: hotplug e1000 failed after 32 times
-Message-Id: <20040916221406.1f3764e0.akpm@osdl.org>
-In-Reply-To: <1095396793.10407.9.camel@sli10-desk.sh.intel.com>
-References: <1095396793.10407.9.camel@sli10-desk.sh.intel.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 17 Sep 2004 01:19:15 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6556.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: 2.6.9-rc2-mm1
+Date: Fri, 17 Sep 2004 00:18:59 -0500
+Message-ID: <452548B29F0CCE48B8ABB094307EBA1C0651E9A9@USRV-EXCH2.na.uis.unisys.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.6.9-rc2-mm1
+Thread-Index: AcScE/5r7uMJWweJRki51lnh9LGdZwAArS1g
+From: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
+To: "Bjorn Helgaas" <bjorn.helgaas@hp.com>,
+       "Jesse Barnes" <jbarnes@engr.sgi.com>
+Cc: "Andrew Morton" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
+       <len.brown@intel.com>
+X-OriginalArrivalTime: 17 Sep 2004 05:19:00.0890 (UTC) FILETIME=[D73507A0:01C49C75]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Li Shaohua <shaohua.li@intel.com> wrote:
+
+> On Thursday 16 September 2004 11:14 am, Jesse Barnes wrote:
+> > On Thursday, September 16, 2004 2:40 am, Andrew Morton wrote:
+> >  bk-acpi.patch
+> >
+> > Looks like some changes in this patch break sn2.  In particular,
+this 
+> > hunk in
+> > acpi_pci_irq_enable():
+> >
+> > -               if (dev->irq && (dev->irq <= 0xF)) {
+> > +               if (dev->irq >= 0 && (dev->irq <= 0xF)) {
+> >                        printk(" - using IRQ %d\n", dev->irq);
+> >                        return_VALUE(dev->irq);
+> >                }
+> >                else {
+> >                        printk("\n");
+> > -                       return_VALUE(0);
+> > +                       return_VALUE(-EINVAL);
+> >                }
+> > 
+> > Now instead of returning 0, we'll get -EINVAL when a driver calls 
+> > pci_enable_device.  This is arguably correct since there's no _PRT 
+> > entry (and in fact no ACPI namespace on sn2), but shouldn't the code
+
+> > above be looking at the 'pin' value instead of dev->irq?  The sn2 
+> > specific PCI code sets up each
+> > dev->irq long before this with the correct values...
 >
-> I'm testing a hotplug driver. In my test, I will hot add/remove an e1000
->  NIC frequently. The result is my hot add failed after 32 times hotadd.
->  After looking at the code of e1000 driver, I found
->  e1000_adapter->bd_number has maxium limitation of 32, and it increased
->  one every hot add. Looks like the remove driver routine didn't free the
->  'bd_number', so hot add failed after 32 times. Below patch fixes this
->  issue.
+> I think the change above is actually from
+>    incorrect-pci-interrupt-assignment-on-es7000-for-pin-zero.patch
 
-Yeah.  I think you'll find that damn near every net driver in the kernel
-has this problem.  I think it would be better to create a little suite of
-library functions in net/core/dev.c to handle this situation.
+> of which I am officially ignorant :-)
 
-Maybe something like
+I realize now that this is very involved piece of code and a lot was
+built around the assumption that IRQ0 is a timer interrupt (pin 0 is for
+PCI on ES7000), and assumption that everyone honors this assumption :)
+However, it seems wrong that we are not able to read literally what ACPI
+says, such as irq 0 for INTA. Maybe, it would be better if the code
+above was returing an error code, not an irq, which is returned in dev
+anyway. It should be some creative way to resolve this issue... I think
+the idea in the comment above by Jesse Barnes has good potential.  
 
-struct net_boards {
-	struct idr idr;
-	int max_boards;
-}
+Thanks,
+--Natalie
 
-void net_boards_init(struct net_boards *net_boards, int max_boards);
-int net_board_alloc(struct net_boards *net_boards);
-int net_boards_free(struct net_boards *net_boards, int board_no);
-
-(I wonder where the locking should be performed?)
-
-This is a pretty thin wrapper around the idr code and actually is quite
-generic and has nothing to do with networking so you might end up deciding
-to rename things and to move the code into idr.c
-
-> -	adapter->bd_number = cards_found;
-> +	adapter->bd_number = e1000_alloc_bd_number();;
-
-Extra semicolon.
-
-> +	TxDescriptors[bd_number] = 
-> +	RxDescriptors[bd_number] = 
-> +	Speed[bd_number] =
-> +	Duplex[bd_number] =
-> +	AutoNeg[bd_number] =
-> +	FlowControl[bd_number] =
-> +	XsumRX[bd_number] =
-> +	TxIntDelay[bd_number] =
-> +	TxAbsIntDelay[bd_number] =
-> +	RxIntDelay[bd_number] =
-> +	RxAbsIntDelay[bd_number] =
-> +	InterruptThrottleRate[bd_number] = OPTION_UNSET;
-
-Unpopular coding style.  Please just do
-
-	RxAbsIntDelay[bd_number] = OPTION_UNSET;
-	InterruptThrottleRate[bd_number] = OPTION_UNSET;
-
-etc.

@@ -1,80 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264384AbUD0WpA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264391AbUD0WtO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264384AbUD0WpA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 18:45:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264385AbUD0WpA
+	id S264391AbUD0WtO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 18:49:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264385AbUD0WtO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 18:45:00 -0400
-Received: from fw.osdl.org ([65.172.181.6]:3779 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264384AbUD0Wo5 (ORCPT
+	Tue, 27 Apr 2004 18:49:14 -0400
+Received: from smtp06.auna.com ([62.81.186.16]:19681 "EHLO smtp06.retemail.es")
+	by vger.kernel.org with ESMTP id S264390AbUD0WtM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 18:44:57 -0400
-Date: Tue, 27 Apr 2004 15:47:11 -0700
-From: Dave Olien <dmo@osdl.org>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] trivial patch to dm-snap.c
-Message-ID: <20040427224711.GA16883@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	Tue, 27 Apr 2004 18:49:12 -0400
+In-Reply-To: <20040427180924.GA22366@merlin.emma.line.org>
+References: <200404261532.37860.dj@david-web.co.uk> <20040426161004.GE5430@merlin.emma.line.org> <20040427131941.GC10264@logos.cnet> <20040427142643.GA10553@merlin.emma.line.org> <6A88E87D-985B-11D8-AA97-000A9585C204@able.es> <20040427161314.GA18682@merlin.emma.line.org> <20040427180924.GA22366@merlin.emma.line.org>
+Mime-Version: 1.0 (Apple Message framework v613)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <1911B825-989D-11D8-A81A-000A9585C204@able.es>
+Content-Transfer-Encoding: 7bit
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org
+Illegal-Object: Syntax error in From: address found on vger.kernel.org:
+	From:	J.A.Magallon<jamagallon@able.es>
+				    ^-missing end of mailbox
+Subject: Re: [PATCH] incomplete dependencies with BK tree (was: Anyone got aic7xxx working with 2.4.26?)
+Date: Wed, 28 Apr 2004 00:49:10 +0200
+From: <jamagallon@able.es>
+To: Matthias Andree <matthias.andree@gmx.de>
+X-Mailer: Apple Mail (2.613)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Just added to function declarations to make them static, and fixed up
-an unused function declaration.
+On 27 abr 2004, at 20:09, Matthias Andree wrote:
 
-diff -ur linux-2.6.6-rc2-mm1-udm1-original/drivers/md/dm-snap.c linux-2.6.6-rc2-mm1-udm1-patched/drivers/md/dm-snap.c
---- linux-2.6.6-rc2-mm1-udm1-original/drivers/md/dm-snap.c	2004-04-27 15:10:27.000000000 -0700
-+++ linux-2.6.6-rc2-mm1-udm1-patched/drivers/md/dm-snap.c	2004-04-27 14:53:54.000000000 -0700
-@@ -608,9 +608,9 @@
- 	return NULL;
- }
- 
-+#if 0
- static void check_free_space(struct dm_snapshot *s)
- {
--#if 0
- 	sector_t numerator, denominator;
- 	double n, d;
- 	unsigned pc;
-@@ -628,8 +628,8 @@
- 		dm_table_event(s->table);
- 		s->last_percent = pc - pc % WAKE_UP_PERCENT;
- 	}
--#endif
- }
-+#endif
- 
- static void pending_complete(struct pending_exception *pe, int success)
- {
-@@ -667,8 +667,10 @@
- 		flush_bios(bio_list_get(&pe->snapshot_bios));
- 		DMDEBUG("Exception completed successfully.");
- 
-+#if 0
- 		/* Notify any interested parties */
- 		//check_free_space(s);
-+#endif
- 
- 	} else {
- 		/* Read/write error - snapshot is unusable */
-@@ -889,7 +891,7 @@
- 	return r;
- }
- 
--void snapshot_resume(struct dm_target *ti)
-+static void snapshot_resume(struct dm_target *ti)
- {
- 	struct dm_snapshot *s = (struct dm_snapshot *) ti->private;
- 
-@@ -1040,7 +1042,7 @@
- /*
-  * Called on a write from the origin driver.
-  */
--int do_origin(struct dm_dev *origin, struct bio *bio)
-+static int do_origin(struct dm_dev *origin, struct bio *bio)
- {
- 	struct origin *o;
- 	int r;
+> On Tue, 27 Apr 2004, Matthias Andree wrote:
+>
+>> On Tue, 27 Apr 2004, J.A.Magallon wrote:
+>>
+>>> -nostdinc should be mandatory ?
+>>
+>> Seems to be in use on my machine, looking at what "make" prints.
+>
+> Given that init wants stdarg.h, -nostdinc is not an option for 
+> init/main.c.
+>
+
+At least gcc3 has [v][s][n]printf and friends as builtins, and also
+has __builtin_va_list,_start,_end, etc, so it looks easy to get rid of 
+the
+stdarg.h dependency.
+
+Easy way: create stdarg.h in kernel includes with defines to builtins.
+Next step: kill printfs from linux/lib, if __builtins support the same
+features (ie, kernel printfs do not have any particular % code).
+
+Anybody knows if gcc2.95.3 has this builtins ?
+
+I think gcc builtins are under-used in kernel...
+
+--
+J.A. Magallon <jamagallon()able!es>   \          Software is like sex:
+werewolf!able!es                       \    It's better when it's free
+MacOS X 10.3.3, Build 7F44, Darwin Kernel Version 7.3.0
+

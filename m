@@ -1,39 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264480AbTE1CxZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 22:53:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264481AbTE1CxZ
+	id S264482AbTE1C5R (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 22:57:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264483AbTE1C5R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 22:53:25 -0400
-Received: from web13607.mail.yahoo.com ([216.136.175.118]:1798 "HELO
-	web13607.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S264480AbTE1CxY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 22:53:24 -0400
-Message-ID: <20030528030639.38916.qmail@web13607.mail.yahoo.com>
-Date: Tue, 27 May 2003 20:06:39 -0700 (PDT)
-From: Slack Ware <slack_ware@yahoo.com>
-Subject: Printing IDT on Linux 2.4.20
-To: linux-kernel@vger.kernel.org
+	Tue, 27 May 2003 22:57:17 -0400
+Received: from [210.77.38.126] ([210.77.38.126]:33680 "EHLO
+	ns.turbolinux.com.cn") by vger.kernel.org with ESMTP
+	id S264482AbTE1C5Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 22:57:16 -0400
+Message-ID: <3ED4279B.1010902@turbolinux.com.cn>
+Date: Wed, 28 May 2003 11:06:03 +0800
+From: Qianfeng Zhang <zqfeng@turbolinux.com.cn>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; zh-CN; rv:1.1) Gecko/20020921
+X-Accept-Language: zh-cn, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: help, module dependency unresolved
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everybody!
-I've a problem with the checkidt utility provided by
-Phrack Issue #59, I think.
-The checkidt utility is for 2.4.x kernels, supposedly,
-but I compiled it under 2.4.20 and it couldn't read
-/dev/kmem.
-Anyway, I would like to print the IDT on kernel 2.4.20
-with checkidt or not.
-Any suggestions are welcome.
-Regards,
+Hi
+  I am trying with the 2.5.70 beta kernel. The compiling and installing 
+is OK. But
+when calling "depmod -ae -b ... -F .. -r ..", the modules dependency 
+and  the function
+references were not resolved correctly. For example:
+   in module fs/vfat/vfat.o, many functions used were exported by 
+fs/fat/fat.o. But it
+still complaint that the functions reference unresolved.  There is not 
+similar problem with
+2.4.* kernel.
+
+  If you have met the same problem, could you let me know?
+
+  Thanks
 
 
-                                          Slack
+-- Fronteer
 
-__________________________________
-Do you Yahoo!?
-Yahoo! Calendar - Free online calendar with sync to Outlook(TM).
-http://calendar.yahoo.com

@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316674AbSGBIOT>; Tue, 2 Jul 2002 04:14:19 -0400
+	id <S316677AbSGBIgL>; Tue, 2 Jul 2002 04:36:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316675AbSGBIOS>; Tue, 2 Jul 2002 04:14:18 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:30725 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S316674AbSGBIOR>; Tue, 2 Jul 2002 04:14:17 -0400
-Message-ID: <3D216157.FC60B17E@aitel.hist.no>
-Date: Tue, 02 Jul 2002 10:16:23 +0200
-From: Helge Hafting <helgehaf@aitel.hist.no>
-X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.24-dj1 i686)
-X-Accept-Language: no, en, en
-MIME-Version: 1.0
-To: Zwane Mwaikambo <zwane@mwaikambo.name>
-CC: Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
-       Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: lilo/raid?
-References: <Pine.LNX.4.44.0207011758180.3104-100000@netfinity.realnet.co.sz>
+	id <S316678AbSGBIgK>; Tue, 2 Jul 2002 04:36:10 -0400
+Received: from holomorphy.com ([66.224.33.161]:29667 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S316677AbSGBIgK>;
+	Tue, 2 Jul 2002 04:36:10 -0400
+Date: Tue, 2 Jul 2002 01:37:37 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Erik Andersen <andersen@codepoet.org>, Timo Benk <t_benk@web.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: allocate memory in userspace
+Message-ID: <20020702083737.GQ22961@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Erik Andersen <andersen@codepoet.org>, Timo Benk <t_benk@web.de>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <20020701172659.GA4431@toshiba> <20020701174913.GA19338@codepoet.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Description: brief message
+Content-Disposition: inline
+In-Reply-To: <20020701174913.GA19338@codepoet.org>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zwane Mwaikambo wrote:
-> 
-> On Mon, 1 Jul 2002, Roy Sigurd Karlsbakk wrote:
-> 
-> > LABEL=/                 /                       ext3    defaults        1 1
-> > /dev/md2                /tmp                    ext3    defaults        1 2
-> > /dev/md3                /var                    jfs     defaults        1 2
-> > /dev/md4                /data                   jfs     defaults        1 2
-> > /dev/md1                swap                    swap    defaults        0 0
-> 
-> One small thing, you do know that you can interleave swap?
+On Mon, Jul 01, 2002 at 11:49:13AM -0600, Erik Andersen wrote:
+> void *malloc(size_t size)
+> {
+>     void *result;
+>     if (size == 0)
+> 	return NULL;
+>     result = mmap((void *) 0, size + sizeof(size_t), PROT_READ | PROT_WRITE, 
+> 	    MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
+>     if (result == MAP_FAILED)
+> 	return 0;
+>     * (size_t *) result = size;
+>     return(result + sizeof(size_t));
+> }
 
-There are sometimes reasons not to do that.
-Heavy swapping may be caused by attempts to cache 
-massive io on some fs.  You better not have swap
-on that heavily accessed spindle - because then
-everything ends up waiting on that io.
+This looks like a very bad idea. Userspace allocators should make some
+attempt at avoiding diving into the kernel at every allocation like this.
+Also, they should be intelligent enough to get around TASK_UNMAPPED_BASE.
+Wilson's allocator survey has an excellent discussion of the issues.
+Doug Lea has a better example of a userspace memory allocator.
 
-Keeping swap somewhere else means other programs
-just wait a little for swap - undisturbed by the massive
-io also going on.
 
-Helge Hafting
+Cheers,
+Bill

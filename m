@@ -1,84 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318399AbSHEKa3>; Mon, 5 Aug 2002 06:30:29 -0400
+	id <S318401AbSHEKbA>; Mon, 5 Aug 2002 06:31:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318401AbSHEKa3>; Mon, 5 Aug 2002 06:30:29 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:26379 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S318399AbSHEKa2>; Mon, 5 Aug 2002 06:30:28 -0400
-Message-ID: <3D4E536A.9040908@evision.ag>
-Date: Mon, 05 Aug 2002 12:28:58 +0200
-From: Marcin Dalecki <dalecki@evision.ag>
-Reply-To: martin@dalecki.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.1b) Gecko/20020722
-X-Accept-Language: en-us, en, pl, ru
+	id <S318404AbSHEKa7>; Mon, 5 Aug 2002 06:30:59 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:37475 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S318401AbSHEKa4>; Mon, 5 Aug 2002 06:30:56 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Daniela Engert <dani@ngrt.de>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.19-ac2
+References: <200208041939.VAA15993@myway.myway.de>
+	<1028494876.15495.17.camel@irongate.swansea.linux.org.uk>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 05 Aug 2002 04:21:41 -0600
+In-Reply-To: <1028494876.15495.17.camel@irongate.swansea.linux.org.uk>
+Message-ID: <m11y9dsj0q.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] IDE udma_status = 0x76 and 2.5.30...
-References: <1227D1253A2@vcnet.vc.cvut.cz>
-Content-Type: text/plain; charset=US-ASCII;
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Uz.ytkownik Petr Vandrovec napisa?:
-> On  5 Aug 02 at 11:33, Marcin Dalecki wrote:
-> 
->>Uz.ytkownik Petr Vandrovec napisa?:
->>
->>>   BTW, are there any TRM290 owners using 2.5.30? Old code set length to
->>>((length >> 2) - 1) << 16, while new code does not have special handling
->>>for TRM290. Or do I miss something?
->>
->>The new code is overwriting those values in the host controller driver
->>itself.
-> 
-> 
-> Really? I'm not able to locate such overwrite in trm290.c. Are they hidden
-> somewhere else?
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-This should handle it:
-
-	hwif->seg_boundary_mask = 0xffffffff;
+> On Sun, 2002-08-04 at 20:39, Daniela Engert wrote:
+> > On 04 Aug 2002 21:27:19 +0100, Alan Cox wrote:
+> > 
+> > > 	if((r9 & 0x0A) != 0x0A)		/* Legacy only */
+> > > 	/* Request programmability */
+> > > 	pci_write_config_byte(dev, PCI_CLASS_PROG, r9|0x05);
+> > 
+> > There is no guarantee that this will succeed. Quite some PCI IDE
+> > controller chips (f.e. ALi, SiS) may have config register 9 r/o locked
+> > by some other means.
 > 
-> Also BUG_ON() in udma_new_table is bogus. Change code:
+> If its locked read only then that is fine. The read back will see the
+> old value not 0x05 bits set. In which case it'll leave it alone 
 > 
-> - u32 cur_len = sg_dma_len(sg) & 0xffff;
-> + u32 cur_len = sg_dma_len(sg);
+> 	pci_write_config_byte(dev, PCI_CLASS_PROG, r9|0x05);
+>         pci_read_config_byte(dev, PCI_CLASS_PROG, &r9);
 > 
->   /* Delete this ... */
->   BUG_ON(cur_len > ch->max_segment_size);
->   
->   *table++ = cpu_to_le32(cur_addr);
-> - *table++ = cpu_to_le32(cur_len);
-> + *table++ = cpu_to_le32(cur_len & 0xffff);
+> 	if((r9 & 0x05) == 0x05)		/* Reprogrammable */
+> 		return 1;
 > 
-> Without first change BUG_ON will not trigger on any transfer: values
-> up to 0xFE00 are legal, and values over 0x10000 get cut down to
-> 0x0xxxx...
+> 	/* Refused */
+> 	return 0;
 > 
-> Second change is needed only if we have some driver setting 
-> max_segment_size to value > 0xffff: currently we do not have such driver,
-> default is 0xfe00, and value set by cs5530 is 0xfe00 too.
+> I'm just trying to get this right so we can do a sensible quick fix for
+> 2.4.19. Its relatively easy to add pci_assign_device(dev) functionality
+> and make the IDE drivers do the right thing when they kick the devices
+> out of legacy mode. Thats the longer term right answer.
 
-Well trm390 *does* set ->seg_boundary_mask.
+Why are we kicking IDE devices out of ``legacy'' mode?
 
->>Hmm... It is very well possible that the Toshiba doesn't like the
->>fact that the intel chipsets cheat and do something like UDMA88 instead 
->>of UDMA100. Could you verify this by checking whatever forcing them to 
->>UDMA66 helps please? Vojtech?
-> 
-> 
-> It happens with UDMA0 too (and I tried slowest possible timming at
-> i845, and it still happens).
+Last I checked that was a very sensible mode for IDE devices to operate in.
+The IRQ and pio resources are where a lot of software expects them,
+and by using an isa-irq there are fewer shared interrupts.
 
-I'm more and more amanzed, why my system works at all...
+Plus on the few motherboards I tried it on, the pci-irq line didn't
+even appear to be hooked up.  In these cases I'm thinking of the
+on-board IDE controller.
 
-> P.S.: Marcin, are you Marcin or Martin? MAINTAINERS says Martin,
-> but your replies state Marcin...
-
-It doesn't really matter. Marcin is just the polish spelling of the name
-Martin. So choose whatever you want please.
-
+Eric
 

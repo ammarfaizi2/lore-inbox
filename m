@@ -1,66 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317582AbSGEVgK>; Fri, 5 Jul 2002 17:36:10 -0400
+	id <S317587AbSGEVnx>; Fri, 5 Jul 2002 17:43:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317587AbSGEVgJ>; Fri, 5 Jul 2002 17:36:09 -0400
-Received: from ofree.wp-sa.pl ([212.77.101.203]:28353 "EHLO smtp.wp.pl")
-	by vger.kernel.org with ESMTP id <S317582AbSGEVgJ>;
-	Fri, 5 Jul 2002 17:36:09 -0400
-Date: Fri,  5 Jul 2002 23:18:30 +0200
-From: "kenorb -" <kenorb@wp.pl>
-To: linux-kernel@vger.kernel.org
-Subject: make: *** [menuconfig] Error 139
-Message-ID: <3d260d2698c0c@wp.pl>
-Content-Type: text/plain; charset=iso-8859-2
-Content-Transfer-Encoding: 8bit
-X-Mailer: Interfejs WWW poczty Wirtualnej Polski
-Organization: Poczta Wirtualnej Polski S.A. http://www.wp.pl/
-X-IP: 62.233.159.2
-X-AntiVirus: skaner antywirusowy poczty Wirtualnej Polski S. A.
+	id <S317589AbSGEVnw>; Fri, 5 Jul 2002 17:43:52 -0400
+Received: from mnh-1-16.mv.com ([207.22.10.48]:56837 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S317587AbSGEVnw>;
+	Fri, 5 Jul 2002 17:43:52 -0400
+Message-Id: <200207052250.RAA03199@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: linux-kernel@vger.kernel.org, user-mode-linux-user@lists.sourceforge.net
+Subject: user-mode port 0.58-2.4.18-36
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 05 Jul 2002 17:50:17 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
-My ncurses is installed correctly.
-I haved run: make menuconfig.
-I use Putty to connect to remote server, and I haved change 
-resolution from 63 rows and 142 columns to 24/80 r/c. Before I 
-can press up/down, but if I press Enter, on the screen I see:
-<--cut-->
-There seems to be a problem with the lxdialog companion utility 
-which is
-built prior to running Menuconfig.  Usually this is an indicator 
-that you
-have upgraded/downgraded your ncurses libraries and did not 
-remove the
-old ncurses header file(s) in /usr/include 
-or /usr/include/ncurses.
+This is the fourth release of the 2.4.18 UML.
 
-It is VERY important that you have only one set of ncurses 
-header files
-and that those files are properly version matched to the ncurses 
-libraries
-installed on your machine.
+The major changes in this release include:
 
-You may also need to rebuild lxdialog.  This can be done by 
-moving to
-the /usr/src/linux/scripts/lxdialog directory and issuing the
-"make clean all" command.
+	It is now possible the to attach the UML gdb to sleeping threads.
+	This is done by detaching gdb from the in-context thread and attaching
+	it to the host pid of the sleeping UML process.  UML may be continued
+	by reattaching to the in-context thread.  This feature was sponsored
+	by Cluster File Systems, Inc.
 
-If you have verified that your ncurses install is correct, you 
-may email
-the maintainer <mec@shout.net> or post a message to
-<linux-kernel@vger.kernel.org> for additional assistance.
+	There is a /proc/exitcode, which allows a UML process to set the
+	eventual UML exit code.
 
-make: *** [menuconfig] Error 139
-<--cut-->
-so?
-Is this bug is fixed? If yes sorry.
-Sorry for my bad English.
-Bye
+	Fixed some segfaults caused by calling openpty, which has an unusually
+	large stack frame, overflowing the UML kernel stack.
 
+	The tty logging patch is integrated.  This allows UML honeypots to
+	log all tty traffic to a host file.  This logging can't be detected
+	or interfered with by root inside the UML.
 
------------------------------------------------------------------------
-Chcesz co¶ sprzedaæ ? Chcesz co¶ kupiæ ?
-Najlepsze oferty ! Zobacz www.gratka.pl !
+	UML now has a "hardware" watchdog.
+
+	The UML binary now lives in its own physical memory.  This makes it
+	easier for the swsusp patch to be ported to UML.
+
+	Fixed a bug with lots of zombies causing a UML panic.
+
+	It is now possible to move backing files and update the COW files with	
+	ubdx=cow-file,new-backing-file.  Note that you must preserve the
+	modification time when moving a backing file with something like 
+	'cp -p' or 'tar p'. 
+
+	Added support for kernel watchpoints.  They can be mixed with 
+	watchpoints in gdb inside UML.  
+
+	Fixed the bug which was closing file descriptors which should have
+	been left open.  This was most often seen as a panic during UML
+	shutdown, although it also appeared in other places.
+
+	The mconsole driver now sends panic notifications to mconsole clients.
+
+	A number of smaller bugs were fixed and features added.
+
+The project's home page is http://user-mode-linux.sourceforge.net
+
+Downloads are available at 
+	http://user-mode-linux.sourceforge.net/dl-sf.html
+
+				Jeff
 

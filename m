@@ -1,93 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316588AbSFPVWn>; Sun, 16 Jun 2002 17:22:43 -0400
+	id <S316589AbSFPVer>; Sun, 16 Jun 2002 17:34:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316582AbSFPVWm>; Sun, 16 Jun 2002 17:22:42 -0400
-Received: from etpmod.phys.tue.nl ([131.155.111.35]:21099 "EHLO
-	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
-	id <S316579AbSFPVWl>; Sun, 16 Jun 2002 17:22:41 -0400
-Date: Sun, 16 Jun 2002 23:22:42 +0200
-From: Kurt Garloff <garloff@suse.de>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Cc: Linux kernel list <linux-kernel@vger.kernel.org>,
-       Linux SCSI list <linux-scsi@vger.kernel.org>
-Subject: Re: /proc/scsi/map
-Message-ID: <20020616212241.GD21461@gum01m.etpnet.phys.tue.nl>
-Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
-	"Albert D. Cahalan" <acahalan@cs.uml.edu>,
-	Linux kernel list <linux-kernel@vger.kernel.org>,
-	Linux SCSI list <linux-scsi@vger.kernel.org>
-References: <20020615133606.GC11016@gum01m.etpnet.phys.tue.nl> <200206161924.g5GJOYN515160@saturn.cs.uml.edu>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="xB0nW4MQa6jZONgY"
-Content-Disposition: inline
-In-Reply-To: <200206161924.g5GJOYN515160@saturn.cs.uml.edu>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.4.16-schedJ2 i686
-X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
-X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
-Organization: TU/e(NL), SuSE(DE)
+	id <S316591AbSFPVer>; Sun, 16 Jun 2002 17:34:47 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:48616 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S316589AbSFPVeq>;
+	Sun, 16 Jun 2002 17:34:46 -0400
+Date: Sun, 16 Jun 2002 17:34:39 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Andries.Brouwer@cwi.nl
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [CHECKER] 37 stack variables >= 1K in 2.4.17
+In-Reply-To: <UTC200206162041.g5GKfhn13251.aeb@smtp.cwi.nl>
+Message-ID: <Pine.GSO.4.21.0206161733000.5807-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---xB0nW4MQa6jZONgY
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-Hi Albert,
+On Sun, 16 Jun 2002 Andries.Brouwer@cwi.nl wrote:
 
-On Sun, Jun 16, 2002 at 03:24:33PM -0400, Albert D. Cahalan wrote:
-> Kurt Garloff writes:
-> > If we attach a third high-level device driver, two more columns
-> > would show up. (Is this variable column number format a problem?)
->=20
-> The variable column format is of course annoying, but use
-> it if you must. The also-annoying alternative is to pick
-> a fill character that would be easy for a beginner to
-> handle in a script. Maybe one of:  @ - . / ?
+> > If you want to try - by all means, go ahead,
+> > I'll be glad to see the current situation improved.
+> 
+> OK, let me attempt something in the style as sketched earlier today.
+> There are two stages: Step One is changing follow_link in all
+> filesystems to not call vfs_follow_link but to return immediately
+> so that the caller can call vfs_follow_link and release resources.
+> 
+> Somewhat boring work. The patch is below.
+> I do not doubt that you'll find all typos, so I did not try
+> to compile and test.
+> 
+> Yes, so the question was how to communicate between filesystem
+> and namei.c about what resources have to be freed.
+> I considered (i) calling the filesystem with a preallocated page,
+> (ii) requiring a page, (iii) requiring page or kmalloc,
+> (iv) letting the filesystem supply a callback.
+> 
+> Since I am lazy and (iii) was easiest, I did (iii).
+> That is also reasonable: in almost all cases it really is a page,
+> and a flag can signal otherwise.
+> 
+> The communication between filesystems and namei.c uses
+> char **link and page **page and two bits in nd->flags.
+> The filesystem gets char **link and page **page.
+> Its job is to fill *link with the string, but in case
+> it did the complete follow_link itself (as happens under /proc)
+> it sets the DONE flag.
+> Now namei.c will release page when it is nonzero, and will free
+> link when the filesystem tells that that is needed in the KFREE flag.
+> 
+> What is wrong? You will tell me, but what I disliked while doing
+> this was the name prepare_follow_link. Too long. A second time
+> I might pick get_link or so.
+> 
+> The result of Step One is that the loop no longer touches all
+> filesystems but lives entirely in namei.c. So, the second patch,
+> that only changes namei.c can change the recursion into iteration.
+> Maybe tomorrow or the day after.
 
-Yes, as you correctly mention in your other mail, this would make it easier
-to add more columns later.
-But the problem then would be that we would need to fix (and limit) the
-number of high-level devices that may be reported this way, which is not so
-nice either. At this moment it's not a problem, of course, AFAIK.
+Obvious breakage: nd->flags can be clobbered by __vfs_follow_link(), so
+your do_follow_link() and friends are broken.
 
-> The header line is far worse. It's too terse to be very helpful.
-> It gets in the way of every person writing a parser. Even in
-> your example script, you had to hack your way around it:
-
-I would not call it a hack. Ignoring comment lines is one of the basic
-things each parser needs to do. Defining a format that does not allow
-for comments actually would not be a very clever move.
-
-But for a file exported from kernel, you may have a valid point.
-
-Actually, the exact format of /proc/scsi/map is certainly something=20
-that can be discussed separately from the basic idea of adding a file
-that does expose the mapping of a SCSI address (CBTU) and the attached
-high level drivers.=20
-The way I designed it just should make it easy for a shell script to use
-it. And keeping it simple certainly is a good thing.
-
-Regards,
---=20
-Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
-GPG key: See mail header, key servers         Linux kernel development
-SuSE Linux AG, Nuernberg, DE                            SCSI, Security
-
---xB0nW4MQa6jZONgY
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE9DQGhxmLh6hyYd04RAlY1AJ49KZTTiwhLwD8az10MZl7XcQLleQCgv6gz
-yFuuDmzQ39ZIs6HQU6LuSCE=
-=zv2b
------END PGP SIGNATURE-----
-
---xB0nW4MQa6jZONgY--

@@ -1,68 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261642AbUJXUVX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261652AbUJXUW0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261642AbUJXUVX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 16:21:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261612AbUJXUVW
+	id S261652AbUJXUW0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 16:22:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261654AbUJXUWZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 16:21:22 -0400
-Received: from mail.gmx.net ([213.165.64.20]:60397 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261643AbUJXUUO (ORCPT
+	Sun, 24 Oct 2004 16:22:25 -0400
+Received: from rproxy.gmail.com ([64.233.170.194]:9840 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261652AbUJXUWQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 16:20:14 -0400
-Date: Sun, 24 Oct 2004 22:20:13 +0200 (MEST)
-From: "Daniel Blueman" <daniel.blueman@gmx.net>
-To: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Subject: [2.6.9] unhandled OHCI IRQs...
-X-Priority: 3 (Normal)
-X-Authenticated: #8973862
-Message-ID: <16118.1098649213@www5.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="us-ascii"
+	Sun, 24 Oct 2004 16:22:16 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=SgUJKST00YthL2VKUF3+N6yTwt4zBIJXfJfH9nbNRhxV1t2RTND13U4yFgqplTZT9HyggJpY8odbyF5WRqr3YcTTjdtauyys8KLxF39XX+Krrt3ZshZD0nnrh91C/x4adnJyFTC2oEy2S3hMrMJzJTXSjK6O+n523KwmYuBNmH8=
+Message-ID: <58cb370e04102413156543b72e@mail.gmail.com>
+Date: Sun, 24 Oct 2004 22:15:26 +0200
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: James Cloos <cloos@jhcloos.com>
+Subject: Re: [BK PATCHES] ide-2.6 update
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <m3zn2boq1h.fsf@lugabout.cloos.reno.nv.us>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <58cb370e04102405081d62bf40@mail.gmail.com>
+	 <m3zn2boq1h.fsf@lugabout.cloos.reno.nv.us>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When plugging in an Epson C62 USB 1.1 printer to my nForce 2 OHCI + EHCI USB
-controllers, the IRQ doesn't seem to get handled [1]. Tried both with
-acpi=noirq and without, printer support and full USB support enabled. Kernel
-is 2.6.9.
+On Sun, 24 Oct 2004 12:48:58 -0700, James Cloos <cloos@jhcloos.com> wrote:
+> Are all of the data displayed in /proc/ide/piix et al now available
+> in sysfs?  If so, 'twould've been useful for a small utility -- a
 
-Any ideas?
+All these data can be obtained from user-space,
+no need for bloating sysfs.
 
---- [1]
+> la lsscsi(8) -- that can format that data like the /proc/ide files
+> to have been released before dropping the /proc files....
+> It is a regression to loose convenient access to the controllers'
+> current configs....
 
-irq 7: nobody cared!
- [<c01063d4>] __report_bad_irq+0x24/0x80
- [<c01064b1>] note_interrupt+0x61/0x90
- [<c010637b>] handle_IRQ_event+0x2b/0x60
- [<c010676a>] do_IRQ+0x11a/0x130
- [<c010479c>] common_interrupt+0x18/0x20
- [<c0119f30>] __do_softirq+0x30/0x90
- [<c0119fb6>] do_softirq+0x26/0x30
- [<c010674b>] do_IRQ+0xfb/0x130
- [<c010479c>] common_interrupt+0x18/0x20
- [<c0101df0>] default_idle+0x0/0x30
- [<c0101e13>] default_idle+0x23/0x30
- [<c0101e8a>] cpu_idle+0x3a/0x60
- [<c035c8e1>] start_kernel+0x141/0x160
- [<c035c530>] unknown_bootoption+0x0/0x160
-handlers:
-[<c022dcd0>] (usb_hcd_irq+0x0/0x60)
-Disabling IRQ #7
-spurious 8259A interrupt: IRQ7.
+http://home.elka.pw.edu.pl/~bzolnier/atapci/
 
---- [2]
+released > 2 years ago :)
 
-# grep hcd /proc/interrupts 
-  5:          0          XT-PIC  ohci_hcd
-  7:     164004          XT-PIC  ohci_hcd
- 12:          2          XT-PIC  ehci_hcd
+works fine but probably needs some cut'n'paste updates
 
--- 
-Daniel J Blueman
+Most of these /proc files were buggy / inaccurate and keeping them
+had real maintenance cost (hpt366 bug, triflex bug etc.) with absolutely no
+added gain in debugging problems (raw PCI config gives much more info).
 
-+++ GMX DSL Premiumtarife 3 Monate gratis* + WLAN-Router 0,- EUR* +++
-Clevere DSL-Nutzer wechseln jetzt zu GMX: http://www.gmx.net/de/go/dsl
-
+and yes, this should've been done 2 years ago...

@@ -1,78 +1,35 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S154769AbPKCKQ1>; Wed, 3 Nov 1999 05:16:27 -0500
-Received: by vger.rutgers.edu id <S154487AbPKCKLR>; Wed, 3 Nov 1999 05:11:17 -0500
-Received: from smarty.smart.net ([207.176.80.102]:3783 "EHLO smarty.smart.net") by vger.rutgers.edu with ESMTP id <S154797AbPKCJ4u>; Wed, 3 Nov 1999 04:56:50 -0500
-From: Rick Hohensee <humbubba@smarty.smart.net>
-Message-Id: <199911030956.EAA10751@smarty.smart.net>
-Subject: Toward a host-complete Forth for Linux
-To: linux-kernel@vger.rutgers.edu
-Date: Wed, 3 Nov 1999 04:56:48 -0500 (EST)
-Cc: cl@ncdm.com, eddie@mngovsci.com
-X-Mailer: ELM [version 2.4 PL24]
+Received: by vger.rutgers.edu via listexpand id <S154890AbPKESKn>; Fri, 5 Nov 1999 13:10:43 -0500
+Received: by vger.rutgers.edu id <S154849AbPKESEM>; Fri, 5 Nov 1999 13:04:12 -0500
+Received: from neon-best.transmeta.com ([206.184.214.10]:20553 "EHLO neon.transmeta.com") by vger.rutgers.edu with ESMTP id <S154829AbPKESB7>; Fri, 5 Nov 1999 13:01:59 -0500
+Date: Fri, 5 Nov 1999 10:04:22 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Paul Gortmaker <p_gortmaker@yahoo.com>
+Cc: linux-kernel list <linux-kernel@vger.rutgers.edu>
+Subject: Re: EISA i/o mem & ioremap vs isa_memcpy
+In-Reply-To: <3821F95D.60EC8B0C@yahoo.com>
+Message-ID: <Pine.LNX.4.10.9911051003180.1748-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-linux-kernel@vger.rutgers.edu
 
 
-We all know what Turing-complete is. Turing-complete is just the CPU 
-though. What about ports, devices, user feedback? Let's call that
-"host-complete". For host-completeness on Linux you have to support at
-least the essential syscalls. I believe there are a few that are
-derived, i.e. can be built with others. Well, I got about 105 of them
-in pforth, which is descended of my old flame, JForth for the Amiga,
-via 3DO. write works, I think geteuid works, but I can't begin to
-check all of them. They only add about 16k to the C-compiled pforth
-kernel, but they represent most of the functionality of Linux. Really,
-it's probably more bugs than non-bugs, but it demonstrates linking
-syscalls into an existing Forth.
 
-sysforth.tgz is in   ftp://linux01.gwdg.de/pub/cLIeNUX/interim
-right next to libsys.
+On Thu, 4 Nov 1999, Paul Gortmaker wrote:
+> 
+> My question is: Does adding the isa_ prefix to the memcpy (and readb &
+> friends) make sense for these EISA cases or should I just do the ioremap()
+> unconditionally and not use the isa_ prefix.  I tend to prefer the latter.
 
-pforth is pretty lucid code, and it doesn't have many libc dependancies,
-so a libc-less build is concievable. Then all that's needed for an 
-all-Forth userspace that's a complete OS is gcc rewritten in Forth,
-which is Left As An Excercize To The Reader   ;o)
+Just do the ioremap() unconditionally.
 
-pforth is public domain, and so is this release of "sysforth". Further 
-work on this by me will be non-free-ified into my distro, so grab it now
-if such things interest you. My understanding is that an author can't
-release his right to normal authorship aknowledgement, but all other
-rights I have in sysforth are released.
+Note that the isa_xxxx() functions are for old drivers that do NOT know
+about ioremap(), and think that the ISA space is always mapped. Think of
+it as a band-aid for stupid drivers, making it easier to bring them up to
+working order. But the "ioremap()" approach is always the right one.
 
-Sorry about the topic skew, but since this creates a useable and 
-versatile system at about 200k over the size of the kernel itself 
-I think it pertains.
+		Linus
 
-Rick Hohensee
-here's an outtake of "words"
-FIRST_COLON     ::::system.fth  SYSINFO WAIT4
-VM86    VM86OLD IDLE    VHANGUP IOPL    LINKSTAT
-FIDSTAT STAT    SYSLOG  SOCKET  PORTACCESS
-SETPRIORITY     GETPRIORITY     TRUNCATE
-READDIR REBOOT  SWAPOFF SWAPON  USELIB  READLINK
-SYMLINK SETGROUPS       SETTIMEOFDAY    GETTIMEOFDAY
-GETRESOURCEUSAGE        GETRESOURCELIMIT
-SETRESOURCELIMIT        SETREGID        SETREUID
-SIGSUSPEND      SIGPENDING      SIGPROCMASK
-SIGACTION       SETSID  DEVSTAT PERMSMASK
-GETPGID SETPGID IOCTL   EGID    EUID    HANDLER
-SETGID  PROCESSTIMES    PIPE    RMDIR   MAKEDIR
-RENAME  SIGNAL  NICE    TIMESTAMP       PAUSE
-PTRACE  EPOCHSET        UID     SETUID  NEWOWNERL
-NEWOWNERF       NEWOWNER        MEMRESIZE
-BUFFERSFLUSH    TIMEADJUST      FDATASYNC
-DIRENTS FCHDIR  PGID    FSYNC   ITIMER  SETITIMER
-FSTATFS FCHMOD  FTRUNCATE       GROUPS  GETPGRP
-PPID    DUP2FID TEMPROOT        FCNTL3  ACCT
-GID     DUPFID  ACCESS  ALARM   UNMOUNT MOUNT
-PID     LSEEK   PERMIT  SPECIAL EPOCH   CHDIR
-EXECVE  UNLINK  HARDLINK        CREATEFILE
-WAITPID CLOSE   OPEN    WRITE   READ    FORK
-FLUSH   ARGSTEST        CLIENUX CTEST1  CTEST0
-
-I haven't done the stack-diagrams yet ;o)
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,38 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316845AbSIJRLi>; Tue, 10 Sep 2002 13:11:38 -0400
+	id <S317025AbSIJRNJ>; Tue, 10 Sep 2002 13:13:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316856AbSIJRLi>; Tue, 10 Sep 2002 13:11:38 -0400
-Received: from mailrelay.nefonline.de ([212.114.153.196]:26897 "EHLO
-	mailrelay.nefonline.de") by vger.kernel.org with ESMTP
-	id <S316845AbSIJRLi>; Tue, 10 Sep 2002 13:11:38 -0400
-Message-Id: <200209101716.TAA06198@myway.myway.de>
-From: "Daniela Engert" <dani@ngrt.de>
-To: "Andre Hedrick" <andre@linux-ide.org>,
-       "Zwane Mwaikambo" <zwane@mwaikambo.name>
-Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-       "Linux Kernel" <linux-kernel@vger.kernel.org>
-Date: Tue, 10 Sep 2002 19:16:09 +0200 (CDT)
-Reply-To: "Daniela Engert" <dani@ngrt.de>
-X-Mailer: PMMail 2.20.2200 for OS/2 Warp 4.05
-In-Reply-To: <Pine.LNX.4.44.0209101920260.1100-100000@linux-box.realnet.co.sz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Subject: Re: [PATCH]][2.4-ac] opti621 can't do dma
+	id <S317073AbSIJRNJ>; Tue, 10 Sep 2002 13:13:09 -0400
+Received: from mail.gmx.de ([213.165.64.20]:65166 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S317025AbSIJRNF>;
+	Tue, 10 Sep 2002 13:13:05 -0400
+Message-Id: <5.1.0.14.2.20020910190828.00b27258@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Tue, 10 Sep 2002 19:15:08 +0200
+To: Shawn <core@enodev.com>, Andi Kleen <ak@suse.de>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: XFS?
+Cc: Thunder from the hill <thunder@lightweight.ods.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20020909162050.B4781@q.mn.rr.com>
+References: <p73wupuq34l.fsf@oldwotan.suse.de>
+ <20020909193820.GA2007@lnuxlab.ath.cx.suse.lists.linux.kernel>
+ <Pine.LNX.4.44.0209091457590.3793-100000@hawkeye.luckynet.adm.suse.lists.linux.kernel>
+ <p73wupuq34l.fsf@oldwotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Sep 2002 19:22:41 +0200 (SAST), Zwane Mwaikambo wrote:
+At 04:20 PM 9/9/2002 -0500, Shawn wrote:
+>XFS needs a sponser. Who amung Linus's circle of trust cares to comment
+>or re-evaluate?
+>
+>If no one, I guess it's a moot point.
 
->	afaik the opti621 can't do DMA, also aren't they all addon cards?
+(see below)
 
-The Compaq Armada 1530 Notebook has a Opti FireStar chipset with an IDE
-controller which is Ultra DMA capable (but stable only up to MW-DMA
-mode 2). This one *should* be handled by the Linux opti621 driver (I
-don't know if it is).
+>On 09/09, Andi Kleen said something like:
+> > Thunder from the hill <thunder@lightweight.ods.org> writes:
+> >
+> > > Hi,
+> > >
+> > > On Mon, 9 Sep 2002, khromy wrote:
+> > > > What's up with XFS in linux-2.5? I've seen some patches sent to the 
+> list
+> > > > but I havn't seen any replies from linus.. What needs to be done to
+> > > > finally merge it?
+> > >
+> > > It has been stated quite regularly that XFS
+> > > a) doesn't always work like it should yet
+> >
+> > That's quite bogus. While not being perfect XFS just works fine for lots
+> > of people in production and performs very well for a lot of tasks.
+> >
+> > > b) involves some changes which Linus doesn't like in particular, for
+> > >    pretty good reasons.
+> >
+> > I think that's FUD too. That last patch had 6 lines or so of changes
+> > to generic code, everything else was already merged.
 
-Ciao,
-  Dani
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+         -Mike
 

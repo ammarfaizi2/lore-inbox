@@ -1,54 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318972AbSHFE3o>; Tue, 6 Aug 2002 00:29:44 -0400
+	id <S318955AbSHFASD>; Mon, 5 Aug 2002 20:18:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318976AbSHFE3o>; Tue, 6 Aug 2002 00:29:44 -0400
-Received: from ool-182fa350.dyn.optonline.net ([24.47.163.80]:20865 "EHLO
-	nikolas.hn.org") by vger.kernel.org with ESMTP id <S318972AbSHFE3o>;
-	Tue, 6 Aug 2002 00:29:44 -0400
-Date: Tue, 6 Aug 2002 00:33:04 -0400
-From: Nick Orlov <nick.orlov@mail.ru>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] pdc20265 problem.
-Message-ID: <20020806043304.GA8272@nikolas.hn.org>
-Mail-Followup-To: Bill Davidsen <davidsen@tmr.com>,
-	Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <Pine.SOL.4.30.0208030241540.18115-100000@mion.elka.pw.edu.pl> <Pine.LNX.3.96.1020805234655.4423B-100000@gatekeeper.tmr.com>
+	id <S318956AbSHFASD>; Mon, 5 Aug 2002 20:18:03 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:20721 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S318955AbSHFASC>;
+	Mon, 5 Aug 2002 20:18:02 -0400
+Date: Mon, 5 Aug 2002 17:21:26 -0700
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Linux 2.4.20-pre1
+Message-ID: <20020806002126.GA10585@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.96.1020805234655.4423B-100000@gatekeeper.tmr.com>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 05, 2002 at 11:48:47PM -0400, Bill Davidsen wrote:
-> On Sat, 3 Aug 2002, Bartlomiej Zolnierkiewicz wrote:
-> 
-> > And second problem is that 20265 is used as primary onboard
-> > sometimes and sometimes as offboard (another config option?).
-> 
-> Can that not be configured at boot time with ide0=xxx or similar? I'm
-> clearly missing why it would matter on or off board as long as the
-> controller(s) were checked in the right order.
-> 
+	Hi,
 
-I'm not expert in this field, but my current understanding is:
+	Sorry to disturb, but it seems that kernel.org didn't pick up
+2.4.20-pre1 (or I'm looking at the wrong places).
 
-1. ide0/1 reserved for onboard controllers.
-2. on most hardware, pdc20xxx is really additional controller.
-3. if we put pdc20265 in "onboard" list on some hardware (mine for example)
-pdc20265 is assigned to ide0/1 (even if it's really ide2/3)
-4. ide0=<what> ??? (do we have this option?)
+	I'm asking because I've just finished testing my IrDA update
+for 2.4.20, and you've just included some useless IrDA change that
+probably render my patch worthless. So, I need to check and see how
+much more work I need to do (or if I should just give up).
 
-Correct me, if I'm wrong.
+	Regards,
 
--- 
-With best wishes,
-	Nick Orlov.
-
+	Jean

@@ -1,109 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280842AbRKBVQW>; Fri, 2 Nov 2001 16:16:22 -0500
+	id <S280839AbRKBVRF>; Fri, 2 Nov 2001 16:17:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280839AbRKBVQN>; Fri, 2 Nov 2001 16:16:13 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:63499 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S280842AbRKBVPw>; Fri, 2 Nov 2001 16:15:52 -0500
-Date: Fri, 2 Nov 2001 13:13:10 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-cc: Daniel Phillips <phillips@bonn-fries.net>
-Subject: Re: Google's mm problem - not reproduced on 2.4.13
-In-Reply-To: <Pine.LNX.4.33.0111021250560.20078-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.33.0111021303060.20128-100000@penguin.transmeta.com>
+	id <S280844AbRKBVQx>; Fri, 2 Nov 2001 16:16:53 -0500
+Received: from inje.iskon.hr ([213.191.128.16]:952 "EHLO inje.iskon.hr")
+	by vger.kernel.org with ESMTP id <S280839AbRKBVQf>;
+	Fri, 2 Nov 2001 16:16:35 -0500
+To: "Jeffrey W. Baker" <jwbaker@acm.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Zlatko's I/O slowdown status
+In-Reply-To: <Pine.LNX.4.33.0111021215260.15759-100000@windmill.gghcwest.com>
+Reply-To: zlatko.calusic@iskon.hr
+X-Face: s71Vs\G4I3mB$X2=P4h[aszUL\%"`1!YRYl[JGlC57kU-`kxADX}T/Bq)Q9.$fGh7lFNb.s
+ i&L3xVb:q_Pr}>Eo(@kU,c:3:64cR]m@27>1tGl1):#(bs*Ip0c}N{:JGcgOXd9H'Nwm:}jLr\FZtZ
+ pri/C@\,4lW<|jrq^<):Nk%Hp@G&F"r+n1@BoH
+From: Zlatko Calusic <zlatko.calusic@iskon.hr>
+Date: 02 Nov 2001 22:16:28 +0100
+In-Reply-To: <Pine.LNX.4.33.0111021215260.15759-100000@windmill.gghcwest.com> ("Jeffrey W. Baker"'s message of "Fri, 2 Nov 2001 12:16:40 -0800 (PST)")
+Message-ID: <87bsikeuvn.fsf@atlas.iskon.hr>
+User-Agent: Gnus/5.090003 (Oort Gnus v0.03) XEmacs/21.4 (Artificial Intelligence)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Jeffrey W. Baker" <jwbaker@acm.org> writes:
 
-[ Slightly updated version of earlier private email ]
+> On 2 Nov 2001, Zlatko Calusic wrote:
+> 
+> > Andrea Arcangeli <andrea@suse.de> writes:
+> >
+> > > Hello Zlatko,
+> > >
+> > > I'm not sure how the email thread ended but I noticed different
+> > > unplugging of the I/O queues in mainline (mainline was a little more
+> > > overkill than -ac) and also wrong bdflush histeresis (pre-wakekup of
+> > > bdflush to avoid blocking if the write flood could be sustained by the
+> > > bandwith of the HD was missing for example).
+> >
+> > Thank God, today it is finally solved. Just two days ago, I was pretty
+> > sure that disk had started dying on me, and i didn't know of any
+> > solution for that. Today, while I was about to try your patch, I got
+> > another idea and finally pinpointed the problem.
+> >
+> > It was write caching. Somehow disk was running with write cache turned
+> > off and I was getting abysmal write performance. Then I found hdparm
+> > -W0 /proc/ide/hd* in /etc/init.d/umountfs which is ran during shutdown
+> > but I don't understand how it survived through reboots and restarts!
+> > And why only two of four disks, which I'm dealing with, got confused
+> > with the command. And finally I don't understand how I could still got
+> > full speed occassionaly. Weird!
+> >
+> > I would advise users of Debian unstable to comment that part, I'm sure
+> > it's useless on most if not all setups. You might be pleasantly
+> > surprised with performance gains (write speed doubles).
+> 
+> That's great if you don't mind losing all of your data in a power outage!
 
-On Fri, 2 Nov 2001, Daniel Phillips wrote:
->
-> Yes, it does various things on various vms.  On 2.4.9 it stays on the
-> inactive list until free memory gets down to rock bottom, then most of it
-> moves to the active list and the system reaches a steady state where it can
-> operate, though with kswapd grabbing 99% CPU (two processor system), but the
-> test does complete.  On the current kernel the it dies.
+That has nothing to do with power outage, it is only run during
+halt/poweroff. 
 
-On the 2.4.9 kernel, the "active" list is completely and utterly misnamed.
+> What do you think happens if the software thinks data is committed to
+> permanent storage when in fact it in only in DRAM on the drive?
+> 
 
-We move random pages to the active list, for random reasons. One of the
-random reasons we have is "this page is mapped". Which has nothing to do
-with activeness. The "active" list might as well have been called
-"random_list_two".
+Bad things of course. But -W0 won't save you from file corruption when
+you have megabytes of data in page cache, still not synced on disk,
+and suddenly you lost power.
 
-In the new VM, only _active_ page get moved to the active list. So the
-mlocked pages will stay on the inactive list until somebody says they are
-active. And right now nobody will ever say that they are active, because
-we don't even scan the locked areas.
-
-And the advantage of the non-random approach is that in the new VM, we can
-_use_ the knowledge that the inactive list has filled up with mapped pages
-to make a _useful_ decision: we decide that we need to start scanning the
-VM tree and try to remove pages from the mappings.
-
-Notice? No more "random decisions". We have a well-defined point where we
-can say "Ok, our inactive list seems to be mostly mapped, so let's try to
-unmap something".
-
-In short, 2.4.9 handles the test because it does everything else wrong.
-
-While 2.4.13 doesn't handle the test well, because the VM says "there's a
-_lot_ of inactive mapped pages, I need to _do_ something about it". And
-then vmscanning doesn't actually do anything.
-
-Suggested patch appended.
-
-> In the tests I did, it was about 1 gig out of 2.  I'm not sure how much
-> memory is mlocked in the 3.5 Gig test the one that's failing, but it's
-> certainly not anything like all of memory.  Really, we should be able to
-> mlock 90%+ of memory without falling over.
-
-Not a way in hell, for many reasons, and none of them have anything to do
-with this particular problem.
-
-The most _trivial_ reason is that if you lock more than 900MB of memory,
-that locked area may well be all of the lowmem pages, and you're now
-screwed forever. Dead, dead, dead.
-
-(And I can come up with loads that do exactly the above: it's easy enough
-to try to first allocate up all of highmem, and then do a mlock and try to
-allocate up all of lowmem locked. It's even easier if you use loopback or
-something that only wants to allocate lowmem in the first place).
-
-In short, we MUST NOT mlock more than maybe 500MB _tops_ on intel. If we
-ever do, our survival is pretty random, regardless of other VM issues.
-
-The appended patch will should fix the unintentional problem, though.
-
-		Linus
-
-----
-diff -u --recursive --new-file penguin/linux/mm/vmscan.c linux/mm/vmscan.c
---- penguin/linux/mm/vmscan.c	Thu Nov  1 17:59:12 2001
-+++ linux/mm/vmscan.c	Fri Nov  2 13:10:58 2001
-@@ -49,7 +49,7 @@
- 	swp_entry_t entry;
-
- 	/* Don't look at this pte if it's been accessed recently. */
--	if (ptep_test_and_clear_young(page_table)) {
-+	if ((vma->vm_flags & VM_LOCKED) || ptep_test_and_clear_young(page_table)) {
- 		mark_page_accessed(page);
- 		return 0;
- 	}
-@@ -220,8 +220,8 @@
- 	pgd_t *pgdir;
- 	unsigned long end;
-
--	/* Don't swap out areas which are locked down */
--	if (vma->vm_flags & (VM_LOCKED|VM_RESERVED))
-+	/* Don't swap out areas which are reserved */
-+	if (vma->vm_flags & VM_RESERVED)
- 		return count;
-
- 	pgdir = pgd_offset(mm, address);
-
+Of course, journalling filesystems will change things a bit...
+-- 
+Zlatko

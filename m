@@ -1,27 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262574AbUCEMcX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 07:32:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262573AbUCEMcX
+	id S262576AbUCEMeu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 07:34:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262579AbUCEMeu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 07:32:23 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:32474 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262574AbUCEMbx (ORCPT
+	Fri, 5 Mar 2004 07:34:50 -0500
+Received: from [202.125.86.130] ([202.125.86.130]:53733 "EHLO
+	ns2.astrainfonets.net") by vger.kernel.org with ESMTP
+	id S262576AbUCEMes convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 07:31:53 -0500
-Date: Fri, 5 Mar 2004 13:31:46 +0100
-From: Jens Axboe <axboe@suse.de>
-To: "Jinu M." <jinum@esntechnologies.co.in>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: INIT_REQUEST & CURRENT undeclared!
-Message-ID: <20040305123146.GM10923@suse.de>
-References: <1118873EE1755348B4812EA29C55A9721286EB@esnmail.esntechnologies.co.in>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1118873EE1755348B4812EA29C55A9721286EB@esnmail.esntechnologies.co.in>
+	Fri, 5 Mar 2004 07:34:48 -0500
+Content-class: urn:content-classes:message
+Subject: RE: INIT_REQUEST & CURRENT undeclared!
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Date: Fri, 5 Mar 2004 18:02:02 +0530
+X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
+Message-ID: <1118873EE1755348B4812EA29C55A9721286EF@esnmail.esntechnologies.co.in>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: INIT_REQUEST & CURRENT undeclared!
+Thread-Index: AcQCrXte9HuCpCsxSZG2gEv8N1GCgAAAEbtQ
+From: "Jinu M." <jinum@esntechnologies.co.in>
+To: "Jens Axboe" <axboe@suse.de>
+Cc: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
+I am using linux kernel 2.4.18.
+
+-Jinu
+
+-----Original Message-----
+From: Jens Axboe [mailto:axboe@suse.de] 
+Sent: Friday, March 05, 2004 6:02 PM
+To: Jinu M.
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: INIT_REQUEST & CURRENT undeclared!
 
 On Fri, Mar 05 2004, Jinu M. wrote:
 > Hello All!

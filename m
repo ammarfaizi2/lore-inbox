@@ -1,42 +1,61 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314596AbSE2JU4>; Wed, 29 May 2002 05:20:56 -0400
+	id <S314634AbSE2J35>; Wed, 29 May 2002 05:29:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314634AbSE2JUz>; Wed, 29 May 2002 05:20:55 -0400
-Received: from www.cds4u.com ([196.28.7.66]:21980 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S314596AbSE2JUz>; Wed, 29 May 2002 05:20:55 -0400
-Date: Wed, 29 May 2002 10:53:33 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: zwane@netfinity.realnet.co.sz
-To: Karim Yaghmour <karim@opersys.com>
-Cc: Mark Mielke <mark@mark.mielke.cc>, Roman Zippel <zippel@linux-m68k.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, <yodaiken@fsmlabs.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: A reply on the RTLinux discussion.
-In-Reply-To: <3CF446D1.684250F2@opersys.com>
-Message-ID: <Pine.LNX.4.44.0205291051080.19359-100000@netfinity.realnet.co.sz>
+	id <S314637AbSE2J34>; Wed, 29 May 2002 05:29:56 -0400
+Received: from vulcan.alphanet.ch ([62.2.159.14]:25620 "EHLO
+	vulcan.alphanet.ch") by vger.kernel.org with ESMTP
+	id <S314634AbSE2J34>; Wed, 29 May 2002 05:29:56 -0400
+Date: Wed, 29 May 2002 11:25:35 +0200 (MEST)
+From: Marc SCHAEFER <schaefer@alphanet.ch>
+Reply-To: Marc SCHAEFER <schaefer@alphanet.ch>
+To: linux-kernel@vger.kernel.org
+Subject: Re: IDE hotswap
+In-Reply-To: <Pine.LNX.3.96.1020528180129.20664B-100000@defian.alphanet.ch>
+Message-ID: <Pine.LNX.3.96.1020529111715.1628A-100000@defian.alphanet.ch>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 May 2002, Karim Yaghmour wrote:
+On Tue, 28 May 2002, Marc SCHAEFER wrote:
 
-> "The GPL/RTLinux work that we do loses money -- actually, we budget it
-> under "marketing"."
-> 
-> Regardless of which side of the political spectrum you find yourself,
-> ask yourself this question:
-> Do I want to be part of Victor's marketing team?
+> I would like to implement real hotswapping support with IDE drives in the
+> following setup:
 
-The same could be said for many distributions which allow free downloads, 
-no?
+Ok, after a few more searches, and very nice help from a linux-kernel
+reader, I found notably a past thread which is full of very interesting
+information:
 
-You could also word it as, do i want to be a proponent for Linus' evil 
-world domination schemes? Its your choice...
+   http://search.alphanet.ch/cgi-bin/search.cgi?subject=IDE+and+hot-swap+disk+caddies&max_results=10&type=long&domain=ml-linux-kernel
 
--- 
-http://function.linuxpower.ca
-		
+(put 31 instead of 10 if you want the whole thing in one page).
+
+We learn there that:
+
+   - someone else tried the module stuff, but failed (I had success)
+
+        I have noticed, by creating a simple boot floppy with IDE modules
+        (ide_mod, ide_disk, ide_probe_mod), that if you remove ide_probe_mod, 
+        replace the disk, and reinsert ide_probe_mod, the disk is detected
+        correctly (geometry, size, etc) after reinsert or even type
+        change.
+
+   - some chipset support tri-stating the bus (hdparm -b 2), I need
+     to investigate if this is implemented/works on my hardware. It seems
+     to work very well especially if you only put one device per bus,
+     which is my goal.
+
+   - some disks can be marked `hotswap' (-x option of hdparam), no idea
+     what it means yet.
+
+So I am going to investigate in this direction, maybe combining the
+tristate with partial re-detection.
+
+(I also got mail asking me to sign before an NDA before telling me
+anything, that was a bit stupid. AFAIK saying `doing it without tristating
+can fry your hardware' is not patented yet. Maybe it's this world which is
+going insane because of patents).
+
+Thank you for your time.
 

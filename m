@@ -1,41 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278108AbRKHM1S>; Thu, 8 Nov 2001 07:27:18 -0500
+	id <S278514AbRKHMb2>; Thu, 8 Nov 2001 07:31:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278041AbRKHM1J>; Thu, 8 Nov 2001 07:27:09 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:11280 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S277317AbRKHM0z>; Thu, 8 Nov 2001 07:26:55 -0500
-Date: Thu, 8 Nov 2001 13:26:39 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Riley Williams <rhw@MemAlpha.cx>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: Linux updates RTC secretly when clock synchronizes
-Message-ID: <20011108132639.A14160@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20011106111723.C26034@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.21.0111062347080.16087-100000@Consulate.UFP.CX>
+	id <S278041AbRKHMbT>; Thu, 8 Nov 2001 07:31:19 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:26126 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S277317AbRKHMbF>;
+	Thu, 8 Nov 2001 07:31:05 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: "BALBIR SINGH" <balbir.singh@wipro.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Suspected error in make dep 
+In-Reply-To: Your message of "Thu, 08 Nov 2001 15:38:27 +0530."
+             <3BEA599B.6080606@wipro.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0111062347080.16087-100000@Consulate.UFP.CX>
-User-Agent: Mutt/1.3.20i
+Date: Thu, 08 Nov 2001 23:30:53 +1100
+Message-ID: <20204.1005222653@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Thu, 08 Nov 2001 15:38:27 +0530, 
+"BALBIR SINGH" <balbir.singh@wipro.com> wrote:
+>Pentium III, 128MB, Linux 2.4.13 while running make dep on 2.4.14
+>
+>sa1100fb.c:164:27: linux/cpufreq.h: No such file or directory
+>I was wondering why this file is used in make dep. Did I miss something or
+>should I wait for kbuild in 2.5?
 
-> >> least as KERN_DEBUG if not as KERN_NOTICE) whenever the RTC is
-> >> written to. It's too important a subsystem to be left hidden like
-> >> it currently is.
-> 
-> > This can be as well done in userland, enforced by whoever does rtc
-> > writes, no?
-> 
-> If some idiot writes a hwclock replacement that doesn't do logging, and
+make dep is fundamentally flawed, ignore all "file not found" messages.
+Roll on kbuild 2.5, no more "make dep"!.
 
-Then it is *his* problem. That's not excuse for putting it into kernel.
-
-
-
--- 
-Casualities in World Trade Center: 6453 dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.

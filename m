@@ -1,75 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266908AbUBMKqp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 05:46:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266911AbUBMKqp
+	id S266563AbUBMKlH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 05:41:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266901AbUBMKlH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 05:46:45 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:59520 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S266908AbUBMKqn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 05:46:43 -0500
-From: Nikita Danilov <Nikita@Namesys.COM>
+	Fri, 13 Feb 2004 05:41:07 -0500
+Received: from nsmtp.pacific.net.th ([203.121.130.117]:42902 "EHLO
+	nsmtp.pacific.net.th") by vger.kernel.org with ESMTP
+	id S266563AbUBMKlD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Feb 2004 05:41:03 -0500
+From: Michael Frank <mhf@linuxmail.org>
+To: Nick Piggin <piggin@cyberone.com.au>
+Subject: Re: PATCH, RFC: 2.6 Documentation/Codingstyle
+Date: Fri, 13 Feb 2004 18:50:41 +0800
+User-Agent: KMail/1.5.4
+Cc: Andrew Morton <akpm@osdl.org>, Giuliano Pochini <pochini@shiny.it>,
+       linux-kernel@vger.kernel.org
+References: <200402130615.10608.mhf@linuxmail.org> <200402131749.19758.mhf@linuxmail.org> <402CA267.4090202@cyberone.com.au>
+In-Reply-To: <402CA267.4090202@cyberone.com.au>
+X-OS: KDE 3 on GNU/Linux
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16428.43792.582229.53954@laputa.namesys.com>
-Date: Fri, 13 Feb 2004 13:46:40 +0300
-To: Andrew Morton <akpm@osdl.org>
-Cc: lepton <lepton@mail.goldenhope.com.cn>, linux-kernel@vger.kernel.org
-Subject: Re: [BUG]kmalloc memory in reiserfs code failed on a dual amd64/4G
- linux 2.6.2 box
-In-Reply-To: <20040212223139.61c3c349.akpm@osdl.org>
-References: <20040213031653.GA25623@lepton.goldenhope.com.cn>
-	<20040212223139.61c3c349.akpm@osdl.org>
-X-Mailer: VM 7.17 under 21.5  (beta16) "celeriac" XEmacs Lucid
+Content-Disposition: inline
+Message-Id: <200402131850.41339.mhf@linuxmail.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton writes:
- > lepton <lepton@mail.goldenhope.com.cn> wrote:
- > >
- > >  I seen such dmesg in mu dual amd64/4G memory box.
- > > 
- > >  I am running kernel 2.6.2
- > > 
- > >  This is the second time I saw some problems about __alloc_pages on this
- > >  amd 64 box...
- > > 
- > > 
- > >  sort: page allocation failure. order:1, mode:0x20
- > > 
- > >  Call Trace:<ffffffff8014e5f0>{__alloc_pages+816} <ffffffff8014e65e>{__get_free_pages+78} 
- > >         <ffffffff80151921>{cache_grow+177} <ffffffff80151e78>{cache_alloc_refill+440} 
- > >         <ffffffff801521c6>{__kmalloc+102} <ffffffff801b44f6>{get_mem_for_virtual_node+102} 
- > >         <ffffffff801b49a8>{fix_nodes+232} <ffffffff801c08c5>{reiserfs_insert_item+149} 
- > >         <ffffffff801acf2c>{reiserfs_new_inode+892} <ffffffff801bd6a8>{pathrelse+40} 
- > >         <ffffffff801a834b>{reiserfs_create+171} <ffffffff8017690c>{vfs_create+140} 
- > >         <ffffffff80176ca8>{open_namei+424} <ffffffff801675a7>{filp_open+39} 
- > >         <ffffffff801210a8>{sys32_open+56} <ffffffff8011e25e>{ia32_do_syscall+30}
- > 
- > Nikita, why cannot get_mem_for_virtual_node() use GFP_KERNEL?
+On Friday 13 February 2004 18:09, Nick Piggin wrote:
+> 
+> Michael Frank wrote:
+> 
+> >On Friday 13 February 2004 17:10, Andrew Morton wrote:
+> >
+> >>
+> >>Yes, 80 cols sucks and the world would be a better place had CodingStyle
+> >>mandated 96 columns five years ago.  But it didn't happen.
+> >>
+> >>
+> >
+> >As to "five years ago", what about review the coding style situation before 
+> >starting 2.7:
+> >
+> >In view of better hardware, increasing linelength a little to 96 could be 
+> >considered without increasing the number of indentation levels.
+> >
+> >
+> 
+> I hope not, I usually use 80 columns. Email's using 80 columns.
+> And lines start becoming difficult for the eyes to follow as they
+> get longer. Maybe this isn't so much a problem with C code due to
+> indentation and the sparseness of the lines.
+> 
 
-Some stage in reiserfs balancing (fix_nodes() function) has to be
-performed without ever scheduling. If it schedules, it has to be
-restarted. As we don't want to restart often, we first try to do atomic
-allocation, and if it fails, GFP_NOFS allocation is done, and
-fix_nodes() restarted.
+Just for consideration and nesting should _not_ be increased ;)
 
-All we need is to suppress warning.
+80 is quite OK but has not much margin and is asking for more lines
+times with nesting of 3.	
 
-Nikita.
-----------------------------------------------------------------------
-===== fs/reiserfs/fix_node.c 1.30 vs edited =====
---- 1.30/fs/reiserfs/fix_node.c	Tue Jul 15 21:01:30 2003
-+++ edited/fs/reiserfs/fix_node.c	Fri Feb 13 13:39:25 2004
-@@ -2037,7 +2037,7 @@
- 	tb->vn_buf_size = size;
- 
- 	/* get memory for virtual item */
--	buf = reiserfs_kmalloc(size, GFP_ATOMIC, tb->tb_sb);
-+	buf = reiserfs_kmalloc(size, GFP_ATOMIC | __GFP_NOWARN, tb->tb_sb);
- 	if ( ! buf ) {
- 	    /* getting memory with GFP_KERNEL priority may involve
-                balancing now (due to indirect_to_direct conversion on
-----------------------------------------------------------------------
+0	1	2	3	4					        |<81
+	
+		printk(KERN_WARNING "Warning this is a long printk with "
+						"3 parameters a: %u b: %u "
+						"c: %u \n", a, b, c);
+		next_statement;
+
+		printk(KERN_WARNING "Warning this is a long printk with "
+			"3 parameters a: %u b: %u "c: %u \n", a, b, c);
+		next_statement;
+
+96 is not excessive and will reduce linecount and often makes things more readable.
+
+0	1	2	3	4								|<97
+
+		printk(KERN_WARNING "Warning this is a long printk with 3 parameters "
+							"a: %u b: %u "c: %u \n", a, b, c);
+		next_statement;
+
+

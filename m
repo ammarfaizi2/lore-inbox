@@ -1,56 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263203AbTHWAWM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Aug 2003 20:22:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262052AbTHWAWM
+	id S262556AbTHWAWV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Aug 2003 20:22:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262540AbTHWAWU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Aug 2003 20:22:12 -0400
-Received: from mail.kroah.org ([65.200.24.183]:40073 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263203AbTHWAWJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Aug 2003 20:22:09 -0400
-Date: Fri, 22 Aug 2003 17:22:03 -0700
-From: Greg KH <greg@kroah.com>
-To: Luis Medinas <metalgodin@linuxmail.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problem with 2.6-testXX and alcatel speedtouch usb modem
-Message-ID: <20030823002203.GA11633@kroah.com>
-References: <20030822110830.15262.qmail@linuxmail.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030822110830.15262.qmail@linuxmail.org>
-User-Agent: Mutt/1.4.1i
+	Fri, 22 Aug 2003 20:22:20 -0400
+Received: from dyn-ctb-210-9-245-87.webone.com.au ([210.9.245.87]:55049 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id S263460AbTHWAWS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Aug 2003 20:22:18 -0400
+Message-ID: <3F46B3A8.3070101@cyberone.com.au>
+Date: Sat, 23 Aug 2003 10:22:00 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030714 Debian/1.4-2
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Roger Luethi <rl@hellgate.ch>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [CFT][PATCH] new scheduler policy
+References: <3F4182FD.3040900@cyberone.com.au> <20030822085508.GA10215@k3.hellgate.ch> <3F4615D8.9030200@cyberone.com.au> <20030822151150.GA27508@k3.hellgate.ch>
+In-Reply-To: <20030822151150.GA27508@k3.hellgate.ch>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 22, 2003 at 07:08:30PM +0800, Luis Medinas wrote:
-> >I try to make this modem working.
-> >It works very well on kernel 2.4 series.
-> >It work with some kernel 2.6 until test2-mm1.
-> >But since test2-mm1, the newer kernel doesn't work anymore.
-> >There is 2 related drivers for this modem.
-> >The one which is included in the kernel and which can be found here :
-> >http://www.linux-usb.org/SpeedTouch/
-> >and the one which I've always used until now :
-> >speedtouch.sourceforge.net
-> 
-> >when I notice that the old one doesn't work anymore, I try with the driver 
-> >which included in the kernel, without success.
-> 
-> >It crashed when I do "pppd call adsl".
-> >I can load the firmware.
-> 
-> Looks like this is happening to all 2.6.0-test3 users with speedtouch
-> usb modems And i heard that speedtouch.sf.net developers want to leave
-> 2.6 tree stabilize more a little bit to continue develop drivers with
-> the correct support.
 
-Um, as you have helped narrow down where the problem happened, I would
-_really_ suggest they get involved in order to get the 2.6 tree to a
-"stable" state.  Otherwise this bug is not going to get fixed due to the
-fact that this is the only driver having problems right now.
 
-thanks,
+Roger Luethi wrote:
 
-greg k-h
+>On Fri, 22 Aug 2003 23:08:40 +1000, Nick Piggin wrote:
+>
+>>>I timed a pathological benchmark from hell I've been playing with lately.
+>>>Three consecutive runs following a fresh boot. Time is in seconds:
+>>>
+>>>2.4.21			821	21	25
+>>>2.6.0-test3-mm1		724	946	896
+>>>2.6.0-test3-mm1-nick	905	987	997
+>>>
+>>>Runtime with ideal scheduling: < 2 seconds (we're thrashing).
+>>>
+>>>
+>>Cool. Can you post the benchmark source please?
+>>
+>
+>http://hellgate.ch/code/ploc/thrash.c
+>
+>A parallel kernel build can generate some decent thrashing, too, but I
+>wanted a short and simple test case that conveniently provides the
+>information I need for both logging daemon and post processing tool.
+>
+>Note: The benchmark could trivially be made more evil which would prevent
+>2.4.21 from finishing over 30 times faster (as it often does). I
+>intentionally left it they way it is.
+>
+>While everybody seems to be working on interactivity, I am currently
+>looking at this corner case. This should be pretty much orthogonal to your
+>own work.
+>
+
+Yes, improvements for this problem are usually in the form of a
+secondary scheduler of sorts somewhere in the VM. Hard problem.
+
+

@@ -1,48 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261965AbUBJWed (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 17:34:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262048AbUBJWed
+	id S261890AbUBJWpO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 17:45:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261950AbUBJWpO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 17:34:33 -0500
-Received: from mail014.syd.optusnet.com.au ([211.29.132.160]:23256 "EHLO
-	mail014.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261965AbUBJWec (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 17:34:32 -0500
-From: Peter Chubb <peter@chubb.wattle.id.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 10 Feb 2004 17:45:14 -0500
+Received: from gate.crashing.org ([63.228.1.57]:64657 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261890AbUBJWpJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Feb 2004 17:45:09 -0500
+Subject: Re: ieee1394 and fbdev oops in 2.6.3rc2
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Olaf Hering <olh@suse.de>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040210165202.GA7590@suse.de>
+References: <20040210165202.GA7590@suse.de>
+Content-Type: text/plain
+Message-Id: <1076453077.2285.69.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 11 Feb 2004 09:44:38 +1100
 Content-Transfer-Encoding: 7bit
-Message-ID: <16425.23657.260019.741516@wombat.chubb.wattle.id.au>
-Date: Wed, 11 Feb 2004 09:34:17 +1100
-To: Meelis Roos <mroos@linux.ee>
-Cc: Takashi Iwai <tiwai@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.3-rc1: snd_intel8x0 still too fast
-In-Reply-To: <Pine.GSO.4.44.0402101256450.4333-100000@math.ut.ee>
-References: <s5hhdy02is7.wl@alsa2.suse.de>
-	<Pine.GSO.4.44.0402101256450.4333-100000@math.ut.ee>
-X-Mailer: VM 7.17 under 21.4 (patch 14) "Reasonable Discussion" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Meelis" == Meelis Roos <mroos@linux.ee> writes:
+On Wed, 2004-02-11 at 03:52, Olaf Hering wrote:
 
->> > Today mplayer was OK when I tested, didn't retry KDE login. But
->> the > kernel is the same, I have not rebooted inbetween.
->> 
->> weird...  cpufreq is running?
+> NIP: C0101000 LR: C0100F90 SP: EF185CF0 REGS: ef185c40 TRAP: 0700    Not tainted
+> MSR: 00089032 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11
+> TASK = ef1938a0[4325] 'X' Last syscall: 54 
+> GPR00: 00000002 EF185CF0 EF1938A0 EFFA3C00 EF185CF8 00000000 EF185D94 00000000 
+> GPR08: 00000000 FFFFFF00 00000001 00000000 28004884 101E6A58 101EEE08 101EED88 
+> GPR16: 101EF108 101EEF88 101EEE08 7FFFF438 101ECCF8 101E0000 101E0000 101E0000 
+> GPR24: 00000001 C02EBA40 000000A0 00000040 00000400 00000010 EFFA3C00 00000008 
+> Call trace:
+>  [<c01011ac>] fbcon_switch+0x11c/0x288
+>  [<c00c56c4>] redraw_screen+0x1c0/0x22c
+>  [<c00c027c>] complete_change_console+0x44/0xf8
+>  [<c00bfa34>] vt_ioctl+0x16c0/0x1d60
+>  [<c00b8604>] tty_ioctl+0x160/0x5d4
+>  [<c006c51c>] sys_ioctl+0xdc/0x2fc
+>  [<c0007c7c>] ret_from_syscall+0x0/0x44
+
+Can you check the value of NIP in System.map ? May it be accel_clear_margins ?
+
+In this case, james, it's the same crash I saw for ages occasionally when
+using stty. Something doggy is happening in there.
+
+Olaf, is it 100% reproduceable ?
+
+Ben.
 
 
-Meelis> mplayer /usr/share/sounds/KDE_Startup.wav gives the same very
-Meelis> fast sound since it's a 22 KHz mono sample.
 
-It's a mono/stereo thing.  I've seen the same problem here: the quick
-workaround is to convert mono to stereo before playing.
-
---
-Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
-The technical we do immediately,  the political takes *forever*

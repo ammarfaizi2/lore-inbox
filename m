@@ -1,78 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261992AbVCGXiS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261851AbVCGWxZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261992AbVCGXiS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 18:38:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261557AbVCGXfx
+	id S261851AbVCGWxZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 17:53:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261755AbVCGWxO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 18:35:53 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:64720 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S261783AbVCGXB6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 18:01:58 -0500
-Date: Tue, 8 Mar 2005 02:27:20 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Nish Aravamudan <nish.aravamudan@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Fruhwirth Clemens <clemens@endorphin.org>,
-       Herbert Xu <herbert@gondor.apana.org.au>, cryptoapi@lists.logix.cz,
-       James Morris <jmorris@redhat.com>, David Miller <davem@davemloft.net>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [8/many] acrypto: crypto_dev.c
-Message-ID: <20050308022720.023a7a2b@zanzibar.2ka.mipt.ru>
-In-Reply-To: <29495f1d05030714515c44caf2@mail.gmail.com>
-References: <11102278542733@2ka.mipt.ru>
-	<1110227854480@2ka.mipt.ru>
-	<29495f1d0503071440562f054@mail.gmail.com>
-	<20050308021431.1313971a@zanzibar.2ka.mipt.ru>
-	<29495f1d05030714515c44caf2@mail.gmail.com>
-Reply-To: johnpol@2ka.mipt.ru
-Organization: MIPT
-X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Mon, 7 Mar 2005 17:53:14 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:57531 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261851AbVCGVzC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 16:55:02 -0500
+Subject: Re: [ANNOUNCE][PATCH 2.6.11 1/3] megaraid_sas: Announcing new
+	module  for LSI Logic's SAS based MegaRAID controllers
+From: Arjan van de Ven <arjan@infradead.org>
+To: "Bagalkote, Sreenivas" <sreenib@lsil.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
+       "'James Bottomley'" <James.Bottomley@SteelEye.com>,
+       "'Matt_Domsch@Dell.com'" <Matt_Domsch@Dell.com>,
+       Andrew Morton <akpm@osdl.org>,
+       "'Christoph Hellwig'" <hch@infradead.org>
+In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E570230CC0D@exa-atlanta>
+References: <0E3FA95632D6D047BA649F95DAB60E570230CC0D@exa-atlanta>
+Content-Type: text/plain
+Date: Mon, 07 Mar 2005 22:54:48 +0100
+Message-Id: <1110232488.9233.69.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Content-Transfer-Encoding: 7bit
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [194.85.82.65]); Tue, 08 Mar 2005 02:01:17 +0300 (MSK)
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 Mar 2005 14:51:21 -0800
-Nish Aravamudan <nish.aravamudan@gmail.com> wrote:
-
-> On Tue, 8 Mar 2005 02:14:31 +0300, Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
-> > On Mon, 7 Mar 2005 14:40:52 -0800
-> > Nish Aravamudan <nish.aravamudan@gmail.com> wrote:
-> > 
-> > > On Mon, 7 Mar 2005 23:37:34 +0300, Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
-> > > > --- /tmp/empty/crypto_dev.c     1970-01-01 03:00:00.000000000 +0300
-> > > > +++ ./acrypto/crypto_dev.c      2005-03-07 20:35:36.000000000 +0300
-> > > > @@ -0,0 +1,421 @@
-> > > > +/*
-> > > > + *     crypto_dev.c
-> > >
-> > > <snip>
-> > >
-> > > > +                       while (atomic_read(&__dev->refcnt)) {
+On Mon, 2005-03-07 at 16:09 -0500, Bagalkote, Sreenivas wrote:
+> Hello All,
 > 
-> <snip>
+> We are announcing a driver for LSI Logic's new SAS based MegaRAID 
+> controllers. I am submitting the inlined patch in three parts. Please
+> review the patches.
 > 
-> > > > +                               set_current_state(TASK_UNINTERRUPTIBLE);
-> > > > +                               schedule_timeout(HZ);
-> > >
-> > > I don't see any wait-queues in the immediate area of this code. Can
-> > > this be an ssleep(1)?
-> > 
-> > Yes, you are right, this loop just spins until all pending sessions
-> > are removed from given crypto device, so it can just ssleep(1) here.
-> 
-> Would you like me to send an incremental patch or will you be changing
-> it yourself?
 
-That would be nice to see your changes in the acrypto.
-If it will be commited...
+>  source "drivers/scsi/megaraid/Kconfig.megaraid"
+> +source "drivers/scsi/megaraid/Kconfig.megaraid_sas"
+>  
 
-> Thanks,
-> Nish
+why a fully separate file and not add your ONE config option to
+Kconfig.megaraid instead ??
 
 
-	Evgeniy Polyakov
-
-Only failure makes us experts. -- Theo de Raadt

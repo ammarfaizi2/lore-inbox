@@ -1,52 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286332AbRLJRo5>; Mon, 10 Dec 2001 12:44:57 -0500
+	id <S286335AbRLJRpr>; Mon, 10 Dec 2001 12:45:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286335AbRLJRor>; Mon, 10 Dec 2001 12:44:47 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:7040 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S286332AbRLJRol>; Mon, 10 Dec 2001 12:44:41 -0500
-Date: Mon, 10 Dec 2001 12:44:40 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Keith Warno <krjw@optonline.net>
-cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.16: scsi "PCI error Interrupt"?!
-In-Reply-To: <Pine.LNX.4.40.0112101205560.6819-100000@behemoth.hobitch.com>
-Message-ID: <Pine.LNX.3.95.1011210123827.517A-100000@chaos.analogic.com>
+	id <S286337AbRLJRpi>; Mon, 10 Dec 2001 12:45:38 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:35595 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S286335AbRLJRp1>;
+	Mon, 10 Dec 2001 12:45:27 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Daniel Phillips <phillips@bonn-fries.net>
+Date: Mon, 10 Dec 2001 18:44:43 MET-1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: File copy system call proposal
+CC: quinn@nmt.edu (Quinn Harris),
+        linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.org),
+        acahalan@cs.uml.edu
+X-mailer: Pegasus Mail v3.40
+Message-ID: <B9C4D5C2F78@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 10 Dec 2001, Keith Warno wrote:
-[Snipped...]
-
+On 10 Dec 01 at 16:19, Daniel Phillips wrote:
+> On December 10, 2001 06:44 am, Albert D. Cahalan wrote:
+> > 
+> > No, mmap+write does not do the job. SMB file servers have
+> > a remote copy operation. There shouldn't be any need to
+> > pull data over the network only to push it back again!
 > 
-> Any ideas?  I really don't like the SCSI controller sharing an interrupt
-> with anyone but I can't seem to force it to be in its own land.
+> Hi Albert,
 > 
+> I don't get it, you're saying that this zero-copy optimization, which happens 
+> entirely within the vfs, shouldn't be done because smb can't do it over a 
+> network?
 
-If the controller is a separate board, not built onto the motherboard,
-move it to a different slot! There is only one interrupt line going
-to each PCI slot. This should move the IRQ to something else.
+VFS can do this optimization (but why...), but having FS-specific
+sendfile would be nice too - FS can verify whether both source & destination
+are on same filesystem, and if they do, it can perform server filecopy
+(if server's implementation filecopy can copy arbitrary long chunk at 
+arbitrary offset into another file at some else offset, like Netware's
+NWFileServerFileCopy() does).
 
-In the same manner, if a board-mounted device is sharing an IRQ with
-some slot device, move the slot device to another slot or swap it with
-something that isn't using an interrupt.
+> > trustees   (NetWare)
+> 
+> I'd think the mmap-based copy would only use the technique on the data 
+> portion of a file.
 
-Also, if your BIOS has an Y/N entry for (PnP OS), say "N". This
-will force the BIOS to more-properly allocate resources. This gives
-Linux at least a "correct" set-up to start with when it configures
-the PCI interface.
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
-
-
+At least from my exprience with Netware I can say that copy which copies
+file trustees happens in at most 1% of all copies (and on Netware
+trustees flow through the tree down, so you have usually no trustees
+assigned to leaf files) - and this 1% is when you do backup and restore.
+In all other cases it would be great surprise that all users which had
+rights to old copy have these rights to new copy too.
+                                            Best regards,
+                                                    Petr Vandrovec
+                                                    vandrove@vc.cvut.cz
+                                                    

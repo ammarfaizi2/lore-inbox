@@ -1,37 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261723AbSJQMzW>; Thu, 17 Oct 2002 08:55:22 -0400
+	id <S261396AbSJQLvt>; Thu, 17 Oct 2002 07:51:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261731AbSJQMzW>; Thu, 17 Oct 2002 08:55:22 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:44043 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S261723AbSJQMzU>;
-	Thu, 17 Oct 2002 08:55:20 -0400
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Srihari Vijayaraghavan <harisri@bigpond.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20pre11aa1 
-In-reply-to: Your message of "Thu, 17 Oct 2002 14:10:05 +0200."
-             <20021017141005.A8863@oldwotan.suse.de> 
+	id <S261389AbSJQLvj>; Thu, 17 Oct 2002 07:51:39 -0400
+Received: from precia.cinet.co.jp ([210.166.75.133]:8320 "EHLO
+	precia.cinet.co.jp") by vger.kernel.org with ESMTP
+	id <S261396AbSJQLe5>; Thu, 17 Oct 2002 07:34:57 -0400
+Date: Thu, 17 Oct 2002 20:40:10 +0900
+From: Osamu Tomita <tomita@cinet.co.jp>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>
+Subject: [PATCH][RFC] add support for PC-9800 architecture (17/26) PNP
+Message-ID: <20021017204010.A1247@precia.cinet.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 17 Oct 2002 23:01:07 +1000
-Message-ID: <15355.1034859667@ocs3.intra.ocs.com.au>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Oct 2002 14:10:05 +0200, 
-Andrea Arcangeli <andrea@suse.de> wrote:
->please try to find which is this module, replace modprobe with a script
->that does:
->
->#!/bin/sh
->echo $@ >>/tmp/log
->sync
->modprobe.orig $@
+This is part 17/26 of patchset for add support NEC PC-9800 architecture,
+against 2.5.43.
 
-You don't need that, just mkdir /var/log/ksymoops.  modprobe/insmod
-will create a daily log file and snapshot a copy of lsmod and
-/proc/ksyms for every module loaded or unloaded.  All with sync in the
-right places.
+Summary:
+ legacy bus pnp module
+  - IO port address change.
 
+diffstat:
+ drivers/pnp/isapnp.c |    5 +++++
+ 1 files changed, 5 insertions(+)
+
+patch:
+diff -urN linux/drivers/pnp/isapnp.c linux98/drivers/pnp/isapnp.c
+--- linux/drivers/pnp/isapnp.c	Sat Oct 12 13:22:09 2002
++++ linux98/drivers/pnp/isapnp.c	Sat Oct 12 14:18:53 2002
+@@ -93,8 +93,13 @@
+ MODULE_PARM_DESC(isapnp_reserve_mem, "ISA Plug & Play - reserve memory region(s) - address,size");
+ MODULE_LICENSE("GPL");
+ 
++#ifndef CONFIG_PC9800
+ #define _PIDXR		0x279
+ #define _PNPWRP		0xa79
++#else
++#define _PIDXR		0x259
++#define _PNPWRP		0xa59
++#endif
+ 
+ /* short tags */
+ #define _STAG_PNPVERNO		0x01

@@ -1,108 +1,119 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261862AbUCILBi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 06:01:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261867AbUCILBi
+	id S261867AbUCILIl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 06:08:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261872AbUCILIl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 06:01:38 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:54710 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261862AbUCILBf (ORCPT
+	Tue, 9 Mar 2004 06:08:41 -0500
+Received: from smtp01.web.de ([217.72.192.180]:58124 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id S261867AbUCILId (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 06:01:35 -0500
-Date: Tue, 9 Mar 2004 12:02:33 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [lockup] Re: objrmap-core-1 (rmap removal for file mappings to avoid 4:4 in <=16G machines)
-Message-ID: <20040309110233.GA3819@elte.hu>
-References: <20040308202433.GA12612@dualathlon.random> <20040309105226.GA2863@elte.hu>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="4bRzO86E/ozDv8r1"
-Content-Disposition: inline
-In-Reply-To: <20040309105226.GA2863@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner-4.26.8-itk2 SpamAssassin 2.63 ClamAV 0.65
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9, BAYES_00 -4.90,
-	UPPERCASE_25_50 0.00
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Tue, 9 Mar 2004 06:08:33 -0500
+From: Thomas Schlichter <thomas.schlichter@web.de>
+To: Philippe Elie <phil.el@wanadoo.fr>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [2.6.4-rc2] bogus semicolon behind if()
+Date: Tue, 9 Mar 2004 12:08:17 +0100
+User-Agent: KMail/1.5.4
+Cc: Andreas Schwab <schwab@suse.de>, linux-kernel@vger.kernel.org
+References: <200403090014.03282.thomas.schlichter@web.de> <20040308162947.4d0b831a.akpm@osdl.org> <20040309070127.GA2958@zaniah>
+In-Reply-To: <20040309070127.GA2958@zaniah>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_kWaTA5KC8zlPk9W"
+Message-Id: <200403091208.20556.thomas.schlichter@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---4bRzO86E/ozDv8r1
-Content-Type: text/plain; charset=us-ascii
+--Boundary-00=_kWaTA5KC8zlPk9W
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Content-Disposition: inline
 
+Am Dienstag, 9. M=E4rz 2004 08:01 schrieb Philippe Elie:
+> On Mon, 08 Mar 2004 at 16:29 +0000, Andrew Morton wrote:
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+~~ snip ~~
 
-> To reproduce, run the attached, very simple test-mmap.c code (as
-> unprivileged user) which maps 80MB worth of shared memory in a
-> finegrained way, creating ~19K vmas, and sleeps. Keep this process
-> around.
+> > Rename Thomas's script to crappy-code-detector.sh and its hit rate goes
+> > to 100% ;)
+>
+> Was this patch so crappy ? http://tinyurl.com/2jbe4 ,
+>
+> -				check_nmi_watchdog();
+> +				if (check_nmi_watchdog() < 0);
+> +					timer_ack =3D !cpu_has_tsc
 
-or run the attached test-mmap2.c code, which simulates a very small DB
-app using only 1800 vmas per process: it only maps 8 MB of shm and
-spawns 32 processes. This has an even more lethal effect than the
-previous code.
+Well, exactly this code made me look for other possible problems... ;-)
+As I wrote a few days ago I have problems with that ChangeSet,
+  (http://marc.theaimsgroup.com/?l=3Dlinux-kernel&m=3D107840458123059&w=3D2)
+so I did examine it closer.
 
-	Ingo
+My results are:
+1. The semicolons behind the if()'s cannot be there intentionally.
+2. To fix my problem, timer_ack must be set to 1 for my (integrated) APIC, =
+and=20
+as my CPU has a TSC, this cannot be correct for me:
+=2D	timer_ack =3D 1;
++	if (nmi_watchdog =3D=3D NMI_IO_APIC && !APIC_INTEGRATED(ver))
++		timer_ack =3D 1;
++	else
++		timer_ack =3D !cpu_has_tsc;
 
---4bRzO86E/ozDv8r1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="test-mmap2.c"
+I changed that if(...) to
+	if (nmi_watchdog =3D=3D NMI_IO_APIC || APIC_INTEGRATED(ver))
+which works fine for me here, but I am not 100% sure if this is what the=20
+author of the original patch ment and if it still fixes the original=20
+problem...
 
-/*
- * Copyright (C) Ingo Molnar, 2004
- *
- * Create 8 MB worth of finegrained mappings to a shmfs file,
- * and spawn 32 processes.
- */
-#include <stdio.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/mman.h>
-#include <sys/stat.h>
+The patch which makes these changes is attached. Perhaps someone else wants=
+ to=20
+test it, too...
 
-/* 8 MB of mappings */
-#define CACHE_PAGES 2000
+   Thomas Schlichter
 
-#define PAGE_SIZE	4096
-#define CACHE_SIZE	(CACHE_PAGES*PAGE_SIZE)
-#define WINDOW_PAGES	(CACHE_PAGES*9/10)
-#define WINDOW_SIZE	(WINDOW_PAGES*PAGE_SIZE)
-#define WINDOW_START	0x48000000
+P.S.: I tested it with an AMD Athlon 3000+ on a board with a VIA KT400 chip=
+set=20
+and enabled ACPI and IO-APIC.
 
-int main(void)
-{
-	char *data, *ptr, filename[100];
-	char empty_page [PAGE_SIZE];
-	int i, fd;
+--Boundary-00=_kWaTA5KC8zlPk9W
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="fix-8259-timer-ack.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+	filename="fix-8259-timer-ack.diff"
 
-	sprintf(filename, "/dev/shm/cache%d", getpid());
-	fd = open(filename, O_RDWR|O_CREAT|O_TRUNC,S_IRWXU);
-	unlink(filename);
+--- linux-2.6.4-rc2-mm1/arch/i386/kernel/io_apic.c.orig	2004-03-08 16:29:14.000000000 +0100
++++ linux-2.6.4-rc2-mm1/arch/i386/kernel/io_apic.c	2004-03-08 17:26:40.000000000 +0100
+@@ -2181,7 +2181,7 @@ static inline void check_timer(void)
+ 	 */
+ 	apic_write_around(APIC_LVT0, APIC_LVT_MASKED | APIC_DM_EXTINT);
+ 	init_8259A(1);
+-	if (nmi_watchdog == NMI_IO_APIC && !APIC_INTEGRATED(ver))
++	if (nmi_watchdog == NMI_IO_APIC || APIC_INTEGRATED(ver))
+ 		timer_ack = 1;
+ 	else
+ 		timer_ack = !cpu_has_tsc;
+@@ -2202,7 +2202,7 @@ static inline void check_timer(void)
+ 				disable_8259A_irq(0);
+ 				setup_nmi();
+ 				enable_8259A_irq(0);
+-				if (check_nmi_watchdog() < 0);
++				if (check_nmi_watchdog() < 0)
+ 					timer_ack = !cpu_has_tsc;
+ 			}
+ 			return;
+@@ -2226,7 +2226,7 @@ static inline void check_timer(void)
+ 				add_pin_to_irq(0, 0, pin2);
+ 			if (nmi_watchdog == NMI_IO_APIC) {
+ 				setup_nmi();
+-				if (check_nmi_watchdog() < 0);
++				if (check_nmi_watchdog() < 0)
+ 					timer_ack = !cpu_has_tsc;
+ 			}
+ 			return;
 
-	for (i = 0; i < CACHE_PAGES; i++)
-		write(fd, empty_page, PAGE_SIZE);
-	data = mmap(0, WINDOW_SIZE, PROT_READ|PROT_WRITE, MAP_SHARED , fd, 0);
+--Boundary-00=_kWaTA5KC8zlPk9W--
 
-	for (i = 0; i < WINDOW_PAGES; i++) {
-		ptr = (char*) mmap(data + i*PAGE_SIZE, PAGE_SIZE,
-				PROT_READ|PROT_WRITE, MAP_SHARED | MAP_FIXED,
-					fd, (WINDOW_PAGES-i)*PAGE_SIZE);
-		(*ptr)++;
-	}
-	printf("%d pages mapped - sleeping until Ctrl-C.\n", WINDOW_PAGES);
-	fork(); fork(); fork(); fork(); fork();
-	pause();
-
-	return 0;
-}
-
-
---4bRzO86E/ozDv8r1--

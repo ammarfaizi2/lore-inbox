@@ -1,78 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276745AbRJKTT1>; Thu, 11 Oct 2001 15:19:27 -0400
+	id <S276734AbRJKTSh>; Thu, 11 Oct 2001 15:18:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276738AbRJKTSs>; Thu, 11 Oct 2001 15:18:48 -0400
-Received: from radium.jvb.tudelft.nl ([130.161.76.91]:18191 "HELO
-	radium.jvb.tudelft.nl") by vger.kernel.org with SMTP
-	id <S276702AbRJKTSk>; Thu, 11 Oct 2001 15:18:40 -0400
-From: "Robbert Kouprie" <robbert@radium.jvb.tudelft.nl>
-To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: eepro100.c bug on 10Mbit half duplex (kernels 2.4.5 / 2.4.10 / 2.4.11pre6 / 2.4.11 / 2.4.10ac11)
-Date: Thu, 11 Oct 2001 21:19:19 +0200
-Message-ID: <003301c15289$a03130a0$020da8c0@nitemare>
+	id <S276702AbRJKTS2>; Thu, 11 Oct 2001 15:18:28 -0400
+Received: from colorfullife.com ([216.156.138.34]:32775 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S276736AbRJKTSP>;
+	Thu, 11 Oct 2001 15:18:15 -0400
+Message-ID: <3BC5F092.6492A8B3@colorfullife.com>
+Date: Thu, 11 Oct 2001 21:18:42 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.12 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: Tommy Faasen <faasen@xs4all.nl>, linux-kernel@vger.kernel.org
+Subject: Re: SMP debugging
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2627
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
-In-Reply-To: <E15rjR4-000400-00@the-village.bc.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I looked a bit deeper. In linux-2.4.10-ac11/drivers/net/eepro100.c:
+> The way I look at the output is that the kernel only looks
+> what the specs ofthe first cpu are and asumes that the second
+> is the same.
 
-line 802:
-       if ((pdev->device=0x2449) || ( (pdev->device > 0x1030) &&
-(pdev->device < 0x1039) )) 
-               sp->chip_id = 1;
+Correct, that part of the Intel MP specification: if 2 different cpus
+are
+used, then the capabilities of the second cpu must be a subset of the
+capabilities of the first cpu. (IIRC)
 
-line 1358:
-        /* workaround for hardware bug on 10 mbit half duplex */
+Probably you must edit smpboot.c or init.c and clear the capabilities of
+cpu0 that cpu1 doesn't have.
 
-        if ((sp->partner==0) && (sp->chip_id==1)) {
-                wait_for_cmd_done(ioaddr + SCBCmd);
-                outb(0 , ioaddr + SCBCmd);
-        }
+> Invalid operand: 0000
+> CPU:    0
+> EIP:    0010:[<c010c784>]    Not tainted
+> EFLAGS: 00010206
 
-Maybe we need another device id at line 802? The work-around seems to
-stay untriggered this way.
- 
-My device's id is: 	8086:1229 - Intel, 82557 [Ethernet Pro 100]
-The present ids are: 	8086:1030 - 82559 InBusiness 10/100
-				8086:1031-1039 - are not listed in my db
-				8086:2449 - 82820 820 (Camino 2) Chipset
-Ethernet
+Could you run the oops through ksymoops?
 
-For one thing, in Linus' 2.4.12 the if condition at line 802 isn't
-present at all, so that sure isn't gonna work.
+> processor 0:
+> flags  : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat
+>		pse36 mmx fxsr
+> processor 1:
+> flags  : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov mmx
 
-Regards,
-- Robbert
+Ok, cpu0 support fxsr, cpu1 doesn't.
+fxsr is used for the thread switching.
+It seems that this causes an oops during the first thread switch.
 
-> -----Original Message-----
-> From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk] 
-> Sent: donderdag 11 oktober 2001 19:16
-> To: Robbert Kouprie
-> Cc: 'John Gluck'; linux-kernel@vger.kernel.org
-> Subject: Re: eepro100.c bug on 10Mbit half duplex (kernels 
-> 2.4.5 / 2.4.10 / 2.4.11pre6 / 2.4.11 / 2.4.10ac11)
-> 
-> 
-> > files. It would always lockup after said amount of traffic, 
-> but only in
-> > 10 Mbit half duplex mode. Also, I have the 82557, not the 
-> 82558 chip.
-> > 
-> > The problem looks a lot like what should be fixed in this 
-> changelog line
-> > from 2.4.9-ac13:
-> 
-> Check the workaround is being activated for your eepro100..
-> 
+Could you try what happens if you replace
+linux/include/asm-i386/processor.h:
+- #define cpu_has_fxsr        (test_bit(X86_FEATURE_FXSR,
+boot_cpu_data.x86_capability))
++ #define cpu_has_fxsr		(0)
 
+If that doesn't work, then check where X86_FEATURE_FXSR is used.
+
+--
+	Manfred

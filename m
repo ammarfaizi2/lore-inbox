@@ -1,53 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261850AbSJIRLO>; Wed, 9 Oct 2002 13:11:14 -0400
+	id <S261883AbSJIRSD>; Wed, 9 Oct 2002 13:18:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261854AbSJIRLO>; Wed, 9 Oct 2002 13:11:14 -0400
-Received: from netcore.fi ([193.94.160.1]:48910 "EHLO netcore.fi")
-	by vger.kernel.org with ESMTP id <S261850AbSJIRLM>;
-	Wed, 9 Oct 2002 13:11:12 -0400
-Date: Wed, 9 Oct 2002 20:16:39 +0300 (EEST)
-From: Pekka Savola <pekkas@netcore.fi>
-To: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-cc: dfawcus@cisco.com, <linux-kernel@vger.kernel.org>, <netdev@oss.sgi.com>,
-       <usagi@linux-ipv6.org>
-Subject: Re: [PATCH] IPv6: Fix Prefix Length of Link-local Addresses
-In-Reply-To: <20021010.015432.63506989.yoshfuji@linux-ipv6.org>
-Message-ID: <Pine.LNX.4.44.0210092015540.17906-100000@netcore.fi>
+	id <S261882AbSJIRSC>; Wed, 9 Oct 2002 13:18:02 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:31918 "EHLO cherise.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S261878AbSJIRRB>;
+	Wed, 9 Oct 2002 13:17:01 -0400
+Date: Wed, 9 Oct 2002 10:24:38 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise.pdx.osdl.net
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Alexander Viro <viro@math.psu.edu>, <linux-kernel@vger.kernel.org>
+Subject: Re: [bk/patch] driver model update: device_unregister()
+In-Reply-To: <Pine.LNX.4.44.0210091010360.7355-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0210091015480.16276-100000@cherise.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 10 Oct 2002, YOSHIFUJI Hideaki / [iso-2022-jp] 吉藤英明 wrote:
-> In article <20021009170018.H29133@edinburgh.cisco.com> (at Wed, 9 Oct 2002 17:00:18 +0100), Derek Fawcus <dfawcus@cisco.com> says:
+
+On Wed, 9 Oct 2002, Linus Torvalds wrote:
+
 > 
-> > All link local's are currently supposed to have those top bits
-> > ('tween 10 and 64) zero'd,  however any address within the link local
-> > prefix _is_ on link / connected and should go to the interface.
+> On Wed, 9 Oct 2002, Patrick Mochel wrote:
 > > 
-> > i.e. it's perfectly valid for me to assign a link local of fe80:1910::10
-> >      to an interface and expect it to be work,  likewise for a packet
-> >      destined to any link local address to trigger ND.
+> > No problem; I'll do that today. But, I also think some of the stuff in 
+> > fs/partitions/check.c is bogus and should die. Partitions are not devices, 
+> > and shouldn't be treated as such. 
 > 
-> First of all, please don't use such addresses.
+> I think that is a valid argument as long as it's called "driverfs" or
+> something, but since the thing is clearly evolving into a "kernelfs"  and
+> has drivers and devices as only a part of its structure knowledge, and is
+> used to expose various kernel hierarchies and relationships, I actually
+> think that it makes sense to expose the relationship of partitions to
+> devices.
 > 
-> By spec, auto-configured link-local address is fe80::/64
-> and connected route should be /64.
-> 
-> If you do really want to use such addresses (like fe80:1920::10),
-> you can put another route by yourself, at your own risk.
-> 
-> We should not configure in such way by default.
-> and, we should even have to add "discard" route for them 
-> by default for safe.
+> (Not that it has to use "struct device" to do so, of course, although I 
+> don't see any major reason why it couldn't..)
 
-Personally I think the interfaces should be configured with a /64 but 
-there should be a discard route for the whole /10.
+I agree that it is useful to expose the partitions of devices via the 
+filesystem, but struct device seems way too heavy-handed to describe them. 
+I think they would be better off as a single attribute file that dumped 
+the partition data about the disk. 
 
--- 
-Pekka Savola                 "Tell me of difficulties surmounted,
-Netcore Oy                   not those you stumble over and fall"
-Systems. Networks. Security.  -- Robert Jordan: A Crown of Swords
+You would have something like:
+
+/sys/class/disk/
+|-- devices
+|   |   `-- 0 -> ../../../root/wherever
+
+and in 'wherever': 
+
+/sys/root/wherever/
+|-- partitions
+
+I dunno about the format; or if we would want one file or one per 
+partition.
+
+> What's the oops due to?
+
+Sorry, I take it back. It wasn't an oops; it was a backtrace due to the
+partitions being removed during an illegal context.
+
+	-pat
 

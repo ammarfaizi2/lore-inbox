@@ -1,42 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274862AbSCLW43>; Tue, 12 Mar 2002 17:56:29 -0500
+	id <S286343AbSCLW6t>; Tue, 12 Mar 2002 17:58:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286322AbSCLW4T>; Tue, 12 Mar 2002 17:56:19 -0500
-Received: from chmls20.ne.ipsvc.net ([24.147.1.156]:56458 "EHLO
-	chmls20.mediaone.net") by vger.kernel.org with ESMTP
-	id <S274862AbSCLW4D>; Tue, 12 Mar 2002 17:56:03 -0500
-Date: Tue, 12 Mar 2002 17:37:38 -0500
-To: Hans Reiser <reiser@namesys.com>
-Cc: James Antill <james@and.org>, Larry McVoy <lm@bitmover.com>,
-        Tom Lord <lord@regexps.com>, jaharkes@cs.cmu.edu,
-        linux-kernel@vger.kernel.org
-Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
-Message-ID: <20020312223738.GB29832@pimlott.ne.mediaone.net>
-Mail-Followup-To: Hans Reiser <reiser@namesys.com>,
-	James Antill <james@and.org>, Larry McVoy <lm@bitmover.com>,
-	Tom Lord <lord@regexps.com>, jaharkes@cs.cmu.edu,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.21.0203110051500.9713-100000@weyl.math.psu.edu> <3C8C4B8A.2070508@namesys.com> <nn4rjmoh02.fsf@code.and.org> <3C8DB535.7080807@namesys.com>
+	id <S287488AbSCLW6l>; Tue, 12 Mar 2002 17:58:41 -0500
+Received: from CPEdeadbeef0000.cpe.net.cable.rogers.com ([24.100.234.67]:5892
+	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
+	id <S286343AbSCLW6X>; Tue, 12 Mar 2002 17:58:23 -0500
+Subject: Re: uname reports 'unknown'
+From: Shawn Starr <spstarr@sh0n.net>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Linux <linux-kernel@vger.kernel.org>
+In-Reply-To: <6826.1015902879@kao2.melbourne.sgi.com>
+In-Reply-To: <6826.1015902879@kao2.melbourne.sgi.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1.99 (Preview Release)
+Date: 12 Mar 2002 17:59:53 -0500
+Message-Id: <1015973994.303.2.camel@coredump>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C8DB535.7080807@namesys.com>
-User-Agent: Mutt/1.3.27i
-From: Andrew Pimlott <andrew@pimlott.ne.mediaone.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 12, 2002 at 10:58:45AM +0300, Hans Reiser wrote:
-> Clearcase handles all of this in the filesystem, and it all works pretty 
-> much reasonably.
+Perhaps it should display P54C which is my P200 processor type?
 
-This is misleading--Clearcase stores versions on top a normal
-filesystem (like most other RCS's), and all manipulation is entirely
-in user-space (over the network to server processes).  There only
-filesystem magic is that there are directories you cannot list (plus
-permission semantics are a little funny).
 
-Seems very different from what you're proposing, IIUC.
+On Mon, 2002-03-11 at 22:14, Keith Owens wrote:
+> On 11 Mar 2002 20:43:37 -0500, 
+> Shawn Starr <spstarr@sh0n.net> wrote:
+> >Linux coredump 2.4.19-pre2-ac4-xfs-shawn10 #2 Mon Mar 11 03:36:35 EST
+> >2002 i586 unknown
+> >
+> >
+> >what should 'unknown' really be? I've never seen it different on Intel
+> >systems.
+> 
+> 'unknown' is the output from uname -p, host processor type.  That field
+> is not supported in the Linux kernel.  uname.c in sh-utils has this
+> 
+> #if defined (HAVE_SYSINFO) && defined (SI_ARCHITECTURE)
+>   if (sysinfo (SI_ARCHITECTURE, processor, sizeof (processor)) == -1)
+>     error (1, errno, _("cannot get processor type"));
+> #else
+>   strcpy (processor, "unknown");
+> #endif
+> 
+> HAVE_SYSINFO is always false in sh-utils and SI_ARCHITECTURE is not
+> defined in glibc so you always get unknown.
+> 
+> 
 
-Andrew
+

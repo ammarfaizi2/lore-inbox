@@ -1,54 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264491AbTDPRrW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Apr 2003 13:47:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264493AbTDPRrW
+	id S264510AbTDPRuT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Apr 2003 13:50:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264509AbTDPRuT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 13:47:22 -0400
-Received: from 217-125-129-224.uc.nombres.ttd.es ([217.125.129.224]:45045 "HELO
-	cocodriloo.com") by vger.kernel.org with SMTP id S264491AbTDPRrV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 13:47:21 -0400
-Date: Wed, 16 Apr 2003 20:10:44 +0200
-From: Antonio Vargas <wind@cocodriloo.com>
-To: Dave Mehler <dmehler26@woh.rr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: rh9 and 2.5 kernel difficulties
-Message-ID: <20030416181044.GE30098@wind.cocodriloo.com>
-References: <003b01c3043c$0876ad10$0200a8c0@satellite>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <003b01c3043c$0876ad10$0200a8c0@satellite>
-User-Agent: Mutt/1.3.28i
+	Wed, 16 Apr 2003 13:50:19 -0400
+Received: from smtp.hccnet.nl ([62.251.0.13]:20890 "EHLO smtp.hccnet.nl")
+	by vger.kernel.org with ESMTP id S264507AbTDPRuR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Apr 2003 13:50:17 -0400
+Message-ID: <3E9D9AEA.2090705@hccnet.nl>
+Date: Wed, 16 Apr 2003 20:03:22 +0200
+From: Gert Vervoort <gert.vervoort@hccnet.nl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Patrick Mansfield <patmans@us.ibm.com>
+CC: tconnors@astro.swin.edu.au, Robert Love <rml@tech9.net>,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [PATCH] Re: 2.5.67: ppa driver & preempt == oops
+References: <3E982AAC.3060606@hccnet.nl> <1050172083.2291.459.camel@localhost> <3E993C54.40805@hccnet.nl> <1050255133.733.6.camel@localhost> <3E99A1E4.30904@hccnet.nl> <20030415120000.A30422@beaverton.ibm.com> <3E9C6F10.10001@hccnet.nl> <20030415144051.A31514@beaverton.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 16, 2003 at 01:17:17PM -0400, Dave Mehler wrote:
-> Hello,
->     I've successfully compiled/installed a 2.5.67 kernel on rh9, and the
-> modules. The problem is when i boot it grub just hangs, i'm assuming i've
-> compiled everything right, i've read about the keyboard/mouse/monitor
-> issues, but then i got a reference to something to do with modules and
-> compatibility with 2.4, I did not however find this and i'm wondering if
-> that is my problem. Can anyone give me a pointer to all that i need for
-> this? My system has an A7A266 motherboard, and i'm getting an error about
-> i8253 count too high! error message and it was suggested that a 2.5 kernel
-> would resolve this.
->         Thanks.
-> Dave.
+>
+>
+>
+>Can you dd to and from the media OK?
+>  
+>
+Same effect as mount, now dd is stuck in the "D" state, dd if=/dev/sda 
+of=/tmp/kw:
 
-I've also just installed rh9 and I'm compiling a 2.5.66 kernel right now,
-so we may share experiences. This will my desktop machine, all important
-stuff is done on another one but I'll try my kernel patches on it.
+[root@viper root]# ps -ax |grep dd
+  985 tty1     D      0:00 dd if /dev/sda of /tmp/kw
+ 1041 tty2     S      0:00 grep dd
+[root@viper root]#
 
-To avoid module-related problems and easier booting, I've left everything
-I need compiled inline and turned off modules. I'm net-booting, so I'm
-also compiling NFS-root and in-kernel DHCP autoconfig just in case I
-need it later on.
 
-Will keep the list informed about progress.
+   Gert
 
-Greets, Antonio.
-
-ps. what are the keyboard/mouse/monitor issues???

@@ -1,33 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311898AbSFQMZ4>; Mon, 17 Jun 2002 08:25:56 -0400
+	id <S312560AbSFQMeX>; Mon, 17 Jun 2002 08:34:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312560AbSFQMZz>; Mon, 17 Jun 2002 08:25:55 -0400
-Received: from iq.mensalinux.org ([208.255.12.114]:27009 "EHLO
-	iq.mensalinux.org") by vger.kernel.org with ESMTP
-	id <S311898AbSFQMZy>; Mon, 17 Jun 2002 08:25:54 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Jason Straight <jason@blazeconnect.net>
-To: linux-kernel@vger.kernel.org
-Subject: constants.c fix for 2.5.22 compile error
-Date: Mon, 17 Jun 2002 08:25:56 -0400
-User-Agent: KMail/1.4.1
+	id <S312590AbSFQMeW>; Mon, 17 Jun 2002 08:34:22 -0400
+Received: from pa91.banino.sdi.tpnet.pl ([213.76.211.91]:31495 "EHLO
+	alf.amelek.gda.pl") by vger.kernel.org with ESMTP
+	id <S312560AbSFQMeV>; Mon, 17 Jun 2002 08:34:21 -0400
+Subject: Re: "laptop mode" for floppies too?
+In-Reply-To: <3D0DB3A7.C32CCAE9@zip.com.au>
+To: Andrew Morton <akpm@zip.com.au>
+Date: Mon, 17 Jun 2002 14:34:12 +0200 (CEST)
+CC: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL95 (25)]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200206170825.56280.jason@blazeconnect.net>
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <E17Jvi0-0007gl-00@alf.amelek.gda.pl>
+From: Marek Michalkiewicz <marekm@amelek.gda.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-line 997 in /drivers/scsi/constants.c tries to use i without declaring it.
-add i to the int declaration in 910 seems to fix.
--- 
+Hi,
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Jason Straight
-President
-BlazeConnect Internet Services
-Cheboygan Michigan
-www.blazeconnect.net
-Phone: 231-597-0376
+> The key idea of writing back all dirty data when the disk is spun up
+> for a read can be implemented by a userspace daemon which polls /proc/stat
+> anyway.
+
+Quite a lot of work to parse the /proc output that had to be nicely
+formatted by the kernel first...  And, that would be a global sync()
+not per-device - looks like a hack to me.
+
+> A proper solution is not feasible with the 2.4 data structures.
+> In 2.5, making the "maximum age of dirty data" be a per-queue
+> tunable is in fact pretty simple.  The trickiest part would be
+> exposing the per-queue tunables to userspace, actually.
+
+The "maximum age of dirty data" should be short (shorter than spin down
+timeout) if the disk is already spinning, but longer if not spinning
+so it won't spin up too often, otherwise there is little power saving.
+Perhaps let the driver itself tune that value, depending on the current
+state of the drive (spinning or not), easier than exposing to userspace.
+
+The floppy driver itself controls the motor, so could also somehow
+tell the kernel to write back all dirty data just before spinning down.
+IDE disks can spin down automatically after some idle time, but perhaps
+it would be more efficient if Linux could do that in software instead -
+tell the disk to go to sleep ("hdparm -y") if it has not been accessed
+for too long, but write all dirty data first (without resetting the idle
+timer - possible now that the timer is ours and not in the disk).
+
+OK, it's really a larger issue of more intelligent power management
+than the hardware itself can do without OS support...
+
+> I do need to revisit this stuff - we need a way of being able
+> to incorporate the nominal write bandwidth of the backing device
+> into the memory balancing decisions.  I'll take a look at your
+> idea when I get onto that.
+
+Thanks.  Yes, these days bandwidth can vary a lot between ATA100 disks
+and floppies :)
+
+Marek
 

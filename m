@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265787AbSLQTtk>; Tue, 17 Dec 2002 14:49:40 -0500
+	id <S266308AbSLQTvX>; Tue, 17 Dec 2002 14:51:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266297AbSLQTtk>; Tue, 17 Dec 2002 14:49:40 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:55560 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S265787AbSLQTtj>; Tue, 17 Dec 2002 14:49:39 -0500
-Date: Tue, 17 Dec 2002 11:58:25 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Ulrich Drepper <drepper@redhat.com>,
-       Dave Jones <davej@codemonkey.org.uk>, Ingo Molnar <mingo@elte.hu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       <hpa@transmeta.com>
+	id <S267005AbSLQTvX>; Tue, 17 Dec 2002 14:51:23 -0500
+Received: from mail.zmailer.org ([62.240.94.4]:9183 "EHLO mail.zmailer.org")
+	by vger.kernel.org with ESMTP id <S266308AbSLQTvW>;
+	Tue, 17 Dec 2002 14:51:22 -0500
+Date: Tue, 17 Dec 2002 21:59:17 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: "H. Peter Anvin" <hpa@transmeta.com>, Ulrich Drepper <drepper@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Matti Aarnio <matti.aarnio@zmailer.org>,
+       Hugh Dickins <hugh@veritas.com>, Dave Jones <davej@codemonkey.org.uk>,
+       Ingo Molnar <mingo@elte.hu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Intel P6 vs P7 system call performance
-In-Reply-To: <Pine.LNX.3.95.1021217144308.26554A-100000@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.44.0212171157050.1095-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20021217195917.GA32122@mea-ext.zmailer.org>
+References: <3DFF7951.6020309@transmeta.com> <Pine.LNX.4.44.0212171132530.1095-100000@home.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0212171132530.1095-100000@home.transmeta.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Dec 17, 2002 at 11:37:04AM -0800, Linus Torvalds wrote:
+> On Tue, 17 Dec 2002, H. Peter Anvin wrote:
+> > Let's see... it works fine on UP and on *most* SMP, and on the ones
+> > where it doesn't work you just fill in a system call into the vsyscall
+> > slot.  It just means that gettimeofday() needs a different vsyscall slot.
+> 
+> The thing is, gettimeofday() isn't _that_ special. It's just not worth a
+> vsyscall of it's own, I feel. Where do you stop? Do we do getpid() too?
+> Just because we can?
 
+  clone()   -- which doesn't really like anybody using stack-pointer ?
 
-On Tue, 17 Dec 2002, Richard B. Johnson wrote:
->
-> You can call intersegment with a full pointer. I don't know how
-> expensive that is.
+  (I do use  gettimeofday() a _lot_, but I have my own userspace
+   mapped shared segment thingamajingie doing it..  And I write
+   code that runs on lots of systems, not only at Linux. )
 
-It's so expensive as to not be worth it, it's cheaper to load a register
-or something, i eyou can do
+> 		Linus
 
-	pushl $0xfffff000
-	call *(%esp)
-
-faster than doing a far call.
-
-		Linus
-
+/Matti Aarnio

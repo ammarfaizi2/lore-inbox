@@ -1,78 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272369AbRI3DDj>; Sat, 29 Sep 2001 23:03:39 -0400
+	id <S272533AbRI3De7>; Sat, 29 Sep 2001 23:34:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272404AbRI3DDa>; Sat, 29 Sep 2001 23:03:30 -0400
-Received: from wisdn-0.gus.net ([208.146.196.17]:20754 "EHLO
-	cerberus.stardot-tech.com") by vger.kernel.org with ESMTP
-	id <S272369AbRI3DDO>; Sat, 29 Sep 2001 23:03:14 -0400
-Date: Sat, 29 Sep 2001 20:03:34 -0700 (PDT)
-From: Jim Treadway <jim@stardot-tech.com>
-To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Makefile gcc -o /dev/null: the dissapearing of /dev/null
-In-Reply-To: <20010929202148.D26521@lug-owl.de>
-Message-ID: <Pine.LNX.4.33.0109291952080.19966-100000@cerberus.stardot-tech.com>
+	id <S272451AbRI3Deu>; Sat, 29 Sep 2001 23:34:50 -0400
+Received: from nycsmtp2fb.rdc-nyc.rr.com ([24.29.99.78]:273 "EHLO si.rr.com")
+	by vger.kernel.org with ESMTP id <S272449AbRI3Dem>;
+	Sat, 29 Sep 2001 23:34:42 -0400
+Message-ID: <3BB6933A.5010905@si.rr.com>
+Date: Sat, 29 Sep 2001 23:36:26 -0400
+From: Frank Davis <fdavis@si.rr.com>
+Reply-To: fdavis@si.rr.com
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.2) Gecko/20010726 Netscape6/6.1
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+CC: alan@lxorguk.ukuu.org.uk
+Subject: 2.4.9-ac18: __cpu_raise_softirq constantly redefined
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 29 Sep 2001, Jan-Benedict Glaw wrote:
+Hello,
+     While building 2.4.9-ac18, I constantly received the warning that ' 
+__cpu_raise_softirq redefined'. I didn't notice the warning while 
+building 2.4.9-ac17.
 
-> On Sat, 2001-09-29 06:10:52 -0700, Jim Treadway <jim@stardot-tech.com>
-> wrote in message <Pine.LNX.4.33.0109290535390.25966-100000@cerberus.stardot-tech.com>:
-> >
-> > So then you can no longer 'make modules && make modules_install', or you
-> > have to cp or chown /usr/src/linux on a fresh install to compile your
-> > kernel?   Doesn't sound pleasant to me.
->
-> You may do it this way:
->
-> make dep clean bzImage modules && su -c "make modules_install"
->
-> This is so far the minimal version for building as non-root user.
+gcc version 2.91.66
 
-Except...
-
-a) It doesn't work (yeah, I'm sure there are many, many, many other
-work-arounds, but I can't believe I'm the only one compiling as root):
-
-$ cd /usr/src/linux
-$ make dep clean bzImage modules && su -c "make modules_install"
-make[1]: Entering directory `/usr/src/linux/arch/i386/boot'
-make[1]: Nothing to be done for `dep'.
-make[1]: Leaving directory `/usr/src/linux/arch/i386/boot'
-scripts/mkdep init/*.c > .depend
-/bin/sh: .depend: Permission denied
-make: *** [dep-files] Error 1
-
-b) You are still evaluting most, if not all, of the lines in the Makefiles
-that do "gcc -o /dev/null", as root.
-
-> > I think the "trick" is to redirect stdout and stderr to /dev/null as well,
-> > so that /dev/null doesn't get removed from the file system since it is
-> > held open by the shell.
-> >
-> > Something like:
-> >
-> > 	gcc -o /dev/null -xc /dev/null /dev/null 2>&1
->
-> No-go. It's perfectly okay to remove an opened file. Test it yourself.
-> You may even replace a running (!) executable...
-
-Which is exactly why I suggested keeping it open via I/O redirection
-(except see below).
-
-> > Perhaps someone just forgot the I/O redirection in one of the tests?
->
-> No. It would be of no effect:-)
-
-You are right here though...the I/O redirection doesn't have anything to
-do with it, assuming you pass the -S flag to gcc, which I neglected, and
-insert the missing '>' in my example above (oops).
-
-But... this seems to be moot since in my case however /dev/null stays
-around even when compiling as root. ;)
-
+Regards,
+Frank
 

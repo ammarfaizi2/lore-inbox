@@ -1,46 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261562AbTHSWPs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 18:15:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261586AbTHSWPs
+	id S261421AbTHSW0t (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 18:26:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261449AbTHSW0t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 18:15:48 -0400
-Received: from ore.jhcloos.com ([64.240.156.239]:64519 "EHLO ore.jhcloos.com")
-	by vger.kernel.org with ESMTP id S261562AbTHSWO7 (ORCPT
+	Tue, 19 Aug 2003 18:26:49 -0400
+Received: from fw.osdl.org ([65.172.181.6]:18131 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261421AbTHSW0t (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 18:14:59 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: Centrino support
-References: <m2wude3i2y.fsf@tnuctip.rychter.com>
-	<1060972810.29086.8.camel@serpentine.internal.keyresearch.com>
-	<3F3D469B.2020507@yahoo.com> <3F408EC9.809@aitel.hist.no>
-From: "James H. Cloos Jr." <cloos@jhcloos.com>
-In-Reply-To: <3F408EC9.809@aitel.hist.no>
-Date: 19 Aug 2003 17:15:10 -0400
-Message-ID: <m3brulfixt.fsf@lugabout.jhcloos.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3.50
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 19 Aug 2003 18:26:49 -0400
+Date: Tue, 19 Aug 2003 15:12:06 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andreas Happe <andreashappe@gmx.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test3-mm2: JFS/cryptoapi OOPS
+Message-Id: <20030819151206.0b8c2052.akpm@osdl.org>
+In-Reply-To: <slrnbk4hd2.8pm.andreashappe@flatline.ath.cx>
+References: <slrnbk4hd2.8pm.andreashappe@flatline.ath.cx>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Brandon" == Brandon Stewart <rbrandonstewart@yahoo.com> writes:
->>>>> "Helge" == Helge Hafting <helgehaf@aitel.hist.no> writes:
+Andreas Happe <andreashappe@gmx.net> wrote:
+>
+> trying to run 'mkfs.jfs /dev/loop1' on a file backed cryptoloop using
+> aes creates following OOPS. System is a P3m, UP with enabled preemption.
+> 
+> kernel BUG at mm/filemap.c:1930!
 
-Brandon> I thought that this line of argument was due to FCC
-Brandon> regulations. That is, software settings would allow the
-Brandon> hardware to violate frequency or strength-of-signal
-Brandon> limitations set by government regulations. This is only
-Brandon> from memory, so feel free to correct.
-
-Helge> This does not in any way prevent them from releasing a driver,
-Helge> open or closed source.  It merely makes tampering with the
-Helge> driver illegal.
-
-Unless of course it can be programmed to listen in on the AMPS cell
-phone band(s).  In that case it could arguably be a felony for them to
-release the programming info....  (Stupid law, but it has been
-enforced rather obsessively....)
-
--JimC
-
+It's a bogus check.  Please just delete line 1930 of mm/filemap.c.

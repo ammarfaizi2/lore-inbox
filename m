@@ -1,69 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262674AbTLBRnZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 12:43:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262679AbTLBRnZ
+	id S262679AbTLBRpn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 12:45:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262687AbTLBRpn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 12:43:25 -0500
-Received: from dslb138.fsr.net ([12.7.7.138]:38036 "EHLO sandall.us")
-	by vger.kernel.org with ESMTP id S262674AbTLBRnW (ORCPT
+	Tue, 2 Dec 2003 12:45:43 -0500
+Received: from thor.goeci.com ([66.28.220.99]:41487 "EHLO THOR.goeci.com")
+	by vger.kernel.org with ESMTP id S262679AbTLBRpj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 12:43:22 -0500
-Message-ID: <1070387001.3fcccf39b1f70@horde.sandall.us>
-Date: Tue,  2 Dec 2003 09:43:21 -0800
-From: Eric Sandall <eric@sandall.us>
-To: linux-kernel@vger.kernel.org
-Subject: Re: emu10k1 under kernel 2.6?
-References: <200312021017.07936.hus@design-d.de>
-In-Reply-To: <200312021017.07936.hus@design-d.de>
+	Tue, 2 Dec 2003 12:45:39 -0500
+Message-ID: <2D92FEBFD3BE1346A6C397223A8DD3FC0924C8@THOR.goeci.com>
+From: Murthy Kambhampaty <murthy.kambhampaty@goeci.com>
+To: "'Marcelo Tosatti'" <marcelo.tosatti@cyclades.com>,
+       Russell Cattelan <cattelan@xfs.org>
+Cc: Nathan Scott <nathans@sgi.com>, linux-kernel@vger.kernel.org,
+       linux-xfs@oss.sgi.com, Andrew Morton <akpm@osdl.org>
+Subject: RE: XFS for 2.4
+Date: Tue, 2 Dec 2003 12:45:38 -0500 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.2
-X-Originating-IP: 192.168.0.1
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Heinz Ulrich Stille <hus@design-d.de>:
-> Hi!
+On Tuesday, December 02, 2003 10:50 AM, Marcelo Tosatti
+[mailto:marcelo.tosatti@cyclades.com] wrote:
+
+> > > Also I'm not completly sure if the generic changes are 
+> fine and I dont
+> > > like the XFS code in general.
+> > Ahh so the real truth comes out.
+> > 
+> > 
+> > Is there a reason for your sudden dislike of the XFS code?
 > 
-> I feel I must be missing something obvious, but I just can't get the SB
-> Live to work with a 2.6 kernel. The module snd-emu10k1 depends on
-> snd-ac97-codec, which doesn't load and says:
+> I always disliked the XFS code. 
 > 
-> ALSA sound/pci/ac97/ac97_codec.c:1671: AC'97 0:0 does not respond - RESET
-> EMU10K1_Audigy: probe of 0000:02:06.0 failed with error -6
+> > or is this just an arbitrary general dislike for unknown or unstated
+> > reasons?
 > 
-> It's working just fine with kernel 2.4. What's wrong now?
+> I dont like the style of the code. Thats a personal issue, 
+> though, and 
+> shouldnt matter.
+
+i) Would the linux 2.4 kernel maintainer please stop trolling the XFS
+mailing list.
+
 > 
-> MfG, Ulrich
+> The bigger point is that XFS touches generic code and I'm not 
+> sure if that 
+> can break something.
 
-You have to setup your sound drivers in the kernel now (either OSS or ALSA, the
-latter is preferred). I have my SB Live! working on all of the 2.6 kernels
-(including the -mm patchsets).
+ii) This was the reason why it took so long to get it into the 2.5 series
+and in the 2.4-ac series, of course, but surely by now it has been shown
+that the changes to the generic code do not "break something". It isn't
+clear what standard is being applied here. Surely its not "the patches had
+better be shown to not break anything else AND Marcelo Tosatti must also
+like the style of the code".
 
-Also, a quick Google search[0] returns at least one page (it shows 10 pages) of
-usefull information.
 
--sandalle
+> 
+> Why it matters so much for you to have XFS in 2.4 ? 
+> 
 
-[0] Searching for: AC'97 0:0 does not respond
+iii) The 2.4 series kernel is the here and now, regardless of how near we
+all hope/project the 2.6 kernel to be (has Andrew Morton even taken it over
+from Linus?). Pushing 2.6 on users, and unjustifiably blocking the adoption
+of advanced features into the current linux kernel is pretty absurd. XFS has
+unmatched filesystem features (for example, it uniquely enables filesystem
+level backup of databases even when the database log is on a different
+partition than the data tables
+http://marc.theaimsgroup.com/?l=postgresql-admin&m=106641231828872&w=2).
 
--- 
-PGP Key Fingerprint:  FCFF 26A1 BE21 08F4 BB91  FAED 1D7B 7D74 A8EF DD61
-http://search.keyserver.net:11371/pks/lookup?op=get&search=0xA8EFDD61
-
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GCS/E/IT$ d-- s++:+>: a-- C++(+++) BL++++VIS>$ P+(++) L+++ E-(---) W++ N+@ o?
-K? w++++>-- O M-@ V-- PS+(+++) PE(-) Y++(+) PGP++(+) t+() 5++ X(+) R+(++)
-tv(--)b++(+++) DI+@ D++(+++) G>+++ e>+++ h---(++) r++ y+
-------END GEEK CODE BLOCK------
-
-Eric Sandall                     |  Source Mage GNU/Linux Developer
-eric@sandall.us                  |  http://www.sourcemage.org/
-http://eric.sandall.us/          |  SysAdmin @ Inst. Shock Physics @ WSU
-http://counter.li.org/  #196285  |  http://www.shock.wsu.edu/
-
-----------------------------------------------------------------
-This message was sent using IMP, the Internet Messaging Program.
+If you can't come up with something more concrete than "I don't like your
+coding style" and "I'm not sure your patch won't break something", it seems
+only fair you take the XFS patches.

@@ -1,51 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262707AbREVSUj>; Tue, 22 May 2001 14:20:39 -0400
+	id <S262705AbREVSXt>; Tue, 22 May 2001 14:23:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262708AbREVSU3>; Tue, 22 May 2001 14:20:29 -0400
-Received: from draco.macsch.com ([192.73.8.1]:39123 "EHLO draco.macsch.com")
-	by vger.kernel.org with ESMTP id <S262707AbREVSUW>;
-	Tue, 22 May 2001 14:20:22 -0400
-Message-ID: <3B0AADE1.7DC18A5E@mscsoftware.com>
-Date: Tue, 22 May 2001 11:20:17 -0700
-From: "David N. Lombard" <david.lombard@mscsoftware.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.17-8.msc-up i686)
-X-Accept-Language: en
+	id <S262708AbREVSXj>; Tue, 22 May 2001 14:23:39 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:40210 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S262705AbREVSXb>; Tue, 22 May 2001 14:23:31 -0400
+Subject: Re: Changes in Kernel
+To: prasad_s@gdit.iiit.net (Prasad)
+Date: Tue, 22 May 2001 19:20:17 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0105230000330.1601-100000@gdit.iiit.net> from "Prasad" at May 23, 2001 12:03:51 AM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-To: Rik van Riel <riel@conectiva.com.br>
-CC: Daniel Phillips <phillips@bonn-fries.net>, linux-kernel@vger.kernel.org
-Subject: Re: New XFS, ReiserFS and Ext2 benchmarks
-In-Reply-To: <Pine.LNX.4.21.0105221236050.5531-100000@imladris.rielhome.conectiva>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E152GlV-0002Hh-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
-> 
-> On Tue, 22 May 2001, Daniel Phillips wrote:
-> > On Tuesday 22 May 2001 12:29, Daniel Phillips wrote:
-> 
-> > >   http://nl.linux.org/~phillips/htree
-> >
-> > Oops, nl.linux.org was down for 'unscheduled maintainance' and seems
-> > to have come back up with some some http issues.
-> >
-> > Rik?
-> 
-> [/home]# chmod a+x *
-> 
-> Things seem to work again now ;)
-> 
+>   We are interested in making some changes to the linux kernel so that it
+> supports some indian type fonts on the console... so what are the special
+> things that we sould take care of so that our work would be included in
+> the kernel-distribution, and how do we proceed about getting it included
+> in the distributions?
 
-Not so much:
+Are there specific reasons you cannot just use the existing ioctls to load
+fonts ? The console driver already supports Klingon for example.
 
-Forbidden
+What are the issues - writing right - left ?
 
-You don't have permission to access /~phillips/htree/ on this server.
+Alan
 
-
-Apache/1.3.14 Server at nl.linux.org Port 80
-
--- 
-David N. Lombard

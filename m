@@ -1,39 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264215AbTEGTRH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 15:17:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264213AbTEGTRF
+	id S264212AbTEGTPX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 15:15:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264213AbTEGTPX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 15:17:05 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:14725
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S264215AbTEGTQ1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 15:16:27 -0400
-Subject: Re: [PATCH[[2.5][3-11] update dvb subsystem core
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Michael Hunold <hunold@convergence.de>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-In-Reply-To: <3EB930ED.7020901@convergence.de>
-References: <3EB7DCF0.2070207@convergence.de>
-	 <20030506220828.A19971@infradead.org> <3EB8C67A.4020500@convergence.de>
-	 <20030507102256.B14040@infradead.org> <3EB92CAD.2040502@convergence.de>
-	 <20030507165935.A29161@infradead.org>  <3EB930ED.7020901@convergence.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1052332225.3065.52.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 07 May 2003 19:30:26 +0100
+	Wed, 7 May 2003 15:15:23 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:6787 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S264212AbTEGTPS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 15:15:18 -0400
+Date: Wed, 7 May 2003 15:30:40 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Roland Dreier <roland@topspin.com>
+cc: Jonathan Lundell <linux@lundell-bros.com>,
+       =?iso-8859-1?q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: top stack (l)users for 2.5.69
+In-Reply-To: <52bryeppb3.fsf@topspin.com>
+Message-ID: <Pine.LNX.4.53.0305071523010.13724@chaos>
+References: <20030507132024.GB18177@wohnheim.fh-wedel.de>
+ <Pine.LNX.4.53.0305070933450.11740@chaos> <20030507135657.GC18177@wohnheim.fh-wedel.de>
+ <Pine.LNX.4.53.0305071008080.11871@chaos> <p05210601badeeb31916c@[207.213.214.37]>
+ <Pine.LNX.4.53.0305071323100.13049@chaos> <52k7d2pqwm.fsf@topspin.com>
+ <Pine.LNX.4.53.0305071424290.13499@chaos> <52bryeppb3.fsf@topspin.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2003-05-07 at 17:14, Michael Hunold wrote:
-> No problem. I'll change the stuff you suggested and resend it.
-> 
-> Last time I sent the patches through Alan Cox, who feeded them to Linus.
-> It this better? Alan?
+On Wed, 7 May 2003, Roland Dreier wrote:
 
-Up to you.
+> >>>>> "Richard" == Richard B Johnson <root@chaos.analogic.com> writes:
+>
+>     Richard> On Wed, 7 May 2003, Roland Dreier wrote: The kernel
+>     Richard> stack, at least for ix86, is only one, set upon startup
+>     Richard> at 8192 bytes above a label called init_task_unit. The
+>     Richard> kernel must have a separate stack and, contrary to what
+>     Richard> I've been reading on this list, it can't have more kernel
+>     Richard> stacks than CPUs and, I don't see a separate stack
+>     Richard> allocated for different CPUs.
+>
+>     Roland> This is total nonsense.  Please don't confuse matters by
+>     Roland> spreading misinformation like this.  Every task has a
+>     Roland> separate (8K) kernel stack.  Look at the implementation of
+>     Roland> do_fork() and in particular alloc_task_struct().
+>
+>     Roland> If there were only one kernel stack, what do you think
+>     Roland> would happen if a process went to sleep in kernel code?
+>
+>     Richard> No, No. That is a process stack. Every process has it's
+>     Richard> own, entirely seperate stack. This stack is used only in
+>     Richard> user mode. The kernel has it's own stack. Every time you
+>     Richard> switch to kernel mode either by calling the kernel or by
+>     Richard> a hardware interrupt, the kernel's stack is used.
+>
+> Again, this is nonsense and misinformation.  Look at do_fork() and
+> alloc_task_struct().  Do you see how alloc_task_struct() is just
+> defined to be __get_free_pages(GFP_KERNEL,1) for i386?  Do you
+> understand that that just allocates two pages (8K) of kernel memory?
+> Do you see that it is never mapped into userspace, and that anyway
+> a userspace process can use far more than 8K of stack?
+>
+> That 8K of memory is used for the kernel stack for a particular
+> process.  When a process makes a system call, that specific stack is
+> used as the kernel stack.
+
+I haven't got a clue why and when that code got added. It is
+absolutely positively wasted and is not required for kernel system
+calls nor interrupts since they all must operate in kernel mode
+and, therefore, use the kernel stack.
+
+>
+>     Richard> When a task sleeps, it sleeps in kernel mode. The kernel
+>     Richard> schedules other tasks until the sleeper has been
+>     Richard> satisfied either by time or by event.
+>
+> Right.  Now think about where the kernel stack for the process that is
+> sleeping in the kernel is kept.
+>
+
+It's the kernel, of course. The scheduler runs in the kernel under
+the kernel stack, with the kernel data. It has nothing to do with
+the original user once the user sleeps. The user's context was
+saved, the kernel was set up, and the kernel will schedule other
+tasks until the sleep time or the sleep_on even is complete.
+At that time, (or thereafter), the kernel will schedule
+the previously sleeping task, its context will be restored, and
+it continues execution.
+
+The context of a task (see entry.S) is completely defined by
+its registers, including the hidden part of the segments
+(selectors) that define priviledge.
+
+>  - Roland
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
+

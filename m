@@ -1,135 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261173AbVBDMWh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261177AbVBDMj7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261173AbVBDMWh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 07:22:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261177AbVBDMWh
+	id S261177AbVBDMj7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 07:39:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261179AbVBDMj7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 07:22:37 -0500
-Received: from dgate2.fujitsu-siemens.com ([217.115.66.36]:57244 "EHLO
-	dgate2.fujitsu-siemens.com") by vger.kernel.org with ESMTP
-	id S261173AbVBDMW2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 07:22:28 -0500
-X-SBRSScore: None
-X-IronPort-AV: i="3.88,178,1102287600"; 
-   d="scan'208"; a="3010503:sNHT23701716"
-Message-ID: <42036C2C.5040503@fujitsu-siemens.com>
-Date: Fri, 04 Feb 2005 13:35:56 +0100
-From: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-CC: Roland Mc Grath <roland@redhat.com>, Jeff Dike <jdike@addtoit.com>,
-       BlaisorBlade <blaisorblade_spam@yahoo.it>,
-       user-mode-linux devel 
-	<user-mode-linux-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Race condition in ptrace
-References: <42021E35.8050601@fujitsu-siemens.com> <4202C18F.5010605@yahoo.com.au>
-In-Reply-To: <4202C18F.5010605@yahoo.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 4 Feb 2005 07:39:59 -0500
+Received: from os.inf.tu-dresden.de ([141.76.48.99]:39423 "EHLO
+	os.inf.tu-dresden.de") by vger.kernel.org with ESMTP
+	id S261177AbVBDMjz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 07:39:55 -0500
+Date: Fri, 4 Feb 2005 13:39:54 +0100
+From: Adam Lackorzynski <adam@os.inf.tu-dresden.de>
+To: linux-kernel@vger.kernel.org
+Subject: Hangs with 2.6.10-ac11
+Message-ID: <20050204123953.GY5588@os.inf.tu-dresden.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
-> Bodo Stroesser wrote:
-> 
->> Working with the new UML skas0 mode on my Xeon HT host, sporadically I 
->> saw
->> some processes on UML segfaulting.
->>
->> In all cases, I could track this down to be caused by a gs segment 
->> register,
->> that had the wrong contents.
->>
->> This again is caused by a problem in the host linux: A ptraced child 
->> going to
->> stop and having woken up its parent, will save some of its registers 
->> (on i386
->> they are fs, gs and the fp-registers) very late in switch_to. The 
->> parent is
->> granted access to child's registers as soon, as the child is removed from
->> the runqueue. Thus, in rare cases, the parent might access child's 
->> register
->> savearea before the registers really are saved.
->>
->> This problem might also be the reason for problems with floatpoint on 
->> UML,
->> that were reported some time ago.
->>
->> I've written a test program, that reproduces the problem on my 2.6.9 
->> vanilla
->> host quite quick. Using SuSE kernel 2.6.5-7.97-smp, I can't reproduce the
->> problem, although the relevant parts seem to be unchanged. Maybe not 
->> related
->> changes modify the timing?
->>
->> I also created a patch, that fixes the problem on my 2.6.9 host. This 
->> probably
->> isn't a sane patch, but is enough to demonstrate, where I think, the 
->> bug is.
->> Both files are attached.
->>
->>        Bodo
->>
->>
->> ------------------------------------------------------------------------
->>
->> --- a/include/linux/sched.h    2005-02-02 22:15:51.000000000 +0100
->> +++ b/include/linux/sched.h    2005-02-02 22:22:54.000000000 +0100
->> @@ -584,6 +584,7 @@ struct task_struct {
->>        struct mempolicy *mempolicy;
->>        short il_next;        /* could be shared with used_math */
->>  #endif
->> +    volatile long saving;
->>  };
->>  
->>  static inline pid_t process_group(struct task_struct *tsk)
->> --- a/kernel/sched.c    2005-02-02 21:32:51.000000000 +0100
->> +++ b/kernel/sched.c    2005-02-02 22:12:14.000000000 +0100
->> @@ -2689,8 +2689,10 @@ need_resched:
->>          if (unlikely((prev->state & TASK_INTERRUPTIBLE) &&
->>                  unlikely(signal_pending(prev))))
->>              prev->state = TASK_RUNNING;
->> -        else
->> +        else {
->> +            prev->saving = 1;
->>              deactivate_task(prev, rq);
->> +        }
->>      }
->>  
->>      cpu = smp_processor_id();
->> --- a/kernel/ptrace.c    2005-02-02 22:12:33.000000000 +0100
->> +++ b/kernel/ptrace.c    2005-02-02 22:20:46.000000000 +0100
->> @@ -96,6 +96,7 @@ int ptrace_check_attach(struct task_stru
->>  
->>      if (!ret && !kill) {
->>          wait_task_inactive(child);
->> +        while ( child->saving ) ;
->>      }
->>  
->>      /* All systems go.. */
->> --- a/arch/i386/kernel/process.c    2005-02-02 22:18:29.000000000 +0100
->> +++ b/arch/i386/kernel/process.c    2005-02-02 22:19:22.000000000 +0100
->> @@ -577,6 +577,9 @@ struct task_struct fastcall * __switch_t
->>      asm volatile("movl %%fs,%0":"=m" (*(int *)&prev->fs));
->>      asm volatile("movl %%gs,%0":"=m" (*(int *)&prev->gs));
->>  
->> +    wmb();
->> +    prev_p->saving=0;
->> +
->>      /*
->>       * Restore %fs and %gs if needed.
->>       */
->>
-> 
-> I don't see how this could help because AFAIKS, child->saving is only
-> set and cleared while the runqueue is locked. And the same runqueue lock
-> is taken by wait_task_inactive.
-> 
+I've been experiencing hangs with kernel 2.6.10-ac11 and also previous
+ac-series. The affected box is a quite loaded Dual-Xeon HT system.
+The kernel was built with gcc-2.95 (Debian woody).
+Sysrq-b on ac11 brings the following and the completely hangs, i.e. no
+sysrq responses anymore:
 
-Sorry, that not right. There are some routines called by sched(), that release
-and reacquire the runqueue lock.
+SysRq : Emergency Sync
+SysRq : Emergency Remount R/O
+SysRq : Resetting
+Badness in smp_call_function at arch/i386/kernel/smp.c:523
+ [<c010c718>] smp_call_function+0x4c/0xf0
+ [<c0116dc7>] release_console_sem+0x1f/0xa8
+ [<c010c7fc>] smp_send_stop+0x10/0x1c
+ [<c010c7bc>] stop_this_cpu+0x0/0x30
+ [<c010c238>] machine_restart+0x7c/0xf8
+ [<c02518fb>] sysrq_handle_reboot+0x7/0xc
+ [<c0251a87>] __handle_sysrq+0x6b/0x104
+ [<c0251b3d>] handle_sysrq+0x1d/0x24
+ [<c0258030>] receive_chars+0x138/0x204 
+ [<c02582f2>] serial8250_interrupt+0x66/0xe4
+ [<c012d750>] handle_IRQ_event+0x28/0x58
+ [<c012d87b>] __do_IRQ+0xfb/0x150
+ [<c010415b>] do_IRQ+0x1b/0x28
+ [<c0102bd2>] common_interrupt+0x1a/0x20
+ [<c03266a6>] _spin_lock+0xa/0x10
+ [<c010c752>] smp_call_function+0x86/0xf0
+ [<c01362e8>] do_drain+0x0/0x44
+ [<c01362e8>] do_drain+0x0/0x44
+ [<c01362d6>] smp_call_function_all_cpus+0x1a/0x2c
+ [<c01362e8>] do_drain+0x0/0x44
+ [<c013633d>] drain_cpu_caches+0x11/0x40
+ [<c01362e8>] do_drain+0x0/0x44
+ [<c0136379>] __cache_shrink+0xd/0x8c
+ [<c013641e>] kmem_cache_shrink+0x26/0x2c
+ [<c022636c>] xfs_inode_shake+0xc/0x24
+ [<c0138676>] shrink_slab+0x86/0x1a0
+ [<c013990e>] try_to_free_pages+0xd2/0x188
+ [<c0132a95>] __alloc_pages+0x1e5/0x308
+ [<c0135596>] do_page_cache_readahead+0x10a/0x194
+ [<c01357b1>] page_cache_readahead+0x191/0x1c8
+ [<c012f036>] do_generic_mapping_read+0xe6/0x464
+ [<c012f839>] generic_file_sendfile+0x51/0x64
+ [<c012f798>] file_send_actor+0x0/0x50
+ [<c0224eaa>] xfs_sendfile+0x152/0x1a4
+ [<c012f798>] file_send_actor+0x0/0x50
+ [<c012f798>] file_send_actor+0x0/0x50
+ [<c0221d2a>] linvfs_sendfile+0x36/0x40
+ [<c012f798>] file_send_actor+0x0/0x50
+ [<c014a43a>] do_sendfile+0x246/0x294
+ [<c012f798>] file_send_actor+0x0/0x50
+ [<c014a55c>] sys_sendfile64+0x3c/0xa0
+ [<c0102263>] syscall_call+0x7/0xb
 
-Bodo
+
+Btw, would it be possible to directly boot the box in the sysrq case
+instead of going through the smp functions as it looks they do not
+always have the desired effect?
+
+
+
+
+
+Adam
+-- 
+Adam                 adam@os.inf.tu-dresden.de
+  Lackorzynski         http://os.inf.tu-dresden.de/~adam/

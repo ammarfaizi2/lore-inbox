@@ -1,49 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273333AbRKKKER>; Sun, 11 Nov 2001 05:04:17 -0500
+	id <S278742AbRKKKyG>; Sun, 11 Nov 2001 05:54:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278177AbRKKKD6>; Sun, 11 Nov 2001 05:03:58 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:45818
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S277612AbRKKKDy>; Sun, 11 Nov 2001 05:03:54 -0500
-Date: Sun, 11 Nov 2001 02:03:47 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Peter Klotz <peter.klotz@aon.at>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Error message during modules_install of 2.4.14
-Message-ID: <20011111020347.B19916@mikef-linux.matchmail.com>
-Mail-Followup-To: Peter Klotz <peter.klotz@aon.at>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <01111110010300.23755@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <01111110010300.23755@localhost.localdomain>
-User-Agent: Mutt/1.3.23i
+	id <S278396AbRKKKx4>; Sun, 11 Nov 2001 05:53:56 -0500
+Received: from tahallah.demon.co.uk ([158.152.175.193]:54268 "EHLO
+	tahallah.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S278381AbRKKKxx>; Sun, 11 Nov 2001 05:53:53 -0500
+Date: Sun, 11 Nov 2001 10:51:35 +0000 (GMT)
+From: Alex Buell <alex.buell@tahallah.demon.co.uk>
+X-X-Sender: <alex@tahallah.demon.co.uk>
+Reply-To: <alex.buell@tahallah.demon.co.uk>
+To: Mailing List - Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Nazi kernels
+In-Reply-To: <20011111043442.A3454@chello062179017166.chello.pl>
+Message-ID: <Pine.LNX.4.33.0111111050460.20745-100000@tahallah.demon.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 11, 2001 at 10:01:03AM +0100, Peter Klotz wrote:
-> Hi developers
-> 
-> During "make modules_install" I got the following error message:
-> 
-> mkdir -p pcmcia; \
-> find kernel -path '*/pcmcia/*' -name '*.o' | xargs -i -r ln -sf ../{} pcmcia
-> if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.4.14; fi
-> depmod: *** Unresolved symbols in 
-> /lib/modules/2.4.14/kernel/drivers/block/loop.o
-> depmod:         deactivate_page
-> 
-> Is this something to worry about?
-> 
+On Sun, 11 Nov 2001 lobo@polbox.com wrote:
 
-Your message is number 54, and I'm making number 55 on this subject...
+> Thank You guys for Your work. I'm say goodbye to linux community,
+> because nazi kernel's don't allow me to load modules needed for my
+> graphic card. What will be next, maybe you disable to run non GPL
+> executables under linux ?
+                   ________________________________
+                  |                                |
+                  |  P L E A S E    D O   N O T    |
+                  |                                |
+                  |        F E E D   T H E         |
+                  |                                |
+                  |          T R O L L S           |
+                  |________________________________|
 
-Look in the lkml archives for the patch that will fix this "2.4.14" and
-"loop" should do...
+I thank you.
 
-This problem is fixed in 2.4.15pre1, but don't use pre1 or 2 if you use
-iptables...
+-- 
+Come the revolution, humourless gits'll be first up against the wall.
 
-Mike
+http://www.tahallah.demon.co.uk
+

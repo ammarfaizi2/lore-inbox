@@ -1,71 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279822AbRK1S41>; Wed, 28 Nov 2001 13:56:27 -0500
+	id <S279997AbRK1S5i>; Wed, 28 Nov 2001 13:57:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279927AbRK1S4J>; Wed, 28 Nov 2001 13:56:09 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:5896 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S279822AbRK1S4C>; Wed, 28 Nov 2001 13:56:02 -0500
-Date: Wed, 28 Nov 2001 15:38:50 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Andrey Nekrasov <andy@spylog.ru>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Linux 2.4.17-pre1
-In-Reply-To: <20011128213811.A20085@spylog.ru>
-Message-ID: <Pine.LNX.4.21.0111281538340.15571-100000@freak.distro.conectiva>
+	id <S279798AbRK1S52>; Wed, 28 Nov 2001 13:57:28 -0500
+Received: from mail.myrio.com ([63.109.146.2]:8954 "HELO smtp1.myrio.com")
+	by vger.kernel.org with SMTP id <S279927AbRK1S5X>;
+	Wed, 28 Nov 2001 13:57:23 -0500
+Message-ID: <D52B19A7284D32459CF20D579C4B0C0211CAE1@mail0.myrio.com>
+From: Torrey Hoffman <torrey.hoffman@myrio.com>
+To: "'Andrew Morton'" <akpm@zip.com.au>,
+        =?iso-8859-1?Q?Dieter_N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: RE: Unresponiveness of 2.4.16
+Date: Wed, 28 Nov 2001 10:56:39 -0800
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hmm. Speaking of dbench, I tried the combination of 2.4.16,
+your 2.4.16 low latency patch, and the IO scheduling patch
+on my dual PIII.
 
-Yes, I forgot to do that in this release, sorry.
+After starting it up I did a dbench 32 on a 180 GB reiserfs
+running on software RAID 5, just to see if it would
+fall over, and during the run I got the following error/
+warning message printed about 20 times on the console 
+and in the kernel log:
 
-Hope it never happens again. 
+vs-4150: reiserfs_new_blocknrs, block not free<4>
 
-On Wed, 28 Nov 2001, Andrey Nekrasov wrote:
+Took it to single user mode after that and ran reiserfsck, 
+which printed a lot of stuff but I don't think it found any
+problems.
 
-> Hello Marcelo Tosatti,
-> 
-> 
-> Please, don`t forget change PATCHLEVEL/SUBLEVEL/EXTRAVERSION.
-> 
->  
-> > Ok, 2.4.17-pre1 is out. Still going to the mirrors though, so please wait
-> > a while if you haven't found a copy on your local mirror. 
-> > 
-> > 
-> > pre1:
-> > 
-> > - Change USB maintainer 			(Greg Kroah-Hartman)
-> > - Speeling fix for rd.c				(From Ralf Baechle's tree)
-> > - Updated URL for bigphysmem patch in v4l docs  (Adrian Bunk)
-> > - Add buggy 440GX to broken pirq blacklist 	(Arjan Van de Ven)
-> > - Add new entry to Sound blaster ISAPNP list	(Arjan Van de Ven)
-> > - Remove crap character from Configure.help	(Niels Kristian Bech Jensen)
-> > - Backout erroneous change to lookup_exec_domain (Christoph Hellwig)
-> > - Update osst sound driver to 1.65		(Willem Riede)
-> > - Fix i810 sound driver problems		(Andris Pavenis)
-> > - Add AF_LLC define in network headers		(Arnaldo Carvalho de Melo)
-> > - block_size cleanup on some SCSI drivers	(Erik Andersen)
-> > - Added missing MODULE_LICENSE("GPL") in some   (Andreas Krennmair)
-> >   modules
-> > - Add ->show_options() to super_ops and 
-> >   implement NFS method				(Alexander Viro)
-> > - Updated i8k driver				(Massimo Dal Zoto)
-> > - devfs update  				(Richard Gooch)
-> > 
-> > 
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> -- 
-> bye.
-> Andrey Nekrasov, SpyLOG.
-> 
+Went back to 2.4.15-pre5 and could not reproduce the problem
+on that kernel.
 
+Torrey

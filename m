@@ -1,39 +1,36 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314287AbSEBI6r>; Thu, 2 May 2002 04:58:47 -0400
+	id <S314289AbSEBJER>; Thu, 2 May 2002 05:04:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314289AbSEBI6q>; Thu, 2 May 2002 04:58:46 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:5897 "EHLO mail.stock-world.de")
-	by vger.kernel.org with ESMTP id <S314287AbSEBI6p>;
-	Thu, 2 May 2002 04:58:45 -0400
-Message-ID: <3CD0F111.2060701@evision-ventures.com>
-Date: Thu, 02 May 2002 09:56:01 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
-X-Accept-Language: en-us, pl
+	id <S314290AbSEBJEQ>; Thu, 2 May 2002 05:04:16 -0400
+Received: from swazi.realnet.co.sz ([196.28.7.2]:18902 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S314289AbSEBJEQ>; Thu, 2 May 2002 05:04:16 -0400
+Date: Thu, 2 May 2002 10:43:22 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: Xavier Bestel <xavier.bestel@free.fr>
+Cc: Stephen Samuel <samuel@bcgreen.com>, Mike Fedyk <mfedyk@matchmail.com>,
+        Bill Davidsen <davidsen@tmr.com>, Andre Hedrick <andre@linux-ide.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: A CD with errors (scratches etc.) blocks the whole system while
+ reading damadged files
+In-Reply-To: <1020329390.2595.9.camel@bip>
+Message-ID: <Pine.LNX.4.44.0205021041550.25786-100000@netfinity.realnet.co.sz>
 MIME-Version: 1.0
-To: Frank Davis <fdavis@si.rr.com>
-CC: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [PATCH] 2.5.12 drivers/ide/pdcadma.c
-In-Reply-To: <Pine.LNX.4.33.0205011837010.7159-100000@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Uz.ytkownik Frank Davis napisa?:
-> Hello all,
->  This patch addresses the following error :
-> 
-> pdcadma.c: In function `pdcadma_dmaproc`
-> pdcadma.c:69: too few arguments to function `ide_dmaproc`
-> make[3]: *** [pdcadma.o] Error 1
-> 
-> Its missing the "struct request * " argument, which I set to NULL
-> 
-> Please review for inclusion. 
+On 2 May 2002, Xavier Bestel wrote:
 
+> The "system grinding to a halt" happens to me too, when *ripping*
+> scratched cds. Note that it's when using *userspace* access to the block
+> device, with e.g. cdparanoia or grip (or dvd ripping tools).
 
-Linus please on't include this patch. It's *wrong*. The function
-above has get the struct request argument as well.
+What does your system time usage look like?
+
+-- 
+http://function.linuxpower.ca
+		
 

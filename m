@@ -1,43 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281168AbRKYWaA>; Sun, 25 Nov 2001 17:30:00 -0500
+	id <S281175AbRKYWbu>; Sun, 25 Nov 2001 17:31:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281159AbRKYW3u>; Sun, 25 Nov 2001 17:29:50 -0500
-Received: from coffee.psychology.McMaster.CA ([130.113.218.59]:27153 "EHLO
-	coffee.psychology.mcmaster.ca") by vger.kernel.org with ESMTP
-	id <S281168AbRKYW3g>; Sun, 25 Nov 2001 17:29:36 -0500
-Date: Sun, 25 Nov 2001 17:29:29 -0500 (EST)
-From: Mark Hahn <hahn@physics.mcmaster.ca>
-To: Chris Wedgwood <cw@f00f.org>
-cc: "Kevin P. Fleming" <kevin@labsysgrp.com>, linux-kernel@vger.kernel.org
-Subject: Re: Disk hardware caching, performance, and journalling
-In-Reply-To: <20011126111105.B10622@weta.f00f.org>
-Message-ID: <Pine.LNX.4.10.10111251713010.7477-100000@coffee.psychology.mcmaster.ca>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S281174AbRKYWbl>; Sun, 25 Nov 2001 17:31:41 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:3594 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S281170AbRKYWb1>;
+	Sun, 25 Nov 2001 17:31:27 -0500
+Date: Sun, 25 Nov 2001 20:31:24 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.16-pre1
+Message-ID: <20011125203124.G1706@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20011125151543.57a1159c.skraw@ithnet.com> <Pine.LNX.4.33.0111251007140.9377-100000@penguin.transmeta.com> <20011125170701.H238@localhost> <20011125201349.E1706@conectiva.com.br> <20011125171818.I238@localhost> <20011125202609.F1706@conectiva.com.br>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011125202609.F1706@conectiva.com.br>
+User-Agent: Mutt/1.3.23i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->     I think if you have a large mail server and zero power protection,
->     you've got much larger problems to worry about than write-behind
->     caching on your disk drives... my servers have never (in my
-...
-> In the specific case of email; you want to make certain guarantees,
-> and having data written to non-volatile storage is one of them.
+Em Sun, Nov 25, 2001 at 08:26:10PM -0200, Arnaldo Carvalho de Melo escreveu:
+> Em Sun, Nov 25, 2001 at 05:18:18PM -0500, Patrick McFarland escreveu:
+> 
+> > To clarify, I was talking about the 2.5 tree. Linus is technically still
+> > (a) maintainer for it.
+> 
+> We all know that and thats what he does best: to develop kernels, not
+> maintain, or do you use a development kernel on your mission critical
+> servers?
+> 
+> 2.4 is not supposed to be bugfixes and new drivers/whatever that don't
 
-it's pitiful to pretend that this miniscule risk (50ms per catastrophic
-power failure) is all that stands between you and absolute stability
-of storage.
+Aplogies, above it should be "2.4 is supposed to", of course :)
 
-> People who assume that a small-window is small enough and decide that
-> is 'good enough' are dangerous :)
-
-your religious pursuits are your own business.  
-the rest of the world will go on calculating probabilities of failure,
-rather than emoting.  using raid, redundant sites, upses, etc, 
-rather than obsessing on how terrible IDE disks are.
-
-in summary: write caching on disks is *not* an impediment to robust systems.
-
-I've omitted lkml from this reply since it has nothing to do with the kernel.
-
+> touch common stable code, isn't? Thats maintainance. 2.5 is about
+> development.

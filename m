@@ -1,65 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264597AbRFPJM5>; Sat, 16 Jun 2001 05:12:57 -0400
+	id <S264600AbRFPJ6x>; Sat, 16 Jun 2001 05:58:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264598AbRFPJMh>; Sat, 16 Jun 2001 05:12:37 -0400
-Received: from pd1aje.xs4all.nl ([213.84.90.153]:38152 "EHLO root.4us.org")
-	by vger.kernel.org with ESMTP id <S264597AbRFPJM0>;
-	Sat, 16 Jun 2001 05:12:26 -0400
-Date: Sat, 16 Jun 2001 11:12:15 +0200 (MEST)
-From: Martin Moerman <linuxham@4us.org>
-To: Pekka Pietikainen <pp@evil.netppl.fi>
-cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: 3com Driver and the 3XP Processor
-In-Reply-To: <20010615185235.A29313@netppl.fi>
-Message-ID: <Pine.LNX.4.21.0106161110420.5331-100000@root.4us.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264601AbRFPJ6o>; Sat, 16 Jun 2001 05:58:44 -0400
+Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:32004 "EHLO
+	bug.ucw.cz") by vger.kernel.org with ESMTP id <S264600AbRFPJ6d>;
+	Sat, 16 Jun 2001 05:58:33 -0400
+Date: Thu, 14 Jun 2001 13:01:16 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Russ Lewis <russl@lycosmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Has it been done: User Script File System?
+Message-ID: <20010614130115.A33@toy.ucw.cz>
+In-Reply-To: <3B27A546.A64F8B00@lycosmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <3B27A546.A64F8B00@lycosmail.com>; from russl@lycosmail.com on Wed, Jun 13, 2001 at 10:39:19AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
+> Is there any filesystem in Linux that uses user scripts/executables to
+> implement the various function calls?  What I'm thinking of is something
+> along the lines of a file system module that, when it receives a call
+> from VFS, passes the information out to a user-mode daemon which could
+> then run scripts or executables to answer the question.  The daemon
+> would then return the answer to the module, and the module would answer
+> VFS.
 
-On Fri, 15 Jun 2001, Pekka Pietikainen wrote:
-
-> On Fri, Jun 15, 2001 at 08:37:15AM -0700, David S. Miller wrote:
-> > 
-> > Pete Wyckoff writes:
-> >  > We're currently working on using both processors
-> >  > of the Tigon in parallel.
-> > 
-> > It is my understanding that on the Tigon2, the second processor is
-> > only for working around hw bugs in the DMA controller of the board and
-> > cannot be used for other tasks.
-> > 
-> > WRT. tigon3, it was mentioned on this list that it is a pair of arm9
-> > cpus, one for rx and one for tx.
-> > 
-> Might be worth asking broadcom instead of 3com for the specs, 
-> as they seem to be selling it as a chip (BCM5700/5701), whereas 3com sells a
-> board (3c996).
-> 
-
-Guys,
-
-To make it easier, Tell me exactly what you need in documentation and I
-will try to get it for you. 
-
-Martin Moerman
-martin_moerman@eur.3com.com
-
-
-
-
-> -- 
-> Pekka Pietikainen
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Take a look at uservfs.sourceforge.net. Its extfs module is basically what
+you want. zipfs is already implemented using script...
+								Pavel
+-- 
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
 

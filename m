@@ -1,67 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264151AbUD0OMp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264131AbUD0ONP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264151AbUD0OMp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 10:12:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264138AbUD0OMp
+	id S264131AbUD0ONP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 10:13:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264153AbUD0ONO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 10:12:45 -0400
-Received: from c3p0.cc.swin.edu.au ([136.186.1.30]:63492 "EHLO swin.edu.au")
-	by vger.kernel.org with ESMTP id S264160AbUD0OLC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 10:11:02 -0400
+	Tue, 27 Apr 2004 10:13:14 -0400
+Received: from 82.194.79-227.customers.hostalia.com ([82.194.79.227]:27538
+	"EHLO spain.hostinet.com") by vger.kernel.org with ESMTP
+	id S264131AbUD0ONK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 10:13:10 -0400
+From: "MailScanner" <postmaster@spain.hostinet.com>
 To: linux-kernel@vger.kernel.org
-From: Tim Connors <tconnors+linuxkernel1083074728@astro.swin.edu.au>
-Subject: Re:  [PATCH] Blacklist binary-only modules lying about their license (-> possible GPL violation :)
-In-reply-to: <20040427131257.GG29503@lug-owl.de>
-References: <408DC0E0.7090500@gmx.net> <Pine.LNX.4.58.0404262116510.19703@ppc970.osdl.org> <1083045844.2150.105.camel@bach> <20040427092159.GC29503@lug-owl.de> <408E37D9.7030804@gmx.net> <408E5944.8090807@grupopie.com> <20040427131257.GG29503@lug-owl.de>
-X-Face: "$j_Mi4]y1OBC/&z_^bNEN.b2?Nq4#6U/FiE}PPag?w3'vo79[]J_w+gQ7}d4emsX+`'Uh*.GPj}6jr\XLj|R^AI,5On^QZm2xlEnt4Xj]Ia">r37r<@S.qQKK;Y,oKBl<1.sP8r,umBRH';vjULF^fydLBbHJ"tP?/1@iDFsKkXRq`]Jl51PWN0D0%rty(`3Jx3nYg!
-Message-ID: <slrn-0.9.7.4-10615-8854-200404280005-tc@hexane.ssi.swin.edu.au>
-Date: Wed, 28 Apr 2004 00:10:55 +1000
+Subject: Warning: E-mail viruses detected
+X-MailScanner: generated, Found to be clean
+Message-Id: <E1BITKX-00081r-D9@spain.hostinet.com>
+Date: Tue, 27 Apr 2004 16:13:01 +0200
+X-MailScanner-Information: Please contact the ISP for more information
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - spain.hostinet.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan-Benedict Glaw <jbglaw@lug-owl.de> said on Tue, 27 Apr 2004 15:12:57 +0200:
-> 
-> --+sHJum3is6Tsg7/J
-> Content-Type: text/plain; charset=iso-8859-1
-> Content-Disposition: inline
-> Content-Transfer-Encoding: quoted-printable
-> 
-> On Tue, 2004-04-27 13:59:48 +0100, Paulo Marques <pmarques@grupopie.com>
-> wrote in message <408E5944.8090807@grupopie.com>:
-> > Carl-Daniel Hailfinger wrote:
-> > >This way, the module format doesn't change, but we can do additional
-> > >verification in the loader.
-> >=20
-> > The way I see it, they know a C string ends with a '\0'. This is like=20
-> > saying that a English sentence ends with a dot. If they wrote "GPL\0" the=
-> y=20
-> > are effectively saying that the license *is* GPL period.
-> >=20
-> > So, where the source code? :)
-> 
-> That's another (quite amusing:) point of view. Anybody willing to ask a
-> lawyer?
+Our virus detector has just been triggered by a message you sent:-
+  To: info@hostinet.com
+  Subject:  Mail Delivery (failure info@hostinet.com)
+  Date: Tue Apr 27 16:13:01 2004
+Any infected parts of the message (message.scr)
+have not been delivered.
 
-In the wonderful Good Ol USofA, I think it would be trivial to apply
-the DMCA: A character string following the appropriate convention
-(null termination) is a protection mechanism.
+This message is simply to warn you that your computer system may have a
+virus present and should be checked.
 
-Breaking that convention is a cicumvention device.
+The virus detector said this about the message:
+Report: message.scr contains Worm.SomeFool.P 
+Windows Screensavers are often used to hide viruses (message.scr)
+No programs allowed (message.scr)
 
-If it can work for XOR, and gets someone thrown in prison for 12
-months, surely it will work for null termination?
-
-Pretty clear cut, so, who's going to write this lovely company a
-letter/send in the land-sharks (someone better, otherwise companies
-will realise very quickly that they can stamp all over us with no
-retribution[1])? I don't own any relevant copyright, unfortunately.
-
-[1] Has anything been done about the other members on the hall or
-shame?
 
 -- 
-TimC -- http://astronomy.swin.edu.au/staff/tconnors/
-HANDLE WITH EXTREME CARE: This Product Contains Minute Electrically
-Charged Particles Moving at Velocities in Excess of Five Hundred
-Million Miles Per Hour.
+MailScanner
+Email Virus Scanner
+www.mailscanner.info
+Mailscanner thanks transtec Computers for their support

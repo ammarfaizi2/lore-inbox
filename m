@@ -1,31 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264007AbRFXKCf>; Sun, 24 Jun 2001 06:02:35 -0400
+	id <S264032AbRFXKSV>; Sun, 24 Jun 2001 06:18:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264012AbRFXKC0>; Sun, 24 Jun 2001 06:02:26 -0400
-Received: from beasley.gator.com ([63.197.87.202]:5394 "EHLO beasley.gator.com")
-	by vger.kernel.org with ESMTP id <S264007AbRFXKCK>;
-	Sun, 24 Jun 2001 06:02:10 -0400
-From: "George Bonser" <george@gator.com>
-To: "Alexander Viro" <viro@math.psu.edu>
-Cc: "Rick Hohensee" <humbubba@smarty.smart.net>,
-        <linux-kernel@vger.kernel.org>
-Subject: RE: The Joy of Forking
-Date: Sun, 24 Jun 2001 03:01:49 -0700
-Message-ID: <CHEKKPICCNOGICGMDODJKECHDHAA.george@gator.com>
+	id <S264096AbRFXKSL>; Sun, 24 Jun 2001 06:18:11 -0400
+Received: from smtp8.xs4all.nl ([194.109.127.134]:4835 "EHLO smtp8.xs4all.nl")
+	by vger.kernel.org with ESMTP id <S264032AbRFXKSE>;
+	Sun, 24 Jun 2001 06:18:04 -0400
+Date: Sun, 24 Jun 2001 12:18:00 +0200 (CEST)
+From: Seth Mos <knuffie@xs4all.nl>
+To: Daniel Stone <daniel@sfarc.net>
+cc: linux-xfs@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [OOPS] XFS in large Maildir
+In-Reply-To: <20010624175139.A19220@kabuki.sfarc.net>
+Message-ID: <Pine.BSI.4.10.10106241216500.12216-100000@xs4.xs4all.nl>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <Pine.GSO.4.21.0106240554410.9773-100000@weyl.math.psu.edu>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> YHBT. 
+On Sun, 24 Jun 2001, Daniel Stone wrote:
 
-Evidently so.
+> Hi guys,
+> I've attached the ksymoops output from Linux 2.4.6-pre3-xfs (CVS tree from
+> some point). I'll try an update now, but when I try to access stuff in
+> ~/Maildir/netfilter/cur (~7k files in it), XFS just OOPSes. The OOPS I
+> attached was from mutt, but it also successfully hangs ls, so I doubt it's a
+> mutt bug.
+
+Have you tried running xfs_repair -n on the filesystem to see if something
+is wrong? Was the kernel compiled with 2.96-?? of 2.91.66?
+
+

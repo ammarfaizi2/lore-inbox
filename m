@@ -1,48 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286148AbSAEAtP>; Fri, 4 Jan 2002 19:49:15 -0500
+	id <S286184AbSAEA4F>; Fri, 4 Jan 2002 19:56:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286161AbSAEAtF>; Fri, 4 Jan 2002 19:49:05 -0500
-Received: from jalon.able.es ([212.97.163.2]:42449 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S286148AbSAEAst>;
-	Fri, 4 Jan 2002 19:48:49 -0500
-Date: Sat, 5 Jan 2002 01:52:15 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Stephan von Krawczynski <skraw@ithnet.com>,
-        Mark Hahn <hahn@physics.mcmaster.ca>, linux-kernel@vger.kernel.org
-Subject: Re: Two hdds on one channel - why so slow?
-Message-ID: <20020105015215.A1506@werewolf.able.es>
-In-Reply-To: <20020104191906.5fe0efe9.skraw@ithnet.com> <E16MZEf-00053p-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <E16MZEf-00053p-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Jan 04, 2002 at 19:38:33 +0100
-X-Mailer: Balsa 1.3.0
+	id <S286179AbSAEAz4>; Fri, 4 Jan 2002 19:55:56 -0500
+Received: from harpo.it.uu.se ([130.238.12.34]:11193 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S286177AbSAEAzm>;
+	Fri, 4 Jan 2002 19:55:42 -0500
+Date: Sat, 5 Jan 2002 01:51:41 +0100 (MET)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200201050051.BAA16036@harpo.it.uu.se>
+To: axboe@suse.de, torvalds@transmeta.com
+Subject: 2.5.2-pre performance degradation on an old 486
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+When running 2.5.2-pre7 on my old for-testing-only 486(*),
+file-system accesses seem to come in distinct bursts preceded
+by lengthy pauses. Overall performance is down quite significantly
+compared to 2.4.18pre1 and 2.2.20pre2. To measure it I ran two
+simple tests:
 
-On 20020104 Alan Cox wrote:
->> all. With IDE you are busted, because no vendor has any warranty lasting long
->> enough. Don't try to argue that this is unfair comparison, warranty counts. 
->> Don't tell me this is not going to work, because it _does_.
->
->Right at the moment the same process seems to work for IDE drives with 1
->year warranties.
->
+Test 1: time to boot the kernel, from hitting enter at the LILO
+prompt to getting a login prompt
+Test 2: time to "rm -rf" a clean linux-2.4.17 source tree, using
+the newly booted kernel (no other access to the tree before that,
+so it wasn't cached in any way, and the machine was otherwise idle)
 
-Yup, we are making IBM eat up its 'crystal plate' new drives. I have seen
-two of them dying on a month. And we will return also the third without
-even waiting it to fail.
+		Test 1		Test 2
+2.2.21pre2:	71 sec		 75 sec
+2.4.18pre1:	64 sec		 72 sec
+2.5.2-pre7:	97 sec		251 sec
 
-(btw, I am still using -in low end linux boxen- Quantum SCSI drives that
-came with prehistoric macs, SEs and so on, so they can be about 8 years
-old. They work, slow for today standars, but work. Can anybody say the
-same about ide drives ?)
- 
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.2 (Cooker) for i586
-Linux werewolf 2.4.18-pre1-beo #1 SMP Fri Jan 4 02:25:59 CET 2002 i686
+I haven't noticed any slowdowns on my other boxes, so I didn't
+do any measurements on them. On the 486 it's very very obvious.
+
+/Mikael
+
+(*) 100MHz 486DX4, 28MB ram, no L2 cache, two old and slow IDE disks,
+small custom no-nonsense RedHat 7.2, kernels compiled with gcc 2.95.3.

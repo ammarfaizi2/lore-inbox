@@ -1,49 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266365AbUFQEll@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264656AbUFQFB4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266365AbUFQEll (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 00:41:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266371AbUFQEll
+	id S264656AbUFQFB4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 01:01:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266098AbUFQFB4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 00:41:41 -0400
-Received: from havoc.gtf.org ([216.162.42.101]:23017 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S266365AbUFQEli (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 00:41:38 -0400
-Date: Thu, 17 Jun 2004 00:41:36 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: linux-ide@vger.kernel.org
-Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       achew@nvidia.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] current libata queue
-Message-ID: <20040617044136.GA21553@havoc.gtf.org>
-References: <20040617043321.GA20746@havoc.gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040617043321.GA20746@havoc.gtf.org>
-User-Agent: Mutt/1.4.1i
+	Thu, 17 Jun 2004 01:01:56 -0400
+Received: from pD95EDDF2.dip.t-dialin.net ([217.94.221.242]:29962 "Helo
+	jdhtqfgwh.de") by vger.kernel.org with SMTP id S264656AbUFQFBy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jun 2004 01:01:54 -0400
+From: delta2000@t-online.de
+Date: Thu, 17 Jun 2004 04:59:13 GMT
+MIME-Version: 1.0
+Subject: Augen auf! (So sieht es aus!)
+Importance: Normal
+X-Priority: 3 (Normal)
+Message-ID: <13550f3a784652.58cd6.qmail@t-online.de>
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 17, 2004 at 12:33:21AM -0400, Jeff Garzik wrote:
-> 
-> Here is my latest queue, including the nvidia changes and config
-> changes.
-> 
-> Instead of two config options -- one in IDE and one in libata --
-> I decided just to do one in IDE:
-> 	"Support for SATA (deprecated; use libata)?"
-> 
-> Let me know if anyone feels I should still do a config option in libata.
-> 
-> Also, if this patch is too large for review, I would be glad to split
-> them up and post them separately.
-
-
-BTW, I'm in the middle of debugging the AHCI merge, so the patch just
-posted won't go upstream until further changes land.
-
-	Jeff
-
-
-
+http://www.oliver-klas.de
+http://www.buergerbewegungen.de
+http://www.moschee-wertheim.de
+http://www.auslaendergewalt.ch
+http://www.rocknord.de
+http://www.NoTurkishmembership.com
+http://www.der-ruf-nach-freiheit.de
+http://www.Euronational.org
+http://www.pro-koeln-online.de
+http://www.leverkusener-aufbruch.com
+http://www.widerstand.com

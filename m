@@ -1,113 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262711AbSJGUJ0>; Mon, 7 Oct 2002 16:09:26 -0400
+	id <S262762AbSJGUXg>; Mon, 7 Oct 2002 16:23:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262728AbSJGUIp>; Mon, 7 Oct 2002 16:08:45 -0400
-Received: from smtp-outbound.cwctv.net ([213.104.18.10]:13088 "EHLO
-	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S262672AbSJGUIT>;
-	Mon, 7 Oct 2002 16:08:19 -0400
-From: <Hell.Surfers@cwctv.net>
-To: alan@lxorguk.ukuu.org.uk, jennings@red-river.com,
-       linux-kernel@vger.kernel.org
-Date: Mon, 7 Oct 2002 21:13:51 +0100
-Subject: RE:Re: New PCI Device Driver
+	id <S262763AbSJGUXg>; Mon, 7 Oct 2002 16:23:36 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:39178 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262762AbSJGUXf>; Mon, 7 Oct 2002 16:23:35 -0400
+Date: Mon, 7 Oct 2002 13:28:16 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Daniel Phillips <phillips@arcor.de>
+cc: Andrew Morton <akpm@digeo.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
+       Oliver Neukum <oliver@neukum.name>, Rob Landley <landley@trommello.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: The reason to call it 3.0 is the desktop (was Re: [OT] 2.6 not
+ 3.0 -  (NUMA))
+In-Reply-To: <E17ye5U-0003ul-00@starship>
+Message-ID: <Pine.LNX.4.33.0210071325260.10749-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-X-Mailer: Liberate TVMail 2.6
-Content-Type: multipart/mixed;
- boundary="1034021631383"
-Message-ID: <016c823122007a2DTVMAIL9@smtp.cwctv.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---1034021631383
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+On Mon, 7 Oct 2002, Daniel Phillips wrote:
+> 
+> If that's a bet, I'll take you up on it.
 
-Is your driver GPL?
+Sure. The mey is:
+ - we can more easily fix the f*cking filesystems to be sane
+ - then trying to add prescient read-ahead to the kernel
 
-Cheers, Dean.
+In other words, trying to do an impossibly good job on read-ahead is 
+_stupid_, when the real problem is that ext2 lays out files in total crap 
+ways. 
 
-On 	07 Oct 2002 20:58:26 +0100 	Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> I did say difficult.  It really is, but there are big gains to be had.
 
---1034021631383
-Content-Type: message/rfc822
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+But why do the horribly stupid thing, when Andrew has already shown that a
+one-liner change to ext2/3 gives you platter speeds (and better speeds
+than your approach _can_ get, since you still are going to end up seeking
+a lot, even if you can make your read-ahead prescient).
 
-Received: from vger.kernel.org ([209.116.70.75]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
-	 Mon, 7 Oct 2002 21:06:11 +0100
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262643AbSJGTnB>; Mon, 7 Oct 2002 15:43:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262644AbSJGTnB>; Mon, 7 Oct 2002 15:43:01 -0400
-Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:42995 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262643AbSJGTnA>; Mon, 7 Oct 2002 15:43:00 -0400
-Received: from irongate.swansea.linux.org.uk (localhost [127.0.0.1])
-	by irongate.swansea.linux.org.uk (8.12.5/8.12.5) with ESMTP id g97JwSbg026635;
-	Mon, 7 Oct 2002 20:58:29 +0100
-Received: (from alan@localhost)
-	by irongate.swansea.linux.org.uk (8.12.5/8.12.5/Submit) id g97JwRFw026633;
-	Mon, 7 Oct 2002 20:58:27 +0100
-X-Authentication-Warning: irongate.swansea.linux.org.uk: alan set sender to alan@lxorguk.ukuu.org.uk using -f
-Subject: Re: New PCI Device Driver
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Patrick Jennings <jennings@red-river.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <NFBBJBMDCLFFHHFEAKNAMEEHCBAA.jennings@red-river.com>
-References: <NFBBJBMDCLFFHHFEAKNAMEEHCBAA.jennings@red-river.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 07 Oct 2002 20:58:26 +0100
-Message-Id: <1034020706.26549.7.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Sender: linux-kernel-owner@vger.kernel.org
-Precedence: bulk
-X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: linux-kernel-owner+Hell.Surfers=40cwctv.net@vger.kernel.org
+In other words, you're overcompensating.
 
-On Mon, 2002-10-07 at 18:24, Patrick Jennings wrote:
-> I have been tasked with writing a driver for my companies digital radio.
-> The card has 16K of PCI space at BAR0.  I need to memory map this into user
-> space, and provide DMA and isr handling.  First things first i want to get
-> the mapping working.   When i run the code below after inserting the module
-> i seg. fault.  I know this is what happens when engineers have to write
-> code, but can someone point me in the right direction?
-
-First things I'd pick on are the obvious ones - we have headers defining
-KERN_ERR etc as <1> so use them 8)
-
-Second you probably want to use the pci_module_init api then multiple
-cards will basically just work, cardbus will just work and even hotplug
-should come for free.
-
-Beyond that you get the pci resources correctly, you enable the device
-first as you should. You then ruin it all by poking around directly into
-I/O space you have not mapped.
-
-The kernel isn't running in physical space, and on other platforms it
-gets even more exciting as to what goes on. Its all abstracted do
-
-	addr = ioremap(io_base_start, len);
-        databuf = read(addr + 0x590);
-
-
-Finally note that we have a radio interface layer as part of
-video4linux. Other than some basic tuning ioctls it probably has little
-in common with digital radio (assuming you mean something like
-Eureka-147 (aka DAB) rather than digital tuner/mixer for analogue
-radio.It would nice to make use of that API and extend it logically if
-you want to get a driver into the base kernel eventually.
-
-Alan
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
---1034021631383--
-
+		Linus
 

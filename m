@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310370AbSCBMoI>; Sat, 2 Mar 2002 07:44:08 -0500
+	id <S310367AbSCBMsV>; Sat, 2 Mar 2002 07:48:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310367AbSCBMnt>; Sat, 2 Mar 2002 07:43:49 -0500
-Received: from AMontpellier-201-1-1-61.abo.wanadoo.fr ([193.252.31.61]:12562
-	"EHLO awak") by vger.kernel.org with ESMTP id <S310366AbSCBMnm> convert rfc822-to-8bit;
-	Sat, 2 Mar 2002 07:43:42 -0500
-Subject: Re: [2.4.19-pre1-ac1] usbnet frames mangled
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Greg KH <greg@kroah.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020302071545.GB20536@kroah.com>
-In-Reply-To: <1015003428.2274.5.camel@bip> 
-	<20020302071545.GB20536@kroah.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 02 Mar 2002 13:43:36 +0100
-Message-Id: <1015073017.777.0.camel@bip>
+	id <S310369AbSCBMsK>; Sat, 2 Mar 2002 07:48:10 -0500
+Received: from cobae1.consultronics.on.ca ([205.210.130.26]:30875 "EHLO
+	cobae1.consultronics.on.ca") by vger.kernel.org with ESMTP
+	id <S310367AbSCBMrw>; Sat, 2 Mar 2002 07:47:52 -0500
+Date: Sat, 2 Mar 2002 07:47:51 -0500
+From: Greg Louis <glouis@dynamicro.on.ca>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: mini [PATCH] 2.4.19-pre2-ac1 one sched hunk missing
+Message-ID: <20020302124750.GA7351@athame.dynamicro.on.ca>
+Reply-To: Greg Louis <glouis@dynamicro.on.ca>
+Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Organization: Dynamicro Consulting Limited
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-le sam 02-03-2002 à 08:15, Greg KH a écrit :
-> On Fri, Mar 01, 2002 at 06:23:48PM +0100, Xavier Bestel wrote:
-> > 
-> > which of course doesn't mean anything. I saw this behavior since I
-> > upgraded my desktop from 2.4.18-ac2 to 2.4.19-pre1-ac1
-> 
-> So you kept your USB client at the same version, but your host changed
-> versions?  And 2.4.18-ac2 works, but 2.4.19-pre1-ac1 doesn't?
+--- linux-2.4.19pre2ac1/init/do_mounts.c.orig	Sat Mar  2 07:39:00 2002
++++ linux-2.4.19pre2ac1/init/do_mounts.c	Sat Mar  2 07:39:00 2002
+@@ -527,8 +527,7 @@
+ 		pid = kernel_thread(do_linuxrc, "/linuxrc", SIGCHLD);
+ 		if (pid > 0) {
+ 			while (pid != wait(&i)) {
+-				current->policy |= SCHED_YIELD;
+-				schedule();
++				yield();
+ 			}
+ 		}
+ 		if (MAJOR(real_root_dev) != RAMDISK_MAJOR
 
-That's it.
 
-> Can you see if 2.4.19-pre2 works or not for you?
-
-It works pretty well.
-
-> And which USB host controller driver are you using?
-
-uhci (not JE. I've compiled both as modules, but uhci seems to be used).
-
-	Xav
-
+-- 
+| G r e g  L o u i s          | gpg public key:      |
+|   http://www.bgl.nu/~glouis |   finger greg@bgl.nu |

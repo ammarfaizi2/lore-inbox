@@ -1,60 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261980AbREXN7U>; Thu, 24 May 2001 09:59:20 -0400
+	id <S262042AbREXOYr>; Thu, 24 May 2001 10:24:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262019AbREXN7K>; Thu, 24 May 2001 09:59:10 -0400
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:9996 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S262008AbREXN67>; Thu, 24 May 2001 09:58:59 -0400
-Date: Thu, 24 May 2001 15:51:38 +0200
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: dhinds@zen.stanford.edu, Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH] Minor cleanup in drivers/net/pcmcia/Makefile
-Message-ID: <20010524155138.F1477@arthur.ubicom.tudelft.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+	id <S262033AbREXOYi>; Thu, 24 May 2001 10:24:38 -0400
+Received: from www.wen-online.de ([212.223.88.39]:24071 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S262036AbREXOY1>;
+	Thu, 24 May 2001 10:24:27 -0400
+Date: Thu, 24 May 2001 16:23:32 +0200 (CEST)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: "Stephen C. Tweedie" <sct@redhat.com>,
+        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+        <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
+Subject: Re: [RFC][PATCH] Re: Linux 2.4.4-ac10
+In-Reply-To: <Pine.LNX.4.33.0105240800020.10469-100000@duckman.distro.conectiva>
+Message-ID: <Pine.LNX.4.33.0105241557160.894-100000@mikeg.weiden.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 24 May 2001, Rik van Riel wrote:
 
-Because make can't track intermediate targets made in a rule, the
-ibmtr_cs drivers was rebuild every time you run "make modules". This
-patch fixes that by making the intermediate files explicit rules in the
-Makefile. Patch is against linux-2.4.5-pre5, but should apply cleanly
-against other kernel versions as well. Please apply.
+> > > > OK.. let's forget about throughput for a moment and consider
+> > > > those annoying reports of 0 order allocations failing :)
+> > >
+> > > Those are ok.  All failing 0 order allocations are either
+> > > atomic allocations or GFP_BUFFER allocations.  I guess we
+> > > should just remove the printk()  ;)
+> >
+> > Hmm.  The guy who's box locks up on him after a burst of these
+> > probably doesn't think these failures are very OK ;-)  I don't
+> > think order 0 failing is cool at all.. ever.
+>
+> You may not think it's cool, but it's needed in order to
+> prevent deadlocks. Just because an allocation cannot do
+> disk IO or sleep, that's no reason to loop around like
+> crazy in __alloc_pages() and hang the machine ... ;)
 
+True, but if we have resources available there's no excuse for a
+failure.  Well, yes there is.  If the cost of that resource is
+higher than the value of letting the allocation succeed.  We have
+no data on the value of success, but we do plan on consuming the
+reclaimable pool and do that (must), so I still think turning
+these resources loose at strategic moments is logically sound.
+(doesn't mean there's not a better way.. it's just an easy way)
 
-Erik
+I'd really like someone who has this problem to try the patch to
+see if it does help.  I don't have this darn problem myself, so
+I'm left holding a bag of idle curiosity. ;-)
 
---- drivers/net/pcmcia/Makefile.orig	Thu May 24 15:33:26 2001
-+++ drivers/net/pcmcia/Makefile	Thu May 24 15:35:53 2001
-@@ -38,8 +38,10 @@
- include $(TOPDIR)/Rules.make
- 
- tmp-ibmtr.o: ../tokenring/ibmtr.c
--	$(CC) $(CFLAGS) -D__NO_VERSION__ -DPCMCIA -c -o $@ ../tokenring/ibmtr.c
-+	$(CC) $(CFLAGS) -D__NO_VERSION__ -DPCMCIA -c -o $@ $<
- 
--ibmtr_cs.o: tmp-ibmtr.o ibmtr_cs.c
--	$(CC) $(CFLAGS) -DPCMCIA -c -o tmp-$@ ibmtr_cs.c
--	$(LD) -r -o $@ tmp-$@ tmp-ibmtr.o
-+tmp-ibmtr_cs.o: ibmtr_cs.c
-+	$(CC) $(CFLAGS) -DPCMCIA -c -o $@ $<
-+
-+ibmtr_cs.o: tmp-ibmtr.o tmp-ibmtr_cs.o
-+	$(LD) -r -o $@ tmp-ibmtr_cs.o tmp-ibmtr.o
+	Cheers,
 
+	-Mike
 
--- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/

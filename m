@@ -1,57 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263373AbTJKSLG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Oct 2003 14:11:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263375AbTJKSLG
+	id S263366AbTJKSXa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Oct 2003 14:23:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263368AbTJKSXa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Oct 2003 14:11:06 -0400
-Received: from mout0.freenet.de ([194.97.50.131]:16513 "EHLO mout0.freenet.de")
-	by vger.kernel.org with ESMTP id S263373AbTJKSLD convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Oct 2003 14:11:03 -0400
-From: Michael Buesch <mbuesch@freenet.de>
-To: Nuno Silva <nuno.silva@vgertech.com>
-Subject: Re: [2.6-test7] [bttv] lots of warning/error messages
-Date: Sat, 11 Oct 2003 20:10:41 +0200
-User-Agent: KMail/1.5.4
-References: <200310091729.30465.mbuesch@freenet.de> <20031010090955.GE32386@bytesex.org> <3F8787CA.3030607@vgertech.com>
-In-Reply-To: <3F8787CA.3030607@vgertech.com>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Gerd Knorr <kraxel@bytesex.org>
-MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
+	Sat, 11 Oct 2003 14:23:30 -0400
+Received: from the.earth.li ([193.201.200.66]:53937 "EHLO the.earth.li")
+	by vger.kernel.org with ESMTP id S263366AbTJKSX2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Oct 2003 14:23:28 -0400
+Date: Sat, 11 Oct 2003 19:23:28 +0100
+From: Jonathan McDowell <noodles@earth.li>
+To: linux-kernel@vger.kernel.org
+Subject: Interrupt routing (was Re: 8139too & APIC incompatibility (2.6.0-test6-mm1, 2.4.20))
+Message-ID: <20031011182328.GL30375@earth.li>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200310112011.00441.mbuesch@freenet.de>
+In-Reply-To: <20030929165550.GA6526@gtf.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Mon, 29 Sep 2003 16:59:32, Jeff Garzik wrote:
+> On Mon, Sep 29, 2003 at 03:47:29PM +0000, Andreas Schwarz wrote:
+[snip tranmit timed out error]
+> > After this has happened the first time, the card fails to send or
+> > receive any more packages.
+> Yes.  Has nothing to do with 8139too, though.
+> 
+> This is one of 1001 similar symptoms of the same problem, "interrupt
+> routing bug(s)".
 
-On Saturday 11 October 2003 06:32, Nuno Silva wrote:
-> I *had* the same problem. It's was not the signal so I persued the other
-> hint: "high irq latency?"
->
-> I opened the box and saw the NIC in slot 2 and winTV in slot3 and
-> switched them. Never saw this message again :)
+Bugs where? Does this count as a hardware issue or a software issue? I'm
+seeing similar problems with DLink 580TX boards (sundance driver) and
+both SiS 730 and Intel Camino chipsets, under 2.4.21 (and .22). I've
+seen a suggestion that ACPI might help, but no definite answers. Equally
+no mention of what hardware is a good choice if that's the root cause.
 
-It was already in the first free PCI-slot, but I changed it nevertheless.
-But these messages are still there.
+J.
 
-> Thanks,
-> Nuno Silva
-
-- -- 
-Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
-Animals on this machine: some GNUs and Penguin 2.6.0-test7
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/iEe0oxoigfggmSgRAvn4AJkBNbUskYg6T2tURqNkKE4YtKEVlwCfQXTe
-VBkGBHBQvfEFf4Eyg7oUWt8=
-=7zM9
------END PGP SIGNATURE-----
-
+-- 
+                 /------------------------------------\
+                 |   Zed's dead, baby. Zed's dead.    |
+                 | http://www.blackcatnetworks.co.uk/ |
+                 \------------------------------------/

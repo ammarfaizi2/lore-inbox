@@ -1,38 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262492AbVA0AVZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262257AbVA0AWf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262492AbVA0AVZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jan 2005 19:21:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262490AbVA0AVR
+	id S262257AbVA0AWf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 19:22:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262496AbVA0AW2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 19:21:17 -0500
-Received: from orb.pobox.com ([207.8.226.5]:3297 "EHLO orb.pobox.com")
-	by vger.kernel.org with ESMTP id S262493AbVAZW6p (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 17:58:45 -0500
-Date: Wed, 26 Jan 2005 14:58:33 -0800
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Sytse Wielinga <s.b.wielinga@student.utwente.nl>,
-       "Barry K. Nathan" <barryn@pobox.com>, linux-kernel@vger.kernel.org,
-       Len Brown <len.brown@intel.com>, Andrew Morton <akpm@osdl.org>,
-       fastboot@lists.osdl.org, Dave Jones <davej@redhat.com>
-Subject: Re: [PATCH 4/29] x86-i8259-shutdown
-Message-ID: <20050126225833.GA8153@ip68-4-98-123.oc.oc.cox.net>
-References: <20050125094350.GA6372@ip68-4-98-123.oc.oc.cox.net> <m1brbdhl3l.fsf@ebiederm.dsl.xmission.com> <20050125104904.GB5906@ip68-4-98-123.oc.oc.cox.net> <m13bwphflw.fsf@ebiederm.dsl.xmission.com> <20050125220229.GB5726@ip68-4-98-123.oc.oc.cox.net> <m1651lupjj.fsf@ebiederm.dsl.xmission.com> <20050126132741.GA23182@speedy.student.utwente.nl> <m1pszsffnp.fsf@ebiederm.dsl.xmission.com> <20050126144346.GD23182@speedy.student.utwente.nl> <m1llagfcmy.fsf@ebiederm.dsl.xmission.com>
+	Wed, 26 Jan 2005 19:22:28 -0500
+Received: from [205.233.219.253] ([205.233.219.253]:14545 "EHLO
+	conifer.conscoop.ottawa.on.ca") by vger.kernel.org with ESMTP
+	id S262497AbVAZXIK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jan 2005 18:08:10 -0500
+Date: Wed, 26 Jan 2005 18:08:06 -0500
+From: Jody McIntyre <scjody@modernduck.com>
+To: "Trever L. Adams" <tadams-lists@myrealbox.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: IEEE-1394 and disks
+Message-ID: <20050126230806.GG18792@conscoop.ottawa.on.ca>
+References: <1106250812.3413.10.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <m1llagfcmy.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <1106250812.3413.10.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 26, 2005 at 08:12:05AM -0700, Eric W. Biederman wrote:
-> Do you know if there is any deliberate reason Alt-SysRq-O skips
-> doing a normal device shutdown work?
+On Thu, Jan 20, 2005 at 12:53:32PM -0700, Trever L. Adams wrote:
+> I have a few questions: How stable is firewire (running at 800Mbps or
+> faster, if any is available yet)? How stable is the Linux subsystem,
+> especially for firewire disks? Is there any particularly 800Mbps bridge
+> chips that should be avoided or used?
 
-I would guess that it's intended for use when things are so messed up
-that all you want to do is cut power ASAP. But, that's just a guess.
+The sbp2 subsystem has stability problems, but I'm not exactly sure what
+they are.  The core also has a few issues, but I don't think they'll
+affect you.  This assumes you're running the latest from linux1394.org
+svn as there are quite a few unmerged changes (which will hopefully make
+it in to 2.6.12).
 
--Barry K. Nathan <barryn@pobox.com>
+> How stable is the subsystem when the chain is nearly full (62 devices is
+> full right?)
 
+Having lots of devices shouldn't make any difference, one way or the
+other.  62 devices is full.  For performance reasons, a tree topology is
+preferred to daisy chaining all the devices.
+
+> How many controllers may be in the system before the Firewire subsystem
+> gets confused?
+
+Again, it shouldn't matter.  I'm not sure if the SCSI subsystem imposes
+a limit on the number of drives.
+
+I suggest asking future 1394 questions on one of the linux1394 lists:
+http://sourceforge.net/mail/?group_id=2252  - someone may even have
+tried what you're attempting.
+
+Jody
+
+> 
+> Trever Adams
+> --
+> "There are two ways to live your life. One is as though nothing is a
+> miracle. The other is as though everything is a miracle." -- Albert
+> Einstein
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+-- 

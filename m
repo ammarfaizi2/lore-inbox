@@ -1,50 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264329AbUDOQtF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 12:49:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264331AbUDOQtF
+	id S264347AbUDOQzp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 12:55:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264352AbUDOQzo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 12:49:05 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:22032 "EHLO
-	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S264329AbUDOQtC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 12:49:02 -0400
-Date: Thu, 15 Apr 2004 17:48:52 +0100 (BST)
+	Thu, 15 Apr 2004 12:55:44 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:9256 "EHLO
+	MTVMIME02.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S264347AbUDOQzm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Apr 2004 12:55:42 -0400
+Date: Thu, 15 Apr 2004 17:55:34 +0100 (BST)
 From: Hugh Dickins <hugh@veritas.com>
 X-X-Sender: hugh@localhost.localdomain
-To: Bill Davidsen <davidsen@tmr.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Benchmarking objrmap under memory pressure
-In-Reply-To: <c5mcoc$s9l$1@gatekeeper.tmr.com>
-Message-ID: <Pine.LNX.4.44.0404151746140.9558-100000@localhost.localdomain>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+cc: Rajesh Venkatasubramanian <vrajesh@umich.edu>,
+       Andrea Arcangeli <andrea@suse.de>, <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] anobjrmap 9 priority mjb tree
+In-Reply-To: <41380000.1082043649@[10.10.2.4]>
+Message-ID: <Pine.LNX.4.44.0404151752210.9569-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 15 Apr 2004, Bill Davidsen wrote:
-> Hugh Dickins wrote:
+On Thu, 15 Apr 2004, Martin J. Bligh wrote:
 > > 
-> > The worst that will happen with anonmm's mremap move, is that some
-> > app might go slower and need more swap.  Unlikely, but agreed possible.
+> > Any ideas how we might handle latency from vmtruncate (and
+> > try_to_unmap) if using prio_tree with i_shared_lock spinlock?
 > 
-> It appears that users on small memory machines running kde are not of 
-> concern to you. Unfortunately that describes a fair number of people, 
-> not everyone has the big memory fast system. I will try to get some 
-> reproducible numbers, but "consistently feels faster" is a reason to 
-> keep running -aa even if I can't quantify it.
+> I've been thinking about that. My rough plan is to go wild, naked and lockless.
+> If we arrange things in the correct order, new entries onto the list would
 
-Appearances can be deceptive.  Of course I care about users,
-of small or large memory machines, running kde or not.
-
-It appears that you do not understand that we're talking about a
-case so rare that we've never seen it in practice, only by testing.
-
-But perhaps we haven't looked out for it enough (no printk), I'd better
-put something in to tell us when it does occur, thanks for the reminder.
-
-If -aa consistently feels faster to you, great, go with it:
-but I doubt it's because of this issue we're discussing!
+It's quite easy if there's a list - though I'm not that eager to go wild,
+naked and lockless with you!  But what if there's a prio_tree?
 
 Hugh
 

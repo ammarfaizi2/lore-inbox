@@ -1,36 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278735AbRJVLwt>; Mon, 22 Oct 2001 07:52:49 -0400
+	id <S278737AbRJVL5J>; Mon, 22 Oct 2001 07:57:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278744AbRJVLwj>; Mon, 22 Oct 2001 07:52:39 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:12560 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S278735AbRJVLw2>;
-	Mon, 22 Oct 2001 07:52:28 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Alexander Viro <viro@math.psu.edu>
+	id <S278742AbRJVL47>; Mon, 22 Oct 2001 07:56:59 -0400
+Received: from mail.zmailer.org ([194.252.70.162]:50949 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S278747AbRJVL4v>;
+	Mon, 22 Oct 2001 07:56:51 -0400
+Date: Mon, 22 Oct 2001 14:57:11 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: =?iso-8859-1?Q?Roar_Thron=E6s?= <roart@nvg.ntnu.no>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] binfmt_misc.c, kernel-2.4.12 
-In-Reply-To: Your message of "Mon, 22 Oct 2001 07:33:37 -0400."
-             <Pine.GSO.4.21.0110220724120.2294-100000@weyl.math.psu.edu> 
+Subject: Re: increase the number of system call parameters
+Message-ID: <20011022145711.G24643@mea-ext.zmailer.org>
+In-Reply-To: <Pine.LNX.4.33.0110221334200.1121-100000@hagbart.nvg.ntnu.no>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 22 Oct 2001 21:52:49 +1000
-Message-ID: <26057.1003751569@ocs3.intra.ocs.com.au>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.33.0110221334200.1121-100000@hagbart.nvg.ntnu.no>; from roart@nvg.ntnu.no on Mon, Oct 22, 2001 at 01:48:26PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 Oct 2001 07:33:37 -0400 (EDT), 
-Alexander Viro <viro@math.psu.edu> wrote:
->I suspect that in this case s/2.5/2.4-ac/ might be a possibility.  Since
->we are talking about defaults, nothing is going to break if file simply
->doesn't exist.  So teaching modprobe to handle it if it's there would
->be a compatible change and would allow testing the kernel side of that
->stuff.  Alan?
+On Mon, Oct 22, 2001 at 01:48:26PM +0200, Roar Thronæs wrote:
+> Hi
+> 
+> How do you increase the number of system call parameters, and how many
+> can you at most have?
+> Would up to 12 parameters be possible, and how?
 
-Do you really want modules exhibiting different behaviour in Linus and
--ac kernels?  And have that behaviour depending on which version of
-modutils the user installed?  Not in 2.4, modutils strives for
-stability in production kernels, it is an important interface between
-the kernel and user space.
+  Why ?  Would it not make sense to have 2-3 params, one of them
+being a pointer to a structure passing complicated dataset ?
+(And first of the structure elements being version number so you
+ can version the syscall, e.g. add more things/differently structured
+ things latter -- and remember to supply specific errno which is
+ telling that particular version is not understood by the kernel.)
 
+For example the kernel does not have   mmap64(),   but it has  mmap2()
+which passes the large number of parameters in a structure, and the
+libc has a wrapper function implementing  mmap64()  call API.
+
+At register-rich systems that is not absolutely necessary, but at
+register-starved things, like i386, you have no real other way.
+
+> -- 
+> -Roar Thronæs
+
+/Matti Aarnio

@@ -1,59 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266939AbTAIR5t>; Thu, 9 Jan 2003 12:57:49 -0500
+	id <S261173AbTAISB0>; Thu, 9 Jan 2003 13:01:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266940AbTAIR5t>; Thu, 9 Jan 2003 12:57:49 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:34501 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S266939AbTAIR5r>;
-	Thu, 9 Jan 2003 12:57:47 -0500
-Date: Thu, 9 Jan 2003 10:06:26 -0800
-To: Miles Bader <miles@gnu.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]  Fix socket.c compilation failure when CONFIG_NET=n
-Message-ID: <20030109180626.GA24023@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <20030107064107.C19A73745@mcspd15.ucom.lsi.nec.co.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030107064107.C19A73745@mcspd15.ucom.lsi.nec.co.jp>
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+	id <S266898AbTAISB0>; Thu, 9 Jan 2003 13:01:26 -0500
+Received: from phoenix.mvhi.com ([195.224.96.167]:33042 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S261173AbTAISBZ>; Thu, 9 Jan 2003 13:01:25 -0500
+Date: Thu, 9 Jan 2003 18:09:58 +0000 (GMT)
+From: James Simmons <jsimmons@infradead.org>
+To: Antonino Daplas <adaplas@pol.net>
+cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+       Petr Vandrovec <vandrove@vc.cvut.cz>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>, <davidm@redhat.com>
+Subject: Re: [Linux-fbdev-devel] [PATCH][FBDEV]: fb_putcs() and fb_setfont()
+ methods
+In-Reply-To: <1042050026.982.172.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0301090034020.4976-100000@phoenix.infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 07, 2003 at 03:41:07PM +0900, Miles Bader wrote:
-> [I send this to Linus earlier and he ignored it; maybe you're the right
->  person...]
-> 
-> In net/socket.c, <linux/wireless.h> is included twice, once conditionally
-> (on CONFIG_NET_RADIO || CONFIG_NET_PCMCIA_RADIO) and once unconditionally.
-> However, including <linux/wireless.h> defines WIRELESS_EXT, and this causes an
-> #ifdef in `sock_ioctl' to reference `dev_ioctl', which isn't defined when
-> CONFIG_NET=n, and so results in an unresolved symbol reference in that case.
-> 
-> The following patch fixes this by removing the unconditional include, and only
-> keeping the conditional one.
-> 
-> Thanks,
-> 
-> -Miles
-> 
-> diff -ruN -X../cludes linux-2.5.54-moo.orig/net/socket.c linux-2.5.54-moo/net/socket.c
-> --- linux-2.5.54-moo.orig/net/socket.c	2002-11-25 10:30:11.000000000 +0900
-> +++ linux-2.5.54-moo/net/socket.c	2003-01-06 13:27:17.000000000 +0900
-> @@ -75,7 +75,6 @@
->  #include <linux/cache.h>
->  #include <linux/module.h>
->  #include <linux/highmem.h>
-> -#include <linux/wireless.h>
->  #include <linux/divert.h>
->  #include <linux/mount.h>
 
-	This was included in 2.5.55, so I guess Linus didn't ignored you.
-	Regards,
+> :-) I did not want prolong the discussion, but...
+> 
+> Geert is correct that the functions are generic. The fb_putcs() and
+> fb_setfont() can be compared to Tile blitting.  Tile blitting is a
+> common operation in some games such as Warcraft, Starcraft, and most
+> RPG's. I'm think there is Tile Blitting support in DirectFB.
+> 
+> In a tile-based game, the basic unit is a Tile which is just a bitmap
+> with a predefined width and height. The game has several tiles stored in
+> memory each with it's own unique id.  To draw the background/layer, a
+> TileMap is constructed which is basically another array.  Its format is
+> something like this -  TileMap[x] = y which means draw Tile y at screen
+> position x.
+> 
+> In the fbcon perspective, we can think of each character as a Tile, and
+> fontdata as the collection of tiles. fb_char.data is basically a
+> TileMap.  Of course, tile blitting in games is more complicated than
+> this, since games have multiple layers for the background, so layer
+> position, transparency, etc has to be considered.
+> 
+> So maybe if we can rename fb_putcs() to fb_tileblit(), fb_setfont() to
+> fb_loadtiles(), struct fb_chars to struct fb_tilemap and struct
+> fb_fontdata to struct fb_tiledata, maybe it will be more acceptable?
+> 
+> It can be even be expanded by including fb_tiledata.depth
+> fb_tiledata.cmap so we can support multi-colored tiled blitting.
 
-	Jean
+This I have no problem with. I'm willing to accept this. As long as data 
+from the console layer is not touched. As for loadtiles one thing I like 
+to address is memory allocation. It probable is good idea to do things 
+like place the tile data in buffers allocated by pci_alloc_consistent.
+The other fear is it will only support so many tiles. 
+
+
+

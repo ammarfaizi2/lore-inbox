@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264472AbTGGUmL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jul 2003 16:42:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264476AbTGGUmL
+	id S264476AbTGGUxR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jul 2003 16:53:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264493AbTGGUxQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jul 2003 16:42:11 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:60035 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S264472AbTGGUmI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jul 2003 16:42:08 -0400
-Date: Mon, 7 Jul 2003 17:00:02 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: syscall __NR_mmap2
-Message-ID: <Pine.LNX.4.53.0307071655470.22074@chaos>
+	Mon, 7 Jul 2003 16:53:16 -0400
+Received: from hermes.cicese.mx ([158.97.1.34]:52186 "EHLO hermes.cicese.mx")
+	by vger.kernel.org with ESMTP id S264476AbTGGUxD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jul 2003 16:53:03 -0400
+Message-ID: <3F09E110.78A3D89E@cicese.mx>
+Date: Mon, 07 Jul 2003 14:07:28 -0700
+From: Serguei Miridonov <mirsev@cicese.mx>
+Reply-To: mirsev@cicese.mx
+Organization: CICESE Research Center, Ensenada, B.C., Mexico
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.20 i686)
+X-Accept-Language: ru, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: diemumiee@gmx.de, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: ATI IGP Support and System Freeze when running hwclock
+References: <20030706144114.GA23881@durix.hallo.net>
+		 <1057513936.1029.5.camel@dhcp22.swansea.linux.org.uk>
+		 <20030706232315.GA32461@durix.hallo.net> <1057560242.2412.3.camel@dhcp22.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox wrote:
 
-Is anybody using __NR_mmap2 function call? It doesn't work in Linux
-2.4.20. It returns nice values, but the address returned does not
-have any relationship to what's really there!!
+> On Llu, 2003-07-07 at 00:23, diemumiee@gmx.de wrote:
+> > I installed 2.4.21-ac with acpi. Acpi works great, but the whole system
+> > freezes when i try to run "hwclock --adjust --localtime". The module
+> > rtc.o gets loaded before the call to hwclock.
+>
+> Its something about ACPI combined with ALi real time clocks. Its still
+> a mystery. Dropping the rtc module from the build should fix it
 
-write(1, "Addr = 000b8000\n", 16)       = 16
-open("/dev/mem", O_RDWR)                = 3
-mmap2(0xb8000, 8192, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_FIXED, 3, 0xb8000) = 0xb8000
-write(1, "000B8000  FF FF FF FF FF FF FF F"..., 77) = 77
-write(1, "000B8010  FF FF FF FF FF FF FF F"..., 77) = 77
-write(1, "000B8020  FF FF FF FF FF FF FF F"..., 77) = 77
-close(3)                                = 0
-munmap(0xb8000, 8192)                   = 0
-This should be displaying screen memory (it doesn't).
+You may also rename /dev/rtc to /dev/rtcdevice or something else. When the
+kernel is fixed, you may rename it back.
 
-Does anybody care? Isn't this supposed to replace old_mmap() using
-__NR_mmap? `strace` seems to think I have the right values in
-the right registers. The returned value is correct, but as a
-caddr_t, it doesn't point to what it's supposed to point to.
+--
+Serguei Miridonov
 
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
 

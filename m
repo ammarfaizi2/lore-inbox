@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311650AbSDAOFo>; Mon, 1 Apr 2002 09:05:44 -0500
+	id <S310806AbSDAO16>; Mon, 1 Apr 2002 09:27:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311664AbSDAOFe>; Mon, 1 Apr 2002 09:05:34 -0500
-Received: from mail.sonytel.be ([193.74.243.200]:49558 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S311650AbSDAOFR>;
-	Mon, 1 Apr 2002 09:05:17 -0500
-Date: Mon, 1 Apr 2002 16:03:59 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Dale Amon <amon@vnl.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S311712AbSDAO1s>; Mon, 1 Apr 2002 09:27:48 -0500
+Received: from tstac.esa.lanl.gov ([128.165.46.3]:14793 "EHLO
+	tstac.esa.lanl.gov") by vger.kernel.org with ESMTP
+	id <S310806AbSDAO1d>; Mon, 1 Apr 2002 09:27:33 -0500
 Subject: Re: Linux needs new leadership.
-In-Reply-To: <20020401101459.GB18766@vnl.com>
-Message-ID: <Pine.GSO.4.21.0204011602400.18846-100000@vervain.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Steven Cole <elenstev@mesatop.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020401081944.GB21206@holomorphy.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2-5mdk 
+Date: 01 Apr 2002 07:24:20 -0700
+Message-Id: <1017671060.30193.3.camel@spc.esa.lanl.gov>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 1 Apr 2002, Dale Amon wrote:
-> I nominated Edsger Wybe Dijkstra and feel this is the
-> best choice for a number of reasons:
+On Mon, 2002-04-01 at 01:19, William Lee Irwin III wrote:
+> On Mon, Apr 01, 2002 at 12:00:00AM -0700, Linus Torvalds wrote:
+> [BS about Linux needing new leadership snipped]
+> 
+> No he didn't.
+> 
+> >From the forged headers:
+> 
+> Received: from pkdt.proxel.ru ([194.190.195.189]:21594 "HELO pkdt.proxel.ru")
+>         by vger.kernel.org with SMTP id <S310441AbSDAIHF>;        
+>         Mon, 1 Apr 2002 03:07:05 -0500
 
-  [snip]
 
-> 	* No one can pronounce his name properly, thus
-> 	  preventing the complacency that would come
-> 	  with a leader named "Smyth" or "Jones".
-
-I can (and everyone who can pronounce mine can pronounce his ;-)
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Message-ID: <Pine.LNX.4.01.2002ApR11F0015.31337-101723@transmeta.com>
+                               ^^^^^^^^^^^^^^^^
+And this too.  Very clever.
 

@@ -1,86 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265426AbSLCSfb>; Tue, 3 Dec 2002 13:35:31 -0500
+	id <S265446AbSLCSgT>; Tue, 3 Dec 2002 13:36:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265424AbSLCSfb>; Tue, 3 Dec 2002 13:35:31 -0500
-Received: from mg01.austin.ibm.com ([192.35.232.18]:40065 "EHLO
-	mg01.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S265426AbSLCSf3>; Tue, 3 Dec 2002 13:35:29 -0500
-Subject: Re: [Linux-pm-devel] IBM/MontaVista Dynamic Power Management Project
-From: Hollis Blanchard <hollis@austin.ibm.com>
-To: linux-kernel@vger.kernel.org, linux-pm-devel@lists.sourceforge.net
-Cc: cpufreq list <cpufreq@www.linux.org.uk>
-In-Reply-To: <OF6879354C.0478D137-ON86256C84.005CA3C0@pok.ibm.com>
-References: <OF6879354C.0478D137-ON86256C84.005CA3C0@pok.ibm.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-Gnu9FXsgHZGj9j0LrFBY"
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 03 Dec 2002 12:45:53 -0600
-Message-Id: <1038941153.1054.195.camel@granite.austin.ibm.com>
-Mime-Version: 1.0
+	id <S265469AbSLCSgT>; Tue, 3 Dec 2002 13:36:19 -0500
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:22716 "EHLO
+	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S265446AbSLCSgQ> convert rfc822-to-8bit; Tue, 3 Dec 2002 13:36:16 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: WOLK - Working Overloaded Linux Kernel
+To: Andrea Arcangeli <andrea@suse.de>
+Subject: Re: Exaggerated swap usage
+Date: Tue, 3 Dec 2002 19:43:37 +0100
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org, Andrew Clayton <andrew@sol-1.demon.co.uk>,
+       Javier Marcet <jmarcet@pobox.com>
+References: <200212030059.32018.m.c.p@wolk-project.de> <200212031112.14635.m.c.p@wolk-project.de> <20021203135905.GK1205@dualathlon.random>
+In-Reply-To: <20021203135905.GK1205@dualathlon.random>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200212031939.43384.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday 03 December 2002 14:59, Andrea Arcangeli wrote:
 
---=-Gnu9FXsgHZGj9j0LrFBY
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Hi Andrea,
 
-Please note that the cpufreq list address was incorrect in the original
-mail; please cc cpufreq@www.linux.org.uk (not .uk.org :) on future
-replies.
+> > I run e2fsck -fy every time after a crash. Fortunately it doesn't happen
+> > so often :-)
+> ok ;) I asked just in case.
+:-) np.
 
--Hollis
---=20
-PowerPC Linux
-IBM Linux Technology Center
+> > seems it's a problem in the umount-against-unused-dirty-inodes-race fix
+> > or if the fix "is the right way" the problem is located somewhere else
+> > what triggers the problem of your patch.
+> can you reproduce in 2.4.20aa1 too?
+I'll give it a try later this evening.
 
-On Tue, 2002-12-03 at 11:46, Bishop Brock wrote:
-> IBM and MontaVista have initiated a joint project to develop a
-> dynamic power management control and policy mechanism for Linux
-> for processors supporting dynamic voltage and frequency scaling.
-> A paper describing the proposal can be obtained from
->=20
-> http://www.research.ibm.com/arl/projects/dpm.html
->=20
-> A working prototype of the proposed framework for
-> the IBM PowerPC 405LP processor exists and will be made
-> public in the near future.
->=20
-> Bishop Brock
->=20
-> IBM Research, Austin Center for Low-Power Computing
-> 11400 Burnet Road    MS/904-6F021
-> Austin, TX 78758
-> (512) 838-0149    IBM T/L 678-0149
->=20
->=20
->=20
->=20
->=20
-> -------------------------------------------------------
-> This SF.net email is sponsored by: Microsoft Visual Studio.NET=20
-> comprehensive development tool, built to increase your=20
-> productivity. Try a free online hosted session at:
-> http://ads.sourceforge.net/cgi-bin/redirect.pl?micr0003en
-> _______________________________________________
-> Linux-pm-devel mailing list
-> Linux-pm-devel@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/linux-pm-devel
->=20
-
-
---=-Gnu9FXsgHZGj9j0LrFBY
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQA97Pvh4KXmU2P6AeoRAr6OAJ0VKxjMf6vXWwFqmfyEISNf/zOqjgCgvHaw
-v2nEBTxnzLV+gY3w5MpcR0I=
-=ruEx
------END PGP SIGNATURE-----
-
---=-Gnu9FXsgHZGj9j0LrFBY--
-
+ciao, Marc

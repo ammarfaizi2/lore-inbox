@@ -1,54 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266717AbSK1Tu3>; Thu, 28 Nov 2002 14:50:29 -0500
+	id <S266716AbSK1Ttg>; Thu, 28 Nov 2002 14:49:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266720AbSK1Tu3>; Thu, 28 Nov 2002 14:50:29 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:16144 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S266717AbSK1Tu2>;
-	Thu, 28 Nov 2002 14:50:28 -0500
-Date: Thu, 28 Nov 2002 20:57:47 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Romain Lievin <rlievin@free.fr>
-Cc: Roman Zippel <zippel@linux-m68k.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: kconfig (gkc): help about Makefile
-Message-ID: <20021128195747.GA11043@mars.ravnborg.org>
-Mail-Followup-To: Romain Lievin <rlievin@free.fr>,
-	Roman Zippel <zippel@linux-m68k.org>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20021128191734.GA476@free.fr>
-Mime-Version: 1.0
+	id <S266717AbSK1Ttg>; Thu, 28 Nov 2002 14:49:36 -0500
+Received: from [213.171.53.133] ([213.171.53.133]:17157 "EHLO gulipin.miee.ru")
+	by vger.kernel.org with ESMTP id <S266716AbSK1Ttf>;
+	Thu, 28 Nov 2002 14:49:35 -0500
+Date: Thu, 28 Nov 2002 22:57:01 +0300
+From: "Ruslan U. Zakirov" <cubic@wr.miee.ru>
+X-Mailer: The Bat! (v1.61)
+Reply-To: "Ruslan U. Zakirov" <cubic@wr.miee.ru>
+Organization: CITL MIEE
+X-Priority: 3 (Normal)
+Message-ID: <15801829670.20021128225701@wr.miee.ru>
+To: perex@suse.cz
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] ALSA with CONFIG_SND_SB16_CSP compiling problems in 2.5.50
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021128191734.GA476@free.fr>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 28, 2002 at 08:17:34PM +0100, Romain Lievin wrote:
-> Hi Roman,
-> 
-> I'm currently working on the kernel Makefile ($SRC & $SRC/scripts/kconfig)
-> for adding gkc support but I'm encountering some difficulties...
+Hello!
 
-> host-progs	:= conf mconf qconf gconf
-OK.
+I think it's just typing error.
 
-> conf-objs	:= conf.o  libkconfig.so
-> mconf-objs	:= mconf.o libkconfig.so
-> 
-> qconf-objs	:= kconfig_load.o
-> qconf-cxxobjs	:= qconf.o
-> 
-> gconf-objs	:= kconfig_load.o
-> gconf-cobjs	:= gconf.o
-Not OK. Replace with:
-gconf-objs := gconf.o kconfig_load.o
+--- sound/isa/sb/sb16.c.orig    Thu Nov 28 21:54:22 2002
++++ sound/isa/sb/sb16.c Thu Nov 28 21:55:23 2002
+@@ -502,7 +502,7 @@
 
-> HOSTLOADLIBES_gconf	= -L$(GTK_LIBS)
-> HOSTCXXFLAGS_gconf.o	= -I$(GTK_FLAGS)
-Looks OK, but I do not know the gtk package
+ #ifdef CONFIG_SND_SB16_CSP
+        /* CSP chip on SB16ASP/AWE32 */
+-       if ((chip->hardware == SB_HW_16) && csp[dev]) {
++       if ((chip->hardware == SB_HW_16CSP) && csp[dev]) {
+                snd_sb_csp_new(chip, synth != NULL ? 1 : 0, &xcsp);
+                if (xcsp) {
+                        chip->csp = xcsp->private_data;
 
-The rest looks OK as well.
+And here is problem with CONFIG_SND_SB16_CSP turned on,
+I think it must be something like this
 
-	Sam
+--- sound/isa/sb/sb16.c.orig    Thu Nov 28 22:28:07 2002
++++ sound/isa/sb/sb16.c Thu Nov 28 22:51:48 2002
+@@ -664,7 +664,6 @@
+ {
+        static unsigned __initdata nr_dev = 0;
+        int __attribute__ ((__unused__)) pnp = INT_MAX;
+-       int __attribute__ ((__unused__)) csp = INT_MAX;
+
+        if (nr_dev >= SNDRV_CARDS)
+                return 0;
+@@ -692,10 +691,6 @@
+ #ifdef __ISAPNP__
+        if (pnp != INT_MAX)
+                isapnp[nr_dev] = pnp;
+-#endif
+-#ifdef CONFIG_SND_SB16_CSP
+-       if (csp != INT_MAX)
+-               csp[nr_dev] = csp;
+ #endif
+        nr_dev++;
+        return 1;
+I can mistake.
+Best regards.
+             Ruslan
+

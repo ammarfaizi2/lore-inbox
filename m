@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288113AbSA0QPT>; Sun, 27 Jan 2002 11:15:19 -0500
+	id <S288169AbSA0QRL>; Sun, 27 Jan 2002 11:17:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288114AbSA0QPJ>; Sun, 27 Jan 2002 11:15:09 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:28307 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S288113AbSA0QPC>;
-	Sun, 27 Jan 2002 11:15:02 -0500
-Date: Sun, 27 Jan 2002 17:09:55 +0100
-From: Dave Jones <davej@suse.de>
-To: Tomasz Wegrzanowski <taw@users.sourceforge.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Compilation problems
-Message-ID: <20020127170955.C17005@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Tomasz Wegrzanowski <taw@users.sf.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020127153829.GA18621@tavaiah>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020127153829.GA18621@tavaiah>; from taw@users.sf.net on Sun, Jan 27, 2002 at 04:38:29PM +0100
+	id <S288124AbSA0QRC>; Sun, 27 Jan 2002 11:17:02 -0500
+Received: from petasus.iil.intel.com ([192.198.152.69]:64251 "EHLO
+	petasus.iil.intel.com") by vger.kernel.org with ESMTP
+	id <S288114AbSA0QQt>; Sun, 27 Jan 2002 11:16:49 -0500
+Message-ID: <1FA73BCBB3CFD311913100A0C9E00BE6023923CD@hasmsx43.iil.intel.com>
+From: "Mendelson, Tsippy" <tsippy.mendelson@intel.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Cc: "'linux-net@vger.kernel.org'" <linux-net@vger.kernel.org>
+Subject: Does bonding interfere with Raw packet binding ?
+Date: Sun, 27 Jan 2002 18:16:42 +0200
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="ISO-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 27, 2002 at 04:38:29PM +0100, Tomasz Wegrzanowski wrote:
- > drivers/sound/sounddrivers.o(.data+0xb4): undefined reference to `local symbols in discarded section .text.exit'
- > I also couldn't compile 2.5.2
- > On the other hand 2.5.2-dj5 works. That's weird.
 
- It's because my tree has Keith Owens' text.exit changes, and
- also the related __devexitp changes. I'll push these to Linus
- soon.
- 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Hello,
+
+The PF_PACKET protocol family was defined to allow root applications to bind
+themselves with network devices without going through all the network stack.
+
+What happens if an application binds itself to a device that is a slave in a
+bonding team?
+
+The skb_bond() function in dev.c changes the skb->dev from the slave device
+to a master device. It seems that this will block the application from
+receiving its packets.
+
+Dying to get some input on this Q.
+
+Thanks,
+
+Tsippy 

@@ -1,342 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269111AbRHCOOv>; Fri, 3 Aug 2001 10:14:51 -0400
+	id <S269134AbRHCO0x>; Fri, 3 Aug 2001 10:26:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269134AbRHCOOm>; Fri, 3 Aug 2001 10:14:42 -0400
-Received: from phnx1-blk2-hfc-0251-d1db10f1.rdc1.az.coxatwork.com ([209.219.16.241]:19669
-	"EHLO mail.labsysgrp.com") by vger.kernel.org with ESMTP
-	id <S269111AbRHCOOa>; Fri, 3 Aug 2001 10:14:30 -0400
-Message-ID: <00e701c11c26$af0463c0$6baaa8c0@kevin>
-From: "Kevin P. Fleming" <kevin@labsysgrp.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: <torvalds@transmeta.com>
-Subject: [PATCH] keep devfs partition nodes in sync with block device drivers
-Date: Fri, 3 Aug 2001 07:14:58 -0700
-Organization: LSG, Inc.
+	id <S269386AbRHCO0n>; Fri, 3 Aug 2001 10:26:43 -0400
+Received: from [47.129.117.131] ([47.129.117.131]:43918 "HELO
+	pcard0ks.ca.nortel.com") by vger.kernel.org with SMTP
+	id <S269134AbRHCO00>; Fri, 3 Aug 2001 10:26:26 -0400
+Message-ID: <3B6AB4A4.912154F4@nortelnetworks.com>
+Date: Fri, 03 Aug 2001 10:26:44 -0400
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-custom i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: ramdisk as root filesystem seems to cause ethernet carrier errors
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(I'm resending this due to lack of any response on the first attempt... and
-since I didn't see this patch appear in 2.4.8-pre(2/3))
 
-The attached patch (which touches nearly every block device driver that
-supports partitioned media) fixes a couple of problems when devfs is in use:
+We have a Motorola G4-based compact PCI card with dual DEC21143-based ethernet
+interfaces using the tulip driver.  We're running a somewhat patched 2.2.17
+kernel. The normal method of booting this card is to tftp a kernel&ramdisk image
+(about 10MB or so compressed) from a bootp server.  The ramdisk then becomes the
+root filesystem, and one of the ethernet links is configured based on
+information from the bootp server.  The second ethernet link is configured later
+based on the configuration of the first one.
 
-- when a block device's media is "revalidated", the partition table is
-re-read and /dev nodes are created for those partitions, but the previously
-existing entries are not removed first. this can easily lead to "left over"
-entries when the partition table is changed (either by partition table
-editing or replacement of removable media)
+We've been using this setup for some months now, but recently someone was doing
+some bandwidth testing comparing the speed of the two links, and he saw that
+eth1 was substantially slower than eth0.  Checking the output of ifconfig, he
+saw a very large number of carrier errors.  Further checking showed that there
+was a carrier error for every packet sent out that link.
 
-- if media is ejected from a removable media device (normally done using an
-ioctl), the /dev entries for that media do not get removed
+Attempting to isolate the problem, we found that if we changed the init scripts
+to configure eth1 at boot, then the problem occurred on eth0.  We then made an
+exact copy of the contents of the ramdisk filesystem, booted the exact same
+kernel&ramdisk image, and overrode the boot args to force it to boot with the
+filesystem copy as nfs-mounted root.  The problem went away.  We then tried
+booting with nfs and mounting the same ramdisk image and then configuring the
+second interface.  No problems.
 
-- if a block device driver has sub-drivers (specifically the IDE layer)
-loaded as modules, and one of those sub-drivers is unloaded, the /dev nodes
-it was responsible for do not get removed. this problem will not occur if
-the main block driver (at the major number level) is unloaded, only for
-sub-drivers
+What it looks like is that somehow simply having a ramdisk as root is causing
+either errors or detection of errors on whichever ethernet link is not
+configured by the system at boot time.  Interestingly, the vast majority of the
+packets are actually getting through--we're seeing about a tenth of a percent
+packet loss, but every packet sent generates an error.
 
-The patch is against 2.4.8-pre1, but should apply to nearly any recent
-kernel version. I have tested that all the drivers compile (except for acsi
-and acorn/mfmhd since I don't have those platforms), and have tested the
-desired effects on the ide-floppy driver. In addition, there are very likely
-other block device drivers in other architecture trees that I did not touch
-as the code was not clearly understandable (to me at least). Comments
-welcome :-)
+Does anyone have any ideas what could be causing this?  We've tried making a
+number of different ramdisks of various sizes, but it doesn't seem to make any
+difference.  The bootloader code has been patched to allow for ramdisks of up to
+32MB rather than the default 8MB, and it doesn't look like anything is getting
+trampled at boot.
 
---- cut here ---
-diff -rbwU3 --exclude-from=dontdiff linux-old/drivers/acorn/block/mfmhd.c
-linux-2.4/drivers/acorn/block/mfmhd.c
---- linux-old/drivers/acorn/block/mfmhd.c Sat Jul 28 10:41:51 2001
-+++ linux-2.4/drivers/acorn/block/mfmhd.c Sat Jul 28 10:48:14 2001
-@@ -1492,6 +1492,7 @@
+Thanks,
 
-  /* Divide by 2, since sectors are 2 times smaller than usual ;-) */
-
-+ ungrok_partitions(&mfm_gendisk, target);
-  grok_partitions(&mfm_gendisk, target, 1<<6, mfm_info[target].heads *
-       mfm_info[target].cylinders * mfm_info[target].sectors / 2);
-
-diff -rbwU3 --exclude-from=dontdiff linux-old/drivers/block/DAC960.c
-linux-2.4/drivers/block/DAC960.c
---- linux-old/drivers/block/DAC960.c Sat Jul 28 10:41:51 2001
-+++ linux-2.4/drivers/block/DAC960.c Sat Jul 28 10:48:14 2001
-@@ -5153,6 +5153,8 @@
-    */
-    set_blocksize(Device, BLOCK_SIZE);
-  }
-+      ungrok_partitions(&Controller->GenericDiskInfo,
-+   LogicalDriveNumber);
-       if (Controller->FirmwareType == DAC960_V1_Controller)
-  grok_partitions(&Controller->GenericDiskInfo,
-    LogicalDriveNumber,
-diff -rbwU3 --exclude-from=dontdiff linux-old/drivers/block/acsi.c
-linux-2.4/drivers/block/acsi.c
---- linux-old/drivers/block/acsi.c Sat Jul 28 10:41:51 2001
-+++ linux-2.4/drivers/block/acsi.c Sat Jul 28 10:48:14 2001
-@@ -1906,6 +1906,7 @@
-  ENABLE_IRQ();
-  stdma_release();
-
-+ ungrok_partitions(gdev, device);
-  grok_partitions(gdev, device, (aip->type==HARDDISK)?1<<4:1, aip->size);
-
-  DEVICE_BUSY = 0;
-diff -rbwU3 --exclude-from=dontdiff linux-old/drivers/block/cciss.c
-linux-2.4/drivers/block/cciss.c
---- linux-old/drivers/block/cciss.c Sat Jul 28 10:41:55 2001
-+++ linux-2.4/drivers/block/cciss.c Sat Jul 28 10:48:14 2001
-@@ -736,6 +736,7 @@
-                 blksize_size[MAJOR_NR+ctlr][minor] = 1024;
-         }
-  /* setup partitions per disk */
-+        ungrok_partitions(gdev, target);
-  grok_partitions(gdev, target, MAX_PART,
-    hba[ctlr]->drv[target].nr_blocks);
-         hba[ctlr]->drv[target].usage_count--;
-diff -rbwU3 --exclude-from=dontdiff linux-old/drivers/block/cpqarray.c
-linux-2.4/drivers/block/cpqarray.c
---- linux-old/drivers/block/cpqarray.c Sat Jul 28 10:42:01 2001
-+++ linux-2.4/drivers/block/cpqarray.c Sat Jul 28 10:48:14 2001
-@@ -1665,6 +1665,7 @@
-   blksize_size[MAJOR_NR+ctlr][minor] = 1024;
-  }
-
-+ ungrok_partitions(gdev, target);
-  /* 16 minors per disk... */
-  grok_partitions(gdev, target, 16, hba[ctlr]->drv[target].nr_blks);
-  hba[ctlr]->drv[target].usage_count--;
-diff -rbwU3 --exclude-from=dontdiff linux-old/drivers/block/paride/pd.c
-linux-2.4/drivers/block/paride/pd.c
---- linux-old/drivers/block/paride/pd.c Sat Jul 28 10:41:51 2001
-+++ linux-2.4/drivers/block/paride/pd.c Sat Jul 28 10:48:14 2001
-@@ -510,7 +510,10 @@
-
-         switch (cmd) {
-      case CDROMEJECT:
--  if (PD.access == 1) pd_eject(unit);
-+  if (PD.access == 1) {
-+                    ungrok_partitions(&pd_gendisk,unit);
-+                    pd_eject(unit);
-+  }
-   return 0;
-             case HDIO_GETGEO:
-                 if (!geo) return -EINVAL;
-@@ -609,8 +612,10 @@
-                 pd_hd[minor].nr_sects = 0;
-         }
-
-- if (pd_identify(unit))
-+ if (pd_identify(unit)) {
-+                ungrok_partitions(&pd_gendisk,unit);
-   grok_partitions(&pd_gendisk,unit,1<<PD_BITS,PD.capacity);
-+ }
-
-         pd_valid = 1;
-         wake_up(&pd_wait_open);
-diff -rbwU3 --exclude-from=dontdiff linux-old/drivers/block/ps2esdi.c
-linux-2.4/drivers/block/ps2esdi.c
---- linux-old/drivers/block/ps2esdi.c Sat Jul 28 10:41:59 2001
-+++ linux-2.4/drivers/block/ps2esdi.c Sat Jul 28 10:48:14 2001
-@@ -1155,6 +1155,7 @@
-   ps2esdi_gendisk.part[minor].nr_sects = 0;
-  }
-
-+ ungrok_partitions(&ps2esdi_gendisk, target);
-  grok_partitions(&ps2esdi_gendisk, target, 1<<6,
-   ps2esdi_info[target].head * ps2esdi_info[target].cyl *
-ps2esdi_info[target].sect);
-
-diff -rbwU3 --exclude-from=dontdiff linux-old/drivers/block/xd.c
-linux-2.4/drivers/block/xd.c
---- linux-old/drivers/block/xd.c Sat Jul 28 10:41:51 2001
-+++ linux-2.4/drivers/block/xd.c Sat Jul 28 10:48:14 2001
-@@ -406,6 +406,7 @@
-   xd_gendisk.part[minor].nr_sects = 0;
-  };
-
-+ ungrok_partitions(&xd_gendisk, target);
-  grok_partitions(&xd_gendisk, target, 1<<6,
-    xd_info[target].heads * xd_info[target].cylinders *
-xd_info[target].sectors);
-
-diff -rbwU3 --exclude-from=dontdiff linux-old/drivers/i2o/i2o_block.c
-linux-2.4/drivers/i2o/i2o_block.c
---- linux-old/drivers/i2o/i2o_block.c Sat Jul 28 10:41:59 2001
-+++ linux-2.4/drivers/i2o/i2o_block.c Sat Jul 28 10:48:14 2001
-@@ -1441,6 +1441,7 @@
-   */
-  dev->req_queue = &i2ob_queues[c->unit]->req_queue;
-
-+ ungrok_partitions(&i2ob_gendisk, unit>>4);
-  grok_partitions(&i2ob_gendisk, unit>>4, 1<<4, (long)(size>>9));
-
-  /*
-diff -rbwU3 --exclude-from=dontdiff linux-old/drivers/ide/hd.c
-linux-2.4/drivers/ide/hd.c
---- linux-old/drivers/ide/hd.c Sat Jul 28 10:41:52 2001
-+++ linux-2.4/drivers/ide/hd.c Sat Jul 28 10:48:14 2001
-@@ -901,6 +901,7 @@
-  MAYBE_REINIT;
- #endif
-
-+ ungrok_partitions(gdev, target);
-  grok_partitions(gdev, target, 1<<6, CAPACITY);
-
-  DEVICE_BUSY = 0;
-diff -rbwU3 --exclude-from=dontdiff linux-old/drivers/ide/ide-disk.c
-linux-2.4/drivers/ide/ide-disk.c
---- linux-old/drivers/ide/ide-disk.c Sat Jul 28 10:41:39 2001
-+++ linux-2.4/drivers/ide/ide-disk.c Sat Jul 28 10:48:14 2001
-@@ -494,6 +494,7 @@
-
- static void idedisk_revalidate (ide_drive_t *drive)
- {
-+ ungrok_partitions(HWIF(drive)->gd, drive->select.b.unit);
-  grok_partitions(HWIF(drive)->gd, drive->select.b.unit,
-    1<<PARTN_BITS,
-    current_capacity(drive));
-@@ -728,6 +729,7 @@
-
- static int idedisk_cleanup (ide_drive_t *drive)
- {
-+ ungrok_partitions(HWIF(drive)->gd, drive->select.b.unit);
-  return ide_unregister_subdriver(drive);
- }
-
-diff -rbwU3 --exclude-from=dontdiff linux-old/drivers/ide/ide-floppy.c
-linux-2.4/drivers/ide/ide-floppy.c
---- linux-old/drivers/ide/ide-floppy.c Sat Jul 28 10:41:56 2001
-+++ linux-2.4/drivers/ide/ide-floppy.c Sat Jul 28 10:48:14 2001
-@@ -1293,7 +1293,7 @@
- /*
-  * Our special ide-floppy ioctl's.
-  *
-- * Currently there aren't any ioctl's.
-+ * Currently the only ioctl supported is to eject the cartridge, using the
-CDROMEJECT ioctl.
-  */
- static int idefloppy_ioctl (ide_drive_t *drive, struct inode *inode, struct
-file *file,
-      unsigned int cmd, unsigned long arg)
-@@ -1307,6 +1307,7 @@
-   (void) idefloppy_queue_pc_tail (drive, &pc);
-   idefloppy_create_start_stop_cmd (&pc, 2);
-   (void) idefloppy_queue_pc_tail (drive, &pc);
-+                ungrok_partitions(HWIF(drive)->gd, drive->select.b.unit);
-   return 0;
-  }
-   return -EIO;
-@@ -1380,6 +1381,7 @@
-  */
- static void idefloppy_revalidate (ide_drive_t *drive)
- {
-+ ungrok_partitions(HWIF(drive)->gd, drive->select.b.unit);
-  grok_partitions(HWIF(drive)->gd, drive->select.b.unit,
-    1<<PARTN_BITS,
-    current_capacity(drive));
-@@ -1577,6 +1579,7 @@
- {
-  idefloppy_floppy_t *floppy = drive->driver_data;
-
-+ ungrok_partitions(HWIF(drive)->gd, drive->select.b.unit);
-  if (ide_unregister_subdriver (drive))
-   return 1;
-  drive->driver_data = NULL;
-diff -rbwU3 --exclude-from=dontdiff linux-old/drivers/mtd/nftlcore.c
-linux-2.4/drivers/mtd/nftlcore.c
---- linux-old/drivers/mtd/nftlcore.c Sat Jul 28 10:41:56 2001
-+++ linux-2.4/drivers/mtd/nftlcore.c Sat Jul 28 10:50:06 2001
-@@ -166,6 +166,7 @@
- #if LINUX_VERSION_CODE < 0x20328
-  resetup_one_dev(&nftl_gendisk, firstfree);
- #else
-+  ungrok_partitions(&nftl_gendisk, firstfree);
-  grok_partitions(&nftl_gendisk, firstfree, 1<<NFTL_PARTN_BITS,
-nftl->nr_sects);
- #endif
- }
-@@ -824,6 +825,7 @@
- #if LINUX_VERSION_CODE < 0x20328
-   resetup_one_dev(&nftl_gendisk, MINOR(inode->i_rdev) >> NFTL_PARTN_BITS);
- #else
-+   ungrok_partitions(&nftl_gendisk, MINOR(inode->i_rdev) >>
-NFTL_PARTN_BITS);
-   grok_partitions(&nftl_gendisk, MINOR(inode->i_rdev) >> NFTL_PARTN_BITS,
-     1<<NFTL_PARTN_BITS, nftl->nr_sects);
- #endif
-diff -rbwU3 --exclude-from=dontdiff linux-old/drivers/scsi/sd.c
-linux-2.4/drivers/scsi/sd.c
---- linux-old/drivers/scsi/sd.c Sat Jul 28 10:42:00 2001
-+++ linux-2.4/drivers/scsi/sd.c Sat Jul 28 10:48:14 2001
-@@ -1310,6 +1310,7 @@
-  MAYBE_REINIT;
- #endif
-
-+ ungrok_partitions(&SD_GENDISK(target), target % SCSI_DISKS_PER_MAJOR);
-  grok_partitions(&SD_GENDISK(target), target % SCSI_DISKS_PER_MAJOR,
-    1<<4, CAPACITY);
-
-diff -rbwU3 --exclude-from=dontdiff linux-old/fs/partitions/check.c
-linux-2.4/fs/partitions/check.c
---- linux-old/fs/partitions/check.c Sat Jul 28 10:42:01 2001
-+++ linux-2.4/fs/partitions/check.c Sat Jul 28 10:48:14 2001
-@@ -308,7 +308,7 @@
-  printk(" unknown partition table\n");
- setup_devfs:
-  i = first_part_minor - 1;
-- devfs_register_partitions (hd, i, hd->sizes ? 0 : 1);
-+ devfs_register_partitions (hd, i, 0);
- }
-
- #ifdef CONFIG_DEVFS_FS
-@@ -441,4 +441,11 @@
-    dev->sizes[i] = dev->part[i].nr_sects >> (BLOCK_SIZE_BITS - 9);
-   blk_size[dev->major] = dev->sizes;
-  }
-+}
-+
-+void ungrok_partitions(struct gendisk *dev, int drive)
-+{
-+ int first_minor = drive << dev->minor_shift;
-+
-+        devfs_register_partitions(dev, first_minor, 1);
- }
-diff -rbwU3 --exclude-from=dontdiff linux-old/include/linux/blkdev.h
-linux-2.4/include/linux/blkdev.h
---- linux-old/include/linux/blkdev.h Sat Jul 28 10:42:00 2001
-+++ linux-2.4/include/linux/blkdev.h Sat Jul 28 10:58:59 2001
-@@ -149,6 +149,7 @@
- extern struct sec_size * blk_sec[MAX_BLKDEV];
- extern struct blk_dev_struct blk_dev[MAX_BLKDEV];
- extern void grok_partitions(struct gendisk *dev, int drive, unsigned
-minors, long size);
-+extern void ungrok_partitions(struct gendisk *dev, int drive);
- extern void register_disk(struct gendisk *dev, kdev_t first, unsigned
-minors, struct block_device_operations *ops, long size);
- extern void generic_make_request(int rw, struct buffer_head * bh);
- extern request_queue_t *blk_get_queue(kdev_t dev);
-diff -rbwU3 --exclude-from=dontdiff linux-old/kernel/ksyms.c
-linux-2.4/kernel/ksyms.c
---- linux-old/kernel/ksyms.c Sat Jul 28 10:42:00 2001
-+++ linux-2.4/kernel/ksyms.c Sat Jul 28 10:48:14 2001
-@@ -296,6 +296,7 @@
- EXPORT_SYMBOL(ioctl_by_bdev);
- EXPORT_SYMBOL(gendisk_head);
- EXPORT_SYMBOL(grok_partitions);
-+EXPORT_SYMBOL(ungrok_partitions);
- EXPORT_SYMBOL(register_disk);
- EXPORT_SYMBOL(tq_disk);
- EXPORT_SYMBOL(init_buffer);
+Chris
 
 
-
+-- 
+Chris Friesen                    | MailStop: 043/33/F10  
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com

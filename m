@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265317AbRGJKfF>; Tue, 10 Jul 2001 06:35:05 -0400
+	id <S265326AbRGJKfF>; Tue, 10 Jul 2001 06:35:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265465AbRGJKez>; Tue, 10 Jul 2001 06:34:55 -0400
-Received: from [164.164.82.29] ([164.164.82.29]:29683 "EHLO subexgroup.com")
-	by vger.kernel.org with ESMTP id <S265317AbRGJKeo>;
-	Tue, 10 Jul 2001 06:34:44 -0400
-From: "Anil Kumar" <anilk@subexgroup.com>
-To: "Linux Kernel" <linux-kernel@vger.kernel.org>
-Subject: Dynamic loadable Modules
-Date: Tue, 10 Jul 2001 16:04:54 +0530
-Message-ID: <NEBBIIKAMMOCGCPMPBJOGENICHAA.anilk@subexgroup.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
-X-Return-Path: anilk@subexgroup.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+	id <S265317AbRGJKe4>; Tue, 10 Jul 2001 06:34:56 -0400
+Received: from t2.redhat.com ([199.183.24.243]:44537 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S265326AbRGJKek>; Tue, 10 Jul 2001 06:34:40 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20010630153740.A59@toy.ucw.cz> 
+In-Reply-To: <20010630153740.A59@toy.ucw.cz>  <20010626155838.A23098@jmcmullan.resilience.com> 
+To: Pavel Machek <pavel@suse.cz>
+Cc: Jason McMullan <jmcmullan@linuxcare.com>, linux-kernel@vger.kernel.org
+Subject: Re: VM Requirement Document - v0.0 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 10 Jul 2001 11:34:06 +0100
+Message-ID: <22996.994761246@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi all,
-Can i know how are the dynamic loadable modules implemented. Any helpful
-pointers to resources would be highly appreciable.
-anil
 
+pavel@suse.cz said:
+> 		RAM:	4-64Mb	 (reads: immediate, writes: immediate)
 
-DISCLAIMER: This correspondence is confidential and intended for the named
-recipient(s) only. If you are not the named recipient and receive this
-correspondence in error, you must not copy, distribute or take any action in
-reliance on it and you should delete it from your system and notify the
-sender immediately. Unless otherwise stated, any views or opinions expressed
-are solely those of the author and do not represent those of Subex Systems
-Limited.
+> MB not Mb. 4Mb = 0.5MB.
 
-www.subexgroup.com
+...  = 0.48 MiB = 3.8 Mib
+
+http://physics.nist.gov/cuu/Units/binary.html
+
+--
+dwmw2
 
 

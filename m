@@ -1,42 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265161AbTFMQqT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 12:46:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265165AbTFMQqT
+	id S265165AbTFMQrK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 12:47:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265229AbTFMQrJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 12:46:19 -0400
-Received: from mail.cid.net ([193.41.144.34]:10219 "EHLO mail.cid.net")
-	by vger.kernel.org with ESMTP id S265161AbTFMQqS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 12:46:18 -0400
-Date: Fri, 13 Jun 2003 18:56:28 +0200
-From: Stefan Foerster <stefan@stefan-foerster.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: linux-2.4.21 released
-Message-ID: <20030613165628.GE28609@in-ws-001.cid-net.de>
-References: <200306131453.h5DErX47015940@hera.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200306131453.h5DErX47015940@hera.kernel.org>
-X-Now-Playing: Blue - All Rise
-User-Agent: Mutt/1.5.4i
+	Fri, 13 Jun 2003 12:47:09 -0400
+Received: from carisma.slowglass.com ([195.224.96.167]:21252 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S265165AbTFMQrC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jun 2003 12:47:02 -0400
+Date: Fri, 13 Jun 2003 18:00:47 +0100 (BST)
+From: James Simmons <jsimmons@infradead.org>
+To: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Real multi-user linux
+In-Reply-To: <E19QcfW-0003ce-00@calista.inka.de>
+Message-ID: <Pine.LNX.4.44.0306131757341.29353-100000@phoenix.infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Marcelo Tosatti <marcelo@hera.kernel.org> wrote:
-> final:
+
+> > is it possible to use several logical terminals
+> > (=tupels of monitor, keyboard and mouse) directly
+> > connected to _one_ system?
 > 
-> - 2.4.21-rc8 was released as 2.4.21 with no changes.
+> Yes sure.
 
-Can we expect the latest ACPI and aic7xxx stuff in 2.4.22-pre?
+Yes but it requires massive surgery to the kernel.
+
+> > But is there a possibility to group these to allow two
+> > users work simultanously on the same machine without
+> > having to go via serial console or network?
+> 
+> the main problem is the hardware. It is most often easier to have a diskless
+> terminal connected via network, than to have a VGA cable to two workplaces.
+> 
+> Linux supports multiple XServers (on multiple cards or cards with multiple
+> ports), can you can configure them for multiple serial ports or usb ports
+> for the mouse. For the keyboard you can have one ps2 and multiple usb ports
+> (under x). I am not sure how the console handles multiple usb keyboards.
+
+Its flaky. The XServers need some patches to make it behave correctly. We 
+have working X servers that do this. Alot of configuring has to be done 
+to. This also has been solved. We also had it working with multiple sound 
+cards.
+  BTW this is what the company I'm creating right now does. I just wanted 
+to have a actually working product before I formed a company.
 
 
-Ciao,
-Stefan
--- 
-Stefan Förster                                  Public Key: 0xBBE2A9E9
-FdI #244: Restart - Beliebte Übung, um nicht in das Zweifingertippsystem
-zurück zu fallen. (Manfred Worm Schäfer)
+
+
 

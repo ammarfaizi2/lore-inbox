@@ -1,49 +1,135 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271246AbUJVL4Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271244AbUJVL7W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271246AbUJVL4Z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 07:56:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271244AbUJVL4Z
+	id S271244AbUJVL7W (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 07:59:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271240AbUJVL7V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 07:56:25 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:58069 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S271240AbUJVL4R (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 07:56:17 -0400
-Date: Fri, 22 Oct 2004 13:57:34 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Nikita Danilov <nikita@clusterfs.com>
-Cc: Gunther Persoons <gunther_persoons@spymac.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U9
-Message-ID: <20041022115734.GA1790@elte.hu>
-References: <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu> <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu> <20041021132717.GA29153@elte.hu> <4177FAB0.6090406@spymac.com> <20041021164018.GA11560@elte.hu> <16759.63466.507400.649099@thebsh.namesys.com> <20041022102210.GA21734@elte.hu> <16760.62448.307737.588876@gargle.gargle.HOWL>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16760.62448.307737.588876@gargle.gargle.HOWL>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Fri, 22 Oct 2004 07:59:21 -0400
+Received: from neopsis.com ([213.239.204.14]:56968 "EHLO
+	matterhorn.neopsis.com") by vger.kernel.org with ESMTP
+	id S271244AbUJVL6q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 07:58:46 -0400
+Message-ID: <4178F5EF.7000503@dbservice.com>
+Date: Fri, 22 Oct 2004 13:58:39 +0200
+From: Tomas carnecky <tom@dbservice.com>
+User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Blizbor <kernel@globalintech.pl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: my opinion about VGA devices
+References: <417590F3.1070807@dbservice.com> <200410201318.26430.oliver@neukum.org> <41765A8C.2020309@dbservice.com> <Pine.LNX.4.61.0410200851080.10711@chaos.analogic.com> <417672BF.5040708@dbservice.com> <Pine.LNX.4.61.0410201022370.12062@chaos.analogic.com> <41767DB4.9040008@dbservice.com> <4178F276.2040501@globalintech.pl>
+In-Reply-To: <4178F276.2040501@globalintech.pl>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Neopsis-MailScanner-Information: Please contact the ISP for more information
+X-Neopsis-MailScanner: Found to be clean
+X-MailScanner-From: tom@dbservice.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Blizbor wrote:
 
-* Nikita Danilov <nikita@clusterfs.com> wrote:
+> Tomas Carnecky wrote:
+>
+>> Richard B. Johnson wrote:
+>>
+>>>> Why do you let user-mode programs access the hardware directly?
+>>>> You don't do this with network devices (there you have syscalls), 
+>>>> you don't do this with sound devices (alsa).
+>>>
+>>>
+>>>
+>>>
+>>> Any root process can mmap() any of the memory-mapped hardware
+>>> including network devices. This isn't normally done because
+>>> handling interrupts from such hardware isn't very efficient
+>>> in user-mode, and redistributing data meant for another
+>>> process would be a nightmare. However, it can be done.
+>>>
+>>>> IMO it makes a proper power managment implementation impossible.
+>>>>
+>>>
+>>> Wrong. The 'normal' user can't do such I/O, root can. See iopl(), which
+>>> sets the I/O privilege level. This has nothing to do with power-
+>>> management.
+>>
+>>
+>>
+>> Power managment should be done in the kernel, that's why there is 
+>> sysfs and the kobjects. But it can't be done properly if some process 
+>> from user-mode (even root processes) do access the hardware directly.
+>> Power managment isn't the only reason why it shouldn't be done, but 
+>> also everything related to the device managment etc. There should 
+>> always be a driver between a process and the hardware as a protection.
+>>
+>>>
+>>>> Last time I've tried a LiveCD distro I've seen a nice boot console 
+>>>> with background picture, high resolution (1024x768) and nice small 
+>>>> font. That means that the framebuffer driver had to be initialized 
+>>>> at that time. I don't have framebuffer drivers compiled into my 
+>>>> kernel so I don't know at which point these are initialized, but it 
+>>>> must be at a quite early point in the boot process.
+>>>
+>>>
+>>>
+>>>
+>>> Even Fedora, which boots in a 'graphical' mode, really boots standard
+>>> text-mode until 'init' gets control. They just hide the console output
+>>> by setting the grub command-line parameter, "quiet".
+>>>
+>>> The kernel messages are still available using `dmesg`. If you want
+>>> to eliminate any possibility of losing kernel messages because
+>>> the kernel failed to get up all the way, just use /dev/ttyS0 as
+>>> your console during boot.
+>>
+>>
+>>
+>> Well... that's why I don't understand why we should keep the VGA code 
+>> in the kernel. It's very unlikely that the kernel crashes before a 
+>> graphics driver can be initialized (if you do this as soon as 
+>> possible) unless you have a bad CPU etc.
+>>
+> I think you're wrong.
+> This is not a good idea. In such important (should I say 'critical' ?) 
+> software like kernel
+> there is no room to developers 'probability sense'. If exists 
+> hypotethical situation that
+> something will go wrong it should be taken into account and a software 
+> way to handle it
+> must exist.
 
->  > condition variables are fine if you 1) already know them from userspace
->  > and 2) want to use a single locking abstraction for everything. It is
->  > thus also a kitchen-sink primitive that is inevitably slow and complex.
->  > I still have to see a locking problem where condvars are the
->  > cleanest/simplest answer, and i've yet to see a locking problem where
->  > condvars are not the slowest answer ;)
-> 
-> A kernel daemon that waits for some work to do is an example.
+I don't think there is any way you can handle a crash at that stage, 
+either the kernel starts successfully or not.
 
-what type of work - could you be a bit more specific?
+>
+> 1. What if kernel crashes during graphics driver initialisation ?
 
-	Ingo
+Developers can have a serial console attached to the computer and get 
+the info from there and any other user don't really care, I don't think 
+that the office workers in the Munich government would care about it and 
+send a bug report to the LKML.
+
+> 2. What if you move HD to another box with totally diferrent graphics 
+> device ?
+
+You could have two drivers compiled in, one very small and simple (VGA) 
+for the case that you'll change the computer and a boot parameter to 
+change them. But usually people compile a new kernel before putting the 
+HD into a new box so I don't see this as a a stong argument.
+
+> 3. What if the kernel DO crash before graph.dev. initialisation ? How 
+> many hours you will spend diagnosing ?
+
+Not even a minute, I'd switch to a driver version that worked before. 
+And maybe report that the new version doesn't work.
+
+>
+> 4. What if before or during graphisc driver initialisation a kind of 
+> delayed error in other device will occur ?
+
+Not if you initialize the graph.dev. before any other device, as soon as 
+possible, just after the bus(PCI etc.) initialization.
+
+tom
+

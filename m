@@ -1,46 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263486AbTKQNIw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Nov 2003 08:08:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263487AbTKQNIw
+	id S263487AbTKQNJY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Nov 2003 08:09:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263490AbTKQNJY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Nov 2003 08:08:52 -0500
-Received: from mail.gmx.net ([213.165.64.20]:13700 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263486AbTKQNIv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Nov 2003 08:08:51 -0500
-X-Authenticated: #4512188
-Message-ID: <3FB8C92E.7030201@gmx.de>
-Date: Mon, 17 Nov 2003 14:12:14 +0100
-From: "Prakash K. Cheemplavam" <prakashpublic@gmx.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031116
-X-Accept-Language: de-de, de, en-us, en
-MIME-Version: 1.0
-To: "Ronny V. Vindenes" <s864@ii.uib.no>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, cat@zip.com.au,
-       gawain@freda.homelinux.org, gene.heskett@verizon.net,
-       papadako@csd.uoc.gr
-Subject: Re: Terrible interactivity with 2.6.0-t9-mm3
-References: <1069071092.3238.5.camel@localhost.localdomain>
-In-Reply-To: <1069071092.3238.5.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 17 Nov 2003 08:09:24 -0500
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:23185 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S263487AbTKQNJW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Nov 2003 08:09:22 -0500
+Date: Mon, 17 Nov 2003 08:08:06 -0500
+From: Jakub Jelinek <jakub@redhat.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Adrian Bunk <bunk@fs.tum.de>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] disallow modular BINFMT_ELF
+Message-ID: <20031117130806.GC6288@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+References: <20031115232600.GF7919@fs.tum.de> <3FB6BB35.8090001@pobox.com> <m1vfpjol6w.fsf@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1vfpjol6w.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ronny V. Vindenes wrote:
-
-> I've found that neither linus.patch nor
-> context-switch-accounting-fix.patch is causing the problem, but rather
-> acpi-pm-timer-fixes.patch & acpi-pm-timer.patch
+On Sun, Nov 16, 2003 at 06:09:11PM -0700, Eric W. Biederman wrote:
+> Jeff Garzik <jgarzik@pobox.com> writes:
 > 
-> With these applied my cpu (athlon64) is detected as 0.0Mhz, bogomips
-> drops to 50% and anything cpu intensive destroys interactivity. Revert
-> them and performance is back at -mm2 level.
+> > Adrian Bunk wrote:
+> > > modular BINFMT_ELF gives unresolved symbols in 2.4 .
+> > > modular BINFMT_ELF gives the following unresolved symbols in 2.6:
+> > 
+> > 
+> > Interesting.  this causes me to wonder if we should bother making BINFMT_ELF an
+> > 
+> > option at all...
 > 
+> We have platforms uClinux for which ELF is not the preferred format so we
+> should at least be able to compile it out.
 
-Yup, works for me too. Reverting those patches and my machine is smooth 
-again. :)
+Similarly on bi-arch supporting platforms, CONFIG_BINFMT_ELF controls
+64-bit ELF support which one might want to disable and only use
+CONFIG_BINFMT_ELF32 (or other config option which controls 32-bit ELF
+support).
 
-Prakash
-
+	Jakub

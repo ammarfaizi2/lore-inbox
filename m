@@ -1,53 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275838AbRI1FVj>; Fri, 28 Sep 2001 01:21:39 -0400
+	id <S275843AbRI1FrV>; Fri, 28 Sep 2001 01:47:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275839AbRI1FVV>; Fri, 28 Sep 2001 01:21:21 -0400
-Received: from cx879306-a.pv1.ca.home.com ([24.5.157.48]:30960 "EHLO
+	id <S275842AbRI1FrC>; Fri, 28 Sep 2001 01:47:02 -0400
+Received: from cx879306-a.pv1.ca.home.com ([24.5.157.48]:34544 "EHLO
 	siamese.dhis.twinsun.com") by vger.kernel.org with ESMTP
-	id <S275838AbRI1FVI>; Fri, 28 Sep 2001 01:21:08 -0400
+	id <S275844AbRI1Fq6>; Fri, 28 Sep 2001 01:46:58 -0400
 From: junio@siamese.dhis.twinsun.com
 To: Alan Cox <laughing@shared-source.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] link failur in Linux 2.4.9-ac16 around apm.o and sysrq.o
+Subject: Re: [PATCH] link failur in Linux 2.4.9-ac16 around apm.o and sysrq.o
 In-Reply-To: <20010927185107.A17861@lightning.swansea.linux.org.uk>
-Date: 27 Sep 2001 22:21:24 -0700
-In-Reply-To: <20010927185107.A17861@lightning.swansea.linux.org.uk>
-Message-ID: <7v8zezki0b.fsf@siamese.dhis.twinsun.com>
+	<7v8zezki0b.fsf@siamese.dhis.twinsun.com>
+Date: 27 Sep 2001 22:47:21 -0700
+In-Reply-To: <7v8zezki0b.fsf@siamese.dhis.twinsun.com>
+Message-ID: <7v1ykrkgt2.fsf@siamese.dhis.twinsun.com>
 User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.4.9-ac16 fails to link with CONFIG_APM=y and
-CONFIG_MAGIC_SYSRQ=n.  This is because apm.c unconditionally
-makes calls to functions (__sysrq_lock_table and friends)
-defined in sysrq.c.
+>>>>> "JNH" == junio  <junio@siamese.dhis.twinsun.com> writes:
 
-I can think of a couple of different approaches to work this
-around, but is there an established proper way to resolve this
-kind of dependency in the kernel code?
+JNH> 2.4.9-ac16 fails to link with CONFIG_APM=y and
+JNH> CONFIG_MAGIC_SYSRQ=n.  This is because apm.c unconditionally
+JNH> makes calls to functions (__sysrq_lock_table and friends)
+JNH> defined in sysrq.c.
 
-I've attached a fix based on (3) below at the end of this message.
+JNH> I can think of a couple of different approaches to work this
+JNH> around, but is there an established proper way to resolve this
+JNH> kind of dependency in the kernel code?
 
- (1) In include/linux/sysrq.h, define stubs for
-     __sysrq_lock_table that does not do anything when
-     CONFIG_MAGIC_SYSRQ is not set;
+The approaches I listed as (1) and (3) in my previous message
+are non solutions, since it will result in a kernel where apm.o
+makes calls into sysrq functions, whose proper operations would
+depend on sysrq.o to have been properly initialized by other
+parts of the kernel, which still think CONFIG_MAGIC_SYSRQ is not
+defined.
 
- (2) Change ''make config'' procedure so that CONFIG_MAGIC_SYSRQ
-     is always set if CONFIG_APM is defined;
+The below should be a better fix.
 
- (3) Change drivers/char/Makefile to make sysrq.o to be linked
-     in if CONFIG_APM is defined (even if CONFIG_MAGIC_SYSRQ is).
-
---- 2.4.9-ac16.sffix/drivers/char/Makefile	Thu Sep 27 12:46:56 2001
-+++ 2.4.9-ac16.sffix/drivers/char/Makefile	Thu Sep 27 22:08:19 2001
-@@ -143,6 +143,7 @@
- endif
+--- 2.4.9-ac16.sffix/arch/i386/kernel/apm.c	Thu Sep 27 12:46:43 2001
++++ 2.4.9-ac16.sffix/arch/i386/kernel/apm.c	Thu Sep 27 22:41:53 2001
+@@ -201,7 +201,9 @@
+ #include <asm/uaccess.h>
+ #include <asm/desc.h>
  
- obj-$(CONFIG_MAGIC_SYSRQ) += sysrq.o
-+obj-$(CONFIG_APM) += sysrq.o
- obj-$(CONFIG_ATARI_DSP56K) += dsp56k.o
- obj-$(CONFIG_ROCKETPORT) += rocket.o
- obj-$(CONFIG_MOXA_SMARTIO) += mxser.o
++#ifdef CONFIG_MAGIC_SYSRQ
+ #include <linux/sysrq.h>
++#endif
+ 
+ extern unsigned long get_cmos_time(void);
+ extern void machine_real_restart(unsigned char *, int);
+@@ -697,12 +699,16 @@
+ 		                        struct kbd_struct *kbd, struct tty_struct *tty) {
+ 	        apm_power_off();
+ }
++#ifdef CONFIG_MAGIC_SYSRQ
+ struct sysrq_key_op sysrq_poweroff_op = {
+ 	handler:        handle_poweroff,
+ 	help_msg:       "Off",
+ 	action_msg:     "Power Off\n"
+ };
+-
++#else
++# define register_sysrq_key(ig,no) /*re*/
++# define unregister_sysrq_key(ig,no) /*re*/
++#endif
+ 
+ #ifdef CONFIG_APM_DO_ENABLE
+ static int apm_enable_power_management(int enable)
+
+

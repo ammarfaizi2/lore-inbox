@@ -1,102 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265597AbUALSwQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 13:52:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265600AbUALSwQ
+	id S266179AbUALSzu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 13:55:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266203AbUALSzu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 13:52:16 -0500
-Received: from mtvcafw.sgi.com ([192.48.171.6]:24092 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id S265597AbUALSwN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 13:52:13 -0500
-Date: Mon, 12 Jan 2004 10:52:03 -0800
-To: "Luck, Tony" <tony.luck@intel.com>
-Cc: linux-kernel@vger.kernel.org, jamagallon@able.es
-Subject: Re: /proc/kcore size
-Message-ID: <20040112185203.GA11768@sgi.com>
-Mail-Followup-To: "Luck, Tony" <tony.luck@intel.com>,
-	linux-kernel@vger.kernel.org, jamagallon@able.es
-References: <B8E391BBE9FE384DAA4C5C003888BE6F4FB05C@scsmsx401.sc.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 12 Jan 2004 13:55:50 -0500
+Received: from lpbproductions.com ([68.98.208.147]:21202 "HELO
+	lpbproductions.com") by vger.kernel.org with SMTP id S266179AbUALSzs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 13:55:48 -0500
+From: "Matt H." <lkml@lpbproductions.com>
+To: ross@datscreative.com.au
+Subject: Re: NForce2, Ross Dickson's timer patch on 2.6.1
+Date: Mon, 12 Jan 2004 12:15:11 -0700
+User-Agent: KMail/1.5.94
+References: <20040112173554.GA792@tesore.local>
+In-Reply-To: <20040112173554.GA792@tesore.local>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F4FB05C@scsmsx401.sc.intel.com>
-User-Agent: Mutt/1.5.4i
-From: jbarnes@sgi.com (Jesse Barnes)
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200401121215.11503.lkml@lpbproductions.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From 2.4:
-	[jbarnes@tomahawk 999-jb.patch]$ cat /proc/meminfo
-        total:    used:    free:  shared: buffers:  cached:
-	Mem:  32657883136 31249809408 1408073728        0        0 10380558336
-	Swap: 10485727232 67059712 10418667520
-	MemTotal:     31892464 kB
-	MemFree:       1375072 kB
-	MemShared:           0 kB
-	Buffers:             0 kB
-	Cached:       10112928 kB
-	SwapCached:      24336 kB
-	Active:        7169808 kB
-	Inactive:      3035504 kB
-	HighTotal:           0 kB
-	HighFree:            0 kB
-	LowTotal:     31892464 kB
-	LowFree:       1375072 kB
-	SwapTotal:    10239968 kB
-	SwapFree:     10174480 kB
-	HugePages_Total:     0
-	HugePages_Free:      0
-	Hugepagesize:    262144 kB
-	[jbarnes@tomahawk 999-jb.patch]$ ls -l /proc/kcore
-	-r--------    1 root     root     1909045870592 Jan 12 10:39 /proc/kcore
+Ditto here, using nforce2. I've been up for about a week and a half and my 
+clock is skew'ed by at least 20 mins . 
 
-and from 2.6:
-	[root@morale root]# cat /proc/meminfo
-	MemTotal:      7583600 kB
-	MemFree:       7432864 kB
-	Buffers:          7952 kB
-	Cached:          41248 kB
-	SwapCached:          0 kB
-	Active:          52592 kB
-	Inactive:        34736 kB
-	HighTotal:           0 kB
-	HighFree:            0 kB
-	LowTotal:      7583600 kB
-	LowFree:       7432864 kB
-	SwapTotal:           0 kB
-	SwapFree:            0 kB
-	Dirty:             256 kB
-	Writeback:           0 kB
-	Mapped:          33392 kB
-	Slab:            17376 kB
-	Committed_AS:    27312 kB
-	PageTables:       2112 kB
-	VmallocTotal: 137426709824 kB
-	VmallocUsed:       128 kB
-	VmallocChunk: 137426709696 kB
-	[root@morale root]# ls -l /proc/kcore
-	-r--------    1 root     root     808460500992 Jan 12 10:51 /proc/kcore
+Matt H.
 
-
-
-On Mon, Jan 12, 2004 at 10:00:19AM -0800, Luck, Tony wrote:
-> > Problem: it detects the memory amount in the box by stat'ing /proc/kcore.
-> > Thats not the problem, but that the box has 1Gb of memory, and kcore is just
-> > 896Mb big.
-> 
-> It may not be the specific problem that you have now, but it is a
-> problem in general.  The size of /proc/kcore may be a good
-> approximation for the amount of memory on machines that have
-> contiguous physical memory starting at a base physical address
-> of 0x0, but on an increasing number of machines it may give
-> a grossly inflated value (perhaps an SGI Altix user will post
-> the output from "ls -l /proc/kcore").
-> 
-> -Tony Luck  
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+On Monday 12 January 2004 10:35 am, Jesse Allen wrote:
+> Hi Ross,
+>
+> I have a version of your timer patch (io_apic.c) for kernel 2.6.1.  It is
+> attached.  I have been monitoring a problem with it.  It seems that with
+> the patch, I gain 1 seconds time over 10 minutes (roughly).  So I gain
+> about 2-3 mintues a day.  I haven't taken exact measurements, but I know it
+> ends up about 20 minutes difference after a week.  This is not good, which
+> would require resetting the time often.
+>
+> I tried the 2.6.1 kernel without the timer patch.  The timer is now back in
+> PIC mode, and interrupt 7 has the old noise.  Synched the time with my
+> watch.  At first, I noticed no gain in time over 10 minutes.  However the
+> next day, I found it gained 1-2 seconds.  Now it is about 7 seconds ahead a
+> few days later now. This is much better.
+>
+> So I'm left to thinking, the patch does two things, maybe one thing right,
+> and one possibly very wrong:
+>
+> 1) It does place the timer in APIC mode.
+> 2) But the timer seems to be fed extra interrupts, maybe the same that is
+> found on irq 7 without the patch (is this possible?)
+>
+> I remember someone making a comment which might explain the issue:
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=107098440019588&w=2
+>
+> I don't think the patch was much different now than it was then.  So I
+> think there is something wrong with setting up the timer this way.  I don't
+> know if you worked something out with Maciej.  I don't know much about
+> interrupt controller programming so...  if maybe you can explain to me
+> anything I'm missing.  For now I've dropped the patch.
+>
+>
+> Jesse
+>
+>
+> PS:  I have run with disconnect on, and without your ack patch since I got
+> that surpise BIOS update.  No lockups have occurred in the past month,
+> since that.  So the disconnect problem is a BIOS bug.  (Shuttle has not
+> responded)
+>
+> PSS:  CC me, I'm not subscribed right now.

@@ -1,52 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289874AbSA2UpN>; Tue, 29 Jan 2002 15:45:13 -0500
+	id <S289836AbSA2Uue>; Tue, 29 Jan 2002 15:50:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289880AbSA2UpF>; Tue, 29 Jan 2002 15:45:05 -0500
-Received: from dsl-213-023-043-145.arcor-ip.net ([213.23.43.145]:48263 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S289874AbSA2Uov>;
-	Tue, 29 Jan 2002 15:44:51 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Rik van Riel <riel@conectiva.com.br>, Oliver Xymoron <oxymoron@waste.org>
-Subject: Re: Note describing poor dcache utilization under high memory pressure
-Date: Tue, 29 Jan 2002 21:48:55 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Linus Torvalds <torvalds@transmeta.com>,
+	id <S289330AbSA2UuY>; Tue, 29 Jan 2002 15:50:24 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:56842 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S289877AbSA2UuN>; Tue, 29 Jan 2002 15:50:13 -0500
+Date: Tue, 29 Jan 2002 12:49:24 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: Momchil Velikov <velco@fadata.bg>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Oliver Xymoron <oxymoron@waste.org>,
+        Rik van Riel <riel@conectiva.com.br>,
         Josh MacDonald <jmacd@CS.Berkeley.EDU>,
         linux-kernel <linux-kernel@vger.kernel.org>,
         <reiserfs-list@namesys.com>, <reiserfs-dev@namesys.com>
-In-Reply-To: <Pine.LNX.4.33L.0201291524570.12225-100000@duckman.distro.conectiva>
-In-Reply-To: <Pine.LNX.4.33L.0201291524570.12225-100000@duckman.distro.conectiva>
+Subject: Re: Note describing poor dcache utilization under high memory pressure
+In-Reply-To: <20020129123932.K899@holomorphy.com>
+Message-ID: <Pine.LNX.4.33.0201291240180.1223-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16VfBX-0000AN-00@starship.berlin>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 29, 2002 06:25 pm, Rik van Riel wrote:
-> On Tue, 29 Jan 2002, Oliver Xymoron wrote:
-> 
-> > Daniel's approach seems to be workable (once he's spelled out all the
-> > details) but it misses the big performance win for fork/exec, which is
-> > surely the common case. Given that exec will be throwing away all these
-> > mappings, we can safely assume that we will not be inheriting many shared
-> > mappings from parents of parents so Daniel's approach also still ends up
-> > marking most of the pages RO still.
-> 
-> It gets worse.  His approach also needs to adjust the reference
-> counts on all pages (and swap pages).
 
-Well, Rik, time to present your algorithm.  I assume it won't reference 
-counts on pages, and will do some kind of traversal of the mm tree.  Note 
-however, that I did investigate the class of algorithm you are interested in, 
-and found only nasty, complex solutions there, with challenging locking 
-problems.  (I also looked at a number of possible improvements to virtual 
-scanning, as you know, and likewise only found ugly or inadequate solutions.)
+On Tue, 29 Jan 2002, William Lee Irwin III wrote:
+>
+> In my mind it's not about the form but about how much of it is exposed.
+> For instance, exposing the number of levels seems to require emulating
+> an extra level for machines with 2-level pagetables.
 
-Before you sink a lot of time into it though, you might add up the actual 
-overhead you're worried about above, and see if it moves the needle in a real 
-system.
+Well, you have two choices:
 
--- 
-Daniel
+ - _not_ exposing fundamental details like the number of levels causes
+   different architectures to have wildly different code (see how UNIX
+   traditionally does MM, and puke)
+
+ - trivial "folding" macros to take 3 levels down to 2 (or four levels
+   down to 3 or two).
+
+Note that the folding macros really _are_ trivial. The pmd macros for x86
+are basically these few lines:
+
+	static inline int pgd_none(pgd_t pgd)           { return 0; }
+	static inline int pgd_bad(pgd_t pgd)            { return 0; }
+	static inline int pgd_present(pgd_t pgd)        { return 1; }
+	#define pgd_clear(xp)                           do { } while (0)
+
+	static inline pmd_t * pmd_offset(pgd_t * dir, unsigned long address)
+	{
+	        return (pmd_t *) dir;
+	}
+
+And that's it.
+
+So I'd much rather have a generic VM and do some trivial folding.
+
+> It's quite a happy coincidence when this happens, and in my mind making
+> it happen more often would be quite nice.
+
+I really isn't a co-incidence. The reason so many architectures have page
+table trees is that most architects try to make good decisions, and a tree
+layout is a simple and efficient data structure that maps well to both
+hardware and to usage patterns.
+
+Hashed page tables are incredibly naive, and perform badly for build-up
+and tear-down (and mostly have horrible cache access patterns). At least
+in some version of the UltraSparc, the Linux tree-based software TLB fill
+outperformed the Solaris version, even though the Solaris version was
+handtuned assembly and used hardware acceleration for the hash
+computations. That should tell you something.
+
+			Linus
+

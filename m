@@ -1,65 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271608AbTGQWiR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 18:38:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271609AbTGQWg4
+	id S271624AbTGQWgo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 18:36:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271609AbTGQWev
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 18:36:56 -0400
-Received: from 015.atlasinternet.net ([212.9.93.15]:28392 "EHLO
-	ponti.gallimedina.net") by vger.kernel.org with ESMTP
-	id S271608AbTGQWer (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 18:34:47 -0400
-From: Ricardo Galli <gallir@uib.es>
-Organization: UIB
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.0-test1 kernel oops
-Date: Fri, 18 Jul 2003 00:49:39 +0200
-User-Agent: KMail/1.5.2
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+	Thu, 17 Jul 2003 18:34:51 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:18844
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S271603AbTGQWeP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 18:34:15 -0400
+Date: Fri, 18 Jul 2003 00:50:02 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Cc: linux-kernel@vger.kernel.org, Chris Mason <mason@suse.com>
+Subject: Re: 2.4.22pre6aa1
+Message-ID: <20030717225002.GY1855@dualathlon.random>
+References: <20030717102857.GA1855@dualathlon.random> <200307180013.38078.m.c.p@wolk-project.de> <200307180024.17523.m.c.p@wolk-project.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200307180049.39980.gallir@uib.es>
+In-Reply-To: <200307180024.17523.m.c.p@wolk-project.de>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just found this in my dmesg, possibly right after I mounted and accesed a 
-iso9660 cd-rom.
+On Fri, Jul 18, 2003 at 12:30:45AM +0200, Marc-Christian Petersen wrote:
+> On Friday 18 July 2003 00:13, Marc-Christian Petersen wrote:
+> 
+> > On Thursday 17 July 2003 12:28, Andrea Arcangeli wrote:
+> >
+> > Hi Andrea,
+> >
+> > > Only in 2.4.22pre6aa1: 00_elevator-lowlatency-1
+> > > Only in 2.4.22pre6aa1: 00_elevator-read-reservation-axboe-2l-1
+> >
+> > Hmm, this is now my first day testing out .22-pre6 and .22-pre6aa1 with the
+> > new I/O stall fixes. At a first look & feel it's very good, but I've
+> > noticed a side effect (if it can be called so):
+> >
+> > VMware4 Workstation
+> > -------------------
+> >
+> > 2.4.22-pre[6|6aa1]: ~ 1 minute 02 seconds from: Start this virtual machine
+> > ... 2.4.22-pre2       : ~          30 seconds from: Start this virtual
+> > machine ...
+> >
+> > ... to start up Windows 2000 Professional completely.
+> >
+> > Well, personally I don't care about the slowdown of vmware startup with a
+> > VM but there may be many other slowdows?!
+> hmmm:
+> 
+> 2.4.22-pre[6|6aa1]:
+> -------------------
+> root@codeman:[/] # dd if=/dev/zero of=/home/largefile bs=16384 count=131072
+> 131072+0 records in
+> 131072+0 records out
+> 2147483648 bytes transferred in 128.765686 seconds (16677453 bytes/sec)
+> 
+> 2.4.22-pre2:
+> ------------
+> root@codeman:[/] # dd if=/dev/zero of=/home/largefile bs=16384 count=131072
+> 131072+0 records in
+> 131072+0 records out
+> 2147483648 bytes transferred in 98.489331 seconds (21804226 bytes/sec)
+> 
+> both kernels freshly rebooted.
 
-Hope it's useful,
+this explains it.
 
-Unable to handle kernel paging request at virtual address e9000018
- printing eip:
-c0168790
-*pde = 00000000
-Oops: 0000 [#1]
-CPU:    0
-EIP:    0060:[<c0168790>]    Not tainted
-EFLAGS: 00010286
-EIP is at find_inode_fast+0x20/0x70
-eax: df456a90   ebx: 002f2b15   ecx: e9000018   edx: e9000018
-esi: dfe03800   edi: dff8ecc4   ebp: dfe03800   esp: dd42de34
-ds: 007b   es: 007b   ss: 0068
-Process famd (pid: 19519, threadinfo=dd42c000 task=d428e0a0)
-Stack: 00000000 dd42c000 db202800 002f2b15 c0168e42 dfe03800 dff8ecc4 002f2b15
-       dff8ecc4 002f2b15 db202800 dfe03800 db202800 c018a54b dfe03800 002f2b15
-       d9a8e07c fffffff4 d9af3738 d9af36d0 c015cd92 d9af36d0 db202800 dd42df38
-Call Trace:
- [<c0168e42>] iget_locked+0x52/0xc0
- [<c018a54b>] ext3_lookup+0x6b/0xd0
- [<c015cd92>] real_lookup+0xd2/0x100
- [<c015d036>] do_lookup+0x96/0xb0
- [<c015d4e0>] link_path_walk+0x490/0x8a0
- [<c015ddf9>] __user_walk+0x49/0x60
- [<c0158fac>] vfs_lstat+0x1c/0x60
- [<c015965b>] sys_lstat64+0x1b/0x40
- [<c01092bb>] syscall_call+0x7/0xb
+Can you try to change include/linux/blkdev.h like this:
 
-Code: 8b 11 0f 18 02 90 39 59 18 89 c8 74 13 85 d2 89 d1 75 ed 31
- <6>note: famd[19519] exited with preempt_count 1
+-#define MAX_QUEUE_SECTORS (4 << (20 - 9)) /* 4 mbytes when full sized */
++#define MAX_QUEUE_SECTORS (16 << (20 - 9)) /* 4 mbytes when full sized */
 
+This will raise the queue from 4 to 16M. That is the first(/only) thing
+that can explain a drop in performnace while doing contigous I/O.
+However I didn't expect it to make a difference, or at least not so
+relevant.
 
--- 
-  ricardo galli       GPG id C8114D34
+If this doesn't help at all, it might not be an elevator/blkdev thing.
+At least on my machines the contigous I/O still at the same speed.
 
+You also where the only one reporting a loss of performance with
+elevator-lowlatency, it could be still the same problem that you've
+seen at that time.
+
+Last but not the least, if it's an elevator/blkdev thing, you must be
+able to measure it with reads too, not only with writes. Can you try to
+read that file back? (careful about the cache effects if you read it
+multiple times and you interrupt it, best it to benchmark reads after a
+mount to be sure)
+
+> ext3fs (data=ordered)
+
+can you try with data=writeback (or ext2) or hdparm -W1 and see if you
+can still see the same delta between the two kernels? (careful with -W1
+as it invalidates journaling)
+
+thanks,
+
+Andrea

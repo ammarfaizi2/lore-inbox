@@ -1,83 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267247AbTA0R1l>; Mon, 27 Jan 2003 12:27:41 -0500
+	id <S267245AbTA0R0q>; Mon, 27 Jan 2003 12:26:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267248AbTA0R1l>; Mon, 27 Jan 2003 12:27:41 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:48105 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S267247AbTA0R1h>; Mon, 27 Jan 2003 12:27:37 -0500
-Date: Mon, 27 Jan 2003 09:36:52 -0800
-From: "Martin J. Bligh" <fletch@aracnet.com>
-To: Andrew Morton <akpm@digeo.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: kernbench-16 on 2.5.59 vs 2.5.59-mm6
-Message-ID: <375110000.1043689012@titus>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S267247AbTA0R0q>; Mon, 27 Jan 2003 12:26:46 -0500
+Received: from k100-145.bas1.dbn.dublin.eircom.net ([159.134.100.145]:1811
+	"EHLO corvil.com.") by vger.kernel.org with ESMTP
+	id <S267245AbTA0R0p>; Mon, 27 Jan 2003 12:26:45 -0500
+Message-ID: <3E356D37.2000304@Linux.ie>
+Date: Mon, 27 Jan 2003 17:32:39 +0000
+From: Padraig@Linux.ie
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021203
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+To: Larry McVoy <lm@bitmover.com>
+CC: Steve Kenton <skenton@ou.edu>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [FYI} The cygwin tool chain can *almost* build a 2.5.59 kernel
+References: <3E356598.EF799135@ou.edu> <20030127171308.GA24651@work.bitmover.com>
+In-Reply-To: <20030127171308.GA24651@work.bitmover.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This test does a make -j X vmlinux on a 2.4.17 kernel compile with
-a very large config set. X is 16 times the number of cpus. This is
-on a 16-way NUMA-Q so we end up with a make -j256 (it's fastest
-with about 1.5 * num_cpus), but this test puts more stress on the 
-kernel. 
+Larry McVoy wrote:
+> Last I checked the kernel has file name conflicts, i.e., "README" and
+> "Readme" in the same directory in a windoze based file system.  You may
+> not notice it if you get your kernel with tar but if you get it with BK
+> then BK will detect that and tell you about it.   I don't remember which
+> files conflict but I know there are about 12 of them in the 2.5 kernel.
 
-None of the other tests I ran showed anything very interesting.
-(the new NUMA sched stuff from Ingo seems to give mild degredations
-in -mjb ... probably needs some more tuning).
+The findsn component of http://www.pixelbeat.org/fslint/
+shows the following (24 files) for 2.5.59:
 
-Going from 59 to 59-mm6, I get:
+include/linux/netfilter_ipv4/ipt_dscp.h
+include/linux/netfilter_ipv4/ipt_DSCP.h
+include/linux/netfilter_ipv4/ipt_ecn.h
+include/linux/netfilter_ipv4/ipt_ECN.h
+include/linux/netfilter_ipv4/ipt_mark.h
+include/linux/netfilter_ipv4/ipt_MARK.h
+include/linux/netfilter_ipv4/ipt_tcpmss.h
+include/linux/netfilter_ipv4/ipt_TCPMSS.h
+include/linux/netfilter_ipv4/ipt_tos.h
+include/linux/netfilter_ipv4/ipt_TOS.h
+include/linux/netfilter_ipv6/ip6t_mark.h
+include/linux/netfilter_ipv6/ip6t_MARK.h
+net/ipv4/netfilter/ipt_dscp.c
+net/ipv4/netfilter/ipt_DSCP.c
+net/ipv4/netfilter/ipt_ecn.c
+net/ipv4/netfilter/ipt_ECN.c
+net/ipv4/netfilter/ipt_mark.c
+net/ipv4/netfilter/ipt_MARK.c
+net/ipv4/netfilter/ipt_tcpmss.c
+net/ipv4/netfilter/ipt_TCPMSS.c
+net/ipv4/netfilter/ipt_tos.c
+net/ipv4/netfilter/ipt_TOS.c
+net/ipv6/netfilter/ip6t_mark.c
+net/ipv6/netfilter/ip6t_MARK.c
 
-Kernbench-16:
-                                   Elapsed        User      System         CPU
-                        2.5.59       47.45      568.02      143.17     1498.17
-                    2.5.59-mm6       47.18      567.15      138.62     1495.50
-
-Summary: Scheduler stuff seems like a wash (schedule -> do_schedule). 
-Seems to be some sort of rearrangement of the dcache stuff which 
-appears to be mildly beneficial (what's going in there?). 
-current_kernel_time seems to be less than half the cost, I'm assuming 
-the new frlock kernel time stuff is doing that. This workload doesn't 
-stress that very much, so I'll find a better test for that one ...
-
-2.5.59: 1657 current_kernel_time
-2.5.59-mm6: 747 current_kernel_time
-
-diffprofile (+ gets worse, - gets better).
-
-2023 do_schedule
-485 dentry_open
-289 .text.lock.file_table
-132 clear_page_tables
-131 pgd_ctor
-113 vma_merge
-75 kmap_atomic
-62 get_empty_filp
-51 can_vma_merge_after
--52 dget_locked
--54 vfs_follow_link
--55 kmem_cache_free
--66 buffered_rmqueue
--74 __copy_to_user_ll
--94 page_add_rmap
--102 fd_install
--110 __copy_from_user_ll
--117 __d_lookup
--157 do_generic_mapping_read
--188 path_lookup
--273 .text.lock.dec_and_lock
--275 file_ra_state_init
--283 do_anonymous_page
--331 pfn_to_nid
--405 page_remove_rmap
--413 pgd_alloc
--427 vm_enough_memory
--910 current_kernel_time
--1222 .text.lock.namei
--2076 total
--2133 schedule
+Pádraig.
 

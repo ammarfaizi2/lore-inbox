@@ -1,58 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266531AbUHCOr4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266511AbUHCOv0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266531AbUHCOr4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 10:47:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266511AbUHCOr4
+	id S266511AbUHCOv0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 10:51:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266558AbUHCOv0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 10:47:56 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:18411 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S266580AbUHCOrl (ORCPT
+	Tue, 3 Aug 2004 10:51:26 -0400
+Received: from mail3.ithnet.com ([217.64.64.7]:59870 "HELO ithnet.com")
+	by vger.kernel.org with SMTP id S266511AbUHCOvS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 10:47:41 -0400
-Message-ID: <410FA577.4040602@adaptec.com>
-Date: Tue, 03 Aug 2004 10:47:19 -0400
-From: Luben Tuikov <luben_tuikov@adaptec.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Sam Ravnborg <sam@ravnborg.org>
-CC: "Justin T. Gibbs" <gibbs@scsiguy.com>, Adrian Bunk <bunk@fs.tum.de>,
-       James.Bottomley@HansenPartnership.com, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] let AIC7{9,X}XX_BUILD_FIRMWARE depend on !PREVENT_FIRMWARE_BUILD
-References: <20040801185543.GB2746@fs.tum.de> <20040801191118.GA7402@mars.ravnborg.org>
-In-Reply-To: <20040801191118.GA7402@mars.ravnborg.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 3 Aug 2004 10:51:18 -0400
+X-Sender-Authentication: net64
+Date: Tue, 3 Aug 2004 16:51:16 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, thockin@hockin.org
+Subject: Re: How to increase max number of groups per uid ?
+Message-Id: <20040803165116.7b1531b5.skraw@ithnet.com>
+In-Reply-To: <20040729163407.02bb2dd6.akpm@osdl.org>
+References: <20040729193106.43d4c515.skraw@ithnet.com>
+	<20040729163407.02bb2dd6.akpm@osdl.org>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 03 Aug 2004 14:47:27.0249 (UTC) FILETIME=[CB97A810:01C47968]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Sam,
+On Thu, 29 Jul 2004 16:34:07 -0700
+Andrew Morton <akpm@osdl.org> wrote:
 
-You can forward it to Linus and I'll also integrate it
-to the latest version of the drivers, yet to be integrated
-to the mainline kernel.
-
-Thanks!
-
-Sam Ravnborg wrote:
-> On Sun, Aug 01, 2004 at 08:55:44PM +0200, Adrian Bunk wrote:
->  >
->  > The patch below lets AIC7{9,X}XX_BUILD_FIRMWARE depend on
->  > !PREVENT_FIRMWARE_BUILD.
+> Stephan von Krawczynski <skraw@ithnet.com> wrote:
+> >
+> > is there a simple way in either 2.4 or 2.6 to get a lot more than 32 groups
+> > per uid?
 > 
-> Justin, I agree with this change. Please let me know if I shall forward
-> the patch to Linus, or you will take care.
-> 
->         Sam
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-scsi" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+> 2.6 kernels support up to 65536 groups per user.
 
--- 
-Luben
+Hello Andrew,
 
+in the meantime - after some testing - I found out the problem lies around nfs.
+I cannot seem to change to directories (placed on nfs-volumes) whose
+group-member I am.
+Is this a known problem? Can I do something about it?
 
+The situation is:
+
+nfs-server 2.4.24
+nfs-client 2.6.7
+
+Client knows about 1000 groups and quite a lot users.
+Mounting some directories from the nfs-server and checking out rights we found
+that users belonging to a group owning a directory cannot access it. If the
+exact same tree is located on the clients' local fs everything is fine.
+
+Regards,
+Stephan

@@ -1,84 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263494AbTDMMzu (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 08:55:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263495AbTDMMzu (for <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Apr 2003 08:55:50 -0400
-Received: from amsfep15-int.chello.nl ([213.46.243.28]:546 "EHLO
-	amsfep15-int.chello.nl") by vger.kernel.org with ESMTP
-	id S263494AbTDMMzq (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 13 Apr 2003 08:55:46 -0400
-Date: Sun, 13 Apr 2003 15:04:48 +0200
-Message-Id: <200304131304.h3DD4mEZ001257@callisto.of.borg>
+	id S263503AbTDMM5g (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 08:57:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263509AbTDMM5g (for <rfc822;linux-kernel-outgoing>);
+	Sun, 13 Apr 2003 08:57:36 -0400
+Received: from amsfep16-int.chello.nl ([213.46.243.26]:50995 "EHLO
+	amsfep16-int.chello.nl") by vger.kernel.org with ESMTP
+	id S263503AbTDMM4P (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 13 Apr 2003 08:56:15 -0400
+Date: Sun, 13 Apr 2003 15:05:14 +0200
+Message-Id: <200304131305.h3DD5EQi001293@callisto.of.borg>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
 Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Linux/m68k <linux-m68k@lists.linux-m68k.org>,
        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH] Duplicate PROC_CONSOLE()
+Subject: [PATCH] M68k ndelay()
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Duplicate PROC_CONSOLE():
-  - Remove local copy of PROC_CONSOLE() in drivers/video/modedb.c. A global one
-    is already provided by drivers/video/fbcon.c
-  - Add missing multiple include protectors to <linux/console_struct.h>
+M68k: add ndelay() implementation (needed for IDE)
 
---- linux-2.4.x/drivers/video/modedb.c	Sun Dec 23 11:25:09 2001
-+++ linux-m68k-2.4.x/drivers/video/modedb.c	Wed Apr  9 13:47:05 2003
+--- linux-2.4.21-pre7/include/asm-m68k/delay.h	Thu Jan  4 22:00:55 2001
++++ linux-m68k-2.4.21-pre7/include/asm-m68k/delay.h	Sun Mar 30 22:22:40 2003
 @@ -16,6 +16,7 @@
- #include <linux/fb.h>
- #include <linux/console_struct.h>
- #include <linux/sched.h>
-+#include <video/fbcon.h>
- 
- 
- #undef DEBUG
-@@ -255,28 +256,6 @@
- 		return val;
- 	}
-     }
--}
--
--static int PROC_CONSOLE(const struct fb_info *info)
--{
--	int fgc;
--	
--	if (info->display_fg != NULL)
--		fgc = info->display_fg->vc_num;
--	else
--		return -1;
--		
--	if (!current->tty)
--		return fgc;
--
--	if (current->tty->driver.type != TTY_DRIVER_TYPE_CONSOLE)
--		/* XXX Should report error here? */
--		return fgc;
--
--	if (MINOR(current->tty->device) < 1)
--		return fgc;
--
--	return MINOR(current->tty->device) - 1;
  }
  
+ extern void __bad_udelay(void);
++extern void __bad_ndelay(void);
  
---- linux-2.4.x/include/linux/console_struct.h	Thu Sep 20 10:51:46 2001
-+++ linux-m68k-2.4.x/include/linux/console_struct.h	Wed Apr  9 13:54:58 2003
-@@ -9,6 +9,9 @@
-  * to achieve effects such as fast scrolling by changing the origin.
-  */
+ /*
+  * Use only for very small delays ( < 1 msec).  Should probably use a
+@@ -39,9 +40,18 @@
+ 	__const_udelay(usecs * 4295);	/* 2**32 / 1000000 */
+ }
  
-+#ifndef _LINUX_CONSOLE_STRUCT_H_
-+#define _LINUX_CONSOLE_STRUCT_H_
++static inline void __ndelay(unsigned long nsecs)
++{
++	__const_udelay(nsecs * 5);	/* 2**32 / 1000000000 */
++}
 +
- #define NPAR 16
- 
- struct vc_data {
-@@ -107,3 +110,5 @@
- #define CUR_DEFAULT CUR_UNDERLINE
- 
- #define CON_IS_VISIBLE(conp) (*conp->vc_display_fg == conp)
+ #define udelay(n) (__builtin_constant_p(n) ? \
+ 	((n) > 20000 ? __bad_udelay() : __const_udelay((n) * 4295)) : \
+ 	__udelay(n))
 +
-+#endif /* _LINUX_CONSOLE_STRUCT_H_ */
++#define ndelay(n) (__builtin_constant_p(n) ? \
++	((n) > 20000 ? __bad_ndelay() : __const_udelay((n) * 5)) : \
++	__ndelay(n))
+ 
+ extern __inline__ unsigned long muldiv(unsigned long a, unsigned long b, unsigned long c)
+ {
 
 Gr{oetje,eeting}s,
 

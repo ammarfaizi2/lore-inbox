@@ -1,67 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317833AbSGVVkn>; Mon, 22 Jul 2002 17:40:43 -0400
+	id <S317852AbSGVVtO>; Mon, 22 Jul 2002 17:49:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317842AbSGVVkn>; Mon, 22 Jul 2002 17:40:43 -0400
-Received: from cs180154.pp.htv.fi ([213.243.180.154]:660 "EHLO devil.pp.htv.fi")
-	by vger.kernel.org with ESMTP id <S317833AbSGVVkm>;
-	Mon, 22 Jul 2002 17:40:42 -0400
-Subject: Re: 2.2 to 2.4... serious TCP send slowdowns
-From: Mika Liljeberg <Mika.Liljeberg@welho.com>
-To: Hayden Myers <hayden@spinbox.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10207221646120.4476-100000@compaq.skyline.net>
-References: <Pine.LNX.4.10.10207221646120.4476-100000@compaq.skyline.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.7 
-Date: 23 Jul 2002 00:43:49 +0300
-Message-Id: <1027374229.11240.17.camel@cs180154>
+	id <S317853AbSGVVtN>; Mon, 22 Jul 2002 17:49:13 -0400
+Received: from 213-96-124-18.uc.nombres.ttd.es ([213.96.124.18]:2037 "HELO
+	dardhal.mired.net") by vger.kernel.org with SMTP id <S317852AbSGVVtN>;
+	Mon, 22 Jul 2002 17:49:13 -0400
+Date: Mon, 22 Jul 2002 23:52:16 +0200
+From: Jose Luis Domingo Lopez <linux-kernel@24x7linux.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: bug database/webpage
+Message-ID: <20020722215216.GA12029@localhost>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0207221547360.19736-100000@dad.molina>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0207221547360.19736-100000@dad.molina>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-07-23 at 00:13, Hayden Myers wrote: 
+On Monday, 22 July 2002, at 15:59:01 -0500,
+Thomas Molina wrote:
 
-> I dumped the other side and it does confirm that the advertised window is
-> increasing.  This is may not be the problem.  So if I understand
-> correctly 2.4 has window scaling while 2.2 didn't and that's why the
-> window advertisement is larger initially in the 2.2 than the 2.4.
-
-The TCP window scaling option is something else. You are correct,
-however, that 2.4 manages receiver side buffers differently and
-therefore advertises differently. This is designed to save buffer memory
-in a HTTP server and should actually be good for your application.
-
-> I 
-> still have a theory as to why this smaller window size and/or scaling
-is
-> slowing us down.
+> Would something like this be sufficient, or would a full-fledged server be 
+> required?  Feedback/comments are welcome
 > 
-> > 
-> > The 6432 you're seeing is the server telling the client how much the
-> > client is allowed send. Only, the client isn't sending anything. You
-> > need to look at what the client is advertising to the server.
-> The client's advertisement seems to increase as the packets keep rolling
-> in.
+Don't know, but in the process of compiling a 2.5.27 kernel with ALL
+options enabled I have found not less than 60 compilation bugs. Expect
+run-time problems to be much more than compile-time problems. Moreover,
+problems can happen on several kernel versions (untill they are solved),
+so the page can quickly get out of control.
 
-Correct. 
+I would suggest categorizing reported bugs to get a smaller front-page,
+maybe with a back-end database to store and keep track of bugs.
 
-> I just noticed a large number of delayed acks in /proc/net/netstat.  Do
-> you think it's possible that a lot of clients have delayed ack and are
-> holding up our connections?
+Just an opinion :)
 
-Again, don't think so. Unless Alexey has changed something recently,
-Linux quickacks every full sized segment immediately during the
-slowstart phase. This means that, in the beginning, the congestion
-window is growing as fast as the specs allow. 
-
-If in doubt, you can set the TCP_NODELAY option. Just make sure your app
-is sending full sized segments if you do this, otherwise it will just
-degrade performance. 
-
-Anyway, try posting some hard data. Maybe somebody on these lists can
-figure it out.
-
-	MikaL
-
+-- 
+Jose Luis Domingo Lopez
+Linux Registered User #189436     Debian Linux Woody (Linux 2.4.19-pre6aa1)

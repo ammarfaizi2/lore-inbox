@@ -1,41 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293478AbSCFLr4>; Wed, 6 Mar 2002 06:47:56 -0500
+	id <S293492AbSCFMBj>; Wed, 6 Mar 2002 07:01:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293487AbSCFLrq>; Wed, 6 Mar 2002 06:47:46 -0500
-Received: from ns.suse.de ([213.95.15.193]:64527 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S293478AbSCFLrm>;
-	Wed, 6 Mar 2002 06:47:42 -0500
-Date: Wed, 6 Mar 2002 12:47:41 +0100
-From: Dave Jones <davej@suse.de>
-To: Ben Clifford <benc@hawaga.org.uk>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.5-dj3 - ide_modes.h
-Message-ID: <20020306124741.J6531@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Ben Clifford <benc@hawaga.org.uk>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020306034355.A30476@suse.de> <Pine.LNX.4.33.0203052245290.3642-100000@barbarella.hawaga.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0203052245290.3642-100000@barbarella.hawaga.org.uk>; from benc@hawaga.org.uk on Tue, Mar 05, 2002 at 10:53:58PM -0800
+	id <S293493AbSCFMB2>; Wed, 6 Mar 2002 07:01:28 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:35847 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S293492AbSCFMBK>; Wed, 6 Mar 2002 07:01:10 -0500
+Message-ID: <3C86049F.1030800@evision-ventures.com>
+Date: Wed, 06 Mar 2002 12:59:27 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
+X-Accept-Language: en-us, pl
+MIME-Version: 1.0
+To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+CC: benh@kernel.crashing.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.6-pre2 IDE cleanup 16
+In-Reply-To: <Pine.LNX.4.44.0203061307310.2839-100000@netfinity.realnet.co.sz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 05, 2002 at 10:53:58PM -0800, Ben Clifford wrote:
- > in drivers/ide/ide_modes.h,
- > typedef ... ide_pio_timings_t;
- > is only defined #ifdef CONFIG_BLK_DEV_IDE_MODES.
- > But it is used in ide.c without any ifdefs around it, resulting in a
- > compile error.
- > In 2.5.5-dj2, this block was in ide_modes.h within the same #ifdef as the
- > typedef, but was moved by the -dj3 patch.
+Zwane Mwaikambo wrote:
+> On Wed, 6 Mar 2002, Martin Dalecki wrote:
+> 
+> 
+>>1. Indeed the code quality found there is *excellent* nothing comparable
+>>    with the messy crude found currently in linux.
+>>
+> 
+> I thought you stated that no one else was using something similar? Or 
+> were you refererring to the userland accessible ioctls? I believe 
+> FreeBSD-CURRENT might also have something in the works.
 
- It came from the 2.5.6pre2 merge. Hopefully the next round of Martins
- patches will fix that up.
+I was referring to the userland accessible ioctls going through
+HDIO_DRIVE_TASKFILE - a recent introduction in 2.5.3. And I didn't
+found anything comparable in the Apple code.
+After looking at the code I can actually assure you that FreeBSD-CURRENT
+does not contain anything comparable to this.
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+
+

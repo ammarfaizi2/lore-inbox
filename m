@@ -1,69 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261856AbUKHQjl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261900AbUKHQjk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261856AbUKHQjl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 11:39:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261937AbUKHQgu
+	id S261900AbUKHQjk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 11:39:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261897AbUKHQg5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 11:36:50 -0500
-Received: from salazar.rnl.ist.utl.pt ([193.136.164.251]:30658 "EHLO
-	admin.rnl.ist.utl.pt") by vger.kernel.org with ESMTP
-	id S261897AbUKHO4U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 09:56:20 -0500
-Message-ID: <418F890D.5070404@rnl.ist.utl.pt>
-Date: Mon, 08 Nov 2004 14:56:13 +0000
-From: "Pedro Venda (SYSADM)" <pjvenda@rnl.ist.utl.pt>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20041006)
+	Mon, 8 Nov 2004 11:36:57 -0500
+Received: from cantor.suse.de ([195.135.220.2]:56762 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261900AbUKHO4a (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 09:56:30 -0500
+Message-ID: <418F3C81.9060302@suse.de>
+Date: Mon, 08 Nov 2004 10:29:37 +0100
+From: Stefan Seyfried <seife@suse.de>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041104)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Cc: davids@webmaster.com
-Subject: Re: GPL Violation of 'sveasoft' with GPL Linux Kernel/Busybox + code
-References: <MDEHLPKNGKAHNMBLJOLKOENPPJAA.davids@webmaster.com>
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKOENPPJAA.davids@webmaster.com>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: LKML <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@suse.cz>,
+       alsa-devel@alsa-project.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.10-rc1-mm3: swsusp problems w/ ALSA driver, IRQs on AMD64
+References: <200411062014.08202.rjw@sisk.pl>
+In-Reply-To: <200411062014.08202.rjw@sisk.pl>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Rafael J. Wysocki wrote:
 
-| 	This would be perfectly okay provided the source code to the older
-version
-| is identical to the source code in the newer version for all the works
-based
-| on works that are GPL'd. So long as you can draw a line between the
-old code
-| and the new code, then this is acceptable. However, if there are
-changes to
-| GPL'd source code files, then those changes need to be given to anyone who
-| receives binaries from those source code files. In that case, no line
-can be
-| drawn.
+> Third, some important messages related to suspend/resume do not appear on the 
+> serial console (eg the above  ALSA messages, the "[nosave pfn 0x584]..." 
+> etc.), so I can't save them if the box hangs or reboots in the process.
 
-if that's the case, isn't it necessary to distribute the proprietary
-parts separately (or vice-versa)? else those proprietary parts would
-also be under the GPL.
+dmesg -n 8
+(before suspend) may help with this.
 
-regards,
-- --
+    Stefang
 
-Pedro João Lopes Venda
-email: pjvenda@rnl.ist.utl.pt
-http://maxwell.rnl.ist.utl.pt
-
-Equipa de Administração de Sistemas
-Rede das Novas Licenciaturas (RNL)
-Instituto Superior Técnico
-http://www.rnl.ist.utl.pt
-http://mega.ist.utl.pt
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBj4kNeRy7HWZxjWERArx+AJsFabPTBa0edYkg16dHJv/C6bQ4TACfSXgs
-rnvtaG4Glz3Rli+iLXgQ+wk=
-=Upuk
------END PGP SIGNATURE-----

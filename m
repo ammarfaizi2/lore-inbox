@@ -1,33 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265034AbSKRV4E>; Mon, 18 Nov 2002 16:56:04 -0500
+	id <S265336AbSKRW3T>; Mon, 18 Nov 2002 17:29:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265003AbSKRVyZ>; Mon, 18 Nov 2002 16:54:25 -0500
-Received: from tapu.f00f.org ([66.60.186.129]:53705 "EHLO tapu.f00f.org")
-	by vger.kernel.org with ESMTP id <S264938AbSKRVvf>;
-	Mon, 18 Nov 2002 16:51:35 -0500
-Date: Mon, 18 Nov 2002 13:58:37 -0800
-From: Chris Wedgwood <cw@f00f.org>
-To: Paul Larson <plars@linuxtestproject.org>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: LTP - gettimeofday02 FAIL
-Message-ID: <20021118215837.GA9719@tapu.f00f.org>
-References: <1037139074.10626.37.camel@plars> <20021114215209.GA25778@tapu.f00f.org> <1037640849.21245.0.camel@plars>
+	id <S265114AbSKRW2w>; Mon, 18 Nov 2002 17:28:52 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:19215 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S265336AbSKRW1o>;
+	Mon, 18 Nov 2002 17:27:44 -0500
+Date: Mon, 18 Nov 2002 22:34:45 +0000
+From: Matthew Wilcox <willy@debian.org>
+To: george anzinger <george@mvista.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Dipankar Sarma <dipankar@gamebox.net>,
+       Matthew Wilcox <willy@debian.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Run timers as softirqs, not tasklets
+Message-ID: <20021118223445.R7530@parcelfarce.linux.theplanet.co.uk>
+References: <Pine.LNX.4.44.0211172108160.12550-100000@localhost.localdomain> <3DD969B6.9D221DB1@mvista.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1037640849.21245.0.camel@plars>
-User-Agent: Mutt/1.4i
-X-No-Archive: Yes
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3DD969B6.9D221DB1@mvista.com>; from george@mvista.com on Mon, Nov 18, 2002 at 02:29:10PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 18, 2002 at 11:34:04AM -0600, Paul Larson wrote:
+On Mon, Nov 18, 2002 at 02:29:10PM -0800, george anzinger wrote:
+> So then, is there any reason to not put them ahead of
+> HI_SOFTIRQ?  I.e.:
+> 
+>  enum
+>  {
+>         TIMER_SOFTIRQ=0,
+>  	HI_SOFTIRQ
+>         NET_TX_SOFTIRQ,
+>         NET_RX_SOFTIRQ,
+>         SCSI_SOFTIRQ,
 
-> So this is a hardware issue? no way around this?
+because then there would be no way to make a tasklet run before the timers?
+turn it around.  convince us that timers should run first.
 
-For some people it is a hardware issue.  The way around is not not use
-the TSC for certain things.
-
-
-  --cw
+-- 
+Revolutions do not require corporate support.

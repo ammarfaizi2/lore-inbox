@@ -1,129 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263613AbUJ2VcP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263578AbUJ2VRW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263613AbUJ2VcP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 17:32:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263617AbUJ2V3r
+	id S263578AbUJ2VRW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 17:17:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263573AbUJ2VOy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 17:29:47 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:29662 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S263614AbUJ2VYx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 17:24:53 -0400
-Date: Fri, 29 Oct 2004 23:25:45 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Florian Schmidt <mista.tapas@gmx.net>
-Cc: Paul Davis <paul@linuxaudiosystems.com>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       LKML <linux-kernel@vger.kernel.org>, Lee Revell <rlrevell@joe-job.com>,
-       mark_h_johnson@raytheon.com, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       jackit-devel <jackit-devel@lists.sourceforge.net>,
-       Rui Nuno Capela <rncbc@rncbc.org>
-Subject: Re: [Fwd: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4]
-Message-ID: <20041029212545.GA13199@elte.hu>
-References: <20041029163155.GA9005@elte.hu> <20041029191652.1e480e2d@mango.fruits.de> <20041029170237.GA12374@elte.hu> <20041029170948.GA13727@elte.hu> <20041029193303.7d3990b4@mango.fruits.de> <20041029172151.GB16276@elte.hu> <20041029172243.GA19630@elte.hu> <20041029203619.37b54cba@mango.fruits.de> <20041029204220.GA6727@elte.hu> <20041029233117.6d29c383@mango.fruits.de>
+	Fri, 29 Oct 2004 17:14:54 -0400
+Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:47922 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S263519AbUJ2VIe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 17:08:34 -0400
+Subject: Re: [BUG][2.6.8.1] serial driver hangs SMP kernel, but not the UP
+	kernel
+From: Paul Fulghum <paulkf@microgate.com>
+To: Tim_T_Murphy@Dell.com
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <4B0A1C17AA88F94289B0704CFABEF1AB0B4CC4@ausx2kmps304.aus.amer.dell.com>
+References: <4B0A1C17AA88F94289B0704CFABEF1AB0B4CC4@ausx2kmps304.aus.amer.dell.com>
+Content-Type: text/plain
+Message-Id: <1099084117.3356.7.camel@deimos.microgate.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041029233117.6d29c383@mango.fruits.de>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Fri, 29 Oct 2004 16:08:37 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2004-10-29 at 14:55, Tim_T_Murphy@Dell.com wrote:
+> Oct 29 13:34:48 racjag-1 chat[3886]: expect (CLIENTSERVER)
+> Oct 29 13:34:48 racjag-1 kernel: drivers/serial/serial_core.c:102: spin_lock(drivers/serial/serial_core.c:023f2548) already locked by drivers/serial/8250.c/1015
+> Oct 29 13:34:48 racjag-1 kernel: drivers/serial/8250.c:1017: spin_unlock(drivers/serial/serial_core.c:023f2548) not locked
+> Oct 29 13:34:48 racjag-1 chat[3886]: CLIENTSERVER
 
-* Florian Schmidt <mista.tapas@gmx.net> wrote:
+One way this can happen is a receive interrupt:
 
-> > do you compile jackd from sources? If yes then could you try the patch
-> > below? With this added, the kernel will produce a stackdump whenever
-> > jackd does an 'illegal' sleep.
-> > 
-> > Also, could you do a small modification to kernel/sched.c and remove
-> > this line:
-> > 
-> > 		send_sig(SIGUSR1, current, 1);
-> > 
-> > just to make it easier to get Jack up and running. (by default an
-> > atomicity violation triggers a signal to make it easier to debug it in
-> > userspace, but i suspect there will be alot of such violations so jackd
-> > would stop all the time.)
-> 
-> [snip]
-> 
-> will do so. btw: i think i'm a bit confused right now. What debugging
-> features should i have enabled for this test?
+serial8250_interrupt();
+    spin_lock(port->lock);
+    serial8250_handle_port();
+       receive_chars();
+          flip.work.func(); /* if FLIP buffer full */
+             ldisc->receive_buf(); /* N_TTY */
+                 tty->driver->flush_chars();
+                     uart_start();
+                        spin_lock(port->lock); *BANG*
 
-this particular one (atomicity-checking) is always-enabled if you have
-the -RT patch applied (it's a really cheap check).
+Try the attached patch and report what happens.
 
-for the 'application-triggered tracing' facility we talked about earlier
-is only active if LATENCY_TRACING is enabled. In that case to turn the 
-tracer on, call:
+-- 
+Paul Fulghum
+paulkf@microgate.com
 
-	gettimeofday(0,1);
-
-and to turn the tracer off and save the current trace into 
-/proc/latency_trace, call:
-
-	gettimeofday(0,0);
-
-or apply the patch below - i've added the tracer bits too. I've added a
-simple limit: all delays above 2 msec will be saved - you might want to
-do a maximum search there or something. And dont forget to:
-
-	echo 2 > /proc/sys/kernel/trace_enabled
-
-to activate the jackd-triggered kernel tracer.
-
-	Ingo
-
---- jack-audio-connection-kit-0.99.0/drivers/alsa/alsa_driver.c.orig
-+++ jack-audio-connection-kit-0.99.0/drivers/alsa/alsa_driver.c
-@@ -1161,6 +1161,7 @@ alsa_driver_wait (alsa_driver_t *driver,
- 		unsigned int p_timed_out, c_timed_out;
- 		unsigned int ci = 0;
- 		unsigned int nfds;
-+		int ret;
+--- linux-2.6.8/drivers/serial/8250.c	2004-08-14 00:36:13.000000000 -0500
++++ b/drivers/serial/8250.c	2004-10-29 15:58:28.076014336 -0500
+@@ -830,9 +830,13 @@ receive_chars(struct uart_8250_port *up,
  
- 		nfds = 0;
- 
-@@ -1194,7 +1195,20 @@ alsa_driver_wait (alsa_driver_t *driver,
- 
- 		poll_enter = jack_get_microseconds ();
- 
--		if (poll (driver->pfd, nfds, driver->poll_timeout) < 0) {
-+		gettimeofday((void *)1,(void *)0); // atomic off
-+
-+		gettimeofday((void *)0,(void *)1); // start tracing
-+
-+		ret = poll (driver->pfd, nfds, driver->poll_timeout);
-+
-+		poll_ret = jack_get_microseconds ();
-+
-+		if (poll_ret - poll_enter > 2000)
-+			gettimeofday((void *)0,(void *)0); // save trace
-+
-+		gettimeofday((void *)1,(void *)1); // atomic on
-+
-+		if (ret < 0) {
- 
- 			if (errno == EINTR) {
- 				printf ("poll interrupt\n");
-@@ -1214,8 +1228,6 @@ alsa_driver_wait (alsa_driver_t *driver,
- 			
+ 	do {
+ 		if (unlikely(tty->flip.count >= TTY_FLIPBUF_SIZE)) {
+-			tty->flip.work.func((void *)tty);
+-			if (tty->flip.count >= TTY_FLIPBUF_SIZE)
+-				return; // if TTY_DONT_FLIP is set
++			/* no room in flip buffer, discard rx FIFO contents to clear IRQ */
++			do {
++				serial_inp(up, UART_RX);
++				up->port.icount.overrun++;
++				*status = serial_inp(up, UART_LSR);
++			} while ((*status & UART_LSR_DR) && (max_count-- > 0));
++			return;	/* if TTY_DONT_FLIP is set */
  		}
- 
--		poll_ret = jack_get_microseconds ();
--
- 		if (extra_fd < 0) {
- 			if (driver->poll_next && poll_ret > driver->poll_next) {
- 				*delayed_usecs = poll_ret - driver->poll_next;
+ 		ch = serial_inp(up, UART_RX);
+ 		*tty->flip.char_buf_ptr = ch;
+
+

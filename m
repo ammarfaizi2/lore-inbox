@@ -1,45 +1,25 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129958AbRBYXNg>; Sun, 25 Feb 2001 18:13:36 -0500
+	id <S129935AbRBYXPg>; Sun, 25 Feb 2001 18:15:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129941AbRBYXN0>; Sun, 25 Feb 2001 18:13:26 -0500
-Received: from 24.68.61.66.on.wave.home.com ([24.68.61.66]:36868 "HELO
-	sh0n.net") by vger.kernel.org with SMTP id <S129935AbRBYXNS>;
-	Sun, 25 Feb 2001 18:13:18 -0500
-Date: Sun, 25 Feb 2001 18:13:11 -0500 (EST)
-From: Shawn Starr <spstarr@sh0n.net>
-To: Mike Galbraith <mikeg@wen-online.de>
-cc: lkm <linux-kernel@vger.kernel.org>
-Subject: Re: [ANOMALIES]: 2.4.2 - __alloc_pages: failed - Patch failed
-In-Reply-To: <Pine.LNX.4.33.0102250848340.2015-100000@mikeg.weiden.de>
-Message-ID: <Pine.LNX.4.30.0102251811400.6345-100000@coredump.sh0n.net>
+	id <S129929AbRBYXP0>; Sun, 25 Feb 2001 18:15:26 -0500
+Received: from mailhost.terra.es ([195.235.113.151]:13392 "EHLO
+	tsmtp4.mail.isp") by vger.kernel.org with ESMTP id <S129914AbRBYXPT>;
+	Sun, 25 Feb 2001 18:15:19 -0500
+Message-ID: <00b301c09f80$d1a73380$348b533e@supermoi>
+From: "Moises" <supermoi@teleline.es>
+To: <linux-kernel@vger.kernel.org>
+Date: Mon, 26 Feb 2001 00:15:17 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 4.72.3110.5
+X-MimeOLE: Produced By Microsoft MimeOLE V4.72.3110.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Well, I Discovered, something strange. I put in a blank new CD-R, so these
-errors are not of concern? (In which case why have the kernel log get
-spewed with them if they are guaranteed to happen?)
-
-Shawn.
-
---
-Hugged a Tux today? (tm)
-
-On Sun, 25 Feb 2001, Mike Galbraith wrote:
-
-> The way sg_low_malloc() tries to allocate, failure messages are
-> pretty much garanteed.  It tries high order allocations (which
-> are unreliable even when not stressed) and backs off until it
-> succeeds.
->
-> In other words, the messages are a red herring.
->
-> 	-Mike
->
->
->
 
 

@@ -1,176 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262066AbSIYTGo>; Wed, 25 Sep 2002 15:06:44 -0400
+	id <S262068AbSIYTMo>; Wed, 25 Sep 2002 15:12:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262067AbSIYTGo>; Wed, 25 Sep 2002 15:06:44 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:40327 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S262066AbSIYTGk>;
-	Wed, 25 Sep 2002 15:06:40 -0400
-Date: Wed, 25 Sep 2002 21:20:01 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] exit-fix-2.5.38-E3
-Message-ID: <Pine.LNX.4.44.0209252113280.16723-100000@localhost.localdomain>
+	id <S262069AbSIYTMo>; Wed, 25 Sep 2002 15:12:44 -0400
+Received: from line106-15.adsl.actcom.co.il ([192.117.106.15]:53395 "EHLO
+	www.veltzer.org") by vger.kernel.org with ESMTP id <S262068AbSIYTMn>;
+	Wed, 25 Sep 2002 15:12:43 -0400
+Message-Id: <200209251929.g8PJTPN05751@www.veltzer.org>
+Content-Type: text/plain; charset=US-ASCII
+From: Mark Veltzer <mark@veltzer.org>
+Organization: Meta Ltd.
+To: Rik van Riel <riel@conectiva.com.br>, Mark Mielke <mark@mark.mielke.cc>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Peter Svensson <petersv@psv.nu>
+Subject: Re: Offtopic: (was Re: [ANNOUNCE] Native POSIX Thread Library 0.1)
+Date: Wed, 25 Sep 2002 22:29:22 +0300
+X-Mailer: KMail [version 1.3.2]
+References: <Pine.LNX.4.44L.0209251602170.22735-100000@imladris.surriel.com>
+In-Reply-To: <Pine.LNX.4.44L.0209251602170.22735-100000@imladris.surriel.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-the attached patch (against BK-curr) fixes a number of bugs in the
-thread-release code:
+On Wednesday 25 September 2002 22:04, you wrote:
+> On Wed, 25 Sep 2002, Mark Mielke wrote:
+> > I missed this one. Does this mean that fork() bombs will have limited
+> > effect on root? :-)
+>
+> Indeed. A user can easily run 100 while(1) {} loops, but to the
+> other users in the system it'll feel just like 1 loop...
 
- - notify parents only if the group leader is a zombie,
-   and if it's not a detached thread.
+Rik!
 
- - do not reparent children to zombie tasks.
+This is terrific!!! How come something like this was not merged in earlier 
+?!? This seems like an absolute neccesity!!! I'm willing to test it if that 
+is what is needed to get it merged. What does Linus and others feel about 
+this and most importantly when will see it in ? (Hopefully in this 
+development cycle).
 
- - introduce the TASK_DEAD state for tasks, to serialize the task-release
-   path. (to some it might be confusing that tasks are zombies first, then
-   dead :-)
+	Regards,
+	Mark
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
- - simplify tasklist_lock usage in release_task().
-
-the effect of the above bugs ranged from unkillable hung zombies to kernel
-crashes. None of those happens with the patch applied.
-
-	Ingo
-
---- linux/include/linux/sched.h.orig	Wed Sep 25 18:04:03 2002
-+++ linux/include/linux/sched.h	Wed Sep 25 21:08:57 2002
-@@ -100,8 +100,9 @@
- #define TASK_RUNNING		0
- #define TASK_INTERRUPTIBLE	1
- #define TASK_UNINTERRUPTIBLE	2
--#define TASK_ZOMBIE		4
--#define TASK_STOPPED		8
-+#define TASK_STOPPED		4
-+#define TASK_ZOMBIE		8
-+#define TASK_DEAD		16
- 
- #define __set_task_state(tsk, state_value)		\
- 	do { (tsk)->state = (state_value); } while (0)
---- linux/kernel/exit.c.orig	Wed Sep 25 18:01:52 2002
-+++ linux/kernel/exit.c	Wed Sep 25 21:13:39 2002
-@@ -32,6 +32,7 @@
- static struct dentry * __unhash_process(struct task_struct *p)
- {
- 	struct dentry *proc_dentry;
-+
- 	nr_threads--;
- 	detach_pid(p, PIDTYPE_PID);
- 	detach_pid(p, PIDTYPE_TGID);
-@@ -57,31 +58,31 @@
- void release_task(struct task_struct * p)
- {
- 	struct dentry *proc_dentry;
-+	task_t *leader;
- 
--	if (p->state != TASK_ZOMBIE)
-+	if (p->state < TASK_ZOMBIE)
- 		BUG();
- 	if (p != current)
- 		wait_task_inactive(p);
- 	atomic_dec(&p->user->processes);
- 	security_ops->task_free_security(p);
- 	free_uid(p->user);
--	if (unlikely(p->ptrace)) {
--		write_lock_irq(&tasklist_lock);
-+	write_lock_irq(&tasklist_lock);
-+	if (unlikely(p->ptrace))
- 		__ptrace_unlink(p);
--		write_unlock_irq(&tasklist_lock);
--	}
- 	BUG_ON(!list_empty(&p->ptrace_list) || !list_empty(&p->ptrace_children));
--	write_lock_irq(&tasklist_lock);
- 	__exit_sighand(p);
- 	proc_dentry = __unhash_process(p);
- 
- 	/*
- 	 * If we are the last non-leader member of the thread
- 	 * group, and the leader is zombie, then notify the
--	 * group leader's parent process.
-+	 * group leader's parent process. (if it wants notification.)
- 	 */
--	if (p->group_leader != p && thread_group_empty(p))
--		do_notify_parent(p->group_leader, p->group_leader->exit_signal);
-+	leader = p->group_leader;
-+	if (leader != p && thread_group_empty(leader) &&
-+		    leader->state == TASK_ZOMBIE && leader->exit_signal != -1)
-+		do_notify_parent(leader, leader->exit_signal);
- 
- 	p->parent->cutime += p->utime + p->cutime;
- 	p->parent->cstime += p->stime + p->cstime;
-@@ -159,7 +160,7 @@
- 
- 	for_each_task_pid(pgrp, PIDTYPE_PGID, p, l, pid) {
- 		if (p == ignored_task
--				|| p->state == TASK_ZOMBIE 
-+				|| p->state >= TASK_ZOMBIE 
- 				|| p->real_parent->pid == 1)
- 			continue;
- 		if (p->real_parent->pgrp != pgrp
-@@ -435,8 +436,11 @@
- 
- static inline void choose_new_parent(task_t *p, task_t *reaper, task_t *child_reaper)
- {
--	/* Make sure we're not reparenting to ourselves.  */
--	if (p == reaper)
-+	/*
-+	 * Make sure we're not reparenting to ourselves and that
-+	 * the parent is not a zombie.
-+	 */
-+	if (p == reaper || reaper->state >= TASK_ZOMBIE)
- 		p->real_parent = child_reaper;
- 	else
- 		p->real_parent = reaper;
-@@ -774,9 +778,10 @@
- 
- asmlinkage long sys_wait4(pid_t pid,unsigned int * stat_addr, int options, struct rusage * ru)
- {
--	int flag, retval;
- 	DECLARE_WAITQUEUE(wait, current);
- 	struct task_struct *tsk;
-+	unsigned long state;
-+	int flag, retval;
- 
- 	if (options & ~(WNOHANG|WUNTRACED|__WNOTHREAD|__WCLONE|__WALL))
- 		return -EINVAL;
-@@ -827,7 +832,15 @@
- 				 */
- 				if (ret == 2)
- 					continue;
-+				/*
-+				 * Try to move the task's state to DEAD
-+				 * only one thread is allowed to do this:
-+				 */
-+				state = xchg(&p->state, TASK_DEAD);
-+				if (state != TASK_ZOMBIE)
-+					continue;
- 				read_unlock(&tasklist_lock);
-+
- 				retval = ru ? getrusage(p, RUSAGE_BOTH, ru) : 0;
- 				if (!retval && stat_addr) {
- 					if (p->sig->group_exit)
-@@ -835,13 +848,16 @@
- 					else
- 						retval = put_user(p->exit_code, stat_addr);
- 				}
--				if (retval)
--					goto end_wait4; 
-+				if (retval) {
-+					p->state = TASK_ZOMBIE;
-+					goto end_wait4;
-+				}
- 				retval = p->pid;
- 				if (p->real_parent != p->parent) {
- 					write_lock_irq(&tasklist_lock);
- 					__ptrace_unlink(p);
- 					do_notify_parent(p, SIGCHLD);
-+					p->state = TASK_ZOMBIE;
- 					write_unlock_irq(&tasklist_lock);
- 				} else
- 					release_task(p);
-
+iD8DBQE9kg6SxlxDIcceXTgRApApAKClB60zgDs0OB1ltb2ha0Lo8cescgCfTVE7
+ZiNKbiTAN78LecVGt6/JzPU=
+=/z0y
+-----END PGP SIGNATURE-----

@@ -1,53 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287944AbSAPVh3>; Wed, 16 Jan 2002 16:37:29 -0500
+	id <S289104AbSAPVzJ>; Wed, 16 Jan 2002 16:55:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287940AbSAPVhV>; Wed, 16 Jan 2002 16:37:21 -0500
-Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:21204 "EHLO
-	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S287944AbSAPVhC>; Wed, 16 Jan 2002 16:37:02 -0500
-Message-Id: <200201161453.g0GEr0e9001275@tigger.cs.uni-dortmund.de>
-To: root@chaos.analogic.com
-cc: Linux Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery -- the elegant solution) 
-In-Reply-To: Message from "Richard B. Johnson" <root@chaos.analogic.com> 
-   of "Tue, 15 Jan 2002 13:52:14 EST." <Pine.LNX.3.95.1020115133220.818B-100000@chaos.analogic.com> 
-Date: Wed, 16 Jan 2002 15:53:00 +0100
-From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
+	id <S289038AbSAPVy7>; Wed, 16 Jan 2002 16:54:59 -0500
+Received: from mailhost.teleline.es ([195.235.113.141]:6460 "EHLO
+	tsmtp7.mail.isp") by vger.kernel.org with ESMTP id <S289156AbSAPVyp>;
+	Wed, 16 Jan 2002 16:54:45 -0500
+Date: Wed, 16 Jan 2002 22:58:45 +0100
+From: Diego Calleja <grundig@teleline.es>
+To: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: Rik spreading bullshit about VM
+Reply-To: grundig@teleline.es
+In-Reply-To: <20020116200459.E835@athlon.random>
+In-Reply-To: <20020116200459.E835@athlon.random>
+X-Mailer: Spruce 0.7.4 for X11 w/smtpio 0.8.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020116215449Z289156-13996+7212@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" <root@chaos.analogic.com> said:
+On Wed, 16 Jan 2002, Andrea Arcangeli wrote:
+> attached) and most important I don't have a single bugreport about the
+> current 2.4.18pre2aa2 VM (except perhaps the bdflush wakeup that seems
+> to be a little too late and that deals to lower numbers with slow write
+> load etc.., fixable with bdflush tuning). Mainline VM kills too easily,
 
-[...]
+Well, I haven't reported it yet, but booting my box with mem=4M
+gave as result: (running 2.4.18-pre2aa2):
+diego# cat /var/log/messages | grep gfp
+Jan 13 15:37:10 localhost kernel: __alloc_pages: 0-order allocation failed
+(gfp=0xf0/0)
+Jan 15 16:06:28 localhost kernel: __alloc_pages: 0-order allocation failed
+(gfp=0xf0/0)
+Jan 15 18:37:21 localhost kernel: __alloc_pages: 0-order allocation failed
+(gfp=0xf0/0)
+Jan 15 21:58:32 localhost kernel: __alloc_pages: 0-order allocation failed
+(gfp=0xf0/0)
+Jan 15 21:58:33 localhost kernel: __alloc_pages: 0-order allocation failed
+(gfp=0xf0/0)
+diego# 
 
-> Really???  Have you ever tried this? RedHat provides a directory
-> of random patches that won't patch regardless of the order in
-> which you attempt patches (based upon date-stamps on patches or
-> date-stamps on files). It's like somebody just copied in some
-> junk, thinking nobody would ever bother.
+Each script of /etc/rc.d was killed by VM when it was started, there wasn't
+any "OOM", just
+"VM killed..." or something similar.
+As /etc/rc.d scripts were killed, I couldn't start swap.
 
-rpm(1), particularly "rpm -p" on the SRPM. Or use the kernel-source RPM.
+The gfp=0x... numbers were not always the same, but I can't remember them
+because syslogd wasn't running.
+I can repeat this if you want and I'll copy all messages.
 
-Last time I looked, they carried around patches that weren't applied in the
-SRPM.
+..I remember running 2.2.14 in a 386 box with 4MB of RAM and 8 or 16 of
+swap. It was veeery slow, but even I could run apache :-)...
 
-> Some distributions don't even provide source. They provide
-> copies of /usr/src/linux/include/asm and /usr/src/linux/include/linux
-> but nothing else. You have to "find" source on the internet.
 
-They are in violation of GPL then. Make it clear to them.
 
-> The "good-ol-days" where you could get 72 floppies from Yggdrasil,
-> install Linux, and spend the next 48 hours watching it compile
-> are long gone.
-
-What stops you from getting Red Hat, and doing a massive "rpm --rebuild"
-today? 
-
-> I have never found a distribution that uses modules, in which is
-> was even remotely possible to duplicate the kernel supplied.
-
-Why do they then bother to distribute sources?
--- 
-Horst von Brand			     http://counter.li.org # 22616
+> this is fixed in -aa VM and -aa VM has a number of other issues
+> resolved, but mainline 2.4 vm isn't that far either. In the last few
+> days I was playing with pte-highmem, soon I will spend some time merging
+> -aa VM into mainline with Marcelo if he likes to.
+> 
+> Andrea
+> 
+> PS. I know the interviewer and he's usually very accurate, so I don't
+> think this could be a misunderstanding where you say one thing and they
+> writer another one just to create troubles.
+> 
+> 

@@ -1,95 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264546AbTH2LxO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 07:53:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264545AbTH2LxO
+	id S264528AbTH2LmZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 07:42:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264530AbTH2LmZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 07:53:14 -0400
-Received: from mx0.gmx.net ([213.165.64.100]:16076 "HELO mx0.gmx.net")
-	by vger.kernel.org with SMTP id S264546AbTH2LxI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 07:53:08 -0400
-Date: Fri, 29 Aug 2003 13:53:06 +0200 (MEST)
-From: Felix Seeger <felix.seeger@gmx.de>
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Subject: Reiser4 snapshot problems
-X-Priority: 3 (Normal)
-X-Authenticated-Sender: #0005429946@gmx.net
-X-Authenticated-IP: [217.80.179.206]
-Message-ID: <4834.1062157986@www16.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+	Fri, 29 Aug 2003 07:42:25 -0400
+Received: from 82-38-50-143.cable.ubr04.brad.blueyonder.co.uk ([82.38.50.143]:44990
+	"HELO prozac") by vger.kernel.org with SMTP id S264528AbTH2LmX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Aug 2003 07:42:23 -0400
+Subject: Re: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this
+From: Gianni Tedesco <gianni@scaramanga.co.uk>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20030829053510.GA12663@mail.jlokier.co.uk>
+References: <20030829053510.GA12663@mail.jlokier.co.uk>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Xwb/Sp71lERVmuNxkVLi"
+Message-Id: <1062157312.5020.18.camel@sherbert>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Fri, 29 Aug 2003 12:41:53 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
 
-I am trying out Reiser4 snapshot from August 26th.
-I've putted my kde cvs sources on the new partition and compile from reiser4
-now.
+--=-Xwb/Sp71lERVmuNxkVLi
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-After some time processes hang when accessing this disk. I cannot do
-anything on it but I also don't get any errormessage.
+On Fri, 2003-08-29 at 06:35, Jamie Lokier wrote:
+> Dear All,
+>=20
+> I'd appreciate if folks would run the program below on various
+> machines, especially those whose caches aren't automatically coherent
+> at the hardware level.
 
-Umount, bash autocomletion and things like that don't work. Normal df and
-mount are working btw.
+PPC (G4).
 
-Here are the line from strace when I call ls:
+Test separation: 4096 bytes: pass
+Test separation: 8192 bytes: pass
+Test separation: 16384 bytes: pass
+Test separation: 32768 bytes: pass
+Test separation: 65536 bytes: pass
+Test separation: 131072 bytes: pass
+Test separation: 262144 bytes: pass
+Test separation: 524288 bytes: pass
+Test separation: 1048576 bytes: pass
+Test separation: 2097152 bytes: pass
+Test separation: 4194304 bytes: pass
+Test separation: 8388608 bytes: pass
+Test separation: 16777216 bytes: pass
+VM page alias coherency test: all sizes passed
 
-open("/lib/libattr.so.1", O_RDONLY)     = 3
-read(3, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\3\0\3\0\1\0\0\0`\r\0\000"..., 512)
-= 512
-fstat64(3, {st_mode=S_IFREG|0644, st_size=10668, ...}) = 0
-old_mmap(NULL, 13736, PROT_READ|PROT_EXEC, MAP_PRIVATE, 3, 0) = 0x401af000
-old_mmap(0x401b2000, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 3,
-0x2000) = 0x401b2000
-close(3)                                = 0
-munmap(0x40014000, 94548)               = 0
-getrlimit(RLIMIT_STACK, {rlim_cur=RLIM_INFINITY, rlim_max=RLIM_INFINITY}) =
-0
-setrlimit(RLIMIT_STACK, {rlim_cur=2044*1024, rlim_max=RLIM_INFINITY}) = 0
-getpid()                                = 9293
-rt_sigaction(SIGRTMIN, {0x401676a0, [], SA_RESTORER, 0x4006cc38}, NULL, 8) =
-0
-rt_sigaction(SIGRT_1, {0x401676d8, [], SA_RESTORER, 0x4006cc38}, NULL, 8) =
-0
-rt_sigaction(SIGRT_2, {0x4016778c, [], SA_RESTORER, 0x4006cc38}, NULL, 8) =
-0
-rt_sigprocmask(SIG_BLOCK, [RTMIN], NULL, 8) = 0
-rt_sigprocmask(SIG_UNBLOCK, [33], NULL, 8) = 0
-_sysctl({{CTL_KERN, KERN_VERSION}, 2, 0xbffff44c, 32, (nil), 0}) = 0
-brk(0)                                  = 0x805a000
-brk(0x807b000)                          = 0x807b000
-brk(0)                                  = 0x807b000
-ioctl(1, SNDCTL_TMR_TIMEBASE, {B38400 opost isig icanon echo ...}) = 0
-ioctl(1, TIOCGWINSZ, {ws_row=50, ws_col=124, ws_xpixel=0, ws_ypixel=0}) = 0
-open("/dev/null", O_RDONLY|O_NONBLOCK|O_DIRECTORY) = -1 ENOTDIR (Not a
-directory)
-open(".", O_RDONLY|O_NONBLOCK|O_LARGEFILE|O_DIRECTORY) = 3
-fstat64(3, {st_mode=S_IFDIR|0755, st_size=35, ...}) = 0
-fcntl64(3, F_SETFD, FD_CLOEXEC)         = 0
-getdents64(3,
-< hang >
+cpu             : 7455, altivec supported
+clock           : 667MHz
+revision        : 2.1 (pvr 8001 0201)
+bogomips        : 665.19
+machine         : PowerBook3,4
+motherboard     : PowerBook3,4 MacRISC2 MacRISC Power Macintosh
+board revision  : 00000000
+detected as     : 73 (PowerBook Titanium III)
+pmac flags      : 0000000b
+L2 cache        : 256K unified
+memory          : 512MB
+pmac-generation : NewWorld
 
-Should I enable debugging to get some info ? What should I enable there ?
+--=20
+// Gianni Tedesco (gianni at scaramanga dot co dot uk)
+lynx --source www.scaramanga.co.uk/gianni-at-ecsc.asc | gpg --import
+8646BE7D: 6D9F 2287 870E A2C9 8F60 3A3C 91B5 7669 8646 BE7D
 
-CONFIG_REISER4_FS=y
-# CONFIG_REISER4_FS_SYSCALL is not set
-CONFIG_REISER4_LARGE_KEY=y
-# CONFIG_REISER4_CHECK is not set
-CONFIG_REISER4_USE_EFLUSH=y
-# CONFIG_REISER4_BADBLOCKS is not set
 
-thanks
-Felix
+--=-Xwb/Sp71lERVmuNxkVLi
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
--- 
-COMPUTERBILD 15/03: Premium-e-mail-Dienste im Test
---------------------------------------------------
-1. GMX TopMail - Platz 1 und Testsieger!
-2. GMX ProMail - Platz 2 und Preis-Qualitätssieger!
-3. Arcor - 4. web.de - 5. T-Online - 6. freenet.de - 7. daybyday - 8. e-Post
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/Tzv/kbV2aYZGvn0RApl8AJ9KCrUZqGlrLbZ3IWM9Z5glTA6PNwCfTKo8
+OfL8OUh/MYDsH9KDQJmMSFg=
+=zf9u
+-----END PGP SIGNATURE-----
+
+--=-Xwb/Sp71lERVmuNxkVLi--
 

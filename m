@@ -1,58 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265238AbTLZUWI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Dec 2003 15:22:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265244AbTLZUWH
+	id S265244AbTLZUeG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Dec 2003 15:34:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265245AbTLZUeG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Dec 2003 15:22:07 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:65431 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S265238AbTLZUV4 (ORCPT
+	Fri, 26 Dec 2003 15:34:06 -0500
+Received: from fw.osdl.org ([65.172.181.6]:38883 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265244AbTLZUeD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Dec 2003 15:21:56 -0500
-Message-ID: <q-ms$h7vx08-v546e2-8d79@euf.6oxkkm6i>
-From: "Francisco Couch" <czywm39lin@hotmail.com>
-Reply-To: "Francisco Couch" <czywm39lin@hotmail.com>
-To: <linux-kernel@vger.kernel.org>, <honey+1071469679@vger.kernel.org>
-Subject: this lady has finesse. I want to share it with you! dd ok hmkaktwcpf
-Date: Fri, 26 Dec 03 13:19:45 GMT
-X-Mailer: MIME-tools 5.503 (Entity 5.501)
+	Fri, 26 Dec 2003 15:34:03 -0500
+Date: Fri, 26 Dec 2003 12:33:58 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Nick Craig-Wood <ncw1@axis.demon.co.uk>
+cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org,
+       Rohit Seth <rohit.seth@intel.com>
+Subject: Re: 2.6.0 Huge pages not working as expected
+In-Reply-To: <20031226201011.GA32316@axis.demon.co.uk>
+Message-ID: <Pine.LNX.4.58.0312261226560.14874@home.osdl.org>
+References: <20031226105433.GA25970@axis.demon.co.uk> <20031226115647.GH27687@holomorphy.com>
+ <20031226201011.GA32316@axis.demon.co.uk>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="A_449_FC_4BE6A01E"
-X-Priority: 3
-X-MSMail-Priority: Normal
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---A_449_FC_4BE6A01E
-Content-Type: text/plain;
-Content-Transfer-Encoding: quoted-printable
 
-Dear Sir/Madam
-thank you for coming this far.
-The next step will take you to
-the scandal of the year; The Hilton
-(hotel chain)heiress who can be seen
-having sex with Rick Solomon.
-I hope you will enjoy it and solve
-the world mystery!
-Best wishes T.
+On Fri, 26 Dec 2003, Nick Craig-Wood wrote:
+> 
+> The results are just about the same - a slight slowdown for
+> hugepages...
 
-click here
-http://ns.adweawen.biz/ph/index_mailer.html 
+I don't think you are really testing the TLB - you are testing the data 
+cache.
 
+And the thing is, using huge pages will mean that the pages are 1:1
+mapped, and thus get "perfectly" cache-coloured, while the anonymous mmap 
+will give you random placement.
 
+And what you are seeing is likely the fact that random placement is 
+guaranteed to not have any worst-case behaviour. While perfect 
+cache-coloring very much _does_ have worst-case schenarios, and you're 
+likely triggering one of them.
 
+In particular, using a pure power-of-two stride means that you are
+limiting your cache to a certain subset of the full result with the
+perfect coloring.
 
+This, btw, is why I don't like page coloring: it does give nicely
+reproducible results, but it does not necessarily improve performance.  
+Random placement has a lot of advantages, one of which is a lot smoother
+performance degradation - which I personally think is a good thing.
 
+Try your program with non-power-of-two, and non-page-aligned strides. I
+suspect the results will change (but I suspect that the TLB wins will 
+still be pretty much in the noise compared to the actual data cache 
+effects).
 
-Opt---Off
-http://adweawen.biz/p/xen.php
-
-
-
-sppc
-
---A_449_FC_4BE6A01E--
-
+		Linus

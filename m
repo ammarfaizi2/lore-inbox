@@ -1,53 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269638AbRHHXaE>; Wed, 8 Aug 2001 19:30:04 -0400
+	id <S269643AbRHIAIu>; Wed, 8 Aug 2001 20:08:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269639AbRHHX3y>; Wed, 8 Aug 2001 19:29:54 -0400
-Received: from guestpc.physics.umanitoba.ca ([130.179.72.122]:6916 "EHLO
-	mobilix.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S269638AbRHHX3h>; Wed, 8 Aug 2001 19:29:37 -0400
-Date: Wed, 8 Aug 2001 18:29:28 -0500
-Message-Id: <200108082329.f78NTSc02344@mobilix.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] one of $BIGNUM devfs races
-In-Reply-To: <Pine.GSO.4.21.0108081742350.22542-100000@weyl.math.psu.edu>
-In-Reply-To: <9ksa6j$jo7$1@cesium.transmeta.com>
-	<Pine.GSO.4.21.0108081742350.22542-100000@weyl.math.psu.edu>
+	id <S269644AbRHIAIj>; Wed, 8 Aug 2001 20:08:39 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:1037 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S269643AbRHIAIW>;
+	Wed, 8 Aug 2001 20:08:22 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: kbuild-devel@lists.sourceforge.net
+cc: linux-kernel@vger.kernel.org
+Subject: kbuild-2.5 for 2.5.7-ac9 is available
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 09 Aug 2001 10:08:28 +1000
+Message-ID: <6761.997315708@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro writes:
-> 
-> On 8 Aug 2001, H. Peter Anvin wrote:
-> 
-> > Followup to:  <Pine.GSO.4.21.0108071510390.18565-100000@weyl.math.psu.edu>
-> > By author:    Alexander Viro <viro@math.psu.edu>
-> > In newsgroup: linux.dev.kernel
-> > > 
-> > > It is not reliable. E.g. on NFS inumbers are not unique - 32 bits is
-> > > not enough.
-> > 
-> > Unfortunately there is a whole bunch of other things too that rely on
-> > it, and *HAVE* to rely on it -- (st_dev, st_ino) are defined to
-> > specify the identity of a file, and if the current types aren't large
-> > enough we *HAVE* to go to new types.  THERE IS NO OTHER WAY TO TEST
-> > FOR FILE IDENTITY IN UNIX, and being able to perform such a test is
-> > vital for many things, including security and hard link detection
-> 
-> Indeed, but it still doesn't help libc5 getcwd(3), which uses 32 bit
-> values.
+A patch from kbuild-2.5-2.4.8-pre6-1 to 2.4.7-ac9 is available on
+http://sourceforge.net/projects/kbuild/, under Release 1.
 
-FYI: the problem that spawned this sub-thread is fixed. The
-devfs-patch-v185 that I released last night fixes this. So the libc5
-getcwd(3) is fine with 32 bit inums on devfs.
+Apply this patch in the following order.
 
-Filesystems with larger inums are left as an exercise for the reader
-:-)
+  Kernel 2.4.7
+  patch-2.4.7-ac9
+  kbuild-2.5-2.4.8-pre6-1 from http://sourceforge.net/projects/kbuild/
+  This patch
 
-				Regards,
+  It may or may not work, if it eats your system for breakfast, fix it
+  and send patches to kbuild-devel@lists.sourceforge.net.  If you want
+  a patch against a more recent -ac kernel and there is not one on
+  sourceforge, upgrade the Makefile.in files yourself and send your
+  updates to kbuild-devel.
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca

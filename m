@@ -1,55 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267516AbUBSUEc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 15:04:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267532AbUBSUEc
+	id S267539AbUBSUGQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 15:06:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267532AbUBSUGP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 15:04:32 -0500
-Received: from s2.ukfsn.org ([217.158.120.143]:13454 "EHLO mail.ukfsn.org")
-	by vger.kernel.org with ESMTP id S267516AbUBSUE3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 15:04:29 -0500
-From: "Nick Warne" <nick@ukfsn.org>
-To: linux-kernel@vger.kernel.org
-Date: Thu, 19 Feb 2004 20:04:27 -0000
-MIME-Version: 1.0
-Subject: Re: 2.6.3 RT8139too NIC problems
-Message-ID: <403516CB.22343.57A7D52@localhost>
-X-mailer: Pegasus Mail for Windows (v4.12a)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
+	Thu, 19 Feb 2004 15:06:15 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:49301 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S267539AbUBSUF7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 15:05:59 -0500
+Date: Thu, 19 Feb 2004 20:05:54 +0000
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Tridge <tridge@samba.org>, Jamie Lokier <jamie@shareable.org>,
+       "H. Peter Anvin" <hpa@zytor.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Eureka! (was Re: UTF-8 and case-insensitivity)
+Message-ID: <20040219200554.GE31035@parcelfarce.linux.theplanet.co.uk>
+References: <16435.60448.70856.791580@samba.org> <Pine.LNX.4.58.0402181457470.18038@home.osdl.org> <16435.61622.732939.135127@samba.org> <Pine.LNX.4.58.0402181511420.18038@home.osdl.org> <20040219081027.GB4113@mail.shareable.org> <Pine.LNX.4.58.0402190759550.1222@ppc970.osdl.org> <20040219163838.GC2308@mail.shareable.org> <Pine.LNX.4.58.0402190853500.1222@ppc970.osdl.org> <20040219182948.GA3414@mail.shareable.org> <Pine.LNX.4.58.0402191124080.1270@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0402191124080.1270@ppc970.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> So, corrected (and as the kernel was built):
+On Thu, Feb 19, 2004 at 11:48:50AM -0800, Linus Torvalds wrote:
+> The VFS rule is:
+>  - all new dentries start off with the two magic bits clear
+>  - whenever we shrink a dentry, we clear the two magic bits in the parent
 > 
-> # CONFIG_8139CP is not set
-> CONFIG_8139TOO=y
-> # CONFIG_8139TOO_PIO is not set
-> # CONFIG_8139TOO_TUNE_TWISTER is not set
-> # CONFIG_8139TOO_8129 is not set
-> # CONFIG_8139_OLD_RX_RESET is not set
-> CONFIG_8139_RXBUF_IDX=2
+> and that is _all_ the VFS layer ever does. Even Al won't find this 
+> obnoxious (yeah, we might clear the bits after a timeout on things that 
+> need re-validation, but that's in the noise).
+ 
+> Notice what the above does? After the above loop, bit two will be set IFF 
+> the dentry cache now contains every single name in the directory. 
+> Otherwise it will be clear. Bit two will basically be a "dcache complete" 
+> bit.
 
-OK, I think there _is_ a problem here.  I was suspecting my NFS setup 
-maybe causing the NIC (eth0) to timeout and get reset, as I mount 
-files from an old 486 -> 2.6.3 box.
-
-But after messing about a bit, I checked the logs on my 2.4.24 box 
-via SSH (AND eth1).  It hung as issued #> pico /var/log/messages  for 
-about 3 seconds.. then came to life.  So...
-
-... in the logs on 2.6.3 box straight after:
-
-Feb 19 19:33:13 Linux233 kernel: NETDEV WATCHDOG: eth1: transmit 
-timed out
-Feb 19 19:33:13 Linux233 kernel: eth1: link up, 10Mbps, half-duplex, 
-lpa 0x0000
-
-Nick
-
--- 
-"I am not Spock", said Leonard Nimoy.
-"And it is highly illogical of humans to assume so."
-
+What about dentry getting dropped in the middle of that loop _and_
+another task setting the first bit again before the loop ends?

@@ -1,56 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288782AbSAVQvK>; Tue, 22 Jan 2002 11:51:10 -0500
+	id <S288944AbSAVQ6U>; Tue, 22 Jan 2002 11:58:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288814AbSAVQu7>; Tue, 22 Jan 2002 11:50:59 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:29713 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S288782AbSAVQus>; Tue, 22 Jan 2002 11:50:48 -0500
-Date: Tue, 22 Jan 2002 08:49:49 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Vojtech Pavlik <vojtech@suse.cz>
-cc: Andre Hedrick <andre@linuxdiskcert.org>, Jens Axboe <axboe@suse.de>,
-        Davide Libenzi <davidel@xmailserver.org>,
-        Anton Altaparmakov <aia21@cam.ac.uk>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.3-pre1-aia1
-In-Reply-To: <20020122082030.A12720@suse.cz>
-Message-ID: <Pine.LNX.4.33.0201220844120.1799-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289201AbSAVQ6K>; Tue, 22 Jan 2002 11:58:10 -0500
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:56570 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S288944AbSAVQ6A>; Tue, 22 Jan 2002 11:58:00 -0500
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20020122022751.P8292@athlon.random> 
+In-Reply-To: <20020122022751.P8292@athlon.random>  <20020121175410.G8292@athlon.random> <20020121.141931.105134927.davem@redhat.com> <20020122013743.M8292@athlon.random> <20020121.170745.52090023.davem@redhat.com> 
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: "David S. Miller" <davem@redhat.com>, reid.hekman@ndsu.nodak.edu,
+        linux-kernel@vger.kernel.org, akpm@zip.com.au, alan@lxorg.ukuu.org
+Subject: Re: Athlon PSE/AGP Bug 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 22 Jan 2002 16:57:38 +0000
+Message-ID: <16899.1011718658@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Tue, 22 Jan 2002, Vojtech Pavlik wrote:
->
-> That's pretty much nonsense, beg my pardon. The real correct way would
-> be:
->
-> issue read of 255 sectors using READ_MULTI, max_mult = 16
-> receive interrupt
-> 	inw() first 4k to buffer A
-> 	inw() second 4k to buffer B
-> don't do anything else until the next interrupt
+andrea@suse.de said:
+>  that is not a tlb flush, it's a noop on x86 infact.
 
-Definitely.
+If these functions weren't quite so stupidly named, this confusion wouldn't 
+arise.
 
-There is no way the controller can even _know_ the difference between
+--
+dwmw2
 
- - one large 8kB "rep insw" instruction
- - two (or more) smaller chunks of "rep insw" adding up to 8kB worth of
-   "inw"
-
-as long as there are no other IO instructions to that controller in
-between. The two look _exactly_ the same on the bus - there aren't even
-any bursting issues (you can only burst on MMIO, not PIO accesses).
-
-Sure, there are some timing issues, but (a) data cache misses are much
-bigger things than just a few instructions, and (b) we allow interrupts
-from other devices anyway, so the timing _really_ isn't even an issue.
-
-So just call "ata_input_data()" several times in a loop for discontinuous
-buffers. I told Andre this before.
-
-			Linus
 

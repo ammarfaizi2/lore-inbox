@@ -1,52 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129735AbRAaK1M>; Wed, 31 Jan 2001 05:27:12 -0500
+	id <S129831AbRAaKaC>; Wed, 31 Jan 2001 05:30:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130075AbRAaK1E>; Wed, 31 Jan 2001 05:27:04 -0500
-Received: from colorfullife.com ([216.156.138.34]:19726 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S129735AbRAaK04>;
-	Wed, 31 Jan 2001 05:26:56 -0500
-Message-ID: <3A77E875.515B87C4@colorfullife.com>
-Date: Wed, 31 Jan 2001 11:27:01 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i586)
-X-Accept-Language: en
+	id <S129911AbRAaK3w>; Wed, 31 Jan 2001 05:29:52 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:26628 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S129831AbRAaK3f>; Wed, 31 Jan 2001 05:29:35 -0500
+Date: Wed, 31 Jan 2001 06:40:18 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+cc: lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+Subject: Re: [PATCH] vma limited swapin readahead
+In-Reply-To: <20010131102158.O11607@redhat.com>
+Message-ID: <Pine.LNX.4.21.0101310636530.16408-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-To: neufeld@linuxcare.com, linux-kernel@vger.kernel.org
-Subject: Re: Request: increase in PCI bus limit
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+
+On Wed, 31 Jan 2001, Stephen C. Tweedie wrote:
+
+> Hi,
 > 
->    I'm working at a customer site with custom hardware. The 2.4.0 series 
-> kernel almost works out of the box, but the machine has 52 PCI busses. 
-> Plans are to produce a 4-way box which would have over 80 PCI busses. The 
-> file include/asm-i386/mpspec.h allocates space for 32 busses in the 
-> definition of the macro MAX_MP_BUSSES. 
->
+> On Wed, Jan 31, 2001 at 01:05:02AM -0200, Marcelo Tosatti wrote:
+> > 
+> > However, the pages which are contiguous on swap are not necessarily
+> > contiguous in the virtual memory area where the fault happened. That means
+> > the swapin readahead code may read pages which are not related to the
+> > process which suffered a page fault.
+> > 
+> Yes, but reading extra sectors is cheap, and throwing the pages out of
+> memory again if they turn out not to be needed is also cheap.  The
+> on-disk swapped pages are likely to have been swapped out at roughly
+> the same time, which is at least a modest indicator of being of the
+> same age and likely to have been in use at the same time in the past.
 
-How long is the MP structure?
-smp_scan_config() reserves only 4 kB:
+You're throwing away pages from memory to do the readahead. 
 
-	reserve_bootmem(mpf->mpf_physptr, PAGE_SIZE);
+This pages might be more useful than the pages which you're reading from
+swap. 
 
-reserving the actual size (mpf->mpf_physptr->mpc_length) could be
-tricky.
+> I'd like to see at lest some basic performance numbers on this,
+> though.
 
-It should be possible to dynamically allocate the memory for the busses:
-It's not yet possible (smp_read_mpc() is called at a very early stage,
-before kmalloc is initialized), but we must move it to a later stage
-anyway:
-some Compaq bios version need ioremap() in smp_read_mpc(), and we should
-parse the ACPI tables for APIC descriptors (MADT, ia64 does that
-already).
+I'm not sure if limiting the readahead the way my patch does is a better
+choice, too.
 
-I'll add it to my TODO list.
+I posted it to lkml so people can test it under different workloads and
+report results.
 
---
-	Manfred
+Thanks for your feedback. 
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

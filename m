@@ -1,281 +1,446 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262432AbTJGXRk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Oct 2003 19:17:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262637AbTJGXRk
+	id S262450AbTJGXU5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Oct 2003 19:20:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262637AbTJGXU5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Oct 2003 19:17:40 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:58100 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262432AbTJGXRd
+	Tue, 7 Oct 2003 19:20:57 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:22773 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262450AbTJGXUY
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Oct 2003 19:17:33 -0400
+	Tue, 7 Oct 2003 19:20:24 -0400
 From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH][IDE] remove parent field from ide_pci_host_proc_t
-Date: Wed, 8 Oct 2003 01:21:16 +0200
+Subject: [PATCH][IDE] kill EOL value of ide_pci_device_t->bootable
+Date: Wed, 8 Oct 2003 01:23:56 +0200
 User-Agent: KMail/1.5.4
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200310080121.16410.bzolnier@elka.pw.edu.pl>
+Message-Id: <200310080123.56322.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-[IDE] remove parent field from ide_pci_host_proc_t
+[IDE] kill EOL value of ide_pci_device_t->bootable
 
-It is always set to proc_ide_root, so kill it.
+Most PCI IDE drivers init bootable to EOL (=255) for last entry
+of the *_chipsets[] table, but it is not checked anywhere.
 
- drivers/ide/ide-proc.c         |   12 +++++-------
- drivers/ide/pci/aec62xx.h      |    1 -
- drivers/ide/pci/alim15x3.h     |    1 -
- drivers/ide/pci/amd74xx.h      |    1 -
+ drivers/ide/pci/adma100.h      |    4 +---
+ drivers/ide/pci/alim15x3.h     |    4 +---
+ drivers/ide/pci/amd74xx.h      |    3 ---
+ drivers/ide/pci/cmd640.h       |    4 +---
  drivers/ide/pci/cmd64x.h       |    1 -
- drivers/ide/pci/cs5520.h       |    1 -
- drivers/ide/pci/cs5530.h       |    1 -
- drivers/ide/pci/hpt34x.h       |    1 -
- drivers/ide/pci/hpt366.h       |    1 -
- drivers/ide/pci/pdc202xx_new.h |    1 -
- drivers/ide/pci/pdc202xx_old.h |    1 -
- drivers/ide/pci/piix.h         |    1 -
- drivers/ide/pci/sc1200.h       |    1 -
- drivers/ide/pci/serverworks.h  |    1 -
- drivers/ide/pci/siimage.h      |    1 -
- drivers/ide/pci/sis5513.h      |    1 -
- drivers/ide/pci/slc90e66.h     |    1 -
- drivers/ide/pci/via82cxxx.h    |    1 -
+ drivers/ide/pci/cs5530.h       |    4 +---
+ drivers/ide/pci/cy82c693.h     |    4 +---
+ drivers/ide/pci/generic.h      |    9 ++-------
+ drivers/ide/pci/hpt34x.h       |    4 +---
+ drivers/ide/pci/hpt366.h       |    4 +---
+ drivers/ide/pci/it8172.h       |    4 +---
+ drivers/ide/pci/ns87415.h      |    4 +---
+ drivers/ide/pci/opti621.h      |    4 +---
+ drivers/ide/pci/pdc202xx_new.h |    4 +---
+ drivers/ide/pci/pdc202xx_old.h |    4 +---
+ drivers/ide/pci/piix.h         |    4 +---
+ drivers/ide/pci/rz1000.h       |    4 +---
+ drivers/ide/pci/sc1200.h       |    4 +---
+ drivers/ide/pci/serverworks.h  |    4 +---
+ drivers/ide/pci/siimage.h      |    4 +---
+ drivers/ide/pci/sis5513.h      |    4 +---
+ drivers/ide/pci/sl82c105.h     |    4 +---
+ drivers/ide/pci/slc90e66.h     |    4 +---
+ drivers/ide/pci/triflex.h      |    4 +---
+ drivers/ide/pci/trm290.h       |    4 +---
+ drivers/ide/pci/via82cxxx.h    |    4 +---
  include/linux/ide.h            |    1 -
- 19 files changed, 5 insertions(+), 25 deletions(-)
+ 27 files changed, 25 insertions(+), 81 deletions(-)
 
-diff -puN drivers/ide/ide-proc.c~ide-pci-host-proc-parent drivers/ide/ide-proc.c
---- linux-2.6.0-test6-bk2/drivers/ide/ide-proc.c~ide-pci-host-proc-parent	2003-10-07 21:45:14.356439280 +0200
-+++ linux-2.6.0-test6-bk2-root/drivers/ide/ide-proc.c	2003-10-07 22:10:27.647384088 +0200
-@@ -858,12 +858,10 @@ void proc_ide_create(void)
- 		entry->proc_fops = &ide_drivers_operations;
+diff -puN drivers/ide/pci/adma100.h~ide-pci-kill-EOL drivers/ide/pci/adma100.h
+--- linux-2.6.0-test6-bk2/drivers/ide/pci/adma100.h~ide-pci-kill-EOL	2003-10-08 00:54:32.714706360 +0200
++++ linux-2.6.0-test6-bk2-root/drivers/ide/pci/adma100.h	2003-10-08 00:54:32.794694200 +0200
+@@ -22,9 +22,7 @@ static ide_pci_device_t pdcadma_chipsets
+ 		.channels	= 2,
+ 		.autodma	= NODMA,
+ 		.bootable	= OFF_BOARD,
+-	},{
+-		.bootable	= EOL,
+-	}
++	},
+ }
  
- #ifdef CONFIG_BLK_DEV_IDEPCI
--	while (p != NULL)
+ #endif /* ADMA_100_H */
+diff -puN drivers/ide/pci/alim15x3.h~ide-pci-kill-EOL drivers/ide/pci/alim15x3.h
+--- linux-2.6.0-test6-bk2/drivers/ide/pci/alim15x3.h~ide-pci-kill-EOL	2003-10-08 00:54:32.717705904 +0200
++++ linux-2.6.0-test6-bk2-root/drivers/ide/pci/alim15x3.h	2003-10-08 00:54:32.794694200 +0200
+@@ -40,9 +40,7 @@ static ide_pci_device_t ali15x3_chipsets
+ 		.channels	= 2,
+ 		.autodma	= AUTODMA,
+ 		.bootable	= ON_BOARD,
+-	},{
+-		.bootable	= EOL,
+-	}
++	},
+ };
+ 
+ #endif /* ALI15X3 */
+diff -puN drivers/ide/pci/amd74xx.h~ide-pci-kill-EOL drivers/ide/pci/amd74xx.h
+--- linux-2.6.0-test6-bk2/drivers/ide/pci/amd74xx.h~ide-pci-kill-EOL	2003-10-08 00:54:32.720705448 +0200
++++ linux-2.6.0-test6-bk2-root/drivers/ide/pci/amd74xx.h	2003-10-08 00:54:32.795694048 +0200
+@@ -101,9 +101,6 @@ static ide_pci_device_t amd74xx_chipsets
+ 		.enablebits	= {{0x50,0x02,0x02}, {0x50,0x01,0x01}},
+ 		.bootable	= ON_BOARD,
+ 	},
 -	{
--		if (p->name != NULL && p->set == 1 && p->get_info != NULL) 
--		{
--			p->parent = proc_ide_root;
--			create_proc_info_entry(p->name, 0, p->parent, p->get_info);
-+	while (p) {
-+		if (p->name && p->get_info && p->set == 1) {
-+			create_proc_info_entry(p->name, 0, proc_ide_root,
-+					       p->get_info);
- 			p->set = 2;
- 		}
- 		p = p->next;
-@@ -880,7 +878,7 @@ void proc_ide_destroy(void)
+-		.bootable	= EOL,
+-	}
+ };
  
- 	for (p = ide_pci_host_proc_list; p; p = p->next) {
- 		if (p->set == 2)
--			remove_proc_entry(p->name, p->parent);
-+			remove_proc_entry(p->name, proc_ide_root);
+ #endif /* AMD74XX_H */
+diff -puN drivers/ide/pci/cmd640.h~ide-pci-kill-EOL drivers/ide/pci/cmd640.h
+--- linux-2.6.0-test6-bk2/drivers/ide/pci/cmd640.h~ide-pci-kill-EOL	2003-10-08 00:54:32.723704992 +0200
++++ linux-2.6.0-test6-bk2-root/drivers/ide/pci/cmd640.h	2003-10-08 00:54:32.795694048 +0200
+@@ -16,9 +16,7 @@ static ide_pci_device_t cmd640_chipsets[
+ 		.channels	= 2,
+ 		.autodma	= NODMA,
+ 		.bootable	= ON_BOARD,
+-	},{
+-		.bootable	= EOL,
+-	}
++	},
+ }
+ 
+ #endif /* CMD640_H */
+diff -puN drivers/ide/pci/cmd64x.h~ide-pci-kill-EOL drivers/ide/pci/cmd64x.h
+--- linux-2.6.0-test6-bk2/drivers/ide/pci/cmd64x.h~ide-pci-kill-EOL	2003-10-08 00:54:32.726704536 +0200
++++ linux-2.6.0-test6-bk2-root/drivers/ide/pci/cmd64x.h	2003-10-08 00:54:32.796693896 +0200
+@@ -121,7 +121,6 @@ static ide_pci_device_t cmd64x_chipsets[
+ 		.bootable	= ON_BOARD,
+ 	},{
+ 		.channels	= 2,
+-		.bootable	= EOL,
  	}
- #endif /* CONFIG_BLK_DEV_IDEPCI */
- 	remove_proc_entry("ide/drivers", proc_ide_root);
-diff -puN drivers/ide/pci/aec62xx.h~ide-pci-host-proc-parent drivers/ide/pci/aec62xx.h
---- linux-2.6.0-test6-bk2/drivers/ide/pci/aec62xx.h~ide-pci-host-proc-parent	2003-10-07 21:45:14.360438672 +0200
-+++ linux-2.6.0-test6-bk2-root/drivers/ide/pci/aec62xx.h	2003-10-08 00:33:43.210659848 +0200
-@@ -83,7 +83,6 @@ static ide_pci_host_proc_t aec62xx_procs
- 		.name		= "aec62xx",
- 		.set		= 1,
- 		.get_info	= aec62xx_get_info,
--		.parent		= NULL,
- 	},
  };
- #endif /* DISPLAY_AEC62XX_TIMINGS && CONFIG_PROC_FS */
-diff -puN drivers/ide/pci/alim15x3.h~ide-pci-host-proc-parent drivers/ide/pci/alim15x3.h
---- linux-2.6.0-test6-bk2/drivers/ide/pci/alim15x3.h~ide-pci-host-proc-parent	2003-10-07 21:45:14.362438368 +0200
-+++ linux-2.6.0-test6-bk2-root/drivers/ide/pci/alim15x3.h	2003-10-08 00:33:43.211659696 +0200
-@@ -20,7 +20,6 @@ static ide_pci_host_proc_t ali_procs[] _
- 		.name		= "ali",
- 		.set		= 1,
- 		.get_info	= ali_get_info,
--		.parent		= NULL,
- 	},
- };
- #endif /* DISPLAY_ALI_TIMINGS && CONFIG_PROC_FS */
-diff -puN drivers/ide/pci/amd74xx.h~ide-pci-host-proc-parent drivers/ide/pci/amd74xx.h
---- linux-2.6.0-test6-bk2/drivers/ide/pci/amd74xx.h~ide-pci-host-proc-parent	2003-10-07 21:45:14.365437912 +0200
-+++ linux-2.6.0-test6-bk2-root/drivers/ide/pci/amd74xx.h	2003-10-08 00:33:43.211659696 +0200
-@@ -20,7 +20,6 @@ static ide_pci_host_proc_t amd74xx_procs
- 		.name		= "amd74xx",
- 		.set		= 1,
- 		.get_info	= amd74xx_get_info,
--		.parent		= NULL,
- 	},
- };
- #endif  /* defined(DISPLAY_AMD_TIMINGS) && defined(CONFIG_PROC_FS) */
-diff -puN drivers/ide/pci/cmd64x.h~ide-pci-host-proc-parent drivers/ide/pci/cmd64x.h
---- linux-2.6.0-test6-bk2/drivers/ide/pci/cmd64x.h~ide-pci-host-proc-parent	2003-10-07 21:45:14.369437304 +0200
-+++ linux-2.6.0-test6-bk2-root/drivers/ide/pci/cmd64x.h	2003-10-08 00:33:43.213659392 +0200
-@@ -74,7 +74,6 @@ static ide_pci_host_proc_t cmd64x_procs[
- 		.name		= "cmd64x",
- 		.set		= 1,
- 		.get_info	= cmd64x_get_info,
--		.parent		= NULL,
- 	},
- };
- #endif  /* defined(DISPLAY_CMD64X_TIMINGS) && defined(CONFIG_PROC_FS) */
-diff -puN drivers/ide/pci/cs5520.h~ide-pci-host-proc-parent drivers/ide/pci/cs5520.h
---- linux-2.6.0-test6-bk2/drivers/ide/pci/cs5520.h~ide-pci-host-proc-parent	2003-10-07 21:45:14.371437000 +0200
-+++ linux-2.6.0-test6-bk2-root/drivers/ide/pci/cs5520.h	2003-10-08 00:33:43.214659240 +0200
-@@ -20,7 +20,6 @@ static ide_pci_host_proc_t cs5520_procs[
- 		.name		= "cs5520",
- 		.set		= 1,
- 		.get_info	= cs5520_get_info,
--		.parent		= NULL,
- 	},
- };
- #endif  /* defined(DISPLAY_CS5520_TIMINGS) && defined(CONFIG_PROC_FS) */
-diff -puN drivers/ide/pci/cs5530.h~ide-pci-host-proc-parent drivers/ide/pci/cs5530.h
---- linux-2.6.0-test6-bk2/drivers/ide/pci/cs5530.h~ide-pci-host-proc-parent	2003-10-07 21:45:14.374436544 +0200
-+++ linux-2.6.0-test6-bk2-root/drivers/ide/pci/cs5530.h	2003-10-08 00:33:43.214659240 +0200
-@@ -20,7 +20,6 @@ static ide_pci_host_proc_t cs5530_procs[
- 		.name		= "cs5530",
- 		.set		= 1,
- 		.get_info	= cs5530_get_info,
--		.parent		= NULL,
- 	},
- };
- #endif /* DISPLAY_CS5530_TIMINGS && CONFIG_PROC_FS */
-diff -puN drivers/ide/pci/hpt34x.h~ide-pci-host-proc-parent drivers/ide/pci/hpt34x.h
---- linux-2.6.0-test6-bk2/drivers/ide/pci/hpt34x.h~ide-pci-host-proc-parent	2003-10-07 21:45:14.381435480 +0200
-+++ linux-2.6.0-test6-bk2-root/drivers/ide/pci/hpt34x.h	2003-10-08 00:33:43.217658784 +0200
-@@ -26,7 +26,6 @@ static ide_pci_host_proc_t hpt34x_procs[
- 		.name		= "hpt34x",
- 		.set		= 1,
- 		.get_info	= hpt34x_get_info,
--		.parent		= NULL,
- 	},
- };
- #endif  /* defined(DISPLAY_HPT34X_TIMINGS) && defined(CONFIG_PROC_FS) */
-diff -puN drivers/ide/pci/hpt366.h~ide-pci-host-proc-parent drivers/ide/pci/hpt366.h
---- linux-2.6.0-test6-bk2/drivers/ide/pci/hpt366.h~ide-pci-host-proc-parent	2003-10-07 21:45:14.384435024 +0200
-+++ linux-2.6.0-test6-bk2-root/drivers/ide/pci/hpt366.h	2003-10-08 00:33:43.218658632 +0200
-@@ -429,7 +429,6 @@ static ide_pci_host_proc_t hpt366_procs[
- 		.name		= "hpt366",
- 		.set		= 1,
- 		.get_info	= hpt366_get_info,
--		.parent		= NULL,
- 	},
- };
- #endif  /* defined(DISPLAY_HPT366_TIMINGS) && defined(CONFIG_PROC_FS) */
-diff -puN drivers/ide/pci/pdc202xx_new.h~ide-pci-host-proc-parent drivers/ide/pci/pdc202xx_new.h
---- linux-2.6.0-test6-bk2/drivers/ide/pci/pdc202xx_new.h~ide-pci-host-proc-parent	2003-10-07 21:45:14.387434568 +0200
-+++ linux-2.6.0-test6-bk2-root/drivers/ide/pci/pdc202xx_new.h	2003-10-08 00:33:43.220658328 +0200
-@@ -177,7 +177,6 @@ static ide_pci_host_proc_t pdcnew_procs[
- 		.name		= "pdcnew",
- 		.set		= 1,
- 		.get_info	= pdcnew_get_info,
--		.parent		= NULL,
- 	},
- };
- #endif /* DISPLAY_PDC202XX_TIMINGS && CONFIG_PROC_FS */
-diff -puN drivers/ide/pci/pdc202xx_old.h~ide-pci-host-proc-parent drivers/ide/pci/pdc202xx_old.h
---- linux-2.6.0-test6-bk2/drivers/ide/pci/pdc202xx_old.h~ide-pci-host-proc-parent	2003-10-07 21:45:14.390434112 +0200
-+++ linux-2.6.0-test6-bk2-root/drivers/ide/pci/pdc202xx_old.h	2003-10-08 00:33:43.221658176 +0200
-@@ -212,7 +212,6 @@ static ide_pci_host_proc_t pdc202xx_proc
- 		.name		= "pdc202xx",
- 		.set		= 1,
- 		.get_info	= pdc202xx_get_info,
--		.parent		= NULL,
- 	},
- };
- #endif /* DISPLAY_PDC202XX_TIMINGS && CONFIG_PROC_FS */
-diff -puN drivers/ide/pci/piix.h~ide-pci-host-proc-parent drivers/ide/pci/piix.h
---- linux-2.6.0-test6-bk2/drivers/ide/pci/piix.h~ide-pci-host-proc-parent	2003-10-07 21:45:14.392433808 +0200
-+++ linux-2.6.0-test6-bk2-root/drivers/ide/pci/piix.h	2003-10-08 00:33:43.222658024 +0200
-@@ -22,7 +22,6 @@ static ide_pci_host_proc_t piix_procs[] 
- 		.name		= "piix",
- 		.set		= 1,
- 		.get_info	= piix_get_info,
--		.parent		= NULL,
- 	},
- };
- #endif  /* defined(DISPLAY_PIIX_TIMINGS) && defined(CONFIG_PROC_FS) */
-diff -puN drivers/ide/pci/sc1200.h~ide-pci-host-proc-parent drivers/ide/pci/sc1200.h
---- linux-2.6.0-test6-bk2/drivers/ide/pci/sc1200.h~ide-pci-host-proc-parent	2003-10-07 21:45:14.395433352 +0200
-+++ linux-2.6.0-test6-bk2-root/drivers/ide/pci/sc1200.h	2003-10-08 00:33:43.223657872 +0200
-@@ -20,7 +20,6 @@ static ide_pci_host_proc_t sc1200_procs[
- 		.name		= "sc1200",
- 		.set		= 1,
- 		.get_info	= sc1200_get_info,
--		.parent		= NULL,
- 	},
- };
- #endif /* DISPLAY_SC1200_TIMINGS && CONFIG_PROC_FS */
-diff -puN drivers/ide/pci/serverworks.h~ide-pci-host-proc-parent drivers/ide/pci/serverworks.h
---- linux-2.6.0-test6-bk2/drivers/ide/pci/serverworks.h~ide-pci-host-proc-parent	2003-10-07 21:45:14.398432896 +0200
-+++ linux-2.6.0-test6-bk2-root/drivers/ide/pci/serverworks.h	2003-10-08 00:33:43.223657872 +0200
-@@ -36,7 +36,6 @@ static ide_pci_host_proc_t svwks_procs[]
- 		.name		= "svwks",
- 		.set		= 1,
- 		.get_info	= svwks_get_info,
--		.parent		= NULL,
- 	},
- };
- #endif  /* defined(DISPLAY_SVWKS_TIMINGS) && defined(CONFIG_PROC_FS) */
-diff -puN drivers/ide/pci/siimage.h~ide-pci-host-proc-parent drivers/ide/pci/siimage.h
---- linux-2.6.0-test6-bk2/drivers/ide/pci/siimage.h~ide-pci-host-proc-parent	2003-10-07 21:45:14.401432440 +0200
-+++ linux-2.6.0-test6-bk2-root/drivers/ide/pci/siimage.h	2003-10-08 00:33:43.224657720 +0200
-@@ -36,7 +36,6 @@ static ide_pci_host_proc_t siimage_procs
- 		.name		= "siimage",
- 		.set		= 1,
- 		.get_info	= siimage_get_info,
--		.parent		= NULL,
- 	},
- };
- #endif /* DISPLAY_SIIMAGE_TIMINGS && CONFIG_PROC_FS */	
-diff -puN drivers/ide/pci/sis5513.h~ide-pci-host-proc-parent drivers/ide/pci/sis5513.h
---- linux-2.6.0-test6-bk2/drivers/ide/pci/sis5513.h~ide-pci-host-proc-parent	2003-10-07 21:45:14.405431832 +0200
-+++ linux-2.6.0-test6-bk2-root/drivers/ide/pci/sis5513.h	2003-10-08 00:33:43.224657720 +0200
-@@ -20,7 +20,6 @@ static ide_pci_host_proc_t sis_procs[] _
- 		.name		= "sis",
- 		.set		= 1,
- 		.get_info	= sis_get_info,
--		.parent		= NULL,
- 	},
- };
- #endif /* defined(DISPLAY_SIS_TIMINGS) && defined(CONFIG_PROC_FS) */
-diff -puN drivers/ide/pci/slc90e66.h~ide-pci-host-proc-parent drivers/ide/pci/slc90e66.h
---- linux-2.6.0-test6-bk2/drivers/ide/pci/slc90e66.h~ide-pci-host-proc-parent	2003-10-07 21:45:14.408431376 +0200
-+++ linux-2.6.0-test6-bk2-root/drivers/ide/pci/slc90e66.h	2003-10-08 00:33:43.225657568 +0200
-@@ -22,7 +22,6 @@ static ide_pci_host_proc_t slc90e66_proc
- 		.name		= "slc90e66",
- 		.set		= 1,
- 		.get_info	= slc90e66_get_info,
--		.parent		= NULL,
- 	},
- };
- #endif	/* defined(DISPLAY_SLC90E66_TIMINGS) && defined(CONFIG_PROC_FS) */
-diff -puN drivers/ide/pci/via82cxxx.h~ide-pci-host-proc-parent drivers/ide/pci/via82cxxx.h
---- linux-2.6.0-test6-bk2/drivers/ide/pci/via82cxxx.h~ide-pci-host-proc-parent	2003-10-07 21:45:14.411430920 +0200
-+++ linux-2.6.0-test6-bk2-root/drivers/ide/pci/via82cxxx.h	2003-10-08 00:33:43.226657416 +0200
-@@ -20,7 +20,6 @@ static ide_pci_host_proc_t via_procs[] _
- 		.name		= "via",
- 		.set		= 1,
- 		.get_info	= via_get_info,
--		.parent		= NULL,
- 	},
- };
- #endif /* DISPLAY_VIA_TIMINGS && CONFIG_PROC_FS */
-diff -puN include/linux/ide.h~ide-pci-host-proc-parent include/linux/ide.h
---- linux-2.6.0-test6-bk2/include/linux/ide.h~ide-pci-host-proc-parent	2003-10-07 21:45:14.414430464 +0200
-+++ linux-2.6.0-test6-bk2-root/include/linux/ide.h	2003-10-08 00:33:42.433777952 +0200
-@@ -1642,7 +1642,6 @@ typedef struct ide_pci_host_proc_s {
- 	char				*name;
- 	u8				set;
- 	get_info_t			*get_info;
--	struct proc_dir_entry		*parent;
- 	struct ide_pci_host_proc_s	*next;
- } ide_pci_host_proc_t;
  
+diff -puN drivers/ide/pci/cs5530.h~ide-pci-kill-EOL drivers/ide/pci/cs5530.h
+--- linux-2.6.0-test6-bk2/drivers/ide/pci/cs5530.h~ide-pci-kill-EOL	2003-10-08 00:54:32.729704080 +0200
++++ linux-2.6.0-test6-bk2-root/drivers/ide/pci/cs5530.h	2003-10-08 00:54:32.796693896 +0200
+@@ -37,9 +37,7 @@ static ide_pci_device_t cs5530_chipsets[
+ 		.channels	= 2,
+ 		.autodma	= AUTODMA,
+ 		.bootable	= ON_BOARD,
+-	},{
+-		.bootable	= EOL,
+-	}
++	},
+ };
+ 
+ #endif /* CS5530_H */
+diff -puN drivers/ide/pci/cy82c693.h~ide-pci-kill-EOL drivers/ide/pci/cy82c693.h
+--- linux-2.6.0-test6-bk2/drivers/ide/pci/cy82c693.h~ide-pci-kill-EOL	2003-10-08 00:54:32.732703624 +0200
++++ linux-2.6.0-test6-bk2-root/drivers/ide/pci/cy82c693.h	2003-10-08 00:54:32.796693896 +0200
+@@ -79,9 +79,7 @@ static ide_pci_device_t cy82c693_chipset
+ 		.channels	= 1,
+ 		.autodma	= AUTODMA,
+ 		.bootable	= ON_BOARD,
+-	},{
+-		.bootable	= EOL,
+-	}
++	},
+ };
+ 
+ #endif /* CY82C693_H */
+diff -puN drivers/ide/pci/generic.h~ide-pci-kill-EOL drivers/ide/pci/generic.h
+--- linux-2.6.0-test6-bk2/drivers/ide/pci/generic.h~ide-pci-kill-EOL	2003-10-08 00:54:32.735703168 +0200
++++ linux-2.6.0-test6-bk2-root/drivers/ide/pci/generic.h	2003-10-08 00:54:32.797693744 +0200
+@@ -100,9 +100,7 @@ static ide_pci_device_t generic_chipsets
+ 		.channels	= 2,
+ 		.autodma	= AUTODMA,
+ 		.bootable	= OFF_BOARD,
+-	},{
+-		.bootable	= EOL,
+-	}
++	},
+ };
+ 
+ #if 0
+@@ -114,10 +112,7 @@ static ide_pci_device_t unknown_chipset[
+ 		.channels	= 2,
+ 		.autodma	= AUTODMA,
+ 		.bootable	= ON_BOARD,
+-	},{
+-		.bootable	= EOL,
+-	}
+-
++	},
+ };
+ #endif
+ 
+diff -puN drivers/ide/pci/hpt34x.h~ide-pci-kill-EOL drivers/ide/pci/hpt34x.h
+--- linux-2.6.0-test6-bk2/drivers/ide/pci/hpt34x.h~ide-pci-kill-EOL	2003-10-08 00:54:32.738702712 +0200
++++ linux-2.6.0-test6-bk2-root/drivers/ide/pci/hpt34x.h	2003-10-08 00:54:32.797693744 +0200
+@@ -44,9 +44,7 @@ static ide_pci_device_t hpt34x_chipsets[
+ 		.autodma	= NOAUTODMA,
+ 		.bootable	= NEVER_BOARD,
+ 		.extra		= 16
+-	},{
+-		.bootable	= EOL,
+-	}
++	},
+ };
+ 
+ #endif /* HPT34X_H */
+diff -puN drivers/ide/pci/hpt366.h~ide-pci-kill-EOL drivers/ide/pci/hpt366.h
+--- linux-2.6.0-test6-bk2/drivers/ide/pci/hpt366.h~ide-pci-kill-EOL	2003-10-08 00:54:32.741702256 +0200
++++ linux-2.6.0-test6-bk2-root/drivers/ide/pci/hpt366.h	2003-10-08 00:54:32.798693592 +0200
+@@ -497,9 +497,7 @@ static ide_pci_device_t hpt366_chipsets[
+ 		.channels	= 2,	/* 4 */
+ 		.autodma	= AUTODMA,
+ 		.bootable	= OFF_BOARD,
+-	},{
+-		.bootable	= EOL,
+-	}
++	},
+ };
+ 
+ #endif /* HPT366_H */
+diff -puN drivers/ide/pci/it8172.h~ide-pci-kill-EOL drivers/ide/pci/it8172.h
+--- linux-2.6.0-test6-bk2/drivers/ide/pci/it8172.h~ide-pci-kill-EOL	2003-10-08 00:54:32.743701952 +0200
++++ linux-2.6.0-test6-bk2-root/drivers/ide/pci/it8172.h	2003-10-08 00:54:32.798693592 +0200
+@@ -30,9 +30,7 @@ static ide_pci_device_t it8172_chipsets[
+ 		.autodma	= AUTODMA,
+ 		.enablebits	= {{0x00,0x00,0x00}, {0x40,0x00,0x01}},
+ 		.bootable	= ON_BOARD,
+-	},{
+-		.bootable	= EOL,
+-	}
++	},
+ };
+ 
+ #endif /* ITE8172G_H */
+diff -puN drivers/ide/pci/ns87415.h~ide-pci-kill-EOL drivers/ide/pci/ns87415.h
+--- linux-2.6.0-test6-bk2/drivers/ide/pci/ns87415.h~ide-pci-kill-EOL	2003-10-08 00:54:32.746701496 +0200
++++ linux-2.6.0-test6-bk2-root/drivers/ide/pci/ns87415.h	2003-10-08 00:54:32.799693440 +0200
+@@ -16,9 +16,7 @@ static ide_pci_device_t ns87415_chipsets
+ 		.channels	= 2,
+ 		.autodma	= AUTODMA,
+ 		.bootable	= ON_BOARD,
+-	},{
+-		.bootable	= EOL,
+-	}
++	},
+ };
+ 
+ #endif /* NS87415_H */
+diff -puN drivers/ide/pci/opti621.h~ide-pci-kill-EOL drivers/ide/pci/opti621.h
+--- linux-2.6.0-test6-bk2/drivers/ide/pci/opti621.h~ide-pci-kill-EOL	2003-10-08 00:54:32.749701040 +0200
++++ linux-2.6.0-test6-bk2-root/drivers/ide/pci/opti621.h	2003-10-08 00:54:32.799693440 +0200
+@@ -29,9 +29,7 @@ static ide_pci_device_t opti621_chipsets
+ 		.autodma	= AUTODMA,
+ 		.enablebits	= {{0x45,0x80,0x00}, {0x40,0x08,0x00}},
+ 		.bootable	= ON_BOARD,
+-	},{
+-		.bootable	= EOL,
+-	}
++	},
+ };
+ 
+ #endif /* OPTI621_H */
+diff -puN drivers/ide/pci/pdc202xx_new.h~ide-pci-kill-EOL drivers/ide/pci/pdc202xx_new.h
+--- linux-2.6.0-test6-bk2/drivers/ide/pci/pdc202xx_new.h~ide-pci-kill-EOL	2003-10-08 00:54:32.752700584 +0200
++++ linux-2.6.0-test6-bk2-root/drivers/ide/pci/pdc202xx_new.h	2003-10-08 00:54:32.799693440 +0200
+@@ -265,9 +265,7 @@ static ide_pci_device_t pdcnew_chipsets[
+ 		.channels	= 2,
+ 		.autodma	= AUTODMA,
+ 		.bootable	= OFF_BOARD,
+-	},{
+-		.bootable	= EOL,
+-	}
++	},
+ };
+ 
+ #endif /* PDC202XX_H */
+diff -puN drivers/ide/pci/pdc202xx_old.h~ide-pci-kill-EOL drivers/ide/pci/pdc202xx_old.h
+--- linux-2.6.0-test6-bk2/drivers/ide/pci/pdc202xx_old.h~ide-pci-kill-EOL	2003-10-08 00:54:32.755700128 +0200
++++ linux-2.6.0-test6-bk2-root/drivers/ide/pci/pdc202xx_old.h	2003-10-08 00:54:32.800693288 +0200
+@@ -300,9 +300,7 @@ static ide_pci_device_t pdc202xx_chipset
+ #endif
+ 		.bootable	= OFF_BOARD,
+ 		.extra		= 48,
+-	},{
+-		.bootable	= EOL,
+-	}
++	},
+ };
+ 
+ #endif /* PDC202XX_H */
+diff -puN drivers/ide/pci/piix.h~ide-pci-kill-EOL drivers/ide/pci/piix.h
+--- linux-2.6.0-test6-bk2/drivers/ide/pci/piix.h~ide-pci-kill-EOL	2003-10-08 00:54:32.758699672 +0200
++++ linux-2.6.0-test6-bk2-root/drivers/ide/pci/piix.h	2003-10-08 00:54:32.801693136 +0200
+@@ -244,9 +244,7 @@ static ide_pci_device_t piix_pci_info[] 
+ 		.autodma	= AUTODMA,
+ 		.enablebits	= {{0x41,0x80,0x80}, {0x43,0x80,0x80}},
+ 		.bootable	= ON_BOARD,
+-	},{
+-		.bootable	= EOL,
+-	}
++	},
+ };
+ 
+ #endif /* PIIX_H */
+diff -puN drivers/ide/pci/rz1000.h~ide-pci-kill-EOL drivers/ide/pci/rz1000.h
+--- linux-2.6.0-test6-bk2/drivers/ide/pci/rz1000.h~ide-pci-kill-EOL	2003-10-08 00:54:32.761699216 +0200
++++ linux-2.6.0-test6-bk2-root/drivers/ide/pci/rz1000.h	2003-10-08 00:54:32.801693136 +0200
+@@ -24,9 +24,7 @@ static ide_pci_device_t rz1000_chipsets[
+ 		.channels	= 2,
+ 		.autodma	= NODMA,
+ 		.bootable	= ON_BOARD,
+-	},{
+-		.bootable	= EOL,
+-	}
++	},
+ };
+ 
+ #endif /* RZ100X_H */
+diff -puN drivers/ide/pci/sc1200.h~ide-pci-kill-EOL drivers/ide/pci/sc1200.h
+--- linux-2.6.0-test6-bk2/drivers/ide/pci/sc1200.h~ide-pci-kill-EOL	2003-10-08 00:54:32.764698760 +0200
++++ linux-2.6.0-test6-bk2-root/drivers/ide/pci/sc1200.h	2003-10-08 00:54:32.802692984 +0200
+@@ -37,9 +37,7 @@ static ide_pci_device_t sc1200_chipsets[
+ 		.channels	= 2,
+ 		.autodma	= AUTODMA,
+ 		.bootable	= ON_BOARD,
+-	},{
+-		.bootable	= EOL,
+-	}
++	},
+ };
+ 
+ #endif /* SC1200_H */
+diff -puN drivers/ide/pci/serverworks.h~ide-pci-kill-EOL drivers/ide/pci/serverworks.h
+--- linux-2.6.0-test6-bk2/drivers/ide/pci/serverworks.h~ide-pci-kill-EOL	2003-10-08 00:54:32.766698456 +0200
++++ linux-2.6.0-test6-bk2-root/drivers/ide/pci/serverworks.h	2003-10-08 00:54:32.802692984 +0200
+@@ -90,9 +90,7 @@ static ide_pci_device_t serverworks_chip
+ 		.channels	= 1,	/* 2 */
+ 		.autodma	= AUTODMA,
+ 		.bootable	= ON_BOARD,
+-	},{
+-		.bootable	= EOL,
+-	}
++	},
+ };
+ 
+ #endif /* SERVERWORKS_H */
+diff -puN drivers/ide/pci/siimage.h~ide-pci-kill-EOL drivers/ide/pci/siimage.h
+--- linux-2.6.0-test6-bk2/drivers/ide/pci/siimage.h~ide-pci-kill-EOL	2003-10-08 00:54:32.769698000 +0200
++++ linux-2.6.0-test6-bk2-root/drivers/ide/pci/siimage.h	2003-10-08 00:54:32.802692984 +0200
+@@ -75,9 +75,7 @@ static ide_pci_device_t siimage_chipsets
+ 		.channels	= 2,
+ 		.autodma	= AUTODMA,
+ 		.bootable	= ON_BOARD,
+-	},{
+-		.bootable	= EOL,
+-	}
++	},
+ };
+ 
+ #endif /* SIIMAGE_H */
+diff -puN drivers/ide/pci/sis5513.h~ide-pci-kill-EOL drivers/ide/pci/sis5513.h
+--- linux-2.6.0-test6-bk2/drivers/ide/pci/sis5513.h~ide-pci-kill-EOL	2003-10-08 00:54:32.772697544 +0200
++++ linux-2.6.0-test6-bk2-root/drivers/ide/pci/sis5513.h	2003-10-08 00:54:32.803692832 +0200
+@@ -38,9 +38,7 @@ static ide_pci_device_t sis5513_chipsets
+ 		.autodma	= NOAUTODMA,
+ 		.enablebits	= {{0x4a,0x02,0x02}, {0x4a,0x04,0x04}},
+ 		.bootable	= ON_BOARD,
+-	},{
+-		.bootable	= EOL,
+-	}
++	},
+ };
+ 
+ #endif /* SIS5513_H */
+diff -puN drivers/ide/pci/sl82c105.h~ide-pci-kill-EOL drivers/ide/pci/sl82c105.h
+--- linux-2.6.0-test6-bk2/drivers/ide/pci/sl82c105.h~ide-pci-kill-EOL	2003-10-08 00:54:32.775697088 +0200
++++ linux-2.6.0-test6-bk2-root/drivers/ide/pci/sl82c105.h	2003-10-08 00:54:32.803692832 +0200
+@@ -21,9 +21,7 @@ static ide_pci_device_t sl82c105_chipset
+ 		.autodma	= NOAUTODMA,
+ 		.enablebits	= {{0x40,0x01,0x01}, {0x40,0x10,0x10}},
+ 		.bootable	= ON_BOARD,
+-	},{
+-		.bootable	= EOL,
+-	}
++	},
+ };
+ 
+ #endif /* W82C105_H */
+diff -puN drivers/ide/pci/slc90e66.h~ide-pci-kill-EOL drivers/ide/pci/slc90e66.h
+--- linux-2.6.0-test6-bk2/drivers/ide/pci/slc90e66.h~ide-pci-kill-EOL	2003-10-08 00:54:32.778696632 +0200
++++ linux-2.6.0-test6-bk2-root/drivers/ide/pci/slc90e66.h	2003-10-08 00:54:32.803692832 +0200
+@@ -40,9 +40,7 @@ static ide_pci_device_t slc90e66_chipset
+ 		.autodma	= AUTODMA,
+ 		.enablebits	= {{0x41,0x80,0x80}, {0x43,0x80,0x80}},
+ 		.bootable	= ON_BOARD,
+-	},{
+-		.bootable	= EOL,
+-	}
++	},
+ };
+ 
+ #endif /* SLC90E66_H */
+diff -puN drivers/ide/pci/triflex.h~ide-pci-kill-EOL drivers/ide/pci/triflex.h
+--- linux-2.6.0-test6-bk2/drivers/ide/pci/triflex.h~ide-pci-kill-EOL	2003-10-08 00:54:32.782696024 +0200
++++ linux-2.6.0-test6-bk2-root/drivers/ide/pci/triflex.h	2003-10-08 00:54:32.804692680 +0200
+@@ -27,9 +27,7 @@ static ide_pci_device_t triflex_devices[
+ 		.autodma	= AUTODMA,
+ 		.enablebits	= {{0x80, 0x01, 0x01}, {0x80, 0x02, 0x02}},
+ 		.bootable	= ON_BOARD,
+-	},{	
+-		.bootable	= EOL,
+-	}
++	},
+ };
+ 
+ #ifdef CONFIG_PROC_FS
+diff -puN drivers/ide/pci/trm290.h~ide-pci-kill-EOL drivers/ide/pci/trm290.h
+--- linux-2.6.0-test6-bk2/drivers/ide/pci/trm290.h~ide-pci-kill-EOL	2003-10-08 00:54:32.785695568 +0200
++++ linux-2.6.0-test6-bk2-root/drivers/ide/pci/trm290.h	2003-10-08 00:54:32.804692680 +0200
+@@ -16,9 +16,7 @@ static ide_pci_device_t trm290_chipsets[
+ 		.channels	= 2,
+ 		.autodma	= NOAUTODMA,
+ 		.bootable	= ON_BOARD,
+-	},{
+-		.bootable	= EOL,
+-	}
++	},
+ };
+ 
+ #endif /* TRM290_H */
+diff -puN drivers/ide/pci/via82cxxx.h~ide-pci-kill-EOL drivers/ide/pci/via82cxxx.h
+--- linux-2.6.0-test6-bk2/drivers/ide/pci/via82cxxx.h~ide-pci-kill-EOL	2003-10-08 00:54:32.787695264 +0200
++++ linux-2.6.0-test6-bk2-root/drivers/ide/pci/via82cxxx.h	2003-10-08 00:54:32.805692528 +0200
+@@ -48,9 +48,7 @@ static ide_pci_device_t via82cxxx_chipse
+ 		.autodma	= NOAUTODMA,
+ 		.enablebits	= {{0x40,0x02,0x02}, {0x40,0x01,0x01}},
+ 		.bootable	= ON_BOARD,
+-	},{
+-		.bootable	= EOL,
+-	}
++	},
+ };
+ 
+ #endif /* VIA82CXXX_H */
+diff -puN include/linux/ide.h~ide-pci-kill-EOL include/linux/ide.h
+--- linux-2.6.0-test6-bk2/include/linux/ide.h~ide-pci-kill-EOL	2003-10-08 00:54:32.791694656 +0200
++++ linux-2.6.0-test6-bk2-root/include/linux/ide.h	2003-10-08 00:54:32.806692376 +0200
+@@ -1660,7 +1660,6 @@ void ide_pci_register_host_proc(ide_pci_
+ #define NODMA 0
+ #define NOAUTODMA 1
+ #define AUTODMA 2
+-#define EOL 255
+ 
+ typedef struct ide_pci_enablebit_s {
+ 	u8	reg;	/* byte pci reg holding the enable-bit */
 
 _
 

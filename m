@@ -1,49 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316804AbSFQGwC>; Mon, 17 Jun 2002 02:52:02 -0400
+	id <S316777AbSFQGyk>; Mon, 17 Jun 2002 02:54:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316777AbSFQGta>; Mon, 17 Jun 2002 02:49:30 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:21006 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316780AbSFQGsN>;
-	Mon, 17 Jun 2002 02:48:13 -0400
-Message-ID: <3D0D871F.89089870@zip.com.au>
-Date: Sun, 16 Jun 2002 23:52:15 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
-X-Accept-Language: en
+	id <S316778AbSFQGws>; Mon, 17 Jun 2002 02:52:48 -0400
+Received: from david.siemens.de ([192.35.17.14]:42450 "EHLO david.siemens.de")
+	by vger.kernel.org with ESMTP id <S316827AbSFQGwL>;
+	Mon, 17 Jun 2002 02:52:11 -0400
+Message-ID: <6134254DE87BD411908B00A0C99B044F039645EB@mowd019a.mow.siemens.ru>
+From: Borsenkow Andrej <Andrej.Borsenkow@mow.siemens.ru>
+To: "'akpm@zip.com.au'" <akpm@zip.com.au>, "'drow@false.org'" <drow@false.org>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'devfs@oss.sgi.com'" <devfs@oss.sgi.com>
+Subject: Re: Inexplicable disk activity trying to load modules on devfs
+Date: Mon, 17 Jun 2002 10:59:26 +0400
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: lkml <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>
-Subject: [patch 8/19] go back to 256 requests per queue
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>> 
+>> I just booted into 2.4.19-pre10-ac2 for the first time, and noticed 
+>> something very odd: my disk activity light was flashing at about 
+>> half-second intervals, very regularly, and I could hear the disk 
+>> moving. I was only able to track it down to which disk controller, via 
+>> /proc/interrupts (are there any tools for monitoring VFS activity? 
+>> They'd be really useful). Eventually I hunted down the program causing 
+>> it: xmms. 
+>> 
+>> The reason turned out to be that I hadn't remembered to build my sound 
+>> driver for this kernel version. Every half-second xmms tried to open 
+>> /dev/mixer (and failed, ENOENT). Every time it did that there was 
+>> actual disk activity. Easily reproducible without xmms. Reproducible 
+>> on any non-existant device in devfs, but not for nonexisting files on 
+>> other filesystems. Is something bypassing the normal disk cache 
+>> mechanisms here? That doesn't seem right at all. 
+>> 
+>
+>
+>syslog activity from a printk, perhaps? 
 
+No. It is most probably devfsd trying to load sound modules.
 
-The request queue was increased from 256 slots to 512 in 2.5.20.  The
-throughput of `dbench 128' on Randy's 384 megabyte machine fell 40%.
+This is exactly the reason Mandrake does not enable devfs in kernel-secure.
+You can badly hit your system by doing in a loop ls /dev/foo for some device
+foo that is configured for module autoloading.
 
-We do need to understand why that happened, and what we can learn from
-it.  But in the meanwhile I'd suggest that we go back to 256 slots so
-that this known problem doesn't impact people's evaluation and tuning
-of 2.5 performance.
+It is very fascist decision; the slightly more forgiving way is to disable
+devfsd module autoloading (or disable devfsd entirely, just run it once
+after all drivers are loaded to execute actions) but then you lose support
+for hot plugging and some people do use kernel-secure on desktops. 
 
-
-
---- 2.5.22/drivers/block/ll_rw_blk.c~256-requests	Sun Jun 16 22:50:18 2002
-+++ 2.5.22-akpm/drivers/block/ll_rw_blk.c	Sun Jun 16 23:22:46 2002
-@@ -2002,8 +2002,8 @@ int __init blk_dev_init(void)
- 	queue_nr_requests = (total_ram >> 8) & ~15;	/* One per quarter-megabyte */
- 	if (queue_nr_requests < 32)
- 		queue_nr_requests = 32;
--	if (queue_nr_requests > 512)
--		queue_nr_requests = 512;
-+	if (queue_nr_requests > 256)
-+		queue_nr_requests = 256;
- 
- 	/*
- 	 * Batch frees according to queue length
-
--
+-andrej

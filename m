@@ -1,60 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261706AbUEFRm1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261597AbUEFRpQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261706AbUEFRm1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 May 2004 13:42:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261752AbUEFRm1
+	id S261597AbUEFRpQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 May 2004 13:45:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261744AbUEFRpQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 May 2004 13:42:27 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:21351 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S261706AbUEFRmU
+	Thu, 6 May 2004 13:45:16 -0400
+Received: from ce.fis.unam.mx ([132.248.33.1]:52894 "EHLO ce.fis.unam.mx")
+	by vger.kernel.org with ESMTP id S261597AbUEFRpG convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 May 2004 13:42:20 -0400
-Date: Thu, 6 May 2004 19:48:13 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: linux-kernel@vger.kernel.org, 4Front Technologies <dev@opensound.com>,
-       Hannu Savolainen <hannu@opensound.com>, Andrew Morton <akpm@osdl.org>,
-       Rusty Russell <rusty@rustcorp.com.au>
-Subject: What is needed to build an external module
-Message-ID: <20040506174813.GA2387@mars.ravnborg.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	4Front Technologies <dev@opensound.com>,
-	Hannu Savolainen <hannu@opensound.com>,
-	Andrew Morton <akpm@osdl.org>, Rusty Russell <rusty@rustcorp.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 6 May 2004 13:45:06 -0400
+From: Max Valdez <maxvalde@fis.unam.mx>
+Organization: CCF
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.6-rc3-mm2 (4KSTACK)
+Date: Thu, 6 May 2004 12:44:45 -0500
+User-Agent: KMail/1.6.51
+References: <20040505013135.7689e38d.akpm@osdl.org> <20040505043002.2f787285.akpm@osdl.org> <40991A8D.5000008@xfs.org>
+In-Reply-To: <40991A8D.5000008@xfs.org>
+MIME-Version: 1.0
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200405061244.47701.maxvalde@fis.unam.mx>
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In a private mail Dev Mazumdar suggested to create a system for 
-building external modules without the necessity to have the
-full kernel source available.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I decided to take this to LKML since it may be a questions
-other people had.
+I do
 
-The reason why one must use the kbuild infrastructure when 
-building external modules are the CONFIG choices that either
-impact gcc options or the include files.
-If a seperate system for buiding modules were made that
-part should be copied over for each and every change, and only
-one particular version of the 'building external modules' would
-be compatible with a given kernel version. So having a 
-seperate system is a no-go.
+and  Ihave nvidia video card :-), last couple of week been running 2.6.5 
+because of the problem with the module nvidia.o and teh 4STACK thing
 
-What one should realize what is actually needed to build an
-external module.
-A full copy of:
-root of kernel src
-include/
-scripts/
-and a copy of the Makefile for the selected architecture.
-Thats all needed to build a well behaving external module.
-This could very well be what a distribution places in
-/lib/modules/linux-<version>/build
-and not a full kernel tree.
+But as soon as I get to compile the new mm kernel, and reboot, will continue 
+to work on a mm like the last months.
 
-Hope this clarifies,
+Actually I've been using mm kernels most of the time since AC patches stoped 
+when Alan left to his Ph.D., or what ever he's doing right now.
 
-	Sam
+Max
+- -- 
+Linux garaged 2.6.5-rc2-mm3 #1 Fri Mar 26 11:07:16 CST 2004 i686 Intel(R) 
+Pentium(R) 4 CPU 2.80GHz GenuineIntel GNU/Linux
+- -----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GS/S d- s: a-29 C++(+++) ULAHI+++ P+ L++>+++ E--- W++ N* o-- K- w++++ O- M-- 
+V-- PS+ PE Y-- PGP++ t- 5- X+ R tv++ b+ DI+++ D- G++ e++ h+ r+ z**
+- ------END GEEK CODE BLOCK------
+gpg-key: http://garaged.homeip.net/gpg-key.txt
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAmnmNNNkpVEFxW78RAm+5AJ0c5/U5nmrzFFh9aS0p3iGBcwZVlgCdGMx9
+1CwtWd5W01omEDfWO6iHpVk=
+=KM7C
+-----END PGP SIGNATURE-----

@@ -1,31 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262596AbRFBP6k>; Sat, 2 Jun 2001 11:58:40 -0400
+	id <S262530AbRFBPxk>; Sat, 2 Jun 2001 11:53:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262600AbRFBP6b>; Sat, 2 Jun 2001 11:58:31 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:63124 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S262596AbRFBP6P>; Sat, 2 Jun 2001 11:58:15 -0400
-From: Alan Cox <alan@redhat.com>
-Message-Id: <200106021558.f52FwCP17498@devserv.devel.redhat.com>
-Subject: Re: [PATCH] es1371 race fixes
-To: hch@ns.caldera.de (Christoph Hellwig)
-Date: Sat, 2 Jun 2001 11:58:11 -0400 (EDT)
-Cc: alan@redhat.com, t.sailer@alumni.ethz.ch, linux-kernel@vger.kernel.org
-In-Reply-To: <20010602165659.A12811@caldera.de> from "Christoph Hellwig" at Jun 02, 2001 04:56:59 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S262596AbRFBPxa>; Sat, 2 Jun 2001 11:53:30 -0400
+Received: from diamondhead.hesbynett.no ([212.33.144.138]:16144 "HELO
+	diamondhead.hesbynett.no") by vger.kernel.org with SMTP
+	id <S262530AbRFBPx1>; Sat, 2 Jun 2001 11:53:27 -0400
+Message-ID: <1025.213.142.77.114.991508069.squirrel@diamond.no>
+Date: Sat, 2 Jun 2001 17:54:29 -0100 (GMT+1)
+Subject: 2.4.5 VFS/ramdisk changes
+From: "Ole Andre Vadla Ravnaas" <zole@jblinux.net>
+To: linux-kernel@vger.kernel.org
+Reply-To: zole@jblinux.net
+X-Mailer: SquirrelMail (version 1.0.2)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->   o es1371_mmap used to use lock_kernel to do some synchronistation,
->	this is superceeded by s->sem.
->   o remap_page_range (used in es1371_mmap) needs the mm semaphore as
->     stated by a comment and the code.  I have found _NO_ driver in the
->     tree so far that does this locking right...
+Hi
 
-I think they rely on the lock_kernel stuff - which Id prefer not to take out
-to be honest. There is just a little too much vm related lock_kernel stuff
-left to do that
+I'm having trouble with 2.4.5, where 2.4.4 worked fine. The problem is the
+following: I pass an initrd image to the kernel, which is a compressed image
+of an ext2 filesystem. The ramdisk size is set at 12 MB (12288 KB). The
+kernel is passed "root=/dev/rd/0" (using devfs, mounted automatically at
+boot-time by the kernel), but for some reason it can't find init (results in
+a kernel panic), this works perfectly with a 2.4.4 kernel. Oh, and btw, this
+works fine in 2.4.5 if I pass "root=/dev/fd/0 prompt_ramdisk=1" with the
+initrd image placed on a secondary floppydisk.
+
+What went wrong in 2.4.5?
+
+Thanks,
+Ole André Vadla Ravnås
+
+
+

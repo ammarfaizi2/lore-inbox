@@ -1,88 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268866AbUHUGYX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268236AbUHUG3e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268866AbUHUGYX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Aug 2004 02:24:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268867AbUHUGYX
+	id S268236AbUHUG3e (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Aug 2004 02:29:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268424AbUHUG3e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Aug 2004 02:24:23 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:57243 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S268866AbUHUGYP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Aug 2004 02:24:15 -0400
-Message-ID: <4126EA8F.6050807@namesys.com>
-Date: Fri, 20 Aug 2004 23:24:15 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Sat, 21 Aug 2004 02:29:34 -0400
+Received: from herkules.viasys.com ([194.100.28.129]:16578 "HELO
+	mail.viasys.com") by vger.kernel.org with SMTP id S268236AbUHUG3a
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Aug 2004 02:29:30 -0400
+Date: Sat, 21 Aug 2004 09:29:27 +0300
+From: Ville Herva <vherva@viasys.com>
 To: Andrew Morton <akpm@osdl.org>
-CC: Anton Blanchard <anton@samba.org>, riel@redhat.com,
-       linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com,
-       Vladimir Demidov <demidov@namesys.com>
-Subject: Re: 2.6.8.1-mm2 - reiser4
-References: <Pine.LNX.4.44.0408201753250.4192-100000@chimarrao.boston.redhat.com>	<Pine.LNX.4.44.0408201852140.4192-100000@chimarrao.boston.redhat.com>	<20040820232050.GI1945@krispykreme> <20040820163426.2c6d4cb8.akpm@osdl.org>
-In-Reply-To: <20040820163426.2c6d4cb8.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Cc: petr@vandrovec.name, linux-kernel@vger.kernel.org,
+       Arjan van de Ven <arjanv@redhat.com>
+Subject: Re: 2.6.8.1-mm2 breaks vmware
+Message-ID: <20040821062927.GM23741@viasys.com>
+Reply-To: vherva@viasys.com
+References: <20040820104230.GH23741@viasys.com> <20040820035142.3bcdb1cb.akpm@osdl.org> <20040820131825.GI23741@viasys.com> <20040820144304.GF8307@viasys.com> <20040820151621.GJ23741@viasys.com> <20040820114518.49a65b69.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040820114518.49a65b69.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
+X-Operating-System: Linux herkules.viasys.com 2.4.27
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+On Fri, Aug 20, 2004 at 11:45:18AM -0700, you [Andrew Morton] wrote:
+> > 
+> >  --8<-----------------------------------------------------------------------
+> >  vmmon: Your kernel is br0ken. get_user_pages(current, current->mm, b7dd1000, 1, 1, 0, &page, NULL) returned -14.
+> >  vmmon: I'll try accessing page tables directly, but you should know that your
+> >  vmmon: kernel is br0ken and you should uninstall all additional patches you vmmon: have installed!
+> >  vmmon: FYI, copy_from_user(b7dd1000) returns 0 (if not 0 maybe your kernel is not br0ken)
+> >  --8<-----------------------------------------------------------------------
+> > 
+> >  warning, but vmware appears to work now (well apart from altgr not working,
+> >  but that has been broken since 2.4 -> 2.6 transition.)
+> > 
+> >  I'm still not 100% which of the patches causes that get_user_pages()
+> >  warning.
+> 
+> If you could work that out sometime, it would help.
 
->Anton Blanchard <anton@samba.org> wrote:
->  
->
->>    
->>
->>
->
->It's my understanding that sys_reiser4() is basically defunct
->
-I would say unfinished and in need of a code review by me before anyone 
-starts using it, instead of defunct.  There is no good reason for it to 
-be sent to Andrew as a patch file, and the guy responsible is on 
-vacation.  What it should be in as is an experimental do not touch 
-config option turned off by default.
+* 2.6.8.1-mm2 minus just dev-mem-restriction-patch.patch fixes the "cannot
+  allocate memory" problem.
 
-sys_reiser4 is needed for these purposes:
+* 2.6.8.1-mm2 minus dev-mem-restriction-patch.patch and
+  get_user_pages-handle-VM_IO.patch fixes both the "cannot allocate memory"
+  and "get_user_pages() returns -EFAULT" problems.
 
-* to eliminate the (otherwise valid) argument that it is more 
-performance efficient for attributes to be accessed via an API that is 
-different from files, by allowing multiple files to be accessed in one 
-system call
+"Cannot allocate memory" may be specific to older vmware 3.2.0 since it
+hasn't been reported by anyone else (even though the patch is present in
+Fedora). 
 
-* to bundle multiple filesystem operations into one atomic write
 
-* to prepare the groundwork for the semantic enhancements described in 
-www.namesys.com/whitepaper.html
 
-* to define a standard interface that users will find uniform across all 
-apps for this functionality
+-- v -- 
 
-* to allow VFS to remain undisturbed in the eyes of legacy apps while 
-semantic enhancements go into the filesystem namespace in a form that is 
-less crippled by compatibility issues.
-
-Now that the core reiser4 functionality is stable, the lead programmers 
-and I can spare some time to review sys_reiser4 and the compression 
-plugin (also not yet ready for prime time).  This will take us 6-12 
-weeks I would guess, as Digeo is keeping us 50% busy with work that 
-earns our paychecks at the moment, darpa is also keeping me busy with 
-www.namesys.com/blackbox.html, and I expect there will be a few bugs 
-found in the core code over the next few months also.
-
-> at this point.
->
->It will probably be revived at some time in the future but we'd be best
->off crossing that bridge when we arrive at it, and ignoring the syscall
->part of the code at this time.
->
->For review purposes it would be better if the syscall code and all the
->namesys debug support code simply weren't present in the patch.  But one
->can sympathise with the need to keep it there for the time being.  Please
->just read around it.
->
->
->  
->
+v@iki.fi
 

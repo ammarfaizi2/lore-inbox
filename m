@@ -1,42 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129847AbRCCXUB>; Sat, 3 Mar 2001 18:20:01 -0500
+	id <S129851AbRCCXWB>; Sat, 3 Mar 2001 18:22:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129855AbRCCXTl>; Sat, 3 Mar 2001 18:19:41 -0500
-Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:60197 "EHLO
-	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id <S129847AbRCCXTg>; Sat, 3 Mar 2001 18:19:36 -0500
-Date: Sun, 4 Mar 2001 00:19:07 +0100 (CET)
-From: Francis Galiegue <fg@mandrakesoft.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux-kernel@vger.kernel.org, jgarzik@mandrakesoft.com,
-        Kernel list <kernel@linux-mandrake.com>
-Subject: Re: [PATCH] 2.4.2: cure the kapm-idled taking (100-epsilon)% CPU
- time
-In-Reply-To: <E14ZLG0-0004I5-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.21.0103040016050.922-100000@toy.mandrakesoft.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S129854AbRCCXVv>; Sat, 3 Mar 2001 18:21:51 -0500
+Received: from ns.suse.de ([213.95.15.193]:45066 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S129851AbRCCXVg>;
+	Sat, 3 Mar 2001 18:21:36 -0500
+Date: Sun, 4 Mar 2001 00:21:34 +0100
+From: Olaf Hering <olh@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.3-pre1 md_autodetect_dev unresolved
+Message-ID: <20010304002134.A1854@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 3 Mar 2001, Alan Cox wrote:
+Hi,
 
-> 
-> > As attachment. Don't ask me why it works. Rather, if you see why it works, I'd
-> > like to know why :)
-> 
-> Why are you breaking kapm-idled. It is supposed to take all that cpu time. You
-> just broke all the power saving
-> 
+and sorry, no patch.
 
-Well, from reading the source, I don't see how this can break APM... What am I
-missing?
+
+cantaloupe:~/kernel/linuxppc_2_4 # depmod -Vae
+depmod version 2.4.2
+depmod: *** Unresolved symbols in /lib/modules/2.4.3-pre1-SMP/kernel/drivers/md/md.o
+depmod:         md_autodetect_dev
+cantaloupe:~/kernel/linuxppc_2_4 # cat /proc/version 
+Linux version 2.4.3-pre1-SMP (root@mandarine) (gcc version 2.95.3 19991030 (prerelease/franzo/20000625)) #2 SMP Sat Mar 3 22:06:38 CET 2001
+cantaloupe:~/kernel/linuxppc_2_4 # sh scripts/ver_linux 
+If some fields are empty or look unusual you may have an old version.
+Compare to the current minimal requirements in Documentation/Changes.
+ 
+Linux cantaloupe 2.4.3-pre1-SMP #2 SMP Sat Mar 3 22:06:38 CET 2001 ppc unknown
+ 
+Gnu C                  2.95.2
+Gnu make               3.79.1
+binutils               2.10.0.33
+util-linux             2.10q
+modutils               2.4.2
+e2fsprogs              1.19
+pcmcia-cs              3.1.22
+PPP                    2.4.0
+isdn4k-utils           3.1pre1a
+Linux C Library        x    1 root     root      1499361 Feb 16 23:16 /lib/libc.so.6
+Dynamic linker (ldd)   2.2
+Procps                 2.0.7
+Net-tools              1.57
+Kbd                    1.02
+Sh-utils               2.0
+Modules Loaded         nfsd autofs ipv6
+cantaloupe:~/kernel/linuxppc_2_4 # zgrep _MD /proc/config.gz 
+CONFIG_MD=y
+CONFIG_BLK_DEV_MD=m
+CONFIG_MD_LINEAR=m
+CONFIG_MD_RAID0=m
+CONFIG_MD_RAID1=m
+CONFIG_MD_RAID5=m
+CONFIG_USB_MDC800=m
+
+
+
+Gruss Olaf
 
 -- 
-Francis Galiegue, fg@mandrakesoft.com - Normand et fier de l'être
-"Programming is a race between programmers, who try and make more and more
-idiot-proof software, and universe, which produces more and more remarkable
-idiots. Until now, universe leads the race"  -- R. Cook
+ $ man clone
 
+BUGS
+       Main feature not yet implemented...

@@ -1,51 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262059AbVCTJcg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262051AbVCTJkb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262059AbVCTJcg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Mar 2005 04:32:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262058AbVCTJcf
+	id S262051AbVCTJkb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Mar 2005 04:40:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262055AbVCTJka
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Mar 2005 04:32:35 -0500
-Received: from prosun.first.fraunhofer.de ([194.95.168.2]:38123 "EHLO
-	prosun.first.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S262059AbVCTJcX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Mar 2005 04:32:23 -0500
-Subject: Re: bcm203x broadcom dongle firmware upload fails...
-From: Soeren Sonnenburg <kernel@nn7.de>
-To: Marcel Holtmann <marcel@holtmann.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1111257144.9930.5.camel@pegasus>
-References: <1111244625.6115.6.camel@localhost>
-	 <1111257144.9930.5.camel@pegasus>
-Content-Type: text/plain
-Date: Sun, 20 Mar 2005 10:32:13 +0100
-Message-Id: <1111311133.6115.13.camel@localhost>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+	Sun, 20 Mar 2005 04:40:30 -0500
+Received: from arnor.apana.org.au ([203.14.152.115]:10501 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S262051AbVCTJk0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Mar 2005 04:40:26 -0500
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: adobriyan@mail.ru (Alexey Dobriyan)
+Subject: Re: [patch 1/4] crypto/sha256.c: fix sparse warnings
+Cc: herbert@gondor.apana.org.au, domen@coderock.org, davem@davemloft.net,
+       linux-kernel@vger.kernel.org
+Organization: Core
+In-Reply-To: <200503201110.39174.adobriyan@mail.ru>
+X-Newsgroups: apana.lists.os.linux.kernel
+User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
+Message-Id: <E1DCwuN-000473-00@gondolin.me.apana.org.au>
+Date: Sun, 20 Mar 2005 20:39:43 +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-03-19 at 19:32 +0100, Marcel Holtmann wrote:
-> Hi Soeren,
-
-[firmware upload not working]
-> > It does not work with kernel 2.6.10/11 any ideas ?
+Alexey Dobriyan <adobriyan@mail.ru> wrote:
 > 
-> I think this is a general request_firmware() problem. Check the Hotplug
-> mailing list archive. Hannes, Kay and Greg discussed problems with the
-> firmware_class and udev. I haven't found the time to look at it.
+> crypto/sha256.c:61:9: warning: cast to restricted type
+> 
+> Use CHECK="sparse -Wbitwise" to see it.
 
-Just for reference that is the link to their thread form March 15:
-http://sourceforge.net/mailarchive/message.php?msg_id=11165076
+Thanks.  I've applied all four patches to crypto.  I changed patch 4/4
+slightly so that it reads
 
-If it is an udev issue it would explain why the dongle was working when
-plugged in before the booting the machine.
++#define u32_in(x) le32_to_cpu(*(const __le32 *)(x))
 
-If there is a patch flying around that is supposed to fix this issue,
-please let me know!
+instead of le32_to_cpup(...) for the sake of minimising the changes.
 
-Best,
-Soeren
+Cheers,
 -- 
-Sometimes, there's a moment as you're waking, when you become aware of
-the real world around you, but you're still dreaming.
-
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

@@ -1,61 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262296AbUKQMnW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262299AbUKQMpu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262296AbUKQMnW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 07:43:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262299AbUKQMnW
+	id S262299AbUKQMpu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 07:45:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262297AbUKQMpu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 07:43:22 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:10162 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262296AbUKQMnT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 07:43:19 -0500
-Date: Wed, 17 Nov 2004 14:45:09 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Florian Schmidt <mista.tapas@gmx.net>
-Cc: john cooper <john.cooper@timesys.com>, "K.R. Foley" <kr@cybsft.com>,
-       Mark_H_Johnson@raytheon.com, linux-kernel@vger.kernel.org,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
-       Stefan Schweizer <sschweizer@gmail.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm1-V0.7.27-3
-Message-ID: <20041117134509.GA29845@elte.hu>
-References: <20041116223243.43feddf4@mango.fruits.de> <20041116224257.GB27550@elte.hu> <20041116230443.452497b9@mango.fruits.de> <20041116231145.GC31529@elte.hu> <20041116235535.6867290d@mango.fruits.de> <20041117002926.32a4b26f@mango.fruits.de> <419A961A.2070005@timesys.com> <20041117122318.479805fa@mango.fruits.de> <20041117130236.GA28240@elte.hu> <20041117131400.0c1dbe95@mango.fruits.de>
-Mime-Version: 1.0
+	Wed, 17 Nov 2004 07:45:50 -0500
+Received: from web20024.mail.yahoo.com ([216.136.225.35]:30619 "HELO
+	web20024.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262299AbUKQMpl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 07:45:41 -0500
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  b=LqWtoMwgxgOB8us0DebOow+VV6kSoXb6th4BCO7Wy25GwKy9QAux7r/AIgnvEC3AwIctgVgreaXgmCr8lqg+obc5qcYKYsLqx0FOz29sae/KSQpUmLbxcCXfD9fnE9DOwRhHu+0SQOJbIdrZJJB1nvFl632etIflRgrn1kRDE+Y=  ;
+Message-ID: <20041117124539.89039.qmail@web20024.mail.yahoo.com>
+Date: Wed, 17 Nov 2004 04:45:39 -0800 (PST)
+From: Oghenekevwe Uti <oghenekevwe_u@yahoo.com>
+Subject: e100-3.2.3 (linux 7.3)
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041117131400.0c1dbe95@mango.fruits.de>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+am trying to install this drive. when i did
 
-* Florian Schmidt <mista.tapas@gmx.net> wrote:
+make install , i get this error
 
-> > > I had rtc_wakeup running with a rtc frequency of 8192 hz at the time
-> > > plus some general usage (reading mails, etc..) In earlier kernels it
-> > > seemed that the lock fell together with the rtc IRQ being piggy. will
-> > > try to reproduce now with the freshest RP kernel.
-> 
-> I am not all certain that there really is a correlation like this. It
-> might have been coincidence. This boot locked again when i was in X
-> for 1 minute for checking mails. So again no console output.
+Makefile:62: *** Linux kernel source not found. Stop.
 
-managed to reproduce the lockup on my testbox, using your .config,
-running rtc_wakeup -f 8192 and starting X. Hard hang and i had IRQ1 at
-prio 99. Will turn on the NMI watchdog now, hopefully this lockup will
-stay easy to reproduce.
+kernel ver is 2.4.18-3smp
 
-	Ingo
+=====
+ghenekevwe uti:             !!!23484421187,23484421189,08033165966,84579165
+         (o o )
+          ( _ )
+--oo0 ---- 0oo--
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		
+__________________________________ 
+Do you Yahoo!? 
+The all-new My Yahoo! - Get yours free! 
+http://my.yahoo.com 
+ 
+

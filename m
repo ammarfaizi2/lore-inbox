@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262258AbTA2WWe>; Wed, 29 Jan 2003 17:22:34 -0500
+	id <S267357AbTA2Wc7>; Wed, 29 Jan 2003 17:32:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264818AbTA2WWe>; Wed, 29 Jan 2003 17:22:34 -0500
-Received: from holomorphy.com ([66.224.33.161]:24751 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S262258AbTA2WWd>;
-	Wed, 29 Jan 2003 17:22:33 -0500
-Date: Wed, 29 Jan 2003 14:28:55 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Andrew Morton <akpm@zip.com.au>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: kernbench: 2.5.59 vs 2.5.59-mm6 vs 2.5.59-mjb2
-Message-ID: <20030129222855.GO780@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	Andrew Morton <akpm@zip.com.au>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <62800000.1043878411@flay>
+	id <S267371AbTA2Wc7>; Wed, 29 Jan 2003 17:32:59 -0500
+Received: from probity.mcc.ac.uk ([130.88.200.94]:25104 "EHLO
+	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S267357AbTA2Wc6>; Wed, 29 Jan 2003 17:32:58 -0500
+Date: Wed, 29 Jan 2003 22:42:20 +0000
+From: John Levon <levon@movementarian.org>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Mikael Pettersson <mikpe@csd.uu.se>, ak@suse.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: Switch APIC to driver model (and make S3 sleep with APIC on)
+Message-ID: <20030129224220.GA10439@compsoc.man.ac.uk>
+References: <200301281219.NAA03575@harpo.it.uu.se> <20030129201843.GA1256@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <62800000.1043878411@flay>
+In-Reply-To: <20030129201843.GA1256@elf.ucw.cz>
 User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+X-Url: http://www.movementarian.org/
+X-Record: Mr. Scruff - Trouser Jazz
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *18e0uS-0006CQ-00*cMmuj1uLxuI*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 29, 2003 at 02:13:31PM -0800, Martin J. Bligh wrote:
-> not sure what's causing the pfn_to_nid and pgd_alloc improvements?)
+On Wed, Jan 29, 2003 at 09:18:44PM +0100, Pavel Machek wrote:
 
-pgd's and pmd's are in the slab, so the zeroing hit is only taken once
-per pgd and pmd (best case). It's my patch that does this.
+> How can this be? I see nmi.c being unconditionaly compiled-in. Where
+> are the other clients you are talking about?
 
-pfn_to_nid() is surely a random cache and/or ITLB gain from link
-ordering, alignment in the final link, or some such nonsense.
-pfn_to_nid() is a single shift, quite excessive for a function call.
-It'd be best to inline this and get the random ITLB etc. misses out
-of the profiles esp. as they aren't reproducible.
+Is grep broken ?
 
--- wli
+> -#if defined(CONFIG_X86_LOCAL_APIC) && defined(CONFIG_PM)
+> -EXPORT_SYMBOL_GPL(set_nmi_pm_callback);
+> -EXPORT_SYMBOL_GPL(unset_nmi_pm_callback);
+> -#endif
+
+You removed these but didn't check where they were used ?
+
+regards
+john

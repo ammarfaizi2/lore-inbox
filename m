@@ -1,85 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261743AbTEQR7m (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 May 2003 13:59:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261747AbTEQR7l
+	id S261752AbTEQSId (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 May 2003 14:08:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261747AbTEQSId
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 May 2003 13:59:41 -0400
-Received: from [193.126.32.23] ([193.126.32.23]:33409 "EHLO
-	mail.paradigma.co.pt") by vger.kernel.org with ESMTP
-	id S261743AbTEQR7k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 May 2003 13:59:40 -0400
-Date: Sat, 17 May 2003 19:12:18 +0100
-From: Nuno Monteiro <nuno@itsari.org>
-To: Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: ioperm bitmap stuff for 2.4
-Message-ID: <20030517181218.GA4000@hobbes.itsari.int>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="bp/iNruPH9dso1Pn"
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-X-Mailer: Balsa 2.0.11
+	Sat, 17 May 2003 14:08:33 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:25992 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261710AbTEQSIc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 May 2003 14:08:32 -0400
+Subject: Re: Race between vmtruncate and mapped areas?
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Andrew Morton <akpm@digeo.com>, dmccr@us.ibm.com,
+       linux-kernel@vger.kernel.org, linux-kernel-owner@vger.kernel.org,
+       linux-mm@kvack.org, mika.penttila@kolumbus.fi
+X-Mailer: Lotus Notes Release 5.0.11   July 24, 2002
+Message-ID: <OF9AB7161F.A333DD8B-ON88256D29.0064AB5F-88256D29.0064AD44@us.ibm.com>
+From: Paul McKenney <Paul.McKenney@us.ibm.com>
+Date: Sat, 17 May 2003 11:19:39 -0700
+X-MIMETrack: Serialize by Router on D03NM116/03/M/IBM(Release 6.0.1 [IBM]|May 6, 2003) at
+ 05/17/2003 12:21:08
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---bp/iNruPH9dso1Pn
-Content-Type: text/plain; format=flowed; charset=ISO-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-
-[ let's see if three is the charm, the two previous attempts didnt make 
-it to the list... ]
-
-Hi people,
-
-
-Is the ioperm patch necessary in 2.4 also? The fix by Brian Gerst was 
-commited to the 2.5 branch 
-(http://marc.theaimsgroup.com/?l=bk-commits-head&m=105275597307968&w=2) 
-some days ago, and as of yesterday vendors are starting to ship a similar 
-fix to their kernels, so I suppose it is indeed necessary. What about the 
-attached patch? It applies to both 2.4.20 and .21-rc2, please review.
-
-
-(Please forgive me if this has been discussed before, I did a quick 
-search of the lkml archives and couldnt find anything relevant to 2.4)
 
 
 
-Cheers,
+> On Thu, May 15, 2003 at 02:20:00AM -0700, Andrew Morton wrote:
+> > Andrea Arcangeli <andrea@suse.de> wrote:
+> > >
+> > > and it's still racy
+> >
+> > damn, and it just booted ;)
+> >
+> > I'm just a little bit concerned over the ever-expanding inode.  Do you
+> > think the dual sequence numbers can be replaced by a single generation
+> > counter?
+>
+> yes, I wrote it as a single counter first, but was unreadable and it had
+> more branches, so I added the other sequence number to make it cleaner.
+> I don't mind another 4 bytes, that cacheline should be hot anyways.
+>
+> > I do think that we should push the revalidate operation over into the
+vm_ops.
+> > That'll require an extra arg to ->nopage, but it has a spare one anyway
+(!).
+>
+> not sure why you need a callback, the lowlevel if needed can serialize
+> using the same locking in the address space that vmtruncate uses. I
+> would wait a real case need before adding a callback.
 
-			Nuno
+FYI, we verified that the revalidate callback could also do the same
+job that the proposed nopagedone callback does -- permitting filesystems
+that provide their on vm_operations_struct to avoid the race between
+page faults and invalidating a page from a mapped file.
 
---bp/iNruPH9dso1Pn
-Content-Type: text/x-diff; charset=us-ascii
-Content-Disposition: attachment; filename="2.4-042-ioperm-fix.patch"
+                                    Thanx, Paul
 
---- linux-2.4.20-gw3/arch/i386/kernel/ioport.c	2003-05-16 23:42:47.000000000 +0100
-+++ linux-2.4.20-gw4/arch/i386/kernel/ioport.c	2003-05-16 23:42:49.000000000 +0100
-@@ -72,17 +72,18 @@
- 		 */
- 		memset(t->io_bitmap,0xff,(IO_BITMAP_SIZE+1)*4);
- 		t->ioperm = 1;
--		/*
--		 * this activates it in the TSS
--		 */
--		tss->bitmap = IO_BITMAP_OFFSET;
- 	}
- 
- 	/*
- 	 * do it in the per-thread copy and in the TSS ...
- 	 */
- 	set_bitmap(t->io_bitmap, from, num, !turn_on);
--	set_bitmap(tss->io_bitmap, from, num, !turn_on);
-+	if (tss->bitmap == IO_BITMAP_OFFSET) { /* already active? */
-+		set_bitmap(tss->io_bitmap, from, num, !turn_on);
-+	} else {
-+		memcpy(tss->io_bitmap, t->io_bitmap, IO_BITMAP_SIZE);
-+		tss->bitmap = IO_BITMAP_OFFSET; /* Activate it in the TSS */
-+	}
- 
- 	return 0;
- }
-
---bp/iNruPH9dso1Pn--

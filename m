@@ -1,51 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261232AbUH3Us1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261169AbUH3UrU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261232AbUH3Us1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 16:48:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbUH3Us1
+	id S261169AbUH3UrU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 16:47:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbUH3UrT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 16:48:27 -0400
-Received: from holomorphy.com ([207.189.100.168]:21175 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261232AbUH3UsV (ORCPT
+	Mon, 30 Aug 2004 16:47:19 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:19598 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261169AbUH3UrR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 16:48:21 -0400
-Date: Mon, 30 Aug 2004 13:48:14 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Paulo Marques <pmarques@grupopie.com>
-Cc: mita akinobu <amgta@yacht.ocn.ne.jp>, linux-kernel@vger.kernel.org,
-       Andries Brouwer <aeb@cwi.nl>,
-       Alessandro Rubini <rubini@ipvvis.unipv.it>
-Subject: Re: [util-linux] readprofile ignores the last element in /proc/profile
-Message-ID: <20040830204814.GG5492@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Paulo Marques <pmarques@grupopie.com>,
-	mita akinobu <amgta@yacht.ocn.ne.jp>, linux-kernel@vger.kernel.org,
-	Andries Brouwer <aeb@cwi.nl>,
-	Alessandro Rubini <rubini@ipvvis.unipv.it>
-References: <200408250022.09878.amgta@yacht.ocn.ne.jp> <20040829162252.GG5492@holomorphy.com> <4133718D.60002@grupopie.com>
+	Mon, 30 Aug 2004 16:47:17 -0400
+Subject: Re: [RFC][PATCH] fix target_cpus() for summit subarch
+From: john stultz <johnstul@us.ibm.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       William Lee Irwin III <wli@holomorphy.com>, James <jamesclv@us.ibm.com>,
+       keith maanthey <kmannth@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>
+In-Reply-To: <1093888987.14662.69.camel@cog.beaverton.ibm.com>
+References: <1093652688.14662.16.camel@cog.beaverton.ibm.com>
+	 <79750000.1093673866@[10.10.2.4]>
+	 <1093888987.14662.69.camel@cog.beaverton.ibm.com>
+Content-Type: text/plain
+Message-Id: <1093898800.14662.73.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4133718D.60002@grupopie.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Mon, 30 Aug 2004 13:46:41 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
->> Well, since I couldn't stop vomiting for hours after I looked at the
->> code for readprofile(1), here's a reimplementation, with various
->> misfeatures removed, included as a MIME attachment.
+On Mon, 2004-08-30 at 11:03, john stultz wrote:
+> On Fri, 2004-08-27 at 23:17, Martin J. Bligh wrote:
+> > --john stultz <johnstul@us.ibm.com> wrote (on Friday, August 27, 2004 17:24:48 -0700):
+> > 
+> > > I've been hunting down a bug affecting IBM x440/x445 systems where the
+> > > floppy driver would get spurious interrupts and would not initialize
+> > > properly. 
+> > > 
+> > > After digging James Cleverdon pointed out that target_cpus() is routing
+> > > the interrupts to the clustered apic broadcast mask. This was causing
+> > > multiple interrupts to show up, breaking the floppy init code. 
+> > > 
+> > > This one-liner fix simply routes interrupts to the first cpu to resolve
+> > > this issue.
+> > 
+> > I'd say that means your hardware is horribly broken ... but I guess this
+> > might be a suitable workaround given we're going to reprogram them all
+> > later.
+> 
+> Ok, then my patch probably isn't correct. Let me grab James and we'll
+> sit down and work this out later today.
 
-On Mon, Aug 30, 2004 at 07:27:25PM +0100, Paulo Marques wrote:
-> While you're at it, can readprofile work by reading the symbols from 
-> /proc/kallsyms?
-> If it can, this could be added to the list of files that it tries to 
-> open, so that it could work even if System.map wasn't available.
+So talking with more with James and Martin, the correct fix looks to be
+Bill's suggestion of using Lowest Priority instead of Fixed for the
+destination mode. 
 
-Well, if it can accept input from a pipe, there's no real need. Since
-it would need to be sorted, it would probably bloat the utility too
-much to do it internally by creating redundancy with sort(1).
+James still claims CPU_MASK_ALL (0xff) is wrong for target_cpus(), but
+I'll let him make his case for that.
+
+After some testing, I'll resend the corrected patch.
+
+thanks
+-john
 
 
--- wli

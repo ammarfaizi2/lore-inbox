@@ -1,43 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263268AbTJBHGv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Oct 2003 03:06:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263269AbTJBHGv
+	id S263263AbTJBHC7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Oct 2003 03:02:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263264AbTJBHC7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Oct 2003 03:06:51 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:19651 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S263268AbTJBHGu (ORCPT
+	Thu, 2 Oct 2003 03:02:59 -0400
+Received: from [61.95.227.64] ([61.95.227.64]:23454 "EHLO gateway.gsecone.com")
+	by vger.kernel.org with ESMTP id S263263AbTJBHC6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Oct 2003 03:06:50 -0400
-Date: Thu, 2 Oct 2003 09:06:40 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Zinx Verituse <zinx@epicsol.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: sg-style ATAPI commands in 2.6
-Message-ID: <20031002070640.GE6678@suse.de>
-References: <20031002065218.GA32246@bliss>
+	Thu, 2 Oct 2003 03:02:58 -0400
+Subject: Re: [PATCH 2.6.0-test6][X25] timer cleanup
+From: Vinay K Nallamothu <vinay.nallamothu@gsecone.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: netdev@oss.sgi.com, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20031001155623.06b89258.akpm@osdl.org>
+References: <1065018387.7194.336.camel@lima.royalchallenge.com>
+	 <20031001155623.06b89258.akpm@osdl.org>
+Content-Type: text/plain
+Organization: Global Security One
+Message-Id: <1065078208.4340.3.camel@lima.royalchallenge.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031002065218.GA32246@bliss>
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Thu, 02 Oct 2003 12:33:28 +0530
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 02 2003, Zinx Verituse wrote:
-> I haven't found much information on the raw ATAPI command
-> interface provided in Linux 2.6, but from what I can tell
-> it can understand the sg3 interface.
+On Thu, 2003-10-02 at 04:26, Andrew Morton wrote:
+> Vinay K Nallamothu <vinay.nallamothu@gsecone.com> wrote:
+> >
+> > Replace del_timer, mod_timer sequences with mod_timer.
 > 
-> However, I can't open the device read-write, so mmap'd IO
-> is impossible, and unless it's currently horribly insecure,
-> I can't write CDs anyway.
-> 
-> I was just wondering what the desired behavior is, if there's
-> a different style interface I'm supposed to use, etc.
-
-Right now, only the SG_IO ioctl is supported. Support for full (as much
-as makes sense) sg v3 support is planned and in progress.
-
--- 
-Jens Axboe
+> was this tested?
+No. But compiles fine.
 

@@ -1,165 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265201AbTBJV3A>; Mon, 10 Feb 2003 16:29:00 -0500
+	id <S265255AbTBJVYG>; Mon, 10 Feb 2003 16:24:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265242AbTBJV3A>; Mon, 10 Feb 2003 16:29:00 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:56746 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S265201AbTBJV25>; Mon, 10 Feb 2003 16:28:57 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Kevin Corry <corryk@us.ibm.com>
-Organization: IBM
-To: "James Lamanna" <james.lamanna@appliedminds.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.60 Compile error
-Date: Mon, 10 Feb 2003 15:38:40 -0600
-X-Mailer: KMail [version 1.2]
-References: <021d01c2d148$3de259d0$39140b0a@amthinking.net>
-In-Reply-To: <021d01c2d148$3de259d0$39140b0a@amthinking.net>
-MIME-Version: 1.0
-Message-Id: <03021015384004.02639@boiler>
-Content-Transfer-Encoding: 7BIT
+	id <S265249AbTBJVYG>; Mon, 10 Feb 2003 16:24:06 -0500
+Received: from mail.webmaster.com ([216.152.64.131]:50152 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S265247AbTBJVYE> convert rfc822-to-8bit; Mon, 10 Feb 2003 16:24:04 -0500
+From: David Schwartz <davids@webmaster.com>
+To: <oxymoron@waste.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+X-Mailer: PocoMail 2.63 (1077) - Licensed Version
+Date: Mon, 10 Feb 2003 13:33:20 -0800
+In-Reply-To: <20030210174245.GI28107@waste.org>
+Subject: Re: Monta Vista software license terms
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-ID: <20030210213349.AAA18154@shell.webmaster.com@whenever>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 10 February 2003 15:06, James Lamanna wrote:
-> Another compiler error that's been around for a little while:
-> Looks like some weird gcc problem.
-> gcc version: 2.95.4 20011002 (Debian prerelease)
->
-> make -f scripts/Makefile.build obj=scripts
-> make -f scripts/Makefile.build obj=drivers/md drivers/md/linear.o
->   gcc -Wp,-MD,drivers/md/.linear.o.d -D__KERNEL__ -Iinclude -Wall
-> -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
-> -pipe -mpreferred-stack-boundary=2 -march=i686
-> -Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include
-> -DKBUILD_BASENAME=linear -DKBUILD_MODNAME=linear -c -o
-> drivers/md/linear.o drivers/md/linear.c
-> drivers/md/linear.c: In function `linear_run':
-> drivers/md/linear.c:159: Internal compiler error:
-> drivers/md/linear.c:159: internal error--unrecognizable insn:
-> (insn 316 315 673 (parallel[
->             (set (reg:SI 0 %eax)
->                 (asm_operands ("") ("=a") 0[
->                         (reg:DI 1 %edx)
->                     ]
->                     [
->                         (asm_input:DI ("A"))
->                     ]  ("drivers/md/linear.c") 115))
->             (set (reg:SI 1 %edx)
->                 (asm_operands ("") ("=d") 1[
->                         (reg:DI 1 %edx)
->                     ]
->                     [
->                         (asm_input:DI ("A"))
->                     ]  ("drivers/md/linear.c") 115))
->         ] ) -1 (insn_list 313 (nil))
->     (nil))
-> make[1]: *** [drivers/md/linear.o] Error 1
-> make: *** [drivers/md/linear.o] Error 2
+On Mon, 10 Feb 2003 11:42:45 -0600, Oliver Xymoron wrote:
 
-I have been getting this same error for several kernel versions
-now. I have fixed it with the following patch. 
+>I certainly agree, but the problem is the NDA puts the shoe on the
+>other foot and now it's the customer that has to consult a lawyer or
+>risk a nuisance suit before proceeding. So while it may not forbid,
+>it
+>certainly discourages and impedes. Let me point out that I never saw
+>the NDA in question but said coworker was sufficiently intimidated 
+>by
+>it that he was unwilling to give me a copy of the kernel and gcc
+>sources because of it.
 
-==========
---- linux-2.5.59a/drivers/md/linear.c	Thu Jan 16 20:22:04 2003
-+++ linux-2.5.59b/drivers/md/linear.c	Fri Jan 31 15:00:48 2003
-@@ -111,6 +111,9 @@
- 	}
- 
- 	{
-+#if __GNUC__ < 3
-+		volatile
-+#endif
- 		sector_t sz = md_size[mdidx(mddev)];
- 		unsigned round = sector_div(sz, conf->smallest->size);
- 		nb_zone = conf->nr_zones = sz + (round ? 1 : 0);
-==========
+	I believe such a provision would, unfortunately, by considered 
+legally enforceable. The rationale would be that the rights you (the 
+recipient of the derived work) have under the GPL would only apply if 
+the distributor were bound by the GPL. The only way the distributor 
+could be bound by the GPL was if he or she did something that he 
+didn't have the right to do without the GPL to give him or her such a 
+right.
 
-I believe I found it in the lkml archives, but...I have no idea if this
-is the correct fix. I also get a very similar error in fs/readdir.c:
+	However, without the GPL, you already had the right to possess and 
+use the original work. Without the GPL, the distributor already had 
+the right to possess and use the original work and to create derived 
+works. There is no issue of distribution rights to the original work 
+because everyone involved started with the right to use and possess 
+the original work.
 
-==========
-make -f scripts/Makefile.build obj=fs
-  gcc -Wp,-MD,fs/.readdir.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -Iinclude/asm-i386/mach-default -g -nostdinc -iwithprefix include    -DKBUILD_BASENAME=readdir -DKBUILD_MODNAME=readdir   -c -o fs/readdir.o fs/readdir.c
-fs/readdir.c: In function `filldir64':
-fs/readdir.c:242: internal error--unrecognizable insn:
-(insn 184 183 657 (set (reg/v:SI 4 %esi)
-        (asm_operands/v ("1:	movl %%eax,0(%2)
-2:	movl %%edx,4(%2)
-3:
-.section .fixup,"ax"
-4:	movl %3,%0
-	jmp 3b
-.previous
-.section __ex_table,"a"
-	.align 4
-	.long 1b,4b
-	.long 2b,4b
-.previous") ("=r") 0[ 
-                (reg:DI 1 %edx)
-                (reg:SI 0 %eax)
-                (const_int -14 [0xfffffff2])
-                (reg/v:SI 4 %esi)
-            ] 
-            [ 
-                (asm_input:DI ("A"))
-                (asm_input:SI ("r"))
-                (asm_input:SI ("i"))
-                (asm_input:SI ("0"))
-            ]  ("fs/readdir.c") 226)) -1 (insn_list 181 (insn_list 183 (nil)))
-    (nil))
-make[1]: *** [fs/readdir.o] Error 1
-make: *** [fs] Error 2
-==========
+	You don't need to assent to the GPL to receive GPL'd works. You 
+don't need to assent to the GPL to modify GPL'd works. So the only 
+question would be, do you need to assent to the GPL to distribute a 
+modified work even if both you and the recipient of the work already 
+have the right to the unmodified work and the right to create such 
+modifications and you own the difference between the two works.
 
-which I've managed to fix with this patch:
+	I've researched this question, and the evidence seems to suggest 
+that, no, it is not an additional right. Creating a derived work is a 
+right. Distributing the rights to the original work is a right. But 
+distributing a derived work when you can already create the derived 
+work, do not need to distribute any rights to the original work, and 
+own the rights to the difference between the two, does not seem to be 
+an additional right to the original work. It is the simple sum of the 
+rights both parties already have.
 
-==========
---- linux-2.5.59a/fs/readdir.c	Thu Jan 16 20:22:08 2003
-+++ linux-2.5.59b/fs/readdir.c	Fri Jan 31 15:00:25 2003
-@@ -216,14 +216,14 @@
- 		return -EINVAL;
- 	dirent = buf->previous;
- 	if (dirent) {
--		if (__put_user(offset, &dirent->d_off))
-+		if (put_user(offset, &dirent->d_off))
- 			goto efault;
- 	}
- 	dirent = buf->current_dir;
- 	buf->previous = dirent;
--	if (__put_user(ino, &dirent->d_ino))
-+	if (put_user(ino, &dirent->d_ino))
- 		goto efault;
--	if (__put_user(0, &dirent->d_off))
-+	if (put_user(0, &dirent->d_off))
- 		goto efault;
- 	if (__put_user(reclen, &dirent->d_reclen))
- 		goto efault;
-@@ -268,9 +268,12 @@
- 	error = buf.error;
- 	lastdirent = buf.previous;
- 	if (lastdirent) {
-+#if __GNUC__ < 3
-+		volatile
-+#endif
- 		struct linux_dirent64 d;
- 		d.d_off = file->f_pos;
--		__put_user(d.d_off, &lastdirent->d_off);
-+		put_user(d.d_off, &lastdirent->d_off);
- 		error = count - buf.count;
- 	}
- 
-==========
+	Or, to put it more simply, if you can use the linux kernel and 
+modify the linux kernel, you have pretty much all the rights to the 
+linux kernel that there are, and so does everyone else. Being able to 
+distribute a derived work you had the right to make to someone who 
+already had the right to possess the original work is not an 
+additional right to the original work.
 
-I'm using gcc 2.95.2. It looks to me like there is a problem with
-gcc handling certain 64-bit data fields.
+	IANAL, but I'm fairly familiar with copyright law. I'd be quite 
+interested in legal citations or court precedent to the contrary.
 
-Anyone else seeing these errors? Any comments on the validity of
-the above patches?
-
-Thanks,
 -- 
-Kevin Corry
-corryk@us.ibm.com
-http://evms.sourceforge.net/
+David Schwartz
+<davids@webmaster.com>
+
+

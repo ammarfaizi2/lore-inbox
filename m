@@ -1,61 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265477AbUAGKth (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 05:49:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265473AbUAGKth
+	id S265473AbUAGKt7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 05:49:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266184AbUAGKt7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 05:49:37 -0500
-Received: from mxfep01.bredband.com ([195.54.107.70]:4252 "EHLO
-	mxfep01.bredband.com") by vger.kernel.org with ESMTP
-	id S265466AbUAGKte (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 05:49:34 -0500
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
-Subject: Re: raid0_make_request bug: can't convert block across chunks or
- bigger than
-References: <yw1xznd0ult1.fsf@ford.guide>
-	<20040107023332.5ff0b9ff.akpm@osdl.org>
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Date: Wed, 07 Jan 2004 11:49:31 +0100
-In-Reply-To: <20040107023332.5ff0b9ff.akpm@osdl.org> (Andrew Morton's
- message: 33:32 -0800")
-Message-ID: <yw1xvfnouj7o.fsf@ford.guide>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+	Wed, 7 Jan 2004 05:49:59 -0500
+Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:1029 "EHLO
+	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
+	id S265473AbUAGKt4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 05:49:56 -0500
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+To: Jens Axboe <axboe@suse.de>, Olaf Hering <olh@suse.de>
+Subject: Re: removable media revalidation - udev vs. devfs or static /dev
+Date: Wed, 7 Jan 2004 13:47:40 +0300
+User-Agent: KMail/1.5.3
+Cc: Andries Brouwer <aebr@win.tue.nl>, Greg KH <greg@kroah.com>,
+       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <200401012333.04930.arvidjaar@mail.ru> <20040107102515.GC22770@suse.de> <20040107103123.GZ3483@suse.de>
+In-Reply-To: <20040107103123.GZ3483@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200401071347.40328.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
-
-> mru@kth.se (Måns Rullgård) wrote:
->>
->> I'm using Linux 2.6.0 on an Alpha SX164 machine.  Using four ATA
->>  disks, hd[egik], on a Highpoint hpt374 controller, I created two raid0
->>  arrays from hd[eg]1 and hd[ik]1, md0 and md1.  From these, I created a
->>  raid1 mirror, md4, on which I created an XFS filesystem.  For various
->>  reasons, I first ran md4 with only md0 as a member and filled it with
->>  some files, all going well.  Then, I added md1, and it was synced
->>  properly.  Now, I can mount md4 without problems.  However, when I
->>  read things, I get this in the kernel log:
->> 
->>  raid0_make_request bug: can't convert block across chunks or bigger than 32k 439200 32
+On Wednesday 07 January 2004 13:31, Jens Axboe wrote:
+> On Wed, Jan 07 2004, Olaf Hering wrote:
+> >  On Wed, Jan 07, Jens Axboe wrote:
+> > > On Wed, Jan 07 2004, Olaf Hering wrote:
+> > > >  On Wed, Jan 07, Jens Axboe wrote:
+> > > > > No need to put it in the kernel, user space fits the bil nicely. I
+> > > > > don't see how this would lead to IO errors?
+> > > >
+> > > > Ok, how should it be done on my SCSI and parallel port ZIP? An ATAPI
+> > > > ZIP
+> >
+> >         ^^^
+> >
+> > "How"? We need a sane way to deal with removeable medias.
+> > Do you have example code that can be put into the udev distribution?
 >
-> This was fixed post-2.6.0.  2.6.1-rc2 should be OK.
+> Depends. If the device supports event status notification, then that is
+> what should be used. 
 
-I just noticed.
+Would you please give some pointers to information about "event status 
+notification".
 
->>  raid1: Disk failure on md1, disabling device. 
->>  	Operation continuing on 1 devices
->
-> I assume this is due to the raid0 error above.
+thank you
 
-I should think so.
+> If not, you have to hack some code around test unit 
+> ready (checking the sense info on return, if failed). You'd most likely
+> want to do this manually, with SG_IO.
 
-I'm still curious as to why it was only md1 that gave errors, and
-never md0.  Was it just coincidence?
-
--- 
-Måns Rullgård
-mru@kth.se

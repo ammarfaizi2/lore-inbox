@@ -1,72 +1,107 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130532AbRCIPbg>; Fri, 9 Mar 2001 10:31:36 -0500
+	id <S130533AbRCIPe4>; Fri, 9 Mar 2001 10:34:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130533AbRCIPb1>; Fri, 9 Mar 2001 10:31:27 -0500
-Received: from [212.183.11.206] ([212.183.11.206]:5395 "EHLO
-	grips_nts2.grips.com") by vger.kernel.org with ESMTP
-	id <S130532AbRCIPbT>; Fri, 9 Mar 2001 10:31:19 -0500
-Message-ID: <3AA8F713.367A5FFD@grips.com>
-Date: Fri, 09 Mar 2001 16:30:27 +0100
-From: jury gerold <gjury@grips.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: de-AT, en
+	id <S130534AbRCIPeq>; Fri, 9 Mar 2001 10:34:46 -0500
+Received: from sgpd.it.as.ex.state.ut.us ([168.179.242.14]:17419 "EHLO
+	sgpd.state.ut.us") by vger.kernel.org with ESMTP id <S130533AbRCIPeb>;
+	Fri, 9 Mar 2001 10:34:31 -0500
+Message-ID: <3AA8F9F6.718EC29F@infowest.com>
+Date: Fri, 09 Mar 2001 08:42:46 -0700
+From: Sherman Stebbins <policesa@infowest.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Will Newton <will@misconception.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: ES1371 driver in kernel 2.4.2
-In-Reply-To: <Pine.LNX.4.33.0103082255560.11750-100000@dogfox.localdomain>
+To: linux-kernel@vger.kernel.org
+Subject: Oops
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am facing the same trouble but in my case
-the parallel printer driver complains about a possible
-interrupt sharing problem because i run it on interrupt 7.
+I was told that you might be able to tell me what is going wrong.
 
-The alsa driver however works pretty well with this chip for me.
+I am running RH 7 with  Apache/1.3.12  and  Samba Version 2.0.7
 
-The sound chip does not generate any interrupts on its own line.
-So it does not sound at all.
+Thanks Sherm
 
-Maybe i can find something by comparing the alsa driver chip initialisation
-with the 2.4.2 driver.
-It feels strange having the card generating a completely different interrupt
-than the one assigned to it.
+The system crashes while the CPU is doing hardly anything and crashes
+often.
+Here are the logs.
 
-Anyone with an idea ?
+Mar  8 21:01:01 hcpds kernel: Unable to handle kernel paging request at
+virtual address d3dcafbf
+Mar  8 21:01:01 hcpds kernel: current->tss.cr3 = 00480000, %cr3 =
+00480000
+Mar  8 21:01:01 hcpds kernel: *pde = 00000000
+Mar  8 21:01:01 hcpds kernel: Oops: 0000
+Mar  8 21:01:01 hcpds kernel: CPU:    0
+Mar  8 21:01:01 hcpds kernel: EIP:    0010:[<d3dcafbf>]
+Mar  8 21:01:01 hcpds kernel: EFLAGS: 00010292
+Mar  8 21:01:01 hcpds kernel: eax: c2ef63e0   ebx: c2ef63e0   ecx:
+c2ef63e0   edx: c2fd9650
+Mar  8 21:01:01 hcpds kernel: esi: 00000000   edi: c2b0fdc0   ebp:
+c2ef62e0   esp: c0069b1c
+Mar  8 21:01:01 hcpds kernel: ds: 0018   es: 0018   ss: 0018
+Mar  8 21:01:01 hcpds kernel: Process bash (pid: 2991, process nr: 43,
+stackpage=c0069000)
+Mar  8 21:01:01 hcpds kernel: Stack: c2ef62e0 00000001 c2b0fdc0 c0068000
+c29cba00 c2ef62e0 00000001 c2d9e5d8
+Mar  8 21:01:01 hcpds kernel:        c012ca58 c29cba00 c2ef62e0 00000001
+c29cba00 c29cba00 c2697f92 c012cbef
+Mar  8 21:01:01 hcpds kernel:        c2ef62e0 c29cba00 00000001 00000013
+c2697f82 00000001 c23fc040 c2697f85
+Mar  8 21:01:01 hcpds kernel: Call Trace: [do_follow_link+76/132]
+[lookup_dentry+351/488] [open_namei+102/848] [cprt+1421/20000]
+[load_elf_binary+793/3480] [load_elf_binary+945/3480]
+[do_no_page+81/196]
+Mar  8 21:01:01 hcpds kernel:        [do_no_page+183/196]
+[handle_mm_fault+197/324] [do_generic_file_read+1496/1508]
+[cprt+1396/20000] [read_exec+194/316] [read_exec+303/316]
+[search_binary_handler+71/288] [do_load_script+486/508]
+Mar  8 21:01:01 hcpds kernel:        [sys_mremap+352/884]
+[copy_strings+380/448] [load_script+15/20]
+[search_binary_handler+71/288] [do_execve+383/480] [do_execve+417/480]
+[sys_execve+47/88] [system_call+52/56]
+Mar  8 21:01:01 hcpds kernel: Code: <1>Unable to handle kernel paging
+request at virtual address d3dcafbf
+Mar  8 21:01:01 hcpds kernel: current->tss.cr3 = 00480000, %cr3 =
+00480000
+Mar  8 21:01:01 hcpds kernel: *pde = 00000000
+Mar  8 21:01:01 hcpds kernel: Oops: 0000
+Mar  8 21:01:01 hcpds kernel: CPU:    0
+Mar  8 21:01:01 hcpds kernel: EIP:    0010:[show_registers+653/704]
+Mar  8 21:01:01 hcpds kernel: EFLAGS: 00010046
+Mar  8 21:01:01 hcpds kernel: eax: 00000000   ebx: 00000000   ecx:
+d3dcafbf   edx: c2a2a000
+Mar  8 21:01:01 hcpds kernel: esi: 0000002b   edi: c006a000   ebp:
+c3800000   esp: c0069a5c
+Mar  8 21:01:01 hcpds kernel: ds: 0018   es: 0018   ss: 0018
+Mar  8 21:01:01 hcpds kernel: Process bash (pid: 2991, process nr: 43,
+stackpage=c0069000)
+Mar  8 21:01:01 hcpds kernel: Stack: d3dcafbf c2ef62e0 c02490ae 00000000
+c2b0fdc0 c2ef62e0 c2ef63e0 c2ef63e0
+Mar  8 21:01:01 hcpds kernel:        c2ef63e0 c2fd9650 d3dcafbf 00010292
+d3dcafc0 c4000000 c010a470 c0069ae0
+Mar  8 21:01:01 hcpds kernel:        c01d9227 c01dab4e 00000000 00000000
+c010f560 c01dab4e c0069ae0 00000000
+Mar  8 21:01:01 hcpds kernel: Call Trace: [<c4000000>] [die+48/56]
+[error_table+2631/9344] [error_table+9070/9344] [do_page_fault+708/944]
+[error_table+9070/9344] [error_code+45/56]
+Mar  8 21:01:01 hcpds kernel:        [ext2_follow_link+93/120]
+[do_follow_link+76/132] [lookup_dentry+351/488] [open_namei+102/848]
+[cprt+1421/20000] [load_elf_binary+793/3480] [load_elf_binary+945/3480]
+[do_no_page+81/196]
+Mar  8 21:01:01 hcpds kernel:        [do_no_page+183/196]
+[handle_mm_fault+197/324] [do_generic_file_read+1496/1508]
+[cprt+1396/20000] [read_exec+194/316] [read_exec+303/316]
+[search_binary_handler+71/288] [do_load_script+486/508]
+Mar  8 21:01:01 hcpds kernel:        [sys_mremap+352/884]
+[copy_strings+380/448] [load_script+15/20]
+[search_binary_handler+71/288] [do_execve+383/480] [do_execve+417/480]
+[sys_execve+47/88] [system_call+52/56]
+Mar  8 21:01:01 hcpds kernel: Code: 8a 04 0b 89 44 24 38 50 68 1f 92 1d
+c0 e8 9d 9c 00 00 83 c4
+Mar  9 08:21:51 hcpds syslogd 1.3-3: restart.
 
 
-Gerold
-
-Will Newton wrote:
-> 
-> I am still having problems with this driver.
-> 
-> When loading the driver I get:
-> 
-> es1371: version v0.27 time 00:47:56 Mar  7 2001
-> es1371: found chip, vendor id 0x1274 device id 0x1371 revision 0x08
-> PCI: Found IRQ 10 for device 00:0b.0
-> es1371: found es1371 rev 8 at io 0xa400 irq 10
-> es1371: features: joystick 0x0
-> ac97_codec: AC97  codec, id: 0x0000:0x0000 (Unknown)
-> spurious 8259A interrupt: IRQ7.
-> 
-> This last line seems strange as /proc/interrupts does not list IRQ7:
-> 
->   0:    2515137          XT-PIC  timer
->   1:      18752          XT-PIC  keyboard
->   2:          0          XT-PIC  cascade
->   4:    2438600          XT-PIC  serial
->   5:          0          XT-PIC  bttv
->   8:          1          XT-PIC  rtc
->  10:          0          XT-PIC  es1371
->  12:     310926          XT-PIC  PS/2 Mouse
->  14:     137157          XT-PIC  ide0
->  15:      35714          XT-PIC  ide1
-> NMI:          0
-> ERR:          1
-> 
-> The chip is actually a Cirrus Logic CS4297A.

@@ -1,49 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262427AbUCLThl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 14:37:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262451AbUCLThl
+	id S262425AbUCLTk2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 14:40:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262431AbUCLTjg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 14:37:41 -0500
-Received: from mail.shareable.org ([81.29.64.88]:907 "EHLO mail.shareable.org")
-	by vger.kernel.org with ESMTP id S262427AbUCLTgI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 14:36:08 -0500
-Date: Fri, 12 Mar 2004 19:35:47 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: Mark_H_Johnson@raytheon.com, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org, mfedyk@matchmail.com,
-       m.c.p@wolk-project.de, owner-linux-mm@kvack.org, plate@gmx.tm
-Subject: Re: [PATCH] 2.6.4-rc2-mm1: vm-split-active-lists
-Message-ID: <20040312193547.GD18799@mail.shareable.org>
-References: <OF62A00090.6117DDE8-ON86256E55.004FED23@raytheon.com> <4051D39D.80207@cyberone.com.au>
+	Fri, 12 Mar 2004 14:39:36 -0500
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:13544 "EHLO
+	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S262432AbUCLTgp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Mar 2004 14:36:45 -0500
+Date: Fri, 12 Mar 2004 20:36:34 +0100
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] s390 (3/10): sclp fix.
+Message-ID: <20040312193634.GD2757@mschwid3.boeblingen.de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4051D39D.80207@cyberone.com.au>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
-> In Linux, all reclaim is driven by a memory shortage. Often it
-> is just because more memory is being requested for more file
-> cache.
+sclp console fixes:
+  - Replace irq_enter/irq_exit pair with Add local_bh_enable/local_bh_disable.
 
-Is reclaim the same as swapping, though?  I'd expect pages to be
-written to the swapfile speculatively, before they are needed for
-reclaim.  Is that one of those behaviours which everyone agrees is
-sensible, but it's yet to be implemented in the 2.6 VM?
+diffstat:
+ drivers/s390/char/sclp.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
-> But presumably if you are running into memory pressure, you really
-> will need to free those free list pages, requiring the page to be
-> read from disk when it is used again.
-
-The idea is that you write pages to swap _before_ the memory pressure
-arrives, which makes those pages available immediately when memory
-pressure does arrive, provided they are still clean.  It's speculative.
-
-I thought Linux did this already, but I don't know the current VM well.
-
--- Jamie
+diff -urN linux-2.6/drivers/s390/char/sclp.c linux-2.6-s390/drivers/s390/char/sclp.c
+--- linux-2.6/drivers/s390/char/sclp.c	Thu Mar 11 03:55:35 2004
++++ linux-2.6-s390/drivers/s390/char/sclp.c	Fri Mar 12 20:03:31 2004
+@@ -335,8 +335,8 @@
+ 	unsigned long psw_mask;
+ 	unsigned long cr0, cr0_sync;
+ 
+-	/* Need to irq_enter() to prevent BH from executing. */
+-	irq_enter();
++	/* Prevent BH from executing. */
++	local_bh_disable();
+ 	/*
+ 	 * save cr0
+ 	 * enable service signal external interruption (cr0.22)
+@@ -365,7 +365,7 @@
+ 
+ 	/* restore cr0 */
+ 	__ctl_load(cr0, 0, 0);
+-	irq_exit();
++	__local_bh_enable();
+ }
+ 
+ /*

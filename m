@@ -1,63 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129590AbRB0GeB>; Tue, 27 Feb 2001 01:34:01 -0500
+	id <S129594AbRB0GiL>; Tue, 27 Feb 2001 01:38:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129594AbRB0Gdv>; Tue, 27 Feb 2001 01:33:51 -0500
-Received: from [213.95.12.190] ([213.95.12.190]:12 "HELO mail.medav.de")
-	by vger.kernel.org with SMTP id <S129590AbRB0Gdj> convert rfc822-to-8bit;
-	Tue, 27 Feb 2001 01:33:39 -0500
-From: "Daniela Engert" <dani@ngrt.de>
-To: "Jason Rappleye" <rappleye@cse.Buffalo.EDU>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: "jonesm@ccr.buffalo.edu" <jonesm@ccr.buffalo.edu>
-Date: Tue, 27 Feb 2001 07:35:50 +0100 (CET)
-Reply-To: "Daniela Engert" <dani@ngrt.de>
-X-Mailer: PMMail 2.00.1500 for OS/2 Warp 4.00
-In-Reply-To: <Pine.GSO.4.21.0102261526330.15135-100000@pollux.cse.Buffalo.EDU>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Subject: Re: timeout waiting for DMA
-Message-Id: <20010227063147.3F8674F06@mail.medav.de>
+	id <S129595AbRB0GiB>; Tue, 27 Feb 2001 01:38:01 -0500
+Received: from f281.law10.hotmail.com ([64.4.14.156]:48144 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S129594AbRB0Ght>;
+	Tue, 27 Feb 2001 01:37:49 -0500
+X-Originating-IP: [194.65.14.69]
+From: "Mack Stevenson" <mackstevenson@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: ISO-8859-1 completeness of kernel fonts?
+Date: Tue, 27 Feb 2001 07:37:40 +0100
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F281raFC8XymNMDdckH00012e6f@hotmail.com>
+X-OriginalArrivalTime: 27 Feb 2001 06:37:40.0604 (UTC) FILETIME=[C830BBC0:01C0A087]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jason!
+Hello,
 
-On Mon, 26 Feb 2001 15:41:04 -0500 (EST), Jason Rappleye wrote:
+The 8x16 and Sun 12x22 kernel fonts I tried seem to lack some standard 
+glyphs necessary to represent the entire ISO-8859-1 charmap; I am talking 
+about all accented capital vowels except for 'É'.
 
->I'm running kernel 2.4.2 on an SGI 1100 (dual PIIIs) with a Serverworks
->III LE based motherboard. The disk is a Seagate ST330630A. The disk has
->DMA enabled at boot time :
+This seems to happen in both 2.2.16 as well as in 2.2.18.
 
->hda: ST330630A, ATA DISK drive
->hda: 59777640 sectors (30606 MB) w/2048KiB Cache, CHS=3720/255/63, UDMA(33)
+Is this intentional? If so, why?
 
->but after a while (eg partway through running bonnie with a 1GB file) I
->get the following errors:
+How can I override this behaviour?
 
->Feb 24 22:51:02 nash2 kernel: hda: timeout waiting for DMA 
->Feb 24 22:51:02 nash2 kernel: ide_dmaproc: chipset supported ide_dma_timeout 
->func only: 14 
->Feb 24 22:51:02 nash2 kernel: hda: irq timeout: status=0x58 { DriveReady
->SeekComplete DataRequest }
-><repeats a few times>
->Feb 24 22:51:32 nash2 kernel: hda: DMA disabled
+Thank you.
 
->I can reenable DMA without any problems, but after some additional disk
->activity (eg running bonnie again), the error occurs again. 
+Cheers,
 
->Additional information on my hardware is given below. Any suggestions on
->how this can be resolved?
-
-Reduce the IDE channel speed to UltraDMA mode 1 or less.
-
-Ciao,
-  Dani
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Daniela Engert, systems engineer at MEDAV GmbH
-Gräfenberger Str. 34, 91080 Uttenreuth, Germany
-Phone ++49-9131-583-348, Fax ++49-9131-583-11
-
+Mack Stevenson
+_________________________________________________________________________
+Get Your Private, Free E-mail from MSN Hotmail at http://www.hotmail.com.
 

@@ -1,46 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261377AbUKFMtG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261379AbUKFMvH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261377AbUKFMtG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Nov 2004 07:49:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261380AbUKFMtG
+	id S261379AbUKFMvH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Nov 2004 07:51:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261380AbUKFMvH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Nov 2004 07:49:06 -0500
-Received: from cantor.suse.de ([195.135.220.2]:40633 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261377AbUKFMtC (ORCPT
+	Sat, 6 Nov 2004 07:51:07 -0500
+Received: from cantor.suse.de ([195.135.220.2]:30138 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261379AbUKFMuy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Nov 2004 07:49:02 -0500
-Date: Sat, 6 Nov 2004 13:48:38 +0100
+	Sat, 6 Nov 2004 07:50:54 -0500
+Date: Sat, 6 Nov 2004 13:50:49 +0100
 From: Andi Kleen <ak@suse.de>
-To: Christoph Hellwig <hch@infradead.org>, Jack Steiner <steiner@sgi.com>,
-       Andreas Schwab <schwab@suse.de>,
-       Takayoshi Kochi <t-kochi@bq.jp.nec.com>, ak@suse.de,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Externalize SLIT table
-Message-ID: <20041106124838.GA16434@wotan.suse.de>
-References: <20041103205655.GA5084@sgi.com> <20041104.105908.18574694.t-kochi@bq.jp.nec.com> <20041104040713.GC21211@wotan.suse.de> <20041104.135721.08317994.t-kochi@bq.jp.nec.com> <20041105160808.GA26719@sgi.com> <jevfcknty5.fsf@sykes.suse.de> <20041105164449.GC26719@sgi.com> <20041106115029.GB23305@infradead.org>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Andi Kleen <ak@suse.de>, Ricky Beam <jfbeam@bluetronic.net>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       arjanv@redhat.com
+Subject: Re: breakage: flex mmap patch for x86-64
+Message-ID: <20041106125049.GB16434@wotan.suse.de>
+References: <200411060026.48571.rjw@sisk.pl> <Pine.GSO.4.33.0411060252370.9358-100000@sweetums.bluetronic.net> <20041106091240.GA4996@wotan.suse.de> <200411061050.27304.rjw@sisk.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041106115029.GB23305@infradead.org>
+In-Reply-To: <200411061050.27304.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 06, 2004 at 11:50:29AM +0000, Christoph Hellwig wrote:
-> On Fri, Nov 05, 2004 at 10:44:49AM -0600, Jack Steiner wrote:
-> > > > +	for (i = 0; i < numnodes; i++)
-> > > > +		len += sprintf(buf + len, "%s%d", i ? " " : "", node_distance(nid, i));
-> > > 
-> > > Can this overflow the space allocated for buf?
+On Sat, Nov 06, 2004 at 10:50:27AM +0100, Rafael J. Wysocki wrote:
+> On Saturday 06 of November 2004 10:12, Andi Kleen wrote:
+> > >  static inline int mmap_is_legacy(void)
+> > >  {
+> > > +       if (test_thread_flag(TIF_IA32))
+> > > +               return 1;
 > > 
-> > 
-> > Good point. I think we are ok for now. AFAIK, the largest cpu count
-> > currently supported is 512. That gives a max string of 2k (max of 3 
-> > digits + space per cpu).
+> > That's definitely not the right fix because for 32bit you need flexmmap
+> > more than for 64bit because it gives you more address space.
 > 
-> I always wondered why sysfs doesn't use the seq_file interface that makes
-> life easier in the rest of them kernel.
+> So let's call it temporary, but I like 32-bit apps having less address space 
+> rather than segfaulting.
 
-Most fields only output a single number, and seq_file would be 
-extreme overkill for that.
+If you want a temporary fix use the appended one.  But I think Linus pulled it anyways.
 
 -Andi
+
+
+diff -u linux-2.6.10rc1-mm3/kernel/sysctl.c-o linux-2.6.10rc1-mm3/kernel/sysctl.c
+--- linux-2.6.10rc1-mm3/kernel/sysctl.c-o	2004-11-05 11:42:00.000000000 +0100
++++ linux-2.6.10rc1-mm3/kernel/sysctl.c	2004-11-06 13:50:22.000000000 +0100
+@@ -147,7 +147,7 @@
+ #endif
+ 
+ #ifdef HAVE_ARCH_PICK_MMAP_LAYOUT
+-int sysctl_legacy_va_layout;
++int sysctl_legacy_va_layout = 1;
+ #endif
+ 
+ /* /proc declarations: */

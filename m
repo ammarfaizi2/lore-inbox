@@ -1,39 +1,35 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316240AbSELAyB>; Sat, 11 May 2002 20:54:01 -0400
+	id <S316242AbSELA4s>; Sat, 11 May 2002 20:56:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316242AbSELAyA>; Sat, 11 May 2002 20:54:00 -0400
-Received: from johnsl.lnk.telstra.net ([139.130.12.152]:28428 "HELO
-	ns.higherplane.net") by vger.kernel.org with SMTP
-	id <S316240AbSELAx7>; Sat, 11 May 2002 20:53:59 -0400
-Date: Sun, 12 May 2002 10:55:37 +1000
-From: john slee <indigoid@higherplane.net>
-To: Nicholas Harring <nharring@hostway.net>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        "Pedro M. Rodrigues" <pmanuel@myrealbox.com>, chen_xiangping@emc.com,
-        "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Tcp/ip offload card driver
-Message-ID: <20020512005537.GG3855@higherplane.net>
-In-Reply-To: <FA2F59D0E55B4B4892EA076FF8704F553D1A42@srgraham.eng.emc.com> <3CDBFF5B.32550.1364FB2@localhost> <3CDBE7EB.9060605@mandrakesoft.com> <3CDBEC6A.9020600@hostway.net>
+	id <S316273AbSELA4r>; Sat, 11 May 2002 20:56:47 -0400
+Received: from ns.crrstv.net ([209.128.25.4]:10374 "EHLO mail.crrstv.net")
+	by vger.kernel.org with ESMTP id <S316242AbSELA4n>;
+	Sat, 11 May 2002 20:56:43 -0400
+Date: Sat, 11 May 2002 21:56:40 -0300
+From: "skidley" <skidley@crrstv.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.19-pre8-ac2 compile error
+Message-ID: <20020512005640.GA2171@crrstv.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 10, 2002 at 10:51:06AM -0500, Nicholas Harring wrote:
-> And how about when an SMP system isn't enough? Should I have to 
-> re-engineer my network storage architecture when hardware exists that'll 
-> increase throughput if a simple device driver gets written? Don't forget 
-> that with 64 bit PCI that the limit of the bus has been raised, and with 
 
-jeff merkey has already demonstrated 300MiB/sec and higher speeds on x86
-linux, with 3ware raid and dolphin sci cards.  how much faster do you
-need to go?
-
-j.
-
+make[1]: Leaving directory `/home/kernel/linux/Documentation/DocBook'
+gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -o
+scripts/split-include scripts/split-include.c
+scripts/split-include include/linux/autoconf.h include/config
+make -r -f .tmp_include_depends all
+make[1]: Entering directory `/home/kernel/linux'
+make[1]: .tmp_include_depends: No such file or directory
+make[1]: *** No rule to make target `.tmp_include_depends'.  Stop.
+make[1]: Leaving directory `/home/kernel/linux'
+make: *** [.tmp_include_depends] Error 2
 -- 
-R N G G   "Well, there it goes again... And we just sit 
- I G G G   here without opposable thumbs." -- gary larson
+Chad Young
+Linux User #195191 

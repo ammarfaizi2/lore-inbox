@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268631AbRGZSWM>; Thu, 26 Jul 2001 14:22:12 -0400
+	id <S268636AbRGZSXV>; Thu, 26 Jul 2001 14:23:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268634AbRGZSWB>; Thu, 26 Jul 2001 14:22:01 -0400
-Received: from congress199.linuxsymposium.org ([209.151.18.199]:17157 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S268631AbRGZSVu>;
-	Thu, 26 Jul 2001 14:21:50 -0400
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200107261821.f6QIL4017990@lynx.adilger.int>
-Subject: Re: Weird ext2fs immortal directory bug (all-in-one)
-To: wingc@engin.umich.edu (Christopher Allen Wing)
-Date: Thu, 26 Jul 2001 12:21:04 -0600 (MDT)
-Cc: sentry21@cdslash.net, linux-kernel@vger.kernel.org,
-        tytso@mit.edu (Theodore Y. Ts'o), alan@lxorguk.ukuu.org.uk (Alan Cox)
-In-Reply-To: <Pine.LNX.4.33.0107261312450.6405-100000@bayarea.engin.umich.edu> from "Christopher Allen Wing" at Jul 26, 2001 01:21:01 PM
-X-Mailer: ELM [version 2.5 PL0pre8]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S268635AbRGZSXB>; Thu, 26 Jul 2001 14:23:01 -0400
+Received: from isimail.interactivesi.com ([207.8.4.3]:41745 "HELO
+	dinero.interactivesi.com") by vger.kernel.org with SMTP
+	id <S268634AbRGZSWv>; Thu, 26 Jul 2001 14:22:51 -0400
+Message-ID: <00bc01c11600$4c3901a0$bef7020a@mammon>
+From: "Jeremy Linton" <jlinton@interactivesi.com>
+To: <mingo@elte.hu>
+Cc: "Anton Blanchard" <anton@samba.org>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0107261423020.3796-200000@localhost.localdomain>
+Subject: Re: highmem-2.4.7-A0 [Re: kmap() while holding spinlock]
+Date: Thu, 26 Jul 2001 13:25:04 -0500
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Chris Wing writes:
-> I am assuming that the problem here was that fsck restored a lost inode to
-> lost+found, but the inode had been corrupted and had the immutable bit
-> set.
-> 
-> At the very least, ext2 fsck should complain about ext2 attributes set for
-> symlinks or device files... I have had this same problem myself many times
-> on machines with bad SCSI termination- I end up with unremovable device
-> files thanks to a bogus immutable bit and have to use debugfs to get rid
-> of them.
+> > [...] or to do the clearing (and copying) speculatively, after
+> > allocating the page but before locking the pagetable lock. This might
+> > lead to a bit more work in the pagefault-race case, but we dont care
+> > about that window. It will on the other hand reduce pagetable_lock
+> > contention (because the clearing/copying is done outside the lock), so
+> > perhaps this solution is better.
+>
+> the attached highmem-2.4.7-A0 patch implements this method in both
+> affected functions. Comments?
+    It seems to me that the problem is more fundamental than that. Excuse my
+ignorance, but what keeps the 'old_page' (and associated pte, checked two
+lines down) from disappearing somewhere between the lock drop, alloc page
+and the copy from the old page? Normally if this happens it appears the new
+page gets dropped and the fault occurs again, and is resolved in a
+potentially different way.
 
-It should actually assume that such inodes are corrupt, and either just
-delete them at e2fsck time, or at least clear the "bad" parts of the inode
-before sticking it in lost+found.
 
-Cheers, Andreas
 
-PS - I CC'd Ted on this, as he can probably fix this a lot faster than I
-     (I may be able to fix it during another OLS presentation today or
-     tomorrow).
--- 
-Andreas Dilger                               Turbolinux filesystem development
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+                                                                    jlinton
+
+

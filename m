@@ -1,56 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319057AbSHSUVc>; Mon, 19 Aug 2002 16:21:32 -0400
+	id <S319058AbSHSUWd>; Mon, 19 Aug 2002 16:22:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319058AbSHSUVc>; Mon, 19 Aug 2002 16:21:32 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:20742 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S319057AbSHSUVb>; Mon, 19 Aug 2002 16:21:31 -0400
-Date: Mon, 19 Aug 2002 17:25:01 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Daniel Phillips <phillips@arcor.de>
-cc: Andrew Morton <akpm@zip.com.au>, <linux-kernel@vger.kernel.org>,
-       Christian Ehrhardt <ehrhardt@mathematik.uni-ulm.de>
-Subject: Re: [PATCH] rmap bugfix, try_to_unmap
-In-Reply-To: <E17gt3r-0000rb-00@starship>
-Message-ID: <Pine.LNX.4.44L.0208191724320.1857-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S319059AbSHSUWc>; Mon, 19 Aug 2002 16:22:32 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:44548
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S319058AbSHSUWb>; Mon, 19 Aug 2002 16:22:31 -0400
+Date: Mon, 19 Aug 2002 13:26:21 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Michael Dreher <dreher@math.tsukuba.ac.jp>
+cc: linux-kernel@vger.kernel.org, dhinds@zen.stanford.edu,
+       alan@lxorguk.ukuu.org.uk
+Subject: Re: 2.4.20-pre2-ac2 pcmcia panic
+In-Reply-To: <20020819150841.69B1113B47@abel.math.tsukuba.ac.jp>
+Message-ID: <Pine.LNX.4.10.10208191325160.458-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Aug 2002, Daniel Phillips wrote:
-> On Monday 19 August 2002 22:15, Rik van Riel wrote:
-> > On Mon, 19 Aug 2002, Daniel Phillips wrote:
-> > > On Monday 12 August 2002 16:58, Rik van Riel wrote:
-> > > >  	case SWAP_FAIL:
-> > > >  		ret = SWAP_FAIL;
-> > > > -		break;
-> > > > +		goto give_up;
-> > >
-> > > Yes, I looked at that many times while reading the break as a 'break
-> > > from loop' every time.  Using the same keyword to mean 'stop looping'
-> > > and 'endcase' was, by any measure, a stupid idea.
-> >
-> > What's even more curious is that 'continue' has the exact
-> > same effect on 'switch' ...
->
-> Come to think of it, what you want there is:
->
->  	case SWAP_FAIL:
->   		return SWAP_FAIL;
 
-We still want to try to convert the thing to a direct pointer,
-in case only the last task was using mlock().
+There is an addition to be added in ide-probe.c in do_identify.
 
-regards,
+For cdroms and maybe all atapi
+drive->special.all = 0;
 
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
+On Mon, 19 Aug 2002, Michael Dreher wrote:
 
-http://www.surriel.com/		http://distro.conectiva.com/
+> Hi Alan, Hi David,
+> 
+> somehow IDE over PCMCIA has stopped working.
+> 
+> 2.4.20-pre2 with pcmcia-cs-3.2.1 is OK (dmesg and lspci -v are attached).
+> 2.4.20-pre2-ac2 with pcmcia-cs-3.2.1 locks the box and makes 2 LEDs blink.
+> Nothing in the logs, unfortunately no serial console (this is my only 
+> computer at the moment).
+> 
+> 2.4.19-ac4 with pcmcia-cs-3.1.33 shows the same symptoms.
+> 2.4.19-ac4 with pcmcia-cs-3.1.34 does not lock up, but also does not work.
+> 
+> Kernel pcmcia never worked on this box, so I had to resort to the version of
+> David Hinds.
+> 
+> I could not try 2.4.20-pre2-ac4, since it boots extremely slow.
+> All usb related messages come after some long timeout only, and somewhere
+> in init it stops.
+> 
+> sorry for this vague description. If you need more info, just ask.
+> 
+> Best regards,
+> Michael
+> 
+
+Andre Hedrick
+LAD Storage Consulting Group
 

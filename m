@@ -1,65 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261171AbVBGUto@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261179AbVBGUyf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261171AbVBGUto (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 15:49:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261179AbVBGUto
+	id S261179AbVBGUyf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 15:54:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261268AbVBGUyf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 15:49:44 -0500
-Received: from dns.toxicfilms.tv ([150.254.37.24]:36228 "EHLO
-	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S261171AbVBGUtl
+	Mon, 7 Feb 2005 15:54:35 -0500
+Received: from magic.adaptec.com ([216.52.22.17]:36052 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S261179AbVBGUy2 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 15:49:41 -0500
-X-Qmail-Scanner-Toxic-Mail-From: solt2@dns.toxicfilms.tv via dns
-X-Qmail-Scanner-Toxic-Rcpt-To: reiser@namesys.com,linux-kernel@vger.kernel.org
-X-Qmail-Scanner-Toxic: 1.24st (Clear:RC:1(213.238.100.58):. Processed in 0.146998 secs Process 11570)
-Date: Mon, 7 Feb 2005 21:59:57 +0100
-From: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
-X-Mailer: The Bat! (v3.0.1.33) UNREG / CD5BF9353B3B7091
-Reply-To: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
-X-Priority: 3 (Normal)
-Message-ID: <1959057509.20050207215957@dns.toxicfilms.tv>
-To: Hans Reiser <reiser@namesys.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re[2]: 2.6.11-rc3-mm1 bad scheduling while atomic + lockup
-In-Reply-To: <4207CD63.1080802@namesys.com>
-References: <1865944987.20050207081532@dns.toxicfilms.tv>
- <4207CD63.1080802@namesys.com>
+	Mon, 7 Feb 2005 15:54:28 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: EBDA Question
+Date: Mon, 7 Feb 2005 15:54:25 -0500
+Message-ID: <60807403EABEB443939A5A7AA8A7458BBD69C8@otce2k01.adaptec.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: EBDA Question
+Thread-Index: AcUNVeXQ7WMm9C5zTKWKO+LHEH4AwgAALUaA
+From: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
+To: "Moore, Eric Dean" <Eric.Moore@lsil.com>, <linux-kernel@vger.kernel.org>,
+       <linux-scsi@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Hans,
+EBDA is safe to use during lilo and grub as part of a BIOS. As long as
+the EBDA is properly formed.
 
-Monday, February 7, 2005, 9:19:47 PM, you wrote:
+However, it is considered 'bad behavior' to allocate much more than 4k
+of EBDA as we find others (not Linux) that depend on the 640K region of
+memory run out of this precious resource. Beware of several add-in
+BIOSii that each allocate EBDA; nest/size/relocate/offset properly.
 
-> Maciej Soltysiak wrote:
+Sincerely -- Mark Salyzyn
 
->>)
->>
->>Feb  6 17:07:47 dns kernel: hdc: dma_intr: status=0x51 { DriveReady SeekComplete Error }
->>Feb  6 17:07:47 dns kernel: hdc: dma_intr: error=0x84 { DriveStatusError BadCRC }
->>  
->>
-> this means bad hard drive, or at least a bad sector on it.
-Well, I have reiser4 on this drive with noncritical data which is rather
-not used anyway.
-But please note that, the process generating the oops (as long as I am
-seeing this right) is something called swapper:
+-----Original Message-----
+From: linux-scsi-owner@vger.kernel.org
+[mailto:linux-scsi-owner@vger.kernel.org] On Behalf Of Moore, Eric Dean
+Sent: Monday, February 07, 2005 2:45 PM
+To: linux-kernel@vger.kernel.org; linux-scsi@vger.kernel.org
+Subject: EBDA Question
 
-scheduling while atomic: swapper/0x00010001/0
+EBDA - Extended Bios Data Area
 
-My swap partition is not on hdc, it is on hda, which does not report
-bad crc and any other dma related errors, or any for that matter.
+Does Linux and various boot loaders(lilo/grub/etc)
+having any restrictions on where and how big 
+memory allocated in EBDA is? Is this
+handled for 2.4/2.6 Kernels?
 
-The same machine runs on 2.6.10-ac10 + reiser-2.6.10 patch well or
-at least it does not trigger these oopses.
+Reason I ask is we are considering having
+BIOS(for a SCSI HBA Controller) allocating
+memory in EBDA for Firmware use. 
+We are concerned whether Linux would be writing
+over this region of memory during the handoff
+of BIOS to scsi lower layer driver loading.
 
-Only some still not tracked down problems with terrible swap eating :-(
-But that's a different story.
-
-Regards,
-Maciej
-
-
+Eric Moore
+LSI Logic
+-
+To unsubscribe from this list: send the line "unsubscribe linux-scsi" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

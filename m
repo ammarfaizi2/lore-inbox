@@ -1,76 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263758AbUCXQbL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Mar 2004 11:31:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263760AbUCXQbL
+	id S263767AbUCXQdw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Mar 2004 11:33:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263766AbUCXQdw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Mar 2004 11:31:11 -0500
-Received: from vlan400-082-019.maconline.McMaster.CA ([130.113.82.19]:56547
-	"EHLO tentacle.dhs.org") by vger.kernel.org with ESMTP
-	id S263758AbUCXQbE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Mar 2004 11:31:04 -0500
-Subject: Re: [RFC,PATCH] dnotify: enhance or replace?
-From: John McCutchan <ttb@tentacle.dhs.org>
-To: Alexander Larsson <alexl@redhat.com>
-Cc: rudi@lambda-computing.de, linux-kernel@vger.kernel.org,
-       jamie@shareable.org, tridge@samba.org,
-       viro@parcelfarce.linux.theplanet.co.uk, torvalds@osdl.org
-In-Reply-To: <1080142815.8108.90.camel@localhost.localdomain>
-References: <4061986E.6020208@gamemakers.de>
-	 <1080142815.8108.90.camel@localhost.localdomain>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1080146269.23224.5.camel@vertex>
+	Wed, 24 Mar 2004 11:33:52 -0500
+Received: from mivlgu.ru ([81.18.140.87]:41384 "EHLO master.mivlgu.local")
+	by vger.kernel.org with ESMTP id S263760AbUCXQdn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Mar 2004 11:33:43 -0500
+Date: Wed, 24 Mar 2004 19:33:40 +0300
+From: Sergey Vlasov <vsu@altlinux.ru>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [BUG] sata_via broken by recent libata updates
+Message-ID: <20040324163340.GD23503@master.mivlgu.local>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 24 Mar 2004 11:37:49 -0500
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="at6+YcpfzWZg/htY"
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-03-24 at 10:40, Alexander Larsson wrote:
-> 
-> I think everyone agrees that dnotify is a POS that needs replacement,
-> however coming up with a good new API and implementation seems to be
-> hard (or at least uninteresting to kernel developers). 
-> 
-> I for sure would welcome a sane file change notification API, i.e. one
-> that doesn't require the use of signals. However, I don't really care
-> about recursive monitors, and I'm actually unsure if you really want the
-> DN_EXTENDED functionallity in the kernel. It seems like a great way to
-> make the kernel use a lot of unswappable memory, unless you limit the
-> event queues, and if you do that you need to stat all files in userspace
-> anyway so you can correctly handle queue overflows.
-> 
-> I think the most important properties for a good dnotify replacement is:
-> 
-> * Don't use signals or any other global resource that makes it
-> impossible to use the API in a library thats supposed to be used by all
-> sorts of applications.
-> 
-> * Get sane semantics. i.e. if a hardlink changes notify a file change in
-> all directories the file is in. (This is hard though, it needs backlinks
-> from the inodes to the directories, at least for the directories with a
-> monitor, something i guess we don't have today.)
-> 
-> * Some way to get an event when the last open fd to the file is closed
-> after a file change. This means you won't get hundreds of write events
-> for a single file change. (Of course, you won't catch writes to e.g.
-> logs which aren't closed, so this has to be optional. But for a desktop,
-> this is often what you want.)
 
-Maybe adding a rate limiter on these write events would be a better
-idea, live updates are usefull for the desktop. Also with a netlink
-socket I think the overhead of many events would drop siginificantly.
+--at6+YcpfzWZg/htY
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Also a couple other items I think need to be on the list of features,
+Hello!
 
-* Some way to not have an open file descriptor for each directory you
-are monitoring. This causes so many problems when unmounting, and this
-is really the most noticable problem for the user.
+After updating from 2.4.25-libata1 to 2.4.25-libata9 the sata_via
+driver stopped working.  The module loads and even seems to detect
+the presense of drives, but the SCSI-emulation devices are not
+registered:
 
-* Better event vocabulary, we should fire events for all VFS ops. I
-think right now it is limited to delete,create,written to. It would be
-good to tell the listener exactly what happened, moved,renamed, etc.
+===== messages hand-copied from screen =====
+sata_via (00:0f.0) routed to hard irq line 11
+ata1: SATA max UDMA/133 cmd 0xB800 ctl 0xBC02 bmdma 0xC800 irq 20
+ata2: SATA max UDMA/133 cmd 0xC000 ctl 0xC402 bmdma 0xC808 irq 20
+ata1: dev 0 ATA, max UDMA7, 234493056 sectors (lba48)
+ata2: no device found (phy stat 00000000)
+===== end of messages from sata_via =====
 
-John
+The machine does not hang - booting fails later, because the root
+device is not accessible.
 
+2.4.25-libata1 worked fine on the same hardware:
+
+===== log from a successful boot ======
+libata version 1.00 loaded.
+sata_via version 0.11
+ata1: SATA max UDMA/133 cmd 0xB800 ctl 0xBC02 bmdma 0xC800 irq 20
+ata2: SATA max UDMA/133 cmd 0xC000 ctl 0xC402 bmdma 0xC808 irq 20
+ata1: dev 0 cfg 49:2f00 82:346b 83:7f01 84:4003 85:3c68 86:3c01 87:4003 88:80ff
+ata1: dev 0 ATA, max UDMA7, 234493056 sectors (lba48)
+ata1: dev 0 configured for UDMA/133
+ATA: abnormal status 0x7F on port 0xC007
+ata2: thread exiting
+scsi0 : sata_via
+scsi1 : sata_via
+  Vendor: ATA       Model: SAMSUNG SP1213C    Rev: 1.00
+  Type:   Direct-Access     ANSI SCSI revision: 05
+Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
+SCSI device sda: 234493056 512-byte hdwr sectors (120060 MB)
+===== end =====
+
+Seems that the problem is caused by changes in the device
+initialization - calling ata_device_add() from svia_init_one() does
+not work (at least with the 2.4.x SCSI layer).  The following patch
+solves the initialization problem:
+
+--- kernel-source-2.4.25/drivers/scsi/sata_via.c.sata_via-init-fix	2004-03-22 14:03:31 +0300
++++ kernel-source-2.4.25/drivers/scsi/sata_via.c	2004-03-24 16:27:50 +0300
+@@ -264,9 +264,7 @@ static int svia_init_one (struct pci_dev
+ 
+ 	pci_set_master(pdev);
+ 
+-	/* FIXME: check ata_device_add return value */
+-	ata_device_add(probe_ent);
+-	kfree(probe_ent);
++	ata_add_to_probe_list(probe_ent);
+ 
+ 	return 0;
+ 
+
+-- 
+Sergey Vlasov
+
+--at6+YcpfzWZg/htY
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAYbhkW82GfkQfsqIRAtQ0AJ0Ry49ITca3Q5YYZilcIoyKQ9KudwCfV3+4
+n+HL8nr+RL9BU3GqpoShIPQ=
+=XUyT
+-----END PGP SIGNATURE-----
+
+--at6+YcpfzWZg/htY--

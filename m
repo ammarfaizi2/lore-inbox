@@ -1,71 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265054AbUFAPP3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262730AbUFAPO0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265054AbUFAPP3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 11:15:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262106AbUFAPP3
+	id S262730AbUFAPO0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 11:14:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262905AbUFAPOV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 11:15:29 -0400
-Received: from [213.239.201.226] ([213.239.201.226]:41924 "EHLO
-	mail.shadowconnect.com") by vger.kernel.org with ESMTP
-	id S265054AbUFAPO6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 11:14:58 -0400
-Message-ID: <40BC9EF7.4060502@shadowconnect.com>
-Date: Tue, 01 Jun 2004 17:21:27 +0200
-From: Markus Lidel <Markus.Lidel@shadowconnect.com>
-User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Problem with ioremap which returns NULL in 2.6 kernel
-References: <40BC788A.3020103@shadowconnect.com> <20040601142122.GA7537@havoc.gtf.org>
-In-Reply-To: <20040601142122.GA7537@havoc.gtf.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 1 Jun 2004 11:14:21 -0400
+Received: from holomorphy.com ([207.189.100.168]:63120 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S262730AbUFAPNM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jun 2004 11:13:12 -0400
+Date: Tue, 1 Jun 2004 08:09:13 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][2.6.6-rc3] gcc-3.4.0 fixes
+Message-ID: <20040601150913.GU2093@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Mikael Pettersson <mikpe@csd.uu.se>,
+	"H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+References: <200404292146.i3TLkfI0019612@harpo.it.uu.se> <c892nk$5pf$1@terminus.zytor.com> <16572.38987.239160.819836@alkaid.it.uu.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16572.38987.239160.819836@alkaid.it.uu.se>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Tue, Jun 01, 2004 at 04:52:59PM +0200, Mikael Pettersson wrote:
+> You're assuming pointers have uniform representation.
+> C makes no such guarantees, and machines _have_ had
+> different types of representations in the past.
+> Some not-so-obsolete 64-bit machines in effect use fat
+> representations for pointers to functions (descriptors),
+> but they usually cheat and use pointers to the descriptors
+> instead. However, a C implementation could legally
+> represent a function pointer as a 128-bit value, while
+> data pointers remain 64 bits.
 
-Jeff Garzik wrote:
->>could someone help me with a ioremap problem. If there are two 
->>controllers plugged in, the ioremap request for the first controller is 
->>successfull, but the second returns NULL. Here is the output of the driver:
->>i2o: Checking for PCI I2O controllers...
->>i2o: I2O controller on bus 0 at 72.
->>i2o: PCI I2O controller at 0xD0000000 size=134217728
->>I2O: MTRR workaround for Intel i960 processor
->>i2o/iop0: Installed at IRQ17
->>i2o: I2O controller on bus 0 at 96.
->>i2o: PCI I2O controller at 0xD8000000 size=134217728
->>i2o: Unable to map controller.
-> If "size=xxxx" indicates the size you are remapping, then that's
-
-Yep, it is...
-
-> probably too large an area to be remapping.  Try remapping only the
-> memory area needed, and not the entire area.
-
-Is there a way, to increase the size, which could be remapped, or is 
-there a way, to find out what is the maximum size which could be remapped?
-
-Thank you very much for the fast answer!
+IIRC for all types foo, sizeof(foo *) <= sizeof(void *), no?
+If so, 128-bit function pointers implies >= 128-bit void pointers.
 
 
-Best regards,
+On Tue, Jun 01, 2004 at 04:52:59PM +0200, Mikael Pettersson wrote:
+> A cast fundamentally involves an assignment conversion,
+> a copy to a temporary, and it yields an rvalue.
+> Even if we allow its use as an lvalue, the semantics
+> would still be to assign the copy not the original.
+> So cast-as-lvalue as gcc implemented it changed two
+> major aspects of the semantics. Call me conservative
+> if you like, but that's simply not C any more.
+
+Oh, yeah, lvalue casting is degenerate filth.
 
 
-Markus Lidel
-------------------------------------------
-Markus Lidel (Senior IT Consultant)
-
-Shadow Connect GmbH
-Carl-Reisch-Weg 12
-D-86381 Krumbach
-Germany
-
-Phone:  +49 82 82/99 51-0
-Fax:    +49 82 82/99 51-11
-
-E-Mail: Markus.Lidel@shadowconnect.com
-URL:    http://www.shadowconnect.com
+-- wli

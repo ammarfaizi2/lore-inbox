@@ -1,59 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261657AbULZOdY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261661AbULZOts@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261657AbULZOdY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Dec 2004 09:33:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbULZOdW
+	id S261661AbULZOts (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Dec 2004 09:49:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261662AbULZOts
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Dec 2004 09:33:22 -0500
-Received: from 36-71-dsl.ipact.nl ([84.35.71.36]:18108 "EHLO
-	office.scorpion.nl") by vger.kernel.org with ESMTP id S261657AbULZOcn
+	Sun, 26 Dec 2004 09:49:48 -0500
+Received: from out012pub.verizon.net ([206.46.170.137]:35020 "EHLO
+	out012.verizon.net") by vger.kernel.org with ESMTP id S261661AbULZOtq
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Dec 2004 09:32:43 -0500
-Message-ID: <41CECB71.1050601@scorpion.nl>
-Date: Sun, 26 Dec 2004 15:32:17 +0100
-From: Christiaan den Besten <chris@scorpion.nl>
-Reply-To: chris@scorpion.nl
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Sun, 26 Dec 2004 09:49:46 -0500
+From: James Nelson <james4765@verizon.net>
 To: linux-kernel@vger.kernel.org
-Subject: IPSEC traffic duplicated on interface.
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-KM95-MailScanner: Found to be clean
-X-MailScanner-From: chris@scorpion.nl
+Cc: akpm@osdl.org, roms@lievin.net, James Nelson <james4765@verizon.net>
+Message-Id: <20041226145007.15694.53257.33859@localhost.localdomain>
+Subject: [PATCH] tipar: Document driver options
+X-Authentication-Info: Submitted using SMTP AUTH at out012.verizon.net from [209.158.220.243] at Sun, 26 Dec 2004 08:49:46 -0600
+Date: Sun, 26 Dec 2004 08:49:46 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all !
+Document kernel parameters for tipar driver.
 
-Not really sure this is a kernel, or a netfilter issue, but posting anyway.
+Signed-off-by: James Nelson <james4765@gmail.com>
 
-After trying to determine the 'overhead' of my ipsec traffic, I hit a 
-rather annoying 'feature'.
-
-(Using racoon ipsec with default debian-kernels 2.6.x kernels, but issue 
-was with 2.4 as well if i remember correctly.)
-
-Traffic on the outgoing interface (eth0) shows both the encapsulated as 
-well as the non-encapsulated packets.
-
---- (tcpdump -i eth0 -n ) ---
-15:24:20.003088 IP 172.20.40.45.45707 > 10.136.100.1.48193: . 
-297216:298592(1376) ack 1 win 5792 <nop,nop,timestamp 920412777 2654747912>
-15:24:20.005095 IP 130.161.82.9 > 84.35.71.36: 
-ESP(spi=0x080d4f70,seq=0x1de7c)
-15:24:20.005095 IP 172.20.40.45.45707 > 10.136.100.1.48193: . 
-298592:299968(1376) ack 1 win 5792 <nop,nop,timestamp 920412777 2654747912>
-15:24:20.005223 IP 84.35.71.36 > 130.161.82.9: 
-ESP(spi=0x0451e539,seq=0xee8e)
----
-
-Using default tools a la 'iptraf' count them both, so it would look like 
-my adsl-line is doing 11Mbit :)
-
-Is there any way to prevent the kernel from showing the data inside the 
-tunnel ? (172.20.40.45 <> 10.136.100.1 is the tunneled traffic).
-
-bye,
-Chris
+diff -urN --exclude='*~' linux-2.6.10-original/Documentation/kernel-parameters.txt linux-2.6.10/Documentation/kernel-parameters.txt
+--- linux-2.6.10-original/Documentation/kernel-parameters.txt	2004-12-24 16:35:50.000000000 -0500
++++ linux-2.6.10/Documentation/kernel-parameters.txt	2004-12-26 09:06:00.024093651 -0500
+@@ -1319,8 +1319,12 @@
+ 	thash_entries=	[KNL,NET]
+ 			Set number of hash buckets for TCP connection
+ 
+-	tipar=		[HW]
+-			See header of drivers/char/tipar.c.
++	tipar.timeout=	[HW,PPT]
++			Set communications timeout in tenths of a second
++			(default 15).
++
++	tipar.delay=	[HW,PPT]
++			Set inter-bit delay in microseconds (default 10).
+ 
+ 	tiusb=		[HW,USB] Texas Instruments' USB GraphLink (aka SilverLink)
+ 			Format: <timeout>

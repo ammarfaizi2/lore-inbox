@@ -1,78 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262361AbUDPFg4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 01:36:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262416AbUDPFg4
+	id S262398AbUDPFkh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 01:40:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262424AbUDPFkh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 01:36:56 -0400
-Received: from moo.samara.net ([195.209.64.5]:27917 "EHLO moo.samara.net")
-	by vger.kernel.org with ESMTP id S262361AbUDPFgv (ORCPT
+	Fri, 16 Apr 2004 01:40:37 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:64434 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S262398AbUDPFke (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 01:36:51 -0400
-Subject: Promise SX-6000 and kernel 2.6.5
-From: Alex Murphy <murphy@sgtp.samara.ru>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: SYS.NET.RU
-Message-Id: <1082093803.4962.86.camel@bene.samgtp>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 16 Apr 2004 10:36:43 +0500
-Content-Transfer-Encoding: 7bit
+	Fri, 16 Apr 2004 01:40:34 -0400
+Date: Fri, 16 Apr 2004 11:14:09 +0530 (IST)
+From: Nagendra Singh Tomar <nagendra_tomar@adaptec.com>
+X-X-Sender: tomar@localhost.localdomain
+Reply-To: "Tomar, Nagendra" <nagendra_tomar@adaptec.com>
+To: Brian Gerst <bgerst@didntduck.org>
+cc: "Tomar, Nagendra" <nagendra_tomar@adaptec.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: How does ioremap() get non-cached mappings
+In-Reply-To: <407F6FF8.1020904@quark.didntduck.org>
+Message-ID: <Pine.LNX.4.44.0404161111250.17679-100000@localhost.localdomain>
+Organization: Adaptec
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 16 Apr 2004 05:40:30.0588 (UTC) FILETIME=[544FD3C0:01C42375]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!!!
+On Fri, 16 Apr 2004, Brian Gerst wrote:
 
- I am sorry for the letter, but allow to address to you with my problem.
-Has bought Promise SX-6000 Pro the controller and has established on him
-Linux Redhat. All - is excellent!! Has updated a nucleus for 2.6.5 - I
-can not pick up the controller in any way. Source codes of a nucleus
-taking place on your site do not approach for 2.6 nucleus :( 
+> Nagendra Singh Tomar wrote:
+> > ioremap() function in x86 arch code does not seem to be setting _PAGE_PCD 
+> > bit in the PTE. How then does it give non-cached mapping to MMIO mappings 
+> > for memory on some interface card. I have gone thru some old threads on 
+> > this, which have concluded that it does give non-cached mappings, and 
+> > moerover ioremap seems to work fine whenever I have used to map any PCI 
+> > card memory,
+> > Is it guaranteed thru the means of MTRR ?
+> > 
+> 
+> ioremap_nocache()
 
-Can you know the possible decision of my problem??
+I'm aware of ioremap_nocache(), and the fact that it explicitly sets 
+_PAGE_PCD. My  question originated after reading this posting by Alan
 
- Yours faithfully and hope, Alexey.
+http://www.uwsg.iu.edu/hypermail/linux/kernel/0110.0/0878.html
 
-P.S.1 firmware drivers for 2.4.x kernel download is 
-http://www.eventus.de/linux.html
+in which he explicitly states that ioremap() gives uncached mapping. If 
+you follow the thread, there is a general consensus that ioremap and 
+ioremap_nocache are functionaly the same on x86 arch (and I suppose on 
+most archs)
 
-P.S.2
+Thanx,
+tomar
+> 
+> --
+> 				Brian Gerst
+> 
 
-In make menuconfig has disconnected support of all PDC Promise. Has
-included all I2O devices in a nucleus.
-
-ns linux # cat .config|grep I2O
-# I2O device support
-CONFIG_I2O=y
-CONFIG_I2O_PCI=y
-CONFIG_I2O_BLOCK=y
-CONFIG_I2O_SCSI=y
-CONFIG_I2O_PROC=y
-
-
-dmesg send 0 i2o controllers
-
-I2O Core - (C) Copyright 1999 Red Hat Software
-I2O: Event thread created as pid 17
-i2o: Checking for PCI I2O controllers...
-I2O configuration manager v 0.04.
-  (C) Copyright 1999 Red Hat Software
-I2O Block Storage OSM v0.9
-   (c) Copyright 1999-2001 Red Hat Software.
-i2o_block: Checking for Boot device...
-i2o_block: Checking for I2O Block devices...
-i2o_scsi.c: Version 0.1.2
-  chain_pool: 0 bytes @ f7ae85a0
-  (512 byte buffers X 4 can_queue X 0 i2o controllers)
+-- 
 
 
-lspci:
 
-02:02.1 Class ff00: Intel Corp. 80960RM [i960RM Microprocessor] (rev 02)
-(prog-if 01)
-        Subsystem: Promise Technology, Inc. SuperTrak SX6000 I2O CPU
-        Flags: bus master, medium devsel, latency 32, IRQ 22
-        Memory at f6000000 (32-bit, prefetchable) [size=4M]
-        Expansion ROM at <unassigned> [disabled] [size=64K]
+-- You have moved the mouse. Windows must be restarted for the 
+   changes to take effect.
 

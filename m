@@ -1,60 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265622AbUATSIU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 13:08:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265624AbUATSIU
+	id S265627AbUATSJf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 13:09:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265635AbUATSJf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 13:08:20 -0500
-Received: from spf13.us4.outblaze.com ([205.158.62.67]:45000 "EHLO
-	spf13.us4.outblaze.com") by vger.kernel.org with ESMTP
-	id S265622AbUATSIP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 13:08:15 -0500
-Message-ID: <20040120180646.7874.qmail@email.com>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+	Tue, 20 Jan 2004 13:09:35 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:16519 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S265627AbUATSJZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jan 2004 13:09:25 -0500
+Date: Tue, 20 Jan 2004 13:10:21 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Zan Lynx <zlynx@acm.org>
+cc: Bart Samwel <bart@samwel.tk>, Ashish sddf <buff_boulder@yahoo.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Compiling C++ kernel module + Makefile
+In-Reply-To: <1074620079.22023.26.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.53.0401201306030.12044@chaos>
+References: <20040116210924.61545.qmail@web12008.mail.yahoo.com> 
+ <Pine.LNX.4.53.0401161659470.31455@chaos>  <200401171359.20381.bart@samwel.tk>
+  <Pine.LNX.4.53.0401190839310.6496@chaos> <400C1682.2090207@samwel.tk> 
+ <Pine.LNX.4.53.0401191311250.8046@chaos> <400C37E3.5020802@samwel.tk> 
+ <Pine.LNX.4.53.0401191521400.8389@chaos> <400C4B17.3000003@samwel.tk> 
+ <Pine.LNX.4.53.0401201000490.11497@chaos> <1074620079.22023.26.camel@localhost.localdomain>
 MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Clayton Weaver" <cgweav@email.com>
-To: linux-kernel@vger.kernel.org
-Date: Tue, 20 Jan 2004 13:06:46 -0500
-Subject: Re: [OT] Redundancy eliminating file systems, breaking MD5,
-    donating money to OSDL
-X-Originating-Ip: 172.192.146.33
-X-Originating-Server: ws3-4.us4.outblaze.com
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(re: md5 weakness)
+On Tue, 20 Jan 2004, Zan Lynx wrote:
 
-The only document I've seen with a
-rigorous demonstration of the
-possibility of an md5 collision
-created it by adding 0 (zero) bytes
-to an input (so the colliding inputs
-were not the same size in bytes).
+> On Tue, 2004-01-20 at 08:20, Richard B. Johnson wrote:
+> > Nevertheless, I provide three programs, one written in
+> > C, the other in C++ and the third in assembly. A tar.gz
+> > file is attached for those interested.
+> >
+> > -rwxr-xr-x   1 root     root        57800 Jan 20 10:16 hello+
+> > -rwxr-xr-x   1 root     root          460 Jan 20 10:16 helloa
+> > -rwxr-xr-x   1 root     root         2948 Jan 20 10:16 helloc
+> >
+> > The code size, generated from assembly is 460 bytes.
+> > The code size, generated from C is 2,948 bytes.
+> > The code size, generated from C++ is 57,800 bytes.
+> >
+> > Clearly, C++ is not the optimum language for writing
+> > a "Hello World" program.
+>
+> I like C++ and hate to see it so unfairly maligned.  Here's a much
+> better example:
+>
+> Makefile:
+> helloc: hello.c
+>         gcc -Os -s -o helloc hello.c
+>
+> hellocpp: hello.cpp
+>         g++ -Os -fno-rtti -fno-exceptions -s -o hellocpp hello.cpp
+>
+> Both programs contain exactly the same code: one main() function using
+> puts("Hello world!").
+>
+> # ls -l
+> -rwxrwxr-x    1 jbriggs  jbriggs      2840 Jan 20 10:02 helloc
+> -rwxrwxr-x    1 jbriggs  jbriggs      2948 Jan 20 10:06 hellocpp
+>
+> 108 extra bytes is hardly the end of the world.
+> --
+> Zan Lynx <zlynx@acm.org>
+>
 
-Good luck finding a collision with
-blocks that are all the same size.
+Well you just fell into the usual trap of using the "C-like"
+capabilities of C++ to call a 'C' function. If you are going
+to use 'C' library functions, you don't use an object-oriented
+language to call them. That is using a hatchet like a hammer.
 
-Anyway, hash matching algorithms for
-variable sized inputs (hashed extents,
-etc) can probably get an additional several
-orders of magnitude of safety by using
-two hashes (md5 and sha1, for example).
+I did not malign C++. I used it as it was designed and let
+the chips fall where they may.
 
-What are the chances that the same two
-different inputs that hash to the same
-value using one of them collides in the
-other, too? ("Left as an exercise for the ...")
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
-Regards,
-
-Clayton Weaver
-<mailto: cgweav@email.com>
-
--- 
-___________________________________________________________
-Sign-up for Ads Free at Mail.com
-http://promo.mail.com/adsfreejump.htm
 

@@ -1,163 +1,245 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265795AbUFXVr2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265798AbUFXWEr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265795AbUFXVr2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 17:47:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265676AbUFXVqa
+	id S265798AbUFXWEr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 18:04:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265817AbUFXWEn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 17:46:30 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:53412 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S265774AbUFXVpF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 17:45:05 -0400
-Date: Thu, 24 Jun 2004 14:45:55 -0700
-From: Greg KH <gregkh@us.ibm.com>
-To: Vernon Mauery <vernux@us.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, Pat Gaughen <gone@us.ibm.com>,
-       Chris McDermott <lcm@us.ibm.com>, Jess Botts <botts@us.ibm.com>
-Subject: Re: [PATCH] acpiphp extension for 2.6.7
-Message-ID: <20040624214555.GA1800@us.ibm.com>
-References: <1087934028.2068.57.camel@bluerat>
+	Thu, 24 Jun 2004 18:04:43 -0400
+Received: from holomorphy.com ([207.189.100.168]:61580 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S265808AbUFXV5Q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jun 2004 17:57:16 -0400
+Date: Thu, 24 Jun 2004 14:56:45 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andi Kleen <ak@muc.de>, Yusuf Goolamabbas <yusufg@outblaze.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: finish_task_switch high in profiles in 2.6.7
+Message-ID: <20040624215645.GN21066@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andi Kleen <ak@muc.de>, Yusuf Goolamabbas <yusufg@outblaze.com>,
+	linux-kernel@vger.kernel.org
+References: <2ayz2-1Um-15@gated-at.bofh.it> <m3n02tz203.fsf@averell.firstfloor.org> <20040624104416.GB8798@outblaze.com> <20040624113608.GA31080@colin2.muc.de> <20040624140539.GT1552@holomorphy.com> <20040624212248.GM21066@holomorphy.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="LZvS9be/3tNcYl/X"
 Content-Disposition: inline
-In-Reply-To: <1087934028.2068.57.camel@bluerat>
-User-Agent: Mutt/1.4.1i
-X-Operating-System: Linux 2.6.7-bk6 (i686)
+In-Reply-To: <20040624212248.GM21066@holomorphy.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 22, 2004 at 12:53:49PM -0700, Vernon Mauery wrote:
-> According to the specification, ACPI does not have a standard way of
-> querying or manipulating the attention LED of hotplug slots.  Here is a
-> patch that allows for device specific ACPI code to be registered with
-> the acpiphp driver as callbacks for setting/getting the status of the
-> attention LED.
 
-The LED stuff looks good (few minor comments below), but the ACPI table
-info should be moved to the ACPI core to provide this to all ACPI tables
-in the /sys/firmware/acpi tree.
+--LZvS9be/3tNcYl/X
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> +static struct acpiphp_attention_info attention_info;
+On Thu, Jun 24, 2004 at 02:22:48PM -0700, William Lee Irwin III wrote:
+> Brute-force port of schedprof to 2.6.7-final. Compiletested on sparc64
+> only. No runtime testing.
+> Given that the context switch rate is actually *reduced* in 2.6.7 vs.
+> 2.6.5, I expect that this will not, in fact, reveal anything useful.
 
-This should just be a pointer, not the whole structure.  Then just set
-it to whatever pointer is passed to you from the module.
+While I'm spraying out untested code, I might as well do these, which
+I've not even compiled. =)
 
-> +/**
-> +    * acpiphp_register_attention_info - set attention LED callback
-> +    *
-> +    * this is used to register a hardware specific acpi driver
-> +    * that manipulates the attention LED.  All the fields in
-> +    * info must be set.
-> +    *
-> +    */
-> +int acpiphp_register_attention_info(struct acpiphp_attention_info *info)
-> +{
-> +	int retval = 0;
-> +	unsigned long flags;
-> +
-> +	if (!info || !info->owner || !info->set_attn || !info->get_attn)
-> +		retval = -1;
-> +	else {
-> +		spin_lock_irqsave(&attn_info_lock, flags);
 
-Why lock here?  What could race?
+-- wli
 
-And why the irqsave lock?
+--LZvS9be/3tNcYl/X
+Content-Type: text/plain; charset=us-ascii
+Content-Description: schedprof_mmap-2.6.7
+Content-Disposition: attachment; filename="schedprof_mmap-2.6.7"
 
-> +		if (!attention_info.owner)
-> +			memcpy(&attention_info, info,
-> +					sizeof(struct acpiphp_attention_info));
-> +		spin_unlock_irqrestore(&attn_info_lock, flags);
-> +	}
-> +	return retval;
-> +}
-> +
-> +
-> +/**
-> + * acpiphp_unregister_attention_info - unset attention LED callback
-> + *
-> + * this is used to un-register a hardware specific acpi driver
-> + * that manipulates the attention LED.  Both fields must
-> + * match the current attention info to reset it.
-> + *
-> + */
-> +int acpiphp_unregister_attention_info(struct acpiphp_attention_info *info)
-> +{
-> +	int retval = 0;
-> +	unsigned long flags;
-> +
-> +	if (!info || !info->owner || !info->set_attn || !info->get_attn)
-> +		retval = -1;
-> +	else {
-> +		spin_lock_irqsave(&attn_info_lock, flags);
-> +		if (memcmp(&attention_info, info, 
-> +				sizeof(struct acpiphp_attention_info)) == 0)
-> +			memset(&attention_info, 0,
-> +					sizeof(struct acpiphp_attention_info));
-> +		else
-> +			retval = -1;
-> +		spin_unlock_irqrestore(&attn_info_lock, flags);
-> +	}
-> +	return retval;
-> +}
-> +
-> +
->  /**
->   * enable_slot - power on and enable a slot
->   * @hotplug_slot: slot to enable
-> @@ -120,29 +184,33 @@
->  /**
->   * set_attention_status - set attention LED
->   *
-> - * TBD:
->   * ACPI doesn't have known method to manipulate
-> - * attention status LED.
-> + * attention status LED, so we use a callback that
-> + * was registered with us.  This allows hardware specific
-> + * ACPI implementations to blink the light for us.
->   *
->   */
-> -static int set_attention_status(struct hotplug_slot *hotplug_slot, u8 status)
-> +static int set_attention_status (struct hotplug_slot *hotplug_slot, u8 status)
->  {
-> +	int retval = -1;
-> +	unsigned long flags;
-> +	struct acpiphp_attention_info info;
-> +
->  	dbg("%s - physical_slot = %s\n", __FUNCTION__, hotplug_slot->name);
->  
-> -	switch (status) {
-> -		case 0:
-> -			/* FIXME turn light off */
-> -			hotplug_slot->info->attention_status = 0;
-> -			break;
-> -
-> -		case 1:
-> -		default:
-> -			/* FIXME turn light on */
-> -			hotplug_slot->info->attention_status = 1;
-> -			break;
-> +	spin_lock_irqsave(&attn_info_lock, flags);
-> +	memcpy(&info, &attention_info, sizeof(struct acpiphp_attention_info));
-> +	spin_unlock_irqrestore(&attn_info_lock, flags);
+Index: schedprof-2.6.7/kernel/sched.c
+===================================================================
+--- schedprof-2.6.7.orig/kernel/sched.c	2004-06-24 14:02:48.292038264 -0700
++++ schedprof-2.6.7/kernel/sched.c	2004-06-24 14:39:50.035281952 -0700
+@@ -4063,7 +4063,7 @@
+ 	if (schedprof_buf) {
+ 		unsigned long pc = (unsigned long)__pc;
+ 		pc -= min(pc, (unsigned long)_stext);
+-		atomic_inc(&schedprof_buf[min(pc, schedprof_len)]);
++		atomic_inc(&schedprof_buf[min(pc + 1, schedprof_len - 1)]);
+ 	}
+ }
+ 
+@@ -4081,8 +4081,9 @@
+ 	if (!sched_profiling)
+ 		return;
+ 	schedprof_len = (unsigned long)(_etext - _stext) + 1;
+-	schedprof_buf = alloc_bootmem(schedprof_len*sizeof(atomic_t));
++	schedprof_buf = alloc_bootmem(sizeof(atomic_t)*schedprof_len);
+ 	printk(KERN_INFO "Scheduler call profiling enabled\n");
++	schedprof_buf[0] = 1;
+ }
+ 
+ #ifdef CONFIG_PROC_FS
+@@ -4092,38 +4093,59 @@
+ read_sched_profile(struct file *file, char __user *buf, size_t count, loff_t *ppos)
+ {
+ 	unsigned long p = *ppos;
+-	ssize_t read;
+-	char * pnt;
+ 	unsigned int sample_step = 1;
+ 
+-	if (p >= (schedprof_len+1)*sizeof(atomic_t))
++	if (p >= sizeof(atomic_t)*schedprof_len)
+ 		return 0;
+-	if (count > (schedprof_len+1)*sizeof(atomic_t) - p)
+-		count = (schedprof_len+1)*sizeof(atomic_t) - p;
+-	read = 0;
+-
+-	while (p < sizeof(atomic_t) && count > 0) {
+-		put_user(*((char *)(&sample_step)+p),buf);
+-		buf++; p++; count--; read++;
+-	}
+-	pnt = (char *)schedprof_buf + p - sizeof(atomic_t);
+-	if (copy_to_user(buf,(void *)pnt,count))
++	count = min(schedprof_len*sizeof(atomic_t) - p, count);
++	if (copy_to_user(buf, (char *)schedprof_buf + p, count))
+ 		return -EFAULT;
+-	read += count;
+-	*ppos += read;
+-	return read;
++	*ppos += count;
++	return count;
+ }
+ 
+ static ssize_t write_sched_profile(struct file *file, const char __user *buf,
+ 			     size_t count, loff_t *ppos)
+ {
+-	memset(schedprof_buf, 0, sizeof(atomic_t)*schedprof_len);
++	memset(&schedprof_buf[1], 0, (schedprof_len-1)*sizeof(atomic_t));
+ 	return count;
+ }
+ 
++static int mmap_sched_profile(struct file *file, struct vm_area_struct *vma)
++{
++	unsigned long pfn, vaddr, base_pfn = __pa(schedprof_buf)/PAGE_SIZE;
++	if (vma->vm_pgoff + vma_pages(vma) > schedprof_pages)
++		return -ENODEV;
++	vma->vm_flags |= VM_RESERVED|VM_IO;
++	for (vaddr = vma->vm_start; vaddr < vma->vm_end; vaddr += PAGE_SIZE) {
++		pgd_t *pgd = pgd_offset(vma->vm_mm, vaddr);
++		pmd_t *pmd;
++		pte_t *pte, pte_val;
++
++		spin_lock(&vma->vm_mm->page_table_lock);
++		pmd = pmd_alloc(vma->vm_mm, pgd, vaddr);
++		if (!pmd)
++			goto enomem;
++		pte = pte_alloc_map(vma->vm_mm, pmd, vaddr);
++		if (!pte)
++			goto enomem;
++		pfn = base_pfn + linear_page_index(vma, vaddr);
++		pte_val = pfn_pte(pfn, vma->vm_page_prot);
++		set_pte(pte, pte_val);
++		update_mmu_cache(vma, vaddr, pte_val);
++		pte_unmap(pte);
++		spin_unlock(&vma->vm_mm->page_table_lock);
++	}
++	return 0;
++enomem:
++	spin_unlock(&vma->vm_mm->page_table_lock);
++	return -ENOMEM;
++}
++
+ static struct file_operations sched_profile_operations = {
+ 	.read		= read_sched_profile,
+ 	.write		= write_sched_profile,
++	.mmap		= mmap_sched_profile,
+ };
+ 
+ static int proc_schedprof_init(void)
+@@ -4134,7 +4156,7 @@
+ 	entry = create_proc_entry("schedprof", S_IWUSR | S_IRUGO, NULL);
+ 	if (entry) {
+ 		entry->proc_fops = &sched_profile_operations;
+-		entry->size = sizeof(atomic_t)*(schedprof_len + 1);
++		entry->size = sizeof(atomic_t)*schedprof_len;
+ 	}
+ 	return !!entry;
+ }
 
-Again, why lock?  And why copy the whole structure?  And it's on the
-stack, which isn't very nice.  Same comment applies to the get_
-function.
+--LZvS9be/3tNcYl/X
+Content-Type: text/plain; charset=us-ascii
+Content-Description: schedprof_proc_init-2.6.7
+Content-Disposition: attachment; filename="schedprof_proc_init-2.6.7"
 
-> +
-> +	if (info.set_attn && try_module_get(info.owner)) {
-> +		retval = info.set_attn(hotplug_slot, status);
-> +		module_put(info.owner);
->  	}
->  
-> -	return 0;
-> +	if (!retval)
-> +		hotplug_slot->info->attention_status = (status) ? 1 : 0;
+Index: schedprof-2.6.7/kernel/sched.c
+===================================================================
+--- schedprof-2.6.7.orig/kernel/sched.c	2004-06-24 14:39:50.035281952 -0700
++++ schedprof-2.6.7/kernel/sched.c	2004-06-24 14:40:04.347106224 -0700
+@@ -4152,13 +4152,13 @@
+ {
+ 	struct proc_dir_entry *entry;
+ 	if (!sched_profiling)
+-		return 1;
++		return 0;
+ 	entry = create_proc_entry("schedprof", S_IWUSR | S_IRUGO, NULL);
+ 	if (entry) {
+ 		entry->proc_fops = &sched_profile_operations;
+ 		entry->size = sizeof(atomic_t)*schedprof_len;
+ 	}
+-	return !!entry;
++	return !entry;
+ }
+ module_init(proc_schedprof_init);
+ #endif
 
-Why change the value based on the return value of the call?  This
-shouldn't be set at all.
+--LZvS9be/3tNcYl/X
+Content-Type: text/plain; charset=us-ascii
+Content-Description: schedprof_shift-2.6.7
+Content-Disposition: attachment; filename="schedprof_shift-2.6.7"
 
-thanks,
+Index: schedprof-2.6.7/kernel/sched.c
+===================================================================
+--- schedprof-2.6.7.orig/kernel/sched.c	2004-06-24 14:40:04.347106224 -0700
++++ schedprof-2.6.7/kernel/sched.c	2004-06-24 14:51:35.285067688 -0700
+@@ -4052,7 +4052,7 @@
+ #endif /* defined(CONFIG_SMP) && defined(CONFIG_PREEMPT) */
+ 
+ static atomic_t *schedprof_buf;
+-static int sched_profiling;
++static int sched_profiling, schedprof_shift;
+ static unsigned long schedprof_len;
+ 
+ #include <linux/bootmem.h>
+@@ -4062,11 +4062,22 @@
+ {
+ 	if (schedprof_buf) {
+ 		unsigned long pc = (unsigned long)__pc;
+-		pc -= min(pc, (unsigned long)_stext);
++		pc = (pc - min(pc, (unsigned long)_stext)) >> schedprof_shift;
+ 		atomic_inc(&schedprof_buf[min(pc + 1, schedprof_len - 1)]);
+ 	}
+ }
+ 
++static int __init schedprof_shift_setup(char *s)
++{
++	int n;
++	if (get_option(&s, &n)) {
++		scheprof_shift = n;
++		sched_profiling = 1;
++	}
++	return 1;
++}
++__setup("schedprof_shift=", schedprof_shift_setup);
++
+ static int __init schedprof_setup(char *s)
+ {
+ 	int n;
+@@ -4080,10 +4091,10 @@
+ {
+ 	if (!sched_profiling)
+ 		return;
+-	schedprof_len = (unsigned long)(_etext - _stext) + 1;
++	schedprof_len = ((unsigned long)(_etext - _stext) >> schedprof_shift) + 1;
+ 	schedprof_buf = alloc_bootmem(sizeof(atomic_t)*schedprof_len);
+ 	printk(KERN_INFO "Scheduler call profiling enabled\n");
+-	schedprof_buf[0] = 1;
++	schedprof_buf[0] = 1 << schedprof_shift;
+ }
+ 
+ #ifdef CONFIG_PROC_FS
 
-greg k-h
+--LZvS9be/3tNcYl/X--

@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261361AbSJCV1D>; Thu, 3 Oct 2002 17:27:03 -0400
+	id <S261307AbSJCVV3>; Thu, 3 Oct 2002 17:21:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261371AbSJCV1D>; Thu, 3 Oct 2002 17:27:03 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:50071 "EHLO cherise.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S261361AbSJCV1C>;
-	Thu, 3 Oct 2002 17:27:02 -0400
-Date: Thu, 3 Oct 2002 14:34:42 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise.pdx.osdl.net
-To: Matthew Dobson <colpatch@us.ibm.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [rfc][patch] driverfs multi-node(board) patch [2/2]
-In-Reply-To: <3D98F450.8080003@us.ibm.com>
-Message-ID: <Pine.LNX.4.44.0210031428280.1871-100000@cherise.pdx.osdl.net>
+	id <S261323AbSJCVV3>; Thu, 3 Oct 2002 17:21:29 -0400
+Received: from CPEdeadbeef0000.cpe.net.cable.rogers.com ([24.100.232.94]:3076
+	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
+	id <S261307AbSJCVV2>; Thu, 3 Oct 2002 17:21:28 -0400
+Date: Thu, 3 Oct 2002 17:29:23 -0400 (EDT)
+From: Shawn Starr <spstarr@sh0n.net>
+To: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] Patch release - 2.4.20-pre7-rmap14a-shawn12d.1
+Message-ID: <Pine.LNX.4.44.0210031728370.11204-100000@coredump.sh0n.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a patch release
+=======================
 
-Ok, I'm finally getting back to you..
+xfs-2.4.20-pre7-rmap14a-uml-shawn12d.1 against 2.4.19 vanilla. (October 3rd, 2002)
 
-> 	Ok..  here are the real changes.  I'd really like to get some feedback on 
-> what you (or anyone else) thinks of these proposed changes.  This sets 
-> up a generic topology initialization routine which should discover all 
-> online nodes (boards), CPUs, and Memory Blocks at boot time.  It also 
-> makes the CPUs and memblks it discovers children of the appropriate nodes.
+- Fixed KDB compile errors (due to changes in page structure)
 
-You didn't append the patch, which is annoying, but I'll deal..
+- Fixed symbol error (vmap) when not using XFS file system
 
-The main problem I have is the code placement. I put the CPU stuff under 
-arch/ because I anticpate wrapping the cpu structure with an arch-specific 
-one, so you can ascertain arch-specific information via the generic 
-structure. Moving it out of arch/ precludes that from happening (easily). 
-
-Ditto for memblks, though I'm not really sure what other info you'd want 
-in the structures. 
-
-Ditto+ for nodes, or boards. Those are definitely arch-specific 
-structures, and shouldn't be in drivers/base/. On top of that, I don't 
-think their registration should all be munged together in one file. Maybe 
-they should be, in their own play area (under arch/i386/mach-ccnuma/).
+- Fixed symbol error (grab_cache_page) missing in pagemap.h
 
 
-	-pat
+you can get it at:
+
+http://xfs.sh0n.net/2.4/testing/linux-shawn12d.1.diff.patch
+
+Note: Site is having connectivity issues right now (the machine looks dead
+;))
+
+
+--
+Shawn Starr, sh0n.net, <spstarr@sh0n.net>
+Maintainer: -shawn kernel patches: http://xfs.sh0n.net/2.4/
 

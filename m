@@ -1,36 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267840AbTBVHns>; Sat, 22 Feb 2003 02:43:48 -0500
+	id <S267841AbTBVHyC>; Sat, 22 Feb 2003 02:54:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267841AbTBVHnr>; Sat, 22 Feb 2003 02:43:47 -0500
-Received: from rth.ninka.net ([216.101.162.244]:45227 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id <S267840AbTBVHnq>;
-	Sat, 22 Feb 2003 02:43:46 -0500
-Subject: Re: Minutes from Feb 21 LSE Call
-From: "David S. Miller" <davem@redhat.com>
+	id <S267842AbTBVHyC>; Sat, 22 Feb 2003 02:54:02 -0500
+Received: from packet.digeo.com ([12.110.80.53]:4491 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S267841AbTBVHyB>;
+	Sat, 22 Feb 2003 02:54:01 -0500
+Date: Sat, 22 Feb 2003 00:04:10 -0800
+From: Andrew Morton <akpm@digeo.com>
 To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Larry McVoy <lm@bitmover.com>, Hanna Linder <hannal@us.ibm.com>,
-       lse-tech@lists.sf.et, linux-kernel@vger.kernel.org
-In-Reply-To: <19870000.1045895965@[10.10.2.4]>
-References: <96700000.1045871294@w-hlinder>
-	<20030222001618.GA19700@work.bitmover.com> <306820000.1045874653@flay>
-	<20030222024721.GA1489@work.bitmover.com> <14450000.1045888349@[10.10.2.4]>
-	<20030222050514.GA3148@work.bitmover.com>  <19870000.1045895965@[10.10.2.4]>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 22 Feb 2003 00:38:59 -0800
-Message-Id: <1045903139.26099.8.camel@rth.ninka.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Strange performance change 59 -> 61/62
+Message-Id: <20030222000410.11a46e03.akpm@digeo.com>
+In-Reply-To: <22560000.1045899976@[10.10.2.4]>
+References: <32720000.1045671824@[10.10.2.4]>
+	<20030219101957.05088aa1.akpm@digeo.com>
+	<17280000.1045811967@[10.10.2.4]>
+	<17930000.1045812486@[10.10.2.4]>
+	<20030220234522.185f3f6c.akpm@digeo.com>
+	<11870000.1045848448@[10.10.2.4]>
+	<20030221122024.040055a0.akpm@digeo.com>
+	<22560000.1045899976@[10.10.2.4]>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 22 Feb 2003 08:04:00.0322 (UTC) FILETIME=[F507BA20:01C2DA48]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-02-21 at 22:39, Martin J. Bligh wrote:
-> > Lots of people working for companies who haven't figured out how to do
-> > it as well as Dell *say* it can't be done but numbers say differently.
+"Martin J. Bligh" <mbligh@aracnet.com> wrote:
+>
+> > mark_inode_dirty() tends to be called _very_ frequently.  Too frequently.
+> > 
+> > Could you try remounting all filesystems noatime with
+> > 
+> > 	mount /mnt/point -o remount,noatime
+> > 
+> > and the below patch will prevent us calling the barrier-happy
+> > current_kernel_time() for noatime mounts.
 > 
-> And how much of that was profit on PCs running Linux?
+> Cool, that works nicely - thanks.
+> 
+> 2.5.59-mjb6:             84 __mark_inode_dirty
+> 2.5.61-mjb1:            594 __mark_inode_dirty
+> 2.5.61-mjb1-no_mb:       74 __mark_inode_dirty
+> 2.5.61-mjb1-noatime:     65 __mark_inode_dirty
+> 
 
-Or PCs period, they make tons of bucks on servers and associated
-support contracts.
+OK.  We used to only run mark_inode_dirty() for atime updates just when it
+had actually changed.  ie: once per second.  But for reasons which remain
+obscure that was taken out.
+
+This probably explains your ext3 woes.  Poor old ext3 has to do a ton of work
+in ext3_mark_inode_dirty(), yet on 99% of the calls, nothing has even
+changed.  Which is why I suggested that you retest ext3 with noatime.
+
+I shall fix it up.
 

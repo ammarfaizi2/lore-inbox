@@ -1,55 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286712AbSBOEMB>; Thu, 14 Feb 2002 23:12:01 -0500
+	id <S286821AbSBOEMM>; Thu, 14 Feb 2002 23:12:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286825AbSBOELw>; Thu, 14 Feb 2002 23:11:52 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:18147 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S286712AbSBOELj>;
-	Thu, 14 Feb 2002 23:11:39 -0500
-Date: Thu, 14 Feb 2002 23:11:38 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: linux-fsdevel@vger.kernel.org
-cc: linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] new VFS documentation
-Message-ID: <Pine.GSO.4.21.0202142246020.23441-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S286692AbSBOEMB>; Thu, 14 Feb 2002 23:12:01 -0500
+Received: from zephyr.host4u.net ([216.71.64.66]:41745 "EHLO zephyr.host4u.net")
+	by vger.kernel.org with ESMTP id <S286821AbSBOELq>;
+	Thu, 14 Feb 2002 23:11:46 -0500
+Subject: 2.5.4 make errorf
+From: lee johnson <lee@imyourhandiman.com>
+To: kernel-list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1 (1.0.1-2) 
+Date: 14 Feb 2002 19:49:24 -0800
+Message-Id: <1013744965.21906.8.camel@imyourhandiman>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	First of all, since 2.5.5-pre1 there is an up-to-date guide for
-porting filesystems from 2.4 to 2.5.<latest>.  Location:
+hi..
 
-	Documentation/filesystems/porting
+   anyone actually getting 2.5.4 to make without errors...mine starts
+and ends fairly abruptly..I thought it was a good idea due to hearing
+alsa  is in 2.5.5 patch.
 
-It WILL be kept up-to-date.  IOW, submit an API change that may require
-filesystem changes without a corresponding patch to that file and I will
-hunt you down and hurt you.  Badly.
+thx
+lee
+-===   
 
-The same document covers "what do I need to change to keep my out-of-tree
-filesystem uptodate".  So watch for changes there.
 
-Normally when API change happens, the person doing it is responsible for
-updating all in-tree filesystems or, at least, warning people about the
-breakage.  Applying the list of broken filesystems.
+-------------------------------
+In file included from /usr/src/linux-2.5.4/include/asm/thread_info.h:13,
+                 from
+/usr/src/linux-2.5.4/include/linux/thread_info.h:10,
+                 from /usr/src/linux-2.5.4/include/linux/spinlock.h:7,
+                 from /usr/src/linux-2.5.4/include/linux/mmzone.h:8,
+                 from /usr/src/linux-2.5.4/include/linux/gfp.h:4,
+                 from /usr/src/linux-2.5.4/include/linux/slab.h:14,
+                 from /usr/src/linux-2.5.4/include/linux/proc_fs.h:5,
+                 from init/main.c:15:
+/usr/src/linux-2.5.4/include/asm/processor.h: In function
+`thread_saved_pc':
+/usr/src/linux-2.5.4/include/asm/processor.h:444: dereferencing pointer
+to incomplete type
+/usr/src/linux-2.5.4/include/asm/processor.h:445: warning: control
+reaches end of non-void function
+make: *** [init/main.o] Error 1
 
-Right now that list consists of umsdos and intermezzo.  The former will
-be fixed after the next series of file_system_type cleanups.  The latter
-is a victim of current changes in locking scheme.  Help from intermezzo
-folks would be a good idea - preferably in the form that would reduce
-the dependency on the VFS guts.
 
-New locking scheme is described in Documentation/filesystems/directory-locking.
-In details and with proof of correctness.
 
-It doesn't change the exclusion warranties for filesystems, so unless they
-mess with locking in non-trivial ways (intermezzo was the only in-tree
-example) they shouldn't need any changes.  Some things might become simpler,
-actually (i.e. in some cases private locking became redundant and can be
-dropped).  Again, see Documentation/filesystems/porting for details of
-changes.
-
-Documentation/filesystems/Locking is slowly getting up-to-date.  Descriptions
-of several superblock methods are still missing and I would really appreciate
-it if folks who had introduced them would document them.
 

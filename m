@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318464AbSGaTPf>; Wed, 31 Jul 2002 15:15:35 -0400
+	id <S317975AbSGaTLK>; Wed, 31 Jul 2002 15:11:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318466AbSGaTPf>; Wed, 31 Jul 2002 15:15:35 -0400
-Received: from cheetah.monarch.net ([24.244.0.4]:6415 "HELO
-	cheetah.monarch.net") by vger.kernel.org with SMTP
-	id <S318464AbSGaTPe>; Wed, 31 Jul 2002 15:15:34 -0400
-Date: Wed, 31 Jul 2002 13:16:20 -0600
-From: "Peter J. Braam" <braam@clusterfs.com>
-To: linux-kernel@vger.kernel.org
-Subject: BIG files & file systems
-Message-ID: <20020731131620.M15238@lustre.cfs>
-Mime-Version: 1.0
+	id <S318460AbSGaTLK>; Wed, 31 Jul 2002 15:11:10 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:49162 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S317975AbSGaTLK>;
+	Wed, 31 Jul 2002 15:11:10 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200207311914.g6VJEG5308283@saturn.cs.uml.edu>
+Subject: Re: Linux 2.4.19ac3rc3 on IBM x330/x340 SMP - "ps" time skew
+To: alan@lxorguk.ukuu.org.uk (Alan Cox)
+Date: Wed, 31 Jul 2002 15:14:16 -0400 (EDT)
+Cc: david_luyer@pacific.net.au (David Luyer), linux-kernel@vger.kernel.org
+In-Reply-To: <1028125599.7886.68.camel@irongate.swansea.linux.org.uk> from "Alan Cox" at Jul 31, 2002 03:26:39 PM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, 
+Alan Cox writes:
+> On Wed, 2002-07-31 at 13:59, David Luyer wrote:
 
-I've just been told that some "limitations" of the following kind will
-remain:
-  page index = unsigned long
-  ino_t      = unsigned long
+>>   printf("%d\n", sysconf(_SC_NPROCESSORS_CONF));
+>> }
+>> luyer@praxis8:~$ ./cpus
+>> 4
+>> luyer@praxis8:~$ grep 'processor        ' /proc/cpuinfo
+>> processor       : 0
+>> processor       : 1
+>
+> In which case I suggest you file a glibc bug. sysconf looks at the /proc
+> stuff as I understand it
 
-Lustre has definitely been asked to support much larger files than
-16TB.  Also file systems with a trillion files have been requested by
-one of our supporters (you don't want to know who, besides I've no
-idea how many bits go in a trillion, but it's more than 32).
+First you blame ps. Then you blame libc. How about you
+place the fault right where it belongs?
 
-I understand why people don't want to sprinkle the kernel with u64's,
-and arguably we can wait a year or two and use 64 bit architectures,
-so I'm probably not going to kick up a fuss about it.
+Counting processors in /proc/cpuinfo is a joke of an ABI.
 
-However, I thought I'd let you know that there are organizations that
-_really_ want to have such big files and file systems and get quite
-dismayed about "small integers".  And we will fail to deliver on a
-requirement to write a 50TB file because of this.
-
-My first Linux machine was a 25MHz i386 with a 40MB disk....
-
-- Peter -
+Add a proper ABI now, and userspace can transition to it
+over the next 4 years.

@@ -1,78 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267148AbUBRWa4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 17:30:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267202AbUBRWa4
+	id S267195AbUBSA3U (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 19:29:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267194AbUBSA3U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 17:30:56 -0500
-Received: from [62.116.46.196] ([62.116.46.196]:42764 "EHLO it-loops.com")
-	by vger.kernel.org with ESMTP id S267148AbUBRWaw (ORCPT
+	Wed, 18 Feb 2004 19:29:20 -0500
+Received: from fw.osdl.org ([65.172.181.6]:7343 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267197AbUBSA1X (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 17:30:52 -0500
-Date: Wed, 18 Feb 2004 23:29:32 +0100
-From: Michael Guntsche <mike@it-loops.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.3 Problems with firewire DVD-writer
-Message-Id: <20040218232932.6b972907.mike@it-loops.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Wed, 18 Feb 2004 19:27:23 -0500
+Date: Wed, 18 Feb 2004 16:28:58 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: hch@infradead.org, paulmck@us.ibm.com, arjanv@redhat.com,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: Non-GPL export of invalidate_mmap_range
+Message-Id: <20040218162858.2a230401.akpm@osdl.org>
+In-Reply-To: <20040218230055.A14889@infradead.org>
+References: <20040216190927.GA2969@us.ibm.com>
+	<20040217073522.A25921@infradead.org>
+	<20040217124001.GA1267@us.ibm.com>
+	<20040217161929.7e6b2a61.akpm@osdl.org>
+	<1077108694.4479.4.camel@laptop.fenrus.com>
+	<20040218140021.GB1269@us.ibm.com>
+	<20040218211035.A13866@infradead.org>
+	<20040218150607.GE1269@us.ibm.com>
+	<20040218222138.A14585@infradead.org>
+	<20040218145132.460214b5.akpm@osdl.org>
+	<20040218230055.A14889@infradead.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1";
- boundary="Signature=_Wed__18_Feb_2004_23_29_32_+0100_._Bg1LhtXjJ1aCQr"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Wed__18_Feb_2004_23_29_32_+0100_._Bg1LhtXjJ1aCQr
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+Christoph Hellwig <hch@infradead.org> wrote:
+>
+> Yes.  Andrew, please read the GPL, it's very clear about derived works.
+> Then please tell me why you think gpfs is not a derived work.
 
-Hi list,
+OK, so I looked at the wrapper.  It wasn't a tremendously pleasant
+experience.  It is huge, and uses fairly standard-looking filesytem
+interfaces and locking primitives.  Also some awareness of NFSV4 for some
+reason.
 
-Today I switched from 2.6.2 to 2.6.3 mostly for the new radeonfb driver.
-Everything looked fine until I tried to burn a DVD with my external
-DVD-writer (Plextor PX708UF), which worked without a problem in 2.6.2.
+Still, the wrapper is GPL so this is not relevant.  Its only use is to tell
+us whether or not the non-GPL bits are "derived" from Linux, and it
+doesn't do that.
 
+The GPL doesn't define a derived work.  It says
 
-While trying to burn some files to it with growisofs I got the following
-error message
-and the program froze.
+  "If identifiable sections of that work are not derived from the
+   Program, and can be reasonably considered independent and separate works
+   in themselves, then this License, and its terms, do not apply to those
+   sections when you distribute them as separate works.  But when you
+   distribute the same sections as part of a whole which is a work based on
+   the Program, the distribution of the whole must be on the terms of this
+   License, ..."
 
---- syslog ---
+And the "But when you distribute..." part is what the Linus doctrine rubs
+out.  Because it is unreasonable to say that a large piece of work such as
+this is "derived" from Linux.
 
-Feb 18 22:20:56 localhost kernel: SCSI error : <0 0 0 0> return code =
-0x8000002
-Feb 18 22:20:56 localhost kernel: Current sr0: sense = 70  4
-Feb 18 22:20:56 localhost kernel: ASC=1b ASCQ= 0
-Feb 18 22:20:56 localhost kernel: Raw sense data:0x70 0x00 0x04 0x00
-0x00 0x00 0x00 0x0a 0x00 0x00 0x00 0x00 0x1b 0x00 0x00 0x00 0x00 0x00
-<repeating>
-
---- syslog ---
-
-Trying the same with USB 2.0 worked without a problem.
-
-Looking through the changelog I saw that both the scsi and ieee1394
-subsystem got several updates.
-
-Can someone help me debug this further? Since the USB side seems to work
-ok ( I tried it only once), I think that the problem lies between ieee1394 and scsi. 
-
-
-Please CC: since I am not subscribed to the list.
-
-Thanks in advance,
-Michael
-
---Signature=_Wed__18_Feb_2004_23_29_32_+0100_._Bg1LhtXjJ1aCQr
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAM+dP9lrUeNl8Hv8RAjbjAJ9Ea+OOEbfSgulvsrxP4RiMWUwDzgCgu+ZN
-MzI/H5zF9OKkmtTb83q2c/s=
-=r4j/
------END PGP SIGNATURE-----
-
---Signature=_Wed__18_Feb_2004_23_29_32_+0100_._Bg1LhtXjJ1aCQr--
+Why do you believe that GPFS represents a kernel licensing violation?

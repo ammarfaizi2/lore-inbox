@@ -1,60 +1,62 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316770AbSE0WTC>; Mon, 27 May 2002 18:19:02 -0400
+	id <S316775AbSE0WXA>; Mon, 27 May 2002 18:23:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316772AbSE0WTB>; Mon, 27 May 2002 18:19:01 -0400
-Received: from mark.mielke.cc ([216.209.85.42]:64008 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id <S316770AbSE0WTB>;
-	Mon, 27 May 2002 18:19:01 -0400
-Date: Mon, 27 May 2002 18:12:27 -0400
-From: Mark Mielke <mark@mark.mielke.cc>
-To: "Calin A. Culianu" <calin@ajvar.org>
-Cc: Robert Schwebel <robert@schwebel.de>, Larry McVoy <lm@bitmover.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: patent on O_ATOMICLOOKUP [Re: [PATCH] loopable tmpfs (2.4.17)]
-Message-ID: <20020527181227.A8465@mark.mielke.cc>
-In-Reply-To: <20020526011620.C598@schwebel.de> <Pine.LNX.4.33L2.0205270125220.24180-100000@rtlab.med.cornell.edu>
+	id <S316774AbSE0WW7>; Mon, 27 May 2002 18:22:59 -0400
+Received: from jalon.able.es ([212.97.163.2]:40352 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S316773AbSE0WW6>;
+	Mon, 27 May 2002 18:22:58 -0400
+Date: Tue, 28 May 2002 00:22:53 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Use of CONFIG_M686
+Message-ID: <20020527222253.GG1848@werewolf.able.es>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5.1i
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.3.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 27, 2002 at 01:28:13AM -0400, Calin A. Culianu wrote:
-> > Robert
-> > ¹ There are surely small things which cannot be implemented in
-> >   another way - try to write a counting loop in another way than
-> >   for (i=0; i<N; i++) {printf(i);}
-> void loopie(int N)
-> {
-> 	if (N) loopie(N-1);
-> 	printf("%d ",N);
-> }
+Hi all...
 
-" ... cannot be [sensibly] implemented in another way ... "
+Grepping through the sources or the kernel in search of CONFIG_M686
+occurences, there are some places where it looks like that flag is
+used as 'Anything bigger than a Pentium'. Now kernel has configs
+for PIII, P4, probably PII.
 
-As somebody else pointed out, a good optimizer should be able to
-unroll most types of loops / functions. With sufficient capabilities,
-an optimizer should turn both of the above into the same object code
-(potentially a faster executing version, or a tighter set of
-instructions, than either of the above, unoptimized).
+It is the f00f bug handling. Files:
 
-But then again... this whole thread-line is a little off-topic... we
-all know it is the better lawyer who wins, not the developer who can
-deduce the potential origin of a piece of code... :-)
+arch/i386/kernel/traps.c:
 
-mark
+#ifndef CONFIG_M686 <=================== which also passes if PII, P4...
+void __init trap_init_f00f_bug(void)
+...
+
+arch/i386/kernel/setup.c:
+
+static void __init init_intel(struct cpuinfo_x86 *c)
+{
+#ifndef CONFIG_M686 <=================== again
+    static int f00f_workaround_enabled = 0;
+...
+
+
+So thats why I asked if we could use a CONFIG_MPENTIUMPRO, and make
+CONFIG_M686 a generic flag that is also defined for anything bigger
+than a Pentium (that looks like the current usage).
+
+So:
+Pentium -> M586
+PPro    -> MPENTIUMPRO M686
+PII     -> MPENTIUMII  M686
+PIII    -> MPENTIUMIII M686
+P4      -> MPENTIUM4   M686
+
 
 -- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
-
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
-
-                           http://mark.mielke.cc/
-
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.3 (Cooker) for i586
+Linux werewolf 2.4.19-pre8-jam4 #2 SMP dom may 26 11:20:42 CEST 2002 i686

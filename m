@@ -1,302 +1,367 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262544AbVCBV1J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262466AbVCBV2t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262544AbVCBV1J (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 16:27:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262543AbVCBV1I
+	id S262466AbVCBV2t (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 16:28:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262543AbVCBV2s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 16:27:08 -0500
-Received: from falcon.csc.calpoly.edu ([129.65.242.5]:40108 "EHLO
-	falcon.csc.calpoly.edu") by vger.kernel.org with ESMTP
-	id S262463AbVCBV0U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 16:26:20 -0500
-Date: Wed, 2 Mar 2005 13:26:18 -0800 (PST)
-From: Joshua Hudson <jwhudson@hornet.csc.calpoly.edu>
-To: linux-kernel@vger.kernel.org
-Subject: Bug report -- keyboard not working Linux 2.6.11 on Inspiron 1150
-Message-ID: <Pine.GSO.4.44.0503021324200.25652-100000@hornet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 2 Mar 2005 16:28:48 -0500
+Received: from jive.SoftHome.net ([66.54.152.27]:15288 "HELO jive.SoftHome.net")
+	by vger.kernel.org with SMTP id S262466AbVCBV0p (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 16:26:45 -0500
+Date: Wed, 2 Mar 2005 16:26:27 -0500
+From: "John L. Males" <jlmales@softhome.net>
+To: jlmales@softhome.net
+Cc: jlmales@softhome.net, marcelo.tosatti@cyclades.com,
+       gene.heskett@verizon.net, linux-kernel@vger.kernel.org
+Subject: Re: Problems with SCSI tape rewind / verify on 2.4.29
+Message-Id: <20050302162627.063a812a.jlmales@softhome.net>
+In-Reply-To: <20050302161507.2a67385c.jlmales@softhome.net>
+References: <E7F85A1B5FF8D44C8A1AF6885BC9A0E472B886@ratbert.vale-housing.co.uk>
+	<20050302120332.GA27882@logos.cnet>
+	<200503021208.51480.gene.heskett@verizon.net>
+	<20050302143440.GA2543@logos.cnet>
+	<20050302154626.65bc03e5.jlmales@softhome.net>
+	<20050302161507.2a67385c.jlmales@softhome.net>
+Reply-To: jlmales@softhome.net
+Organization: Toronto, Ontario - Canada
+X-Mailer: Sylpheed version 0.8.2-SrtRecipientSMTPAuthNDateSmartAcctSaveAllOpnNxtMsg (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature"; micalg=pgp-sha1; boundary="=_jive-30772-1109798804-0001-2"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-No obvous reason. Works fine with kernel 2.6.10
+This is a MIME-formatted message.  If you see this text it means that your
+E-mail software does not support MIME-formatted messages.
 
-Result of lspci:
-00:00.0 Host bridge: Intel Corp. 82852/855GM Host Bridge (rev 02)
-00:00.1 System peripheral: Intel Corp. 855GM/GME GMCH Memory I/O Control
-Registers (rev 02)
-00:00.3 System peripheral: Intel Corp. 855GM/GME GMCH Configuration
-Process Registers (rev 02)
-00:02.0 VGA compatible controller: Intel Corp. 82852/855GM Integrated
-Graphics Device (rev 02)
-00:02.1 Display controller: Intel Corp. 82852/855GM Integrated Graphics
-Device (rev 02)
-00:1d.0 USB Controller: Intel Corp. 82801DB (ICH4) USB UHCI #1 (rev 01)
-00:1d.1 USB Controller: Intel Corp. 82801DB (ICH4) USB UHCI #2 (rev 01)
-00:1d.2 USB Controller: Intel Corp. 82801DB (ICH4) USB UHCI #3 (rev 01)
-00:1d.7 USB Controller: Intel Corp. 82801DB (ICH4) USB2 EHCI Controller
-(rev 01)
-00:1e.0 PCI bridge: Intel Corp. 82801BAM/CAM PCI Bridge (rev 81)
-00:1f.0 ISA bridge: Intel Corp. 82801DBM LPC Interface Controller (rev 01)
-00:1f.1 IDE interface: Intel Corp. 82801DBM (ICH4) Ultra ATA Storage
-Controller (rev 01)
-00:1f.5 Multimedia audio controller: Intel Corp. 82801DB (ICH4) AC'97
-Audio Controller (rev 01)
-00:1f.6 Modem: Intel Corp. 82801DB (ICH4) AC'97 Modem Controller (rev 01)
-02:01.0 Ethernet controller: Broadcom Corporation BCM4401 100Base-T (rev
-01)
-02:02.0 Network controller: Broadcom Corporation: Unknown device 4324 (rev
-03)
-02:04.0 CardBus bridge: Texas Instruments PCI1510 PC card Cardbus
-Controller
+--=_jive-30772-1109798804-0001-2
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+
+Sorry gents,
+
+Let me correct this one more time.
 
 
+Regards,
 
-Diff of .config between 2.6.10 & 2.6.11
-
---- linux-2.6.10/.config        2005-02-19 18:33:49.000000000 -0800
-+++ linux-2.6.11/.config        2005-03-02 12:11:54.000000000 -0800
-@@ -1,7 +1,7 @@
- #
- # Automatically generated make config: don't edit
--# Linux kernel version: 2.6.10
--# Sat Feb 19 17:34:02 2005
-+# Linux kernel version: 2.6.11
-+# Wed Mar  2 12:11:54 2005
- #
- CONFIG_X86=y
- CONFIG_MMU=y
-@@ -92,6 +92,7 @@
- CONFIG_X86_XADD=y
- CONFIG_X86_L1_CACHE_SHIFT=7
- CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-+CONFIG_GENERIC_CALIBRATE_DELAY=y
- CONFIG_X86_WP_WORKS_OK=y
- CONFIG_X86_INVLPG=y
- CONFIG_X86_BSWAP=y
-@@ -102,6 +103,7 @@
- # CONFIG_HPET_TIMER is not set
- # CONFIG_SMP is not set
- CONFIG_PREEMPT=y
-+CONFIG_PREEMPT_BKL=y
- # CONFIG_X86_UP_APIC is not set
- CONFIG_X86_TSC=y
- CONFIG_X86_MCE=y
-@@ -158,6 +160,7 @@
- CONFIG_ACPI_PCI=y
- CONFIG_ACPI_SYSTEM=y
- CONFIG_X86_PM_TIMER=y
-+# CONFIG_ACPI_CONTAINER is not set
-
- #
- # APM (Advanced Power Management) BIOS Support
-@@ -176,7 +179,8 @@
- #
- CONFIG_CPU_FREQ=y
- # CONFIG_CPU_FREQ_DEBUG is not set
--# CONFIG_CPU_FREQ_PROC_INTF is not set
-+CONFIG_CPU_FREQ_STAT=y
-+# CONFIG_CPU_FREQ_STAT_DETAILS is not set
- CONFIG_CPU_FREQ_DEFAULT_GOV_PERFORMANCE=y
- # CONFIG_CPU_FREQ_DEFAULT_GOV_USERSPACE is not set
- CONFIG_CPU_FREQ_GOV_PERFORMANCE=y
-@@ -216,6 +220,7 @@
- CONFIG_PCI_BIOS=y
- CONFIG_PCI_DIRECT=y
- CONFIG_PCI_MMCONFIG=y
-+# CONFIG_PCIEPORTBUS is not set
- CONFIG_PCI_LEGACY_PROC=y
- CONFIG_PCI_NAMES=y
- # CONFIG_ISA is not set
-@@ -227,7 +232,6 @@
- #
- CONFIG_PCCARD=y
- CONFIG_PCMCIA_DEBUG=y
--CONFIG_PCMCIA_OBSOLETE=y
- CONFIG_PCMCIA=y
- CONFIG_CARDBUS=y
-
-@@ -238,6 +242,7 @@
- CONFIG_PD6729=y
- CONFIG_I82092=y
- CONFIG_TCIC=y
-+CONFIG_PCCARD_NONSTATIC=y
-
- #
- # PCI Hotplug Support
-@@ -291,6 +296,7 @@
- # CONFIG_BLK_CPQ_CISS_DA is not set
- # CONFIG_BLK_DEV_DAC960 is not set
- # CONFIG_BLK_DEV_UMEM is not set
-+# CONFIG_BLK_DEV_COW_COMMON is not set
- CONFIG_BLK_DEV_LOOP=y
- # CONFIG_BLK_DEV_CRYPTOLOOP is not set
- # CONFIG_BLK_DEV_NBD is not set
-@@ -313,6 +319,7 @@
- CONFIG_IOSCHED_AS=y
- CONFIG_IOSCHED_DEADLINE=y
- CONFIG_IOSCHED_CFQ=y
-+# CONFIG_ATA_OVER_ETH is not set
-
- #
- # ATA/ATAPI/MFM/RLL support
-@@ -406,6 +413,7 @@
- #
- # CONFIG_SCSI_SPI_ATTRS is not set
- # CONFIG_SCSI_FC_ATTRS is not set
-+# CONFIG_SCSI_ISCSI_ATTRS is not set
-
- #
- # SCSI low-level drivers
-@@ -426,6 +434,7 @@
- CONFIG_SCSI_ATA_PIIX=y
- # CONFIG_SCSI_SATA_NV is not set
- # CONFIG_SCSI_SATA_PROMISE is not set
-+# CONFIG_SCSI_SATA_QSTOR is not set
- CONFIG_SCSI_SATA_SX4=m
- # CONFIG_SCSI_SATA_SIL is not set
- CONFIG_SCSI_SATA_SIS=m
-@@ -454,7 +463,6 @@
- # CONFIG_SCSI_QLA2300 is not set
- # CONFIG_SCSI_QLA2322 is not set
- # CONFIG_SCSI_QLA6312 is not set
--# CONFIG_SCSI_QLA6322 is not set
- # CONFIG_SCSI_DC395x is not set
- # CONFIG_SCSI_DC390T is not set
- # CONFIG_SCSI_NSP32 is not set
-@@ -579,7 +587,6 @@
- CONFIG_IP_NF_TARGET_REDIRECT=y
- CONFIG_IP_NF_TARGET_NETMAP=y
- CONFIG_IP_NF_TARGET_SAME=y
--# CONFIG_IP_NF_NAT_LOCAL is not set
- # CONFIG_IP_NF_NAT_SNMP_BASIC is not set
- CONFIG_IP_NF_MANGLE=y
- CONFIG_IP_NF_TARGET_TOS=y
-@@ -798,6 +805,7 @@
- # CONFIG_SERIO_SERPORT is not set
- # CONFIG_SERIO_CT82C710 is not set
- CONFIG_SERIO_PCIPS2=y
-+CONFIG_SERIO_LIBPS2=y
- # CONFIG_SERIO_RAW is not set
-
- #
-@@ -968,6 +976,7 @@
- CONFIG_LOGO_LINUX_MONO=y
- CONFIG_LOGO_LINUX_VGA16=y
- CONFIG_LOGO_LINUX_CLUT224=y
-+# CONFIG_BACKLIGHT_LCD_SUPPORT is not set
-
- #
- # Sound
-@@ -986,7 +995,7 @@
- CONFIG_SND_MIXER_OSS=y
- CONFIG_SND_PCM_OSS=y
- CONFIG_SND_SEQUENCER_OSS=y
--# CONFIG_SND_RTCTIMER is not set
-+CONFIG_SND_RTCTIMER=y
- # CONFIG_SND_VERBOSE_PRINTK is not set
- # CONFIG_SND_DEBUG is not set
-
-@@ -1014,6 +1023,8 @@
- # CONFIG_SND_CS46XX is not set
- # CONFIG_SND_CS4281 is not set
- # CONFIG_SND_EMU10K1 is not set
-+# CONFIG_SND_EMU10K1X is not set
-+# CONFIG_SND_CA0106 is not set
- # CONFIG_SND_KORG1212 is not set
- # CONFIG_SND_MIXART is not set
- # CONFIG_SND_NM256 is not set
-@@ -1037,6 +1048,7 @@
- # CONFIG_SND_INTEL8X0M is not set
- # CONFIG_SND_SONICVIBES is not set
- # CONFIG_SND_VIA82XX is not set
-+# CONFIG_SND_VIA82XX_MODEM is not set
- # CONFIG_SND_VX222 is not set
-
- #
-@@ -1129,7 +1141,6 @@
- #
- # CONFIG_USB_MDC800 is not set
- # CONFIG_USB_MICROTEK is not set
--# CONFIG_USB_HPUSBSCSI is not set
-
- #
- # USB Multimedia devices
-@@ -1163,7 +1174,6 @@
- #
- # CONFIG_USB_EMI62 is not set
- # CONFIG_USB_EMI26 is not set
--# CONFIG_USB_TIGL is not set
- # CONFIG_USB_AUERSWALD is not set
- # CONFIG_USB_RIO500 is not set
- # CONFIG_USB_LEGOTOWER is not set
-@@ -1172,6 +1182,7 @@
- # CONFIG_USB_CYTHERM is not set
- # CONFIG_USB_PHIDGETKIT is not set
- # CONFIG_USB_PHIDGETSERVO is not set
-+# CONFIG_USB_IDMOUSE is not set
- # CONFIG_USB_TEST is not set
-
- #
-@@ -1189,6 +1200,11 @@
- # CONFIG_MMC is not set
-
- #
-+# InfiniBand support
-+#
-+# CONFIG_INFINIBAND is not set
-+
-+#
- # File systems
- #
- CONFIG_EXT2_FS=y
-@@ -1202,6 +1218,10 @@
- CONFIG_FS_MBCACHE=y
- # CONFIG_REISERFS_FS is not set
- # CONFIG_JFS_FS is not set
-+
-+#
-+# XFS support
-+#
- # CONFIG_XFS_FS is not set
- CONFIG_MINIX_FS=y
- # CONFIG_ROMFS_FS is not set
-@@ -1223,7 +1243,7 @@
- # DOS/FAT/NT Filesystems
- #
- CONFIG_FAT_FS=y
--CONFIG_MSDOS_FS=y
-+# CONFIG_MSDOS_FS is not set
- CONFIG_VFAT_FS=y
- CONFIG_FAT_DEFAULT_CODEPAGE=437
- CONFIG_FAT_DEFAULT_IOCHARSET="iso8859-1"
-@@ -1267,7 +1287,6 @@
- #
- # CONFIG_NFS_FS is not set
- # CONFIG_NFSD is not set
--# CONFIG_EXPORTFS is not set
- CONFIG_SMB_FS=y
- # CONFIG_SMB_NLS_DEFAULT is not set
- CONFIG_CIFS=y
-@@ -1338,6 +1357,8 @@
- # Kernel hacking
- #
- # CONFIG_DEBUG_KERNEL is not set
-+CONFIG_DEBUG_PREEMPT=y
-+CONFIG_DEBUG_BUGVERBOSE=y
- # CONFIG_FRAME_POINTER is not set
- CONFIG_EARLY_PRINTK=y
- # CONFIG_4KSTACKS is not set
-@@ -1354,6 +1375,10 @@
- # CONFIG_CRYPTO is not set
-
- #
-+# Hardware crypto devices
-+#
-+
-+#
- # Library routines
- #
- CONFIG_CRC_CCITT=m
+John L. Males
+Willowdale, Ontario
+Canada
+02 March 2005 16:26
 
 
+********** Reply Seperator **********
+
+On (Wed) 2005-03-02 16:15:07 -0500 
+John L. Males wrote in Message-ID:
+20050302161507.2a67385c.jlmales@softhome.net
+
+To: marcelo.tosatti@cyclades.com
+From: John L. Males <jlmales@softhome.net>
+Subject: Re: Re[03]: Problems with SCSI tape rewind / verify on 2.4.29
+Date: Wed, 2 Mar 2005 16:15:07 -0500
+
+> Marcelo,
+> 
+> Sorry gents, seems the LKML used to handel the RE numbering in long
+> past when I last mailed to LKML, bit not now, so resending this
+> eMail to ensure goes back to orignal thread so all the eMail
+> discussion is in one eMail thread.
+> 
+> My applogies if this caused confusion on the LKML.
+> 
+> 
+> Regards,
+> 
+> John L. Males
+> Willowdale, Ontario
+> Canada
+> 02 March 2005 (16:06 -) 16:15
+> 
+> 
+> ********** Reply Seperator **********
+> 
+> On (Wed) 2005-03-02 15:46:26 -0500 
+> John L. Males wrote in Message-ID:
+> 20050302154626.65bc03e5.jlmales@softhome.net
+> 
+> To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+> From: John L. Males <jlmales@softhome.net>
+> Subject: Re[03]: Problems with SCSI tape rewind / verify on 2.4.29
+> Date: Wed, 2 Mar 2005 15:46:26 -0500
+> 
+> > Hi Marcello,
+> > 
+> > 
+> > ********** Reply Seperator **********
+> > 
+> > On (Wed) 2005-03-02 11:34:41 -0300 
+> > Marcelo Tosatti wrote in Message-ID:
+> > 20050302143440.GA2543@logos.cnet
+> > 
+> > To: Gene Heskett <gene.heskett@verizon.net>
+> > From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+> > Subject: Re: Problems with SCSI tape rewind / verify on 2.4.29
+> > Date: Wed, 2 Mar 2005 11:34:41 -0300
+> > 
+> > > 
+> > > n Wed, Mar 02, 2005 at 12:08:51PM -0500, Gene Heskett wrote:
+> > > > On Wednesday 02 March 2005 07:03, Marcelo Tosatti wrote:
+> > > > >On Wed, Mar 02, 2005 at 11:15:42AM -0000, Mark Yeatman wrote:
+> > > > >> Hi
+> > > > >>
+> > > > >> Never had to log a bug before, hope this is correctly done.
+> > > > >>
+> > > > >> Thanks
+> > > > >>
+> > > > >> Mark
+> > > > >>
+> > > > >> Detail....
+> > > > >>
+> > > > >> [1.] One line summary of the problem:
+> > > > >> SCSI tape drive is refusing to rewind after backup to allow
+> > > > >verify> and causing illegal seek error
+> > 
+> > In my experiences with this problem that I am sure is exactly the
+> > same issue, the tape in fact does rewind after creating the tar to
+> > then perfore the --verify option.  The illegal see error seems to
+> > arise after the rewind or more correctly bsf commands may be being
+> > used (but not confirmed this yet, another test I need to do in few
+> > days).  For sure the tape is positionted back.  I know as I have
+> > also done this test with larger directories and know and have
+> > heard the tape take long time to naturally get back to the start
+> > of tar file to be able to perform the --verify option.  That said
+> > I am using a DLT drive. Perhpas with different drivers or tape
+> > drivers this issue may have variations on theme and behaviour with
+> > net result the same error message and/or root cause.
+> > 
+> > > > >>
+> > > > >> [2.] Full description of the problem/report:
+> > > > >> On backup the tape drive is reporting the following error
+> > > > >and> failing it's backups.
+> > > > >>
+> > > > >> tar: /dev/st0: Warning: Cannot seek: Illegal seek
+> > > > >>
+> > > > >> I have traced this back to failing at an upgrade of the
+> > > > >kernel to> 2.4.29 on Feb 8th. The backups have not worked
+> > > > >since. Replacement> Drives have been tried and cables to no
+> > > > >avail. I noticed in the> the changelog that a patch by Solar
+> > > > >Designer to the Scsi tape> return code had been made.
+> > 
+> > Last kernel to work correctly in 2.4 branch was 2.4.26.  Kernel
+> > versions 2.4.27, 2.4.28 and 2.4.29 all fail based on my experience
+> > with DLT SCSI based tape.
+> > 
+> > > > >
+> > > > >v2.6 also contains the same problem BTW.
+> > > > >
+> > > > >Try this:
+> > > > >
+> > > > >--- a/drivers/scsi/st.c.orig 2005-03-02 09:02:13.637158144
+> > > > >-0300+++ b/drivers/scsi/st.c 2005-03-02 09:02:20.208159200
+> > > > >-0300@@ -3778,7 +3778,6 @@
+> > > > >  read:  st_read,
+> > > > >  write:  st_write,
+> > > > >  ioctl:  st_ioctl,
+> > > > >- llseek:  no_llseek,
+> > > > >  open:  st_open,
+> > > > >  flush:  st_flush,
+> > > > >  release: st_release,
+> > > > >-
+> > > > 
+> > > > Interesting Marcelo.  How long has this been true in 2.6?
+> > 
+> > In the 2.6 tree the tar --verify works with 2.6.7, but fails with
+> > 2.6.9. I am unable to test 2.6.8, but based on research of the
+> > code changes of 2.6.8 compared to the changes made in 2.4.27 re
+> > llseek I would expect 2.6.8 to fail as well with my DLT SCSI tape.
+> > 
+> > 
+> > > 
+> > > Actually I just checked and it seems v2.6 is not using
+> > > "no_llseek".
+> > > 
+> > > However John L. Males reports the same problem with v2.6 - John,
+> > > care to retest with v2.6.10 ?
+> > 
+> > My ability to test a 2.6.x kernel is limited to what 2.6.x kernel
+> > I can find on a livecd.  The 2.6.7 and 2.6.9 kernel tests I
+> > conducted were using Knoppix 3.6 and 3.7.  I do not have means at
+> > this time, nor time, to build up a dedicated drive to test 2.6.x
+> > kernels.  If someone knows of or can build a 2.6.10 kernel on a
+> > live CD I will be happy to do the test.  That said, I looked at
+> > the patch for 2.6.10 and seems alot of changes were made to st.c
+> > in 2.6.10.  I did not see, but could of missed in looking, any
+> > lseek related change in 2.6.10.  Given how it seems the test I ran
+> > with the change in st.c Marcell suggested what is the expected
+> > thought on this issue with 2.6.10?  I am just asking from
+> > curiousity.  Again, if someone can tell me of a live cd or can
+> > easly make a live cd with the 2.6.10 kernel I can test this issue
+> > wiht 2.6.10.  Perhaps there is someone else with a DLT/SCSI tape
+> > driver that could test this tar --verify issue on 2.6.10?
+> > 
+> > > 
+> > > > I thought I had an amanda problem, and eventually went to
+> > > > virtual tapes on disk, largely because of this.  However, I
+> > > > have to say it is working better than tapes ever did here. 
+> > > > Unforch, that 200GB disk is certainly a single point of
+> > > > failure I don't relish thinking about...
+> > > 
+> > > :)
+> > 
+> > 
+> > Regards,
+> > 
+> > John L. Males
+> > Willowdale, Ontario
+> > Canada
+> > 02 March 2005 (15:00 -) 15:46
+> > 
+> > 
+> > ==================================================================
+> > 
+> > 
+> > "Boooomer ... Boom Boom, how are you Boom Boom"
+> > "Meoaaaawwwww, meoaaaaaawwww" as Boomer loudly announces
+> >      intent Boomer is coming for attention
+> > Loved to kneed arm and lick arm with Boomers very large
+> >      tongue
+> > Able to catch, or at least hit, almost any object in flight
+> >      withing reach of front paws
+> > Boomer 1985 (Born), Adopted 04 September 1991
+> > 04 September 1991 - 08 February 2000 18:50
+> > 
+> > "How are you Mr. Sylvester?"
+> > "... Grunt Grunt" ... quick licks of nose
+> > Rolls over for pet and stomac rub when Dad arrives home
+> >      and grunting
+> > Runs back and forth from study, tilts head as glowing green
+> >      eyes stare for "attention please", grunts and meows,
+> >      repeats run, tilt head and stare few times for good
+> >      measure, grunts and meows
+> > Lays on floor just outside study to guard Dad
+> > Loved to groom Miss Mahogany, and let Mahogany cuddle beside
+> > Sylvester 1989 (estimated Born)
+> > Found in building mail area noon hour 09 Feburary 1992
+> > 09 February 1992 - 19 January 2003 23:25
+> > 
+> > "Hello Miss Chicago 'White Sox', how are you 'Chico'?"
+> > "Grunt" (thank you) ... as put out food for Chicago
+> > "MEEEEEOOOOWWWW" So loud the world stops
+> > A very determined Miss "White Sox"
+> > AKA "Chico" ... Cheryl Crawford used as nickname
+> > Loved to chase kibble slid down hall floor,
+> >      bat about and then eat
+> > Loved to hook paw in dish to toss out a single kibble
+> >      at time, dart at as moved, then eat ... "Crunches"
+> > Chicago "White Sox", "Chico" August 1989 (born),
+> >      adopted 04 February 1991
+> > 05 October 2004 06:52 Quite "Grunts" ....
+> >                       as lay Chicago on bed for last time
+> > 04 February 1991 - 05 October 2004 07:32
+> > 
+> > 
+> 
+> 
+> ==================================================================
+> 
+> 
+> "Boooomer ... Boom Boom, how are you Boom Boom"
+> "Meoaaaawwwww, meoaaaaaawwww" as Boomer loudly announces
+>      intent Boomer is coming for attention
+> Loved to kneed arm and lick arm with Boomers very large
+>      tongue
+> Able to catch, or at least hit, almost any object in flight
+>      withing reach of front paws
+> Boomer 1985 (Born), Adopted 04 September 1991
+> 04 September 1991 - 08 February 2000 18:50
+> 
+> "How are you Mr. Sylvester?"
+> "... Grunt Grunt" ... quick licks of nose
+> Rolls over for pet and stomac rub when Dad arrives home
+>      and grunting
+> Runs back and forth from study, tilts head as glowing green
+>      eyes stare for "attention please", grunts and meows,
+>      repeats run, tilt head and stare few times for good
+>      measure, grunts and meows
+> Lays on floor just outside study to guard Dad
+> Loved to groom Miss Mahogany, and let Mahogany cuddle beside
+> Sylvester 1989 (estimated Born)
+> Found in building mail area noon hour 09 Feburary 1992
+> 09 February 1992 - 19 January 2003 23:25
+> 
+> "Hello Miss Chicago 'White Sox', how are you 'Chico'?"
+> "Grunt" (thank you) ... as put out food for Chicago
+> "MEEEEEOOOOWWWW" So loud the world stops
+> A very determined Miss "White Sox"
+> AKA "Chico" ... Cheryl Crawford used as nickname
+> Loved to chase kibble slid down hall floor,
+>      bat about and then eat
+> Loved to hook paw in dish to toss out a single kibble
+>      at time, dart at as moved, then eat ... "Crunches"
+> Chicago "White Sox", "Chico" August 1989 (born),
+>      adopted 04 February 1991
+> 05 October 2004 06:52 Quite "Grunts" ....
+>                       as lay Chicago on bed for last time
+> 04 February 1991 - 05 October 2004 07:32
+> 
+> 
+
+
+==================================================================
+
+
+"Boooomer ... Boom Boom, how are you Boom Boom"
+"Meoaaaawwwww, meoaaaaaawwww" as Boomer loudly announces
+     intent Boomer is coming for attention
+Loved to kneed arm and lick arm with Boomers very large
+     tongue
+Able to catch, or at least hit, almost any object in flight
+     withing reach of front paws
+Boomer 1985 (Born), Adopted 04 September 1991
+04 September 1991 - 08 February 2000 18:50
+
+"How are you Mr. Sylvester?"
+"... Grunt Grunt" ... quick licks of nose
+Rolls over for pet and stomac rub when Dad arrives home
+     and grunting
+Runs back and forth from study, tilts head as glowing green
+     eyes stare for "attention please", grunts and meows,
+     repeats run, tilt head and stare few times for good
+     measure, grunts and meows
+Lays on floor just outside study to guard Dad
+Loved to groom Miss Mahogany, and let Mahogany cuddle beside
+Sylvester 1989 (estimated Born)
+Found in building mail area noon hour 09 Feburary 1992
+09 February 1992 - 19 January 2003 23:25
+
+"Hello Miss Chicago 'White Sox', how are you 'Chico'?"
+"Grunt" (thank you) ... as put out food for Chicago
+"MEEEEEOOOOWWWW" So loud the world stops
+A very determined Miss "White Sox"
+AKA "Chico" ... Cheryl Crawford used as nickname
+Loved to chase kibble slid down hall floor,
+     bat about and then eat
+Loved to hook paw in dish to toss out a single kibble
+     at time, dart at as moved, then eat ... "Crunches"
+Chicago "White Sox", "Chico" August 1989 (born),
+     adopted 04 February 1991
+05 October 2004 06:52 Quite "Grunts" ....
+                      as lay Chicago on bed for last time
+04 February 1991 - 05 October 2004 07:32
+
+
+--=_jive-30772-1109798804-0001-2
+Content-Type: application/pgp-signature
+Content-Transfer-Encoding: 7bit
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQFCJi+SsrsjS27q9xYRAqX8AJwKTavM46MaEXKonQo3YARh0F0g2gCeNE+E
++i6JkbIdO9aoacM/EA0hkCk=
+=NbYw
+-----END PGP SIGNATURE-----
+
+--=_jive-30772-1109798804-0001-2--

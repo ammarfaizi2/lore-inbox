@@ -1,41 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274752AbRJ2NQu>; Mon, 29 Oct 2001 08:16:50 -0500
+	id <S273881AbRJ2NRA>; Mon, 29 Oct 2001 08:17:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274653AbRJ2NQk>; Mon, 29 Oct 2001 08:16:40 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:27192 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S273881AbRJ2NQY>; Mon, 29 Oct 2001 08:16:24 -0500
-Date: Mon, 29 Oct 2001 14:17:00 +0100
-From: Andrea Arcangeli <andrea@suse.de>
+	id <S274653AbRJ2NQu>; Mon, 29 Oct 2001 08:16:50 -0500
+Received: from goofy.fi.upm.es ([138.100.8.23]:12815 "EHLO goofy.fi.upm.es")
+	by vger.kernel.org with ESMTP id <S273881AbRJ2NQp>;
+	Mon, 29 Oct 2001 08:16:45 -0500
+Date: Mon, 29 Oct 2001 14:16:57 +0100 (MET)
+From: Alvaro de Luna <aluna@avellano.datsi.fi.upm.es>
+Subject: ISACAN
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.14pre3aa4
-Message-ID: <20011029141700.E1318@athlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Message-id: <Pine.GSO.4.05.10110291411100.7547-100000@avellano.datsi.fi.upm.es>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-URL:
+Hi, 
+ I've just subscribed on this list, and I'm looking for a
+Linux driver for ISACAN, a dual can bus interface.
+Has anybody know anything about this?
 
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.14pre3aa4.bz2
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.14pre3aa4/
+For more references of this card visit:
+http://www.hmcomputing.net/isacan.htm
 
-Only in 2.4.14pre3aa4: 00_tmpfs-symlink-1
+Any comments welcome.
 
-	Fix from Herbert Xu and Christoph Rohland for the i_size
-	of tmpfs symlinks.
+Thanks.
 
-Only in 2.4.14pre3aa3: 10_vm-7
-Only in 2.4.14pre3aa3: 10_vm-7.1
-Only in 2.4.14pre3aa4: 10_vm-8
 
-	Minor vm changes, in particular don't shrink the vfs with the
-	pagemap_lru_lock acquired, and use GFP_NOIO in free_more_memory()
-	per Linus's suggestion to avoid too much nesting on the stack.
-
-Andrea

@@ -1,82 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261206AbUEQM70@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261210AbUEQNJQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261206AbUEQM70 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 May 2004 08:59:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261210AbUEQM70
+	id S261210AbUEQNJQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 May 2004 09:09:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261231AbUEQNJQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 May 2004 08:59:26 -0400
-Received: from panda.sul.com.br ([200.219.150.4]:38157 "EHLO panda.sul.com.br")
-	by vger.kernel.org with ESMTP id S261206AbUEQM7Y (ORCPT
+	Mon, 17 May 2004 09:09:16 -0400
+Received: from zork.zork.net ([64.81.246.102]:63638 "EHLO zork.zork.net")
+	by vger.kernel.org with ESMTP id S261210AbUEQNJP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 May 2004 08:59:24 -0400
-Date: Mon, 17 May 2004 09:57:05 -0300
+	Mon, 17 May 2004 09:09:15 -0400
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-mm3
-Message-ID: <20040517125705.GA23455@cathedrallabs.org>
+Cc: vojtech@suse.cz, linux-kernel@vger.kernel.org
+Subject: Scroll wheel on PS/2 Logitech MouseMan Wheel no longer works (was
+ Re: 2.6.6-mm3)
 References: <20040516025514.3fe93f0c.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="ADZbWkCsHQ7r3kzd"
-Content-Disposition: inline
-In-Reply-To: <20040516025514.3fe93f0c.akpm@osdl.org>
-From: aris@cathedrallabs.org (Aristeu Sergio Rozanski Filho)
+From: Sean Neakums <sneakums@zork.net>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>, vojtech@suse.cz,
+ linux-kernel@vger.kernel.org
+Date: Mon, 17 May 2004 14:09:11 +0100
+In-Reply-To: <20040516025514.3fe93f0c.akpm@osdl.org> (Andrew Morton's
+ message of "Sun, 16 May 2004 02:55:14 -0700")
+Message-ID: <6u3c5zkxoo.fsf@zork.zork.net>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: sneakums@zork.net
+X-SA-Exim-Scanned: No (on zork.zork.net); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton <akpm@osdl.org> writes:
 
---ADZbWkCsHQ7r3kzd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+>  bk-input.patch
 
-Hi Andrew,
+I'm guessing this patch contains the changes responsible.
 
-> +hpet-driver.patch
->=20
->  HPET clock driver (needs work)
-this doesn't compiles if ACPI isn't present. patch attached.
+As with 2.6.6-mm2 (and before, from a quick grep of
+/var/log/messages), the mouse is detected as
 
---=20
-Aristeu
+  mice: PS/2 mouse device common for all mice
+  serio: i8042 AUX port at 0x60,0x64 irq 12
+  input: ImExPS/2 Logitech Wheel Mouse on isa0060/serio1
 
+but moving the wheel causes the pointer to make large jumps toward the
+top-right corner.
 
---ADZbWkCsHQ7r3kzd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="hpet-acpi.patch"
-Content-Transfer-Encoding: quoted-printable
+When I boot with psmouse.proto=imps, it is detected as below and works
+as before.
 
-diff -uprN -X dontdiff 2.6-mm-clean/drivers/char/hpet.c 2.6-mm/drivers/char=
-/hpet.c
---- 2.6-mm-clean/drivers/char/hpet.c	2004-05-17 09:38:03.000000000 -0300
-+++ 2.6-mm/drivers/char/hpet.c	2004-05-17 09:23:04.000000000 -0300
-@@ -976,6 +976,7 @@ hpet_alloc (struct hpet_data *hdp)
- 	return 0;
- }
-=20
-+#ifdef ACPI
- static acpi_status __init
- hpet_resources (struct acpi_resource *res, void *data)
- {
-@@ -1056,7 +1057,10 @@ static struct acpi_driver hpet_acpi_driv
- 		.remove	=3D	hpet_acpi_remove,
- 	},
- };
--
-+#else	/* ACPI */
-+#define acpi_bus_register_driver(x) do {} while(0)=20
-+#define acpi_bus_unregister_driver(x) do {} while(0)
-+#endif	/* ACPI */
-=20
-=20
- static int __init
-@@ -1067,7 +1071,7 @@ hpet_init (void)
- 	if (hpets)
- 		hpet_post_platform();
-=20
--	(void) acpi_bus_register_driver(&hpet_acpi_driver);
-+	acpi_bus_register_driver(&hpet_acpi_driver);
-=20
- 	if (hpets) {
- 		entry =3D create_proc_entry("driver/hpet", 0, 0);
+  mice: PS/2 mouse device common for all mice
+  serio: i8042 AUX port at 0x60,0x64 irq 12
+  input: ImPS/2 Generic Wheel Mouse on isa0060/serio1
 
---ADZbWkCsHQ7r3kzd--
+In case it's relevant, the mouse is connected through a KVM switch.

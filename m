@@ -1,54 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278665AbRKHWeV>; Thu, 8 Nov 2001 17:34:21 -0500
+	id <S278662AbRKHWfb>; Thu, 8 Nov 2001 17:35:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278662AbRKHWeL>; Thu, 8 Nov 2001 17:34:11 -0500
-Received: from quattro-eth.sventech.com ([205.252.89.20]:30480 "EHLO
-	quattro.sventech.com") by vger.kernel.org with ESMTP
-	id <S278665AbRKHWeE>; Thu, 8 Nov 2001 17:34:04 -0500
-Date: Thu, 8 Nov 2001 17:34:04 -0500
-From: Johannes Erdfelt <johannes@erdfelt.com>
-To: Tim Pepper <tpepper@vato.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Big USB speed difference when compiled as module (was Re: speed difference between using hard-linked and modular drives?)
-Message-ID: <20011108173404.L32355@sventech.com>
-In-Reply-To: <20011108142412.A19451@vato.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011108142412.A19451@vato.org>; from tpepper@vato.org on Thu, Nov 08, 2001 at 02:24:12PM -0800
+	id <S278695AbRKHWfS>; Thu, 8 Nov 2001 17:35:18 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:27145 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S278662AbRKHWey>;
+	Thu, 8 Nov 2001 17:34:54 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: frank@unternet.org
+Date: Thu, 8 Nov 2001 23:34:38 MET-1
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: hang with 2.4.14 & vmware 3.0.x, anyone else seen this?
+CC: linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.40
+Message-ID: <8A11A922758@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 08, 2001, Tim Pepper <tpepper@vato.org> wrote:
-> On Thu 08 Nov at 17:01:24 +0100 roy@karlsbakk.net done said:
-> > 
-> > Are there any speed difference between hard-linked device drivers and
-> > their modular counterparts?
-> 
-> I've been wondering this as well.  I've got a curious situation:  With usbcore
-> and the uhci driver compiled into the kernel I can initiate transfers to a usb
-> device I have (Creative Nomad Jukebox) at what I'm eyeballing to be near the
-> 12Mbps USB speed.  These tranfers always fail.  With both drivers compiled as
-> modules the transfers are over an order of magnitude slower, not even
-> appearing to reach the 1.5Mbps USB speed, but they succeed.  I haven't had a
-> chance to try to figure out what's going on for sure.
-> 
-> It's been a little while since I was playing with this but I believe I saw
-> the same thing with the usb-uhci driver as well but it didn't seem to like
-> talking to the Nomad regardless of it being compiled as a module or not.
-> This was with the 2.4.13 kernel.  I can provide more details upon request.
+On  8 Nov 01 at 22:24, Frank de Lange <frank@unterne wrote:
+> > Only the big white switch helps (fsck'ing 80 gigs gives me enough time to make
+> > a good cup of coffee... time for ext3 in the main kernel series...)
 
-This absolutely should not be the result of compiling into the kernel.
-It's most likely a bug in the HC which just happened to show up with
-modules.
+I tried Win2k and Netware6 (both 128MB) virtual machines running on 
+the top of 2.4.15-pre1. My machine has 256MB RAM, SMP PIII/800. Maybe 
+that it even worked faster than under Alan's kernel, specially when 
+I tried to crash it by creating Netware6 256MB virtual machine - it 
+stresses 256MB system a bit - but to my surprise system still stayed very
+responsive, without any crash, of course. Only usual complaints when
+running Netware6 as guest: 'rtc: lost some interrupts at 512Hz.'.
 
-> BTW: is there a way to do USB sniffing in software in linux?  I'd imagine it's
-> possible, but just can't find anything that does...
+So I was not able to reproduce it. As I said, my system has 256MB of memory,
+two PIII/800, 40GB IDE, some tulip based network card, and on background
+it grabs some TV pictures using two bt878 pieces - so pretty standard box,
+running unstable Debian with 4.1 XFree on mga g450.
 
-Not in Linux yet.
+There was no other activity during the testing AFAIK. 
 
-JE
-
+If you see something different from your box, or from your VMs, tell me. 
+But adding some SCSI adapter is beyond PCI slots of my box. I also
+assume that you are using released VMware version, build 1455.
+                                    Best regards,
+                                            Petr Vandrovec
+                                            vandrove@vc.cvut.cz
+                                            

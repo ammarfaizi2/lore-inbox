@@ -1,64 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261282AbTCJKrm>; Mon, 10 Mar 2003 05:47:42 -0500
+	id <S261284AbTCJK4V>; Mon, 10 Mar 2003 05:56:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261284AbTCJKrm>; Mon, 10 Mar 2003 05:47:42 -0500
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:58897 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S261282AbTCJKrl>; Mon, 10 Mar 2003 05:47:41 -0500
-Date: Mon, 10 Mar 2003 11:58:17 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Andries Brouwer <aebr@win.tue.nl>
-cc: Christoph Hellwig <hch@infradead.org>,
-       Dave Jones <davej@codemonkey.org.uk>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Fwd: struct inode size reduction.
-In-Reply-To: <20030309230824.GA3842@win.tue.nl>
-Message-ID: <Pine.LNX.4.44.0303101100250.5042-100000@serv>
-References: <20030309135402.GB32107@suse.de> <20030309171314.GA3783@win.tue.nl>
- <20030309203359.GA7276@suse.de> <20030309195555.A22226@infradead.org>
- <20030309203144.GA3814@win.tue.nl> <Pine.LNX.4.44.0303092310470.32518-100000@serv>
- <20030309230824.GA3842@win.tue.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261287AbTCJK4U>; Mon, 10 Mar 2003 05:56:20 -0500
+Received: from mailout06.sul.t-online.com ([194.25.134.19]:40419 "EHLO
+	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S261284AbTCJK4U>; Mon, 10 Mar 2003 05:56:20 -0500
+Date: Mon, 10 Mar 2003 12:06:35 +0100
+From: Andi Kleen <ak@muc.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Jamie Lokier <jamie@shareable.org>, linux-kernel@vger.kernel.org,
+       ak@muc.de
+Subject: Re: [Bug 350] New: i386 context switch very slow compared to 2.4 due to wrmsr (performance)
+Message-ID: <20030310110635.GA2148@averell>
+References: <20030212101206.GA10422@bjl1.jlokier.co.uk> <Pine.LNX.4.44.0303091858530.1420-100000@home.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0303091858530.1420-100000@home.transmeta.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Mar 10, 2003 at 04:07:36AM +0100, Linus Torvalds wrote:
+>  since you've been interested in the past, I thought I'd ask you to test
+> the current context switch stuff. Andi cleaned up some FPU reload stuff
+> (and I fixed a bug in it, tssk tssk Andi - you'd obviously not actually
+> timed your cleanups), and I just committed and pushed out my "cache the
 
-On Mon, 10 Mar 2003, Andries Brouwer wrote:
+You mean the TIF->_TIF thing? Yes that was wrong in the first patch,
+but fixed in the patches later. Unfortunately the patch still 
+has the problem pointed out by Manfred Spraul: if you're unlucky
+it could destroy the _TIF_SIGPENDING set by another CPU with the
+non atomic access. Really thread_info should have two flag words:
+one that is truly local and can be accessed without LOCK and 
+one that can be changed at will by external users too.
 
-> > My main question here is whether that code hurts in any way? Does it 
-> > prevent other cleanups? Sure this code needs more work to be really 
-> > useful, but as long as it only wastes a bit of space, I'd prefer to keep 
-> > it.
-> 
-> Yes, dead code always hurts.
+After some discussion with him I think the right fix for now is to 
+move it it back to PF_USEDFPU into task_struct->flags.
 
-It's not really dead code, it's not yet used code and if it stays there as 
-a reminder to actually do something about it, it's good that it hurts.
+Will submit a patch for that later after I was able to test it.
 
->  
-> -       error = register_chrdev(driver->major, driver->name, &tty_fops);
-> +       error = register_chrdev_region(driver->major, driver->minor_start,
-> +                                      driver->num, driver->name, &tty_fops);
-
-Are that much parameters really needed?
-When I look through the character device list, I basically see two usages.
-1. A character device is mapped to n device numbers (where n is <= 8). In 
-this case it should be enough to register a really available character 
-device with a single device number. More can be configured e.g. through a 
-sysfs interface. Currently we have here misc devices users, which is 
-running out of number space and the other users which are often wasting a 
-complete major number for a few devices.
-2. A large number of dynamic virtual devices (e.g. terminals), these want 
-a complete major anyway and currently they have to register multiple of 
-them.
-These are the two cases a new character device core should be able to 
-handle. On top of this we can still think about a small compatibility 
-layer.
-
-bye, Roman
-
-
+-Andi

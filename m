@@ -1,36 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136014AbRA1ARL>; Sat, 27 Jan 2001 19:17:11 -0500
+	id <S131511AbRA1AXV>; Sat, 27 Jan 2001 19:23:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135972AbRA1AQw>; Sat, 27 Jan 2001 19:16:52 -0500
-Received: from moutvdom01.kundenserver.de ([195.20.224.200]:19316 "EHLO
-	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S132362AbRA1ALv>; Sat, 27 Jan 2001 19:11:51 -0500
-Message-ID: <3A73565B.6EBC7F77@ngforever.de>
-Date: Sat, 27 Jan 2001 16:14:35 -0700
-From: Thunder from the hill <thunder@ngforever.de>
-X-Mailer: Mozilla 4.76 [en]C-CCK-MCD QXW03240  (WinNT; U)
-X-Accept-Language: de,en-US
-MIME-Version: 1.0
-To: root@chaos.analogic.com,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Renaming lost+found
-In-Reply-To: <Pine.LNX.3.95.1010126084632.208A-100000@chaos.analogic.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S131640AbRA1AXM>; Sat, 27 Jan 2001 19:23:12 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:14858 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S131511AbRA1AXB>; Sat, 27 Jan 2001 19:23:01 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: ps hang in 241-pre10
+Date: 27 Jan 2001 16:22:39 -0800
+Organization: Transmeta Corporation
+Message-ID: <94voof$17j$1@penguin.transmeta.com>
+In-Reply-To: <3A724FD2.3DEB44C@reptechnic.com.au> <3A7295F6.621BBEC4@Home.com> <3A731E65.8BE87D73@pobox.com> <3A7359BB.7BBEE42A@linux.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> A file-system without a lost+found directory is like love without sex.
-You mean, possible but leaving you unsatisfied? Well, I think a file
-system without a lost+found is a lot worse.
+In article <3A7359BB.7BBEE42A@linux.com>, David Ford  <david@linux.com>
+wrote:
+>
+>We've narrowed it down to "we're all running xmms" when it happend.
 
-Thunder
----
-Woah... I did a "cat /boot/vmlinuz >> /dev/audio" - and I think I heard
-god...
+Does anybody have a clue about what is different with xmms?
 
+Does it use KNI if it can, for example? We used to have a problem with
+KNI+Athlons, for example. 
 
+It might also be that it's threading-related, and that XMMS is one of
+the few things that uses threads. Things like that. I'm not an XMMS
+user, can somebody who knows XMMS comment on things that it does that
+are unusual?
+
+		Linus
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,57 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264348AbTKZU5N (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 15:57:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264351AbTKZU5N
+	id S264343AbTKZU4y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 15:56:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264348AbTKZU4y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 15:57:13 -0500
-Received: from imap.gmx.net ([213.165.64.20]:15512 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S264348AbTKZU5I (ORCPT
+	Wed, 26 Nov 2003 15:56:54 -0500
+Received: from bee.hiwaay.net ([216.180.54.11]:59584 "EHLO mail.hiwaay.net")
+	by vger.kernel.org with ESMTP id S264343AbTKZU4w (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 15:57:08 -0500
-X-Authenticated: #524548
-From: rgx <rgx@gmx.de>
-To: Bob Chiodini <robert.chiodini-1@ksc.nasa.gov>
-Subject: Re: kernel 2.4-22 won't compile...
-Date: Wed, 26 Nov 2003 21:57:05 +0100
-User-Agent: KMail/1.5.4
-References: <200311261734.23177.rgx@gmx.de> <200311261935.03860.rgx@gmx.de> <1069873394.25657.28.camel@tweedy.ksc.nasa.gov>
-In-Reply-To: <1069873394.25657.28.camel@tweedy.ksc.nasa.gov>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+	Wed, 26 Nov 2003 15:56:52 -0500
+Date: Wed, 26 Nov 2003 14:56:50 -0600
+From: Chris Adams <cmadams@hiwaay.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: amanda vs 2.6
+Message-ID: <20031126205650.GA1028742@hiwaay.net>
+References: <fa.fdvoh2b.e4kag7@ifi.uio.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200311262157.05035.rgx@gmx.de>
+In-Reply-To: <Pine.LNX.4.58.0311261202050.1524@home.osdl.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi @ll :)
+Once upon a time, Linus Torvalds <torvalds@osdl.org> wrote:
+>And syslogd is stopped for some reason - either a bug, a mistaken SIGSTOP,
+>or simply because the console has been stopped with a simple ^S.
 
-bug fixed, found next:
+It can also happen if there is a problem with DNS; syslogd tries to do a
+DNS lookup to get the hostname to put in the record and can hang on that
+if the DNS server is busy, hung, down, unreachable, etc.
 
-...
-
-make -C lockd 
-make[2]: Entering directory `/data/src/linux-2.4.22/fs/lockd'
-make all_targets
-make[3]: Entering directory `/data/src/linux-2.4.22/fs/lockd'
-gcc -D__KERNEL__ -I/data/src/linux-2.4.22/include -Wall 
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
--fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686   
--nostdinc -iwithprefix include -DKBUILD_BASENAME=svc4proc  -c -o 
-svc4proc.o svc4proc.c
-svc4proc.c:564: error: `nlm4svc_decode_void' undeclared here (not in a 
-function)
-svc4proc.c:564: error: initializer element is not constant
-svc4proc.c:564: error: (near initialization for `nlmsvc_procedures4
-[0].pc_decode')
-...
-
-Further details added to
-http://www.lug-owl.de/cgi-bin/wiki/ErrorCompilingKernel20031125
-
-Thanks 4Ur <F1> :)
-Ralf
-
+_Really_ annoying when you are trying to log in to the DNS server to fix
+a problem with DNS!
+-- 
+Chris Adams <cmadams@hiwaay.net>
+Systems and Network Administrator - HiWAAY Internet Services
+I don't speak for anybody but myself - that's enough trouble.

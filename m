@@ -1,78 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135331AbRDXKj3>; Tue, 24 Apr 2001 06:39:29 -0400
+	id <S135448AbRDXKmj>; Tue, 24 Apr 2001 06:42:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135528AbRDXKjO>; Tue, 24 Apr 2001 06:39:14 -0400
-Received: from cdsl18.ptld.uswest.net ([209.180.170.18]:27499 "HELO
-	galen.magenet.net") by vger.kernel.org with SMTP id <S135331AbRDXKis>;
-	Tue, 24 Apr 2001 06:38:48 -0400
-Date: Tue, 24 Apr 2001 03:39:22 -0700
-From: Joseph Carter <knghtbrd@debian.org>
-To: Ville Herva <vherva@mail.niksula.cs.hut.fi>
-Cc: "Mike A. Harris" <mharris@opensourceadvocate.org>,
-        Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [Semi-OT] Dual Athlon support in kernel
-Message-ID: <20010424033922.A5878@debian.org>
-In-Reply-To: <Pine.LNX.4.33.0104240115050.21785-100000@asdf.capslock.lan> <3AE52C2C.C6B2B472@mountain.net> <20010424131857.F3529@niksula.cs.hut.fi>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="WIyZ46R2i8wDzkSu"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <20010424131857.F3529@niksula.cs.hut.fi>; from vherva@niksula.hut.fi on Tue, Apr 24, 2001 at 01:18:57PM +0300
-X-Operating-System: Linux galen 2.4.3-ac12
-X-No-Junk-Mail: Spam will solicit a hostile reaction, at the very least.
+	id <S135528AbRDXKm3>; Tue, 24 Apr 2001 06:42:29 -0400
+Received: from granada.iram.es ([150.214.224.100]:63504 "EHLO granada.iram.es")
+	by vger.kernel.org with ESMTP id <S135448AbRDXKmW>;
+	Tue, 24 Apr 2001 06:42:22 -0400
+Date: Tue, 24 Apr 2001 12:42:11 +0200 (METDST)
+From: Gabriel Paubert <paubert@iram.es>
+To: george anzinger <george@mvista.com>
+cc: "Robert H. de Vries" <rhdv@rhdv.cistron.nl>,
+        high-res-timers-discourse@lists.sourceforge.net,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: high-res-timers start code.
+In-Reply-To: <3AE49402.BB093022@mvista.com>
+Message-ID: <Pine.HPX.4.10.10104241213530.2724-100000@gra-ux1.iram.es>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---WIyZ46R2i8wDzkSu
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Tue, Apr 24, 2001 at 01:18:57PM +0300, Ville Herva wrote:
-> There's also AthlonLinux http://athlonlinux.org/ and AthlonGCC
-> http://athlonlinux.org/agcc/about.shtml, but I have no experience with th=
-ose
-> (I have no Athlon ;( ).
+On Mon, 23 Apr 2001, george anzinger wrote:
 
-A warning about agcc, I've discovered that it does not always compile code
-quite the way you expect it.  This is unsurprising given it's based on
-pgcc which is known to change alignments on you in ways that sometimes
-break things subtly.
+> "Robert H. de Vries" wrote:
+> > 
+> > On Monday 23 April 2001 19:45, you wrote:
+> > 
+> > > By the way, is the user land stuff the same for all "arch"s?
+> > 
+> > Not if you plan to handle the CPU cycle counter in user space. That is at
+> > least what I would propose.
+> 
+> Just got interesting, lets let the world look in.
+> 
+> What did you have in mind here?  I suspect that on some archs the cycle
+> counter is not available to user code.  I know that on parisc it is
+> optionally available (kernel can set a bit to make it available), but by
+> it self it is only good for intervals.  You need to peg some value to a
+> CLOCK to use it to get timeofday, for instance.
 
+On Intel there is a also bit to disable unprivileged RDTSC, IIRC. On PPC
+the timebase is always available (but the old 601 needs spacial casing: it
+uses different registers and does not count in binary :-().
 
-I do not know if agcc actually can produce code which simply does not work
-as is reported with pgcc (I suspect the alignment differences account for
-many of those cases), but I recall reading in the past few days that agcc
-is not supported for compiling the kernel.
+> On the other hand, if there is an area of memory that both users and
+> system can read but only system can write, one might put the soft clock
+> there.  This would allow gettimeofday (with the cycle counter) to work
+> without a system call.  To the best of my knowledge the system does not
+> have such an area as yet.
+> 
+> comments?
 
-It also fails to properly compile certain other programs, notably anything
-that includes asm functions.  As a result, my own experience suggests you
-consider agcc in the same class as gcc 3.0 at the moment - experimental.
-Hopefully the k7 optimizations that work well will find their way into a
-nice athlon subarch options in standard gcc and agcc won't be necessary.
+Well, there may be work in this area, since x86-64 will not enter kernel
+mode for gettimeofday() if I understand correctly what Andrea said. Linus
+hinted once at exporting (kernel) code to user space.
 
---=20
-Joseph Carter <knghtbrd@debian.org>                Free software developer
+Some data also will also need to be accessible but as long as you don't
+guarantee compatibility on data layout, only AFAIU on interface for these
+calls (it was not clear to me if it would be a fixed address forever or
+dynamic linking with kernel exported symbols), it's not a problem.
 
-Guns don't kill people.  It's those damn bullets.  Guns just make them go
-really really fast.
-        -- Jake Johanson
+Of course it will SIGSEGV instead of returning -EFAULT but this is a good
+thing IMHO, nobody checks for -EFAULT from gettimeofday(). I think
+that system calls should rather force SIGSEGV than return -EFAULT anyway,
+to make syscalls indistinguishable from pure library calls. 
 
+	Regards,
+	Gabriel.
 
---WIyZ46R2i8wDzkSu
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: 1024D/DCF9DAB3  20F6 2261 F185 7A3E 79FC  44F9 8FF7 D7A3 DCF9 DAB3
-
-iEYEARECAAYFAjrlV9oACgkQj/fXo9z52rOFSQCeNv7/mUDf+hLG1JTruT0KsSLy
-SeUAniChWQCjlAei9oKkc2uBb/x5qbdC
-=1iur
------END PGP SIGNATURE-----
-
---WIyZ46R2i8wDzkSu--

@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135537AbRDSDx2>; Wed, 18 Apr 2001 23:53:28 -0400
+	id <S135541AbRDSDyI>; Wed, 18 Apr 2001 23:54:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135538AbRDSDxS>; Wed, 18 Apr 2001 23:53:18 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:6155 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S135537AbRDSDxF>; Wed, 18 Apr 2001 23:53:05 -0400
+	id <S135540AbRDSDyA>; Wed, 18 Apr 2001 23:54:00 -0400
+Received: from tinylinux.tip.CSIRO.AU ([130.155.192.102]:47620 "EHLO
+	mobilix.atnf.CSIRO.AU") by vger.kernel.org with ESMTP
+	id <S135538AbRDSDxt>; Wed, 18 Apr 2001 23:53:49 -0400
+Date: Thu, 19 Apr 2001 13:53:36 +1000
+Message-Id: <200104190353.f3J3raq00949@mobilix.atnf.CSIRO.AU>
+From: Richard Gooch <rgooch@atnf.csiro.au>
+To: Larry McVoy <lm@bitmover.com>
+Cc: Miles Lane <miles@megapathdsl.net>, linux-kernel@vger.kernel.org
 Subject: Re: ANNOUNCE New Open Source X server
-To: gnea@rochester.rr.com (Scott Prader)
-Date: Thu, 19 Apr 2001 04:54:52 +0100 (BST)
-Cc: miles@megapathdsl.net (Miles Lane), linux-kernel@vger.kernel.org
-In-Reply-To: <20010418215602.A9035@rochester.rr.com> from "Scott Prader" at Apr 18, 2001 09:56:03 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14q5Ww-0006N1-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <20010418192030.F29903@work.bitmover.com>
+In-Reply-To: <Pine.LNX.4.10.10104181317440.1478-100000@www.transvirtual.com>
+	<15070.4428.345455.994818@pizda.ninka.net>
+	<20010418192824.A21365@rochester.rr.com>
+	<3ADE2EBD.8A875AE1@megapathdsl.net>
+	<20010418215602.A9035@rochester.rr.com>
+	<20010418192030.F29903@work.bitmover.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> different, new, from scratch, to go in another direction.  I think Linus
-> himself did this back in 1991, obviously not with X, but you get the
-> idea I think.  If not, then don't bother answering cuz it'll just be a
+Larry McVoy writes:
+> In other words, what the world does not need is another project.
+> What the world does need is people who roll up their sleeves and do
+> real work.  You may well be one of them, that would be cool.  But
+> what would be even cooler is if we join together on real, existing
+> efforts and work on them rather than just constantly make up a new
+> project.  Yeah, it's a lot harder, you have to put at least part of
+> your ego aside and accept someone else's leadership, but more gets
+> done that way.
 
-Yeah and we spent most of those 10 years reinventing wheels in order to make
-them free.  There are people doing interesting things with X rendering and
-the ideas behind it. Some of them have been at it since Linus was a small
-child. The TinyX server framework also lets you hack arbitarily interesting
-card drivers into a nice easy framework. 
+Fixing NFS corruption would be a good project to work on. Despite
+years of banging away at this problem, the community has yet to fix
+it.
 
-There are also folks like the directfb people who've implemented something
-Rasterman ranted about ages ago - which is using the 3d hardware subsystem to
-render windows as rectangular textures.
+				Regards,
 
-I've seen exactly _one_ X project that is justifiably seperate. Thats weirdX
-and its separate because its in Java. If you like the idea of
-
-	http://localhost/
-
-giving you an Xdm window you'll find it worth a play
-
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

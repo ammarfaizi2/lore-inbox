@@ -1,58 +1,116 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264095AbTLXXJL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Dec 2003 18:09:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264104AbTLXXJL
+	id S264104AbTLXXLJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Dec 2003 18:11:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264119AbTLXXLJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Dec 2003 18:09:11 -0500
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:29133 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S264095AbTLXXJI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Dec 2003 18:09:08 -0500
-Message-ID: <3FEA1C91.2010302@labs.fujitsu.com>
-Date: Thu, 25 Dec 2003 08:09:05 +0900
-From: Tsuchiya Yoshihiro <tsuchiya@labs.fujitsu.com>
-Reply-To: tsuchiya@labs.fujitsu.com
-Organization: Fujitsu Labs
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Stephen C. Tweedie" <sct@redhat.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: filesystem bug?
-References: <3FDD7DFD.7020306@labs.fujitsu.com>	 <1071582242.5462.1.camel@sisko.scot.redhat.com> <3FDF7BE0.205@jpl.nasa.gov>		 <3FDF95EB.2080903@labs.fujitsu.com> <3FE0E5C6.5040008@labs.fujitsu.com>	 <1071782986.3666.323.camel@sisko.scot.redhat.com>	 <3FE62999.90309@labs.fujitsu.com>  <3FE67362.2070704@labs.fujitsu.com> <1072094621.1967.6.camel@sisko.scot.redhat.com> <3FE8F079.7010906@labs.fujitsu.com>
-In-Reply-To: <3FE8F079.7010906@labs.fujitsu.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 24 Dec 2003 18:11:09 -0500
+Received: from smtp-103-wednesday.noc.nerim.net ([62.4.17.103]:6922 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id S264104AbTLXXLB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Dec 2003 18:11:01 -0500
+Date: Thu, 25 Dec 2003 00:11:57 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       LM Sensors <sensors@stimpy.netroedge.com>
+Subject: [PATCH 2.4] i2c cleanups, second wave (5/5)
+Message-Id: <20031225001157.6354b903.khali@linux-fr.org>
+In-Reply-To: <20031224225707.749707e5.khali@linux-fr.org>
+References: <20031224225707.749707e5.khali@linux-fr.org>
+Reply-To: LKML <linux-kernel@vger.kernel.org>,
+       LM Sensors <sensors@stimpy.netroedge.com>
+X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tsuchiya Yoshihiro wrote:
+And finally, this patch adds documentation for the i2c-velleman driver,
+and also fixes a typo (the device is refered to as K9000 in many places
+while its real name is actually K8000).
 
->>OK, I'll try your script with a 2.4.21 or 2.4.23 kernel to see if we can
->>reproduce this here.  In the mean time, could you possibly try a 2.4.24
->>kernel, just in case the clear_inode race has something to do with this?
->>
->> 
->>
->>    
->>
->Stephen, I started running the test on ext2 and ext3 on 2.4.24-pre2.
->  
->
-The test on ext3 on 2.4.24-pre2 failed. The read-only directory has been 
-gone.
-As from the number of files and blocks that 'df' says, not only the lost 
-directory
-has been gone, it looks the directories and files under it also have 
-been gone.
-The remove command looks like it really worked on the directory, rather than
-the parent directory is broken.
+I'll send a similar patch to Greg KH for Linux 2.6 in a few days.
 
-The test on ext2 is still running.
+Thanks!
 
-Thanks,
-Yoshi
----
-Yoshihiro Tsuchiya
+diff -ruN linux-2.4.24-pre2/Documentation/Configure.help linux-2.4.24-pre2-k5/Documentation/Configure.help
+--- linux-2.4.24-pre2/Documentation/Configure.help	Tue Dec 23 22:19:41 2003
++++ linux-2.4.24-pre2-k5/Documentation/Configure.help	Wed Dec 24 22:25:24 2003
+@@ -19052,9 +19052,9 @@
+   <file:Documentation/modules.txt>.
+   The module will be called i2c-elv.o.
+ 
+-Velleman K9000 adapter
++Velleman K8000 adapter
+ CONFIG_I2C_VELLEMAN
+-  This supports the Velleman K9000 parallel-port I2C adapter.  Say Y
++  This supports the Velleman K8000 parallel-port I2C adapter.  Say Y
+   if you own such an adapter.
+ 
+   This driver is also available as a module.  If you want to compile
+diff -ruN linux-2.4.24-pre2/Documentation/i2c/i2c-velleman linux-2.4.24-pre2-k5/Documentation/i2c/i2c-velleman
+--- linux-2.4.24-pre2/Documentation/i2c/i2c-velleman	Thu Jan  1 01:00:00 1970
++++ linux-2.4.24-pre2-k5/Documentation/i2c/i2c-velleman	Wed Dec 24 22:25:24 2003
+@@ -0,0 +1,23 @@
++i2c-velleman driver
++-------------------
++This is a driver for i2c-hw access for Velleman K8000 and other adapters.
++
++Useful links
++------------
++Velleman:
++	http://www.velleman.be/
++
++Velleman K8000 Howto:
++	http://howto.htlw16.ac.at/k8000-howto.html
++
++K8000 and K8005 libraries
++-------------------------
++The project has lead to new libs for the Velleman K8000 and K8005:
++LIBK8000 v1.99.1 and LIBK8005 v0.21
++
++With these libs, you can control the K8000 interface card and the K8005
++stepper motor card with the simple commands which are in the original
++Velleman software, like SetIOchannel, ReadADchannel, SendStepCCWFull and
++many more, using /dev/velleman.
++
++The libs can be found on http://groups.yahoo.com/group/k8000/files/linux/
+diff -ruN linux-2.4.24-pre2/Documentation/i2c/summary linux-2.4.24-pre2-k5/Documentation/i2c/summary
+--- linux-2.4.24-pre2/Documentation/i2c/summary	Mon Dec 22 21:50:09 2003
++++ linux-2.4.24-pre2-k5/Documentation/i2c/summary	Wed Dec 24 22:25:24 2003
+@@ -71,5 +71,5 @@
+ i2c-ppc405:      IBM 405xx processor I2C device (uses i2c-algo-ppc405) (NOT BUILT BY DEFAULT)
+ i2c-pport:       Primitive parallel port adapter (uses i2c-algo-bit)
+ i2c-rpx:         RPX board Motorola 8xx I2C device (uses i2c-algo-8xx) (NOT BUILT BY DEFAULT)
+-i2c-velleman:    Velleman K9000 parallel port adapter (uses i2c-algo-bit)
++i2c-velleman:    Velleman K8000 parallel port adapter (uses i2c-algo-bit)
+ 
+diff -ruN linux-2.4.24-pre2/drivers/i2c/Config.in linux-2.4.24-pre2-k5/drivers/i2c/Config.in
+--- linux-2.4.24-pre2/drivers/i2c/Config.in	Tue Dec 23 22:19:41 2003
++++ linux-2.4.24-pre2-k5/drivers/i2c/Config.in	Wed Dec 24 22:25:47 2003
+@@ -12,7 +12,7 @@
+    if [ "$CONFIG_I2C_ALGOBIT" != "n" ]; then
+       dep_tristate '  Philips style parallel port adapter' CONFIG_I2C_PHILIPSPAR $CONFIG_I2C_ALGOBIT $CONFIG_PARPORT
+       dep_tristate '  ELV adapter' CONFIG_I2C_ELV $CONFIG_I2C_ALGOBIT
+-      dep_tristate '  Velleman K9000 adapter' CONFIG_I2C_VELLEMAN $CONFIG_I2C_ALGOBIT
++      dep_tristate '  Velleman K8000 adapter' CONFIG_I2C_VELLEMAN $CONFIG_I2C_ALGOBIT
+       dep_tristate '  NatSemi SCx200 I2C using GPIO pins' CONFIG_SCx200_I2C $CONFIG_SCx200 $CONFIG_I2C_ALGOBIT
+       if [ "$CONFIG_SCx200_I2C" != "n" ]; then
+          int  '    GPIO pin used for SCL' CONFIG_SCx200_I2C_SCL 12
+diff -ruN linux-2.4.24-pre2/drivers/i2c/i2c-velleman.c linux-2.4.24-pre2-k5/drivers/i2c/i2c-velleman.c
+--- linux-2.4.24-pre2/drivers/i2c/i2c-velleman.c	Mon Dec 22 21:50:10 2003
++++ linux-2.4.24-pre2-k5/drivers/i2c/i2c-velleman.c	Wed Dec 24 22:25:24 2003
+@@ -1,5 +1,5 @@
+ /* ------------------------------------------------------------------------- */
+-/* i2c-velleman.c i2c-hw access for Velleman K9000 adapters		     */
++/* i2c-velleman.c i2c-hw access for Velleman K8000 adapters		     */
+ /* ------------------------------------------------------------------------- */
+ /*   Copyright (C) 1995-96, 2000 Simon G. Vogl
+ 
 
+
+-- 
+Jean Delvare
+http://www.ensicaen.ismra.fr/~delvare/

@@ -1,92 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261937AbVAHWV2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262028AbVAHW3v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261937AbVAHWV2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 17:21:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261957AbVAHWSv
+	id S262028AbVAHW3v (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 17:29:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261957AbVAHW32
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 17:18:51 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:38405 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261937AbVAHWGH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 17:06:07 -0500
-Date: Sat, 8 Jan 2005 23:05:58 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: mvw@planets.elm.net
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] quota: make some code static
-Message-ID: <20050108220558.GF14108@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Sat, 8 Jan 2005 17:29:28 -0500
+Received: from hermes.domdv.de ([193.102.202.1]:45067 "EHLO hermes.domdv.de")
+	by vger.kernel.org with ESMTP id S262028AbVAHW2L (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jan 2005 17:28:11 -0500
+Message-ID: <41E05E6B.4080500@domdv.de>
+Date: Sat, 08 Jan 2005 23:27:55 +0100
+From: Andreas Steinmetz <ast@domdv.de>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Lee Revell <rlrevell@joe-job.com>
+CC: ross@lug.udel.edu, "Jack O'Quin" <joq@io.com>,
+       Chris Wright <chrisw@osdl.org>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, paul@linuxaudiosystems.com,
+       arjanv@redhat.com, mingo@elte.hu, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+References: <200501071620.j07GKrIa018718@localhost.localdomain>	 <1105132348.20278.88.camel@krustophenia.net>	 <20050107134941.11cecbfc.akpm@osdl.org>	 <20050107221059.GA17392@infradead.org>	 <20050107142920.K2357@build.pdx.osdl.net> <87mzvkxxck.fsf@sulphur.joq.us>	 <20050108165657.GA21760@jose.lug.udel.edu> <1105222819.24592.131.camel@krustophenia.net>
+In-Reply-To: <1105222819.24592.131.camel@krustophenia.net>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below makes some needlessly global code static.
+Lee Revell wrote:
+> On Sat, 2005-01-08 at 11:56 -0500, ross@lug.udel.edu wrote:
+> 
+>>Not to mention that not everyone chooses to use PAM for precisely this
+>>reason.  Slackware has never included PAM and probably never will.
+>>My audio workstation has worked swell with the 2.4+caps solution and
+>>the 2.6+LSM solution.  PAM would break me ::-(
+> 
+> 
+> Hmm.  How could you (for example) configure all your machines to
+> authenticate against an LDAP server without PAM?
 
-The most interesting part is that dquot_cachep can become static, since 
-it isn't used outside of dquot.c .
+nss_ldap :-)
 
-
-diffstat output:
- fs/dquot.c           |    8 ++++----
- fs/quota.c           |    2 +-
- include/linux/slab.h |    1 -
- 3 files changed, 5 insertions(+), 6 deletions(-)
-
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.10-mm2-full/include/linux/slab.h.old	2005-01-08 17:18:39.000000000 +0100
-+++ linux-2.6.10-mm2-full/include/linux/slab.h	2005-01-08 17:18:45.000000000 +0100
-@@ -118,7 +118,6 @@
- extern kmem_cache_t	*names_cachep;
- extern kmem_cache_t	*files_cachep;
- extern kmem_cache_t	*filp_cachep;
--extern kmem_cache_t	*dquot_cachep;
- extern kmem_cache_t	*fs_cachep;
- extern kmem_cache_t	*signal_cachep;
- extern kmem_cache_t	*sighand_cachep;
---- linux-2.6.10-mm2-full/fs/dquot.c.old	2005-01-08 17:17:28.000000000 +0100
-+++ linux-2.6.10-mm2-full/fs/dquot.c	2005-01-08 17:18:29.000000000 +0100
-@@ -128,6 +128,9 @@
- static struct quota_format_type *quota_formats;	/* List of registered formats */
- static struct quota_module_name module_names[] = INIT_QUOTA_MODULE_NAMES;
- 
-+/* SLAB cache for dquot structures */
-+static kmem_cache_t *dquot_cachep;
-+
- int register_quota_format(struct quota_format_type *fmt)
- {
- 	spin_lock(&dq_list_lock);
-@@ -199,7 +202,7 @@
- 
- static LIST_HEAD(inuse_list);
- static LIST_HEAD(free_dquots);
--unsigned int dq_hash_bits, dq_hash_mask;
-+static unsigned int dq_hash_bits, dq_hash_mask;
- static struct hlist_head *dquot_hash;
- 
- struct dqstats dqstats;
-@@ -1781,9 +1784,6 @@
- 	{ .ctl_name = 0 },
- };
- 
--/* SLAB cache for dquot structures */
--kmem_cache_t *dquot_cachep;
--
- static int __init dquot_init(void)
- {
- 	int i;
---- linux-2.6.10-mm2-full/fs/quota.c.old	2005-01-08 17:19:08.000000000 +0100
-+++ linux-2.6.10-mm2-full/fs/quota.c	2005-01-08 17:19:17.000000000 +0100
-@@ -136,7 +136,7 @@
- 	return NULL;
- }
- 
--void quota_sync_sb(struct super_block *sb, int type)
-+static void quota_sync_sb(struct super_block *sb, int type)
- {
- 	int cnt;
- 	struct inode *discard[MAXQUOTAS];
-
+-- 
+Andreas Steinmetz                       SPAMmers use robotrap@domdv.de

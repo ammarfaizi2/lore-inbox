@@ -1,746 +1,2458 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268129AbUIBKBb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268115AbUIBKHw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268129AbUIBKBb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 06:01:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268117AbUIBKBA
+	id S268115AbUIBKHw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 06:07:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268067AbUIBKHw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 06:01:00 -0400
-Received: from ozlabs.org ([203.10.76.45]:11407 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S268085AbUIBJzL (ORCPT
+	Thu, 2 Sep 2004 06:07:52 -0400
+Received: from verein.lst.de ([213.95.11.210]:38046 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S268115AbUIBKA5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 05:55:11 -0400
-Date: Thu, 2 Sep 2004 19:50:35 +1000
-From: Anton Blanchard <anton@samba.org>
+	Thu, 2 Sep 2004 06:00:57 -0400
+Date: Thu, 2 Sep 2004 12:00:38 +0200
+From: Christoph Hellwig <hch@lst.de>
 To: akpm@osdl.org
-Cc: paulus@samba.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] [ppc64] update pSeries_defconfig
-Message-ID: <20040902095035.GW26072@krispykreme>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] factor out common <asm/hardirq.h> code
+Message-ID: <20040902100038.GA10991@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch>, akpm@osdl.org,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040803i
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Since the irq handling rework in 2.5 lots of code in the individual
+<asm/hardirq.h> files is the same.  This patch moves that common code
+to <linux/hardirq.h>.  The following differences existed:
 
-Hi,
+ - alpha, m68k, m68knommu and v850 were missing the ~PREEMPT_ACTIVE
+   masking in the CONFIG_PREEMPT case of in_atomic().  These
+   architectures don't support CONFIG_PREEMPT else this would have been
+   an easily-spottbale bug
+ - S390 didn't provide synchronize_irq as it doesn't fit into their
+   I/O model.  They now get a spurious prototype/macro
+ - ppc added a new preemptible() macro that is provided for all
+   architectures now.
 
-Update pSeries_defconfig. This config should better cover POWER5 systems
-with SPLPAR spinlocks, IPR SCSI, NR_CPUS = 128, NUMA, HVCS, and irq stacks
-enabled, VSCSI and VETH as modules.
+Most drivers were using <linux/interrupt.h> as they should, but a few
+drivers and lots of architecture code has been updated to use
+<linux/hardirq.h> instead of <asm/hardirq.h>
 
-Signed-off-by: Anton Blanchard <anton@samba.org>
 
-diff -puN arch/ppc64/configs/pSeries_defconfig~pSeries_defconfig arch/ppc64/configs/pSeries_defconfig
---- foobar2/arch/ppc64/configs/pSeries_defconfig~pSeries_defconfig	2004-09-02 19:17:53.888297947 +1000
-+++ foobar2-anton/arch/ppc64/configs/pSeries_defconfig	2004-09-02 19:20:16.660778486 +1000
-@@ -16,27 +16,34 @@ CONFIG_FORCE_MAX_ZONEORDER=13
- #
- CONFIG_EXPERIMENTAL=y
- CONFIG_CLEAN_COMPILE=y
--CONFIG_STANDALONE=y
+===== Documentation/DocBook/kernel-hacking.tmpl 1.17 vs edited =====
+--- 1.17/Documentation/DocBook/kernel-hacking.tmpl	2004-05-19 18:02:52 +02:00
++++ edited/Documentation/DocBook/kernel-hacking.tmpl	2004-09-02 11:32:14 +02:00
+@@ -145,7 +145,7 @@
+     In user context, the <varname>current</varname> pointer (indicating 
+     the task we are currently executing) is valid, and
+     <function>in_interrupt()</function>
+-    (<filename>include/asm/hardirq.h</filename>) is <returnvalue>false
++    (<filename>include/linux/interrupt.h</filename>) is <returnvalue>false
+     </returnvalue>.  
+    </para>
  
- #
- # General setup
- #
- CONFIG_SWAP=y
- CONFIG_SYSVIPC=y
-+CONFIG_POSIX_MQUEUE=y
- # CONFIG_BSD_PROCESS_ACCT is not set
- CONFIG_SYSCTL=y
-+CONFIG_AUDIT=y
-+CONFIG_AUDITSYSCALL=y
- CONFIG_LOG_BUF_SHIFT=17
- CONFIG_HOTPLUG=y
- CONFIG_IKCONFIG=y
- CONFIG_IKCONFIG_PROC=y
- # CONFIG_EMBEDDED is not set
- CONFIG_KALLSYMS=y
-+CONFIG_KALLSYMS_ALL=y
-+# CONFIG_KALLSYMS_EXTRA_PASS is not set
- CONFIG_FUTEX=y
- CONFIG_EPOLL=y
- CONFIG_IOSCHED_NOOP=y
- CONFIG_IOSCHED_AS=y
- CONFIG_IOSCHED_DEADLINE=y
-+CONFIG_IOSCHED_CFQ=y
- # CONFIG_CC_OPTIMIZE_FOR_SIZE is not set
-+CONFIG_SHMEM=y
-+# CONFIG_TINY_SHMEM is not set
+@@ -241,7 +241,7 @@
+    <para>
+     You can tell you are in a softirq (or bottom half, or tasklet)
+     using the <function>in_softirq()</function> macro 
+-    (<filename class="headerfile">include/asm/hardirq.h</filename>).
++    (<filename class="headerfile">include/linux/interrupt.h</filename>).
+    </para>
+    <caution>
+     <para>
+===== Documentation/firmware_class/firmware_sample_firmware_class.c 1.1 vs edited =====
+--- 1.1/Documentation/firmware_class/firmware_sample_firmware_class.c	2003-06-15 13:11:53 +02:00
++++ edited/Documentation/firmware_class/firmware_sample_firmware_class.c	2004-09-02 11:31:32 +02:00
+@@ -14,9 +14,8 @@
+ #include <linux/module.h>
+ #include <linux/init.h>
+ #include <linux/timer.h>
+-#include <asm/hardirq.h>
++#include <linux/firmware.h>
  
- #
- # Loadable module support
-@@ -48,6 +55,7 @@ CONFIG_OBSOLETE_MODPARM=y
- # CONFIG_MODVERSIONS is not set
- # CONFIG_KMOD is not set
- CONFIG_STOP_MACHINE=y
-+CONFIG_SYSVIPC_COMPAT=y
+-#include "linux/firmware.h"
  
- #
- # Platform support
-@@ -59,14 +67,18 @@ CONFIG_PPC64=y
- CONFIG_PPC_OF=y
- CONFIG_ALTIVEC=y
- # CONFIG_PPC_PMAC is not set
-+CONFIG_PPC_SPLPAR=y
- # CONFIG_BOOTX_TEXT is not set
- # CONFIG_POWER4_ONLY is not set
--# CONFIG_IOMMU_VMERGE is not set
-+CONFIG_IOMMU_VMERGE=y
- CONFIG_SMP=y
- CONFIG_IRQ_ALL_CPUS=y
--CONFIG_NR_CPUS=32
-+CONFIG_NR_CPUS=128
- # CONFIG_HMT is not set
--# CONFIG_DISCONTIGMEM is not set
-+CONFIG_DISCONTIGMEM=y
-+CONFIG_NUMA=y
-+CONFIG_SCHED_SMT=y
-+# CONFIG_PREEMPT is not set
- CONFIG_PPC_RTAS=y
- CONFIG_RTAS_FLASH=m
- CONFIG_SCANLOG=m
-@@ -81,6 +93,7 @@ CONFIG_BINFMT_ELF=y
- # CONFIG_BINFMT_MISC is not set
- CONFIG_PCI_LEGACY_PROC=y
- CONFIG_PCI_NAMES=y
-+CONFIG_HOTPLUG_CPU=y
+ MODULE_AUTHOR("Manuel Estrada Sainz <ranty@debian.org>");
+ MODULE_DESCRIPTION("Hackish sample for using firmware class directly");
+===== arch/alpha/kernel/smp.c 1.47 vs edited =====
+--- 1.47/arch/alpha/kernel/smp.c	2004-08-27 08:30:31 +02:00
++++ edited/arch/alpha/kernel/smp.c	2004-09-01 16:52:13 +02:00
+@@ -36,7 +36,6 @@
+ #include <asm/bitops.h>
+ #include <asm/pgtable.h>
+ #include <asm/pgalloc.h>
+-#include <asm/hardirq.h>
+ #include <asm/mmu_context.h>
+ #include <asm/tlbflush.h>
  
- #
- # PCMCIA/CardBus support
-@@ -107,7 +120,9 @@ CONFIG_PROC_DEVICETREE=y
- #
- # Generic Driver Options
- #
--CONFIG_FW_LOADER=m
-+CONFIG_STANDALONE=y
-+CONFIG_PREVENT_FIRMWARE_BUILD=y
-+CONFIG_FW_LOADER=y
- # CONFIG_DEBUG_DRIVER is not set
+===== arch/cris/kernel/crisksyms.c 1.7 vs edited =====
+--- 1.7/arch/cris/kernel/crisksyms.c	2004-06-01 11:27:58 +02:00
++++ edited/arch/cris/kernel/crisksyms.c	2004-09-02 11:23:16 +02:00
+@@ -16,7 +16,6 @@
+ #include <asm/uaccess.h>
+ #include <asm/checksum.h>
+ #include <asm/io.h>
+-#include <asm/hardirq.h>
+ #include <asm/delay.h>
+ #include <asm/irq.h>
+ #include <asm/pgtable.h>
+===== arch/h8300/kernel/asm-offsets.c 1.3 vs edited =====
+--- 1.3/arch/h8300/kernel/asm-offsets.c	2004-04-12 19:55:03 +02:00
++++ edited/arch/h8300/kernel/asm-offsets.c	2004-09-02 11:29:22 +02:00
+@@ -12,9 +12,9 @@
+ #include <linux/sched.h>
+ #include <linux/kernel_stat.h>
+ #include <linux/ptrace.h>
++#include <linux/hardirq.h>
+ #include <asm/bootinfo.h>
+ #include <asm/irq.h>
+-#include <asm/hardirq.h>
+ #include <asm/ptrace.h>
  
- #
-@@ -127,7 +142,7 @@ CONFIG_FW_LOADER=m
- #
- # Block devices
- #
--CONFIG_BLK_DEV_FD=y
-+CONFIG_BLK_DEV_FD=m
- # CONFIG_BLK_CPQ_DA is not set
- # CONFIG_BLK_CPQ_CISS_DA is not set
- # CONFIG_BLK_DEV_DAC960 is not set
-@@ -135,7 +150,8 @@ CONFIG_BLK_DEV_FD=y
- CONFIG_BLK_DEV_LOOP=y
- # CONFIG_BLK_DEV_CRYPTOLOOP is not set
- CONFIG_BLK_DEV_NBD=m
--# CONFIG_BLK_DEV_CARMEL is not set
-+# CONFIG_BLK_DEV_SX8 is not set
-+# CONFIG_BLK_DEV_UB is not set
- CONFIG_BLK_DEV_RAM=y
- CONFIG_BLK_DEV_RAM_SIZE=4096
- CONFIG_BLK_DEV_INITRD=y
-@@ -149,9 +165,9 @@ CONFIG_BLK_DEV_IDE=y
- #
- # Please see Documentation/ide.txt for help/info on IDE drives
- #
-+# CONFIG_BLK_DEV_IDE_SATA is not set
- CONFIG_BLK_DEV_IDEDISK=y
- # CONFIG_IDEDISK_MULTI_MODE is not set
--# CONFIG_IDEDISK_STROKE is not set
- CONFIG_BLK_DEV_IDECD=y
- # CONFIG_BLK_DEV_IDETAPE is not set
- # CONFIG_BLK_DEV_IDEFLOPPY is not set
-@@ -194,6 +210,7 @@ CONFIG_BLK_DEV_AMD74XX=y
- # CONFIG_BLK_DEV_SLC90E66 is not set
- # CONFIG_BLK_DEV_TRM290 is not set
- # CONFIG_BLK_DEV_VIA82CXXX is not set
-+# CONFIG_IDE_ARM is not set
- CONFIG_BLK_DEV_IDEDMA=y
- # CONFIG_IDEDMA_IVB is not set
- CONFIG_IDEDMA_AUTO=y
-@@ -219,7 +236,6 @@ CONFIG_CHR_DEV_SG=y
- # Some SCSI devices (e.g. CD jukebox) support multiple LUNs
- #
- CONFIG_SCSI_MULTI_LUN=y
--CONFIG_SCSI_REPORT_LUNS=y
- CONFIG_SCSI_CONSTANTS=y
- # CONFIG_SCSI_LOGGING is not set
+ #define DEFINE(sym, val) \
+===== arch/h8300/kernel/h8300_ksyms.c 1.4 vs edited =====
+--- 1.4/arch/h8300/kernel/h8300_ksyms.c	2004-05-25 11:53:07 +02:00
++++ edited/arch/h8300/kernel/h8300_ksyms.c	2004-09-02 11:28:23 +02:00
+@@ -15,7 +15,6 @@
+ #include <asm/io.h>
+ #include <asm/semaphore.h>
+ #include <asm/checksum.h>
+-#include <asm/hardirq.h>
+ #include <asm/current.h>
+ #include <asm/gpio.h>
  
-@@ -233,28 +249,32 @@ CONFIG_SCSI_FC_ATTRS=y
- # SCSI low-level drivers
- #
- # CONFIG_BLK_DEV_3W_XXXX_RAID is not set
-+# CONFIG_SCSI_3W_9XXX is not set
- # CONFIG_SCSI_ACARD is not set
- # CONFIG_SCSI_AACRAID is not set
- # CONFIG_SCSI_AIC7XXX is not set
- # CONFIG_SCSI_AIC7XXX_OLD is not set
- # CONFIG_SCSI_AIC79XX is not set
--# CONFIG_SCSI_ADVANSYS is not set
--# CONFIG_SCSI_MEGARAID is not set
-+# CONFIG_MEGARAID_NEWGEN is not set
-+# CONFIG_MEGARAID_LEGACY is not set
- # CONFIG_SCSI_SATA is not set
- # CONFIG_SCSI_BUSLOGIC is not set
--# CONFIG_SCSI_CPQFCTS is not set
- # CONFIG_SCSI_DMX3191D is not set
- # CONFIG_SCSI_EATA is not set
- # CONFIG_SCSI_EATA_PIO is not set
- # CONFIG_SCSI_FUTURE_DOMAIN is not set
- # CONFIG_SCSI_GDTH is not set
- # CONFIG_SCSI_IPS is not set
-+CONFIG_SCSI_IBMVSCSI=m
- # CONFIG_SCSI_INIA100 is not set
- CONFIG_SCSI_SYM53C8XX_2=y
- CONFIG_SCSI_SYM53C8XX_DMA_ADDRESSING_MODE=0
- CONFIG_SCSI_SYM53C8XX_DEFAULT_TAGS=16
- CONFIG_SCSI_SYM53C8XX_MAX_TAGS=64
- # CONFIG_SCSI_SYM53C8XX_IOMAPPED is not set
-+CONFIG_SCSI_IPR=y
-+# CONFIG_SCSI_IPR_TRACE is not set
-+# CONFIG_SCSI_IPR_DUMP is not set
- # CONFIG_SCSI_QLOGIC_ISP is not set
- # CONFIG_SCSI_QLOGIC_FC is not set
- # CONFIG_SCSI_QLOGIC_1280 is not set
-@@ -277,11 +297,15 @@ CONFIG_BLK_DEV_MD=y
- CONFIG_MD_LINEAR=y
- CONFIG_MD_RAID0=y
- CONFIG_MD_RAID1=y
-+CONFIG_MD_RAID10=m
- CONFIG_MD_RAID5=y
--CONFIG_MD_RAID6=y
--# CONFIG_MD_MULTIPATH is not set
-+CONFIG_MD_RAID6=m
-+CONFIG_MD_MULTIPATH=m
- CONFIG_BLK_DEV_DM=y
- CONFIG_DM_CRYPT=m
-+CONFIG_DM_SNAPSHOT=m
-+CONFIG_DM_MIRROR=m
-+CONFIG_DM_ZERO=m
+===== arch/h8300/kernel/ints.c 1.10 vs edited =====
+--- 1.10/arch/h8300/kernel/ints.c	2004-04-12 19:55:03 +02:00
++++ edited/arch/h8300/kernel/ints.c	2004-09-02 11:28:31 +02:00
+@@ -22,13 +22,13 @@
+ #include <linux/init.h>
+ #include <linux/random.h>
+ #include <linux/bootmem.h>
++#include <linux/hardirq.h>
  
- #
- # Fusion MPT device support
-@@ -296,6 +320,7 @@ CONFIG_DM_CRYPT=m
- #
- # I2O device support
- #
-+# CONFIG_I2O is not set
+ #include <asm/system.h>
+ #include <asm/irq.h>
+ #include <asm/traps.h>
+ #include <asm/io.h>
+ #include <asm/setup.h>
+-#include <asm/hardirq.h>
+ #include <asm/errno.h>
  
- #
- # Macintosh device drivers
-@@ -322,19 +347,17 @@ CONFIG_NET_IPIP=y
- # CONFIG_NET_IPGRE is not set
- # CONFIG_IP_MROUTE is not set
- # CONFIG_ARPD is not set
--CONFIG_INET_ECN=y
- CONFIG_SYN_COOKIES=y
- CONFIG_INET_AH=m
- CONFIG_INET_ESP=m
- CONFIG_INET_IPCOMP=m
-+CONFIG_INET_TUNNEL=y
+ /*
+===== arch/h8300/platform/h8s/ints.c 1.8 vs edited =====
+--- 1.8/arch/h8300/platform/h8s/ints.c	2004-02-01 18:09:58 +01:00
++++ edited/arch/h8300/platform/h8s/ints.c	2004-09-02 11:28:39 +02:00
+@@ -22,6 +22,7 @@
+ #include <linux/init.h>
+ #include <linux/bootmem.h>
+ #include <linux/random.h>
++#include <linux/hardirq.h>
  
- #
- # IP: Virtual Server Configuration
- #
- # CONFIG_IP_VS is not set
- # CONFIG_IPV6 is not set
--# CONFIG_DECNET is not set
--# CONFIG_BRIDGE is not set
- CONFIG_NETFILTER=y
- # CONFIG_NETFILTER_DEBUG is not set
+ #include <asm/system.h>
+ #include <asm/irq.h>
+@@ -29,7 +30,6 @@
+ #include <asm/io.h>
+ #include <asm/setup.h>
+ #include <asm/gpio.h>
+-#include <asm/hardirq.h>
+ #include <asm/regs267x.h>
+ #include <asm/errno.h>
  
-@@ -394,16 +417,24 @@ CONFIG_IP_NF_ARPFILTER=m
- CONFIG_IP_NF_ARP_MANGLE=m
- CONFIG_IP_NF_COMPAT_IPCHAINS=m
- CONFIG_IP_NF_COMPAT_IPFWADM=m
-+CONFIG_IP_NF_TARGET_NOTRACK=m
-+CONFIG_IP_NF_RAW=m
-+CONFIG_IP_NF_MATCH_ADDRTYPE=m
-+CONFIG_IP_NF_MATCH_REALM=m
-+# CONFIG_IP_NF_CT_ACCT is not set
-+CONFIG_IP_NF_MATCH_SCTP=m
-+CONFIG_IP_NF_CT_PROTO_SCTP=m
- CONFIG_XFRM=y
- CONFIG_XFRM_USER=m
+===== arch/i386/kernel/i386_ksyms.c 1.63 vs edited =====
+--- 1.63/arch/i386/kernel/i386_ksyms.c	2004-08-31 09:55:10 +02:00
++++ edited/arch/i386/kernel/i386_ksyms.c	2004-09-02 11:23:18 +02:00
+@@ -23,7 +23,6 @@
+ #include <asm/uaccess.h>
+ #include <asm/checksum.h>
+ #include <asm/io.h>
+-#include <asm/hardirq.h>
+ #include <asm/delay.h>
+ #include <asm/irq.h>
+ #include <asm/mmx.h>
+===== arch/i386/lib/mmx.c 1.8 vs edited =====
+--- 1.8/arch/i386/lib/mmx.c	2003-02-25 11:41:19 +01:00
++++ edited/arch/i386/lib/mmx.c	2004-09-02 11:22:29 +02:00
+@@ -2,9 +2,9 @@
+ #include <linux/types.h>
+ #include <linux/string.h>
+ #include <linux/sched.h>
++#include <linux/hardirq.h> 
  
- #
- # SCTP Configuration (EXPERIMENTAL)
- #
--CONFIG_IPV6_SCTP__=y
- # CONFIG_IP_SCTP is not set
- # CONFIG_ATM is not set
-+# CONFIG_BRIDGE is not set
- # CONFIG_VLAN_8021Q is not set
-+# CONFIG_DECNET is not set
- CONFIG_LLC=y
- # CONFIG_LLC2 is not set
- # CONFIG_IPX is not set
-@@ -419,28 +450,35 @@ CONFIG_LLC=y
- # QoS and/or fair queueing
- #
- # CONFIG_NET_SCHED is not set
-+CONFIG_NET_CLS_ROUTE=y
+ #include <asm/i387.h>
+-#include <asm/hardirq.h> 
  
- #
- # Network testing
- #
- # CONFIG_NET_PKTGEN is not set
-+CONFIG_NETPOLL=y
-+CONFIG_NETPOLL_RX=y
-+CONFIG_NETPOLL_TRAP=y
-+CONFIG_NET_POLL_CONTROLLER=y
-+# CONFIG_HAMRADIO is not set
-+# CONFIG_IRDA is not set
-+# CONFIG_BT is not set
- CONFIG_NETDEVICES=y
-+CONFIG_DUMMY=m
-+CONFIG_BONDING=m
-+# CONFIG_EQUALIZER is not set
-+CONFIG_TUN=m
  
- #
- # ARCnet devices
- #
- # CONFIG_ARCNET is not set
--CONFIG_DUMMY=m
--CONFIG_BONDING=m
--# CONFIG_EQUALIZER is not set
--CONFIG_TUN=m
+ /*
+===== arch/i386/mm/fault.c 1.38 vs edited =====
+--- 1.38/arch/i386/mm/fault.c	2004-08-31 09:55:10 +02:00
++++ edited/arch/i386/mm/fault.c	2004-09-02 11:22:33 +02:00
+@@ -24,7 +24,6 @@
  
- #
- # Ethernet (10 or 100Mbit)
- #
- CONFIG_NET_ETHERNET=y
- CONFIG_MII=y
--# CONFIG_OAKNET is not set
- # CONFIG_HAPPYMEAL is not set
- # CONFIG_SUNGEM is not set
- CONFIG_NET_VENDOR_3COM=y
-@@ -452,6 +490,7 @@ CONFIG_VORTEX=y
- #
- # CONFIG_NET_TULIP is not set
- # CONFIG_HP100 is not set
-+CONFIG_IBMVETH=m
- CONFIG_NET_PCI=y
- CONFIG_PCNET32=y
- # CONFIG_AMD8111_ETH is not set
-@@ -471,6 +510,7 @@ CONFIG_E100=y
- # CONFIG_EPIC100 is not set
- # CONFIG_SUNDANCE is not set
- # CONFIG_VIA_RHINE is not set
-+# CONFIG_VIA_VELOCITY is not set
+ #include <asm/system.h>
+ #include <asm/uaccess.h>
+-#include <asm/hardirq.h>
+ #include <asm/desc.h>
+ #include <asm/kdebug.h>
  
- #
- # Ethernet (1000 Mbit)
-@@ -484,7 +524,6 @@ CONFIG_E1000=y
- # CONFIG_HAMACHI is not set
- # CONFIG_YELLOWFIN is not set
- # CONFIG_R8169 is not set
--# CONFIG_SIS190 is not set
- # CONFIG_SK98LIN is not set
- CONFIG_TIGON3=y
+===== arch/ia64/kernel/traps.c 1.45 vs edited =====
+--- 1.45/arch/ia64/kernel/traps.c	2004-05-11 08:44:41 +02:00
++++ edited/arch/ia64/kernel/traps.c	2004-09-02 11:23:25 +02:00
+@@ -14,9 +14,9 @@
+ #include <linux/tty.h>
+ #include <linux/vt_kern.h>		/* For unblank_screen() */
+ #include <linux/module.h>       /* for EXPORT_SYMBOL */
++#include <linux/hardirq.h>
  
-@@ -493,59 +532,40 @@ CONFIG_TIGON3=y
- #
- CONFIG_IXGB=m
- # CONFIG_IXGB_NAPI is not set
--# CONFIG_FDDI is not set
--# CONFIG_HIPPI is not set
--CONFIG_IBMVETH=m
--CONFIG_PPP=m
--# CONFIG_PPP_MULTILINK is not set
--# CONFIG_PPP_FILTER is not set
--CONFIG_PPP_ASYNC=m
--CONFIG_PPP_SYNC_TTY=m
--CONFIG_PPP_DEFLATE=m
--CONFIG_PPP_BSDCOMP=m
--CONFIG_PPPOE=m
--# CONFIG_SLIP is not set
+ #include <asm/fpswa.h>
+-#include <asm/hardirq.h>
+ #include <asm/ia32.h>
+ #include <asm/intrinsics.h>
+ #include <asm/processor.h>
+===== arch/ia64/mm/fault.c 1.19 vs edited =====
+--- 1.19/arch/ia64/mm/fault.c	2004-08-27 09:02:34 +02:00
++++ edited/arch/ia64/mm/fault.c	2004-09-02 11:22:44 +02:00
+@@ -14,7 +14,6 @@
+ #include <asm/processor.h>
+ #include <asm/system.h>
+ #include <asm/uaccess.h>
+-#include <asm/hardirq.h>
+ 
+ extern void die (char *, struct pt_regs *, long);
+ 
+===== arch/m68k/kernel/m68k_ksyms.c 1.11 vs edited =====
+--- 1.11/arch/m68k/kernel/m68k_ksyms.c	2003-04-01 00:29:49 +02:00
++++ edited/arch/m68k/kernel/m68k_ksyms.c	2004-09-02 11:22:47 +02:00
+@@ -16,7 +16,6 @@
+ #include <asm/io.h>
+ #include <asm/semaphore.h>
+ #include <asm/checksum.h>
+-#include <asm/hardirq.h>
+ 
+ asmlinkage long long __ashldi3 (long long, int);
+ asmlinkage long long __ashrdi3 (long long, int);
+===== arch/m68k/q40/q40ints.c 1.21 vs edited =====
+--- 1.21/arch/m68k/q40/q40ints.c	2004-04-04 12:11:21 +02:00
++++ edited/arch/m68k/q40/q40ints.c	2004-09-02 11:22:55 +02:00
+@@ -19,12 +19,12 @@
+ #include <linux/sched.h>
+ #include <linux/seq_file.h>
+ #include <linux/interrupt.h>
++#include <linux/hardirq.h>
+ 
+ #include <asm/rtc.h>
+ #include <asm/ptrace.h>
+ #include <asm/system.h>
+ #include <asm/irq.h>
+-#include <asm/hardirq.h>
+ #include <asm/traps.h>
+ 
+ #include <asm/q40_master.h>
+===== arch/m68knommu/kernel/asm-offsets.c 1.3 vs edited =====
+--- 1.3/arch/m68knommu/kernel/asm-offsets.c	2003-02-16 04:30:17 +01:00
++++ edited/arch/m68knommu/kernel/asm-offsets.c	2004-09-02 11:23:02 +02:00
+@@ -12,9 +12,9 @@
+ #include <linux/sched.h>
+ #include <linux/kernel_stat.h>
+ #include <linux/ptrace.h>
++#include <linux/hardirq.h>
+ #include <asm/bootinfo.h>
+ #include <asm/irq.h>
+-#include <asm/hardirq.h>
+ 
+ #define DEFINE(sym, val) \
+         asm volatile("\n->" #sym " %0 " #val : : "i" (val))
+===== arch/m68knommu/kernel/m68k_ksyms.c 1.4 vs edited =====
+--- 1.4/arch/m68knommu/kernel/m68k_ksyms.c	2004-05-10 15:51:25 +02:00
++++ edited/arch/m68knommu/kernel/m68k_ksyms.c	2004-09-02 11:23:11 +02:00
+@@ -16,7 +16,6 @@
+ #include <asm/io.h>
+ #include <asm/semaphore.h>
+ #include <asm/checksum.h>
+-#include <asm/hardirq.h>
+ #include <asm/current.h>
+ 
+ extern void dump_thread(struct pt_regs *, struct user *);
+===== arch/mips/au1000/common/time.c 1.6 vs edited =====
+--- 1.6/arch/mips/au1000/common/time.c	2004-02-19 21:53:00 +01:00
++++ edited/arch/mips/au1000/common/time.c	2004-09-02 11:28:48 +02:00
+@@ -38,11 +38,11 @@
+ #include <linux/kernel_stat.h>
+ #include <linux/sched.h>
+ #include <linux/spinlock.h>
++#include <linux/hardirq.h>
+ 
+ #include <asm/mipsregs.h>
+ #include <asm/ptrace.h>
+ #include <asm/time.h>
+-#include <asm/hardirq.h>
+ #include <asm/div64.h>
+ #include <asm/mach-au1x00/au1000.h>
+ 
+===== arch/mips/kernel/smp.c 1.19 vs edited =====
+--- 1.19/arch/mips/kernel/smp.c	2004-08-24 11:08:12 +02:00
++++ edited/arch/mips/kernel/smp.c	2004-09-02 11:28:52 +02:00
+@@ -35,7 +35,6 @@
+ #include <asm/cpu.h>
+ #include <asm/processor.h>
+ #include <asm/system.h>
+-#include <asm/hardirq.h>
+ #include <asm/mmu_context.h>
+ #include <asm/smp.h>
+ 
+===== arch/mips/kernel/time.c 1.16 vs edited =====
+--- 1.16/arch/mips/kernel/time.c	2004-08-27 08:30:31 +02:00
++++ edited/arch/mips/kernel/time.c	2004-09-02 11:28:54 +02:00
+@@ -29,7 +29,6 @@
+ #include <asm/cpu.h>
+ #include <asm/cpu-features.h>
+ #include <asm/div64.h>
+-#include <asm/hardirq.h>
+ #include <asm/sections.h>
+ #include <asm/time.h>
+ 
+===== arch/mips/mips-boards/generic/time.c 1.7 vs edited =====
+--- 1.7/arch/mips/mips-boards/generic/time.c	2004-02-19 21:53:00 +01:00
++++ edited/arch/mips/mips-boards/generic/time.c	2004-09-02 11:28:58 +02:00
+@@ -31,7 +31,6 @@
+ 
+ #include <asm/mipsregs.h>
+ #include <asm/ptrace.h>
+-#include <asm/hardirq.h>
+ #include <asm/div64.h>
+ #include <asm/cpu.h>
+ #include <asm/time.h>
+===== arch/mips/mm/fault.c 1.10 vs edited =====
+--- 1.10/arch/mips/mm/fault.c	2004-04-20 08:53:22 +02:00
++++ edited/arch/mips/mm/fault.c	2004-09-02 11:29:02 +02:00
+@@ -21,7 +21,6 @@
+ #include <linux/module.h>
+ 
+ #include <asm/branch.h>
+-#include <asm/hardirq.h>
+ #include <asm/mmu_context.h>
+ #include <asm/system.h>
+ #include <asm/uaccess.h>
+===== arch/parisc/kernel/asm-offsets.c 1.6 vs edited =====
+--- 1.6/arch/parisc/kernel/asm-offsets.c	2004-05-10 11:18:36 +02:00
++++ edited/arch/parisc/kernel/asm-offsets.c	2004-09-02 11:29:12 +02:00
+@@ -32,11 +32,11 @@
+ #include <linux/thread_info.h>
+ #include <linux/version.h>
+ #include <linux/ptrace.h>
+-#include <asm/pgtable.h>
++#include <linux/hardirq.h>
+ 
++#include <asm/pgtable.h>
+ #include <asm/ptrace.h>
+ #include <asm/processor.h>
+-#include <asm/hardirq.h>
+ #include <asm/pdc.h>
+ 
+ #define DEFINE(sym, val) \
+===== arch/parisc/lib/debuglocks.c 1.1 vs edited =====
+--- 1.1/arch/parisc/lib/debuglocks.c	2004-07-14 14:20:34 +02:00
++++ edited/arch/parisc/lib/debuglocks.c	2004-09-02 11:29:19 +02:00
+@@ -25,8 +25,8 @@
+ #include <linux/kernel.h>
+ #include <linux/sched.h>
+ #include <linux/spinlock.h>
++#include <linux/hardirq.h>	/* in_interrupt() */
+ #include <asm/system.h>
+-#include <asm/hardirq.h>	/* in_interrupt() */
+ 
+ #undef INIT_STUCK
+ #define INIT_STUCK 1L << 30
+===== arch/ppc/kernel/dma-mapping.c 1.3 vs edited =====
+--- 1.3/arch/ppc/kernel/dma-mapping.c	2004-08-23 10:14:35 +02:00
++++ edited/arch/ppc/kernel/dma-mapping.c	2004-09-02 11:30:54 +02:00
+@@ -41,11 +41,11 @@
+ #include <linux/bootmem.h>
+ #include <linux/highmem.h>
+ #include <linux/dma-mapping.h>
++#include <linux/hardirq.h>
+ 
+ #include <asm/pgalloc.h>
+ #include <asm/prom.h>
+ #include <asm/io.h>
+-#include <asm/hardirq.h>
+ #include <asm/mmu_context.h>
+ #include <asm/pgtable.h>
+ #include <asm/mmu.h>
+===== arch/ppc/kernel/process.c 1.55 vs edited =====
+--- 1.55/arch/ppc/kernel/process.c	2004-08-27 09:02:36 +02:00
++++ edited/arch/ppc/kernel/process.c	2004-09-02 11:30:13 +02:00
+@@ -36,6 +36,7 @@
+ #include <linux/module.h>
+ #include <linux/kallsyms.h>
+ #include <linux/mqueue.h>
++#include <linux/hardirq.h>
+ 
+ #include <asm/pgtable.h>
+ #include <asm/uaccess.h>
+@@ -44,7 +45,6 @@
+ #include <asm/processor.h>
+ #include <asm/mmu.h>
+ #include <asm/prom.h>
+-#include <asm/hardirq.h>
+ 
+ extern unsigned long _get_SP(void);
+ 
+===== arch/ppc/kernel/smp.c 1.45 vs edited =====
+--- 1.45/arch/ppc/kernel/smp.c	2004-08-24 11:08:12 +02:00
++++ edited/arch/ppc/kernel/smp.c	2004-09-02 11:30:16 +02:00
+@@ -26,7 +26,6 @@
+ #include <asm/irq.h>
+ #include <asm/page.h>
+ #include <asm/pgtable.h>
+-#include <asm/hardirq.h>
+ #include <asm/io.h>
+ #include <asm/prom.h>
+ #include <asm/smp.h>
+===== arch/ppc/platforms/chrp_smp.c 1.10 vs edited =====
+--- 1.10/arch/ppc/platforms/chrp_smp.c	2004-03-14 02:57:41 +01:00
++++ edited/arch/ppc/platforms/chrp_smp.c	2004-09-02 11:30:19 +02:00
+@@ -24,7 +24,6 @@
+ #include <asm/irq.h>
+ #include <asm/page.h>
+ #include <asm/pgtable.h>
+-#include <asm/hardirq.h>
+ #include <asm/sections.h>
+ #include <asm/io.h>
+ #include <asm/prom.h>
+===== arch/ppc/platforms/pmac_cpufreq.c 1.13 vs edited =====
+--- 1.13/arch/ppc/platforms/pmac_cpufreq.c	2004-07-30 17:41:37 +02:00
++++ edited/arch/ppc/platforms/pmac_cpufreq.c	2004-09-02 11:30:28 +02:00
+@@ -24,10 +24,10 @@
+ #include <linux/init.h>
+ #include <linux/sysdev.h>
+ #include <linux/i2c.h>
++#include <linux/hardirq.h>
+ #include <asm/prom.h>
+ #include <asm/machdep.h>
+ #include <asm/irq.h>
+-#include <asm/hardirq.h>
+ #include <asm/pmac_feature.h>
+ #include <asm/mmu_context.h>
+ #include <asm/sections.h>
+===== arch/ppc/platforms/pmac_smp.c 1.19 vs edited =====
+--- 1.19/arch/ppc/platforms/pmac_smp.c	2004-07-26 20:42:45 +02:00
++++ edited/arch/ppc/platforms/pmac_smp.c	2004-09-02 11:30:37 +02:00
+@@ -32,13 +32,13 @@
+ #include <linux/init.h>
+ #include <linux/spinlock.h>
+ #include <linux/errno.h>
++#include <linux/hardirq.h>
+ 
+ #include <asm/ptrace.h>
+ #include <asm/atomic.h>
+ #include <asm/irq.h>
+ #include <asm/page.h>
+ #include <asm/pgtable.h>
+-#include <asm/hardirq.h>
+ #include <asm/sections.h>
+ #include <asm/io.h>
+ #include <asm/prom.h>
+===== arch/ppc/platforms/pmac_time.c 1.14 vs edited =====
+--- 1.14/arch/ppc/platforms/pmac_time.c	2004-02-05 06:32:23 +01:00
++++ edited/arch/ppc/platforms/pmac_time.c	2004-09-02 11:30:47 +02:00
+@@ -19,6 +19,7 @@
+ #include <linux/adb.h>
+ #include <linux/cuda.h>
+ #include <linux/pmu.h>
++#include <linux/hardirq.h>
+ 
+ #include <asm/sections.h>
+ #include <asm/prom.h>
+@@ -26,7 +27,6 @@
+ #include <asm/io.h>
+ #include <asm/pgtable.h>
+ #include <asm/machdep.h>
+-#include <asm/hardirq.h>
+ #include <asm/time.h>
+ #include <asm/nvram.h>
+ 
+===== arch/ppc/syslib/open_pic.c 1.36 vs edited =====
+--- 1.36/arch/ppc/syslib/open_pic.c	2004-07-29 07:48:21 +02:00
++++ edited/arch/ppc/syslib/open_pic.c	2004-09-02 11:30:49 +02:00
+@@ -24,7 +24,6 @@
+ #include <asm/sections.h>
+ #include <asm/open_pic.h>
+ #include <asm/i8259.h>
+-#include <asm/hardirq.h>
+ 
+ #include "open_pic_defs.h"
+ 
+===== arch/ppc/syslib/open_pic2.c 1.2 vs edited =====
+--- 1.2/arch/ppc/syslib/open_pic2.c	2004-02-13 07:10:06 +01:00
++++ edited/arch/ppc/syslib/open_pic2.c	2004-09-02 11:30:52 +02:00
+@@ -28,7 +28,6 @@
+ #include <asm/sections.h>
+ #include <asm/open_pic.h>
+ #include <asm/i8259.h>
+-#include <asm/hardirq.h>
+ 
+ #include "open_pic_defs.h"
+ 
+===== arch/ppc64/kernel/asm-offsets.c 1.24 vs edited =====
+--- 1.24/arch/ppc64/kernel/asm-offsets.c	2004-08-27 08:30:32 +02:00
++++ edited/arch/ppc64/kernel/asm-offsets.c	2004-09-01 16:54:11 +02:00
+@@ -22,11 +22,11 @@
+ #include <linux/types.h>
+ #include <linux/mman.h>
+ #include <linux/mm.h>
++#include <linux/hardirq.h>
+ #include <asm/io.h>
+ #include <asm/page.h>
+ #include <asm/pgtable.h>
+ #include <asm/processor.h>
+-#include <asm/hardirq.h>
+ 
+ #include <asm/naca.h>
+ #include <asm/paca.h>
+===== arch/ppc64/kernel/pmac_smp.c 1.4 vs edited =====
+--- 1.4/arch/ppc64/kernel/pmac_smp.c	2004-07-02 07:23:46 +02:00
++++ edited/arch/ppc64/kernel/pmac_smp.c	2004-09-01 16:52:57 +02:00
+@@ -38,7 +38,6 @@
+ #include <asm/irq.h>
+ #include <asm/page.h>
+ #include <asm/pgtable.h>
+-#include <asm/hardirq.h>
+ #include <asm/sections.h>
+ #include <asm/io.h>
+ #include <asm/prom.h>
+===== arch/ppc64/kernel/pmac_time.c 1.3 vs edited =====
+--- 1.3/arch/ppc64/kernel/pmac_time.c	2004-03-21 11:27:41 +01:00
++++ edited/arch/ppc64/kernel/pmac_time.c	2004-09-01 16:53:12 +02:00
+@@ -18,6 +18,7 @@
+ #include <linux/time.h>
+ #include <linux/adb.h>
+ #include <linux/pmu.h>
++#include <linux/interrupt.h>
+ 
+ #include <asm/sections.h>
+ #include <asm/prom.h>
+@@ -25,7 +26,6 @@
+ #include <asm/io.h>
+ #include <asm/pgtable.h>
+ #include <asm/machdep.h>
+-#include <asm/hardirq.h>
+ #include <asm/time.h>
+ #include <asm/nvram.h>
+ 
+===== arch/ppc64/kernel/process.c 1.61 vs edited =====
+--- 1.61/arch/ppc64/kernel/process.c	2004-08-24 11:08:42 +02:00
++++ edited/arch/ppc64/kernel/process.c	2004-09-01 16:57:32 +02:00
+@@ -34,6 +34,7 @@
+ #include <linux/prctl.h>
+ #include <linux/ptrace.h>
+ #include <linux/kallsyms.h>
++#include <linux/interrupt.h>
+ #include <linux/version.h>
+ 
+ #include <asm/pgtable.h>
+@@ -47,7 +48,6 @@
+ #include <asm/ppcdebug.h>
+ #include <asm/machdep.h>
+ #include <asm/iSeries/HvCallHpt.h>
+-#include <asm/hardirq.h>
+ #include <asm/cputable.h>
+ #include <asm/sections.h>
+ #include <asm/tlbflush.h>
+===== arch/ppc64/kernel/rtc.c 1.14 vs edited =====
+--- 1.14/arch/ppc64/kernel/rtc.c	2004-08-08 23:22:04 +02:00
++++ edited/arch/ppc64/kernel/rtc.c	2004-09-01 16:53:43 +02:00
+@@ -34,8 +34,8 @@
+ #include <linux/proc_fs.h>
+ #include <linux/spinlock.h>
+ #include <linux/bcd.h>
++#include <linux/interrupt.h>
+ 
+-#include <asm/hardirq.h>
+ #include <asm/io.h>
+ #include <asm/uaccess.h>
+ #include <asm/system.h>
+===== arch/ppc64/kernel/smp.c 1.89 vs edited =====
+--- 1.89/arch/ppc64/kernel/smp.c	2004-08-31 09:57:57 +02:00
++++ edited/arch/ppc64/kernel/smp.c	2004-09-01 16:53:58 +02:00
+@@ -36,7 +36,6 @@
+ #include <asm/irq.h>
+ #include <asm/page.h>
+ #include <asm/pgtable.h>
+-#include <asm/hardirq.h>
+ #include <asm/io.h>
+ #include <asm/prom.h>
+ #include <asm/smp.h>
+===== arch/ppc64/kernel/viopath.c 1.10 vs edited =====
+--- 1.10/arch/ppc64/kernel/viopath.c	2004-07-11 11:23:25 +02:00
++++ edited/arch/ppc64/kernel/viopath.c	2004-09-01 16:53:54 +02:00
+@@ -38,8 +38,8 @@
+ #include <linux/wait.h>
+ #include <linux/seq_file.h>
+ #include <linux/smp_lock.h>
++#include <linux/interrupt.h>
+ 
+-#include <asm/hardirq.h>
+ #include <asm/system.h>
+ #include <asm/uaccess.h>
+ #include <asm/iSeries/LparData.h>
+===== arch/ppc64/mm/tlb.c 1.6 vs edited =====
+--- 1.6/arch/ppc64/mm/tlb.c	2004-06-24 10:55:48 +02:00
++++ edited/arch/ppc64/mm/tlb.c	2004-09-01 16:54:08 +02:00
+@@ -26,10 +26,10 @@
+ #include <linux/mm.h>
+ #include <linux/init.h>
+ #include <linux/percpu.h>
++#include <linux/hardirq.h>
+ #include <asm/pgalloc.h>
+ #include <asm/tlbflush.h>
+ #include <asm/tlb.h>
+-#include <asm/hardirq.h>
+ #include <linux/highmem.h>
+ 
+ DEFINE_PER_CPU(struct ppc64_tlb_batch, ppc64_tlb_batch);
+===== arch/s390/mm/fault.c 1.20 vs edited =====
+--- 1.20/arch/s390/mm/fault.c	2004-08-27 15:24:18 +02:00
++++ edited/arch/s390/mm/fault.c	2004-09-02 11:25:37 +02:00
+@@ -25,11 +25,11 @@
+ #include <linux/init.h>
+ #include <linux/console.h>
+ #include <linux/module.h>
++#include <linux/hardirq.h>
+ 
+ #include <asm/system.h>
+ #include <asm/uaccess.h>
+ #include <asm/pgtable.h>
+-#include <asm/hardirq.h>
+ 
+ #ifndef CONFIG_ARCH_S390X
+ #define __FAIL_ADDR_MASK 0x7ffff000
+===== arch/sh/kernel/sh_ksyms.c 1.13 vs edited =====
+--- 1.13/arch/sh/kernel/sh_ksyms.c	2004-06-24 10:56:13 +02:00
++++ edited/arch/sh/kernel/sh_ksyms.c	2004-09-02 11:24:35 +02:00
+@@ -16,7 +16,6 @@
+ #include <asm/uaccess.h>
+ #include <asm/checksum.h>
+ #include <asm/io.h>
+-#include <asm/hardirq.h>
+ #include <asm/delay.h>
+ #include <asm/tlbflush.h>
+ #include <asm/cacheflush.h>
+===== arch/sh/kernel/smp.c 1.4 vs edited =====
+--- 1.4/arch/sh/kernel/smp.c	2004-08-24 11:08:12 +02:00
++++ edited/arch/sh/kernel/smp.c	2004-09-02 11:24:37 +02:00
+@@ -26,7 +26,6 @@
+ #include <asm/atomic.h>
+ #include <asm/processor.h>
+ #include <asm/system.h>
+-#include <asm/hardirq.h>
+ #include <asm/mmu_context.h>
+ #include <asm/smp.h>
+ 
+===== arch/sh/mm/fault-nommu.c 1.1 vs edited =====
+--- 1.1/arch/sh/mm/fault-nommu.c	2003-05-04 17:29:54 +02:00
++++ edited/arch/sh/mm/fault-nommu.c	2004-09-02 11:24:41 +02:00
+@@ -26,7 +26,6 @@
+ #include <asm/io.h>
+ #include <asm/uaccess.h>
+ #include <asm/pgalloc.h>
+-#include <asm/hardirq.h>
+ #include <asm/mmu_context.h>
+ #include <asm/cacheflush.h>
+ 
+===== arch/sh/mm/fault.c 1.12 vs edited =====
+--- 1.12/arch/sh/mm/fault.c	2004-02-13 16:19:29 +01:00
++++ edited/arch/sh/mm/fault.c	2004-09-02 11:24:44 +02:00
+@@ -26,7 +26,6 @@
+ #include <asm/io.h>
+ #include <asm/uaccess.h>
+ #include <asm/pgalloc.h>
+-#include <asm/hardirq.h>
+ #include <asm/mmu_context.h>
+ #include <asm/cacheflush.h>
+ #include <asm/kgdb.h>
+===== arch/sh/mm/tlb-sh3.c 1.3 vs edited =====
+--- 1.3/arch/sh/mm/tlb-sh3.c	2004-06-24 10:56:13 +02:00
++++ edited/arch/sh/mm/tlb-sh3.c	2004-09-02 11:24:57 +02:00
+@@ -25,7 +25,6 @@
+ #include <asm/io.h>
+ #include <asm/uaccess.h>
+ #include <asm/pgalloc.h>
+-#include <asm/hardirq.h>
+ #include <asm/mmu_context.h>
+ #include <asm/cacheflush.h>
+ 
+===== arch/sh/mm/tlb-sh4.c 1.2 vs edited =====
+--- 1.2/arch/sh/mm/tlb-sh4.c	2004-03-23 11:05:26 +01:00
++++ edited/arch/sh/mm/tlb-sh4.c	2004-09-02 11:25:04 +02:00
+@@ -25,7 +25,6 @@
+ #include <asm/io.h>
+ #include <asm/uaccess.h>
+ #include <asm/pgalloc.h>
+-#include <asm/hardirq.h>
+ #include <asm/mmu_context.h>
+ #include <asm/cacheflush.h>
+ 
+===== arch/sh64/kernel/sh_ksyms.c 1.1 vs edited =====
+--- 1.1/arch/sh64/kernel/sh_ksyms.c	2004-06-29 16:44:46 +02:00
++++ edited/arch/sh64/kernel/sh_ksyms.c	2004-09-02 11:25:09 +02:00
+@@ -25,7 +25,6 @@
+ #include <asm/uaccess.h>
+ #include <asm/checksum.h>
+ #include <asm/io.h>
+-#include <asm/hardirq.h>
+ #include <asm/delay.h>
+ #include <asm/irq.h>
+ 
+===== arch/sh64/mm/fault.c 1.1 vs edited =====
+--- 1.1/arch/sh64/mm/fault.c	2004-06-29 16:44:46 +02:00
++++ edited/arch/sh64/mm/fault.c	2004-09-02 11:25:13 +02:00
+@@ -30,7 +30,6 @@
+ #include <asm/tlb.h>
+ #include <asm/uaccess.h>
+ #include <asm/pgalloc.h>
+-#include <asm/hardirq.h>
+ #include <asm/mmu_context.h>
+ #include <asm/registers.h>		/* required by inline asm statements */
+ 
+===== arch/sh64/mm/tlbmiss.c 1.1 vs edited =====
+--- 1.1/arch/sh64/mm/tlbmiss.c	2004-06-29 16:44:46 +02:00
++++ edited/arch/sh64/mm/tlbmiss.c	2004-09-02 11:25:18 +02:00
+@@ -40,7 +40,6 @@
+ #include <asm/io.h>
+ #include <asm/uaccess.h>
+ #include <asm/pgalloc.h>
+-#include <asm/hardirq.h>
+ #include <asm/mmu_context.h>
+ #include <asm/registers.h>		/* required by inline asm statements */
+ 
+===== arch/sparc/kernel/irq.c 1.31 vs edited =====
+--- 1.31/arch/sparc/kernel/irq.c	2004-07-13 15:06:21 +02:00
++++ edited/arch/sparc/kernel/irq.c	2004-09-02 11:27:18 +02:00
+@@ -45,7 +45,6 @@
+ #include <asm/io.h>
+ #include <asm/pgalloc.h>
+ #include <asm/pgtable.h>
+-#include <asm/hardirq.h>
+ #include <asm/pcic.h>
+ #include <asm/cacheflush.h>
+ 
+===== arch/sparc/kernel/setup.c 1.30 vs edited =====
+--- 1.30/arch/sparc/kernel/setup.c	2004-07-12 08:09:37 +02:00
++++ edited/arch/sparc/kernel/setup.c	2004-09-02 11:26:37 +02:00
+@@ -44,7 +44,6 @@
+ #include <asm/kdebug.h>
+ #include <asm/mbus.h>
+ #include <asm/idprom.h>
+-#include <asm/hardirq.h>
+ #include <asm/machines.h>
+ #include <asm/cpudata.h>
+ #include <asm/setup.h>
+===== arch/sparc/kernel/smp.c 1.19 vs edited =====
+--- 1.19/arch/sparc/kernel/smp.c	2004-08-07 20:03:28 +02:00
++++ edited/arch/sparc/kernel/smp.c	2004-09-02 11:26:40 +02:00
+@@ -30,7 +30,6 @@
+ #include <asm/pgalloc.h>
+ #include <asm/pgtable.h>
+ #include <asm/oplib.h>
+-#include <asm/hardirq.h>
+ #include <asm/cacheflush.h>
+ #include <asm/tlbflush.h>
+ #include <asm/cpudata.h>
+===== arch/sparc/kernel/sparc_ksyms.c 1.34 vs edited =====
+--- 1.34/arch/sparc/kernel/sparc_ksyms.c	2004-08-31 10:09:37 +02:00
++++ edited/arch/sparc/kernel/sparc_ksyms.c	2004-09-02 11:26:42 +02:00
+@@ -41,7 +41,6 @@
+ #include <asm/smp.h>
+ #include <asm/mostek.h>
+ #include <asm/ptrace.h>
+-#include <asm/hardirq.h>
+ #include <asm/user.h>
+ #include <asm/uaccess.h>
+ #include <asm/checksum.h>
+===== arch/sparc/kernel/sun4d_smp.c 1.24 vs edited =====
+--- 1.24/arch/sparc/kernel/sun4d_smp.c	2004-08-27 08:30:31 +02:00
++++ edited/arch/sparc/kernel/sun4d_smp.c	2004-09-02 11:26:46 +02:00
+@@ -30,7 +30,6 @@
+ #include <asm/pgalloc.h>
+ #include <asm/pgtable.h>
+ #include <asm/oplib.h>
+-#include <asm/hardirq.h>
+ #include <asm/sbus.h>
+ #include <asm/sbi.h>
+ #include <asm/tlbflush.h>
+===== arch/sparc/kernel/sun4m_smp.c 1.21 vs edited =====
+--- 1.21/arch/sparc/kernel/sun4m_smp.c	2004-08-27 08:30:31 +02:00
++++ edited/arch/sparc/kernel/sun4m_smp.c	2004-09-02 11:26:48 +02:00
+@@ -29,7 +29,6 @@
+ #include <asm/pgalloc.h>
+ #include <asm/pgtable.h>
+ #include <asm/oplib.h>
+-#include <asm/hardirq.h>
+ #include <asm/cpudata.h>
+ 
+ #define IRQ_RESCHEDULE		13
+===== arch/sparc64/kernel/irq.c 1.45 vs edited =====
+--- 1.45/arch/sparc64/kernel/irq.c	2004-07-13 15:08:20 +02:00
++++ edited/arch/sparc64/kernel/irq.c	2004-09-02 11:26:52 +02:00
+@@ -33,7 +33,6 @@
+ #include <asm/oplib.h>
+ #include <asm/timer.h>
+ #include <asm/smp.h>
+-#include <asm/hardirq.h>
+ #include <asm/starfire.h>
+ #include <asm/uaccess.h>
+ #include <asm/cache.h>
+===== arch/sparc64/kernel/setup.c 1.54 vs edited =====
+--- 1.54/arch/sparc64/kernel/setup.c	2004-06-27 09:19:38 +02:00
++++ edited/arch/sparc64/kernel/setup.c	2004-09-02 11:26:54 +02:00
+@@ -43,7 +43,6 @@
+ #include <asm/idprom.h>
+ #include <asm/head.h>
+ #include <asm/starfire.h>
+-#include <asm/hardirq.h>
+ #include <asm/mmu_context.h>
+ #include <asm/timer.h>
+ #include <asm/sections.h>
+===== arch/sparc64/kernel/smp.c 1.78 vs edited =====
+--- 1.78/arch/sparc64/kernel/smp.c	2004-08-27 08:30:31 +02:00
++++ edited/arch/sparc64/kernel/smp.c	2004-09-02 11:26:57 +02:00
+@@ -32,7 +32,6 @@
+ #include <asm/page.h>
+ #include <asm/pgtable.h>
+ #include <asm/oplib.h>
+-#include <asm/hardirq.h>
+ #include <asm/uaccess.h>
+ #include <asm/timer.h>
+ #include <asm/starfire.h>
+===== arch/sparc64/kernel/sparc64_ksyms.c 1.81 vs edited =====
+--- 1.81/arch/sparc64/kernel/sparc64_ksyms.c	2004-08-28 01:10:13 +02:00
++++ edited/arch/sparc64/kernel/sparc64_ksyms.c	2004-09-02 11:27:01 +02:00
+@@ -34,7 +34,6 @@
+ #include <asm/pgtable.h>
+ #include <asm/io.h>
+ #include <asm/irq.h>
+-#include <asm/hardirq.h>
+ #include <asm/idprom.h>
+ #include <asm/svr4.h>
+ #include <asm/elf.h>
+===== arch/um/drivers/stdio_console.c 1.14 vs edited =====
+--- 1.14/arch/um/drivers/stdio_console.c	2004-08-24 11:08:22 +02:00
++++ edited/arch/um/drivers/stdio_console.c	2004-09-01 16:55:01 +02:00
+@@ -17,8 +17,8 @@
+ #include "linux/init.h"
+ #include "linux/interrupt.h"
+ #include "linux/slab.h"
++#include "linux/hardirq.h"
+ #include "asm/current.h"
+-#include "asm/hardirq.h"
+ #include "asm/irq.h"
+ #include "stdio_console.h"
+ #include "line.h"
+===== arch/um/kernel/irq.c 1.18 vs edited =====
+--- 1.18/arch/um/kernel/irq.c	2004-08-31 09:57:57 +02:00
++++ edited/arch/um/kernel/irq.c	2004-09-01 16:54:38 +02:00
+@@ -19,9 +19,9 @@
+ #include "linux/init.h"
+ #include "linux/seq_file.h"
+ #include "linux/profile.h"
++#include "linux/hardirq.h"
+ #include "asm/irq.h"
+ #include "asm/hw_irq.h"
+-#include "asm/hardirq.h"
+ #include "asm/atomic.h"
+ #include "asm/signal.h"
+ #include "asm/system.h"
+===== arch/um/kernel/smp.c 1.13 vs edited =====
+--- 1.13/arch/um/kernel/smp.c	2004-08-24 11:08:29 +02:00
++++ edited/arch/um/kernel/smp.c	2004-09-01 16:54:58 +02:00
+@@ -18,10 +18,10 @@
+ #include "linux/threads.h"
+ #include "linux/interrupt.h"
+ #include "linux/err.h"
++#include "linux/hardirq.h"
+ #include "asm/smp.h"
+ #include "asm/processor.h"
+ #include "asm/spinlock.h"
+-#include "asm/hardirq.h"
+ #include "user_util.h"
+ #include "kern_util.h"
+ #include "kern.h"
+===== arch/v850/kernel/asm-consts.c 1.2 vs edited =====
+--- 1.2/arch/v850/kernel/asm-consts.c	2003-02-16 04:30:17 +01:00
++++ edited/arch/v850/kernel/asm-consts.c	2004-09-02 11:25:31 +02:00
+@@ -12,8 +12,8 @@
+ #include <linux/sched.h>
+ #include <linux/kernel_stat.h>
+ #include <linux/ptrace.h>
++#include <linux/hardirq.h>
+ #include <asm/irq.h>
+-#include <asm/hardirq.h>
+ #include <asm/errno.h>
+ 
+ #define DEFINE(sym, val) \
+===== arch/v850/kernel/v850_ksyms.c 1.4 vs edited =====
+--- 1.4/arch/v850/kernel/v850_ksyms.c	2003-07-25 04:24:25 +02:00
++++ edited/arch/v850/kernel/v850_ksyms.c	2004-09-02 11:25:35 +02:00
+@@ -14,7 +14,6 @@
+ #include <asm/io.h>
+ #include <asm/semaphore.h>
+ #include <asm/checksum.h>
+-#include <asm/hardirq.h>
+ #include <asm/current.h>
+ 
+ 
+===== arch/x86_64/kernel/asm-offsets.c 1.4 vs edited =====
+--- 1.4/arch/x86_64/kernel/asm-offsets.c	2003-06-07 11:36:51 +02:00
++++ edited/arch/x86_64/kernel/asm-offsets.c	2004-09-02 11:27:09 +02:00
+@@ -7,8 +7,8 @@
+ #include <linux/sched.h> 
+ #include <linux/stddef.h>
+ #include <linux/errno.h> 
++#include <linux/hardirq.h>
+ #include <asm/pda.h>
+-#include <asm/hardirq.h>
+ #include <asm/processor.h>
+ #include <asm/segment.h>
+ #include <asm/thread_info.h>
+===== arch/x86_64/kernel/x8664_ksyms.c 1.34 vs edited =====
+--- 1.34/arch/x86_64/kernel/x8664_ksyms.c	2004-08-24 11:08:31 +02:00
++++ edited/arch/x86_64/kernel/x8664_ksyms.c	2004-09-02 11:27:12 +02:00
+@@ -21,7 +21,6 @@
+ #include <asm/uaccess.h>
+ #include <asm/checksum.h>
+ #include <asm/io.h>
+-#include <asm/hardirq.h>
+ #include <asm/delay.h>
+ #include <asm/irq.h>
+ #include <asm/mmx.h>
+===== arch/x86_64/mm/fault.c 1.26 vs edited =====
+--- 1.26/arch/x86_64/mm/fault.c	2004-08-24 11:08:31 +02:00
++++ edited/arch/x86_64/mm/fault.c	2004-09-02 11:27:16 +02:00
+@@ -27,7 +27,6 @@
+ #include <asm/system.h>
+ #include <asm/uaccess.h>
+ #include <asm/pgalloc.h>
+-#include <asm/hardirq.h>
+ #include <asm/smp.h>
+ #include <asm/tlbflush.h>
+ #include <asm/proto.h>
+===== crypto/internal.h 1.20 vs edited =====
+--- 1.20/crypto/internal.h	2004-03-02 04:01:26 +01:00
++++ edited/crypto/internal.h	2004-09-01 16:51:50 +02:00
+@@ -17,7 +17,6 @@
+ #include <linux/interrupt.h>
+ #include <linux/init.h>
+ #include <linux/kmod.h>
+-#include <asm/hardirq.h>
+ #include <asm/kmap_types.h>
+ 
+ extern enum km_type crypto_km_types[];
+===== drivers/base/firmware_class.c 1.18 vs edited =====
+--- 1.18/drivers/base/firmware_class.c	2004-06-10 08:34:24 +02:00
++++ edited/drivers/base/firmware_class.c	2004-09-01 16:51:24 +02:00
+@@ -12,7 +12,7 @@
+ #include <linux/init.h>
+ #include <linux/timer.h>
+ #include <linux/vmalloc.h>
+-#include <asm/hardirq.h>
++#include <linux/interrupt.h>
+ #include <linux/bitops.h>
+ #include <asm/semaphore.h>
+ 
+===== drivers/char/rio/linux_compat.h 1.3 vs edited =====
+--- 1.3/drivers/char/rio/linux_compat.h	2002-02-05 16:23:17 +01:00
++++ edited/drivers/char/rio/linux_compat.h	2004-09-01 16:51:32 +02:00
+@@ -16,7 +16,7 @@
+  *      Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+  */
+ 
+-#include <asm/hardirq.h>
++#include <linux/interrupt.h>
+ 
+ 
+ #define disable(oldspl) save_flags (oldspl)
+===== drivers/macintosh/via-pmu.c 1.35 vs edited =====
+--- 1.35/drivers/macintosh/via-pmu.c	2004-07-27 00:05:13 +02:00
++++ edited/drivers/macintosh/via-pmu.c	2004-09-01 16:51:37 +02:00
+@@ -52,7 +52,6 @@
+ #include <asm/system.h>
+ #include <asm/sections.h>
+ #include <asm/irq.h>
+-#include <asm/hardirq.h>
+ #include <asm/pmac_feature.h>
+ #include <asm/uaccess.h>
+ #include <asm/mmu_context.h>
+===== drivers/s390/cio/cio.c 1.25 vs edited =====
+--- 1.25/drivers/s390/cio/cio.c	2004-07-02 07:23:50 +02:00
++++ edited/drivers/s390/cio/cio.c	2004-09-01 16:51:47 +02:00
+@@ -17,8 +17,8 @@
+ #include <linux/slab.h>
+ #include <linux/device.h>
+ #include <linux/kernel_stat.h>
++#include <linux/interrupt.h>
+ 
+-#include <asm/hardirq.h>
+ #include <asm/cio.h>
+ #include <asm/delay.h>
+ #include <asm/irq.h>
+===== include/asm-alpha/hardirq.h 1.8 vs edited =====
+--- 1.8/include/asm-alpha/hardirq.h	2003-05-13 03:59:24 +02:00
++++ edited/include/asm-alpha/hardirq.h	2004-09-01 16:38:27 +02:00
+@@ -39,20 +39,6 @@
+ #define SOFTIRQ_SHIFT	(PREEMPT_SHIFT + PREEMPT_BITS)
+ #define HARDIRQ_SHIFT	(SOFTIRQ_SHIFT + SOFTIRQ_BITS)
+ 
+-#define __MASK(x)	((1UL << (x))-1)
 -
--#
--# Wireless LAN (non-hamradio)
--#
--# CONFIG_NET_RADIO is not set
-+CONFIG_S2IO=m
-+# CONFIG_S2IO_NAPI is not set
- 
- #
- # Token Ring devices
- #
- CONFIG_TR=y
- CONFIG_IBMOL=y
--# CONFIG_IBMLS is not set
- # CONFIG_3C359 is not set
- # CONFIG_TMS380TR is not set
--# CONFIG_NET_FC is not set
--# CONFIG_SHAPER is not set
--CONFIG_NETCONSOLE=y
+-#define PREEMPT_MASK	(__MASK(PREEMPT_BITS) << PREEMPT_SHIFT)
+-#define HARDIRQ_MASK	(__MASK(HARDIRQ_BITS) << HARDIRQ_SHIFT)
+-#define SOFTIRQ_MASK	(__MASK(SOFTIRQ_BITS) << SOFTIRQ_SHIFT)
 -
--#
--# Wan interfaces
--#
--# CONFIG_WAN is not set
+-#define hardirq_count()	(preempt_count() & HARDIRQ_MASK)
+-#define softirq_count()	(preempt_count() & SOFTIRQ_MASK)
+-#define irq_count()	(preempt_count() & (HARDIRQ_MASK | SOFTIRQ_MASK))
 -
--#
--# Amateur Radio support
--#
--# CONFIG_HAMRADIO is not set
- 
- #
--# IrDA (infrared) support
-+# Wireless LAN (non-hamradio)
- #
--# CONFIG_IRDA is not set
-+# CONFIG_NET_RADIO is not set
- 
- #
--# Bluetooth support
-+# Wan interfaces
- #
--# CONFIG_BT is not set
--CONFIG_NETPOLL=y
--CONFIG_NETPOLL_RX=y
--CONFIG_NETPOLL_TRAP=y
--CONFIG_NET_POLL_CONTROLLER=y
-+# CONFIG_WAN is not set
-+# CONFIG_FDDI is not set
-+# CONFIG_HIPPI is not set
-+CONFIG_PPP=m
-+# CONFIG_PPP_MULTILINK is not set
-+# CONFIG_PPP_FILTER is not set
-+CONFIG_PPP_ASYNC=m
-+CONFIG_PPP_SYNC_TTY=m
-+CONFIG_PPP_DEFLATE=m
-+CONFIG_PPP_BSDCOMP=m
-+CONFIG_PPPOE=m
-+# CONFIG_SLIP is not set
-+# CONFIG_NET_FC is not set
-+# CONFIG_SHAPER is not set
-+CONFIG_NETCONSOLE=y
- 
- #
- # ISDN subsystem
-@@ -591,15 +611,16 @@ CONFIG_SERIO_I8042=y
- CONFIG_INPUT_KEYBOARD=y
- CONFIG_KEYBOARD_ATKBD=y
- # CONFIG_KEYBOARD_SUNKBD is not set
-+# CONFIG_KEYBOARD_LKKBD is not set
- # CONFIG_KEYBOARD_XTKBD is not set
- # CONFIG_KEYBOARD_NEWTON is not set
- CONFIG_INPUT_MOUSE=y
- CONFIG_MOUSE_PS2=y
- # CONFIG_MOUSE_SERIAL is not set
-+# CONFIG_MOUSE_VSXXXAA is not set
- # CONFIG_INPUT_JOYSTICK is not set
- # CONFIG_INPUT_TOUCHSCREEN is not set
- CONFIG_INPUT_MISC=y
--CONFIG_INPUT_PCSPKR=y
- # CONFIG_INPUT_UINPUT is not set
- 
- #
-@@ -624,16 +645,12 @@ CONFIG_SERIAL_8250_NR_UARTS=4
- CONFIG_SERIAL_CORE=y
- CONFIG_SERIAL_CORE_CONSOLE=y
- # CONFIG_SERIAL_PMACZILOG is not set
-+CONFIG_SERIAL_ICOM=m
- CONFIG_UNIX98_PTYS=y
- CONFIG_LEGACY_PTYS=y
- CONFIG_LEGACY_PTY_COUNT=256
- CONFIG_HVC_CONSOLE=y
+-#define PREEMPT_OFFSET	(1UL << PREEMPT_SHIFT)
+-#define SOFTIRQ_OFFSET	(1UL << SOFTIRQ_SHIFT)
+-#define HARDIRQ_OFFSET	(1UL << HARDIRQ_SHIFT)
 -
--#
--# Mice
--#
--# CONFIG_BUSMOUSE is not set
--# CONFIG_QIC02_TAPE is not set
-+CONFIG_HVCS=m
+ /*
+  * The hardirq mask has to be large enough to have
+  * space for potentially nestable IRQ sources in the system
+@@ -64,28 +50,7 @@
+ #error HARDIRQ_BITS is too low!
+ #endif
  
- #
- # IPMI
-@@ -656,7 +673,7 @@ CONFIG_HVC_CONSOLE=y
- # CONFIG_AGP is not set
- # CONFIG_DRM is not set
- CONFIG_RAW_DRIVER=y
--CONFIG_MAX_RAW_DEVS=256
-+CONFIG_MAX_RAW_DEVS=1024
+-/*
+- * Are we doing bottom half or hardware interrupt processing?
+- * Are we in a softirq context? Interrupt context?
+- */
+-#define in_irq()		(hardirq_count())
+-#define in_softirq()		(softirq_count())
+-#define in_interrupt()		(irq_count())
+-
+-
+-#define hardirq_trylock()	(!in_interrupt())
+-#define hardirq_endlock()	do { } while (0)
+-
+ #define irq_enter()		(preempt_count() += HARDIRQ_OFFSET)
+-
+-
+-#ifdef CONFIG_PREEMPT
+-#define in_atomic()	(preempt_count() != kernel_locked())
+-# define IRQ_EXIT_OFFSET (HARDIRQ_OFFSET-1)
+-#else
+-#define in_atomic()	(preempt_count() != 0)
+-#define IRQ_EXIT_OFFSET HARDIRQ_OFFSET
+-# endif
+ #define irq_exit()						\
+ do {								\
+ 		preempt_count() -= IRQ_EXIT_OFFSET;		\
+@@ -94,11 +59,5 @@
+ 			do_softirq();				\
+ 		preempt_enable_no_resched();			\
+ } while (0)
+-
+-#ifndef CONFIG_SMP
+-# define synchronize_irq(irq)	barrier()
+-#else
+-  extern void synchronize_irq(unsigned int irq);
+-#endif /* CONFIG_SMP */
  
- #
- # I2C support
-@@ -669,11 +686,13 @@ CONFIG_I2C=y
- #
- CONFIG_I2C_ALGOBIT=y
- # CONFIG_I2C_ALGOPCF is not set
-+# CONFIG_I2C_ALGOPCA is not set
+ #endif /* _ALPHA_HARDIRQ_H */
+===== include/asm-arm/hardirq.h 1.12 vs edited =====
+--- 1.12/include/asm-arm/hardirq.h	2004-08-20 10:06:19 +02:00
++++ edited/include/asm-arm/hardirq.h	2004-09-01 16:38:35 +02:00
+@@ -41,20 +41,6 @@
+ #define SOFTIRQ_SHIFT	(PREEMPT_SHIFT + PREEMPT_BITS)
+ #define HARDIRQ_SHIFT	(SOFTIRQ_SHIFT + SOFTIRQ_BITS)
  
- #
- # I2C Hardware Bus support
- #
- # CONFIG_I2C_ALI1535 is not set
-+# CONFIG_I2C_ALI1563 is not set
- # CONFIG_I2C_ALI15X3 is not set
- # CONFIG_I2C_AMD756 is not set
- # CONFIG_I2C_AMD8111 is not set
-@@ -691,30 +710,52 @@ CONFIG_I2C_ALGOBIT=y
- # CONFIG_I2C_VIA is not set
- # CONFIG_I2C_VIAPRO is not set
- # CONFIG_I2C_VOODOO3 is not set
-+# CONFIG_I2C_PCA_ISA is not set
+-#define __MASK(x)	((1UL << (x))-1)
+-
+-#define PREEMPT_MASK	(__MASK(PREEMPT_BITS) << PREEMPT_SHIFT)
+-#define HARDIRQ_MASK	(__MASK(HARDIRQ_BITS) << HARDIRQ_SHIFT)
+-#define SOFTIRQ_MASK	(__MASK(SOFTIRQ_BITS) << SOFTIRQ_SHIFT)
+-
+-#define hardirq_count()	(preempt_count() & HARDIRQ_MASK)
+-#define softirq_count()	(preempt_count() & SOFTIRQ_MASK)
+-#define irq_count()	(preempt_count() & (HARDIRQ_MASK|SOFTIRQ_MASK))
+-
+-#define PREEMPT_OFFSET	(1UL << PREEMPT_SHIFT)
+-#define SOFTIRQ_OFFSET	(1UL << SOFTIRQ_SHIFT)
+-#define HARDIRQ_OFFSET	(1UL << HARDIRQ_SHIFT)
+-
+ /*
+  * The hardirq mask has to be large enough to have space
+  * for potentially all IRQ sources in the system nesting
+@@ -64,29 +50,9 @@
+ # error HARDIRQ_BITS is too low!
+ #endif
  
- #
--# I2C Hardware Sensors Chip support
-+# Hardware Sensors Chip support
- #
- # CONFIG_I2C_SENSOR is not set
- # CONFIG_SENSORS_ADM1021 is not set
-+# CONFIG_SENSORS_ADM1025 is not set
-+# CONFIG_SENSORS_ADM1031 is not set
- # CONFIG_SENSORS_ASB100 is not set
--# CONFIG_SENSORS_EEPROM is not set
-+# CONFIG_SENSORS_DS1621 is not set
- # CONFIG_SENSORS_FSCHER is not set
- # CONFIG_SENSORS_GL518SM is not set
- # CONFIG_SENSORS_IT87 is not set
- # CONFIG_SENSORS_LM75 is not set
-+# CONFIG_SENSORS_LM77 is not set
- # CONFIG_SENSORS_LM78 is not set
-+# CONFIG_SENSORS_LM80 is not set
- # CONFIG_SENSORS_LM83 is not set
- # CONFIG_SENSORS_LM85 is not set
- # CONFIG_SENSORS_LM90 is not set
-+# CONFIG_SENSORS_MAX1619 is not set
-+# CONFIG_SENSORS_SMSC47M1 is not set
- # CONFIG_SENSORS_VIA686A is not set
- # CONFIG_SENSORS_W83781D is not set
- # CONFIG_SENSORS_W83L785TS is not set
-+# CONFIG_SENSORS_W83627HF is not set
+-/*
+- * Are we doing bottom half or hardware interrupt processing?
+- * Are we in a softirq context? Interrupt context?
+- */
+-#define in_irq()		(hardirq_count())
+-#define in_softirq()		(softirq_count())
+-#define in_interrupt()		(irq_count())
+-
+-#define hardirq_trylock()	(!in_interrupt())
+-#define hardirq_endlock()	do { } while (0)
+-
+ #define irq_enter()		(preempt_count() += HARDIRQ_OFFSET)
+ 
+-#ifdef CONFIG_PREEMPT
+-# define in_atomic()	((preempt_count() & ~PREEMPT_ACTIVE) != kernel_locked())
+-# define IRQ_EXIT_OFFSET (HARDIRQ_OFFSET-1)
+-#else
+-# define in_atomic()	(preempt_count() != 0)
+-# define IRQ_EXIT_OFFSET HARDIRQ_OFFSET
+-#endif
+-
+ #ifndef CONFIG_SMP
+-
+ extern asmlinkage void __do_softirq(void);
+ 
+ #define irq_exit()							\
+@@ -96,10 +62,6 @@
+ 			__do_softirq();					\
+ 		preempt_enable_no_resched();				\
+ 	} while (0)
+-
+-#define synchronize_irq(irq)	barrier()
+-#else
+-extern void synchronize_irq(unsigned int irq);
+ #endif
+ 
+ #endif /* __ASM_HARDIRQ_H */
+===== include/asm-arm26/hardirq.h 1.2 vs edited =====
+--- 1.2/include/asm-arm26/hardirq.h	2003-09-24 08:15:36 +02:00
++++ edited/include/asm-arm26/hardirq.h	2004-09-01 16:38:46 +02:00
+@@ -32,20 +32,6 @@
+ #define SOFTIRQ_SHIFT	(PREEMPT_SHIFT + PREEMPT_BITS)
+ #define HARDIRQ_SHIFT	(SOFTIRQ_SHIFT + SOFTIRQ_BITS)
+ 
+-#define __MASK(x)	((1UL << (x))-1)
+-
+-#define PREEMPT_MASK	(__MASK(PREEMPT_BITS) << PREEMPT_SHIFT)
+-#define HARDIRQ_MASK	(__MASK(HARDIRQ_BITS) << HARDIRQ_SHIFT)
+-#define SOFTIRQ_MASK	(__MASK(SOFTIRQ_BITS) << SOFTIRQ_SHIFT)
+-
+-#define hardirq_count()	(preempt_count() & HARDIRQ_MASK)
+-#define softirq_count()	(preempt_count() & SOFTIRQ_MASK)
+-#define irq_count()	(preempt_count() & (HARDIRQ_MASK|SOFTIRQ_MASK))
+-
+-#define PREEMPT_OFFSET	(1UL << PREEMPT_SHIFT)
+-#define SOFTIRQ_OFFSET	(1UL << SOFTIRQ_SHIFT)
+-#define HARDIRQ_OFFSET	(1UL << HARDIRQ_SHIFT)
+-
+ /*
+  * The hardirq mask has to be large enough to have space
+  * for potentially all IRQ sources in the system nesting
+@@ -55,26 +41,8 @@
+ # error HARDIRQ_BITS is too low!
+ #endif
+ 
+-/*
+- * Are we doing bottom half or hardware interrupt processing?
+- * Are we in a softirq context? Interrupt context?
+- */
+-#define in_irq()		(hardirq_count())
+-#define in_softirq()		(softirq_count())
+-#define in_interrupt()		(irq_count())
+-
+-#define hardirq_trylock()	(!in_interrupt())
+-#define hardirq_endlock()	do { } while (0)
+-
+ #define irq_enter()		(preempt_count() += HARDIRQ_OFFSET)
+ 
+-#ifdef CONFIG_PREEMPT
+-# define in_atomic()    ((preempt_count() & ~PREEMPT_ACTIVE) != kernel_locked())# define IRQ_EXIT_OFFSET (HARDIRQ_OFFSET-1)
+-#else
+-# define in_atomic()    (preempt_count() != 0)
+-# define IRQ_EXIT_OFFSET HARDIRQ_OFFSET
+-#endif
+-
+ #ifndef CONFIG_SMP
+ #define irq_exit()							\
+ 	do {								\
+@@ -84,9 +52,6 @@
+ 		preempt_enable_no_resched();				\
+ 	} while (0)
+ 
+-#define synchronize_irq(irq)	barrier()
+-#else
+-#error SMP not supported
+ #endif
+ 
+ #endif /* __ASM_HARDIRQ_H */
+===== include/asm-cris/hardirq.h 1.3 vs edited =====
+--- 1.3/include/asm-cris/hardirq.h	2003-04-09 09:25:27 +02:00
++++ edited/include/asm-cris/hardirq.h	2004-09-01 16:38:52 +02:00
+@@ -40,20 +40,6 @@
+ #define SOFTIRQ_SHIFT	(PREEMPT_SHIFT + PREEMPT_BITS)
+ #define HARDIRQ_SHIFT	(SOFTIRQ_SHIFT + SOFTIRQ_BITS)
+ 
+-#define __MASK(x)	((1UL << (x))-1)
+-
+-#define PREEMPT_MASK	(__MASK(PREEMPT_BITS) << PREEMPT_SHIFT)
+-#define HARDIRQ_MASK	(__MASK(HARDIRQ_BITS) << HARDIRQ_SHIFT)
+-#define SOFTIRQ_MASK	(__MASK(SOFTIRQ_BITS) << SOFTIRQ_SHIFT)
+-
+-#define hardirq_count()	(preempt_count() & HARDIRQ_MASK)
+-#define softirq_count()	(preempt_count() & SOFTIRQ_MASK)
+-#define irq_count()	(preempt_count() & (HARDIRQ_MASK | SOFTIRQ_MASK))
+-
+-#define PREEMPT_OFFSET	(1UL << PREEMPT_SHIFT)
+-#define SOFTIRQ_OFFSET	(1UL << SOFTIRQ_SHIFT)
+-#define HARDIRQ_OFFSET	(1UL << HARDIRQ_SHIFT)
+-
+ /*
+  * The hardirq mask has to be large enough to have
+  * space for potentially all IRQ sources in the system
+@@ -63,27 +49,7 @@
+ # error HARDIRQ_BITS is too low!
+ #endif
+ 
+-/*
+- * Are we doing bottom half or hardware interrupt processing?
+- * Are we in a softirq context? Interrupt context?
+- */
+-#define in_irq()		(hardirq_count())
+-#define in_softirq()		(softirq_count())
+-#define in_interrupt()		(irq_count())
+-
+-
+-#define hardirq_trylock()	(!in_interrupt())
+-#define hardirq_endlock()	do { } while (0)
+-
+ #define irq_enter()		(preempt_count() += HARDIRQ_OFFSET)
+-
+-#ifdef CONFIG_PREEMPT
+-# define in_atomic()	((preempt_count() & ~PREEMPT_ACTIVE) != kernel_locked())
+-# define IRQ_EXIT_OFFSET (HARDIRQ_OFFSET-1)
+-#else
+-# define in_atomic()	(preempt_count() != 0)
+-# define IRQ_EXIT_OFFSET HARDIRQ_OFFSET
+-#endif
+ #define irq_exit()							\
+ do {									\
+ 		preempt_count() -= IRQ_EXIT_OFFSET;			\
+@@ -91,7 +57,5 @@
+ 			do_softirq();					\
+ 		preempt_enable_no_resched();				\
+ } while (0)
+-
+-#define synchronize_irq(irq)	barrier()
+ 
+ #endif /* __ASM_HARDIRQ_H */
+===== include/asm-generic/local.h 1.2 vs edited =====
+--- 1.2/include/asm-generic/local.h	2004-02-14 06:24:01 +01:00
++++ edited/include/asm-generic/local.h	2004-09-01 16:48:15 +02:00
+@@ -3,8 +3,8 @@
+ 
+ #include <linux/config.h>
+ #include <linux/percpu.h>
++#include <linux/hardirq.h>
+ #include <asm/types.h>
+-#include <asm/hardirq.h>
+ 
+ /* An unsigned long type for operations which are atomic for a single
+  * CPU.  Usually used in combination with per-cpu variables. */
+===== include/asm-h8300/hardirq.h 1.4 vs edited =====
+--- 1.4/include/asm-h8300/hardirq.h	2004-05-15 04:00:16 +02:00
++++ edited/include/asm-h8300/hardirq.h	2004-09-01 16:42:07 +02:00
+@@ -38,20 +38,6 @@
+ #define SOFTIRQ_SHIFT	(PREEMPT_SHIFT + PREEMPT_BITS)
+ #define HARDIRQ_SHIFT	(SOFTIRQ_SHIFT + SOFTIRQ_BITS)
+ 
+-#define __MASK(x)	((1UL << (x))-1)
+-
+-#define PREEMPT_MASK	(__MASK(PREEMPT_BITS) << PREEMPT_SHIFT)
+-#define HARDIRQ_MASK	(__MASK(HARDIRQ_BITS) << HARDIRQ_SHIFT)
+-#define SOFTIRQ_MASK	(__MASK(SOFTIRQ_BITS) << SOFTIRQ_SHIFT)
+-
+-#define hardirq_count()	(preempt_count() & HARDIRQ_MASK)
+-#define softirq_count()	(preempt_count() & SOFTIRQ_MASK)
+-#define irq_count()	(preempt_count() & (HARDIRQ_MASK | SOFTIRQ_MASK))
+-
+-#define PREEMPT_OFFSET	(1UL << PREEMPT_SHIFT)
+-#define SOFTIRQ_OFFSET	(1UL << SOFTIRQ_SHIFT)
+-#define HARDIRQ_OFFSET	(1UL << HARDIRQ_SHIFT)
+-
+ /*
+  * The hardirq mask has to be large enough to have
+  * space for potentially all IRQ sources in the system
+@@ -61,27 +47,7 @@
+ # error HARDIRQ_BITS is too low!
+ #endif
+ 
+-/*
+- * Are we doing bottom half or hardware interrupt processing?
+- * Are we in a softirq context? Interrupt context?
+- */
+-#define in_irq()		(hardirq_count())
+-#define in_softirq()		(softirq_count())
+-#define in_interrupt()		(irq_count())
+-
+-#define hardirq_trylock()	(!in_interrupt())
+-#define hardirq_endlock()	do { } while (0)
+-
+ #define irq_enter()		(preempt_count() += HARDIRQ_OFFSET)
+-
+-#ifdef CONFIG_PREEMPT
+-# define in_atomic()	((preempt_count() & ~PREEMPT_ACTIVE) != kernel_locked())
+-# define IRQ_EXIT_OFFSET (HARDIRQ_OFFSET-1)
+-#else
+-# define in_atomic()	(preempt_count() != 0)
+-# define IRQ_EXIT_OFFSET HARDIRQ_OFFSET
+-#endif
+-
+ #define irq_exit()							\
+ do {									\
+ 		preempt_count() -= IRQ_EXIT_OFFSET;			\
+@@ -89,11 +55,5 @@
+ 			do_softirq();					\
+ 		preempt_enable_no_resched();				\
+ } while (0)
+-
+-#ifndef CONFIG_SMP
+-# define synchronize_irq(irq)	barrier()
+-#else
+-# error h8300 SMP is not available
+-#endif /* CONFIG_SMP */
+ 
+ #endif
+===== include/asm-i386/hardirq.h 1.21 vs edited =====
+--- 1.21/include/asm-i386/hardirq.h	2003-08-05 19:36:52 +02:00
++++ edited/include/asm-i386/hardirq.h	2004-09-01 16:43:30 +02:00
+@@ -37,20 +37,6 @@
+ #define SOFTIRQ_SHIFT	(PREEMPT_SHIFT + PREEMPT_BITS)
+ #define HARDIRQ_SHIFT	(SOFTIRQ_SHIFT + SOFTIRQ_BITS)
+ 
+-#define __MASK(x)	((1UL << (x))-1)
+-
+-#define PREEMPT_MASK	(__MASK(PREEMPT_BITS) << PREEMPT_SHIFT)
+-#define HARDIRQ_MASK	(__MASK(HARDIRQ_BITS) << HARDIRQ_SHIFT)
+-#define SOFTIRQ_MASK	(__MASK(SOFTIRQ_BITS) << SOFTIRQ_SHIFT)
+-
+-#define hardirq_count()	(preempt_count() & HARDIRQ_MASK)
+-#define softirq_count()	(preempt_count() & SOFTIRQ_MASK)
+-#define irq_count()	(preempt_count() & (HARDIRQ_MASK | SOFTIRQ_MASK))
+-
+-#define PREEMPT_OFFSET	(1UL << PREEMPT_SHIFT)
+-#define SOFTIRQ_OFFSET	(1UL << SOFTIRQ_SHIFT)
+-#define HARDIRQ_OFFSET	(1UL << HARDIRQ_SHIFT)
+-
+ /*
+  * The hardirq mask has to be large enough to have
+  * space for potentially all IRQ sources in the system
+@@ -60,30 +46,10 @@
+ # error HARDIRQ_BITS is too low!
+ #endif
+ 
+-/*
+- * Are we doing bottom half or hardware interrupt processing?
+- * Are we in a softirq context? Interrupt context?
+- */
+-#define in_irq()		(hardirq_count())
+-#define in_softirq()		(softirq_count())
+-#define in_interrupt()		(irq_count())
+-
+-
+-#define hardirq_trylock()	(!in_interrupt())
+-#define hardirq_endlock()	do { } while (0)
+-
+-#define irq_enter()		(preempt_count() += HARDIRQ_OFFSET)
+ #define nmi_enter()		(irq_enter())
+ #define nmi_exit()		(preempt_count() -= HARDIRQ_OFFSET)
+ 
+-#ifdef CONFIG_PREEMPT
+-# include <linux/smp_lock.h>
+-# define in_atomic()	((preempt_count() & ~PREEMPT_ACTIVE) != kernel_locked())
+-# define IRQ_EXIT_OFFSET (HARDIRQ_OFFSET-1)
+-#else
+-# define in_atomic()	(preempt_count() != 0)
+-# define IRQ_EXIT_OFFSET HARDIRQ_OFFSET
+-#endif
++#define irq_enter()		(preempt_count() += HARDIRQ_OFFSET)
+ #define irq_exit()							\
+ do {									\
+ 		preempt_count() -= IRQ_EXIT_OFFSET;			\
+@@ -91,11 +57,5 @@
+ 			do_softirq();					\
+ 		preempt_enable_no_resched();				\
+ } while (0)
+-
+-#ifndef CONFIG_SMP
+-# define synchronize_irq(irq)	barrier()
+-#else
+-  extern void synchronize_irq(unsigned int irq);
+-#endif /* CONFIG_SMP */
+ 
+ #endif /* __ASM_HARDIRQ_H */
+===== include/asm-ia64/hardirq.h 1.15 vs edited =====
+--- 1.15/include/asm-ia64/hardirq.h	2004-03-01 21:25:25 +01:00
++++ edited/include/asm-ia64/hardirq.h	2004-09-01 16:39:11 +02:00
+@@ -52,20 +52,6 @@
+ #define SOFTIRQ_SHIFT	(PREEMPT_SHIFT + PREEMPT_BITS)
+ #define HARDIRQ_SHIFT	(SOFTIRQ_SHIFT + SOFTIRQ_BITS)
+ 
+-#define __MASK(x)	((1UL << (x))-1)
+-
+-#define PREEMPT_MASK	(__MASK(PREEMPT_BITS) << PREEMPT_SHIFT)
+-#define HARDIRQ_MASK	(__MASK(HARDIRQ_BITS) << HARDIRQ_SHIFT)
+-#define SOFTIRQ_MASK	(__MASK(SOFTIRQ_BITS) << SOFTIRQ_SHIFT)
+-
+-#define hardirq_count()	(preempt_count() & HARDIRQ_MASK)
+-#define softirq_count()	(preempt_count() & SOFTIRQ_MASK)
+-#define irq_count()	(preempt_count() & (HARDIRQ_MASK | SOFTIRQ_MASK))
+-
+-#define PREEMPT_OFFSET	(1UL << PREEMPT_SHIFT)
+-#define SOFTIRQ_OFFSET	(1UL << SOFTIRQ_SHIFT)
+-#define HARDIRQ_OFFSET	(1UL << HARDIRQ_SHIFT)
+-
+ /*
+  * The hardirq mask has to be large enough to have space for potentially all IRQ sources
+  * in the system nesting on a single CPU:
+@@ -73,32 +59,5 @@
+ #if (1 << HARDIRQ_BITS) < NR_IRQS
+ # error HARDIRQ_BITS is too low!
+ #endif
+-
+-/*
+- * Are we doing bottom half or hardware interrupt processing?
+- * Are we in a softirq context?
+- * Interrupt context?
+- */
+-#define in_irq()		(hardirq_count())
+-#define in_softirq()		(softirq_count())
+-#define in_interrupt()		(irq_count())
+-
+-#define hardirq_trylock()	(!in_interrupt())
+-#define hardirq_endlock()	do { } while (0)
+-
+-#ifdef CONFIG_PREEMPT
+-# include <linux/smp_lock.h>
+-# define in_atomic()		((preempt_count() & ~PREEMPT_ACTIVE) != kernel_locked())
+-# define IRQ_EXIT_OFFSET (HARDIRQ_OFFSET-1)
+-#else
+-# define in_atomic()		(preempt_count() != 0)
+-# define IRQ_EXIT_OFFSET HARDIRQ_OFFSET
+-#endif
+-
+-#ifdef CONFIG_SMP
+-  extern void synchronize_irq (unsigned int irq);
+-#else
+-# define synchronize_irq(irq)	barrier()
+-#endif /* CONFIG_SMP */
+ 
+ #endif /* _ASM_IA64_HARDIRQ_H */
+===== include/asm-m68k/hardirq.h 1.6 vs edited =====
+--- 1.6/include/asm-m68k/hardirq.h	2004-07-29 06:58:43 +02:00
++++ edited/include/asm-m68k/hardirq.h	2004-09-01 16:39:22 +02:00
+@@ -35,20 +35,6 @@
+ #define SOFTIRQ_SHIFT	(PREEMPT_SHIFT + PREEMPT_BITS)
+ #define HARDIRQ_SHIFT	(SOFTIRQ_SHIFT + SOFTIRQ_BITS)
+ 
+-#define __MASK(x)	((1UL << (x))-1)
+-
+-#define PREEMPT_MASK	(__MASK(PREEMPT_BITS) << PREEMPT_SHIFT)
+-#define HARDIRQ_MASK	(__MASK(HARDIRQ_BITS) << HARDIRQ_SHIFT)
+-#define SOFTIRQ_MASK	(__MASK(SOFTIRQ_BITS) << SOFTIRQ_SHIFT)
+-
+-#define hardirq_count()	(preempt_count() & HARDIRQ_MASK)
+-#define softirq_count()	(preempt_count() & SOFTIRQ_MASK)
+-#define irq_count()	(preempt_count() & (HARDIRQ_MASK | SOFTIRQ_MASK))
+-
+-#define PREEMPT_OFFSET	(1UL << PREEMPT_SHIFT)
+-#define SOFTIRQ_OFFSET	(1UL << SOFTIRQ_SHIFT)
+-#define HARDIRQ_OFFSET	(1UL << HARDIRQ_SHIFT)
+-
+ /*
+  * The hardirq mask has to be large enough to have
+  * space for potentially all IRQ sources in the system
+@@ -58,27 +44,7 @@
+ # error HARDIRQ_BITS is too low!
+ #endif
+ 
+-/*
+- * Are we doing bottom half or hardware interrupt processing?
+- * Are we in a softirq context? Interrupt context?
+- */
+-#define in_irq()		(hardirq_count())
+-#define in_softirq()		(softirq_count())
+-#define in_interrupt()		(irq_count())
+-
+-
+-#define hardirq_trylock()	(!in_interrupt())
+-#define hardirq_endlock()	do { } while (0)
+-
+ #define irq_enter()		(preempt_count() += HARDIRQ_OFFSET)
+-
+-#ifdef CONFIG_PREEMPT
+-# define in_atomic()	(preempt_count() != kernel_locked())
+-# define IRQ_EXIT_OFFSET (HARDIRQ_OFFSET-1)
+-#else
+-# define in_atomic()	(preempt_count() != 0)
+-# define IRQ_EXIT_OFFSET HARDIRQ_OFFSET
+-#endif
+ #define irq_exit()							\
+ do {									\
+ 		preempt_count() -= IRQ_EXIT_OFFSET;			\
+@@ -86,7 +52,5 @@
+ 			do_softirq();					\
+ 		preempt_enable_no_resched();				\
+ } while (0)
+-
+-#define synchronize_irq(irq)	barrier()
+ 
+ #endif
+===== include/asm-m68k/system.h 1.12 vs edited =====
+--- 1.12/include/asm-m68k/system.h	2004-02-23 06:24:08 +01:00
++++ edited/include/asm-m68k/system.h	2004-09-01 16:47:13 +02:00
+@@ -51,7 +51,7 @@
+ #if 0
+ #define local_irq_enable() asm volatile ("andiw %0,%%sr": : "i" (ALLOWINT) : "memory")
+ #else
+-#include <asm/hardirq.h>
++#include <linux/hardirq.h>
+ #define local_irq_enable() ({							\
+ 	if (MACH_IS_Q40 || !hardirq_count())					\
+ 		asm volatile ("andiw %0,%%sr": : "i" (ALLOWINT) : "memory");	\
+===== include/asm-m68knommu/hardirq.h 1.3 vs edited =====
+--- 1.3/include/asm-m68knommu/hardirq.h	2003-05-13 03:59:23 +02:00
++++ edited/include/asm-m68knommu/hardirq.h	2004-09-01 16:39:27 +02:00
+@@ -36,20 +36,6 @@
+ #define SOFTIRQ_SHIFT	(PREEMPT_SHIFT + PREEMPT_BITS)
+ #define HARDIRQ_SHIFT	(SOFTIRQ_SHIFT + SOFTIRQ_BITS)
+ 
+-#define __MASK(x)	((1UL << (x))-1)
+-
+-#define PREEMPT_MASK	(__MASK(PREEMPT_BITS) << PREEMPT_SHIFT)
+-#define HARDIRQ_MASK	(__MASK(HARDIRQ_BITS) << HARDIRQ_SHIFT)
+-#define SOFTIRQ_MASK	(__MASK(SOFTIRQ_BITS) << SOFTIRQ_SHIFT)
+-
+-#define hardirq_count()	(preempt_count() & HARDIRQ_MASK)
+-#define softirq_count()	(preempt_count() & SOFTIRQ_MASK)
+-#define irq_count()	(preempt_count() & (HARDIRQ_MASK | SOFTIRQ_MASK))
+-
+-#define PREEMPT_OFFSET	(1UL << PREEMPT_SHIFT)
+-#define SOFTIRQ_OFFSET	(1UL << SOFTIRQ_SHIFT)
+-#define HARDIRQ_OFFSET	(1UL << HARDIRQ_SHIFT)
+-
+ /*
+  * The hardirq mask has to be large enough to have
+  * space for potentially all IRQ sources in the system
+@@ -59,33 +45,7 @@
+ # error HARDIRQ_BITS is too low!
+ #endif
+ 
+-/*
+- * Are we doing bottom half or hardware interrupt processing?
+- * Are we in a softirq context? Interrupt context?
+- */
+-#define in_irq()		(hardirq_count())
+-#define in_softirq()		(softirq_count())
+-#define in_interrupt()		(irq_count())
+-
+-#define hardirq_trylock()	(!in_interrupt())
+-#define hardirq_endlock()	do { } while (0)
+-
+ #define irq_enter()		(preempt_count() += HARDIRQ_OFFSET)
+-
+-#ifdef CONFIG_PREEMPT
+-# define IRQ_EXIT_OFFSET (HARDIRQ_OFFSET-1)
+-#else
+-# define IRQ_EXIT_OFFSET HARDIRQ_OFFSET
+-#endif
+-
+-#ifdef CONFIG_PREEMPT
+-# define in_atomic()	(preempt_count() != kernel_locked())
+-# define IRQ_EXIT_OFFSET (HARDIRQ_OFFSET-1)
+-#else
+-# define in_atomic()	(preempt_count() != 0)
+-# define IRQ_EXIT_OFFSET HARDIRQ_OFFSET
+-#endif
+-
+ #define irq_exit()							\
+ do {									\
+ 		preempt_count() -= IRQ_EXIT_OFFSET;			\
+@@ -93,11 +53,5 @@
+ 			do_softirq();					\
+ 		preempt_enable_no_resched();				\
+ } while (0)
+-
+-#ifndef CONFIG_SMP
+-# define synchronize_irq(irq)	barrier()
+-#else
+-# error m68knommu SMP is not available
+-#endif /* CONFIG_SMP */
+ 
+ #endif /* __M68K_HARDIRQ_H */
+===== include/asm-mips/hardirq.h 1.8 vs edited =====
+--- 1.8/include/asm-mips/hardirq.h	2004-04-20 08:53:22 +02:00
++++ edited/include/asm-mips/hardirq.h	2004-09-01 16:39:32 +02:00
+@@ -43,20 +43,6 @@
+ #define SOFTIRQ_SHIFT	(PREEMPT_SHIFT + PREEMPT_BITS)
+ #define HARDIRQ_SHIFT	(SOFTIRQ_SHIFT + SOFTIRQ_BITS)
+ 
+-#define __MASK(x)	((1UL << (x))-1)
+-
+-#define PREEMPT_MASK	(__MASK(PREEMPT_BITS) << PREEMPT_SHIFT)
+-#define HARDIRQ_MASK	(__MASK(HARDIRQ_BITS) << HARDIRQ_SHIFT)
+-#define SOFTIRQ_MASK	(__MASK(SOFTIRQ_BITS) << SOFTIRQ_SHIFT)
+-
+-#define hardirq_count()	(preempt_count() & HARDIRQ_MASK)
+-#define softirq_count()	(preempt_count() & SOFTIRQ_MASK)
+-#define irq_count()	(preempt_count() & (HARDIRQ_MASK | SOFTIRQ_MASK))
+-
+-#define PREEMPT_OFFSET	(1UL << PREEMPT_SHIFT)
+-#define SOFTIRQ_OFFSET	(1UL << SOFTIRQ_SHIFT)
+-#define HARDIRQ_OFFSET	(1UL << HARDIRQ_SHIFT)
+-
+ /*
+  * The hardirq mask has to be large enough to have
+  * space for potentially all IRQ sources in the system
+@@ -66,27 +52,7 @@
+ # error HARDIRQ_BITS is too low!
+ #endif
+ 
+-/*
+- * Are we doing bottom half or hardware interrupt processing?
+- * Are we in a softirq context? Interrupt context?
+- */
+-#define in_irq()		(hardirq_count())
+-#define in_softirq()		(softirq_count())
+-#define in_interrupt()		(irq_count())
+-
+-#define hardirq_trylock()	(!in_interrupt())
+-#define hardirq_endlock()	do { } while (0)
+-
+ #define irq_enter()		(preempt_count() += HARDIRQ_OFFSET)
+-
+-#ifdef CONFIG_PREEMPT
+-# include <linux/smp_lock.h>
+-# define in_atomic()	((preempt_count() & ~PREEMPT_ACTIVE) != kernel_locked())
+-# define IRQ_EXIT_OFFSET (HARDIRQ_OFFSET-1)
+-#else
+-# define in_atomic()	(preempt_count() != 0)
+-# define IRQ_EXIT_OFFSET HARDIRQ_OFFSET
+-#endif
+ #define irq_exit()                                                     \
+ do {                                                                   \
+ 	preempt_count() -= IRQ_EXIT_OFFSET;                     \
+@@ -94,11 +60,5 @@
+ 		do_softirq();                                   \
+ 	preempt_enable_no_resched();                            \
+ } while (0)
+-
+-#ifndef CONFIG_SMP
+-# define synchronize_irq(irq)	barrier()
+-#else
+-  extern void synchronize_irq(unsigned int irq);
+-#endif /* CONFIG_SMP */
+ 
+ #endif /* _ASM_HARDIRQ_H */
+===== include/asm-parisc/hardirq.h 1.3 vs edited =====
+--- 1.3/include/asm-parisc/hardirq.h	2003-05-13 03:59:23 +02:00
++++ edited/include/asm-parisc/hardirq.h	2004-09-01 16:39:37 +02:00
+@@ -51,20 +51,6 @@
+ #define SOFTIRQ_SHIFT	(PREEMPT_SHIFT + PREEMPT_BITS)
+ #define HARDIRQ_SHIFT	(SOFTIRQ_SHIFT + SOFTIRQ_BITS)
+ 
+-#define __MASK(x)	((1UL << (x))-1)
+-
+-#define PREEMPT_MASK	(__MASK(PREEMPT_BITS) << PREEMPT_SHIFT)
+-#define HARDIRQ_MASK	(__MASK(HARDIRQ_BITS) << HARDIRQ_SHIFT)
+-#define SOFTIRQ_MASK	(__MASK(SOFTIRQ_BITS) << SOFTIRQ_SHIFT)
+-
+-#define hardirq_count()	(preempt_count() & HARDIRQ_MASK)
+-#define softirq_count()	(preempt_count() & SOFTIRQ_MASK)
+-#define irq_count()	(preempt_count() & (HARDIRQ_MASK | SOFTIRQ_MASK))
+-
+-#define PREEMPT_OFFSET	(1UL << PREEMPT_SHIFT)
+-#define SOFTIRQ_OFFSET	(1UL << SOFTIRQ_SHIFT)
+-#define HARDIRQ_OFFSET	(1UL << HARDIRQ_SHIFT)
+-
+ /*
+  * The hardirq mask has to be large enough to have space for potentially all IRQ sources
+  * in the system nesting on a single CPU:
+@@ -73,29 +59,7 @@
+ # error HARDIRQ_BITS is too low!
+ #endif
+ 
+-/*
+- * Are we doing bottom half or hardware interrupt processing?
+- * Are we in a softirq context?
+- * Interrupt context?
+- */
+-#define in_irq()		(hardirq_count())
+-#define in_softirq()		(softirq_count())
+-#define in_interrupt()		(irq_count())
+-
+-#define hardirq_trylock()	(!in_interrupt())
+-#define hardirq_endlock()	do { } while (0)
+-
+ #define irq_enter()		(preempt_count() += HARDIRQ_OFFSET)
+-
+-#ifdef CONFIG_PREEMPT
+-# error CONFIG_PREEMT currently not supported.
+-# define in_atomic()	 BUG()
+-# define IRQ_EXIT_OFFSET (HARDIRQ_OFFSET-1)
+-#else
+-# define in_atomic()	(preempt_count() != 0)
+-# define IRQ_EXIT_OFFSET HARDIRQ_OFFSET
+-#endif
+-
+ #define irq_exit()								\
+ do {										\
+ 		preempt_count() -= IRQ_EXIT_OFFSET;				\
+@@ -103,11 +67,5 @@
+ 			do_softirq();						\
+ 		preempt_enable_no_resched();					\
+ } while (0)
+-
+-#ifdef CONFIG_SMP
+-  extern void synchronize_irq (unsigned int irq);
+-#else
+-# define synchronize_irq(irq)	barrier()
+-#endif /* CONFIG_SMP */
+ 
+ #endif /* _PARISC_HARDIRQ_H */
+===== include/asm-ppc/hardirq.h 1.24 vs edited =====
+--- 1.24/include/asm-ppc/hardirq.h	2004-06-03 13:36:46 +02:00
++++ edited/include/asm-ppc/hardirq.h	2004-09-01 16:39:44 +02:00
+@@ -44,20 +44,6 @@
+ #define SOFTIRQ_SHIFT	(PREEMPT_SHIFT + PREEMPT_BITS)
+ #define HARDIRQ_SHIFT	(SOFTIRQ_SHIFT + SOFTIRQ_BITS)
+ 
+-#define __MASK(x)	((1UL << (x))-1)
+-
+-#define PREEMPT_MASK	(__MASK(PREEMPT_BITS) << PREEMPT_SHIFT)
+-#define HARDIRQ_MASK	(__MASK(HARDIRQ_BITS) << HARDIRQ_SHIFT)
+-#define SOFTIRQ_MASK	(__MASK(SOFTIRQ_BITS) << SOFTIRQ_SHIFT)
+-
+-#define hardirq_count()	(preempt_count() & HARDIRQ_MASK)
+-#define softirq_count()	(preempt_count() & SOFTIRQ_MASK)
+-#define irq_count()	(preempt_count() & (HARDIRQ_MASK | SOFTIRQ_MASK))
+-
+-#define PREEMPT_OFFSET	(1UL << PREEMPT_SHIFT)
+-#define SOFTIRQ_OFFSET	(1UL << SOFTIRQ_SHIFT)
+-#define HARDIRQ_OFFSET	(1UL << HARDIRQ_SHIFT)
+-
+ /*
+  * The hardirq mask has to be large enough to have
+  * space for potentially all IRQ sources in the system
+@@ -67,31 +53,7 @@
+ # error HARDIRQ_BITS is too low!
+ #endif
+ 
+-/*
+- * Are we doing bottom half or hardware interrupt processing?
+- * Are we in a softirq context? Interrupt context?
+- */
+-#define in_irq()		(hardirq_count())
+-#define in_softirq()		(softirq_count())
+-#define in_interrupt()		(irq_count())
+-
+-
+-#define hardirq_trylock()	(!in_interrupt())
+-#define hardirq_endlock()	do { } while (0)
+-
+ #define irq_enter()		(preempt_count() += HARDIRQ_OFFSET)
+-
+-#ifdef CONFIG_PREEMPT
+-# define in_atomic()	((preempt_count() & ~PREEMPT_ACTIVE) != kernel_locked())
+-# define preemptible()	(preempt_count() == 0 && !irqs_disabled())
+-# define IRQ_EXIT_OFFSET (HARDIRQ_OFFSET-1)
+-
+-#else
+-# define in_atomic()	(preempt_count() != 0)
+-# define preemptible()	0
+-# define IRQ_EXIT_OFFSET HARDIRQ_OFFSET
+-#endif
+-
+ #define irq_exit()							\
+ do {									\
+ 	preempt_count() -= IRQ_EXIT_OFFSET;				\
+@@ -99,12 +61,6 @@
+ 		do_softirq();						\
+ 	preempt_enable_no_resched();					\
+ } while (0)
+-
+-#ifndef CONFIG_SMP
+-# define synchronize_irq(irq)	barrier()
+-#else
+-  extern void synchronize_irq(unsigned int irq);
+-#endif /* CONFIG_SMP */
+ 
+ #endif /* __ASM_HARDIRQ_H */
+ #endif /* __KERNEL__ */
+===== include/asm-ppc64/hardirq.h 1.13 vs edited =====
+--- 1.13/include/asm-ppc64/hardirq.h	2004-06-10 08:21:41 +02:00
++++ edited/include/asm-ppc64/hardirq.h	2004-09-01 16:40:02 +02:00
+@@ -1,4 +1,3 @@
+-#ifdef __KERNEL__
+ #ifndef __ASM_HARDIRQ_H
+ #define __ASM_HARDIRQ_H
+ 
+@@ -43,20 +42,6 @@
+ #define SOFTIRQ_SHIFT	(PREEMPT_SHIFT + PREEMPT_BITS)
+ #define HARDIRQ_SHIFT	(SOFTIRQ_SHIFT + SOFTIRQ_BITS)
+ 
+-#define __HARDIRQ_MASK(x)	((1UL << (x))-1)
+-
+-#define PREEMPT_MASK	(__HARDIRQ_MASK(PREEMPT_BITS) << PREEMPT_SHIFT)
+-#define SOFTIRQ_MASK	(__HARDIRQ_MASK(SOFTIRQ_BITS) << SOFTIRQ_SHIFT)
+-#define HARDIRQ_MASK	(__HARDIRQ_MASK(HARDIRQ_BITS) << HARDIRQ_SHIFT)
+-
+-#define hardirq_count()	(preempt_count() & HARDIRQ_MASK)
+-#define softirq_count()	(preempt_count() & SOFTIRQ_MASK)
+-#define irq_count()	(preempt_count() & (HARDIRQ_MASK | SOFTIRQ_MASK))
+-
+-#define PREEMPT_OFFSET	(1UL << PREEMPT_SHIFT)
+-#define SOFTIRQ_OFFSET	(1UL << SOFTIRQ_SHIFT)
+-#define HARDIRQ_OFFSET	(1UL << HARDIRQ_SHIFT)
+-
+ /*
+  * The hardirq mask has to be large enough to have
+  * space for potentially all IRQ sources in the system
+@@ -66,29 +51,7 @@
+ # error HARDIRQ_BITS is too low!
+ #endif
+ 
+-/*
+- * Are we doing bottom half or hardware interrupt processing?
+- * Are we in a softirq context? Interrupt context?
+- */
+-#define in_irq()		(hardirq_count())
+-#define in_softirq()		(softirq_count())
+-#define in_interrupt()		(irq_count())
+-
+-
+-#define hardirq_trylock()	(!in_interrupt())
+-#define hardirq_endlock()	do { } while (0)
+-
+ #define irq_enter()		(preempt_count() += HARDIRQ_OFFSET)
+-
+-#ifdef CONFIG_PREEMPT
+-# define in_atomic()	((preempt_count() & ~PREEMPT_ACTIVE) != kernel_locked())
+-# define preemptible()	(preempt_count() == 0 && !irqs_disabled())
+-# define IRQ_EXIT_OFFSET (HARDIRQ_OFFSET-1)
+-#else
+-# define in_atomic()	(preempt_count() != 0)
+-# define preemptible()	0
+-# define IRQ_EXIT_OFFSET HARDIRQ_OFFSET
+-#endif
+ #define irq_exit()							\
+ do {									\
+ 		preempt_count() -= IRQ_EXIT_OFFSET;			\
+@@ -97,12 +60,4 @@
+ 		preempt_enable_no_resched();				\
+ } while (0)
+ 
+-#ifndef CONFIG_SMP
+-# define synchronize_irq(irq)	barrier()
+-#else
+-  extern void synchronize_irq(unsigned int irq);
+-#endif /* CONFIG_SMP */
+-
+-#endif /* __KERNEL__ */
+-	
+ #endif /* __ASM_HARDIRQ_H */
+===== include/asm-s390/hardirq.h 1.13 vs edited =====
+--- 1.13/include/asm-s390/hardirq.h	2004-01-19 07:35:53 +01:00
++++ edited/include/asm-s390/hardirq.h	2004-09-01 16:40:31 +02:00
+@@ -61,51 +61,15 @@
+ #define SOFTIRQ_SHIFT	(PREEMPT_SHIFT + PREEMPT_BITS)
+ #define HARDIRQ_SHIFT	(SOFTIRQ_SHIFT + SOFTIRQ_BITS)
+ 
+-#define __MASK(x)	((1UL << (x))-1)
+-
+-#define PREEMPT_MASK	(__MASK(PREEMPT_BITS) << PREEMPT_SHIFT)
+-#define SOFTIRQ_MASK	(__MASK(SOFTIRQ_BITS) << SOFTIRQ_SHIFT)
+-#define HARDIRQ_MASK	(__MASK(HARDIRQ_BITS) << HARDIRQ_SHIFT)
+-
+-#define hardirq_count()	(preempt_count() & HARDIRQ_MASK)
+-#define softirq_count()	(preempt_count() & SOFTIRQ_MASK)
+-#define irq_count()	(preempt_count() & (HARDIRQ_MASK | SOFTIRQ_MASK))
+-
+-#define PREEMPT_OFFSET	(1UL << PREEMPT_SHIFT)
+-#define SOFTIRQ_OFFSET	(1UL << SOFTIRQ_SHIFT)
+-#define HARDIRQ_OFFSET	(1UL << HARDIRQ_SHIFT)
+-
+-/*
+- * Are we doing bottom half or hardware interrupt processing?
+- * Are we in a softirq context? Interrupt context?
+- */
+-#define in_irq()		(hardirq_count())
+-#define in_softirq()		(softirq_count())
+-#define in_interrupt()		(irq_count())
+-
++extern void do_call_softirq(void);
++extern void account_ticks(struct pt_regs *);
+ 
+-#define hardirq_trylock()	(!in_interrupt())
+-#define hardirq_endlock()	do { } while (0)
++#define invoke_softirq() do_call_softirq()
+ 
+ #define irq_enter()							\
+ do {									\
+ 	(preempt_count() += HARDIRQ_OFFSET);				\
+ } while(0)
+-	
+-
+-extern void do_call_softirq(void);
+-extern void account_ticks(struct pt_regs *);
+-
+-#define invoke_softirq() do_call_softirq()
+-
+-#ifdef CONFIG_PREEMPT
+-# define in_atomic()	((preempt_count() & ~PREEMPT_ACTIVE) != kernel_locked())
+-# define IRQ_EXIT_OFFSET (HARDIRQ_OFFSET-1)
+-#else
+-# define in_atomic()	(preempt_count() != 0)
+-# define IRQ_EXIT_OFFSET HARDIRQ_OFFSET
+-#endif
+-
+ #define irq_exit()							\
+ do {									\
+ 	preempt_count() -= IRQ_EXIT_OFFSET;				\
+===== include/asm-s390/irq.h 1.11 vs edited =====
+--- 1.11/include/asm-s390/irq.h	2004-04-12 19:54:45 +02:00
++++ edited/include/asm-s390/irq.h	2004-09-01 16:47:27 +02:00
+@@ -2,7 +2,7 @@
+ #define _ASM_IRQ_H
+ 
+ #ifdef __KERNEL__
+-#include <asm/hardirq.h>
++#include <linux/hardirq.h>
+ 
+ /*
+  * the definition of irqs has changed in 2.5.46:
+===== include/asm-sh/hardirq.h 1.6 vs edited =====
+--- 1.6/include/asm-sh/hardirq.h	2004-02-19 04:42:45 +01:00
++++ edited/include/asm-sh/hardirq.h	2004-09-01 16:40:45 +02:00
+@@ -35,20 +35,6 @@
+ #define SOFTIRQ_SHIFT	(PREEMPT_SHIFT + PREEMPT_BITS)
+ #define HARDIRQ_SHIFT	(SOFTIRQ_SHIFT + SOFTIRQ_BITS)
+ 
+-#define __MASK(x)	((1UL << (x))-1)
+-
+-#define PREEMPT_MASK	(__MASK(PREEMPT_BITS) << PREEMPT_SHIFT)
+-#define HARDIRQ_MASK	(__MASK(HARDIRQ_BITS) << HARDIRQ_SHIFT)
+-#define SOFTIRQ_MASK	(__MASK(SOFTIRQ_BITS) << SOFTIRQ_SHIFT)
+-
+-#define hardirq_count()	(preempt_count() & HARDIRQ_MASK)
+-#define softirq_count()	(preempt_count() & SOFTIRQ_MASK)
+-#define irq_count()	(preempt_count() & (HARDIRQ_MASK | SOFTIRQ_MASK))
+-
+-#define PREEMPT_OFFSET	(1UL << PREEMPT_SHIFT)
+-#define SOFTIRQ_OFFSET	(1UL << SOFTIRQ_SHIFT)
+-#define HARDIRQ_OFFSET	(1UL << HARDIRQ_SHIFT)
+-
+ /*
+  * The hardirq mask has to be large enough to have
+  * space for potentially all IRQ sources in the system
+@@ -58,29 +44,10 @@
+ # error HARDIRQ_BITS is too low!
+ #endif
+ 
+-/*
+- * Are we in an interrupt context? Either doing bottom half
+- * or hardware interrupt processing?
+- */
+-#define in_irq()		(hardirq_count())
+-#define in_softirq()		(softirq_count())
+-#define in_interrupt()		(irq_count())
+-
+-
+-#define hardirq_trylock()	(!in_interrupt())
+-#define hardirq_endlock()	do { } while (0)
+-
+-#define irq_enter()		(preempt_count() += HARDIRQ_OFFSET)
+ #define nmi_enter()		(irq_enter())
+ #define nmi_exit()		(preempt_count() -= HARDIRQ_OFFSET)
+ 
+-#ifdef CONFIG_PREEMPT
+-# define in_atomic()	((preempt_count() & ~PREEMPT_ACTIVE) != kernel_locked())
+-# define IRQ_EXIT_OFFSET (HARDIRQ_OFFSET-1)
+-#else
+-# define in_atomic()	(preempt_count() != 0)
+-# define IRQ_EXIT_OFFSET HARDIRQ_OFFSET
+-#endif
++#define irq_enter()		(preempt_count() += HARDIRQ_OFFSET)
+ #define irq_exit()							\
+ do {									\
+ 		preempt_count() -= IRQ_EXIT_OFFSET;			\
+@@ -88,11 +55,5 @@
+ 			do_softirq();					\
+ 		preempt_enable_no_resched();				\
+ } while (0)
+-
+-#ifndef CONFIG_SMP
+-# define synchronize_irq(irq)	barrier()
+-#else
+-extern void synchronize_irq(unsigned int irq);
+-#endif /* CONFIG_SMP */
+ 
+ #endif /* __ASM_SH_HARDIRQ_H */
+===== include/asm-sparc/hardirq.h 1.14 vs edited =====
+--- 1.14/include/asm-sparc/hardirq.h	2004-06-01 04:07:59 +02:00
++++ edited/include/asm-sparc/hardirq.h	2004-09-01 16:40:54 +02:00
+@@ -42,42 +42,7 @@
+ #define SOFTIRQ_SHIFT   (PREEMPT_SHIFT + PREEMPT_BITS)
+ #define HARDIRQ_SHIFT   (SOFTIRQ_SHIFT + SOFTIRQ_BITS)
+ 
+-#define __MASK(x)       ((1UL << (x))-1)
+-
+-#define PREEMPT_MASK    (__MASK(PREEMPT_BITS) << PREEMPT_SHIFT)
+-#define HARDIRQ_MASK    (__MASK(HARDIRQ_BITS) << HARDIRQ_SHIFT)
+-#define SOFTIRQ_MASK    (__MASK(SOFTIRQ_BITS) << SOFTIRQ_SHIFT)
+-
+-#define hardirq_count() (preempt_count() & HARDIRQ_MASK)
+-#define softirq_count() (preempt_count() & SOFTIRQ_MASK)
+-#define irq_count()     (preempt_count() & (HARDIRQ_MASK | SOFTIRQ_MASK))
+-
+-#define PREEMPT_OFFSET  (1UL << PREEMPT_SHIFT)
+-#define SOFTIRQ_OFFSET  (1UL << SOFTIRQ_SHIFT)
+-#define HARDIRQ_OFFSET  (1UL << HARDIRQ_SHIFT)
+-
+-/*
+- * Are we doing bottom half or hardware interrupt processing?
+- * Are we in a softirq context? Interrupt context?
+- */
+-#define in_irq()                (hardirq_count())
+-#define in_softirq()            (softirq_count())
+-#define in_interrupt()          (irq_count())
+-
+-
+-#define hardirq_trylock()       (!in_interrupt())
+-#define hardirq_endlock()       do { } while (0)
+-
+ #define irq_enter()             (preempt_count() += HARDIRQ_OFFSET)
+-
+-#ifdef CONFIG_PREEMPT
+-#include <linux/smp_lock.h>
+-# define in_atomic()	((preempt_count() & ~PREEMPT_ACTIVE) != kernel_locked())
+-# define IRQ_EXIT_OFFSET (HARDIRQ_OFFSET-1)
+-#else
+-# define in_atomic()	(preempt_count() != 0)
+-# define IRQ_EXIT_OFFSET HARDIRQ_OFFSET
+-#endif
+ #define irq_exit()                                                      \
+ do {                                                                    \
+                 preempt_count() -= IRQ_EXIT_OFFSET;                     \
+@@ -85,11 +50,5 @@
+                         do_softirq();                                   \
+                 preempt_enable_no_resched();                            \
+ } while (0)
+-
+-#ifndef CONFIG_SMP
+-# define synchronize_irq(irq)	barrier()
+-#else /* SMP */
+-extern void synchronize_irq(unsigned int irq);
+-#endif /* SMP */
+ 
+ #endif /* __SPARC_HARDIRQ_H */
+===== include/asm-sparc64/hardirq.h 1.18 vs edited =====
+--- 1.18/include/asm-sparc64/hardirq.h	2004-05-31 22:05:58 +02:00
++++ edited/include/asm-sparc64/hardirq.h	2004-09-01 16:41:05 +02:00
+@@ -41,42 +41,7 @@
+ #define SOFTIRQ_SHIFT	(PREEMPT_SHIFT + PREEMPT_BITS)
+ #define HARDIRQ_SHIFT	(SOFTIRQ_SHIFT + SOFTIRQ_BITS)
+ 
+-#define __MASK(x)	((1UL << (x))-1)
+-
+-#define PREEMPT_MASK	(__MASK(PREEMPT_BITS) << PREEMPT_SHIFT)
+-#define HARDIRQ_MASK	(__MASK(HARDIRQ_BITS) << HARDIRQ_SHIFT)
+-#define SOFTIRQ_MASK	(__MASK(SOFTIRQ_BITS) << SOFTIRQ_SHIFT)
+-
+-#define hardirq_count()	(preempt_count() & HARDIRQ_MASK)
+-#define softirq_count()	(preempt_count() & SOFTIRQ_MASK)
+-#define irq_count()	(preempt_count() & (HARDIRQ_MASK | SOFTIRQ_MASK))
+-
+-#define PREEMPT_OFFSET	(1UL << PREEMPT_SHIFT)
+-#define SOFTIRQ_OFFSET	(1UL << SOFTIRQ_SHIFT)
+-#define HARDIRQ_OFFSET	(1UL << HARDIRQ_SHIFT)
+-
+-/*
+- * Are we doing bottom half or hardware interrupt processing?
+- * Are we in a softirq context? Interrupt context?
+- */
+-#define in_irq()		(hardirq_count())
+-#define in_softirq()		(softirq_count())
+-#define in_interrupt()		(irq_count())
+-
+-
+-#define hardirq_trylock()	(!in_interrupt())
+-#define hardirq_endlock()	do { } while (0)
+-
+ #define irq_enter()		(preempt_count() += HARDIRQ_OFFSET)
+-
+-#ifdef CONFIG_PREEMPT
+-# include <linux/smp_lock.h>
+-# define in_atomic()	((preempt_count() & ~PREEMPT_ACTIVE) != kernel_locked())
+-# define IRQ_EXIT_OFFSET (HARDIRQ_OFFSET-1)
+-#else
+-# define in_atomic()	(preempt_count() != 0)
+-# define IRQ_EXIT_OFFSET HARDIRQ_OFFSET
+-#endif
+ #define irq_exit()							\
+ do {									\
+ 		preempt_count() -= IRQ_EXIT_OFFSET;			\
+@@ -84,11 +49,5 @@
+ 			do_softirq();					\
+ 		preempt_enable_no_resched();				\
+ } while (0)
+-
+-#ifndef CONFIG_SMP
+-# define synchronize_irq(irq)	barrier()
+-#else
+-  extern void synchronize_irq(unsigned int irq);
+-#endif /* CONFIG_SMP */
+ 
+ #endif /* !(__SPARC64_HARDIRQ_H) */
+===== include/asm-v850/hardirq.h 1.4 vs edited =====
+--- 1.4/include/asm-v850/hardirq.h	2003-06-17 07:23:12 +02:00
++++ edited/include/asm-v850/hardirq.h	2004-09-01 16:41:11 +02:00
+@@ -36,20 +36,6 @@
+ #define SOFTIRQ_SHIFT	(PREEMPT_SHIFT + PREEMPT_BITS)
+ #define HARDIRQ_SHIFT	(SOFTIRQ_SHIFT + SOFTIRQ_BITS)
+ 
+-#define __MASK(x)	((1UL << (x))-1)
+-
+-#define PREEMPT_MASK	(__MASK(PREEMPT_BITS) << PREEMPT_SHIFT)
+-#define HARDIRQ_MASK	(__MASK(HARDIRQ_BITS) << HARDIRQ_SHIFT)
+-#define SOFTIRQ_MASK	(__MASK(SOFTIRQ_BITS) << SOFTIRQ_SHIFT)
+-
+-#define hardirq_count()	(preempt_count() & HARDIRQ_MASK)
+-#define softirq_count()	(preempt_count() & SOFTIRQ_MASK)
+-#define irq_count()	(preempt_count() & (HARDIRQ_MASK | SOFTIRQ_MASK))
+-
+-#define PREEMPT_OFFSET	(1UL << PREEMPT_SHIFT)
+-#define SOFTIRQ_OFFSET	(1UL << SOFTIRQ_SHIFT)
+-#define HARDIRQ_OFFSET	(1UL << HARDIRQ_SHIFT)
+-
+ /*
+  * The hardirq mask has to be large enough to have
+  * space for potentially all IRQ sources in the system
+@@ -59,27 +45,7 @@
+ # error HARDIRQ_BITS is too low!
+ #endif
+ 
+-/*
+- * Are we doing bottom half or hardware interrupt processing?
+- * Are we in a softirq context? Interrupt context?
+- */
+-#define in_irq()		(hardirq_count())
+-#define in_softirq()		(softirq_count())
+-#define in_interrupt()		(irq_count())
+-
+-#define hardirq_trylock()	(!in_interrupt())
+-#define hardirq_endlock()	do { } while (0)
+-
+ #define irq_enter()		(preempt_count() += HARDIRQ_OFFSET)
+-
+-#ifdef CONFIG_PREEMPT
+-# define in_atomic()    (preempt_count() != kernel_locked())
+-# define IRQ_EXIT_OFFSET (HARDIRQ_OFFSET-1)
+-#else
+-# define in_atomic()    (preempt_count() != 0)
+-# define IRQ_EXIT_OFFSET HARDIRQ_OFFSET
+-#endif
+-
+ #define irq_exit()							      \
+ do {									      \
+ 	preempt_count() -= IRQ_EXIT_OFFSET;				      \
+@@ -87,11 +53,5 @@
+ 		do_softirq();						      \
+ 	preempt_enable_no_resched();					      \
+ } while (0)
+-
+-#ifndef CONFIG_SMP
+-# define synchronize_irq(irq)	barrier()
+-#else
+-# error v850nommu SMP is not available
+-#endif /* CONFIG_SMP */
+ 
+ #endif /* __V850_HARDIRQ_H__ */
+===== include/asm-x86_64/hardirq.h 1.6 vs edited =====
+--- 1.6/include/asm-x86_64/hardirq.h	2004-03-19 19:03:21 +01:00
++++ edited/include/asm-x86_64/hardirq.h	2004-09-01 16:41:16 +02:00
+@@ -37,20 +37,6 @@
+ #define SOFTIRQ_SHIFT	(PREEMPT_SHIFT + PREEMPT_BITS)
+ #define HARDIRQ_SHIFT	(SOFTIRQ_SHIFT + SOFTIRQ_BITS)
+ 
+-#define __MASK(x)	((1UL << (x))-1)
+-
+-#define PREEMPT_MASK	(__MASK(PREEMPT_BITS) << PREEMPT_SHIFT)
+-#define HARDIRQ_MASK	(__MASK(HARDIRQ_BITS) << HARDIRQ_SHIFT)
+-#define SOFTIRQ_MASK	(__MASK(SOFTIRQ_BITS) << SOFTIRQ_SHIFT)
+-
+-#define hardirq_count()	(preempt_count() & HARDIRQ_MASK)
+-#define softirq_count()	(preempt_count() & SOFTIRQ_MASK)
+-#define irq_count()	(preempt_count() & (HARDIRQ_MASK | SOFTIRQ_MASK))
+-
+-#define PREEMPT_OFFSET	(1UL << PREEMPT_SHIFT)
+-#define SOFTIRQ_OFFSET	(1UL << SOFTIRQ_SHIFT)
+-#define HARDIRQ_OFFSET	(1UL << HARDIRQ_SHIFT)
+-
+ /*
+  * The hardirq mask has to be large enough to have
+  * space for potentially all IRQ sources in the system
+@@ -60,31 +46,10 @@
+ # error HARDIRQ_BITS is too low!
+ #endif
+ 
+-/*
+- * Are we doing bottom half or hardware interrupt processing?
+- * Are we in a softirq context? Interrupt context?
+- */
+-#define in_irq()		(hardirq_count())
+-#define in_softirq()		(softirq_count())
+-#define in_interrupt()		(irq_count())
+-
+-
+-#define hardirq_trylock()	(!in_interrupt())
+-#define hardirq_endlock()	do { } while (0)
+-
+-#define irq_enter()		(preempt_count() += HARDIRQ_OFFSET)
+ #define nmi_enter()		(irq_enter())
+ #define nmi_exit()		(preempt_count() -= HARDIRQ_OFFSET)
+ 
+-
+-#ifdef CONFIG_PREEMPT
+-# include <linux/smp_lock.h>
+-# define in_atomic()   ((preempt_count() & ~PREEMPT_ACTIVE) != kernel_locked())
+-# define IRQ_EXIT_OFFSET (HARDIRQ_OFFSET-1)
+-#else
+-# define in_atomic()   (preempt_count() != 0)
+-# define IRQ_EXIT_OFFSET HARDIRQ_OFFSET
+-#endif
++#define irq_enter()		(preempt_count() += HARDIRQ_OFFSET)
+ #define irq_exit()							\
+ do {									\
+ 		preempt_count() -= IRQ_EXIT_OFFSET;			\
+@@ -92,11 +57,5 @@
+ 			do_softirq();					\
+ 		preempt_enable_no_resched();				\
+ } while (0)
+-
+-#ifndef CONFIG_SMP
+-# define synchronize_irq(irq)	barrier()
+-#else
+-  extern void synchronize_irq(unsigned int irq);
+-#endif /* CONFIG_SMP */
+ 
+ #endif /* __ASM_HARDIRQ_H */
+===== include/linux/interrupt.h 1.29 vs edited =====
+--- 1.29/include/linux/interrupt.h	2004-06-24 10:55:53 +02:00
++++ edited/include/linux/interrupt.h	2004-09-01 16:45:39 +02:00
+@@ -8,8 +8,8 @@
+ #include <linux/bitops.h>
+ #include <linux/preempt.h>
+ #include <linux/cpumask.h>
++#include <linux/hardirq.h>
+ #include <asm/atomic.h>
+-#include <asm/hardirq.h>
+ #include <asm/ptrace.h>
+ #include <asm/system.h>
+ 
+===== include/net/ipv6.h 1.38 vs edited =====
+--- 1.38/include/net/ipv6.h	2004-07-19 16:16:25 +02:00
++++ edited/include/net/ipv6.h	2004-09-01 16:48:10 +02:00
+@@ -16,7 +16,7 @@
+ #define _NET_IPV6_H
+ 
+ #include <linux/ipv6.h>
+-#include <asm/hardirq.h>
++#include <linux/hardirq.h>
+ #include <net/ndisc.h>
+ #include <net/flow.h>
+ #include <net/snmp.h>
+===== sound/oss/ali5455.c 1.11 vs edited =====
+--- 1.11/sound/oss/ali5455.c	2004-08-08 23:07:47 +02:00
++++ edited/sound/oss/ali5455.c	2004-09-01 16:50:39 +02:00
+@@ -65,7 +65,6 @@
+ #include <linux/ac97_codec.h>
+ #include <linux/interrupt.h>
+ #include <asm/uaccess.h>
+-#include <asm/hardirq.h>
+ 
+ #ifndef PCI_DEVICE_ID_ALI_5455
+ #define PCI_DEVICE_ID_ALI_5455	0x5455
+===== sound/oss/au1000.c 1.9 vs edited =====
+--- 1.9/sound/oss/au1000.c	2004-08-08 23:07:47 +02:00
++++ edited/sound/oss/au1000.c	2004-09-01 16:49:22 +02:00
+@@ -67,9 +67,9 @@
+ #include <linux/smp_lock.h>
+ #include <linux/ac97_codec.h>
+ #include <linux/wrapper.h>
++#include <linux/interrupt.h>
+ #include <asm/io.h>
+ #include <asm/uaccess.h>
+-#include <asm/hardirq.h>
+ #include <asm/au1000.h>
+ #include <asm/au1000_dma.h>
+ 
+===== sound/oss/cs46xx.c 1.43 vs edited =====
+--- 1.43/sound/oss/cs46xx.c	2004-08-26 04:01:30 +02:00
++++ edited/sound/oss/cs46xx.c	2004-09-01 16:49:35 +02:00
+@@ -94,7 +94,6 @@
+ #include <asm/io.h>
+ #include <asm/dma.h>
+ #include <asm/uaccess.h>
+-#include <asm/hardirq.h>
+ 
+ #include "cs46xxpm-24.h"
+ #include "cs46xx_wrapper-24.h"
+===== sound/oss/forte.c 1.8 vs edited =====
+--- 1.8/sound/oss/forte.c	2004-08-08 23:07:47 +02:00
++++ edited/sound/oss/forte.c	2004-09-01 16:49:40 +02:00
+@@ -45,7 +45,6 @@
+ #include <linux/proc_fs.h>
+ 
+ #include <asm/uaccess.h>
+-#include <asm/hardirq.h>
+ #include <asm/io.h>
+ 
+ #define DRIVER_NAME	"forte"
+===== sound/oss/i810_audio.c 1.69 vs edited =====
+--- 1.69/sound/oss/i810_audio.c	2004-08-23 10:14:51 +02:00
++++ edited/sound/oss/i810_audio.c	2004-09-01 16:49:45 +02:00
+@@ -101,7 +101,6 @@
+ #include <linux/ac97_codec.h>
+ #include <linux/bitops.h>
+ #include <asm/uaccess.h>
+-#include <asm/hardirq.h>
+ 
+ #define DRIVER_VERSION "1.01"
+ 
+===== sound/oss/ite8172.c 1.28 vs edited =====
+--- 1.28/sound/oss/ite8172.c	2004-08-08 23:07:47 +02:00
++++ edited/sound/oss/ite8172.c	2004-09-01 16:49:59 +02:00
+@@ -70,10 +70,10 @@
+ #include <linux/spinlock.h>
+ #include <linux/smp_lock.h>
+ #include <linux/ac97_codec.h>
++#include <linux/interrupt.h>
+ #include <asm/io.h>
+ #include <asm/dma.h>
+ #include <asm/uaccess.h>
+-#include <asm/hardirq.h>
+ #include <asm/it8172/it8172.h>
+ 
+ /* --------------------------------------------------------------------- */
+===== sound/oss/nec_vrc5477.c 1.22 vs edited =====
+--- 1.22/sound/oss/nec_vrc5477.c	2004-08-08 23:07:47 +02:00
++++ edited/sound/oss/nec_vrc5477.c	2004-09-01 16:50:06 +02:00
+@@ -82,7 +82,6 @@
+ #include <asm/io.h>
+ #include <asm/dma.h>
+ #include <asm/uaccess.h>
+-#include <asm/hardirq.h>
+ 
+ /* -------------------debug macros -------------------------------------- */
+ /* #undef VRC5477_AC97_DEBUG */
+===== sound/oss/rme96xx.c 1.22 vs edited =====
+--- 1.22/sound/oss/rme96xx.c	2004-08-08 23:07:47 +02:00
++++ edited/sound/oss/rme96xx.c	2004-09-01 16:50:16 +02:00
+@@ -54,7 +54,7 @@
+ #include <linux/smp_lock.h>
+ #include <linux/delay.h>
+ #include <linux/slab.h>
+-#include <asm/hardirq.h>
++#include <linux/interrupt.h>
+ #include <linux/init.h>
+ #include <linux/interrupt.h>
+ #include <linux/poll.h>
+===== sound/oss/swarm_cs4297a.c 1.8 vs edited =====
+--- 1.8/sound/oss/swarm_cs4297a.c	2004-08-08 23:07:48 +02:00
++++ edited/sound/oss/swarm_cs4297a.c	2004-09-01 16:50:30 +02:00
+@@ -70,6 +70,7 @@
+ #include <linux/ac97_codec.h>
+ #include <linux/pci.h>
+ #include <linux/bitops.h>
++#include <linux/interrupt.h>
+ #include <asm/io.h>
+ #include <asm/dma.h>
+ #include <linux/init.h>
+@@ -77,7 +78,6 @@
+ #include <linux/smp_lock.h>
+ #include <linux/wrapper.h>
+ #include <asm/uaccess.h>
+-#include <asm/hardirq.h>
+ 
+ #include <asm/sibyte/sb1250_regs.h>
+ #include <asm/sibyte/sb1250_int.h>
+===== sound/oss/trident.c 1.53 vs edited =====
+--- 1.53/sound/oss/trident.c	2004-08-08 23:07:48 +02:00
++++ edited/sound/oss/trident.c	2004-09-01 16:50:35 +02:00
+@@ -217,7 +217,6 @@
+ #include <linux/gameport.h>
+ #include <linux/kernel.h>
+ #include <asm/uaccess.h>
+-#include <asm/hardirq.h>
+ #include <asm/io.h>
+ #include <asm/dma.h>
+ 
+--- /dev/null	2004-08-20 00:05:11.000000000 +0200
++++ edited/include/linux/hardirq.h	2004-09-02 11:43:32.523962632 +0200
+@@ -0,0 +1,51 @@
++#ifndef LINUX_HARDIRQ_H
++#define LINUX_HARDIRQ_H
 +
-+#
-+# Other I2C Chip support
-+#
-+# CONFIG_SENSORS_EEPROM is not set
-+# CONFIG_SENSORS_PCF8574 is not set
-+# CONFIG_SENSORS_PCF8591 is not set
-+# CONFIG_SENSORS_RTC8564 is not set
- # CONFIG_I2C_DEBUG_CORE is not set
-+# CONFIG_I2C_DEBUG_ALGO is not set
- # CONFIG_I2C_DEBUG_BUS is not set
- # CONFIG_I2C_DEBUG_CHIP is not set
- 
- #
-+# Dallas's 1-wire bus
-+#
-+# CONFIG_W1 is not set
++#include <linux/config.h>
++#ifdef CONFIG_PREEPT
++#include <linux/smp_lock.h>
++#endif
++#include <asm/hardirq.h>
 +
-+#
- # Misc devices
- #
- 
-@@ -732,12 +773,14 @@ CONFIG_I2C_ALGOBIT=y
- # Graphics support
- #
- CONFIG_FB=y
-+CONFIG_FB_MODE_HELPERS=y
-+# CONFIG_FB_CIRRUS is not set
- # CONFIG_FB_PM2 is not set
- # CONFIG_FB_CYBER2000 is not set
- CONFIG_FB_OF=y
- # CONFIG_FB_CT65550 is not set
-+# CONFIG_FB_ASILIANT is not set
- # CONFIG_FB_IMSTT is not set
--# CONFIG_FB_S3TRIO is not set
- # CONFIG_FB_VGA16 is not set
- # CONFIG_FB_RIVA is not set
- CONFIG_FB_MATROX=y
-@@ -765,10 +808,8 @@ CONFIG_FB_RADEON_I2C=y
- # Console display driver support
- #
- # CONFIG_VGA_CONSOLE is not set
--# CONFIG_MDA_CONSOLE is not set
- CONFIG_DUMMY_CONSOLE=y
- CONFIG_FRAMEBUFFER_CONSOLE=y
--CONFIG_PCI_CONSOLE=y
- # CONFIG_FONTS is not set
- CONFIG_FONT_8x8=y
- CONFIG_FONT_8x16=y
-@@ -798,11 +839,14 @@ CONFIG_USB=y
- CONFIG_USB_DEVICEFS=y
- # CONFIG_USB_BANDWIDTH is not set
- # CONFIG_USB_DYNAMIC_MINORS is not set
-+# CONFIG_USB_OTG is not set
- 
- #
- # USB Host Controller Drivers
- #
- CONFIG_USB_EHCI_HCD=y
-+# CONFIG_USB_EHCI_SPLIT_ISO is not set
-+# CONFIG_USB_EHCI_ROOT_HUB_TT is not set
- CONFIG_USB_OHCI_HCD=y
- # CONFIG_USB_UHCI_HCD is not set
- 
-@@ -814,6 +858,7 @@ CONFIG_USB_OHCI_HCD=y
- # CONFIG_USB_PRINTER is not set
- CONFIG_USB_STORAGE=y
- # CONFIG_USB_STORAGE_DEBUG is not set
-+# CONFIG_USB_STORAGE_RW_DETECT is not set
- # CONFIG_USB_STORAGE_DATAFAB is not set
- # CONFIG_USB_STORAGE_FREECOM is not set
- # CONFIG_USB_STORAGE_ISD200 is not set
-@@ -834,7 +879,10 @@ CONFIG_USB_HIDDEV=y
- # CONFIG_USB_WACOM is not set
- # CONFIG_USB_KBTAB is not set
- # CONFIG_USB_POWERMATE is not set
-+# CONFIG_USB_MTOUCH is not set
-+# CONFIG_USB_EGALAX is not set
- # CONFIG_USB_XPAD is not set
-+# CONFIG_USB_ATI_REMOTE is not set
- 
- #
- # USB Imaging devices
-@@ -881,6 +929,8 @@ CONFIG_USB_HIDDEV=y
- # CONFIG_USB_LEGOTOWER is not set
- # CONFIG_USB_LCD is not set
- # CONFIG_USB_LED is not set
-+# CONFIG_USB_CYTHERM is not set
-+# CONFIG_USB_PHIDGETSERVO is not set
- # CONFIG_USB_TEST is not set
- 
- #
-@@ -905,7 +955,10 @@ CONFIG_FS_MBCACHE=y
- CONFIG_REISERFS_FS=y
- # CONFIG_REISERFS_CHECK is not set
- # CONFIG_REISERFS_PROC_INFO is not set
--CONFIG_JFS_FS=y
-+CONFIG_REISERFS_FS_XATTR=y
-+CONFIG_REISERFS_FS_POSIX_ACL=y
-+# CONFIG_REISERFS_FS_SECURITY is not set
-+CONFIG_JFS_FS=m
- CONFIG_JFS_POSIX_ACL=y
- # CONFIG_JFS_DEBUG is not set
- # CONFIG_JFS_STATISTICS is not set
-@@ -928,6 +981,7 @@ CONFIG_ISO9660_FS=y
- # CONFIG_JOLIET is not set
- # CONFIG_ZISOFS is not set
- CONFIG_UDF_FS=m
-+CONFIG_UDF_NLS=y
- 
- #
- # DOS/FAT/NT Filesystems
-@@ -935,6 +989,8 @@ CONFIG_UDF_FS=m
- CONFIG_FAT_FS=y
- CONFIG_MSDOS_FS=y
- CONFIG_VFAT_FS=y
-+CONFIG_FAT_DEFAULT_CODEPAGE=437
-+CONFIG_FAT_DEFAULT_IOCHARSET="iso8859-1"
- # CONFIG_NTFS_FS is not set
- 
- #
-@@ -942,6 +998,7 @@ CONFIG_VFAT_FS=y
- #
- CONFIG_PROC_FS=y
- CONFIG_PROC_KCORE=y
-+CONFIG_SYSFS=y
- # CONFIG_DEVFS_FS is not set
- CONFIG_DEVPTS_FS_XATTR=y
- # CONFIG_DEVPTS_FS_SECURITY is not set
-@@ -974,18 +1031,22 @@ CONFIG_NFS_FS=y
- CONFIG_NFS_V3=y
- CONFIG_NFS_V4=y
- # CONFIG_NFS_DIRECTIO is not set
--CONFIG_NFSD=y
-+CONFIG_NFSD=m
- CONFIG_NFSD_V3=y
- CONFIG_NFSD_V4=y
- CONFIG_NFSD_TCP=y
- CONFIG_LOCKD=y
- CONFIG_LOCKD_V4=y
--CONFIG_EXPORTFS=y
-+CONFIG_EXPORTFS=m
- CONFIG_SUNRPC=y
--CONFIG_SUNRPC_GSS=m
--CONFIG_RPCSEC_GSS_KRB5=m
-+CONFIG_SUNRPC_GSS=y
-+CONFIG_RPCSEC_GSS_KRB5=y
-+CONFIG_RPCSEC_GSS_SPKM3=m
- # CONFIG_SMB_FS is not set
- CONFIG_CIFS=m
-+# CONFIG_CIFS_STATS is not set
-+CONFIG_CIFS_XATTR=y
-+CONFIG_CIFS_POSIX=y
- # CONFIG_NCP_FS is not set
- # CONFIG_CODA_FS is not set
- # CONFIG_AFS_FS is not set
-@@ -1001,7 +1062,7 @@ CONFIG_MSDOS_PARTITION=y
- #
- CONFIG_NLS=y
- CONFIG_NLS_DEFAULT="iso8859-1"
--# CONFIG_NLS_CODEPAGE_437 is not set
-+CONFIG_NLS_CODEPAGE_437=y
- # CONFIG_NLS_CODEPAGE_737 is not set
- # CONFIG_NLS_CODEPAGE_775 is not set
- # CONFIG_NLS_CODEPAGE_850 is not set
-@@ -1024,7 +1085,8 @@ CONFIG_NLS_DEFAULT="iso8859-1"
- # CONFIG_NLS_ISO8859_8 is not set
- # CONFIG_NLS_CODEPAGE_1250 is not set
- # CONFIG_NLS_CODEPAGE_1251 is not set
--# CONFIG_NLS_ISO8859_1 is not set
-+CONFIG_NLS_ASCII=y
-+CONFIG_NLS_ISO8859_1=y
- # CONFIG_NLS_ISO8859_2 is not set
- # CONFIG_NLS_ISO8859_3 is not set
- # CONFIG_NLS_ISO8859_4 is not set
-@@ -1049,15 +1111,18 @@ CONFIG_OPROFILE=y
- # Kernel hacking
- #
- CONFIG_DEBUG_KERNEL=y
-+CONFIG_MAGIC_SYSRQ=y
-+# CONFIG_DEBUG_SLAB is not set
-+# CONFIG_DEBUG_SPINLOCK_SLEEP is not set
-+# CONFIG_DEBUG_INFO is not set
- CONFIG_DEBUG_STACKOVERFLOW=y
- CONFIG_DEBUG_STACK_USAGE=y
--# CONFIG_DEBUG_SLAB is not set
--CONFIG_MAGIC_SYSRQ=y
- CONFIG_DEBUGGER=y
- CONFIG_XMON=y
- CONFIG_XMON_DEFAULT=y
- # CONFIG_PPCDBG is not set
--# CONFIG_DEBUG_INFO is not set
-+CONFIG_IRQSTACKS=y
-+# CONFIG_SCHEDSTATS is not set
- 
- #
- # Security options
-@@ -1071,24 +1136,31 @@ CONFIG_CRYPTO=y
- CONFIG_CRYPTO_HMAC=y
- CONFIG_CRYPTO_NULL=m
- CONFIG_CRYPTO_MD4=m
--CONFIG_CRYPTO_MD5=m
-+CONFIG_CRYPTO_MD5=y
- CONFIG_CRYPTO_SHA1=m
- CONFIG_CRYPTO_SHA256=m
- CONFIG_CRYPTO_SHA512=m
--CONFIG_CRYPTO_DES=m
-+CONFIG_CRYPTO_WHIRLPOOL=m
-+CONFIG_CRYPTO_DES=y
- CONFIG_CRYPTO_BLOWFISH=m
- CONFIG_CRYPTO_TWOFISH=m
- CONFIG_CRYPTO_SERPENT=m
- CONFIG_CRYPTO_AES=m
- CONFIG_CRYPTO_CAST5=m
- CONFIG_CRYPTO_CAST6=m
-+CONFIG_CRYPTO_TEA=m
- CONFIG_CRYPTO_ARC4=m
-+CONFIG_CRYPTO_KHAZAD=m
- CONFIG_CRYPTO_DEFLATE=m
-+CONFIG_CRYPTO_MICHAEL_MIC=m
-+CONFIG_CRYPTO_CRC32C=m
- CONFIG_CRYPTO_TEST=m
- 
- #
- # Library routines
- #
-+CONFIG_CRC_CCITT=m
- CONFIG_CRC32=y
-+CONFIG_LIBCRC32C=m
- CONFIG_ZLIB_INFLATE=y
- CONFIG_ZLIB_DEFLATE=m
-_
++#define __IRQ_MASK(x)	((1UL << (x))-1)
++
++#define PREEMPT_MASK	(__IRQ_MASK(PREEMPT_BITS) << PREEMPT_SHIFT)
++#define HARDIRQ_MASK	(__IRQ_MASK(HARDIRQ_BITS) << HARDIRQ_SHIFT)
++#define SOFTIRQ_MASK	(__IRQ_MASK(SOFTIRQ_BITS) << SOFTIRQ_SHIFT)
++
++#define PREEMPT_OFFSET	(1UL << PREEMPT_SHIFT)
++#define SOFTIRQ_OFFSET	(1UL << SOFTIRQ_SHIFT)
++#define HARDIRQ_OFFSET	(1UL << HARDIRQ_SHIFT)
++
++#define hardirq_count()	(preempt_count() & HARDIRQ_MASK)
++#define softirq_count()	(preempt_count() & SOFTIRQ_MASK)
++#define irq_count()	(preempt_count() & (HARDIRQ_MASK | SOFTIRQ_MASK))
++
++/*
++ * Are we doing bottom half or hardware interrupt processing?
++ * Are we in a softirq context? Interrupt context?
++ */
++#define in_irq()		(hardirq_count())
++#define in_softirq()		(softirq_count())
++#define in_interrupt()		(irq_count())
++
++#define hardirq_trylock()	(!in_interrupt())
++#define hardirq_endlock()	do { } while (0)
++
++#ifdef CONFIG_PREEMPT
++# define in_atomic()	((preempt_count() & ~PREEMPT_ACTIVE) != kernel_locked())
++# define preemptible()	(preempt_count() == 0 && !irqs_disabled())
++# define IRQ_EXIT_OFFSET (HARDIRQ_OFFSET-1)
++#else
++# define in_atomic()	(preempt_count() != 0)
++# define preemptible()	0
++# define IRQ_EXIT_OFFSET HARDIRQ_OFFSET
++#endif
++
++#ifdef CONFIG_SMP
++extern void synchronize_irq(unsigned int irq);
++#else
++# define synchronize_irq(irq)	barrier()
++#endif
++
++#endif /* LINUX_HARDIRQ_H */

@@ -1,59 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280783AbRKLHYC>; Mon, 12 Nov 2001 02:24:02 -0500
+	id <S281290AbRKLH2w>; Mon, 12 Nov 2001 02:28:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281292AbRKLHXx>; Mon, 12 Nov 2001 02:23:53 -0500
-Received: from warden.digitalinsight.com ([208.29.163.2]:27282 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id <S280783AbRKLHXs>; Mon, 12 Nov 2001 02:23:48 -0500
-From: David Lang <david.lang@digitalinsight.com>
-To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-Cc: linux-kernel@vger.kernel.org, steve@uhura.rueb.com
-Date: Sun, 11 Nov 2001 22:59:25 -0800 (PST)
-Subject: Re: Best kernel config for exactly 1GB ram 
-In-Reply-To: <Pine.LNX.4.33.0111120830140.1901-100000@netfinity.realnet.co.sz>
-Message-ID: <Pine.LNX.4.40.0111112249470.3451-100000@dlang.diginsite.com>
+	id <S281294AbRKLH2m>; Mon, 12 Nov 2001 02:28:42 -0500
+Received: from main.sonytel.be ([195.0.45.167]:34938 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S281290AbRKLH2g>;
+	Mon, 12 Nov 2001 02:28:36 -0500
+Date: Mon, 12 Nov 2001 08:27:48 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Bakonyi Ferenc <fero@drama.obuda.kando.hu>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] hgafb oopses
+In-Reply-To: <Pine.LNX.4.40.0111091302580.16816-100000@drama.koli>
+Message-ID: <Pine.GSO.4.21.0111120822550.11251-100000@mullein.sonytel.be>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I leave mine at the 1G settings, it gives me 960MB instead of 1024M but
-avoids all the potential problems that show up with himem.
+On Fri, 9 Nov 2001, Bakonyi Ferenc wrote:
+> Somebody submitted a patch against 2.4.13 which broke hgafb. That patch
+> called isa_memset() and isa_writeb() with an _already_ mapped address.
+> So that address was mapped twice -> oops.
 
-there are still a lot of potential problems with himem (see linus' post
-last week about the pitfalls of locking memory on himem machines in the
-wrong zone for one example)
+Sorry... Anyway, the old code was broken too, since it wasn't portable.
 
-those potential problems are worth dealing with if you really do need a
-lot of ram, but the difference between 960M and 1024M doesn't seem like
-enough benifit to be worth it. If you really need every bit of your ram
-you should not be running X and should shut down a LOT of the default
-services, if you haven't gone through and optimized your system you can
-probably free up more then 64M of ram that way.
+(Why did no one told me? I did receive an additional patch to make hgafb work
+ again after I posted the first version to linux-kernel, which I did
+ incorporate in the final version).
 
-David Lang
+> The patch below is against 2.4.15-pre1. It resolves the ISA address
+> confusion, replaces scr_{read|write} functions with isa_{read|write},
+> and elimiates a cosmetic compiler warning about suggested parens.
 
+But it does some other Bad Things(TM): putting ISA memory _adresses_ and
+_16_bit_ values in _unsigned_chars_ is not good for your health...
 
-On Mon, 12 Nov 2001, Zwane Mwaikambo wrote:
-
-> Date: Mon, 12 Nov 2001 08:38:29 +0200 (SAST)
-> From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-> To: linux-kernel@vger.kernel.org
-> Cc: steve@uhura.rueb.com
-> Subject: Best kernel config for exactly 1GB ram
+> --- linux-2.4.15-pre1/drivers/video/hgafb.c	Fri Nov  9 12:22:42 2001
+> +++ linux/drivers/video/hgafb.c	Fri Nov  9 12:26:33 2001
+> @@ -312,10 +312,10 @@
+>  static int __init hga_card_detect(void)
+>  {
+>  	int count=0;
+> -	u16 *p, p_save;
+> -	u16 *q, q_save;
+> +	unsigned char p, p_save;
+> +	unsigned char q, q_save;
+        ^^^^^^^^^^^^^
 >
-> you actually lose about 128Mb ram (128Mb HIGHMEM) if you don't specify the
-> 4gig option, and you might find that you'd rather have the extra memory
-> than the "noticeable?" slowdown. I set all my 1G boxes to 4G mostly because
-> i put that amount of ram because i need every bit.
+> -	hga_vram_base = VGA_MAP_MEM(0xb0000);
+> +	hga_vram_base = 0xb0000;
+>  	hga_vram_len  = 0x08000;
 >
-> Regards,
-> 	Zwane Mwaikambo
+>  	if (request_region(0x3b0, 12, "hgafb"))
+> @@ -325,14 +325,14 @@
 >
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+>  	/* do a memory check */
 >
+> -	p = (u16 *) hga_vram_base;
+> -	q = (u16 *) (hga_vram_base + 0x01000);
+> +	p = hga_vram_base;
+> +	q = hga_vram_base + 0x01000;
+>
+> -	p_save = scr_readw(p); q_save = scr_readw(q);
+> +	p_save = isa_readw(p); q_save = isa_readw(q);
+>
+> -	scr_writew(0xaa55, p); if (scr_readw(p) == 0xaa55) count++;
+> -	scr_writew(0x55aa, p); if (scr_readw(p) == 0x55aa) count++;
+> -	scr_writew(p_save, p);
+> +	isa_writew(0xaa55, p); if (isa_readw(p) == 0xaa55) count++;
+> +	isa_writew(0x55aa, p); if (isa_readw(p) == 0x55aa) count++;
+> +	isa_writew(p_save, p);
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

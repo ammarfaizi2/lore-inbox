@@ -1,52 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262828AbUKRS0Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261862AbUKRSap@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262828AbUKRS0Y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 13:26:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262836AbUKRSXj
+	id S261862AbUKRSap (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 13:30:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262837AbUKRSa1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 13:23:39 -0500
-Received: from mail.euroweb.hu ([193.226.220.4]:53469 "HELO mail.euroweb.hu")
-	by vger.kernel.org with SMTP id S262805AbUKRSVs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 13:21:48 -0500
-To: torvalds@osdl.org
-CC: hbryan@us.ibm.com, akpm@osdl.org, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, pavel@ucw.cz
-In-reply-to: <Pine.LNX.4.58.0411180959450.2222@ppc970.osdl.org> (message from
-	Linus Torvalds on Thu, 18 Nov 2004 10:01:40 -0800 (PST))
-Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
-References: <OF28252066.81A6726A-ON88256F50.005D917A-88256F50.005EA7D9@us.ibm.com>
- <E1CUq57-00043P-00@dorka.pomaz.szeredi.hu> <Pine.LNX.4.58.0411180959450.2222@ppc970.osdl.org>
-Message-Id: <E1CUquZ-0004Az-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Thu, 18 Nov 2004 19:21:39 +0100
+	Thu, 18 Nov 2004 13:30:27 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:38299 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261862AbUKRS1h
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 13:27:37 -0500
+Message-ID: <419CE98B.2090304@pobox.com>
+Date: Thu, 18 Nov 2004 13:27:23 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: "John W. Linville" <linville@tuxdriver.com>, linux-kernel@vger.kernel.org,
+       alan@redhat.com
+Subject: Re: [patch 2.6.10-rc2] oss: AC97 quirk facility
+References: <20041117163016.A5351@tuxdriver.com> <20041117145644.005e54ff.akpm@osdl.org>
+In-Reply-To: <20041117145644.005e54ff.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Why do you think it would kill the FUSE process? And why do you think 
-> killing _any_ process would make the system come back to life? After all, 
-> memory wasn't filled by process usage, it was filled by dirty FS pages.
+Andrew Morton wrote:
+> "John W. Linville" <linville@tuxdriver.com> wrote:
+> 
+>>Add a quirk facility for AC97 in OSS, and add a quirk list for the
+>>i810_audio driver.
+>>
+>>Signed-off-by: John W. Linville <linville@tuxdriver.com>
+>>---
+>>This allows automatically "correct" behaviour for sound hardware w/
+>>known oddities.  For example, many cards have the headphone and
+>>line-out outputs swapped or headphone outputs only.
+>>
+>>The code is stolen shamelessly from ALSA, FWIW...
+> 
+> 
+> Dumb question: why not just use the ALSA driver?
 
-Well, killing the fuse process _will_ make the system come back to
-life, since then all the dirty pages belonging to the filesystem will
-be discarded. 
 
-> I really do believe that user-space filesystems have problems. There's a 
-> reason we tend to do them in kernel space. 
+Until we actually remove the OSS drivers, it's sorta silly to leave them 
+broken.
 
-Well, NFS with a network failure has the same problem.  It's not the
-userspace that's the problem, it's the non-reliability.
+	Jeff, still using i810_audio...
 
-> But limiting the outstanding writes some way may at least hide the thing.
 
-Currently shared writable mappings aren't allowed for non-root by
-default in FUSE.  And since non-mmap writes do not dirty pages on the
-long run, it's harder to run out of space with them: you need a new
-filedescriptor for each page you want to steal, and you will run out
-of them sooner than of pages.
-
-So I believe that FUSE is quite secure in this respect.  Please prove
-me wrong!
-
-Thanks,
-Miklos

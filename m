@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268016AbTBYQWi>; Tue, 25 Feb 2003 11:22:38 -0500
+	id <S268045AbTBYQYT>; Tue, 25 Feb 2003 11:24:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268020AbTBYQWi>; Tue, 25 Feb 2003 11:22:38 -0500
-Received: from mail2.sonytel.be ([195.0.45.172]:22705 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S268016AbTBYQWh>;
-	Tue, 25 Feb 2003 11:22:37 -0500
-Date: Tue, 25 Feb 2003 17:28:54 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: James Simmons <jsimmons@infradead.org>
-cc: Adrian Bunk <bunk@fs.tum.de>, Alan Cox <alan@redhat.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.62-ac1
-In-Reply-To: <Pine.LNX.4.44.0302251625110.5086-100000@phoenix.infradead.org>
-Message-ID: <Pine.GSO.4.21.0302251728330.15407-100000@vervain.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268050AbTBYQYT>; Tue, 25 Feb 2003 11:24:19 -0500
+Received: from holomorphy.com ([66.224.33.161]:36278 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S268045AbTBYQYS>;
+	Tue, 25 Feb 2003 11:24:18 -0500
+Date: Tue, 25 Feb 2003 08:33:35 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: linux-kernel@vger.kernel.org
+Subject: check cpu_online() in nr_running()
+Message-ID: <20030225163335.GD10396@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Feb 2003, James Simmons wrote:
-> > > Hm. Looks like pnmtologo didn't get compiled. In scripts/Makefile add 
-> > > pnmtologo to host-progs   := 
-> > > 
-> > > That shoudl fix the problem.
-> > 
-> > No, you forgot to include scripts/pnmtologo in your latest fbdev.diff.gz.
-> 
-> I thought pnmtologo was a generated binary.
+nr_uninterruptible() and nr_iowait() both check cpu_online(cpu) as
+cpu ranges from 0 to NR_CPUS-1; so should nr_running().
 
-Sorry, I meant scripts/pnmtologo.c.
 
-Gr{oetje,eeting}s,
+-- wli
 
-						Geert
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+diff -urpN linux-2.5.63/kernel/sched.c nr_running-2.5.63-1/kernel/sched.c
+--- linux-2.5.63/kernel/sched.c	Thu Feb 20 20:33:52 2003
++++ nr_running-2.5.63-1/sched.c	Tue Feb 25 08:23:09 2003
+@@ -637,6 +637,8 @@
+ 	unsigned long i, sum = 0;
+ 
+ 	for (i = 0; i < NR_CPUS; i++)
++		if (!cpu_online(i))
++			continue;
+ 		sum += cpu_rq(i)->nr_running;
+ 
+ 	return sum;

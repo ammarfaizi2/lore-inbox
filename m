@@ -1,108 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316673AbSH0SXc>; Tue, 27 Aug 2002 14:23:32 -0400
+	id <S316675AbSH0S10>; Tue, 27 Aug 2002 14:27:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316728AbSH0SXc>; Tue, 27 Aug 2002 14:23:32 -0400
-Received: from elin.scali.no ([62.70.89.10]:5650 "EHLO elin.scali.no")
-	by vger.kernel.org with ESMTP id <S316673AbSH0SXb>;
-	Tue, 27 Aug 2002 14:23:31 -0400
-Date: Tue, 27 Aug 2002 20:22:03 +0200 (CEST)
-From: Steffen Persvold <sp@scali.com>
-X-X-Sender: sp@sp-laptop.isdn.scali.no
-To: linux-kernel@vger.kernel.org
-Message-ID: <Pine.LNX.4.44.0208271934180.18659-100000@sp-laptop.isdn.scali.no>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316684AbSH0S10>; Tue, 27 Aug 2002 14:27:26 -0400
+Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:35851 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S316675AbSH0S10>;
+	Tue, 27 Aug 2002 14:27:26 -0400
+Date: Tue, 27 Aug 2002 11:31:19 -0700
+From: Greg KH <greg@kroah.com>
+To: Felix Seeger <felix.seeger@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: USB mouse problem, kernel panic on startup in 2.4.19
+Message-ID: <20020827183119.GB23700@kroah.com>
+References: <200208272011.51691.felix.seeger@gmx.de> <200208272023.52351.felix.seeger@gmx.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200208272023.52351.felix.seeger@gmx.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear list people,
+On Tue, Aug 27, 2002 at 08:23:47PM +0200, Felix Seeger wrote:
+> Kernel BUG at usb-ohci.h:464!
 
-Lately I've been testing out a couple of Dell PowerEdge 2650 machines. 
-These babies have dual onboard BCM95701A10 NICs (Tigon3 chip) mounted 
-in the same PCI-X 133MHz 64 bit bus.
+Can you try the patch at:
+	http://www.kernel.org/pub/linux/kernel/people/gregkh/usb/2.4/usb-usb-ohci-2.4.20-pre4.patch
+and let us know if it fixes this problem or not?
 
-Since they have dual onboard GbE, I've been trying to channel bond them 
-using just two crossover cables between two machines. The results I'm 
-seeing is at the first glance very strange. What I see is that the 
-performance when bonded (round robin) is about _half_ (and sometimes even 
-less) compared to just using a single interface. Here are some netpipe-2.4 
-results :
+thanks,
 
-64k message size, single interface
-  1:     65536 bytes  190 times -->  760.54 Mbps in 0.000657 sec
-
-256k message size, single interface
-  1:    262144 bytes   53 times -->  855.04 Mbps in 0.002339 sec
-
-64 message size, both interfaces (using round robin)
-  1:     65536 bytes   65 times -->  257.06 Mbps in 0.001945 sec
-
-256k message size, both interfaces (using round robin)
-  1:    262144 bytes   25 times -->  376.01 Mbps in 0.005319 sec
-
-Looking at the output of netstat -s after a testrun with 256k message 
-size, I see some differences (main items) :
-
-Single interface :
- Tcp:
-      0 segments retransmited
-
- TcpExt:
-     109616 packets directly queued to recvmsg prequeue.
-     52249581 packets directly received from backlog
-     125694404 packets directly received from prequeue
-     78 packets header predicted
-     124999 packets header predicted and directly queued to user
-     TCPPureAcks: 93
-     TCPHPAcks: 22981
-
-      
-Bonded interfaces :
-  Tcp:
-      234 segments retransmited
-
-  TcpExt:
-      1 delayed acks sent
-      Quick ack mode was activated 234 times
-      67087 packets directly queued to recvmsg prequeue.
-      6058227 packets directly received from backlog
-      13276665 packets directly received from prequeue
-      6232 packets header predicted
-      4625 packets header predicted and directly queued to user
-      TCPPureAcks: 25708
-      TCPHPAcks: 4456
-
-
-The biggest difference as far as I can see is the 'packtes header 
-predicted', 'packets header predicted and directly queued to user', 
-'TCPPureAcks' and TCPHPAcks.
-
-I have an idea that this happens because the packets are comming out of 
-order into the receiving node (i.e the bonding device is alternating 
-between each interface when sending, and when the receiving node gets the 
-packets it is possible that the first interface get packets number 0, 2, 
-4 and 6 in one interrupt and queues it to the network stack before packet 
-1, 3, 5 is handled on the other interface).
-
-If this is the case, any ideas how to fix this...
-
-I would really love to get 2Gbit/sec on these machines....
-
-
-PS
-
-I've also seen this feature on the Intel GbE cards (e1000), but these 
-drivers has a parameter named RxIntDelay which can be set to 0 to get 
-interrupt for each packet. Is this possible with the tg3 driver too ?
-
-DS
-
-Regards,
---
-  Steffen Persvold   |       Scali AS
- mailto:sp@scali.com |  http://www.scali.com
-Tel: (+47) 2262 8950 |   Olaf Helsets vei 6
-Fax: (+47) 2262 8951 |   N0621 Oslo, NORWAY
-
-
+greg k-h

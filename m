@@ -1,26 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292588AbSDQQZM>; Wed, 17 Apr 2002 12:25:12 -0400
+	id <S293203AbSDQQ1Y>; Wed, 17 Apr 2002 12:27:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293203AbSDQQZM>; Wed, 17 Apr 2002 12:25:12 -0400
-Received: from zebra.siol.net ([193.189.160.16]:59589 "EHLO zebra.siol.net")
-	by vger.kernel.org with ESMTP id <S292588AbSDQQZL>;
-	Wed, 17 Apr 2002 12:25:11 -0400
-Message-Id: <5.1.0.14.2.20020417181853.00bf1c00@212.118.71.191>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Wed, 17 Apr 2002 18:24:53 +0200
-To: linux-kernel@vger.kernel.org
-From: Domen Stangar <domen.stangar@siol.net>
-Subject: how to setup loopback before calling mount_root() ..
-  root=/dev/loop0
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S293632AbSDQQ1X>; Wed, 17 Apr 2002 12:27:23 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:17682 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S293203AbSDQQ1W>; Wed, 17 Apr 2002 12:27:22 -0400
+Subject: Re: IDE/raid performance
+To: nick@snowman.net
+Date: Wed, 17 Apr 2002 16:48:20 +0100 (BST)
+Cc: bbn-linux-kernel@clansoft.dk (Baldur Norddahl),
+        mdresser_l@windsormachine.com (Mike Dresser),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0204171108480.3300-100000@ns> from "nick@snowman.net" at Apr 17, 2002 11:15:15 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16xrfQ-0002VF-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can anyone please tell me if there is a way to use lo_ioctl before mounting 
-root.
-How to use lo_ioctl in kernel in way like:
-losetup /dev/loop0 /dev/hda3 ?
-then root=/dev/loop0
+> 432watts.  This will go down alot after all your disks spin up, but I'm
+> amazed your system boots.  Morale of this message:  Don't be a dipshit and
+> put 12 IDE disks on a single power supply.
 
+I've run a dual athlon set up fully loaded with cards with 10 disks - that
+takes a 550W PSU but works

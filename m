@@ -1,39 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277146AbRJLBcF>; Thu, 11 Oct 2001 21:32:05 -0400
+	id <S277148AbRJLBr0>; Thu, 11 Oct 2001 21:47:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277145AbRJLBb4>; Thu, 11 Oct 2001 21:31:56 -0400
-Received: from smtp6.mindspring.com ([207.69.200.110]:18979 "EHLO
-	smtp6.mindspring.com") by vger.kernel.org with ESMTP
-	id <S277143AbRJLBbw>; Thu, 11 Oct 2001 21:31:52 -0400
-Subject: Re: Tainted Modules Help Notices
-From: Robert Love <rml@tech9.net>
-To: David Schwartz <davids@webmaster.com>
-Cc: jalvo@mbay.net, linux-kernel@vger.kernel.org
-In-Reply-To: <20011012011217.AAA27996@shell.webmaster.com@whenever>
-In-Reply-To: <20011012011217.AAA27996@shell.webmaster.com@whenever>
+	id <S277145AbRJLBrQ>; Thu, 11 Oct 2001 21:47:16 -0400
+Received: from sushi.toad.net ([162.33.130.105]:25275 "EHLO sushi.toad.net")
+	by vger.kernel.org with ESMTP id <S277148AbRJLBq7>;
+	Thu, 11 Oct 2001 21:46:59 -0400
+Subject: Re: [PATCH] 2.4.10-ac11 parport_pc.c bugfix
+From: Thomas Hood <jdthood@mail.com>
+To: bill davidsen <davidsen@tmr.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200110112241.f9BMfWM27107@deathstar.prodigy.com>
+In-Reply-To: <200110112241.f9BMfWM27107@deathstar.prodigy.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.15.99+cvs.2001.10.05.08.08 (Preview Release)
-Date: 11 Oct 2001 21:32:24 -0400
-Message-Id: <1002850347.872.95.camel@phantasy>
+X-Mailer: Evolution/0.15 (Preview Release)
+Date: 11 Oct 2001 21:45:41 -0400
+Message-Id: <1002851144.10317.18.camel@thanatos>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2001-10-11 at 21:12, David Schwartz wrote:
-> 	Perhaps the best solution is to develop a 'kernel module license' that 
-> simply requires that the source code be made available to anyone who wishes 
-> to debug for the purpose of debugging. Complying with the terms of the 
-> 'kernel module license' would give you module that don't taint the kernel. 
+On Thu, 2001-10-11 at 18:41, bill davidsen wrote:
+> Does this address any bug present without the cast?
 
-But if we couldn't release the (fixed) source, then what is the point? 
-If it is not open source, why should Alan or I or anyone care to debug
-it?
+No.  There's no bug.  The debate is over whether or not
+it's naughty to cast -1 to unsigned long.
 
-What we want is for users to not have a tainted kernel, so we can debug
-the problem and release the results.  We are interested in fixing our (=
-the open source community's) problems, not others.
-
-	Robert Love
+--
+Thomas
 

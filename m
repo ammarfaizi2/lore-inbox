@@ -1,52 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317872AbSIEREG>; Thu, 5 Sep 2002 13:04:06 -0400
+	id <S317892AbSIERFe>; Thu, 5 Sep 2002 13:05:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317887AbSIEREF>; Thu, 5 Sep 2002 13:04:05 -0400
-Received: from smtpde02.sap-ag.de ([155.56.68.170]:59891 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S317872AbSIERED>; Thu, 5 Sep 2002 13:04:03 -0400
-From: Christoph Rohland <cr@sap.com>
-To: Anton Lavrentiev <lavr@ncbi.nlm.nih.gov>
-Cc: linux-kernel@vger.kernel.org, linus@transmeta.com,
-       vakatov@ncbi.nlm.nih.gov
-Subject: Re: BUG:: SYSV IPC shmem reported as "(deleted)" in process maps
- file
-References: <3D6FDFF8.C0D86A3C@ncbi.nlm.nih.gov>
-	<3D6FE07C.B76DD4B6@ncbi.nlm.nih.gov>
-Organisation: Development SAP J2EE Engine
-Date: Thu, 05 Sep 2002 19:08:19 +0200
-In-Reply-To: <3D6FE07C.B76DD4B6@ncbi.nlm.nih.gov> (Anton Lavrentiev's
- message of "Fri, 30 Aug 2002 17:15:40 -0400")
-Message-ID: <it1kgy9o.fsf@sap.com>
-User-Agent: Gnus/5.090007 (Oort Gnus v0.07) XEmacs/21.4 (Common Lisp
- (Windows [3]), i586-pc-win32)
-MIME-Version: 1.0
+	id <S317947AbSIERFd>; Thu, 5 Sep 2002 13:05:33 -0400
+Received: from phoenix.infradead.org ([195.224.96.167]:39686 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S317892AbSIEREb>; Thu, 5 Sep 2002 13:04:31 -0400
+Date: Thu, 5 Sep 2002 18:09:04 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.20pre5aa1
+Message-ID: <20020905180904.A8406@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
+References: <20020904233528.GA1238@dualathlon.random> <20020905134414.A1784@infradead.org> <20020905165307.GC1254@dualathlon.random>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-SAP: out
-X-SAP: out
-X-SAP: out
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020905165307.GC1254@dualathlon.random>; from andrea@suse.de on Thu, Sep 05, 2002 at 06:53:07PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Anton,
+On Thu, Sep 05, 2002 at 06:53:07PM +0200, Andrea Arcangeli wrote:
+> btw, even if xfs is applied before the inode_read_write-atomic,  please
+> make sure xfs will learn using the i_size_read when out of the semaphore
+> and i_size_write too. I know the locking is different there but I doubt
+> you're just managing the i_size without races.
 
-On Fri, 30 Aug 2002, Anton Lavrentiev wrote:
-> cat /proc/#/maps:
-> 40018000-40022000 rw-s 00000000 00:05 5865476    /SYSV01315549 (deleted)
-> 4021b000-40225000 rw-s 00000000 00:05 5898248    /SYSV012cc3bc (deleted)
-> 
-> ipcs -a:
-> 0x01315549 5865476    ncbiduse  666        40960      1
-> 0x012cc3bc 5898248    ncbiduse  666        40960      1
+XFS always has the XFS i_lock around accessing it.  Either in read mode
+or in write mode for updates (the lock is a so-called mrlock which
+basically as a rwsem with a few subtile differences).
 
-Works as designed. 
-
-The internal implementation creates the file unlinked. SYSV is one
-holder of this open file. The display may be irritating but IMHO its
-internal simplicity is worth to live with it.
-
-Greetings
-		Christoph
-
-
+Anyway most acceses i_size in the new code are done by the generic
+code now as XFS calls it internally.  Take a look at the update I sent
+you a few seconds ago :)

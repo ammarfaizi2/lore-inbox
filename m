@@ -1,44 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263823AbTGOGe6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 02:34:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263542AbTGOGe5
+	id S263597AbTGOGdS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 02:33:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263743AbTGOGdS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 02:34:57 -0400
-Received: from 13.2-host.augustakom.net ([80.81.2.13]:899 "EHLO phoebee")
-	by vger.kernel.org with ESMTP id S263823AbTGOGdq (ORCPT
+	Tue, 15 Jul 2003 02:33:18 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:15750 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S263597AbTGOGdM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 02:33:46 -0400
-Date: Tue, 15 Jul 2003 08:48:34 +0200
-From: Martin Zwickel <martin.zwickel@technotrend.de>
-To: "Rick A. Hohensee" <rickh@capaccess.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 386+ Forreal Mode. Flat 32-bit unprotected. Demo appended.
-Message-Id: <20030715084834.02d8966b.martin.zwickel@technotrend.de>
-In-Reply-To: <fc.0010c7b200979cdc0010c7b200979cdc.979ec2@capaccess.org>
-References: <fc.0010c7b200979cdc0010c7b200979cdc.979ec2@capaccess.org>
-Organization: TechnoTrend AG
-X-Mailer: Sylpheed version 0.9.0claws93 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Operating-System: Linux Phoebee 2.4.21-rc4 i686 Intel(R) Pentium(R) 4 CPU
- 2.40GHz
-X-Face: $rTNP}#i,cVI9h"0NVvD.}[fsnGqI%3=N'~,}hzs<FnWK/T]rvIb6hyiSGL[L8S,Fj`u1t.
- ?J0GVZ4&
+	Tue, 15 Jul 2003 02:33:12 -0400
+Date: Tue, 15 Jul 2003 08:47:55 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>, vojtech@suse.cz
+Subject: Re: Bad autorepeat problems in 2.5.75
+Message-ID: <20030715064755.GD27368@ucw.cz>
+References: <20030714222249.GA11150@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030714222249.GA11150@elf.ucw.cz>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wrong list?!
+On Tue, Jul 15, 2003 at 12:22:51AM +0200, Pavel Machek wrote:
 
-Regards,
-Martin
+> Hi!
+> 
+> I have bad problems with autorepeat. When switching consoles with
+> alt-left / alt-right it sometimes skips wrong number of consoles, and
+> sometimes it just keeps repeating even through I already released a
+> key.
+> 
+> Syslog complains:
+> 
+> Jul 15 00:15:52 amd kernel: atkbd.c: Unknown key (set 2, scancode
+> 0x1cb, on isa0060/serio0) pressed.
+> Jul 15 00:16:21 amd kernel: atkbd.c: Unknown key (set 2, scancode
+> 0x1cb, on isa0060/serio0) pressed.
+> Jul 15 00:19:02 amd kernel: atkbd.c: Unknown key (set 2, scancode
+> 0x1cd, on isa0060/serio0) pressed.
+> Jul 15 00:20:04 amd kernel: atkbd.c: Unknown key (set 2, scancode
+> 0x1cd, on isa0060/serio0) pressed.
+> 
+> Its vesafb -> switching consoles is not exactly fast, maybe that has
+> some role?
+
+Probably keyboard interrupts get lost. Bad. Can you track with DEBUG
+enabled in i8042.c?
 
 -- 
-MyExcuse:
-The electricity substation in the car park blew up.
-
-Martin Zwickel <martin.zwickel@technotrend.de>
-Research & Development
-
-TechnoTrend AG <http://www.technotrend.de>
+Vojtech Pavlik
+SuSE Labs, SuSE CR

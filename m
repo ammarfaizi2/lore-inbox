@@ -1,45 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268760AbTBZOuj>; Wed, 26 Feb 2003 09:50:39 -0500
+	id <S268764AbTBZOy6>; Wed, 26 Feb 2003 09:54:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268764AbTBZOuj>; Wed, 26 Feb 2003 09:50:39 -0500
-Received: from mailrelay1.lanl.gov ([128.165.4.101]:18602 "EHLO
-	mailrelay1.lanl.gov") by vger.kernel.org with ESMTP
-	id <S268760AbTBZOui>; Wed, 26 Feb 2003 09:50:38 -0500
-Subject: Re: [REVISED][PATCH] Spelling fixes for 2.5.63 - can't
-From: Steven Cole <elenstev@mesatop.com>
-To: vda@port.imtp.ilyichevsk.odessa.ua
-Cc: Michael Hayes <mike@aiinc.ca>, Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <200302260616.h1Q6GAs21894@Port.imtp.ilyichevsk.odessa.ua>
-References: <200302252248.h1PMmBl29251@aiinc.aiinc.ca> 
-	<200302260616.h1Q6GAs21894@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain
+	id <S268765AbTBZOy6>; Wed, 26 Feb 2003 09:54:58 -0500
+Received: from h108-129-61.datawire.net ([207.61.129.108]:21691 "EHLO
+	mail.datawire.net") by vger.kernel.org with ESMTP
+	id <S268764AbTBZOy5>; Wed, 26 Feb 2003 09:54:57 -0500
+From: Shawn Starr <shawn.starr@datawire.net>
+Organization: Datawire Communication Networks Inc.
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [BUG][2.5.63] New IDE changes cause data corruption on PIIX4 AND additional problems
+Date: Wed, 26 Feb 2003 10:10:20 -0500
+User-Agent: KMail/1.5
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2-5mdk 
-Date: 26 Feb 2003 07:56:24 -0700
-Message-Id: <1046271385.6615.174.camel@spc9.esa.lanl.gov>
-Mime-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200302261010.20360.shawn.starr@datawire.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-02-25 at 23:12, Denis Vlasenko wrote:
-> On 26 February 2003 00:48, Michael Hayes wrote:
-> > Removed changes to comments in .S files -- gcc does not like
-> > apostrophes in assembler comments.
-> >
-> > This fixes:
-> >     cant -> can't (28 occurrences)
-> 
-> Some editors which do syntax highlighting have bugs
-> and treat ' like string delimiter even in comments.
-> I usually "fix" it by removing apostrophes from
-> "can't" ;)
-> --
-> vda
+Booting 2.5.63 I ran into several problems:
 
-Sounds like time for a better editor. ;)
+1. With full kernel debugging on, sleeping contexts loop forever, Adam Belay 
+has a fix that worked for me - Still testing
 
-A better fix for you might be s/can't/cannot/g.
+2. When booting over serial console if i get a buffer overrun error, I loose 
+total access to the machine. I can't ssh in or use direct console. This did 
+not happen in .62.
 
-Steven
+3. Data corruption with PIIX4:  While vi'ing /etc/lilo.conf exiting, then 
+vi'ing /etc/inittab saving a change. I ran init q. The moment I ran it i got 
+a strange panic from bash and a *__timers function. When I rebooted inittab 
+was corrupt and oddly /etc/inittab became lilo.conf! (it had the same 
+contents, acrossed inode somehow?).
+
+/me looks at Alan with evil eyes IDE was working so well ;-(
+
+-- 
+Shawn Starr
+UNIX Systems Administrator, Operations
+Datawire Communication Networks Inc.
+10 Carlson Court, Suite 300
+Toronto, ON, M9W 6L2
+T: 416-213-2001 ext 179  F: 416-213-2008
+shawn.starr@datawire.net
+"The power to Transact" - http://www.datawire.net
 

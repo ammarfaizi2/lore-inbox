@@ -1,74 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132918AbRDQX4s>; Tue, 17 Apr 2001 19:56:48 -0400
+	id <S132919AbRDQX62>; Tue, 17 Apr 2001 19:58:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132907AbRDQX4k>; Tue, 17 Apr 2001 19:56:40 -0400
-Received: from maniola.plus.net.uk ([195.166.135.195]:6531 "HELO
-	mail.plus.net.uk") by vger.kernel.org with SMTP id <S132906AbRDQX4Z>;
-	Tue, 17 Apr 2001 19:56:25 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: "D.W.Howells" <dhowells@astarte.free-online.co.uk>
-To: andrea@suse.de
-Subject: Re: generic rwsem [Re: Alpha "process table hang"]
-Date: Wed, 18 Apr 2001 00:54:41 +0100
-X-Mailer: KMail [version 1.2]
-Cc: dhowells@redhat.com, linux-kernel@vger.kernel.org
+	id <S132921AbRDQX6U>; Tue, 17 Apr 2001 19:58:20 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:58637 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S132919AbRDQX6M>;
+	Tue, 17 Apr 2001 19:58:12 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200104172358.f3HNw60203153@saturn.cs.uml.edu>
+Subject: Re: RFC: pageable kernel-segments
+To: hpa@zytor.com (H. Peter Anvin)
+Date: Tue, 17 Apr 2001 19:58:05 -0400 (EDT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <9bi53d$5n6$1@cesium.transmeta.com> from "H. Peter Anvin" at Apr 17, 2001 12:21:17 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Message-Id: <01041800544100.06481@orion.ddi.co.uk>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It is 36bytes. and on 64bit archs the difference is going to be less. 
+H. Peter Anvin writes:
+> By author:    "Heusden, Folkert van" <f.v.heusden@ftr.nl>
 
-You're right - I can't add up (must be too late at night), and I was looking 
-at wait_queue not wait_queue_head. I suppose that means my implementations 
-are then 20 and 16 bytes respectively.
+>> Would anyone be intrested (besides me) in a kernel which can page
+...
+>> Certain parts of drivers could get the __pageable prefix or so
 
-On 64-bit archs the difference will be less, depending on what a "long" is.
+> VMS does this.  It at least used to have a great tendency to crash
+> itself, because it swapped out something that was called from a driver
+> that was called by the swapper -- resulting in deadlock.  You need
+> iron discipline for this to work right in all circumstances.
+> 
+> Second, it makes it quite hard to know what operations can cause a
+> task to sleep, since any reference to paged-out memory can require a
+> page-in and the associated schedule.  You almost need pointer
+> annotation in order for this to be safe.
 
-> The real waste is the lock of the waitqueue that I don't need, so I should 
-> probably keep two list_head in the waitqueue instead of using the 
-> wait_queue_head_t and wake_up_process by hand. 
+It wouldn't be nearly so dangerous to page from compressed
+data in memory. The memory could be ROM.
 
-Perhaps you should steal my wake_up_ctx() idea. That means you only need one 
-wait queue, and you use bits in the wait_queue flags to note which type of 
-waiter is at the front of the queue.
-
-You can then say "wake up the first thing at the front of the queue if it is 
-a writer"; and you can say "wake up the first consequtive bunch of things at 
-the front of the queue, provided they're all readers" or "wake up all the 
-readers in the queue".
-
-> The fast path has to be as fast as yours, if not then the only variable
-> that can make difference is the fact I'm not inlining the fast path because
-> it's not that small, in such a case I should simply inline the fast path
-
-My point exactly... It can't be as fast because it's _all_ out of line. 
-Therefore you always have to go through the overhead of a function call, 
-whatever that entails on the architecture of choice.
-
-> I don't care about the scalability of the slow path and I think the slow
-> path may even be faster than yours because I don't run additional
-> unlock/lock and memory barriers and the other cpus will stop dirtifying my
-> stuff after their first trylock until I unlock. 
-
-Except for the optimised case, you may be correct on an SMP configured kernel 
-(for a UP kernel, spinlocks are nops).
-
-However! mine runs for as little time as possible with spinlocks held in the 
-generic case, and, perhaps more importantly, as little time as possible with 
-interrupts disabled.
-
-One other thing: should you be using spin_lock_irqsave() instead of 
-spin_lock_irq() in your down functions? I'm not sure it's necessary, however, 
-since you probably shouldn't be sleeping if you've got the interrupts 
-disabled (though schedule() will cope).
-
-> If you have time to benchmark I'd be interested to see some number. But
-> anyways my implementation was mostly meant to be obviously right and
-> possible to ovverride with per-arch algorithms
-
-I'll have a go tomorrow evening. It's time to go to bed now I think:-)
-
-David

@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264152AbTFIFJi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 01:09:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264156AbTFIFJi
+	id S264151AbTFIFGt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 01:06:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264152AbTFIFGt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 01:09:38 -0400
-Received: from 216-239-45-4.google.com ([216.239.45.4]:6728 "EHLO
-	216-239-45-4.google.com") by vger.kernel.org with ESMTP
-	id S264152AbTFIFJh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 01:09:37 -0400
-Date: Sun, 8 Jun 2003 22:22:13 -0700
-From: Frank Cusack <fcusack@fcusack.com>
-To: Andrew Miklas <public@mikl.as>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linksys WRT54G and the GPL
-Message-ID: <20030608222213.C9097@google.com>
-References: <200306072241.23725.public@mikl.as>
+	Mon, 9 Jun 2003 01:06:49 -0400
+Received: from waste.org ([209.173.204.2]:9961 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S264151AbTFIFGs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jun 2003 01:06:48 -0400
+Date: Mon, 9 Jun 2003 00:20:08 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: Matthew Dobson <colpatch@us.ibm.com>
+Cc: Trivial Patch Monkey <trivial@rustcorp.com.au>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] use valid value when unmapping cpus
+Message-ID: <20030609052008.GB31216@waste.org>
+References: <3EDE63FE.1010603@us.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200306072241.23725.public@mikl.as>; from public@mikl.as on Sat, Jun 07, 2003 at 10:41:23PM -0400
+In-Reply-To: <3EDE63FE.1010603@us.ibm.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 07, 2003 at 10:41:23PM -0400, Andrew Miklas wrote:
-> However, I have gone through all the available information on the Linksys
-> website, and can find no reference to the GPL, Linux (as it relates to
-> this product), or the firmware source code.  Also, the firmware binary
-> (see below) is freely available from their website.  There is no link
-> from the download page to the source, or any mention of Linux or the GPL.
+On Wed, Jun 04, 2003 at 02:26:22PM -0700, Matthew Dobson wrote:
+> For some unknown reason, we stick a -1 in cpu_2_node when we unmap a cpu 
+> on i386.  We're better off sticking a 0 in there, because at least 0 is 
+> a valid value if something references it.  -1 is only going to cause 
+> problems at some point down the line.
 
-Requoting the above license violations for context.
+Problems down the line help you find the bogus dereference. Even
+better to stick a poison value in there.
 
-> Finally, it would be strange if the source was included in the physical
-> package, as my contact at Linksys was initially unaware Linux was used
-> in this product.
-
-Note that including the source with the physical package is not enough
-to meet the GPL requirements.  The source must be available to any third
-party, not just purchasers of the product.
-
-/fc
+-- 
+Matt Mackall : http://www.selenic.com : of or relating to the moon

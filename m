@@ -1,48 +1,60 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316524AbSEUGFq>; Tue, 21 May 2002 02:05:46 -0400
+	id <S316527AbSEUGQC>; Tue, 21 May 2002 02:16:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316525AbSEUGFp>; Tue, 21 May 2002 02:05:45 -0400
-Received: from violet.setuza.cz ([194.149.118.97]:55312 "EHLO violet.setuza.cz")
-	by vger.kernel.org with ESMTP id <S316524AbSEUGFo>;
-	Tue, 21 May 2002 02:05:44 -0400
-Subject: Re: RFC - named loop devices...
-From: Frank Schaefer <frank.schafer@setuza.cz>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20020521015517.609d5516.spyro@armlinux.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 21 May 2002 08:05:44 +0200
-Message-Id: <1021961145.260.0.camel@ADMIN>
+	id <S316528AbSEUGQB>; Tue, 21 May 2002 02:16:01 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:46981 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S316527AbSEUGQB>; Tue, 21 May 2002 02:16:01 -0400
+Date: Tue, 21 May 2002 11:48:50 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: Anton Blanchard <anton@samba.org>, linux-kernel@vger.kernel.org,
+        Ingo Molnar <mingo@elte.hu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Dave Miller <davem@redhat.com>
+Subject: Re: [RFC][PATCH] TIMER_BH-less smptimers
+Message-ID: <20020521114850.A18654@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+In-Reply-To: <20020516185448.A8069@in.ibm.com> <20020520085500.GB14488@krispykreme> <20020520212109.GA5821@werewolf.able.es>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-05-21 at 02:55, Ian Molton wrote:
-> I havent thought about this too much, but...
+On Mon, May 20, 2002 at 11:21:09PM +0200, J.A. Magallon wrote:
 > 
-> When /etc/mtab is a symlink to /proc/mounts the umount command will fail
-> to unmount loopback mounted filesystems properly.
+> >> I have been experimenting with Ingo's smptimers and I ended up
+> >> extending it a little bit. I would really appreciate comments
+> >> on whether these things make sense or not.
+> >
+> >I tried it out and found that we were context switching like crazy.
+> >It seems we were always running the timers out of a tasklet because
+> >we never unlocked the net_bh_lock.
+> >
 > 
-> I was wondering if a solution to this would be to introduce 'named'
-> loopback devices.
+> The patch for 2.4 in
 > 
-> with named loop devices, umount will then know that mount was the
-> creator of a loopback device that it mounted, and can safely destroy it.
+> http://people.redhat.com/mingo/scalable-timers-patches/
 > 
-> at present, mounting and unmounting disc images causes one to run out of
-> loopback devices rather rapidly.
-> 
-> If I were to knock up a patch to implement named loop devices, would it
-> stand a chance of being accepted?
-> 
-> also, how should this work? should the name be that of the creating
-> process or should it just be a field that the creator can fill in as it
-> pleases?
+> does not acquire net_bh_lock. Then I suppose it does not apply to that ?
 
-What about losetup?
+No. Ingo's smptimers doesn't have this problem. However I am not
+sure if this patch has timers completely serialized with respect
+to old protocol code that ran from NET_BH earlier. See
+deliver_to_old_ones() in net/core/dev.c. Unless I am missing something
+big, disabling TIMER_BH there doesn't stop timers from firing
+in run_local_timers().
 
-Regards
-Frank
+> Can I try your patch for 2.5 on 2.4 or is there any infrastructure
+> missing ?
 
+Only 2.5ish thing I use is the per-cpu area APIs from Rusty for
+the per-cpu tasklet in timer.c. You can replace it by
+an array of NR_CPUS tasklets each cache line aligned.
+
+Thanks
+-- 
+Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
+Linux Technology Center, IBM Software Lab, Bangalore, India.

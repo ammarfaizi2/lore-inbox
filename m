@@ -1,70 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283577AbRK3Ja1>; Fri, 30 Nov 2001 04:30:27 -0500
+	id <S283584AbRK3J25>; Fri, 30 Nov 2001 04:28:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283581AbRK3JaO>; Fri, 30 Nov 2001 04:30:14 -0500
-Received: from web20506.mail.yahoo.com ([216.136.226.141]:8200 "HELO
-	web20506.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S283577AbRK3J2y>; Fri, 30 Nov 2001 04:28:54 -0500
-Message-ID: <20011130092853.20937.qmail@web20506.mail.yahoo.com>
-Date: Fri, 30 Nov 2001 10:28:53 +0100 (CET)
-From: =?iso-8859-1?q?willy=20tarreau?= <wtarreau@yahoo.fr>
-Subject: Did someone try to boot 2.4.16 on a 386 ?
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S283580AbRK3J2r>; Fri, 30 Nov 2001 04:28:47 -0500
+Received: from sdsl-216-36-113-151.dsl.sea.megapath.net ([216.36.113.151]:3299
+	"EHLO stomata.megapathdsl.net") by vger.kernel.org with ESMTP
+	id <S283577AbRK3J2g>; Fri, 30 Nov 2001 04:28:36 -0500
+Subject: 2.5.0-pre4 -- ../qlogicfas.c: In function `do_ql_ihandl':
+	`io_request_lock' undeclared
+From: Miles Lane <miles@megapathdsl.net>
+To: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.2 (Preview Release)
+Date: 30 Nov 2001 01:27:12 -0800
+Message-Id: <1007112432.22425.0.camel@stomata.megapathdsl.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
 
-I just happened to test 2.4.16 on my 386 (firewall)
-and 
-just after the message "Uncompressing kernel", the PC
-reboots just as after an illegal op, or a triple
-fault. I tried
-to diff between 2.4.13-ac8 (which previously worked)
-and 2.4.16, but I don't see many changes (except the
-CR2 patch that I reverted in 2.4.13-ac8 anyway, and
-which is still not present in 2.4.16).
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=athlon  -DMODULE  -DPCMCIA -D__NO_VERSION__ -c -o qlogicfas.o ../qlogicfas.c
+../qlogicfas.c: In function `do_ql_ihandl':
+../qlogicfas.c:471: `io_request_lock' undeclared (first use in this function)
+../qlogicfas.c:471: (Each undeclared identifier is reported only once
+../qlogicfas.c:471: for each function it appears in.)
+make[3]: *** [qlogicfas.o] Error 1
+make[3]: Leaving directory `/usr/src/linux/drivers/scsi/pcmcia'
 
-I also checked for illegal instructions like there has
-already been in the past (cmov, bswap, cmpxchg) but
-couldn't find any. I could only find some rdmsr, wrmsr
-and cpuid in functions which, to my knowledge, are not
-called when an i386 boots.
+CONFIG_SCSI=m
+CONFIG_BLK_DEV_SD=m
+CONFIG_SD_EXTRA_DEVS=40
+CONFIG_BLK_DEV_SR=m
+CONFIG_BLK_DEV_SR_VENDOR=y
+CONFIG_SR_EXTRA_DEVS=2
+CONFIG_CHR_DEV_SG=m
+CONFIG_SCSI_CONSTANTS=y
+CONFIG_SCSI_AIC7XXX=m
+CONFIG_AIC7XXX_CMDS_PER_DEVICE=253
+CONFIG_AIC7XXX_RESET_DELAY_MS=15000
 
-I'm sorry I don't have the .config right here, but
-it's
-simply minimalistic : module, ide, iptables, serial
-console. Of course, I've already checked there were no
-accidental CONFIG_SMP nor MTRR ...
+CONFIG_SCSI_PCMCIA=y
+CONFIG_PCMCIA_AHA152X=m
+CONFIG_PCMCIA_FDOMAIN=m
+CONFIG_PCMCIA_NINJA_SCSI=m
+CONFIG_PCMCIA_QLOGIC=m
 
-The system has 8 MB of RAM, and 16 MB of
-CompactFlash connected to the IDE controller. The
-onboard VGA is enabled and didn't cause any problem
-before, but it may be possible that the reboots
-happens
-when the system tries to change the video mode.
-
-Since I spent a long time recompiling with several
-options, I didn't yet test if vanilla 2.4.13-2.4.15
-could
-boot on this PC. I didn't test with a serial console
-either.
-
-So my two questions are :
-  - does anybody happen to boot 2.4.16 on a 386 ?
-  - does someone have an idea of another change in the
-
-    kernel that could affect its boot on such a
-machine ?
-
-Regards,
-Willy
-
-
-___________________________________________________________
-Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
-Yahoo! Courrier : http://courrier.yahoo.fr

@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261314AbUBTUSQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 15:18:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261379AbUBTUPH
+	id S261404AbUBTU0m (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 15:26:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261401AbUBTUWv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 15:15:07 -0500
-Received: from tantale.fifi.org ([216.27.190.146]:25735 "EHLO tantale.fifi.org")
-	by vger.kernel.org with ESMTP id S261305AbUBTUOW (ORCPT
+	Fri, 20 Feb 2004 15:22:51 -0500
+Received: from quechua.inka.de ([193.197.184.2]:38545 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S261331AbUBTUS3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 15:14:22 -0500
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Quota compilation fix
-Mail-Copies-To: nobody
-From: Philippe Troin <phil@fifi.org>
-Date: 20 Feb 2004 12:13:41 -0800
-Message-ID: <87isi133wq.fsf@ceramic.fifi.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	Fri, 20 Feb 2004 15:18:29 -0500
+From: Andreas Jellinghaus <aj@dungeon.inka.de>
+Subject: Re: [Patch 2/6] dm: remove v1 ioctl interface
+Date: Fri, 20 Feb 2004 21:18:21 +0100
+User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity. (Debian GNU/Linux))
+Message-Id: <pan.2004.02.20.20.18.20.737557@dungeon.inka.de>
+References: <20040220153145.GN27549@reti> <20040220153436.GP27549@reti>
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-=-="
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
+On Fri, 20 Feb 2004 15:47:33 +0000, Joe Thornber wrote:
 
-Enclosed patch allows kernel compilation when CONFIG_QFMT_V2=y.
+> Remove the version-1 ioctl interface.
+> 
+> --- diff/drivers/md/dm-ioctl.c	2003-08-20 14:16:09.000000000 +0100
+> +++ source/drivers/md/dm-ioctl.c	2004-02-18 15:23:23.000000000 +0000
+> @@ -1,13 +1,1264 @@
+>  /*
+> - * Copyright (C) 2003 Sistina Software (UK) Limited.
+> + * Copyright (C) 2001, 2002 Sistina Software (UK) Limited.
 
-Phil.
+new code, old copyright?
 
---=-=-=
-Content-Type: text/x-patch
-Content-Disposition: attachment; filename=linux-2.4.25-new-quotas.patch
 
-diff -ruN linux-2.4.25.orig/fs/buffer.c linux-2.4.25/fs/buffer.c
---- linux-2.4.25.orig/fs/buffer.c	Wed Feb 18 13:14:11 2004
-+++ linux-2.4.25/fs/buffer.c	Wed Feb 18 13:14:20 2004
-@@ -436,7 +436,7 @@
- 	** after these are done
- 	*/
- 	sync_inodes(dev);
--	DQUOT_SYNC(dev);
-+	DQUOT_SYNC_DEV(dev);
- 	/* if inodes or quotas could be dirtied during the
- 	** sync_supers_lockfs call, the FS is responsible for getting
- 	** them on disk, without deadlocking against the lock
+Andreas
 
---=-=-=--

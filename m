@@ -1,38 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131508AbRCUJmx>; Wed, 21 Mar 2001 04:42:53 -0500
+	id <S131512AbRCUJnn>; Wed, 21 Mar 2001 04:43:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131509AbRCUJmn>; Wed, 21 Mar 2001 04:42:43 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:45696 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S131508AbRCUJmg>;
-	Wed, 21 Mar 2001 04:42:36 -0500
-From: "David S. Miller" <davem@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15032.30533.638717.696704@pizda.ninka.net>
-Date: Wed, 21 Mar 2001 01:41:25 -0800 (PST)
-To: Keith Owens <kaos@ocs.com.au>
-Cc: nigel@nrg.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH for 2.5] preemptible kernel 
-In-Reply-To: <22991.985166394@ocs3.ocs-net>
-In-Reply-To: <Pine.LNX.4.05.10103201920410.26853-100000@cosmic.nrg.org>
-	<22991.985166394@ocs3.ocs-net>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+	id <S131517AbRCUJne>; Wed, 21 Mar 2001 04:43:34 -0500
+Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:23804 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S131512AbRCUJnS>; Wed, 21 Mar 2001 04:43:18 -0500
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200103210941.f2L9fII14166@webber.adilger.int>
+Subject: Re: spinlock usage - ext2_get_block, lru_list_lock
+In-Reply-To: <20010321010559.B27804@sfgoth.com> from Mitchell Blank Jr at "Mar
+ 21, 2001 01:05:59 am"
+To: Mitchell Blank Jr <mitch@sfgoth.com>
+Date: Wed, 21 Mar 2001 02:41:17 -0700 (MST)
+CC: Andreas Dilger <adilger@turbolinux.com>,
+        Anton Blanchard <anton@linuxcare.com.au>, linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Mitchell Blank, Jr. writes:
+> Andreas Dilger wrote:
+> > With per-group (or maybe per-bitmap) locking, files could be created in
+> > parallel with only a small amount of global locking if they are in different
+> > groups.
+> 
+> ...and then we can let the disc go nuts seeking to actually commit all
+> these new blocks.  I suspect that this change would only be a win for
+> memory-based discs where seek time is zero.
 
-Keith Owens writes:
- > Or have I missed something?
+No, because the bitmaps are not updated synchronously.  It would be exactly
+the same as today, but without the lock contention.  Also, for very large
+filesystems, you get into the case where it is spread across multiple
+physical disks, so they _can_ be doing I/O in parallel.
 
-Nope, it is a fundamental problem with such kernel pre-emption
-schemes.  As a result, it would also break our big-reader locks
-(see include/linux/brlock.h).
+> I think that before anyone starts modifying the kernel for this they
+> should benchmark how often the free block checker blocks on lock
+> contention _AND_ how often the thread its contending with is looking
+> for a free block in a _different_ allocation group.
 
-Basically, anything which uses smp_processor_id() would need to
-be holding some lock so as to not get pre-empted.
+It really depends on what you are using for a benchmark.  Ext2 likes to
+spread directories evenly across the groups, so if you are creating files
+in separate directories, then you only have 1/number_of_groups chance
+that they would be contending for the same group lock.  If the files are
+being created in the same directory, then you have other locking issues
+like updating the directory file itself.
 
-Later,
-David S. Miller
-davem@redhat.com
+> > It may also be possible to have lazy updating of the superblock counts,
+> > and depend on e2fsck to update the superblock counts on a crash.
+> 
+> That sounds more promising.
+> 
+> > , and only moving the deltas from the groups
+> > to the superblock on sync or similar.
+> 
+> If we're going to assume that e2fsck will correct the numbers anyway then
+> there's really no reason to update them any time except when marking
+> the filesystem clean (umount, remount-ro)  As a bonus, we have to update
+> the superblock then anyway.
+
+Well, the numbers in the superblock are what's used for statfs, and will
+also to determine if the fs is full.  It would be safe enough to have an
+ext2 function call which "gathers" all of the lazy updates into the SB
+for use by statfs and such.  For the case of a full filesystem, the block
+allocation routines would eventually find this out anyways, once they
+search all of the groups and don't find a free block, so no harm done.  I
+believe that sync_supers() is called by kupdated every 5 seconds, so
+this would be a good time to collect the deltas to the superblock.
+
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

@@ -1,58 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135774AbRDTBcc>; Thu, 19 Apr 2001 21:32:32 -0400
+	id <S135777AbRDTBfv>; Thu, 19 Apr 2001 21:35:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135775AbRDTBcV>; Thu, 19 Apr 2001 21:32:21 -0400
-Received: from hibernia.clubi.ie ([212.17.32.129]:17553 "EHLO
-	hibernia.jakma.org") by vger.kernel.org with ESMTP
-	id <S135774AbRDTBcM>; Thu, 19 Apr 2001 21:32:12 -0400
-Date: Fri, 20 Apr 2001 02:29:09 +0100 (IST)
-From: Paul Jakma <paul@jakma.org>
-To: Andreas Dilger <adilger@turbolinux.com>
-cc: <linux-lvm@sistina.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Jes Sorensen <jes@linuxcare.com>, <linux-kernel@vger.kernel.org>,
-        <linux-openlvm@nl.linux.org>, Arjan van de Ven <arjanv@redhat.com>,
-        Jens Axboe <axboe@suse.de>, Martin Kasper Petersen <mkp@linuxcare.com>,
-        <riel@conectiva.com.br>
-Subject: Re: [linux-lvm] Re: [repost] Announce: Linux-OpenLVM mailing list
-In-Reply-To: <200104191945.f3JJjKRn015661@webber.adilger.int>
-Message-ID: <Pine.LNX.4.33.0104200218460.1083-100000@fogarty.jakma.org>
+	id <S135776AbRDTBfl>; Thu, 19 Apr 2001 21:35:41 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:61830 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S135775AbRDTBf0>;
+	Thu, 19 Apr 2001 21:35:26 -0400
+Date: Thu, 19 Apr 2001 21:35:02 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Ulrich Drepper <drepper@cygnus.com>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Abramo Bagnara <abramo@alsa-project.org>, Alon Ziv <alonz@nolaviz.org>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Mike Kravetz <mkravetz@sequent.com>
+Subject: Re: light weight user level semaphores
+In-Reply-To: <m34rvkzewj.fsf@otr.mynet.cygnus.com>
+Message-ID: <Pine.GSO.4.21.0104192044300.19860-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Apr 2001, Andreas Dilger wrote:
 
-> went in, but not other stuff.  Also, it doesn't appear that any of the
-> LVM changes are making it into the stock kernel, which is basically a
-> recepie for disaster.
 
-agreed... after the problematic inclusion of 0.9 into the kernel i
-asked on sistina LVM list whether they could try to be a bit more
-proactive about feeding patches on to linus, to make life easier for
-LVM users - they had fixes for the problems of 0.9 but never, and
-still to this day have not, fed the code on.
+On 19 Apr 2001, Ulrich Drepper wrote:
 
-Still to this day, nothing from them but announcements on l-k of
-various betas. AFAIK all the patches for LVM submitted to linus since
-0.8 went in have been from core linux developers (Andrea, Jens,
-etc.), not sistina.
+> Linus Torvalds <torvalds@transmeta.com> writes:
+> 
+> > I'm not interested in re-creating the idiocies of Sys IPC.
+> 
+> I'm not talking about sysv semaphores (couldn't care less).  And you
+> haven't read any of the mails with examples I sent.
+> 
+> If the new interface can be useful for anything it must allow to
+> implement process-shared POSIX mutexes.
 
-shame... their LVM is really nice to use. Just frustrating that they
-do want to feed the code on... more frustrating still when you
-consider the lobbying that went on to try persuade l-k that LVM
-should go in.
+Pardon me the bluntness, but... Why?
+	* on _any_ UNIX we can implement semaphore (object that has Dijkstra's
+P and V operations, whatever) shared by processes that have access to pipe.
+In a portable way. That's the part of pipe semantics that had been there
+since way before v6. Pre-sysv, pre-POSIX, etc. When named pipes appeared
+the same semantics had been carried to them. Agreed so far?
+	* if we have shared memory _and_ some implementation of semaphores
+we can (on architectures that allow atomic_dec() and atomic_inc()) produce
+semaphores that work via memory access in uncontended case and use slow
+semaphores to handle contention side of the business. Nothing UNIX-specific
+here.
+	* such objects _are_ useful. They are reasonably portable and
+if they fit the task at hand and are cheaper than POSIX mutexes - that's
+all rationale one could need for using them.
 
-> Cheers, Andreas
+Sure, the variant I've posted was intra-process only, simply because it
+uses normal pipes. Implementation with named pipes is also trivial -
+when you map the shared area, allocate private one of the corresponding
+size and keep descriptors there. End of story.
 
-obHiddenCode: lm-sensors... used to use this a long time ago.
-
-regards,
--- 
-Paul Jakma	paul@clubi.ie	paul@jakma.org
-PGP5 key: http://www.clubi.ie/jakma/publickey.txt
--------------------------------------------
-Fortune:
-Happiness is twin floppies.
+AFAICS mechanism is portable enough (and even on the architectures that
+do not allow atomic userland operations we can survive - just fall back
+to "slow" ones via read()/write() on pipes).  And excuse me, but when
+one writes an application code the question is not "how to make it use
+POSIX semaphores", it's "how to get the serialization I need in a
+portable way".
 

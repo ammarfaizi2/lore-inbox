@@ -1,61 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132291AbRADWdQ>; Thu, 4 Jan 2001 17:33:16 -0500
+	id <S130469AbRADWdg>; Thu, 4 Jan 2001 17:33:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129450AbRADWdG>; Thu, 4 Jan 2001 17:33:06 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:5649 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S129183AbRADWcv>;
-	Thu, 4 Jan 2001 17:32:51 -0500
-Date: Thu, 4 Jan 2001 22:28:38 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Douglas Gilbert <dgilbert@interlog.com>
-Cc: sct@redhat.com, "H. Peter Anvin" <hpa@transmeta.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [Fwd: devices.txt inconsistency]
-Message-ID: <20010104222838.V1290@redhat.com>
-In-Reply-To: <3A534CC1.B792AEFF@interlog.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <3A534CC1.B792AEFF@interlog.com>; from dgilbert@interlog.com on Wed, Jan 03, 2001 at 11:01:05AM -0500
+	id <S130667AbRADWd3>; Thu, 4 Jan 2001 17:33:29 -0500
+Received: from ezri.xs4all.nl ([194.109.253.9]:12736 "HELO ezri.xs4all.nl")
+	by vger.kernel.org with SMTP id <S130469AbRADWdU> convert rfc822-to-8bit;
+	Thu, 4 Jan 2001 17:33:20 -0500
+Date: Thu, 4 Jan 2001 23:33:17 +0100 (CET)
+From: Eric Lammerts <eric@lammerts.org>
+To: Igmar Palsenberg <maillist@chello.nl>
+cc: Andre Hedrick <andre@linux-ide.org>, Sven Koch <haegar@cut.de>,
+        Kernel devel list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.2.18 and Maxtor 96147H6 (61 GB)
+In-Reply-To: <Pine.LNX.4.21.0101042241420.4090-100000@server.serve.me.nl>
+Message-ID: <Pine.LNX.4.31.0101042316010.2045-100000@ally.lammerts.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Wed, Jan 03, 2001 at 11:01:05AM -0500, Douglas Gilbert wrote:
-> Stephen,
-> Did you respond to hpa on this matter?
+On Thu, 4 Jan 2001, Igmar Palsenberg wrote:
+> Yeah.. I removed the clipping, and the machine won't boot. It halts after
+> PnP init. Any way to use full capacity with the clipping enabled ?
 
-Not yet, I'm just catching up on festive-season email.  Happy New
-Year, all!
+I had the same problem with my 80Gb Maxtor. (Asus P2L97, works with
+60Gb but hangs with 80Gb :-/) After clipping the drive with ibmsetmax
+(http://www.uwsg.indiana.edu/hypermail/linux/kernel/0012.1/0249.html)
+and removing the jumper, unclipping worked fine (kernel is 2.2.18+ide).
 
-> [From the cc address it seems as though you 
-> work both for transmeta as well as redhat.]
+Andre: can you add unclipping support to 2.4 too?
 
-Nope, unless transmeta and red hat have been negotiating behind my
-back. :)  The misdirected email is probably why I didn't spot this
-earlier.
+Eric
 
-> > but something like this would be more accurate:
-> > 162 char        Raw block device interface
-> >                   0 = /dev/rawctl       Raw I/O control device
-> >                   1 = /dev/raw/raw1     First raw I/O device
-> >                   2 = /dev/raw/raw2     Second raw I/O device
-> >                     ...
-> > 
-> > The raw(8) command supplied in RH 6.2 and 7.0 assumes the
-> > latter structure. I have already alerted sct and this
-> > change may be coming through in one of his patches.
-> 
-> The latter is actually better, so I certainly don't mind.  sct, should I
-> change it?
+-- 
+Eric Lammerts <eric@lammerts.org>  | "It is a mistake to think you can solve
+http://www.lammerts.org            |  any major problems just with potatoes"
+                                   |                   - Douglas Adams
 
-Please do: the current util-linux should be using the new layout.
-
-Cheers,
- Stephen
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

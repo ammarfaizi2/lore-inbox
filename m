@@ -1,47 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131731AbQKYUyo>; Sat, 25 Nov 2000 15:54:44 -0500
+        id <S131738AbQKYVCH>; Sat, 25 Nov 2000 16:02:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131738AbQKYUy0>; Sat, 25 Nov 2000 15:54:26 -0500
-Received: from slc39.modem.xmission.com ([166.70.9.39]:58892 "EHLO
-        flinx.biederman.org") by vger.kernel.org with ESMTP
-        id <S131731AbQKYUyU>; Sat, 25 Nov 2000 15:54:20 -0500
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: mrbig@sneaker.sch.bme.hu, linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: crashing kernels
-In-Reply-To: <E13zk0b-0001CU-00@the-village.bc.nu>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 25 Nov 2000 12:46:48 -0700
-In-Reply-To: Alan Cox's message of "Sat, 25 Nov 2000 18:25:07 +0000 (GMT)"
-Message-ID: <m17l5rx2af.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+        id <S131753AbQKYVB6>; Sat, 25 Nov 2000 16:01:58 -0500
+Received: from jump-isi.interactivesi.com ([207.8.4.2]:5628 "HELO
+        dinero.interactivesi.com") by vger.kernel.org with SMTP
+        id <S131738AbQKYVBr>; Sat, 25 Nov 2000 16:01:47 -0500
+Date: Sat, 25 Nov 2000 14:31:46 -0600
+From: Timur Tabi <ttabi@interactivesi.com>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <3A1D3DF9.9199C744@earthlink.net>
+Subject: Re: "Hyper-Mount" option possible???
+X-Mailer: The Polarbar Mailer; version=1.18; build=55
+Message-Id: <20001125210154Z131738-8303+774@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+** Reply to message from Robert L Martin <robertlmarti@earthlink.net> on Thu,
+23 Nov 2000 10:55:38 -0500
 
-> > benn compiled into the kernel, and not as a module) always gave the
-> > errors:
-> > 
-> > eth0: Transmit timed out: status 0050  0090 at 134704418/134704432 
-> > eth0: Trying to restart the transmitter...
-> 
-> Known problem. This one might be fixed in current 2.2.18pre. SOme people
-> see it some dont
 
-I have another data point on this problem.
-I have seen it most with 2.4.0-test9.  But I'll look at 2.2.18pre.
-I can trigger this bug fairly reliably by warm booting, several times
-in a row.  With my linux warm booting directly into linux code triggers this
-one fairly reliably :)  Also putting another nick in seems to help
-trigger it as well.
+> Soo  Given that Super-Mount is already taken, How about (in
+> 2.5??)  hashing out a Hypermount option.
 
-The 2.4.0-testxxx watchdog seems eventually to handle this case 
-but it takes 1/2 hour or so to actually kick in and reset the card.
+How about calling it "multi-mount"?  I think it's more accurate.
 
-Eric
+
+-- 
+Timur Tabi - ttabi@interactivesi.com
+Interactive Silicon - http://www.interactivesi.com
+
+When replying to a mailing-list message, please direct the reply to the mailing list only.  Don't send another copy to me.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,78 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262611AbVBYAOX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262617AbVBYAWe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262611AbVBYAOX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 19:14:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262563AbVBYAL4
+	id S262617AbVBYAWe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 19:22:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262614AbVBYAUO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 19:11:56 -0500
-Received: from smtp09.auna.com ([62.81.186.19]:39091 "EHLO smtp09.retemail.es")
-	by vger.kernel.org with ESMTP id S262609AbVBYAGY convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 19:06:24 -0500
-Date: Fri, 25 Feb 2005 00:06:15 +0000
-From: "J.A. Magallon" <jamagallon@able.es>
-Subject: Re: 2.6.11-rc4-mm1
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-kernel@vger.kernel.org
-References: <20050223014233.6710fd73.akpm@osdl.org>
-	<1109198320l.7018l.0l@werewolf.able.es>
-	<200502231812.07882.tomlins@cam.org>
-	<200502231840.06017.dtor_core@ameritech.net>
-In-Reply-To: <200502231840.06017.dtor_core@ameritech.net> (from
-	dtor_core@ameritech.net on Thu Feb 24 00:40:05 2005)
-X-Mailer: Balsa 2.3.0
-Message-Id: <1109289975l.6462l.0l@werewolf.able.es>
+	Thu, 24 Feb 2005 19:20:14 -0500
+Received: from ns1.lanforge.com ([66.165.47.210]:47338 "EHLO www.lanforge.com")
+	by vger.kernel.org with ESMTP id S262617AbVBYAQf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 19:16:35 -0500
+Message-ID: <421E6E61.3040005@candelatech.com>
+Date: Thu, 24 Feb 2005 16:16:33 -0800
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.3) Gecko/20041020
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
+To: netdev@oss.sgi.com
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Tulip (DFE-570tx) & keyboard lockup in 2.6.9 and other 2.6 kernels.
+References: <421CF0BA.1020100@candelatech.com>
+In-Reply-To: <421CF0BA.1020100@candelatech.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 02.24, Dmitry Torokhov wrote:
-> On Wednesday 23 February 2005 18:12, Ed Tomlinson wrote:
-> > On Wednesday 23 February 2005 17:38, J.A. Magallon wrote:
-> > > 
-> > > On 02.23, Andrew Morton wrote:
-> > > > 
-> > > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11-rc4/2.6.11-rc4-mm1/
-> > > > 
-> > > > 
-> > > > - Various fixes and updates all over the place.  Things seem to have slowed
-> > > >   down a bit.
-> > > > 
-> > > > - Last, final, ultimate call: if anyone has patches in here which are 2.6.11
-> > > >   material, please tell me.
-> > > > 
-> > > 
-> > > Two points:
-> > > 
-> > > - I lost my keyboard :(. USB, but plugged into PS/2 with an adapter.
-> > 
-> > Mine too.  Details sent in another message...
-> > 
+Ben Greear wrote:
+> I finally had some time to debug this one a little more
+> thoroughly.  On two different machines (Shuttle SB61G1) I
+> get the same results, so I do not believe it is bad hardware...
 > 
-> Does i8042.nopnp help?
+> The bug is as follows:
 > 
+> I have 1 4-port tulip NIC in the machine.  If I generate traffic
+> between two interfaces, it runs fine.  But, if I start running traffic
+> on all 4 interfaces, the keyboard quits taking input, and ethernet
+> traffic stops on at least a few of the interfaces.  I can still ssh
+> into the machine (via the rtl8139 interface), so at least one of the
+> processors (I'm using SMP on an P4 HT processor) is working.  I also
+> enabled NMI and that does not trigger.
 
-Yes, that makes things work.
-Even better than ever before, now an USB mouse and a PS/2 logitech
-trackball work fine both at the same time. In console and in X.
-In previous kernels PS/2 was dead or jumped heavily when an usb mouse
-was plugged. The keyboard works both in PS/2 (with adapter) and in USB.
+This was my bug.  I was holding a lock that was required for receiving a packet
+while calling the hard_start_xmit method.  When an IRQ happened while I was in
+the hard_start_xmit method, the IRQ could not grab the lock, and just sat there
+spinning...
 
-Now a tricky question: the mouse and the trackball move the pointer in X
-at different speeds. Is there any way to tell the kernel they have
-the same DPI ? Or can I tweak the speed/DPI settings for them separately
-to get a more or less similar movement ?
+Thanks,
+Ben
 
-TIA
-
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
-werewolf!able!es                         \         It's better when it's free
-Mandrakelinux release 10.2 (Cooker) for i586
-Linux 2.6.10-jam11 (gcc 3.4.3 (Mandrakelinux 10.2 3.4.3-3mdk)) #1
-
+-- 
+Ben Greear <greearb@candelatech.com>
+Candela Technologies Inc  http://www.candelatech.com
 

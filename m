@@ -1,45 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129040AbQKFLXO>; Mon, 6 Nov 2000 06:23:14 -0500
+	id <S129038AbQKFLhN>; Mon, 6 Nov 2000 06:37:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129144AbQKFLXE>; Mon, 6 Nov 2000 06:23:04 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:54539 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129040AbQKFLW4>;
-	Mon, 6 Nov 2000 06:22:56 -0500
-Message-ID: <3A0693E9.B4677F4E@mandrakesoft.com>
-Date: Mon, 06 Nov 2000 06:20:09 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: David Woodhouse <dwmw2@infradead.org>
-CC: Dan Hollis <goemon@anime.net>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Oliver Xymoron <oxymoron@waste.org>, Keith Owens <kaos@ocs.com.au>,
-        linux-kernel@vger.kernel.org
+	id <S129057AbQKFLhD>; Mon, 6 Nov 2000 06:37:03 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:44365 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129038AbQKFLgq>; Mon, 6 Nov 2000 06:36:46 -0500
 Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page]
-In-Reply-To: <Pine.LNX.4.21.0011060302290.17667-100000@anime.net> <24273.973508761@redhat.com>
+To: jgarzik@mandrakesoft.com (Jeff Garzik)
+Date: Mon, 6 Nov 2000 11:35:35 +0000 (GMT)
+Cc: goemon@anime.net (Dan Hollis), alan@lxorguk.ukuu.org.uk (Alan Cox),
+        dwmw2@infradead.org (David Woodhouse),
+        oxymoron@waste.org (Oliver Xymoron), kaos@ocs.com.au (Keith Owens),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <3A069036.2D64BD96@mandrakesoft.com> from "Jeff Garzik" at Nov 06, 2000 06:04:22 AM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E13skYq-000697-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remember the /dev/mixer and /dev/dsp are separate.
+> > This is why alsa starts up all devices totally muted. Maybe its time for
+> > David to move to alsa ;)
+> 
+> I wouldn't mind leaving devices totally muted until open()...
 
-* Driver initializes mixer to 100% muted
-* Userspace app sets desired values to /dev/mixer
-* Userspace app opens /dev/dsp to play sound
-
-I don't see where any sound can "escape" in this scenario, and it
-doesn't require any module data persistence...
-
-	Jeff
-
-
--- 
-Jeff Garzik             | Dinner is ready when
-Building 1024           | the smoke alarm goes off.
-MandrakeSoft            |	-/usr/games/fortune
+You need to leave the mixer for cd, tv and radio pass through
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

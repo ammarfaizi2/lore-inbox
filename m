@@ -1,38 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261873AbUKQAUO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262131AbUKQAUP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261873AbUKQAUO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 19:20:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262126AbUKQASt
+	id S262131AbUKQAUP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 19:20:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262129AbUKQASl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 19:18:49 -0500
-Received: from pastinakel.tue.nl ([131.155.2.7]:59143 "EHLO pastinakel.tue.nl")
-	by vger.kernel.org with ESMTP id S261873AbUKQARO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 19:17:14 -0500
-Date: Wed, 17 Nov 2004 01:16:50 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Andries Brouwer <aebr@win.tue.nl>, akpm <akpm@osdl.org>, ak@suse.de,
-       lkml <linux-kernel@vger.kernel.org>, greg@kroah.com
-Subject: Re: [PATCH] PCI: fix build errors with CONFIG_PCI=n
-Message-ID: <20041117001650.GC2868@pclin040.win.tue.nl>
-References: <419A8088.3010205@osdl.org> <20041116232600.GB2868@pclin040.win.tue.nl> <419A8EFE.8060508@osdl.org>
+	Tue, 16 Nov 2004 19:18:41 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:1965 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262126AbUKQARW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 19:17:22 -0500
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm1-V0.7.27-3
+From: Lee Revell <rlrevell@joe-job.com>
+To: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
+       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>
+In-Reply-To: <Pine.LNX.4.61.0411161843120.27976@student.dei.uc.pt>
+References: <20041027001542.GA29295@elte.hu> <20041103105840.GA3992@elte.hu>
+	 <20041106155720.GA14950@elte.hu> <20041108091619.GA9897@elte.hu>
+	 <20041108165718.GA7741@elte.hu> <20041109160544.GA28242@elte.hu>
+	 <20041111144414.GA8881@elte.hu> <20041111215122.GA5885@elte.hu>
+	 <20041116125402.GA9258@elte.hu> <20041116130946.GA11053@elte.hu>
+	 <20041116134027.GA13360@elte.hu>
+	 <Pine.LNX.4.61.0411161843120.27976@student.dei.uc.pt>
+Content-Type: text/plain
+Date: Tue, 16 Nov 2004 13:51:37 -0500
+Message-Id: <1100631098.14585.4.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <419A8EFE.8060508@osdl.org>
-User-Agent: Mutt/1.4.2i
-X-Spam-DCC: : 
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 16, 2004 at 03:36:30PM -0800, Randy.Dunlap wrote:
+On Tue, 2004-11-16 at 18:43 +0000, Marcos D. Marado Torres wrote:
+> HTTP request sent, awaiting response... 404 Not Found
+> 18:43:12 ERROR 404: Not Found.
 
-> >  static int __init parport_init_mode_setup(char *str) {
-> 
-> Yes, I'm familiar with that, but I made a patch against current
-> top of tree.
+Usually means a bug was found and Ingo is uploading a new version.
 
-I don't understand. Will you send another patch to fix the prototype?
+Lee
 
-Andries

@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311304AbSCLSbI>; Tue, 12 Mar 2002 13:31:08 -0500
+	id <S311312AbSCLSdT>; Tue, 12 Mar 2002 13:33:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311308AbSCLSat>; Tue, 12 Mar 2002 13:30:49 -0500
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:774 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id <S311304AbSCLSah>; Tue, 12 Mar 2002 13:30:37 -0500
-Subject: Re: [patch] ns83820 0.17
-From: "Trever L. Adams" <tadams-lists@myrealbox.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020312.101713.106542707.davem@redhat.com>
-In-Reply-To: <51A3E836-35A8-11D6-A4A8-000393843900@metaparadigm.com>
-	<20020312.031509.53067416.davem@redhat.com>
-	<1015956757.4220.3.camel@aurora> 
-	<20020312.101713.106542707.davem@redhat.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 12 Mar 2002 13:31:07 -0500
-Message-Id: <1015957871.4220.6.camel@aurora>
-Mime-Version: 1.0
+	id <S311313AbSCLSdA>; Tue, 12 Mar 2002 13:33:00 -0500
+Received: from pcp01314487pcs.hatisb01.ms.comcast.net ([68.63.220.2]:26515
+	"EHLO bacchus.jdhouse.org") by vger.kernel.org with ESMTP
+	id <S311312AbSCLSc5>; Tue, 12 Mar 2002 13:32:57 -0500
+Date: Tue, 12 Mar 2002 12:34:51 -0600 (CST)
+From: "Jonathan A. Davis" <davis@jdhouse.org>
+To: walter <walt@nea-fast.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: oracle rmap kernel version
+In-Reply-To: <177640000.1015956385@flay>
+Message-ID: <Pine.LNX.4.44.0203121229360.19382-100000@bacchus.jdhouse.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-03-12 at 13:17, David S. Miller wrote:
->    From: "Trever L. Adams" <tadams-lists@myrealbox.com>
->    Date: 12 Mar 2002 13:12:32 -0500
->    
->    David, you believe we don't need NAPI.
+On Tue, 12 Mar 2002, Martin J. Bligh wrote:
+
+> > Does anyone have any production experience running Oracle 8i on Linux? I've 
+> > run it at home, RH 7.2 with vanilla 2.4.16 kernel all IDE drives, and its 
+> > fast. We are replacing our SUN/Oracle 8 servers at work in next couple of 
 > 
-> I said we don't need NAPI for just bandwidth streams, you mention
-> routing which is specifically the case I mention that NAPI is good for
-> (high packet rates).
+> The real answer is to try them and do a benchmark for your particular
+> application. Shouldn't take that long .... try the -aa tree too.
 > 
 
-My apologies.  I have been trying to follow the conversation, but came
-in, I believe, quite late.  I only saw the comments about NAPI and
-bandwidth last night.
+I can't speak for -aa, but I can say definitively, DO NOT stay with the
+"stock" kernel for oracle applications.  We're using -rmap here (mostly 9i
+with some 8 scattered around) and performance under moderate and heavy
+load is an order of magnitude better.
 
-Thank you for clear that up.
+-- 
 
-Trever Adams
+-Jonathan <davis@jdhouse.org>
 

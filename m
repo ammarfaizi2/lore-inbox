@@ -1,67 +1,31 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317648AbSFLGtb>; Wed, 12 Jun 2002 02:49:31 -0400
+	id <S317647AbSFLGrw>; Wed, 12 Jun 2002 02:47:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317649AbSFLGta>; Wed, 12 Jun 2002 02:49:30 -0400
-Received: from ip68-3-14-32.ph.ph.cox.net ([68.3.14.32]:46227 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S317648AbSFLGt3>;
-	Wed, 12 Jun 2002 02:49:29 -0400
-Message-ID: <3D06EEF3.3090103@candelatech.com>
-Date: Tue, 11 Jun 2002 23:49:23 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en-us
+	id <S317648AbSFLGrw>; Wed, 12 Jun 2002 02:47:52 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:5892 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S317647AbSFLGrv>; Wed, 12 Jun 2002 02:47:51 -0400
+Subject: Re: bandwidth 'depredation'
+To: marco@esi.it (Marco Colombo)
+Date: Wed, 12 Jun 2002 08:08:49 +0100 (BST)
+Cc: pochini@shiny.it (Giuliano Pochini), raul@pleyades.net (DervishD),
+        linux-kernel@vger.kernel.org (Linux-kernel)
+In-Reply-To: <Pine.LNX.4.44.0206111628280.17534-100000@Megathlon.ESI> from "Marco Colombo" at Jun 11, 2002 04:38:01 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: Pekka Savola <pekkas@netcore.fi>
-CC: Mark Mielke <mark@mark.mielke.cc>, linux-kernel@vger.kernel.org,
-        netdev@oss.sgi.com
-Subject: Re: RFC: per-socket statistics on received/dropped packets
-In-Reply-To: <Pine.LNX.4.44.0206120930160.29780-100000@netcore.fi>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E17I2FN-0006y7-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> But so how is QoS going to change things? It's the output queue of
+> the router on the other side of the ADLS link that needs management
+> (and maybe you need to speak some protocol like RSVP), or am I missing
+> something? How can you control the rate of *incoming* packets per
+> connection / protocol? 
 
-
-Pekka Savola wrote:
-
-> On Tue, 11 Jun 2002, Ben Greear wrote:
-> 
->>If they are useful to some people, and have zero performance affect on others
->>(due to being a configurable kernel feature), then what is your
->>complaint?
->>
-> 
-> 3) Added features and complexity makes it more difficult to maintain the 
-> kernel (you could say this is a variant of 1)
-
-
-Adding counters to structures generally is not going to increase
-complexity (especially when you comment the code).  It would increase
-the code size slightly.
-
-The code to bump the counters should also be extremely simple
-(surely we don't drop packets in more than just a few places).
-
-So, in this case, the increase in complexity seems pretty minimal.
-
-
-> 4) Patches that have only a little debugging/etc. value are probably 
-> useful, but mainly for a specific set of people, and this would seem to be 
-> best handled by external patches.
-
-
-External-only patches almost always rot, and are extremely hard to really
-share across organizations.  Still, point taken.
-
-Thanks,
-Ben
-
--- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
-
-
+For  tcp it works fine. You drop stuff late but it still triggers
+backoffs as needed

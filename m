@@ -1,52 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265230AbUG2PFE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267596AbUG2O46@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265230AbUG2PFE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 11:05:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267996AbUG2PDy
+	id S267596AbUG2O46 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 10:56:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267607AbUG2Oxx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 11:03:54 -0400
-Received: from jade.spiritone.com ([216.99.193.136]:60098 "EHLO
-	jade.spiritone.com") by vger.kernel.org with ESMTP id S265230AbUG2OT5
+	Thu, 29 Jul 2004 10:53:53 -0400
+Received: from styx.suse.cz ([82.119.242.94]:26006 "EHLO shadow.ucw.cz")
+	by vger.kernel.org with ESMTP id S264946AbUG2OIL convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 10:19:57 -0400
-Date: Thu, 29 Jul 2004 07:18:23 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>, Andrew Morton <akpm@osdl.org>
-cc: suparna@in.ibm.com, fastboot@osdl.org, jbarnes@engr.sgi.com,
-       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [Fastboot] Re: Announce: dumpfs v0.01 - common RAS output API
-Message-ID: <138620000.1091110702@[10.10.2.4]>
-In-Reply-To: <m1u0vr4luo.fsf@ebiederm.dsl.xmission.com>
-References: <16734.1090513167@ocs3.ocs.com.au><20040725235705.57b804cc.akpm@osdl.org><m1r7qw7v9e.fsf@ebiederm.dsl.xmission.com><200407280903.37860.jbarnes@engr.sgi.com> <25870000.1091042619@flay><m14qnr7u7b.fsf@ebiederm.dsl.xmission.com><20040728133337.06eb0fca.akpm@osdl.org><1091044742.31698.3.camel@localhost.localdomain><m1llh367s4.fsf@ebiederm.dsl.xmission.com><20040728164457.732c2f1d.akpm@osdl.org><m1d62f6351.fsf@ebiederm.dsl.xmission.com><20040728180954.1f2baed9.akpm@osdl.org> <m1u0vr4luo.fsf@ebiederm.dsl.xmission.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Thu, 29 Jul 2004 10:08:11 -0400
+To: torvalds@osdl.org, vojtech@suse.cz, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Subject: [PATCH 27/47] Fix array overflows in keyboard.c when KEY_MAX > keycode > NR_KEYS > 128
+Content-Transfer-Encoding: 7BIT
+Date: Thu, 29 Jul 2004 16:09:55 +0200
+X-Mailer: gregkh_patchbomb_levon_offspring
+In-Reply-To: <10911101952172@twilight.ucw.cz>
+From: Vojtech Pavlik <vojtech@suse.cz>
+Message-Id: <1091110195551@twilight.ucw.cz>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Well if calling shutdown is not really usable, then I we had better
-> transition quickly beyond using it...
->  
->> [*] At least, I _assume_ the 16MB will be prereserved,
->>     physically-contiguous and wholly within ZONE_NORMAL.  Is this wrong?
-> 
-> The problem is that we really won't be using it for running code out
-> of because of i386 kernel limitations.  Unless someone can tell
-> my why 0 -16MB won't have DMA traffic in them.  Or how to run a kernel
-> at an address other than 1MB.
-> 
-> I suspect we can play with the initial page tables and how virtual
-> addresses map to physical addresses and fairly simply generate a
-> relocatable kernel.  I have not had a chance to investigate that
-> though.  Once we have that it will be trivial to run out of the
-> reserved 16M and many of the practical problems melt away.
+You can pull this changeset from:
+	bk://kernel.bkbits.net/vojtech/input
 
-IIRC, what Adam did is to relocate the bottom 16MB of mem into the
-reserved buffer and execute into the bottom 16MB. Yes, that probably does
-leave some DMA issues that we should fix up as you suggest above, but I
-think it's good enough for a first pass at the problem.
+===================================================================
 
-M.
+ChangeSet@1.1722.148.14, 2004-06-23 08:06:20+02:00, vojtech@suse.cz
+  input: Fix array overflows in keyboard.c when KEY_MAX > keycode > NR_KEYS > 128.
+  
+  Signed-off-by: Vojtech Pavlik <vojtech@suse.cz>
+
+
+ keyboard.c |    7 +++++--
+ 1 files changed, 5 insertions(+), 2 deletions(-)
+
+===================================================================
+
+diff -Nru a/drivers/char/keyboard.c b/drivers/char/keyboard.c
+--- a/drivers/char/keyboard.c	Thu Jul 29 14:40:08 2004
++++ b/drivers/char/keyboard.c	Thu Jul 29 14:40:08 2004
+@@ -124,7 +124,7 @@
+  */
+ 
+ static struct input_handler kbd_handler;
+-static unsigned long key_down[256/BITS_PER_LONG];	/* keyboard key bitmap */
++static unsigned long key_down[NBITS(KEY_MAX)];		/* keyboard key bitmap */
+ static unsigned char shift_down[NR_SHIFT];		/* shift state counters.. */
+ static int dead_key_next;
+ static int npadch = -1;					/* -1 or number assembled on pad */
+@@ -143,7 +143,7 @@
+ /* Simple translation table for the SysRq keys */
+ 
+ #ifdef CONFIG_MAGIC_SYSRQ
+-unsigned char kbd_sysrq_xlate[128] =
++unsigned char kbd_sysrq_xlate[KEY_MAX] =
+         "\000\0331234567890-=\177\t"                    /* 0x00 - 0x0f */
+         "qwertyuiop[]\r\000as"                          /* 0x10 - 0x1f */
+         "dfghjkl;'`\000\\zxcv"                          /* 0x20 - 0x2f */
+@@ -1132,6 +1132,9 @@
+ 		kbd->slockstate = 0;
+ 		return;
+ 	}
++
++	if (keycode > NR_KEYS)
++		return;
+ 
+ 	keysym = key_map[keycode];
+ 	type = KTYP(keysym);
 

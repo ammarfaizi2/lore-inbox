@@ -1,89 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129401AbRAUVHs>; Sun, 21 Jan 2001 16:07:48 -0500
+	id <S129944AbRAUVLV>; Sun, 21 Jan 2001 16:11:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129532AbRAUVHi>; Sun, 21 Jan 2001 16:07:38 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:19729 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129401AbRAUVHX>; Sun, 21 Jan 2001 16:07:23 -0500
-Date: Sun, 21 Jan 2001 16:07:11 -0500 (EST)
-From: "Mike A. Harris" <mharris@opensourceadvocate.org>
-X-X-Sender: <mharris@asdf.capslock.lan>
-To: Urban Widmark <urban@teststation.com>
-cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: more via-rhine problems.
-In-Reply-To: <Pine.LNX.4.30.0101211909030.11993-100000@cola.teststation.com>
-Message-ID: <Pine.LNX.4.32.0101211602440.7610-100000@asdf.capslock.lan>
-X-Unexpected-Header: The Spanish Inquisition
-Copyright: Copyright 2001 by Mike A. Harris - All rights reserved
+	id <S129999AbRAUVLN>; Sun, 21 Jan 2001 16:11:13 -0500
+Received: from rhdv.cistron.nl ([195.64.71.178]:5897 "EHLO rhdv.cistron.nl")
+	by vger.kernel.org with ESMTP id <S129944AbRAUVLA>;
+	Sun, 21 Jan 2001 16:11:00 -0500
+Date: Sun, 21 Jan 2001 23:06:45 +0200
+From: "Robert H. de Vries" <rhdv@rhdv.cistron.nl>
+To: "Linus Torvalds" <torvalds@transmeta.com>
+Subject: [ANN] POSIX timer patch for 2.4.0
+Message-ID: <Pine.LNX.4.21.0007231135020.1019-100000@rhdv.cistron.nl>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+X-Loop: majordomo@vger.rutgers.edu
+X-Mailer: KMail [version 1.1.99]
+Cc: "Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 21 Jan 2001, Urban Widmark wrote:
+Hi Linus,
 
->> I now believe that it is indeed caused by booting to windows 98
->> (by accident).  ;o)
->
->Don't do that then :)
+This patch adds the POSIX timer system calls to the kernel.
 
-That is a completely sane solution indeed.  ;o)  Unfortunately, I
-have to do so occasionally.  Not often thankfully.  ;o)
+The patch has been in a stable state for some time now.
+It has been tested on intel hardware only (SMP and UP).
+It also has been in use by myself and some other people for a year or so, 
+which gives me some confidence that there are no bugs left.
 
+As this patch does not influence other kernel code, it is my opinion that it 
+is safe to add. So please feel free to add this to the mainstream kernel 
+distribution. Comments are also welcome.
 
->> Doesn't matter if a driver is installed in win or not as I've
->> tried both.  Just booting win at all causes the card to go
->> berzerk next boot.  Must be something missing from the card init
->> code that should be resetting something on the card at init time,
->> but which is set by default on power on.
->
->I can't reproduce this, but I only have a 1106:3043 (DFE-530TX revA1) and
->tested this on a rather old P133.
+The kernel patch and auxiliary code can be found on my web
+page: http://www.rhdv.cistron.nl/posix.html as the patch is largish (70 kB).
+The direct link to the patch is http://www.rhdv.cistron.nl/2.4.0.timer.patch
 
-00:07.3 Class 0600: 1106:3050 (rev 30)
-        Flags: medium devsel
+	Robert
 
-00:12.0 Class 0200: 1106:3065 (rev 42)
-        Subsystem: 1186:1400
-        Flags: bus master, medium devsel, latency 32, IRQ 10
-        I/O ports at e800
-        Memory at e7000000 (32-bit, non-prefetchable)
-        Expansion ROM at e6000000 [disabled]
-        Capabilities: [40] Power Management version 2
-
-
->I tested 2.2.19pre and not 2.2.18+becker1.08, the biggest difference is
->the detection code so maybe that could be worth trying. 2.4 is again a
->little bit different ...
->
->You could try playing with bios settings. And dumping register contents
->from a working and non-working setup, for example:
->
->% via-diag -aaeemm
->  (ftp://ftp.scyld.com/pub/diag/via-diag.c)
-
-I'll do that if I find time...
-
-
->% lspci -vvxxx -d 1106:3065
->
->Maybe CONFIG_PCI_QUIRKS helps?
-
-2 root@asdf:/home/mharris# grep CONFIG_PCI_QUIRKS /boot/K6-2.2.18-1NSRI
-CONFIG_PCI_QUIRKS=y
-
-Already there.  ;o)
-
-
-
-----------------------------------------------------------------------
-    Mike A. Harris  -  Linux advocate  -  Free Software advocate
-          This message is copyright 2001, all rights reserved.
-  Views expressed are my own, not necessarily shared by my employer.
-----------------------------------------------------------------------
-VMS is a text-only adventure game. If you win you can use unix.
-
+-- 
+Robert de Vries
+rhdv@rhdv.cistron.nl
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

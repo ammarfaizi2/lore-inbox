@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264505AbTIIVhZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 17:37:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264513AbTIIVhZ
+	id S264464AbTIIVXb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 17:23:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264488AbTIIVXa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 17:37:25 -0400
-Received: from fw.osdl.org ([65.172.181.6]:24791 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264505AbTIIVhV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 17:37:21 -0400
-Date: Tue, 9 Sep 2003 14:36:56 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>, intermezzo-devel@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Get rid of Intermezzo warning
-Message-Id: <20030909143656.47978506.shemminger@osdl.org>
-Organization: Open Source Development Lab
-X-Mailer: Sylpheed version 0.9.4claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
- /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
+	Tue, 9 Sep 2003 17:23:30 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:65297 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264464AbTIIVUY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 17:20:24 -0400
+Date: Tue, 9 Sep 2003 22:20:19 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Patrick Mochel <mochel@osdl.org>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Power: call save_state on PCI devices along with suspend
+Message-ID: <20030909222019.T4216@flint.arm.linux.org.uk>
+Mail-Followup-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	Patrick Mochel <mochel@osdl.org>,
+	linux-kernel mailing list <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0309091354471.695-100000@cherise> <1063141771.639.53.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1063141771.639.53.camel@gaston>; from benh@kernel.crashing.org on Tue, Sep 09, 2003 at 11:09:32PM +0200
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2.6.0-test5 there is a leftover MOD_ warning in intermezzo,  since it sets
-owner on the file system operations there should be no need for explicit
-module manipulation.
+On Tue, Sep 09, 2003 at 11:09:32PM +0200, Benjamin Herrenschmidt wrote:
+> On Tue, 2003-09-09 at 23:04, Patrick Mochel wrote:
+> > ->save_state()? From a quick look, it looks like: 
+> > 4. drivers/serial/8250_pci.c
 
-diff -Nru a/fs/intermezzo/inode.c b/fs/intermezzo/inode.c
---- a/fs/intermezzo/inode.c	Tue Sep  9 11:21:57 2003
-+++ b/fs/intermezzo/inode.c	Tue Sep  9 11:21:57 2003
-@@ -167,7 +167,6 @@
- exit:
-         CDEBUG(D_MALLOC, "after umount: kmem %ld, vmem %ld\n",
-                presto_kmemory, presto_vmemory);
--        MOD_DEC_USE_COUNT;
-         return ;
- }
- 
+This doesn't use save_state anymore.
+
+-- 
+Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
+Linux kernel maintainer of:
+  2.6 ARM Linux   - http://www.arm.linux.org.uk/
+  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+  2.6 Serial core

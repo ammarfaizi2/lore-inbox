@@ -1,59 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261318AbUK1WkM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261598AbUK1WoU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261318AbUK1WkM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Nov 2004 17:40:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261156AbUK1WkL
+	id S261598AbUK1WoU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Nov 2004 17:44:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261603AbUK1WoT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Nov 2004 17:40:11 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:31670 "HELO
+	Sun, 28 Nov 2004 17:44:19 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:12471 "HELO
 	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S261318AbUK1Wid (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Nov 2004 17:38:33 -0500
-Subject: Re: Suspend 2 merge
+	id S261598AbUK1Wmz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Nov 2004 17:42:55 -0500
+Subject: Re: Suspend 2 merge: 35/51: Code always built in to the kernel.
 From: Nigel Cunningham <ncunningham@linuxmail.org>
 Reply-To: ncunningham@linuxmail.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       hugang@soulinfo.com, Andrew Morton <akpm@zip.com.au>
-In-Reply-To: <20041126123847.GD1028@elf.ucw.cz>
+To: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
+Cc: Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <E1CXsB9-00022M-00@chiark.greenend.org.uk>
 References: <1101292194.5805.180.camel@desktop.cunninghams>
-	 <20041124132839.GA13145@infradead.org>
-	 <1101329104.3425.40.camel@desktop.cunninghams>
-	 <20041125192016.GA1302@elf.ucw.cz>
-	 <1101422088.27250.93.camel@desktop.cunninghams>
-	 <20041125232200.GG2711@elf.ucw.cz>
-	 <1101426416.27250.147.camel@desktop.cunninghams>
-	 <20041126003944.GR2711@elf.ucw.cz>
-	 <1101455756.4343.106.camel@desktop.cunninghams>
-	 <20041126123847.GD1028@elf.ucw.cz>
+	 <1101298112.5805.330.camel@desktop.cunninghams>
+	 <20041125233243.GB2909@elf.ucw.cz> <20041125233243.GB2909@elf.ucw.cz>
+	 <1101427035.27250.161.camel@desktop.cunninghams>
+	 <E1CXsB9-00022M-00@chiark.greenend.org.uk>
 Content-Type: text/plain
-Message-Id: <1101680972.4343.300.camel@desktop.cunninghams>
+Message-Id: <1101681564.4343.307.camel@desktop.cunninghams>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Mon, 29 Nov 2004 09:35:03 +1100
+Date: Mon, 29 Nov 2004 09:39:25 +1100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Hi Matthew.
 
-On Fri, 2004-11-26 at 23:38, Pavel Machek wrote:
-> My machine suspends in 7 seconds, and that's swsusp1. According to
-> your numbers, suspend2 should suspend it in 1 second and LZE
-> compressed should be .5 second.
+On Sat, 2004-11-27 at 13:19, Matthew Garrett wrote:
+> We have userspace to do this, surely? Make the standard method of
+> triggering resume involve an initrd, and have a small application that
+> does sanity checks before the resume. In case of failure, have it prompt
+> the user. As long as it doesn't do bad things to the filesystem,
+> there's no danger. There's no reason to do this in the kernel.
 
-Seven seconds? How much memory is in use when you start, and how much is
-actually written to disk? If you're starting with 1GB of RAM in use,
-I'll sit up and listen, but I suspect you're talking about something
-closer to 20MB and init S :>
+It was originally done in kernel space prior to us having initrd
+support, as a small extension on what was already there. I don't see a
+good reason to move it to working from an initrd because:
 
-These discussions are getting really unreasonable. "I don't want that
-feature, therefore it shouldn't be merged" isn't a valid argument.
-Neither is "Well, I can suspend in seven seconds with hardly any memory
-in use." If you just don't want suspend2 in the kernel, come out and say
-it. But please, stop giving me lame arguments (more below deleted rather
-than replied to).
+1) We're then assuming that everyone uses an initrd/initramfs, which is
+not true
+2) We need to provide a way for this userspace program to obtain from
+the kernel the signature of the image and information about what we want
+the signature to look like. It will also then need to be able to tell
+the kernel to delete the image.
+3) If you want the userspace program to actually read the signature
+itself, the kernel still needs to tell the userspace program where to
+find that signature (what device, block and blocksize). That device
+can't be mounted/swapon'd to do this; it needs to be a raw read.
+4) This whole method means there's even more code to maintain!
+
+Regards,
 
 Nigel
 -- 

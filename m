@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261672AbTCQAXM>; Sun, 16 Mar 2003 19:23:12 -0500
+	id <S261674AbTCQAdu>; Sun, 16 Mar 2003 19:33:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261674AbTCQAXM>; Sun, 16 Mar 2003 19:23:12 -0500
-Received: from cpe-24-221-186-48.ca.sprintbbd.net ([24.221.186.48]:270 "HELO
-	jose.vato.org") by vger.kernel.org with SMTP id <S261672AbTCQAXL>;
-	Sun, 16 Mar 2003 19:23:11 -0500
-From: "Tim Pepper" <tpepper@vato.org>
-Date: Sun, 16 Mar 2003 16:33:58 -0800
-To: Thomas Hood <jdthood0@yahoo.co.uk>
-Cc: linux-kernel@vger.kernel.org, achirica@users.sourceforge.net
-Subject: Re: Cisco Aironet 340 oops with 2.4.20
-Message-ID: <20030316163358.A25887@jose.vato.org>
-Mail-Followup-To: Tim Pepper <tpepper>, Thomas Hood <jdthood0@yahoo.co.uk>,
-	linux-kernel@vger.kernel.org, achirica@users.sourceforge.net
-References: <1047751880.4798.4.camel@thanatos>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1047751880.4798.4.camel@thanatos>; from jdthood0@yahoo.co.uk on Sat, Mar 15, 2003 at 07:11:20PM +0100
-X-PGP-Key: http://vato.org/~tpepper/pubkey.asc
+	id <S261685AbTCQAdu>; Sun, 16 Mar 2003 19:33:50 -0500
+Received: from falcon.mail.pas.earthlink.net ([207.217.120.74]:57019 "EHLO
+	falcon.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S261674AbTCQAdt>; Sun, 16 Mar 2003 19:33:49 -0500
+Date: Sun, 16 Mar 2003 16:44:20 -0800 (PST)
+From: Tim Smith <tzs@tzs.net>
+To: "'kernel list'" <linux-kernel@vger.kernel.org>
+Subject: Re: Never ever send Pavel private mail unless you want him to publish
+ it.
+In-Reply-To: <078701c2ec1a$6e98aec0$294b82ce@connecttech.com>
+Message-ID: <Pine.LNX.4.44.0303161634260.26056-100000@tzs.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've got a caveat to my previously posted 'works for me'.  Before I'd
-notice that my net connection was no longer moving and then see the oops
-in my log if I looked.	With the cvs driver I still tend to see that my
-net connection dies sometimes, but no oops.  I've found hotplugging the pcmcia
-card brings it back to life.
+On Sun, 16 Mar 2003, Stuart MacDonald wrote:
+> I'm under the impression that postcards do not carry an expectation of
+> privacy due to their readability during transmission. I'd expect that
+> email would be found to have the similar lack of expectation were it
+> to be tested in court.
 
-It seems like I hit this with either driver primarily if I've put my
-laptop to sleep earlier in its current uptime.  Is there possibly a
-deadlock somewhere around the previously oopsing code and/or the airo_cs
-interaction with apm?
+That would cover disclosing information from email, but it wouldn't cover
+publishing copies of email.  The general opinion from lawyers and law
+students, when this has been discussed on misc.legal, has been that email
+would be treated similarly to regular mail.  So, copying the entire thing to
+a mailing list or usenet would probably be a copyright violation.  Quoting
+parts of it as part of an argument would probably be fair use.
 
-t.
--- 
-*********************************************************
-*  tpepper@vato dot org             * Venimus, Vidimus, *
-*  http://www.vato.org/~tpepper     * Dolavimus         *
-*********************************************************
+It's almost always considered extremely rude to unilaterally take a private
+argument public, which should be enough to stop civilized people, regardless
+of the legal issues.
+
+--Tim Smith
+

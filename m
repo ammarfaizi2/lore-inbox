@@ -1,55 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262460AbTIHPZH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 11:25:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262491AbTIHPZH
+	id S262423AbTIHPdd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 11:33:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262499AbTIHPcQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 11:25:07 -0400
-Received: from madrid10.amenworld.com ([217.174.194.138]:20494 "EHLO
-	madrid10.amenworld.com") by vger.kernel.org with ESMTP
-	id S262460AbTIHPZD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 11:25:03 -0400
-Date: Mon, 8 Sep 2003 17:25:51 +0200
-From: DervishD <raul@pleyades.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Dave Jones <davej@redhat.com>, Ch & Ph Drapela <pcdrap@bluewin.ch>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Hardware supported by the kernel
-Message-ID: <20030908152551.GB12162@DervishD>
-References: <3F59DF81.8000407@bluewin.ch> <20030906134029.GE69@DervishD> <20030907223258.GE28927@redhat.com> <20030908092952.GA51@DervishD> <20030908095357.GD10358@redhat.com> <1063026380.21084.24.camel@dhcp23.swansea.linux.org.uk> <20030908145617.GF11936@DervishD> <1063033858.21084.51.camel@dhcp23.swansea.linux.org.uk>
+	Mon, 8 Sep 2003 11:32:16 -0400
+Received: from fed1mtao03.cox.net ([68.6.19.242]:43221 "EHLO
+	fed1mtao03.cox.net") by vger.kernel.org with ESMTP id S262423AbTIHPb7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 11:31:59 -0400
+Date: Mon, 8 Sep 2003 08:26:22 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Robert Schwebel <robert@schwebel.de>
+Cc: Adrian Bunk <bunk@fs.tum.de>, linux-kernel@vger.kernel.org,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       Russell King <rmk@arm.linux.org.uk>
+Subject: Re: RFC: [2.6 patch] better i386 CPU selection
+Message-ID: <20030908152622.GB836@ip68-0-152-218.tc.ph.cox.net>
+References: <20030907112813.GQ14436@fs.tum.de> <20030907124251.GC5460@pengutronix.de> <20030907130034.GT14436@fs.tum.de> <20030907131443.GD5460@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1063033858.21084.51.camel@dhcp23.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
-Organization: Pleyades
-User-Agent: Mutt/1.4i <http://www.mutt.org>
+In-Reply-To: <20030907131443.GD5460@pengutronix.de>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Alan :)
+On Sun, Sep 07, 2003 at 03:14:43PM +0200, Robert Schwebel wrote:
 
- * Alan Cox <alan@lxorguk.ukuu.org.uk> dixit:
-> > > Trident - documentation is public, nobody has tackled a driver
-> >     Trident cards are still sold? Here in Spain is difficult to get
-> > one (except a second-hand maybe).
-> Trident appears in the EPIA (but not EPIA-M) onboard video for one. So
-> its still around as an embedded item.
+> On Sun, Sep 07, 2003 at 03:00:34PM +0200, Adrian Bunk wrote:
+> > I didn't look at the ARM Makefile. Thanks for the note, I'll have a
+> > look at it before I'll do the revision of this patch.
+> 
+> You should definitely discuss this with rmk. How do the PPC folks handle
+> CPU selection? 
 
-    Oh, yes, I didn't remember that, thanks :))
-
-> >     I tested the 810 a time ago. It was not slow (2D at least, didn't
-> > check 3D), but it was buggy (even in Windows, so Linux drivers
-> > weren't blame of this).
-> With XFree 4.3 810 seems pretty solid 2D/3D nowdays, and the later stuff
-> 830/845/... is also a fair bit faster.
-
-    Well, then that another candidate. Thanks a lot for the info. How
-goes your Welsh ;))?
-
-    Raúl Núñez de Arenas Coronado
+We don't allow for one kernel to work on something outside of a
+'family', nor do we (aside from MULTIPLATFORM) allow a kernel to work on
+> 1 board type (maybe we'll fix that in 2.7).  You can pick 8xx
+(MPC8xx line), 8260 (MPC826x/MPC827x, and should be fixed up to into
+classic), 6xx/7xx/74xx (aka 'classic' PPC, 40x and 44x.
 
 -- 
-Linux Registered User 88736
-http://www.pleyades.net & http://raul.pleyades.net/
+Tom Rini
+http://gate.crashing.org/~trini/

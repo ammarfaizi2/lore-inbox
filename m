@@ -1,33 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282118AbRLDGKq>; Tue, 4 Dec 2001 01:10:46 -0500
+	id <S282147AbRLDGRS>; Tue, 4 Dec 2001 01:17:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282111AbRLDGKg>; Tue, 4 Dec 2001 01:10:36 -0500
-Received: from cx879306-a.pv1.ca.home.com ([24.5.157.48]:56828 "EHLO
-	siamese.dhis.twinsun.com") by vger.kernel.org with ESMTP
-	id <S282109AbRLDGKS>; Tue, 4 Dec 2001 01:10:18 -0500
-From: junio@siamese.dhis.twinsun.com
-To: erik.tews@gmx.net (Erik Tews)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Strange messages with 2.4.16
-In-Reply-To: <20011203233612.J11967@no-maam.dyndns.org>
-Date: 03 Dec 2001 22:10:13 -0800
-In-Reply-To: <20011203233612.J11967@no-maam.dyndns.org>
-Message-ID: <7vlmgjcy7u.fsf@siamese.dhis.twinsun.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+	id <S282165AbRLDGRI>; Tue, 4 Dec 2001 01:17:08 -0500
+Received: from smtpsrv1.isis.unc.edu ([152.2.1.138]:26023 "EHLO
+	smtpsrv1.isis.unc.edu") by vger.kernel.org with ESMTP
+	id <S282147AbRLDGQ6>; Tue, 4 Dec 2001 01:16:58 -0500
+Date: Tue, 4 Dec 2001 01:16:55 -0500 (EST)
+From: "Daniel T. Chen" <crimsun@email.unc.edu>
+To: safemode <safemode@speakeasy.net>
+cc: real <haxmail@subdimension.com>, linux-kernel@vger.kernel.org
+Subject: Re: Compilation error with Kernels 2.4.16 && 2.5.X
+In-Reply-To: <1007442642.5959.1.camel@psuedomode>
+Message-ID: <Pine.A41.4.21L1.0112040113310.59820-100000@login3.isis.unc.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Erik" == Erik Tews <erik.tews@gmx.net> writes:
+Upon further investigation this is related to the specific version of
+binutils used in linking the kernel after compilation. Please see
+http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=122179&repeatmerged=yes
+for more details. Additionally, not all kernel .configs will trigger
+it. The USB segment is definitely in a common point, though. 2.2 kernels
+don't seem to exhibit it; but any 2.4 with certain .configs will.
 
-Erik> invalidate: busy buffer
+---
+Dan Chen                 crimsun@email.unc.edu
+GPG key: www.cs.unc.edu/~chenda/pubkey.gpg.asc
 
-Erik> ... What do they want to
-Erik> tell me? Has anybody else seen this messages?
+On 4 Dec 2001, safemode wrote:
 
-I see them during shutdown (or reboot); a quick grep shows that
-they are coming from fs/buffer.c: invalidate_bdev().  My kernel
-is with RAID-1, and without lvm.
+> On Mon, 2001-12-03 at 09:54, real wrote:
+> > drivers/char/char.o(.data+0x46b4): undefined reference to `local symbols 
+> > in discarded section .text.exit'
+> > drivers/net/net.o(.data+0xbb4): undefined reference to `local symbols in 
+> > discarded section .text.exit'
+> > drivers/sound/sounddrivers.o(.data+0xb4): undefined reference to `local 
+> > symbols in discarded section .text.exit'
+> > drivers/usb/usbdrv.o(.data+0x234): undefined reference to `local symbols 
+> > in discarded section .text.exit'
+> > make: *** [vmlinux] Error 1
+> 
+> Same here.  How many other people are finding this to be a problem?   
+> same problem with 2.4.17-pre2  
 

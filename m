@@ -1,66 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282101AbRK1Jch>; Wed, 28 Nov 2001 04:32:37 -0500
+	id <S282109AbRK1Jj1>; Wed, 28 Nov 2001 04:39:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282100AbRK1Jc1>; Wed, 28 Nov 2001 04:32:27 -0500
-Received: from [195.66.192.167] ([195.66.192.167]:8719 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S282093AbRK1JcQ>; Wed, 28 Nov 2001 04:32:16 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Andreas Dilger <adilger@turbolabs.com>
-Subject: Re: [BUG] Bad #define, nonportable C, missing {}
-Date: Wed, 28 Nov 2001 11:19:32 -0200
-X-Mailer: KMail [version 1.2]
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Mathijs Mohlmann <mathijs@knoware.nl>,
-        Jan Hudec <bulb@ucw.cz>, linux-kernel@vger.kernel.org
-In-Reply-To: <E168SMG-0006k2-00@the-village.bc.nu> <01112716035401.00872@manta> <20011127113830.E730@lynx.no>
-In-Reply-To: <20011127113830.E730@lynx.no>
+	id <S282093AbRK1JjR>; Wed, 28 Nov 2001 04:39:17 -0500
+Received: from mout01.kundenserver.de ([195.20.224.132]:59410 "EHLO
+	mout01.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S282108AbRK1JjE> convert rfc822-to-8bit; Wed, 28 Nov 2001 04:39:04 -0500
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Christian =?iso-8859-1?q?Borntr=E4ger?= 
+	<linux-kernel@borntraeger.net>
+To: "Wouter van Bommel" <wvanbommel@jasongeo.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Still problems with memory allocations
+Date: Wed, 28 Nov 2001 10:32:42 +0100
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <002001c177ef$356f4be0$950000c0@jason.nl>
+In-Reply-To: <002001c177ef$356f4be0$950000c0@jason.nl>
 MIME-Version: 1.0
-Message-Id: <01112811193201.00924@manta>
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 8BIT
+Message-Id: <E16916C-0002Do-00@mrvdom00.schlund.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 27 November 2001 16:38, Andreas Dilger wrote:
-> On Nov 27, 2001  16:03 -0200, vda wrote:
-> > On Monday 26 November 2001 18:28, Alan Cox wrote:
-> > > Nothing to do with me 8). I didnt write that bit of the i2o code. I
-> > > agree its both confusing and buggy. Send a fix ?
-> >
-> > This is a test to be sure my replacement is equivalent:
-> > --------------------
-> > #include <stdio.h>
-> > #define MODINC(x,y) (x = x++ % y)
-> > #define MODULO_INC(x,y) ((x) = ((x)%(y))+1)
+> X, but looks stable with the new kernel 2.4.10, however I ocassionally see
+> the following message:
 >
-> Ugh, clearly the code is broken, so we don't want equivalent code, but
-> correct code.  Use the unambiguous "MODINC(x,y) ((x) = ((x) + 1) % (y))"
-> form and not "have a bug that has properly defined behaviour under ANSI C".
->
-> Just looking at the code, it is fairly clear that the desire is to keep
-> q_in and q_out >= 0 and < I20_EVT_Q_LEN, which is the size of the event_q
-> array.  With the buggy version, it is possible that you could have q_in or
-> q_out == I2O_EVT_Q_LEN, which is overflowing the array.  Bad, bad, bad.
+> __alloc_pages: 0-order allocation failed
 
-You probably right. I know nothing about what it is intended to do, I just
-replaced ugly named nonportable macro with the better named portable one
-which is doing the same thing.
+2.4.10 was the first Kernel with a new VM. The problem is known and hopefully 
+solved in later kernels. Unfortunately there is no update from SuSE. They are 
+responsible if you want a full SuSE-like kernel. If you don't bother try 
+2.4.13 or 2.4.16 from kernel.org.
+Don' t use 2.4.15. 
 
-If you are confident old macro was also buggy (it yields 1,2,3...N,1,2,3... 
-and should 0,1,2,...N-1,0,1,2...) please feel free to post corrected patch.
-(I suggest changing macro name too as I did)
---
-vda
+greetings
 
-> --- i2o_config.c.new	Mon Oct 22 13:39:56 2001
-> +++ i2o_config.c.orig	Tue Nov 27 16:03:19 2001
-> @@ -45,7 +45,7 @@
->  static spinlock_t i2o_config_lock = SPIN_LOCK_UNLOCKED;
->  struct wait_queue *i2o_wait_queue;
->
-> -#define MODINC(x,y) (x = x++ % y)
-> +#define MODINC(x,y) ((x) = ((x) + 1) % (y))
->
->  struct i2o_cfg_info
->  {
+Christian Bornträger

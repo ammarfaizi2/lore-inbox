@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265754AbUA0Tn0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 14:43:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265755AbUA0Tn0
+	id S265627AbUA0Tta (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 14:49:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265595AbUA0Tta
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 14:43:26 -0500
-Received: from ns.suse.de ([195.135.220.2]:56515 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S265754AbUA0TnJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 14:43:09 -0500
-Date: Tue, 27 Jan 2004 20:43:05 +0100
-From: Andi Kleen <ak@suse.de>
-To: jim.houston@comcast.net
-Cc: akpm@osdl.org, george@mvista.com, amitkale@emsyssoft.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] kgdb-x86_64-support.patch for 2.6.2-rc1-mm3
-Message-Id: <20040127204305.15629474.ak@suse.de>
-In-Reply-To: <1075232116.1020.326.camel@new.localdomain>
-References: <20040127030529.8F860C60FC@h00e098094f32.ne.client2.attbi.com>
-	<20040127155619.7efec284.ak@suse.de>
-	<1075225399.1020.239.camel@new.localdomain>
-	<20040127190251.4edb873d.ak@suse.de>
-	<1075232116.1020.326.camel@new.localdomain>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 27 Jan 2004 14:49:30 -0500
+Received: from delerium.kernelslacker.org ([81.187.208.145]:13271 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S265784AbUA0Tso (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jan 2004 14:48:44 -0500
+Date: Tue, 27 Jan 2004 19:46:20 +0000
+From: Dave Jones <davej@redhat.com>
+To: Tom Rini <trini@kernel.crashing.org>, akpm@osdl.org, george@mvista.com,
+       amitkale@emsyssoft.com, Andi Kleen <ak@suse.de>,
+       jim.houston@comcast.net,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: BitKeeper repo for KGDB
+Message-ID: <20040127194620.GW29296@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Tom Rini <trini@kernel.crashing.org>, akpm@osdl.org,
+	george@mvista.com, amitkale@emsyssoft.com, Andi Kleen <ak@suse.de>,
+	jim.houston@comcast.net,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20040127184029.GI32525@stop.crashing.org> <20040127193149.GA2023@mars.ravnborg.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040127193149.GA2023@mars.ravnborg.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 27 Jan 2004 14:35:17 -0500
-Jim Houston <jim.houston@comcast.net> wrote:
+On Tue, Jan 27, 2004 at 08:31:49PM +0100, Sam Ravnborg wrote:
+ > On Tue, Jan 27, 2004 at 11:40:29AM -0700, Tom Rini wrote:
+ > > 
+ > > [1]: If anyone here won't / can't use BitKeeper, I'll happily move over
+ > > to a repo someone else sets up in something else.
+ > 
+ > Or you could ask Dave Jones if he can take nightly snapshots - as
+ > he does for sparse and udev.
 
+Hmm, reminds me, the scripts to make those snapshots broke when I migrated to
+the new box. I'll go fix them up.  But yeah, sure. If you want me to
+add them to the snapshot list, just mail me the bk: url and I'll
+add it.
 
-> I was looking for a way to get the old behavior where the 
-> the effect was controlled by an OR of the two options.
-
-
-Hmm, probably something like (untested):
-
-config DEBUG_INFO
-	bool "Compile kernel with debug information"
-	default y if KGDB
-	help
-		bla bla bla 
-
-I have no strong preference to either way.
-
--Andi
-
+		Dave
 

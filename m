@@ -1,94 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291401AbSDEA2K>; Thu, 4 Apr 2002 19:28:10 -0500
+	id <S292229AbSDEAlF>; Thu, 4 Apr 2002 19:41:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292229AbSDEA2A>; Thu, 4 Apr 2002 19:28:00 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:48388 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S291401AbSDEA1z>; Thu, 4 Apr 2002 19:27:55 -0500
-Message-ID: <3CACEF18.CE742314@zip.com.au>
-Date: Thu, 04 Apr 2002 16:26:00 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
+	id <S292588AbSDEAkz>; Thu, 4 Apr 2002 19:40:55 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:21134 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S292229AbSDEAks>; Thu, 4 Apr 2002 19:40:48 -0500
+Message-ID: <3CACF1FF.2000508@us.ibm.com>
+Date: Thu, 04 Apr 2002 16:38:23 -0800
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: joeja@mindspring.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: faster boots?
-In-Reply-To: <Springmail.0994.1017964447.0.72656900@webmail.atl.earthlink.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: Romain Lievin <roms@lpg.ticalc.org>, Julien BLACHE <jb@technologeek.org>
+CC: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: BKL in tiglusb release function
+Content-Type: multipart/mixed;
+ boundary="------------030707070207000702040005"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-joeja@mindspring.com wrote:
-> 
-> Hello,
->     Is there some way of making the linux kernel boot faster?
-> 
+This is a multi-part message in MIME format.
+--------------030707070207000702040005
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Joe, you're speaking to a bunch of people who reboot their
-boxes ten times an hour or more.  It's an interesting topic.
+Is there a reason for the BKL to be used in tiglusb_release()?  Are you 
+worried about a race between open and release, or were you just 
+following examples from other code?
 
-- If your BIOS has an option to not call the bios functions
-  of add-in cards, try using it.  Every card seems to have
-  its own inbuilt ten-second keyboard timeout, and this
-  option trumps them all.
+I'm sure we can remove it safely.  We might need another lock, but it 
+won't be much.
 
-- Remove as many of those nice vendor-provided initscripts
-  as you can.  It sounds like you're running kudzu or
-  equivalent?  `rpm -e' or `chkconfig kudzu off'.
+-- 
+Dave Hansen
+haveblue@us.ibm.com
 
-- Modify /etc/init.d/rd.c/xinted so that it starts xinetd
-  asynchronously.  For some reason, xinetd has a nice
-  five-second sleep before allowing the initscripts to
-  continue.  I haven't noticed it do anything useful.
+--------------030707070207000702040005
+Content-Type: text/plain;
+ name="tiglusb-bkl_remove-2.5.8-pre1.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="tiglusb-bkl_remove-2.5.8-pre1.patch"
 
-- If you're using SCSI, (aic7xxx), go into the kernel
-  config system and reduce its "initial bus reset delay
-  in milli-seconds".  I use 1500.
+--- linux-2.5.8-pre1-clean/drivers/usb/tiglusb.c	Thu Apr  4 08:58:26 2002
++++ linux/drivers/usb/tiglusb.c	Thu Apr  4 16:29:31 2002
+@@ -128,7 +128,6 @@
+ {
+ 	ptiglusb_t s = (ptiglusb_t) file->private_data;
+ 
+-	lock_kernel ();
+ 	down (&s->mutex);
+ 	s->state = _stopped;
+ 	up (&s->mutex);
+@@ -139,7 +138,6 @@
+ 		wake_up (&s->remove_ok);
+ 
+ 	s->opened = 0;
+-	unlock_kernel ();
+ 
+ 	return 0;
+ }
 
-If you want to get really radical you could investigate
-Richard Gooch's boot scripts which I believe allow all the
-initscripts to be launched in parallel.  Which is a good
-thing to do.
+--------------030707070207000702040005--
 
-	http://www.atnf.csiro.au/people/rgooch/linux/boot-scripts/
-
-Once everything is trimmed up and tightened down, you should
-have reasonably good boot times.  There isn't a lot more
-to be squeezed out of it.
-
-Last year I developed a bunch of code which was designed to
-speed up the boot process.  It works as follows:
-
-1: Boot the machine, start your X server or whatever you
-   normally do.  Wait for everything to settle down.
-
-2: Load a kernel module and run a userspace app which dumps
-   out a directory of your pagecache and buffercache contents
-   to a database file.  It's of the form:
-
-	filename:page,page,page,page and
-	device:block,block,block,
-
-   The database file is sorted in ascending block order.
-
-3: Next time you reboot, load a different kernel module and
-   run a different userspace app which together walk that
-   database and preload the pagecache and buffercache.
-
-The theory was lovely.  And I tried all sorts of stuff.  But
-the bottom line benefit was only about 10%.  The whole thing
-was constrained by buffercache seek time - filesytem metadata.
-
-Oh well.  The best benefit was in fact from launching all
-the initscripts in parallel.  Lots of stuff broke because
-of the lack of any sort of dependency system, but it was
-appreciably quicker.
-
-I guess the greatest benefit would come from reorganising the
-layout of the root filesystem's data and metadata so the
-pagecache prepopulation doesn't have to seek all over the place.
-
--

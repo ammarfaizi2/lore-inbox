@@ -1,37 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261873AbTKGWSR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Nov 2003 17:18:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261872AbTKGWSB
+	id S261585AbTKGWMl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Nov 2003 17:12:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261298AbTKGWMa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Nov 2003 17:18:01 -0500
-Received: from 216-239-45-4.google.com ([216.239.45.4]:18205 "EHLO
-	216-239-45-4.google.com") by vger.kernel.org with ESMTP
-	id S264102AbTKGMEc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Nov 2003 07:04:32 -0500
-Date: Fri, 7 Nov 2003 04:04:27 -0800
-From: Frank Cusack <fcusack@fcusack.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: preemption when running in the kernel
-Message-ID: <20031107040427.A32421@google.com>
+	Fri, 7 Nov 2003 17:12:30 -0500
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:55148 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id S264534AbTKGSON (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Nov 2003 13:14:13 -0500
+Date: Fri, 7 Nov 2003 10:13:15 -0800
+To: Matthew Wilcox <willy@debian.org>
+Cc: Sylvain Jeaugey <sylvain.jeaugey@bull.net>, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org, acpi-devel@lists.sourceforge.net
+Subject: Re: [ACPI] Re: [DMESG] cpumask_t in action
+Message-ID: <20031107181315.GA1162@sgi.com>
+Mail-Followup-To: Matthew Wilcox <willy@debian.org>,
+	Sylvain Jeaugey <sylvain.jeaugey@bull.net>,
+	linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
+	acpi-devel@lists.sourceforge.net
+References: <20031106165159.GE26869@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.44.0311070907020.29453-100000@localhost.localdomain> <20031107172456.GC23754@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20031107172456.GC23754@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.5.4i
+From: jbarnes@sgi.com (Jesse Barnes)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(2.4 kernel)
+On Fri, Nov 07, 2003 at 05:24:56PM +0000, Matthew Wilcox wrote:
+> On Fri, Nov 07, 2003 at 09:13:11AM +0100, Sylvain Jeaugey wrote:
+> > On Thu, 6 Nov 2003, Matthew Wilcox wrote:
+> > These lines show you the numa topology of your machine (in our case, we 
+> > have 2 CPUS per domain, and a memory area).
+> > This is quite a big piece of information about hardware. Even if it is 
+> > quite long, I think it should be part of the ACPI information.
+> 
+> Yes, but do we need to know it at boot time, or should it be available
+> in some other way (eg /proc/acpi/srat or something).  I would argue
+> that is more useful than seeing it in dmesg.
 
-When a process is running in the kernel, can it be pre-empted at
-any time?  (Unless you explicity disable preemption.)  I think not,
-because wouldn't it be unsafe to grab a spinlock?  Or does grabbing a
-spinlock disable preemption.  I mean spin_lock(), not spin_lock_irqsave().
+There's also /sys which contains information about which cpus are on
+which nodes.
 
-Secondly, can multiple processes be in the kernel at the same time?  I
-think so, that's the reason for the fine grained locks instead of the BKL.
-Or do fine grained locks only serve to allow preemption.
-
-thanks!
-/fc
-
+Jesse

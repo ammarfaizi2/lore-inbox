@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265242AbSKSNBw>; Tue, 19 Nov 2002 08:01:52 -0500
+	id <S264672AbSKSNCI>; Tue, 19 Nov 2002 08:02:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264672AbSKSNBv>; Tue, 19 Nov 2002 08:01:51 -0500
-Received: from holomorphy.com ([66.224.33.161]:40164 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S264644AbSKSNBu>;
-	Tue, 19 Nov 2002 08:01:50 -0500
-Date: Tue, 19 Nov 2002 05:06:01 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: Andrew Morton <akpm@digeo.com>, lkml <linux-kernel@vger.kernel.org>,
-       linux-scsi@vger.kernel.org,
-       James Bottomley <James.Bottomley@steeleye.com>
-Subject: Re: scsi in 2.5.48
-Message-ID: <20021119130601.GM23425@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Jens Axboe <axboe@suse.de>, Andrew Morton <akpm@digeo.com>,
-	lkml <linux-kernel@vger.kernel.org>, linux-scsi@vger.kernel.org,
-	James Bottomley <James.Bottomley@steeleye.com>
-References: <3DD8AF65.BF2EF851@digeo.com> <3DD8B6B9.E9EAD230@digeo.com> <20021118135614.GA834@suse.de>
+	id <S265238AbSKSNCI>; Tue, 19 Nov 2002 08:02:08 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:62182 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S264672AbSKSNCG>;
+	Tue, 19 Nov 2002 08:02:06 -0500
+Date: Tue, 19 Nov 2002 13:07:28 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Margit Schubert-While <margit@margit.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.20 ACPI
+Message-ID: <20021119130728.GA28759@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Margit Schubert-While <margit@margit.com>,
+	linux-kernel@vger.kernel.org
+References: <4.3.2.7.2.20021119134830.00b53680@mail.dns-host.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021118135614.GA834@suse.de>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+In-Reply-To: <4.3.2.7.2.20021119134830.00b53680@mail.dns-host.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
->>> Appears to be DOA.  Just a simple mke2fs hangs in get_request_wait().
+On Tue, Nov 19, 2002 at 01:53:15PM +0100, Margit Schubert-While wrote:
+ > 	Any chance to get an ACPI update into 2.4.20 ?
 
-On Mon, Nov 18 2002, Andrew Morton wrote:
->> This makes it work again.
+Now that we're in 2.4.20rc stage ? No chance.
 
-On Mon, Nov 18, 2002 at 02:56:14PM +0100, Jens Axboe wrote:
-> Right fix would be something ala:
+ > 	It doesn't like my Intel D845PESV.
+ 
+The newer ACPI code also introduces problems that aren't
+present with the current 2.4.20rc code.
+Eg: Last snapshot I tried, My Vaio wouldn't boot if it was
+running on battery (which is the time I'd need it most).
 
-This solves my free_initmem() deadlock, which for some reason I assumed
-to be a problem of a lower-level nature.
+It needs a lot more testing. 
 
+		Dave
 
-Bill
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

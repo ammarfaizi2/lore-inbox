@@ -1,68 +1,130 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290767AbSBQVkt>; Sun, 17 Feb 2002 16:40:49 -0500
+	id <S291123AbSBQWHu>; Sun, 17 Feb 2002 17:07:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290807AbSBQVkk>; Sun, 17 Feb 2002 16:40:40 -0500
-Received: from ulima.unil.ch ([130.223.144.143]:17536 "HELO ulima.unil.ch")
-	by vger.kernel.org with SMTP id <S290767AbSBQVkZ>;
-	Sun, 17 Feb 2002 16:40:25 -0500
-Date: Sun, 17 Feb 2002 22:40:18 +0100
-From: Gregoire Favre <greg@ulima.unil.ch>
-To: linux-kernel@vger.kernel.org
-Subject: ALSA problem...
-Message-ID: <20020217214018.GA14895@ulima.unil.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.27i
+	id <S291122AbSBQWHa>; Sun, 17 Feb 2002 17:07:30 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:62225 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S291077AbSBQWH3>;
+	Sun, 17 Feb 2002 17:07:29 -0500
+Message-ID: <3C702999.95BCA136@mandrakesoft.com>
+Date: Sun, 17 Feb 2002 17:07:21 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-2mdksmp i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Michael Elizabeth Chastain <mec@shout.net>
+CC: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: Disgusted with kbuild developers
+In-Reply-To: <200202171759.g1HHxRS30551@duracef.shout.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hallo,
+Michael Elizabeth Chastain wrote:
+> I'm the creator and one of the current administrators of the kbuild-devel
+> mailing list.  kbuild-devel is not an instrument of "cronyism" or
+> "secret meetings".
+[reshuffle the message a bit]
+> (I have to say, reluctantly, that I'm personally not happy with the tactic
+> of asking kbuild-devel people to send mail to Dirk Hohndel.  I don't have
+> any acquaintance with Dirk, but I'm sure that he's capable of writing
+> to kbuild-devel himself if he wants to solicit opinions from there.
+> I say "reluctantly" because as an administrator of the list, I don't want
+> to get into criticism of list postings.)
 
-make[3]: Entering directory `/usr/src/linux-2.5/sound/core'
-ld -m elf_i386  -r -o snd.o sound.o init.o isadma.o memory.o info.o control.o misc.o device.o wrappers.o sound_oss.o info_oss.o
-ld -m elf_i386  -r -o snd-timer.o timer.o
-gcc -D__KERNEL__ -I/usr/src/linux-2.5/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686   -DKBUILD_BASENAME=rtctimer  -DEXPORT_SYMTAB -c rtctimer.c
-rtctimer.c:75: parse error before `rtc_task'
-rtctimer.c:75: warning: type defaults to `int' in declaration of `rtc_task'
-rtctimer.c:75: warning: data definition has no type or storage class
-rtctimer.c: In function `rtctimer_start':
-rtctimer.c:99: `rtc_task_t' undeclared (first use in this function)
-rtctimer.c:99: (Each undeclared identifier is reported only once
-rtctimer.c:99: for each function it appears in.)
-rtctimer.c:99: `rtc' undeclared (first use in this function)
-rtctimer.c:99: invalid lvalue in assignment
-rtctimer.c:101: warning: implicit declaration of function `rtc_control'
-rtctimer.c: In function `rtctimer_stop':
-rtctimer.c:110: `rtc_task_t' undeclared (first use in this function)
-rtctimer.c:110: `rtc' undeclared (first use in this function)
-rtctimer.c:110: invalid lvalue in assignment
-rtctimer.c: In function `rtctimer_interrupt':
-rtctimer.c:123: warning: implicit declaration of function `tasklet_hi_schedule'
-rtctimer.c: In function `rtctimer_private_free':
-rtctimer.c:143: `rtc_task_t' undeclared (first use in this function)
-rtctimer.c:143: `rtc' undeclared (first use in this function)
-rtctimer.c:143: invalid lvalue in assignment
-rtctimer.c:145: warning: implicit declaration of function `rtc_unregister'
-rtctimer.c: In function `rtctimer_init':
-rtctimer.c:174: warning: implicit declaration of function `tasklet_init'
-rtctimer.c:182: request for member `func' in something not a structure or union
-rtctimer.c:183: request for member `private_data' in something not a structure or union
-rtctimer.c:184: warning: implicit declaration of function `rtc_register'
-rtctimer.c: At top level:
-rtctimer.c:79: storage size of `rtc_tq' isn't known
-make[3]: *** [rtctimer.o] Error 1
-make[3]: Leaving directory `/usr/src/linux-2.5/sound/core'
-make[2]: *** [first_rule] Error 2
-make[2]: Leaving directory `/usr/src/linux-2.5/sound/core'
-make[1]: *** [_subdir_core] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.5/sound'
-make: *** [_dir_sound] Error 2
-36.060u 3.120s 0:40.23 97.3%    0+0k 0+0io 81103pf+0w
-Exit 2
+I never meant to suggest that about kbuild-devel -- having the
+appearance of being an attempt to [IMO] push a bad change via Dirk when
+pushing it other ways [IMO] failed was really offensive to me...
 
-	Grégoire
-________________________________________________________________
-http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch
+
+> I think it's reasonable and scalable for kernel subsystems to have their
+> own mailing lists.
+
+No argument
+
+> So while people are chastising Eric for bundling controversial
+> improvements with CML2, or pushing for a 2.4 backport, or writing in
+> python, or writing in python2, I think it's unfair to suggest that he
+> developed CML2 in secret.  He didn't.
+
+No one's suggesting that.  It's more the appearance of "I couldn't do it
+the normal way, let me try this other, non-open route..."
+
+
+> I believe that CML1 is rococo and I welcome a replacement.  I think that
+> leapfrog development is a good strategy here, just as it was for ALSA.
+
+I think this is a key mistake.  See Al's message "Of Bundling, Dao,
+...".
+
+It's impossible to prove that Eric's CML2 rulebase reflects a current
+CML1 rulebase, primarily for this reason.  My review of arch/alpha/* and
+drivers/net/* configs between CML1 and CML2 showed divergent rules and
+dependencies which simply don't exist in CML1 and often should not in
+CML2.
+
+Surely we can prove through -evolution- that CML2 is or is not the best
+direction for the future.  All or nothing is this case is impossible to
+prove correctness.
+
+
+> Here are my reasons for wanting to get rid of CML1:
+
+no arguments
+
+
+> As far as which way to replace CML1 goes: I'm not worried about the
+> technical specifications of the language, so long as it has one.  I would
+> like to remove every trace of Microsoft intellectual property from the
+> kernel, which is an argument in favor of a new language as well
+> as a new implementation.  I would like the new system to come with plenty
+> of documentation.  And I would like the new system to have a maintainer
+> who really believes in it.  CML2 has these properties so I support it.
+
+Those are meta-properties.  The origin of code, be it MicroSoft or not,
+should not be a factor.  In fact, -allowing- it to be a factor is
+allowing MicroSoft some additional weight in technical decisions, which
+should not occur IMO.
+
+CML2 has global dependencies that the current system does not.
+
+CML2 has a rulebase which is different from the current rulebase, with
+no documentation or adequate explanation for these changes, and with no
+good way to prove these changes are correct and reflect the current
+rulebase for [pick your tree].
+
+CML2's syntax is not reflective of the direction of being able to plop
+down "driver.c" and "driver.conf" and having the config/make system
+magically notice it.  It goes in the opposite direction, increasing the
+number of places in $cml-rules-file that one must patch when adding a
+driver [especially one with strange arch-specific dependencies, such as
+an S/390-specific net driver].
+
+
+> Other projects, such as Christoph Hellwig's current version of mconfig,
+> also have these properties (except for keeping the same language) and
+> are also viable replacements for configure/Menuconfig/xconfig.
+
+Would you support the replacement of in-kernel
+configure/Menuconfig/xconfig with in-kernel mconfig?
+
+I mentioned this to Christoph, and he violently disagreed that it should
+go into the kernel, and I violently disgreed with him :)  The kernel
+absolutely MUST have some in-kernel configuration currently.  And
+mconfig is clearly a better tool.
+
+If we want to migrate to a point where all kernel configuration is
+maintained solely outside the kernel, I actually support that.  But as a
+SEPARATE migration step.  I do not want to drop all config tools from
+the kernel and tell people "use mconfig" in the same breath.
+
+	Jeff
+
+
+-- 
+Jeff Garzik      | "Why is it that attractive girls like you
+Building 1024    |  always seem to have a boyfriend?"
+MandrakeSoft     | "Because I'm a nympho that owns a brewery?"
+                 |             - BBC TV show "Coupling"

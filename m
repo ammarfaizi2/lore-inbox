@@ -1,129 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273135AbRIJBmm>; Sun, 9 Sep 2001 21:42:42 -0400
+	id <S273132AbRIJBpN>; Sun, 9 Sep 2001 21:45:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273132AbRIJBmf>; Sun, 9 Sep 2001 21:42:35 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:56810 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S273136AbRIJBmU>;
-	Sun, 9 Sep 2001 21:42:20 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Mon, 10 Sep 2001 03:42:39 +0200 (MET DST)
-Message-Id: <200109100142.DAA12898@boragie.ins.cwi.nl>
-To: torvalds@transmeta.com
-Subject: [PATCH] minor corrections to 2.4.10-pre6
-Cc: linux-kernel@vger.kernel.org
+	id <S273149AbRIJBpD>; Sun, 9 Sep 2001 21:45:03 -0400
+Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:32197
+	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
+	with ESMTP id <S273132AbRIJBoy>; Sun, 9 Sep 2001 21:44:54 -0400
+Date: Sun, 09 Sep 2001 21:45:01 -0400
+From: Chris Mason <mason@suse.com>
+To: Andrea Arcangeli <andrea@suse.de>, Linus Torvalds <torvalds@transmeta.com>
+cc: Daniel Phillips <phillips@bonn-fries.net>,
+        Andreas Dilger <adilger@turbolabs.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: linux-2.4.10-pre5
+Message-ID: <1299510000.1000086297@tiny>
+In-Reply-To: <20010910030405.A11329@athlon.random>
+In-Reply-To: <20010910001556Z16150-26183+680@humbolt.nl.linux.org>
+ <Pine.LNX.4.33.0109091724120.22033-100000@penguin.transmeta.com>
+ <20010910030405.A11329@athlon.random>
+X-Mailer: Mulberry/2.1.0 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Seeing that some version of my 07 patch made it into 2.4.10-pre6
-I compared and noticed a few minor flaws:
-- in DAC960.c and nftlcore.c unused variables have not been deleted
-- in ps2esdi.c a semicolon is missing
-- in hd.c add_gendisk() has a parameter too many
-- in nftlcore.c there is a spurious :
-
-Andries
-
-[I hope to submit the rest of 07 some other time -
-there is nothing controversial in the rest I think,
-all could have been applied at once.]
 
 
-diff -u --recursive --new-file ../linux-2.4.10-pre6/linux/drivers/block/DAC960.c ./linux/drivers/block/DAC960.c
---- ../linux-2.4.10-pre6/linux/drivers/block/DAC960.c	Sun Sep  9 14:28:41 2001
-+++ ./linux/drivers/block/DAC960.c	Mon Sep 10 03:13:43 2001
-@@ -1883,7 +1883,6 @@
- static boolean DAC960_RegisterBlockDevice(DAC960_Controller_T *Controller)
- {
-   int MajorNumber = DAC960_MAJOR + Controller->ControllerNumber;
--  GenericDiskInfo_T *GenericDiskInfo;
-   RequestQueue_T *RequestQueue;
-   int MinorNumber;
-   /*
-diff -u --recursive --new-file ../linux-2.4.10-pre6/linux/drivers/block/ps2esdi.c ./linux/drivers/block/ps2esdi.c
---- ../linux-2.4.10-pre6/linux/drivers/block/ps2esdi.c	Sun Sep  9 14:28:41 2001
-+++ ./linux/drivers/block/ps2esdi.c	Mon Sep 10 03:15:44 2001
-@@ -222,14 +222,13 @@
- void
- cleanup_module(void)
- {
--	if(ps2esdi_slot)
--	{
-+	if(ps2esdi_slot) {
- 		mca_mark_as_unused(ps2esdi_slot);
- 		mca_set_adapter_procfn(ps2esdi_slot, NULL, NULL);
- 	}
- 	release_region(io_base, 4);
- 	free_dma(dma_arb_level);
--  	free_irq(PS2ESDI_IRQ, NULL)
-+  	free_irq(PS2ESDI_IRQ, NULL);
- 	devfs_unregister_blkdev(MAJOR_NR, "ed");
- 	del_gendisk(&ps2esdi_gendisk);
- 	blk_cleanup_queue(BLK_DEFAULT_QUEUE(MAJOR_NR));
-diff -u --recursive --new-file ../linux-2.4.10-pre6/linux/drivers/ide/hd.c ./linux/drivers/ide/hd.c
---- ../linux-2.4.10-pre6/linux/drivers/ide/hd.c	Sun Sep  9 14:28:43 2001
-+++ ./linux/drivers/ide/hd.c	Mon Sep 10 03:06:35 2001
-@@ -842,7 +842,7 @@
- 	}
- 	blk_init_queue(BLK_DEFAULT_QUEUE(MAJOR_NR), DEVICE_REQUEST);
- 	read_ahead[MAJOR_NR] = 8;		/* 8 sector (4kB) read-ahead */
--	add_gendisk(&hd_gendisk, MAJOR_NR);
-+	add_gendisk(&hd_gendisk);
- 	init_timer(&device_timer);
- 	device_timer.function = hd_times_out;
- 	hd_geninit();
-diff -u --recursive --new-file ../linux-2.4.10-pre6/linux/drivers/mtd/nftlcore.c ./linux/drivers/mtd/nftlcore.c
---- ../linux-2.4.10-pre6/linux/drivers/mtd/nftlcore.c	Sun Sep  9 14:28:44 2001
-+++ ./linux/drivers/mtd/nftlcore.c	Mon Sep 10 03:21:36 2001
-@@ -1024,11 +1024,6 @@
-  *
-  ****************************************************************************/
- 
--#if LINUX_VERSION_CODE < 0x20212 && defined(MODULE)
--#define init_nftl init_module
--#define cleanup_nftl cleanup_module
--#endif
--
- static struct mtd_notifier nftl_notifier = {
- 	add:	NFTL_notify_add,
- 	remove:	NFTL_notify_remove
-@@ -1045,14 +1040,12 @@
- #endif
- 
- 	if (register_blkdev(MAJOR_NR, "nftl", &nftl_fops)){
--		printk("unable to register NFTL block device on major %d\n", MAJOR_NR);
-+		printk("unable to register NFTL block device on major %d\n",
-+		       MAJOR_NR);
- 		return -EBUSY;
- 	} else {
--#if LINUX_VERSION_CODE < 0x20320
--		blk_dev[MAJOR_NR].request_fn = nftl_request;
--#else
- 		blk_init_queue(BLK_DEFAULT_QUEUE(MAJOR_NR), &nftl_request);
--#endif
-+
- 		/* set block size to 1kB each */
- 		for (i = 0; i < 256; i++) {
- 			nftl_blocksizes[i] = 1024;
-@@ -1069,20 +1062,12 @@
- 
- static void __exit cleanup_nftl(void)
- {
--	struct gendisk *gd, **gdp;
--
-   	unregister_mtd_user(&nftl_notifier);
-   	unregister_blkdev(MAJOR_NR, "nftl");
-   	
--#if LINUX_VERSION_CODE < 0x20320
--  	blk_dev[MAJOR_NR].request_fn = 0;
--#else
-   	blk_cleanup_queue(BLK_DEFAULT_QUEUE(MAJOR_NR));
--#endif	
- 
--	/* remove ourself from generic harddisk list
--	   FIXME: why can't I found this partition on /proc/partition */
--	del_gendisk(&nftl_gendisk);:
-+	del_gendisk(&nftl_gendisk);
- }
- 
- module_init(init_nftl);
+On Monday, September 10, 2001 03:04:05 AM +0200 Andrea Arcangeli
+<andrea@suse.de> wrote:
+
+> On Sun, Sep 09, 2001 at 05:38:14PM -0700, Linus Torvalds wrote:
+>> It would definitely make all the issues with Andrea's pagecache code just
+>> go away completely.
+> 
+> I also recommend to write it on top of the blkdev in pagecache patch
+> since there I just implemented the "physical address space" abstraction,
+> I had to write it to make the mknod hda and mknod hda.new to share the
+> same cache transparently.
+> 
+
+Hi guys,
+
+I some code on top of the writepage for all io patch (2.4.2 timeframe),
+that implemented getblk_mapping, get_hash_table_mapping and bread_mapping,
+which gave the same features as the original but took an address space as
+one of the args.  
+
+The idea is more or less what has been discussed, but it did assume one
+blocksize per mapping.  Of course, set_blocksize and invalidate_buffers
+were on the todo list ;-)  The only other gotcha was calling
+filemap_fdatasync and truncate_inode_pages in put_super, to make sure
+things got flushed right.
+
+Anyway, the whole thing can be cut down to a smallish patch, either alone
+or on top of andrea's stuff.  Daniel, if you want to work together on it,
+I'm game.
+
+-chris
+

@@ -1,64 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262182AbUCPOrM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 09:47:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262219AbUCPOpj
+	id S262453AbUCPPGf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 10:06:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262481AbUCPPGQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 09:45:39 -0500
-Received: from styx.suse.cz ([82.208.2.94]:31617 "EHLO shadow.ucw.cz")
-	by vger.kernel.org with ESMTP id S261905AbUCPOT3 convert rfc822-to-8bit
+	Tue, 16 Mar 2004 10:06:16 -0500
+Received: from svr44.ehostpros.com ([66.98.192.92]:57493 "EHLO
+	svr44.ehostpros.com") by vger.kernel.org with ESMTP id S262456AbUCPPEv
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 09:19:29 -0500
-Content-Transfer-Encoding: 7BIT
-Message-Id: <1079446776531@twilight.ucw.cz>
-Content-Type: text/plain; charset=US-ASCII
-Subject: [PATCH 5/44] .ko module names for acm.txt
-X-Mailer: gregkh_patchbomb_levon_offspring
-To: torvalds@osdl.org, vojtech@ucw.cz, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Date: Tue, 16 Mar 2004 15:19:36 +0100
-In-Reply-To: <1079446776461@twilight.ucw.cz>
-From: Vojtech Pavlik <vojtech@suse.cz>
+	Tue, 16 Mar 2004 10:04:51 -0500
+From: "Amit S. Kale" <amitkale@emsyssoft.com>
+Organization: EmSysSoft
+To: "La Monte H.P. Yarroll" <piggy@timesys.com>
+Subject: Re: [Kgdb-bugreport] [PATCH][2/3] Update CVS KGDB's have kgdb_{schedule,process}_breakpoint
+Date: Tue, 16 Mar 2004 20:34:24 +0530
+User-Agent: KMail/1.5
+Cc: George Anzinger <george@mvista.com>, Tom Rini <trini@kernel.crashing.org>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Pavel Machek <pavel@suse.cz>, kgdb-bugreport@lists.sourceforge.net
+References: <20040225213626.GF1052@smtp.west.cox.net> <200403161000.02223.amitkale@emsyssoft.com> <4056FAF8.9000907@timesys.com>
+In-Reply-To: <4056FAF8.9000907@timesys.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200403162034.24341.amitkale@emsyssoft.com>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - svr44.ehostpros.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - emsyssoft.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You can pull this changeset from:
-	bk://kernel.bkbits.net/vojtech/input
+On Tuesday 16 Mar 2004 6:32 pm, La Monte H.P. Yarroll wrote:
+> Amit S. Kale wrote:
+> >On Tuesday 16 Mar 2004 1:22 am, George Anzinger wrote:
+> >>Amit S. Kale wrote:
+> >>>On Friday 12 Mar 2004 1:33 pm, George Anzinger wrote:
+> >>>>Amit S. Kale wrote:
+> >>>>>On Friday 12 Mar 2004 2:58 am, George Anzinger wrote:
+> >>>>>>Amit S. Kale wrote:
+> >>>>>>~
+> >>>>>>
+> >>>>>>>>context any
+> >>>>>>>>
+> >>>>>>>>p fun()
+> >>>>>>>
+> >>>>>>>p fun() will push arguments on stack over the place where irq
+> >>>>>>> occured, which is exactly how it'll run.
+> >>>>>>
+> >>>>>>Is this capability in kgdb lite?  It was one of the last things I
+> >>>>>> added to -mm version.
+> >>>>>
+> >>>>>No! It's not present in kgdb heavy also. All you can do is set $pc,
+> >>>>>continue.
+> >>>>
+> >>>>Possibly I can help here.  I did it for the mm version.  It does
+> >>>> require a couple of asm bits and it sort of messes up the set/fetch
+> >>>> memory, but it does do the job.
+> >>>
+> >>>I have seen that. It's too messy!
+> >>
+> >>You have a better solution?
+> >
+> >Nope.
+> >
+> >I think this feature is very likely to be abused by programmers. They do
+> >deserve suffering if they choose to shoot at their own feet.
+> >
+> >Kernel programmers have to be aware of implementation of this feature if
+> > they choose to call arbitrary functions. This includes knowing whether
+> > interrupts are disabled, handling of exceptions in gdb called functions,
+> > whether other processors run, that breakpoints are  disabled. Given that
+> > kgdb is used for learning the kernel, such features are best kept aside.
+> >
+> >-Amit
+>
+> Pardon my question.  I've lost track of the thread and the available
+> context doesn't really help me.
+>
+> Is this the ability to step into an arbitrary function from the gdb command
+> line or something else?
 
-===================================================================
-
-ChangeSet@1.1474.188.5, 2004-01-26 13:23:40+01:00, jochen@jochen.org
-  usb: Minor documentation fix reflecting new USB module names in acm.txt
-
-
- acm.txt |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
-
-===================================================================
-
-diff -Nru a/Documentation/usb/acm.txt b/Documentation/usb/acm.txt
---- a/Documentation/usb/acm.txt	Tue Mar 16 13:20:01 2004
-+++ b/Documentation/usb/acm.txt	Tue Mar 16 13:20:01 2004
-@@ -28,7 +28,7 @@
- 
- 1. Usage
- ~~~~~~~~
--  The drivers/usb/acm.c drivers works with USB modems and USB ISDN terminal
-+  The drivers/usb/class/cdc-acm.c drivers works with USB modems and USB ISDN terminal
- adapters that conform to the Universal Serial Bus Communication Device Class
- Abstract Control Model (USB CDC ACM) specification.
- 
-@@ -65,9 +65,9 @@
- 
-   To use the modems you need these modules loaded:
- 
--	usbcore.o
--	usb-[uo]hci.o or uhci.o
--	acm.o
-+	usbcore.ko
-+	uhci-hcd.ko ohci-hcd.ko or ehci-hcd.ko
-+	cdc-acm.ko
- 
-   After that, the modem[s] should be accessible. You should be able to use
- minicom, ppp and mgetty with them.
+This is ability to call arbitray function from gdb command line.
+Example 
+(gdb) p myfunction(1,2,3)
+-Amit
 

@@ -1,50 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130467AbQKINKD>; Thu, 9 Nov 2000 08:10:03 -0500
+	id <S129121AbQKINRx>; Thu, 9 Nov 2000 08:17:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130458AbQKINJq>; Thu, 9 Nov 2000 08:09:46 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:28164 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129636AbQKINJb>;
-	Thu, 9 Nov 2000 08:09:31 -0500
-Message-ID: <3A0AA1DD.C2C5BA1C@mandrakesoft.com>
-Date: Thu, 09 Nov 2000 08:08:45 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
-X-Accept-Language: en
+	id <S129171AbQKINRn>; Thu, 9 Nov 2000 08:17:43 -0500
+Received: from mailhost.mipsys.com ([62.161.177.33]:4391 "EHLO [62.161.177.33]")
+	by vger.kernel.org with ESMTP id <S129121AbQKINRb>;
+	Thu, 9 Nov 2000 08:17:31 -0500
+From: Benjamin Herrenschmidt <bh40@calva.net>
+To: Derrik Pates <dpates@andromeda.dsdk12.net>
+Cc: Andre Hedrick <andre@linux-ide.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: B/W G3 - big IDE problems with 2.4.0-test10
+Date: Thu, 9 Nov 2000 14:17:01 +0100
+Message-Id: <19341004064845.6646@192.168.1.2>
+In-Reply-To: <Pine.LNX.4.30.0011082252370.28457-100000@andromeda.dsdk12.net>
+In-Reply-To: <Pine.LNX.4.30.0011082252370.28457-100000@andromeda.dsdk12.net>
+X-Mailer: CTM PowerMail 3.0.6 <http://www.ctmdev.com>
 MIME-Version: 1.0
-To: Andrey Panin <pazke@orbita.don.sitek.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] media/radio [check_region() removal... ]
-In-Reply-To: <Pine.LNX.4.21.0011090056470.22998-200000@tricky> <3A09EC3A.82324C57@mandrakesoft.com> <20001109160652.A1953@debian>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrey Panin wrote:
-> 1) how about drivers requesting 2 (or more) irq for one device ?
-> AFAIK some PowerMac net drivers do it (bmac.c for example).
+>On Wed, 8 Nov 2000, Andre Hedrick wrote:
+>
+>> What is your chipset, CMD646 rev 5 Ultra DMA 33 ???
+>
+>Yep. I've tried building with the CMD64x driver, and that didn't help
+>matters, if you were wondering. Any thoughts?
 
-Should be fine..  If the driver distinguishes between the irqs, maybe
-you should do "eth0-rx dma", "eth0-tx dma", etc.
+Did you try the bitkeeper PPC kernel ? (or Paul Mackerras rsync tree ?)
 
+Not all PPC patches have been merged in Linus tree yet. There were some
+resource assignement issues that were fixed only recently.
 
-> 2) i found that some net drivers (3c527.c, sk_mca.c) use io region and
-> don't call request_region() at all. Should they be fixed ?
+Ben.
 
-Probably...  but there may be a reason for that, too. 
-drivers/net/atp.c, for example, does not use request_region because it
-uses the standard parallel ports.  (ideally, of course, it should use
-the parport API...)
-
-	Jeff
-
-
--- 
-Jeff Garzik             |
-Building 1024           | Would you like a Twinkie?
-MandrakeSoft            |
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

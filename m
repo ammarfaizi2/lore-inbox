@@ -1,35 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291257AbSBYUm1>; Mon, 25 Feb 2002 15:42:27 -0500
+	id <S292291AbSBYUqG>; Mon, 25 Feb 2002 15:46:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286343AbSBYUmR>; Mon, 25 Feb 2002 15:42:17 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:61959 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S292267AbSBYUl5>; Mon, 25 Feb 2002 15:41:57 -0500
-To: linux-kernel@vger.kernel.org
-From: Daniel Quinlan <quinlan@transmeta.com>
-Subject: Re: Linux 2.4.18
-Date: 25 Feb 2002 12:41:20 -0800
-Organization: Transmeta Corporation
-Message-ID: <6ypu2twaz3.fsf@sodium.transmeta.com>
-In-Reply-To: <Pine.LNX.4.21.0202251537080.31438-100000@freak.distro.conectiva> <Pine.LNX.4.21.0202251556140.31438-100000@freak.distro.conectiva>
-X-Trace: palladium.transmeta.com 1014669680 32442 127.0.0.1 (25 Feb 2002 20:41:20 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 25 Feb 2002 20:41:20 GMT
-Original-Sender: quinlan@transmeta.com
-X-Newsreader: Gnus v5.7/Emacs 20.4
-Cache-Post-Path: palladium.transmeta.com!unknown@sodium.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	id <S292290AbSBYUps>; Mon, 25 Feb 2002 15:45:48 -0500
+Received: from 25-VALL-X12.libre.retevision.es ([62.83.208.153]:55568 "EHLO
+	ragnar-hojland.com") by vger.kernel.org with ESMTP
+	id <S291565AbSBYUp0>; Mon, 25 Feb 2002 15:45:26 -0500
+Date: Mon, 25 Feb 2002 21:44:37 +0100
+From: Ragnar Hojland Espinosa <ragnar@jazzfree.com>
+To: Tim Schmielau <tim@physik3.uni-rostock.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: HZ value used in kernel/acct.c
+Message-ID: <20020225214437.C10218@ragnar-hojland.com>
+In-Reply-To: <Pine.LNX.4.33.0202242217070.30805-100000@gans.physik3.uni-rostock.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0202242217070.30805-100000@gans.physik3.uni-rostock.de>; from tim@physik3.uni-rostock.de on Sun, Feb 24, 2002 at 10:35:33PM +0100
+Organization: Mediocrity Naysayers Ltd
+X-Homepage: http://lightside.eresmas.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti <marcelo@conectiva.com.br> writes:
-
-> Ok, DAMN. I missed the -rc4 patch in 2.4.18. Real sorry about that.
+On Sun, Feb 24, 2002 at 10:35:33PM +0100, Tim Schmielau wrote:
+> What is the supposed unit of the ac_etime field of struct acct?
+> The code in kernel/acct.c currently says
 > 
-> 2.4.19-pre1 will contain it. 
+>    ac.ac_etime = encode_comp_t(jiffies - current->start_time);
+> 
+> so it is given in multiples of HZ, which makes this value 
+> platform-dependent (and subject of overflow after 48.5 days with HZ=1024). 
+> In include/linux/acct.h however there is the definition
+> 
+>    #define AHZ             100
+> 
+> which somehow smells like the preferred time unit.
+> Comments?
 
-Why not just immediately release 2.4.19 with only the -rc4 patch?
-There's no harm done in an extra release.
+The acct.c implementation followed FreeBSD's which also expressed comp_t
+in terms platform dependant 1/(A)HZ   You could check the "[Patch] fix
+incorrect jiffies compares" thread for a fix on uptime and 64 bit jiffies
+someone sent.. didn't pay attention in why it didn't get in, tho.
 
-Dan
+-- 
+____/|  Ragnar Højland      Freedom - Linux - OpenGL |    Brainbench MVP
+\ o.O|  PGP94C4B2F0D27DE025BE2302C104B78C56 B72F0822 | for Unix Programming
+ =(_)=  "Thou shalt not follow the NULL pointer for  | (www.brainbench.com)
+   U     chaos and madness await thee at its end."      [20 pend. Mar 10]

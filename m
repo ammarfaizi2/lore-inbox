@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266483AbRGMCG2>; Thu, 12 Jul 2001 22:06:28 -0400
+	id <S266922AbRGMCcd>; Thu, 12 Jul 2001 22:32:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266918AbRGMCGS>; Thu, 12 Jul 2001 22:06:18 -0400
-Received: from coffee.psychology.McMaster.CA ([130.113.218.59]:5393 "EHLO
-	coffee.psychology.mcmaster.ca") by vger.kernel.org with ESMTP
-	id <S266483AbRGMCGM>; Thu, 12 Jul 2001 22:06:12 -0400
-Date: Fri, 13 Jul 2001 02:06:07 +0000 (GMT)
-From: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
-To: Larry McVoy <lm@bitmover.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: CPU affinity & IPI latency
-In-Reply-To: <20010712173641.C11719@work.bitmover.com>
-Message-ID: <Pine.LNX.4.10.10107130131390.3018-100000@coffee.psychology.mcmaster.ca>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266924AbRGMCcY>; Thu, 12 Jul 2001 22:32:24 -0400
+Received: from mel227.freeonline.com.au ([203.76.6.227]:47283 "EHLO
+	freeonline.com.au") by vger.kernel.org with ESMTP
+	id <S266922AbRGMCcL>; Thu, 12 Jul 2001 22:32:11 -0400
+Date: Fri, 13 Jul 2001 02:33:30 +0000
+From: Andrew Wansink <andy@sharinga.com>
+To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: RLIM_INFINITY support for RLIMIT_NOFILE (patch)
+Message-ID: <20010713023329.A7928@freeonline.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If the amount of data/instructions needed by all 5 processes fits in the 
-> cache and you pin all the processes to the same CPU you'll get much 
-> better performance than simply letting them float.
+Good day all, I recently found that the linux kernel does not support setting
+a process' RLIMIT_NOFILE limits to the #define RLIM_INFINITY.  My patch will
+add such support by setting the limit to the maximum supported by the kernel
+when a call to set a limit to RLIM_INFINITY is made.
 
-interesting.  I remember that around 2.3.40, the scheduler handled
-"frequent-schedulers" (like lat_ctx) differently, based on how long 
-a timeslice the proc used, relative to the estimated time to flush cache.
+I understand that the semantics do not match exactly but all kernels are limited
+by real hard limits and/or available memory, I think that it is therefore 
+acceptable to have a call to set a limit to RLIM_INFINITY actually set the 
+limit to the maximum extent supported by the kernel.
 
-as I recall, it let them stay on their current CPU.  like letting 
-someone with 1 item go ahead of you in a grocery store checkout ;)
+Patch by: Andrew Wansink & Chris Leishman
+Against:  Linux 2.4.6
+Date:     (Friday the 13th) 13th July 2001
+File:     kernel/sys.c
 
-that code is mostly gone (only cacheflush_time remains);  I think it
-morphed into the current migrate-to-longest-idle heuristic.
-
-does anyone remember why the frequent-schedulers code was killed?
-just because it conflated cache-affinity with timeslice?
-
-regards, mark hahn.
-
+--- sys.c.orig	Fri Jul 13 02:03:19 2001
++++ sys.c	Fri Jul 13 01:41:57 2001
+@@ -1119,6 +1119,10 @@
+ 		return -EINVAL;
+ 	if(copy_from_user(&new_rlim, rlim, sizeof(*rlim)))
+ 		return -EFAULT;
++	if (new_rlim.rlim_cur == RLIM_INFINITY)
++		new_rlim.rlim_cur = NR_OPEN;
++	if (new_rlim.rlim_max == RLIM_INFINITY)
++		new_rlim.rlim_max = NR_OPEN;
+ 	if (new_rlim.rlim_cur < 0 || new_rlim.rlim_max < 0)
+ 		return -EINVAL;
+ 	old_rlim = current->rlim + resource;

@@ -1,118 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265337AbRGJBH3>; Mon, 9 Jul 2001 21:07:29 -0400
+	id <S265350AbRGJBvg>; Mon, 9 Jul 2001 21:51:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265334AbRGJBHU>; Mon, 9 Jul 2001 21:07:20 -0400
-Received: from sciurus.rentec.com ([192.5.35.161]:40617 "EHLO
-	sciurus.rentec.com") by vger.kernel.org with ESMTP
-	id <S265311AbRGJBHJ>; Mon, 9 Jul 2001 21:07:09 -0400
-Message-ID: <3B4A5568.6CC9562F@rentec.com>
-Date: Mon, 09 Jul 2001 21:07:52 -0400
-From: Dirk <dirkw@rentec.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: en
+	id <S265334AbRGJBvQ>; Mon, 9 Jul 2001 21:51:16 -0400
+Received: from 216-60-128-137.ati.utexas.edu ([216.60.128.137]:41415 "HELO
+	tsunami.webofficenow.com") by vger.kernel.org with SMTP
+	id <S264906AbRGJBvK>; Mon, 9 Jul 2001 21:51:10 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@webofficenow.com>
+Reply-To: landley@webofficenow.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: VIA Southbridge bug (Was: Crash on boot (2.4.5))
+Date: Mon, 9 Jul 2001 12:48:59 -0400
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <E15JIVD-0000Qc-00@the-village.bc.nu>
+In-Reply-To: <E15JIVD-0000Qc-00@the-village.bc.nu>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: dead mem pages -> dead machines
-In-Reply-To: <Pine.LNX.4.10.10107092147570.25585-100000@coffee.psychology.mcmaster.ca>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <01070912485904.00705@localhost.localdomain>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Mark Hahn wrote:
-
-> >  3759  3684 userid    15 2105M 1.1G 928M  254M  0M R N  94.4 23.4  10:57 ceqsim
-> >  3498  3425 userid    16 2189M 1.5G 609M  205M  0M R N  91.7 15.3  22:12 ceqsim
->
-> do you have any control over the size of these processes?
-> with 4G ram, it makes more sense to have them sum to ~3.5G.
-
-i can only allocate 3GB if i use doug lea's malloc, that's a thing in glibc
-which hasn't been addressed yet. under normal use of malloc() me
-apps only get 2GB per process.
-for 3.5 GB i would have to use the patch from aa, posted a couple of months ago.
-i am using for the farm a plain vanilla 2.4.[56] to keep things simple first.
-
-no, the typical job has beween 1GB and 3GB in memory. they are independent,
-just some number crunchung on farm CPUs.
-
-> > MemTotal:      4058128 kB
-> > MemFree:          6832 kB
-> > MemShared:           0 kB
-> > Buffers:          3152 kB
-> > Cached:        2871388 kB
-> > Active:        1936040 kB
-> > Inact_dirty:    499780 kB
-> > Inact_clean:    438720 kB
-> > Inact_target:     3080 kB
-> > HighTotal:     3211200 kB
-> > HighFree:         3988 kB
-> > LowTotal:       846928 kB
-> > LowFree:          2844 kB
-> > SwapTotal:    14337736 kB
-> > SwapFree:     10957560 kB
+On Sunday 08 July 2001 13:37, Alan Cox wrote:
+> > > possible on the memory bus. Several people have reported that machines
+> > > that are otherwise stable on the bios fast options require  the proper
+> > > conservative settings to be stable with the Athlon optimisations
 > >
-> >
-> > machine018:~ # cat /proc/swaps
-> > Filename                        Type            Size    Used    Priority
-> > /dev/sda5                       partition       2048248 2048248 -1
-> > /dev/sdb1                       partition       2048248 1331928 -2
-> > /dev/sdc1                       partition       2048248 0       -3
+> > Do we need patch to memtest to use 3dnow?
 >
-> they should all have the same priority, so swapping is distributed.
-> currently sda5 fills (and judging by the 5, it's not on the fast
-> part of the disk) before sdb1 is used.
+> Possibly yes. Although memtest86 really tries to test for onchip not bus
+> related problems
 
-well, that's the symptom, but not the disease, medically speaking.
+What else tends to fail on the motherboard that might be easy to test for?  
+Processor overheating?  (When the thermometer circuitry's there, anyway.)  
+Something to do with DMA?  (Would DMA to/from a common card like VGA catch 
+chipset-side DMA problems?)  There was an SMP exception thing floating by 
+recently, is that common and testable?
 
-the idea was not swapping to the data disks (which are sdb and sdc)
-in the first place.
+I know there's a lot of funky peripheral combinations that behave strangely, 
+but without opening that can of worms what kind of common problems on the 
+motherboard itself might be easy to test for in a "run this overnight and see 
+if it finds a problem with your hardware" sort of way?
 
-> > why does the kernel have 2.8GB of cached pages, and our applications
->
-> afaik, cached doesn't exclude your apps' pages.
+Rob
 
-i am in this typical example 2.6GB in swap. where did all my precious memory
-go?
+(P.S. What kind of CPU load is most likely to send a processor into overheat? 
+ (Other than "a tight loop", thanks.  I mean what kind of instructions?)  
+This is going to be CPU specific, isn't it?  Our would a general instruction 
+mix that doesn't call halt be enough?  It would need to keep the FPU busy 
+too, wouldn't it?  And maybe handle interrupts.  Hmmm...)
 
-> > have to swap 1.5+1.1GB of pages out? also, i do not understand why
-> > the amount of inactive pages is so high.
->
-> the kernel thinks that there's memory pressure: perhaps you're doing
-> file IO?  memory pressure causes it to pick on processes, especially
-> large ones, especially the ones that are doing the allocation.
+I wonder...  The torture test Tom's Hardware guide uses for processor 
+overheating is GCC compiling the Linux kernel.  (That's what caught the 
+Pentium III 1.13 gigahertz instability when nothing else would.)  I wonder, 
+maybe if a stripped down subset of a known version of GCC and a known version 
+of the kernel were running from a ramdisk...  It USED to fit in 8 megs with 
+no swap, might still fit in 32 with a decent chunk of kernel source.  Throw 
+the compile in a loop, add in a processor temperature detector daemon to kill 
+the test and HLT the system if the temperature went too high...
 
-also if i do file i/o, i don't expect the kernel to take away so much memory from
-my apps. file caching (or whatever "cached" in /proc/cpuinfo means, is there
-a doc btw?) should be a courtesy and not a torture for the performance of app.
+I wonder what bits of the kernel GCC actually needs to run these days?  
+(System V inter-process communication?  sysctl support?  Hmmm...  Would 
+2.4.anything be a stable enough base for this yet, or should it be 2.2.19?  
+Is 2.4 still psychotic with less swap space than ram (I.E. no swap space at 
+all)?)
 
-> > not to mention, that the moment the machine is swapping pages out
-> > in the order of gigabytes, the console even doesn't respond and
->
-> from appearances, you've overloaded it.  the kernel also tries to be
-> "fair", which in this case means trying to steal pages from the hogs.
+Off to play...
 
-it looks to me that the hog is the kernel, and the kernel isn't fair to me, again:
-
-  PID  PPID USER     PRI  SIZE SWAP  RSS SHARE   D STAT %CPU %MEM   TIME COMMAND
- 3759  3684 userid    15 2105M 1.1G 928M  254M  0M R N  94.4 23.4  10:57 ceqsim
- 3498  3425 userid    16 2189M 1.5G 609M  205M  0M R N  91.7 15.3  22:12 ceqsim
-                                   ^^^^^^^ ^^^^
-
-normally if i monitor the farm, i also do a "ps alx" and do a total over the RSS and
-VSZ,
-which tells something about the memory consumption in user space. in my initial
-posting i
-forgot to mention this number. just add ~100MB and ~200MB respectively. so from
-the user space or application perspective the kernel still eats my memory.
-
-what's wrong and what can i do to help people to help me?
-
-
-thx,
-        ~dirkw
-
-
+Still Rob.

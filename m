@@ -1,51 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265137AbTLRGZq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Dec 2003 01:25:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265141AbTLRGZq
+	id S264953AbTLRGl4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Dec 2003 01:41:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264954AbTLRGl4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Dec 2003 01:25:46 -0500
-Received: from imladris.demon.co.uk ([193.237.130.41]:6272 "EHLO
-	baythorne.infradead.org") by vger.kernel.org with ESMTP
-	id S265137AbTLRGZp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Dec 2003 01:25:45 -0500
-Subject: Re: 2.4.23aa1 ext3 oops
-From: David Woodhouse <dwmw2@infradead.org>
-To: Jamie Clark <jclark@metaparadigm.com>
-Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <3FE14706.3070003@metaparadigm.com>
-References: <3FA713B9.3040405@metaparadigm.com>
-	 <20031104102816.GB2984@x30.random> <3FA79308.3070300@metaparadigm.com>
-	 <20031206010505.GB14904@dualathlon.random>
-	 <3FD7D78A.4080409@metaparadigm.com>
-	 <1071661358.13152.26.camel@imladris.demon.co.uk>
-	 <3FE14706.3070003@metaparadigm.com>
-Content-Type: text/plain
-Message-Id: <1071728709.5316.2.camel@imladris.demon.co.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7.dwmw2.1) 
-Date: Thu, 18 Dec 2003 06:25:09 +0000
+	Thu, 18 Dec 2003 01:41:56 -0500
+Received: from pat.uio.no ([129.240.130.16]:54948 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S264953AbTLRGlz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Dec 2003 01:41:55 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16353.19501.912739.814677@guts.uio.no>
+Date: Thu, 18 Dec 2003 01:41:49 -0500
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.0
+In-Reply-To: <20031217221432.4e1bbd60.akpm@osdl.org>
+References: <Pine.LNX.4.58.0312171951030.5789@home.osdl.org>
+	<20031217211516.2c578bab.akpm@osdl.org>
+	<shsekv2ptcb.fsf@guts.uio.no>
+	<20031217221432.4e1bbd60.akpm@osdl.org>
+X-Mailer: VM 7.07 under 21.4 (patch 12) "Portable Code" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
+X-UiO-MailScanner: No virus found
+X-UiO-Spam-info: not spam, SpamAssassin (score=-4.9, required 12,
+	BAYES_00 -4.90)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-12-18 at 14:19 +0800, Jamie Clark wrote:
-> The first oops ocurred after 4 or 5 days. My second run crashed in the 
-> first night, this time in filemap.c: precheck_file_write().
-> This oops seemed to be at or near the first dereference of inode, before 
-> the f_flags test.
-> 
->         /* FIXME: this is for backwards compatibility with 2.4 */
->         if (!S_ISBLK(inode->i_mode) && (file->f_flags & O_APPEND))
->                 *ppos = pos = inode->i_size;
+>>>>> " " == Andrew Morton <akpm@osdl.org> writes:
 
-Odd. And what's 'inode' then? What compiler are you using?
+     > I doubt that people will be critially dependent on NFS4 client
+     > functionality in 2.6 for a while, and your changes will only
+     > affect NFS4, so go wild.
 
-> Is CONFIG_DEBUG_SLAB all that I need?
+     > If the change was more intrusive then it would be better to
+     > maintain+develop it in -mm until we've all happy, then merge it
+     > across.
 
-Yes, I believe so.
+Thanks... There are some fairly major changes to the NFS attribute
+revalidation that I'm working on right now, and that will be likely to
+come in the second category (as they affect NFSv2/v3 and v4). They
+promise some definite caching wins, though, so I'll try to push them
+into 'mm' as soon as I'm satisfied with their stability...
 
--- 
-dwmw2
+All the rest of the patches should come in the first category, though
+I'll make sure that I label any NFSv2/v3 changes clearly FYI.
 
-
+Cheers,
+  Trond

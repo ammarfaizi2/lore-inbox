@@ -1,59 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267396AbUIJNE6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267388AbUIJNJT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267396AbUIJNE6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 09:04:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267400AbUIJNE6
+	id S267388AbUIJNJT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 09:09:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267400AbUIJNJT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 09:04:58 -0400
-Received: from gizmo03bw.bigpond.com ([144.140.70.13]:18617 "HELO
-	gizmo03bw.bigpond.com") by vger.kernel.org with SMTP
-	id S267396AbUIJNE4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 09:04:56 -0400
-Message-ID: <4141A674.7010708@bigpond.net.au>
-Date: Fri, 10 Sep 2004 23:04:52 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.9-rc1-bk14 Oops] In groups_search()
-References: <413FA9AE.90304@bigpond.net.au> <20040909010610.28ca50e1.akpm@osdl.org> <4140EE3E.5040602@bigpond.net.au> <20040909171450.6546ee7a.akpm@osdl.org> <4141092B.2090608@bigpond.net.au> <20040909200650.787001fc.akpm@osdl.org> <41413F64.40504@bigpond.net.au> <20040909231858.770ab381.akpm@osdl.org> <414149A0.1050006@bigpond.net.au> <20040909235217.5a170840.akpm@osdl.org> <41415B15.1050402@bigpond.net.au> <20040910005454.23bbf9fb.akpm@osdl.org> <4141621D.7020301@bigpond.net.au> <414169F0.1040202@bigpond.net.au> <20040910015436.343c9a4d.akpm@osdl.org>
-In-Reply-To: <20040910015436.343c9a4d.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 10 Sep 2004 09:09:19 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:43723 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S267388AbUIJNJR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 09:09:17 -0400
+Date: Fri, 10 Sep 2004 15:10:40 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Mark_H_Johnson@raytheon.com
+Cc: Lee Revell <rlrevell@joe-job.com>, Free Ekanayaka <free@agnula.org>,
+       Eric St-Laurent <ericstl34@sympatico.ca>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       "K.R. Foley" <kr@cybsft.com>,
+       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
+       Daniel Schmitt <pnambic@unu.nu>,
+       "P.O. Gaillard" <pierre-olivier.gaillard@fr.thalesgroup.com>,
+       nando@ccrma.stanford.edu, luke@audioslack.com, free78@tin.it
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-R1
+Message-ID: <20040910131040.GA7561@elte.hu>
+References: <OFFF07CECA.A4F18108-ON86256F0B.00472BB6-86256F0B.00472BCC@raytheon.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <OFFF07CECA.A4F18108-ON86256F0B.00472BB6-86256F0B.00472BCC@raytheon.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Peter Williams <pwil3058@bigpond.net.au> wrote:
-> 
->> >  I 
->> > still have the original four patches applied.  I'll try again with an 
->> > unpatched bk16 and let you know the results shortly.
->> > 
->>
->> With out of the box bk16 plus your rock.c patch and with 
->> CONFIG_DEBUG_SLAB and CONFIG_DEBUG_PAGEALLOC selected I get no oops in 
->> in_groupse_p() or kfree() but I still get the scheduling while atomic 
->> messages when I do "make install".
-> 
-> 
-> OK.  Could you please resend one of the scheduling-while-atomic messages?
-> 
-> Also, try disabling CONFIG_DEBUG_SLAB, and then reenable it and try
-> disabling CONFIG_DEBUG_PAGEALLOC.  ie: one at a time, not both at the same
-> time.
-> 
 
-CONFIG_DEBUG_SLAB is the one that when selected causes the oops to go 
-away.  I.e. CONFIG_DEBUG_SLAB alone gives NO oops; 
-CONFIG_DEBUG_PAGEALLOC alone gives oops.
+* Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
 
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
+> 00000001 0.000ms (+0.000ms): spin_lock (get_swap_page)
+> 00000001 0.000ms (+0.000ms): spin_lock (<00000000>)
+> 00000001 0.000ms (+0.000ms): spin_lock (get_swap_page)
+> 00000002 0.000ms (+0.113ms): spin_lock (<00000000>)
+> 00010002 0.113ms (+0.000ms): do_nmi (get_swap_page)
 
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+> Are you SURE the spin lock counter works properly on SMP systems?
+> I did a quick check of yesterday's results:
+>   # grep -ir '<.*>' latencytest0.42-png/lt040909  | wc -l
+>   6978
+>   # grep -ir '<.*>' latencytest0.42-png/lt040909  | grep -v '<00000000>' |
+> less -im
+>   ...
 
+> No entries that are non zero and lock related.
+
+it works fine here. To double-check i've created a contention testcase:
+
+ 00000001 0.000ms (+0.000ms): spin_lock (sys_gettimeofday)
+ 00000001 0.000ms (+0.000ms): spin_lock (<000012ce>)
+
+this spin_lock() spun 4814 times before it got the lock.
+
+Linux locking is pretty uncontended on 2-way boxes.
+
+	Ingo

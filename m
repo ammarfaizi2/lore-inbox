@@ -1,55 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265547AbUBGCR5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 21:17:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266516AbUBGCR5
+	id S265975AbUBGCfS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 21:35:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266528AbUBGCfS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 21:17:57 -0500
-Received: from mail.shareable.org ([81.29.64.88]:25040 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S265547AbUBGCR4
+	Fri, 6 Feb 2004 21:35:18 -0500
+Received: from mail.shareable.org ([81.29.64.88]:26576 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S265975AbUBGCfM
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 21:17:56 -0500
-Date: Sat, 7 Feb 2004 02:17:51 +0000
+	Fri, 6 Feb 2004 21:35:12 -0500
+Date: Sat, 7 Feb 2004 02:35:10 +0000
 From: Jamie Lokier <jamie@shareable.org>
-To: Hans Reiser <reiser@namesys.com>
-Cc: Valdis.Kletnieks@vt.edu, the grugq <grugq@hcunix.net>,
-       Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
-Subject: Re: PATCH - ext2fs privacy (i.e. secure deletion) patch
-Message-ID: <20040207021751.GH12503@mail.shareable.org>
-References: <4017E3B9.3090605@hcunix.net> <20040203222030.GB465@elf.ucw.cz> <40203DE1.3000302@hcunix.net> <200402040320.i143KCaD005184@turing-police.cc.vt.edu> <20040207002010.GF12503@mail.shareable.org> <40243C24.8080309@namesys.com>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Murilo Pontes <murilo_pontes@yahoo.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: psmouse.c, throwing 3 bytes away
+Message-ID: <20040207023510.GI12503@mail.shareable.org>
+References: <200402041820.39742.wnelsonjr@comcast.net> <200402051517.37466.murilo_pontes@yahoo.com.br> <20040205203840.GA13114@ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <40243C24.8080309@namesys.com>
+In-Reply-To: <20040205203840.GA13114@ucw.cz>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans Reiser wrote:
-> reiser4 probably does not need secure deletion as much as others, 
-> because once the encryption plugins are debugged we will most likely 
-> encourage users to use encryption by default.  Perhaps someone will show 
-> the error in my thinking though, I am not trying to be rigid here....
+Vojtech Pavlik wrote:
+> On Thu, Feb 05, 2004 at 05:24:27PM +0000, Murilo Pontes wrote:
+> > I try kernel with/without  preempty/acpi/apic make all possibilities, 
+> > then may be error is not in kernel, but in XFree86-4.3.0 which not support big changes in input system
+> > of 2.6.x, I tried compile XFree86 with linux-2.6.{0,1,2} kernel headers was 100% fail, sounds binary 
+> > and source incompatibilites,  
+> 
+> Hey, guys, could you possibly try to figure out what your machines have
+> in common? I've switched all my computers to PS/2 mice so that I have a
+> bigger chance to reproduce the problem, but it is not happening on any
+> of them.
 
-With encrypted block devices, there is the possibility that someone
-may discover your key, or gain access to your computer (e.g. steal
-your laptop while it's switched on, or someone puts a gun to your head
-and makes you enter the key).
+Heh.  I have a USB mouse and I see similar problems:
 
-If someone gets access you might be glad you securely deleted some
-files by overwriting the blocks.
+Red Hat 9 (more or less), XFree86-4.3.0-2, kernel 2.6.0-test10, dual
+athlon, USB Logitech optical mouse, configured to read from
+/dev/input/mice (only!).
 
-When encryption is implemented in the filesystem itself, this is
-preventable.
+Every few hours the mouse suddenly jumps to a corner of the screen and
+seems broken for a second or so.  After that I can move it back to
+where it is useful.
 
-There is a cryptographic way to ensure deleted files cannot be
-recovered even when someone knows the filesystem key, without needing
-to overwrite the files.  This is even better than overwriting, because
-it resists signal processing methods on the hard disk platter, and is
-effective with virtual devices where overwriting does not actually
-erase the original data (e.g. VMware or Bochs copy-on-write disk
-image; LVM snapshots; some SAN devices).
+I never noticed such behaviour when running 2.4 on this box, nor when
+running earlier 2.6 kernels.
 
-Thanks in advance for the implementation :)
+There is nothing about "atkbd" or "mouse" or "lost synchronisation" in
+the kernel log.
 
 -- Jamie

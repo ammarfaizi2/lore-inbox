@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269144AbTG0JSa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 05:18:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269935AbTG0JSa
+	id S269935AbTG0JVb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 05:21:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270152AbTG0JVb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 05:18:30 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:54504 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S269144AbTG0JS3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 05:18:29 -0400
-Date: Sun, 27 Jul 2003 11:24:55 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Cc: Con Kolivas <kernel@kolivas.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: Ingo Molnar and Con Kolivas 2.6 scheduler patches
-In-Reply-To: <1059211833.576.13.camel@teapot.felipe-alfaro.com>
-Message-ID: <Pine.LNX.4.44.0307271112570.7547-100000@localhost.localdomain>
+	Sun, 27 Jul 2003 05:21:31 -0400
+Received: from mail1.cc.huji.ac.il ([132.64.1.17]:20969 "EHLO
+	mail1.cc.huji.ac.il") by vger.kernel.org with ESMTP id S269935AbTG0JVa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jul 2003 05:21:30 -0400
+Message-ID: <3F2391EF.8080707@mscc.huji.ac.il>
+Date: Sun, 27 Jul 2003 11:48:47 +0300
+From: Voicu Liviu <pacman@mscc.huji.ac.il>
+Organization: Hebrew University of Jerusalem
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030713
+X-Accept-Language: en-us, en, he
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: make menuconfig
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-RAVMilter-Version: 8.4.2(snapshot 20021217) (pluto.mscc.huji.ac.il)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi dear list,
+I have heard that "make menuconfig" for kernel 2.6-beta1 is deprecated? 
+Am I correct? If yes then how do I get into the config?
+Alos tryied to run 'make menuconfig' from tcsh and got error like: 
+Missing }.
 
-On Sat, 26 Jul 2003, Felipe Alfaro Solana wrote:
+Best Regards,
 
-> [...] I feel that Con and Ingo work is starting to collide.
+-- 
+Voicu Liviu
+Rothberg International School
+Computation center, Mount Scopus
+Hebrew University of Jerusalem
+Tel: 972(2)-5881253
+E-mail: pacman@mscc.huji.ac.il
 
-they do collide only on the patch level - both change the same code.  
-Otherwise, most of Con's tunings/changes are still valid with my patches
-applied - and i'd more than encourage Con's work to continue! Watching the
-tuning work i got the impression that the problem areas are suffering from
-a lack of infrastructure, not from a lack of tuning. So i introduced 3 new
-items: accurate statistics, on-runqueue boosting and timeslice
-granularity. The fact that these items improved certain characteristics
-(and fixed a couple of corner cases like test-starve.c) prove that it's a
-step in the right direction. It's definitely not the final step.
+System Operating: Linux Gentoo1.4 ( www.gentoo.org )
 
-	Ingo
+Click here to see my GPG signature:
+	http://search.keyserver.net:11371/pks/lookup?template=netensearch%2Cnetennomatch%2Cnetenerror&search=pacman%40mscc.huji.ac.il&op=vindex&fingerprint=on&submit=Get+List
+
 

@@ -1,61 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262213AbUCLQBq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 11:01:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262274AbUCLQBq
+	id S262240AbUCLQLK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 11:11:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262263AbUCLQLK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 11:01:46 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:25610
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S262213AbUCLQAx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 11:00:53 -0500
-Date: Fri, 12 Mar 2004 17:01:35 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: William Lee Irwin III <wli@holomorphy.com>, Rik van Riel <riel@redhat.com>,
-       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org
+	Fri, 12 Mar 2004 11:11:10 -0500
+Received: from fw.osdl.org ([65.172.181.6]:8680 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262240AbUCLQLH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Mar 2004 11:11:07 -0500
+Date: Fri, 12 Mar 2004 08:17:49 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: Andrea Arcangeli <andrea@suse.de>, Rik van Riel <riel@redhat.com>,
+       Hugh Dickins <hugh@veritas.com>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
 Subject: Re: anon_vma RFC2
-Message-ID: <20040312160135.GX30940@dualathlon.random>
-References: <20040312132436.GT30940@dualathlon.random> <Pine.LNX.4.44.0403121348070.4925-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0403121348070.4925-100000@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+In-Reply-To: <20040312124638.GR655@holomorphy.com>
+Message-ID: <Pine.LNX.4.58.0403120812430.1045@ppc970.osdl.org>
+References: <20040311135608.GI30940@dualathlon.random>
+ <Pine.LNX.4.44.0403112226581.21139-100000@chimarrao.boston.redhat.com>
+ <20040312122127.GQ30940@dualathlon.random> <20040312124638.GR655@holomorphy.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 12, 2004 at 01:55:30PM +0000, Hugh Dickins wrote:
-> On Fri, 12 Mar 2004, Andrea Arcangeli wrote:
-> > On Fri, Mar 12, 2004 at 04:46:38AM -0800, William Lee Irwin III wrote:
-> > > 
-> > > The case where mremap() creates rmap_chains is so rare I never ever saw
-> > > it happen in 6 months of regular practical use and testing. Their
-> > > creation could be triggered only by remap_file_pages().
-> > 
-> > did you try specweb with apache? that's super heavy mremap as far as I
-> > know (and it maybe using anon memory, and if not I certainly cannot
-> > exclude other apps are using mremap on significant amounts of anymous
-> > ram).
+
+
+On Fri, 12 Mar 2004, William Lee Irwin III wrote:
 > 
-> anonmm has no problem with most mremaps: the special case is for
-> mremap MAYMOVE of anon vmas _inherited from parent_ (same page at
-> different addresses in the different mms).  As I said before, it's
-> quite conceivable that this case never arises outside our testing
-> (but I'd be glad to be shown wrong, would make effort worthwhile).
+> Absolute guarantees are nice but this characterization is too extreme.
+> The case where mremap() creates rmap_chains is so rare I never ever saw
+> it happen in 6 months of regular practical use and testing. Their
+> creation could be triggered only by remap_file_pages().
 
-the problem is that it _can_ arise, and fixing that is an huge mess
-without using the pte_chains IMHO (no hope to use the vma->shared).
+I have to _violently_ agree with Andrea on this one.
 
-I also don't see how can you know if a vma is pointing all to "direct"
-pages and in turn you can move it somewhere else without the pte_chains.
-sure you can move all anon vmas freely after an execve, but after the
-first fork (and in turn with cow pages going on) all mremaps will
-non-trackable with anonmm, right? lots of server processes uses fork()
-model for the childs, and they can run mremap inside the child of memory
-malloced inside the child, and I don't think you can easily track if the
-malloc happened inside the child or inside the father, though I may be
-wrong on this.
+The absolute _LAST_ thing we want to have is a "remnant" rmap 
+infrastructure that only gets very occasional use. That's a GUARANTEED way 
+to get bugs, and really subtle behaviour.
+
+I think Andrea is 100% right. Either do rmap for everything (like we do
+now, modulo IO/mlock), or do it for _nothing_.  No half measures with
+"most of the time".
+
+Quite frankly, the stuff I've seen suggested sounds absolutely _horrible_. 
+Special cases are not just a pain to work with, they definitely will cause 
+bugs. It's not a matter of "if", it's a matter of "when".
+
+So let's make it clear: if we have an object-based reverse mapping, it 
+should cover all reasonable cases, and in particular, it should NOT have 
+rare fallbacks to code that thus never gets any real testing.
+
+And if we have per-page rmap like now, it should _always_ be there.
+
+You do have to realize that maintainability is a HELL of a lot more
+important than scalability of performance can be. Please keep that in
+mind.
+
+		Linus

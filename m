@@ -1,56 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262677AbVBCOsY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262944AbVBCOyw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262677AbVBCOsY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 09:48:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263491AbVBCOj3
+	id S262944AbVBCOyw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 09:54:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262703AbVBCOsz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 09:39:29 -0500
-Received: from alog0321.analogic.com ([208.224.222.97]:6784 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S263162AbVBCOhW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 09:37:22 -0500
-Date: Thu, 3 Feb 2005 09:37:33 -0500 (EST)
-From: linux-os <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Andries Brouwer <aebr@win.tue.nl>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Joe User DOS kills Linux-2.6.10
-In-Reply-To: <20050203142943.GB5680@pclin040.win.tue.nl>
-Message-ID: <Pine.LNX.4.61.0502030935480.9196@chaos.analogic.com>
-References: <Pine.LNX.4.61.0502021314340.5410@chaos.analogic.com>
- <20050203003334.GA5680@pclin040.win.tue.nl> <Pine.LNX.4.61.0502030725480.8811@chaos.analogic.com>
- <20050203142943.GB5680@pclin040.win.tue.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 3 Feb 2005 09:48:55 -0500
+Received: from kweetal.tue.nl ([131.155.3.6]:35845 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S263431AbVBCOrH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 09:47:07 -0500
+Date: Thu, 3 Feb 2005 15:47:03 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Fruhwirth Clemens <clemens@endorphin.org>
+Cc: Matt Mackall <mpm@selenic.com>, Christophe Saout <christophe@saout.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>, dm-crypt@saout.de,
+       Alasdair G Kergon <agk@redhat.com>
+Subject: Re: dm-crypt crypt_status reports key?
+Message-ID: <20050203144703.GC5680@pclin040.win.tue.nl>
+References: <20050202211916.GJ2493@waste.org> <1107394381.10497.16.camel@server.cs.pocnet.net> <20050203015236.GO2493@waste.org> <1107398069.11826.16.camel@server.cs.pocnet.net> <20050203040542.GQ2493@waste.org> <1107440300.15236.58.camel@ghanima>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1107440300.15236.58.camel@ghanima>
+User-Agent: Mutt/1.4.2i
+X-Spam-DCC: : 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Feb 2005, Andries Brouwer wrote:
+On Thu, Feb 03, 2005 at 03:18:20PM +0100, Fruhwirth Clemens wrote:
 
-> On Thu, Feb 03, 2005 at 07:28:50AM -0500, linux-os wrote:
->
->> I ran badblocks (all night). There were none. It's a SCSI disk
->> and it requires chunks of DMA RAM for each write. The machine
->> just croaks when it gets low on RAM and tries to write to
->> SCSI swap which requires RAM.
->
-> In some other post you said that you were writing past the
-> end of the partition or disk.
->
-> If the disk is fine and you have reproducible errors
-> then the first thing to check is whether your partition table
-> is correct, whether your swap signature is correct, whether
-> the total size of the disk is recognized correctly at boot time.
->
+> (Actually it's a Multi Time Pad.)
 
-I just executed `mkswap` on both of my swap partitions. The
-original swap partitions were created using very early tools.
-I will now try to see if I get the same error, but I can't
-do it now because I need a "work-break".
+And you call this "crypto"?
 
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.

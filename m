@@ -1,97 +1,1154 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261323AbULERrG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261316AbULERqp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261323AbULERrG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Dec 2004 12:47:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261334AbULERrF
+	id S261316AbULERqp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Dec 2004 12:46:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261334AbULERqo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Dec 2004 12:47:05 -0500
-Received: from ns1.g-housing.de ([62.75.136.201]:40644 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S261323AbULERl7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Dec 2004 12:41:59 -0500
-Message-ID: <41B34863.3090007@g-house.de>
-Date: Sun, 05 Dec 2004 18:41:55 +0100
-From: Christian Kujau <evil@g-house.de>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
-X-Accept-Language: de-DE, de, en-us, en
-MIME-Version: 1.0
-To: sheutlin@gmx.de
-CC: linuxppc-dev@ozlabs.org, linux-kernel <linux-kernel@vger.kernel.org>,
-       Sven Hartge <hartge@ds9.argh.org>
-Subject: Re: [FYI] linux 2.6 still not working with PReP (ppc32)
-References: <41B23DF2.4010303@g-house.de> <1102207299.6778.16.camel@weizen.left.earth>
-In-Reply-To: <1102207299.6778.16.camel@weizen.left.earth>
-X-Enigmail-Version: 0.89.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------060304030807010604020208"
+	Sun, 5 Dec 2004 12:46:44 -0500
+Received: from moutng.kundenserver.de ([212.227.126.173]:5625 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S261316AbULERkv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Dec 2004 12:40:51 -0500
+Date: Sun, 5 Dec 2004 18:39:09 +0100
+From: lkml@Think-Future.de
+To: Linux Kernel-Liste <linux-kernel@vger.kernel.org>
+Subject: ethX interface rx errors
+Reply-To: lkml@Think-Future.de
+Mail-Followup-To: lkml@Think-Future.de,
+	Linux Kernel-Liste <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="/9DWx/yDrRhgMJTb"
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-Url: http://www.Think-Future.de
+X-Editor: Vi it! http://www.vim.org
+X-Bkp: p2mi
+X-GnuPG-Key: gpg --keyserver search.keyserver.net --recv-keys 06232116
+Message-Id: <20041205194047.1C597440E2@service.i-think-future.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:35131867b06e6a502cee335cb348919d
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060304030807010604020208
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+--/9DWx/yDrRhgMJTb
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Sebastian Heutling schrieb:
-> You got the powerstack booting from scsi (reading and interpreting the
+  Hi,
 
-yes, but now the disk is gone and i have to use nfsroot.
+Problem: ethernet interfaces shows up unusual rx error count.
+  Spontaneous system crash with heavy generic load or high packet traffic.
 
-> bug report). I had problems booting 2.6 kernels as well (never tested
-> any 2.5 kernels). It turned out that the pci slot numbering has changed
-> sometime and this wasn't reflected in arch/ppc/platforms/prep_pci.c.
-> After having set up the slot0...slot8 using the values of
-> slot10...slot18 (except for slot1 which got value 4 so IDE is usable out
-> of the box), the machine booted a 2.6 kernel (2.6.8).
+System has to be hard reset (reboot necessary).
 
-boy! this *is* an early christmas present, for sure! how did you come to
-this conclusion? something *must* have changed in the pci setup after
-2.5.30, because the problem did not go away when i used a different NIC
-driver. but i could not fiddle out the changeset to blame here, because i
-failed to compile many kernels > 2.5.30.
+Does anyone have an idea what may be the cause and how this problem
+could be solved?
 
-changing one line in arch/ppc/platforms/prep_pci.c made my PReP booting a
-recent 2.6-BK, patch attached.
+Any idea is highly appreciated.
 
-it's booting now, "init=/bin/bash" is working, but i still can't ping to
-the outside world, which is still a bit strange, but i hope i can work it out.
+System:=20
+  - processor k6233 and p3 550 with respective boards
+  - not overclocked
+  - same behaviour with kernel versions 2.4.20-28/2.6.6-10rc3
+  - ebtables/bridging active, eth0+eth1 below br0, problem persists with
+    distinct interfaces w/o bridging
+  - components already switched: mainboard, processor. Same hardware:
+    NICs, RAM, video, power supply, HDDs, CDROM, floppy.
 
-tausend dank (really),
-Christian.
-- --
-BOFH excuse #304:
+Extract of /proc/config.gz may be found at the bottom of this email.=20
 
-routing problems on the neural net
+While running the netio performance test system crashed:
+netio -t host
+
+NETIO - Network Throughput Benchmark, Version 1.23
+(C) 1997-2003 Kai Uwe Rommel
+
+TCP connection established.
+Packet size  1k bytes:  449 KByte/s Tx,  269 KByte/s Rx.
+Packet size  2k bytes:  278 KByte/s Tx,  226 KByte/s Rx.
+Packet size  4k bytes:  128 KByte/s Tx,=20
+
+You may already have noticed the asymmetrical traffic rates: Rx is much
+less performant than Tx.
+
+Btw: Important might be the fact that with some 2.4.2x kernels the samba
+3.xx system could be reproducibly crashed by accessing shares with high
+volume downloads from a win xp pro client.
+Any ideas about this? (Might be OT? Is it kernel related?)
+
+System does not always crash with netio test. Test had been made between 2 =
+hosts
+connected by 100mbit fd link; 2 switches in link.
+
+
+Jeff Garzik has been contacted some time ago as he is RTL-NIC driver=20
+maintainer as we believed the problem to be rtl-related. But, evidentally, =
+the=20
+3com NIC is affected also.=20
+
+Hopefully, I provided the information anyone needs.
+
+
+  Thanks for your answer,
+
+      Nils
+
+
+
+
+
+Below some more system information:
+
+uname -a Linux service 2.6.10-rc3 #1 Sat Dec 4 20:53:31 CET 2004 i686 unkno=
+wn
+
+ifconfig eth0
+eth0      Link encap:Ethernet  HWaddr 00:50:04:04:3D:40 =20
+UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+RX packets:169079 errors:527 dropped:0 overruns:0 frame:789
+TX packets:163097 errors:0 dropped:0 overruns:0 carrier:0
+collisions:0 txqueuelen:1000=20
+RX bytes:60796701 (57.9 MiB)  TX bytes:84544359 (80.6 MiB)
+Interrupt:9 Base address:0xa000
+
+lspci=20
+00:00.0 Host bridge: Intel Corp. 440BX/ZX - 82443BX/ZX Host bridge (rev 03)
+00:01.0 PCI bridge: Intel Corp. 440BX/ZX - 82443BX/ZX AGP bridge (rev 03)
+00:04.0 ISA bridge: Intel Corp. 82371AB PIIX4 ISA (rev 02)
+00:04.1 IDE interface: Intel Corp. 82371AB PIIX4 IDE (rev 01)
+00:04.2 USB Controller: Intel Corp. 82371AB PIIX4 USB (rev 01)
+00:04.3 Bridge: Intel Corp. 82371AB PIIX4 ACPI (rev 02)
+00:09.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139 (rev =
+10)
+00:0b.0 Unknown mass storage controller: Promise Technology, Inc.: Unknown =
+device 4d69 (rev 02)
+00:0c.0 VGA compatible controller: NVidia / SGS Thomson (Joint Venture) Riv=
+a128 (rev 10)
+00:0d.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX [Cyclone] (r=
+ev 24)
+00:0e.0 Network controller: Elsa AG QuickStep 1000 (rev 01)
+
+cat /proc/interrupts=20
+CPU0      =20
+0:   51104963          XT-PIC  timer
+1:          7          XT-PIC  i8042
+2:          0          XT-PIC  cascade
+3:        674          XT-PIC  serial
+7:          1          XT-PIC  parport0
+8:          3          XT-PIC  rtc
+9:     307291          XT-PIC  eth0, eth1
+10:   73113955          XT-PIC  ide2
+12:         59          XT-PIC  i8042
+14:     805150          XT-PIC  ide0
+15:         11          XT-PIC  ide1
+NMI:          0=20
+LOC:          0=20
+ERR:          0
+MIS:          0
+
+ethtool -i eth0
+driver: 3c59x
+version: LK1.1.19
+firmware-version:=20
+bus-info: 0000:00:0d.0=20
+
+mii-tool -v eth0
+SIOCGMIIPHY on 'eth0' failed: Operation not supported
+
+mii-tool -v eth1
+SIOCGMIIPHY on 'eth1' failed: Operation not supported
+
+Why is operation not supported? Module mii is loaded.
+
+lsmod
+Module                  Size  Used by
+usbcore               113640  0=20
+8250                   22464  2=20
+serial_core            21024  1 8250
+parport_pc             40224  1=20
+lp                     11904  0=20
+parport                35456  2 parport_pc,lp
+bridge                 50356  0=20
+hisax_isac             12180  0=20
+hisax                 196608  1 hisax_isac
+isdn                  134752  1 hisax
+8139too                24736  0=20
+mii                     4928  1 8139too
+3c59x                  37672  0=20
+
+
+=2E/bin/mii-diag eth0
+Using the default interface 'eth0'.
+Basic registers of MII PHY #24:  3000 7849 0000 0000 0141 0000 0004 2001.
+Basic mode control register 0x3000: Auto-negotiation enabled.
+Basic mode status register 0x7849 ... 784d.
+Link status: previously broken, but now reestablished.
+Your link partner does not do autonegotiation, and this transceiver type do=
+es not report the sensed link speed.
+End of basic transceiver information.
+
+=2E/bin/mii-diag -s eth0
+Basic registers of MII PHY #24:  3000 784d 0000 0000 0141 0000 0004 2001.
+Basic mode control register 0x3000: Auto-negotiation enabled.
+You have link beat, and everything is working OK.
+Your link partner does not do autonegotiation, and this transceiver type
+does not report the sensed link speed.
+End of basic transceiver information.
+
+=2E/bin/mii-diag eth1
+Basic registers of MII PHY #32:  0100 780d 0000 0000 05e1 0000 0000 0000.
+Basic mode control register 0x0100: Auto-negotiation
+disabled, with Speed fixed at 10 mbps, full-duplex.
+You have link beat, and everything is working OK.
+Link partner information is not exchanged when in fixed speed mode.
+End of basic transceiver information.
+
+Trying to fix speed and duplex at 100FD does not solve the problem.
+(at least not with 2.4.2x)
+
+=2E/bin/rtl8139-diag eth1
+rtl8139-diag.c:v2.11 4/22/2003 Donald Becker (becker@scyld.com)
+http://www.scyld.com/diag/index.html
+Index #1: Found a RealTek RTL8139 adapter at 0xd000.
+Realtek station address 00:e0:7d:ef:8e:4e, chip type 'rtl8139C'.
+Receiver configuration: Promiscuous
+Rx FIFO threshold 2048 bytes, maximum burst 2048 bytes, 32KB ring
+Transmitter enabled with NONSTANDARD! settings, maximum burst 1024 bytes.
+Flow control: Tx disabled  Rx disabled.
+The chip configuration is 0x10 0x8d, MII half-duplex mode.
+No interrupt sources are pending.
+Use '-a' or '-aa' to show device registers,
+'-e' to show EEPROM contents, -ee for parsed contents,
+or '-m' or '-mm' to show MII management
+registers.
+
+ bin/vortex-diag -a eth0
+ vortex-diag.c:v2.14 12/28/2002 Donald Becker (becker@scyld.com)
+  http://www.scyld.com/diag/index.html
+  Index #1: Found a 3c905B Cyclone 100baseTx adapter at 0xa000.
+   Station address 00:50:04:04:3d:40.
+     Receive mode is 0x0f: Promiscuous.
+     The Vortex chip may be active, so FIFO registers will not be read.
+     To see all register values use the '-f' flag.
+     Initial window 4, registers values by window:
+       Window 0: 0000 0000 0000 0000 0000 00bf 0000 0000.
+       Window 1: FIFO FIFO 0000 0000 0000 0000 0000 2000.
+       Window 2: 5000 0404 403d 0000 0000 0000 000a 4000.
+       Window 3: 0000 0240 05ee 0020 000a 0800 0800 6000.
+       Window 4: 0000 0000 0000 0cd2 0003 8880 0000 8000.
+       Window 5: 1ffc 0000 0000 0600 080f 06ce 06c6 a000.
+       Window 6: 0000 0000 0000 8900 0000 32a1 3704 c000.
+       Window 7: 0000 0000 8100 0000 0000 0000 0000 e000.
+Vortex chip registers at 0xa000
+  0xA010: **FIFO** 00000000 0000002c *STATUS*
+  0xA020: 00000020 00000000 00080000 00000004
+  0xA030: 00000000 24e7db19 0e5b10e0 00080004
+  0xA040: 00ca6301 00000000 00000000 00000000
+  0xA050: 00000000 00000000 00000000 00000000
+  0xA060: 00000000 00000000 00000000 00000000
+  0xA070: 00001000 00000000 00000160 00000000
+  DMA control register is 00000020.
+    Tx list starts at 00000000.
+    Tx FIFO thresholds: min. burst 256 bytes, priority with 128 bytes to em=
+pty.
+    Rx FIFO thresholds: min. burst 256 bytes, priority with 128 bytes to fu=
+ll.
+    Poll period Tx 00 ns.,  Rx 0 ns.
+    Maximum burst recorded Tx 352,  Rx 0.
+ Indication enable is 06c6, interrupt enable is 06ce.
+No interrupt sources are pending.
+Transceiver/media interfaces available:  100baseTx 10baseT.
+Transceiver type in use:  100baseTX.
+MAC settings: full-duplex.
+Maximum packet size is 1518.
+Station address set to 00:50:04:04:3d:40.
+Configuration options 000a.
+
+free
+              total       used       free     shared    buffers     cached
+Mem:        255108     242560      12548          0       10044     177604
+-/+ buffers/cache:      54912     200196
+Swap:       785224          0     785224
+
+
+cat /proc/ioports=20
+0000-001f : dma1
+0020-0021 : pic1
+0040-0043 : timer0
+0050-0053 : timer1
+0060-006f : keyboard
+0070-0077 : rtc
+0080-008f : dma page reg
+00a0-00a1 : pic2
+00c0-00df : dma2
+00f0-00ff : fpu
+0170-0177 : ide1
+01f0-01f7 : ide0
+0290-0297 : pnp 00:0f
+02f8-02ff : serial
+0376-0376 : ide1
+0378-037a : parport0
+037b-037f : parport0
+03c0-03df : vga+
+03f6-03f6 : ide0
+03f8-03ff : serial
+0778-077a : parport0
+0cf8-0cff : PCI conf1
+9400-9403 : 0000:00:0e.0
+9800-987f : 0000:00:0e.0
+a000-a07f : 0000:00:0d.0
+a000-a07f : 0000:00:0d.0
+  a400-a40f : 0000:00:0b.0
+a800-a803 : 0000:00:0b.0
+  a802-a802 : ide3
+b000-b007 : 0000:00:0b.0
+  b000-b007 : ide3
+b400-b403 : 0000:00:0b.0
+  b402-b402 : ide2
+b800-b807 : 0000:00:0b.0
+  b800-b807 : ide2
+d000-d0ff : 0000:00:09.0
+  d000-d0ff : 8139too
+d400-d41f : 0000:00:04.2
+d800-d80f : 0000:00:04.1
+  d800-d807 : ide0
+  d808-d80f : ide1
+e400-e43f : 0000:00:04.3
+  e400-e43f : pnp 00:0f
+e800-e81f : 0000:00:04.3
+
+dmesg | grep -i -E "eth|br|3com"
+0000:00:0d.0: 3Com PCI 3c905B Cyclone 100baseTx at 0xa000. Vers LK1.1.19
+8139too Fast Ethernet driver 0.9.27
+eth1: RealTek RTL8139 at 0xd0886000, 00:e0:7d:ef:8e:4e, IRQ 9
+eth1:  Identified 8139 chip type 'RTL-8100B/8139D'
+Bridge firewalling registered
+device eth0 entered promiscuous mode
+device eth1 entered promiscuous mode
+eth0: Setting promiscuous mode.
+eth0: Setting promiscuous mode.
+eth0: Setting promiscuous mode.
+eth0: Setting promiscuous mode.
+eth0: Setting promiscuous mode.
+eth1: link up, 10Mbps, half-duplex, lpa 0x0000
+eth1: Promiscuous mode enabled.
+eth1: Promiscuous mode enabled.
+eth1: Promiscuous mode enabled.
+eth1: Promiscuous mode enabled.
+eth1: Promiscuous mode enabled.
+br0: port 2(eth1) entering learning state
+br0: port 1(eth0) entering learning state
+br0: topology change detected, propagating
+br0: port 2(eth1) entering forwarding state
+br0: topology change detected, propagating
+br0: port 1(eth0) entering forwarding state
+
+
+Below follows kernel config only (~830 lines):
+
+zgrep -E "=3D[y|m]" /proc/config.gz
+CONFIG_X86=3Dy
+CONFIG_MMU=3Dy
+CONFIG_UID16=3Dy
+CONFIG_GENERIC_ISA_DMA=3Dy
+CONFIG_GENERIC_IOMAP=3Dy
+CONFIG_EXPERIMENTAL=3Dy
+CONFIG_CLEAN_COMPILE=3Dy
+CONFIG_BROKEN_ON_SMP=3Dy
+CONFIG_LOCK_KERNEL=3Dy
+CONFIG_SWAP=3Dy
+CONFIG_SYSVIPC=3Dy
+CONFIG_POSIX_MQUEUE=3Dy
+CONFIG_BSD_PROCESS_ACCT=3Dy
+CONFIG_BSD_PROCESS_ACCT_V3=3Dy
+CONFIG_SYSCTL=3Dy
+CONFIG_AUDIT=3Dy
+CONFIG_AUDITSYSCALL=3Dy
+CONFIG_HOTPLUG=3Dy
+CONFIG_KOBJECT_UEVENT=3Dy
+CONFIG_IKCONFIG=3Dy
+CONFIG_IKCONFIG_PROC=3Dy
+CONFIG_KALLSYMS=3Dy
+CONFIG_KALLSYMS_ALL=3Dy
+CONFIG_KALLSYMS_EXTRA_PASS=3Dy
+CONFIG_FUTEX=3Dy
+CONFIG_EPOLL=3Dy
+CONFIG_SHMEM=3Dy
+CONFIG_MODULES=3Dy
+CONFIG_MODULE_UNLOAD=3Dy
+CONFIG_MODULE_FORCE_UNLOAD=3Dy
+CONFIG_OBSOLETE_MODPARM=3Dy
+CONFIG_MODVERSIONS=3Dy
+CONFIG_MODULE_SRCVERSION_ALL=3Dy
+CONFIG_KMOD=3Dy
+CONFIG_X86_PC=3Dy
+CONFIG_MPENTIUMIII=3Dy
+CONFIG_X86_CMPXCHG=3Dy
+CONFIG_X86_XADD=3Dy
+CONFIG_RWSEM_XCHGADD_ALGORITHM=3Dy
+CONFIG_X86_WP_WORKS_OK=3Dy
+CONFIG_X86_INVLPG=3Dy
+CONFIG_X86_BSWAP=3Dy
+CONFIG_X86_POPAD_OK=3Dy
+CONFIG_X86_GOOD_APIC=3Dy
+CONFIG_X86_INTEL_USERCOPY=3Dy
+CONFIG_X86_USE_PPRO_CHECKSUM=3Dy
+CONFIG_PREEMPT=3Dy
+CONFIG_X86_UP_APIC=3Dy
+CONFIG_X86_UP_IOAPIC=3Dy
+CONFIG_X86_LOCAL_APIC=3Dy
+CONFIG_X86_IO_APIC=3Dy
+CONFIG_X86_TSC=3Dy
+CONFIG_X86_MCE=3Dy
+CONFIG_X86_MCE_NONFATAL=3Dy
+CONFIG_MICROCODE=3Dy
+CONFIG_X86_MSR=3Dy
+CONFIG_X86_CPUID=3Dy
+CONFIG_NOHIGHMEM=3Dy
+CONFIG_MTRR=3Dy
+CONFIG_HAVE_DEC_LOCK=3Dy
+CONFIG_PM=3Dy
+CONFIG_ACPI=3Dy
+CONFIG_ACPI_BOOT=3Dy
+CONFIG_ACPI_INTERPRETER=3Dy
+CONFIG_ACPI_AC=3Dy
+CONFIG_ACPI_BUTTON=3Dm
+CONFIG_ACPI_VIDEO=3Dm
+CONFIG_ACPI_FAN=3Dm
+CONFIG_ACPI_PROCESSOR=3Dm
+CONFIG_ACPI_THERMAL=3Dm
+CONFIG_ACPI_BUS=3Dy
+CONFIG_ACPI_EC=3Dy
+CONFIG_ACPI_POWER=3Dy
+CONFIG_ACPI_PCI=3Dy
+CONFIG_ACPI_SYSTEM=3Dy
+CONFIG_X86_PM_TIMER=3Dy
+CONFIG_APM=3Dm
+CONFIG_APM_CPU_IDLE=3Dy
+CONFIG_APM_RTC_IS_GMT=3Dy
+CONFIG_APM_ALLOW_INTS=3Dy
+CONFIG_APM_REAL_MODE_POWER_OFF=3Dy
+CONFIG_PCI=3Dy
+CONFIG_PCI_GOANY=3Dy
+CONFIG_PCI_BIOS=3Dy
+CONFIG_PCI_DIRECT=3Dy
+CONFIG_PCI_MMCONFIG=3Dy
+CONFIG_PCI_LEGACY_PROC=3Dy
+CONFIG_PCI_NAMES=3Dy
+CONFIG_ISA=3Dy
+CONFIG_PCMCIA_PROBE=3Dy
+CONFIG_BINFMT_ELF=3Dy
+CONFIG_BINFMT_AOUT=3Dm
+CONFIG_BINFMT_MISC=3Dm
+CONFIG_STANDALONE=3Dy
+CONFIG_PREVENT_FIRMWARE_BUILD=3Dy
+CONFIG_FW_LOADER=3Dm
+CONFIG_PARPORT=3Dm
+CONFIG_PARPORT_PC=3Dm
+CONFIG_PARPORT_PC_CML1=3Dm
+CONFIG_PARPORT_PC_FIFO=3Dy
+CONFIG_PARPORT_PC_SUPERIO=3Dy
+CONFIG_PARPORT_1284=3Dy
+CONFIG_PNP=3Dy
+CONFIG_PNP_DEBUG=3Dy
+CONFIG_ISAPNP=3Dy
+CONFIG_PNPBIOS=3Dy
+CONFIG_PNPBIOS_PROC_FS=3Dy
+CONFIG_BLK_DEV_FD=3Dy
+CONFIG_BLK_DEV_LOOP=3Dy
+CONFIG_BLK_DEV_CRYPTOLOOP=3Dy
+CONFIG_BLK_DEV_NBD=3Dm
+CONFIG_BLK_DEV_SX8=3Dm
+CONFIG_BLK_DEV_RAM=3Dy
+CONFIG_BLK_DEV_INITRD=3Dy
+CONFIG_CDROM_PKTCDVD=3Dm
+CONFIG_IOSCHED_NOOP=3Dy
+CONFIG_IOSCHED_AS=3Dy
+CONFIG_IOSCHED_DEADLINE=3Dy
+CONFIG_IOSCHED_CFQ=3Dy
+CONFIG_IDE=3Dy
+CONFIG_BLK_DEV_IDE=3Dy
+CONFIG_BLK_DEV_IDEDISK=3Dy
+CONFIG_BLK_DEV_IDECD=3Dy
+CONFIG_BLK_DEV_IDESCSI=3Dm
+CONFIG_IDE_GENERIC=3Dy
+CONFIG_BLK_DEV_IDEPNP=3Dy
+CONFIG_BLK_DEV_IDEPCI=3Dy
+CONFIG_IDEPCI_SHARE_IRQ=3Dy
+CONFIG_BLK_DEV_OFFBOARD=3Dy
+CONFIG_BLK_DEV_GENERIC=3Dy
+CONFIG_BLK_DEV_IDEDMA_PCI=3Dy
+CONFIG_IDEDMA_PCI_AUTO=3Dy
+CONFIG_BLK_DEV_PIIX=3Dy
+CONFIG_BLK_DEV_PDC202XX_OLD=3Dy
+CONFIG_BLK_DEV_IDEDMA=3Dy
+CONFIG_IDEDMA_IVB=3Dy
+CONFIG_IDEDMA_AUTO=3Dy
+CONFIG_SCSI=3Dy
+CONFIG_SCSI_PROC_FS=3Dy
+CONFIG_BLK_DEV_SD=3Dy
+CONFIG_BLK_DEV_SR=3Dm
+CONFIG_CHR_DEV_SG=3Dm
+CONFIG_SCSI_MULTI_LUN=3Dy
+CONFIG_SCSI_CONSTANTS=3Dy
+CONFIG_SCSI_LOGGING=3Dy
+CONFIG_SCSI_SPI_ATTRS=3Dm
+CONFIG_SCSI_AIC7XXX_OLD=3Dy
+CONFIG_SCSI_QLA2XXX=3Dy
+CONFIG_MD=3Dy
+CONFIG_BLK_DEV_MD=3Dm
+CONFIG_MD_LINEAR=3Dm
+CONFIG_MD_RAID0=3Dm
+CONFIG_MD_RAID1=3Dm
+CONFIG_MD_RAID5=3Dm
+CONFIG_MD_MULTIPATH=3Dm
+CONFIG_BLK_DEV_DM=3Dm
+CONFIG_DM_CRYPT=3Dm
+CONFIG_IEEE1394=3Dm
+CONFIG_IEEE1394_OUI_DB=3Dy
+CONFIG_IEEE1394_EXTRA_CONFIG_ROMS=3Dy
+CONFIG_IEEE1394_CONFIG_ROM_IP1394=3Dy
+CONFIG_IEEE1394_OHCI1394=3Dm
+CONFIG_IEEE1394_VIDEO1394=3Dm
+CONFIG_IEEE1394_SBP2=3Dm
+CONFIG_IEEE1394_ETH1394=3Dm
+CONFIG_IEEE1394_DV1394=3Dm
+CONFIG_IEEE1394_RAWIO=3Dm
+CONFIG_IEEE1394_CMP=3Dm
+CONFIG_IEEE1394_AMDTP=3Dm
+CONFIG_NET=3Dy
+CONFIG_PACKET=3Dy
+CONFIG_PACKET_MMAP=3Dy
+CONFIG_NETLINK_DEV=3Dm
+CONFIG_UNIX=3Dy
+CONFIG_NET_KEY=3Dm
+CONFIG_INET=3Dy
+CONFIG_IP_MULTICAST=3Dy
+CONFIG_IP_ADVANCED_ROUTER=3Dy
+CONFIG_IP_MULTIPLE_TABLES=3Dy
+CONFIG_IP_ROUTE_FWMARK=3Dy
+CONFIG_IP_ROUTE_MULTIPATH=3Dy
+CONFIG_IP_ROUTE_VERBOSE=3Dy
+CONFIG_IP_PNP=3Dy
+CONFIG_IP_PNP_DHCP=3Dy
+CONFIG_IP_PNP_BOOTP=3Dy
+CONFIG_IP_PNP_RARP=3Dy
+CONFIG_NET_IPIP=3Dm
+CONFIG_NET_IPGRE=3Dm
+CONFIG_NET_IPGRE_BROADCAST=3Dy
+CONFIG_IP_MROUTE=3Dy
+CONFIG_IP_PIMSM_V1=3Dy
+CONFIG_IP_PIMSM_V2=3Dy
+CONFIG_ARPD=3Dy
+CONFIG_SYN_COOKIES=3Dy
+CONFIG_INET_AH=3Dm
+CONFIG_INET_ESP=3Dm
+CONFIG_INET_IPCOMP=3Dm
+CONFIG_INET_TUNNEL=3Dm
+CONFIG_IP_TCPDIAG=3Dm
+CONFIG_NETFILTER=3Dy
+CONFIG_NETFILTER_DEBUG=3Dy
+CONFIG_BRIDGE_NETFILTER=3Dy
+CONFIG_IP_NF_CONNTRACK=3Dm
+CONFIG_IP_NF_CT_ACCT=3Dy
+CONFIG_IP_NF_CONNTRACK_MARK=3Dy
+CONFIG_IP_NF_CT_PROTO_SCTP=3Dm
+CONFIG_IP_NF_FTP=3Dm
+CONFIG_IP_NF_IRC=3Dm
+CONFIG_IP_NF_TFTP=3Dm
+CONFIG_IP_NF_AMANDA=3Dm
+CONFIG_IP_NF_QUEUE=3Dm
+CONFIG_IP_NF_IPTABLES=3Dm
+CONFIG_IP_NF_MATCH_LIMIT=3Dm
+CONFIG_IP_NF_MATCH_IPRANGE=3Dm
+CONFIG_IP_NF_MATCH_MAC=3Dm
+CONFIG_IP_NF_MATCH_PKTTYPE=3Dm
+CONFIG_IP_NF_MATCH_MARK=3Dm
+CONFIG_IP_NF_MATCH_MULTIPORT=3Dm
+CONFIG_IP_NF_MATCH_TOS=3Dm
+CONFIG_IP_NF_MATCH_RECENT=3Dm
+CONFIG_IP_NF_MATCH_ECN=3Dm
+CONFIG_IP_NF_MATCH_DSCP=3Dm
+CONFIG_IP_NF_MATCH_AH_ESP=3Dm
+CONFIG_IP_NF_MATCH_LENGTH=3Dm
+CONFIG_IP_NF_MATCH_TTL=3Dm
+CONFIG_IP_NF_MATCH_TCPMSS=3Dm
+CONFIG_IP_NF_MATCH_HELPER=3Dm
+CONFIG_IP_NF_MATCH_STATE=3Dm
+CONFIG_IP_NF_MATCH_CONNTRACK=3Dm
+CONFIG_IP_NF_MATCH_OWNER=3Dm
+CONFIG_IP_NF_MATCH_PHYSDEV=3Dm
+CONFIG_IP_NF_MATCH_ADDRTYPE=3Dm
+CONFIG_IP_NF_MATCH_REALM=3Dm
+CONFIG_IP_NF_MATCH_SCTP=3Dm
+CONFIG_IP_NF_MATCH_COMMENT=3Dm
+CONFIG_IP_NF_MATCH_CONNMARK=3Dm
+CONFIG_IP_NF_FILTER=3Dm
+CONFIG_IP_NF_TARGET_REJECT=3Dm
+CONFIG_IP_NF_TARGET_LOG=3Dm
+CONFIG_IP_NF_TARGET_ULOG=3Dm
+CONFIG_IP_NF_TARGET_TCPMSS=3Dm
+CONFIG_IP_NF_NAT=3Dm
+CONFIG_IP_NF_NAT_NEEDED=3Dy
+CONFIG_IP_NF_TARGET_MASQUERADE=3Dm
+CONFIG_IP_NF_TARGET_REDIRECT=3Dm
+CONFIG_IP_NF_TARGET_NETMAP=3Dm
+CONFIG_IP_NF_TARGET_SAME=3Dm
+CONFIG_IP_NF_NAT_LOCAL=3Dy
+CONFIG_IP_NF_NAT_SNMP_BASIC=3Dm
+CONFIG_IP_NF_NAT_IRC=3Dm
+CONFIG_IP_NF_NAT_FTP=3Dm
+CONFIG_IP_NF_NAT_TFTP=3Dm
+CONFIG_IP_NF_NAT_AMANDA=3Dm
+CONFIG_IP_NF_MANGLE=3Dm
+CONFIG_IP_NF_TARGET_TOS=3Dm
+CONFIG_IP_NF_TARGET_ECN=3Dm
+CONFIG_IP_NF_TARGET_DSCP=3Dm
+CONFIG_IP_NF_TARGET_MARK=3Dm
+CONFIG_IP_NF_TARGET_CLASSIFY=3Dm
+CONFIG_IP_NF_TARGET_CONNMARK=3Dm
+CONFIG_IP_NF_ARPTABLES=3Dm
+CONFIG_IP_NF_ARPFILTER=3Dm
+CONFIG_IP_NF_ARP_MANGLE=3Dm
+CONFIG_BRIDGE_NF_EBTABLES=3Dm
+CONFIG_BRIDGE_EBT_BROUTE=3Dm
+CONFIG_BRIDGE_EBT_T_FILTER=3Dm
+CONFIG_BRIDGE_EBT_T_NAT=3Dm
+CONFIG_BRIDGE_EBT_802_3=3Dm
+CONFIG_BRIDGE_EBT_AMONG=3Dm
+CONFIG_BRIDGE_EBT_ARP=3Dm
+CONFIG_BRIDGE_EBT_IP=3Dm
+CONFIG_BRIDGE_EBT_LIMIT=3Dm
+CONFIG_BRIDGE_EBT_MARK=3Dm
+CONFIG_BRIDGE_EBT_PKTTYPE=3Dm
+CONFIG_BRIDGE_EBT_STP=3Dm
+CONFIG_BRIDGE_EBT_VLAN=3Dm
+CONFIG_BRIDGE_EBT_ARPREPLY=3Dm
+CONFIG_BRIDGE_EBT_DNAT=3Dm
+CONFIG_BRIDGE_EBT_MARK_T=3Dm
+CONFIG_BRIDGE_EBT_REDIRECT=3Dm
+CONFIG_BRIDGE_EBT_SNAT=3Dm
+CONFIG_BRIDGE_EBT_LOG=3Dm
+CONFIG_XFRM=3Dy
+CONFIG_XFRM_USER=3Dm
+CONFIG_BRIDGE=3Dm
+CONFIG_VLAN_8021Q=3Dm
+CONFIG_LLC=3Dm
+CONFIG_IPX=3Dm
+CONFIG_IPX_INTERN=3Dy
+CONFIG_ATALK=3Dm
+CONFIG_DEV_APPLETALK=3Dy
+CONFIG_IPDDP=3Dm
+CONFIG_IPDDP_ENCAP=3Dy
+CONFIG_IPDDP_DECAP=3Dy
+CONFIG_NET_SCHED=3Dy
+CONFIG_NET_SCH_CLK_JIFFIES=3Dy
+CONFIG_NET_SCH_CBQ=3Dm
+CONFIG_NET_SCH_HTB=3Dm
+CONFIG_NET_SCH_HFSC=3Dm
+CONFIG_NET_SCH_PRIO=3Dm
+CONFIG_NET_SCH_RED=3Dm
+CONFIG_NET_SCH_SFQ=3Dm
+CONFIG_NET_SCH_TEQL=3Dm
+CONFIG_NET_SCH_TBF=3Dm
+CONFIG_NET_SCH_GRED=3Dm
+CONFIG_NET_SCH_DSMARK=3Dm
+CONFIG_NET_SCH_NETEM=3Dm
+CONFIG_NET_SCH_INGRESS=3Dm
+CONFIG_NET_QOS=3Dy
+CONFIG_NET_ESTIMATOR=3Dy
+CONFIG_NET_CLS=3Dy
+CONFIG_NET_CLS_TCINDEX=3Dm
+CONFIG_NET_CLS_ROUTE4=3Dm
+CONFIG_NET_CLS_ROUTE=3Dy
+CONFIG_NET_CLS_FW=3Dm
+CONFIG_NET_CLS_U32=3Dm
+CONFIG_CLS_U32_PERF=3Dy
+CONFIG_NET_CLS_RSVP=3Dm
+CONFIG_NET_CLS_RSVP6=3Dm
+CONFIG_NET_CLS_POLICE=3Dy
+CONFIG_IRDA=3Dm
+CONFIG_IRLAN=3Dm
+CONFIG_IRNET=3Dm
+CONFIG_IRCOMM=3Dm
+CONFIG_IRDA_ULTRA=3Dy
+CONFIG_IRDA_CACHE_LAST_LSAP=3Dy
+CONFIG_IRDA_FAST_RR=3Dy
+CONFIG_IRDA_DEBUG=3Dy
+CONFIG_IRTTY_SIR=3Dm
+CONFIG_DONGLE=3Dy
+CONFIG_ESI_DONGLE=3Dm
+CONFIG_ACTISYS_DONGLE=3Dm
+CONFIG_TEKRAM_DONGLE=3Dm
+CONFIG_LITELINK_DONGLE=3Dm
+CONFIG_MA600_DONGLE=3Dm
+CONFIG_GIRBIL_DONGLE=3Dm
+CONFIG_MCP2120_DONGLE=3Dm
+CONFIG_OLD_BELKIN_DONGLE=3Dm
+CONFIG_ACT200L_DONGLE=3Dm
+CONFIG_IRPORT_SIR=3Dm
+CONFIG_USB_IRDA=3Dm
+CONFIG_SIGMATEL_FIR=3Dm
+CONFIG_NSC_FIR=3Dm
+CONFIG_WINBOND_FIR=3Dm
+CONFIG_TOSHIBA_FIR=3Dm
+CONFIG_SMC_IRCC_FIR=3Dm
+CONFIG_ALI_FIR=3Dm
+CONFIG_VLSI_FIR=3Dm
+CONFIG_VIA_FIR=3Dm
+CONFIG_BT=3Dm
+CONFIG_BT_L2CAP=3Dm
+CONFIG_BT_SCO=3Dm
+CONFIG_BT_RFCOMM=3Dm
+CONFIG_BT_RFCOMM_TTY=3Dy
+CONFIG_BT_BNEP=3Dm
+CONFIG_BT_BNEP_MC_FILTER=3Dy
+CONFIG_BT_BNEP_PROTO_FILTER=3Dy
+CONFIG_BT_CMTP=3Dm
+CONFIG_BT_HIDP=3Dm
+CONFIG_BT_HCIUSB=3Dm
+CONFIG_BT_HCIUSB_SCO=3Dy
+CONFIG_BT_HCIUART=3Dm
+CONFIG_BT_HCIUART_H4=3Dy
+CONFIG_BT_HCIUART_BCSP=3Dy
+CONFIG_BT_HCIUART_BCSP_TXCRC=3Dy
+CONFIG_BT_HCIBCM203X=3Dm
+CONFIG_BT_HCIBFUSB=3Dm
+CONFIG_BT_HCIVHCI=3Dm
+CONFIG_NETDEVICES=3Dy
+CONFIG_DUMMY=3Dm
+CONFIG_BONDING=3Dm
+CONFIG_TUN=3Dm
+CONFIG_ETHERTAP=3Dm
+CONFIG_NET_ETHERNET=3Dy
+CONFIG_MII=3Dm
+CONFIG_NET_VENDOR_3COM=3Dy
+CONFIG_EL3=3Dm
+CONFIG_3C515=3Dm
+CONFIG_VORTEX=3Dm
+CONFIG_NET_ISA=3Dy
+CONFIG_NE2000=3Dm
+CONFIG_NET_PCI=3Dy
+CONFIG_EEPRO100=3Dm
+CONFIG_E100=3Dm
+CONFIG_NE2K_PCI=3Dm
+CONFIG_8139CP=3Dm
+CONFIG_8139TOO=3Dm
+CONFIG_8139TOO_TUNE_TWISTER=3Dy
+CONFIG_8139TOO_8129=3Dy
+CONFIG_NET_RADIO=3Dy
+CONFIG_STRIP=3Dm
+CONFIG_ARLAN=3Dm
+CONFIG_WAVELAN=3Dm
+CONFIG_AIRO=3Dm
+CONFIG_HERMES=3Dm
+CONFIG_PLX_HERMES=3Dm
+CONFIG_TMD_HERMES=3Dm
+CONFIG_PCI_HERMES=3Dm
+CONFIG_ATMEL=3Dm
+CONFIG_PCI_ATMEL=3Dm
+CONFIG_PRISM54=3Dm
+CONFIG_NET_WIRELESS=3Dy
+CONFIG_PLIP=3Dm
+CONFIG_PPP=3Dy
+CONFIG_PPP_FILTER=3Dy
+CONFIG_PPP_ASYNC=3Dm
+CONFIG_PPP_SYNC_TTY=3Dm
+CONFIG_PPP_DEFLATE=3Dm
+CONFIG_PPP_BSDCOMP=3Dm
+CONFIG_PPPOE=3Dm
+CONFIG_SLIP=3Dm
+CONFIG_SLIP_COMPRESSED=3Dy
+CONFIG_SLIP_SMART=3Dy
+CONFIG_SLIP_MODE_SLIP6=3Dy
+CONFIG_ISDN=3Dm
+CONFIG_ISDN_I4L=3Dm
+CONFIG_ISDN_PPP=3Dy
+CONFIG_ISDN_PPP_VJ=3Dy
+CONFIG_ISDN_MPP=3Dy
+CONFIG_IPPP_FILTER=3Dy
+CONFIG_ISDN_PPP_BSDCOMP=3Dm
+CONFIG_ISDN_AUDIO=3Dy
+CONFIG_ISDN_TTY_FAX=3Dy
+CONFIG_ISDN_DRV_LOOP=3Dm
+CONFIG_ISDN_DIVERSION=3Dm
+CONFIG_ISDN_DRV_HISAX=3Dm
+CONFIG_HISAX_EURO=3Dy
+CONFIG_DE_AOC=3Dy
+CONFIG_HISAX_NO_KEYPAD=3Dy
+CONFIG_HISAX_1TR6=3Dy
+CONFIG_HISAX_FRITZPCI=3Dy
+CONFIG_HISAX_ELSA=3Dy
+CONFIG_HISAX_DEBUG=3Dy
+CONFIG_HISAX_FRITZ_PCIPNP=3Dm
+CONFIG_ISDN_DRV_ICN=3Dm
+CONFIG_ISDN_CAPI=3Dm
+CONFIG_ISDN_DRV_AVMB1_VERBOSE_REASON=3Dy
+CONFIG_ISDN_CAPI_CAPI20=3Dm
+CONFIG_ISDN_CAPI_CAPIDRV=3Dm
+CONFIG_CAPI_AVM=3Dy
+CONFIG_ISDN_DRV_AVMB1_B1PCI=3Dm
+CONFIG_INPUT=3Dy
+CONFIG_INPUT_MOUSEDEV=3Dy
+CONFIG_INPUT_MOUSEDEV_PSAUX=3Dy
+CONFIG_INPUT_JOYDEV=3Dm
+CONFIG_INPUT_EVDEV=3Dm
+CONFIG_SOUND_GAMEPORT=3Dy
+CONFIG_SERIO=3Dy
+CONFIG_SERIO_I8042=3Dy
+CONFIG_SERIO_SERPORT=3Dy
+CONFIG_INPUT_KEYBOARD=3Dy
+CONFIG_KEYBOARD_ATKBD=3Dy
+CONFIG_INPUT_MOUSE=3Dy
+CONFIG_MOUSE_PS2=3Dy
+CONFIG_MOUSE_SERIAL=3Dy
+CONFIG_INPUT_MISC=3Dy
+CONFIG_INPUT_PCSPKR=3Dm
+CONFIG_INPUT_UINPUT=3Dm
+CONFIG_VT=3Dy
+CONFIG_VT_CONSOLE=3Dy
+CONFIG_HW_CONSOLE=3Dy
+CONFIG_SERIAL_8250=3Dm
+CONFIG_SERIAL_CORE=3Dm
+CONFIG_UNIX98_PTYS=3Dy
+CONFIG_LEGACY_PTYS=3Dy
+CONFIG_PRINTER=3Dm
+CONFIG_LP_CONSOLE=3Dy
+CONFIG_PPDEV=3Dm
+CONFIG_NVRAM=3Dy
+CONFIG_RTC=3Dy
+CONFIG_AGP=3Dm
+CONFIG_AGP_ALI=3Dm
+CONFIG_AGP_ATI=3Dm
+CONFIG_AGP_INTEL=3Dm
+CONFIG_AGP_SIS=3Dm
+CONFIG_AGP_VIA=3Dm
+CONFIG_DRM=3Dy
+CONFIG_MWAVE=3Dm
+CONFIG_HANGCHECK_TIMER=3Dy
+CONFIG_I2C=3Dm
+CONFIG_I2C_CHARDEV=3Dm
+CONFIG_I2C_ALGOBIT=3Dm
+CONFIG_I2C_ALGOPCF=3Dm
+CONFIG_I2C_SENSOR=3Dm
+CONFIG_SENSORS_DS1621=3Dm
+CONFIG_SENSORS_LM77=3Dm
+CONFIG_SENSORS_LM80=3Dm
+CONFIG_W1=3Dm
+CONFIG_W1_DS9490=3Dm
+CONFIG_W1_THERM=3Dm
+CONFIG_VIDEO_DEV=3Dm
+CONFIG_FB=3Dy
+CONFIG_FB_MODE_HELPERS=3Dy
+CONFIG_FB_VGA16=3Dm
+CONFIG_FB_VESA=3Dy
+CONFIG_VIDEO_SELECT=3Dy
+CONFIG_FB_RIVA=3Dm
+CONFIG_FB_RIVA_I2C=3Dy
+CONFIG_VGA_CONSOLE=3Dy
+CONFIG_DUMMY_CONSOLE=3Dy
+CONFIG_FRAMEBUFFER_CONSOLE=3Dm
+CONFIG_FONTS=3Dy
+CONFIG_FONT_8x8=3Dy
+CONFIG_FONT_8x16=3Dy
+CONFIG_FONT_SUN8x16=3Dy
+CONFIG_FONT_SUN12x22=3Dy
+CONFIG_LOGO=3Dy
+CONFIG_LOGO_LINUX_CLUT224=3Dy
+CONFIG_SOUND=3Dm
+CONFIG_SND=3Dm
+CONFIG_SND_TIMER=3Dm
+CONFIG_SND_PCM=3Dm
+CONFIG_SND_HWDEP=3Dm
+CONFIG_SND_RAWMIDI=3Dm
+CONFIG_SND_SEQUENCER=3Dm
+CONFIG_SND_SEQ_DUMMY=3Dm
+CONFIG_SND_OSSEMUL=3Dy
+CONFIG_SND_MIXER_OSS=3Dm
+CONFIG_SND_PCM_OSS=3Dm
+CONFIG_SND_SEQUENCER_OSS=3Dy
+CONFIG_SND_RTCTIMER=3Dm
+CONFIG_SND_VERBOSE_PRINTK=3Dy
+CONFIG_SND_DEBUG=3Dy
+CONFIG_SND_MPU401_UART=3Dm
+CONFIG_SND_OPL3_LIB=3Dm
+CONFIG_SND_SERIAL_U16550=3Dm
+CONFIG_SND_MPU401=3Dm
+CONFIG_SND_SBAWE=3Dm
+CONFIG_SND_SB16_CSP=3Dy
+CONFIG_SND_AC97_CODEC=3Dm
+CONFIG_SND_ENS1371=3Dm
+CONFIG_SOUND_PRIME=3Dm
+CONFIG_SOUND_ICH=3Dm
+CONFIG_SOUND_OSS=3Dm
+CONFIG_SOUND_TRACEINIT=3Dy
+CONFIG_SOUND_MPU401=3Dm
+CONFIG_SOUND_SB=3Dm
+CONFIG_SOUND_AWE32_SYNTH=3Dm
+CONFIG_USB=3Dm
+CONFIG_USB_DEVICEFS=3Dy
+CONFIG_USB_BANDWIDTH=3Dy
+CONFIG_USB_ARCH_HAS_HCD=3Dy
+CONFIG_USB_ARCH_HAS_OHCI=3Dy
+CONFIG_USB_EHCI_HCD=3Dm
+CONFIG_USB_OHCI_HCD=3Dm
+CONFIG_USB_UHCI_HCD=3Dm
+CONFIG_USB_AUDIO=3Dm
+CONFIG_USB_MIDI=3Dm
+CONFIG_USB_ACM=3Dm
+CONFIG_USB_PRINTER=3Dm
+CONFIG_USB_STORAGE=3Dm
+CONFIG_USB_STORAGE_DEBUG=3Dy
+CONFIG_USB_STORAGE_FREECOM=3Dy
+CONFIG_USB_STORAGE_ISD200=3Dy
+CONFIG_USB_STORAGE_DPCM=3Dy
+CONFIG_USB_HID=3Dm
+CONFIG_USB_HIDINPUT=3Dy
+CONFIG_USB_HIDDEV=3Dy
+CONFIG_USB_WACOM=3Dm
+CONFIG_USB_MICROTEK=3Dm
+CONFIG_USB_HPUSBSCSI=3Dm
+CONFIG_USB_DABUSB=3Dm
+CONFIG_USB_IBMCAM=3Dm
+CONFIG_USB_OV511=3Dm
+CONFIG_USB_SE401=3Dm
+CONFIG_USB_STV680=3Dm
+CONFIG_USB_KAWETH=3Dm
+CONFIG_USB_PEGASUS=3Dm
+CONFIG_USB_USBNET=3Dm
+CONFIG_USB_ALI_M5632=3Dy
+CONFIG_USB_AN2720=3Dy
+CONFIG_USB_BELKIN=3Dy
+CONFIG_USB_GENESYS=3Dy
+CONFIG_USB_NET1080=3Dy
+CONFIG_USB_PL2301=3Dy
+CONFIG_USB_ARMLINUX=3Dy
+CONFIG_USB_EPSON2888=3Dy
+CONFIG_USB_ZAURUS=3Dy
+CONFIG_USB_CDCETHER=3Dy
+CONFIG_USB_USS720=3Dm
+CONFIG_USB_SERIAL=3Dm
+CONFIG_USB_SERIAL_GENERIC=3Dy
+CONFIG_USB_SERIAL_BELKIN=3Dm
+CONFIG_USB_SERIAL_WHITEHEAT=3Dm
+CONFIG_USB_SERIAL_DIGI_ACCELEPORT=3Dm
+CONFIG_USB_SERIAL_EMPEG=3Dm
+CONFIG_USB_SERIAL_FTDI_SIO=3Dm
+CONFIG_USB_SERIAL_VISOR=3Dm
+CONFIG_USB_SERIAL_IPAQ=3Dm
+CONFIG_USB_SERIAL_IR=3Dm
+CONFIG_USB_SERIAL_EDGEPORT=3Dm
+CONFIG_USB_SERIAL_EDGEPORT_TI=3Dm
+CONFIG_USB_SERIAL_KEYSPAN_PDA=3Dm
+CONFIG_USB_SERIAL_KEYSPAN=3Dm
+CONFIG_USB_SERIAL_KLSI=3Dm
+CONFIG_USB_SERIAL_MCT_U232=3Dm
+CONFIG_USB_SERIAL_PL2303=3Dm
+CONFIG_USB_SERIAL_CYBERJACK=3Dm
+CONFIG_USB_SERIAL_XIRCOM=3Dm
+CONFIG_USB_SERIAL_OMNINET=3Dm
+CONFIG_USB_EZUSB=3Dy
+CONFIG_USB_EMI26=3Dm
+CONFIG_USB_TIGL=3Dm
+CONFIG_USB_LCD=3Dm
+CONFIG_USB_GADGET=3Dm
+CONFIG_USB_GADGET_NET2280=3Dy
+CONFIG_USB_NET2280=3Dm
+CONFIG_USB_GADGET_DUALSPEED=3Dy
+CONFIG_EXT2_FS=3Dy
+CONFIG_EXT2_FS_XATTR=3Dy
+CONFIG_EXT2_FS_POSIX_ACL=3Dy
+CONFIG_EXT2_FS_SECURITY=3Dy
+CONFIG_EXT3_FS=3Dy
+CONFIG_EXT3_FS_XATTR=3Dy
+CONFIG_EXT3_FS_POSIX_ACL=3Dy
+CONFIG_EXT3_FS_SECURITY=3Dy
+CONFIG_JBD=3Dy
+CONFIG_JBD_DEBUG=3Dy
+CONFIG_FS_MBCACHE=3Dy
+CONFIG_REISERFS_FS=3Dy
+CONFIG_REISERFS_PROC_INFO=3Dy
+CONFIG_REISERFS_FS_XATTR=3Dy
+CONFIG_REISERFS_FS_POSIX_ACL=3Dy
+CONFIG_REISERFS_FS_SECURITY=3Dy
+CONFIG_JFS_FS=3Dm
+CONFIG_JFS_POSIX_ACL=3Dy
+CONFIG_JFS_STATISTICS=3Dy
+CONFIG_FS_POSIX_ACL=3Dy
+CONFIG_XFS_FS=3Dm
+CONFIG_XFS_RT=3Dy
+CONFIG_XFS_QUOTA=3Dy
+CONFIG_XFS_POSIX_ACL=3Dy
+CONFIG_MINIX_FS=3Dm
+CONFIG_ROMFS_FS=3Dm
+CONFIG_QUOTA=3Dy
+CONFIG_QFMT_V1=3Dm
+CONFIG_QFMT_V2=3Dm
+CONFIG_QUOTACTL=3Dy
+CONFIG_DNOTIFY=3Dy
+CONFIG_AUTOFS_FS=3Dm
+CONFIG_AUTOFS4_FS=3Dy
+CONFIG_ISO9660_FS=3Dy
+CONFIG_JOLIET=3Dy
+CONFIG_ZISOFS=3Dy
+CONFIG_ZISOFS_FS=3Dy
+CONFIG_UDF_FS=3Dm
+CONFIG_UDF_NLS=3Dy
+CONFIG_FAT_FS=3Dy
+CONFIG_MSDOS_FS=3Dy
+CONFIG_VFAT_FS=3Dy
+CONFIG_NTFS_FS=3Dm
+CONFIG_NTFS_RW=3Dy
+CONFIG_PROC_FS=3Dy
+CONFIG_PROC_KCORE=3Dy
+CONFIG_SYSFS=3Dy
+CONFIG_DEVFS_FS=3Dy
+CONFIG_TMPFS=3Dy
+CONFIG_RAMFS=3Dy
+CONFIG_AFFS_FS=3Dm
+CONFIG_HFS_FS=3Dm
+CONFIG_HFSPLUS_FS=3Dm
+CONFIG_CRAMFS=3Dy
+CONFIG_HPFS_FS=3Dm
+CONFIG_SYSV_FS=3Dm
+CONFIG_UFS_FS=3Dm
+CONFIG_UFS_FS_WRITE=3Dy
+CONFIG_NFS_FS=3Dy
+CONFIG_NFS_V3=3Dy
+CONFIG_NFS_V4=3Dy
+CONFIG_NFSD=3Dm
+CONFIG_NFSD_V3=3Dy
+CONFIG_NFSD_V4=3Dy
+CONFIG_NFSD_TCP=3Dy
+CONFIG_ROOT_NFS=3Dy
+CONFIG_LOCKD=3Dy
+CONFIG_LOCKD_V4=3Dy
+CONFIG_EXPORTFS=3Dm
+CONFIG_SUNRPC=3Dy
+CONFIG_SUNRPC_GSS=3Dy
+CONFIG_RPCSEC_GSS_KRB5=3Dy
+CONFIG_SMB_FS=3Dy
+CONFIG_SMB_NLS_DEFAULT=3Dy
+CONFIG_CIFS=3Dm
+CONFIG_NCP_FS=3Dm
+CONFIG_NCPFS_PACKET_SIGNING=3Dy
+CONFIG_NCPFS_IOCTL_LOCKING=3Dy
+CONFIG_NCPFS_STRONG=3Dy
+CONFIG_NCPFS_NFS_NS=3Dy
+CONFIG_NCPFS_OS2_NS=3Dy
+CONFIG_NCPFS_SMALLDOS=3Dy
+CONFIG_NCPFS_NLS=3Dy
+CONFIG_NCPFS_EXTRAS=3Dy
+CONFIG_AFS_FS=3Dm
+CONFIG_RXRPC=3Dm
+CONFIG_PARTITION_ADVANCED=3Dy
+CONFIG_MSDOS_PARTITION=3Dy
+CONFIG_BSD_DISKLABEL=3Dy
+CONFIG_MINIX_SUBPARTITION=3Dy
+CONFIG_SOLARIS_X86_PARTITION=3Dy
+CONFIG_UNIXWARE_DISKLABEL=3Dy
+CONFIG_LDM_PARTITION=3Dy
+CONFIG_SUN_PARTITION=3Dy
+CONFIG_NLS=3Dy
+CONFIG_NLS_CODEPAGE_437=3Dy
+CONFIG_NLS_CODEPAGE_737=3Dm
+CONFIG_NLS_CODEPAGE_775=3Dm
+CONFIG_NLS_CODEPAGE_850=3Dy
+CONFIG_NLS_CODEPAGE_852=3Dm
+CONFIG_NLS_CODEPAGE_855=3Dm
+CONFIG_NLS_CODEPAGE_857=3Dm
+CONFIG_NLS_CODEPAGE_860=3Dm
+CONFIG_NLS_CODEPAGE_861=3Dm
+CONFIG_NLS_CODEPAGE_862=3Dm
+CONFIG_NLS_CODEPAGE_863=3Dm
+CONFIG_NLS_CODEPAGE_864=3Dm
+CONFIG_NLS_CODEPAGE_865=3Dm
+CONFIG_NLS_CODEPAGE_866=3Dm
+CONFIG_NLS_CODEPAGE_869=3Dm
+CONFIG_NLS_CODEPAGE_936=3Dm
+CONFIG_NLS_CODEPAGE_950=3Dm
+CONFIG_NLS_CODEPAGE_932=3Dm
+CONFIG_NLS_CODEPAGE_949=3Dm
+CONFIG_NLS_CODEPAGE_874=3Dm
+CONFIG_NLS_ISO8859_8=3Dm
+CONFIG_NLS_CODEPAGE_1250=3Dy
+CONFIG_NLS_CODEPAGE_1251=3Dm
+CONFIG_NLS_ISO8859_1=3Dy
+CONFIG_NLS_ISO8859_2=3Dm
+CONFIG_NLS_ISO8859_3=3Dm
+CONFIG_NLS_ISO8859_4=3Dm
+CONFIG_NLS_ISO8859_5=3Dm
+CONFIG_NLS_ISO8859_6=3Dm
+CONFIG_NLS_ISO8859_7=3Dm
+CONFIG_NLS_ISO8859_9=3Dm
+CONFIG_NLS_ISO8859_13=3Dm
+CONFIG_NLS_ISO8859_14=3Dm
+CONFIG_NLS_ISO8859_15=3Dy
+CONFIG_NLS_KOI8_R=3Dm
+CONFIG_NLS_KOI8_U=3Dm
+CONFIG_NLS_UTF8=3Dy
+CONFIG_DEBUG_KERNEL=3Dy
+CONFIG_MAGIC_SYSRQ=3Dy
+CONFIG_EARLY_PRINTK=3Dy
+CONFIG_X86_FIND_SMP_CONFIG=3Dy
+CONFIG_X86_MPPARSE=3Dy
+CONFIG_CRYPTO=3Dy
+CONFIG_CRYPTO_HMAC=3Dy
+CONFIG_CRYPTO_NULL=3Dy
+CONFIG_CRYPTO_MD4=3Dy
+CONFIG_CRYPTO_MD5=3Dy
+CONFIG_CRYPTO_SHA1=3Dy
+CONFIG_CRYPTO_SHA256=3Dy
+CONFIG_CRYPTO_SHA512=3Dy
+CONFIG_CRYPTO_WP512=3Dy
+CONFIG_CRYPTO_DES=3Dy
+CONFIG_CRYPTO_BLOWFISH=3Dy
+CONFIG_CRYPTO_TWOFISH=3Dy
+CONFIG_CRYPTO_SERPENT=3Dy
+CONFIG_CRYPTO_AES_586=3Dy
+CONFIG_CRYPTO_CAST5=3Dy
+CONFIG_CRYPTO_CAST6=3Dy
+CONFIG_CRYPTO_TEA=3Dy
+CONFIG_CRYPTO_ARC4=3Dy
+CONFIG_CRYPTO_KHAZAD=3Dy
+CONFIG_CRYPTO_ANUBIS=3Dy
+CONFIG_CRYPTO_DEFLATE=3Dy
+CONFIG_CRYPTO_MICHAEL_MIC=3Dy
+CONFIG_CRYPTO_CRC32C=3Dy
+CONFIG_CRYPTO_TEST=3Dy
+CONFIG_CRC_CCITT=3Dy
+CONFIG_CRC32=3Dy
+CONFIG_LIBCRC32C=3Dy
+CONFIG_ZLIB_INFLATE=3Dy
+CONFIG_ZLIB_DEFLATE=3Dy
+CONFIG_GENERIC_HARDIRQS=3Dy
+CONFIG_GENERIC_IRQ_PROBE=3Dy
+CONFIG_X86_BIOS_REBOOT=3Dy
+CONFIG_PC=3Dy
+
+--=20
+
+*     lkml@                 * University of Stuttgart *    icq / lc   *
+*      www.Think-Future.de  *    dep.comp.science     * 9336272/92045 *
+:x                                                                   :)
+
+   OVER the underpass!  UNDER the overpass!  Around the FUTURE and
+   BEYOND REPAIR!!=20
+  =20
+
+--/9DWx/yDrRhgMJTb
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+Comment: Nils Radtke
 
-iD8DBQFBs0hj+A7rjkF8z0wRAo3RAKDF+QYA6cosLH+kWtiAmiWtRzlQkQCeKcpx
-FXOiNRfl9/vOynE8d4hDJJg=
-=sKOm
+iD8DBQFBs0e9X3r3ggYjIRYRAmiiAJ9BbRWlLxWUH9YXW29ASq2shmM1kwCgladv
++p2TnGsct+de6/R+J1QG0Io=
+=uL+J
 -----END PGP SIGNATURE-----
 
---------------060304030807010604020208
-Content-Type: text/x-patch;
- name="prep_pci_2.6.10-rc2.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="prep_pci_2.6.10-rc2.patch"
-
---- linux-2.5-PPC-BK/arch/ppc/platforms/prep_pci.c	2004-12-05 18:20:04.000000000 +0100
-+++ linux-2.5-PPC-BK/arch/ppc/platforms/prep_pci.c.edited	2004-12-05 18:21:33.000000000 +0100
-@@ -61,7 +61,7 @@
-         0,   /* Slot 11 - unused */
-         5,   /* Slot 12 - SCSI - NCR825A */
-         0,   /* Slot 13 - unused */
--        3,   /* Slot 14 - enet */
-+        1,   /* Slot 14 - enet */
-         0,   /* Slot 15 - unused */
-         2,   /* Slot 16 - unused */
-         3,   /* Slot 17 - unused */
-
---------------060304030807010604020208--
+--/9DWx/yDrRhgMJTb--

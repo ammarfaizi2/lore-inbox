@@ -1,72 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315456AbSHFUAp>; Tue, 6 Aug 2002 16:00:45 -0400
+	id <S315481AbSHFUDc>; Tue, 6 Aug 2002 16:03:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315458AbSHFUAo>; Tue, 6 Aug 2002 16:00:44 -0400
-Received: from ithilien.qualcomm.com ([129.46.51.59]:39296 "EHLO
-	ithilien.qualcomm.com") by vger.kernel.org with ESMTP
-	id <S315456AbSHFUAl>; Tue, 6 Aug 2002 16:00:41 -0400
-Message-Id: <5.1.0.14.2.20020806125053.09751470@mail1.qualcomm.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Tue, 06 Aug 2002 13:03:48 -0700
-To: "David S. Miller" <davem@redhat.com>
-From: "Maksim (Max) Krasnyanskiy" <maxk@qualcomm.com>
-Subject: Re: "new style" netdevice allocation patch for TUN driver
-  (2.4.18 kernel)
-Cc: jajcus@bnet.pl, linux-kernel@vger.kernel.org
-In-Reply-To: <20020806.100749.21530590.davem@redhat.com>
-References: <5.1.0.14.2.20020806094253.09734790@mail1.qualcomm.com>
- <5.1.0.14.2.20020802164143.04da52f8@mail1.qualcomm.com>
- <20020803140858.GA5314@nic.nigdzie>
- <5.1.0.14.2.20020806094253.09734790@mail1.qualcomm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S315485AbSHFUDc>; Tue, 6 Aug 2002 16:03:32 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:18445 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S315481AbSHFUDb>;
+	Tue, 6 Aug 2002 16:03:31 -0400
+Date: Tue, 6 Aug 2002 13:04:43 -0700 (PDT)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+cc: Chris Friesen <cfriesen@nortelnetworks.com>,
+       <linux-kernel@vger.kernel.org>, <abraham@2d3d.co.za>
+Subject: Re: ethtool documentation
+In-Reply-To: <Pine.LNX.3.95.1020806155358.25303A-100000@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.33L2.0208061302200.10089-100000@dragon.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 6 Aug 2002, Richard B. Johnson wrote:
 
->    From: "Maksim (Max) Krasnyanskiy" <maxk@qualcomm.com>
->    Date: Tue, 06 Aug 2002 10:07:49 -0700
->
->    Dave, how about this
->
->    --- net/core/dev.c.orig Mon Aug  5 21:48:54 2002
->    +++ net/core/dev.c      Mon Aug  5 21:54:01 2002
->    @@ -2577,6 +2577,11 @@
->
->First, the call-chain notifiers are probably not safe
->to run without rtnl_lock held.
-Good point.
+| On Tue, 6 Aug 2002, Chris Friesen wrote:
+|
+| > "Richard B. Johnson" wrote:
+| >
+| > > Because of this, there is no such thing as 'unused eeprom space' in
+| > > the Ethernet Controllers. Be careful about putting this weapon in
+| > > the hands of the 'public'. All you need is for one Linux Machine
+| > > on a LAN to end up with the same IEEE Station Address as another
+| > > on that LAN and connectivity to everything on that segment will
+| > > stop. You do this once at an important site and Linux will get a
+| > > very black eye.
+| >
+| > Can't we already tell cards (some of them anyway) what MAC address to use when
+| > sending packets?  This doesn't overwrite the EEPROM, but it does last for that
+| > session...
+| >
+| > Chris
+|
+| Sure you can. And it was assumed that the MAC address provided by
+| the manufacturer would always be used by the software for the MAC
+| address on the wire. However, 'software engineers' have decided
 
->Second, why not just fix the bug instead of applying band-aids
->to device unregistry?  I know it's nice in that it allows you
->to configure devices some more, but it doesn't make the real
->problem go away.
-I completely agree. However sleeping and holding a lock that you
-don't have to hold is a bug on it's own :).
-Things like sockets drop the lock before calling schedule() and acquire
-it on wakeup. I think we should do the same in unregister_netdevice().
+Assumed by whom?  IEEE allows locally administered addresses,
+and most NIC mfrs that I know of support/allow them.
 
-How about this:
+| that they don't have to follow the rules, so they provide hooks
+| so you can use a MAC address of anything.  They even call it
+| "Local Administration...", which decoded means; "Screw the
+| committee".
 
---- dev.c.orig  Tue Aug  6 00:58:46 2002
-+++ dev.c       Tue Aug  6 01:00:00 2002
-@@ -2584,9 +2584,12 @@
-                         notifier_call_chain(&netdev_chain, 
-NETDEV_UNREGISTER, dev);
-                 }
+<snippage>
 
-+               rtnl_unlock();
-                 current->state = TASK_INTERRUPTIBLE;
-                 schedule_timeout(HZ/4);
-                 current->state = TASK_RUNNING;
-+               rtnl_lock();
-+
-                 if ((jiffies - warning_time) > 10*HZ) {
-                         printk(KERN_EMERG "unregister_netdevice: waiting 
-for %s to "
-                                         "become free. Usage count = %d\n",
------
-
-Max
+-- 
+~Randy
 

@@ -1,85 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289365AbSAVTYK>; Tue, 22 Jan 2002 14:24:10 -0500
+	id <S289366AbSAVTXK>; Tue, 22 Jan 2002 14:23:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289364AbSAVTYB>; Tue, 22 Jan 2002 14:24:01 -0500
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:58118 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S289368AbSAVTXq>; Tue, 22 Jan 2002 14:23:46 -0500
-Subject: Re: Linux 2.4.18-pre5
-From: Tommy Faasen <faasen@xs4all.nl>
-To: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.21.0201221552030.2059-100000@freak.distro.conectiva>
-In-Reply-To: <Pine.LNX.4.21.0201221552030.2059-100000@freak.distro.conectiva>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1 
-Date: 22 Jan 2002 20:27:26 +0100
-Message-Id: <1011727647.379.1.camel@it0>
+	id <S289365AbSAVTXA>; Tue, 22 Jan 2002 14:23:00 -0500
+Received: from [24.64.71.161] ([24.64.71.161]:6639 "EHLO lynx.adilger.int")
+	by vger.kernel.org with ESMTP id <S289364AbSAVTWx>;
+	Tue, 22 Jan 2002 14:22:53 -0500
+Date: Tue, 22 Jan 2002 12:22:39 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: Michael Zhu <mylinuxk@yahoo.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: something about ext2 file system
+Message-ID: <20020122122239.A4014@lynx.turbolabs.com>
+Mail-Followup-To: Michael Zhu <mylinuxk@yahoo.ca>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020122140613.51122.qmail@web14905.mail.yahoo.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020122140613.51122.qmail@web14905.mail.yahoo.com>; from mylinuxk@yahoo.ca on Tue, Jan 22, 2002 at 09:06:13AM -0500
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-01-22 at 18:53, Marcelo Tosatti wrote:
+On Jan 22, 2002  09:06 -0500, Michael Zhu wrote:
+> 1.How the directory and file name information are
+> stored on the disk? I mean is there a range of blocks
+> set at disk format or intialize time for this kind of
+> information?
 
-Damned there goes my uptime
-it0@it0:~$ uptime
- 20:26:16 up 1 min,  1 user,  load average: 0.23, 0.10, 0.04
-it0@it0:~$ uname -a
-Linux it0 2.4.18-pre5 #1 Tue Jan 22 20:12:29 CET 2002 i686 unknown
+Like most Unix filesystems, directories are just a special form of
+a file, so they are stored in data blocks.  See the structure
+ext2_dir_entry_2 in linux/include/ext2_fs.h for more info on the
+exact layout on disk.
 
+> 2.I know in ext2 the whole disk is made up of the boot
+> block and some block groups. Each block groups
+> contains super block,group descriptors,data block
+> bitmap,inode bitmap,inode table and data blocks. The
+> directory and file name information are stored in
+> which part? In the data blocks?
 
+As above - directories are
 > 
-> Argh. Another mistake. 
-> 
-> DO NOT USE pre5: It has a "fix" from Andi Kleen for the icmp problem which
-> does not exist. Its really not needed and causes problems.
-> 
-> I'll release a pre6 now.
-> 
-> Shoot me.
-> 
-> On 22 Jan 2002, Alex Romosan wrote:
-> 
-> > Marcelo Tosatti <marcelo@conectiva.com.br> writes:
-> > 
-> > > On 22 Jan 2002, Alex Romosan wrote:
-> > > 
-> > > > Marcelo Tosatti <marcelo@conectiva.com.br> writes:
-> > > > 
-> > > > > Well, here goes pre5.
-> > > > > 
-> > > > > 
-> > > > 
-> > > > this patch seems to be generated against pre4, not 2.4.17. just a
-> > > > heads up.
-> > > 
-> > > Eeek. Right.
-> > > 
-> > > I've just uploaded a new patch on top of the old one. 
-> > 
-> > the two patches are not quite equivalent. if i now try to reverse the
-> > patch i get two failures:
-> > 
-> > patching file net/ipv4/icmp.c
-> > Hunk #3 FAILED at 495.
-> > 1 out of 3 hunks FAILED -- saving rejects to file net/ipv4/icmp.c.rej
-> > patching file net/ipv4/ipconfig.c
-> > patching file net/ipv4/netfilter/ip_conntrack_standalone.c
-> > patching file net/ipv6/icmp.c
-> > Unreversed patch detected!  Ignore -R? [n] 
-> > Apply anyway? [n] 
-> > Skipping patch.
-> > 1 out of 1 hunk ignored -- saving rejects to file net/ipv6/icmp.c.rej
-> > patching file net/ipv6/tcp_ipv6.c
-> > 
-> > i think i'll download a pristine 2.4.17 and start again.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> 3.Are file names and other metadata put into the same
+> range of blocks?
 
+No.  Only the filename and inode number are in the directory, along
+with some data about the length of the directory entry.
+
+> 4.Where can I find some detail information about ext2
+> fiel system?
+
+There are several papers which describe the structure of ext2
+available on the internet.  One is probably available from
+http://e2fsprogs.sourceforge.net/
+
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 

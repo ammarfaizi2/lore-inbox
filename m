@@ -1,73 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135433AbRAHKUr>; Mon, 8 Jan 2001 05:20:47 -0500
+	id <S136540AbRAHKju>; Mon, 8 Jan 2001 05:39:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136540AbRAHKUh>; Mon, 8 Jan 2001 05:20:37 -0500
-Received: from horus.its.uow.edu.au ([130.130.68.25]:31973 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S135433AbRAHKUX>; Mon, 8 Jan 2001 05:20:23 -0500
-Message-ID: <3A5995CF.7AEFFBBD@uow.edu.au>
-Date: Mon, 08 Jan 2001 21:26:23 +1100
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Tim Sailer <sailer@bnl.gov>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Network Performance?
-In-Reply-To: <20010104013340.A20552@bnl.gov>, <20010104013340.A20552@bnl.gov>; <20010105140021.A2016@bnl.gov> <3A56FD6C.93D09ABB@uow.edu.au>,
-		<3A56FD6C.93D09ABB@uow.edu.au>; from andrewm@uow.edu.au on Sat, Jan 06, 2001 at 10:11:40PM +1100 <20010107235123.B6028@bnl.gov>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S136542AbRAHKjl>; Mon, 8 Jan 2001 05:39:41 -0500
+Received: from ns.caldera.de ([212.34.180.1]:6149 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S136540AbRAHKja>;
+	Mon, 8 Jan 2001 05:39:30 -0500
+Date: Mon, 8 Jan 2001 11:39:15 +0100
+Message-Id: <200101081039.LAA30397@ns.caldera.de>
+From: Christoph Hellwig <hch@caldera.de>
+To: davem@redhat.com ("David S. Miller")
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
+X-Newsgroups: caldera.lists.linux.kernel
+In-Reply-To: <200101080124.RAA08134@pizda.ninka.net>
+User-Agent: tin/1.4.1-19991201 ("Polish") (UNIX) (Linux/2.2.14 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Sailer wrote:
-> 
-> On Sat, Jan 06, 2001 at 10:11:40PM +1100, Andrew Morton wrote:
-> > this issue was discussed on the netdev mailing list a few weeks
-> > back.
-> >
-> > It's very unfortunate that the web archives of netdev
-> > stopped working several months ago and there now appears
-> > to be no web archive of netdev@oss.sgi.com.
-> >
-> > Go to http://oss.sgi.com/projects/netdev/archive/ and
-> > pull down the November and December archives.
-> >
-> > The subject was "linux to solaris tcp issues on WAN".
-> >
-> > The conclusion was "The problem is also fixed with
-> > 2.4.0-test12pre3". Dunno about kernel 2.2 though.
-> 
-> Well, on Friday, we pulled down the 'official' 2.4.0, and had the
-> same experience... nothing better. Should I get the -test12-pre3 kernel
-> and try that one specifically?
+In article <200101080124.RAA08134@pizda.ninka.net> you wrote:
 
-I doubt if that would help.
+> I've put a patch up for testing on the kernel.org mirrors:
+>
+> /pub/linux/kernel/people/davem/zerocopy-2.4.0-1.diff.gz
+>
+> It provides a framework for zerocopy transmits and delayed
+> receive fragment coalescing.  TUX-1.01 uses this framework.
 
-I claim no expertise in this area, but perhaps we can
-get some protocol gurus interested.
+Hi Dave,
 
-To recap:
+don't you think the writepage file operation is rather hackish?
+I'd much prefer Ben La Haise's rw_kiovec [1] operation, it is more
+generic (supports read and write) and should be easily usable for
+zerocopy networking with plain old write (using map_user_kio).
+Besides that the FS crew thinks it should go in soon because of
+aio anyway...
 
-You're sending and receiving FTP/TCP/IP4 to Solaris and AIX hosts
-You have a 1000kbyte window size
-You have an 80 megabit/sec pipe.
-You're getting 1.8 megabits/sec.
+	Christoph
 
-What is the round-trip time on the WAN?
 
-Packet loss?
+[1] for those that don't know yet, the prototype is:
 
-Does the problem occur in both directions?
-
-Are you _sure_ the window size is being set correctly? How
-is it being set?
-
-Are you able to generate TCP dumps when the problem is happening?
-
--
+	rw_kiovec(struct file * filp, int rw, int nr,
+		struct kiobuf ** kiovec, int flags,
+		size_t size, loff_t pos);
+-- 
+Whip me.  Beat me.  Make me maintain AIX.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

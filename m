@@ -1,44 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267374AbUJBJcZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267376AbUJBJfw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267374AbUJBJcZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Oct 2004 05:32:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267376AbUJBJcY
+	id S267376AbUJBJfw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Oct 2004 05:35:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266572AbUJBJfv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Oct 2004 05:32:24 -0400
-Received: from fw.osdl.org ([65.172.181.6]:22987 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267374AbUJBJcN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Oct 2004 05:32:13 -0400
-Date: Sat, 2 Oct 2004 02:29:21 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Norbert Preining <preining@logic.at>
+	Sat, 2 Oct 2004 05:35:51 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:4736 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S267376AbUJBJfk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Oct 2004 05:35:40 -0400
+Date: Fri, 1 Oct 2004 15:40:05 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Mitch DSouza <Mitch@0Bits.COM>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc3-mm1 build failure
-Message-Id: <20041002022921.0e1aceb3.akpm@osdl.org>
-In-Reply-To: <20041002091644.GA8431@gamma.logic.tuwien.ac.at>
-References: <20041002091644.GA8431@gamma.logic.tuwien.ac.at>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Subject: Re: 2.6.9-rc3 software suspend (pmdisk) stopped working
+Message-ID: <20041001134004.GD1100@openzaurus.ucw.cz>
+References: <415D311E.2050006@0Bits.COM>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <415D311E.2050006@0Bits.COM>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Norbert Preining <preining@logic.at> wrote:
->
-> ..
->    LD      .tmp_vmlinux1
->  arch/i386/kernel/built-in.o(.text+0x111f5): In function `end_level_ioapic_irq':
->  : undefined reference to `irq_mis_count'
->  kernel/built-in.o(.text+0x1eba7): In function `ack_none':
->  : undefined reference to `ack_APIC_irq'
->  make[1]: *** [.tmp_vmlinux1] Fehler 1
->  make[1]: Leaving directory `/usr/src/linux-2.6.9-rc3-mm1'
+Hi!
 
-hm, that's clever.
+> I thought i was going barmy. I've reverted back to -rc2 which
+> pmdisk works flawlessly on my laptop.
 
-See if arch/i386/kernel/io_apic.c needs
+Actually problem turned out to be in highmem. Unless you
+are using highmem, -rc3 should work. You'll need to change config if
+switching from pmdisk to swsusp...
 
-#include <asm/io_apic.h>
+				Pavel
+-- 
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 
-and if not, please send the .config.

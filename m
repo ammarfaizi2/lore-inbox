@@ -1,46 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275267AbTHGKBX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 06:01:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275271AbTHGKBX
+	id S275285AbTHGKFT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 06:05:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275286AbTHGKFS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 06:01:23 -0400
-Received: from smtp-out1.iol.cz ([194.228.2.86]:54711 "EHLO smtp-out1.iol.cz")
-	by vger.kernel.org with ESMTP id S275267AbTHGKBW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 06:01:22 -0400
-Date: Thu, 7 Aug 2003 12:01:05 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Jens Axboe <axboe@suse.de>
-Cc: cb-lkml@fish.zetnet.co.uk, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Disk priority dependend on nice level...
-Message-ID: <20030807100104.GA166@elf.ucw.cz>
-References: <20030806232810.GA1623@elf.ucw.cz> <20030807055754.GP7982@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 7 Aug 2003 06:05:18 -0400
+Received: from port-212-202-27-44.reverse.qsc.de ([212.202.27.44]:29599 "EHLO
+	camelot.fbunet.de") by vger.kernel.org with ESMTP id S275285AbTHGKFI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 06:05:08 -0400
+From: Fridtjof Busse <fbusse@gmx.de>
+To: linux-kernel@vger.kernel.org
+Date: Thu, 7 Aug 2003 12:05:06 +0200
+X-OS: Linux on i686
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20030807055754.GP7982@suse.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+Cc: marcelo@conectiva.com.br
+Subject: Re: Linux 2.4.22-rc1
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200308071205.06906@fbunet.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > I ported `subj` to 2.6.0-test2. I do not yet have idea if it works,
-> > but it compiles ;-).
+* Marcelo Tosatti <marcelo@conectiva.com.br>:
+> Hello, 
 > 
-> This wont do much, you might as well forget it. Disk priorities is far
-> more work than you appear to think :)
+> Here goes the first release candidate of 2.4.22.
+> 
+> Please test it extensively.
 
-This was not my patch, I only ported it.
+Still the same USB-problem I reported for pre5 and pre10:
 
-I'm not heading for "perfect" disk priorities (not now :-), but having
-something with at least measurable effect would be nice.
+kernel: hub.c: new USB device 00:02.2-2, assigned address 4
+kernel: scsi1 : SCSI emulation for USB Mass Storage devices
+kernel:   Vendor: Maxtor 6  Model: Y120L0            Rev: 0811
+kernel:   Type:   Direct-Access                   ANSI SCSI revision: 02
+kernel: Attached scsi disk sda at scsi1, channel 0, id 0, lun 0
+kernel: SCSI device sda: 240121728 512-byte hdwr sectors (122942 MB)
+kernel:  /dev/scsi/host1/bus0/target0/lun0: p1
+kernel: WARNING: USB Mass Storage data integrity not assured
+kernel: USB Mass Storage device found at 4
 
-For a start "niced processes get starved during I/O" should do the
-trick. (And it would help my lingvistics workloads).
-								Pavel
+Now I start 'dump':
+
+kernel: usb_control/bulk_msg: timeout
+kernel: usb_control/bulk_msg: timeout
+kernel: usb_control/bulk_msg: timeout
+kernel: usb.c: USB disconnect on device 00:02.2-2 address 4
+kernel: usb-storage: host_reset() requested but not implemented
+kernel: scsi: device set offline - command error recover failed: host 1 
+channel 0 id 0 lun 0
+kernel: 192
+kernel:  I/O error: dev 08:01, sector 81655440
+lots of I/O errors following
+
+Works fine with 2.4.21.
+Could someone please fix that before 2.4.22 becomes stable?
+
+Please CC me, thanks
+
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Fridtjof Busse
+   I like to say "quark"! Quark, quark, quark, quark!
+		  -- Calvin
+

@@ -1,44 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262445AbRFGRTF>; Thu, 7 Jun 2001 13:19:05 -0400
+	id <S262202AbRFGRRF>; Thu, 7 Jun 2001 13:17:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262239AbRFGRSz>; Thu, 7 Jun 2001 13:18:55 -0400
-Received: from patan.Sun.COM ([192.18.98.43]:13724 "EHLO patan.sun.com")
-	by vger.kernel.org with ESMTP id <S262445AbRFGRSn>;
-	Thu, 7 Jun 2001 13:18:43 -0400
-Message-ID: <3B1FB7AA.E50C9C53@sun.com>
-Date: Thu, 07 Jun 2001 10:19:38 -0700
-From: Tim Hockin <thockin@sun.com>
-Organization: Sun Microsystems, Inc.
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Khalid Aziz <khalid@fc.hp.com>
-CC: markh@compro.net,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: pset patch??
-In-Reply-To: <3B1F7130.94357A3C@compro.net> <3B1FB07D.C6C03EF0@fc.hp.com>
+	id <S262239AbRFGRQ4>; Thu, 7 Jun 2001 13:16:56 -0400
+Received: from kweetal.tue.nl ([131.155.2.7]:38671 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id <S262215AbRFGRQo>;
+	Thu, 7 Jun 2001 13:16:44 -0400
+Message-ID: <20010607191645.A17205@win.tue.nl>
+Date: Thu, 7 Jun 2001 19:16:45 +0200
+From: Guest section DW <dwguest@win.tue.nl>
+To: Nico Schottelius <nicos@pcsystems.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: scsi disk defect or kernel driver defect ?
+In-Reply-To: <3B1FAA63.130E556A@pcsystems.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 0.93i
+In-Reply-To: <3B1FAA63.130E556A@pcsystems.de>; from Nico Schottelius on Thu, Jun 07, 2001 at 06:22:59PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Khalid Aziz wrote:
-> 
-> Try
-> <http://resourcemanagement.unixsolutions.hp.com/WaRM/schedpolicy.html>.
-> It may do what you want.
+On Thu, Jun 07, 2001 at 06:22:59PM +0200, Nico Schottelius wrote:
 
-> > I see references to this site http://isunix.it.ilstu.edu/~thockin/pset/.
+>  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 
+>  I/O error: dev 08:01, sector 127304
+> SCSI disk error : host 0 channel 0 id 0 lun 0 return code = 8000002
+> [valid=0] Info fld=0x0, Current sd08:01: sns = 70  b
+> ASC=47 ASCQ= 0
+> Raw sense data:0x70 0x00 0x0b 0x00 0x00 0x00 0x00 0x18 0x00 0x00 0x00 0x00 0x47 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 
+>  I/O error: dev 08:01, sector 127312
 
+Aborted command: SCSI parity error.
 
-try http://www.hockin.org/~thockin/pset
-
-unfortunately, not ported to 2.4.x yet - should be easy, and is a more
-complete implementation of sysmp() than the others..
-
--- 
-Tim Hockin
-Systems Software Engineer
-Sun Microsystems, Cobalt Server Appliances
-thockin@sun.com

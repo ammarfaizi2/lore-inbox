@@ -1,51 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271108AbTHCHsw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Aug 2003 03:48:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271110AbTHCHsw
+	id S271071AbTHCHxB (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Aug 2003 03:53:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271080AbTHCHxB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Aug 2003 03:48:52 -0400
-Received: from home.linuxhacker.ru ([194.67.236.68]:62849 "EHLO linuxhacker.ru")
-	by vger.kernel.org with ESMTP id S271108AbTHCHsl (ORCPT
+	Sun, 3 Aug 2003 03:53:01 -0400
+Received: from sinma-gmbh.17.mind.de ([212.21.92.17]:1551 "EHLO gw.enyo.de")
+	by vger.kernel.org with ESMTP id S271071AbTHCHxA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Aug 2003 03:48:41 -0400
-Date: Sun, 3 Aug 2003 11:45:28 +0400
-From: Oleg Drokin <green@linuxhacker.ru>
-To: Harald Dunkel <harri@synopsys.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test2: crash in reiserfs at shutdown
-Message-ID: <20030803074528.GA14013@linuxhacker.ru>
-References: <3F2B9823.7010503@Synopsys.COM> <200308030649.h736nbcj013727@car.linuxhacker.ru> <3F2CBD0C.4040603@Synopsys.COM>
-Mime-Version: 1.0
+	Sun, 3 Aug 2003 03:53:00 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Polling large file descriptor sets
+From: Florian Weimer <fw@deneb.enyo.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Date: Sun, 03 Aug 2003 09:52:58 +0200
+Message-ID: <87y8ybw52d.fsf@deneb.enyo.de>
+User-Agent: Gnus/5.1003 (Gnus v5.10.3) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F2CBD0C.4040603@Synopsys.COM>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+It seems that /dev/epoll support will be included in 2.6.  Is this the
+official way to solve the problem, or is there another, preferred
+interface I have missed?  Is the current /dev/epoll edge-triggered or
+level-triggered?
 
-On Sun, Aug 03, 2003 at 09:43:08AM +0200, Harald Dunkel wrote:
-> >HD> Final words are
-> >HD>         kernel BUG at fs/reiserfs/prints.c: 339
-> >There should be one line prior to that.
-> >This line explains what went wrong in reiserfs opinion.
-> >Can you please say us what was the line?
-> It said
-> 	unmounting local filesystems... bio too big device sdc1 (8 > 0)
-> 	bio too big device sdc1 (8 > 0)
-> 	journal - 601, buffer write failed
-
-Ok, so it tried to write the journal stuff and failed.
-
-> To me the problem seems that the USB stuff is shutdown
-> without unmounting the external USB disk first. Later, at
-> the "unmounting all disks" step in the shutdown procedure
-> the USB storage device can't be accessed anymore.
-
-Yes, this really seems to be a problem.
-Reiserfs is really unhappy when media disappear under its feet.
-
-Bye,
-    Oleg
+Is the patch for 2.4.21 in sync with 2.6, API-wise?  Can I run
+libevent with both kernels?

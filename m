@@ -1,131 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262179AbVCPAPU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262183AbVCPAQH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262179AbVCPAPU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 19:15:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262182AbVCPAPT
+	id S262183AbVCPAQH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 19:16:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262186AbVCPAQH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 19:15:19 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:16023 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262179AbVCPAM1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 19:12:27 -0500
-Date: Wed, 16 Mar 2005 01:12:08 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Andrew Morton <akpm@zip.com.au>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: swsusp: Remove arch-specific references from generic code
-Message-ID: <20050316001207.GI21292@elf.ucw.cz>
+	Tue, 15 Mar 2005 19:16:07 -0500
+Received: from fmr24.intel.com ([143.183.121.16]:41951 "EHLO
+	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
+	id S262183AbVCPALl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 19:11:41 -0500
+Date: Tue, 15 Mar 2005 16:10:54 -0800
+From: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+To: Dave Jones <davej@redhat.com>
+Cc: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Rohit Seth <rohit.seth@intel.com>
+Subject: Re: [PATCH] Reading deterministic cache parameters and exporting it in /sysfs
+Message-ID: <20050315161054.A2251@unix-os.sc.intel.com>
+References: <20050315152448.A1697@unix-os.sc.intel.com> <20050315233620.GC14380@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050315233620.GC14380@redhat.com>; from davej@redhat.com on Tue, Mar 15, 2005 at 06:36:20PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, Mar 15, 2005 at 06:36:20PM -0500, Dave Jones wrote:
+> On Tue, Mar 15, 2005 at 03:24:48PM -0800, Venkatesh Pallipadi wrote:
+>  >  
+>  > The attached patch adds support for using cpuid(4) instead of cpuid(2), to get 
+>  > CPU cache information in a deterministic way for Intel CPUs, whenever 
+>  > supported. The details of cpuid(4) can be found here
+>  > 
+>  > IA-32 Intel Architecture Software Developer's Manual (vol 2a)
+>  > (http://developer.intel.com/design/pentium4/manuals/index_new.htm#sdm_vol2a)
+>  > and
+>  > Prescott New Instructions (PNI) Technology: Software Developer's Guide
+>  > (http://www.intel.com/cd/ids/developer/asmo-na/eng/events/43988.htm)
+>  >  
+>  > The advantage of using the cpuid(4) ('Deterministic Cache Parameters Leaf') are:
+>  > * It provides more information than the descriptors provided by cpuid(2)
+>  > * It is not table based as cpuid(2). So, we will not need changes to the 
+>  >   kernel to support new cache descriptors in the descriptor table (as is the 
+>  >   case with cpuid(2)).
+>  >  
+>  > The patch also adds a bunch of interfaces under 
+>  > /sys/devices/system/cpu/cpuX/cache, showing various information about the
+>  > caches.
+> 
+> Why does this need to be in kernel-space ? 
 
-This is fix for "swsusp_restore crap"-: we had some i386-specific code
-referenced from generic code. This fixes it by inlining tlb_flush_all
-into assembly.
+Currently, the CPU cache information is printed as a part of kernel bootup
+messages and /proc/cpuinfo using cpuid(2). This patch is trying to use cpuid(4)
+to print the messages in these places. I think this part of the patch is
+required. Otherwise, we may end up printing 0 cache sizes on some CPUs.
+It will also reduce the zero_cache_size_complaints on lkml :-).
 
-Please apply,
-								Pavel
+> Is there some reason that prevents
+> you from enhancing x86info for example ?  I really want to live to see the
+> death of /proc/cpuinfo one day, and reinventing it in sysfs seems pointless
+> if it can all be done in userspace.
+> Given that the most useful field is of limited use to a majority of users,
+> and those that are interested can read this from userspace, this has me very puzzled.
 
-From: Rafael J. Wysocki <rjw@sisk.pl>
-Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
-Signed-off-by: Pavel Machek <pavel@suse.cz>
+Agreed. Exporting it in /sysfs is debatable. And some of the information like,
+'Which CPUs are sharing what caches' may not be useful today. But,
+with CPUs with HT and multiple cores and combinations of it, sharing different
+caches, having this information will be useful inside the kernel as well. 
+scheduler for example. We can setup some of the scheduler domain parameters 
+based on whether L2 is shared or not. 
+Also, we felt, exporting this information to userspace in a consistent way will
+help userspace apps to do various things like binding to specific CPUs, using
+the working set size based on cache size, etc, to optimize the performance. 
+Again, this can be done in userspace as well. But, if kernel is already doing
+it, it may be better to export it from the kernel space.
 
+Thanks,
+Venki
 
-
-diff -Nrup linux-2.6.11-bk10-a/arch/i386/power/swsusp.S linux-2.6.11-bk10-b/arch/i386/power/swsusp.S
---- linux-2.6.11-bk10-a/arch/i386/power/swsusp.S	2005-03-15 09:20:53.000000000 +0100
-+++ linux-2.6.11-bk10-b/arch/i386/power/swsusp.S	2005-03-15 15:37:25.000000000 +0100
-@@ -51,6 +51,15 @@ copy_loop:
- 	.p2align 4,,7
- 
- done:
-+	/* Flush TLB, including "global" things (vmalloc) */
-+	movl	mmu_cr4_features, %eax
-+	movl	%eax, %edx
-+	andl	$~(1<<7), %edx;  # PGE
-+	movl	%edx, %cr4;  # turn off PGE
-+	movl	%cr3, %ecx;  # flush TLB
-+	movl	%ecx, %cr3
-+	movl	%eax, %cr4;  # turn PGE back on
-+
- 	movl saved_context_esp, %esp
- 	movl saved_context_ebp, %ebp
- 	movl saved_context_ebx, %ebx
-@@ -58,5 +67,5 @@ done:
- 	movl saved_context_edi, %edi
- 
- 	pushl saved_context_eflags ; popfl
--	call swsusp_restore
-+
- 	ret
-diff -Nrup linux-2.6.11-bk10-a/arch/x86_64/kernel/suspend_asm.S linux-2.6.11-bk10-b/arch/x86_64/kernel/suspend_asm.S
---- linux-2.6.11-bk10-a/arch/x86_64/kernel/suspend_asm.S	2005-03-15 09:20:53.000000000 +0100
-+++ linux-2.6.11-bk10-b/arch/x86_64/kernel/suspend_asm.S	2005-03-16 00:56:53.000000000 +0100
-@@ -69,6 +69,15 @@ loop:
- 	movq	pbe_next(%rdx), %rdx
- 	jmp	loop
- done:
-+	/* Flush TLB, including "global" things (vmalloc) */
-+	movq	mmu_cr4_features(%rip), %rax
-+	movq	%rax, %rdx
-+	andq	$~(1<<7), %rdx;  # PGE
-+	movq	%rdx, %cr4;  # turn off PGE
-+	movq	%cr3, %rcx;  # flush TLB
-+	movq	%rcx, %cr3
-+	movq	%rax, %cr4;  # turn PGE back on
-+
- 	movl	$24, %eax
- 	movl	%eax, %ds
- 
-@@ -89,5 +98,5 @@ done:
- 	movq saved_context_r14(%rip), %r14
- 	movq saved_context_r15(%rip), %r15
- 	pushq saved_context_eflags(%rip) ; popfq
--	call	swsusp_restore
-+
- 	ret
-diff -Nrup linux-2.6.11-bk10-a/kernel/power/swsusp.c linux-2.6.11-bk10-b/kernel/power/swsusp.c
---- linux-2.6.11-bk10-a/kernel/power/swsusp.c	2005-03-15 09:21:23.000000000 +0100
-+++ linux-2.6.11-bk10-b/kernel/power/swsusp.c	2005-03-15 15:35:44.000000000 +0100
-@@ -900,22 +900,13 @@ int swsusp_suspend(void)
- 	error = swsusp_arch_suspend();
- 	/* Restore control flow magically appears here */
- 	restore_processor_state();
-+	BUG_ON (nr_copy_pages_check != nr_copy_pages);
- 	restore_highmem();
- 	device_power_up();
- 	local_irq_enable();
- 	return error;
- }
- 
--
--asmlinkage int swsusp_restore(void)
--{
--	BUG_ON (nr_copy_pages_check != nr_copy_pages);
--	
--	/* Even mappings of "global" things (vmalloc) need to be fixed */
--	__flush_tlb_global();
--	return 0;
--}
--
- int swsusp_resume(void)
- {
- 	int error;
-
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
-
------ End forwarded message -----
-
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

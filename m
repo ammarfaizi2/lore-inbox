@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265897AbUBGUbN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Feb 2004 15:31:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265928AbUBGUbN
+	id S265958AbUBGUgr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Feb 2004 15:36:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266018AbUBGUgr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Feb 2004 15:31:13 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:54742 "HELO
+	Sat, 7 Feb 2004 15:36:47 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:34262 "HELO
 	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S265897AbUBGUbH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Feb 2004 15:31:07 -0500
-Date: Sat, 7 Feb 2004 21:30:58 +0100
+	id S265958AbUBGUfc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Feb 2004 15:35:32 -0500
+Date: Sat, 7 Feb 2004 21:35:25 +0100
 From: Adrian Bunk <bunk@fs.tum.de>
-To: matthew@wil.cx, linux-scsi@vger.kernel.org, James.Bottomley@SteelEye.com,
-       linux-kernel@vger.kernel.org
-Subject: [patch] sym53c8xx_2 uses SYM_MEM_CLUSTER_SHIFT before its #define'd
-Message-ID: <20040207203058.GA7388@fs.tum.de>
+To: bjornw@axis.com
+Cc: dev-etrax@axis.com, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] cris: remove kernel 2.0 #ifdef's
+Message-ID: <20040207203525.GB7388@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,58 +22,73 @@ User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When compiling 2.6.2-mm1 (this problem doesn't seem to be specific
-to -mm) with -Wundef I got many of the following warnings:
+The patch below removes some kernel 2.0 #ifdef's from 
+arch/cris/arch-v10/kernel/fasttimer.c .
 
-<--  snip  -->
-
-...
-In file included from drivers/scsi/sym53c8xx_2/sym_glue.h:446,
-                 from drivers/scsi/sym53c8xx_2/sym_fw.c:56:
-drivers/scsi/sym53c8xx_2/sym_hipd.h:186:30: 
-warning: "SYM_MEM_CLUSTER_SIZE" is not defined
-...
-
-<--  snip  -->
-
-This seems to be a bug:
-SYM_MEM_CLUSTER_SIZE is used before it's #define'd.
-
-The patch below fixes this issue.
-
-cu
+Please apply
 Adrian
 
---- linux-2.6.2-mm1/drivers/scsi/sym53c8xx_2/sym_hipd.h.old	2004-02-07 21:20:04.000000000 +0100
-+++ linux-2.6.2-mm1/drivers/scsi/sym53c8xx_2/sym_hipd.h	2004-02-07 21:20:54.000000000 +0100
-@@ -171,6 +171,15 @@
- #define	SYM_CONF_MIN_ASYNC (40)
+--- linux-2.6.2-mm1/arch/cris/arch-v10/kernel/fasttimer.c.old	2004-02-07 20:17:47.000000000 +0100
++++ linux-2.6.2-mm1/arch/cris/arch-v10/kernel/fasttimer.c	2004-02-07 20:18:42.000000000 +0100
+@@ -592,23 +592,8 @@
  
- /*
-+ *  Shortest memory chunk is (1<<SYM_MEM_SHIFT), currently 16.
-+ *  Actual allocations happen as SYM_MEM_CLUSTER_SIZE sized.
-+ *  (1 PAGE at a time is just fine).
-+ */
-+#define SYM_MEM_SHIFT   4
-+#define SYM_MEM_CLUSTER_SIZE    (1UL << SYM_MEM_CLUSTER_SHIFT)
-+#define SYM_MEM_CLUSTER_MASK    (SYM_MEM_CLUSTER_SIZE-1)
-+
-+/*
-  *  Number of entries in the START and DONE queues.
-  *
-  *  We limit to 1 PAGE in order to succeed allocation of 
-@@ -1322,14 +1331,6 @@
-  *  MEMORY ALLOCATOR.
-  */
+ #ifdef CONFIG_PROC_FS
+ static int proc_fasttimer_read(char *buf, char **start, off_t offset, int len
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,2,0)
+-                       ,int *eof, void *data_unused
+-#else
+-                        ,int unused
+-#endif
+-                               );
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,2,0)
++                       ,int *eof, void *data_unused);
+ static struct proc_dir_entry *fasttimer_proc_entry;
+-#else
+-static struct proc_dir_entry fasttimer_proc_entry =
+-{
+-  0, 9, "fasttimer",
+-  S_IFREG | S_IRUGO, 1, 0, 0,
+-  0, NULL /* ops -- default to array */,
+-  &proc_fasttimer_read /* get_info */,
+-};
+-#endif
+ #endif /* CONFIG_PROC_FS */
  
--/*
-- *  Shortest memory chunk is (1<<SYM_MEM_SHIFT), currently 16.
-- *  Actual allocations happen as SYM_MEM_CLUSTER_SIZE sized.
-- *  (1 PAGE at a time is just fine).
-- */
--#define SYM_MEM_SHIFT	4
--#define SYM_MEM_CLUSTER_SIZE	(1UL << SYM_MEM_CLUSTER_SHIFT)
--#define SYM_MEM_CLUSTER_MASK	(SYM_MEM_CLUSTER_SIZE-1)
+ #ifdef CONFIG_PROC_FS
+@@ -617,12 +602,7 @@
+ #define BIG_BUF_SIZE (500 + NUM_TIMER_STATS * 300)
  
- /*
-  *  Link between free memory chunks of a given size.
+ static int proc_fasttimer_read(char *buf, char **start, off_t offset, int len
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,2,0)
+-                       ,int *eof, void *data_unused
+-#else
+-                        ,int unused
+-#endif
+-                               )
++                       ,int *eof, void *data_unused)
+ {
+   unsigned long flags;
+   int i = 0;
+@@ -798,9 +778,7 @@
+ 
+   memcpy(buf, bigbuf + offset, len);
+   *start = buf;
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,2,0)
+   *eof = 1;
+-#endif
+ 
+   return len;
+ }
+@@ -975,12 +953,8 @@
+     }
+ #endif
+ #ifdef CONFIG_PROC_FS
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,2,0)
+    if ((fasttimer_proc_entry = create_proc_entry( "fasttimer", 0, 0 )))
+      fasttimer_proc_entry->read_proc = proc_fasttimer_read;
+-#else
+-    proc_register_dynamic(&proc_root, &fasttimer_proc_entry);
+-#endif
+ #endif /* PROC_FS */
+     if(request_irq(TIMER1_IRQ_NBR, timer1_handler, SA_SHIRQ,
+                    "fast timer int", NULL))

@@ -1,68 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266911AbSKOWwz>; Fri, 15 Nov 2002 17:52:55 -0500
+	id <S266908AbSKOWr4>; Fri, 15 Nov 2002 17:47:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266898AbSKOWwz>; Fri, 15 Nov 2002 17:52:55 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:3846 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S266897AbSKOWwx>;
-	Fri, 15 Nov 2002 17:52:53 -0500
-Message-ID: <3DD57C42.3000107@pobox.com>
-Date: Fri, 15 Nov 2002 17:59:14 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021018
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Khoa Huynh <khoa@us.ibm.com>
-CC: "David S. Miller" <davem@redhat.com>, ak@suse.de,
-       linux-kernel@vger.kernel.org, linux-kernel-owner@vger.kernel.org,
-       mbligh@aracnet.com
-Subject: Re: Bugzilla bug tracking database for 2.5 now available.
-References: <OFD55E09AF.09FEF8A7-ON85256C72.007B18B9@pok.ibm.com>
-In-Reply-To: <OFD55E09AF.09FEF8A7-ON85256C72.007B18B9@pok.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S266911AbSKOWr4>; Fri, 15 Nov 2002 17:47:56 -0500
+Received: from ns1.alcove-solutions.com ([212.155.209.139]:9681 "EHLO
+	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
+	id <S266908AbSKOWrz>; Fri, 15 Nov 2002 17:47:55 -0500
+Date: Fri, 15 Nov 2002 23:53:43 +0100
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: Dmitri <dmitri@users.sourceforge.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: lan based kgdb
+Message-ID: <20021115225343.GB1877@tahoe.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
+	Dmitri <dmitri@users.sourceforge.net>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <3DD5591E.A3D0506D@efi.com> <334960000.1037397999@flay> <ar3op8$f20$1@penguin.transmeta.com> <20021115222430.GA1877@tahoe.alcove-fr> <1037400456.1565.38.camel@usb.networkfab.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1037400456.1565.38.camel@usb.networkfab.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Khoa Huynh wrote:
+On Fri, Nov 15, 2002 at 02:47:35PM -0800, Dmitri wrote:
 
-> David Miller wrote:
->
->
-> >mozilla handles it this way: the bug starts as unconfirmed. they have a
-> >  volunteer group of pre screeners. Only when one of these people sets
-> >  it to valid or similar then the owners of the module get mail.
-> >
-> >This sounds like a good idea.
->
->
-> Currently in the kernel bugzilla, after a bug is filed, it is initially
-> in the OPEN state -- this is similar to the Unconfirmed state mentioned
-> above.  The screeners (my team and others who volunteer) can get rid of
-> many invalid bugs and dups.  Only valid bugs then go to the ASSIGNED state
-> with correct owners.  Of course, we do not expect to get rid 100% of all
-> the invalids and dups, but at least that should reduce the work of
-> the owners who should only work with bugs in the ASSIGNED state.
+> > Using USB instead of the serial line or the network card would be
+> > the best IMHO, because:
+[...]
+> 
+> USB hardware and protocols are master-slave, meaning that you can not
+> connect another computer to this one directly. 
 
+Of course, you are correct :(
 
-The bugs assigned to me are all in the 'open' state, with no obvious way 
-to change them to 'assigned'.
+> What USB *device* would
+> you want to see connected?
 
-> Also, the bug owner can close MULTIPLE bugs at the same time
-> on Bugzilla.  A bug owner can query all of his bugs which will
-> then be displayed in a list, click the option "Change several bugs
-> at once" at the bottom of the list, select the bugs that he wants
-> to close, and then hit Commit button.  It's pretty simple.  Besides
-> closing the bugs, the owner can make similar changes to several bugs
-> at the same time using the same mechanism.
+Well, I could say 'iPAQ' here but I guess it's getting out of
+topic.
+ 
+> Of course, a USB-Serial adapter would work, and you can connect any
+> serial terminal, but then we are back to using serial ports; it's just
+> you will need a different driver for that.
 
+Well, I have one of those, and it could be a good replacement because
+it needs serial only on the development box, not on the target. It
+would be acceptable for me in any case (because I already have the
+adapter), but it probably won't be in the general case, given the
+price ratio between a network card and the USB-Serial adapter.
 
-
-The basic point still stands, though, that if the bug owner must close 
-multiple bugs at once, they are likely clearing out garbage and that 
-each individual bug is not necessarily unique or valid...
-
-	Jeff
-
-
-
+Stelian.
+-- 
+Stelian Pop <stelian.pop@fr.alcove.com>
+Alcove - http://www.alcove.com

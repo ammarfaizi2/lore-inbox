@@ -1,37 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262370AbTCICet>; Sat, 8 Mar 2003 21:34:49 -0500
+	id <S262377AbTCIC6l>; Sat, 8 Mar 2003 21:58:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262372AbTCICet>; Sat, 8 Mar 2003 21:34:49 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:775 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S262370AbTCICen>; Sat, 8 Mar 2003 21:34:43 -0500
-Date: Sat, 8 Mar 2003 21:41:20 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Michael Vergoz <mvergoz@sysdoor.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: High Mem Options
-In-Reply-To: <20030305140257.2ab08ab8.mvergoz@sysdoor.com>
-Message-ID: <Pine.LNX.3.96.1030308213907.5356C-100000@gatekeeper.tmr.com>
+	id <S262381AbTCIC6k>; Sat, 8 Mar 2003 21:58:40 -0500
+Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:16972
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S262377AbTCIC6k>; Sat, 8 Mar 2003 21:58:40 -0500
+Date: Sat, 8 Mar 2003 22:07:04 -0500 (EST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: rwhron@earthlink.net
+cc: linux-kernel@vger.kernel.org
+Subject: Re: scheduler starvation running irman with 2.5.64bk2
+In-Reply-To: <20030309025015.GA2843@rushmore>
+Message-ID: <Pine.LNX.4.50.0303082205570.24347-100000@montezuma.mastecende.com>
+References: <20030309025015.GA2843@rushmore>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 Mar 2003, Michael Vergoz wrote:
+On Sat, 8 Mar 2003 rwhron@earthlink.net wrote:
 
-> Right, but if the pagetable pointing to a different 4GB subsets of memory.
-> The performance of the system can be disastrous, not?
+> There are probably less than 50 processes running.  
+> "ps aux" doesn't hear <ctrl z> or <ctrl c>.
+> 
+> Machine doesn't accept new ssh connections.
+> 
+> It's as if after starting irman, new processes don't get any CPU time.
 
-No. It may be measurable, but I've seen posts from very competent people
-indicating that penalties of 2-5% are usual. Swapping to disk is going to
-hurt a lot more than that, so if a system has lots of processes more
-memory is usually better.
+Try doing a sysrq-T to get task state for all the processes and even 
+sysrq-P at any random point will give you an idea of where the cpu is.
 
-Maybe some of the benchmark gurus can point you to numbers on this.
-
+	Zwane
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+function.linuxpower.ca

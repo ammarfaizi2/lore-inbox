@@ -1,51 +1,162 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263131AbTKQCRn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Nov 2003 21:17:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263221AbTKQCRn
+	id S263293AbTKQCUn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Nov 2003 21:20:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263294AbTKQCUm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Nov 2003 21:17:43 -0500
-Received: from mail-03.iinet.net.au ([203.59.3.35]:63725 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S263131AbTKQCRm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Nov 2003 21:17:42 -0500
-Subject: Re: Terrible interactivity with 2.6.0-t9-mm3
-From: Gawain Lynch <gawain@freda.homelinux.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Prakash K. Cheemplavam" <prakashpublic@gmx.de>,
-       linux-kernel@vger.kernel.org, CaT <cat@zip.com.au>
-In-Reply-To: <20031116134231.763fc5ed.akpm@osdl.org>
-References: <20031116192643.GB15439@zip.com.au> <3FB7DCF9.5090205@gmx.de>
-	 <20031116134231.763fc5ed.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1069035604.1916.3.camel@frodo.felicity.net.au>
+	Sun, 16 Nov 2003 21:20:42 -0500
+Received: from lns-th2-3f-81-56-201-35.adsl.proxad.net ([81.56.201.35]:63361
+	"EHLO tethys.solarsys.org") by vger.kernel.org with ESMTP
+	id S263293AbTKQCUh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Nov 2003 21:20:37 -0500
+Date: Mon, 17 Nov 2003 03:20:15 +0100
+From: wwp <subscript@free.fr>
+To: linux-kernel@vger.kernel.org
+Subject: Re: possible IDE/ext3 fs corruption while playing w/ ACPI and/or
+ 2.4.22?
+Message-Id: <20031117032015.0e30df1c.subscript@free.fr>
+In-Reply-To: <20031117030158.6f690676.subscript@free.fr>
+References: <20031117030158.6f690676.subscript@free.fr>
+X-Mailer: Sylpheed version 0.9.6claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Mon, 17 Nov 2003 13:20:04 +1100
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed;
+ boundary="Multipart=_Mon__17_Nov_2003_03_20_15_+0100_dXaS4SJ72zPqv5QM"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-11-17 at 08:42, Andrew Morton wrote:
-> Two things to try, please:
-> 
-> a) Is the problem from Linus's tree?  Try 2.6.0-test9 plus 
-> 	ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test9/2.6.0-test9-mm3/broken-out/linus.patch
-> 
-> b) The only significant scheduler change in mm3 was 
-> 	ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test9/2.6.0-test9-mm3/broken-out/context-switch-accounting-fix.patch
-> 	
->    So please try -mm3 with the above patch reverted with
-> 
-> 	patch -R -p1 < context-switch-accounting-fix.patch
-> 
+This is a multi-part message in MIME format.
 
-Hi Andrew,
+--Multipart=_Mon__17_Nov_2003_03_20_15_+0100_dXaS4SJ72zPqv5QM
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-This is also easily reproducible here with just a kernel compile.
+Hi folks,
 
-I have tried both a) and b) with b) not changing anything, but a) seems
-to work...  Anything more to try?
 
-Gawain
+more info:
 
+I was interested in looking if switching from a kernel to another one leads to
+such possible errors.. I've ran the command below over all the /var/log/message
+files created since I use this laptop:
+	grep -E "symbols from /boot/System.map|kernel: hda: " messages*
+The output is bzip2'ed and attached.
+
+OK, this doesn't show anything else but kernel bootings and hda errors,
+nothing about ACPI actions or anything else. Nearly all the hda errors
+happen when during the startup process, quite always at the same time. 
+Maybe it's not relevant, and I don't know if there's any information to get
+from such observation. Would it help or should I provide more info?
+
+
+Regards,
+
+-- 
+wwp
+
+--Multipart=_Mon__17_Nov_2003_03_20_15_+0100_dXaS4SJ72zPqv5QM
+Content-Type: application/x-bzip2;
+ name="hda-errors.log.bz2"
+Content-Disposition: attachment;
+ filename="hda-errors.log.bz2"
+Content-Transfer-Encoding: base64
+
+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
+
+--Multipart=_Mon__17_Nov_2003_03_20_15_+0100_dXaS4SJ72zPqv5QM--

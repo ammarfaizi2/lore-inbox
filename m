@@ -1,52 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264459AbUBEBvV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 20:51:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264479AbUBEBvV
+	id S264238AbUBEBsC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 20:48:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264459AbUBEBsB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 20:51:21 -0500
-Received: from www.trustcorps.com ([213.165.226.2]:27154 "EHLO raq1.nitrex.net")
-	by vger.kernel.org with ESMTP id S264459AbUBEBvR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 20:51:17 -0500
-Message-ID: <4021A0FB.7060505@hcunix.net>
-Date: Thu, 05 Feb 2004 01:48:43 +0000
-From: the grugq <grugq@hcunix.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+	Wed, 4 Feb 2004 20:48:01 -0500
+Received: from pacific.moreton.com.au ([203.143.235.130]:30226 "EHLO
+	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
+	id S264238AbUBEBr5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Feb 2004 20:47:57 -0500
+Message-ID: <4021A111.1070807@snapgear.com>
+Date: Thu, 05 Feb 2004 11:49:05 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Bill Davidsen <davidsen@tmr.com>
-CC: Valdis.Kletnieks@vt.edu, "Theodore Ts'o" <tytso@mit.edu>,
-       Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
-Subject: Re: PATCH - ext2fs privacy (i.e. secure deletion) patch
-References: Your message of "Wed, 04 Feb 2004 12:05:07 EST."             <40212643.4000104@tmr.com> <200402041714.i14HEIVD005246@turing-police.cc.vt.edu> <402184AA.2010302@tmr.com>
-In-Reply-To: <402184AA.2010302@tmr.com>
-X-Enigmail-Version: 0.82.4.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH]: linux-2.6.2-uc0 (MMU-less fixups)
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi All,
 
-> 
-> But what happens when the 'setgid' bit is put on a directory? At least 
-> in 2.4 existing files do NOT get the group set, only files newly 
-> created. So unless someone feels that's a bug which needs immediate 
-> fixing, I can point to it as a model by which the feature could be 
-> practically implemented.
+An update of the uClinux (MMU-less) fixups against 2.6.2.
+A few new things, and some previous patches now merged.
 
-Implementing the privacy patch based on the suggestions put forward 
-(chattr +s && mount options), i've hit something of a snag.
+http://www.uclinux.org/pub/uClinux/uClinux-2.6.x/linux-2.6.2-uc0.patch.gz
 
-If a directory has "chattr +s" then whenever a directory entry is 
-deleted, should the dirent contents be overwritten, or should only freed 
-blocks be overwritten? It makes sense to me that the directory entry 
-should be overwritten because it is inaccessible meta-data and exposes 
-information about the file system. Since the user obviously wants the 
-directory to be securely deleted, that could be construed as implying 
-they want sensitive directory content securely deleted as well.
+New in this patch:
 
+. mcfserial tiocmget/set fixup     Russell King
+. mcfserial cleanup                Randy Dunlap/Domen Puncer
+. remove unused CONFIG_LEDMAN      Randy Dunlap/Domen Puncer
+. 68328 frame buffer fixups        Georges Menie
+. m68k support for cs89x00         Georges Menie
+
+Regards
+Greg
 
 
---gq
+
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Dude          EMAIL:  gerg@snapgear.com
+Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
+825 Stanley St,                                  FAX:    +61 7 3279 1820
+Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

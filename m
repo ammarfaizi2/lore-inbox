@@ -1,40 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262886AbSJLLWb>; Sat, 12 Oct 2002 07:22:31 -0400
+	id <S262887AbSJLLYH>; Sat, 12 Oct 2002 07:24:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262887AbSJLLWb>; Sat, 12 Oct 2002 07:22:31 -0400
-Received: from mailout05.sul.t-online.com ([194.25.134.82]:17853 "EHLO
-	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S262886AbSJLLWa> convert rfc822-to-8bit; Sat, 12 Oct 2002 07:22:30 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: kswapd Oops in 2.4.20-pre10
-Date: Sat, 12 Oct 2002 13:28:03 +0200
-User-Agent: KMail/1.4.3
-Organization: WOLK - Working Overloaded Linux Kernel
-Cc: Adrian Bunk <bunk@fs.tum.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200210121327.51832.m.c.p@wolk-project.de>
+	id <S262888AbSJLLYG>; Sat, 12 Oct 2002 07:24:06 -0400
+Received: from chunk.voxel.net ([207.99.115.133]:4532 "EHLO chunk.voxel.net")
+	by vger.kernel.org with ESMTP id <S262887AbSJLLYF>;
+	Sat, 12 Oct 2002 07:24:05 -0400
+Date: Sat, 12 Oct 2002 07:29:55 -0400
+From: Andres Salomon <dilinger@mp3revolution.net>
+To: jw schultz <jw@pegasys.ws>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux v2.5.42
+Message-ID: <20021012112955.GA10857@chunk.voxel.net>
+References: <Pine.LNX.4.44.0210112134160.7166-100000@penguin.transmeta.com> <20021012095026.GC28537@merlin.emma.line.org> <20021012111140.GA22536@pegasys.ws>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021012111140.GA22536@pegasys.ws>
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux chunk 2.4.18-ac3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Adrian,
+Uh, what?  LVM2 is perfectly backwards compatible w/ LVM1.  Of course,
+snapshots don't work w/ LVM2 yet, so I'm not sure how LVM2 handles LVM1
+snapshot volumes.   In general, volumes created w/ LVM1 tools should
+work fine with device-mapper/LVM2.  I've been using LVM2 for 8+ months;
+when I've needed to do things that aren't yet implemented with LVM2 (for
+example, pvmove'ing), I've simply downgraded to LVM1 temporarily, done
+the task, and then upgraded my tools again.
 
-> My computer wasn't under high load when this happened.
-> It has 128 MB RAM and 1 GB of swap and the amount of used RAM+swap is
-> usually far below 128 MB.
-I had almost the same oops only once in my life till now and this was with 
-2.4.18.
+
+On Sat, Oct 12, 2002 at 04:11:40AM -0700, jw schultz wrote:
+> 
+> On Sat, Oct 12, 2002 at 11:50:26AM +0200, Matthias Andree wrote:
+> > On Fri, 11 Oct 2002, Linus Torvalds wrote:
+> > 
+> > > PS: NOTE - I'm not going to merge either EVMS or LVM2 right now as things
+> > > stand.  I'm not using any kind of volume management personally, so I just
+> > > don't have the background or inclination to walk through the patches and
+> > > make that kind of decision. My non-scientific opinion is that it looks 
+> > > like the EVMS code is going to be merged, but ..
+> >
+> > A user's input, of not nearly as much weight as of the input you
+> > suggested, and totally unencumbered by technical details:
+> > 
+> > EVMS has been much more present to interested parties than LVM2. If --
+> > as a user -- I was to choose either one RIGHT NOW (i. e. with a gun
+> > against a head, a boss telling me 'I want a decision in 30 minutes', you
+> > name it), I'd go for EVMS.
+> > 
+> > But because EVMS just looks much less like a construction site than
+> > dm2/LVM2 does.
+> > 
+> > Just my two Euro cents.
+> 
+> I'll add my $0.02US which (according to exchange rates) is
+> worth more though almost worthless.
+> 
+> Hate to say it but in this comparison LVM2 looses.  Primary
+> reason: Backward compatibility.  People are going to need to
+> be able to switch between kernels.
+> 
+> So far everything indicates that LVM2 is not compatible with
+> LVM.  That LVM2 and LVM(1) can coexist-exist is irrelevant if
+> 2.5 hasn't got a working LVM(1).  And that would leave us
+> with having to do backup+restore around the upgrade.
+> 
+> Any on-disk changes also need to have an in-place translator.
+> Just think about what it would take to do an upgrade, or
+> downgrade, without in-place translation.
+> 
+> Also 2.4 -> 2.6 should not be a feature reduction so
+> snapshot volumes and any other LVM features missing from
+> LVM2 are issues.
+> 
+> -- 
+> ________________________________________________________________
+> 	J.W. Schultz            Pegasystems Technologies
+> 	email address:		jw@pegasys.ws
+> 
+> 		Remember Cernan and Schmitt
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
 -- 
-Kind regards
-        Marc-Christian Petersen
-
-http://sourceforge.net/projects/wolk
-
-PGP/GnuPG Key: 1024D/569DE2E3DB441A16
-Fingerprint: 3469 0CF8 CA7E 0042 7824 080A 569D E2E3 DB44 1A16
-Key available at www.keyserver.net. Encrypted e-mail preferred.
+It's not denial.  I'm just selective about the reality I accept.
+	-- Bill Watterson

@@ -1,61 +1,83 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314801AbSECRq2>; Fri, 3 May 2002 13:46:28 -0400
+	id <S314889AbSECRvH>; Fri, 3 May 2002 13:51:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314885AbSECRq1>; Fri, 3 May 2002 13:46:27 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:12809 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S314801AbSECRq1>; Fri, 3 May 2002 13:46:27 -0400
-Message-Id: <200205031743.g43HhkX10360@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org
-Subject: Re: [prepatch] address_space-based writeback
-Date: Fri, 3 May 2002 20:47:48 -0200
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <9595.1020174038@ocs3.intra.ocs.com.au> <200205030931.g439VEX09418@Port.imtp.ilyichevsk.odessa.ua> <3CD2875C.439AC914@aitel.hist.no>
+	id <S314900AbSECRvF>; Fri, 3 May 2002 13:51:05 -0400
+Received: from beasley.gator.com ([63.197.87.202]:15880 "EHLO
+	beasley.gator.com") by vger.kernel.org with ESMTP
+	id <S314889AbSECRvD>; Fri, 3 May 2002 13:51:03 -0400
+From: "George Bonser" <george@gator.com>
+To: "Russell Leighton" <russ@elegant-software.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: RE: Linux 2.4 as a router, when is it appropriate?
+Date: Fri, 3 May 2002 10:51:01 -0700
+Message-ID: <CHEKKPICCNOGICGMDODJIEBJHIAA.george@gator.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+In-Reply-To: <3CD28FB8.40204@elegant-software.com>
+X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3 May 2002 10:49, Helge Hafting wrote:
-> > > Yes, edit /etc/fstab. My file server has loads of partitions and it
-> > > exports them all and /etc/fstab on all clients just mounts them all.
-> > > Problem being?
-> >
-> > Problem is that I have to modify /etc/fstab on every workstation.
+I have used Linux/Zebra in production as a route reflector. That
+machine was simply a BGP peer of the others and not directly in the
+traffic path. That configuration had several commercial border routers
+(actually L2/3 switches) collecting full Internet routes from their
+upstream peers. These border routers fed their routing table via BGP
+to the Linux route reflector. The Linux/Zebra box aggregated the
+table, applied various policy to the routes received, and sent the
+resulting table on to the core routers.
+
+The reason for using Linux in this case was the large amount of memory
+required for handling all the peers. Zebra handled it just fine and
+you can just keep adding RAM to a PC. To get the same capability in a
+commercial unit you have to get some very expensive iron.  This
+allowed the border units to be relatively inexpensive with only enough
+RAM to handle 1 Internet peer with full routes and kept the core
+router CPU free to handle traffic rather than process routes so it
+could also be a lower cost unit than would otherwise be required.
+
+The unit was in production for over a year without a single reboot.
+
+
+
+
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org
+> [mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of
+> Russell Leighton
+> Sent: Friday, May 03, 2002 6:25 AM
+> To: linux-kernel@vger.kernel.org
+> Subject: Linux 2.4 as a router, when is it appropriate?
 >
-> So _automate_ that then.  If you have so many workstations, make...
-
-Yes I can do that easily. I meant that it is somewhat silly that clients
-have to be tweaked when normal directory on server become a mount point.
-It should be invisible from client.
-
-(Before we start: I know about nohide)
-
-> > It seems to me like the Bad Thing which is too old and traditional to
-> > change. :-(
 >
-> Most ways have their own disadvantages.  Can you invent a better concept
-> than the inode that works as well in every existing way, and better for
-> this case?  Your new syscall isn't it, as Pavel Machek demonstrated.
+>
+> Could someone please tell me (or refer me to docs) on when
+> using the Linux on PC hardware as a router is an appropriate
+> solution and when one should consider a "real" router (e.g., Cisco)?
+>
+> I have heard that performance wise, if you have a fast CPU,
+> much memory and good NICs that Linux can be as good
+> all but the high end routers. Are there important missing
+> features or realiability issues that make using Linux not
+> suitable for "enterprise" use?
+>
+> Thanks.
+>
+> Russ
+>
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Pavel presented a corner case (tarring up thousands of files, all with
-exactly *same size*). It's like making pathological cases for VM behavior.
-I don't take that seriously, sorry. Another example?
-
-> Changing unix is doable _if_ you can show a significant benefit.
-> The more utilities you want to break, the more benefit you need to show.
-> I don't think you can send the inode to the land of
-> "8-char limited passwords" by pushing "simpler management of fstabs"
-> though.
-
-I'm afraid I can't present benefits big enough.
-
-I was thinking of fs driver (NFS,reiser,NTFS,FAT,...) developers'
-pain, not about my /etc/fstab editing.
---
-vda

@@ -1,52 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276535AbRJGSQb>; Sun, 7 Oct 2001 14:16:31 -0400
+	id <S276552AbRJGS0B>; Sun, 7 Oct 2001 14:26:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276558AbRJGSQV>; Sun, 7 Oct 2001 14:16:21 -0400
-Received: from nsd.netnomics.com ([216.71.84.35]:44890 "EHLO
-	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id <S276535AbRJGSQG>; Sun, 7 Oct 2001 14:16:06 -0400
-Date: Sun, 7 Oct 2001 13:16:19 -0500 (CDT)
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] 2.4.11-pre4 remove spurious kernel recompiles
-In-Reply-To: <20011007200522.E726@athlon.random>
-Message-ID: <Pine.LNX.3.96.1011007131234.26881H-100000@mandrakesoft.mandrakesoft.com>
+	id <S276558AbRJGSZw>; Sun, 7 Oct 2001 14:25:52 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:22773 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S276552AbRJGSZn>; Sun, 7 Oct 2001 14:25:43 -0400
+Message-ID: <3BC09DB5.279ED948@mvista.com>
+Date: Sun, 07 Oct 2001 11:23:49 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Igor Mozetic <igor.mozetic@uni-mb.si>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.10-ac4 (SMP, highmem) complete freeze
+In-Reply-To: <15293.65326.541017.774801@cmb1-3.dial-up.arnes.si>
+		<Pine.LNX.4.21.0110051436560.2744-100000@freak.distro.conectiva>
+		<15294.1922.204820.340222@cmb1-3.dial-up.arnes.si> <15294.2287.812821.556092@cmb1-3.dial-up.arnes.si>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 7 Oct 2001, Andrea Arcangeli wrote:
-
-> On Sun, Oct 07, 2001 at 08:25:42PM +1000, Keith Owens wrote:
-> > in the top level Makefile forces a recompile of the entire kernel, for
-> > no good reason.
+Igor Mozetic wrote:
 > 
-> this is a matter of taste but personally I believe that at least
-> theorically recompiling the whole kernel if I add -g to CFLAGS, or if I
-> change the EXTRAVERSION have lots of sense.
+> Marcelo Tosatti writes:
+> 
+>  > Can you try to get any backtraces the next time the machine locks up ?
+>  >
+>  > You can use the SysRQ key's for that (documentation about it at
+>  > Documentation/sysrq.txt). (Alt+SysRQ+T and Alt+SysRQ+P traces)
+> 
+> Well, at the time of this lockup I was in almost on-line contact
+> with Ingo and we couldn't get anything at all! Screen was dead blank,
+> no keystroke worked, NumLock didn't work, even Power Off didn't work.
+> Also, nothing over netconsole. If you have any other suggestion,
+> please ...
 
-Correct.  I am amazed Keith missed this...  changing data in Makefile
-can certainly affect the entire kernel compile, so it makes sense to
-recompile the entire kernel when it changes.
+Did you turn on the NMI watchdog?  See
+.../linux/Documentation/nmi_watchdog.txt in your kernel tree.
 
-If we want to change this, one must isolate the specific changes which
-cause the entire kernel (or just init/main.c) to be recompiled, and
-put those in a separate file.
-
-
-> OTOH at the moment I
-> wouldn't trust the buildsystem anyways, so I'd run a `make distclean`
-> anyways in those cases :).
-
-ditto :)  my kbuild script looks basically like:
-
-make distclean && cp <kconfig dir>/rum .config && make oldconfig &&
-make oldconfig && make -j3 dep && make -j3 && make modules && make boot
-
-	Jeff
-
-
-
+George
+> 
+> I'm now back to 2.4.3 (which worked reliably for months)
+> just to make sure that the hardware is OK.
+> But I strongly suspect kernel, because these deadlock
+> coincide with 2.4.10 and I don't believe in coincidences.
+> 
+> -Igor Mozetic
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,63 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268255AbTGLSYZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 14:24:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268256AbTGLSYZ
+	id S268276AbTGLSjP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 14:39:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268281AbTGLSjP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 14:24:25 -0400
-Received: from 69-55-72-150.ppp.netsville.net ([69.55.72.150]:57547 "EHLO
-	tiny.suse.com") by vger.kernel.org with ESMTP id S268255AbTGLSYX
+	Sat, 12 Jul 2003 14:39:15 -0400
+Received: from 200-63-154-130.speedy.com.ar ([200.63.154.130]:3202 "EHLO
+	runa.sytes.net") by vger.kernel.org with ESMTP id S268276AbTGLSjO
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 14:24:23 -0400
-Subject: Re: RFC on io-stalls patch
-From: Chris Mason <mason@suse.com>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: Jens Axboe <axboe@suse.de>, Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>,
-       "Stephen C. Tweedie" <sct@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Jeff Garzik <jgarzik@pobox.com>,
-       Andrew Morton <akpm@digeo.com>, Andrea Arcangeli <andrea@suse.de>,
-       Alexander Viro <viro@math.psu.edu>
-In-Reply-To: <3F0F5453.2060203@cyberone.com.au>
-References: <Pine.LNX.4.55L.0307081651390.21817@freak.distro.conectiva>
-	 <20030710135747.GT825@suse.de> <1057932804.13313.58.camel@tiny.suse.com>
-	 <3F0F5453.2060203@cyberone.com.au>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1058035059.13317.100.camel@tiny.suse.com>
+	Sat, 12 Jul 2003 14:39:14 -0400
+Date: Sat, 12 Jul 2003 15:54:00 -0300
+From: Martin Sarsale <lists@runa.sytes.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.75 everything looks ok!
+Message-Id: <20030712155400.4247908f.lists@runa.sytes.net>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 12 Jul 2003 14:37:40 -0400
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-07-11 at 20:20, Nick Piggin wrote:
+Im not sure if you appreciate this kind of messages, but I've just booted linux 2.5.75 and after installing module-init-tools everything works as expected :)
 
-> >Seems that way.  With the 2.4.21 code, a read might easily get a
-> >request, but then spend forever waiting for a huge queue of merged
-> >writes to get to disk.
-> >
-> 
-> But it is the job of the io scheduler to prevent this, isn't it?
-> 
+PIII 450
+Realtek 8139 (using 8139too)
+3 Reiser fs partitions (including root)
+ADSL
 
-Yes, but the 2.4.21 code doesn't do it.
+I found only one rare thing: when I run "make modules_install" a lot of modules had missing symbols.  Im not sure but it think it has something to do with the crc32 module: when I got the messages about the missing symbols, I hadn't compiled crc32, after that I compiled and loaded it, "make modules_install" worked like a charm
 
-> >
-> >I believe the new way provides better overall read performance in the
-> >presence of lots of writes.
-> >
-> >
-> 
-> I don't know how that can be, considering writers will consume
-> basically limitless requests. What am I missing?
+Another thing: 
+Using module-init-tools 0.9.13-pre when I try to load any module using modprobe I get a "FATAL: Module module not found":
 
-There is a limit on the total amount of IO in flight (4MB by default,
-reads/writes combined).  We can make this a harder limit by disallowing
-merges on any requests present at the time of an unplug.  Perhaps I'm
-not reading your question correctly?
+modprobe crc32
+FATAL: Module crc32 not found.
 
--chris
+Instead, I have to use insmod and the full module path (insmod /lib/modules/2.5.75/kernel/lib/crc32.ko  works ok).
 
 

@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315262AbSD3XBW>; Tue, 30 Apr 2002 19:01:22 -0400
+	id <S315259AbSD3XBJ>; Tue, 30 Apr 2002 19:01:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315263AbSD3XBW>; Tue, 30 Apr 2002 19:01:22 -0400
-Received: from c16598.thoms1.vic.optusnet.com.au ([210.49.243.217]:6028 "HELO
-	pc.kolivas.net") by vger.kernel.org with SMTP id <S315262AbSD3XBU>;
-	Tue, 30 Apr 2002 19:01:20 -0400
+	id <S315262AbSD3XBI>; Tue, 30 Apr 2002 19:01:08 -0400
+Received: from c16598.thoms1.vic.optusnet.com.au ([210.49.243.217]:5772 "HELO
+	pc.kolivas.net") by vger.kernel.org with SMTP id <S315259AbSD3XBI>;
+	Tue, 30 Apr 2002 19:01:08 -0400
 Content-Type: text/plain; charset=US-ASCII
 From: Con Kolivas <conman@kolivas.net>
 Reply-To: conman@kolivas.net
 To: linux-kernel@vger.kernel.org
-Subject: Re: Your patchset
-Date: Wed, 1 May 2002 09:01:18 +1000
+Subject: Re: Combined low latency & performance patches for 2.4.18
+Date: Wed, 1 May 2002 09:01:05 +1000
 X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <200204302245.37466.m.c.p@gmx.net>
+In-Reply-To: <20020429142443.A62481333@pc.kolivas.net> <3CCD7A07.D661110E@compro.net>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <20020430230118.936E31A0AA@pc.kolivas.net>
+Message-Id: <20020430230105.D5CA01A0AA@pc.kolivas.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 May 2002 06:59, you wrote:
-> Hi Con,
+On Tue, 30 Apr 2002 02:51, you wrote:
+> After applying it, if you ever do a make mrproper oldconfig dep bzImage it
+> fails to compile sched.c as follows
 
-Hey MCP
+> If I don't  do an mrproper it compiles ok. Haven't tested yet.
 
-> nice patchset :-) ... Is it the O(1) Scheduler Backport from 2.5 or the K3?
+Hmm
+I used a make mrproper && make clean followed by manual configuration without 
+any problems but thanks for your input. I'm not claiming to be a patch or 
+kernel guru. Just offering what worked for me.
 
-Thanks. It is from the 2.4.18-pre8-k3 patch
+> It's the O1 sched patch. Not your fault....
 
-> Do you have those patches as standalone or only as a full one patchset?
+Thanks thats kinda reassuring :)
 
-No, I had to hand modify each file after each separate patch was applied so 
-one patchset only.
-
-Enjoy!
-
-Cheers,
 Con.
 

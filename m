@@ -1,120 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263452AbTLJC5d (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 21:57:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263460AbTLJC5d
+	id S263441AbTLJC5G (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 21:57:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263452AbTLJC5G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 21:57:33 -0500
-Received: from fed1mtao02.cox.net ([68.6.19.243]:25823 "EHLO
-	fed1mtao02.cox.net") by vger.kernel.org with ESMTP id S263452AbTLJC51
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 21:57:27 -0500
-Date: Tue, 9 Dec 2003 20:39:06 -0700
-From: Jesse Allen <the3dfxdude@hotmail.com>
-To: Ross Dickson <ross@datscreative.com.au>
-Cc: linux-kernel@vger.kernel.org, AMartin@nvidia.com
-Subject: Re: Fixes for nforce2 hard lockup, apic, io-apic, udma133 covered
-Message-ID: <20031210033906.GA176@tesore.local>
-References: <200312072312.01013.ross@datscreative.com.au>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="C7zPtVaVf+AK4Oqc"
-Content-Disposition: inline
-In-Reply-To: <200312072312.01013.ross@datscreative.com.au>
-User-Agent: Mutt/1.4.1i
+	Tue, 9 Dec 2003 21:57:06 -0500
+Received: from fmr06.intel.com ([134.134.136.7]:5048 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S263441AbTLJC5B convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Dec 2003 21:57:01 -0500
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: [ACPI] IO-APIC on MS-6163 (2.4.23). ACPI?
+Date: Wed, 10 Dec 2003 10:56:55 +0800
+Message-ID: <3ACA40606221794F80A5670F0AF15F8401720C15@PDSMSX403.ccr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [ACPI] IO-APIC on MS-6163 (2.4.23). ACPI?
+Thread-Index: AcO+M+wWoMk0cVXGQi2lrEY3RRWaRAAk82lg
+From: "Yu, Luming" <luming.yu@intel.com>
+To: "Ryan Underwood" <nemesis-lists@icequake.net>,
+       <linux-kernel@vger.kernel.org>
+Cc: <acpi-devel@lists.sourceforge.net>
+X-OriginalArrivalTime: 10 Dec 2003 02:56:56.0022 (UTC) FILETIME=[457FE760:01C3BEC9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I found " evxfevnt-0093 [04] acpi_enable           : Transition to ACPI mode successful". So ACPI seems to work on your machine. 
+Since you previous email complain transition to acpi mode failed, could you please tell me what kind of kernel could result in acp mode transition failure on your box?
 
---C7zPtVaVf+AK4Oqc
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Regarding IO-APIC issue, I didn't find MADT. Please try acpi=off to verify IO-APCI can work on your box.
 
-Hi Ross,
+Thanks 
+Luming
 
-I have rediffed your two patches for vanilla 2.6.0-test11.  Briefly, I tried the apic patch first, and found that there are no lockups so far; well it passed my grep tests and even a kernel compile =).  Then I tried your io_apic patch + apic patch.  With nmi_watchdog=1 "NMI:" in /proc/interrupts increments alot compared to nmi_watchdog=2 before (as much as the timer).  So I believe your two patches are more correct than the other two.  Especially the fact I can run with CPU Disconnect and not lock up just like windows ... for people that have windows (I dont have windows =) plus a probably working nmi_watchdog.
-
-And for comparison, my setup:
-Shuttle AN35N Ultra v 1.1  (Nforce2 400 ultra), bios updated
-Athlon Barton 2600+ (1.9 Ghz)
-256 MB PC3200, single stick.
-
-The patches are included in this mail.  I suppose the next thing to do is get out of nvidia the corresponding information.  And then clean up the patch for inclusion.
-
-Jesse
+-----Original Message-----
+From: acpi-devel-admin@lists.sourceforge.net [mailto:acpi-devel-admin@lists.sourceforge.net]On Behalf Of Ryan Underwood
+Sent: 2003?12?9? 17:07
+To: linux-kernel@vger.kernel.org
+Cc: acpi-devel@lists.sourceforge.net
+Subject: [ACPI] IO-APIC on MS-6163 (2.4.23). ACPI?
 
 
 
---C7zPtVaVf+AK4Oqc
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="nforce2-apic-delay-2.6t11.patch"
+Hello,
 
---- linux/arch/i386/kernel/apic.c	2003-10-25 11:44:59.000000000 -0700
-+++ linux-jla/arch/i386/kernel/apic.c	2003-12-09 19:07:19.000000000 -0700
-@@ -1089,6 +1089,16 @@
- 	 */
- 	irq_stat[cpu].apic_timer_irqs++;
- 
-+#ifdef CONFIG_MK7 && CONFIG_BLK_DEV_AMD74XX
-+
-+	/*
-+	 * on 2200XP & nforce2 chipset we need at least 500ns delay here
-+	 * to stop lockups with udma100 drive. try to scale delay time
-+	 * with cpu speed. Ross Dickson.
-+	 */
-+	ndelay((cpu_khz >> 12)+200 ); /* don't ack too soon or hard lockup */
-+#endif
-+
- 	/*
- 	 * NOTE! We'd better ACK the irq immediately,
- 	 * because timer handling can be slow.
+Not sure if this is appropriate for ACPI or kernel list so I Cc: both.
 
---C7zPtVaVf+AK4Oqc
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="nforce2-ioapic-timer-2.6t11.patch"
+On my MS-6163 v3.0 (BX Master) board, the IO-APIC was previously being
+used before a blacklist was incorrectly added last year.  Now that the
+blacklist is removed when I upgraded to 2.4.23, ACPI doesn't seem to
+want to enable IO-APIC usage (dmesg attached).  I don't remember whether
+or not I had ACPI enabled when the IO-APIC was working a long time ago.
 
---- linux/arch/i386/kernel/io_apic.c	2003-10-25 11:43:20.000000000 -0700
-+++ linux-jla/arch/i386/kernel/io_apic.c	2003-12-09 19:56:07.000000000 -0700
-@@ -2128,6 +2128,41 @@
- 		printk(KERN_ERR "..MP-BIOS bug: 8254 timer not connected to IO-APIC\n");
- 	}
- 
-+#ifdef CONFIG_ACPI_BOOT && CONFIG_X86_UP_IOAPIC
-+	/* for nforce2 try vector 0 on pin0
-+	 * Note the io_apic_set_pci_routing call disables the 8259 irq 0
-+	 * so we must be connected directly to the 8254 timer if this works
-+	 * Note2: this violates the above comment re Subtle but works!
-+	 */
-+	printk(KERN_INFO "..TIMER: Is timer irq0 connected to IOAPIC Pin0? ...\n");
-+	if ( pin1 != -1 && nr_ioapics ) {
-+		int saved_timer_ack = timer_ack;
-+		/* next call also disables 8259 irq0 */
-+		int result = io_apic_set_pci_routing ( 0, 0, 0, 0, 0);
-+		/*
-+		 * Ok, does IRQ0 through the IOAPIC work?
-+		 */
-+		unmask_IO_APIC_irq(0);
-+		timer_ack = 0 ;
-+		if (timer_irq_works()) {
-+			if (nmi_watchdog == NMI_IO_APIC) {
-+				disable_8259A_irq(0);
-+				setup_nmi();
-+				enable_8259A_irq(0);
-+				check_nmi_watchdog();
-+			}
-+			printk(KERN_INFO "..TIMER: works OK on apic pin0 irq0\n" );
-+			return;
-+		}
-+		/* failed */
-+		timer_ack = saved_timer_ack;
-+		clear_IO_APIC_pin(0, 0);
-+		result = io_apic_set_pci_routing ( 0, pin1, 0, 0, 0);
-+		printk(KERN_ERR "..MP-BIOS bug: 8254 timer not connected to IO-APIC Pin 0\n");
-+	}
-+#endif
-+/* end new stuff for nforce2 */
-+
- 	printk(KERN_INFO "...trying to set up timer (IRQ0) through the 8259A ... ");
- 	if (pin2 != -1) {
- 		printk("\n..... (found pin %d) ...", pin2);
+I added some debug statements to arch/i386/kernel/acpi.c/acpi_boot_init()
+to try to diagnose the code flow.  However, when recompiling, almost the entire
+kernel must be rebuilt for dependencies, which takes forever on my poor
+machine... :(  So I didn't want to spend much more time without some outside
+opinion of the situation.
 
---C7zPtVaVf+AK4Oqc--
+But, as you can see from dmesg, it gets here:
+|
+===>        printk(KERN_INFO PREFIX "past blacklist\n");
+
+#ifdef CONFIG_X86_LOCAL_APIC
+
+        /* 
+         * MADT
+         * ----
+         * Parse the Multiple APIC Description Table (MADT), if exists.
+         * Note that this table provides platform SMP configuration 
+         * information -- the successor to MPS tables.
+         */
+
+XXX     result = acpi_table_parse(ACPI_APIC, acpi_parse_madt);
+        if (!result) {
+                return 0;
+        }
+        else if (result < 0) {
+                printk(KERN_ERR PREFIX "Error parsing MADT\n");
+                return result;
+        }
+        else if (result > 1)
+                printk(KERN_WARNING PREFIX "Multiple MADT tables exist\n");
+
+===>        printk(KERN_INFO PREFIX "past MADT\n")
+|
+but not here.  There are no other kernel messages printed, so I think XXX is the
+failing part.  Why would that happen?  Is it because this is a UP machine and
+the call only works for SMP?  (CONFIG_X86_LOCAL_APIC is definitely enabled)
+
+Is it possible that IO-APIC and ACPI can work individually but be mutually
+exclusive on a system if the ACPI tables don't correctly describe the IO-APIC?
+
+I have only a shallow understanding of how this works (from reading www.acpi.info
+and kernel source) so please bear with me if I am overlooking something obvious.
+
+thanks,
+
+-- 
+Ryan Underwood, <nemesis@icequake.net>

@@ -1,61 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261890AbVAYLJt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261891AbVAYLOX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261890AbVAYLJt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 06:09:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261891AbVAYLJt
+	id S261891AbVAYLOX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 06:14:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261892AbVAYLOX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 06:09:49 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:26589 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S261890AbVAYLJr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 06:09:47 -0500
-X-Envelope-From: kraxel@bytesex.org
-Date: Tue, 25 Jan 2005 12:04:30 +0100
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Jean Delvare <khali@linux-fr.org>
-Cc: akpm@osdl.org, Christoph Bartelmus <lirc@bartelmus.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] add i2c adapter id for the cx88 driver.
-Message-ID: <20050125110430.GA2027@bytesex>
-References: <20050125102036.GA1696@bytesex> <sbi0fAAA.1106649524.3006370.khali@localhost>
+	Tue, 25 Jan 2005 06:14:23 -0500
+Received: from mail9.messagelabs.com ([194.205.110.133]:41368 "HELO
+	mail9.messagelabs.com") by vger.kernel.org with SMTP
+	id S261891AbVAYLOT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 06:14:19 -0500
+X-VirusChecked: Checked
+X-Env-Sender: icampbell@arcom.com
+X-Msg-Ref: server-24.tower-9.messagelabs.com!1106651658!15977683!1
+X-StarScan-Version: 5.4.5; banners=arcom.com,-,-
+X-Originating-IP: [194.200.159.164]
+Subject: Re: RFC: use datacs is smc91x driver
+From: Ian Campbell <icampbell@arcom.com>
+To: Nicolas Pitre <nico@cam.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0501241459090.7307@localhost.localdomain>
+References: <1106569302.19123.49.camel@icampbell-debian>
+	 <Pine.LNX.4.61.0501241459090.7307@localhost.localdomain>
+Content-Type: text/plain
+Organization: Arcom Control Systems
+Date: Tue, 25 Jan 2005 11:14:16 +0000
+Message-Id: <1106651657.19123.54.camel@icampbell-debian>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <sbi0fAAA.1106649524.3006370.khali@localhost>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
+X-IMAIL-SPAM-VALHELO: (1926824222)
+X-IMAIL-SPAM-VALREVDNS: (1926824222)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 0x1a is reserved for TI PCILynx in the i2c project, although I never took
-> the time to forward the update to the kernel trees. Could you please use
-> 0x1b instead?
+On Mon, 2005-01-24 at 15:20 -0500, Nicolas Pitre wrote:
+> On Mon, 24 Jan 2005, Ian Campbell wrote:
+> > I'm not entirely happy with using the SMC_*_RESOURCE defines to find the
+> > correct resources, but I don't think you can have a placeholder for the
+> > attrib space at index 1 (when you don't have an attrib space) and still
+> > have datacs at index 2.
+> 
+> I don't like that either.  Maybe the whole thing should be converted to 
+> use platform_get_resource_byname() ?
 
-Ok, here is a new version of the patch, using 0x1b.
+Ah, I hadn't seen this new function, it looks ideal. I'll work up
+another that uses it and updates all the in tree drivers. 
 
-  Gerd
+Are you happy with "iocs", "attrib" and "datacs" for the names?
 
-Index: linux-2005-01-23/include/linux/i2c-id.h
-===================================================================
---- linux-2005-01-23.orig/include/linux/i2c-id.h	2005-01-24 16:27:38.000000000 +0100
-+++ linux-2005-01-23/include/linux/i2c-id.h	2005-01-25 11:57:45.000000000 +0100
-@@ -239,6 +239,7 @@
- #define I2C_HW_B_IXP4XX 0x17	/* GPIO on IXP4XX systems		*/
- #define I2C_HW_B_S3VIA	0x18	/* S3Via ProSavage adapter		*/
- #define I2C_HW_B_ZR36067 0x19	/* Zoran-36057/36067 based boards	*/
-+#define I2C_HW_B_CX2388x 0x1b	/* connexant 2388x based tv cards	*/
- 
- /* --- PCF 8584 based algorithms					*/
- #define I2C_HW_P_LP	0x00	/* Parallel port interface		*/
-Index: linux-2005-01-23/drivers/media/video/cx88/cx88-i2c.c
-===================================================================
---- linux-2005-01-23.orig/drivers/media/video/cx88/cx88-i2c.c	2005-01-24 16:28:43.000000000 +0100
-+++ linux-2005-01-23/drivers/media/video/cx88/cx88-i2c.c	2005-01-25 11:57:21.000000000 +0100
-@@ -134,7 +134,7 @@ static struct i2c_algo_bit_data cx8800_i
- static struct i2c_adapter cx8800_i2c_adap_template = {
- 	I2C_DEVNAME("cx2388x"),
- 	.owner             = THIS_MODULE,
--	.id                = I2C_HW_B_BT848,
-+	.id                = I2C_HW_B_CX2388x,
- 	.client_register   = attach_inform,
- 	.client_unregister = detach_inform,
- };
+Ian.
+
+-- 
+Ian Campbell, Senior Design Engineer
+                                        Web: http://www.arcom.com
+Arcom, Clifton Road,                    Direct: +44 (0)1223 403 465
+Cambridge CB1 7EA, United Kingdom       Phone:  +44 (0)1223 411 200
+
+
+_____________________________________________________________________
+The message in this transmission is sent in confidence for the attention of the addressee only and should not be disclosed to any other party. Unauthorised recipients are requested to preserve this confidentiality. Please advise the sender if the addressee is not resident at the receiving end.  Email to and from Arcom is automatically monitored for operational and lawful business reasons.
+
+This message has been virus scanned by MessageLabs.

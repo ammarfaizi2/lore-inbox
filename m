@@ -1,52 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284858AbRLKDZg>; Mon, 10 Dec 2001 22:25:36 -0500
+	id <S284879AbRLKDji>; Mon, 10 Dec 2001 22:39:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284850AbRLKDZ0>; Mon, 10 Dec 2001 22:25:26 -0500
-Received: from mail317.mail.bellsouth.net ([205.152.58.177]:9553 "EHLO
-	imf17bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S284854AbRLKDZX>; Mon, 10 Dec 2001 22:25:23 -0500
-Message-ID: <3C157D8A.4090200@mindspring.com>
-Date: Mon, 10 Dec 2001 22:29:14 -0500
-From: Jonathan Stanford <jomast@mindspring.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us
-MIME-Version: 1.0
+	id <S284871AbRLKDj2>; Mon, 10 Dec 2001 22:39:28 -0500
+Received: from opus.INS.CWRU.Edu ([129.22.8.2]:63175 "EHLO opus.INS.cwru.edu")
+	by vger.kernel.org with ESMTP id <S284850AbRLKDjL>;
+	Mon, 10 Dec 2001 22:39:11 -0500
+Date: Mon, 10 Dec 2001 22:41:56 -0500
+From: "Justin Hibbits <jrh29@po.cwru.edu>"@opus.INS.cwru.edu
 To: linux-kernel@vger.kernel.org
-Subject: USB + PCI - IRQ = kernel bug??
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Cc: torvalds@transmeta.com
+Subject: Exporting GPLONLY symbols (Please CC to my email address)
+Message-ID: <20011210224156.E14022@po.cwru.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Got a problem usb subsystem......
-it's not seeing anything past the root hub....
-when a device is connected the following error pops up....
+Umm....I'm a new poster here to the list, but, nonetheless, I have a
+small complaint about the track the kernel is taking with respect to
+kernel modules, specifically the exporting of symbols as GPLONLY.  I
+understand that several hackers are pushing to export many symbols as
+GPLONLY, which I feel is a very bad idea.  The NVidia drivers will no
+longer work, and any other module which depends on symbols which will
+eventually be exported as GPLONLY will also no longer work.  Do you guys
+really want to restrict everyone to using modules licensed under the
+GPL?  I've read and understand the GPL all too well, and came to the
+conclusion that it's a horrible license to begin with, given the simple
+fact that Stallman's communist views are in it, forcing everything
+licensed under it to be under every future license....with one change to
+the license, he can claim all source licensed under the GPL.
 
-USB device not accepting new address=2 (error=-110)
-see for yourself here --> http://quail.no-ip.com/bootmsg.txt
+I agree with Cox that something has to be done to warn the average user
+that inserting closed source modules might cause something bad, and you
+guys can't do anything about it, but FORCING all modules to become GPL
+is the stupidest idea yet!  Linux is starting to take the road of M$,
+forcing a one-licensed approach.  Not cool guys.
 
-what i find interesting is that no interrupts are being sent
-see for yourself here --> http://quail.no-ip.com/interrupts.txt
+Those are my thoughts.
 
-i've removed just about all devices from the system.... and there is no 
-change....
-
-here's a list of the PCI bus......
-http://quail.no-ip.com/lspci.txt
-
-this problem appears on everything from 2.4.7 (RH7.2 kern)  to the 
-latest and greatest (2.4.17-pre8) and probably earlier kernels as well....
-
-the southbridge/usb controler is the VIA Technologies, Inc. VT82C686b chip as you can see in 
-
-http://quail.no-ip.com/lspci.txt
-
-
-Let me know what else you need to make sence of this.......
-
--Jonathan Stanford
-<jomast@mindspring.com>
-
-
+Justin Hibbits
 

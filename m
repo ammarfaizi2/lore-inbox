@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291372AbSBGWX1>; Thu, 7 Feb 2002 17:23:27 -0500
+	id <S291122AbSBGWXR>; Thu, 7 Feb 2002 17:23:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291373AbSBGWXR>; Thu, 7 Feb 2002 17:23:17 -0500
-Received: from mailc.telia.com ([194.22.190.4]:33239 "EHLO mailc.telia.com")
-	by vger.kernel.org with ESMTP id <S291372AbSBGWXC>;
-	Thu, 7 Feb 2002 17:23:02 -0500
-To: Alessandro Suardi <alessandro.suardi@oracle.com>
-Cc: linux-kernel@vger.kernel.org, Patrick Mochel <mochel@osdl.org>
-Subject: Re: 2.5.4-pre1 (decoded) oops on boot in device_create_file
-In-Reply-To: <3C61DCE5.6D05CF90@oracle.com>
-From: Peter Osterlund <petero2@telia.com>
-Date: 07 Feb 2002 23:22:36 +0100
-In-Reply-To: <3C61DCE5.6D05CF90@oracle.com>
-Message-ID: <m2bsf1hqz7.fsf@ppro.localdomain>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+	id <S291373AbSBGWXH>; Thu, 7 Feb 2002 17:23:07 -0500
+Received: from dsl-213-023-038-235.arcor-ip.net ([213.23.38.235]:41106 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S291122AbSBGWW7>;
+	Thu, 7 Feb 2002 17:22:59 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Mike Touloumtzis <miket@bluemug.com>
+Subject: Re: How to check the kernel compile options ?
+Date: Thu, 7 Feb 2002 23:27:14 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: "H. Peter Anvin" <hpa@zytor.com>,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <a3mjhc$qba$1@cesium.transmeta.com> <E16Ywj7-00016Y-00@starship.berlin> <20020207221336.GD27645@bluemug.com>
+In-Reply-To: <20020207221336.GD27645@bluemug.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16Yx0d-00016d-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alessandro Suardi <alessandro.suardi@oracle.com> writes:
+On February 7, 2002 11:13 pm, Mike Touloumtzis wrote:
+> On Thu, Feb 07, 2002 at 11:09:09PM +0100, Daniel Phillips wrote:
+> > On February 7, 2002 10:41 pm, Mike Touloumtzis wrote:
+> > > Adding configuration information to the kernel is a change to the status
+> > > quo, and has a cost.  The cost is small, but I'm unsympathetic to that
+> > > argument because many small convenience features, each with a small cost,
+> > > add up to a large cost.
+> > 
+> > The cost is *zero* if you don't enable the option, is this concept difficult
+> > for you?
+> 
+> That argument can be used to justify almost anything.  But it's not
+> zero maintenance cost or code complexity cost.  No one wants the kernel
+> to be an unmaintainable nest of CONFIG_FOO and #ifdef BAR because of
+> "zero cost" options.
 
-> Must be my time of the year - first the kmem_cache_create one in
->  2.5.3-pre[45], now this one (should happen about PCI allocation
->  of one of the Xircom CardBus resources):
+OK, there we are, your real argument: you think adding this option will make
+the kernel unmaintainable.
 
-I had the same problem with 2.5.4-pre2. The patch below makes my
-laptop able to boot again, but I don't know if the patch is correct.
-
---- linux/drivers/pcmcia/cardbus.c.old	Thu Feb  7 23:09:54 2002
-+++ linux/drivers/pcmcia/cardbus.c	Thu Feb  7 23:17:45 2002
-@@ -281,6 +281,10 @@
- 
- 		pci_setup_device(dev);
- 
-+		strcpy(dev->dev.name, dev->name);
-+		strcpy(dev->dev.bus_id, dev->slot_name);
-+		device_register(&dev->dev);
-+
- 		/* FIXME: Do we need to enable the expansion ROM? */
- 		for (r = 0; r < 7; r++) {
- 			struct resource *res = dev->resource + r;
+feh.
 
 -- 
-Peter Osterlund - petero2@telia.com
-http://w1.894.telia.com/~u89404340
+Daniel

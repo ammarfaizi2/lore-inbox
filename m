@@ -1,36 +1,30 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu id <153989-24313>; Tue, 25 Aug 1998 07:38:10 -0400
-Received: from relay1.mail.uk.psi.net ([154.32.105.6]:49770 "HELO relay1.mail.uk.psi.net" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with SMTP id <154171-24313>; Tue, 25 Aug 1998 06:38:03 -0400
-Message-ID: <35E2AAB1.597587FC@orchestream.com>
-Date: Tue, 25 Aug 1998 13:14:41 +0100
-From: Richard Jones <rjones@orchestream.com>
-Organization: Orchestream Ltd.
-X-Mailer: Mozilla 4.5b1 [en] (X11; I; Linux 2.0.33 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.rutgers.edu
-Subject: Re: Skip lists and splay trees
-References: <199808250937.DAA06916@nyx10.nyx.net>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Received: by vger.rutgers.edu id <154482-24313>; Tue, 25 Aug 1998 08:19:02 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:13608 "HELO mail.ocs.com.au" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with SMTP id <154542-24313>; Tue, 25 Aug 1998 07:11:03 -0400
+Message-ID: <19980825124627.12622.qmail@mail.ocs.com.au>
+From: Keith Owens <kaos@ocs.com.au>
+To: "David S. Miller" <davem@dm.cobaltmicro.com>
+cc: linux-kernel@vger.rutgers.edu
+Subject: Re: Fuzzy hash stuff.. (was Re: 2.1.xxx makes Electric Fence 22x slower) 
+In-reply-to: Your message of "Tue, 25 Aug 1998 01:33:14 MST." <199808250833.BAA32289@dm.cobaltmicro.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 25 Aug 1998 22:47:26 +1000
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-Those of you wondering what splay trees are might want
-to look at a on-line demo, at:
+On Tue, 25 Aug 1998 01:33:14 -0700, 
+"David S. Miller" <davem@dm.cobaltmicro.com> wrote:
+>As promised here is my work in progress fuzzy hash VMA lookup stuff.
+>
+>The fuzzy hashing scheme used here was first formulated by Thomas
+>Schoebel, I fixed all the minor quirks and bugs in his initial
+>formulation and together we converged on the algorithm as used here.
 
-http://gs213.sp.cs.cmu.edu/prog/splay
+Lots of code with very few comments snipped.  Come on Davem, make it
+understandable for us mere mortals.  If it took two people to fix
+quirks and bugs and converge the algorithm, surely a few notes on how
+it works would not go astray.
 
-For balance, there are papers on skiplists at:
-
-ftp://ftp.cs.umd.edu/pub/skipLists/
-
-Rich.
-
--- 
-Richard Jones rjones@orchestream.com Tel: +44 171 598 7557 Fax: 460 4461
-Orchestream Ltd.  125 Old Brompton Rd. London SW7 3RP PGP: www.four11.com
-"boredom ... one of the most overrated emotions ... the sky is made
-of bubbles ..."   Original message content Copyright © 1998
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,96 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267458AbTBIWnb>; Sun, 9 Feb 2003 17:43:31 -0500
+	id <S267467AbTBIW5Y>; Sun, 9 Feb 2003 17:57:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267467AbTBIWna>; Sun, 9 Feb 2003 17:43:30 -0500
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:1285 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S267458AbTBIWn3>; Sun, 9 Feb 2003 17:43:29 -0500
-Date: Sun, 9 Feb 2003 23:53:08 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Petr Baudis <pasky@ucw.cz>
+	id <S267469AbTBIW5Y>; Sun, 9 Feb 2003 17:57:24 -0500
+Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:53619
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S267467AbTBIW5X>; Sun, 9 Feb 2003 17:57:23 -0500
+Date: Sun, 9 Feb 2003 18:06:07 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Jurriaan <thunder7@xs4all.nl>
 cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [kconfig] Direct use of lxdialog routines by menuconfig
- (v3)
-In-Reply-To: <20030205030104.GK10207@pasky.ji.cz>
-Message-ID: <Pine.LNX.4.44.0302092321270.1336-100000@serv>
-References: <20021123095040.GY25628@pasky.ji.cz> <Pine.LNX.4.44.0211240159240.2113-100000@serv>
- <20030205030104.GK10207@pasky.ji.cz>
+Subject: Re: 2.5.59-mm8 / ext3 oops
+In-Reply-To: <20030209131259.GA1944@middle.of.nowhere>
+Message-ID: <Pine.LNX.4.50.0302091757400.2812-100000@montezuma.mastecende.com>
+References: <20030209131259.GA1944@middle.of.nowhere>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, 9 Feb 2003, Jurriaan wrote:
 
-On Wed, 5 Feb 2003, Petr Baudis wrote:
-
-> > It didn't apply cleanly, I had one reject from menubox.c, which I had to 
-> > apply manually.
+> This just happened after startup, before I was inputting anything.
+> It certainly isn't repeatable, since I never got it in the 10+ earlier
+> reboots I did with 2.5.59-mm8. Below are the oops, the mounting table,
+> dmesg, .config and lspci.
 > 
-> Huh.. unreproducible here :-(. It applies cleanly to my clean 2.5.49 tree.
+> Kind regards,
+> Jurriaan
 > 
-> Late note: so does it to 2.5.59.
-
-There must be a problem with your kernel tree, I fetched a new 2.5.59 
-archive and I still get a reject.
-
-> > Could you please add this one back and just reinitialize curses? (I 
-> > actually liked the new resize feature. :) )
+> ------------[ cut here ]------------
+> kernel BUG at fs/ext3/super.c:1724!
+> invalid operand: 0000
+> CPU:    1
+> EIP:    0060:[<c019ae0c>]    Tainted: PF
+> EFLAGS: 00010246
+> EIP is at ext3_write_super+0x4c/0x90
+> eax: 00000000   ebx: 00000000   ecx: c1789050   edx: dfdbc000
+> esi: c1789000   edi: dfdbdfdc   ebp: dfdbdfd0   esp: dfdbdec8
+> ds: 007b   es: 007b   ss: 0068
+> Process pdflush (pid: 11, threadinfo=dfdbc000 task=dfdbe680)
+> Stack: df74aa00 00000000 c1789000 c1789050 c015b42b c1789000 dfdbc000 dfdbc000
+>        c013c6ce c04ef340 00012fe0 0000a728 00000000 00000000 dfdbdef4 00000000
+>        00000001 00000000 00000001 00000000 0000019b 00000000 00002e11 00000134
+> Call Trace:
+>  [<c015b42b>] sync_supers+0xcb/0xf0
+>  [<c013c6ce>] wb_kupdate+0x4e/0x120
+>  [<c011d4c8>] do_schedule+0x1d8/0x3c0
+>  [<c013cfdc>] __pdflush+0x16c/0x290
+>  [<c011ca55>] schedule_tail+0x65/0x70
+>  [<c013d100>] pdflush+0x0/0x20
+>  [<c013d10f>] pdflush+0xf/0x20
+>  [<c013c680>] wb_kupdate+0x0/0x120
+>  [<c01072c8>] kernel_thread_helper+0x0/0x18
+>  [<c01072cd>] kernel_thread_helper+0x5/0x18
 > 
-> Well I tried to do something, but it is relatively complex, since we can't do
-> almost anything useful in the signal handler itself. The problem is that for a
-> reason which I'm unable to hunt down now (after approx. 4 hours of mainly
-> trying to accomplish that) in some percentage of cases when the window is
-> resized, something terribly pollutes the stack and we're screwed. Thus I
-> temporarily disabled the functional part of the winch handler for now, the rest
-> of code is in place and ready to be used by anyone brave enough to s/#if 0/#if
-> 1/ in the winch handler.
+> Code: 0f 0b bc 06 78 a9 3b c0 c6 46 15 00 8b 86 48 01 00 00 c7 44
 
-I played a bit with this, try this:
+Wow how did you manage that? Is the machine otherwise very stable?
 
-static sigjmp_buf jmp_env;
-static int do_jmp, need_resize;
-                        
-static void winch_handler(int sig)
-{       
-	if (do_jmp)
-		siglongjmp(jmp_env, 1);
-	need_resize = 1;
-}       
-
-before calling into dialog add this (maybe as macro):
-
-	if (need_resize || sigsetjmp(jmp_env, 1)) {
-		init_wsize();
-		resizeterm(rows + 4, cols + 5);
-		/* rebuild menu */
-	}
-	do_jmp = 1;
-
-After the call reset do_jmp. It seems to work mostly, but the e.g.
-menu_instructions are not correctly redrawn, any ideas?
-
-> Otherwise (with the resizing disabled) it's quite stable about my personal
-> stresstesting through, and the crash always happens inside of ncurses, so I
-> don't really know... thus I believe it's ready for inclusion, we can fix the
-> resizing issue later as it's not anything critical, is it? *hopeful smile*
-
-I found some other issues. :)
-The Esc key doesn't seem to work correctly, in some dialogs (choice, 
-string) it doesn't work at all, in menu dialogs <Esc><Esc> doesn't work 
-as it did.
-After selecting help in choice or string dialog, the help text stays in 
-the background, what I find a bit confusing. Is it possible to 
-save/restore the old background?
-
-> > BTW just add the other patch to this one, it's not that important to keep 
-> > it separate.
-> 
-> Well it looks as it's included already...?
-
-You can thank Alan. :)
-
-bye, Roman
-
+	Zwane
+-- 
+function.linuxpower.ca

@@ -1,33 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262664AbSJaPnH>; Thu, 31 Oct 2002 10:43:07 -0500
+	id <S262604AbSJaPmD>; Thu, 31 Oct 2002 10:42:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262697AbSJaPnH>; Thu, 31 Oct 2002 10:43:07 -0500
-Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:433 "EHLO
-	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S262664AbSJaPmm>;
-	Thu, 31 Oct 2002 10:42:42 -0500
-Date: Thu, 31 Oct 2002 15:47:18 +0000
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Richard J Moore <richardj_moore@uk.ibm.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-       n2m1@ltc-eth1000.torolab.ibm.com, Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: What's left over.
-Message-ID: <20021031154718.GC27801@bjl1.asuk.net>
-References: <OF6C80F3C5.070C630E-ON80256C63.00502DC2@portsmouth.uk.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <OF6C80F3C5.070C630E-ON80256C63.00502DC2@portsmouth.uk.ibm.com>
-User-Agent: Mutt/1.4i
+	id <S262620AbSJaPmD>; Thu, 31 Oct 2002 10:42:03 -0500
+Received: from maruja.satec.es ([213.164.38.66]:23534 "EHLO satec.es")
+	by vger.kernel.org with ESMTP id <S262604AbSJaPmB>;
+	Thu, 31 Oct 2002 10:42:01 -0500
+From: "Adriano Galano" <adriano@satec.es>
+To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>
+Cc: "'LKML'" <linux-kernel@vger.kernel.org>
+Subject: RE: Kernel bug in 2.4.7-10smp...
+Date: Thu, 31 Oct 2002 16:42:27 +0100
+Message-ID: <002101c280f4$1e91c380$6f20a4d5@adriano>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
+In-Reply-To: <1036065253.8852.57.camel@irongate.swansea.linux.org.uk>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard J Moore wrote:
-> With the two it is possible to implant tracepoints without having to
-> code up specific printks: kprobes can be used to implant a probe,
-> the probe handler can call LTT to record the event.
+> On Thu, 2002-10-31 at 10:41, Adriano Galano wrote:
+> > Hi:
+> >
+Hi Alan:
 
-Hey, that _is_ useful.  Me like.  Me spent many times wondering what
-gets called when, and hunting heisenbugs masked by printk slowness.
+> > I'm using RH Linux 7.2 (kernel 2.4.7-10smp) in one Compaq
+> Proliant ML570
+> > with 4 Xeon procesors at 900MHz and one Compaq Smart Array
+> 5300 Controller
+> > with 6x73 GB SCSI disk with ext3 filesystem.
+> >
+> > It was working OK, but I have one trouble, description
+> below, and the
+> > computer it's stopped. Could someone help me? How could I fix it?
+>
+> Well you could try one of the kernel updates that Red Hat put out for
+> this release.
+>
+I don't apply the patches for possible incompatibility with Compaq Remote
+Insight Manager card, the drivers of this card are for 2.4.7
+(http://www.compaq.com/support/files/server/us/download/15084.html). Now I'm
+trying to make one upgrade to 2.4.18 recompiling the drivers source...  Why
+happen this errors in 2.4.7?
 
--- Jamie
+Best regards,
+
+-Adriano (bryam)
+--
+Adriano M. Galano Diez
+System & Network Engineer
+http://www.satec.es
+Phone: (+34) 917 089 000
+Sourceforge.NET Linux Kernel Foundry Guide http://sf.net/foundry/linuxkernel
+
+
+

@@ -1,43 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268605AbVBERt0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270162AbVBESB2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268605AbVBERt0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Feb 2005 12:49:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268640AbVBERt0
+	id S270162AbVBESB2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Feb 2005 13:01:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264728AbVBESB2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Feb 2005 12:49:26 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:19583 "EHLO
-	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S268605AbVBERtW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Feb 2005 12:49:22 -0500
-Date: Sat, 5 Feb 2005 17:48:39 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH] tmpfs caused truncate BUG
-Message-ID: <Pine.LNX.4.61.0502051745500.16107@goblin.wat.veritas.com>
+	Sat, 5 Feb 2005 13:01:28 -0500
+Received: from www.tuxrocks.com ([64.62.190.123]:7946 "EHLO tuxrocks.com")
+	by vger.kernel.org with ESMTP id S270136AbVBESBO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Feb 2005 13:01:14 -0500
+Message-ID: <420509D1.2080401@tuxrocks.com>
+Date: Sat, 05 Feb 2005 11:00:49 -0700
+From: Frank Sorenson <frank@tuxrocks.com>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+To: Rob Landley <rob@landley.net>
+CC: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net,
+       torvalds@osdl.org, Andrew Morton <akpm@osdl.org>,
+       Jeff Dike <jdike@addtoit.com>
+Subject: Re: [uml-devel] [patch] Make User Mode Linux compile in 2.6.11-rc3
+References: <200502051051.46242.rob@landley.net>
+In-Reply-To: <200502051051.46242.rob@landley.net>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just before removing truncate_complete_page's BUG_ON(page_mapped(page)),
-thought I'd recheck on a few filesystems.  The shame!  Easily triggered
-with tmpfs: not because of recent changes, but because shmem_nopage
-omitted the i_size_read from Andrea's careful truncate_count/i_size_read
-/cachelookup/truncate_count sequence.  For varying reasons, other users
-of shmem_getpage can't go beyond i_size, so just add it to shmem_nopage.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Signed-off-by: Hugh Dickins <hugh@veritas.com>
+Rob Landley wrote:
+| As of yesterday afternoon, the UML build still breaks in
+sys_call_table.c,
+| here's the patch I submitted earlier (which got me past the break when I
+| tried it).  Last week, this produced what seemed like a working UML.
+|
+| Now there's a second break in mm/memory.c: the move to four level page
+| tables conflicts with a stub in our headers.  Not quite sure how to
+fix that.
+| Jeff?
+|
+| (Yeah, I know Andrew's tree works.  But wouldn't it be nice if the
+kernel.org
+| tree to worked too, before 2.6.11 release.)
 
---- 2.6.11-rc3/mm/shmem.c	2005-02-03 09:06:16.000000000 +0000
-+++ linux/mm/shmem.c	2005-02-05 16:52:57.000000000 +0000
-@@ -1162,6 +1162,8 @@ struct page *shmem_nopage(struct vm_area
- 	idx = (address - vma->vm_start) >> PAGE_SHIFT;
- 	idx += vma->vm_pgoff;
- 	idx >>= PAGE_CACHE_SHIFT - PAGE_SHIFT;
-+	if (((loff_t) idx << PAGE_CACHE_SHIFT) >= i_size_read(inode))
-+		return NOPAGE_SIGBUS;
- 
- 	error = shmem_getpage(inode, idx, &page, SGP_CACHE, type);
- 	if (error)
+This patch for sys_call_table.c was merged into the main tree in this
+changeset:
+http://linux.bkbits.net:8080/linux-2.5/cset@1.2080?nav=index.html|ChangeSet@-2d
+
+The patch fixes both the sys_call_table and the pud_alloc breakage, and
+as of 2.6.11-rc3-bk2, the main tree compiles again for UML.
+
+Andrew's tree, however, (at least 2.6.11-rc3-mm1) requires the patch I
+sent out yesterday in the message titled "Fix compilation of UML after
+the stack-randomization patches."
+
+Frank
+- --
+Frank Sorenson - KD7TZK
+Systems Manager, Computer Science Department
+Brigham Young University
+frank@tuxrocks.com
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFCBQlRaI0dwg4A47wRAjJ8AJ9CKD/aXaz1TS9QfOO11vcsv+57BACg1CdJ
+GR0ukCKAabFtJs5rVsPItGg=
+=h/on
+-----END PGP SIGNATURE-----

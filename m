@@ -1,19 +1,23 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317030AbSHWJa0>; Fri, 23 Aug 2002 05:30:26 -0400
+	id <S317034AbSHWJgZ>; Fri, 23 Aug 2002 05:36:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317034AbSHWJa0>; Fri, 23 Aug 2002 05:30:26 -0400
-Received: from [217.167.51.129] ([217.167.51.129]:63485 "EHLO zion.wanadoo.fr")
-	by vger.kernel.org with ESMTP id <S317030AbSHWJaZ>;
-	Fri, 23 Aug 2002 05:30:25 -0400
+	id <S317351AbSHWJgZ>; Fri, 23 Aug 2002 05:36:25 -0400
+Received: from [217.167.51.129] ([217.167.51.129]:22270 "EHLO zion.wanadoo.fr")
+	by vger.kernel.org with ESMTP id <S317034AbSHWJgY>;
+	Fri, 23 Aug 2002 05:36:24 -0400
 From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Andre Hedrick <andre@linux-ide.org>,
+       "Heater, Daniel (IndSys, GEFanuc, VMIC)" <Daniel.Heater@gefanuc.com>,
+       "'Padraig Brady'" <padraig.brady@corvil.com>,
+       "'Linux Kernel'" <linux-kernel@vger.kernel.org>
 Subject: Re: IDE-flash device and hard disk on same controller
-Date: Fri, 23 Aug 2002 13:36:23 +0200
-Message-Id: <20020823113624.22612@192.168.4.1>
-In-Reply-To: <3D656FDC.8040008@mandrakesoft.com>
-References: <3D656FDC.8040008@mandrakesoft.com>
+Date: Fri, 23 Aug 2002 13:41:57 +0200
+Message-Id: <20020823114157.29703@192.168.4.1>
+In-Reply-To: <3D658F2C.1080400@mandrakesoft.com>
+References: <3D658F2C.1080400@mandrakesoft.com>
 X-Mailer: CTM PowerMail 3.1.2 carbon <http://www.ctmdev.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -21,58 +25,40 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->There is no ATA bsy flag check at only one point, and that is before 
->EXECUTE DEVICE DIAGNOSTIC is issued.  The idea with this command is that 
->it pretty much stomps up and down the ATA bus, trouncing ongoing 
->activity in the process.
+>Well, this only applies if you are slack and letting the kernel init 
+>your ATA from scratch, instead of doing proper ATA initialization in 
+>firmware ;-)
 
-After mucking around with problematic drives that needed such
-a busy wait on the Xserve, it seems that you still need at least
-a busy wait with timeout before doing anything on the bus in
-some cases. Typically what happens to me is that the disks
-were beeing reset (via the control register) by the firmware
-just prior to booting the kernel, and those disks (or maybe
-it's a Promise controller issue ?) appear to need up to 30
-seconds before beeing useable again. Waiting for the busy bit
-appear to be a working solution, it worked for me at least
-and is what Apple did both in Darwin and in the firmware,
-prior to sending the execute diag. command.
+That will happen. Recent Apple's OF will reset all ATA devices before
+booting the kernel, thus triggering the problem with some of them,
+and ide-pmac will hard-reset (via the reset line) devices on boot
+as well to avoid problems caused by bogus firmwares or machines booted
+from MacOS who let the devices in whatever bogus/unknown state (possibly
+SLEEP state).
 
-Though I can still try to send it here and see if it helps...
+I saw that happening on some embedded platforms as well.
 
-The actual scenario followed by Apple's firmware apparently
-is:
+I realy think the kernel should be able to do it all, and waiting
+around the busy bit is neither complicated nor hamrful, so...
+>
+>Seriously, if you are a handed an ATA device that is actually in 
+>operation when the kernel boots, you are already out of spec.  I would 
+>prefer to barf if the BSY or DRDY bits are set, because taking over the 
+>ATA bus while a device is in the middle of a command shouldn't be 
+>happening at Linux kernel boot, ever.
 
- - wait busy to go away
- - select 0
- - write 8 to control register (clearing any possible
-   residual reset)
- - delay 2ms
- - wait busy to go away
- - select 1
- - write 8 to control register (clearing any possible
-   residual reset)
- - delay 2ms
- - wait busy to go away
+It will happen when the device just got reset or powered up. It's really
+a couple of lines to do that properly (see my other mail about the full
+procedure I copied from Apple firmware that seem to work fine on all
+HW I've tested so far).
 
-Then do the normal probe, which in their case involves the
-diagnostics command, checking signatures, etc...
-
-I implemented that in ide-probe and this seem to fix the
-problem I have with the Xserve and a few other machines,
-though I need to get some user reports before I can tell if
-it helps with some other problems I was reported with some
-ATAPI combo drives.
-
-The only thing I added to it was to have the busy wait loop
-exit when reading 0xff from the status reg, assuming some
-controllers (especially hand-made embedded stuffs) would
-return that when nothing is plugged.
-
-I will try the full execute diag. on the Xserve tonight or
-tomorrow and see if it works without the above, but I doubt
-it as the drive seem to be totally unresponsive during this
-period when it gets out of reset.
+Also, another issue we didn't deal with properly yet is PM. With non-APM
+power management (like pmac, but probably also ACPI and some embedded
+devices), the devices will be basically powered off during suspend, and
+no firmware is here to put them back into life on wakeup. So you have to
+redo the bringup, which, in some cases (like hotswap IDE bays on some
+PowerBooks) probably involves re-running the probe procedure at least,
+then re-setting up the device (SET_FEATURE dance)
 
 Ben.
 

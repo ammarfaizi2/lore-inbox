@@ -1,113 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292345AbSBPKIn>; Sat, 16 Feb 2002 05:08:43 -0500
+	id <S292343AbSBPKIn>; Sat, 16 Feb 2002 05:08:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292344AbSBPKIY>; Sat, 16 Feb 2002 05:08:24 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:47630 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S292345AbSBPKIV>;
-	Sat, 16 Feb 2002 05:08:21 -0500
-Message-ID: <3C6E2F92.FD196E71@mandrakesoft.com>
-Date: Sat, 16 Feb 2002 05:08:18 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-2mdksmp i686)
+	id <S292347AbSBPKIY>; Sat, 16 Feb 2002 05:08:24 -0500
+Received: from duba05h05-0.dplanet.ch ([212.35.36.52]:17937 "EHLO
+	duba05h05-0.dplanet.ch") by vger.kernel.org with ESMTP
+	id <S292344AbSBPKIS>; Sat, 16 Feb 2002 05:08:18 -0500
+Message-ID: <3C6E2F3C.3090303@dplanet.ch>
+Date: Sat, 16 Feb 2002 11:06:52 +0100
+From: "Giacomo A. Catenazzi" <cate@dplanet.ch>
+User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:0.9.5) Gecko/20011023
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Linux-Kernel list <linux-kernel@vger.kernel.org>,
-        Andrew Morton <akpm@zip.com.au>, "David S. Miller" <davem@redhat.com>
-Subject: [BK PATCH] Merge e1000 gigabit driver (yay)
-Content-Type: multipart/mixed;
- boundary="------------A1A0B0DF54E6FBAE01E6B1DF"
+To: David Woodhouse <dwmw2@infradead.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: kbuild [which is not only ...2]
+In-Reply-To: <3C6E1F90.40404@dplanet.ch> <22527.1013851097@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------A1A0B0DF54E6FBAE01E6B1DF
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+David Woodhouse wrote:
 
-Linus,
-
-I'm pleased to submit to you a BK merge of Intel's e1000 driver.  The
-license is now "GPL or (BSD + patent grant)", which should satisfy those
-concerns.
-
-I would also like to publicly thank Intel for this work.  The two
-contributors listed have been very responsive to feedback, and they have
-put a good deal of work into beating the driver into shape for a kernel
-merge.
-
-Now I just hope I can convince them to open up their hardware specs :)
-
-Kind regards,
-
-	Jeff
+> cate@dplanet.ch said:
+> 
+>> I have some comment/explications about the thread about kbuild.
+>>
+> 
+> The thread isn't about kbuild. It's about <omitted>. Please do not confuse
+> the two or even mention them in the same mail. It only serves to promote the 
+> confusion.
+> 
+> kbuild is far more obviously the right thing to do. The main objection to it
+> last time I saw a discussion was that it has a performance problem in
+> certain cases -- which I believe Keith is working on. 
 
 
+You will confise users...
 
--- 
-Jeff Garzik      | "Why is it that attractive girls like you
-Building 1024    |  always seem to have a boyfriend?"
-MandrakeSoft     | "Because I'm a nympho that owns a brewery?"
-                 |             - BBC TV show "Coupling"
---------------A1A0B0DF54E6FBAE01E6B1DF
-Content-Type: text/plain; charset=us-ascii;
- name="net-drivers-2.5.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="net-drivers-2.5.txt"
+Notation:
+kbuild = kernel build utilities, now = 'kbuild-2.4' + 'CML1' + 
+Configure.help.
 
+Thus kbuild is not only Makefiles.
+
+Historically (and I think still in MAINTAINERS file), the
+kbuild mailing list is for configurations. There was no
+real maintainer of Makefiles.
 
 
-Pull from:  http://gkernel.bkbits.net/net-drivers-2.5
-(BK-only URL)
+	giacomo
 
-GNU patch:  ftp://ftp.kernel.org/pub/linux/kernel/people/jgarzik/patches/2.5.5/e1000-4.2.4-k1.diff.bz2
-
-
----------------------------------------------------------------------------
-ChangeSet@1.345, 2002-02-16 04:51:10-05:00, jgarzik@rum.normnet.org
-  Merge new gigabit ethernet driver e1000, from Intel.
-  
-  Contributors: Christopher Leech @ Intel, Scott Feldman @ Intel
-
- Documentation/networking/e1000.txt |  245 ++++
- MAINTAINERS                        |    7 
- drivers/net/Config.help            |   36 
- drivers/net/Config.in              |    1 
- drivers/net/Makefile               |    5 
- drivers/net/e1000/LICENSE          |   69 +
- drivers/net/e1000/Makefile         |   16 
- drivers/net/e1000/e1000.h          |  233 ++++
- drivers/net/e1000/e1000_ethtool.c  |  377 ++++++
- drivers/net/e1000/e1000_mac.c      | 1821 +++++++++++++++++++++++++++++++++
- drivers/net/e1000/e1000_mac.h      | 1383 +++++++++++++++++++++++++
- drivers/net/e1000/e1000_main.c     | 2036 +++++++++++++++++++++++++++++++++++++
- drivers/net/e1000/e1000_osdep.h    |  142 ++
- drivers/net/e1000/e1000_param.c    |  709 ++++++++++++
- drivers/net/e1000/e1000_phy.c      | 1485 ++++++++++++++++++++++++++
- drivers/net/e1000/e1000_phy.h      |  422 +++++++
- drivers/net/e1000/e1000_proc.c     |  760 +++++++++++++
- 17 files changed, 9747 insertions(+)
-
-
-ChangeSet@1.333, 2002-02-14 03:25:36-05:00, jgarzik@rum.normnet.org
-  Add board id to via-rhine net driver, for board added in
-  previous revision (thus fixing the build).
-
- drivers/net/via-rhine.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletion(-)
-
-
-ChangeSet@?????, jgarzik@rum.normnet.org
-  Update 8139too net driver to new arg-free recalc_sigpending() API
-  function
-
- drivers/net/8139too.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
----------------------------------------------------------------------------
-
---------------A1A0B0DF54E6FBAE01E6B1DF--
 

@@ -1,55 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316777AbSF0KwR>; Thu, 27 Jun 2002 06:52:17 -0400
+	id <S316783AbSF0L3S>; Thu, 27 Jun 2002 07:29:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316782AbSF0KwQ>; Thu, 27 Jun 2002 06:52:16 -0400
-Received: from r220-1.rz.RWTH-Aachen.DE ([134.130.3.31]:21176 "EHLO
-	r220-1.rz.RWTH-Aachen.DE") by vger.kernel.org with ESMTP
-	id <S316777AbSF0KwP>; Thu, 27 Jun 2002 06:52:15 -0400
-From: jarausch@igpm.rwth-aachen.de
-Message-Id: <200206271052.MAA63674@numa1.igpm.rwth-aachen.de>
-Date: Thu, 27 Jun 2002 12:52:09 +0200
-Reply-To: jarausch@igpm.rwth-aachen.de
-Subject: 2.4.19-rc1 still broken on Supermicro Serverworks
-To: linux-kernel@vger.kernel.org
+	id <S316788AbSF0L3R>; Thu, 27 Jun 2002 07:29:17 -0400
+Received: from oak.sktc.net ([208.46.69.4]:19973 "EHLO oak.sktc.net")
+	by vger.kernel.org with ESMTP id <S316783AbSF0L3R>;
+	Thu, 27 Jun 2002 07:29:17 -0400
+Message-ID: <3D1AF70B.7080501@sktc.net>
+Date: Thu, 27 Jun 2002 06:29:15 -0500
+From: "David D. Hagood" <wowbagger@sktc.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1a) Gecko/20020612
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
+To: Xavier Bestel <xavier.bestel@free.fr>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: New Zaurus Wishlist - removable media handling
+References: <Pine.LNX.3.96.1020627032159.2332J-100000@pioneer> 	<3D1A75FD.6010801@sktc.net> <1025165512.1078.91.camel@bip>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all
+Xavier Bestel wrote:
 
-on my Supermicro Serverworks board
-with an onboard Serverworks ide controller and
-a Promise Ultra 133-TX2 ide controller
+> timeouts are *evil*. 
+> 
 
-the kernel hangs when accessing an Iomega
-Zip (Atapi) drive.
-I've configured IDEDMA_ONLYDISK=y and
-BLK_DEV_IDESCSI=y
+Since the PC has no way of knowing when you eject the disk (for 
+floppies) you have to have a timeout, so that the data gets flushed.
 
-This configuration works just fine with
-a 2.4.18 kernel with the IDE-patches from
-/pub/linux/kernel/people/hedrick/ide-2.4.18
+For CD's you need a timeout to unlock the drive, otherwise the user hits 
+the eject button and nothing happens - you have to unlock the drive for 
+eject.
 
-on 2.4.19-pre3 till 2.4.19-rc1 I get
-ide_dmaproc: chipset supported ide_dma_lostirq func only: 13
-hdd: lost interrupt  (that is the ZIP drive attached to the IDE bus)
+I'm not saying you automatically EJECT the disk - just unmount it, or 
+mount it RO so that the user can remove it without harm.
 
-Serverworks OSB4 in impossible state
-Disable UDMA ....
-
-
-Some time ago, Alan Cox replied
-> There are a few wrinkles to iron out on the serverworks side yet.
-
-Hopefully this happens before 2.4.19-final.
-
-Many thanks,
-
-Helmut Jarausch
-
-Lehrstuhl fuer Numerische Mathematik
-Institute of Technology, RWTH Aachen
-D 52056 Aachen, Germany
 

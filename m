@@ -1,232 +1,192 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318738AbSH1GX4>; Wed, 28 Aug 2002 02:23:56 -0400
+	id <S318735AbSH1GdA>; Wed, 28 Aug 2002 02:33:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318735AbSH1GX4>; Wed, 28 Aug 2002 02:23:56 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:52164 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S318734AbSH1GXv>; Wed, 28 Aug 2002 02:23:51 -0400
-Importance: Normal
-Sensitivity: 
-Subject: [PATCH] IPv6 PMTU/MTU for 2.5.31
-To: linux-kernel@vger.kernel.org
-Cc: linux-net@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OFD565F40B.3F590E3A-ON88256C23.0022B7FD@boulder.ibm.com>
-From: "Shirley Ma" <xma@us.ibm.com>
-Date: Tue, 27 Aug 2002 23:27:37 -0700
-X-MIMETrack: Serialize by Router on D03NM037/03/M/IBM(Release 5.0.10 |March 22, 2002) at
- 08/28/2002 12:28:09 AM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S318736AbSH1Gc7>; Wed, 28 Aug 2002 02:32:59 -0400
+Received: from dp.samba.org ([66.70.73.150]:7343 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S318735AbSH1Gc5>;
+	Wed, 28 Aug 2002 02:32:57 -0400
+Date: Wed, 28 Aug 2002 16:32:42 +1000
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [patch] "fully HT-aware scheduler" support, 2.5.31-BK-curr
+Message-Id: <20020828163242.2c84747f.rusty@rustcorp.com.au>
+In-Reply-To: <Pine.LNX.4.44.0208270226190.12947-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0208270226190.12947-100000@localhost.localdomain>
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch will fix the following IPv6 PMTU & MTU problems:
+On Tue, 27 Aug 2002 03:44:23 +0200 (CEST)
+Ingo Molnar <mingo@elte.hu> wrote:
 
-1.PMTU is not RFC1981 conformance to Section 4. Protocol Requirements.
+> The following properties have to be provided by a scheduler that wants to
+> be 'fully HT-aware':
 
-An attempt to detect an increase MUST NOT be done less than 5 minutes after
-a Packet Too Big Messages has been received for the give path. The
-recommended setting for this timer is twice its minimum value (10 minutes).
+Thanks Mingo, I can take this off my TODO list (your implementation even looks
+the same 8).
 
-Without the patch TAHI test failure on detecting PMTU increase, after
-applying this patch all PMTU tests pass.
+>  - HT-aware affinity.
+> 
+>    Tasks should attempt to 'stick' to physical CPUs, not logical CPUs.
 
-2. PMTU doesn't set as IPV6_MIN_MTU if detecting any MTU size less than
-IPV6_MIN_MTU.
+Linus disagreed with this before when I discussed it with him, and with the
+current (stupid, non-portable, broken) set_affinity syscall he's right.
 
-3. Administratively changing MTU doesn't reflect on interface route.
+You don't know if someone said "schedule me on cpu 0" because they really
+want to be scheduled on CPU 0, or because they really *don't* want to be
+scheduled on CPU 1 (where something else is running).  You can't just assume
+they are equivalent if they are the same physical CPU.
 
-Produce this problem by doing below steps on one side:
+My modified set_affinity syscall (which takes a "include/exclude" flag)
+allows the arch to make this decision (eventually) since you know what the
+user wants (it also means that you know what to do if they give you a
+short bitmap, or a new cpu comes online/goes offline).
 
-      a. ifconfig eth0 mtu 1400
-      b. ping6 -s 1450 xxxx (the other side ipv6 address)   (tcpdump will
-find the fragmented packets)
-      c. ifconfig eth0 mtu 1500
-      d. ping6 -s 1450 xxxx (the other side ipv6 address)   (packets are
-still fragmented, pmtu = 1500 will never be taken place.)
+(Requires previous patches, so doesn't apply as is, but you get the idea).
 
-4.Interface MTU change isn't taken place for IPv6.
+Cheers,
+Rusty.
+-- 
+   there are those who do and those who hang on and you don't see too
+   many doers quoting their contemporaries.  -- Larry McVoy
 
-There is  a bug in addrconf_notify(). If bring interface down and change
-the MTU size, after bringing the interface up, the changed MTU doesn't
-reflect in IPv6. It is easy to reproduce it.
+Name: Modified set_affinity/get_affinity syscalls
+Author: Rusty Russell
+Status: Experimental
+Depends: Hotcpu/cpumask.patch.gz
 
-Produce this problem by doing below steps on one side:
+D: This allows userspace to have cpu affinity control without needing
+D: to know the size of kernel datastructures and allows them to
+D: control what happens when new CPUs are brought online.  It also
+D: means that in the future we can sanely interpret affinity in
+D: HyperThreading.
 
-      a. ifdown eth0
-      b. ifconfig eth0 mtu 1400
-      c. ifup eth0
-      d. ping6 -s 1450 xxxx (the other side ipv6 address)
-
-5.  Route dereference is negative in ndisc_na_rcv(). If race happens, check
-route reference == 0 is invalid,  potentially cause poiner to NULL. In file
-ndisc_na_rcv() under linux24/net/ipv6/ndisc.c file, route deference happens
-twice. The derefence before ip6_del_rt() shouldn't happen. ip6_del_rt()
-itself will do the deference.
-
-
-Any comments are welcome!
-
-
-Thanks
-
-Shirley Ma
-
-
-diff -urN linux-2.5.31/net/ipv6/addrconf.c linux-2.5.31pmtu/net/ipv6/addrconf.c
---- linux-2.5.31/net/ipv6/addrconf.c      Sat Aug 10 18:41:55 2002
-+++ linux-2.5.31pmtu/net/ipv6/addrconf.c  Wed Aug 14 09:33:20 2002
-@@ -1272,9 +1272,8 @@
- int addrconf_notify(struct notifier_block *this, unsigned long event,
-                void * data)
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .29333-linux-2.5.31/include/linux/affinity.h .29333-linux-2.5.31.updated/include/linux/affinity.h
+--- .29333-linux-2.5.31/include/linux/affinity.h	1970-01-01 10:00:00.000000000 +1000
++++ .29333-linux-2.5.31.updated/include/linux/affinity.h	2002-08-13 16:04:44.000000000 +1000
+@@ -0,0 +1,9 @@
++#ifndef _LINUX_AFFINITY_H
++#define _LINUX_AFFINITY_H
++enum {
++	/* Set affinity to these processors */
++	LINUX_AFFINITY_INCLUDE,
++	/* Set affinity to all *but* these processors */
++	LINUX_AFFINITY_EXCLUDE,
++};
++#endif
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .29333-linux-2.5.31/kernel/sched.c .29333-linux-2.5.31.updated/kernel/sched.c
+--- .29333-linux-2.5.31/kernel/sched.c	2002-08-13 16:04:25.000000000 +1000
++++ .29333-linux-2.5.31.updated/kernel/sched.c	2002-08-13 16:18:50.000000000 +1000
+@@ -25,6 +25,7 @@
+ #include <asm/mmu_context.h>
+ #include <linux/interrupt.h>
+ #include <linux/completion.h>
++#include <linux/affinity.h>
+ #include <linux/kernel_stat.h>
+ #include <linux/security.h>
+ #include <linux/notifier.h>
+@@ -1540,21 +1541,44 @@ out_unlock:
+  * @len: length in bytes of the bitmask pointed to by user_mask_ptr
+  * @user_mask_ptr: user-space pointer to the new cpu mask
+  */
+-asmlinkage int sys_sched_setaffinity(pid_t pid, unsigned int len,
+-				      unsigned long *user_mask_ptr)
++asmlinkage int sys_sched_setaffinity(pid_t pid,
++				     int include,
++				     unsigned int len,
++				     unsigned long *user_mask_ptr)
  {
--     struct net_device *dev;
+ 	DECLARE_BITMAP(new_mask, NR_CPUS);
++	unsigned char c;
+ 	int retval;
+ 	task_t *p;
+ 
+-	if (len < sizeof(new_mask))
+-		return -EINVAL;
 -
--     dev = (struct net_device *) data;
-+     struct net_device *dev = (struct net_device *) data;
-+     struct inet6_dev *idev = __in6_dev_get(dev);
-
-      switch(event) {
-      case NETDEV_UP:
-@@ -1291,16 +1290,27 @@
-                  addrconf_dev_config(dev);
-                  break;
-            };
-+           if (idev) {
-+                 /* If the MTU changed during the interface down, when the
-+                    interface up, the changed MTU must be reflected in the
-+                    idev as well as routers.
-+                  */
-+                 if (idev->cnf.mtu6 != dev->mtu && dev->mtu >= IPV6_MIN_MTU) {
-+                       rt6_mtu_change(dev, dev->mtu);
-+                       idev->cnf.mtu6 = dev->mtu;
-+                 }
-+                 /* If the changed mtu during down is lower than IPV6_MIN_MTU
-+                    stop IPv6 on this interface.
-+                  */
-+                 if (dev->mtu < IPV6_MIN_MTU)
-+                       addrconf_ifdown(dev, event != NETDEV_DOWN);
-+           }
-            break;
-
-      case NETDEV_CHANGEMTU:
--           if (dev->mtu >= IPV6_MIN_MTU) {
--                 struct inet6_dev *idev;
--
--                 if ((idev = __in6_dev_get(dev)) == NULL)
--                       break;
--                 idev->cnf.mtu6 = dev->mtu;
-+           if ( idev && dev->mtu >= IPV6_MIN_MTU) {
-                  rt6_mtu_change(dev, dev->mtu);
-+                 idev->cnf.mtu6 = dev->mtu;
-                  break;
-            }
-
-diff -urN linux-2.5.31/net/ipv6/ndisc.c linux-2.5.31pmtu/net/ipv6/ndisc.c
---- linux-2.5.31/net/ipv6/ndisc.c   Sat Aug 10 18:41:41 2002
-+++ linux-2.5.31pmtu/net/ipv6/ndisc.c     Wed Aug 14 09:27:41 2002
-@@ -1166,7 +1166,6 @@
-                              if (rt) {
-                                    /* It is safe only because
-                                       we aer in BH */
--                                   dst_release(&rt->u.dst);
-                                    ip6_del_rt(rt);
-                              }
-                        }
-diff -urN linux-2.5.31/net/ipv6/route.c linux-2.5.31pmtu/net/ipv6/route.c
---- linux-2.5.31/net/ipv6/route.c   Sat Aug 10 18:41:23 2002
-+++ linux-2.5.31pmtu/net/ipv6/route.c     Wed Aug 14 09:33:27 2002
-@@ -976,7 +976,11 @@
-            if (net_ratelimit())
-                  printk(KERN_DEBUG "rt6_pmtu_discovery: invalid MTU value %d\n",
-                         pmtu);
--           return;
-+           /* According to RFC1981, the PMTU is set to the IPv6 minimum
-+              link MTU if the node receives a Packet Too Big message
-+              reporting next-hop MTU that is less than the IPv6 minimum MTU.
-+            */
-+           pmtu = IPV6_MIN_MTU;
-      }
-
-      rt = rt6_lookup(daddr, saddr, dev->ifindex, 0);
-@@ -1014,9 +1018,14 @@
-            nrt = rt6_cow(rt, daddr, saddr);
-            if (!nrt->u.dst.error) {
-                  nrt->u.dst.pmtu = pmtu;
--                 dst_set_expires(&rt->u.dst, ip6_rt_mtu_expires);
-+                 /* According to RFC 1981, detecting PMTU increase shouldn't be
-+                    happened within 5 mins, the recommended timer is 10 mins.
-+                    Here this route expiration time is set to ip6_rt_mtu_expires
-+                    which is 10 mins. After 10 mins the decreased pmtu is expired
-+                    and detecting PMTU increase will be automatically happened.
-+                  */
-+                 dst_set_expires(&nrt->u.dst, ip6_rt_mtu_expires);
-                  nrt->rt6i_flags |= RTF_DYNAMIC|RTF_EXPIRES;
--                 dst_release(&nrt->u.dst);
-            }
-      } else {
-            nrt = ip6_rt_copy(rt);
-@@ -1026,9 +1035,18 @@
-            nrt->rt6i_dst.plen = 128;
-            nrt->u.dst.flags |= DST_HOST;
-            nrt->rt6i_nexthop = neigh_clone(rt->rt6i_nexthop);
--           dst_set_expires(&rt->u.dst, ip6_rt_mtu_expires);
-+           dst_set_expires(&nrt->u.dst, ip6_rt_mtu_expires);
-            nrt->rt6i_flags |= RTF_DYNAMIC|RTF_CACHE|RTF_EXPIRES;
-            nrt->u.dst.pmtu = pmtu;
-+           /* If there is no reference to this route, this route will be
-+              deleted by fib6_run_gc() within 30 secs. The cached decreased
-+              PMTU will be gone. It's possible to be deleted before any
-+              other protocol using it. Then the old larger pmtu will be used,
-+              which against RFC1981: detect an increase MUST NOT be done
-+              less than 5 minutes after a Packet Too Big Messages has
-+              been received for the given path.
-+            */
-+           dst_hold(&nrt->u.dst);
-            rt6_ins(nrt);
-      }
-
-@@ -1380,15 +1398,32 @@
- static int rt6_mtu_change_route(struct rt6_info *rt, void *p_arg)
+-	if (copy_from_user(&new_mask, user_mask_ptr, sizeof(new_mask)))
++	memset(&new_mask, 0, sizeof(new_mask));
++	if (copy_from_user(&new_mask, user_mask_ptr,
++			   min((size_t)len, sizeof(new_mask))))
+ 		return -EFAULT;
+ 
+-	if (any_online_cpu(new_mask) == NR_CPUS)
++	/* longer is OK, as long as they don't actually set any of the bits. */
++	for (i = sizeof(new_mask); i < len; i++) {
++		if (get_user(c, user_mask_ptr+i))
++			return -EFAULT;
++		if (c != 0)
++			return -ENOENT;
++	}
++
++	/* Invert the mask in the exclude case. */
++	switch (include) {
++	case LINUX_AFFINITY_EXCLUDE:
++		for (i = 0; i < BITS_TO_LONG(NR_CPUS); i++)
++			new_mask[i] ^= ~0UL;
++		break;
++	case LINUX_AFFINITY_INCLUDE:
++		break;
++	default:
+ 		return -EINVAL;
++	}
++
++	/* Must mention at least one online CPU */
++	if (any_online_cpu(new_mask) == NR_CPUS)
++		return -EWOULDBLOCK; /* This is kinda true */
+ 
+ 	read_lock(&tasklist_lock);
+ 
+@@ -1590,37 +1614,26 @@ out_unlock:
+  * @pid: pid of the process
+  * @len: length in bytes of the bitmask pointed to by user_mask_ptr
+  * @user_mask_ptr: user-space pointer to hold the current cpu mask
++ * Returns the size required to hold the complete cpu mask.
+  */
+ asmlinkage int sys_sched_getaffinity(pid_t pid, unsigned int len,
+-				      unsigned long *user_mask_ptr)
++				     void *user_mask_ptr)
  {
-      struct rt6_mtu_change_arg *arg = (struct rt6_mtu_change_arg *) p_arg;
+-	unsigned int real_len, i;
+ 	DECLARE_BITMAP(mask, NR_CPUS);
+-	int retval;
+ 	task_t *p;
+ 
+-	real_len = sizeof(mask);
+-	if (len < real_len)
+-		return -EINVAL;
 -
-+     struct inet6_dev *idev;
-      /* In IPv6 pmtu discovery is not optional,
-         so that RTAX_MTU lock cannot disable it.
-         We still use this lock to block changes
-         caused by addrconf/ndisc.
-      */
-+     idev = __in6_dev_get(arg->dev);
-+     /* For administrative MTU increase, there is no way to discover
-+        IPv6 PMTU increase, so PMTU increase should be updated here.
-+        Since RFC 1981 doesn't include administrative MTU increase
-+        update PMTU increase is a MUST. (i.e. jumbo frame)
-+      */
-+     /*
-+        If new MTU is less than route PMTU, this new MTU will be the
-+        lowest MTU in the path, update the route PMTU to refect PMTU
-+        decreases; if new MTU is greater than route PMTU, and the
-+        old MTU is the lowest MTU in the path, update the route PMTU
-+        to refect the increase. In this case if the other nodes' MTU
-+        also have the lowest MTU, TOO BIG MESSAGE will be lead to
-+        PMTU discouvery.
-+      */
-      if (rt->rt6i_dev == arg->dev &&
--         rt->u.dst.pmtu > arg->mtu &&
--         !(rt->u.dst.mxlock&(1<<RTAX_MTU)))
-+         !(rt->u.dst.mxlock&(1<<RTAX_MTU)) &&
-+           (rt->u.dst.pmtu > arg->mtu ||
-+            (rt->u.dst.pmtu < arg->mtu &&
-+           rt->u.dst.pmtu == idev->cnf.mtu6)))
-            rt->u.dst.pmtu = arg->mtu;
-      rt->u.dst.advmss = max_t(unsigned int, arg->mtu - 60, ip6_rt_min_advmss);
-      if (rt->u.dst.advmss > 65535-20)
-
-
-
-
-
-
+ 	read_lock(&tasklist_lock);
+-
+-	retval = -ESRCH;
+ 	p = find_process_by_pid(pid);
+-	if (!p)
+-		goto out_unlock;
+-
+-	retval = 0;
+-	for (i = 0; i < ARRAY_SIZE(mask); i++)
+-		mask[i] = (p->cpus_allowed[i] & cpu_online_map[i]);
+-
+-out_unlock:
++	if (!p) {
++		read_unlock(&tasklist_lock);
++		return -ESRCH;
++	}
++	memcpy(mask, p->cpus_allowed, sizeof(mask));
+ 	read_unlock(&tasklist_lock);
+-	if (retval)
+-		return retval;
+-	if (copy_to_user(user_mask_ptr, &mask, real_len))
++
++	if (copy_to_user(user_mask_ptr, &mask, len))
+ 		return -EFAULT;
+-	return real_len;
++	return sizeof(mask);
+ }
+ 
+ /**

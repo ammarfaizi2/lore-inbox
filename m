@@ -1,76 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267450AbRHFIhf>; Mon, 6 Aug 2001 04:37:35 -0400
+	id <S267520AbRHFI6u>; Mon, 6 Aug 2001 04:58:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267512AbRHFIh0>; Mon, 6 Aug 2001 04:37:26 -0400
-Received: from celebris.bdk.pl ([212.182.99.100]:54541 "EHLO celebris.bdk.pl")
-	by vger.kernel.org with ESMTP id <S267450AbRHFIhM>;
-	Mon, 6 Aug 2001 04:37:12 -0400
-Date: Mon, 6 Aug 2001 10:40:58 +0200 (CEST)
-From: Wojtek Pilorz <wpilorz@bdk.pl>
-To: Jochen Siebert <siebert@kawo2.rwth-aachen.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: copying/creating large (>500MB) files results in sluggish
- behaviour.
-In-Reply-To: <01072317440600.01317@siebert.kawo2.rwth-aachen.de>
-Message-ID: <Pine.LNX.4.21.0108061031410.14558-100000@celebris.bdk.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2
-Content-Transfer-Encoding: 8BIT
+	id <S267512AbRHFI6l>; Mon, 6 Aug 2001 04:58:41 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:19264 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S267534AbRHFI6f>; Mon, 6 Aug 2001 04:58:35 -0400
+Date: Mon, 6 Aug 2001 10:59:04 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: David Luyer <david_luyer@pacific.net.au>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: /proc/<n>/maps growing...
+Message-ID: <20010806105904.A28792@athlon.random>
+In-Reply-To: <997080081.3938.28.camel@typhaon>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <997080081.3938.28.camel@typhaon>; from david_luyer@pacific.net.au on Mon, Aug 06, 2001 at 04:41:21PM +1000
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 23 Jul 2001, Jochen Siebert wrote:
+On Mon, Aug 06, 2001 at 04:41:21PM +1000, David Luyer wrote:
+> crashes for no apparent reason every 6 hours or so.. unless that could
+> be when
+> it hits some 'limit' on the number of mappings allowed? 
 
-> Date: Mon, 23 Jul 2001 18:10:34 +0000
-> From: Jochen Siebert <siebert@kawo2.rwth-aachen.de>
-> Reply-To: siebert@physik.rwth-aachen.de
-> To: linux-kernel@vger.kernel.org
-> Subject: PROBLEM: copying/creating large (>500MB) files results in
->     sluggish behaviour.
-> 
-> Hi,                     (look at the end of email for data) 
-> 
-> I´ve got a problem with my linux 2.4.7 box. If I download a 
-> large (>500MB) file from a computer connected via 100Mbit 
-> LAN (i.e. with more than 2MB/s) *or* I create such a large 
-> file via the "dd" command (dd if=/dev/zero of=sloow)
-> after some time my computer gets very sluggy and reacts
-> veery sloow. I´ve watched the memory usage while creating 
-> such a big file and noticed that all memory gets filled up, 
-> and even swapping starts, *before* the disk starts to write 
-> the file. Ok, so swapping and file writing at once seems to
-> be not such a good idea of the kernel, even if the IBM 
-> IC35L040 IDE disk is a fast one. Feel free to ask my via 
-> email.
-> 
-> Adies,
-> Jochen
-> 
-> ps: plz cc me.
-> 
-> Now the facts:
-> =============================
-[...]
-> MemTotal:       384880 kB +128MB Swap,
+there's no limit, this is _only_ a performance issue, functionality is
+not compromised in any way [except possibly wasting some memory
+resources that could lead to running out of memory earlier].
 
-I can see similar problem with kernels 2.2.x when writing a large amount
-of data (compared to size of RAM, of size of free RAM) to a slow media (PD
-drive , with write performance of about 250 kBytes/s).
+I personally like the clever merging to happen in the kernel at the
+latest possible layer, like we do for blkdev in respect to the fs and
+skbs with respect to the senders (as opposed to the scatter-gather based
+apis where the user has to merge always in userspace to avoid wasting
+metadata space).
 
-It seems all data is 'cached' before being written, and this can make
-system really unusable for the copy time - login from console can take
-several minutes.
-My understanding is that Linux is too aggressive in caching data to be
-written and does not make distinction between fast and slow media;
+But my strongest argument is probably that unless I'm missing something
+the merge_segments could be implemented with zero cost (with a cost of
+the order of a few cycles per mmap call, not with a full lookup of the
+avl which is actually why Linus doesn't like it).  This because as far
+as we were able to insert the new vma into the data structure in the
+right place, we also known something about the 'prev' vma at some point
+during insert_vma_struct, so we only need to get such a pointer out of
+insert_vm_struct at nearly zero cost, instead of running find_vma_prev
+again inside merge_segments and browse the whole tree for a second time.
+Can somebody see a problem with this design?
 
-The only workaround I am aware of is to reduce the speed data is put to
-the filesystem (e.g. by using rsync with option --bwlimit)
+In short I believe if we implement it right it is an obvious
+and worthwhile optimization (however I certainly can see that in 2.[23]
+the double vma lookup at every mmap wasn't very nice).
 
-Best regards,
+I guess I will implement the above proposal it if nobody else is
+interested to do that (and while implementing it I will certainly notice
+if I was missing something or not :).
 
-Wojtek
-
-
-
-
+Andrea

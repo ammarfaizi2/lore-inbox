@@ -1,71 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261871AbUL0Lbw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261875AbUL0Lqt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261871AbUL0Lbw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Dec 2004 06:31:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261872AbUL0Lbw
+	id S261875AbUL0Lqt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Dec 2004 06:46:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261874AbUL0Lqt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Dec 2004 06:31:52 -0500
-Received: from natjimbo.rzone.de ([81.169.145.162]:31667 "EHLO
-	natjimbo.rzone.de") by vger.kernel.org with ESMTP id S261871AbUL0Lbt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Dec 2004 06:31:49 -0500
-From: Arnd Bergmann <arnd@arndb.de>
-To: discuss@x86-64.org
-Subject: Re: [discuss] Re: unregister_ioctl32_conversion and modules. ioctl32 revisited.
-Date: Sun, 26 Dec 2004 23:49:20 +0100
-User-Agent: KMail/1.6.2
-Cc: Chris Wedgwood <cw@f00f.org>, Andi Kleen <ak@suse.de>,
-       "Michael S. Tsirkin" <mst@mellanox.co.il>, linux-kernel@vger.kernel.org,
-       pavel@suse.cz, gordon.jin@intel.com
-References: <200412151847.09598.arnd@arndb.de> <20041216040608.GB32718@wotan.suse.de> <20041226222653.GB29474@taniwha.stupidest.org>
-In-Reply-To: <20041226222653.GB29474@taniwha.stupidest.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_0/zzB0xvJL5qRZD";
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200412262349.24856.arnd@arndb.de>
+	Mon, 27 Dec 2004 06:46:49 -0500
+Received: from users.linvision.com ([62.58.92.114]:11711 "HELO bitwizard.nl")
+	by vger.kernel.org with SMTP id S261875AbUL0Lqq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Dec 2004 06:46:46 -0500
+Date: Mon, 27 Dec 2004 12:46:45 +0100
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Sujeet Kumar <sujeet.kumar@patni.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: hi all
+Message-ID: <20041227114645.GE14779@harddisk-recovery.com>
+References: <008701c4d797$32a58b80$9e61a8c0@pcp40702>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <008701c4d797$32a58b80$9e61a8c0@pcp40702>
+User-Agent: Mutt/1.3.28i
+Organization: Harddisk-recovery.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Dec 01, 2004 at 04:46:25PM +0530, Sujeet Kumar wrote:
 
---Boundary-02=_0/zzB0xvJL5qRZD
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Fix your clock, it's December 27.
 
-On S=FCnndag 26 Dezember 2004 23:26, Chris Wedgwood wrote:
-> > It's an internal error code as Arnd pointed out.
->=20
-> can we be sure this will never escape to userspace? =A0i can think of
-> somewhere else we already do this (EFSCORRUPTED) and it does (somewhat
-> deliberately escape to userspace) and this causes confusion from time
-> to time when applications see 'errno =3D=3D 990'
+> I tried loading a simple char driver on kernel 2.6 but it is giving invalid
+> module parameter.
+> 
+> This module is working very fine on kernel 2.4 . The kernel version I am
+> using is linux-2.6.5-7.97-smp.
+> 
+> I know that the insmod procedure has changed but dont know how to do it.
 
-It's safe for the compat ioctl case. If someone wants to use the
-same function for the compat and native handler, it would be a bug
-to return -ENOIOCTLCMD from that handler with the current code.
+See http://lwn.net/Articles/driver-porting/ .
 
-To work around this, we could either convert -ENOIOCTLCMD to -EINVAL
-when returning from sys_ioctl(). Or we could WARN_ON(err =3D=3D -ENOIOCTLCM=
-D)
-for the native path in order to make the intention clear.
 
- Arnd <><
+Erik
 
---Boundary-02=_0/zzB0xvJL5qRZD
-Content-Type: application/pgp-signature
-Content-Description: signature
+> _____________________________________________________________________
+> 
+> This e-mail message may contain proprietary, confidential or legally
+> privileged information for the sole use of the person or entity to
+> whom this message was originally addressed. Any review, e-transmission
+> dissemination or other use of or taking of any action in reliance upon
+> this information by persons or entities other than the intended
+> recipient is prohibited. If you have received this e-mail in error
+> kindly delete  this e-mail from your records. If it appears that this
+> mail has been forwarded to you without proper authority, please notify
+> us immediately at netadmin@patni.com and delete this mail. 
+> _____________________________________________________________________
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+What am I supposed to do with this legal mumble? YOU contacted a public
+mailing list with YOUR problem, YOU expect a reply. It's not MY fault
+your message get archived in linux-kernel archives all over the world.
+Please remove such crap when posting to open mailing lists.
 
-iD8DBQBBzz/05t5GS2LDRf4RAhxYAJ0S9VtmEUUTSidEBWKZunULy8D/rACeM4V1
-cLugx/gI44qnsr24itAKE1w=
-=ZjXb
------END PGP SIGNATURE-----
-
---Boundary-02=_0/zzB0xvJL5qRZD--
+-- 
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

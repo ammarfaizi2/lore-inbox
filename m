@@ -1,76 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263963AbRFHLX4>; Fri, 8 Jun 2001 07:23:56 -0400
+	id <S263964AbRFHLZ0>; Fri, 8 Jun 2001 07:25:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263964AbRFHLXq>; Fri, 8 Jun 2001 07:23:46 -0400
-Received: from mail.muc.eurocyber.net ([195.143.108.5]:47573 "EHLO
-	mail.muc.eurocyber.net") by vger.kernel.org with ESMTP
-	id <S263963AbRFHLXf>; Fri, 8 Jun 2001 07:23:35 -0400
-Message-ID: <3B20B5B1.D659489F@TeraPort.de>
-Date: Fri, 08 Jun 2001 13:23:29 +0200
-From: "Martin.Knoblauch" <Martin.Knoblauch@TeraPort.de>
-Organization: TeraPort GmbH
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-ac9 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: VM: Buffer vs. Cache
-Content-Type: multipart/mixed;
- boundary="------------3C0B59EF18E1D59704E2F57B"
+	id <S263965AbRFHLZR>; Fri, 8 Jun 2001 07:25:17 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:56331 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S263964AbRFHLZL>;
+	Fri, 8 Jun 2001 07:25:11 -0400
+Date: Fri, 8 Jun 2001 13:19:36 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Patrick Mochel <mochel@transmeta.com>, Alan Cox <alan@redhat.com>,
+        "David S. Miller" <davem@redhat.com>,
+        MOLNAR Ingo <mingo@chiara.elte.hu>, Richard Henderson <rth@cygnus.com>,
+        Kanoj Sarcar <kanoj@google.engr.sgi.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] 32-bit dma memory zone
+Message-ID: <20010608131936.X506@suse.de>
+In-Reply-To: <20010607153119.H1522@suse.de> <Pine.LNX.4.21.0106071402480.6604-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.21.0106071402480.6604-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Thu, Jun 07, 2001 at 02:22:10PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------3C0B59EF18E1D59704E2F57B
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+On Thu, Jun 07 2001, Linus Torvalds wrote:
+> 
+> On Thu, 7 Jun 2001, Jens Axboe wrote:
+> > 
+> > I'd like to push this patch from the block highmem patch set, to prune
+> > it down and make it easier to include it later on :-)
+> > 
+> > This patch implements a new memory zone, ZONE_DMA32. It holds highmem
+> > pages that are below 4GB, as we can do I/O on those directly. Also if we
+> > do need to bounce a > 4GB page, we can use pages from this zone and not
+> > always resort to < 960MB pages.
+> 
+> Patrick Mochel has another patch that adds another zone on x86: the "low
+> memory" zone for the 0-1MB area, which is special for some things, notably
+> real mode bootstrapping (ie the SMP stuff could use it instead of the
+> current special-case allocations, and Pat needs it for allocating low
+> memory pags for suspend/resumt).
+> 
+> I'd like to see what these two look like together.
 
-Hi,
+Not a problem, would be easy to add 'one more zone'.
 
- just being curious. Since 2.4.4, I am watching my systems memory
-behaviour a bit:-) Just recently I realized the following: in the
-evening I leave my 128MB system at about 20 MB, 2 MB Buffered and 100 MB
-Cached (plus som 40 MB unneccesary swap :-)). When I come back in the
-morning, Used is still at 20 MB (a bit down maybe) but Buffered is 50 MB
-and Cached is 55 MB. For a few minutes the system is definitely more
-sluggish than in the evening. Something I can excuse before my first cup
-of coffe anyway...
+> But even more I'd like to see a more dynamic zone setup: we already have
 
- So, what actually is the difference between Buffered and Cached.
-Apparently quite a lot of the pages that are Cached in the evening are
-Buffered 9 houres later.
+[snip]
 
-Thanks
-Martin
+Sure this looks pretty sane. Is this really what you want for 2.4? How
+about just adding the DMA32 and 1M zone right now, and postpone the
+bigger zone changes to 2.5. To be honest, I already started implementing
+your specified interface -- most of the changes aren't too bad, but
+still...
+
 -- 
-------------------------------------------------------------------
-Martin Knoblauch         |    email:  Martin.Knoblauch@TeraPort.de
-TeraPort GmbH            |    Phone:  +49-89-510857-309
-C+ITS                    |    Fax:    +49-89-510857-111
-http://www.teraport.de   |    Mobile: +49-170-4904759
---------------3C0B59EF18E1D59704E2F57B
-Content-Type: text/x-vcard; charset=us-ascii;
- name="Martin.Knoblauch.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Description: Card for Martin.Knoblauch
-Content-Disposition: attachment;
- filename="Martin.Knoblauch.vcf"
-
-begin:vcard 
-n:Knoblauch;Martin
-tel;cell:+49-170-4904759
-tel;fax:+49-89-510857-111
-tel;work:+49-89-510857-309
-x-mozilla-html:FALSE
-url:http://www.teraport.de
-org:TeraPort GmbH;C+ITS
-adr:;;Garmischer Straße 4;München;Bayern;D-80339;Germany
-version:2.1
-email;internet:Martin.Knoblauch@TeraPort.de
-title:Senior System Engineer
-x-mozilla-cpt:;-7008
-fn:Martin Knoblauch
-end:vcard
-
---------------3C0B59EF18E1D59704E2F57B--
+Jens Axboe
 

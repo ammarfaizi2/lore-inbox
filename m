@@ -1,69 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266407AbSKKLwl>; Mon, 11 Nov 2002 06:52:41 -0500
+	id <S266682AbSKKL7B>; Mon, 11 Nov 2002 06:59:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266409AbSKKLwl>; Mon, 11 Nov 2002 06:52:41 -0500
-Received: from pop.gmx.net ([213.165.64.20]:24813 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S266407AbSKKLwk>;
-	Mon, 11 Nov 2002 06:52:40 -0500
-Message-ID: <3DCF9B7D.3030406@gmx.net>
-Date: Mon, 11 Nov 2002 12:58:53 +0100
-From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2002-Q4@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: de, en
+	id <S266723AbSKKL7A>; Mon, 11 Nov 2002 06:59:00 -0500
+Received: from mta05bw.bigpond.com ([139.134.6.95]:32762 "EHLO
+	mta05bw.bigpond.com") by vger.kernel.org with ESMTP
+	id <S266682AbSKKL67>; Mon, 11 Nov 2002 06:58:59 -0500
+Message-ID: <3DCF9D32.8070006@bigpond.com>
+Date: Mon, 11 Nov 2002 23:06:10 +1100
+From: Allan Duncan <allan.d@bigpond.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021018
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-CC: linux-kernel <linux-kernel@vger.kernel.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: [PATCH] restore framebuffer console after suspend
-X-Enigmail-Version: 0.65.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------040202080100020008020904"
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux v2.5.47
+References: <Pine.LNX.4.44.0211101944030.17742-100000@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.44.0211101944030.17742-100000@penguin.transmeta.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040202080100020008020904
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Two failures to build a kernel for me - 1 new, one old:
 
-Marcelo,
+New - undefined refs if CONFIG_CRYPTO is not set.
 
-this patch fixes the case when a laptop was suspended and resumed while a 
-framebuffer console was active, the console would not be redrawn.
+Old - undefined refs if aout is a module - use a patch from 2.5.46
+(ignore the dates, I just hacked the previous one for an offset of 495):
 
-After a discussion with Benjamin Herrenschmidt, we both agree that this 
-patch is the best solution. It is the same as my first patch with this 
-subject, just resent because there was some confusion about which patch was 
-best.
+--- a/kernel/ksyms.c	Tue Nov  5 16:33:06 2002
++++ b/kernel/ksyms.c	Tue Nov  5 16:36:40 2002
+@@ -53,6 +53,7 @@
+  #include <linux/percpu.h>
+  #include <linux/smp_lock.h>
+  #include <linux/dnotify.h>
++#include <linux/ptrace.h>
+  #include <asm/checksum.h>
 
-Please apply for 2.4.20-rc2.
+  #if defined(CONFIG_PROC_FS)
+@@ -492,6 +495,7 @@
+  #if !defined(__ia64__)
+  EXPORT_SYMBOL(loops_per_jiffy);
+  #endif
++EXPORT_SYMBOL(ptrace_notify);
 
-Thanks
-Carl-Daniel
 
---------------040202080100020008020904
-Content-Type: text/plain;
- name="patch-fbdev.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch-fbdev.txt"
-
-diff -Naur linux.orig/drivers/video/fbcon.c linux/drivers/video/fbcon.c
---- linux.orig/drivers/video/fbcon.c	Thu Sep 12 17:22:35 2002
-+++ linux/drivers/video/fbcon.c	Fri Nov  8 13:09:41 2002
-@@ -1571,10 +1571,6 @@ static int fbcon_blank(struct vc_data *c
- 
-     if (blank < 0)	/* Entering graphics mode */
- 	return 0;
--#ifdef CONFIG_PM
--    if (fbcon_sleeping)
--    	return 0;
--#endif /* CONFIG_PM */
- 
-     fbcon_cursor(p->conp, blank ? CM_ERASE : CM_DRAW);
- 
-
---------------040202080100020008020904--
+  /* misc */
 

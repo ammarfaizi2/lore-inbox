@@ -1,78 +1,127 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317393AbSHKAxq>; Sat, 10 Aug 2002 20:53:46 -0400
+	id <S317399AbSHKBN5>; Sat, 10 Aug 2002 21:13:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317396AbSHKAxp>; Sat, 10 Aug 2002 20:53:45 -0400
-Received: from mta06bw.bigpond.com ([139.134.6.96]:29165 "EHLO
-	mta06bw.bigpond.com") by vger.kernel.org with ESMTP
-	id <S317393AbSHKAxo>; Sat, 10 Aug 2002 20:53:44 -0400
-From: Brad Hards <bhards@bigpond.net.au>
-To: Pete de Zwart <dezwart@froob.net>,
-       Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
-Subject: Re: 2.4.19: drivers/usb/printer.c usblpX on fire
-Date: Sun, 11 Aug 2002 10:52:25 +1000
-User-Agent: KMail/1.4.5
-References: <200208092200.RAA34736@tomcat.admin.navo.hpc.mil> <20020811000340.GF27819@niflheim>
-In-Reply-To: <20020811000340.GF27819@niflheim>
+	id <S317400AbSHKBN5>; Sat, 10 Aug 2002 21:13:57 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:11539 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317399AbSHKBN4>;
+	Sat, 10 Aug 2002 21:13:56 -0400
+Message-ID: <3D55BD83.24EE5EDF@zip.com.au>
+Date: Sat, 10 Aug 2002 18:27:31 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200208111052.25488.bhards@bigpond.net.au>
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 6/12] hold atomic kmaps across generic_file_read
+References: <3D55B109.CA52DB9C@zip.com.au> <Pine.LNX.4.44.0208101755060.1391-100000@home.transmeta.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Linus Torvalds wrote:
+> 
+> On Sat, 10 Aug 2002, Andrew Morton wrote:
+> >
+> > If not, I don't think it's worth making this change just for
+> > the highmem read/write thing (calculating `current' at each
+> > spin_lock site...)   I just open coded it.
+> 
+> Well, this way it will now do the preempt count twice (once in
+> kmap_atomic, once in th eopen-coded one) if preempt is enabled.
+> 
+> I'd suggest just making k[un]map_atomic() always do the
+> inc/dec_preempt_count. Other ideas?
+> 
 
-On Sun, 11 Aug 2002 10:03, Pete de Zwart wrote:
-> Cool, thanx Jesse, I always wondered what the history was behind it and
-> how to achieve it.
->
-> Here is another query:
->
-> If each printer had their own set of error codes, what would be the way to
-> implement their display from the kernel?
->
-> Would each printer have to have their own module if they had a non-standard
-> list of error codes or would we simply ignore them and state that the
-> ill conforming printer is on fire?
-There is more than one way of getting information over the printer connection.
+Well the optimum solution there would be to create and use
+`inc_preempt_count_non_preempt()'.  I don't see any
+way of embedding this in kmap_atomic() or copy_to_user_atomic()
+without loss of flexibility or incurring a double-inc somewhere.
 
-If you think about old-style centronics type parallel connections, there are 
-data pins that can provide 8-bit parallel transfers. There are also some 
-status pins (no paper, busy, on-fire, whatever). Clearly there will never be 
-enough pins on a real system to indicate every combination that might be 
-possible ("cyan toner nearly empty", "jam in duplexer unit", "C5 envelope 
-tray at 42%"). So you need another way. One option is to make the parallel 
-transfer mechanism bi-directional, and do both data and status transfers over 
-the same 8-bit parallel pins. Then you can establish a protocol for this (eg 
-IEEE-1284 variants).
+Please let my post-virginal brain know if you're not otherwise OK
+with the approach ;)
 
-When you want to map this type of usage to USB, you can indicate some things 
-over a "get_status" query at the USB level (which is basically mapping the 
-old status pins), and you can just pass the data up to a normal printer 
-system (which doesn't care whether it is talking to the printer over the 
-traditional /dev/lpX device or a USB emulation.
 
-So the kernel doesn't care about most of the error codes (since it isn't 
-interpreting the data stream), but there are some things that are noted for 
-historical reasons. Those things (like "out of paper" turn out to be widely 
-supported (or if not, are at least set to benign values). All the "unique" 
-error codes are a problem for userspace.
+ arch/i386/mm/fault.c    |    6 +++---
+ include/linux/preempt.h |   24 ++++++++++++++++++++++--
+ 2 files changed, 25 insertions(+), 5 deletions(-)
 
-Does this make sense?
+--- 2.5.30/arch/i386/mm/fault.c~atomic-copy_user	Sat Aug 10 14:44:03 2002
++++ 2.5.30-akpm/arch/i386/mm/fault.c	Sat Aug 10 14:44:52 2002
+@@ -189,10 +189,10 @@ asmlinkage void do_page_fault(struct pt_
+ 	info.si_code = SEGV_MAPERR;
+ 
+ 	/*
+-	 * If we're in an interrupt or have no user
+-	 * context, we must not take the fault..
++	 * If we're in an interrupt, have no user context or are running in an
++	 * atomic region then we must not take the fault..
+ 	 */
+-	if (in_interrupt() || !mm)
++	if (preempt_count() || !mm)
+ 		goto no_context;
+ 
+ #ifdef CONFIG_X86_REMOTE_DEBUG
+--- 2.5.30/include/linux/preempt.h~atomic-copy_user	Sat Aug 10 16:18:50 2002
++++ 2.5.30-akpm/include/linux/preempt.h	Sat Aug 10 18:23:40 2002
+@@ -5,19 +5,29 @@
+ 
+ #define preempt_count() (current_thread_info()->preempt_count)
+ 
++#define inc_preempt_count() \
++do { \
++	preempt_count()++; \
++} while (0)
++
++#define dec_preempt_count() \
++do { \
++	preempt_count()--; \
++} while (0)
++
+ #ifdef CONFIG_PREEMPT
+ 
+ extern void preempt_schedule(void);
+ 
+ #define preempt_disable() \
+ do { \
+-	preempt_count()++; \
++	inc_preempt_count(); \
+ 	barrier(); \
+ } while (0)
+ 
+ #define preempt_enable_no_resched() \
+ do { \
+-	preempt_count()--; \
++	dec_preempt_count(); \
+ 	barrier(); \
+ } while (0)
+ 
+@@ -34,6 +44,9 @@ do { \
+ 		preempt_schedule(); \
+ } while (0)
+ 
++#define inc_preempt_count_non_preempt()	do { } while (0)
++#define dec_preempt_count_non_preempt()	do { } while (0)
++
+ #else
+ 
+ #define preempt_disable()		do { } while (0)
+@@ -41,6 +54,13 @@ do { \
+ #define preempt_enable()		do { } while (0)
+ #define preempt_check_resched()		do { } while (0)
+ 
++/*
++ * Sometimes we want to increment the preempt count, but we know that it's
++ * already incremented if the kernel is compiled for preemptibility.
++ */
++#define inc_preempt_count_non_preempt()	inc_preempt_count()
++#define dec_preempt_count_non_preempt()	dec_preempt_count()
++
+ #endif
+ 
+ #endif /* __LINUX_PREEMPT_H */
 
-Brad
-- -- 
-http://conf.linux.org.au. 22-25Jan2003. Perth, Australia. Birds in Black.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE9VbVJW6pHgIdAuOMRAmvXAJ9lWcnGN24F6tyJEOUoID/1fl4oUQCgovse
-oPsfs1E7GHh1jbUjCYUiiTg=
-=qENi
------END PGP SIGNATURE-----
-
+.

@@ -1,38 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313413AbSC2JHv>; Fri, 29 Mar 2002 04:07:51 -0500
+	id <S313414AbSC2JQn>; Fri, 29 Mar 2002 04:16:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313412AbSC2JHl>; Fri, 29 Mar 2002 04:07:41 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:35341 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S313413AbSC2JHa>;
-	Fri, 29 Mar 2002 04:07:30 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Dragon_at_Work <m_giggey@BeansYou.co.jp>
-Cc: Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: strange problem with 'make modules_install' -2.4.17, 2.4.18 
-In-Reply-To: Your message of "Fri, 29 Mar 2002 14:59:55 +0900."
-             <3CA402DB.8050408@BeansYou.co.jp> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 29 Mar 2002 20:07:15 +1100
-Message-ID: <29324.1017392835@ocs3.intra.ocs.com.au>
+	id <S313415AbSC2JQd>; Fri, 29 Mar 2002 04:16:33 -0500
+Received: from pc3-camc5-0-cust13.cam.cable.ntl.com ([80.4.125.13]:40936 "EHLO
+	fenrus.demon.nl") by vger.kernel.org with ESMTP id <S313414AbSC2JQQ>;
+	Fri, 29 Mar 2002 04:16:16 -0500
+Date: Fri, 29 Mar 2002 09:13:46 GMT
+Message-Id: <200203290913.g2T9Dk907015@fenrus.demon.nl>
+From: arjan@fenrus.demon.nl
+To: Matthew Walburn <matt@math.mit.edu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: mkinitrd w/ 2.4.18
+In-Reply-To: <20020328220130.A2627@math.mit.edu>
+X-Newsgroups: fenrus.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.9-31 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Mar 2002 14:59:55 +0900, 
-Dragon_at_Work <m_giggey@BeansYou.co.jp> wrote:
->Using RH7.2 and trying to upgrade the Kernel.
->
->other makes seem to work fine (mrproper, menuconfig, dep, clean, 
->bzImage, modules).
->But, when I 'make modules_install', it seems to prematurely abort the 
->process.
->...
->cd /lib/modules/2.4.18; \
->mkdir -p pcmcia; \
->find kernel -path '*/pcmcia/*' -name '*.o' | xargs -i -r ln -sf ../{} pcmcia
->if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.4.18; fi
+In article <20020328220130.A2627@math.mit.edu> you wrote:
+>> I would appreciate if you hit enter about every 70 keystrokes.
+> 
+> Sorry about that didnt realize it wasn't wrapping.
+> 
+>> Also, describing a symptom rather than vague "i'm having problems"
+>> may help.
+> 
+> Specifically, i get the error message:
+> "all of your loopback devices are in use"
 
-Nothing wrong with that, it is a standard modules_install.
-
+are you using tmpfs on /tmp ?

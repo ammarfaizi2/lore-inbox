@@ -1,39 +1,25 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280661AbRKBL57>; Fri, 2 Nov 2001 06:57:59 -0500
+	id <S280662AbRKBMMx>; Fri, 2 Nov 2001 07:12:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280666AbRKBL5t>; Fri, 2 Nov 2001 06:57:49 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:54246 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S280661AbRKBL5c>;
-	Fri, 2 Nov 2001 06:57:32 -0500
-Date: Fri, 2 Nov 2001 06:57:31 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: dalecki@evision.ag
-cc: Rusty Russell <rusty@rustcorp.com.au>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5 PROPOSAL: Replacement for current /proc of shit.
-In-Reply-To: <3BE29401.157394A5@evision-ventures.com>
-Message-ID: <Pine.GSO.4.21.0111020652070.12621-100000@weyl.math.psu.edu>
+	id <S280663AbRKBMMn>; Fri, 2 Nov 2001 07:12:43 -0500
+Received: from mx10.port.ru ([194.67.57.20]:7117 "EHLO mx10.port.ru")
+	by vger.kernel.org with ESMTP id <S280662AbRKBMM2>;
+	Fri, 2 Nov 2001 07:12:28 -0500
+From: Samium Gromoff <_deepfire@mail.ru>
+Message-Id: <200111021209.fA2C9oc29806@vegae.deep.net>
+Subject: Re: 3.0.2 fails to build linux-2.4.13-ac5, 8139.c
+To: lk@ts.ray.fi (lkml user)
+Date: Fri, 2 Nov 2001 15:09:49 +0300 (MSK)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0111021131480.9001-100000@behemoth.ts.ray.fi> from "lkml user" at Nov 02, 2001 11:40:09 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+    Whoops! I`m sorry, i`ve realised its not cc`ed to the list too late!
 
-
-On Fri, 2 Nov 2001, Martin Dalecki wrote:
-
-> Bull shit. Standard policy is currently to keep crude old
-> interfaces until no end of time. Here are some examples:
-
-[snip]
-
-Again, standard procedure for removal of user-visible API:
-	* next devel and following stable branch - use of that API is
-possible but produces a warning
-	* devel branch after that - API removed.
-
-The fact that nobody had even started that with procfs is a separate story.
-But no matter what user-visible API changes we start now, the earliest point
-when the old stuff can be removed is 2.7.
-
+excuses, Samium Gromoff

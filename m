@@ -1,37 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263914AbTEFQJa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 12:09:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263915AbTEFQJa
+	id S263884AbTEFQFQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 12:05:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263886AbTEFQFQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 12:09:30 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:44045
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S263914AbTEFQJ2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 12:09:28 -0400
-Date: Tue, 6 May 2003 09:21:53 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Shantanu Goel <sgoel01@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21-rc1-ac2 NFS close-to-open question
-Message-ID: <20030506162153.GH8350@matchmail.com>
-Mail-Followup-To: Trond Myklebust <trond.myklebust@fys.uio.no>,
-	Shantanu Goel <sgoel01@yahoo.com>, linux-kernel@vger.kernel.org
-References: <20030427151201.27191.qmail@web12802.mail.yahoo.com> <shshe8k6ijs.fsf@charged.uio.no> <20030506022813.GB8350@matchmail.com> <16055.44973.106804.436859@charged.uio.no>
+	Tue, 6 May 2003 12:05:16 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:24960
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S263884AbTEFQFJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 12:05:09 -0400
+Subject: Re: X unlock bug revisited
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0305061141300.1272-100000@oddball.prodigy.com>
+References: <Pine.LNX.4.44.0305061141300.1272-100000@oddball.prodigy.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1052234284.1201.15.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16055.44973.106804.436859@charged.uio.no>
-User-Agent: Mutt/1.5.3i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 06 May 2003 16:18:06 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 06, 2003 at 02:50:53PM +0200, Trond Myklebust wrote:
-> I'm confused. Are the rmap patches making changes to lockd?
-> I certainly don't see the above errors in standard 2.4.21-rc1.
+On Maw, 2003-05-06 at 16:50, Bill Davidsen wrote:
+> Some months ago I noted that a new kernel introduced a failure to be able 
+> to unlock X after locking. Still there in 2.5.69 for RH 7.2, 7.3, and 8.0.
 
-Ok, I'll test with standard rc1...
+Its a pam bug triggered by the subtle scheduling timing changes and
+fixed in Red Hat 9
 
-Oh and one more thing, both have the debian freeswan kernel patch applied.
-
-I'll try again without any patches.

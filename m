@@ -1,58 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267555AbUJGV4K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269675AbUJGV5k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267555AbUJGV4K (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 17:56:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268357AbUJGVvk
+	id S269675AbUJGV5k (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 17:57:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268357AbUJGV4Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 17:51:40 -0400
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:37118 "EHLO
-	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S268293AbUJGVtb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 17:49:31 -0400
-Message-ID: <4165B9DD.7010603@nortelnetworks.com>
-Date: Thu, 07 Oct 2004 15:49:17 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+	Thu, 7 Oct 2004 17:56:25 -0400
+Received: from c7ns3.center7.com ([216.250.142.14]:17357 "EHLO
+	smtp.slc03.viawest.net") by vger.kernel.org with ESMTP
+	id S268360AbUJGVyV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 17:54:21 -0400
+Message-ID: <4165B265.2050506@drdos.com>
+Date: Thu, 07 Oct 2004 15:17:25 -0600
+From: "Jeff V. Merkey" <jmerkey@drdos.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Martijn Sipkema <martijn@entmoot.nl>
-CC: hzhong@cisco.com, "'Jean-Sebastien Trottier'" <jst1@email.com>,
-       "'Linux Kernel'" <linux-kernel@vger.kernel.org>,
-       "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
-       "'David S. Miller'" <davem@redhat.com>
-Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
-References: <00e501c4ac9a$556797d0$b83147ab@amer.cisco.com> <41658C03.6000503@nortelnetworks.com> <015f01c4acbe$cf70dae0$161b14ac@boromir>
-In-Reply-To: <015f01c4acbe$cf70dae0$161b14ac@boromir>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: "jmerkey@comcast.net" <jmerkey@comcast.net>, jonathan@jonmasters.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Possible GPL Violation of Linux in Amstrad's E3 Videophone
+References: <100120041740.9915.415D967600014EC2000026BB2200758942970A059D0A0306@comcast.net> <35fb2e590410011509712b7d1@mail.gmail.com> <415DD1ED.6030101@drdos.com> <1096738439.25290.13.camel@localhost.localdomain> <41659748.9090906@drdos.com> <8B592DC4-18A9-11D9-ABEB-000393ACC76E@mac.com>
+In-Reply-To: <8B592DC4-18A9-11D9-ABEB-000393ACC76E@mac.com>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martijn Sipkema wrote:
-> From: "Chris Friesen" <cfriesen@nortelnetworks.com>
+Kyle Moffett wrote:
 
->>Since we wouldn't be posix compliant anyway in the nonblocking case, we may as 
->>well return EAGAIN--it's the most appropriate.
-> 
-> 
-> No, I don't think so, since POSIX says to return EAGAIN when:
-> 
->   The socket's file descriptor is marked O_NONBLOCK and no data is waiting to
->   be received; or MSG_OOB is set and no out-of-band data is available and either
->   the socket's file descriptor is marked O_NONBLOCK or the socket does not
->   support blocking to await out-of-band data
+> On Oct 07, 2004, at 15:21, Jeff V. Merkey wrote:
+>
+>> This offer must be accepted by **ALL** copyright holders and...
+>
+>
+> This will never happen. Even if there is just _one_ GPL idealist who
+> doesn't give a rat's ass about receiving money for their kernel code,
+> you can't get your license. Given that, I know several people who
+> wouldn't give you a license no matter how much you offered them
+> for it.
+>
+> Cheers,
+> Kyle Moffett
 
-We are discussing the case where the socket is nonblocking and the udp checksum 
-is corrupt, right?  (Because in the blocking case select() would verify the 
-checksum.)
 
-In this case, select() returns with the socket readable, we call recvmsg() and 
-discover the message is corrupt.  At this point we throw away the corrupt 
-message, so we now have no data waiting to be received.  We return EAGAIN, and 
-userspace goes merrily on its way, handling anything else in its loop, then 
-going back to select().
+Then their code could be removed from the snapshot, and the folks who 
+were more
+interested in being smart rather than being right would get the $$$. 
+That's easy.
 
-Seems perfectly suitable.
+Jeff
 
-Chris

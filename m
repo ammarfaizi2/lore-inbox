@@ -1,66 +1,134 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261761AbSJMXEV>; Sun, 13 Oct 2002 19:04:21 -0400
+	id <S261764AbSJMXHb>; Sun, 13 Oct 2002 19:07:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261778AbSJMXEV>; Sun, 13 Oct 2002 19:04:21 -0400
-Received: from h-64-105-34-19.SNVACAID.covad.net ([64.105.34.19]:1667 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S261761AbSJMXEU>; Sun, 13 Oct 2002 19:04:20 -0400
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Sun, 13 Oct 2002 16:10:01 -0700
-Message-Id: <200210132310.QAA01044@adam.yggdrasil.com>
-To: rmk@arm.linux.org.uk
-Subject: Re: Patch: linux-2.5.42/kernel/sys.c - warm reboot should not suspend devices
-Cc: ebiederm@xmission.com, eblade@blackmagik.dynup.net,
-       linux-kernel@vger.kernel.org
+	id <S261769AbSJMXHb>; Sun, 13 Oct 2002 19:07:31 -0400
+Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:5907 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S261764AbSJMXHa>;
+	Sun, 13 Oct 2002 19:07:30 -0400
+Date: Sun, 13 Oct 2002 16:08:40 -0700
+From: Greg KH <greg@kroah.com>
+To: Mark Peloquin <peloquin@us.ibm.com>
+Cc: Kevin M Corry <corryk@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: evms ioctl question
+Message-ID: <20021013230839.GA25230@kroah.com>
+References: <OF25AABB03.802F967E-ON85256C4F.007776C0@pok.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <OF25AABB03.802F967E-ON85256C4F.007776C0@pok.ibm.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King writes:
->x86, I believe, is one example of such a platform that can leave PCI
->devices jabbering over a warm reboot.
+On Fri, Oct 11, 2002 at 06:09:54PM -0500, Mark Peloquin wrote:
+> 
+> On 10/11/2002 at 03:49 PM, Greg KH wrote:
+> 
+> > > However, Al pointed out that it would be better style to turn these
+> > > into extra plugin APIs, so we added a bunch of functions to the
+> > > evms_plugin_fops table, and converted all of the plugins to implement
+> > > these instead of handling them in the ioctl code.
+> > >
+> > > Thus, most of the defines listed above are no longer used. I had
+> > > actually thought these defines were removed from evms_ioctl.h, but
+> > > apparently I was mistaken.
+> 
+> > Ok, I'll wait for your next round of patches to verify this, thanks for
+> > the explaination.  You still have a ioctl() and direct_ioctl() function
+> > in that structure that you should probably remove if it's no longer
+> > needed.
+> 
+> All plugins ioctls used for layer to layer communication
+> have been converted to plugin methods, as Al Viro
+> suggested, except one. That one is used only for s390
+> arch and will be conditionally marked as such.
 
-	The standards on pcisig.com are apparently proprietary, so I'm
-afraid I can only quote a proprietary book I have handy:
+Why can't the s390 code also be converted?  If it was, do you mean that
+the ioctl() and direct_ioctl() callbacks can be removed?
 
-	Reset Signal (RST#):
+> > > > Does evms "plugins" make ioctl calls to the evms core?  Please tell me
+> > > > I'm mistaken :)
+> > >
+> > > This was never the case. Plugins make calls into the core using the
+> > > common-services API, which is defined in services.c.
+> 
+> > Um, then what's the following function for:
+> > +/**
+> > + * evms_cs_kernel_ioctl - performs a userspace ioctl from within the kernel
+> > + * @node:      the storage object that is the target of this ioctl
+> > + * @cmd: the ioctl command
+> > + * @arg: the ioctl argument(s)
+> > + *
+> > + * Performs a userspace ioctl from within the kernel
+> > + **/
+> 
+> There are a few cases where drivers, such as the s390,
+> have private ioctls to perform various functions like
+> formatting/partitioning devices, obtaining specifics
+> about existing partitions, etc.
 
-	When asserted, the reset signal forces all PCI configuration
-	registers, master and target state machines and output drivers to an
-	initialized state.  RST# may be asserted or deasserted asynchronously
-	to the PCI CLK edge.  The assertion of RST# also initializes other,
-	device-specific functions, but this subject is beyond the scope of the
-	PCI specification.  All PCI output signals must be driver to their
-	bening states.  In general, this means they must be tri-stated [...]
-	
-		Chapter 4, page 37
-		_PCI System Architecture, 4th Edition_
-		Tom Shanley and Don Anderson
+Why is s390 special?  Shouldn't it use the same interface the rest of
+the block devices use?
 
+> This routine just encapsulated the common steps for
+> performing this type of operation.
+> 
+> > > > And is there any documentation you can point me to on what the evms
+> > > > "plugin" interface consists of?
+> > >
+> > > Every plugin must implement a set of functions, which are specified in
+> > > evms_plugin_fops structure (defined in evms.h). The most significant of
+> > > these are the methods for volume discovery, volume delete, handling I/O,
+> > > and handling ioctls (along the with new ones I mentioned above).
+> 
+> > New ioctls?
+> 
+> No, new plugin methods.
+> 
+> > > You have both a ioctl() and direct_ioctl() callback in that structure
+> 
+> ioctl() is a standard block device operation so it
+> supported in our plugin operations. It targets
+> either the EVMS block device, or it targets a volume.
+> The direct_ioctl() provides communication from
+> userspace plugin to corresponding kernel space
+> plugin operations. It allows the LVM plugin to
+> target a "volume group" or a physical volume (PV).
+> It allows MD to target a specific element of drive
+> array. Its designed to allow plugins to target
+> abstract items other than just a volume or the EVMS
+> block device driver.
 
-	So, you must be talking about a PC that does not ground RST#
-during a warm reboot or out of spec (according to this book) PCI devices,
-which would not be specific to x86 unless we're talking about motherboard
-chipset devices.
+So some upper layer code determines which kind of ioctl this is, and
+sends the data to direct_ioctl() or ioctl()?  I can understand trying to
+handle the "generic block device ioctls" but being forced to parse them
+yourself seems like a loosing job.
 
-	I understand the benefits of being conservative, but let's not
-be taken in by urban legend, or, more likely, some quirkly hardware
-that we can set a flag for while we can reboot more quickly with most
-other hardware.  Anyhow, if you or anyone can give me specifics about
-devices jabbering away after reboot, that would be great
+Again, I really recommend getting rid of any new ioctls, and use either
+driverfs or your own fs.
 
-	I have no objection to replacing or supplementing the reboot
-notifier chain with a method in struct device_driver, but let's not
-overload these methods with ambiguous semantics.  I do not want to
-call thirty functions that primarily return memory to various memory
-allocators, mark a bunch of inodes as invalid, and otherwise arrange
-things so that the kernel can smoothly continue to run user level
-programs when, in fact, we just want to pull the reset line on the
-computer.
+> > > Are they not needed now (as I mentioned above)?
+> 
+> I would need to learn about current level of
+> support in driverfs to determine if it would
+> be suitable to support our needs. I was under
+> the impression that driverfs described the
+> physical world. How are logical entities
+> described/placed in the current driverfs
+> topology?
 
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+In the end, everything is a "logical" representation :)
+Driverfs exports the in-kernel representation of the device tree, so
+that would fit perfectly with your logical representation.  As this is
+the main reason for having driverfs, I'm very reluctant to see new
+chunks of code added to the kernel that tries to implement this in their
+own "custom" way.  In this case, you are doing this through ioctls, and
+your /proc interface.  Both of these should be converted.
 
-	
+If you have any implementation questions about the driver model, and
+driverfs, please feel free to ask.
+
+thanks,
+
+greg k-h

@@ -1,48 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131653AbQKRWbH>; Sat, 18 Nov 2000 17:31:07 -0500
+	id <S131519AbQKRWbr>; Sat, 18 Nov 2000 17:31:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131495AbQKRWat>; Sat, 18 Nov 2000 17:30:49 -0500
-Received: from [194.213.32.137] ([194.213.32.137]:6148 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S131356AbQKRWaQ>;
-	Sat, 18 Nov 2000 17:30:16 -0500
-Message-ID: <20001118211349.B382@bug.ucw.cz>
-Date: Sat, 18 Nov 2000 21:13:49 +0100
+	id <S131761AbQKRWbh>; Sat, 18 Nov 2000 17:31:37 -0500
+Received: from [194.213.32.137] ([194.213.32.137]:7428 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S131519AbQKRWbE>;
+	Sat, 18 Nov 2000 17:31:04 -0500
+Message-ID: <20001118220214.E382@bug.ucw.cz>
+Date: Sat, 18 Nov 2000 22:02:14 +0100
 From: Pavel Machek <pavel@suse.cz>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: kernel list <linux-kernel@vger.kernel.org>, vojtech@ucw.cz
-Subject: Re: rdtsc to mili secs?
-In-Reply-To: <3A078C65.B3C146EC@mira.net> <20001114222240.A1537@bug.ucw.cz> <3A12FA97.ACFF1577@transmeta.com> <20001116115730.A665@suse.cz> <8v1pfj$p5e$1@cesium.transmeta.com>
+To: "John D. Kim" <johnkim@aslab.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Dax Kelson <dax@gurulabs.com>, linux-kernel@vger.kernel.org
+Subject: Re: APM oops with Dell 5000e laptop
+In-Reply-To: <E13wTbc-0008BC-00@the-village.bc.nu> <Pine.LNX.4.04.10011161254110.2078-100000@mail.aslab.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 0.93i
-In-Reply-To: <8v1pfj$p5e$1@cesium.transmeta.com>; from H. Peter Anvin on Thu, Nov 16, 2000 at 03:09:39PM -0800
+In-Reply-To: <Pine.LNX.4.04.10011161254110.2078-100000@mail.aslab.com>; from John D. Kim on Thu, Nov 16, 2000 at 01:04:41PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > Anyway, this should be solvable by checking for clock change in the
-> > timer interrupt. This way we should be able to detect when the clock
-> > went weird with a 10 ms accuracy. And compensate for that. It should be
-> > possible to keep a 'reasonable' clock running even through the clock
-> > changes, where reasonable means constantly growing and as close to real
-> > time as 10 ms difference max.
-> > 
+> > > Is there a way to uniquely identify the affected BIOSes at boot time and
 > 
-> Actually, on machines where RDTSC works correctly, you'd like to use
-> that to detect a lost timer interrupt.
+> > Im looking at one with some pointers from Dell. It won't be in 2.2.18 so its
+> > quite likely a fixed BIOS will be out first anyway.
 > 
-> It's tough, it really is :(
+> Wherever the fix comes from, I sure hope it comes soon, because it's
+> getting harder and harder to find cpus for the original 5000 series.  And
+> this new model's been sitting on my desk for couple of weeks now
+> collecting dust.
 
-Well, my patch did not do that but you probably want lost timer
-interrupt detection so that you avoid false alarms.
+Disable apm and be done with that!
 
-But that means you can no longer detect speed change after 10msec:
-
-going from 150MHz to 300MHz is very similar to one lost timer
-interrupt.
-
+I do not see why this is a problem. Just add comment to apm.c, there
+are more comments about b0rken machines in there.
 								Pavel
 -- 
 I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."

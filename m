@@ -1,236 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263986AbSLBPXq>; Mon, 2 Dec 2002 10:23:46 -0500
+	id <S264628AbSLBP3h>; Mon, 2 Dec 2002 10:29:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263991AbSLBPXq>; Mon, 2 Dec 2002 10:23:46 -0500
-Received: from ophelia.ess.nec.de ([193.141.139.8]:59615 "EHLO
-	ophelia.ess.nec.de") by vger.kernel.org with ESMTP
-	id <S263986AbSLBPXb>; Mon, 2 Dec 2002 10:23:31 -0500
-From: Erich Focht <efocht@ess.nec.de>
-To: "Martin J. Bligh" <mbligh@aracnet.com>,
-       Michael Hohnbaum <hohnbaum@us.ibm.com>
-Subject: [PATCH 2.5.50] NUMA scheduler (2/2)
-Date: Mon, 2 Dec 2002 16:30:49 +0100
-User-Agent: KMail/1.4.3
-Cc: Robert Love <rml@tech9.net>, Ingo Molnar <mingo@elte.hu>,
-       Stephen Hemminger <shemminger@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-References: <200211061734.42713.efocht@ess.nec.de> <200211191726.07214.efocht@ess.nec.de> <200212021629.39060.efocht@ess.nec.de>
-In-Reply-To: <200212021629.39060.efocht@ess.nec.de>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_DF0IPE31G5RTO4GSTO85"
-Message-Id: <200212021630.49893.efocht@ess.nec.de>
+	id <S264629AbSLBP3h>; Mon, 2 Dec 2002 10:29:37 -0500
+Received: from pc-62-30-72-146-ed.blueyonder.co.uk ([62.30.72.146]:41856 "EHLO
+	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S264628AbSLBP3b>; Mon, 2 Dec 2002 10:29:31 -0500
+Subject: Re: data corrupting bug in 2.4.20 ext3, data=journal
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: Andrew Morton <akpm@digeo.com>, Nick Piggin <piggin@cyberone.com.au>,
+       lkml <linux-kernel@vger.kernel.org>,
+       ext3 users list <ext3-users@redhat.com>
+In-Reply-To: <1038831305.1852.102.camel@sisko.scot.redhat.com>
+References: <3DE9C43D.61FF79C5@digeo.com>
+	<3DEA0374.2040306@cyberone.com.au>  <3DEB08EE.CBA49BA@digeo.com> 
+	<1038831305.1852.102.camel@sisko.scot.redhat.com>
+Content-Type: multipart/mixed; boundary="=-4NEiODiUE2KHIPNoW1sJ"
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 02 Dec 2002 15:37:22 +0000
+Message-Id: <1038843442.9666.221.camel@sisko.scot.redhat.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---------------Boundary-00=_DF0IPE31G5RTO4GSTO85
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-
-=2E.. and the second part ...
-
-On Monday 02 December 2002 16:29, Erich Focht wrote:
-> Here come the NUMA scheduler patches rediffed for 2.5.50. No
-> functional changes since last version (
-> http://marc.theaimsgroup.com/?l=3Dlinux-kernel&m=3D103772346430798&w=3D=
-2 ).
->
-> Regards,
-> Erich
-
---------------Boundary-00=_DF0IPE31G5RTO4GSTO85
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="02-numa-sched-ilb-2.5.50-21.patch"
+--=-4NEiODiUE2KHIPNoW1sJ
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="02-numa-sched-ilb-2.5.50-21.patch"
 
-diff -urN a/fs/exec.c b/fs/exec.c
---- a/fs/exec.c	2002-11-27 23:35:57.000000000 +0100
-+++ b/fs/exec.c	2002-11-29 17:44:19.000000000 +0100
-@@ -1022,6 +1022,8 @@
- 	int retval;
- 	int i;
- 
-+	sched_balance_exec();
-+
- 	file = open_exec(filename);
- 
- 	retval = PTR_ERR(file);
-diff -urN a/include/linux/sched.h b/include/linux/sched.h
---- a/include/linux/sched.h	2002-11-29 12:51:12.000000000 +0100
-+++ b/include/linux/sched.h	2002-11-29 17:44:19.000000000 +0100
-@@ -160,7 +160,19 @@
- 			       unsigned long system, int cpu);
- extern void scheduler_tick(int user_tick, int system);
- extern unsigned long cache_decay_ticks;
--
-+#ifdef CONFIG_NUMA
-+extern void sched_balance_exec(void);
-+extern void node_nr_running_init(void);
-+#define nr_running_inc(rq) atomic_inc(rq->node_ptr); \
-+	rq->nr_running++
-+#define nr_running_dec(rq) atomic_dec(rq->node_ptr); \
-+	rq->nr_running--
-+#else
-+#define sched_balance_exec() {}
-+#define node_nr_running_init() {}
-+#define nr_running_inc(rq) rq->nr_running++
-+#define nr_running_dec(rq) rq->nr_running--
-+#endif
- 
- #define	MAX_SCHEDULE_TIMEOUT	LONG_MAX
- extern signed long FASTCALL(schedule_timeout(signed long timeout));
-diff -urN a/init/main.c b/init/main.c
---- a/init/main.c	2002-11-27 23:35:51.000000000 +0100
-+++ b/init/main.c	2002-11-29 17:44:19.000000000 +0100
-@@ -500,6 +500,7 @@
- 
- 	migration_init();
- #endif
-+	node_nr_running_init();
- 	spawn_ksoftirqd();
- }
- 
-diff -urN a/kernel/sched.c b/kernel/sched.c
---- a/kernel/sched.c	2002-11-29 12:51:12.000000000 +0100
-+++ b/kernel/sched.c	2002-11-29 17:44:19.000000000 +0100
-@@ -153,6 +153,7 @@
- 	task_t *curr, *idle;
- 	prio_array_t *active, *expired, arrays[2];
- 	int prev_nr_running[NR_CPUS];
-+	atomic_t * node_ptr;
- 
- 	task_t *migration_thread;
- 	struct list_head migration_queue;
-@@ -346,7 +347,7 @@
- 		p->prio = effective_prio(p);
- 	}
- 	enqueue_task(p, array);
--	rq->nr_running++;
-+	nr_running_inc(rq);
- }
- 
- /*
-@@ -354,7 +355,7 @@
-  */
- static inline void deactivate_task(struct task_struct *p, runqueue_t *rq)
- {
--	rq->nr_running--;
-+	nr_running_dec(rq);
- 	if (p->state == TASK_UNINTERRUPTIBLE)
- 		rq->nr_uninterruptible++;
- 	dequeue_task(p, p->array);
-@@ -841,9 +842,9 @@
- static inline void pull_task(runqueue_t *src_rq, prio_array_t *src_array, task_t *p, runqueue_t *this_rq, int this_cpu)
- {
- 	dequeue_task(p, src_array);
--	src_rq->nr_running--;
-+	nr_running_dec(src_rq);
- 	set_task_cpu(p, this_cpu);
--	this_rq->nr_running++;
-+	nr_running_inc(this_rq);
- 	enqueue_task(p, this_rq->active);
- 	/*
- 	 * Note that idle threads have a prio of MAX_PRIO, for this test
-@@ -2268,6 +2269,83 @@
- 
- #endif
- 
-+#if CONFIG_NUMA
-+static atomic_t node_nr_running[MAX_NUMNODES] ____cacheline_maxaligned_in_smp = {[0 ...MAX_NUMNODES-1] = ATOMIC_INIT(0)};
-+
-+__init void node_nr_running_init(void)
-+{
-+	int i;
-+
-+	for (i = 0; i < NR_CPUS; i++) {
-+		cpu_rq(i)->node_ptr = &node_nr_running[__cpu_to_node(i)];
-+	}
-+	return;
-+}
-+
-+/*
-+ * If dest_cpu is allowed for this process, migrate the task to it.
-+ * This is accomplished by forcing the cpu_allowed mask to only
-+ * allow dest_cpu, which will force the cpu onto dest_cpu.  Then
-+ * the cpu_allowed mask is restored.
-+ */
-+static void sched_migrate_task(task_t *p, int dest_cpu)
-+{
-+	unsigned long old_mask;
-+
-+	old_mask = p->cpus_allowed;
-+	if (!(old_mask & (1UL << dest_cpu)))
-+		return;
-+	/* force the process onto the specified CPU */
-+	set_cpus_allowed(p, 1UL << dest_cpu);
-+
-+	/* restore the cpus allowed mask */
-+	set_cpus_allowed(p, old_mask);
-+}
-+
-+/*
-+ * Find the least loaded CPU.  Slightly favor the current CPU by
-+ * setting its runqueue length as the minimum to start.
-+ */
-+static int sched_best_cpu(struct task_struct *p)
-+{
-+	int i, minload, load, best_cpu, node = 0;
-+
-+	best_cpu = task_cpu(p);
-+	if (cpu_rq(best_cpu)->nr_running <= 2)
-+		return best_cpu;
-+
-+	minload = 10000000;
-+	for (i = 0; i < numnodes; i++) {
-+		load = atomic_read(&node_nr_running[i]);
-+		if (load < minload) {
-+			minload = load;
-+			node = i;
-+		}
-+	}
-+	minload = 10000000;
-+	loop_over_node(i,node) {
-+		if (!cpu_online(i))
-+			continue;
-+		if (cpu_rq(i)->nr_running < minload) {
-+			best_cpu = i;
-+			minload = cpu_rq(i)->nr_running;
-+		}
-+	}
-+	return best_cpu;
-+}
-+
-+void sched_balance_exec(void)
-+{
-+	int new_cpu;
-+
-+	if (numnodes > 1) {
-+		new_cpu = sched_best_cpu(current);
-+		if (new_cpu != smp_processor_id())
-+			sched_migrate_task(current, new_cpu);
-+	}
-+}
-+#endif /* CONFIG_NUMA */
-+
- #if CONFIG_SMP || CONFIG_PREEMPT
- /*
-  * The 'big kernel lock'
-@@ -2329,6 +2407,10 @@
- 		spin_lock_init(&rq->lock);
- 		INIT_LIST_HEAD(&rq->migration_queue);
- 		atomic_set(&rq->nr_iowait, 0);
-+#if CONFIG_NUMA
-+		rq->node_ptr = &node_nr_running[0];
-+#endif /* CONFIG_NUMA */
-+
- 
- 		for (j = 0; j < 2; j++) {
- 			array = rq->arrays + j;
+On Mon, 2002-12-02 at 12:15, Stephen C. Tweedie wrote:
 
---------------Boundary-00=_DF0IPE31G5RTO4GSTO85--
+> The problem is that ext3 is expecting that truncate_inode_pages() (and
+> hence ext3_flushpage) is only called during a truncate.  That's what the
+> function is named for, after all, and it's the hint we need to indicate
+> that future writeback on the data we're discarding should be disabled
+> (so that we don't get old data written on top of new data should the
+> block get deallocated.)
+> 
+> But kill_supers() eventually calls truncate_inode_pages() too when we're
+> doing the invalidate_inodes().
 
+But we've already called fsync_super() at this point.  If that completes
+synchronously, then the buffers will already be out of the journal and
+queued for writeback when we get here, and clearing BH_JBDDirty won't
+have any dire consequences.
+
+Indeed, loading the ext3 module with "do_sync_supers=1" cures the
+symptoms.
+
+However, doing every superblock write synchronously is a non-starter, as
+that requires a journal commit in the ext3 universe, and so this would
+essentially force bdflush to serialise all of its filesystem flushes
+(which is a real problem once you've got a significant number of
+filesystems mounted.)  But the VFS simply doesn't have any clean way of
+telling foo_write_super() whether the call needs to be completed
+synchronously or asynchronously.
+
+There *is* a totally unclean way, though.  kill_super() sets sb->s_root
+to NULL before calling its final fsync_super(), and ext3 can easily
+check that in ext3_write_super().  It's a nasty, messy dependency, but
+should work for 2.4 at least.  For 2.5 we probably want to look at
+passing an async flag down into the write_super.
+
+The attached patch seems to fix things for me.
+
+Cheers,
+ Stephen
+
+
+--=-4NEiODiUE2KHIPNoW1sJ
+Content-Description: 
+Content-Disposition: inline; filename=4201-umount-sync-super.patch
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=ISO-8859-15
+
+--- linux-2.4-ext3merge/fs/ext3/super.c.=3DK0027=3D.orig	2002-12-02 15:35:1=
+3.000000000 +0000
++++ linux-2.4-ext3merge/fs/ext3/super.c	2002-12-02 15:35:14.000000000 +0000
+@@ -1640,7 +1640,12 @@
+ 	sb->s_dirt =3D 0;
+ 	target =3D log_start_commit(EXT3_SB(sb)->s_journal, NULL);
+=20
+-	if (do_sync_supers) {
++	/*
++	 * Tricky --- if we are unmounting, the write really does need
++	 * to be synchronous.  We can detect that by looking for NULL in
++	 * sb->s_root.
++	 */
++	if (do_sync_supers || !sb->s_root) {
+ 		unlock_super(sb);
+ 		log_wait_commit(EXT3_SB(sb)->s_journal, target);
+ 		lock_super(sb);
+
+--=-4NEiODiUE2KHIPNoW1sJ--

@@ -1,60 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315293AbSGINeb>; Tue, 9 Jul 2002 09:34:31 -0400
+	id <S315300AbSGINnd>; Tue, 9 Jul 2002 09:43:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315300AbSGINea>; Tue, 9 Jul 2002 09:34:30 -0400
-Received: from pD9E238F8.dip.t-dialin.net ([217.226.56.248]:32223 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S315293AbSGINe2>; Tue, 9 Jul 2002 09:34:28 -0400
-Date: Tue, 9 Jul 2002 07:37:10 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] MAINTAINERS changes
-Message-ID: <Pine.LNX.4.44.0207090735030.10105-100000@hawkeye.luckynet.adm>
+	id <S315334AbSGINnc>; Tue, 9 Jul 2002 09:43:32 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:15123 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S315300AbSGINnc>; Tue, 9 Jul 2002 09:43:32 -0400
+Date: Tue, 9 Jul 2002 09:41:02 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Ville Herva <vherva@niksula.hut.fi>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: prevent breaking a chroot() jail?
+In-Reply-To: <20020705161750.GO1548@niksula.cs.hut.fi>
+Message-ID: <Pine.LNX.3.96.1020709093325.27294B-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, 5 Jul 2002, Ville Herva wrote:
 
-I have to add two changes to MAINTAINERS, too.
+> In general, I wonder if it would make sense to aim for something like
+> jail(2). Chroot has its shortcomings, and I take it that many of them have
+> to be preserved to maintain standard compliance. Jail isolates processes
+> more completely than chroot is ever ment to.
+> 
+> FreeBSD implements jail by adding a jail pointer to struct proc - I'm not
+> sure how much of that should/could be done with mere capabilities in linux,
+> and how much of the "fortificated chroot" implementation jail has overlaps
+> with Al Viro's namespaces.
+> 
+> All in all, I've seen suprisingly little conversation about jail on
+> lkml. What do people think of it?
 
-Index: MAINTAINERS
-===================================================================
-RCS file: /var/cvs/thunder-2.5/MAINTAINERS,v
-retrieving revision 1.2
-diff -u -r1.2 MAINTAINERS
---- MAINTAINERS 1 Jul 2002 11:26:34 -0000       1.2
-+++ MAINTAINERS 9 Jul 2002 13:34:51 -0000
-@@ -526,7 +526,7 @@
- EMU10K1 SOUND DRIVER
- P:     Rui Sousa
- M:     rui.p.m.sousa@clix.pt
--L:     emu10k1-devel@opensource.creative.com
-+L:     emu10k1-devel@lists.sourceforge.net
- W:     http://opensource.creative.com/
- S:     Maintained
- 
-@@ -631,7 +631,7 @@
- 
- HFS FILESYSTEM
- P:     Adrian Sun
--M:     asun@cobaltnet.com
-+M:     adrian.sun@sun.com
- L:     linux-kernel@vger.kernel.org
- S:     Maintained
- 
+Not having had the problem of jailing things for almost a decade, I
+haven't been following this field, but certainly after looking at POSIX
+and chroot, I don't think we can both be secure and compliant. Adding
+jail() would be a better approach, preferably with a BSD-compatible API so
+people could move programs here.
 
-							Regards,
-							Thunder
+I have been doing some reading on UML, and it sounds as if that could be
+at least as secure as jail, but it is almost certainly higher overhead. I
+want to try running multiple machines in UML and see how well it works. If
+disk is the only issue it's cheap enough to to have enough per
+application, but I doubt if it's practical per-user in most cases.
+
 -- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

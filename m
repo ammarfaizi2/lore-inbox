@@ -1,59 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268947AbUHMCev@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268954AbUHMCjh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268947AbUHMCev (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 22:34:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268948AbUHMCev
+	id S268954AbUHMCjh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 22:39:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268951AbUHMCjh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 22:34:51 -0400
-Received: from gherkin.frus.com ([192.158.254.49]:32994 "EHLO gherkin.frus.com")
-	by vger.kernel.org with ESMTP id S268947AbUHMCet (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 22:34:49 -0400
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-In-Reply-To: <cfgpa6$gu2$1@gatekeeper.tmr.com> "from Bill Davidsen at Aug 12,
- 2004 06:10:21 pm"
-To: Bill Davidsen <davidsen@tmr.com>
-Date: Thu, 12 Aug 2004 21:34:48 -0500 (CDT)
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL82 (25)]
-MIME-Version: 1.0
+	Thu, 12 Aug 2004 22:39:37 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:51331 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S268954AbUHMCjR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 22:39:17 -0400
+Subject: Re: [patch] Latency Tracer, voluntary-preempt-2.6.8-rc4-O6
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Florian Schmidt <mista.tapas@gmx.net>
+In-Reply-To: <1092360704.1304.76.camel@mindpipe>
+References: <20040726082330.GA22764@elte.hu>
+	 <1090830574.6936.96.camel@mindpipe> <20040726083537.GA24948@elte.hu>
+	 <1090832436.6936.105.camel@mindpipe> <20040726124059.GA14005@elte.hu>
+	 <20040726204720.GA26561@elte.hu> <20040729222657.GA10449@elte.hu>
+	 <20040801193043.GA20277@elte.hu> <20040809104649.GA13299@elte.hu>
+	 <20040810132654.GA28915@elte.hu>  <20040812235116.GA27838@elte.hu>
+	 <1092360317.1304.72.camel@mindpipe>  <1092360704.1304.76.camel@mindpipe>
+Content-Type: text/plain
+Message-Id: <1092364786.877.1.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 12 Aug 2004 22:39:51 -0400
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <20040813023448.62CD8DBDD@gherkin.frus.com>
-From: rct@gherkin.frus.com (Bob Tracy)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen wrote:
-> David Woodhouse wrote:
-> > On Mon, 2004-08-09 at 16:12 +0200, Joerg Schilling wrote:
+On Thu, 2004-08-12 at 21:31, Lee Revell wrote:
+> On Thu, 2004-08-12 at 21:25, Lee Revell wrote:
+> > Does not compile.  For each module I get:
 > > 
-> >>If you are right, why then is SuSE removing the warnings in cdrecord
-> >>that are there to tell the user that cdrecord is running with insufficient 
-> >>privilleges?
-> > 
-> > 
-> > Because those warnings are bogus, put there by someone who likes to
-> > complain about things that are not _really_ a problem?
 > 
-> Actually they are a problem on a loaded system, it's just that 
-> developers seem to run system with enough power to avoid the issues. And 
-> if you have a system using burn-free all the time you do use more track 
-> and the occasional device won't read it.
+> Never mind, stupid mistake on my part.
+> 
 
-Another possible reason for removing the warnings (which I encountered
-while trying out the latest xcdroast today): any output to stderr during
-the burn is flagged by the wrapper as an error, which violates the
-principle of least astonishment from a user perspective.  In other words,
-no distinction is made between warnings and errors before announcing an
-error has occurred.
+Argh, this is actually a fatal bug, and not a mistake on my part. 
+mcount is an unknown symbol, and make modules_install does not like
+that.
 
-Understanding this, it's easy enough to scan the expanded output and see
-what really happened.  FWIW, I don't think removing the warnings to avoid
-this issue is the correct solution.
+I checked Module.symvers and it is not in there, but this seems to be a
+generated file, and I have no idea why mcount does not appear.
 
--- 
------------------------------------------------------------------------
-Bob Tracy                   WTO + WIPO = DMCA? http://www.anti-dmca.org
-rct@frus.com
------------------------------------------------------------------------
+Lee
+

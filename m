@@ -1,35 +1,117 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268432AbRHJOXK>; Fri, 10 Aug 2001 10:23:10 -0400
+	id <S269318AbRHJOZT>; Fri, 10 Aug 2001 10:25:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269317AbRHJOW7>; Fri, 10 Aug 2001 10:22:59 -0400
-Received: from dire.bris.ac.uk ([137.222.10.60]:10885 "EHLO dire.bris.ac.uk")
-	by vger.kernel.org with ESMTP id <S268432AbRHJOWw>;
-	Fri, 10 Aug 2001 10:22:52 -0400
-Date: Fri, 10 Aug 2001 15:22:27 +0100 (BST)
-From: Matt <madmatt@bits.bris.ac.uk>
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Writes to mounted devices containing file-systems.
-In-Reply-To: <Pine.SOL.3.96.1010810143222.9790A-100000@draco.cus.cam.ac.uk>
-Message-ID: <Pine.LNX.4.21.0108101520400.7343-100000@bits.bris.ac.uk>
+	id <S269317AbRHJOZK>; Fri, 10 Aug 2001 10:25:10 -0400
+Received: from srvr2.telecom.lt ([212.59.0.1]:25613 "EHLO mail.takas.lt")
+	by vger.kernel.org with ESMTP id <S269318AbRHJOZB>;
+	Fri, 10 Aug 2001 10:25:01 -0400
+Message-Id: <200108101425.QAA1285141@mail.takas.lt>
+Date: Fri, 10 Aug 2001 16:09:06 +0200 (EET)
+From: Nerijus Baliunas <nerijus@users.sourceforge.net>
+Subject: Re[2]: [PATCH] vfat write wrong value into lcase flag
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>, linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1804289383-997452546=:1721"
+In-Reply-To: <87wv4er2kt.fsf@devron.myhome.or.jp>
+	<200108082020.WAA1347968@mail.takas.lt>
+ <874rrhf69p.fsf@devron.myhome.or.jp>
+In-Reply-To: <874rrhf69p.fsf@devron.myhome.or.jp>
+X-Mailer: Mahogany, 0.63 'Saugus', compiled for Linux 2.4.7 i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Altaparmakov mentioned the following:
+--8323328-1804289383-997452546=:1721
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-Disposition: INLINE
 
-| Anyway, the kernel could never provide you with ultimate security without
-| sacrificing all functionality. Once they get in, they will get root and
-| once they have root you have lost, you need to have a system without a
-| root user and with nobody having capabilities to do things like load
-| modules, etc... There are so many local exploits that you would lose
-| for sure. If the attacker cannot write to raw device, he will unmount and
-| then write to it or he will load a module to send commands to your HD at
-| ATAPI or SCSI level and kill your hd that way...
+On 10 Aug 2001 03:16:34 +0900 OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> wrote:
 
-Couldn't you run something like LIDS? This can be used to lock permissions
-down so that root can't unmount filesystems, write to raw devices, etc.
+OH> Nerijus Baliunas <nerijus@users.sourceforge.net> writes:
+OH> 
+OH> > On 09 Aug 2001 00:30:58 +0900 OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> wrote:
+OH> > 
+OH> > OH> The current vfat is writeing wrong value into lcase flag.  It is
+OH> > OH> writing the lowercase flag, although filename is uppercase.
+OH> > 
+OH> > Hello,
+OH> > 
+OH> > In December 1999 I sent my investigation about short filenames in vfat:
+OH> 
+OH> [...]
+OH> 
+OH> > I think Linux should create files like win98
+OH> > (because NT shows them correctly) and show like NT.
+OH> 
+OH> The _current vfat_ uses the following rule.
+OH> 
+OH>   name                   attribute                         used direntry
+OH> -----------------------------------------------------------------------------
+OH> foo.txt  LONG_FILENAME, CASE_LOWER_BASE | CASE_LOWER_EXT         2
+OH> foo.TXT  LONG_FILENAME, CASE_LOWER_BASE | CASE_LOWER_EXT         2
+OH> FOO.txt  LONG_FILENAME, CASE_LOWER_BASE | CASE_LOWER_EXT         2
+OH> FOO.TXT               , CASE_LOWER_BASE | CASE_LOWER_EXT         1
+OH> Foo.TXT  LONG_FILENAME, CASE_LOWER_BASE | CASE_LOWER_EXT         2
+OH> FOO.Txt  LONG_FILENAME, CASE_LOWER_BASE | CASE_LOWER_EXT         2
+OH> 
+OH> I missed something?
 
-Matt
+I don't know. Sorry, I didn't look at the code, but current (2.4.7) kernel still shows
+filenames as I wrote in 1999. I am talking about filenames _without_ long entries.
+Didn't test what current kernel writes, though.
+I'm attaching floppy image, ungzip and loop mount it.
 
+Regards,
+Nerijus
+
+--8323328-1804289383-997452546=:1721
+Content-Type: APPLICATION/X-GZIP; NAME="fdd_vfat.gz"
+Content-Transfer-Encoding: BASE64
+Content-Disposition: INLINE; FILENAME="fdd_vfat.gz"
+
+H4sICFhUTTgAA2ZkZF92ZmF0AO3aTUtUYRgG4GemLMtFUZvcuRMhBhQC3SVl
+JNmMUGarfkBaRgVtJAT31r5NGwlq1a4PqP5A+zZBa9v0QRER2HG+X5yI4tQB
+ua7FvAM375wH7t2c5/3U3ZFaZfjY9OkTUS6Vovwujg982BeHohwdI+X7b6er
+taHq5NmpocypyfOjY9nZSE/F99FXa2/WXv14GqUXsfwyVj6vb1yK6H9SKj+P
+5Wcr8bQUrw9f79uI5YjXg0E+VqIUpdKh2tb34wN/fn/u4YfNzW93NrvlPSMA
+AAAARfL/DwAAAMDONjkT01GNuZiNA/Eoovt/oK3Pmenq3OxQ3cEjcf/C6vDq
+cNTPxn5Yls/U5lv5ejPfOnfV85O1c+37naeOzK8O727l7fud/GiW99W/TYy3
+rmf57cvzjd9fyM49jfknYjwWYyluZfM/3j7/xHjr57P7F68071/Nzr31+/Nj
+ZzrzjX1caOSfsrO/lbfn67/3pZl/zc599bx6vmu+ytJiI7+Wnfubeef5/btu
+NPOb2fkX61oAAAAAAADwG5WhtoPR4/1epfKrvODByUXa//b3t2n/3XnBg5OL
+tP+Wzvv5tP/u/D8Pyj/Ru//O/kXv/o/qf4dI+h9caO7HLLb3a5L+k7zgwclF
+0v+D7ftRSf9JXvDg5CLpv8f+W9J/khc8OLlI+u+x35j0n+QFD04ukv577K8m
+/Sd5wYOTi6T/HvvJSf9JXvDgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAADsKD8BXP2xAwA+FgA=
+
+--8323328-1804289383-997452546=:1721--

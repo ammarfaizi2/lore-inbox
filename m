@@ -1,43 +1,79 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314548AbSD0Ufa>; Sat, 27 Apr 2002 16:35:30 -0400
+	id <S314547AbSD0Uga>; Sat, 27 Apr 2002 16:36:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314598AbSD0Uf2>; Sat, 27 Apr 2002 16:35:28 -0400
-Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:6133 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S314548AbSD0UfC>; Sat, 27 Apr 2002 16:35:02 -0400
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Sat, 27 Apr 2002 14:32:51 -0600
-To: Witek Krjcicki <adasi@kernel.pl>
+	id <S314598AbSD0Ufe>; Sat, 27 Apr 2002 16:35:34 -0400
+Received: from bitmover.com ([192.132.92.2]:42965 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S314547AbSD0Uen>;
+	Sat, 27 Apr 2002 16:34:43 -0400
+Date: Sat, 27 Apr 2002 13:34:42 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Florian Weimer <Weimer@CERT.Uni-Stuttgart.DE>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: ext2 fs corruption on 2.5.10
-Message-ID: <20020427203251.GM16982@turbolinux.com>
-Mail-Followup-To: Witek Krjcicki <adasi@kernel.pl>,
+Subject: Re: [OFF TOPIC] BK license change
+Message-ID: <20020427133442.A31314@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Florian Weimer <Weimer@CERT.Uni-Stuttgart.DE>,
 	linux-kernel@vger.kernel.org
-In-Reply-To: <001501c1ee23$98c57cf0$0201a8c0@witek>
+In-Reply-To: <20020421095715.A10525@work.bitmover.com> <20020422143527.K18800@work.bitmover.com> <20020425150158.A88@toy.ucw.cz> <878z79fpzv.fsf@CERT.Uni-Stuttgart.DE>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Apr 27, 2002  21:41 +0200, Witek Krjcicki wrote:
-> At first kernel hanged while calling hdparm, after removing hdparm from rc
-> scripts, it hangs while remounting rootfs read-write. After that, partition
-> is totally screwed up. All parts (ide, ext2) compiled as modules.
-> It's reproductible but I'm unable to reproduce it since I'm cutted out from
-> my Linux partition
+Apologies in advance for contributing to this thread, but I think this
+is a fairly calm and reasonable response which sums up our position.
+You may not like it, but it may help to understand it.
 
-Sounds like hdparm was trying to set IDE DMA modes to something bad,
-and/or you have an IDE chipset problem, and that is the cause of the
-corruption.
+On Sat, Apr 27, 2002 at 11:30:12AM +0200, Florian Weimer wrote:
+> Pavel Machek <pavel@suse.cz> writes:
+> > Oh and btw how can you change licence retroactively? Those "abusers" have
+> > right to continue to use old versions under old licences...
+> 
+> BK licenses become invalid as soon as a new BK version is released
+> which contains bug fixes or behaves differently in any way.
 
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
+The license says that you have to upgrade if your version will not pass
+the current regressions.  In other words, if we have fixed a problem,
+written a test case for it, shipped the fixed version and the test case,
+then yes, you need to upgrade.  If it was important enough that we wrote
+a test case for it, it's probably something you'll end up hitting sooner
+or later.
 
+
+This is not directed at Florian, but to the whole list:
+
+Another thing to think about is that we need to get something from the
+people who use it for free.  We support them, that support costs money,
+and if we get nothing back, we're pretty much doomed compared to any
+other company.  What we are asking back is that you test the latest and
+greatest.  Our business model is that we give and get to/from everyone.
+The free users get an expensive product for free, but they have to
+give back by helping shake out the bugs from the current release.
+The paying users have the right to sit on an old version, but they give
+back by paying.
+
+It's really just an optimization problem.  What we've done is to optimize
+for the most that we can do for the most people.  I'm well aware that
+some free software folks hate that it isn't open source, that's just
+not realistic for this sort of product.  
+
+It seems like every couple of weeks someone says they don't like the BK
+license and they are going to rewrite BitKeeper.  I have two thoughts
+on that: (A) I doubt it will happen, it's more work than it looks like.
+If you want to spend a few years working 7 days a week, be my guest.
+Most people don't have the stomach for it. (B) If someone did write
+a decent open source replacement, that would actually be OK with me.
+All of the people who work at BitMover are capable of doing work on much
+more lucrative endeavors.
+
+In short: go build a better answer, and until you do it, how about 
+easing off on the "BK is evil corporate software" mantra a bit?  It's
+not evil corporate software, it's software built by people from your
+community, for your community, in the most acceptable we could find 
+which was self sustaining.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

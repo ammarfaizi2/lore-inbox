@@ -1,74 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313638AbSGIKUS>; Tue, 9 Jul 2002 06:20:18 -0400
+	id <S313698AbSGIKUg>; Tue, 9 Jul 2002 06:20:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313698AbSGIKUR>; Tue, 9 Jul 2002 06:20:17 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:32957 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S313638AbSGIKUO>;
-	Tue, 9 Jul 2002 06:20:14 -0400
-Date: Tue, 9 Jul 2002 12:22:49 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org
-Subject: [PATCH] 2.4 IDE core for 2.5
-Message-ID: <20020709102249.GA20870@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S313743AbSGIKUf>; Tue, 9 Jul 2002 06:20:35 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:1448 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id <S313698AbSGIKUc>; Tue, 9 Jul 2002 06:20:32 -0400
+Date: Tue, 9 Jul 2002 12:22:59 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: <jbradford@dial.pipex.com>
+cc: James Stevenson <mistral@stev.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: ATAPI + cdwriter problem
+In-Reply-To: <200207090941.KAA00806@darkstar.example.net>
+Message-ID: <Pine.SOL.4.30.0207091218350.6859-100000@mion.elka.pw.edu.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I've forward ported the 2.4 IDE core (well 2.4.19-pre10-ac2 to be exact)
-to 2.5.25. It consists of 7 separate patches:
+On Tue, 9 Jul 2002 jbradford@dial.pipex.com wrote:
+> Hi,
+>
+> > the other 2 drives are on a different controller not a prmoise its running
+> > off the motherboard.
+>
+> Odd, I was positive you were going to say it was the Promise controller to blame :-)
+>
+> > its a via chipset motherboard which botht the old 2x writer and 44x are on
+> > the secondary channel
+> > the whole ide system looks a bit like this.
+> > hda: IBM-DTTA-351680, ATA DISK drive
+> > hdb: IBM-DTLA-305040, ATA DISK drive
+> > hdc: HP CD-Writer+ 7200, ATAPI CD/DVD-ROM drive
+> > hdd: IDE/ATAPI CD-ROM 44X, ATAPI CD/DVD-ROM drive
+> > hde: Maxtor 4G160J8, ATA DISK drive
+> > hdf: Maxtor 4G160J8, ATA DISK drive
+> > hdg: 32X10, ATAPI CD/DVD-ROM drive
+>
+> Can't see anything obviously wrong with that setup, but once you get the new CD-writer working, I'd re-arrange things like this:
+>
+> hda: IBM-DTTA-351680, ATA DISK drive
+> hdb: IBM-DTLA-305040, ATA DISK drive
+> hdc: 32X10, ATAPI CD/DVD-ROM drive
+> hdd: IDE/ATAPI CD-ROM 44X, ATAPI CD/DVD-ROM drive
+> hde: Maxtor 4G160J8, ATA DISK drive
+> hdf: Maxtor 4G160J8, ATA DISK drive
+> not connected: HP CD-Writer+ 7200, ATAPI CD/DVD-ROM drive
+>
+> Unless you really need 2 CD-Writers available, (in which case, I would suggest moving over to SCSI anyway).
 
-00_25ide-compile-1
-	Fix 2.5 IDE compilation problem with ide_fix_driveid()
+Dont punish performance and do not connect drives on the same channel
+if you can, the same goes for cd and cdrw (if cd -> cdrw of course)...
 
-05_25pci-ids-1
-	Add missing 2.4 IDE adapter pci ids
+Also there was some problem recently with running 2 ATAPI devices on the
+same channel.
 
-10_24ide-core-1
-	Add 2.4 IDE core, modified for 2.5 changes
+>
+> Then you are only using 3 interfaces, and not 4, (which seems 'neater' to me, but you might dis-agree).  I don't think you're likely to see much performace advantage to having the CD-writer on the Promise card, to be honest.  You probably will for the Maxtor, (good choice), hard drives, though.
+>
+> > i have some time over the next few days so i could try to recreate crash
+> > and try stuff.
+>
+> That might help, as I can't think of anything else to suggest off hand.
+>
+> John.
 
-15_24-misc-bits-1
-	various bits and pieces to make 2.4 IDE core work
-
-20_split-ide-config-1
-	Split 2.4 and 2.5 IDE configuration
-
-25_ide-build-1
-	allow 2.4 and 2.5 ide to be built
-
-30_ide-scsi-1
-	Add 2.4 ide-scsi version (note that 2.5 with 2.4 ide calls it
-	ide-scsi24.o currently, I'll take patches to rectify that).
-
-Find them all here:
-
-*.kernel.org://pub/linux/kernel/people/axboe/patches/v2.5/2.5.25/
-
-So why did I do this? Well, I needed stable IDE for 2.5 testing and it
-was/is clear that 2.5 just isn't quite there yet. I intend to maintain
-this patch set until I deem 2.5 IDE stable enough (in code) that I'm
-willing to spend time on that instead. So the life span of this patch
-depends heavily on that. That said, I know of others who would like to
-be able to test 2.5 and not having to worry too much about the
-state-of-the-day of the IDE core. This patch set may be useful to them
-as well.
-
-Also some notes on why I _didn't_ do this. I didn't do it because I
-think Martin is a jerk or because 2.5 IDE is forever doomed. I didn't do
-this because Andre twisted my arm. I didn't do this because of some
-hidden agenda.
-
-That said, the patch works for me here. I've ripped out ide-tape and
-ide-floppy (frankly, I don't think it's worth my time updating these),
-but apart from that I think it's 2.4 feature complete. PIO multi count
-breaks for multi page bio's, if you intend to use that you should change
-MPAGE_BIO_MAX_SIZE as noted in fs/mpage.c. I'll fix that in the next
-iteration.
-
--- 
-Jens Axboe
+Regards
+--
+Bartlomiej
 

@@ -1,55 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265393AbTLHNZx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Dec 2003 08:25:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265394AbTLHNZw
+	id S265401AbTLHNoR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Dec 2003 08:44:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265404AbTLHNoR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Dec 2003 08:25:52 -0500
-Received: from nat-pool-bos.redhat.com ([66.187.230.200]:22465 "EHLO
-	thoron.boston.redhat.com") by vger.kernel.org with ESMTP
-	id S265393AbTLHNZv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Dec 2003 08:25:51 -0500
-Date: Mon, 8 Dec 2003 08:25:48 -0500 (EST)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: Ralf Orlowski <ralf@orle.de>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: crypto support in kernel 2.4.23
-In-Reply-To: <200312051909.07265.ralf@orle.de>
-Message-ID: <Xine.LNX.4.44.0312080825250.15586-100000@thoron.boston.redhat.com>
+	Mon, 8 Dec 2003 08:44:17 -0500
+Received: from anchor-post-31.mail.demon.net ([194.217.242.89]:14340 "EHLO
+	anchor-post-31.mail.demon.net") by vger.kernel.org with ESMTP
+	id S265401AbTLHNoM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Dec 2003 08:44:12 -0500
+From: phillip@lougher.demon.co.uk
+To: "David Woodhouse" <dwmw2@infradead.org>
+Cc: joern@wohnheim.fh-wedel.de, kbiswas@neoscale.com,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-Reply-To: <1070883425.31993.80.camel@hades.cambridge.redhat.com>
+Subject: Re: partially encrypted filesystem
+Date: Mon, 08 Dec 2003 13:44:07 +0000
+User-Agent: Demon-WebMail/2.0
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <E1ATLgF-0003XX-0V@anchor-post-31.mail.demon.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 5 Dec 2003, Ralf Orlowski wrote:
-
-> Hi,
+dwmw2@infradead.org wrote:
+> On Sat, 2003-12-06 at 00:50 +0000, Phillip Lougher wrote:
+> > Of course, all this is at the logical file level, and ignores the 
+> > physical blocks on disk.  All filesystems assume physical data blocks 
+> > can be updated in place.  With compression it is possible a new physical 
+> > block has to be found, especially if blocks are highly packed and not 
+> > aligned to block boundaries.  I expect this is at least partially why 
+> > JFFS2 is a log structured filesystem.
 > 
-> can someone tell me, how I can get the crypto support to work in kernel
-> 2.4.23.
-> 
-> When I try to use this, the kernel compiles just fine with crypto activated
-> in the configuration. But when I then try to load the modules I always get
-> these error-messages:
-> 
-> /lib/modules/2.4.23/kernel/crypto/twofish.o: unresolved symbol
-> crypto_unregister_alg
-> /lib/modules/2.4.23/kernel/crypto/twofish.o: unresolved symbol
-> crypto_register_alg
-> /lib/modules/2.4.23/kernel/crypto/twofish.o: insmod
-> /lib/modules/2.4.23/kernel/crypto/twofish.o failed
-> /lib/modules/2.4.23/kernel/crypto/twofish.o: insmod twofish failed
-> 
-> Does someone know, what is missing here? I couldn't find any documentation,
-> that already mentions this problem.
+> Not really. JFFS2 is a log structured file system because it's designed
+> to work on _flash_, not on block devices. You have an eraseblock size of
+> typically 64KiB, you can clear bits in that 'block' all you like till
+> they're all gone or you're bored, then you have to erase it back to all
+> 0xFF again and start over.
 
-Please post your .config.
+Curiously, I am aware of how flash and log structured filesystems work.
 
+> 
+> JFFS2 was designed to avoid that inefficient extra layer, and work
+> directly on the flash. Since overwriting stuff in-place is so difficult,
+> or requires a whole new translation layer to map 'logical' addresses to
+> physical addresses, it was decided just to ditch the idea that physical
+> locality actually means _anything_.
 
-- James
--- 
-James Morris
-<jmorris@redhat.com>
+Maybe okay for a flash filesystem which is slow anyway, but many filesystem designers *are* concerned about physical locality of blocks, for example video filesystems.
+> 
+> Given that design, compression just dropped into place; it was trivial.
+> 
+
+Or maybe 'not in(to)-place' :-) I don't think I was saying compression is difficult, it is not difficult if you've designed the filesystem correctly.
+
+Phillip
 
 

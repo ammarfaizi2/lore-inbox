@@ -1,68 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262509AbUJ0QTm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262494AbUJ0QQa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262509AbUJ0QTm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 12:19:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262498AbUJ0QSn
+	id S262494AbUJ0QQa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 12:16:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262501AbUJ0QQ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 12:18:43 -0400
-Received: from out008pub.verizon.net ([206.46.170.108]:6879 "EHLO
-	out008.verizon.net") by vger.kernel.org with ESMTP id S262497AbUJ0QQE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 12:16:04 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org,
-       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Subject: Re: [BK PATCHES] ide-2.6 update
-Date: Wed, 27 Oct 2004 12:15:55 -0400
-User-Agent: KMail/1.7
-Cc: torvalds@osdl.org, linux-ide@vger.kernel.org
-References: <58cb370e04102706074c20d6d7@mail.gmail.com>
-In-Reply-To: <58cb370e04102706074c20d6d7@mail.gmail.com>
+	Wed, 27 Oct 2004 12:16:29 -0400
+Received: from [195.23.16.24] ([195.23.16.24]:52623 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S262494AbUJ0QOl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 12:14:41 -0400
+Message-ID: <417FC96B.8030402@grupopie.com>
+Date: Wed, 27 Oct 2004 17:14:35 +0100
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       Andi Kleen <ak@suse.de>, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Add p4-clockmod driver in x86-64
+References: <88056F38E9E48644A0F562A38C64FB600333A69D@scsmsx403.amr.corp.intel.com>	 <417FB7BA.9050005@grupopie.com> <1098892587.8313.5.camel@krustophenia.net>
+In-Reply-To: <1098892587.8313.5.camel@krustophenia.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410271215.55472.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out008.verizon.net from [141.153.91.102] at Wed, 27 Oct 2004 11:15:59 -0500
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.28.0.11; VDF: 6.28.0.39; host: bipbip)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 27 October 2004 09:07, Bartlomiej Zolnierkiewicz wrote:
->Please do a
->
-> bk pull bk://bart.bkbits.net/ide-2.6
->
->This will update the following files:
->
-> drivers/ide/ide-disk.c         |    1 +
-> drivers/ide/ide-dma.c          |   32
+Lee Revell wrote:
+> On Wed, 2004-10-27 at 15:59 +0100, Paulo Marques wrote:
+> 
+>>I am one of the members of the robotic soccer team from the University 
+>>of Oporto, and a couple of months ago we were looking for new 
+>>motherboards for our robots, because we are starting to need new 
+>>hardware (on-board lan, usb2.0, etc.).
+>>
+>>We really don't need excepcional performance, but we really, really need 
+>>low power consumption, so lowering the clock on a standard mainboard 
+>>seemed to be the best cost/performance scenario.
+>>
+>>Could this driver be used to keep a standard p4 processor at say 25% 
+>>clock speed at all times?
+>>
+> 
+> 
+> Why don't you try the VIA EPIA mini-ITX boards?  These are designed for
+> low power applications like yours.  I am running the M-6000 which has a
+> fanless 600Mhz C3 processor, the newer fanless models run at 1Ghz.  And,
+> on top of that they support speed scaling so you can slow it down even
+> more.
 
-Even after fixing the 4 wrapped lines in the patch, I'm not going in 
-cleanly here:
+Yes, we tried those, but floating point calculations completely kill the 
+performance on those boards.
 
-patching file drivers/ide/ide-dma.c
-Hunk #1 FAILED at 681.
-1 out of 1 hunk FAILED -- saving rejects to file 
-drivers/ide/ide-dma.c.rej
+Even at 25% speed a P4 2.8GHz gives a 700MHz clock which completely 
+toasts a 600MHz (or even a 1GHz) C3 in floating point calculations... :(
 
-The first 'grep' line of the patch is found at an offset of about +180 
-lines in the original file.
-
-The rest of it seems to have found a home, but at offsets in excess of 
-159 lines for a few of them.
-
-This was against a 2.6.9 tree, and 2.6.9-mm1 failed in similar 
-fashion.  What src tree is this to be applied to?
+Even more, I can get a Asus mainboard with integrated VGA, LAN, USB, 
+Audio, for half the price of a VIA EPIA mini-ITX with comparable integer 
+performance. As we always have to buy these things in quantities of 5, 
+this can make some difference.
 
 -- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.28% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+Paulo Marques - www.grupopie.com
+
+All that is necessary for the triumph of evil is that good men do nothing.
+Edmund Burke (1729 - 1797)

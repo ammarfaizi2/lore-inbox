@@ -1,42 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271099AbUJUX6w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271149AbUJVAEr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271099AbUJUX6w (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 19:58:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271123AbUJUX4t
+	id S271149AbUJVAEr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 20:04:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271129AbUJVADn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 19:56:49 -0400
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:63406
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S271099AbUJUXqN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 19:46:13 -0400
-Date: Thu, 21 Oct 2004 16:40:07 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       jgarzik@pobox.com, gnb@sgi.com, akepner@sgi.com
-Subject: Re: [PATCH] use mmiowb in tg3.c
-Message-Id: <20041021164007.4933b10b.davem@davemloft.net>
-In-Reply-To: <200410211628.06906.jbarnes@engr.sgi.com>
-References: <200410211613.19601.jbarnes@engr.sgi.com>
-	<200410211628.06906.jbarnes@engr.sgi.com>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 21 Oct 2004 20:03:43 -0400
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:60164 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S271146AbUJVAAs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 20:00:48 -0400
+Date: Fri, 22 Oct 2004 01:00:45 +0100 (BST)
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+To: mikem@beardog.cca.cpqcorp.net
+Cc: marcelo.tosatti@cyclades.com, axboe@suse.de, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: [patch 1/2] cciss: cleans up warnings in the 32/64 bit conversions
+In-Reply-To: <20041021211718.GA10462@beardog.cca.cpqcorp.net>
+Message-ID: <Pine.LNX.4.58L.0410220054010.15504@blysk.ds.pg.gda.pl>
+References: <20041021211718.GA10462@beardog.cca.cpqcorp.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Oct 2004 16:28:06 -0700
-Jesse Barnes <jbarnes@engr.sgi.com> wrote:
+On Thu, 21 Oct 2004 mike.miller@hp.com wrote:
 
-> This patch originally from Greg Banks.  Some parts of the tg3 driver depend on 
-> PIO writes arriving in order.  This patch ensures that in two key places 
-> using the new mmiowb macro.  This not only prevents bugs (the queues can be 
-> corrupted), but is much faster than ensuring ordering using PIO reads (which 
-> involve a few round trips to the target bus on some platforms).
+> @@ -611,7 +610,7 @@ int cciss_ioctl32_passthru(unsigned int 
+>  	err |= copy_from_user(&arg64.Request, &arg32->Request, sizeof(arg64.Request));
+>  	err |= copy_from_user(&arg64.error_info, &arg32->error_info, sizeof(arg64.error_info));
+>  	err |= get_user(arg64.buf_size, &arg32->buf_size);
+> -	err |= get_user(arg64.buf, &arg32->buf);
+> +	err |= get_user((__u64) arg64.buf, &arg32->buf);
+>  	if (err) 
+>  		return -EFAULT; 
+>  
+> @@ -641,7 +640,7 @@ int cciss_ioctl32_big_passthru(unsigned 
+>  	err |= copy_from_user(&arg64.error_info, &arg32->error_info, sizeof(arg64.error_info));
+>  	err |= get_user(arg64.buf_size, &arg32->buf_size);
+>  	err |= get_user(arg64.malloc_size, &arg32->malloc_size);
+> -	err |= get_user(arg64.buf, &arg32->buf);
+> +	err |= get_user((__u64) arg64.buf, &arg32->buf);
+>  	if (err) return -EFAULT; 
+>  	old_fs = get_fs();
+>  	set_fs(KERNEL_DS);
 
-Do other PCI systems which post PIO writes also potentially reorder
-them just like this SGI system does?  Just trying to get this situation
-straight in my head.
+ These constructs (casts as lvalues) are deprecated with GCC 3.4 (a
+warning is triggered) and no longer supported with 4.0.  Please consider
+rewriting -- you'll probably need an auxiliary variable.
 
+  Maciej

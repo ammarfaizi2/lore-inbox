@@ -1,52 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264674AbSJ3OHJ>; Wed, 30 Oct 2002 09:07:09 -0500
+	id <S264675AbSJ3OHV>; Wed, 30 Oct 2002 09:07:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264675AbSJ3OHJ>; Wed, 30 Oct 2002 09:07:09 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:32386 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S264674AbSJ3OHI>; Wed, 30 Oct 2002 09:07:08 -0500
-Subject: Re: Abbott and Costello meet Crunch Time -- Penultimate 2.5 merge
-	candidate list.
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: dcinege@psychosis.com
-Cc: Jeff Garzik <jgarzik@pobox.com>, Rob Landley <landley@trommello.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       reiser@namesys.com, davem@redhat.com, boissiere@adiglobal.com
-In-Reply-To: <200210300322.17933.dcinege@psychosis.com>
-References: <200210272017.56147.landley@trommello.org>
-	<200210300229.44865.dcinege@psychosis.com> <3DBF8CD5.1030306@pobox.com> 
-	<200210300322.17933.dcinege@psychosis.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 30 Oct 2002 14:32:34 +0000
-Message-Id: <1035988354.5140.12.camel@irongate.swansea.linux.org.uk>
+	id <S264682AbSJ3OHV>; Wed, 30 Oct 2002 09:07:21 -0500
+Received: from ns1.alcove-solutions.com ([212.155.209.139]:32994 "EHLO
+	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
+	id <S264675AbSJ3OHS>; Wed, 30 Oct 2002 09:07:18 -0500
+Date: Wed, 30 Oct 2002 15:13:38 +0100
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: linux1394-devel@lists.sourceforge.net
+Subject: [PATCH 2.5.bk] allow sbp2 driver to compile again
+Message-ID: <20021030141338.GF17103@tahoe.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	linux1394-devel@lists.sourceforge.net
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-10-30 at 08:22, Dave Cinege wrote:
-> > untar - cpio is better.
-> 
-> CPIO is commonly used and supported by NO ONE. (rpm, whoppee)
-> Kernels even come tar'ed. KISS....
+Hi,
 
-I'm sorry but if you can't work cpio you probably shouldnt be hacking
-kernels anyway. If you can work it and have to deal with cow-orkers who
-can't then write them a nice drag and drop cpio builder.
+The attached patch is required to make the sbp2 compile again.
 
-> Great...you just killed the high level embedded linux market, and
-> the ability to play boot games from GRUB. (Network, etc)
-> Initrd is a good **OPTION* to have to fall back on...
+Note however that, until 2.5.45 is released, one should tweak 
+the Makefile to manually change the version in order to get
+the KERNEL_VERSION tests work...
 
-They all work with initramfs
+Stelian.
 
-
-> Do you have any serious sysadmin, clustering, or emebedded system
-> IMPLEMENTATION experience? 
-
-I do and I don't see the problem. The one reason you want to keep initrd
-around is ROM and there are better ways of doing "initromfs"
-
-
+===== drivers/ieee1394/sbp2.h 1.10 vs edited =====
+--- 1.10/drivers/ieee1394/sbp2.h	Sat Oct 12 23:40:06 2002
++++ edited/drivers/ieee1394/sbp2.h	Wed Oct 30 12:32:39 2002
+@@ -549,10 +549,11 @@
+ static int sbp2scsi_detect (Scsi_Host_Template *tpnt);
+ static const char *sbp2scsi_info (struct Scsi_Host *host);
+ void sbp2scsi_setup(char *str, int *ints);
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,28)
+-static int sbp2scsi_biosparam (Scsi_Disk *disk, kdev_t dev, int geom[]);
++#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,44)
++static int sbp2scsi_biosparam (struct scsi_device *sdev,
++		struct block_device *dev, sector_t capacity, int geom[]);
+ #else
+-static int sbp2scsi_biosparam (Scsi_Disk *disk, struct block_device *dev, int geom[]);
++static int sbp2scsi_biosparam (Scsi_Disk *disk, kdev_t dev, int geom[]);
+ #endif
+ static int sbp2scsi_abort (Scsi_Cmnd *SCpnt); 
+ static int sbp2scsi_reset (Scsi_Cmnd *SCpnt); 
+===== drivers/ieee1394/sbp2.c 1.16 vs edited =====
+--- 1.16/drivers/ieee1394/sbp2.c	Tue Oct 29 01:27:33 2002
++++ edited/drivers/ieee1394/sbp2.c	Wed Oct 30 12:32:58 2002
+@@ -3139,12 +3139,12 @@
+  */
+ #if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,44)
+ static int sbp2scsi_biosparam (struct scsi_device *sdev,
+-		struct block_device *dev, sector_t capacy, int geom[]) 
++		struct block_device *dev, sector_t capacity, int geom[]) 
+ {
+ #else
+ static int sbp2scsi_biosparam (Scsi_Disk *disk, kdev_t dev, int geom[]) 
+ {
+-	sector_t capacy = disk->capacity;
++	sector_t capacity = disk->capacity;
+ #endif
+ 	int heads, sectors, cylinders;
+ 
+-- 
+Stelian Pop <stelian.pop@fr.alcove.com>
+Alcove - http://www.alcove.com

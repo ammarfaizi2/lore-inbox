@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265198AbSKSLXY>; Tue, 19 Nov 2002 06:23:24 -0500
+	id <S265196AbSKSLVl>; Tue, 19 Nov 2002 06:21:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265211AbSKSLXY>; Tue, 19 Nov 2002 06:23:24 -0500
-Received: from xsmtp.ethz.ch ([129.132.97.6]:29774 "EHLO xsmtp.ethz.ch")
-	by vger.kernel.org with ESMTP id <S265201AbSKSLXX>;
-	Tue, 19 Nov 2002 06:23:23 -0500
-Message-ID: <3DDA20CD.8090502@debian.org>
-Date: Tue, 19 Nov 2002 12:30:21 +0100
-From: Giacomo Catenazzi <cate@debian.org>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.2b) Gecko/20021016
-X-Accept-Language: en-us, en, it-ch, it, fr
+	id <S265198AbSKSLVl>; Tue, 19 Nov 2002 06:21:41 -0500
+Received: from leon-2.mat.uni.torun.pl ([158.75.2.64]:38625 "EHLO
+	leon-2.mat.uni.torun.pl") by vger.kernel.org with ESMTP
+	id <S265196AbSKSLVk>; Tue, 19 Nov 2002 06:21:40 -0500
+Date: Tue, 19 Nov 2002 12:28:18 +0100 (CET)
+From: Krzysztof Benedyczak <golbi@mat.uni.torun.pl>
+X-X-Sender: golbi@Jan
+To: Peter Waechtler <pwaechtler@mac.com>
+cc: Michal Wronski <wrona@mat.uni.torun.pl>, <linux-kernel@vger.kernel.org>,
+       "Gustafson, Geoffrey R" <geoffrey.r.gustafson@intel.com>,
+       "Abbas, Mohamed" <mohamed.abbas@intel.com>
+Subject: Re: [PATCH] unified SysV and POSIX mqueues - complete rewrite
+In-Reply-To: <3DD2D154.AB45F0CD@mac.com>
+Message-ID: <Pine.GSO.4.40.0211191219060.17529-100000@Jan>
 MIME-Version: 1.0
-To: Robert Love <rml@tech9.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [patch] ALSA compiler warnings fixes
-References: <fa.h0vvikv.k5838k@ifi.uio.no>
-In-Reply-To: <fa.h0vvikv.k5838k@ifi.uio.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 19 Nov 2002 11:30:22.0003 (UTC) FILETIME=[0BD81030:01C28FBF]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +#define snd_power_unlock(card)		do { (void)(card); } while (0)
+Hello,
+
+After some looking into your code, I think there is a bug.
+Please correct me if I'm wrong.
+
+The problem occur when awake processes which wait for message (or free
+space). I think that your code will wake them up in random order. POSIX
+says:
+
+> If more than one thread is waiting to send when space becomes
+> available in the message queue and the Priority Scheduling option is
+> supported, then the thread of the highest priority that has been
+> waiting the longest shall be unblocked to send its message
+
+I've written a test and it shows that my suspects are rather true?
+
+BTW: I've had some problems with your patch when linking kernel - in your
+main file were used static functions from msg.c?? Maybe my patch (taken
+from lkml - post date: XI 10) was incomplete? If there is more recent
+version could you inform me? Thanks.
+
+Regards
+
+K. Benedzyczak
 
 
-
-Why do we use in kernel:
-	do { (void)(foobar); } while (0)
-instead of the simpler and normally used in std files (e.g. assert.h):
-	((void)(foobar),0)
-?
-
-The "do while(0)" is used for multi-statment macros, not the case for
-void statment!
-
-ciao
-	giacomo
 

@@ -1,54 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317219AbSFRAzG>; Mon, 17 Jun 2002 20:55:06 -0400
+	id <S317232AbSFRA4y>; Mon, 17 Jun 2002 20:56:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317232AbSFRAzF>; Mon, 17 Jun 2002 20:55:05 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:38644 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S317219AbSFRAzD>; Mon, 17 Jun 2002 20:55:03 -0400
-Subject: Re: Question about sched_yield()
-From: Robert Love <rml@tech9.net>
-To: David Schwartz <davids@webmaster.com>
-Cc: mgix@mgix.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20020618004630.AAA28082@shell.webmaster.com@whenever>
-References: <20020618004630.AAA28082@shell.webmaster.com@whenever>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.7 
-Date: 17 Jun 2002 17:55:02 -0700
-Message-Id: <1024361703.924.176.camel@sinai>
-Mime-Version: 1.0
+	id <S317251AbSFRA4x>; Mon, 17 Jun 2002 20:56:53 -0400
+Received: from harpo.it.uu.se ([130.238.12.34]:45769 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S317232AbSFRA4v>;
+	Mon, 17 Jun 2002 20:56:51 -0400
+Date: Tue, 18 Jun 2002 02:56:52 +0200 (MET DST)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200206180056.CAA11551@harpo.it.uu.se>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH][2.5.22] sound/oss/sb_audio.c copy_from_user buglets
+Cc: trivial@rustcorp.com.au
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-06-17 at 17:46, David Schwartz wrote:
+Fallout of copy_from_user() cleanups. sb16_copy_from_user()
+returns void not int, so it can't return -EFAULT.
 
-> 	You seem to have a misconception about what sched_yield is for.
-> It is not a  replacement for blocking or a scheduling priority
-> adjustment. It simply lets other ready-to-run tasks be scheduled
-before returning to the current task.
-> 
-> 	Here's a quote from SuS3:
-> 
-> "The sched_yield() function shall force the running thread to relinquish the 
-> processor until it again becomes the head of its thread list. It takes no 
-> arguments."
-> 
-> 	This neither says nor implies anything about CPU usage. It simply says
-> that  the current thread will yield and be put at the end of the list.
+/Mikael
 
-And you seem to have a misconception about sched_yield, too.  If a
-machine has n tasks, half of which are doing CPU-intense work and the
-other half of which are just yielding... why on Earth would the yielding
-tasks get any noticeable amount of CPU use?
-
-Seems to me the behavior of sched_yield is a bit broken.  If the tasks
-are correctly returned to the end of their runqueue, this should not
-happen.  Note, for example, you will not see this behavior in 2.5.
-
-Quite frankly, even if the supposed standard says nothing of this... I
-do not care: calling sched_yield in a loop should not show up as a CPU
-hog.
-
-	Robert Love
-
+--- linux-2.5.22/sound/oss/sb_audio.c.~1~	Wed May 22 14:50:44 2002
++++ linux-2.5.22/sound/oss/sb_audio.c	Tue Jun 18 00:40:08 2002
+@@ -851,7 +851,7 @@
+ 	{
+ 		if (copy_from_user(localbuf + localoffs,
+ 				   userbuf + useroffs, len))
+-			return -EFAULT;
++			return;
+ 		*used = len;
+ 		*returned = len;
+ 	}
+@@ -874,7 +874,7 @@
+ 			if (copy_from_user(lbuf16,
+ 					   userbuf + useroffs + (p << 1),
+ 					   locallen << 1))
+-				return -EFAULT;
++				return;
+ 			for (i = 0; i < locallen; i++)
+ 			{
+ 				buf8[p+i] = ~((lbuf16[i] >> 8) & 0xff) ^ 0x80;
+@@ -904,7 +904,7 @@
+ 			if (copy_from_user(lbuf8,
+ 					   userbuf+useroffs + p,
+ 					   locallen))
+-				return -EFAULT;
++				return;
+ 			for (i = 0; i < locallen; i++)
+ 			{
+ 				buf16[p+i] = (~lbuf8[i] ^ 0x80) << 8;

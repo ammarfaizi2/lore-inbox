@@ -1,58 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265820AbUFDPh0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265837AbUFDPkt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265820AbUFDPh0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 11:37:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265823AbUFDPhU
+	id S265837AbUFDPkt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 11:40:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265823AbUFDPkt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 11:37:20 -0400
-Received: from fw.osdl.org ([65.172.181.6]:1260 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265820AbUFDPgV (ORCPT
+	Fri, 4 Jun 2004 11:40:49 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:7439 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S265824AbUFDPkn convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 11:36:21 -0400
-Date: Fri, 4 Jun 2004 08:36:15 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andy Lutomirski <luto@myrealbox.com>
-cc: Ingo Molnar <mingo@elte.hu>, Andi Kleen <ak@suse.de>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, arjanv@redhat.com,
-       suresh.b.siddha@intel.com, jun.nakajima@intel.com
-Subject: Re: [announce] [patch] NX (No eXecute) support for x86,   2.6.7-rc2-bk2
-In-Reply-To: <200406040826.15427.luto@myrealbox.com>
-Message-ID: <Pine.LNX.4.58.0406040830200.7010@ppc970.osdl.org>
-References: <20040602205025.GA21555@elte.hu> <20040603230834.GF868@wotan.suse.de>
- <20040604092552.GA11034@elte.hu> <200406040826.15427.luto@myrealbox.com>
+	Fri, 4 Jun 2004 11:40:43 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Greg KH <greg@kroah.com>
+Subject: 2xPS2 -> USB converter works flawlessly
+Date: Fri, 4 Jun 2004 14:38:53 +0300
+X-Mailer: KMail [version 1.4]
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200406041438.53314.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I never used USB devices under Linux, and barely used them
+at all. But couple of days ago a friend of mine gave
+me almost for free a mobo with fried PS2 mouse and
+keyboard ports.
 
+I bought 2xPS2 -> USB converter, compiled in USB
+and USB HID support in 2.6.7-rc1-bk2 and you know what?
+It works! Both keyboard and mouse! Even in X!
 
-On Fri, 4 Jun 2004, Andy Lutomirski wrote:
-> 
-> This is wrong on SELinux (and presumably with other LSMs). It also does
-> unexpected things if you fail to exec a setuid executable.
-
-Let's not do this at all.
-
-Anything that changes subtle behaviour at suid-execute time is just wrong.  
-Imagine an app that has been tested in normal use, and then has a subtle
-bug when executed set-uid, simply because the address space layout
-changes. Or something that mysteriously works when you're root, but not
-when you're anything else. Ouch.
-
-I think we should just look at the executable itself, not whether it is
-suid. If the executable says it is "NX-approved", then it's NX-approved. 
-End of story - just try to make sure that as many executables as possible 
-get compiled with the newer compiler suite that enables it.
-
-Add a tool to let people turn on/off the NX bit on an executable if it
-turns out the executable can't work with it (let's say it was compiled and
-tested on a CPU without NX support), and everybody should be happy. You 
-can have a trivial script that turns on the NX bit on all the legacy apps 
-too, and then if testing shows iot wasn't a good idea, you can turn it off 
-again on a per-executable basis.
-
-No?
-
-		Linus
+Mega thanks to Greg KH <greg@kroah.com> and other USB
+and hotplug folks!
+-- 
+vda

@@ -1,64 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262946AbSJFWqs>; Sun, 6 Oct 2002 18:46:48 -0400
+	id <S262842AbSJFWc7>; Sun, 6 Oct 2002 18:32:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262947AbSJFWqr>; Sun, 6 Oct 2002 18:46:47 -0400
-Received: from bitmover.com ([192.132.92.2]:10386 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S262946AbSJFWqp>;
-	Sun, 6 Oct 2002 18:46:45 -0400
-Date: Sun, 6 Oct 2002 15:52:17 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Russell King <rmk@arm.linux.org.uk>,
-       "David S. Miller" <davem@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Larry McVoy <lm@bitmover.com>,
-       Ulrich Drepper <drepper@redhat.com>, bcollins@debian.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: BK MetaData License Problem?
-Message-ID: <20021006155217.Y29486@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Ingo Molnar <mingo@elte.hu>, Russell King <rmk@arm.linux.org.uk>,
-	"David S. Miller" <davem@redhat.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, Larry McVoy <lm@bitmover.com>,
-	Ulrich Drepper <drepper@redhat.com>, bcollins@debian.org,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0210061601040.7386-100000@localhost.localdomain> <Pine.LNX.4.44.0210061236400.10069-100000@home.transmeta.com>
+	id <S262862AbSJFWc6>; Sun, 6 Oct 2002 18:32:58 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:60428
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S262842AbSJFWcY>; Sun, 6 Oct 2002 18:32:24 -0400
+Subject: Re: 2.5.40-mm2
+From: Robert Love <rml@tech9.net>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Dave Hansen <haveblue@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
+       "linux-mm@kvack.org" <linux-mm@kvack.org>,
+       Ingo Molnar <mingo@redhat.com>
+In-Reply-To: <3DA0BA33.5B295A46@digeo.com>
+References: <3DA0B422.C23B23D4@digeo.com>
+	<1033943021.27093.29.camel@phantasy>  <3DA0BA33.5B295A46@digeo.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 06 Oct 2002 18:38:05 -0400
+Message-Id: <1033943886.26955.33.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0210061236400.10069-100000@home.transmeta.com>; from torvalds@transmeta.com on Sun, Oct 06, 2002 at 12:39:48PM -0700
-X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 06, 2002 at 12:39:48PM -0700, Linus Torvalds wrote:
-> 
-> [ Different issue, and slightly off-topic ]
-> 
-> On Sun, 6 Oct 2002, Ingo Molnar wrote:
-> > 
-> > until now the Linux kernel tree was distributed in a tarball that had a
-> > nice COPYING file in a very prominent spot. With BK the situation is
-> > different - and like i said in previous mails it's not BK's "fault", but
-> > BK's "effect" - and it's a situation that needs to be remedied, right?
-> 
-> If this is a concern, it actually appears that BK has the capability to
-> "enforce" a license, in that I coul dmake BK aware of the GPL and that
-> would cause BK to pop up a window saying "Do you agree to this license"  
-> before the first check-in by a person (the same way it asked you whether 
-> you wanted to allow openlogging).
+On Sun, 2002-10-06 at 18:33, Andrew Morton wrote:
 
-Yes, but you'd want to make sure that you stated that your license
-extended to the BK metadata.  In our opinion, only you as the creator
-of the repository gets to make that rule but you certainly can, that's
-one of the reasons we put that clause in there.
+> I think it's a way of doing "cond_resched() if cond_resched() is
+> a legal thing to do right now".
+> 
+> I'm sure David isn't using preempt though.
 
-By the way, the way this code works in bk-3.0 is that it saves a md5sum or
-some sort of strong hash of the license in question and it will ask you
-only once, assuming you are using the same home directory.  It will ask
-you again if the license changes, that's what the hash is for.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+
+If the system is preemptible, then the call can be replaced with
+preempt_check_resched() which avoids the unneeded inc and dec.
+
+But if the system is preemptible, it probably does not accomplish much
+because we will already have preempted (e.g. the interrupt handler that
+woke up a new task set need_resched and on return from interrupt we
+serviced it).
+
+If the system is not preemptible (non-zero preempt_count here) this
+accomplishes nothing.
+
+	Robert Love
+

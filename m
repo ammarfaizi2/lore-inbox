@@ -1,77 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261670AbTIGDiM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Sep 2003 23:38:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261486AbTIGDiM
+	id S263112AbTIGEmY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Sep 2003 00:42:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263154AbTIGEmY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Sep 2003 23:38:12 -0400
-Received: from play.smurf.noris.de ([192.109.102.42]:7062 "EHLO
-	play.smurf.noris.de") by vger.kernel.org with ESMTP id S262043AbTIGDiI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Sep 2003 23:38:08 -0400
-From: Matthias Urlichs <smurf@smurf.noris.de>
-Organization: {M:U}
-To: linux-kernel@vger.kernel.org
-Subject: 2.6: Crash when calling "blockdev --rereadpt" on USB insert
-Date: Sun, 7 Sep 2003 05:29:55 +0200
-User-Agent: KMail/1.5.3
-X-Face: xyzzy
+	Sun, 7 Sep 2003 00:42:24 -0400
+Received: from static-ctb-210-9-247-166.webone.com.au ([210.9.247.166]:44037
+	"EHLO chimp.local.net") by vger.kernel.org with ESMTP
+	id S263112AbTIGEmT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Sep 2003 00:42:19 -0400
+Message-ID: <3F5AB71C.5060904@cyberone.com.au>
+Date: Sun, 07 Sep 2003 14:42:04 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+CC: Ed Sweetman <ed.sweetman@wmich.edu>, Mike Fedyk <mfedyk@matchmail.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Nick's scheduler policy v12
+References: <3F58CE6D.2040000@cyberone.com.au> <195560000.1062788044@flay> <20030905202232.GD19041@matchmail.com> <207340000.1062793164@flay> <3F5935EB.4000005@cyberone.com.au> <6470000.1062819391@[10.10.2.4]> <3F5980CD.2040600@cyberone.com.au> <139550000.1062861227@[10.10.2.4]> <3F59C956.5050200@wmich.edu> <146640000.1062902095@[10.10.2.4]>
+In-Reply-To: <146640000.1062902095@[10.10.2.4]>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200309070529.55502@smurf.noris.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have this snippet in my /etc/hotplug/usb script to mount my USB disk
-when I insert it:
 
-    if [ "$PRODUCT" = "58f/9380/100" ]; then
-       find /dev/scsi -name disc | while read a ; do
-           /sbin/blockdev --rereadpt $a
-       done
-       if sudo -u smurf mount /mnt/key ; then
-               echo "#!/bin/sh" > $REMOVER
-               echo "umount -f /mnt/key" >> $REMOVER
-               chmod +x $REMOVER
-       fi
-    fi
 
-This works splendidly with 2.4, but 2.6.0.test4 (where it's arguably
-unnecessary...) dies with this message:
+Martin J. Bligh wrote:
 
-Sep  7 05:18:38 linux kernel: Oops: kernel access of bad area, sig: 11 [#1]
-Sep  7 05:18:38 linux kernel: NIP: C001407C LR: C0072830 SP: DD749DA0 REGS: dd749cf0 TRAP: 0301    Not tainted
-Sep  7 05:18:38 linux kernel: MSR: 00009032 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11
-Sep  7 05:18:38 linux kernel: DAR: FFFFFFEF, DSISR: 40000000
-Sep  7 05:18:38 linux kernel: TASK = caf46940[4768] 'blockdev' Last syscall: 54
-Sep  7 05:18:38 linux kernel: GPR00: C0072830 DD749DA0 CAF46940 FFFFFFEF C0293B30 C00930F0 D56A4EFF DD748000
-Sep  7 05:18:38 linux kernel: GPR08: C0940000 00000000 00000002 DD748000 82000228
-Sep  7 05:18:38 linux kernel: Call trace:
-Sep  7 05:18:38 linux kernel:  [c0072830] dput+0x2c/0x300
-Sep  7 05:18:38 linux kernel:  [c00931f4] create_dir+0xd4/0xe8
-Sep  7 05:18:38 linux kernel:  [c0093254] sysfs_create_dir+0x40/0xa4
-Sep  7 05:18:38 linux kernel:  [c00c0480] create_dir+0x28/0x6c
-Sep  7 05:18:38 linux kernel:  [c00c09f4] kobject_add+0xdc/0x194
-Sep  7 05:18:38 linux kernel:  [c00c0ad8] kobject_register+0x2c/0x6c
-Sep  7 05:18:38 linux kernel:  [c00907d8] add_partition+0xb8/0xdc
-Sep  7 05:18:38 linux kernel:  [c0090aa8] rescan_partitions+0xf0/0x128
-Sep  7 05:18:38 linux kernel:  [c00f0ca8] blkdev_reread_part+0x94/0xc4
-Sep  7 05:18:38 linux kernel:  [c00f0f14] blkdev_ioctl+0x160/0x450
-Sep  7 05:18:38 linux kernel:  [c006d548] sys_ioctl+0x144/0x364
-Sep  7 05:18:38 linux kernel:  [c0007b8c] ret_from_syscall+0x0/0x4c
+>>All of this basing scheduling performance on a bloated wannabe winamp 
+>>makes as much sense as gauging car performance using a van.   If this 
+>>was a purely scheduling problem, then why do other players like 
+>>alsaplayer and such not suck as bad as xmms when under the exact same 
+>>priority and all?  At least use something without a frontend so that 
+>>you can limit the possibility that the programmers did something stupid 
+>>like make decoding dependent on some update to the gui. 
+>>xmms was coded first and foremost to look and work like winamp. 
+>>Streamlined - even low latency performance was not a base goal.  
+>>
+>
+>The reality is that people use xmms, and whilst it may not be the greatest
+>program known to man, I don't believe it's *that* fundamentally screwed up
+>that it should skip under normal desktop loads. *Especially* if it worked
+>fine under 2.4 ;-)
+>
 
-This doesn't look like it's PPC specific. I can probably reproduce on
-i386 if that would be helpful to anybody.
+I agree with Martin here. xmms may not be the smartest music player,
+but its really sad if it skips on a P4 or Athlon.
 
--- 
-Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
-Disclaimer: The quote was selected randomly. Really. | http://smurf.noris.de
- - -
-It is better to decide between our enemies than our friends; for one of our
-friends will most likely become our enemy; but on the other hand, one of your
-enemies will probably become your friend.
-					-- Bias
 

@@ -1,79 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262148AbTD3MPh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 08:15:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262150AbTD3MPg
+	id S262144AbTD3MQ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 08:16:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262150AbTD3MQ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 08:15:36 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:19855 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262148AbTD3MPf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 08:15:35 -0400
-Date: Wed, 30 Apr 2003 08:29:14 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-cc: James Courtier-Dutton <James@superbug.demon.co.uk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Bug in linux kernel when playing DVDs.
-In-Reply-To: <200304301201.h3UC19u23911@Port.imtp.ilyichevsk.odessa.ua>
-Message-ID: <Pine.LNX.4.53.0304300822520.12971@chaos>
-References: <3EABB532.5000101@superbug.demon.co.uk>
- <200304290538.h3T5cLu16097@Port.imtp.ilyichevsk.odessa.ua>
- <3EAE5DF5.1040209@superbug.demon.co.uk> <200304301201.h3UC19u23911@Port.imtp.ilyichevsk.odessa.ua>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 30 Apr 2003 08:16:28 -0400
+Received: from holomorphy.com ([66.224.33.161]:21714 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S262144AbTD3MQ1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Apr 2003 08:16:27 -0400
+Date: Wed, 30 Apr 2003 05:28:25 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: alan@lxorguk.ukuu.org.uk
+Cc: linux-kernel@vger.kernel.org
+Subject: NUMA-Q sys_ioperm()/sys_iopl()
+Message-ID: <20030430122825.GL8931@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Apr 2003, Denis Vlasenko wrote:
+NUMA-Q cannot support these operations without significant
+infrastructure to emulate a global port io space for userspace to
+manipulate, possibly even with hooks into the scheduler.
 
-> On 29 April 2003 14:11, James Courtier-Dutton wrote:
-> > >See? Sector # is increasing... Linux retries the read several times,
-> > >then reports EIO to userspace and goes to next sectors.
-> > > Unfortunately, they are bad too, so the loop repeats. Eventually it
-> > > will pass by all bad sectors (if not, it's a bug) but it can take
-> > > longish time.
-> > >
-> > >Apart of making max retry # settable by the user, I don't see how
-> > >this can be made better. Pity. This is common problem on CDs...
-> >
-> > What is this EIO report. The CPU is never returned to user space
-> > apps, so the app never sees any error.
->
-> Are you sure that CPU never returned to the app?
-> (strace is your friend...)
->
-> > As for retries, for DVD playing we do not want the Linux kernel to do
-> > any retries, because during DVD playback, we just want a very quick
-> > response saying there was an error.
->
-> Kernel is not yet telepathic.
->
-> > The DVD playing application can
-> > then skip forward 0.5 seconds and continue. If one sector fails on a
-> > DVD, there is little or not point in reading the next sector. One has
-> > to start reading from the next VOBU. (i.e. about 0.5 seconds skip.)
->
-> You need a way to tell kernel that you want such behavior.
-> "skip 0.5 sec on error" requirement is rather hard
-> to describe to the kernel.
-> --
-> vda
+Not only are the applications depending on this particular form of
+privilege elevation generally inappropriate uses of these machines
+(they are large "server-class" machines, typically shipped and run
+headless), but the devices typically managed with these interfaces
+are already explicitly unsupported in UNIX configurations.
 
-The usual way of reading DVDs is to ignore all errors! You need
-to handle DVD errors differently than CD/ROM errors. With CDs,
-it is expected that all data that is read is perfect. With
-DVDs, this is not the case. The implimentation problem becomes
-one of how to tell the kernel that the combined DVD/CDROM is
-one or the other. I don't know what W$ does about this, but
-on my Compaq lap-top, DVDs just stream right along, even though
-there are whole corrupted frames, while the same drive containing
-a defective CD will retry practically forever.
+This patch removes sys_iopl() and sys_ioperm() support conditional on
+#ifdef CONFIG_X86_NUMAQ to prevent the device register corruption
+condition without significant impact on core i386 support.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
 
+diff -urpN linux-2.5.68/arch/i386/kernel/ioport.c ioperm-2.5.68-1/arch/i386/kernel/ioport.c
+--- linux-2.5.68/arch/i386/kernel/ioport.c	2003-04-19 19:49:26.000000000 -0700
++++ ioperm-2.5.68-1/arch/i386/kernel/ioport.c	2003-04-30 05:01:09.000000000 -0700
+@@ -53,6 +53,12 @@ static void set_bitmap(unsigned long *bi
+ /*
+  * this changes the io permissions bitmap in the current task.
+  */
++#ifdef CONFIG_X86_NUMAQ
++asmlinkage int sys_ioperm(unsigned long from, unsigned long num, int turn_on)
++{
++	return -ENOSYS;
++}
++#else
+ asmlinkage int sys_ioperm(unsigned long from, unsigned long num, int turn_on)
+ {
+ 	struct thread_struct * t = &current->thread;
+@@ -97,6 +103,7 @@ asmlinkage int sys_ioperm(unsigned long 
+ out:
+ 	return ret;
+ }
++#endif
+ 
+ /*
+  * sys_iopl has to be used when you want to access the IO ports
+@@ -109,6 +116,12 @@ out:
+  * code.
+  */
+ 
++#ifdef CONFIG_X86_NUMAQ
++asmlinkage int sys_iopl(unsigned long unused)
++{
++	return -ENOSYS;
++}
++#else
+ asmlinkage int sys_iopl(unsigned long unused)
+ {
+ 	volatile struct pt_regs * regs = (struct pt_regs *) &unused;
+@@ -127,3 +140,4 @@ asmlinkage int sys_iopl(unsigned long un
+ 	set_thread_flag(TIF_IRET);
+ 	return 0;
+ }
++#endif

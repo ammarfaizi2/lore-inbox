@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263144AbTC1U6Q>; Fri, 28 Mar 2003 15:58:16 -0500
+	id <S263145AbTC1VPb>; Fri, 28 Mar 2003 16:15:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263145AbTC1U6Q>; Fri, 28 Mar 2003 15:58:16 -0500
-Received: from ncc1701.cistron.net ([62.216.30.38]:52999 "EHLO
-	ncc1701.cistron.net") by vger.kernel.org with ESMTP
-	id <S263144AbTC1U6P>; Fri, 28 Mar 2003 15:58:15 -0500
-From: dth@ncc1701.cistron.net (Danny ter Haar)
-Subject: Re: IDE DMA problems
-Date: Fri, 28 Mar 2003 21:09:31 +0000 (UTC)
-Organization: Cistron
-Message-ID: <b62dmb$bad$1@news.cistron.nl>
-References: <20030328192717.GA16621@pclab.ifg.uni-kiel.de>
-X-Trace: ncc1701.cistron.net 1048885771 11597 62.216.30.38 (28 Mar 2003 21:09:31 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: dth@ncc1701.cistron.net (Danny ter Haar)
-To: linux-kernel@vger.kernel.org
+	id <S263147AbTC1VPb>; Fri, 28 Mar 2003 16:15:31 -0500
+Received: from [66.227.5.25] ([66.227.5.25]:49812 "EHLO ns1.sevaa.com")
+	by vger.kernel.org with ESMTP id <S263145AbTC1VPa>;
+	Fri, 28 Mar 2003 16:15:30 -0500
+Subject: 2.5.66-gcov
+From: Paul Larson <plars@linuxtestproject.org>
+To: lse-tech@lists.sourceforge.net, ltp-coverage@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 28 Mar 2003 16:32:27 -0600
+Message-Id: <1048890755.3367.65.camel@plap>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Torsten Landschoff  <torsten@debian.org> wrote:
->Using hdparm -X 66 to set it to udma2 just kills off dma with these
->error messages:
->
->  hda: timeout waiting for DMA
->  ide_dmaproc: chipset supported ide_dma_timeout func only: 14
->  hda: status error: status=0x58 { DriveReady SeekComplete DataRequest }
->  hda: drive not ready for command
->  blk: queue c0370084, I/O limit 4095Mb (mask 0xffffffff)
->  hda: lost interrupt
->
+There is a new version of the gcov-kernel patch on lse at: 
+http://sourceforge.net/project/showfiles.php?group_id=8875&release_id=74815
 
-I've experienced similar "problems/events".
+Changes in this release are: 
+-resync with 2.5.66 
+-detect gcc version for a section that needs to know that 
+-profiling of modules is fixed 
 
-If i enable unix processor apic but NOT IO-APIC i don't have these
-problems.
+The purpose of this patch is to allow utilization of the gcov tool
+against a running kernel.  This is different from most other profiling
+methods because it can easily tell you things like: which lines of code
+are executed, how many times they are executed, and how often different
+branches are taken. 
 
-Could you recompile your kernel and see if this solves it ?
-I have encountered these problems on several machines with different
-hardware (p4 & amd athlon).
+For anyone interested in this type of research, there is also a new
+mailing list at: 
+http://lists.sourceforge.net/lists/listinfo/ltp-coverage
 
-Regards,
-
-Danny
-
--- 
-Miguel   | "I can't tell if I have worked all my life or if
-de Icaza |  I have never worked a single day of my life,"
+Thanks, 
+Paul Larson
 

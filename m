@@ -1,147 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266807AbUHCXMv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266816AbUHCXPx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266807AbUHCXMv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 19:12:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266816AbUHCXMv
+	id S266816AbUHCXPx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 19:15:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266902AbUHCXPq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 19:12:51 -0400
-Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:38625 "EHLO
-	blue-labs.org") by vger.kernel.org with ESMTP id S266807AbUHCXMp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 19:12:45 -0400
-Message-ID: <41101C44.9050400@blue-labs.org>
-Date: Tue, 03 Aug 2004 19:14:12 -0400
-From: David Ford <david+challenge-response@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8a3) Gecko/20040803
+	Tue, 3 Aug 2004 19:15:46 -0400
+Received: from serv1.aus1.texas.net ([216.166.60.40]:46749 "EHLO
+	serv1.aus1.texas.net") by vger.kernel.org with ESMTP
+	id S266816AbUHCXPk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Aug 2004 19:15:40 -0400
+Message-ID: <41101C9B.9090209@corp.texas.net>
+Date: Tue, 03 Aug 2004 18:15:39 -0500
+From: Philip Molter <philip@corp.texas.net>
+User-Agent: Mozilla Thunderbird 0.7.2 (Windows/20040707)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-CC: linux-kernel@vger.kernel.org, Marko Macek <marko.macek@gmx.net>,
-       Vojtech Pavlik <vojtech@suse.cz>, Eric Wong <eric@yhbt.net>
-Subject: Re: KVM & mouse wheel
-References: <410FAE9B.5010909@gmx.net> <200408031253.38934.dtor_core@ameritech.net>
-In-Reply-To: <200408031253.38934.dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org
+Subject: kernel BUG at fs/ext3/balloc.c:942!
 Content-Type: multipart/mixed;
- boundary="------------030001080207050306040702"
+ boundary="------------060509020209080107080203"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------030001080207050306040702
-Content-Type: text/plain; charset=UTF-8; format=flowed
+--------------060509020209080107080203
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
-I have a customer using a KVM device, the mouse works fine -until- the 
-KVM is switched elsewhere and back.  After that, the mouse sends 
-garbage.  X+Y movement data is completely hosed causing the mouse to 
-jump around everywhere.  If I remove the module and reload it, the mouse 
-partially returns.  X+Y movement is normal again however the buttons are 
-now messed up.  Sometimes the buttons seem constantly pressed or 
-constantly released.  The only way to recover normal mousing is to reboot.
+This is a FC2 stock errata kernel 2.6.6-1.435.2.3, roughly equivalent to 
+2.6.7-rc2.  This kernel does contain the bugfix in fs/ext3/file.c 
+(http://marc.theaimsgroup.com/?l=linux-kernel&m=108395053322261&w=2). 
+This only occurs under heavy load, but I can't pinpoint where or how. 
+It must be a race because we cannot reproduce the problem reliably.
 
-This didn't happen back on 2.6.0-test8 and I don't think it happened on 
-2.6.7.
+Log output attached
 
-David
+If anyone has any insight, please let me know,
 
-Dmitry Torokhov wrote:
+Philip Molter
+Giganews
 
->Hi,
->
->On Tuesday 03 August 2004 10:26 am, Marko Macek wrote:
->  
->
->>Hello!
->>
->>A few months ago I posted about problems with 2.6 kernel, KVM and mouse
->>wheel.
->>
->>I was using 2.4 kernel until recently, but with the switch to FC2 with
->>2.6 kernel this problem became much more annoying.
->>
->>My mouse is Logitech MX 510.
->>
->>I figured out a few things.
->>
->>1. Trying to set the mouse/kvm into a stream mode makes things insane.
->>Since streaming mode is supposed to be the default, I propose not
->>doing this at all. I haven't researched this further.
->>
->>-      psmouse_command(psmouse, param, PSMOUSE_CMD_SETSTREAM);
->>    
->>
->
->Could you describe what insane mean? If you take the KVM out of the picture
->is the mouse still instane?
->
->  
->
->>2. synaptics_detect hoses imps and exps detection. Resetting the mouse
->>after failed detect fixes it. This makes 'imps' and 'exps' protocols
->>work when used as proto=imps or proto=exps. Wheel works, I haven't tried
->>the buttons.
->>
->>    
->>
->
->Again, does it work without the KVM?
->
->  
->
->>3. PS2++ detection correctly detects Logitech MX mouse but doesn't
->>enable the PS2PP protocol, because of unexpected results in this code:
->>
->>	param[0] = param[1] = param[2] = 0;
->>         ps2pp_cmd(psmouse, param, 0x39); /* Magic knock */
->>         ps2pp_cmd(psmouse, param, 0xDB);
->>
->>         if ((param[0] & 0x78) == 0x48 &&
->>             (param[1] & 0xf3) == 0xc2 &&
->>             (param[2] & 0x03) == ((param[1] >> 2) & 3)) {
->>                 ps2pp_set_smartscroll(psmouse);
->>	        protocol = PSMOUSE_PS2PP;
->>         }
->>
->>The returned param array in my case is: 08 01 00 or 08 00 00 (hex)
->>(without KVM: C8 C2 64)
->>
->>I don't understand what this code is trying to check or why the protocol
->>is only set conditionally. If I set it unconditionally (swap last 2
->>lines) the PS2++ protocol now works including detection of all buttons
->>(I don't really need the buttons, just the wheel).
->>
->>    
->>
->
->Apparently your KVM doctors the data stream from the mouse. The driver
->tries to play safe and only switches to PS2++ protocol if mouse responds
->properly, otherwise there is a chance that it uses PS2++ with mouse that
->does not actually support it. 
->
->  
->
->>This is not included in the patch. The alternative solution
->>is to reset the mouse again and resume probing for imps or exps.
->>
->>    
->>
->
->It will be probed for imps/exps if PS2++ fails. Now I suspect that your
->particular KVM does not expect any extended probes and gets confused by
->them.
->
->  
->
+--------------060509020209080107080203
+Content-Type: text/plain;
+ name="balloc-oops.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="balloc-oops.txt"
 
---------------030001080207050306040702
-Content-Type: text/x-vcard; charset=utf-8;
- name="david+challenge-response.vcf"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="david+challenge-response.vcf"
-
-YmVnaW46dmNhcmQNCmZuOkRhdmlkIEZvcmQNCm46Rm9yZDtEYXZpZA0KZW1haWw7aW50ZXJu
-ZXQ6ZGF2aWRAYmx1ZS1sYWJzLm9yZw0KdGl0bGU6SW5kdXN0cmlhbCBHZWVrDQp0ZWw7aG9t
-ZTpBc2sgcGxlYXNlDQp0ZWw7Y2VsbDooMjAzKSA2NTAtMzYxMQ0KeC1tb3ppbGxhLWh0bWw6
-VFJVRQ0KdmVyc2lvbjoyLjENCmVuZDp2Y2FyZA0KDQo=
---------------030001080207050306040702--
+Aug  3 17:01:54 h01 kernel: kernel BUG at fs/ext3/balloc.c:942!
+Aug  3 17:01:54 h01 kernel: invalid operand: 0000 [#1]
+Aug  3 17:01:54 h01 kernel: SMP
+Aug  3 17:01:54 h01 kernel: Modules linked in: e1000 bonding ipv6 mii 8021q floppy sg microcode dm_mod uhci_hcd ext3 jbd raid5 xor raid1 3w_xxxx sd_mod scsi_mod
+Aug  3 17:01:54 h01 kernel: CPU:    1
+Aug  3 17:01:54 h01 kernel: EIP:    0060:[<82897d5b>]    Not tainted
+Aug  3 17:01:54 h01 kernel: EFLAGS: 00010287   (2.6.6-1.435.2.3smp)
+Aug  3 17:01:54 h01 kernel: EIP is at ext3_try_to_allocate_with_rsv+0x119/0x1bc [ext3]
+Aug  3 17:01:54 h01 kernel: eax: 00520000   ebx: 00518000   ecx: 00518000   edx: 6ec144dc
+Aug  3 17:01:54 h01 kernel: esi: 00000000   edi: ffffffff   ebp: 81f42200   esp: 0415ebf8
+Aug  3 17:01:54 h01 kernel: ds: 007b   es: 007b   ss: 0068
+Aug  3 17:01:54 h01 kernel: Process pdflush (pid: 68, threadinfo=0415e000 task=81d5cc70)
+Aug  3 17:01:54 h01 kernel: Stack: 7b24c100 000000a3 3cdc72cc 00000000 000000a3 000000a3 00002000 81f42200
+Aug  3 17:01:54 h01 kernel:        82898049 6f98a14c 00002000 6ec144dc 0415ec58 00000220 6ec144dc 7b248000
+Aug  3 17:01:54 h01 kernel:        7b284400 7b26c460 00000000 00000001 6f98a14c 0051a000 6ec14534 3cdc72cc
+Aug  3 17:01:54 h01 kernel: Call Trace:
+Aug  3 17:01:54 h01 kernel:  [<82898049>] ext3_new_block+0x1ba/0x4aa [ext3]
+Aug  3 17:01:54 h01 kernel:  [<8289a1ab>] ext3_alloc_block+0x9/0xb [ext3]
+Aug  3 17:01:54 h01 kernel:  [<8289a4e1>] ext3_alloc_branch+0x4a/0x232 [ext3]
+Aug  3 17:01:54 h01 kernel:  [<021fdd17>] as_add_request+0xbd/0x179
+Aug  3 17:01:54 h01 kernel:  [<8289a9fe>] ext3_get_block_handle+0x1c7/0x28e [ext3]
+Aug  3 17:01:54 h01 kernel:  [<8289ab29>] ext3_get_block+0x64/0x6c [ext3]
+Aug  3 17:01:54 h01 kernel:  [<021544c0>] __block_write_full_page+0x107/0x2d0
+Aug  3 17:01:54 h01 kernel:  [<8289aac5>] ext3_get_block+0x0/0x6c [ext3]
+Aug  3 17:01:54 h01 kernel:  [<0215585f>] block_write_full_page+0xc7/0xd0
+Aug  3 17:01:54 h01 kernel:  [<8289aac5>] ext3_get_block+0x0/0x6c [ext3]
+Aug  3 17:01:54 h01 kernel:  [<8289b3b3>] ext3_ordered_writepage+0xca/0x136 [ext3]
+Aug  3 17:01:54 h01 kernel:  [<8289b2c9>] bget_one+0x0/0x7 [ext3]
+Aug  3 17:01:54 h01 kernel:  [<0216dda0>] mpage_writepages+0x143/0x273
+Aug  3 17:01:54 h01 kernel:  [<8289b2e9>] ext3_ordered_writepage+0x0/0x136 [ext3]
+Aug  3 17:01:54 h01 kernel:  [<0216c747>] __sync_single_inode+0x5d/0x19a
+Aug  3 17:01:54 h01 kernel:  [<0216ca9c>] sync_sb_inodes+0x18e/0x242
+Aug  3 17:01:54 h01 kernel:  [<0213ca16>] pdflush+0x0/0x1e
+Aug  3 17:01:54 h01 kernel:  [<0216cbc9>] writeback_inodes+0x79/0xcd
+Aug  3 17:01:54 h01 kernel:  [<0213c00a>] background_writeout+0x73/0xb5
+Aug  3 17:01:54 h01 kernel:  [<0213c97a>] __pdflush+0xf6/0x192
+Aug  3 17:01:54 h01 kernel:  [<0213ca30>] pdflush+0x1a/0x1e
+Aug  3 17:01:54 h01 kernel:  [<0213bf97>] background_writeout+0x0/0xb5
+Aug  3 17:01:54 h01 kernel:  [<0213ca16>] pdflush+0x0/0x1e
+Aug  3 17:01:54 h01 kernel:  [<0212ff79>] kthread+0x73/0x9b
+Aug  3 17:01:54 h01 kernel:  [<0212ff06>] kthread+0x0/0x9b
+Aug  3 17:01:54 h01 kernel:  [<021051f1>] kernel_thread_helper+0x5/0xb
+Aug  3 17:01:54 h01 kernel:
+Aug  3 17:01:54 h01 kernel: Code: 0f 0b ae 03 31 89 8a 82 ff 74 24 2c 89 e8 57 ff 74 24 2c 8b
+--------------060509020209080107080203--

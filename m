@@ -1,54 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265647AbSKFE0f>; Tue, 5 Nov 2002 23:26:35 -0500
+	id <S265646AbSKFEZt>; Tue, 5 Nov 2002 23:25:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265649AbSKFE0f>; Tue, 5 Nov 2002 23:26:35 -0500
-Received: from seqserv.seqnet.net ([207.174.23.5]:16142 "EHLO seqnet.net")
-	by vger.kernel.org with ESMTP id <S265647AbSKFE0a>;
-	Tue, 5 Nov 2002 23:26:30 -0500
-Message-ID: <3DC89B7D.6000802@ucar.edu>
-Date: Tue, 05 Nov 2002 21:33:01 -0700
-From: vanandel@ucar.edu
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S265647AbSKFEZr>; Tue, 5 Nov 2002 23:25:47 -0500
+Received: from packet.digeo.com ([12.110.80.53]:43948 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S265646AbSKFEZq>;
+	Tue, 5 Nov 2002 23:25:46 -0500
+Message-ID: <3DC89B50.2DBF413@digeo.com>
+Date: Tue, 05 Nov 2002 20:32:16 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.45 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-CC: karim@opersys.com, LTT-Dev <ltt-dev@shafik.org>
-Subject: please include LTT in the Linux kernel
-References: <3DC727CD.96EE29AE@opersys.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Jordan Breeding <jordan.breeding@attbi.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: unitialized timers with 2.5.46-bk
+References: <3DC891A9.5030404@attbi.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 06 Nov 2002 04:32:16.0745 (UTC) FILETIME=[7C7EB590:01C2854D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Karim Yaghmour wrote:
-> Apparently Linus doesn't see what this patch buys Linux. Since
-> I can't personally convince him otherwise, having written LTT
-> myself, here it is in the hope that others on the list actually
-> find it of some use.
+Jordan Breeding wrote:
+> 
+> Hello,
+> 
+>    I get these warnings about uninitialized timers when using 2.5.46-bk:
 
-I am quite interested in having LTT as a configurable option in the 
-Linux kernel.  My company (the National Center for Atmospheric Research) 
-uses networks of Linux computers to process data from weather radars. 
-Occasionally, we've had unexplained performance problems where the 
-system is slow to respond, even though the process load is low on each 
-computer and no process is "hogging" the CPU.  LTT would be extremely 
-valuable to help us diagnose such problems, since we could see the 
-interaction of our processing and radar display tasks with the kernel 
-and the NFS daemons.
+Thanks.  I sent fixes for tons and tons of these today.
 
-Also, we build Linux based data acquisition systems containing signal 
-processing cards.  LTT would really help us tune the performance of 
-these systems, since we could see how quickly our processes are 
-scheduled in response to interrupts from the signal processing cards.
+> Uninitialised timer!
+> This is just a warning.  Your computer is OK
+> function=0xc036ca30, data=0x0
+> Call Trace:
+>   [<c012d568>] check_timer_failed+0x68/0x70
+>   [<c036ca30>] floppy_shutdown+0x0/0xe0
+>   [<c012d8bb>] del_timer+0x1b/0x90
+>   [<c036a458>] reschedule_timeout+0x28/0xd0
+>   [<c03708f0>] floppy_find+0x0/0x60
+>   [<c0105094>] init+0x54/0x180
+>   [<c0105040>] init+0x0/0x180
+>   [<c0108d9d>] kernel_thread_helper+0x5/0x18
 
-Please, include LTT in the Linux kernel.  Karim and others have 
-demonstrated that LTT has no impact on kernel performance if it is not 
-configured, and minimal impact even when tracing is enabled.  I've used 
-a commercial product (Stethoscope - sold by Real Time Innovations) when 
-doing real-time programming on VxWorks, and found it quite valuable.  If 
-LTT is included in the Linux kernel, Linux will be much more appealing 
-to the real-time and embedded programming community.
-
-
-
+hm.  Except this one.

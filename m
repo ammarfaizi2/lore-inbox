@@ -1,40 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261983AbVBUOUX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261987AbVBUO3Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261983AbVBUOUX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Feb 2005 09:20:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261985AbVBUOUX
+	id S261987AbVBUO3Y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Feb 2005 09:29:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261985AbVBUO3Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Feb 2005 09:20:23 -0500
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:20416 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S261983AbVBUOUT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Feb 2005 09:20:19 -0500
-From: kernel-stuff@comcast.net (Parag Warudkar)
-To: Martin =?ISO-8859-1?Q?=20MOKREJ=A9?= 
-	<mmokrejs@ribosome.natur.cuni.cz>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: memory management weirdness
-Date: Mon, 21 Feb 2005 14:20:17 +0000
-Message-Id: <022120051420.20884.4219EE21000C6C9400005194220588448400009A9B9CD3040A029D0A05@comcast.net>
-X-Mailer: AT&T Message Center Version 1 (Dec 17 2004)
-X-Authenticated-Sender: a2VybmVsLXN0dWZmQGNvbWNhc3QubmV0
+	Mon, 21 Feb 2005 09:29:24 -0500
+Received: from relay2.oslo.kommune.no ([171.23.1.12]:19139 "EHLO
+	relay2.oslo.kommune.no") by vger.kernel.org with ESMTP
+	id S261987AbVBUO10 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Feb 2005 09:27:26 -0500
+Subject: Re: [ACPI] Re: Call for help: list of machines with working S3
+From: Kjartan Maraas <kmaraas@broadpark.no>
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Cc: Lorenzo Colitti <lorenzo@colitti.com>,
+       Matthew Garrett <mjg59@srcf.ucam.org>, Pavel Machek <pavel@suse.cz>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+       kernel list <linux-kernel@vger.kernel.org>, seife@suse.de, rjw@sisk.pl
+In-Reply-To: <200502182049.11088.s0348365@sms.ed.ac.uk>
+References: <20050214211105.GA12808@elf.ucw.cz>
+	 <200502151742.55362.s0348365@sms.ed.ac.uk>
+	 <1108563926.4986.3.camel@localhost.localdomain>
+	 <200502182049.11088.s0348365@sms.ed.ac.uk>
+Content-Type: text/plain
+Date: Mon, 21 Feb 2005 15:25:52 +0100
+Message-Id: <1108995952.4819.2.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 (2.0.3-1) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hi,
->   I have received no answer to my former question
-> (see http://marc.theaimsgroup.com/?l=linux-kernel&m=110827143716215&w=2).
-> I've spent some more time on that problem and have more or less confirmed
-> it's because of buggy bios. However, the linux kernel doesn't handle properly
-> such case. I've tested 2.4.30-pre1 kernel and latest 2.6.11-rc4 kernel.
-> The conclusion is, that once the machine has physically installed 4x1GB
-> DDR400 DIMM's (bios detects only 3556 or less memory as some buffers
-> are allocated by the Intel 875P chipset and AGP card), the linux 2.6.11*
-> runs up-to 18x slower than when only 2x1GB + 2x 512MB DDR memory is installed.
+fre, 18,.02.2005 kl. 20.49 +0000, skrev Alistair John Strachan:
+> On Wednesday 16 Feb 2005 14:25, Kjartan Maraas wrote:
+> > tir, 15,.02.2005 kl. 17.42 +0000, skrev Alistair John Strachan:
+> > > On Tuesday 15 Feb 2005 16:16, Lorenzo Colitti wrote:
+> > > [snip]
+> > >
+> > > > Ok, here is the output from dmidecode (Debian package) and from lspci.
+> > > > I don't have acpidmp and I don't know where to get it, but if you think
+> > > > it's necessary I can download it if you tell me where to find it.
+> > >
+> > > Find below a diff of my dmidecode output versus Lorenzo's. Nothing much
+> > > to call home about.
+> >
+> > I've attached a diff against Lorenzo's too. Only difference is that my
+> > laptop is a nc4010, and looking here it's clear that this model doesn't
+> > support APM at least. I also have non-working S3. It behaves just like
+> > the entry in the ubuntu wiki for the nc6000 in all three cases with a
+> > full system running at least. I'll try init=/bin/sh later to see if that
+> > helps and if it does experiment with removing modules one by one...
 > 
-Can you enable profiling and then post the profile info for various cases - slow and fast? Check out Documentation/basic_profiling.txt in the kernel source for understanding how to do this. This might help narrow down the issue.
+> Got it. Sorry for the radio silence, I've been busy for a few days.
+> 
+> I discovered that either the i2c_core.ko or i2c_i801.ko modules cause the hang 
+> on resume! If you stop the entire i2c subsystem from being loaded by hotplug 
+> (note this is the BUS driver, not the sensors driver!), then resume works 
+> perfectly! Presumably there's a bug in the resuming of this module.
+> 
+> In other news, USB devices only work after I remove uhci_hcd and ehci_hcd and 
+> reload them.
+> 
+> The s3_bios workaround allows video to kind of work, but I can't use anything 
+> other than vga=normal (vesafb results in corruption), and the screen is no 
+> longer artificially resized to fill the LCD, it's native res and centered 
+> (which sure is annoying).
+> 
+> Kjartan, I hope you isolate the driver causing you problems, as it seems these 
+> machines can be made, even if it is a bit of a headache.
+> 
+I tried it again now using init=/bin/sh and acpi_sleep=s3_bios and it
+still gives a black screen on resume... :-/
 
-Parag
-
+Cheers
+Kjartan
 
 

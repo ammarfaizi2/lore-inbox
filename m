@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264768AbTF0UUd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 16:20:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264769AbTF0UUd
+	id S264769AbTF0U31 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 16:29:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264776AbTF0U31
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 16:20:33 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:33804 "EHLO
-	www.home.local") by vger.kernel.org with ESMTP id S264768AbTF0UUc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 16:20:32 -0400
-Date: Fri, 27 Jun 2003 22:22:10 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Marc Zyngier <mzyngier@freesurf.fr>
-Cc: rth@twiddle.net, linux-kernel@vger.kernel.org
-Subject: Re: [ALPHA][2.5.7x] Problems with execve assembly rewriting
-Message-ID: <20030627202210.GA29680@alpha.home.local>
-References: <wrp4r2cpqye.fsf@hina.wild-wind.fr.eu.org>
+	Fri, 27 Jun 2003 16:29:27 -0400
+Received: from mail.skjellin.no ([80.239.42.67]:18840 "HELO mail.skjellin.no")
+	by vger.kernel.org with SMTP id S264769AbTF0U30 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jun 2003 16:29:26 -0400
+Subject: Re: TCP send behaviour leads to cable modem woes
+From: Andre Tomt <andre@tomt.net>
+To: linux-kernel@vger.kernel.org
+Cc: Svein Ove Aas <svein.ove@aas.no>
+In-Reply-To: <200306272224.04335.svein.ove@aas.no>
+References: <200306272020.57502.svein.ove@aas.no>
+	 <3EFCA478.7010404@jpl.nasa.gov>  <200306272224.04335.svein.ove@aas.no>
+Content-Type: text/plain; charset=ISO-8859-1
+Organization: 
+Message-Id: <1056746615.12886.459.camel@slurv.ws.pasop.tomt.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <wrp4r2cpqye.fsf@hina.wild-wind.fr.eu.org>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.2.4- 
+Date: 27 Jun 2003 22:43:35 +0200
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+On fre, 2003-06-27 at 22:24, Svein Ove Aas wrote:
+> > http://lartc.org/wondershaper/
+> 
+> I wrote something like that myself once.
+> It's a good shaper, but it works by *capping* up/download speeds and 
+> rearranging the priorities locally, which wouldn't help me a bit.
 
-On Thu, Jun 26, 2003 at 09:40:57PM +0200, Marc Zyngier wrote:
-> Unable to handle kernel paging request at virtual address 5345432039323a38
+By capping the speed below the link speed most modems will usually avoid
+bursting. IMHO it's mostly a net gain in usability even though you don't
+get the same raw download speeds as without capping.
 
-This address is really messy since it's purely ASCII : "SEC 92:8"
-
-> t0 = 00000000616d2820  t1 = 0000000033372e35
-ASCII here : "am( " and here "37.5"
-
-> t2 = 000000006920676e  t3 = 5345432039323a34
-and here : "i gn" and here too "SEC 92:4"
-
-So it may result from some garbage being used as a pointer, or a char * being
-jumped to.
-
-Just my .02 euros,
-Willy
+-- 
+Cheers,
+André Tomt
+andre@tomt.net
 

@@ -1,67 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261381AbULAQ5b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261330AbULARBW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261381AbULAQ5b (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 11:57:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261361AbULAQ5b
+	id S261330AbULARBW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 12:01:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261359AbULARBW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 11:57:31 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:14723 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261341AbULAQ5X
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 11:57:23 -0500
-Date: Wed, 1 Dec 2004 10:56:54 -0600
-From: "Jose R. Santos" <jrsantos@austin.ibm.com>
-To: linux-scsi@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Matthew Wilcox <matthew@wil.cx>
-Subject: Re: phase change messages cusing slowdown with sym53c8xx_2 driver
-Message-ID: <20041201165654.GA32687@rx8.austin.ibm.com>
-References: <20041130030212.GB22916@austin.ibm.com>
+	Wed, 1 Dec 2004 12:01:22 -0500
+Received: from fw.osdl.org ([65.172.181.6]:52884 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261328AbULARBU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Dec 2004 12:01:20 -0500
+Subject: Announcing - document collection project
+From: "Timothy D. Witham" <wookie@osdl.org>
+To: Linux Kernel ML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: Open Source Development Lab, Inc.
+Date: Wed, 01 Dec 2004 09:01:30 -0800
+Message-Id: <1101920490.6111.25.camel@wookie-zd7.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041130030212.GB22916@austin.ibm.com>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jose R. Santos <jrsantos@austin.ibm.com> [041129]:
-> I'm having a bit of trouble with a integrated SCSI adapter using the 
-> sym53c8xx_2 driver on a RS6K-170.  Somewhere during 2.6.9 development I started
-> seeing a bunch of "phase change" messages generated every time I did any IO on 
-> the disks attached to the SCSI adapter.
-> 
-> Nov 28 23:05:12 orb kernel: sym0: <896> rev 0x5 at pci 0000:00:0c.0 irq 20
-> Nov 28 23:05:12 orb kernel: sym0: No NVRAM, ID 7, Fast-40, SE, parity checking
-> Nov 28 23:05:12 orb kernel: sym0: SCSI BUS has been reset.
-> Nov 28 23:05:12 orb kernel: scsi0 : sym-2.1.18m
-> Nov 28 23:05:12 orb kernel: sym0:1: FAST-20 WIDE SCSI 40.0 MB/s ST (50.0 ns, offset 15)
-> Nov 28 23:05:12 orb kernel:   Vendor: IBM       Model: DGHS09U	Rev: 03E0
-> Nov 28 23:05:12 orb kernel:   Type:   Direct-Access		ANSI SCSI revision: 03
-> Nov 28 23:05:12 orb kernel:  target0:0:1: Beginning Domain Validation
-> Nov 28 23:05:12 orb kernel: sym0:1:0:phase change 6-7 9@10050390 resid=6.
-> Nov 28 23:05:12 orb last message repeated 10 times
-> Nov 28 23:05:12 orb kernel: sym0:1:0:phase change 6-7 9@1005039c resid=6.
-> Nov 28 23:05:12 orb kernel: sym0:1:0:phase change 6-7 9@10050390 resid=6.
-> Nov 28 23:05:12 orb kernel: sym0:1:0:phase change 6-7 9@10050390 resid=6.
-> Nov 28 23:05:12 orb kernel: sym0:1:0:phase change 6-7 9@1005039c resid=6.
-> Nov 28 23:05:12 orb kernel:  target0:0:1: Domain Validation skipping write tests
-> Nov 28 23:05:12 orb kernel:  target0:0:1: Ending Domain Validation
-> Nov 28 23:05:12 orb kernel: sym0:1:0:phase change 6-7 9@10050390 resid=6.
-> 
-> When these errors show up, the maximum performance I can get out of the disk is
-> about 1.3MB/s.  After several hours, the adapters seems to receive some ABORT 
-> operations and the messages stop showing.  Once this happens, performance for 
-> the disk goes back to 15MB/s.
 
-I manage to get access to another PPC64 box that has uses this same
-driver and was unable to reproduce this problem here, but I was able to
-reproduce it on another same model machine.  Seem like there could be
-something at initialization that only affects this revision of the SCSI
-adapter.  Since the problem seems to disappear after a BUS RESET I assume
-that something was left out when the driver was initializing the adapter.
+   In an email conversation with Alan Cox and Andrew Morton I was
+asked if OSDL could create a repository for old non-NDA manuals.
 
-Any Ideas?
+   I agreed that this sort of old copyrighted but never to be reprinted
+documentation needs a home and even thought some said it was
+a monster it looked like a nice little bunny to me so .....
 
-Thanks
+   I've setup a little web site and have a file cabinet all ready to go.
 
--JRS
+http://developer.osdl.org/dev/opendoc/index.html
+
+   I also decided that as long as I had to keep a list of hard copy
+documentation in the drawer I might as well add links to 
+companies providing  documentation and links to any
+groups or standards.  So if you have favorite links or your
+company provides developer information for open source
+folks please send the link information  to opendoc@lists.osdl.org.
+
+  If you have an old non-NDA manual for something that you
+aren't the maintainer and no longer want the responsibility
+of keeping coffee or pet stains off of it.  Then please follow 
+the instructions under "Submitting Hardcopy".
+
+  As for any other comments I welcome them.  Not set on the
+anything just trying to provide a service here.
+
+Tim
+
+-- 
+Timothy D. Witham - Chief Technology Officer - wookie@osdl.org
+Open Source Development Lab Inc - A non-profit corporation
+12725 SW Millikan Way - Suite 400 - Beaverton OR, 97005
+(503)-626-2455 x11 (office)    (503)-702-2871     (cell)
+(503)-626-2436     (fax)
+

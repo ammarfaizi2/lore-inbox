@@ -1,64 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266365AbUHBJXp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266364AbUHBJ2E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266365AbUHBJXp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 05:23:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266366AbUHBJXp
+	id S266364AbUHBJ2E (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 05:28:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266376AbUHBJ2E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 05:23:45 -0400
-Received: from snota.svorka.net ([194.19.72.11]:60045 "HELO snota.svorka.net")
-	by vger.kernel.org with SMTP id S266365AbUHBJXn (ORCPT
+	Mon, 2 Aug 2004 05:28:04 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:45995 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S266364AbUHBJ2B (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 05:23:43 -0400
-Message-ID: <410E0816.6020903@svorka.net>
-Date: Mon, 02 Aug 2004 11:23:34 +0200
-From: =?ISO-8859-1?Q?Espen_Fjellv=E6r_Olsen?= <eldiablo@svorka.net>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040705)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.8-rc2-mm2
-References: <20040802015527.49088944.akpm@osdl.org>
-In-Reply-To: <20040802015527.49088944.akpm@osdl.org>
-X-Enigmail-Version: 0.84.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Mon, 2 Aug 2004 05:28:01 -0400
+Date: Mon, 2 Aug 2004 11:28:55 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-M5
+Message-ID: <20040802092855.GA15894@elte.hu>
+References: <20040729222657.GA10449@elte.hu> <1091141622.30033.3.camel@mindpipe> <20040730064431.GA17777@elte.hu> <1091228074.805.6.camel@mindpipe> <1091234100.1677.41.camel@mindpipe> <Pine.LNX.4.58.0408010725030.23711@devserv.devel.redhat.com> <1091403477.862.4.camel@mindpipe> <1091407585.862.40.camel@mindpipe> <20040802073938.GA8332@elte.hu> <1091435237.3024.9.camel@mindpipe>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1091435237.3024.9.camel@mindpipe>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Andrew Morton wrote:
+* Lee Revell <rlrevell@joe-job.com> wrote:
 
-| - Added Con's staircase CPU scheduler.
-|
-| This will probably have to come out again because various people
-| are still fiddling with the CPU scheduler.  But my feeling here is
-| that the current 1st-gen CPU scheduler has been tweaked as far as
-| it can go and is still not 100% right.  It is time to start
-| thinking about a new design which addresses the requirements and
-| current problems by algorithmic means rather than by tweaking.
-| Removing over 300 lines from the scheduler is a good sign.
-|
-| Feedback on this patch is sought.
-|
-I'm glad you added staircase, I've had better experiences with
-staircase than the one which was mainstream before, I don't have any
-actual timings on it, but it felt more responsive under heavier
-load(Compiling much, listening to music, browsing...). :)
+> Can you post this patch, or add it to the voluntary preempt series? 
+> The one posted several weeks ago worked for me but had to be applied
+> manually and has probably been improved since.
+> 
+> Just to clarify the last numbers I posted were for O2.
 
-- --
-Espen Fjellvær Olsen
-eldiablo@svorka.net
-Norway
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+i've uploaded the preempt-timing patch (relative to -O2):
 
-iD8DBQFBDggWibTL5aHQf7URAmwvAJ46i+5OpkIQp4BtYt2xQScje5hmbgCfXjeF
-a9Q46GSRh9YWtp2lfVay1IY=
-=PlKC
------END PGP SIGNATURE-----
+   http://redhat.com/~mingo/voluntary-preempt/preempt-timing-on-2.6.8-rc2-O2
 
+QuickStart for those who havent used it yet: enable PREEMPT_TIMING in
+.config and add preempt_thresh=1000 [== 1000 usec threshold] to the
+kernel's boot options. 
+
+i changed the original patch to make it a bit more usable - the
+threshold can be changed runtime via /proc/sys/kernel/preempt_thresh,
+and the units are microseconds not milliseconds.
+
+the timings should be pretty accurate in vp=0,1,2,3 modes as well.
+
+Note that this patch only measures latencies of critical sections
+(preempt-off sections), not other latencies that occur when running
+!CONFIG_PREEMPT or with kernel_preemption=0.
+
+	Ingo

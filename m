@@ -1,36 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262587AbVBBQdk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262612AbVBBQea@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262587AbVBBQdk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 11:33:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262295AbVBBQdj
+	id S262612AbVBBQea (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 11:34:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262295AbVBBQd4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 11:33:39 -0500
-Received: from mail.streamray.com ([64.156.213.211]:36573 "EHLO
-	mail.streamray.com") by vger.kernel.org with ESMTP id S262587AbVBBQZt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 11:25:49 -0500
-Date: Wed,  2 Feb 2005 08:26:20 -0800
-Message-Id: <10502020826.AA363106242@mail.streamray.com>
+	Wed, 2 Feb 2005 11:33:56 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:1289 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S262586AbVBBQZv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 11:25:51 -0500
+Subject: Re: [PATCH 2.6.11-rc2] Move <linux/prio_tree.h> down in
+	<linux/fs.h>
+From: David Woodhouse <dwmw2@infradead.org>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050201160642.GA15359@smtp.west.cox.net>
+References: <20050201160642.GA15359@smtp.west.cox.net>
+Content-Type: text/plain
+Date: Wed, 02 Feb 2005 16:21:23 +0000
+Message-Id: <1107361283.12383.0.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-From: "chris " <chris@mail.streamray.com>
-Reply-To: <chris@mail.streamray.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: automated response
-X-Mailer: <SMTP32 v8.12>
+X-Mailer: Evolution 2.0.2 (2.0.2-3.dwmw2.1) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-THIS IS AN AUTOMATED RESPONSE. DO NOT RESPOND TO THIS EMAIL.
+On Tue, 2005-02-01 at 09:06 -0700, Tom Rini wrote:
+> <linux/prio_tree.h> is unsafe for inclusion by userland apps, but it
+> is in the userland-exposed portion of <linux/fs.h>.  It's only needed
+> in the __KERNEL__ protected portion of the file, so move the #include
+> down to there.
 
-Thank you for your comments. Customer Service 
-emails are answered in the order in which they are received. 
-The department is closed on weekends and holidays and there 
-will be a delay in response for comments sent during these 
-times. Replies are not instantaneous and are usually 
-answered within 72 hours. 
+You accidentally posted this patch to the kernel list, not to the
+maintainers of the libc-kernelheaders package. And you might as well
+just remove the offending #include rather than moving it to a section of
+the file which is never used.
 
-IMPORTANT: We do not generally credit more than one or two 
-minutes for shows with problems if you have chosen to 
-continue to stay in the show. Please log off immediately to 
-get full refunds for problems or technical issues.
+-- 
+dwmw2
+

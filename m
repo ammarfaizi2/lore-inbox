@@ -1,67 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268379AbUH2XID@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268355AbUH2XK6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268379AbUH2XID (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 19:08:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268370AbUH2XID
+	id S268355AbUH2XK6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 19:10:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268370AbUH2XK6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 19:08:03 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:60410 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S268379AbUH2XHm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 19:07:42 -0400
-Date: Mon, 30 Aug 2004 01:07:32 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] remove bouncing email address of Hennus Bergman
-Message-ID: <20040829230732.GE12134@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+	Sun, 29 Aug 2004 19:10:58 -0400
+Received: from ruby.getonit.net.au ([210.8.120.221]:21907 "EHLO
+	ruby.getonit.net.au") by vger.kernel.org with ESMTP id S268355AbUH2XKl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Aug 2004 19:10:41 -0400
+From: "Tim Warnock" <timoid@getonit.net.au>
+To: <linux-kernel@vger.kernel.org>
+Subject: RE: More than 2048 ptys on 2.4.27
+Date: Mon, 30 Aug 2004 09:10:34 +1000
+Message-ID: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA4+E3P43380+sBshf1RHa98KAAAAQAAAADqFMzKrGHECigO+5JIV4KgEAAAAA@getonit.net.au>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+In-Reply-To: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA4+E3P43380+sBshf1RHa98KAAAAQAAAAQtYYqknGzU6+CzMBqc9FPgEAAAAA@getonit.net.au>
+Thread-Index: AcSMjQsUtaA0ilozQAO1tkwqpMgdZABkETnw
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The email address of Hennus Bergman in the kernel is bouncing.
+> From: linux-kernel-owner@vger.kernel.org 
+> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Tim Warnock
+> Sent: Saturday, 28 August 2004 9:25 AM
+> To: linux-kernel@vger.kernel.org
+> Subject: More than 2048 ptys on 2.4.27
+> 
+> Hi all,
+> Im trying to increase ptys from 2048 to 4096 by doing these things:
+> 
+> Modifying include/linux/major.h:
+> Increase major numbers to 16
+> Move slave major start to 231 (according to docs this is 
+> available for use)
+> 
+> This appears to work to the point that the kernel doesn't 
+> panic on boot (ive
+> had some fun before now ;) however when an application tries 
+> to allocate a
+> pty I get an: "inappropriate ioctl for device"
+> 
+> As a test I lowered major numbers to 4, set ptys to 1024 and 
+> put slave major
+> start to 138 (should have been 136) and I didn't get this error.
+> 
+> So my question is how do I allow the use of major numbers 231 
+> through to 247
+> as pty slaves and major numbers 136-144 as pty masters?
 
-Aftern asking him whether I should update his email address in the Linux  
-kernel, he replied:
+I was wondering if no-one can help specifically whether they could at least
+point me in the direction I'd need to go to learn how this works.
 
-<--  snip  -->
+Thanks for any assistance, its appreciated.
 
-I get a lot of spam already and I'd rather avoid getting even more by 
-'advertising' my email adres on the internet like that. So I don't want 
-my pobox email address in the kernel distribution.
-If you want to remove my old cybercomm.nl  email address, that's fine 
-by me.
-
-<--  snip  -->
-
-
-The patch below therefore simply removes his bouncing emal address and 
-no longer homepage.
-
-
-Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
-
---- linux-2.6.9-rc1-mm1-full/CREDITS.old	2004-08-30 01:00:57.000000000 +0200
-+++ linux-2.6.9-rc1-mm1-full/CREDITS	2004-08-30 01:01:10.000000000 +0200
-@@ -325,8 +325,6 @@
- S: USA
- 
- N: Hennus Bergman
--E: hennus@cybercomm.nl
--W: http://www.cybercomm.nl/~hennus/
- P: 1024/77D50909 76 99 FD 31 91 E1 96 1C  90 BB 22 80 62 F6 BD 63
- D: Author and maintainer of the QIC-02 tape driver
- S: The Netherlands
---- linux-2.6.9-rc1-mm1-full/drivers/char/tpqic02.c.old	2004-08-30 01:01:38.000000000 +0200
-+++ linux-2.6.9-rc1-mm1-full/drivers/char/tpqic02.c	2004-08-30 01:01:49.000000000 +0200
-@@ -3,7 +3,6 @@
-  * Driver for tape drive support for Linux-i386
-  *
-  * Copyright (c) 1992--1996 by H. H. Bergman. All rights reserved.
-- * Current e-mail address: hennus@cybercomm.nl
-  *
-  * Distribution of this program in executable form is only allowed if
-  * all of the corresponding source files are made available through the same
+Tim
 

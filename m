@@ -1,48 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267324AbUGNPpj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267329AbUGNPqb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267324AbUGNPpj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 11:45:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267329AbUGNPpi
+	id S267329AbUGNPqb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 11:46:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267333AbUGNPqb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 11:45:38 -0400
-Received: from slartibartfast.pa.net ([66.59.111.182]:65481 "EHLO
-	slartibartfast.pa.net") by vger.kernel.org with ESMTP
-	id S267324AbUGNPpK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 11:45:10 -0400
-Date: Wed, 14 Jul 2004 11:42:51 -0400 (EDT)
-From: William Stearns <wstearns@pobox.com>
-X-X-Sender: wstearns@sparrow
-Reply-To: William Stearns <wstearns@pobox.com>
-To: Michael Buesch <mbuesch@freenet.de>
-cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       William Stearns <wstearns@pobox.com>
-Subject: Re: [Q] don't allow tmpfs to page out
-In-Reply-To: <200407141654.31817.mbuesch@freenet.de>
-Message-ID: <Pine.LNX.4.58.0407141141350.6240@sparrow>
-References: <200407141654.31817.mbuesch@freenet.de>
+	Wed, 14 Jul 2004 11:46:31 -0400
+Received: from moutng.kundenserver.de ([212.227.126.171]:51937 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S267329AbUGNPpt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jul 2004 11:45:49 -0400
+From: Christian Borntraeger <linux-kernel@borntraeger.net>
+To: linux-kernel@vger.kernel.org
+Subject: [RFC] removal of sync in panic
+Date: Wed, 14 Jul 2004 17:45:46 +0200
+User-Agent: KMail/1.6.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200407141745.47107.linux-kernel@borntraeger.net>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:5a8b66f42810086ecd21595c2d6103b9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Good afternoon, Michael,
+I have a question regarding the sys_sync() call within the panic function. 
+--------snip---------------
+        printk(KERN_EMERG "Kernel panic: %s\n",buf);
+        if (in_interrupt())
+                printk(KERN_EMERG "In interrupt handler - not syncing\n");
+        else if (!current->pid)
+                printk(KERN_EMERG "In idle task - not syncing\n");
+        else
+                sys_sync(); <--------------------
+        bust_spinlocks(0);
 
-On Wed, 14 Jul 2004, Michael Buesch wrote:
+#ifdef CONFIG_SMP
+        smp_send_stop();
+#endif
+--------------------------
 
-> Is it possible to disable the tmpfs feature to page out
-> memory to swap?
-> I didn't find any mount option or something like that
-> for it in the documentation.
 
-	I suspect a regular ramdisk, as opposed to tmpfs, would do what 
-you want.
-	Cheers,
-	- Bill
+I have seen panic failing two times lately on an SMP system. The box 
+panic'ed but was running happily on the other cpus. The culprit of this 
+failure is the fact, that these panics have been caused by a block device 
+or a filesystem (e.g. using errors=panic). In these cases the  likelihood 
+of a failure/hang of  sys_sync() is high. This is exactly what happened in 
+both cases I have seen. Meanwhile the other cpus are happily continuing  
+destroying data as the kernel has a severe problem but its not aware of 
+that as smp_send_stop happens after sys_sync.
 
----------------------------------------------------------------------------
-	"Heisenberg _may_ have slept here."
-(Courtesy of Rick Stevens <rstevens@vitalstream.com>)
---------------------------------------------------------------------------
-William Stearns (wstearns@pobox.com).  Mason, Buildkernel, freedups, p0f,
-rsync-backup, ssh-keyinstall, dns-check, more at:   http://www.stearns.org
---------------------------------------------------------------------------
+I can imagine several changes but I am not sure if this is a problem which 
+must be fixed and which fix is the best.
+Here are my alternatives:
+
+1. remove sys_sync completely: syslogd and klogd use fsync. No need to help 
+them. Furthermore we have a severe problem which is worth a panic, so we 
+better dont do any I/O.
+2. move smp_send_stop before sys_sync. This at least prevents other cpus of 
+doing harm if sys_sync hangs. Here I am not sure if this is really working.
+3. Add an 
+        if (doing_io())
+                printk(KERN_EMERG "In I/O routine - not syncing\n");
+check like in_interrupt check. Unfortunately I have no clue how this can be 
+achieved and it looks quite ugly.
+
+Thanks for any ideas and clarifications
+cheers
+
+Christian
+
+
+
+

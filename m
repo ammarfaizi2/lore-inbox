@@ -1,22 +1,26 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265396AbTBCB0k>; Sun, 2 Feb 2003 20:26:40 -0500
+	id <S265637AbTBCBay>; Sun, 2 Feb 2003 20:30:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265543AbTBCB0k>; Sun, 2 Feb 2003 20:26:40 -0500
-Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:12681 "EHLO
-	neo.rr.com") by vger.kernel.org with ESMTP id <S265396AbTBCB0g>;
-	Sun, 2 Feb 2003 20:26:36 -0500
-Date: Sun, 2 Feb 2003 20:36:56 +0000
+	id <S265608AbTBCBay>; Sun, 2 Feb 2003 20:30:54 -0500
+Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:13961 "EHLO
+	neo.rr.com") by vger.kernel.org with ESMTP id <S265637AbTBCB1b>;
+	Sun, 2 Feb 2003 20:27:31 -0500
+Date: Sun, 2 Feb 2003 20:37:02 +0000
 From: Adam Belay <ambx1@neo.rr.com>
 To: linux-kernel@vger.kernel.org
 Cc: greg@kroah.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Jaroslav Kysela <perex@perex.cz>
-Subject: [PATCH][RFC] PnP BIOS cleanups (4/4)
-Message-ID: <20030202203656.GA23160@neo.rr.com>
+       Jaroslav Kysela <perex@perex.cz>, Dominik Brodowski <linux@brodo.de>,
+       Tamagucci <Tamagucci@libero.it>, CaT <cat@zip.com.au>,
+       "Ruslan U. Zakirov" <cubic@miee.ru>
+Subject: [PATCH][RFC] Possible PnP BIOS GPF Solution for Sony VAIO and other laptops
+Message-ID: <20030202203702.GA23248@neo.rr.com>
 Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
 	linux-kernel@vger.kernel.org, greg@kroah.com,
 	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Jaroslav Kysela <perex@perex.cz>
+	Jaroslav Kysela <perex@perex.cz>,
+	Dominik Brodowski <linux@brodo.de>, Tamagucci <Tamagucci@libero.it>,
+	CaT <cat@zip.com.au>, "Ruslan U. Zakirov" <cubic@miee.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -24,217 +28,77 @@ User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch cleans up device inserting and disabling.
+The PnP BIOS may be wandering into segement 0x40.  If that is the case, this 
+patch should fix the problem.  I do not have a buggy system so I cannot test 
+this patch but I'd be intersted to hear the results.  If you have a system that 
+has caused pnpbios problems in the past, I recommend you try this patch.  If it 
+works, the system will not panic on startup.  This patch is against 2.5.59 and
+separate from my other recent patches.
 
 
---- a/drivers/pnp/pnpbios/core.c	Sun Feb  2 18:43:34 2003
-+++ b/drivers/pnp/pnpbios/core.c	Sun Feb  2 19:19:13 2003
-@@ -236,6 +236,7 @@
- 	void *p = kmalloc( size, f );
- 	if ( p == NULL )
- 		printk(KERN_ERR "PnPBIOS: kmalloc() failed\n");
-+	memset(p, 0, size);
- 	return p;
- }
+--- a/drivers/pnp/pnpbios/core.c	Fri Jan 31 16:59:57 2003
++++ b/drivers/pnp/pnpbios/core.c	Fri Jan 31 17:01:07 2003
+@@ -142,11 +142,13 @@
+ set_limit(cpu_gdt_table[cpu][(selname) >> 3], size); \
+ } while(0)
  
-@@ -752,8 +753,10 @@
- 	node = pnpbios_kmalloc(node_info.max_node_size, GFP_KERNEL);
- 	if (!node)
- 		return -1;
--	if (pnp_bios_get_dev_node(&nodenum, (char )0, node))
-+	if (pnp_bios_get_dev_node(&nodenum, (char )0, node)) {
-+		kfree(node);
- 		return -ENODEV;
-+	}
- 	pnp_parse_current_resources((char *)node->data,(char *)node->data + node->size,res);
- 	dev->active = pnp_is_active(dev);
- 	kfree(node);
-@@ -777,6 +780,7 @@
- 	if (pnp_bios_get_dev_node(&nodenum, (char )1, node))
- 		return -ENODEV;
- 	if(!pnp_write_resources((char *)node->data,(char *)node->data + node->size,res)){
-+		kfree(node);
- 		return -1;
- 	}
- 	pnp_bios_set_dev_node(node->handle, (char)0, node);
-@@ -786,70 +790,24 @@
- 
- static int pnpbios_disable_resources(struct pnp_dev *dev)
- {
--	struct pnp_rule_table * config = kmalloc(sizeof(struct pnp_rule_table), GFP_KERNEL);
--	/* first we need to set everything to a disabled value */
--	struct pnp_port	port = {
--	.max	= 0,
--	.min	= 0,
--	.align	= 0,
--	.size	= 0,
--	.flags	= 0,
--	.pad	= 0,
--	};
--	struct pnp_mem	mem = {
--	.max	= 0,
--	.min	= 0,
--	.align	= 0,
--	.size	= 0,
--	.flags	= 0,
--	};
--	struct pnp_dma	dma = {
--	.map	= 0,
--	.flags	= 0,
--	};
--	struct pnp_irq	irq = {
--	.map	= 0,
--	.flags	= 0,
--	.pad	= 0,
--	};
--	int i;
- 	struct pnp_dev_node_info node_info;
--	u8 nodenum = dev->number;
- 	struct pnp_bios_node * node;
--	if (!config)
--		return -1;
-+	
- 	/* just in case */
- 	if(dev->flags & PNPBIOS_NO_DISABLE || !pnpbios_is_dynamic(dev))
- 		return -EPERM;
--	memset(config, 0, sizeof(struct pnp_rule_table));
- 	if (!dev || !dev->active)
- 		return -EINVAL;
--	for (i=0; i < 8; i++)
--		config->port[i] = &port;
--	for (i=0; i < 4; i++)
--		config->mem[i] = &mem;
--	for (i=0; i < 2; i++)
--		config->irq[i] = &irq;
--	for (i=0; i < 2; i++)
--		config->dma[i] = &dma;
--	dev->active = 0;
--
- 	if (pnp_bios_dev_node_info(&node_info) != 0)
- 		return -ENODEV;
-+	/* the value of this will be zero */
- 	node = pnpbios_kmalloc(node_info.max_node_size, GFP_KERNEL);
- 	if (!node)
--		return -1;
--	if (pnp_bios_get_dev_node(&nodenum, (char )1, node))
--		goto failed;
--	if(pnp_write_resources((char *)node->data,(char *)node->data + node->size,&dev->res)<0)
--		goto failed;
--	kfree(config);
-+		return -ENOMEM;
-+	pnp_bios_set_dev_node(node->handle, (char)0, node);
-+	dev->active = 0;
- 	kfree(node);
- 	return 0;
-- failed:
--	kfree(node);
--	kfree(config);
--	return -1;
- }
- 
- 
-@@ -862,15 +820,47 @@
- 	.disable = pnpbios_disable_resources,
- };
- 
--static inline int insert_device(struct pnp_dev *dev)
-+static int insert_device(struct pnp_dev *dev, struct pnp_bios_node * node)
- {
- 	struct list_head * pos;
-+	unsigned char * p;
- 	struct pnp_dev * pnp_dev;
-+	struct pnp_id *dev_id;
-+	char id[8];
++static struct desc_struct bad_bios_desc = { 0, 0x00409200 };
 +
-+	/* check if the device is already added */
-+	dev->number = node->handle;
- 	list_for_each (pos, &pnpbios_protocol.devices){
- 		pnp_dev = list_entry(pos, struct pnp_dev, protocol_list);
- 		if (dev->number == pnp_dev->number)
- 			return -1;
- 	}
+ /*
+  * At some point we want to use this stack frame pointer to unwind
+- * after PnP BIOS oopses. 
++ * after PnP BIOS oopses.
+  */
+- 
 +
-+	/* set the initial values for the PnP device */
-+	dev_id = pnpbios_kmalloc(sizeof(struct pnp_id), GFP_KERNEL);
-+	if (!dev_id)
-+		return -1;
-+	pnpid32_to_pnpid(node->eisa_id,id);
-+	memcpy(dev_id->id,id,7);
-+	pnp_add_id(dev_id, dev);
-+	p = pnp_parse_current_resources((char *)node->data,
-+		(char *)node->data + node->size,&dev->res);
-+	p = pnp_parse_possible_resources((char *)p,
-+		(char *)node->data + node->size,dev);
-+	node_id_data_to_dev(p,node,dev);
-+	dev->active = pnp_is_active(dev);
-+	dev->flags = node->flags;
-+	if (!(dev->flags & PNPBIOS_NO_CONFIG))
-+		dev->capabilities |= PNP_CONFIGURABLE;
-+	if (!(dev->flags & PNPBIOS_NO_DISABLE))
-+		dev->capabilities |= PNP_DISABLE;
-+	dev->capabilities |= PNP_READ;
-+	if (pnpbios_is_dynamic(dev))
-+		dev->capabilities |= PNP_WRITE;
-+	if (dev->flags & PNPBIOS_REMOVABLE)
-+		dev->capabilities |= PNP_REMOVABLE;
-+	dev->protocol = &pnpbios_protocol;
-+
- 	pnp_add_device(dev);
- 	return 0;
- }
-@@ -878,14 +868,11 @@
- static void __init build_devlist(void)
+ u32 pnp_bios_fault_esp;
+ u32 pnp_bios_fault_eip;
+ u32 pnp_bios_is_utter_crap = 0;
+@@ -160,6 +162,8 @@
  {
- 	u8 nodenum;
--	char id[8];
--	unsigned char *pos;
- 	unsigned int nodes_got = 0;
- 	unsigned int devs = 0;
- 	struct pnp_bios_node *node;
- 	struct pnp_dev_node_info node_info;
- 	struct pnp_dev *dev;
--	struct pnp_id *dev_id;
+ 	unsigned long flags;
+ 	u16 status;
++	struct desc_struct save_desc_40;
++	int cpu;
  
- 	if (!pnp_bios_present())
- 		return;
-@@ -912,38 +899,9 @@
- 		dev =  pnpbios_kmalloc(sizeof (struct pnp_dev), GFP_KERNEL);
- 		if (!dev)
+ 	/*
+ 	 * PnP BIOSes are generally not terribly re-entrant.
+@@ -168,6 +172,10 @@
+ 	if(pnp_bios_is_utter_crap)
+ 		return PNP_FUNCTION_NOT_SUPPORTED;
+ 
++	cpu = get_cpu();
++	save_desc_40 = cpu_gdt_table[cpu][0x40 / 8];
++	cpu_gdt_table[cpu][0x40 / 8] = bad_bios_desc;
++
+ 	/* On some boxes IRQ's during PnP BIOS calls are deadly.  */
+ 	spin_lock_irqsave(&pnp_bios_lock, flags);
+ 
+@@ -207,6 +215,9 @@
+ 		: "memory"
+ 	);
+ 	spin_unlock_irqrestore(&pnp_bios_lock, flags);
++
++	cpu_gdt_table[cpu][0x40 / 8] = save_desc_40;
++	put_cpu();
+ 	
+ 	/* If we get here and this is set then the PnP BIOS faulted on us. */
+ 	if(pnp_bios_is_utter_crap)
+@@ -1431,7 +1442,7 @@
+ 		 * from devices that are can only be static such as
+ 		 * those controlled by the "system" driver.
+ 		 */
+-		if (pnp_bios_get_dev_node(&nodenum, (char )1, node))
++		if (pnp_bios_get_dev_node(&nodenum, (char )0, node))
  			break;
--		memset(dev,0,sizeof(struct pnp_dev));
--		dev_id =  pnpbios_kmalloc(sizeof (struct pnp_id), GFP_KERNEL);
--		if (!dev_id) {
--			kfree(dev);
--			break;
--		}
--		memset(dev_id,0,sizeof(struct pnp_id));
--		dev->number = thisnodenum;
--		pnpid32_to_pnpid(node->eisa_id,id);
--		memcpy(dev_id->id,id,7);
--		pnp_add_id(dev_id, dev);
--		pos = pnp_parse_current_resources((char *)node->data,(char *)node->data + node->size,&dev->res);
--		pos = pnp_parse_possible_resources((char *)pos,(char *)node->data + node->size,dev);
--		node_id_data_to_dev(pos,node,dev);
--		dev->active = pnp_is_active(dev);
--		dev->flags = node->flags;
--		if (!(dev->flags & PNPBIOS_NO_CONFIG))
--			dev->capabilities |= PNP_CONFIGURABLE;
--		if (!(dev->flags & PNPBIOS_NO_DISABLE))
--			dev->capabilities |= PNP_DISABLE;
--		dev->capabilities |= PNP_READ;
--		if (pnpbios_is_dynamic(dev))
--			dev->capabilities |= PNP_WRITE;
--		if (dev->flags & PNPBIOS_REMOVABLE)
--			dev->capabilities |= PNP_REMOVABLE;
--
--		dev->protocol = &pnpbios_protocol;
--
--		if(insert_device(dev)<0) {
--			kfree(dev_id);
-+		if(insert_device(dev,node)<0)
- 			kfree(dev);
--		} else
-+		else
- 			devs++;
- 		if (nodenum <= thisnodenum) {
- 			printk(KERN_ERR "PnPBIOS: build_devlist: Node number 0x%x is out of sequence following node 0x%x. Aborting.\n", (unsigned int)nodenum, (unsigned int)thisnodenum);
+ 		nodes_got++;
+ 		dev =  pnpbios_kmalloc(sizeof (struct pnp_dev), GFP_KERNEL);
+@@ -1563,6 +1574,8 @@
+ 		pnp_bios_callpoint.segment = PNP_CS16;
+ 		pnp_bios_hdr = check;
+ 
++		set_base(bad_bios_desc, __va((unsigned long)0x40 << 4));
++		_set_limit((char *)&bad_bios_desc, 4095 - (0x40 << 4));
+ 		for(i=0; i < NR_CPUS; i++)
+ 		{
+ 			Q2_SET_SEL(i, PNP_CS32, &pnp_bios_callfunc, 64 * 1024);

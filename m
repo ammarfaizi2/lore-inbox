@@ -1,103 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265115AbTL2Tys (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 14:54:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264586AbTL2TyL
+	id S264976AbTL2Tvb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 14:51:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264586AbTL2Tuj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 14:54:11 -0500
-Received: from astra.telenet-ops.be ([195.130.132.58]:29613 "EHLO
-	astra.telenet-ops.be") by vger.kernel.org with ESMTP
-	id S265110AbTL2Txn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 14:53:43 -0500
-Date: Mon, 29 Dec 2003 20:52:46 +0100
-From: Wim Van Sebroeck <wim@iguana.be>
-To: torvalds@osdl.org, Andrew Morton <akpm@osdl.org>
+	Mon, 29 Dec 2003 14:50:39 -0500
+Received: from cpe-024-033-224-91.neo.rr.com ([24.33.224.91]:13440 "EHLO
+	neo.rr.com") by vger.kernel.org with ESMTP id S263937AbTL2TsV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Dec 2003 14:48:21 -0500
+Date: Mon, 29 Dec 2003 14:37:11 +0000
+From: Adam Belay <ambx1@neo.rr.com>
+To: Amit Gurdasani <amitg@alumni.cmu.edu>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.6.0 - Watchdog patches
-Message-ID: <20031229205246.A32604@infomag.infomag.iguana.be>
-References: <20030906125136.A9266@infomag.infomag.iguana.be>
+Subject: Re: EISA ID for PnP modem and resource allocation
+Message-ID: <20031229143711.GA3176@neo.rr.com>
+Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
+	Amit Gurdasani <amitg@alumni.cmu.edu>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.56.0312261610200.1798@athena>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030906125136.A9266@infomag.infomag.iguana.be>; from wim@iguana.be on Sat, Sep 06, 2003 at 12:51:36PM +0200
+In-Reply-To: <Pine.LNX.4.56.0312261610200.1798@athena>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus, Andrew,
+On Fri, Dec 26, 2003 at 04:51:53PM +0400, Amit Gurdasani wrote:
+> I have a PROLiNK 1456VH internal Rockwell-based ISA PnP K56flex fax modem
+> whose EISA ID seems not to be known to 8250_pnp.c. The ID is AEI0250 as
+> reported in /sys/devices/pnp1/01:01/01:01.00/id and adding this into the
+> pnp_dev_table[] allows the device to be found and enabled properly by the
+> 8250 serial driver.
+>
+> A query: I'm using the serial IRQ autodetection and sharing support. In
+> 2.4.23, the serial driver was able to get the first serial port (ttyS0) and
+> this modem (ttyS2) to share IRQ 4. Now this is not happening, and each port
+> (and modem) is claiming a unique IRQ. Am I doing anything wrong?
 
-please do a
+Without special hardware modifications, it is usually unsafe to share irqs
+between isa devices.
 
-	bk pull http://linux-watchdog.bkbits.net/linux-2.5-watchdog
+>
+> The reason I ask is that I also have a jumpered SB16 on IRQ 5, and loading
+> the 8250 driver before the snd_sb16 driver results in the SB16's IRQ being
+> allocated for the modem, which prevents the SB16 driver from loading.
+> Loading the SB16 driver first results in resource starvation for the modem,
+> and the 8250 driver is only able to set up the onboard serial ports ttyS0
+> and ttyS1.
 
-This will update the following files:
+You may want to try changing the jumper on your SB16 to allow for PnP
+autoconfiguration.
 
- drivers/char/watchdog/Kconfig |    4 ++--
- drivers/usb/input/hid-core.c  |    4 ++++
- 2 files changed, 6 insertions(+), 2 deletions(-)
+>
+> In the meantime, I'm using the isapnptools to set up the modem with IRQ 4
+> before loading either driver. The result is that the SB16 driver gets IRQ 5
+> as needed, and ttyS0 is set up with IRQ 0 (is this OK?), but I'd really like
+> to use the kernel ISA PnP support.
 
-through these ChangeSets:
+Could I please see a copy of your /proc/interrupts.
 
-<wim@iguana.be> (03/10/26 1.1350.2.1)
-   [WATCHDOG] Kconfig
-   
-   Reflect new watchdog Documentation directory.
+>
+> (Kernel 2.4.23's kernel ISA PnP support and serial driver would
+> automatically assign IRQ 4 to both ttyS0 and the modem [ttyS2].)
 
-<wim@iguana.be> (03/12/11 1.1436)
-   [USB] hid blacklist addition
-   
-   Added the Berkshire Products USB PC Watchdog to the hid blacklist.
-   This to avoid problems with USB-Disconnects when the card feels it should reboot...
+The 2.4 series was not always aware of motherboard devices such as serial ports.
+Were you able to use ttyS0 and your modem at the same time?
 
-
-The ChangeSets can also be looked at on:
-	http://linux-watchdog.bkbits.net:8080/linux-2.5-watchdog
-
-For completeness, I added the patches below.
-
-Greetings,
-Wim.
-
-================================================================================
-diff -Nru a/drivers/char/watchdog/Kconfig b/drivers/char/watchdog/Kconfig
---- a/drivers/char/watchdog/Kconfig	Mon Dec 29 20:39:18 2003
-+++ b/drivers/char/watchdog/Kconfig	Mon Dec 29 20:39:18 2003
-@@ -17,7 +17,7 @@
- 	  implementation entirely in software (which can sometimes fail to
- 	  reboot the machine) and a driver for hardware watchdog boards, which
- 	  are more robust and can also keep track of the temperature inside
--	  your computer. For details, read <file:Documentation/watchdog.txt>
-+	  your computer. For details, read <file:Documentation/watchdog/watchdog.txt>
- 	  in the kernel source.
- 
- 	  The watchdog is usually used together with the watchdog daemon
-@@ -114,7 +114,7 @@
- 	  This card simply watches your kernel to make sure it doesn't freeze,
- 	  and if it does, it reboots your computer after a certain amount of
- 	  time. This driver is like the WDT501 driver but for different
--	  hardware. Please read <file:Documentation/pcwd-watchdog.txt>. The PC
-+	  hardware. Please read <file:Documentation/watchdog/pcwd-watchdog.txt>. The PC
- 	  watchdog cards can be ordered from <http://www.berkprod.com/>.
- 
- 	  To compile this driver as a module, choose M here: the
-diff -Nru a/drivers/usb/input/hid-core.c b/drivers/usb/input/hid-core.c
---- a/drivers/usb/input/hid-core.c	Mon Dec 29 20:39:39 2003
-+++ b/drivers/usb/input/hid-core.c	Mon Dec 29 20:39:39 2003
-@@ -1354,6 +1354,9 @@
- #define USB_VENDOR_ID_A4TECH		0x09DA
- #define USB_DEVICE_ID_A4TECH_WCP32PU	0x0006
- 
-+#define USB_VENDOR_ID_BERKSHIRE		0x0c98
-+#define USB_DEVICE_ID_BERKSHIRE_PCWD	0x1140
-+
- struct hid_blacklist {
- 	__u16 idVendor;
- 	__u16 idProduct;
-@@ -1403,6 +1406,7 @@
- 	{ USB_VENDOR_ID_TANGTOP, USB_DEVICE_ID_TANGTOP_USBPS2, HID_QUIRK_NOGET },
- 	{ USB_VENDOR_ID_ESSENTIAL_REALITY, USB_DEVICE_ID_ESSENTIAL_REALITY_P5, HID_QUIRK_IGNORE },
- 	{ USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_WCP32PU, HID_QUIRK_2WHEEL_MOUSE_HACK },
-+	{ USB_VENDOR_ID_BERKSHIRE, USB_DEVICE_ID_BERKSHIRE_PCWD, HID_QUIRK_IGNORE },
- 	{ 0, 0 }
- };
- 
+Thanks,
+Adam

@@ -1,112 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263945AbTL2SxI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 13:53:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264095AbTL2SxI
+	id S263679AbTL2S41 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 13:56:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263645AbTL2S41
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 13:53:08 -0500
-Received: from mtvcafw.sgi.com ([192.48.171.6]:43492 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id S263945AbTL2SxA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 13:53:00 -0500
-Date: Mon, 29 Dec 2003 10:51:26 -0800 (PST)
-From: John Hawkes <hawkes@google.engr.sgi.com>
-Message-Id: <200312291851.KAA25312@google.engr.sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFC][PATCH] 2.6.0-test11 sched_clock() broken for "drifty ITC"
-Cc: lse-tech@lists.sourceforge.net, mingo@elte.hu,
-       linux-kernel@vger.kernel.org
-References: <200312182044.hBIKiCLY5477429@babylon.engr.sgi.com>
+	Mon, 29 Dec 2003 13:56:27 -0500
+Received: from adsl-67-121-154-253.dsl.pltn13.pacbell.net ([67.121.154.253]:37089
+	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
+	id S263996AbTL2SzS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Dec 2003 13:55:18 -0500
+Date: Mon, 29 Dec 2003 10:55:15 -0800
+To: Dax Kelson <dax@gurulabs.com>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       linux-mm@kvack.org
+Subject: Re: 2.6.0-mm2
+Message-ID: <20031229185515.GB9954@triplehelix.org>
+Mail-Followup-To: joshk@triplehelix.org,
+	Dax Kelson <dax@gurulabs.com>,
+	linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+	linux-mm@kvack.org
+References: <20031229013223.75c531ed.akpm@osdl.org> <1072722682.15739.2.camel@mentor.gurulabs.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="kORqDWCi7qDJ0mEj"
+Content-Disposition: inline
+In-Reply-To: <1072722682.15739.2.camel@mentor.gurulabs.com>
+User-Agent: Mutt/1.5.4i
+From: joshk@triplehelix.org (Joshua Kwan)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Could you please finalise it, cook up the ia64 and numaq implementations
-> and send it over?
 
-I believe the "ia64 implementation" stands as-is, since it uses the low-
-overhead ITC.
+--kORqDWCi7qDJ0mEj
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I'm not familiar with NUMAQ issues, but perhaps this timer_tsc.c change
-would be appropriate?  It allows i386 CONFIG_NUMA platforms to potentially
-use the TSC for sched_clock() timings, given that sched_clock() no longer
-requires that the TSC be synchronized across all CPUs.  It does, however,
-require that "use_tsc" be properly initialized for i386 CONFIG_NUMA.  Is
-that a valid assumption?
+On Mon, Dec 29, 2003 at 11:31:22AM -0700, Dax Kelson wrote:
+> WARNING: /lib/modules/2.6.0-mm2/kernel/drivers/net/pcmcia/axnet_cs.ko nee=
+ds unknown symbol CardServices
 
-Also, I have added a comment to sched.h to make note of the change
-in sched_clock() semantics.
+I guess Andres had missed one...
 
-John Hawkes
-
-
-diff -X /home/hawkes/Patches/ignore.dirs -Naur linux-2.6.0/arch/i386/kernel/timers/timer_tsc.c linux-2.6.0-schedclock2/arch/i386/kernel/timers/timer_tsc.c
---- linux-2.6.0/arch/i386/kernel/timers/timer_tsc.c	Mon Nov 24 12:18:20 2003
-+++ linux-2.6.0-schedclock2/arch/i386/kernel/timers/timer_tsc.c	Sat Dec 13 11:33:04 2003
-@@ -138,9 +138,7 @@
- 	 * In the NUMA case we dont use the TSC as they are not
- 	 * synchronized across all CPUs.
- 	 */
--#ifndef CONFIG_NUMA
- 	if (!use_tsc)
--#endif
- 		return (unsigned long long)jiffies * (1000000000 / HZ);
- 
- 	/* Read the Time Stamp Counter */
-diff -X /home/hawkes/Patches/ignore.dirs -Naur linux-2.6.0/include/linux/sched.h linux-2.6.0-schedclock2/include/linux/sched.h
---- linux-2.6.0/include/linux/sched.h	Mon Nov 24 12:18:20 2003
-+++ linux-2.6.0-schedclock2/include/linux/sched.h	Mon Dec 29 10:47:55 2003
-@@ -510,6 +510,7 @@
- }
- #endif
- 
-+/* nanosecond granularity, not necessarily synchronized across all CPUs */
- extern unsigned long long sched_clock(void);
- 
- #ifdef CONFIG_NUMA
-diff -X /home/hawkes/Patches/ignore.dirs -Naur linux-2.6.0/kernel/sched.c linux-2.6.0-schedclock2/kernel/sched.c
---- linux-2.6.0/kernel/sched.c	Mon Nov 24 12:18:20 2003
-+++ linux-2.6.0-schedclock2/kernel/sched.c	Mon Dec 15 17:13:24 2003
-@@ -199,7 +199,7 @@
- struct runqueue {
- 	spinlock_t lock;
- 	unsigned long nr_running, nr_switches, expired_timestamp,
--			nr_uninterruptible;
-+			nr_uninterruptible, timestamp_last_tick;
- 	task_t *curr, *idle;
- 	struct mm_struct *prev_mm;
- 	prio_array_t *active, *expired, arrays[2];
-@@ -1135,6 +1135,7 @@
- 	set_task_cpu(p, this_cpu);
- 	nr_running_inc(this_rq);
- 	enqueue_task(p, this_rq->active);
-+	p->timestamp = sched_clock() - (src_rq->timestamp_last_tick - p->timestamp);
- 	/*
- 	 * Note that idle threads have a prio of MAX_PRIO, for this test
- 	 * to be always true for them.
-@@ -1155,7 +1156,7 @@
- static inline int
- can_migrate_task(task_t *tsk, runqueue_t *rq, int this_cpu, int idle)
- {
--	unsigned long delta = sched_clock() - tsk->timestamp;
-+	unsigned long delta = rq->timestamp_last_tick - tsk->timestamp;
- 
- 	if (!idle && (delta <= JIFFIES_TO_NS(cache_decay_ticks)))
- 		return 0;
-@@ -1361,6 +1362,8 @@
- 	runqueue_t *rq = this_rq();
- 	task_t *p = current;
- 
-+	rq->timestamp_last_tick = sched_clock();
-+
- 	if (rcu_pending(cpu))
- 		rcu_check_callbacks(cpu, user_ticks);
- 
-@@ -2639,6 +2642,8 @@
- 		if (p->prio < rq_dest->curr->prio)
- 			resched_task(rq_dest->curr);
+--- linux-2.6.0/drivers/net/pcmcia/axnet_cs.c~	2003-12-29 10:53:44.00000000=
+0 -0800
++++ linux-2.6.0/drivers/net/pcmcia/axnet_cs.c	2003-12-29 10:53:59.000000000=
+ -0800
+@@ -541,7 +541,7 @@
+ 	if (link->state & DEV_CONFIG) {
+ 	    if (link->open)
+ 		netif_device_detach(dev);
+-	    CardServices(ReleaseConfiguration, link->handle);
++	    pcmcia_release_configuration(link->handle);
  	}
-+	p->timestamp = rq_dest->timestamp_last_tick;
-+
-  out:
- 	double_rq_unlock(this_rq(), rq_dest);
- 	local_irq_restore(flags);
+ 	break;
+     case CS_EVENT_PM_RESUME:
+
+--=20
+Joshua Kwan
+
+--kORqDWCi7qDJ0mEj
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iQIVAwUBP/B4kqOILr94RG8mAQIm9xAAyJGPFbm0RkaybhFcWDvzlIAp/BgYxzhX
+2IP3CyXm7346v2pwa0BGK2M7P1cUUmVWUeAGBN+ejUaRZFm+sZXT+qaRMX4UUqha
+ibnWwV66pnCC9jt2lkKr/NuS//luYR4zvrgIMQYrHzXkXbAXtyfjSdKPweMg8Sek
+2tof904+H32/p/S7WDKnhj+BuewG48gvT3thhwZ7EKeFeTQunZ6hvReFgzyNhOBl
+HEsslDC1VbmHHtr2vuMqjuyh85DRX0wfVDirOdDZRtLHOHgd+KdbVcKGTzVBESt9
+cUroFjZVg4TDLZqiDnCHCk/+mRVdbhkoA9caeDNeGR15Nvp/TVagcsR/Mzk0Abf2
+YfyRQ41Z6cIlBwuoV/GsSfIT52YN58k2nghpqQnlrxCksF4w0ecpY/z8Tv7R/0JT
+g9IaIRYxt2WHBB/syBpW50bzj+Wt1qOsfSYE1Mj6y2oR2/49wjbPKaNLFI1cvjAe
+WJucKovXMhcz+UzJBfiRgQXNHHnz9bp9ZGn3a/0e23/0WHmCTlPzBKvEplQH47WO
+S4aFEtd7NA6qBjlMqLZrVyANLKB52jcze2E8VaiZPbsrHFpc+gBfRbdrl1K7gMJ6
+zUpTL3t0gKSdVJRbk7nnLsQRgPSL+YY3kkdT0F4M2aNmulq1+FXUx9NnzXD9W1EW
+VuoA6bL8eIA=
+=L5lL
+-----END PGP SIGNATURE-----
+
+--kORqDWCi7qDJ0mEj--

@@ -1,35 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266794AbSKHQcN>; Fri, 8 Nov 2002 11:32:13 -0500
+	id <S266774AbSKHQbD>; Fri, 8 Nov 2002 11:31:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266796AbSKHQcN>; Fri, 8 Nov 2002 11:32:13 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:17820 "EHLO
+	id <S266779AbSKHQbD>; Fri, 8 Nov 2002 11:31:03 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:16796 "EHLO
 	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S266794AbSKHQcM>; Fri, 8 Nov 2002 11:32:12 -0500
-Subject: Re: [PATCH] [TRIVIAL] hda: DMA disabled
+	id <S266774AbSKHQbC>; Fri, 8 Nov 2002 11:31:02 -0500
+Subject: Re: [PATCH] Linux-streams registration 2.5.46
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Denis Zaitsev <zzz@cd-club.ru>
-Cc: Andre Hedrick <andre@linux-ide.org>,
+To: Rob Landley <landley@trommello.org>
+Cc: David Grothe <dave@gcom.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021108010121.A674@natasha.zzz.zzz>
-References: <20021108010121.A674@natasha.zzz.zzz>
+In-Reply-To: <200211080637.06511.landley@trommello.org>
+References: <5.1.0.14.2.20021107145447.027905c8@localhost> 
+	<200211080637.06511.landley@trommello.org>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 08 Nov 2002 17:02:08 +0000
-Message-Id: <1036774928.16651.24.camel@irongate.swansea.linux.org.uk>
+Date: 08 Nov 2002 17:00:51 +0000
+Message-Id: <1036774851.16898.22.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-11-07 at 20:01, Denis Zaitsev wrote:
-> I have such a pessimistic messages at the startup, and nothing
-> relaxing is following, keeping such a feeling that DMA is really
-> disabled.  The tiny patch below brings the patiency, even though I'm
-> not sure that this is the exact way.  So, please apply, if it's
-> appropriate.
+On Fri, 2002-11-08 at 06:37, Rob Landley wrote:
+> > Comments welcome.  If it looks good will someone tell me to whom to direct
+> > it for inclusion in the kernel source?
+> 
+> Just a random comment, but the feature freeze was October 31st.  Is this a 
+> repost of something we saw before then?
 
-We are going to need more not less debug before 2.6. When its 2.6-rc
-then yes its time to quieten down but not while the IDE is stil being
-debugged
+Its just a fix for something that was broken before by cleanups and is
+now being done right. It also has no impact on drivers and other stuff.
+
+Dim prob
 

@@ -1,58 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262981AbTIGA4p (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Sep 2003 20:56:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262982AbTIGA4p
+	id S262148AbTIGBqM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Sep 2003 21:46:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262951AbTIGBqM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Sep 2003 20:56:45 -0400
-Received: from h80ad253e.async.vt.edu ([128.173.37.62]:29826 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S262981AbTIGA4o (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Sep 2003 20:56:44 -0400
-Message-Id: <200309070021.h870LaJe027827@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Erlend Aasland <erlend-a@ux.his.no>
-Cc: "David S. Miller" <davem@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [CRYPTO] add alg. type to /proc/crypto output 
-In-Reply-To: Your message of "Sat, 06 Sep 2003 12:08:18 +0200."
-             <20030906100818.GA24931@johanna5.ux.his.no> 
-From: Valdis.Kletnieks@vt.edu
-References: <20030905143859.GA18143@johanna5.ux.his.no> <20030905073403.0b939b0a.davem@redhat.com>
-            <20030906100818.GA24931@johanna5.ux.his.no>
+	Sat, 6 Sep 2003 21:46:12 -0400
+Received: from fw.osdl.org ([65.172.181.6]:22400 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262148AbTIGBqL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Sep 2003 21:46:11 -0400
+Date: Sat, 6 Sep 2003 18:47:15 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Anton Blanchard <anton@samba.org>
+Cc: jeremy@goop.org, linux-kernel@vger.kernel.org, bos@serpentine.com,
+       netdev@oss.sgi.com
+Subject: Re: 2.6.0-test4-mm6: locking imbalance with rtnl_lock/unlock?
+Message-Id: <20030906184715.38bf70d9.akpm@osdl.org>
+In-Reply-To: <20030906222436.GB15327@krispykreme>
+References: <1062885603.24475.7.camel@ixodes.goop.org>
+	<20030906222436.GB15327@krispykreme>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_760058760P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Date: Sat, 06 Sep 2003 20:21:36 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_760058760P
-Content-Type: text/plain; charset=us-ascii
+Anton Blanchard <anton@samba.org> wrote:
+>
+> 
+> > which is SIOCGIFADDR.  It seems to me the down() is actually the
+> > rtnl_lock() called at net/ipv4/devinet.c:536 in devinet_ioctl.  This
+> > happens even when netplugd is no longer running.  It looks like someone
+> > isn't releasing the lock.
+> > 
+> > I'm going over all the uses of rtnl_lock() to see if I can find a
+> > problem, but no sign yet.  I wonder if someone might have broken this
+> > recently: I'm running 2.6.0-test4-mm6, but I think Bryan is running an
+> > older kernel (2.6.0-test4?), and hasn't seen any problems.
+> 
+> Yep I saw this too when updating from test2 to BK from a few days ago.
+> >From memory the cpu that had the rtnl_lock was stuck in dev_close,
+> probably netif_poll_disable. I got side tracked and wasnt able to look
+> into it.
 
-On Sat, 06 Sep 2003 12:08:18 +0200, Erlend Aasland said:
-> On 09/05/03 07:34, David S. Miller wrote:
+If the caller of netif_poll_disable() has a signal pending,
+netif_poll_disable() becomes a busy loop, which might be causing a
+lockup.  Probably not, but it needs to use TASK_UNINTERRUPTIBLE.
 
-> > When you see names like "md5" and parameters such as "digestsize"
-> > listed, do you really have no clue that it is a "digest"?  :-)
-> Good point.
-
-On the flip side, it makes it possible for an *AUTOMATED* process to search for
-appropriate types of entries.  So for instance, a GUI can say "The following
-3 digest functions are available, please choose one" or "The following 4 symmetric
-encryptions are available".....
-
---==_Exmh_760058760P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE/WnoQcC3lWbTT17ARAnATAKDJMshdyPKIjriMfuSwXiOp/X9JwgCglshY
-9z2Xg23pKa3JsLpT3HlwU8E=
-=O5jI
------END PGP SIGNATURE-----
-
---==_Exmh_760058760P--
+I doubt if that explains Jeremy's deadlock though...

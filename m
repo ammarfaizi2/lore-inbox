@@ -1,66 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265148AbUHCUHh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266689AbUHCULz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265148AbUHCUHh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 16:07:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266830AbUHCUHg
+	id S266689AbUHCULz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 16:11:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266720AbUHCULz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 16:07:36 -0400
-Received: from email-out2.iomega.com ([147.178.1.83]:58059 "EHLO
-	email.iomega.com") by vger.kernel.org with ESMTP id S265148AbUHCUHW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 16:07:22 -0400
-In-Reply-To: <06F0F452-E491-11D8-94F5-00039398BB5E@ieee.org>
-References: <40926261-E3D3-11D8-B01E-00039398BB5E@ieee.org> <1091397374.6458
-	 .9.camel@patibmrh9> <20040802121712.GD15884@logos.cnet> <06F0F452-E491-11D
-	8-94F5-00039398BB5E@ieee.org>
-Mime-Version: 1.0 (Apple Message framework v618)
-Content-Type: text/plain;
-	charset=US-ASCII;
-	format=flowed
-Message-Id: <BBD076AD-E588-11D8-9102-00039398BB5E@ieee.org>
-Content-Transfer-Encoding: 7bit
-Cc: Mathias Kretschmer <posting@blx4.net>
-From: Pat LaVarre <p.lavarre@ieee.org>
-Subject: Re: 2.4.27rc2, DVD-RW support broke DVD-RAM writes
-Date: Tue, 3 Aug 2004 14:07:23 -0600
-To: linux-kernel@vger.kernel.org
-X-Mailer: Apple Mail (2.618)
-X-OriginalArrivalTime: 03 Aug 2004 20:07:19.0963 (UTC) FILETIME=[7B5766B0:01
-	C47995]
-X-imss-version: 2.0
-X-imss-result: Passed
-X-imss-scores: Clean:19.48023 C:20 M:1 S:5 R:5
-X-imss-settings: Baseline:1 C:1 M:1 S:1 R:1 (0.0000 0.0000)
+	Tue, 3 Aug 2004 16:11:55 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:55550 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S266689AbUHCULv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Aug 2004 16:11:51 -0400
+Date: Tue, 3 Aug 2004 22:11:44 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       xfs-masters@oss.sgi.com, linux-xfs@oss.sgi.com
+Subject: Re: [2.6 patch] let 4KSTACKS depend on EXPERIMENTAL (fwd)
+Message-ID: <20040803201143.GE2746@fs.tum.de>
+References: <20040802225951.GR2746@fs.tum.de> <20040802162846.3929e463.akpm@osdl.org> <20040803004509.GW2746@fs.tum.de> <1091490958.1647.25.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1091490958.1647.25.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> what you see in 2.4.27-rc3 when you try:
-> sudo blockdev --getro /dev/hd*
+On Tue, Aug 03, 2004 at 12:56:01AM +0100, Alan Cox wrote:
+> On Maw, 2004-08-03 at 01:45, Adrian Bunk wrote:
+> > OTOH, at least XFS is known to have problems with 4kb stacks - and you 
+> > don't want such problems to occur in production environments.
+> 
+> So put && !4KSTACKS in the XFS configuration ?
 
-Sorry, never mind, I can now reproduce this effect myself, because 
-Michael Tilelli kindly lent me a PATAPI DVD-RAM drive.
 
-We must have an asymmetry in 2.4 drivers/ide/ide-cd.c vs. 
-drivers/scsi/sr.c.  I see 2.4.26 work, but then 2.4.27-rc3 chokes:
+The patch below does exactly this.
 
-$ uname -msr
-Linux 2.4.27-rc4 i686
-$
-$ sudo rrd scan /dev/hdd
-/dev/hdd is MATSHITA DVD-RAM A127 not RRD
-$
-$ sudo dd if=/dev/hdd bs=32K skip=0 count=1 | hexdump -C
-00000000  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  
-|................|
-*
-1+0 records in
-1+0 records out
-00008000
-$ sudo dd of=/dev/hdd bs=32K skip=0 count=1 <xae.bin
-dd: opening `/dev/hdd': Read-only file system
-$ sudo blockdev --getro /dev/hdd
-0
-$
+The 4KSTACKS option has to be moved for that it's asked before XFS in
+"make config".
 
-Pat LaVarre
+diffstat output:
+ arch/i386/Kconfig |   18 +++++++++---------
+ fs/Kconfig        |    1 +
+ 2 files changed, 10 insertions(+), 9 deletions(-)
 
+
+Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
+
+--- linux-2.6.8-rc2-full/arch/i386/Kconfig.old	2004-07-20 21:00:32.000000000 +0200
++++ linux-2.6.8-rc2-full/arch/i386/Kconfig	2004-07-20 21:03:30.000000000 +0200
+@@ -865,6 +865,15 @@
+ 	generate incorrect output with certain kernel constructs when
+ 	-mregparm=3 is used.
+ 
++config 4KSTACKS
++	bool "Use 4Kb for kernel stacks instead of 8Kb"
++	help
++	  If you say Y here the kernel will use a 4Kb stacksize for the
++	  kernel stack attached to each process/thread. This facilitates
++	  running more threads on a system and also reduces the pressure
++	  on the VM subsystem for higher order allocations. This option
++	  will also use IRQ stacks to compensate for the reduced stackspace.
++
+ endmenu
+ 
+ 
+@@ -1289,15 +1299,6 @@
+ 	  If you don't debug the kernel, you can say N, but we may not be able
+ 	  to solve problems without frame pointers.
+ 
+-config 4KSTACKS
+-	bool "Use 4Kb for kernel stacks instead of 8Kb"
+-	help
+-	  If you say Y here the kernel will use a 4Kb stacksize for the
+-	  kernel stack attached to each process/thread. This facilitates
+-	  running more threads on a system and also reduces the pressure
+-	  on the VM subsystem for higher order allocations. This option
+-	  will also use IRQ stacks to compensate for the reduced stackspace.
+-
+ config X86_FIND_SMP_CONFIG
+ 	bool
+ 	depends on X86_LOCAL_APIC || X86_VOYAGER
+--- linux-2.6.8-rc2-full/fs/Kconfig.old	2004-07-20 21:04:02.000000000 +0200
++++ linux-2.6.8-rc2-full/fs/Kconfig	2004-07-20 21:04:25.000000000 +0200
+@@ -294,6 +294,7 @@
+ 
+ config XFS_FS
+ 	tristate "XFS filesystem support"
++	depends on (4KSTACKS=n || BROKEN)
+ 	help
+ 	  XFS is a high performance journaling filesystem which originated
+ 	  on the SGI IRIX platform.  It is completely multi-threaded, can

@@ -1,63 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264517AbTI2TN6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 15:13:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264518AbTI2TN6
+	id S264455AbTI2SzY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 14:55:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264456AbTI2SzY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 15:13:58 -0400
-Received: from web40902.mail.yahoo.com ([66.218.78.199]:25657 "HELO
-	web40902.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S264517AbTI2TNy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 15:13:54 -0400
-Message-ID: <20030929191352.10470.qmail@web40902.mail.yahoo.com>
-Date: Mon, 29 Sep 2003 12:13:52 -0700 (PDT)
-From: Bradley Chapman <kakadu_croc@yahoo.com>
-Subject: Re: [BUG] Defunct event/0 processes under 2.6.0-test6-mm1
-To: Chris Wright <chrisw@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030929120910.A6895@osdlab.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 29 Sep 2003 14:55:24 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:16401 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S264455AbTI2SzU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 14:55:20 -0400
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: Linux 2.6.0-test6
+Date: 29 Sep 2003 18:45:52 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <bl9ul0$348$1@gatekeeper.tmr.com>
+References: <Pine.LNX.4.44.0309271822450.6141-100000@home.osdl.org> <200309281703.53067.kernel@kolivas.org> <200309280502.36177.rob@landley.net> <3F77BB2C.7030402@cyberone.com.au>
+X-Trace: gatekeeper.tmr.com 1064861152 3208 192.168.12.62 (29 Sep 2003 18:45:52 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mr. Wright,
+In article <3F77BB2C.7030402@cyberone.com.au>,
+Nick Piggin  <piggin@cyberone.com.au> wrote:
 
---- Chris Wright <chrisw@osdl.org> wrote:
-> * Andrew Morton (akpm@osdl.org) wrote:
-> > Bradley Chapman <kakadu_croc@yahoo.com> wrote:
-> > >
-> > > I am experiencing defunct event/0 kernel daemons under 2.6.0-test6-mm1
-> > >  with synaptics_drv 0.11.7, Dmitry Torokhov's gpm-1.20 with synaptics
-> > >  support, and XFree86 4.3.0-10. Moving the touchpad in either X or with
-> > >  gpm causes defunct event/0 processes to be created. 
-> > 
-> > Defunct is odd.  Have you run `dmesg' to see if the kernel oopsed?
-> > 
-> > You could try reverting synaptics-reconnect.patch, and then
-> serio-reconnect.patch from
-> 
-> Andrew, I wonder if this isn't caused by the call_usermodehelper patch.
-> Looks like you were right ;-)
+| AFAIK, Con's scheduler doesn't change the nice implementation at all.
+| Possibly some of his changes amplify its problems, or, more likely they
+| remove most other scheduler problems leaving this one noticable.
+| 
+| If X is running at -20, and xmms at +19, xmms is supposed to still get
+| 5% of the CPU. Should be enough to run fine. Unfortunately this is
+| achieved by giving X very large timeslices, so xmms's scheduling latency
+| becomes large. The interactivity bonuses don't help, either.
 
-He is right. I reverted call_usermodehelper-retval-fix-2.patch and everything
-works again. Why would that break the source of events/0 and hotplug?
+Clearly the "some is good, more is better" approach doesn't provide
+stable balance between sound and cpu hogs. It isn't a question of "how
+much" cpu, just "when"which works or not.
 
-I'd post a link to my reponse but the USSG archive is slow ;-)
-
-> 
-> thanks,
-> -chris
-
-Brad
-
-
-=====
-Brad Chapman
-
-Permanent e-mail: kakadu_croc@yahoo.com
-
-__________________________________
-Do you Yahoo!?
-The New Yahoo! Shopping - with improved product search
-http://shopping.yahoo.com
+This is sort of like the deadline scheduler in that it trades of
+throughput for avoiding jackpot cases. I think that's desired behaviour
+in a CPU schedular too, at least if used by humans.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

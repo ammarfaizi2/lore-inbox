@@ -1,47 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293230AbSCBRpR>; Sat, 2 Mar 2002 12:45:17 -0500
+	id <S293260AbSCBRr5>; Sat, 2 Mar 2002 12:47:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293260AbSCBRpH>; Sat, 2 Mar 2002 12:45:07 -0500
-Received: from ookhoi.xs4all.nl ([213.84.114.66]:36231 "EHLO
-	sparsus.humilis.net") by vger.kernel.org with ESMTP
-	id <S293230AbSCBRox>; Sat, 2 Mar 2002 12:44:53 -0500
-Date: Sat, 2 Mar 2002 18:44:50 +0100
-From: Ookhoi <ookhoi@humilis.net>
-To: Stelian Pop <stelian.pop@fr.alcove.com>,
-        John Weber <john.weber@linuxhq.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.6-pre2 and ALSA Sound
-Message-ID: <20020302184450.W8078@humilis>
-Reply-To: ookhoi@humilis.net
-In-Reply-To: <3C7F321B.2040603@linuxhq.com> <20020301164724.GB31210@come.alcove-fr>
+	id <S293303AbSCBRrr>; Sat, 2 Mar 2002 12:47:47 -0500
+Received: from adsl-63-207-97-74.dsl.snfc21.pacbell.net ([63.207.97.74]:9724
+	"EHLO nova.botz.org") by vger.kernel.org with ESMTP
+	id <S293260AbSCBRrh> convert rfc822-to-8bit; Sat, 2 Mar 2002 12:47:37 -0500
+X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4
+To: Thomas Hood <jdthood@mail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: SSSCA: We're in trouble now 
+In-Reply-To: Message from Thomas Hood <jdthood@mail.com> 
+   of "01 Mar 2002 19:21:01 EST." <1015028463.2276.231.camel@thanatos> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020301164724.GB31210@come.alcove-fr>
-User-Agent: Mutt/1.3.19i
-X-Uptime: 21:26:11 up 6 days,  4:16, 15 users,  load average: 0.07, 0.09, 0.11
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Date: Sat, 02 Mar 2002 09:47:24 -0800
+Message-ID: <17085.1015091244@nova.botz.org>
+From: Jurgen Botz <jurgen@botz.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stelian Pop wrote:
-> On Fri, Mar 01, 2002 at 02:47:39AM -0500, John Weber wrote:
+Thomas Hood wrote:
+> The problem is that copy-protection will only be effective
+> if you impose Soviet style restrictions on the use of computers.
 > 
-> > Anyone else having trouble with ALSA YMFPCI?  Everything compiles,
-> > but I can't hear a thing (even with OSS compatibility enabled).
-> 
-> It does work for me at least, on a VAIO C1VE, kernel 2.5.6-pre2.
+> Certain powerful corporations want effective copy-protection.
+> Ergo, those powerful corporations will want to impose Soviet
+> style restrictions on the use of computers.
 
-Can you also record sound via the microphone?
+I think Thomas is absolutely right about this, and for now it would
+seem likely that this will eventually fail if for no other reason
+than that many other powerful corporations, who have little direct
+interest in consumer media content protection, would find such Soviet
+style restrictions an extreme inconvenience.  Powerful as the media
+companies may be, ultimately they are still small compared to oil,
+finance, or the heavy industries.
+
+Not that I think we should rely on or wait for any corporations whose
+interests happen to be coincidentally aligned with those of private
+citizens... we need to also take action as citizens to halt this
+rapid descent into a new information dark age.  But it as part of
+this action we should try to mobilize corporate interests who
+are likely to be on our side... they might move too slowly otherwise
+as it takes them a while to wake up to these kinds of threats to 
+their self-interest when they haven't yet visibly hit their bottom
+line.
+
+:j
+
+-- 
+Jürgen Botz                       | While differing widely in the various
+jurgen@botz.org                   | little bits we know, in our infinite
+                                  | ignorance we are all equal. -Karl Popper
 
 
-> lspci:
-> 	00:09.0 Multimedia audio controller: Yamaha Corporation YMF-754 [DS-1E Audio Controller]
-> 
-> .config:
-> 	CONFIG_SND=m
-> 	CONFIG_SND_SEQUENCER=m
-> 	CONFIG_SND_OSSEMUL=y
-> 	CONFIG_SND_MIXER_OSS=m
-> 	CONFIG_SND_PCM_OSS=m
-> 	CONFIG_SND_SEQUENCER_OSS=m

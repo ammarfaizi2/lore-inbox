@@ -1,52 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270630AbTG3KzF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 06:55:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270648AbTG3KzF
+	id S267517AbTG3LL1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 07:11:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270218AbTG3LL1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 06:55:05 -0400
-Received: from fw.osdl.org ([65.172.181.6]:4026 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S270630AbTG3KzC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 06:55:02 -0400
-Date: Wed, 30 Jul 2003 03:55:24 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Stefano Rivoir <s.rivoir@gts.it>
-Cc: lista1@telia.com, linux-kernel@vger.kernel.org
-Subject: Re: Disk performance degradation
-Message-Id: <20030730035524.65cfc39a.akpm@osdl.org>
-In-Reply-To: <3F2786E9.9010808@gts.it>
-References: <20030729182138.76ff2d96.lista1@telia.com>
-	<3F2786E9.9010808@gts.it>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 30 Jul 2003 07:11:27 -0400
+Received: from web20401.mail.yahoo.com ([66.163.169.89]:37721 "HELO
+	web20413.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S267517AbTG3LL0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 07:11:26 -0400
+Message-ID: <20030730111125.3876.qmail@web20413.mail.yahoo.com>
+Date: Wed, 30 Jul 2003 04:11:25 -0700 (PDT)
+From: devnetfs <devnetfs@yahoo.com>
+Subject: question on panic()?
+To: lkml <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stefano Rivoir <s.rivoir@gts.it> wrote:
->
-> Voluspa wrote:
-> 
-> > On 2003-07-29 12:00:06 Stefano Rivoir wrote:
-> > 
-> > 
-> >>Is there something I'm missing?!
-> > 
-> > 
-> > No, you are not ;-) You can reclaim some speed by doing a "hdparm -a
-> > 512". See thread for explanation (it's the borked value for readahead):
-> 
-> Thanks for the hint. This seems to make things a little better, but I'm
-> still far away from 2.4 performances. I thought that anticipatory sched
-> could be part of the problem, and booting with elevator=deadline
-> does a little better... but using 2.4 is completely another thing.
-> By the way, -a 512 vs -a 8 is a kernel "change" or an hdpam one?
+Hello,
 
-What makes you think it is a disk performance problem at all?  All we know
-is that KDE applications take longer to start up, yes?
+I am writing a module and want to truly panic the machine in case
+of critical errors. I used the panic() function. But after
+panic() is called and panic() does its job, I am still able
+to ping to this box from outside.
 
-How much memory is in that machine?  Can you run a `vmstat 1' trace during
-the "slow" operations?
+Looking at the panic() function, it looks all cpus _except_
+the one on which panic() got called are halted ("hlt"). and
+interrupts are reenabled on _this_ CPU, hence NIC interrupts
+are allowed and pkts sent out in response to ping.
 
+Why is this done? should'nt panic() halt all the CPUs?
+And is there any way to halt all cpus? (can't do that after
+called panic() as its NORET!). I am working on RH 2.4.X kernel.
+(AFAIK this has not changed in 2.5 too).
+
+Thanks in Advance,
+A.
+
+PS: please Cc: me the reply. I am not subscribed to lkml.
+
+__________________________________
+Do you Yahoo!?
+Yahoo! SiteBuilder - Free, easy-to-use web site design software
+http://sitebuilder.yahoo.com

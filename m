@@ -1,37 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264498AbRFTRW3>; Wed, 20 Jun 2001 13:22:29 -0400
+	id <S264508AbRFTRda>; Wed, 20 Jun 2001 13:33:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264500AbRFTRWT>; Wed, 20 Jun 2001 13:22:19 -0400
-Received: from cobae1.consultronics.on.ca ([205.210.130.26]:21888 "EHLO
-	cobae1.consultronics.on.ca") by vger.kernel.org with ESMTP
-	id <S264499AbRFTRWO>; Wed, 20 Jun 2001 13:22:14 -0400
-Date: Wed, 20 Jun 2001 13:22:12 -0400
-From: Greg Louis <glouis@dynamicro.on.ca>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.5ac16 SMP kernel panic trying to kill init
-Message-ID: <20010620132212.A1116@athame.dynamicro.on.ca>
-Reply-To: Greg Louis <glouis@dynamicro.on.ca>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Organization: Dynamicro Consulting Limited
+	id <S264509AbRFTRdU>; Wed, 20 Jun 2001 13:33:20 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:6662 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S264508AbRFTRdK>; Wed, 20 Jun 2001 13:33:10 -0400
+Date: Wed, 20 Jun 2001 14:32:55 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Pavel Machek <pavel@suse.cz>, Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: spindown
+In-Reply-To: <01062018523007.00439@starship>
+Message-ID: <Pine.LNX.4.33.0106201407450.1376-100000@duckman.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kernel 2.4.5ac16 is running on several UP machines here, but the first
-SMP machine I compiled it for fails early in boot.  I cleaned out the
-source tree and recompiled, in case I'd botched the first try, but got
-the same result.  Procedure for compilation was to patch, copy .config
-from the running 2.4.5ac14 tree, make oldconfig, make dep, make clean,
-make bzImage, make modules.  As that machine is relatively heavily used, I
-couldn't take the time to write down the panic details, but the kernel
-panicked "trying to kill init."  I realize this is not much to go on;
-later, when I can take the machine down for a while, I'll reproduce the
-panic and report in more detail.  Any suggestions for maximizing
-diagnostic value of that report will be welcome.
+On Wed, 20 Jun 2001, Daniel Phillips wrote:
 
--- 
-| G r e g  L o u i s          | gpg public key:      |
-|   http://www.bgl.nu/~glouis |   finger greg@bgl.nu |
+> BTW, with nominal 100,000 erases you have to write 10 terabytes
+> to your 100 meg flash disk before you'll see it start to
+> degrade.
+
+That assumes you write out full blocks.  If you flush after
+every byte written you'll hit the limit a lot sooner ;)
+
+Btw, this is also a problem with your patch, when you write
+out buffers all the time your disk will spend more time seeking
+all over the place (moving the disk head away from where we are
+currently reading!) and you'll end up writing the same block
+multiple times ...
+
+regards,
+
+Rik
+--
+Executive summary of a recent Microsoft press release:
+   "we are concerned about the GNU General Public License (GPL)"
+
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
+

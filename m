@@ -1,61 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277792AbRJLR2Z>; Fri, 12 Oct 2001 13:28:25 -0400
+	id <S277799AbRJLRhg>; Fri, 12 Oct 2001 13:37:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277798AbRJLR2Q>; Fri, 12 Oct 2001 13:28:16 -0400
-Received: from [134.122.1.73] ([134.122.1.73]:35849 "EHLO scl-ims.phoenix.com")
-	by vger.kernel.org with ESMTP id <S277792AbRJLR2L>;
-	Fri, 12 Oct 2001 13:28:11 -0400
-Message-ID: <D973CF70008ED411B273009027893BA401BE6C34@irv-exch.phoenix.com>
-From: David Christensen <David_Christensen@Phoenix.com>
-To: "'hanhbkernel'" <hanhbkernel@yahoo.com.cn>, linux-kernel@vger.kernel.org
-Subject: RE: initrd problem of 2.4.10
-Date: Fri, 12 Oct 2001 10:02:48 -0700
+	id <S277803AbRJLRh1>; Fri, 12 Oct 2001 13:37:27 -0400
+Received: from freeside.toyota.com ([63.87.74.7]:36614 "EHLO toyota.com")
+	by vger.kernel.org with ESMTP id <S277799AbRJLRhT>;
+	Fri, 12 Oct 2001 13:37:19 -0400
+Message-ID: <3BC729E2.E93A416E@lexus.com>
+Date: Fri, 12 Oct 2001 10:35:30 -0700
+From: J Sloan <jjs@lexus.com>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.13-pre1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="gb2312"
+To: "T. A." <tkhoadfdsaf@hotmail.com>,
+        Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] Re: Which kernel (Linus or ac)?
+In-Reply-To: <XFMail.20011011094548.jkp@riker.nailed.org> <3BC5E152.3D81631@bigfoot.com> <3BC5E3AF.588D0A55@lexus.com> <3BC5EB56.21B4EF88@bigfoot.com> <3BC5FA12.F8E5C91E@lexus.com> <OE64cxtniFKULPEhGD100007fff@hotmail.com> <3BC688A2.4C7640B7@pobox.com> <OE394qrvAsp4XgWZGbR0000e29d@hotmail.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> There is no problem using the initial RAM disk
-> (initrd) with kernel 2.4.9
-> But with kernel 2.4.10 system reports the following
-> messages:
-> 
-> RAMDISK: compressed image found at block 0
-> Freeing initrd memory: 1153k freed
-> VFS: Mounted root (ext2 filesystem)
-> Freeing unused kernel (memory: 224k freed)
-> Kernel panic: No init found. Try passing init=option
-> to kernel
-> 
-> When I compile the 2.4.10 The following option is
-> supported:
-> <*> RAM disk support(128000)   Default RAM disk size  
+After this post we should take it offline and
+let the s/n ratio on lkml settle back down to
+a dull roar - apologies for the noise, this is
+the last post on this dead horse.
 
-This is an unusually large size (128MB).  Is your ramdisk
-really that large?  Try reducing this to a more sane value
-(say 4096) and add the "ramdisk=" line to your /etc/lilo.conf
-if your ramdisk goes above 4MB.
+"T. A." wrote:
 
->                            
-> [*]   Initial RAM disk (initrd) support   
-> 
-> The version of lilo is 21.6. My lilo.conf is as this:
-> boot=/dev/hda
-> map=/boot/map
-> install=/boot/boot.b
-> prompt
-> timeout=50
-> message=/boot/message
-> linear
-> default=CapitelFW-2.4.9
-> image=/hda2/boot/linux-2.4.91
-> 	label=CapitelFW-2.4.9
-> 	initrd=/hda2/root/initrd.gz
-> 	append="root=/dev/ram0 init=linuxrc rw"
-> image=/hda2/boot/linux-2.4.10-ac
-> 	label=CapitelFW-ac12
-> 	initrd=/hda2/root/initrd.gz
-> 	append="root=/dev/ram0 init=linuxrc rw"
+>     Oh I could deal with all of the problems as well.  But after a good bit
+> of recompiling, patching, upgrading, backtracking the things done in the
+> "Redhat" way
+
+You may have a point with 7.0, but 7.1 was not
+that bad - and in any case, just applying the RH
+updates fixed the problems.
+
+> which many times don't match the man pages, as well as undoing
+> the "Redhat" way annoyances I just end up with a variation of my own hand
+> built distribution.
+
+To each his own - choice is a wonderful thing, isn't it?
+
+> And once I have to replace the system experimental C
+> library and compiler it just get even more ridicules.
+
+Experimental? What you call experimental, I call (and
+my customers call) fully functional and fully supported.
+
+Using gcc-2.96 on the 40+ RH boxes I have scattered
+around the southwest has shown no problems, despite
+all the outrage from anti gcc-2.96 activists.
+
+Here is a heads-up for the benefit of those wondering
+about gcc-2.96:
+
+http://www.bero.org/gcc296.html
+
+cu
+
+jjs
+

@@ -1,52 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129443AbRCZWI7>; Mon, 26 Mar 2001 17:08:59 -0500
+	id <S129408AbRCZWPt>; Mon, 26 Mar 2001 17:15:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129460AbRCZWIu>; Mon, 26 Mar 2001 17:08:50 -0500
-Received: from zooty.lancs.ac.uk ([148.88.16.231]:32189 "EHLO
-	zooty.lancs.ac.uk") by vger.kernel.org with ESMTP
-	id <S129443AbRCZWIe>; Mon, 26 Mar 2001 17:08:34 -0500
-Message-Id: <l0313032eb6e56cd8d6bb@[192.168.239.101]>
-In-Reply-To: <200103262127.PAA24549@tomcat.admin.navo.hpc.mil>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Date: Mon, 26 Mar 2001 23:07:17 +0100
-To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>,
-        dalecki@evision-ventures.com,
-        "Eric W. Biederman" <ebiederm@xmission.com>
-From: Jonathan Morton <chromi@cyberspace.org>
-Subject: Re: 64-bit block sizes on 32-bit systems
-Cc: linux-kernel@vger.kernel.org
+	id <S129495AbRCZWPb>; Mon, 26 Mar 2001 17:15:31 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:50192 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129506AbRCZWNo>; Mon, 26 Mar 2001 17:13:44 -0500
+Date: Mon, 26 Mar 2001 14:12:50 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: <John.L.Byrne@compaq.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Larger dev_t
+In-Reply-To: <3ABFB20E.DFB37BFA@kahuna.cag.cpqcorp.net>
+Message-ID: <Pine.LNX.4.31.0103261409490.12326-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->These are NOT the only 64 bit systems - Intel, PPC, IBM (in various guises).
->If you need raw compute power, the Alpha is pretty good (we have over a
->1000 in a Cray T3..).
 
-Best of all, the PowerPC and the POWER are binary-compatible to a very
-large degree - just the latter has an extra set of 64-bit instructions.
-What was that I was hearing about having to redevelop or recompile your
-apps for 64-bit?
 
-I can easily imagine a 64-bit filesystem being accessed by a bunch of
-RS/6000s and monitored using an old PowerMac.  Goodness, the PowerMac 9600
-even has 6 PCI slots to put all those SCSI-RAID and Ethernet cards in.  :)
+On Mon, 26 Mar 2001, John Byrne wrote:
 
---------------------------------------------------------------
-from:     Jonathan "Chromatix" Morton
-mail:     chromi@cyberspace.org  (not for attachments)
-big-mail: chromatix@penguinpowered.com
-uni-mail: j.d.morton@lancaster.ac.uk
+> > Re: Larger dev_t
+> >
+> On Sat Mar 24 2001 Linus Torvalds (torvalds@transmeta.com) wrote:
+> > There is no way in HELL I will ever accept a 64-bit dev_t.
+> >
+> > I _will_ accept a 32-bit dev_t, with 12 bits for major numbers, and 20
+> > bits for minor numbers.
+>
+> Do you have any interest in doing away with the concept of major and
+> minor numbers altogether; turning the dev_t into an opaque unique id?
 
-The key to knowledge is not to rely on people to teach you it.
+Inside the kernel we'll eventually do that.
 
-Get VNC Server for Macintosh from http://www.chromatix.uklinux.net/vnc/
+However, outside the kernel you still need the notion of device numbers if
+for no other reasons than legacy /dev space (other applications like 'tar'
+care too, but they only care about uniqueness, not about much else).
 
------BEGIN GEEK CODE BLOCK-----
-Version 3.12
-GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
-PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r++ y+(*)
------END GEEK CODE BLOCK-----
+> At the application level, the kinds of information that is derived from
+> the major/minor number should probably be derived in some other manner
+> such as a library or system call.
 
+It is. It's called "stat()", and a lot of people do depend on a
+device number being available. Few people care what that number actually
+_is_, though.
+
+So device numbers aren't going away, they are very much part of the UNIX
+legacy. We don't need to care about them too much inside the kernel,
+though. What most drivers really want to know is "sub-unit number", and
+not much else.
+
+			Linus
 

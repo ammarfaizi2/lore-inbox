@@ -1,62 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269913AbUIDMR5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267651AbUIDMVm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269913AbUIDMR5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Sep 2004 08:17:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269916AbUIDMR5
+	id S267651AbUIDMVm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Sep 2004 08:21:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269886AbUIDMVm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Sep 2004 08:17:57 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:31443 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S269913AbUIDMRz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Sep 2004 08:17:55 -0400
-Date: Sat, 4 Sep 2004 13:17:54 +0100 (IST)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
+	Sat, 4 Sep 2004 08:21:42 -0400
+Received: from delerium.kernelslacker.org ([81.187.208.145]:19146 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S267651AbUIDMVk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Sep 2004 08:21:40 -0400
+Date: Sat, 4 Sep 2004 13:20:58 +0100
+From: Dave Jones <davej@redhat.com>
 To: Keith Whitwell <keith@tungstengraphics.com>
-Cc: Dave Jones <davej@redhat.com>, Christoph Hellwig <hch@infradead.org>,
+Cc: Christoph Hellwig <hch@infradead.org>, Dave Airlie <airlied@linux.ie>,
        Jon Smirl <jonsmirl@yahoo.com>, dri-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
+       linux-kernel@vger.kernel.org, mharris@redhat.com
 Subject: Re: New proposed DRM interface design
+Message-ID: <20040904122057.GC26419@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Keith Whitwell <keith@tungstengraphics.com>,
+	Christoph Hellwig <hch@infradead.org>,
+	Dave Airlie <airlied@linux.ie>, Jon Smirl <jonsmirl@yahoo.com>,
+	dri-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+	mharris@redhat.com
+References: <20040904102914.B13149@infradead.org> <41398EBD.2040900@tungstengraphics.com> <20040904104834.B13362@infradead.org> <413997A7.9060406@tungstengraphics.com> <20040904112535.A13750@infradead.org> <4139995E.5030505@tungstengraphics.com> <20040904112930.GB2785@redhat.com> <4139A9F4.4040702@tungstengraphics.com> <20040904115442.GD2785@redhat.com> <4139B03A.6040706@tungstengraphics.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 In-Reply-To: <4139B03A.6040706@tungstengraphics.com>
-Message-ID: <Pine.LNX.4.58.0409041311020.25475@skynet>
-References: <20040904004424.93643.qmail@web14921.mail.yahoo.com>
- <Pine.LNX.4.58.0409040145240.25475@skynet> <20040904102914.B13149@infradead.org>
- <41398EBD.2040900@tungstengraphics.com> <20040904104834.B13362@infradead.org>
- <413997A7.9060406@tungstengraphics.com> <20040904112535.A13750@infradead.org>
- <4139995E.5030505@tungstengraphics.com> <20040904112930.GB2785@redhat.com>
- <4139A9F4.4040702@tungstengraphics.com> <20040904115442.GD2785@redhat.com>
- <4139B03A.6040706@tungstengraphics.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> Are you suggesting for instance, that RedHat might pick up individual drivers
-> out of Xorg or better still Mesa, rather than waiting for a full stable
-> release?  That would probably be the biggest help - by comparison kernel
-> releases are very frequent.
+On Sat, Sep 04, 2004 at 01:08:26PM +0100, Keith Whitwell wrote:
 
-Lets take an example, I'm DA graphics card vendor, I write a DRI driver
-for my brand new 3d graphics cards (they rock btw :-), people buy loads of
-them, I want to give them something on my website that they can deploy to
-use their new card, like a driver for ANotherOS. Now I just want to give
-them an XFree DDX, DRI driver and a drm module (in source form, that they
-can use no matter what kernel), now at the moment no matter what kernel
-they have, the DRM is a completly separate entity - the DRM code deals
-with it,
+ > So, we are coming out of a period of history where it was extremely 
+ > difficult to get our drivers to users through the 'official' channels - to 
+ > the extent that many people have given up on the possibility of them 
+ > working properly. Maybe things will improve now.
+ > 
+ > Are you suggesting for instance, that RedHat might pick up individual 
+ > drivers out of Xorg or better still Mesa, rather than waiting for a full 
+ > stable release?  That would probably be the biggest help - by comparison 
+ > kernel releases are very frequent.
 
-If we make a library split that sits inside the kernel, their DRM can
-stop working if someone busts the interface, hence the idea of having the
-core reg/dereg in the kernel, and locking it down, then they can ship a
-complete DRM source tree, and do as they wish as long as they interface
-properly with the core...
+I don't speak for X packaging (which is why I Cc'd Mike), but Fedora
+(Sorry Dave theres that word again) as a whole is tracking upstream
+very aggressively in most of its packages.
+(In the case of the kernel right now, we're tracking the daily -bk trees.
+ Though due to the number of architectures we support, it obviously takes
+ a while for it to all trickle out of our build system).
+Cherry picking updates from upstream happens for some packages, but typically,
+we'll just grab a new upstream as a whole as soon as it comes out.
 
-Dave.
+Daves point was true that only FC3test currently supports i915, but as we
+now use FC3test stabilisation points as update kernels for FC2 too, the
+kernel bits end up going back periodically.
+The Xorg side of the fence doesn't get as many updates.
+(And FC1 will never get Xorg, its still XFree86 4.4 iirc)
+One possible reason for this is sheer size of an X update, which annoys users.
+Hopefully this will be fixed with the modularisation work thats somewhere
+down the road.
 
-
--- 
-David Airlie, Software Engineer
-http://www.skynet.ie/~airlied / airlied at skynet.ie
-pam_smb / Linux DECstation / Linux VAX / ILUG person
+		Dave
 

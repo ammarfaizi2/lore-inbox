@@ -1,65 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261188AbTEKIzL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 May 2003 04:55:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261190AbTEKIzL
+	id S261181AbTEKI6R (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 May 2003 04:58:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261182AbTEKI6R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 May 2003 04:55:11 -0400
-Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:24558 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP id S261188AbTEKIzJ
+	Sun, 11 May 2003 04:58:17 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:31756 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id S261181AbTEKI6Q
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 May 2003 04:55:09 -0400
-Subject: Re: irq balancing: performance disaster
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Jos Hulzink <josh@stack.nl>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <200305110118.10136.josh@stack.nl>
-References: <200305110118.10136.josh@stack.nl>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-w+ycHDmHaisHxQoP0Kyx"
-Organization: Red Hat, Inc.
-Message-Id: <1052644067.1371.1.camel@laptop.fenrus.com>
+	Sun, 11 May 2003 04:58:16 -0400
+Date: Sun, 11 May 2003 11:07:03 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Riley Williams <Riley@Williams.Name>
+Cc: folkert@vanheusden.com, linux-kernel@vger.kernel.org
+Subject: Re: statistics for this mailinglist
+Message-ID: <20030511090703.GA2135@alpha.home.local>
+References: <200305110201.h4B211rL004741@muur.intranet.vanheusden.com> <BKEGKPICNAKILKJKMHCAMENICLAA.Riley@Williams.Name>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 (1.2.4-2) 
-Date: 11 May 2003 11:07:47 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <BKEGKPICNAKILKJKMHCAMENICLAA.Riley@Williams.Name>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Riley,
 
---=-w+ycHDmHaisHxQoP0Kyx
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+On Sun, May 11, 2003 at 10:03:11AM +0100, Riley Williams wrote:
+ 
+>  > Total number of lines: 132322
+>  > Total header length (lines): 90312
+>  > The header is on average 68.25% of the message (lines).
+> 
+> Other than test messages, I don't think I've ever seen an email
+> with more header than body, so I have to be suspicious of this
+> particular statistic.
 
-On Sun, 2003-05-11 at 01:18, Jos Hulzink wrote:
-> Hi,
->=20
-> While tackling bug 699, it became clear to me that irq balancing is the c=
-ause=20
-> of the performance problems I, and all people using the SMP kernel Mandra=
-ke=20
-> 9.1 ships, are dealing with. I got the problems with 2.5.69 too. After=20
-> disabling irq balancing, the system is remarkably faster, and much more=20
-> responsive.=20
->=20
-> For those interested in the issue, please look at bug 699.
+I receive messages with about 40 lines of headers each, and most of them
+have less than 30 lines of body, so on this point I must agree with Folkert.
+Since we have long threads, most of the messages are small replies, like this
+one I'm writing now. I'm fairly certain it will still have headers longer than
+body.
 
-please try the following app instead:
+Cheers,
+Willy
 
-http://people.redhat.com/arjanv/irqbalance/
-
-the in kernel irqbalancer in 2.4 kernels has some worst case behaviors
-at least, and the userspace implementation avoids those.
-
---=-w+ycHDmHaisHxQoP0Kyx
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+vhLjxULwo51rQBIRAoGsAJ93UZYFqryuQuOhvQO2bBaJTVFFxgCfRt4G
-uYMdAmRZ9FLBJgbPmfbtxlY=
-=DBNa
------END PGP SIGNATURE-----
-
---=-w+ycHDmHaisHxQoP0Kyx--

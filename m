@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265723AbRF2PKO>; Fri, 29 Jun 2001 11:10:14 -0400
+	id <S265845AbRF2PKz>; Fri, 29 Jun 2001 11:10:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265845AbRF2PKE>; Fri, 29 Jun 2001 11:10:04 -0400
-Received: from s1.relay.oleane.net ([195.25.12.48]:5790 "HELO
-	s1.relay.oleane.net") by vger.kernel.org with SMTP
-	id <S265723AbRF2PJz>; Fri, 29 Jun 2001 11:09:55 -0400
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: <linux-kernel@vger.kernel.org>
-Subject: VFS locking & HFS problems (2.4.6pre6)
-Date: Fri, 29 Jun 2001 17:09:42 +0200
-Message-Id: <20010629150942.1359@smtp.adsl.oleane.com>
-X-Mailer: CTM PowerMail 3.0.8 <http://www.ctmdev.com>
+	id <S265891AbRF2PKe>; Fri, 29 Jun 2001 11:10:34 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:42759 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S265845AbRF2PKa>; Fri, 29 Jun 2001 11:10:30 -0400
+Subject: Re: Qlogic Fiber Channel
+To: christophe.barbe@lineo.fr (=?ISO-8859-1?Q?christophe_barb=E9?=)
+Date: Fri, 29 Jun 2001 16:09:56 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010629151910.C27847@pc8.lineo.fr> from "=?ISO-8859-1?Q?christophe_barb=E9?=" at Jun 29, 2001 03:19:10 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15Fzu8-0000SK-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've had a deadlock twice with 2.4.6pre6 today. It's an SMP kernel
-running on an UP box (a PowerBook Pismo).
+> =46rom my point of view, this driver is sadly broken. The fun part is t=
+> hat
+> the qlogic driver is certainly based on this one too (look at the code,=
+>  the
+> drivers differs not so much).=20
 
-The deadlock happen in the HFS filesystem in hfs_cat_put(), apparently
-(quickly looking at addresses) in spin_lock().
+And if the other one is stable someone should spend the time merging the
+two.
 
-I don't have the complete backtrace at hand right now, but it basically
-went up to kswapd without anything evidently getting that spinlock,
-I'll try to gather more details.
+> IMHO the qlogicfc driver should be removed from the kernel tree and per=
+> haps
+> replaced by the last qlogic one. We then lost the IP support but this i=
+> s a
+> broken support.
 
-So my question: Is there any document explaining the various locking
-requirements & re-entrency possibilities in a filesystem.
+For 2.5 that may wellk make sense. Personally I'd prefer someone worked out
+why the qlogicfc driver behaves as it does. It sounds like two small bugs
+nothing more
 
-What I think might happen after a quick look is that HFS may be causing
-schedule() to be called while holding the spinlock, and gets then
-re-entered from another process context. I have to look at it in more
-detail (is there an HFS maintainer ?) but some background informations
-on VFS locking & reentrancy issues would be helpful.
+1.	That the FC event code wasnt updated from 2.2 so now runs
+	with IRQ's off when it didnt expect it
 
-Ben.
-
-
-
-
+2.	That someone has a slight glitch in the queue handling.
+> 

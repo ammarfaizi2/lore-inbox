@@ -1,29 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315198AbSGJNna>; Wed, 10 Jul 2002 09:43:30 -0400
+	id <S315191AbSGJNme>; Wed, 10 Jul 2002 09:42:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315265AbSGJNn3>; Wed, 10 Jul 2002 09:43:29 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:15372 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S315198AbSGJNn0>; Wed, 10 Jul 2002 09:43:26 -0400
-Subject: Re: oops in 2.4.19-rc1
-To: generica@email.com (Brett)
-Date: Wed, 10 Jul 2002 15:09:02 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0207102259150.7269-100000@bad-sports.com> from "Brett" at Jul 10, 2002 11:01:44 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S315277AbSGJNmd>; Wed, 10 Jul 2002 09:42:33 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:47866 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S315191AbSGJNmd>;
+	Wed, 10 Jul 2002 09:42:33 -0400
+Date: Wed, 10 Jul 2002 19:19:03 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: lse-tech@lists.sourceforge.net
+Subject: [OLS] RCU latency measurements
+Message-ID: <20020710191903.A1915@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E17SI9O-00077J-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Yes, the kernel is tainted, thanks to NVdriver
-> I booted with it, changed X to use nv driver and restarted X, so kernel 
-> stayed tainted, but module is no longer loaded.
+This is again a summary of what was presented at the OLS 2002
+RCU paper.
 
-The module could have done the damage already. Do this from a cold
-boot never loading the NV driver. The crash looks like memory corruption
-so its important to do this and may also be worth running memtest86 a bit
+One other aspect of different RCU implementations that we have
+been investigating is the update latency. That is, how long
+it takes to complete the grace period and do the actual update.
+Long latencies could result in system running out of memory.
+I measured this for 3 different RCU implementations - rcu_poll,
+rcu_ltimer and rcu_sched against varying number of clients in
+dbench with the lockfree dcache lookup patch using RCU for dentries.
+
+The results can be seen in the following graph -
+http://lse.sourceforge.net/locking/ols2002/rcu/results/latency/latency.png
+It is logscale on y axis, in case you don't notice it.
+
+The patches are same as the ones used in overhead measurements -
+http://lse.sourceforge.net/locking/ols2002/rcu/patches/
+
+1. rcu_poll, with its forced reschedule and aggressive
+polling, shows the best latency.
+
+2. The latencies for all these RCU implementations remain
+reasonably flat under increased load.
+
+Comments/suggestions ?
+
+Thanks
+-- 
+Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
+Linux Technology Center, IBM Software Lab, Bangalore, India.

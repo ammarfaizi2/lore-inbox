@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278917AbRJVVBu>; Mon, 22 Oct 2001 17:01:50 -0400
+	id <S278931AbRJVVFU>; Mon, 22 Oct 2001 17:05:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278923AbRJVVBd>; Mon, 22 Oct 2001 17:01:33 -0400
-Received: from a1d15hel.dial.kolumbus.fi ([212.54.8.1]:49556 "EHLO
-	porkkala.jlaako.pp.fi") by vger.kernel.org with ESMTP
-	id <S278917AbRJVVBM>; Mon, 22 Oct 2001 17:01:12 -0400
-Message-ID: <3BD488BB.854A96CC@kolumbus.fi>
-Date: Mon, 22 Oct 2001 23:59:39 +0300
-From: Jussi Laako <jussi.laako@kolumbus.fi>
-X-Mailer: Mozilla 4.76 [en] (Win98; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Rik van Riel <riel@conectiva.com.br>
-CC: bill davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
+	id <S278930AbRJVVFK>; Mon, 22 Oct 2001 17:05:10 -0400
+Received: from dsl-64-192-150-245.telocity.com ([64.192.150.245]:60690 "EHLO
+	mail.communicationsboard.net") by vger.kernel.org with ESMTP
+	id <S278931AbRJVVEz>; Mon, 22 Oct 2001 17:04:55 -0400
+Message-ID: <016201c15b3d$30de1d00$2a040a0a@zeusinc.com>
+From: "Tom Sightler" <ttsig@tuxyturvy.com>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: "Tudor Bosman" <tudorb@pikka.net>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <E15vlts-0003Gu-00@the-village.bc.nu>
 Subject: Re: Linux 2.2.20pre10
-In-Reply-To: <Pine.LNX.4.33L.0110221432490.22127-100000@duckman.distro.conectiva>
-Content-Type: text/plain; charset=us-ascii
+Date: Mon, 22 Oct 2001 17:04:47 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
-> 
-> The worst that could happen is that the US cripples
-> itself by not allowing the kernel hackers outside the
-> US to publish security info to people in the US, but
-> only to the rest of the world.
+> > Everyone wants to bring up the Sklyarov case, but he didn't just expose
+the
+> > weakness of the code, his company actively sold a product for financial
+gain
+> > that circumvented the protection.  While I still don't think the
+Sklyarov
+>
+> The Felten case is the more relevant one.
 
-Unless they pressure foreign governments to make similar laws as we have
-seen with Wassenaar arrangement and few other cases...
+OK, I need even more help here.  Isn't it Felten the one doing the suing in
+that case.  I need more clarification.  I've tried to read both the EFF
+pages as well as other sources and I don't even see where he has been sued
+under the DMCA (although it does look like he was theatened with legal
+action from the RIAA).  Has there been a recent ruling that I've been too
+busy to see lately.
+
+Thanks,
+Tom
 
 
-	- Jussi Laako
-
--- 
-PGP key fingerprint: 161D 6FED 6A92 39E2 EB5B  39DD A4DE 63EB C216 1E4B
-Available at PGP keyservers

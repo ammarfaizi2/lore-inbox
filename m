@@ -1,46 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276675AbRJ2RLW>; Mon, 29 Oct 2001 12:11:22 -0500
+	id <S276988AbRJ2RPW>; Mon, 29 Oct 2001 12:15:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276642AbRJ2RLM>; Mon, 29 Oct 2001 12:11:12 -0500
-Received: from mons.uio.no ([129.240.130.14]:45562 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S276641AbRJ2RLI>;
-	Mon, 29 Oct 2001 12:11:08 -0500
-To: "prabhakara_r" <prabhakara_r@indiatimes.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: nfs lockd error message
-In-Reply-To: <200110291642.WAA30251@WS0005.indiatimes.com>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 29 Oct 2001 18:11:37 +0100
-In-Reply-To: <200110291642.WAA30251@WS0005.indiatimes.com>
-Message-ID: <shssnc2e5h2.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
+	id <S276766AbRJ2RPC>; Mon, 29 Oct 2001 12:15:02 -0500
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:929 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S276641AbRJ2ROv>; Mon, 29 Oct 2001 12:14:51 -0500
+Date: Mon, 29 Oct 2001 18:11:46 +0100 (MET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Alan Cox <laughing@shared-source.org>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.13-ac4
+In-Reply-To: <E15yFhL-0003ED-00@the-village.bc.nu>
+Message-ID: <Pine.GSO.3.96.1011029180838.3407J-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == prabhakara r <prabhakara_r> writes:
+On Mon, 29 Oct 2001, Alan Cox wrote:
 
-     > hi all,
-     >    i am getting an error message "portmap: server localhost not
-     >    responding, timed out" followed by "portmap: makesock
-     >    failed, error = -5" after I recompiled the kernel with some
-     >    changes in tcp files under ipv4 dir. the system hangs for
-     >    minutes and then boots as usual. though i am damn sure that
-     >    i haven't done any changes to NFS source code, i am still
-     >    getting this error message. subsequently the system also
-     >    shows "NFS lockd failed" while shutting down.could anyone of
-     >    u pls tell me why i am getting this error and how to solve
-     >    this problem.
+> That may well be the case. If so its an X11 problem, for X11 to solve as
+> best it can
 
-The problem isn't with the kernel but with your setup. For some
-reason, the kernel is unable to contact the portmapper in order to
-register a service.
+ Of course.  Especially as it has all the tools it needs, i.e. the I/O
+permission bitmap.  But we have to take it into account when getting 8254
+breakage reports. 
 
-That can mean either that you are starting rpc.portmap after you start
-lockd, or that you have blocked access from 'localhost' (either using
-the tcp_wrappers, or using ipchains).
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 
-Cheers,
-   Trond

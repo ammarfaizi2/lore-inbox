@@ -1,50 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279939AbRJ3MKY>; Tue, 30 Oct 2001 07:10:24 -0500
+	id <S279935AbRJ3MMY>; Tue, 30 Oct 2001 07:12:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279938AbRJ3MKP>; Tue, 30 Oct 2001 07:10:15 -0500
-Received: from mailg.telia.com ([194.22.194.26]:59337 "EHLO mailg.telia.com")
-	by vger.kernel.org with ESMTP id <S279936AbRJ3MJy>;
-	Tue, 30 Oct 2001 07:09:54 -0500
-Date: Tue, 30 Oct 2001 13:05:05 +0100
-From: Johan <jo_ni@telia.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Still having problems with eepro100
-Message-Id: <20011030130505.20b3a688.jo_ni@telia.com>
-In-Reply-To: <20011030125720.A469@stud.ntnu.no>
-In-Reply-To: <20011030123927.74e26501.jo_ni@telia.com>
-	<20011030125720.A469@stud.ntnu.no>
-X-Mailer: Sylpheed version 0.6.4 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S279936AbRJ3MMO>; Tue, 30 Oct 2001 07:12:14 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:12041 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S279935AbRJ3MMF>; Tue, 30 Oct 2001 07:12:05 -0500
+Date: Tue, 30 Oct 2001 13:12:33 +0100
+From: Jan Kara <jack@suse.cz>
+To: Simon Kirby <sim@netnation.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Oops: Quota race in 2.4.12?
+Message-ID: <20011030131233.A6302@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20011028215818.A7887@netnation.com> <20011029144441.E11994@atrey.karlin.mff.cuni.cz> <20011029083044.G17389@netnation.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011029083044.G17389@netnation.com>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Oct 2001 12:57:20 +0100
-Thomas Langås <tlan@stud.ntnu.no> wrote:
-
-> Johan:
-> > Does anyone except me still having problems with the eepro100 drivers ?
+> On Mon, Oct 29, 2001 at 02:44:41PM +0100, Jan Kara wrote:
 > 
-> Yes, as I've mentioned in a earlier thread on this list, we have problems,
-> but trying the e100-driver from intel doesn't seem to help either (I'm
-> running tests now, and so far, they don't look very promising).
-
-Yes, I have read it, but it was a while ago and I thought the problem
-were sovled.
-
-> I'm experiensing the:
-> eth0: Card reports no resources
+> >   I'd also blame some SMP locking (I think that on UP everything was tested well) but
+> > everything should be protected by lock_kernel() and it seems to me that everything really
+> > is protected. Anyway I'll try to find the problem.
 > 
-> And, then a hang of at least a minute before the network connection is
-> restored. All my connections are 100Mbit full duplex, and the error comes
-> when doing heavy traffic. (Try bonnie++ over NFS, for instance).
+> I notice you just recently posted a patch to fix possible list
+> corruption.  Could this be related?
+  Nope. That was a fix specific to code in -ac kernel..
 
-Yes, its the same for me.
-
-Now I'll know that the driver still have problems.
-Thanks for your quick answear.
-
--- 
-// Johan
+								Honza
+--
+Jan Kara <jack@suse.cz>
+SuSE CR Labs

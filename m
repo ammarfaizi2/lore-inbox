@@ -1,36 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264007AbTEFSNW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 14:13:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264002AbTEFSM7
+	id S263918AbTEFSMG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 14:12:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263972AbTEFSMG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 14:12:59 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:2177
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S263972AbTEFSMy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 14:12:54 -0400
-Subject: Re: [PATCH] Only use MSDOS-Partitions by default on X86
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Nicolas Pitre <nico@cam.org>
-Cc: Russell King <rmk@arm.linux.org.uk>,
-       =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-       Marcus Meissner <meissner@suse.de>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0305061320080.11648-100000@xanadu.home>
-References: <Pine.LNX.4.44.0305061320080.11648-100000@xanadu.home>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1052241988.1202.36.camel@dhcp22.swansea.linux.org.uk>
+	Tue, 6 May 2003 14:12:06 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:14780 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S263918AbTEFSME (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 14:12:04 -0400
+Date: Tue, 6 May 2003 15:24:44 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Roger Luethi <rl@hellgate.ch>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: Linux 2.5.69
+Message-ID: <20030506182444.GC24780@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	"David S. Miller" <davem@redhat.com>, Roger Luethi <rl@hellgate.ch>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Rusty Russell <rusty@rustcorp.com.au>
+References: <Pine.LNX.4.44.0305041739020.1737-100000@home.transmeta.com> <20030506133938.GA11062@k3.hellgate.ch> <1052230132.983.48.camel@rth.ninka.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 06 May 2003 18:26:29 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1052230132.983.48.camel@rth.ninka.net>
+X-Url: http://advogato.org/person/acme
+Organization: Conectiva S.A.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2003-05-06 at 18:23, Nicolas Pitre wrote:
-> According to Alan it's nearly possible to configure the block layer out 
-> entirely, which would be a good thing to associate with a CONFIG_DISK option 
-> too.
+Em Tue, May 06, 2003 at 07:08:52AM -0700, David S. Miller escreveu:
+> On Tue, 2003-05-06 at 06:39, Roger Luethi wrote:
+> > I'm seeing "kernel BUG at include/linux/module.h:284!" with 2.5.69.
+> > 
+> > I first suspected the early summer in Europe made my hardware flaky, but I
+> > can't reproduce with 2.5.68.
+> 
+> Arnaldo, it's the socket module stuff.  He's using AF_UNIX
+> as a module.
 
-David Woodhouse I believe..
-
+I'm reading this thread now, will study this.

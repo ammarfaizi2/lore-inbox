@@ -1,60 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261491AbVCWKRZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261496AbVCWKSp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261491AbVCWKRZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 05:17:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261496AbVCWKRZ
+	id S261496AbVCWKSp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 05:18:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261507AbVCWKSp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 05:17:25 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:41685 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261491AbVCWKRV (ORCPT
+	Wed, 23 Mar 2005 05:18:45 -0500
+Received: from fire.osdl.org ([65.172.181.4]:39107 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261496AbVCWKS0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 05:17:21 -0500
-Date: Wed, 23 Mar 2005 11:17:06 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Jim Carter <jimc@math.ucla.edu>
+	Wed, 23 Mar 2005 05:18:26 -0500
+Date: Wed, 23 Mar 2005 02:17:59 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Borislav Petkov <petkov@uni-muenster.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Disc driver is module, software suspend fails
-Message-ID: <20050323101706.GB1407@elf.ucw.cz>
-References: <Pine.LNX.4.61.0503222212210.7671@xena.cft.ca.us>
+Subject: Re: 2.6.11-mm4 and 2.6.12-rc1-mm1
+Message-Id: <20050323021759.7326fac0.akpm@osdl.org>
+In-Reply-To: <200503231042.47249.petkov@uni-muenster.de>
+References: <20050316040654.62881834.akpm@osdl.org>
+	<200503170942.25833.petkov@uni-muenster.de>
+	<20050317011811.69062aa0.akpm@osdl.org>
+	<200503231042.47249.petkov@uni-muenster.de>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0503222212210.7671@xena.cft.ca.us>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> Distro:		SuSE Linux 9.2
-> Kernel:		2.6.8 (kernel-default-2.6.8-24.11), also 2.6.11.5
-> Hardware:	Dell Inspiron 6000d, Intel Pentium-M, 915PM chipset,
-> 		disc is Fujitsu MHT2040AH, SATA via ata_piix driver
-> Kernel cmdline:	root=/dev/sda3 vga=0x317 selinux=0 resume=/dev/sda5 \
-> 		desktop elevator=as showopts
+Borislav Petkov <petkov@uni-muenster.de> wrote:
+>
+> On Thursday 17 March 2005 10:18, Andrew Morton wrote:
+> > Borislav Petkov <petkov@uni-muenster.de> wrote:
+> > > Mar 17 09:19:28 zmei kernel: [    4.109241] PM: Checking swsusp image.
+> > >  Mar 17 09:19:28 zmei kernel: [    4.109244] PM: Resume from disk failed.
+> > >  Mar 17 09:19:28 zmei kernel: [    4.112220] VFS: Mounted root (ext2
+> > > filesystem) readonly. Mar 17 09:19:28 zmei kernel: [    4.112465] Freeing
+> > > unused kernel memory: 188k freed Mar 17 09:19:28 zmei kernel: [   
+> > > 4.142002] logips2pp: Detected unknown logitech mouse model 1 Mar 17
+> > > 09:19:28 zmei kernel: [    4.274620] input: PS/2 Logitech Mouse on
+> > > isa0060/serio1 [EOF]
+> > >  <-- and here it stops waiting forever. What actually has to come next is
+> > > the init process, i.e. something of the likes of:
+> > >  INIT version x.xx loading
+> > >  but it doesn't. And by the way, how do you debug this? serial console?
+> >
+> > Serial console would be useful.  Do sysrq-P and sysrq-T provide any info?
+> > -
+> <snip>
 > 
-> I have the same symptoms as seen in numerous complaints on the web: I do
-> "echo disk > /sys/power/state" or run /sbin/swsusp or powersave -U. The
-> kernel suspends all the way, then immediately wakes up, having
-> accomplished nothing.  On 2.6.11.5 I can read an error message: "swsusp:
-> FATAL: cannot find swap device, try swapon -a!"  Yes, the swap device is
-> recognized in /proc/swaps.
+> Hi Andrew,
 > 
-> I put some printk's into 2.6.11.5 and found out the reason for this
-> behavior: in kernel/power/swsusp.c, static resume_device == 0.  The
-> reason it's 0 is that swsusp_read uses name_to_dev_t to interpret
-> resume=/dev/sda5, a bogus block device name.  The reason it's bogus
-> is
-...
-> So I'm hoping someone has an idea how to make software_resume happen
-> _after_ the initrd has been run and its modules are in place, which
-> might make it into whatever kernel is being used in SuSE 9.3.
+> I've tried 2.6.12-rc1-mm1 today and it stops booting at the same point as 
+> 2.6.11-mm4. What might help is the info that rc1 boots just fine so it is 
+> something in the mm series that impedes the boot process. However, sysrq-P 
+> and sysrq-T do not provide anything - sysrq doesn't show any activity at all, 
+> i.e. it doesn't even print the usage info message. Infact, the keyboard is 
+> dead, it doesn't even turn on or off any lights (NumLock etc).
+> 
+> Any ideas? (Additional printk's added manually, etc..)
+> 
 
-This is WONTFIX for 2.6.11, but you can be pretty sure it is going to
-be fixed for SuSE 9.3, and patch is already in 2.6.12-rc1. Feel free
-to betatest SuSE 9.3 ;-).
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+- Make sure that io-apic is enabled, boot with `nmi_watchdog=1'.
+
+- Make sure that CONFIG_DETECT_SOFTLOCKUP is enabled
+
+- Add `initcall_debug' to the boot command line, see if that tells us
+  anything.
+
+- Disable CONFIG_DEBUG_PAGEALLOC, if it was enabled
+
+- Send me your .config.
+
+kgdb is the way to diagnose this one.
+

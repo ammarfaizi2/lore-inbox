@@ -1,72 +1,152 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316215AbSEKMYj>; Sat, 11 May 2002 08:24:39 -0400
+	id <S316216AbSEKN1T>; Sat, 11 May 2002 09:27:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316216AbSEKMYi>; Sat, 11 May 2002 08:24:38 -0400
-Received: from daimi.au.dk ([130.225.16.1]:63224 "EHLO daimi.au.dk")
-	by vger.kernel.org with ESMTP id <S316215AbSEKMYi>;
-	Sat, 11 May 2002 08:24:38 -0400
-Message-ID: <3CDD0D80.E87E4169@daimi.au.dk>
-Date: Sat, 11 May 2002 14:24:32 +0200
-From: Kasper Dupont <kasperd@daimi.au.dk>
-Organization: daimi.au.dk
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9-12smp i686)
-X-Accept-Language: en
+	id <S316217AbSEKN1S>; Sat, 11 May 2002 09:27:18 -0400
+Received: from netmail.netcologne.de ([194.8.194.109]:49931 "EHLO
+	netmail.netcologne.de") by vger.kernel.org with ESMTP
+	id <S316216AbSEKN1R>; Sat, 11 May 2002 09:27:17 -0400
+Message-Id: <200205111327.AWB48806@netmail.netcologne.de>
+Content-Type: text/plain;
+  charset="iso-8859-15"
+From: =?iso-8859-15?q?J=F6rg=20Prante?= <joergprante@gmx.de>
+Reply-To: joergprante@gmx.de
+Organization: Linux jungle 2.4.19-pre8 #4 Don Mai 9 23:37:47 CEST 2002 i686 unknown
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCHSET] 2.4.19pre8-jp11
+Date: Sat, 11 May 2002 15:25:07 +0200
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <200205102107.AWB17222@netmail.netcologne.de> <20020511010955.GB23320@opeth.ath.cx>
+Cc: David Nielsen <Lovechild@foolclan.com>
 MIME-Version: 1.0
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH] Trivial bugfix in 3c509.c
-Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With 3c509 compiled in kernel calling ifup after lots of
-diskaccess causes an Oops.
 
-read_eeprom was incorrectly marked as __init. This patch
-applies against 2.4.19-pre8-ac1 and maybee also 2.4.19-pre8:
+I just discovered that something in jp11 IDE code is broken because of 
+supermount. The supermount patches were originally for 2.4.18 and conflict 
+with other parts of the jp patch set. That has been already the case in jp10, 
+when supermount was suspended because it caused oopses at boot time.
 
-diff -Nur linux.old/drivers/net/3c509.c linux.new/drivers/net/3c509.c
---- linux.old/drivers/net/3c509.c       Sat May 11 13:53:45 2002
-+++ linux.new/drivers/net/3c509.c       Sat May 11 13:55:09 2002
-@@ -567,7 +567,7 @@
- /* Read a word from the EEPROM using the regular EEPROM access register.
-    Assume that we are in register window zero.
-  */
--static ushort __init read_eeprom(int ioaddr, int index)
-+static ushort read_eeprom(int ioaddr, int index)
- {
- 	outw(EEPROM_READ + index, ioaddr + 10);
- 	/* Pause for at least 162 us. for the read to take place. */
+IDE Disk seems to work, but IDE CD is unusable, for data and audio. 
+"HDIO_GETGEO" failed, and user apps get "no valid block device found" even if 
+there is a CD inserted. Audio access with KDE gives me "no CD", and cdfs give 
+me an oops in sys_lstat64 when trying 'ls' on the mounted device. 
 
-May 11 14:01:41 eddie ifup: Determining IP information for eth0...
-May 11 14:01:41 eddie kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000006
-May 11 14:01:41 eddie kernel:  printing eip:
-May 11 14:01:41 eddie kernel: c02e05e0
-May 11 14:01:41 eddie kernel: *pde = 00000000
-May 11 14:01:41 eddie kernel: Oops: 0000
-May 11 14:01:41 eddie kernel: CPU:    0
-May 11 14:01:41 eddie kernel: EIP:    0010:[read_eeprom+0/48]    Not tainted
-May 11 14:01:41 eddie kernel: EIP:    0010:[<c02e05e0>]    Not tainted
-May 11 14:01:41 eddie kernel: EFLAGS: 00010246
-May 11 14:01:41 eddie kernel: eax: 00000800   ebx: c02c63de   ecx: 00000006   edx: 0000022e
-May 11 14:01:41 eddie kernel: esi: 0000022e   edi: 00000220   ebp: c02c6360   esp: c3c07ea4
-May 11 14:01:41 eddie kernel: ds: 0018   es: 0018   ss: 0018
-May 11 14:01:41 eddie kernel: Process dhcpcd (pid: 1715, stackpage=c3c07000)
-May 11 14:01:41 eddie kernel: Stack: c01e4c80 00000220 00000014 0000022e c02c6360 00000220 00000000 c01e40ef 
-May 11 14:01:41 eddie kernel:        c02c6360 c02c6360 00000000 00000063 c022150c c02c6360 c02c6360 00000002 
-May 11 14:01:41 eddie ifup: ./ifup: line 250:  1715 Segmentation fault      /sbin/dhcpcd ${DHCPCDARGS} ${DEVICE}
-May 11 14:01:41 eddie kernel:        c0222461 c02c6360 cb259140 c3c07f3d cbfb1744 cbfb1720 c024e274 c02c6360 
-May 11 14:01:41 eddie kernel: Call Trace: [el3_up+128/464] [el3_open+111/160] [dev_open+76/176] [dev_change_flags+81/256] [devinet_ioctl+868/1696] 
-May 11 14:01:41 eddie kernel: Call Trace: [<c01e4c80>] [<c01e40ef>] [<c022150c>] [<c0222461>] [<c024e274>] 
-May 11 14:01:41 eddie kernel:    [do_page_fault+296/1147] [packet_ioctl+905/960] [sock_ioctl+28/32] [sys_ioctl+559/592] [system_call+51/64] 
-May 11 14:01:41 eddie kernel:    [<c0112708>] [<c0258099>] [<c021b7dc>] [<c0143c1f>] [<c01089f3>] 
-May 11 14:01:41 eddie kernel: 
-May 11 14:01:41 eddie kernel: Code: 39 01 8b bb 1b d3 f9 1a 90 a4 24 fc 3a fa dc 62 6e 22 28 42 
-May 11 14:01:41 eddie pumpd[1719]: starting at (uptime 0 days, 0:02:49) Sat May 11 14:01:41 2002  
+The reason must be in 28_new-stat, which comes with supermount patch. Maybe 
+28_new-stat is buggy, or it causes unwanted interaction between the IDE code, 
+the stat changes in 2.4.19pre4-pre5, and supermount. I will try upgrading 
+the supermount patch. It's not trivial for me and might take some time to 
+investigate, and maybe Juan Jose Quintela can point me to the right 
+direction (http://people.mandrakesoft.com/~quintela/supermount/2.4.18)
 
+For some "funny" effects see below.
 
--- 
-Kasper Dupont -- der bruger for meget tid på usenet.
-For sending spam use mailto:razor-report@daimi.au.dk
+Strong recommendation: please remove the supermount patches from jp11. The 
+patches involved are
+
+26_autofs4
+27_isrdonly
+28_new-stat
+29_mediactl
+30_llseek
+31_mount
+32_device
+33_supermount
+
+Sorry folks. Any help is strongly appreciated to fix that problem quickly.
+
+Jörg
+
+------- snip -------------------
+
+jungle:/home/joerg # hdparm -I /dev/hdb
+
+/dev/hdb:
+ HDIO_GETGEO failed: Invalid argument
+
+ Model=OTHSBI AVD-DOR MDSC-5220                , FwRev=D131    , 
+SerialNo=170003
+6335
+ Config={ Fixed Removeable DTR<=5Mbs DTR>10Mbs nonMagnetic }
+ RawCHS=0/0/0, TrkSize=0, SectSize=0, ECCbytes=0
+ BuffType=unknown, BuffSize=128kB, MaxMultSect=0
+ (maybe): CurCHS=0/0/0, CurSects=0, LBA=yes, LBAsects=0
+ IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
+ PIO modes: pio0 pio1 pio2 pio3 pio4
+ DMA modes: sdma0 sdma1 sdma2 mdma0 mdma1 mdma2 udma0 udma1 *udma2
+ AdvancedPM=no
+ Drive Supports : ATA/ATAPI-5 T13 1321D revision 3 : ATA-2 ATA-3 ATA-4 ATA-5
+
+[few minutes later and invoked 'hdparm -i /dev/hda' with ok results]
+
+jungle:/home/joerg # hdparm -i /dev/hdb
+
+/dev/hdb:
+ HDIO_GETGEO failed: Invalid argument
+
+ Model=TOSHIBA DVD-ROM SD-C2502, FwRev=1D13, SerialNo=7100303653
+ Config={ Fixed Removeable DTR<=5Mbs DTR>10Mbs nonMagnetic }
+ RawCHS=0/0/0, TrkSize=0, SectSize=0, ECCbytes=0
+ BuffType=unknown, BuffSize=128kB, MaxMultSect=0
+ (maybe): CurCHS=0/0/0, CurSects=0, LBA=yes, LBAsects=0
+ IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
+ PIO modes: pio0 pio1 pio2 pio3 pio4
+ DMA modes: sdma0 sdma1 sdma2 mdma0 mdma1 mdma2 udma0 udma1 *udma2
+ AdvancedPM=no
+ Drive Supports : ATA/ATAPI-5 T13 1321D revision 3 : ATA-2 ATA-3 ATA-4 ATA-5
+
+---- snip ----
+
+jungle:/home/joerg # mount -t cdfs -o ro /dev/hdb /mnt/cdfs
+
+May 11 12:33:55 jungle kernel: cdfs 0.5b loaded.
+
+jungle:/home/joerg # ls /mnt/cdfs
+
+May 11 12:34:02 jungle kernel: Unable to handle kernel NULL pointer 
+dereference at virtual address 0000003c
+May 11 12:34:02 jungle kernel:  printing eip:
+May 11 12:34:02 jungle kernel: c0141713
+May 11 12:34:02 jungle kernel: *pde = 00000000
+May 11 12:34:02 jungle kernel: Oops: 0000
+May 11 12:34:02 jungle kernel: CPU:    0
+May 11 12:34:02 jungle kernel: EIP:    0010:[vfs_lstat+91/148]    Not tainted
+May 11 12:34:02 jungle kernel: EFLAGS: 00210246
+May 11 12:34:02 jungle kernel: eax: ccd19400   ebx: 00000000   ecx: 00000000  
+ edx: cb771bc0
+May 11 12:34:02 jungle kernel: esi: cbe41f5c   edi: cbe41f88   ebp: bfffec8c  
+ esp: cbe41f50
+May 11 12:34:02 jungle kernel: ds: 0018   es: 0018   ss: 0018
+May 11 12:34:02 jungle kernel: Process ls (pid: 920, stackpage=cbe41000)
+May 11 12:34:02 jungle kernel: Stack: cbe41f88 40164f4c bfffeca4 cb771bc0 
+cffe84a0 00000000 3c507f10 00000000
+May 11 12:34:02 jungle kernel:        00000008 00000001 c0141e57 bfffeca4 
+cbe41f88 cbe40000 00117741 cbe40000
+May 11 12:34:02 jungle kernel:        41ed0307 0000000a 00000000 00000000 
+00200000 00001000 00000000 3cdcf1ed
+May 11 12:34:02 jungle kernel: Call Trace: [sys_lstat64+19/48] 
+[system_call+51/56]
+May 11 12:34:02 jungle kernel:
+May 11 12:34:02 jungle kernel: Code: 83 79 3c 00 74 0e 57 52 8b 44 24 18 50 
+8b 41 3c ff d0 eb 0c
+
+---- snip----
+On Duron 1Ghz K7S5A board I get the name right, but HDIO_GETGEO failed too.
+
+mountain:/home/joerg # hdparm -I /dev/hdb
+
+/dev/hdb:
+ HDIO_GETGEO failed: Invalid argument
+
+ Model=LG DVD-ROM DRD-8160B, FwRev=1.01, SerialNo=
+ Config={ Fixed Removeable DTR<=5Mbs DTR>10Mbs nonMagnetic }
+ RawCHS=0/0/0, TrkSize=0, SectSize=0, ECCbytes=0
+ BuffType=unknown, BuffSize=0kB, MaxMultSect=0
+ (maybe): CurCHS=0/0/0, CurSects=0, LBA=yes, LBAsects=0
+ IORDY=on/off, tPIO={min:227,w/IORDY:120}, tDMA={min:120,rec:150}
+ PIO modes: pio0 pio1 pio2 pio3 pio4
+ DMA modes: sdma0 sdma1 sdma2 mdma0 mdma1 mdma2 udma0 udma1 *udma2
+ AdvancedPM=no
+

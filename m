@@ -1,55 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287866AbSAFNKh>; Sun, 6 Jan 2002 08:10:37 -0500
+	id <S288845AbSAFNMR>; Sun, 6 Jan 2002 08:12:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288787AbSAFNKT>; Sun, 6 Jan 2002 08:10:19 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:19214 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S287866AbSAFNKA>;
-	Sun, 6 Jan 2002 08:10:00 -0500
-Date: Sun, 6 Jan 2002 13:09:58 +0000
-From: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
-To: William Lee Irwin III <wli@holomorphy.com>, binutils@sources.redhat.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: Binutils and the Linux kernel source finder
-Message-ID: <20020106130958.GC22105@gallifrey>
-In-Reply-To: <20020105180237.GF485@gallifrey> <20020106015517.D10391@holomorphy.com>
+	id <S288787AbSAFNMI>; Sun, 6 Jan 2002 08:12:08 -0500
+Received: from holomorphy.com ([216.36.33.161]:25801 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S288845AbSAFNLy>;
+	Sun, 6 Jan 2002 08:11:54 -0500
+Date: Sun, 6 Jan 2002 05:11:34 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Anton Blanchard <anton@samba.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Remove 8 bytes from struct page on 64bit archs
+Message-ID: <20020106051134.E10391@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Anton Blanchard <anton@samba.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020106123913.GA5407@krispykreme>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
 Content-Disposition: inline
-In-Reply-To: <20020106015517.D10391@holomorphy.com>
-User-Agent: Mutt/1.3.25i
-X-Chocolate: 70 percent or better cocoa solids preferably
-X-Operating-System: Linux/2.4.17 (i686)
-X-Uptime: 13:08:19 up 1 day, 14:20,  4 users,  load average: 2.00, 2.02, 2.08
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <20020106123913.GA5407@krispykreme>; from anton@samba.org on Sun, Jan 06, 2002 at 11:39:14PM +1100
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* William Lee Irwin III (wli@holomorphy.com) wrote:
+On Sun, Jan 06, 2002 at 11:39:14PM +1100, Anton Blanchard wrote:
+> It seems shortening struct page is all the rage at the moment and I
+> didnt want to be left out. On some 64bit architectures (sparc64 and
+> ppc64 for example) all memory is allocated in the DMA zone. Therefore
+> there is no reason to waste 8 bytes per page when every page points to
+> the same zone!
 
-> Hello, good to hear from you again!
-> 
-> Do you already have a dedicated page up, or are you just going to keep
-> things there? This sounds like a very useful bit of information to get,
-> especially given my direct experience with the (lack of) documentation
-> of this issue, and perhaps worthy of its own microproject...
+Very true. I devised something to address this that appears to work on
+multiple architectures already by folding ->zone into ->flags, which
+could be useful. (Dave Jones recommended I just let arch maintainers
+for things other than i386 mess with page_address() for other arches.)
+OTOH, I'm more interested in getting it trimmed down than getting credit.
 
-I'm going to keep it on the same page as the kernel source pointers -
-have it all in one place.
 
-> IIRC on linux-m68k or somewhere someone told me it was binutils-2.9.1
-> and gcc-2.95.3 for m68k (which I'm sure you've already heard, just
-> trying to air it out here).
+Cheers,
+Bill
 
-Yeh, I'm using 2.11.92.0.10 binutils and 2.95.4 20011223 (Debian
-prerelease) for gcc my self.
+P.S.:
 
-> I myself am especially interested in seeing the results of this as I,
-> too, have a variety of architectures in the house.
+My i386 version, which makes ->virtual conditional on CONFIG_HIGHMEM as
+well, is at:
 
-Yes, it can be a bit of a battle at times!
-
-Dave
- ---------------- Have a happy GNU millennium! ----------------------   
-/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
-\ gro.gilbert @ treblig.org | MIPS,x86,ARM, SPARC and HP-PA | In Hex /
- \ _________________________|_____ http://www.treblig.org   |_______/
+ftp://ftp.kernel.org/pub/linux/kernel/people/wli/vm/struct_page/struct_page-2.4.17-rc2

@@ -1,50 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314682AbSDTRpi>; Sat, 20 Apr 2002 13:45:38 -0400
+	id <S314681AbSDTRtM>; Sat, 20 Apr 2002 13:49:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312915AbSDTRoC>; Sat, 20 Apr 2002 13:44:02 -0400
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:7669 "HELO
-	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
-	id <S314672AbSDTRn0>; Sat, 20 Apr 2002 13:43:26 -0400
-Message-ID: <3CC1A8BD.2899AB80@redhat.com>
-Date: Sat, 20 Apr 2002 18:43:25 +0100
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-Organization: Red Hat, Inc
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-0.24smp i686)
+	id <S314686AbSDTRtL>; Sat, 20 Apr 2002 13:49:11 -0400
+Received: from relay1.pair.com ([209.68.1.20]:56847 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id <S314681AbSDTRtK>;
+	Sat, 20 Apr 2002 13:49:10 -0400
+X-pair-Authenticated: 24.126.75.99
+Message-ID: <3CC1AA5C.1DE5C69D@kegel.com>
+Date: Sat, 20 Apr 2002 10:50:20 -0700
+From: Dan Kegel <dank@kegel.com>
+Reply-To: dank@kegel.com
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Chris Abbey <linux@cabbey.net>, linux-kernel@vger.kernel.org
-Subject: Re: PDC20268 TX2 support?
-In-Reply-To: <E16yqWt-0000QP-00@the-village.bc.nu> <Pine.LNX.4.33.0204201226530.25636-100000@tweedle.cabbey.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: Dan Aloni <da-x@gmx.net>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: idea to enhance get_pid()
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Abbey wrote:
-> 
-> Today, Alan Cox wrote:
-> > > the 2.4.19 timeframe. I'm curious what level of support folks are
-> > > expecting? Just basic IDE, or support for the hardware raid features?
-> >
-> > What hardware raid features ?
-> 
-> The FastTraK 100 TX2 has hardware raid (stripe/mirror) support, they
-> have a binary only driver (scsi/ft.o) which presents this array as
-> a scsi device... this is the level of function I was hoping was being
-> integrated.
+ 	
+ 	
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-that is not hardware raid but software raid.
+Dan Aloni wrote:
+> The last time I checked, the only thing that stops the move back to
+> 32-bit pids is a bug in the bash shell, and just a few workable IPC
+> interfaces and libc breakages.
 
-> 
-> > AFAIK their only cards with hardware raid features are the supertrak 100 and
-> > SX6000.
-> 
+I'd like to know more about that bash bug; do you have a URL for it?
+(Is there even a bug tracking system for bash?)
+I looked a bit on gnu.bash.bugs, and found two possibly related
+patches; do these have anything to do with the bug?
+http://groups.google.com/groups?selm=200104130734.AAA12931%40shade.twinsun.com
+http://groups.google.com/groups?selm=200104130854.BAA18368%40shade.twinsun.com
 
-> The current 2.4.18 code recognizes the card and provides vanilla IDE
-> access to the drives, unfortunately that isn't much use unless someone
-> wants to try and RE their block allocation on the disks... a decidedly
-> non-trivial endeavour I can assure you. ;(
-
-It seems you missed the ATARAID stuff in the ide config..
+Thanks,
+Dan

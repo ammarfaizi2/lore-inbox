@@ -1,61 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273144AbRISHK2>; Wed, 19 Sep 2001 03:10:28 -0400
+	id <S273904AbRISHLt>; Wed, 19 Sep 2001 03:11:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273326AbRISHKT>; Wed, 19 Sep 2001 03:10:19 -0400
-Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:34955 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S273144AbRISHKK>;
-	Wed, 19 Sep 2001 03:10:10 -0400
-Message-ID: <3BA844EA.AC89949A@candelatech.com>
-Date: Wed, 19 Sep 2001 00:10:34 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-12 i686)
+	id <S273440AbRISHLj>; Wed, 19 Sep 2001 03:11:39 -0400
+Received: from c007-h015.c007.snv.cp.net ([209.228.33.222]:12282 "HELO
+	c007.snv.cp.net") by vger.kernel.org with SMTP id <S273326AbRISHLZ>;
+	Wed, 19 Sep 2001 03:11:25 -0400
+X-Sent: 19 Sep 2001 07:11:43 GMT
+Message-ID: <3BA84367.239FA0B4@distributopia.com>
+Date: Wed, 19 Sep 2001 02:04:07 -0500
+From: "Christopher K. St. John" <cks@distributopia.com>
+X-Mailer: Mozilla 4.61 [en] (X11; I; Linux 2.0.36 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Locked up 2.4.10-pre11 on Tyan 815t motherboard.
-In-Reply-To: <3BA84088.27698798@candelatech.com>
+To: linux-kernel@vger.kernel.org
+CC: Dan Kegel <dank@kegel.com>, davidel@xmailserver.org
+Subject: Re: [PATCH] /dev/epoll update ...
+In-Reply-To: <3BA80108.C830D602@kegel.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I can re-produce this with the e100 driver as well
-(using 64byte packets, too).  I'll try an older kernel
-tomorrow to see if that fixes anything...
+Dan Kegel wrote:
+> 
+> I'm getting ready to stress-test /dev/epoll finally.
+> In porting my Poller_devpoll.{cc,h} to support /dev/epoll, I noticed
+> the following issues:
+> 
 
-Ben Greear wrote:
-> 
-> I was running a network stress test (sending lots of 64 byte packets
-> on the DLINK 4-port NIC and two EEPRO-100 NICs.  This ran for 5 minutes,
-> and all was good (about 12Mbps of 64byte packets)..
-> 
-> Then, I re-started the test with 128 byte packets.  As soon as traffic
-> started, the whole machine locked up.  Couldn't even ping it from another
-> machine.  I had to hold down the power-switch for about 5 seconds before
-> it reset (ie it wasn't even listening to the power-down??)
-> 
-> I'm using the eepro100 driver that is included in the kernel, btw.  This
-> used to have a lockup problem, but I thought it was fixed...
-> 
-> I'm going to see if I can re-produce this.  If so, can someone suggest
-> a way to get more/better debugging information??
-> 
-> Thanks,
-> Ben
-> 
-> --
-> Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
-> President of Candela Technologies Inc      http://www.candelatech.com
-> ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+ Another issue to throw into the mix:
+
+ The Banga, Mogul and Druschel[1] paper (which I understand
+was the inspiration for the Solaris /dev/poll which was the
+inspiration for /dev/epoll?) talks about having the poll
+return the current state of new descriptors. As far as I can
+tell, /dev/epoll only gives you events on state changes. So,
+for example, if you accept() a new socket and add it to the
+interest list, you (probably) won't get a POLLIN. That's
+not fatal, but it's awkward.
+
+ The BMD paper suggests making the behavior optional, but
+I didn't see anything about it in the Solaris /dev/poll
+manpage (and I don't have a copy of Solaris to try it out
+on).
+
+ My vote would be to always report the initial state, but
+that would make the driver a little more complicated.
+
+ What are the preferred semantics?
+
+
+[1] http://citeseer.nj.nec.com/banga99scalable.html
+
 
 -- 
-Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+Christopher St. John cks@distributopia.com
+DistribuTopia http://www.distributopia.com

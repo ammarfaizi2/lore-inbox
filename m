@@ -1,48 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267877AbTAHUZH>; Wed, 8 Jan 2003 15:25:07 -0500
+	id <S267927AbTAHUky>; Wed, 8 Jan 2003 15:40:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267878AbTAHUZG>; Wed, 8 Jan 2003 15:25:06 -0500
-Received: from [66.70.28.20] ([66.70.28.20]:47885 "EHLO
-	maggie.piensasolutions.com") by vger.kernel.org with ESMTP
-	id <S267877AbTAHUZD>; Wed, 8 Jan 2003 15:25:03 -0500
-Date: Wed, 8 Jan 2003 21:35:48 +0100
-From: DervishD <raul@pleyades.net>
+	id <S267928AbTAHUky>; Wed, 8 Jan 2003 15:40:54 -0500
+Received: from mailgw.cvut.cz ([147.32.3.235]:54166 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id <S267927AbTAHUkx>;
+	Wed, 8 Jan 2003 15:40:53 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
 To: "H. Peter Anvin" <hpa@zytor.com>
+Date: Wed, 8 Jan 2003 21:49:39 +0100
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: PCI code:  why need  outb (0x01, 0xCFB); ?
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Killing off the boot sector (was: [STATUS 2.5]  January 8, 2002)
-Message-ID: <20030108203548.GA6537@DervishD>
-References: <3E1C2208.6727.5370CB@localhost> <avi06f$89g$1@cesium.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <avi06f$89g$1@cesium.transmeta.com>
-User-Agent: Mutt/1.4i
-Organization: Pleyades
-User-Agent: Mutt/1.4i <http://www.mutt.org>
+X-mailer: Pegasus Mail v3.50
+Message-ID: <CACAEBD1F1C@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi HPA :))
+On  8 Jan 03 at 10:52, H. Peter Anvin wrote:
+> 
+> > 1. which device is at port address 0xCFB?
+> 
+> Hopefully none.
 
-> Can we *please* kill off the stupid in-kernel boot sector?
+Actually I'm not sure. This code is here since at least 2.0.28,
+and during googling I even found code for direct PCI access
+(http://www-user.tu-chemnitz.de/~heha/viewzip.cgi/hs_freeware/gerald.zip/DIRECTNT.CPP?auto=CPP)
+which sets lowest bit at 0xCFB to 1 before doing PCI config
+accesses and reset it back to original value afterward.
 
-    Yespleaseyespleaseyesplease... I posted a message here a long
-time ago because I couldn't boot a raw kernel image with 2.4.x. Well,
-it didn't work even with a emulated floppy image (El Torito, you
-know)...
-
-    I think that, with those good boot loaders out there, this piece
-of code, that is architecture dependend, should be off-the kernel.
-
-    IMHO, those saved bytes should be used to store another cool Tux
-image or something like that XDDDDD
-
-> People keep asking what's the harm in keeping it, and the answer is,
-> quite simply: "because people continue to try to use it."
-
-    Exact...
-
-    You've got a very good and sensible idea ;)
-    Raúl
+So I believe that there were some chipsets (probably in 486&PCI times)
+which did conf1/conf2 accesses depending on value of this bit.
+Unfortunately I was not able to confirm this - almost nobody provides
+northbridge datasheets from '94 era, even Intel does not provide them
+(f.e. Neptune) anymore :-(
+                                                Best regards,
+                                                    Petr Vandrovec
+                                                    vandrove@vc.cvut.cz
+                                                    

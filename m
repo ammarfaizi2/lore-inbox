@@ -1,51 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270820AbTHOUZG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 16:25:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270823AbTHOUZG
+	id S270814AbTHOUce (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 16:32:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270819AbTHOUce
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 16:25:06 -0400
-Received: from maild.telia.com ([194.22.190.101]:55502 "EHLO maild.telia.com")
-	by vger.kernel.org with ESMTP id S270820AbTHOUYZ (ORCPT
+	Fri, 15 Aug 2003 16:32:34 -0400
+Received: from palrel11.hp.com ([156.153.255.246]:62123 "EHLO palrel11.hp.com")
+	by vger.kernel.org with ESMTP id S270814AbTHOUcd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 16:24:25 -0400
-X-Original-Recipient: linux-kernel@vger.kernel.org
-Message-ID: <3F3D417A.5090404@lanil.mine.nu>
-Date: Fri, 15 Aug 2003 22:24:26 +0200
-From: Christian Axelsson <smiler@lanil.mine.nu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030814 Thunderbird/0.2a
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Bryan O'Sullivan" <bos@serpentine.com>
-CC: linux-kernel@vger.kernel.org
+	Fri, 15 Aug 2003 16:32:33 -0400
+Date: Fri, 15 Aug 2003 13:32:32 -0700
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: Christian Axelsson <smiler@lanil.mine.nu>
 Subject: Re: Centrino support
-References: <m2wude3i2y.fsf@tnuctip.rychter.com> <1060972810.29086.8.camel@serpentine.internal.keyresearch.com>
-In-Reply-To: <1060972810.29086.8.camel@serpentine.internal.keyresearch.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20030815203232.GA31399@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bryan O'Sullivan wrote:
+Christian Axelsson wrote :
+> 
+> Got a list of supported good working cards?
 
->If you want built-in wireless in the nearish term, you'll have to get a
->supported MiniPCI card and replace your Centrino card.
->
->  
->
-Got a list of supported good working cards?
+	Google -> Linux Wireless
+	My Linux Wireless Howto contains pretty much the latest info
+on the subject, so I doubt you would not find the info you are looking
+for...
+	Regards,
 
->As far as CPU is concerned, if you're using recent 2.5 or 2.6 kernels,
->there's Pentium M support in cpufreq.  Jeremy Fitzhardinge has written a
->userspace daemon that varies the Pentium M CPU frequency in response to
->load.
->  
->
-Can you please point me to this daemon?
-
-Regards
-
---
-Christian Axelsson
-smiler@lanil.mine.nu
-
+	Jean

@@ -1,207 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261469AbTCXHrC>; Mon, 24 Mar 2003 02:47:02 -0500
+	id <S261468AbTCXHl2>; Mon, 24 Mar 2003 02:41:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261655AbTCXHrC>; Mon, 24 Mar 2003 02:47:02 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:42373 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S261469AbTCXHq6>; Mon, 24 Mar 2003 02:46:58 -0500
-Date: Sun, 23 Mar 2003 23:57:58 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-cc: lse-tech <lse-tech@lists.sourceforge.net>
-Subject: 2.5.64-mjb2 (scalability / NUMA patchset)
-Message-ID: <68610000.1048492678@[10.10.2.4]>
-In-Reply-To: <169550000.1046895443@[10.10.2.4]>
-References: <169550000.1046895443@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S261469AbTCXHl2>; Mon, 24 Mar 2003 02:41:28 -0500
+Received: from [212.50.18.217] ([212.50.18.217]:1028 "EHLO
+	zzlzl.varnainter.net") by vger.kernel.org with ESMTP
+	id <S261468AbTCXHl1>; Mon, 24 Mar 2003 02:41:27 -0500
+Date: Mon, 24 Mar 2003 11:55:08 +0200 (EET)
+From: Alexander Atanasov <alex@ssi.bg>
+To: Dominik Brodowski <linux@brodo.de>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: ide: indeed, using list_for_each_entry_safe removes endless
+ looping / hang [Was: Re: 2.5.65-ac2 -- hda/ide trouble on ICH4]
+In-Reply-To: <20030323182554.GA1270@brodo.de>
+Message-ID: <Pine.LNX.4.21.0303241129420.855-100000@mars.zaxl.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patchset contains mainly scalability and NUMA stuff, and anything 
-else that stops things from irritating me. It's meant to be pretty stable, 
-not so much a testing ground for new stuff.
+	Hello,
 
-I'd be very interested in feedback from anyone willing to test on any 
-platform, however large or small.
+On Sun, 23 Mar 2003, Dominik Brodowski wrote:
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/mbligh/2.5.65/patch-2.5.65-mjb
-2.bz2
+> Yes, it also works with 2.5.65-bkX.
 
-additional:
+	Dominik, can you try this patch on top of 2.5.65-ac3/bk,
+i can't reproduce the hang but it seems that drives without driver can get
+both in ata_unused and idedefault_driver.drives and lists go nuts.
+It kills ata_unused and uses idedefault_driver.drives only,
+boots fine here. I'd guess you have ide-cd as module, and the two drives
+handled by it couse the trouble - first joins the lists second couses the
+loop.
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/mbligh/2.5.65/400-shpte
-http://www.aracnet.com/~fletch/linux/2.5.59/pidmaps_nodepages
+-- 
+have fun,
+alex
 
-Since 2.5.65-mjb1 (~ = changed, + = added, - = dropped)
-
-Notes: Broke shpte out separately, it seems a little fragile under certain
-	workloads at the moment. 
-
-Now in Linus' tree:
-
-New:
-+ 3c509_fix					Martin J. Bligh
-+ acenic_fix					Martin J. Bligh
-+ sisfix					Martin J. Bligh
-+ vm_enough_memory				Andrew Morton
-+ scsi_sysfs_fix				Martin J. Bligh
-+ local_balance_exec				Martin J. Bligh
-
-Pending:
-Hyperthreaded scheduler (Ingo Molnar)
-objrmap bugfixes for nonlinear vma's (Dave McCracken)
-Seperate kernel PMDs per process (Dave Hansen)
-Non-PAE aligned kernel splits (Dave Hansen)
-scheduler callers profiling (Anton or Bill Hartner)
-PPC64 NUMA patches (Anton)
-Child runs first (akpm)
-Kexec
-e1000 fixes
-Update the lost timer ticks code
-
-Present in this patch:
-
-doaction					Martin J. Bligh
-	Fix cruel torture of macros and small furry animals in io_apic.c
-
-early_printk					Dave Hansen et al.
-	Allow printk before console_init
-
-confighz					Andrew Morton / Dave Hansen
-	Make HZ a config option of 100 Hz or 1000 Hz
-
-config_page_offset				Dave Hansen / Andrea
-	Make PAGE_OFFSET a config option
-
-vmalloc_stats					Dave Hansen
-	Expose useful vmalloc statistics
-
-numameminfo					Martin Bligh / Keith Mannthey
-	Expose NUMA meminfo information under /proc/meminfo.numa
-
-schedstat					Rick Lindsley
-	Provide stats about the scheduler under /proc/schedstat
-
-schedstat2					Rick Lindsley
-	Provide more stats about the scheduler under /proc/schedstat
-
-schedstat-scripts				Rick Lindsley
-	Provide some scripts for schedstat analysis under scripts/
-
-sched_tunables					Robert Love
-	Provide tunable parameters for the scheduler (+ NUMA scheduler)
-
-irq_affinity					Martin J. Bligh
-	Workaround for irq_affinity on clustered apic mode systems (eg x440)
-
-cleaner_inodes					Andrew Morton
-	Make noatime filesystems more efficient
-
-partial_objrmap					Dave McCracken
-	Object based rmap for filebacked pages.
-
-objrmap_fix					Dave McCracken
-	Fix detection of anon pages
-
-objrmap_fixes					Dave McCracken / Hugh Dickins
-	Fix up some mapped sizing bugs in objrmap
-
-objrmap_mapcount				Dave McCracken
-	Fix up some mapped sizing bugs in objrmap
-
-kgdb						Andrew Morton / Various People
-	The older version of kgdb, synched with 2.5.54-mm1
-
-kprobes						Vamsi Krishna S
-	Add kernel probes hooks to the kernel
-
-thread_info_cleanup (4K stacks pt 1)		Dave Hansen / Ben LaHaise
-	Prep work to reduce kernel stacks to 4K
-	
-interrupt_stacks    (4K stacks pt 2)		Dave Hansen / Ben LaHaise
-	Create a per-cpu interrupt stack.
-
-stack_usage_check   (4K stacks pt 3)		Dave Hansen / Ben LaHaise
-	Check for kernel stack overflows.
-
-4k_stack            (4K stacks pt 4)		Dave Hansen
-	Config option to reduce kernel stacks to 4K
-
-fix_kgdb					Dave Hansen
-	Fix interaction between kgdb and 4K stacks
-
-stacks_from_slab				William Lee Irwin
-	Take kernel stacks from the slab cache, not page allocation.
-
-thread_under_page				William Lee Irwin
-	Fix THREAD_SIZE < PAGE_SIZE case
-
-lkcd						LKCD team
-	Linux kernel crash dump support
-
-percpu_loadavg					Martin J. Bligh
-	Provide per-cpu loadaverages, and real load averages
-
-get_empty_filp					Manfred Spraul
-	Kill the lock contention on files_lock from get_empty_filp ...
-
-files_lock_goodness				Andrew Morton
-	... and drive a silver stake through it's heart.
-
-spinlock_inlining				Andrew Morton
-	Inline spinlocks for profiling. Made into a ugly config option by me.
-
-summit_pcimap					Matt Dobson
-	Provide pci bus -> node mapping for x440
-
-# shpte						Dave McCracken
-	Shared pagetables
-
-reiserfs_dio					Mingming Cao
-	DIO for Reiserfs
-
-concurrent_balloc				Alex Tomas
-	Concurrent ext2 block allocation - makes SDET & dbench go whizzy fast.
-
-concurrent_inode				Alex Tomas
-	Concurrent ext2 inode allocation - makes SDET & dbench go whizzy fast.
-
-debkl_ext2_readdir				Alex Tomas
-	Don't take the BKL in ext2_readdir
-
-sched_interactive				Ingo Molnar
-	Bugfix for interactive scheduler
-
-kgdb_cleanup					Martin J. Bligh
-	Stop kgdb renaming schedule to do_schedule when it's not even enabled
-
-numa_protector					Martin J. Bligh / Dave Hansen
-	Stop people shooting themselves in the foot with CONFIG_NUMA
-
-3c509_fix					Martin J. Bligh
-	Fix warning in 3c509 driver.
-
-acenic_fix					Martin J. Bligh
-	Fix warning in acenic driver
-
-sisfix						Martin J. Bligh
-	Fix warning & bug in sis900 driver
-
-vm_enough_memory				Andrew Morton
-	Give vm_enough_memory cpu local pools for virtual accounting
-
-scsi_sysfs_fix					Martin J. Bligh
-	Fix error in scsi_sysfs.
-
-local_balance_exec				Martin J. Bligh
-	Modify balance_exec to use node-local queues when idle
-
--mjb						Martin J. Bligh
-	Add a tag to the makefile
-
+===== drivers/ide/ide.c 1.52 vs edited =====
+--- 1.52/drivers/ide/ide.c	Sun Mar 23 02:00:50 2003
++++ edited/drivers/ide/ide.c	Mon Mar 24 08:48:54 2003
+@@ -469,7 +469,6 @@
+ 	return -ENXIO;
+ }
+ 
+-static LIST_HEAD(ata_unused);
+ static spinlock_t drives_lock = SPIN_LOCK_UNLOCKED;
+ static spinlock_t drivers_lock = SPIN_LOCK_UNLOCKED;
+ static LIST_HEAD(drivers);
+@@ -1440,9 +1439,6 @@
+ 	spin_unlock(&drivers_lock);
+ 	if(idedefault_driver.attach(drive) != 0)
+ 		panic("ide: default attach failed");
+-	spin_lock(&drives_lock);
+-	list_add_tail(&drive->list, &ata_unused);
+-	spin_unlock(&drives_lock);
+ 	return 1;
+ }
+ 
+@@ -2399,7 +2395,7 @@
+ 
+ 	spin_lock(&drives_lock);
+ 	INIT_LIST_HEAD(&list);
+-	list_splice_init(&ata_unused, &list);
++	list_splice_init(&idedefault_driver.drives, &list);
+ 	spin_unlock(&drives_lock);
+ 
+ 	while (!list_empty(&list)) {
 

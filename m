@@ -1,71 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261894AbTITOZl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Sep 2003 10:25:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261895AbTITOZl
+	id S261895AbTITOeW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Sep 2003 10:34:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261896AbTITOeW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Sep 2003 10:25:41 -0400
-Received: from NeverAgain.DE ([217.69.76.1]:36565 "EHLO hobbit.neveragain.de")
-	by vger.kernel.org with ESMTP id S261894AbTITOZj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Sep 2003 10:25:39 -0400
-Date: Sat, 20 Sep 2003 16:25:24 +0200
-From: Martin Loschwitz <madkiss@madkiss.org>
-To: Kernel List <linux-kernel@vger.kernel.org>
-Subject: [PM] Further suspend/resume problems on Acer TravelMate 800
-Message-ID: <20030920142524.GA2605@minerva.local.lan>
+	Sat, 20 Sep 2003 10:34:22 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:4738
+	"EHLO velociraptor.random") by vger.kernel.org with ESMTP
+	id S261895AbTITOeV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Sep 2003 10:34:21 -0400
+Date: Sat, 20 Sep 2003 16:34:10 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Roland Bless <bless@tm.uka.de>
+Cc: miquels@cistron.nl, linux-kernel@vger.kernel.org, walter@tm.uka.de,
+       winter@tm.uka.de, doll@tm.uka.de
+Subject: Re: Fix for wrong OOM killer trigger?
+Message-ID: <20030920143410.GB1338@velociraptor.random>
+References: <20030919191613.36750de3.bless@tm.uka.de> <20030919192544.GC1312@velociraptor.random> <20030920110928.GA24934@vorta.ipv6.tm.uka.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ZPt4rx8FFjLCG7dd"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20030920110928.GA24934@vorta.ipv6.tm.uka.de>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Sep 20, 2003 at 01:09:28PM +0200, Roland Bless wrote:
+> On Fri, Sep 19, 2003 at 09:25:44PM +0200, Andrea Arcangeli wrote:
+> > 
+> > can you try with 2.4.22aa1? the oom killer there will only work on tasks
+> > that are allocating memory, not on idle daemons, so the probability of
+> > killing rsync first should be higher. stock SuSE 8.1 kernel should do
+> > the same too.
+> 
+> This will only help to avoid not shooting important daemons.
+> The real cause, however, seems to be that the filesystem cache
+> memory is not properly re-used when it should, or, that it tries to
+> allocate a huge amount memory. The programs themselves do not
+> allocate much memory! It must be the system, because I also
+> ran programs with memory restrictions by ulimit. The programs
+> are definitely not allocating the memory, and, 4GB RAM are really
+> enough for a simple file server like ours.
 
---ZPt4rx8FFjLCG7dd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+that might be an accounting error in the oom killing then (even that
+should be corrected in my tree or in the stock 8.1 SuSE kernel).
 
-Hi folks,
+the reason normally oom accounting errors never showup, is that when the
+amount of free-swap is >0, the oom-killer is never invoked (that's a
+magic that probably avoids those situations to normally arise in the
+stock kernel).
 
-this morning, I tried to get ACPI suspend-to-ram work on my Acer=20
-TravelMate 800 notebook. I did not use plain 2.6.0-test5 for that
-but 2.6.0-test5-bk6 with (hopefully) all PM updates from latest
--mm patch for 2.6.0-test5 as well as latest ACPI updates from the
-ACPI4Linux website. I even integrated a clean DSDT table.
+so maybe you had no swap, if you had no swap that would explain it.
 
-The problem is: If I do 'echo 3 > /proc/acpi/sleep', the notebook
-suspends but after pressing a button, it does not wake up really:
-The cooler starts, then stops after some seconds but the screen
-stays black. However, while typing blind, I can login to the box
-and even ctrl+alt+del can be used to reboot the machine.
+and of course if you have 4G of ram and you know you've more than enough
+ram then you'd be right using 0 swap (just the stock kernel oom killer
+may malfunction, but that's not going to happen with the kernels I
+suggested you to try, they'll be fine with 0 swap)
 
-I had a look at syslog, it does not tell something about problems.
-The last line related to PM is "Restarting tasks ... done". SMP,
-Preempt and APIC are all disabled. So, soembody can give a hint
-(or a patch?;) that would get rid of this last little problem (
-at least at from what I can see at the moment)?
+hope this helps ;)
 
-Thanks in advance,
-
---=20
-  .''`.   Martin Loschwitz           Debian GNU/Linux developer
- : :'  :  madkiss@madkiss.org        madkiss@debian.org
- `. `'`   http://www.madkiss.org/    people.debian.org/~madkiss/
-   `-     Use Debian GNU/Linux 3.0!  See http://www.debian.org/
-
---ZPt4rx8FFjLCG7dd
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/bGNUHPo+jNcUXjARAqSYAJ0T3OxRFZawRcW5zHfjA9yLXrkFmwCfVGDv
-Pm0pf3vajUx/kKNlYg99VhE=
-=8VD5
------END PGP SIGNATURE-----
-
---ZPt4rx8FFjLCG7dd--
+Andrea - If you refuse to depend on closed software for a critical
+	 part of your business, these links may be useful:
+	  rsync.kernel.org::pub/scm/linux/kernel/bkcvs/linux-2.[45]/
+	  http://www.cobite.com/cvsps/
+	  svn://svn.kernel.org/linux-2.[46]/trunk

@@ -1,89 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268260AbRGWPKg>; Mon, 23 Jul 2001 11:10:36 -0400
+	id <S268261AbRGWPS7>; Mon, 23 Jul 2001 11:18:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268259AbRGWPKQ>; Mon, 23 Jul 2001 11:10:16 -0400
-Received: from ns.suse.de ([213.95.15.193]:37894 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S268258AbRGWPKN>;
-	Mon, 23 Jul 2001 11:10:13 -0400
-Date: Mon, 23 Jul 2001 17:10:19 +0200
-From: Olaf Hering <olh@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: new scsi hardware detection in 2.4.7(pre)
-Message-ID: <20010723171019.A18135@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.16i
+	id <S268262AbRGWPSs>; Mon, 23 Jul 2001 11:18:48 -0400
+Received: from datpx.datinfor.pt ([194.38.135.2]:55825 "EHLO datpx.datinfor.pt")
+	by vger.kernel.org with ESMTP id <S268261AbRGWPSh> convert rfc822-to-8bit;
+	Mon, 23 Jul 2001 11:18:37 -0400
+Message-ID: <5D478FF55EA3D311ACBF00062938832FFE51@DATPT01>
+From: Jaime Alexandre Bastos <JaimeAlex@DATINFOR.pt>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RedHat 7.1 - Network messages
+Date: Mon, 23 Jul 2001 15:57:37 +0100
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hi,
+hi guys
+I have got a Pentium Celeron, 64Mb RAM, IDE Disk, 2 D-LINK FX-530 PCI
+Network´s installed with Linux RedHat 7.1 working as a firewall.
+I made a new kernel, and now I usually get some messages from the kernel
+which repeats a lot of times while the system is working.
+The messages are:
 
-I get this on non-scsi systems with scsi compiled into the kernel:
+Jul 23 09:14:13 datdnn kernel: eth0: Oversized Ethernet frame spanned
+multiple buffers, entry 0xe length 0 status 00000600!
+Jul 23 09:14:13 datdnn kernel: eth0: Oversized Ethernet frame c37740e0 vs
+c37740e0.
+Jul 23 09:14:13 datdnn kernel: eth1: Oversized Ethernet frame spanned
+multiple buffers, entry 0x2 length 0 status 00000600!
+Jul 23 09:14:13 datdnn kernel: eth1: Oversized Ethernet frame c382c020 vs
+c382c020.
 
-SCSI subsystem driver Revision: 1.00
-request_module[scsi_hostadapter]: Root fs not mounted
-request_module[scsi_hostadapter]: Root fs not mounted
-request_module[scsi_hostadapter]: Root fs not mounted
+Jul 23 11:10:24 datdnn kernel: NET: 9 messages suppressed.
+Jul 23 11:10:24 datdnn kernel: NET: 13 messages suppressed.
 
+Jul 19 11:17:09 datdnn kernel: NETDEV WATCHDOG: eth1: transmit timed out
+Jul 19 11:17:09 datdnn kernel: eth1: Transmit timed out, status 0000, PHY
+status 782d, resetting...
+Jul 19 11:17:30 datdnn kernel: NETDEV WATCHDOG: eth0: transmit timed out
+Jul 19 11:17:30 datdnn kernel: eth0: Transmit timed out, status 0000, PHY
+status 782d, resetting...
+Jul 19 11:17:34 datdnn kernel: NETDEV WATCHDOG: eth0: transmit timed out
+Jul 19 11:17:34 datdnn kernel: eth0: Transmit timed out, status 0000, PHY
+status 782d, resetting...
+Jul 19 11:17:37 datdnn kernel: NETDEV WATCHDOG: eth1: transmit timed out
+Jul 19 11:17:37 datdnn kernel: eth1: Transmit timed out, status 0000, PHY
+status 782d, resetting...
+Jul 19 11:17:40 datdnn kernel: NETDEV WATCHDOG: eth0: transmit timed out
+Jul 19 11:17:40 datdnn kernel: eth0: Transmit timed out, status 0000, PHY
+status 782d, resetting...
+Jul 19 11:17:49 datdnn kernel: NETDEV WATCHDOG: eth1: transmit timed out
+Jul 19 11:17:49 datdnn kernel: eth1: Transmit timed out, status 0000, PHY
+status 782d, resetting...
+Jul 19 11:20:32 datdnn kernel: NETDEV WATCHDOG: eth0: transmit timed out
+Jul 19 11:20:32 datdnn kernel: eth0: Transmit timed out, status 0000, PHY
+status 782d, resetting...
 
-iBook, PowerBook etc. 
+Please, I would like to know if this messages means everything bad in terms
+of fine function of the system and if so, what I should do to resolve the
+problem.
+I have the idea that specially when the last messages appear the system lose
+communication. 
+Sometimes I have to power off the system to get it fine again.
 
+Thanks for you possible help.
 
+My best Regards
 
-#
-# SCSI support
-#
-CONFIG_SCSI=y
-
-#
-# SCSI support type (disk, tape, CD-ROM)
-#
-CONFIG_BLK_DEV_SD=y
-CONFIG_SD_EXTRA_DEVS=40
-CONFIG_CHR_DEV_ST=m
-# CONFIG_CHR_DEV_OSST is not set
-CONFIG_BLK_DEV_SR=y
-CONFIG_BLK_DEV_SR_VENDOR=y
-CONFIG_SR_EXTRA_DEVS=2
-CONFIG_CHR_DEV_SG=y
-
-#
-# Some SCSI devices (e.g. CD jukebox) support multiple LUNs
-#
-# CONFIG_SCSI_DEBUG_QUEUES is not set
-CONFIG_SCSI_MULTI_LUN=y
-# CONFIG_SCSI_CONSTANTS is not set
-# CONFIG_SCSI_LOGGING is not set
-
-#
-# SCSI low-level drivers
-#
-# CONFIG_BLK_DEV_3W_XXXX_RAID is not set
-# CONFIG_SCSI_7000FASST is not set
-# CONFIG_SCSI_ACARD is not set
-# CONFIG_SCSI_AHA152X is not set
-# CONFIG_SCSI_AHA1542 is not set
-# CONFIG_SCSI_AHA1740 is not set
-# CONFIG_SCSI_AACRAID is not set
-CONFIG_SCSI_AIC7XXX=y
-CONFIG_AIC7XXX_CMDS_PER_DEVICE=8
-CONFIG_AIC7XXX_RESET_DELAY_MS=15000
-# CONFIG_AIC7XXX_BUILD_FIRMWARE is not set
-# CONFIG_SCSI_DPT_I2O is not set
-CONFIG_SCSI_ADVANSYS=m
-
-
-
-Any ideas whats wrong here? I see that in all 2.4.7pre kernels.
+Jaime Alexandre
+Datinfor - Informática Serviços e Estudos, Lda 
+Tel.  351-226051700   Fax . 351-226051710
+Address Mail.  JaimeAlex@datinfor.pt
 
 
-Gruss Olaf
-
--- 
- $ man clone
-
-BUGS
-       Main feature not yet implemented...

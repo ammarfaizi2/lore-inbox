@@ -1,45 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129121AbQKOFCA>; Wed, 15 Nov 2000 00:02:00 -0500
+	id <S129045AbQKOFFw>; Wed, 15 Nov 2000 00:05:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129170AbQKOFBu>; Wed, 15 Nov 2000 00:01:50 -0500
-Received: from smtp1.cern.ch ([137.138.128.38]:38928 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S129121AbQKOFBf>;
-	Wed, 15 Nov 2000 00:01:35 -0500
-To: Val Henson <vhenson@esscom.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] acenic driver update
-In-Reply-To: <200011140031.TAA13437@plonk.linuxcare.com> <20001114184505.X18364@esscom.com>
-From: Jes Sorensen <jes@linuxcare.com>
-Date: 15 Nov 2000 05:31:27 +0100
-In-Reply-To: Val Henson's message of "Tue, 14 Nov 2000 18:45:05 -0700"
-Message-ID: <d3aeb1yhy8.fsf@lxplus015.cern.ch>
-User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
+	id <S129060AbQKOFFo>; Wed, 15 Nov 2000 00:05:44 -0500
+Received: from cx518206-b.irvn1.occa.home.com ([24.21.107.123]:28689 "EHLO
+	cx518206-b.irvn1.occa.home.com") by vger.kernel.org with ESMTP
+	id <S129045AbQKOFF0>; Wed, 15 Nov 2000 00:05:26 -0500
+From: "Barry K. Nathan" <barryn@cx518206-b.irvn1.occa.home.com>
+Message-Id: <200011150435.UAA05562@cx518206-b.irvn1.occa.home.com>
+Subject: [BUG?] AMD K5 and 2.4 (was Re: Updated 2.4 TODO List)
+To: linux-kernel@vger.kernel.org
+Date: Tue, 14 Nov 2000 20:35:31 -0800 (PST)
+Reply-To: barryn@pobox.com
+In-Reply-To: <200010112210.e9BMAe002775@trampoline.thunk.org> from "tytso@mit.edu" at Oct 11, 2000 06:10:40 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Val" == Val Henson <vhenson@esscom.com> writes:
+(I'm replying to a message from about a month ago, but it's relevant to a
+problem I'm having now.)
 
-Val> Jes, I just downloaded the 0.48 acenic driver and it still has a
-Val> reproducible null dereference bug.  Anyone can oops their machine
-Val> by doing:
+tytso@mit.edu wrote:
 
-Bugger I think I lost your patch in the noise. Sorry about that, it'll
-be in the next version.
+>    Date: Mon, 09 Oct 2000 20:13:35 +0200
+>    From: Thomas Sailer <sailer@ife.ee.ethz.ch>
+> 
+[snip]
+>    My Asus P55TP4 (i430FX)/AMD K5 PC also crashes after "Booting the
+>    kernel..."
+>    and before printing anything else
+> 
+> Are you sure it was compiled with the correct CPU?  If you configure the
+> CPU incorrectly (686 when you only have a 586, etc.) the kernel *will*
+> refuse to boot.
 
-Val> ifconfig <gige> mtu 9000 ping -f -s 60000 <remote gige host>
-Val> ifconfig <gige> mtu 1500 ping -f -s 60000 <remote gige host>
+I have a Compaq Presario 425 here, with a K5 upgrade (by Evergreen
+Technologies) in it. It reboots immediately after "Booting the kernel..."
+with Linux 2.4.0test10 (I haven't tried test11preX on this machine) if the
+kernel is compiled for 586/K5/etc. If I compile for 486, then it boots. If
+I compile for 586/K5/etc. with 2.2.17, it boots. (This is all with egcs
+1.1.2.)
 
-Val> I don't have a fix for this.
+Is this a real bug or just a documentation bug?
 
-Hmmm could be a firmware issue, I'll need to look at it. It is however
-a kind of bug that only root can cause deliberately. Doing ifconfig
-mtu foo ; ifconfig mtu bar is a little far from normal operation ;-)
-
-Thanks
-Jes
+-Barry K. Nathan <barryn@pobox.com>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

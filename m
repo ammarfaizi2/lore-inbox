@@ -1,62 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262348AbVBBW5V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262796AbVBBW6q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262348AbVBBW5V (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 17:57:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262447AbVBBW5V
+	id S262796AbVBBW6q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 17:58:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262663AbVBBW6d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 17:57:21 -0500
-Received: from fencepost.gnu.org ([199.232.76.164]:12163 "EHLO
-	fencepost.gnu.org") by vger.kernel.org with ESMTP id S262348AbVBBW5B
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 17:57:01 -0500
-Date: Wed, 2 Feb 2005 17:56:57 -0500 (EST)
-From: Pavel Roskin <proski@gnu.org>
-X-X-Sender: proski@localhost.localdomain
-To: linux-kernel@vger.kernel.org
-cc: Greg Kroah-Hartman <greg@kroah.com>,
-       Patrick Mochel <mochel@digitalimplant.org>
-Subject: Please open sysfs symbols to proprietary modules
-Message-ID: <Pine.LNX.4.62.0502021723280.5515@localhost.localdomain>
+	Wed, 2 Feb 2005 17:58:33 -0500
+Received: from av5-2-sn1.fre.skanova.net ([81.228.11.112]:64970 "EHLO
+	av5-2-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S262450AbVBBW6H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 17:58:07 -0500
+Date: Wed, 2 Feb 2005 23:58:05 +0100 (CET)
+From: Peter Osterlund <petero2@telia.com>
+X-X-Sender: petero@p4.localdomain
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: vojtech@suse.cz, linux-kernel@vger.kernel.org, dtor_core@ameritech.net
+Subject: Re: Touchpad problems with 2.6.11-rc2
+In-Reply-To: <20050202141117.688c8dd3@localhost.localdomain>
+Message-ID: <Pine.LNX.4.58.0502022345320.18555@telia.com>
+References: <20050123190109.3d082021@localhost.localdomain> <m3acqr895h.fsf@telia.com>
+ <20050201234148.4d5eac55@localhost.localdomain> <m3lla64r3w.fsf@telia.com>
+ <20050202141117.688c8dd3@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Wed, 2 Feb 2005, Pete Zaitcev wrote:
 
-I'm writing a module under a proprietary license.  I decided to use sysfs 
-to do the configuration.  Unfortunately, all sysfs exports are available 
-to GPL modules only because they are exported by EXPORT_SYMBOL_GPL.
+> On 02 Feb 2005 21:57:39 +0100, Peter Osterlund <petero2@telia.com> wrote:
+>
+> > Please try this patch instead. It works well with my alps touchpad. (I
+> > don't have a synaptics touchpad.) It does the following:
+> >
+> > * Compensates for the lack of floating point arithmetic by keeping
+> >   track of remainders from the integer divisions.
+> > * Removes the xres/yres scaling so that you get the same speed in the
+> >   X and Y directions even if your screen is not square.
+> > * Sets scale factors so that the speed for synaptics and alps should
+> >   be equal to each other and equal to the synaptics speed from 2.6.10.
+>
+> Thanks a lot, Peter. I think I like the result even better than the one
+> after the simple-minded removal that I posted. It's possible that when
+> I accepted the case of (pktcount == 1) it hurt smoothness.
+>
+> Do you think it makes sense to zero fractions when pktcount is dropped?
 
-I have found the original e-mail where this change was proposed:
-http://www.ussg.iu.edu/hypermail/linux/kernel/0409.3/0345.html
+In practice I don't think it will make any significant difference. What
+the code should do depends on what you want to happen if you move the
+mouse pointer 1/2 pixel with one finger stroke, then move it another 1/2
+pixel with a second stroke. The patch I posted will move the pointer one
+pixel in this case and your code will move it 0 pixels. (The X driver does
+not reset the fractions, but that doesn't of course mean that it's the
+only right thing to do.)
 
-Patrick writes:
+> Also, I think the extra unary minus is uncoth.
 
-"The users of these functions are all, in most cases, other subsystems, 
-which provide a layer of abstraction for the downstream users (drivers, 
-etc)."
+The code was written like that to emphasize the fact that X and Y use the
+same formula, with the only difference that the kernel Y axis is mirrored
+compared to the touchpad Y axis.
 
-Maybe it was true in September 2004, but it's not true in February 2005. 
-sysfs has become a standard way to make configurable parameters available 
-to userspace, just like sysctl and ioctl.
+It didn't make any difference for the generated assembly code though,
+using gcc 3.4.2 from Fedora Core 3.
 
-All I want to do is to have a module that would create subdirectories for 
-some network interfaces under /sys/class/net/*/, which would contain 
-additional parameters for those interfaces.  I'm not creating a new 
-subsystem or anything like that.  sysctl is not good because the data is 
-interface specific.  ioctl on a socket would be OK, although it wouldn't 
-be easily scriptable.  The restriction on sysfs symbols would just force 
-me to write a proprietary userspace utility to set those parameters 
-instead of using a shell script.
+> +	enum {  FRACTION_DENOM = 100 };
 
-My understanding is that EXPORT_SYMBOL_GPL is only useful for symbols so 
-specific to the kernel that the modules that use them would be effectively 
-based on GPL code.  But a module providing its internal state to the 
-userspace doesn't need to be based on the kernel code in any way.
-
-Please replace every EXPORT_SYMBOL_GPL with EXPORT_SYMBOL in fs/sysfs/*.c
+The enum is much nicer than my #define.
 
 -- 
-Regards,
-Pavel Roskin
+Peter Osterlund - petero2@telia.com
+http://web.telia.com/~u89404340

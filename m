@@ -1,40 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264329AbTICSyd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 14:54:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264220AbTICSWQ
+	id S264220AbTICTQz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 15:16:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264116AbTICTOq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 14:22:16 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:65228 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264242AbTICSUs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 14:20:48 -0400
-Subject: RE: Driver Model
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: David Schwartz <davids@webmaster.com>,
-       James Clark <jimwclark@ntlworld.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.10.10309031024030.13722-100000@master.linux-ide.org>
-References: <Pine.LNX.4.10.10309031024030.13722-100000@master.linux-ide.org>
-Content-Type: text/plain
+	Wed, 3 Sep 2003 15:14:46 -0400
+Received: from mail.dubki.ru ([80.240.116.2]:37133 "EHLO mail.dubki.ru")
+	by vger.kernel.org with ESMTP id S264220AbTICSym (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 14:54:42 -0400
+From: "Nikita V. Youshchenko" <yoush@cs.msu.su>
+To: Hugh Dickins <hugh@veritas.com>
+Subject: Re: Strange situation while writing CDR from iso file on tmpfs
+Date: Wed, 3 Sep 2003 22:54:50 +0400
+User-Agent: KMail/1.5.3
+Cc: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0309031745110.2222-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.44.0309031745110.2222-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <1062613180.19980.13.camel@dhcp23.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-4) 
-Date: Wed, 03 Sep 2003 19:19:41 +0100
+Content-Disposition: inline
+Message-Id: <200309032254.50468@sercond.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2003-09-03 at 18:38, Andre Hedrick wrote:
-> The fact that GPL_ONLY horse sh*t exists means there is a restriction on
-> usage.  So "GPL_ONLY" has in effect violated GPL, by imposing restrictions
-> of usage.  People will say that I am nuts and have spent to much time in
-> the disk drive layers and my brain has not stopped spinning to reconnect
-> to the stem.
+> tmpfs is fine while everything is in memory, and even when a little
+> overflowed to swap; but with so much on swap it's at the mercy of the
+> vagaries of the LRU lists, and swap allocation might work out far
+> from optimal for it.  tmpfs use of swap is not something we've ever
+> tried to optimize for.
 
-Mummy there's a troll on the list again...
+Hmm...
+Until today I thought that it is a good administration style to create a 
+several gigabyte swap partition (which is normally almost unused, but 
+just for the case that some program needs much virtual memory), and use 
+tmpfs for /tmp.
+I thought that it is good for two reasons - disk space is not wasted for 
+/tmp (and /tmp still has several gigabytes of space), and short-living 
+temporary files such as gcc intermediate files normally reside in memory, 
+which is more effective than using a filesystem on a disk.
 
-The GPL itself says that derivative works must be GPL. The GPL_ONLY
-stuff just helps make that clear.
+If I understand you correctly, the above is not true at least for a 
+desktop system with 256M of RAM?
+
+And what about LTSP server with 2 gigabytes of RAM (and 6 gigabytes of 
+swap) that normally runs 10-15 KDE sessions with mozilla's and 
+openoffice's?
+
+> Perhaps something exceptionally stupid and avoidable occurs, I'll keep
+> your mail as reminder to investigate some day.
+
+Thank you.
 

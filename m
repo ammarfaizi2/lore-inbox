@@ -1,44 +1,157 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289046AbSAZKIT>; Sat, 26 Jan 2002 05:08:19 -0500
+	id <S289047AbSAZKNK>; Sat, 26 Jan 2002 05:13:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289047AbSAZKIF>; Sat, 26 Jan 2002 05:08:05 -0500
-Received: from nrg.org ([216.101.165.106]:39266 "EHLO nrg.org")
-	by vger.kernel.org with ESMTP id <S289046AbSAZKHw>;
-	Sat, 26 Jan 2002 05:07:52 -0500
-Date: Sat, 26 Jan 2002 02:07:38 -0800 (PST)
-From: Nigel Gamble <nigel@nrg.org>
-Reply-To: nigel@nrg.org
-To: Robert Love <rml@tech9.net>
-cc: David Howells <dhowells@redhat.com>, <torvalds@transmeta.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] syscall latency improvement #1
-In-Reply-To: <1011998120.3505.29.camel@phantasy>
-Message-ID: <Pine.LNX.4.40.0201260155300.16648-100000@cosmic.nrg.org>
+	id <S289050AbSAZKNB>; Sat, 26 Jan 2002 05:13:01 -0500
+Received: from u172-43.u203-203.giga.net.tw ([203.203.172.43]:25682 "HELO
+	myethome.com") by vger.kernel.org with SMTP id <S289047AbSAZKMn>;
+	Sat, 26 Jan 2002 05:12:43 -0500
+From: vip_h@jsi98.nej
+To: vip_1@seed.net.tm
+Subject: =?ISO-8859-1?Q?=AFk=B7R=B1z=AA=BA=B1=A1=A4H?= =?ISO-8859-1?Q?(=A4w=B1=BD=ACr?=)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_1f1BvkW7JmhWSz416A"
+X-Priority: 3
+X-MSMail-Priority: Normal
+Message-Id: <20020126101251Z289047-13996+12520@vger.kernel.org>
+Date: Sat, 26 Jan 2002 05:12:43 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 25 Jan 2002, Robert Love wrote:
-> Mmm, I like it.  Ingo Molnar talked to me about this (he wants such a
-> feature, too) earlier.  This is a real win.
->
-> This patch is beneficial to the kernel preemption patch.
+This is a multi-part message in MIME format.
 
-Note that with a fully preemptible kernel, there is no need to test
-need_resched on return from system call, since any needed reschedule
-should already have been done.  If the need_resched was set by an
-interrupt handler, the preempt_schedule on return from interrupt (or on
-exit from non-preemptible region) will have done the reschedule.  And if
-need_resched was set because one process woke up another (higher
-priority) process, we can do the schedule() immediately, unless we are
-in a non-preemptible region in which case it will happen on exit from
-that region.  I don't think we do an immediate schedule on wakeup yet
-but, with the existing preemption patch, that would make the test on
-syscall exit completely redundant (which may enable the cli instruction
-to be safely removed).
+------=_NextPart_1f1BvkW7JmhWSz416A
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_1f1BvkW7JmhWSz416AAA"
 
-Nigel Gamble                                    nigel@nrg.org
-Mountain View, CA, USA.                         http://www.nrg.org/
+
+------=_NextPart_1f1BvkW7JmhWSz416AAA
+Content-Type: text/plain;
+Content-Transfer-Encoding: quoted-printable
+
+****=B1=A1=A4H=B8`=B1j=A5=B4=BC=F6=AA=F9=B0=D3=AB~****
+
+=B4=A3=BF=F4=B1z=A4=B5=A6~=AA=BA=B1=A1=A4H=B8`=AD=E8=A6n=ACO=A4j=A6~=AA=EC=A4T
+=A5=BB=BA=F4=A7Y=A4=E9=B0_=B6}=A9l=B1=B5=A8=FC=B9w=AC=F9=B1=A1=A4H=C2=A7=AA=AB!
+=A8=C3=B7=C7=B3=C6=A6n=C2=A7=ADn=B0e=B5=B9=B1z!!
+
+=3D=3D=3D=3D=3D=3D=AFk=B7R=B1z=AA=BA=B1=A1=A4H=3D=3D=3D=3D=3D=3D=3D
+
+=A7=D6=A5=B4=B6}=AA=FE=A5[=C0=C9=AE=D7,=B4=A3=ABe=B4=C0=B1z=AA=BA=B1=A1=A4H=B7=C7=B3=C6=A4@=A5=F7=B6q=A8=AD=ADq=A7@=AA=BA=C2=A7=AA=AB!
+
+http://sexbox.ohbi.net/
+
+=A5=BB=BA=F4=AF=B8=B6i=A4f=B6W=B9L1000=BA=D8=BA=EB=AB~=A4=CE=A8k=A4k=A7=C9=B2=C4=A4=A7=B6=A1=A5=CE=AB~!
+
+=AC=FC=C4R=B1=A1=A4H=C1=CA=AA=AB=BA=F4,=B7P=C1=C2=B1z=AA=BA=A5=FA=C1{,=AF=AC=B1z=A6=B3=AD=D3=AC=FC=A6n=AA=BA=A4@=A4=D1
+
+------=_NextPart_1f1BvkW7JmhWSz416AAA--
+
+------=_NextPart_1f1BvkW7JmhWSz416A
+Content-Type: application/octet-stream;
+	name="C:\My Documents\sexbox\sexbox.htm"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="sexbox.htm"
+
+PGh0bWw+DQo8aGVhZD4NCjx0aXRsZT6s/MRSsaGkSMHKqqu69DwvdGl0bGU+DQo8bWV0YSBodHRw
+LWVxdWl2PSJDb250ZW50LVR5cGUiIGNvbnRlbnQ9InRleHQvaHRtbDsgY2hhcnNldD1iaWc1Ij4N
+CjxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+DQo8IS0tDQouYTkgeyAgZm9udC1mYW1pbHk6ICK3c7LT
+qfrF6SI7IGZvbnQtc2l6ZTogOXB0fQ0KLS0+DQo8L3N0eWxlPg0KPC9oZWFkPg0KDQo8Ym9keSBi
+Z2NvbG9yPSIjRkZGRkZGIiBsZWZ0bWFyZ2luPSIwIiB0b3BtYXJnaW49IjAiIG1hcmdpbndpZHRo
+PSIwIiBtYXJnaW5oZWlnaHQ9IjAiPg0KPGNlbnRlcj4NCiAgPHRhYmxlIHdpZHRoPSI1MDAiIGJv
+cmRlcj0iMCIgY2VsbHNwYWNpbmc9IjAiIGNlbGxwYWRkaW5nPSIxIiBjbGFzcz0iYTkiPg0KICAg
+IDx0ciBhbGlnbj0iY2VudGVyIiBiZ2NvbG9yPSIjRkZGRkZGIj4gDQogICAgICA8dGQ+PGEgaHJl
+Zj0iaHR0cDovL3NleGJveC5vaGJpLm5ldC8iPjxpbWcgc3JjPSJodHRwOi8vaG9tZS5raW1vLmNv
+bS50dy9zdXBlcnN1cGVyODYvc2V4Ym94L3NvZ29fbG9nby5naWYiIHdpZHRoPSIzNTIiIGhlaWdo
+dD0iNzAiIGJvcmRlcj0iMCI+PC9hPjxicj4NCiAgICAgICAgPHRhYmxlIHdpZHRoPSI1MDAiIGJv
+cmRlcj0iMCIgY2VsbHNwYWNpbmc9IjAiIGNlbGxwYWRkaW5nPSIwIj4NCiAgICAgICAgICA8dHIg
+Ymdjb2xvcj0iI0ZGRTZGRSI+IA0KICAgICAgICAgICAgPHRkIGJnY29sb3I9IiNGRjk5Q0MiPiZu
+YnNwOzwvdGQ+DQogICAgICAgICAgPC90cj4NCiAgICAgICAgPC90YWJsZT4NCiAgICAgICAgPHRh
+YmxlIHdpZHRoPSI1MDAiIGJvcmRlcj0iMCIgY2VsbHNwYWNpbmc9IjAiIGNlbGxwYWRkaW5nPSIw
+IiBjbGFzcz0iYTkiIGJnY29sb3I9IiNGRkZGRkYiPg0KICAgICAgICAgIDx0cj4NCiAgICAgICAg
+ICAgIDx0ZD4NCiAgICAgICAgICAgICAgPHRhYmxlIGJvcmRlcj0iMCIgY2VsbHNwYWNpbmc9IjEi
+IGNlbGxwYWRkaW5nPSIyIiBjbGFzcz0iYTkiIHdpZHRoPSI1MDAiPg0KICAgICAgICAgICAgICAg
+IDx0ciBiZ2NvbG9yPSIjREREREZGIiBhbGlnbj0iY2VudGVyIiBjbGFzcz0iYTkiPiANCiAgICAg
+ICAgICAgICAgICAgIDx0ZCBjbGFzcz0iYTkiIHdpZHRoPSIxMTMiPjxhIGhyZWY9Imh0dHA6Ly9z
+ZXhib3gub2hiaS5uZXQvc2hvd3Jvb20vdmlldy5waHA/Qz01MzYiPjxpbWcgc3JjPSJodHRwOi8v
+dXMuZjEueWFob29mcy5jb20vdXNlcnMvNjhkYzI1ZTgvYmMvc2V4Ym94L3BhNDhzLmpwZz9iY09j
+Q2s4QVVRaDE3MGFZIiB3aWR0aD0iODAiIGhlaWdodD0iNjQiIGJvcmRlcj0iMCI+PC9hPjwvdGQ+
+DQogICAgICAgICAgICAgICAgICA8dGQgd2lkdGg9IjE0MyI+PGEgaHJlZj0iaHR0cDovL3NleGJv
+eC5vaGJpLm5ldC9zaG93cm9vbS92aWV3LnBocD9DPTU3NiI+PGltZyBzcmM9Imh0dHA6Ly9ob21l
+LmtpbW8uY29tLnR3L3N1cGVyc3VwZXI4Ni9zZXhib3gvRkc1MjRfQV9TLmpwZyIgd2lkdGg9Ijgw
+IiBoZWlnaHQ9IjgwIiBib3JkZXI9IjAiPjwvYT48L3RkPg0KICAgICAgICAgICAgICAgICAgPHRk
+IHdpZHRoPSIxMDYiPjxhIGhyZWY9Imh0dHA6Ly9zZXhib3gub2hiaS5uZXQvc2hvd3Jvb20vdmll
+dy5waHA/Qz05MSI+PGltZyBzcmM9Imh0dHA6Ly91cy5mMS55YWhvb2ZzLmNvbS91c2Vycy82OGRj
+MjVlOC9iYy9zZXhib3gvQzMwMF9BX3MuanBnP2JjT2NDazhBcENfUXNYTlgiIHdpZHRoPSI4MCIg
+aGVpZ2h0PSI4NCIgYm9yZGVyPSIwIj48L2E+PC90ZD4NCiAgICAgICAgICAgICAgICAgIDx0ZCB3
+aWR0aD0iMTE3Ij48YSBocmVmPSJodHRwOi8vc2V4Ym94Lm9oYmkubmV0L3Nob3dyb29tL3ZpZXcu
+cGhwP0M9MTQ3Ij48aW1nIHNyYz0iaHR0cDovL2hvbWUua2ltby5jb20udHcvc3VwZXJzdXBlcjg2
+L3NleGJveC9sYjI1NnMuanBnIiB3aWR0aD0iODAiIGhlaWdodD0iODAiIGJvcmRlcj0iMCI+PC9h
+PjwvdGQ+DQogICAgICAgICAgICAgICAgPC90cj4NCiAgICAgICAgICAgICAgICA8dHIgYmdjb2xv
+cj0iI0ZGRkZGRiIgYWxpZ249ImNlbnRlciI+IA0KICAgICAgICAgICAgICAgICAgPHRkIHdpZHRo
+PSIxMTMiPg0KICAgICAgICAgICAgICAgICAgICA8cD48YSBocmVmPSJodHRwOi8vc2V4Ym94Lm9o
+YmkubmV0L3Nob3dyb29tL3ZpZXcucGhwP0M9NTM2Ij6+ULvuuUMtrGaqTCANCiAgICAgICAgICAg
+ICAgICAgICAgICDBs6++q6w8L2E+PC9wPg0KICAgICAgICAgICAgICAgICAgICA8cD48YSBocmVm
+PSJodHRwOi8vc2V4Ym94Lm9oYmkubmV0L3Nob3dyb29tL3ZpZXcucGhwP0M9NTM2Ij6vU73moUcg
+DQogICAgICAgICAgICAgICAgICAgICAgMTYwpLg8L2E+PC9wPg0KICAgICAgICAgICAgICAgICAg
+PC90ZD4NCiAgICAgICAgICAgICAgICAgIDx0ZCBjbGFzcz0iYTkiIHdpZHRoPSIxNDMiPjxhIGhy
+ZWY9Imh0dHA6Ly9zZXhib3gub2hiaS5uZXQvc2hvd3Jvb20vdmlldy5waHA/Qz01NzYiPqz8sOqt
+7LjLtmmkZqRrqcqm27yiv8c8YnI+DQogICAgICAgICAgICAgICAgICAgIK9TveahRyA2OTmkuDwv
+YT48L3RkPg0KICAgICAgICAgICAgICAgICAgPHRkIHdpZHRoPSIxMDYiPg0KICAgICAgICAgICAg
+ICAgICAgICA8cD48YSBocmVmPSJodHRwOi8vc2V4Ym94Lm9oYmkubmV0L3Nob3dyb29tL3ZpZXcu
+cGhwP0M9OTEiPqTppbuzeqn6qvi49bNKPC9hPjwvcD4NCiAgICAgICAgICAgICAgICAgICAgPHA+
+PGEgaHJlZj0iaHR0cDovL3NleGJveC5vaGJpLm5ldC9zaG93cm9vbS92aWV3LnBocD9DPTkxIj6v
+U73moUcgDQogICAgICAgICAgICAgICAgICAgICAgMTgwpLg8L2E+PC9wPg0KICAgICAgICAgICAg
+ICAgICAgPC90ZD4NCiAgICAgICAgICAgICAgICAgIDx0ZCB3aWR0aD0iMTE3Ij48YSBocmVmPSJo
+dHRwOi8vc2V4Ym94Lm9oYmkubmV0L3Nob3dyb29tL3ZpZXcucGhwP0M9MTQ3Ij5MQjI1Ni2sS6Sn
+pGsopGopPGJyPg0KICAgICAgICAgICAgICAgICAgICCvU73moUcgNjUwpLg8L2E+PC90ZD4NCiAg
+ICAgICAgICAgICAgICA8L3RyPg0KICAgICAgICAgICAgICAgIDx0ciBiZ2NvbG9yPSIjRkZGRkND
+IiBhbGlnbj0iY2VudGVyIj4gDQogICAgICAgICAgICAgICAgICA8dGQgd2lkdGg9IjExMyI+PGEg
+aHJlZj0iaHR0cDovL3NleGJveC5vaGJpLm5ldC9zaG93cm9vbS92aWV3LnBocD9DPTY0Ij48aW1n
+IHNyYz0iaHR0cDovL3VzLmYxLnlhaG9vZnMuY29tL3VzZXJzLzY4ZGMyNWU4L2JjL3NleGJveC9m
+czQxNnMuanBnP2JjT2NDazhBQ2htWVAzcE0iIHdpZHRoPSI4MCIgaGVpZ2h0PSI4MCIgYm9yZGVy
+PSIwIj48L2E+PC90ZD4NCiAgICAgICAgICAgICAgICAgIDx0ZCB3aWR0aD0iMTQzIj48YSBocmVm
+PSJodHRwOi8vc2V4Ym94Lm9oYmkubmV0L3Nob3dyb29tL3ZpZXcucGhwP0M9NjcyIj48aW1nIHNy
+Yz0iaHR0cDovL2hvbWUua2ltby5jb20udHcvc3VwZXJzdXBlcjg2L3NleGJveC9GMjAxX0Ffcy5q
+cGciIHdpZHRoPSI4MCIgaGVpZ2h0PSI4MCIgYm9yZGVyPSIwIj48L2E+PC90ZD4NCiAgICAgICAg
+ICAgICAgICAgIDx0ZCB3aWR0aD0iMTA2Ij48YSBocmVmPSJodHRwOi8vc2V4Ym94Lm9oYmkubmV0
+L3Nob3dyb29tL3ZpZXcucGhwP0M9MjgzIj48aW1nIHNyYz0iaHR0cDovL3VzLmYxLnlhaG9vZnMu
+Y29tL3VzZXJzLzY4ZGMyNWU4L2JjL3NleGJveC9tMjE3cy5qcGc/YmNPY0NrOEE5RUt6R3c1VCIg
+d2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiBib3JkZXI9IjAiPjwvYT48L3RkPg0KICAgICAgICAgICAg
+ICAgICAgPHRkIHdpZHRoPSIxMTciPjxhIGhyZWY9Imh0dHA6Ly9zZXhib3gub2hiaS5uZXQvc2hv
+d3Jvb20vdmlldy5waHA/Qz0xMjMiPjxpbWcgc3JjPSJodHRwOi8vdXMuZjEueWFob29mcy5jb20v
+dXNlcnMvNjhkYzI1ZTgvYmMvc2V4Ym94L2IxMTRzLmpwZz9iY09jQ2s4QVFWaDNNbldIIiB3aWR0
+aD0iODAiIGhlaWdodD0iODAiIGJvcmRlcj0iMCI+PC9hPjwvdGQ+DQogICAgICAgICAgICAgICAg
+PC90cj4NCiAgICAgICAgICAgICAgICA8dHIgYmdjb2xvcj0iI0ZGRkZGRiIgYWxpZ249ImNlbnRl
+ciI+IA0KICAgICAgICAgICAgICAgICAgPHRkIHdpZHRoPSIxMTMiPg0KICAgICAgICAgICAgICAg
+ICAgICA8cD48YSBocmVmPSJodHRwOi8vc2V4Ym94Lm9oYmkubmV0L3Nob3dyb29tL3ZpZXcucGhw
+P0M9NjQiPqdOpfrF3KfOwHMgDQogICAgICAgICAgICAgICAgICAgICAgKLVMuXGwyik8L2E+PC9w
+Pg0KICAgICAgICAgICAgICAgICAgICA8cD48YSBocmVmPSJodHRwOi8vc2V4Ym94Lm9oYmkubmV0
+L3Nob3dyb29tL3ZpZXcucGhwP0M9NjQiPq9TveY6NDkwpLg8L2E+PC9wPg0KICAgICAgICAgICAg
+ICAgICAgPC90ZD4NCiAgICAgICAgICAgICAgICAgIDx0ZCB3aWR0aD0iMTQzIj48YSBocmVmPSJo
+dHRwOi8vc2V4Ym94Lm9oYmkubmV0L3Nob3dyb29tL3ZpZXcucGhwP0M9NjcyIj6t7LjLtmmkZrlH
+r3Wm173ot1CkaqbRpEfF3KfOwHM8YnI+DQogICAgICAgICAgICAgICAgICAgIK9TveahRyA1ODAg
+pLg8YnI+DQogICAgICAgICAgICAgICAgICAgIDwvYT4gPC90ZD4NCiAgICAgICAgICAgICAgICAg
+IDx0ZCB3aWR0aD0iMTA2Ij4NCiAgICAgICAgICAgICAgICAgICAgPHA+PGEgaHJlZj0iaHR0cDov
+L3NleGJveC5vaGJpLm5ldC9zaG93cm9vbS92aWV3LnBocD9DPTI4MyI+rPyw6ldFVCANCiAgICAg
+ICAgICAgICAgICAgICAgICC87bfGskc8L2E+PC9wPg0KICAgICAgICAgICAgICAgICAgICA8cD48
+YSBocmVmPSJodHRwOi8vc2V4Ym94Lm9oYmkubmV0L3Nob3dyb29tL3ZpZXcucGhwP0M9MjgzIj6v
+U73mOjQ5MKS4PC9hPjwvcD4NCiAgICAgICAgICAgICAgICAgIDwvdGQ+DQogICAgICAgICAgICAg
+ICAgICA8dGQgd2lkdGg9IjExNyI+IA0KICAgICAgICAgICAgICAgICAgICA8cD48YSBocmVmPSJo
+dHRwOi8vc2V4Ym94Lm9oYmkubmV0L3Nob3dyb29tL3ZpZXcucGhwP0M9MTIzIj6k6aW7qN+ka62m
+PC9hPjwvcD4NCiAgICAgICAgICAgICAgICAgICAgPHA+PGEgaHJlZj0iaHR0cDovL3NleGJveC5v
+aGJpLm5ldC9zaG93cm9vbS92aWV3LnBocD9DPTEyMyI+r1O95joxNjUwpLg8L2E+PC9wPg0KICAg
+ICAgICAgICAgICAgICAgICA8L3RkPg0KICAgICAgICAgICAgICAgIDwvdHI+DQogICAgICAgICAg
+ICAgIDwvdGFibGU+DQogICAgICAgICAgICA8L3RkPg0KICAgICAgICAgIDwvdHI+DQogICAgICAg
+IDwvdGFibGU+DQogICAgICA8L3RkPg0KICAgIDwvdHI+DQogIDwvdGFibGU+DQogIDx0YWJsZSB3
+aWR0aD0iNTAwIiBib3JkZXI9IjAiIGNlbGxzcGFjaW5nPSIwIiBjZWxscGFkZGluZz0iMCI+DQog
+ICAgPHRyIGJnY29sb3I9IiNGRkU2RkUiPiANCiAgICAgIDx0ZCBiZ2NvbG9yPSIjRkY5OUNDIj4m
+bmJzcDs8L3RkPg0KICAgIDwvdHI+DQogIDwvdGFibGU+DQo8L2NlbnRlcj4NCjwvYm9keT4NCjwv
+aHRtbD4NCg==
+
+------=_NextPart_1f1BvkW7JmhWSz416A--
+
+
 

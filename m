@@ -1,40 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311572AbSCTFwI>; Wed, 20 Mar 2002 00:52:08 -0500
+	id <S311578AbSCTF62>; Wed, 20 Mar 2002 00:58:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311579AbSCTFwB>; Wed, 20 Mar 2002 00:52:01 -0500
-Received: from www.wen-online.de ([212.223.88.39]:36106 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S311572AbSCTFvs>;
-	Wed, 20 Mar 2002 00:51:48 -0500
-Date: Tue, 19 Mar 2002 20:16:40 +0100 (CET)
-From: Mike Galbraith <mikeg@wen-online.de>
-To: Mike Fedyk <mfedyk@matchmail.com>
-cc: John Jasen <jjasen1@umbc.edu>,
-        Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: reading your email via tcpdump
-In-Reply-To: <20020319185225.GT2254@matchmail.com>
-Message-ID: <Pine.LNX.4.10.10203192012410.606-100000@mikeg.wen-online.de>
-MIME-Version: 1.0
+	id <S311579AbSCTF6S>; Wed, 20 Mar 2002 00:58:18 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:20920 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S311578AbSCTF57>;
+	Wed, 20 Mar 2002 00:57:59 -0500
+Date: Wed, 20 Mar 2002 11:36:30 +0530
+From: "Vamsi Krishna S ." <vamsi@in.ibm.com>
+To: Mark Gross <mgross@unix-os.sc.intel.com>
+Cc: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org,
+        alan@lxorguk.ukuu.org.uk, marcelo@conectiva.com.br, dan@debian.org,
+        tachino@jp.fujitsu.com, jefreyr@pacbell.net, vamsi_krishna@in.ibm.com,
+        richardj_moore@uk.ibm.com, hanharat@us.ibm.com, bsuparna@in.ibm.com,
+        bharata@in.ibm.com, asit.k.mallick@intel.com, david.p.howell@intel.com,
+        tony.luck@intel.com, sunil.saxena@intel.com
+Subject: Re: [PATCH] multithreaded coredumps for elf exeecutables
+Message-ID: <20020320113630.A6882@in.ibm.com>
+Reply-To: vamsi@in.ibm.com
+In-Reply-To: <20020315170726.A3405@in.ibm.com> <20020319152959.C55@toy.ucw.cz> <200203192147.g2JLl3W01070@unix-os.sc.intel.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Mar 2002, Mike Fedyk wrote:
+There is serialization at higher level. We take a write lock
+on current->mm->mmap_sem at the beginning of elf_core_dump
+function which is released just before leaving the function.
+So, if one thread enters elf_core_dump and starts dumping core,
+no other thread (same mm) of the same process can start
+dumping.
 
-> On Tue, Mar 19, 2002 at 07:56:27PM +0100, Mike Galbraith wrote:
-> > On Tue, 19 Mar 2002, Mike Fedyk wrote:
-> > > That's not the problem part of the tcpdump output.  The problem is that part
-> > > of an email previously read on the linux box (with no samba runing. (also,
-> > > no smbfs MikeG?)) showed up in the tcpdump output...
-> > 
-> > Yes.  That's exactly what worried me. (no clue as to security issues)
+static int elf_core_dump(long signr, struct pt_regs * regs, struct file * file)
+{
+	...
+	...
+        /* now stop all vm operations */
+        down_write(&current->mm->mmap_sem);
+	...
+	...
+	...
+        up_write(&current->mm->mmap_sem);
+        return has_dumped;
+}
+
+Vamsi.
+-- 
+Vamsi Krishna S.
+Linux Technology Center,
+IBM Software Lab, Bangalore.
+Ph: +91 80 5262355 Extn: 3959
+Internet: vamsi@in.ibm.com
+
+On Tue, Mar 19, 2002 at 01:49:58PM -0500, Mark Gross wrote:
+> On Tuesday 19 March 2002 10:29 am, Pavel Machek wrote:
+> > > + *
+> > > + * Sets the current->cpu_mask to the current cpu to avoid cpu migration
+> > > durring the dump. + * This cpu will also be the only cpu the other
+> > > threads will be allowed to run after + * coredump is completed. This
+> > > seems to be needed to fix some SMP races.  This still + * needs some more
+> > > thought though this solution works.
+> >
+> > What about
+> >
+> > app has 5 threads. 1st dumps core, and starts setting cpus_allowed mask to
+> > thread 2. Meanwhile 3nd thread resets the mask back.
+> >
+> This patch was intended to prevent this from happening.  I hope I didn't miss 
+> something.
 > 
-> What computer is 10.0.0.101?
-
-My son's win98 box. I'm ~positive that the message did _not_ propagate
-to my son's box and come back via net.. local data exposed probably via
-page return.
-
-	-Mike
-
+> The dumping thread doesn't proceed until the other CPU's have gotten into 
+> kernel mode and done 2 IPI's.  One to reschedule the other cpu's and one to 
+> synchronize before exiting suspend_other_threads.  
+> 
+> The way the IPI's are sent out by this patch, the other CPUs get 2 IPI's and 
+> execute at least one IRET, and hence at least one call to schedule, before 
+> the dumping process continues.  This one call to schedule on each of the 
+> other cpu's is what's needed to get all possible related thread processes 
+> swapped out for the duration of the dump.
+> 
+> Unless the IPI's and associated IRET's get dropped by the system, that 3rd 
+> thread will not get a chance to touch the cpu_masks before the dumping 
+> process is finished taking its dump and resume_other_threads gets called.   
+> Because it will have been scheduled out.  
+> 
+> --mgross

@@ -1,60 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262336AbVCICFY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261616AbVCICF0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262336AbVCICFY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 21:05:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261616AbVCICCP
+	id S261616AbVCICF0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 21:05:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262144AbVCICB6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 21:02:15 -0500
-Received: from mail-ex.suse.de ([195.135.220.2]:38309 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262300AbVCIBvA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 20:51:00 -0500
-Date: Wed, 9 Mar 2005 02:50:55 +0100
-From: Karsten Keil <kkeil@suse.de>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, Christophe Lucas <c.lucas@ifrance.com>,
-       Domen Puncer <domen@coderock.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-mm2
-Message-ID: <20050309015055.GA30498@pingi3.kke.suse.de>
-Mail-Followup-To: Adrian Bunk <bunk@stusta.de>,
-	Andrew Morton <akpm@osdl.org>,
-	Christophe Lucas <c.lucas@ifrance.com>,
-	Domen Puncer <domen@coderock.org>, linux-kernel@vger.kernel.org
-References: <20050308033846.0c4f8245.akpm@osdl.org> <20050309002046.GD3146@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050309002046.GD3146@stusta.de>
-Organization: SuSE Linux AG
-X-Operating-System: Linux 2.6.8-24.10-default i686
-User-Agent: Mutt/1.5.6i
+	Tue, 8 Mar 2005 21:01:58 -0500
+Received: from fmr23.intel.com ([143.183.121.15]:54484 "EHLO
+	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
+	id S262283AbVCIBvp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Mar 2005 20:51:45 -0500
+Message-Id: <200503090151.j291pag16426@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: "'Andrew Morton'" <akpm@osdl.org>, "'Jens Axboe'" <axboe@suse.de>
+Subject: Direct io on block device has performance regression on 2.6.x kernel - pseudo disk driver
+Date: Tue, 8 Mar 2005 17:51:36 -0800
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcUkSNzKYDObGXK9SD6A7gSOX+GhIwAAWALA
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+In-Reply-To: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 09, 2005 at 01:20:46AM +0100, Adrian Bunk wrote:
-> On Tue, Mar 08, 2005 at 03:38:46AM -0800, Andrew Morton wrote:
-> >...
-> > Changes since 2.6.11-mm1:
-> >...
-> > +drivers-isdn-tpam-convert-to-pci_register_driver.patch
-> >...
-> >  Little code tweaks.
-> >...
-> 
-> Please drop this patch.
-> 
-> Karsten has a patch ready to remove this driver (because the hardware it 
-> was supposed to drive never went into production), and such patches only 
-> cause needless rediffs.
-> 
-> @Karsten:
-> Could you submit your patch to remove tpam to Andrew?
-> 
+The pseudo disk driver that I used to stress the kernel I/O stack
+(anything above block layer, AIO/DIO/BIO).
 
-:-) already done few houres ago (against -mm2)
+- Ken
 
 
--- 
-Karsten Keil
-SuSE Labs
-ISDN development
+
+diff -Nur zero/blknull.c blknull/blknull.c
+--- zero/blknull.c	1969-12-31 16:00:00.000000000 -0800
++++ blknull/blknull.c	2005-03-03 19:04:07.000000000 -0800
+@@ -0,0 +1,97 @@
++#include <linux/module.h>
++#include <linux/types.h>
++#include <linux/kernel.h>
++#include <linux/major.h>
++#include <linux/fs.h>
++#include <linux/bio.h>
++#include <linux/blkpg.h>
++#include <linux/spinlock.h>
++
++#include <linux/blkdev.h>
++#include <linux/genhd.h>
++
++#define BLK_NULL_MAJOR	60
++#define BLK_NULL_NAME	"blknull"
++
++
++MODULE_AUTHOR("Ken Chen");
++MODULE_DESCRIPTION("null block driver");
++MODULE_LICENSE("GPL");
++
++
++spinlock_t driver_lock;
++struct request_queue *q;
++struct gendisk *disk;
++
++
++static int null_open(struct inode *inode, struct file *filp)
++{
++	return 0;
++}
++
++static int null_release(struct inode *inode, struct file *filp)
++{
++	return 0;
++}
++
++static struct block_device_operations null_fops = {
++	.owner		= THIS_MODULE,
++	.open		= null_open,
++	.release	= null_release,
++};
++
++static void do_null_request(request_queue_t *q)
++{
++	struct request *req;
++
++	while (!blk_queue_plugged(q)) {
++		req = elv_next_request(q);
++		if (!req)
++			break;
++
++		blkdev_dequeue_request(req);
++
++		end_that_request_first(req, 1, req->nr_sectors);
++		end_that_request_last(req);
++	}
++}
++
++static int __init init_blk_null_module(void)
++{
++
++	if (register_blkdev(BLK_NULL_MAJOR, BLK_NULL_NAME)) {
++		printk(KERN_ERR "Unable to register null blk device\n");
++		return 0;
++	}
++
++	spin_lock_init(&driver_lock);
++	q = blk_init_queue(do_null_request, &driver_lock);
++	if (q) {
++		disk = alloc_disk(1);
++
++		if (disk) {
++			disk->major = BLK_NULL_MAJOR;
++			disk->first_minor = 0;
++			disk->fops = &null_fops;
++			disk->capacity = 1<<30;
++			disk->queue = q;
++			memcpy(disk->disk_name, BLK_NULL_NAME, sizeof(BLK_NULL_NAME));
++			add_disk(disk);
++			return 1;
++		}
++
++		blk_cleanup_queue(q);
++	}
++	unregister_blkdev(BLK_NULL_MAJOR, BLK_NULL_NAME);
++	return 0;
++}
++
++static void __exit exit_blk_null_module(void)
++{
++	del_gendisk(disk);
++	blk_cleanup_queue(q);
++	unregister_blkdev(BLK_NULL_MAJOR, BLK_NULL_NAME);
++}
++
++module_init(init_blk_null_module);
++module_exit(exit_blk_null_module);
+diff -Nur zero/Makefile blknull/Makefile
+--- zero/Makefile	1969-12-31 16:00:00.000000000 -0800
++++ blknull/Makefile	2005-03-03 18:42:55.000000000 -0800
+@@ -0,0 +1 @@
++obj-m := blknull.o
+
+
+

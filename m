@@ -1,72 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270668AbTGUSy4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 14:54:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270669AbTGUSy4
+	id S270686AbTGUTBR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 15:01:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270687AbTGUTBR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 14:54:56 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:23450 "HELO
-	heather-ng.ithnet.com") by vger.kernel.org with SMTP
-	id S270668AbTGUSyy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 14:54:54 -0400
-X-Sender-Authentification: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
-Date: Mon, 21 Jul 2003 21:09:54 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: mason@suse.com, andrea@suse.de, riel@redhat.com,
-       linux-kernel@vger.kernel.org, maillist@jg555.com
-Subject: Re: Bug Report: 2.4.22-pre5: BUG in page_alloc (fwd)
-Message-Id: <20030721210954.644b20ba.skraw@ithnet.com>
-In-Reply-To: <Pine.LNX.4.55L.0307211422010.26736@freak.distro.conectiva>
-References: <Pine.LNX.4.55L.0307150859130.5146@freak.distro.conectiva>
-	<1058297936.4016.86.camel@tiny.suse.com>
-	<Pine.LNX.4.55L.0307160836270.30825@freak.distro.conectiva>
-	<20030718112758.1da7ab03.skraw@ithnet.com>
-	<Pine.LNX.4.55L.0307180921120.6642@freak.distro.conectiva>
-	<20030718145033.5ff05880.skraw@ithnet.com>
-	<Pine.LNX.4.55L.0307181109220.7889@freak.distro.conectiva>
-	<20030721104906.34ae042a.skraw@ithnet.com>
-	<20030721170517.1dd1f910.skraw@ithnet.com>
-	<Pine.LNX.4.55L.0307211422010.26736@freak.distro.conectiva>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 21 Jul 2003 15:01:17 -0400
+Received: from netrealtor.ca ([216.209.85.42]:51218 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id S270686AbTGUTBN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 15:01:13 -0400
+Date: Mon, 21 Jul 2003 15:16:02 -0400
+From: Mark Mielke <mark@mark.mielke.cc>
+To: RAMON_GARCIA_F <RAMON_GARCIA_F@terra.es>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Suggestion for a new system call: convert file handle to a cookie for transfering file handles between processes.
+Message-ID: <20030721191602.GB16814@mark.mielke.cc>
+References: <5f3d05a5f5.5a5f55f3d0@teleline.es>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5f3d05a5f5.5a5f55f3d0@teleline.es>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Jul 2003 14:23:53 -0300 (BRT)
-Marcelo Tosatti <marcelo@conectiva.com.br> wrote:
+What part of this cannot be implemented from user space using unix sockets?
 
-> > > Hello Marcelo,
-> > >
-> > > have you seen anything in your tests? My box just froze again after 3
-> > > days during NFS action. This was with pre6, I am switching over to pre7.
-> >
-> > I managed to freeze the pre7 box within these few hours. There was no nfs
-> > involved, only tar-to-tape.
+Consider that an implementing using a user space daemon and unix sockets
+would be portable to any system that implemented either ioctl(I_SENDFD)
+or cmsg(SCM_CREDENTIALS). The former should function properly on all
+operating systems that fully implements streamio support, such as Solaris
+and HP-UX.
+
+Your proposed solution unnecessary complicates the kernel, and ensures
+that the feature cannot be used on any other platform except Linux, and
+even then, only versions of Linux that include your patch.
+
+Why restrict yourself like this?
+
+mark
+
+
+On Mon, Jul 21, 2003 at 06:55:24PM +0200, RAMON_GARCIA_F wrote:
+> My proposal is useful for cases where the server program is running with
+> a different priviledge from the user invoking it. Examples where this
+> behaviour is useful are writting CDs, saving man pages, saving TeX cache
+> files, where full access to a resource would be unsafe, but limited
+> access through an intermediate server is safe.
 > 
-> You had NMI on, correct? Sysrq doesnt work, correct?
-
-Yes, that's right.
- 
-> > I switched back to 2.4.21 to see if it is still stable. Is there a
-> > possibility that the i/o-scheduler has another flaw somewhere (just like
-> > during mount previously) ...
+> In addition, this proposal is useful for cases where the server process
+> cannot access the named file, becaue it does not have permission to do
+> so, or because it is anonymous (example: a pipe).
 > 
-> It might be a problem in the IO scheduler, yes.
+> I can't see why cookies introduce circular references. A cookie referes
+> to an inode, but an inode does not refer to a file.
 > 
-> Lets isolate the problems: If 2.4.21 doenst lockup, try 2.4.22-pre7
-> without drivers/block/ll_rw_blk{.c,.h} changes.
+> However, a cookie introduces a permanent reference to a file handle.
+> This reference is not destroyed until the cookie is used. Therefore,
+> cookies should have a timeout associated with them, so that if they
+> are not consumed they should be destroyed.
+> 
+> Ramon
+> 
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-I am pretty confident that 2.4.21 does not lock up, I tested it long time ago
-and to my memory it had no problems. Anyway I re-check to make sure the box is
-still ok.
+-- 
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
 
-Can you send me patches off-list to reverse from -pre7. Just to make sure we
-are talking of the same stuff...
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
 
-Regards,
-Stephan
+                           http://mark.mielke.cc/
 

@@ -1,37 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262868AbUKXWIz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262765AbUKXWHv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262868AbUKXWIz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 17:08:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261595AbUKXWIy
+	id S262765AbUKXWHv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 17:07:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262868AbUKXWHv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 17:08:54 -0500
-Received: from 80.178.41.228.forward.012.net.il ([80.178.41.228]:30407 "EHLO
-	linux15") by vger.kernel.org with ESMTP id S262868AbUKXWID (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 17:08:03 -0500
-From: Oded Shimon <ods15@ods15.dyndns.org>
-To: linux-kernel@vger.kernel.org
-Subject: RivaFB and GeForce FX
-Date: Wed, 24 Nov 2004 23:47:07 +0200
-User-Agent: KMail/1.7.1
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Wed, 24 Nov 2004 17:07:51 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:48645 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262765AbUKXWHr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 17:07:47 -0500
+Date: Wed, 24 Nov 2004 23:07:42 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Jaroslav Kysela <perex@suse.cz>
+Cc: alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org
+Subject: 2.6: sound/isa/gus/gus_lfo.c is unused
+Message-ID: <20041124220742.GL19873@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200411242347.07911.ods15@ods15.dyndns.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm currently working on getting complete support for Geforce FX for RivaFB.
+Hi Jaroslav,
 
-Thanks to X's open source NV module, I have already gotten it to work 
-completely for monitor. I am still having trouble with TV out though. The 
-only working reference I have for that though is the binary, closed source, 
-official Nvidia X module.
+in kernel 2.6 (I've checked 2.6.10-rc2-mm3), the file 
+sound/isa/gus/gus_lfo.c is completely unused (it's never built, and all 
+code using it in other files is #if 0'ed).
 
-I know very little about kernel hacking, the support that I got working at all 
-was mostly by pure guessing and trial and error. I would like some advice 
-about what actions I should take next in getting more complete support.
+What's the status of this file?
 
-- ods15
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,61 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262420AbUKKWpu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262406AbUKKWsS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262420AbUKKWpu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Nov 2004 17:45:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262410AbUKKWnu
+	id S262406AbUKKWsS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Nov 2004 17:48:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262401AbUKKWrF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 17:43:50 -0500
-Received: from fw.osdl.org ([65.172.181.6]:53383 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262401AbUKKWmC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Nov 2004 17:42:02 -0500
-Date: Thu, 11 Nov 2004 14:41:53 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: linux-kernel@vger.kernel.org, David Howells <dhowells@redhat.com>
-Subject: Re: 2.6.10-rc1-mm5
-Message-Id: <20041111144153.588094d2.akpm@osdl.org>
-In-Reply-To: <111920000.1100210158@flay>
-References: <20041111012333.1b529478.akpm@osdl.org>
-	<20041111030837.12a2090b.akpm@osdl.org>
-	<111920000.1100210158@flay>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 11 Nov 2004 17:47:05 -0500
+Received: from lists.us.dell.com ([143.166.224.162]:62119 "EHLO
+	lists.us.dell.com") by vger.kernel.org with ESMTP id S262405AbUKKWnq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Nov 2004 17:43:46 -0500
+Date: Thu, 11 Nov 2004 16:43:31 -0600
+From: Matt Domsch <Matt_Domsch@dell.com>
+To: Christian Kujau <evil@g-house.de>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Pekka Enberg <penberg@gmail.com>,
+       Greg KH <greg@kroah.com>
+Subject: Re: Oops in 2.6.10-rc1 (almost solved)
+Message-ID: <20041111224331.GA31340@lists.us.dell.com>
+References: <Pine.LNX.4.58.0411080951390.2301@ppc970.osdl.org> <418FDE1F.7060804@g-house.de> <419005F2.8080800@g-house.de> <41901DF0.8040302@g-house.de> <84144f02041108234050d0f56d@mail.gmail.com> <4190B910.7000407@g-house.de> <20041109164238.M12639@g-house.de> <Pine.LNX.4.58.0411091026520.2301@ppc970.osdl.org> <4191530D.8020406@g-house.de> <20041109234053.GA4546@lists.us.dell.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041109234053.GA4546@lists.us.dell.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" <mbligh@aracnet.com> wrote:
->
->  That works. But something broke shmem:
+On Tue, Nov 09, 2004 at 05:40:54PM -0600, Matt Domsch wrote:
+> OK, thanks, that helps.  From the diff of those dmesg:
 > 
->  ipc/shm.c:171: error: `shmem_set_policy' undeclared here (not in a function)
->  ipc/shm.c:171: error: initializer element is not constant
->  ipc/shm.c:171: error: (near initialization for `shm_vm_ops.set_policy')
->  ipc/shm.c:172: error: `shmem_get_policy' undeclared here (not in a function)
->  ipc/shm.c:172: error: initializer element is not constant
->  ipc/shm.c:172: error: (near initialization for `shm_vm_ops.get_policy')
+> -BIOS EDD facility v0.16 2004-Jun-25, 16 devices found
+> +BIOS EDD facility v0.16 2004-Jun-25, 6 devices found
 
-OK, I tracked this down to another secret dhowells diff.
+As Linus points out, those are the magic numbers in EDD for number of
+device entries stored.  Your BIOS seems to be reporting that is has
+more devices than it does, or the EDD assembly is horked in a way I
+have not yet deciphered.
+ 
+> I'll review the assembly again to see where I could have miscounted,
+> and see how that may affect the EDD sysfs exports.  Likely no answer
+> from me before tomorrow though.
 
- config SHMEM
--       default y
--       bool "Use full shmem filesystem" if EMBEDDED && MMU
-+       bool "Use full shmem filesystem"
-+       default y if EMBEDDED
-+       depends on MMU
+I haven't been able to find a solution to your problem yet, and given
+some external time constraints I've got, won't be able to look into
+this again for another week or more.
 
-This change permits CONFIG_SHMEM=n on !CONFIG_MMU, even if !EMBEDDED.  Or
-something.  I'm not really sure what it's trying to do, nor am I clear on
-what semantics we wanted to have for CONFIG_SHMEM on CONFIG_MMU machines.
+Thanks,
+Matt
 
-I think the semantics we want are: you always get shmem, unless you
-selected EMBEDDED.  So perhaps we want:
-
-config SHMEM
-	bool "Use full shmem filesystem" if EMBEDDED
-	depends on MMU
-	default y if MMU
-
-
+-- 
+Matt Domsch
+Sr. Software Engineer, Lead Engineer
+Dell Linux Solutions linux.dell.com & www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com

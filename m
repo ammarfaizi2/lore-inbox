@@ -1,37 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264978AbTLRJtH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Dec 2003 04:49:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264981AbTLRJtH
+	id S264981AbTLRJv1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Dec 2003 04:51:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265030AbTLRJv1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Dec 2003 04:49:07 -0500
-Received: from dns.toxicfilms.tv ([150.254.37.24]:51366 "EHLO
-	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S264978AbTLRJtF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Dec 2003 04:49:05 -0500
-Message-ID: <006201c3c54c$2bb00c50$0e25fe0a@southpark.ae.poznan.pl>
-From: "Maciej Soltysiak" <solt@dns.toxicfilms.tv>
-To: <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0312171951030.5789@home.osdl.org> <20031217211516.2c578bab.akpm@osdl.org> <200312181112.43745.ismail.donmez@boun.edu.tr>
-Subject: Re: Linux 2.6.0
-Date: Thu, 18 Dec 2003 10:48:50 +0100
+	Thu, 18 Dec 2003 04:51:27 -0500
+Received: from xdsl-213-168-118-128.netcologne.de ([213.168.118.128]:58712
+	"EHLO herc.66h.42h.de") by vger.kernel.org with ESMTP
+	id S264981AbTLRJvZ convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Dec 2003 04:51:25 -0500
+Date: Thu, 18 Dec 2003 09:51:04 +0000 (UTC)
+From: Thorsten Glaser <tg-v2003@netcologne.de>
+To: Randy Zagar <jrzagar@cactus.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux GPL and binary module exception clause?
+In-Reply-To: <1071738720.25032.496.camel@otter.zagar.linux-dude.net>
+Message-ID: <Pine.BSO.4.58.0312180949170.8646@herc.66h.42h.de>
+References: <1071738720.25032.496.camel@otter.zagar.linux-dude.net>
+X-SMIME: No
+X-Message-Flag: Your mailer is broken. Get an update at http://www.washington.edu/pine/pc-pine/ for free.
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.3790.0
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.0
-X-Spam-Rating: 0 1.6.2 0/1000/N
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Wondering if ALSA and Latest Usb updates from Greg KH will make it into
-> 2.6.1 ?
-Is anything known about reiserfs4 becoming stable enough to be included some
-time soon. Maybe around 2.6.3-5
+Dixitur illum jrzagar@cactus.org scribere...
 
-Regards,
-Maciej
+>As I see it, this whole problem about kernel headers revolves around the
+>argument that the header files are copyrighted and licensed under the
 
+No matter which one, but IMHO is putting a (c) on a header file
+a Bad Thing(tm).
+
+Sure, you'll need a licence to distribute it at all, but if
+merely using the header file (which is just the API, written
+in a compiler-parseable form) inflicts restriction on the
+result, it's ridiculous. (Someone could just rewrite these
+header files themselfes anyways.)
+
+//Thorsten
+-- 
+Solange man keine schmutzigen Tricks macht, und ich meine *wirklich*
+schmutzige Tricks, wie bei einer doppelt verketteten Liste beide
+Pointer XORen und in nur einem Word speichern, funktioniert Boehm ganz
+hervorragend.		-- Andreas Bogk über boehm-gc in d.a.s.r

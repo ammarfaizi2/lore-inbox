@@ -1,57 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263504AbUJ2V6p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263625AbUJ2Vwv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263504AbUJ2V6p (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 17:58:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263609AbUJ2Vxr
+	id S263625AbUJ2Vwv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 17:52:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263606AbUJ2VuO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 17:53:47 -0400
-Received: from ppsw-6.csi.cam.ac.uk ([131.111.8.136]:24709 "EHLO
-	ppsw-6.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S263597AbUJ2VsP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 17:48:15 -0400
-Date: Fri, 29 Oct 2004 22:48:01 +0100 (BST)
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: RFC: Changes to fs/buffer.c?
-In-Reply-To: <Pine.LNX.4.58.0410291343510.28839@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.60.0410292246300.24884@hermes-1.csi.cam.ac.uk>
-References: <Pine.LNX.4.60.0410291516580.19494@hermes-1.csi.cam.ac.uk>
- <20041029133420.76a758b3.akpm@osdl.org> <Pine.LNX.4.58.0410291343510.28839@ppc970.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-X-Cam-AntiVirus: No virus found
-X-Cam-SpamDetails: Not scanned
+	Fri, 29 Oct 2004 17:50:14 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:56472 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S263626AbUJ2Vmw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 17:42:52 -0400
+Subject: Re: [Fwd: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4]
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Florian Schmidt <mista.tapas@gmx.net>,
+       Paul Davis <paul@linuxaudiosystems.com>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       LKML <linux-kernel@vger.kernel.org>, mark_h_johnson@raytheon.com,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       jackit-devel <jackit-devel@lists.sourceforge.net>,
+       Rui Nuno Capela <rncbc@rncbc.org>
+In-Reply-To: <20041029212545.GA13199@elte.hu>
+References: <20041029163155.GA9005@elte.hu>
+	 <20041029191652.1e480e2d@mango.fruits.de> <20041029170237.GA12374@elte.hu>
+	 <20041029170948.GA13727@elte.hu> <20041029193303.7d3990b4@mango.fruits.de>
+	 <20041029172151.GB16276@elte.hu> <20041029172243.GA19630@elte.hu>
+	 <20041029203619.37b54cba@mango.fruits.de> <20041029204220.GA6727@elte.hu>
+	 <20041029233117.6d29c383@mango.fruits.de>  <20041029212545.GA13199@elte.hu>
+Content-Type: text/plain
+Date: Fri, 29 Oct 2004 17:42:45 -0400
+Message-Id: <1099086166.1468.4.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Oct 2004, Linus Torvalds wrote:
-> On Fri, 29 Oct 2004, Andrew Morton wrote:
-> > Anton Altaparmakov <aia21@cam.ac.uk> wrote:
-> > >
-> > > Is it ok to export 
-> > >  create_buffers() and to make __set_page_buffers() static inline and move 
-> > >  it to include/linux/buffer.h?
-> > 
-> > ho, hum - if you must ;)
-> > 
-> > I'd be inclined to rename it to attach_page_buffers() or something though -
-> > create_buffers() is a bit generic-sounding.
+On Fri, 2004-10-29 at 23:25 +0200, Ingo Molnar wrote:
+> > will do so. btw: i think i'm a bit confused right now. What debugging
+> > features should i have enabled for this test?
 > 
-> Also, I think we should at least start out limiting it to GPL-only usage. 
-> Those page buffers are pretty intertwined with the VM usage, I'd hate to 
-> see people think this is some kind of external interface..
+> this particular one (atomicity-checking) is always-enabled if you have
+> the -RT patch applied (it's a really cheap check).
 
-Yes, sure.  I will use the _GPL version for the symbol export.  I only 
-used the non-GPL-only form since create_empty_buffers() is simply exported 
-and create_buffers() is kind of the same thing but does less...
+One more question, what do you recommend the priorities of the IRQ
+threads be set to?  AIUI for xrun-free operation with JACK, all that is
+needed is to set the RT priorities of the soundcard IRQ thread highest,
+followed by the JACK threads, then the other IRQ threads.  Is this
+correct?
 
-Best regards,
+Lee  
 
-	Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/

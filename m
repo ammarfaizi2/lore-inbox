@@ -1,29 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289940AbSAKM54>; Fri, 11 Jan 2002 07:57:56 -0500
+	id <S289941AbSAKNBI>; Fri, 11 Jan 2002 08:01:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289941AbSAKM5q>; Fri, 11 Jan 2002 07:57:46 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:26372 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S289940AbSAKM5g>; Fri, 11 Jan 2002 07:57:36 -0500
-Subject: Re: [patch] O(1) scheduler, -H5
-To: rmk@arm.linux.org.uk (Russell King)
-Date: Fri, 11 Jan 2002 13:09:03 +0000 (GMT)
-Cc: mingo@elte.hu (Ingo Molnar), torvalds@transmeta.com (Linus Torvalds),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20020111113131.C30756@flint.arm.linux.org.uk> from "Russell King" at Jan 11, 2002 11:31:31 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S289942AbSAKNA5>; Fri, 11 Jan 2002 08:00:57 -0500
+Received: from swazi.realnet.co.sz ([196.28.7.2]:62106 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S289941AbSAKNAl>; Fri, 11 Jan 2002 08:00:41 -0500
+Date: Fri, 11 Jan 2002 15:00:22 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: <zwane@netfinity.realnet.co.sz>
+To: <root@chaos.analogic.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, <david.balazic@uni-mb.si>
+Subject: Re: Simple local DOS
+Message-ID: <Pine.LNX.4.33.0201111458231.13192-100000@netfinity.realnet.co.sz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16P1Qd-0007aL-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The serial driver (old or new) open/close functions are one of the worst
-> offenders of the global-cli-and-hold-kernel-lock-and-schedule problem.
-> I'm currently working on fixing this in the new serial driver.
+>Ctrl-ALT-F12 selects VT mode from a locked X-window, ALT-F1 gets you
+>to the first VT, ALT-F2, next, etc.
+>No problem at all.
 
-Someone fixed serial.c to use spinlocks a long while ago. Its just not
-merged
+X can kill the keyboard completely, only way in was via remote.
+
+Regards,
+	Zwane Mwaikambo
+
+

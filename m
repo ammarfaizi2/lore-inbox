@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280091AbRKEBZZ>; Sun, 4 Nov 2001 20:25:25 -0500
+	id <S278800AbRKEBmw>; Sun, 4 Nov 2001 20:42:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280095AbRKEBZQ>; Sun, 4 Nov 2001 20:25:16 -0500
-Received: from as4-1-7.has.s.bonet.se ([217.215.31.238]:8332 "EHLO
-	k-7.stesmi.com") by vger.kernel.org with ESMTP id <S280091AbRKEBZL>;
-	Sun, 4 Nov 2001 20:25:11 -0500
-Message-ID: <3BE5EA81.6070400@stesmi.com>
-Date: Mon, 05 Nov 2001 02:25:21 +0100
-From: Stefan Smietanowski <stesmi@stesmi.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4) Gecko/20010913
-X-Accept-Language: en-us
+	id <S280095AbRKEBmn>; Sun, 4 Nov 2001 20:42:43 -0500
+Received: from humbolt.nl.linux.org ([131.211.28.48]:12165 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S278800AbRKEBm2>; Sun, 4 Nov 2001 20:42:28 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Christian Laursen <xi@borderworlds.dk>
+Subject: Re: Ext2 directory index, updated
+Date: Mon, 5 Nov 2001 02:43:28 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20011104022659Z16995-4784+750@humbolt.nl.linux.org> <m3hesatcgq.fsf@borg.borderworlds.dk>
+In-Reply-To: <m3hesatcgq.fsf@borg.borderworlds.dk>
 MIME-Version: 1.0
-To: alex.buell@tahallah.demon.co.uk
-CC: Heinz Diehl <hd@cavy.de>, linux-kernel@vger.kernel.org
-Subject: Re: linux-2.2.20a and gcc 3.0 ?
-In-Reply-To: <Pine.LNX.4.33.0111042313080.9786-100000@tahallah.demon.co.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011105014225Z17055-18972+38@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
-
->>>It boots, but I have some missing symbols while loading some modules.
->>>The same config works fine with gcc-2.95.4
->>>
->>gcc-2.95.4 does not exist! The latest stable release is 2.95.3.
->>
+On November 4, 2001 11:09 pm, Christian Laursen wrote:
+> Daniel Phillips <phillips@bonn-fries.net> writes:
 > 
-> Ah, it does exist. You have to check it out from CVS from the GCC people.
-> I've no doubt a release will be made soon.
+> > ***N.B.: still for use on test partitions only.***
+> 
+> It's the first time, I've tried this patch and I must say, that
+> the first impression is very good indeed.
+> 
+> I took a real world directory (my linux-kernel MH folder containing
+> roughly 115000 files) and did a 'du -s' on it.
+> 
+> Without the patch it took a little more than 20 minutes to complete.
+> 
+> With the patch, it took less than 20 seconds. (And that was inside uml)
 
-That's what's called a not released product.
+Which kernel are you using?  From 2.4.10 on ext2 has an accelerator in 
+ext2_find_entry - it caches the last lookup position.  I'm wondering how that 
+affects this case.
 
-2.95.4 might or might not be released shortly.
-
-It is not the final 2.95.4 that is in the CVS.
-
-Another word for it might be BETA...
-
-// Stefan
-
-
+--
+Daniel

@@ -1,118 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261473AbVCFVuS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261371AbVCFWIG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261473AbVCFVuS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Mar 2005 16:50:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261471AbVCFVuF
+	id S261371AbVCFWIG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Mar 2005 17:08:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261474AbVCFWIG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Mar 2005 16:50:05 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:14818 "EHLO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
-	id S261371AbVCFVtt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Mar 2005 16:49:49 -0500
-From: Darren Williams <dsw@gelato.unsw.edu.au>
-To: Christoph Lameter <clameter@sgi.com>
-Date: Mon, 7 Mar 2005 08:49:02 +1100
-Cc: Darren Williams <dsw@gelato.unsw.edu.au>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: Page fault scalability patch V18: Overview
-Message-ID: <20050306214902.GC19053@cse.unsw.EDU.AU>
-Mail-Followup-To: Christoph Lameter <clameter@sgi.com>,
-	Darren Williams <dsw@gelato.unsw.edu.au>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-References: <Pine.LNX.4.58.0503011947001.25441@schroedinger.engr.sgi.com> <20050304021847.GF28102@cse.unsw.EDU.AU> <20050304024704.GG28102@cse.unsw.EDU.AU> <Pine.LNX.4.58.0503040814220.17378@schroedinger.engr.sgi.com>
+	Sun, 6 Mar 2005 17:08:06 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:25606 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261371AbVCFWHt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Mar 2005 17:07:49 -0500
+Date: Sun, 6 Mar 2005 23:07:47 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] sound/oss/: cleanups
+Message-ID: <20050306220747.GP5070@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0503040814220.17378@schroedinger.engr.sgi.com>
-User-Agent: Mutt/1.5.6+20040523i
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Christoph
+This patch contains cleanups including the following:
+- make needlessly global code static
 
-On Fri, 04 Mar 2005, Christoph Lameter wrote:
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-> Make sure that scrubd_stop on startup is set to 2 and no zero in
-> mm/scrubd.c. The current patch on oss.sgi.com may have that set to zero.
-> 
-unsigned int sysctl_scrub_stop = 2;     /* Mininum order of page to zero */
+---
 
-This is the assignment when page zero fails.
+ sound/oss/ad1816.c      |    2 +-
+ sound/oss/nm256.h       |    2 +-
+ sound/oss/nm256_audio.c |    4 ++--
+ sound/oss/nm256_coeff.h |    2 +-
+ sound/oss/v_midi.c      |    2 --
+ sound/oss/wavfront.c    |   12 ++++++------
+ 6 files changed, 11 insertions(+), 13 deletions(-)
 
-Darren
+--- linux-2.6.11-mm1-full/sound/oss/ad1816.c.old	2005-03-06 22:13:46.000000000 +0100
++++ linux-2.6.11-mm1-full/sound/oss/ad1816.c	2005-03-06 22:22:52.000000000 +0100
+@@ -592,7 +592,7 @@
+   {{reg_l, pola_l, pos_l, len_l}, {reg_r, pola_r, pos_r, len_r}}
+ 
+ 
+-mixer_ent mix_devices[SOUND_MIXER_NRDEVICES][2] = {
++static mixer_ent mix_devices[SOUND_MIXER_NRDEVICES][2] = {
+ MIX_ENT(SOUND_MIXER_VOLUME,	14, 1, 8, 5,	14, 1, 0, 5),
+ MIX_ENT(SOUND_MIXER_BASS,	 0, 0, 0, 0,	 0, 0, 0, 0),
+ MIX_ENT(SOUND_MIXER_TREBLE,	 0, 0, 0, 0,	 0, 0, 0, 0),
+--- linux-2.6.11-mm1-full/sound/oss/nm256.h.old	2005-03-06 22:14:23.000000000 +0100
++++ linux-2.6.11-mm1-full/sound/oss/nm256.h	2005-03-06 22:24:47.000000000 +0100
+@@ -284,7 +284,7 @@
+ }
+ 
+ /* Returns a non-zero value if we should use the coefficient cache. */
+-extern int nm256_cachedCoefficients (struct nm256_info *card);
++static int nm256_cachedCoefficients (struct nm256_info *card);
+ 
+ #endif
+ 
+--- linux-2.6.11-mm1-full/sound/oss/nm256_coeff.h.old	2005-03-06 22:16:18.000000000 +0100
++++ linux-2.6.11-mm1-full/sound/oss/nm256_coeff.h	2005-03-06 22:22:52.000000000 +0100
+@@ -4650,7 +4650,7 @@
+     card->coeffsCurrent = 1;
+ }
+ 
+-void
++static void
+ nm256_loadCoefficient (struct nm256_info *card, int which, int number)
+ {
+     static u16 addrs[3] = { 0x1c, 0x21c, 0x408 };
+--- linux-2.6.11-mm1-full/sound/oss/nm256_audio.c.old	2005-03-06 22:14:42.000000000 +0100
++++ linux-2.6.11-mm1-full/sound/oss/nm256_audio.c	2005-03-06 22:22:52.000000000 +0100
+@@ -31,7 +31,7 @@
+ #include "nm256.h"
+ #include "nm256_coeff.h"
+ 
+-int nm256_debug;
++static int nm256_debug;
+ static int force_load;
+ 
+ /* 
+@@ -138,7 +138,7 @@
+ static int buffertop;
+ 
+ /* Check to see if we're using the bank of cached coefficients. */
+-int
++static int
+ nm256_cachedCoefficients (struct nm256_info *card)
+ {
+     return usecache;
+--- linux-2.6.11-mm1-full/sound/oss/v_midi.c.old	2005-03-06 22:17:55.000000000 +0100
++++ linux-2.6.11-mm1-full/sound/oss/v_midi.c	2005-03-06 22:22:52.000000000 +0100
+@@ -39,8 +39,6 @@
+  */
+ 
+ 
+-void            (*midi_input_intr) (int dev, unsigned char data);
+-
+ static int v_midi_open (int dev, int mode,
+ 	      void            (*input) (int dev, unsigned char data),
+ 	      void            (*output) (int dev)
+--- linux-2.6.11-mm1-full/sound/oss/wavfront.c.old	2005-03-06 22:18:52.000000000 +0100
++++ linux-2.6.11-mm1-full/sound/oss/wavfront.c	2005-03-06 22:22:52.000000000 +0100
+@@ -151,11 +151,11 @@
+ 
+ /*** Module-accessible parameters ***************************************/
+ 
+-int wf_raw;     /* we normally check for "raw state" to firmware
+-		   loading. if set, then during driver loading, the
+-		   state of the board is ignored, and we reset the
+-		   board and load the firmware anyway.
+-		*/
++static int wf_raw;     /* we normally check for "raw state" to firmware
++			   loading. if set, then during driver loading, the
++			   state of the board is ignored, and we reset the
++			   board and load the firmware anyway.
++			*/
+ 		   
+ static int fx_raw = 1; /* if this is zero, we'll leave the FX processor in
+ 		          whatever state it is when the driver is loaded.
+@@ -2911,7 +2911,7 @@
+ 	return 0;
+ }	
+ 
+-void
++static void
+ wffx_mute (int onoff)
+     
+ {
 
-> On Fri, 4 Mar 2005, Darren Williams wrote:
-> 
-> > Hi Darren
-> >
-> > On Fri, 04 Mar 2005, Darren Williams wrote:
-> >
-> > > Hi Christoph
-> > >
-> > > On Tue, 01 Mar 2005, Christoph Lameter wrote:
-> > >
-> > > > Is there any chance that this patchset could go into mm now? This has been
-> > > > discussed since last August....
-> > > >
-> > > > Changelog:
-> > > >
-> > > > V17->V18 Rediff against 2.6.11-rc5-bk4
-> > >
-> > > Just applied this patch against 2.6.11, however with the patch applied
-> > > and all the aditional config options not set, the kernel hangs at
-> > > Freeing unused kernel memory: 240kB freed
-> > > FYI:
-> > >
-> > > boot    atomic   prezero
-> > > OK        on      on
-> > > fail      off     on
-> > > fail      off     off
-> > > OK        on      off
-> >
-> > A bit extra info on the system:
-> > HP rx8620 Itanium(R) 2 16way
-> >
-> > >
-> > > > V16->V17 Do not increment page_count in do_wp_page. Performance data
-> > > > 	posted.
-> > > > V15->V16 of this patch: Redesign to allow full backback
-> > > > 	for architectures that do not supporting atomic operations.
-> > > >
-> > > > An introduction to what this patch does and a patch archive can be found on
-> > > > http://oss.sgi.com/projects/page_fault_performance. The archive also has the
-> > > > result of various performance tests (LMBench, Microbenchmark and
-> > > > kernel compiles).
-> > > >
-> > > > The basic approach in this patchset is the same as used in SGI's 2.4.X
-> > > > based kernels which have been in production use in ProPack 3 for a long time.
-> > > >
-> > > > The patchset is composed of 4 patches (and was tested against 2.6.11-rc5-bk4):
-> > > >
-> > > [SNIP]
-> > >
-> > > > -
-> > > > To unsubscribe from this list: send the line "unsubscribe linux-ia64" in
-> > > > the body of a message to majordomo@vger.kernel.org
-> > > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > > --------------------------------------------------
-> > > Darren Williams <dsw AT gelato.unsw.edu.au>
-> > > Gelato@UNSW <www.gelato.unsw.edu.au>
-> > > --------------------------------------------------
-> > > -
-> > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > > the body of a message to majordomo@vger.kernel.org
-> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > > Please read the FAQ at  http://www.tux.org/lkml/
-> > --------------------------------------------------
-> > Darren Williams <dsw AT gelato.unsw.edu.au>
-> > Gelato@UNSW <www.gelato.unsw.edu.au>
-> > --------------------------------------------------
-> >
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-ia64" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
---------------------------------------------------
-Darren Williams <dsw AT gelato.unsw.edu.au>
-Gelato@UNSW <www.gelato.unsw.edu.au>
---------------------------------------------------

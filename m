@@ -1,52 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289316AbSAIKAp>; Wed, 9 Jan 2002 05:00:45 -0500
+	id <S289315AbSAIKAC>; Wed, 9 Jan 2002 05:00:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289318AbSAIKAd>; Wed, 9 Jan 2002 05:00:33 -0500
-Received: from codepoet.org ([166.70.14.212]:33036 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id <S289316AbSAIKAO>;
-	Wed, 9 Jan 2002 05:00:14 -0500
-Date: Wed, 9 Jan 2002 03:00:13 -0700
-From: Erik Andersen <andersen@codepoet.org>
-To: Greg KH <greg@kroah.com>
+	id <S289318AbSAIJ7v>; Wed, 9 Jan 2002 04:59:51 -0500
+Received: from mons.uio.no ([129.240.130.14]:17878 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S289315AbSAIJ7b>;
+	Wed, 9 Jan 2002 04:59:31 -0500
+To: Nicolas.Fay@evotecoai.com
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: initramfs programs (was [RFC] klibc requirements)
-Message-ID: <20020109100013.GB8743@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020108192450.GA14734@kroah.com> <20020109042331.GB31644@codeblau.de> <20020109043446.GB17655@kroah.com>
-Mime-Version: 1.0
+Subject: Re: IRIX NFS server/ Linux NFS client problem
+In-Reply-To: <OFCEFB95FA.A1E904F6-ONC1256B3C.00358EBC@evotecoai.com>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 09 Jan 2002 10:59:25 +0100
+In-Reply-To: <OFCEFB95FA.A1E904F6-ONC1256B3C.00358EBC@evotecoai.com>
+Message-ID: <shs4rlvc0aq.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020109043446.GB17655@kroah.com>
-User-Agent: Mutt/1.3.24i
-X-Operating-System: Linux 2.4.16-rmk1, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue Jan 08, 2002 at 08:34:47PM -0800, Greg KH wrote:
-> On Wed, Jan 09, 2002 at 05:23:31AM +0100, Felix von Leitner wrote:
-> > 
-> > How many programs are we talking about here?  And what should they do?
-> 
-> Very good question that we should probably answer first (I'll follow up
-> to your other points in a separate message).
-> 
-> Here's what I want to have in my initramfs:
-> 	- /sbin/hotplug
-> 	- /sbin/modprobe
-> 	- modules.dep (needed for modprobe, but is a text file)
-> 
-> What does everyone else need/want there?
+>>>>> " " == Nicolas Fay <Nicolas.Fay@evotecoai.com> writes:
 
-I think you want a staticly linked multi-call binary, a 
-trivial shell, and some kernel modules...
-    http://www.uwsg.indiana.edu/hypermail/linux/kernel/0112.2/0681.html
+     > I'm wondering whether anybody experienced problems with Linux
+     > NFS clients and IRIX NFS servers like this one:
 
- -Erik
+     > I mount an xfs-filesystem located on an IRIX-machine v6.5.12 to
+     > a Linux box (versions see below) using either Linux kernel-nfs
+     > or module-nfs. Listing directory contents shows all the files
 
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+This is a known, and well documented glibc bug which they refuse to
+fix. Please check the l-k archives before you post.
+
+Just apply the workaround
+
+   http://www.fys.uio.no/~trondmy/src/2.4.17/linux-2.4.17-seekdir.dif
+
+and then use the 32bitclients export option on the IRIX server...
+
+Cheers,
+  Trond

@@ -1,80 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262310AbTJXPmw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Oct 2003 11:42:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262315AbTJXPmw
+	id S262323AbTJXP5O (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Oct 2003 11:57:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262324AbTJXP5O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Oct 2003 11:42:52 -0400
-Received: from port-212-202-177-96.reverse.qdsl-home.de ([212.202.177.96]:61545
-	"EHLO fbunet.dyndns.org") by vger.kernel.org with ESMTP
-	id S262310AbTJXPmu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Oct 2003 11:42:50 -0400
-From: Fridtjof Busse <linux-kernel@fbunet.de>
+	Fri, 24 Oct 2003 11:57:14 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:51211 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S262323AbTJXP5L
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Oct 2003 11:57:11 -0400
 To: linux-kernel@vger.kernel.org
-Date: Fri, 24 Oct 2003 17:42:58 +0200
-MIME-Version: 1.0
-Content-Disposition: inline
-Subject: [2.4.23-pre8] sk98lin Oops
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200310241742.58328@fbunet.de>
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: Unbloating the kernel, was: :mem=16MB laptop testing
+Date: 24 Oct 2003 15:47:04 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <bnbhho$3o3$1@gatekeeper.tmr.com>
+References: <20031014143047.GA6332@ncsu.edu> <Pine.LNX.4.44.0310141813320.1776-100000@gaia.cela.pl>
+X-Trace: gatekeeper.tmr.com 1067010424 3843 192.168.12.62 (24 Oct 2003 15:47:04 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
-I'm getting this with 2.4.23-pre8 while starting eth0 (a 3Com 3C940 on 
-an ASUS A7V600):
+In article <Pine.LNX.4.44.0310141813320.1776-100000@gaia.cela.pl>,
+Maciej Zenczykowski  <maze@cela.pl> wrote:
 
-Unable to handle kernel NULL pointer dereference at virtual address 
-0000004e
- printing eip:
-0000004e
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0010:[<0000004e>]    Not tainted
-EFLAGS: 00010206
-eax: 0000004e   ebx: dfff0c00   ecx: 00000000   edx: c02dea16
-esi: df33b143   edi: 00000000   ebp: 00000400   esp: df343ee4
-ds: 0018   es: 0018   ss: 0018
-Process ifconfig (pid: 877, stackpage=df343000)
-Stack: c025fafb dfff0c00 c02de9c0 c02fff40 00000000 00000000 00000000 
-00000000
-       00000000 00000000 00000000 00000000 00000000 00000000 00000000 
-00000000
-       00000000 00000000 00000000 00000000 00000143 dfff0c00 c025fb56 
-df33b143
-Call Trace:    [<c025fafb>] [<c025fb56>] [<c01587c0>] [<c0137a23>] 
-[<c01073af>]
+| On one hand I agree with you - OTOH: why not run an older version of the
+| kernel? Are kernel versions 2.2 or even 2.0 really not sufficient for such
+| a situation?  It should be noted that newer kernels are adding a whole lot
+| of drivers which aren't much use with old hardware anyway and only a
+| little actual non-driver related stuff (sure it's an oversimplification,
+| but...).  Just like you don't expect to run the latest
+| games/X/mozilla/kde/gnome on old hardware perhaps you shouldn't run the
+| latest kernel... perhaps you should...
+| 
+| Sure I would really like to be able to compile a 2.6 for my 
+| firewall (486DX33+40MB-2MB badram) - but is this the way to go?
 
-Code:  Bad EIP value.
- <1>Unable to handle kernel paging request at virtual address 2d303031
- printing eip:
-c025e830
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0010:[<c025e830>]    Not tainted
-EFLAGS: 00010216
-eax: ffffffff   ebx: df303f54   ecx: 0000000f   edx: 2d303031
-esi: 2d303031   edi: df303f54   ebp: 00000010   esp: df303ef4
-ds: 0018   es: 0018   ss: 0018
-Process ifconfig (pid: 880, stackpage=df303000)
-Stack: df303f54 00000001 00000000 00000000 c025e88f df303f54 c025eb73 
-df303f54
-       df303f54 c0290f70 df303f54 df303f64 00000010 00000009 df605d40 
-00030002
-       00000000 00000000 0028c301 00000000 00000002 0200a8c0 bfffb3c8 
-08048d61
-Call Trace:    [<c025e88f>] [<c025eb73>] [<c0290f70>] [<c02582e0>] 
-[<c0258306>]
-  [<c014616c>] [<c01073af>]
+The problem is that you can make a much better firewall with iptables,
+so going to at least 2.4.xx is very desirable. The 2.4->2.6 change is
+the first one in a long time which didn't rewrite the network code in a
+major way, such as ipfwadm -> ipchains -> iptables. I don't see the
+IPsec and crypto in-kernel as a big gain, freeswan was a patch and in
+kernel or in a shared library is similar in memory use.
 
-Code: ac ae 75 08 84 c0 75 f5 31 c0 eb 04 19 c0 0c 01 85 c0 89 d1
+Clearly the in-kernel is faster.
 
+| As for making the kernel smaller - perhaps a solution would be to code all 
+| strings as error codes and return ERROR#42345 or something instead of the 
+| full messages - there seem to be quite a lot of them.  I don't mean to 
+| suggest this solution for all compilations but perhaps a switch to remove 
+| strings and replace them with ints and then a seperately generated file of 
+| errnum->string. I'd expect that between 10-15% of the uncompressed kernel 
+| is currently pure text.
 
-Please CC me, thanks.
+This really needs to be done as part of i18n, where a format is replaced
+by an int which is an index into the local format string table. This is
+very hard to do right, since the strings all need to be unique, implying
+a registration. Note: please don't read "needs to be done" without the
+i18n part, I'm saying that if it were to be done it should be done to
+allow for i18n string tables, not that this is a critical feature!
+| 
+| Perhaps int->string conversion could be done by a loadable module or a 
+| userspace program?
+
+I would say tes and no, respectively.
+
+| Of course part of the problem is that by designing the kernel for high mem 
+| situations we're using more memory hogging algorithms.  It's a simple 
+| matter of features vs mem footprint.
+
+There are three (at least) driving forces:
+1 - nifty new features, hopefully can be configurable
+2 - algorithms needed to run on large hardware. I think in some cases
+    this could be done by defining small-mem vs. big-mem macros, but it
+    takes a bit of work and requires regular testing of both paths.
+3 - speed vs. memory. This is sort of a subcase of (2), where only the
+    very smallest machines would feel a pinch. That is, they are
+    generally useful, rather than intended to support derver and cluster
+    class hardware.
+
+So (1) can be configurable if people are willing, (2) would require
+implementation of an alternate code, and (3) is probably part of the
+cost of a new kernel.
+
+If people feel strongly 2.7 could start to go to mudules and/or having a
+set of definitions optimized for various configurations. Before you say
+that can't be done, consider that we now support a bunch of totally
+unlike hardware, so it's certainly possible.
 -- 
-Fridtjof Busse
-
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

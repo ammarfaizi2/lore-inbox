@@ -1,53 +1,105 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130985AbRBTXS1>; Tue, 20 Feb 2001 18:18:27 -0500
+	id <S131018AbRBTX2L>; Tue, 20 Feb 2001 18:28:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130999AbRBTXSR>; Tue, 20 Feb 2001 18:18:17 -0500
-Received: from zooty.lancs.ac.uk ([148.88.16.231]:56965 "EHLO
-	zooty.lancs.ac.uk") by vger.kernel.org with ESMTP
-	id <S130985AbRBTXSM>; Tue, 20 Feb 2001 18:18:12 -0500
-Message-Id: <l03130359b6b8a6115936@[192.168.239.101]>
-In-Reply-To: <3A92F17E.BFEDEADD@sympatico.ca>
-In-Reply-To: <01022020011905.18944@gimli>
- <96uijf$uer$1@penguin.transmeta.com> <3A92DCE0.BEE5E90E@sympatico.ca>
- <3A92DF84.E39E415C@windsormachine.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Date: Tue, 20 Feb 2001 22:58:36 +0000
-To: Jeremy Jackson <jeremy.jackson@sympatico.ca>,
-        Mike Dresser <mdresser@windsormachine.com>
-From: Jonathan Morton <chromi@cyberspace.org>
-Subject: Re: [rfc] Near-constant time directory index for Ext2
-Cc: linux-kernel@vger.kernel.org
+	id <S131030AbRBTX2A>; Tue, 20 Feb 2001 18:28:00 -0500
+Received: from oboe.it.uc3m.es ([163.117.139.101]:44049 "EHLO oboe.it.uc3m.es")
+	by vger.kernel.org with ESMTP id <S131018AbRBTX1x>;
+	Tue, 20 Feb 2001 18:27:53 -0500
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200102202327.f1KNRkc01834@oboe.it.uc3m.es>
+Subject: Re: plugging in 2.4. Does it work?
+In-Reply-To: <20010220235400.A811@suse.de> from "Jens Axboe" at "Feb 20, 2001
+ 11:54:00 pm"
+To: "Jens Axboe" <axboe@suse.de>
+Date: Wed, 21 Feb 2001 00:27:46 +0100 (MET)
+CC: "linux kernel" <linux-kernel@vger.kernel.org>
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Perhaps rm -rf . would be faster?  Let rm do glob expansion,
->without the sort.  Care to recreate those 65535 files and try it?
+"A month of sundays ago Jens Axboe wrote:"
+> On Tue, Feb 20 2001, Peter T. Breuer wrote:
+> > More like "how does one get it to work".
+[snip muddy end_request code]
 
-Perhaps, but I think that form is still fairly slow.  It takes an
-"uncomfortable" amount of time to remove a complex directory structure
-using, eg. "rm -rf /usr/src/linux-obsolete" or "rm -rf
-downloads/XFree86-old-and-buggy".  I'm not sure, but I would guess it's not
-as much quicker than removing each file individually as you might think.
+Probably. I decided that accuracy might get a better response, though
+I did have to expand the macros to get to this. It's really:
 
-If I had more time on my hands, I'd run some quick benchmarks on some of my
-systems.
+   io_spin_lock
+   while (end_that_request_first(req ...);
+   // one more time for luck
+   if (!end_that_request_first(req ...) 
+      end_that_request_last(req);
+   io_spin_unlock
 
---------------------------------------------------------------
-from:     Jonathan "Chromatix" Morton
-mail:     chromi@cyberspace.org  (not for attachments)
-big-mail: chromatix@penguinpowered.com
-uni-mail: j.d.morton@lancaster.ac.uk
+> Firstly, I hope that the dequeue var does not return whether the 
+> request should be dequeued or not. Because if you do it after
 
-The key to knowledge is not to rely on people to teach you it.
+Actually I ignore the return value at present. I just wanted to know what
+happened. I haven't the faintest idea whether running end_that_request_last
+MEANS anything.
 
-Get VNC Server for Macintosh from http://www.chromatix.uklinux.net/vnc/
+> end_that_request_last, you are totally screwing the request
+> lists. Maybe this is what's going wrong?
 
------BEGIN GEEK CODE BLOCK-----
-Version 3.12
-GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
-PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r- y+
------END GEEK CODE BLOCK-----
+At the time that end_request is run, it's on my own queue, not on the
+kernels queue. But I am eager for insight ... are you saying that
+after end_that_request_last has run, all bets are off, because the
+thing is completely vamooshed in every possible sense? I guess so.
+But fear not ... I've already taken it off my queue too. I really
+wanted the dequeue return value just in case maybe it would mean that
+I'd have to put it back on my queue and have another attempt at 
+acking it.
 
+> > I've discovered that
+> > 
+> > 1) setting read-ahead to 0 disables request agregation by some means of
+> > which I am not aware, and everything goes hunky dory.
+> 
+> Most likely what you are seeing happen is that we will do a
+> wait_on_buffer before we have a chance to merge this request on
+> the queue. Do writes, and you'll see lots of merging.
 
+OK ... that sounds like something to avoid for a while! Wait_on_buffer,
+eh? If it makes things safe, I'm all for trying it myself!
+
+> > 2) setting read-ahead to 4 or 8 seems to be safe. I see 4K requests
+> > being formed and treated OK.
+> > 
+> > 3) disabling plugging stops request aggretaion and makes everything
+> > safe.
+> > 
+> > Any clues? Is the trick just "powers of 2"? how is one supposed to
+> > handle plugging? Where is the canonical example. I can't see any driver
+> > that does it.
+> 
+> There's no trick, and no required values. And there's really no special
+> trick to handling clustered requests. Either you are doing scatter
+> gather and setup your sg tables by going through the complete buffer
+> list on the request, or you are just transferring to rq->buffer the
+> amount specified by current_nr_sectors. That's it. Really.
+
+Hurrr ... are you saying that the buffers in the bh's in the request are
+not contiguous?  My reading of the make_request code in 2.2 was that
+they were!  Has that changed?  There is now a reference to an elevator
+algorithm in the code, and I can't make out the effect by looking ... 
+I have been copying the buffer in the request as though it were a single
+contigous whole.  If that is not the case, then yes, bang would happen.
+
+My aim in allowing request aggregation was to reduce the number
+of ioctl calls I do from the userspace-half of the driver, since I 
+have to do one ioctl per request in the protocol. A P3 maxes out the
+cpu with the driver at just about 300MB/s (cache speed) but I wanted to
+go faster on other architectures.
+
+I must apparently also call blk_init_queue, but yes I do.
+
+Thanks for the reply Jens, I appreciate it.
+
+Peter

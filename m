@@ -1,65 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130565AbRCPPoL>; Fri, 16 Mar 2001 10:44:11 -0500
+	id <S130577AbRCPPuB>; Fri, 16 Mar 2001 10:50:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130570AbRCPPoC>; Fri, 16 Mar 2001 10:44:02 -0500
-Received: from mx3out.umbc.edu ([130.85.253.53]:19849 "EHLO mx3out.umbc.edu")
-	by vger.kernel.org with ESMTP id <S130565AbRCPPnz>;
-	Fri, 16 Mar 2001 10:43:55 -0500
-Date: Fri, 16 Mar 2001 10:43:13 -0500
-From: John Jasen <jjasen1@umbc.edu>
-X-X-Sender: <jjasen1@irix2.gl.umbc.edu>
-To: Ian Soboroff <ian@cs.umbc.edu>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: devfs vs. devpts
-In-Reply-To: <87vgp9zv28.fsf@danube.cs.umbc.edu>
-Message-ID: <Pine.SGI.4.31L.02.0103161039010.205553-100000@irix2.gl.umbc.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130600AbRCPPtv>; Fri, 16 Mar 2001 10:49:51 -0500
+Received: from [212.6.145.2] ([212.6.145.2]:1555 "HELO heaven.astaro.de")
+	by vger.kernel.org with SMTP id <S130577AbRCPPtp>;
+	Fri, 16 Mar 2001 10:49:45 -0500
+Date: Fri, 16 Mar 2001 16:46:15 -0800
+From: Daniel Stutz <dstutz@astaro.de>
+To: linux-kernel@vger.kernel.org
+Subject: APM and cs4281 sound module
+Message-ID: <20010316164615.B581@mukmin.astaro.de>
+Reply-To: Daniel.Stutz@astaro.de
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="NDin8bjvE/0mNLFQ"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organization: Astaro AG
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 16 Mar 2001, Ian Soboroff wrote:
 
-> i don't have devpts mounted under 2.4.2 (debian checks whether you
-> have devfs before mounting devpts), so i tried building my kernel with
-> Unix 98 pty support but without the devpts filesystem.  i get the
-> following error at the very end of 'make bzImage':
+--NDin8bjvE/0mNLFQ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-snipped from .config:
+Hello,
 
-#
-# Character devices
-#
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_SERIAL=y
-# CONFIG_SERIAL_CONSOLE is not set
-# CONFIG_SERIAL_EXTENDED is not set
-# CONFIG_SERIAL_NONSTANDARD is not set
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=256
+as I posted here ~2 weeks ago my system locks when going to suspend mode.
 
-#
-# File systems
-#
-CONFIG_DEVFS_FS=y
-CONFIG_DEVFS_MOUNT=y
-CONFIG_DEVFS_DEBUG=y
-...
-# CONFIG_DEVPTS_FS is not set
+Now I was able to locate the problem in the sound module. (More information
+at EOF)
 
-from my /etc/devfsd.conf, I have:
-REGISTER        pts/.*          MKOLDCOMPAT
-UNREGISTER      pts/.*          RMOLDCOMPAT
+When I make a 'rmmod cs4281' suspend and resume works very well.
 
-and for permissions:
-REGISTER        pts/.*          IGNORE
+System hangs only when suspending with loaded sound module.
 
-uname -a:
-Linux grim 2.4.2-ac18 #3 SMP Mon Mar 12 12:05:18 EST 2001 i686 unknown
+Kernel is 2.4.2-ac20
 
+lspci -vv
+
+00:08.0 Multimedia audio controller: Cirrus Logic Crystal CS4281 PCI Audio
+(rev 01)
+        Subsystem: Citicorp TTI Crystal CS4281 PCI Audio
+        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=3Dmedium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 64 (1000ns min, 6000ns max)
+        Interrupt: pin A routed to IRQ 5
+        Region 0: Memory at fc101000 (32-bit, non-prefetchable) [size=3D4K]
+        Region 1: Memory at fc110000 (32-bit, non-prefetchable) [size=3D64K]
+        Capabilities: [40] Power Management version 2
+                Flags: PMEClk- DSI+ D1+ D2+ AuxCurrent=3D0mA
+PME(D0+,D1+,D2+,D3hot+,D3cold-)
+                Status: D0 PME-Enable- DSel=3D0 DScale=3D0 PME+
+
+
+--=20
 --
--- John E. Jasen (jjasen1@umbc.edu)
--- In theory, theory and practise are the same. In practise, they aren't.
+In God we Trust, all others please submit signed PGP/X.509 key
+Daniel Stutz <Daniel.Stutz@astaro.de>    | Product Development
+Astaro AG | http://www.astaro.de  | +49-721-490069-0 | Fax -55
 
+--NDin8bjvE/0mNLFQ
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.1e-SuSE (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iQEXAwUBOrKz10vYZOFi63MrFAOFdwQAijdkdKeYiTSoNqKD6HD7z2wM5WY8E6QV
+T3pA8bsI+hmFmTyXTIj13hx4ST+oiyOvJzCZMbFPfn1im4YMoqGQ+3WmvF3EF8ks
+kRlyCDMk4B0+t9EswfjIH7RH4d3eSCBs+VNXGo57//F2uHFwXv8QIlPImCfjiCLr
+sbECOWJlu78D/jW64s2wb0lwuldZXGXE1NaK6+7UccnhPzkd4hzFebW0ZaHQk+fK
+Lq2yjhoTzZI5fhtkc9c0IqGQc4JCBG42nG8HBRCd59E0wF02Id52FdTrt2EdYDvP
+bjfsRBRifhWFoee1Jne0h1cj9LaPgxpbSUCZxyVUt7a9ZkJkElmAs4S7
+=iJkS
+-----END PGP SIGNATURE-----
+
+--NDin8bjvE/0mNLFQ--

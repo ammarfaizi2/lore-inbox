@@ -1,54 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268018AbUHEXxE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268021AbUHEXzH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268018AbUHEXxE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 19:53:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268021AbUHEXxE
+	id S268021AbUHEXzH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 19:55:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268022AbUHEXzH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 19:53:04 -0400
-Received: from mta2.rdslink.ro ([193.231.236.124]:33977 "EHLO mta2.rdslink.ro")
-	by vger.kernel.org with ESMTP id S268018AbUHEXxB (ORCPT
+	Thu, 5 Aug 2004 19:55:07 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:10895 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S268021AbUHEXzA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 19:53:01 -0400
-Date: Fri, 6 Aug 2004 01:11:06 +0300 (EEST)
-From: caszonyi@rdslink.ro
-X-X-Sender: sony@grinch.ro
-Reply-To: Calin Szonyi <caszonyi@rdslink.ro>
-To: "Brown, Len" <len.brown@intel.com>
-cc: linux-kernel@vger.kernel.org
-Subject: RE: 2.6.7-mm[3-4] doesn't boot (alsa or pnp related) (fixed - Acpi)
-In-Reply-To: <29AC424F54821A4FB5D7CBE081922E400124DA23@hdsmsx403.hd.intel.com>
-Message-ID: <Pine.LNX.4.53.0408060109200.334@grinch.ro>
-References: <29AC424F54821A4FB5D7CBE081922E400124DA23@hdsmsx403.hd.intel.com>
+	Thu, 5 Aug 2004 19:55:00 -0400
+Date: Fri, 6 Aug 2004 00:54:26 +0100 (IST)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet
+To: Ian Romanick <idr@us.ibm.com>
+Cc: dri-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: DRM function pointer work..
+In-Reply-To: <4112C09B.1070603@us.ibm.com>
+Message-ID: <Pine.LNX.4.58.0408060043300.9947@skynet>
+References: <Pine.LNX.4.58.0408031427540.31513@skynet>
+ <Pine.LNX.4.58.0408041201490.30393@skynet> <41128B90.5070702@us.ibm.com>
+ <Pine.LNX.4.58.0408052338010.9947@skynet> <4112C09B.1070603@us.ibm.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Jul 2004, Brown, Len wrote:
 
-> can I trouble you to open a bugzilla entry for this one?
-> with OLS I'm hopelessly behind in e-mail and that
-> is the only way I'll be able to focus on this issue.
->
-> I need the info from the last kernel with acpi enabled
-> that worked; and the info from the new kernel where
-> it doesn't work.
->
-> Also, it might be a good idea to try the latest mm patch
-> coming out next week, or the latest acpi patch against
-> the base tree, which is here today:
-> http://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/patches/release/
->
-> thanks
-> -Len
->
+[lk ppl have a look at the start of this thread in the dri-devel archives
+on marc.theaimsgroup.com...]
 
-FYI 2.6.8-rc3 works ok.
+> I guess one (unpleasant) way to make it work would be to add the version to
+> all the symbols in the device-independent layer.  Instead of drm_foo you'd
+> have drm_foo_100 or drm_foo_101 or whatever.  You could then have multiple
+> modules loaded or a module loaded with a built-in version.  I'm not sure how
+> happy that would make the kernel maintainers (not to mention how happy it
+> would make us). :(  It's basically like what we have now, except the current
+> code has the device's name add to all the symbols and is built into the
+> device-dependent module.  Ugh, ugh.
+>
+> How do other multi-layer kernel modules handle this?  For example, how does
+> agpgart or iptables do it?
 
-Thanks
-Calin
+they don't let crazy people build stuff outside the tree as far as I know
+... also they make you build against the current kernel headers, so we
+would have to have the drm headers in include/linux/drm or somewhere like
+that, and build the modules against them, but then what happens if you
+want to build a new drm module out of tree..
 
---
-"A mouse is a device used to point at
-the xterm you want to type in".
-Kim Alm on a.s.r.
+two things make my head hurt, 32/64 interfaces and versioning.., maybe
+some more experienced kernel heads could join this and tell us the best
+way to go?
+
+Dave.
+
+-- 
+David Airlie, Software Engineer
+http://www.skynet.ie/~airlied / airlied at skynet.ie
+pam_smb / Linux DECstation / Linux VAX / ILUG person
+

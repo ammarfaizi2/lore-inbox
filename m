@@ -1,58 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263397AbTJKVay (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Oct 2003 17:30:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263393AbTJKVay
+	id S263399AbTJKWMZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Oct 2003 18:12:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263396AbTJKWMZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Oct 2003 17:30:54 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:53775 "EHLO
-	www.home.local") by vger.kernel.org with ESMTP id S263365AbTJKVav
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Oct 2003 17:30:51 -0400
-Date: Sat, 11 Oct 2003 23:29:36 +0200
-From: Willy TARREAU <willy@w.ods.org>
-To: Stephen Satchell <list@fluent2.pyramid.net>
-Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-       linux-net@vger.kernel.org, kernelnewbies@nl.linux.org
+	Sat, 11 Oct 2003 18:12:25 -0400
+Received: from hawk.mail.pas.earthlink.net ([207.217.120.22]:22709 "EHLO
+	hawk.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id S263393AbTJKWMW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Oct 2003 18:12:22 -0400
+Message-ID: <028b01c39044$bb2c89e0$2eedfea9@kittycat>
+From: "jdow" <jdow@earthlink.net>
+To: "David S. Miller" <davem@redhat.com>,
+       "Stephen Satchell" <list@fluent2.pyramid.net>
+Cc: <linux-kernel@vger.kernel.org>, <linux-net@vger.kernel.org>,
+       <kernelnewbies@nl.linux.org>
+References: <1065826508.1612.27.camel@localhost.localdomain><1065826508.1612.27.camel@localhost.localdomain><5.2.1.1.0.20031011130522.011e97b0@fluent2.pyramid.net> <20031011133541.0498ffa6.davem@redhat.com>
 Subject: Re: Job Announcements (was Linux TCP/IP Stack Developer)
-Message-ID: <20031011212936.GA15198@pcw.home.local>
-References: <1065826508.1612.27.camel@localhost.localdomain> <1065826508.1612.27.camel@localhost.localdomain> <5.2.1.1.0.20031011130522.011e97b0@fluent2.pyramid.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5.2.1.1.0.20031011130522.011e97b0@fluent2.pyramid.net>
-User-Agent: Mutt/1.4i
+Date: Sat, 11 Oct 2003 15:12:15 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello !
+From: "David S. Miller" <davem@redhat.com>
 
-On Sat, Oct 11, 2003 at 01:25:08PM -0700, Stephen Satchell wrote:
- 
-> What makes you believe that all 30,000+ readers of LKML would not welcome
-> short, tasteful, single-shot announcements of such development positions?
-> Particularly if the announcement was for work within moving distance of
-> where a reader lives?
+> On Sat, 11 Oct 2003 13:25:08 -0700
+> Stephen Satchell <list@fluent2.pyramid.net> wrote:
+> 
+> > At 10:58 AM 10/11/2003 -0700, you wrote:
+> > 
+> > >By spamming job opennings to our kernel development lists where such
+> > >things are not considered allowed, you fucknuts are basically
+> > >guarenteeing that no kernel programmer with a brain is going to
+> > >respect your company enough to apply for these jobs.
+> > >
+> > >Please stop posting this crap now.
+> > 
+> > Are you speaking for yourself, or for Red Hat as well?
+> 
+> I'm speaking as the vger.kernel.org list maintainer.
+> 
+> Posting job offerings here has always been and will always be verboten
+> here on these lists.  And in particular technical people who join this
+> list get a very bad taste in their mouth when someone advertises here
+> be it for jobs or products.
+> 
+> If there is no good place to look for Linux kernel development jobs,
+> that isn't my problem.  What is my problem is to enforce the rules
+> of these lists at vger.kernel.org.
 
-I'm certain you're right at this point, ie there may be *some* people here
-interested by an occasional advertisement, while most others see these mails
-as other junk that sometimes filter through David's filters.
+What you say and what Stephen says are both significant truths. I
+wonder if Steve asked the wrong question. Might it be possible to
+generate a specific "kernel jobs list" on vger and police it for
+extrania as thoroughly as this list gets policed? Given the job
+climate of late that might be a nice service to the community.
 
-The problem is that advertising for job offering costs *a lot* to companies,
-particularly when high level profiles are needed (can be up several months of
-the employee's fee). Considering this, if nobody does the unpleasant police
-work here, more and more companies will attempt their chance to catch someone
-for free here, being unfair to other regular ones, and annoying all of us
-several times a day. And I'm not counting all the companies which send fake
-offerings just to get some free ads for their products (we've already seen 
-some here).
-
-So the only way to prevent this from happening, is to forbid them to do it,
-even if some people may miss one good opportunity. There are sites for this,
-even newsgroups, so it clearly doesn't have its place here. I'm sure David
-also has a lot of other reasons for this, but I sincerely think that the ones
-I exposed here are already good justifications by themselves
-
-Regards,
-Willy
-
+{^_^}   Joanne

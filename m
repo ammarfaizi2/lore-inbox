@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267300AbTCATj5>; Sat, 1 Mar 2003 14:39:57 -0500
+	id <S269007AbTCATuf>; Sat, 1 Mar 2003 14:50:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269006AbTCATj5>; Sat, 1 Mar 2003 14:39:57 -0500
-Received: from smtp.eclipse.net.uk ([212.104.129.70]:34571 "HELO
+	id <S269008AbTCATuf>; Sat, 1 Mar 2003 14:50:35 -0500
+Received: from smtp.eclipse.net.uk ([212.104.129.70]:4366 "HELO
 	smtp2.ex.eclipse.net.uk") by vger.kernel.org with SMTP
-	id <S267300AbTCATju>; Sat, 1 Mar 2003 14:39:50 -0500
-Message-ID: <3E610EF2.5090202@jon-foster.co.uk>
-Date: Sat, 01 Mar 2003 19:50:10 +0000
+	id <S269007AbTCATu2>; Sat, 1 Mar 2003 14:50:28 -0500
+Message-ID: <3E611167.1080108@jon-foster.co.uk>
+Date: Sat, 01 Mar 2003 20:00:39 +0000
 From: Jon Foster <jon@jon-foster.co.uk>
 User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.2.1) Gecko/20021130
 X-Accept-Language: en
 MIME-Version: 1.0
-To: torvalds@transmeta.com
+To: marcelo@conectiva.com.br
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH][2.5.63] Kerneldoc for user space memory access
+Subject: [PATCH][2.4.20] Kerneldoc for user space memory access
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -22,7 +22,7 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-This patch against 2.5.63 adds kerneldoc comments to the public API in these files:
+This patch against 2.4.20 adds kerneldoc comments to the public API in these files:
 - include/asm-i386/uaccess.h
 - arch/i386/lib/usercopy.c
 
@@ -33,13 +33,13 @@ Please cc me on any replies, I am not subscribed to linux-kernel.
 
 Kind regards,
 
-Jon Foster
+Jon Foster 
 
 
-diff -ur linux-2.5.63/Documentation/DocBook/kernel-api.tmpl linux-2.5.63.patched/Documentation/DocBook/kernel-api.tmpl
---- linux-2.5.63/Documentation/DocBook/kernel-api.tmpl	2003-02-24 19:05:04.000000000 +0000
-+++ linux-2.5.63.patched/Documentation/DocBook/kernel-api.tmpl	2003-03-01 13:50:59.000000000 +0000
-@@ -89,7 +89,11 @@
+diff -urN -X /root/dontdiff -x Makefile linux-2.4.20/Documentation/DocBook/kernel-api.tmpl linux-2.4.20.patched/Documentation/DocBook/kernel-api.tmpl
+--- linux-2.4.20/Documentation/DocBook/kernel-api.tmpl	2002-08-03 01:39:42.000000000 +0100
++++ linux-2.4.20.patched/Documentation/DocBook/kernel-api.tmpl	2003-03-01 11:27:55.000000000 +0000
+@@ -85,7 +85,11 @@
       <title>Memory Management in Linux</title>
       <sect1><title>The Slab Cache</title>
  !Emm/slab.c
@@ -52,10 +52,10 @@ diff -ur linux-2.5.63/Documentation/DocBook/kernel-api.tmpl linux-2.5.63.patched
    </chapter>
  
    <chapter id="proc">
-diff -ur linux-2.5.63/arch/i386/lib/usercopy.c linux-2.5.63.patched/arch/i386/lib/usercopy.c
---- linux-2.5.63/arch/i386/lib/usercopy.c	2003-02-24 19:05:04.000000000 +0000
-+++ linux-2.5.63.patched/arch/i386/lib/usercopy.c	2003-03-01 13:50:59.000000000 +0000
-@@ -50,6 +50,26 @@
+diff -urN -X /root/dontdiff -x Makefile linux-2.4.20/arch/i386/lib/usercopy.c linux-2.4.20.patched/arch/i386/lib/usercopy.c
+--- linux-2.4.20/arch/i386/lib/usercopy.c	2001-11-09 21:58:02.000000000 +0000
++++ linux-2.4.20.patched/arch/i386/lib/usercopy.c	2003-03-01 11:27:16.000000000 +0000
+@@ -95,6 +95,26 @@
  		: "memory");						   \
  } while (0)
  
@@ -82,7 +82,7 @@ diff -ur linux-2.5.63/arch/i386/lib/usercopy.c linux-2.5.63.patched/arch/i386/li
  long
  __strncpy_from_user(char *dst, const char *src, long count)
  {
-@@ -58,6 +78,24 @@
+@@ -103,6 +123,24 @@
  	return res;
  }
  
@@ -107,7 +107,7 @@ diff -ur linux-2.5.63/arch/i386/lib/usercopy.c linux-2.5.63.patched/arch/i386/li
  long
  strncpy_from_user(char *dst, const char *src, long count)
  {
-@@ -93,6 +131,16 @@
+@@ -138,6 +176,16 @@
  		: "r"(size & 3), "0"(size / 4), "1"(addr), "a"(0));	\
  } while (0)
  
@@ -124,7 +124,7 @@ diff -ur linux-2.5.63/arch/i386/lib/usercopy.c linux-2.5.63.patched/arch/i386/li
  unsigned long
  clear_user(void *to, unsigned long n)
  {
-@@ -101,6 +149,17 @@
+@@ -146,6 +194,17 @@
  	return n;
  }
  
@@ -142,7 +142,7 @@ diff -ur linux-2.5.63/arch/i386/lib/usercopy.c linux-2.5.63.patched/arch/i386/li
  unsigned long
  __clear_user(void *to, unsigned long n)
  {
-@@ -108,12 +167,17 @@
+@@ -153,12 +212,17 @@
  	return n;
  }
  
@@ -150,8 +150,8 @@ diff -ur linux-2.5.63/arch/i386/lib/usercopy.c linux-2.5.63.patched/arch/i386/li
 - * Return the size of a string (including the ending 0)
 +/**
 + * strlen_user: - Get the size of a string in user space.
-+ * @s: The string to measure.
-+ * @n: The maximum valid length
++ * @str: The string to measure.
++ * @n:   The maximum valid length
   *
 - * Return 0 on exception, a value greater than N if too long
 + * Get the size of a NUL-terminated string in user space.
@@ -164,11 +164,11 @@ diff -ur linux-2.5.63/arch/i386/lib/usercopy.c linux-2.5.63.patched/arch/i386/li
  long strnlen_user(const char *s, long n)
  {
  	unsigned long mask = -__addr_ok(s);
-diff -ur linux-2.5.63/include/asm-i386/uaccess.h linux-2.5.63.patched/include/asm-i386/uaccess.h
---- linux-2.5.63/include/asm-i386/uaccess.h	2003-02-24 19:05:10.000000000 +0000
-+++ linux-2.5.63.patched/include/asm-i386/uaccess.h	2003-03-01 13:55:41.000000000 +0000
-@@ -47,7 +47,13 @@
- #define __addr_ok(addr) ((unsigned long)(addr) < (current_thread_info()->addr_limit.seg))
+diff -urN -X /root/dontdiff -x Makefile linux-2.4.20/include/asm-i386/uaccess.h linux-2.4.20.patched/include/asm-i386/uaccess.h
+--- linux-2.4.20/include/asm-i386/uaccess.h	2001-11-22 19:46:20.000000000 +0000
++++ linux-2.4.20.patched/include/asm-i386/uaccess.h	2003-03-01 11:28:14.000000000 +0000
+@@ -37,7 +37,13 @@
+ #define __addr_ok(addr) ((unsigned long)(addr) < (current->addr_limit.seg))
  
  /*
 - * Uhhuh, this needs 33-bit arithmetic. We have a carry..
@@ -182,7 +182,7 @@ diff -ur linux-2.5.63/include/asm-i386/uaccess.h linux-2.5.63.patched/include/as
   */
  #define __range_ok(addr,size) ({ \
  	unsigned long flag,sum; \
-@@ -58,6 +64,25 @@
+@@ -48,6 +54,25 @@
  
  #ifdef CONFIG_X86_WP_WORKS_OK
  
@@ -208,7 +208,7 @@ diff -ur linux-2.5.63/include/asm-i386/uaccess.h linux-2.5.63.patched/include/as
  #define access_ok(type,addr,size) (__range_ok(addr,size) == 0)
  
  #else
-@@ -68,6 +93,23 @@
+@@ -59,6 +84,23 @@
  
  #endif
  
@@ -232,7 +232,7 @@ diff -ur linux-2.5.63/include/asm-i386/uaccess.h linux-2.5.63.patched/include/as
  static inline int verify_area(int type, const void * addr, unsigned long size)
  {
  	return access_ok(type,addr,size) ? 0 : -EFAULT;
-@@ -118,7 +160,25 @@
+@@ -111,7 +153,25 @@
  		:"=a" (ret),"=d" (x) \
  		:"0" (ptr))
  
@@ -258,7 +258,7 @@ diff -ur linux-2.5.63/include/asm-i386/uaccess.h linux-2.5.63.patched/include/as
  #define get_user(x,ptr)							\
  ({	int __ret_gu,__val_gu;						\
  	switch(sizeof (*(ptr))) {					\
-@@ -138,11 +198,70 @@
+@@ -131,11 +191,70 @@
  
  extern void __put_user_bad(void);
  
@@ -329,11 +329,49 @@ diff -ur linux-2.5.63/include/asm-i386/uaccess.h linux-2.5.63.patched/include/as
  #define __put_user(x,ptr) \
    __put_user_nocheck((__typeof__(*(ptr)))(x),(ptr),sizeof(*(ptr)))
  
-@@ -263,6 +382,21 @@
-  * If a store crosses a page boundary and gets a fault, the x86 will not write
-  * anything, so this is accurate.
-  */
-+
+@@ -576,21 +695,81 @@
+ 	return n;
+ }
+ 
++/**
++ * copy_to_user: - Copy a block of data into user space.
++ * @to:   Destination address, in user space.
++ * @from: Source address, in kernel space.
++ * @n:    Number of bytes to copy.
++ *
++ * Context: User context only.  This function may sleep.
++ *
++ * Copy data from kernel space to user space.
++ *
++ * Returns number of bytes that could not be copied.
++ * On success, this will be zero.
++ */
+ #define copy_to_user(to,from,n)				\
+ 	(__builtin_constant_p(n) ?			\
+ 	 __constant_copy_to_user((to),(from),(n)) :	\
+ 	 __generic_copy_to_user((to),(from),(n)))
+ 
++/**
++ * copy_from_user: - Copy a block of data from user space.
++ * @to:   Destination address, in kernel space.
++ * @from: Source address, in user space.
++ * @n:    Number of bytes to copy.
++ *
++ * Context: User context only.  This function may sleep.
++ *
++ * Copy data from user space to kernel space.
++ *
++ * Returns number of bytes that could not be copied.
++ * On success, this will be zero.
++ *
++ * If some data could not be copied, this function will pad the copied
++ * data to the requested size using zero bytes.
++ */
+ #define copy_from_user(to,from,n)			\
+ 	(__builtin_constant_p(n) ?			\
+ 	 __constant_copy_from_user((to),(from),(n)) :	\
+ 	 __generic_copy_from_user((to),(from),(n)))
+ 
 +/**
 + * __copy_to_user: - Copy a block of data into user space, with less checking.
 + * @to:   Destination address, in user space.
@@ -348,12 +386,10 @@ diff -ur linux-2.5.63/include/asm-i386/uaccess.h linux-2.5.63.patched/include/as
 + * Returns number of bytes that could not be copied.
 + * On success, this will be zero.
 + */
- static inline unsigned long
- __copy_to_user(void *to, const void *from, unsigned long n)
- {
-@@ -284,6 +418,23 @@
- 	return __copy_to_user_ll(to, from, n);
- }
+ #define __copy_to_user(to,from,n)			\
+ 	(__builtin_constant_p(n) ?			\
+ 	 __constant_copy_to_user_nocheck((to),(from),(n)) :	\
+ 	 __generic_copy_to_user_nocheck((to),(from),(n)))
  
 +/**
 + * __copy_from_user: - Copy a block of data from user space, with less checking.
@@ -372,53 +408,10 @@ diff -ur linux-2.5.63/include/asm-i386/uaccess.h linux-2.5.63.patched/include/as
 + * If some data could not be copied, this function will pad the copied
 + * data to the requested size using zero bytes.
 + */
- static inline unsigned long
- __copy_from_user(void *to, const void *from, unsigned long n)
- {
-@@ -305,6 +456,19 @@
- 	return __copy_from_user_ll(to, from, n);
- }
- 
-+/**
-+ * copy_to_user: - Copy a block of data into user space.
-+ * @to:   Destination address, in user space.
-+ * @from: Source address, in kernel space.
-+ * @n:    Number of bytes to copy.
-+ *
-+ * Context: User context only.  This function may sleep.
-+ *
-+ * Copy data from kernel space to user space.
-+ *
-+ * Returns number of bytes that could not be copied.
-+ * On success, this will be zero.
-+ */
- static inline unsigned long
- copy_to_user(void *to, const void *from, unsigned long n)
- {
-@@ -313,6 +477,22 @@
- 	return n;
- }
- 
-+/**
-+ * copy_from_user: - Copy a block of data from user space.
-+ * @to:   Destination address, in kernel space.
-+ * @from: Source address, in user space.
-+ * @n:    Number of bytes to copy.
-+ *
-+ * Context: User context only.  This function may sleep.
-+ *
-+ * Copy data from user space to kernel space.
-+ *
-+ * Returns number of bytes that could not be copied.
-+ * On success, this will be zero.
-+ *
-+ * If some data could not be copied, this function will pad the copied
-+ * data to the requested size using zero bytes.
-+ */
- static inline unsigned long
- copy_from_user(void *to, const void *from, unsigned long n)
- {
-@@ -323,7 +503,23 @@
+ #define __copy_from_user(to,from,n)			\
+ 	(__builtin_constant_p(n) ?			\
+ 	 __constant_copy_from_user_nocheck((to),(from),(n)) :	\
+@@ -598,7 +777,23 @@
  
  long strncpy_from_user(char *dst, const char *src, long count);
  long __strncpy_from_user(char *dst, const char *src, long count);

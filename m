@@ -1,60 +1,105 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132974AbQLJV6z>; Sun, 10 Dec 2000 16:58:55 -0500
+	id <S133004AbQLJWBy>; Sun, 10 Dec 2000 17:01:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133003AbQLJV6p>; Sun, 10 Dec 2000 16:58:45 -0500
-Received: from 62-6-231-238.btconnect.com ([62.6.231.238]:17415 "EHLO
-	penguin.homenet") by vger.kernel.org with ESMTP id <S132974AbQLJV6h>;
-	Sun, 10 Dec 2000 16:58:37 -0500
-Date: Sun, 10 Dec 2000 21:30:14 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-To: Szabolcs Szakacsits <szaka@f-secure.com>
-cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] NR_RESERVED_FILES broken in 2.4 too
-In-Reply-To: <Pine.LNX.4.21.0012102105190.1601-100000@penguin.homenet>
-Message-ID: <Pine.LNX.4.21.0012102122170.1601-100000@penguin.homenet>
+	id <S133107AbQLJWBo>; Sun, 10 Dec 2000 17:01:44 -0500
+Received: from mail.cruzio.com ([165.227.128.37]:49090 "EHLO mail.cruzio.com")
+	by vger.kernel.org with ESMTP id <S133004AbQLJWB1>;
+	Sun, 10 Dec 2000 17:01:27 -0500
+Message-ID: <3A33F620.21E322A6@cruzio.com>
+Date: Sun, 10 Dec 2000 13:31:12 -0800
+From: Bruce Korb <bkorb@cruzio.com>
+Organization: Home
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.2.16 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+        jmaurer@cck.uni-kl.de, mj@suse.cz
+Subject: Patch to improve PCI consistency
+Content-Type: multipart/mixed;
+ boundary="------------7565C1996C86F9BD74A1CD5F"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 10 Dec 2000, Tigran Aivazian wrote:
-> Ok, let's slowly understand each other. The scenario you suggest is:
-> 
-> a) measure nr_free_files and let root exhaust all freelist entries. Now
-> the freelist is empty and nr_free_files = 0.
-> 
-> b) now let the user app allocate (from the slab cache) lots of new file
-> structures. He can keep doing so until nr_files hits max_files.
-> 
-> Now what? Now root tries to allocate some and obviously he can't because
-> the freelist is empty
-.
-... and neither can he allocate from the slab cache since nr_files ==
-max_files now.
+This is a multi-part message in MIME format.
+--------------7565C1996C86F9BD74A1CD5F
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-Now, if I understand your proposal correctly -- you would like to redefine
-NR_RESERVED_FILES to be _guaranteed_ for root at any time regardless of
-the allocation pattern instead of their current definition as guaranteed
-number of elements on the _freelist_? Right?
 
-So you would like to deny normal users some requests from the slab cache
-if otherwise root's new NR_RESERVED_FILES wouldn't be honoured?
+Hi,
 
-Did I understand your idea correctly? Such policy sounds sensible but is
-certainly a redesign of file allocator and should be carefully checked if
-it's ok in all cases...
+The information about PCI devices is scattered about the kernel
+and, consequently, is inconsistent.  This patch puts the PCI/IDE
+bridge information into a text database along with the data from
+include/linux/pci_ids.h and drivers/pci/pci.ids.  I may have mis-
+typed a few things, but the 2.4.0-test11 kernel seems to compile
+and work for me.
 
-If you agree with the above then we never disagreed to begin with -- I
-just insisted (and still insist) that it is the expected behaviour,
-perhaps not 100% satisfactory.
+Below is the README from the patch and the patch lives here:
 
-Also, I agree with your suggestion to increase NR_RESERVED_FILES -- with
-both policies (the current and your new one) the current value of 10 is
-way too small.
+  ftp://autogen.linuxave.net/pub/PCIDEV.tgz
+--------------7565C1996C86F9BD74A1CD5F
+Content-Type: text/plain; charset=us-ascii;
+ name="README"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="README"
 
-Regards,
-Tigran
+
+This patch will unify the PCI device information between the
+PCI driver database (pci.ids), the PCI-IDE bridges (ide-pci.c)
+and the header that should enumerate all pci devices (pci_ids.h).
+It does this by putting all the data into a single file and
+tagging the values with names.  These named values are then
+inserted into the output files.  This will provide for guaranteed
+consistency, which is not now the case.  In fact, there were some
+unresolvable inconsistencies in the data that are marked with
+``FIXME''  comments.
+
+The patches are against linux-2.4.0-test11.
+
+There are other PCI device tables that could be generated as well.
+As it happens, though, I am only interested in PCI/IDE bridges.
+The rest are left as exercises for the reader.  :-)
+
+Hand edited files:
+
+pci.def      --  replacement for drivers/pci/pci.ids
+pci_ids.tpl  --  Template for producing generated files
+:mkpcidev    --  Script for constructing files (read before use!)
+PATCH        --  a patch for the following files:
+
+    drivers/pci/gen-devlist.c -- obsolete
+    arch/i386/kernel/pci-irq.c
+    drivers/char/serial.c
+    drivers/pci/names.c
+    drivers/pci/Makefile
+    drivers/ide/ide-pci.c
+    drivers/parport/parport_pc.c
+
+Generated files:
+
+drivers/pci/devlist.h    replacement for devlist.h and classlist.h
+drivers/ide/ide-pci.h    Replacement for hand-coded tables in ide-pci.c
+include/linux/pci_ids.h  replacement
+
+
+The patches mostly remove data that are now generated.
+However, some were changed because it is no longer possible to
+create #define-d values with mixed case (a lower case `x').
+
+For the ide-pci.c file, however, it also renames macros that
+are inconsistent with the device names already defined in
+pci.ids (pci.def).
+
+=============
+
+The tool that makes this all happen is:
+
+  http://AutoGen.SourceForge.net/
+
+--------------7565C1996C86F9BD74A1CD5F--
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

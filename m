@@ -1,46 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261492AbSIZUo4>; Thu, 26 Sep 2002 16:44:56 -0400
+	id <S261503AbSIZUd2>; Thu, 26 Sep 2002 16:33:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261493AbSIZUo4>; Thu, 26 Sep 2002 16:44:56 -0400
-Received: from adsl-196-233.cybernet.ch ([212.90.196.233]:4313 "HELO
-	mailphish.drugphish.ch") by vger.kernel.org with SMTP
-	id <S261492AbSIZUoy>; Thu, 26 Sep 2002 16:44:54 -0400
-Message-ID: <3D93733D.6050905@drugphish.ch>
-Date: Thu, 26 Sep 2002 22:51:09 +0200
-From: Roberto Nibali <ratz@drugphish.ch>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020826
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: James Morris <jmorris@intercode.com.au>
-Cc: linux-kernel@vger.kernel.org, jamal <hadi@cyberus.ca>
-Subject: Re: [ANNOUNCE] NF-HIPAC: High Performance Packet Classification
-References: <Mutt.LNX.4.44.0209270051180.12285-100000@blackbird.intercode.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S261504AbSIZUd2>; Thu, 26 Sep 2002 16:33:28 -0400
+Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:22795 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S261503AbSIZUd1>;
+	Thu, 26 Sep 2002 16:33:27 -0400
+Date: Thu, 26 Sep 2002 13:37:16 -0700
+From: Greg KH <greg@kroah.com>
+To: Olaf Dietsche <olaf.dietsche--list.linux-kernel@exmail.de>
+Cc: linux-kernel@vger.kernel.org, linux-security-module@wirex.com
+Subject: Re: [PATCH] accessfs v0.5 ported to LSM - 1/2
+Message-ID: <20020926203716.GA7048@kroah.com>
+References: <878z1rpfb4.fsf@goat.bogus.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <878z1rpfb4.fsf@goat.bogus.local>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Non-blocking netlink delivery is reliable, although you can overrun the 
-> userspace socket buffer (this can be detected, however).  The fundamental 
-> issue remains: sending more data to userspace than can be handled.
+On Tue, Sep 24, 2002 at 05:39:43PM +0200, Olaf Dietsche wrote:
+> Hi,
+> 
+> Accessfs is a new file system to control access to system resources.
+> For further information see the help text.
+> 
+> Changes:
+> - ported to LSM
+> - support capabilities
+> - merged ipv4/ipv6 into ip
+> 
+> This part (1/2) adds a hook to LSM to enable control based on the port
+> number.
 
-Agreed.
+I like this, it looks quite nice.
 
-> A truly reliable transport would also involve an ack based protocol .  
-> Under certain circumstances (e.g. log every forwarded packet for audit
-> purposes), packets would need to be dropped if the logging mechanism
-> became overloaded.  This would in turn involve some kind of queuing
-> mechanism and introduce a new set of performance problems.  Reliable
-> logging is a challenging problem area in general, probably better suited
-> to dedicated hardware environments where the software can be tuned to
-> known system capabilities.
+You might want to provide a patch against the development LSM tree
+(available at lsm.immunix.org) as that tree already has a lot of ip_*
+hooks that have not been submitted to the networking group yet.  If you
+do this, I would be glad to add this patch to the LSM tree, which will
+keep you from having to do the forward port for all new kernel versions
+that come out, if you want.  A number of other security related projects
+are already in this tree (SELinux, DTE, LIDS, and others.)
 
-Thanks. I think we'll find a solution that will suit us best and if we 
-have something we let the community know.
+thanks,
 
-Best regards,
-Roberto Nibali, ratz
--- 
-echo '[q]sa[ln0=aln256%Pln256/snlbx]sb3135071790101768542287578439snlbxq'|dc
-
+greg k-h

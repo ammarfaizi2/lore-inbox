@@ -1,129 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261839AbUBWNP6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 08:15:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261840AbUBWNP6
+	id S261841AbUBWNQH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 08:16:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261840AbUBWNQG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 08:15:58 -0500
-Received: from anatevka.vcpc.univie.ac.at ([131.130.186.140]:51588 "EHLO
-	anatevka.vcpc.univie.ac.at") by vger.kernel.org with ESMTP
-	id S261839AbUBWNPq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 08:15:46 -0500
-Message-ID: <4039FCF8.20008@vcpc.univie.ac.at>
-Date: Mon, 23 Feb 2004 14:15:36 +0100
-From: Willy Weisz <weisz@vcpc.univie.ac.at>
-Organization: VCPC, European Centre for Parallel Computing at Vienna
-User-Agent: Mozilla/5.0 (X11; U; SunOS sun4u; en-US; rv:1.0.1) Gecko/20020920 Netscape/7.0
-X-Accept-Language: en-us, en, de-at, fr
+	Mon, 23 Feb 2004 08:16:06 -0500
+Received: from tuxhome.net ([217.160.179.19]:24772 "EHLO tuxhome.net")
+	by vger.kernel.org with ESMTP id S261841AbUBWNPr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Feb 2004 08:15:47 -0500
+From: Markus Hofmann <markus@gofurther.de>
+Organization: gofurther.de
+To: john stultz <johnstul@us.ibm.com>
+Subject: Re: 2.6.2 - System clock runs too fast
+Date: Mon, 23 Feb 2004 14:13:27 +0100
+User-Agent: KMail/1.6.1
+Cc: lkml <linux-kernel@vger.kernel.org>
+References: <200402101332.26552.markus@gofurther.de> <200402111007.50549.markus@gofurther.de> <1076524588.795.28.camel@cog.beaverton.ibm.com>
+In-Reply-To: <1076524588.795.28.camel@cog.beaverton.ibm.com>
 MIME-Version: 1.0
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Kurt Rabitsch <kurt@vcpc.univie.ac.at>
-Subject: Re: Fw: Client looses NFS handle (kernel 2.6.3)
-References: <20040221214345.6533eb68.akpm@osdl.org> <1077444724.2944.10.camel@nidelv.trondhjem.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200402231413.27757.markus@gofurther.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Trond,
+Hello John
 
-thank you for the fast reply. I chose the first solution (unsetting 
-CONFIG_SECURITY)
-as I don't have local security modules anyhow. and our problem disapeared.
+After a recompiling kernel my system clock runs now again too slow. Your patch 
+helps with a fast running clock but not with a slow clock. Do you have an 
+idea what to do now?!?
 
-Is there any reason to nevertheless install your patch?
+best wishes
+Markus
 
-Cheers
-
-Willy
-
-Trond Myklebust wrote:
-
->The "Can't bind to reserved port" error message looks like the known
->problem when you set CONFIG_SECURITY. It has been discussed several
->times already on l-k.
+Am Mittwoch, 11. Februar 2004 19:36 schrieb john stultz:
+> On Wed, 2004-02-11 at 01:07, Markus Hofmann wrote:
+> > Thank you for answering.
+> > In the meantime I heard that apm could cause this problem. I tested this
+> > by compiling acpi. The result was that the clock runs normal with acpi.
+> > But I want to use apm. So I removed the acpi and now the system clock is
+> > too slow with only apm.
+> >
+> > I think this is a very curious thing! :-(
 >
->Please either disable CONFIG_SECURITY (it's not as if *that* is going to
->be a showstopper when migrating to 2.6.x from 2.4.x) or go to my website
->and apply the advertised fix:
+> Indeed, normally its ACPI that causes more problems. That's a new one.
 >
->http://www.fys.uio.no/~trondmy/src/Linux-2.6.x/2.6.3/linux-2.6.3-08-reconnect.dif
+> I'd be curious how this drift changes using the attached patch.
 >
->Cheers,
->  Trond
+> thanks
+> -john
 >
+> ===== arch/i386/kernel/timers/timer_tsc.c 1.35 vs edited =====
+> --- 1.35/arch/i386/kernel/timers/timer_tsc.c	Wed Jan  7 00:31:11 2004
+> +++ edited/arch/i386/kernel/timers/timer_tsc.c	Tue Jan 20 13:22:54 2004
+> @@ -226,7 +226,7 @@
+>  	delta += delay_at_last_interrupt;
+>  	lost = delta/(1000000/HZ);
+>  	delay = delta%(1000000/HZ);
+> -	if (lost >= 2) {
+> +	if (0 && (lost >= 2)) {
+>  		jiffies_64 += lost-1;
 >
->På lau , 21/02/2004 klokka 21:43, skreiv Andrew Morton:
->  
->
->>fyi..
->>
->>Begin forwarded message:
->>
->>Date: Sun, 22 Feb 2004 00:36:13 +0100
->>From: Willy Weisz <weisz@vcpc.univie.ac.at>
->>To: linux-kernel@vger.kernel.org
->>Subject: Client looses NFS handle (kernel 2.6.3)
->>
->>
->>The client looses the handle to a statically mounted NFS file system. A 
->>user sees
->>a stale handle in "df" and can't access files and directories.
->>
->>When root issues a "df" or accesses a file or directory on the NFS file 
->>system,
->>it gets a correct result.
->>
->>Thereafter a normal user also can access files and directories on the 
->>NFS file system.
->>After a short time the NFS handle becomes stale again.
->>/var/log/messages contains the lines:
->>Feb 21 23:33:50 gsr108 kernel: RPC: Can't bind to reserved port (13).
->>Feb 21 23:33:50 gsr108 kernel: RPC: can't bind to reserved port.
->>after a user tries to access a file on the NFS file system.
->>The NFS server runs kernel version 2.4.23 SMP. Client NFS 2.4.23 works.
->>
->>The filesystem is mounted with the following options in /etc/fstab:
->>rw,bg,hard,intr,rsize=8192,wsize=8192
->>
->>We are stuck and can't upgrade to 2.6.x with this bug.
->>
->>Regards
->>
->>Willy Weisz
->>-----------------------------------------------------------
->>Willy Weisz
->>
->>European Centre for Parallel Computing at Vienna (VCPC)
->>                 Liechtensteinstrasse 22
->>                 A-1090 Wien
->>Tel: (+43 1) 4277 - 38824          Fax: (+43 1) 4277 - 9388
->>                e-mail: weisz@vcpc.univie.ac.at
->>
->>-
->>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->>the body of a message to majordomo@vger.kernel.org
->>More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>Please read the FAQ at  http://www.tux.org/lkml/
->>
->>    
->>
->
->
->
->  
->
-
--- 
------------------------------------------------------------
-Willy Weisz
-
-European Centre for Parallel Computing at Vienna (VCPC)
-                 Liechtensteinstrasse 22
-                 A-1090 Wien
-Tel: (+43 1) 4277 - 38824          Fax: (+43 1) 4277 - 9388
-                e-mail: weisz@vcpc.univie.ac.at
-
-
-
+>  		/* sanity check to ensure we're not always losing ticks */

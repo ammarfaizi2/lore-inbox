@@ -1,36 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270819AbTG0POT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 11:14:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270820AbTG0POT
+	id S270821AbTG0PP0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 11:15:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270825AbTG0PP0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 11:14:19 -0400
-Received: from 015.atlasinternet.net ([212.9.93.15]:51423 "EHLO
-	ponti.gallimedina.net") by vger.kernel.org with ESMTP
-	id S270819AbTG0POS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 11:14:18 -0400
-From: Ricardo Galli <gallir@uib.es>
-Organization: UIB
-To: linux-kernel@vger.kernel.org,
-       =?iso-8859-15?q?Benjam=ED=20Villoslada?= <benjami@bitassa.com>
-Subject: Ensenyaments de UNIX
-Date: Sun, 27 Jul 2003 17:29:27 +0200
-User-Agent: KMail/1.5.2
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
-Message-Id: <200307271729.27756.gallir@uib.es>
+	Sun, 27 Jul 2003 11:15:26 -0400
+Received: from quechua.inka.de ([193.197.184.2]:20623 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S270821AbTG0PPT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jul 2003 11:15:19 -0400
+From: Bernd Eckenfels <ecki@lina.inka.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Reiser4 status: benchmarked vs. V3 (and ext3)
+In-Reply-To: <1059315015.10692.207.camel@sonja>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.5.19-20030610 ("Darts") (UNIX) (Linux/2.4.20-xfs (i686))
+Message-Id: <E19gnTj-00005f-00@calista.inka.de>
+Date: Sun, 27 Jul 2003 17:30:31 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://www.catb.org/~esr/writings/unix-koans/
+In article <1059315015.10692.207.camel@sonja> you wrote:
+> This is normally done by the filesystem (e.g. JFFS2).
 
-Hi ha alguns molt bons, com la del metodologista (en relacio a los "pseudo 
-informàtics" preocupats per la gestió de recursos, i.e. kefe de projectes ;).
+why is jffs2 so slow, if the cpu overhead can be totally neglected when
+writing to such slow media? I would asume a FS whic his optimized for not
+wearing out flash cards would reduce the IOs to the absolute minimum and
+therefore be fast be definition?
 
+Greetings
+Bernd
 -- 
-  ricardo galli       GPG id C8114D34
-  http://mnm.uib.es/~gallir/
-
+eckes privat - http://www.eckes.org/
+Project Freefire - http://www.freefire.org/

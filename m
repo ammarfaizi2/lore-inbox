@@ -1,36 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263011AbTDFPWQ (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 11:22:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263012AbTDFPWQ (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 11:22:16 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:22670
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S263011AbTDFPWP (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 6 Apr 2003 11:22:15 -0400
-Subject: Re: [PATCH] take 48-bit lba a bit further
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: John Bradford <john@grabjohn.com>
-Cc: Jens Axboe <axboe@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200304061332.h36DWnaD000165@81-2-122-30.bradfords.org.uk>
-References: <200304061332.h36DWnaD000165@81-2-122-30.bradfords.org.uk>
-Content-Type: text/plain
+	id S263009AbTDFPUJ (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 11:20:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263010AbTDFPUJ (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 11:20:09 -0400
+Received: from siaag2ac.compuserve.com ([149.174.40.133]:8376 "EHLO
+	siaag2ac.compuserve.com") by vger.kernel.org with ESMTP
+	id S263009AbTDFPUI (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 6 Apr 2003 11:20:08 -0400
+Date: Sun, 6 Apr 2003 11:29:00 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: tuning disk on 3ware /performance problem
+To: Stephan van Hienen <raid@a2000.nu>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200304061131_MC3-1-333A-E630@compuserve.com>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1049639724.962.7.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 06 Apr 2003 15:35:25 +0100
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2003-04-06 at 14:32, John Bradford wrote:
-> Then, don't we want to be using 48-bit lba all the time on compatible devices
-> instead of falling back to 28-bit when possible to save a small amount of
-> instruction overhead?  (Or is that what we're doing already?  I haven't really
-> had the time to follow this thread).
 
-The overhead of the double load of the command registers is microseconds so it
-is actually quite a lot, especially since IDE lacks TCQ so neither end of the
-link is doing *anything* useful. SCSI has similar problems on older SCSI with 
-command sending being slow, but the drive is at least doing other commands during
-this.
 
+
+> Is there anything i can do to tune the drives connected to he 3ware
+> controller ? (37MB/sec vs 43MB/sec) (and why is the seq. output block
+> 65MB/sec on the 3ware vs 41MB/sec on 'ide controllers')
+
+
+Try doing a real test with a 1 GB file on an empty filesystem:
+
+
+# mount /fs && date
+# time dd if=/dev/zero of=/fs/file1 bs=128k count=8k
+# umount /fs && date && mount /fs
+# time dd if=/fs/file1 of=/dev/null bs=128k
+
+
+I get numbers that disagree with hdparm by a large amount.
+
+--
+ Chuck
+ I am not a number!

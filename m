@@ -1,73 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262745AbTCJIZq>; Mon, 10 Mar 2003 03:25:46 -0500
+	id <S262747AbTCJI2L>; Mon, 10 Mar 2003 03:28:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262747AbTCJIZq>; Mon, 10 Mar 2003 03:25:46 -0500
-Received: from mail-3.nethere.net ([66.63.128.72]:19730 "HELO
-	mail-3.nethere.net") by vger.kernel.org with SMTP
-	id <S262745AbTCJIZp>; Mon, 10 Mar 2003 03:25:45 -0500
-To: linux-kernel@vger.kernel.org
-Subject: IRQ conflicts - unsolvable???
-Message-ID: <1047285385.3e6c4e8912cd3@webmail.nethere.net>
-Date: Mon, 10 Mar 2003 00:36:25 -0800 (PST)
-From: mikemohr@nethere.com
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: IMP/PHP IMAP webmail program 2.2.8
-X-Originating-IP: 207.167.100.159
+	id <S262748AbTCJI2L>; Mon, 10 Mar 2003 03:28:11 -0500
+Received: from AMarseille-201-1-1-111.abo.wanadoo.fr ([193.252.38.111]:9511
+	"EHLO zion.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S262747AbTCJI2K>; Mon, 10 Mar 2003 03:28:10 -0500
+Subject: Re: [patch] oprofile for ppc
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Segher Boessenkool <segher@koffie.nl>
+Cc: Albert Cahalan <albert@users.sourceforge.net>,
+       "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+       oprofile-list@lists.sourceforge.net, linuxppc-dev@lists.linuxppc.org,
+       o.oppitz@web.de, afleming@motorola.com, linux-kernel@vger.kernel.org
+In-Reply-To: <3E6C0B93.5040205@koffie.nl>
+References: <200303070929.h279TGTu031828@saturn.cs.uml.edu>
+	 <1047032003.12206.5.camel@zion.wanadoo.fr> <1047061862.1900.67.camel@cube>
+	 <1047136206.12202.85.camel@zion.wanadoo.fr>  <3E6C0B93.5040205@koffie.nl>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1047285491.19222.9.camel@zion.wanadoo.fr>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 10 Mar 2003 09:38:11 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a repost; I did not see my original message get
-through, perhaps due to an MTA issue on my host. I apologize
-if this is a duplicate - please resend any replies, as I could
-not find those either. I am subscribed.
+On Mon, 2003-03-10 at 04:50, Segher Boessenkool wrote:
+> Benjamin Herrenschmidt wrote:
+> > Beware though that some G4s have a nasty bug that prevents
+> > using the performance counter interrupt (and the thermal interrupt
+> > as well).
+> 
+> MPC7400 version 1.2 and lower have this problem.
+> 
+>  > The problem is that if any of those fall at the same
+> > time as the DEC interrupt, the CPU messes up it's internal
+> > state and you lose SRR0/SRR1, which means you can't recover
+> > from the exception.
+> 
+> But the worst that happens is that you lose that process, isn't
+> it?  Not all that big a problem, esp. since the window in which
+> this can happen is very small.
 
-------------------------------
+Well, you can also lose the kernel. We used to catch it with MOL
+(since MOL increase the amount of DEC interrupts when running
+within the virtual machine) quite easily.
+Fortunately, the MOL kernel engine would then figure out that
+something was wrong, bail out killing the emulator properly and
+give useful error messages. So at that time, we could find the
+problem before it beeing documented.
 
-Hello:
+Ben.
 
-Thanks all for providing a wonderful operating system for me
-to use free of charge. I can't believe that you guys do all
-this work for free, you are simply amazing. I would like to
-contribute to the kernel once I learn more C, but alas not
-yet.. anyhow, here is the reason I am writing to you:
-
-I have major problems with PnP onboard hardware. I can get it
-all working, but the problem is that some of it doesn't like
-sharing IRQs. Especially my sound card. The sound card times
-out at random times when I am playing music, say with XMMS.
-My secondary ethernet card also conflicts with the card on
-IRQ7. I have tried everything I can think of, resettings the
-ESCD, set all H/W to auto, and played with BIOS settings for 2
-weeks.
-
-The only way I can see to fix this problem is to change a few
-settings in my BIOS and reboot, kind of point and shoot and
-hope it hits... as you can imagine, this takes a _long_ time.
-This is the best config possible so far:
-
-mohr@rosetta:~$ cat /proc/interrupts
-CPU0
-0: 2547713 XT-PIC timer
-1: 739 XT-PIC keyboard
-2: 0 XT-PIC cascade
-4: 1969066 XT-PIC usb-ohci, nvidia, serial
-7: 723591 XT-PIC NVIDIA nForce Audio, ehci-hcd
-8: 1 XT-PIC rtc
-11: 56868 XT-PIC usb-ohci, ohci1394, eth0
-12: 14465 XT-PIC PS/2 Mouse
-14: 154253 XT-PIC ide0
-15: 5 XT-PIC ide1
-NMI: 0
-LOC: 2547675
-ERR: 98
-mohr@rosetta:~$
-
-
-Please tell me there is a solution! I need help :) I don't
-want to be stuck like a pig on Windows!
-
-Thanks
-Michael

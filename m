@@ -1,53 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275178AbRJYP6u>; Thu, 25 Oct 2001 11:58:50 -0400
+	id <S273881AbRJYQIu>; Thu, 25 Oct 2001 12:08:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275126AbRJYP6k>; Thu, 25 Oct 2001 11:58:40 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:60684 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S275424AbRJYP6c>;
-	Thu, 25 Oct 2001 11:58:32 -0400
-Date: Thu, 25 Oct 2001 13:58:48 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Patrick Ouellet <patrick.ouellet@microtecsecurite.com>
-Cc: Kernel Mailing lists <linux-kernel@vger.kernel.org>,
-        <kernelnewbies@nl.linux.org>
-Subject: Re: In great need
-In-Reply-To: <56261134684.20011025113245@microtecsecurite.com>
-Message-ID: <Pine.LNX.4.33L.0110251356150.3690-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S273976AbRJYQIk>; Thu, 25 Oct 2001 12:08:40 -0400
+Received: from rosebud.imaginos.net ([64.173.180.66]:2432 "EHLO
+	rosebud.imaginos.net") by vger.kernel.org with ESMTP
+	id <S273881AbRJYQIY>; Thu, 25 Oct 2001 12:08:24 -0400
+Date: Thu, 25 Oct 2001 09:08:32 -0700 (PDT)
+From: Jim Hull <imaginos@imaginos.net>
+X-X-Sender: <imaginos@rosebud>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: dvd and filesystem errors under 2.4.13
+In-Reply-To: <E15wjKP-0004fk-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0110250907210.425-100000@rosebud>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 25 Oct 2001, Patrick Ouellet wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> As a follower of linux for a couple of years now
-> I wanted to go deeper into the madness,
-> so I said to myself, why no go as deep as you
-> can and get yourself into the Kernel.
->
-> My simple question is this:
->
-> Were should I start.
+Rev 6.2.1
 
-A good place to start would be  http://kernelnewbies.org/
-and also the kernelnewbies mailing list and IRC channel.
+Are you saying this is possibly a hardware issue ?
 
-> I would like to have a nice overview of the kernel
-> something that would help me understand all the part
-> of the kernel and how they work toghether.
+============================
+They that give up essential liberty to obtain a little temporary
+safety deserve neither liberty nor safety.
 
-The book "Understanding the Linux Kernel" by O'Reilly
-is nice, also see http://kernelnewbies.org/books.php3
+- --Benjamin Franklin,
+Historical Review of Pennyslvania, 1759
 
-regards,
 
-Rik
--- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
 
-http://www.surriel.com/		http://distro.conectiva.com/
+On Thu, 25 Oct 2001, Alan Cox wrote:
+
+> Oct 25 01:25:58 rosebud kernel: EXT2-fs error (device sd(8,1)):
+> ext2_free_blocks: bit already cleared for block 133384
+> Oct 25 01:25:58 rosebud kernel: EXT2-fs error (device sd(8,1)):
+> ext2_free_blocks: bit already cleared for block 133385
+
+Thats indicating memory on on disk corruption. It is something you should
+be concerned about.  What version of aic7xxx is on the kernel that is
+stable ?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE72DkIdygyS8O4zQ0RAiMCAKC+JgKJaT48o4sErJmeDO+vykxmeQCghm9l
+8sGl2cJFTcCYchJD5z3+l54=
+=Khu2
+-----END PGP SIGNATURE-----
+
 

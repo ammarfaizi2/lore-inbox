@@ -1,36 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261427AbTATEYs>; Sun, 19 Jan 2003 23:24:48 -0500
+	id <S261295AbTATFwN>; Mon, 20 Jan 2003 00:52:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261448AbTATEYs>; Sun, 19 Jan 2003 23:24:48 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:16346 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S261427AbTATEYr>;
-	Sun, 19 Jan 2003 23:24:47 -0500
-Date: Sun, 19 Jan 2003 20:28:56 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Alexandre April <alexandre.april@sympatico.ca>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: CD Changer
-In-Reply-To: <002c01c2c001$f36db9f0$0a01a8c0@aaprilhome>
-Message-ID: <Pine.LNX.4.33L2.0301192027510.26490-100000@dragon.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261368AbTATFwN>; Mon, 20 Jan 2003 00:52:13 -0500
+Received: from rth.ninka.net ([216.101.162.244]:47767 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id <S261295AbTATFwM>;
+	Mon, 20 Jan 2003 00:52:12 -0500
+Subject: Re: strange sparc64 -> i586 intermittent but reproducible NFS write
+	errors to one and only one fs
+From: "David S. Miller" <davem@redhat.com>
+To: trond.myklebust@fys.uio.no
+Cc: Nix <nix@esperi.demon.co.uk>, ultralinux@vger.kernel.org,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+In-Reply-To: <15915.4574.380686.123067@charged.uio.no>
+References: <87bs2q3paq.fsf@amaterasu.srvr.nix>
+	<200301100658.h0A6vxs14580@Port.imtp.ilyichevsk.odessa.ua>
+	<87iswkx53u.fsf@amaterasu.srvr.nix> 
+	<15915.4574.380686.123067@charged.uio.no>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 19 Jan 2003 22:38:34 -0800
+Message-Id: <1043044714.10408.0.camel@rth.ninka.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 19 Jan 2003, Alexandre April wrote:
+On Sun, 2003-01-19 at 13:00, Trond Myklebust wrote:
+> It sounds rather strange that this particular patch should introduce
+> an EIO, but here it is (fresh from BitKeeper)
 
-| 	I need to be able to export all 4 of my CDR-251 4x4 CD Changer
-| using NFS or SAMBA. I found some way to do it but never been able to
-| accomplish it, cause of older kernel. I'm running on a 2.4.18-14 kernel.
-|
-| 	Any idea how ?
-
-The only CD changer patch I know of is for 2.2.x.
-Did you already look at this?
-  http://unfix.org/projects/changer/
-
--- 
-~Randy
+It is possible in the context of the change causing a miscompile.
+Another possibility is just timing differences causing different
+sequences of events to occur than before.
 

@@ -1,55 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263008AbTKUAgP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 19:36:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263107AbTKUAgP
+	id S263645AbTKUAvc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 19:51:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264113AbTKUAvc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 19:36:15 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:47053 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263008AbTKUAgO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 19:36:14 -0500
-Date: Thu, 20 Nov 2003 16:35:09 -0800
-From: Hanna Linder <hannal@us.ibm.com>
-Reply-To: Hanna Linder <hannal@us.ibm.com>
-To: Pavel Machek <pavel@ucw.cz>
-cc: Hanna Linder <hannal@us.ibm.com>, Greg KH <greg@kroah.com>,
-       Martin Schlemmer <azarah@nosferatu.za.org>,
-       Adrian Bunk <bunk@fs.tum.de>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>,
-       mochel@osdl.org
-Subject: Re: driver model for inputs
-Message-ID: <71490000.1069374909@w-hlinder>
-In-Reply-To: <20031120235410.GB431@elf.ucw.cz>
-References: <20031119213237.GA16828@fs.tum.de> <20031119221456.GB22090@kroah.com> <1069283566.5032.21.camel@nosferatu.lan> <20031119232651.GA22676@kroah.com> <20031120125228.GC432@openzaurus.ucw.cz> <20031120170303.GJ26720@kroah.com>
- <20031120222825.GE196@elf.ucw.cz> <55080000.1069368524@w-hlinder> <20031120225504.GG196@elf.ucw.cz> <56710000.1069370317@w-hlinder> <20031120235410.GB431@elf.ucw.cz>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 20 Nov 2003 19:51:32 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:46562 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S263645AbTKUAvb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Nov 2003 19:51:31 -0500
+Subject: Re: Upgrading Kernel kills X ...
+From: john stultz <johnstul@us.ibm.com>
+To: Brian McGrew <brian@visionpro.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+In-Reply-To: <F8E34394F337C74EA249580DEE7C240C111C28@chicken.machinevisionproducts.com>
+References: <F8E34394F337C74EA249580DEE7C240C111C28@chicken.machinevisionproducts.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1069375582.23569.260.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 20 Nov 2003 16:46:23 -0800
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---On Friday, November 21, 2003 12:54:10 AM +0100 Pavel Machek <pavel@ucw.cz> wrote:
-
+On Thu, 2003-11-20 at 10:25, Brian McGrew wrote:
+> I have here a very weird situation which I'm hoping that someone can help me
+> resolve.  I'm running RedHat 9.0 on a Dell Poweredge 1600 server.  Now the
+> stock install of RedHat 9.0 gives me the 2.4.20-8(smp) kernels accordingly.
+> Now if I run RedHat's up2date and pull a new kernel from there, I'm fine.  
 > 
-> [Snip snip; most of patch seems to be moving from something.dev to
-> something-> dev]
+> Where I run into problems, is two fold and this is where it gets confusing.
+> I have tried manually upgrading my kernel in a couple different ways.  The
+> first is that our company develops software for Linux (RedHat 7.3) and
+> therefor, we have a custom kernel package that we install as an RPM.  Works
+> great on RedHat 7.3 with this Dell PE1600.  The second method is installing
+> kernel source and building it myself (2.4-20 as well as 2.6.0-test9).  If I
+> build and install a kernel myself or add our typical rpm kernel, my X server
+> is toast.  Someone told me to double check that I have framebuffer support
+> turned on, so I did and that did not resolve the problem.
 
-To take advantage of the internal kobject reference counting. The main
-changes are the registering and unregistering of class objects which gives
-the input class and devices in the sysfs tree.
+I've not found the cause of this, but I've seen a similar issue w/ RHEL
+3.0. It seems to have to do w/ glibc being compiled to use some feature
+(futexes?) which is not available in self-compiled kernels. I found
+replacing the i686 compiled glibc w/ the i386 compiled package solved
+the issue for me.  Your mileage may vary. 
 
-> 
-> This seems to deal with udev aspect of the problem... Do you have any
-> ideas have powermanagment fits into the picture? I need a way to hook
-> suspend() and resume() methods, so that I can fix keyboard/mouse after
-> sleep.
-> 								Pavel
+I'd be interested to hear the real cause. 
 
-I dont know much about the power management stuff yet. Pat or Greg could
-probably tell you more than I can.
-
-Hanna
+thanks
+-john
 

@@ -1,78 +1,293 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263157AbSJBQiq>; Wed, 2 Oct 2002 12:38:46 -0400
+	id <S263156AbSJBQiB>; Wed, 2 Oct 2002 12:38:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263158AbSJBQiq>; Wed, 2 Oct 2002 12:38:46 -0400
-Received: from ncc1701.cistron.net ([62.216.30.38]:23563 "EHLO
-	ncc1701.cistron.net") by vger.kernel.org with ESMTP
-	id <S263157AbSJBQik>; Wed, 2 Oct 2002 12:38:40 -0400
-From: "Miquel van Smoorenburg" <miquels@cistron.nl>
-Subject: 2.5.40: raid0_make_request bug and bad: scheduling while atomic!
-Date: Wed, 2 Oct 2002 16:43:38 +0000 (UTC)
-Organization: Cistron
-Message-ID: <anf7nq$qp2$1@ncc1701.cistron.net>
-Content-Type: text/plain; charset=iso-8859-15
-X-Trace: ncc1701.cistron.net 1033577018 27426 62.216.29.67 (2 Oct 2002 16:43:38 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+	id <S263157AbSJBQiB>; Wed, 2 Oct 2002 12:38:01 -0400
+Received: from draal.physics.wisc.edu ([128.104.137.82]:12712 "EHLO
+	draal.physics.wisc.edu") by vger.kernel.org with ESMTP
+	id <S263156AbSJBQh5>; Wed, 2 Oct 2002 12:37:57 -0400
+Date: Wed, 2 Oct 2002 11:43:15 -0500
+From: Bob McElrath <bob+linux-kernel@mcelrath.org>
+To: Petr Sebor <petr@scssoft.com>, linux-kernel@vger.kernel.org
+Subject: Re: NVIDIA binary-only driver patch for 2.5.40
+Message-ID: <20021002164315.GN25319@draal.physics.wisc.edu>
+References: <20021002161006.GM25319@draal.physics.wisc.edu> <3D9B1AD4.3030407@scssoft.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Evp0T6PXIQ26qRMT"
+Content-Disposition: inline
+In-Reply-To: <3D9B1AD4.3030407@scssoft.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm trying to test 2.5.40 on a NNTP peering server that pumps
-hundreds of gigs per day over the network. Interested to see
-if I can increase that with 2.5 ;)
 
-Unfortunately my history databases etc are on RAID0:
-
-raid0_make_request bug: can't convert block across chunks or bigger than 32k 8682080 24
-raid0_make_request bug: can't convert block across chunks or bigger than 32k 8679792 24
-
-This appears to be a known problem, but I couldn't find a pointer
-to a solution anywhere. Scared, I ran fsck -f /dev/md0,
-saw no errors, and booted back to 2.4.19
-
-BTW, got something else that looks worrying during boot:
-bad: scheduling while atomic!
-
-cpu: 0, clocks: 99813, slice: 3024
-CPU0<T0:99808,T1:96784,D:0,S:3024,C:99813>
-checking TSC synchronization across 2 CPUs: passed.
-Starting migration thread for cpu 0
-Bringing up 1
-cpu: 1, clocks: 99813, slice: 3024
-CPU1<T0:99808,T1:93760,D:0,S:3024,C:99813>
-CPU 1 IS NOW UP!
-Starting migration thread for cpu 1
-Debug: sleeping function called from illegal context at sched.c:1166
-c1b6bf18 c0116234 c02755c0 c0275442 0000048e c1b6bf78 c011499b c0275442 
-       0000048e 00000000 c1b6a000 c034a4a0 c1b6bf64 c1b6bfa4 c1b70000 c1b6bf64 
-       c034a4a0 00000001 00000001 00000286 c1b6bf78 c01139ab c1b6f040 00000000 
-Call Trace:
- [<c0116234>]__might_sleep+0x54/0x58
- [<c011499b>]wait_for_completion+0x1b/0x114
- [<c01139ab>]wake_up_process+0xb/0x10
- [<c0115e16>]set_cpus_allowed+0x14a/0x16c
- [<c0115e88>]migration_thread+0x50/0x33c
- [<c0115e38>]migration_thread+0x0/0x33c
- [<c0105501>]kernel_thread_helper+0x5/0xc
-
-bad: scheduling while atomic!
-c1b6bf00 c01143d1 c0275420 c1b6a000 c1b6bf70 c1b6bf78 c1b6bf18 c0116234 
-       c02755c0 c0275442 0000048e c1b6bf78 c1b6a000 c1b6bf78 c0114a35 00000000 
-       c1b6a000 c034a4a0 c1b6a000 c1b6bfa4 00000000 c1b6e060 c01147dc 00000000 
-Call Trace:
- [<c01143d1>]schedule+0x3d/0x404
- [<c0116234>]__might_sleep+0x54/0x58
- [<c0114a35>]wait_for_completion+0xb5/0x114
- [<c01147dc>]default_wake_function+0x0/0x34
- [<c01147dc>]default_wake_function+0x0/0x34
- [<c0115e16>]set_cpus_allowed+0x14a/0x16c
- [<c0115e88>]migration_thread+0x50/0x33c
- [<c0115e38>]migration_thread+0x0/0x33c
- [<c0105501>]kernel_thread_helper+0x5/0xc
-
-CPUS done 4294967295
+--Evp0T6PXIQ26qRMT
+Content-Type: multipart/mixed; boundary="JF+ytOk7PH04NsRm"
+Content-Disposition: inline
 
 
+--JF+ytOk7PH04NsRm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Petr Sebor [petr@scssoft.com] wrote:
+> Bob McElrath wrote:
+> >Here is an updated patch to the binary-only drivers provided by NVIDIA
+> >+    err =3D remap_page_rage( (size_t) uaddr, (size_t) start, size_bytes,
+>=20
+> Hello,
+>=20
+> isn't this a typo? Shouldn't this be 'remap_page_range' as well?
+
+Whoops, thought I fixed that one...
+
+Revised patch attached.
+
+P.S. It's not my fault.  That typo was in Roberto's patch.  ;)
+
+Cheers,
+-- Bob
+
+Bob McElrath (bob+linux-kernel@mcelrath.org)=20
+Univ. of Wisconsin at Madison, Department of Physics
+
+    "The purpose of separation of church and state is to keep forever from
+    these shores the ceaseless strife that has soaked the soil of Europe in
+    blood for centuries." -- James Madison
+
+
+--JF+ytOk7PH04NsRm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="nvidia.2.5.40.patch"
+Content-Transfer-Encoding: quoted-printable
+
+diff -ur NVIDIA_kernel-1.0-3123/nv-linux.h NVIDIA_kernel-1.0-3123.bob/nv-li=
+nux.h
+--- NVIDIA_kernel-1.0-3123/nv-linux.h	Tue Aug 27 18:36:53 2002
++++ NVIDIA_kernel-1.0-3123.bob/nv-linux.h	Wed Oct  2 10:25:19 2002
+@@ -36,11 +36,6 @@
+ #  error This driver does not support 2.3.x development kernels!
+ #elif LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
+ #  define KERNEL_2_4
+-#elif LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 0)
+-#  error This driver does not support 2.5.x development kernels!
+-#  define KERNEL_2_5
+-#else
+-#  error This driver does not support 2.6.x or newer kernels!
+ #endif
+=20
+ #if defined (CONFIG_SMP) && !defined (__SMP__)
+diff -ur NVIDIA_kernel-1.0-3123/nv.c NVIDIA_kernel-1.0-3123.bob/nv.c
+--- NVIDIA_kernel-1.0-3123/nv.c	Tue Aug 27 18:36:52 2002
++++ NVIDIA_kernel-1.0-3123.bob/nv.c	Wed Oct  2 10:47:03 2002
+@@ -1068,11 +1068,22 @@
+=20
+     /* for control device, just jump to its open routine */
+     /* after setting up the private data */
++
++    /* I don't really know the correct kernel version since when it change=
+d */=20
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)=20
+     if (NV_DEVICE_IS_CONTROL_DEVICE(inode->i_rdev))
+         return nv_kern_ctl_open(inode, file);
+-
++#else
++    if (NV_DEVICE_IS_CONTROL_DEVICE(kdev_val(inode->i_rdev)))
++        return nv_kern_ctl_open(inode, file);
++#endif
+     /* what device are we talking about? */
++
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
+     devnum =3D NV_DEVICE_NUMBER(inode->i_rdev);
++#else
++    devnum =3D NV_DEVICE_NUMBER(kdev_val(inode->i_rdev));
++#endif
+     if (devnum >=3D NV_MAX_DEVICES)
+     {
+         rc =3D -ENODEV;
+@@ -1178,9 +1189,14 @@
+=20
+     /* for control device, just jump to its open routine */
+     /* after setting up the private data */
++
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
+     if (NV_DEVICE_IS_CONTROL_DEVICE(inode->i_rdev))
++       return nv_kern_ctl_close(inode, file);
++#else
++    if(NV_DEVICE_IS_CONTROL_DEVICE(kdev_val(inode->i_rdev)))
+         return nv_kern_ctl_close(inode, file);
+-
++#endif
+     NV_DMSG(nv, "close");
+=20
+     rm_free_unused_clients(nv, current->pid, (void *) file);
+@@ -1299,11 +1315,21 @@
+ #if defined(NVCPU_IA64)
+         vma->vm_page_prot =3D pgprot_noncached(vma->vm_page_prot);
+ #endif
++
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
+         if (remap_page_range(vma->vm_start,
+                              (u32)(nv->regs.address) + LINUX_VMA_OFFS(vma)=
+ - NV_MMAP_REG_OFFSET,
+                              vma->vm_end - vma->vm_start,
+                              vma->vm_page_prot))
+             return -EAGAIN;
++#else
++        if (remap_page_range(vma,
++                            vma->vm_start,
++                             (u32) (nv->regs.address) + LINUX_VMA_OFFS(vma=
+) - NV_MMAP_REG_OFFSET,
++                             vma->vm_end - vma->vm_start,
++                             vma->vm_page_prot))
++            return -EAGAIN;
++#endif
+=20
+         /* mark it as IO so that we don't dump it on core dump */
+         vma->vm_flags |=3D VM_IO;
+@@ -1316,11 +1342,20 @@
+ #if defined(NVCPU_IA64)
+         vma->vm_page_prot =3D pgprot_noncached(vma->vm_page_prot);
+ #endif
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
+         if (remap_page_range(vma->vm_start,
+                              (u32)(nv->fb.address) + LINUX_VMA_OFFS(vma) -=
+ NV_MMAP_FB_OFFSET,
+                              vma->vm_end - vma->vm_start,
+                              vma->vm_page_prot))
+             return -EAGAIN;
++#else
++        if (remap_page_range(vma,
++                            vma->vm_start,
++                             (u32) (nv->fb.address) + LINUX_VMA_OFFS(vma) =
+- NV_MMAP_FB_OFFSET,
++                             vma->vm_end - vma->vm_start,
++                             vma->vm_page_prot))
++            return -EAGAIN;
++#endif
+=20
+         // mark it as IO so that we don't dump it on core dump
+         vma->vm_flags |=3D VM_IO;
+@@ -1350,8 +1385,13 @@
+         while (pages--)
+         {
+             page =3D (unsigned long) at->page_table[i++];
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
+             if (remap_page_range(start, page, PAGE_SIZE, PAGE_SHARED))
+               	return -EAGAIN;
++#else
++            if (remap_page_range(vma, start, page, PAGE_SIZE, PAGE_SHARED))
++                 return -EAGAIN;
++#endif
+             start +=3D PAGE_SIZE;
+             pos +=3D PAGE_SIZE;
+        	}
+@@ -1627,8 +1667,12 @@
+         nv_lock_bh(nv);
+         nv->bh_count++;
+         nvl->bh->data =3D nv->pdev;
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
+         queue_task(nvl->bh, &tq_immediate);
+         mark_bh(IMMEDIATE_BH);
++#else
++        schedule_task(nvl->bh);
++#endif
+         nv_unlock_bh(nv);
+     }
+ }
+@@ -2179,7 +2223,11 @@
+     pte_kunmap(pte__);
+ #else
+     pte__ =3D NULL;
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
+     pte =3D *pte_offset(pg_mid_dir, address);
++#else
++    pte =3D *pte_offset_map(pg_mid_dir, address);
++#endif
+ #endif
+=20
+     if (!pte_present(pte))=20
+diff -ur NVIDIA_kernel-1.0-3123/os-interface.c NVIDIA_kernel-1.0-3123.bob/o=
+s-interface.c
+--- NVIDIA_kernel-1.0-3123/os-interface.c	Tue Aug 27 18:36:52 2002
++++ NVIDIA_kernel-1.0-3123.bob/os-interface.c	Wed Oct  2 11:26:51 2002
+@@ -27,7 +27,10 @@
+=20
+ BOOL os_is_administrator(PHWINFO pDev)
+ {
+-    return suser();
++    /* Actually suser() wasn't really a bool, but since the
++       nvidia guys want it as a bool, let's give them a bool.
++    */
++    return (!capable(CAP_SYS_ADMIN)?1:0);
+ }
+=20
+ U032 os_get_page_size(VOID)
+@@ -1141,9 +1144,14 @@
+     uaddr =3D *priv;
+=20
+     /* finally, let's do it! */
+-    err =3D remap_page_range( (size_t) uaddr, (size_t) paddr, size_bytes,=
+=20
++   =20
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
++    err =3D remap_page_range( (size_t) uaddr, (size_t) paddr, size_bytes,
++                           PAGE_SHARED);
++#else
++    err =3D remap_page_range( kaddr, (size_t) uaddr, (size_t) paddr, size_=
+bytes,
+                             PAGE_SHARED);
+-
++#endif
+     if (err !=3D 0)
+     {
+         return (void *) NULL;
+@@ -1176,10 +1184,14 @@
+=20
+     uaddr =3D *priv;
+=20
+-    /* finally, let's do it! */
+-    err =3D remap_page_range( (size_t) uaddr, (size_t) start, size_bytes,=
+=20
++    /* finally, let's do it! */=20
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
++    err =3D remap_page_range( (size_t) uaddr, (size_t) start, size_bytes,
++                          PAGE_SHARED);   =20
++#else
++    err =3D remap_page_range( *priv, (size_t) uaddr, (size_t) start, size_=
+bytes,=20
+                             PAGE_SHARED);
+-
++#endif
+     if (err !=3D 0)
+     {
+         return (void *) NULL;
+@@ -1593,7 +1605,8 @@
+=20
+     agp_addr =3D agpinfo.aper_base + (agp_data->offset << PAGE_SHIFT);
+=20
+-    err =3D remap_page_range(vma->vm_start, (size_t) agp_addr,=20
++    err =3D remap_page_range(vma,
++			   vma->vm_start, (size_t) agp_addr,=20
+                            agp_data->num_pages << PAGE_SHIFT,
+ #if defined(NVCPU_IA64)
+                            vma->vm_page_prot);
+
+--JF+ytOk7PH04NsRm--
+
+--Evp0T6PXIQ26qRMT
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iEYEARECAAYFAj2bIiIACgkQjwioWRGe9K3RmQCghJuH5zqvAtw+MWLim1rkHf5H
+0d0AoPGJ1hKLIAUkHvtuVFk0xccPtIgr
+=RY3J
+-----END PGP SIGNATURE-----
+
+--Evp0T6PXIQ26qRMT--

@@ -1,48 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316672AbSGBH7G>; Tue, 2 Jul 2002 03:59:06 -0400
+	id <S316673AbSGBIJS>; Tue, 2 Jul 2002 04:09:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316673AbSGBH7F>; Tue, 2 Jul 2002 03:59:05 -0400
-Received: from esperi.demon.co.uk ([194.222.138.8]:13580 "EHLO
-	esperi.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S316672AbSGBH7E>; Tue, 2 Jul 2002 03:59:04 -0400
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.4.18 (and maybe earlier versions) can't see my IDE disks where 2.2 can
-References: <Pine.LNX.4.10.10207010048040.10213-100000@master.linux-ide.org>
-X-Emacs: if it payed rent for disk space, you'd be rich.
-From: Nix <nix@esperi.demon.co.uk>
-Date: 02 Jul 2002 08:50:24 +0100
-In-Reply-To: <Pine.LNX.4.10.10207010048040.10213-100000@master.linux-ide.org>
-Message-ID: <87vg7yr2kf.fsf@amaterasu.srvr.nix>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Economic Science)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S316674AbSGBIJR>; Tue, 2 Jul 2002 04:09:17 -0400
+Received: from natpost.webmailer.de ([192.67.198.65]:41961 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S316673AbSGBIJR>; Tue, 2 Jul 2002 04:09:17 -0400
+Date: Tue, 2 Jul 2002 10:10:13 +0200
+From: Kristian Peters <kristian.peters@korseby.net>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: 2.4.19-rc1 oops when loading pcihpacpi
+Message-Id: <20020702101013.3cb350de.kristian.peters@korseby.net>
+X-Mailer: Sylpheed version 0.7.8claws (GTK+ 1.2.10; i386-redhat-linux)
+X-Operating-System: i686-redhat-linux 2.4.19-rc1
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 1 Jul 2002, Andre Hedrick spake:
-> Lemme guess PDC5030 or 4030
+Hello.
 
-I've just tried with that driver and append="ide0=dc4030". No joy:
-identical output to the `normal' ide.c case (i.e. controller found, but
-no drives found), and no mention of `Promise caching controller'
-anywhere in the output. I guess my ancient Promise isn't one of those
-after all. (Again, not *all* that surprising: this disk controller is
-older than Linux...)
+I'm getting this oops while trying to load pcihpacpi. I don't think that I have such thing installed on my IBM Thinkpad. But maybe it is of interest of someone of you.
 
-:(
+ksymoops 2.4.5 on i686 2.4.19-rc1.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.19-rc1/ (default)
+     -m /boot/System.map (specified)
 
-I'll scatter a bunch of printk's through the code in 2.2 and 2.4
-ide-probe.c and see what happens in 2.2 versus 2.4 probing; it'll be
-tomorrow before that's doable though because I can only reboot the
-machine in the early morning when nobody else is around.
+Unable to handle kernel NULL pointer dereference at virtual address 0000000c
+c0189c37
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[acpi_ns_get_next_node+23/72]    Not tainted
+EFLAGS: 00010246
+eax: 00000000   ebx: 00000000   ecx: c53b5e88   edx: 00000001
+esi: 00000000   edi: 00000000   ebp: 00000000   esp: c53b5e90
+ds: 0018   es: 0018   ss: 0018
+Process modprobe (pid: 3304, stackpage=c53b5000)
+Stack: 00000000 c53b5ec0 c0189cdb 00000000 00000000 00000000 c88a229c c53b5efc 
+       ffffffff 00002514 00000001 0601001a 00000010 c0236987 c0236980 c018a50d 
+       00000006 ffffffff ffffffff 00000001 c88a229c 00000000 00000000 00000006 
+Call Trace: [acpi_ns_walk_namespace+115/392] [pcmcia_core:__insmod_pcmcia_core_S.bss_L32+350364/4255122] [acpi_walk_namespace+137/176] [pcmcia_core:__insmod_pcmcia_core_S.bss_L32+350364/4255122] [pcmcia_core:__insmod_pcmcia_core_S.bss_L32+350768/4254718] 
+Code: 8b 40 0c eb 0d 8d 74 26 00 56 e8 ba ff ff ff 83 c4 04 84 db 
+Using defaults from ksymoops -t elf32-i386 -a i386
 
-(The code in ide-probe.c is very divergent anyway, but this might give
-me, or someone else, *some* clue.)
 
--- 
-`What happened?'
-                 `Nick shipped buggy code!'
-                                             `Oh, no dinner for him...'
+>>ecx; c53b5e88 <_end+50e09d4/854eb4c>
+>>esp; c53b5e90 <_end+50e09dc/854eb4c>
+
+Code;  00000000 Before first symbol
+00000000 <_EIP>:
+Code;  00000000 Before first symbol
+   0:   8b 40 0c                  mov    0xc(%eax),%eax
+Code;  00000003 Before first symbol
+   3:   eb 0d                     jmp    12 <_EIP+0x12> 00000012 Before first symbol
+Code;  00000005 Before first symbol
+   5:   8d 74 26 00               lea    0x0(%esi,1),%esi
+Code;  00000009 Before first symbol
+   9:   56                        push   %esi
+Code;  0000000a Before first symbol
+   a:   e8 ba ff ff ff            call   ffffffc9 <_EIP+0xffffffc9> ffffffc9 <END_OF_CODE+3775cab6/????>
+Code;  0000000f Before first symbol
+   f:   83 c4 04                  add    $0x4,%esp
+Code;  00000012 Before first symbol
+  12:   84 db                     test   %bl,%bl
+
+*Kristian
+
+  :... [snd.science] ...:
+ ::                             _o)
+ :: http://www.korseby.net      /\\
+ :: http://gsmp.sf.net         _\_V
+  :.........................:

@@ -1,35 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280657AbRKJNoj>; Sat, 10 Nov 2001 08:44:39 -0500
+	id <S280656AbRKJNqt>; Sat, 10 Nov 2001 08:46:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280658AbRKJNoV>; Sat, 10 Nov 2001 08:44:21 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:62991 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S280656AbRKJNoK>; Sat, 10 Nov 2001 08:44:10 -0500
-Subject: Re: Any lingering Athlon bugs in Kernel 2.4.14?
-To: calin@ajvar.org (Calin A. Culianu)
-Date: Sat, 10 Nov 2001 13:51:36 +0000 (GMT)
-Cc: rml@tech9.net (Robert Love), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0111091843180.17281-100000@rtlab.med.cornell.edu> from "Calin A. Culianu" at Nov 09, 2001 06:45:50 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S280658AbRKJNqj>; Sat, 10 Nov 2001 08:46:39 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:16768 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S280656AbRKJNqV>;
+	Sat, 10 Nov 2001 08:46:21 -0500
+Date: Sat, 10 Nov 2001 05:44:45 -0800 (PST)
+Message-Id: <20011110.054445.79069608.davem@redhat.com>
+To: anton@samba.org
+Cc: ak@suse.de, mingo@elte.hu, linux-kernel@vger.kernel.org
+Subject: Re: speed difference between using hard-linked and modular drives?
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20011110.052917.41199152.davem@redhat.com>
+In-Reply-To: <20011109073946.A19373@wotan.suse.de>
+	<20011110155603.B767@krispykreme>
+	<20011110.052917.41199152.davem@redhat.com>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E162YXo-0006P8-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> really think 2.4.13-ac7 has some cool hw bug workarounds? I guess I should
-> read about what went into -ac7.... Where would be a good place to find
-> more info?
+   From: "David S. Miller" <davem@redhat.com>
+   Date: Sat, 10 Nov 2001 05:29:17 -0800 (PST)
 
-If you want to be predictable about your test set then you can simply pull
-the VIA Athlon workaround pci quirk form 2.4.13-ac or 2.4.14 and merge it
-with your base 2.4.2, or 2.4.2-rh whatever tree.
+   Anton, are you bored?  :-) If so, could you test out the patch
+   below on your ppc64 box?  It does the "page hash table via bootmem"
+   thing.  It is against 2.4.15-pre2
 
-In fact you can do it in userspace with setpci if thats politically optimal
-8)
+Erm, ignore this patch, it was incomplete, I'll diff it up
+properly.  Sorry...
 
-
-Alan
+Franks a lot,
+David S. Miller
+davem@redhat.com

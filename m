@@ -1,58 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263600AbUEGO1w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263596AbUEGOcn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263600AbUEGO1w (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 May 2004 10:27:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263596AbUEGOZn
+	id S263596AbUEGOcn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 May 2004 10:32:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263609AbUEGOcn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 May 2004 10:25:43 -0400
-Received: from dingo.clsp.jhu.edu ([128.220.117.40]:12928 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S263600AbUEGOZM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 May 2004 10:25:12 -0400
-Date: Thu, 6 May 2004 17:06:28 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Marc Boucher <marc@linuxant.com>
-Cc: Timothy Miller <miller@techsource.com>, Rik van Riel <riel@redhat.com>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       David Gibson <david@gibson.dropbear.id.au>
-Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
-Message-ID: <20040506150628.GB183@elf.ucw.cz>
-References: <Pine.LNX.4.44.0404281958310.19633-100000@chimarrao.boston.redhat.com> <40911C01.80609@techsource.com> <20040429213246.GA15988@valve.mbsi.ca>
+	Fri, 7 May 2004 10:32:43 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:5532 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id S263596AbUEGOca (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 May 2004 10:32:30 -0400
+Date: Fri, 7 May 2004 18:32:08 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Christoph Hellwig <hch@lst.de>, rth@twiddle.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: alpha fp-emu vs module refcounting
+Message-ID: <20040507183208.A3283@jurassic.park.msu.ru>
+References: <20040507110217.GA11366@lst.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040429213246.GA15988@valve.mbsi.ca>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20040507110217.GA11366@lst.de>; from hch@lst.de on Fri, May 07, 2004 at 01:02:17PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Fri, May 07, 2004 at 01:02:17PM +0200, Christoph Hellwig wrote:
+> any chance we could either do a try_module_get on a struct module
+> *fp_emul_module in alpha core code before or completely disallow module
+> unloading for it (by removing the cleanup_module() callback)?
 
-> > Can you honestly tell apart the two cases, if you don't make a it a case of
-> > "religion war"?
-> 
-> On Thu, Apr 29, 2004 at 11:15:13AM -0400, Timothy Miller answered:
-> >
-> > Firmware downloaded into a piece of hardware can't corrupt the kernel in the
-> > host.
-> > 
-> > (Unless it's a bus master which writes to random memory, which might be
-> > possible, but there is hardware you can buy to watch PCI transactions.)
-> 
-> and unless it's a card with binary-only, proprietary BIOS code called at
-> runtime by the kernel, for example by the vesafb.c video driver,
-> which despite this has a MODULE_LICENSE("GPL").
+How about this (also fixes modular build of math-emu)?
 
-> Could someone explain why such execution of evil proprietary binary-only
-> code on the host CPU should not also "taint" the kernel? ;-)
+Ivan.
 
-Well, it only does so if you try to do fast scrolling or palette
-operations... which most people won't do.
-
-Actually separate taint flag for this might make sense... and when
-buggy vesa bios appears we'll probably add it.
-								Pavel
--- 
-When do you have heart between your knees?
+--- 2.6/arch/alpha/math-emu/math.c	Sun Apr  4 07:38:23 2004
++++ linux/arch/alpha/math-emu/math.c	Fri May  7 18:21:15 2004
+@@ -51,7 +51,9 @@ extern void alpha_write_fp_reg_s (unsign
+ 
+ #ifdef MODULE
+ 
++MODULE_AUTHOR("Richard Henderson <rth@twiddle.net>");
+ MODULE_DESCRIPTION("FP Software completion module");
++MODULE_LICENSE("GPL");
+ 
+ extern long (*alpha_fp_emul_imprecise)(struct pt_regs *, unsigned long);
+ extern long (*alpha_fp_emul) (unsigned long pc);
+@@ -106,7 +108,7 @@ alpha_fp_emul (unsigned long pc)
+ 	__u32 insn;
+ 	long si_code;
+ 
+-	MOD_INC_USE_COUNT;
++	BUG_ON(!try_module_get(THIS_MODULE));
+ 
+ 	get_user(insn, (__u32*)pc);
+ 	fc     = (insn >>  0) & 0x1f;	/* destination register */
+@@ -320,7 +322,7 @@ done:
+ 			if (_fex & IEEE_TRAP_ENABLE_INV) si_code = FPE_FLTINV;
+ 		}
+ 
+-		MOD_DEC_USE_COUNT;
++		module_put(THIS_MODULE);
+ 		return si_code;
+ 	}
+ 
+@@ -328,13 +330,13 @@ done:
+ 	   requires that the result *always* be written... so we do the write
+ 	   immediately after the operations above.  */
+ 
+-	MOD_DEC_USE_COUNT;
++	module_put(THIS_MODULE);
+ 	return 0;
+ 
+ bad_insn:
+ 	printk(KERN_ERR "alpha_fp_emul: Invalid FP insn %#x at %#lx\n",
+ 	       insn, pc);
+-	MOD_DEC_USE_COUNT;
++	module_put(THIS_MODULE);
+ 	return -1;
+ }
+ 
+@@ -344,7 +346,7 @@ alpha_fp_emul_imprecise (struct pt_regs 
+ 	unsigned long trigger_pc = regs->pc - 4;
+ 	unsigned long insn, opcode, rc, si_code = 0;
+ 
+-	MOD_INC_USE_COUNT;
++	BUG_ON(!try_module_get(THIS_MODULE));
+ 
+ 	/*
+ 	 * Turn off the bits corresponding to registers that are the
+@@ -403,6 +405,6 @@ alpha_fp_emul_imprecise (struct pt_regs 
+ 	}
+ 
+ egress:
+-	MOD_DEC_USE_COUNT;
++	module_put(THIS_MODULE);
+ 	return si_code;
+ }
+--- 2.6/arch/alpha/math-emu/Makefile	Sun Apr  4 07:37:23 2004
++++ linux/arch/alpha/math-emu/Makefile	Fri May  7 17:52:22 2004
+@@ -4,4 +4,6 @@
+ 
+ EXTRA_CFLAGS := -w
+ 
+-obj-$(CONFIG_MATHEMU) += math.o qrnnd.o
++obj-$(CONFIG_MATHEMU) += math-emu.o
++
++math-emu-objs := math.o qrnnd.o

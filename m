@@ -1,74 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261899AbUKJOEs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261922AbUKJOIq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261899AbUKJOEs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 09:04:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261893AbUKJOAC
+	id S261922AbUKJOIq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 09:08:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261893AbUKJOEy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 09:00:02 -0500
-Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:55426 "EHLO
-	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S261923AbUKJNp4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 08:45:56 -0500
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-ntfs-dev@lists.sourceforge.net
-Subject: [PATCH 25/26] NTFS 2.1.22 - Bug and race fixes and improved error handling.
-Message-Id: <E1CRsnE-0006TH-G6@imp.csi.cam.ac.uk>
-Date: Wed, 10 Nov 2004 13:45:48 +0000
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-X-Cam-AntiVirus: No virus found
-X-Cam-SpamDetails: Not scanned
+	Wed, 10 Nov 2004 09:04:54 -0500
+Received: from ylpvm43-ext.prodigy.net ([207.115.57.74]:34460 "EHLO
+	ylpvm43.prodigy.net") by vger.kernel.org with ESMTP id S261923AbUKJOCB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 09:02:01 -0500
+From: David Brownell <david-b@pacbell.net>
+To: linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] 2.6.10-rc1-mm4: USB storage not working on AMD64
+Date: Wed, 10 Nov 2004 05:58:45 -0800
+User-Agent: KMail/1.7.1
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+References: <200411101154.05304.rjw@sisk.pl>
+In-Reply-To: <200411101154.05304.rjw@sisk.pl>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200411100558.45934.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is patch 25/26 in the series.  It contains the following ChangeSet:
+On Wednesday 10 November 2004 02:54, Rafael J. Wysocki wrote:
+> Hi,
+> 
+> There seems to be a problem in 2.6.10-rc1-mm4 with either USB storage (eg a 
+> pendrive) or hotplug on AMD64 (NForce3 chipset, ohci-hcd, SuSE 9.1).
+> Namely,  
+> if a USB pendrive is inserted into a socket, the kernel does not even detect 
+> it.  Here's what appears in dmesg after it's inserted:
+> 
+> ohci_hcd 0000:00:02.0: wakeup
+> 
+> Other USB devices (eg a mouse) seem to work normally.
 
-<aia21@cantab.net> (04/11/09 1.2026.1.65)
-   NTFS: Disable the file size changing code from
-         fs/ntfs/aops.c::ntfs_prepare_write() for now as it is not safe.
-   
-   Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
+I recently posted several USB PM fixes that make things work better
+in my testing, and it sounds like they'd probably help here too.
 
-Best regards,
+- Dave
 
-	Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/, http://www-stu.christs.cam.ac.uk/~aia21/
+ 
+> Of course such problems do not occur on 2.6.10-rc1.  On 2.6.10-rc1-mm3 I've 
+> had this problem only on a dual-Opteron box, but on 2.6.10-rc1-mm4 I see it 
+> on a one-processor box either.
 
-===================================================================
-
-diff -Nru a/fs/ntfs/ChangeLog b/fs/ntfs/ChangeLog
---- a/fs/ntfs/ChangeLog	2004-11-10 13:45:52 +00:00
-+++ b/fs/ntfs/ChangeLog	2004-11-10 13:45:52 +00:00
-@@ -49,11 +49,6 @@
- 	- In fs/ntfs/aops.c::ntfs_writepage(), if the page is fully outside
- 	  i_size, i.e. race with truncate, invalidate the buffers on the page
- 	  so that they become freeable and hence the page does not leak.
--	- Implement extension of resident files in the regular file write code
--	  paths (fs/ntfs/aops.c::ntfs_{prepare,commit}_write()).  At present
--	  this only works until the data attribute becomes too big for the mft
--	  record after which we abort the write returning -EOPNOTSUPP from
--	  ntfs_prepare_write().
- 	- Remove unused function fs/ntfs/runlist.c::ntfs_rl_merge().  (Adrian
- 	  Bunk)
- 	- Fix stupid bug in fs/ntfs/attrib.c::ntfs_attr_find() that resulted in
-diff -Nru a/fs/ntfs/aops.c b/fs/ntfs/aops.c
---- a/fs/ntfs/aops.c	2004-11-10 13:45:52 +00:00
-+++ b/fs/ntfs/aops.c	2004-11-10 13:45:52 +00:00
-@@ -1884,6 +1884,12 @@
- 	/* If we do not need to resize the attribute allocation we are done. */
- 	if (new_size <= vi->i_size)
- 		goto done;
-+
-+	// FIXME: We abort for now as this code is not safe.
-+	ntfs_error(vi->i_sb, "Changing the file size is not supported yet.  "
-+			"Sorry.");
-+	return -EOPNOTSUPP;
-+
- 	/* Map, pin, and lock the (base) mft record. */
- 	if (!NInoAttr(ni))
- 		base_ni = ni;

@@ -1,35 +1,28 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262661AbSJGSQa>; Mon, 7 Oct 2002 14:16:30 -0400
+	id <S262703AbSJGSUY>; Mon, 7 Oct 2002 14:20:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262662AbSJGSQa>; Mon, 7 Oct 2002 14:16:30 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:48656 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262661AbSJGSQa>; Mon, 7 Oct 2002 14:16:30 -0400
-Date: Mon, 7 Oct 2002 11:21:08 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Christoph Hellwig <hch@infradead.org>
-cc: Mike Galbraith <efault@gmx.de>, Matthew Wilcox <willy@debian.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: bcopy()
-In-Reply-To: <20021007191726.A23246@infradead.org>
-Message-ID: <Pine.LNX.4.33.0210071118220.1356-100000@penguin.transmeta.com>
+	id <S262731AbSJGSUY>; Mon, 7 Oct 2002 14:20:24 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:12183 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S262703AbSJGSUX>; Mon, 7 Oct 2002 14:20:23 -0400
+Date: Mon, 7 Oct 2002 14:48:09 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: Andi Kleen <ak@muc.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Why does x86_64 support a SuSE-specific ioctl?
+In-Reply-To: <m3it0hexs2.fsf@averell.firstfloor.org>
+Message-ID: <Pine.LNX.4.44L.0210071447270.19958-100000@freak.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Mon, 7 Oct 2002, Christoph Hellwig wrote:
-> 
-> The lowlevel XFS code tries to stay in sync as much as possible with
-> the IRIX codebase to make maintaince easier (we're a very small team..).
+Andi,
 
-Could somebody drag the Irix team kicking and screaming into the 1980's, 
-please? 
+Please send me a patch to remove TIOCGDEV from my tree.
 
-I realize it might be quite painful for them, but maybe you could buy them 
-a disco tape, so they'd feel a little bit more at home. 
-
-		Linus "Stayin' alive, stayin' alive" Torvalds
+Thanks.
 

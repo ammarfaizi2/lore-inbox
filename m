@@ -1,47 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264422AbUFLAV7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264426AbUFLAXL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264422AbUFLAV7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jun 2004 20:21:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264426AbUFLAV7
+	id S264426AbUFLAXL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jun 2004 20:23:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264432AbUFLAXL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jun 2004 20:21:59 -0400
-Received: from mail.kroah.org ([65.200.24.183]:16839 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264422AbUFLAV5 (ORCPT
+	Fri, 11 Jun 2004 20:23:11 -0400
+Received: from mail.kroah.org ([65.200.24.183]:33223 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264426AbUFLAWe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jun 2004 20:21:57 -0400
-Date: Fri, 11 Jun 2004 17:13:03 -0700
+	Fri, 11 Jun 2004 20:22:34 -0400
+Date: Fri, 11 Jun 2004 17:18:22 -0700
 From: Greg KH <greg@kroah.com>
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] clarify pci.txt wrt IRQ allocation
-Message-ID: <20040612001302.GA10294@kroah.com>
-References: <200406111529.16419.bjorn.helgaas@hp.com>
+To: Hanna Linder <hannal@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, hpa@zytor.com
+Subject: Re: [PATCH 2.6.7-rc3] Add's class support to msr.c
+Message-ID: <20040612001822.GA10389@kroah.com>
+References: <146320000.1086823391@dyn318071bld.beaverton.ibm.com> <147490000.1086824437@dyn318071bld.beaverton.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200406111529.16419.bjorn.helgaas@hp.com>
+In-Reply-To: <147490000.1086824437@dyn318071bld.beaverton.ibm.com>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 11, 2004 at 03:29:16PM -0600, Bjorn Helgaas wrote:
-> I think we should make it explicit that PCI IRQs shouldn't be relied
-> upon until after pci_enable_device().  This patch:
+On Wed, Jun 09, 2004 at 04:40:37PM -0700, Hanna Linder wrote:
+> --On Wednesday, June 09, 2004 04:23:11 PM -0700 Hanna Linder <hannal@us.ibm.com> wrote:
+> > 
+> > This patch enables class support in arch/i386/kernel/msr.c. Very simliar
+> > to cpuid (with the fixes Zwane/Greg made, thanks). 
+> > 
+> > [root@w-hlinder2 root]# tree /sys/class/msr
+> > /sys/class/msr
+> >| -- msr0
+> >|   `-- dev
+> > `-- msr1
+> >     `-- dev
+> > 
+> > 2 directories, 2 files
+> > 
+> > Please consider for testing/inclusion.
+> > 
+> > Signed-off-by Hanna Linder <hannal@us.ibm.com>
+> > 
+> > Thanks.
+> > 
+> > Hanna Linder
+> > IBM Linux Technology Center
 > 
->     ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.7-rc3/2.6.7-rc3-mm1/broken-out/bk-acpi.patch
-> 
-> does PCI interrupt routing (based on ACPI _PRT) and IRQ allocation
-> at pci_enable_device()-time.
-> 
-> (To avoid breaking things in 2.6, the above patch still allocates
-> all PCI IRQs in pci_acpi_init(), before any drivers are initialized.
-> But that shouldn't be needed by correct drivers, and I'd like to
-> remove it in 2.7.)
+> Thanks to Randy Dunlap for pointing out the unnecessary tabs. Fixed.
 
-I agree.
-
-> Here's a possible update:
-
-Thanks, I've applied this to my trees.
+Looks good, applied thanks.
 
 greg k-h

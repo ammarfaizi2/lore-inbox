@@ -1,58 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264886AbUGGFYQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264909AbUGGFjp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264886AbUGGFYQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 01:24:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264895AbUGGFYP
+	id S264909AbUGGFjp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 01:39:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264912AbUGGFjp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 01:24:15 -0400
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:25823 "EHLO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
-	id S264886AbUGGFYN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 01:24:13 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Georgi Georgiev <chutz@gg3.net>
-Date: Wed, 7 Jul 2004 15:24:04 +1000
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 7 Jul 2004 01:39:45 -0400
+Received: from pfepc.post.tele.dk ([195.41.46.237]:61038 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S264909AbUGGFjo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jul 2004 01:39:44 -0400
+Subject: Re: [PATCH] fix tcp_default_win_scale.
+From: Redeeman <lkml@metanurb.dk>
+To: bert hubert <ahu@ds9a.nl>
+Cc: LKML Mailinglist <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040706232538.GA8054@outpost.ds9a.nl>
+References: <32886.63.170.215.71.1088564087.squirrel@www.osdl.org>
+	 <20040629222751.392f0a82.davem@redhat.com>
+	 <20040630152750.2d01ca51@dell_ss3.pdx.osdl.net>
+	 <20040630153049.3ca25b76.davem@redhat.com>
+	 <20040701133738.301b9e46@dell_ss3.pdx.osdl.net>
+	 <20040701140406.62dfbc2a.davem@redhat.com>
+	 <20040702013225.GA24707@conectiva.com.br>
+	 <20040706093503.GA8147@outpost.ds9a.nl>
+	 <20040706114741.1bf98bbe@dell_ss3.pdx.osdl.net>
+	 <1089155965.15544.9.camel@localhost>
+	 <20040706232538.GA8054@outpost.ds9a.nl>
+Content-Type: text/plain
+Date: Wed, 07 Jul 2004 07:39:42 +0200
+Message-Id: <1089178782.10677.0.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 1.5.9 
 Content-Transfer-Encoding: 7bit
-Message-ID: <16619.35060.821865.570842@cse.unsw.edu.au>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: partitionable md devices and partition detection
-In-Reply-To: message from Georgi Georgiev on Wednesday July 7
-References: <20040707045939.GA20516@ols-dell.iic.hokudai.ac.jp>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday July 7, chutz@gg3.net wrote:
-> What is the proper way to detect the partitions on a md device during kernel
-> initialization?
+damn, just tested this patch, it does not fix my issues. i wish there
+were a way to just get it like it was on 2.6.5
 
-Hmm... I guess there isn't.
-I remember having a lot of trouble getting partitions to be recognised
-when an array is first assembled, and deciding it was just easier to
-leave it to user-space.  However that isn't an option when booting
-without an initrd.
+On Wed, 2004-07-07 at 01:25 +0200, bert hubert wrote:
+> On Wed, Jul 07, 2004 at 01:19:25AM +0200, Redeeman wrote:
+> 
+> > so this should fix the issues? can you also tell me why this suddenly happend? that would make me a real happy man
+> 
+> It appears older linux kernels would announce window scaling capability, but
+> not in fact scale their windows themselves, thus hiding the problem.
+> 
 
-The following patch should make it work for the
-  md=d0,....
-case.  The "raid=part" case is a bit harder....
-
-NeilBrown
-
-
-diff ./init/do_mounts_md.c~current~ ./init/do_mounts_md.c
---- ./init/do_mounts_md.c~current~	2004-07-07 15:20:05.000000000 +1000
-+++ ./init/do_mounts_md.c	2004-07-07 15:20:57.000000000 +1000
-@@ -232,6 +232,8 @@ static void __init md_setup_drive(void)
- 			err = sys_ioctl(fd, RUN_ARRAY, 0);
- 		if (err)
- 			printk(KERN_WARNING "md: starting md%d failed\n", minor);
-+		else
-+			sys_ioctl(fd, BLKRRPART, 0);
- 		sys_close(fd);
- 	}
- }

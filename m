@@ -1,89 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262002AbREREwp>; Fri, 18 May 2001 00:52:45 -0400
+	id <S262249AbRERF5Y>; Fri, 18 May 2001 01:57:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262179AbREREwf>; Fri, 18 May 2001 00:52:35 -0400
-Received: from kffopc5.szfki.kfki.hu ([148.6.138.105]:13577 "EHLO
-	bird.szfki.kfki.hu") by vger.kernel.org with ESMTP
-	id <S262002AbREREwS>; Fri, 18 May 2001 00:52:18 -0400
-Message-Id: <200105180452.GAA15176@bird.szfki.kfki.hu>
+	id <S262250AbRERF5O>; Fri, 18 May 2001 01:57:14 -0400
+Received: from vpn.moodlogic.com ([64.81.60.70]:20463 "EHLO uzo.telecoma.net")
+	by vger.kernel.org with ESMTP id <S262249AbRERF5E>;
+	Fri, 18 May 2001 01:57:04 -0400
+Date: Fri, 18 May 2001 08:33:05 +0200
+From: firenza@gmx.net
 To: linux-kernel@vger.kernel.org
-cc: karpati@kffopc5.szfki.kfki.hu
-Subject: serial driver patch
-Date: Fri, 18 May 2001 06:52:16 +0200
-From: Attila Karpati <karpati@optics.szfki.kfki.hu>
+Subject: java/old_mmap allocation problems...
+Message-ID: <20010518083305.C7657@telecoma.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.95.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
 
-I have a 16450 serial chip at home and it bothered me that if I play music and
-compile some programs there are packet errors reported by
-/sbin/ifconfig. Irqtune did help a bit but not much, so created a small patch
-to add an option to use the SA_INTERRUPT flag in serial.c. Since then there
-are no packet errors. You can find the patch at the end of my mail. The patch
-is against 2.4.4. Maybe other people who use irqtune find it useful.
+hi,
 
-Bye,
- Attila
+i'm having problems to convince java (1.3.1) to allocate more
+than 1.9gb of memory on 2.4.2-ac2 (SMP/6gb phys mem) or more
+than 1.1gb on 2.2.18 (SMP/2gb phys mem)...
 
-diff -urbBd linux.orig/drivers/char/Config.in linux/drivers/char/Config.in
---- linux.orig/drivers/char/Config.in	Wed Mar  7 04:44:34 2001
-+++ linux/drivers/char/Config.in	Fri May 18 06:31:36 2001
-@@ -20,6 +20,7 @@
- if [ "$CONFIG_SERIAL_EXTENDED" = "y" ]; then
-    bool '  Support more than 4 serial ports' CONFIG_SERIAL_MANY_PORTS
-    bool '  Support for sharing serial interrupts' CONFIG_SERIAL_SHARE_IRQ
-+   bool '  Disable other interrupts and disable sharing' CONFIG_SERIAL_DISABLE_INTERRUPTS_DONT_SHARE
-    bool '  Autodetect IRQ on standard ports (unsafe)' CONFIG_SERIAL_DETECT_IRQ
-    bool '  Support special multiport boards' CONFIG_SERIAL_MULTIPORT
-    bool '  Support the Bell Technologies HUB6 card' CONFIG_HUB6
-diff -urbBd linux.orig/drivers/char/serial.c linux/drivers/char/serial.c
---- linux.orig/drivers/char/serial.c	Sat Apr 14 05:26:07 2001
-+++ linux/drivers/char/serial.c	Fri May 18 06:29:10 2001
-@@ -1336,8 +1336,13 @@
- 		} else 
- 			handler = rs_interrupt_single;
- 
--		retval = request_irq(state->irq, handler, SA_SHIRQ,
--				     "serial", &IRQ_ports[state->irq]);
-+		retval = request_irq(state->irq, handler, 
-+#ifdef CONFIG_SERIAL_DISABLE_INTERRUPTS_DONT_SHARE
-+				     SA_INTERRUPT
-+#else
-+				     SA_SHIRQ
-+#endif
-+				     , "serial", &IRQ_ports[state->irq]);
- 		if (retval) {
- 			if (capable(CAP_SYS_ADMIN)) {
- 				if (info->tty)
-@@ -1489,7 +1494,12 @@
- 		if (IRQ_ports[state->irq]) {
- 			free_irq(state->irq, &IRQ_ports[state->irq]);
- 			retval = request_irq(state->irq, rs_interrupt_single,
--					     SA_SHIRQ, "serial",
-+#ifdef CONFIG_SERIAL_DISABLE_INTERRUPTS_DONT_SHARE
-+					     SA_INTERRUPT
-+#else
-+					     SA_SHIRQ
-+#endif
-+					     , "serial",
- 					     &IRQ_ports[state->irq]);
- 			
- 			if (retval)
-@@ -2503,8 +2513,13 @@
- 		else
- 			handler = rs_interrupt;
- 
--		retval = request_irq(state->irq, handler, SA_SHIRQ,
--				     "serial", &IRQ_ports[state->irq]);
-+		retval = request_irq(state->irq, handler, 
-+#ifdef CONFIG_SERIAL_DISABLE_INTERRUPTS_DONT_SHARE
-+				     SA_INTERRUPT
-+#else
-+				     SA_SHIRQ
-+#endif
-+				     , "serial", &IRQ_ports[state->irq]);
- 		if (retval) {
- 			printk("Couldn't reallocate serial interrupt "
- 			       "driver!!\n");
+modifing /proc/sys/vm parameters didn't help either... the fact
+that i can allocate more memory under 2.4 than under 2.2 lets
+me hope that there is some possible kernel/vm tweaking that
+would increase those limits...
+
+any pointers would be greatly appreciated!
+
+cheers,
+-firenza
+
+PS:
+
+strace snippet of "java -Xmx2g" on the 2.4 system
+brk(0x8057000)                          = 0x8057000
+old_mmap(NULL, 163840, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x43691000
+old_mmap(NULL, 2181038080, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_ANONYMOUS|MAP_NORESERVE, -1, 0) = -1 ENOMEM 
+
+strace snippet of "java -Xmx1500m" on the 2.2 system
+old_mmap(0x2e082000, 4096, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x2e082000
+old_mmap(NULL, 163840, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x2e102000
+old_mmap(NULL, 1606418432, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_ANONYMOUS|MAP_NORESERVE, -1, 0) = -1 ENOMEM 
+

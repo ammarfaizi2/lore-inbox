@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268645AbTBZFdX>; Wed, 26 Feb 2003 00:33:23 -0500
+	id <S268646AbTBZFd5>; Wed, 26 Feb 2003 00:33:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268646AbTBZFdX>; Wed, 26 Feb 2003 00:33:23 -0500
-Received: from holomorphy.com ([66.224.33.161]:40633 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S268645AbTBZFdW>;
-	Wed, 26 Feb 2003 00:33:22 -0500
-Date: Tue, 25 Feb 2003 21:42:40 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Minutes from Feb 21 LSE Call
-Message-ID: <20030226054240.GL10411@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0302231906360.8609-100000@dlang.diginsite.com> <E18nu9a-0004VP-00@calista.inka.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E18nu9a-0004VP-00@calista.inka.de>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S268647AbTBZFd5>; Wed, 26 Feb 2003 00:33:57 -0500
+Received: from web40102.mail.yahoo.com ([66.218.78.36]:55206 "HELO
+	web40102.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S268646AbTBZFdx>; Wed, 26 Feb 2003 00:33:53 -0500
+Message-ID: <20030226054404.85557.qmail@web40102.mail.yahoo.com>
+Date: Wed, 26 Feb 2003 02:44:04 -0300 (ART)
+From: =?iso-8859-1?q?Pablo=20B?= <pablob127@yahoo.com>
+Subject: DTE 3181e
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <...> someone wrote:
->> unfortunantly for them the core CPU speeds became uncoupled from the
->> memory speeds and skyrocketed up to the point where CISC cores are as fast
->> or faster then the 'high speed' RISC cores.
+Hi!
 
-On Wed, Feb 26, 2003 at 06:30:50AM +0100, Bernd Eckenfels wrote:
-> Hmm.. are there any RISC Cores which run even closely to CISC Speeds?
-> And why not? Is this only the financial power of Intel?
+I am trying to use an ancient DTC 3181e SCSI card with
+the 2.4.20 kernel. However, whenever I load the
+g_NCR5380 module with a SCSI device on, it inmediately
+freezes the computer hard. The system gets completely
+hung, needs a hard reset to restart (no Alt-SysRq
+magic keys available).
+I've been looking for information on the Net, but I
+could not find anybody with similar problems.
 
-There is one other: x86 binary compatibility.
+Does anyone have current information about this
+card/driver combination? Or whom I could reach to ask
+questions about the driver?
 
-Looks like the beginning and end of it to me.
+Please CC to me, as I am not subcribed to the list if
+you have information.
+
+Thank you very much!
+
+Bye & Good Luck!
+
+Pablo B.
 
 
--- wli
+------------
+¡Internet GRATIS es Yahoo! Conexión!
+Usuario "yahoo", contraseña "yahoo". 
+Desde Buenos Aires, 4004-1010.
+Otras ciudades: http://conexion.yahoo.com.ar/avanzados.html

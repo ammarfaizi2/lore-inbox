@@ -1,59 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289355AbSAOCI5>; Mon, 14 Jan 2002 21:08:57 -0500
+	id <S289368AbSAOCS5>; Mon, 14 Jan 2002 21:18:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289357AbSAOCIs>; Mon, 14 Jan 2002 21:08:48 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:8072
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S289355AbSAOCIf>; Mon, 14 Jan 2002 21:08:35 -0500
-Date: Mon, 14 Jan 2002 20:53:07 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Benjamin LaHaise <bcrl@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Penelope builds a kernel
-Message-ID: <20020114205307.E24120@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Benjamin LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020114165909.A20808@thyrsus.com> <20020114173542.C30639@redhat.com> <20020114173854.C23081@thyrsus.com> <20020114180007.D30639@redhat.com> <20020114180522.A24120@thyrsus.com> <20020114183820.G30639@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020114183820.G30639@redhat.com>; from bcrl@redhat.com on Mon, Jan 14, 2002 at 06:38:20PM -0500
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S289366AbSAOCSs>; Mon, 14 Jan 2002 21:18:48 -0500
+Received: from tomts13.bellnexxia.net ([209.226.175.34]:31437 "EHLO
+	tomts13-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S289361AbSAOCSi>; Mon, 14 Jan 2002 21:18:38 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
+To: Davide Libenzi <davidel@xmailserver.org>
+Subject: Re: [patch] O(1) scheduler-H6/H7 and nice +19
+Date: Mon, 14 Jan 2002 21:18:36 -0500
+X-Mailer: KMail [version 1.3.2]
+Cc: Ingo Molnar <mingo@elte.hu>, lkml <linux-kernel@vger.kernel.org>,
+        Dave Jones <davej@suse.de>
+In-Reply-To: <Pine.LNX.4.40.0201141748570.1233-100000@blue1.dev.mcafeelabs.com>
+In-Reply-To: <Pine.LNX.4.40.0201141748570.1233-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020115021837.4A63969E@oscar.casa.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin LaHaise <bcrl@redhat.com>:
-> FYI, it's easy to fix, just use the correct ordering of download, transmit, 
-> delete that sendmail and other MTAs use.
+On January 14, 2002 08:50 pm, Davide Libenzi wrote:
+> On Mon, 14 Jan 2002, Ed Tomlinson wrote:
+> > On January 13, 2002 10:45 pm, Davide Libenzi wrote:
+> > > On Sun, 13 Jan 2002, Ed Tomlinson wrote:
+> > > > With pre3+H7, kernel compiles still take 40% longer with a setiathome
+> > > > process running at nice +19.  This is _not_ the case with the old
+> > > > scheduler.
+> > >
+> > > Did you try to set MIN_TIMESLICE to 10 ( sched.h ) ?make bzImage with
+> > > setiathome running nice +19
+> >
+> > This makes things a worst - note the decreased cpu utilizaton...
+> >
+> > make bzImage  424.33s user 32.21s system 48% cpu 15:48.69 total
+> >
+> > What is this telling us?
+>
+> Doh !
+> Did you set this ?
+>
+> #define MIN_TIMESLICE  (10 * HZ / 1000)
 
-I don't understand what you think you're seeing, but I am sure of
-this; if I had been enough of a drug-addled lunatic to allow fetchmail
-to delete mail before getting a positive acknowledge from the
-downstream MTA, someone in the pool of over two thousand people who have sent
-me bug reports and patches would have called me on it some time in the
-six years of production use well before *you* entered the picture.
+I set:
 
-It's likely you're being hosed by an MTA that's sending back bogus 2xx
-responses.  That's happend before.  Fetchmail can't magically cope
-with MTAs that tell it lies.
+#define MIN_TIMESLICE  10
 
-Fetchmail *already works the way you recommend* -- as any idiot can
-verify by reading the short section of the main driver loop where
-dispatch and delete takes place.  That's been an invariant of the code
-since day one, and you thus clearly have no bloody idea what you are
-flaming about.
+Now I am tring 
 
-Don't take my word for it.  Go read the code.  Until you've done so,
-I suggest you take it off-list before you embarrass yourself further.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+#define MIN_TIMESLICE  1
 
-A man who has nothing which he is willing to fight for, nothing 
-which he cares about more than he does about his personal safety, 
-is a miserable creature who has no chance of being free, unless made 
-and kept so by the exertions of better men than himself. 
-	-- John Stuart Mill, writing on the U.S. Civil War in 1862
+which, looksing at monitors, gives about 80% cpu to the compile
+
+Ed Tomlinson
+
+
+
+
+
+
+
+
+
+

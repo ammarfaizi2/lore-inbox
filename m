@@ -1,34 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261996AbSLBJxi>; Mon, 2 Dec 2002 04:53:38 -0500
+	id <S262130AbSLBKKp>; Mon, 2 Dec 2002 05:10:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262067AbSLBJxi>; Mon, 2 Dec 2002 04:53:38 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:61445 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S261996AbSLBJxh>;
-	Mon, 2 Dec 2002 04:53:37 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200212021012.gB2ACAoY000911@darkstar.example.net>
-Subject: Re: Help with Via 8233 AC'97 Audio
-To: root@chartermi.net (Nathaniel Russell)
-Date: Mon, 2 Dec 2002 10:12:10 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0212020441180.1347-300000@reddog.example.net> from "Nathaniel Russell" at Dec 02, 2002 04:46:27 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S262089AbSLBKKp>; Mon, 2 Dec 2002 05:10:45 -0500
+Received: from ns.javad.ru ([62.105.138.7]:9222 "EHLO ns.javad.ru")
+	by vger.kernel.org with ESMTP id <S262130AbSLBKKo>;
+	Mon, 2 Dec 2002 05:10:44 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Q: problems interfacing with tty ldisc using flipbufs.
+X-attribution: osv
+From: Sergei Organov <osv@javad.ru>
+Date: 02 Dec 2002 13:18:09 +0300
+Message-ID: <87ptskafmm.fsf@osv.javad.ru>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please send attachments as plain text.
+Hello,
 
-> I was woundering if you could help me get my Via AC'97 Sound Card to work
-> in 2.4.20+ it would be most appreciated because that is the only sound
-> card my computer has in it. I've googled around but i keep coming out with
-> a binary only driver for a RedHat System and i don't run RedHat I run
-> Slackware-9.0-beta1. So if possible would you please help me out.
+I'm rather new to the Linux kernel drivers and I need some help from you.
 
-Have you tried building VIA 82C686 Audio Codec in the kernel?  That
-should work.
+I'm trying to design kernel module that reads data from a USB device and
+transfers them to the tty ldisc. I'm interested only in the n_tty line
+discipline. I have rather large internal buffer to which data from the device
+are stored from the IRQ handler. The question is how to transfer the data from
+this buffer to the ldisc reliably (i.e., without data loss). Currently to
+transfer data from the internal buffer to the line discipline I'm scheduling a
+tasklet. Assuming the `tty->low_latency' field is set to 1, the following two
+problems may (and do in fact) occur when I attempt to call
+`tty_flip_buffer_push':
 
-John.
+1. Let free space in the ldisc input buffer be `F' bytes and number of bytes
+   in the flipbuf be `N'. Suppose F > TTY_THRESHOLD_THROTTLE and N > F. In
+   this case the buffer flips but (N - F) bytes are silently lost. To prevent
+   this unfortunate situation I'm forced to never put more than
+   TTY_THRESHOLD_THROTTLE bytes into flipbuf. Not only this is inefficient,
+   but also error-prone as TTY_THRESHOLD_THROTTLE is private to the `n_tty.c'
+   file so I need to make similar definition in my own C file. Is there a
+   better method for passing data to ldisc without loss? Wouldn't it be a
+   good idea to change TTY_THRESHOLD_THROTTLE to be at least as large as
+   TTY_FLIPBUF_SIZE?
+
+2. If TTY_DONT_FLIP flag is set, the buffer doesn't flip. Instead, flipping is
+   queued to the tq_timer and I don't have more space to copy data to. As far
+   as I understand, the only option I have at this point is to queue my own
+   procedure to the tq_timer that will eventually retry to pass data through
+   the flipbufs, right? If so, I'll end up with the same code running from 3
+   places: 1. tasklet 2. tq_timer queue, and 3. `unthrottle' method of the
+   driver. I don't know why TTY_DONT_FLIP is at all necessary, but all this
+   seems rather over-complicated to me for the task of transferring data from
+   one buffer to another. Is there a better way (from my side) to deal with
+   it? Maybe I should better get rid of the tasklet and always queue my
+   copy-to-tty routine to the tq_timer instead?
+
+
+Thanks for advance for any hints.
+
+BR,
+Sergei.
+

@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319093AbSHSXZJ>; Mon, 19 Aug 2002 19:25:09 -0400
+	id <S319099AbSHSXZu>; Mon, 19 Aug 2002 19:25:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319096AbSHSXZJ>; Mon, 19 Aug 2002 19:25:09 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:32505 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S319093AbSHSXZI>; Mon, 19 Aug 2002 19:25:08 -0400
-Subject: Re: MAX_PID changes in 2.5.31
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Richard Gooch <rgooch@ras.ucalgary.ca>,
-       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0208200033400.5253-100000@localhost.localdomain>
-References: <Pine.LNX.4.44.0208200033400.5253-100000@localhost.localdomain>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 20 Aug 2002 00:29:11 +0100
-Message-Id: <1029799751.21212.0.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S319102AbSHSXZu>; Mon, 19 Aug 2002 19:25:50 -0400
+Received: from pD952A30B.dip.t-dialin.net ([217.82.163.11]:33923 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S319099AbSHSXZt>; Mon, 19 Aug 2002 19:25:49 -0400
+Date: Mon, 19 Aug 2002 17:29:40 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Alexander Viro <viro@math.psu.edu>, Larry McVoy <lm@bitmover.com>,
+       Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: IDE?
+In-Reply-To: <Pine.LNX.4.44.0208161822130.1674-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0208191728180.3234-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf; Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-08-19 at 23:34, Ingo Molnar wrote:
-> 
-> On Mon, 19 Aug 2002, Richard Gooch wrote:
-> 
-> > Are you saying that people running libc 5 or even glibc 2.1 will
-> > suddenly have their code broken?
-> 
-> nope. Only if they use the 16-bit PID stuff in SysV IPC semaphores and
-> message queues.
+Hi,
 
-libc5 is very much 16bit pid throughout. It would make sense that our
-default (proc settable) pid max is 30000 still so that it only breaks
-stuff if you increase it
+On Fri, 16 Aug 2002, Linus Torvalds wrote:
+>  - phase 2: IDE-TNG.
+
+Couldn't we give it another name? Such as LUI - Linux Unified IDE? 
+Whatever? TNG is too much mainstream and sounds just too clumsy...
+
+			Thunder
+-- 
+--./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
+--/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
+.- -/---/--/---/.-./.-./---/.--/.-.-.-
+--./.-/-.../.-./.././.-../.-.-.-
 

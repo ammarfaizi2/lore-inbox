@@ -1,86 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264942AbRGWXep>; Mon, 23 Jul 2001 19:34:45 -0400
+	id <S264976AbRGWXjF>; Mon, 23 Jul 2001 19:39:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264933AbRGWXef>; Mon, 23 Jul 2001 19:34:35 -0400
-Received: from flodhest.stud.ntnu.no ([129.241.56.24]:35231 "EHLO
-	flodhest.stud.ntnu.no") by vger.kernel.org with ESMTP
-	id <S264958AbRGWXeZ>; Mon, 23 Jul 2001 19:34:25 -0400
-Date: Tue, 24 Jul 2001 01:34:30 +0200
-From: =?iso-8859-1?Q?Thomas_Lang=E5s?= <tlan@stud.ntnu.no>
-To: linux-kernel@vger.kernel.org
-Subject: Oops when trying to reboot
-Message-ID: <20010724013430.A29741@flodhest.stud.ntnu.no>
-Reply-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	id <S265024AbRGWXi4>; Mon, 23 Jul 2001 19:38:56 -0400
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:49935 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S264976AbRGWXin>; Mon, 23 Jul 2001 19:38:43 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Gordon Lack <gmlack@freenet.co.uk>
+Date: Tue, 24 Jul 2001 09:38:37 +1000 (EST)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
+Message-ID: <15196.46461.777316.202665@notabene.cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: NFSv3 pathname problems in 2.4 kernels
+In-Reply-To: message from Gordon Lack on Monday July 23
+In-Reply-To: <3B5B32B2.B96E6BD3@freenet.co.uk>
+	<15195.35313.83387.515099@notabene.cse.unsw.edu.au>
+	<3B5CA338.890F9586@freenet.co.uk>
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hi!
+On Monday July 23, gmlack@freenet.co.uk wrote:
+> Neil Brown wrote:
+> > 
+> > This shouldn't be a problem for Solaris 2.6, but definately is for
+> > Irix.
+> 
+>    Well, there are many 2.6 systems and they all fail in the same aay
+> as Irix.  So does Solaris 2.7.  (2.8 seems to be Ok).
 
-I've compiled a 2.4.6 kernel (with aacraid-patches, and hidden-patch for
-lvs), and everytime I try to reboot a box with the kernel, it does an oops
-on me. I need to go and reset the damn box by hand afterwards.
+Odd indeed.  I use 2.6 systems and they seem fine.  I have only had
+the problem when using an old version of mountd.  What verion of
+nfs-utils are you using?
 
-This is the oops through ksymoops:
+> > Look in fs/nfsd/nfsfh.c, in fh_compose.
+> > If you change:
+> >         if (ref_fh &&
+> >             ref_fh->fh_handle.fh_version == 0xca &&
+> >             parent->d_inode->i_sb->s_op->dentry_to_fh == NULL) {
+> > to
+> >         if (parent->d_inode->i_sb->s_op->dentry_to_fh == NULL) {
+> > you will probably get what you want, for ext2 at least.
+> 
+>    Thanks, but this is for xfs (I didn't fancy fsck'ing a 470GB file
+> system!).  I suppose it's suck it and see....
 
-ksymoops 2.4.0 on i686 2.4.6.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.6/ (default)
-     -m /boot/System.map-2.4.6 (default)
+It should work for xfs, and infact everything but reiserfs as it is
+the only filesys that currently sets dentry_to_fh.
+However a better, more general solution would be to add a line:
 
-Warning: You did not tell me where to find symbol information.  I will
-assume that the log matches the kernel and modules that are running
-right now and I'll use the default options above for symbol resolution.
-If the current kernel and/or modules do not match the log, you can get
-more accurate output by telling me the kernel version and where to find
-map, modules, ksyms etc.  ksymoops -h explains the options.
+ if (fhp->fh_handle.fh_size < NFS_FHSIZE)
+     fhp->fh_handle.fh_size = NFS_FHSIZE;
 
-Warning (compare_maps): ksyms_base symbol
-__VERSIONED_SYMBOL(shmem_file_setup) not found in System.map.  Ignoring ksyms_base entry
-83c88804
-*pde = 00000000
-Oops: 0000
-CPU:     1
-EIP:     0010:[<83c88804>]
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS:  00010282
-eax: 000000000  ebx: f883eaa4  ecx: 000e1898  edx: 00000000
-esi: 000000000  edi: 00000001  ebp: bffffcb8  esp: f6be3e8c
-ds: 0018  es: 0018  ss: 0018
-Process reboot (pid: 1245, stackpage=f6be3000)
-Stack: c011d375 f883eaa4 00000001 00000000 f6be2000 f6be2000 fee1dead c011d701
-       c0307d44 00000001 00000000 f6dbf760 400f4ef0 00000000 f6c903d0 f6be3f3d
-       f6be3f2c f6be2000 c023daa9 00000292 f6e2b7e0 00000020 30687465 00000000
-Call trace: [<c011d375>] [<c011d701>] [<c023daa9>] [<c01f9357>] [<c0238f43>]
-[<c0148100>] [<c0146e3c>]
-       [<c0134257>] [<c0133114>] [<c013317b>] [<c0106ffb>]
-Code: Bad EIP value.
+just before the "return 0" in fh_update, and
 
->>EIP; 83c88804 Before first symbol   <=====
-Trace; c011d375 <notifier_call_chain+25/50>
-Trace; c011d701 <sys_reboot+f1/290>
-Trace; c023daa9 <vsprintf+349/380>
-Trace; c01f9357 <sk_free+37/40>
-Trace; c0238f43 <unx_marshal+83/140>
-Trace; c0148100 <destroy_inode+30/40>
-Trace; c0146e3c <dput+1c/160>
-Trace; c0134257 <fput+77/e0>
-Trace; c0133114 <filp_close+a4/b0>
-Trace; c013317b <sys_close+5b/70>
-Trace; c0106ffb <system_call+33/38>
+ if (inode && fhp->fh_handle.fh_size < NFS_FHSIZE)
+     fhp->fh_handle.fh_size = NFS_FHSIZE;
 
+before the "return 0" in fh_compose.
 
-2 warnings issued.  Results may not be reliable.
-
-
-Any ideas what's wrong?
-
--- 
-Thomas
+NeilBrown

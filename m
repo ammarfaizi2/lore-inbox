@@ -1,62 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286239AbRL0K7V>; Thu, 27 Dec 2001 05:59:21 -0500
+	id <S286243AbRL0LHb>; Thu, 27 Dec 2001 06:07:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286241AbRL0K7L>; Thu, 27 Dec 2001 05:59:11 -0500
-Received: from mail.gmx.net ([213.165.64.20]:41708 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S286239AbRL0K7A>;
-	Thu, 27 Dec 2001 05:59:00 -0500
-Message-ID: <3C2AFEED.9020700@gmx.at>
-Date: Thu, 27 Dec 2001 11:58:53 +0100
-From: Wilfried Weissmann <Wilfried.Weissmann@gmx.at>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:0.9.5) Gecko/20011023
-X-Accept-Language: de-at, de, en
-MIME-Version: 1.0
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Booting a modular kernel through a multiple streams file
-In-Reply-To: <200112232305.fBNN5vM19844@ns.caldera.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S286246AbRL0LHL>; Thu, 27 Dec 2001 06:07:11 -0500
+Received: from tsunami.iskon.hr ([213.191.128.22]:40197 "EHLO
+	tsunami.zg.iskon.hr") by vger.kernel.org with ESMTP
+	id <S286243AbRL0LHB>; Thu, 27 Dec 2001 06:07:01 -0500
+From: Igor Briski <igor.briski@iskon.hr>
+Date: Thu, 27 Dec 2001 12:06:59 +0100
+To: linux-kernel@vger.kernel.org
+Subject: ext3fs corruption problem?
+Message-ID: <20011227120659.O3081@tsunami.iskon.hr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcus Meissner wrote:
 
- > In article <E16I8zQ-0000d9-00@the-village.bc.nu> you wrote:
- >
- >>>Basically what Grub does is loads the kernel modules from disk
- >>>into memory, and 'tells' the kernel the memory location to load
- >>>them from, very similar to how an initrd file is loaded. The problem
- >>>is Linux, is not MBS compilant and doesn't know to look for and load
- >>>the modules.
- >>>
- >
- >>And vendors who've shipped GRUB still have to ship Lilo because Grub 
-plain
- >>doesn't work on some machines. Lilo has the virtue that its extremely 
-simple
- >>in what it does and how it does it. It works in a suprisingly large 
-number
- >>of cases and can handle interesting setups that GRUB really struggles 
-with.
- >>
- >
- > Apart that it moves the initrd somewhere unsafe on high memory machines
- > and some other odds ends we have fixed, I know of exactly 1 problem 
-with a
- > hw raid controller, which we did not come around to debug yet.
+I've noticed several files missing in last few days and this 
+also started happening:
+
+webmail1 [/space/cwmail/mail/n_z1/f6/jejka74_Pmail_Ixxx_Ixx/2] # ls -la
+total 32
+drwx--S---    2 www-data www-data     4096 Nov 25 22:47 .
+drwx--S---    5 www-data www-data     4096 Dec 26 14:48 ..
+-rw-r--r--    1 www-data www-data     1011 Nov 25 22:47 index.dat
+-rw-r--r--    1 www-data www-data 18446744069414584903 Nov 23 22:25 m_0.dat
+-rw-r--r--    1 www-data www-data      583 Nov 23 22:39 m_1.dat
+-rw-r--r--    1 www-data www-data      583 Nov 23 22:39 m_2.dat
+-rw-r--r--    1 www-data www-data      479 Nov 25 17:20 m_3.dat
+-rw-r--r--    1 www-data www-data      613 Nov 25 22:47 m_4.dat
+
+Details:
+
+webmail1 [~] # uname -a
+Linux webmail1.xxxxx.xx 2.4.16-pre1 #1 SMP Mon Nov 26 13:02:35 CET 2001 i686
+unknown
+
+webmail1 [~] # mount  
+/dev/sda2 on / type ext2 (rw,errors=remount-ro,errors=remount-ro)
+proc on /proc type proc (rw)
+devpts on /dev/pts type devpts (rw,gid=5,mode=620)
+/dev/sda3 on /home type ext2 (rw)
+/dev/sda4 on /space type ext3 (rw,data=journal)
+
+webmail1 [~] # uptime
+ 11:58am  up 3 days, 49 min,  1 user,  load average: 0.16, 0.24, 0.32
+
+webmail1 [~] # df
+Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/sda2              2885812    914012   1825208  33% /
+/dev/sda3              1921188    118712   1704884   7% /home
+/dev/sda4            135152264  76508056  57271136  57% /space
+
+(/dev/sda4 is a RAID-5 array with 5 disks, 36GB each on a ICP-VORTEX
+controller).
 
 
-I'm just wondering if you mean the (almost) RAID HPT370. You can fix
-this by avoiding the "embed" command, which overwrites the raid setup
-information. Just "dd" the file system module to a higher offset (e.g.
-16) and run grub's "install" command manually.
+And when mounted as ext2, the file stays the same:
 
-Wilfried
+webmail1 [/space/cwmail/mail/n_z1/f6/jejka74_Pmail_Ixxx_Ixx/2] # ls -la
+total 32
+drwx--S---    2 www-data www-data     4096 Nov 25 22:47 .
+drwx--S---    5 www-data www-data     4096 Dec 26 14:48 ..
+-rw-r--r--    1 www-data www-data     1011 Nov 25 22:47 index.dat
+-rw-r--r--    1 www-data www-data 18446744069414584903 Nov 23 22:25 m_0.dat
+-rw-r--r--    1 www-data www-data      583 Nov 23 22:39 m_1.dat
+-rw-r--r--    1 www-data www-data      583 Nov 23 22:39 m_2.dat
+-rw-r--r--    1 www-data www-data      479 Nov 25 17:20 m_3.dat
+-rw-r--r--    1 www-data www-data      613 Nov 25 22:47 m_4.dat
 
+I've successfully removed the file while mounted as ext2 (haven't tried it
+when the partition was mounted as ext3). 
 
 -- 
-Terorists crashed an airplane into the server room, have to remove
-/bin/laden. (rm -rf /bin/laden)
-
-
+        v
+Igor Briski - igor.briski@iskon.hr

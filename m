@@ -1,39 +1,56 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316364AbSFEUkm>; Wed, 5 Jun 2002 16:40:42 -0400
+	id <S316416AbSFEUmn>; Wed, 5 Jun 2002 16:42:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316390AbSFEUkm>; Wed, 5 Jun 2002 16:40:42 -0400
-Received: from ns.suse.de ([213.95.15.193]:7690 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S316364AbSFEUkk>;
-	Wed, 5 Jun 2002 16:40:40 -0400
-To: Benjamin LaHaise <bcrl@redhat.com>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [RFC] 4KB stack + irq stack for x86
-In-Reply-To: <20020604225539.F9111@redhat.com.suse.lists.linux.kernel> <Pine.LNX.4.44.0206050820100.2941-100000@home.transmeta.com.suse.lists.linux.kernel> <20020605144357.A4697@redhat.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 05 Jun 2002 22:40:39 +0200
-Message-ID: <p73vg8xcvco.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+	id <S316434AbSFEUmm>; Wed, 5 Jun 2002 16:42:42 -0400
+Received: from unet2-17.univie.ac.at ([131.130.232.17]:5504 "EHLO server.lan")
+	by vger.kernel.org with ESMTP id <S316416AbSFEUmk>;
+	Wed, 5 Jun 2002 16:42:40 -0400
+From: Melchior FRANZ <a8603365@unet.univie.ac.at>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [2.5.19/20] KDE panel (kicker) not starting up
+Date: Wed, 5 Jun 2002 22:41:12 +0200
+User-Agent: KMail/1.4.5
+In-Reply-To: <Pine.LNX.4.33.0206032033030.569-100000@devel.blackstar.nl>
+X-PGP: http://www.unet.univie.ac.at/~a8603365/melchior.franz
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+Message-Id: <200206052241.12604@pflug3.gphy.univie.ac.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin LaHaise <bcrl@redhat.com> writes:
-
-> On Wed, Jun 05, 2002 at 08:33:13AM -0700, Linus Torvalds wrote:
-> > So, as far as I can tell, we now get a nasty aliasing issue on
-> > "current_thread_info()->flags", and information like NEED_RESCHED and
-> > SIGPENDING end up being set in the wrong place. They get set on the
-> > _interrupt_ thread_info, not the "process native" thread_info.
+* bvermeul@devel.blackstar.nl -- Tuesday 04 June 2002 07:14:20:
+> * On Mon, 3 Jun 2002, Adam Trilling wrote:
+> > Make sure you have read and write perms on your home directory.  I had
+> > that happen due to a misplaced chown -R once.
 > > 
-> > Or did I miss some subtlety?
+> > This is not a kernel question, however, and probably shouldn't be on this
+> > list.
 > 
-> Ah, you're right.  If anyone uses current_thread_info from IRQ context 
-> it will set the flags in the wrong structure.  However, it actually 
-> works because nobody does that currently: all of the _thread_flag users 
+> Everythink works using 2.5.17. So I think this *is* a kernel question.
 
-preemptive kernels do use current_thread_info() for every spinlock.
-this required me to change its implementation on x86-64 from stack
-arithmetic to access the base register. 
+I don't have the slightest doubt that it is a kernel bug: I observed the
+same with the /dev/hdc device (the CDROM). Playing Audio-CD's doesn't work
+since 2.5.19. It worked for years now with the same permissions, and giving
+more liberal rights doesn't help either. It always returns with EACCES!
 
--Andi
+  open("/dev/cdrom", O_RDONLY|O_NONBLOCK) = 3
+  ioctl(3, CDROMVOLREAD, 0xbffff1f8)      = -1 EACCES (Permission denied)
+  ioctl(3, CDROMSUBCHNL, 0xbffff1fc)      = -1 EACCES (Permission denied)
+
+It works, however, for root! Could this be some broken capability
+settings? 
+
+m.
+
+
+
+PS: Sorry if this message creates a new thread. I'm not subscribed to
+    the list and read it via usenet-mirror.
+
+
+
+
 

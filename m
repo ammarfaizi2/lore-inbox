@@ -1,41 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265787AbUF2Psm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265789AbUF2QBA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265787AbUF2Psm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jun 2004 11:48:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265789AbUF2Psm
+	id S265789AbUF2QBA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jun 2004 12:01:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265792AbUF2QBA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jun 2004 11:48:42 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:51724 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S265787AbUF2Psl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jun 2004 11:48:41 -0400
-Date: Tue, 29 Jun 2004 16:48:32 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Andrey Ulanov <Andrey.Ulanov@acronis.com>
+	Tue, 29 Jun 2004 12:01:00 -0400
+Received: from mproxy.gmail.com ([216.239.56.253]:1402 "HELO mproxy.gmail.com")
+	by vger.kernel.org with SMTP id S265789AbUF2QA7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jun 2004 12:00:59 -0400
+Message-ID: <8783be66040629090027010876@mail.gmail.com>
+Date: Tue, 29 Jun 2004 09:00:36 -0700
+From: Ross Biro <ross.biro@gmail.com>
+To: David Ashley <dash@xdr.com>
+Subject: Re: Cached memory never gets released
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] PCMCIA bug fix
-Message-ID: <20040629164832.C24951@flint.arm.linux.org.uk>
-Mail-Followup-To: Andrey Ulanov <Andrey.Ulanov@acronis.com>,
-	linux-kernel@vger.kernel.org
-References: <20040629153809.GA6531@dhcp6-7.acronis.ru>
+In-Reply-To: <200406291507.i5TF7NIJ027740@xdr.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040629153809.GA6531@dhcp6-7.acronis.ru>; from Andrey.Ulanov@acronis.com on Tue, Jun 29, 2004 at 07:38:09PM +0400
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <200406291507.i5TF7NIJ027740@xdr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 29, 2004 at 07:38:09PM +0400, Andrey Ulanov wrote:
-> I tested with one of ieee1394+usb2.0 PCMCIA adapters. Worked fine.
-> Without this patch only first device (ieee1394 controller) was
-> detected.
+First it's absolutely normal for cache to fill up all available
+memory.  What's not normal is to not free unused cache when memory is
+needed.
 
-Can you provide the lspci output, and a better description of the
-problem you're trying to solve please?
+My best guess is that this isn't a kernel problem, but a bug in flash
+and all that memory really is used.  The next step I would do is go
+through all of the processes and see how much memory they are all
+using.  For example has flashed been mapping files into memory and not
+closing them or freeing the memory?
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+The first thing I would do is run top on a system that you think is
+near dying and sort the processes by memory usage.  If you find a
+process using lots of memory, that is your culprit.  In any case,
+attach the output of ps auxw from a system that is out of memory.

@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310159AbSCEThH>; Tue, 5 Mar 2002 14:37:07 -0500
+	id <S310166AbSCETih>; Tue, 5 Mar 2002 14:38:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310166AbSCETg6>; Tue, 5 Mar 2002 14:36:58 -0500
-Received: from ns.suse.de ([213.95.15.193]:40972 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S310159AbSCETgy>;
-	Tue, 5 Mar 2002 14:36:54 -0500
-Date: Tue, 5 Mar 2002 20:36:52 +0100
-From: Dave Jones <davej@suse.de>
-To: Kamlesh Bans <kbans@corsair.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.5 3c505.c redefine of netdev_ethtool_ioctl and netdev_ioctl
-Message-ID: <20020305203652.D4492@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Kamlesh Bans <kbans@corsair.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <4.3.2.7.2.20020305112638.03394630@pop3.ir.corsair.com>
+	id <S310170AbSCETi2>; Tue, 5 Mar 2002 14:38:28 -0500
+Received: from [198.16.16.39] ([198.16.16.39]:52938 "EHLO carthage")
+	by vger.kernel.org with ESMTP id <S310166AbSCETiQ>;
+	Tue, 5 Mar 2002 14:38:16 -0500
+Date: Tue, 5 Mar 2002 13:33:17 -0600
+From: James Curbo <jcurbo@acm.org>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Re: a couple of USB related Oopses
+Message-ID: <20020305193317.GA5339@carthage>
+Reply-To: James Curbo <jcurbo@acm.org>
+In-Reply-To: <20020305184604.GA4590@carthage> <20020305192307.GB10151@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <4.3.2.7.2.20020305112638.03394630@pop3.ir.corsair.com>; from kbans@corsair.com on Tue, Mar 05, 2002 at 11:32:32AM -0800
+In-Reply-To: <20020305192307.GB10151@kroah.com>
+User-Agent: Mutt/1.3.27i
+X-Operating-System: Debian GNU/Linux
+Organization: Henderson State University, Arkadelphia, AR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 05, 2002 at 11:32:32AM -0800, Kamlesh Bans wrote:
- > 3c505.c:1362: redefinition of `netdev_ethtool_ioctl'
- > 3c505.c:1172: `netdev_ethtool_ioctl' previously defined here
- > 3c505.c:1417: redefinition of `netdev_ioctl'
- > 3c505.c:1227: `netdev_ioctl' previously defined here
- > The module was able to compile with the second occurrences of the two 
- > functions removed.
+On Mar 05, Greg KH wrote:
+> Can you reproduce these with the 2.4.6-pre2 kernel?
+> 
+> thanks,
+> 
+> greg k-h
 
- That is the correct fix.
+I presume you mean 2.5.6-pre2, as 2.4 is way past that.. I will try it
+tonight after I get in from work...
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+James Curbo <jcurbo@acm.org> <jc108788@rc.hsu.edu>
+Undergraduate Computer Science, Henderson State University
+PGP Keys at <http://reddie.henderson.edu/~curboj/>
+Public Keys: PGP - 1024/0x76E2061B GNUPG - 1024D/0x3EEA7288

@@ -1,175 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318661AbSICEA3>; Tue, 3 Sep 2002 00:00:29 -0400
+	id <S318711AbSICFEz>; Tue, 3 Sep 2002 01:04:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318691AbSICEA3>; Tue, 3 Sep 2002 00:00:29 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27911 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318661AbSICEA1>;
-	Tue, 3 Sep 2002 00:00:27 -0400
-Message-ID: <3D7437AC.74EAE22B@zip.com.au>
-Date: Mon, 02 Sep 2002 21:16:44 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.33 i686)
-X-Accept-Language: en
+	id <S318710AbSICFEz>; Tue, 3 Sep 2002 01:04:55 -0400
+Received: from meter.eng.uci.edu ([128.200.85.3]:57312 "EHLO meter.eng.uci.edu")
+	by vger.kernel.org with ESMTP id <S318709AbSICFEx>;
+	Tue, 3 Sep 2002 01:04:53 -0400
+From: "Jordi Ros" <jros@ece.uci.edu>
+To: "Feldman, Scott" <scott.feldman@intel.com>, <linux-kernel@vger.kernel.org>,
+       "linux-net" <linux-net@vger.kernel.org>,
+       "'Dave Hansen'" <haveblue@us.ibm.com>, <Manand@us.ibm.com>
+Cc: <kuznet@ms2.inr.ac.ru>, "'David S. Miller'" <davem@redhat.com>,
+       "Leech, Christopher" <christopher.leech@intel.com>
+Subject: RE: TCP Segmentation Offloading (TSO)
+Date: Mon, 2 Sep 2002 21:58:32 -0700
+Message-ID: <JCEFIMMPGNNGFPMJJKINGEMHCDAA.jros@ece.uci.edu>
 MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>,
-       "linux-mm@kvack.org" <linux-mm@kvack.org>
-Subject: 2.5.33-mm1
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+In-Reply-To: <288F9BF66CD9D5118DF400508B68C4460283E564@orsmsx113.jf.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.33/2.5.33-mm1/
+One question regarding the throughput numbers,
+
+what was the size of the packets built at the tcp layer (mss)?
+
+i assume the mtu is ethernet 1500 Bytes, right? and that mss should be
+something much bigger than mtu, which gives the performance improvement
+shown in the numbers.
+
+thanks,
+
+jordi
+
+-----Original Message-----
+From: linux-net-owner@vger.kernel.org
+[mailto:linux-net-owner@vger.kernel.org]On Behalf Of Feldman, Scott
+Sent: Monday, September 02, 2002 10:45 AM
+To: linux-kernel@vger.kernel.org; linux-net; 'Dave Hansen';
+'Manand@us.ibm.com'
+Cc: kuznet@ms2.inr.ac.ru; 'David S. Miller'; Leech, Christopher
+Subject: TCP Segmentation Offloading (TSO)
 
 
-Seven new patches - mostly just code cleanups.
+TCP Segmentation Offloading (TSO) is enabled[1] in 2.5.33, along with an
+enabled e1000 driver.  Other capable devices can be enabled ala e1000; the
+driver interface (NETIF_F_TSO) is very simple.
 
-+slablru-speedup.patch
+So, fire up you favorite networking performance tool and compare the
+performance gains between 2.5.32 and 2.5.33 using e1000.  I ran a quick test
+on a dual P4 workstation system using the commercial tool Chariot:
 
-  A patch to improve slablru cpu efficiency.  Ed is
-  redoing this.
+Tx/Rx TCP file send long (bi-directional Rx/Tx)
+  w/o TSO: 1500Mbps, 82% CPU
+  w/  TSO: 1633Mbps, 75% CPU
 
-+oom-fix.patch
+Tx TCP file send long (Tx only)
+  w/o TSO: 940Mbps, 40% CPU
+  w/  TSO: 940Mbps, 19% CPU
 
-  Fix an OOM-killing episode on large highmem machines.
+A good bump in throughput for the bi-directional test.  The Tx-only test was
+already at wire speed, so the gains are pure CPU savings.
 
-+tlb-cleanup.patch
+I'd like to see SPECWeb results w/ and w/o TSO, and any other relevant
+testing.  UDP framentation is not offloaded, so keep testing to TCP.
 
-  Remove debug code from the tlb_gather rework, tidy up a couple of
-  things.
+-scott
 
-+dump-stack.patch
-
-  Arch-independent stack-dumping debug function
-
-+madvise-move.patch
-
-  Move the madvise implementation out of filemap.c into madvise.c
-
-+split-vma.patch
-
-  Rationalise lots of the VMA-manipulation code.
-
-+buffer-ops-move.patch
-
-  Move the buffer_head IO functions out of ll_rw_blk.c, into buffer.c
-
-
+[1] Kudos to Alexey Kuznetsov for enabling the stack with TSO support, to
+Chris Leech for providing the e1000 bits and a prototype stack, and to David
+Miller for consultation.
+-
+To unsubscribe from this list: send the line "unsubscribe linux-net" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
 
-scsi_hack.patch
-  Fix block-highmem for scsi
 
-ext3-htree.patch
-  Indexed directories for ext3
-
-rmap-locking-move.patch
-  move rmap locking inlines into their own header file.
-
-discontig-paddr_to_pfn.patch
-  Convert page pointers into pfns for i386 NUMA
-
-discontig-setup_arch.patch
-  Rework setup_arch() for i386 NUMA
-
-discontig-mem_init.patch
-  Restructure mem_init for i386 NUMA
-
-discontig-i386-numa.patch
-  discontigmem support for i386 NUMA
-
-cleanup-mem_map-1.patch
-  Clean up lots of open-coded uese of mem_map[].  For ia32 NUMA
-
-zone-pages-reporting.patch
-  Fix the boot-time reporting of each zone's available pages
-
-enospc-recovery-fix.patch
-  Fix the __block_write_full_page() error path.
-
-fix-faults.patch
-  Back out the initial work for atomic copy_*_user()
-
-spin-lock-check.patch
-  spinlock/rwlock checking infrastructure
-
-refill-rate.patch
-  refill the inactive list more quickly
-
-copy_user_atomic.patch
-
-kmap_atomic_reads.patch
-  Use kmap_atomic() for generic_file_read()
-
-kmap_atomic_writes.patch
-  Use kmap_atomic() for generic_file_write()
-
-throttling-fix.patch
-  Fix throttling of heavy write()rs.
-
-dirty-state-accounting.patch
-  Make the global dirty memory accounting more accurate
-
-rd-cleanup.patch
-  Cleanup and fix the ramdisk driver (doesn't work right yet)
-
-discontig-cleanup-1.patch
-  i386 discontigmem coding cleanups
-
-discontig-cleanup-2.patch
-  i386 discontigmem cleanups
-
-writeback-thresholds.patch
-  Downward adjustments to the default dirtymemory thresholds
-
-buffer-strip.patch
-  Limit the consumption of ZONE_NORMAL by buffer_heads
-
-rmap-speedup.patch
-  rmap pte_chain space and CPU reductions
-
-wli-highpte.patch
-  Resurrect CONFIG_HIGHPTE - ia32 pagetables in highmem
-
-readv-writev.patch
-  O_DIRECT support for readv/writev
-
-slablru.patch
-  age slab pages on the LRU
-
-slablru-speedup.patch
-  slablru optimisations
-
-llzpr.patch
-  Reduce scheduling latency across zap_page_range
-
-buffermem.patch
-  Resurrect buffermem accounting
-
-config-PAGE_OFFSET.patch
-  Configurable kenrel/user memory split
-
-lpp.patch
-  ia32 huge tlb pages
-
-ext3-sb.patch
-  u.ext3_sb -> generic_sbp
-
-oom-fix.patch
-  Fix an OOM condition on big highmem machines
-
-tlb-cleanup.patch
-  Clean up the tlb gather code
-
-dump-stack.patch
-  arch-neutral dump_stack() function
-
-madvise-move.patch
-  move mdavise implementation into mm/madvise.c
-
-split-vma.patch
-  VMA splitting patch
-
-buffer-ops-move.patch
-  Move submit_bh() and ll_rw_block() into fs/buffer.c

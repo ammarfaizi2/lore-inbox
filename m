@@ -1,52 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262008AbULHCKn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262012AbULHCOT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262008AbULHCKn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Dec 2004 21:10:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262002AbULHCHe
+	id S262012AbULHCOT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Dec 2004 21:14:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262007AbULHCLc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Dec 2004 21:07:34 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:13772 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262007AbULHCDA (ORCPT
+	Tue, 7 Dec 2004 21:11:32 -0500
+Received: from fw.osdl.org ([65.172.181.6]:34788 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262009AbULHCJA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Dec 2004 21:03:00 -0500
-Subject: Re: [RFC] new timeofday timesources (v.A1)
-From: john stultz <johnstul@us.ibm.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: tim@physik3.uni-rostock.de, george anzinger <george@mvista.com>,
-       albert@users.sourceforge.net, Ulrich.Windl@rz.uni-regensburg.de,
-       clameter@sgi.com, Len Brown <len.brown@intel.com>,
-       linux@dominikbrodowski.de, David Mosberger <davidm@hpl.hp.com>,
-       Andi Kleen <ak@suse.de>, paulus@samba.org, schwidefsky@de.ibm.com,
-       keith maanthey <kmannth@us.ibm.com>, greg kh <greg@kroah.com>,
-       Patricia Gaughen <gone@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
-       Max <amax@us.ibm.com>, mahuja@us.ibm.com
-In-Reply-To: <1102471123.1281.34.camel@cog.beaverton.ibm.com>
-References: <1102470914.1281.27.camel@cog.beaverton.ibm.com>
-	 <1102470997.1281.30.camel@cog.beaverton.ibm.com>
-	 <1102471064.1281.32.camel@cog.beaverton.ibm.com>
-	 <1102471123.1281.34.camel@cog.beaverton.ibm.com>
-Content-Type: text/plain
-Message-Id: <1102471376.1281.37.camel@cog.beaverton.ibm.com>
+	Tue, 7 Dec 2004 21:09:00 -0500
+Date: Tue, 7 Dec 2004 18:08:44 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: andrea@suse.de, nickpiggin@yahoo.com.au, axboe@suse.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: Time sliced CFQ io scheduler
+Message-Id: <20041207180844.0fa92601.akpm@osdl.org>
+In-Reply-To: <20041207180033.6699425b.akpm@osdl.org>
+References: <20041202130457.GC10458@suse.de>
+	<20041202134801.GE10458@suse.de>
+	<20041202114836.6b2e8d3f.akpm@osdl.org>
+	<20041202195232.GA26695@suse.de>
+	<20041208003736.GD16322@dualathlon.random>
+	<1102467253.8095.10.camel@npiggin-nld.site>
+	<20041208013732.GF16322@dualathlon.random>
+	<20041207180033.6699425b.akpm@osdl.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Tue, 07 Dec 2004 18:02:56 -0800
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-12-07 at 17:58, john stultz wrote:
-> All,
-> 	This patch implements most of the time sources for i386 and x86-64
-> (tsc, pit, cyclone, acpi-pm and hpet). It applies on top of my
-> linux-2.6.10-rc3_timeofday-arch_A1 patch. It provides real timesources
-> (opposed to the example jiffies timesource) that can be used for more
-> realistic testing.
+Andrew Morton <akpm@osdl.org> wrote:
+>
+> If a distro is
+>  always selecting CFQ then they've probably gone and deoptimised all their
+>  IDE users.  
 
-Ack. That last one got sent using the wrong from address. 
-
-Please reply via johnstul@us.ibm.com.
-
-sorry,
--john
-
+That being said, yeah, once we get the time-sliced-CFQ happening, it should
+probably be made the default, at least until AS gets fixed up.  We need to
+run the numbers and settle on that.
 

@@ -1,39 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266217AbUGTU0K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266218AbUGTUdx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266217AbUGTU0K (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jul 2004 16:26:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266153AbUGTU0K
+	id S266218AbUGTUdx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jul 2004 16:33:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266219AbUGTUdx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jul 2004 16:26:10 -0400
-Received: from main.gmane.org ([80.91.224.249]:21689 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S266217AbUGTU0F (ORCPT
+	Tue, 20 Jul 2004 16:33:53 -0400
+Received: from [63.168.173.14] ([63.168.173.14]:18899 "EHLO hermes.rx30.com")
+	by vger.kernel.org with ESMTP id S266218AbUGTUdw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jul 2004 16:26:05 -0400
-X-Injected-Via-Gmane: http://gmane.org/
+	Tue, 20 Jul 2004 16:33:52 -0400
+Message-ID: <40FD81C8.4030707@rx30.com>
+Date: Tue, 20 Jul 2004 16:34:16 -0400
+From: plauda@rx30.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030716
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
-Subject: Re: [off-topic] Patrick K. a new list subscriber
-Date: Tue, 20 Jul 2004 22:26:02 +0200
-Message-ID: <yw1x3c3mifxh.fsf@kth.se>
-References: <40FC751C.5090306@devilcode.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 161.80-203-29.nextgentel.com
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-Cancel-Lock: sha1:aFiNktSH/aDQsz75yQWo7u9eME4=
+Subject: question re: kernel panic dumps
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick Kiwitter - Mailinglist <ccc@devilcode.de> writes:
+I've read that there is a set of utilities and method for grabbing a 
+dump image. I looked at lkcd which is supposed to be avaialable at 
+sourceforge. When I try to find the src.rpm or the binary rpm I keep 
+going around in a circle and can't get the packages. Can anyone 
+recommend a place to grab this or any other way to get a panic dump that 
+I can look at in a post mortem?
 
-> printf("hallo world\n");
+Thanks for any suggestions... I looked in all the usual places but all I 
+get are references to lkcd and hence the questions.
 
-That should be printk()...
-
--- 
-Måns Rullgård
-mru@kth.se
+--p
 

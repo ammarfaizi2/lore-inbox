@@ -1,54 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270814AbRIFNxT>; Thu, 6 Sep 2001 09:53:19 -0400
+	id <S270818AbRIFN6s>; Thu, 6 Sep 2001 09:58:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270818AbRIFNxJ>; Thu, 6 Sep 2001 09:53:09 -0400
-Received: from mail2.aracnet.com ([216.99.193.35]:9480 "EHLO mail2.aracnet.com")
-	by vger.kernel.org with ESMTP id <S270814AbRIFNxC>;
-	Thu, 6 Sep 2001 09:53:02 -0400
-From: "M. Edward Borasky" <znmeb@aracnet.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: RE: page_launder() on 2.4.9/10 issue
-Date: Thu, 6 Sep 2001 06:54:14 -0700
-Message-ID: <HBEHIIBBKKNOBLMPKCBBOEMFDKAA.znmeb@aracnet.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <592148204.999786238@[10.132.112.53]>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
+	id <S270823AbRIFN6i>; Thu, 6 Sep 2001 09:58:38 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:43372 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S270818AbRIFN6g>; Thu, 6 Sep 2001 09:58:36 -0400
+Date: Thu, 6 Sep 2001 15:59:22 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org, rohit.seth@intel.com
+Subject: Re: kiobuf wrong changes in 2.4.9ac9
+Message-ID: <20010906155921.F11329@athlon.random>
+In-Reply-To: <20010906030228.C11329@athlon.random> <E15eyI5-00080I-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E15eyI5-00080I-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Sep 06, 2001 at 01:29:53PM +0100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm relatively new to the Linux kernel world and even newer to the list, so
-forgive me if I'm asking a silly question or making a silly comment. It
-seems to me, from what I've seen of this discussion so far, that the only
-way one "tunes" Linux kernels at the moment is by changing code and
-rebuilding the kernel. That is, there are few "tunables" that one can set,
-based on one's circumstances, to optimize kernel performance for a specific
-application or environment.
+On Thu, Sep 06, 2001 at 01:29:53PM +0100, Alan Cox wrote:
+> > The above is all about performance and design, about real world
+> > showstopper the one in 2.4.9ac9 is that kiobuf allocations are going to
+> > fail during read/writes due mem framentation (this is why it was using
+> > vmalloc indeed) [those faliures should be easily reprocible on x86 boxes
+> 
+> Vmalloc is extremely expensive on many platforms. It looks very easy to
+> simple flip between slab and vmalloc based on size.
 
-Every other operating system that I've done performance tuning on, starting
-with Xerox CP-V in 1974, had such tunables and tools to set them. And quite
-often, some of the tuning parameters can be set "on the fly", simply by
-knowing the correct memory location to set and poking a new value into it.
-No one "memory management scheme", for example, can be all things to all
-tasks, and it seems to me that giving users tools to measure and control the
-behavior of memory management, *preferably without having to recompile and
-reboot*, should be a major priority if Linux is to succeed in a wide variety
-of applications.
+based on size in turn means based on source because the kiobuf has a
+fixed size. This is why I'm saying it has to be vmalloced in these
+kernel trees until we shrink it and the plan to shrink it is first of
+all to split the io backend out of the memory management part.
 
-OK, I'll get off my soapbox now, and ask a related question. Is there a
-mathematical model of the Linux kernel somewhere that I could get my hands
-on?
---
-M. Edward (Ed) Borasky, Chief Scientist, Borasky Research
-http://www.borasky-research.net  http://www.aracnet.com/~znmeb
-mailto:znmeb@borasky-research.com  mailto:znmeb@aracnet.com
+> Let me know how the testing goes - if it works out well then I'll migrate
+> the -ac tree to the -aa patch when I have time to do the merging
 
-Stand-Up Comedy: Because Man Does Not Live By Dread Alone
+btw, I actually don't have the workload here (my software simulations says
+it works but it's not exactly the same workload, the workload I
+simulated to test it is pure simultaneous rawio I/O load to the same
+rawio device via different filp) so I'd like to know too ;)
 
+Andrea

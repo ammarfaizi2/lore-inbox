@@ -1,102 +1,127 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262164AbTLLXJN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 18:09:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262228AbTLLXJN
+	id S261464AbTLLX0P (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 18:26:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261552AbTLLX0P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 18:09:13 -0500
-Received: from mail.gmx.de ([213.165.64.20]:7352 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262164AbTLLXJG (ORCPT
+	Fri, 12 Dec 2003 18:26:15 -0500
+Received: from mail.kroah.org ([65.200.24.183]:4273 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261464AbTLLX0J (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 18:09:06 -0500
-Date: Sat, 13 Dec 2003 00:09:05 +0100 (MET)
-From: "Svetoslav Slavtchev" <svetljo@gmx.de>
-To: William Park <opengeometry@yahoo.ca>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-References: <20031212224520.GA1082@node1.opengeometry.net>
-Subject: Re: Multiple keyboard/monitor vs linux-2.6?
-X-Priority: 3 (Normal)
-X-Authenticated: #20183004
-Message-ID: <2641.1071270545@www59.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+	Fri, 12 Dec 2003 18:26:09 -0500
+Date: Fri, 12 Dec 2003 15:25:21 -0800
+From: Greg KH <greg@kroah.com>
+To: marcelo.tosatti@cyclades.com
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [BK PATCH] USB fixes for 2.4.24-pre1
+Message-ID: <20031212232521.GA21789@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Fri, Dec 12, 2003 at 11:27:48PM +0100, Svetoslav Slavtchev wrote:
-> > Hi,
-> > 
-> > it does work, and you even can have multiple 
-> > virtual consoles, and even on a single dual headed
-> > Matrox G4xx/G550 although there are still some 
-> > small/big :-)  issues 
-> > 
-> > may i ask what do you mean by that :
-> > 
-> > ----
-> >  Even though the HOWTO is more for Backstreet Ruby, 
-> >  I couldn't make head or tail of it.
-> >  ^^^^^^^^^^^^^^^^^^^^^^^^
-> > ----
-> > 
-> > asking cause i wrote the howto,
-> > and i hardly get feedback
-> > 
-> > the one thing i know is, that it's simply too big ,
-> > but i tried to cover everything and there is no other way :(
-> > 
-> > best,
-> > 
-> > svetljo
-> 
-> 
-> For kernel-2.6.x, Ruby would be the only option.  
+Hi,
 
-not really, there was a ? one liner ? fix
-to make the kernel ignore usb keyboards
-so you can still use Miguel's solution
+Here are some USB bugfixes and changes against 2.4.24-pre1.  There is
+one new driver (w9968cf) and a nice update of the usb printer driver.
+Everything else is small updates that are present in 2.6 (or in the
+patch queue for 2.6 acceptance.)
 
->So, I'll eventually
-> get my teeth into it.  But, I don't want to modify both kernel and X,
-> especially kernel.  If X doesn't work, I can use the old X.  But, if
-> kernel doesn't work, then I have to reboot.
+Please pull from:  bk://linuxusb.bkbits.net/usb-devel-2.4
 
-if you just want muliple X users bruby/ ruby should work as stable as 2.4
-/2.6 
-(works at least for 20-25 people i helped, reading the howto and getting it
-up),
+The individual patches will be sent in follow up messages to this email
+to you and the linux-usb-devel mailing list.
 
-but if you want multiple virtual terminals, you'll have to experiment :-)
-and read a lot the linuxconsole ml, as it's not yet documented 
+thanks,
 
-i really don't see what's the problem with installing XFree, 
-it's just another 2mb binary, and it has better stability for most 
-video cards, there are some that don't need it, so
-it's up to you to decide " go for the stable solution or experiment"
-
-> > 
-> > 
-> > PS.
-> > 
-> > please CC me as i'm not subscribed to lkml
-> 
-> If you're not subscribed, how did you post to the mailing-list?
-> 
-
-just send a mail to linux-kernel (at) vger.kernel.org,
-you don't have to be subscribed to post to lkml
-/* thanks god */
-
-best,
-
-svetljo
+greg k-h
 
 
--- 
-+++ GMX - die erste Adresse für Mail, Message, More +++
-Neu: Preissenkung für MMS und FreeMMS! http://www.gmx.net
+ CREDITS                            |    6 
+ Documentation/Configure.help       |   15 
+ Documentation/usb/w9968cf.txt      |  158 +++----
+ MAINTAINERS                        |   10 
+ drivers/usb/pegasus.c              |    5 
+ drivers/usb/pegasus.h              |    8 
+ drivers/usb/printer.c              |  285 +++++++++----
+ drivers/usb/scanner.c              |    4 
+ drivers/usb/scanner.h              |   17 
+ drivers/usb/serial/ftdi_sio.c      |   12 
+ drivers/usb/serial/ftdi_sio.h      |    8 
+ drivers/usb/serial/io_edgeport.c   |   12 
+ drivers/usb/serial/io_fw_boot.h    |    2 
+ drivers/usb/serial/io_fw_boot2.h   |    2 
+ drivers/usb/serial/io_fw_down.h    |    2 
+ drivers/usb/serial/io_fw_down2.h   |    2 
+ drivers/usb/serial/mct_u232.c      |   37 +
+ drivers/usb/serial/mct_u232.h      |  101 +++-
+ drivers/usb/serial/pl2303.c        |   44 ++
+ drivers/usb/serial/pl2303.h        |    1 
+ drivers/usb/serial/visor.c         |    2 
+ drivers/usb/serial/visor.h         |    1 
+ drivers/usb/storage/unusual_devs.h |   91 +++-
+ drivers/usb/w9968cf.c              |  782 ++++++++++++++++++-------------------
+ drivers/usb/w9968cf.h              |   66 +--
+ drivers/usb/w9968cf_decoder.h      |    2 
+ drivers/usb/w9968cf_externaldef.h  |   13 
+ 27 files changed, 1024 insertions(+), 664 deletions(-)
+-----
 
+<alexander:all-2.com>:
+  o USB storage: patch for unusual_devs.h
+
+<berentsen:sent5.uni-duisburg.de>:
+  o USB storage: Minolta Dimage S414 usb patch
+
+<dancy:dancysoft.com>:
+  o USB: add TIOCMIWAIT support to pl2303 driver
+
+<fello:libero.it>:
+  o USB storage: patch for Fujifilm EX-20
+
+<luca.risolia:studio.unibo.it>:
+  o USB: W996[87]CF driver update
+
+<marr:flex.com>:
+  o USB: MCT-U232 Patch for cts
+
+<mbp:samba.org>:
+  o USB storage: add unusual storage device entry for Minolta DiMAGE
+
+<per.winkvist:uk.com>:
+  o USB storage: Make Pentax Optio S4 work
+
+<petkan:nucleusys.com>:
+  o USB: pegasus driver update
+
+<stephane.galles:free.fr>:
+  o USB storage: patch for Kyocera S5 camera
+
+<tchen:on-go.com>:
+  o USB: fix io_edgeport driver alignment issues
+  o USB: fix bug when errors happen in ioedgeport driver
+
+<_nessuno_:katamail.com>:
+  o USB storage: Medion 6047 Digital Camera
+
+Alan Stern:
+  o USB storage: Unusual_devs.h addition
+  o USB storage: Another unusual_devs.h update
+  o USB storage: unusual_devs.h entry revision
+
+Greg Kroah-Hartman:
+  o USB: add support for Sony UX50 device to visor driver
+  o USB: add support for another pl2303 device
+  o USB: add support for Protego devices to ftdi_sio driver
+
+Henning Meier-Geinitz:
+  o USB: scanner driver: new device ids
+
+Herbert Xu:
+  o USB Storage: freecom dvd-rw fx-50 usb-ide patch
+
+Pete Zaitcev:
+  o USB: Backport of printer 2.6=>2.4
 

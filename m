@@ -1,79 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261425AbVBVTgW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261427AbVBVTjq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261425AbVBVTgW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 14:36:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261453AbVBVTgW
+	id S261427AbVBVTjq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 14:39:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261482AbVBVTjp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 14:36:22 -0500
-Received: from fire.osdl.org ([65.172.181.4]:19344 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261425AbVBVTgK (ORCPT
+	Tue, 22 Feb 2005 14:39:45 -0500
+Received: from rproxy.gmail.com ([64.233.170.195]:51317 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261427AbVBVTix (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 14:36:10 -0500
-Date: Tue, 22 Feb 2005 11:36:35 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Olof Johansson <olof@austin.ibm.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, jamie@shareable.org,
-       rusty@rustcorp.com.au, David Howells <dhowells@redhat.com>
-Subject: Re: [PATCH/RFC] Futex mmap_sem deadlock
-In-Reply-To: <20050222190646.GA7079@austin.ibm.com>
-Message-ID: <Pine.LNX.4.58.0502221123540.2378@ppc970.osdl.org>
-References: <20050222190646.GA7079@austin.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 22 Feb 2005 14:38:53 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=pf+yVIDF/Mb+cFugXwx8IG0T0s1Y8jAZeP6tcFlvJDkMGwAo3ndMtfdFdh7ZPnFWZCTcxFBFk6RI7DBi+dY5+jS6ToJoKJIA5dLlw3BrgOnYuaNToct9qNuBrFGQVkA1UyrQy/BM8ksYIHOhor3Piu4trk22G7aQksw7YHCUuBs=
+Message-ID: <d120d50005022211384a83726d@mail.gmail.com>
+Date: Tue, 22 Feb 2005 14:38:48 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: POSTing of video cards (WAS: Solo Xgl..)
+Cc: Jon Smirl <jonsmirl@gmail.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Dave Airlie <airlied@linux.ie>, dri-devel@lists.sourceforge.net,
+       xorg@lists.freedesktop.org,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0502221111410.2378@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <Pine.LNX.4.58.0502201049480.18753@skynet>
+	 <21d7e997050220150030ea5a68@mail.gmail.com>
+	 <9e4733910502201542afb35f7@mail.gmail.com>
+	 <1108973275.5326.8.camel@gaston>
+	 <9e47339105022111082b2023c2@mail.gmail.com>
+	 <1109019855.5327.28.camel@gaston>
+	 <9e4733910502211717116a4df3@mail.gmail.com>
+	 <1109041968.5412.63.camel@gaston>
+	 <9e473391050221204215a079e1@mail.gmail.com>
+	 <Pine.LNX.4.58.0502221111410.2378@ppc970.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 22 Feb 2005, Olof Johansson wrote:
+On Tue, 22 Feb 2005 11:19:10 -0800 (PST), Linus Torvalds
+<torvalds@osdl.org> wrote:
 > 
-> Consider a small testcase that spawns off two threads, either thread
-> doing a loop of:
 > 
-> 	buf = mmap /dev/zero MAP_SHARED for 0x100000 bytes
-> 	call sys_futex (buf+page, FUTEX_WAIT, 1, NULL, NULL) for each page in said mmap
-> 	munmap(buf)
-> 	repeat
+> On Mon, 21 Feb 2005, Jon Smirl wrote:
+> >
+> > I was working on the assumption that all PCI based, VGA class hardware
+> > that is not the boot device needs to be posted.
 > 
-> This will quickly lock up, since the futex_wait code dows a
-> down_read(mmap_sem), then a get_user().
+> I don't think that's true. We certainly don't _want_ it to be true in the
+> long run - and even now there are cards that we can initialize fully
+> without using the BIOS at all.
 > 
-> The do_page_fault code on ppc64 (as well as other architectures) needs
-> to take the same semaphore for reading. This is all good until the
-> second thread comes into play: Its mmap call tries to take the same
-> semaphore for writing which causes in the do_page_fault down_read()
-> to get stuck. Classic deadlock.
+> > And that the posting should occur before the drivers are
+> > loaded.
+> 
+> Personally, I'd much rather let the driver be involved in the decision.
+> 
+> That may mean that the probe routine knows how to initialize the card, but
+> it may mean that it does an "exec_usermodehelper()" kind of thing.
+> Actually, I'd prefer it if this was largely up to "udev": if the driver
+> notices that it can't initialize the card, why not just enumerate it
+> enough that "udev" knows about it (that's pretty much automatic), and let
+> the driver just ignore the card until some (possibly much later) date when
+> the user level scripts have found it and initialized it.
+> 
+> That would imply that the driver have some "re-attach" entrypoint (which
+> migth be a ioctl, but might also be just a /sysfs file access), which is
+> the user-lands way of saying "try again - I've now initialized the
+> hardware".
+> 
 
-It shouldn't be. If one read writer is active, another should be able to 
-come in, regardless of any pending writer trying to access it. At least 
-that's always been the rule for the rw-spinlocks _exactly_ for this 
-reaseon.
+This sounds awfully like firmware loader that seems to be working just
+fine for a ranfe of network cards and other devices.
 
-The rwsem code tries to be fairer, maybe it has broken this case in the 
-name of fairness. I personally think fairness is overrated, and would 
-rather have the rwsem implementation let readers come in. But if we really 
-don't want that, then:
-
-> One attempt to fix this is included below. It works, but I'm not entirely
-> happy with the fact that it's a bit messy solution. If anyone has a
-> better idea for how to solve it I'd be all ears.
-
-We have a notion of "atomic get_user()" calls, which is a lot more 
-efficient, and is already used for other cases where we have _real_
-deadlocks (inode semaphore for reads into shared memory mappigns).
-
-See "__copy_to_user_inatomic()", and in particular note that it
-effectively _is_ legal to do user accesses with the preempt-count elevated 
-or interrupts disabled to tell the page fault handler not to delay (then 
-you have to check the error return, and if it returned an error you do it 
-the slow way - drop all locks and do a non-atomic access).
-
-> Auditing other read-takers of mmap_sem, I found one more exposure that
-> could be solved by just moving code around.
-
-DavidH - what's the word on nested read-semaphores like this? Are they 
-supposed to work (like nested read-spinlocks), or do we need to do the 
-things Olof does?
-
-		Linus
+-- 
+Dmitry

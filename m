@@ -1,334 +1,264 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263895AbUGSPVw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264774AbUGSPYB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263895AbUGSPVw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jul 2004 11:21:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264774AbUGSPVw
+	id S264774AbUGSPYB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jul 2004 11:24:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264775AbUGSPYB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jul 2004 11:21:52 -0400
-Received: from mail.tv-sign.ru ([213.234.233.51]:13993 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S263895AbUGSPVk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jul 2004 11:21:40 -0400
-Message-ID: <40FBE7EF.7AA669A7@tv-sign.ru>
-Date: Mon, 19 Jul 2004 19:25:35 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH] prio_tree shared.vm_set simplifications.
+	Mon, 19 Jul 2004 11:24:01 -0400
+Received: from mailfe02.swip.net ([212.247.154.33]:20442 "EHLO
+	mailfe02.swip.net") by vger.kernel.org with ESMTP id S264774AbUGSPXY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jul 2004 11:23:24 -0400
+X-T2-Posting-ID: fsSkX0G4UDZBQyf4PliIiQ==
+Date: Mon, 19 Jul 2004 17:20:29 +0200
+From: Samuel Thibault <samuel.thibault@ens-lyon.org>
+To: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
+Cc: sebastien.hinderer@libertysurf.fr
+Subject: cdrom.c fixup
+Message-ID: <20040719152029.GN2553@bouh.famille.thibault.fr>
+Mail-Followup-To: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org,
+	sebastien.hinderer@libertysurf.fr
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i-nntp3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+Hi,
 
-I think, prio_tree vm_set managment can be simplified.
-Patch at the end.
+There's something wrong in cdrom.c: cdrom_get_last_written() for
+instance calls cdrom_get_disc_info() and cdrom_get_track_info() to
+get information about tracks, but these functions don't ensure that
+all the track_information or disc_information structure is filled:
+	/* (buflen was first set to 8 to get track_information_length field) */
 
-New layout:
-
-struct prio_tree_node {                   struct "vm_area_struct.shared.vmset" {
-        struct prio_tree_node  *parent;           void    *parent;
-        struct prio_tree_node  *left;             void    *unused;
-        struct prio_tree_node  *right;            struct list_head list;
-};                                        };                    // list.next == prio_tree_node.right
-
-vmas with identical [radix_index, heap_index] values iterated via
-list.prev, last element has list.prev == NULL.
-First vma (used as a tree node, parent != NULL) do not use list.next,
-others use it to point back in list.
-
-So, after vma_prio_tree_insert():
+	if ((ret = cdo->generic_packet(cdi, &cgc)))
+		return ret;
 	
-       right_node
-         /\	
-          |
-       (next) prev		// parent != 0
-               |
-               \/
-              NULL
+	cgc.buflen = be16_to_cpu(ti->track_information_length) +
+		     sizeof(ti->track_information_length);
 
-after vma_prio_tree_add():
+	if (cgc.buflen > sizeof(track_information))
+		cgc.buflen = sizeof(track_information);
 
-       right_node
-         /\
-          |
-       (next) prev		// parent != 0
-         /\    |
-          |    \/
-        next  prev		// parent == 0
-         /\    |
-          |    \/
-        next  prev		// parent == 0
-               |
-               \/
-              NULL
+	cgc.cmd[8] = cgc.buflen;
+	return cdo->generic_packet(cdi, &cgc);
 
-So, we can use list.next as list pointer if:
-parent == 0 OR we reached this node via prev.
+The second test ensures that at least we won't overflow the structure,
+but nothing ensures that all the structure will be filled.
 
-With this patch applied, code looks like:
+And indeed, we have a drive here that won't fill it all:
+the returned track_information_length field will be *less than*
+sizeof(track_information) - sizeof(ti->track_information_length),
+so that cdrom_get_last_written() reads values that weren't filled in!
+As a result, we are sometimes unable to read some parts of CDROMs,
+depending on the uninitialized state of the structure...
 
-void vma_prio_tree_add(struct vm_area_struct *vma, struct vm_area_struct *old)
-{
-	struct list_head
-		*new  = &vma->shared.vm_set.list;
-		*head = &old->shared.vm_set.list;
+Here is a patch that adds filling checks: cdrom_get_disc_info() and
+cdrom_get_track_info() return the actual filled length, and it's up
+to the caller to check that this is enough for him to get the values
+it wants.
 
-	new->prev = head->prev;
-	if (new->prev)                    <------ TRUE for nonlinear vma!
-		new->prev->next = new;    <------ reached via prev, safe
+Note: adding something like a
+#define spanof(TYPE, MEMBER) ((size_t) ((&((TYPE *)0)->MEMBER)+1))
+definition just near that of offsetof() in include/linux/stddef.h would
+make it more pretty, but still it won't help for bitfields :/
 
-	head->prev = new;
-	new->next = head;
-}
-void vma_prio_tree_remove(struct vm_area_struct *vma, struct prio_tree_root *root)
-{
-	struct list_head *prev = vma->shared.vm_set.list.prev;
+Regards,
+Samuel
 
-	if (vma->shared.vm_set.parent) {
-		if (prev)
-			prio_tree_replace(root, &vma->shared.prio_tree_node,
-						list_entry(prev, ....));
-		else
-			prio_tree_remove(root,  &vma->shared.prio_tree_node);
-	} else {
-		struct list_head *next = vma->shared.vm_set.list.next;
-
-		next->prev = prev;          <------ parent == NULL, safe
-		if (prev)
-			prev->next = next;  <------ reached via prev, safe
-	}
-}
-struct vm_area_struct *vma_prio_tree_next(vma)
-{
-	if (!vma)
-		return prio_tree_first();
-
-	if (!vma->shared.vm_set.list.prev)
-		return prio_tree_next();
-
-	return list_entry(vma->shared.vm_set.list.prev, ....);
-}
-
-Please note, that vma_prio_tree_add() works for nonlinear vmas too.
-Also, vma_prio_tree_remove() now works with them, beacause shuch a
-vmas have vm_set.parent == 0 && vm_set.list.prev != 0.
-
-I am very interested in your opinion.
-
-Patch against 2.6.8-rc2, compiled, booted, seems to work.
-
-Oleg.
-
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
-
-diff -urp 2.6.8-rc2/include/linux/mm.h prio_tree/include/linux/mm.h
---- 2.6.8-rc2/include/linux/mm.h	2004-07-13 17:52:47.000000000 +0400
-+++ prio_tree/include/linux/mm.h	2004-07-19 17:07:41.000000000 +0400
-@@ -72,9 +72,9 @@ struct vm_area_struct {
+--- linux-2.6.7-orig/drivers/cdrom/cdrom.c	2004-06-16 10:40:57.000000000 +0200
++++ linux/drivers/cdrom/cdrom.c	2004-07-19 16:52:53.000000000 +0200
+@@ -603,7 +603,7 @@
+ 	disc_information di;
+ 	int ret = 0;
+ 
+-	if (cdrom_get_disc_info(cdi, &di))
++	if (cdrom_get_disc_info(cdi, &di) < offsetof(typeof(di),disc_type))
+ 		return 1;
+ 
+ 	if (di.mrw_status == CDM_MRW_BGFORMAT_ACTIVE) {
+@@ -712,7 +712,7 @@
+ {
+ 	disc_information di;
+ 
+-	if (cdrom_get_disc_info(cdi, &di))
++	if (cdrom_get_disc_info(cdi, &di) < offsetof(typeof(di),n_first_track))
+ 		return -1;
+ 
+ 	return di.erasable;
+@@ -748,7 +748,7 @@
+ 		return 1;
+ 	}
+ 
+-	if (cdrom_get_disc_info(cdi, &di))
++	if (cdrom_get_disc_info(cdi, &di) < offsetof(typeof(di),disc_type))
+ 		return 1;
+ 
+ 	if (!di.erasable)
+@@ -2718,7 +2718,7 @@
+ {
+ 	struct cdrom_device_ops *cdo = cdi->ops;
+ 	struct packet_command cgc;
+-	int ret;
++	int ret, buflen;
+ 
+ 	init_cdrom_command(&cgc, ti, 8, CGC_DATA_READ);
+ 	cgc.cmd[0] = GPCMD_READ_TRACK_RZONE_INFO;
+@@ -2731,14 +2731,18 @@
+ 	if ((ret = cdo->generic_packet(cdi, &cgc)))
+ 		return ret;
+ 	
+-	cgc.buflen = be16_to_cpu(ti->track_information_length) +
++	buflen = be16_to_cpu(ti->track_information_length) +
+ 		     sizeof(ti->track_information_length);
+ 
+-	if (cgc.buflen > sizeof(track_information))
+-		cgc.buflen = sizeof(track_information);
++	if (buflen > sizeof(track_information))
++		buflen = sizeof(track_information);
+ 
+-	cgc.cmd[8] = cgc.buflen;
+-	return cdo->generic_packet(cdi, &cgc);
++	cgc.cmd[8] = cgc.buflen = buflen;
++	if ((ret = cdo->generic_packet(cdi, &cgc)))
++		return ret;
++
++	/* return actual fill size */
++	return buflen;
+ }
+ 
+ /* requires CD R/RW */
+@@ -2746,7 +2750,7 @@
+ {
+ 	struct cdrom_device_ops *cdo = cdi->ops;
+ 	struct packet_command cgc;
+-	int ret;
++	int ret, buflen;
+ 
+ 	/* set up command and get the disc info */
+ 	init_cdrom_command(&cgc, di, sizeof(*di), CGC_DATA_READ);
+@@ -2760,14 +2764,18 @@
+ 	/* not all drives have the same disc_info length, so requeue
+ 	 * packet with the length the drive tells us it can supply
  	 */
- 	union {
- 		struct {
--			struct list_head list;
--			void *parent;	/* aligns with prio_tree_node parent */
--			struct vm_area_struct *head;
-+			void	*parent;
-+			void	*unused;
-+			struct	list_head list;
- 		} vm_set;
+-	cgc.buflen = be16_to_cpu(di->disc_information_length) +
++	buflen = be16_to_cpu(di->disc_information_length) +
+ 		     sizeof(di->disc_information_length);
  
- 		struct prio_tree_node prio_tree_node;
-@@ -600,10 +600,10 @@ extern void si_meminfo_node(struct sysin
+-	if (cgc.buflen > sizeof(disc_information))
+-		cgc.buflen = sizeof(disc_information);
++	if (buflen > sizeof(disc_information))
++		buflen = sizeof(disc_information);
  
- static inline void vma_prio_tree_init(struct vm_area_struct *vma)
- {
-+	vma->shared.vm_set.parent = NULL;
-+	vma->shared.vm_set.unused = NULL;
- 	vma->shared.vm_set.list.next = NULL;
- 	vma->shared.vm_set.list.prev = NULL;
--	vma->shared.vm_set.parent = NULL;
--	vma->shared.vm_set.head = NULL;
+-	cgc.cmd[8] = cgc.buflen;
+-	return cdo->generic_packet(cdi, &cgc);
++	cgc.cmd[8] = cgc.buflen = buflen;
++	if ((ret = cdo->generic_packet(cdi, &cgc)))
++		return ret;
++
++	/* return actual fill size */
++	return buflen;
  }
  
- /* prio_tree.c */
-diff -urp 2.6.8-rc2/include/linux/prio_tree.h prio_tree/include/linux/prio_tree.h
---- 2.6.8-rc2/include/linux/prio_tree.h	2004-05-24 14:16:15.000000000 +0400
-+++ prio_tree/include/linux/prio_tree.h	2004-07-19 17:16:26.000000000 +0400
-@@ -2,9 +2,9 @@
- #define _LINUX_PRIO_TREE_H
+ /* return the last written block on the CD-R media. this is for the udf
+@@ -2778,27 +2786,33 @@
+ 	disc_information di;
+ 	track_information ti;
+ 	__u32 last_track;
+-	int ret = -1;
++	int ret = -1, ti_size;
  
- struct prio_tree_node {
-+	struct prio_tree_node	*parent;
- 	struct prio_tree_node	*left;
- 	struct prio_tree_node	*right;
--	struct prio_tree_node	*parent;
- };
+ 	if (!CDROM_CAN(CDC_GENERIC_PACKET))
+ 		goto use_toc;
  
- struct prio_tree_root {
-diff -urp 2.6.8-rc2/mm/prio_tree.c prio_tree/mm/prio_tree.c
---- 2.6.8-rc2/mm/prio_tree.c	2004-05-30 13:25:55.000000000 +0400
-+++ prio_tree/mm/prio_tree.c	2004-07-19 17:07:47.000000000 +0400
-@@ -534,21 +534,29 @@ repeat:
-  */
- void vma_prio_tree_add(struct vm_area_struct *vma, struct vm_area_struct *old)
- {
-+	struct list_head *new, *head;
+-	if ((ret = cdrom_get_disc_info(cdi, &di)))
++	if ((ret = cdrom_get_disc_info(cdi, &di))
++			< offsetof(typeof(di), last_track_msb)
++			+ sizeof(di.last_track_msb))
+ 		goto use_toc;
+ 
+ 	last_track = (di.last_track_msb << 8) | di.last_track_lsb;
+-	if ((ret = cdrom_get_track_info(cdi, last_track, 1, &ti)))
++	ti_size = cdrom_get_track_info(cdi, last_track, 1, &ti);
++	if (ti_size < offsetof(typeof(ti), track_start))
+ 		goto use_toc;
+ 
+ 	/* if this track is blank, try the previous. */
+ 	if (ti.blank) {
+ 		last_track--;
+-		if ((ret = cdrom_get_track_info(cdi, last_track, 1, &ti)))
+-			goto use_toc;
++		ti_size = cdrom_get_track_info(cdi, last_track, 1, &ti);
+ 	}
+ 
++	if (ti_size < offsetof(typeof(ti), track_size) + sizeof(ti.track_size))
++		goto use_toc;
 +
-+	BUILD_BUG_ON(
-+		offsetof(struct prio_tree_node, parent) !=
-+		offsetof(typeof(vma->shared.vm_set), parent)
-+			||
-+		sizeof(struct prio_tree_node) !=
-+		offsetof(typeof(vma->shared.vm_set), list.prev)
-+	);
-+
- 	/* Leave these BUG_ONs till prio_tree patch stabilizes */
- 	BUG_ON(RADIX_INDEX(vma) != RADIX_INDEX(old));
- 	BUG_ON(HEAP_INDEX(vma) != HEAP_INDEX(old));
+ 	/* if last recorded field is valid, return it. */
+-	if (ti.lra_v) {
++	if (ti.lra_v && ti_size >= offsetof(typeof(ti), last_rec_address)
++				+ sizeof(ti.last_rec_address)) {
+ 		*last_written = be32_to_cpu(ti.last_rec_address);
+ 	} else {
+ 		/* make it up instead */
+@@ -2811,11 +2825,12 @@
  
--	if (!old->shared.vm_set.parent)
--		list_add(&vma->shared.vm_set.list,
--				&old->shared.vm_set.list);
--	else if (old->shared.vm_set.head)
--		list_add_tail(&vma->shared.vm_set.list,
--				&old->shared.vm_set.head->shared.vm_set.list);
--	else {
--		INIT_LIST_HEAD(&vma->shared.vm_set.list);
--		vma->shared.vm_set.head = old;
--		old->shared.vm_set.head = vma;
--	}
-+	new  = &vma->shared.vm_set.list;
-+	head = &old->shared.vm_set.list;
-+
-+	new->prev = head->prev;
-+	if (new->prev)
-+		new->prev->next = new;
-+
-+	head->prev = new;
-+	new->next = head;
- }
+ 	/* this is where we end up if the drive either can't do a
+ 	   GPCMD_READ_DISC_INFO or GPCMD_READ_TRACK_RZONE_INFO or if
+-	   it fails. then we return the toc contents. */
++	   it doesn't give enough information or fails. then we return
++	   the toc contents. */
+ use_toc:
+ 	toc.cdte_format = CDROM_MSF;
+ 	toc.cdte_track = CDROM_LEADOUT;
+-	if (cdi->ops->audio_ioctl(cdi, CDROMREADTOCENTRY, &toc))
++	if ((ret = cdi->ops->audio_ioctl(cdi, CDROMREADTOCENTRY, &toc)))
+ 		return ret;
+ 	sanitize_format(&toc.cdte_addr, &toc.cdte_format, CDROM_LBA);
+ 	*last_written = toc.cdte_addr.lba;
+@@ -2828,32 +2843,33 @@
+ 	disc_information di;
+ 	track_information ti;
+ 	__u16 last_track;
+-	int ret = -1;
++	int ret = -1, ti_size;
  
- void vma_prio_tree_insert(struct vm_area_struct *vma,
-@@ -568,46 +576,23 @@ void vma_prio_tree_insert(struct vm_area
- void vma_prio_tree_remove(struct vm_area_struct *vma,
- 			  struct prio_tree_root *root)
- {
--	struct vm_area_struct *node, *head, *new_head;
-+	struct list_head *prev = vma->shared.vm_set.list.prev;
+ 	if (!CDROM_CAN(CDC_GENERIC_PACKET))
+ 		goto use_last_written;
  
--	if (!vma->shared.vm_set.head) {
--		if (!vma->shared.vm_set.parent)
--			list_del_init(&vma->shared.vm_set.list);
--		else
--			prio_tree_remove(root, &vma->shared.prio_tree_node);
--	} else {
--		/* Leave this BUG_ON till prio_tree patch stabilizes */
--		BUG_ON(vma->shared.vm_set.head->shared.vm_set.head != vma);
--		if (vma->shared.vm_set.parent) {
--			head = vma->shared.vm_set.head;
--			if (!list_empty(&head->shared.vm_set.list)) {
--				new_head = list_entry(
--					head->shared.vm_set.list.next,
--					struct vm_area_struct,
--					shared.vm_set.list);
--				list_del_init(&head->shared.vm_set.list);
--			} else
--				new_head = NULL;
-+	if (vma->shared.vm_set.parent) {
-+		if (prev) {
-+			struct vm_area_struct *new = list_entry(prev,
-+				struct vm_area_struct, shared.vm_set.list);
+-	if ((ret = cdrom_get_disc_info(cdi, &di)))
++	if ((ret = cdrom_get_disc_info(cdi, &di))
++			< offsetof(typeof(di), last_track_msb)
++			+ sizeof(di.last_track_msb))
+ 		goto use_last_written;
  
- 			prio_tree_replace(root, &vma->shared.prio_tree_node,
--					&head->shared.prio_tree_node);
--			head->shared.vm_set.head = new_head;
--			if (new_head)
--				new_head->shared.vm_set.head = head;
+ 	last_track = (di.last_track_msb << 8) | di.last_track_lsb;
+-	if ((ret = cdrom_get_track_info(cdi, last_track, 1, &ti)))
++	ti_size = cdrom_get_track_info(cdi, last_track, 1, &ti);
++	if (ti_size < offsetof(typeof(ti), track_start))
+ 		goto use_last_written;
+ 
+         /* if this track is blank, try the previous. */
+ 	if (ti.blank) {
+ 		last_track--;
+-		if ((ret = cdrom_get_track_info(cdi, last_track, 1, &ti)))
+-			goto use_last_written;
++		ti_size = cdrom_get_track_info(cdi, last_track, 1, &ti);
+ 	}
+ 
+ 	/* if next recordable address field is valid, use it. */
+-	if (ti.nwa_v)
++	if (ti.nwa_v && ti_size >= offsetof(typeof(ti), next_writable)
++				+ sizeof(ti.next_writable)) {
+ 		*next_writable = be32_to_cpu(ti.next_writable);
+-	else
+-		goto use_last_written;
 -
--		} else {
--			node = vma->shared.vm_set.head;
--			if (!list_empty(&vma->shared.vm_set.list)) {
--				new_head = list_entry(
--					vma->shared.vm_set.list.next,
--					struct vm_area_struct,
--					shared.vm_set.list);
--				list_del_init(&vma->shared.vm_set.list);
--				node->shared.vm_set.head = new_head;
--				new_head->shared.vm_set.head = node;
--			} else
--				node->shared.vm_set.head = NULL;
--		}
-+						&new->shared.prio_tree_node);
-+		} else
-+			prio_tree_remove(root,  &vma->shared.prio_tree_node);
-+	} else {
-+		struct list_head *next = vma->shared.vm_set.list.next;
-+
-+		next->prev = prev;
-+		if (prev)
-+			prev->next = next;
- 	}
- }
+-	return 0;
++		return 0;
++	}
  
-@@ -624,40 +609,26 @@ struct vm_area_struct *vma_prio_tree_nex
- 	struct vm_area_struct *next;
- 
- 	if (!vma) {
--		/*
--		 * First call is with NULL vma
--		 */
- 		ptr = prio_tree_first(root, iter, begin, end);
--		if (ptr) {
--			next = prio_tree_entry(ptr, struct vm_area_struct,
--						shared.prio_tree_node);
--			prefetch(next->shared.vm_set.head);
--			return next;
--		} else
--			return NULL;
-+		goto check;
- 	}
- 
--	if (vma->shared.vm_set.parent) {
--		if (vma->shared.vm_set.head) {
--			next = vma->shared.vm_set.head;
--			prefetch(next->shared.vm_set.list.next);
--			return next;
--		}
--	} else {
--		next = list_entry(vma->shared.vm_set.list.next,
--				struct vm_area_struct, shared.vm_set.list);
--		if (!next->shared.vm_set.head) {
--			prefetch(next->shared.vm_set.list.next);
--			return next;
--		}
-+	if (!vma->shared.vm_set.list.prev) {
-+		ptr = prio_tree_next(root, iter, begin, end);
-+		goto check;
- 	}
- 
--	ptr = prio_tree_next(root, iter, begin, end);
--	if (ptr) {
--		next = prio_tree_entry(ptr, struct vm_area_struct,
--					shared.prio_tree_node);
--		prefetch(next->shared.vm_set.head);
--		return next;
--	} else
-+	next = list_entry(vma->shared.vm_set.list.prev,
-+			struct vm_area_struct, shared.vm_set.list);
-+	goto found;
-+
-+check:
-+	if (!ptr)
- 		return NULL;
-+
-+	next = prio_tree_entry(ptr, struct vm_area_struct,
-+			shared.prio_tree_node);
-+found:
-+	prefetch(next->shared.vm_set.list.prev);
-+	return next;
- }
+ use_last_written:
+ 	if ((ret = cdrom_get_last_written(cdi, next_writable))) {

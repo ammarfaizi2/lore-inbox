@@ -1,46 +1,26 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269615AbRHHXHV>; Wed, 8 Aug 2001 19:07:21 -0400
+	id <S269619AbRHHXTF>; Wed, 8 Aug 2001 19:19:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269619AbRHHXHL>; Wed, 8 Aug 2001 19:07:11 -0400
-Received: from zero.tech9.net ([209.61.188.187]:13063 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S269615AbRHHXGw>;
-	Wed, 8 Aug 2001 19:06:52 -0400
-Subject: Re: Linux 2.4.7-ac10
-From: Robert Love <rml@tech9.net>
-To: Alan Cox <laughing@shared-source.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010808195133.A22469@lightning.swansea.linux.org.uk>
-In-Reply-To: <20010808195133.A22469@lightning.swansea.linux.org.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.12.99 (Preview Release)
-Date: 08 Aug 2001 19:07:24 -0400
-Message-Id: <997312050.2170.9.camel@phantasy>
-Mime-Version: 1.0
+	id <S269630AbRHHXSy>; Wed, 8 Aug 2001 19:18:54 -0400
+Received: from coffee.psychology.McMaster.CA ([130.113.218.59]:1028 "EHLO
+	coffee.psychology.mcmaster.ca") by vger.kernel.org with ESMTP
+	id <S269619AbRHHXSf>; Wed, 8 Aug 2001 19:18:35 -0400
+Date: Wed, 8 Aug 2001 23:17:55 +0000 (GMT)
+From: Mark Hahn <hahn@physics.mcmaster.ca>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] total_free_shortage() using zone_free_shortage()
+In-Reply-To: <Pine.LNX.4.21.0108081721001.13989-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.10.10108082314410.10284-100000@coffee.psychology.mcmaster.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 08 Aug 2001 19:51:34 +0100, Alan Cox wrote:
-> 2.4.7-ac10
-> o	Merge DRM for XFree 4.1.x			(XFree86 and others)
+> Your change in pre7 makes zone_inactive_shortage() not return the shortage
+> size, which is needed by refill_inactive().
 
-the config tri-states for the new DRM drivers are screwed.  you can not
-select any of the individual graphics drivers if the `New 4.1 DRM'
-option is selected.
-
-when saving the config, `make xconfig' spits
-
-ERROR - Attempting to write value for unconfigured variable
-(CONFIG_DRM_TDFX)
-
-etc for CONFIG_DRM_GAMMA, CONFIG_DRM_R128, CONFIG_DRM_RADEON,
-CONFIG_DRM_I810, and CONFIG_DRM_MGA
-
-btw, its nice to see the 4.1 DRM support in your tree.
-
--- 
-Robert M. Love
-rml at ufl.edu
-rml at tech9.net
+similar for zone_free_shortage used in total_free_shortage I think.
 

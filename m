@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270821AbRHNU2X>; Tue, 14 Aug 2001 16:28:23 -0400
+	id <S270795AbRHNU1O>; Tue, 14 Aug 2001 16:27:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270815AbRHNU2H>; Tue, 14 Aug 2001 16:28:07 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:49162 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S270808AbRHNU1r>;
-	Tue, 14 Aug 2001 16:27:47 -0400
-Date: Tue, 14 Aug 2001 17:27:44 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Petr Baudis <pasky@pasky.ji.cz>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: WANTED: Re: VM lockup with 2.4.8 / 2.4.8pre8
-In-Reply-To: <20010814220545.D31070@pasky.ji.cz>
-Message-ID: <Pine.LNX.4.33L.0108141727030.6118-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S270808AbRHNU1E>; Tue, 14 Aug 2001 16:27:04 -0400
+Received: from smtp1.one.net ([216.23.22.220]:59398 "HELO us.net")
+	by vger.kernel.org with SMTP id <S270795AbRHNU0x>;
+	Tue, 14 Aug 2001 16:26:53 -0400
+Message-ID: <054701c124ff$9311eb10$b214860a@amdmb>
+From: "Ryan Shrout" <rshrout@amdmb.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Slow SCSI Disk Access on AMI Elite 1600 controller
+Date: Tue, 14 Aug 2001 16:27:44 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2919.6700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Aug 2001, Petr Baudis wrote:
+Okay, I am fairly new to all this, so bear with me as I try to explain the
+problem fully.  :)
 
-> I also propose to half badness of
+First, my problem was centered around Mysql.  I had a problem of processes
+spawning and spawning (sometimes over 100 of them at a time).  A simply
+mysqld restart would solve the matter for most of the day, but the problem
+always persisited.  One the people in the mysql list pointed me to check my
+disk performance.  I came up with this:
 
-Selecting which process to kill is not the problem
-we are currently facing.
 
-The problem is WHEN to kill something. Once we have
-that fixed we can always work on refining the selection
-algorithm ;))
 
-Rik
---
-IA64: a worthy successor to i860.
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+Ryan Shrout
+Owner - Amdmb.com
+http://www.amdmb.com/
+rshrout@amdmb.com
 

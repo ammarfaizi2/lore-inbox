@@ -1,63 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262679AbTKGDBA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Nov 2003 22:01:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263853AbTKGDBA
+	id S261376AbTKGEqw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Nov 2003 23:46:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261406AbTKGEqw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Nov 2003 22:01:00 -0500
-Received: from fmr06.intel.com ([134.134.136.7]:4758 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S262679AbTKGDA6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Nov 2003 22:00:58 -0500
-content-class: urn:content-classes:message
+	Thu, 6 Nov 2003 23:46:52 -0500
+Received: from pat.uio.no ([129.240.130.16]:61363 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S261376AbTKGEqv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Nov 2003 23:46:51 -0500
+To: Kris Kennaway <kris@freebsd.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: NFS Locking violates protocol spec (incompatible with FreeBSD)
+References: <20031107041051.GA4065@rot13.obsecurity.org>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 06 Nov 2003 23:46:48 -0500
+In-Reply-To: <20031107041051.GA4065@rot13.obsecurity.org>
+Message-ID: <shsk76c3hvr.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-2022-jp"
-Content-Transfer-Encoding: 7bit
-Subject: RE: Why size of sockaddr smaller than size of sockaddr_in6?
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Date: Fri, 7 Nov 2003 11:00:55 +0800
-Message-ID: <37FBBA5F3A361C41AB7CE44558C3448E011959C7@pdsmsx403.ccr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Why size of sockaddr smaller than size of sockaddr_in6?
-Thread-Index: AcOk1icmXB2zJzUySCOOs2BACunFyAABLCnw
-From: "Zheng, Jeff" <jeff.zheng@intel.com>
-To: "YOSHIFUJI Hideaki / ????" <yoshfuji@linux-ipv6.org>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 07 Nov 2003 03:00:55.0233 (UTC) FILETIME=[5C72DB10:01C3A4DB]
+Content-Type: text/plain; charset=us-ascii
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
+X-UiO-MailScanner: No virus found
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Hideaki YOSHIFUJI,
-
-Thanks for your reply. 
-
-Is sockaddr_storage part of IPv6? I mean, does sockaddr_storage exist in a system that does not have IPv6? In such system if I use sockaddr_in6, the compile will be failed because there is no sockaddr_in6 structure. 
-
-> Thanks
-> Jeff                        Jeff.Zheng@intel.com
-> BTW, I speak for myself, not for Intel Corp.
+>>>>> " " == Kris Kennaway <kris@freebsd.org> writes:
 
 
------Original Message-----
-From: Hideaki YOSHIFUJI [mailto:yoshfuji@cerberus.hongo.wide.ad.jp]On Behalf Of yoshfuji@linux-ipv6.org
-Sent: Friday, November 07, 2003 10:24 AM
-To: Zheng, Jeff
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Why size of sockaddr smaller than size of sockaddr_in6?
+     > contains more details about this problem, including a
+     > workaround for FreeBSD to limit the cookie size to 8 bytes.
+     > Obviously, it would be better for this bug to be fixed in
+     > Linux, since Linux is non-conformant to the protocol.
+
+Yes. I saw a mail with a justification for why you want to be able to
+wait on > 2^64 outstanding lock requests to a single lockd server, and
+was highly amused.
+I'm still hoping the person who decided that he needed 1024 byte
+long cookies will own up some day. OTOH, he might still be busy
+testing his locking code for cookie wraparound...
 
 
-Hello.
+Anyhow, a patch exists (written by Greg Banks), and can be found as
 
-In article <37FBBA5F3A361C41AB7CE44558C3448E07EC27@pdsmsx403.ccr.corp.intel.com> (at Fri, 7 Nov 2003 10:04:05 +0800), "Zheng, Jeff" <jeff.zheng@intel.com> says:
+ http://www.fys.uio.no/~trondmy/src/Linux-2.4.x/2.4.23-pre9/linux-2.4.23-01-fix_osx.dif
 
-> I thought that sockaddr should hold sockaddr_in sockaddr_in6 and any other socket address (or at least sockaddr_in6). 
 
-No, we do not change sockaddr{}.
-use sockaddr_storage{} for that purpose.
-Please read RFC 3493.
+No. It does not extend the cookie size to 1k...
 
--- 
-Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
-GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+Cheers,
+  Trond

@@ -1,102 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265138AbUGCPA0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265137AbUGCPCw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265138AbUGCPA0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jul 2004 11:00:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265137AbUGCPA0
+	id S265137AbUGCPCw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jul 2004 11:02:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265141AbUGCPCw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jul 2004 11:00:26 -0400
-Received: from mail-ext.curl.com ([66.228.88.132]:53508 "HELO
-	mail-ext.curl.com") by vger.kernel.org with SMTP id S265139AbUGCPAE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jul 2004 11:00:04 -0400
-To: Andrew Clausen <clausen@gnu.org>
-Cc: Andries Brouwer <Andries.Brouwer@cwi.nl>,
-       Steffen Winterfeldt <snwint@suse.de>, bug-parted@gnu.org,
-       Thomas Fehr <fehr@suse.de>, linux-kernel@vger.kernel.org
+	Sat, 3 Jul 2004 11:02:52 -0400
+Received: from mail011.syd.optusnet.com.au ([211.29.132.65]:11698 "EHLO
+	mail011.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S265137AbUGCPCt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jul 2004 11:02:49 -0400
+Date: Sun, 4 Jul 2004 01:02:04 +1000
+From: Andrew Clausen <clausen@gnu.org>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+Cc: "Patrick J. LoPresti" <patl@users.sourceforge.net>,
+       Andries Brouwer <Andries.Brouwer@cwi.nl>,
+       Steffen Winterfeldt <snwint@suse.de>, linux-kernel@vger.kernel.org,
+       Thomas Fehr <fehr@suse.de>, bug-parted@gnu.org
 Subject: Re: [RFC] Restoring HDIO_GETGEO semantics (was: Re: workaround for BIOS / CHS stuff)
-References: <s5gwu1mwpus.fsf@patl=users.sf.net>
-	<Pine.LNX.4.21.0407021528150.21499-100000@mlf.linux.rulez.org>
-	<20040703013552.GA630@gnu.org> <s5g8ye1qjg9.fsf@patl=users.sf.net>
-	<20040703144500.GL630@gnu.org>
-From: "Patrick J. LoPresti" <patl@users.sourceforge.net>
-Message-ID: <s5goemxp2oa.fsf@patl=users.sf.net>
-Date: 03 Jul 2004 11:00:02 -0400
-In-Reply-To: <20040703144500.GL630@gnu.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+Message-ID: <20040703150203.GN630@gnu.org>
+References: <Pine.LNX.4.21.0407021936550.30622-100000@mlf.linux.rulez.org> <s5gzn6iz2or.fsf@patl=users.sf.net> <20040703025457.GC630@gnu.org> <Pine.LNX.4.60.0407030843400.2415@hermes-1.csi.cam.ac.uk> <20040703124435.GH630@gnu.org> <Pine.LNX.4.60.0407031535230.6149@hermes-1.csi.cam.ac.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.60.0407031535230.6149@hermes-1.csi.cam.ac.uk>
+X-Accept-Language: en,pt
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Clausen <clausen@gnu.org> writes:
-
-> On Sat, Jul 03, 2004 at 10:15:47AM -0400, Patrick J. LoPresti wrote:
-> > Parted is primarily a component of larger systems; namely, the
-> > RedHat/Suse/etc. installers.  Those larger systems can figure out the
-> > correct geometry (using whatever logic/heuristics/knowledge they have)
-> > and pass it to the tools which need it, of which Parted is just one.
+On Sat, Jul 03, 2004 at 03:40:01PM +0100, Anton Altaparmakov wrote:
+> > XP home edition (the green box)
 > 
-> Why should they bother?  Shouldn't libparted just do it all for
-> them?  (Shouldn't parted use EDD?)
+> Hm, I only ever tried XP Pro.
 
-Two reasons:
+I guess we can try diff'ing the bootstrap code.  Should probably do this
+in private for copyright reasons...
 
-  1) "...of which Parted is just one."  Whatever logic you fancy for
-     determining the geometry, the results need to be available to
-     several tools.  Parted is only one such tool; ergo, the logic
-     belongs OUTSIDE of it.  Parted should expect to be TOLD the
-     geometry in any situation where it matters.
-
-  2) The ideal logic varies depending on the capabilities of your
-     kernel.  The distribution vendor knows the capabilities of its
-     kernel, and can construct appropriate logic.  Putting logic into
-     Parted to handle every possible kernel is a sloppy design.
-
-I hate "smart" software.  Don't be smart; be simple.  Default to
-whatever you like, but give me a way to TELL Parted the geometry.
-
-> I was under the impression that 2.6 provides a mechanism for setting
-> the HDIO_GETGEO thingy... so any program can tell Parted (and
-> everything else, for that matter) what they want the geometry to be.
->
-> Perhaps I misunderstood your email:
+> > > Does it use NTFS as both the boot and system drive?
+> > 
+> > I am using a single NTFS partition.
 > 
-> 	http://www.uwsg.iu.edu/hypermail/linux/kernel/0404.0/0270.html
+> I have lots of partitions (mostly Linux, NTFS is at end of disk).
 
-You understood correctly, but see below...
+If NTFS is at the end of the disk, doesn't it have to use LBA to address
+it?
 
-> It contains this:
+> > Note: I reversed-engineered the Windows FAT bootstrap code.  My analysis
+> > is contained in the file doc/FAT in the Parted source distribution.  I
+> > concluded that Windows uses LBA if the LBA flag is set in the boot
+> > partition table entry.  (i.e. the partition type includes LBA in the
+> > fdisk codes - this corresponds to a bit being set)
 > 
-> 	echo "bios_cyl:C bios_head:H bios_sect:S" > /proc/ide/hda/settings
+> Interesting.  Maybe I don't have this bit set?
+
+This bit only applies to FAT, AFAIK.  There is no corresponding bit
+for NTFS.
+
+> > > u16 sectors_per_track; /* Required to boot Windows. */
+> > > u16 heads;             /* Required to boot Windows. */
+> > > u32 hidden_sectors;    /* Offset to the start of the partition relative 
+> > > to the disk in sectors.  Required to boot Windows. */
+> > 
+> > I just set the first 2 of these fields to 0, and everything still works.
+> > Am I blessed?  (Or perhaps cursed!)
 > 
-> Isn't the kernel the right place for this kind of communication to
-> be happening, anyway?
+> Odd.  Messing up any of the above three values makes my XP Pro fail to 
+> boot!
 
-Not according to the kernel developers.  They are threatening to
-remove HDIO_GETGEO completely.
+Interesting.  How is your BIOS configured?  (LBA, Auto, CHS or Large?
+what CHS values?)
 
-> > (Note that this would also provide a way for end users to fix their
-> > partition tables if/when they broke.  Right now, the stock solution
-> > for disks which Parted "broke" is "sfdisk -d | sfdisk -C# -H# -S#".
-> > Wouldn't it be nice if people could use Parted instead?)
-> 
-> They can, right?  Just type the above, and then do some dummy thing
-> in parted.  (Parted doesn't have a "touch" command).
+Cheers,
+Andrew
 
-No, because Parted will "helpfully" infer the geometry from the
-existing partition table, no matter what HDIO_GETGEO returns!
-
-In short, the /proc/ide/hdX/settings + HDIO_GETGEO solution 1) only
-works on blank drives and 2) uses an interface which the kernel
-developers consider a crock.
-
-> > IBM Thinkpads use x/240/63.  In theory, other BIOSes could use
-> > anything.
-> 
-> Do they break on x/255/63?
-
-Yes, absolutely.  This is why I wrote the legacy_* support for the
-edd.o module in the first place.  Otherwise, I could have used
-x/255/63 and been done with it.
-
- - Pat

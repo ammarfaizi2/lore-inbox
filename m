@@ -1,44 +1,108 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265592AbTFNKrD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jun 2003 06:47:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265664AbTFNKrD
+	id S265654AbTFNLEs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jun 2003 07:04:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265664AbTFNLEr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jun 2003 06:47:03 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:15313 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S265592AbTFNKrB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jun 2003 06:47:01 -0400
-Date: Sat, 14 Jun 2003 13:00:46 +0200 (MEST)
-Message-Id: <200306141100.h5EB0kTk011731@harpo.it.uu.se>
-From: mikpe@csd.uu.se
-To: linux-kernel@vger.kernel.org, nemesis-lists@icequake.net
-Subject: Re: Microstar MS-6163 blacklist
+	Sat, 14 Jun 2003 07:04:47 -0400
+Received: from web20508.mail.yahoo.com ([216.136.226.143]:41889 "HELO
+	web20508.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S265654AbTFNLEp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jun 2003 07:04:45 -0400
+Message-ID: <20030614111834.477.qmail@web20508.mail.yahoo.com>
+Date: Sat, 14 Jun 2003 04:18:34 -0700 (PDT)
+From: Ravi Kumar Munnangi <munnangi_ivar@yahoo.com>
+Subject: kernel panic:I have no root I want to scream
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 13 Jun 2003 20:46:46 -0500, Ryan Underwood wrote:
->In other news, I noticed recently that the IO-APIC on my MS-6163
->BX-Master was being disabled at boot by the kernel, due to a recently
->introduced blacklist:
->
->{ apm_kills_local_apic, "Microstar 6163",
->	{ MATCH(DMI_BOARD_VENDOR, "MICRO-STAR INTERNATIONAL CO., LTD"),
->	  MATCH(DMI_BOARD_NAME, "MS-6163"),
->	  NO_MATCH, NO_MATCH } },
->
->Consulting mailing list archives indicated that there is some sort of
->problem with the IO-APIC on the MS-6163 Pro and APM events.  However,
->this seems a rather clumsy fix to the problem, since it disabled the
->IO-APIC on _all_ MS-6163 boards rather than just the Pro, and also
->regardless of whether APM support is even enabled (I don't enable it and
->don't use it at all).
+Iam using Redhat linux 2.4.18-14(which came with
+installing RHlinux-8.0.
+Now I want to reconfigure  the kernel.
 
-I added this blacklist rule last spring, but I'm also about to
-submit a patch to Linus and Marcelo to remove it and the AL440LX
-blacklist rule. You can read the full explanation then; suffice
-it to say that using APM's DISPLAY_BLANK with certain graphics
-cards causes hangs if the local APIC is enabled. You can just
-remove the MS-6163 Pro blacklist rule for now.
+I have download the linux 2.4.18 from ftp:kernel.org
 
-/Mikael
+Ihave put the file in /home/cs0205/
+There itself I unzipped the file.
+Then I saw a new directory /home/cs0205/linux
+then cd /home/cs0205/linux
+make mrproper
+make xconfig
+  During the configuration I havn't made any changes
+to 
+   the default configuration.I have just saved the 
+   default configuration and exited.
+make dep
+make clean
+make bzImage
+make modules
+make modules_install
+make install
+  After this I observed that there are new files in 
+  /boot like vmlinuz-2.4.18 and vmlinuz-2.4.18.img
+  Before there were files named vmlinuz-2.4.18-14 and
+  vmlinuz-2.4.18-14.img
+  
+ I have then changed my /etc/lilo.conf file as follows
+  prompt
+timeout=50
+default=linux_new
+boot=/dev/hda
+map=/boot/map
+install=/boot/boot.b
+message=/boot/message
+linear
+
+image=/boot/vmlinuz-2.4.18-14
+        label=linux
+        initrd=/boot/initrd-2.4.18-14.img
+        read-only
+        append="hdb=ide-scsi root=LABEL=/"
+image=/boot/vmlinuz-2.4.18
+        label=linux_new
+        initrd=/boot/initrd-2.4.18.img
+        read-only
+        append="hdb=ide-scsi root=LABEL=/"
+
+
+other=/dev/hda1
+        optional
+        label=DOS
+
+I have run /sbin/lilo
+when I tried booting with the new kernel image, its
+stopping after giving the message,
+kernel panic:I have no root I want to scream
+
+please help me!!!!!!!!!
+
+Dear friends,
+  Iam new to linux.
+  I don't know why we should do make mrproper,dep
+clean
+   bzImage,etc.
+  What is the result of this make?
+  will u please suggest any resources on net?
+  or any text book?
+  
+  I have read somewhere saying that we have to copy
+the 
+  bzImage in linux/arch/boot/ to /boot/
+  I have also seen something regarding System.map!
+
+  What does this System.map and bzImage contain?
+  Do I really have to copy them?
+  Then what is the use of make install?
+  
+ please answer to my queries!!!!!!
+  Thankyou!
+ for reading the mail patiently!
+
+
+__________________________________
+Do you Yahoo!?
+SBC Yahoo! DSL - Now only $29.95 per month!
+http://sbc.yahoo.com

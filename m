@@ -1,46 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262588AbTJIVXL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 17:23:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262576AbTJIVXL
+	id S262468AbTJIVWc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 17:22:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262564AbTJIVWc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 17:23:11 -0400
-Received: from dodge.jordet.nu ([217.13.8.142]:5016 "EHLO dodge.hybel")
-	by vger.kernel.org with ESMTP id S262588AbTJIVXH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 17:23:07 -0400
-Subject: Re: Call trace when rmmod'ing saa7134 and error when compiling
-	static
-From: Stian Jordet <liste@jordet.nu>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, kraxel@bytesex.org
-In-Reply-To: <20031009210805.GB12266@kroah.com>
-References: <1065708534.737.2.camel@chevrolet.hybel>
-	 <20031009210805.GB12266@kroah.com>
-Content-Type: text/plain
-Message-Id: <1065734600.6237.0.camel@chevrolet.hybel>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 09 Oct 2003 23:23:21 +0200
+	Thu, 9 Oct 2003 17:22:32 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:17662 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262468AbTJIVW3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Oct 2003 17:22:29 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: "Howard Duck" <h.t.d@gmx.net>
+Subject: Re: kernel 2.6.0betaX: ich5 sata enhanced mode hangs during init
+Date: Thu, 9 Oct 2003 23:26:08 +0200
+User-Agent: KMail/1.5.4
+References: <22605.1065733565@www40.gmx.net>
+In-Reply-To: <22605.1065733565@www40.gmx.net>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200310092326.08362.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-tor, 09.10.2003 kl. 23.08 skrev Greg KH:
-> On Thu, Oct 09, 2003 at 04:08:54PM +0200, Stian Jordet wrote:
-> > Hello,
-> > 
-> > when I try to rmmod the saa7134 module from kernel 2.6.0-test7, I get
-> > this call trace:
-> > 
-> > Device class 'i2c-1' does not have a release() function, it is broken
-> > and must be fixed.
-> 
-> This is when you remove the i2c-dev module, right?  Yeah, I know about
-> the problem and will fix it.
 
-I have no idea, I just "rmmod saa7134" :)
+You are using drivers/ide, right?
+Please also test 2.5.75 and snapshot kernels
+http://www.kernel.org/pub/linux/kernel/v2.5/snapshots/old/
 
-Best regards,
-Stian
+thanks,
+--bartlomiej
+
+On Thursday 09 of October 2003 23:06, Howard Duck wrote:
+> Hi
+>
+> I have a Mainboard with a intel 865PE chipset. I tested many kernels to get
+> my
+> Serial-ATA (sata) disk to work in enhanced mode and so far only one kernel
+> works - 2.5.74. I need the enhanced mode because I lose all secondary ide
+> ports if i switch to legacy/compatible mode in the mainboards bios (which
+> disables some of my drives).
+>
+> Since the first beta of kernel 2.6.0 i had no luck in successfully booting
+> the
+> machine unless i switched to SATA legacy mode. All 2.6.0beta-kernels make
+> it
+>
+> to the init sequence and detect the sata disk, but the system hangs at
+> random
+> postions during init (starting devfsd, mounting swap or setting the
+> machines
+>
+> hostname, well - somewhere during startup).
+>
+> I tried removing swap from /etc/fstab and disabling some init-scripts but
+> it
+>
+> doesn't help. Booting in "single" mode does not work too. The only thing
+> that
+> works is using legacy sata support, so i guess it is related to some new
+> code for
+> handling serial ata controllers/disks (the machine boots off a sata disk)
+> in the
+> 2.6.0beta kernels. 2.5.74 boots and works w/o problems, but i'd feel better
+> if i
+> run a kernel marked "stable" ;)
+>
+> Is there something i can do to trace the problem of the hang during boot,
+> maybe
+> some special kernel options, new user-space tools,...? Is this maybe
+> related to
+> SMP support or hyperthreading cpus?
+>
+> I am open for any hints or test-procedures that may help to fix or find the
+> problem.
+> thanks in advance
+>  Michael Kefeder
+>
+> p.s.: i'm not subscribed to the lkml, please put me on CC when answering
 

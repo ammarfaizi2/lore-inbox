@@ -1,44 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261465AbVCFSuo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261467AbVCFSzt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261465AbVCFSuo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Mar 2005 13:50:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261476AbVCFSuo
+	id S261467AbVCFSzt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Mar 2005 13:55:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261476AbVCFSzt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Mar 2005 13:50:44 -0500
-Received: from innocence.nightwish.hu ([217.20.130.196]:1006 "EHLO
-	innocence.nightwish.hu") by vger.kernel.org with ESMTP
-	id S261465AbVCFSuk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Mar 2005 13:50:40 -0500
-Subject: Re: NMI watchdog question
-From: Pallai Roland <dap@mail.index.hu>
+	Sun, 6 Mar 2005 13:55:49 -0500
+Received: from mail.gondor.com ([212.117.64.182]:6931 "EHLO moria.gondor.com")
+	by vger.kernel.org with ESMTP id S261467AbVCFSzo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Mar 2005 13:55:44 -0500
+Date: Sun, 6 Mar 2005 19:55:39 +0100
+From: Jan Niehusmann <jan@gondor.com>
 To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Sun, 06 Mar 2005 19:51:40 +0100
-Message-Id: <1110135101.8018.173.camel@localhost.localdomain>
+Cc: len.brown@intel.com
+Subject: Re: bouncing keys and skipping sound with 2.6.11
+Message-ID: <20050306185539.GA2149@gondor.com>
+References: <Pine.LNX.4.58.0503012356480.25732@ppc970.osdl.org> <20050228184414.GA31929@gondor.com> <20050302200632.GA24529@gondor.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050302200632.GA24529@gondor.com>
+X-Request-PGP: http://gondor.com/key.asc
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Mar 02, 2005 at 09:06:32PM +0100, Jan Niehusmann wrote:
+> the problem with bouncing keys I reported with 2.6.11-rc5 is still
+> present in 2.6.11. Additionally, I noticed that audio has short outages
 
-Robert Hancock wrote:
->> Pallai Roland wrote:
->> [...]
->> I'm playing with the NMI watchdog (nmi_watchdog=1) on a reproductable
->> hard lockup (no keyboard, etc) but seems like it doesn't works and I
->> can't understand why, please explain to me the possible causes.. I
->> belive it should work in this situation..
->
-> The NMI watchdog only triggers if something is blocking interrupts from
-> getting through - if timer interrupts are still happening it won't
-> activate. You can try Alt-Sysrq-T to get a traceback of where the
-> current process is stuck..
+By trying different kernel versions, I traced down the problem to the
+changes introduced between linux-2.6.11-rc2-bk9 and
+linux-2.6.11-rc2-bk10, and, more specifically, to the ACPI changes
+within that patch. (Therefore the Cc: to Len Brown, who wrote or
+submitted most of these changes, as far as I can tell from the
+changelog)
 
- the keyboard is dead (no num lock, no sysrq) just like the serial port,
-the network, etc..
+Len, do you have any idea which of the ACPI changes could have caused
+the described key bouncing problems on my ASUS M2400N laptop, or how I
+could debug this?
 
-
---
- d
+Yours,
+Jan
 

@@ -1,130 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290277AbSB0AaL>; Tue, 26 Feb 2002 19:30:11 -0500
+	id <S289058AbSB0A1b>; Tue, 26 Feb 2002 19:27:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290289AbSB0AaC>; Tue, 26 Feb 2002 19:30:02 -0500
-Received: from balu.sch.bme.hu ([152.66.208.40]:14840 "EHLO balu.sch.bme.hu")
-	by vger.kernel.org with ESMTP id <S290277AbSB0A3v> convert rfc822-to-8bit;
-	Tue, 26 Feb 2002 19:29:51 -0500
-Date: Wed, 27 Feb 2002 01:29:35 +0100 (MET)
-From: Pozsar Balazs <pozsy@sch.bme.hu>
-To: christophe =?iso-8859-15?Q?barb=E9?= 
-	<christophe.barbe.ml@online.fr>
-cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@zip.com.au>
-Subject: Re: 3c59x and cardbus
-In-Reply-To: <20020226230010.GI803@ufies.org>
-Message-ID: <Pine.GSO.4.30.0202270126570.28095-100000@balu>
+	id <S290277AbSB0A1W>; Tue, 26 Feb 2002 19:27:22 -0500
+Received: from wildsau.idv-edu.uni-linz.ac.at ([140.78.40.25]:55815 "EHLO
+	wildsau.idv-edu.uni-linz.ac.at") by vger.kernel.org with ESMTP
+	id <S289058AbSB0A1M>; Tue, 26 Feb 2002 19:27:12 -0500
+From: Herbert Rosmanith <herp@wildsau.idv-edu.uni-linz.ac.at>
+Message-Id: <200202270026.g1R0QOa14113@wildsau.idv-edu.uni-linz.ac.at>
+Subject: pcmcia problems with IDE & cardbus
+To: linux-kernel@vger.kernel.org
+Date: Wed, 27 Feb 2002 01:26:23 +0100 (MET)
+X-Mailer: ELM [version 2.4ME+ PL37 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I get very similar error if I remove the module and then reload it (rmmod
-followed by a modprobe). So once I rmmod it, It will never be usable again
-until i reboot.
+hi,
 
-I have to pci 3com 905's, I can send the pci id's if those matters
-tomorrow.
+I've been trying to get a CompactFlash act as an IDE-drive, 2nd or 3rd
+ide-channel, that is, IDE1 or IDE2 resp. Didn't work. Seems to be driver
+related.
+
+I downloaded 2.4.18 and pcmcia-3.1.31, from the later I got "ide_cs.o"
+
+The hardware I am using a a two socket PCI to PCMCIA bridge:
+
+hale-bopp:~ # cat /proc/interrupts
+[...]
+ 10:          1          XT-PIC  Texas Instruments PCI1221, Texas Instruments PCI1221 (#2)
 
 
-On Tue, 26 Feb 2002, christophe [iso-8859-15] barbé wrote:
+when the init-script starts the pcmcia modules + cardmgr, the following
+messages will appear in the kernel-log:
 
-> Now that the forget_option bug is solved I have the following :
->
-> Each time I suspend, the card resume in a bad state but return in a good
-> state after that :
->
-> NETDEV WATCHDOG: eth0: transmit timed out
-> eth0: transmit timed out, tx_status 00 status e000.
->   diagnostics: net 0ee0 media 8800 dma 000000a0.
->   Flags; bus-master 1, dirty 20(4) current 36(4)
->   Transmit list 00af8300 vs. c0af8300.
->   0: @c0af8200  length 80000062 status 00000062
->   1: @c0af8240  length 80000062 status 00000062
->   2: @c0af8280  length 80000062 status 80000062
->   3: @c0af82c0  length 80000062 status 80000062
->   4: @c0af8300  length 80000062 status 00000062
->   5: @c0af8340  length 8000003c status 0000003c
->   6: @c0af8380  length 80000062 status 00000062
->   7: @c0af83c0  length 80000062 status 00000062
->   8: @c0af8400  length 8000003c status 0000003c
->   9: @c0af8440  length 80000062 status 00000062
->   10: @c0af8480  length 80000062 status 00000062
->   11: @c0af84c0  length 80000036 status 00000036
->   12: @c0af8500  length 80000062 status 00000062
->   13: @c0af8540  length 80000062 status 00000062
->   14: @c0af8580  length 80000062 status 00000062
->   15: @c0af85c0  length 80000062 status 00000062
-> eth0: Resetting the Tx ring pointer.
->
-> The tx ring seems to be in a good state, no ?
->
-> Christophe
->
-> On Tue, Feb 26, 2002 at 01:59:07PM -0500, christophe barbé wrote:
-> > Thank you, I have done something similar and that solve it in my case at
-> > least. This driver was clearly not designed for cardbus.
-> >
-> > I am still looking for my resume/suspend problem.
-> > Hope to find the solution soon.
-> >
-> > Christophe
-> >
-> > On Tue, Feb 26, 2002 at 10:51:08AM -0800, Andrew Morton wrote:
-> > > christophe barbé wrote:
-> > > >
-> > > > Ok I have found why.
-> > > > When I resinsert the card, the driver give it a new id (this driver
-> > > > supports multiple cards) and the option as I set it is only defined for
-> > > > the card #0. I would expect that the driver give the same id back.
-> > > >
-> > >
-> > > hrm.  OK, hotplugging and slot-positional module parameters weren't
-> > > designed to live together.
-> > >
-> > > This should fix it for single cards.   For multiple cards, you'll
-> > > have to make sure you eject them in reverse scan order :)
-> > >
-> > > Index: drivers/net/3c59x.c
-> > > ===================================================================
-> > > RCS file: /opt/cvs/lk/drivers/net/3c59x.c,v
-> > > retrieving revision 1.74.2.7
-> > > diff -u -r1.74.2.7 3c59x.c
-> > > --- drivers/net/3c59x.c	2002/02/13 21:03:03	1.74.2.7
-> > > +++ drivers/net/3c59x.c	2002/02/26 18:49:24
-> > > @@ -2898,6 +2898,9 @@
-> > >  		BUG();
-> > >  	}
-> > >
-> > > +	if (vp->card_idx == vortex_cards_found)
-> > > +		vortex_cards_found--;
-> > > +
-> > >  	vp = dev->priv;
-> > >
-> > >  	/* AKPM: FIXME: we should have
-> > >
-> > >
-> > > -
-> >
-> > --
-> > Christophe Barbé <christophe.barbe@ufies.org>
-> > GnuPG FingerPrint: E0F6 FADF 2A5C F072 6AF8  F67A 8F45 2F1E D72C B41E
-> >
-> > Imagination is more important than knowledge.
-> >    Albert Einstein, On Science
->
->
->
-> --
-> Christophe Barbé <christophe.barbe@ufies.org>
-> GnuPG FingerPrint: E0F6 FADF 2A5C F072 6AF8  F67A 8F45 2F1E D72C B41E
->
-> Imagination is more important than knowledge.
->    Albert Einstein, On Science
->
+   : Linux Kernel Card Services 3.1.22
+   :   options:  [pci] [cardbus] [pm]
+   : PCI: Found IRQ 10 for device 00:09.0
+   : PCI: Sharing IRQ 10 with 00:09.1
+   : PCI: Found IRQ 10 for device 00:09.1
+   : PCI: Sharing IRQ 10 with 00:09.0
+   : Yenta IRQ list 0000, PCI irq10
+   : Socket status: 30000006
+   : Yenta IRQ list 0000, PCI irq10
+   : Socket status: 30000010
+   : cs: IO port probe 0x0c00-0x0cff: clean.
+   : cs: IO port probe 0x0800-0x08ff: clean.
+   : cs: IO port probe 0x0100-0x04ff: excluding 0x4d0-0x4d7
+   : cs: IO port probe 0x0a00-0x0aff: clean.
+   : cs: memory probe 0xa0000000-0xa0ffffff: clean.
+   : hde: SanDisk SDCFB-16, ATA DISK drive
+   : ide2: Disabled unable to get IRQ 10.
+   : hde: ERROR, PORTS ALREADY IN USE
+   : ide2: ports already in use, skipping probe
+   : ide2: ports already in use, skipping probe
+   : ide2: ports already in use, skipping probe
+   : ide2: ports already in use, skipping probe
+   : ide2: ports already in use, skipping probe
+   : ide2: ports already in use, skipping probe
+   : ide2: ports already in use, skipping probe
+   : ide2: ports already in use, skipping probe
+   : ide_cs: ide_register() at 0x100 & 0x10e, irq 10 failed
+   : Trying to free nonexistent resource <00000100-0000010f>
 
--- 
-pozsy
+"unable to get IRQ 10" is somewhat funny, since IRQ-10 is used by
+the cardbus device. what I don't understand is if the IDE-drive
+sould get its own interrupt or not.
+
+"ports already in use" doesnt go away even when I remove all IDE-drives
+(one CDROM, that is ;-) from ide1 and try to have the CompactFlash as
+2ndry IDE (the message would then read: ide1: ports alread yin use,
+skipping probe).
+
+and finally an ugly detail: when removing the ComapctFlash and
+unloading pcmcia, ide_cs will still have the ioport-ressources
+clailed form /proc/ioport. seems there's a call to *_unregister
+missing.
+
+/herp
 

@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266243AbSKUBBB>; Wed, 20 Nov 2002 20:01:01 -0500
+	id <S266233AbSKUA5X>; Wed, 20 Nov 2002 19:57:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266246AbSKUBBB>; Wed, 20 Nov 2002 20:01:01 -0500
-Received: from orion.netbank.com.br ([200.203.199.90]:21775 "EHLO
+	id <S266237AbSKUA5W>; Wed, 20 Nov 2002 19:57:22 -0500
+Received: from orion.netbank.com.br ([200.203.199.90]:17167 "EHLO
 	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id <S266243AbSKUBA7>; Wed, 20 Nov 2002 20:00:59 -0500
-Date: Wed, 20 Nov 2002 23:07:53 -0200
+	id <S266233AbSKUA5U>; Wed, 20 Nov 2002 19:57:20 -0500
+Date: Wed, 20 Nov 2002 23:04:21 -0200
 From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
 To: Linus Torvalds <torvalds@transmeta.com>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] input: fix up header cleanups: add include <linux/interrupt.h>
-Message-ID: <20021121010753.GD28717@conectiva.com.br>
+Subject: [PATCH] hd: fix up header cleanups: add include <linux/interrupt.h>
+Message-ID: <20021121010421.GC28717@conectiva.com.br>
 Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
 	Linus Torvalds <torvalds@transmeta.com>,
 	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
@@ -29,7 +29,7 @@ Linus,
 
 master.kernel.org:/home/acme/BK/includes-2.5
 
-	Now there are two outstanding changesets.
+	Now there just this outstanding changeset.
 
 - Arnaldo
 
@@ -39,71 +39,58 @@ You can import this changeset into BK by piping this whole message to:
 ===================================================================
 
 
-ChangeSet@1.923, 2002-11-20 23:04:41-02:00, wli@holomorphy.com
-  input: fix up header cleanups: add <linux/interrupt.h>
+ChangeSet@1.922, 2002-11-20 23:01:13-02:00, acme@conectiva.com.br
+  hd: fix up header cleanup: add include <linux/interrupt.h>
 
 
- logibm.c   |    7 ++++---
- pc110pad.c |    1 +
- 2 files changed, 5 insertions(+), 3 deletions(-)
+ hd.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
 
-diff -Nru a/drivers/input/mouse/logibm.c b/drivers/input/mouse/logibm.c
---- a/drivers/input/mouse/logibm.c	Wed Nov 20 23:05:04 2002
-+++ b/drivers/input/mouse/logibm.c	Wed Nov 20 23:05:04 2002
-@@ -35,14 +35,15 @@
-  * Vojtech Pavlik, Simunkova 1594, Prague 8, 182 00 Czech Republic
-  */
+diff -Nru a/drivers/ide/legacy/hd.c b/drivers/ide/legacy/hd.c
+--- a/drivers/ide/legacy/hd.c	Wed Nov 20 23:02:46 2002
++++ b/drivers/ide/legacy/hd.c	Wed Nov 20 23:02:46 2002
+@@ -26,9 +26,10 @@
+ /* Uncomment the following if you want verbose error reports. */
+ /* #define VERBOSE_ERRORS */
  
--#include <asm/io.h>
--#include <asm/irq.h>
--
- #include <linux/module.h>
- #include <linux/delay.h>
- #include <linux/ioport.h>
- #include <linux/init.h>
- #include <linux/input.h>
++#include <linux/blk.h>
+ #include <linux/errno.h>
+ #include <linux/signal.h>
+-#include <linux/sched.h>
 +#include <linux/interrupt.h>
-+
-+#include <asm/io.h>
-+#include <asm/irq.h>
- 
- MODULE_AUTHOR("Vojtech Pavlik <vojtech@ucw.cz>");
- MODULE_DESCRIPTION("Logitech busmouse driver");
-diff -Nru a/drivers/input/mouse/pc110pad.c b/drivers/input/mouse/pc110pad.c
---- a/drivers/input/mouse/pc110pad.c	Wed Nov 20 23:05:04 2002
-+++ b/drivers/input/mouse/pc110pad.c	Wed Nov 20 23:05:04 2002
-@@ -37,6 +37,7 @@
- #include <linux/ioport.h>
- #include <linux/input.h>
- #include <linux/init.h>
-+#include <linux/interrupt.h>
- 
+ #include <linux/timer.h>
+ #include <linux/fs.h>
+ #include <linux/kernel.h>
+@@ -45,7 +46,6 @@
+ #include <asm/system.h>
  #include <asm/io.h>
- #include <asm/irq.h>
+ #include <asm/uaccess.h>
+-#include <linux/blk.h>
+ 
+ #ifdef __arm__
+ #undef  HD_IRQ
 
 ===================================================================
 
 
 This BitKeeper patch contains the following changesets:
-1.923
+1.922
 ## Wrapped with gzip_uu ##
 
 
-begin 664 bkpatch3903
-M'XL(`$`QW#T``\V536^;0!"&S]Y?L5*.E6%F/P"C.G*35&V42K52Y=;+9MD$
-M6F`I+'92\>,+-'(BIW7CM)4"7)B!EW=GGED.Z$5CZGBB=&'(`7UO&Q=/M"V-
-M=ME*>=H6WF7=)\ZM[1-^:@OC'YWY6:GS-C'-E'F2].FE<CJE*U,W\00]OHFX
-MV\K$D_.W[RX^O#DG9#ZGQZDJK\TGX^A\3IRM5RI/FH5R:6Y+S]6J;`KCQ@]W
-MFT<[!L#Z4V+(008=!B#"3F."J`2:!)B(`D&&-2RVO6^I(#*$_D3>,<&D)"<4
-MO1GC%)B/Z#.@C,<@8H%38#$`7>?9(K6Y+6Q=I;>#*'W%Z!3($?VW[H^)IEE9
-MM2ZF5]D-;2N:&I68FNK<J+*MFIBJ)*&O\ZQL;_H&.%/7;>6\])"<429@QLGR
-MOKIDNN=!""@@AW1EOSBCTX5;9WEVG3JOU6M/?^^2.AO:ZX\6_<*VC?%S>YU=
-M%I[^N<(0.'*(!'8H)!/=U4R&.H+H*M!!,I3X<2G_K'K7+\&C_E;*<$^'E4:$
-M2B6//7+.(^C"(%`\27IYI3BRX*D>MW0?N(291#F2OFMM`_S_K](;Z:9_]TF2
-M"!!A3RB'#L-(!N-8A-M#P:,=0R'HE+^PH1B!^4BG]7J\>LB7.[ORC*$YX1'E
-MY%1(*LC!W:[X2SN?'Z154_B9':);L?K;$/P=//?0[8O/OF/P=^),(LJ@YQ*"
-M",6(DMP+)7QQ^^LXU$\@Z;X6SV#IE,\H[J9H\V/5J=%?F[:8@U`S(94F/P#[
-'J_C&R@<`````
+begin 664 bkpatch3815
+M'XL(`+8PW#T``\U4P8K;,!0\1U_Q(,=B64^V'-LT2[J;TBY;:$C94^E!D92U
+MB6,'V4ZSX(]?.6D3$KJ!ECWT2>B@)X]&,X.'\%@;FPZD6ALRA,]5W:0#595&
+M-?E64E6MZ<*ZQKRJ7,//JK7Q;Q_\O%1%JTWM<2J(:\]DHS+8&ENG`Z3!<:=Y
+MWIAT,/_XZ?'+ASDAXS'<9;)\,M],`^,Q:2J[E86N)[+)BJJDC95EO3;-_N+N
+M>+3CC'$W!(X")J(.(Q:..H4:489H-.-A'(4GM)[E52Q$WB\Q2SH>)G%"IH`T
+MX1P8]Q%]SH`'*<,4`X_QE#'HY9E<R@+O$#Q&;N%MGW%'%&0ZA66^@W8#F9':
+M6%"%D66[24%J#;_DA_=%7K8[YT9CK&TW#<UNR`/PD`M!9B>IB?>710B3C-R`
+MW"TJ,UFTMJSI7M25L:4IJ%YUVN:]W7ZNC9]IJ@Z/BS%RTHXPZ,(@&HE.F`4F
+MB6!*B.4R%-&?A3P#*\R35,\G3.<5,F2NNL"5V*?HE0_Z3+TY9[+-;359.V_I
+MIFZIT>WWWX;_N,Z<\81QP5!T`8_#0\IP=!XRYN;UD''P^/\7LH,77\&S/_?3
+MA6;VFBW_D+]['@.2X06'1;'J;Y\&Z)KW^_7RR!G-:=BC'/]&*C-J5;?KL1+(
+-(PP4>0$0FVJM_P0`````
 `
 end

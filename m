@@ -1,64 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262048AbTJOEIa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 00:08:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262068AbTJOEI3
+	id S262344AbTJOEMi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 00:12:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262359AbTJOEMi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 00:08:29 -0400
-Received: from smtrly01.smartm.com ([158.116.149.131]:57093 "EHLO
-	smtrly01.smartm.com") by vger.kernel.org with ESMTP id S262048AbTJOEI2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 00:08:28 -0400
-Message-ID: <903E17B6FF22A24C96B4E28C2C0214D70104BDD7@sr-bng-exc01.int.tsbu.net>
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: "Daheriya, Adarsh" <Adarsh.Daheriya@fci.com>
-To: "'Greg KH'" <greg@kroah.com>
-Cc: "Murray, Scott" <scott_murray@stream.com>,
-       "Daheriya, Adarsh" <Adarsh.Daheriya@fci.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: Hot Swap - Resource Allocation Problem.
-Date: Wed, 15 Oct 2003 09:37:35 +0530
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
-X-OriginalArrivalTime: 15 Oct 2003 04:07:18.0718 (UTC) FILETIME=[D34A2DE0:01C392D1]
+	Wed, 15 Oct 2003 00:12:38 -0400
+Received: from mx1.blkhawk.net ([12.148.201.5]:29300 "EHLO mx1.blkhawk.net")
+	by vger.kernel.org with ESMTP id S262344AbTJOEMg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Oct 2003 00:12:36 -0400
+Subject: 2.6.0-test7 athlon smp network devices not found
+From: "Jason L. Nesheim" <jason@bhawk.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: Blackhawk Internet Communications Inc.
+Message-Id: <1066191155.30643.16.camel@st-wrkstn>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 14 Oct 2003 23:12:35 -0500
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 15 Oct 2003 04:12:35.0347 (UTC) FILETIME=[9003EE30:01C392D2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi Greg,
+I seem to have an issue, maybe a bug, with test7 on athlon smp.
 
-thanks for the reply.
+The kernel is compiled for athlon with smp and acpi (acpi makes no
+difference though) and I am receiving strange errors with several
+network utils.
 
-i do reserve pci resources at boot time with kernel option as
-"pci_hp_reserve=8,16,16" without quotes.
-but still i am getting this problem.
+ifconfig returns this with I execute 'ifconfig':
 
-is this problem coming because of mishandling of resources?
+: error fetching interface information: Device not found
 
-regards,
--Adarsh.
+yet, if I run 'ifconfig eth1' or with any other interface as the
+argument I get:
 
------Original Message-----
-From: Greg KH [mailto:greg@kroah.com]
-Sent: Wednesday, October 15, 2003 2:19 AM
-To: Daheriya, Adarsh
-Cc: Murray, Scott; 'linux-kernel@vger.kernel.org'
-Subject: Re: Hot Swap - Resource Allocation Problem.
+eth1      Link encap:Ethernet  HWaddr 00:04:75:B1:A4:47
+          inet addr:12.148.210.98  Bcast:12.255.255.255 
+Mask:255.255.255.224
+          inet6 addr: fe80::204:75ff:feb1:a447/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:10117 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:10592 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:5714965 (5.4 MiB)  TX bytes:1151861 (1.0 MiB)
+          Interrupt:19 Base address:0x2000
 
+which is the correct output.  If I configure the ip manually with
+ifconfig for the device, and set routes with 'ip', the card works fine.
+Also, dhclient and other programs give me similar errors.
 
-On Tue, Oct 14, 2003 at 06:18:04PM +0530, Daheriya, Adarsh wrote:
-> > hi Scott,
-> > 
-> > i am using your hot swap driver for one of our boards here. I have
-> > back-ported the driver to 2.4.18 kernel.
+output of dhclient:
 
-For 2.4, I think that Scott had a patch that would require the user to
-reserve pci resources at boot time to solve this problem.
+Internet Software Consortium DHCP Client 2.0pl5
+Copyright 1995, 1996, 1997, 1998, 1999 The Internet Software Consortium.
+All rights reserved.
+ 
+Please contribute if you find this software useful.
+For info, please visit http://www.isc.org/dhcp-contrib.html
+ 
+Can't get interface flags for : No such device
+exiting.
 
-See the linux pci hotplug devel mailing list archives for the patch and
-a description of how to get this to work on 2.4.
+Adding the interface as an argument makes no difference here.
 
-Hope this helps,
+Anyone have ideas what is going on?
 
-greg k-h
+Jason L. Nesheim
+

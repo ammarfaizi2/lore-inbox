@@ -1,43 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277046AbRJQSqd>; Wed, 17 Oct 2001 14:46:33 -0400
+	id <S277054AbRJQSuX>; Wed, 17 Oct 2001 14:50:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276716AbRJQSqX>; Wed, 17 Oct 2001 14:46:23 -0400
-Received: from mons.uio.no ([129.240.130.14]:26824 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S277059AbRJQSqP>;
-	Wed, 17 Oct 2001 14:46:15 -0400
-To: kuznet@ms2.inr.ac.ru
-Cc: kalele@veritas.COM (Shirish Kalele), linux-kernel@vger.kernel.org
-Subject: Re: [NFS] NFSD over TCP: TCP broken?
-In-Reply-To: <200110171758.VAA22159@ms2.inr.ac.ru>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 17 Oct 2001 20:38:31 +0200
-In-Reply-To: kuznet@ms2.inr.ac.ru's message of "Wed, 17 Oct 2001 21:58:37 +0400 (MSK DST)"
-Message-ID: <shsk7xu5cyg.fsf@charged.uio.no>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
+	id <S277055AbRJQSuN>; Wed, 17 Oct 2001 14:50:13 -0400
+Received: from ns.suse.de ([213.95.15.193]:28171 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S277054AbRJQSuE> convert rfc822-to-8bit;
+	Wed, 17 Oct 2001 14:50:04 -0400
+To: Paul Gortmaker <p_gortmaker@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Making diff(1) of linux kernels faster
+In-Reply-To: <Pine.LNX.4.33.0110140841540.15323-100000@penguin.transmeta.com>
+	<3BCAB9B1.2F85F523@yahoo.com>
+X-Yow: I'm ANN LANDERS!!  I can SHOPLIFT!!
+From: Andreas Schwab <schwab@suse.de>
+Date: 17 Oct 2001 20:50:36 +0200
+In-Reply-To: <3BCAB9B1.2F85F523@yahoo.com> (Paul Gortmaker's message of "Wed, 17 Oct 2001 08:25:53 -0400")
+Message-ID: <jeadyq6qyr.fsf@sykes.suse.de>
+User-Agent: Gnus/5.090003 (Oort Gnus v0.03) Emacs/21.0.107
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == kuznet  <kuznet@ms2.inr.ac.ru> writes:
+Paul Gortmaker <p_gortmaker@yahoo.com> writes:
 
-     > Hello!
-    >> where the interleaving gets in.
+|> This was all running under a 2.2.x kernel btw; might have time to 
+|> test on a 2.4.x one later.  Either way, it kind of makes you wonder 
+|> why nobody had done this earlier
 
-     > I do not think that you diagnosed the problem correctly.  nfsd
-     > used non blocking io and write to tcp is strictly atomic in
-     > this case.
+What's wrong with running find on the tree first?  IMHO there is no need
+to introduce an obscure option if there is already a working alternative.
 
-Some of the patches that attempted to fix the nfsd server code relied
-on making the TCP stuff blocking. I've seen several such patches
-floating around that ignore the fact that the socket lock is dropped
-when the IPV4 socket code sleeps.
+Andreas.
 
-In any case, even with nonblocking TCP, one has to protect the socket
-until the entire message has been sent. Otherwise we risk seeing
-another thread racing for the socket while we're doing whatever needs
-to be done to clear the -EAGAIN.
-
-Cheers,
-  Trond
+-- 
+Andreas Schwab                                  "And now for something
+Andreas.Schwab@suse.de				completely different."
+SuSE Labs, SuSE GmbH, Schanzäckerstr. 10, D-90443 Nürnberg
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5

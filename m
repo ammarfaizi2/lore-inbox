@@ -1,38 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129694AbRBXXX2>; Sat, 24 Feb 2001 18:23:28 -0500
+	id <S129698AbRBXXZI>; Sat, 24 Feb 2001 18:25:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129693AbRBXXXS>; Sat, 24 Feb 2001 18:23:18 -0500
-Received: from 2-225.cwb-adsl.telepar.net.br ([200.193.161.225]:33774 "HELO
-	brinquedo.distro.conectiva") by vger.kernel.org with SMTP
-	id <S129694AbRBXXXL>; Sat, 24 Feb 2001 18:23:11 -0500
-Date: Sat, 24 Feb 2001 18:43:36 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Shawn Starr <spstarr@sh0n.net>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Mike Galbraith <mikeg@wen-online.de>,
-        lkm <linux-kernel@vger.kernel.org>
-Subject: Re: [ANOMALIES]: 2.4.2 - __alloc_pages: failed - Patch failed
-Message-ID: <20010224184336.A2564@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Shawn Starr <spstarr@sh0n.net>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	Mike Galbraith <mikeg@wen-online.de>,
-	lkm <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.21.0102241357220.3684-100000@freak.distro.conectiva> <3A98365A.451C4473@sh0n.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.14i
-In-Reply-To: <3A98365A.451C4473@sh0n.net>; from spstarr@sh0n.net on Sat, Feb 24, 2001 at 05:31:55PM -0500
-X-Url: http://advogato.org/person/acme
+	id <S129693AbRBXXY6>; Sat, 24 Feb 2001 18:24:58 -0500
+Received: from pop.gmx.net ([194.221.183.20]:49130 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S129697AbRBXXYs>;
+	Sat, 24 Feb 2001 18:24:48 -0500
+From: "Matthias.Kleine" <Kleine_Matthias@gmx.de>
+Reply-To: Kleine_Matthias@gmx.de
+Date: Sun, 25 Feb 2001 01:30:14 +0100
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain;
+  charset="US-ASCII"
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.3.96.1010221170212.4012B-100000@delta.ds2.pg.gda.pl>
+In-Reply-To: <Pine.GSO.3.96.1010221170212.4012B-100000@delta.ds2.pg.gda.pl>
+Subject: Re: Maybe a bug
+MIME-Version: 1.0
+Message-Id: <01022501301401.02374@delphin>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Sat, Feb 24, 2001 at 05:31:55PM -0500, Shawn Starr escreveu:
-> Doing so..., Im not sure hot to use ksymoops or where to get that program.
-> I just usually use the sysq and dump but its ugly ;-)
+Maciej W. Rozycki wrote:
 
-http://www.kernel.org/pub/linux/utils/kernel/ksymoops/v2.4/ksymoops-2.4.0.tar.bz2
+>  Hmm, you state the watchdog works from time to time and the log you
+> provided confirms the statement -- it reports:
 
-- Arnaldo
+> > ..TIMER: vector=49 pin1=2 pin2=0
+> > activating NMI Watchdog ... done.
+
+Yes, but I reach this message only once of 10 trials to boot. The other nine
+trials I just reach
+
+activating NMI Watchdog ... 
+
+followed by no "done" (and not followed by anything else).
+
+> What chipset do you use (check with lspci)?
+
+00:00.0 Host bridge: VIA Technologies, Inc. VT82C691 [Apollo PRO] (rev c4)
+00:01.0 PCI bridge: VIA Technologies, Inc. VT82C598 [Apollo MVP3 AGP]
+00:04.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super] (rev 40)
+00:04.1 IDE interface: VIA Technologies, Inc. VT82C586 IDE [Apollo] (rev 06)
+00:04.2 USB Controller: VIA Technologies, Inc. VT82C586B USB (rev 16)
+00:04.3 USB Controller: VIA Technologies, Inc. VT82C586B USB (rev 16)
+00:04.4 Host bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 
+40)
+00:09.0 Network controller: AVM Audiovisuelles MKTG & Computer System GmbH A1 
+ISDN [Fritz] (rev 02)
+00:0a.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8029(AS)
+00:0b.0 Multimedia audio controller: Creative Labs SB Live! EMU10000 (rev 07)
+00:0b.1 Input device controller: Creative Labs SB Live! (rev 07)
+01:00.0 VGA compatible controller: nVidia Corporation NV15 (Geforce2 GTS) 
+(rev a3)
+
+>  In any case the code should not hang there in any case -- it the watchdog
+> appears stuck, it reports it and goes on.  A hang almost surely means
+> hardware locked up.
+
+Yes, but why only with the 2.4.x kernels. I am using a 2.2.17 smp kernel 
+without problems.
+
+Regards,
+Matthias

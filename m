@@ -1,154 +1,106 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261515AbRFAUnL>; Fri, 1 Jun 2001 16:43:11 -0400
+	id <S261558AbRFAVDI>; Fri, 1 Jun 2001 17:03:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261490AbRFAUnB>; Fri, 1 Jun 2001 16:43:01 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:12961 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S261515AbRFAUmn>;
-	Fri, 1 Jun 2001 16:42:43 -0400
-Message-ID: <3B17FE40.BDCB31BD@mandrakesoft.com>
-Date: Fri, 01 Jun 2001 16:42:40 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: thunder7@xs4all.nl
-Cc: Manfred Spraul <manfred@colorfullife.com>, linux-kernel@vger.kernel.org,
-        John Cavan <johnc@damncats.org>
-Subject: [PATCH] Re: interrupt problem with MPS 1.4 / not with MPS 1.1 ?
-In-Reply-To: <3B16A7E3.1BD600F3@colorfullife.com> <20010531222708.A8295@middle.of.nowhere> <3B16AD5D.DEDB8523@colorfullife.com> <20010601071414.A871@middle.of.nowhere> <3B17D0C1.5FC21CFB@colorfullife.com> <20010601210346.A1069@middle.of.nowhere>
-Content-Type: multipart/mixed;
- boundary="------------145C981DFA6597180DDB6882"
+	id <S261561AbRFAVC7>; Fri, 1 Jun 2001 17:02:59 -0400
+Received: from think.faceprint.com ([166.90.149.11]:52491 "EHLO
+	think.faceprint.com") by vger.kernel.org with ESMTP
+	id <S261558AbRFAVCw>; Fri, 1 Jun 2001 17:02:52 -0400
+Date: Fri, 1 Jun 2001 14:35:44 -0400
+To: linux-kernel@vger.kernel.org
+Subject: New USB HID driver in -ac series
+Message-ID: <20010601143544.A2091@patience.faceprint.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="opJtzjQTFsWo+cga"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.18i
+From: Nathan Walp <faceprint@faceprint.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------145C981DFA6597180DDB6882
+
+--opJtzjQTFsWo+cga
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Does this patch fix things for you, such that MPS 1.1 and MPS 1.4 both
-work?
--- 
-Jeff Garzik      | Disbelief, that's why you fail.
-Building 1024    |
-MandrakeSoft     |
---------------145C981DFA6597180DDB6882
-Content-Type: text/plain; charset=us-ascii;
- name="via-irqpic.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="via-irqpic.patch"
+I upgraded from 2.4.5-ac2 to 2.4.5-ac5 recently, and all seemed well.
+However, I noticed that the scrollwheel on my mouse wasn't working very
+well.  I have that new Logitech cordless optical mouse, so my first
+thought was that the batteries were low, but it was late at night, and I
+didn't have spares, so I just dealt with it.  I got new batteries, and
+the problem didn't go away.  Booted into windows, and the scrollwheel
+worked fine.  I then remembered seeing the HID drivers in Alan's
+changelog.  I booted back into -ac2, and the scrollwheel worked fine.
+-ac5 and -ac6 both show this problem, and I assume every kernel since
+the HID driver update has it as well.  Here's the contents of
+/proc/bus/usb/devices:
 
-diff -urN linux-2.4.5/drivers/pci/quirks.c linux.viairq/drivers/pci/quirks.c
---- linux-2.4.5/drivers/pci/quirks.c	Sat May 19 20:43:06 2001
-+++ linux.viairq/drivers/pci/quirks.c	Fri Jun  1 16:33:21 2001
-@@ -17,6 +17,7 @@
- #include <linux/kernel.h>
- #include <linux/pci.h>
- #include <linux/init.h>
-+#include <linux/delay.h>
- 
- #undef DEBUG
- 
-@@ -267,6 +268,8 @@
- /*
-  * VIA 686A/B: If an IO-APIC is active, we need to route all on-chip
-  * devices to the external APIC.
-+ *
-+ * TODO: this should be done at IRQ assign time (pci_enable_device call)
-  */
- static void __init quirk_via_ioapic(struct pci_dev *dev)
- {
-@@ -277,6 +280,8 @@
- 	else
- 		tmp = 0x1f; /* all known bits (4-0) routed to external APIC */
- 		
-+	printk(KERN_INFO "PCI: Setting Via APIC control\n");
-+
- 	/* Offset 0x58: External APIC IRQ output control */
- 	pci_write_config_byte (dev, 0x58, tmp);
- }
-@@ -285,6 +290,35 @@
- 
- 
- /*
-+ * Via 686A/B:  The PCI_INTERRUPT_LINE register for the on-chip
-+ * devices, USB0/1, AC97, MC97, and ACPI, has an unusual feature:
-+ * when written, it makes an internal connection to the PIC.
-+ * For these devices, this register is defined to be 4 bits wide.
-+ * Normally this is fine.  However for IO-APIC motherboards, or
-+ * non-x86 architectures (yes Via exists on PPC among other places),
-+ * we must mask the PCI_INTERRUPT_LINE value versus 0xf to get
-+ * interrupts delivered properly.
-+ *
-+ * TODO: this should be done at IRQ assign time (pci_enable_device call)
-+ */
-+static void __init quirk_via_irqpic(struct pci_dev *dev)
-+{
-+	u8 tmp;
-+
-+	pci_read_config_byte(dev, PCI_INTERRUPT_LINE, &tmp);
-+        if ((tmp & 0x0F) != dev->irq) {
-+		printk(KERN_INFO "PCI: Via IRQ fixup for %s, from %d to %d\n",
-+		       dev->slot_name, tmp, (tmp & 0xF0) | dev->irq);
-+                udelay (15);
-+
-+                tmp &= 0xF0;
-+                tmp |= dev->irq;
-+		pci_write_config_byte(dev, PCI_INTERRUPT_LINE, tmp);
-+	}
-+}
-+
-+
-+/*
-  * PIIX3 USB: We have to disable USB interrupts that are
-  * hardwired to PIRQD# and may be shared with an
-  * external device.
-@@ -372,6 +406,11 @@
- #ifdef CONFIG_X86_IO_APIC 
- 	{ PCI_FIXUP_FINAL,	PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_82C686,	quirk_via_ioapic },
- #endif
-+
-+	{ PCI_FIXUP_FINAL,	PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_82C586_2,	quirk_via_irqpic },
-+	{ PCI_FIXUP_FINAL,	PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_82C686_4,	quirk_via_irqpic },
-+	{ PCI_FIXUP_FINAL,	PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_82C686_5,	quirk_via_irqpic },
-+	{ PCI_FIXUP_FINAL,	PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_82C686_6,	quirk_via_irqpic },
- 
- 	{ 0 }
- };
-diff -urN linux-2.4.5/drivers/sound/via82cxxx_audio.c linux.viairq/drivers/sound/via82cxxx_audio.c
---- linux-2.4.5/drivers/sound/via82cxxx_audio.c	Tue May  1 19:05:00 2001
-+++ linux.viairq/drivers/sound/via82cxxx_audio.c	Fri Jun  1 16:32:25 2001
-@@ -3012,7 +3012,6 @@
- {
- 	int rc;
- 	struct via_info *card;
--	u8 tmp;
- 	static int printed_version = 0;
- 
- 	DPRINTK ("ENTER\n");
-@@ -3107,19 +3106,6 @@
- 	if (rc) {
- 		printk (KERN_ERR PFX "interrupt init failed, aborting\n");
- 		goto err_out_have_proc;
--	}
--
--	pci_read_config_byte (pdev, 0x3C, &tmp);
--	if ((tmp & 0x0F) != pdev->irq) {
--		printk (KERN_WARNING PFX "IRQ fixup, 0x3C==0x%02X\n", tmp);
--		udelay (15);
--		tmp &= 0xF0;
--		tmp |= pdev->irq;
--		pci_write_config_byte (pdev, 0x3C, tmp);
--		DPRINTK ("new 0x3c==0x%02x\n", tmp);
--	} else {
--		DPRINTK ("IRQ reg 0x3c==0x%02x, irq==%d\n",
--			tmp, tmp & 0x0F);
- 	}
- 
- 	printk (KERN_INFO PFX "board #%d at 0x%04lX, IRQ %d\n",
+T:  Bus=3D02 Lev=3D00 Prnt=3D00 Port=3D00 Cnt=3D00 Dev#=3D  1 Spd=3D12  MxC=
+h=3D 2
+B:  Alloc=3D 11/900 us ( 1%), #Int=3D  1, #Iso=3D  0
+D:  Ver=3D 1.00 Cls=3D09(hub  ) Sub=3D00 Prot=3D00 MxPS=3D 8 #Cfgs=3D  1
+P:  Vendor=3D0000 ProdID=3D0000 Rev=3D 0.00
+S:  Product=3DUSB UHCI Root Hub
+S:  SerialNumber=3Dd000
+C:* #Ifs=3D 1 Cfg#=3D 1 Atr=3D40 MxPwr=3D  0mA
+I:  If#=3D 0 Alt=3D 0 #EPs=3D 1 Cls=3D09(hub  ) Sub=3D00 Prot=3D00 Driver=
+=3Dhub
+E:  Ad=3D81(I) Atr=3D03(Int.) MxPS=3D   8 Ivl=3D255ms
+T:  Bus=3D02 Lev=3D01 Prnt=3D01 Port=3D01 Cnt=3D01 Dev#=3D  2 Spd=3D12  MxC=
+h=3D 4
+D:  Ver=3D 1.10 Cls=3D09(hub  ) Sub=3D00 Prot=3D00 MxPS=3D 8 #Cfgs=3D  1
+P:  Vendor=3D058f ProdID=3D9254 Rev=3D 1.00
+S:  Manufacturer=3DALCOR
+S:  Product=3DGeneric USB Hub
+C:* #Ifs=3D 1 Cfg#=3D 1 Atr=3De0 MxPwr=3D100mA
+I:  If#=3D 0 Alt=3D 0 #EPs=3D 1 Cls=3D09(hub  ) Sub=3D00 Prot=3D00 Driver=
+=3Dhub
+E:  Ad=3D81(I) Atr=3D03(Int.) MxPS=3D   1 Ivl=3D255ms
+T:  Bus=3D01 Lev=3D00 Prnt=3D00 Port=3D00 Cnt=3D00 Dev#=3D  1 Spd=3D12  MxC=
+h=3D 2
+B:  Alloc=3D118/900 us (13%), #Int=3D  1, #Iso=3D  0
+D:  Ver=3D 1.00 Cls=3D09(hub  ) Sub=3D00 Prot=3D00 MxPS=3D 8 #Cfgs=3D  1
+P:  Vendor=3D0000 ProdID=3D0000 Rev=3D 0.00
+S:  Product=3DUSB UHCI Root Hub
+S:  SerialNumber=3Dd400
+C:* #Ifs=3D 1 Cfg#=3D 1 Atr=3D40 MxPwr=3D  0mA
+I:  If#=3D 0 Alt=3D 0 #EPs=3D 1 Cls=3D09(hub  ) Sub=3D00 Prot=3D00 Driver=
+=3Dhub
+E:  Ad=3D81(I) Atr=3D03(Int.) MxPS=3D   8 Ivl=3D255ms
+T:  Bus=3D01 Lev=3D01 Prnt=3D01 Port=3D01 Cnt=3D01 Dev#=3D  2 Spd=3D1.5 MxC=
+h=3D 0
+D:  Ver=3D 1.10 Cls=3D00(>ifc ) Sub=3D00 Prot=3D00 MxPS=3D 8 #Cfgs=3D  1
+P:  Vendor=3D046d ProdID=3Dc501 Rev=3D 9.10
+S:  Manufacturer=3DLogitech
+S:  Product=3DUSB Receiver
+C:* #Ifs=3D 1 Cfg#=3D 1 Atr=3Da0 MxPwr=3D 50mA
+I:  If#=3D 0 Alt=3D 0 #EPs=3D 1 Cls=3D03(HID  ) Sub=3D01 Prot=3D02 Driver=
+=3Dhid
+E:  Ad=3D81(I) Atr=3D03(Int.) MxPS=3D   8 Ivl=3D 10ms
 
---------------145C981DFA6597180DDB6882--
+Hope this is of some help
+Nathan
 
+
+--=20
+Nathan Walp             || faceprint@faceprint.com
+GPG Fingerprint:        ||   http://faceprint.com/
+5509 6EF3 928B 2363 9B2B  DA17 3E46 2CDC 492D DB7E
+
+
+--opJtzjQTFsWo+cga
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE7F+CAPkYs3Ekt234RAiULAKDI5Xl6ibsqTn4Hn3hRC7bPUDDZVgCgizrs
+fvnSLuADhGLXJasynT+mMLw=
+=0UlE
+-----END PGP SIGNATURE-----
+
+--opJtzjQTFsWo+cga--

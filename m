@@ -1,63 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132805AbRDDQDd>; Wed, 4 Apr 2001 12:03:33 -0400
+	id <S132755AbRDDQLd>; Wed, 4 Apr 2001 12:11:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132772AbRDDQDY>; Wed, 4 Apr 2001 12:03:24 -0400
-Received: from mail.inup.com ([194.250.46.226]:50443 "EHLO mailhost.lineo.fr")
-	by vger.kernel.org with ESMTP id <S132755AbRDDQDO>;
-	Wed, 4 Apr 2001 12:03:14 -0400
-Date: Wed, 4 Apr 2001 18:07:20 +0200
-From: christophe barbe <christophe.barbe@lineo.fr>
-To: linux-kernel@vger.kernel.org
-Subject: Re: uninteruptable sleep
-Message-ID: <20010404180720.A14832@pc8.inup.com>
-In-Reply-To: <003501c0bc5c$e26e81c0$5517fea9@local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+	id <S132784AbRDDQLY>; Wed, 4 Apr 2001 12:11:24 -0400
+Received: from dns-229.dhcp-248.nai.com ([161.69.248.229]:25024 "HELO
+	localdomain") by vger.kernel.org with SMTP id <S132755AbRDDQLM>;
+	Wed, 4 Apr 2001 12:11:12 -0400
+Message-ID: <XFMail.20010404091254.davidel@xmailserver.org>
+X-Mailer: XFMail 1.4.7 on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <003501c0bc5c$e26e81c0$5517fea9@local>; from manfred@colorfullife.com on mar, avr 03, 2001 at 18:40:53 +0200
-X-Mailer: Balsa 1.1.0
+MIME-Version: 1.0
+In-Reply-To: <Pine.LNX.4.30.0104040835470.1708-100000@elte.hu>
+Date: Wed, 04 Apr 2001 09:12:54 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: a quest for a better scheduler
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>, frankeh@us.ibm.com,
+        Mike Kravetz <mkravetz@sequent.com>,
+        Fabio Riccardi <fabio@chromium.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This problem seems to be related with the recent post from David Howells <dhowells@cambridge.redhat.com> with the subject "rw_semaphore bug".
 
-Christophe
+On 04-Apr-2001 Ingo Molnar wrote:
+> 
+> On Tue, 3 Apr 2001, Fabio Riccardi wrote:
+> 
+>> I've spent my afternoon running some benchmarks to see if MQ patches
+>> would degrade performance in the "normal case".
+> 
+> no doubt priority-queue can run almost as fast as the current scheduler.
+> What i'm worried about is the restriction of the 'priority' of processes,
+> it cannot depend on previous processes (and other 'current state')
+> anymore.
+> 
+> to so we have two separate issues:
+> 
+>#1: priority-queue: has the fundamental goodness() design limitation.
+> 
+>#2: per-CPU-runqueues: changes semantics, makes scheduler less
+>     effective due to nonglobal decisions.
+> 
+> about #1: while right now the prev->mm rule appears to be a tiny issue (it
+> might not affect performance significantly), but forbidding it by
+> hardcoding the assumption into data structures is a limitation of *future*
+> goodness() functions. Eg. with the possible emergence of CPU-level
+> threading and other, new multiprocessing technologies, this could be a
+> *big* mistake.
 
-On mar, 03 avr 2001 18:40:53 Manfred Spraul wrote:
-> > ps xl:
-> >   F UID PID PPID PRI NI VSZ RSS WCHAN STAT TTY TIME COMMAND
-> > 040 1000 1230 1 9 0 24320 4 down_w D ? 0:00
-> >           /home/data/mozilla/obj/dist/bin/mozi
-> >
-> down_w
-> 
-> Perhaps down_write_failed()? 2.4.3 converted the mmap semaphore to a
-> rw-sem.
-> Did you compile sysrq into your kernel? Then enable it with
-> 
-> #echo 1 > /proc/sys/kernel/sysrq
-> and press <Alt>+<SysRQ>+'t'
-> 
-> It prints the complete back trace, not just one function name
-> 
-> --
->     Manfred
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
--- 
-Christophe Barbé
-Software Engineer
-Lineo High Availability Group
-42-46, rue Médéric
-92110 Clichy - France
-phone (33).1.41.40.02.12
-fax (33).1.41.40.02.01
-www.lineo.com
+This is not correct Ingo. I haven't seen the HP code but if You store processes
+in slots S :
+
+S = FS( goodness(p, p->processor, p->mm) )
+
+and You start scanning from the higher slots, as soon as you find a task with a
+goodness G' that is equal to the max goodness in slot You can choose that
+process to run.
+Again, if You haven't found such a goodness during the slot scan but You've
+found a task with a goodness G' :
+
+G' >= SG - DD
+
+where :
+
+SG = max slot goodness
+DD = SG(i) - SG(i - 1)
+
+You can select that task as the next to spin.
+This was the behaviour that was implemented in my scheduler patch about 2 years
+ago.
+Beside this, I this that with such loads We've more serious problem to face
+with inside the kernel.
+
+
+
+- Davide
+

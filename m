@@ -1,31 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262423AbRE2X2S>; Tue, 29 May 2001 19:28:18 -0400
+	id <S262436AbRE2XeS>; Tue, 29 May 2001 19:34:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262436AbRE2X2I>; Tue, 29 May 2001 19:28:08 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:52238 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262423AbRE2X2D>; Tue, 29 May 2001 19:28:03 -0400
-Subject: Re: Hard lockup debugging suggestions?  APIC enabling suggestions?
-To: shag-linux-kernel@booyaka.com (Paul Walmsley)
-Date: Wed, 30 May 2001 00:25:58 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0105291807560.20712-300000@utopia.booyaka.com> from "Paul Walmsley" at May 29, 2001 06:22:57 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S262448AbRE2Xd6>; Tue, 29 May 2001 19:33:58 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:52460 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S262436AbRE2Xdx>;
+	Tue, 29 May 2001 19:33:53 -0400
+Message-ID: <3B1431D6.29A97424@mandrakesoft.com>
+Date: Tue, 29 May 2001 19:33:42 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre6 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Dawson Engler <engler@csl.Stanford.EDU>
+Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [CHECKER] 4 security holes in 2.4.4-ac8
+In-Reply-To: <200105292316.QAA00305@csl.Stanford.EDU>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E154ssA-000550-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> hard several times per day under Linux 2.4.4-ac11.  This lockup occurs
-> during standard use of the system, e.g., web browsing or text editing.
-> (What's particularly strange about the lockup is that sometimes the system
-> will turn off the LCD backlight when it freezes -- but not the LCD panel
-> itself.  Other times, it freezes with the backlight on.)
+Dawson Engler wrote:
+> 
+> >  > (Also, are there other functions called
+> >  > directly from user space that don't have the sys_* prefix?)
+> >
+> > Almost certainly, arch/i386/mm/fault.c:do_page_fault is one of
+> > many examples.
+> 
+> Is there any way to automatically find these?  E.g., is any routine
+> with "asmlinkage" callable from user space?
 
-First things to try: Can you make it die without X, can you make it die if
-you compile without APM or ACPI support.
+Checking the syscall table in each port is the only authoritative way
+AFAIK.
 
+And, if we start doing "magic page" type entry points, or if special
+traps exist on other arches, then those would have to be
+special-cased...
+
+-- 
+Jeff Garzik      | Disbelief, that's why you fail.
+Building 1024    |
+MandrakeSoft     |

@@ -1,65 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268581AbUI2OgN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268533AbUI2Ont@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268581AbUI2OgN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 10:36:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268532AbUI2O3O
+	id S268533AbUI2Ont (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 10:43:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268527AbUI2Okf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 10:29:14 -0400
-Received: from open.hands.com ([195.224.53.39]:46720 "EHLO open.hands.com")
-	by vger.kernel.org with ESMTP id S268452AbUI2OZA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 10:25:00 -0400
-Date: Wed, 29 Sep 2004 15:35:55 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] to allow sys_pread64 and sys_pwrite64 to be used from modules
-Message-ID: <20040929143555.GA25982@lkcl.net>
-References: <20040929125835.GA6764@lkcl.net> <1096462770.2786.35.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1096462770.2786.35.camel@laptop.fenrus.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-hands-com-MailScanner: Found to be clean
-X-hands-com-MailScanner-SpamScore: s
-X-MailScanner-From: lkcl@lkcl.net
+	Wed, 29 Sep 2004 10:40:35 -0400
+Received: from pengo.systems.pipex.net ([62.241.160.193]:64934 "EHLO
+	pengo.systems.pipex.net") by vger.kernel.org with ESMTP
+	id S268537AbUI2Ojn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 10:39:43 -0400
+Message-ID: <415AC929.6070700@tungstengraphics.com>
+Date: Wed, 29 Sep 2004 15:39:37 +0100
+From: Keith Whitwell <keith@tungstengraphics.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a3) Gecko/20040817
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Discuss issues related to the xorg tree <xorg@freedesktop.org>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       dri-devel <dri-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: New DRM driver model - gets rid of DRM() macros!
+References: <9e4733910409280854651581e2@mail.gmail.com>	<20040929133759.A11891@infradead.org>	<415AB8B4.4090408@tungstengraphics.com>	<20040929143129.A12651@infradead.org>	<415ABA34.9080608@tungstengraphics.com>	<415AC2B3.6070900@tungstengraphics.com>	<20040929151601.A13135@infradead.org> <415AC640.3090407@tungstengraphics.com>
+In-Reply-To: <415AC640.3090407@tungstengraphics.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 29, 2004 at 02:59:30PM +0200, Arjan van de Ven wrote:
-> On Wed, 2004-09-29 at 14:58, Luke Kenneth Casson Leighton wrote:
-> > i do not know if this does any damage (and i'm going to find out!)
-> > 
-> > i seek to use these two functions from an experimental kernel module: i
-> > get warnings about "symbol not found" without this patch:
-> > 
+Keith Whitwell wrote:
+> Christoph Hellwig wrote:
 > 
-> what on earth are you doing in your module??????
- 
- prefixing a new root onto the front of the file name and then
- re-issuing (proxying) a request.
- 
- all file requests, all stats, all opendirs, everything.
+>> On Wed, Sep 29, 2004 at 03:12:03PM +0100, Keith Whitwell wrote:
+>>
+>>> Thinking about it, it may not have been a problem of crashing, but 
+>>> rather that  the behaviour visible from a program attempting to read 
+>>> (or poll) was different with noop versions of these functions to NULL 
+>>> versions, and that was causing problems.  This is 18 months ago, so 
+>>> yes, I'm being vague.
+>>>
+>>> The X server does look at this file descriptor, which is where the 
+>>> problem would have arisen, but only the gamma & maybe ffb drivers do 
+>>> anything with it.
+>>
+>>
+>>
+>> Indeed, for read you're returning 0 now instead of the -EINVAL from 
+>> common
+>> code when no ->read is present.  I'd say the current drm behaviour is 
+>> a bug,
+>> but if X drivers rely on it.
+> 
+> 
+> I'd agree, but it's a widely distributed bug.  I guess we can fix it in 
+> the X server, but even better would be to rip out the code as it's 
+> fundamentally misguided, based on a wierd idea that the kernel would 
+> somehow ask the X server to perform a context switch between two 
+> userspace clients...
 
- i'm hacking fuse in an attempt to remove the userspace bits,
- merging the functionality of the userspace "fusexmp" - fuse
- example program - into the fuse kernel module.
+The piece of the puzzle you're missing is that the read() function really did 
+used to do something, and was relied upon.
 
- l.
+If you want to go right back to prehistory, the drm was originally designed as 
+a "core + personality" system, where the core supported a number of different 
+context switching mechanisms to cover a variety of hardware cases.  The gamma 
+driver exercised one path, but everything since then has been a lot more 
+simplistic, assuming that the hardware state is lost if another context has 
+been active.
 
- p.s.  if someone fixes the ioctl bug BLKRRDPART on a usb scsi
-	   storage device which has been umounted with a "-l"
-	   option, then i don't have to do all this work.
+Hardware often has the capacity to hold multiple active contexts or to perform 
+fast hardware context save & restore.  None of the DRI drivers have attempted 
+to take advantage of that - optimization continues to focus on the 
+single-client scenario.
 
-	 bugs.debian.org no #273055.
+A future X-on-GL world where regular applications are presumably doing direct 
+rendering will change that assumption...
 
--- 
---
-Truth, honesty and respect are rare commodities that all spring from
-the same well: Love.  If you love yourself and everyone and everything
-around you, funnily and coincidentally enough, life gets a lot better.
---
-<a href="http://lkcl.net">      lkcl.net      </a> <br />
-<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
-
+Keith

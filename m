@@ -1,60 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267291AbUIWUrP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266820AbUIWUrM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267291AbUIWUrP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 16:47:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267186AbUIWUqG
+	id S266820AbUIWUrM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 16:47:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267184AbUIWUqt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 16:46:06 -0400
-Received: from baikonur.stro.at ([213.239.196.228]:4294 "EHLO baikonur.stro.at")
-	by vger.kernel.org with ESMTP id S267291AbUIWUcs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 16:32:48 -0400
-Subject: [patch 21/21]  media/zoran_driver: 	replace schedule_timeout() with ssleep()
-To: akpm@digeo.com
-Cc: linux-kernel@vger.kernel.org, janitor@sternwelten.at, nacc@us.ibm.com
-From: janitor@sternwelten.at
-Date: Thu, 23 Sep 2004 22:32:46 +0200
-Message-ID: <E1CAaGk-0001iI-PO@sputnik>
+	Thu, 23 Sep 2004 16:46:49 -0400
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:35481
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S266820AbUIWUh2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 16:37:28 -0400
+Date: Thu, 23 Sep 2004 13:36:04 -0700
+From: "David S. Miller" <davem@davemloft.net>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: xhejtman@mail.muni.cz, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com
+Subject: Re: 2.6.9-rc2-mm2 fn_hash_insert oops
+Message-Id: <20040923133604.26a2ea2a.davem@davemloft.net>
+In-Reply-To: <E1CARaS-00071j-00@gondolin.me.apana.org.au>
+References: <20040923103723.GA12145@mail.muni.cz>
+	<E1CARaS-00071j-00@gondolin.me.apana.org.au>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 23 Sep 2004 21:16:32 +1000
+Herbert Xu <herbert@gondor.apana.org.au> wrote:
 
+> Lukas Hejtmanek <xhejtman@mail.muni.cz> wrote:
+> > 
+> > However there is still the issue with endless loop in fn_hash_delete :(
+> 
+> Same problem, same fix.
 
-
-Any comments would be appreciated.
-
-Description: Use ssleep() instead of schedule_timeout()
-to guarantee the task delays as expected.
-
-Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
-
-Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
----
-
- linux-2.6.9-rc2-bk7-max/drivers/media/video/zoran_driver.c |    6 ++----
- 1 files changed, 2 insertions(+), 4 deletions(-)
-
-diff -puN drivers/media/video/zoran_driver.c~ssleep-drivers_media_video_zoran_driver drivers/media/video/zoran_driver.c
---- linux-2.6.9-rc2-bk7/drivers/media/video/zoran_driver.c~ssleep-drivers_media_video_zoran_driver	2004-09-21 21:17:34.000000000 +0200
-+++ linux-2.6.9-rc2-bk7-max/drivers/media/video/zoran_driver.c	2004-09-21 21:17:34.000000000 +0200
-@@ -1917,8 +1917,7 @@ zoran_set_norm (struct zoran *zr,
- 		decoder_command(zr, DECODER_SET_NORM, &norm);
- 
- 		/* let changes come into effect */
--		current->state = TASK_UNINTERRUPTIBLE;
--		schedule_timeout(2 * HZ);
-+		ssleep(2);
- 
- 		decoder_command(zr, DECODER_GET_STATUS, &status);
- 		if (!(status & DECODER_STATUS_GOOD)) {
-@@ -2639,8 +2638,7 @@ zoran_do_ioctl (struct inode *inode,
- 		decoder_command(zr, DECODER_SET_NORM, &norm);
- 
- 		/* sleep 1 second */
--		current->state = TASK_UNINTERRUPTIBLE;
--		schedule_timeout(1 * HZ);
-+		ssleep(1);
- 
- 		/* Get status of video decoder */
- 		decoder_command(zr, DECODER_GET_STATUS, &status);
-_
+Applied, thanks Herbert.

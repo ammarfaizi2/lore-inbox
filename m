@@ -1,32 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317849AbSGKPUw>; Thu, 11 Jul 2002 11:20:52 -0400
+	id <S317851AbSGKP5k>; Thu, 11 Jul 2002 11:57:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317850AbSGKPUv>; Thu, 11 Jul 2002 11:20:51 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:47881 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S317849AbSGKPUu>; Thu, 11 Jul 2002 11:20:50 -0400
-Subject: Re: HZ, preferably as small as possible
-To: kasperd@daimi.au.dk (Kasper Dupont)
-Date: Thu, 11 Jul 2002 16:46:35 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), ltd@cisco.com (Lincoln Dale),
-       linux-kernel@vger.kernel.org (Linux)
-In-Reply-To: <3D2D8A35.30F460F3@daimi.au.dk> from "Kasper Dupont" at Jul 11, 2002 03:37:57 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S317852AbSGKP5j>; Thu, 11 Jul 2002 11:57:39 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:46853 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S317851AbSGKP5j> convert rfc822-to-8bit; Thu, 11 Jul 2002 11:57:39 -0400
+Message-ID: <3D2DAB7E.30208@evision-ventures.com>
+Date: Thu, 11 Jul 2002 17:59:58 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0.0) Gecko/20020611
+X-Accept-Language: pl, en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E17Sg9L-00012G-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Thunder from the hill <thunder@ngforever.de>
+CC: Hannu Savolainen <hannu@opensound.com>,
+       george anzinger <george@mvista.com>,
+       "Grover, Andrew" <andrew.grover@intel.com>,
+       Linux <linux-kernel@vger.kernel.org>
+Subject: Re: HZ, preferably as small as possible
+References: <Pine.LNX.4.44.0207110651430.5067-100000@hawkeye.luckynet.adm>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > The APIC on modern systems has decent timers. There may also be ACPI timers
-> > we can use on ACPI capable systems.
+U¿ytkownik Thunder from the hill napisa³:
+> Hi,
 > 
-> In what units do they meassure time? It would be nice if
-> they were garanteed to match the TSC frequency or some
-> other of the units already being used.
+> On Thu, 11 Jul 2002, Hannu Savolainen wrote:
+> 
+>>This is not a problem at all. Just define HZ as:
+>>
+>>extern int system_hz;
+>>#define HZ system_hz
+>>
+>>After that all code will use variable HZ. Changing HZ on fly will be
+>>dangerous. However HZ can be made a boot time (LILO) parameter.
+> 
+> 
+> OK, that's probably a start. As the next step, I'd recommend that the 
+> maintainers and their supporters try to replace the static HZ with 
+> possibly-dynamic system_hz. The third step would be to have guys like Ingo 
+> to tune system_hz to be really dynamic.
+> 
+> Cool idea, anyway.
 
-It really doesn't matter providing the resolution is decent. Conversion 
-between formats of time is a maths operation, and we can handle those 8)
+Just remember plase to map it to /proc/sys/kernel/xxx
+So we could implement the following properly:
+
+_SC_CLK_TCK            CLK_TCK       Ticks per second          (clock_t)
+
+(Taken from Solaris pecs.)
+
+Unless of course we stick to the fact that HZ exposed
+to user land remains an arch specific constant as in 2.5.25 which
+I think is the more prefferable solution.
+
+Pitty is RedHat beta does mess with this! The 2.5.25 solutoin from
+Linus is far better.
+

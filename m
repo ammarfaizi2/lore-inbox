@@ -1,44 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293206AbSCUC57>; Wed, 20 Mar 2002 21:57:59 -0500
+	id <S293218AbSCUDdV>; Wed, 20 Mar 2002 22:33:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293217AbSCUC5t>; Wed, 20 Mar 2002 21:57:49 -0500
-Received: from roc-24-95-199-137.rochester.rr.com ([24.95.199.137]:29437 "EHLO
-	filestore.kroptech.com") by vger.kernel.org with ESMTP
-	id <S293206AbSCUC5h>; Wed, 20 Mar 2002 21:57:37 -0500
-Message-ID: <006101c1d084$275029b0$02c8a8c0@kroptech.com>
-From: "Adam Kropelin" <akropel1@rochester.rr.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <E16nje1-0002oN-00@the-village.bc.nu>
-Subject: Re: Linux 2.4.19pre3-ac4
-Date: Wed, 20 Mar 2002 21:57:35 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-X-OriginalArrivalTime: 21 Mar 2002 02:57:35.0651 (UTC) FILETIME=[274A0F30:01C1D084]
+	id <S293224AbSCUDdL>; Wed, 20 Mar 2002 22:33:11 -0500
+Received: from ns.crrstv.net ([209.128.25.4]:30663 "EHLO mail.crrstv.net")
+	by vger.kernel.org with ESMTP id <S293218AbSCUDdG>;
+	Wed, 20 Mar 2002 22:33:06 -0500
+Date: Wed, 20 Mar 2002 23:33:02 -0400
+From: skidley <skidley@crrstv.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.19-pre3-ac4 and lm_sensors 2.6.2
+Message-ID: <20020321033302.GA2025@crrstv.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> Linux 2.4.19pre3-ac4
+Someone mentioned earlier about a problem compiling lm_sensors 2.6.2
+with 2.4.19-pre3-ac4. I have the same problem here.
+Is there a patch floating around to fix that or maybe it affects a 
+certain config option?
+-- 
+"Seriously, my only ambition in the world is to go to Egypt, 
+stand on top of the central pyramid, and piss all over it." 
+-- Ozzy Osbourne
 
-<snip>
-
-> o The incredible shrinking kernel patch (Andrew Morton)
-
-Is there a magic incantation I need in order to see an improvement from this?
-I'm observing a slight (< 10 KB) increase from -ac3 to -ac4. Same .config, same
-compiler.
-
-I only build 2 modules; everything else is static. Perhaps Andrew's fix is for
-heavy module users?
-
---Adam
-
+Chad Young - Registered Linux User #195191 @ http://counter.li.org
+-----------------------------------------------------------------------
+Linux localhost 2.4.19-pre4 #1 Wed Mar 20 18:54:27 AST 2002 i686 GenuineIntel
 

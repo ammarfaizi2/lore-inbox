@@ -1,85 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274099AbRITCwa>; Wed, 19 Sep 2001 22:52:30 -0400
+	id <S274296AbRITDSz>; Wed, 19 Sep 2001 23:18:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274159AbRITCwV>; Wed, 19 Sep 2001 22:52:21 -0400
-Received: from [195.223.140.107] ([195.223.140.107]:3575 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S274099AbRITCwG>;
-	Wed, 19 Sep 2001 22:52:06 -0400
-Date: Thu, 20 Sep 2001 04:52:35 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Shane Wegner <shane@cm.nu>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: __alloc_pages: 0-order allocation failed still in -pre12
-Message-ID: <20010920045235.N720@athlon.random>
-In-Reply-To: <Pine.OSF.4.21.0109121502420.18976-100000@prfdec.natur.cuni.cz> <Pine.OSF.4.21.0109191615070.3826-100000@prfdec.natur.cuni.cz> <20010919153441.A30940@cm.nu> <20010920004543.Z720@athlon.random> <20010919193128.A8650@cm.nu> <20010919193649.A8824@cm.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010919193649.A8824@cm.nu>; from shane@cm.nu on Wed, Sep 19, 2001 at 07:36:49PM -0700
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S274298AbRITDSp>; Wed, 19 Sep 2001 23:18:45 -0400
+Received: from [24.254.60.31] ([24.254.60.31]:3756 "EHLO
+	femail37.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S274296AbRITDSe>; Wed, 19 Sep 2001 23:18:34 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Nicholas Knight <tegeran@home.com>
+Reply-To: tegeran@home.com
+To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>, brian@worldcontrol.com
+Subject: Re: Re[2]: Athlon: Try this (was: Re: Athlon bug stomping #2)
+Date: Wed, 19 Sep 2001 20:17:38 -0700
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.21.0109140430540.2204-100000@jacui> <1663026712.20010919161037@port.imtp.ilyichevsk.odessa.ua> <01091916564902.00579@c779218-a>
+In-Reply-To: <01091916564902.00579@c779218-a>
+MIME-Version: 1.0
+Message-Id: <01091920173800.01212@c779218-a>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 19, 2001 at 07:36:49PM -0700, Shane Wegner wrote:
-> On Wed, Sep 19, 2001 at 07:31:28PM -0700, Shane Wegner wrote:
-> > On Thu, Sep 20, 2001 at 12:45:43AM +0200, Andrea Arcangeli wrote:
-> > > On Wed, Sep 19, 2001 at 03:34:41PM -0700, Shane Wegner wrote:
-> > > > 
-> > > > __alloc_pages: 0-order allocation failed (gfp=0x20/0) from
-> > > > c012e052
-> > > > __alloc_pages: 0-order allocation failed (gfp=0x20/0) from
-> > > > c012e052
-> > > > __alloc_pages: 0-order allocation failed (gfp=0x20/0) from
-> > > > c012e052
-> > > 
-> > > yes, please try this fix and let me know if it helps:
-> > 
-> > After some stress testing, the fix does appear to fix the
-> > error.
-> 
-> Hi,
-> 
-> Well just after I sent the email, it came up again.
-> 
-> 
-> Sep 19 19:31:52 continuum kernel: __alloc_pages: 0-order
-> allocation failed (gfp=0x20/0) from c012e052
-> Sep 19 19:33:51 continuum kernel: __alloc_pages: 0-order
-> allocation failed (gfp=0x20/0) from c012e052
+Here's a new one:
+http://zerowing.idsoftware.com/linux/q3a/
+I have an AMD CPU and a kernel 2.4.*, Quake III Arena is slowing down to 
+a complete stop after a while?
 
-did it happen as frequently/easily as before or did you need to stress
-it much harder? And I'm also curious what happens if we simply lower the
-watemark (possibly it was too high). Anyways the other patch is a good
-idea to apply anyways.
-
-So can now try the below new one?
-
---- 2.4.10pre11aa1/mm/page_alloc.c.~1~	Thu Sep 20 00:36:11 2001
-+++ 2.4.10pre11aa1/mm/page_alloc.c	Thu Sep 20 04:45:44 2001
-@@ -346,7 +346,7 @@
- 		if (!z)
- 			break;
- 
--		if (zone_free_pages(z, order) > (gfp_mask & __GFP_HIGH ? z->pages_min / 2 : z->pages_min)) {
-+		if (zone_free_pages(z, order) > (gfp_mask & __GFP_HIGH ? z->pages_min / 4 : z->pages_min)) {
- 			page = rmqueue(z, order);
- 			if (page)
- 				return page;
+It seems the 3DNow! copy routines have issues with the southbridge chip 
+in the KT133A, this results in performances degrading while playing for a 
+while. Re-compile your kernel without 3DNow! instructions to avoid the 
+problem, and wait for newer kernels with better support for 3DNow! / 
+KT133A.
 
 
-the fact is, kswapd is the only entity meant to shrink the caches for
-the atomic pages, it exactly knows what are the zones that needs to be
-balanced and we have a min-min/2 of pages of GAP that must be refilled
-in time. It just seems kswapd doesn't cope with the frequency of the
-allocations sometime, this may be ok but maybe we must find a way to
-more aggressively free memory for the atomic allocations or it could
-simply mean that the watermark GAP was too small as Marcelo just
-suggested previously.
-
-Can you also resolve "c012e052" so we know who's allocating those pages
-just in case?
-
-Andrea
+Anyone know further details on this and if it's in any way connected with 
+the current K7 optimization problems in the kernel?

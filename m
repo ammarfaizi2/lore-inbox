@@ -1,66 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264286AbTLYJ44 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Dec 2003 04:56:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264289AbTLYJ4z
+	id S264285AbTLYJz7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Dec 2003 04:55:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264286AbTLYJz7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Dec 2003 04:56:55 -0500
-Received: from orion.netbank.com.br ([200.203.199.90]:31243 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id S264286AbTLYJ4s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Dec 2003 04:56:48 -0500
-Date: Thu, 25 Dec 2003 08:06:48 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Bart Samwel <bart@samwel.tk>
-Cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] laptop-mode for 2.6, version 3
-Message-ID: <20031225100648.GB13382@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Bart Samwel <bart@samwel.tk>, Jens Axboe <axboe@suse.de>,
-	linux-kernel@vger.kernel.org
-References: <3FE92517.1000306@samwel.tk> <20031224111640.GL1601@suse.de> <3FE9AFFC.2080302@samwel.tk>
+	Thu, 25 Dec 2003 04:55:59 -0500
+Received: from fw.osdl.org ([65.172.181.6]:465 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264285AbTLYJz6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Dec 2003 04:55:58 -0500
+Date: Thu, 25 Dec 2003 01:55:18 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: George Anzinger <george@mvista.com>
+Cc: mpm@selenic.com, jgarzik@pobox.com, dilinger@voxel.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 5/7] more CardServices() removals (drivers/net/wireless)
+Message-Id: <20031225015518.09c3eaad.akpm@osdl.org>
+In-Reply-To: <3FEAB1D6.9030209@mvista.com>
+References: <1072229780.5300.69.camel@spiral.internal>
+	<20031223182817.0bd3dd3c.akpm@osdl.org>
+	<3FE8FC2E.3080701@pobox.com>
+	<20031223184827.4cfb87e2.akpm@osdl.org>
+	<3FE9022A.7010604@pobox.com>
+	<20031223202305.489c409f.akpm@osdl.org>
+	<20031224043349.GI18208@waste.org>
+	<3FEAB1D6.9030209@mvista.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FE9AFFC.2080302@samwel.tk>
-X-Url: http://advogato.org/person/acme
-Organization: Conectiva S.A.
-User-Agent: Mutt/1.5.5.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Minor nitpicks below
+George Anzinger <george@mvista.com> wrote:
+>
+> >>George, I'm sorely tempted to fold all of these:
+>  >>
+>  >>	kgdb-buff-too-big.patch
+>  >>	kgdb-warning-fix.patch
+>  >>	kgdb-build-fix.patch
+>  >>	kgdb-spinlock-fix.patch
+>  >>	kgdb-fix-debug-info.patch
+>  >>	kgdb-cpumask_t.patch
+>  >>	kgdb-x86_64-fixes.patch
+>  >>
+>  >>into the base kgdb patch.   Beware ;)
+>  > 
+>  > 
+>  > I did that here too, and I believe mbligh has as well.
+>  > 
+>  I got side tracked by a customer with money :)
 
-Em Wed, Dec 24, 2003 at 04:25:48PM +0100, Bart Samwel escreveu:
-> diff -baur --speed-large-files linux-2.6.0/mm/page-writeback.c linux-2.6.0-withlaptopmode/mm/page-writeback.c
-> --- linux-2.6.0/mm/page-writeback.c	2003-12-24 05:19:46.000000000 +0100
-> +++ linux-2.6.0-withlaptopmode/mm/page-writeback.c	2003-12-24 15:49:55.000000000 +0100
-> @@ -28,6 +28,7 @@
->  #include <linux/smp.h>
->  #include <linux/sysctl.h>
->  #include <linux/cpu.h>
-> +#include <linux/quotaops.h>
->  
->  /*
->   * The maximum number of pages to writeout in a single bdflush/kupdate
-> @@ -81,6 +82,16 @@
->   */
->  int dirty_expire_centisecs = 30 * 100;
->  
-> +/*
-> + * Flag that makes the machine dump writes/reads and block dirtyings.
-> + */
-> +int block_dump = 0;
-> +
-> +/*
-> + * Flag that puts the machine in "laptop mode".
-> + */
-> +int laptop_mode = 0;
-> +
+A what?
 
-No need to set a global variable to 0, if you don't set it'll go to the
-.bss section and the kernel will zero it out for us, and we reclaim 
-2 * sizeof(int) from the kernel image. This is common style in most parts
-of the kernel.
+> The fold is fine with me, but I would like to know what went in.
 
-- Arnaldo
+I'll send you the diffs when I do it.
+
+> 
+>  By the way, in my looking at the network link stuff,
+>
+
+That's all changing.  It will be based on the netpoll infrstructure, which
+is also used by netconsole.  Matt has a little documentation file and for
+kgdb and I assume the netpoll code includes documentation of the kernel
+parameter format to supply IP addresses and such.
+
+

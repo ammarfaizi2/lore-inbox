@@ -1,34 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289802AbSBKOcs>; Mon, 11 Feb 2002 09:32:48 -0500
+	id <S289809AbSBKOap>; Mon, 11 Feb 2002 09:30:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289766AbSBKOa4>; Mon, 11 Feb 2002 09:30:56 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:9746 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S289757AbSBKOag>;
-	Mon, 11 Feb 2002 09:30:36 -0500
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200202110620.g1B6KUo146267@saturn.cs.uml.edu>
-Subject: Re: KSTK_EIP and KSTK_ESP
-To: balbir_soni@hotmail.com (Balbir Singh)
-Date: Mon, 11 Feb 2002 01:20:30 -0500 (EST)
-Cc: linux-kernel@vger.kernel.org, tigran@veritas.com
-In-Reply-To: <F29wLdDnNMZr4DwRMLj000174e4@hotmail.com> from "Balbir Singh" at Feb 08, 2002 12:36:59 PM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
+	id <S289795AbSBKOaN>; Mon, 11 Feb 2002 09:30:13 -0500
+Received: from angband.namesys.com ([212.16.7.85]:21120 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP
+	id <S289802AbSBKOZW>; Mon, 11 Feb 2002 09:25:22 -0500
+Date: Mon, 11 Feb 2002 17:25:18 +0300
+From: Oleg Drokin on behalf of Hans Reiser <reiser@namesys.com>
+To: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+        reiserfs-dev@namesys.com
+Subject: [PATCH] 2.5 [8 of 8] 08-truncate_update_mtime.diff
+Message-ID: <20020211172518.H1768@namesys.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Balbir Singh writes:
+Hello!
 
-> Do we really need these defines, I found that it
-> is not used anywhere and defined as deadbeef on
-> some architectures. Does it make sense to remove
-> these variables from the kernel source?
+   truncate now correctly sets mtime always. Before this fix, mtime was not
+   updated if truncated file was of zero length or if new filesize was bigger
+   then old.
+   Problem was noticed by Matthias Andree <ma@dt.e-technik.uni-dortmund.de>
 
-You should implement these. The names may be x86-specific,
-but the purpose is not.
 
-EIP -- user instruction pointer or (eeew!) program counter
-ESP -- user stack pointer, as defined by your ABI
+--- linux/fs/reiserfs/stree.c.orig	Mon Feb 11 16:43:26 2002
++++ linux/fs/reiserfs/stree.c	Mon Feb 11 16:43:41 2002
+@@ -1705,8 +1705,7 @@
+     }
+ 
+     if ( n_file_size == 0 || n_file_size < n_new_file_size ) {
+-	pathrelse(&s_search_path);
+-	return;
++	goto update_and_out ;
+     }
+ 
+     /* Update key to search for the last file item. */
+@@ -1759,6 +1758,7 @@
+ 	    "PAP-5680: truncate did not finish: new_file_size %Ld, current %Ld, oid %d\n",
+ 	    n_new_file_size, n_file_size, s_item_key.on_disk_key.k_objectid);
+ 
++update_and_out:
+     if (update_timestamps) {
+ 	// this is truncate, not file closing
+ 	p_s_inode->i_mtime = p_s_inode->i_ctime = CURRENT_TIME;

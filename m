@@ -1,46 +1,72 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316244AbSEVQ6f>; Wed, 22 May 2002 12:58:35 -0400
+	id <S316252AbSEVRBI>; Wed, 22 May 2002 13:01:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316252AbSEVQ6e>; Wed, 22 May 2002 12:58:34 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:45586 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S316244AbSEVQ6c>; Wed, 22 May 2002 12:58:32 -0400
-Date: Wed, 22 May 2002 18:58:34 +0200
-From: Jan Kara <jack@suse.cz>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Russell King <rmk@arm.linux.org.uk>, jack@suse.cz,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.5.17
-Message-ID: <20020522165834.GD12982@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <Pine.LNX.4.44.0205220901430.7580-100000@home.transmeta.com> <3CEBB385.5040904@evision-ventures.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+	id <S316254AbSEVRBH>; Wed, 22 May 2002 13:01:07 -0400
+Received: from bdsl.66.13.29.10.gte.net ([66.13.29.10]:39808 "EHLO
+	Bluesong.NET") by vger.kernel.org with ESMTP id <S316252AbSEVRBG>;
+	Wed, 22 May 2002 13:01:06 -0400
+Message-Id: <200205221710.g4MHAhX05491@Bluesong.NET>
+Content-Type: text/plain; charset=US-ASCII
+From: "Jack F. Vogel" <jfv@trane.bluesong.net>
+Reply-To: jfv@bluesong.net
+To: Greg KH <greg@kroah.com>, mingo@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.17 fix for running a SMP kernel on a UP box
+Date: Wed, 22 May 2002 10:10:43 -0700
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <20020521215217.GA3784@kroah.com>
+Cc: jfv@us.ibm.com
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Uz.ytkownik Linus Torvalds napisa?:
-> >
-> >On Wed, 22 May 2002, Russell King wrote:
-> >
-> >>/proc/sys has a clean and clear purpose.
-> >
-> >
-> >Yes, but it _:would_ be good to make the quota stuff use the existign
-> >helper functions to make it much cleaner.
-> >
-> >And some of those helper functions are definitely from sysctl's: splitting
-> >up the quota file into multiple sysctls (_and_ moving it to /proc/sys/fs)
-> >sounds like a good idea to me.
-> 
-> Well I'm actually coding this right now :-).
-  Thanks. I'll update quota tools to use your new files if you send me
-new layout of interface...
+On Tuesday 21 May 2002 02:52 pm, Greg KH wrote:
+> I can't seem to run a SMP 2.5.17 kernel on a UP machine, it locks up
+> during the boot process.  In talking to Jack Vogel, he suggested I make
+> the following patch, which seems to solve the problem for me.  In
+> looking at the code, I have no idea of why this seems to work, so there
+> probably is a better fix out there.
+>
+> Any suggestions?
+>
+> thanks,
+>
+> greg k-h
 
-								Honza
+I should add one bit of information. I originally saw this problem on a
+UP IBM Netvista machine, its the same box Greg had it happen on.
+
+However, I have a 933Mhz PIII HP box at home and it does not
+have the problem.
+
+Since we are limited in the variety of machines to test on I am not
+sure about this, but I believe its only going to occur on UP systems
+with an IOAPIC.
+
+If you apply the irq_balance patch to a 2.4.* kernel you can recreate
+the same hang, in fact it was on 2.4.18 that i first ran into it.
+
+I realize its kinda a corner case, running an SMP kernel on a
+subset of UP machines, but hey, I figure its supposed to work :)
+
+>
+> diff -Nru a/arch/i386/kernel/io_apic.c b/arch/i386/kernel/io_apic.c
+> --- a/arch/i386/kernel/io_apic.c	Tue May 21 14:47:06 2002
+> +++ b/arch/i386/kernel/io_apic.c	Tue May 21 14:47:06 2002
+> @@ -205,7 +205,7 @@
+>  } ____cacheline_aligned irq_balance_t;
+>
+>  static irq_balance_t irq_balance[NR_IRQS] __cacheline_aligned
+> -			= { [ 0 ... NR_IRQS-1 ] = { 1, 0 } };
+> +			= { [ 0 ... NR_IRQS-1 ] = { 0, 0 } };
+>
+>  extern unsigned long irq_affinity [NR_IRQS];
+
+Cheers,
+
 -- 
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
+Jack F. Vogel
+IBM  Linux Solutions
+jfv@us.ibm.com  (work)
+jfv@Bluesong.NET (home)

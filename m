@@ -1,62 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316583AbSE0LvY>; Mon, 27 May 2002 07:51:24 -0400
+	id <S316588AbSE0Lv2>; Mon, 27 May 2002 07:51:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316588AbSE0LvX>; Mon, 27 May 2002 07:51:23 -0400
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:7041 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S316583AbSE0LvW>; Mon, 27 May 2002 07:51:22 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Date: Mon, 27 May 2002 21:50:34 +1000 (EST)
+	id <S316589AbSE0Lv1>; Mon, 27 May 2002 07:51:27 -0400
+Received: from spruce.woods.net ([166.70.175.33]:12708 "EHLO a.smtp.woods.net")
+	by vger.kernel.org with ESMTP id <S316588AbSE0Lv0>;
+	Mon, 27 May 2002 07:51:26 -0400
+Date: Mon, 27 May 2002 05:44:52 -0600 (MDT)
+From: "Christopher E. Brown" <cbrown@woods.net>
+To: rwhron@earthlink.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [2.4] [2.5] [i386] Add support for GCC 3.1
+In-Reply-To: <20020526160217.A1343@rushmore>
+Message-ID: <Pine.LNX.4.44.0205270538140.584-100000@spruce.woods.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15602.7562.776171.139609@notabene.cse.unsw.edu.au>
-Cc: Daniel Phillips <phillips@bonn-fries.net>, linux-kernel@vger.kernel.org
-Subject: Re: Thoughts on using fs/jbd from drivers/md
-In-Reply-To: message from Stephen C. Tweedie on Monday May 27
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday May 27, sct@redhat.com wrote:
-> Hi,
-> 
-> On Sun, May 26, 2002 at 10:41:22AM +0200, Daniel Phillips wrote:
-> > On Thursday 16 May 2002 17:17, Stephen C. Tweedie wrote:
-> > > Most applications are not all that bound by write latency.
-> > 
-> > But some are.  Transaction processing applications, where each transaction 
-> > has to be safely on disk before it can be acknowledged, care about write 
-> > latency a lot, since it translates more or less directly into throughput.
-> 
-> Not really.  They care about throughput, and will happily sacrifice
-> latency for that.
+On Sun, 26 May 2002 rwhron@earthlink.net wrote:
 
-And some aren't...  my main thrust for pursuing this idea was to
-present minimal latency to the application.  That is why I want to use
-NVRAM for the journal.
-My particular application is an NFS server which traditionally suffers
-badly if there is too much latency.
-Certainly there are situations where a small drop in latency can
-improve throughput, but I want to maximise the throughout without any
-cost in latency.  And I am willing to spend on the NVRAM to do it.
+> Another processor config could be CONFIG_K62.
+> gcc-3.1 -march=k6-2 benchmarks a little better
+> than -march=k6.  Adding CONFIG_XF86_USE_3DNOW=y
+> seems to help a little too.
+>
+> Based on grepping gcc-3.1 src, it appears:
+> k6-3 == k6-2
 
-I'm seeing two very different approaches to journalling an MD device
-being significant.
-One journals to NVRAM and trys to minimise latency, and works for any
-RAID level.  It is basically a write-behind cache.
 
-The other journals to a normal drive and only works for RAID5 (which
-is the only level that really needs a journal other than for latency
-reasons) and writes to the journal after a the stripe parity
-calculation and before the data+parity is sent to disc.
+IIRC (not looking at the datasheets) there were some pretty nice
+improvements made to the core in the K6 to K6-2 update (not just and
+upclock and downsize, real changes(isn't this when they added MMX
+too?)).
 
-They will probably be very different implementations, though they will
-hopefully have a very similar interface.
 
-NeilBrown
+However, the K6-3 is simply a K6-2 with the addition of a 256K L2
+cache on die at full cpu clock.  It was a great improvement
+performance wise for many uses (think 256K L2 @ 450Mhz, and then a 2M
+L3 on the mainboard) though.
+
+
+-- 
+I route, therefore you are.
+

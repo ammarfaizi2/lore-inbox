@@ -1,69 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261793AbUDPCtw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 22:49:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262043AbUDPCtw
+	id S262078AbUDPCxf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 22:53:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262114AbUDPCxf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 22:49:52 -0400
-Received: from fmr03.intel.com ([143.183.121.5]:16517 "EHLO
-	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S261603AbUDPCts
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 22:49:48 -0400
-Message-Id: <200404160249.i3G2n6F13010@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'David Gibson'" <david@gibson.dropbear.id.au>
-Cc: <linux-kernel@vger.kernel.org>, <linux-ia64@vger.kernel.org>,
-       <lse-tech@lists.sourceforge.net>, <raybry@sgi.com>,
-       "'Andy Whitcroft'" <apw@shadowen.org>,
-       "'Andrew Morton'" <akpm@osdl.org>
-Subject: RE: hugetlb demand paging patch part [3/3]
-Date: Thu, 15 Apr 2004 19:49:06 -0700
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-Thread-Index: AcQjW6eDV7ShCuZERzOEkX2Vmo8S3AAAQJbA
-In-Reply-To: <20040416014045.GE12735@zax>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	Thu, 15 Apr 2004 22:53:35 -0400
+Received: from relay01.roc.ny.frontiernet.net ([66.133.131.34]:6337 "EHLO
+	relay01.roc.ny.frontiernet.net") by vger.kernel.org with ESMTP
+	id S262078AbUDPCxc convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Apr 2004 22:53:32 -0400
+From: Russell Miller <rmiller@duskglow.com>
+To: linux-kernel@vger.kernel.org
+Subject: udp traceroute dropping packets
+Date: Thu, 15 Apr 2004 21:55:13 -0500
+User-Agent: KMail/1.6.1
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200404152155.18724.rmiller@duskglow.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>> David Gibson wrote on Thursday, April 15, 2004 6:41 PM
-> > > > @@ -175,7 +132,6 @@ struct page *follow_huge_addr(struct mm_
-> > > >  		return NULL;
-> > > >  	page = pte_page(*ptep);
-> > > >  	page += ((addr & ~HPAGE_MASK) >> PAGE_SHIFT);
-> > > > -	get_page(page);
-> > > >  	return page;
-> > > >  }
-> > >
-> > > As far as I can tell, the removal of these get_page()s is also
-> > > unrelated to the demand paging per se.  But afaict removing them is
-> > > correct - the corresponding logic in follow_page() for normal pages
-> > > doesn't appear to do a get_page(), nor do all archs do a get_page().
-> > >
-> > > Does that sound right to you?
-> >
-> > It's a bug in the code that was never exercised with prefaulting.  See
-> > get_user_pages() that short circuits the rest of faulting code with
-> > is_vm_hugetlb_page() test.
->
-> Erm.. it's not clear to me that it could never be exercise:
-> get_user_pages() is not the only caller of follow_page().
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-At least we all agree it's a bug :-)
+I came across this archived linux-kernel message:
 
+http://www.uwsg.iu.edu/hypermail/linux/net/0007.2/0111.html
 
-> > > If so, the patch below ought to be safe (and indeed a bugfix) to
-> > > apply now:
-> >
-> > Yep, that's correct, I already did x86 and ia64 in one of the three
-> > patches posted. ;-)
->
-> Yes, I know, but I'm trying to separate which parts of your patches
-> are fixes/cleanups for pre-existing problems, and which are genuinely
-> new for demand paging.
+I am having the exact same problem as is outlined there, from a post three 
+years ago.  Here's a summary:
 
-The only part I know that is bug fix is the extra get_page() reference
-in follow_huge_addr().  All others are for demand paging.
+"I think I've found a bug in UDP/ICMP code in the kernel using 
+ traceroute. 
+ 
+To reproduce: Launch traceroute -n to some Linux system nearby 
+ really quickly 3 times in the row; localhost won't work, it has to go 
+ through network. Quick response is crucial. I used systems w/ in 
+ the same physical network and a few routers between (still < 5 ms 
+ response). 
+ 
+The effect: On third traceroute (or perhaps second/first, if you're quick 
+ enough), ICMP port unreachable will not be sent to the UDP datagram. "
 
-- Ken
+I reproduced this on a redhat 8.0 machine running kernel 2.4.23.  Changing to 
+the -I option of traceroute (to use ICMP) works flawlessly.  I'll be glad to 
+provide more information if you need it.  Please CC, as I'm not subscribed.
 
+- --Russell
+- -- 
 
+Russell Miller - rmiller@duskglow.com - Somewhere near Sioux City, IA.
+Youth cannot know age, but age is guilty if it forgets youth
+    - Professor Dumbledore
+Hi! I'm a .signature virus! Copy me into your ~/.signature, please!
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAf0sUURTA4VCI9OARAs52AJ9llhS5KKvSe2nAU3lp82oySZ8c/gCfeyIK
+i5V/P6Qj6ODS3jm6GSMQFrs=
+=vREp
+-----END PGP SIGNATURE-----

@@ -1,67 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261449AbVBGOrs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261443AbVBGOwX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261449AbVBGOrs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 09:47:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261444AbVBGOro
+	id S261443AbVBGOwX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 09:52:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261442AbVBGOwW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 09:47:44 -0500
-Received: from alog0411.analogic.com ([208.224.222.187]:4224 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261443AbVBGOqh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 09:46:37 -0500
-Date: Mon, 7 Feb 2005 09:46:31 -0500 (EST)
-From: linux-os <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Xavier Bestel <xavier.bestel@free.fr>
-cc: Justin Piszcz <jpiszcz@lucidpixels.com>, linux-kernel@vger.kernel.org
-Subject: Re: Reading Bad DVD Under 2.6.10 freezes the box.
-In-Reply-To: <1107783980.6191.154.camel@gonzales>
-Message-ID: <Pine.LNX.4.61.0502070939320.21570@chaos.analogic.com>
-References: <Pine.LNX.4.62.0502070728520.1743@p500> 
- <Pine.LNX.4.61.0502070757580.21063@chaos.analogic.com> <1107783980.6191.154.camel@gonzales>
+	Mon, 7 Feb 2005 09:52:22 -0500
+Received: from gate.corvil.net ([213.94.219.177]:15114 "EHLO corvil.com")
+	by vger.kernel.org with ESMTP id S261438AbVBGOtL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Feb 2005 09:49:11 -0500
+Message-ID: <42077FD1.1070605@draigBrady.com>
+Date: Mon, 07 Feb 2005 14:48:49 +0000
+From: P@draigBrady.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040124
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="1879706418-42337991-1107787591=:21570"
+To: =?ISO-8859-1?Q?Pasi_K=E4rkk=E4inen?= <pasik@iki.fi>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [WATCHDOG] support of motherboards with ICH6]
+References: <20050207142141.GF1561@edu.joroinen.fi>
+In-Reply-To: <20050207142141.GF1561@edu.joroinen.fi>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-
---1879706418-42337991-1107787591=:21570
-Content-Type: TEXT/PLAIN; charset=X-UNKNOWN; format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-
-On Mon, 7 Feb 2005, Xavier Bestel wrote:
-
-> Le lundi 07 f=FF=FFvrier 2005 =FF=FF 08:05 -0500, linux-os a =FF=FFcrit :
->
->>> Main Question >> Why does Linux 'freeze up' when W2K gives a BadCRC err=
-or msg
->>> (never freezes)?
+Pasi Kärkkäinen wrote:
+> On Mon, Feb 07, 2005 at 10:00:03AM +0100, P.O. Gaillard wrote:
+> 
+>>Hi,
 >>
->> Of course it should not. However, there were many incomplete changes
->> made in 2.6.nn and some may involve problems with locking, etc.
->
-> I don't remember a version of the kernel gracefully handling scratched
-> CD/DVD.
->
-> =09Xav
->
+>>I am replying to myself so that people googling for similar problems can 
+>>find the answer.
+>>
+>>Supermicro says that the internal driver of the southbridge (and also the 
+>>W83627HF chip) are not useable because the necessary support hardware is 
+>>missing. They say that the P8SCi board has a working watchdog.
+>>
+>>	hope this can help somebody someday,
+>>
+>>	P.O. Gaillard
+>>
+> 
+> 
+> Hi!
+> 
+> I have P8SCi motherboard, and I just tried the watchdog with Linux 2.6.10.
+> 
+> I loaded w83627hf_wdt driver, and the watchdog was detected:
+> 
+> WDT driver for the Winbond(TM) W83627HF Super I/O chip initialising.
+> w83627hf WDT: initialized. timeout=60 sec (nowayout=0)
 
-Well `cdparanoia` will read, analyze/rip, and reject trashed CDs
-without ever hanging the Linux-2.4.22 kernel, but will immediately
-hang linux-2.6.10.
+Note there is no detection. It just writes to a particular IO port
+(2E by default).
 
-Basically, when you start getting the kernel error messages on
-linux-2.4.22, you can ^C out and everything will quiet down.
-With Linux-2.6.10, nothing entered from the keyboard will
-do anything. Since the Caps-Lock key still functions, interrupts
-are still active. However, it is likely the kernel-lock that
-prevents signals (like ^C or ^/) from being executed.
+> But it is not working. I tried setting the timeout to 1 minute, and to
+> 8 minute in the BIOS, but the machine reboots after the delay no matter what
+> the delay is.. the watchdog driver is loaded before the timeout of course.
+> 
+> For some reason, the driver is not working.
+> 
+> I mailed supermicro support about this, and they told me one of their
+> customers is using watchdog with Debian 2.6.10 kernel. 
+> So it should work, but..
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
---1879706418-42337991-1107787591=:21570--
+You need to ask them what watchdog they use exactly.
+I've seen motherboards that have w83637hf chips but
+actually wire the intel watchdog up so you need the i8xx_tco driver
+
+If they are using the w83726hf chip you need to ask
+what IO port they're using.
+
+Pádraig.

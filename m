@@ -1,48 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270696AbUJUI24@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270686AbUJUI25@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270696AbUJUI24 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 04:28:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270686AbUJUI2v
+	id S270686AbUJUI25 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 04:28:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270617AbUJUIQ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 04:28:51 -0400
-Received: from pat.uio.no ([129.240.130.16]:24562 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S270702AbUJUIYd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 04:24:33 -0400
-Subject: Re: [PATCH] sunrpc: replace sleep_on_timeout()
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: tglx@linutronix.de, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041021074245.GB20573@elte.hu>
-References: <1098300093.20821.58.camel@thomas>
-	 <1098343597.28394.10.camel@lade.trondhjem.org>
-	 <20041021074245.GB20573@elte.hu>
-Content-Type: text/plain
-Date: Thu, 21 Oct 2004 10:24:02 +0200
-Message-Id: <1098347042.28394.20.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+	Thu, 21 Oct 2004 04:16:57 -0400
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:61138 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S270690AbUJUIQW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 04:16:22 -0400
+In-Reply-To: <1098344977.4146.21.camel@desktop.cunninghams>
+References: <1098344977.4146.21.camel@desktop.cunninghams>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <7A2358E8-2339-11D9-88FB-000D9352858E@linuxmail.org>
 Content-Transfer-Encoding: 7bit
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
-X-UiO-MailScanner: No virus found
-X-UiO-Spam-info: not spam, SpamAssassin (score=0.326, required 12,
-	RCVD_NUMERIC_HELO 0.33)
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Subject: Re: Proposal: Desktop kernel bk tree/patchset.
+Date: Thu, 21 Oct 2004 10:16:15 +0200
+To: ncunningham@linuxmail.org
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-to den 21.10.2004 Klokka 09:42 (+0200) skreiv Ingo Molnar:
+On Oct 21, 2004, at 09:49, Nigel Cunningham wrote:
 
-> ah, indeed. Do you in principle agree with these sleep_on() =>
-> wait_event*() conversions in the NFS code? (as long as they are
-> correct). sleep_on() is really becoming an architectural wart these
-> days.
+> Hi all.
+>
+> I want to get some feedback. I'm considering making a tree/patchset
+> aimed at the desktop user: Linus kernel + PM, USB and so on patches,
+> Win4Lin patches and perhaps [I/O] scheduler improvements.
+>
+> What do people think?
 
-Sure. Feel free to fix them up, but carefully please. ;-)
-
-Cheers,
-  Trond
-
--- 
-Trond Myklebust <trond.myklebust@fys.uio.no>
+I think it's a good idea. Maybe you should talk to Con to get some of 
+the patches in the -ck patchkit integrated in your tree.
 

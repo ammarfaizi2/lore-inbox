@@ -1,53 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263420AbTH0PNa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 11:13:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263419AbTH0PNa
+	id S263431AbTH0PPh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 11:15:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263436AbTH0PPh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 11:13:30 -0400
-Received: from wildsau.idv.uni.linz.at ([213.157.128.253]:44952 "EHLO
-	wildsau.idv.uni.linz.at") by vger.kernel.org with ESMTP
-	id S263420AbTH0PN2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 11:13:28 -0400
-From: "H.Rosmanith (Kernel Mailing List)" <kernel@wildsau.idv.uni.linz.at>
-Message-Id: <200308271511.h7RFBFHu017520@wildsau.idv.uni.linz.at>
-Subject: Re: usb-storage: how to ruin your hardware(?)
-In-Reply-To: <200308221044.h7MAicrR005239@wildsau.idv.uni.linz.at>
-To: "H.Rosmanith (Kernel Mailing List)" <kernel@wildsau.idv.uni.linz.at>
-Date: Wed, 27 Aug 2003 17:11:14 +0200 (MET DST)
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-X-Mailer: ELM [version 2.4ME+ PL100 (25)]
-MIME-Version: 1.0
+	Wed, 27 Aug 2003 11:15:37 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:50848 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S263431AbTH0PPg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Aug 2003 11:15:36 -0400
+Subject: Re: vesafb mtrr setup question
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Arvind Sankar <arvinds@MIT.EDU>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030826155044.GA27105@m66-080-18.mit.edu>
+References: <20030825194304.GA14893@m66-080-17.mit.edu>
+	 <1061912542.20846.50.camel@dhcp23.swansea.linux.org.uk>
+	 <20030826155044.GA27105@m66-080-18.mit.edu>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
+Message-Id: <1061997292.22721.47.camel@dhcp23.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
+Date: 27 Aug 2003 16:14:54 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > "after the first write the flash device failed entirely". That doen't 
+On Maw, 2003-08-26 at 16:50, Arvind Sankar wrote:
+> Ah. On a side not, could you drop a quick hint as to how
+> screen_info.lfb_size is obtained?
 > 
-> no, I wrote several data to it, like partitioning it, writing /dev/zero
-> to it and so on. I moved it from computer to computer to try booting from
-> it, installed lilo on it and so on. After several hours of messing around
-> with the device, it failed.
+> In older (or just different?) versions of vesafb, the video_size was
+> actually computed by multiplying xres, yres, and the bpp.
 
-okidok.... I got an new flashdisk from the vendor, but managed to ruin
-it again. anyway, I also managed to repair it again. the vendor ships
-a seperate formating-tool, which will repair the device, even when you
-get "SCSI sense key errors".
-
-however, I still don't understand what's going on and *why* it is not
-allowed to format the drive "at will". I'd also would like to know how
-this vendor supplied formating-tool works. Possibly some vendor-specific
-usb-commands to ... do what? hm. I can only guess.
-
-I purchased another driver (TraxData, USB-1, 6 euros cheaper and it
-my mainboard can even boot from this device).
-
-by the way: the manufacturer is Panram, www.panram.com.tw/ ... does anyone
-of you have experience with them? Is it likely that one gets documentation
-from them?
-
-thx
-h.rosmanith
+The BIOS will provide the size of the LFB. In 2.4 we now work out the
+size we need for a sensible amount of scrollback and the like because
+the LFB size may be huge (256Mb for example) and we don't want to blow
+all our kernel address space on a useless mapping
 

@@ -1,106 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264674AbUD3QXP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265076AbUD3QcE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264674AbUD3QXP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Apr 2004 12:23:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265086AbUD3QXP
+	id S265076AbUD3QcE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Apr 2004 12:32:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265086AbUD3QcE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Apr 2004 12:23:15 -0400
-Received: from fire.osdl.org ([65.172.181.4]:46019 "EHLO fire-2.osdl.org")
-	by vger.kernel.org with ESMTP id S264674AbUD3QXK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Apr 2004 12:23:10 -0400
-Subject: Re: 2.6.6-rc3-mm1 (compile stats)
-From: John Cherry <cherry@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040430014658.112a6181.akpm@osdl.org>
-References: <20040430014658.112a6181.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1083342188.671.9.camel@cherrypit.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 30 Apr 2004 09:23:08 -0700
+	Fri, 30 Apr 2004 12:32:04 -0400
+Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:46219 "EHLO
+	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S265076AbUD3QcA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Apr 2004 12:32:00 -0400
+Message-ID: <40927F21.9010703@nortelnetworks.com>
+Date: Fri, 30 Apr 2004 12:30:25 -0400
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Marc Boucher <marc@linuxant.com>
+CC: Sean Estabrooks <seanlkml@rogers.com>, david@gibson.dropbear.id.au,
+       Jeff Garzik <jgarzik@pobox.com>, miller@techsource.com, riel@redhat.com,
+       koke@sindominio.net, linux-kernel@vger.kernel.org, torvalds@osdl.org,
+       Tigran Aivazian <tigran@aivazian.fsnet.co.uk>, rusty@rustcorp.com.au,
+       paul@wagland.net
+Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
+References: <Pine.LNX.4.44.0404301557230.4027-100000@einstein.homenet> <40927417.6040100@nortelnetworks.com> <DE44B86D-9AC0-11D8-B83D-000A95BCAC26@linuxant.com>
+In-Reply-To: <DE44B86D-9AC0-11D8-B83D-000A95BCAC26@linuxant.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just one new error in the allyesconfig and allmodconfig builds.
+Marc Boucher wrote:
+> 
+> Chris,
+> 
+> people should, before insulting us publicly or make unsubstantiated 
+> claims that we "lie" or engage in "illegal" actions, perhaps consult a 
+> lawyer, and simultaneously use the opportunity to enquire about the 
+> meaning of "slander".
 
-  CC      drivers/pci/hotplug/cpci_hotplug_core.o
-drivers/pci/hotplug/cpci_hotplug_core.c: In function
-`slot_paranoia_check':
-drivers/pci/hotplug/cpci_hotplug_core.c:97: structure has no member
-named `magic'
-drivers/pci/hotplug/cpci_hotplug_core.c:97: `SLOT_MAGIC' undeclared
-(first use in this function)
-drivers/pci/hotplug/cpci_hotplug_core.c:97: (Each undeclared identifier
-is reported only once
-drivers/pci/hotplug/cpci_hotplug_core.c:97: for each function it appears
-in.)
-  CC      drivers/net/tulip/21142.o
-make[3]: [drivers/pci/hotplug/cpci_hotplug_core.o] Error 1
+The C string library considers a null to terminate the string.  You added a null after the "GPL". 
+It appears to me that this is telling the kernel that the module is licensed as "GPL", even though 
+it is obvious to a person reading the source that it isn't.  If someone is given the precompiled 
+binary, short of disassembling it or doing research online there is no way for them to know that it 
+is not licensed under the GPL, as all the module tools, and the kernel itself, all interpret the 
+license string as GPL.
 
------------------------------------------------------------------------
+> I repeat, the \0 is purely a technical workaround, done without any 
+> mischievous intent. 
 
-Linux 2.6 (mm tree) Compile Statistics (gcc 3.2.2)
-Warnings/Errors Summary
+I'm sure it was in fact done without mischievous intent.  An argument could be made, however, that 
+by inserting the null character you are in fact telling the kernel that the entire module is GPL'd, 
+which is obviously not the case.  In addition to that, you are forcing the tainted message to be 
+suppressed.  Regardless of whether this caused any developer time to be wasted, the fact remains 
+that it *could* have.
 
-Kernel            bzImage   bzImage  bzImage  modules  bzImage  modules
-                (defconfig) (allno) (allyes) (allyes) (allmod) (allmod)
---------------- ---------- -------- -------- -------- -------- --------
-2.6.6-rc1-mm3     0w/0e     0w/0e   120w/10e   8w/0e   2w/0e    152w/2e
-2.6.6-rc1-mm2     0w/0e     1w/5e   118w/ 0e   8w/0e   3w/0e    118w/0e
-2.6.6-rc1-mm1     0w/0e     0w/7e   122w/ 0e   7w/0e   4w/0e    122w/0e
-2.6.5-mm6         0w/0e     0w/0e   123w/ 0e   7w/0e   4w/0e    124w/0e
-2.6.5-mm5         0w/0e     0w/0e   119w/ 0e   7w/0e   4w/0e    120w/0e
-2.6.5-mm4         0w/0e     0w/0e   120w/ 0e   7w/0e   4w/0e    121w/0e
-2.6.5-mm3         0w/0e     1w/0e   121w/12e   7w/0e   3w/0e    123w/0e
-2.6.5-mm2         0w/0e     0w/0e   128w/12e   7w/0e   3w/0e    134w/0e
-2.6.5-mm1         0w/0e     5w/0e   122w/ 0e   7w/0e   3w/0e    124w/0e
-2.6.5-rc3-mm4     0w/0e     0w/0e   124w/ 0e   8w/0e   4w/0e    126w/0e
-2.6.5-rc3-mm3     0w/0e     5w/0e   129w/14e   8w/0e   4w/0e    129w/6e
-2.6.5-rc3-mm2     0w/0e     5w/0e   130w/14e   8w/0e   4w/0e    129w/6e
-2.6.5-rc3-mm1     0w/0e     5w/0e   129w/ 0e   8w/0e   4w/0e    129w/0e
-2.6.5-rc2-mm5     0w/0e     5w/0e   130w/ 0e   8w/0e   4w/0e    129w/0e
-2.6.5-rc2-mm4     0w/0e     5w/0e   134w/ 0e   8w/0e   3w/0e    133w/0e
-2.6.5-rc2-mm3     0w/0e     5w/0e   134w/ 0e   8w/0e   3w/0e    133w/0e
-2.6.5-rc2-mm2     0w/0e     5w/0e   137w/ 0e   8w/0e   3w/0e    134w/0e
-2.6.5-rc2-mm1     0w/0e     5w/0e   136w/ 0e   8w/0e   3w/0e    134w/0e
-2.6.5-rc1-mm2     0w/0e     5w/0e   135w/ 5e   8w/0e   3w/0e    133w/0e
-2.6.5-rc1-mm1     0w/0e     5w/0e   135w/ 5e   8w/0e   3w/0e    133w/0e
-2.6.4-mm2         1w/2e     5w/2e   144w/10e   8w/0e   3w/2e    144w/0e
-2.6.4-mm1         1w/0e     5w/0e   146w/ 5e   8w/0e   3w/0e    144w/0e
-2.6.4-rc2-mm1     1w/0e     5w/0e   146w/12e  11w/0e   3w/0e    147w/2e
-2.6.4-rc1-mm2     1w/0e     5w/0e   144w/ 0e  11w/0e   3w/0e    145w/0e
-2.6.4-rc1-mm1     1w/0e     5w/0e   147w/ 5e  11w/0e   3w/0e    147w/0e
-2.6.3-mm4         1w/0e     5w/0e   146w/ 0e   7w/0e   3w/0e    142w/0e
-2.6.3-mm3         1w/2e     5w/2e   146w/15e   7w/0e   3w/2e    144w/5e
-2.6.3-mm2         1w/8e     5w/0e   140w/ 0e   7w/0e   3w/0e    138w/0e
-2.6.3-mm1         1w/0e     5w/0e   143w/ 5e   7w/0e   3w/0e    141w/0e
-2.6.3-rc3-mm1     1w/0e     0w/0e   144w/13e   7w/0e   3w/0e    142w/3e
-2.6.3-rc2-mm1     1w/0e     0w/265e 144w/ 5e   7w/0e   3w/0e    145w/0e
-2.6.3-rc1-mm1     1w/0e     0w/265e 141w/ 5e   7w/0e   3w/0e    143w/0e
-2.6.2-mm1         2w/0e     0w/264e 147w/ 5e   7w/0e   3w/0e    173w/0e
-2.6.2-rc3-mm1     2w/0e     0w/265e 146w/ 5e   7w/0e   3w/0e    172w/0e
-2.6.2-rc2-mm2     0w/0e     0w/264e 145w/ 5e   7w/0e   3w/0e    171w/0e
-2.6.2-rc2-mm1     0w/0e     0w/264e 146w/ 5e   7w/0e   3w/0e    172w/0e
-2.6.2-rc1-mm3     0w/0e     0w/265e 144w/ 8e   7w/0e   3w/0e    169w/0e
-2.6.2-rc1-mm2     0w/0e     0w/264e 144w/ 5e  10w/0e   3w/0e    171w/0e
-2.6.2-rc1-mm1     0w/0e     0w/264e 144w/ 5e  10w/0e   3w/0e    171w/0e
-2.6.1-mm5         2w/5e     0w/264e 153w/11e  10w/0e   3w/0e    180w/0e
-2.6.1-mm4         0w/821e   0w/264e 154w/ 5e   8w/1e   5w/0e    179w/0e
-2.6.1-mm3         0w/0e     0w/0e   151w/ 5e  10w/0e   3w/0e    177w/0e
-2.6.1-mm2         0w/0e     0w/0e   143w/ 5e  12w/0e   3w/0e    171w/0e
-2.6.1-mm1         0w/0e     0w/0e   146w/ 9e  12w/0e   6w/0e    171w/0e
-2.6.1-rc2-mm1     0w/0e     0w/0e   149w/ 0e  12w/0e   6w/0e    171w/4e
-2.6.1-rc1-mm2     0w/0e     0w/0e   157w/15e  12w/0e   3w/0e    185w/4e
-2.6.1-rc1-mm1     0w/0e     0w/0e   156w/10e  12w/0e   3w/0e    184w/2e
-2.6.0-mm2         0w/0e     0w/0e   161w/ 0e  12w/0e   3w/0e    189w/0e
-2.6.0-mm1         0w/0e     0w/0e   173w/ 0e  12w/0e   3w/0e    212w/0e
+ > We didn't try to hide anything since
+> the code containing the workaround is open-source, and we even explained 
+> back in February the purpose of this workaround on the public hsflinux 
+> mailing list, while suggesting that a patch should be sent to 
+> effectively take care of the problem. I even apologized to Rusty for not 
+> sending that patch ourselves.
 
-Web page with links to complete details:
-   http://developer.osdl.org/cherry/compile/
+I understand that now that this has been brought up on the main kernel mailing list that you are 
+trying to fix it in a way that is acceptable to the kernel dev team.  I just think it is unfortunate 
+that you shipped code with this workaround in it rather than finding some other way of accomplishing 
+what you were trying to do.
 
-John
-
+Chris
 

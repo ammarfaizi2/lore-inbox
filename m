@@ -1,36 +1,70 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315222AbSEaIbs>; Fri, 31 May 2002 04:31:48 -0400
+	id <S315218AbSEaIg7>; Fri, 31 May 2002 04:36:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315210AbSEaIbr>; Fri, 31 May 2002 04:31:47 -0400
-Received: from [213.187.195.158] ([213.187.195.158]:57331 "EHLO
-	kokeicha.ingate.se") by vger.kernel.org with ESMTP
-	id <S315218AbSEaIbq>; Fri, 31 May 2002 04:31:46 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.19pre9-ac3
-In-Reply-To: <200205302322.g4UNMne06371@devserv.devel.redhat.com>
-	<20020531014935.D9282@suse.de>
-From: Marcus Sundberg <marcus@ingate.com>
-Date: 31 May 2002 10:31:44 +0200
-Message-ID: <vewutkogzz.fsf@inigo.ingate.se>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
-MIME-Version: 1.0
+	id <S315227AbSEaIg6>; Fri, 31 May 2002 04:36:58 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:32756 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S315218AbSEaIg6>;
+	Fri, 31 May 2002 04:36:58 -0400
+Date: Fri, 31 May 2002 14:10:30 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: BALBIR SINGH <balbir.singh@wipro.com>
+Cc: "'Mala Anand'" <manand@us.ibm.com>, linux-kernel@vger.kernel.org,
+        "'Paul McKenney'" <Paul.McKenney@us.ibm.com>,
+        "'Rusty Russell'" <rusty@rustcorp.com.au>
+Subject: Re: [Lse-tech] Re: [RFC] Dynamic percpu data allocator
+Message-ID: <20020531141030.A6933@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+In-Reply-To: <20020530232513.C3575@in.ibm.com> <00eb01c20878$d952b890$290806c0@wipro.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones <davej@suse.de> writes:
+On Fri, May 31, 2002 at 01:27:44PM +0530, BALBIR SINGH wrote:
+> |
+> |
+> |   CPU #0          CPU#1
+> |
+> | ---------       ---------         Start of cache line
+> |   *ctrp1         *ctrp1
+> |   *ctrp2         *ctrp2
+> |
+> |   .               .
+> |   .               .
+> |   .               .
+> |   .               .
+> |   .               .
+> |
+> | ---------       ----------        End of cache line
+> 
+> 
+> Won't this result in a lot of false sharing, if any of the CPUs
+> tried to access any of the counters, the entire cache line would be
+> moved from the current CPU to that CPU. Isn't this a very bad thing or
+> am I missing something? Do all your counters fit into one cache line.
 
-> Two points worth mentioning in regard to this.
-> 1. The first type of speedstep (found in systems with BX chipsets)
->    isn't supported. Only the later type found in systems with ICH
->    chipsets will work with this driver..
+Yes it could result in false sharing. You could probably avoid
+that by imposing classes of allocation - say STRICLY_LOCAL and
+ALMOST_LOCAL, so that strictly local objects are not penalized
+by occasionally non-local objects. If your code frequently accesses 
+other CPU's copy of the object than you should not be using this 
+per-cpu allocator in the first place, it would be meaningless.
 
-What about MX chipsets? It seems to be mostly a BX without AGP,
-but it has an ICH-like AC97-controller, so...
+> 
+> For sometime now, I have been thinking of implementing/supporting
+> PME's (Peformance Monitoring Events and Counters), so that we can
+> get real values (atleast on x86) as compared to our guesses about
+> cacheline bouncing, etc. Do you know if somebody is already doing
+> this?
 
-//Marcus
+You can use SGI kernprof to measure PMCs. See the SGI oss
+website for details. You can count L2_LINES_IN event to
+get a measure of cache line bouncing.
+
+Thanks
 -- 
----------------------------------------+--------------------------
-  Marcus Sundberg <marcus@ingate.com>  | Firewalls with SIP & NAT
- Firewall Developer, Ingate Systems AB |  http://www.ingate.com/
+Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
+Linux Technology Center, IBM Software Lab, Bangalore, India.

@@ -1,65 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271905AbTGRVlb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 17:41:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270408AbTGRVki
+	id S271889AbTGRVqX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 17:46:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271852AbTGRVoS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 17:40:38 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:61573 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S271859AbTGRVjp (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 17:39:45 -0400
-Message-Id: <200307182154.h6ILscq3011620@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Larry McVoy <lm@bitmover.com>, Richard Stallman <rms@gnu.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Bitkeeper 
-In-Reply-To: Your message of "Fri, 18 Jul 2003 22:23:30 BST."
-             <1058563409.19511.74.camel@dhcp22.swansea.linux.org.uk> 
-From: Valdis.Kletnieks@vt.edu
-References: <E19dbGS-00026T-9R@fencepost.gnu.org> <20030718204405.GA658@work.bitmover.com>
-            <1058563409.19511.74.camel@dhcp22.swansea.linux.org.uk>
+	Fri, 18 Jul 2003 17:44:18 -0400
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:9001 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id S271859AbTGRVnz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 17:43:55 -0400
+Subject: Re: Bitkeeper
+From: "Trever L. Adams" <tadams-lists@myrealbox.com>
+To: Larry McVoy <lm@bitmover.com>
+Cc: rms@gnu.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030718210353.GB658@work.bitmover.com>
+References: <E19dbGS-00026T-9R@fencepost.gnu.org>
+	 <1058558982.2479.28.camel@aurora.localdomain>
+	 <20030718210353.GB658@work.bitmover.com>
+Content-Type: text/plain
+Message-Id: <1058565518.2479.37.camel@aurora.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1235549619P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
+Date: 18 Jul 2003 17:58:39 -0400
 Content-Transfer-Encoding: 7bit
-Date: Fri, 18 Jul 2003 17:54:38 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1235549619P
-Content-Type: text/plain; charset=us-ascii
+On Fri, 2003-07-18 at 17:03, Larry McVoy wrote:
+> > McVoy, changing the protocol would be extremely stupid.  
+> 
+> There are problems with the current protocol which can't be fixed without
+> a protocol rev, problems that many of the kernel developers have asked us
+> to fix.  Sooner or later we are going to fix them and then there will be
+> a protocol rev.  It's possible we might do one for legal reasons but I
+> doubt it.  I was just pointing out to Rory that if he insisted on doing
+> something in direct violation of our license it wouldn't do him any good
+> in the long run.
+> 
 
-On Fri, 18 Jul 2003 22:23:30 BST, Alan Cox said:
+Ah, sorry.  I was meaning the Microsoft kind of switching is stupid. 
+You have tech reasons, great do them.  Mr. McVoy, sorry about my blanket
+statement.  You obviously weren't just acting the way I thought you
+were.
 
-> Actually your license is simply irrelevant in most of thre world. You
-> aren't allowed to forbid reverse engineering for interoperability.
+> > McVoy, thank you for helping Linus, Cox, Miller et al scale better.  As
+> 
+> My pleasure.  At least that part of all of this has worked out pretty
+> well.  We still think BK is nowhere near good enough, there is a lot left
+> to be done.  I just spent the day with one of the MySQL founders talking
+> about tools for doing reviews, I think those could help.  It might be very
+> cool, for example, if there was a way to distribute the review process
+> and have everyone looking over code, recording notes about possible
+> problems, etc.  Then Dave could grab an espresso, hit the web site,
+> look over the code he cares about, see the reviews, fix it, move on.
+> It's sort of "attach the bug report directly to the code" rather than
+> have a bug report.  Don't know if it will work or not but we may try it.
+> Stuff like that is potentially useful and part of the reason we think
+> we're nowhere near done.  
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=100374609914587&w=2
+Now that is a fantastic idea, kind of like cvs meets bugzilla in one
+product.  I hope you are able to do it.
 
-2.2.20pre11
-o	Security fixes
-	| Details censored in accordance with the US DMCA
+Anyway, please, everyone either take it private with me, or leave me out
+of it.  At this point everyone knows how I feel about the issue and why
+I do.  All of these arguments only seem to reinforce those feelings and
+thoughts.
 
-And there's the resignation letter from ALS from a certain LKML regular, too....
+RMS thank you for the good you do.  Linus and all, thank you VERY much
+for all the good you do.  Larry, thank you for your kind response.
 
-Now what's this about the "simply irrelevant"?  Now admittedly the DMCA issues
-were on the criminal side of the legal system rather than the civil side, but
-the same "You land at the airport and have a chat with the sheriff's deputy"
-issue still applies - it's merely a lawsuit rather than an arrest warrant...
+Good day to you all.
 
+Trever
+--
+"In protocol design, perfection has been reached not when there is
+nothing left to add, but when there is nothing left to take away." --
+RFC1925: The Twelve Networking Truths
 
---==_Exmh_1235549619P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE/GGydcC3lWbTT17ARAqp/AKDH+voVGNAKcTPR36u/I4kIQfQQaACeOc/k
-DAIvL7Uixa7S/DcGW+ZzthQ=
-=X53n
------END PGP SIGNATURE-----
-
---==_Exmh_1235549619P--

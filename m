@@ -1,69 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266243AbSL1Rqh>; Sat, 28 Dec 2002 12:46:37 -0500
+	id <S266246AbSL1RyL>; Sat, 28 Dec 2002 12:54:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266246AbSL1Rqh>; Sat, 28 Dec 2002 12:46:37 -0500
-Received: from dbl.q-ag.de ([80.146.160.66]:9128 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S266243AbSL1Rqg>;
-	Sat, 28 Dec 2002 12:46:36 -0500
-Message-ID: <3E0DE569.9070108@colorfullife.com>
-Date: Sat, 28 Dec 2002 18:54:49 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: James Bottomley <James.Bottomley@steeleye.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [RFT][PATCH] generic device DMA implementation
-References: <200212281626.gBSGQPT02456@localhost.localdomain>
-In-Reply-To: <200212281626.gBSGQPT02456@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	id <S266250AbSL1RyL>; Sat, 28 Dec 2002 12:54:11 -0500
+Received: from ns.netrox.net ([64.118.231.130]:46287 "EHLO smtp01.netrox.net")
+	by vger.kernel.org with ESMTP id <S266246AbSL1RyK>;
+	Sat, 28 Dec 2002 12:54:10 -0500
+Subject: Re: [PATCH] deprecated function attribute
+From: Robert Love <rml@tech9.net>
+To: Alexander Kellett <lypanov@kde.org>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org, william stinson <wstinson@wanadoo.fr>,
+       trivial@rustcorp.com.au
+In-Reply-To: <1041097877.1066.9.camel@icbm>
+References: <20021228035319.903502C04B@lists.samba.org>
+	 <20021228153009.GA29614@groucho.verza.com>  <1041097877.1066.9.camel@icbm>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1041098631.1066.13.camel@icbm>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 28 Dec 2002 13:03:52 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley wrote:
+On Sat, 2002-12-28 at 12:51, Robert Love wrote:
 
->manfred@colorfullife.com said:
->  
->
->>Your new documentation disagrees with the current implementation, and
->>that is just wrong.
->>    
->>
->
->I don't agree that protecting users from cache line overlap misuse is current 
->implementation.  It's certainly not on parisc which was the non-coherent 
->platform I chose to model this with, which platforms do it now for the pci_ 
->API?
->  
->
-You are aware that "users" is not one or two drivers that noone uses, 
-it's the whole networking stack.
-What do you propose to fix sendfile() and networking with small network 
-packets [e.g. two 64 byte packets within a 128 byte cache line]?
+> +#if __GNUC__ == 3
+> +#define deprecated	__attribute__((deprecated))
+> +#else
+> +#define deprecated
+> +#endif
 
-One platforms that handles it is Miles Bader's memcopy based 
-dma_map_single() implementation.
-http://marc.theaimsgroup.com/?l=linux-kernel&m=103907087825616&w=2
+Before someone points it out: I grepped the tree and did not see any
+uses of "deprecated" as a token on first glance.  So the above is safe.
 
-And obviously i386, i.e. all archs with empty dma_map_single() functions.
+If we want to be preemptive, we can rename the above to "__deprecated__"
+but I think plain "deprecated" is much better looking.
 
-I see three options:
-- modify the networking core, and enforce that a cache line is never 
-shared between users for such archs. Big change. Often not necessary - 
-some nics must double buffer internally anyway.
-- modify every driver that doesn't do double buffering, and enable 
-double buffering on the affected archs. Even larger change.
-- do the double buffering in dma_map_single() & co.
-
-One problem for double buffering in dma_map_single() is that it would 
-double buffer too often: for example, the start of the rx buffers is 
-usually misaligned by the driver, to ensure that the IP headers are 
-aligned. The rest of the cacheline is unused, but it's not possible to 
-give that information to dma_map_single().
-
---
-    Manfred
-
+	Robert Love
 

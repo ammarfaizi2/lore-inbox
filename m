@@ -1,86 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270796AbRH1LoH>; Tue, 28 Aug 2001 07:44:07 -0400
+	id <S270774AbRH1Lm5>; Tue, 28 Aug 2001 07:42:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270779AbRH1Ln6>; Tue, 28 Aug 2001 07:43:58 -0400
-Received: from femail48.sdc1.sfba.home.com ([24.254.60.42]:5033 "EHLO
-	femail48.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S270784AbRH1Lnt>; Tue, 28 Aug 2001 07:43:49 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Nicholas Knight <tegeran@home.com>
-Reply-To: tegeran@home.com
-To: linux-kernel@vger.kernel.org
-Subject: via82cxxx_audio problem.
-Date: Tue, 28 Aug 2001 04:43:24 -0700
-X-Mailer: KMail [version 1.2]
-Cc: adrian@humboldt.co.uk, jgarzik@mandrakesoft.com
-MIME-Version: 1.0
-Message-Id: <01082804432400.03629@c779218-a>
-Content-Transfer-Encoding: 7BIT
+	id <S270783AbRH1Lmr>; Tue, 28 Aug 2001 07:42:47 -0400
+Received: from fe100.worldonline.dk ([212.54.64.211]:40453 "HELO
+	fe100.worldonline.dk") by vger.kernel.org with SMTP
+	id <S270774AbRH1Lmf>; Tue, 28 Aug 2001 07:42:35 -0400
+Date: Tue, 28 Aug 2001 13:45:45 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Christoph Rohland <cr@sap.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+        "David S. Miller" <davem@redhat.com>
+Subject: Re: [patch] zero-bounce block highmem I/O, #13
+Message-ID: <20010828134545.N642@suse.de>
+In-Reply-To: <20010827123700.B1092@suse.de> <m3itf85vlr.fsf@linux.local> <20010828125520.L642@suse.de> <m3elpw5smc.fsf@linux.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m3elpw5smc.fsf@linux.local>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's a new one for you:
+On Tue, Aug 28 2001, Christoph Rohland wrote:
+> Hi Jens,
+> 
+> On Tue, 28 Aug 2001, Jens Axboe wrote:
+> > On Tue, Aug 28 2001, Christoph Rohland wrote:
+> >> Hi Jens,
+> >> 
+> >> I tested both #11 and #13 on my 8GB machine with sym53c8xx. The
+> >> initialization of a SAP DB database takes 20 minutes with 2.4.9 and
+> >> with 2.4.9+b13 it took nearly 2.5 hours :-(
+> > 
+> > DaveM hinted that it's probably the bounce test failing, so it's
+> > bouncing all the time. That would explain the much worse
+> > performance.  Could you try with this incremental patch on top of
+> > b13 for 2.4.9? I still want to see the boot detection info, btw.
+> 
+> Apparently it did not help. See attachments: vmstat was 'vmstat
+> 5'. The b13 output is only the end. The b13-1 is still running but the
+> blockout rate is again low. So I do not wait another 2 hours...
 
-This is under 2.4.8-ac9, other kernels have not been tested, but given 
-the nature of the problem, I don't think it's specific to the kernel 
-version.
+Nope fine, no need to wait :-)
 
-When XMMS is pointed to /dev/dsp (as per normal on my system) things are, 
-a little odd...
-The first symptom I noticed was that Mozilla started up *very* slowly... 
-it'd sit there starting for a while, then eventualy, after its starting 
-icon disapeared from my KDE taskbar, things would just sit quietly for a 
-minute or so, and then suddenly mozilla started.
-This is infinitely reproducable on my system, and all I have to do to 
-"fix" the problem, is stop XMMS from playing, and Mozilla instantly goes 
-back to normal.
-This doesn't appear to be an XMMS issue, as pointing it to /dev/null 
-(thus also causing it to play absurdly fast...) also "fixes" the problem.
+The -2 patch I sent should fix it, performance looks good here (just a
+5min test run to verify).
 
-I also noted hdparm -t giving me readings of 3 to 9MB/sec, this is on a 
-7200RPM ATA/100 drive from IBM mind you... IBM-DTLA-307045. UDMA is 
-enabled, it's on a Promise ATA/100 controller anyway so that's set by 
-default. This behavior ceased after I exited XMMS, and I returned to 
-normal 32MB+ numbers. This COULD be unrelated, but the timing is too 
-coincidental for it to seem likely. This is not currently reproducable, 
-will test further when I get some sleep.
+What happened was that we would fall back to single segment requests all
+the time. A real performance killer for SCSI.
 
-Quake3 seems to exhibit similar behavior, but I do not have time at the 
-moment to test that more thuroughly, I really need some sleep. I cannot 
-test Quake2, as it freezes at sound initialization if XMMS (or anything 
-else) is actively using /dev/dsp (this isn't entirely unexpected, though 
-if it can't get control of the soundcard, it should normaly drop the 
-attempt).
-Konqueror, KDE konsole, and KMail don't seem to exhibit this behavior 
-though, which is possibly attributable to either their far smaller size, 
-or possibly that parts of them remain in memory at all times as a result 
-of my running KDE in its entirety. X-Chat and LICQ also do not exhibit 
-this behavior, further leading me to suspect it has to do with the 
-general size of the process.
+-- 
+Jens Axboe
 
-I have verified that this doesn't seem to be a problem with the kernel 
-taking buffers or cache out of memory when a process needs that memory by 
-starting up several large processes (Mozilla) to free RAM up manualy 
-before retrying the tests. Why use of /dev/dsp would have any effect 
-whatsoever on RAM allocation, I do not know, but with all the VM/memory 
-concerns in 2.4, I figured I should probably eliminate that as a problem.
-
-I also have a whole 1448KB in swap right now... why the kernel swaps 
-instead of flushing the file cache from RAM, and why it leaves things in 
-swap when there's plenty of RAM free, is a puzzle I leave to the experts.
-
-
-hardware information:
-
-ac97_codec: AC97 Audio codec, id: 0x8384:0x7609 (SigmaTel STAC9721/23)
-AMD Athlon 800Mhz
-256MB PC100 RAM
-Soyo K7VIA motherboard, VIA KX133 chipset
-
-Any further information needed is avalible, just be prepared to tell me 
-what you need and how to aquire it, and expect to wait at least 12-14 
-hours so I can get some sleep.
-
-If all of this is something stupid I missed/did, then you all have my 
-explicit permission to thwap me.

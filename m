@@ -1,71 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264450AbTEPNyv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 May 2003 09:54:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264451AbTEPNyv
+	id S264444AbTEPOAc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 May 2003 10:00:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264445AbTEPOAc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 May 2003 09:54:51 -0400
-Received: from 205-158-62-158.outblaze.com ([205.158.62.158]:26790 "HELO
-	spf1.us.outblaze.com") by vger.kernel.org with SMTP id S264450AbTEPNyt
+	Fri, 16 May 2003 10:00:32 -0400
+Received: from www02.ies.inet6.fr ([62.210.153.202]:20123 "EHLO
+	smtp.ies.inet6.fr") by vger.kernel.org with ESMTP id S264444AbTEPOAb
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 May 2003 09:54:49 -0400
-Message-ID: <20030516140835.21004.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+	Fri, 16 May 2003 10:00:31 -0400
+Message-ID: <3EC4F1FD.4010603@inet6.fr>
+Date: Fri, 16 May 2003 16:13:17 +0200
+From: Lionel Bouton <Lionel.Bouton@inet6.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030314
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
-To: akpm@digeo.com
-Cc: linux-kernel@vger.kernel.org, mbligh@aracnet.com
-Date: Fri, 16 May 2003 22:08:35 +0800
-Subject: Re: [BENCHMARK AIM9] Regressions in 2.5.69
-X-Originating-Ip: 194.185.48.246
-X-Originating-Server: ws5-8.us4.outblaze.com
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: alan@lxorguk.ukuu.org.uk, marcelo@conectiva.com.br, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] Fix support for SiS5581/5582/5596 IDE
+References: <20030516160222.A19746@ucw.cz>
+In-Reply-To: <20030516160222.A19746@ucw.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Andrew Morton <akpm@digeo.com>
-Date: Fri, 16 May 2003 00:47:07 -0700
-To: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
-Subject: Re: [BENCHMARK AIM9] Regressions in 2.5.69
+Vojtech Pavlik wrote:
 
-> "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org> wrote:
-> >
-> > Hi all/Andrew/Martin,
-> >  I noticed regression in a few tests,
-> >  I deleted the results of tests that don't show differences between the two kernel version.
-> > 
-> >  Hope it helps.
-> > 
-> >  Ciao,
-> >  		Paolo
-> >  		
-> >  2.5.67
-> >  2.5.69
-> > 
-> >  creat-clo 10010 86.8132        86813.19 File Creations and Closes/second
-> >  creat-clo 10030 22.0339        22033.90 File Creations and Closes/second
-> >  ^^^^BIG REGRESSION
-> 
-> I cannot repeat any of this.  In fact 2.5.69-mm is a bit faster than
-> 2.5.67.
-> 
-> I tested ext2 mainly.  But a spot-check of creat-clo on reiserfs showed
-> no regression either.
+>Hi!
+>
+>The last patch for SiS96* also added support for SiS5581, SiS5582 and
+>SiS5596. However, the PCI IDs for these three chips were incorrect by
+>mistake (cut and paste problem). This patch, on top of the previous one
+>fixes it, and thus adds proper support for these old chips.
+>  
+>
 
-Ok, thanks Andrew.
-I dunno what happened during the test.
-I'll try again to run the test with both the kernel.
-I'll back to you if I'm able to reproduce those numbers.
+Thanks for the work.
+I've yet to read carefully each change (will do this week-end), but I 
+agree on the principles.
 
-Ciao,
-          Paolo
- 
+The only thing that disturbed me was the removal of the DEBUG code (as 
+it often helped me find out bugs and understand new chips' behavior) but 
+I think it's best for me to maintain a patch which adds this code in the 
+very rare cases where it can be usefull.
 
--- 
-______________________________________________
-http://www.linuxmail.org/
-Now with e-mail forwarding for only US$5.95/yr
+LB.
 
-Powered by Outblaze

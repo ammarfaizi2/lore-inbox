@@ -1,75 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261999AbTCQWvA>; Mon, 17 Mar 2003 17:51:00 -0500
+	id <S261967AbTCQWuM>; Mon, 17 Mar 2003 17:50:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262000AbTCQWvA>; Mon, 17 Mar 2003 17:51:00 -0500
-Received: from [63.205.85.133] ([63.205.85.133]:15877 "EHLO schmee.sfgoth.com")
-	by vger.kernel.org with ESMTP id <S261999AbTCQWu6>;
-	Mon, 17 Mar 2003 17:50:58 -0500
-Date: Mon, 17 Mar 2003 15:01:44 -0800
-From: Mitchell Blank Jr <mitch@sfgoth.com>
-To: chas williams <chas@locutus.cmf.nrl.navy.mil>
-Cc: linux-atm-general@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [ATM] first pass at fixing atm spinlock
-Message-ID: <20030317150144.F92155@sfgoth.com>
-References: <OFAFD4106C.6053931B-ON85256CE0.004F1DD6@gdeb.com> <200303172224.h2HMO0Gi014874@locutus.cmf.nrl.navy.mil>
-Mime-Version: 1.0
+	id <S261970AbTCQWuM>; Mon, 17 Mar 2003 17:50:12 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:53492 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S261967AbTCQWuL>; Mon, 17 Mar 2003 17:50:11 -0500
+Date: Mon, 17 Mar 2003 14:50:31 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Bill Huey <billh@gnuppy.monkey.org>
+cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       lse-tech <lse-tech@lists.sourceforge.net>
+Subject: Re: 2.5.64-mjb4 (scalability / NUMA patchset)
+Message-ID: <296760000.1047941431@flay>
+In-Reply-To: <20030317044716.GA1256@gnuppy.monkey.org>
+References: <85960000.1047532556@[10.10.2.4]> <10770000.1047787269@[10.10.2.4]> <20030316044524.GA6757@gnuppy.monkey.org> <12150000.1047793549@[10.10.2.4]> <20030316063151.GA7114@gnuppy.monkey.org> <19840000.1047797300@[10.10.2.4]> <20030316065650.GA8164@gnuppy.monkey.org> <20280000.1047798483@[10.10.2.4]> <20030316082911.GA777@gnuppy.monkey.org> <57410000.1047827453@[10.10.2.4]> <20030317044716.GA1256@gnuppy.monkey.org>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
-In-Reply-To: <200303172224.h2HMO0Gi014874@locutus.cmf.nrl.navy.mil>; from chas@locutus.cmf.nrl.navy.mil on Mon, Mar 17, 2003 at 05:24:00PM -0500
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-chas williams wrote:
-> ftp://ftp.cmf.nrl.navy.mil/pub/chas/linux-atm/2_5_64_atm_dev_lock.patch
+>> Hmmm ... does just -bk3 do the same thing with the same config file?
+>> I guess you could try the early_printk stuff, but ISTR either VGA
+>> or serial was broken ... but I forget which ;-(. I'll try to fix
+>> that up later.
+> 
+> There's a funny pause after decompression, but it starts up fine.
+> Running from it now.
+> 
+> .config attached
 
-Note that this patch also has lots of other stuff (he driver, ipv6 stuff)
+Allegedly preempt is broken in -mjb ... can you try with it off?
+that fixed Dave's problem ...
 
-I'll try to look at the patch in depth later, but I'll make a few initial
-comments.  First of all, thanks for taking this up - this is work I've wanted
-to do for years and never found the time for.
+M.
 
-> atm_dev_lock is now a
-> read/write lock that now protects the list of atm devices.
-
-Are you sure you're never sleeping while holding this lock while iterating
-device lists?  I haven't checked but we do a fair number of things there
-(like the proc stuff) so we really need to track those down.
-
-> things are not set in stone yet, so i would like some advice -- the per 
-> device vcc list will probably be traversed (read-only) in the bottom
-> half of the kernel during receive for some adapters.
-
-Yes, absolutely.
-
-> is it simply
-> enough to use list_for_each_safe() when traversing the list?  otherwise
-> the per device spinlock will need to shared between the top and bottom half
-> of the kernel.  the vcc's shouldnt need to be ref counted since they
-> are rather tightly coupled to a struct sock which is.
-
-Then you should implement functions to grab/release the "struct sock"'s
-refernce count based on the atm_vcc.  Then you'd have 
-  atm_vcc_find(dev, vpi, vci)
-  atm_vcc_hold(vcc)
-  atm_vcc_release(vcc)
-Just like that atm_dev_*() functions.  Otherwise there's no reason that the
-sock/vcc combo can't go away while a processor's bh still is using a reference
-to the vcc.  I think this has been the result of many of the reported SMP
-crashes (it's probably not that hard to trigger; just close an ATM socket
-that's receiving a flood of traffic)
-
-> i dont like
-> the 'shutdown on last reference' in atm_dev_release().  you can only
-> safely call release when you know you can sleep.  is shutdown_atm_dev()
-> really that useful?
-
-Yes, it's needed (especially if you want to support more complicated interfaces
-like ADSL cards via the ATM stack in the future)
-
-Really the dev release stuff should ONLY be called from the close() path.
-You really need something like atm_dev_release_last() that waits for the
-reference count to hit "1" (via a completion or something) and then does
-the release stuff.
-
--Mitch

@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261312AbTDOMTs (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 08:19:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261317AbTDOMTs 
+	id S261302AbTDOMS5 (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 08:18:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261312AbTDOMS5 
 	(for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 08:19:48 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:21737 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261312AbTDOMTq 
+	Tue, 15 Apr 2003 08:18:57 -0400
+Received: from c-97a870d5.037-69-73746f23.cust.bredbandsbolaget.se ([213.112.168.151]:53889
+	"EHLO zaphod.guide") by vger.kernel.org with ESMTP id S261302AbTDOMS4 
 	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Apr 2003 08:19:46 -0400
-Date: Tue, 15 Apr 2003 14:31:34 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Duncan Sands <baldrick@wanadoo.fr>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@digeo.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: BUGed to death
-Message-ID: <20030415123134.GM9776@suse.de>
-References: <80690000.1050351598@flay> <200304151401.00704.baldrick@wanadoo.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200304151401.00704.baldrick@wanadoo.fr>
+	Tue, 15 Apr 2003 08:18:56 -0400
+To: Andreas Henriksson <andreas@fjortis.info>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Writing modules for 2.5
+References: <yw1x7k9w9flm.fsf@zaphod.guide.suse.lists.linux.kernel>
+	<p73adesxane.fsf@oldwotan.suse.de> <yw1xllyc7yoz.fsf@zaphod.guide>
+	<20030415121517.GA23894@foo>
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Date: 15 Apr 2003 14:30:01 +0200
+In-Reply-To: <20030415121517.GA23894@foo>
+Message-ID: <yw1xhe907xkm.fsf@zaphod.guide>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Portable Code)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 15 2003, Duncan Sands wrote:
-> On Monday 14 April 2003 22:19, Martin J. Bligh wrote:
-> > Seems all these bug checks are fairly expensive. I can get 1%
-> > back on system time for kernel compiles by changing BUG to
-> > "do {} while (0)" to make them all compile away. Profiles aren't
-> > very revealing though ... seems to be within experimental error ;-(
+Andreas Henriksson <andreas@fjortis.info> writes:
+
+> > Next question:  what is the correct replacement for MOD_INC_USE_COUNT?
 > 
-> What happens if you just turn BUG_ON into "do {} while (0)"?
+> "SET_MODULE_OWNER(dev);" or simply "dev->owner=THIS_MODULE;" and the
+> counting should then be done automatically AFAIK.
 
-If you do that, you must audit every single BUG_ON to make sure the
-expression doesn't have any side effects.
-
-	BUG_ON(do_the_good_stuff());
+OK, but what might dev be and when should this be done?  What about
+MOD_DEC_USE_COUNT?
 
 -- 
-Jens Axboe, proud inventer of BUG_ON :-)
-
+Måns Rullgård
+mru@users.sf.net

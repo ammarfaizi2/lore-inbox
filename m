@@ -1,52 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261636AbVCNR1l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261634AbVCNR2M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261636AbVCNR1l (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 12:27:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261634AbVCNR1l
+	id S261634AbVCNR2M (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 12:28:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261640AbVCNR2M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 12:27:41 -0500
-Received: from fmr20.intel.com ([134.134.136.19]:1963 "EHLO
-	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261636AbVCNR1b convert rfc822-to-8bit (ORCPT
+	Mon, 14 Mar 2005 12:28:12 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:44026 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S261634AbVCNR2F (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 12:27:31 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Mon, 14 Mar 2005 12:28:05 -0500
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: dmesg verbosity [was Re: AGP bogosities]
+Date: Mon, 14 Mar 2005 09:27:20 -0800
+User-Agent: KMail/1.7.2
+Cc: Pavel Machek <pavel@ucw.cz>, David Lang <david.lang@digitalinsight.com>,
+       Dave Jones <davej@redhat.com>,
+       OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+       Paul Mackerras <paulus@samba.org>, benh@kernel.crashing.org,
+       linux-kernel@vger.kernel.org
+References: <16944.62310.967444.786526@cargo.ozlabs.ibm.com> <200503140855.18446.jbarnes@engr.sgi.com> <Pine.LNX.4.58.0503140907380.6119@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0503140907380.6119@ppc970.osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [2.6 patch] drivers/pci/pci-acpi.c: possible cleanups
-Date: Mon, 14 Mar 2005 09:26:10 -0800
-Message-ID: <C7AB9DA4D0B1F344BF2489FA165E50240807099C@orsmsx404.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [2.6 patch] drivers/pci/pci-acpi.c: possible cleanups
-Thread-Index: AcUnUqriZgL2YhnnTNaBYrb75bxujwBZ6dYA
-From: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
-To: "Adrian Bunk" <bunk@stusta.de>
-Cc: <gregkh@suse.de>, <linux-kernel@vger.kernel.org>,
-       <linux-pci@atrey.karlin.mff.cuni.cz>,
-       "Brown, Len" <len.brown@intel.com>, <acpi-devel@lists.sourceforge.net>,
-       "Nguyen, Tom L" <tom.l.nguyen@intel.com>
-X-OriginalArrivalTime: 14 Mar 2005 17:26:08.0399 (UTC) FILETIME=[E8C219F0:01C528BA]
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200503140927.21552.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday, March 12, 2005 2:27 PM Adrian Bunk wrote:
-> This patch contains the following possible cleanups:
-> - pci-acpi.c: make OSC_UUID static
-> - remove the following unused functions:
->  - pci-acpi.c: acpi_query_osc
->  - pci-acpi.c: pci_osc_support_set
-> - remove the following unneeded EXPORT_SYMBOL's:
->  - pci-acpi.c: pci_osc_support_set
->
->Signed-off-by: Adrian Bunk <bunk@stusta.de>
+On Monday, March 14, 2005 9:18 am, Linus Torvalds wrote:
+> In fact, even the ones that have no "information" end up often being a big
+> clue about where the hang happened.
 
-Please do not remove. These above functions, implemented for _OSC usage,
-are used by PCI Express Native Hot Plug and PCI Express Advanced Error
-Reporting drivers.
+Yeah, I use the startup output all the time for stuff like that, no question 
+it's useful.
 
-Thanks,
-Long
+> And those occasional people are often not going to eb very good at
+> reporting bugs. If they don't see anything happening, they'll just give up
+> rather than bother to report it. So I do think we want the fairly verbose
+> thing enabled by default. You can then hide it with the graphical bootup
+> for "most people".
+
+Ok, and for the development kernel that makes a lot of sense.  But as we've 
+seen from this thread, leaving in old printks that were once useful but no 
+longer are tends to clutter things up and hide real errors.  I'd like to see 
+us get better about that--reporting real errors better and keeping the junk 
+to a minimum.
+
+Jesse

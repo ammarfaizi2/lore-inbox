@@ -1,42 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261582AbUEJUpL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261597AbUEJUrJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261582AbUEJUpL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 16:45:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261597AbUEJUpL
+	id S261597AbUEJUrJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 16:47:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261602AbUEJUrJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 16:45:11 -0400
-Received: from louise.pinerecords.com ([213.168.176.16]:56194 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id S261582AbUEJUpI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 16:45:08 -0400
-Date: Mon, 10 May 2004 22:44:50 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: len.brown@intel.com
-Subject: Re: Linux 2.6.6
-Message-ID: <20040510204450.GA2758@louise.pinerecords.com>
-References: <Pine.LNX.4.58.0405091954240.3028@ppc970.osdl.org> <20040510105129.GB25969@picchio.gall.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 10 May 2004 16:47:09 -0400
+Received: from out2.smtp.messagingengine.com ([66.111.4.26]:17850 "EHLO
+	out2.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S261597AbUEJUrH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 May 2004 16:47:07 -0400
 Content-Disposition: inline
-In-Reply-To: <20040510105129.GB25969@picchio.gall.it>
-User-Agent: Mutt/1.4.2.1i
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="ISO-8859-1"
+MIME-Version: 1.0
+X-Mailer: MIME::Lite 1.3  (F2.71; T1.001; A1.60; B2.21; Q2.21)
+From: "Joey Dewille" <joey1968@fastmail.co.uk>
+To: linux-kernel@vger.kernel.org
+Date: Mon, 10 May 2004 22:47:02 +0200
+X-Sasl-Enc: nAvJWdfA9GSF4amD157bog 1084222022
+Message-Id: <1084222022.28156.196200145@webmail.messagingengine.com>
+Subject: how to deduce connect/accept history from struct sock?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On May-10 2004, Mon, 12:51 +0200
-Daniele Venzano <webvenza@libero.it> wrote:
-
-> I have problems booting 2.6.6 (2.6.5 was fine). The boot stops at ide
-> detection, on cdrom probing, the last two messages I am seeing are:
-> 
-> ide-cd: cmd 0x5a timed out
-> hdc: lost interrupt
-
-This problem also affects my 2001 1.0 GHz Athlon box (VIA KT133a chipset).
-Len's final patch (proposed fix) from the "hdc: lost interrupt..." thread
-seems to work for me, too.
+Say a module is inserted that intercepts all socket operations and
+it happened in the middle of several established connections.
+Save me some time please and answer what fields in struct sock
+or elsewhere can be examined to determine reliably if the current
+established
+connections had been accepted (i.e. accept call) or initiated (i.e.
+connect)
+from the local machine.
+--Joey 
 
 -- 
-Tomas Szepe <szepe@pinerecords.com>
+http://www.fastmail.fm - A fast, anti-spam email service.

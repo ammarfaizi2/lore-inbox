@@ -1,39 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268883AbTCCXbA>; Mon, 3 Mar 2003 18:31:00 -0500
+	id <S268875AbTCCX3K>; Mon, 3 Mar 2003 18:29:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268885AbTCCXbA>; Mon, 3 Mar 2003 18:31:00 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:50585 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S268883AbTCCXa6>; Mon, 3 Mar 2003 18:30:58 -0500
-Date: Mon, 03 Mar 2003 15:30:18 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: percpu-2.5.63-bk5-1 (properly generated)
-Message-ID: <560080000.1046734218@flay>
-In-Reply-To: <20030303225115.GP1195@holomorphy.com>
-References: <20030302202451.GJ1195@holomorphy.com> <50380000.1046637959@[10.10.2.4]> <20030302210606.GS24172@holomorphy.com> <85980000.1046642338@[10.10.2.4]> <20030302221037.GK1195@holomorphy.com> <87420000.1046646801@[10.10.2.4]> <20030302234252.GL1195@holomorphy.com> <88060000.1046650020@[10.10.2.4]> <20030303014320.GM1195@holomorphy.com> <29220000.1046713200@[10.10.2.4]> <20030303225115.GP1195@holomorphy.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
+	id <S268879AbTCCX3K>; Mon, 3 Mar 2003 18:29:10 -0500
+Received: from mail3.bluewin.ch ([195.186.1.75]:30399 "EHLO mail3.bluewin.ch")
+	by vger.kernel.org with ESMTP id <S268875AbTCCX3I>;
+	Mon, 3 Mar 2003 18:29:08 -0500
+Date: Tue, 4 Mar 2003 00:39:23 +0100
+From: Roger Luethi <rl@hellgate.ch>
+To: Nigel Cunningham <ncunningham@clear.net.nz>
+Cc: Troels Haugboelle <troels_h@astro.ku.dk>, Pavel Machek <pavel@suse.cz>,
+       bert hubert <ahu@ds9a.nl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [ACPI] Re: S4bios support for 2.5.63
+Message-ID: <20030303233923.GA2234@k3.hellgate.ch>
+Mail-Followup-To: Nigel Cunningham <ncunningham@clear.net.nz>,
+	Troels Haugboelle <troels_h@astro.ku.dk>,
+	Pavel Machek <pavel@suse.cz>, bert hubert <ahu@ds9a.nl>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030302202118.GA2201@outpost.ds9a.nl> <20030303003940.GA13036@k3.hellgate.ch> <1046657290.8668.33.camel@laptop-linux.cunninghams> <20030303113153.GA18563@outpost.ds9a.nl> <20030303122325.GA20929@atrey.karlin.mff.cuni.cz> <20030303123551.GA19859@outpost.ds9a.nl> <20030303124133.GH20929@atrey.karlin.mff.cuni.cz> <1046700474.3782.197.camel@localhost> <20030303143006.GA1289@k3.hellgate.ch> <1046729210.1850.8.camel@laptop-linux.cunninghams>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <1046729210.1850.8.camel@laptop-linux.cunninghams>
+User-Agent: Mutt/1.3.27i
+X-Operating-System: Linux 2.5.63 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> OK, that seems to get rid of the SDET degradation, but I rigged up the
->> same test you were doing (make -j) and see only marginal improvement
->> from the full patch (pernode2) ... not the 6s you were seeing.
->> -pernode2 was your full patch with the fix you sent, -pernode3 was the 
->> smaller patch you sent last. Can you try to reproduce the improvment
->> were seeing, and grab a before and after profile? I don't seem to be 
->> able to replicate it.
+On Tue, 04 Mar 2003 11:06:50 +1300, Nigel Cunningham wrote:
+> On Tue, 2003-03-04 at 03:30, Roger Luethi wrote:
+> > Not sure I follow all of your story but I can confirm that hdparm -u1
+> > successfully gets me to the kernel panic due to highmem support still
+> > lacking -- i.e. way beyond the BUG_ON() I've been hitting. So it looks
+> > like you found a good work-around.
 > 
-> Then there must have been something important in the new per_cpu users.
+> You were hitting the BUG_ON before swsusp was even trying to write the
+> image?!! That is interesting! Since count_and_copy is first called post
+> driver suspend in the current version, perhaps they are somehow related.
+> (This is before swsusp tries to write any of the image to disk).
 
--pernode2 had all your changes ... but I still don't see anything like
-the order of magnitude of benefit you were seeing.
+Huh? After a glance at the code I agree that drivers_suspend happens before
+count_and_copy_data_pages, but that means hitting the BUG_ON in
+idedisk_suspend before the panic in count_and_copy_data_pages is what I'd
+expect. How is that remarkable? ... My current kernel has HIGHMEM enabled,
+but previous ones that failed the same way didn't.
 
-M.
+Anyway, a few more tests showed that hdparm -u1 helps if I have lots of
+memory used (say for fs caches). In two out of two tests, I saw Pavel's
+request to send him 1 GB RAM via email.
 
+Suspending directly from a clean boot (after issuing the same hdparm -u1
+commands for both disks) I hit the BUG_ON in idedisk_suspend (two out of
+two tests, too).
+
+Roger

@@ -1,52 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316070AbSGLL7p>; Fri, 12 Jul 2002 07:59:45 -0400
+	id <S315929AbSGLL6w>; Fri, 12 Jul 2002 07:58:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316089AbSGLL7o>; Fri, 12 Jul 2002 07:59:44 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:6917 "EHLO mail.stock-world.de")
-	by vger.kernel.org with ESMTP id <S316070AbSGLL7n> convert rfc822-to-8bit;
-	Fri, 12 Jul 2002 07:59:43 -0400
-Message-ID: <3D2EC502.6030105@evision-ventures.com>
-Date: Fri, 12 Jul 2002 14:01:06 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0.0) Gecko/20020611
-X-Accept-Language: pl, en-us
-MIME-Version: 1.0
-To: Bill Davidsen <davidsen@tmr.com>
-CC: Jeff Garzik <jgarzik@mandrakesoft.com>, Andrew Morton <akpm@zip.com.au>,
-       Linux <linux-kernel@vger.kernel.org>
-Subject: Re: HZ, preferably as small as possible
-References: <Pine.LNX.3.96.1020711162333.5732C-100000@gatekeeper.tmr.com>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8BIT
+	id <S316070AbSGLL6v>; Fri, 12 Jul 2002 07:58:51 -0400
+Received: from vladimir.pegasys.ws ([64.220.160.58]:45835 "HELO
+	vladimir.pegasys.ws") by vger.kernel.org with SMTP
+	id <S315929AbSGLL6u>; Fri, 12 Jul 2002 07:58:50 -0400
+Date: Fri, 12 Jul 2002 05:01:33 -0700
+From: jw schultz <jw@pegasys.ws>
+To: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: bzip2 support against 2.4.18
+Message-ID: <20020712120133.GB32601@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+References: <003d01c22819$ba1818b0$1c6fa8c0@hyper> <E17Suso-0002dn-00@starship> <003f01c2297e$b3e395d0$1c6fa8c0@hyper> <E17SwAM-0002e2-00@starship> <005801c2298c$9f3f6f10$1c6fa8c0@hyper>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <005801c2298c$9f3f6f10$1c6fa8c0@hyper>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-U¿ytkownik Bill Davidsen napisa³:
-> On Thu, 11 Jul 2002, Martin Dalecki wrote:
+[sniped a back and forth about make bzimage bz2image
+bz2bzimage etc.]
+On Fri, Jul 12, 2002 at 12:12:18PM +0200, Christian Ludwig wrote:
+> Daniel Phillips wrote on Friday, July 12, 2002 10:52 AM:
 > 
+> > Now that you mention it, bzImage should continue to serve perfectly well,
+> > so long as you have some other way of configuring the kernel compression
+> > method than via the make target.  Why not just make the compression method
+> > a config option?  If it had been done this way from the beginning, we'd
+> > never have acquired the b or the z.
+> >
+> > This way you avoid the entire controversy of chosing a new name for the
+> > kernel image, and anyway, it's a nicer interface than via the make
+> > target.
 > 
->>vmstat.c:
->>
->>hz = sysconf(_SC_CLK_TCK);	/* get ticks/s from system */
->>
->>And yes I know the libproc is *evil* in this area.
->>The rest should be an implementation detail of sysconf().
-> 
-> 
-> Yes, any of the changes need to make the dynamic value available to
-> programs. Alas, too many programs grab the HZ value and compile it in, and
-> don't work right on a kernel with a modified rate. I don't know if the
-> CLK_TCK macro is dynamic or not, I sure hope so.
-> 
-> I'd like to see it set at boot time, and available in /proc/sys for easy
-> use by scripts. As noted by others, there are a lot of uses in the kernel
-> source which assume that arithmetic will happen at compile time, and even
-> if you ignore the overhead it would take a lot of rewriting to make it
-> dynamic. Setting it a boot time gets most of the gain and none of the
-> pain (boot time = pick a kernel, not a parameter).
-> 
+> That came into my mind, too. Let's see what I can do about it...
+> It won't probably be ready before August, because I still have some exams.
 
-IMHO there where reasons why the standards are defining a function
-to access this information from applications.
+Ditto.  A config option is where this belongs.  The
+filename stays the same.  This avoids the issue of
+forgetting which compression you are using.  It gets saved
+in the config and make install will cover it.
 
+-- 
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
+
+		Remember Cernan and Schmitt

@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129299AbRBLXq4>; Mon, 12 Feb 2001 18:46:56 -0500
+	id <S129261AbRBLXwH>; Mon, 12 Feb 2001 18:52:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129274AbRBLXqp>; Mon, 12 Feb 2001 18:46:45 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:14854 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129159AbRBLXqc>; Mon, 12 Feb 2001 18:46:32 -0500
-Subject: Re: opl3sa not detected anymore
-To: jauge@club-internet.fr (Jérôme Augé)
-Date: Mon, 12 Feb 2001 23:46:39 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3A8873F3.772D75E7@club-internet.fr> from "Jérôme Augé" at Feb 13, 2001 12:38:27 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129268AbRBLXv4>; Mon, 12 Feb 2001 18:51:56 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:60170 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129261AbRBLXvm>; Mon, 12 Feb 2001 18:51:42 -0500
+Message-ID: <3A8876FA.EA2034D1@transmeta.com>
+Date: Mon, 12 Feb 2001 15:51:22 -0800
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1 i686)
+X-Accept-Language: en, sv, no, da, es, fr, ja
 MIME-Version: 1.0
+To: James Sutherland <jas88@cam.ac.uk>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Werner Almesberger <Werner.Almesberger@epfl.ch>,
+        linux-kernel@vger.kernel.org
+Subject: Re: LILO and serial speeds over 9600
+In-Reply-To: <Pine.SOL.4.21.0102122331360.21380-100000@yellow.csi.cam.ac.uk>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14SSg6-00004v-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > The midi works fine, but 'modprobe sound' reports:
-> > opl3sa2: No cards found
-> > opl3sa2: 0 PnP card(s) found.
-
-Thats ok, it may not be set up for isapnp
-
-> Try to add "isapnp=3D0" to the opl3sa2 options list :
+James Sutherland wrote:
+> >
+> > Depends on what the client can handle.  For the kernel, that might be
+> > true, but for example a boot loader may only have a few K worth of buffer
+> > space.
 > 
-> opl3sa2 mss_io=3D0x530 irq=3D5 dma=3D1 dma2=3D0 mpu_io=3D0x330 io=3D0x3=
-> 70 isapnp=3D0
+> Fortunately, the bulky stuff (printk's from the booting kernel) will be
+> going from the boot loader to the server, and should be buffered there
+> OK until they can be processed. Only the stuff sent to the client will
+> need buffering, and that should be simple keystrokes...
 > 
-> I had the same problem and adding isapnp=3D0 solved it, but PNP isn't
-> supposed to automaticaly detect those options ?
 
-No, but if you set options it would kind of make sense to turn off the
-isapnp automatically 8). I'll look into that.
+Well, any time there is a network there needs to be buffering, if you
+want to have any kind of ACK protocol.
+
+	-hpa
+
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

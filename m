@@ -1,77 +1,151 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261507AbSJYRlh>; Fri, 25 Oct 2002 13:41:37 -0400
+	id <S261508AbSJYRnA>; Fri, 25 Oct 2002 13:43:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261508AbSJYRlh>; Fri, 25 Oct 2002 13:41:37 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:28664 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S261507AbSJYRlg>;
-	Fri, 25 Oct 2002 13:41:36 -0400
-Message-ID: <3DB983AF.D264C49D@mvista.com>
-Date: Fri, 25 Oct 2002 10:47:27 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
+	id <S261509AbSJYRnA>; Fri, 25 Oct 2002 13:43:00 -0400
+Received: from fmr02.intel.com ([192.55.52.25]:21953 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S261508AbSJYRm5>; Fri, 25 Oct 2002 13:42:57 -0400
+Message-ID: <39B5C4829263D411AA93009027AE9EBB1EF28F7B@fmsmsx35.fm.intel.com>
+From: "Luck, Tony" <tony.luck@intel.com>
+To: "'Mario Smarduch'" <cms063@email.mot.com>,
+       IA64 Linux Mail Group <linux-ia64@linuxia64.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Fixing /proc/kcore
+Date: Fri, 25 Oct 2002 10:49:01 -0700
 MIME-Version: 1.0
-To: Corey Minyard <minyard@acm.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: NMI watchdog not ticking at the right intervals
-References: <3DB95086.7060505@acm.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: multipart/mixed;
+	boundary="----_=_NextPart_000_01C27C4E.CD496DB0"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Corey Minyard wrote:
-> 
-> As I have been working on my NMI patch, I have noticed that the NMI
-> watchdog does not seem to be ticking correctly.  I've tried 2.4 and 2.5
-> kernels, and I get the same results.  From my reading of the code, it
-> should tick once a second.  However, I have had the time between ticks
-> vary from around 33 to over 100 seconds.  Tbe time between ticks is
-> different on every boot, but is consistent once booted.  Is there some
-> divider register that's not getting initialized?
+This message is in MIME format. Since your mail reader does not understand
+this format, some or all of this message may not be legible.
 
-That seems unlikely.  It is driven by the performance
-counter stuff which is clocked at TSC rates.  It could be
-that it is not being set up properly to count every event.
+------_=_NextPart_000_01C27C4E.CD496DB0
+Content-Type: text/plain;
+	charset="utf-7"
 
--g
-> 
-> Here's my cpuinfo:
-> 
-> processor    : 0
-> cpu_package    : 0
-> vendor_id    : GenuineIntel
-> cpu family    : 6
-> model        : 11
-> model name    : Intel(R) Pentium(R) III Mobile CPU      1066MHz
-> stepping    : 1
-> cpu MHz        : 730.601
-> cache size    : 512 KB
-> fdiv_bug    : no
-> hlt_bug        : no
-> f00f_bug    : no
-> coma_bug    : no
-> fpu        : yes
-> fpu_exception    : yes
-> cpuid level    : 2
-> wp        : yes
-> flags        : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca
-> cmov pat pse36 mmx fxsr sse
-> bogomips    : 1458.17
-> 
-> -Corey
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+/proc/kcore is what you need, but it is broken on ia64 (and
+has been since the dawn of time for access to region 5) because
+it assumes that all kernel virtual addresses are above PAGE+AF8-OFFSET.
+This isn't true on ia64, VMALLOC+AF8-START is smaller than PAGE+AF8-OFFSET.
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers: 
-http://sourceforge.net/projects/high-res-timers/
-Preemption patch:
-http://www.kernel.org/pub/linux/kernel/people/rml
+Attached is a patch (applies to 2.4.19 and to 2.5.39) that fixes the
+assumption.  After applying you'll be able to use:
+
+	+ACM- gdb vmlinux /proc/kcore
+
+and happily ask gdb to examine addresses in region 5.
+
+-Tony Luck
+
+
+
+-----Original Message-----
+From: Mario Smarduch +AFs-mailto:cms063+AEA-email.mot.com+AF0-
+Sent: Friday, October 25, 2002 7:36 AM
+To: IA64 Linux Mail Group
+Subject: +AFs-Linux-ia64+AF0- Debugger/Analysis tool for IA64 Kernel Reg 5
+
+
+Hi,
+    I'm wondering if there is a tool available (gdb or some crash
+analysis
+tool) that can be used to disassemble/dump region 5 pages? We recently
+have ported LiS and OpenSS7 stacks to IA-64 and it was painful without
+being able to debug the Reg 5 memory, but we'll still be doing more
+work.
+We currently just have a crude tool that gets the reg 7 address from a
+reg 5 address and then we use gdb, this is pretty cumbersome.....
+
+- Mario.
+
+
+------_=_NextPart_000_01C27C4E.CD496DB0
+Content-Type: application/octet-stream;
+	name="kcore.patch"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+	filename="kcore.patch"
+
+diff -ru ../../REF/linux-2.5.39-ia64-020928/fs/proc/kcore.c =
+aegl-kcore/fs/proc/kcore.c=0A=
+--- ../../REF/linux-2.5.39-ia64-020928/fs/proc/kcore.c	Fri Sep 27 =
+14:48:35 2002=0A=
++++ aegl-kcore/fs/proc/kcore.c	Fri Oct 25 08:25:31 2002=0A=
+@@ -99,6 +99,12 @@=0A=
+ }=0A=
+ #else /* CONFIG_KCORE_AOUT */=0A=
+ =0A=
++#if VMALLOC_START < PAGE_OFFSET=0A=
++#define	KCORE_BASE	VMALLOC_START=0A=
++#else=0A=
++#define	KCORE_BASE	PAGE_OFFSET=0A=
++#endif=0A=
++=0A=
+ #define roundup(x, y)  ((((x)+((y)-1))/(y))*(y))=0A=
+ =0A=
+ /* An ELF note in memory */=0A=
+@@ -118,7 +124,7 @@=0A=
+ 	struct vm_struct *m;=0A=
+ =0A=
+ 	*num_vma =3D 0;=0A=
+-	size =3D ((size_t)high_memory - PAGE_OFFSET + PAGE_SIZE);=0A=
++	size =3D ((size_t)high_memory - KCORE_BASE + PAGE_SIZE);=0A=
+ 	if (!vmlist) {=0A=
+ 		*elf_buflen =3D PAGE_SIZE;=0A=
+ 		return (size);=0A=
+@@ -126,15 +132,15 @@=0A=
+ =0A=
+ 	for (m=3Dvmlist; m; m=3Dm->next) {=0A=
+ 		try =3D (size_t)m->addr + m->size;=0A=
+-		if (try > size)=0A=
+-			size =3D try;=0A=
++		if (try > KCORE_BASE + size)=0A=
++			size =3D try - KCORE_BASE;=0A=
+ 		*num_vma =3D *num_vma + 1;=0A=
+ 	}=0A=
+ 	*elf_buflen =3D	sizeof(struct elfhdr) + =0A=
+ 			(*num_vma + 2)*sizeof(struct elf_phdr) + =0A=
+ 			3 * sizeof(struct memelfnote);=0A=
+ 	*elf_buflen =3D PAGE_ALIGN(*elf_buflen);=0A=
+-	return (size - PAGE_OFFSET + *elf_buflen);=0A=
++	return size + *elf_buflen;=0A=
+ }=0A=
+ =0A=
+ =0A=
+@@ -237,7 +243,7 @@=0A=
+ 	offset +=3D sizeof(struct elf_phdr);=0A=
+ 	phdr->p_type	=3D PT_LOAD;=0A=
+ 	phdr->p_flags	=3D PF_R|PF_W|PF_X;=0A=
+-	phdr->p_offset	=3D dataoff;=0A=
++	phdr->p_offset	=3D PAGE_OFFSET - KCORE_BASE + dataoff;=0A=
+ 	phdr->p_vaddr	=3D PAGE_OFFSET;=0A=
+ 	phdr->p_paddr	=3D __pa(PAGE_OFFSET);=0A=
+ 	phdr->p_filesz	=3D phdr->p_memsz =3D ((unsigned long)high_memory - =
+PAGE_OFFSET);=0A=
+@@ -254,7 +260,7 @@=0A=
+ =0A=
+ 		phdr->p_type	=3D PT_LOAD;=0A=
+ 		phdr->p_flags	=3D PF_R|PF_W|PF_X;=0A=
+-		phdr->p_offset	=3D (size_t)m->addr - PAGE_OFFSET + dataoff;=0A=
++		phdr->p_offset	=3D (size_t)m->addr - KCORE_BASE + dataoff;=0A=
+ 		phdr->p_vaddr	=3D (size_t)m->addr;=0A=
+ 		phdr->p_paddr	=3D __pa(m->addr);=0A=
+ 		phdr->p_filesz	=3D phdr->p_memsz	=3D m->size;=0A=
+@@ -385,9 +391,9 @@=0A=
+ 	/*=0A=
+ 	 * Fill the remainder of the buffer from kernel VM space.=0A=
+ 	 * We said in the ELF header that the data which starts=0A=
+-	 * at 'elf_buflen' is virtual address PAGE_OFFSET. --rmk=0A=
++	 * at 'elf_buflen' is virtual address KCORE_BASE. --rmk=0A=
+ 	 */=0A=
+-	start =3D PAGE_OFFSET + (*fpos - elf_buflen);=0A=
++	start =3D KCORE_BASE + (*fpos - elf_buflen);=0A=
+ 	if ((tsz =3D (PAGE_SIZE - (start & ~PAGE_MASK))) > buflen)=0A=
+ 		tsz =3D buflen;=0A=
+ 		=0A=
+
+------_=_NextPart_000_01C27C4E.CD496DB0--

@@ -1,33 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276215AbRJUPEd>; Sun, 21 Oct 2001 11:04:33 -0400
+	id <S276231AbRJUPGD>; Sun, 21 Oct 2001 11:06:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276247AbRJUPEX>; Sun, 21 Oct 2001 11:04:23 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:4736 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S276231AbRJUPEI>;
-	Sun, 21 Oct 2001 11:04:08 -0400
-Date: Sun, 21 Oct 2001 08:04:32 -0700 (PDT)
-Message-Id: <20011021.080432.71105870.davem@redhat.com>
-To: sten@blinkenlights.nl
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: INIT_MMAP on sparc64
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.40-blink.0110211702070.19859-100000@deepthought.blinkenlights.nl>
-In-Reply-To: <Pine.LNX.4.40-blink.0110211702070.19859-100000@deepthought.blinkenlights.nl>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S276247AbRJUPFp>; Sun, 21 Oct 2001 11:05:45 -0400
+Received: from as4-1-7.has.s.bonet.se ([217.215.31.238]:16276 "EHLO
+	k-7.stesmi.com") by vger.kernel.org with ESMTP id <S276231AbRJUPFY>;
+	Sun, 21 Oct 2001 11:05:24 -0400
+Message-ID: <3BD2E426.4090205@stesmi.com>
+Date: Sun, 21 Oct 2001 17:05:10 +0200
+From: Stefan Smietanowski <stesmi@stesmi.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4) Gecko/20010913
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Volker Dierks <vd@mwi-online.de>
+CC: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: VIA 686b Bug - once again :(
+In-Reply-To: <200110211326.PAA01192@mail.mwi-online.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi.
 
-Don't use AC kernels, I do not keep track of them and therefore
-Sparc64 builds are likely to not work.
+> So my questions is:
+> I'm going to buy a 3ware 6410(B)
+> IDE raid controller .. can I suspect
 
-Use Linus's kernels, I keep him uptodate with all the latest
-changes and I make sure his releases compile on sparc64.
+You should be aware of that 3ware is dropping all their IDE RAID 
+controllers so if you want it, buy it fast. They're going out of 
+production. That is... if you want a product that won't be supported RSN.
 
-Franks a lot,
-David S. Miller
-davem@redhat.com
+// Stefan
+
+

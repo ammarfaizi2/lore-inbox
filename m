@@ -1,61 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265951AbUFTVjk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265510AbUFTVmx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265951AbUFTVjk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 17:39:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265953AbUFTVjj
+	id S265510AbUFTVmx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 17:42:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265953AbUFTVmx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 17:39:39 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:13707 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265951AbUFTVj2 (ORCPT
+	Sun, 20 Jun 2004 17:42:53 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:46732 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265510AbUFTVmv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 17:39:28 -0400
-Date: Sun, 20 Jun 2004 23:38:55 +0200
+	Sun, 20 Jun 2004 17:42:51 -0400
+Subject: Re: [PATCH 0/2] kbuild updates
 From: Arjan van de Ven <arjanv@redhat.com>
-To: Sam Ravnborg <sam@ravnborg.org>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+Reply-To: arjanv@redhat.com
+To: Martin Schlemmer <azarah@nosferatu.za.org>
+Cc: Sam Ravnborg <sam@ravnborg.org>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>,
        Andreas Gruenbacher <agruen@suse.de>,
        Geert Uytterhoeven <geert@linux-m68k.org>,
        Kai Germaschewski <kai@germaschewski.name>
-Subject: Re: [PATCH 2/2] kbuild: Improved external module support
-Message-ID: <20040620213854.GA5231@devserv.devel.redhat.com>
-References: <20040620211905.GA10189@mars.ravnborg.org> <20040620212353.GD10189@mars.ravnborg.org> <1087766729.2805.15.camel@laptop.fenrus.com> <20040620214543.GA10332@mars.ravnborg.org>
+In-Reply-To: <1087767034.14794.42.camel@nosferatu.lan>
+References: <20040620211905.GA10189@mars.ravnborg.org>
+	 <1087767034.14794.42.camel@nosferatu.lan>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-taEOshTCvUW2EiXEb3aG"
+Organization: Red Hat UK
+Message-Id: <1087767752.2805.18.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="FCuugMFkClbJLl1L"
-Content-Disposition: inline
-In-Reply-To: <20040620214543.GA10332@mars.ravnborg.org>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sun, 20 Jun 2004 23:42:32 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---FCuugMFkClbJLl1L
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Sun, Jun 20, 2004 at 11:45:43PM +0200, Sam Ravnborg wrote:
-> 
-> Did you put the output of the kernel compile in a separate output directory,
-> reusing the same src for several configurations?
-
-I do not ship the output of the kernel compile actually.
-But I do not share the /lib/modules/version/build for different kernels,
-it's unique.
-
-> If not you do not need the change, and thus do not get any benefit. On the
-> other hand everything should work as-is for you.
+--=-taEOshTCvUW2EiXEb3aG
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
 
---FCuugMFkClbJLl1L
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+> Given, but to 'use' the kbuild infrastructure, you must still call it
+> via:
+>=20
+>   make -C _path_to_sources M=3D`pwd`
+
+I see no problem with requiring this though; requiring a correct
+makefile is perfectly fine with me, and this is the only and documented
+way for 2.6 already.
+(And it's also the only way to build modules against Fedora Core 2
+kernels by the way)
+
+That's not my reservation to this approach.
+
+
+
+--=-taEOshTCvUW2EiXEb3aG
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQFA1gPuxULwo51rQBIRAhuHAJ9uGCTO7ul6KYErP2gbiMvzF/1i7QCeJjHm
-grb374JBTF6rEsgl8T3zOIo=
-=Zf9L
+iD8DBQBA1gTIxULwo51rQBIRAlRfAJ4mFId+VAvSKKA/4tOjGUPrrIihjgCcCL8j
+T7dcAZ1jMUj5o/JRCiSoN0M=
+=Y0yT
 -----END PGP SIGNATURE-----
 
---FCuugMFkClbJLl1L--
+--=-taEOshTCvUW2EiXEb3aG--
+

@@ -1,35 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318253AbSG3MtT>; Tue, 30 Jul 2002 08:49:19 -0400
+	id <S318249AbSG3MqQ>; Tue, 30 Jul 2002 08:46:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318254AbSG3MtT>; Tue, 30 Jul 2002 08:49:19 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:25341 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318253AbSG3MtS>; Tue, 30 Jul 2002 08:49:18 -0400
-Subject: Re: Tyan K7X with AMD MP 2.4.19-rc3-ac4
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Thomas Mierau <tmi@wikon.de>
-Cc: linux-kernel@vger.kernel.org, thomas@mierau.org
-In-Reply-To: <200207301421.18701.tmi@wikon.de>
-References: <200207301421.18701.tmi@wikon.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 30 Jul 2002 15:08:49 +0100
-Message-Id: <1028038129.6725.26.camel@irongate.swansea.linux.org.uk>
+	id <S318250AbSG3MqQ>; Tue, 30 Jul 2002 08:46:16 -0400
+Received: from to-velocet.redhat.com ([216.138.202.10]:31733 "EHLO
+	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
+	id <S318249AbSG3MqP>; Tue, 30 Jul 2002 08:46:15 -0400
+Date: Tue, 30 Jul 2002 08:49:39 -0400
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+       linux-aio@kvack.org
+Subject: Re: async-io API registration for 2.5.29
+Message-ID: <20020730084939.A8978@redhat.com>
+References: <20020730054111.GA1159@dualathlon.random>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020730054111.GA1159@dualathlon.random>; from andrea@suse.de on Tue, Jul 30, 2002 at 07:41:11AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-07-30 at 13:21, Thomas Mierau wrote:
-> Hi
-> 
-> I am trying to get the above board to work. Somehow it doesn't.
-> I tried kernel  2.4.18, 2.4.19-rc3, 2.4.19-rc3-ac3 and of course the latest 
-> 2.4.19-rc3-ac4
-> 
-> The machine itself is "working" stable under 2.4.18 with a limited 
-> functionality (no network, no additional scsi ports, no printer, no usb ...)
+On Tue, Jul 30, 2002 at 07:41:11AM +0200, Andrea Arcangeli wrote:
+> instead of separate syscalls for the various async_io
+> PREAD/PREADX/PWRITE/FSYNC/POLL operations there is just a single entry
+> point and a parameters specify the operation. But this is what the
+> current userspace expects and I wouldn't have too much time to change it
+> anyways because then I would break all the userspace libs too (I just
+> break them because of the true syscalls instead of passing through the
+> /proc/libredhat that calls into the dynamic syscall, but that's not
+> too painful to adapt). And after all even the io_submit isn't too bad
+> besides the above slowdown in the multiplexing (at least it's sharing
+> some icache for top/bottom of the functionality).
 
-Start by disabling acpi support
+What would you suggest as an alternative API?  The main point of multiplexing 
+is that ios can be submitted in batches, which can't be done if the ios are 
+submitted via individual syscalls, not to mention the overlap with the posix 
+aio api.
 
+> checked that it still compiles fine on x86 (all other archs should keep
+> compiling too). available also from here:
+> 
+> 	http://www.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.5/2.5.29/aio-api-1
+> 
+> Comments are welcome, many thanks.
+
+That's the old cancellation API.  Anyways, the core is pretty much ready, so 
+don't bother with this patch.
+
+		-ben

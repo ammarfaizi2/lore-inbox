@@ -1,40 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268949AbRHFTNE>; Mon, 6 Aug 2001 15:13:04 -0400
+	id <S268951AbRHFTNO>; Mon, 6 Aug 2001 15:13:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268942AbRHFTMy>; Mon, 6 Aug 2001 15:12:54 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:39685 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S268941AbRHFTMp>; Mon, 6 Aug 2001 15:12:45 -0400
-Subject: Re: eepro100 (PCI ID 82820) lockups/failure
-To: walters@cis.ohio-state.edu (Colin Walters)
-Date: Mon, 6 Aug 2001 20:14:18 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <873d75janh.church.of.emacs@space-ghost.verbum.org> from "Colin Walters" at Aug 06, 2001 02:39:14 PM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S268942AbRHFTNE>; Mon, 6 Aug 2001 15:13:04 -0400
+Received: from zikova.cvut.cz ([147.32.235.100]:46340 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S268941AbRHFTMz>;
+	Mon, 6 Aug 2001 15:12:55 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: haiquy@yahoo.com
+Date: Mon, 6 Aug 2001 21:12:34 MET-1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15TppS-0001bj-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: 2.4.7-ac7 ext3: Can I remount and change mount option ?
+CC: kernel <linux-kernel@vger.kernel.org>, akpm@zip.com.au
+X-mailer: Pegasus Mail v3.40
+Message-ID: <9FE3B5FC2@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Shouldn't a udelay(1) always take one microsecond, regardless of
-> hardware optimizations?
+On  6 Aug 01 at 12:07, Andrew Morton wrote:
+> Steve Kieu wrote:
+> > 
+> > Hi,
+> > 
+> > I still can not remount my ext3 root partition to
+> > change to the data=writeback mode using 2.4.7-ac7 .
 
-A udelay(1) should always take 1 microsecond or a bit longer. There are some
-funnies with PCI posting to beware of - notably
-
-	writel(0x1, foo->reg);
-	udelay(1);
-	writel(0x0, foo->reg)
-
-Does _not_ guarantee the two writes hit the PCI device with a 1 uS delay 
-where its PCI access timing that matters you need to do
-
-	writel(0x1, foo->reg)
-	readl(foo->somethingthatdoesnothing);
-	udelay(1);
-	writel(0x0, foo->reg)
-
+Steve, you are probably looking for 'rootflags=data=writeback'
+kernel commandline option. Just add this into your lilo.conf.
+In /etc/fstab either do not specify 'data=writeback' at all for
+root partition, or you must use 'data=writeback' (I prefer
+specifying data=xxx, as then / and other partitions look same
+in fstab).
+                                Best regards,
+                                    Petr Vandrovec
+                                    vandrove@vc.cvut.cz

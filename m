@@ -1,55 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269392AbUJLASv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269388AbUJLASt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269392AbUJLASv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 20:18:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269377AbUJLARR
+	id S269388AbUJLASt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 20:18:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269384AbUJLARm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 20:17:17 -0400
-Received: from host157-148.pool8289.interbusiness.it ([82.89.148.157]:10627
+	Mon, 11 Oct 2004 20:17:42 -0400
+Received: from host157-148.pool8289.interbusiness.it ([82.89.148.157]:14979
 	"EHLO zion.localdomain") by vger.kernel.org with ESMTP
-	id S269380AbUJLAQ4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 20:16:56 -0400
-Subject: [patch 4/6] uml: don't declare cpu_online - fix compilation error
+	id S269388AbUJLAQ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 20:16:58 -0400
+Subject: [patch 5/6] uml: fix an "unused" warnings
 To: akpm@osdl.org
 Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
        user-mode-linux-devel@lists.sourceforge.net, blaisorblade_spam@yahoo.it
 From: blaisorblade_spam@yahoo.it
-Date: Tue, 12 Oct 2004 02:16:31 +0200
-Message-Id: <20041012001631.60C75868F@zion.localdomain>
+Date: Tue, 12 Oct 2004 02:16:33 +0200
+Message-Id: <20041012001633.B94388691@zion.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Avoid redeclaring again (resulting in a compilation error) cpu_online and
-cpu_*_map, which are now declared elsewhere.
+Fixes some random warnings. To avoid "defined but not used" for
+not_configged_ops, make it be defined only if at least one channel is not defined.
 
 Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
 ---
 
- linux-2.6.9-current-paolo/include/asm-um/smp.h |    6 ------
- 1 files changed, 6 deletions(-)
+ linux-2.6.9-current-paolo/arch/um/Kconfig_char        |    4 ++++
+ linux-2.6.9-current-paolo/arch/um/drivers/chan_kern.c |    2 ++
+ 2 files changed, 6 insertions(+)
 
-diff -puN include/asm-um/smp.h~uml-no-decl-cpu_online include/asm-um/smp.h
---- linux-2.6.9-current/include/asm-um/smp.h~uml-no-decl-cpu_online	2004-10-12 01:18:02.531646720 +0200
-+++ linux-2.6.9-current-paolo/include/asm-um/smp.h	2004-10-12 01:18:02.533646416 +0200
-@@ -8,10 +8,6 @@
- #include "asm/current.h"
- #include "linux/cpumask.h"
+diff -puN arch/um/drivers/chan_kern.c~uml-fix-some-warnings arch/um/drivers/chan_kern.c
+--- linux-2.6.9-current/arch/um/drivers/chan_kern.c~uml-fix-some-warnings	2004-09-19 18:27:33.885887560 +0200
++++ linux-2.6.9-current-paolo/arch/um/drivers/chan_kern.c	2004-09-19 18:27:33.888887104 +0200
+@@ -19,6 +19,7 @@
+ #include "line.h"
+ #include "os.h"
  
--extern cpumask_t cpu_online_map;
--extern cpumask_t cpu_possible_map;
--
--
- #define smp_processor_id() (current_thread->cpu)
- #define cpu_logical_map(n) (n)
- #define cpu_number_map(n) (n)
-@@ -19,8 +15,6 @@ extern cpumask_t cpu_possible_map;
- extern int hard_smp_processor_id(void);
- #define NO_PROC_ID -1
++#ifdef CONFIG_NOCONFIG_CHAN
+ static void *not_configged_init(char *str, int device, struct chan_opts *opts)
+ {
+ 	printk(KERN_ERR "Using a channel type which is configured out of "
+@@ -87,6 +88,7 @@ static struct chan_ops not_configged_ops
+ 	.free		= not_configged_free,
+ 	.winch		= 0,
+ };
++#endif /* CONFIG_NOCONFIG_CHAN */
  
--#define cpu_online(cpu) cpu_isset(cpu, cpu_online_map)
--
- extern int ncpus;
+ void generic_close(int fd, void *unused)
+ {
+diff -puN arch/um/Kconfig_char~uml-fix-some-warnings arch/um/Kconfig_char
+--- linux-2.6.9-current/arch/um/Kconfig_char~uml-fix-some-warnings	2004-09-19 18:27:33.886887408 +0200
++++ linux-2.6.9-current-paolo/arch/um/Kconfig_char	2004-09-19 18:27:33.888887104 +0200
+@@ -72,6 +72,10 @@ config XTERM_CHAN
+         well, since UML's gdb currently requires an xterm.
+         It is safe to say 'Y' here.
  
- 
++config NOCONFIG_CHAN
++	bool
++	default !(XTERM_CHAN && TTY_CHAN && PTY_CHAN && PORT_CHAN && FD_CHAN && NULL_CHAN)
++
+ config CON_ZERO_CHAN
+ 	string "Default main console channel initialization"
+ 	default "fd:0,fd:1"
 _

@@ -1,56 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129239AbRBBFsK>; Fri, 2 Feb 2001 00:48:10 -0500
+	id <S129222AbRBBG0z>; Fri, 2 Feb 2001 01:26:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129511AbRBBFsA>; Fri, 2 Feb 2001 00:48:00 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:23680 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S129239AbRBBFrw>;
-	Fri, 2 Feb 2001 00:47:52 -0500
-From: "David S. Miller" <davem@redhat.com>
+	id <S129219AbRBBG0q>; Fri, 2 Feb 2001 01:26:46 -0500
+Received: from mdmgrp1-228.accesstoledo.net ([207.43.106.228]:3844 "EHLO
+	rosswinds.net") by vger.kernel.org with ESMTP id <S129148AbRBBG0g>;
+	Fri, 2 Feb 2001 01:26:36 -0500
+Date: Fri, 2 Feb 2001 01:25:06 -0500 (EST)
+From: "Michael B. Trausch" <fd0man@crosswinds.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: hiren_mehta@agilent.com, linux-kernel@vger.kernel.org
+Subject: Re: problem with devfsd compilation
+In-Reply-To: <E14OOjA-0004qS-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.21.0102020124010.226-100000@fd0man.accesstoledo.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14970.18890.146329.92116@pizda.ninka.net>
-Date: Thu, 1 Feb 2001 21:46:50 -0800 (PST)
-To: "Paul D. Smith" <pausmith@nortelnetworks.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: SO_REUSEADDR redux
-In-Reply-To: <14970.5436.897143.934189@lemming.engeast.baynetworks.com>
-In-Reply-To: <14969.57896.331183.374489@lemming.engeast.baynetworks.com>
-	<E14OSOC-0005FD-00@the-village.bc.nu>
-	<14970.5436.897143.934189@lemming.engeast.baynetworks.com>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Paul D. Smith writes:
- > %% Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
- > 
- >   >> This application uses SO_REUSEADDR in conjunction with INADDR_ANY.  What
- >   >> it does is bind() to INADDR_ANY, then listen().  Then, it proceeds to
- >   >> bind (but _not_ listen) various other specific addresses.
- > 
- >   ac> That should be ok if its setting SO_REUSEADDR
- > 
- > I agree, and so does Solaris/FreeBSD, but Linux doesn't.
+On Thu, 1 Feb 2001, Alan Cox wrote:
 
-After reading up some code, FreeBSD does do a bind() check which is
-just as restrictive as Linux's except that they allow INADDR_ANY
-combinations when the credentials of the user doing the bind() match
-the credentials of all other sockets bound to that port.
+> > I am trying to compile devfsd on my system running RedHat linux 7.0
+> > (kernel 2.2.16-22). I get the error "RTLD_NEXT" undefined. I am not
+> > sure where this symbol is defined. Is there anything that I am missing 
+> > on my system. 
+> 
+> Sounds like a missing include in the devfsd code. That comes from
+> dlfcn.h.
+> 
 
-I don't think we should change our behavior.  Allowing the combination
-in question only when the UIDs match between the socket owners is
-dubious at best.
+If you add -D_GNU_SOURCE to the make line in CC_OPTS (or CCOPTS, I forget
+which) it works fine.  Had the same exact problem here.
 
-I actually went to the FreeBSD code because what Steven's showed
-was extremely loose in what it let through.  It allowed the nfs
-port override trick Alan mentioned.
+	- Mike
 
-Later,
-David S. Miller
-davem@redhat.com
+===========================================================================
+Michael B. Trausch                                    fd0man@crosswinds.net
+Avid Linux User since April, '96!                           AIM:  ML100Smkr
+
+              Contactable via IRC (DALNet) or AIM as ML100Smkr
+===========================================================================
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

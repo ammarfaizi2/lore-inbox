@@ -1,66 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291049AbSBLUEo>; Tue, 12 Feb 2002 15:04:44 -0500
+	id <S291061AbSBLUG1>; Tue, 12 Feb 2002 15:06:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291061AbSBLUEf>; Tue, 12 Feb 2002 15:04:35 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:53521 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S291049AbSBLUES>;
-	Tue, 12 Feb 2002 15:04:18 -0500
-Message-ID: <3C69750E.8BA2C6AB@zip.com.au>
-Date: Tue, 12 Feb 2002 12:03:26 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre9 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Martin Dalecki <dalecki@evision-ventures.com>
-CC: Pavel Machek <pavel@suse.cz>, Jens Axboe <axboe@suse.de>,
-        kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: another IDE cleanup: kill duplicated code
-In-Reply-To: <20020211221102.GA131@elf.ucw.cz> <3C68F3F3.8030709@evision-ventures.com>
+	id <S291084AbSBLUGP>; Tue, 12 Feb 2002 15:06:15 -0500
+Received: from codepoet.org ([166.70.14.212]:61406 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S291061AbSBLUF7>;
+	Tue, 12 Feb 2002 15:05:59 -0500
+Date: Tue, 12 Feb 2002 13:05:58 -0700
+From: Erik Andersen <andersen@codepoet.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.18-pre9-ac1
+Message-ID: <20020212200558.GA6002@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, Jens Axboe <axboe@suse.de>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020212092658.Z729@suse.de> <E16ae1e-0001ws-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <E16ae1e-0001ws-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.25i
+X-Operating-System: Linux 2.4.17-rmk5, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Dalecki wrote:
+On Tue Feb 12, 2002 at 02:35:18PM +0000, Alan Cox wrote:
+> > > > I want to find out why it was done first and then test it. Leaving it out
+> > > > will ensure it bugs me until I test it
+> > > 
+> > > If you leave it out, you surely want to make sure that the other request
+> > > init and re-init paths agree on the clustering for MO devices. Because
+> > > they don't.
 > 
-> If you are already at it, I would like to ask to you consider seriously
-> the removal of the
-> following entries in the ide drivers /proc control files:
-> 
->     ide_add_setting(drive,    "breada_readahead",    ...         1,
-> 2,    &read_ahead[major],        NULL);
->     ide_add_setting(drive,    "file_readahead",   ...
-> &max_readahead[major][minor],    NULL);
->
-> Those calls can be found in ide-cd.c, ide-disk,c and ide-floppy.c
+> No - I want to run a test set with an M/O drive before and after the change
+> and see what it shows in real life. I suspect nothing much.
 
-I suspect that if we remove these, we'll one day end up putting them back.
-It is appropriate that we be able to control readahead characteristics
-on a per-device and per-technology basis.
+I was able to hang the kernel several times while talking 
+to my MO drive prior to the fix...
 
-> The second of them is trying to control a file-system level constant
-> inside the actual block device driver.
-> This is a blatant violation of the layering principle in software
-> design, and should go as soon as
-> possible.
+ -Erik
 
-Well, the whole design of filesystems and the VM are a blatant
-layering violation: all the stuff we do at all levels to try to
-perform block-contiguous reads and writes, and to keep related
-data at related LBAs is making implicit assumptions about the
-underlying physical storage technology.  We've been doing that
-for 30 years - if a constant access time storage technology
-takes over from rotating and seeking disks, we have a lot of stuff
-to toss out.
-
-That being said, it is a horrid user interface wart that IDE readhead
-is controlled from /proc/ide/hda/settings:file_readhead, and that IDE
-ignores /proc/sys/vm/max-readahead, whereas devices which forget to
-set up their max_readhead entries are controlled by /proc/sys/vm/max-readhead.
-
-My vote would be to remove both of them.  Move the readhead controls
-into the filemap level, but implement per-device controls.  Say,
-/proc/sys/vm/readhead/hda, /proc/sys/vm/readhead/sdc, etc.
-
--
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

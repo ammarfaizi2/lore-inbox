@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281719AbRLGSPD>; Fri, 7 Dec 2001 13:15:03 -0500
+	id <S284272AbRLGSQU>; Fri, 7 Dec 2001 13:16:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284272AbRLGSOx>; Fri, 7 Dec 2001 13:14:53 -0500
-Received: from cj46222-a.reston1.va.home.com ([65.1.136.109]:2969 "HELO
-	sanosuke.troilus.org") by vger.kernel.org with SMTP
-	id <S281719AbRLGSOh>; Fri, 7 Dec 2001 13:14:37 -0500
-To: Andi Kleen <ak@suse.de>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: horrible disk thorughput on itanium
-In-Reply-To: <p73n10v6spi.fsf@amdsim2.suse.de>
-	<Pine.LNX.4.33.0112070941330.8465-100000@penguin.transmeta.com>
-	<20011207185847.A20876@wotan.suse.de>
-From: Michael Poole <poole@troilus.org>
-Date: 07 Dec 2001 13:14:35 -0500
-In-Reply-To: <20011207185847.A20876@wotan.suse.de>
-Message-ID: <87wuzyq4ms.fsf@sanosuke.troilus.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Civil Service)
+	id <S284275AbRLGSQI>; Fri, 7 Dec 2001 13:16:08 -0500
+Received: from dsl-213-023-043-071.arcor-ip.net ([213.23.43.71]:63754 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S284272AbRLGSQB>;
+	Fri, 7 Dec 2001 13:16:01 -0500
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Ragnar =?iso-8859-1?q?Kj=F8rstad?= <reiserfs@ragnark.vestdata.no>
+Subject: Re: [reiserfs-dev] Re: Ext2 directory index: ALS paper and benchmarks
+Date: Fri, 7 Dec 2001 19:18:37 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Hans Reiser <reiser@namesys.com>, linux-kernel@vger.kernel.org,
+        reiserfs-dev@namesys.com
+In-Reply-To: <E16BjYc-0000hS-00@starship.berlin> <E16CP0X-0000uE-00@starship.berlin> <20011207190301.C6640@vestdata.no>
+In-Reply-To: <20011207190301.C6640@vestdata.no>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
+Message-Id: <E16CPaA-0000uj-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> writes:
-
-> > You can be thread-safe without sucking dead baby donkeys through a straw.
-> > I already mentioned two possible ways to fix it so that you have locking
-> > when you need to, and no locking when you don't.
+On December 7, 2001 07:03 pm, Ragnar Kjørstad wrote:
+> > With ReiserFS we see slowdown due to random access even with small 
+> > directories.  I don't think this is a cache effect.
 > 
-> Your proposals sound rather dangerous. They would silently break recompiled
-> threaded programs that need the locking and don't use -D__REENTRANT (most
-> people do not seem to use it). I doubt the possible pain from that is 
-> worth it for speeding up an basically obsolete interface like putc. 
+> I can't see why the benefit from read-ahead on the file-data should be
+> affected by the directory-size?
 > 
-> i.e. if someone wants speed they definitely shouldn't use putc()
+> I forgot to mention another important effect of hash-ordering:
+> If you mostly add new files to the directory it is far less work if you
+> almost always can add the new entry at the end rather than insert it in
+> the middle. Well, it depends on your implementation of course, but this
+> effect is quite noticable on reiserfs. When untaring a big directory of
+> maildir the performance difference between the tea hash and a special
+> maildir hash was approxemately 20%. The choice of hash should not affect
+> the performance on writing the data itself, so it has to be related to
+> the cost of the insert operation.
 
-Threaded programs that need locking and don't define _THREAD_SAFE or
-_REENTRANT or whatever is appropriate are already broken -- they just
-don't know it yet.
+Yes, I think you're on the right track.  HTree on the other hand is optimized 
+for inserting in arbitrary places, it takes no advantage at all of sequential 
+insertion.  (And doesn't suffer from this, because it all happens in cache 
+anyway - a million-file indexed directory is around 30 meg.)
 
-FreeBSD #defines putc and getc to their unlocked versions unless
-_THREAD_SAFE is defined, and people don't seem to think its libc is
-broken.  Many lightly threaded programs, in fact, wouldn't need or
-even want the locked variants to be the default.  One app I've worked
-with only reads and writes any given FILE* from one thread, and I saw
-an 4x speedup by switching to the unlocked variants.
-
-It's generally a bad idea to make people pay for a feature they don't
-ask for.  FreeBSD's libc understands this; glibc apaprently doesn't.
-
--- Michael Poole
+--
+Daniel

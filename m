@@ -1,54 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271827AbTHMLmr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 07:42:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271129AbTHMLmr
+	id S272288AbTHMMEX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 08:04:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272011AbTHMMEX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 07:42:47 -0400
-Received: from crosslink-village-512-1.bc.nu ([81.2.110.254]:9976 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S271933AbTHMLkY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 07:40:24 -0400
-Subject: Re: 2.6.0-test3-mm1: scheduling while atomic (ext3?)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: thunder7@xs4all.nl,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030813042544.5064b3f4.akpm@osdl.org>
-References: <20030813045638.GA9713@middle.of.nowhere>
-	 <20030813014746.412660ae.akpm@osdl.org>
-	 <20030813091958.GA30746@gates.of.nowhere>
-	 <20030813025542.32429718.akpm@osdl.org>
-	 <1060772769.8009.4.camel@localhost.localdomain>
-	 <20030813042544.5064b3f4.akpm@osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1060774803.8008.24.camel@localhost.localdomain>
+	Wed, 13 Aug 2003 08:04:23 -0400
+Received: from fw.osdl.org ([65.172.181.6]:49335 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S271904AbTHMMEU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 08:04:20 -0400
+Date: Wed, 13 Aug 2003 05:04:48 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Cc: linux-kernel@vger.kernel.org, zwane@commfireservices.com,
+       linux-sound@vger.kernel.org
+Subject: Re: OPL3SA2: spin_is_locked on uninitialized spinlock
+Message-Id: <20030813050448.221aaa49.akpm@osdl.org>
+In-Reply-To: <1060774796.3518.4.camel@teapot.felipe-alfaro.com>
+References: <1060774796.3518.4.camel@teapot.felipe-alfaro.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
-Date: 13 Aug 2003 12:40:04 +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2003-08-13 at 12:25, Andrew Morton wrote:
-> Like this?
+Felipe Alfaro Solana <felipe_alfaro@linuxmail.org> wrote:
+>
+> I've found a lot of errors like this when loading the OPL3SA2 sound
+>  driver on my old Intel AL440LX computer, running 2.6.0-test3-mm1:
 > 
-> What happens if someone runs a K6 kernel on a K7?
-> Or various other CPU types?  What is the matrix here?
+>  sound/isa/opl3sa2.c:204: spin_is_locked on uninitialized spinlock
+>  d6200034.
 
-Beats me, but then the prefetch code in 2.6 seems broken from
-5 seconds of inspection anyway. We are testing the XMM feature
-and using prefetchnta for Athlon, thats wrong for lots of athlon
-processors that dont have XMM but do have prefetch/prefetchw,
-(which btw also seem to work properly on all these processors
- while prefetchnta seems to do funky things)
+Does this help?
 
-Perhaps someone should fix prefetch() before they worry about 
-the rest of the mess ?
+diff -puN sound/isa/opl3sa2.c~opl3sa2-lock-init-fix sound/isa/opl3sa2.c
+--- 25/sound/isa/opl3sa2.c~opl3sa2-lock-init-fix	2003-08-13 05:03:32.000000000 -0700
++++ 25-akpm/sound/isa/opl3sa2.c	2003-08-13 05:04:06.000000000 -0700
+@@ -752,6 +752,7 @@ static int __devinit snd_opl3sa2_probe(i
+ 		err = -ENOMEM;
+ 		goto __error;
+ 	}
++	spin_lock_init(&chip->reg_lock);
+ 	chip->irq = -1;
+ 	if ((err = snd_device_new(card, SNDRV_DEV_LOWLEVEL, chip, &ops)) < 0)
+ 		goto __error;
 
-For Athlon we should be testing 3Dnow, and using prefetch/prefetchw
-for Intel cases we want to go for prefetchnta if XMM is set (PIII, PIV)
-
-
-Alan
+_
 

@@ -1,73 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129391AbQK0Imy>; Mon, 27 Nov 2000 03:42:54 -0500
+        id <S129828AbQK0JGH>; Mon, 27 Nov 2000 04:06:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129793AbQK0Imp>; Mon, 27 Nov 2000 03:42:45 -0500
-Received: from colombina.comedia.it ([213.246.1.10]:24596 "HELO
-        colombina.comedia.it") by vger.kernel.org with SMTP
-        id <S129391AbQK0Imc>; Mon, 27 Nov 2000 03:42:32 -0500
-Date: Mon, 27 Nov 2000 09:12:28 +0100
-From: Luca Berra <bluca@comedia.it>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-        linux-raid@vger.kernel.org
-Subject: Re: [BUG] 2.4.0-test11-ac3 breaks raid autodetect (was Re: [BUG] raid5 link error? (was [PATCH] raid5 fix after xor.c cleanup))
-Message-ID: <20001127091228.A17537@colombina.comedia.it>
-Reply-To: bluca@comedia.it
-Mail-Followup-To: Luca Berra <bluca@comedia.it>,
-        Neil Brown <neilb@cse.unsw.edu.au>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-        linux-raid@vger.kernel.org
-In-Reply-To: <20001117234144.A14461@spaans.ds9a.nl> <20001118123536.A5674@spaans.ds9a.nl> <20001118235352.D2226@spaans.ds9a.nl> <14872.29479.901021.472890@notabene.cse.unsw.edu.au> <3A2074CC.8219AB99@fl.priv.at> <14881.50316.705469.752219@notabene.cse.unsw.edu.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <14881.50316.705469.752219@notabene.cse.unsw.edu.au>; from neilb@cse.unsw.edu.au on Mon, Nov 27, 2000 at 01:18:52PM +1100
-X-Operating-System: Linux colombina.comedia.it 2.0.36 i586
+        id <S129793AbQK0JF6>; Mon, 27 Nov 2000 04:05:58 -0500
+Received: from 13dyn33.delft.casema.net ([212.64.76.33]:60168 "EHLO
+        abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+        id <S129548AbQK0JFv>; Mon, 27 Nov 2000 04:05:51 -0500
+Message-Id: <200011270835.JAA16502@cave.bitwizard.nl>
+Subject: Re: Universal debug macros.
+In-Reply-To: <Pine.LNX.4.10.10011270302570.24716-100000@yle-server.ylenurme.sise>
+ from Elmer Joandi at "Nov 27, 2000 03:11:21 am"
+To: Elmer Joandi <elmer@ylenurme.ee>
+Date: Mon, 27 Nov 2000 09:35:45 +0100 (MET)
+CC: Rogier Wolff <R.E.Wolff@BitWizard.nl>, linux-kernel@vger.kernel.org
+From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 27, 2000 at 01:18:52PM +1100, Neil Brown wrote:
-> > Sorry to tell you that I just tried linux-2.4.0-test11-ac3 (which has this
-> > patch) and I couldn't boot because the kernel detects the raid1 devices
-> > but kicks the shortly after. I had to back out this code.
+Elmer Joandi wrote:
 > 
-> Thanks for this....
 > 
-> I have looked more deeply, and discovered the error of my ways.
-also test11-ac4 contains the following patch which is broken and should
-be reversed! (if xor.o is built as a module it will export the symbol
-calibrate_xor_block_R??????? and require calibrate_xor_block ?!?)
-anyway the only piece of code that uses calibrate_xor_block is
-drivers/md/xor.c itself, so why export?
+> On Mon, 27 Nov 2000, Rogier Wolff wrote:
+> 
+> > Now, how is say "Red Hat" (*) going to ship kernels? Of course they are
+> > going to turn off debugging. Then I'll be stuck with a non-recompiling
+> > user-in-trouble with a non-debugging-enabled kernel. 
+> 
+> Red Hat will ship two kernels. Well, they actually ship now about 4 ones
+> or something. So they will ship 8.
+> 
+> Plus they will ship a script that recompiles kernel without user crawling
+> in documentation.
 
-Regards,
-L.
+It's not that Red Hat can't make a script that automatically recompiles
+a certain package like the kernel. That's what a source-RPM actually IS. 
 
---- drivers/md/xor.c    Sun Nov 26 21:35:14 2000
-+++ drivers/md/xor.c.ac4.foo    Sun Nov 26 21:43:52 2000
-@@ -98,7 +98,7 @@
-               speed / 1000, speed % 1000);
- }
+People will want to upgrade to the latest kernel. People happen to
+have deselected the compiler, or another essential tool for compiling
+the kernel.
 
--static int
-+int
- calibrate_xor_block(void)
- {
-        void *b1, *b2;
-@@ -139,5 +139,6 @@
- }
+I've had LOTS of trouble myself when I wanted to upgrade a certain
+machine which happened to be a '486 with 16M RAM intended as a
+mail-router. So the machine had a minimal install: It started out with
+a 170Mb disk. And you want 100Mb of mail-spool don't you. Well try and
+cram a current distribution into 80M. That's kind of hard. So I had
+agressively removed all packages I didn't need. Then suddenly there is
+stuff that requires a kernel recompile (and it didn't want to work on
+the system that I have for kernel-compiles), and you find out that if you
+don't do the recommended install you miss quite a lot of packages that
+are required for the kernel compile. 
 
- MD_EXPORT_SYMBOL(xor_block);
-+MD_EXPORT_SYMBOL(calibrate_xor_block);
+That's the kind of trouble that people end up running into. It took me
+a while to figure it out. What do you expect from non-kernel hacking
+random citizens?
 
- module_init(calibrate_xor_block);
+The idea is, by the way, that you NEVER EVER want to run a kernel
+without the double checks. Donald has a define at the top of his
+drivers that defines the debug level, and I've never seen that at
+"production". Similarly there are lots of "debugging" asserts in the
+Linux kernel, that theoretically can go. Those need to stay to keep
+Linux from crashing uncontrollably when things go slightly bad.
 
+"Slightly bad" could be that a bit in memory falls over. "Slightly
+bad" could be that a new bug in a driver is about to be found. 
+
+Andries calls this "globally correct". If your analysis of the kernel
+finds that some assertion always holds, you could remove the check for
+this pre-condition (the "assertions). Turns out that people will
+prefer to run the "performance" kernel, and they will send in useless
+bugreports like "my just hangs" much more often than now.
+
+We'll end up in the current Windows situation where rebooting is
+likely to help out. At first Linux will still be as stable as it is
+now, but as soon as we start to lose half the useful bugreports to the
+"sudden-hang"(*) monster, we'll quickly go downhill towards the
+current state-of-affairs with MSWindows. 
+
+				Roger.
+
+(*) Or the "crashes spectacularly a few hours after the problem
+actually accurred".
 
 -- 
-Luca Berra -- bluca@comedia.it
-    Communication Media & Services S.r.l.
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* There are old pilots, and there are bold pilots. 
+* There are also old, bald pilots. 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266693AbSL3Evw>; Sun, 29 Dec 2002 23:51:52 -0500
+	id <S266702AbSL3FN2>; Mon, 30 Dec 2002 00:13:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266701AbSL3Evw>; Sun, 29 Dec 2002 23:51:52 -0500
-Received: from web13201.mail.yahoo.com ([216.136.174.186]:40479 "HELO
-	web13201.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S266693AbSL3Evv>; Sun, 29 Dec 2002 23:51:51 -0500
-Message-ID: <20021230050014.48247.qmail@web13201.mail.yahoo.com>
-Date: Sun, 29 Dec 2002 21:00:14 -0800 (PST)
-From: Anomalous Force <anomalous_force@yahoo.com>
-Subject: Re: holy grail 
-To: david.lang@digitalinsight.com, jdike@karaya.com
-Cc: wa@almesberger.net, alan@lxorguk.ukuu.org.uk, riel@conectiva.com.br,
-       ebiederm@xmission.com, linux-kernel@vger.kernel.org
+	id <S266708AbSL3FN2>; Mon, 30 Dec 2002 00:13:28 -0500
+Received: from packet.digeo.com ([12.110.80.53]:25595 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S266702AbSL3FN2>;
+	Mon, 30 Dec 2002 00:13:28 -0500
+Message-ID: <3E0FD7E4.A3EB612D@digeo.com>
+Date: Sun, 29 Dec 2002 21:21:40 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.52 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: khromy <khromy@lnuxlab.ath.cx>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.53-mm2 timing problems
+References: <20021230045335.GA26066@lnuxlab.ath.cx>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 30 Dec 2002 05:21:43.0706 (UTC) FILETIME=[573F87A0:01C2AFC3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+khromy wrote:
+> 
+> When playing netris, the shapes fall a lot faster in 2.5.53-mm2 than in
+> 2.4.20 and in 2.5.53.  Also, the login prompt says "login timed out
+> after 60 seconds" when only about 10-15 have passed.
 
---- Anomalous Force <anomalous_force@yahoo.com> wrote:
+Seems that this is because different parts of the kernel are using
+different values of HZ (!).
 
-> lets talk clusters... the teragrid system being built out of 2024
-> redhat 7.2 installs (ncsa alone, not counting the 3 other cluster
-> sites).
+In include/asm-i386/param.h, please add:
 
-i stand corrected, 512 installs (2024 total itanium procs) at ncsa.
-96 more in in argonne illinois, 192 at the san diego supercomputing
-center, and another 96 in pasadena.
+ #ifdef __KERNEL__
 
++#include <linux/config.h>
 
-=====
-Main Entry: anom·a·lous 
-1 : inconsistent with or deviating from what is usual, normal, or expected: IRREGULAR, UNUSUAL
-2 (a) : of uncertain nature or classification (b) : marked by incongruity or contradiction : PARADOXICAL
-synonym see IRREGULAR
-
-__________________________________________________
-Do you Yahoo!?
-Yahoo! Mail Plus - Powerful. Affordable. Sign up now.
-http://mailplus.yahoo.com
+ #ifdef CONFIG_1000HZ

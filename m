@@ -1,59 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265626AbUATRuP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 12:50:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265630AbUATRuP
+	id S265615AbUATRs5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 12:48:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265624AbUATRs4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 12:50:15 -0500
-Received: from smtp2.Stanford.EDU ([171.67.16.116]:63420 "EHLO
-	smtp2.Stanford.EDU") by vger.kernel.org with ESMTP id S265626AbUATRuH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 12:50:07 -0500
-Message-ID: <400D6A33.6020108@myrealbox.com>
-Date: Tue, 20 Jan 2004 09:49:39 -0800
-From: Andy Lutomirski <luto@myrealbox.com>
-User-Agent: Mozilla Thunderbird 0.5a (Windows/20040113)
-X-Accept-Language: en-us, en
+	Tue, 20 Jan 2004 12:48:56 -0500
+Received: from mxfep01.bredband.com ([195.54.107.70]:57517 "EHLO
+	mxfep01.bredband.com") by vger.kernel.org with ESMTP
+	id S265615AbUATRsx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jan 2004 12:48:53 -0500
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] Driver Core update for 2.6.1
+References: <20040120011036.GA6162@kroah.com> <yw1xsmibovwp.fsf@ford.guide>
+	<20040120171435.GE18566@kroah.com>
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Date: Tue, 20 Jan 2004 18:48:50 +0100
+In-Reply-To: <20040120171435.GE18566@kroah.com> (Greg KH's message of "Tue,
+ 20: 14:36 -0800")
+Message-ID: <yw1x8yk2o6il.fsf@ford.guide>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
 MIME-Version: 1.0
-To: Tim Hockin <thockin@hockin.org>
-CC: Nick Piggin <piggin@cyberone.com.au>, Rusty Russell <rusty@au1.ibm.com>,
-       vatsa@in.ibm.com, lhcs-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: CPU Hotplug: Hotplug Script And SIGPWR
-References: <fa.f37o48p.1io5q5@ifi.uio.no> <fa.frjqvfo.170g8hq@ifi.uio.no>
-In-Reply-To: <fa.frjqvfo.170g8hq@ifi.uio.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Hockin wrote:
+Greg KH <greg@kroah.com> writes:
 
-> On Tue, Jan 20, 2004 at 05:43:59PM +1100, Nick Piggin wrote:
-> 
->>>I think the sanest thing for a CPU removal is to migrate everything off the
->>>processor in question, move unrunnable tasks into TASK_UNRUNNABLE state,
->>>then notify /sbin/hotplug.  The hotplug script can then find and handle the
->>>unrunnable tasks.  No SIGPWR grossness needed.
->>>
->>
->>Seems less robust and more ad hoc than SIGPWR, however.
-> 
-> 
-> Disagree.  SIGPWR will kill any process that doesn't catch it.  That's
-> policy.  It seems more robust to let the hotplug script decide what to do.
-> If it wants to kill each unrunnable task with SIGPWR, it can.  But if it
-> wants to let them live, it can.
+> On Tue, Jan 20, 2004 at 09:40:22AM +0100, Måns Rullgård wrote:
+>> Greg KH <greg@kroah.com> writes:
+>> 
+>> >   o ALSA: add sysfs class support for ALSA sound devices
+>> 
+>> This is still only completed for the intel8x0 driver, right?
+>
+> The "device" and "driver" symlink will only show up for that driver,
+> yes.  But the class support will work for all alsa devices.  Now we can
+> add 1 line patches for all of the alsa drivers to enable those
+> symlinks...
 
-This seems like a problem that a lot of power-management issues have. 
-(At some point, linux may want to suspend itself after inactivity.  Both 
-RT tasks and some interactive tasks may want to supress that.)  Why not 
-add a SIGPM signal, which is only sent if handles, and which indicates 
-that PM event is happening.  Give usermode some method of responding to 
-it (e.g. handler returns a value, or a new syscall), and let 
-/sbin/hotplug handle events for tasks that either ignore the signal or 
-responded that they were uninterested.  This seems be close to optimal 
-for every case I can think of.
+I see.
 
---Andy
+BTW, I still don't get a snd/controlC0 in /udev.  All the other ALSA
+devices are there.
 
+-- 
+Måns Rullgård
+mru@kth.se

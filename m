@@ -1,58 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266005AbTGAGOO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 02:14:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266007AbTGAGON
+	id S266007AbTGAGRA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 02:17:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266008AbTGAGRA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 02:14:13 -0400
-Received: from imf20aec.mail.bellsouth.net ([205.152.59.68]:30886 "EHLO
-	imf20aec.bellsouth.net") by vger.kernel.org with ESMTP
-	id S266005AbTGAGOI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 02:14:08 -0400
-Message-ID: <3F010229.4020201@bellsouth.net>
-Date: Mon, 30 Jun 2003 23:38:17 -0400
-From: CarlosRomero <caberome@bellsouth.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.3) Gecko/20030322
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: simple pnp bios io resources bug makes  system unusable
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 1 Jul 2003 02:17:00 -0400
+Received: from angband.namesys.com ([212.16.7.85]:26861 "EHLO
+	angband.namesys.com") by vger.kernel.org with ESMTP id S266007AbTGAGQ7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jul 2003 02:16:59 -0400
+Date: Tue, 1 Jul 2003 10:31:20 +0400
+From: Oleg Drokin <green@namesys.com>
+To: Greg KH <greg@kroah.com>
+Cc: martin f krafft <madduck@madduck.net>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: restarting a kernel thread
+Message-ID: <20030701063120.GB7998@namesys.com>
+References: <20030630171033.GA27703@diamond.madduck.net> <20030630180002.GA25461@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030630180002.GA25461@kroah.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-cat /sys/devices/pnp0/00\:0c/name
-Reserved Motherboard Resources
+Hello!
 
-cat /sys/devices/pnp0/00\:0c/resources
-state = active
-io 0x4d0-0x4d1
-io 0xcf8-0xcff
-io 0x3f7-0x3f7
-io 0x401-0x407
-io 0x298-0x298
-io 0x00000000-0xffffffff
-mem 0xfffe0000-0xffffffff
-mem 0x100000-0x7ffffff
+On Mon, Jun 30, 2003 at 11:00:02AM -0700, Greg KH wrote:
 
-fixup: check for null io base, other devices are now able to initialize.
+> > I am soon going to switch to UML for this kind of development...
+> For USB development?  Ok...please send us the patches that get USB
+> support working under UML as others have wanted to do this for quite
+> some time :)
 
-static void current_ioresource(struct pnp_resource_table * res, int io, 
-int len)
-{
-        int i = 0;
- 
-+      if (!io) return;
-        while ((res->port_resource[i].flags & IORESOURCE_IO) && i < 
-PNP_MAX_PORT) i++;
-        if (i < PNP_MAX_PORT) {
-                res->port_resource[i].start = (unsigned long) io;
-                res->port_resource[i].end = (unsigned long)(io + len - 1);
-                res->port_resource[i].flags = IORESOURCE_IO;  // Also 
-clears _UNSET flag
-        }
-}
+The patches are at http://jmcmechan.linuxdriven.net
+2.4 seems to be working and 2.5 ones are a bit outdated.
+Still this is probably a better start than no patches at all ;)
 
-
-
+Bye,
+    Oleg

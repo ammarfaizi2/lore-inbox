@@ -1,48 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261155AbULOKSC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261165AbULOKTs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261155AbULOKSC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 05:18:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261165AbULOKSC
+	id S261165AbULOKTs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 05:19:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261166AbULOKTs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 05:18:02 -0500
-Received: from host62-24-231-113.dsl.vispa.com ([62.24.231.113]:52920 "EHLO
-	cenedra.walrond.org") by vger.kernel.org with ESMTP id S261155AbULOKSA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 05:18:00 -0500
-From: Andrew Walrond <andrew@walrond.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc3-mm1-V0.7.33-0
-Date: Wed, 15 Dec 2004 10:17:16 +0000
-User-Agent: KMail/1.7
-Cc: Ingo Molnar <mingo@elte.hu>,
-       Fernando Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Mark_H_Johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Steven Rostedt <rostedt@goodmis.org>
-References: <20041122005411.GA19363@elte.hu> <1103076261.12657.709.camel@cmn37.stanford.edu> <20041215090900.GC13551@elte.hu>
-In-Reply-To: <20041215090900.GC13551@elte.hu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 15 Dec 2004 05:19:48 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:57101 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S261165AbULOKTj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Dec 2004 05:19:39 -0500
+Subject: Re: [PATCH] enable meye even when CONFIG_HIGHMEM64G=y
+From: Arjan van de Ven <arjan@infradead.org>
+To: Dave Jones <davej@redhat.com>
+Cc: Stelian Pop <stelian@popies.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20041213153843.GD31695@redhat.com>
+References: <20041213110753.GB3646@crusoe.alcove-fr>
+	 <20041213153843.GD31695@redhat.com>
+Content-Type: text/plain
+Date: Wed, 15 Dec 2004 11:02:11 +0100
+Message-Id: <1103104931.4133.7.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200412151017.16233.andrew@walrond.org>
-X-Spam-Score: 0.0 (/)
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 15 Dec 2004 09:09, Ingo Molnar wrote:
->
-> x64 wont work for now, it needs some work to make threaded timer IRQs
-> work.
->
+On Mon, 2004-12-13 at 10:38 -0500, Dave Jones wrote:
+> On Mon, Dec 13, 2004 at 12:07:54PM +0100, Stelian Pop wrote:
+> 
+>  > However, this way of doing it also makes meye unavailable on
+>  > some kernel configurations. As Arjan said previously, future Fedora
+>  > kernels will have HIGHMEM64G activated by default. 
+> 
+> Not whilst there are boxes out there that won't boot when PAE
+> is enabled they won't.
 
-Don't leave it too long; I'm pretty sure I'm not the only x64 user wanting to 
-test your -RT stuff.
+the smp ones might... for HT/dual core machines
 
-I'm beginning to develop 32bit-envy ;)
 
-Andrew Walrond

@@ -1,46 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263600AbUFQVKf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263685AbUFQVN7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263600AbUFQVKf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 17:10:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263778AbUFQVKf
+	id S263685AbUFQVN7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 17:13:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263781AbUFQVN6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 17:10:35 -0400
-Received: from [213.146.154.40] ([213.146.154.40]:8370 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S263600AbUFQVKe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 17:10:34 -0400
-Date: Thu, 17 Jun 2004 22:10:32 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: mdpoole@troilus.org
-Cc: Flavio Stanchina <flavio@stanchina.net>, linux-kernel@vger.kernel.org
-Subject: Re: more files with licenses that aren't GPL-compatible
-Message-ID: <20040617211032.GA7247@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	mdpoole@troilus.org, Flavio Stanchina <flavio@stanchina.net>,
-	linux-kernel@vger.kernel.org
-References: <200406180629.i5I6Ttn04674@freya.yggdrasil.com> <87n032xk82.fsf@sanosuke.troilus.org> <20040617100930.A9108@adam> <96BD7BAE-C092-11D8-8574-000393ACC76E@mac.com> <40D20449.5000107@stanchina.net> <877ju5yjxp.fsf@sanosuke.troilus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <877ju5yjxp.fsf@sanosuke.troilus.org>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Thu, 17 Jun 2004 17:13:58 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:7875 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S263685AbUFQVN4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jun 2004 17:13:56 -0400
+Date: Thu, 17 Jun 2004 23:13:52 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Linux/m68k <linux-m68k@lists.linux-m68k.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: [PATCH] cross-sparse
+Message-ID: <Pine.GSO.4.58.0406172304170.1495@waterleaf.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 17, 2004 at 05:05:22PM -0400, mdpoole@troilus.org wrote:
-> Sure there is: To the extent that there is a real license problem,
-> work with the copyright owner(s) for the files and binary blobs to
-> resolve the problem.  If the copyright owner intentionally contributed
-> them to Linux, they should be willing to resolve it by changing their
-> license.  Contrary to your (and SCO's) allegations, kernel gatekeepers
-> generally exercise care with respect to new contributions.
-> 
-> If you see a lit match in a movie theater, it is reasonable to ask the
-> person to put it out *before* you shout "fire" and evacuate.
+	Hi Linus,
 
-Greg has made it pretty clear that he intentionally accepted a GPL-
-incomptible license.  So I wouldn't trust your Gatekeeper too much, it
-seems some don't of them don't understand the GPL at all.
+I wanted to give sparse a try on m68k, and noticed the current infrastructure
+doesn't handle cross-compilation (no sane m68k people compile kernels natively
+anymore, unless they run a Debian autobuilder ;-).
 
+After hacking the include paths in the sparse sources, installing the resulting
+binary as m68k-linux-sparse, and applying the following patch, it seems to work
+fine!
+
+OK to apply?
+
+--- linux-2.6.7/Makefile	2004-06-16 13:06:15.000000000 +0200
++++ linux-m68k-2.6.7/Makefile	2004-06-17 22:07:27.000000000 +0200
+@@ -296,7 +296,7 @@ GENKSYMS	= scripts/genksyms/genksyms
+ DEPMOD		= /sbin/depmod
+ KALLSYMS	= scripts/kallsyms
+ PERL		= perl
+-CHECK		= sparse
++CHECK		= $(CROSS_COMPILE)sparse
+ MODFLAGS	= -DMODULE
+ CFLAGS_MODULE   = $(MODFLAGS)
+ AFLAGS_MODULE   = $(MODFLAGS)
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

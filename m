@@ -1,78 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268058AbUIKAr6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268059AbUIKAtI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268058AbUIKAr6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 20:47:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268059AbUIKAr6
+	id S268059AbUIKAtI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 20:49:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268060AbUIKAtI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 20:47:58 -0400
-Received: from pimout5-ext.prodigy.net ([207.115.63.73]:6397 "EHLO
-	pimout5-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S268058AbUIKArx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 20:47:53 -0400
-Date: Fri, 10 Sep 2004 20:47:36 -0400 (EDT)
-From: Vladimir Dergachev <volodya@mindspring.com>
-X-X-Sender: volodya@node2.an-vo.com
-Reply-To: Vladimir Dergachev <volodya@mindspring.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Dave Airlie <airlied@linux.ie>, Jon Smirl <jonsmirl@gmail.com>,
-       Felix =?ISO-8859-1?Q?K=FChling?= <fxkuehl@gmx.de>,
-       DRI Devel <dri-devel@lists.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: radeon-pre-2
-In-Reply-To: <1094853588.18235.12.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.61.0409102039380.12529@node2.an-vo.com>
-References: <E3389AF2-0272-11D9-A8D1-000A95F07A7A@fs.ei.tum.de> 
- <Pine.LNX.4.58.0409100209100.32064@skynet>  <9e47339104090919015b5b5a4d@mail.gmail.com>
-  <20040910153135.4310c13a.felix@trabant>  <9e47339104091008115b821912@mail.gmail.com>
-  <1094829278.17801.18.camel@localhost.localdomain>  <9e4733910409100937126dc0e7@mail.gmail.com>
-  <1094832031.17883.1.camel@localhost.localdomain>  <9e47339104091010221f03ec06@mail.gmail.com>
-  <1094835846.17932.11.camel@localhost.localdomain>  <9e47339104091011402e8341d0@mail.gmail.com>
-  <Pine.LNX.4.58.0409102254250.13921@skynet> <1094853588.18235.12.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 10 Sep 2004 20:49:08 -0400
+Received: from mail.kroah.org ([69.55.234.183]:2180 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S268059AbUIKAsz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 20:48:55 -0400
+Date: Fri, 10 Sep 2004 17:48:27 -0700
+From: Greg KH <greg@kroah.com>
+To: Tim Hockin <thockin@hockin.org>
+Cc: Kay Sievers <kay.sievers@vrfy.org>, Robert Love <rml@ximian.com>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch] kernel sysfs events layer
+Message-ID: <20040911004827.GA8139@kroah.com>
+References: <20040831150645.4aa8fd27.akpm@osdl.org> <1093989924.4815.56.camel@betsy.boston.ximian.com> <20040902083407.GC3191@kroah.com> <1094142321.2284.12.camel@betsy.boston.ximian.com> <20040904005433.GA18229@kroah.com> <1094353088.2591.19.camel@localhost> <20040905121814.GA1855@vrfy.org> <20040906020601.GA3199@vrfy.org> <20040910235409.GA32424@kroah.com> <20040911001849.GA321@hockin.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040911001849.GA321@hockin.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Sep 10, 2004 at 05:18:49PM -0700, Tim Hockin wrote:
+> On Fri, Sep 10, 2004 at 04:54:09PM -0700, Greg KH wrote:
+> > To send an event, the user needs to pass the kobject, a optional
+> > sysfs-attribute and the signal string to the following function:
+> >   
+> >   kobject_uevent(const char *signal,
+> >                  struct kobject *kobj,
+> >                  struct attribute *attr)
+> 
+> Sorry I missed the flare up of this topic.  What about events for which
+> there is no associated kobject?
 
-Alan,
-   I would like to disagree with you.
+Tough, no event for them :)
 
-On Fri, 10 Sep 2004, Alan Cox wrote:
+> why is the kobject argument not first?  Seems weird..
 
-> On Gwe, 2004-09-10 at 23:19, Dave Airlie wrote:
->> If the kernel developers can address this point I would be most
->> interested, in fact I don't want to hear any more about sharing lowlevel
->> VGA device drivers until someone addresses why it is acceptable to have
->> two separate driver driving the same hardware for video and not for
->> anything else.. (remembering graphics cards are not-multifunction cards -
->> like Christoph used as an example before - 2d/3d are not separate
->> functions...)...
->
-> We've addressed this before. Zillions of drivers provide multiple
-> functions to multiple higher level subsystems. They don't all have to
-> be compiled together to make it work.
->
-> 2D and 3D _are_ to most intents and purposes different functions. They
-> are as different as IDE CD and IDE disk if not more so.
+Yeah, it is a bit "odd", but it follows my old kobject_hotplug() way.
 
-Functions - yes, but they become such only at a higher level. 3d for 
-example does not really exist in kernel in any form.
+> What happened to a formatted string argument?  The signal argument can 
+> become the pre-formatted string, and someone can provide a wrapper
+> that takes a printf() like format and args.
+> 	kobject_uevent_printf(kobj, "something bad: 0x%08x", err);
 
-I would like to see unified fb (or the hardware-specific part of fb) and 
-drm for one simple reason that I think you mentioned:
+Use an attribute, and have userspace read that formatted argument if
+need be.  This keeps the kernel interface much simpler, and doesn't
+allow you to abuse it for things it is not intended for (like error
+reporting stuff...)
 
-     One driver per device. I.e. one driver per *physical* device.
+thanks,
 
-Lastly, one point that you appear to have missed: DRM does DMA transfers
-(among everything else). FB sets video modes - i.e. messes with PLL.
-The problem is that there are configurations where messing with PLL while 
-a DMA trasfer is active will lock up PCI (or AGP) bus hard.
-
-For example, a video decoder can be clocked off pixel clock for video pass 
-through mode. If we trasfer video data to main RAM at the same time and
-FB gets a command instructing it to change resolution there would be a 
-hard lockup.
-
-                           best
-
-                             Vladimir Dergachev
+greg k-h

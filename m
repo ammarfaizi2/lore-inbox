@@ -1,60 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265508AbUF2G4H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265510AbUF2G6a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265508AbUF2G4H (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jun 2004 02:56:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265509AbUF2G4H
+	id S265510AbUF2G6a (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jun 2004 02:58:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265516AbUF2G6a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jun 2004 02:56:07 -0400
-Received: from smtp018.mail.yahoo.com ([216.136.174.115]:20620 "HELO
-	smtp018.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S265508AbUF2G4E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jun 2004 02:56:04 -0400
-Message-ID: <40E1127C.3010509@yahoo.com.au>
-Date: Tue, 29 Jun 2004 16:55:56 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ed Sweetman <safemode@comcast.net>
-CC: Peter Williams <pwil3058@bigpond.net.au>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       Con Kolivas <kernel@kolivas.org>, Michael Buesch <mbuesch@freenet.de>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Willy Tarreau <willy@w.ods.org>
-Subject: Re: [PATCH] Staircase scheduler v7.4
-References: <200406251840.46577.mbuesch@freenet.de> <200406261929.35950.mbuesch@freenet.de> <1088363821.1698.1.camel@teapot.felipe-alfaro.com> <200406272128.57367.mbuesch@freenet.de> <1088373352.1691.1.camel@teapot.felipe-alfaro.com> <Pine.LNX.4.58.0406281013590.11399@kolivas.org> <1088412045.1694.3.camel@teapot.felipe-alfaro.com> <40DFDBB2.7010800@yahoo.com.au> <40E0A7FC.3030200@bigpond.net.au> <40E0F3B1.2030906@yahoo.com.au> <40E1059F.7020105@comcast.net>
-In-Reply-To: <40E1059F.7020105@comcast.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 29 Jun 2004 02:58:30 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:58553 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265510AbUF2G61 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jun 2004 02:58:27 -0400
+Date: Tue, 29 Jun 2004 08:55:37 +0200
+From: Arjan van de Ven <arjanv@redhat.com>
+To: davidm@hpl.hp.com
+Cc: Jeff Garzik <jgarzik@pobox.com>, Terence Ripperda <tripperda@nvidia.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 32-bit dma allocations on 64-bit platforms
+Message-ID: <20040629065537.GB2898@devserv.devel.redhat.com>
+References: <20040623183535.GV827@hygelac> <40D9D7BA.7020702@pobox.com> <16605.1055.383447.805653@napali.hpl.hp.com> <1088234187.2805.3.camel@laptop.fenrus.com> <16609.2168.754171.270072@napali.hpl.hp.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="eAbsdosE1cNLO4uF"
+Content-Disposition: inline
+In-Reply-To: <16609.2168.754171.270072@napali.hpl.hp.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ed Sweetman wrote:
 
+--eAbsdosE1cNLO4uF
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Mon, Jun 28, 2004 at 11:13:12PM -0700, David Mosberger wrote:
+> >>>>> On Sat, 26 Jun 2004 09:16:27 +0200, Arjan van de Ven <arjanv@redhat.com> said:
 > 
-> I've seen different audio players react very differently in the same 
-> situations with the same kernel.  Are people testing alternatives to 
-> make sure it's not just the program being bad?  Maybe the people doing 
-> these scheduler tests are using all the popular media players and 
-> different widely available gui systems to make sure they're not tuning 
-> the kernel for a specific program.   That should probably be clarified.
-> I think it ought to be made clear that the gain is being made for a type 
-> of program, and not a single one, a type of workload and not a workload 
-> consisting of this and that and this program.  That can include 
-> different windowing systems (xfree86 vs non-free X implimentations or 
-> DirectFB) and gtk vs qt vs no toolkit..  This way obvious userspace bugs 
-> can be exposed and all this tuning wont be done for helping keep bugs 
-> and bad implimentations in use.
+>   Arjan> the real solution is an iommu of course, but the highmem
+>   Arjan> solution has quite some merit too..... I know you disagree
+>   Arjan> with me on that one though.
 > 
+> Yes, some merits and some faults.  The real solution is iommu or
+> 64-bit capable devices.  Interesting that graphics controllers should
+> be last to get 64-bit DMA capability, considering how much more
+> complex they are than disk controllers or NICs.
 
-Unfortunately, the number of apps is far too large for one person
-to hope to give decent coverage here, let alone all the *combinations*
-that people use.
+I guess the first game with more than 4Gb in textures will fix it ;)
 
-We simply have to rely on testers to report problems. Of course I
-do run my own changes on my desktop, and I have a selection of things
-to test that have been reported to cause problems in the past...
 
-It would be an idea to set up some regression test machines somewhere
-for this sort of thing though. Unfortunately I don't have the
-resources.
+--eAbsdosE1cNLO4uF
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFA4RJpxULwo51rQBIRApo4AJ9rQlfusjI7k6/DyWAs3C8/saKKGACghOBR
+qGkHali4sQFF03PrPGMib/Q=
+=gH/n
+-----END PGP SIGNATURE-----
+
+--eAbsdosE1cNLO4uF--

@@ -1,49 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271264AbTG2FcK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 01:32:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271266AbTG2FcK
+	id S271266AbTG2Fc6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 01:32:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271269AbTG2Fc6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 01:32:10 -0400
-Received: from CPE-65-29-19-166.mn.rr.com ([65.29.19.166]:15233 "EHLO
-	www.enodev.com") by vger.kernel.org with ESMTP id S271264AbTG2FcH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 01:32:07 -0400
-Subject: Re: 2.6.0-test2-mm1: Can't mount root
-From: Shawn <core@enodev.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030728193633.1b2bc9d8.akpm@osdl.org>
-References: <1059428584.6146.9.camel@localhost>
-	 <20030728144704.49c433bc.akpm@osdl.org>
-	 <1059430015.6146.15.camel@localhost>
-	 <20030728150245.42f57f89.akpm@osdl.org>
-	 <1059444271.4786.25.camel@localhost>
-	 <20030728193633.1b2bc9d8.akpm@osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1059456725.4781.9.camel@localhost>
+	Tue, 29 Jul 2003 01:32:58 -0400
+Received: from fw.osdl.org ([65.172.181.6]:64213 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S271266AbTG2Fc4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 01:32:56 -0400
+Date: Mon, 28 Jul 2003 22:32:29 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "S. Anderson" <sa@xmission.com>
+Cc: sa@xmission.com, pavel@xal.co.uk, linux-kernel@vger.kernel.org,
+       adaplas@pol.net
+Subject: Re: OOPS 2.6.0-test2, modprobe i810fb
+Message-Id: <20030728223229.528ddad1.akpm@osdl.org>
+In-Reply-To: <20030728231812.A20738@xmission.xmission.com>
+References: <20030728171806.GA1860@xal.co.uk>
+	<20030728201954.A16103@xmission.xmission.com>
+	<20030728202600.18338fa9.akpm@osdl.org>
+	<20030728231812.A20738@xmission.xmission.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 29 Jul 2003 00:32:06 -0500
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-07-28 at 21:36, Andrew Morton wrote:
-> Shawn <core@enodev.com> wrote:
-> >
-> > OK, mucho more info (no wonder root=/dev/hde5 no worky):
-> >         VP_IDE: (ide_setup_pci_device:) Could not enable device
-> OK, looks like breakage at the PCI level: pci_enable_device_bars() is
-> failing; something below pcibios_enable_device().
-> 
-> What was the most recent kernel which works?
+"S. Anderson" <sa@xmission.com> wrote:
+>
+> when that driver is 
+>  "i810fb, i810_audio or intel-agp" (and i810fb, i810_audio or intel-agp
+>  is allready loaded) the id_table is at an address that cant be handled, 
+>  thus cauing the oops. I am having trouble figuring out why 
+>  pci_drv->id_table isnt valid in this case.
 
-Looks like vanilla -test2 passes muster. Boots, etc.
+Does this fix?  I'm not sure whether that "{ }" in there will generate
+another table entry...
 
-Trying to find pci related snippets in -test2-mm1 patch... io_apic_* in
-io_}apic.c & mpparse.c, some acpi stuff, drivers/pci/probe.c but that
-looks like nothing... 
 
-I give up... Yet again... My technical depth seems easily tested in this
-arena.
+diff -puN drivers/char/agp/intel-agp.c~intel-agp-oops-fix drivers/char/agp/intel-agp.c
+--- 25/drivers/char/agp/intel-agp.c~intel-agp-oops-fix	2003-07-28 22:30:30.000000000 -0700
++++ 25-akpm/drivers/char/agp/intel-agp.c	2003-07-28 22:30:53.000000000 -0700
+@@ -1426,7 +1426,7 @@ static struct pci_device_id agp_intel_pc
+ 	.subvendor	= PCI_ANY_ID,
+ 	.subdevice	= PCI_ANY_ID,
+ 	},
+-	{ }
++	{ 0, },
+ };
+ 
+ MODULE_DEVICE_TABLE(pci, agp_intel_pci_table);
+
+_
+

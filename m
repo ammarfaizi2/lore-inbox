@@ -1,48 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267127AbRGXHpK>; Tue, 24 Jul 2001 03:45:10 -0400
+	id <S267054AbRGXH7E>; Tue, 24 Jul 2001 03:59:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267060AbRGXHpA>; Tue, 24 Jul 2001 03:45:00 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:10001 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S267054AbRGXHom>;
-	Tue, 24 Jul 2001 03:44:42 -0400
-Date: Tue, 24 Jul 2001 09:44:37 +0200
-From: Jens Axboe <axboe@suse.de>
-To: "Peter T. Breuer" <ptb@it.uc3m.es>
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: what's the semaphore in requests for?
-Message-ID: <20010724094437.I4221@suse.de>
-In-Reply-To: <200107232339.f6NNdXB30979@oboe.it.uc3m.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200107232339.f6NNdXB30979@oboe.it.uc3m.es>
+	id <S267055AbRGXH6z>; Tue, 24 Jul 2001 03:58:55 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:12557 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267054AbRGXH6k>; Tue, 24 Jul 2001 03:58:40 -0400
+To: linux-kernel@vger.kernel.org
+Cc: xinyuepeng@yahoo.com
+Subject: Re: How to change the root filesystem
+In-Reply-To: <20010724055530.33747.qmail@web20004.mail.yahoo.com>
+From: Daniel Quinlan <quinlan@transmeta.com>
+Date: 24 Jul 2001 00:58:38 -0700
+In-Reply-To: =?gb2312?q?=D0=C2=20=D4=C2?='s message of "Tue, 24 Jul 2001 13:55:30 +0800 (CST)"
+Message-ID: <6yu20269n5.fsf@sodium.transmeta.com>
+X-Mailer: Gnus v5.7/Emacs 20.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Tue, Jul 24 2001, Peter T. Breuer wrote:
-> What's the semaphore field in requests for?  Are driver writers supposed
-> to be using it?
+xinyuepeng@yahoo.com writes:
 
-Drivers can use it if they want completion to be signalled for a request
-(see end_that_request_last). However, see 2.4.7 where it's not ->waiting
-and the interface changed.
+> I want change the root filesystem from ext2 to cramfs, I read the
+> init code about the filesystem.  But I cannot understand how to make
+> a device that is used as cramfs device.
 
-> The block driver is largely in userspace. All the kernel half does
-> is transfer requests to a local queue (with the io lock still held, of
-> course). The userspace daemon cycles continously doing ioctls that
-> copy the requests (bh by bh) into userspace, where its treated via
-> some networking calls, then return an ack via another ioctl. 
-> 
-> The drivers local queue is protected by a semaphore.  The thing that
-> puzzles me is that the bug shows only when copying to a disk device,
-> not to /dev/null, through userspace! Is it that the lifetime of a
-> request is much longer than expected?
+(I asked: "desktop system?"  Reply: "No! embedded system!"  So, here's
+the answer.)
 
-Well all the explanations in the world doesn't help much -- show the
-code.
+cramfs should work out of the box as the root filesystem.  I'm not
+sure what you mean by "make a device".  cramfs is meant to be used on
+a block device like ext2 such as /dev/hda1.
 
--- 
-Jens Axboe
+If you want to include the kernel on the root filesystem, it's a bit
+more complicated.
 
+Option 1
+
+  - use Midori Linux: http://midori.transmeta.com/
+
+Option 2
+
+You need a few things:
+
+  - linux 2.4.7 kernel
+  - mkcramfs version from linux 2.4.7
+  - cramfsboot (part of Midori Linux) which is located here:
+    http://midori.transmeta.com/pub/midori-1.0.0-beta2/apps/
+    (includes an MBR, the cramfs secondary loader, set_boot, and
+    make_active)
+
+Run mkcramfs with a command line of something like:
+
+  mkcramfs -E -p -i bzImage -z root root.img.cram
+
+where bzImage is the kernel, root is the directory to cram, and
+root.img.cram is the output.  Actually, it's worse than that because
+cramfsboot wants the kernel to start 1024 bytes from the beginning of
+the partition.
+
+  dd if=/dev/zero of=bzImage.padded bs=436c count=1
+  cat bzImage >> bzImage.padded
+  mkcramfs -E -p -i bzImage.padded -z root roott.img.cram
+  cp cramfsboot.bin root1.img.cram	# from cramfsboot
+  tail +513c roott.img.cram >> root1.img.cram
+  cramfsck root1.img.cram
+  set_boot root1.img.cram 1
+  rm roott.img.cram
+
+Then root1.img.cram can be put on the first partition of say a Compact
+Flash or other IDE device.  You will need to use the MBR that's
+included with cramfsboot and don't forget to set the active flag (the
+cramfsboot MBR uses it).
+
+This code is a much-simplified version of what's in the Midori Linux
+"mlbuild" package.  (I haven't tried the simplified version, so if you
+need more help, please refer to the mlbuild package, same location as
+the cramfsboot package.)
+
+It sounds like you're just getting started on your embedded system,
+though, so I'd strongly recommend looking at what's out there.  Midori
+Linux makes heavy use of cramfs, but a bunch of the other offerings
+also use cramfs.
+
+- Dan

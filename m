@@ -1,55 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262314AbUKKTT4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262310AbUKKTbE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262314AbUKKTT4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Nov 2004 14:19:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262307AbUKKTT4
+	id S262310AbUKKTbE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Nov 2004 14:31:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262312AbUKKTbE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 14:19:56 -0500
-Received: from fmr06.intel.com ([134.134.136.7]:49887 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S262317AbUKKTT3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Nov 2004 14:19:29 -0500
-Subject: Re: [ACPI] [2.6 patch] drivers/acpi: #ifdef unused functions away
-From: Len Brown <len.brown@intel.com>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: Adrian Bunk <bunk@stusta.de>,
-       Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-       ACPI Developers <acpi-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20041111160842.GD1108@parcelfarce.linux.theplanet.co.uk>
-References: <20041106114844.GK1295@stusta.de>
-	 <418CEE3A.40503@conectiva.com.br> <20041106212917.GP1295@stusta.de>
-	 <418D403E.30608@conectiva.com.br> <1099933263.13831.9547.camel@d845pe>
-	 <20041110012134.GB4089@stusta.de>
-	 <20041111151727.GB1108@parcelfarce.linux.theplanet.co.uk>
-	 <20041111153650.GD8417@stusta.de>
-	 <20041111154017.GC1108@parcelfarce.linux.theplanet.co.uk>
-	 <20041111154656.GE8417@stusta.de>
-	 <20041111160842.GD1108@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1100200668.5517.707.camel@d845pe>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 11 Nov 2004 14:17:48 -0500
+	Thu, 11 Nov 2004 14:31:04 -0500
+Received: from pop.gmx.net ([213.165.64.20]:6367 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262310AbUKKTbA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Nov 2004 14:31:00 -0500
+X-Authenticated: #22934420
+From: Gregor Jasny <gjasny@gmx.de>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: USB-1.1 fails with USB 2.0 Hub [was: Re: USB-Serial fails with USB 2.0 Hub]
+Date: Thu, 11 Nov 2004 20:30:46 +0100
+User-Agent: KMail/1.7
+References: <6.1.1.1.0.20041108074026.01dead50@ptg1.spd.analog.com> <200411112003.43598.Gregor.Jasny@epost.de>
+In-Reply-To: <200411112003.43598.Gregor.Jasny@epost.de>
+Cc: Robin Getz <rgetz@blackfin.uclinux.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200411112030.46563.gjasny@gmx.de>
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-11-11 at 11:08, Matthew Wilcox wrote:
-> On Thu, Nov 11, 2004 at 04:46:56PM +0100, Adrian Bunk wrote:
+On Thursday 11 November 2004 20:03, you wrote:
+> On Monday 08 November 2004 16:49, you wrote:
+> > Two problems with kernel 2.6.4 (SuSe 9.1):
+> >
+> > 1) When I use a Belkin F5U409 usb-serial converter:
+> >      - when plugged directly into chipset (Intel ICH5), works great.
+> >      - when plugged in through a USB 1.0 hub, works great
+> >      - when plugged in throught USB 2.0 Hub (Belkin F5U237), fails.
+> >        Failure mechanism is: Tx works, Rx does not.
+>
+> Just a simple me, too. I've got the problem with a TerraCAM USB Pro.
+> Plugged into my Apple Keyboard it works (with a warning about high power
+> consumption). But if I plug it into my Belkin F5U237 the driver complains
+> with: "drivers/usb/media/ov511.c: init isoc: usb_submit_urb(0) ret -38".
 
-> > If yes, I will correct the acpi_remove_gpe_block case (it's only
-> this
-> > one function?) as soon as his tree appears in the next -mm.
-> 
-> acpi_remove_gpe_block and acpi_install_gpe_block.
+A simple list of working and nonworking devices:
 
-No problem, both of these patches are on my list for today and I'll fix
-this minor conflict.
+Works:
+* Logitech MouseMan Optical Dual
+* Apple Pro Keyboard
+* Iomega ZIP 100
 
-thanks,
--Len
+Works not:
+* TerraCAM USB Pro: (ov511 v2.28)
+drivers/usb/media/ov511.c: init isoc: usb_submit_urb(0) ret -38
+
+* USB-to-Serial (pl2303)
+pl2303_open - failed submitting interrupt urb, error -28
 
 
+Perhaps a driver programming bug?
 
+Cheers,
+-Gregor

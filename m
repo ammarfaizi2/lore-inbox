@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265895AbSKTIhI>; Wed, 20 Nov 2002 03:37:08 -0500
+	id <S265894AbSKTIeu>; Wed, 20 Nov 2002 03:34:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265898AbSKTIhI>; Wed, 20 Nov 2002 03:37:08 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:15040 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S265895AbSKTIhH>;
-	Wed, 20 Nov 2002 03:37:07 -0500
-Date: Wed, 20 Nov 2002 09:44:01 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Robert Love <rml@tech9.net>
-Cc: akpm@digeo.com, linux-kernel@vger.kernel.org
-Subject: Re: [patch] remove magic numbers in block queue initialization
-Message-ID: <20021120084401.GH11884@suse.de>
-References: <1037747198.1252.2259.camel@phantasy>
-Mime-Version: 1.0
+	id <S265895AbSKTIeu>; Wed, 20 Nov 2002 03:34:50 -0500
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:22158
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id <S265894AbSKTIeu>; Wed, 20 Nov 2002 03:34:50 -0500
+Message-ID: <3DDB4AD0.40800@redhat.com>
+Date: Wed, 20 Nov 2002 00:41:52 -0800
+From: Ulrich Drepper <drepper@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021118
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] threading enhancements, tid-2.5.48-A1
+References: <Pine.LNX.4.44.0211201050310.30357-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.44.0211201050310.30357-100000@localhost.localdomain>
+X-Enigmail-Version: 0.65.4.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1037747198.1252.2259.camel@phantasy>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 19 2002, Robert Love wrote:
-> Andrew,
-> 
-> Your less-requests patch signaled a way-too-many magic numbers alarm
-> (not the patches fault, of course, but it pointed it out).
-> 
-> Attached patch removes the minimum queue length, maximum queue length,
-> factor of queue length that is number of batch requests, and the maximum
-> number of batch request magic numbers and replaces them with defines and
-> some comments.
-> 
-> Look OK?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-No, please leave these alone, testing is on-going in these parts right
-now.
+Ingo Molnar wrote:
+> here's an update to the patch, Ulrich noticed that the x86 register
+> parameters were incorrect, the correct use is %edx for the parent pointer,
+> %edi for the child pointer.
 
--- 
-Jens Axboe
+This patch works just fine for the adequately adjusted nptl.
+
+- -- 
+- --------------.                        ,-.            444 Castro Street
+Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
+Red Hat         `--' drepper at redhat.com `---------------------------
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE920rQ2ijCOnn/RHQRAgb3AKCsAWcAJxixpO0iUyURrZXxD+ViCACfU5Qc
+mmygn+orhoBq2ypStbgSxYI=
+=YG+H
+-----END PGP SIGNATURE-----
 

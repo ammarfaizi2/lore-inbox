@@ -1,99 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263725AbUFCOEE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263775AbUFCOId@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263725AbUFCOEE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 10:04:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263736AbUFCOEE
+	id S263775AbUFCOId (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 10:08:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263807AbUFCOId
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 10:04:04 -0400
-Received: from smtpauth2-ext.prodigy.net ([207.115.63.116]:12004 "EHLO
-	smtpauth2-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S263725AbUFCOD7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 10:03:59 -0400
-Subject: APIC / ACPI Build issue
-From: gaumer <gaumer@egaumer.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-8S15divMcs015Zu1yitq"
-Message-Id: <1086271422.16648.45.camel@localhost>
+	Thu, 3 Jun 2004 10:08:33 -0400
+Received: from unthought.net ([212.97.129.88]:56006 "EHLO unthought.net")
+	by vger.kernel.org with ESMTP id S263775AbUFCOIb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jun 2004 10:08:31 -0400
+Date: Thu, 3 Jun 2004 16:08:30 +0200
+From: Jakob Oestergaard <jakob@unthought.net>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Michael De Nil <michael@flex-it.be>, linux-kernel@vger.kernel.org
+Subject: Re: Promise PDC20378 Raid Accelerator
+Message-ID: <20040603140829.GB30687@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	Jeff Garzik <jgarzik@pobox.com>, Michael De Nil <michael@flex-it.be>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.56.0406012040380.6191@lisa.flex-it.be> <40BD1032.604@pobox.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 03 Jun 2004 10:03:43 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40BD1032.604@pobox.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jun 01, 2004 at 07:24:34PM -0400, Jeff Garzik wrote:
+> Michael De Nil wrote:
+> >Can someone tell me if I will be able to run 2 SATA discs on a raid1 with
+> >this chip, and if yes, what driver you would prefer? I am a litle bit
+> >afraid for using non-stable drivers... ;)
+> 
+> 
+> The all-open-source solution...  Linux "md" raid, and Linux SATA drivers :)
 
---=-8S15divMcs015Zu1yitq
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+One caveat: you *may* have to create "one disk RAID-0" arrays of your
+disks (which is equivalent to the single disk), in order to make the
+SATA controller boot from the disk.  So, with two disks, you would
+create two RAID-0 arrays, each containing one disk.  Silly really, but
+at least I had to do this with the Promise TX4.
 
-Excuse my ignorance, I'm new to kernel development.
+Other than that; Standard Linux SATA drivers + Software RAID + LVM2 is a
+beautiful all-open-source solution for cheap flexible and reliable
+storage  -  my mom is using that   ;)
 
-I've just patched my source with rc2-mm2 and there seems to be a build
-issue concerning APIC / ACPI support.
+-- 
 
-The error:
-
-  LD      init/built-in.o
-  LD      .tmp_vmlinux1
-arch/i386/kernel/built-in.o(.text+0xdaca): In function `acpi_register_gsi':
-: undefined reference to `mp_register_gsi'
-make[1]: *** [.tmp_vmlinux1] Error 1
-
-It seems that in arch/i386/kernel/acpi/boot.c
-at line 462 we have:
-
-#ifdef CONFIG_X86_IO_APIC
-        if (acpi_irq_model =3D=3D ACPI_IRQ_MODEL_IOAPIC) {
-                mp_register_gsi(gsi, edge_level, active_high_low);
-        }
-#endif
-
-...yet mp_register_gsi is only defined if:
-
-(line 879 of arch/i386/kernel/mpparse.c)
-#if defined(CONFIG_X86_IO_APIC) && defined(CONFIG_ACPI_INTERPRETER)
-
-So if the .config looks like:
-
-# Power management options (ACPI, APM)
-#
-# CONFIG_PM is not set
-                                                                           =
-                                                                           =
-                            =20
-#
-# ACPI (Advanced Configuration and Power Interface) Support
-#
-# CONFIG_ACPI is not set
-CONFIG_ACPI_BOOT=3Dy
-                                                                           =
-                                                                           =
-                            =20
-#
-# CPU Frequency scaling
-
-With the power management stuff turned off and SMP support enabled the
-result is this build error.=20
-
-Does CONFIG_ACPI_INTERPRETER have to be defined? If so, then can we
-require the definition in arch/i386/kernel/acpi/boot.c as well? This is
-not an area I'm familiar with.
-
-The last build I did was on 2.6.6-mm5 and things were okay there (same
-config).
-
-
-
---=-8S15divMcs015Zu1yitq
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBAvy++ZWL8hfFdQekRAl2vAJ4ziTDXX4ne2dXSlrFqc9YKlkrueQCgg1yL
-3kRNz83FxFCvn0DO4JceIiY=
-=5dUZ
------END PGP SIGNATURE-----
-
---=-8S15divMcs015Zu1yitq--
+ / jakob
 

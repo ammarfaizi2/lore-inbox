@@ -1,50 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261351AbTCYBoa>; Mon, 24 Mar 2003 20:44:30 -0500
+	id <S261328AbTCYBhP>; Mon, 24 Mar 2003 20:37:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261323AbTCYB2d>; Mon, 24 Mar 2003 20:28:33 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:12816 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261326AbTCYB2C>;
-	Mon, 24 Mar 2003 20:28:02 -0500
-Subject: Re: [PATCH] i2c driver changes for 2.5.66
-In-reply-to: <10485563161329@kroah.com>
-Content-Transfer-Encoding: 7BIT
-To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
-From: Greg KH <greg@kroah.com>
-Content-Type: text/plain; charset=US-ASCII
-Mime-version: 1.0
-Date: Mon, 24 Mar 2003 17:38 -0800
-Message-id: <10485563181803@kroah.com>
-X-mailer: gregkh_patchbomb
+	id <S261349AbTCYBgv>; Mon, 24 Mar 2003 20:36:51 -0500
+Received: from ns.suse.de ([213.95.15.193]:25102 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S261328AbTCYBfO>;
+	Mon, 24 Mar 2003 20:35:14 -0500
+Date: Tue, 25 Mar 2003 02:46:20 +0100
+From: Andi Kleen <ak@suse.de>
+To: Thomas Schlichter <schlicht@uni-mannheim.de>
+Cc: Andi Kleen <ak@suse.de>, davej@codemonkey.org.uk, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][x86-64] make the pci aperture cachable
+Message-ID: <20030325014620.GB3548@wotan.suse.de>
+References: <200303241641.h2OGfw35008208@deviant.impure.org.uk> <1048527139.12339.109.camel@averell> <200303250125.39564.schlicht@uni-mannheim.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200303250125.39564.schlicht@uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.889.357.1, 2003/03/21 12:29:44-08:00, vandrove@vc.cvut.cz
+> As this patch has been applied anyway here is a patch to make the pci aperture 
+> cachable for 2.5.66.
 
-[PATCH] Fix kobject_get oopses triggered by i2c in 2.5.65-bk
+It actually needs a different change. This is just the fallback path
+when your BIOS didn't set up an aperture (no AGP port). In case of an
+existing aperture it needs to remap the IOMMU half.
 
-i2c initialization must not use module_init now, when it was converted
-to the kobject interface. There are dozens of users which need it working
-much sooner. i2c is subsystem after all, isn't it?
+I fixed it now in my tree.
 
-Fixes kernel oopses in kobject_get during system init which were happening
-to me.
-
-
- drivers/i2c/i2c-core.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-
-diff -Nru a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
---- a/drivers/i2c/i2c-core.c	Mon Mar 24 17:28:49 2003
-+++ b/drivers/i2c/i2c-core.c	Mon Mar 24 17:28:49 2003
-@@ -675,7 +675,7 @@
- 	bus_unregister(&i2c_bus_type);
- }
- 
--module_init(i2c_init);
-+subsys_initcall(i2c_init);
- module_exit(i2c_exit);
- 
- /* ----------------------------------------------------
-
+-Andi

@@ -1,51 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261735AbTKRAp0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Nov 2003 19:45:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261996AbTKRAp0
+	id S262308AbTKRAoM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Nov 2003 19:44:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262310AbTKRAoM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Nov 2003 19:45:26 -0500
-Received: from aeimail.aei.ca ([206.123.6.14]:61137 "EHLO aeimail.aei.ca")
-	by vger.kernel.org with ESMTP id S261735AbTKRApV convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Nov 2003 19:45:21 -0500
-From: Ed Tomlinson <edt@aei.ca>
-Organization: me
-To: Maciej Zenczykowski <maze@cela.pl>
-Subject: Re: CONFIG_CRC32 in 2.4.22 breaks PCMCIA
-Date: Mon, 17 Nov 2003 19:45:47 -0500
-User-Agent: KMail/1.5.93
-Cc: Andrew Pimlott <andrew@pimlott.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-References: <20031117200451.GA12931@pimlott.net> <Pine.LNX.4.44.0311172121400.3939-100000@gaia.cela.pl> <20031117204039.GB12931@pimlott.net>
-In-Reply-To: <20031117204039.GB12931@pimlott.net>
+	Mon, 17 Nov 2003 19:44:12 -0500
+Received: from ns.media-solutions.ie ([212.67.195.98]:58383 "EHLO
+	mx.media-solutions.ie") by vger.kernel.org with ESMTP
+	id S262308AbTKRAoL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Nov 2003 19:44:11 -0500
+Message-ID: <3FB96AA6.8060309@media-solutions.ie>
+Date: Mon, 17 Nov 2003 18:41:10 -0600
+From: Keith Whyte <keith@media-solutions.ie>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: es-mx, es-es, en, en-us
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200311171945.47655.edt@aei.ca>
+To: Tomas Szepe <szepe@pinerecords.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.18 fork & defunct child.
+References: <1069053524.3fb87654286b5@ssl.buz.org> <20031117184732.GA531@louise.pinerecords.com>
+In-Reply-To: <20031117184732.GA531@louise.pinerecords.com>
+X-Enigmail-Version: 0.76.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-RelayImmunity: 212.67.195.98
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On November 17, 2003 03:40 pm, Andrew Pimlott wrote:
-> > Well, it's in the help for the CRC32 option that it's available to enable
-> > external-kernel tree drivers to access these functions.  If you are
-> > running make oldconfig you'll hit the question and if you don't know what
-> > it's about you should consult help...
+
+>Weird.  Totally weird.
 >
-> I think I used xconfig the first time I configured this kernel
-> (because I coincidentally wanted to change something).  It was a
-> while ago, and I only tried pcnet_cs today, so my memory isn't
-> perfect.  Maybe I should have used oldconfig first, but I doubt
-> everyone else does that for stable kernels.
+>Have you checked the systems for root kits?  I'm really out of ideas
+>here other than the usual hardwarehosed/systemcompromised.  One thing
+>I can vouch for is Slackware 8.1 working ok as is, we've installed
+>dozens of that particular release and all the machines are still
+>humming away in the wild nicely.
 >
-> It still seems unwise to change the default in a stable kernel.  Let
-> the people who want it set CONFIG_OMIT_CRC32 or something.
+>  
+>
+Thanks Tomas,
+weird it is, it has me stumped. I'm no spring chicken with linux systems 
+and i also have a slackware 8.1 system running fine on PCchips hardware 
+for years. (well since slackware 8.1 came out, and before that it had 
+7). But this is the only machine i've ever run a distro kernel on.
 
-Andrew,
+umounting /proc removes the problem.
+what could be in there in proc that would be causing it? something 
+misrepresented about the memory? or some other resource?
 
-I think its reasonable to have to do a make oldconfig for stable kernels.
-Stable does not mean new drivers and/or filesystems do not get added...
 
-Ed Tomlinson
+One thing i have noticed is that this happens:
+kernel: PCI_IDE: unknown IDE controller on PCI bus 00 device f9, 
+VID=8086, DID=24cb
+kernel: PCI: Device 00:1f.1 not available because of resource collisions
+on boot.
+
+I sent some more info about the problem earlier to linux-kernel.
+
+http://marc.theaimsgroup.com/?l=linux-kernel&m=106911546802893&w=2
+
+
+thanks
+
+

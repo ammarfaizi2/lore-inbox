@@ -1,128 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262453AbUEKIuA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262434AbUEKIxb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262453AbUEKIuA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 04:50:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262837AbUEKIuA
+	id S262434AbUEKIxb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 04:53:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262459AbUEKIxb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 04:50:00 -0400
-Received: from se2.ruf.uni-freiburg.de ([132.230.2.222]:36740 "EHLO
-	se2.ruf.uni-freiburg.de") by vger.kernel.org with ESMTP
-	id S262453AbUEKIsZ convert rfc822-to-8bit (ORCPT
+	Tue, 11 May 2004 04:53:31 -0400
+Received: from fw.osdl.org ([65.172.181.6]:28549 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262434AbUEKIw3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 04:48:25 -0400
-X-Scanned: Tue, 11 May 2004 10:44:49 +0200 Nokia Message Protector V1.3.30 2004040916 - RELEASE
-To: Pavel Machek <pavel@suse.cz>, Gabor Kuti <seasons@fornax.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.6 swsusp.c: allow device aliasing
-References: <xb73c68s14g.fsf@savona.informatik.uni-freiburg.de>
-	<20040510170936.GG27008@atrey.karlin.mff.cuni.cz>
-From: Sau Dan Lee <danlee@informatik.uni-freiburg.de>
-Date: 11 May 2004 10:44:03 +0200
-In-Reply-To: <20040510170936.GG27008@atrey.karlin.mff.cuni.cz>
-Message-ID: <xb7y8nzqros.fsf@savona.informatik.uni-freiburg.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=big5
-Content-Transfer-Encoding: 8BIT
+	Tue, 11 May 2004 04:52:29 -0400
+Date: Tue, 11 May 2004 01:52:20 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, torvalds@osdl.org, marcelo.tosatti@cyclades.com
+Subject: [PATCH 5/11] enforce rlimits on queued signals
+Message-ID: <20040511015219.D21045@build.pdx.osdl.net>
+References: <20040511014232.Y21045@build.pdx.osdl.net> <20040511014524.Z21045@build.pdx.osdl.net> <20040511014639.A21045@build.pdx.osdl.net> <20040511014833.B21045@build.pdx.osdl.net> <20040511015015.C21045@build.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20040511015015.C21045@build.pdx.osdl.net>; from chrisw@osdl.org on Tue, May 11, 2004 at 01:50:15AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Add a user_struct to the sigqueue structure.  Charge sigqueue allocation
+and destruction to the user_struct rather than a global pool.  This per
+user rlimit accounting obsoletes the global queued_signals accouting.
 
-Here is an updated patch.  I thank Pavel for his suggestions.
-
-    >> (Does swsusp support swap files?  If so, should we also support
-    >> file aliasing?  How?)
-
-    Pavel> No, swsusp only supports swap devices. That means that you
-    Pavel> probably should kill d_path and name handling; that will
-    Pavel> slean the code up as well.
-
-
-
---- linux-2.6.6/kernel/power/swsusp.c	2004/05/10 14:11:17	1.1
-+++ linux-2.6.6-swsusp-dev-aliasing/kernel/power/swsusp.c	2004/05/11 08:14:40	1.4
-@@ -215,47 +215,69 @@
- 		else if ((!memcmp("SWAPSPACE2",cur->swh.magic.magic,10)))
- 			memcpy(cur->swh.magic.magic,"S2SUSP....",10);
- 		else panic("\nSwapspace is not swapspace (%.10s)\n", cur->swh.magic.magic);
- 		cur->link.next = prev; /* prev is the first/last swap page of the resume area */
- 		/* link.next lies *no more* in last 4/8 bytes of magic */
- 	}
- 	rw_swap_page_sync(WRITE, entry, page);
- 	__free_page(page);
+===== include/linux/signal.h 1.15 vs edited =====
+--- 1.15/include/linux/signal.h	Thu Jan 15 12:40:33 2004
++++ edited/include/linux/signal.h	Mon May 10 16:16:13 2004
+@@ -19,6 +19,7 @@
+ 	spinlock_t *lock;
+ 	int flags;
+ 	siginfo_t info;
++	struct user_struct *user;
+ };
+ 
+ /* flags values. */
+===== kernel/signal.c 1.115 vs edited =====
+--- 1.115/kernel/signal.c	Mon May 10 03:04:00 2004
++++ edited/kernel/signal.c	Mon May 10 16:16:13 2004
+@@ -264,17 +264,19 @@
+ 	return sig;
  }
  
-+static int is_resume_file(const struct swap_info_struct *swap_info)
-+{
-+	/*
-+	  Check whether the swap device is the specified resume
-+	  device, irrespective of whether they are specified by
-+	  identical names.
-+
-+	  (Thus, device inode aliasing is allowed.  You can say
-+	   /dev/hda4 instead of /dev/ide/host0/bus0/target0/lun0/part4
-+	   [if using devfs] and they'll be considered the same device.
-+	   This is *necessary* for devfs, since the resume code can
-+	   only recognize the form /dev/hda4, but the suspend code
-+	   would like the long name [as shown in 'cat /proc/mounts'].)
-+	 */
-+
-+	struct file *file = swap_info->swap_file;
-+	struct inode *inode = file->f_dentry->d_inode;
-+
-+	/* See if it is a swap (block) device.  If so, we compare
-+	   the device (MAJOR,MINOR).
-+
-+	   Note: Swap files are not supported by swsusp.
-+	*/
-+	return S_ISBLK(inode->i_mode) &&
-+	  resume_device == MKDEV(imajor(inode), iminor(inode));
-+}
-+
- static void read_swapfiles(void) /* This is called before saving image */
+-struct sigqueue *__sigqueue_alloc(void)
++static struct sigqueue *__sigqueue_alloc(void)
  {
- 	int i, len;
--	static char buff[sizeof(resume_file)], *sname;
- 	
- 	len=strlen(resume_file);
- 	root_swap = 0xFFFF;
- 	
- 	swap_list_lock();
- 	for(i=0; i<MAX_SWAPFILES; i++) {
- 		if (swap_info[i].flags == 0) {
- 			swapfile_used[i]=SWAPFILE_UNUSED;
- 		} else {
- 			if(!len) {
- 	    			printk(KERN_WARNING "resume= option should be used to set suspend device" );
- 				if(root_swap == 0xFFFF) {
- 					swapfile_used[i] = SWAPFILE_SUSPEND;
- 					root_swap = i;
- 				} else
- 					swapfile_used[i] = SWAPFILE_IGNORED;				  
- 			} else {
- 	  			/* we ignore all swap devices that are not the resume_file */
--				sname = d_path(swap_info[i].swap_file->f_dentry,
--					       swap_info[i].swap_file->f_vfsmnt,
--					       buff,
--					       sizeof(buff));
--				if (!strcmp(sname, resume_file)) {
-+				if (is_resume_file(&swap_info[i])) {
- 					swapfile_used[i] = SWAPFILE_SUSPEND;
- 					root_swap = i;
- 				} else {
- #if 0
- 					printk( "Resume: device %s (%x != %x) ignored\n", swap_info[i].swap_file->d_name.name, swap_info[i].swap_device, resume_device );				  
- #endif
- 				  	swapfile_used[i] = SWAPFILE_IGNORED;
- 				}
- 			}
- 		}
-
-
-
--- 
-Sau Dan LEE                     §õ¦u´°(Big5)                    ~{@nJX6X~}(HZ) 
-
-E-mail: danlee@informatik.uni-freiburg.de
-Home page: http://www.informatik.uni-freiburg.de/~danlee
+ 	struct sigqueue *q = 0;
+ 
+-	if (atomic_read(&nr_queued_signals) < max_queued_signals)
++	if (atomic_read(&current->user->sigpending) < 
++			current->rlim[RLIMIT_SIGPENDING].rlim_cur)
+ 		q = kmem_cache_alloc(sigqueue_cachep, GFP_ATOMIC);
+ 	if (q) {
+-		atomic_inc(&nr_queued_signals);
+ 		INIT_LIST_HEAD(&q->list);
+ 		q->flags = 0;
+ 		q->lock = 0;
++		q->user = get_uid(current->user);
++		atomic_inc(&q->user->sigpending);
+ 	}
+ 	return(q);
+ }
+@@ -283,8 +285,9 @@
+ {
+ 	if (q->flags & SIGQUEUE_PREALLOC)
+ 		return;
++	atomic_dec(&q->user->sigpending);
++	free_uid(q->user);
+ 	kmem_cache_free(sigqueue_cachep, q);
+-	atomic_dec(&nr_queued_signals);
+ }
+ 
+ static void flush_sigqueue(struct sigpending *queue)
+@@ -719,12 +722,14 @@
+ 	   make sure at least one signal gets delivered and don't
+ 	   pass on the info struct.  */
+ 
+-	if (atomic_read(&nr_queued_signals) < max_queued_signals)
++	if (atomic_read(&t->user->sigpending) <
++			t->rlim[RLIMIT_SIGPENDING].rlim_cur)
+ 		q = kmem_cache_alloc(sigqueue_cachep, GFP_ATOMIC);
+ 
+ 	if (q) {
+-		atomic_inc(&nr_queued_signals);
+ 		q->flags = 0;
++		q->user = get_uid(t->user);
++		atomic_inc(&q->user->sigpending);
+ 		list_add_tail(&q->list, &signals->list);
+ 		switch ((unsigned long) info) {
+ 		case 0:
 

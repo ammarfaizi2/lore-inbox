@@ -1,40 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261372AbVAQPI3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261215AbVAQPI0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261372AbVAQPI3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 10:08:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261264AbVAQPI3
+	id S261215AbVAQPI0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 10:08:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261264AbVAQPHk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 10:08:29 -0500
-Received: from mail.tnnet.fi ([217.112.240.26]:11493 "EHLO mail.tnnet.fi")
-	by vger.kernel.org with ESMTP id S261372AbVAQPII (ORCPT
+	Mon, 17 Jan 2005 10:07:40 -0500
+Received: from strutmasters.com ([161.58.166.59]:51464 "EHLO strutmasters.com")
+	by vger.kernel.org with ESMTP id S261215AbVAQPHd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 10:08:08 -0500
-Message-ID: <41EBD4D4.882B94D@users.sourceforge.net>
-Date: Mon, 17 Jan 2005 17:08:04 +0200
-From: Jari Ruusu <jariruusu@users.sourceforge.net>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.22aa1r8 i686)
-X-Accept-Language: en
+	Mon, 17 Jan 2005 10:07:33 -0500
+Message-ID: <41EBD4E8.70905@strutmasters.com>
+Date: Mon, 17 Jan 2005 10:08:24 -0500
+From: Brian Henning <brian@strutmasters.com>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: linux-crypto@nl.linux.org, linux-kernel@vger.kernel.org
-Subject: Re: Announce loop-AES-v3.0b file/swap crypto package
-References: <41EAE36F.35354DDF@users.sourceforge.net> <41EB3E7E.7070100@tmr.com>
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: smbfs in 2.6.8 SMP kernel
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen wrote:
-> Is this eventually going in the mainline kernel? I'd like to use it, but
-> if I'm going to have to maintain my own crypto kernels indefinitely this
-> probably isn't the one for me.
+Hello,
 
-Unlikely to go to mainline kernel. Mainline folks are just too much in love
-with their backdoored device crypto implementations [1]. If you want strong
-device crypto in mainline kernel, maybe you should take a look at FreeBSD
-gbde.
+   I've just rebuilt my 2.6.8 kernel to enable SMP for my dual Xeons. 
+Everything seems to work great, except now smbfs is broken.  If I boot 
+the non-SMP kernel, smbfs works perfectly; however, if I boot the SMP 
+kernel, most file creations/modifications in smbfs-mounted directories 
+hang for a long time and end with errors such as the following example:
 
-[1]  http://marc.theaimsgroup.com/?l=linux-kernel&m=107419912024246&w=2
+/home/me/smb/mounted/dir: $ touch testfile
+touch: setting times of `testfile': Input/output error
+/home/me/smb/mounted/dir: $ rm testfile
+/home/me/smb/mounted/dir: $ echo "Hello, Dave." | cat > testfile
+/home/me/smb/mounted/dir: $ cat testfile
+Hello, Dave.
+/home/me/smb/mounted/dir: $ echo "I'm scared, Dave." | cat > testfile
+bash: testfile: Input/output error
+/home/me/smb/mounted/dir: $ cat testfile
+/home/me/smb/mounted/dir: $ ls -l testfile
+-rwxr--r--  1 me root 0 2005-01-17 09:50 testfile
 
--- 
-Jari Ruusu  1024R/3A220F51 5B 4B F9 BB D3 3F 52 E9  DB 1D EB E3 24 0E A9 DD
+Now that I am aware of the problem, I know to avoid triggering it, but 
+imagine my dismay when, after attempting to save an edited file, I found 
+that its size had been reduced to zero!
+
+   I'm a kernel-building newbie, so I'm sure my problem is due to me 
+overlooking something.  I tried building smbfs into the kernel, but that 
+made no difference.  I'd be ever thankful if someone would point me in 
+the right direction, as I would certainly enjoy fully using my 
+processors while also being able to use smbfs.
+
+Other potentially pertinent data:
+Distro: Debian Sarge
+Kernel Version: 2.6.8 custom
+Arch: Xeon-HT/EMT (x2)
+
+Thanks in advance!
+Regards,
+~Brian

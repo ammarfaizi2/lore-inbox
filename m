@@ -1,41 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136073AbRDVMeN>; Sun, 22 Apr 2001 08:34:13 -0400
+	id <S136078AbRDVMoP>; Sun, 22 Apr 2001 08:44:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136075AbRDVMeD>; Sun, 22 Apr 2001 08:34:03 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:48059 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S136073AbRDVMdu>;
-	Sun, 22 Apr 2001 08:33:50 -0400
-Date: Sun, 22 Apr 2001 08:33:44 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Francois Romieu <romieu@cogenit.fr>
-cc: "Eric S. Raymond" <esr@thyrsus.com>, CML2 <linux-kernel@vger.kernel.org>,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: Request for comment -- a better attribution system
-In-Reply-To: <20010422133947.A21908@se1.cogenit.fr>
-Message-ID: <Pine.GSO.4.21.0104220819490.28681-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S136079AbRDVMoG>; Sun, 22 Apr 2001 08:44:06 -0400
+Received: from pc57-cam4.cable.ntl.com ([62.253.135.57]:35203 "EHLO
+	kings-cross.london.uk.eu.org") by vger.kernel.org with ESMTP
+	id <S136078AbRDVMnw>; Sun, 22 Apr 2001 08:43:52 -0400
+X-Mailer: exmh version 2.3.1 01/18/2001 (debian 2.3.1-1) with nmh-1.0.4+dev
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: junio@siamese.dhis.twinsun.com, manuel@mclure.org (Manuel McLure),
+        linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.3-ac12 
+In-Reply-To: Message from Alan Cox <alan@lxorguk.ukuu.org.uk> 
+   of "Sun, 22 Apr 2001 13:26:27 BST." <E14rIwg-0005jI-00@the-village.bc.nu> 
+In-Reply-To: <E14rIwg-0005jI-00@the-village.bc.nu> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 22 Apr 2001 13:43:31 +0100
+From: Philip Blundell <philb@gnu.org>
+Message-Id: <E14rJD9-0005hr-00@kings-cross.london.uk.eu.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>Why ? It works in the 2.96 snapshots. So 2.96+ is fine.
 
+GCC snapshots have called themselves 2.97 since last September.  "2.96" just 
+means that it's some random old version.  Yours happens to work; there's no 
+guarantee that everybody else's will too.
 
-On Sun, 22 Apr 2001, Francois Romieu wrote:
+p.
 
-> Look again at l-k archive: people do global changes (see VFS, network api, 
-> etc...).
-
-And then we have the situation when about a half of filesystems has no
-single maintainer - they are taken care of when needed, but that's it.
-We also have _no_ official maintainer of VFS, and that's the way it's
-gonna be.
-
-Eric, it would save everyone a lot of time if you actually cared to
-pull your head out of your... theoretical constructions and spent
-some efforts figuring out how the things really work. Building
-infrastructure before you get familiar with the problem domain is
-generally considered harmful. That's precisely what you are doing.
-Trust me, it doesn't earn you any respect from people familiar
-with the problem.
 

@@ -1,62 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129207AbRBFSXr>; Tue, 6 Feb 2001 13:23:47 -0500
+	id <S129942AbRBFSXH>; Tue, 6 Feb 2001 13:23:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129961AbRBFSXH>; Tue, 6 Feb 2001 13:23:07 -0500
-Received: from anchor-post-34.mail.demon.net ([194.217.242.92]:17681 "EHLO
-	anchor-post-34.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S129944AbRBFSW5>; Tue, 6 Feb 2001 13:22:57 -0500
-Date: Tue, 6 Feb 2001 18:17:50 +0000
-To: Dale Farnsworth <dale@farnsworth.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: VIA silent disk corruption - patch
-Message-ID: <20010206181750.A389@colonel-panic.com>
-Mail-Followup-To: pdh, Dale Farnsworth <dale@farnsworth.org>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010206085223.A28894@zenos.local.farnsworth.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010206085223.A28894@zenos.local.farnsworth.org>; from dale@farnsworth.org on Tue, Feb 06, 2001 at 08:52:23AM -0700
-From: Peter Horton <pdh@colonel-panic.com>
+	id <S129945AbRBFSW6>; Tue, 6 Feb 2001 13:22:58 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:8965 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S129833AbRBFSWs>;
+	Tue, 6 Feb 2001 13:22:48 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: "Mike A. Harris" <mharris@opensourceadvocate.org>
+Date: Tue, 6 Feb 2001 19:21:24 MET-1
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: Matrox G450 problems with 2.4.0 and xfree
+CC: J Brook <jbk@postmark.net>, <linux-kernel@vger.kernel.org>
+X-mailer: Pegasus Mail v3.40
+Message-ID: <14BA879D6F34@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 06, 2001 at 08:52:23AM -0700, Dale Farnsworth wrote:
+On  6 Feb 01 at 13:16, Mike A. Harris wrote:
+> On Wed, 31 Jan 2001, Petr Vandrovec wrote:
 > 
-> In article <20010205190527.A314@colonel-panic.com>,
-> Peter Horton <pdh@colonel-panic.com> wrote:
-> > +      *  VIA VT8363 host bridge has broken feature 'PCI Master Read
-> > +      *  Caching'. It caches more than is good for it, sometimes
-> > +      *  serving the bus master with stale data. Some BIOSes enable
-> > +      *  it by default, so we disable it.
+> >>  I don't have Windows installed on my machine, but I find that if I
+> >> cold boot to 2.2 (RH7) first and start up X (4.0.2 with Matrox driver
+                                                             ^^^^^^^^^^^^^
+> >> 1.00.04 compiled in), I am then able to "shutdown -r now" and warm
+     ^^^^^^^^^^^^^^^^^^^
+> >
+> >Yes, they use same secret code... At least I think...
 > 
-> Another data point:
-> 
-> I have an ASUS A7V motherboard with via vt82c686a and Promise pdc20265
-> IDE controllers.  I noticed disk data corruption when I enabled DMA.     
-> The corrupted data was 4K bytes long on 4K byte boundaries and occurred
-> about once for every couple of gigabytes copied via cpio.
-> I saw this corruption when the disks were connected to the pdc20265
-> as well as to the 686a.    
-> 
-> I also noticed that turning off read caching eliminated the corruption.
-> 
-> However, if I enable the BIOS parameter "I/O Recovery Time", I can still
-> enable read caching without seeing any data corruption.
-> The lastest BIOS revision (1005C) enables "I/O Recovery Time" by default
-> where the previous revision I had (1004D) did not.
-> 
+> Are you refering to Windows or Red Hat Linux?  I can assure you
+> that Red Hat Linux's XFree package doesn't have any secret code
+> in it with 110% certainty.  Nor will it have in the future.
 
-I still get corruption with "I/O Recovery Time" enabled :-(
+He is using XF4.0.2 with Matrox large-blob driver, not with XFree one.
+I'm 111% sure that this module contains code which is not freely 
+available to mortals.
 
-I don't get corruption with the BIOS "normal" settings (1004D).
+XFree4.0.2 mga driver does not work with G450 at all. I'm not sure whether
+you (or RedHat) applied G450 patches flying around. But it is still first
+head only, no digital LCD...
+                                    Best regards,
+                                        Petr Vandrovec
+                                        vandrove@vc.cvut.cz
 
-I might update my BIOS to the latest BIOS in case it changes any other
-settings.
 
-P.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

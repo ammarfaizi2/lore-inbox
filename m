@@ -1,69 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263351AbUCTKtf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 05:49:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263355AbUCTKtP
+	id S263355AbUCTKxm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 05:53:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263364AbUCTKxm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 05:49:15 -0500
-Received: from [61.48.16.218] ([61.48.16.218]:19125 "ehlo yahoo.com.cn")
-	by vger.kernel.org with ESMTP id S263352AbUCTKtD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 05:49:03 -0500
-From: "ZHL jewelry" <liyo1978@yahoo.com.cn>
-Subject: business for you
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain;charset="GB2312"
-Reply-To: liyo1978@yahoo.com.cn
-Date: Sat, 20 Mar 2004 18:48:59 +0800
-X-Priority: 3
-X-Mailer: Foxmail 4.1 [cn]
-Message-Id: <S263352AbUCTKtD/20040320104903Z+35@vger.kernel.org>
+	Sat, 20 Mar 2004 05:53:42 -0500
+Received: from moutng.kundenserver.de ([212.227.126.189]:38124 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S263355AbUCTKxb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Mar 2004 05:53:31 -0500
+Date: Sat, 20 Mar 2004 11:53:25 +0100 (MET)
+From: Armin Schindler <armin@melware.de>
+To: Andrew Morton <akpm@osdl.org>
+cc: <linux-kernel@vger.kernel.org>, <torvalds@osdl.org>
+Subject: Re: [PATCH 2.6] serialization of kernelcapi work
+In-Reply-To: <20040318121826.61c9f145.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.31.0403201139240.23993-100000@phoenix.one.melware.de>
+Organization: Cytronics & Melware
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:4f0aeee4703bc17a8237042c4702a75a
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-How are you!
+On Thu, 18 Mar 2004, Andrew Morton wrote:
+> I would suggest that you look at avoiding the global semaphore.  Suppose
+> someone has 64 interfaces or something.  Is that possible?  It might be
+> better to put the semaphore into struct capi_ctr so you can at least
+> process frames from separate cards in parallel.
+>
+> > Is there a better way to do user-context work serialized ?
+>
+> Not really - you've been bitten by the compulsory per-cpuness of the
+> workqueue handlers.
+>
+> You could have a standalone kernel thread or always queue the work onto CPU
+> #0 (the function to do this isn't merged, but exists).  But both these are
+> unscalable.
+>
+> So apart from moving recv_handler_lock into struct capi_ctr I can't think
+> of anything clever.
 
-I am the sales manager of the ZhongHengLong jewelry group . our company mainly 
-is a manufacturer, and has been founded for many years, the factory covers more than 500 acre 
-and  has more than 1,000 employees, The main products of the company contain "925" sterling 
-silver jewelry and ornaments with various natural precious stone studded,moderate and superior 
-pearl ornaments,natural jadeite,rubies and sapphires, diamond ornements, crystal handicrafts, 
-gold and silver decorations, silver cutlery and gifts£¬ etc.; We export the handicrafts and 
-jewelry to nations as Europe, the United States, Canada, and there are more than 50 domestic 
-chain stores. 
-
- We hope to cooperate with more domestic and international friends for the wider market. 
- Web site of our company:       http:// www.upfeeling.com. 
- If you have intention to cooperate with us, please contact us. 
-
-Address :Room 1110,No.1 Building,The Newstart Apartment,No.5 in Road Changchunqiao,Haidian
- District,Beijing,China.
- 
-Zip code :100089
- 
-Contact person: Zhong Huang(Mr.)
-
-Add: No10 11/F, 1#NewStart, No.5 ChangChunQiao Road, Haidian District, Beijing, 100089 P. R. China
+I think an atomic counter in the workqueue-function would be more efficient.
+What do you think about this?
 
 
-Tel: (8610) 82562788,82562787/89-18 
+static atomic_t recv_work_count;
+
+static void recv_handler(void *data)
+{
+	if (atomic_inc_and_test(&recv_work_count)) {
+		do {
+			/* work to do */
+		} while (!atomic_add_negative(-1, &recv_work_count));
+	}
+}
+
+static int __init kcapi_init(void)
+{
+	atomic_set(&recv_work_count, -1);
+}
 
 
-Fax: (8610) 82563221
+A second call to the recv_handler() just results in an additional loop
+of the first one and the second CPU goes on with its work.
 
+Unfortunately, the atomic functions are not available on all architechtures.
 
-Mobile: 13051076228 
+atomic_dec_and_test() is the only atomic function with return value on all
+platforms, right? Which isn't enough for the loop above.
 
-Yahoo ID:liudesheng1118
+Armin
 
-E-mail: 
-business@upfeeling.com, 
-huangzhong19731128@yahoo.com.cn, 
-service@upfeeling.com 
-
-English website£º http://www.upfeeling.com/zhl/enzhl/index.htm
-website£º 
-http://www.upfeeling.com 
-http://www.upfeeling.cn
-http://www.upfeeling.com.cn
 

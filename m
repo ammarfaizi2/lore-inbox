@@ -1,67 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265402AbSKZNqM>; Tue, 26 Nov 2002 08:46:12 -0500
+	id <S265705AbSKZNwT>; Tue, 26 Nov 2002 08:52:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265570AbSKZNqM>; Tue, 26 Nov 2002 08:46:12 -0500
-Received: from vana.vc.cvut.cz ([147.32.240.58]:21379 "EHLO vana.vc.cvut.cz")
-	by vger.kernel.org with ESMTP id <S265402AbSKZNqL>;
-	Tue, 26 Nov 2002 08:46:11 -0500
-Date: Tue, 26 Nov 2002 14:53:22 +0100
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: torvalds@transmeta.com
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ncpfs seems to need the timer init
-Message-ID: <20021126135322.GA30362@vana>
-References: <200211260411.gAQ4BUo24135@hera.kernel.org>
+	id <S265974AbSKZNwT>; Tue, 26 Nov 2002 08:52:19 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:54238 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S265705AbSKZNwS>; Tue, 26 Nov 2002 08:52:18 -0500
+Date: Tue, 26 Nov 2002 14:59:29 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Alan Cox <alan@redhat.com>, Geert Uytterhoeven <geert@linux-m68k.org>,
+       Pavel Machek <pavel@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.5.49-ac1
+Message-ID: <20021126135929.GP24796@fs.tum.de>
+References: <200211252352.gAPNqnt09081@devserv.devel.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200211260411.gAQ4BUo24135@hera.kernel.org>
+In-Reply-To: <200211252352.gAPNqnt09081@devserv.devel.redhat.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 26, 2002 at 02:12:52AM +0000, Linux Kernel Mailing List wrote:
+On Mon, Nov 25, 2002 at 06:52:49PM -0500, Alan Cox wrote:
 
-Linus, please revert this. It is changeset 
+>...
+> Linux 2.5.49-ac1
+>...
+> o	Remove dead swsuspend defines			(Geert Uytterhoeven)
+>...
 
-alan@lxorguk.ukuu.org.uk|ChangeSet|20021126021252|43411
+This broke the compilation of kernel/sys.c:
 
-Timer is already initialized few lines above in the code. If you'll look
-through fs/ncpfs/inode.c history, you'll find that I already asked once
-for removing this redundant timer initialization, but unfortunately it
-found its way to the tree again :-(
+<--  snip  -->
 
-I prefer having init_timer() and timeout_tm setup separate, as now
-I can safely call del_timer in shutdown without having to test
-whether I'm in UDP or TCP code...
+...
+  gcc -Wp,-MD,kernel/.sys.o.d -D__KERNEL__ -Iinclude -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
+-pipe -mpreferred-stack-boundary=2 -march=k6 -p -Iarch/i386/mach-generic
+-Iarch/i386/mach-defaults -nostdinc -iwithprefix include
+-DKBUILD_BASENAME=sys -DKBUILD_MODNAME=sys   -c -o kernel/sys.o
+kernel/sys.c
+kernel/sys.c: In function `sys_reboot':
+kernel/sys.c:473: `software_suspend_enabled' undeclared (first use in
+this function)
+kernel/sys.c:473: (Each undeclared identifier is reported only once
+kernel/sys.c:473: for each function it appears in.)
+kernel/sys.c:477: warning: implicit declaration of function
+`software_suspend'
+make[1]: *** [kernel/sys.o] Error 1
 
-					Thanks,
-						Petr Vandrovec
-						vandrove@vc.cvut.cz
+<--  snip  -->
 
-> ChangeSet 1.842.42.99, 2002/11/25 18:12:52-08:00, alan@lxorguk.ukuu.org.uk
-> 
-> 	[PATCH] ncpfs seems to need the timer init
-> 
-> 
-> # This patch includes the following deltas:
-> #	           ChangeSet	1.842.42.98 -> 1.842.42.99
-> #	    fs/ncpfs/inode.c	1.36    -> 1.37   
-> #
-> 
->  inode.c |    1 +
->  1 files changed, 1 insertion(+)
-> 
-> 
-> diff -Nru a/fs/ncpfs/inode.c b/fs/ncpfs/inode.c
-> --- a/fs/ncpfs/inode.c	Mon Nov 25 20:11:32 2002
-> +++ b/fs/ncpfs/inode.c	Mon Nov 25 20:11:32 2002
-> @@ -575,6 +575,7 @@
->  	} else {
->  		INIT_WORK(&server->rcv.tq, ncpdgram_rcv_proc, server);
->  		INIT_WORK(&server->timeout_tq, ncpdgram_timeout_proc, server);
-> +		init_timer(&server->timeout_tm);
->  		server->timeout_tm.data = (unsigned long)server;
->  		server->timeout_tm.function = ncpdgram_timeout_call;
->  	}
+The fix is simple:
+
+--- linux-2.5.49-ac/kernel/sys.c.old	2002-11-26 14:57:54.000000000 +0100
++++ linux-2.5.49-ac/kernel/sys.c	2002-11-26 14:58:14.000000000 +0100
+@@ -22,6 +22,7 @@
+ #include <linux/security.h>
+ #include <linux/dcookies.h>
+ #include <linux/unistd.h>
++#include <linux/suspend.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/io.h>
+
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

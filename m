@@ -1,40 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S143831AbRAHNm4>; Mon, 8 Jan 2001 08:42:56 -0500
+	id <S143826AbRAHNo0>; Mon, 8 Jan 2001 08:44:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S143834AbRAHNmr>; Mon, 8 Jan 2001 08:42:47 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:58588 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S143740AbRAHNmh>;
-	Mon, 8 Jan 2001 08:42:37 -0500
-Date: Mon, 8 Jan 2001 08:42:35 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-cc: Shane Nay <shane@agendacomputing.com>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cramfs is ro only, so honour this in inode->mode
-In-Reply-To: <20010108152904.K10035@nightmaster.csn.tu-chemnitz.de>
-Message-ID: <Pine.GSO.4.21.0101080836260.4061-100000@weyl.math.psu.edu>
+	id <S143829AbRAHNoQ>; Mon, 8 Jan 2001 08:44:16 -0500
+Received: from [209.58.33.70] ([209.58.33.70]:53009 "EHLO ns1.sdnpk.org")
+	by vger.kernel.org with ESMTP id <S143826AbRAHNoM>;
+	Mon, 8 Jan 2001 08:44:12 -0500
+Message-ID: <3A59C316.8001E42A@khi.sdnpk.org>
+Date: Mon, 08 Jan 2001 18:39:34 +0500
+From: Ansari <mike@khi.sdnpk.org>
+X-Mailer: Mozilla 4.61 [en] (Win95; I)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-irda@pasta.cs.UiT.No" <linux-irda@pasta.cs.UiT.No>
+Subject: Delay in authentication.
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi !!
+
+I just installed Redhat 6.0. When i run  "su" command it takes much time
+to apper passwd prompt.
+Its also taking much time in authentication after entering the password.
 
 
-On Mon, 8 Jan 2001, Ingo Oeser wrote:
 
-> Then we might need W bits, but currently they disturb things like
-> "test" and the perl equivalent, which is quite annoying and
-> complexifies code.  (Yes, I'm selfish too ;-))
-
-Huh??? Consider write-protected floppy. What, you mean that it also
-should magically change mode of everything? Ditto for any fs mounted r/o.
-
-If program considers these bits of st_mode as indication of ability
-to write into file - program is buggy and should be fixed. Regardless
-of cramfs.
-
-> See what Linus and Al think about this.
+Regards,
+Nauman Ansari
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

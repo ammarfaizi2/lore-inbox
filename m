@@ -1,44 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262746AbUAST3N (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 14:29:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262765AbUAST3N
+	id S262033AbUASToT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jan 2004 14:44:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262040AbUASToT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 14:29:13 -0500
-Received: from fw.osdl.org ([65.172.181.6]:1421 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262746AbUAST3M (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 14:29:12 -0500
-Date: Mon, 19 Jan 2004 11:29:11 -0800
-From: cliff white <cliffw@osdl.org>
-To: linux-kernel@vger.kernel.org
-Subject: [OSDL] 2.6.1, -mm4 reaim results
-Message-Id: <20040119112911.20d3e712.cliffw@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 19 Jan 2004 14:44:19 -0500
+Received: from 194.149.109.108.adsl.nextra.cz ([194.149.109.108]:22508 "EHLO
+	gate2.perex.cz") by vger.kernel.org with ESMTP id S262033AbUASToS convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jan 2004 14:44:18 -0500
+Date: Mon, 19 Jan 2004 20:42:55 +0100 (CET)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: perex@pnote.perex-int.cz
+To: Markus =?ISO-8859-1?Q?H=E4stbacka?= <midian@ihme.org>
+Cc: Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: ALSA vs. OSS
+In-Reply-To: <1074532714.16759.4.camel@midux>
+Message-ID: <Pine.LNX.4.58.0401192036070.3707@pnote.perex-int.cz>
+References: <1074532714.16759.4.camel@midux>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=iso8859-2
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 19 Jan 2004, Markus Hästbacka wrote:
 
+> Hello list,
+> I wonder what's the difference with ALSA and OSS. I have tried both,
+> someone may say that ALSA is much better than OSS, but with my
+> experience with ALSA I wouldn't say that, I would probably say it should
+> be removed from the kernel totally.
 
+It seems that you don't understand our goals. Please, look to our web
+pages - http://www.alsa-project.org. If you use audio devices only for
+consumer use, you probably don't notice anything special.
 
-Results from a bunch of recent runs, with comparison graphs are here:
-http://developer.osdl.org/cliffw/reaim/index.html
+> So, what are the reasons for ALSA to become "default" in 2.6?
+> I know it gives somekind of nice features, but ALSA didn't let me to
+> open two sound sources (like XMMS and Quake3) at the same time, so I
+> guess it is not really done yet, or is it?
 
-At the moment, nothing exciting to report. ( so no numbers in this email)
- The -mm series are
-testing very close to the mainline, differences right now are
-not statistically significant. See the Web page for more.
+We don't do this in kernel. We implemented the direct stream mixing in our 
+library (userspace). If your applications already uses ALSA APIs or if you 
+redirect the OSS ioctls to ALSA library (our aoss library), you can enjoy 
+multiple sounds.
 
-Will be testing different file systems next, to see if we can find some deltas
-cliffw
+Of course, using hardware which can do the hardware mixing is still 
+better. It's the same difference like between sw 3D rendering and hw 3D 
+rendering.
 
-OSDL
+						Jaroslav
 
-
--- 
-The church is near, but the road is icy.
-The bar is far, but i will walk carefully. - Russian proverb
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project, SuSE Labs

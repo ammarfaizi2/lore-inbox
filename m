@@ -1,46 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261767AbULLKxk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262053AbULLLQS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261767AbULLKxk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Dec 2004 05:53:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262049AbULLKxk
+	id S262053AbULLLQS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Dec 2004 06:16:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262049AbULLLQR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Dec 2004 05:53:40 -0500
-Received: from s1.conecto.pl ([193.29.205.125]:14556 "EHLO s1.conecto.pl")
-	by vger.kernel.org with ESMTP id S261767AbULLKxi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Dec 2004 05:53:38 -0500
-From: Marcin =?iso-8859-2?q?Gibu=B3a?= <mg@iceni.pl>
-To: linux-kernel@vger.kernel.org
-Subject: STIr4200 warnings
-Date: Sun, 12 Dec 2004 11:53:33 +0100
-User-Agent: KMail/1.7.1
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Sun, 12 Dec 2004 06:16:17 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:35594 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S261773AbULLLQM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Dec 2004 06:16:12 -0500
+Date: Sun, 12 Dec 2004 12:01:12 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Phillip Lougher <phillip@lougher.demon.co.uk>
+Cc: linux-kernel@vger.kernel.org,
+       "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>
+Subject: Re: [Announce] Squashfs 2.1 released (compressed filesystem)
+Message-ID: <20041212110112.GE17946@alpha.home.local>
+References: <41BA0245.4050502@lougher.demon.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200412121153.33981@senat>
+In-Reply-To: <41BA0245.4050502@lougher.demon.co.uk>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I've started playing with my SigmaTel STIr4200 IrDA bridge and my logs are 
-full of warnings (like the one below) just after I run irattach irda0 -s. 
-Kernel version is 2.6.10-rc3.
+Hi Phillip,
 
-printk: 13 messages suppressed.
-usb_unlink_urb() is deprecated for synchronous unlinks.  Use usb_kill_urb() 
-instead.
-Badness in usb_unlink_urb at drivers/usb/core/urb.c:457
+> Many smaller improvements have also been made in this release, and there 
+> are, for the first time, the results of some tests of Squashfs lookup 
+> and I/O performance against Zisofs, Cloop, and CRAMFS.
 
-Call Trace:<ffffffff802dbab6>{usb_unlink_urb+86} 
-<ffffffff8028994a>{receive_stop+26}
-       <ffffffff80289ab0>{stir_transmit_thread+336} 
-<ffffffff80146370>{autoremove_wake_function+0}
-       <ffffffff80146370>{autoremove_wake_function+0} 
-<ffffffff8010edef>{child_rip+8}
-       <ffffffff80289960>{stir_transmit_thread+0} 
-<ffffffff8010ede7>{child_rip+0}
+I've checked you tests, numbers are appealing :-)
 
--- 
-mg
+BTW, you need to apply the following patch to build mksquashfs with gcc < 3.
+
+Thanks for still improving this great FS !
+Willy
+
+--- squashfs2.1/squashfs-tools/mksquashfs.c.orig	Sun Dec 12 12:10:35 2004
++++ squashfs2.1/squashfs-tools/mksquashfs.c	Sun Dec 12 12:14:55 2004
+@@ -526,11 +526,10 @@
+ 	else if(type == SQUASHFS_LDIR_TYPE) {
+ 		int i;
+ 		unsigned char *p;
++		squashfs_ldir_inode_header *dir = &inode_header.ldir, *inodep;
+ 
+ 		if(byte_size >= 1 << 27)
+ 			BAD_ERROR("directory greater than 2^27-1 bytes!\n");
+-
+-		squashfs_ldir_inode_header *dir = &inode_header.ldir, *inodep;
+ 
+ 		inode = get_inode(sizeof(*dir) + i_size);
+ 		inodep = (squashfs_ldir_inode_header *) inode;
+
+

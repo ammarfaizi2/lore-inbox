@@ -1,12 +1,12 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266212AbTGDX2m (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jul 2003 19:28:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266215AbTGDX2m
+	id S266210AbTGDX2k (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jul 2003 19:28:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266215AbTGDX2k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jul 2003 19:28:42 -0400
-Received: from qmail1.zwallet.com ([216.66.64.4]:51205 "HELO
-	qmail1.zwallet.com") by vger.kernel.org with SMTP id S266212AbTGDX2j
+	Fri, 4 Jul 2003 19:28:40 -0400
+Received: from qmail1.zwallet.com ([216.66.64.4]:48133 "HELO
+	qmail1.zwallet.com") by vger.kernel.org with SMTP id S266210AbTGDX2j
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 4 Jul 2003 19:28:39 -0400
 From: "Dr\.Ben Davis" <bendavis3@zwallet.com>
@@ -14,7 +14,7 @@ X-Originating-IP: [62.56.188.246]
 To: bendavis3@zwallet.com
 Subject: Confidential  Business Proposal 
 Date: Fri, 04 Jul 2003 18:56:26 +0000
-Message-Id: <1057344986.627568.41528.zmail@web2.zwallet.com>
+Message-Id: <1057344986.366962.41523.zmail@web2.zwallet.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 

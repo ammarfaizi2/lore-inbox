@@ -1,72 +1,77 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314411AbSEIWGR>; Thu, 9 May 2002 18:06:17 -0400
+	id <S314413AbSEIWXT>; Thu, 9 May 2002 18:23:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314413AbSEIWGQ>; Thu, 9 May 2002 18:06:16 -0400
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:14095 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S314411AbSEIWGQ>; Thu, 9 May 2002 18:06:16 -0400
-Message-ID: <3CDAF2D4.C7F20249@linux-m68k.org>
-Date: Fri, 10 May 2002 00:06:12 +0200
-From: Roman Zippel <zippel@linux-m68k.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Daniel Phillips <phillips@bonn-fries.net>
-CC: Andrea Arcangeli <andrea@suse.de>,
+	id <S314420AbSEIWXS>; Thu, 9 May 2002 18:23:18 -0400
+Received: from dsl-213-023-040-085.arcor-ip.net ([213.23.40.85]:47597 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S314413AbSEIWXS>;
+	Thu, 9 May 2002 18:23:18 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Roman Zippel <zippel@linux-m68k.org>
+Subject: Re: Bug: Discontigmem virt_to_page() [Alpha,ARM,Mips64?]
+Date: Fri, 10 May 2002 00:22:56 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Andrea Arcangeli <andrea@suse.de>,
         "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
         linux-kernel@vger.kernel.org
-Subject: Re: Bug: Discontigmem virt_to_page() [Alpha,ARM,Mips64?]
-In-Reply-To: <Pine.LNX.4.21.0205062053050.32715-100000@serv> <E175Tp9-0003ny-00@starship> <3CD9B098.14E394D3@linux-m68k.org> <E175qT7-00087g-00@starship>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <Pine.LNX.4.21.0205062053050.32715-100000@serv> <E175qT7-00087g-00@starship> <3CDAF2D4.C7F20249@linux-m68k.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E175wJO-0008Lz-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Friday 10 May 2002 00:06, Roman Zippel wrote:
+> 1. My patch only modifies init code, I don't think it's really a problem
+> if it's slightly slower.
 
-Daniel Phillips wrote:
+But why be slower when we don't have to.  And why slow down *all* architectures?
 
-> Where you ignore the distinction between logical and physical, it costs you
-> execution time, as where you wrote  page = virt_to_page(phys_to_virt((i <<
-> PAGE_SHIFT) + bdata->node_boot_start)) where formerly we just had page++.
-> This in generic code too.  Unless you have an #ifdef CONFIG_SOMETHING there I
-> recommend this code *not* be merged because it penalizes the common case for
-> the sake of your arch.  And it's unnecessary even for your arch, as I've
-> demonstrated.
+> 2. Above can now be written as "page = pfn_to_page(i +
+> (bdata->node_boot_start >> PAGE_SHIFT))". Nice, isn't it? :)
 
-1. My patch only modifies init code, I don't think it's really a problem
-if it's slightly slower.
-2. Above can now be written as "page = pfn_to_page(i +
-(bdata->node_boot_start >> PAGE_SHIFT))". Nice, isn't it? :)
+page++ is nicer yet.
 
-> > > You do have a config option, it's CONFIG_SINGLE_MEMORY_CHUNK.
-> >
-> > That was our cheap answer to avoid the loops.
+> > > I don't need that, because I create a contiguous _virtual_ address
+> > > space.
+> > 
+> > Again, we're arguing about what?  So do I.  The relationship between virtual
+> > and logical, for me, is just logical = virtual - PAGE_OFFSET, a meme you'll
+> > find in many places in the kernel source already, often obscured by the
+> > impression that physical addresses are really being manipulated when in fact
+> > nothing of the kind is going on - the simple truth is, the arithmetic gets
+> > easier then you work zero-based instead of PAGE_OFFSET based.
 > 
-> My cheap answer is to turn the option off.  So why don't I need a config
-> option again?
+> Why do you want to introduce another abstraction?
 
-You know, what that option does?
+The abstraction is already there.  I didn't create the logical space, I identified
+it.  There are places where the code is really manipulating logical addresses, not
+physical addresses, and these are not explicitly identified.  This makes the code
+cleaner and easier to read.
 
-> > I don't need that, because I create a contiguous _virtual_ address
-> > space.
-> 
-> Again, we're arguing about what?  So do I.  The relationship between virtual
-> and logical, for me, is just logical = virtual - PAGE_OFFSET, a meme you'll
-> find in many places in the kernel source already, often obscured by the
-> impression that physical addresses are really being manipulated when in fact
-> nothing of the kind is going on - the simple truth is, the arithmetic gets
-> easier then you work zero-based instead of PAGE_OFFSET based.
+Your question is really 'why introduce any abstraction', or maybe you're asking
+'is this an abstraction worth introducing'?  Clearly it is, since it makes
+bootmem run faster, with nothing but name changes.
 
-Why do you want to introduce another abstraction? If the logical address
-is basically the same as the virtual address, just use the virtual
-address. What difference should that offset make? Could you show me
-please one single example?
+> If the logical address
+> is basically the same as the virtual address, just use the virtual
+> address.
 
-> So now that we know we're both doing the same thing, could we please stop
-> doing the catholics vs the protestants thing and maybe cooperate?
+But kernel coders have already done that in lots of places.  Why?  Because it's
+a pain to to arithmetic where everything is at an offset, and difficult to read.
+Not to mention, bulkier.
 
-I'm an atheist. >:-)
+> What difference should that offset make? Could you show me
+> please one single example?
 
-bye, Roman
+Look at drivers/char/mem.c, read_mem.  Clearly, the code is not dealing with
+physical addresses.  Yet it starts off with virt_to_phys, and thereafter works
+in zero-offset addresses.  Why?  Because it's clearer and more efficient to do
+that.  The generic part of my nonlinear patch clarifies this usage by rewriting
+it as virt_to_logical, which is really what's happening.
+
+That's really what's happening in bootmem too.
+
+-- 
+Daniel

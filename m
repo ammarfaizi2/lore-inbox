@@ -1,41 +1,58 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313601AbSDUQvO>; Sun, 21 Apr 2002 12:51:14 -0400
+	id <S313589AbSDUQ5R>; Sun, 21 Apr 2002 12:57:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313603AbSDUQvN>; Sun, 21 Apr 2002 12:51:13 -0400
-Received: from mail.scram.de ([195.226.127.117]:55500 "EHLO mail.scram.de")
-	by vger.kernel.org with ESMTP id <S313601AbSDUQvM>;
-	Sun, 21 Apr 2002 12:51:12 -0400
-Date: Sun, 21 Apr 2002 18:50:39 +0200 (CEST)
-From: Jochen Friedrich <jochen@scram.de>
-X-X-Sender: jochen@alpha.bocc.de
-To: yodaiken@fsmlabs.com
-cc: Rik van Riel <riel@conectiva.com.br>, Larry McVoy <lm@bitmover.com>,
-        Roman Zippel <zippel@linux-m68k.org>,
-        Jeff Garzik <garzik@havoc.gtf.org>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
-In-Reply-To: <20020421074103.A18227@hq.fsmlabs.com>
-Message-ID: <Pine.LNX.4.44.0204211846370.18496-100000@alpha.bocc.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S313592AbSDUQ5Q>; Sun, 21 Apr 2002 12:57:16 -0400
+Received: from bitmover.com ([192.132.92.2]:62362 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S313589AbSDUQ5P>;
+	Sun, 21 Apr 2002 12:57:15 -0400
+Date: Sun, 21 Apr 2002 09:57:15 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: linux-kernel@vger.kernel.org
+Subject: [OFF TOPIC] BK license change
+Message-ID: <20020421095715.A10525@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Well, now seems like a great time to discuss this.  Ha.
 
-> > So you're telling me that what I've been doing over the
-> > last months really shouldn't have been possible ?
-> 
-> What he is telling you is that people whose business is hidden 
-> behind corporate firewalls so that they can make money with proprietary
-> work, find it morally outrageous that other people don't give away all
-> their work. 
+It's come to our attention that commercial companies are abusing BK under
+the openlogging rules.  To avoid paying for the product, they either put
+in no comments or obscure comments.  That is a violation of the license,
+but good luck proving that they are doing it on purpose.
 
-The main reason we use firewalls is to protect the privacy of user data. I 
-don't think people would be very amused if they find their bank account 
-numbers posted on the internet ;-)
+The real issue is that we know from past history that companies make 
+changes to GPLed software and then delay access to those changes as
+long as they can (the GPL allows for a "reasonable" amount of lag,
+whatever that is).
 
---jochen 
+The intent of the openlogging requirement was to allow people to work
+out in the open on free software, at no charge.  The intent was never 
+to allow people to work on free software without giving their changes 
+back.  I'm not commenting on people's rights to hide their changes, 
+they can do whatever they want, but I *am* saying that we don't have
+support closed use for free.
 
+I'm considering a change to the BKL which says that N days after a
+changeset is made, that changeset (and its ancestory) must be available
+on a public bk server.  In other words, put a hard limit on how long
+you may hide.
+
+The time period has to be long enough to cover security fixes, DaveM 
+raised that issue.  I'm thinking 90 days.
+
+Note: public server is not limited to bkbits.net.  Any public server is
+fine, so long as it is stable, well known, and available ~95% of the time.
+
+I'm well aware that there are a vocal set of people who want complete
+freedom to do whatever they want; I don't care to hear from them.  For
+the rest of you, would this change be a net positive?
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

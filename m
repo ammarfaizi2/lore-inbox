@@ -1,69 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261586AbUCKEzp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 23:55:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262256AbUCKEzp
+	id S261452AbUCKFGJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 00:06:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261460AbUCKFGJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 23:55:45 -0500
-Received: from inet-mail4.oracle.com ([148.87.2.204]:3521 "EHLO
-	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
-	id S261586AbUCKEzn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 23:55:43 -0500
-Message-ID: <404FF12D.4090507@iitbombay.org>
-Date: Thu, 11 Mar 2004 10:25:09 +0530
-From: Niraj Kumar <niraj17@iitbombay.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: jeremy@rootservices.net
-CC: linux-kernel@vger.kernel.org
-Subject: Re: nforce 2 chipset
-References: <64805.24.50.227.119.1078963073.squirrel@24.50.227.119>
-In-Reply-To: <64805.24.50.227.119.1078963073.squirrel@24.50.227.119>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 11 Mar 2004 00:06:09 -0500
+Received: from out008pub.verizon.net ([206.46.170.108]:40871 "EHLO
+	out008.verizon.net") by vger.kernel.org with ESMTP id S261452AbUCKFGF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 00:06:05 -0500
+Date: Thu, 11 Mar 2004 00:06:00 -0500
+To: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
+Subject: ide-cd detects wrong DVD size
+Message-ID: <20040311050558.GA7497@pisica>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: Itay Ben-Yaacov <pezz@math.mit.edu>
+X-Authentication-Info: Submitted using SMTP AUTH at out008.verizon.net from [68.163.225.74] at Wed, 10 Mar 2004 23:06:03 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Look at :
 
-http://atlas.et.tudelft.nl/verwei90/nforce2/index.html
+Hi,
 
-Niraj
+There appears to be a bug in ide-cd.c, which makes it unusable for
+playing DVDs -- at some point it just stops reading.  This bug does
+not exist when using ide-scsi (I heard reports that short DVDs are OK).
+The reason seems to be in a wrong detected size:
+"blockdev --getsize"   gives different results
+with ide-cd and with ide-scsi+sr_mod, the latter being the correct
+one.
 
-Jeremy D. May wrote:
+I believe I tracked the problem to        "cdrom_read_toc()":
+The following (lines 2304-2310) sets the correct capacity (line
+numbers are from 2.6.3):
 
->Not sure if this is the right place to go for this, but maybe someone
->could point me in the right direction.
->
->system:
->
->2500+ Athlon XP (barton)
->NFource 2 Ultra 400 + MCP chipset (is a Shuttle AN35-Ultra400(latest bios
->flash))
->1.5 gigs PC2700
->40 Gig Maxtor HD
->80 Gig Seagate HD
->CDRW
->DVD
->GF FX 5600XT
->SB Live 5.1Digital
->
->
->i installed debian and a fresh compile of 2.4.25, installed the backports
->collection for XF86/gnome2 and all my software i like. it goes fine for a
->bit. but then while playing any sound (mainly streaming mp3's and my own
->mp3's(in xmms)) the machine would lockup and i would have to reboot. i
->never had this problem in windows with the box so i was wondering if
->anyone had any incite into this.
->
->--jeremy
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
 
+
+	/* Try to get the total cdrom capacity and sector size. */
+	stat = cdrom_read_capacity(drive, &toc->capacity,
+&sectors_per_frame,
+				   sense);
+	if (stat)
+		toc->capacity = 0x1fffff;
+
+	set_capacity(drive->disk, toc->capacity * sectors_per_frame);
+
+
+
+But a bit later, on lines 2420-2425, it gets set again, this time to a
+wrong value:
+
+
+
+	/* Now try to get the total cdrom capacity. */
+	stat = cdrom_get_last_written(cdi, &last_written);
+	if (!stat && last_written) {
+		toc->capacity = last_written;
+		set_capacity(drive->disk, toc->capacity *
+sectors_per_frame);
+	}
+
+
+
+Why is this second capacity setting there, and what is it
+supposed to do exactly?
+
+Thanks,
+Itay

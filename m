@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268940AbRHTV3d>; Mon, 20 Aug 2001 17:29:33 -0400
+	id <S269413AbRHTVef>; Mon, 20 Aug 2001 17:34:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269385AbRHTV3X>; Mon, 20 Aug 2001 17:29:23 -0400
-Received: from [209.202.108.240] ([209.202.108.240]:32522 "EHLO
-	terbidium.openservices.net") by vger.kernel.org with ESMTP
-	id <S268940AbRHTV3N>; Mon, 20 Aug 2001 17:29:13 -0400
-Date: Mon, 20 Aug 2001 17:29:12 -0400 (EDT)
-From: Ignacio Vazquez-Abrams <ignacio@openservices.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: Fw: select(), EOF...
-In-Reply-To: <009501c129bc$75724ca0$0414a8c0@10>
-Message-ID: <Pine.LNX.4.33.0108201718090.11734-100000@terbidium.openservices.net>
+	id <S269428AbRHTVeZ>; Mon, 20 Aug 2001 17:34:25 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:4370 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S269413AbRHTVeN>; Mon, 20 Aug 2001 17:34:13 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: 2.4.8/2.4.9 VM problems
+Date: Mon, 20 Aug 2001 23:40:52 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: Mike Galbraith <mikeg@wen-online.de>,
+        Frank Dekervel <Frank.dekervel@student.kuleuven.ac.Be>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0108201609190.538-100000@freak.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.21.0108201609190.538-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-scanner: scanned by Inflex 1.0.7 - (http://pldaniels.com/inflex/)
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010820213425Z16360-32383+586@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 Aug 2001, Carlos Fernández Sanz wrote:
+On August 20, 2001 09:12 pm, Marcelo Tosatti wrote:
+> On Mon, 20 Aug 2001, Daniel Phillips wrote:
+> > On August 20, 2001 09:14 pm, Mike Galbraith wrote:
+> > > We need to get the pages 'actioned' (the only thing that really matters)
+> > > off of the dirty list so that they are out of the equation.. that I'm
+> > > sure of.
+> > 
+> > Well, except when the page is only going to be used once, or not at all (in 
+> > the case of an unused readahead page).  Otherwise, no, we don't want to have 
+> > frequently used pages or pages we know nothing about dropping of the inactive 
+> > queue into the bit-bucket.  There's more work to do to make that come true.
+> 
+> Find riel's message with topic "VM tuning" to linux-mm, then take a look
+> at the 4th aging option.
+> 
+> That one _should_ be able to make us remove all kinds of "hacks" to do
+> drop behind, and also it should keep hot/warm active memory _in cache_
+> for more time. 
 
-> a strace shows it works differently
->
-> nanosleep({1, 0}, {1, 0})               = 0
-> fstat(3, {st_mode=S_IFREG|0600, st_size=227128, ...}) = 0
-> rt_sigprocmask(SIG_BLOCK, [CHLD], [RT_0], 8) = 0
-> rt_sigaction(SIGCHLD, NULL, {SIG_DFL}, 8) = 0
-> rt_sigprocmask(SIG_SETMASK, [RT_0], NULL, 8) = 0
->
-> the file is opened just once (as I expected), and tail sleeps in nanosleep
-> () until the file grows. I think strace isn't showing more nanosleep() as it
-> should be looping there. BTW what's the reason for the sigprocmask, etc?
+I looked at it yesterday.  The problem is, it loses the information about *how*
+a page is used: pagecache lookup via readahead has different implications than
+actual usage.  The other thing that looks a little problematic, which Rik also
+pointed out, is the potential long lag before the inactive page is detected.
+A lot of IO can take place in this time, filling up the active list with pages
+that we could have evicted much earlier.
 
-Huh. You're right. It seems that tail has changed since I last looked at the
-source. Now it uses stat() instead. However, tail in textutils 2.0.11 still
-calls sleep(). I don't know how sleep() is implemented, but it's not
-impossible for it to use nanosleep() and signals. I believe I read something
-about SIGALRM...
-
--- 
-Ignacio Vazquez-Abrams  <ignacio@openservices.net>
-
-
+--
+Daniel

@@ -1,61 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261654AbVB1Pcr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261651AbVB1Pfz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261654AbVB1Pcr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 10:32:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261651AbVB1Pcg
+	id S261651AbVB1Pfz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 10:35:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261650AbVB1Pfz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 10:32:36 -0500
-Received: from fire.osdl.org ([65.172.181.4]:58299 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261650AbVB1Pc3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 10:32:29 -0500
-Subject: Re: [PATCH] Fix panic in 2.6 with bounced bio and dm
-From: Mark Haverkamp <markh@osdl.org>
-To: Jens Axboe <axboe@suse.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, dm-devel@redhat.com
-In-Reply-To: <20050226123934.GA1254@suse.de>
-References: <1109351021.5014.10.camel@markh1.pdx.osdl.net>
-	 <20050225161947.5fd6d343.akpm@osdl.org>
-	 <Pine.LNX.4.58.0502251640050.9237@ppc970.osdl.org>
-	 <20050226123934.GA1254@suse.de>
-Content-Type: text/plain
-Date: Mon, 28 Feb 2005 07:32:17 -0800
-Message-Id: <1109604737.30227.3.camel@markh1.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-4) 
-Content-Transfer-Encoding: 7bit
+	Mon, 28 Feb 2005 10:35:55 -0500
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:14265 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S261651AbVB1Pft (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Feb 2005 10:35:49 -0500
+From: kernel-stuff@comcast.net (Parag Warudkar)
+To: Payasam Manohar <pmanohar@lantana.cs.iitm.ernet.in>,
+       linux-kernel@vger.kernel.org
+Subject: Re: need for user mode linux
+Date: Mon, 28 Feb 2005 15:35:47 +0000
+Message-Id: <022820051535.19606.42233A53000917EE00004C96220073484000009A9B9CD3040A029D0A05@comcast.net>
+X-Mailer: AT&T Message Center Version 1 (Dec 17 2004)
+X-Authenticated-Sender: a2VybmVsLXN0dWZmQGNvbWNhc3QubmV0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-02-26 at 13:39 +0100, Jens Axboe wrote:
-> On Fri, Feb 25 2005, Linus Torvalds wrote:
-> > 
-> > 
-> > On Fri, 25 Feb 2005, Andrew Morton wrote:
-> > > 
-> > > It seems very weird for dm to be shoving NULL page*'s into the middle of a
-> > > bio's bvec array, so your fix might end up being a workaround pending a
-> > > closer look at what's going on in there.
-> > 
-> > Yes. I don't see how this patch can be anything but bandaid to hide the 
-> > real bug. Where do these "non-page" bvec's originate?
 > 
-> Yep that's the fishy part, there should not be NULL pages in the middle
-> (or empty bios, for that matter) submitted for io.
-> 
-> Mark, what was the bug that triggered you to write this patch?
+> hai all,
+>      I am a newbie to linux kernel module programming.I am going to work on
+>   driver modification or calling some programs from driver. I heard about 
+> usermode linux and its uses but I don't know the practical use of usermode 
+> linux. Is it needed for me. How 
+> it will be useful.Ofcourse, it need to be my personal decision, but I am 
+> seeking decision or hints from experts like u.
 
-It happened when some pages of IO from a dm device were bounced.  It
-looks to me when bio's are cloned in the dm code to split it for
-physical devices that only the pointers to pages that apply to that
-device are copied and th bi_idx is adjusted to point to the start,
-leaving some NULL pointers at the start of the bio_vec.
+UML - it is what it sounds like. Run Linux kernel as a user mode program inside a regular Linux operating system. It is generally good to use in situations as yours - learning and experimenting with kernel code without screwing up the hardware and host operating system. So you could do all your development and debugging on UML for instance and if it crashes due to your program error, no big deal just restart UML.
 
-Mark,
+That being said, I am not sure if UML is in usable state with current kernels - Last time I tried I couldn't get it to run with 2.6.10 kernel.
+
+You might want to check http://www.colinux.org - It is similar to UML, but instead of running Linux-under-Linux you run Linux-under-Windows. It is fairly simple to install and various distro images are available. Try out the documentation for colinux.
+
+Parag
 
 
-> 
--- 
-Mark Haverkamp <markh@osdl.org>
 

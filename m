@@ -1,116 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262481AbUDEVlr (ORCPT <rfc822;willy@w.ods.org>);
+	id S263308AbUDEVlr (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 5 Apr 2004 17:41:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263281AbUDEVjY
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262481AbUDEVjA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 17:39:24 -0400
-Received: from web40513.mail.yahoo.com ([66.218.78.130]:41893 "HELO
-	web40513.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S263324AbUDEVVz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 17:21:55 -0400
-Message-ID: <20040405212152.54101.qmail@web40513.mail.yahoo.com>
-Date: Mon, 5 Apr 2004 14:21:52 -0700 (PDT)
-From: Sergiy Lozovsky <serge_lozovsky@yahoo.com>
-Subject: Re: kernel stack challenge 
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Mon, 5 Apr 2004 17:39:00 -0400
+Received: from prosun.first.gmd.de ([194.95.168.2]:10493 "EHLO
+	prosun.first.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S263370AbUDEV17 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 17:27:59 -0400
+Subject: Re: regression: oops with usb bcm203x bluetooth dongle 2.6.5
+From: Soeren Sonnenburg <kernel@nn7.de>
+To: Marcel Holtmann <marcel@holtmann.org>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200404052026.i35KQh5g004342@eeyore.valparaiso.cl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1081199370.2843.20.camel@pegasus>
+References: <1081196482.3591.5.camel@localhost>
+	 <1081199370.2843.20.camel@pegasus>
+Content-Type: text/plain
+Message-Id: <1081200442.3591.38.camel@localhost>
+Mime-Version: 1.0
+Date: Mon, 05 Apr 2004 23:27:22 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---- Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
-> Sergiy Lozovsky <serge_lozovsky@yahoo.com> said:
+On Mon, 2004-04-05 at 23:09, Marcel Holtmann wrote:
+> Hi Soeren,
 > 
-> [LISP inside the kernel?!]
-> 
-> > Basically there are two reasons.
+> > This dongle used to work fine (at least till 2.6.3) and still does if I
+> > remove the bcm203x kernel module and manually (or via hotplug) use the
+> > bluefw program to upload the firmware.
 > > 
-> > 1. Give system administrator possibility to change
-> > security policy easy enough
+> > This dongle gives me an oops on _insert_.
+> > Mass storage devices/HID work fine.
+> > 
+> > This is on a ppc machine with xmon support compiled in. So if you need
+> > more infos than this backtrace, please say so.
+> > 
+> > usb 1-1: new full speed USB device using address 5
+> > Bluetooth: Broadcom Blutonium firmware driver ver 1.0
+> > Bluetooth: HCI USB driver ver 2.5
+> > drivers/usb/core/usb.c: registered new driver bcm203x
+> > drivers/usb/core/usb.c: registered new driver hci_usb
+> > usb 1-1: USB disconnect, address 5
+> > usb 1-1: new full speed USB device using address 6
+> > Oops: kernel access of bad area, sig: 11 [#1]
+> > NIP: C0260554 LR: C02607F8 SP: EFEB9D00 REGS: efeb9c50 TRAP: 0301    Not tainted
+> > MSR: 00009032 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11
+> > DAR: 00000004, DSISR: 40000000
+> > TASK = c1aee000[5] 'khubd' Last syscall: -1
+> > GPR00: C02607F8 EFEB9D00 C1AEE000 E9B51A2C EE5246AC 00000000 EC987A64 C046273C
+> > GPR08: 00009032 00000008 00010C00 C04F9958 82008022
+> > Call trace:
+> > [c02607f8] usb_set_interface+0x94/0x164
+> > [f2506ab4] hci_usb_probe+0x21c/0x48c [hci_usb]
+> > [c0259f88] usb_probe_interface+0x80/0x98
+> > [c01f5fac] bus_match+0x50/0x8c
+> > [c01f6040] device_attach+0x58/0xbc
+> > [c01f62c0] bus_add_device+0x7c/0xd8
+> > [c01f4b60] device_add+0xb0/0x184
+> > [c0260be4] usb_set_configuration+0x20c/0x25c
+> > [c025b2c4] usb_new_device+0x2bc/0x3d4
+> > [c025cd24] hub_port_connect_change+0x1a0/0x298
+> > [c025d0f0] hub_events+0x2d4/0x354
+> > [c025d1ac] hub_thread+0x3c/0xf4
+> > [c000914c] kernel_thread+0x44/0x60
 > 
-> SELinux
+> the bcm203x is only a firmware loader driver and after firmware load the
+> device resets and should be driven by the hci_usb driver. Does it still
+> oopses if you remove the hci_usb module from the module directory? What
+> I don't understand is that the oops comes from the hci_usb driver.
 
-To create a new 'security model' one should write a C
-program within Selinux user space security server.
-People like to use higher level languages.
- 
-> >                             without C programminig
-> > inside the kernel (we should not expect system
-> > administartor to be a kernel guru).
-> 
-> As 97.572% of the job has to be done in userland
-> anyway, place your
-> checks/high-level language/GUI frobnitzer in there
-> at will. Compile to a
-> compact, easy-to-handle, digitally signed, binary
-> blob and stuff _that_
-> into the kernel as needed.
+The interesting thing is that it did _not_ oops when I remove
+/sbin/hotplug (version 0.0.20040329-4). Also step by step modprobing
+hci_usb / bcm203x does not cause any trouble (but does not work either,
+even when rmmoding modprobing again for some time). It outputs:
 
-I'm not ready to put a binary compiled with Common
-Lisp or PERL (if it exists) compilers into the kernel.
-At the same time I want people to benefit from using
-high level langages (even kernel gurus don't use
-Assembler all the time, higher level languages is
-easier to use and less lines of code to write).
+modprobe bcm203x
 
-.....
+Bluetooth: Broadcom Blutonium firmware driver ver 1.0
+bcm203x_probe: Mini driver request failed
+bcm203x: probe of 1-1:1.0 failed with error -5
+usb 1-1: bulk timeout on ep1in
+usbfs: USBDEVFS_BULK failed dev 3 ep 0x81 len 10 ret -110
 
-> > 2. Protect system from bugs in security policy
-> created
-> > by system administrator (user).
-> 
-> Sounds like you are demanding a solution to Turing's
-> test here... and also
-> to the halting problem.
+So it seems the firmware is loaded or hci_usb is started while the
+device is not yet ready.
 
-I didn't claim that I solve all problems on earth :-)
-What I can claim:
-1. Some kernel parts can be developed with language of
-higher level than C.
-2. Problems with such parts can be to some extent be
-encapsulated within VM (no, it's not 100% fool prof
-for sure), but it helps.
-3. Code can be easily debugged in the user space
-(running with user space VM) and used in the kernel
-after that.
- 
-> >                                 LISP interpreter
-> is a
-> > LISP Virtual Machine (as Java VM).
-> 
-> So what? If the policy just leaves out everybody, or
-> lets anybody fool
-> around with the hardware, you are royally screwed in
-> any case.
+Calling bluefw sometimes also timeouts but mostly works...
 
-I didn't get the question.
+When the firmware is finally loaded bluetooth operates perfectly...
 
-> >                                    So all bugs are
-> > incapsulated and don't affect kernel. Even severe
-> bugs
-> > in this LISP kernel module can cause termination
-> of
-> > user space application only (except of stack
-> overflow
-> > - which I can address). LISP error message will be
-> > printed in the kernel log.
-> 
-> If it is running in userspace, why do you place the
-> interpreter in the kernel?
+HTH,
+Soeren
 
-LISP code is located in the kernel. Application issues
-a system call LISP program checks arguments of this
-call. If LISP program fails (crashes) - VM will return
-default value which is EACCESS, so application will
-get 'access denied'. (and will fail, probably).
-
-Serge.
-
-__________________________________
-Do you Yahoo!?
-Yahoo! Small Business $15K Web Design Giveaway 
-http://promotions.yahoo.com/design_giveaway/

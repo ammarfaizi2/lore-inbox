@@ -1,58 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261669AbSKIEcg>; Fri, 8 Nov 2002 23:32:36 -0500
+	id <S262314AbSKIEpD>; Fri, 8 Nov 2002 23:45:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261857AbSKIEcg>; Fri, 8 Nov 2002 23:32:36 -0500
-Received: from holomorphy.com ([66.224.33.161]:31916 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S261669AbSKIEcd>;
-	Fri, 8 Nov 2002 23:32:33 -0500
-Date: Fri, 8 Nov 2002 20:36:08 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>,
-       "Van Maren, Kevin" <kevin.vanmaren@unisys.com>,
-       linux-ia64@linuxia64.org,
-       Linux Kernel List <linux-kernel@vger.kernel.org>, dhowells@redhat.com,
-       mingo@elte.hu, torvalds@transmeta.com
-Subject: Re: [Linux-ia64] reader-writer livelock problem
-Message-ID: <20021109043608.GF23425@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Rusty Russell <rusty@rustcorp.com.au>,
-	Jeremy Fitzhardinge <jeremy@goop.org>,
-	"Van Maren, Kevin" <kevin.vanmaren@unisys.com>,
-	linux-ia64@linuxia64.org,
-	Linux Kernel List <linux-kernel@vger.kernel.org>,
-	dhowells@redhat.com, mingo@elte.hu, torvalds@transmeta.com
-References: <1036777105.13021.13.camel@ixodes.goop.org> <20021109041543.EBE8A2C29F@lists.samba.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021109041543.EBE8A2C29F@lists.samba.org>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S264638AbSKIEpD>; Fri, 8 Nov 2002 23:45:03 -0500
+Received: from h-64-105-136-52.SNVACAID.covad.net ([64.105.136.52]:36015 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S262314AbSKIEpC>; Fri, 8 Nov 2002 23:45:02 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Fri, 8 Nov 2002 20:51:28 -0800
+Message-Id: <200211090451.UAA26160@baldur.yggdrasil.com>
+To: willy@debian.org
+Subject: Re: [parisc-linux] Untested port of parisc_device to generic device interface
+Cc: andmike@us.ibm.com, hch@lst.de, James.Bottomley@steeleye.com,
+       linux-kernel@vger.kernel.org, mochel@osdl.org,
+       parisc-linux@lists.parisc-linux.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <1036777105.13021.13.camel@ixodes.goop.org> you write:
->> Even without interrupts that would be a bug.  It isn't ever safe to
->> attempt to retake a read lock if you already hold it, because you may
->> deadlock with a pending writer.  Fair multi-reader locks aren't
->> recursive locks.
+Matthew Wilcox wrote:
+>Actually I think the generic device model is crap. [...]
 
-On Sat, Nov 09, 2002 at 01:48:17PM +1100, Rusty Russell wrote:
-> That's the point.  This is explicitly guaranteed with the current
-> locks, and you are allowed to recurse on them.  The netfilter code
-> explicitly uses this to retake the net brlock, since it gets called
-> from different paths.
-> Implement "read_lock_yield" or "wrlock_t" but don't break existing
-> semantics until 2.7 *please*!
+My patch is a net deletion of 57 lines and will allow simplification
+of parisc DMA allocation.
 
-My only interest is doing this specifically for problematic cases,
-e.g. the tasklist_lock. Other usages probably shouldn't be altered
-during this release cycle unless they too prove problematic, in which
-case their usages should be fixed by their maintainers as bugfixes.
+Although I agree with most of your criticisms about the generic device
+model, most of the problems with it are the way people use it (the
+first thing everyone wants to do is a driverfs file system) and some
+conventions that I disagree with, such as the idea that drivers that
+embed struct device and struct device_driver should not initialize
+those fields directly, but should have xxx_register_device copy them
+in.  parisc can use the generic driver API without getting fat.
 
-Of course, I'm not happy to hear about this explicit recursion.
+Problems specific to the generic device API can be incrementally
+improved and nobody is treating it as set in stone.  I think the
+generic device API is close enough already so that it's worth porting
+to, even if future clean-ups will then require some small changes to
+the code that is ported to it.
 
+Please do not throw the baby out with the bath water.  The generic
+driver interface in its present form really can make parisc smaller
+and cleaner.
 
-Bill
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Miplitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."

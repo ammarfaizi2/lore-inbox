@@ -1,72 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263876AbTEOEEJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 00:04:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263875AbTEOEEJ
+	id S262413AbTEOEm0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 00:42:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262964AbTEOEm0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 00:04:09 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:2728 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263876AbTEOEEH (ORCPT
+	Thu, 15 May 2003 00:42:26 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:25542 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262413AbTEOEmY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 00:04:07 -0400
-Date: Thu, 15 May 2003 09:37:31 +0530
-From: Bharata B Rao <bharata@in.ibm.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Adrian Bunk <bunk@fs.tum.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Suparna Bhattacharya <suparna@in.ibm.com>
-Subject: Re: 2.5.69-mjb1: undefined reference to `blk_queue_empty'
-Message-ID: <20030515093731.N31823@in.ibm.com>
-Reply-To: bharata@in.ibm.com
-References: <9380000.1052624649@[10.10.2.4]> <20030512205139.GT1107@fs.tum.de> <20570000.1052797864@[10.10.2.4]> <20030513124807.A31823@in.ibm.com> <25840000.1052834304@[10.10.2.4]> <20030513181155.GL17033@suse.de> <20030514133843.H31823@in.ibm.com> <20030514083224.GC13456@suse.de>
+	Thu, 15 May 2003 00:42:24 -0400
+Date: Wed, 14 May 2003 21:56:37 -0700
+From: Greg KH <greg@kroah.com>
+To: davej@codemonkey.org.uk, mdharm-usb@one-eyed-alien.net
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: mysterious shifts in USB storage drivers.
+Message-ID: <20030515045637.GB5779@kroah.com>
+References: <200305150331.h4F3VHID000770@deviant.impure.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030514083224.GC13456@suse.de>; from axboe@suse.de on Wed, May 14, 2003 at 10:32:24AM +0200
+In-Reply-To: <200305150331.h4F3VHID000770@deviant.impure.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 14, 2003 at 10:32:24AM +0200, Jens Axboe wrote:
-> 
-> That really has to be locked down as well. For your purpose, I think the
-> use of elv_queue_empty() is much better even though it really is an
-> internal function. The problem mainly comes from AS, that can have non
-> empty queue but still return NULL in elv_next_request().
-> 
-> But yes, it needs to be locked. If you have pinned the other CPUs, then
-> I suppose it should work. But it's still a violation of the locking
-> rules, and one would get in trouble dropping the queue lock from the io
-> scheduler elevator_queue_empty_fn. No one does that currently, but... So
-> please take the lock.
-> 
+On Thu, May 15, 2003 at 04:31:17AM +0100, davej@codemonkey.org.uk wrote:
+> These went into 2.4 over a year ago. Unfortunatly,
+> with no comments in the logs.
 
-Ok, Now we try to acquire the lock and refuse to dump if we don't get 
-the lock.
+My logs show this went into 2.4 with this comment:
 
---- 2569+mjb1/drivers/dump/dump_blockdev.c.orig	Wed May 14 13:23:36 2003
-+++ 2569+mjb1/drivers/dump/dump_blockdev.c	Thu May 15 09:26:12 2003
-@@ -258,10 +258,19 @@
- dump_block_silence(struct dump_dev *dev)
- {
- 	struct dump_blockdev *dump_bdev = DUMP_BDEV(dev);
-+	struct request_queue *q = bdev_get_queue(dump_bdev->bdev);
-+	int ret;
-+
-+	/* If we can't get request queue lock, refuse to take the dump */
-+	if (!spin_trylock(q->queue_lock))
-+		return -EBUSY;
-+
-+	ret = elv_queue_empty(q);
-+	spin_unlock(q->queue_lock);
- 
- 	/* For now we assume we have the device to ourselves */
- 	/* Just a quick sanity check */
--	if (!blk_queue_empty(bdev_get_queue(dump_bdev->bdev))) {
-+	if (!ret) {
- 		/* i/o in flight - safer to quit */
- 		return -EBUSY;
- 	}
+  usb-storage: ISD-200 fixes, more unusual devices, and many cleanups
+  
+  (o) Fix to ISD-200 driver to work on big-endian platforms, including PPC.
+      This has been in circulation for a while, and seems well-tested.
+  (o) Add several unusual_devs.h entries
+  (o) A couple more debugging improvements
+  (o) A slight improvement to the EXPERIMENTAL HP82xx driver, which should
+      help with newer units.
+  (o) A _major_ cleanup of error handling code throughout the driver.  Note
+      that this is in preparation to deploy the new error-handling state
+      machine (special thanks to Alan Sterm for this work).  Right now, the
+      optimizations are simple and straightforward (elimination of redundant
+      code paths, etc).  Nothing tremendous, but it looks kinda invasive.
 
-Regards,
-Bharata.
+So this was a tiny part of a bigger patch.  I defer to Matt as to if
+this kind of change should be put into 2.5.
+
+thanks,
+
+greg k-h
+
+> diff -urpN --exclude-from=/home/davej/.exclude bk-linus/drivers/usb/storage/datafab.c linux-2.5/drivers/usb/storage/datafab.c
+> --- bk-linus/drivers/usb/storage/datafab.c	2003-04-10 06:01:25.000000000 +0100
+> +++ linux-2.5/drivers/usb/storage/datafab.c	2003-03-17 23:42:38.000000000 +0000
+> @@ -670,7 +670,7 @@ int datafab_transport(Scsi_Cmnd * srb, s
+>  			srb->result = SUCCESS;
+>  		} else {
+>  			info->sense_key = UNIT_ATTENTION;
+> -			srb->result = CHECK_CONDITION << 1;
+> +			srb->result = CHECK_CONDITION;
+>  		}
+>  		return rc;
+>  	}
+> diff -urpN --exclude-from=/home/davej/.exclude bk-linus/drivers/usb/storage/jumpshot.c linux-2.5/drivers/usb/storage/jumpshot.c
+> --- bk-linus/drivers/usb/storage/jumpshot.c	2003-04-10 06:01:25.000000000 +0100
+> +++ linux-2.5/drivers/usb/storage/jumpshot.c	2003-03-17 23:42:38.000000000 +0000
+> @@ -611,7 +611,7 @@ int jumpshot_transport(Scsi_Cmnd * srb, 
+>  			srb->result = SUCCESS;
+>  		} else {
+>  			info->sense_key = UNIT_ATTENTION;
+> -			srb->result = CHECK_CONDITION << 1;
+> +			srb->result = CHECK_CONDITION;
+>  		}
+>  		return rc;
+>  	}

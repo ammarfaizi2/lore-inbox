@@ -1,41 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269038AbUJEOki@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269070AbUJEOqM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269038AbUJEOki (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 10:40:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269028AbUJEOki
+	id S269070AbUJEOqM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 10:46:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269068AbUJEOqM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 10:40:38 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:51329 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S269059AbUJEOkg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 10:40:36 -0400
-Date: Tue, 5 Oct 2004 00:26:47 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Jan De Luyck <lkml@kcore.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: swsusp: fix suspending with mysqld
-Message-ID: <20041004222647.GA4723@openzaurus.ucw.cz>
-References: <20041004122422.GA2601@elf.ucw.cz> <200410042109.58519.lkml@kcore.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200410042109.58519.lkml@kcore.org>
-User-Agent: Mutt/1.3.27i
+	Tue, 5 Oct 2004 10:46:12 -0400
+Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:2746 "EHLO
+	mail.rtr.ca") by vger.kernel.org with ESMTP id S269046AbUJEOqI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 10:46:08 -0400
+Message-ID: <4162B345.9000806@rtr.ca>
+Date: Tue, 05 Oct 2004 10:44:21 -0400
+From: Mark Lord <lsml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en, en-us
+MIME-Version: 1.0
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: Anton Blanchard <anton@samba.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: Core scsi layer crashes in 2.6.8.1
+References: <1096401785.13936.5.camel@localhost.localdomain>	<1096467125.2028.11.camel@mulgrave> 	<20041005114951.GD22396@krispykreme.ozlabs.ibm.com> <1096984590.1765.2.camel@mulgrave>
+In-Reply-To: <1096984590.1765.2.camel@mulgrave>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-> > mysqld does signal calls in pretty tight loop, and swsusp is not able
-> > to stop processes in such case. This should fix it. Please apply,
-> 
-> I applied your patch to 2.6.9-rc3. Unfortunately, now the system doesn't suspend anymore, it comes back almost immediately:
-> 
+There seem to be other holes/races in this and related code.
 
-And it did work before that patch? I fail to see how this patch could have
-broken anything.
-				Pavel
+The QStor driver implements hot insertion/removal of drives.
 
+One thing it has to cope with at present is, after notifying
+the mid-layer that a drive has been removed, the mid-layer calls
+back with a synchronize-cache command for that drive..
 
+Cheers
 -- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
-
+Mark Lord
+(hdparm keeper & the original "Linux IDE Guy")

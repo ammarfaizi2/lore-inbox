@@ -1,37 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263069AbVBELE6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264492AbVBELQZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263069AbVBELE6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Feb 2005 06:04:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261595AbVBELB6
+	id S264492AbVBELQZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Feb 2005 06:16:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263277AbVBELQY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Feb 2005 06:01:58 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:1948 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S266516AbVBEKnF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Feb 2005 05:43:05 -0500
-Date: Sat, 5 Feb 2005 10:43:00 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Tejun Heo <tj@home-tj.org>
-Cc: bzolnier@gmail.com, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.11-rc2 06/09] ide: remove REQ_DRIVE_TASK handling
-Message-ID: <20050205104259.GA1184@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Tejun Heo <tj@home-tj.org>, bzolnier@gmail.com,
-	linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <42049F20.7020706@home-tj.org> <20050205102843.AA0CA132703@htj.dyndns.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050205102843.AA0CA132703@htj.dyndns.org>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sat, 5 Feb 2005 06:16:24 -0500
+Received: from web26503.mail.ukl.yahoo.com ([217.146.176.40]:60006 "HELO
+	web26503.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S261739AbVBELO7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Feb 2005 06:14:59 -0500
+Message-ID: <20050205111456.84321.qmail@web26503.mail.ukl.yahoo.com>
+Date: Sat, 5 Feb 2005 11:14:56 +0000 (GMT)
+From: Neil Conway <nconway_kernel@yahoo.co.uk>
+Subject: Re: 3TB disk hassles
+To: 7eggert@gmx.de, linux-kernel@vger.kernel.org
+In-Reply-To: <E1CxG9f-0005Yi-Sp@be1.7eggert.dyndns.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  	__REQ_DRIVE_CMD,
-> -	__REQ_DRIVE_TASK,
-> +	__REQ_DRIVE_TASK,	/* obsolete, unused anymore - tj */
+Hi...
 
-please kill it completely
+--- Bodo Eggert <7eggert@gmx.de> wrote:
+> No common x86 BIOS can understand any partition table. Booting is
+> done by
+> loading the first sector of the boot device and executing it. The
+> common
+
+D'oh!!  Red-face here.  Can't believe my brainlessness.
+
+Thanks for putting me straight - that explains a lot.  Now to try it
+;-)
+
+Neil
+PS: I should go back to sleep now, clearly not awake for the last
+month.
+
+
+
+		
+__________________________________ 
+Do you Yahoo!? 
+Yahoo! Mail - now with 250MB free storage. Learn more.
+http://info.mail.yahoo.com/mail_250

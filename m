@@ -1,82 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261847AbULaKOo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261626AbULaKtE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261847AbULaKOo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Dec 2004 05:14:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261848AbULaKOo
+	id S261626AbULaKtE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Dec 2004 05:49:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261628AbULaKtD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Dec 2004 05:14:44 -0500
-Received: from c201010.adsl.hansenet.de ([213.39.201.10]:22408 "EHLO
-	fusebox.fsfeurope.org") by vger.kernel.org with ESMTP
-	id S261847AbULaKOd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Dec 2004 05:14:33 -0500
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: PROBLEM: Kernel 2.6.10 crashing repeatedly and hard
-References: <m3is6k4oeu.fsf@reason.gnu-hamburg>
-	<Pine.LNX.4.58.0412301239160.22893@ppc970.osdl.org>
-	<m3zmzvl9x1.fsf@reason.gnu-hamburg>
-	<Pine.LNX.4.58.0412301418521.22893@ppc970.osdl.org>
-From: "Georg C. F. Greve" <greve@fsfeurope.org>
-Organisation: Free Software Foundation Europe
-X-PGP-Fingerprint: 2D68 D553 70E5 CCF9 75F4 9CC9 6EF8 AFC2 8657 4ACA
-X-PGP-Affinity: will accept encrypted messages for GNU Privacy Guard
-X-Home-Page: http://gnuhh.org
-X-Accept-Language: en, de
-Date: Fri, 31 Dec 2004 10:58:29 +0100
-In-Reply-To: <Pine.LNX.4.58.0412301418521.22893@ppc970.osdl.org> (Linus
-	Torvalds's message of "Thu, 30 Dec 2004 14:23:01 -0800 (PST)")
-Message-ID: <m3hdm2lrga.fsf@reason.gnu-hamburg>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="20041231105829+0100-24502877-242178719523027";
-	micalg=pgp-sha1; protocol="application/pgp-signature"
+	Fri, 31 Dec 2004 05:49:03 -0500
+Received: from levante.wiggy.net ([195.85.225.139]:33435 "EHLO mx1.wiggy.net")
+	by vger.kernel.org with ESMTP id S261626AbULaKtB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Dec 2004 05:49:01 -0500
+Date: Fri, 31 Dec 2004 11:48:59 +0100
+From: Wichert Akkerman <wichert@wiggy.net>
+To: Kevin Fenzi <kevin@tummy.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PATCH: scripts/package/mkspec
+Message-ID: <20041231104859.GI24603@wiggy.net>
+Mail-Followup-To: Kevin Fenzi <kevin@tummy.com>,
+	linux-kernel@vger.kernel.org
+References: <20041231033323.1CBB4CB130@voldemort.scrye.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041231033323.1CBB4CB130@voldemort.scrye.com>
+User-Agent: Mutt/1.5.6+20040907i
+X-SA-Exim-Connect-IP: <locally generated>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---20041231105829+0100-24502877-242178719523027
+Previously Kevin Fenzi wrote:
+> So, after installing the kernel rpm it checks for /sbin/mkinitrd and
+> makes an initrd file for the newly installed kernel rpm. It also
+> checks for a /sbin/new-kernel-package command and runs it on the new
+> kernel if it exists to add the new kernel/initrd to grub/lilo. 
 
- || On Thu, 30 Dec 2004 14:23:01 -0800 (PST)
- || Linus Torvalds <torvalds@osdl.org> wrote: 
+Why not use the same system as the Debian package uses? That runs
+everything in /etc/kernel/postinst.d/ after installing and everything
+in /etc/kernel/prerm.d/ before removing a package.
 
- lt> Ok. This is apparently a slab cache corruption issue.
+That is much more flexible than hardcoding something like mkinitrd or
+new-kernel-package: it works on all architectures and gives the
+administratie full freedom to hook into things.
 
-So we're one step further, it seems.
-
-
- lt> Can you compile with SLAB_DEBUG and DEBUG_PAGEALLOC turned on,
- lt> since that may well catch something in the act (or it may make
- lt> the machine so unusably slow that it's not funny - who knows..)
-
-Did that last night. You are right -- it is so slow that it is no fun
-at all. So I started the test run last night and went to bed. 
-
-This morning, the machine had crashed again, but unlike the noisy
-crashes, when there was output on the console, this time, with
-debugging compiled in, it crashed entirely silently. There was no info
-on the console and none in the syslog, it just stopped.
-
-Anything else I can try to help?
-
-Anyone else willing to join the slab corruption bug hunt? :)
-
-Regards,
-Georg
+Wichert.
 
 -- 
-Georg C. F. Greve                                 <greve@fsfeurope.org>
-Free Software Foundation Europe	                 (http://fsfeurope.org)
-GNU Business Network                        (http://mailman.gnubiz.org)
-Brave GNU World	                           (http://brave-gnu-world.org)
-
---20041231105829+0100-24502877-242178719523027
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.3.92 (GNU/Linux)
-
-iD8DBQBB1SLKbvivwoZXSsoRAg8ZAJ9LCaWygWwKMHY/lEYVhDpsFiZL1ACgkTuW
-yDP0gARhBzVZTAJpYjKrsEY=
-=IoxJ
------END PGP SIGNATURE-----
---20041231105829+0100-24502877-242178719523027--
+Wichert Akkerman <wichert@wiggy.net>    It is simple to make things.
+http://www.wiggy.net/                   It is hard to make things simple.

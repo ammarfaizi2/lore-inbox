@@ -1,71 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265909AbTAIMCz>; Thu, 9 Jan 2003 07:02:55 -0500
+	id <S265960AbTAIMFy>; Thu, 9 Jan 2003 07:05:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265960AbTAIMCz>; Thu, 9 Jan 2003 07:02:55 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:45770 "HELO
+	id <S266271AbTAIMFy>; Thu, 9 Jan 2003 07:05:54 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:37834 "HELO
 	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S265909AbTAIMCy>; Thu, 9 Jan 2003 07:02:54 -0500
-Date: Thu, 9 Jan 2003 13:11:32 +0100
+	id <S265960AbTAIMFx>; Thu, 9 Jan 2003 07:05:53 -0500
+Date: Thu, 9 Jan 2003 13:14:32 +0100
 From: Adrian Bunk <bunk@fs.tum.de>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Andrew Morton <akpm@digeo.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [2.5 patch] correct help text for LOG_BUF_SHIFT
-Message-ID: <20030109121132.GP6626@fs.tum.de>
-References: <Pine.LNX.4.44.0301082033410.1438-100000@penguin.transmeta.com> <Pine.GSO.4.21.0301091202511.25052-100000@vervain.sonytel.be>
+To: Alan Cox <alan@redhat.com>, Arjan van de Ven <arjanv@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.21pre3-ac2
+Message-ID: <20030109121431.GQ6626@fs.tum.de>
+References: <200301090139.h091d9G26412@devserv.devel.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.21.0301091202511.25052-100000@vervain.sonytel.be>
+In-Reply-To: <200301090139.h091d9G26412@devserv.devel.redhat.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 09, 2003 at 12:04:46PM +0100, Geert Uytterhoeven wrote:
-> On Wed, 8 Jan 2003, Linus Torvalds wrote:
-> > Andrew Morton <akpm@digeo.com>:
-> >   o move LOG_BUF_SIZE to header/config
-> 
-> I find the config a bit confusing:
-> 
-> | Kernel log buffer size (128 KB, 64 KB, 32 KB, 16 KB, 8 KB, 4 KB) [16 KB] (NEW) ?
-> | Select kernel log buffer size from this list (power of 2).
-> | Defaults:  17 (=> 128 KB for S/390)
-> |            16 (=> 64 KB for x86 NUMAQ or IA-64)
-> |            15 (=> 32 KB for SMP)
-> |            14 (=> 16 KB for uniprocessor)
-> | 
-> | Kernel log buffer size (128 KB, 64 KB, 32 KB, 16 KB, 8 KB, 4 KB) [16 KB] (NEW) 
-> 
-> E.g. should I enter `14' or `16 KB' (or `16') for `16 KB'?
+On Wed, Jan 08, 2003 at 08:39:09PM -0500, Alan Cox wrote:
+>...
+> Linux 2.4.21pre3-ac1
+>...
+> +	IDE Raid support for AMI/SI 'Medley' IDE Raid	(Arjan van de Ven)
+>...
 
-After reading init/Kconfig it seems the following was intended:
+This causes a compile error if both pdcraid.o and silraid.o are compiled 
+statically into the kernel:
 
---- linux-2.5.55/init/Kconfig.old	2003-01-09 13:06:43.000000000 +0100
-+++ linux-2.5.55/init/Kconfig	2003-01-09 13:08:44.000000000 +0100
-@@ -89,11 +89,11 @@
- 	default LOG_BUF_SHIFT_15 if SMP
- 	default LOG_BUF_SHIFT_14
- 	help
--	  Select kernel log buffer size from this list (power of 2).
--	  Defaults:  17 (=> 128 KB for S/390)
--		     16 (=> 64 KB for x86 NUMAQ or IA-64)
--	             15 (=> 32 KB for SMP)
--	             14 (=> 16 KB for uniprocessor)
-+	  Select kernel log buffer size from this list.
-+	  Defaults:  128 KB for S/390
-+		     64 KB for x86 NUMAQ or IA-64
-+	             32 KB for SMP
-+	             16 KB for uniprocessor
- 
- config LOG_BUF_SHIFT_17
- 	bool "128 KB"
+<--  snip  -->
 
+...
+gcc -D__KERNEL__ -I/home/bunk/linux/kernel-2.4/linux-2.4.20-ac/include 
+-Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing 
+-fno-common -pipe -mpreferred-stack-boundary=2 -march=k6  -I../ 
+-nostdinc -iwithprefix include -DKBUILD_BASENAME=pdcraid  -c -o 
+pdcraid.o pdcraid.c
+...
+gcc -D__KERNEL__ -I/home/bunk/linux/kernel-2.4/linux-2.4.20-ac/include 
+-Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing 
+-fno-common -pipe -mpreferred-stack-boundary=2 -march=k6  -I../ 
+-nostdinc -iwithprefix include -DKBUILD_BASENAME=silraid  -c -o 
+silraid.o silraid.c
+rm -f idedriver-raid.o
+ld -m elf_i386  -r -o idedriver-raid.o ataraid.o pdcraid.o hptraid.o 
+silraid.o
+silraid.o(.text+0x31c): In function `partition_map_normal':
+: multiple definition of `partition_map_normal'
+pdcraid.o(.text+0x31c): first defined here
+make[4]: *** [idedriver-raid.o] Error 1
+make[4]: Leaving directory 
+`/home/bunk/linux/kernel-2.4/linux-2.4.20-ac/drivers/ide/raid'
 
-> Gr{oetje,eeting}s,
-> 
-> 						Geert
+<--  snip  -->
 
 cu
 Adrian

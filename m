@@ -1,59 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271731AbTHDNck (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 09:32:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271736AbTHDNck
+	id S271736AbTHDNdE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 09:33:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271737AbTHDNdE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 09:32:40 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:9144 "HELO
-	heather-ng.ithnet.com") by vger.kernel.org with SMTP
-	id S271731AbTHDNcj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 09:32:39 -0400
-X-Sender-Authentification: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
-Date: Mon, 4 Aug 2003 15:32:36 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Nikita Danilov <Nikita@Namesys.COM>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: FS: hardlinks on directories
-Message-Id: <20030804153236.5748ba38.skraw@ithnet.com>
-In-Reply-To: <16174.21970.527300.160659@laputa.namesys.com>
-References: <20030804141548.5060b9db.skraw@ithnet.com>
-	<16174.21970.527300.160659@laputa.namesys.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 4 Aug 2003 09:33:04 -0400
+Received: from www.13thfloor.at ([212.16.59.250]:12680 "EHLO www.13thfloor.at")
+	by vger.kernel.org with ESMTP id S271736AbTHDNc6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 09:32:58 -0400
+Date: Mon, 4 Aug 2003 15:33:07 +0200
+From: Herbert =?iso-8859-1?Q?P=F6tzl?= <herbert@13thfloor.at>
+To: Steven Micallef <steven.micallef@world.net>
+Cc: "'Ben Collins'" <bcollins@debian.org>, linux-kernel@vger.kernel.org
+Subject: Re: chroot() breaks syslog() ?
+Message-ID: <20030804133307.GA4225@www.13thfloor.at>
+Reply-To: herbert@13thfloor.at
+Mail-Followup-To: Steven Micallef <steven.micallef@world.net>,
+	'Ben Collins' <bcollins@debian.org>, linux-kernel@vger.kernel.org
+References: <6416776FCC55D511BC4E0090274EFEF5080024AC@exchange.world.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <6416776FCC55D511BC4E0090274EFEF5080024AC@exchange.world.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 4 Aug 2003 16:47:14 +0400
-Nikita Danilov <Nikita@Namesys.COM> wrote:
-
-> Hard links on directories are hard to do in the UNIX file system model.
+On Mon, Aug 04, 2003 at 03:49:48PM +1000, Steven Micallef wrote:
+> You're right - my mistake, it doesn't actually work on 2.4.8 either, I think
+> I was looking at the wrong thing when I thought it was actually working.
 > 
-> Where ".." should point? How to implement rmdir? You can think about
-> UNIX unlink as some form of reference counter based garbage
-> collector---when last (persistent) reference to the object is removed it
-> is safe to recycle it. It is well-known that reference counting GC
-> cannot cope with cyclical references. Usually this is not a problem for
-> the file system because all cyclical references are very well
-> known---they always involve "." and "..". But as one allows hard links
-> on directories, file system is no longer tree, but generic directed
-> graph and reference counting GC wouldn't work.
+> Is it worth considering (optionally) making /dev available to chroot()'ed
+> environments, or would that just defeat the whole purpose of chroot()?
 
-If file-/directory-nodes are single-linked list nodes inside one directory, and
-directory-nodes pointing to the same directory are single-linked list nodes,
-you can:
+IMHO, devfs in chroot environment, is defeating the purpose
+because if you have access to raw devices, like the device
+your chroot dir is on, you can easily mount that device 
+again, and voila you have access to the full tree, if you
+just have access to, lets say a ramdisk (as raw device of
+course), you can also easily write on it, and create the
+required device nodes yourself, then mount, and again 
+everything is available ...
 
-- ".." do as first node of a directory and the "shared" part of the directory
-follows on its next-pointer, so you have one ".." for every hard-link.
-- implement rmdir as throw-away dir-node and ".." node and only if pointer to
-next hw-linked directory-node is itself remove rest of linked node list
+best thing to do is to copy only those devices, which are
+absolutely required to the chrooted environment ...
 
-Are there further questionable operations?
+HTH,
+Herbert
 
-Regards,
-Stephan
-
-
+> Regards,
+> 
+> Steve.
+> 
+> > -----Original Message-----
+> > From: Ben Collins [mailto:bcollins@debian.org]
+> > Sent: Monday, 4 August 2003 3:19 PM
+> > To: Steven Micallef
+> > Cc: 'linux-kernel@vger.kernel.org'
+> > Subject: Re: chroot() breaks syslog() ?
+> > 
+> > 
+> > > connect(3, {sin_family=AF_UNIX, path="/dev/log"}, 16) = -1 
+> > ENOENT (No such
+> > > file or directory)
+> > > 
+> > > Is this intentional? If so, is there a work-around? I 
+> > discovered this when
+> > > debugging 'rwhod', but I imagine there are many more utils 
+> > that would be
+> > > affected too.
+> > 
+> > I don't know how it ever did work, if in fact it did for you. /dev/log
+> > is not a kernel device, it's just a normal socket created by syslogd.
+> > 
+> > Now, if you use devfs, and mount devfs under the chroot, it magically
+> > propogates /dev/log. But that's not the normal thing.
+> > 
+> > -- 
+> > Debian     - http://www.debian.org/
+> > Linux 1394 - http://www.linux1394.org/
+> > Subversion - http://subversion.tigris.org/
+> > WatchGuard - http://www.watchguard.com/
+> > __________ Information from NOD32 1.449 (20030630) __________
+> > 
+> > This message was checked by NOD32 for Exchange e-mail monitor.
+> > http://www.nod32.com
+> > 
+> > 
+> > 
+> > 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,48 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268294AbUIBMw3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268298AbUIBMzA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268294AbUIBMw3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 08:52:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268297AbUIBMw3
+	id S268298AbUIBMzA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 08:55:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268301AbUIBMzA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 08:52:29 -0400
-Received: from mtagate2.de.ibm.com ([195.212.29.151]:38578 "EHLO
-	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S268294AbUIBMv5
+	Thu, 2 Sep 2004 08:55:00 -0400
+Received: from smtp.andrew.cmu.edu ([128.2.10.82]:15006 "EHLO
+	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP id S268298AbUIBMy1
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 08:51:57 -0400
-From: Einar Lueck <elueck@de.ibm.com>
-Reply-To: lkml@einar-lueck.de
-Organization: IBM Deutschland Entwicklung GmbH
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] net/ipv4 for Source VIPA support, kernel BK Head
-Date: Thu, 2 Sep 2004 14:51:55 +0200
-User-Agent: KMail/1.6.2
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200409021401.42255.elueck@de.ibm.com> <200409021420.46785.elueck@de.ibm.com> <1094124266.4970.20.camel@localhost.localdomain>
-In-Reply-To: <1094124266.4970.20.camel@localhost.localdomain>
+	Thu, 2 Sep 2004 08:54:27 -0400
+Message-ID: <41371702.8030704@andrew.cmu.edu>
+Date: Thu, 02 Sep 2004 08:50:10 -0400
+From: James Bruce <bruce@andrew.cmu.edu>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040830)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-15"
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Hans Reiser <reiser@namesys.com>, David Masover <ninja@slaphack.com>,
+       Jamie Lokier <jamie@shareable.org>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
+       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: The argument for fs assistance in handling archives
+References: <20040826150202.GE5733@mail.shareable.org> <200408282314.i7SNErYv003270@localhost.localdomain> <20040901200806.GC31934@mail.shareable.org> <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org> <20040902002431.GN31934@mail.shareable.org> <413694E6.7010606@slaphack.com> <Pine.LNX.4.58.0409012037300.2295@ppc970.osdl.org> <4136A14E.9010303@slaphack.com> <Pine.LNX.4.58.0409012259340.2295@ppc970.osdl.org> <4136C876.5010806@namesys.com> <Pine.LNX.4.58.0409020030220.2295@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0409020030220.2295@ppc970.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200409021451.55318.elueck@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Donnerstag, 2. September 2004 13:24 Alan Cox wrote:
-> You've failed as far as I can see to explain why NAT doesn't do the
-> right thing in this case. I don't care whether the customers like it, I
-> care whether it works. If it works then we don't need to add junk to the
-> kernel. If it works but is hard to configure then its an opportunity to
-> write a nice tool to manage it.
-I am sorry: I failed to point out that NAT does the job!
+Linus Torvalds wrote:
 
-We think that the the proposed patch, that is a really small one,
-introduces a facility that works well for existing operating systems 
-and is desired by customers. Consequently, it enriches the kernel with
-a concept that has already proven its value. That's the reason why we 
-think the kernel could profit from the application of the corresponding 
-patch, especially as it makes more customers happy. As the whole feature 
-may be configured out we don't see what's wrong with making more and 
-especially large customers happy with an enriched kernel.
+>...
+>But _my_ point is, no user program is going to take _advantage_ of
+>anything that only one filesystem on one system offers.
+>
+>So there's no point.
+>
+>It's much saner (from _any_ app standpoint) to roll their own database in 
+>user space - that way it just works.
+>
+>In other words, nobody is really ever going to take advantage of this. 
+>This is _not_ how technical advanncement happens. The way you get people 
+>to take advantage of something is to have a nice gradual ramp-up, not a 
+>sudden new feature that they can't realistically use.
+>...
+>
 
-Einar
+Sure, but there are plenty of existing interfaces that you could 
+emulate.  One could make a small library to use a transactional 
+filesystem to implement the Berkely DB interface (libdb) for example.  
+So on filesystems without such support your app could use the regular 
+userspace database, but on a transactional filesystem it'd just use 
+regular files, which would simplify database management and likely 
+increase performance over the userspace-only version (libdb is pretty 
+slow).  In terms of functionality it'd just be a drop-in replacement, 
+just like math libraries that use MMX/SSE when available.
+
+    - Jim Bruce
+

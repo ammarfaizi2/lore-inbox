@@ -1,40 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266678AbSL3EFB>; Sun, 29 Dec 2002 23:05:01 -0500
+	id <S266660AbSL3ESP>; Sun, 29 Dec 2002 23:18:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266686AbSL3EFB>; Sun, 29 Dec 2002 23:05:01 -0500
-Received: from eriador.apana.org.au ([203.14.152.116]:44561 "EHLO
-	eriador.apana.org.au") by vger.kernel.org with ESMTP
-	id <S266678AbSL3EFA>; Sun, 29 Dec 2002 23:05:00 -0500
-Date: Mon, 30 Dec 2002 15:13:07 +1100
-To: Jeffrey Baker <jwbaker@acm.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20 oops mounting iso9660 fs as hfs
-Message-ID: <20021230041307.GA23543@gondor.apana.org.au>
-References: <20021230005457.GA15680@noodles> <E18SqVf-0005xV-00@gondolin.me.apana.org.au> <20021230040402.GA680@heat>
-Mime-Version: 1.0
+	id <S266675AbSL3ESP>; Sun, 29 Dec 2002 23:18:15 -0500
+Received: from windlord.Stanford.EDU ([171.64.13.23]:65207 "HELO
+	windlord.stanford.edu") by vger.kernel.org with SMTP
+	id <S266660AbSL3ESO>; Sun, 29 Dec 2002 23:18:14 -0500
+To: Larry McVoy <lm@work.bitmover.com>
+Cc: Felix Domke <tmbinc@elitedvb.net>, linux-kernel@vger.kernel.org
+Subject: Re: Indention - why spaces?
+References: <fa.f9m4suv.e6ubgf@ifi.uio.no>
+	<ylfzsgi3jz.fsf@windlord.stanford.edu>
+	<20021230034303.GA11425@work.bitmover.com>
+In-Reply-To: <20021230034303.GA11425@work.bitmover.com> (Larry McVoy's
+ message of "Sun, 29 Dec 2002 19:43:03 -0800")
+From: Russ Allbery <rra@stanford.edu>
+Organization: The Eyrie
+Date: Sun, 29 Dec 2002 20:26:31 -0800
+Message-ID: <yln0mogmiw.fsf@windlord.stanford.edu>
+User-Agent: Gnus/5.090008 (Oort Gnus v0.08) XEmacs/21.4 (Honest Recruiter,
+ sparc-sun-solaris2.6)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021230040402.GA680@heat>
-User-Agent: Mutt/1.4i
-From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 29, 2002 at 08:04:02PM -0800, Jeffrey Baker wrote:
-> 
-> > HFS wants 512 blocks while sr sets hardsect size to 2048.  You can
-> > work around it by reading it via loopback (losetup or mount -o loop).
-> 
-> Do you mean make an image of the CD with dd and mount it
-> with loopback?  That sounds like it would work fine.
+Larry McVoy <lm@bitmover.com> writes:
+> On Sun, Dec 29, 2002 at 07:33:20PM -0800, Russ Allbery wrote:
 
-It's easier that.
+>> <http://www.jwz.org/doc/tabs-vs-spaces.html>
 
-losetup /dev/loop0 /dev/cdrom
-mount -rt hfs /dev/loop0 /mnt
+> Quouting from that page:
+>     That ensures that, even if I happened to insert a literal tab in the
+>     file by hand (or if someone else did when editing this file earlier),
+>     those tabs get expanded to spaces when I save. 
+
+> If you are using a source management system, pretty much *any* source
+> management system, doing this will cause all the lines to be "rewritten"
+> if they had tabs.  The fact that this person would advocate changing
+> code that they didn't actually change shows a distinct lack of clue.
+
+Yeah, that recommendation always bugged me too.  I would never do that; if
+you really want to enforce something like that, the proper place is in a
+pre-checkin transform in your source management system so that everything
+that actually hits the source management database has no tabs in it.  Not
+in individual editors.
+
+But the rest of the message is a good summary of the issues, as far as I'm
+concerned.
+
+I'll add one additional issue, and the one that bugs me the most in
+practice about tabs.  Tabs make patches a pain in the neck to read,
+because they change the indentation of the lines in a diff so that it no
+longer matches the original indentation.  In particularly pathological
+cases, they can even make an indented line even with an unintended line.
+
 -- 
-Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Russ Allbery (rra@stanford.edu)             <http://www.eyrie.org/~eagle/>

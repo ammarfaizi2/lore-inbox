@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289125AbSBDVRA>; Mon, 4 Feb 2002 16:17:00 -0500
+	id <S289142AbSBDVSK>; Mon, 4 Feb 2002 16:18:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289142AbSBDVQu>; Mon, 4 Feb 2002 16:16:50 -0500
-Received: from ns1.alcove-solutions.com ([212.155.209.139]:53775 "EHLO
-	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
-	id <S289125AbSBDVQe>; Mon, 4 Feb 2002 16:16:34 -0500
-Date: Mon, 4 Feb 2002 22:15:52 +0100
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.18-pre8
-Message-ID: <20020204211552.GA12150@come.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
-In-Reply-To: <Pine.LNX.4.21.0202041743180.14205-100000@freak.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.21.0202041743180.14205-100000@freak.distro.conectiva>
-User-Agent: Mutt/1.3.25i
+	id <S289030AbSBDVR5>; Mon, 4 Feb 2002 16:17:57 -0500
+Received: from smtp3.cern.ch ([137.138.131.164]:31936 "EHLO smtp3.cern.ch")
+	by vger.kernel.org with ESMTP id <S289142AbSBDVRm>;
+	Mon, 4 Feb 2002 16:17:42 -0500
+To: Christian Hildner <christian.hildner@hob.de>
+Cc: davidm@hpl.hp.com, linux ia64 kernel list <linux-ia64@linuxia64.org>,
+        LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-ia64] kmalloc() size-limitation
+In-Reply-To: <3C3D6A89.27EAA4C7@hob.de> <15421.61910.163437.45726@napali.hpl.hp.com> <3C3ED5E7.8BA479B7@hob.de> <15423.5404.65155.924018@napali.hpl.hp.com> <3C43D6EC.74B4EC85@hob.de>
+From: Jes Sorensen <jes@sunsite.dk>
+Date: 04 Feb 2002 22:16:41 +0100
+In-Reply-To: Christian Hildner's message of "Tue, 15 Jan 2002 08:14:52 +0100"
+Message-ID: <d31yg1lzgm.fsf@lxplus052.cern.ch>
+User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 04, 2002 at 05:44:17PM -0200, Marcelo Tosatti wrote:
+Christian Hildner <christian.hildner@hob.de> writes:
 
-> No more big patches for 2.4.18, please... We are getting close to the -rc
-> stage.
+> David,
 > 
-> pre8: 
-[...]
+> you proposed me to use alloc_pages() instead of kmalloc() in order
+> to get memory bigger than the 128K limit of the kmalloc() call. But
+> even driver-developers don't want to handle with the page struct
+> unless this is unavoidable. Which are the disadvantages of
+> increasing the size limit of kmalloc() to 256K, 512K or 1M since
+> machines are getting bigger and 64Bit machines break with current
+> memory limitations?
 
-Do patches already send to you but not present in this release
-got queued for -pre9 or got lost in the process and you want
-them resubmitted (or maybe you just want them later for 2.4.19-pre1).
+Because drivers needs to work on all architectures and relying on
+different hahavior from kmalloc() is bad.
 
-I'm talking here about the sonypi driver update, but I guess there
-are other people asking themselfs the same thing for other patches,
-given the delay between pre7 and pre8...
-
-Stelian.
--- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-|---------------- Free Software Engineer -----------------|
-| Alcôve - http://www.alcove.com - Tel: +33 1 49 22 68 00 |
-|------------- Alcôve, liberating software ---------------|
+Jes

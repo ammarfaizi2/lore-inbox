@@ -1,38 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262169AbTEUPen (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 May 2003 11:34:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262174AbTEUPen
+	id S262174AbTEUPjL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 May 2003 11:39:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262177AbTEUPjL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 May 2003 11:34:43 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:18939 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S262169AbTEUPen (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 May 2003 11:34:43 -0400
-Date: Wed, 21 May 2003 16:47:39 +0100 (IST)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet
-To: "Paulo Andre'" <l16083@alunos.uevora.pt>
-Cc: Linux Memory Management List <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Finalised 2.4 VM Documentation
-In-Reply-To: <20030520121900.22522fa1.l16083@alunos.uevora.pt>
-Message-ID: <Pine.LNX.4.53.0305211645140.30189@skynet>
-References: <Pine.LNX.4.53.0305191329310.24249@skynet>
- <20030520121900.22522fa1.l16083@alunos.uevora.pt>
+	Wed, 21 May 2003 11:39:11 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:3045 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S262174AbTEUPjK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 May 2003 11:39:10 -0400
+Date: Wed, 21 May 2003 08:52:06 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: LKML <linux-kernel@vger.kernel.org>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Bug 734] New: compilation parse error in mwavedd.h before "wait_queue_head_t" 
+Message-ID: <22830000.1053532326@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 May 2003, Paulo Andre' wrote:
+           Summary: compilation parse error in mwavedd.h before
+                    "wait_queue_head_t"
+    Kernel Version: 2.5.69
+            Status: NEW
+          Severity: normal
+             Owner: bugme-janitors@lists.osdl.org
+         Submitter: smart@smartpal.de
 
-> Ok... now onwards to a full 2.6 VM documentation just like this one.
->
 
-heh, maybe much later, but not now. Even thinking about writing that much
-again is making me cringe. When I start writing again, it'll be in the
-form of notes rather than updating the whole document.
+Distribution:RedHat 8
+Hardware Environment:Dell Latitude C640
+Software Environment:Kernel only
+Problem Description:
 
--- 
-Mel Gorman
+Steps to reproduce:
+Im not sure if the driver matches, but no matter...
+
+lspci: 00:1f.6 Modem: Intel Corp. 82801CA/CAM AC'97 Modem (rev 02)
+
+CONFIG_MWAVE=m
+
+in the make modules phase, compilation of drivers/char/mwave/smapi.c:53 bails
+out in including
+drivers/char/mwave/mwavedd.h
+129: prse err bfore "wait_queue_head_t"
+140: prse err bfore "MWAVE_IPC"
+

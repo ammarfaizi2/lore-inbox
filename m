@@ -1,68 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262961AbUBZTbu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 14:31:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262968AbUBZTaL
+	id S262962AbUBZT3x (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 14:29:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262957AbUBZT2J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 14:30:11 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:19154 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262965AbUBZT2q (ORCPT
+	Thu, 26 Feb 2004 14:28:09 -0500
+Received: from mtaw6.prodigy.net ([64.164.98.56]:15492 "EHLO mtaw6.prodigy.net")
+	by vger.kernel.org with ESMTP id S262943AbUBZT1F (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 14:28:46 -0500
-Message-ID: <403E48D3.5050805@watson.ibm.com>
-Date: Thu, 26 Feb 2004 14:28:19 -0500
-From: Shailabh Nagar <nagar@watson.ibm.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.5b) Gecko/20030829 Thunderbird/0.2
+	Thu, 26 Feb 2004 14:27:05 -0500
+Message-ID: <403E487B.8020707@matchmail.com>
+Date: Thu, 26 Feb 2004 11:26:51 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040209)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Rik van Riel <riel@redhat.com>
-CC: Peter Williams <peterw@aurema.com>, Nuno Silva <nuno.silva@vgertech.com>,
-       Timothy Miller <miller@techsource.com>, John Lee <johnl@aurema.com>,
-       linux-kernel@vger.kernel.org, ckrm-tech@lists.sourceforge.net
-Subject: Re: [RFC][PATCH] O(1) Entitlement Based Scheduler
-References: <403D7531.5060309@aurema.com> <Pine.LNX.4.44.0402261054510.5629-200000@chimarrao.boston.redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0402261054510.5629-200000@chimarrao.boston.redhat.com>
+To: Nathan Scott <nathans@sgi.com>
+CC: Nico Schottelius <nico-kernel@schottelius.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: another hard disk broken or xfs problems?
+References: <20040225220051.GA187@schottelius.org> <20040225223428.GD640@frodo> <20040225234944.GD187@schottelius.org> <20040226032741.GB1177@frodo> <20040226082551.GA218@schottelius.org> <20040226204615.A481868@wobbly.melbourne.sgi.com>
+In-Reply-To: <20040226204615.A481868@wobbly.melbourne.sgi.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
-
-> On Thu, 26 Feb 2004, Peter Williams wrote:
+Nathan Scott wrote:
+> On Thu, Feb 26, 2004 at 09:25:51AM +0100, Nico Schottelius wrote:
+>>And btw, do all filesystem drivers behave in this way, printing internal
+>>errors and displaying call traces when they find errors in the
+>>filesystem?
 > 
 > 
->>Another idea that we are playing with for handling programs like xmms 
->>(i.e. programs that require gauranteed CPU bandwidth to perform well) is 
->>the complement of caps namely per task CPU reservations.
-> 
-> 
->>Of course, this won't solve the "need to be root" problem as this is 
->>obviously the sort of control that should be reserved for root
-> 
-> 
-> Not necessarily.  We've just fixed this dilemma in the CKRM
-> project, using a resource class filesystem for this kind of
-> stuff.
-> 
-> A user could have a certain percentage of the CPU guaranteed
-> (especially the console user) and carve out part of his/her
-> guarantee for multimedia applications.
-> 
-> Please see the attached document, which is the 6th draft of
-> this particular CKRM design.  If you have any improvements
-> for this spec, feel free to let us know ;)
+> No, not all filesystem behave this way.  And it is configurable
+> in XFS; if you don't want this to happen, you can switch it off
+> via the sysctl/procfs interface - see the "error_level" section
+> in Documentation/filesystems/xfs.txt.
 
+I like this idea.
 
-The CKRM API has also been posted separately as an RFC on lkml
-today...just in case its missed deep down in this thread !
-
-
-
--- Shailabh
-
-
-
-
-
-
+Is it just calling dump_stack() based on error level?

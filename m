@@ -1,53 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292752AbSCSVXc>; Tue, 19 Mar 2002 16:23:32 -0500
+	id <S292852AbSCSV1C>; Tue, 19 Mar 2002 16:27:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292852AbSCSVXW>; Tue, 19 Mar 2002 16:23:22 -0500
-Received: from zamok.crans.org ([138.231.136.6]:34503 "EHLO zamok.crans.org")
-	by vger.kernel.org with ESMTP id <S292752AbSCSVXK>;
-	Tue, 19 Mar 2002 16:23:10 -0500
-To: Jaanus Toomsalu <jaanus@amd.matti.ee>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: HighPoint HPT372/374 full support?
-In-Reply-To: <20020318140848.C9EEB25717@amd.matti.ee>
-X-PGP-KeyID: 0xF22A794E
-X-PGP-Fingerprint: 5854 AF2B 65B2 0E96 2161  E32B 285B D7A1 F22A 794E
-From: Vincent Bernat <bernat@free.fr>
-Organization: Kabale Inc
-Date: Tue, 19 Mar 2002 22:23:06 +0100
-Message-ID: <m3u1rcuu9x.fsf@neo.loria>
-User-Agent: Gnus/5.090006 (Oort Gnus v0.06) XEmacs/21.4 (Common Lisp,
- i686-pc-linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S292857AbSCSV0w>; Tue, 19 Mar 2002 16:26:52 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:65040 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S292852AbSCSV0d>; Tue, 19 Mar 2002 16:26:33 -0500
+Date: Tue, 19 Mar 2002 22:24:25 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Cc: pavel@suse.cz, Trond Myklebust <trond.myklebust@fys.uio.no>,
+        Alexander Viro <viro@math.psu.edu>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Simon Richter <Simon.Richter@phobos.fachschaften.tu-muenchen.de>,
+        Jonathan Barker <jbarker@ebi.ac.uk>, linux-kernel@vger.kernel.org
+Subject: Re: VFS mediator?
+Message-ID: <20020319212425.GH12260@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <200203191345.HAA74864@tomcat.admin.navo.hpc.mil>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OoO En ce début d'après-midi ensoleillé du lundi 18 mars 2002, vers
-15:08, Jaanus Toomsalu <jaanus@amd.matti.ee> disait:
+Hi!
 
-> Is there any hints to get this UDMA133 chip to work. Currently it seems to 
-> reported work over WIP (WorkInProgress), but on my onboard ABIT KR7A-RAID i 
-> get DMA disabled message and all hardisks on HPT372 IDE channel are "lost" 
-> after that.
+> > >      > Okay, take userland nfs-server. (This thread was about userland
+> > >      > filesystems).
+> > > 
+> > > Yech... Nobody should be seriously considering using unfsd: it does
+> > > not even manage to follow the NFS protocol. That inability was one of
+> > > the many reasons why Olaf Kirch abandoned further develpement of unfsd
+> > > and started work on knfsd.
+> > > 
+> > >      > Then, make memory full of dirty pages. Imagine that nfs-server
+> > >      > is swapped-out by some bad luck. What you have is extremely
+> > >      > nasty deadlock, AFAICS. [To free memory you have to write out
+> > >      > dirty data, but you can't do that because you don't have enough
+> > >      > memory for nfs-server].
+> > > 
+> > > So that is another argument for using knfsd rather than unfsd. I will
+> > > agree with you that NFS is not perfect, but please judge it on its
+> > > actual merits and not on some trumped up charge...
+> > 
+> > Sorry, this thread was about userland filesystems, and NFS is just not
+> > usefull there (for read/write case).
+> 
+> Assuming, of course, that the daemon doesn't mprotect itself...
 
-I have the same problem here, but just when I try to use md to setup a
-disk array. In fact, I can dd to /dev/null two disks at the same time
-(each on its separate controller) without any troubles (each disk
-through output is 40 MB/s). Software raid with hptraid works fine but
-I don't get significant performance improvement. But each time I try
-to use md, I always get the same problem than you. mkraid, raidstop or
-anything which access /dev/md0 triggers a DMA problem.
+Even if it did, I'm not sure it would be safe. write() may need some
+memory, too.
 
-I have asked the question in linux-raid mailing list yesterday but got
-no solution so far.
+> A user mode file system is really only good at debugging a design.
 
-I have upgraded to newest BIOS patched with the latest BIOS from
-Highpoint (2.31) and there is no change (but I think the BIOS is not
-used). I have tried with a vanilla 2.4.18 and with 2.4.19-pre3-ac1.
+Not agreed. I would not want ftpfs in kernel, yet its happy in
+userland.
+
+> All file migration style filesystems, and user mode filesystems, have this
+> same problem on paging based systems:
+> 
+> Can't write buffer until file is migrated (file system full),
+
+Well, filesystem full is nasty case. [I wonder how coda solves that?]
+								Pavel
 -- 
-I NO LONGER WANT MY MTV
-I NO LONGER WANT MY MTV
-I NO LONGER WANT MY MTV
--+- Bart Simpson on chalkboard in episode 3G02
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

@@ -1,55 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277751AbRJRPnr>; Thu, 18 Oct 2001 11:43:47 -0400
+	id <S277756AbRJRPtH>; Thu, 18 Oct 2001 11:49:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277774AbRJRPnh>; Thu, 18 Oct 2001 11:43:37 -0400
-Received: from mail.science.uva.nl ([146.50.4.51]:5033 "EHLO
-	mail.science.uva.nl") by vger.kernel.org with ESMTP
-	id <S277756AbRJRPnY>; Thu, 18 Oct 2001 11:43:24 -0400
-X-Organisation: Faculty of Science, University of Amsterdam, The Netherlands
-X-URL: http://www.science.uva.nl/
-Date: Thu, 18 Oct 2001 17:42:44 +0200 (CEST)
-From: Kamil Iskra <kamil@science.uva.nl>
-To: Andreas Dilger <adilger@turbolabs.com>
-cc: Steve Kieu <haiquy@yahoo.com>, kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Poor floppy performance in kernel 2.4.10
-In-Reply-To: <20011018092837.C1144@turbolinux.com>
-Message-ID: <Pine.LNX.4.33.0110181734270.7583-100000@krakow.science.uva.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S277766AbRJRPs5>; Thu, 18 Oct 2001 11:48:57 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:64522 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S277756AbRJRPsq>; Thu, 18 Oct 2001 11:48:46 -0400
+Date: Thu, 18 Oct 2001 11:49:21 -0400
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Roy Murphy <murphy@panix.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: MODULE_LICENSE and EXPORT_SYMBOL_GPL
+Message-ID: <20011018114921.A30969@devserv.devel.redhat.com>
+In-Reply-To: <3bcef893.4872.0@panix.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3bcef893.4872.0@panix.com>; from murphy@panix.com on Thu, Oct 18, 2001 at 11:43:15AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Oct 2001, Andreas Dilger wrote:
+On Thu, Oct 18, 2001 at 11:43:15AM -0500, Roy Murphy wrote:
+> 'Twas brillig when Arjan van de Ven scrobe:
+> >I think you're missing one thing: binary only modules are only allowed
+> >because of an exception license grant Linus made for functions that are
+> >marked EXPORT_SYMBOL(). EXPORT_SYMBOL_GPL() just says "not part of 
+> >this exception grant"....
+> 
+> With all respect to Linus, I don't believe that module insertion is an 
+> exclusive right granted to authors that is within Linus' legal power as holder
+> of the Copyright to the kernel to grant or to restrict.  Does Microsoft have
+> a legal right to disallow any third-party drivers from 
+> registering themselves with the OS?  Does Linus?
 
-> > The behaviour is as if no caching was done,
-> > there is a slowdown by a factor of two.
-> I think this is a result of the "blockdev in pagecache" change added in
-> 2.4.10.  One of the byproducts of this change is that if a block device
-> is closed (no other openers) then all of the pages from this device are
-> dropped from the cache.  In the case of a floppy drive, this is very
-> important, as you don't want to be cacheing data from one floppy after
-> you have inserted a new floppy.
->
-> In contrast, if you mounted the floppy instead of using mtools, it would
-> probably have good performance for small files as well.
-
-That's very interesting.  It would explain why it takes 2 seconds _every_
-time you invoke "mdir", whereas before the invocations after the first one
-were more or less instantenous.  And indeed, as you say, mounting a floppy
-does result in a good performance.
-
-However, it does not explain why the first invocation is two times slower
-(it's 1 sec with kernel 2.4.9 and 2 secs with 2.4.10, the effect is even
-more visible for mcopy of a small file, like 30KB).  I strace'd mdir and
-it's opening /dev/fd0 just once, at the beginning, and closing it at the
-end.
-
-Regards,
-
--- 
-Kamil Iskra                 http://www.science.uva.nl/~kamil/
-Section Computational Science, Faculty of Science, Universiteit van Amsterdam
-kamil@science.uva.nl  tel. +31 20 525 75 35  fax. +31 20 525 74 90
-Kruislaan 403  room F.202  1098 SJ Amsterdam  The Netherlands
+I'm sorry. "module inserting" is LINKING. A kernel module does, in my
+oppinion, NOT fall under the gpl stated "mere aggregation" boundary of the
+GPL, it is compiled with kernel headers, contains kernel _code_ from these
+headers etc etc, and is for all intents and purposes part of the GPL program
+"kernel" once loaded. It uses normal function calls etc etc, symbols are
+resolved using normal linking mechanisms etc etc.
 

@@ -1,38 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267318AbUGNIfg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267323AbUGNIpi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267318AbUGNIfg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 04:35:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267323AbUGNIfg
+	id S267323AbUGNIpi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 04:45:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267325AbUGNIpi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 04:35:36 -0400
-Received: from ethlife-a.ethz.ch ([129.132.202.7]:31888 "HELO ethlife.ethz.ch")
-	by vger.kernel.org with SMTP id S267318AbUGNIff (ORCPT
+	Wed, 14 Jul 2004 04:45:38 -0400
+Received: from rproxy.gmail.com ([64.233.170.206]:53480 "HELO mproxy.gmail.com")
+	by vger.kernel.org with SMTP id S267323AbUGNIph (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 04:35:35 -0400
+	Wed, 14 Jul 2004 04:45:37 -0400
+Message-ID: <30a4d01b04071401457267defa@mail.gmail.com>
+Date: Wed, 14 Jul 2004 11:45:29 +0300
+From: Genady Okrain <mafteah@gmail.com>
+To: akpm@osdl.org
+Subject: Can't compile sg.c 2.6.8-rc1-mm1
+Cc: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Message-Id: <p04320400bd1a91c54a80@[192.168.40.11]>
-Date: Wed, 14 Jul 2004 10:35:29 +0200
-To: linux-kernel@vger.kernel.org
-From: Christian Jaeger <christian.jaeger@ethlife.ethz.ch>
-Subject: (2.6.8-rc1 crash on ppc (powerbook g3))
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello
+I am using gcc-3.4.1
 
-kernel.org's 2.6.8-rc1 crashed upon wakeup of my lombard
-and after reboot, later on, while booting MacOs under mol (which 
-worked before), it even just did a poweroff.
+  CC [M]  drivers/scsi/sg.o
+drivers/scsi/sg.c: In function `sg_ioctl':
+drivers/scsi/sg.c:209: sorry, unimplemented: inlining failed in call
+to 'sg_jif_to_ms': function body not available
+drivers/scsi/sg.c:930: sorry, unimplemented: called from here
+make[2]: *** [drivers/scsi/sg.o] Error 1
+make[1]: *** [drivers/scsi] Error 2
+make: *** [drivers] Error 2
 
-(It's strange: somehow this laptop seems to trigger poweroffs with 
-many kernels. it's definitely software related, as some kernels are 
-completely reliable, but if the kernels are not reliable, the problem 
-no. 1 is poweroffs. Or maybe no. 2 - the other most frequent problem 
-are freezes (as usual).)
-
-sorry for not having more info, i'm lacking time and have just booted 
-back into 2.6.5 for now. (i'd be glad not to run a kernel with local 
-holes, though..)
-
-christian.
+-- 
+Genady Okrain AKA Mafteah

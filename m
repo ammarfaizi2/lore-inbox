@@ -1,52 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264311AbUASAnm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jan 2004 19:43:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264313AbUASAnl
+	id S264303AbUASAje (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jan 2004 19:39:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264308AbUASAje
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jan 2004 19:43:41 -0500
-Received: from wilma.widomaker.com ([204.17.220.5]:47117 "EHLO
-	wilma.widomaker.com") by vger.kernel.org with ESMTP id S264311AbUASAnj
+	Sun, 18 Jan 2004 19:39:34 -0500
+Received: from smtp1.clear.net.nz ([203.97.33.27]:45446 "EHLO
+	smtp1.clear.net.nz") by vger.kernel.org with ESMTP id S264303AbUASAjc
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jan 2004 19:43:39 -0500
-Date: Sun, 18 Jan 2004 18:57:28 -0500
-From: Charles Shannon Hendrix <shannon@widomaker.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: xscreensaver and kernel 2.6.x
-Message-ID: <20040118235728.GF9456@widomaker.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Message-Flag: Microsoft Loves You!
-User-Agent: Mutt/1.5.4i
+	Sun, 18 Jan 2004 19:39:32 -0500
+Date: Mon, 19 Jan 2004 13:44:54 +1300
+From: Nigel Cunningham <ncunningham@users.sourceforge.net>
+Subject: Re: Is this too ugly to merge?
+In-reply-to: <20040113114913.GB269@elf.ucw.cz>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Reply-to: ncunningham@users.sourceforge.net
+Message-id: <1074473094.2361.104.camel@laptop-linux>
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.4.4-8mdk
+Content-type: multipart/signed; boundary="=-nMmVEmKOXusSZtQOyK0p";
+ protocol="application/pgp-signature"; micalg=pgp-sha1
+References: <1073609923.2003.10.camel@laptop-linux>
+ <20040113114913.GB269@elf.ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--=-nMmVEmKOXusSZtQOyK0p
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I'm trying to find the details on why xscreensaver has some troubles
-with the 2.6 kernels.
+Hi.
 
-On my system, something in pam is failing, causing a several seconds
-delay when unlocking my screen.
+I'll take the following approach: I'm pretty sure that I've tried
+suspending userspace before kernel threads before, and still ran into
+possible deadlocks. Nevertheless, I'll set that up and then bang really
+hard on it using Michael's test scripts, and let you know the results.
+If and when we see that this approach won't cut the mustard, we can come
+back to considering this approach. Sound okay?
 
-In /var/log/messages, I get this:
+By the way, the macros are not an alternative to the SIGSTOP-like
+method. They're used with it, to ensure it works without deadlocking.
 
-Jan 18 17:59:07 daydream xscreensaver(pam_unix)[869]: authentication
-failure; logname= uid=1000 euid=1000 tty=:0.0 ruser= rhost= user=shannon
-Jan 18 17:59:09 daydream xscreensaver(pam_unix)[869]: authentication
-failure; logname= uid=1000 euid=1000 tty=:0.0 ruser= rhost=  user=root
+Regards,
 
-This happens with all 2.6 kernels, and all earlier kernels work fine.
+Nigel
 
-I found a lot of references to problems with pam and the 2.5 and 2.6
-kernels, but can't seem to find the details I want.
+On Wed, 2004-01-14 at 00:49, Pavel Machek wrote:
+> Okay, I can now remember (and agree to) that we need to suspend
+> userspace first, and only then suspend kernelspace. Bug I don't see
+> why we can't suspend userspace using old, SIGSTOP-like, method.
 
-Any help appreciated.
+--=20
+My work on Software Suspend is graciously brought to you by
+LinuxFund.org.
 
-I don't get lockups, but the delay is annoying, and I hate broken
-things.
+--=-nMmVEmKOXusSZtQOyK0p
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
--- 
-UNIX/Perl/C/Pizza____________________s h a n n o n@wido !SPAM maker.com
+iD8DBQBACyiGVfpQGcyBBWkRAgyPAJ9ILf64RvvZcVbeZA1fCJjQLnS7twCgpSA2
+81K/6WkSvWsfM8fTfNvfBWk=
+=k9Su
+-----END PGP SIGNATURE-----
+
+--=-nMmVEmKOXusSZtQOyK0p--
+

@@ -1,54 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266230AbUALSDX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 13:03:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266229AbUALSDW
+	id S266221AbUALSAl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 13:00:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266229AbUALSAk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 13:03:22 -0500
-Received: from ip213-185-39-113.laajakaista.mtv3.fi ([213.185.39.113]:53888
-	"HELO dag.newtech.fi") by vger.kernel.org with SMTP id S266230AbUALSDJ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 13:03:09 -0500
-Message-ID: <20040112180307.3626.qmail@dag.newtech.fi>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-0.27
-To: linux-kernel@vger.kernel.org
-cc: dag@newtech.fi
-Subject: Added disk activity from 2.6.0 to 2.6.1
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Date: Mon, 12 Jan 2004 20:03:07 +0200
-From: Dag Nygren <dag@newtech.fi>
+	Mon, 12 Jan 2004 13:00:40 -0500
+Received: from fmr06.intel.com ([134.134.136.7]:21718 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S266221AbUALSAi convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 13:00:38 -0500
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: Re: /proc/kcore size
+Date: Mon, 12 Jan 2004 10:00:19 -0800
+Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F4FB05C@scsmsx401.sc.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Re: /proc/kcore size
+Thread-Index: AcPZNfDNvDQ1gx/vR9WYiBbmR3V2bQ==
+From: "Luck, Tony" <tony.luck@intel.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: <jamagallon@able.es>
+X-OriginalArrivalTime: 12 Jan 2004 18:00:30.0807 (UTC) FILETIME=[F7A95670:01C3D935]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Problem: it detects the memory amount in the box by stat'ing /proc/kcore.
+> Thats not the problem, but that the box has 1Gb of memory, and kcore is just
+> 896Mb big.
 
-Hi,
+It may not be the specific problem that you have now, but it is a
+problem in general.  The size of /proc/kcore may be a good
+approximation for the amount of memory on machines that have
+contiguous physical memory starting at a base physical address
+of 0x0, but on an increasing number of machines it may give
+a grossly inflated value (perhaps an SGI Altix user will post
+the output from "ls -l /proc/kcore").
 
-some days ago I installed 2.6.1 here and immediately
-noticed a slower bootup time.
-The disk during boot is also very much  showing a lot more
-activity.
-And the same when starting up a new program.
-Was there a change that explains this?
-
-I just reinstalled 2.6.0 and everything went back to being
-quite peaceful.
-
-My configuration:
-- 2 x 500MHz P-III
-- NCR 53c875 SCSI controller
-- Preemption enabled
-- 512 MB memory
-
-BRGDS
-
-
--- 
-Dag Nygren                               email: dag@newtech.fi
-Oy Espoon NewTech Ab                     phone: +358 9 8024910
-Träsktorpet 3                              fax: +358 9 8024916
-02360 ESBO                              Mobile: +358 400 426312
-FINLAND
-
+-Tony Luck  
 

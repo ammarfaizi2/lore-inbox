@@ -1,65 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291103AbSBSKoE>; Tue, 19 Feb 2002 05:44:04 -0500
+	id <S291110AbSBSKry>; Tue, 19 Feb 2002 05:47:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291110AbSBSKny>; Tue, 19 Feb 2002 05:43:54 -0500
-Received: from h24-67-15-4.cg.shawcable.net ([24.67.15.4]:6899 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S291103AbSBSKnq>;
-	Tue, 19 Feb 2002 05:43:46 -0500
-Date: Tue, 19 Feb 2002 03:42:08 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Cc: linux-kernel@vger.kernel.org, Trond Myklebust <trond.myklebust@fys.uio.no>,
-        Olaf Kirch <okir@caldera.de>
-Subject: Re: [patches] RFC: Export inode generations to the userland
-Message-ID: <20020219034208.E24428@lynx.adilger.int>
-Mail-Followup-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
-	linux-kernel@vger.kernel.org,
-	Trond Myklebust <trond.myklebust@fys.uio.no>,
-	Olaf Kirch <okir@caldera.de>
-In-Reply-To: <Pine.GSO.3.96.1020218204630.13485Q-100000@delta.ds2.pg.gda.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.GSO.3.96.1020218204630.13485Q-100000@delta.ds2.pg.gda.pl>; from macro@ds2.pg.gda.pl on Mon, Feb 18, 2002 at 10:06:48PM +0100
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S291117AbSBSKrp>; Tue, 19 Feb 2002 05:47:45 -0500
+Received: from ns.suse.de ([213.95.15.193]:30981 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S291110AbSBSKrd>;
+	Tue, 19 Feb 2002 05:47:33 -0500
+To: Tom Holroyd <tomh@po.crl.go.jp>
+Cc: Tim Schmielau <tim@physik3.uni-rostock.de>,
+        kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Unknown HZ value! (1908) Assume 1024.
+In-Reply-To: <Pine.LNX.4.44.0202191000030.26361-100000@holly.crl.go.jp>
+X-Yow: Can I have an IMPULSE ITEM instead?
+From: Andreas Schwab <schwab@suse.de>
+Date: Tue, 19 Feb 2002 11:47:30 +0100
+In-Reply-To: <Pine.LNX.4.44.0202191000030.26361-100000@holly.crl.go.jp> (Tom
+ Holroyd's message of "Tue, 19 Feb 2002 10:47:34 +0900 (JST)")
+Message-ID: <jeheod929p.fsf@sykes.suse.de>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) Emacs/21.2.50 (ia64-suse-linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Feb 18, 2002  22:06 +0100, Maciej W. Rozycki wrote:
->  As you may know, there are serious problems with creating unique file
-> handles in the userland NFS server.  They exist because the inode
-> generation number, which allows to determine if an inode was deleted and
-> recreated, is currently only available to the kernel -- it's by no means
-> exported to user programs[1].
+Tom Holroyd <tomh@po.crl.go.jp> writes:
 
-Well, I don't see what's so bad with EXT2_IOC_GETVERSION?  It's not like
-many Linux filesystems have inode generation numbers in the first place.
-It may even be that reiserfs does/would implement the EXT2_IOC_GETVERSION
-ioctl also (they implemented EXT2_IOC_GETATTR compatible with ext2/ext3).
-You can wrap this inside glibc if you really want to, and that has the
-added benefit of working with all kernels in existence.  That's not to
-say this ioctl is the best interface...
+|> So what is the 4th value in /proc/stat (procps calls it "other", while
+|> the first 3 are "user", "nice", and "sys")?  According to
+|> linux/fs/proc/proc_misc.c, it is:
+|> 
+|> 	jif * smp_num_cpus - (user + nice + system)
+|> 
+|> formatted with a %lu (the others are just %u).  smp_num_cpus is 1.
+|> Things are declared this way:
+|> 
+|>         unsigned long jif = jiffies;
+|>         unsigned int sum = 0, user = 0, nice = 0, system = 0;
+|> 
+|> So, the problem is that user + nice + system overflows (I'm compiling
+|> with gcc 3.0, BTW).
+|> 
+|> Thanks for the clue; now, how to fix it?
 
-> 1. Linux was modified to add another member of "struct stat" and "struct
-> stat64".  The member provides the value of the inode generation at the
-> time one of the stat syscalls is invoked.  It is named "st_gen" as it is
-> the name other systems give it (it seems DEC OSF/1 and IBM AIX define this
-> member currently).  New syscalls have been defined wherever spare space
-> was not available in "struct stat" or "struct stat64", otherwise only the
-> semantics of old ones was extended.
+Changing the line to this:
 
-IIRC, there are several other desirable changes to struct stat/stat64
-(64-bit timestamps, 32-bit UIDs/GIDs, and others I believe, some searching
-should show up complaintants) so if there is really a need to add yet
-_another_ stat struct/syscall we may as well do it right _this_ time
-(like we've said every other time we change this interface).
+ 	jif * smp_num_cpus - user - nice - system
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+should avoid the overflow.
 
+Andreas.
+
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE GmbH, Deutschherrnstr. 15-19, D-90429 Nürnberg
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

@@ -1,47 +1,102 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267533AbRGSLMd>; Thu, 19 Jul 2001 07:12:33 -0400
+	id <S267534AbRGSLQM>; Thu, 19 Jul 2001 07:16:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267536AbRGSLMW>; Thu, 19 Jul 2001 07:12:22 -0400
-Received: from mail.zmailer.org ([194.252.70.162]:46098 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S267533AbRGSLMT>;
-	Thu, 19 Jul 2001 07:12:19 -0400
-Date: Thu, 19 Jul 2001 14:17:07 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "Marcelo W. Tosatti" <marcelo@conectiva.com.br>,
-        linux-kernel@vger.kernel.org, Dave McCracken <dmc@austin.ibm.com>,
-        Dirk Wetter <dirkw@rentec.com>
-Subject: Re: [PATCH] swap usage of high memory (fwd)
-Message-ID: <20010719141707.M5559@mea-ext.zmailer.org>
-In-Reply-To: <Pine.LNX.4.33L.0107181529100.28730-100000@imladris.rielhome.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33L.0107181529100.28730-100000@imladris.rielhome.conectiva>; from riel@conectiva.com.br on Wed, Jul 18, 2001 at 03:36:17PM -0300
+	id <S267535AbRGSLQC>; Thu, 19 Jul 2001 07:16:02 -0400
+Received: from over.ny.us.ibm.com ([32.97.182.111]:18657 "EHLO
+	over.ny.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S267534AbRGSLPv>; Thu, 19 Jul 2001 07:15:51 -0400
+Importance: Normal
+Subject: Re: [Lse-tech] Re: CPU affinity & IPI latency (FIX)_
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
+X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
+Message-ID: <OF592B2674.D77BFDC0-ON85256A8C.00649982@pok.ibm.com>
+From: "Hubertus Franke" <frankeh@us.ibm.com>
+Date: Tue, 17 Jul 2001 14:28:52 -0400
+X-MIMETrack: Serialize by Router on D01ML244/01/M/IBM(Release 5.0.8 |June 18, 2001) at
+ 07/17/2001 02:27:53 PM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-....
-> Rik, could you please forward this to the kernel mailing list?
-> I am temporarily unable to reach it directly due to ECN problems.
-....
 
-  Dave (and others),
 
-  The "ECN problem" is unidirectional.
+This only applies only to the idle thread and it says that the idle
+thread actively monitors its need_resched flag and hence will
+instantly call schedule() at that point. Hence there won't be any
+delay either for IPI or for waiting to return from the kernel.
 
-  VGER can't reach you when VGER calls your email servers,
-  but your email servers can reach VGER!  (Or vger's MX backup.)
+You might be right that the problem situation still arises, because
+the idle_thread needs to content again for the lock.
+Let me ask the otherway around, why do we HAVE to put it in ?
+And if I missed something here, we put it outside the <if> clause.
 
-  That is, you CAN send to VGER even if VGER can't send to you!
 
-  This is due to the way how the ECN handshake is done.
+Hubertus Franke
+Enterprise Linux Group (Mgr),  Linux Technology Center (Member Scalability)
+, OS-PIC (Chair)
+email: frankeh@us.ibm.com
+(w) 914-945-2003    (fax) 914-945-4425   TL: 862-2003
 
-> Thanks,
-> Dave McCracken
 
-/Matti Aarnio
+
+Davide Libenzi <davidel@xmailserver.org>@lists.sourceforge.net on
+07/17/2001 02:11:55 PM
+
+Sent by:  lse-tech-admin@lists.sourceforge.net
+
+
+To:   Hubertus Frnake <frankeh@watson.ibm.com>
+cc:   linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
+      ak@suse.de
+Subject:  Re: [Lse-tech] Re: CPU affinity & IPI latency (FIX)_
+
+
+
+
+On 17-Jul-2001 Hubertus Frnake wrote:
+> In an attempt to inline the code, somehow the tabs got lost. So here is
+the
+> attached correct patch fo 2.4.5. Please try and let me know whether you
+> see your problems disappear and/or others arise.
+> The sketchy writeup is still the same.
+
+What is the reason You don't set the resched task in the fast path ?
+
+        best_cpu = p->processor;
+        if (can_schedule(p, best_cpu)) {
+                tsk = idle_task(best_cpu);
+                if ((cpu_curr(best_cpu) == tsk) &&
+                    (cpu_resched(best_cpu) == NULL)) {
+                        int need_resched;
+send_now_idle:
+                        /*
+                         * If need_resched == -1 then we can skip sending
+                         * the IPI altogether, tsk->need_resched is
+                         * actively watched by the idle thread.
+                         */
+                        need_resched = tsk->need_resched;
+                        tsk->need_resched = 1;
+                        if ((best_cpu != this_cpu) && !need_resched) {
+>>>>                            cpu_resched(best_cpu) = p;
+                                smp_send_reschedule(best_cpu);
+                        }
+                        return;
+                }
+        }
+
+
+
+- Davide
+
+
+_______________________________________________
+Lse-tech mailing list
+Lse-tech@lists.sourceforge.net
+http://lists.sourceforge.net/lists/listinfo/lse-tech
+
+
+

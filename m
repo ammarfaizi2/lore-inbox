@@ -1,58 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264432AbTDXCSu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 22:18:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264434AbTDXCSu
+	id S263449AbTDXC3E (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 22:29:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263469AbTDXC3E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 22:18:50 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:57865
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S264432AbTDXCSs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 22:18:48 -0400
-Date: Wed, 23 Apr 2003 19:27:19 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Andrew Morton <akpm@digeo.com>
-cc: Andries Brouwer <aebr@win.tue.nl>, B.Zolnierkiewicz@elka.pw.edu.pl,
-       alan@lxorguk.ukuu.org.uk, axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.67-ac2 direct-IO for IDE taskfile ioctl (0/4)
-In-Reply-To: <20030423162041.1b7ee5b3.akpm@digeo.com>
-Message-ID: <Pine.LNX.4.10.10304231924430.2033-100000@master.linux-ide.org>
+	Wed, 23 Apr 2003 22:29:04 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:10937 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S263449AbTDXC3C
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 22:29:02 -0400
+Date: Wed, 23 Apr 2003 19:40:54 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Werner Almesberger <wa@almesberger.net>,
+       Jamie Lokier <jamie@shareable.org>
+cc: Matthias Schniedermeyer <ms@citd.de>, Marc Giger <gigerstyle@gmx.ch>,
+       linux-kernel <linux-kernel@vger.kernel.org>, pat@suwalski.net
+Subject: Re: [Bug 623] New: Volume not remembered.
+Message-ID: <25450000.1051152052@[10.10.2.4]>
+In-Reply-To: <20030423231149.I3557@almesberger.net>
+References: <21660000.1051114998@[10.10.2.4]>
+ <20030423164558.GA12202@citd.de> <1508310000.1051116963@flay>
+ <20030423183413.C1425@almesberger.net> <1560860000.1051133781@flay>
+ <20030423191427.D3557@almesberger.net> <1570840000.1051136330@flay>
+ <20030424001134.GD26806@mail.jlokier.co.uk>
+ <20030423214332.H3557@almesberger.net>
+ <20030424011137.GA27195@mail.jlokier.co.uk>
+ <20030423231149.I3557@almesberger.net>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Does Task Management Command set help?
-For those who speak FibreChannel, this has meaning.
-
-I can be used as a means to test the depth of the protocol support for a
-family of drives.  This is what www.linuxdiskcert.org was to be about, and
-maybe Jens will be able to make it happen.  As I will be transfering the
-domain th Jens this summer.
-
-On Wed, 23 Apr 2003, Andrew Morton wrote:
-
-> Andries Brouwer <aebr@win.tue.nl> wrote:
-> >
-> > On Wed, Apr 23, 2003 at 03:35:00PM -0700, Andrew Morton wrote:
-> > 
-> > > What is special about the IDE ioctl approach?
-> > 
-> > Usually one wants to use the standard commands for I/O.
-> > But if the purpose is to talk to the drive (set password,
-> > set native max, eject, change ZIP drive from big floppy
-> > mode to removable disk mode, etc. etc.) then one needs
-> > a means to execute IDE commands "by hand".
+>> In fact, forget about "volume".  Just have a "silent" parameter that
+>> defaults to 0,
 > 
-> Yes, but none of these are performance-critical and they don't involve
-> large amnounts of data.  A copy is OK.
-> 
-> If all the rework against bio_map_user() and friends is needed for other
-> reasons then fine.  But it doesn't seem to be needed for the IDE taskfile
-> ioctl.
-> 
+> Default to make useless or disturbing noise ...
 
-Andre Hedrick
-LAD Storage Consulting Group
+You turn it off once, and your distro keeps it that way. Doesn't seem
+that onerous to me. 
+
+The key difference is that that poor user who's setting the thing up 
+for the first time has more of a clue what's going on. Making Linux
+less hostile to new users is a Good Thing (tm).
+
+> So these defaults would be hard-coded values that take into account,
+> among other factors:
+> 
+>  - the actual audio hardware (e.g. variations in the analog part)
+>  - possibly the position of a "volume" knob somewhere
+>  - the environment of the machine (ambient noise, acceptable
+>    volume level)
+> 
+> And all that for what ? 
+
+And all for the fact that when the user sets up the system, it just
+works. With sensible defaults. Instead of being an elitist piece of
+crap that only l33t g33ks can use.
+
+Even for people that are capable of debugging it, it's just not a
+productive use of time. I have better things to do with my life that debug
+non-inuitive user interfaces, thanks.
+
+> If you want to turn up the volume after
+> booting, all you need is one whole line in your rc scripts. So
+> far I haven't seen a single argument as to why this wouldn't be
+> sufficient.
+
+It's about making it easy to use. The expert users can configure the
+damned thing any way they please anyway. For novices, it should do
+something intuitive out of the box. The same principle should apply
+to reams of crappy software out there right now.
+
+--On Wednesday, April 23, 2003 22:29:05 -0400 Pat Suwalski
+<pat@suwalski.net> wrote:
+
+> I believe he is saying that ever since 1984 and the Mac Plus, it has been
+> expected that sound works right away without adding any lines anywhere.
+> 
+> I have not seen a computer in the last year and a half that has not had
+> either onboard sound or a card. It is very standard hardware these days.
+> Therefore, your soundcard should work just like your keyboard does. You
+> do not have to add any lines to any rc script to get the keyboard
+> working, do you? Sound should not have to be any different, in an ideal
+> world.
+
+Indeed. Initial impression of people upgrading a kernel from 2.4 to 2.5/6
+is that "sound doesn't work in 2.5/6". Not good.
+
+M.
 

@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262421AbTICPMV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 11:12:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262702AbTICPMV
+	id S263529AbTICPKl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 11:10:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263566AbTICPKl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 11:12:21 -0400
-Received: from lidskialf.net ([62.3.233.115]:10368 "EHLO beyond.lidskialf.net")
-	by vger.kernel.org with ESMTP id S262421AbTICPMU (ORCPT
+	Wed, 3 Sep 2003 11:10:41 -0400
+Received: from lidskialf.net ([62.3.233.115]:8320 "EHLO beyond.lidskialf.net")
+	by vger.kernel.org with ESMTP id S263529AbTICPKk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 11:12:20 -0400
+	Wed, 3 Sep 2003 11:10:40 -0400
 From: Andrew de Quincey <adq_dvb@lidskialf.net>
-To: Stefan Smietanowski <stesmi@stesmi.com>,
-       Vladimir Lazarenko <vlad@lazarenko.net>
+To: Vladimir Lazarenko <vlad@lazarenko.net>,
+       Stephan von Krawczynski <skraw@ithnet.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
 Subject: Re: [ACPI] Where do I send APIC victims?
-Date: Wed, 3 Sep 2003 17:10:49 +0100
+Date: Wed, 3 Sep 2003 17:09:08 +0100
 User-Agent: KMail/1.5.3
-Cc: Stephan von Krawczynski <skraw@ithnet.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, rl@hellgate.ch,
-       linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
-References: <20030903080852.GA27649@k3.hellgate.ch> <200309031504.03596.vlad@lazarenko.net> <3F55F739.4010600@stesmi.com>
-In-Reply-To: <3F55F739.4010600@stesmi.com>
+Cc: rl@hellgate.ch, linux-kernel@vger.kernel.org,
+       acpi-devel@lists.sourceforge.net
+References: <20030903080852.GA27649@k3.hellgate.ch> <20030903145356.35b9a192.skraw@ithnet.com> <200309031504.03596.vlad@lazarenko.net>
+In-Reply-To: <200309031504.03596.vlad@lazarenko.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200309031710.49411.adq_dvb@lidskialf.net>
+Message-Id: <200309031709.08286.adq_dvb@lidskialf.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 03 Sep 2003 2:04 pm, Vladimir Lazarenko wrote:
+> On my board, A7V8X, ACPI/APIC works just perfectly with 2.4.22 and KT400
+> chipset, 
 
-> >>I can't back that. At least on all my Serverworks boxes there are no
-> >>problems with ACPI. I got reports from VIA-bases SMP boards that they are
-> >>doing well, too. (all for 2.4.22)
+Does it indeed? Sounds like that BIOS doesn't have the bug! Can you send me 
+your /proc/acpi/dsdt so I can see what is different? Be really good if I can 
+nick the code out of that for the other boards!
+
+> alas on A7N8X Deluxe board with nForce2 chipsets it causes nasty 
+> hangups.
+> Machine just simply freezes, no oops, nothing whatsoever.
 >
-> And I can say that my Soyo SY-KT600 Ultra (VIA KT600+8237) has ACPI
-> problems as well. pci=noacpi doesn't help but acpi=off does. It gives
-> lots of errors that the ACPI tables are buggy when booting claiming
-> my 8237 SATA controller has gotten IRQ -19 for instance.
-> Using acpi=off solves the problem. This is with or without the libata
-> VIA 8237 SATA driver. Without anything it recognizes the chip but
-> doesn't like using IRQ -19 and doesn't see any disks. With pci=noacpi
-> it sees the disks but bombs out when trying to get the partition table.
-> It gets IRQ -19 still there. acpi=off makes it all work.
+> Disabling APIC solved the problem.
 
-The IRQ -19 thing is a bug in my nforce2 patch in 2.4.22. It didn't drop back 
-to using the PIC correctly. My latest acpi-picmode patch (posted to this list 
-a few days back) corrects this, among other things.
+Does it work with ACPI disabled, but APIC enabled?
 

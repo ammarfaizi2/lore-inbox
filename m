@@ -1,64 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276642AbRKAA1E>; Wed, 31 Oct 2001 19:27:04 -0500
+	id <S276646AbRKAA3O>; Wed, 31 Oct 2001 19:29:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276646AbRKAA0y>; Wed, 31 Oct 2001 19:26:54 -0500
-Received: from [65.205.244.67] ([65.205.244.67]:21661 "EHLO myrina")
-	by vger.kernel.org with ESMTP id <S276642AbRKAA0p>;
-	Wed, 31 Oct 2001 19:26:45 -0500
-Message-ID: <3BE09769.2060703@earthling.net>
-Date: Wed, 31 Oct 2001 16:29:29 -0800
-From: Adam Williams <broadcast@earthling.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.13 i686; en-US; rv:0.9) Gecko/20010505
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: crash in smp_core99_kick_cpu
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S276665AbRKAA3E>; Wed, 31 Oct 2001 19:29:04 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:25186 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S276646AbRKAA27>; Wed, 31 Oct 2001 19:28:59 -0500
+Date: Thu, 1 Nov 2001 01:29:31 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Ben Smith <ben@google.com>, linux-kernel@vger.kernel.org,
+        Rik van Riel <riel@conectiva.com.br>
+Subject: Re: Google's mm problem - not reproduced on 2.4.13
+Message-ID: <20011101012931.K1291@athlon.random>
+In-Reply-To: <E15yzlQ-00021P-00@starship.berlin> <E15z28m-0000vb-00@starship.berlin> <20011031214540.D1291@athlon.random> <E15z5Zm-000067-00@starship.berlin>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <E15z5Zm-000067-00@starship.berlin>; from phillips@bonn-fries.net on Thu, Nov 01, 2001 at 01:19:15AM +0100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a dual CPU G4.  Startup freezes after
+On Thu, Nov 01, 2001 at 01:19:15AM +0100, Daniel Phillips wrote:
+> If it does turn out to be oom, it's still a bug, right?
 
-smp_core99_kick_cpu done
+The testcase I checked a few weeks ago looked correct, so whatever it
+is, it should be a kernel bug.
 
-is displayed.  Commenting out the
-
-KL_GPIO_OUT(reset_io, KEYLARGO_GPIO_OUTPUT_ENABLE);
-
-line in feature_core99_kick_cpu allows the boot process to
-continue but with only CPU #0 and a "Processor 1 is stuck"
-message.
-
-MacOS 9.2 booted fine and detected both CPUs.
-
-Compiler gcc 2.96
-Kernel 2.4.13
-
-Kernels compiled with gcc 3.0.2 just crash and go into
-open firmware.
-
-cat /proc/cpuinfo displays
-
-
-
-
-processor       : 0
-cpu             : 7450, altivec supported
-temperature     : 1-76 C (uncalibrated)
-clock           : 799MHz
-revision        : 2.1 (pvr 8000 0201)
-bogomips        : 797.90
-total bogomips  : 797.90
-zero pages      : total: 0 (0Kb) current: 0 (0Kb) hits: 0/0 (0%)
-machine         : PowerMac3,5
-motherboard     : PowerMac3,5 MacRISC2 MacRISC Power Macintosh
-L2 cache        : 256K unified
-memory          : 256MB
-pmac-generation : NewWorld
-
-
-
-
-
+Andrea

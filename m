@@ -1,50 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317999AbSGZSuB>; Fri, 26 Jul 2002 14:50:01 -0400
+	id <S318439AbSGZTH4>; Fri, 26 Jul 2002 15:07:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318003AbSGZSuA>; Fri, 26 Jul 2002 14:50:00 -0400
-Received: from pimout1-ext.prodigy.net ([207.115.63.77]:8880 "EHLO
-	pimout1-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id <S317999AbSGZSuA>; Fri, 26 Jul 2002 14:50:00 -0400
-Message-Id: <200207261853.g6QIrEQ140436@pimout1-ext.prodigy.net>
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-To: Thunder from the hill <thunder@ngforever.de>,
-       Daniel Mose <imcol@unicyclist.com>
-Subject: Re: Alright, I give up.  What does the "i" in "inode" stand for?
-Date: Fri, 26 Jul 2002 08:54:51 -0400
-X-Mailer: KMail [version 1.3.1]
-Cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0207242348380.3347-100000@hawkeye.luckynet.adm>
-In-Reply-To: <Pine.LNX.4.44.0207242348380.3347-100000@hawkeye.luckynet.adm>
+	id <S318440AbSGZTH4>; Fri, 26 Jul 2002 15:07:56 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:13061 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S318439AbSGZTHz>; Fri, 26 Jul 2002 15:07:55 -0400
+Date: Fri, 26 Jul 2002 16:10:00 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Robert Love <rml@tech9.net>
+cc: Russell Lewis <spamhole-2001-07-16@deming-os.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Looking for links: Why Linux Doesn't Page Kernel Memory?
+In-Reply-To: <1027707680.2442.33.camel@sinai>
+Message-ID: <Pine.LNX.4.44L.0207261608320.3086-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 25 July 2002 02:03 am, Thunder from the hill wrote:
-> Hi,
+On 26 Jul 2002, Robert Love wrote:
+> On Fri, 2002-07-26 at 10:59, Russell Lewis wrote:
 >
-> On Thu, 25 Jul 2002, Daniel Mose wrote:
-> > Other words in this ML (and in too many other places =( ) that
-> > make my own brain go rivetted and short circuit are the "foo"
-> > and/or "bar", not to mention the "foobar" place holder.
+> > I have spent some time working on AIX, which pages its kernel memory.
+> >  It pins the interrupt handler functions, and any data that they access,
+> > but does not pin the other code.
 > >
-> > I realize that most folks In LKML use "foo", "bar" and it's dad,
-> > "foobar" with outmost joy and that there is complete and utter
-> > understanding of what the "foos" and "bars" actually stand for
-> > in your contemporary discussion partners reasoning scheeme.
-> >
-> > Or is it?
+> > I'm looking for links as to why (unless I'm mistaken) Linux doesn't do
+> > this, so I can better understand the system.
 >
-> Well, there's indeed a meaning behind it, apart from "fucked over and over
-> beyond all repair."
->
-> Firstly, there was foo, way back when in the 1930s when I was a bit
-> younger. Its meaning was not always technical, I think it came from some
-> kind of comic strip, but I'm not sure.
+> Better question is, why would we have page-able kernel memory?
 
-The comic strip was "Smokey Stover".  Eric recently found a lot more 
-backstory on the word "foo" and updated the jargon file entry.
+We don't want to have generic page-able kernel memory.
 
-http://www.tuxedo.org/~esr/jargon/html/entry/foo.html
+However, it might be useful to be able to reclaim or page
+out data structures that might otherwise gobble up all of
+RAM and crash the machine, say page tables.
+
+regards,
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

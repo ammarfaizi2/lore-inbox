@@ -1,33 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263574AbRFKSvE>; Mon, 11 Jun 2001 14:51:04 -0400
+	id <S263553AbRFKTFS>; Mon, 11 Jun 2001 15:05:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263553AbRFKSuy>; Mon, 11 Jun 2001 14:50:54 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:35588 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S263536AbRFKSul>; Mon, 11 Jun 2001 14:50:41 -0400
-Subject: Re: [PATCH] sockreg2.4.5-05 inet[6]_create() register/unregister
-To: jacob@chaos2.org
-Date: Mon, 11 Jun 2001 19:48:33 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), hps@intermeta.de,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0106111126070.14070-100000@inbetween.blorf.net> from "Jacob Luna Lundberg" at Jun 11, 2001 11:31:58 AM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S263606AbRFKTFI>; Mon, 11 Jun 2001 15:05:08 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:55058 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S263553AbRFKTE5>; Mon, 11 Jun 2001 15:04:57 -0400
+Date: Mon, 11 Jun 2001 16:04:45 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Maciej Zenczykowski <maze@druid.if.uj.edu.pl>
+Cc: Pavel Machek <pavel@suse.cz>, Bernd Jendrissek <berndj@prism.co.za>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Break 2.4 VM in five easy steps
+In-Reply-To: <Pine.LNX.4.33.0106111401270.6622-100000@druid.if.uj.edu.pl>
+Message-ID: <Pine.LNX.4.33.0106111603390.1742-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E159Wjp-0000D7-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Mon, 11 Jun 2001, Alan Cox wrote:
-> > "The source code for a work means the preferred form of the work for
->                                         ^^^^^^^^^
-> All of this chunk talks about what ``complete'' means not what ``source
-> code'' means.
+On Mon, 11 Jun 2001, Maciej Zenczykowski wrote:
+> On Fri, 8 Jun 2001, Pavel Machek wrote:
+>
+> > That modulo is likely slower than dereference.
+> >
+> > > +               if (count % 256 == 0) {
+>
+> You are forgetting that this case should be converted to and 255
+> or a plain byte reference by any optimizing compiler
 
-I disagree. But if you want an accurate assessment consult a lawyer.
+Not relevant.
 
-Alan
+What matters is that this thing calls schedule() unconditionally
+every 256th time.  Checking current->need_resched will only call
+schedule if it is needed ... not only that, but it will also
+call schedule FASTER if it is needed.
+
+regards,
+
+Rik
+--
+Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
+
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
 

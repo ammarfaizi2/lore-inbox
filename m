@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261892AbTJFGcE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 02:32:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262002AbTJFGcE
+	id S263009AbTJFGlT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 02:41:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263998AbTJFGlT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 02:32:04 -0400
-Received: from smtp003.mail.ukl.yahoo.com ([217.12.11.34]:33443 "HELO
-	smtp003.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S261892AbTJFGcC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 02:32:02 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6] Warnings in 8250_acpi
-Date: Mon, 6 Oct 2003 01:31:55 -0500
-User-Agent: KMail/1.5.4
+	Mon, 6 Oct 2003 02:41:19 -0400
+Received: from bart.one-2-one.net ([217.115.142.76]:61962 "EHLO
+	bart.webpack.hosteurope.de") by vger.kernel.org with ESMTP
+	id S263009AbTJFGlR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Oct 2003 02:41:17 -0400
+Date: Mon, 6 Oct 2003 08:16:40 +0200 (CEST)
+From: Martin Diehl <lists@mdiehl.de>
+X-X-Sender: martin@notebook.home.mdiehl.de
+To: Patrick McHardy <kaber@trash.net>
+cc: Jean Tourrilhes <jt@hpl.hp.com>, Mikko Korhonen <mjkorhon@aeropc5.hut.fi>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: irda weirdness
+In-Reply-To: <Pine.LNX.4.58.0310060046410.30384@gw.localnet>
+Message-ID: <Pine.LNX.4.44.0310060124590.1388-100000@notebook.home.mdiehl.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200310060131.55852.dtor_core@ameritech.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lastest changes in 8250_acpi.c produce warnings about type mismatch
-in printk. We could either change format to print long long arguments
-or, until most of us are on 64 bits, just trim values to 32.
+On Mon, 6 Oct 2003, Patrick McHardy wrote:
 
-Dmitry
+> Not sure about this but I think the problem might lie in ircomm_tty_write:
+> 
+>         spin_lock_irqsave(&self->spinlock, flags);
+> ...
+>                 /* Copy data */
+>                 if (from_user)
+>                         copy_from_user(skb_put(skb,size), buf+len, size);
+>                 else
+>                         memcpy(skb_put(skb,size), buf+len, size);
+> ...
+>         spin_unlock_irqrestore(&self->spinlock, flags);
+> 
+> asm/uaccess.h:498 is might_sleep() in copy_from_user() in my tree so this
+> might be it. No fix though, I just noticed this bug some time ago and
+> completly forgot about it until now.
 
---- 1.3/drivers/serial/8250_acpi.c      Wed Oct  1 04:11:17 2003
-+++ edited/drivers/serial/8250_acpi.c   Mon Oct  6 01:18:22 2003
-@@ -28,8 +28,9 @@
-        req->iomem_base = ioremap(req->iomap_base, size);
-        if (!req->iomem_base) {
-                printk(KERN_ERR "%s: couldn't ioremap 0x%lx-0x%lx\n",
--                       __FUNCTION__, addr->min_address_range,
--                       addr->max_address_range);
-+                       __FUNCTION__,
-+                       (unsigned long)addr->min_address_range,
-+                       (unsigned long)addr->max_address_range);
-                return AE_ERROR;
-        }
-        req->io_type = SERIAL_IO_MEM;
+Good catch, that's definitedly a bug and probably at least one trigger in 
+Mikko's case.
+
+Jean, I'm not familiar with ircomm so I'm not sure how to fix this. Do you 
+know what the spinlock is expected to protect here? If it's only to avoid 
+self->tx_skb getting changed below us I think it might be sufficient to 
+drop the spinlock during copy_from_user?
+
+Martin
+

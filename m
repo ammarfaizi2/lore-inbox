@@ -1,43 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261695AbUKGW11@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261699AbUKGWlK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261695AbUKGW11 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Nov 2004 17:27:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261696AbUKGW10
+	id S261699AbUKGWlK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Nov 2004 17:41:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261701AbUKGWlK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Nov 2004 17:27:26 -0500
-Received: from mproxy.gmail.com ([216.239.56.243]:47543 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261695AbUKGW1Y (ORCPT
+	Sun, 7 Nov 2004 17:41:10 -0500
+Received: from fw.osdl.org ([65.172.181.6]:37255 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261699AbUKGWlG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Nov 2004 17:27:24 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=YuVms6fLV9EO0TddH6ksb7yVC1ATx8ygpDXFUFq8WQX5ykcABx6oPFX22b8awl+RLtDXQ9Vj3agY/58v2vwUebVyeVwEWkhkLk6lNNNg7FSJEYSqV9S6TtSKko18HvQtuALjnZeHCKIvyaQzKRQtVVPw4SZ25ivmmf7FjK/AjSU=
-Message-ID: <21d7e99704110714276228ff9b@mail.gmail.com>
-Date: Mon, 8 Nov 2004 09:27:23 +1100
-From: Dave Airlie <airlied@gmail.com>
-Reply-To: Dave Airlie <airlied@gmail.com>
-To: John McGowan <jmcgowan@inch.com>
-Subject: Re: (non) "bug" in 810 (kernel 2.6.9)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20041106212327.GA3592@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20041106212327.GA3592@localhost.localdomain>
+	Sun, 7 Nov 2004 17:41:06 -0500
+Date: Sun, 7 Nov 2004 14:41:02 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Matt Domsch <Matt_Domsch@dell.com>
+cc: greg@kroah.com, linux-kernel@vger.kernel.org
+Subject: Re: EFI partition code broken..
+In-Reply-To: <20041107215204.GB3169@lists.us.dell.com>
+Message-ID: <Pine.LNX.4.58.0411071434240.24286@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0411070959560.2223@ppc970.osdl.org>
+ <Pine.LNX.4.58.0411071128240.24286@ppc970.osdl.org> <20041107215204.GB3169@lists.us.dell.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I had reported a problem with getting a working screen in X with kernel
-> 2.6.9. It is not a bug, but a change.
-> 
 
-I can't reproduce this on my system at all, I've got an i815 (slightly
-newer chipset than i810 - maybe something in that...) but I've just
-compiled a kernel with the i810 drm built in and started X in 24-bit
-color on 2.6.9 without incident...
 
-I'm running Xorg 6.8.0-rc3.... its wierd I've no idea what could be
-causing it ...
+On Sun, 7 Nov 2004, Matt Domsch wrote:
+>
+> Another train of thought, and copying gregkh for inspiration.  Is there
+> any way to know which devices lie about their size, and fix that with
+> quirk code in the device discovery routines?
 
-Dave.
+The USB layer actually has some quirks like this, but I think that's a 
+bug waiting to happen.
+
+The thing is, if you start doing quirks, you _are_ screwed in the end.  
+Don't do it. It's not just a maintenance nightmare, it's fundamentally
+wrong. It fundamentally takes the approach of "you have to have a kernel
+that is two years newer than the hardware you have", which is an approach 
+that I just find incredibly broken.
+
+Quirks work slightly better in practice for stuff that seldom changes,
+and/or where we have fairly good vendor support. So CPU's, for example,
+are largely ok with quirks (aka "errata"). But random regular devices?  
+Please no.
+
+Side note: the USB storage stuff has historically had tons of quirks,
+largely because the SCSI layer used to do crap-all to try to be sane. The
+SCSI layer historically only cared about high-end devices, and then the
+USB storage model clashed pretty hard with the old SCSI layer belief that
+standards are something that people follow etc.
+
+Happily, most of those quirks are hopefully stale these days, because the
+SCSI layer has been slowly converted to the idea that you don't use every
+documented feature under the sun just because it exists.
+
+So I'm trying to make for _fewer_ quirks rather than more of them.
+
+		Linus

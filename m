@@ -1,91 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263686AbTE0OpM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 10:45:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263657AbTE0OpM
+	id S263752AbTE0Oqq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 10:46:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263738AbTE0Oqq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 10:45:12 -0400
-Received: from [62.159.241.4] ([62.159.241.4]:50191 "EHLO smtp.lidl.de")
-	by vger.kernel.org with ESMTP id S263686AbTE0OpK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 10:45:10 -0400
-Subject: Antwort: Re: Antwort: Re: Oops in Kernel 2.4.21-rc1
-To: skraw@ithnet.com
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.10  March 22, 2002
-Message-ID: <OFBC4DE14D.84808A7E-ONC1256D33.005135A5-C1256D33.00523E77@eu.lidl.net>
-From: Werner.Beck@Lidl.de
-Date: Tue, 27 May 2003 16:58:19 +0200
-MIME-Version: 1.0
-X-MIMETrack: Serialize by Router on LEUHQ0001MS6N/HUB/EU/LIDL(Release 5.0.10 |March 22, 2002) at
- 27.05.2003 16:58:21,
-	Itemize by SMTP Server on LEUHQ0001MS5N/LIDLEUEX(Release 5.0.10 |March 22, 2002) at
- 27.05.2003 16:54:28,
-	Serialize by Router on LEUHQ0001MS5N/LIDLEUEX(Release 5.0.10 |March 22, 2002) at
- 27.05.2003 16:54:31,
-	Serialize complete at 27.05.2003 16:54:31
-Content-type: text/plain; charset=us-ascii
+	Tue, 27 May 2003 10:46:46 -0400
+Received: from nat9.steeleye.com ([65.114.3.137]:11527 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S263726AbTE0Oqo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 10:46:44 -0400
+Subject: Re: [BK PATCHES] add ata scsi driver
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       jgarzik@pobox.com
+In-Reply-To: <Pine.LNX.4.44.0305270734320.20127-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0305270734320.20127-100000@home.transmeta.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 27 May 2003 10:59:51 -0400
+Message-Id: <1054047595.1975.64.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2003-05-27 at 10:36, Linus Torvalds wrote:
+    Btw, in case you wonder why I care about names and organization, it's 
+    because with the names and organization comes assumptions and 
+    expectations.
+    
+    One prime example of this is cdrecord, and the incredible braindamage that
+    the name "SCSI" foisted upon it. Why? Because everybody (ie schily)  
+    _knows_ that SCSI is addressed by bus/id/lun, and thinks that anything
+    else is wrong. So you have total idiocies like the "cdrecord -scanbus"  
+    crap for finding your device, and totally useless naming that makes no 
+    sense in any sane environment.
+    
+    Calling something SCSI when it isn't brings on these kinds of bad things: 
+    people make assuptions that aren't sensible or desireable.
+    
+    Names have power. There's baggage and assumptions in a name. In the case
+    of SCSI, there is a _lot_ of baggage.
+    
+I took this one on board a long time ago.  Even in the SCSI world, FC
+devices don't think in terms of PUN, they think in terms of WWN.
 
-we just did an update from 2.4.10-SuSE because of some problems with the
-hardware (module for NIC and HDD). In this constellation we also had a
-kernel oops with the ISDN ("killing interrupt handler") which unfortunately
-didn't give us any hints in the logs.
-The systems are a field test and running an application that's why it is a
-problem to access them. I think a cause has an effect. The ISDN was not
-active at that time but probably a job of the SuSE distri, but I can't
-imagine that this causes kernel problems.
- I will run a test in our lab and hope to get the error, then I can do some
-changes with the system.
-Thanks for your hints...
+If you look at the mid layer (and I don't promise this to be complete
+yet) we're moving away from referring to things by host/channel/id/lun. 
+Now we just have host/device list in most places.  About the only place
+we convert back to the numbers is to print messages.
 
+We're certainly not there yet, since we need to support legacy
+interfaces like /proc/scsi/scsi.  But eventually you'll probably see us
+using the sysfs name instead of the id (FC devices will probably stuff
+WWNs in here, other things may use numbers) and lun (not sure how we'll
+represent SCSI-3 LUN hierarchies yet).  Hopefully, it will be possible
+to make the mid layer entirely unaware of any id/lun distinction so it
+could be configured for a flatter host/device space instead.
 
-
-|---------+---------------------------->
-|         |           Stephan von      |
-|         |           Krawczynski      |
-|         |           <skraw@ithnet.com|
-|         |           >                |
-|         |                            |
-|         |           27.05.2003 16:07 |
-|         |                            |
-|---------+---------------------------->
-  >------------------------------------------------------------------------------------------------------------------------------|
-  |                                                                                                                              |
-  |       An:       Werner.Beck@Lidl.de                                                                                          |
-  |       Kopie:    linux-kernel@vger.kernel.org                                                                                 |
-  |       Thema:    Re: Antwort: Re: Oops in Kernel 2.4.21-rc1                                                                   |
-  >------------------------------------------------------------------------------------------------------------------------------|
-
-
-
-
-On Tue, 27 May 2003 15:54:40 +0200
-Werner.Beck@Lidl.de wrote:
-
-> unfortunately that is not possible at the moment...
->
-
->> Exchange the USB/ISDN part with a pci card and re-try with kernel -rc4.
->
->> Tell us if that works.
->
->> Regards,
->> Stephan
-
-Well, what exactly do you expect to hear? There are about a million and one
-possibilities about your problem. Most of them are hardware-related. Hoping
-that you have already made sure that you have no defective RAM, controller,
-mainboard or the like (unlikely since you mention two hosts) I would
-eliminate
-additional risk factors like USB (always gives fun) and use the latest
-kernel.
-
-Regards,
-Stephan
-
+James
 
 
 

@@ -1,27 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282495AbRLOLJv>; Sat, 15 Dec 2001 06:09:51 -0500
+	id <S282489AbRLOMLT>; Sat, 15 Dec 2001 07:11:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282483AbRLOLJl>; Sat, 15 Dec 2001 06:09:41 -0500
-Received: from harpo.it.uu.se ([130.238.12.34]:29403 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S282418AbRLOLJb>;
-	Sat, 15 Dec 2001 06:09:31 -0500
-Date: Sat, 15 Dec 2001 12:09:28 +0100 (MET)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200112151109.MAA02201@harpo.it.uu.se>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Problems downgrading from Kernel 2.4.8 to 2.2.20
+	id <S282497AbRLOMLK>; Sat, 15 Dec 2001 07:11:10 -0500
+Received: from www.wen-online.de ([212.223.88.39]:14355 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S282489AbRLOMLF>;
+	Sat, 15 Dec 2001 07:11:05 -0500
+Date: Sat, 15 Dec 2001 13:14:49 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: vda <vda@port.imtp.ilyichevsk.odessa.ua>
+cc: Alexander Viro <viro@math.psu.edu>, Joy Almacen <joy@empexis.com>,
+        <wa@almesberger.net>, <linux-kernel@vger.kernel.org>,
+        "Stephen C. Tweedie" <sct@redhat.com>
+Subject: Re: pivot_root and initrd kernel panic woes
+In-Reply-To: <01121311222003.01849@manta>
+Message-ID: <Pine.LNX.4.33.0112151238450.306-100000@mikeg.weiden.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 15 Dec 2001 00:50:44 +0100, Matthias Andree wrote:
->> hda: lost interrupt
+On Thu, 13 Dec 2001, vda wrote:
+
+> On Thursday 13 December 2001 06:19, Alexander Viro wrote:
+> > On Thu, 13 Dec 2001, vda wrote:
+> > > BTW, don't go for 2.4x, x>10. initrd is broken there and is still
+> > > unfixed.
+> >
+> > Bullshit.
 >
->That looks stranger. I'd suggest to try Andre's IDE patch from any
->kernel.org mirror, /pub/linux/kernel/people/hedrick, but it seems
->there's no 2.2.20 ide patch yet.
+> I have a slackware initrd (minix) which is booting fine with 2.4.10
+> but fails to boot with 2.4.12 and later (same .config, same bootloader,
+> same hardware, same AC voltage in the wall outlet, time of day differs by
+> 1 minute), so it might be true :-)
 
-You can get my unofficial port of Hedrick's 2.2.19 IDE patch to 2.2.20
-at http://www.csd.uu.se/~mikpe/linux/ide.2.2.20.05042001.patch.bz2
+Hmm.. works here with 2.5.1-pre8.
 
-/Mikael
+	-Mike
+...
+RAMDISK driver initialized: 16 RAM disks of 12288K size 1024 blocksize
+...
+RAMDISK: Compressed image found at block 0
+Freeing initrd memory: 5161k freed
+MINIX-fs: mounting unchecked file system, running fsck is recommended.
+VFS: Mounted root (minix filesystem).
+Freeing unused kernel memory: 236k freed
+

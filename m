@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262099AbVADTno@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262054AbVADToN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262099AbVADTno (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 14:43:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262061AbVADTls
+	id S262054AbVADToN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 14:44:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262052AbVADTjT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 14:41:48 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:55271 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261861AbVADThQ (ORCPT
+	Tue, 4 Jan 2005 14:39:19 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:18682 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S261857AbVADThA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 14:37:16 -0500
-Date: Tue, 4 Jan 2005 11:37:20 -0800 (PST)
+	Tue, 4 Jan 2005 14:37:00 -0500
+Date: Tue, 4 Jan 2005 11:35:09 -0800 (PST)
 From: Christoph Lameter <clameter@sgi.com>
 X-X-Sender: clameter@schroedinger.engr.sgi.com
 To: Linus Torvalds <torvalds@osdl.org>
 cc: Hugh Dickins <hugh@veritas.com>, akpm@osdl.org,
        Nick Piggin <nickpiggin@yahoo.com.au>, linux-mm@kvack.org,
        linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: page fault scalability patch V14 [3/7]: i386 universal cmpxchg
-In-Reply-To: <Pine.LNX.4.58.0501041129030.805@schroedinger.engr.sgi.com>
-Message-ID: <Pine.LNX.4.58.0501041136350.805@schroedinger.engr.sgi.com>
+Subject: page fault scalability patch V14 [0/7]: Overview
+In-Reply-To: <Pine.LNX.4.58.0412011545060.5721@schroedinger.engr.sgi.com>
+Message-ID: <Pine.LNX.4.58.0501041129030.805@schroedinger.engr.sgi.com>
 References: <Pine.LNX.4.44.0411221457240.2970-100000@localhost.localdomain>
  <Pine.LNX.4.58.0411221343410.22895@schroedinger.engr.sgi.com>
  <Pine.LNX.4.58.0411221419440.20993@ppc970.osdl.org>
@@ -26,287 +26,103 @@ References: <Pine.LNX.4.44.0411221457240.2970-100000@localhost.localdomain>
  <Pine.LNX.4.58.0411221429050.20993@ppc970.osdl.org>
  <Pine.LNX.4.58.0412011539170.5721@schroedinger.engr.sgi.com>
  <Pine.LNX.4.58.0412011545060.5721@schroedinger.engr.sgi.com>
- <Pine.LNX.4.58.0501041129030.805@schroedinger.engr.sgi.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Changelog
-        * Make cmpxchg and cmpxchg8b generally available on the i386
-	  platform.
-        * Provide emulation of cmpxchg suitable for uniprocessor if
-	  build and run on 386.
-        * Provide emulation of cmpxchg8b suitable for uniprocessor
-	  systems if build and run on 386 or 486.
-	* Provide an inline function to atomically get a 64 bit value
-	  via cmpxchg8b in an SMP system (courtesy of Nick Piggin)
-	  (important for i386 PAE mode and other places where atomic
-	  64 bit operations are useful)
+Changes from V13->V14 of this patch:
+- 4level page support
+- Tested on ia64, i386 and i386 in PAE mode
+
+This is a series of patches that increases the scalability of
+the page fault handler for SMP. The performance increase is
+accomplished by avoiding the use of the
+page_table_lock spinlock (but not mm->mmap_sem) through new atomic
+operations on pte's (ptep_xchg, ptep_cmpxchg) and on pmd and pgd's
+(pgd_test_and_populate, pmd_test_and_populate).
+
+The page table lock can be avoided in the following situations:
+
+1. An empty pte or pmd entry is populated
+
+This is safe since the swapper may only depopulate them and the
+swapper code has been changed to never set a pte to be empty until the
+page has been evicted. The population of an empty pte is frequent
+if a process touches newly allocated memory.
+
+2. Modifications of flags in a pte entry (write/accessed).
+
+These modifications are done by the CPU or by low level handlers
+on various platforms also bypassing the page_table_lock. So this
+seems to be safe too.
+
+One essential change in the VM is the use of pte_cmpxchg (or its
+generic emulation) on page table entries before doing an
+update_mmu_change without holding the page table lock. However, we do
+similar things now with other atomic pte operations such as
+ptep_get_and_clear and ptep_test_and_clear_dirty. These operations
+clear a pte *after* doing an operation on it. The ptep_cmpxchg as used
+in this patch operates on an *cleared* pte and replaces it with a pte
+pointing to valid memory. The effect of this change on various
+architectures has to be thought through. Local definitions of
+ptep_cmpxchg and ptep_xchg may be necessary.
+
+For IA64 an icache coherency issue may arise that potentially requires
+the flushing of the icache (as done via update_mmu_cache on IA64) prior
+to the use of ptep_cmpxchg. Similar issues may arise on other platforms.
+
+The patch introduces a split counter for rss handling to avoid atomic
+operations and locks currently necessary for rss modifications. In
+addition to mm->rss, tsk->rss is introduced. tsk->rss is defined to be
+in the same cache line as tsk->mm (which is already used by the fault
+handler) and thus tsk->rss can be incremented without locks
+in a fast way. The cache line does not need to be shared between
+processors for the page table handler.
+
+A tasklist is generated for each mm (rcu based). Values in that list
+are added up to calculate rss or anon_rss values.
+
+The patchset is composed of 7 patches (and was tested against 2.6.10-bk6):
+
+1/7: Avoid page_table_lock in handle_mm_fault
+
+   This patch defers the acquisition of the page_table_lock as much as
+   possible and uses atomic operations for allocating anonymous memory.
+   These atomic operations are simulated by acquiring the page_table_lock
+   for very small time frames if an architecture does not define
+   __HAVE_ARCH_ATOMIC_TABLE_OPS. It also changes kswapd so that a
+   pte will not be set to empty if a page is in transition to swap.
+
+   If only the first two patches are applied then the time that the
+   page_table_lock is held is simply reduced. The lock may then be
+   acquired multiple times during a page fault.
+
+2/7: Atomic pte operations for ia64
+
+3/7: Make cmpxchg generally available on i386
+
+   The atomic operations on the page table rely heavily on cmpxchg
+   instructions. This patch adds emulations for cmpxchg and cmpxchg8b
+   for old 80386 and 80486 cpus. The emulations are only included if a
+   kernel is build for these old cpus and are skipped for the real
+   cmpxchg instructions if the kernel that is build for 386 or 486 is
+   then run on a more recent cpu.
+
+   This patch may be used independently of the other patches.
+
+4/7: Atomic pte operations for i386
+
+   A generally available cmpxchg (last patch) must be available for
+   this patch to preserve the ability to build kernels for 386 and 486.
+
+5/7: Atomic pte operation for x86_64
+
+6/7: Atomic pte operations for s390
+
+7/7: Split counter implementation for rss
+  Add tsk->rss and tsk->anon_rss. Add tasklist. Add logic
+  to calculate rss from tasklist.
 
 Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-Index: linux-2.6.9/arch/i386/Kconfig
-===================================================================
---- linux-2.6.9.orig/arch/i386/Kconfig	2004-12-10 09:58:03.000000000 -0800
-+++ linux-2.6.9/arch/i386/Kconfig	2004-12-10 09:59:27.000000000 -0800
-@@ -351,6 +351,11 @@
- 	depends on !M386
- 	default y
-
-+config X86_CMPXCHG8B
-+	bool
-+	depends on !M386 && !M486
-+	default y
-+
- config X86_XADD
- 	bool
- 	depends on !M386
-Index: linux-2.6.9/arch/i386/kernel/cpu/intel.c
-===================================================================
---- linux-2.6.9.orig/arch/i386/kernel/cpu/intel.c	2004-12-06 17:23:49.000000000 -0800
-+++ linux-2.6.9/arch/i386/kernel/cpu/intel.c	2004-12-10 09:59:27.000000000 -0800
-@@ -6,6 +6,7 @@
- #include <linux/bitops.h>
- #include <linux/smp.h>
- #include <linux/thread_info.h>
-+#include <linux/module.h>
-
- #include <asm/processor.h>
- #include <asm/msr.h>
-@@ -287,5 +288,103 @@
- 	return 0;
- }
-
-+#ifndef CONFIG_X86_CMPXCHG
-+unsigned long cmpxchg_386_u8(volatile void *ptr, u8 old, u8 new)
-+{
-+	u8 prev;
-+	unsigned long flags;
-+	/*
-+	 * Check if the kernel was compiled for an old cpu but the
-+	 * currently running cpu can do cmpxchg after all
-+	 * All CPUs except 386 support CMPXCHG
-+	 */
-+	if (cpu_data->x86 > 3)
-+		return __cmpxchg(ptr, old, new, sizeof(u8));
-+
-+	/* Poor man's cmpxchg for 386. Unsuitable for SMP */
-+	local_irq_save(flags);
-+	prev = *(u8 *)ptr;
-+	if (prev == old)
-+		*(u8 *)ptr = new;
-+	local_irq_restore(flags);
-+	return prev;
-+}
-+
-+EXPORT_SYMBOL(cmpxchg_386_u8);
-+
-+unsigned long cmpxchg_386_u16(volatile void *ptr, u16 old, u16 new)
-+{
-+	u16 prev;
-+	unsigned long flags;
-+	/*
-+	 * Check if the kernel was compiled for an old cpu but the
-+	 * currently running cpu can do cmpxchg after all
-+	 * All CPUs except 386 support CMPXCHG
-+	 */
-+	if (cpu_data->x86 > 3)
-+		return __cmpxchg(ptr, old, new, sizeof(u16));
-+
-+	/* Poor man's cmpxchg for 386. Unsuitable for SMP */
-+	local_irq_save(flags);
-+	prev = *(u16 *)ptr;
-+	if (prev == old)
-+		*(u16 *)ptr = new;
-+	local_irq_restore(flags);
-+	return prev;
-+}
-+
-+EXPORT_SYMBOL(cmpxchg_386_u16);
-+
-+unsigned long cmpxchg_386_u32(volatile void *ptr, u32 old, u32 new)
-+{
-+	u32 prev;
-+	unsigned long flags;
-+	/*
-+	 * Check if the kernel was compiled for an old cpu but the
-+	 * currently running cpu can do cmpxchg after all
-+	 * All CPUs except 386 support CMPXCHG
-+	 */
-+	if (cpu_data->x86 > 3)
-+		return __cmpxchg(ptr, old, new, sizeof(u32));
-+
-+	/* Poor man's cmpxchg for 386. Unsuitable for SMP */
-+	local_irq_save(flags);
-+	prev = *(u32 *)ptr;
-+	if (prev == old)
-+		*(u32 *)ptr = new;
-+	local_irq_restore(flags);
-+	return prev;
-+}
-+
-+EXPORT_SYMBOL(cmpxchg_386_u32);
-+#endif
-+
-+#ifndef CONFIG_X86_CMPXCHG8B
-+unsigned long long cmpxchg8b_486(volatile unsigned long long *ptr,
-+	       unsigned long long old, unsigned long long newv)
-+{
-+	unsigned long long prev;
-+	unsigned long flags;
-+
-+	/*
-+	 * Check if the kernel was compiled for an old cpu but
-+	 * we are running really on a cpu capable of cmpxchg8b
-+	 */
-+
-+	if (cpu_has(cpu_data, X86_FEATURE_CX8))
-+		return __cmpxchg8b(ptr, old, newv);
-+
-+	/* Poor mans cmpxchg8b for 386 and 486. Not suitable for SMP */
-+	local_irq_save(flags);
-+	prev = *ptr;
-+	if (prev == old)
-+		*ptr = newv;
-+	local_irq_restore(flags);
-+	return prev;
-+}
-+
-+EXPORT_SYMBOL(cmpxchg8b_486);
-+#endif
-+
- // arch_initcall(intel_cpu_init);
-
-Index: linux-2.6.9/include/asm-i386/system.h
-===================================================================
---- linux-2.6.9.orig/include/asm-i386/system.h	2004-12-06 17:23:55.000000000 -0800
-+++ linux-2.6.9/include/asm-i386/system.h	2004-12-10 10:00:49.000000000 -0800
-@@ -149,6 +149,9 @@
- #define __xg(x) ((struct __xchg_dummy *)(x))
-
-
-+#define ll_low(x)	*(((unsigned int*)&(x))+0)
-+#define ll_high(x)	*(((unsigned int*)&(x))+1)
-+
- /*
-  * The semantics of XCHGCMP8B are a bit strange, this is why
-  * there is a loop and the loading of %%eax and %%edx has to
-@@ -184,8 +187,6 @@
- {
- 	__set_64bit(ptr,(unsigned int)(value), (unsigned int)((value)>>32ULL));
- }
--#define ll_low(x)	*(((unsigned int*)&(x))+0)
--#define ll_high(x)	*(((unsigned int*)&(x))+1)
-
- static inline void __set_64bit_var (unsigned long long *ptr,
- 			 unsigned long long value)
-@@ -203,6 +204,26 @@
-  __set_64bit(ptr, (unsigned int)(value), (unsigned int)((value)>>32ULL) ) : \
-  __set_64bit(ptr, ll_low(value), ll_high(value)) )
-
-+static inline unsigned long long __get_64bit(unsigned long long * ptr)
-+{
-+	unsigned long long ret;
-+	__asm__ __volatile__ (
-+		"\n1:\t"
-+		"movl (%1), %%eax\n\t"
-+		"movl 4(%1), %%edx\n\t"
-+		"movl %%eax, %%ebx\n\t"
-+		"movl %%edx, %%ecx\n\t"
-+		LOCK_PREFIX "cmpxchg8b (%1)\n\t"
-+		"jnz 1b"
-+		:	"=A"(ret)
-+		:	"D"(ptr)
-+		:	"ebx", "ecx", "memory");
-+	return ret;
-+}
-+
-+#define get_64bit(ptr) __get_64bit(ptr)
-+
-+
- /*
-  * Note: no "lock" prefix even on SMP: xchg always implies lock anyway
-  * Note 2: xchg has side effect, so that attribute volatile is necessary,
-@@ -240,7 +261,41 @@
-  */
-
- #ifdef CONFIG_X86_CMPXCHG
-+
- #define __HAVE_ARCH_CMPXCHG 1
-+#define cmpxchg(ptr,o,n)\
-+	((__typeof__(*(ptr)))__cmpxchg((ptr), (unsigned long)(o), \
-+					(unsigned long)(n), sizeof(*(ptr))))
-+
-+#else
-+
-+/*
-+ * Building a kernel capable running on 80386. It may be necessary to
-+ * simulate the cmpxchg on the 80386 CPU. For that purpose we define
-+ * a function for each of the sizes we support.
-+ */
-+
-+extern unsigned long cmpxchg_386_u8(volatile void *, u8, u8);
-+extern unsigned long cmpxchg_386_u16(volatile void *, u16, u16);
-+extern unsigned long cmpxchg_386_u32(volatile void *, u32, u32);
-+
-+static inline unsigned long cmpxchg_386(volatile void *ptr, unsigned long old,
-+				      unsigned long new, int size)
-+{
-+	switch (size) {
-+	case 1:
-+		return cmpxchg_386_u8(ptr, old, new);
-+	case 2:
-+		return cmpxchg_386_u16(ptr, old, new);
-+	case 4:
-+		return cmpxchg_386_u32(ptr, old, new);
-+	}
-+	return old;
-+}
-+
-+#define cmpxchg(ptr,o,n)\
-+	((__typeof__(*(ptr)))cmpxchg_386((ptr), (unsigned long)(o), \
-+					(unsigned long)(n), sizeof(*(ptr))))
- #endif
-
- static inline unsigned long __cmpxchg(volatile void *ptr, unsigned long old,
-@@ -270,12 +325,34 @@
- 	return old;
- }
-
--#define cmpxchg(ptr,o,n)\
--	((__typeof__(*(ptr)))__cmpxchg((ptr),(unsigned long)(o),\
--					(unsigned long)(n),sizeof(*(ptr))))
--
-+static inline unsigned long long __cmpxchg8b(volatile unsigned long long *ptr,
-+		unsigned long long old, unsigned long long newv)
-+{
-+	unsigned long long prev;
-+	__asm__ __volatile__(
-+	LOCK_PREFIX "cmpxchg8b (%4)"
-+		: "=A" (prev)
-+		: "0" (old), "c" ((unsigned long)(newv >> 32)),
-+		  "b" ((unsigned long)(newv & 0xffffffffULL)), "D" (ptr)
-+		: "memory");
-+	return prev;
-+}
-+
-+#ifdef CONFIG_X86_CMPXCHG8B
-+#define cmpxchg8b __cmpxchg8b
-+#else
-+/*
-+ * Building a kernel capable of running on 80486 and 80386. Both
-+ * do not support cmpxchg8b. Call a function that emulates the
-+ * instruction if necessary.
-+ */
-+extern unsigned long long cmpxchg8b_486(volatile unsigned long long *,
-+		unsigned long long, unsigned long long);
-+#define cmpxchg8b cmpxchg8b_486
-+#endif
-+
- #ifdef __KERNEL__
--struct alt_instr {
-+struct alt_instr {
- 	__u8 *instr; 		/* original instruction */
- 	__u8 *replacement;
- 	__u8  cpuid;		/* cpuid bit set for replacement */

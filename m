@@ -1,98 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285015AbRLQFFZ>; Mon, 17 Dec 2001 00:05:25 -0500
+	id <S285000AbRLQFAZ>; Mon, 17 Dec 2001 00:00:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285014AbRLQFFQ>; Mon, 17 Dec 2001 00:05:16 -0500
-Received: from zok.SGI.COM ([204.94.215.101]:13782 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S285007AbRLQFFE>;
-	Mon, 17 Dec 2001 00:05:04 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: kbuild-devel@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Announce: Kernel Build for 2.5, Release 1.11 is available
-Date: Mon, 17 Dec 2001 16:04:55 +1100
-Message-ID: <4738.1008565495@kao2.melbourne.sgi.com>
+	id <S285007AbRLQFAF>; Mon, 17 Dec 2001 00:00:05 -0500
+Received: from marine.sonic.net ([208.201.224.37]:30787 "HELO marine.sonic.net")
+	by vger.kernel.org with SMTP id <S285000AbRLQE7z>;
+	Sun, 16 Dec 2001 23:59:55 -0500
+X-envelope-info: <dhinds@sonic.net>
+Date: Sun, 16 Dec 2001 20:59:50 -0800
+From: David Hinds <dhinds@sonic.net>
+To: David Gibson <hermes@gibson.dropbear.id.au>,
+        Ian Morgan <imorgan@webcon.net>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: in-kernel pcmcia oopsing in SMP
+Message-ID: <20011216205950.B21159@sonic.net>
+In-Reply-To: <20011201120541.B28295@sonic.net> <Pine.LNX.4.40.0112011513041.2329-100000@light.webcon.net> <20011201124630.A30249@sonic.net> <20011217142400.L30975@zax>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011217142400.L30975@zax>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Mon, Dec 17, 2001 at 02:24:00PM +1100, David Gibson wrote:
+> 
+> > Your oops, in tasklet code, sounds to me like a locking bug in the
+> > driver code for managing the transmit stack vs. interrupt handling.
+> > Have there been reports of the driver working well on SMP boxes?
+> 
+> Well, one of the main features of the driver is that the Tx path and
+> the interupt handler (Rx path) are permitted to run concurrently.
+> This is an issue even on UP (although not as complex), since the Rx
+> patch can interrupt the Tx path.  I believe there has been at least
+> some successful operation on SMP machines, but unfortunately I don't
+> know any details.
 
-Content-Type: text/plain; charset=us-ascii
+Yes, after I wrote that, I looked at the orinoco code, and the tx and
+interrupt paths looked pretty straightforward.  But I don't think I
+would be able to catch anything that wasn't really obvious.
 
-Release 1.11 of kernel build for kernel 2.5 (kbuild 2.5) is available.
-http://sourceforge.net/projects/kbuild/, Package kbuild-2.5, download
-release 1.11.
-
-This is ready to go to Linus for inclusion in 2.5.[12].  There is one
-item on the todo list but it is not a show stopper, the code works as
-is.  The sooner this is in 2.5 and other architectures the better,
-otherwise I will just be chasing releases and getting no useful work
-done.
-
-kbuild 2.5 currently supports i386 (2.4.16, 2.5.1), ia64
-(2.4.16-011214), sparc32 (2.4.16), sparc64 (2.4.16).  Alpha is in
-progress.
-
-The sparc support is against Linus's 2.4.16 kernel, not against the
-vger tree, the latter is moving too fast.  I expect that some tweaking
-will be required for the vger sparc changes, in particular the removal
-of config options for netlink.  Release 1.11 does not contain any
-changes to the sparc patches, use the release 1.10 patches for sparc.
-
-http://marc.theaimsgroup.com/?l=linux-kernel&m=99725412902968&w=2
-contains information about the base release of kbuild 2.5.
-
-Changelog:
-
-  Add standard targets for vmlinux.srec and .bin, David Woodhouse.
-
-  New variables KERNELFULLNAME and KERNELBASENAME for config options
-  and install scripts.
-
-  New variable KERNEL_INCLUDELIST for host compiles within kbuild that
-  need to read the current kernel headers.
-
-  New optional target to flatten the shadow trees into a single source
-  tree.  make $(KBUILD_OBJTREE).tmp_src
-
-  Changes to setup() targets are detected during the build that changes
-  them, instead of being delayed until the next build.  Nothing uses
-  setup() yet.
-
-  make clean and mrproper no longer require a working .config, you no
-  longer have to make oldconfig before make clean or mrproper.  The
-  clean and mrproper lists are still automatically generated, no manual
-  definitions for us.
-
-  CML2 support now works, it requires CML2 1.9.9 or better.  For the
-  moment, CML2 is distributed separately so kbuild does not have to
-  change when ESR update CML2.  See http://www.tuxedo.org/~esr/kbuild/
-  and the instructions in Documentation/kbuild/kbuild-2.5.txt.  Only
-  i386 and ia64 have the arch specific CML2 files, other architectures
-  are easy to add.
-
-  Any change to a CML file ([Cc]onfig.in, Configure.help, rules*.cml,
-  symbols*.cml) requires the user to rerun make *config.  This helps to
-  ensure that the build is from a valid config.
-
-  extra_{c,a,ld}flags support a STRIP option to strip selected flags
-  from the global flags.  Useful when a small set of sources cannot be
-  compiled with certain options.
-
-  As always, Documentation/kbuild/kbuild-2.5.txt is your friend.
-
-TODO:
-
-  Rewrite core code to improve performance.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: Exmh version 2.1.1 10/15/1999
-
-iD8DBQE8HXz1i4UHNye0ZOoRAu6sAJ9MUv7bUlQx2VhSyDAhGjblSaYS0ACbBL7I
-zE+nfa0msvPA1R3efLJS9EI=
-=buWJ
------END PGP SIGNATURE-----
-
+-- Dave

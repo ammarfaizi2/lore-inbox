@@ -1,59 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136579AbREEAwu>; Fri, 4 May 2001 20:52:50 -0400
+	id <S136583AbREEBLA>; Fri, 4 May 2001 21:11:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136583AbREEAwk>; Fri, 4 May 2001 20:52:40 -0400
-Received: from snark.tuxedo.org ([207.106.50.26]:9235 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S136579AbREEAwd>;
-	Fri, 4 May 2001 20:52:33 -0400
-Date: Fri, 4 May 2001 20:53:12 -0400
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net
-Subject: CML2 1.4.0, aka "brutality and heuristics"
-Message-ID: <20010504205312.A27435@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	CML2 <linux-kernel@vger.kernel.org>,
-	kbuild-devel@lists.sourceforge.net
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S136584AbREEBKu>; Fri, 4 May 2001 21:10:50 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:6162 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S136583AbREEBKh>; Fri, 4 May 2001 21:10:37 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Compressed iso9660 filesystem
+Date: 4 May 2001 18:10:19 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9cvjtr$jku$1@cesium.transmeta.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The latest version is always available at http://www.tuxedo.org/~esr/cml2/
+Okay, I think I now feel comfortable enough that I think I can unleash
+this on the world...
 
-Release 1.4.0: Fri May  4 18:18:15 EDT 2001
-	* Ugly hack for recovery from inconsistent configurations.
+I have made an extension to iso9660/RockRidge to allow for transparent
+uncompression of block-compressed files.  Because the files are
+block-compressed, random access is fast; it uses a 32K blocksize which
+gets pretty good compression ratios (I got 2:1 overall compression on
+my SuperRescue CD; that includes a fair number of incompressible
+files.)
 
-We've spent a lot of time and effort recently arguing about elaborate
-recovery algorithms for the extremely unusual case that the CML2
-configurator loads a configuration that has become invalid because of
-a constraint added to the rulebase since the configuration was
-written.  (Mere addition of new symbols doesn't trigger this.)
+The patches are available as:
 
-The general problem is theoretically hard and for practical purposes
-insoluble, so I've have implemented a suggestion by Dave Wagner and
-John Stoffel.  CML2 will now try to recover fom a load-time
-inconsistency by smashing all the non-frozen symbols in the violated
-constraint to the value N (and notifying the user that it's doing so).
-This is ugly, but will handle most cases.  In the few it doesn't
-handle, the bindings loaded from the file will be backed out as a
-unit.  In any case the user will be left in a running configurator.
+ftp://ftp.kernel.org/pub/linux/kernel/people/hpa/filemap-2.4.4-1.diff.gz
+ftp://ftp.kernel.org/pub/linux/kernel/people/hpa/zisofs-2.4.5-pre1-5.diff.gz
 
-Sigh...now, I hope, we can get back to solving problems that I don't
-expect to be so rare they're lost in the statistical noise.  It's not
-good to get so obsessed about finding clever solutions to corner cases
-that one loses sight of the larger issues.
+(Both are needed.)
+
+Additionally, the user-space utilities (a program to compress and
+uncompress file trees, and a patch to mkisofs to generate the new
+RockRidge records for compressed files) are available at:
+
+ftp://ftp.kernel.org/pub/linux/kernel/people/hpa/zisofs/
+
+If you test this out, please let me know; I'd like to know if anyone
+actually cares about this... also, I would like to gauge if I have
+messed up stability anywhere.
+
+	-hpa
+
 -- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
-
-The prestige of government has undoubtedly been lowered considerably
-by the Prohibition law. For nothing is more destructive of respect for
-the government and the law of the land than passing laws which cannot
-be enforced. It is an open secret that the dangerous increase of crime
-in this country is closely connected with this.
-	-- Albert Einstein, "My First Impression of the U.S.A.", 1921
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt

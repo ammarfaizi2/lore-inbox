@@ -1,703 +1,191 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272548AbRIKTtf>; Tue, 11 Sep 2001 15:49:35 -0400
+	id <S272549AbRIKT5g>; Tue, 11 Sep 2001 15:57:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272549AbRIKTtU>; Tue, 11 Sep 2001 15:49:20 -0400
-Received: from [209.10.41.242] ([209.10.41.242]:52659 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S272548AbRIKTs6>;
-	Tue, 11 Sep 2001 15:48:58 -0400
-Date: Tue, 11 Sep 2001 18:04:44 +0200 (CEST)
-From: nail <alessio@itapac.net>
-To: linux-kernel@vger.kernel.org
-Subject: Toshiba laptop problems with 2.4.9
-Message-ID: <Pine.LNX.4.10.10109111738120.11515-100000@localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S272558AbRIKT51>; Tue, 11 Sep 2001 15:57:27 -0400
+Received: from ns.caldera.de ([212.34.180.1]:26243 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S272549AbRIKT5T>;
+	Tue, 11 Sep 2001 15:57:19 -0400
+Date: Tue, 11 Sep 2001 21:57:35 +0200
+From: Christoph Hellwig <hch@caldera.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: IBMs LVM ?
+Message-ID: <20010911215735.A14883@caldera.de>
+In-Reply-To: <3B9E255C.8943D6BB@uni-mb.si> <200109111526.f8BFQLr25266@ns.caldera.de> <20010911115713.D29347@turbolinux.com> <20010911200633.A5816@caldera.de> <20010911131531.E29347@turbolinux.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010911131531.E29347@turbolinux.com>; from adilger@turbolabs.com on Tue, Sep 11, 2001 at 01:15:31PM -0600
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Hello,
-  I have a toshiba laptop model Satellite S1640.
-  I installed slackware 8 with native kernel 2.4.5 on it and I upgraded
-  to 2.4.9.
-   I just started having problems experiencing random lockups..
-   I investigated a few and i saw that keeping the laptopt idle for a
-    while caused it to hangup. No oops, nothing, only pure hangup, 
-  in any situation.
-   So I traced the kernel boot and I noticed the problem was in the
-   PCMCIA sockets driver.. (which differs for a few lines from 2.4.5)
-   I tried to brutally copy linux-2.4.5/drivers/pcmcia/yenta.c in the
-   2.4.9 kernel tree and the problem solved :)
-   The other problem is the APM driver: by inserting the apm.o
-   the laptopt hangs up.
-   I don't know why of this because the 2.4.5 driver works 
-   perfectly.
-   Attached are some informations about my laptopt.
-***NOTE***
-   Please CC: me on your answer message because I'm NOT subscribed to 
-   the list.
-***NOTE***
-
-
-Specs: AMD K6-3 475 Mhz, 64 mb of ram, integrated winmodem and
-        dual-socket2 pcmcia slots.
-
-A dmesg :
-Linux version 2.4.9 (root@nebula) (gcc version 2.95.3 20010315 (release))
-#1 Mon
- Sep 10 19:39:31 CEST 2001
-BIOS-provided physical RAM map:
- BIOS-e820: 0000000000000000 - 000000000009f800 (usable)
- BIOS-e820: 000000000009f800 - 00000000000a0000 (reserved)
- BIOS-e820: 00000000000edc00 - 0000000000100000 (reserved)
- BIOS-e820: 0000000000100000 - 0000000003ff0000 (usable)
- BIOS-e820: 0000000003ff0000 - 0000000003fffc00 (ACPI data)
- BIOS-e820: 0000000003fffc00 - 0000000004000000 (ACPI NVS)
- BIOS-e820: 00000000fffc0000 - 0000000100000000 (reserved)
-On node 0 totalpages: 16368
-zone(0): 4096 pages.
-zone(1): 12272 pages.
-zone(2): 0 pages.
-Kernel command line: BOOT_IMAGE=linux249 ro root=302
-Initializing CPU#0
-Detected 474.915 MHz processor.
-Console: colour VGA+ 80x25
-Calibrating delay loop... 946.99 BogoMIPS
-Memory: 61824k/65472k available (1267k kernel code, 3260k reserved, 445k
-data, 1
-92k init, 0k highmem)
-Dentry-cache hash table entries: 8192 (order: 4, 65536 bytes)
-Inode-cache hash table entries: 4096 (order: 3, 32768 bytes)
-Mount-cache hash table entries: 1024 (order: 1, 8192 bytes)
-Buffer-cache hash table entries: 1024 (order: 0, 4096 bytes)
-Page-cache hash table entries: 16384 (order: 4, 65536 bytes)
-CPU: Before vendor init, caps: 008021bf c08029bf 00000000, vendor = 2
-CPU: L1 I Cache: 32K (32 bytes/line), D cache 32K (32 bytes/line)
-CPU: L2 Cache: 128K (32 bytes/line)
-CPU: After vendor init, caps: 008021bf c08029bf 00000000 00000002
-CPU:     After generic, caps: 008021bf c08029bf 00000000 00000002
-CPU:             Common caps: 008021bf c08029bf 00000000 00000002
-CPU: AMD-K6(tm)-III Processor stepping 04
-Checking 'hlt' instruction... OK.
-POSIX conformance testing by UNIFIX
-mtrr: v1.40 (20010327) Richard Gooch (rgooch@atnf.csiro.au)
-mtrr: detected mtrr type: AMD K6
-PCI: PCI BIOS revision 2.10 entry at 0xfd8ce, last bus=1
-PCI: Using configuration type 1
-PCI: Probing PCI hardware
-Unknown bridge resource 2: assuming transparent
-PCI: Using IRQ router ALI [10b9/1533] at 00:07.0
-PCI: Found IRQ 11 for device 00:04.0
-PCI: Sharing IRQ 11 with 01:00.0
-PCI: Found IRQ 11 for device 00:04.1
-Linux NET4.0 for Linux 2.4
-Based upon Swansea University Computer Society NET3.039
-Initializing RT netlink socket
-Starting kswapd v1.8
-VFS: Diskquotas version dquot_6.4.0 initialized
-devfs: v0.107 (20010709) Richard Gooch (rgooch@atnf.csiro.au)
-devfs: boot_options: 0x0
-pty: 512 Unix98 ptys configured
-Serial driver version 5.05c (2001-07-08) with HUB-6 MANY_PORTS MULTIPORT
-SHARE_I
-RQ SERIAL_PCI enabled
-ttyS00 at 0x03f8 (irq = 4) is a 16550A
-Real Time Clock Driver v1.10d
-block: 128 slots per queue, batch=16
-RAMDISK driver initialized: 16 RAM disks of 7777K size 1024 blocksize
-Uniform Multi-Platform E-IDE driver Revision: 6.31
-ide: Assuming 33MHz system bus speed for PIO modes; override with
-idebus=xx
-ALI15X3: IDE controller on PCI bus 00 dev 78
-PCI: No IRQ known for interrupt pin A of device 00:0f.0. Please try using
-pci=bi
-osirq.
-ALI15X3: chipset revision 32
-ALI15X3: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0xfcf0-0xfcf7, BIOS settings: hda:DMA, hdb:pio
-    ide1: BM-DMA at 0xfcf8-0xfcff, BIOS settings: hdc:DMA, hdd:pio
-hda: TOSHIBA MK6014MAP, ATA DISK drive
-ide: Assuming 33MHz system bus speed for PIO modes; override with
-idebus=xx
-hdc: SR242S, ATAPI CD/DVD-ROM drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: 11733120 sectors (6007 MB), CHS=730/255/63, (U)DMA
-hdc: ATAPI 24X CD-ROM drive, 128kB Cache
-Uniform CD-ROM driver Revision: 3.12
-ide-floppy driver 0.97
-Partition check:
- /dev/ide/host0/bus0/target0/lun0: p1 p2 p3
-Floppy drive(s): fd0 is 1.44M
-FDC 0 is a post-1991 82077
-loop: loaded (max 8 devices)
-ide-floppy driver 0.97
-NET4: Linux TCP/IP 1.0 for NET4.0
-IP Protocols: ICMP, UDP, TCP, IGMP
-IP: routing cache hash table of 512 buckets, 4Kbytes
-TCP: Hash tables configured (established 4096 bind 4096)
-NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
-reiserfs: checking transaction log (device 03:02) ...
-Using r5 hash to sort names
-ReiserFS version 3.6.25
-VFS: Mounted root (reiserfs filesystem) readonly.
-Freeing unused kernel memory: 192k freed
-Adding Swap: 128516k swap-space (priority -1)
-parport0: PC-style at 0x378 [PCSPP,TRISTATE,EPP]
-parport0: cpp_daisy: aa5500ff(38)
-parport0: assign_addrs: aa5500ff(38)
-parport0: cpp_daisy: aa5500ff(38)
-parport0: assign_addrs: aa5500ff(38)
-lp0: using parport0 (polling).
-CSLIP: code copyright 1989 Regents of the University of California
-PPP generic driver version 2.4.1
-PPP Deflate Compression module registered
-IPv6 v0.8 for NET4.0
-IPv6 over IPv4 tunneling driver
-Linux Kernel Card Services 3.1.22
-  options:  [pci] [cardbus] [pm]
-PCI: Found IRQ 11 for device 00:04.0
-PCI: Sharing IRQ 11 with 01:00.0
-PCI: Found IRQ 11 for device 00:04.1
-Yenta IRQ list 06b8, PCI irq11
-Socket status: 30000059
-Yenta IRQ list 06b8, PCI irq11
-Socket status: 30000059
-cs: IO port probe 0x0c00-0x0cff: clean.
-cs: IO port probe 0x0800-0x08ff: clean.
-cs: IO port probe 0x0100-0x04ff: excluding 0x408-0x40f 0x480-0x48f
-0x4d0-0x4d7
-cs: IO port probe 0x0a00-0x0aff: clean.
-cs: memory probe 0xa0000000-0xa0ffffff: clean.
-eth0: NE2000 Compatible: io 0x300, irq 3, hw_addr 00:E0:98:42:1E:D6
-ttyS01 at port 0x02f8 (irq = 5) is a 16550A
-
-Here's an lspci -v
-00:00.0 Host bridge: Acer Laboratories Inc. [ALi] M1541 (rev 04)
-        Subsystem: Acer Laboratories Inc. [ALi] ALI M1541 Aladdin V/V+ AGP
-Syste
-m Controller
-        Flags: bus master, slow devsel, latency 32
-        Memory at e0000000 (32-bit, non-prefetchable) [size=64M]
-        Capabilities: [b0] AGP version 1.0
-
-00:01.0 PCI bridge: Acer Laboratories Inc. [ALi] M5243 (rev 04) (prog-if
-00 [Nor
-mal decode])
-        Flags: bus master, slow devsel, latency 32
-        Bus: primary=00, secondary=01, subordinate=01, sec-latency=32
-        I/O behind bridge: 0000e000-0000efff
-        Memory behind bridge: fd000000-fecfffff
-
-00:04.0 CardBus bridge: Texas Instruments PCI1420
-        Subsystem: Toshiba America Info Systems: Unknown device ff00
-        Flags: bus master, medium devsel, latency 168, IRQ 11
-        Memory at 10000000 (32-bit, non-prefetchable) [size=4K]
-        Bus: primary=00, secondary=02, subordinate=02, sec-latency=176
-        Memory window 0: 10400000-107ff000 (prefetchable)
-        Memory window 1: 10800000-10bff000
-        I/O window 0: 00001000-000010ff
-       I/O window 1: 00001400-000014ff
-        16-bit legacy interface ports at 0001
-
-00:04.1 CardBus bridge: Texas Instruments PCI1420
-        Subsystem: Toshiba America Info Systems: Unknown device ff00
-        Flags: bus master, medium devsel, latency 168, IRQ 11
-        Memory at 10001000 (32-bit, non-prefetchable) [size=4K]
-        Bus: primary=00, secondary=06, subordinate=06, sec-latency=176
-        Memory window 0: 10c00000-10fff000 (prefetchable)
-        Memory window 1: 11000000-113ff000
-        I/O window 0: 00001800-000018ff
-        I/O window 1: 00001c00-00001cff
-        16-bit legacy interface ports at 0001
-
-00:07.0 ISA bridge: Acer Laboratories Inc. [ALi] M1533 PCI to ISA Bridge
-[Aladdi
-n IV] (rev 0a)
-        Subsystem: Toshiba America Info Systems: Unknown device ff00
-        Flags: bus master, medium devsel, latency 0
-
-00:08.0 Multimedia audio controller: Cirrus Logic Crystal CS4281 PCI Audio
-(rev 
-01)
-        Subsystem: Toshiba America Info Systems: Unknown device ff00
-        Flags: medium devsel, IRQ 11
-        Memory at feddf000 (32-bit, non-prefetchable) [size=4K]
-        Memory at fedf0000 (32-bit, non-prefetchable) [size=64K]
-        Capabilities: [40] Power Management version 2
-
-00:0f.0 IDE interface: Acer Laboratories Inc. [ALi] M5229 IDE (rev 20)
-(prog-if 
-fa)
-        Subsystem: Acer Laboratories Inc. [ALi] M5229 IDE
-        Flags: bus master, medium devsel, latency 32
-        I/O ports at fcf0 [size=16]
-
-00:10.0 Communication controller: Rockwell International: Unknown device
-2013 (r
-ev 01)
-        Subsystem: Toshiba America Info Systems: Unknown device ff00
-        Flags: medium devsel, IRQ 10
-        Memory at fede0000 (32-bit, non-prefetchable) [size=64K]
-        I/O ports at fce8 [size=8]
-        Capabilities: [40] Power Management version 2
-
-00:11.0 Bridge: Acer Laboratories Inc. [ALi] M7101 PMU (rev 09)
-        Subsystem: Toshiba America Info Systems: Unknown device ff00
-        Flags: medium devsel
-
-00:13.0 USB Controller: Acer Laboratories Inc. [ALi] M5237 USB (rev 03)
-(prog-if
- 10 [OHCI])
-        Flags: medium devsel, IRQ 9
-        Memory at fedde000 (32-bit, non-prefetchable) [size=4K]
-
-01:00.0 VGA compatible controller: ATI Technologies Inc 3D Rage LT Pro
-AGP-133 (
-rev dc) (prog-if 00 [VGA])
-        Subsystem: Toshiba America Info Systems: Unknown device ff00
-        Flags: bus master, stepping, medium devsel, latency 66, IRQ 11
-        Memory at fd000000 (32-bit, non-prefetchable) [size=16M]
-        I/O ports at e800 [size=256]
-        Memory at fecff000 (32-bit, non-prefetchable) [size=4K]
-        Expansion ROM at <unassigned> [disabled] [size=128K]
-        Capabilities: [50] AGP version 1.0
-        Capabilities: [5c] Power Management version 1
-
-
-Here is my kernel configuration
-
-CONFIG_X86=y
-CONFIG_ISA=y
-CONFIG_UID16=y
-
-CONFIG_EXPERIMENTAL=y
-
-CONFIG_MODULES=y
-
-CONFIG_M586=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_L1_CACHE_SHIFT=5
-CONFIG_X86_USE_STRING_486=y
-CONFIG_X86_ALIGNMENT_16=y
-CONFIG_TOSHIBA=m
-CONFIG_MICROCODE=m
-CONFIG_X86_MSR=m
-CONFIG_X86_CPUID=m
-CONFIG_NOHIGHMEM=y
-CONFIG_MATH_EMULATION=y
-CONFIG_MTRR=y
-
-CONFIG_NET=y
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_NAMES=y
-CONFIG_HOTPLUG=y
-
-CONFIG_PCMCIA=m
-CONFIG_CARDBUS=y
-CONFIG_SYSVIPC=y
-CONFIG_BSD_PROCESS_ACCT=y
-CONFIG_SYSCTL=y
-CONFIG_KCORE_ELF=y
-CONFIG_BINFMT_AOUT=y
-CONFIG_BINFMT_ELF=y
-CONFIG_PM=y
-CONFIG_APM=m
-
-
-CONFIG_PARPORT=m
-CONFIG_PARPORT_PC=m
-CONFIG_PARPORT_PC_CML1=m
-CONFIG_PARPORT_PC_FIFO=y
-CONFIG_PARPORT_1284=y
-
-CONFIG_PNP=m
-CONFIG_ISAPNP=m
-
-CONFIG_BLK_DEV_FD=y
-CONFIG_BLK_DEV_LOOP=y
-CONFIG_BLK_DEV_NBD=y
-CONFIG_BLK_DEV_RAM=y
-CONFIG_BLK_DEV_RAM_SIZE=7777
-CONFIG_BLK_DEV_INITRD=y
-
-
-CONFIG_PACKET=y
-CONFIG_NETLINK=y
-CONFIG_RTNETLINK=y
-CONFIG_NETLINK_DEV=y
-CONFIG_NETFILTER=y
-CONFIG_FILTER=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-CONFIG_NET_IPIP=m
-CONFIG_NET_IPGRE=m
-CONFIG_SYN_COOKIES=y
-
-CONFIG_IP_NF_CONNTRACK=m
-CONFIG_IP_NF_FTP=m
-CONFIG_IP_NF_QUEUE=m
-CONFIG_IP_NF_IPTABLES=m
-CONFIG_IP_NF_MATCH_LIMIT=m
-CONFIG_IP_NF_MATCH_MAC=m
-CONFIG_IP_NF_MATCH_MARK=m
-CONFIG_IP_NF_MATCH_MULTIPORT=m
-CONFIG_IP_NF_MATCH_TOS=m
-CONFIG_IP_NF_MATCH_TCPMSS=m
-CONFIG_IP_NF_MATCH_STATE=m
-CONFIG_IP_NF_MATCH_UNCLEAN=m
-CONFIG_IP_NF_MATCH_OWNER=m
-CONFIG_IP_NF_FILTER=m
-CONFIG_IP_NF_TARGET_REJECT=m
-CONFIG_IP_NF_TARGET_MIRROR=m
-CONFIG_IP_NF_NAT=m
-CONFIG_IP_NF_NAT_NEEDED=y
-CONFIG_IP_NF_TARGET_MASQUERADE=m
-CONFIG_IP_NF_TARGET_REDIRECT=m
-CONFIG_IP_NF_NAT_FTP=m
-CONFIG_IP_NF_MANGLE=m
-CONFIG_IP_NF_TARGET_TOS=m
-CONFIG_IP_NF_TARGET_MARK=m
-CONFIG_IP_NF_TARGET_LOG=m
-CONFIG_IP_NF_TARGET_TCPMSS=m
-CONFIG_IP_NF_COMPAT_IPCHAINS=m
-CONFIG_IP_NF_NAT_NEEDED=y
-CONFIG_IP_NF_COMPAT_IPFWADM=m
-CONFIG_IP_NF_NAT_NEEDED=y
-CONFIG_IPV6=m
-
-CONFIG_IP6_NF_IPTABLES=m
-CONFIG_IP6_NF_MATCH_LIMIT=m
-CONFIG_IP6_NF_MATCH_MARK=m
-CONFIG_IP6_NF_FILTER=m
-CONFIG_IP6_NF_MANGLE=m
-CONFIG_IP6_NF_TARGET_MARK=m
-CONFIG_IPX=m
-CONFIG_ATALK=m
-CONFIG_DECNET=m
-CONFIG_BRIDGE=m
-CONFIG_X25=m
-CONFIG_LAPB=m
-CONFIG_ECONET=m
-CONFIG_WAN_ROUTER=m
-
-
-
-CONFIG_IDE=y
-
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_BLK_DEV_IDECD=y
-CONFIG_BLK_DEV_IDEFLOPPY=y
-CONFIG_BLK_DEV_CMD640=y
-CONFIG_BLK_DEV_RZ1000=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_BLK_DEV_ADMA=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_BLK_DEV_AEC62XX=y
-CONFIG_AEC62XX_TUNING=y
-CONFIG_BLK_DEV_ALI15X3=y
-CONFIG_BLK_DEV_CMD64X=y
-CONFIG_BLK_DEV_CS5530=y
-CONFIG_BLK_DEV_HPT34X=y
-CONFIG_BLK_DEV_HPT366=y
-CONFIG_BLK_DEV_PIIX=y
-CONFIG_PIIX_TUNING=y
-CONFIG_BLK_DEV_PDC202XX=y
-CONFIG_BLK_DEV_SIS5513=y
-CONFIG_BLK_DEV_SLC90E66=y
-CONFIG_BLK_DEV_VIA82CXXX=y
-CONFIG_IDE_CHIPSETS=y
-CONFIG_BLK_DEV_4DRIVES=y
-CONFIG_BLK_DEV_ALI14XX=y
-CONFIG_BLK_DEV_DTC2278=y
-CONFIG_BLK_DEV_HT6560B=y
-CONFIG_BLK_DEV_PDC4030=y
-CONFIG_BLK_DEV_QD6580=y
-CONFIG_BLK_DEV_UMC8672=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_BLK_DEV_IDE_MODES=y
-
-
-
-CONFIG_IEEE1394=m
-CONFIG_IEEE1394_PCILYNX=m
-CONFIG_IEEE1394_OHCI1394=m
-CONFIG_IEEE1394_VIDEO1394=m
-CONFIG_IEEE1394_RAWIO=m
-
-
-CONFIG_NETDEVICES=y
-
-CONFIG_ARCNET=m
-CONFIG_ARCNET_1201=m
-CONFIG_ARCNET_1051=m
-CONFIG_ARCNET_RAW=m
-CONFIG_ARCNET_COM90xx=m
-CONFIG_ARCNET_COM90xxIO=m
-CONFIG_ARCNET_RIM_I=m
-CONFIG_ARCNET_COM20020=m
-CONFIG_ARCNET_COM20020_ISA=m
-CONFIG_ARCNET_COM20020_PCI=m
-
-CONFIG_DUMMY=y
-
-CONFIG_NET_ETHERNET=y
-CONFIG_HAPPYMEAL=m
-CONFIG_NET_VENDOR_3COM=y
-CONFIG_EL1=m
-CONFIG_EL2=m
-CONFIG_ELPLUS=m
-CONFIG_EL16=m
-CONFIG_EL3=m
-CONFIG_3C515=m
-CONFIG_VORTEX=m
-CONFIG_LANCE=m
-CONFIG_NET_VENDOR_SMC=y
-CONFIG_WD80x3=m
-CONFIG_ULTRA=m
-CONFIG_SMC9194=m
-CONFIG_NET_VENDOR_RACAL=y
-CONFIG_NI5010=m
-CONFIG_NI52=m
-CONFIG_NI65=m
-CONFIG_AT1700=m
-CONFIG_DEPCA=m
-CONFIG_HP100=m
-CONFIG_NET_ISA=y
-CONFIG_E2100=m
-CONFIG_EWRK3=m
-CONFIG_EEXPRESS=m
-CONFIG_EEXPRESS_PRO=m
-CONFIG_HPLAN_PLUS=m
-CONFIG_HPLAN=m
-CONFIG_ETH16I=m
-CONFIG_NE2000=m
-CONFIG_NET_PCI=y
-CONFIG_PCNET32=m
-CONFIG_ADAPTEC_STARFIRE=m
-CONFIG_AC3200=m
-CONFIG_APRICOT=m
-CONFIG_CS89x0=m
-CONFIG_TULIP=m
-CONFIG_DE4X5=m
-CONFIG_DGRS=m
-CONFIG_DM9102=m
-CONFIG_EEPRO100=m
-CONFIG_FEALNX=m
-CONFIG_NATSEMI=m
-CONFIG_NE2K_PCI=m
-CONFIG_8139TOO=m
-CONFIG_SIS900=m
-CONFIG_EPIC100=m
-CONFIG_SUNDANCE=m
-CONFIG_TLAN=m
-CONFIG_VIA_RHINE=m
-CONFIG_WINBOND_840=m
-CONFIG_NET_POCKET=y
-CONFIG_ATP=m
-CONFIG_DE600=m
-CONFIG_DE620=m
-
-CONFIG_ACENIC=m
-CONFIG_HAMACHI=m
-CONFIG_YELLOWFIN=m
-CONFIG_SK98LIN=m
-CONFIG_PPP=m
-CONFIG_PPP_MULTILINK=y
-CONFIG_PPP_ASYNC=m
-CONFIG_PPP_SYNC_TTY=m
-CONFIG_PPP_DEFLATE=m
-CONFIG_PPP_BSDCOMP=m
-CONFIG_PPPOE=m
-
-
-CONFIG_TR=y
-CONFIG_IBMTR=m
-CONFIG_IBMOL=m
-CONFIG_IBMLS=m
-CONFIG_TMS380TR=m
-CONFIG_TMSPCI=m
-CONFIG_TMSISA=m
-CONFIG_ABYSS=m
-CONFIG_SMCTR=m
-
-
-CONFIG_NET_PCMCIA=y
-CONFIG_PCMCIA_PCNET=m
-CONFIG_NET_PCMCIA_RADIO=y
-CONFIG_PCMCIA_RAYCS=m
-
-
-CONFIG_IRDA=m
-CONFIG_IRLAN=m
-CONFIG_IRNET=m
-CONFIG_IRCOMM=m
-
-CONFIG_IRTTY_SIR=m
-CONFIG_IRPORT_SIR=m
-CONFIG_DONGLE=y
-CONFIG_ESI_DONGLE=m
-CONFIG_ACTISYS_DONGLE=m
-CONFIG_TEKRAM_DONGLE=m
-CONFIG_GIRBIL_DONGLE=m
-CONFIG_LITELINK_DONGLE=m
-CONFIG_OLD_BELKIN_DONGLE=m
-CONFIG_NSC_FIR=m
-CONFIG_WINBOND_FIR=m
-CONFIG_TOSHIBA_FIR=m
-CONFIG_SMC_IRCC_FIR=m
-
-
-
-CONFIG_INPUT=m
-CONFIG_INPUT_KEYBDEV=m
-CONFIG_INPUT_MOUSEDEV=m
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-CONFIG_INPUT_JOYDEV=m
-CONFIG_INPUT_EVDEV=m
-
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_SERIAL=y
-CONFIG_SERIAL_CONSOLE=y
-CONFIG_SERIAL_EXTENDED=y
-CONFIG_SERIAL_MANY_PORTS=y
-CONFIG_SERIAL_SHARE_IRQ=y
-CONFIG_SERIAL_MULTIPORT=y
-CONFIG_HUB6=y
-CONFIG_SERIAL_NONSTANDARD=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=512
-CONFIG_PRINTER=m
-
-
-CONFIG_BUSMOUSE=m
-CONFIG_ATIXL_BUSMOUSE=m
-CONFIG_LOGIBUSMOUSE=m
-CONFIG_MS_BUSMOUSE=m
-CONFIG_MOUSE=y
-CONFIG_PSMOUSE=y
-CONFIG_82C710_MOUSE=m
-CONFIG_PC110_PAD=m
-
-
-CONFIG_WATCHDOG=y
-CONFIG_SOFT_WATCHDOG=m
-CONFIG_WDT=m
-CONFIG_WDTPCI=m
-CONFIG_WDT_501=y
-CONFIG_WDT_501_FAN=y
-CONFIG_PCWATCHDOG=m
-CONFIG_ACQUIRE_WDT=m
-CONFIG_ADVANTECH_WDT=m
-CONFIG_60XX_WDT=m
-CONFIG_MIXCOMWD=m
-CONFIG_I810_TCO=m
-CONFIG_MACHZ_WDT=m
-CONFIG_RTC=y
-
-CONFIG_FTAPE=m
-CONFIG_ZFTAPE=m
-CONFIG_ZFT_DFLT_BLK_SZ=10240
-CONFIG_ZFT_COMPRESSOR=m
-CONFIG_FT_NR_BUFFERS=3
-CONFIG_FT_NORMAL_DEBUG=y
-CONFIG_FT_STD_FDC=y
-CONFIG_FT_FDC_THR=8
-CONFIG_FT_FDC_MAX_RATE=2000
-CONFIG_FT_ALPHA_CLOCK=0
-CONFIG_AGP=m
-CONFIG_AGP_VIA=y
-CONFIG_AGP_SIS=y
-CONFIG_AGP_ALI=y
-CONFIG_DRM=y
-CONFIG_DRM_R128=m
-CONFIG_DRM_RADEON=m
-
-CONFIG_PCMCIA_SERIAL_CS=m
-
-
-CONFIG_QUOTA=y
-CONFIG_AUTOFS4_FS=y
-CONFIG_REISERFS_FS=y
-CONFIG_FAT_FS=y
-CONFIG_MSDOS_FS=y
-CONFIG_UMSDOS_FS=y
-CONFIG_VFAT_FS=y
-CONFIG_TMPFS=y
-CONFIG_RAMFS=m
-CONFIG_ISO9660_FS=y
-CONFIG_JOLIET=y
-CONFIG_MINIX_FS=y
-CONFIG_NTFS_FS=m
-CONFIG_PROC_FS=y
-CONFIG_DEVFS_FS=y
-CONFIG_DEVPTS_FS=y
-CONFIG_EXT2_FS=y
-
-CONFIG_CODA_FS=m
-CONFIG_NFS_FS=y
-CONFIG_NFS_V3=y
-CONFIG_NFSD=m
-CONFIG_NFSD_V3=y
-CONFIG_SUNRPC=y
-CONFIG_LOCKD=y
-CONFIG_LOCKD_V4=y
-CONFIG_SMB_FS=m
-CONFIG_NCP_FS=m
-CONFIG_NCPFS_STRONG=y
-CONFIG_NCPFS_NFS_NS=y
-CONFIG_NCPFS_OS2_NS=y
-
-CONFIG_PARTITION_ADVANCED=y
-CONFIG_AMIGA_PARTITION=y
-CONFIG_MAC_PARTITION=y
-CONFIG_MSDOS_PARTITION=y
-CONFIG_BSD_DISKLABEL=y
-CONFIG_SOLARIS_X86_PARTITION=y
-CONFIG_UNIXWARE_DISKLABEL=y
-CONFIG_SGI_PARTITION=y
-CONFIG_SMB_NLS=y
-CONFIG_NLS=y
-
-CONFIG_NLS_DEFAULT="cp437"
-CONFIG_NLS_CODEPAGE_437=y
-CONFIG_NLS_CODEPAGE_850=m
-CONFIG_NLS_ISO8859_1=y
-
-CONFIG_VGA_CONSOLE=y
-CONFIG_VIDEO_SELECT=y
-
-
-CONFIG_SOUND=m
-CONFIG_SOUND_CS4281=m
-
-CONFIG_USB=m
-CONFIG_USB_DEVICEFS=y
-CONFIG_USB_OHCI=m
-
-
-
-CONFIG_MAGIC_SYSRQ=y
-
-
-Hi all,
-	Alessio
-
-
+On Tue, Sep 11, 2001 at 01:15:31PM -0600, Andreas Dilger wrote:
+> Well, you don't get anything for free.  You need to have some abstraction
+> in order to handle multiple LVM-type systems in a useful way, I don't see
+> any way around that.  As for the kernel code, I don't see TOO much
+> abstraction.
+> 
+> - You need code to read each separate on-disk format (partition headers,
+>   LVM metadata, etc)
+> - You need code to combine each of these into some useful "volume"
+> - You need code to do mapping from input volume/block to output disk/block
+> - You need code to be able to modify a volume metadata.
+
+Yupp.
+
+
+> You need code to do this for each different metadata format or partition
+> type.  Luckily (hopefully?) most people won't have systems with more than
+> a couple different metadata formats at a time.  HOWEVER, you NEED to be
+> able to migrate from one format to another, so you will have periods when
+> you have extra modules loaded during a migration.
+
+No - there is no reason we need support for migration in our volume
+managment system.  The reason to have a framework is excatly that we
+can have multiple different formats.  If there is a tool to provide
+migration it's nice, but it shouldn't complicate the actual volume
+managment core.
+
+> > god-mode that allows even root to do anything and we come back.
+> 
+> It is not clear if you are you for or against "god-mode"?  Would you
+> like it so that it is easy to shoot themselves in the head (or it
+> is so complex/manual that it is hard not to), or rather everyone in
+> straight-jackets in rubber rooms (ala Windows)?  Some safety is needed,
+> but there are also reasons to bypass that safety.  I don't know what
+> the current state of "god-mode" is in the EVMS code (if it is there,
+> needed, whatever, so it is a moot point).
+
+In unix we have the useruser (or more precise the capabilities model),
+no need for a damn god mode.
+
+> Exactly.  It was me and the EVMS LVM-emulation author that pointed out to
+> the Sistina folks that there was NO need to have an incompatible change
+> to the on-disk layout.  In fact, the EVMS code can handle BOTH formats,
+> and did so before LVM did.
+
+Of course they don't, but Sistina doesn't like staying with one version
+more than a few month.  See my compat code to support 0.8 volumes on 0.9
+that got rejected.
+
+> But, strangely it didn't make it into the LVM codebase.  Why is that?
+
+Why didn't all your nice stuff get merged? :P
+
+> I'm not blaming you, of course.  EVMS is at least a SourceForge project.
+
+With the problem that the IBM guys ignore me since someone told them that
+I'm "not part of the OpenSource movement".  I started sending fixes in
+the very beginning..
+
+> Well, there are obvious reasons for that.  Some people won't want to have
+> EVMS in the kernel (clearly you are one of them), so their patch can't
+> just rip out the existing partition scanning code.  Maybe there will be a
+> config option to not compile it later, or there will be an "EVMS-lite"
+> which handles basic partitions, or whatever.
+
+The naming doesn't matter.  (BTW, EVMS is a damn stupid name..).
+Either we do the - as you say - VFS for blockdevices or we don't - it doesn't
+make sense to do it conditional.  Wether the complicated drivers are actually
+use, and wether people want to use the integrated userspace soloutions is
+a very different question.
+
+> 
+> In any case, I doubt an EVMS patch would be accepted if it removed that
+> code to start with.
+
+I think such an patch would be accepted much more likely.  You know Linus
+(and we all :)) likes ripping out code.
+
+If you come and say: this patch nukes all special cases for MD, LVM and
+partition handling, the code is now X lines less I bet he will like it.
+
+> HOWEVER, since EVMS can handle ALL disk devices,
+
+A few days I read that thread on the EVMS list about only detecting
+SCSI and IDE drives yet - I probably got that wrong?..
+
+> even just regular partitions, at some point it COULD be possible to get
+> rid of the mess of different major/minor numbers for different disk types
+> (hdX, sdX, cciss, rd, ida, etc) and assign all of them to EVMS.  Since EVMS
+> only needs a minor number for the end-result volume (which may represent
+> many individual disks, and doesn't need a minor for unused partitions),
+> we would likely not have any shortage of block major numbers.  Consider
+> 10*hdX*256 + 8*sdX*256 + MD*256 + 8*CCISS*256 + 8*DAC960*256 + 8*IDA*256...
+> and it is a long time until you have 10k+ VISIBLE volumes on a single system.
+
+Yes, that's a nice thing and in fact linux already posted his opinion
+about all disk drivers sharing the major numbers (for 2.5?).
+
+But that just needs a small assignement layer (like sound_core), not
+something as complex as EVMS.  Or a bugfree devfs.
+
+> 
+> > Yes, because it is a Meta-LVM, not an actualy inplementation.
+> > I _really_ want something like that in 2.5 - but not this horrible IBM
+> > implementation.
+> 
+> Maybe you can help them work on it?
+
+If they stop ignoring me - sure.
+
+> They have recently just redone a lot
+> of the code, partly based on input from Andrew Clausen.  I don't see any
+> other similar projects out there, and I think it is a waste of effort to
+> complain about work that is done rather than fix it.  I tried for a long
+> time (while it was still my job to do so) to fix the current Linux-LVM
+> code, and I only had very minimal impact.  Even so, Linux-LVM will never
+> become a Meta-LVM without AT LEAST as much "mess" as EVMS, and probably
+> will contain a lot more.
+
+Linux-LVM doesn't even try to be a "Meta-LVM".
+
+> 
+> IBM is at least doing something about this by putting their code where
+> their mouth is.  Nothing is ever perfect.  Consider MD RAID - it isn't
+> even compatible between "stock" 2.2 and 2.2+Mingo-0.9RAID patches (which
+> is one reason why Alan never accepted the 0.9 MD RAID into 2.2, despite the
+> fact that ALL distros used the 0.9 MD RAID patches).
+
+It's a different issue.  For 2.4 ti sould be very easy to support both,
+2.2 is missing a generic block remapping interface.
+
+> > Nope - I'm currently working on implementing VxVM support, and I have
+> > to redo all the RAID stuff because it is so incomaptible.
+> 
+> The question is - will the VxVM support be yet ANOTHER separate code base
+> in the kernel?
+
+Of course I plug into one of the many generic volume managment frameworks
+that are available - that's why we have this thread, heh?
+
+> You complain about code bloat in EVMS, but having LVM, MD,
+> VxVM, NT LDM, etc. all separate is also code bloat,
+
+I think al these are together smaller than EVMS.
+At lest they don't have their own 200k linked list implementation :P
+
+> > If you have a design to share the RAID engine for very different layouts:
+> > nice - but I don'T see the relation to EVMS.
+> 
+> No, I can't say I do - it was purely speculation based on the concept that
+> RAID-1 and RAID-5 are GENERALLY the same concept.  Maybe the reason VxVM
+> is so different is that it also incorporates "LVM" style function as well?
+
+Yes.  It has a completly different layering.  FreeBSD Vinum has a structure
+that is somewhat similar if you want to take a look at another opensource
+project.
+
+> Note that NT-LDM ALSO has RAID-0/1/5 modes (not yet supported by the LDM
+> driver) which will eventually need support.  Do you want the number of RAID
+> implementations in the kernel to grow without bound, or rather try and
+> consolidate them (where possible) into a generic interface like EVMS?
+
+You forgot ATA fakeraid by arjan :)
+
+	Christoph
+
+-- 
+Of course it doesn't work. We've performed a software upgrade.

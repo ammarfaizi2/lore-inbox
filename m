@@ -1,46 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261646AbTISReG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Sep 2003 13:34:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261647AbTISReG
+	id S261650AbTISRvA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Sep 2003 13:51:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261651AbTISRvA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Sep 2003 13:34:06 -0400
-Received: from [62.241.33.80] ([62.241.33.80]:32516 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S261646AbTISReF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Sep 2003 13:34:05 -0400
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: Roland Bless <bless@tm.uka.de>, miquels@cistron.nl,
-       linux-kernel@vger.kernel.org
-Subject: Re: Fix for wrong OOM killer trigger?
-Date: Fri, 19 Sep 2003 19:30:33 +0200
-User-Agent: KMail/1.5.3
-Cc: walter@tm.uka.de, winter@tm.uka.de, doll@tm.uka.de
-References: <20030919191613.36750de3.bless@tm.uka.de>
-In-Reply-To: <20030919191613.36750de3.bless@tm.uka.de>
-X-Operating-System: Linux 2.4.20-wolk4.10s i686 GNU/Linux
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200309191930.33969.m.c.p@wolk-project.de>
+	Fri, 19 Sep 2003 13:51:00 -0400
+Received: from main.gmane.org ([80.91.224.249]:61343 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261650AbTISRu7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Sep 2003 13:50:59 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Jan Rychter <jan@rychter.com>
+Subject: Re: How does one get paid to work on the kernel?
+Date: Fri, 19 Sep 2003 10:51:13 -0700
+Message-ID: <m2he38r7ji.fsf@tnuctip.rychter.com>
+References: <1063915370.2410.12.camel@laptop-linux> <yw1xad91nrmd.fsf@users.sourceforge.net>
+ <1063958370.5520.6.camel@laptop-linux>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="=-=-=";
+	micalg=pgp-sha1; protocol="application/pgp-signature"
+X-Complaints-To: usenet@sea.gmane.org
+X-Spammers-Please: blackholeme@rychter.com
+User-Agent: Gnus/5.1003 (Gnus v5.10.3) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:6uk0F2SrRWoHqjeqs+gFvUvR1HE=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 19 September 2003 19:16, Roland Bless wrote:
+--=-=-=
+Content-Transfer-Encoding: quoted-printable
 
-Hi Roland,
+>>>>> "Nigel" =3D=3D Nigel Cunningham <ncunningham@clear.net.nz> writes:
+ Nigel> There is support in the current kernel for Software Suspend, but
+ Nigel> the 2.4 version contains a lot of extra functionality that isn't
+ Nigel> present in 2.6 at the moment. (Support for HighMem, swap files,
+ Nigel> asynchronous I/O, a nicer user interface, compression...).
 
-> SW: Kernel 2.4.22 (also seen on 2.4.21, 2.4.22-ac3), lvm, software raid,
-> reiserfs, SuSE 8.1. Swap turned off (see later).
-> .... <snip> ....
-> Anyone any ideas? Please Cc: to me in your replies since I'm not on the
-> lkml. Cheers,
+Nigel is being modest and doesn't mention that the 2.4 version actually
+works, which is possibly its biggest advantage.
 
-Please try v2.4.23-pre5 or rmap 15k for 2.4.22 vanilla.
+=2D-J.
 
-ciao, Marc
+--=-=-=
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/a0ISLth4/7/QhDoRAmYMAJ0eF0QIyqJlgVDKcOv8GxzDcm3YjQCfSKIC
+Cq4Smu/sgfC1fptcpiOO8LY=
+=FVG6
+-----END PGP SIGNATURE-----
+--=-=-=--
 

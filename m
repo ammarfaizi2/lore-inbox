@@ -1,40 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262458AbVC3WYt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262460AbVC3W1W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262458AbVC3WYt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 17:24:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262460AbVC3WYt
+	id S262460AbVC3W1W (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 17:27:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262462AbVC3W1W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 17:24:49 -0500
-Received: from rproxy.gmail.com ([64.233.170.207]:4148 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262458AbVC3WYc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 17:24:32 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=RFaHAcpQDIwp+8sAu8QaDMFC6e8cCftZwucwjcclRwyp+WwH7ST2/38ony7CV1RTSXHhmSXWwjqKE3wXWuPCmgD7Gjov8BvEa7Rt0055pxNJeflqSMOIBBuvGnaBLos9IkrOG/GZ6JMD0wlYwINAiO2FpkfmRDZ1KODIQXIYn/s=
-Message-ID: <a728f9f90503301424138e2bb6@mail.gmail.com>
-Date: Wed, 30 Mar 2005 17:24:30 -0500
-From: Alex Deucher <alexdeucher@gmail.com>
-Reply-To: Alex Deucher <alexdeucher@gmail.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       netdev@oss.sgi.com
-Subject: Marvell 88W8310 (libertas) 802.11g support
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Wed, 30 Mar 2005 17:27:22 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:63619 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262460AbVC3W1E
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 17:27:04 -0500
+Subject: Re: [PATCH] Set MS_ACTIVE in isofs_fill_super()
+From: Russ Weight <rweight@us.ibm.com>
+Reply-To: rweight@us.ibm.com
+To: Andrew Morton <akpm@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       "viro@parcelfarce.linux.theplanet.co.uk" 
+	<viro@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20050330123907.10740bc1.akpm@osdl.org>
+References: <1112213392.25362.65.camel@russw.beaverton.ibm.com>
+	 <20050330123907.10740bc1.akpm@osdl.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Wed, 30 Mar 2005 14:26:59 -0800
+Message-Id: <1112221619.9858.89.camel@russw.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was just wondering if anyone has started working on a driver for the
-marvell wifi chips.  I just bought a new Asus motherboard and it has
-built in wifi.  I contacted Marvell and they claimed they could
-provide databooks under NDA.  If no one else is working on it, I may
-try my hand at it, although I must say I've never written a network
-driver.  Is anyone else planning support/working on a driver/etc.?
+On Wed, 2005-03-30 at 12:39 -0800, Andrew Morton wrote:
+> Russ Weight <rweight@us.ibm.com> wrote:
+> >
+> > This patch sets the MS_ACTIVE bit in isofs_fill_super() prior to calling
+> > iget() or iput(). This eliminates a race condition between mount
+> > (for isofs) and kswapd that results in a system panic.
+> > 
+> > Signed-off-by: Russ Weight <rweight@us.ibm.com>
+> > 
+> > --- linux-2.6.12-rc1/fs/isofs/inode.c	2005-03-17 17:34:36.000000000
+> > -0800
+> > +++ linux-2.6.12-rc1-isofsfix/fs/isofs/inode.c	2005-03-22
+> > 15:29:51.945607217 -0800
+> > @@ -820,6 +820,7 @@
+> >  	 * the s_rock flag. Once we have the final s_rock value,
+> >  	 * we then decide whether to use the Joliet descriptor.
+> >  	 */
+> > +	s->s_flags |= MS_ACTIVE;
+> >  	inode = isofs_iget(s, sbi->s_firstdatazone, 0);
+> >  
+> >  	/*
+> > @@ -909,6 +910,7 @@
+> >  		kfree(opt.iocharset);
+> >  	kfree(sbi);
+> >  	s->s_fs_info = NULL;
+> > +	s->s_flags &= ~MS_ACTIVE;
+> >  	return -EINVAL;
+> >  }
+> >  
+> 
+> The patch is obviously safe enough, but seems a bit kludgy.
+> 
+> The basic problem here appears to be that isofs is doing iget/iput in
+> ->fill_super before MS_ACTIVE is set and the inode freeing code
+> (generic_forget_inode) doesn't expect that to happen, yes?
 
-Thanks,
+Yes.
 
-Alex
+> I wonder if it would make more sense for all the ->fill_super callers to
+> set MS_ACTIVE prior to calling ->fill_super(), and clear MS_ACTIVE if
+> fill_super() failed?
 
-PS please cc: me on any replies.
+It does seem a bit kludgy. I was trying keep the changes in isofs
+specific code, and this seemed the best way to do it.
+
+When you say "all the ->fill_super callers", are you referring to the
+fill_super functions for all filesystems? Or just callers to
+isofs_fill_super()?
+
+isofs_fill_super() is called by get_sb_bdev(), which is in the generic
+filesystem code. get_sb_bdev() receives a pointer as a parameter when it
+is called from isofs_get_sb(). To make a change in get_sb_bdev() would
+be to affect many (all?) filesystems. This may be the right thing to do
+- although it seems a little heavy-weight since the failure hasn't been
+reported in other filesystems.
+
+
+

@@ -1,145 +1,192 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274965AbTHPVX1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Aug 2003 17:23:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274963AbTHPVX0
+	id S274960AbTHPVPd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Aug 2003 17:15:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274963AbTHPVPd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Aug 2003 17:23:26 -0400
-Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:26754 "EHLO
-	neo.rr.com") by vger.kernel.org with ESMTP id S274973AbTHPVXX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Aug 2003 17:23:23 -0400
-Date: Sat, 16 Aug 2003 17:22:34 +0000
-From: Adam Belay <ambx1@neo.rr.com>
-To: Greg KH <greg@kroah.com>
-Cc: walt <wa1ter@myrealbox.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test3 current - firewire compile error
-Message-ID: <20030816172234.GB9552@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>, Greg KH <greg@kroah.com>,
-	walt <wa1ter@myrealbox.com>, linux-kernel@vger.kernel.org
-References: <3F3E288B.3010105@cornell.edu> <3F3DD93E.7090706@myrealbox.com> <20030816163643.GB9735@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030816163643.GB9735@kroah.com>
-User-Agent: Mutt/1.4.1i
+	Sat, 16 Aug 2003 17:15:33 -0400
+Received: from [212.209.10.216] ([212.209.10.216]:33175 "EHLO
+	krynn.se.axis.com") by vger.kernel.org with ESMTP id S274960AbTHPVP3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Aug 2003 17:15:29 -0400
+Message-ID: <D069C7355C6E314B85CF36761C40F9A42E20BE@mailse02.se.axis.com>
+From: Peter Kjellerstedt <peter.kjellerstedt@axis.com>
+To: "'Daniel Forrest'" <forrest@lmcg.wisc.edu>
+Cc: "'Timothy Miller'" <miller@techsource.com>,
+       "'Willy Tarreau'" <willy@w.ods.org>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: RE: generic strncpy - off-by-one error
+Date: Sat, 16 Aug 2003 23:10:31 +0200
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 16, 2003 at 09:36:44AM -0700, Greg KH wrote:
-> On Sat, Aug 16, 2003 at 12:11:58AM -0700, walt wrote:
-> > Ivan Gyurdiev wrote:
-> > >Hopefully, this is not a duplicate post:
-> > >===========================================
-> > >
-> > >drivers/ieee1394/nodemgr.c: In function `nodemgr_update_ud_names':
-> > >drivers/ieee1394/nodemgr.c:471: error: structure has no member named `name'
+> -----Original Message-----
+> From: Daniel Forrest [mailto:forrest@lmcg.wisc.edu] 
+> Sent: Saturday, August 16, 2003 12:04
+> To: Peter Kjellerstedt
+> Cc: 'Daniel Forrest'; 'Timothy Miller'; 'Willy Tarreau'; 
+> linux-kernel mailing list
+> Subject: Re: generic strncpy - off-by-one error
+> 
+> On Sat, Aug 16, 2003 at 11:19:30AM +0200, Peter Kjellerstedt wrote:
 > > 
-> > I got a similar error starting with last night's bk pull:
+> > Actually, it should be:
 > > 
-> > drivers/pnp/core.c: In function `pnp_register_protocol':
-> > drivers/pnp/core.c:72: structure has no member named `name'
+> > 	while (count && ((long)tmp & (sizeof(long) - 1)))
+> > 
 > 
-> Hm, I thought the pnp layer had already been fixed up.
+> Oops, you're right, I forgot that the count could be small.
 > 
-> Adam?
+> But, now that I think of it, maybe this would be best...
 > 
+>  char *strncpy(char *dest, const char *src, size_t count)
+>  {
+>  	char *tmp = dest;
+>  
+>  	while (count && *src) {
+>  		*tmp++ = *src++;
+>  		count--;
+>  	}
+>  
+> -	if (count) {
+> +	if (count >= sizeof(long)) {
+>  		size_t count2;
+>  
+> -		while (count && ((long)tmp & (sizeof(long) - 1))) {
+> +		while ((long)tmp & (sizeof(long) - 1)) {
+>  			*tmp++ = '\0';
+>  			count--;
+>  		}
+>  
+>  		count2 = count / sizeof(long);
+>  		while (count2) {
+>  			*((long *)tmp)++ = '\0';
+>  			count2--;
+>  		}
+>  
+>  		count &= (sizeof(long) - 1);
+> -		while (count) {
+> -			*tmp++ = '\0';
+> -			count--;
+> -		}
+> +	}
+> +
+> +	while (count) {
+> +		*tmp++ = '\0';
+> +		count--;
+>  	}
+>  
+>  	return dest;
+>  }
+> 
+> -- 
+> Dan
 
-I apoligize for forgetting to correct this.  Here is a fix.
+Looks good to me. However, this only optimizes the filling
+part. So why not try to optimize the copying part too? Here
+is a version that optimizes the (hopefully somewhat common)
+case of both source and destination being long aligned
+(UNALIGNED() and DETECT_NUL() were borrowed from newlib's
+strncpy()):
 
-Thanks,
-Adam
+#include <limits.h>
 
+/* Non-zero if either x or y is not aligned on a "long" boundary. */
+#define UNALIGNED(x, y) \
+	(((long)x & (sizeof(long) - 1)) | ((long)y & (sizeof(long) - 1)))
 
-diff -urN a/drivers/pnp/core.c b/drivers/pnp/core.c
---- a/drivers/pnp/core.c	2003-08-09 04:33:18.000000000 +0000
-+++ b/drivers/pnp/core.c	2003-08-16 16:26:59.000000000 +0000
-@@ -69,7 +69,6 @@
- 
- 	protocol->number = nodenum;
- 	sprintf(protocol->dev.bus_id, "pnp%d", nodenum);
--	strlcpy(protocol->dev.name,protocol->name,DEVICE_NAME_SIZE);
- 	return device_register(&protocol->dev);
- }
- 
-diff -urN a/drivers/pnp/isapnp/core.c b/drivers/pnp/isapnp/core.c
---- a/drivers/pnp/isapnp/core.c	2003-08-09 04:37:19.000000000 +0000
-+++ b/drivers/pnp/isapnp/core.c	2003-08-16 16:45:16.000000000 +0000
-@@ -743,7 +743,7 @@
- 			size = 0;
- 			break;
- 		case _LTAG_ANSISTR:
--			isapnp_parse_name(dev->dev.name, sizeof(dev->dev.name), &size);
-+			isapnp_parse_name(dev->name, sizeof(dev->name), &size);
- 			break;
- 		case _LTAG_UNICODESTR:
- 			/* silently ignore */
-@@ -808,7 +808,7 @@
- 		case _STAG_VENDOR:
- 			break;
- 		case _LTAG_ANSISTR:
--			isapnp_parse_name(card->dev.name, sizeof(card->dev.name), &size);
-+			isapnp_parse_name(card->name, sizeof(card->name), &size);
- 			break;
- 		case _LTAG_UNICODESTR:
- 			/* silently ignore */
-@@ -1144,11 +1144,11 @@
- 	protocol_for_each_card(&isapnp_protocol,card) {
- 		cards++;
- 		if (isapnp_verbose) {
--			printk(KERN_INFO "isapnp: Card '%s'\n", card->dev.name[0]?card->dev.name:"Unknown");
-+			printk(KERN_INFO "isapnp: Card '%s'\n", card->name[0]?card->name:"Unknown");
- 			if (isapnp_verbose < 2)
- 				continue;
- 			card_for_each_dev(card,dev) {
--				printk(KERN_INFO "isapnp:   Device '%s'\n", dev->dev.name[0]?dev->dev.name:"Unknown");
-+				printk(KERN_INFO "isapnp:   Device '%s'\n", dev->name[0]?dev->name:"Unknown");
- 			}
- 		}
- 	}
---- a/drivers/serial/8250_pnp.c	2003-08-09 04:31:45.000000000 +0000
-+++ b/drivers/serial/8250_pnp.c	2003-08-16 16:47:21.000000000 +0000
-@@ -369,7 +369,7 @@
-  */
- static int __devinit serial_pnp_guess_board(struct pnp_dev *dev, int *flags)
- {
--	if (!(check_name(dev->dev.name) || (dev->card && check_name(dev->card->dev.name))))
-+	if (!(check_name(pnp_dev_name(dev)) || (dev->card && check_name(dev->card->name))))
- 		return -ENODEV;
- 
- 	if (check_resources(dev->independent))
---- a/include/linux/pnp.h	2003-08-09 04:42:16.000000000 +0000
-+++ b/include/linux/pnp.h	2003-08-16 16:43:32.000000000 +0000
-@@ -19,6 +19,7 @@
- #define PNP_MAX_DMA		2
- #define PNP_MAX_DEVICES		8
- #define PNP_ID_LEN		8
-+#define PNP_NAME_LEN		50
- 
- struct pnp_protocol;
- struct pnp_dev;
-@@ -133,6 +134,7 @@
- 	struct pnp_protocol * protocol;
- 	struct pnp_id * id;		/* contains supported EISA IDs*/
- 
-+	char name[PNP_NAME_LEN];	/* contains a human-readable name */
- 	unsigned char	pnpver;		/* Plug & Play version */
- 	unsigned char	productver;	/* product version */
- 	unsigned int	serial;		/* serial number */
-@@ -187,6 +189,7 @@
- 	struct pnp_option * dependent;
- 	struct pnp_resource_table res;
- 
-+	char name[PNP_NAME_LEN];	/* contains a human-readable name */
- 	unsigned short	regs;		/* ISAPnP: supported registers */
- 	int 		flags;		/* used by protocols */
- 	struct proc_dir_entry *procent;	/* device entry in /proc/bus/isapnp */
-@@ -204,7 +207,7 @@
- 	for((dev) = card_to_pnp_dev((card)->devices.next); \
- 	(dev) != card_to_pnp_dev(&(card)->devices); \
- 	(dev) = card_to_pnp_dev((dev)->card_list.next))
--#define pnp_dev_name(dev) (dev)->dev.name
-+#define pnp_dev_name(dev) (dev)->name
- 
- static inline void *pnp_get_drvdata (struct pnp_dev *pdev)
- {
+/* DETECT_NUL() is non-zero if x contains a NUL byte. */
+#if LONG_MAX == 2147483647L
+#define DETECT_NUL(x) (((x) - 0x01010101) & ~(x) & 0x80808080)
+#else
+#if LONG_MAX == 9223372036854775807L
+#define DETECT_NUL(x) (((x) - 0x0101010101010101) & ~(x) & 0x8080808080808080)
+#else
+#error long int is not a 32bit or 64bit type.
+#endif
+#endif
+
+char *strncpy(char *dest, const char *src, size_t count)
+{
+	char *tmp = dest;
+
+	if (!UNALIGNED(src, tmp)) {
+		while (count >= sizeof(long)) {
+			if (DETECT_NUL(*((long*)src)))
+				break;
+
+			*((long *)tmp)++ = *((long *)src)++;
+			count -= sizeof(long);
+		}
+	}
+
+	while (count) {
+		count--;
+		if (!(*tmp++ = *src++))
+			break;
+	}
+
+	if (count) {
+		size_t count2;
+
+		if (count >= sizeof(long)) {
+			while ((long)tmp & (sizeof(long) - 1)) {
+				*tmp++ = '\0';
+				count--;
+			}
+
+			count2 = count / sizeof(long);
+			while (count2) {
+				*((long *)tmp)++ = '\0';
+				count2--;
+			}
+		}
+
+		count &= (sizeof(long) - 1);
+		while (count) {
+			*tmp++ = '\0';
+			count--;
+		}
+	}
+
+	return dest;
+}
+
+And here are some benchmarking numbers for the CRIS
+architecture. "Multi copy & fill" is the code above.
+"Multi copy+memset" is the same as above, but with the
+filling replaced by a call to memset().
+
+Multi copy+memset 1.374258    2.627357    3.125354    4.614480  
+Multi copy & fill 1.339129    2.607850    3.260540    8.303503  
+Multi byte fill   2.336643    4.619374    5.290972   10.326644  
+For loops         2.828718    5.591865    8.110286   40.684943  
+strncpy (glibc)   2.201317    4.273052    7.281693   31.474109  
+strncpy (uClibc)  2.311860    4.588357    9.112990   45.387527  
+
+And the numbers for my P4:
+
+Multi copy+memset 1.284029    2.111502    4.672941    8.470845  
+Multi copy & fill 1.203095    2.160514    3.265682    8.645152  
+Multi byte fill   3.161438    6.249649    7.144416   12.687760  
+For loops         3.202569    6.028025    9.410537   33.492053  
+strncpy (glibc)   2.359909    3.943612    6.952230   29.604865  
+strncpy (uClibc)  3.234713    5.943762   10.137144   39.651053  
+
+For unaligned source or destination the "Multi copy & fill" 
+would degenerate into "Multi byte fill". However, for
+architectures like ix86 and CRIS that can do unaligned long
+access, it would be a win to remove the UNALIGNED() check,
+and use long word copying all the time.
+
+Then whether using memset() or your filling is a win depends
+on the architecture and how many bytes needs to be filled.
+For a slow processor with little function call overhead (like
+CRIS), using memset seems to be a win almost immediately.
+However, for a fast processor like my P4, the call to memset
+is not a win until some 1500 bytes need to be filled.
+
+//Peter

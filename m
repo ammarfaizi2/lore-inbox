@@ -1,48 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261610AbUEOJwO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261704AbUEOKJS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261610AbUEOJwO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 May 2004 05:52:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261505AbUEOJwO
+	id S261704AbUEOKJS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 May 2004 06:09:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbUEOKJS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 May 2004 05:52:14 -0400
-Received: from zork.zork.net ([64.81.246.102]:61111 "EHLO zork.zork.net")
-	by vger.kernel.org with ESMTP id S261610AbUEOJwN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 May 2004 05:52:13 -0400
-To: Andi Kleen <ak@suse.de>
-Cc: davej@redhat.com, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: i810 AGP fails to initialise (was Re: 2.6.6-mm2)
-References: <20040513032736.40651f8e.akpm@osdl.org>
-	<6usme4v66s.fsf@zork.zork.net> <20040513135308.GA2622@redhat.com>
-	<20040513155841.6022e7b0.ak@suse.de> <6ulljwtoge.fsf@zork.zork.net>
-	<20040513174110.5b397d84.ak@suse.de> <6u8yfvsbd4.fsf@zork.zork.net>
-From: Sean Neakums <sneakums@zork.net>
-Mail-Followup-To: Andi Kleen <ak@suse.de>, davej@redhat.com,  akpm@osdl.org, 
- linux-kernel@vger.kernel.org
-Date: Sat, 15 May 2004 10:52:09 +0100
-In-Reply-To: <6u8yfvsbd4.fsf@zork.zork.net> (Sean Neakums's message of "Fri,
- 14 May 2004 08:42:47 +0100")
-Message-ID: <6uk6zeow52.fsf@zork.zork.net>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+	Sat, 15 May 2004 06:09:18 -0400
+Received: from 64-52-142-65.client.cypresscom.net ([64.52.142.65]:16566 "EHLO
+	scsoftware.sc-software.com") by vger.kernel.org with ESMTP
+	id S261704AbUEOKJO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 May 2004 06:09:14 -0400
+Date: Sat, 15 May 2004 03:07:46 -0700 (PDT)
+From: John Heil <kerndev@sc-software.com>
+To: Andrew Morton <akpm@osdl.org>
+cc: linux@horizon.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.6 is crashing repeatedly
+In-Reply-To: <20040514232842.63fd3240.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0405150241540.8086@scsoftware.sc-software.com>
+References: <20040515062258.7048.qmail@science.horizon.com>
+ <20040514232842.63fd3240.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: sneakums@zork.net
-X-SA-Exim-Scanned: No (on zork.zork.net); SAEximRunCond expanded to false
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sean Neakums <sneakums@zork.net> writes:
+On Fri, 14 May 2004, Andrew Morton wrote:
 
-> Andi Kleen <ak@suse.de> writes:
+> Date: Fri, 14 May 2004 23:28:42 -0700
+> From: Andrew Morton <akpm@osdl.org>
+> To: linux@horizon.com
+> Cc: linux-kernel@vger.kernel.org
+> Subject: Re: 2.6.6 is crashing repeatedly
 >
->> Sean, can you double check that when you compile the AGP driver as module
->> that the 7124 PCI ID appears in modinfo intel-agp ? 
->> And does the module also refuse to load ? 
+> linux@horizon.com wrote:
+> >
+> >  I have now captured a kernel crash.  Everything after iput in the second crash
+> >  was hand-coped, and may suffer from transcription errors, but it was done
+> >  quite carefully.
+> >
+> >  System has ECC memory and has been very stable, with uptimes in excess of
+> >  1 year when kernel upgrades were infrequent (2.5 development).
+> >
+> >  Stock 2.6.6 kernel, config as posted before.
+> >
+> >  Unable to handle kernel NULL pointer dereference at virtual address 00000004
+> >   printing eip:
+> >  c012a392
+> >  *pde = 00000000
+> >  Oops: 0002 [#1]
+> >  CPU:    0
+> >  EIP:    0060:[<c012a392>]    Not tainted
+> >  EFLAGS: 00010012   (2.6.6)
+> >  EIP is at free_block+0x52/0xd0
+> >  eax: 00000000   ebx: e9a3f000   ecx: e9a3f200   edx: df654000
+> >  esi: f7f8a560   edi: 00000016   ebp: f7f8a56c   esp: f7d89dec
+> >  ds: 007b   es: 007b   ss: 0068
+> >  Process kswapd0 (pid: 8, threadinfo=f7d88000 task=f7d8eb50)
+> >  Stack: f7f8a57c 0000001b c17fd784 c17fd784 f7f8a560 dc3cdac0 0000001b c012a449
+> >         f7fe73dc c17fd774 c17fd774 00000296 dc3cdac0 c037a304 c012a61a dc3cdb40
+> >         f7d89e5c 0000003d c014f385 dc3cdb40 c014f5c3 dc19c0c8 dc19c0c0 00000080
+> >  Call Trace:
+> >   [<c012a449>] cache_flusharray+0x39/0xc0
+> >   [<c012a61a>] kmem_cache_free+0x3a/0x50
+> >   [<c014f385>] destroy_inode+0x35/0x40
+> >   [<c014f5c3>] dispose_list+0x43/0x70
+> >   [<c014f87e>] prune_icache+0xae/0x1b0
+> >   [<c014f995>] shrink_icache_memory+0x15/0x20
 >
-> I rebuilt with agpgart, intel-agp and i810 as modules, modprobed them,
-> and it works.
+> Drat, random memory corruption.
+>
 
-I just realised that I probably forgot to reapply the patch before
-doing this test.  Will check Monday.  Sorry about this.
+Interesting...
 
+FWIW, a data point: I've been chasing memory corruption in 2.6.5-mm2.
+(Although I suspect it pre-dates that level.)
+
+The first 2K of a DMA page is overlayed w what looks like code
+(even disassembles to something almost meaningful, looking like
+interrupt handling code ie w several iret's. Althought I've yet to
+find where exactly it's from.) I obtain dma mem from the page
+via dma_pool_alloc, having created the pool w dma_pool_create.
+The hi 2k of the page w the overlay, remains in tact.
+
+I've been running w CONFIG_SLAB_DEBUG  And CONFIG_DEBUG_PAGEALLOC
+usually to no avail. However I do sometimes find freed memory
+0xA7 poison words occasionally involved. I temporarily commented out
+the dma_pool_free that would release the memory and I still get the
+2K overlay.
+
+johnh
+
+> Can you enable CONFIG_SLAB_DEBUG?  And CONFIG_DEBUG_PAGEALLOC too, although
+> beware that the latter is a bit costly in terms of CPU cycles and memory
+> usage.
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+
+-
+-----------------------------------------------------------------
+John Heil
+South Coast Software
+Custom systems software for UNIX and IBM MVS mainframes
+1-714-774-6952
+johnhscs@sc-software.com
+http://www.sc-software.com
+-----------------------------------------------------------------

@@ -1,49 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263311AbTDZKRR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Apr 2003 06:17:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263384AbTDZKRR
+	id S264646AbTDZK2g (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Apr 2003 06:28:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264645AbTDZK2b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Apr 2003 06:17:17 -0400
-Received: from portraits.wsisiz.edu.pl ([213.135.44.34]:51577 "EHLO
-	portraits.wsisiz.edu.pl") by vger.kernel.org with ESMTP
-	id S263311AbTDZKRQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Apr 2003 06:17:16 -0400
-Date: Sat, 26 Apr 2003 12:28:29 +0200
-Message-Id: <200304261028.h3QASTjv001439@lt.wsisiz.edu.pl>
-From: Lukasz Trabinski <lukasz@lt.wsisiz.edu.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21-rc1 freezes
-In-Reply-To: <3EA8D45A.3070205@web.de>
-X-Newsgroups: wsisiz.linux-kernel
-X-PGP-Key-Fingerprint: 87 9F 39 9C F9 EE EA 7F  8F C9 58 6A D4 54 0E B9
-X-Key-ID: 6DB9C699
-User-Agent: tin/1.5.17-20030407 ("Peephole") (UNIX) (Linux/2.4.21-pre6 (i686))
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-2
-Content-Transfer-Encoding: 8bit
+	Sat, 26 Apr 2003 06:28:31 -0400
+Received: from uni00du.unity.ncsu.edu ([152.1.13.100]:2688 "EHLO
+	uni00du.unity.ncsu.edu") by vger.kernel.org with ESMTP
+	id S264644AbTDZK2F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Apr 2003 06:28:05 -0400
+From: jlnance@unity.ncsu.edu
+Date: Sat, 26 Apr 2003 06:40:15 -0400
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: TASK_UNMAPPED_BASE & stack location
+Message-ID: <20030426104015.GA853@ncsu.edu>
+References: <459930000.1051302738@[10.10.2.4]> <b8c7no$u59$1@cesium.transmeta.com> <1750000.1051305030@[10.10.2.4]> <3EA9B061.600@techsource.com> <3280000.1051308382@[10.10.2.4]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3280000.1051308382@[10.10.2.4]>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3EA8D45A.3070205@web.de> you wrote:
-> after some time rc1 always freezes on my system.
-> I tried it three times:
+On Fri, Apr 25, 2003 at 03:06:23PM -0700, Martin J. Bligh wrote:
+> > If you're so strapped for process space that you
+> > need that extra 128Mb, then you probably shouldn't be using a 32-bit
+> > processor.
 > 
-> 1. I was running lopster under X. When I came home from work
-> my screen told me "no input signal".
-> 
-> 2. I ripped a cd using cdparanoia and oggenc under X.
-> After some time (1/2 hour maybe) the system freezed.
-> 
-> 3. Same disc on a tty -> The next morning I had a black screen.
-> (this time with apm and acpi disabled).
+> Point me at a cheap 32 cpu 64-bit machine. Market realities dicate
+> otherwise.
 
-I can to confirm this bug, I have the identical effects.
- 
-> BTW: I could find nothing interesting in /var/log/messages and
-> /var/log/warn
-
-Me too. :(
-
--- 
-*[ £ukasz Tr±biñski ]*
+Do you have a cheap 32 cpu 32-bit machine?  SMP?

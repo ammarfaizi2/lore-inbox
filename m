@@ -1,67 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261662AbVASIho@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261689AbVASIdj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261662AbVASIho (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 03:37:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261661AbVASIer
+	id S261689AbVASIdj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 03:33:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261678AbVASIb1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 03:34:47 -0500
-Received: from alcatraz.copyleft.no ([66.154.115.120]:41223 "EHLO
-	mail9.copyleft.no") by vger.kernel.org with ESMTP id S261679AbVASI0I
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 03:26:08 -0500
-Subject: dmesg output for Transcend 6-in-1 USB card reader
-From: Joakim Ziegler <joakim@avmaria.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Wed, 19 Jan 2005 02:25:58 -0600
-Message-Id: <1106123158.5270.108.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
+	Wed, 19 Jan 2005 03:31:27 -0500
+Received: from waste.org ([216.27.176.166]:22444 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261662AbVASIQ5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jan 2005 03:16:57 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: Andrew Morton <akpm@osdl.org>, "Theodore Ts'o" <tytso@mit.edu>
+X-PatchBomber: http://selenic.com/scripts/mailpatches
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <5.64403262@selenic.com>
+Message-Id: <6.64403262@selenic.com>
+Subject: [PATCH 5/12] random pt3: Entropy reservation accounting
+Date: Wed, 19 Jan 2005 00:17:21 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I needed to make scsi_mod probe all luns on this device to be able to
-use it. After some Googling, it seems it's encouraged to send dmesg
-output to this list to get the device added to the list of devices which
-should have all luns probed automatically. If I'm mistaken about that,
-my apologies. dmesg output follows:
+Additional parameter to allow keeping an entropy reserve in the input
+pool. Groundwork for proper /dev/urandom vs /dev/random starvation prevention.
 
-usb 2-1: new full speed USB device using address 8
-scsi1 : SCSI emulation for USB Mass Storage devices
-  Vendor:           Model: USB Card Reader   Rev: 1.0a
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-Attached scsi removable disk sda at scsi1, channel 0, id 0, lun 0
-  Vendor:           Model: USB Card Reader   Rev: 1.0a
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-Attached scsi removable disk sdc at scsi1, channel 0, id 0, lun 1
-  Vendor:           Model: USB Card Reader   Rev: 1.0a
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-Attached scsi removable disk sde at scsi1, channel 0, id 0, lun 2
-  Vendor:           Model: USB Card Reader   Rev: 1.0a
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-Attached scsi removable disk sdf at scsi1, channel 0, id 0, lun 3
-USB Mass Storage device found at 8
+Signed-off-by: Matt Mackall <mpm@selenic.com>
 
-
-And /proc/bus/usb/devices:
-
-T:  Bus=02 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  8 Spd=12  MxCh= 0
-D:  Ver= 1.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
-P:  Vendor=0d7d ProdID=0240 Rev= 1.00
-S:  Manufacturer=
-S:  Product=USB Reader
-S:  SerialNumber=30370A0030B9
-C:* #Ifs= 1 Cfg#= 1 Atr=80 MxPwr=350mA
-I:  If#= 0 Alt= 0 #EPs= 3 Cls=08(stor.) Sub=06 Prot=50 Driver=usb-
-storage
-E:  Ad=81(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-E:  Ad=02(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-E:  Ad=83(I) Atr=03(Int.) MxPS=   2 Ivl=1ms
-
-
-Hope this is useful. Not a member of the list, Cc: me on replies, etc.
-
--- 
-Joakim Ziegler <joakim@avmaria.com>
-
+Index: rnd/drivers/char/random.c
+===================================================================
+--- rnd.orig/drivers/char/random.c	2005-01-18 10:39:17.538306576 -0800
++++ rnd/drivers/char/random.c	2005-01-18 10:39:25.713264357 -0800
+@@ -1183,7 +1183,7 @@
+ #define SEC_XFER_SIZE			(TMP_BUF_SIZE*4)
+ 
+ static ssize_t extract_entropy(struct entropy_store *r, void * buf,
+-			       size_t nbytes, int min, int flags);
++			       size_t nbytes, int min, int rsvd, int flags);
+ 
+ /*
+  * This utility inline function is responsible for transfering entropy
+@@ -1203,7 +1203,7 @@
+ 			  r->name, bytes * 8, nbytes * 8, r->entropy_count);
+ 
+ 		bytes=extract_entropy(&input_pool, tmp, bytes,
+-				      random_read_wakeup_thresh / 8,
++				      random_read_wakeup_thresh / 8, 0,
+ 				      EXTRACT_ENTROPY_LIMIT);
+ 		add_entropy_words(r, tmp, bytes);
+ 		credit_entropy_store(r, bytes*8);
+@@ -1221,13 +1221,15 @@
+  * extracting entropy from the secondary pool, and can refill from the
+  * primary pool if needed.
+  *
+- * If we have less than min bytes of entropy available, exit without
+- * transferring any. This helps avoid racing when reseeding.
++ * The min parameter specifies the minimum amount we can pull before
++ * failing to avoid races that defeat catastrophic reseeding while the
++ * reserved parameter indicates how much entropy we must leave in the
++ * pool after each pull to avoid starving other readers.
+  *
+  * Note: extract_entropy() assumes that .poolwords is a multiple of 16 words.
+  */
+ static ssize_t extract_entropy(struct entropy_store *r, void * buf,
+-			       size_t nbytes, int min, int flags)
++			       size_t nbytes, int min, int reserved, int flags)
+ {
+ 	ssize_t ret, i;
+ 	__u32 tmp[TMP_BUF_SIZE], data[16];
+@@ -1247,17 +1249,19 @@
+ 	DEBUG_ENT("trying to extract %d bits from %s\n",
+ 		  nbytes * 8, r->name);
+ 
+-	if (r->entropy_count / 8 < min) {
++	/* Can we pull enough? */
++	if (r->entropy_count / 8 < min + reserved) {
+ 		nbytes = 0;
+ 	} else {
++		/* If limited, never pull more than available */
+ 		if (flags & EXTRACT_ENTROPY_LIMIT &&
+-		    nbytes >= r->entropy_count / 8)
+-			nbytes = r->entropy_count / 8;
++		    nbytes + reserved >= r->entropy_count / 8)
++			nbytes = r->entropy_count/8 - reserved;
+ 
+-		if (r->entropy_count / 8 >= nbytes)
++		if(r->entropy_count / 8 >= nbytes + reserved)
+ 			r->entropy_count -= nbytes*8;
+ 		else
+-			r->entropy_count = 0;
++			r->entropy_count = reserved;
+ 
+ 		if (r->entropy_count < random_write_wakeup_thresh)
+ 			wake_up_interruptible(&random_write_wait);
+@@ -1354,7 +1358,7 @@
+  */
+ void get_random_bytes(void *buf, int nbytes)
+ {
+-	extract_entropy(&nonblocking_pool, (char *) buf, nbytes, 0,
++	extract_entropy(&nonblocking_pool, (char *) buf, nbytes, 0, 0,
+ 			EXTRACT_ENTROPY_SECONDARY);
+ }
+ 
+@@ -1444,7 +1448,7 @@
+ 
+ 		DEBUG_ENT("reading %d bits\n", n*8);
+ 
+-		n = extract_entropy(&blocking_pool, buf, n, 0,
++		n = extract_entropy(&blocking_pool, buf, n, 0, 0,
+ 				    EXTRACT_ENTROPY_USER |
+ 				    EXTRACT_ENTROPY_LIMIT |
+ 				    EXTRACT_ENTROPY_SECONDARY);
+@@ -1506,7 +1510,7 @@
+ 		flags |= EXTRACT_ENTROPY_SECONDARY;
+ 	spin_unlock_irqrestore(&input_pool.lock, cpuflags);
+ 
+-	return extract_entropy(&nonblocking_pool, buf, nbytes, 0, flags);
++	return extract_entropy(&nonblocking_pool, buf, nbytes, 0, 0, flags);
+ }
+ 
+ static unsigned int

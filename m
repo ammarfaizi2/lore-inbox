@@ -1,78 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272672AbTG1Gnr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 02:43:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272673AbTG1Gnr
+	id S272673AbTG1GpX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 02:45:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272674AbTG1GpX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 02:43:47 -0400
-Received: from vtens.prov-liege.be ([193.190.122.60]:22834 "EHLO
-	mesepl.epl.prov-liege.be") by vger.kernel.org with ESMTP
-	id S272672AbTG1Gnq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 02:43:46 -0400
-To: <akpm@osdl.org>
-Subject: [PATCH]2.6 test1 mm2 special_file move
-From: <ffrederick@prov-liege.be>
-Cc: <linux-kernel@vger.kernel.org>
-Date: Mon, 28 Jul 2003 09:25:36 CEST
-Reply-To: <ffrederick@prov-liege.be>
-X-Priority: 3 (Normal)
-X-Originating-Ip: [10.10.0.30]
-X-Mailer: NOCC v0.9.5
-Content-Type: text/plain;
-	charset="ISO-8859-1"
-Content-Transfer-Encoding: 8bit
-Message-Id: <S272672AbTG1Gnq/20030728064346Z+201@vger.kernel.org>
+	Mon, 28 Jul 2003 02:45:23 -0400
+Received: from dm4-157.slc.aros.net ([66.219.220.157]:2946 "EHLO cyprus")
+	by vger.kernel.org with ESMTP id S272673AbTG1GpS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jul 2003 02:45:18 -0400
+Message-ID: <3F24CA0D.4050901@aros.net>
+Date: Mon, 28 Jul 2003 01:00:29 -0600
+From: Lou Langholtz <ldl@aros.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@digeo.com>
+Cc: Jens Axboe <axboe@suse.de>, Andrea Arcangeli <andrea@suse.de>,
+       NeilBrown <neilb@cse.unsw.edu.au>
+Subject: [PATCH 2.6.0-test2] fix broken blk_start_queue behavior
+References: <3F2418D9.1020703@aros.net>
+In-Reply-To: <3F2418D9.1020703@aros.net>
+Content-Type: multipart/mixed;
+ boundary="------------070608070809090109020109"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
+This is a multi-part message in MIME format.
+--------------070608070809090109020109
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-            Here's special_file macro move.It was used twice in both vfs & jfs with same definition.
+This patch changes the behavior of blk_start_queue() so that request 
+queues really do start up again after blk_start_queue() is called (on 
+queues that were previously stopped via blk_stop_queue). The patch 
+applies against 2.6.0-test2. I have tested this patch with the use of 
+blk_stop_queue and blk_start_queue in my branch of the nbd block device 
+driver (not yet released). blk_start_queue is also used in 
+./drivers/{block/cciss.c,ide/ide-io.c} which should see things function 
+as intended now w.r.t. stopping and starting the request queue (but I do 
+not know if anybody noticed that they weren't working correctly before). 
+ide-io.c uses queue stop and start for power management handling. Please 
+let me know if you've seen a problem before with that, especially if 
+this patch fixes it - that will be happy news ;-)
 
-Regards,
-Fabian
+--------------070608070809090109020109
+Content-Type: text/plain;
+ name="patch-2.6.0-test2-unplug"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch-2.6.0-test2-unplug"
 
-            diff -Naur orig/fs/jfs/inode.c edited/fs/jfs/inode.c
---- orig/fs/jfs/inode.c	2003-07-14 05:28:52.000000000 +0200
-+++ edited/fs/jfs/inode.c	2003-07-27 22:42:03.000000000 +0200
-@@ -65,9 +65,6 @@
- 	}
- }
- 
--/* This define is from fs/open.c */
--#define special_file(m) (S_ISCHR(m)||S_ISBLK(m)||S_ISFIFO(m)||S_ISSOCK(m))
--
- /*
-  * Workhorse of both fsync & write_inode
+diff -urN linux-2.6.0-test2/drivers/block/ll_rw_blk.c linux-2.6.0-test2-unplug/drivers/block/ll_rw_blk.c
+--- linux-2.6.0-test2/drivers/block/ll_rw_blk.c	2003-07-27 19:02:48.000000000 -0600
++++ linux-2.6.0-test2-unplug/drivers/block/ll_rw_blk.c	2003-07-28 00:36:35.366537142 -0600
+@@ -1027,10 +1027,10 @@
   */
-diff -Naur orig/fs/open.c edited/fs/open.c
---- orig/fs/open.c	2003-07-14 05:29:30.000000000 +0200
-+++ edited/fs/open.c	2003-07-27 22:41:49.000000000 +0200
-@@ -20,8 +20,7 @@
- #include <linux/mount.h>
- #include <linux/vfs.h>
- #include <asm/uaccess.h>
--
--#define special_file(m) (S_ISCHR(m)||S_ISBLK(m)||S_ISFIFO(m)||S_ISSOCK(m))
-+#include <linux/fs.h>
- 
- int vfs_statfs(struct super_block *sb, struct kstatfs *buf)
+ static inline void __generic_unplug_device(request_queue_t *q)
  {
-diff -Naur orig/include/linux/fs.h edited/include/linux/fs.h
---- orig/include/linux/fs.h	2003-07-23 15:59:42.000000000 +0200
-+++ edited/include/linux/fs.h	2003-07-27 22:41:46.000000000 +0200
-@@ -1320,6 +1320,8 @@
+-	if (!blk_remove_plug(q))
++	if (test_bit(QUEUE_FLAG_STOPPED, &q->queue_flags))
+ 		return;
  
- extern struct file_operations generic_ro_fops;
+-	if (test_bit(QUEUE_FLAG_STOPPED, &q->queue_flags))
++	if (!blk_remove_plug(q))
+ 		return;
  
-+#define special_file(m) (S_ISCHR(m)||S_ISBLK(m)||S_ISFIFO(m)||S_ISSOCK(m))
-+
- extern int vfs_readlink(struct dentry *, char __user *, int, const char *);
- extern int vfs_follow_link(struct nameidata *, const char *);
- extern int page_readlink(struct dentry *, char __user *, int);
+ 	del_timer(&q->unplug_timer);
 
-
-___________________________________
-
-
+--------------070608070809090109020109--
 

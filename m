@@ -1,70 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262065AbUFWXHe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263540AbUFWXM6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262065AbUFWXHe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 19:07:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262114AbUFWXHe
+	id S263540AbUFWXM6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 19:12:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262328AbUFWXM6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 19:07:34 -0400
-Received: from holomorphy.com ([207.189.100.168]:3462 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S262065AbUFWXHc (ORCPT
+	Wed, 23 Jun 2004 19:12:58 -0400
+Received: from mail.kroah.org ([65.200.24.183]:15787 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263540AbUFWXMy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 19:07:32 -0400
-Date: Wed, 23 Jun 2004 16:07:30 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [oom]: [0/4] fix OOM deadlock running OAST
-Message-ID: <20040623230730.GJ1552@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <0406231407.HbLbJbXaHbKbWa5aJb1a4aKb0a3aKb1a0a2aMbMbYa3aLbMb3aJbWaJbXaMbLb1a342@holomorphy.com> <20040623151659.70333c6d.akpm@osdl.org> <20040623223146.GG1552@holomorphy.com> <20040623153758.40e3a865.akpm@osdl.org>
+	Wed, 23 Jun 2004 19:12:54 -0400
+Date: Wed, 23 Jun 2004 15:03:03 -0700
+From: Greg KH <greg@kroah.com>
+To: Jeremy Katz <jeremy.katz@gmail.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Stephen Rothwell <sfr@canb.auug.org.au>,
+       Andrew Morton <akpm@osdl.org>, Linus <torvalds@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>, katzj@redhat.com
+Subject: Re: [PATCH] PPC64 iSeries viodasd proc file
+Message-ID: <20040623220303.GD6548@kroah.com>
+References: <20040618165436.193d5d35.sfr@canb.auug.org.au> <40D305B4.4030009@pobox.com> <20040618151753.GA21596@infradead.org> <cb5afee1040620125272ab9f06@mail.gmail.com> <20040621060435.GA28384@kroah.com> <cb5afee10406210914451dc6@mail.gmail.com> <cb5afee10406231415293e90c0@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040623153758.40e3a865.akpm@osdl.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <cb5afee10406231415293e90c0@mail.gmail.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 23, 2004 at 03:37:58PM -0700, Andrew Morton wrote:
-> What about zone->all_unreclaimable?
+On Wed, Jun 23, 2004 at 05:15:54PM -0400, Jeremy Katz wrote:
+> For example, /sys/bus/ide/devices/* and then symlinks forever... lots
+> of readdir, readlink, etc makes probing far slower and more complex
+> than the simple /proc/ide/ide?/*/ that could be used before.
 
-It's unclear which zones must be checked for this to be of use. In
-general, suppose one determines all possible zones from which a given
-allocation may be satisfied (this still assumes out_of_memory() is
-passed a gfp_mask, and then discovers ->all_unreclaimable. It is still
-not possible to determine whether nr_swap_pages is relevant.
+Yes, ide never got completly moved over to sysfs like scsi did.  We
+never had the time to do this work, sorry.
 
-Now suppose the check for nr_swap_pages > 0 is removed in tandem with
-the passing of the gfp_mask to out_of_memory() and checking
-->all_unreclaimable. This will then risk triggering OOM falsely for
-unpinned pagecache allocations in the presence of high scan rates,
-though it may yet be safe.
+But now your parsing should be easier with the one-value to one-file
+rule, right?  And libsysfs should help out here with all of the symlinks
+and readdir, etc calls.
 
-There are larger semantic questions also. For instance, the runs that
-deadlocked were with non-overcommit enabled (that is, I left the sysctl
-/proc/sys/vm/overcommit_memory == 0 after boot). The intention was to
-provide best effort unfailability to userspace allocations by detecting
-insufficient resources up-front and returning MAP_FAILED from mmap() and
-so on. There is a current hole in this, which is that pinned kernel
-memory allocations aren't subtracted from the pool of memory considered
-to be available to userspace. This would add the additional caveat that
-pure userspace memory allocations may result in OOM kills where they
-didn't before, as without checking __GFP_WIRED, it's not possible to
-determine whether nr_swap_pages > 0 is relevant, where it would suffice
-for pure userspace allocations with non-overcommit.
+> > > Also, things in sysfs aren't exactly stable enough to count on as a
+> > > dependable interface, but that's something the kernel has never
+> > > reliably exported to userspace.
+> >
+> > Why isn't sysfs stable enough?  You can find any driver instantly.  And
+> > any device bound to that driver in a stable and repeatable manner.
+> 
+> Again, not sysfs itself.  How information is exported via sysfs.  I'm
+> not saying that things exported via /proc are always the picture of
+> stability here (cf the recent change from /proc/scsi/usb-storage-$host
+> to /proc/scsi/usb-storage/$host), but at the same time, things in
+> /proc have tended to settle down in the general case.  This just isn't
+> true yet with sysfs and is only the sort of thing that can happen with
+> time.
+> 
+> There are also other things; I guess consistency is a better word. 
+> People like to say use /sys/block to show block devices, but that
+> shows a lot of "useless" block devices from the point of view of
+> trying to show disks.
 
-__GFP_WIRED is faithful to the current timeout-based semantics and
-so minimizes the risk associated with discarding the nr_swap_pages > 0
-check. I'm willing to entertain deeper semantic changes such as the
-above removal of nr_swap_pages > 0 in tandem with passing the gfp_mask
-to out_of_memory() and checking for ->all_unreclaimable for all the
-members of the gfp_mask's zonelist if you still want them given all this.
+But all of those devices are block devices.  You want a hardware
+picture, right?  sysfs never said it would show you just that, but it
+makes it easier to determine.
 
-It also occurs to me that it's possible to detect overcommitment via a
-combination of kernel and user allocations by means of summing the
-per_cpu nr_wired counters along with vm_committed_memory, so there may
-yet be methods of strengthening strict non-overcommit semantics.
+For this specific instance, just look for block devices that have a
+device symlink that points to a real device.
 
+> > So, give me specific examples, or stop ranting for no reason.
+> 
+> And to be more constructive (after a discussion with Jeff this
+> afternoon which is when I realized the reply didn't go out), what
+> would be _very_ useful to have from a "probing disks" perspective
+> would be a way to enumerate easily and simply from within sysfs the
+> disks that are associated with a specific controller.
 
--- wli
+Hm, I think libsysfs can give you this, if you ask for the block devices
+that are associated with each individual device associated with a
+driver.
+
+The whole "what driver controls what devices" is not a simple one to one
+mapping all the time, with drivers that work on multiple types of
+busses, and drivers that control devices that contain multiple class
+devices, etc.  It's not a simple thing to solve, sorry.
+
+But what you can use is the MODULE_DEVICE_TABLE() information in the
+modules to try to help you out here.  That details a mapping of what
+kind of devices that specific driver supports.
+
+> Note: this should not mean that we then go and remove currently
+> existing stuff in /proc.  Deprecate it and then it can go away in time
+> as people switch.  Having to have a flag day is very painful.  It's
+> far easier to deprecate in one stable series with a new interface
+> available and then start removing the old ones as things start to
+> switch over.  If it really is an improvement, then getting people to
+> change won't be difficult.
+
+I agree, I don't think that many things have disappeared from /proc just
+yet, right?  You should just have more information than what you
+previously did, right?  Or did scsi drop their /proc support fully?
+
+thanks,
+
+greg k-h

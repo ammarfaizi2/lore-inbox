@@ -1,40 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316574AbSHBP7U>; Fri, 2 Aug 2002 11:59:20 -0400
+	id <S316309AbSHBP45>; Fri, 2 Aug 2002 11:56:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316579AbSHBP7Q>; Fri, 2 Aug 2002 11:59:16 -0400
-Received: from to-velocet.redhat.com ([216.138.202.10]:500 "EHLO
-	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
-	id <S316408AbSHBP5L>; Fri, 2 Aug 2002 11:57:11 -0400
-Date: Fri, 2 Aug 2002 12:00:40 -0400
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Roman Zippel <zippel@linux-m68k.org>,
-       David Woodhouse <dwmw2@infradead.org>,
-       David Howells <dhowells@redhat.com>, alan@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: manipulating sigmask from filesystems and drivers
-Message-ID: <20020802120040.A25119@redhat.com>
-References: <Pine.LNX.4.44.0208021118120.28515-100000@serv> <Pine.LNX.4.44.0208020833110.18265-100000@home.transmeta.com>
+	id <S316408AbSHBP45>; Fri, 2 Aug 2002 11:56:57 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:9478 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S316309AbSHBP4s>; Fri, 2 Aug 2002 11:56:48 -0400
+Date: Fri, 2 Aug 2002 17:00:07 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: gerg <gerg@snapgear.com>
+Cc: Matthew Wilcox <willy@debian.org>, linux-kernel@vger.kernel.org
+Subject: Re: linux-2.5.30uc0 MMU-less patches
+Message-ID: <20020802170007.E11451@flint.arm.linux.org.uk>
+References: <20020802145034.B24631@parcelfarce.linux.theplanet.co.uk> <3D4AAA87.8050508@snapgear.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0208020833110.18265-100000@home.transmeta.com>; from torvalds@transmeta.com on Fri, Aug 02, 2002 at 08:39:34AM -0700
+In-Reply-To: <3D4AAA87.8050508@snapgear.com>; from gerg@snapgear.com on Sat, Aug 03, 2002 at 01:51:35AM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 02, 2002 at 08:39:34AM -0700, Linus Torvalds wrote:
-> We already do this right, and there is no reason to _break_ the fact that
-> we do it right. Can you come up with a _single_ reason for why we should
-> break existing standardized binary interfaces?
+On Sat, Aug 03, 2002 at 01:51:35AM +1000, gerg wrote:
+> Matthew Wilcox wrote:
+> >  - the Makefile changes seem terribly inappropriate.
+> Some simplify cross compilation (like the ARCH and CROSS_COMPILE changes).
 
-Personally, I think that uninterruptible file io is good, but there needs 
-to be an upper limit to the maximum size of the io.  As it stands today, 
-someone can do a single multigigabyte read or write that is completely 
-uninterruptible (even to kill -9), but could take a minute or more to 
-complete.
+make ARCH=foo CROSS_COMPILE=arm-linux-
 
-		-ben
+variables on makes command line override variables in the makefile.
+
+> >  - drivers/char/mcfserial.c needs to be converted to the new serial core
+> >    and moved to drivers/serial.
+> >  - ditto arch/m68knommu/platform/68360/quicc/uart.c
+> 
+> Yep, I am looking at that now. That will take me a little
+> effort and time to put together.
+
+You should be aware that I'm going to be submitting a minor change in
+the interface (as detailed in Documentation/serial/driver) soon, mainly
+to make Dave Miller happy.  Patch soon to be available.
+
 -- 
-"You will be reincarnated as a toad; and you will be much happier."
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

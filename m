@@ -1,49 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318245AbSG3Mfq>; Tue, 30 Jul 2002 08:35:46 -0400
+	id <S318244AbSG3Mco>; Tue, 30 Jul 2002 08:32:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318246AbSG3Mfq>; Tue, 30 Jul 2002 08:35:46 -0400
-Received: from mg03.austin.ibm.com ([192.35.232.20]:63716 "EHLO
-	mg03.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S318245AbSG3Mfq>; Tue, 30 Jul 2002 08:35:46 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: Thomas Molina <tmolina@cox.net>
-Subject: Re: 2.5.27: JFS oops
-Date: Tue, 30 Jul 2002 07:38:49 -0500
-X-Mailer: KMail [version 1.4]
-Cc: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0207291927160.19349-100000@dad.molina>
-In-Reply-To: <Pine.LNX.4.44.0207291927160.19349-100000@dad.molina>
+	id <S318245AbSG3Mco>; Tue, 30 Jul 2002 08:32:44 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:8853 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S318244AbSG3Mcn>;
+	Tue, 30 Jul 2002 08:32:43 -0400
+Subject: RE: [Lse-tech] [RFC]  per cpu slab fix to reduce freemiss
+To: "Luck, Tony" <tony.luck@intel.com>
+Cc: Bill Hartner <Bill_Hartner@us.ibm.com>, linux-kernel@vger.kernel.org,
+       lse <lse-tech@lists.sourceforge.net>
+X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
+Message-ID: <OFAF01BB69.D29E7D2F-ON87256C05.006F1BA4@boulder.ibm.com>
+From: "Mala Anand" <manand@us.ibm.com>
+Date: Tue, 30 Jul 2002 07:36:06 -0500
+X-MIMETrack: Serialize by Router on D03NM123/03/M/IBM(Release 5.0.10 |March 22, 2002) at
+ 07/30/2002 06:36:01 AM
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200207300738.50302.shaggy@austin.ibm.com>
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 29 July 2002 19:33, Thomas Molina wrote:
-> On Mon, 29 Jul 2002, Dave Kleikamp wrote:
-> > On Monday 29 July 2002 10:06, Axel Siebenwirth wrote:
-> > I haven't seen this trap before.  I'll take a closer look at it,
-> > and let you know what I find.
-> >
-> > > Can I use jfs from cvs with current kernels
-> > > (2.5.29/2.4.19-rc3-ac3) to see how latest changes work?
-> >
-> > Yes.  You should be able to just replace everything under fs/jfs
-> > with what's in cvs.
->
-> Are you saying jfs in 2.5.29 jfs is not a problem?  I'm looking to
-> see if I should put it on my problem status report.
 
-2.5.29 had a problem that is fixed in Linus's bk tree.  I had posted a 
-patch to this list as well.  (Simply remove the calls to d_delete from 
-namei.c.)
+>Tony Luck writes ..
+>You don't specify any details of how the "singly linked list of
+>free objects" would be implemented.  You cannot use any of the
+>memory in the freed object (as the constructor for a slab is only
+>called when memory is first allocated, not when an object is recycled)
+>so using any part of the object might confuse a caller by giving them
+>a corrupted object.
+I am creating a link list of free objects per cpu. When objects are
+deallocated by the caller they get added to its cpu free object link
+list.  The freed objects do not migrate to other caches, they are put
+back to the present cpu's link list. so they don't have to be
+re-initialized.  I am planning on putting a (configurable) limit on
+the number of free objects that can stay in a free list.
 
-Axel is seeing traps that I haven't seen elsewhere, so that's another 
-potential problem.  We don't know the cause of that one yet.
+>Are you going to have some external structure to maintain the linked
+>list?  Or secretly enlarge the object to provide space for the link,
+>or some other way?
+No I am using the object(beginning space) to store the links. When
+allocated, I can initialize the space occupied by the link address.
 
--- 
-David Kleikamp
-IBM Linux Technology Center
+
+Regards,
+    Mala
+
+
+   Mala Anand
+   IBM Linux Technology Center - Kernel Performance
+   E-mail:manand@us.ibm.com
+   Phone:838-8088; Tie-line:678-8088
+
+
+
+
+
 

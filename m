@@ -1,32 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267102AbTA0COg>; Sun, 26 Jan 2003 21:14:36 -0500
+	id <S267104AbTA0CX4>; Sun, 26 Jan 2003 21:23:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267106AbTA0COg>; Sun, 26 Jan 2003 21:14:36 -0500
-Received: from windsormachine.com ([206.48.122.28]:25619 "EHLO
-	router.windsormachine.com") by vger.kernel.org with ESMTP
-	id <S267102AbTA0COg>; Sun, 26 Jan 2003 21:14:36 -0500
-Date: Sun, 26 Jan 2003 21:23:49 -0500 (EST)
-From: Mike Dresser <mdresser_l@windsormachine.com>
-To: Tom Winkler <tom@qwws.net>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: poor IDE performance on ASUS P4PE with WD800JB
-In-Reply-To: <200301262039.38783.tom@qwws.net>
-Message-ID: <Pine.LNX.4.33.0301262120330.18529-100000@router.windsormachine.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267106AbTA0CX4>; Sun, 26 Jan 2003 21:23:56 -0500
+Received: from lennier.cc.vt.edu ([198.82.162.213]:9228 "EHLO
+	lennier.cc.vt.edu") by vger.kernel.org with ESMTP
+	id <S267104AbTA0CXz>; Sun, 26 Jan 2003 21:23:55 -0500
+X-WebMail-UserID: rtilley
+Date: Sun, 26 Jan 2003 21:33:11 -0500
+From: rtilley <rtilley@vt.edu>
+To: linux-kernel@vger.kernel.org
+X-EXP32-SerialNo: 00002964
+Subject: Re: Hard Disk Failure
+Message-ID: <3E3B3FF0@zathras>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Mailer: WebMail (Hydra) SMTP v3.61.08
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 26 Jan 2003, Tom Winkler wrote:
+> no.  e2fsprogs might cause data loss, but not
+> physical damage.
 
-> The cache read time is pretty ok but the disk read time is below of
-> what I'd have expected. My expectations would have been around 40MB/sec.
+This reminds me of something I read once.
 
-Indeed, I've got old Maxtor D740X-6L's that score in this range, even on
-old hardware.
+In his book, Takedown, Tsutomu Shimomura (forgive me if that's spelled wrong) 
+wrote a few short paragraphs about how he was able to move the head-arm of a 
+magnetic disk drive back and forth with software commands. He could tell the 
+head-arm to go to any cylinder on the drive, he wondered what would happen if 
+he tried to send it to a cylinder that was outside the physical limits of the 
+drive. He told the drive (a 200 cylinder drive) to goto cylinder 4000. The 
+drive actually tried to go to that cylinder and caused a hardware failure in 
+the process.
 
-What does 2.4.20 do for you, compared to the 2.4.20pre7 you are running?
+Is it still possible for software to damage hardware in this fashion or is 
+hardware smarter now? Do drives know not to try and access a cylinder that is 
+outside their physical limits?
 
-Mike
 

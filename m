@@ -1,70 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291356AbSBGWM1>; Thu, 7 Feb 2002 17:12:27 -0500
+	id <S291354AbSBGWMh>; Thu, 7 Feb 2002 17:12:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288153AbSBGWMR>; Thu, 7 Feb 2002 17:12:17 -0500
-Received: from [216.163.188.202] ([216.163.188.202]:48394 "EHLO
-	C9Mailgw01.amadis.com") by vger.kernel.org with ESMTP
-	id <S291384AbSBGWMA>; Thu, 7 Feb 2002 17:12:00 -0500
-Message-ID: <3C62FB81.E053B660@starband.net>
-Date: Thu, 07 Feb 2002 17:11:13 -0500
-From: Justin Piszcz <war@starband.net>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17 i686)
-X-Accept-Language: en
+	id <S288153AbSBGWM2>; Thu, 7 Feb 2002 17:12:28 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:13830 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S291354AbSBGWMT>;
+	Thu, 7 Feb 2002 17:12:19 -0500
+Date: Thu, 7 Feb 2002 20:12:13 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Louis Garcia <louisg00@bellsouth.net>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Problem with rmap-12c
+In-Reply-To: <1013114437.1619.22.camel@tiger>
+Message-ID: <Pine.LNX.4.33L.0202072006010.17850-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: "H. Peter Anvin" <hpa@zytor.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux Kernel Information & Install Kernel Script
-In-Reply-To: <3C6267B7.30A3020D@starband.net> <a3ut0u$f60$1@cesium.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Perhaps, however I began ik in December 2000.
-No /sbin/installkernel existed at the time.
-And /sbin/installkernel doesn't support grub on my rh72 box.
-Nor does it check dependencies, etc, etc.
+On 7 Feb 2002, Louis Garcia wrote:
 
-"H. Peter Anvin" wrote:
+> I tried rmap-12c and had lots of swap usage. I when back to 12a and
+> everything calmed down. Is their a known problem with 12c?
 
-> Followup to:  <3C6267B7.30A3020D@starband.net>
-> By author:    Justin Piszcz <war@starband.net>
-> In newsgroup: linux.dev.kernel
-> >
-> > New site: http://www.installkernel.com/
-> > It is very light at the moment.
-> >
-> > 1] Latest news about the kernel:
-> >    http://www.installkernel.com/kernel.html
-> >    Anything else I should add under 2.4.17?
-> >
-> > 2] Install Kernel (bash script which I am working on)
-> >     http://www.installkernel.com/ik/index.html
-> >     ik-0.8.9: Adds -b option, you can build and install the kernel from
-> > the current directory with -b.
-> >     Summary of ik:
-> >     Install Kernel (ik) is a bash script that installs the Linux kernel
-> > and automatically sets up LILO or GRUB.
-> >     It also saves your kernel configuration each time you do an install.
-> > This allows you to restore the newest
-> >     configuration file when you make a new kernel. This script is
-> > intended for two groups of people; people
-> >     new to compiling kernels, and people who are tired of moving files
-> > around and editing their bootloader
-> >     configurations every time they install a new kernel.
-> >
->
-> Sounds like you should make this work as /sbin/installkernel.
->
->         -hpa
-> --
-> <hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-> "Unix gives you enough rope to shoot yourself in the foot."
-> http://www.zytor.com/~hpa/puzzle.txt    <amsp@zytor.com>
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Nope, but the RSS limit enforcing stuff is a possible
+suspect.
+
+It turns out I used a "struct pte_t" in over_rss_limit(),
+which turned into a compiler warning, for which I didn't
+spot the cause ;)
+
+A fix for the bug was sent by Roger Larsson, who spotted
+the fact that "pte_t" already has a "struct" inside it.
+
+Maybe page aging isn't working in rmap-12c because of this
+stupid mistake ... but it's a long shot.  Maybe I should
+release rmap 12d tonight ? ;)
+
+regards,
+
+Rik
+-- 
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

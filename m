@@ -1,64 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265979AbUBPXQX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 18:16:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266002AbUBPXOf
+	id S265988AbUBPXCJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 18:02:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266016AbUBPXBG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 18:14:35 -0500
-Received: from fw.osdl.org ([65.172.181.6]:3724 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265979AbUBPXJu (ORCPT
+	Mon, 16 Feb 2004 18:01:06 -0500
+Received: from aun.it.uu.se ([130.238.12.36]:5082 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S266011AbUBPW7N (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 18:09:50 -0500
-Date: Mon, 16 Feb 2004 15:09:43 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: David Eger <eger@theboonies.us>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.3-rc3 radeonfb: Problems with new (and old) driver
-In-Reply-To: <1076972267.3649.81.camel@gaston>
-Message-ID: <Pine.LNX.4.58.0402161503490.30742@home.osdl.org>
-References: <Pine.LNX.4.50L0.0402160411260.2959-100000@rosencrantz.theboonies.us>
-  <1076904084.12300.189.camel@gaston>  <Pine.LNX.4.58.0402160947080.30742@home.osdl.org>
-  <1076968236.3648.42.camel@gaston>  <Pine.LNX.4.58.0402161410430.30742@home.osdl.org>
-  <1076969892.3649.66.camel@gaston>  <Pine.LNX.4.58.0402161420390.30742@home.osdl.org>
- <1076972267.3649.81.camel@gaston>
+	Mon, 16 Feb 2004 17:59:13 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16433.19261.280849.983457@alkaid.it.uu.se>
+Date: Mon, 16 Feb 2004 23:59:09 +0100
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: Tetsuji Rai <tetsuji_rai@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Cannot enable APIC with 2.6.2
+In-Reply-To: <403101BA.1060202@yahoo.com>
+References: <403101BA.1060202@yahoo.com>
+X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Tetsuji Rai writes:
+ > I enabled APIC in config file of kernel 2.6.2, however APIC is not enabled
+ > on boot.   I'm sure APIC is enabled on my machine by BIOS, because I
+ > confirmed it with WIndows XP.  What's wrong with my settings?   Or it's a
+ > bug of kernel?.....I suspect my config should be wrong.....
 
+"APIC" here means I/O-APIC. The local APIC is Ok according to the dmesg log.
 
-On Tue, 17 Feb 2004, Benjamin Herrenschmidt wrote:
-> 
-> That's what I was talking about: what drivers should I convert :) On
-> PPC, I don't build things like vgacon etc... Anyway, patch coming soon.
+ > # CONFIG_SMP is not set
+ > # CONFIG_PREEMPT is not set
+ > CONFIG_X86_UP_APIC=y
+ > CONFIG_X86_UP_IOAPIC=y
+ > CONFIG_X86_LOCAL_APIC=y
 
-I'd suggest converting all the ones you can find - on the assumption that 
-adding the extra argument (and ignoring it) is the always the right thing 
-to do. 
+This part is fine.
 
-So the "conversion" would be to just change the function declaration, and 
-none of the code. Except for fbdev (and even there that conversion would 
-be "correct" - it just wouldn't take advantage of the new information).
+ > CONFIG_MTRR=y
 
-> Note that a mode_switch separate from blank would have made sense
-> too some way...
+But here the .config ends, so we can't tell if ACPI is enabled or not.
 
-Yes. I agree. The naming is crap. We're not blanking, we're changing 
-state.
+ > -----dmesg-----
 
-But it's not a mode switch either - _sometimes_ it's a mode switch, but 
-sometimes the state change is that we're switching to another backing 
-store (ie a VC switch) but with the same mode.
+The kernel found no MP tables. The only chance left to enable the
+I/O-APIC is for you to configure ACPI and pray it works on your machine.
 
-So _logically_ the interface should be more of a "con_notify_change()"  
-one, with a bitmap of which states have changed (where "graphics vs text"
-is just one set of states - resultion is another, VC backing store is one,
-etc etc).
-
-(I call it "notify_change()", because we have exactly that in VFS terms,
-where the inode change descriptor has an attribute table and a "valid"  
-bitmap).
-
-		Linus
+(BTW, you're overclocking your P4 by about 8%.)

@@ -1,96 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264364AbTLES6F (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 13:58:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264362AbTLES4t
+	id S264337AbTLESwp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 13:52:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264339AbTLESwp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 13:56:49 -0500
-Received: from fw.osdl.org ([65.172.181.6]:19109 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264348AbTLESzN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 13:55:13 -0500
-Subject: Prcess scheduler Imiprovements in 2.6.0-test9
-From: Craig Thomas <craiger@osdl.org>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1070650522.13254.28.camel@bullpen.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 05 Dec 2003 10:55:22 -0800
-Content-Transfer-Encoding: 7bit
+	Fri, 5 Dec 2003 13:52:45 -0500
+Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:50671 "EHLO
+	tabby.cats.internal") by vger.kernel.org with ESMTP id S264337AbTLESvg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 13:51:36 -0500
+Content-Type: text/plain;
+  charset="CP 1252"
+From: Jesse Pollard <jesse@cats-chateau.net>
+To: David Dyck <david.dyck@fluke.com>
+Subject: Re: Linux GPL and binary module exception clause?
+Date: Fri, 5 Dec 2003 12:51:11 -0600
+X-Mailer: KMail [version 1.2]
+Cc: David Schwartz <davids@webmaster.com>, linux-kernel@vger.kernel.org
+References: <732BE51FE9901143AE04411A11CC465602F155F3@evtexc02.tc.fluke.com> <Pine.LNX.4.51.0312050824270.9496@dd.tc.fluke.com>
+In-Reply-To: <Pine.LNX.4.51.0312050824270.9496@dd.tc.fluke.com>
+MIME-Version: 1.0
+Message-Id: <03120512511100.22291@tabby>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OSDL has been running peformance tests with hackbench to measure the
-improvment of the scheduler, compared with LInux 2.4.18.  We ran the
-test on our Scalable Test Platform on different system sizes.  The
-results obtained seem to show that the 2.6 scheduler is more
-efficient and allows for greater scalability on larger systems.
-See http://marc.theaimsgroup.com/?l=linux-kernel&m=100805466304516&w=2
-for a description of hackbench.
+On Friday 05 December 2003 11:05, David Dyck wrote:
+> On Fri, 5 Dec 2003 at 07:06 -0800, Jesse Pollard <jesse@cats-chateau.net>
+>
+> wrote:
+> > Quite simple. If you include the Linux kernel include files you get a
+> > derived program that must be released under GPL if you distribute that
+> > program.
+>
+> When I first read this out out of context, I wondered if you were saying
+> that any executable that I write on my libc5 linux system (and those that
+> were compiled on libc5 systems long ago - like my copy of Adobe acrobat,
+> and RealNetworks real audio) must have been distributed under GPL?
+>
+>     [ Please recall that the kernel header files were included in users
+>     programs (since /usr/include/asm and /usr/include/linux were symlinks
+>     into the kernel sources) and common include files like dirent.h,
+>     errno.h, and signal.h.  This still works with libc5 and todays
+>     Linux 2.4.23. ]
+>
+> You must not be saying that, since Linus said:
+>
+>     "There's a clarification that user-space programs that use the standard
+>     system call interfaces aren't considered derived works, but even that
+>     isn't an "exception" - it's just a statement of a border of what is
+>     clearly considered a "derived work". User programs are _clearly_
+>     not derived works of the kernel, and as such whatever the kernel
+>     license is just doesn't matter."
+>
+> And after re-reading more of the thread, you must be refering to modules
+> that include kernel include files, right?
 
-The set of data below shows an average time of five hackbench runs
-for each set of groups.  Linux 2.6.0-test9 clearly shows significan
-improvement in the completion times.
+Mostly. Primarily. That is because the only executable that results IS the
+kernel.
 
-Test set 1: Performance of hackbench
+There is the fuzzy area where you write a user mode application that uses
+some Kernel headers for the purpose of doing things like an ext2fs debugger.
+The kernel headers are NOT released under LGPL, but all of the libc functions
+and include files are. The syscall interfaces were explicitly excluded as
+requiring GPL because the Linus quote.
 
-(times are in seconds, lower number is better)
+Personally, I think it would be a good idea to have these specific ones under
+the LGPL instead of GPL, and then use them in both kernel and user space
+(which the LGPL also allows).
 
-number of groups     50     100     150     200
---------------------------------------------------
-1 CPU
-   2.4.18          15.52   37.63   74.34   110.62
-   2.6.0-test9      9.91   17.86   27.55    39.77
---------------------------------------------------
-2 CPUs
-   2.4.18          10.50   30.42   64.26   112.46
-   2.6.0-test9      7.44   13.45   19.68    26.68
---------------------------------------------------
-4 CPUs
-   2.4.18           7.07   22.75   54.10   101.45
-   2.6.0-test9      5.16   9.25    13.64    18.65
---------------------------------------------------
-8 CPUs
-   2.4.18           7.02   24.63   61.48   114.93
-   2.6.0-test9      4.08   7.15    10.31    13.84
---------------------------------------------------
+If the header is not LGPL (which allows propriatary programs to include
+them), then you run a severe risk of forcing the user mode application into 
+GPL if it is distributed. I think this is more likely if the header includes
+inline functions, and not in the case of those just defining the syscall data 
+structures/interface.
 
-The set of data below shows how many groups can be run before the
-system failed with some resouce limitiation having been exceeded.
-The kernel was not tuned, so this tests a defalut configuration.
-
-Test set 2: Max Groups Before Out of Resource
-(maximum nuber of groups that completed a successful run;  larger
-numbers are better)
-
-------------------------
-1 CPU
-   2.4.18           200
-   2.6.0-test9      200
-------------------------
-2 CPUs
-   2.4.18           225
-   2.6.0-test9      350
-------------------------
-4 CPUs
-   2.4.18           225
-   2.6.0-test9      525
-------------------------
-8 CPUs
-   2.4.18           225
-   2.6.0-test9      425
-------------------------
-
-We have been running hackbench results up through 2.6.0-test11 and
-we see no significant differences between test-11 and test9, so these
-results should be valid for test-11 as well.
-
-A write-up of these results (complete with graphical plots) is posted
-at  http://developer.osdl.org/craiger/hackbench/index.html
-
--- 
-Craig Thomas
-craiger@osdl.org
-
+One area this would clarify would be if someone tried to write a propriatary
+kernel debugger... It would run in user mode, but look at/poke at kernel 
+structures and functions in such detail that it SHOULD be a GPL program.

@@ -1,83 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261277AbREQATm>; Wed, 16 May 2001 20:19:42 -0400
+	id <S261346AbREQAUW>; Wed, 16 May 2001 20:20:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261346AbREQATX>; Wed, 16 May 2001 20:19:23 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:59381 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S261277AbREQATT>;
-	Wed, 16 May 2001 20:19:19 -0400
-Date: Thu, 17 May 2001 02:18:20 +0200 (MET DST)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200105170018.CAA30316.aeb@vlet.cwi.nl>
-To: rgooch@ras.ucalgary.ca, torvalds@transmeta.com
-Subject: Re: LANANA: To Pending Device Number Registrants
-Cc: alan@lxorguk.ukuu.org.uk, geert@linux-m68k.org, hpa@transmeta.com,
-        ingo.oeser@informatik.tu-chemnitz.de, jgarzik@mandrakesoft.com,
-        linux-kernel@vger.kernel.org, neilb@cse.unsw.edu.au, viro@math.psu.edu
+	id <S261350AbREQAUQ>; Wed, 16 May 2001 20:20:16 -0400
+Received: from [24.93.67.55] ([24.93.67.55]:32783 "EHLO mail8.carolina.rr.com")
+	by vger.kernel.org with ESMTP id <S261346AbREQAT7>;
+	Wed, 16 May 2001 20:19:59 -0400
+From: Zilvinas Valinskas <zvalinskas@carolina.rr.com>
+Date: Wed, 16 May 2001 20:19:26 -0400
+To: Jussi Laako <jlaako@pp.htv.fi>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: VIA/PDC/Athlon
+Message-ID: <20010516201926.A909@clt88-175-140.carolina.rr.com>
+In-Reply-To: <3B02B824.6FAF5125@pp.htv.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <3B02B824.6FAF5125@pp.htv.fi>; from jlaako@pp.htv.fi on Wed, May 16, 2001 at 08:25:56PM +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The LANANA discussion has forked into a forest of vaguely related
-discussions.  If I am not mistaken the only real question is
-how user space and kernel space communicate device identities.
+On Wed, May 16, 2001 at 08:25:56PM +0300, Jussi Laako wrote:
+> I tested 2.4.4-ac9 today on A7V133 machine. It booted up, but can't stand
+> any load. It will deadlock (without oops) when the network/disk system faces
+> any load.
+> 
+reset/clear CMOS with jumper. I get this kind of instability each time
+I have to boot to win9x (with latest and greatest via drivers) and back
+to linux. Just of sudden linux freezes or if I have apcid running 
+sometimes it oops' on boot sometimes later ... lots of defunc  kacpid ...
+threads.
 
-Here "user space" is very different from "users".
-Devices have a device path and device contents.
+looks like VIA drivers do something to hardware (or maybe only ACPI part
+of hardware ... I don't know.) and linux can't handle hardware is this
+new "after win9x" state ... 
 
-For the user it is very desirable to recognize things by contents.
-One invents labels and similar schemes, both readable with the eye
-and readable with software.
-But devices vary quite a lot and labeling schemes vary quite a lot
-and user needs vary quite a lot.
-Clearly, recognizing a device by contents is something that belongs
-to user space.
+reset/clear CMOS with jumper helped. 
 
-Of course the kernel can make functions available to simplify
-the work of a device manager, but the actual work of making the
-correspondence between the identity of a device as seen by the user
-and the device path belongs to user space. Be it a boot-time setup
-script working from a data base, or a daemon.
+MB ABit KT7A-RAID
 
-(A somewhat weaker function also belongs to user space:
-Even if the user has not specified a name for a device
-it may be that the device has a serial number or other
-recognizable information, so that user space can guess
-or be sure that a certain device is the same as something
-seen earlier, perhaps before the last reboot.)
+00:00.0 Host bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133] (rev 03)
+00:01.0 PCI bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133 AGP]
+00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] (rev 40)
 
-That was the user. She thinks about "my boot partition".
-And mount sees "UUID=e70bde8e-34d7-11d... /boot ext2 ..."
-or "LABEL=Boot /boot ext2 ..." and searches /proc/partitions for
-things that, when interpreted as an ext2 filesystem, have
-the specified UUID or label.
+VT82C686b actually :)
 
-The communication between user space and kernel is not in terms
-of device "contents", since the kernel doesnt know about such
-things. The kernel knows only one thing: the device path.
-(the driver used, together with all parameters, the port address,
-the SCSI ID, the disk subinterval, ...)
 
-But this path is a very complicated object. Moreover, it contains
-a lot of items that the user has never heard of. It is a bad idea
-to try to use such paths.
+00:07.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 06)
+00:07.2 USB Controller: VIA Technologies, Inc. UHCI USB (rev 16)
+00:07.3 USB Controller: VIA Technologies, Inc. UHCI USB (rev 16)
+00:07.4 Host bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 40)
+00:08.0 Ethernet controller: Bridgecom, Inc: Unknown device 0985 (rev 11)
+00:0f.0 Multimedia audio controller: Creative Labs SB Live! EMU10000 (rev 07)
+00:0f.1 Input device controller: Creative Labs SB Live! (rev 07)
+01:00.0 VGA compatible controller: ATI Technologies Inc: Unknown device 5144
 
-So we have: user space has file names and uses open() or mount().
-Kernel space has device paths.
 
-In principle the kernel could just number the devices it sees 1,2,...
-and export information about them, so that user space can choose
-the right number.
-The part about exporting information is good. User space needs to
-be able to ask if a certain beast is a CD reader, and if so what
-manufacturer and model.
-But the part about numbering 1,2,... may not be good enough, e.g.
-because it does not survive reboots. If we remain Unix-like and use
-device nodes in user space to pair a file name with a number, then
-it would be very nice if the number encoded the device path uniquely.
-Many programs expect this.
-It cannot be done in all cases, but a good approximation is obtained
-if the number is a hash of the device path. In so far the hash is
-collision free we obtain numbers that stay unique over a reboot.
+> 
+>  - Jussi Laako
+> 
+> -- 
+> PGP key fingerprint: 161D 6FED 6A92 39E2 EB5B  39DD A4DE 63EB C216 1E4B
+> Available at PGP keyservers
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Andries
-
+-- 
+Zilvinas Valinskas

@@ -1,45 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129421AbQLMIEw>; Wed, 13 Dec 2000 03:04:52 -0500
+	id <S129732AbQLMIpH>; Wed, 13 Dec 2000 03:45:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129524AbQLMIEm>; Wed, 13 Dec 2000 03:04:42 -0500
-Received: from Prins.externet.hu ([212.40.96.161]:48148 "EHLO
-	prins.externet.hu") by vger.kernel.org with ESMTP
-	id <S129421AbQLMIEc>; Wed, 13 Dec 2000 03:04:32 -0500
-Date: Wed, 13 Dec 2000 08:33:47 +0100 (CET)
-From: Boszormenyi Zoltan <zboszor@externet.hu>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-cc: John Cavan <johncavan@home.com>, " Paul C. Nendick" <pauly@enteract.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.2.16 SMP: mtrr errors
-In-Reply-To: <F7CD5C16569@vcnet.vc.cvut.cz>
-Message-ID: <Pine.LNX.4.02.10012130829400.19474-100000@prins.externet.hu>
+	id <S129730AbQLMIo5>; Wed, 13 Dec 2000 03:44:57 -0500
+Received: from [24.65.192.120] ([24.65.192.120]:36599 "EHLO webber.adilger.net")
+	by vger.kernel.org with ESMTP id <S129524AbQLMIov>;
+	Wed, 13 Dec 2000 03:44:51 -0500
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200012130814.eBD8ELc10852@webber.adilger.net>
+Subject: [PATCH] 2.2.18 ext2 large file bug?
+To: Ext2 development mailing list <ext2-devel@lists.sourceforge.net>,
+        Linux FS development list <linux-fsdevel@vger.kernel.org>
+Date: Wed, 13 Dec 2000 01:14:21 -0700 (MST)
+CC: Linux kernel development list <linux-kernel@vger.kernel.org>
+X-Mailer: ELM [version 2.4ME+ PL73 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 12 Dec 2000, Petr Vandrovec wrote:
-> That's wrong. They must first register MTRR and then split it to
-> 24+8, as they cannot register 24MB range. They can split it
-> 16+16, or (16+8)+8, but at cost of 1 (or 2) additional MTRR entries -
-> and there is very limited number of possible MTRRs.
-> 
-> Matroxfb also splits Matrox memory in 24:8, but it registers only one
-> region in mtrr. Of course, in X, as mtrr registration is done by map
-> videomemory, you must tell this function to not register mtrr...
-> 
->                                             Best regards,
->                                                 Petr Vandrovec
->                                                 vandrove@vc.cvut.cz
+Hello,
+while looking at the COMPAT flag patches I made, I noticed the following
+in the ext2/ext3 code.  I believe that this bug is fixed in 2.4, but it
+also needs to be fixed in 2.2.  Basically, we are checking for an ext2
+large file, which would be a file > 2GB on systems that don't support
+such.  However, we are checking for a file > 8GB which is clearly wrong.
+The ext3 version of the patch is also attached.
 
-NOW, I am really convinced that we need PAT support on top
-of the crappy MTRR driver. :-) I already started working on it...
+Cheers, Andreas
+==========================================================================
+--- linux-2.2.18pre27-TL/fs/ext2/file.c.orig	Mon Dec 11 22:43:17 2000
++++ linux-2.2.18pre27-TL/fs/ext2/file.c	Wed Dec 13 00:13:00 2000
+@@ -208,7 +208,7 @@
+ 			if (!count)
+ 				return -EFBIG;
+ 		}
+-		if (((pos + count) >> 31) &&
++		if (((pos + count) >> 33) &&
+ 		    !(sb->u.ext2_sb.s_es->s_feature_ro_compat &
+ 		      cpu_to_le32(EXT2_FEATURE_RO_COMPAT_LARGE_FILE))) {
+ 			/* If this is the first large file created, add a flag
 
-
-Regards,
-Zoltan Boszormenyi
-
+--- linux-2.2.18pre27-TL/fs/ext3/file.c.orig	Mon Dec 11 22:43:17 2000
++++ linux-2.2.18pre27-TL/fs/ext3/file.c	Wed Dec 13 00:13:00 2000
+@@ -208,7 +208,7 @@
+ 			if (!count)
+ 				return -EFBIG;
+ 		}
+-		if (((pos + count) >> 31) &&
++		if (((pos + count) >> 33) &&
+ 		    !EXT3_HAS_RO_COMPAT_FEATURE(sb,
+ 					EXT3_FEATURE_RO_COMPAT_LARGE_FILE)) {
+ 			/* If this is the first large file created, add a flag
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

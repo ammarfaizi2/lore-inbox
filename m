@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268358AbTBNLDz>; Fri, 14 Feb 2003 06:03:55 -0500
+	id <S268357AbTBNLAE>; Fri, 14 Feb 2003 06:00:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268361AbTBNLDz>; Fri, 14 Feb 2003 06:03:55 -0500
-Received: from green.mif.pg.gda.pl ([153.19.42.8]:7173 "EHLO
-	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S268358AbTBNLDy>; Fri, 14 Feb 2003 06:03:54 -0500
-From: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
-Message-Id: <200302141113.h1EBDUiR003386@green.mif.pg.gda.pl>
-Subject: Re: 2.4.21-pre4-ac4 make xconfig fails
-To: bryan@bogonomicon.net
-Date: Fri, 14 Feb 2003 12:13:30 +0100 (CET)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-       linux-kernel@vger.kernel.org (kernel list)
-In-Reply-To: <200302141106.h1EB6OO13604@sunrise.pg.gda.pl> from "Andrzej Krzysztofowicz" at Feb 14, 2003 12:06:26 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S268356AbTBNLAE>; Fri, 14 Feb 2003 06:00:04 -0500
+Received: from ims21.stu.nus.edu.sg ([137.132.14.228]:43830 "EHLO
+	ims21.stu.nus.edu.sg") by vger.kernel.org with ESMTP
+	id <S267645AbTBNLAD> convert rfc822-to-8bit; Fri, 14 Feb 2003 06:00:03 -0500
+Content-Class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
+Subject: Upgrading from 2.4.18 to 2.5.59
+Date: Fri, 14 Feb 2003 19:09:45 +0800
+Message-ID: <720FB032F37C0D45A11085D881B03368A2B18E@MBXSRV24.stu.nus.edu.sg>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Upgrading from 2.4.18 to 2.5.59
+thread-index: AcLUGRIS0kfPjz0uSDCG7G9RJmitJQAAHMOA
+From: "Eng Se-Hsieng" <g0202512@nus.edu.sg>
+To: "linux-kernel@vger.kernel.org" <'linux-kernel@vger.kernel.org'>,
+       <linux-newbie@vger.kernel.org>
+X-OriginalArrivalTime: 14 Feb 2003 11:09:45.0672 (UTC) FILETIME=[94DF2C80:01C2D419]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dear all,
 
-> I also see this, Debian testing based system, but I usually menuconfig 
-> myself.
-> 
-> Looks like a parameter was forgotten.  I see a number of dep_tristate 
-> lines with three parameters and the one it is choking on has only two.
-> 
-> dep_tristate '  ATI Radeon' CONFIG_DRM_RADEON     <<< chokes this line
-> dep_tristate '  Intel I810' CONFIG_DRM_I810 $CONFIG_AGP
+I am currently running 2.4.18 (Redhat 7.3) but would like to upgrade to
+2.5.59.
 
-According to Alan's changelog:
-: o       Radeon no longer needs AGPgart                  (James McClain)
+This is because I would like to implement the SCTP transport protocol
+which comes in the form of .patch.
 
-This line should probably be changed to
+I am confused as to if I should upgrade and install the kernel before
+applying the patch or do both together.
 
-tristate '  ATI Radeon' CONFIG_DRM_RADEON
+Furthermore, may I use the kernel sources on this site since I can't
+find 2.5.59 on redhat?
 
--- 
-=======================================================================
-  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
-  phone (48)(58) 347 14 61
-Faculty of Applied Phys. & Math.,   Gdansk University of Technology
+Thank you.
+
+Eng Se-Hsieng
+Singapore
+
+
+

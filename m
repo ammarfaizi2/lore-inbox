@@ -1,50 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264954AbSKSKol>; Tue, 19 Nov 2002 05:44:41 -0500
+	id <S265092AbSKSKva>; Tue, 19 Nov 2002 05:51:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264984AbSKSKol>; Tue, 19 Nov 2002 05:44:41 -0500
-Received: from dialup157.canberra.net.au ([203.33.188.29]:2565 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id <S264954AbSKSKok>;
-	Tue, 19 Nov 2002 05:44:40 -0500
-Message-ID: <3DDA17D2.4020004@cyberone.com.au>
-Date: Tue, 19 Nov 2002 21:52:02 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
-MIME-Version: 1.0
-To: Andrew Morton <akpm@digeo.com>
-CC: lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
-       Jens Axboe <axboe@suse.de>
-Subject: Re: 2.5.48-mm1
-References: <3DDA0153.A1971C76@digeo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S265130AbSKSKva>; Tue, 19 Nov 2002 05:51:30 -0500
+Received: from ppp3290-cwdsl.fr.cw.net ([62.210.105.37]:48521 "EHLO
+	bouton.inet6-interne.fr") by vger.kernel.org with ESMTP
+	id <S265092AbSKSKv3>; Tue, 19 Nov 2002 05:51:29 -0500
+Date: Tue, 19 Nov 2002 11:58:25 +0100
+From: Lionel Bouton <Lionel.Bouton@inet6.fr>
+To: Silvio Cesare <silvio@big.net.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: sis650/5513 in 2.4.19 (still broken for 650)
+Message-ID: <20021119115825.A4742@bouton.inet6-interne.fr>
+Mail-Followup-To: Silvio Cesare <silvio@big.net.au>,
+	linux-kernel@vger.kernel.org
+References: <20021118222401.GA3777@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021118222401.GA3777@localhost.localdomain>; from silvio@big.net.au on mar, nov 19, 2002 at 09:24:01 +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On mar, nov 19, 2002 at 09:24:01 +1100, Silvio Cesare wrote:
+> Attachment.
+> 
+> --
+> Silvio
 
+> No fixes here.. just reports for anyone interested :(
+> 
+> 1) sis650/5513 chipset does not work with UDMA - this was reported a while
+>    ago, and also reported fixed.. but I don't think its been tested on a
+>    sis650 specifically, which (for me) appears still broken (fs
+>    corruptions etc).
+> 
 
-Andrew Morton wrote:
+This is fixed in AC tree.
 
->url: http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.48/2.5.48-mm1/
+>    this was reported fixed in 2.4.19; i took a 2.4.18 kernel, and replaced
+>    drivers/ide/sis5513.c (theres some includes also, but perhaps not
+>    important).  this came up with the same problems as 2.4.18.
 >
-snip
 
->
->
->Since 2.5.47-mm3:
->
-snip
+The driver in 2.4.19-pre broke latest SiS chipsets in DMA modes. Some 650
+were affected -> to be safe DMA was disabled for all of them.
+Stock 2.4.19 should not fail but only disable DMA, could you confirm this ?
 
->+np-deadline.patch
->
-> Deadline scheduler work from Nick Piggin
->
-snip
+>    2.4.18 incidentally has a function #if 0, at the end of sis5513.c,
+>    which I had to make #if 1 (remove) to get a compile (there appears to be
+>    no other declaration of this code in the tree) - this has probably
+>    been noticed a long time ago I imagine (?).
+> 
 
-This may degrade IO read latency a little bit and will
-still be suboptimal when there are both read and write
-requests outstanding for some io patterns (no worse than
-47-mm3). Jens and I have been making progress here however.
+IIRC this #ifdef is only for compatibility purpose between different IDE
+framework versions.
 
-Nick
+>    for the UDMA issues, recompiling with -->
+> 
+> #define BROKEN_LEVEL XFER_SW_DMA_0
+> 
+>    gets it up and running again (ie, without UDMA).
+> 
+>    incidentally.. the sis 0.13 code by the maintainers have patches
+>    against 2.4.18 which break when you run it with #define DEBUG, as
+>    some var names have been slightly modified.
 
+?! Could you please try the AC tree with #define DEBUG and report the result
+to me ?
+
+> 2) External floppy drive via USB not 100% working..  No idea on this one;
+>    I've included very small snippets of bootup messages, but it's no
+>    major drama currently (works for the most part), so I don't really
+>    expect anyone to look at this (especially with the minimal info
+>    I've provided here) :)
+
+Won't be of much help here anyway :-)
+
+> For the sis650, maybe (?) the following will help -->
+> [ I've no real clue how useful or non useful this is, but maybe its
+>   worth a look for the current development ]
+
+The dump is rather usefull, especially if I know your BIOS config.
+Here I assume that each controller is enabled and DMA activated for hda and
+hdc, am I right ?
+
+Happy AC compile :-)
+
+LB.

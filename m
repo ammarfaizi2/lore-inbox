@@ -1,52 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262352AbSJEOaj>; Sat, 5 Oct 2002 10:30:39 -0400
+	id <S262334AbSJEOku>; Sat, 5 Oct 2002 10:40:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262353AbSJEOaj>; Sat, 5 Oct 2002 10:30:39 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:7525 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S262352AbSJEOai>; Sat, 5 Oct 2002 10:30:38 -0400
-Date: Sat, 5 Oct 2002 16:36:27 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andi Kleen <ak@suse.de>, Adrian Bunk <bunk@fs.tum.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: Why does x86_64 support a SuSE-specific ioctl?
-Message-ID: <20021005143627.GA32733@dualathlon.random>
-References: <Pine.NEB.4.44.0210041654570.11119-100000@mimas.fachschaften.tu-muenchen.de.suse.lists.linux.kernel> <p73adltqz9g.fsf@oldwotan.suse.de> <1033824043.3425.0.camel@irongate.swansea.linux.org.uk>
+	id <S262353AbSJEOku>; Sat, 5 Oct 2002 10:40:50 -0400
+Received: from toole.uol.com.br ([200.221.4.26]:57244 "EHLO toole.uol.com.br")
+	by vger.kernel.org with ESMTP id <S262334AbSJEOkt>;
+	Sat, 5 Oct 2002 10:40:49 -0400
+Date: Sat, 5 Oct 2002 11:47:25 -0200
+From: Andre Costa <brblueser@uol.com.br>
+To: Linux kernel ML <linux-kernel@vger.kernel.org>
+Subject: IDE subsystem issues with 2.4.1[89] [REVISITED]
+Message-Id: <20021005114725.3af9c194.brblueser@uol.com.br>
+X-Mailer: Sylpheed version 0.8.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1033824043.3425.0.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.27i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 05, 2002 at 02:20:43PM +0100, Alan Cox wrote:
-> On Sat, 2002-10-05 at 05:35, Andi Kleen wrote:
-> >  		 */
-> > diff -urN linux-2.4.18.tmp/include/asm-alpha/ioctls.h linux-2.4.18.SuSE/include/asm-alpha/ioctls.h
-> > --- linux-2.4.18.tmp/include/asm-alpha/ioctls.h	Sat May  4 11:37:28 2002
-> > +++ linux-2.4.18.SuSE/include/asm-alpha/ioctls.h	Sat May  4 11:37:56 2002
-> > @@ -92,6 +92,7 @@
-> >  #define TIOCGSID	0x5429  /* Return the session ID of FD */
-> >  #define TIOCGPTN	_IOR('T',0x30, unsigned int) /* Get Pty Number (of pty-mux device) */
-> >  #define TIOCSPTLCK	_IOW('T',0x31, int)  /* Lock/unlock Pty */
-> > +#define TIOCGDEV	_IOR('T',0x32, unsigned int) /* Get real dev no below /dev/console */
-> >  
-> 
-> Shouldn't these values be reserved in 2.5 before anything goes into 2.4
-> for this - the values finally used might be different
+Hi all,
 
-yes it should, just like the MAP_BIGPAGE and several other bits in the
-rhas (O_ATOMICLOOKUP etc...):
+found this msg on kernel ML archives about 2.4.1[89] having probls with
+CD audio ripping:
 
-+#define MAP_BIGPAGE	0x40		/* bigpage mapping */
+http://marc.theaimsgroup.com/?l=linux-kernel&m=103364684525654&w=2
 
-I attempted doing a sync with mainline for all these potential future
-binary-incompatibilities several months ago but it went to /dev/null and
-nobody cared to merge these bits into mainline, hopefully this thread
-will bring more attention to these kind of patches now.
+The poster (Dexter Filmore) has the very same mobo I have (MSI K7T266
+Pro2, Athlon XP) and he's experiencing similar probls to the ones I am
+experiencing (in my case, lock ups are temporary, don't know if it is
+the same with him). Tried the same kernels here, on RH 7.1, using:
 
-Andrea
+gcc-3.2-1
+binutils-2.13-1
+modutils-2.4.18-2
+
+I know this is a known issue, and you guys are working on it; I also
+know many changes to IDE subsystem have been backported from 2.5.x
+series, and 2.4.20pre* already reflect some (all?) of them. I don't want
+to rush things, I was just curious to know the current status regarding
+these IDE issues.
+
+If you need additional info about my system configuration or log
+messages, just let me know and I will be happy to provide it.
+
+TIA,
+
+Andre
+
+-- 
+Andre Oliveira da Costa

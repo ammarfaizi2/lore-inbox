@@ -1,93 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287896AbSA0JXi>; Sun, 27 Jan 2002 04:23:38 -0500
+	id <S287894AbSA0JgL>; Sun, 27 Jan 2002 04:36:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287908AbSA0JX2>; Sun, 27 Jan 2002 04:23:28 -0500
-Received: from lilly.ping.de ([62.72.90.2]:10 "HELO lilly.ping.de")
-	by vger.kernel.org with SMTP id <S287894AbSA0JXQ>;
-	Sun, 27 Jan 2002 04:23:16 -0500
-Date: 27 Jan 2002 10:22:51 +0100
-Message-ID: <20020127092251.GA1885@planetzork.spacenet>
-From: jogi@planetzork.ping.de
-To: "Thomas Hood" <jdthood@mail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: apm: busy: Unable to enter requested state
-In-Reply-To: <1012006933.2576.19.camel@thanatos>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1012006933.2576.19.camel@thanatos>
-User-Agent: Mutt/1.3.25i
+	id <S287908AbSA0JgB>; Sun, 27 Jan 2002 04:36:01 -0500
+Received: from mail215.mail.bellsouth.net ([205.152.58.155]:23329 "EHLO
+	imf15bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S287894AbSA0Jfw>; Sun, 27 Jan 2002 04:35:52 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: SI Reasoning <sczjd@yahoo.com>
+To: linux-kernel@vger.kernel.org
+Subject: issues with 2.4.18 kernel and Dell Inspiron 8000
+Date: Sun, 27 Jan 2002 03:35:37 -0600
+X-Mailer: KMail [version 1.3.2]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020127093703.ZSOL27069.imf15bis.bellsouth.net@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 25, 2002 at 08:02:13PM -0500, Thomas Hood wrote:
-> > apm: setting state busy
-> > apm: busy: Unable to enter requested state
-> > apm: setting state busy
-> > apm: busy: Unable to enter requested state
-> 
-> While the suspend request is being processed, the apm
-> driver attempts to set the power state to "busy", as
-> required by the APM spec.  The attempt fails, presumably
-> because of shortcomings in your firmware.
+I am not subscribed to the list so please CC me your responses.
 
-Firmware == bios?
+I participate in Mandrake's Cooker development and have been running into 
+some power management issues with the latest kernel. Below is the message I 
+had sent as well as the reply which pointed me in this direction:
 
-> Is there a driver or userland process that is failing
-> to process the suspend event quickly?
+On 2002-01-27 at 11:43, SI Reasoning wrote:
+> When halting my Dell Inspiron 8000, I get the power
+> off message but the laptop does not power off while
+> using the 2.4.17-10mdk kernel. Other APM related stuff is
+> a mess with this laptop also. If it suspends or does
+> any power saving features, it can not be brought back
+> up and has to be rebooted. Even worse, if I try to go
+> to bios or check the battery feature, it completely
+> locks up the computer and it has to be forcibly turned
+> off.
+> > Kernel 2.4.16-11mdk was way better. It still had the
+> suspend issue, but I could go to the bios or battery
+> display and other bios related shortcuts without
+> issue. It also powered down without issue.
 
-None that I know of ... But the system does kind of suspend
-(hdd is spun down, monitor shuts down, ....) but when the system
-resumes (press key, move mouse) the temperature of the cpu is
-still the same it was before the suspend. Sometime ago the
-cpu cooled down to roomtemperature (sys temp also). But this
-does not happen any more :-(
+2.4.18-pre7 (that 2.4.17-10mdk is based upon) has new APM patch. I
+already have seen other reports about APM related problems in this
+version (ironically this patch fixed problem I had).
 
-> > apm: received normal resume notify
-> 
-> The APM firmware appears to generate this event.
-> Perhaps it is timing out waiting for the OS to respond
-> to the suspend event with a set-power-state operation.
-> How long does it take for this to happen?
+I suggest you report it on lkml as you may have better chances there.
 
-When I press the suspend button the message appears
-almost instantly (message appears several times). But
-I checked 2.4.18-pre7 and there the message does not
-appear but the cpu does not cool down either. The kernel
-that generates this message was 2.4.17-rmap12a.
-
-> > and then the cpu does not cool down (I guess it is
-> > not shut down like it was before).
-> 
-> A suspended machine does more than cool down.  It does
-> not operate at all.
-
-That is exactly what I would like it to do and which it
-partly does. But the cpu does not cool down (it seems as
-if it is not shut down - do I have to use a config option
-for this?).
-
-CONFIG_PM=y
-# CONFIG_ACPI is not set
-CONFIG_APM=y
-# CONFIG_APM_IGNORE_USER_SUSPEND is not set
-CONFIG_APM_DO_ENABLE=y
-CONFIG_APM_CPU_IDLE=y
-# CONFIG_APM_DISPLAY_BLANK is not set
-CONFIG_APM_RTC_IS_GMT=y
-# CONFIG_APM_ALLOW_INTS is not set
-# CONFIG_APM_REAL_MODE_POWER_OFF is not set
-
-Do I have to enable one of these?
-
-Regards,
-
-   Jogi
+-andrej
 
 
--- 
-
-Well, yeah ... I suppose there's no point in getting greedy, is there?
-
-    << Calvin & Hobbes >>

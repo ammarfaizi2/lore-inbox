@@ -1,68 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268346AbTBYUaN>; Tue, 25 Feb 2003 15:30:13 -0500
+	id <S268733AbTBYUmJ>; Tue, 25 Feb 2003 15:42:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268296AbTBYUVT>; Tue, 25 Feb 2003 15:21:19 -0500
-Received: from [24.77.48.240] ([24.77.48.240]:40233 "EHLO aiinc.aiinc.ca")
-	by vger.kernel.org with ESMTP id <S268289AbTBYUVD>;
-	Tue, 25 Feb 2003 15:21:03 -0500
-Date: Tue, 25 Feb 2003 12:31:18 -0800
-From: Michael Hayes <mike@aiinc.ca>
-Message-Id: <200302252031.h1PKVI324910@aiinc.aiinc.ca>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Spelling fixes for 2.5.63 - didn't
-Cc: torvalds@transmeta.com
+	id <S268734AbTBYUmJ>; Tue, 25 Feb 2003 15:42:09 -0500
+Received: from [195.223.140.107] ([195.223.140.107]:61062 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S268733AbTBYUmH>;
+	Tue, 25 Feb 2003 15:42:07 -0500
+Date: Tue, 25 Feb 2003 21:52:33 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@digeo.com>,
+       Hanna Linder <hannal@us.ibm.com>, lse-tech@lists.sf.et,
+       linux-kernel@vger.kernel.org
+Subject: Re: Minutes from Feb 21 LSE Call
+Message-ID: <20030225205233.GW29467@dualathlon.random>
+References: <96700000.1045871294@w-hlinder> <20030222192424.6ba7e859.akpm@digeo.com> <20030225171727.GN29467@dualathlon.random> <20030225174359.GA10411@holomorphy.com> <20030225175928.GP29467@dualathlon.random> <20030225185008.GF10396@holomorphy.com> <20030225191817.GT29467@dualathlon.random> <20030225201023.GG10396@holomorphy.com> <20030225202335.GU29467@dualathlon.random> <20030225204616.GH10396@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030225204616.GH10396@holomorphy.com>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This fixes:
-    didnt -> didn't (4 occurrences)
+On Tue, Feb 25, 2003 at 12:46:16PM -0800, William Lee Irwin III wrote:
+> On Tue, Feb 25, 2003 at 12:10:23PM -0800, William Lee Irwin III wrote:
+> >> I'd just bite the bullet and do the anonymous rework. Building
+> >> pte_chains lazily raises the issue of needing to allocate in order to
+> 
+> On Tue, Feb 25, 2003 at 09:23:35PM +0100, Andrea Arcangeli wrote:
+> > note that there is no need of allocate to free.
+> 
+> I've no longer got any idea what you're talking about, then.
 
-diff -ur a/arch/i386/kernel/io_apic.c b/arch/i386/kernel/io_apic.c
---- a/arch/i386/kernel/io_apic.c	Mon Feb 24 11:05:15 2003
-+++ b/arch/i386/kernel/io_apic.c	Tue Feb 25 09:55:01 2003
-@@ -2063,7 +2063,7 @@
- }
- 
- /*
-- *	Called after all the initialization is done. If we didnt find any
-+ *	Called after all the initialization is done. If we didn't find any
-  *	APIC bugs then we can allow the modify fast path
-  */
-  
-diff -ur a/drivers/block/ll_rw_blk.c b/drivers/block/ll_rw_blk.c
---- a/drivers/block/ll_rw_blk.c	Mon Feb 24 11:05:07 2003
-+++ b/drivers/block/ll_rw_blk.c	Tue Feb 25 09:55:03 2003
-@@ -1578,7 +1578,7 @@
- 	request_queue_t *q = req->q;
- 	
- 	/*
--	 * if req->q isn't set, this request didnt originate from the
-+	 * if req->q isn't set, this request didn't originate from the
- 	 * block layer, so it's safe to just disregard it
- 	 */
- 	if (q) {
-diff -ur a/drivers/scsi/wd7000.c b/drivers/scsi/wd7000.c
---- a/drivers/scsi/wd7000.c	Mon Feb 24 11:06:01 2003
-+++ b/drivers/scsi/wd7000.c	Tue Feb 25 09:55:09 2003
-@@ -874,7 +874,7 @@
- 		}
- 	}
- 
--	/* Take the lock, then check we didnt get beaten, if so try again */
-+	/* Take the lock, then check we didn't get beaten, if so try again */
- 	spin_lock_irqsave(&scbpool_lock, flags);
- 	if (freescbs < needed) {
- 		spin_unlock_irqrestore(&scbpool_lock, flags);
-diff -ur a/fs/xfs/xfs_quota.h b/fs/xfs/xfs_quota.h
---- a/fs/xfs/xfs_quota.h	Mon Feb 24 11:06:01 2003
-+++ b/fs/xfs/xfs_quota.h	Tue Feb 25 09:55:13 2003
-@@ -140,7 +140,7 @@
-  * The inode cannot go inactive as long a reference is kept, and
-  * therefore if dquot(s) were attached, they'll stay consistent.
-  * If, for example, the ownership of the inode changes while
-- * we didnt have the inode locked, the appropriate dquot(s) will be
-+ * we didn't have the inode locked, the appropriate dquot(s) will be
-  * attached atomically.
-  */
- #define XFS_NOT_DQATTACHED(mp, ip) ((XFS_IS_UQUOTA_ON(mp) &&\
+Were we able to release memory w/o rmap: yes.
+
+Can we do it again: yes.
+
+Can we use a bit of the released memory to release further memory more
+efficiently with rmap: yes.
+
+I'm not saying it's easy to implement that, but the problem that we'll
+need memory to release memory doesn't exit, since it also never existed
+before rmap was introduced into the kernel. Sure, the early stage of the
+swapping would be more cpu-intensive, but that is the feature.
+
+Andrea

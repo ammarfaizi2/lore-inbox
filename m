@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262858AbTEBBd7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 May 2003 21:33:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262860AbTEBBd7
+	id S262863AbTEBBgu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 May 2003 21:36:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262864AbTEBBgu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 May 2003 21:33:59 -0400
-Received: from palrel12.hp.com ([156.153.255.237]:53906 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S262858AbTEBBdk (ORCPT
+	Thu, 1 May 2003 21:36:50 -0400
+Received: from palrel13.hp.com ([156.153.255.238]:30676 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S262863AbTEBBfe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 May 2003 21:33:40 -0400
-Date: Thu, 1 May 2003 18:46:02 -0700
+	Thu, 1 May 2003 21:35:34 -0400
+Date: Thu, 1 May 2003 18:47:56 -0700
 To: Jeff Garzik <jgarzik@pobox.com>,
        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.5] Wireless Extension 16
-Message-ID: <20030502014602.GB8753@bougret.hpl.hp.com>
+Subject: [PATCH 2.5] WE-16 for Wavelan Pcmcia driver
+Message-ID: <20030502014756.GD8753@bougret.hpl.hp.com>
 Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -26,697 +26,756 @@ From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-        Hi,
+        Hi Jeff,
 
-        This patch for 2.5.68-bk11 will update Wireless Extension to
-version 16 :
-        o increase bitrate and frequency number for 802.11g/802.11a
-        o enhanced iwspy support
-        o minor tweaks and cleanups
-
-        This patch is only for the core of WE. The patches for the
-individual drivers have been sent to their respective maintainers.
-	Compared to the previous version I sent you a few weeks ago,
-I've just updated to the latest kernel.
+        This patch update the Wavelan Pcmcia driver for Wireless
+Extensions 16, and also remove all the backward compatibility cruft
+that is broken anyway.
 
         Have fun...
 
         Jean
 
 
-diff -u -p linux/include/linux/wireless.15.h linux/include/linux/wireless.h
---- linux/include/linux/wireless.15.h	Thu May  1 17:02:19 2003
-+++ linux/include/linux/wireless.h	Thu May  1 17:03:22 2003
-@@ -1,7 +1,7 @@
- /*
-  * This file define a set of standard wireless extensions
-  *
-- * Version :	15	12.7.02
-+ * Version :	16	2.4.03
-  *
-  * Authors :	Jean Tourrilhes - HPL - <jt@hpl.hp.com>
-  * Copyright (c) 1997-2002 Jean Tourrilhes, All Rights Reserved.
-@@ -69,6 +69,8 @@
- 
- /***************************** INCLUDES *****************************/
- 
-+/* To minimise problems in user space, I might remove those headers
-+ * at some point. Jean II */
- #include <linux/types.h>		/* for "caddr_t" et al		*/
- #include <linux/socket.h>		/* for "struct sockaddr" et al	*/
- #include <linux/if.h>			/* for IFNAMSIZ and co... */
-@@ -80,7 +82,7 @@
-  * (there is some stuff that will be added in the future...)
-  * I just plan to increment with each new version.
-  */
--#define WIRELESS_EXT	15
-+#define WIRELESS_EXT	16
- 
- /*
-  * Changes :
-@@ -163,6 +165,16 @@
-  *	- Add IW_TXPOW_RANGE for range of Tx Powers
-  *	- Add IWEVREGISTERED & IWEVEXPIRED events for Access Points
-  *	- Add IW_MODE_MONITOR for passive monitor
-+ *
-+ * V15 to V16
-+ * ----------
-+ *	- Increase the number of bitrates in iw_range to 32 (for 802.11g)
-+ *	- Increase the number of frequencies in iw_range to 32 (for 802.11b+a)
-+ *	- Reshuffle struct iw_range for increases, add filler
-+ *	- Increase IW_MAX_AP to 64 for driver returning a lot of addresses
-+ *	- Remove IW_MAX_GET_SPY because conflict with enhanced spy support
-+ *	- Add SIOCSIWTHRSPY/SIOCGIWTHRSPY and "struct iw_thrspy"
-+ *	- Add IW_ENCODE_TEMP and iw_range->encoding_login_index
-  */
- 
- /**************************** CONSTANTS ****************************/
-@@ -196,9 +208,11 @@
- /* SIOCGIWSTATS is strictly used between user space and the kernel, and
-  * is never passed to the driver (i.e. the driver will never see it). */
- 
--/* Mobile IP support (statistics per MAC address) */
-+/* Spy support (statistics per MAC address - used for Mobile IP support) */
- #define SIOCSIWSPY	0x8B10		/* set spy addresses */
- #define SIOCGIWSPY	0x8B11		/* get spy info (quality of link) */
-+#define SIOCSIWTHRSPY	0x8B12		/* set spy threshold (spy event) */
-+#define SIOCGIWTHRSPY	0x8B13		/* get spy threshold */
- 
- /* Access Point manipulation */
- #define SIOCSIWAP	0x8B14		/* set access point MAC addresses */
-@@ -306,13 +320,13 @@
- /* ----------------------- OTHER CONSTANTS ----------------------- */
- 
- /* Maximum frequencies in the range struct */
--#define IW_MAX_FREQUENCIES	16
-+#define IW_MAX_FREQUENCIES	32
- /* Note : if you have something like 80 frequencies,
-  * don't increase this constant and don't fill the frequency list.
-  * The user will be able to set by channel anyway... */
- 
- /* Maximum bit rates in the range struct */
--#define IW_MAX_BITRATES		8
-+#define IW_MAX_BITRATES		32
- 
- /* Maximum tx powers in the range struct */
- #define IW_MAX_TXPOWER		8
-@@ -320,12 +334,11 @@
-  * a few of them in the struct iw_range. */
- 
- /* Maximum of address that you may set with SPY */
--#define IW_MAX_SPY		8	/* set */
--#define IW_MAX_GET_SPY		64	/* get */
-+#define IW_MAX_SPY		8
- 
- /* Maximum of address that you may get in the
-    list of access points in range */
--#define IW_MAX_AP		8
-+#define IW_MAX_AP		64
- 
- /* Maximum size of the ESSID and NICKN strings */
- #define IW_ESSID_MAX_SIZE	32
-@@ -354,7 +367,8 @@
- #define IW_ENCODE_ENABLED	0x0000	/* Encoding enabled */
- #define IW_ENCODE_RESTRICTED	0x4000	/* Refuse non-encoded packets */
- #define IW_ENCODE_OPEN		0x2000	/* Accept non-encoded packets */
--#define IW_ENCODE_NOKEY         0x0800  /* Key is write only, so not present */
-+#define IW_ENCODE_NOKEY		0x0800  /* Key is write only, so not present */
-+#define IW_ENCODE_TEMP		0x0400  /* Temporary key */
- 
- /* Power management flags available (along with the value, if any) */
- #define IW_POWER_ON		0x0000	/* No details... */
-@@ -482,6 +496,17 @@ struct	iw_missed
- 	__u32		beacon;		/* Missed beacons/superframe */
- };
- 
-+/*
-+ *	Quality range (for spy threshold)
-+ */
-+struct	iw_thrspy
-+{
-+	struct sockaddr		addr;		/* Source address (hw/mac) */
-+	struct iw_quality	qual;		/* Quality of the link */
-+	struct iw_quality	low;		/* Low threshold */
-+	struct iw_quality	high;		/* High threshold */
-+};
-+
- /* ------------------------ WIRELESS STATS ------------------------ */
- /*
-  * Wireless statistics (used for /proc/net/wireless)
-@@ -534,7 +559,7 @@ union	iwreq_data
- 	struct iw_quality qual;		/* Quality part of statistics */
- 
- 	struct sockaddr	ap_addr;	/* Access point address */
--	struct sockaddr	addr;		/* Destination address (hw) */
-+	struct sockaddr	addr;		/* Destination address (hw/mac) */
- 
- 	struct iw_param	param;		/* Other small parameters */
- 	struct iw_point	data;		/* Other large parameters */
-@@ -582,17 +607,31 @@ struct	iw_range
- 	__u32		min_nwid;	/* Minimal NWID we are able to set */
- 	__u32		max_nwid;	/* Maximal NWID we are able to set */
- 
--	/* Frequency */
--	__u16		num_channels;	/* Number of channels [0; num - 1] */
--	__u8		num_frequency;	/* Number of entry in the list */
--	struct iw_freq	freq[IW_MAX_FREQUENCIES];	/* list */
--	/* Note : this frequency list doesn't need to fit channel numbers */
-+	/* Old Frequency (backward compat - moved lower ) */
-+	__u16		old_num_channels;
-+	__u8		old_num_frequency;
-+	/* Filler to keep "version" at the same offset */
-+	__s32		old_freq[6];
- 
- 	/* signal level threshold range */
- 	__s32	sensitivity;
- 
- 	/* Quality of link & SNR stuff */
-+	/* Quality range (link, level, noise)
-+	 * If the quality is absolute, it will be in the range [0 ; max_qual],
-+	 * if the quality is dBm, it will be in the range [max_qual ; 0].
-+	 * Don't forget that we use 8 bit arithmetics... */
- 	struct iw_quality	max_qual;	/* Quality of the link */
-+	/* This should contain the average/typical values of the quality
-+	 * indicator. This should be the threshold between a "good" and
-+	 * a "bad" link (example : monitor going from green to orange).
-+	 * Currently, user space apps like quality monitors don't have any
-+	 * way to calibrate the measurement. With this, they can split
-+	 * the range between 0 and max_qual in different quality level
-+	 * (using a geometric subdivision centered on the average).
-+	 * I expect that people doing the user space apps will feedback
-+	 * us on which value we need to put in each driver... */
-+	struct iw_quality	avg_qual;	/* Quality of the link */
- 
- 	/* Rates */
- 	__u8		num_bitrates;	/* Number of entries in the list */
-@@ -619,6 +658,8 @@ struct	iw_range
- 	__u16	encoding_size[IW_MAX_ENCODING_SIZES];	/* Different token sizes */
- 	__u8	num_encoding_sizes;	/* Number of entry in the list */
- 	__u8	max_encoding_tokens;	/* Max number of tokens */
-+	/* For drivers that need a "login/passwd" form */
-+	__u8	encoding_login_index;	/* token index for login token */
- 
- 	/* Transmit power */
- 	__u16		txpower_capa;	/* What options are supported */
-@@ -638,18 +679,12 @@ struct	iw_range
- 	__s32		min_r_time;	/* Minimal retry lifetime */
- 	__s32		max_r_time;	/* Maximal retry lifetime */
- 
--	/* Average quality of link & SNR */
--	struct iw_quality	avg_qual;	/* Quality of the link */
--	/* This should contain the average/typical values of the quality
--	 * indicator. This should be the threshold between a "good" and
--	 * a "bad" link (example : monitor going from green to orange).
--	 * Currently, user space apps like quality monitors don't have any
--	 * way to calibrate the measurement. With this, they can split
--	 * the range between 0 and max_qual in different quality level
--	 * (using a geometric subdivision centered on the average).
--	 * I expect that people doing the user space apps will feedback
--	 * us on which value we need to put in each driver...
--	 */
-+	/* Frequency */
-+	__u16		num_channels;	/* Number of channels [0; num - 1] */
-+	__u8		num_frequency;	/* Number of entry in the list */
-+	struct iw_freq	freq[IW_MAX_FREQUENCIES];	/* list */
-+	/* Note : this frequency list doesn't need to fit channel numbers,
-+	 * because each entry contain its channel index */
- };
- 
- /*
-diff -u -p linux/include/net/iw_handler.15.h linux/include/net/iw_handler.h
---- linux/include/net/iw_handler.15.h	Thu May  1 17:02:36 2003
-+++ linux/include/net/iw_handler.h	Thu May  1 17:03:22 2003
-@@ -1,7 +1,7 @@
- /*
-  * This file define the new driver API for Wireless Extensions
-  *
-- * Version :	4	21.6.02
-+ * Version :	5	4.12.02
-  *
-  * Authors :	Jean Tourrilhes - HPL - <jt@hpl.hp.com>
-  * Copyright (c) 2001-2002 Jean Tourrilhes, All Rights Reserved.
-@@ -206,7 +206,7 @@
-  * will be needed...
-  * I just plan to increment with each new version.
-  */
--#define IW_HANDLER_VERSION	4
-+#define IW_HANDLER_VERSION	5
- 
- /*
-  * Changes :
-@@ -220,10 +220,18 @@
-  * V3 to V4
-  * --------
-  *	- Reshuffle IW_HEADER_TYPE_XXX to map IW_PRIV_TYPE_XXX changes
-+ *
-+ * V4 to V5
-+ * --------
-+ *	- Add new spy support : struct iw_spy_data & prototypes
-  */
- 
- /**************************** CONSTANTS ****************************/
- 
-+/* Enable enhanced spy support. Disable to reduce footprint */
-+#define IW_WIRELESS_SPY
-+#define IW_WIRELESS_THRSPY
-+
- /* Special error message for the driver to indicate that we
-  * should do a commit after return from the iw_handler */
- #define EIWCOMMIT	EINPROGRESS
-@@ -315,6 +323,9 @@ struct iw_handler_def
- 	 * We will automatically export that to user space... */
- 	struct iw_priv_args *	private_args;
- 
-+	/* Driver enhanced spy support */
-+	long			spy_offset;	/* Spy data offset */
-+
- 	/* In the long term, get_wireless_stats will move from
- 	 * 'struct net_device' to here, to minimise bloat. */
- };
-@@ -350,6 +361,33 @@ struct iw_ioctl_description
- 
- /* Need to think of short header translation table. Later. */
- 
-+/* --------------------- ENHANCED SPY SUPPORT --------------------- */
-+/*
-+ * In the old days, the driver was handling spy support all by itself.
-+ * Now, the driver can delegate this task to Wireless Extensions.
-+ * It needs to include this struct in its private part and use the
-+ * standard spy iw_handler.
-+ */
-+
-+/*
-+ * Instance specific spy data, i.e. addresses spied and quality for them.
-+ */
-+struct iw_spy_data
-+{
-+#ifdef IW_WIRELESS_SPY
-+	/* --- Standard spy support --- */
-+	int			spy_number;
-+	u_char			spy_address[IW_MAX_SPY][ETH_ALEN];
-+	struct iw_quality	spy_stat[IW_MAX_SPY];
-+#ifdef IW_WIRELESS_THRSPY
-+	/* --- Enhanced spy support (event) */
-+	struct iw_quality	spy_thr_low;	/* Low threshold */
-+	struct iw_quality	spy_thr_high;	/* High threshold */
-+	u_char			spy_thr_under[IW_MAX_SPY];
-+#endif /* IW_WIRELESS_THRSPY */
-+#endif /* IW_WIRELESS_SPY */
-+};
-+
- /**************************** PROTOTYPES ****************************/
- /*
-  * Functions part of the Wireless Extensions (defined in net/core/wireless.c).
-@@ -375,6 +413,31 @@ extern void wireless_send_event(struct n
- 
- /* We may need a function to send a stream of events to user space.
-  * More on that later... */
-+
-+/* Standard handler for SIOCSIWSPY */
-+extern int iw_handler_set_spy(struct net_device *	dev,
-+			      struct iw_request_info *	info,
-+			      union iwreq_data *	wrqu,
-+			      char *			extra);
-+/* Standard handler for SIOCGIWSPY */
-+extern int iw_handler_get_spy(struct net_device *	dev,
-+			      struct iw_request_info *	info,
-+			      union iwreq_data *	wrqu,
-+			      char *			extra);
-+/* Standard handler for SIOCSIWTHRSPY */
-+extern int iw_handler_set_thrspy(struct net_device *	dev,
-+				 struct iw_request_info *info,
-+				 union iwreq_data *	wrqu,
-+				 char *			extra);
-+/* Standard handler for SIOCGIWTHRSPY */
-+extern int iw_handler_get_thrspy(struct net_device *	dev,
-+				 struct iw_request_info *info,
-+				 union iwreq_data *	wrqu,
-+				 char *			extra);
-+/* Driver call to update spy records */
-+extern void wireless_spy_update(struct net_device *	dev,
-+				unsigned char *		address,
-+				struct iw_quality *	wstats);
- 
- /************************* INLINE FUNTIONS *************************/
- /*
-diff -u -p linux/net/core/wireless.15.c linux/net/core/wireless.c
---- linux/net/core/wireless.15.c	Thu May  1 17:02:50 2003
-+++ linux/net/core/wireless.c	Thu May  1 17:15:42 2003
-@@ -2,7 +2,7 @@
-  * This file implement the Wireless Extensions APIs.
-  *
-  * Authors :	Jean Tourrilhes - HPL - <jt@hpl.hp.com>
-- * Copyright (c) 1997-2002 Jean Tourrilhes, All Rights Reserved.
-+ * Copyright (c) 1997-2003 Jean Tourrilhes, All Rights Reserved.
-  *
-  * (As all part of the Linux kernel, this file is GPL)
-  */
-@@ -43,6 +43,11 @@
-  *	o Turn on WE_STRICT_WRITE by default + kernel warning
-  *	o Fix WE_STRICT_WRITE in ioctl_export_private() (32 => iw_num)
-  *	o Fix off-by-one in test (extra_size <= IFNAMSIZ)
-+ *
-+ * v6 - 9.01.03 - Jean II
-+ *	o Add common spy support : iw_handler_set_spy(), wireless_spy_update()
-+ *	o Add enhanced spy support : iw_handler_set_thrspy() and event.
-+ *	o Add WIRELESS_EXT version display in /proc/net/wireless
-  */
- 
- /***************************** INCLUDES *****************************/
-@@ -53,9 +58,10 @@
- #include <linux/proc_fs.h>
- #include <linux/rtnetlink.h>		/* rtnetlink stuff */
- #include <linux/seq_file.h>
--#include <linux/wireless.h>		/* Pretty obvious */
- #include <linux/init.h>			/* for __init */
-+#include <linux/if_arp.h>		/* ARPHRD_ETHER */
- 
-+#include <linux/wireless.h>		/* Pretty obvious */
- #include <net/iw_handler.h>		/* New driver API */
- 
- #include <asm/uaccess.h>		/* copy_to_user() */
-@@ -69,6 +75,7 @@
- /* Debugging stuff */
- #undef WE_IOCTL_DEBUG		/* Debug IOCTL API */
- #undef WE_EVENT_DEBUG		/* Debug Event dispatcher */
-+#undef WE_SPY_DEBUG		/* Debug enhanced spy support */
- 
- /* Options */
- #define WE_EVENT_NETLINK	/* Propagate events using rtnetlink */
-@@ -76,7 +83,7 @@
- 
- /************************* GLOBAL VARIABLES *************************/
- /*
-- * You should not use global variables, because or re-entrancy.
-+ * You should not use global variables, because of re-entrancy.
-  * On our case, it's only const, so it's OK...
-  */
- /*
-@@ -152,7 +159,19 @@ static const struct iw_ioctl_description
- 		.header_type	= IW_HEADER_TYPE_POINT,
- 		.token_size	= sizeof(struct sockaddr) +
- 				  sizeof(struct iw_quality),
--		.max_tokens	= IW_MAX_GET_SPY,
-+		.max_tokens	= IW_MAX_SPY,
-+	},
-+	[SIOCSIWTHRSPY	- SIOCIWFIRST] = {
-+		.header_type	= IW_HEADER_TYPE_POINT,
-+		.token_size	= sizeof(struct iw_thrspy),
-+		.min_tokens	= 1,
-+		.max_tokens	= 1,
-+	},
-+	[SIOCGIWTHRSPY	- SIOCIWFIRST] = {
-+		.header_type	= IW_HEADER_TYPE_POINT,
-+		.token_size	= sizeof(struct iw_thrspy),
-+		.min_tokens	= 1,
-+		.max_tokens	= 1,
- 	},
- 	[SIOCSIWAP	- SIOCIWFIRST] = {
- 		.header_type	= IW_HEADER_TYPE_ADDR,
-@@ -440,9 +459,10 @@ static int wireless_seq_show(struct seq_
- {
- 	if (v == (void *)1)
- 		seq_printf(seq, "Inter-| sta-|   Quality        |   Discarded "
--				"packets               | Missed\n"
-+				"packets               | Missed | WE\n"
- 				" face | tus | link level noise |  nwid  "
--				"crypt   frag  retry   misc | beacon\n");
-+				"crypt   frag  retry   misc | beacon | %d\n",
-+			   WIRELESS_EXT);
- 	else
- 		wireless_seq_printf_stats(seq, v);
- 	return 0;
-@@ -1098,4 +1118,253 @@ void wireless_send_event(struct net_devi
- 	kfree(event);
- 
- 	return;		/* Always success, I guess ;-) */
-+}
-+
-+/********************** ENHANCED IWSPY SUPPORT **********************/
-+/*
-+ * In the old days, the driver was handling spy support all by itself.
-+ * Now, the driver can delegate this task to Wireless Extensions.
-+ * It needs to use those standard spy iw_handler in struct iw_handler_def,
-+ * push data to us via wireless_spy_update() and include struct iw_spy_data
-+ * in its private part (and advertise it in iw_handler_def->spy_offset).
-+ * One of the main advantage of centralising spy support here is that
-+ * it becomes much easier to improve and extend it without having to touch
-+ * the drivers. One example is the addition of the Spy-Threshold events.
-+ * Note : IW_WIRELESS_SPY is defined in iw_handler.h
-+ */
-+
-+/*------------------------------------------------------------------*/
-+/*
-+ * Standard Wireless Handler : set Spy List
-+ */
-+int iw_handler_set_spy(struct net_device *	dev,
-+		       struct iw_request_info *	info,
-+		       union iwreq_data *	wrqu,
-+		       char *			extra)
-+{
-+#ifdef IW_WIRELESS_SPY
-+	struct iw_spy_data *	spydata = (dev->priv +
-+					   dev->wireless_handlers->spy_offset);
-+	struct sockaddr *	address = (struct sockaddr *) extra;
-+
-+	/* Disable spy collection while we copy the addresses.
-+	 * As we don't disable interrupts, we need to do this to avoid races.
-+	 * As we are the only writer, this is good enough. */
-+	spydata->spy_number = 0;
-+
-+	/* Are there are addresses to copy? */
-+	if(wrqu->data.length > 0) {
-+		int i;
-+
-+		/* Copy addresses */
-+		for(i = 0; i < wrqu->data.length; i++)
-+			memcpy(spydata->spy_address[i], address[i].sa_data,
-+			       ETH_ALEN);
-+		/* Reset stats */
-+		memset(spydata->spy_stat, 0,
-+		       sizeof(struct iw_quality) * IW_MAX_SPY);
-+
-+#ifdef WE_SPY_DEBUG
-+		printk(KERN_DEBUG "iw_handler_set_spy() :  offset %ld, spydata %p, num %d\n", dev->wireless_handlers->spy_offset, spydata, wrqu->data.length);
-+		for (i = 0; i < wrqu->data.length; i++)
-+			printk(KERN_DEBUG
-+			       "%02X:%02X:%02X:%02X:%02X:%02X \n",
-+			       spydata->spy_address[i][0],
-+			       spydata->spy_address[i][1],
-+			       spydata->spy_address[i][2],
-+			       spydata->spy_address[i][3],
-+			       spydata->spy_address[i][4],
-+			       spydata->spy_address[i][5]);
-+#endif	/* WE_SPY_DEBUG */
-+	}
-+	/* Enable addresses */
-+	spydata->spy_number = wrqu->data.length;
-+
-+	return 0;
-+#else /* IW_WIRELESS_SPY */
-+	return -EOPNOTSUPP;
-+#endif /* IW_WIRELESS_SPY */
-+}
-+
-+/*------------------------------------------------------------------*/
-+/*
-+ * Standard Wireless Handler : get Spy List
-+ */
-+int iw_handler_get_spy(struct net_device *	dev,
-+		       struct iw_request_info *	info,
-+		       union iwreq_data *	wrqu,
-+		       char *			extra)
-+{
-+#ifdef IW_WIRELESS_SPY
-+	struct iw_spy_data *	spydata = (dev->priv +
-+					   dev->wireless_handlers->spy_offset);
-+	struct sockaddr *	address = (struct sockaddr *) extra;
-+	int			i;
-+
-+	wrqu->data.length = spydata->spy_number;
-+
-+	/* Copy addresses. */
-+	for(i = 0; i < spydata->spy_number; i++) 	{
-+		memcpy(address[i].sa_data, spydata->spy_address[i], ETH_ALEN);
-+		address[i].sa_family = AF_UNIX;
-+	}
-+	/* Copy stats to the user buffer (just after). */
-+	if(spydata->spy_number > 0)
-+		memcpy(extra  + (sizeof(struct sockaddr) *spydata->spy_number),
-+		       spydata->spy_stat,
-+		       sizeof(struct iw_quality) * spydata->spy_number);
-+	/* Reset updated flags. */
-+	for(i = 0; i < spydata->spy_number; i++)
-+		spydata->spy_stat[i].updated = 0;
-+	return 0;
-+#else /* IW_WIRELESS_SPY */
-+	return -EOPNOTSUPP;
-+#endif /* IW_WIRELESS_SPY */
-+}
-+
-+/*------------------------------------------------------------------*/
-+/*
-+ * Standard Wireless Handler : set spy threshold
-+ */
-+int iw_handler_set_thrspy(struct net_device *	dev,
-+			  struct iw_request_info *info,
-+			  union iwreq_data *	wrqu,
-+			  char *		extra)
-+{
-+#ifdef IW_WIRELESS_THRSPY
-+	struct iw_spy_data *	spydata = (dev->priv +
-+					   dev->wireless_handlers->spy_offset);
-+	struct iw_thrspy *	threshold = (struct iw_thrspy *) extra;
-+
-+	/* Just do it */
-+	memcpy(&(spydata->spy_thr_low), &(threshold->low),
-+	       2 * sizeof(struct iw_quality));
-+
-+	/* Clear flag */
-+	memset(spydata->spy_thr_under, '\0', sizeof(spydata->spy_thr_under));
-+
-+#ifdef WE_SPY_DEBUG
-+	printk(KERN_DEBUG "iw_handler_set_thrspy() :  low %d ; high %d\n", spydata->spy_thr_low.level, spydata->spy_thr_high.level);
-+#endif	/* WE_SPY_DEBUG */
-+
-+	return 0;
-+#else /* IW_WIRELESS_THRSPY */
-+	return -EOPNOTSUPP;
-+#endif /* IW_WIRELESS_THRSPY */
-+}
-+
-+/*------------------------------------------------------------------*/
-+/*
-+ * Standard Wireless Handler : get spy threshold
-+ */
-+int iw_handler_get_thrspy(struct net_device *	dev,
-+			  struct iw_request_info *info,
-+			  union iwreq_data *	wrqu,
-+			  char *		extra)
-+{
-+#ifdef IW_WIRELESS_THRSPY
-+	struct iw_spy_data *	spydata = (dev->priv +
-+					   dev->wireless_handlers->spy_offset);
-+	struct iw_thrspy *	threshold = (struct iw_thrspy *) extra;
-+
-+	/* Just do it */
-+	memcpy(&(threshold->low), &(spydata->spy_thr_low),
-+	       2 * sizeof(struct iw_quality));
-+
-+	return 0;
-+#else /* IW_WIRELESS_THRSPY */
-+	return -EOPNOTSUPP;
-+#endif /* IW_WIRELESS_THRSPY */
-+}
-+
-+#ifdef IW_WIRELESS_THRSPY
-+/*------------------------------------------------------------------*/
-+/*
-+ * Prepare and send a Spy Threshold event
-+ */
-+static void iw_send_thrspy_event(struct net_device *	dev,
-+				 struct iw_spy_data *	spydata,
-+				 unsigned char *	address,
-+				 struct iw_quality *	wstats)
-+{
-+	union iwreq_data	wrqu;
-+	struct iw_thrspy	threshold;
-+
-+	/* Init */
-+	wrqu.data.length = 1;
-+	wrqu.data.flags = 0;
-+	/* Copy address */
-+	memcpy(threshold.addr.sa_data, address, ETH_ALEN);
-+	threshold.addr.sa_family = ARPHRD_ETHER;
-+	/* Copy stats */
-+	memcpy(&(threshold.qual), wstats, sizeof(struct iw_quality));
-+	/* Copy also thresholds */
-+	memcpy(&(threshold.low), &(spydata->spy_thr_low),
-+	       2 * sizeof(struct iw_quality));
-+
-+#ifdef WE_SPY_DEBUG
-+	printk(KERN_DEBUG "iw_send_thrspy_event() : address %02X:%02X:%02X:%02X:%02X:%02X, level %d, up = %d\n",
-+	       threshold.addr.sa_data[0],
-+	       threshold.addr.sa_data[1],
-+	       threshold.addr.sa_data[2],
-+	       threshold.addr.sa_data[3],
-+	       threshold.addr.sa_data[4],
-+	       threshold.addr.sa_data[5], threshold.qual.level);
-+#endif	/* WE_SPY_DEBUG */
-+
-+	/* Send event to user space */
-+	wireless_send_event(dev, SIOCGIWTHRSPY, &wrqu, (char *) &threshold);
-+}
-+#endif /* IW_WIRELESS_THRSPY */
-+
-+/* ---------------------------------------------------------------- */
-+/*
-+ * Call for the driver to update the spy data.
-+ * For now, the spy data is a simple array. As the size of the array is
-+ * small, this is good enough. If we wanted to support larger number of
-+ * spy addresses, we should use something more efficient...
-+ */
-+void wireless_spy_update(struct net_device *	dev,
-+			 unsigned char *	address,
-+			 struct iw_quality *	wstats)
-+{
-+#ifdef IW_WIRELESS_SPY
-+	struct iw_spy_data *	spydata = (dev->priv +
-+					   dev->wireless_handlers->spy_offset);
-+	int			i;
-+	int			match = -1;
-+
-+#ifdef WE_SPY_DEBUG
-+	printk(KERN_DEBUG "wireless_spy_update() :  offset %ld, spydata %p, address %02X:%02X:%02X:%02X:%02X:%02X\n", dev->wireless_handlers->spy_offset, spydata, address[0], address[1], address[2], address[3], address[4], address[5]);
-+#endif	/* WE_SPY_DEBUG */
-+
-+	/* Update all records that match */
-+	for(i = 0; i < spydata->spy_number; i++)
-+		if(!memcmp(address, spydata->spy_address[i], ETH_ALEN)) {
-+			memcpy(&(spydata->spy_stat[i]), wstats,
-+			       sizeof(struct iw_quality));
-+			match = i;
-+		}
-+#ifdef IW_WIRELESS_THRSPY
-+	/* Generate an event if we cross the spy threshold.
-+	 * To avoid event storms, we have a simple hysteresis : we generate
-+	 * event only when we go under the low threshold or above the
-+	 * high threshold. */
-+	if(match >= 0) {
-+		if(spydata->spy_thr_under[match]) {
-+			if(wstats->level > spydata->spy_thr_high.level) {
-+				spydata->spy_thr_under[match] = 0;
-+				iw_send_thrspy_event(dev, spydata,
-+						     address, wstats);
-+			}
-+		} else {
-+			if(wstats->level < spydata->spy_thr_low.level) {
-+				spydata->spy_thr_under[match] = 1;
-+				iw_send_thrspy_event(dev, spydata,
-+						     address, wstats);
-+			}
-+		}
-+	}
-+#endif /* IW_WIRELESS_THRSPY */
-+#endif /* IW_WIRELESS_SPY */
- }
-diff -u -p linux/net/netsyms.15.c linux/net/netsyms.c
---- linux/net/netsyms.15.c	Thu May  1 17:03:11 2003
-+++ linux/net/netsyms.c	Thu May  1 17:03:22 2003
-@@ -671,10 +671,13 @@ EXPORT_SYMBOL(register_gifconf);
- EXPORT_SYMBOL(softnet_data);
+diff -u -p linux/drivers/net/wireless/wavelan_cs.15.p.h linux/drivers/net/wireless/wavelan_cs.p.h
+--- linux/drivers/net/wireless/wavelan_cs.15.p.h	Thu May  1 18:31:34 2003
++++ linux/drivers/net/wireless/wavelan_cs.p.h	Thu May  1 18:32:19 2003
+@@ -443,9 +443,7 @@
  
  #ifdef CONFIG_NET_RADIO
--/* Don't include the whole header mess for a single function */
--union iwreq_data;
--extern void wireless_send_event(struct net_device *dev, unsigned int cmd, union iwreq_data *wrqu, char *extra);
-+#include <net/iw_handler.h>		/* Wireless Extensions driver API */
- EXPORT_SYMBOL(wireless_send_event);
-+EXPORT_SYMBOL(iw_handler_set_spy);
-+EXPORT_SYMBOL(iw_handler_get_spy);
-+EXPORT_SYMBOL(iw_handler_set_thrspy);
-+EXPORT_SYMBOL(iw_handler_get_thrspy);
-+EXPORT_SYMBOL(wireless_spy_update);
- #endif	/* CONFIG_NET_RADIO */
+ #include <linux/wireless.h>		/* Wireless extensions */
+-#if WIRELESS_EXT > 12
+-#include <net/iw_handler.h>
+-#endif	/* WIRELESS_EXT > 12 */
++#include <net/iw_handler.h>		/* New driver API */
+ #endif
  
- EXPORT_SYMBOL(linkwatch_fire_event);
+ /* Pcmcia headers that we need */
+@@ -527,13 +525,6 @@ static const char *version = "wavelan_cs
+ 
+ /* ------------------------ PRIVATE IOCTL ------------------------ */
+ 
+-/* Wireless Extension Backward compatibility - Jean II
+- * If the new wireless device private ioctl range is not defined,
+- * default to standard device private ioctl range */
+-#ifndef SIOCIWFIRSTPRIV
+-#define SIOCIWFIRSTPRIV	SIOCDEVPRIVATE
+-#endif /* SIOCIWFIRSTPRIV */
+-
+ #define SIOCSIPQTHR	SIOCIWFIRSTPRIV		/* Set quality threshold */
+ #define SIOCGIPQTHR	SIOCIWFIRSTPRIV + 1	/* Get quality threshold */
+ #define SIOCSIPROAM     SIOCIWFIRSTPRIV + 2	/* Set roaming state */
+@@ -605,16 +596,6 @@ typedef struct iw_freq		iw_freq;
+ typedef struct net_local	net_local;
+ typedef struct timer_list	timer_list;
+ 
+-#if WIRELESS_EXT <= 12
+-/* Wireless extensions backward compatibility */
+-/* Part of iw_handler prototype we need */
+-struct iw_request_info
+-{
+-	__u16		cmd;		/* Wireless Extension command */
+-	__u16		flags;		/* More to come ;-) */
+-};
+-#endif	/* WIRELESS_EXT <= 12 */
+-
+ /* Basic types */
+ typedef u_char		mac_addr[WAVELAN_ADDR_SIZE];	/* Hardware address */
+ 
+@@ -647,13 +628,10 @@ struct net_local
+ 
+ #ifdef WIRELESS_EXT
+   iw_stats	wstats;		/* Wireless specific stats */
++
++  struct iw_spy_data	spy_data;
+ #endif
+ 
+-#ifdef WIRELESS_SPY
+-  int		spy_number;		/* Number of addresses to spy */
+-  mac_addr	spy_address[IW_MAX_SPY];	/* The addresses to spy */
+-  iw_qual	spy_stat[IW_MAX_SPY];		/* Statistics gathered */
+-#endif	/* WIRELESS_SPY */
+ #ifdef HISTOGRAM
+   int		his_number;		/* Number of intervals */
+   u_char	his_range[16];		/* Boundaries of interval ]n-1; n] */
+diff -u -p linux/drivers/net/wireless/wavelan_cs.15.c linux/drivers/net/wireless/wavelan_cs.c
+--- linux/drivers/net/wireless/wavelan_cs.15.c	Thu May  1 18:31:27 2003
++++ linux/drivers/net/wireless/wavelan_cs.c	Thu May  1 18:32:19 2003
+@@ -1757,10 +1757,8 @@ wv_frequency_list(u_long	base,	/* i/o po
+   u_short	table[10];	/* Authorized frequency table */
+   long		freq = 0L;	/* offset to 2.4 GHz in .5 MHz + 12 MHz */
+   int		i;		/* index in the table */
+-#if WIRELESS_EXT > 7
+   const int	BAND_NUM = 10;	/* Number of bands */
+   int		c = 0;		/* Channel number */
+-#endif /* WIRELESS_EXT */
+ 
+   /* Read the frequency table */
+   fee_read(base, 0x71 /* frequency table */,
+@@ -1772,13 +1770,11 @@ wv_frequency_list(u_long	base,	/* i/o po
+     /* Look in the table if the frequency is allowed */
+     if(table[9 - (freq / 16)] & (1 << (freq % 16)))
+       {
+-#if WIRELESS_EXT > 7
+ 	/* Compute approximate channel number */
+ 	while((((channel_bands[c] >> 1) - 24) < freq) &&
+ 	      (c < BAND_NUM))
+ 	  c++;
+ 	list[i].i = c;	/* Set the list index */
+-#endif /* WIRELESS_EXT */
+ 
+ 	/* put in the list */
+ 	list[i].m = (((freq + 24) * 5) + 24000L) * 10000;
+@@ -1792,7 +1788,7 @@ wv_frequency_list(u_long	base,	/* i/o po
+   return(i);
+ }
+ 
+-#ifdef WIRELESS_SPY
++#ifdef IW_WIRELESS_SPY
+ /*------------------------------------------------------------------*/
+ /*
+  * Gather wireless spy statistics : for each packet, compare the source
+@@ -1804,22 +1800,17 @@ wl_spy_gather(device *	dev,
+ 	      u_char *	mac,		/* MAC address */
+ 	      u_char *	stats)		/* Statistics to gather */
+ {
+-  net_local *	lp = (net_local *) dev->priv;
+-  int		i;
++  struct iw_quality wstats;
+ 
+-  /* Look all addresses */
+-  for(i = 0; i < lp->spy_number; i++)
+-    /* If match */
+-    if(!memcmp(mac, lp->spy_address[i], WAVELAN_ADDR_SIZE))
+-      {
+-	/* Update statistics */
+-	lp->spy_stat[i].qual = stats[2] & MMR_SGNL_QUAL;
+-	lp->spy_stat[i].level = stats[0] & MMR_SIGNAL_LVL;
+-	lp->spy_stat[i].noise = stats[1] & MMR_SILENCE_LVL;
+-	lp->spy_stat[i].updated = 0x7;
+-      }
++  wstats.qual = stats[2] & MMR_SGNL_QUAL;
++  wstats.level = stats[0] & MMR_SIGNAL_LVL;
++  wstats.noise = stats[1] & MMR_SILENCE_LVL;
++  wstats.updated = 0x7;
++
++  /* Update spy records */
++  wireless_spy_update(dev, mac, &wstats);
+ }
+-#endif	/* WIRELESS_SPY */
++#endif	/* IW_WIRELESS_SPY */
+ 
+ #ifdef HISTOGRAM
+ /*------------------------------------------------------------------*/
+@@ -1904,17 +1895,10 @@ static int wavelan_set_nwid(struct net_d
+ 	spin_lock_irqsave(&lp->spinlock, flags);
+ 	
+ 	/* Set NWID in WaveLAN. */
+-#if WIRELESS_EXT > 8
+ 	if (!wrqu->nwid.disabled) {
+ 		/* Set NWID in psa */
+ 		psa.psa_nwid[0] = (wrqu->nwid.value & 0xFF00) >> 8;
+ 		psa.psa_nwid[1] = wrqu->nwid.value & 0xFF;
+-#else	/* WIRELESS_EXT > 8 */
+-	if(wrq->u.nwid.on) {
+-		/* Set NWID in psa */
+-		psa.psa_nwid[0] = (wrq->u.nwid.nwid & 0xFF00) >> 8;
+-		psa.psa_nwid[1] = wrq->u.nwid.nwid & 0xFF;
+-#endif	/* WIRELESS_EXT > 8 */
+ 		psa.psa_nwid_select = 0x01;
+ 		psa_write(dev,
+ 			  (char *) psa.psa_nwid - (char *) &psa,
+@@ -1971,14 +1955,9 @@ static int wavelan_get_nwid(struct net_d
+ 	psa_read(dev,
+ 		 (char *) psa.psa_nwid - (char *) &psa,
+ 		 (unsigned char *) psa.psa_nwid, 3);
+-#if WIRELESS_EXT > 8
+ 	wrqu->nwid.value = (psa.psa_nwid[0] << 8) + psa.psa_nwid[1];
+ 	wrqu->nwid.disabled = !(psa.psa_nwid_select);
+ 	wrqu->nwid.fixed = 1;	/* Superfluous */
+-#else	/* WIRELESS_EXT > 8 */
+-	wrq->u.nwid.nwid = (psa.psa_nwid[0] << 8) + psa.psa_nwid[1];
+-	wrq->u.nwid.on = psa.psa_nwid_select;
+-#endif	/* WIRELESS_EXT > 8 */
+ 
+ 	/* Enable interrupts and restore flags. */
+ 	spin_unlock_irqrestore(&lp->spinlock, flags);
+@@ -2081,13 +2060,9 @@ static int wavelan_set_sens(struct net_d
+ 	spin_lock_irqsave(&lp->spinlock, flags);
+ 	
+ 	/* Set the level threshold. */
+-#if WIRELESS_EXT > 7
+ 	/* We should complain loudly if wrqu->sens.fixed = 0, because we
+ 	 * can't set auto mode... */
+ 	psa.psa_thr_pre_set = wrqu->sens.value & 0x3F;
+-#else	/* WIRELESS_EXT > 7 */
+-	psa.psa_thr_pre_set = wrq->u.sensitivity & 0x3F;
+-#endif	/* WIRELESS_EXT > 7 */
+ 	psa_write(dev,
+ 		  (char *) &psa.psa_thr_pre_set - (char *) &psa,
+ 		  (unsigned char *) &psa.psa_thr_pre_set, 1);
+@@ -2123,12 +2098,8 @@ static int wavelan_get_sens(struct net_d
+ 	psa_read(dev,
+ 		 (char *) &psa.psa_thr_pre_set - (char *) &psa,
+ 		 (unsigned char *) &psa.psa_thr_pre_set, 1);
+-#if WIRELESS_EXT > 7
+ 	wrqu->sens.value = psa.psa_thr_pre_set & 0x3F;
+ 	wrqu->sens.fixed = 1;
+-#else	/* WIRELESS_EXT > 7 */
+-	wrq->u.sensitivity = psa.psa_thr_pre_set & 0x3F;
+-#endif	/* WIRELESS_EXT > 7 */
+ 
+ 	/* Enable interrupts and restore flags. */
+ 	spin_unlock_irqrestore(&lp->spinlock, flags);
+@@ -2136,7 +2107,6 @@ static int wavelan_get_sens(struct net_d
+ 	return ret;
+ }
+ 
+-#if WIRELESS_EXT > 8
+ /*------------------------------------------------------------------*/
+ /*
+  * Wireless Handler : set encryption key
+@@ -2253,10 +2223,8 @@ static int wavelan_get_encode(struct net
+ 
+ 	return ret;
+ }
+-#endif	/* WIRELESS_EXT > 8 */
+ 
+ #ifdef WAVELAN_ROAMING_EXT
+-#if WIRELESS_EXT > 5
+ /*------------------------------------------------------------------*/
+ /*
+  * Wireless Handler : set ESSID (domain)
+@@ -2367,10 +2335,8 @@ static int wavelan_get_wap(struct net_de
+ 
+ 	return -EOPNOTSUPP;
+ }
+-#endif	/* WIRELESS_EXT > 5 */
+ #endif	/* WAVELAN_ROAMING_EXT */
+ 
+-#if WIRELESS_EXT > 8
+ #ifdef WAVELAN_ROAMING
+ /*------------------------------------------------------------------*/
+ /*
+@@ -2429,7 +2395,6 @@ static int wavelan_get_mode(struct net_d
+ 	return 0;
+ }
+ #endif	/* WAVELAN_ROAMING */
+-#endif /* WIRELESS_EXT > 8 */
+ 
+ /*------------------------------------------------------------------*/
+ /*
+@@ -2452,11 +2417,9 @@ static int wavelan_get_range(struct net_
+ 	/* Set all the info we don't care or don't know about to zero */
+ 	memset(range, 0, sizeof(struct iw_range));
+ 
+-#if WIRELESS_EXT > 10
+ 	/* Set the Wireless Extension versions */
+ 	range->we_version_compiled = WIRELESS_EXT;
+ 	range->we_version_source = 9;
+-#endif /* WIRELESS_EXT > 10 */
+ 
+ 	/* Set information in the range struct.  */
+ 	range->throughput = 1.4 * 1000 * 1000;	/* don't argue on this ! */
+@@ -2467,17 +2430,13 @@ static int wavelan_get_range(struct net_
+ 	range->max_qual.qual = MMR_SGNL_QUAL;
+ 	range->max_qual.level = MMR_SIGNAL_LVL;
+ 	range->max_qual.noise = MMR_SILENCE_LVL;
+-#if WIRELESS_EXT > 11
+ 	range->avg_qual.qual = MMR_SGNL_QUAL; /* Always max */
+ 	/* Need to get better values for those two */
+ 	range->avg_qual.level = 30;
+ 	range->avg_qual.noise = 8;
+-#endif /* WIRELESS_EXT > 11 */
+ 
+-#if WIRELESS_EXT > 7
+ 	range->num_bitrates = 1;
+ 	range->bitrate[0] = 2000000;	/* 2 Mb/s */
+-#endif /* WIRELESS_EXT > 7 */
+ 
+ 	/* Disable interrupts and save flags. */
+ 	spin_lock_irqsave(&lp->spinlock, flags);
+@@ -2491,7 +2450,6 @@ static int wavelan_get_range(struct net_
+ 	} else
+ 		range->num_channels = range->num_frequency = 0;
+ 
+-#if WIRELESS_EXT > 8
+ 	/* Encryption supported ? */
+ 	if (mmc_encr(base)) {
+ 		range->encoding_size[0] = 8;	/* DES = 64 bits key */
+@@ -2501,7 +2459,6 @@ static int wavelan_get_range(struct net_
+ 		range->num_encoding_sizes = 0;
+ 		range->max_encoding_tokens = 0;
+ 	}
+-#endif /* WIRELESS_EXT > 8 */
+ 
+ 	/* Enable interrupts and restore flags. */
+ 	spin_unlock_irqrestore(&lp->spinlock, flags);
+@@ -2509,93 +2466,6 @@ static int wavelan_get_range(struct net_
+ 	return ret;
+ }
+ 
+-#ifdef WIRELESS_SPY
+-/*------------------------------------------------------------------*/
+-/*
+- * Wireless Handler : set spy list
+- */
+-static int wavelan_set_spy(struct net_device *dev,
+-			   struct iw_request_info *info,
+-			   union iwreq_data *wrqu,
+-			   char *extra)
+-{
+-	net_local *lp = (net_local *) dev->priv;	/* lp is not unused */
+-	struct sockaddr *address = (struct sockaddr *) extra;
+-	int i;
+-	int ret = 0;
+-
+-	/* Disable spy while we copy the addresses.
+-	 * As we don't disable interrupts, we need to do this */
+-	lp->spy_number = 0;
+-
+-	/* Are there are addresses to copy? */
+-	if (wrqu->data.length > 0) {
+-		/* Copy addresses to the lp structure. */
+-		for (i = 0; i < wrqu->data.length; i++) {
+-			memcpy(lp->spy_address[i], address[i].sa_data,
+-			       WAVELAN_ADDR_SIZE);
+-		}
+-
+-		/* Reset structure. */
+-		memset(lp->spy_stat, 0x00, sizeof(iw_qual) * IW_MAX_SPY);
+-
+-#ifdef DEBUG_IOCTL_INFO
+-		printk(KERN_DEBUG
+-		       "SetSpy:  set of new addresses is: \n");
+-		for (i = 0; i < wrqu->data.length; i++)
+-			printk(KERN_DEBUG
+-			       "%02X:%02X:%02X:%02X:%02X:%02X \n",
+-			       lp->spy_address[i][0],
+-			       lp->spy_address[i][1],
+-			       lp->spy_address[i][2],
+-			       lp->spy_address[i][3],
+-			       lp->spy_address[i][4],
+-			       lp->spy_address[i][5]);
+-#endif			/* DEBUG_IOCTL_INFO */
+-	}
+-
+-	/* Now we can set the number of addresses */
+-	lp->spy_number = wrqu->data.length;
+-
+-	return ret;
+-}
+-
+-/*------------------------------------------------------------------*/
+-/*
+- * Wireless Handler : get spy list
+- */
+-static int wavelan_get_spy(struct net_device *dev,
+-			   struct iw_request_info *info,
+-			   union iwreq_data *wrqu,
+-			   char *extra)
+-{
+-	net_local *lp = (net_local *) dev->priv;	/* lp is not unused */
+-	struct sockaddr *address = (struct sockaddr *) extra;
+-	int i;
+-
+-	/* Set the number of addresses */
+-	wrqu->data.length = lp->spy_number;
+-
+-	/* Copy addresses from the lp structure. */
+-	for (i = 0; i < lp->spy_number; i++) {
+-		memcpy(address[i].sa_data,
+-		       lp->spy_address[i],
+-		       WAVELAN_ADDR_SIZE);
+-		address[i].sa_family = AF_UNIX;
+-	}
+-	/* Copy stats to the user buffer (just after). */
+-	if(lp->spy_number > 0)
+-		memcpy(extra  + (sizeof(struct sockaddr) * lp->spy_number),
+-		       lp->spy_stat, sizeof(iw_qual) * lp->spy_number);
+-
+-	/* Reset updated flags. */
+-	for (i = 0; i < lp->spy_number; i++)
+-		lp->spy_stat[i].updated = 0x0;
+-
+-	return(0);
+-}
+-#endif			/* WIRELESS_SPY */
+-
+ /*------------------------------------------------------------------*/
+ /*
+  * Wireless Private Handler : set quality threshold
+@@ -2781,8 +2651,6 @@ static const struct iw_priv_args wavelan
+   { SIOCGIPHISTO, 0,                     IW_PRIV_TYPE_INT | 16, "gethisto" },
+ };
+ 
+-#if WIRELESS_EXT > 12
+-
+ static const iw_handler		wavelan_handler[] =
+ {
+ 	NULL,				/* SIOCSIWNAME */
+@@ -2806,15 +2674,10 @@ static const iw_handler		wavelan_handler
+ 	NULL,				/* SIOCGIWPRIV */
+ 	NULL,				/* SIOCSIWSTATS */
+ 	NULL,				/* SIOCGIWSTATS */
+-#ifdef WIRELESS_SPY
+-	wavelan_set_spy,		/* SIOCSIWSPY */
+-	wavelan_get_spy,		/* SIOCGIWSPY */
+-#else	/* WIRELESS_SPY */
+-	NULL,				/* SIOCSIWSPY */
+-	NULL,				/* SIOCGIWSPY */
+-#endif	/* WIRELESS_SPY */
+-	NULL,				/* -- hole -- */
+-	NULL,				/* -- hole -- */
++	iw_handler_set_spy,		/* SIOCSIWSPY */
++	iw_handler_get_spy,		/* SIOCGIWSPY */
++	iw_handler_set_thrspy,		/* SIOCSIWTHRSPY */
++	iw_handler_get_thrspy,		/* SIOCGIWTHRSPY */
+ #ifdef WAVELAN_ROAMING_EXT
+ 	wavelan_set_wap,		/* SIOCSIWAP */
+ 	wavelan_get_wap,		/* SIOCGIWAP */
+@@ -2834,7 +2697,6 @@ static const iw_handler		wavelan_handler
+ 	NULL,				/* SIOCSIWESSID */
+ 	NULL,				/* SIOCGIWESSID */
+ #endif	/* WAVELAN_ROAMING_EXT */
+-#if WIRELESS_EXT > 8
+ 	NULL,				/* SIOCSIWNICKN */
+ 	NULL,				/* SIOCGIWNICKN */
+ 	NULL,				/* -- hole -- */
+@@ -2851,7 +2713,6 @@ static const iw_handler		wavelan_handler
+ 	NULL,				/* SIOCGIWRETRY */
+ 	wavelan_set_encode,		/* SIOCSIWENCODE */
+ 	wavelan_get_encode,		/* SIOCGIWENCODE */
+-#endif	/* WIRELESS_EXT > 8 */
+ };
+ 
+ static const iw_handler		wavelan_private_handler[] =
+@@ -2879,8 +2740,9 @@ static const struct iw_handler_def	wavel
+ 	.standard	= (iw_handler *) wavelan_handler,
+ 	.private	= (iw_handler *) wavelan_private_handler,
+ 	.private_args	= (struct iw_priv_args *) wavelan_private_args,
++	.spy_offset	= ((void *) (&((net_local *) NULL)->spy_data) -
++			   (void *) NULL),
+ };
+-#endif /* WIRELESS_EXT > 12 */
+ 
+ /*------------------------------------------------------------------*/
+ /*
+@@ -2892,9 +2754,6 @@ wavelan_ioctl(struct net_device *	dev,	/
+ 	      struct ifreq *	rq,	/* Data passed */
+ 	      int		cmd)	/* Ioctl number */
+ {
+-#if WIRELESS_EXT <= 12
+-  struct iwreq *	wrq = (struct iwreq *) rq;
+-#endif
+   int			ret = 0;
+ 
+ #ifdef DEBUG_IOCTL_TRACE
+@@ -2908,284 +2767,6 @@ wavelan_ioctl(struct net_device *	dev,	/
+       ret = wl_netdev_ethtool_ioctl(dev, (void *) rq->ifr_data);
+       break;
+ 
+-#if WIRELESS_EXT <= 12
+-      /* --------------- WIRELESS EXTENSIONS --------------- */
+-      /* Now done as iw_handler - Jean II */
+-    case SIOCGIWNAME:
+-      wavelan_get_name(dev, NULL, &(wrq->u), NULL);
+-      break;
+-
+-    case SIOCSIWNWID:
+-      ret = wavelan_set_nwid(dev, NULL, &(wrq->u), NULL);
+-      break;
+-
+-    case SIOCGIWNWID:
+-      ret = wavelan_get_nwid(dev, NULL, &(wrq->u), NULL);
+-      break;
+-
+-    case SIOCSIWFREQ:
+-      ret = wavelan_set_freq(dev, NULL, &(wrq->u), NULL);
+-      break;
+-
+-    case SIOCGIWFREQ:
+-      ret = wavelan_get_freq(dev, NULL, &(wrq->u), NULL);
+-      break;
+-
+-    case SIOCSIWSENS:
+-      ret = wavelan_set_sens(dev, NULL, &(wrq->u), NULL);
+-      break;
+-
+-    case SIOCGIWSENS:
+-      ret = wavelan_get_sens(dev, NULL, &(wrq->u), NULL);
+-      break;
+-
+-#if WIRELESS_EXT > 8
+-    case SIOCSIWENCODE:
+-      {
+-	char keybuf[8];
+-	if (wrq->u.encoding.pointer) {
+-	  /* We actually have a key to set */
+-	  if (wrq->u.encoding.length != 8) {
+-	    ret = -EINVAL;
+-	    break;
+-	  }
+-	  if (copy_from_user(keybuf,
+-			     wrq->u.encoding.pointer,
+-			     wrq->u.encoding.length)) {
+-	    ret = -EFAULT;
+-	    break;
+-	  }
+-	} else if (wrq->u.encoding.length != 0) {
+-	  ret = -EINVAL;
+-	  break;
+-	}
+-	ret = wavelan_set_encode(dev, NULL, &(wrq->u), keybuf);
+-      }
+-      break;
+-
+-    case SIOCGIWENCODE:
+-      if (! capable(CAP_NET_ADMIN)) {
+-	ret = -EPERM;
+-	break;
+-      }
+-      {
+-	char keybuf[8];
+-	ret = wavelan_get_encode(dev, NULL,
+-				 &(wrq->u),
+-				 keybuf);
+-	if (wrq->u.encoding.pointer) {
+-	  if (copy_to_user(wrq->u.encoding.pointer,
+-			   keybuf,
+-			   wrq->u.encoding.length))
+-	    ret = -EFAULT;
+-	}
+-      }
+-      break;
+-#endif	/* WIRELESS_EXT > 8 */
+-
+-#ifdef WAVELAN_ROAMING_EXT
+-#if WIRELESS_EXT > 5
+-    case SIOCSIWESSID:
+-      {
+-	char essidbuf[IW_ESSID_MAX_SIZE+1];
+-	if (wrq->u.essid.length > IW_ESSID_MAX_SIZE) {
+-	  ret = -E2BIG;
+-	  break;
+-	}
+-	if (copy_from_user(essidbuf, wrq->u.essid.pointer,
+-			   wrq->u.essid.length)) {
+-	  ret = -EFAULT;
+-	  break;
+-	}
+-	ret = wavelan_set_essid(dev, NULL,
+-				&(wrq->u),
+-				essidbuf);
+-      }
+-      break;
+-
+-    case SIOCGIWESSID:
+-      {
+-	char essidbuf[IW_ESSID_MAX_SIZE+1];
+-	ret = wavelan_get_essid(dev, NULL,
+-				&(wrq->u),
+-				essidbuf);
+-	if (wrq->u.essid.pointer)
+-	  if ( copy_to_user(wrq->u.essid.pointer,
+-			    essidbuf,
+-			    wrq->u.essid.length) )
+-	    ret = -EFAULT;
+-      }
+-      break;
+-
+-    case SIOCSIWAP:
+-      ret = wavelan_set_wap(dev, NULL, &(wrq->u), NULL);
+-      break;
+-
+-    case SIOCGIWAP:
+-      ret = wavelan_get_wap(dev, NULL, &(wrq->u), NULL);
+-      break;
+-#endif	/* WIRELESS_EXT > 5 */
+-#endif	/* WAVELAN_ROAMING_EXT */
+-
+-#if WIRELESS_EXT > 8
+-#ifdef WAVELAN_ROAMING
+-    case SIOCSIWMODE:
+-      ret = wavelan_set_mode(dev, NULL, &(wrq->u), NULL);
+-      break;
+-
+-    case SIOCGIWMODE:
+-      ret = wavelan_get_mode(dev, NULL, &(wrq->u), NULL);
+-      break;
+-#endif	/* WAVELAN_ROAMING */
+-#endif /* WIRELESS_EXT > 8 */
+-
+-    case SIOCGIWRANGE:
+-      {
+-	struct iw_range range;
+-	ret = wavelan_get_range(dev, NULL,
+-				&(wrq->u),
+-				(char *) &range);
+-	if (copy_to_user(wrq->u.data.pointer, &range,
+-			 sizeof(struct iw_range)))
+-	  ret = -EFAULT;
+-      }
+-      break;
+-
+-    case SIOCGIWPRIV:
+-      /* Basic checking... */
+-      if(wrq->u.data.pointer != (caddr_t) 0)
+-	{
+-	  /* Set the number of ioctl available */
+-	  wrq->u.data.length = sizeof(wavelan_private_args) / sizeof(wavelan_private_args[0]);
+-
+-	  /* Copy structure to the user buffer */
+-	  if(copy_to_user(wrq->u.data.pointer, (u_char *) wavelan_private_args,
+-		       sizeof(wavelan_private_args)))
+-	    ret = -EFAULT;
+-	}
+-      break;
+-
+-#ifdef WIRELESS_SPY
+-    case SIOCSIWSPY:
+-      {
+-	struct sockaddr address[IW_MAX_SPY];
+-	/* Check the number of addresses */
+-	if (wrq->u.data.length > IW_MAX_SPY) {
+-	  ret = -E2BIG;
+-	  break;
+-	}
+-	/* Get the data in the driver */
+-	if (wrq->u.data.pointer) {
+-	  if (copy_from_user((char *) address,
+-			     wrq->u.data.pointer,
+-			     sizeof(struct sockaddr) *
+-			     wrq->u.data.length)) {
+-	    ret = -EFAULT;
+-	    break;
+-	  }
+-	} else if (wrq->u.data.length != 0) {
+-	  ret = -EINVAL;
+-	  break;
+-	}
+-	ret = wavelan_set_spy(dev, NULL, &(wrq->u),
+-			      (char *) address);
+-      }
+-      break;
+-
+-    case SIOCGIWSPY:
+-      {
+-	char buffer[IW_MAX_SPY * (sizeof(struct sockaddr) +
+-				  sizeof(struct iw_quality))];
+-	ret = wavelan_get_spy(dev, NULL, &(wrq->u),
+-			      buffer);
+-	if (wrq->u.data.pointer) {
+-	  if (copy_to_user(wrq->u.data.pointer,
+-			   buffer,
+-			   (wrq->u.data.length *
+-			    (sizeof(struct sockaddr) +
+-			     sizeof(struct iw_quality)))
+-			   ))
+-	    ret = -EFAULT;
+-	}
+-      }
+-      break;
+-#endif	/* WIRELESS_SPY */
+-
+-      /* ------------------ PRIVATE IOCTL ------------------ */
+-
+-    case SIOCSIPQTHR:
+-      if(!capable(CAP_NET_ADMIN))
+-	{
+-	  ret = -EPERM;
+-	  break;
+-	}
+-      ret = wavelan_set_qthr(dev, NULL, &(wrq->u), NULL);
+-      break;
+-
+-    case SIOCGIPQTHR:
+-      ret = wavelan_get_qthr(dev, NULL, &(wrq->u), NULL);
+-      break;
+-
+-#ifdef WAVELAN_ROAMING
+-    case SIOCSIPROAM:
+-      /* Note : should check if user == root */
+-      ret = wavelan_set_roam(dev, NULL, &(wrq->u), NULL);
+-      break;
+-
+-    case SIOCGIPROAM:
+-      ret = wavelan_get_roam(dev, NULL, &(wrq->u), NULL);
+-      break;
+-#endif	/* WAVELAN_ROAMING */
+-
+-#ifdef HISTOGRAM
+-    case SIOCSIPHISTO:
+-      /* Verif if the user is root */
+-      if(!capable(CAP_NET_ADMIN))
+-	{
+-	  ret = -EPERM;
+-	}
+-      {
+-	char buffer[16];
+-	/* Check the number of intervals */
+-	if(wrq->u.data.length > 16)
+-	  {
+-	    ret = -E2BIG;
+-	    break;
+-	}
+-	/* Get the data in the driver */
+-	if (wrq->u.data.pointer) {
+-	  if (copy_from_user(buffer,
+-			     wrq->u.data.pointer,
+-			     sizeof(struct sockaddr) *
+-			     wrq->u.data.length)) {
+-	    ret = -EFAULT;
+-	    break;
+-	  }
+-	} else if (wrq->u.data.length != 0) {
+-	  ret = -EINVAL;
+-	  break;
+-	}
+-	ret = wavelan_set_histo(dev, NULL, &(wrq->u),
+-				buffer);
+-      }
+-      break;
+-
+-    case SIOCGIPHISTO:
+-      {
+-	long buffer[16];
+-	ret = wavelan_get_histo(dev, NULL, &(wrq->u),
+-				(char *) buffer);
+-	if (wrq->u.data.pointer) {
+-	  if (copy_to_user(wrq->u.data.pointer,
+-			   buffer,
+-			   (wrq->u.data.length * sizeof(long))))
+-	    ret = -EFAULT;
+-	}
+-      }
+-      break;
+-#endif	/* HISTOGRAM */
+-#endif /* WIRELESS_EXT <= 12 */
+-
+       /* ------------------- OTHER IOCTL ------------------- */
+ 
+     default:
+@@ -3368,9 +2949,9 @@ wv_packet_read(device *		dev,
+   /* Statistics gathering & stuff associated.
+    * It seem a bit messy with all the define, but it's really simple... */
+   if(
+-#ifdef WIRELESS_SPY
+-     (lp->spy_number > 0) ||
+-#endif	/* WIRELESS_SPY */
++#ifdef IW_WIRELESS_SPY
++     (lp->spy_data.spy_number > 0) ||
++#endif	/* IW_WIRELESS_SPY */
+ #ifdef HISTOGRAM
+      (lp->his_number > 0) ||
+ #endif	/* HISTOGRAM */
+@@ -5214,9 +4795,7 @@ wavelan_attach(void)
+   dev->watchdog_timeo	= WATCHDOG_JIFFIES;
+ 
+ #ifdef WIRELESS_EXT	/* If wireless extension exist in the kernel */
+-#if WIRELESS_EXT > 12
+   dev->wireless_handlers = (struct iw_handler_def *)&wavelan_handler_def;
+-#endif /* WIRELESS_EXT > 12 */
+   dev->do_ioctl = wavelan_ioctl;	/* old wireless extensions */
+   dev->get_wireless_stats = wavelan_get_wireless_stats;
+ #endif

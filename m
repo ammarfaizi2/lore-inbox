@@ -1,95 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262608AbVCVKcY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262600AbVCVKfV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262608AbVCVKcY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 05:32:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262600AbVCVKcY
+	id S262600AbVCVKfV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 05:35:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262611AbVCVKfU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 05:32:24 -0500
-Received: from fmr23.intel.com ([143.183.121.15]:7390 "EHLO
-	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
-	id S262608AbVCVK3j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 05:29:39 -0500
-Message-Id: <200503221029.j2MATNg12775@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Holger Kiehl'" <Holger.Kiehl@dwd.de>, "Andrew Morton" <akpm@osdl.org>
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>,
-       <linux-scsi@vger.kernel.org>, "Moore, Eric  Dean" <emoore@lsil.com>
-Subject: RE: Fusion-MPT much faster as module
-Date: Tue, 22 Mar 2005 02:29:23 -0800
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcUuuj4zk4Hr9m4GQuKTIz8je41DcwADChoQ
-In-Reply-To: <Pine.LNX.4.61.0503220813290.17195@diagnostix.dwd.de>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+	Tue, 22 Mar 2005 05:35:20 -0500
+Received: from smtp.Lynuxworks.com ([207.21.185.24]:38664 "EHLO
+	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S262600AbVCVKfP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 05:35:15 -0500
+Date: Tue, 22 Mar 2005 02:34:49 -0800
+To: Bill Huey <bhuey@lnxw.com>
+Cc: Esben Nielsen <simlo@phys.au.dk>, Ingo Molnar <mingo@elte.hu>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>, dipankar@in.ibm.com,
+       shemminger@osdl.org, akpm@osdl.org, torvalds@osdl.org,
+       rusty@au1.ibm.com, tgall@us.ibm.com, jim.houston@comcast.net,
+       manfred@colorfullife.com, gh@us.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: Real-Time Preemption and RCU
+Message-ID: <20050322103449.GA581@nietzsche.lynx.com>
+References: <20050318160229.GC25485@elte.hu> <Pine.OSF.4.05.10503181750150.2466-100000@da410.phys.au.dk> <20050322100446.GA448@nietzsche.lynx.com> <20050322101727.GB448@nietzsche.lynx.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050322101727.GB448@nietzsche.lynx.com>
+User-Agent: Mutt/1.5.6+20040907i
+From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Mar 2005, Andrew Morton wrote:
-> Holger, this problem remains unresolved, does it not?  Have you done any
-> more experimentation?
->
-> I must say that something funny seems to be happening here.  I have two
-> MPT-based Dell machines, neither of which is using a modular driver:
->
-> akpm:/usr/src/25> 0 hdparm -t /dev/sda
->
-> /dev/sda:
-> Timing buffered disk reads:  64 MB in  5.00 seconds = 12.80 MB/sec
+On Tue, Mar 22, 2005 at 02:17:27AM -0800, Bill Huey wrote:
+> > A notion of priority across a quiescience operation is crazy anyways[-,-] so
+> > it would be safe just to use to the old rwlock-semaphore "in place" without
+> > any changes or priorty handling add[i]tions. The RCU algorithm is only concerned
+> > with what is basically a coarse data guard and it isn't time or priority
+> > critical.
+> 
+> A little jitter in a quiescence operation isn't going to hurt things right ?. 
 
+The only thing that I can think of that can go wrong here is what kind
+of effect it would have on the thread write blocking against a bunch of
+RCU readers. It could introduce a chain of delays into, say, a timer event
+and might cause problems/side-effects for other things being processed.
+RCU processing might have to decoupled processed by a different thread
+to avoid some of that latency weirdness.
 
-Holger Kiehl wrote on Tuesday, March 22, 2005 12:31 AM
-> Got the same result when compiled in, always between 12 and 13 MB/s. As
-> module it is approx. 75 MB/s.
+What do you folks think ?
 
-
-Half guess, half with data to prove: it must be the variable driver_setup
-initialization.  If compiled as built-in, driver_setup is initialized to
-zero for all of its member variables, which isn't the fastest setting. If
-compiled as module, it gets first class treatment with shinny performance
-setting.  Goofing around, this patch appears to be giving higher throughput.
-
-Before:
-/dev/sdc:
- Timing buffered disk reads:   92 MB in  3.03 seconds =  30.32 MB/sec
-
-After:
-/dev/sdc:
- Timing buffered disk reads:  174 MB in  3.02 seconds =  57.61 MB/sec
-
-
-diff -Nurp linux-2.6.11/drivers/message/fusion/mptscsih.c linux-2.6.11.ken/drivers/message/fusion/mptscsih.c
---- linux-2.6.11/drivers/message/fusion/mptscsih.c	2005-03-01 23:38:37.000000000 -0800
-+++ linux-2.6.11.ken/drivers/message/fusion/mptscsih.c	2005-03-22 02:18:21.000000000 -0800
-@@ -96,7 +96,6 @@ MODULE_AUTHOR(MODULEAUTHOR);
- MODULE_DESCRIPTION(my_NAME);
- MODULE_LICENSE("GPL");
-
--#ifdef MODULE
- static int dv = MPTSCSIH_DOMAIN_VALIDATION;
- module_param(dv, int, 0);
- MODULE_PARM_DESC(dv, "DV Algorithm: enhanced = 1, basic = 0 (default=MPTSCSIH_DOMAIN_VALIDATION=1)");
-@@ -112,7 +111,6 @@ MODULE_PARM_DESC(factor, "Min Sync Facto
- static int saf_te = MPTSCSIH_SAF_TE;
- module_param(saf_te, int, 0);
- MODULE_PARM_DESC(saf_te, "Force enabling SEP Processor: (default=MPTSCSIH_SAF_TE=0)");
--#endif
-
- /*=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-@@ -1489,7 +1487,6 @@ mptscsih_init(void)
- 		  ": Registered for IOC reset notifications\n"));
- 	}
-
--#ifdef MODULE
- 	dinitprintk((KERN_INFO MYNAM
- 		": Command Line Args: dv=%d max_width=%d "
- 		"factor=0x%x saf_te=%d\n",
-@@ -1499,7 +1496,6 @@ mptscsih_init(void)
- 	driver_setup.max_width = (width) ? 1 : 0;
- 	driver_setup.min_sync_factor = factor;
- 	driver_setup.saf_te = (saf_te) ? 1 : 0;;
--#endif
-
- 	if(mpt_device_driver_register(&mptscsih_driver,
- 	  MPTSCSIH_DRIVER) != 0 ) {
-
+bill
 

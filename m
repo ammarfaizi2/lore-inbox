@@ -1,60 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262051AbTKYD0K (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Nov 2003 22:26:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262055AbTKYD0K
+	id S261974AbTKYDU3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Nov 2003 22:20:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261988AbTKYDU3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Nov 2003 22:26:10 -0500
-Received: from fw.osdl.org ([65.172.181.6]:58586 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262051AbTKYD0H (ORCPT
+	Mon, 24 Nov 2003 22:20:29 -0500
+Received: from mail.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:47764 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S261974AbTKYDU1 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Nov 2003 22:26:07 -0500
-Date: Mon, 24 Nov 2003 19:25:01 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: jt@hpl.hp.com
-cc: David Hinds <dhinds@sonic.net>, linux-pcmcia@lists.infradead.org,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] Ricoh Cardbus -> Can't get interrupts
-In-Reply-To: <20031125031156.GA4243@bougret.hpl.hp.com>
-Message-ID: <Pine.LNX.4.58.0311241919220.1599@home.osdl.org>
-References: <20031124235727.GA2467@bougret.hpl.hp.com> <20031124162628.A32213@sonic.net>
- <20031125004942.GA3002@bougret.hpl.hp.com> <Pine.LNX.4.58.0311241804560.1599@home.osdl.org>
- <20031125023319.GA3819@bougret.hpl.hp.com> <Pine.LNX.4.58.0311241845200.1599@home.osdl.org>
- <Pine.LNX.4.58.0311241851480.1599@home.osdl.org> <20031125031156.GA4243@bougret.hpl.hp.com>
+	Mon, 24 Nov 2003 22:20:27 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: torvalds@osdl.org, marcelo.tosatti@cyclades.com.br
+Subject: lk-changelog.pl 0.199
+Cc: linux-kernel@vger.kernel.org, matthias.andree@gmx.de
+From: Matthias Andree <matthias.andree@gmx.de>
+Content-ID: <Tue_Nov_25_03_20_24_UTC_2003_0@merlin.emma.line.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Description: An object packed by metasend
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20031125032024.BB17B9D889@merlin.emma.line.org>
+Date: Tue, 25 Nov 2003 04:20:24 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a semi-automatic announcement.
 
-On Mon, 24 Nov 2003, Jean Tourrilhes wrote:
+lk-changelog.pl aka. shortlog version 0.199 has been released.
 
->
-> 	Don't waste too much time on that, it might be hopeless. I
-> personally don't believe that the kernel code will ever get it right,
-> so I'm really looking at adding some override for this specific
-> situation.
+This script is used by Linus and Marcelo to rearrange and reformat BK
+ChangeSet logs into a more human-readable format, and the official
+repository is bk://kernel.bkbits.net/torvalds/tools/
 
-The kernel is actually very good at getting the PCI irq's right - if it
-doesn't, _no_ PCI card will function right. This is definitely not a
-"Cardbus is special" issue - the irq routing tables are used for every
-single thing out there.
+As the script has grown large, this mail only contains a diff against
+the last released version.
 
-And in fact your tables seem to have the thing:
+You can always download the full script and GPG signatures from
+http://mandree.home.pages.de/linux/kernel/
 
-> Device 00:13.0 (slot 4): CardBus bridge
->   INTA: link 0x61, irq mask 0x5af8 [3,4,5,6,7,9,11,12,14]
->   INTB: link 0x62, irq mask 0x5af8 [3,4,5,6,7,9,11,12,14]
->   INTC: link 0x63, irq mask 0x5af8 [3,4,5,6,7,9,11,12,14]
->   INTD: link 0x60, irq mask 0x5af8 [3,4,5,6,7,9,11,12,14]
+My thanks go to Vitezslav Samel who has spent a lot of time on digging
+out the real names for addresses sending in BK ChangeSets.
 
-Can you enable DEBUG in "arch/i386/pci/pci.h"?
+Note that your mailer must be MIME-capable to save this mail properly,
+because it is in the "quoted-printable" encoding.
 
-AHH.. I think I know what's up. Your PIRQ table is fine, but your MP table
-probably doesn't translate the legacy IRQ into the APIC one.
+= <- if you see just an equality sign, but no "3D", your mailer is fine.
+= <- if you see 3D on this line, then upgrade your mailer or pipe this mail
+= <- into metamail.
 
-You may be able to boot a UP kernel properly, but I'm sure that the MP
-thing is solvable too. Send the whole dmesg out, with DEBUG enabled both
-in pci.h and in "include/asm-i386/apic.h".
+-- 
+A sh script on behalf of Matthias Andree
+-------------------------------------------------------------------------
+Changes since last release:
 
-		Linus
+----------------------------
+revision 0.199
+date: 2003/11/25 03:20:04;  author: emma;  state: Exp;  lines: +5 -1
+New address for Arkadiusz Miskiewicz.
+----------------------------
+revision 0.198
+date: 2003/11/22 14:59:50;  author: emma;  state: Exp;  lines: +5 -1
+Add Andreas Beckmann's address.
+=============================================================================
+Index: lk-changelog.pl
+===================================================================
+RCS file: /var/CVS/lk-changelog/lk-changelog.pl,v
+retrieving revision 0.198
+retrieving revision 0.199
+diff -u -r0.198 -r0.199
+--- lk-changelog.pl	22 Nov 2003 14:59:50 -0000	0.198
++++ lk-changelog.pl	25 Nov 2003 03:20:04 -0000	0.199
+@@ -8,7 +8,7 @@
+ #			Tomas Szepe <szepe@pinerecords.com>
+ #			Vitezslav Samel <samel@mail.cz>
+ #
+-# $Id: lk-changelog.pl,v 0.198 2003/11/22 14:59:50 emma Exp $
++# $Id: lk-changelog.pl,v 0.199 2003/11/25 03:20:04 emma Exp $
+ # ----------------------------------------------------------------------
+ # Distribution of this script is permitted under the terms of the
+ # GNU General Public License (GNU GPL) v2.
+@@ -217,6 +217,7 @@
+ 'anton:superego.ozlabs.ibm.com' => 'Anton Blanchard',
+ 'apolkosnik:directvinternet.com' => 'Adam Polkosnik',
+ 'arashi:yomerashi.yi.org' => 'Matt Reppert',
++'arekm:pld-linux.org' => 'Arkadiusz Miskiewicz', # lbdb
+ 'aris:cathedrallabs.org' => 'Aristeu Sergio Rozanski Filho',
+ 'arjan:redhat.com' => 'Arjan van de Ven',
+ 'arjanv:redhat.com' => 'Arjan van de Ven',
+@@ -2130,6 +2131,9 @@
+ __END__
+ # --------------------------------------------------------------------
+ # $Log: lk-changelog.pl,v $
++# Revision 0.199  2003/11/25 03:20:04  emma
++# New address for Arkadiusz Miskiewicz.
++#
+ # Revision 0.198  2003/11/22 14:59:50  emma
+ # Add Andreas Beckmann's address.
+ #
+

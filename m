@@ -1,40 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263616AbUDPTs1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 15:48:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263607AbUDPTs1
+	id S263424AbUDPTrb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 15:47:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263607AbUDPTrb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 15:48:27 -0400
-Received: from lindsey.linux-systeme.com ([62.241.33.80]:29188 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S263616AbUDPTsY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 15:48:24 -0400
-From: Marc-Christian Petersen <m.c.p@kernel.linux-systeme.com>
-Organization: Linux-Systeme GmbH
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] reiserfs v3 fixes and features
-Date: Fri, 16 Apr 2004 21:47:16 +0200
-User-Agent: KMail/1.6.1
-Cc: Chris Mason <mason@suse.com>, reiserfs-list@namesys.com
-References: <1081274618.30828.30.camel@watt.suse.com> <1081989006.27614.110.camel@watt.suse.com> <1082141666.27614.1448.camel@watt.suse.com>
-In-Reply-To: <1082141666.27614.1448.camel@watt.suse.com>
-X-Operating-System: Linux 2.6.4-wolk2.3 i686 GNU/Linux
+	Fri, 16 Apr 2004 15:47:31 -0400
+Received: from nsmtp.pacific.net.th ([203.121.130.117]:52140 "EHLO
+	nsmtp.pacific.net.th") by vger.kernel.org with ESMTP
+	id S263424AbUDPTr3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Apr 2004 15:47:29 -0400
+Date: Sat, 17 Apr 2004 03:45:05 +0800
+From: "Michael Frank" <mhf@linuxmail.org>
+To: ncunningham@users.sourceforge.net
+Subject: Re: 2.4.26 intermittent kernel bug on boot.
+Cc: "Marcelo Tosatti" <marcelo.tosatti@cyclades.com>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+References: <opr6j9q0d54evsfm@smtp.pacific.net.th> <1082140624.19725.82.camel@laptop-linux.wpcb.org.au>
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed	delsp=yes
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200404162147.16846@WOLK>
+Content-Transfer-Encoding: 7BIT
+Message-ID: <opr6kehfsr4evsfm@smtp.pacific.net.th>
+In-Reply-To: <1082140624.19725.82.camel@laptop-linux.wpcb.org.au>
+User-Agent: Opera M2/7.50 (Linux, build 615)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 16 April 2004 20:54, Chris Mason wrote:
+On Sat, 17 Apr 2004 04:37:05 +1000, Nigel Cunningham <ncunningham@users.sourceforge.net> wrote:
 
-Hi Chris,
+> Hi.
+>
+> On Sat, 2004-04-17 at 04:02, Michael Frank wrote:
+>> kernel BUG at slab.c:1238!
+>
+> That's a really strange oops to see. It's testing that the GFP flags
+> match the slab's flags. To get an oops there, you'd have to have a
+> non-dma slab (which makes sense), but you've called the kmem_cache_alloc
+> routine with a DMA flag. Line 444 of kernel/signal.c clearly doesn't do
+> that! Could the args be being corrupted while being passed?
 
-> ftp.suse.com/pub/people/mason/patches/reiserfs/2.6.5-mm6
-> Only reiserfs-group-alloc-9 has changed.
+I had sometimes hangs while calibrating delay loop with earlier kernels,
+Alan Cox suggested SMI screwing things up. This bug is earlier and new.
 
-hmm, does not apply to 2.6.5-mm6 (applied all from series.mm) before for sure.
+> What does a backtrace look like?
+>
 
-ciao, Marc
+Too bad, kdb not fully init, modules not loaded, so no BT command.
+
+Michael

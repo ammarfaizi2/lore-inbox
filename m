@@ -1,72 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316953AbSGXLNf>; Wed, 24 Jul 2002 07:13:35 -0400
+	id <S316860AbSGXLhL>; Wed, 24 Jul 2002 07:37:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316959AbSGXLNf>; Wed, 24 Jul 2002 07:13:35 -0400
-Received: from [213.69.232.58] ([213.69.232.58]:29962 "HELO schottelius.org")
-	by vger.kernel.org with SMTP id <S316953AbSGXLNe>;
-	Wed, 24 Jul 2002 07:13:34 -0400
-Date: Wed, 24 Jul 2002 15:16:43 +0200
-From: Nico Schottelius <nicos-mutt@pcsystems.de>
-To: Joshua Uziel <uzi@uzix.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: cpu speed is 165mhz instead of real 650mhz
-Message-ID: <20020724131642.GA479@schottelius.org>
-References: <20020724110121.GA1925@schottelius.org> <20020724102709.GA17905@uzix.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="YZ5djTAD1cGYuMQK"
-Content-Disposition: inline
-In-Reply-To: <20020724102709.GA17905@uzix.org>
-User-Agent: Mutt/1.4i
-X-MSMail-Priority: Is not really needed
-X-Mailer: Yam on Linux ?
-X-Operating-System: Linux flapp 2.5.27
+	id <S316959AbSGXLhL>; Wed, 24 Jul 2002 07:37:11 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:61708 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S316860AbSGXLhK>; Wed, 24 Jul 2002 07:37:10 -0400
+Message-ID: <3D3E90E4.3080108@evision.ag>
+Date: Wed, 24 Jul 2002 13:35:00 +0200
+From: Marcin Dalecki <dalecki@evision.ag>
+Reply-To: martin@dalecki.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
+X-Accept-Language: en-us, en, pl, ru
+MIME-Version: 1.0
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: please DON'T run 2.5.27 with IDE!
+References: <Pine.SOL.4.30.0207241248380.17154-100000@mion.elka.pw.edu.pl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Bartlomiej Zolnierkiewicz wrote:
 
---YZ5djTAD1cGYuMQK
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+>>There are some nasty checks for it != NULL in the generic BIO code.
+> 
+> 
+> No, there are no checks there.
 
-Joshua Uziel [Wed, Jul 24, 2002 at 03:27:09AM -0700]:
-> * Nico Schottelius <nicos-mutt@pcsystems.de> [020724 02:03]:
-> > This periodicly appears in my system. The Kernel seems to misdetect the
-> > right cpu speed and then it's running only at 165mhz.
-> > I don't really understand why this happens, there's no acpi enabled, wh=
-ich
-> > caused this failure the last time.
->=20
-> Is this a notebook computer?  Is it that you're sometimes booting it up
-> while the system is unplugged (ie. on battery)?
+Hello?:
 
-yes,it is, but slowing down to 500 mhz is the only  available speedstep
-option.
-
-165 or similar is not supported (afaik) by the bios/processor.
+[root@localhost block]# grep \>special *.c
+elevator.c:         !rq->waiting && !rq->special)
+^^^^^^ This one is supposed to have the required barrier effect.
+ll_rw_blk.c:    if (req->special || next->special)
+ll_rw_blk.c:            rq->special = NULL;
+ll_rw_blk.c:    rq->special = data;
+^^^^^^^ This one is me :-).
+ll_rw_blk.c:        || next->waiting || next->special)
+[root@localhost block]#
 
 
-Nico
+>>>So look at ide.c for example.
+>>
+>>So look at drivers which call blk_start_queue() from within
+>>q->request_fn context, which is, well, causing deliberate *recursion*.
+>>
+> 
+> 
+> Are you sure? If so they should first check whether queue is
+> started/stopped, if they don't it is a bug.
 
---=20
-Please send your messages pgp-signed and/or pgp-encrypted (don't encrypt ma=
-ils
-to mailing list!). If you don't know what pgp is visit www.gnupg.org.
-(public pgp key: ftp.schottelius.org/pub/familiy/nico/pgp-key)
+void blk_start_queue(request_queue_t *q)
+{
+         if (test_bit(QUEUE_FLAG_STOPPED, &q->queue_flags)) {
+                 unsigned long flags;
 
---YZ5djTAD1cGYuMQK
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+================== possigle race here for qeue_flags BTW.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+                 spin_lock_irqsave(q->queue_lock, flags);
+                 clear_bit(QUEUE_FLAG_STOPPED, &q->queue_flags);
 
-iD8DBQE9Pqi6tnlUggLJsX0RAiYpAKCfan65o8nj11PwILVsmMzDZ1fwOgCeLZdk
-NLN6iIrlOYnKa6VNGS5rLeU=
-=Fxju
------END PGP SIGNATURE-----
+                 if (!elv_queue_empty(q))
+                         q->request_fn(q);
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+If we call it from within request_fn then if this isn't recursion on the
+kernel stack then I don't know...
 
---YZ5djTAD1cGYuMQK--
+                 spin_unlock_irqrestore(q->queue_lock, flags);
+         }
+}
+

@@ -1,49 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282155AbRKWOkD>; Fri, 23 Nov 2001 09:40:03 -0500
+	id <S282159AbRKWOlX>; Fri, 23 Nov 2001 09:41:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282158AbRKWOjx>; Fri, 23 Nov 2001 09:39:53 -0500
-Received: from twilight.cs.hut.fi ([130.233.40.5]:40527 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S282155AbRKWOjt>; Fri, 23 Nov 2001 09:39:49 -0500
-Date: Fri, 23 Nov 2001 16:39:32 +0200
-From: Ville Herva <vherva@niksula.hut.fi>
-To: linux-kernel@vger.kernel.org
-Subject: Re: HPT370 on 2.2.20+ide-patch - or is it RAID?
-Message-ID: <20011123163932.E4809@niksula.cs.hut.fi>
-In-Reply-To: <2173081930.1006455144@[195.224.237.69]> <20011122210503.B4809@niksula.cs.hut.fi> <20011122215424.C4809@niksula.cs.hut.fi> <20011123143502.D4809@niksula.cs.hut.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011123143502.D4809@niksula.cs.hut.fi>; from vherva@niksula.hut.fi on Fri, Nov 23, 2001 at 02:35:02PM +0200
+	id <S282158AbRKWOlO>; Fri, 23 Nov 2001 09:41:14 -0500
+Received: from [194.65.152.209] ([194.65.152.209]:29606 "EHLO
+	criticalsoftware.com") by vger.kernel.org with ESMTP
+	id <S282156AbRKWOlG>; Fri, 23 Nov 2001 09:41:06 -0500
+Message-Id: <200111231440.fANEeh213167@criticalsoftware.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: =?iso-8859-1?q?Lu=EDs=20Henriques?= 
+	<lhenriques@criticalsoftware.com>
+To: Juan Quintela <quintela@mandrakesoft.com>,
+        =?iso-8859-1?q?Lu=EDs=20Henriques?= <umiguel@alunos.deis.isec.pt>
+Subject: Re: copy to suer space
+Date: Fri, 23 Nov 2001 14:35:13 +0000
+X-Mailer: KMail [version 1.3.1]
+Cc: Mike Fedyk <mfedyk@matchmail.com>, Anton Altaparmakov <aia21@cam.ac.uk>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <5.1.0.14.2.20011120165440.00a745b0@pop.cus.cam.ac.uk> <200111211057.fALAvi288566@criticalsoftware.com> <m2ofltljcl.fsf@trasno.mitica>
+In-Reply-To: <m2ofltljcl.fsf@trasno.mitica>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 23, 2001 at 02:35:02PM +0200, you [Ville Herva] claimed:
-> On Thu, Nov 22, 2001 at 09:54:24PM +0200, you [Ville Herva] claimed:
-> 
-> I'm trying again with 2.2.20/IDE 05042001/no hpt patch/slightly older
-> bios/UDMA33 instead of UDMA66. (Just _too_ many variables... Phew.)
+> What is wrong putting a signal handler in your process for a signal,
+> and busy wait in that signal all the time that you want?
 
-2.2.20/IDE 05042001/no hpt patch/UDM33 gives no IDE errors, but
-/dev/md0 md5sums still differ.
+The point is that I'm implementing a tool that shall test fault tolerance (in 
+the user processes, operating system, architecture, ...). The process is not 
+supposed to know that he is being delayed!
 
-Since I didn't see the corruption with /dev/hde nor /dev/hdg, I'm beginning
-to wonder if this is in fact RAID/VM/some other problem...?
+n0ano suggested me another solution (thanks n0ano!!!): instead of altering 
+the CS, I just put some code to the process stack, return to the SS:ESP 
+(instead of CS:EIP) and, later, restore the stack and return to the process.
 
-2.2.19 included the VM rewrite, and I also patched the 2.2.20 kernel with
-Andrea's VM-locked-1 -patch (which I figure shouldn't really affect read
-path?)
+This is not working yet because it's - I'm having some problems with it. 
+Could anyone look at this code and tell me where it can fail?
 
-The 2.2.18pre19 kernel (that works) uses 2.2.17-raid A0-patch, and
-2.2.20 uses 2.2.19-A1. The differences between the two seems trivial.
+	rdtsc
+	movl %eax, %ecx
+	addl $0x1, %ecx
+   loop:
+	rdtsc
+	cmp %ecx, %eax
+	jb loop
 
-I would be delighted if someone could confirm that 2.2.20+raid-A1 works 100%
-correct... Just md5summing the contents of /dev/md0 3-4 times should do if
-were lucky. It takes time, though...
+When I read the timestamp («rdtsc»), a value is returned to edx:eax. This 
+code works just fine when I put it in the process stack. The problem is when 
+I want to compare %edx instead of %eax, that is:
 
- 
--- v --
+	rdtsc
+	movl %edx, %ecx
+	addl $0x1, %ecx
+   loop:
+	rdtsc
+	cmp %ecx, %edx
+	jb loop
 
-v@iki.fi
+This is supposed to take much more time than the other loop. When I write 
+this code to the stack of my process, a segmentation fault occurs after some 
+time. Why? I'm not changing the stack at any moment! (By the way, the stack 
+pointer is pointing to the end of my code...)
+
+-- 
+Luís Henriques

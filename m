@@ -1,108 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261981AbVBJAVN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261984AbVBJAYb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261981AbVBJAVN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Feb 2005 19:21:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261984AbVBJAVN
+	id S261984AbVBJAYb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Feb 2005 19:24:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261986AbVBJAYb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Feb 2005 19:21:13 -0500
-Received: from grendel.digitalservice.pl ([217.67.200.140]:8836 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S261981AbVBJAVE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Feb 2005 19:21:04 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: 2.6.11-rc3-mm1: softlockup and suspend/resume [update]
-Date: Thu, 10 Feb 2005 01:22:02 +0100
-User-Agent: KMail/1.7.1
-Cc: linux-kernel@vger.kernel.org, Pavel Machek <pavel@ucw.cz>
-References: <20050204103350.241a907a.akpm@osdl.org> <20050208110418.GA878@elte.hu> <200502091735.07834.rjw@sisk.pl>
-In-Reply-To: <200502091735.07834.rjw@sisk.pl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+	Wed, 9 Feb 2005 19:24:31 -0500
+Received: from wproxy.gmail.com ([64.233.184.202]:17027 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261984AbVBJAYW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Feb 2005 19:24:22 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=VV70g3JxpbcLyx5U0+71KR1j0QrWKqEeOT5ylQSIEc35J5pSNeNNJMagXRO0hS+H3BdRute23QMjVzbHn0M21rh2OI9+2ov5FnyuK0xBkOaxj0yZARDZkv9WwPYUrHXeiYWpnleGxJsNxbQAPLAFVpEL7dz1X9OO/+CbuHfY5JM=
+Message-ID: <58cb370e050209162437808733@mail.gmail.com>
+Date: Thu, 10 Feb 2005 01:24:21 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Tejun Heo <htejun@gmail.com>
+Subject: Re: [rfc][patch] ide: fix unneeded LBA48 taskfile registers access
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Jeff Garzik <jgarzik@pobox.com>,
+       Tejun Heo <tj@home-tj.org>
+In-Reply-To: <420AA476.1040406@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200502100122.03064.rjw@sisk.pl>
+References: <Pine.GSO.4.58.0502062348200.2763@mion.elka.pw.edu.pl>
+	 <4206F2E5.7020501@gmail.com>
+	 <200502070959.54973.bzolnier@elka.pw.edu.pl>
+	 <420AA476.1040406@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, 9 of February 2005 17:35, Rafael J. Wysocki wrote:
-> On Tuesday, 8 of February 2005 12:04, Ingo Molnar wrote:
-> > 
-> > * Rafael J. Wysocki <rjw@sisk.pl> wrote:
-> > 
-> > > The warning is printed right after the image is restored (ie somewhere
-> > > around the local_irq_enable() above, but it goes before the "PM: Image
-> > > restored successfully." message that is printed as soon as the return
-> > > is executed).  Definitely, less than 1 s passes between the resoring
-> > > of the image and the warining.
-> > > 
-> > > BTW, I've also tried to put touch_softlockup_watchdog() before
-> > > device_power_up(), but it didn't change much.
-> > 
-> > this is a single-CPU box, right?
+Hello Tejun,
+
+On Thu, 10 Feb 2005 09:01:58 +0900, Tejun Heo <htejun@gmail.com> wrote:
+>   Hello, Bartlomiej.  Happy new lunar year.
 > 
-> Yes.
+> Bartlomiej Zolnierkiewicz wrote:
+> >
+> > I would prefer to not teach do_rw_taskfile() about ->tf_{in,out}_flags
+> > (and convert all users to use helpers) - it is much simpler this way,
+> >
+> > ->flags field in ide_task_t is needed anyway (32-bit I/O flag).
+> >
 > 
-> OK, I think I've sorted it out.  The solution is to use your patch and the
-> following change against swsusp.c:
+>   New lunar year day is one of the biggest holidays here, so I haven't
+> got time to work for a few days.  As it's over now, I began to work on
+> ide drivers again.  I applied your task->flags patch and am moving my
+> patches over it.
+> 
+>   One problem is that, with ATA_TFLAG_LBA48, whether to use HOB
+> registers or not cannot be determined separately for writing and
+> reading.  So, when initializing flush tasks, if WIN_FLUSH_CACHE_EXT is
+> used, we need to turn on ATA_TFLAG_LBA48 to read error location
+> properly, and we end up unnecessarily writing HOB registers.
 
-Well, I was to quick with this,  sorry.
- 
-> --- linux-2.6.11-rc3-mm1-orig/kernel/power/swsusp.c	2005-02-08 18:16:34.000000000 +0100
-> +++ new/kernel/power/swsusp.c	2005-02-09 17:31:16.000000000 +0100
-> @@ -870,7 +870,9 @@
->  	/* Restore control flow magically appears here */
->  	restore_processor_state();
->  	restore_highmem();
-> +	touch_softlockup_watchdog();
->  	device_power_up();
-> +	touch_softlockup_watchdog();
->  	local_irq_enable();
->  	return error;
->  }
+Yep, good catch.
 
-The following patch (instead of the above) seems to work much better:
+>   I think we can...
+> 
+>   1. Just leave it as it is.  It's not that big a deal.
+>   2. Use another flag(s) to control LBA48 reading/writing separately.
+>   3. do my proposal. :-)
+> 
+>   I'm currently sticking to #1.  Please let me know what you think.
 
---- linux-2.6.11-rc3-mm1-orig/kernel/power/swsusp.c	2005-02-08 18:16:34.000000000 +0100
-+++ new/kernel/power/swsusp.c	2005-02-10 00:45:45.000000000 +0100
-@@ -870,6 +870,7 @@
- 	/* Restore control flow magically appears here */
- 	restore_processor_state();
- 	restore_highmem();
-+	touch_softlockup_watchdog();
- 	device_power_up();
- 	local_irq_enable();
- 	return error;
---- linux-2.6.11-rc3-mm1-orig/arch/x86_64/kernel/time.c	2005-02-05 20:49:26.000000000 +0100
-+++ new/arch/x86_64/kernel/time.c	2005-02-10 00:46:48.000000000 +0100
-@@ -988,6 +988,7 @@
- 	write_sequnlock_irqrestore(&xtime_lock,flags);
- 	jiffies += sleep_length;
- 	wall_jiffies += sleep_length;
-+	touch_softlockup_watchdog();
- 	return 0;
- }
- 
---- linux-2.6.11-rc3-mm1-orig/arch/i386/kernel/time.c	2005-02-05 20:49:26.000000000 +0100
-+++ new/arch/i386/kernel/time.c	2005-02-10 00:47:03.000000000 +0100
-@@ -378,6 +378,7 @@
- 	write_sequnlock_irqrestore(&xtime_lock, flags);
- 	jiffies += sleep_length;
- 	wall_jiffies += sleep_length;
-+	touch_softlockup_watchdog();
- 	return 0;
- }
- 
+agreed, #1 is a good choice, it is not that important to make things
+more complicated
 
-I tested it only on x86-64, so the change for i386 is a guess, albeit
-educated. ;-)
-
-Greets,
-Rafael
-
-
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+Thanks,
+Bartlomiej

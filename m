@@ -1,63 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261192AbTIABdq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Aug 2003 21:33:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261367AbTIABdq
+	id S261566AbTIABod (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Aug 2003 21:44:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261911AbTIABod
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Aug 2003 21:33:46 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:722 "EHLO smtp.bitmover.com")
-	by vger.kernel.org with ESMTP id S261192AbTIABdp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Aug 2003 21:33:45 -0400
-Date: Sun, 31 Aug 2003 18:33:35 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Jamie Lokier <jamie@shareable.org>, Larry McVoy <lm@bitmover.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Pascal Schmidt <der.eremit@email.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: bandwidth for bkbits.net (good news)
-Message-ID: <20030901013335.GF18458@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Andrea Arcangeli <andrea@suse.de>,
-	Jamie Lokier <jamie@shareable.org>, Larry McVoy <lm@bitmover.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Pascal Schmidt <der.eremit@email.de>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030831164802.GA12752@work.bitmover.com> <20030831170633.GA24409@dualathlon.random> <20030831211855.GB12752@work.bitmover.com> <20030831224938.GC24409@dualathlon.random> <20030831225639.GB16620@work.bitmover.com> <20030831231305.GE24409@dualathlon.random> <20030901001819.GC29239@mail.jlokier.co.uk> <20030901002815.GB11503@dualathlon.random> <20030901005041.GC31531@mail.jlokier.co.uk> <20030901011055.GE11503@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030901011055.GE11503@dualathlon.random>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
-	required 7, AWL, DATE_IN_PAST_06_12)
+	Sun, 31 Aug 2003 21:44:33 -0400
+Received: from dyn-ctb-210-9-245-175.webone.com.au ([210.9.245.175]:13316 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id S261566AbTIABob
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Aug 2003 21:44:31 -0400
+Message-ID: <3F52A474.3050905@cyberone.com.au>
+Date: Mon, 01 Sep 2003 11:44:20 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Nick's scheduler policy v10
+References: <3F5044DC.10305@cyberone.com.au> <1806700000.1062361257@[10.10.2.4]>
+In-Reply-To: <1806700000.1062361257@[10.10.2.4]>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 01, 2003 at 03:10:55AM +0200, Andrea Arcangeli wrote:
-> now apparently bkbits.net has nothing to do with it, and it's all about
-> the http server. 
 
-BK _is_ an http server.  The same daemon you talk to for clones is the
-HTTP server.  That's one and the same machine.
 
-> however keep in mind you will somehow throttle the number of syns too,
-> unless every single syn arrives to the webserver from a different user
-> (unlikely).
+Martin J. Bligh wrote:
 
-That's exactly the situation that any busy server has.  Which is
-why I kept saying "tell me how you made this work for a busy server".
-"Busy server" by definition in this context at least means a server that
-is getting lots of connection requests from lots of different users.
+>>This is quite a big change from v8. Fixes a few bugs in child priority,
+>>and adds a small lower bound on the amount of history that is kept. This
+>>should improve "fork something" times hopefully, and stops new children
+>>being able to fluctuate priority so wildly.
+>>
+>>Eliminates "timeslice backboost" and only uses "priority backboost". This
+>>decreases scheduling latency quite nicely - I can only measure 130ms for
+>>a very low priority task, with a make -j3 and wildly moving an xterm around
+>>in front of a mozilla window.
+>>
+>>Makes a fairly fundamental change to how sleeping/running is accounted.
+>>It now takes into account time on the runqueue. This hopefully will keep
+>>priorities more stable under varying loads.
+>>
+>>Includes an upper bound on the amount of priority a task can get in one
+>>sleep. Hopefully this catches freak long sleeps like a SIGSTOP or unexpected
+>>swaps. This change breaks the priority calculation a little bit. I'm thinking
+>>about how to fix it.
+>>
+>>Feedback welcome! Its against 0-test4, as usual.
+>>
+>
+>Oooh - much better.
+>
+>Kernbench: (make -j vmlinux, maximal tasks)
+>                              Elapsed      System        User         CPU
+>              2.6.0-test4       45.87      116.92      571.10     1499.00
+>         2.6.0-test4-nick       49.37      131.31      611.15     1500.75
+>       2.6.0-test4-nick7a       49.48      125.95      617.71     1502.00
+>       2.6.0-test4-nick10       46.91      114.03      584.16     1489.25
+>
+>SDET 128  (see disclaimer)
+>                           Throughput    Std. Dev
+>              2.6.0-test4       100.0%         0.3%
+>         2.6.0-test4-nick       102.9%         0.3%
+>       2.6.0-test4-nick7a       105.1%         0.5%
+>       2.6.0-test4-nick10       107.7%         0.2%
+>
 
-Why that isn't obvious to you I don't understand.  This is bkbits.net.
-Yeah, it's not slashdot or anything but there are something like 400
-branches of the Linux kernel on it and that's ignoring all other projects.
-It's the web server which provides insight into the Linux kernel source
-base, of course it is busy.
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+Nice.
+
+>
+>System time of kernbench is back to what it would be with virgin, or
+>actually a little less. Elapsed time is still up a little bit, along
+>with user time, but it's getting pretty close.
+>
+>Have you looked at Rick Lindsley's schedstat patches? I don't have a
+>totally up-to-date version, but that might give us a better idea of
+>what's going on wrt migrations, balancing, etc.
+>
+
+I haven't had a look, no. I will see.
+
+>
+>I'll try to get together a broader set of benchmarks and hammer on this
+>some more ...
+>
+>
+
+That would be cool. It seems to be rapidly becoming "acceptable" to
+desktop users, so high end tuning needs to be next. But hopefully I
+might not have to do much.
+
+

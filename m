@@ -1,41 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271686AbTHHQ0m (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 12:26:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271688AbTHHQ0m
+	id S271688AbTHHQ2b (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 12:28:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271690AbTHHQ2U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 12:26:42 -0400
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:17159 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S271686AbTHHQ0l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 12:26:41 -0400
-Date: Fri, 8 Aug 2003 17:26:38 +0100 (BST)
-From: James Simmons <jsimmons@infradead.org>
-To: Roman Zippel <zippel@linux-m68k.org>
-cc: Adrian Bunk <bunk@fs.tum.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: Surprising Kconfig depends semantics
-In-Reply-To: <Pine.LNX.4.44.0308081708390.714-100000@serv>
-Message-ID: <Pine.LNX.4.44.0308081724140.12718-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 8 Aug 2003 12:28:20 -0400
+Received: from [24.241.190.29] ([24.241.190.29]:44983 "EHLO wally.rdlg.net")
+	by vger.kernel.org with ESMTP id S271688AbTHHQ2Q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Aug 2003 12:28:16 -0400
+Date: Fri, 8 Aug 2003 12:28:13 -0400
+From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: 2.4.21-ac3 and 16Gigs of ram?
+Message-ID: <20030808162813.GI8950@rdlg.net>
+Mail-Followup-To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="dCSxeJc5W8HZXZrD"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> > CONFIG_SERIO=m with CONFIG_KEYBOARD_ATKBD=y shouldn't be a valid 
-> > combination.
-> > 
-> > The correct solution is most likely a
-> > 	default y if INPUT=y && INPUT_KEYBOARD=y && SERIO=y
-> > 	default m if INPUT!=n && INPUT_KEYBOARD!=n && SERIO!=n
-> 
-> This is probably the easiest solution:
-> 
-> 	default INPUT_KEYBOARD && SERIO
-> 
-> (INPUT_KEYBOARD already depends on INPUT)
-
-This is not the right solution. Not all input keyboard drivers use the 
-serio layer. Take alook at amikbd.c in input/keyboard/
+--dCSxeJc5W8HZXZrD
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
 
+
+  I was building a new kernel for a production mailserver.  I took the old
+config from 2.4.18 and did a "make oldconfig" in the 2.4.21-ac3.  A
+couple new values, compile, install reboot and reboot and reboot, etc.
+
+  After a good bit of recompiling it seems that enabling the 64Gig
+option instead of the 4Gig causes the machine to reboot after it counts
+out it's procs.
+
+  This machine only has 4Gigs of memory but is otherwise identicle to
+the production server which has 16Gigs.
+
+
+Thoughts?
+  Robert
+
+
+:wq!
+---------------------------------------------------------------------------
+Robert L. Harris                     | GPG Key ID: E344DA3B
+                                         @ x-hkp://pgp.mit.edu
+DISCLAIMER:
+      These are MY OPINIONS ALONE.  I speak for no-one else.
+
+Life is not a destination, it's a journey.
+  Microsoft produces 15 car pileups on the highway.
+    Don't stop traffic to stand and gawk at the tragedy.
+
+--dCSxeJc5W8HZXZrD
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/M8+d8+1vMONE2jsRAk/GAJ9slsshMZcFCA/0OQOtql/BLLqREgCfa6Ns
+b6164De/QdN19r/i8nw0AB4=
+=aIQt
+-----END PGP SIGNATURE-----
+
+--dCSxeJc5W8HZXZrD--

@@ -1,73 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266498AbUH1MXc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266539AbUH1MYJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266498AbUH1MXc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 08:23:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266539AbUH1MXc
+	id S266539AbUH1MYJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 08:24:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266611AbUH1MYI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 08:23:32 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:41348 "EHLO midnight.ucw.cz")
-	by vger.kernel.org with ESMTP id S266498AbUH1MX3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 08:23:29 -0400
-Date: Sat, 28 Aug 2004 14:23:33 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Craig Milo Rogers <rogers@isi.edu>, QuantumG <qg@biodome.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
+	Sat, 28 Aug 2004 08:24:08 -0400
+Received: from nl-ams-slo-l4-01-pip-3.chellonetwork.com ([213.46.243.17]:53532
+	"EHLO amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
+	id S266539AbUH1MYD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Aug 2004 08:24:03 -0400
+Date: Sat, 28 Aug 2004 14:23:57 +0200 (CEST)
+From: Wouter Van Hemel <wouter-kernel@fort-knox.rave.org>
+To: Clem Taylor <clemtaylor@comcast.net>
+cc: QuantumG <qg@biodome.org>, "Nemosoft Unv." <webcam@smcc.demon.nl>,
+       linux-kernel@vger.kernel.org
 Subject: Re: reverse engineering pwcx
-Message-ID: <20040828122333.GC1841@ucw.cz>
-References: <412FD751.9070604@biodome.org> <20040828012055.GL24018@isi.edu> <20040828014931.GM24018@isi.edu> <412FF888.8090307@biodome.org> <20040828033552.GN24018@isi.edu> <1093664940.8611.8.camel@krustophenia.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1093664940.8611.8.camel@krustophenia.net>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <41302A8D.1010903@comcast.net>
+Message-ID: <Pine.LNX.4.61.0408281359140.569@senta.theria.org>
+References: <412FD751.9070604@biodome.org> <41302A8D.1010903@comcast.net>
+PGP: 0B B4 BC 28 53 62 FE 94  6A 57 EE B8 A6 E2 1B E4  (0xAA5412F0)
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 27, 2004 at 11:49:00PM -0400, Lee Revell wrote:
-> On Fri, 2004-08-27 at 23:35, Craig Milo Rogers wrote:
-> > On 04.08.28, QuantumG wrote:
-> > > Craig Milo Rogers wrote:
-> > > 
-> > > >	Hmmm... a poster on Slashdot claims that entropy measurements
-> > > >imply that the pwcx code is interpolating rather that truly
-> > > >decompressing.  Again, that's integer math and table lookups.
-> > > > 
-> > > >
-> > > 
-> > > http://www.amazon.com/exec/obidos/tg/detail/-/B00005R098/102-7619892-0201738?v=glance
-> > > 
-> > > claims that the Logitech Quickcam Pro 3000 is a "True 640 x 480 
-> > > resolution video capture" which is now clearly false.
-> > 
-> > 	If the "now clearly false" is meant to be a consequence of the
-> > entropy measurements poster I referred to, I wouldn't jump the gun.
-> > On reflection, it's entirely natural for a decompressed stream to
-> > examine less entropy than the corresponding compressed stream!
-> > 
-> 
-> Please see this slashdot thread:
-> 
-> http://linux.slashdot.org/comments.pl?sid=119578&threshold=3&mode=flat&commentsort=0&op=Change
-> 
-> The LavaRnd guys examined the pixels on the actual CCD chip.  It's
-> 160x120.  The 'decompression' is just interpolation.
+On Sat, 28 Aug 2004, Clem Taylor wrote:
 
-It's hard to believe this. I'd believe it if there was supposed to be a
-320x240 chip (or even more probably 384x288 (QCIF)), as those are rather
-common and with proper scaling up from the Bayer RGB pattern you can do
-a rather good interpolation to 640x480 or 768x576.
+> [...]
 
-But 160x120 sounds pretty ridiculous. It still would be possible to
-scale that to 640x480 smoothly, but the image would be obviously blurry
-and just awful even with avanced Bayer-based scaling techniques.
+> Has anyone even asked Philips if they would be willing to open up the 
+> algorithm? Maybe they would have said NO a few years ago, but at this point 
+> does it matter?
+>
 
-If Philips really does that, and succeeds, then I see the reason to
-protect those methods, as it would allow the competition with better
-sensors to scale to even higher resolutions (heh, my iBot2 webcam would
-then be a 2560x1920 camera - that's 5 megapixels!).
+I tried yesterday by phone and email, so far I have been unable to obtain 
+a definite phone number for someone who actually is responsible for the 
+drivers; and I have not yet received any answers to my email to their 
+customer service. I will try again on Monday, through their Belgian 
+division (so as to not piss off the same people too much), as I don't think 
+there's much going on in the weekend. Their tech support did ask me about 
+the Linux distribution, kernel version and XFree version, so they have at 
+least heard about Linux. :)
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+It would help a great deal if Nemosoft could give me a contact address. 
+Nemosoft, if you read this, could you help me out? Or perhaps try to reach 
+your contact at Philips yourself with the question if any closed source is 
+still a necessity - a lot of people would be grateful for a definite 
+answer, I'm sure (not in the least yourself, I guess).
+
+Perhaps there is somebody on this list who works at Philips and can give 
+me a reply in private?
+

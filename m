@@ -1,65 +1,107 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131877AbRCVHSt>; Thu, 22 Mar 2001 02:18:49 -0500
+	id <S131887AbRCVHib>; Thu, 22 Mar 2001 02:38:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131878AbRCVHSj>; Thu, 22 Mar 2001 02:18:39 -0500
-Received: from adsl-63-194-27-48.dsl.lsan03.pacbell.net ([63.194.27.48]:51976
-	"EHLO ion.thebilberry.com") by vger.kernel.org with ESMTP
-	id <S131877AbRCVHSZ>; Thu, 22 Mar 2001 02:18:25 -0500
-Message-ID: <3AB9A682.43D20AD7@thebilberry.com>
-Date: Wed, 21 Mar 2001 23:15:14 -0800
-From: Greg Billock <greg@thebilberry.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.2-0.1.28 i586)
-X-Accept-Language: en
+	id <S131899AbRCVHiV>; Thu, 22 Mar 2001 02:38:21 -0500
+Received: from www.wen-online.de ([212.223.88.39]:20239 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S131887AbRCVHiO>;
+	Thu, 22 Mar 2001 02:38:14 -0500
+Date: Thu, 22 Mar 2001 08:37:28 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>,
+        Rik van Riel <riel@conectiva.com.br>
+Subject: Re: kswapd deadlock 2.4.3-pre6
+In-Reply-To: <Pine.LNX.4.31.0103212217320.10817-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.33.0103220821500.1478-100000@mikeg.weiden.de>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [BUG] kernel BUG at slab.c:1402! -- 2.4.2-0.1.28
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Summary: Hotplugging a USB device causes an unrecoverable kernel Aiee!
+On Wed, 21 Mar 2001, Linus Torvalds wrote:
 
-Copied from screen after interrupt handler killed, so sorry for
-incompleteness. This
-bug is reproducable so if necessary, I can try it again....
+> On Wed, 21 Mar 2001, Linus Torvalds wrote:
+> >
+> > The deadlock implies that somebody scheduled with page_table_lock held.
+> > Which would be really bad.
+>
+> ..and it is probably do_swap_page().
+>
+> Despite the name, "lookup_swap_cache()" does more than a lookup - it will
+> wait for the page that it looked up. And we call it with the
+> page_table_lock held in do_swap_page().
 
-kernel BUG at slab.c:1402!
-invalid operand: 0000
-CPU: 0
-EIP: 0010: [<c012ddb4>]
-EFLAGS: 00010086
-eax: 1b ebx: 26d6a4 ecx: 81 edx: 14
-esi: c82d3 edi: c82d3564 ebp: cdffb0a0 esp: c0289e98
-ds: 18 es: 18 ss: 18
-Process swapper (pid: 0, stackpage= c0289000)
-.......
-Kernel panic: Aiee, killing interrupt handler!
+Darn, you're too quick.  (just figured it out and was about to report:)
 
-Sorry for the incomplete data. The system doesn't write anything to logs
+Trace; c012785b <__lock_page+83/ac>
+Trace; c012789b <lock_page+17/1c>
+Trace; c01279a1 <__find_lock_page+81/f0>
+Trace; c013008b <lookup_swap_cache+4b/164>
+Trace; c0125362 <do_swap_page+12/1cc>
+Trace; c012571f <handle_mm_fault+77/c4>
+Trace; c01148b4 <do_page_fault+0/426>
+Trace; c0114a17 <do_page_fault+163/426>
+Trace; c01148b4 <do_page_fault+0/426>
+Trace; c011581e <schedule+3e6/5ec>
+Trace; c010908c <error_code+34/3c>
 
-about the crash, since it is a pretty hard one, but I can reproduce this
-bug
-if it hasn't been reported yet (I didn't find it in archives) or the
-above is
-insufficient.
+> Ho humm. Does the appended patch fix it for you? Looks obvious enough, but
+> this bug is actually hidden on true SMP, and I'm too lazy to test with
+> "num_cpus=1" or something..
 
-More data:
+I'm sure it will, but will be back in a few with confirmation.
 
-AMD K6-2 400 processor, >200MB memory
-Gnu C    2.96
-Binutils 2.10.0.18
-Linux C library 1.92.so
-Procps 2.0.7
-Mount 2.10m
-Net-tools (2000-05-21)
-sh-utils 2.0
+>
+> 		Linus
+>
+> -----
+> diff -u --recursive --new-file pre6/linux/mm/memory.c linux/mm/memory.c
+> --- pre6/linux/mm/memory.c	Tue Mar 20 23:13:03 2001
+> +++ linux/mm/memory.c	Wed Mar 21 22:21:27 2001
+> @@ -1031,18 +1031,20 @@
+>  	struct vm_area_struct * vma, unsigned long address,
+>  	pte_t * page_table, swp_entry_t entry, int write_access)
+>  {
+> -	struct page *page = lookup_swap_cache(entry);
+> +	struct page *page;
+>  	pte_t pte;
+>
+> +	spin_unlock(&mm->page_table_lock);
+> +	page = lookup_swap_cache(entry);
+>  	if (!page) {
+> -		spin_unlock(&mm->page_table_lock);
+>  		lock_kernel();
+>  		swapin_readahead(entry);
+>  		page = read_swap_cache(entry);
+>  		unlock_kernel();
+> -		spin_lock(&mm->page_table_lock);
+> -		if (!page)
+> +		if (!page) {
+> +			spin_lock(&mm->page_table_lock);
+>  			return -1;
+> +		}
+>
+>  		flush_page_to_ram(page);
+>  		flush_icache_page(vma, page);
+> @@ -1053,13 +1055,13 @@
+>  	 * Must lock page before transferring our swap count to already
+>  	 * obtained page count.
+>  	 */
+> -	spin_unlock(&mm->page_table_lock);
+>  	lock_page(page);
+> -	spin_lock(&mm->page_table_lock);
+>
+>  	/*
+> -	 * Back out if somebody else faulted in this pte while we slept.
+> +	 * Back out if somebody else faulted in this pte while we
+> +	 * released the page table lock.
+>  	 */
+> +	spin_lock(&mm->page_table_lock);
+>  	if (pte_present(*page_table)) {
+>  		UnlockPage(page);
+>  		page_cache_release(page);
 
-Modules: 8139too, nls_iso8859-1, nls_cp437, vfat, fat, usb-ohci, usbcore
-
--Greg Billock
- greg@thebilberry.com
-
-
+(oh well, I had the right idea at least)
 

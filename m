@@ -1,49 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129027AbRBDP7H>; Sun, 4 Feb 2001 10:59:07 -0500
+	id <S129197AbRBDQQU>; Sun, 4 Feb 2001 11:16:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129028AbRBDP66>; Sun, 4 Feb 2001 10:58:58 -0500
-Received: from smtp-rt-5.wanadoo.fr ([193.252.19.159]:4821 "EHLO
-	caroubier.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S129027AbRBDP6l>; Sun, 4 Feb 2001 10:58:41 -0500
-Message-ID: <3A7D7BCE.37F3DDF@wanadoo.fr>
-Date: Sun, 04 Feb 2001 16:57:02 +0100
-From: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
-Organization: Home PC
-X-Mailer: Mozilla 4.76 [fr] (X11; U; Linux 2.4.2-pre1 i686)
-X-Accept-Language: en
+	id <S129092AbRBDQQJ>; Sun, 4 Feb 2001 11:16:09 -0500
+Received: from thalia.fm.intel.com ([132.233.247.11]:41741 "EHLO
+	thalia.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S129197AbRBDQP5>; Sun, 4 Feb 2001 11:15:57 -0500
+Message-ID: <07E6E3B8C072D211AC4100A0C9C5758302B2711B@hasmsx52.iil.intel.com>
+From: "Hen, Shmulik" <shmulik.hen@intel.com>
+To: "'Manfred'" <manfred@colorfullife.com>,
+        "Hen, Shmulik" <shmulik.hen@intel.com>
+Cc: "'LKML'" <linux-kernel@vger.kernel.org>
+Subject: RE: kernel memory allocations alignment
+Date: Sun, 4 Feb 2001 08:15:39 -0800 
 MIME-Version: 1.0
-To: Pierfrancesco Caci <p.caci@tin.it>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.1 segfault when doing "ls /dev/"
-In-Reply-To: <87u26avkfp.fsf@penny.ik5pvx.ampr.org>
-		<3A7D5CFB.1C21ECD2@wanadoo.fr> <87lmrmv984.fsf@penny.ik5pvx.ampr.org>
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pierfrancesco Caci wrote:
+Actually yes. We were warned that on IA64 architecture the system will halt
+when accessing any type of variable via a pointer if the pointer does not
+contain an aligned address matching that type. Until now we were using a
+method of receiving a pointer to an array, casting it to a pointer of a
+struct (packed with #pragma pack(1) ) ,and retrieving fields directly from
+it with pointers.
+It seems we cannot do that any more and were wondering what are the
+alternatives.
+One way we could think of is forget the packing and rearrange the fields in
+the struct in descending order so they all come out aligned, but we didn't
+know for sure if the first one will be aligned too.
 
-> I can't see how this can affect performance/funtionality of
-> devfsd. Can you try to stop the daemon and restart it to see if
-> continues to work as before ?
+Will that work ?
 
-/dev is mounted at boot time by the kernel (CONFIG_DEVFS_MOUNT=y).
-The system boots and runs without devfsd. You just can't start any 
-process calling for non-existing device under /dev and not created
-by devfsd. For instance pppd or mc won't start by lack of pseudo-tty 
-esd needs /dev/dsp ...
 
-i was thinking the trouble may come from some programme launched by
-your boot scripts before devfsd is running.
+	Thanks,
+	Shmulik Hen      
+      Software Engineer
+	Linux Advanced Networking Services
+	Intel Network Communications Group
+	Jerusalem, Israel
 
-is your version of fileutils > 4.0.28 (ls --version) ?
+-----Original Message-----
+From: Manfred [mailto:manfred@colorfullife.com]
+Sent: Sunday, February 04, 2001 5:56 PM
+To: Hen, Shmulik
+Cc: 'LKML'
+Subject: Re: kernel memory allocations alignment
 
--- 
-------------------------------------------------
- Pierre Rousselet <pierre.rousselet@wanadoo.fr>
-------------------------------------------------
+
+"Hen, Shmulik" wrote:
+> 
+> When using kmalloc(size_t size), do I get a guaranty that the memory
+region
+> allocated is aligned according to the size specified ?
+> More to the point, if I call kmalloc for type int on an IA64 architecture
+is
+> the pointer going to be 8 bytes aligned ?
+>
+
+Yes, kmalloc results are always 'sizeof(void*)' aligned.
+
+Do you have stricter alignment requirements?
+
+--
+	Manfred
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

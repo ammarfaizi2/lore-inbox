@@ -1,36 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261301AbSI0G5e>; Fri, 27 Sep 2002 02:57:34 -0400
+	id <S261303AbSI0HEa>; Fri, 27 Sep 2002 03:04:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261303AbSI0G5e>; Fri, 27 Sep 2002 02:57:34 -0400
-Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:45324 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261301AbSI0G5e>;
-	Fri, 27 Sep 2002 02:57:34 -0400
-Date: Fri, 27 Sep 2002 00:01:19 -0700
-From: Greg KH <greg@kroah.com>
-To: James Leone <berthabrains@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Web Camera
-Message-ID: <20020927070118.GB9243@kroah.com>
-References: <20020927065315.34967.qmail@web13103.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020927065315.34967.qmail@web13103.mail.yahoo.com>
-User-Agent: Mutt/1.4i
+	id <S261307AbSI0HEa>; Fri, 27 Sep 2002 03:04:30 -0400
+Received: from web13307.mail.yahoo.com ([216.136.175.43]:56068 "HELO
+	web13307.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S261303AbSI0HEa>; Fri, 27 Sep 2002 03:04:30 -0400
+Message-ID: <20020927070948.77241.qmail@web13307.mail.yahoo.com>
+Date: Fri, 27 Sep 2002 09:09:48 +0200 (CEST)
+From: =?iso-8859-1?q?Joerg=20Pommnitz?= <pommnitz@yahoo.com>
+Subject: Framebuffer still "EXPERIMENTAL"?
+To: kernel <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 26, 2002 at 11:53:15PM -0700, James Leone wrote:
-> Quickcam Express USB fx broken. Status?
+Hello Listees,
+yesterday I compiled 2.5.38 for the first time and noticed that the
+framebuffer option is still marked "EXPERIMENTAL". Well, I know for sure
+that I used the VESA-FB 3 years ago to get X running on a strange laptop
+graphic chip, so it is at least that long available (actually I think it
+got introduced for the Sparc port somewhen in 1995??). 
 
-Ah, to return to the good old days of detailed error messages, that
-contain volumes of information allowing everyone to instantly know what
-the sender has done, and is reporting...
+I think it's about time to promote the framebuffer code to a full fledged
+kernel feature. Comments?
 
-How about reading REPORTING-BUGS and sending us that.  Then we might
-have a snowball's chance of understanding what you mean by this message.
+Regards
+  Jörg
 
-thanks,
+=====
+-- 
+Regards
+       Joerg
 
-greg k-h
+
+__________________________________________________________________
+
+Gesendet von Yahoo! Mail - http://mail.yahoo.de
+Möchten Sie mit einem Gruß antworten? http://grusskarten.yahoo.de

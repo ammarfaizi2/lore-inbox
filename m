@@ -1,122 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319005AbSIIVTX>; Mon, 9 Sep 2002 17:19:23 -0400
+	id <S319004AbSIIVSS>; Mon, 9 Sep 2002 17:18:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319007AbSIIVTX>; Mon, 9 Sep 2002 17:19:23 -0400
-Received: from 205-158-62-105.outblaze.com ([205.158.62.105]:10881 "HELO
-	ws4-4.us4.outblaze.com") by vger.kernel.org with SMTP
-	id <S319005AbSIIVTU>; Mon, 9 Sep 2002 17:19:20 -0400
-Message-ID: <20020909212353.20420.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-1"
+	id <S319005AbSIIVSS>; Mon, 9 Sep 2002 17:18:18 -0400
+Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:4619 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S319004AbSIIVSR>;
+	Mon, 9 Sep 2002 17:18:17 -0400
+Date: Mon, 9 Sep 2002 14:20:07 -0700
+From: Greg KH <greg@kroah.com>
+To: Jeroen Vreeken <pe1rxq@amsat.org>
+Cc: Linux-Kernel ML <linux-kernel@vger.kernel.org>,
+       Kernel Janitors ML 
+	<kernel-janitor-discuss@lists.sourceforge.net>
+Subject: Re: Broken inlines all over the source tree
+Message-ID: <20020909212007.GD7433@kroah.com>
+References: <1030232838.1451.99.camel@ldb> <20020826162204.GB17819@kroah.com> <20020903173347.C377@jeroen.pe1rxq.ampr.org> <20020904181723.GB7177@kroah.com> <20020906000832.A2854@jeroen.pe1rxq.ampr.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
-To: linux-kernel@vger.kernel.org
-Date: Tue, 10 Sep 2002 05:23:53 +0800
-Subject: LMbench2.0 results 2.5.34
-X-Originating-Ip: 193.76.202.244
-X-Originating-Server: ws4-4.us4.outblaze.com
+In-Reply-To: <20020906000832.A2854@jeroen.pe1rxq.ampr.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-I'm back with the result of LMbenche2.0 against 2.5.34. Same config of 2.5.33.
+On Fri, Sep 06, 2002 at 12:08:32AM +0200, Jeroen Vreeken wrote:
+> 
+> I made a new patch against 2.5.33, it was mostly litle things like the v4l
+> changes.
 
-2.5.33 is preemption ON
-2.5.33 is preemption OFF
-2.5.34 is preemtpion ON
+This works fine, applied.
 
-Hardware is a HP Omnibook 6000, 256 MiB of Ram, PIII@800. Hope it is intersting for you.
+thanks,
 
-cd results && make summary percent 2>/dev/null | more
-make[1]: Entering directory `/usr/src/LMbench/results'
-
-                 L M B E N C H  2 . 0   S U M M A R Y
-                 ------------------------------------
-
-
-Basic system parameters
-----------------------------------------------------
-Host                 OS Description              Mhz
-                                                    
---------- ------------- ----------------------- ----
-frodo      Linux 2.4.18       i686-pc-linux-gnu  797
-frodo      Linux 2.4.19       i686-pc-linux-gnu  797
-frodo      Linux 2.5.33       i686-pc-linux-gnu  797
-frodo     Linux 2.5.33x       i686-pc-linux-gnu  797
-frodo      Linux 2.5.34       i686-pc-linux-gnu  797
-
-Processor, Processes - times in microseconds - smaller is better
-----------------------------------------------------------------
-Host                 OS  Mhz null null      open selct sig  sig  fork exec sh  
-                             call  I/O stat clos TCP   inst hndl proc proc proc
---------- ------------- ---- ---- ---- ---- ---- ----- ---- ---- ---- ---- ----
-frodo      Linux 2.4.18  797 0.40 0.56 3.18 3.97       1.00 3.18 115. 1231 13.K
-frodo      Linux 2.4.19  797 0.40 0.56 3.07 3.88       1.00 3.19 129. 1113 13.K
-frodo      Linux 2.5.33  797 0.40 0.61 3.78 4.76       1.02 3.37 201. 1458 13.K
-frodo     Linux 2.5.33x  797 0.40 0.60 3.51 4.38       1.02 3.27 159. 1430 13.K
-frodo      Linux 2.5.34  797 0.38 0.59 3.60 4.53       1.02 3.39 182. 1573 13.K
-
-Context switching - times in microseconds - smaller is better
--------------------------------------------------------------
-Host                 OS 2p/0K 2p/16K 2p/64K 8p/16K 8p/64K 16p/16K 16p/64K
-                        ctxsw  ctxsw  ctxsw ctxsw  ctxsw   ctxsw   ctxsw
---------- ------------- ----- ------ ------ ------ ------ ------- -------
-frodo      Linux 2.4.18 0.990 4.4200   13.8 6.2700  309.8    58.6   310.5
-frodo      Linux 2.4.19 0.900 4.2900   15.3 5.9100  309.6    57.7   309.9
-frodo      Linux 2.5.33 1.620 5.2800   15.3 9.3500  312.7    54.9   312.7
-frodo     Linux 2.5.33x 1.040 4.3200   17.8 7.6200  312.5    49.9   312.5
-frodo      Linux 2.5.34 1.520 5.2800   21.8 9.0800  312.2    39.0   311.9
-
-*Local* Communication latencies in microseconds - smaller is better
--------------------------------------------------------------------
-Host                 OS 2p/0K  Pipe AF     UDP  RPC/   TCP  RPC/ TCP
-                        ctxsw       UNIX         UDP         TCP conn
---------- ------------- ----- ----- ---- ----- ----- ----- ----- ----
-frodo      Linux 2.4.18 0.990 4.437 8.66                             
-frodo      Linux 2.4.19 0.900 4.561 7.76                             
-frodo      Linux 2.5.33 1.620 6.497 9.11                             
-frodo     Linux 2.5.33x 1.040 4.888 8.70                             
-frodo      Linux 2.5.34 1.520 7.142 8.51                             
-
-File & VM system latencies in microseconds - smaller is better
---------------------------------------------------------------
-Host                 OS   0K File      10K File      Mmap    Prot    Page	
-                        Create Delete Create Delete  Latency Fault   Fault 
---------- ------------- ------ ------ ------ ------  ------- -----   ----- 
-frodo      Linux 2.4.18   68.9   16.0  185.8   31.6    425.0 0.789 2.00000
-frodo      Linux 2.4.19   68.9   14.9  186.5   29.8    416.0 0.798 2.00000
-frodo      Linux 2.5.33   77.8   19.1  211.6   38.3    774.0 0.832 3.00000
-frodo     Linux 2.5.33x   77.2   18.8  206.7   37.0    769.0 0.823 3.00000
-frodo      Linux 2.5.34   77.3   18.3  208.6   37.6    762.0 0.848 3.00000
-
-*Local* Communication bandwidths in MB/s - bigger is better
------------------------------------------------------------
-Host                OS  Pipe AF    TCP  File   Mmap  Bcopy  Bcopy  Mem   Mem
-                             UNIX      reread reread (libc) (hand) read write
---------- ------------- ---- ---- ---- ------ ------ ------ ------ ---- -----
-frodo      Linux 2.4.18 810. 650.       181.7  203.7  101.5  101.4 203. 195.3
-frodo      Linux 2.4.19 808. 680.       187.2  203.8  101.5  101.4 203. 190.1
-frodo      Linux 2.5.33 571. 636.       185.6  202.5  100.5  100.4 202. 190.3
-frodo     Linux 2.5.33x 768. 710.       185.4  202.5  100.5  100.4 202. 189.5
-frodo      Linux 2.5.34 560. 670.       185.6  202.5  100.5  100.4 202. 190.5
-
-Memory latencies in nanoseconds - smaller is better
-    (WARNING - may not be correct, check graphs)
----------------------------------------------------
-Host                 OS   Mhz  L1 $   L2 $    Main mem    Guesses
---------- -------------  ---- ----- ------    --------    -------
-frodo      Linux 2.4.18   797 3.767 8.7890  158.9
-frodo      Linux 2.4.19   797 3.767 8.7980  158.9
-frodo      Linux 2.5.33   797 3.798 8.8660  160.1
-frodo     Linux 2.5.33x   797 3.796   45.5  160.2
-frodo      Linux 2.5.34   797 3.796 8.8760  160.2
-make[1]: Leaving directory `/usr/src/LMbench/results'
-
--- 
-Get your free email from www.linuxmail.org 
-
-
-Powered by Outblaze
+greg k-h

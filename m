@@ -1,56 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269688AbUJSVay@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269508AbUJSVKF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269688AbUJSVay (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 17:30:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266357AbUJSVLW
+	id S269508AbUJSVKF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 17:10:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269924AbUJSVBU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 17:11:22 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:26331 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S269896AbUJSVAl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 17:00:41 -0400
+	Tue, 19 Oct 2004 17:01:20 -0400
+Received: from tron.kn.vutbr.cz ([147.229.191.152]:35594 "EHLO
+	tron.kn.vutbr.cz") by vger.kernel.org with ESMTP id S269538AbUJSUwk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 16:52:40 -0400
+Message-ID: <41757E88.2030802@stud.feec.vutbr.cz>
+Date: Tue, 19 Oct 2004 22:52:24 +0200
+From: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20041005)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
 Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U6
-From: Lee Revell <rlrevell@joe-job.com>
-To: Adam Heath <doogie@debian.org>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0410191351550.1219@gradall.private.brainfood.com>
-References: <20041012195424.GA3961@elte.hu> <20041013061518.GA1083@elte.hu>
-	 <20041014002433.GA19399@elte.hu> <20041014143131.GA20258@elte.hu>
-	 <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu>
-	 <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu>
-	 <20041019124605.GA28896@elte.hu>
-	 <Pine.LNX.4.58.0410191222050.1216@gradall.private.brainfood.com>
-	 <20041019173510.GA18323@elte.hu>
-	 <Pine.LNX.4.58.0410191351550.1219@gradall.private.brainfood.com>
-Content-Type: text/plain
-Message-Id: <1098219574.23367.3.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 19 Oct 2004 16:59:34 -0400
+References: <20041012091501.GA18562@elte.hu> <20041012123318.GA2102@elte.hu> <20041012195424.GA3961@elte.hu> <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu> <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu>
+In-Reply-To: <20041019124605.GA28896@elte.hu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Flag: NO
+X-Spam-Report: Spam detection software, running on the system "tron.kn.vutbr.cz", has
+  identified this incoming email as possible spam.  The original message
+  has been attached to this so you can view it (if it isn't spam) or block
+  similar future email.  If you have any questions, see
+  the administrator of that system for details.
+  ____
+  Content analysis details:   (-4.2 points, 6.0 required)
+  ____
+   pts rule name              description
+  ---- ---------------------- --------------------------------------------
+   0.7 FROM_ENDS_IN_NUMS      From: ends in numbers
+  -4.9 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+                              [score: 0.0000]
+  ____
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-10-19 at 14:52, Adam Heath wrote:
-> On Tue, 19 Oct 2004, Ingo Molnar wrote:
+Ingo Molnar wrote:
+> i have released the -U6 Real-Time Preemption patch:
+>  
+>   http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.9-rc4-mm1-U6
 > 
-> >
-> > * Adam Heath <doogie@debian.org> wrote:
-> >
-> > > I am still having the same bug(repeatable by running liquidwar) as I
-> > > reported with -U5(see my earlier email).
-> >
-> > ok, this seems to be some questionable code in OSS. It really has no
-> > business up()-ing the inode semaphore - nobody down()-ed it before! This
-> > could be either a bad workaround for a bug/hang someone saw, or an old
-> > VFS assumption that doesnt hold anymore. In any case, could you try the
-> > patch below, does it fix liquidwar?
-> 
-> Yup, the below fixes it.  However, this problem *only* started occuring in
-> -U5.  I've been running liquidwar on all versions(it's my current
-> game-to-play-when-I-feel-stupid program).
+>   [...]
+> - deadlock bug: fix networking deadlock reported by Matthew L Foster.
+>   Restructured the way the RT-RCU locking of ptype_lock is done - it's
+>   cleaner and more obvious now (besides being correct). This could also
+>   fix the deadlock reported by Michal Schmidt.
 
-The real fix is to use ALSA. :-)
+Yes, this fixed the deadlock for me.
+I'm now going to try -U7.
 
-Lee
-
+Michal

@@ -1,35 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261748AbSJ2OzY>; Tue, 29 Oct 2002 09:55:24 -0500
+	id <S261847AbSJ2PEW>; Tue, 29 Oct 2002 10:04:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261799AbSJ2OzX>; Tue, 29 Oct 2002 09:55:23 -0500
-Received: from ip68-105-128-224.tc.ph.cox.net ([68.105.128.224]:48035 "EHLO
-	Bill-The-Cat.bloom.county") by vger.kernel.org with ESMTP
-	id <S261748AbSJ2OzX>; Tue, 29 Oct 2002 09:55:23 -0500
-Date: Tue, 29 Oct 2002 08:01:41 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Amol Kumar Lad <amolk@ishoni.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: mlockall() with MCL_FUTURE
-Message-ID: <20021029150141.GD688@opus.bloom.county>
-References: <1035940307.2256.25.camel@amol.in.ishoni.com>
+	id <S261850AbSJ2PEW>; Tue, 29 Oct 2002 10:04:22 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:47550 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S261847AbSJ2PEV>; Tue, 29 Oct 2002 10:04:21 -0500
+Subject: Re: [Lse-tech] Re: [PATCH] Updated sys_epoll now with man pages
+From: Paul Larson <plars@linuxtestproject.org>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Andrew Morton <akpm@digeo.com>, Hanna Linder <hannal@us.ibm.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Davide Libenzi <davidel@xmailserver.org>,
+       Jamie Lokier <lk@tantalophile.demon.co.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       lse-tech <lse-tech@lists.sourceforge.net>, ahu@ds9a.nl
+In-Reply-To: <Pine.LNX.4.33L2.0210282121560.13581-100000@dragon.pdx.osdl.net>
+References: <Pine.LNX.4.33L2.0210282121560.13581-100000@dragon.pdx.osdl.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 29 Oct 2002 08:59:47 -0600
+Message-Id: <1035903591.5646.284.camel@plars>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1035940307.2256.25.camel@amol.in.ishoni.com>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 29, 2002 at 08:11:46PM -0500, Amol Kumar Lad wrote:
-> Hi,
->   I was just going through its implementation. If mlockall() is invoked
-> with MCL_FUTURE, does it mean that all the existing locked mappings of
-> process should get unlocked ? Attaching code segment from do_mlockall().
-> I am using 2.4.18 kernel
+On Mon, 2002-10-28 at 23:28, Randy.Dunlap wrote:
+> I expect this to be unpopular, but I've been saying lately that
+> when new kernel APIs or syscalls or whatsoever are added to
+> Linux, there should be sufficient docs along with the patch(es)
+> explaining the patch and some intended uses of it, perhaps even
+> with examples.  Ingo does this sometimes.  Some people don't
+> bother to even come close.
+It would be great to see more people doing that, also releasing docs
+about intentions beforehand (rfc's and such) would be nice to see too. 
+As far as example programs go, cc'ing the Linux Test Project at
+ltp-list@lists.sourceforge.net would be a really nice thing too and make
+you very popular! :)
 
-There is a problem here which is fixed in 2.4.19, I believe.
+Thanks,
+Paul Larson
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/

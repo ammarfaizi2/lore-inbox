@@ -1,74 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264826AbUHQKID@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264884AbUHQKjI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264826AbUHQKID (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 06:08:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264808AbUHQKIC
+	id S264884AbUHQKjI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 06:39:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264919AbUHQKjI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 06:08:02 -0400
-Received: from mail.gmx.de ([213.165.64.20]:142 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S264750AbUHQKH6 (ORCPT
+	Tue, 17 Aug 2004 06:39:08 -0400
+Received: from gprs214-155.eurotel.cz ([160.218.214.155]:14472 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S264884AbUHQKjF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 06:07:58 -0400
-X-Authenticated: #453372
-Message-ID: <4121D919.1070205@gmx.net>
-Date: Tue, 17 Aug 2004 12:08:25 +0200
-From: Daniel Paschka <monkey20181@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040630
-X-Accept-Language: en-us, en, de-de, de
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Problem with CIFS
-X-Enigmail-Version: 0.84.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigA7C6E22D0B7F297BDDD6EDB0"
+	Tue, 17 Aug 2004 06:39:05 -0400
+Date: Tue, 17 Aug 2004 12:38:52 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@zip.com.au>
+Subject: Coding style: do_this(a,b) vs. do_this(a, b)
+Message-ID: <20040817103852.GA18758@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigA7C6E22D0B7F297BDDD6EDB0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi!
 
-I was trying to use CIFS, but it failed to mount my samba shares whereas 
-mounting a share of a Win2K PC worked.
+Coding style document is not consistent with itself on whether there
+should be space after ","... This makes it standartize on ", " option.
 
-I dowloaded and compiled the newest samba-server, but that didn't help 
-either so I investigated a bit.
+								Pavel
 
-After googling if someone else was experiencing this problem I became a 
-bit iritated because I only found a handful results, none helped to 
-solve this problem in any way.
+--- tmp/linux/Documentation/CodingStyle	2004-05-20 23:08:01.000000000 +0200
++++ linux/Documentation/CodingStyle	2004-06-06 00:27:11.000000000 +0200
+@@ -356,11 +356,11 @@
+ 
+ Macros with multiple statements should be enclosed in a do - while block:
+ 
+-#define macrofun(a,b,c) 			\
++#define macrofun(a, b, c) 			\
+ 	do {					\
+ 		if (a == 5)			\
+-			do_this(b,c);		\
+-	} while (0)
++			do_this(b, c);		\
++	} while(0)
+ 
+ Things to avoid when using macros:
+ 
 
-So I narrowed the problem down myself.
-
-In fs/cifs/cifssmb.c around line 238 the cifs modul expects a 16 Byte 
-GUID, where samba only send 14 bytes consisting of some random numbers 
-followed by my workgroupname: WG.
-So I to set my workgroupname to something longer with enabled me to 
-mount my share.
-
-I am not sure what the right behaviour is (must cifs accept shorter 
-seqenzes or must samba send some dummy bytes to fill up to 16 Bytes), 
-but I think it should be possible to mount shares in workgroups which 
-names are shorter the 4 Bytes.
-
-Help would be appreciated
-Daniel
-
---------------enigA7C6E22D0B7F297BDDD6EDB0
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFBIdkflycClYdpvAkRAlLnAJ4lvffiaI/9/9HdxwKp1Bzhyn0/cwCfVtjJ
-r5IH74xBnqnpsLSF5sVJxOo=
-=UYxf
------END PGP SIGNATURE-----
-
---------------enigA7C6E22D0B7F297BDDD6EDB0--
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

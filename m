@@ -1,15 +1,14 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317354AbSHTVF6>; Tue, 20 Aug 2002 17:05:58 -0400
+	id <S317334AbSHTVF0>; Tue, 20 Aug 2002 17:05:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317355AbSHTVFy>; Tue, 20 Aug 2002 17:05:54 -0400
-Received: from web13804.mail.yahoo.com ([216.136.175.14]:54532 "HELO
-	web13804.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S317351AbSHTVFw>; Tue, 20 Aug 2002 17:05:52 -0400
-Message-ID: <20020820210957.90917.qmail@web13804.mail.yahoo.com>
-Date: Tue, 20 Aug 2002 14:09:57 -0700 (PDT)
+	id <S317351AbSHTVF0>; Tue, 20 Aug 2002 17:05:26 -0400
+Received: from web13806.mail.yahoo.com ([216.136.175.16]:24588 "HELO
+	web13806.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S317334AbSHTVFZ>; Tue, 20 Aug 2002 17:05:25 -0400
+Message-ID: <20020820210931.83373.qmail@web13806.mail.yahoo.com>
+Date: Tue, 20 Aug 2002 14:09:31 -0700 (PDT)
 From: "M.L.PrasannaK.R." <mlpkr@yahoo.com>
-Subject: Odd size mke2fs
 To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii

@@ -1,52 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288325AbSBMS1y>; Wed, 13 Feb 2002 13:27:54 -0500
+	id <S288342AbSBMSaY>; Wed, 13 Feb 2002 13:30:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288308AbSBMS1p>; Wed, 13 Feb 2002 13:27:45 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:53245
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S288325AbSBMS13>; Wed, 13 Feb 2002 13:27:29 -0500
-Date: Wed, 13 Feb 2002 10:27:41 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: secure erasure of files?
-Message-ID: <20020213182741.GA335@matchmail.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0202121409150.18597-100000@mustard.heime.net> <Pine.LNX.4.33.0202121438560.7616-100000@unicef.org.yu> <20020212165504.A5915@devcon.net> <3C6A32ED.755159F3@aitel.hist.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C6A32ED.755159F3@aitel.hist.no>
-User-Agent: Mutt/1.3.27i
+	id <S288377AbSBMSaV>; Wed, 13 Feb 2002 13:30:21 -0500
+Received: from mailer3.bham.ac.uk ([147.188.128.54]:38582 "EHLO
+	mailer3.bham.ac.uk") by vger.kernel.org with ESMTP
+	id <S288342AbSBMSaA>; Wed, 13 Feb 2002 13:30:00 -0500
+Date: Wed, 13 Feb 2002 18:30:01 +0000 (GMT)
+From: Mark Cooke <mpc@star.sr.bham.ac.uk>
+X-X-Sender: mpc@pc24.sr.bham.ac.uk
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Quick question on Software RAID support.
+In-Reply-To: <E16axOE-0004zX-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.44.0202131824530.29582-100000@pc24.sr.bham.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 13, 2002 at 10:33:33AM +0100, Helge Hafting wrote:
-> Andreas Ferber wrote:
+Hi Alan,
+
+Just a note that I have almost exactly the setup you outlined on a 
+KT7A-RAID, HPT370 onboard.
+
+I have a single disk on each highpoint chain, and a 3rd (parity) on 
+one of the onboard 686B channels.
+
+I have been seeing odd corruptions since I setup the system as RAID-5 
+though.  Have you seen any reports of 686B ide corruption recently (or 
+RAID-5 for that matter) ?
+
+kernel 2.4.18pre6... just compiling pre9-ac3...
+Athlon MP 1500+, mem=nopentium apm=off, NvAGP=0 in X-setup.
+
+Mark
+
+On Wed, 13 Feb 2002, Alan Cox wrote:
+
+> Date: Wed, 13 Feb 2002 11:15:54 +0000 (GMT)
+> From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+> To: Marco Colombo <marco@esi.it>
+> Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+> Subject: Re: Quick question on Software RAID support.
 > 
-> > I don't know if any filesystem currently relocates blocks if you
-> > overwrite a file, but it's certainly possible and allowed (everything
-> > else except the filesystem itself simply must not care where the data
-> > actually ends up on the disk).
-> > 
-> A log-structured fs will write new blocks everytime, afaik.
+> > 	 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> > Is it supposed to detect a failed disk and *stop* using it?
+> 
+> Yes, it will stop using it and if appropriate try and do a rebuild
+> 
+> > I had a raid1 IDE system, and it was continuosly raising hard errors on
+> > hdc (the disk was dead, non just some bad blocks): the net result was that
+> > it was unusable - too slow, too busy on IDE errors (a lot of them - even
+> > syslog wasn't happy).
+> 
+> Don't try and do "hot pluggable" IDE raid it really doesn't work out. With
+> scsi the impact of a sulking drive is minimal unless you get unlucky
+> (I have here a failed SCSI SCA drive that hangs the entire bus merely by
+> being present - I use it to terrify HA people 8))
+> 
+> > BTW, given a 2 disks IDE raid1 setup (hda / hdc), does it pay to put a
+> > third disk in (say hdb) and configure it as "spare disk"? I've got 
+> > concerns about the slave not actually beeing able to operate if the
+> > master (hda) fails badly.
+> 
+> Well placed concerns. I don't know what Andre thinks but IMHO spend the
+> extra $20 to put an extra highpoint controller in the machine for the third
+> IDE bus.
+> 
+> Alan
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-Ext3 only does that on truncate in ordered/writeback mode and probably in
-data journaling mode too.
+-- 
++-------------------------------------------------------------------------+
+Mark Cooke                  The views expressed above are mine and are not
+Systems Programmer          necessarily representative of university policy
+University Of Birmingham    URL: http://www.sr.bham.ac.uk/~mpc/
++-------------------------------------------------------------------------+
 
-> Ext3 with data journalling keeps copies of recently written data
-> in the journal.  Now, if you create a "secret" file and then overwrite
-> it you'll still find a copy in the journal until the journal wraps
-> It may not wrap if the next thing you do is umount/shutdown.
->
-> A secure rm must know the fs it works with.  A better solution
-> is to overwrite the entire partition with garbage. The only
-> perfect way is to destroy the magnetic surfaces though.
->
-
-Yep, very true.
-
-Phycally breaking the drive apart into pieces and then burning should
-suffice. 
-
-Mike

@@ -1,76 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261650AbSJUUic>; Mon, 21 Oct 2002 16:38:32 -0400
+	id <S261659AbSJUUja>; Mon, 21 Oct 2002 16:39:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261659AbSJUUic>; Mon, 21 Oct 2002 16:38:32 -0400
-Received: from ip008.siteplanet.com.br ([200.245.54.8]:3346 "EHLO
-	plutao.siteplanet.com.br") by vger.kernel.org with ESMTP
-	id <S261650AbSJUUi2> convert rfc822-to-8bit; Mon, 21 Oct 2002 16:38:28 -0400
-Subject: Re: [PATCH 2.0] Fixed kernel stuff
-From: Fernando Alencar =?ISO-8859-1?Q?Mar=F3stica?= <famarost@unimep.br>
-To: David Weinehall <tao@acc.umu.se>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20021015211103.GV26715@khan.acc.umu.se>
-References: <1034548634.543.1.camel@nitrogenium>
-	<20021014220527.GU26715@khan.acc.umu.se>
-	<1034708558.427.0.camel@nitrogenium> 
-	<20021015211103.GV26715@khan.acc.umu.se>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 21 Oct 2002 17:49:04 -0200
-Message-Id: <1035229745.625.0.camel@nitrogenium>
-Mime-Version: 1.0
+	id <S261661AbSJUUj3>; Mon, 21 Oct 2002 16:39:29 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:42444 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S261659AbSJUUjZ>; Mon, 21 Oct 2002 16:39:25 -0400
+Date: Mon, 21 Oct 2002 13:40:37 -0700
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+cc: linux-mm mailing list <linux-mm@kvack.org>
+Subject: ZONE_NORMAL exhaustion (dcache slab)
+Message-ID: <302190000.1035232837@flay>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Since you are doing changes to the VM, I would like detail descriptions
-> of what each change does, and why it is necessary, stability- or
-> security-wise. I will not accept changes to the VM subsystem unless
-> there is a valid reason; let the early v2.4-series be witness to why
-> this is a good stance.
-David, 
+My big NUMA box went OOM over the weekend and started killing things
+for no good reason (2.5.43-mm2). Probably running some background
+updatedb for locate thing, not doing any real work.
 
-I've must install Linux on AMD386 DX40, HD Maxtor 160MB, 8MB RAM for 
-this task i used kernel 2.0.39. 
+meminfo:
 
-When I compiled kernel 2.0.39, I noticed some `warnings` which I
-corrected as mentioned previously.
+MemTotal:     16077728 kB
+MemFree:      14950708 kB
+MemShared:           0 kB
+Buffers:           492 kB
+Cached:         384976 kB
+SwapCached:          0 kB
+Active:         372608 kB
+Inactive:        13380 kB
+HighTotal:    15335424 kB
+HighFree:     14949000 kB
+LowTotal:       742304 kB
+LowFree:          1708 kB
+SwapTotal:           0 kB
+SwapFree:            0 kB
+Dirty:               0 kB
+Writeback:           0 kB
+Mapped:           2248 kB
+Slab:           724744 kB
+Reserved:       570464 kB
+Committed_AS:     1100 kB
+PageTables:        140 kB
+ReverseMaps:      1518
 
-Then I inspected the VM subsystem code, where found any stuff 
-that could be cleanup and improved, such as: 
+Big things out of slabinfo:
+
+ext2_inode_cache  554556 554598    416 61622 61622    1 :  120   60
+dentry_cache      2791320 2791320    160 116305 116305    1 :  248  124
+
+By my reckoning, that's over 450Mb of dentry cache that's refusing to shrink
+under pressure. ext2_inode_cache ain't exactly anorexic either. Hmmm ..... 
+Any good ways to debug this?
+
+M.
 
 
-+#define clear_page(page)       memset((void *)(page), 0, PAGE_SIZE) 
-+#define copy_page(to,from)     memcpy((void *)(to), (void *)(from),
-PAGE_SIZE) 
-
-
-> Speedups are generally not counted as a valid reason, unless we're
-> talking a change in the order of a magnitude or more. Code cleanup
-> might be a good reason, but then I'll merge it into the 2.0.41-tree
-> instead; this will probably be the case for your lxdialog-fixes, since
-> I'm cleaning up that code anyway for 2.0.41.
-LOL!
-The main reason this patch is cleanup and better code standartize. 
-I think thats code cleanup is good reason too!
-
- 
-> Regards: David Weinehall
-> -- 
->  /> David Weinehall <tao@acc.umu.se> /> Northern lights wander      <\
-> //  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-> \>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
-> 
-
-Have fun! 
-
--- 
-Fernando Alencar Maróstica
-Graduate Student, Computer Science
-Linux Register User Id #281457
-
-University Methodist of Piracicaba
-Departament of Computer Science
-home: http://www.unimep.br/~famarost
 

@@ -1,44 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129424AbRBSBgY>; Sun, 18 Feb 2001 20:36:24 -0500
+	id <S129460AbRBSBkq>; Sun, 18 Feb 2001 20:40:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129460AbRBSBgO>; Sun, 18 Feb 2001 20:36:14 -0500
-Received: from [207.1.200.39] ([207.1.200.39]:58630 "EHLO
-	ded-tscs.innovsoftd.com") by vger.kernel.org with ESMTP
-	id <S129424AbRBSBgE>; Sun, 18 Feb 2001 20:36:04 -0500
-Date: Sun, 18 Feb 2001 19:36:40 -0600 (CST)
-From: "Gregory S. Youngblood" <greg@tcscs.com>
-Reply-To: <greg@tcscs.com>
-To: "Michael H. Warfield" <mhw@wittsend.com>
-cc: Ben Ford <ben@kalifornia.com>, linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux stifles innovation...
-In-Reply-To: <20010218130400.B13553@alcove.wittsend.com>
-Message-ID: <Pine.LNX.4.30.0102181932100.20181-100000@ded-tscs.innovsoftd.com>
+	id <S129766AbRBSBkf>; Sun, 18 Feb 2001 20:40:35 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:55822 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129460AbRBSBk3>; Sun, 18 Feb 2001 20:40:29 -0500
+Subject: Re: [PROBLEM] 2.4.1 can't mount ext2 CD-ROM
+To: axboe@suse.de (Jens Axboe)
+Date: Mon, 19 Feb 2001 01:40:16 +0000 (GMT)
+Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org, zzed@cyberdude.com,
+        alan@lxorguk.ukuu.org.uk
+In-Reply-To: <20010218201639.A6593@suse.de> from "Jens Axboe" at Feb 18, 2001 08:16:39 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14UfJK-00026X-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 18 Feb 2001, Michael H. Warfield wrote:
+> So put 0 and sure anyone can submit I/O on the size that they want.
+> Now the driver has to support padding reads, or gathering data to do
+> a complete block write. This is silly. Sr should support 512b transfers
+> just fine, but only because I added the necessary _hacks_ to support
+> it. sd doesn't right now for instance.
 
-> On Sun, Feb 18, 2001 at 12:00:03PM -0600, Gregory S. Youngblood wrote:
->
-> > I remember being at a computer show in Minneapolis where a small company
-> > was showing off this mouse that worked on a variety of surfaces without a
-> > ball. I'm trying to remember if the mouse was optical or used yet another
-> > method of functioning -- I think it was optical, though I could be
-> > mistaken. This was in 1992/1993.
->
-> 	I think you are correct here.  I seem to recall mention of some
-> of those earlier devices at the time of the Microsoft announcement.  I
-> seem to also recall some of the reliability problem they had.  I believe
-> they were extremely fussy about the surface they were on.
+It is silly to be in the block layer, it is silly to be in each file system.
+Perhaps it belongs in the block queueing/handling code or the caches
 
-In the demo I saw, they had about 6 sample surfaces ranging from
-a mirror to blue jeans. I also got to play with the mouse on the demo
-system and it worked very well. At the time, mice were about $25 to $35
-dollars, and theirs were like $79 or $99. I remember thinking it was a
-cool toy, but the price difference was going to keep it from mass market
-potential.
-
+But it has to go somewhere, and 2.4 right now is unusable on two of my boxes
+with M/O drives.
 

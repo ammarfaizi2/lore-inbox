@@ -1,143 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263865AbUGIET3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263895AbUGIEae@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263865AbUGIET3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 00:19:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263875AbUGIET2
+	id S263895AbUGIEae (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 00:30:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263923AbUGIEae
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 00:19:28 -0400
-Received: from mail-relay-1.tiscali.it ([212.123.84.91]:46538 "EHLO
-	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
-	id S263865AbUGIETR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 00:19:17 -0400
-Date: Fri, 9 Jul 2004 06:19:05 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Chris Mason <mason@suse.com>
+	Fri, 9 Jul 2004 00:30:34 -0400
+Received: from fw.osdl.org ([65.172.181.6]:52379 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263895AbUGIEac (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jul 2004 00:30:32 -0400
+Date: Thu, 8 Jul 2004 21:29:23 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, mason@suse.com
 Subject: Re: writepage fs corruption fixes
-Message-ID: <20040709041905.GD20947@dualathlon.random>
-References: <20040709040151.GB20947@dualathlon.random> <20040709040611.GC20947@dualathlon.random>
+Message-Id: <20040708212923.406135f0.akpm@osdl.org>
+In-Reply-To: <20040709040151.GB20947@dualathlon.random>
+References: <20040709040151.GB20947@dualathlon.random>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040709040611.GC20947@dualathlon.random>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 09, 2004 at 06:06:11AM +0200, Andrea Arcangeli wrote:
-> @@ -1912,19 +1911,19 @@ static int __block_write_full_page(struc
->  
->  	BUG_ON(PageWriteback(page));
->  	set_page_writeback(page);	/* Keeps try_to_free_buffers() away */
-> -	unlock_page(page);
-> -
->  	/*
-> -	 * The page may come unlocked any time after the *first* submit_bh()
-> -	 * call.  Be careful with its buffers.
-> +	 * The page and its bh will not go away from under us
-> +	 * because we pinned all the bh with get_bh and we'll
-> +	 * release them only after we finished.
->  	 */
-> +	unlock_page(page);
-> +
->  	do {
->  		struct buffer_head *next = bh->b_this_page;
->  		if (buffer_async_write(bh)) {
->  			submit_bh(WRITE, bh);
->  			nr_underway++;
->  		}
-> -		put_bh(bh);
->  		bh = next;
->  	} while (bh != head);
->  
-> @@ -1949,6 +1948,15 @@ done:
->  		end_page_writeback(page);
->  		wbc->pages_skipped++;	/* We didn't write this page */
->  	}
-> +
-> +	/* can finally release the bh and after that the page can be freed */
-> +	bh = head;
-> +	do {
-> +		struct buffer_head *next = bh->b_this_page;
-> +		put_bh(bh);
-> +		bh = next;
-> +	} while (bh != head);
-> +
->  	return err;
->  
->  recover:
-> @@ -1984,7 +1992,6 @@ recover:
->  			submit_bh(WRITE, bh);
->  			nr_underway++;
->  		}
-> -		put_bh(bh);
->  		bh = next;
->  	} while (bh != head);
->  	goto done;
+Andrea Arcangeli <andrea@suse.de> wrote:
+>
+> 1) The major one (the only one I believe that was triggering [only on
+>  ext2 due the fact mpage is working only there]) is the marking of the bh
+>  clean despite we could still run into the "confused" path. After that
+>  the confused path really becomes confused and it writes nothing and fs
+>  corruption triggers silenty (the reugular writepage only writes bh that
+>  are marked dirty, it never attempts to submit_bh anything marked clean).
+>  The mpage-writepage code must never mark the bh clean as far as it
+>  wants to still fallback in the regular writepage which depends on the bh
+>  to be dirty (i.e. the "goto confused" path). This could only triggers
+>  with memory pressure (it also needs buffer_heads_over_limit == 0, and
+>  that is frequent under mm pressure).
 
-not that the above change was wrong but I got convinced the above is
-also a noop, thanks to the writeback bitflag that prevents the page to
-go away.
+ooh, nasty, yes.  You must be testing the crap out if it.
 
-so the only bug that remains was really the first one (number 1) and
-infact this is the only one that I really think has been reproduced.
+>  3) Third bug is in the regular writepage, the nr_underway == 0 code was
+>  walking buffers on an unlocked page without keeping the bh pinned, and
+>  in turn the bh could be released under it by the VM. Fix is to delay the
+>  put_bh loop. (this might have triggered but it's not certain)
 
-so this should be a final update. Sorry for the triple spamming ;).
-
-btw, I left in all patches a comment about invalidate_bh_lru that is
-misleading since that functions runs with BLKFLSBUF for example, but
-that function is safe to run also outside unmount path so no problem
-there, just wrong comment.
-
---- sles/fs/buffer.c.~1~	2004-07-05 03:08:09.000000000 +0200
-+++ sles/fs/buffer.c	2004-07-09 05:16:47.544011656 +0200
-@@ -1586,10 +1586,9 @@ __bread(struct block_device *bdev, secto
- EXPORT_SYMBOL(__bread);
- 
- /*
-- * invalidate_bh_lrus() is called rarely - at unmount.  Because it is only for
-- * unmount it only needs to ensure that all buffers from the target device are
-- * invalidated on return and it doesn't need to worry about new buffers from
-- * that device being added - the unmount code has to prevent that.
-+ * invalidate_bh_lrus() is called rarely - but not only at unmount.
-+ * This doesn't race because it runs in each cpu either in irq
-+ * or with preempt disabled.
-  */
- static void invalidate_bh_lru(void *arg)
- {
---- sles/fs/mpage.c.~1~	2004-07-05 03:08:08.000000000 +0200
-+++ sles/fs/mpage.c	2004-07-09 05:11:13.543787408 +0200
-@@ -520,6 +520,17 @@ alloc_new:
- 	}
- 
- 	/*
-+	 * Must try to add the page before marking the buffer clean or
-+	 * the confused fail path above (OOM) will be very confused when
-+	 * it finds all bh marked clean (i.e. it will not write anything)
-+	 */
-+	length = first_unmapped << blkbits;
-+	if (bio_add_page(bio, page, length, 0) < length) {
-+		bio = mpage_bio_submit(WRITE, bio);
-+		goto alloc_new;
-+	}
-+
-+	/*
- 	 * OK, we have our BIO, so we can now mark the buffers clean.  Make
- 	 * sure to only clean buffers which we know we'll be writing.
- 	 */
-@@ -539,12 +550,6 @@ alloc_new:
- 			try_to_free_buffers(page);
- 	}
- 
--	length = first_unmapped << blkbits;
--	if (bio_add_page(bio, page, length, 0) < length) {
--		bio = mpage_bio_submit(WRITE, bio);
--		goto alloc_new;
--	}
--
- 	BUG_ON(PageWriteback(page));
- 	set_page_writeback(page);
- 	unlock_page(page);
+PG_writeback protects the page from truncate, from invalidate and from page
+reclaim.  pagevec_strip() won't touch the buffers due to the
+PageWriteback() test in try_to_release_page().  So I think we're OK in
+there.  I can add a couple more coment fixes for this.

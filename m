@@ -1,64 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266214AbUFJG5E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262103AbUFJH20@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266214AbUFJG5E (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jun 2004 02:57:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266182AbUFJGzY
+	id S262103AbUFJH20 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jun 2004 03:28:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264522AbUFJH20
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jun 2004 02:55:24 -0400
-Received: from smtp2.cwidc.net ([154.33.63.112]:19636 "EHLO smtp2.cwidc.net")
-	by vger.kernel.org with ESMTP id S266214AbUFJGzE (ORCPT
+	Thu, 10 Jun 2004 03:28:26 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:53768 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S262103AbUFJH2Z convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jun 2004 02:55:04 -0400
-Message-ID: <40C805BA.6080008@tequila.co.jp>
-Date: Thu, 10 Jun 2004 15:54:50 +0900
-From: Clemens Schwaighofer <cs@tequila.co.jp>
-Organization: TEQUILA\ Japan
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040308
-X-Accept-Language: en-us, en, ja
+	Thu, 10 Jun 2004 03:28:25 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Soeren Sonnenburg <kernel@nn7.de>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: oops on checking for changes of usb input devices
+Date: Thu, 10 Jun 2004 10:27:38 +0300
+X-Mailer: KMail [version 1.4]
+Cc: linuxppc-dev@lists.linuxppc.org
+References: <1086847579.24322.34.camel@localhost>
+In-Reply-To: <1086847579.24322.34.camel@localhost>
 MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.7-rc3-mm1
-References: <20040609015001.31d249ca.akpm@osdl.org> <40C7EE96.4020206@tequila.co.jp> <20040610053134.GV1444@holomorphy.com>
-In-Reply-To: <20040610053134.GV1444@holomorphy.com>
-X-Enigmail-Version: 0.83.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200406101027.38115.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Thursday 10 June 2004 09:06, Soeren Sonnenburg wrote:
+> Hi!
+>
+> When I attach a ps2 mouse and keyboard through a ps2->usb adapter and
+> then do a rescan for changes in input devices I keep getting this oops.
+> This is kernel 2.6.7-rc2 on powerbook G4. A way to trigger this is to
+> reload/restart pbbuttonsd.
+>
+> Any ideas ?
 
-William Lee Irwin III wrote:
-| On Thu, Jun 10, 2004 at 02:16:06PM +0900, Clemens Schwaighofer wrote:
-|
-|>compile error in:
-|>drivers/perfctr/x86.c: In function `finalise_backpatching':
-|>drivers/perfctr/x86.c:1137: error: parse error before '{' token
-|>make[2]: *** [drivers/perfctr/x86.o] Error 1
-|>make[1]: *** [drivers/perfctr] Error 2
-|>make: *** [drivers] Error 2
-|>the kernel compiled fine with 2.6.7-rc2-mm2.
-|>config attached.
-|
-|
-| You will likely need other fixes, but...
+I can try to reproduce it, I have 2xPS2->USB adapter.
+Tell me more about "do a rescan". I don't do any rescans
+(and even don't knw what is a rescan).
 
-That patch fixes it for me and I can boot without a problem
-
-- --
-Clemens Schwaighofer - IT Engineer & System Administration
-==========================================================
-TEQUILA\Japan, 6-17-2 Ginza Chuo-ku, Tokyo 104-8167, JAPAN
-Tel: +81-(0)3-3545-7703            Fax: +81-(0)3-3545-7343
-http://www.tequila.co.jp
-==========================================================
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAyAW5jBz/yQjBxz8RAnMhAKCOBxRrHh1syVCbo7Kk09N+wl53ywCeNl+K
-MsClpNoaWw/31qA8vQQF/mE=
-=uglM
------END PGP SIGNATURE-----
+I am on x86.
+--
+vda

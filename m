@@ -1,55 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274116AbRISRbj>; Wed, 19 Sep 2001 13:31:39 -0400
+	id <S274115AbRISRbT>; Wed, 19 Sep 2001 13:31:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274117AbRISRba>; Wed, 19 Sep 2001 13:31:30 -0400
-Received: from [213.96.124.18] ([213.96.124.18]:55274 "HELO dardhal")
-	by vger.kernel.org with SMTP id <S274116AbRISRbV>;
-	Wed, 19 Sep 2001 13:31:21 -0400
-Date: Wed, 19 Sep 2001 19:33:41 +0000
-From: =?iso-8859-1?Q?Jos=E9_Luis_Domingo_L=F3pez?= 
-	<jdomingo@internautas.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4 Success story
-Message-ID: <20010919193341.B527@dardhal.mired.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20010918192003.5C326783ED@mail.clouddancer.com>
+	id <S274116AbRISRbJ>; Wed, 19 Sep 2001 13:31:09 -0400
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:14352 "EHLO
+	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S274115AbRISRbC>; Wed, 19 Sep 2001 13:31:02 -0400
+Date: Wed, 19 Sep 2001 19:31:06 +0200
+From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+To: "Randy.Dunlap" <rddunlap@osdlab.org>
+Cc: Alan <alan@lxorguk.ukuu.org.uk>, crutcher+kernel@datastacks.com,
+        lkml <linux-kernel@vger.kernel.org>, paulus@au.ibm.com
+Subject: Re: Magic SysRq +# in 2.4.9-ac/2.4.10-pre12
+Message-ID: <20010919193105.E7179@arthur.ubicom.tudelft.nl>
+In-Reply-To: <3BA8C01D.79FBD7C3@osdlab.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20010918192003.5C326783ED@mail.clouddancer.com>
-User-Agent: Mutt/1.3.20i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3BA8C01D.79FBD7C3@osdlab.org>; from rddunlap@osdlab.org on Wed, Sep 19, 2001 at 08:56:13AM -0700
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, 18 September 2001, at 12:20:03 -0700,
-Colonel wrote:
+On Wed, Sep 19, 2001 at 08:56:13AM -0700, Randy.Dunlap wrote:
+> I have an IBM model KB-9910 keyboard.  When I use
+> Alt+SysRQ+number (number: 0...9) on it to change the
+> console loglevel, only keys 5 and 6 have the desired
+> effect.  I used showkey -s to view the scancodes from
+> the other <number> keys, but showkey didn't display
+> anything for them.  Any other suggestions?
 
-> A brief note of _thanks_ to all that create the linux kernel.
-> [...]
-> This particular gem of a kernel is:
-> 
-> 2.4.9-ac10 #1 SMP Tue Sep 11 21:47:15 PDT 2001 i686
-> 
->From my particular experience with a couple of very low-end computers
-moderately loaded (mainly used as workstations) I can say that in _my_ own
-setup and hardware, memory management in 2.4.9-ac10 feels much better than
-2.4.9's. In 2.4.9-ac10 I've been using:
-echo "1" > /proc/sys/vm/page_aging_tactic
+Same over here with an IBM PS/2 keyboard that originally came with an
+IBM PS2 model 55SX. The IBM keyboard is connected to an Asus M8300
+laptop. The keyboard of that laptop has the interesting "feature" that
+Alt-SysRQ-m sets the loglevel to 0, and Alt-SysRQ-[suob] also set the
+loglevel to a different value instead of doing their job.
 
-and the result is a much better behavior of the system. Now, with the same
-applications loaded, daily cron doesn't force all of my appliactions into
-swap (something 2.4.9 did). Now swap usage is much lower, the system seems
-to have a faster response to user interaction than before and "swapoff" is
-_much_ (maybe x10) faster than in 2.4.9.
 
-It seems that we are getting closer to a production-quality kernel :)
+Erik
 
 -- 
-José Luis Domingo López
-Linux Registered User #189436     Debian GNU/Linux Potato (P166 64 MB RAM)
- 
-jdomingo EN internautas PUNTO org  => ¿ Spam ? Atente a las consecuencias
-jdomingo AT internautas DOT   org  => Spam at your own risk
-
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
+of Electrical Engineering, Faculty of Information Technology and Systems,
+Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
+Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

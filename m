@@ -1,34 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132143AbRA3S3p>; Tue, 30 Jan 2001 13:29:45 -0500
+	id <S129706AbRA3Sl1>; Tue, 30 Jan 2001 13:41:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132138AbRA3S3g>; Tue, 30 Jan 2001 13:29:36 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:46351
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S132090AbRA3S3W>; Tue, 30 Jan 2001 13:29:22 -0500
-Date: Tue, 30 Jan 2001 10:29:05 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Miles Lane <miles@megapath.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: IBM encryption chip support?
-In-Reply-To: <3A770747.31F634E3@megapath.net>
-Message-ID: <Pine.LNX.4.10.10101301028450.2518-100000@master.linux-ide.org>
+	id <S131218AbRA3SlX>; Tue, 30 Jan 2001 13:41:23 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:1408 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S129706AbRA3SlK>; Tue, 30 Jan 2001 13:41:10 -0500
+Date: Tue, 30 Jan 2001 13:36:26 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: mirabilos <eccesys@topmail.de>
+cc: Linux-Kernel ML <linux-kernel@vger.kernel.org>,
+        "Mark H. Wood" <mwood@IUPUI.Edu>
+Subject: Re: Linux Post codes during runtime, possibly OT
+In-Reply-To: <009801c08ae8$c839a280$0100a8c0@homeip.net>
+Message-ID: <Pine.LNX.3.95.1010130133314.139A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Jan 2001, Miles Lane wrote:
+On Tue, 30 Jan 2001, mirabilos wrote:
 
-> Will this chip need any kernel support or
-> will it just need to be supported in usermode?
+> [...]
+> > > 
+> > > Now, we've found that small delays are reasonably well generated with
+> > > an "outb" to 0x80. So, indeed changing that to something else is going
+> > > to be tricky. 
+> > 
+> > So how bad would it be to give these people a place to leave the value
+> > that they want to have displayed, and have the delay code write *that*
+> > instead of garbage?
 > 
-> http://www.zdnet.com/zdnn/stories/news/0,4586,2680013,00.html?chkpt=zdnn_rt_latest
+> Because Port &h80 is _not_ decoded by the standard PC hardware.
+> There are some ISA and nowadays even PCI cards that convert the value
+> OUTted to that port into two 7-segment-digit-LCDisplays, buffered so
+> you can read it from the card, but normally no chipset actually
+> cares about that port. (I speak of Desktop PCs.)
+> 
+> I repeat: Any OUT to port &h80 is, as long as there are no special
+> extensions, just as well as any OUT to port &h1234 or &h4711 or
+> whateveryouwant as long as nothing uses it.
+> Since Port &h80 is now "reserved" for that POST code usage,
+> and it is the safest port one can use in order to delay,
+> Linux uses it.
 
-It looks like CPRM on the mainboard.........
+This is not correct. Port 0x80 is not an "unused" port. It
+is decoded by standard hardware:
 
-Andre Hedrick
-Linux ATA Development
+C:\>debug
+
+-i 80
+AE
+-o 80 20
+-i 80
+20
+-q
+
+
+In this machine I do not have a 'POST-codes' board. Port 0x80 is
+an 8-bit read/write latch. It always has been.
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.0 on an i686 machine (799.53 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,99 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130663AbRCEVDX>; Mon, 5 Mar 2001 16:03:23 -0500
+	id <S130673AbRCEVHN>; Mon, 5 Mar 2001 16:07:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130671AbRCEVDL>; Mon, 5 Mar 2001 16:03:11 -0500
-Received: from adsl-63-199-250-45.dsl.sndg02.pacbell.net ([63.199.250.45]:2574
-	"EHLO ziggy.one-eyed-alien.net") by vger.kernel.org with ESMTP
-	id <S130663AbRCEVCu>; Mon, 5 Mar 2001 16:02:50 -0500
-Date: Mon, 5 Mar 2001 13:02:36 -0800
-From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-To: "J . A . Magallon" <jamagallon@able.es>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: usb-storage log verbosity
-Message-ID: <20010305130236.C22066@one-eyed-alien.net>
-Mail-Followup-To: "J . A . Magallon" <jamagallon@able.es>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010305165502.A10344@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="GZVR6ND4mMseVXL/"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010305165502.A10344@werewolf.able.es>; from jamagallon@able.es on Mon, Mar 05, 2001 at 04:55:02PM +0100
-Organization: One Eyed Alien Networks
-X-Copyright: (C) 2001 Matthew Dharm, all rights reserved.
+	id <S130676AbRCEVHE>; Mon, 5 Mar 2001 16:07:04 -0500
+Received: from balu.sch.bme.hu ([152.66.224.40]:57274 "EHLO balu.sch.bme.hu")
+	by vger.kernel.org with ESMTP id <S130673AbRCEVG4>;
+	Mon, 5 Mar 2001 16:06:56 -0500
+Date: Mon, 5 Mar 2001 22:05:36 +0100 (MET)
+From: Pozsar Balazs <pozsy@sch.bme.hu>
+To: Robert Read <rread@datarithm.net>
+cc: Paul Flinders <P.Flinders@ftel.co.uk>, Jeff Mcadams <jeffm@iglou.com>,
+        Rik van Riel <riel@conectiva.com.br>,
+        John Kodis <kodis@mail630.gsfc.nasa.gov>,
+        "Richard B. Johnson" <root@chaos.analogic.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: binfmt_script and ^M
+In-Reply-To: <20010305123907.C6400@tenchi.datarithm.net>
+Message-ID: <Pine.GSO.4.30.0103052154360.28239-100000@balu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 5 Mar 2001, Robert Read wrote:
+> On Mon, Mar 05, 2001 at 07:58:52PM +0100, Pozsar Balazs wrote:
+> >
+> > And what does POSIX say about "#!/bin/sh\r" ?
+> > In other words: should the kernel look for the interpreter between the !
+> > and the newline, or [the first space or newline] or the first whitespace?
+> >
+> > IMHO, the first whitespace. Which means that "#!/bin/sh\r" should invoke
+> > /bin/sh. (though it is junk).
+>
+> The line terminator, '\n', is what terminates the interpreter.  White
+> space (in this case, only ' ' and '\t') is used to seperate the
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> arguments to the interpreter.
 
---GZVR6ND4mMseVXL/
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-Umm.. all the printk's are inclosed with the ifdef, courtsey of a little
-bit of #define magic.  I use it all the time (after all, I'm the
-maintainer), and when I want it to shut up, it shuts up.
+The last little tiny thing that bothers me: why? Why only ' ' and '\t' _in
+this case_? As someone mentioned, even isspace() returns whitespace.
 
-Are you sure you recompiled and installed properly?  Re-ran 'make dep'?
-I've had reports of this before -- every one of them was solved by a proper
-recompilation.
+A possible answer (that i can think of), is that those ar the whitespaces,
+which are in IFS (as said previously), taking out us from kernel-space
+into userspace. But imho we shouldn't define another set whitespace for
+this case, can't we just use what isspace() says?
 
-Matt
+(okay, I'm not for this '\r' thingy, I just want to see the reasons.)
 
-On Mon, Mar 05, 2001 at 04:55:02PM +0100, J . A . Magallon wrote:
-> Hi,
->=20
-> I have recently started to use an USB cd toaster and have a little proble=
-m.
-> Writer is driven by usb-storage and scsi-cdrom and scsi-generic drivers.
-> Burning works fine.
->=20
-> The problem is that the usb-storage module spits so many info-debug
-> messages (even if I configured no debug in kernel config) that after
-> a cd burn I end up with a 25 MB file in /var/log/messages and other 25MB
-> in /var/log/kernel/info, so it fills my / partition.
->=20
-> If someone know a fast way to shut up usb-storage, I'll be gratefull.
-> If not, I will try to make a patch to enclose all that printk's into
-> #ifdef CONFIG_USB_STORAGE_DEBUG.
->=20
-> --=20
-> J.A. Magallon                                                      $> cd =
-pub
-> mailto:jamagallon@able.es                                          $> mor=
-e beer
->=20
-> Linux werewolf 2.4.2-ac11 #1 SMP Sat Mar 3 22:18:57 CET 2001 i686
->=20
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+Balazs Pozsar.
 
---=20
-Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
-net=20
-Maintainer, Linux USB Mass Storage Driver
-
-We've made a business out of making money from annoying and stupid people.
-I think you fall under that category.
-					-- Chief
-User Friendly, 7/11/1998
-
---GZVR6ND4mMseVXL/
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6o/7sz64nssGU+ykRAldjAJ9G0KJjG5Uvg2QQsUlyMYJKCJRqsgCfSI8F
-/FddR2c72CVDRg0OEcL1654=
-=Zwx5
------END PGP SIGNATURE-----
-
---GZVR6ND4mMseVXL/--

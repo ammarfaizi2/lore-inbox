@@ -1,46 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265198AbSL0Wrx>; Fri, 27 Dec 2002 17:47:53 -0500
+	id <S265201AbSL0Wsv>; Fri, 27 Dec 2002 17:48:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265201AbSL0Wrx>; Fri, 27 Dec 2002 17:47:53 -0500
-Received: from bgp926777bgs.brghtn01.mi.comcast.net ([68.41.8.22]:10114 "EHLO
-	comcast.net") by vger.kernel.org with ESMTP id <S265198AbSL0Wrw>;
-	Fri, 27 Dec 2002 17:47:52 -0500
-Date: Fri, 27 Dec 2002 17:56:17 +0000 (UTC)
-From: Alex Goddard <agoddard@purdue.edu>
-To: Brad Tilley <rtilley@vt.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.53 make modules_install problem
-In-Reply-To: <200212270958.43939.rtilley@vt.edu>
-Message-ID: <Pine.LNX.4.50L0.0212271751380.1209-100000@dust.ebiz-gw.wintek.com>
-References: <200212270958.43939.rtilley@vt.edu>
-X-GPG-PUBLIC_KEY: N/a
-X-GPG-FINGERPRINT: BCBC 0868 DB78 22F3 A657 785D 6E3B 7ACB 584E B835
+	id <S265205AbSL0Wsv>; Fri, 27 Dec 2002 17:48:51 -0500
+Received: from dbl.q-ag.de ([80.146.160.66]:40614 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id <S265201AbSL0Wst>;
+	Fri, 27 Dec 2002 17:48:49 -0500
+Message-ID: <3E0CDABE.7000907@colorfullife.com>
+Date: Fri, 27 Dec 2002 23:57:02 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: James Bottomley <James.Bottomley@SteelEye.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re:  [RFT][PATCH] generic device DMA implementation
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Dec 2002, Brad Tilley wrote:
+>
+>
+>+
+>+Consistent memory is memory for which a write by either the device or
+>+the processor can immediately be read by the processor or device
+>+without having to worry about caching effects.
+>
+This is not entirely correct:
+The driver must use the normal memory barrier instructions even in 
+coherent memory. Could you copy the section about wmb() from DMA-mapping 
+into your new documentation?
 
-[Snip]
++
++Warnings:  Memory coherency operates at a granularity called the cache
++line width.  In order for memory mapped by this API to operate
++correctly, the mapped region must begin exactly on a cache line
++boundary and end exactly on one (to prevent two separately mapped
++regions from sharing a single cache line).  Since the cache line size
++may not be known at compile time, the API will not enforce this
++requirement.  Therefore, it is recommended that driver writers who
++don't take special care to determine the cache line size at run time
++only map virtual regions that begin and end on page boundaries (which
++are guaranteed also to be cache line boundaries).
++
 
-> What must I do to fix this?
+Noone obeys that rule, and it's not trivial to fix it.
 
-Obtain the newest module-init-tools from:
-http://www.kernel.org/pub/linux/kernel/people/rusty/modules
+- kmalloc (32,GFP_KERNEL) returns a 32-byte object, even if the cache line size is 128 bytes. The 4 objects in the cache line could be used by four different users.
+- sendfile() with an odd offset.
 
-You may also find it helpful in the future to find a lkml archive 
-( http://groups.google.com keeps one under linux.kernel, IIRC.  I use 
-http://marc.theaimsgroup.com ), and search it for any problem you're 
-having.  I mention this only because someone reports this "problem" about 
-once a week, so it's been answered a bunch already.
+Is it really impossible to work around that in the platform specific code?
+In the worst case, the arch code could memcopy to/from a cacheline aligned buffer.
 
-I don't mean that as a flame or anything.  But if whatever problem you're
-having has already been discussed, and addressed before, a little research
-on your part will get you your answer more quickly than waiting for
-someone on the lkml to answer it (which may never happen).
 
--- 
-Alex Goddard
-agoddard@purdue.edu
+--
+    Manfred
+

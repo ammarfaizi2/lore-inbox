@@ -1,37 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315279AbSGYPm1>; Thu, 25 Jul 2002 11:42:27 -0400
+	id <S313867AbSGYPkR>; Thu, 25 Jul 2002 11:40:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315337AbSGYPm1>; Thu, 25 Jul 2002 11:42:27 -0400
-Received: from pD952AA28.dip.t-dialin.net ([217.82.170.40]:34176 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S315279AbSGYPm1>; Thu, 25 Jul 2002 11:42:27 -0400
-Date: Thu, 25 Jul 2002 09:44:28 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Dave Jones <davej@suse.de>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Andre Hedrick <andre@linux-ide.org>, <martin@dalecki.de>,
-       Vojtech Pavlik <vojtech@suse.cz>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: PCI config locking (WAS Re: [RFC/CFT] cmd640 irqlocking fixes)2
-In-Reply-To: <20020725164807.Y16446@suse.de>
-Message-ID: <Pine.LNX.4.44.0207250943270.6100-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf; Germany
+	id <S314596AbSGYPkR>; Thu, 25 Jul 2002 11:40:17 -0400
+Received: from 212.Red-80-35-44.pooles.rima-tde.net ([80.35.44.212]:1152 "EHLO
+	DervishD.pleyades.net") by vger.kernel.org with ESMTP
+	id <S313867AbSGYPkR>; Thu, 25 Jul 2002 11:40:17 -0400
+Date: Thu, 25 Jul 2002 17:50:35 +0200
+Organization: Pleyades
+To: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Lexmark USB problem solved ;)
+Message-ID: <3D401E4B.mail1Q1RZ6XE@viadomus.com>
+User-Agent: nail 9.31 6/18/02
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+From: DervishD <raul@pleyades.net>
+Reply-To: DervishD <raul@pleyades.net>
+X-Mailer: DervishD TWiSTiNG Mailer
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+    Hi all :))
 
-On Thu, 25 Jul 2002, Dave Jones wrote:
-> ISTR these monsters appear on some Alphas too ?
+    The problem of my last message was caused due the factory
+defaults of my printer. The matter is that the USB port was disabled
+by default, although the setup page didn't say so and although the
+printer was detected thru that port.
 
-Somehow it seems to be a yes. I don't have it, but yes, something like 
-that must have been there.
+    Even if the USB is functioning in the printer, it won't accept
+data thru the USB port unless it is explicitly enabled thru the
+configuration menu (a kind of nightmare...).
 
-			Thunder
+    If anyone has the same problem with the Lexmark Optra E312, I can
+help about how to enable that port.
 
+    Excuses from my last post O:))
+
+    Raúl

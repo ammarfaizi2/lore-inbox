@@ -1,45 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263551AbTDGRP4 (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 13:15:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263562AbTDGRPz (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 13:15:55 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:61885 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S263551AbTDGRPy (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Apr 2003 13:15:54 -0400
-Date: Mon, 7 Apr 2003 09:44:06 -0700
-From: Greg KH <greg@kroah.com>
-To: Jan Dittmer <j.dittmer@portrix.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] convert via686a i2c driver to sysfs
-Message-ID: <20030407164406.GA2860@kroah.com>
-References: <3E8D3A59.8010401@portrix.net> <20030404173250.GA1537@kroah.com> <3E8E1E91.6080503@portrix.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E8E1E91.6080503@portrix.net>
-User-Agent: Mutt/1.4.1i
+	id S263562AbTDGRYI (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 13:24:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263563AbTDGRYI (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 13:24:08 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:36365 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S263562AbTDGRYH (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 13:24:07 -0400
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: [PATCH] new syscall: flink
+Date: Mon, 7 Apr 2003 17:35:16 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <b6scsk$18b$1@penguin.transmeta.com>
+References: <3E90746A.2010300@redhat.com>
+X-Trace: palladium.transmeta.com 1049736919 25340 127.0.0.1 (7 Apr 2003 17:35:19 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 7 Apr 2003 17:35:19 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 05, 2003 at 02:08:49AM +0200, Jan Dittmer wrote:
-> Greg KH wrote:
-> >On Fri, Apr 04, 2003 at 09:55:05AM +0200, Jan Dittmer wrote:
-> 
-> >>So 
-> >>here it goes again. Tested w/ Via KT133A board and using centiVolt and 
-> >>deziDegrees. Still waiting for a final decision. My vote goes to 
-> >>milliVolt and milliDegree.
-> >
-> >
-> >I thought that was the final decision, as it's what I wrote up in the
-> >Documentation/i2c/sysfs-interface document that now's in the kernel :)
-> >
-> >Do you want to change this patch to use those units before I apply it?
-> 
-> At least I missed the final decision ;-) Anyway, here it goes. Btw. 
-> which other chip drivers are currently not worked on and are important? 
-> So I'd convert them over the next days?
+In article <3E90746A.2010300@redhat.com>,
+Ulrich Drepper  <drepper@redhat.com> wrote:
+>
+>I got a couple of requests for a function which isn't support on Linux
+>so far.  Also not supportable, i.e., cannot be emulated at userlevel.
+>It has some history in other systems (QNX I think), though, and helps
+>with some security issues.  It really not adding much new functionality
+>and I hope I got it right with my "monkey see, monkey do" technique of
+>looking up other places doing similar things.
 
-Thanks, I've applied this patch to my trees and will send it off to
-Linus in a bit.
+As others have pointed out, there is no way in HELL we can do this
+securely without major other incursions.
 
-greg k-h
+In particular, both flink() and funlink() require that you do all the
+same permission checks that a real link() or unlink() would do. And as
+some of them are done on the _source_ of the file, that implies that
+they have to be done at open() time.
+
+One check in particular is "is the opener willing to let this be linked
+anywhere else in the namespace". Since the opener isn't necessarily the
+same agent as the one doing the flink().
+
+If you really really think you need this (and not just do it because
+some random idiot-customer doesn't understand security), then I would
+suggest you add a O_CANLINK flag to open, and require that that flag is
+set in the file descriptor.
+
+That way you get "flink()" behaviour, but you require that the opener be
+aware of the fact that the file may be linked into another position.
+That will fix the glaring security hole.
+
+		Linus

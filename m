@@ -1,90 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136766AbREIRWX>; Wed, 9 May 2001 13:22:23 -0400
+	id <S136808AbREISWn>; Wed, 9 May 2001 14:22:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136769AbREIRWN>; Wed, 9 May 2001 13:22:13 -0400
-Received: from news.lucky.net ([193.193.193.102]:13840 "EHLO news.lucky.net")
-	by vger.kernel.org with ESMTP id <S136766AbREIRV6>;
-	Wed, 9 May 2001 13:21:58 -0400
-From: "Mike Gorchak" <mike@malva.com.ua>
-To: linux-kernel@vger.kernel.org
-Subject: Routing Problem in 2.4.1 kernel
-Date: Mon, 7 May 2001 12:29:37 +0300
-Organization: Unknown
-Message-ID: <9d5q06$s0i$1@news.lucky.net>
-X-Trace: news.lucky.net 989227858 28690 193.193.194.126 (7 May 2001 09:30:58 GMT)
-X-Complaints-To: usenet@news.lucky.net
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Newsreader: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	id <S136810AbREISWd>; Wed, 9 May 2001 14:22:33 -0400
+Received: from idiom.com ([216.240.32.1]:11012 "EHLO idiom.com")
+	by vger.kernel.org with ESMTP id <S136808AbREISWZ>;
+	Wed, 9 May 2001 14:22:25 -0400
+Message-ID: <3AF92849.D4C621D5@namesys.com>
+Date: Wed, 09 May 2001 04:21:45 -0700
+From: Hans Reiser <reiser@namesys.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-14cl i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: =?iso-8859-1?Q?Mart=EDn=20Marqu=E9s?= <martin@bugs.unl.edu.ar>,
+        linux-kernel@vger.kernel.org, nikita@namesys.com
+Subject: Re: reiserfs, xfs, ext2, ext3
+In-Reply-To: <E14xVHE-0002VB-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox wrote:
 
-                           -------------------------      PPP
-                          |                         |   --------     POS 1
-                          |                         |  /
-10.10.28.10/30
-                          |                         | /
-                          |                         |/    PPP
-                          |           10.10.28.9/30 |  ---------     POS 2
-                          |                         | /
-10.10.28.14/30
-                          |                         |/
-                          |           10.10.28.13/30|     PPP
-                          |                         | ----------     POS 3
-                          |                         |/
-10.10.28.18/30
-                          |           10.10.28.17/30|
-                          |                         |
-                          |                         |     PPP
-                          |           10.10.28.21/30|----------      POS 4
-                          |                         |
-10.10.28.22/30
-                          |                         |
- --------------           |              . . .      |  . . .
-|    Server    | Ethernet |    Router               |
-| 10.10.0.1/24 |----------| 10.10.0.2/24 . . .      |  . . .
-|              |          |                         |
- --------------           |              . . .      |  . . .
-                          |                         |
-                          |                         |
-                          |                         |    PPP
-                          |           10.10.28.57/30|---------     POS NN -
-1
-                          |                         |
-10.10.28.58/30
-                          |                         |
-                          |                         |
-                          |           10.10.28.61/30|    PPP
-                          |                         |\__________     POS NN
-                          |                         |
-10.10.28.62/30
-                          | def. gateway 10.10.0.1  |
-                           -------------------------
+> > that reiserfs has had lots of bugs, and is marked as experimental in kernel
+> > 2.4.4. Not to mention that the people of RH discourage there users from using
+> > it.
+>
+> At the time Red Hat 7.1 was mastered Reiserfs was not stable. The reiserfs in
+> the RH kernel has some of the tail fixes but newer ones are not present. Also
+> it had other problems then: the fsck tool was useless, it didnt work on
+> big endian machines (eg PPC, S/390).
+>
+> If Hans sent me a patch removing the experimental tag from Reiserfs the only
+> thing that would make me hesitate the slightest from applying it would be the
+> endianness thing, and thats not enough to stop it being applied.
 
-Legend:
+Jeff Mahoney has a patch in progress for this, he currently has the kernel code
+working, but needs to do the utilities.  I would hesitate to put the endianness
+fixes in before 2.5.1 just because I am conservative about disturbing stable code.
 
-PPP    - leased line connected by two modems (async, 19200 bps)
-Router - Access server with default gateway to Server (10.10.0.1).
-         Based on unmodified linux kernel 2.4.1.
-Server - Application server based on Windows NT 4.0.
-POS    - Remote terminal based on unmodified linux kernel 2.2.16.
+There exists one known bug which one user has hit which required a major code
+change to fix.  We are now testing the code, and are in the ironic situation
+of hesitating to merge in a bug fix out of fear that the bugfix code is large and
+untested, and it might have bugs that more than one user will hit.:-/
+I think we are going to make the new code an option until it has been
+extensively tested.
+
+I think that 2.4.4 is stable, and I say this based upon us getting lots of users
+with
+hardware bugs and none with bugs not fixed in 2.4.4 in the entire time since 2.4.4
+was released.
 
 
-   Sometimes one of the POS (random) couldn't ping 10.10.0.1,
-but 10.10.0.2 (router) can ping both sides 10.10.0.1 (Server)
-and that crazy POS. But in 15-30 minutes this trouble gone, and
-POS work fine.
-   We have this trouble 1-5 times every day. What that ?
+>
+>
+> > There has also been lots of talks about reiserfs being the cause of some data
+> > lose and performance lose (not sure about this last one).
+>
+> If you are running 2.4.4/2.4.4-ac/2.4.5pre I believe all the relevant reiserfs
+> patches are applied. The new fsck seems to work a lot better too. The limiters
+> right now are:
+>         -       You need a patch for NFS (its on their site no big deal)
+>         -       You can only use little endian boxes (x86 for you so ok)
 
+you also need a patch for quotas.
 
+>
+> > I think that the data lose is not significant in a proxy cache, if the FS is
+> > really fast, as is said reiserfs is.
 
---
-----------------------------
-Mike Gorchak
-CJSC Malva
-System Programmer
+you can ask nikita for a copy of reiserfs_raw, a version of reiserfs designed for
+squid.  It is substantially faster.
 
+Hans
 

@@ -1,41 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262969AbUCXCOK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Mar 2004 21:14:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262971AbUCXCOK
+	id S262971AbUCXCPb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Mar 2004 21:15:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262972AbUCXCPb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Mar 2004 21:14:10 -0500
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:57528
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id S262969AbUCXCOI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Mar 2004 21:14:08 -0500
-Message-ID: <4060EBEA.7080807@redhat.com>
-Date: Tue, 23 Mar 2004 18:01:14 -0800
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7b) Gecko/20040322
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: davidm@hpl.hp.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Non-Exec stack patches
-References: <20040323231256.GP4677@tpkurt.garloff.de>	<20040323154937.1f0dc500.akpm@osdl.org>	<20040324002149.GT4677@tpkurt.garloff.de>	<16480.55450.730214.175997@napali.hpl.hp.com>	<4060E24C.9000507@redhat.com> <16480.59229.808025.231875@napali.hpl.hp.com>
-In-Reply-To: <16480.59229.808025.231875@napali.hpl.hp.com>
-X-Enigmail-Version: 0.83.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+	Tue, 23 Mar 2004 21:15:31 -0500
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:56533 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S262971AbUCXCP1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Mar 2004 21:15:27 -0500
+Subject: Re: Hidden PIDs in /proc
+From: Albert Cahalan <albert@users.sf.net>
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: AlberT@agilemovement.it, miquels@cistron.nl
+Content-Type: text/plain
+Organization: 
+Message-Id: <1080094813.2232.815.camel@cube>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 23 Mar 2004 21:20:13 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Mosberger wrote:
+> I allready did it ... infact the second test I posted
+> correctly shows the  thread ... but, why ps ax -m does
+> *not* show it ??  
 
-> What stack protections other than RW- and RWX are useful?
+It does show the threads, but your "grep" missed them.
+The built-in process selection and sorting features
+are properly thread-aware.
 
-It's not about "what protections".  The three currently recognized
-states are PT_GNU_STACK not present, rwx, rw-.  Ingo's code documents
-this.  For those who need more, I'll have a paper coming up for a
-conference in Toronto in April.
+> uh oh .. my bad ...  but .. my ignorance now ask
+> what is the real diff between  -m and -T option for ps ...
 
--- 
-➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
+-m  process followed by threads, Tru64 SysV style
+m   process followed by threads, Tru64 BSD style
+-T  grouped threads with TID column, Irix style
+-L  grouped threads with LWP (and NLWP maybe), Solaris style
+H   loose threads, FreeBSD style
+
+I'll give you a few examples with a 2-thread process.
+Note how the m option distinguishes signals that are
+pending on a process from signals that are pending on
+a thread. (some whitespace has been trimmed out too)
+Also, the H option's PID column most likely should show
+the thread ID instead; help with FreeBSD 5's thread
+and MAC behavior would be appreciated.
+
+$ ps -C clone-once sH
+UID PID   PENDING   BLOCKED   IGNORED    CAUGHT STAT TTY   TIME COMMAND         
+100 634  00000000  00000000 <00000000  00000001 S    pts/9 0:00 clone-once           
+100 634  00000000  00000000 <00000000  00000001 S    pts/9 0:00 clone-once           
+$ ps -C clone-once sm
+UID PID   PENDING   BLOCKED   IGNORED    CAUGHT STAT TTY   TIME COMMAND         
+100 634  00000000         -         -         - -    pts/9 0:00 clone-once           
+100   -  00000000  00000000 <00000000  00000001 S    -     0:00 -         
+100   -  00000000  00000000 <00000000  00000001 S    -     0:00 -         
+$ ps -C clone-once -fm
+UID    PID  PPID C STIME TTY       TIME CMD        
+albert 634     1 0 20:42 pts/9 00:00:00 clone-once          
+albert   -     - 0 20:42 -     00:00:00 -        
+albert   -     - 0 20:42 -     00:00:00 -        
+$ ps -C clone-once -fT
+UID    PID  SPID  PPID C STIME TTY       TIME CMD        
+albert 634 16634     1 0 20:42 pts/9 00:00:00 clone-once          
+albert 634 16635     1 0 20:42 pts/9 00:00:00 clone-once          
+$ ps -C clone-once -fL
+UID    PID  PPID   LWP C NLWP STIME TTY       TIME CMD        
+albert 634     1 16634 0    2 20:42 pts/9 00:00:00 clone-once          
+albert 634     1 16635 0    2 20:42 pts/9 00:00:00 clone-once          
+$ 
+
+

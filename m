@@ -1,52 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262523AbULOWt5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262524AbULOWwo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262523AbULOWt5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 17:49:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262524AbULOWt5
+	id S262524AbULOWwo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 17:52:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262525AbULOWwo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 17:49:57 -0500
-Received: from pne-smtpout1-sn2.hy.skanova.net ([81.228.8.83]:65496 "EHLO
-	pne-smtpout1-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
-	id S262523AbULOWtw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 17:49:52 -0500
-Message-ID: <14380712.1103150975468.JavaMail.tomcat@pne-ps3-sn1>
-Date: Wed, 15 Dec 2004 23:49:35 +0100 (MET)
-From: Voluspa <lista4@comhem.se>
-Reply-To: lista4@comhem.se
-To: mr@ramendik.ru
-Subject: Re: 2.6.10-rc3: kswapd eats CPU on start of memory-eating task
-Cc: nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org
+	Wed, 15 Dec 2004 17:52:44 -0500
+Received: from fw.osdl.org ([65.172.181.6]:62916 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262524AbULOWwY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Dec 2004 17:52:24 -0500
+Date: Wed, 15 Dec 2004 14:52:22 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@osdl.org>,
+       Stephen Smalley <sds@epoch.ncsc.mil>, James Morris <jmorris@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Split bprm_apply_creds into two functions
+Message-ID: <20041215145222.V469@build.pdx.osdl.net>
+References: <20041215200005.GB3080@IBM-BWN8ZTBWA01.austin.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain;charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Mailer: CP Presentation Server
-X-clientstamp: [213.64.150.229]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20041215200005.GB3080@IBM-BWN8ZTBWA01.austin.ibm.com>; from serue@us.ibm.com on Wed, Dec 15, 2004 at 02:00:05PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Earlier today I wrote:
+* Serge E. Hallyn (serue@us.ibm.com) wrote:
+> The security_bprm_apply_creds() function is called from
+> fs/exec.c:compute_creds() under task_lock(current).  SELinux must
+> perform some work which is unsafe in that context, and therefore
+> explicitly drops the task_lock, does the work, and re-acquires the
+> task_lock.  This is unsafe if other security modules are stacked after
+> SELinux, as their bprm_apply_creds assumes that the 'unsafe' variable is
+> still meaningful, that is, that the task_lock has not been dropped.
 
->I find no problem when blender is the sole (large) application, but when a
->distributed computing client is running in the background the reported 
-problems
->surface. I use http://folding.stanford.edu for protein folding. It runs
->with a default of nice 19 and sucks up every free CPU cycle. I've never
->seen it interfere with anything prior to this swap issue - been running
->it since 2000.
+I don't like this approach.  The whole point is to ensure safety, and
+avoid races that have been found in the past.  This gives a new interface
+that could be easily used under the wrong conditions, and breaking
+the interface into two pieces looks kinda hackish.  Is there no other
+solution?  I looked at this once before and wondered why task_unlock()
+is needed to call avc_audit?  audit should be as lock friendly as printk
+IMO, and I don't recall seeing any deadlock after short review of it.
+But I didn't get much beyond that.  Is it all the flushing that can't
+hold task_lock?
 
-More testing done to find the breaking point. Running the folding client and 
-blender:
-
-2.6.8.1-bk2 is the last kernel without _any_ swapping problem (no screen freezes 
-etc)
-|
-| 2.6.9-rc1 and three -bk forward have oopses and loss of keyboard in X. 
-Can't test them.
-|
-2.6.9-rc1-bk4 is the first functional kernel where the freezes show up.
-
-So it is a real regression.
-
-Mvh
-Mats Johannesson
-
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

@@ -1,99 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314278AbSIDSmx>; Wed, 4 Sep 2002 14:42:53 -0400
+	id <S314396AbSIDS7G>; Wed, 4 Sep 2002 14:59:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314396AbSIDSmx>; Wed, 4 Sep 2002 14:42:53 -0400
-Received: from [208.34.239.110] ([208.34.239.110]:41345 "EHLO
-	babylon5.babcom.com") by vger.kernel.org with ESMTP
-	id <S314278AbSIDSmw>; Wed, 4 Sep 2002 14:42:52 -0400
-Date: Wed, 4 Sep 2002 14:48:54 -0400
-From: Phil Stracchino <alaric@babcom.com>
-To: linux-kernel@vger.kernel.org
-Cc: alaric@babcom.com
-Subject: FOLLOWUP:  Kernel 2.4.19 does not export _mmx_memcpy when compiled with gcc-3.2 and Athlon optimizations
-Message-ID: <20020904184854.GA9141@babylon5.babcom.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20020904181952.GA1158@babylon5.babcom.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020904181952.GA1158@babylon5.babcom.com>
-User-Agent: Mutt/1.4i
-X-PGP-Fingerprint: 2105 C6FC 945D 2A7A 0738  9BB8 D037 CE8E EFA1 3249
-X-PGP-Key-FTP-URL: ftp://ftp.babcom.com/pub/pgpkeys/alaric.asc
-X-PGP-Key-HTTP-URL: http://www.babcom.com/alaric/pgp.html
+	id <S314446AbSIDS7G>; Wed, 4 Sep 2002 14:59:06 -0400
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:54192 "EHLO
+	zcars04e.ca.nortel.com") by vger.kernel.org with ESMTP
+	id <S314396AbSIDS7G>; Wed, 4 Sep 2002 14:59:06 -0400
+Date: Wed, 4 Sep 2002 15:02:52 -0400 (EDT)
+X-Sybari-Space: 00000000 00000000 00000000
+From: Craig Arsenault <penguin@wombat.ca>
+X-X-Sender: craig@tabmow.ca.nortel.com
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+       Tom Rini <trini@kernel.crashing.org>, <linux-kernel@vger.kernel.org>,
+       <linuxppc-dev@lists.linuxppc.org>
+Subject: Re: consequences of lowering "MAX_LOW_MEM"?
+In-Reply-To: <20020903202823.7152@192.168.4.1>
+Message-ID: <Pine.LNX.4.44L.0209041453060.8359-100000@tabmow.ca.nortel.com>
+References: <137715274.1031128333@[10.10.2.3]> <20020903202823.7152@192.168.4.1>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-FOLLOWUP:
-I built a K6-optimized kernel and manually turned on CONFIG_X86_USE_3DNOW
-before beginning compilation, installed the kernel, and ran depmod -a.  
-The result:
+On Tue, 3 Sep 2002, Benjamin Herrenschmidt wrote:
 
-babylon5:root:/usr/src/linux-2.4.19:65 # depmod -a
-depmod: *** Unresolved symbols in /lib/modules/2.4.19/kernel/drivers/block/rd.o
-depmod: *** Unresolved symbols in /lib/modules/2.4.19/kernel/drivers/cdrom/cdrom.o
-depmod: *** Unresolved symbols in /lib/modules/2.4.19/kernel/drivers/char/serial.o
-depmod: *** Unresolved symbols in /lib/modules/2.4.19/kernel/drivers/ide/ide-cd.o
-...
-...
-... well, you get the idea.  A total of 40 modules fail, all with the
-same error.  The following is the list of failed modules:
+> >I think you'll find yourself with no virtual address space left to
+> >do vmalloc / fixmap / kmap type stuff. Or at least you would on i386,
+> >I presume it's the same for ppc. Sounds like you may have left
+> >yourself enough space for fixmap & kmap, but any calls to vmalloc
+> >will probably fail ?
+>
+> Yes, same problem on PPC, you'll run out of virtual space quite
+> quickly for vmalloc and ioremap. Stuff a video board with lots
+> of VRAM or any PCI card exposing large MMIO regions into your
+> machines and it will probably not even boot.
+>
+> Ben.
+>
 
-drivers/block/rd.o
-drivers/cdrom/cdrom.o
-drivers/char/serial.o
-drivers/ide/ide-cd.o
-drivers/md/lvm-mod.o
-drivers/md/raid5.o
-drivers/net/ppp_async.o
-drivers/net/ppp_deflate.o
-drivers/net/ppp_generic.o
-drivers/net/slhc.o
-drivers/net/slip.o
-drivers/parport/parport.o
-drivers/parport/parport_pc.o
-drivers/pcmcia/pcmcia_core.o
-drivers/scsi/aic7xxx/aic7xxx.o
-drivers/scsi/ide-scsi.o
-drivers/scsi/sg.o
-drivers/scsi/sr_mod.o
-drivers/scsi/st.o
-drivers/usb/hid.o
-drivers/usb/storage/usb-storage.o
-drivers/usb/usb-uhci.o
-drivers/usb/usbcore.o
-fs/fat/fat.o
-fs/inflate_fs/inflate_fs.o
-fs/intermezzo/intermezzo.o
-fs/isofs/isofs.o
-fs/lockd/lockd.o
-fs/minix/minix.o
-fs/nfs/nfs.o
-fs/nfsd/nfsd.o
-fs/reiserfs/reiserfs.o
-fs/smbfs/smbfs.o
-fs/udf/udf.o
-fs/ufs/ufs.o
-fs/vfat/vfat.o
-net/ipv4/netfilter/ip_tables.o
-net/ipv4/netfilter/ipt_REJECT.o
-net/ipv4/netfilter/iptable_nat.o
-net/sunrpc/sunrpc.o
+Ben,
+  But doesn't using Matt's suggestion and moving both MAX_LOW_MEM and
+changing KERNELBASE take care of this?  It's an embedded board with no
+video, but it does have one PCI Mezzanine Card (PMC) on it.
 
+Thanks.
 
-So it definitely looks like something is unhappy with CONFIG_X86_USE_3DNOW,
-possibly only when compiled with gcc-3.2, possibly not.  Why it's not
-being exported, I have no idea; as far as I can tell, it should be.
-
-I haven't tried building an Athlon-optimized kernel *without* using
-CONFIG_X86_USE_3DNOW.
+--
+Craig.
++------------------------------------------------------+
+http://www.wombat.ca/rpmon.html    RP Music Monitor
+http://www.washington.edu/pine/    Pine @ the U of Wash.
++-------------=*sent via Pine4.44*=--------------------+
 
 
 
--- 
-  *********  Fight Back!  It may not be just YOUR life at risk.  *********
-  phil stracchino   ::   alaric@babcom.com   ::   halmayne@sourceforge.net
-    unix ronin     ::::   renaissance man   ::::   mystic zen biker geek
-     2000 CBR929RR, 1991 VFR750F3 (foully murdered), 1986 VF500F (sold)
-       Linux Now! ...because friends don't let friends use Microsoft.
+
+

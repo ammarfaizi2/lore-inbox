@@ -1,51 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262224AbVCVAo4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262248AbVCVAtV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262224AbVCVAo4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 19:44:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262221AbVCVAnk
+	id S262248AbVCVAtV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 19:49:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262246AbVCVAsw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 19:43:40 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:2502 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S262226AbVCVAnJ (ORCPT
+	Mon, 21 Mar 2005 19:48:52 -0500
+Received: from fire.osdl.org ([65.172.181.4]:57227 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262221AbVCVArL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 19:43:09 -0500
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Adrian Bunk <bunk@stusta.de>
-Subject: Re: 2.6.12-rc1-mm1
-Date: Mon, 21 Mar 2005 16:42:00 -0800
-User-Agent: KMail/1.7.2
-Cc: Andrew Morton <akpm@osdl.org>, arjanv@infradead.org,
-       linux-kernel@vger.kernel.org
-References: <20050321025159.1cabd62e.akpm@osdl.org> <200503210915.53193.jbarnes@engr.sgi.com> <20050321202506.GA3982@stusta.de>
-In-Reply-To: <20050321202506.GA3982@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 21 Mar 2005 19:47:11 -0500
+Date: Mon, 21 Mar 2005 16:47:14 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Miles Lane <miles.lane@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Oops: 2.6.11-mm3 -- NULL pointer -- EIP is at
+ i2c_add_driver+0xa2/0xd0
+Message-Id: <20050321164714.38991186.akpm@osdl.org>
+In-Reply-To: <a44ae5cd050313180915a70a51@mail.gmail.com>
+References: <a44ae5cd050313180915a70a51@mail.gmail.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200503211642.00796.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, March 21, 2005 12:25 pm, Adrian Bunk wrote:
-> On Mon, Mar 21, 2005 at 09:15:53AM -0800, Jesse Barnes wrote:
-> > On Monday, March 21, 2005 2:51 am, Andrew Morton wrote:
-> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc
-> > >1/2. 6.12-rc1-mm1/
-> >
-> > Andrew, please drop
-> >
-> > revert-allow-oem-written-modules-to-make-calls-to-ia64-oem-sal-functions.
-> >patch
-> >
-> > The tiocx.c driver is now in the tree, and it uses those functions.
+Miles Lane <miles.lane@gmail.com> wrote:
 >
-> IOW:
-> The EXPORT_SYMBOL's should still be removed, but the functions
-> themselves should stay.
+> I2c /dev/ entries driver
+> Unable to handle kernel NULL pointer dereference at virtual address 00000000
 
-Actually, no, since tiocx can be built modular.  The patch should just be 
-dropped.
+Miles, does 2.6.12-rc1-mm1 fix this?
 
-Thanks,
-Jesse
+Thanks.
+
+>  Printing eip:
+> C028bbc2
+> *pde = 00000000
+> Oops: 0000 [#1]
+> PREEMPT
+> Modules linked in:
+> CPU:     0
+> EIP:     0060:[<c028bbc2>]   Not tainted VLI
+> EFLAGS:  00010282   (2.6.11-mm3)
+> EIP is at i2c_add_driver+0xa2/0xd0
+> Eax: 00000000   ebx: 00000000   ecx: 00000000   edx: f7e99504
+> Esi: c03f5260   edi: 00000000   ebp: f7c21fa4   esp: f7c21f90
+> Ds: 007b   es: 007b   ss: 0068
+> Process swapper (pid: 1, threadinfo=f7c20000 task=c17fca40)
+> Stack: f7c00540 c03f5264 00000000 00000000 00000000 f7c21fbc c0480695 c03f5260
+>        c03724f8 c03f5140 c048d204 f7c21fd8 c04668ab c01002d0 00000000 00000000
+>        c01002d0 00000000 f7c21fec c0100302 0000007b 0000007b ffffffff 00000000
+> Call Trace:
+>  [<c010404f>] show_stack+0x7f/0xa0
+>  [<c01041ea>] show_registers+0x15a/0x1c0
+>  [<c01043e0>] die+0xf0/0x190
+>  [<c011450b>] do_page_fault+0x31b/0x670
+>  [<c0103c83>] error_code+0x2b/0x30
+>  [<c0480695>] i2c_dev_init+0x55/0xa0
+>  [<c04668ab>] do_initcalls+0x2b/0xc0
+>  [<c0100302>] init+0x32/0x130
+>  [<c0101351>] kernel_thread_helper+0x5/0x14

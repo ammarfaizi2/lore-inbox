@@ -1,48 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269388AbRHCJRG>; Fri, 3 Aug 2001 05:17:06 -0400
+	id <S269380AbRHCJ1U>; Fri, 3 Aug 2001 05:27:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269385AbRHCJQr>; Fri, 3 Aug 2001 05:16:47 -0400
-Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:1796 "HELO
-	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
-	id <S269375AbRHCJQl>; Fri, 3 Aug 2001 05:16:41 -0400
-Date: Fri, 3 Aug 2001 11:16:49 +0200
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: intermediate summary of ext3-2.4-0.9.4 thread
-Message-ID: <20010803111649.A14189@emma1.emma.line.org>
-Mail-Followup-To: Anton Altaparmakov <aia21@cam.ac.uk>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <5.1.0.14.2.20010803002501.00ada0e0@pop.cus.cam.ac.uk> <200108022218.f72MIm8v028137@webber.adilger.int> <5.1.0.14.2.20010803002501.00ada0e0@pop.cus.cam.ac.uk> <5.1.0.14.2.20010803025916.053e2ec0@pop.cus.cam.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <5.1.0.14.2.20010803025916.053e2ec0@pop.cus.cam.ac.uk>
-User-Agent: Mutt/1.3.19i
+	id <S269385AbRHCJ1L>; Fri, 3 Aug 2001 05:27:11 -0400
+Received: from anchor-post-34.mail.demon.net ([194.217.242.92]:5647 "EHLO
+	anchor-post-34.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S269380AbRHCJ0y>; Fri, 3 Aug 2001 05:26:54 -0400
+From: "" <simon@baydel.com>
+To: linux-kernel@vger.kernel.org
+Date: Fri, 3 Aug 2001 10:23:18 +0100
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: TCP zero-copy
+CC: linux-kernel@vger.kernel.org
+Message-ID: <3B6A7B96.1591.241743@localhost>
+In-Reply-To: <15210.4821.318434.454971@pizda.ninka.net>
+In-Reply-To: <663CE32D.1D4A9213.0F45C3B8@netscape.net>
+X-mailer: Pegasus Mail for Win32 (v3.12c)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 03 Aug 2001, Anton Altaparmakov wrote:
+I believe this behaviour is only possible for cards which have the 
+ability to dma what appears as a list of skb data fragments and 
+also has the ability to checksum the data. Namely the Alteon, now 
+3com, ACENIC and the sun hme device. 
 
-[dirsync chattr/mount options]
-> Me neither. With regards to the parallel discussion on SUS compliance it is 
-> probably a good idea to have such a thing in some form anyway (although if 
-> I understood the discussion correctly, we really want this to happen by 
-> default, not just when some flag is set but then again I never read the 
-> standards...).
+Does this kernel modification completely remove the need for a 
+copy/checksum of the data between user and kernel space on both
+transmit and receive ?
 
-The standard doesn't really command the behaviour, as it seems, but we
-might want to look again after SUS v3 has been released (supposed to
-happen later this year) - the SUS compliance was rather on fsync than on
-rename/link.
+I have written a driver for an Intel ixf1002 chip, which has some 
+surrounding HW, and is capable of checksumming and processing 
+dma in fragments. Is there any information on what changes I 
+would have to make to the driver to support zerocopy/checksum ?  
 
-However, I'd rather not choose the default for somebody else, because he
-may have different requirements, a compile-time switch to set the
-default should be fine, THIS one might indeed default to dirsync/noasync
-unless changed by make {x,menu,}config.
+Many Thanks
 
-Assuming that the chattr +S is accompanied by a corresponding -o sync
-mount option, I'd expect that the dirsync option be available as chattr
-option and as mount option, and choosing default mount options should be
-rather easy.
+Simon.
+
+
+> 
+> hochakhung@netscape.net writes:
+>  > Is there currently a stable implementation for zero copy on TCP
+>  > stack for linux2.4? Would anyone please point me to the patch if
+>  > there is any?  Thanks a lot
+> 
+> It is in the standard 2.4.x kernels these days, no patch is necessary.
+> 
+> Later,
+> David S. Miller
+> davem@redhat.com
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+
+__________________________
+
+Simon Haynes - Baydel 
+Phone : 44 (0) 1372 378811
+Email : simon@baydel.com
+__________________________

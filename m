@@ -1,44 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266692AbUF3PRr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266694AbUF3PTB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266692AbUF3PRr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jun 2004 11:17:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266693AbUF3PRr
+	id S266694AbUF3PTB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jun 2004 11:19:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266696AbUF3PTB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jun 2004 11:17:47 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:42883 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S266692AbUF3PRq (ORCPT
+	Wed, 30 Jun 2004 11:19:01 -0400
+Received: from s2.ukfsn.org ([217.158.120.143]:16313 "EHLO mail.ukfsn.org")
+	by vger.kernel.org with ESMTP id S266694AbUF3PS5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jun 2004 11:17:46 -0400
-Date: Wed, 30 Jun 2004 17:18:57 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Paul Davis <paul@linuxaudiosystems.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.X, NPTL, SCHED_FIFO and JACK
-Message-ID: <20040630151857.GA29070@elte.hu>
-References: <200406301341.i5UDfkKX010518@localhost.localdomain> <20040630150430.GA28506@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040630150430.GA28506@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Wed, 30 Jun 2004 11:18:57 -0400
+From: "Nick Warne" <nick@ukfsn.org>
+To: linux-kernel@vger.kernel.org
+Date: Wed, 30 Jun 2004 16:18:55 +0100
+MIME-Version: 1.0
+Subject: Re: 2.4.26: IDE drives become unavailable randomly
+Message-ID: <40E2E7EF.15243.10093E4E@localhost>
+X-mailer: Pegasus Mail for Windows (4.21b)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I was getting this problem, and advice from smartmontools people was 
+to clean out the box and reseat all cables etc.  Seemed to work for 
+me on the box at work with this DMA timeout issue - BTW, always 
+happened at idle, like 2:15am in the middle of the night etc.
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+Reference:
 
-> A simple "strace -f" should show whether the setscheduler() call
-> succeeds or not. Does 'jackstart' do anything with glibc internals?
+http://sourceforge.net/mailarchive/message.php?msg_id=8660397
 
-it seems part of the problem is that the setscheduler() calls 'succeed',
-but the policy is not changed to SCHED_FIFO. The question here is, 
-are the correct PIDs used?
+http://sourceforge.net/mailarchive/forum.php?thread_id=4908273&forum_i
+d=12495
 
-	Ingo
+Nick
+
+-- 
+"When you're chewing on life's gristle,
+Don't grumble, Give a whistle..."
+

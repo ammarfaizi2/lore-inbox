@@ -1,118 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262020AbUDOAAN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 20:00:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261976AbUDOAAN
+	id S261976AbUDOAFe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 20:05:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261979AbUDOAFe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 20:00:13 -0400
-Received: from smtp-out3.xs4all.nl ([194.109.24.13]:45841 "EHLO
-	smtp-out3.xs4all.nl") by vger.kernel.org with ESMTP id S261897AbUDOAAA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 20:00:00 -0400
-Subject: Re: reiser4 and megaraid problems with debian 2.6.5
-From: Paul Wagland <paul@kungfoocoder.org>
-To: Nikita Danilov <Nikita@Namesys.COM>
-Cc: reiserfs-list@Namesys.COM,
-       Linux SCSI mailing list <linux-scsi@vger.kernel.org>,
-       Atul Mukker <atulm@lsil.com>, Domenico Andreoli <cavok@libero.it>,
-       Hans Reiser <reiser@Namesys.COM>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <295743F0-8E17-11D8-A41D-000A95CD704C@wagland.net>
-References: <36927C82-8DE0-11D8-A41D-000A95CD704C@wagland.net>
-	 <20040414090547.GB13578@raptus.homelinux.org>
-	 <6699459A-8E10-11D8-A41D-000A95CD704C@wagland.net>
-	 <16509.14375.539110.986025@laputa.namesys.com>
-	 <295743F0-8E17-11D8-A41D-000A95CD704C@wagland.net>
-Content-Type: text/plain
-Organization: Kung Foo Coders!
-Message-Id: <1081987184.11193.87.camel@morsel.kungfoocoder.org>
+	Wed, 14 Apr 2004 20:05:34 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:35308
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S261976AbUDOAFZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Apr 2004 20:05:25 -0400
+Date: Thu, 15 Apr 2004 02:05:29 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Rajesh Venkatasubramanian <vrajesh@umich.edu>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Hugh Dickins <hugh@veritas.com>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] anobjrmap 9 priority mjb tree
+Message-ID: <20040415000529.GX2150@dualathlon.random>
+References: <Pine.LNX.4.44.0404122006050.10504-100000@localhost.localdomain> <Pine.LNX.4.58.0404121531580.15512@red.engin.umich.edu> <69200000.1081804458@flay> <Pine.LNX.4.58.0404141616530.25848@rust.engin.umich.edu>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 15 Apr 2004 01:59:45 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0404141616530.25848@rust.engin.umich.edu>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-04-14 at 15:25, Paul Wagland wrote:
-> On Apr 14, 2004, at 15:09, Nikita Danilov wrote:
+On Wed, Apr 14, 2004 at 04:18:38PM -0400, Rajesh Venkatasubramanian wrote:
 > 
-> >>> Paul Wagland writes:
-> >>>> If I can help debug this situation (I am probably the only person
-> >>>> trying this combination :-) please let me know how I should go about
-> >>>> it.
-> >
-> > Is there anything in the logs?
+> This patch is another attempt at reducing the contention on i_shared_sem.
+> The patch converts i_shared_sem from normal semaphore to read-write
+> semaphore. The locking rules used are:
 > 
-> Sadly I forgot to check... though I will check again tonight since the 
-> problem is quite reproducible for me. Will report back later...
+>   1) A prio_tree cannot be modified without holding write lock.
+>   2) However, vmas can be added and removed from a vm_set list
+>      by just holding the read lock and a bit lock (vm_set_lock)
+>      in the corresponding prio_tree node.
 
-OK. There is nothing in the logs. I have recompiled the kernel with
-extra REISER4 debugging and checking and still nothing.
+no way, you cannot bitflip vm_flags unless you own the mmap_sem, this
+patch seems very broken to me, it should randomly corrupt memory in
+vma->vm_flags while racing against mprotect etc.. or am I missing
+something?
 
-This error is 100% reproducible for me.
+>   3) All objrmap functions just hold read lock now. So when we
+>      walk a vm_set list we have to hold the corresponding
+>      vm_set_lock.
+>   4) Since truncate uses write lock (provides exclusion) we don't
+>      have to take vm_set_locks.
+> 
+> Martin! When you get time to test your SDET with this patch, please
+> let me know whether this patch helps you at all. The patch applies
+> on top of 2.6.5-mjb1+anobjrmap9_prio_tree.
 
-I have had a thought, what if it is "only" the wrong error code that is
-being returned? What if the real problem is that we are running out of
-free blocks. To test this theory (a little at least) I ran:
+I considered converting it to a rwsem too, details are in the the email
+I posted while providing the rwspinlock solution to the parisc cache
+flushing code.
 
-# bonnie++ -q -x4 -d /mnt/sdq -u 0:0 -f -r500
-name,file_size,putc,putc_cpu,put_block,put_block_cpu,rewrite,rewrite_cpu,getc,getc_cpu,get_block,get_block_cpu,seeks,seeks_cpu,num_files,seq_create,seq_create_cpu,seq_stat,seq_stat_cpu,seq_del,seq_del_cpu,ran_create,ran_create_cpu,ran_stat,ran_stat_cpu,ran_del,ran_del_cpu
-tidbit.kungfoocoder.org,1G,,,55236,11,36165,10,,,73514,8,2138.3,2,16,+++++,+++,+++++,+++,25015,99,28712,100,+++++,+++,26846,100
-tidbit.kungfoocoder.org,1G,,,55236,11,30073,8,,,84287,10,2046.9,2,16,+++++,+++,+++++,+++,24862,99,28340,99,+++++,+++,26490,99
-tidbit.kungfoocoder.org,1G,,,55391,11,30140,9,,,84506,10,2050.2,2,16,+++++,+++,+++++,+++,24642,100,28725,100,+++++,+++,26653,100
-tidbit.kungfoocoder.org,1G,,,55364,11,30165,8,,,83055,11,2051.9,2,16,+++++,+++,+++++,+++,24682,100,28264,100,+++++,+++,26804,99
-
-
-Note that even with debugging turned on we are about 5% faster at
-reading and 20% slower than writing compared to reiserfs. Pretty good I
-dare say.
-
-However, when I run:
-
-~# bonnie++ -x4 -d /mnt/sdq -u 0:0 -f -q -r800
-name,file_size,putc,putc_cpu,put_block,put_block_cpu,rewrite,rewrite_cpu,getc,getc_cpu,get_block,get_block_cpu,seeks,seeks_cpu,num_files,seq_create,seq_create_cpu,seq_stat,seq_stat_cpu,seq_del,seq_del_cpu,ran_create,ran_create_cpu,ran_stat,ran_stat_cpu,ran_del,ran_del_cpu
-Can't write block.
-Bonnie: drastic I/O error (re write(2)): No such file or directory
-
-Using reiserfs I can happily run:
-# bonnie++ -x4 -d /mnt/sdq -u 0:0 -f -q -r1008
-
-and the partition is 2.5GB in size.
-
-Some more background information: my hardware is not overclocked, and
-has been 100% reliable, about two weeks ago I sat it through about 24
-hours of memtest86+ without any problems. The machine has 1GB of RAM.
-The logical partition that I am testing is 2.5Gb
-
-Here are the REISER4 settings from my configuration:
-tidbit:~# grep REISER4 /boot/config-2.6.5pw-newmega-k7-1
-CONFIG_REISER4_FS=m
-# CONFIG_REISER4_FS_SYSCALL is not set
-CONFIG_REISER4_LARGE_KEY=y
-CONFIG_REISER4_CHECK=y
-CONFIG_REISER4_FS_SYSCALL_DEBUG=y
-# CONFIG_REISER4_DEBUG_MODIFY is not set
-# CONFIG_REISER4_DEBUG_MEMCPY is not set
-# CONFIG_REISER4_DEBUG_NODE is not set
-# CONFIG_REISER4_ZERO_NEW_NODE is not set
-# CONFIG_REISER4_TRACE is not set
-# CONFIG_REISER4_EVENT_LOG is not set
-# CONFIG_REISER4_STATS is not set
-# CONFIG_REISER4_PROF is not set
-# CONFIG_REISER4_LOCKPROF is not set
-# CONFIG_REISER4_DEBUG_OUTPUT is not set
-# CONFIG_REISER4_NOOPT is not set
-CONFIG_REISER4_USE_EFLUSH=y
-# CONFIG_REISER4_COPY_ON_CAPTURE is not set
-# CONFIG_REISER4_BADBLOCKS is not set
-
-
-I have removed the |1 from the jiffies|1 assignment. It still works,
-which means that the kernel must have been fixed :-) But it didn't help
-:-\
-
-Hope this helps provide some illumination to the gurus out there...
-
-Cheers,
-Paul
-
+As I wrote there, I wasn't convinced in the common case this is going to
+gain anything significant (the only thing that sleeps while teh
+semaphore is held is truncate and truncate during paging on the same
+inode isn't an extremly common case, especially for the big apps), and
+it makes it a bit more complicated, but giving it a try will be
+interesting. I was mostly interested about having the objrmap code very
+rarely failing the trylock during paging (that semaphore is by far the
+biggest scalability hit during paging of shm, but the cacheline bouncing
+won't be avoided by the rwsem). To make the paging scale better
+(something SDET cannot measure) I don't need a safe vm_set_lock, I
+believe simply making it a rwsem is the way to go just to make the
+paging potentially scale a bit better. I rated implementing the locking
+abstraction to fixup the basic parisc race as a bit higher prio, after
+that it should be easy to have it implementing a rwsem for all archs w/o
+cache flushing, the abstraction will have to expose a read/write
+functionality for the rwlock. I'm not convinced your double locking is
+going to boost anything even if it would be safe, I'd just take it in
+write mode when the tree is being modified, with the only object of
+avoiding the paging to block (and potentially to avoid blocking against
+big truncates too).

@@ -1,29 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291589AbSBHOvv>; Fri, 8 Feb 2002 09:51:51 -0500
+	id <S291591AbSBHOvU>; Fri, 8 Feb 2002 09:51:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291592AbSBHOvk>; Fri, 8 Feb 2002 09:51:40 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:47119 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S291589AbSBHOv2>; Fri, 8 Feb 2002 09:51:28 -0500
-Subject: Re: [2.5.4-pre3] link error in drivers/video/video.o
-To: eike@bilbo.math.uni-mannheim.de (Rolf Eike Beer)
-Date: Fri, 8 Feb 2002 15:01:47 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200202081520.29475@bilbo.math.uni-mannheim.de> from "Rolf Eike Beer" at Feb 08, 2002 03:22:00 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16ZCX5-0003x1-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S291589AbSBHOvA>; Fri, 8 Feb 2002 09:51:00 -0500
+Received: from news.cistron.nl ([195.64.68.38]:38927 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id <S291582AbSBHOuy>;
+	Fri, 8 Feb 2002 09:50:54 -0500
+From: wichert@cistron.nl (Wichert Akkerman)
+Subject: Re: ide cleanup
+Date: 8 Feb 2002 15:50:51 +0100
+Organization: Cistron Internet Services
+Message-ID: <a40okb$mds$1@picard.cistron.nl>
+In-Reply-To: <20020206205332.GA3217@elf.ucw.cz> <3C63C5EF.4050403@evision-ventures.com> <20020208133755.A10250@suse.cz> <3C63CF54.9090308@evision-ventures.com>
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> drivers/video/video.o: In function `vesafb_init':
-> drivers/video/video.o(.text.init+0x13f9): undefined reference to 
-> `bus_to_virt_not_defined_use_pci_map'
-> make: *** [vmlinux] Error 1
+In article <3C63CF54.9090308@evision-ventures.com>,
+Martin Dalecki  <dalecki@evision-ventures.com> wrote:
+>The _t at the end of type names is a POSIX habit of markup for system 
+>defined types - this should *NOT* be used in user land programms but is OK for
+>the kernel.
 
-Someone made incorrect changes to the vesafb code. It was discussed but
-not fixed before 2.5.3. vesafb should be using phys_to_virt
+Why, I don't see that. Everyone should use whatever notation he/she
+feels most comfortable with.
+
+Wichert.
+
+-- 
+  _________________________________________________________________
+ /       Nothing is fool-proof to a sufficiently talented fool     \
+| wichert@wiggy.net                   http://www.liacs.nl/~wichert/ |
+| 1024D/2FA3BC2D 576E 100B 518D 2F16 36B0  2805 3CB8 9250 2FA3 BC2D |
+

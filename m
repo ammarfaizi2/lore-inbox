@@ -1,169 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263592AbUAOWmN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 17:42:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263595AbUAOWmN
+	id S263723AbUAOWyN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 17:54:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263734AbUAOWyN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 17:42:13 -0500
-Received: from northuist.CNS.CWRU.Edu ([129.22.104.60]:18045 "EHLO
-	ims-msg.TIS.CWRU.Edu") by vger.kernel.org with ESMTP
-	id S263592AbUAOWmA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 17:42:00 -0500
-Date: Thu, 15 Jan 2004 17:20:53 -0500
-From: Jim Garrison <garrison@case.edu>
-Subject: 2.6.1 compile error - drivers/block/swim3.c (powerpc)
-To: linux-kernel@vger.kernel.org
-Message-id: <1074205253.636.11.camel@ibook>
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.4.5
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
+	Thu, 15 Jan 2004 17:54:13 -0500
+Received: from tolkor.sgi.com ([198.149.18.6]:6328 "EHLO tolkor.sgi.com")
+	by vger.kernel.org with ESMTP id S263723AbUAOWyJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jan 2004 17:54:09 -0500
+Date: Thu, 15 Jan 2004 14:53:57 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: joe.korty@ccur.com, paulus@samba.org, linux-kernel@vger.kernel.org
+Subject: Re: seperator error in __mask_snprintf_len
+Message-Id: <20040115145357.1033d65a.pj@sgi.com>
+In-Reply-To: <20040115081533.63c61d7f.akpm@osdl.org>
+References: <20040107165607.GA11483@rudolph.ccur.com>
+	<20040107113207.3aab64f5.akpm@osdl.org>
+	<20040108051111.4ae36b58.pj@sgi.com>
+	<16381.57040.576175.977969@cargo.ozlabs.ibm.com>
+	<20040108225929.GA24089@tsunami.ccur.com>
+	<16381.61618.275775.487768@cargo.ozlabs.ibm.com>
+	<20040114150331.02220d4d.pj@sgi.com>
+	<20040115002703.GA20971@tsunami.ccur.com>
+	<20040114204009.3dc4c225.pj@sgi.com>
+	<20040115081533.63c61d7f.akpm@osdl.org>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Andrew wrote:
+> Gad.
 
-I know that gcc 3.3.2 is not an officially supported compiler, but this
-error seems to be of the generic kind.  swim3.c fails to compile for me
-on powerpc.
+Could you elaborate a bit on this critique, Andrew?
 
-Please CC me in any replies.
+You sketch an alternative, that loops by bit, with an sprintf each
+nibble, instead of looping by u32 word.  By the time that alternative is
+fancied up to handle (optionally) suppression of leading zero words and
+(vital, for very long masks) a 32-bit word separator, and various other
+details, I doubt that it will be any simpler than the corresponding bit
+of code in my patch:
 
-Thanks,
-Jim Garrison
+        int i = maskbytes/sizeof(u32) - 1;
+        int len = 0;
+        char *sep = "";
 
+        while (i >= 1 && wordp[M32X(i)] == 0)
+                i--;
+        while (i >= 0) {
+                len += snprintf(buf+len, buflen-len,
+                        "%s%x", sep, wordp[M32X(i)]);
+                sep = ",";
+                i--;
+        }
 
+I am at a loss to understand why the above u32 loop version of this code
+is so much worse that it only merits a "Gad".
 
-  CC      drivers/block/swim3.o
-drivers/block/swim3.c:224: error: parse error before '*' token
-drivers/block/swim3.c:224: warning: function declaration isn't a
-prototype
-drivers/block/swim3.c:292: error: parse error before '*' token
-drivers/block/swim3.c:293: warning: function declaration isn't a
-prototype
-drivers/block/swim3.c: In function `do_fd_request':
-drivers/block/swim3.c:302: warning: implicit declaration of function
-`sti'
-drivers/block/swim3.c: In function `start_request':
-drivers/block/swim3.c:315: warning: implicit declaration of function
-`elv_next_request'
-drivers/block/swim3.c:315: warning: assignment makes pointer from
-integer without a cast
-drivers/block/swim3.c:324: error: dereferencing pointer to incomplete
-type
-drivers/block/swim3.c:324: error: dereferencing pointer to incomplete
-type
-drivers/block/swim3.c:325: warning: implicit declaration of function
-`end_request'
-drivers/block/swim3.c:328: error: dereferencing pointer to incomplete
-type
-drivers/block/swim3.c:337: warning: implicit declaration of function
-`rq_data_dir'
-drivers/block/swim3.c:346: error: dereferencing pointer to incomplete
-type
-drivers/block/swim3.c:347: error: dereferencing pointer to incomplete
-type
-drivers/block/swim3.c: In function `set_timeout':
-drivers/block/swim3.c:363: warning: implicit declaration of function
-`save_flags'
-drivers/block/swim3.c:363: warning: implicit declaration of function
-`cli'
-drivers/block/swim3.c:371: warning: implicit declaration of function
-`restore_flags'
-drivers/block/swim3.c: In function `setup_transfer':
-drivers/block/swim3.c:422: error: dereferencing pointer to incomplete
-type
-drivers/block/swim3.c:430: error: dereferencing pointer to incomplete
-type
-drivers/block/swim3.c:431: error: dereferencing pointer to incomplete
-type
-drivers/block/swim3.c:443: error: dereferencing pointer to incomplete
-type
-drivers/block/swim3.c:447: error: dereferencing pointer to incomplete
-type
-drivers/block/swim3.c: In function `xfer_timeout':
-drivers/block/swim3.c:598: error: dereferencing pointer to incomplete
-type
-drivers/block/swim3.c:599: error: dereferencing pointer to incomplete
-type
-drivers/block/swim3.c:601: error: dereferencing pointer to incomplete
-type
-drivers/block/swim3.c: In function `swim3_interrupt':
-drivers/block/swim3.c:623: warning: long unsigned int format, int arg
-(arg 3)
-drivers/block/swim3.c:695: error: dereferencing pointer to incomplete
-type
-drivers/block/swim3.c:696: error: dereferencing pointer to incomplete
-type
-drivers/block/swim3.c:697: error: dereferencing pointer to incomplete
-type
-drivers/block/swim3.c:706: error: dereferencing pointer to incomplete
-type
-drivers/block/swim3.c:715: warning: long unsigned int format, int arg
-(arg 3)
-drivers/block/swim3.c:721: error: dereferencing pointer to incomplete
-type
-drivers/block/swim3.c:722: error: dereferencing pointer to incomplete
-type
-drivers/block/swim3.c:723: error: dereferencing pointer to incomplete
-type
-drivers/block/swim3.c:724: error: dereferencing pointer to incomplete
-type
-drivers/block/swim3.c: In function `floppy_ioctl':
-drivers/block/swim3.c:817: error: dereferencing pointer to incomplete
-type
-drivers/block/swim3.c: In function `floppy_open':
-drivers/block/swim3.c:843: error: dereferencing pointer to incomplete
-type
-drivers/block/swim3.c: In function `floppy_release':
-drivers/block/swim3.c:909: error: dereferencing pointer to incomplete
-type
-drivers/block/swim3.c: In function `floppy_check_change':
-drivers/block/swim3.c:920: error: dereferencing pointer to incomplete
-type
-drivers/block/swim3.c: In function `floppy_revalidate':
-drivers/block/swim3.c:926: error: dereferencing pointer to incomplete
-type
-drivers/block/swim3.c: In function `swim3_init':
-drivers/block/swim3.c:999: warning: implicit declaration of function
-`alloc_disk'
-drivers/block/swim3.c:999: warning: assignment makes pointer from
-integer without a cast
-drivers/block/swim3.c:1004: error: `FLOPPY_MAJOR' undeclared (first use
-in this function)
-drivers/block/swim3.c:1004: error: (Each undeclared identifier is
-reported only once
-drivers/block/swim3.c:1004: error: for each function it appears in.)
-drivers/block/swim3.c:1009: warning: implicit declaration of function
-`blk_init_queue'
-drivers/block/swim3.c:1009: warning: assignment makes pointer from
-integer without a cast
-drivers/block/swim3.c:1017: error: dereferencing pointer to incomplete
-type
-drivers/block/swim3.c:1018: error: dereferencing pointer to incomplete
-type
-drivers/block/swim3.c:1019: error: dereferencing pointer to incomplete
-type
-drivers/block/swim3.c:1020: error: dereferencing pointer to incomplete
-type
-drivers/block/swim3.c:1021: error: dereferencing pointer to incomplete
-type
-drivers/block/swim3.c:1022: error: dereferencing pointer to incomplete
-type
-drivers/block/swim3.c:1023: error: dereferencing pointer to incomplete
-type
-drivers/block/swim3.c:1024: warning: implicit declaration of function
-`set_capacity'
-drivers/block/swim3.c:1025: warning: implicit declaration of function
-`add_disk'drivers/block/swim3.c:1033: warning: implicit declaration of
-function `put_disk'drivers/block/swim3.c: In function
-`swim3_add_device':
-drivers/block/swim3.c:1084: warning: implicit declaration of function
-`request_irq'
-drivers/block/swim3.c: At top level:
-drivers/block/swim3.c:962: warning: `floppy_off' defined but not used
-make[2]: *** [drivers/block/swim3.o] Error 1
-make[1]: *** [drivers/block] Error 2
-make: *** [drivers] Error 2
+Did I provide too many comments?
 
 
+> It is hardly performance-critical.
+
+I quite agree on that.  One thing I _do_ try to optimize in most code is
+the number of "fussy details".  The few operations, conditions, special
+cases, and such, the better, given the finite limits of human brain power.
+
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

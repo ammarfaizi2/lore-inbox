@@ -1,40 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317961AbSGZSSI>; Fri, 26 Jul 2002 14:18:08 -0400
+	id <S317949AbSGZSa1>; Fri, 26 Jul 2002 14:30:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317965AbSGZSSI>; Fri, 26 Jul 2002 14:18:08 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:53496 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S317961AbSGZSSH>; Fri, 26 Jul 2002 14:18:07 -0400
-Subject: Re: Looking for links: Why Linux Doesn't Page Kernel Memory?
-From: Robert Love <rml@tech9.net>
-To: Russell Lewis <spamhole-2001-07-16@deming-os.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3D418DFD.8000007@deming-os.org>
-References: <3D418DFD.8000007@deming-os.org>
-Content-Type: text/plain
+	id <S317950AbSGZSa1>; Fri, 26 Jul 2002 14:30:27 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:54801 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317949AbSGZSaY>;
+	Fri, 26 Jul 2002 14:30:24 -0400
+Message-ID: <3D419583.DFE940DA@zip.com.au>
+Date: Fri, 26 Jul 2002 11:31:31 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] block/elevator updates + deadline i/o scheduler
+References: <20020726120248.GI14839@suse.de>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8.99 
-Date: 26 Jul 2002 11:21:20 -0700
-Message-Id: <1027707680.2442.33.camel@sinai>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-07-26 at 10:59, Russell Lewis wrote:
-
-> I have spent some time working on AIX, which pages its kernel memory. 
->  It pins the interrupt handler functions, and any data that they access, 
-> but does not pin the other code.
+Jens Axboe wrote:
 > 
-> I'm looking for links as to why (unless I'm mistaken) Linux doesn't do 
-> this, so I can better understand the system.
+> The layout of the deadline i/o scheduler is roughly:
+> 
+>         [1]       [2]
+>          |         |
+>          |         |
+>          |         |
+>          ====[3]====
+>               |
+>               |
+>               |
+>               |
+>              [4]
+> 
+> where [1] is the regular ascendingly sorted pending list of requests,
+> [2] is a fifo list (well really two lists, one for reads and one for
+> writes) of pending requests which each have an expire time assigned, [3]
+> is the elv_next_request() worker, and [4] is the dispatch queue
+> (q->queue_head again). When a request enters the i/o scheduler, it is
+> sorted into the [1] list, assigned an expire time, and sorted into the
+> fifo list [2] (the fifo list is really two lists, one for reads and one
+> for writes).
+> 
+> [1] is the main list where we serve requests from. If a request deadline
+> gets exceeded, we move a number of entries (known as the 'fifo_batch'
+> count) from the sorted list starting from the expired entry onto the
+> dispatch queue. This makes sure that we at least attempt to start an
+> expired request immediately, but don't completely fall back to FCFS i/o
+> scheduling (well set fifo_batch == 1, and you will get FCFS with an
+> appropriately low expire time).
 
-Better question is, why would we have page-able kernel memory?
+I don't quite understand...  When expired requests are moved from the
+fifo [2] onto the dispatch queue [4], is merging performed at the
+dispatch queue?
 
-It complicates kernel-space drastically for little gain.  It is not that
-we cannot, or there is a specific technical reason why not - just an
-issue of taste.  And lack of drugs.
+In other words, if the fifo queue has blocks (1,3,5,7,2,4,6,8) or
+(1,10,20,5,15,25), and they expire, will they be sorted in some manner
+before going to the hardware?  If so, where?
 
-	Robert Love
+> ...
+> 
+> Finally, I've done some testing on it. No testing on whether this really
+> works well in real life (that's what I want testers to do), and no
+> testing on benchmark performance changes etc. What I have done is
+> beat-up testing, making sure it works without corrupting your data.
 
+I'll give it a whizz over the weekend.
+
+-

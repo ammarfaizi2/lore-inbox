@@ -1,41 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261934AbSIYH3f>; Wed, 25 Sep 2002 03:29:35 -0400
+	id <S261935AbSIYHjt>; Wed, 25 Sep 2002 03:39:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261935AbSIYH3f>; Wed, 25 Sep 2002 03:29:35 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:62637 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S261934AbSIYH3e>;
-	Wed, 25 Sep 2002 03:29:34 -0400
-Date: Wed, 25 Sep 2002 09:34:30 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Luben Tuikov <luben@splentec.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: struct page question
-Message-ID: <20020925073430.GG15479@suse.de>
-References: <3D90D4AB.B0BDF702@splentec.com>
-Mime-Version: 1.0
+	id <S261936AbSIYHjs>; Wed, 25 Sep 2002 03:39:48 -0400
+Received: from 62-190-218-65.pdu.pipex.net ([62.190.218.65]:7684 "EHLO
+	darkstar.example.net") by vger.kernel.org with ESMTP
+	id <S261935AbSIYHjs>; Wed, 25 Sep 2002 03:39:48 -0400
+From: jbradford@dial.pipex.com
+Message-Id: <200209250749.g8P7nmiT000178@darkstar.example.net>
+Subject: Re: hdparm -Y hangup
+To: davidsen@tmr.com (Bill Davidsen)
+Date: Wed, 25 Sep 2002 08:49:48 +0100 (BST)
+Cc: padraig.brady@corvil.com, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.3.96.1020924170534.19732B-100000@gatekeeper.tmr.com> from "Bill Davidsen" at Sep 24, 2002 05:06:57 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D90D4AB.B0BDF702@splentec.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 24 2002, Luben Tuikov wrote:
-> Is it possible to build a struct page *page, where
-> page_address(page) == some virtual address (not high mem of course)?
+> > > Hrm, OK thanks for the info. Perhaps it should be removed
+> > > from hdparm or a (DANGEROUS) put beside the description
+> > > until it's fixed.
+> > 
+> > The person to contact would be Mark Lord, the hdparm maintainer, (see the
+> > hdparm manual page for his E-Mail address).
 > 
-> The reason I want to do this is so that I can pass it to
-> generic_make_request(), having only a pointer to a buffer
-> and size to a buffer, and the fact that not all devices
-> have request_fn() exposed (e.g. md).
-> 
-> Apparently I cannot just set b_data and b_size, b_page
-> also has to be set and it also seems that it will
-> not work if page_address(b_page) != b_data...
+> Rather than have Mark Lord set the option DANGEROUS (it shouldn't be)
+> perhaps it could be made to work more than once... Odd problem, is
+> something not getting set or cleared when the drive is spun up the first
+> time?
 
-bh->b_page = virt_to_page(va);
-bh->b_data = va;
+With my Maxtor disk connected to a PIIX3 IDE interface and stock kernel 2.4.19, I get this behavior:
 
--- 
-Jens Axboe
+# hdparm -Y /dev/hda
 
+Disk sleeps
+
+# find
+
+No disk activity - it doesn't wake up.  It doesn't work once for me, it always hangs on the first attempt.
+
+So, I try dmesg on another console - no new output.
+
+# hdparm -w /dev/hda
+
+Performs a device reset, and the disk spins up.
+
+# dmesg
+
+hda: ide_set_handler: handler not null; c0181050
+hda: dma_intr: status=0xd0 { Busy }
+hda: DMA disabled
+hda: ide_set_handler: handler not null; old=c0181050, new=c017b160
+bug: kernel timer added twice at c017afe1.
+hda: ide_set_handler: handler not null; old=c017b160, new=c017b160
+ide0: reset: success
+
+Obviously, if you're going to try to repeat this, sync the disk beforehand, because I assume that a device reset will loose data in the disk's write cache.
+
+John.

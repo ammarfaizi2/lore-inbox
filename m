@@ -1,61 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267132AbTBQPQ5>; Mon, 17 Feb 2003 10:16:57 -0500
+	id <S267765AbTBQPKb>; Mon, 17 Feb 2003 10:10:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267163AbTBQPQ4>; Mon, 17 Feb 2003 10:16:56 -0500
-Received: from ext-nj2gw-2.online-age.net ([216.35.73.164]:8606 "EHLO
-	ext-nj2gw-2.online-age.net") by vger.kernel.org with ESMTP
-	id <S267132AbTBQPQz>; Mon, 17 Feb 2003 10:16:55 -0500
-From: "Daniel Heater" <daniel.heater@gefanuc.com>
-Date: Mon, 17 Feb 2003 09:26:27 -0600
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Synchronous signal delivery..
-Message-ID: <20030217152626.GA275@gefhsvrootwitch>
-Mail-Followup-To: heaterd1, Davide Libenzi <davidel@xmailserver.org>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0302131452450.4232-100000@penguin.transmeta.com> <Pine.LNX.4.50.0302141553020.988-100000@blue1.dev.mcafeelabs.com>
-Mime-Version: 1.0
+	id <S267767AbTBQPKb>; Mon, 17 Feb 2003 10:10:31 -0500
+Received: from zork.zork.net ([66.92.188.166]:59788 "EHLO zork.zork.net")
+	by vger.kernel.org with ESMTP id <S267765AbTBQPKa>;
+	Mon, 17 Feb 2003 10:10:30 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: Performance of ext3 on large systems
+From: Sean Neakums <sneakums@zork.net>
+X-Worst-Pick-Up-Line-Ever: "Hey baby, wanna peer with my leafnode instance?"
+X-Message-Flag: Message text advisory: IMPROPER FORETHOUGHT, ULTERIOR
+ MOTIVES
+X-Mailer: Norman
+X-Groin-Mounted-Steering-Wheel: "Arrrr... it's driving me nuts!"
+X-Alameda: WHY DOESN'T ANYONE KNOW ABOUT ALAMEDA?  IT'S RIGHT NEXT TO
+ OAKLAND!!!
+Organization: The Emadonics Institute
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Date: Mon, 17 Feb 2003 15:20:27 +0000
+In-Reply-To: <20030216172942.06b0ddba.akpm@digeo.com> (Andrew Morton's
+ message of "Sun, 16 Feb 2003 17:29:42 -0800")
+Message-ID: <6uisvj9bno.fsf@zork.zork.net>
+User-Agent: Gnus/5.090015 (Oort Gnus v0.15) Emacs/21.2
+ (i386-debian-linux-gnu)
+References: <66390000.1045442686@[10.10.2.4]>
+	<20030216172942.06b0ddba.akpm@digeo.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.50.0302141553020.988-100000@blue1.dev.mcafeelabs.com>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Davide Libenzi (davidel@xmailserver.org) wrote:
-> On Thu, 13 Feb 2003, Linus Torvalds wrote:
-> 
-> > > > One of the reasons for the "flags" field (which is not unused) was because
-> > > > I thought it might have extensions for things like alarms etc.
-> > >
-> > > I was thinking more like :
-> > >
-> > > int timerfd(int timeout, int oneshot);
-> >
-> > It could be a separate system call, ...
-> 
-> I would personally like it a lot to have timer events available on
-> pollable fds. Am I alone in this ?
+commence  Andrew Morton quotation:
 
-I currently do something similar to this with a driver for an 82c54 timer,
-and for a couple of of hardware timer implementations.
+> "Martin J. Bligh" <mbligh@aracnet.com> wrote:
+>>
+>> (look at system time ... eeek!)
+>
+> Can we just say that ext3's talents lie elsewhere?
+>
+> I've got some stuff which helps a bit, but nobody has had the time
+> to implement the significant overhaul which is needed here.
+>
+> noatime would help.
 
-I create a fd for each timer in the device. write() sets the timer count.
-read() reads back the current timer count. select() with the timer's fd
-as the exceptionfd argument is used to poll for a timer expiration. With
-this hardware, the count is automatically reloaded and continues counting.
+ext3 doesn't implement noatime!?  Hurg...
 
-With this interface, I can write a simple app that waits for any number of
-events on file descriptors using select, but will also timeout periodically
-to do some housekeeping data. I just switch on the file descriptor when I
-come out of the select to decide what needs to be done.
-
-This seems simpler to me in many cases where I can allow some drift in doing
-the timeout housekeeping because the rest of the code need not be concerned
-with getting preempted by a signal. ie. No need to lock data structures
-because there is always only one thread of control.
-
-daniel.
+-- 
+ /                          |
+[|] Sean Neakums            | Size *does* matter.
+[|] <sneakums@zork.net>     | That's why I use Emacs.
+ \                          |

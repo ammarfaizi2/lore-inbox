@@ -1,47 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271116AbTGWGLZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 02:11:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271115AbTGWGLZ
+	id S271106AbTGWGJI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 02:09:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271107AbTGWGJI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 02:11:25 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:52622 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S271113AbTGWGLW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 02:11:22 -0400
-Date: Tue, 22 Jul 2003 23:24:10 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: solca@guug.org, zaitcev@redhat.com, linux-kernel@vger.kernel.org,
-       sparclinux@vger.kernel.org, debian-sparc@lists.debian.org
-Subject: Re: sparc scsi esp depends on pci & hangs on boot
-Message-Id: <20030722232410.7a37ed4d.davem@redhat.com>
-In-Reply-To: <20030723070739.A697@infradead.org>
-References: <20030722025142.GC25561@guug.org>
-	<20030722080905.A21280@devserv.devel.redhat.com>
-	<20030722182609.GA30174@guug.org>
-	<20030722175400.4fe2aa5d.davem@redhat.com>
-	<20030723070739.A697@infradead.org>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 23 Jul 2003 02:09:08 -0400
+Received: from soft.uni-linz.ac.at ([140.78.95.99]:4831 "EHLO
+	zeus.soft.uni-linz.ac.at") by vger.kernel.org with ESMTP
+	id S271106AbTGWGJG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 02:09:06 -0400
+Message-ID: <3F1E29F6.5000104@gibraltar.at>
+Date: Wed, 23 Jul 2003 08:23:50 +0200
+From: Rene Mayrhofer <rene.mayrhofer@gibraltar.at>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: de-at, de-de, en-gb, en-us
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Jason Baron <jbaron@redhat.com>, vda@port.imtp.ilyichevsk.odessa.ua,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: pivot_root seems to be broken in 2.4.21-ac4 and 2.4.22-pre7
+References: <Pine.LNX.4.44.0307221331090.2754-100000@dhcp64-178.boston.redhat.com>	 <1058895650.4161.23.camel@dhcp22.swansea.linux.org.uk>	 <3F1D7C80.6020605@gibraltar.at>	 <1058904025.4160.30.camel@dhcp22.swansea.linux.org.uk>	 <3F1DA09F.4020503@gibraltar.at> <1058910871.4674.0.camel@dhcp22.swansea.linux.org.uk>
+In-Reply-To: <1058910871.4674.0.camel@dhcp22.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Jul 2003 07:07:39 +0100
-Christoph Hellwig <hch@infradead.org> wrote:
+Hi Alan,
 
-> Sparc unfortunately defines the new DMA API in terms of the PCI DMA API
-> which gets you this mess.
+Alan Cox wrote:
+> Give vanilla 2.4.22-pre7 a go. I suspect it'll break the same if its
+> the unshare stuff
+Yes, I can confirm that now. 2.4.22-pre7 with the patch-o-matic
+netfilter stuff (which I need for the machine but IMHO shouldn't change
+anything wrt. this problem) also has the same problem.
 
-Sparc did not do this, the person coding up the new DMA API
-decided it was a good idea to implement the generic version
-this way. :-)
+best regards,
+Rene
 
-I think it's rediculious that I have to implement the whole
-new DMA API abstraction thing just to get rid of this PCI
-dependency.
-
-Why don't we put the enum dma_direction somewhere else?  Some
-linux/foo.h header that doesn't require asm/dma*.h

@@ -1,44 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267482AbUIFFxl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267487AbUIFF7O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267482AbUIFFxl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Sep 2004 01:53:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267487AbUIFFxk
+	id S267487AbUIFF7O (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Sep 2004 01:59:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267505AbUIFF7O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Sep 2004 01:53:40 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:48318 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S267482AbUIFFxj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Sep 2004 01:53:39 -0400
-Date: Mon, 6 Sep 2004 06:53:38 +0100 (IST)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: Paul Jackson <pj@sgi.com>
-Cc: "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] DRM remove DMA/IRQ macros..
-In-Reply-To: <20040905211755.6b151f0d.pj@sgi.com>
-Message-ID: <Pine.LNX.4.58.0409060652370.22266@skynet>
-References: <Pine.LNX.4.58.0409051015570.14009@skynet>
- <20040905203622.32f75496.davem@davemloft.net> <Pine.LNX.4.58.0409060440320.22266@skynet>
- <20040905204530.491dc4f1.davem@davemloft.net> <20040905211755.6b151f0d.pj@sgi.com>
+	Mon, 6 Sep 2004 01:59:14 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:12521 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S267487AbUIFF7M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Sep 2004 01:59:12 -0400
+Message-ID: <413BFCB5.4010608@namesys.com>
+Date: Sun, 05 Sep 2004 22:59:17 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Neil Brown <neilb@cse.unsw.edu.au>
+CC: linux-kernel@vger.kernel.org, Alexander Zarochentcev <zam@namesys.com>,
+       vs <vs@thebsh.namesys.com>
+Subject: Re: [PATCH - EXPERIMENTAL] files with forks in the VFS
+References: <16699.44411.361938.856856@cse.unsw.edu.au>
+In-Reply-To: <16699.44411.361938.856856@cse.unsw.edu.au>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Neil Brown wrote:
 
-> They work pretty slick - download, unpack, set the specified ENV
-> variables, and build away.  I build several arch's on my desktop PC.
+>As a followup to the multi-branching threads about reiser4, I would
+>like to present this patch for discussion and exploration.
+>It implements files with fork (which are quite different to files that
+>provide different views via a subdirectory structure).
+>  
 >
+How are they different?  Having a distinguished file is consistent with 
+the reiser4 approach.
 
-Great I've got these going on the fd.o server, they look the part and I
-can see the sparc64 build issue... I'll set them up on my PC at home and
-fix up the ffb driver soon after..
-
-Thanks,
-Dave.
-
--- 
-David Airlie, Software Engineer
-http://www.skynet.ie/~airlied / airlied at skynet.ie
-pam_smb / Linux DECstation / Linux VAX / ILUG person
+>See Documentation/filesystems/forks.txt (after applying the patch) for more detail.
+>
+>This is not "how it should be done" but rather "how it could be done",
+>and is intended primarily to provide a base for experimentation and
+>exploration. 
+>
+>Below is a sample of what can be done, and then the patch.
+>
+>NeilBrown
+>  
+>
 

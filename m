@@ -1,57 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270850AbTHSRbw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 13:31:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271939AbTHSRIS
+	id S272851AbTHSR2G (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 13:28:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272410AbTHSR1I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 13:08:18 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:5771 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S270850AbTHSRAp (ORCPT
+	Tue, 19 Aug 2003 13:27:08 -0400
+Received: from mail.zmailer.org ([62.240.94.4]:12167 "EHLO mail.zmailer.org")
+	by vger.kernel.org with ESMTP id S272603AbTHSRWw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 13:00:45 -0400
-Date: Tue, 19 Aug 2003 09:53:02 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: willy@w.ods.org, richard@aspectgroup.co.uk, alan@lxorguk.ukuu.org.uk,
-       carlosev@newipnet.com, lamont@scriptkiddie.org, davidsen@tmr.com,
-       bloemsaa@xs4all.nl, marcelo@conectiva.com.br, netdev@oss.sgi.com,
-       linux-net@vger.kernel.org, layes@loran.com, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
-Message-Id: <20030819095302.7213ddd5.davem@redhat.com>
-In-Reply-To: <20030819185219.116fd259.skraw@ithnet.com>
-References: <353568DCBAE06148B70767C1B1A93E625EAB58@post.pc.aspectgroup.co.uk>
-	<20030819145403.GA3407@alpha.home.local>
-	<20030819170751.2b92ba2e.skraw@ithnet.com>
-	<20030819085717.56046afd.davem@redhat.com>
-	<20030819185219.116fd259.skraw@ithnet.com>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+	Tue, 19 Aug 2003 13:22:52 -0400
+Date: Tue, 19 Aug 2003 20:22:49 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: linux-kernel@vger.kernel.org
+Cc: Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: SCO's "proof"
+Message-ID: <20030819172249.GG6898@mea-ext.zmailer.org>
+References: <3F422809.7080806@yahoo.com> <20030819153056.GB3059@gtf.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030819153056.GB3059@gtf.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Aug 2003 18:52:19 +0200
-Stephan von Krawczynski <skraw@ithnet.com> wrote:
+On Tue, Aug 19, 2003 at 11:30:56AM -0400, Jeff Garzik wrote:
+...
+> Here's the original Heise article, for those who read German:
+> http://www.heise.de/newsticker/data/jk-19.08.03-000/
 
-> On Tue, 19 Aug 2003 08:57:17 -0700
-> "David S. Miller" <davem@redhat.com> wrote:
-> 
-> > "Be liberal in what you accept, and conservative in what you send"
-> > -Jon Postel
-> 
-> If I understood what Richard said in this thread Jon just shot you
-> down. The conservative way to _request_ arp would definitely be to
-> request it from the "correct" subnet, because as a sender you ought
-> to give credit to knowing that "bad" boxes out there won't answer if
-> you do otherwise.
+And a tiny-url redirected google-translated english version:
+  http://tinyurl.com/ki2a
 
-In the ARP request we are using the source address in the packet we
-are building for output.
+(amazingly readable version that translation..)
 
-If ARP doesn't work using that source address, we can only assume IP
-communication is not possible either.
+> 	Jeff
 
-It is the box not responding to this ARP which is preventing
-communication not the box creating the ARP request.
+/Matti Aarnio

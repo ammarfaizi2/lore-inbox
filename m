@@ -1,48 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263121AbUEWQBs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263124AbUEWQD0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263121AbUEWQBs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 May 2004 12:01:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263124AbUEWQBs
+	id S263124AbUEWQD0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 May 2004 12:03:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263147AbUEWQD0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 May 2004 12:01:48 -0400
-Received: from fw.osdl.org ([65.172.181.6]:31361 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263121AbUEWQBr (ORCPT
+	Sun, 23 May 2004 12:03:26 -0400
+Received: from village.ehouse.ru ([193.111.92.18]:12554 "EHLO mail.ehouse.ru")
+	by vger.kernel.org with ESMTP id S263124AbUEWQDW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 May 2004 12:01:47 -0400
-Date: Sun, 23 May 2004 09:01:24 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Ian Stirling <ian.stirling@mauve.plus.com>
-cc: Greg KH <greg@kroah.com>, Arjan van de Ven <arjanv@redhat.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFD] Explicitly documenting patch submission
-In-Reply-To: <40B0C56A.1050701@mauve.plus.com>
-Message-ID: <Pine.LNX.4.58.0405230855250.25502@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0405222341380.18601@ppc970.osdl.org>
- <1085299337.2781.5.camel@laptop.fenrus.com> <20040523152540.GA5518@kroah.com>
- <40B0C56A.1050701@mauve.plus.com>
+	Sun, 23 May 2004 12:03:22 -0400
+From: "Sergey S. Kostyliov" <rathamahata@php4.ru>
+Reply-To: "Sergey S. Kostyliov" <rathamahata@php4.ru>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] befs: typo fix
+Date: Sun, 23 May 2004 00:12:03 +0400
+User-Agent: KMail/1.6.2
+Cc: Andrew Morton <akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200405230012.03190.rathamahata@php4.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+[PATCH] befs: typo fix
+
+Fix a typo in error message.
+
+===== fs/befs/linuxvfs.c 1.20 vs edited =====
+--- 1.20/fs/befs/linuxvfs.c	Sat May 15 06:00:21 2004
++++ edited/fs/befs/linuxvfs.c	Sat May 22 23:29:37 2004
+@@ -584,7 +584,7 @@
+ 	return o;
+ 
+       conv_err:
+-	befs_error(sb, "Name using charecter set %s contains a charecter that "
++	befs_error(sb, "Name using character set %s contains a character that "
+ 		   "cannot be converted to unicode.", nls->charset);
+ 	befs_debug(sb, "<--- utf2nls()");
+ 	kfree(result);
 
 
-On Sun, 23 May 2004, Ian Stirling wrote:
-> 
-> Has anyone ever tried to forge the name on a patch, and get it included?
 
-Not to my knowledge. It's a bit harder than just technically forging the
-email, you also have to forge a certain "context", since most developers
-know the "next hop" person anyway, and thus kind of know what to expect.  
-You may not see the other person, but that doesn't mean that you can't
-recognize his/her way of doing things.
-
-And if you do _not_ know the person that the forged message comes in as,
-then you have to check the patch anyway, so ...
-
-That said, forged emails is not what this process would be about. Quite
-frankly, I hope we'll some day have "trusted email", but that's kind of an
-independent issue, in that I hope it moves in that direction _regardless_ 
-of any patch documentation issues..
-
-		Linus

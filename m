@@ -1,76 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265205AbUAERRa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 12:17:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265209AbUAERR3
+	id S265215AbUAER0p (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 12:26:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265229AbUAER0p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 12:17:29 -0500
-Received: from wblv-238-222.telkomadsl.co.za ([165.165.238.222]:25217 "EHLO
-	gateway.lan") by vger.kernel.org with ESMTP id S265205AbUAERRV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 12:17:21 -0500
-Subject: Re: xterm scrolling speed - scheduling weirdness in 2.6 ?!
-From: Martin Schlemmer <azarah@nosferatu.za.org>
-Reply-To: azarah@nosferatu.za.org
-To: Soeren Sonnenburg <kernel@nn7.de>
-Cc: Mike Fedyk <mfedyk@matchmail.com>, Willy Tarreau <willy@w.ods.org>,
-       szonyi calin <caszonyi@yahoo.com>, Con Kolivas <kernel@kolivas.org>,
-       Mark Hahn <hahn@physics.mcmaster.ca>,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>,
-       gillb4@telusplanet.net
-In-Reply-To: <1073294318.3247.80.camel@localhost>
-References: <1073227359.6075.284.camel@nosferatu.lan>
-	 <20040104225827.39142.qmail@web40613.mail.yahoo.com>
-	 <20040104233312.GA649@alpha.home.local>
-	 <20040104234703.GY1882@matchmail.com>  <1073294318.3247.80.camel@localhost>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-/PJKlqgwBWEFuCuK700m"
-Message-Id: <1073323208.6075.318.camel@nosferatu.lan>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 05 Jan 2004 19:20:08 +0200
+	Mon, 5 Jan 2004 12:26:45 -0500
+Received: from smtp.dei.uc.pt ([193.137.203.228]:41176 "EHLO smtp.dei.uc.pt")
+	by vger.kernel.org with ESMTP id S265215AbUAERZ7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 12:25:59 -0500
+Date: Mon, 5 Jan 2004 17:25:41 +0000 (WET)
+From: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] mouse info in 2.6.1-rc1
+Message-ID: <Pine.LNX.4.58.0401051716590.23750@student.dei.uc.pt>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-UC-DEI-MailScanner-Information: Please contact helpdesk@dei.uc.pt for more information
+X-UC-DEI-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
---=-/PJKlqgwBWEFuCuK700m
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Hi there...
+I don't really know if this is only in -rc1-mm1 but I suppose -rc1 is affected also.
 
-On Mon, 2004-01-05 at 11:18, Soeren Sonnenburg wrote:
-> On Mon, 2004-01-05 at 00:47, Mike Fedyk wrote:
-> > On Mon, Jan 05, 2004 at 12:33:12AM +0100, Willy Tarreau wrote:
-> > > at a time. I have yet to understand why 'ls|cat' behaves
-> > > differently, but fortunately it works and it has already saved
-> > > me some useful time.
-> >=20
-> > cat probably does some buffering for you, and sends the output to xterm=
- in
-> > larger blocks.
->=20
-> yes indeed, judging from the cat source it does chose optimal buffer
-> size, here 1024 byte... so it reads/writes larger chunks... and jump
-> scrolling takes place...
->=20
+The new changes about synaptics (I think that it was it) made that we don't have
+anymore a boolean (selectable) option in Device Drivers -> Input Device Support
+- -> Mouse Interface;
+Although, it we so to the "non-selectable" option Mouse Interface, the help info
+exists and talks about "slect it if...", so...
 
-I cannot reboot right now, so have wrong kernel for testing, but could
-anyone see what happens if you start X reniced to +10 or such?  Maybe
-some other numbers?
+ Please apply the patch:
+
+- --- linux-2.6.1-rc1-mm2/drivers/input/Kconfig   2003-12-18 03:58:08.000000000 +0100
++++ linux-2.6.1-rc1-mm2-mbn1/drivers/input/Kconfig      2004-01-05 13:38:10.000000000 +0100
+@@ -28,17 +28,6 @@
+        tristate "Mouse interface" if EMBEDDED
+        default y
+        depends on INPUT
+- -       ---help---
+- -         Say Y here if you want your mouse to be accessible as char devices
+- -         13:32+ - /dev/input/mouseX and 13:63 - /dev/input/mice as an
+- -         emulated IntelliMouse Explorer PS/2 mouse. That way, all user space
+- -         programs (includung SVGAlib, GPM and X) will be able to use your
+- -         mouse.
+- -
+- -         If unsure, say Y.
+- -
+- -         To compile this driver as a module, choose M here: the
+- -         module will be called mousedev.
+
+ config INPUT_MOUSEDEV_PSAUX
+        bool "Provide legacy /dev/psaux device" if EMBEDDED
 
 
---=20
-Martin Schlemmer
-
---=-/PJKlqgwBWEFuCuK700m
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
+- --
+==================================================
+Marcos Daniel Marado Torres AKA Mind Booster Noori
+/"\               http://student.dei.uc.pt/~marado
+\ /                       marado@student.dei.uc.pt
+ X   ASCII Ribbon Campaign
+/ \  against HTML e-mail and Micro$oft attachments
+==================================================
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Made with pgp4pine 1.76
 
-iD8DBQA/+ZzIqburzKaJYLYRAlblAJ0SlXDbyiUfMAQc64rpy6EmteOq4wCfZBXp
-UeV/oHMoxjp899rcrsxgdvc=
-=D+0o
+iD8DBQE/+Z4ZmNlq8m+oD34RArVtAKDJjHjADGuxtCCT9RHC98s7hDBoOACcDfIT
+6Zc5scaGgrtRoOOVBc8RPbA=
+=cNaw
 -----END PGP SIGNATURE-----
-
---=-/PJKlqgwBWEFuCuK700m--
 

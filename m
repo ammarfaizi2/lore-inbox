@@ -1,101 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269334AbUIIEhp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269340AbUIIEmR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269334AbUIIEhp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 00:37:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269340AbUIIEhp
+	id S269340AbUIIEmR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 00:42:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269343AbUIIEmR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 00:37:45 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:9726 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S269334AbUIIEhm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 00:37:42 -0400
-Message-ID: <413FDC9F.1030409@mvista.com>
-Date: Wed, 08 Sep 2004 21:31:27 -0700
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: john stultz <johnstul@us.ibm.com>
-CC: Christoph Lameter <clameter@sgi.com>,
-       Albert Cahalan <albert@users.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>, tim@physik3.uni-rostock.de,
-       Ulrich.Windl@rz.uni-regensburg.de, Len Brown <len.brown@intel.com>,
-       linux@dominikbrodowski.de, David Mosberger <davidm@hpl.hp.com>,
-       Andi Kleen <ak@suse.de>, paulus@samba.org, schwidefsky@de.ibm.com,
-       jimix@us.ibm.com, keith maanthey <kmannth@us.ibm.com>,
-       greg kh <greg@kroah.com>, Patricia Gaughen <gone@us.ibm.com>,
-       Chris McDermott <lcm@us.ibm.com>
-Subject: Re: [RFC][PATCH] new timeofday core subsystem (v.A0)
-References: <1094159238.14662.318.camel@cog.beaverton.ibm.com>	 <1094159379.14662.322.camel@cog.beaverton.ibm.com>	 <4137CB3E.4060205@mvista.com> <1094193731.434.7232.camel@cube>	 <41381C2D.7080207@mvista.com>	 <1094239673.14662.510.camel@cog.beaverton.ibm.com>	 <4138EBE5.2080205@mvista.com>	 <1094254342.29408.64.camel@cog.beaverton.ibm.com>	 <41390622.2010602@mvista.com>	 <1094666844.29408.67.camel@cog.beaverton.ibm.com>	 <413F9F17.5010904@mvista.com>	 <1094691118.29408.102.camel@cog.beaverton.ibm.com>	 <Pine.LNX.4.58.0409082005370.28366@schroedinger.engr.sgi.com> <1094700768.29408.124.camel@cog.beaverton.ibm.com>
-In-Reply-To: <1094700768.29408.124.camel@cog.beaverton.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 9 Sep 2004 00:42:17 -0400
+Received: from rproxy.gmail.com ([64.233.170.196]:55644 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S269340AbUIIEmO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 00:42:14 -0400
+Message-ID: <9dda3492040908214277f3d454@mail.gmail.com>
+Date: Thu, 9 Sep 2004 00:42:13 -0400
+From: Paul Blazejowski <diffie@gmail.com>
+Reply-To: Paul Blazejowski <diffie@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.9-rc1-mm4
+Cc: LKML <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-john stultz wrote:
-> On Wed, 2004-09-08 at 20:14, Christoph Lameter wrote:
-> 
->>On Wed, 8 Sep 2004, john stultz wrote:
->>
->>
->>>Why must we use jiffies to tell when a timer expires? Honestly I'd like
->>>to see xtime and jiffies both disappear, but I'm not very familiar w/
->>>the soft-timer code, so forgive me if I'm misunderstanding.
->>>
->>>So instead of calculating delta_jiffies, just mark the timer to expire
->>>at B. Then each interrupt, you use get_fast_timestamp() to decide if now
->>>is greater then B. If so, expire it.
->>>
->>>Then we can look at being able to program timer interrupts to occur as
->>>close as possible to the next soft-timer's expiration time.
->>
->>Would it not be best to have some means to determine the time in
->>nanoseconds since the epoch and then use that for long waits? 
-> 
-> 
-> The proposal has get_lowres_timeofday() which does just that, although
-> for timer stuff, I would guess monotonic_clock() or
-> get_lowres_timestamp(), which returns the number of (ntp adjusted)
-> nanoseconds the system has been running, would be better.  
-> 
-> 
-> 
->>One can then calculate the wait time in nanoseconds which may then be
->>passed to another timer routine which may take the appropriate action
->>depending on the time frame involved. I.e. for a few hundred nsecs do busy
->>wait. If longer reschedule and if even longer queue the task on some
->>event queue that is handled by the timer tick or something else.
-> 
-> 
-> I'm not sure about the busy wait bit, but yes, at some point I'd like to
-> see the timer subsystem use the timeofday subsystem instead of jiffies
-> for its timekeeping. 
-> 
-Yes, I think this is the way we want to go.  Here are the "rubs" I see:
+Andrew,
 
-a.) resolution.  If you don't put a limit on this you will invite timer storms. 
-  Currently, by useing 1/HZ resolution, all timer "line up" on ticks and reduce 
-the interrupt overhead that would occure if we actually tried to give "exactly" 
-what was asked for.  This is a matter of math and can be handled (assuming we 
-resist the urge to go shopping :))
+IT8212 driver fails to recognize RAID0 setup. The driver is built in
+as module (it8212).
 
-b.) For those platforms with repeating timers that can not "hit" our desired 
-resolution (i.e. 1/HZ) there is an additional overhead to program the timer each 
-interrupt.   In principle we do this in the HRT patch, but there we only do it 
-for high resolution timers, which we assume are rather rare.  It is good to have 
-a low res timer that is also accurate.  Even better if we can keep the overhead 
-low by not having to reprogram a timer each tick.
+The drives are WDC 120gigers on primary channel as master/slave
+configured for RAID0.
 
-In the ideal world we would have a hardware repeating timer that is reasonably 
-accurate (we might want to correct it every second or so) to generate the low 
-res timing interrupts and a high res timer that we can program quickly for high 
-resolution interrupts.
+>From dmesg:
+
+IT8212: IDE controller at PCI slot 0000:01:0c.0
+ACPI: PCI Interrupt Link [APC2] enabled at IRQ 17
+ACPI: PCI interrupt 0000:01:0c.0[A] -> GSI 17 (level, high) -> IRQ 17
+IT8212: chipset revision 16
+IT8212: 100% native mode on irq 17
+    ide2: BM-DMA at 0x9800-0x9807, BIOS settings: hde:DMA, hdf:pio
+it8212: controller in RAID mode.
+    ide3: BM-DMA at 0x9808-0x980f, BIOS settings: hdg:pio, hdh:pio
+Probing IDE interface ide2...
+hde: Integrated Technology Express Inc, ATA DISK drive
+ide2 at 0x8810-0x8817,0x8c02 on irq 17
+hde: max request size: 128KiB
+hde: 0 sectors (0 MB), CHS=0/0/0
+hde: cache flushes not supported
+hde: INVALID GEOMETRY: 0 PHYSICAL HEADS?
+Probing IDE interface ide3...
+
+lsmod shows:
+
+it8212                  6336  0 [permanent]
+
+lspci -v:
+
+01:0c.0 RAID bus controller: Integrated Technology Express, Inc.
+IT/ITE8212 Dual channel ATA RAID controller (PCI version seems to be
+IT8212, embedded seems (rev 10)
+        Subsystem: Integrated Technology Express, Inc.: Unknown device 0001
+        Flags: bus master, 66Mhz, medium devsel, latency 0, IRQ 17
+        I/O ports at 8810 [size=8]
+        I/O ports at 8c00 [size=4]
+        I/O ports at 9010 [size=8]
+        I/O ports at 9400 [size=4]
+        I/O ports at 9800 [size=16]
+        Expansion ROM at <unassigned> [disabled] [size=128K]
+        Capabilities: [80] Power Management version 2
+
+The board is Gigabyte GA-7NNXP.
+
+Under mm3 kernel, RAID0 was working when using the now dropped iteraid driver.
+
+Paul
 
 -- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
-
+FreeBSD the Power to Serve!

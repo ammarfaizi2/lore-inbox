@@ -1,274 +1,154 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262363AbTCRJOV>; Tue, 18 Mar 2003 04:14:21 -0500
+	id <S262272AbTCRJQq>; Tue, 18 Mar 2003 04:16:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262360AbTCRJOV>; Tue, 18 Mar 2003 04:14:21 -0500
-Received: from w1312.hostcentric.net ([66.40.206.254]:61704 "HELO
-	w1312.hostcentric.net") by vger.kernel.org with SMTP
-	id <S262314AbTCRJOR>; Tue, 18 Mar 2003 04:14:17 -0500
-Message-Id: <5.2.0.9.0.20030318150912.033626b0@mail.impulsesoft.com>
-Illegal-Object: Syntax error in X-Sender: address found on vger.kernel.org:
-	X-Sender:	nalin@impulsesoft.com@mail.impulsesoft.com
-					     ^-illegal special character in phrase
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
-Date: Tue, 18 Mar 2003 15:09:58 +0530
-To: linux-kernel@vger.kernel.org
-From: Nalin Gupta <nalin@impulsesoft.com>
-Subject: alloc_skb panic oops / virtual network interface
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S262295AbTCRJQp>; Tue, 18 Mar 2003 04:16:45 -0500
+Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:16516 "EHLO
+	mail.kolivas.org") by vger.kernel.org with ESMTP id <S262272AbTCRJQl> convert rfc822-to-8bit;
+	Tue, 18 Mar 2003 04:16:41 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [BENCHMARK] 2.5.65 with contest
+Date: Tue, 18 Mar 2003 20:27:25 +1100
+User-Agent: KMail/1.5
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200303182027.34652.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Friends,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I desperately need help on following issue.
-I'll be extremely grateful for the help.
-May be my approach is incorrect, as I am a sort of starter.
+Here are contest (http://contest.kolivas.org) benchmarks using the osdl 
+hardware (http://www.osdl.org) up to and including 2.5.65.
 
-I'm using (RH 7.3) 2.4.18-3
+no_load:
+Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
+2.5.59              3   79      93.7    0.0     0.0     1.00
+2.5.60              2   79      94.9    0.0     0.0     1.00
+2.5.61              1   79      94.9    0.0     0.0     1.00
+2.5.62              3   79      94.9    0.0     0.0     1.00
+2.5.63              4   79      94.9    0.0     0.0     1.00
+2.5.64              3   79      94.9    0.0     0.0     1.00
+2.5.65              3   80      95.0    0.0     0.0     1.00
+cacherun:
+Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
+2.5.59              3   76      97.4    0.0     0.0     0.96
+2.5.60              2   75      98.7    0.0     0.0     0.95
+2.5.61              1   76      97.4    0.0     0.0     0.96
+2.5.62              3   76      97.4    0.0     0.0     0.96
+2.5.63              4   76      97.4    0.0     0.0     0.96
+2.5.64              3   75      98.7    0.0     0.0     0.95
+2.5.65              3   76      98.7    0.0     0.0     0.95
+process_load:
+Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
+2.5.59              3   92      81.5    29.7    17.4    1.16
+2.5.60              2   93      80.6    30.5    17.2    1.18
+2.5.61              1   93      80.6    29.0    16.1    1.18
+2.5.62              3   92      81.5    30.0    16.3    1.16
+2.5.63              4   92      81.5    28.2    15.2    1.16
+2.5.64              3   92      81.5    30.0    16.3    1.16
+2.5.65              3   243     30.5    317.0   68.3    3.04
+This is fair enough given process load is four processes and the kernel 
+compile is up to four (-j4)
 
-For some reason, I am writing a "virtual network device interface"
-which in turn uses UDP Socket to perform IP packet transfer as payload,
-across network. For this reason, I have a daemonized kernel_thread,
-which further creates a udp socket and passes it to a
-new kernel thread as argument.
+ctar_load:
+Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
+2.5.59              3   98      80.6    2.0     5.1     1.24
+2.5.60              2   99      78.8    1.0     4.0     1.25
+2.5.61              2   100     79.0    1.0     4.0     1.27
+2.5.62              3   99      79.8    1.0     4.0     1.25
+2.5.63              3   99      79.8    1.0     4.0     1.25
+2.5.64              3   100     79.0    0.0     0.0     1.27
+2.5.65              3   108     72.2    0.0     0.0     1.35
+xtar_load:
+Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
+2.4.20              1   130     59.2    2.0     4.6     1.67
+2.5.59              3   102     74.5    1.0     3.9     1.29
+2.5.60              2   101     76.2    1.0     5.0     1.28
+2.5.61              2   102     75.5    1.0     4.9     1.29
+2.5.62              3   103     73.8    1.0     3.9     1.30
+2.5.63              3   102     74.5    1.0     3.9     1.29
+2.5.64              3   103     73.8    1.0     3.9     1.30
+2.5.65              3   106     71.7    1.0     3.8     1.32
+io_load:
+Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
+2.5.59              3   152     50.0    34.1    13.1    1.92
+2.5.60              2   139     54.7    29.0    12.1    1.76
+2.5.61              2   143     52.4    32.9    13.3    1.81
+2.5.62              2   205     36.6    51.7    15.0    2.59
+2.5.63              5   217     35.0    56.7    15.1    2.75
+2.5.64              3   229     33.2    58.8    14.8    2.90
+2.5.65              3   411     19.0    137.5   20.4    5.14
+More unused cpu time for the first time in a lot of kernels. Lots of work done 
+by io load in that time though.
 
-This new kernel_thread blocks on sock_recvmsg call. I have wrapped
-calls like "sock_recvmsg" and "sock_sendmsg" with get_fs/set_fs in
-typical manner.
+io_other:
+Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
+2.5.59              3   89      84.3    11.2    5.6     1.13
+2.5.60              2   90      83.3    10.8    5.5     1.14
+2.5.61              2   91      82.4    11.1    5.5     1.15
+2.5.62              2   96      78.1    15.7    8.2     1.22
+2.5.63              4   95      78.9    15.3    8.3     1.20
+2.5.64              3   100     75.0    18.4    9.0     1.27
+2.5.65              3   164     47.6    71.7    26.2    2.05
+Similar here but with not as great a rise in unused cpu time.
 
-I understand that sock->sk->allocation will be GFP_KERNEL, and
-whenever any local user application like ping will use my device
-to transmit out its data, that will happen on BH/Tasklet -
-"do_softirq/net_tx_action".
+read_load:
+Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
+2.5.59              3   101     77.2    6.5     5.0     1.28
+2.5.60              2   103     74.8    6.2     6.8     1.30
+2.5.61              2   102     77.5    6.3     4.9     1.29
+2.5.62              2   103     75.7    6.2     4.9     1.30
+2.5.63              3   106     74.5    5.7     4.7     1.34
+2.5.64              3   103     76.7    6.2     4.9     1.30
+2.5.65              3   107     72.9    6.3     4.7     1.34
+list_load:
+Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
+2.5.59              3   95      80.0    0.0     6.3     1.20
+2.5.60              2   95      80.0    0.0     6.3     1.20
+2.5.61              2   95      81.1    0.0     6.3     1.20
+2.5.62              2   95      80.0    0.0     6.3     1.20
+2.5.63              3   96      79.2    0.0     6.2     1.22
+2.5.64              3   96      79.2    0.0     6.2     1.22
+2.5.65              3   98      78.6    0.0     7.1     1.23
+mem_load:
+Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
+2.5.59              3   95      82.1    52.7    2.1     1.20
+2.5.60              2   98      79.6    53.0    2.0     1.24
+2.5.61              1   96      81.2    54.0    2.1     1.22
+2.5.62              2   101     78.2    59.0    2.0     1.28
+2.5.63              3   104     75.0    57.7    1.9     1.32
+2.5.64              3   105     74.3    58.3    1.9     1.33
+2.5.65              3   112     70.5    67.3    2.7     1.40
+dbench_load:
+Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
+2.5.59              3   214     36.4    2.3     40.7    2.71
+2.5.61              2   237     32.5    3.0     47.3    3.00
+2.5.62              2   226     34.1    2.5     42.0    2.86
+2.5.63              4   194     39.2    2.0     38.7    2.46
+2.5.64              3   222     34.2    2.3     38.7    2.81
+2.5.65              3   542     14.2    9.0     62.5    6.78
+This one is interesting. More work done, more balance given to dbench, but no 
+more wasted cpu time. A pure balance change without wasted cycles. Since 
+dbench load is 16 processes this seems appropriate.
 
-For this reason, it will be in interrupt context. So I mask
-GFP_WAIT bit like:
-             priv->sock->sk->allocation &= ~__GFP_WAIT;
+Massive changes all over the map. The scheduler tweaks have changed most of 
+the balance. I don't think contest is capable of showing the advantage of the 
+new tweaks designed to minimise things like audio stuttering. Perhaps Bill 
+Davidsen's trivial response benchmark is more suited. 
 
-My network interface comes up nicely: (appears to me)
+Con
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
 
-%ifconfig
-
-mic0 Link encap:Point-to-Point Protocol
-           inet addr:30.0.0.1 P-t-P:30.0.0.2 Mask:255.255.255.255
-           UP POINTOPOINT RUNNING NOARP MULTICAST MTU:1300 Metric:1
-           RX packets:0 errors:0 dropped:0 overruns:0 frame:0
-           TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
-           collisions:0 txqueuelen:50
-           RX bytes:0 (0.0 b) TX bytes:0 (0.0 b)
-
-I can also do
-                 %ping 30.0.0.1
-but now if I try
-                 %ping 30.0.0.2 -I mic0
-kernel panic with oops.
-
-Using Serial Console, I captured Oops msg, appended at end.
-
-Using ksymoops and also objdump/nm tool, it appears to me
-that it panics at file:(include/linux/skbuff.h:575)
-     inline function: __skb_dequeue (struct sk_buff_head *list)
-     line 575: next->prev = prev;
-
-Probably the statment before this (line:572)
-       next = next->next;
-plays some important role. From edx becoming ZERO, implies
-next is assigned NULL. Is it correct ?
-
-Am I doing something conceptually incorrect ?
-Or is it some paging problem and I need to take care of same.
-If yes, then how.
-
-It seems that function sock_alloc_send_pskb is pretty complicated
-and needs to be used with care. If some one could share related
-vital point, that would be great help to me.
-
-regards,
-- nalin
-
-==================== Oops ==========================
-Unable to handle kernel NULL pointer dereference at virtual address 00000004
-  printing eip:
-c01c5b5d
-*pde = 00000000
-Oops: 0002
-f t binfmt_misc autofs 8139too mii ide-cd cdrom ehci-hcd usb-uhci usbcore ext3
-CPU: 0
-EIP: 0010:[<c01c5b5d>] Tainted: P
-EFLAGS: 00010006
-
-EIP is at alloc_skb [kernel] 0x7d (2.4.18-3)
-
-eax: c6bca500 ebx: 00000013 ecx: 00000202 edx: 00000000
-esi: 000001e0 edi: 00000000 ebp: c4ea65a0 esp: c4545a1c
-ds: 0018 es: 0018 ss: 0018
-
-Process ping (pid: 1171, stackpage=c4545000)
-
-Stack: 000001e0 c4544000 c01c5083 0000008f 000001e0 c6bca5c0 c02d16e0 c6bca5c0
-        c594d120 c01cd509 00000010 c4ea65a0 00000000 c4ea65a0 c01c51fb 
-c4ea65a0
-        0000008f 00000000 00000000 c4545a84 c01de445 c4ea65a0 0000008f 
-00000000
-Call Trace:
-[<c01c5083>] sock_alloc_send_pskb [kernel] 0x73
-[<c01cd509>] neigh_resolve_output [kernel] 0xc9
-[<c01c51fb>] sock_alloc_send_skb [kernel] 0x1b
-[<c01de445>] ip_build_xmit [kernel] 0x105
-[<c01f6ed6>] udp_sendmsg [kernel] 0x386
-[<c01f6a20>] udp_getfrag [kernel] 0x0
-[<c01778e9>] scrup [kernel] 0x69
-[<c01b3192>] vgacon_cursor [kernel] 0x192
-[<c01fcc65>] inet_sendmsg [kernel] 0x35
-[<c01c2adc>] sock_sendmsg [kernel] 0x6c
-[<c0117feb>] call_console_drivers [kernel] 0xeb
-[<c80ddc9e>] mic_SendMsgTo [f] 0x72
-[<c80dd8f5>] micdev_xmit [f] 0x12d
-[<c809b401>] rh_status_urb [usbcore] 0xa1
-[<c01d165a>] qdisc_restart [kernel] 0x4a
-[<c01c9dee>] net_tx_action [kernel] 0x9e
-[<c011bccb>] do_softirq [kernel] 0x4b
-[<c01cb5d2>] .text.lock.dev [kernel] 0x4c
-[<c01dd8ee>] ip_output [kernel] 0xde
-[<c01de601>] ip_build_xmit [kernel] 0x2c1
-[<c01de623>] ip_build_xmit [kernel] 0x2e3
-[<c01f5f30>] raw_sendmsg [kernel] 0x2d0
-[<c01f5b80>] raw_getfrag [kernel] 0x0
-[<c0200bc8>] fn_hash_lookup [kernel] 0x98
-[<c01fcc65>] inet_sendmsg [kernel] 0x35
-[<c01c2adc>] sock_sendmsg [kernel] 0x6c
-[<c01c2602>] move_addr_to_kernel [kernel] 0x32
-[<c01c3cb6>] sys_sendmsg [kernel] 0x186
-[<c016c4c7>] tty_write [kernel] 0x187
-[<c016dbd9>] tty_ioctl [kernel] 0x189
-[<c01c412c>] sys_socketcall [kernel] 0x1dc
-[<c0108923>] system_call [kernel] 0x33
-
-Code: c7 42 04 c0 be 36 c0 89 15 c0 be 36 c0 c7 00 00 00 00 00 c7
-  <0>Kernel panic: Aiee, killing interrupt handler!
-In interrupt handler - not syncing
-
-================================= Ksymoops ================================
-ksymoops 2.4.4 on i686 2.4.18-3. Options used
-      -V (default)
-      -k /proc/ksyms (default)
-      -l /proc/modules (default)
-      -o /lib/modules/2.4.18-3/ (default)
-      -m /boot/System.map-2.4.18-3 (default)
-
-Warning: You did not tell me where to find symbol information. I will
-assume that the log matches the kernel and modules that are running
-right now and I'll use the default options above for symbol resolution.
-If the current kernel and/or modules do not match the log, you can get
-more accurate output by telling me the kernel version and where to find
-map, modules, ksyms etc. ksymoops -h explains the options.
-
-Error (expand_objects): cannot stat(/lib/ext3.o) for ext3
-Error (expand_objects): cannot stat(/lib/jbd.o) for jbd
-Warning (compare_maps): mismatch on symbol partition_name , ksyms_base says
-c01bd130, System.map says c015abe0. Ignoring ksyms_base entry
-Warning (map_ksym_to_module): cannot match loaded module ext3 to a unique 
-module
-object. Trace may not be reliable.
-Unable to handle kernel NULL pointer dereference at virtual address 00000004
-c01c5b5d
-*pde = 00000000
-Oops: 0002
-CPU: 0
-EIP: 0010:[<c01c5b5d>] Tainted: P
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010006
-eax: c6bca500 ebx: 00000013 ecx: 00000202 edx: 00000000
-esi: 000001e0 edi: 00000000 ebp: c4ea65a0 esp: c4545a1c
-ds: 0018 es: 0018 ss: 0018
-Process ping (pid: 1171, stackpage=c4545000)
-Stack: 000001e0 c4544000 c01c5083 0000008f 000001e0 c6bca5c0 c02d16e0 c6bca5c0
-        c594d120 c01cd509 00000010 c4ea65a0 00000000 c4ea65a0 c01c51fb 
-c4ea65a0
-        0000008f 00000000 00000000 c4545a84 c01de445 c4ea65a0 0000008f 
-00000000
-
-Call Trace:
-[<c01c5083>] sock_alloc_send_pskb [kernel] 0x73
-[<c01cd509>] neigh_resolve_output [kernel] 0xc9
-[<c01c51fb>] sock_alloc_send_skb [kernel] 0x1b
-[<c01de445>] ip_build_xmit [kernel] 0x105
-[<c01f6ed6>] udp_sendmsg [kernel] 0x386
-[<c01f6a20>] udp_getfrag [kernel] 0x0
-[<c01778e9>] scrup [kernel] 0x69
-[<c01b3192>] vgacon_cursor [kernel] 0x192
-[<c01fcc65>] inet_sendmsg [kernel] 0x35
-[<c01c2adc>] sock_sendmsg [kernel] 0x6c
-[<c0117feb>] call_console_drivers [kernel] 0xeb
-[<c80ddc9e>] mic_SendMsgTo [f] 0x72
-[<c80dd8f5>] micdev_xmit [f] 0x12d
-[<c809b401>] rh_status_urb [usbcore] 0xa1
-[<c01d165a>] qdisc_restart [kernel] 0x4a
-[<c01c9dee>] net_tx_action [kernel] 0x9e
-[<c011bccb>] do_softirq [kernel] 0x4b
-[<c01cb5d2>] .text.lock.dev [kernel] 0x4c
-[<c01dd8ee>] ip_output [kernel] 0xde
-[<c01de601>] ip_build_xmit [kernel] 0x2c1
-[<c01de623>] ip_build_xmit [kernel] 0x2e3
-[<c01f5f30>] raw_sendmsg [kernel] 0x2d0
-[<c01f5b80>] raw_getfrag [kernel] 0x0
-[<c0200bc8>] fn_hash_lookup [kernel] 0x98
-[<c01fcc65>] inet_sendmsg [kernel] 0x35
-[<c01c2adc>] sock_sendmsg [kernel] 0x6c
-[<c01c2602>] move_addr_to_kernel [kernel] 0x32
-[<c01c3cb6>] sys_sendmsg [kernel] 0x186
-[<c016c4c7>] tty_write [kernel] 0x187
-[<c016dbd9>] tty_ioctl [kernel] 0x189
-[<c01c412c>] sys_socketcall [kernel] 0x1dc
-[<c0108923>] system_call [kernel] 0x33
-Code: c7 42 04 c0 be 36 c0 89 15 c0 be 36 c0 c7 00 00 00 00 00 c7
- >>EIP; c01c5b5d <alloc_skb+7d/1b0> <=====
-Trace; c01c5083 <sock_alloc_send_pskb+73/1d0>
-Trace; c01cd509 <neigh_resolve_output+c9/1a0>
-Trace; c01c51fb <sock_alloc_send_skb+1b/20>
-Trace; c01de445 <ip_build_xmit+105/390>
-Trace; c01f6ed6 <udp_sendmsg+386/410>
-Trace; c01f6a20 <udp_getfrag+0/d0>
-Trace; c01778e9 <scrup+69/120>
-Trace; c01b3192 <vgacon_cursor+192/1a0>
-Trace; c01fcc65 <inet_sendmsg+35/40>
-Trace; c01c2adc <sock_sendmsg+6c/90>
-Trace; c0117feb <call_console_drivers+eb/100>
-Trace; c80ddc9e <.bss.end+5f1b/????>
-Trace; c80dd8f5 <.bss.end+5b72/????>
-Trace; c809b401 <[usbcore]rh_status_urb+a1/b0>
-Trace; c01d165a <qdisc_restart+4a/d0>
-Trace; c01c9dee <net_tx_action+9e/b0>
-Trace; c011bccb <do_softirq+4b/90>
-Trace; c01cb5d2 <.text.lock.dev+4c/10a>
-Trace; c01dd8ee <ip_output+de/140>
-Trace; c01de601 <ip_build_xmit+2c1/390>
-Trace; c01de623 <ip_build_xmit+2e3/390>
-Trace; c01f5f30 <raw_sendmsg+2d0/350>
-Trace; c01f5b80 <raw_getfrag+0/20>
-Trace; c0200bc8 <fn_hash_lookup+98/f0>
-Trace; c01fcc65 <inet_sendmsg+35/40>
-Trace; c01c2adc <sock_sendmsg+6c/90>
-Trace; c01c2602 <move_addr_to_kernel+32/50>
-Trace; c01c3cb6 <sys_sendmsg+186/1e0>
-Trace; c016c4c7 <tty_write+187/200>
-Trace; c016dbd9 <tty_ioctl+189/360>
-Trace; c01c412c <sys_socketcall+1dc/200>
-Trace; c0108923 <system_call+33/38>
-Code; c01c5b5d <alloc_skb+7d/1b0>
-00000000 <_EIP>:
-Code; c01c5b5d <alloc_skb+7d/1b0> <=====
-    0: c7 42 04 c0 be 36 c0 movl $0xc036bec0,0x4(%edx) <=====
-Code; c01c5b64 <alloc_skb+84/1b0>
-    7: 89 15 c0 be 36 c0 mov %edx,0xc036bec0
-Code; c01c5b6a <alloc_skb+8a/1b0>
-    d: c7 00 00 00 00 00 movl $0x0,(%eax)
-Code; c01c5b70 <alloc_skb+90/1b0>
-   13: c7 00 00 00 00 00 movl $0x0,(%eax)
-
-  <0>Kernel panic: Aiee, killing interrupt handler!
-
-3 warnings and 2 errors issued. Results may not be reliable.
+iD8DBQE+duZ/F6dfvkL3i1gRArkvAKCPq5x/1FlLBGUfdhNLLM8OIlfPXACeIxMK
+SHrwEQMuOR92zcelAd5TvYU=
+=zyrd
+-----END PGP SIGNATURE-----
 

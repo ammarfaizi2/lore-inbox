@@ -1,39 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264448AbTGWOQb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 10:16:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270352AbTGWOQa
+	id S270338AbTGWOOL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 10:14:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270342AbTGWOOL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 10:16:30 -0400
-Received: from crosslink-village-512-1.bc.nu ([81.2.110.254]:30200 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S264448AbTGWOPw convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 10:15:52 -0400
-Subject: Re: Accessing serial port from kernel module
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Kurt =?ISO-8859-1?Q?H=E4usler?= <Kurt@fub-group.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <8FB92279C69C2944B325B4BD227401790156B8@nt-server.danziger.local>
-References: <8FB92279C69C2944B325B4BD227401790156B8@nt-server.danziger.local>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-Organization: 
-Message-Id: <1058970342.5520.74.camel@dhcp22.swansea.linux.org.uk>
+	Wed, 23 Jul 2003 10:14:11 -0400
+Received: from H-135-207-24-16.research.att.com ([135.207.24.16]:11400 "EHLO
+	linux.research.att.com") by vger.kernel.org with ESMTP
+	id S270338AbTGWOOI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 10:14:08 -0400
+Date: Wed, 23 Jul 2003 10:28:22 -0400 (EDT)
+From: David Korn <dgk@research.att.com>
+Message-Id: <200307231428.KAA15254@raptor.research.att.com>
+X-Mailer: mailx (AT&T/BSD) 9.9 2003-01-17
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 23 Jul 2003 15:25:43 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+To: davem@redhat.com
+Subject: Re: Re: kernel bug in socketpair()
+Cc: gsf@research.att.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2003-07-23 at 15:15, Kurt Häusler wrote:
-> What is the preferred way in Linux for my module to open the serial port device such as /dev/ttyS1.
 
-Make your driver a line discipline is the normal approach in this case
-(ok to be fair putting it all in user space is the normal case). Take a
-look at slip.c to see how slip sits above terminal interfaces.
+> On Wed, 23 Jul 2003 09:32:09 -0400 (EDT)
+> David Korn <dgk@research.att.com> wrote:
+> 
+> [ Added netdev@oss.sgi.com, the proper place to discuss networking kernel issues
+> . ]
+> 
+> > The first problem is that files created with socketpair() are not accessible
+> > via /dev/fd/n or /proc/$$/fd/n where n is the file descriptor returned
+> > by socketpair().  Note that this is not a problem with pipe().
+> 
+> Not a bug.
+> 
+> Sockets are not openable via /proc files under any circumstances,
+> not just the circumstances you describe.  This is a policy decision and
+> prevents a whole slew of potential security holes.
+> 
+> 
 
-The user space only approach is to use pty/tty pairs as things like
-xterm do. This gives you a "terminal/serial" device the other end of
-which is your user space program which can do the conversions it wants
-then talk to a real serial port
+Thanks for you quick response.
 
+This make sense for INET sockets, but I don't understand the security
+considerations for UNIX domain sockets.  Could you please elaborate?
+Moreover, /dev/fd/n, (as opposed to /proc/$$/n) is restricted to
+the current process and its decendents if close-on-exec is not specified.
+Again, I don't understand why this would create a security problem
+either since the socket is already accesible via the original
+descriptor.
+
+Finally if this is a security problem, why is the errno is set to ENXIO 
+rather than EACCESS?
+
+David Korn
+dgk@research.att.com

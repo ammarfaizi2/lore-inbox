@@ -1,70 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261522AbTCZLPn>; Wed, 26 Mar 2003 06:15:43 -0500
+	id <S261598AbTCZLXr>; Wed, 26 Mar 2003 06:23:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261526AbTCZLPm>; Wed, 26 Mar 2003 06:15:42 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:195 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S261522AbTCZLPl>; Wed, 26 Mar 2003 06:15:41 -0500
-Date: Wed, 26 Mar 2003 12:26:49 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Jaroslav Kysela <perex@suse.cz>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 2.5.66: compile problem with snd-ice1724
-Message-ID: <20030326112648.GL24744@fs.tum.de>
-References: <Pine.LNX.4.44.0303241524050.1741-100000@penguin.transmeta.com>
+	id <S261610AbTCZLXr>; Wed, 26 Mar 2003 06:23:47 -0500
+Received: from pine.compass.com.ph ([202.70.96.37]:31756 "HELO
+	pine.compass.com.ph") by vger.kernel.org with SMTP
+	id <S261598AbTCZLXp>; Wed, 26 Mar 2003 06:23:45 -0500
+Subject: Re: [Linux-fbdev-devel] [BK FBDEV] A few more updates.
+From: Antonino Daplas <adaplas@pol.net>
+To: Petr Vandrovec <vandrove@vc.cvut.cz>
+Cc: James Simmons <jsimmons@infradead.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <84D3825146@vcnet.vc.cvut.cz>
+References: <84D3825146@vcnet.vc.cvut.cz>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1048677567.1025.64.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0303241524050.1741-100000@penguin.transmeta.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 26 Mar 2003 19:20:19 +0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 24, 2003 at 03:26:47PM -0800, Linus Torvalds wrote:
->...
-> Summary of changes from v2.5.65 to v2.5.66
-> ============================================
->...
-> Jaroslav Kysela <perex@suse.cz>:
->   o ALSA update
->...
+On Wed, 2003-03-26 at 18:42, Petr Vandrovec wrote:
+> On 26 Mar 03 at 17:53, Antonino Daplas wrote:
+> > On Wed, 2003-03-26 at 13:34, James Simmons wrote:
+> > > 
+> > > > 5.  softcursor should not concern itself with memory bookkeeping, and
+> > > > must be able to function with just the parameter passed to it in order
+> > > > to keep it as simple as possible.  These tasks are moved to
+> > > > accel_cursor.
+> > > 
+> > > We do if we make a ioctl for cursors. I'm trying to avoid reprogramming 
+> > > the hardware over and over again if the properties of the cursor don't 
+> > > change. The idea is similar to passing in var and comparing it to the var 
+> > > in struct fb_info. 
+> > 
+> > Of course, that's what the fb_cursor.set field is for, and drivers have
+> > the option of ignoring or not ignoring bits in this field. Whoever calls
+> > fb_cursor has the responsibility of setting any cursor state changes. 
+> > 
+> > Unlike fb_set_var(), cursor states change very frequently (ie, each
+> > blink or movement of the cursor are considered state changes), so just
+> > forego the memcmp() and call fb_cursor unconditionally.  Let the
+> > low-level method sort it out by checking bits in fb_cursor.set.
+> 
+> accel_cursor unconditionally sets FB_CUR_SETPOS. Can you write it
+> down to the TODO list to eliminate this? Cursor position lives 
+> in different registers than cursor enable/disable on my hardware...
+> 
 
-snd-ice1724 seems to be too much of a copy of snd-ice1712, trying to 
-compile both into the kernel results in the following error:
+The patch that I submitted to James does that already.
 
-<--  snip  -->
+> And if we could rename FB_CUR_SETCUR to FB_CUR_SETVISIBILITY and
+> leave cursor->enable setting on accel_cursor's caller, it would
+> be even better.
+> 
+> And if we could change enable value to 0: disable; 1: enable;
+> 2: disable due to blink (called from vbl), it would be even better,
+> as then fbdev which does hardware blinking could just completely
+> ignore changes which set only FB_CUR_SETVISIBILITY with enable == 2.
 
-...
-   ld -m elf_i386  -r -o sound/pci/ice1712/built-in.o 
-sound/pci/ice1712/snd-ice1712.o sound/pci/ice1712/snd-ice1724.o
-sound/pci/ice1712/snd-ice1724.o(.text+0x540): In function 
-`snd_ice1712_akm4xxx_init':
-: multiple definition of `snd_ice1712_akm4xxx_init'
-sound/pci/ice1712/snd-ice1712.o(.text+0x7540): first defined here
-sound/pci/ice1712/snd-ice1724.o(.text+0x2c0): In function 
-`snd_ice1712_akm4xxx_reset':
-: multiple definition of `snd_ice1712_akm4xxx_reset'
-sound/pci/ice1712/snd-ice1712.o(.text+0x72c0): first defined here
-sound/pci/ice1712/snd-ice1724.o(.text+0x8c0): In function 
-`snd_ice1712_akm4xxx_build_controls':
-: multiple definition of `snd_ice1712_akm4xxx_build_controls'
-sound/pci/ice1712/snd-ice1712.o(.text+0x78c0): first defined here
-sound/pci/ice1712/snd-ice1724.o(.text+0x0): In function 
-`snd_ice1712_akm4xxx_write':
-: multiple definition of `snd_ice1712_akm4xxx_write'
-sound/pci/ice1712/snd-ice1712.o(.text+0x7000): first defined here
-make[3]: *** [sound/pci/ice1712/built-in.o] Error 1
 
-<--  snip  -->
+Okay.
 
-cu
-Adrian
 
--- 
+Tony
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

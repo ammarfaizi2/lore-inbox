@@ -1,414 +1,140 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265608AbTBJWhJ>; Mon, 10 Feb 2003 17:37:09 -0500
+	id <S265402AbTBJW2s>; Mon, 10 Feb 2003 17:28:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265612AbTBJWhJ>; Mon, 10 Feb 2003 17:37:09 -0500
-Received: from fmr03.intel.com ([143.183.121.5]:2756 "EHLO hermes.sc.intel.com")
-	by vger.kernel.org with ESMTP id <S265608AbTBJWg4>;
-	Mon, 10 Feb 2003 17:36:56 -0500
-Subject: Re: [PATCH][DRIVER][RFC] CPU5 watchdog driver for 2.5
-From: Rusty Lynch <rusty@linux.co.intel.com>
-To: Heiko Ronsdorf <sk048ro@crimson.ihg.uni-duisburg.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030210201732.GA25722@mail.ihg.uni-duisburg.de>
-References: <20030210201732.GA25722@mail.ihg.uni-duisburg.de>
-Content-Type: text/plain
+	id <S265400AbTBJW2s>; Mon, 10 Feb 2003 17:28:48 -0500
+Received: from ishtar.tlinx.org ([64.81.58.33]:50391 "EHLO ishtar.tlinx.org")
+	by vger.kernel.org with ESMTP id <S265385AbTBJW2h>;
+	Mon, 10 Feb 2003 17:28:37 -0500
+From: "LA Walsh" <law@tlinx.org>
+To: <linux-kernel@vger.kernel.org>
+Cc: <torvalds@transmeta.com>, <linux-security-module@wirex.com>
+Subject: RE: [BK PATCH] LSM changes for 2.5.59
+Date: Mon, 10 Feb 2003 14:38:12 -0800
+Message-ID: <004e01c2d155$184a8f00$1403a8c0@sc.tlinx.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 10 Feb 2003 14:33:27 -0800
-Message-Id: <1044916408.4724.11.camel@vmhack>
-Mime-Version: 1.0
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4510
+In-Reply-To: <200302101957.OAA08418@moss-shockers.ncsc.mil>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-02-10 at 12:17, Heiko Ronsdorf wrote:
-> Hello linux-kernel,
+> From: Stephen D. Smalley [mailto:sds@epoch.ncsc.mil] 
+> Linda Walsh wrote:
+> > 	A security model that mediates access to security objects by
+> > logging all access and blocking access if logging cannot continue is
+> > unsupportable in any straight forward, efficient and/or 
+> non-kludgy, ugly way.  
 > 
-> this patch is for CPU5 watchdog hardware (kernel 2.5.59)
+> Could this possibly be a result of the above being a fundamentally
+> flawed security model? 
+---
+	Perhaps you should discuss this with your employer, since it
+was the DoD and NSA that came up with the policy.  
+
+
+> Not to mention it being primarily an auditing
+> model rather than a real access control model.  It also seems a bit
+> problematic regardless of your kernel security framework; what does
+> "logging cannot continue" truly mean? 
+---
+	For someone working in security, I'm surprised you aren't familiar
+with the Controlled Access Protection Profile (CAPP).  It's a superset of
+the old DoD "Orange Book" "C2" standard. 
+ 
+	The above policy, which you say isn't a "real access control model"
+falls under the "Controlled Access" PP's definition of Access Control.
+Are you saying the CAPP isn't "really" an Access Control specification for
+an OS?  It is onthe "Common Criteria's" OS list 
+(http://www.commoncriteria.org/ccc/protection_profiles/ppinfo.jsp?id=4&status=Certified).  
+	Of course if 15-country recognition isn't enough, there's your  employer's own Trusted Product page
+(http://www.radium.ncsc.mil/tpep/).  
+The CAPP specifies detail used in evaluating whether or not one "truly" 
+meets the requirement. Maybe you can find someone around where 
+you work who is more familiar with CC security evaluations who can
+give you more information.
+
+
+> Do you have to verify that the
+> log record made it to disk before you can proceed with the operation?
+---
+	I'll refer you to section 5.1 of the above document. It describes 
+the required audit policies, one of which, includes the _option_ of 
+stopping the machine.
+
+	Is it fundamentally flawed security for a bank to have an ATM shut down if it can no longer log or record transactions?
+
+
+> <insane ranting about evil conspiracies ignored>
+---
+	<we don't like what she is saying...quick, call her a witch, a 
+heretic, lets portray her as, bwahaha, i-n-s-a-n-e!>  "Evil?"  I don't
+recall that word.  I'm fuzzy on the whole good-evil thing.  Whattya mean 'evil?'
+
+
+
+> > 	Also unsupported: The "no-security" model -- where all security 
+> > is thrown out (to save memory space and cycles) that was 
+> desired for embedded 
+> work.
 > 
-> see: http://www.sma.de/en/inco/dokuftp/
-> 
-> I would appreciate if you could find the time to have a
-> look at the code and send a feedback.
-> 
-> Heiko
-> 
-> ----
-> 
+> The capabilities logic was moved into a module, and you have 
+> the option
+> of building a kernel with traditional superuser logic (dummy security
+> module) rather than capabilities.
+---
+	Geez...am I the only one who sees SuperUser and DAC as security
+models?  Maybe <eyes grow maniacally wild>, I really am i-n-s-a-n-e...
 
-Here are some things I noticed from a casual glance:
 
-* Documentation/CodingStyle calls for the opening braces on functions to
-be on the next line, like:
 
-int function(int x)
-{
-        body of function
-}
+> An auditing issue, not an access control issue.  
+---
+	So you are asking us to believe, for example, that bank transaction
+logs have nothing to do with bank or account security.  That in no way do
+such logs/records provide any sort of control on access?  I disagree.
 
-* You could make you driver fit into existing user space deamons by
-conforming to Documentation/watchdog-api.txt.  Some things are a little
-odd (different then existing wdt drivers) like the way you start and
-stop the watchdog.
 
-* I'm pretty sure that in general adding new code to /proc (that has
-nothing to do with processes) is frowned on.
+> As previously
+> discussed, there is no channel as long as both checks return the
+> same error (and doing otherwise is a compatibility problem).
+---
+	No channel?  Who's talking about channels?  Did I mention channels?
+Nep.  I have my Intrusion Detection system set to go off only on 
+mandatory policy violations.  I don't care about penny-ante DAC violations,
+they are a dime a dozen, but attempts to override mandatory constraints?
+That's suspicious on my machine.  I'd like to know exactly what you 
+were trying to do when you attempted to open /usr/sbin for write. 
 
-    --rustyl
+ 
 
-> diff -urN linux-vanilla/drivers/char/watchdog/Kconfig linux-patched/drivers/char/watchdog/Kconfig
-> --- linux-vanilla/drivers/char/watchdog/Kconfig	Fri Feb  7 20:45:30 2003
-> +++ linux-patched/drivers/char/watchdog/Kconfig	Fri Feb  7 20:52:40 2003
-> @@ -316,4 +316,14 @@
->  	tristate "ICP Wafer 5823 Single Board Computer Watchdog"
->  	depends on WATCHDOG
->  
-> +config CPU5_WDT
-> +	tristate "SMA CPU5 Watchdog"
-> +	depends on WATCHDOG
-> +	---help---
-> +	  TBD.
-> +	  This driver is also available as a module ( = code which can be
-> +	  inserted in and removed from the running kernel whenever you want).
-> +	  The module is called cpu5wdt.o.  If you want to compile it as a
-> +	  module, say M here and read <file:Documentation/modules.txt>.
-> +
->  endmenu
-> diff -urN linux-vanilla/drivers/char/watchdog/Makefile linux-patched/drivers/char/watchdog/Makefile
-> --- linux-vanilla/drivers/char/watchdog/Makefile	Fri Feb  7 20:45:30 2003
-> +++ linux-patched/drivers/char/watchdog/Makefile	Fri Feb  7 20:52:40 2003
-> @@ -29,3 +29,4 @@
->  obj-$(CONFIG_ALIM7101_WDT) += alim7101_wdt.o
->  obj-$(CONFIG_SC1200_WDT) += sc1200wdt.o
->  obj-$(CONFIG_WAFER_WDT) += wafer5823wdt.o
-> +obj-$(CONFIG_CPU5_WDT) += cpu5wdt.o
-> diff -urN linux-vanilla/drivers/char/watchdog/cpu5wdt.c linux-patched/drivers/char/watchdog/cpu5wdt.c
-> --- linux-vanilla/drivers/char/watchdog/cpu5wdt.c	Thu Jan  1 01:00:00 1970
-> +++ linux-patched/drivers/char/watchdog/cpu5wdt.c	Mon Feb 10 20:38:14 2003
-> @@ -0,0 +1,312 @@
-> +/*
-> + * sma cpu5 watchdog driver
-> + *
-> + * Copyright (C) 2003 Heiko Ronsdorf <hero@ihg.uni-duisburg.de>
-> + *
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License as published by
-> + * the Free Software Foundation; either version 2 of the License, or
-> + * (at your option) any later version.
-> + *
-> + * This program is distributed in the hope that it will be useful,
-> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> + * GNU General Public License for more details.
-> + *
-> + * You should have received a copy of the GNU General Public License
-> + * along with this program; if not, write to the Free Software
-> + * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-> + *
-> + */
-> +
-> +#include <linux/config.h>
-> +#include <linux/module.h>
-> +#include <linux/types.h>
-> +#include <linux/errno.h>
-> +#include <linux/miscdevice.h>
-> +#include <linux/kernel.h>
-> +#include <linux/fs.h>
-> +#include <linux/proc_fs.h>
-> +#include <linux/init.h>
-> +#include <linux/ioport.h>
-> +#include <linux/timer.h>
-> +#include <asm/io.h>
-> +#include <asm/uaccess.h>
-> +
-> +#include <linux/watchdog.h>
-> +
-> +/* adjustable parameters */
-> +
-> +static int verbose = 0;
-> +static int port = 0x91;
-> +static volatile int ticks = 10000;
-> +
-> +#define PFX			"cpu5wdt: "
-> +
-> +#define CPU5WDT_EXTENT          0x0A
-> +
-> +#define CPU5WDT_STATUS_REG      0x00
-> +#define CPU5WDT_TIME_A_REG      0x02
-> +#define CPU5WDT_TIME_B_REG      0x03
-> +#define CPU5WDT_MODE_REG        0x04
-> +#define CPU5WDT_TRIGGER_REG     0x07
-> +#define CPU5WDT_ENABLE_REG      0x08
-> +#define CPU5WDT_RESET_REG       0x09
-> +
-> +#define CPU5WDT_INTERVAL	(HZ/10+1)
-> +
-> +/* some device data */
-> +
-> +static struct {
-> +	struct semaphore stop;
-> +	volatile int running;
-> +	struct timer_list timer;
-> +	volatile int queue;
-> +	int default_ticks;
-> +	int min_ticks;
-> +	unsigned long inuse;
-> +} cpu5wdt_device;
-> +
-> +/* generic helper functions */
-> +
-> +static void cpu5wdt_trigger(unsigned long unused) {
-> +
-> +	if ( verbose > 2 )
-> +		printk(KERN_DEBUG PFX "trigger at %i ticks\n", ticks);
-> +
-> +	if( cpu5wdt_device.running )
-> +		ticks--;
-> +
-> +	/* keep watchdog alive */
-> +	outb(1, port + CPU5WDT_TRIGGER_REG);
-> +
-> +	/* requeue?? */
-> +	if( cpu5wdt_device.queue && ticks ) {
-> +		cpu5wdt_device.timer.expires = jiffies + CPU5WDT_INTERVAL;
-> +		add_timer(&cpu5wdt_device.timer);
-> +	}
-> +	else {
-> +		/* ticks doesn't matter anyway */
-> +		up(&cpu5wdt_device.stop);
-> +	}
-> +
-> +}
-> +
-> +static void cpu5wdt_reset(void) {
-> +
-> +	if ( ticks < cpu5wdt_device.min_ticks )
-> +		cpu5wdt_device.min_ticks = ticks;
-> +
-> +	ticks = cpu5wdt_device.default_ticks;
-> +
-> +	if ( verbose )
-> +		printk(KERN_DEBUG PFX "reset (%i ticks)\n", (int) ticks);
-> +
-> +}
-> +
-> +#ifdef CONFIG_PROC_FS
-> +static int cpu5wdt_read_proc(char *buf, char **start, off_t offset, int len) {
-> +	len = sprintf(buf,      "activation:       %i\n", cpu5wdt_device.queue);
-> +	len += sprintf(buf+len, "status:           %i\n", cpu5wdt_device.running);
-> +	len += sprintf(buf+len, "current ticks: %i\n", ticks);
-> +	len += sprintf(buf+len, "min ticks:     %i\n", cpu5wdt_device.min_ticks);
-> +	return len;
-> +}
-> +
-> +static inline void cpu5wdt_register_proc(void) {
-> +	create_proc_info_entry("driver/cpu5wdt", 0, NULL, cpu5wdt_read_proc);
-> +}
-> +
-> +static inline void cpu5wdt_unregister_proc(void) {
-> +	remove_proc_entry("driver/cpu5wdt", NULL);
-> +}
-> +#else
-> +static inline void cpu5wdt_register_proc(void) {}
-> +static inline void cpu5wdt_unregister_proc(void) {}
-> +#endif
-> +
-> +/* filesystem operations */
-> +
-> +static int cpu5wdt_open(struct inode *inode, struct file *file) {
-> +
-> +	switch(minor(inode->i_rdev)) {
-> +		case WATCHDOG_MINOR:
-> +			if ( test_and_set_bit(0, &cpu5wdt_device.inuse) )
-> +				return -EBUSY;
-> +			break;
-> +		default:
-> +			return -ENODEV;
-> +	}
-> +	return 0;
-> +
-> +}
-> +
-> +static int cpu5wdt_release(struct inode *inode, struct file *file) {
-> +
-> +	if(minor(inode->i_rdev)==WATCHDOG_MINOR) {
-> +		clear_bit(0, &cpu5wdt_device.inuse);
-> +	}
-> +	return 0;
-> +}
-> +
-> +static int cpu5wdt_ioctl(struct inode *inode, struct file *file, unsigned int cmd, unsigned long arg) {
-> +	unsigned int value;
-> +  
-> +	switch(cmd) {
-> +		case WDIOC_KEEPALIVE:
-> +			cpu5wdt_reset();
-> +			break;
-> +		case WDIOC_START:
-> +			if ( !cpu5wdt_device.queue ) {
-> +				cpu5wdt_device.queue = 1;
-> +				outb(0, port + CPU5WDT_TIME_A_REG);  
-> +				outb(0, port + CPU5WDT_TIME_B_REG);  
-> +				outb(1, port + CPU5WDT_MODE_REG);
-> +				outb(0, port + CPU5WDT_RESET_REG);
-> +				outb(0, port + CPU5WDT_ENABLE_REG);
-> +				cpu5wdt_device.timer.expires = jiffies + CPU5WDT_INTERVAL;
-> +				add_timer(&cpu5wdt_device.timer);
-> +			}
-> +			/* if process dies, counter is not decremented */
-> +			cpu5wdt_device.running++;
-> +			break;
-> +		case WDIOC_GETSTATUS:    
-> +			value = inb(port + CPU5WDT_STATUS_REG); 
-> +			value = (value >> 2) & 1;
-> +			if ( copy_to_user((int *)arg, (int *)&value, sizeof(int)) )
-> +				return -EFAULT;
-> +			break;
-> +		case WDIOC_STOP:
-> +			if ( cpu5wdt_device.running )
-> +				cpu5wdt_device.running = 0;
-> +
-> +			ticks = cpu5wdt_device.default_ticks;
-> +
-> +			if ( verbose )
-> +				printk(KERN_CRIT PFX "stop not possible\n");
-> +			return -EIO;
-> +		default:
-> +    			return -EINVAL;
-> +	}
-> +	return 0;
-> +}
-> +
-> +static ssize_t cpu5wdt_write(struct file *file, const char *buf, size_t count, loff_t *ppos) {
-> +
-> +	if ( !count )
-> +		return -EIO;
-> +	
-> +	cpu5wdt_reset();
-> +	return count;
-> +
-> +}
-> +
-> +static struct file_operations cpu5wdt_fops = {
-> +	.owner		= THIS_MODULE,
-> +	.ioctl		= cpu5wdt_ioctl,
-> +	.open		= cpu5wdt_open,
-> +	.write		= cpu5wdt_write,
-> +	.release	= cpu5wdt_release,
-> +};
-> +
-> +static struct miscdevice cpu5wdt_misc = {
-> +	.minor	= WATCHDOG_MINOR,
-> +	.name	= "watchdog",
-> +	.fops	= &cpu5wdt_fops
-> +};
-> +
-> +/* init/exit function */
-> +
-> +static int __devinit cpu5wdt_init(void) {
-> +	unsigned int val;
-> +	int err;
-> +
-> +	if ( verbose )
-> +		printk(KERN_DEBUG PFX "port=0x%x, verbose=%i\n", port, verbose);
-> +
-> +	if ( (err = misc_register(&cpu5wdt_misc)) < 0 ) {
-> +		printk(KERN_ERR PFX "misc_register failed\n");
-> +		goto no_misc;
-> +	}
-> +
-> +	if ( !request_region(port, CPU5WDT_EXTENT, PFX) ) {
-> +		printk(KERN_ERR PFX "request_region failed\n");
-> +		err = -EBUSY;
-> +		goto no_port;
-> +	}
-> +
-> +	/* watchdog reboot? */
-> +	val = inb(port + CPU5WDT_STATUS_REG); 
-> +	val = (val >> 2) & 1;
-> +	if ( !val )
-> +		printk(KERN_INFO PFX "sorry, was my fault\n");
-> +
-> +	init_MUTEX_LOCKED(&cpu5wdt_device.stop);
-> +	cpu5wdt_device.queue = 0;
-> +	cpu5wdt_device.min_ticks = ticks;
-> +
-> +	clear_bit(0, &cpu5wdt_device.inuse);
-> +
-> +	cpu5wdt_register_proc();
-> +
-> +	init_timer(&cpu5wdt_device.timer);
-> +	cpu5wdt_device.timer.function = cpu5wdt_trigger;
-> +	cpu5wdt_device.timer.data = 0;
-> +
-> +	cpu5wdt_device.default_ticks = ticks;
-> +
-> +	printk(KERN_INFO PFX "init success\n");
-> +
-> +	return 0;
-> +
-> +no_port:
-> +	misc_deregister(&cpu5wdt_misc);
-> +no_misc:
-> +	return err;
-> +}
-> +
-> +static int __devinit cpu5wdt_init_module(void) {
-> +
-> +	return cpu5wdt_init();
-> +}
-> +
-> +static void __devexit cpu5wdt_exit(void) {
-> +
-> +	if ( cpu5wdt_device.queue ) {
-> +		cpu5wdt_device.queue = 0;
-> +		down(&cpu5wdt_device.stop);
-> +	}
-> +
-> +	cpu5wdt_unregister_proc();
-> +
-> +	misc_deregister(&cpu5wdt_misc);
-> +
-> +	release_region(port, CPU5WDT_EXTENT);
-> +
-> +}
-> +
-> +static void __devexit cpu5wdt_exit_module(void) {
-> +
-> +	cpu5wdt_exit();
-> +}
-> +
-> +/* module entry points */
-> +
-> +module_init(cpu5wdt_init_module);
-> +module_exit(cpu5wdt_exit_module);
-> +
-> +MODULE_AUTHOR("Heiko Ronsdorf <hero@ihg.uni-duisburg.de>");
-> +MODULE_DESCRIPTION("sma cpu5 watchdog driver");
-> +MODULE_SUPPORTED_DEVICE("sma cpu5 watchdog");
-> +MODULE_LICENSE("GPL");
-> +
-> +MODULE_PARM(port, "i");
-> +MODULE_PARM_DESC(port, "base address of watchdog card, default is 0x91");
-> +
-> +MODULE_PARM(verbose, "i");
-> +MODULE_PARM_DESC(verbose, "be verbose, default is 0 (no)");
-> +
-> +MODULE_PARM(ticks, "i");
-> +MODULE_PARM_DESC(ticks, "count down ticks, default is 10000");
-> +
-> +EXPORT_NO_SYMBOLS;
-> diff -urN linux-vanilla/include/linux/watchdog.h linux-patched/include/linux/watchdog.h
-> --- linux-vanilla/include/linux/watchdog.h	Fri Jan 10 22:08:18 2003
-> +++ linux-patched/include/linux/watchdog.h	Fri Feb  7 20:52:40 2003
-> @@ -27,6 +27,8 @@
->  #define	WDIOC_KEEPALIVE		_IOR(WATCHDOG_IOCTL_BASE, 5, int)
->  #define	WDIOC_SETTIMEOUT        _IOWR(WATCHDOG_IOCTL_BASE, 6, int)
->  #define	WDIOC_GETTIMEOUT        _IOR(WATCHDOG_IOCTL_BASE, 7, int)
-> +#define	WDIOC_START             _IO(WATCHDOG_IOCTL_BASE, 8)
-> +#define	WDIOC_STOP              _IO(WATCHDOG_IOCTL_BASE, 9)
->  
->  #define	WDIOF_UNKNOWN		-1	/* Unknown flag error */
->  #define	WDIOS_UNKNOWN		-1	/* Unknown status error */
+>  Moving all of the DAC logic into a module is _not_ necessary
+> to add support for strong access controls.  
+---
+	Neither is electricity.  Lock the computer in a vault, encase it
+in 50 feet of concrete!  *Way* secure.  Oh...you want it to be
+'usable'?  Maybe we want to make the system a bit more accessible and
+configurable?
+
+
+
+> And modularizing that logic
+> has interesting implications; what happens to your applications when
+> you turn off the kernel DAC logic and replace it with something
+> arbitrary?  
+---
+	You tell me.  The idea is configurability: "truly generic".  It 
+depends on what policy you define.  I'm not about to guess
+what would happen to "applications" (which?  Random?) that _you_ put on 
+your own system that has a security policy that _you_ define.
+
+
+
 
 

@@ -1,52 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263599AbTJ0WAI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Oct 2003 17:00:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263609AbTJ0WAI
+	id S263639AbTJ0WM0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Oct 2003 17:12:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263675AbTJ0WMZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Oct 2003 17:00:08 -0500
-Received: from modemcable137.219-201-24.mtl.mc.videotron.ca ([24.201.219.137]:24961
-	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S263599AbTJ0WAE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Oct 2003 17:00:04 -0500
-Date: Mon, 27 Oct 2003 16:59:04 -0500 (EST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Hakona Spect <ear22@hotmail.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 4Gb memory?
-In-Reply-To: <BAY7-F23ko57PJ66ZMA0000af93@hotmail.com>
-Message-ID: <Pine.LNX.4.53.0310271658300.21953@montezuma.fsmlabs.com>
-References: <BAY7-F23ko57PJ66ZMA0000af93@hotmail.com>
+	Mon, 27 Oct 2003 17:12:25 -0500
+Received: from ns2.ploiesti.rdsnet.ro ([213.157.173.133]:3220 "HELO
+	webhosting.ploiesti.rdsnet.ro") by vger.kernel.org with SMTP
+	id S263639AbTJ0WKw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Oct 2003 17:10:52 -0500
+Message-ID: <3F9D97E8.4040209@smartpost.ro>
+Date: Tue, 28 Oct 2003 00:10:48 +0200
+From: Mircea Ciocan <mircea@smartpost.ro>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030630
+X-Accept-Language: ro, en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Strange very large disk partitions behaviour !!!
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Oct 2003, Hakona Spect wrote:
+    Hi kernel developers,
 
-> $/sbin/lspci
-> 00:00.0 Host bridge: Intel Corp. 82860 860 (Wombat) Chipset Host Bridge 
-> (MCH) (rev 04)
-> 00:01.0 PCI bridge: Intel Corp. 82850 850 (Tehama) Chipset AGP Bridge (rev 
-> 04)
-> 00:02.0 PCI bridge: Intel Corp. 82860 860 (Wombat) Chipset AGP Bridge (rev 
-> 04)
-> 00:1e.0 PCI bridge: Intel Corp. 82801BA/CA/DB PCI Bridge (rev 04)
-> 00:1f.0 ISA bridge: Intel Corp. 82801BA ISA Bridge (LPC) (rev 04)
-> 00:1f.1 IDE interface: Intel Corp. 82801BA IDE U100 (rev 04)
-> 00:1f.2 USB Controller: Intel Corp. 82801BA/BAM USB (Hub #1) (rev 04)
-> 00:1f.3 SMBus: Intel Corp. 82801BA/BAM SMBus (rev 04)
-> 00:1f.4 USB Controller: Intel Corp. 82801BA/BAM USB (Hub #2) (rev 04)
-> 00:1f.5 Multimedia audio controller: Intel Corp. 82801BA/BAM AC'97 Audio 
-> (rev 04)
-> 01:00.0 VGA compatible controller: nVidia Corporation NV25GL [Quadro4 700 
-> XGL] (rev a3)
-> 02:1f.0 PCI bridge: Intel Corp. 82806AA PCI64 Hub PCI Bridge (rev 03)
-> 03:00.0 PIC: Intel Corp. 82806AA PCI64 Hub Advanced Programmable Interrupt 
-> Controller (rev 01)
-> 04:0b.0 Ethernet controller: 3Com Corporation 3c905C-TX/TX-M [Tornado] (rev 
-> 78)
-> 04:0c.0 FireWire (IEEE 1394): Texas Instruments TSB12LV26 IEEE-1394 
-> Controller (Link)
+    I have a RAID  disk enclosure  that contains 16 IDE disks that is 
+seen via its SCSI interface as a very large disk sliced in 3 QUASI 
+IDENTICAL partitions, here is the fdisk information:
 
-I would most probably guess this is the case with your system.
+[root@nfs00 root]# fdisk /dev/sdb
+
+Disk /dev/sdb: 2199.0 GB, 2199014866944 bytes
+64 heads, 32 sectors/track, 2097144 cylinders
+Units = cylinders of 2048 * 512 = 1048576 bytes
+
+   Device Boot    Start       End    Blocks   Id  System
+/dev/sdb1             1        699048 715825136   83  Linux
+/dev/sdb2        699049   1398096 715825152   83  Linux
+/dev/sdb3       1398097   2097144 715825152   83  Linux
+
+So I formated each partition ext3 ( that went ok) and monted the beasts:
+
+[root@nfs00 root]# df
+/dev/scsi/host2/bus0/target0/lun0/part1
+                     1008G   33M  957G   1% /mnt/p1
+/dev/scsi/host2/bus0/target0/lun0/part2
+                      672G   33M  638G   1% /mnt/p2
+/dev/scsi/host2/bus0/target0/lun0/part3
+                      672G   33M  638G   1% /mnt/p3
+
+
+[root@nfs00 root]# df -k
+/dev/scsi/host2/bus0/target0/lun0/part1
+                     1056887972     32828 1003168364   1% /mnt/p1
+/dev/scsi/host2/bus0/target0/lun0/part2
+                     704592112     32828 668768028   1% /mnt/p2
+/dev/scsi/host2/bus0/target0/lun0/part3
+                     704592112     32828 668768028   1% /mnt/p3
+
+    Now I'm really confused, the  LARGER partitons  are showed  SMALLER 
+then the smaller partitions and why that enormous difference, what I'm 
+doing wrong, I've fsck each partiton and all seem to be OK, I'm afraid 
+of an integer overflow or such thing that can blew the whole storage or 
+I'm too tired and overlooking something.
+    Please help me while I'm still having some hair left TIA.
+
+
+    Best regards,
+
+    Mircea Ciocan
+
+
+    P.S. Kernel is 2.4.21, glibc-2.3.2, any othe info on request.
+
+
+
+
+
+
+
+
+

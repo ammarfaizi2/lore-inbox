@@ -1,57 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129056AbRBBMsC>; Fri, 2 Feb 2001 07:48:02 -0500
+	id <S129100AbRBBMtm>; Fri, 2 Feb 2001 07:49:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129100AbRBBMrx>; Fri, 2 Feb 2001 07:47:53 -0500
-Received: from buserror.convergence.de ([212.84.236.5]:60151 "EHLO wintermute")
-	by vger.kernel.org with ESMTP id <S129056AbRBBMrh>;
-	Fri, 2 Feb 2001 07:47:37 -0500
-Message-ID: <3A7AAC4F.FA9BB97D@convergence.de>
-Date: Fri, 02 Feb 2001 13:47:11 +0100
-From: Szymon Polom <polom@convergence.de>
-Organization: convergence integrated media GmbH
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Fredrik Vraalsen <vraalsen@cs.uiuc.edu>, axboe@suse.de,
-        torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-        livid-dev@linuxvideo.org,
-        "Peter Rasmussen (udgaard)" <plr@udgaard.com>
-Subject: Re: [livid-dev] [Patch] DVD bugfix in ide-cd.c
-In-Reply-To: <200102012210.XAA00328@udgaard.com>
-			<sz2u26d4tt8.fsf@kazoo.cs.uiuc.edu> <sz2lmrp4qib.fsf_-_@kazoo.cs.uiuc.edu> <3A7AA8BE.B302C8D8@convergence.de>
+	id <S129040AbRBBMtc>; Fri, 2 Feb 2001 07:49:32 -0500
+Received: from firewall.spacetec.no ([192.51.5.5]:56045 "EHLO
+	pallas.spacetec.no") by vger.kernel.org with ESMTP
+	id <S129100AbRBBMtL>; Fri, 2 Feb 2001 07:49:11 -0500
+Date: Fri, 2 Feb 2001 13:49:08 +0100
+Message-Id: <200102021249.NAA27803@pallas.spacetec.no>
+Mime-Version: 1.0
+In-Reply-To: <fa.gvan6kv.3664g1@ifi.uio.no> <fa.i0lgugv.dhmm08@ifi.uio.no>
+In-Reply-To: <fa.i0lgugv.dhmm08@ifi.uio.no>
+From: tor@spacetec.no (Tor Arntsen)
+Subject: Re: spelling of disc (disk) in /devfs
+To: linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Mike Harrold <mharrold@cas.org> writes:
+>My understanding (going back to the 80s) is that the correct term is
+>disc. "disk" is short for diskette. (discette would be pronounced as
+>"dissect" (think miscellaneous), so "diskette" was used instead.
 
-Szymon Polom wrote:
+No, this isn't right.  "Disk" was used for hard disks.  "Diskette" is
+a word that came later (pretty obvious too, as it's a diminutive variant
+of "disk").  Ditto for "floppy disk".
 
-> Fredrik Vraalsen wrote:
-> >
-> > This is a small patch to Linux kernel 2.4.1 that fixes a problem with
-> > DVD playback in OMS (Open Media System).  With the stock 2.4.1 kernel
-> > OMS will only play up to a certain point on the DVD before it complains
-> > about no more data left on input (basically read() returns 0).  This
-> > patch reverts a change between 2.4.0 and 2.4.1.
-> 
-> What's wrong with the people maintaining the source? The bug has been
-> fixed in 2.2.18 and 2.4.0-test8. I can't imagine how the bug has been
-> "implemented" in 2.4.1 again.
-> 
-> Any ideas?
+>So, when referring to a 3.5" or 5.25" floppy, "disk" would be correct
+>since they are diskettes. However, a "hard drive" is very much a disc
+>(or nowadays a group of discs). A "hard disc" would refer to one of
+>the constituents of a "hard drive".
 
-I have to revoke my statement. The cached toc problem i meant was in
-cdrom_get_toc_entry() not in cdrom_read_toc().
+I don't want to sound too harsh, but the speculation in that paragraph
+is really picked out of thin air.
 
-Bye... SP.
--- 
-Szymon Polom                              polom@convergence.de
-convergence integrated media GmbH         http://www.convergence.de
-Rosenthaler Str. 51                       fon: +49(0)30-72 62 06 68 
-D-10178 Berlin                            fax: +49(0)30-72 62 06 55
+In short, "disk" is a term that simply means a computer hard disk, as
+opposed to other kind of discs.  This is the only issue in non-English 
+native speaking countries, most of us didn't even know that the difference
+originated in UK/US spelling issues. That never entered the discussion,
+particularly here in Europe. We were thought the UK spelling for discs
+(the generic term), and we quickly grabbed the "disk" term for computer 
+disks as a nice way of referring to that special kind of disc.
+
+CDs are called 'discs' simply because they were not originally part of
+the computer industry.  They were for recording music.
+
+-Tor
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

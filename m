@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316847AbSFVG5v>; Sat, 22 Jun 2002 02:57:51 -0400
+	id <S316592AbSFUXSw>; Fri, 21 Jun 2002 19:18:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316846AbSFVG5u>; Sat, 22 Jun 2002 02:57:50 -0400
-Received: from h-64-105-35-162.SNVACAID.covad.net ([64.105.35.162]:15790 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S316844AbSFVG5u>; Sat, 22 Jun 2002 02:57:50 -0400
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Fri, 21 Jun 2002 23:57:38 -0700
-Message-Id: <200206220657.XAA21563@adam.yggdrasil.com>
-To: bug-make@gnu.org
-Subject: make-3.79.1 bug breaks linux-2.5.24/drivers/net/hamradio/soundmodem
-Cc: linux-hams@vger.kernel.org, linux-kernel@vger.kernel.org,
-       sailer@ife.ee.ethz.ch
+	id <S316599AbSFUXSv>; Fri, 21 Jun 2002 19:18:51 -0400
+Received: from holomorphy.com ([66.224.33.161]:33476 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S316592AbSFUXSt>;
+	Fri, 21 Jun 2002 19:18:49 -0400
+Date: Fri, 21 Jun 2002 16:17:54 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: linux-kernel@vger.kernel.org
+Cc: matti.aarnio@zmailer.org
+Subject: Re: Your message to Linux-kernel awaits moderator approval
+Message-ID: <20020621231754.GC25360@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org, matti.aarnio@zmailer.org
+References: <20020621230700.23341.34513.Mailman@lcs-irva-002>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+In-Reply-To: <20020621230700.23341.34513.Mailman@lcs-irva-002>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	linux-2.5.24/drivers/net/hamradio/soundmodem/Makefile contains
-the following rule:
+On Fri, Jun 21, 2002 at 04:07:00PM -0700, linux-kernel-admin@anamail.broadcom.com wrote:
+> Your mail to 'Linux-kernel' with the subject
+>     [BUG] floppy requests
+> Is being held until the list moderator can review it for approval.
+> The reason it is being held:
+>     Posting to a restricted list by sender requires approval
+> Either the message will get posted to the list, or you will receive
+> notification of the moderator's decision.
 
-$(obj)/sm_tbl_%: $(obj)/gentbl
-        $<
+As linux-kernel@vger.kernel.org neither restricted nor administered from
+broadcom.com last I checked perhaps someone should look into this.
 
-	obj was set to "." /usr/src/linux/Rules.make, which was included
-earlier in the Makefile.
-
-	The problem is that when make executes this rule it executes
-"gentbl" rather than "./gentbl".  This causes the command to fail if
-you do not have "." in your path.  Make-3.79.1 is apparently being too
-clever in expanding file names.  I think this is a make bug.
-
-	Until the make bug is fixed, I have worked around the problem
-by replacing the rule with:
-
-$(obj)/sm_tbl_%: $(obj)/gentbl
-        PATH=$(obj):$$PATH $<
+Matti, you've addressed some list-related issues in the past, if you've
+got some way of knowing how to deal with this, I'd be much obliged.
 
 
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+Thanks,
+Bill

@@ -1,39 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261406AbVBGMYP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261407AbVBGMZh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261406AbVBGMYP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 07:24:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261407AbVBGMYO
+	id S261407AbVBGMZh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 07:25:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261409AbVBGMZg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 07:24:14 -0500
-Received: from gizmo04bw.bigpond.com ([144.140.70.14]:12928 "HELO
-	gizmo04bw.bigpond.com") by vger.kernel.org with SMTP
-	id S261406AbVBGMYM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 07:24:12 -0500
-From: pageexec@freemail.hu
-To: Peter Busser <busser@m-privacy.de>, Roman Zippel <zippel@linux-m68k.org>
-Date: Mon, 07 Feb 2005 22:23:56 +1000
+	Mon, 7 Feb 2005 07:25:36 -0500
+Received: from [195.23.16.24] ([195.23.16.24]:39297 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S261407AbVBGMZR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Feb 2005 07:25:17 -0500
+Message-ID: <42075E0A.2010802@grupopie.com>
+Date: Mon, 07 Feb 2005 12:24:42 +0000
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Subject: Re: Sabotaged PaXtest (was: Re: Patch 4/6  randomize the stack pointer)
-Reply-to: pageexec@freemail.hu
-CC: linux-kernel@vger.kernel.org
-Message-ID: <4207EA7C.26666.1A9ECB05@localhost>
-In-reply-to: <Pine.LNX.4.61.0502031537410.6118@scrub.home>
-References: <200502031455.22100.busser@m-privacy.de>
-X-mailer: Pegasus Mail for Windows (4.21c)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
+To: jjluza@yahoo.fr
+Cc: Eyal Lebedinsky <eyal@eyal.emu.id.au>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc3-mm1 - broken bttv ?
+References: <200502051922.25001.jjluza@yahoo.fr> <42056065.2000504@eyal.emu.id.au> <200502060255.01758.jjluza@yahoo.fr>
+In-Reply-To: <200502060255.01758.jjluza@yahoo.fr>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From http://pax.grsecurity.net/docs/pax.txt:
+jjluza wrote:
+> Eyal Lebedinsky wrote
 > 
->    The goal of the PaX project is to research various defense mechanisms
->    against the exploitation of software bugs that give an attacker arbitrary
->    read/write access to the attacked task's address space. 
+>>I am having bttv problems with vanilla -rc3. Does it work for you?
 > 
-> Could you please explain how PaX makes such applications secure?
+> 
+> I don't know, as I said I didn't test kernel between 2.6.10 and 
+> 2.6.11-rc3-mm1.
+> Sorry.
+> If I have time enough later, I can test 2.6.11-rc3.
+> Since I don't really know if it's the good place to talk about that, I decided 
+> to report this bug on bugzilla too. Maybe you can post your problem here :
+> http://bugzilla.kernel.org/show_bug.cgi?id=4171
 
-the answer should be in the doc you linked... if you have specific
-questions, feel free to ask.
+Other people with similar problems reported that the attached patch from 
+  Gerd Knorr fixed the problem for them.
 
+If you try it out and it fixes the problem for you, don't forget to 
+report the fix in bugzilla too, so that others can use that info (and 
+prevent having open bugs there for things that are already fixed :).
+
+I hope this helps,
+
+-- 
+Paulo Marques - www.grupopie.com
+
+All that is necessary for the triumph of evil is that good men do nothing.
+Edmund Burke (1729 - 1797)

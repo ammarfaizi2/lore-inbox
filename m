@@ -1,1906 +1,1266 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264010AbSLNRtW>; Sat, 14 Dec 2002 12:49:22 -0500
+	id <S264647AbSLNRt5>; Sat, 14 Dec 2002 12:49:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265426AbSLNRtV>; Sat, 14 Dec 2002 12:49:21 -0500
-Received: from rwcrmhc52.attbi.com ([216.148.227.88]:55942 "EHLO
-	rwcrmhc52.attbi.com") by vger.kernel.org with ESMTP
-	id <S264010AbSLNRs5>; Sat, 14 Dec 2002 12:48:57 -0500
-Message-ID: <3DFB70D3.9010506@quark.didntduck.org>
-Date: Sat, 14 Dec 2002 12:56:35 -0500
+	id <S265426AbSLNRt4>; Sat, 14 Dec 2002 12:49:56 -0500
+Received: from rwcrmhc53.attbi.com ([204.127.198.39]:30391 "EHLO
+	rwcrmhc53.attbi.com") by vger.kernel.org with ESMTP
+	id <S264647AbSLNRtF>; Sat, 14 Dec 2002 12:49:05 -0500
+Message-ID: <3DFB70DA.60400@quark.didntduck.org>
+Date: Sat, 14 Dec 2002 12:56:42 -0500
 From: Brian Gerst <bgerst@quark.didntduck.org>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021203
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: Linus Torvalds <torvalds@transmeta.com>
 CC: Linux-Kernel <linux-kernel@vger.kernel.org>, kai@tp1.ruhr-uni-bochum.de
-Subject: [PATCH] Remove Rules.make from Makefiles (1/3)
+Subject: [PATCH] Remove Rules.make from Makefiles (2/3)
 Content-Type: multipart/mixed;
- boundary="------------000002030106040508030604"
+ boundary="------------060405090501060708020104"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------000002030106040508030604
+--------------060405090501060708020104
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
 Makefiles no longer need to include Rules.make, which is currently an 
-empty file.  This patch removes it from the arch tree Makefiles.
+empty file.  This patch removes it from the drivers tree Makefiles.
 
---------------000002030106040508030604
+--------------060405090501060708020104
 Content-Type: text/plain;
- name="rules.make-arch-1"
+ name="rules.make-drivers-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="rules.make-arch-1"
+ filename="rules.make-drivers-1"
 
-diff -urN linux-2.5.51-bk1/arch/alpha/kernel/Makefile linux/arch/alpha/kernel/Makefile
---- linux-2.5.51-bk1/arch/alpha/kernel/Makefile	Sat Dec 14 12:32:04 2002
-+++ linux/arch/alpha/kernel/Makefile	Sat Dec 14 12:38:56 2002
-@@ -92,5 +92,3 @@
- endif
- 
- endif # GENERIC
+diff -urN linux-2.5.51-bk1/drivers/Makefile linux/drivers/Makefile
+--- linux-2.5.51-bk1/drivers/Makefile	Sat Dec 14 12:32:10 2002
++++ linux/drivers/Makefile	Sat Dec 14 12:38:56 2002
+@@ -44,5 +44,3 @@
+ obj-$(CONFIG_HOTPLUG_PCI)	+= hotplug/
+ obj-$(CONFIG_ISDN_BOOL)		+= isdn/
+ obj-$(CONFIG_MCA)		+= mca/
 -
 -include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/alpha/lib/Makefile linux/arch/alpha/lib/Makefile
---- linux-2.5.51-bk1/arch/alpha/lib/Makefile	Sat Dec 14 12:31:40 2002
-+++ linux/arch/alpha/lib/Makefile	Sat Dec 14 12:38:56 2002
-@@ -49,8 +49,6 @@
- 
- obj-$(CONFIG_SMP) += dec_and_lock.o
- 
--include $(TOPDIR)/Rules.make
--
- $(obj)/__divqu.o: $(obj)/$(ev6)divide.S
- 	$(CC) $(AFLAGS) -DDIV -c -o $(obj)/__divqu.o $(obj)/$(ev6)divide.S
- 
-diff -urN linux-2.5.51-bk1/arch/alpha/math-emu/Makefile linux/arch/alpha/math-emu/Makefile
---- linux-2.5.51-bk1/arch/alpha/math-emu/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/alpha/math-emu/Makefile	Sat Dec 14 12:38:56 2002
-@@ -5,5 +5,3 @@
- CFLAGS += -I. -I$(TOPDIR)/include/math-emu -w
- 
- obj-$(CONFIG_MATHEMU) += math.o qrnnd.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/alpha/mm/Makefile linux/arch/alpha/mm/Makefile
---- linux-2.5.51-bk1/arch/alpha/mm/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/alpha/mm/Makefile	Sat Dec 14 12:38:56 2002
-@@ -5,5 +5,3 @@
- obj-y	:= init.o fault.o extable.o
- 
- obj-$(CONFIG_DISCONTIGMEM) += numa.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/arm/kernel/Makefile linux/arch/arm/kernel/Makefile
---- linux-2.5.51-bk1/arch/arm/kernel/Makefile	Sat Dec 14 12:32:04 2002
-+++ linux/arch/arm/kernel/Makefile	Sat Dec 14 12:38:56 2002
-@@ -40,8 +40,6 @@
- 
- EXTRA_TARGETS := $(head-y) init_task.o
- 
--include $(TOPDIR)/Rules.make
--
- # Spell out some dependencies that `make dep' doesn't spot
- $(obj)/entry-armv.o: 	$(obj)/entry-header.S include/asm-arm/constants.h
- $(obj)/entry-armo.o: 	$(obj)/entry-header.S include/asm-arm/constants.h
-diff -urN linux-2.5.51-bk1/arch/arm/lib/Makefile linux/arch/arm/lib/Makefile
---- linux-2.5.51-bk1/arch/arm/lib/Makefile	Sat Dec 14 12:31:58 2002
-+++ linux/arch/arm/lib/Makefile	Sat Dec 14 12:38:56 2002
-@@ -41,8 +41,6 @@
- 
- obj-$(CONFIG_CPU_26) += uaccess-armo.o
- 
--include $(TOPDIR)/Rules.make
--
- $(obj)/csumpartialcopy.o:	$(obj)/csumpartialcopygeneric.S
- $(obj)/csumpartialcopyuser.o:	$(obj)/csumpartialcopygeneric.S
- 
-diff -urN linux-2.5.51-bk1/arch/arm/mach-adifcc/Makefile linux/arch/arm/mach-adifcc/Makefile
---- linux-2.5.51-bk1/arch/arm/mach-adifcc/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/arm/mach-adifcc/Makefile	Sat Dec 14 12:38:56 2002
-@@ -10,5 +10,3 @@
- obj-			:=
- 
- export-objs		:=
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/arm/mach-anakin/Makefile linux/arch/arm/mach-anakin/Makefile
---- linux-2.5.51-bk1/arch/arm/mach-anakin/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/arm/mach-anakin/Makefile	Sat Dec 14 12:38:56 2002
-@@ -10,5 +10,3 @@
- obj-			:=
- 
- export-objs		:= 
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/arm/mach-arc/Makefile linux/arch/arm/mach-arc/Makefile
---- linux-2.5.51-bk1/arch/arm/mach-arc/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/arm/mach-arc/Makefile	Sat Dec 14 12:38:56 2002
-@@ -17,5 +17,3 @@
- EXTRA_TARGETS 		:= head.o
- 
- AFLAGS_head.o		:= -DTEXTADDR=$(TEXTADDR)
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/arm/mach-clps711x/Makefile linux/arch/arm/mach-clps711x/Makefile
---- linux-2.5.51-bk1/arch/arm/mach-clps711x/Makefile	Sat Dec 14 12:31:36 2002
-+++ linux/arch/arm/mach-clps711x/Makefile	Sat Dec 14 12:38:56 2002
-@@ -18,5 +18,3 @@
- obj-$(CONFIG_ARCH_P720T)    += p720t.o
- leds-$(CONFIG_ARCH_P720T)   += p720t-leds.o
- obj-$(CONFIG_LEDS)          += $(leds-y)
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/arm/mach-clps7500/Makefile linux/arch/arm/mach-clps7500/Makefile
---- linux-2.5.51-bk1/arch/arm/mach-clps7500/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/arm/mach-clps7500/Makefile	Sat Dec 14 12:38:56 2002
-@@ -10,5 +10,3 @@
- obj-			:=
- 
- export-objs		:= 
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/arm/mach-ebsa110/Makefile linux/arch/arm/mach-ebsa110/Makefile
---- linux-2.5.51-bk1/arch/arm/mach-ebsa110/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/arm/mach-ebsa110/Makefile	Sat Dec 14 12:38:56 2002
-@@ -12,5 +12,3 @@
- export-objs		:= io.o
- 
- obj-$(CONFIG_LEDS)	+= leds.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/arm/mach-epxa10db/Makefile linux/arch/arm/mach-epxa10db/Makefile
---- linux-2.5.51-bk1/arch/arm/mach-epxa10db/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/arm/mach-epxa10db/Makefile	Sat Dec 14 12:38:56 2002
-@@ -10,6 +10,3 @@
- obj-			:=
- 
- export-objs		:= 
--
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/arm/mach-footbridge/Makefile linux/arch/arm/mach-footbridge/Makefile
---- linux-2.5.51-bk1/arch/arm/mach-footbridge/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/arm/mach-footbridge/Makefile	Sat Dec 14 12:38:56 2002
-@@ -25,5 +25,3 @@
- 
- obj-$(CONFIG_PCI)	+=$(pci-y)
- obj-$(CONFIG_LEDS)	+=$(leds-y)
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/arm/mach-ftvpci/Makefile linux/arch/arm/mach-ftvpci/Makefile
---- linux-2.5.51-bk1/arch/arm/mach-ftvpci/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/arm/mach-ftvpci/Makefile	Sat Dec 14 12:38:56 2002
-@@ -13,5 +13,3 @@
- 
- obj-$(CONFIG_PCI)	+= pci.o
- obj-$(CONFIG_LEDS)	+= leds.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/arm/mach-integrator/Makefile linux/arch/arm/mach-integrator/Makefile
---- linux-2.5.51-bk1/arch/arm/mach-integrator/Makefile	Sat Dec 14 12:31:36 2002
-+++ linux/arch/arm/mach-integrator/Makefile	Sat Dec 14 12:38:56 2002
-@@ -11,5 +11,3 @@
- 
- obj-$(CONFIG_LEDS)	+= leds.o
- obj-$(CONFIG_PCI)	+= pci_v3.o pci.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/arm/mach-iop310/Makefile linux/arch/arm/mach-iop310/Makefile
---- linux-2.5.51-bk1/arch/arm/mach-iop310/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/arm/mach-iop310/Makefile	Sat Dec 14 12:38:56 2002
-@@ -22,5 +22,3 @@
- obj-$(CONFIG_IOP310_DMA) += dma.o
- obj-$(CONFIG_IOP310_MU) += message.o
- obj-$(CONFIG_IOP310_PMON) += pmon.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/arm/mach-l7200/Makefile linux/arch/arm/mach-l7200/Makefile
---- linux-2.5.51-bk1/arch/arm/mach-l7200/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/arm/mach-l7200/Makefile	Sat Dec 14 12:38:56 2002
-@@ -10,5 +10,3 @@
- obj-			:=
- 
- export-objs		:= 
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/arm/mach-pxa/Makefile linux/arch/arm/mach-pxa/Makefile
---- linux-2.5.51-bk1/arch/arm/mach-pxa/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/arm/mach-pxa/Makefile	Sat Dec 14 12:38:56 2002
-@@ -21,5 +21,3 @@
- 
- # Misc features
- obj-$(CONFIG_PM) += pm.o sleep.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/arm/mach-rpc/Makefile linux/arch/arm/mach-rpc/Makefile
---- linux-2.5.51-bk1/arch/arm/mach-rpc/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/arm/mach-rpc/Makefile	Sat Dec 14 12:38:56 2002
-@@ -10,6 +10,3 @@
- obj-			:=
- 
- export-objs		:= 
--
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/arm/mach-sa1100/Makefile linux/arch/arm/mach-sa1100/Makefile
---- linux-2.5.51-bk1/arch/arm/mach-sa1100/Makefile	Sat Dec 14 12:31:42 2002
-+++ linux/arch/arm/mach-sa1100/Makefile	Sat Dec 14 12:38:56 2002
-@@ -108,5 +108,3 @@
- 
- # Miscelaneous functions
- obj-$(CONFIG_PM) += pm.o sleep.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/arm/mach-shark/Makefile linux/arch/arm/mach-shark/Makefile
---- linux-2.5.51-bk1/arch/arm/mach-shark/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/arm/mach-shark/Makefile	Sat Dec 14 12:38:56 2002
-@@ -12,5 +12,3 @@
- export-objs		:= 
- 
- obj-$(CONFIG_LEDS)	+= leds.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/arm/mach-tbox/Makefile linux/arch/arm/mach-tbox/Makefile
---- linux-2.5.51-bk1/arch/arm/mach-tbox/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/arm/mach-tbox/Makefile	Sat Dec 14 12:38:56 2002
-@@ -10,5 +10,3 @@
- obj-			:=
- 
- export-objs		:= 
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/arm/mm/Makefile linux/arch/arm/mm/Makefile
---- linux-2.5.51-bk1/arch/arm/mm/Makefile	Sat Dec 14 12:32:02 2002
-+++ linux/arch/arm/mm/Makefile	Sat Dec 14 12:38:56 2002
-@@ -38,5 +38,3 @@
- p-$(CONFIG_CPU_XSCALE)	+= proc-xscale.o  tlb-v4wbi.o copypage-xscale.o abort-xscale.o minicache.o
- 
- obj-y		+= $(sort $(p-y))
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/arm/nwfpe/Makefile linux/arch/arm/nwfpe/Makefile
---- linux-2.5.51-bk1/arch/arm/nwfpe/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/arm/nwfpe/Makefile	Sat Dec 14 12:38:56 2002
-@@ -17,5 +17,3 @@
- else
- nwfpe-objs		+= entry.o
- endif
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/cris/drivers/Makefile linux/arch/cris/drivers/Makefile
---- linux-2.5.51-bk1/arch/cris/drivers/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/cris/drivers/Makefile	Sat Dec 14 12:38:56 2002
-@@ -14,6 +14,3 @@
- obj-$(CONFIG_ETRAX_PARPORT)             += parport.o
- obj-$(CONFIG_ETRAX_DS1302)              += ds1302.o
- obj-$(CONFIG_ETRAX_ETHERNET_LPSLAVE)    += lpslave
--
--include $(TOPDIR)/Rules.make
--
-diff -urN linux-2.5.51-bk1/arch/cris/drivers/lpslave/Makefile linux/arch/cris/drivers/lpslave/Makefile
---- linux-2.5.51-bk1/arch/cris/drivers/lpslave/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/cris/drivers/lpslave/Makefile	Sat Dec 14 12:38:56 2002
-@@ -4,8 +4,6 @@
- 
- obj-y = e100lpslavenet.o e100lpslave_code.o
- 
--include $(TOPDIR)/Rules.make
--
- e100lpslave_code.o:	e100lpslave.o e100lpslaveld 
- 	$(CROSS_COMPILE)ld -qmagic -Te100lpslaveld e100lpslave.o -o e100lpslave
- 	$(CROSS_COMPILE)objcopy -O binary --remove-section=.data --remove-section=.bss e100lpslave e100lpslave.text
-diff -urN linux-2.5.51-bk1/arch/cris/kernel/Makefile linux/arch/cris/kernel/Makefile
---- linux-2.5.51-bk1/arch/cris/kernel/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/cris/kernel/Makefile	Sat Dec 14 12:38:56 2002
-@@ -21,5 +21,3 @@
- 	$(CC) $(CFLAGS) -S -c $<
- 
- clean:
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/cris/lib/Makefile linux/arch/cris/lib/Makefile
---- linux-2.5.51-bk1/arch/cris/lib/Makefile	Sun Sep 15 22:18:41 2002
-+++ linux/arch/cris/lib/Makefile	Sat Dec 14 12:38:56 2002
-@@ -7,5 +7,3 @@
- EXTRA_AFLAGS := -traditional
- 
- obj-y  = checksum.o checksumcopy.o string.o usercopy.o memset.o csumcpfruser.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/cris/mm/Makefile linux/arch/cris/mm/Makefile
---- linux-2.5.51-bk1/arch/cris/mm/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/cris/mm/Makefile	Sat Dec 14 12:38:56 2002
-@@ -3,5 +3,3 @@
- #
- 
- obj-y	 := init.o fault.o tlb.o extable.o ioremap.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/i386/boot/compressed/Makefile linux/arch/i386/boot/compressed/Makefile
---- linux-2.5.51-bk1/arch/i386/boot/compressed/Makefile	Sat Dec 14 12:32:10 2002
-+++ linux/arch/i386/boot/compressed/Makefile	Sat Dec 14 12:38:56 2002
-@@ -7,8 +7,6 @@
- EXTRA_TARGETS	:= vmlinux vmlinux.bin vmlinux.bin.gz head.o misc.o piggy.o
- EXTRA_AFLAGS	:= -traditional
- 
--include $(TOPDIR)/Rules.make
--
- LDFLAGS_vmlinux := -Ttext $(IMAGE_OFFSET) -e startup_32
- 
- $(obj)/vmlinux: $(obj)/head.o $(obj)/misc.o $(obj)/piggy.o FORCE
-diff -urN linux-2.5.51-bk1/arch/i386/kernel/Makefile linux/arch/i386/kernel/Makefile
---- linux-2.5.51-bk1/arch/i386/kernel/Makefile	Sat Dec 14 12:32:02 2002
-+++ linux/arch/i386/kernel/Makefile	Sat Dec 14 12:38:56 2002
-@@ -34,5 +34,3 @@
- 
- export-objs += scx200.o
- obj-$(CONFIG_SCx200)		+= scx200.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/i386/kernel/cpu/Makefile linux/arch/i386/kernel/cpu/Makefile
---- linux-2.5.51-bk1/arch/i386/kernel/cpu/Makefile	Sat Dec 14 12:32:00 2002
-+++ linux/arch/i386/kernel/cpu/Makefile	Sat Dec 14 12:38:56 2002
-@@ -17,6 +17,3 @@
- 
- obj-$(CONFIG_MTRR)	+= 	mtrr/
- obj-$(CONFIG_CPU_FREQ)	+=	cpufreq/
--
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/i386/kernel/cpu/cpufreq/Makefile linux/arch/i386/kernel/cpu/cpufreq/Makefile
---- linux-2.5.51-bk1/arch/i386/kernel/cpu/cpufreq/Makefile	Sat Dec 14 12:31:36 2002
-+++ linux/arch/i386/kernel/cpu/cpufreq/Makefile	Sat Dec 14 12:38:56 2002
-@@ -4,5 +4,3 @@
- obj-$(CONFIG_X86_P4_CLOCKMOD)	+= p4-clockmod.o
- obj-$(CONFIG_ELAN_CPUFREQ)	+= elanfreq.o
- obj-$(CONFIG_X86_LONGRUN)	+= longrun.o  
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/i386/kernel/cpu/mcheck/Makefile linux/arch/i386/kernel/cpu/mcheck/Makefile
---- linux-2.5.51-bk1/arch/i386/kernel/cpu/mcheck/Makefile	Sat Dec 14 12:32:00 2002
-+++ linux/arch/i386/kernel/cpu/mcheck/Makefile	Sat Dec 14 12:38:56 2002
-@@ -1,5 +1,2 @@
- obj-y	=	mce.o k7.o p4.o p5.o p6.o winchip.o
- obj-$(CONFIG_X86_MCE_NONFATAL)	+=	non-fatal.o
--
--include $(TOPDIR)/Rules.make
--
-diff -urN linux-2.5.51-bk1/arch/i386/kernel/cpu/mtrr/Makefile linux/arch/i386/kernel/cpu/mtrr/Makefile
---- linux-2.5.51-bk1/arch/i386/kernel/cpu/mtrr/Makefile	Sun Sep 15 22:18:17 2002
-+++ linux/arch/i386/kernel/cpu/mtrr/Makefile	Sat Dec 14 12:38:56 2002
-@@ -4,5 +4,3 @@
- obj-y		+= centaur.o
- 
- export-objs	:= main.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/i386/kernel/timers/Makefile linux/arch/i386/kernel/timers/Makefile
---- linux-2.5.51-bk1/arch/i386/kernel/timers/Makefile	Sat Dec 14 12:31:40 2002
-+++ linux/arch/i386/kernel/timers/Makefile	Sat Dec 14 12:38:56 2002
-@@ -7,5 +7,3 @@
- obj-y += timer_tsc.o
- obj-y += timer_pit.o
- obj-$(CONFIG_X86_CYCLONE)   += timer_cyclone.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/i386/lib/Makefile linux/arch/i386/lib/Makefile
---- linux-2.5.51-bk1/arch/i386/lib/Makefile	Sat Dec 14 12:31:44 2002
-+++ linux/arch/i386/lib/Makefile	Sat Dec 14 12:38:56 2002
-@@ -11,5 +11,3 @@
- obj-$(CONFIG_X86_USE_3DNOW) += mmx.o
- obj-$(CONFIG_HAVE_DEC_LOCK) += dec_and_lock.o
- obj-$(CONFIG_DEBUG_IOVIRT)  += iodebug.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/i386/mach-generic/Makefile linux/arch/i386/mach-generic/Makefile
---- linux-2.5.51-bk1/arch/i386/mach-generic/Makefile	Sat Dec 14 12:31:58 2002
-+++ linux/arch/i386/mach-generic/Makefile	Sat Dec 14 12:38:56 2002
-@@ -5,5 +5,3 @@
- EXTRA_CFLAGS	+= -I../kernel
- 
- obj-y				:= setup.o topology.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/i386/mach-visws/Makefile linux/arch/i386/mach-visws/Makefile
---- linux-2.5.51-bk1/arch/i386/mach-visws/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/i386/mach-visws/Makefile	Sat Dec 14 12:38:56 2002
-@@ -9,5 +9,3 @@
- obj-$(CONFIG_PCI)		+= pci-visws.o
- obj-$(CONFIG_X86_VISWS_APIC)	+= visws_apic.o
- obj-$(CONFIG_X86_LOCAL_APIC)	+= mpparse.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/i386/mach-voyager/Makefile linux/arch/i386/mach-voyager/Makefile
---- linux-2.5.51-bk1/arch/i386/mach-voyager/Makefile	Sat Dec 14 12:31:47 2002
-+++ linux/arch/i386/mach-voyager/Makefile	Sat Dec 14 12:38:56 2002
-@@ -13,5 +13,3 @@
- obj-y			:= setup.o voyager_basic.o voyager_thread.o
- 
- obj-$(CONFIG_SMP)	+= voyager_smp.o voyager_cat.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/i386/math-emu/Makefile linux/arch/i386/math-emu/Makefile
---- linux-2.5.51-bk1/arch/i386/math-emu/Makefile	Sat Dec 14 12:31:33 2002
-+++ linux/arch/i386/math-emu/Makefile	Sat Dec 14 12:38:56 2002
-@@ -26,7 +26,5 @@
- 
- obj-y =$(C_OBJS) $(A_OBJS)
- 
--include $(TOPDIR)/Rules.make
--
- proto:
- 	cproto -e -DMAKING_PROTO *.c >fpu_proto.h
-diff -urN linux-2.5.51-bk1/arch/i386/mm/Makefile linux/arch/i386/mm/Makefile
---- linux-2.5.51-bk1/arch/i386/mm/Makefile	Sat Dec 14 12:31:44 2002
-+++ linux/arch/i386/mm/Makefile	Sat Dec 14 12:38:56 2002
-@@ -9,5 +9,3 @@
- obj-$(CONFIG_DISCONTIGMEM)	+= discontig.o
- obj-$(CONFIG_HUGETLB_PAGE) += hugetlbpage.o
- obj-$(CONFIG_HIGHMEM) += highmem.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/i386/pci/Makefile linux/arch/i386/pci/Makefile
---- linux-2.5.51-bk1/arch/i386/pci/Makefile	Sat Dec 14 12:31:48 2002
-+++ linux/arch/i386/pci/Makefile	Sat Dec 14 12:38:56 2002
-@@ -16,5 +16,3 @@
- 
- endif		# CONFIG_X86_NUMAQ
- obj-y		+= irq.o common.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/ia64/dig/Makefile linux/arch/ia64/dig/Makefile
---- linux-2.5.51-bk1/arch/ia64/dig/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/ia64/dig/Makefile	Sat Dec 14 12:38:56 2002
+diff -urN linux-2.5.51-bk1/drivers/acorn/block/Makefile linux/drivers/acorn/block/Makefile
+--- linux-2.5.51-bk1/drivers/acorn/block/Makefile	Sun Sep 15 22:18:28 2002
++++ linux/drivers/acorn/block/Makefile	Sat Dec 14 12:38:56 2002
 @@ -7,5 +7,3 @@
  
- obj-y := setup.o
- obj-$(CONFIG_IA64_GENERIC) += machvec.o
+ obj-$(CONFIG_BLK_DEV_FD1772)	+= fd1772_mod.o
+ obj-$(CONFIG_BLK_DEV_MFM)	+= mfmhd_mod.o
 -
 -include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/ia64/hp/common/Makefile linux/arch/ia64/hp/common/Makefile
---- linux-2.5.51-bk1/arch/ia64/hp/common/Makefile	Sat Dec 14 12:31:33 2002
-+++ linux/arch/ia64/hp/common/Makefile	Sat Dec 14 12:38:56 2002
-@@ -8,5 +8,3 @@
- export-objs := sba_iommu.o
- 
- obj-y := sba_iommu.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/ia64/hp/sim/Makefile linux/arch/ia64/hp/sim/Makefile
---- linux-2.5.51-bk1/arch/ia64/hp/sim/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/ia64/hp/sim/Makefile	Sat Dec 14 12:38:56 2002
-@@ -13,5 +13,3 @@
- obj-$(CONFIG_HP_SIMETH)	+= simeth.o
- obj-$(CONFIG_HP_SIMSERIAL) += simserial.o
- obj-$(CONFIG_HP_SIMSCSI) += simscsi.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/ia64/hp/zx1/Makefile linux/arch/ia64/hp/zx1/Makefile
---- linux-2.5.51-bk1/arch/ia64/hp/zx1/Makefile	Sat Dec 14 12:31:33 2002
-+++ linux/arch/ia64/hp/zx1/Makefile	Sat Dec 14 12:38:56 2002
-@@ -7,5 +7,3 @@
- 
- obj-y := hpzx1_misc.o
- obj-$(CONFIG_IA64_GENERIC) += hpzx1_machvec.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/ia64/ia32/Makefile linux/arch/ia64/ia32/Makefile
---- linux-2.5.51-bk1/arch/ia64/ia32/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/ia64/ia32/Makefile	Sat Dec 14 12:38:56 2002
-@@ -4,5 +4,3 @@
- 
- obj-y := ia32_entry.o sys_ia32.o ia32_ioctl.o ia32_signal.o ia32_support.o ia32_traps.o \
- 	 binfmt_elf32.o ia32_ldt.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/ia64/kernel/Makefile linux/arch/ia64/kernel/Makefile
---- linux-2.5.51-bk1/arch/ia64/kernel/Makefile	Sat Dec 14 12:31:33 2002
-+++ linux/arch/ia64/kernel/Makefile	Sat Dec 14 12:38:56 2002
-@@ -15,5 +15,3 @@
- obj-$(CONFIG_SMP) += smp.o smpboot.o
- obj-$(CONFIG_IA64_MCA) += mca.o mca_asm.o
- obj-$(CONFIG_IA64_BRL_EMU) += brl_emu.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/ia64/lib/Makefile linux/arch/ia64/lib/Makefile
---- linux-2.5.51-bk1/arch/ia64/lib/Makefile	Sat Dec 14 12:31:48 2002
-+++ linux/arch/ia64/lib/Makefile	Sat Dec 14 12:38:56 2002
-@@ -20,8 +20,6 @@
- IGNORE_FLAGS_OBJS =	__divsi3.o __udivsi3.o __modsi3.o __umodsi3.o \
- 			__divdi3.o __udivdi3.o __moddi3.o __umoddi3.o
- 
--include $(TOPDIR)/Rules.make
--
- AFLAGS___divdi3.o	=
- AFLAGS___udivdi3.o	= -DUNSIGNED
- AFLAGS___moddi3.o	= 	     -DMODULO
-diff -urN linux-2.5.51-bk1/arch/ia64/mm/Makefile linux/arch/ia64/mm/Makefile
---- linux-2.5.51-bk1/arch/ia64/mm/Makefile	Sat Dec 14 12:31:48 2002
-+++ linux/arch/ia64/mm/Makefile	Sat Dec 14 12:38:56 2002
-@@ -11,5 +11,3 @@
- obj-$(CONFIG_HUGETLB_PAGE) += hugetlbpage.o
- obj-$(CONFIG_NUMA) += numa.o
- obj-$(CONFIG_DISCONTIGMEM) += discontig.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/ia64/pci/Makefile linux/arch/ia64/pci/Makefile
---- linux-2.5.51-bk1/arch/ia64/pci/Makefile	Sat Dec 14 12:31:33 2002
-+++ linux/arch/ia64/pci/Makefile	Sat Dec 14 12:38:56 2002
-@@ -1,3 +1 @@
- obj-y		:= pci.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/ia64/sn/fakeprom/Makefile linux/arch/ia64/sn/fakeprom/Makefile
---- linux-2.5.51-bk1/arch/ia64/sn/fakeprom/Makefile	Sun Sep 15 22:18:52 2002
-+++ linux/arch/ia64/sn/fakeprom/Makefile	Sat Dec 14 12:38:56 2002
-@@ -18,7 +18,3 @@
- 
- clean:
- 	rm -f *.o fprom
--
--
--include $(TOPDIR)/Rules.make
--
-diff -urN linux-2.5.51-bk1/arch/ia64/sn/io/Makefile linux/arch/ia64/sn/io/Makefile
---- linux-2.5.51-bk1/arch/ia64/sn/io/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/ia64/sn/io/Makefile	Sat Dec 14 12:38:56 2002
-@@ -37,5 +37,3 @@
- 				sn2/pcibr/pcibr_rrb.o sn2/pcibr/pcibr_slot.o 
- 
- obj-$(CONFIG_PCIBA) += pciba.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/ia64/sn/kernel/Makefile linux/arch/ia64/sn/kernel/Makefile
---- linux-2.5.51-bk1/arch/ia64/sn/kernel/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/ia64/sn/kernel/Makefile	Sat Dec 14 12:38:56 2002
-@@ -41,6 +41,3 @@
- obj-$(CONFIG_IA64_SGI_AUTOTEST) += llsc4.o misctest.o
- obj-$(CONFIG_IA64_GENERIC)      += machvec.o
- obj-$(CONFIG_MODULES)           += sn_ksyms.o
--
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/ia64/sn/kernel/sn1/Makefile linux/arch/ia64/sn/kernel/sn1/Makefile
---- linux-2.5.51-bk1/arch/ia64/sn/kernel/sn1/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/ia64/sn/kernel/sn1/Makefile	Sat Dec 14 12:38:56 2002
-@@ -35,5 +35,3 @@
- obj-y := cache.o error.o iomv.o synergy.o sn1_smp.o
- 
- EXTRA_CFLAGS := -DLITTLE_ENDIAN
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/ia64/sn/kernel/sn2/Makefile linux/arch/ia64/sn/kernel/sn2/Makefile
---- linux-2.5.51-bk1/arch/ia64/sn/kernel/sn2/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/ia64/sn/kernel/sn2/Makefile	Sat Dec 14 12:38:56 2002
-@@ -35,6 +35,3 @@
- obj-y := cache.o iomv.o sn2_smp.o
- 
- EXTRA_CFLAGS    := -DLITTLE_ENDIAN
--
--include $(TOPDIR)/Rules.make
--
-diff -urN linux-2.5.51-bk1/arch/m68k/amiga/Makefile linux/arch/m68k/amiga/Makefile
---- linux-2.5.51-bk1/arch/m68k/amiga/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/m68k/amiga/Makefile	Sat Dec 14 12:38:56 2002
-@@ -7,5 +7,3 @@
- obj-y		:= config.o amiints.o cia.o chipram.o amisound.o amiga_ksyms.o
- 
- obj-$(CONFIG_AMIGA_PCMCIA)	+= pcmcia.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/m68k/apollo/Makefile linux/arch/m68k/apollo/Makefile
---- linux-2.5.51-bk1/arch/m68k/apollo/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/m68k/apollo/Makefile	Sat Dec 14 12:38:56 2002
-@@ -3,5 +3,3 @@
- #
- 
- obj-y		:= config.o dn_ints.o dma.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/m68k/atari/Makefile linux/arch/m68k/atari/Makefile
---- linux-2.5.51-bk1/arch/m68k/atari/Makefile	Sat Dec 14 12:31:58 2002
-+++ linux/arch/m68k/atari/Makefile	Sat Dec 14 12:38:56 2002
-@@ -10,5 +10,3 @@
- ifeq ($(CONFIG_PCI),y)
- obj-$(CONFIG_HADES)	+= hades-pci.o
- endif
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/m68k/bvme6000/Makefile linux/arch/m68k/bvme6000/Makefile
---- linux-2.5.51-bk1/arch/m68k/bvme6000/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/m68k/bvme6000/Makefile	Sat Dec 14 12:38:56 2002
-@@ -3,5 +3,3 @@
- #
- 
- obj-y		:= config.o bvmeints.o rtc.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/m68k/fpsp040/Makefile linux/arch/m68k/fpsp040/Makefile
---- linux-2.5.51-bk1/arch/m68k/fpsp040/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/m68k/fpsp040/Makefile	Sat Dec 14 12:38:56 2002
-@@ -13,6 +13,4 @@
- EXTRA_AFLAGS := -traditional
- EXTRA_LDFLAGS := -x
- 
--include $(TOPDIR)/Rules.make
--
- $(OS_OBJS): fpsp.h
-diff -urN linux-2.5.51-bk1/arch/m68k/hp300/Makefile linux/arch/m68k/hp300/Makefile
---- linux-2.5.51-bk1/arch/m68k/hp300/Makefile	Sat Dec 14 12:31:58 2002
-+++ linux/arch/m68k/hp300/Makefile	Sat Dec 14 12:38:56 2002
-@@ -3,5 +3,3 @@
- #
- 
- obj-y		:= ksyms.o config.o ints.o time.o reboot.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/m68k/ifpsp060/Makefile linux/arch/m68k/ifpsp060/Makefile
---- linux-2.5.51-bk1/arch/m68k/ifpsp060/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/m68k/ifpsp060/Makefile	Sat Dec 14 12:38:56 2002
-@@ -8,5 +8,3 @@
- 
- EXTRA_AFLAGS := -traditional
- EXTRA_LDFLAGS := -x
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/m68k/kernel/Makefile linux/arch/m68k/kernel/Makefile
---- linux-2.5.51-bk1/arch/m68k/kernel/Makefile	Sat Dec 14 12:31:58 2002
-+++ linux/arch/m68k/kernel/Makefile	Sat Dec 14 12:38:56 2002
-@@ -17,8 +17,6 @@
- 
- EXTRA_AFLAGS := -traditional
- 
--include $(TOPDIR)/Rules.make
--
- $(obj)/head.o: $(obj)/head.S $(obj)/m68k_defs.h
- 
- $(obj)/entry.o: $(obj)/entry.S $(obj)/m68k_defs.h
-diff -urN linux-2.5.51-bk1/arch/m68k/lib/Makefile linux/arch/m68k/lib/Makefile
---- linux-2.5.51-bk1/arch/m68k/lib/Makefile	Sun Sep 15 22:18:15 2002
-+++ linux/arch/m68k/lib/Makefile	Sat Dec 14 12:38:56 2002
-@@ -8,5 +8,3 @@
- 
- obj-y		:= ashldi3.o ashrdi3.o lshrdi3.o muldi3.o \
- 			checksum.o memcmp.o memcpy.o memset.o semaphore.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/m68k/mac/Makefile linux/arch/m68k/mac/Makefile
---- linux-2.5.51-bk1/arch/m68k/mac/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/m68k/mac/Makefile	Sat Dec 14 12:38:56 2002
-@@ -6,5 +6,3 @@
- 
- obj-y		:= config.o bootparse.o macints.o iop.o via.o oss.o psc.o \
- 			baboon.o macboing.o debug.o misc.o mac_ksyms.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/m68k/math-emu/Makefile linux/arch/m68k/math-emu/Makefile
---- linux-2.5.51-bk1/arch/m68k/math-emu/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/m68k/math-emu/Makefile	Sat Dec 14 12:38:56 2002
-@@ -9,5 +9,3 @@
- 
- obj-y		:= fp_entry.o fp_scan.o fp_util.o fp_move.o fp_movem.o \
- 			fp_cond.o fp_arith.o fp_log.o fp_trig.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/m68k/mm/Makefile linux/arch/m68k/mm/Makefile
---- linux-2.5.51-bk1/arch/m68k/mm/Makefile	Sat Dec 14 12:31:58 2002
-+++ linux/arch/m68k/mm/Makefile	Sat Dec 14 12:38:56 2002
-@@ -9,6 +9,3 @@
- else
- obj-y		+= sun3kmap.o sun3mmu.o
- endif
--
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/m68k/mvme147/Makefile linux/arch/m68k/mvme147/Makefile
---- linux-2.5.51-bk1/arch/m68k/mvme147/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/m68k/mvme147/Makefile	Sat Dec 14 12:38:56 2002
-@@ -3,6 +3,3 @@
- #
- 
- obj-y		:= config.o 147ints.o
--
--include $(TOPDIR)/Rules.make
--
-diff -urN linux-2.5.51-bk1/arch/m68k/mvme16x/Makefile linux/arch/m68k/mvme16x/Makefile
---- linux-2.5.51-bk1/arch/m68k/mvme16x/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/m68k/mvme16x/Makefile	Sat Dec 14 12:38:56 2002
-@@ -5,5 +5,3 @@
- export-objs	:= mvme16x_ksyms.o
- 
- obj-y		:= config.o 16xints.o rtc.o mvme16x_ksyms.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/m68k/q40/Makefile linux/arch/m68k/q40/Makefile
---- linux-2.5.51-bk1/arch/m68k/q40/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/m68k/q40/Makefile	Sat Dec 14 12:38:56 2002
-@@ -3,5 +3,3 @@
- #
- 
- obj-y		:= config.o q40ints.o 
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/m68k/sun3/Makefile linux/arch/m68k/sun3/Makefile
---- linux-2.5.51-bk1/arch/m68k/sun3/Makefile	Sat Dec 14 12:31:58 2002
-+++ linux/arch/m68k/sun3/Makefile	Sat Dec 14 12:38:56 2002
-@@ -8,5 +8,3 @@
- 
- obj-$(CONFIG_SUN3) += config.o mmu_emu.o leds.o dvma.o \
- 			intersil.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/m68k/sun3/prom/Makefile linux/arch/m68k/sun3/prom/Makefile
---- linux-2.5.51-bk1/arch/m68k/sun3/prom/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/m68k/sun3/prom/Makefile	Sat Dec 14 12:38:56 2002
-@@ -5,5 +5,3 @@
- 
- obj-y := init.o console.o printf.o  misc.o
- #bootstr.o init.o misc.o segment.o console.o printf.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/m68k/sun3x/Makefile linux/arch/m68k/sun3x/Makefile
---- linux-2.5.51-bk1/arch/m68k/sun3x/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/m68k/sun3x/Makefile	Sat Dec 14 12:38:56 2002
-@@ -5,5 +5,3 @@
- export-objs	:= sun3x_ksyms.o
- 
- obj-y		:= config.o time.o dvma.o prom.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/m68knommu/Makefile linux/arch/m68knommu/Makefile
---- linux-2.5.51-bk1/arch/m68knommu/Makefile	Sat Dec 14 12:32:10 2002
-+++ linux/arch/m68knommu/Makefile	Sat Dec 14 12:38:56 2002
-@@ -96,8 +96,6 @@
- 	   arch/m68knommu/platform/$(PLATFORM)/
- libs-y	+= arch/m68knommu/lib/
- 
--include $(TOPDIR)/Rules.make
--
- prepare: include/asm-$(ARCH)/asm-offsets.h
- 
- archmrproper:
-diff -urN linux-2.5.51-bk1/arch/m68knommu/kernel/Makefile linux/arch/m68knommu/kernel/Makefile
---- linux-2.5.51-bk1/arch/m68knommu/kernel/Makefile	Sat Dec 14 12:31:58 2002
-+++ linux/arch/m68knommu/kernel/Makefile	Sat Dec 14 12:38:56 2002
-@@ -8,6 +8,3 @@
- 	 setup.o signal.o syscalltable.o sys_m68k.o time.o traps.o
- 
- obj-$(CONFIG_COMEMPCI)	+= comempci.o
--
--include $(TOPDIR)/Rules.make
--
-diff -urN linux-2.5.51-bk1/arch/m68knommu/lib/Makefile linux/arch/m68knommu/lib/Makefile
---- linux-2.5.51-bk1/arch/m68knommu/lib/Makefile	Sat Dec 14 12:31:58 2002
-+++ linux/arch/m68knommu/lib/Makefile	Sat Dec 14 12:38:56 2002
-@@ -6,5 +6,3 @@
- obj-y	:= ashldi3.o ashrdi3.o lshrdi3.o \
- 	   muldi3.o mulsi3.o divsi3.o udivsi3.o modsi3.o umodsi3.o \
- 	   checksum.o semaphore.o memcpy.o memset.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/m68knommu/mm/Makefile linux/arch/m68knommu/mm/Makefile
---- linux-2.5.51-bk1/arch/m68knommu/mm/Makefile	Sat Dec 14 12:31:58 2002
-+++ linux/arch/m68knommu/mm/Makefile	Sat Dec 14 12:38:56 2002
-@@ -3,5 +3,3 @@
- #
- 
- obj-y += init.o fault.o memory.o kmap.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/m68knommu/platform/5206/Makefile linux/arch/m68knommu/platform/5206/Makefile
---- linux-2.5.51-bk1/arch/m68knommu/platform/5206/Makefile	Sat Dec 14 12:31:58 2002
-+++ linux/arch/m68knommu/platform/5206/Makefile	Sat Dec 14 12:38:56 2002
-@@ -19,6 +19,3 @@
- obj-y := config.o
- 
- EXTRA_TARGETS := $(BOARD)/crt0_$(MODEL).o
--
--include $(TOPDIR)/Rules.make
--
-diff -urN linux-2.5.51-bk1/arch/m68knommu/platform/5206e/Makefile linux/arch/m68knommu/platform/5206e/Makefile
---- linux-2.5.51-bk1/arch/m68knommu/platform/5206e/Makefile	Sat Dec 14 12:31:58 2002
-+++ linux/arch/m68knommu/platform/5206e/Makefile	Sat Dec 14 12:38:56 2002
-@@ -19,6 +19,3 @@
- obj-y := config.o
- 
- EXTRA_TARGETS := $(BOARD)/crt0_$(MODEL).o
--
--include $(TOPDIR)/Rules.make
--
-diff -urN linux-2.5.51-bk1/arch/m68knommu/platform/5249/Makefile linux/arch/m68knommu/platform/5249/Makefile
---- linux-2.5.51-bk1/arch/m68knommu/platform/5249/Makefile	Sat Dec 14 12:31:58 2002
-+++ linux/arch/m68knommu/platform/5249/Makefile	Sat Dec 14 12:38:56 2002
-@@ -19,6 +19,3 @@
- obj-y := config.o
- 
- EXTRA_TARGETS := $(BOARD)/crt0_$(MODEL).o
--
--include $(TOPDIR)/Rules.make
--
-diff -urN linux-2.5.51-bk1/arch/m68knommu/platform/5272/Makefile linux/arch/m68knommu/platform/5272/Makefile
---- linux-2.5.51-bk1/arch/m68knommu/platform/5272/Makefile	Sat Dec 14 12:31:58 2002
-+++ linux/arch/m68knommu/platform/5272/Makefile	Sat Dec 14 12:38:56 2002
-@@ -19,6 +19,3 @@
- obj-y := config.o
- 
- EXTRA_TARGETS := $(BOARD)/crt0_$(MODEL).o
--
--include $(TOPDIR)/Rules.make
--
-diff -urN linux-2.5.51-bk1/arch/m68knommu/platform/5307/Makefile linux/arch/m68knommu/platform/5307/Makefile
---- linux-2.5.51-bk1/arch/m68knommu/platform/5307/Makefile	Sat Dec 14 12:31:58 2002
-+++ linux/arch/m68knommu/platform/5307/Makefile	Sat Dec 14 12:38:56 2002
-@@ -22,6 +22,3 @@
- ifeq ($(CONFIG_M5307),y)
- EXTRA_TARGETS := $(BOARD)/crt0_$(MODEL).o
- endif
--
--include $(TOPDIR)/Rules.make
--
-diff -urN linux-2.5.51-bk1/arch/m68knommu/platform/5407/Makefile linux/arch/m68knommu/platform/5407/Makefile
---- linux-2.5.51-bk1/arch/m68knommu/platform/5407/Makefile	Sat Dec 14 12:31:58 2002
-+++ linux/arch/m68knommu/platform/5407/Makefile	Sat Dec 14 12:38:56 2002
-@@ -19,6 +19,3 @@
- obj-y := config.o
- 
- EXTRA_TARGETS := $(BOARD)/crt0_$(MODEL).o
--
--include $(TOPDIR)/Rules.make
--
-diff -urN linux-2.5.51-bk1/arch/m68knommu/platform/68328/Makefile linux/arch/m68knommu/platform/68328/Makefile
---- linux-2.5.51-bk1/arch/m68knommu/platform/68328/Makefile	Sat Dec 14 12:32:10 2002
-+++ linux/arch/m68knommu/platform/68328/Makefile	Sat Dec 14 12:38:56 2002
-@@ -10,8 +10,6 @@
- EXTRA_TARGETS := $(BOARD)/bootlogo.rh $(BOARD)/crt0_$(MODEL).o
- endif
- 
--include $(TOPDIR)/Rules.make
--
- $(obj)/$(BOARD)/bootlogo.rh: $(src)/bootlogo.h
- 	perl $(src)/bootlogo.pl < $(src)/bootlogo.h > $(obj)/$(BOARD)/bootlogo.rh
- 
-diff -urN linux-2.5.51-bk1/arch/m68knommu/platform/68360/Makefile linux/arch/m68knommu/platform/68360/Makefile
---- linux-2.5.51-bk1/arch/m68knommu/platform/68360/Makefile	Sat Dec 14 12:31:58 2002
-+++ linux/arch/m68knommu/platform/68360/Makefile	Sat Dec 14 12:38:56 2002
-@@ -5,6 +5,3 @@
- obj-y := config.o commproc.o entry.o ints.o
- 
- EXTRA_TARGETS := $(BOARD)/crt0_$(MODEL).o
--
--include $(TOPDIR)/Rules.make
--
-diff -urN linux-2.5.51-bk1/arch/m68knommu/platform/68EZ328/Makefile linux/arch/m68knommu/platform/68EZ328/Makefile
---- linux-2.5.51-bk1/arch/m68knommu/platform/68EZ328/Makefile	Sat Dec 14 12:31:58 2002
-+++ linux/arch/m68knommu/platform/68EZ328/Makefile	Sat Dec 14 12:38:56 2002
-@@ -6,8 +6,6 @@
- 
- EXTRA_TARGETS := $(BOARD)/bootlogo.rh $(BOARD)/crt0_$(MODEL).o
- 
--include $(TOPDIR)/Rules.make
--
- $(obj)/$(BOARD)/bootlogo.rh: $(src)/bootlogo.h
- 	perl $(src)/../68328/bootlogo.pl < $(src)/bootlogo.h \
- 		> $(obj)/$(BOARD)/bootlogo.rh
-diff -urN linux-2.5.51-bk1/arch/m68knommu/platform/68VZ328/Makefile linux/arch/m68knommu/platform/68VZ328/Makefile
---- linux-2.5.51-bk1/arch/m68knommu/platform/68VZ328/Makefile	Sat Dec 14 12:31:58 2002
-+++ linux/arch/m68knommu/platform/68VZ328/Makefile	Sat Dec 14 12:38:56 2002
-@@ -6,8 +6,6 @@
- 
- EXTRA_TARGETS := $(BOARD)/bootlogo.rh $(BOARD)/crt0_$(MODEL).o
- 
--include $(TOPDIR)/Rules.make
--
- $(obj)/$(BOARD)/bootlogo.rh: $(src)/../68EZ328/bootlogo.h
- 	perl $(src)/../68328/bootlogo.pl < $(src)/../68EZ328/bootlogo.h \
- 		> $(obj)/$(BOARD)/bootlogo.rh
-diff -urN linux-2.5.51-bk1/arch/m68knommu/platform/Makefile linux/arch/m68knommu/platform/Makefile
---- linux-2.5.51-bk1/arch/m68knommu/platform/Makefile	Sat Dec 14 12:31:58 2002
-+++ linux/arch/m68knommu/platform/Makefile	Sat Dec 14 12:38:56 2002
-@@ -1,6 +1,3 @@
- #
- # Makefile for the arch/m68knommu/platform.
- #
--
--include $(TOPDIR)/Rules.make
--
-diff -urN linux-2.5.51-bk1/arch/mips/arc/Makefile linux/arch/mips/arc/Makefile
---- linux-2.5.51-bk1/arch/mips/arc/Makefile	Sat Dec 14 12:31:33 2002
-+++ linux/arch/mips/arc/Makefile	Sat Dec 14 12:38:56 2002
-@@ -9,5 +9,3 @@
- 		   time.o file.o identify.o
- 
- obj-$(CONFIG_ARC_CONSOLE)   += arc_con.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/mips/au1000/common/Makefile linux/arch/mips/au1000/common/Makefile
---- linux-2.5.51-bk1/arch/mips/au1000/common/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/mips/au1000/common/Makefile	Sat Dec 14 12:38:56 2002
-@@ -16,7 +16,5 @@
- 
- EXTRA_AFLAGS := $(CFLAGS)
- 
--include $(TOPDIR)/Rules.make
--
- ramdisk.o: 
- 	mkramobj ramdisk ramdisk.o
-diff -urN linux-2.5.51-bk1/arch/mips/au1000/pb1000/Makefile linux/arch/mips/au1000/pb1000/Makefile
---- linux-2.5.51-bk1/arch/mips/au1000/pb1000/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/mips/au1000/pb1000/Makefile	Sat Dec 14 12:38:56 2002
-@@ -7,5 +7,3 @@
- #
- 
- obj-y := init.o setup.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/mips/baget/Makefile linux/arch/mips/baget/Makefile
---- linux-2.5.51-bk1/arch/mips/baget/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/mips/baget/Makefile	Sat Dec 14 12:38:56 2002
-@@ -9,8 +9,6 @@
- obj-$(CONFIG_SERIAL)	+= vacserial.o
- obj-$(CONFIG_VAC_RTC)	+= vacrtc.o
- 
--include $(TOPDIR)/Rules.make
--
- bagetIRQ.o : bagetIRQ.S
- 	$(CC) $(CFLAGS) -c -o $@ $<
- 
-diff -urN linux-2.5.51-bk1/arch/mips/baget/prom/Makefile linux/arch/mips/baget/prom/Makefile
---- linux-2.5.51-bk1/arch/mips/baget/prom/Makefile	Sat Dec 14 12:31:33 2002
-+++ linux/arch/mips/baget/prom/Makefile	Sat Dec 14 12:38:56 2002
-@@ -5,5 +5,3 @@
- L_TARGET := lib.a
- 
- obj-y	:= init.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/mips/boot/Makefile linux/arch/mips/boot/Makefile
---- linux-2.5.51-bk1/arch/mips/boot/Makefile	Sun Sep 15 22:18:48 2002
-+++ linux/arch/mips/boot/Makefile	Sat Dec 14 12:38:56 2002
-@@ -43,5 +43,3 @@
- 	rm -f vmlinux.ecoff
- 	rm -f addinitrd
- 	rm -f elf2ecoff
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/mips/ddb5074/Makefile linux/arch/mips/ddb5074/Makefile
---- linux-2.5.51-bk1/arch/mips/ddb5074/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/mips/ddb5074/Makefile	Sat Dec 14 12:38:56 2002
-@@ -6,5 +6,3 @@
- EXTRA_AFLAGS := $(CFLAGS)
- 
- obj-y	:= setup.o irq.o time.o prom.o pci.o int-handler.o nile4.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/mips/ddb5476/Makefile linux/arch/mips/ddb5476/Makefile
---- linux-2.5.51-bk1/arch/mips/ddb5476/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/mips/ddb5476/Makefile	Sat Dec 14 12:38:56 2002
-@@ -8,5 +8,3 @@
- obj-y				+= setup.o irq.o time.o prom.o pci.o \
- 				   int-handler.o nile4.o
- obj-$(CONFIG_REMOTE_DEBUG)	+= dbg_io.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/mips/ddb5xxx/common/Makefile linux/arch/mips/ddb5xxx/common/Makefile
---- linux-2.5.51-bk1/arch/mips/ddb5xxx/common/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/mips/ddb5xxx/common/Makefile	Sat Dec 14 12:38:56 2002
-@@ -3,5 +3,3 @@
- #
- 
- obj-y	 += irq.o irq_cpu.o nile4.o prom.o pci.o pci_auto.o rtc_ds1386.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/mips/ddb5xxx/ddb5477/Makefile linux/arch/mips/ddb5xxx/ddb5477/Makefile
---- linux-2.5.51-bk1/arch/mips/ddb5xxx/ddb5477/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/mips/ddb5xxx/ddb5477/Makefile	Sat Dec 14 12:38:56 2002
-@@ -9,5 +9,3 @@
- obj-$(CONFIG_LL_DEBUG) 		+= debug.o
- obj-$(CONFIG_REMOTE_DEBUG)	+= kgdb_io.o
- obj-$(CONFIG_BLK_DEV_INITRD)	+= ramdisk.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/mips/dec/Makefile linux/arch/mips/dec/Makefile
---- linux-2.5.51-bk1/arch/mips/dec/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/mips/dec/Makefile	Sat Dec 14 12:38:56 2002
-@@ -7,5 +7,3 @@
- obj-y	 := int-handler.o setup.o irq.o time.o reset.o rtc-dec.o wbflush.o
- 
- obj-$(CONFIG_PROM_CONSOLE)	+= promcon.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/mips/dec/boot/Makefile linux/arch/mips/dec/boot/Makefile
---- linux-2.5.51-bk1/arch/mips/dec/boot/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/mips/dec/boot/Makefile	Sat Dec 14 12:38:56 2002
-@@ -10,5 +10,3 @@
- 
- clean:
- 	rm -f nbImage
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/mips/dec/prom/Makefile linux/arch/mips/dec/prom/Makefile
---- linux-2.5.51-bk1/arch/mips/dec/prom/Makefile	Sat Dec 14 12:31:33 2002
-+++ linux/arch/mips/dec/prom/Makefile	Sat Dec 14 12:38:56 2002
-@@ -9,7 +9,5 @@
- 
- EXTRA_AFLAGS := $(CFLAGS)
- 
--include $(TOPDIR)/Rules.make
--
- dep:
- 	$(CPP) $(CPPFLAGS) -M *.c > .depend
-diff -urN linux-2.5.51-bk1/arch/mips/gt64120/common/Makefile linux/arch/mips/gt64120/common/Makefile
---- linux-2.5.51-bk1/arch/mips/gt64120/common/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/mips/gt64120/common/Makefile	Sat Dec 14 12:38:56 2002
-@@ -3,5 +3,3 @@
- #
- 
- obj-y	 := gt_irq.o pci.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/mips/gt64120/momenco_ocelot/Makefile linux/arch/mips/gt64120/momenco_ocelot/Makefile
---- linux-2.5.51-bk1/arch/mips/gt64120/momenco_ocelot/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/mips/gt64120/momenco_ocelot/Makefile	Sat Dec 14 12:38:56 2002
-@@ -7,5 +7,3 @@
- obj-y	 += int-handler.o irq.o pci.o prom.o reset.o setup.o
- 
- obj-$(CONFIG_REMOTE_DEBUG) += dbg_io.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/mips/ite-boards/generic/Makefile linux/arch/mips/ite-boards/generic/Makefile
---- linux-2.5.51-bk1/arch/mips/ite-boards/generic/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/mips/ite-boards/generic/Makefile	Sat Dec 14 12:38:56 2002
-@@ -21,5 +21,3 @@
- endif
- 
- EXTRA_AFLAGS := $(CFLAGS)
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/mips/ite-boards/ivr/Makefile linux/arch/mips/ite-boards/ivr/Makefile
---- linux-2.5.51-bk1/arch/mips/ite-boards/ivr/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/mips/ite-boards/ivr/Makefile	Sat Dec 14 12:38:56 2002
-@@ -11,5 +11,3 @@
- 
- obj-$(CONFIG_PCI) += pci_fixup.o
- obj-$(CONFIG_BLK_DEV_INITRD) += le_ramdisk.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/mips/ite-boards/qed-4n-s01b/Makefile linux/arch/mips/ite-boards/qed-4n-s01b/Makefile
---- linux-2.5.51-bk1/arch/mips/ite-boards/qed-4n-s01b/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/mips/ite-boards/qed-4n-s01b/Makefile	Sat Dec 14 12:38:56 2002
-@@ -10,5 +10,3 @@
- obj-y := init.o 
- obj-$(CONFIG_PCI) += pci_fixup.o
- obj-$(CONFIG_BLK_DEV_INITRD) += le_ramdisk.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/mips/jazz/Makefile linux/arch/mips/jazz/Makefile
---- linux-2.5.51-bk1/arch/mips/jazz/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/mips/jazz/Makefile	Sat Dec 14 12:38:56 2002
-@@ -6,5 +6,3 @@
- 	    floppy-jazz.o kbd-jazz.o
- 
- EXTRA_AFLAGS := $(CFLAGS)
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/mips/kernel/Makefile linux/arch/mips/kernel/Makefile
---- linux-2.5.51-bk1/arch/mips/kernel/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/mips/kernel/Makefile	Sat Dec 14 12:38:56 2002
-@@ -46,5 +46,3 @@
- obj-$(CONFIG_NEW_PCI)          += pci.o
- obj-$(CONFIG_PCI_AUTO)         += pci_auto.o
- endif
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/mips/lib/Makefile linux/arch/mips/lib/Makefile
---- linux-2.5.51-bk1/arch/mips/lib/Makefile	Sun Sep 15 22:18:19 2002
-+++ linux/arch/mips/lib/Makefile	Sat Dec 14 12:38:56 2002
-@@ -20,5 +20,3 @@
- obj-$(CONFIG_BLK_DEV_FD)	+= floppy-no.o floppy-std.o
- obj-$(CONFIG_IDE)		+= ide-std.o ide-no.o
- obj-$(CONFIG_PC_KEYB)		+= kbd-std.o kbd-no.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/mips/math-emu/Makefile linux/arch/mips/math-emu/Makefile
---- linux-2.5.51-bk1/arch/mips/math-emu/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/mips/math-emu/Makefile	Sat Dec 14 12:38:56 2002
-@@ -9,5 +9,3 @@
- 	   sp_div.o sp_mul.o sp_sub.o sp_add.o sp_fdp.o sp_cmp.o sp_logb.o \
- 	   sp_scalb.o sp_simple.o sp_tint.o sp_fint.o sp_tlong.o sp_flong.o \
- 	   dp_sqrt.o sp_sqrt.o kernel_linkage.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/mips/mips-boards/atlas/Makefile linux/arch/mips/mips-boards/atlas/Makefile
---- linux-2.5.51-bk1/arch/mips/mips-boards/atlas/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/mips/mips-boards/atlas/Makefile	Sat Dec 14 12:38:56 2002
-@@ -24,5 +24,3 @@
- #
- 
- obj-y	:= atlas_int.o atlas_rtc.o atlas_setup.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/mips/mips-boards/generic/Makefile linux/arch/mips/mips-boards/generic/Makefile
---- linux-2.5.51-bk1/arch/mips/mips-boards/generic/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/mips/mips-boards/generic/Makefile	Sat Dec 14 12:38:56 2002
-@@ -27,5 +27,3 @@
- obj-y				:= mipsIRQ.o pci.o reset.o display.o init.o \
- 				   memory.o printf.o cmdline.o time.o
- obj-$(CONFIG_REMOTE_DEBUG)	+= gdb_hook.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/mips/mips-boards/malta/Makefile linux/arch/mips/mips-boards/malta/Makefile
---- linux-2.5.51-bk1/arch/mips/mips-boards/malta/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/mips/mips-boards/malta/Makefile	Sat Dec 14 12:38:56 2002
-@@ -24,5 +24,3 @@
- #
- 
- obj-y := malta_int.o malta_rtc.o malta_setup.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/mips/mm/Makefile linux/arch/mips/mm/Makefile
---- linux-2.5.51-bk1/arch/mips/mm/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/mips/mm/Makefile	Sat Dec 14 12:38:56 2002
-@@ -17,5 +17,3 @@
- obj-$(CONFIG_CPU_MIPS64)	+= mips32.o
- obj-$(CONFIG_SGI_IP22)		+= umap.o
- obj-$(CONFIG_BAGET_MIPS)	+= umap.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/mips/philips/nino/Makefile linux/arch/mips/philips/nino/Makefile
---- linux-2.5.51-bk1/arch/mips/philips/nino/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/mips/philips/nino/Makefile	Sat Dec 14 12:38:56 2002
+diff -urN linux-2.5.51-bk1/drivers/acorn/char/Makefile linux/drivers/acorn/char/Makefile
+--- linux-2.5.51-bk1/drivers/acorn/char/Makefile	Sat Dec 14 12:32:06 2002
++++ linux/drivers/acorn/char/Makefile	Sat Dec 14 12:38:56 2002
 @@ -8,8 +8,6 @@
- 
- obj-$(CONFIG_BLK_DEV_INITRD)	+= ramdisk.o
+ obj-$(CONFIG_L7200_KEYB)	+= defkeymap-l7200.o keyb_l7200.o
+ obj-y				+= $(obj-$(MACHINE))
  
 -include $(TOPDIR)/Rules.make
 -
- ramdisk.o:
- 		$(MAKE) -C ramdisk
- 		mv ramdisk/ramdisk.o ramdisk.o
-diff -urN linux-2.5.51-bk1/arch/mips/philips/nino/ramdisk/Makefile linux/arch/mips/philips/nino/ramdisk/Makefile
---- linux-2.5.51-bk1/arch/mips/philips/nino/ramdisk/Makefile	Sun Sep 15 22:18:27 2002
-+++ linux/arch/mips/philips/nino/ramdisk/Makefile	Sat Dec 14 12:38:56 2002
-@@ -8,5 +8,3 @@
+ $(obj)/defkeymap-acorn.o: $(obj)/defkeymap-acorn.c
  
- ramdisk.o: ramdisk.gz ld.script
- 	$(LD) $(LDFLAGS) -T ld.script -b binary -o $@ ramdisk.gz
+ # Uncomment if you're changing the keymap and have an appropriate
+diff -urN linux-2.5.51-bk1/drivers/acorn/net/Makefile linux/drivers/acorn/net/Makefile
+--- linux-2.5.51-bk1/drivers/acorn/net/Makefile	Sun Sep 15 22:18:38 2002
++++ linux/drivers/acorn/net/Makefile	Sat Dec 14 12:38:56 2002
+@@ -6,5 +6,3 @@
+ obj-$(CONFIG_ARM_ETHERH)	+= etherh.o
+ obj-$(CONFIG_ARM_ETHER3)	+= ether3.o
+ obj-$(CONFIG_ARM_ETHER1)	+= ether1.o
 -
 -include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/mips/sgi/kernel/Makefile linux/arch/mips/sgi/kernel/Makefile
---- linux-2.5.51-bk1/arch/mips/sgi/kernel/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/mips/sgi/kernel/Makefile	Sat Dec 14 12:38:56 2002
+diff -urN linux-2.5.51-bk1/drivers/acorn/scsi/Makefile linux/drivers/acorn/scsi/Makefile
+--- linux-2.5.51-bk1/drivers/acorn/scsi/Makefile	Sun Sep 15 22:18:17 2002
++++ linux/drivers/acorn/scsi/Makefile	Sat Dec 14 12:38:56 2002
+@@ -13,5 +13,3 @@
+ obj-$(CONFIG_SCSI_OAK1)		+= oak.o
+ obj-$(CONFIG_SCSI_POWERTECSCSI)	+= powertec.o fas216.o queue.o msgqueue.o
+ obj-$(CONFIG_SCSI_EESOXSCSI)	+= eesox.o fas216.o queue.o msgqueue.o
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/acpi/Makefile linux/drivers/acpi/Makefile
+--- linux-2.5.51-bk1/drivers/acpi/Makefile	Sat Dec 14 12:31:59 2002
++++ linux/drivers/acpi/Makefile	Sat Dec 14 12:38:56 2002
+@@ -48,5 +48,3 @@
+ obj-$(CONFIG_ACPI_NUMA)		+= numa.o
+ obj-$(CONFIG_ACPI_TOSHIBA)	+= toshiba_acpi.o
+ obj-$(CONFIG_ACPI_BUS)		+= scan.o 
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/acpi/dispatcher/Makefile linux/drivers/acpi/dispatcher/Makefile
+--- linux-2.5.51-bk1/drivers/acpi/dispatcher/Makefile	Sat Dec 14 12:32:10 2002
++++ linux/drivers/acpi/dispatcher/Makefile	Sat Dec 14 12:38:56 2002
 @@ -7,5 +7,3 @@
- 	   indyIRQ.o reset.o setup.o time.o
+ 	 dsinit.o
  
- EXTRA_AFLAGS := $(CFLAGS)
+ EXTRA_CFLAGS += $(ACPI_CFLAGS)
 -
 -include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/mips/sni/Makefile linux/arch/mips/sni/Makefile
---- linux-2.5.51-bk1/arch/mips/sni/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/mips/sni/Makefile	Sat Dec 14 12:38:56 2002
-@@ -5,5 +5,3 @@
- obj-y	 := int-handler.o io.o irq.o pci.o pcimt_scache.o reset.o setup.o
+diff -urN linux-2.5.51-bk1/drivers/acpi/events/Makefile linux/drivers/acpi/events/Makefile
+--- linux-2.5.51-bk1/drivers/acpi/events/Makefile	Sat Dec 14 12:32:10 2002
++++ linux/drivers/acpi/events/Makefile	Sat Dec 14 12:38:56 2002
+@@ -7,5 +7,3 @@
+ 	 evgpe.o
  
- EXTRA_AFLAGS := $(CFLAGS)
+ EXTRA_CFLAGS += $(ACPI_CFLAGS)
 -
 -include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/mips/tools/Makefile linux/arch/mips/tools/Makefile
---- linux-2.5.51-bk1/arch/mips/tools/Makefile	Sun Sep 15 22:18:22 2002
-+++ linux/arch/mips/tools/Makefile	Sat Dec 14 12:38:56 2002
-@@ -21,5 +21,3 @@
- mrproper:	
- 	rm -f offset.[hs] $(TARGET).new
- 	rm -f $(TARGET)
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/mips64/arc/Makefile linux/arch/mips64/arc/Makefile
---- linux-2.5.51-bk1/arch/mips64/arc/Makefile	Sat Dec 14 12:31:33 2002
-+++ linux/arch/mips64/arc/Makefile	Sat Dec 14 12:38:56 2002
+diff -urN linux-2.5.51-bk1/drivers/acpi/executer/Makefile linux/drivers/acpi/executer/Makefile
+--- linux-2.5.51-bk1/drivers/acpi/executer/Makefile	Sat Dec 14 12:31:37 2002
++++ linux/drivers/acpi/executer/Makefile	Sat Dec 14 12:38:56 2002
 @@ -8,5 +8,3 @@
+ 	 exdump.o    exmutex.o  exoparg3.o  exresnte.o  exstoren.o
  
- obj-$(CONFIG_ARC_MEMORY) += memory.o
- obj-$(CONFIG_ARC_CONSOLE) += arc_con.o
+ EXTRA_CFLAGS += $(ACPI_CFLAGS)
 -
 -include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/mips64/boot/Makefile linux/arch/mips64/boot/Makefile
---- linux-2.5.51-bk1/arch/mips64/boot/Makefile	Sun Sep 15 22:18:53 2002
-+++ linux/arch/mips64/boot/Makefile	Sat Dec 14 12:38:56 2002
+diff -urN linux-2.5.51-bk1/drivers/acpi/hardware/Makefile linux/drivers/acpi/hardware/Makefile
+--- linux-2.5.51-bk1/drivers/acpi/hardware/Makefile	Sat Dec 14 12:31:37 2002
++++ linux/drivers/acpi/hardware/Makefile	Sat Dec 14 12:38:56 2002
+@@ -5,5 +5,3 @@
+ obj-y := hwacpi.o  hwgpe.o  hwregs.o  hwsleep.o  hwtimer.o
+ 
+ EXTRA_CFLAGS += $(ACPI_CFLAGS)
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/acpi/namespace/Makefile linux/drivers/acpi/namespace/Makefile
+--- linux-2.5.51-bk1/drivers/acpi/namespace/Makefile	Sat Dec 14 12:32:10 2002
++++ linux/drivers/acpi/namespace/Makefile	Sat Dec 14 12:38:56 2002
+@@ -8,5 +8,3 @@
+ 	 nsparse.o
+ 
+ EXTRA_CFLAGS += $(ACPI_CFLAGS)
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/acpi/parser/Makefile linux/drivers/acpi/parser/Makefile
+--- linux-2.5.51-bk1/drivers/acpi/parser/Makefile	Sat Dec 14 12:31:37 2002
++++ linux/drivers/acpi/parser/Makefile	Sat Dec 14 12:38:56 2002
+@@ -6,5 +6,3 @@
+ 	 psopcode.o  psscope.o  psutils.o  psxface.o
+ 
+ EXTRA_CFLAGS += $(ACPI_CFLAGS)
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/acpi/resources/Makefile linux/drivers/acpi/resources/Makefile
+--- linux-2.5.51-bk1/drivers/acpi/resources/Makefile	Sat Dec 14 12:31:37 2002
++++ linux/drivers/acpi/resources/Makefile	Sat Dec 14 12:38:56 2002
+@@ -6,5 +6,3 @@
+ 	 rscalc.o  rsdump.o    rsirq.o  rsmemory.o  rsutils.o
+ 
+ EXTRA_CFLAGS += $(ACPI_CFLAGS)
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/acpi/tables/Makefile linux/drivers/acpi/tables/Makefile
+--- linux-2.5.51-bk1/drivers/acpi/tables/Makefile	Sat Dec 14 12:31:37 2002
++++ linux/drivers/acpi/tables/Makefile	Sat Dec 14 12:38:56 2002
+@@ -6,5 +6,3 @@
+ 	 tbgetall.o  tbinstal.o  tbutils.o  tbxfroot.o
+ 
+ EXTRA_CFLAGS += $(ACPI_CFLAGS)
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/acpi/utilities/Makefile linux/drivers/acpi/utilities/Makefile
+--- linux-2.5.51-bk1/drivers/acpi/utilities/Makefile	Sat Dec 14 12:31:37 2002
++++ linux/drivers/acpi/utilities/Makefile	Sat Dec 14 12:38:56 2002
+@@ -6,5 +6,3 @@
+ 	 utcopy.o   utdelete.o  utglobal.o  utmath.o  utobject.o
+ 
+ EXTRA_CFLAGS += $(ACPI_CFLAGS)
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/atm/Makefile linux/drivers/atm/Makefile
+--- linux-2.5.51-bk1/drivers/atm/Makefile	Sat Dec 14 12:31:48 2002
++++ linux/drivers/atm/Makefile	Sat Dec 14 12:38:56 2002
+@@ -51,8 +51,6 @@
+   endif
+ endif
+ 
+-include $(TOPDIR)/Rules.make
+-
+ # FORE Systems 200E-series firmware magic
+ $(obj)/fore200e_pca_fw.c: $(patsubst "%", %, $(CONFIG_ATM_FORE200E_PCA_FW)) \
+ 			  $(obj)/fore200e_mkfirm
+diff -urN linux-2.5.51-bk1/drivers/base/Makefile linux/drivers/base/Makefile
+--- linux-2.5.51-bk1/drivers/base/Makefile	Sat Dec 14 12:31:59 2002
++++ linux/drivers/base/Makefile	Sat Dec 14 12:38:56 2002
+@@ -12,5 +12,3 @@
+ 
+ export-objs	:= core.o power.o sys.o bus.o driver.o \
+ 			class.o intf.o platform.o firmware.o
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/base/fs/Makefile linux/drivers/base/fs/Makefile
+--- linux-2.5.51-bk1/drivers/base/fs/Makefile	Sat Dec 14 12:31:59 2002
++++ linux/drivers/base/fs/Makefile	Sat Dec 14 12:38:56 2002
+@@ -1,5 +1,3 @@
+ obj-y		:= device.o
+ 
+ export-objs	:= device.o
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/block/Makefile linux/drivers/block/Makefile
+--- linux-2.5.51-bk1/drivers/block/Makefile	Sat Dec 14 12:31:42 2002
++++ linux/drivers/block/Makefile	Sat Dec 14 12:38:56 2002
 @@ -31,5 +31,3 @@
  
- mrproper:
- 	rm -f vmlinux.ecoff addinitrd elf2ecoff
+ obj-$(CONFIG_BLK_DEV_UMEM)	+= umem.o
+ obj-$(CONFIG_BLK_DEV_NBD)	+= nbd.o
 -
 -include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/mips64/kernel/Makefile linux/arch/mips64/kernel/Makefile
---- linux-2.5.51-bk1/arch/mips64/kernel/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/mips64/kernel/Makefile	Sat Dec 14 12:38:56 2002
-@@ -19,5 +19,3 @@
- AFLAGS_r4k_genex.o := -P
- AFLAGS_r4k_tlb_glue.o := -P
- EXTRA_AFLAGS := $(CFLAGS)
+diff -urN linux-2.5.51-bk1/drivers/block/paride/Makefile linux/drivers/block/paride/Makefile
+--- linux-2.5.51-bk1/drivers/block/paride/Makefile	Sun Sep 15 22:18:26 2002
++++ linux/drivers/block/paride/Makefile	Sat Dec 14 12:38:56 2002
+@@ -28,5 +28,3 @@
+ obj-$(CONFIG_PARIDE_PF)		+= pf.o
+ obj-$(CONFIG_PARIDE_PT)		+= pt.o
+ obj-$(CONFIG_PARIDE_PG)		+= pg.o
 -
 -include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/mips64/lib/Makefile linux/arch/mips64/lib/Makefile
---- linux-2.5.51-bk1/arch/mips64/lib/Makefile	Sun Sep 15 22:18:25 2002
-+++ linux/arch/mips64/lib/Makefile	Sat Dec 14 12:38:56 2002
-@@ -10,5 +10,3 @@
- 	  floppy-no.o ide-std.o ide-no.o kbd-std.o kbd-no.o rtc-std.o \
- 	  rtc-no.o memset.o memcpy.o strlen_user.o strncpy_user.o \
- 	  strnlen_user.o watch.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/mips64/math-emu/Makefile linux/arch/mips64/math-emu/Makefile
---- linux-2.5.51-bk1/arch/mips64/math-emu/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/mips64/math-emu/Makefile	Sat Dec 14 12:38:56 2002
-@@ -9,5 +9,3 @@
- 	   sp_div.o sp_mul.o sp_sub.o sp_add.o sp_fdp.o sp_cmp.o sp_logb.o \
- 	   sp_scalb.o sp_simple.o sp_tint.o sp_fint.o sp_tlong.o sp_flong.o \
- 	   dp_sqrt.o sp_sqrt.o kernel_linkage.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/mips64/mips-boards/atlas/Makefile linux/arch/mips64/mips-boards/atlas/Makefile
---- linux-2.5.51-bk1/arch/mips64/mips-boards/atlas/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/mips64/mips-boards/atlas/Makefile	Sat Dec 14 12:38:56 2002
-@@ -24,5 +24,3 @@
- #
- 
- obj-y   := atlas_int.o atlas_rtc.o atlas_setup.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/mips64/mips-boards/generic/Makefile linux/arch/mips64/mips-boards/generic/Makefile
---- linux-2.5.51-bk1/arch/mips64/mips-boards/generic/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/mips64/mips-boards/generic/Makefile	Sat Dec 14 12:38:56 2002
-@@ -27,5 +27,3 @@
- obj-$(CONFIG_REMOTE_DEBUG)      += gdb_hook.o
- 
- EXTRA_AFLAGS := $(CFLAGS)
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/mips64/mips-boards/malta/Makefile linux/arch/mips64/mips-boards/malta/Makefile
---- linux-2.5.51-bk1/arch/mips64/mips-boards/malta/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/mips64/mips-boards/malta/Makefile	Sat Dec 14 12:38:56 2002
-@@ -24,5 +24,3 @@
- #
- 
- obj-y := malta_int.o malta_rtc.o malta_setup.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/mips64/mm/Makefile linux/arch/mips64/mm/Makefile
---- linux-2.5.51-bk1/arch/mips64/mm/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/mips64/mm/Makefile	Sat Dec 14 12:38:56 2002
-@@ -12,5 +12,3 @@
- obj-$(CONFIG_CPU_NEVADA)	+= r4xx0.o
- obj-$(CONFIG_CPU_R10000)	+= andes.o
- obj-$(CONFIG_SGI_IP22)		+= umap.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/mips64/sgi-ip22/Makefile linux/arch/mips64/sgi-ip22/Makefile
---- linux-2.5.51-bk1/arch/mips64/sgi-ip22/Makefile	Sat Dec 14 12:31:33 2002
-+++ linux/arch/mips64/sgi-ip22/Makefile	Sat Dec 14 12:38:56 2002
-@@ -9,5 +9,3 @@
- 
- obj-y	+= ip22-berr.o ip22-mc.o ip22-sc.o ip22-hpc.o ip22-int.o ip22-rtc.o \
- 	   ip22-setup.o system.o ip22-timer.o ip22-irq.o ip22-reset.o time.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/mips64/sgi-ip27/Makefile linux/arch/mips64/sgi-ip27/Makefile
---- linux-2.5.51-bk1/arch/mips64/sgi-ip27/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/mips64/sgi-ip27/Makefile	Sat Dec 14 12:38:56 2002
-@@ -7,5 +7,3 @@
- obj-y	:= ip27-berr.o ip27-console.o ip27-irq.o ip27-init.o ip27-irq-glue.o \
- 	   ip27-klconfig.o ip27-klnuma.o ip27-memory.o ip27-nmi.o ip27-pci.o \
- 	   ip27-pci-dma.o ip27-reset.o ip27-setup.o ip27-timer.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/mips64/sgi-ip32/Makefile linux/arch/mips64/sgi-ip32/Makefile
---- linux-2.5.51-bk1/arch/mips64/sgi-ip32/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/mips64/sgi-ip32/Makefile	Sat Dec 14 12:38:56 2002
-@@ -11,5 +11,3 @@
- obj-$(CONFIG_PCI) += ip32-pci.o ip32-pci-dma.o
- 
- EXTRA_AFLAGS := $(CFLAGS)
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/mips64/tools/Makefile linux/arch/mips64/tools/Makefile
---- linux-2.5.51-bk1/arch/mips64/tools/Makefile	Sun Sep 15 22:18:20 2002
-+++ linux/arch/mips64/tools/Makefile	Sat Dec 14 12:38:56 2002
-@@ -21,5 +21,3 @@
- mrproper:	
- 	rm -f offset.[hs] $(TARGET).new
- 	rm -f $(TARGET)
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/ppc/4xx_io/Makefile linux/arch/ppc/4xx_io/Makefile
---- linux-2.5.51-bk1/arch/ppc/4xx_io/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/ppc/4xx_io/Makefile	Sat Dec 14 12:38:56 2002
-@@ -4,5 +4,3 @@
- 
- 
- obj-$(CONFIG_SERIAL_SICC)		+= serial_sicc.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/ppc/8260_io/Makefile linux/arch/ppc/8260_io/Makefile
---- linux-2.5.51-bk1/arch/ppc/8260_io/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/ppc/8260_io/Makefile	Sat Dec 14 12:38:56 2002
-@@ -6,5 +6,3 @@
- 
- obj-$(CONFIG_FEC_ENET)	+= fcc_enet.o
- obj-$(CONFIG_SCC_ENET)	+= enet.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/ppc/8xx_io/Makefile linux/arch/ppc/8xx_io/Makefile
---- linux-2.5.51-bk1/arch/ppc/8xx_io/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/ppc/8xx_io/Makefile	Sat Dec 14 12:38:56 2002
-@@ -10,5 +10,3 @@
- obj-$(CONFIG_SCC_ENET)	+= enet.o
- obj-$(CONFIG_UCODE_PATCH) += micropatch.o
- obj-$(CONFIG_HTDMSOUND) += cs4218_tdm.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/ppc/amiga/Makefile linux/arch/ppc/amiga/Makefile
---- linux-2.5.51-bk1/arch/ppc/amiga/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/ppc/amiga/Makefile	Sat Dec 14 12:38:56 2002
-@@ -8,5 +8,3 @@
- 			chipram.o amiga_ksyms.o
- 
- obj-$(CONFIG_AMIGA_PCMCIA) += pcmcia.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/ppc/boot/utils/Makefile linux/arch/ppc/boot/utils/Makefile
---- linux-2.5.51-bk1/arch/ppc/boot/utils/Makefile	Sun Sep 15 22:18:25 2002
-+++ linux/arch/ppc/boot/utils/Makefile	Sat Dec 14 12:38:56 2002
-@@ -18,5 +18,3 @@
- 
- clean:
- 	rm -f $(UTILS)
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/ppc/iSeries/Makefile linux/arch/ppc/iSeries/Makefile
---- linux-2.5.51-bk1/arch/ppc/iSeries/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/ppc/iSeries/Makefile	Sat Dec 14 12:38:56 2002
-@@ -7,8 +7,6 @@
- 
- obj-$(CONFIG_PCI) += XmPciLpEvent.o iSeries_FlightRecorder.o iSeries_IoMmTable.o iSeries_VpdInfo.o iSeries_fixup.o iSeries_irq.o iSeries_pci.o iSeries_pci_proc.o iSeries_reset_device.o
- 
--include $(TOPDIR)/Rules.make
--
- LparData.c:: ReleaseData.h
- 
- ReleaseData.h: $(TOPDIR)/Makefile
-diff -urN linux-2.5.51-bk1/arch/ppc/kernel/Makefile linux/arch/ppc/kernel/Makefile
---- linux-2.5.51-bk1/arch/ppc/kernel/Makefile	Sat Dec 14 12:32:04 2002
-+++ linux/arch/ppc/kernel/Makefile	Sat Dec 14 12:38:56 2002
-@@ -40,7 +40,5 @@
- endif
- obj-$(CONFIG_PPC_ISERIES)	+= iSeries_misc.o
- 
--include $(TOPDIR)/Rules.make
--
- find_name : find_name.c
- 	$(HOSTCC) $(HOSTCFLAGS) -o find_name find_name.c
-diff -urN linux-2.5.51-bk1/arch/ppc/lib/Makefile linux/arch/ppc/lib/Makefile
---- linux-2.5.51-bk1/arch/ppc/lib/Makefile	Sat Dec 14 12:31:44 2002
-+++ linux/arch/ppc/lib/Makefile	Sat Dec 14 12:38:56 2002
-@@ -7,5 +7,3 @@
- obj-y			:= checksum.o string.o strcase.o dec_and_lock.o div64.o
- 
- obj-$(CONFIG_SMP)	+= locks.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/ppc/math-emu/Makefile linux/arch/ppc/math-emu/Makefile
---- linux-2.5.51-bk1/arch/ppc/math-emu/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/ppc/math-emu/Makefile	Sat Dec 14 12:38:56 2002
-@@ -11,5 +11,3 @@
- 					mcrfs.o mffs.o mtfsb0.o mtfsb1.o \
- 					mtfsf.o mtfsfi.o stfiwx.o stfs.o \
- 					udivmodti4.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/ppc/mm/Makefile linux/arch/ppc/mm/Makefile
---- linux-2.5.51-bk1/arch/ppc/mm/Makefile	Sat Dec 14 12:32:00 2002
-+++ linux/arch/ppc/mm/Makefile	Sat Dec 14 12:38:56 2002
+diff -urN linux-2.5.51-bk1/drivers/bluetooth/Makefile linux/drivers/bluetooth/Makefile
+--- linux-2.5.51-bk1/drivers/bluetooth/Makefile	Sat Dec 14 12:31:44 2002
++++ linux/drivers/bluetooth/Makefile	Sat Dec 14 12:38:56 2002
 @@ -13,5 +13,3 @@
- obj-$(CONFIG_PPC_ISERIES)	+= iSeries_hashtable.o iSeries_mmu.o tlb.o
- obj-$(CONFIG_40x)		+= 4xx_mmu.o
- obj-$(CONFIG_NOT_COHERENT_CACHE)	+= cachemap.o
+ hci_uart-$(CONFIG_BT_HCIUART_H4)	+= hci_h4.o
+ hci_uart-$(CONFIG_BT_HCIUART_BCSP)	+= hci_bcsp.o
+ hci_uart-objs				:= $(hci_uart-y)
 -
 -include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/ppc/platforms/4xx/Makefile linux/arch/ppc/platforms/4xx/Makefile
---- linux-2.5.51-bk1/arch/ppc/platforms/4xx/Makefile	Sat Dec 14 12:31:40 2002
-+++ linux/arch/ppc/platforms/4xx/Makefile	Sat Dec 14 12:38:56 2002
-@@ -15,5 +15,3 @@
- obj-$(CONFIG_REDWOOD_4)		+= ibmstb3.o
- obj-$(CONFIG_REDWOOD_5)		+= ibmstb4.o
- obj-$(CONFIG_NP405H)		+= ibmnp405h.o
+diff -urN linux-2.5.51-bk1/drivers/cdrom/Makefile linux/drivers/cdrom/Makefile
+--- linux-2.5.51-bk1/drivers/cdrom/Makefile	Sun Sep 15 22:18:28 2002
++++ linux/drivers/cdrom/Makefile	Sat Dec 14 12:38:56 2002
+@@ -36,7 +36,3 @@
+ obj-$(CONFIG_SBPCD)		+= sbpcd.o      cdrom.o
+ obj-$(CONFIG_SJCD)		+= sjcd.o
+ obj-$(CONFIG_CDU535)		+= sonycd535.o
+-
+-# Hand off to Rules.make.
 -
 -include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/ppc/platforms/Makefile linux/arch/ppc/platforms/Makefile
---- linux-2.5.51-bk1/arch/ppc/platforms/Makefile	Sat Dec 14 12:32:00 2002
-+++ linux/arch/ppc/platforms/Makefile	Sat Dec 14 12:38:56 2002
-@@ -53,5 +53,3 @@
- obj-$(CONFIG_ALL_PPC)		+= pmac_smp.o chrp_smp.o
- obj-$(CONFIG_PPC_ISERIES)	+= iSeries_smp.o
+diff -urN linux-2.5.51-bk1/drivers/char/Makefile linux/drivers/char/Makefile
+--- linux-2.5.51-bk1/drivers/char/Makefile	Sat Dec 14 12:32:10 2002
++++ linux/drivers/char/Makefile	Sat Dec 14 12:38:56 2002
+@@ -87,8 +87,6 @@
+ # Files generated that shall be removed upon make clean
+ clean-files := consolemap_deftbl.c defkeymap.c qtronixmap.c
+ 
+-include $(TOPDIR)/Rules.make
+-
+ $(obj)/consolemap_deftbl.c: $(src)/$(FONTMAPFILE)
+ 	$(call do_cmd,CONMK  $@,$(objtree)/scripts/conmakehash $< > $@)
+ 
+diff -urN linux-2.5.51-bk1/drivers/char/drm/Makefile linux/drivers/char/drm/Makefile
+--- linux-2.5.51-bk1/drivers/char/drm/Makefile	Sat Dec 14 12:32:02 2002
++++ linux/drivers/char/drm/Makefile	Sat Dec 14 12:38:56 2002
+@@ -19,5 +19,3 @@
+ obj-$(CONFIG_DRM_I810)	+= i810.o
+ obj-$(CONFIG_DRM_I830)	+= i830.o
+ obj-$(CONFIG_DRM_FFB)   += ffb.o
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/char/ftape/Makefile linux/drivers/char/ftape/Makefile
+--- linux-2.5.51-bk1/drivers/char/ftape/Makefile	Sun Sep 15 22:18:51 2002
++++ linux/drivers/char/ftape/Makefile	Sat Dec 14 12:38:56 2002
+@@ -26,5 +26,3 @@
+ obj-$(CONFIG_FTAPE)		+= lowlevel/
+ obj-$(CONFIG_ZFTAPE)		+= zftape/
+ obj-$(CONFIG_ZFT_COMPRESSOR)	+= compressor/
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/char/ftape/compressor/Makefile linux/drivers/char/ftape/compressor/Makefile
+--- linux-2.5.51-bk1/drivers/char/ftape/compressor/Makefile	Sun Sep 15 22:18:26 2002
++++ linux/drivers/char/ftape/compressor/Makefile	Sat Dec 14 12:38:56 2002
+@@ -29,5 +29,3 @@
+ zft-compressor-objs := zftape-compress.o lzrw3.o
+ 
+ CFLAGS_lzrw3.o	:= -O6 -funroll-all-loops
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/char/ftape/lowlevel/Makefile linux/drivers/char/ftape/lowlevel/Makefile
+--- linux-2.5.51-bk1/drivers/char/ftape/lowlevel/Makefile	Sun Sep 15 22:18:25 2002
++++ linux/drivers/char/ftape/lowlevel/Makefile	Sat Dec 14 12:38:56 2002
+@@ -43,6 +43,3 @@
+ ifeq ($(CONFIG_FT_PROC_FS),y)
+ ftape-objs += ftape-proc.o
  endif
 -
 -include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/ppc/syslib/Makefile linux/arch/ppc/syslib/Makefile
---- linux-2.5.51-bk1/arch/ppc/syslib/Makefile	Sat Dec 14 12:32:00 2002
-+++ linux/arch/ppc/syslib/Makefile	Sat Dec 14 12:38:56 2002
-@@ -62,7 +62,5 @@
- obj-$(CONFIG_8260)		+= m8260_setup.o ppc8260_pic.o
- obj-$(CONFIG_BOOTX_TEXT)	+= btext.o
- 
--include $(TOPDIR)/Rules.make
 -
- find_name : find_name.c
- 	$(HOSTCC) $(HOSTCFLAGS) -o find_name find_name.c
-diff -urN linux-2.5.51-bk1/arch/ppc/xmon/Makefile linux/arch/ppc/xmon/Makefile
---- linux-2.5.51-bk1/arch/ppc/xmon/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/ppc/xmon/Makefile	Sat Dec 14 12:38:56 2002
-@@ -6,5 +6,3 @@
- obj-y		:= start.o
- endif
- obj-y		+= xmon.o ppc-dis.o ppc-opc.o subr_prf.o setjmp.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/ppc64/kernel/Makefile linux/arch/ppc64/kernel/Makefile
---- linux-2.5.51-bk1/arch/ppc64/kernel/Makefile	Sat Dec 14 12:32:10 2002
-+++ linux/arch/ppc64/kernel/Makefile	Sat Dec 14 12:38:56 2002
-@@ -38,6 +38,3 @@
- obj-$(CONFIG_PROFILING)	+= profile.o
+diff -urN linux-2.5.51-bk1/drivers/char/ftape/zftape/Makefile linux/drivers/char/ftape/zftape/Makefile
+--- linux-2.5.51-bk1/drivers/char/ftape/zftape/Makefile	Sun Sep 15 22:18:46 2002
++++ linux/drivers/char/ftape/zftape/Makefile	Sat Dec 14 12:38:56 2002
+@@ -36,6 +36,3 @@
+ 	       zftape-init.o zftape-buffers.o zftape_syms.o
  
- obj-y += prom.o lmb.o rtas.o rtas-proc.o chrp_setup.o i8259.o
+ EXTRA_CFLAGS := -DZFT_OBSOLETE
 -
 -include $(TOPDIR)/Rules.make
 -
-diff -urN linux-2.5.51-bk1/arch/ppc64/lib/Makefile linux/arch/ppc64/lib/Makefile
---- linux-2.5.51-bk1/arch/ppc64/lib/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/ppc64/lib/Makefile	Sat Dec 14 12:38:56 2002
-@@ -6,5 +6,3 @@
+diff -urN linux-2.5.51-bk1/drivers/char/mwave/Makefile linux/drivers/char/mwave/Makefile
+--- linux-2.5.51-bk1/drivers/char/mwave/Makefile	Sun Sep 15 22:18:23 2002
++++ linux/drivers/char/mwave/Makefile	Sat Dec 14 12:38:56 2002
+@@ -13,5 +13,3 @@
  
- obj-y           := checksum.o dec_and_lock.o string.o strcase.o copypage.o \
- 		   memcpy.o copyuser.o
+ # To compile in lots (~20 KiB) of run-time enablable printk()s for debugging:
+ EXTRA_CFLAGS += -DMW_TRACE
 -
 -include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/ppc64/mm/Makefile linux/arch/ppc64/mm/Makefile
---- linux-2.5.51-bk1/arch/ppc64/mm/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/ppc64/mm/Makefile	Sat Dec 14 12:38:56 2002
-@@ -6,5 +6,3 @@
- 
- obj-y           := fault.o init.o extable.o imalloc.o
- obj-$(CONFIG_DISCONTIGMEM) += numa.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/ppc64/xmon/Makefile linux/arch/ppc64/xmon/Makefile
---- linux-2.5.51-bk1/arch/ppc64/xmon/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/ppc64/xmon/Makefile	Sat Dec 14 12:38:56 2002
-@@ -3,5 +3,3 @@
- EXTRA_CFLAGS = -mno-minimal-toc
- 
- obj-y       := start.o xmon.o ppc-dis.o ppc-opc.o subr_prf.o setjmp.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/s390/boot/Makefile linux/arch/s390/boot/Makefile
---- linux-2.5.51-bk1/arch/s390/boot/Makefile	Sat Dec 14 12:32:04 2002
-+++ linux/arch/s390/boot/Makefile	Sat Dec 14 12:38:56 2002
-@@ -4,8 +4,6 @@
- 
- EXTRA_AFLAGS := -traditional
- 
--include $(TOPDIR)/Rules.make
--
- quiet_cmd_listing = OBJDUMP $(echo_target)
- cmd_listing	  = $(OBJDUMP) --disassemble --disassemble-all \
- 			--disassemble-zeroes --reloc vmlinux > $@
-diff -urN linux-2.5.51-bk1/arch/s390/kernel/Makefile linux/arch/s390/kernel/Makefile
---- linux-2.5.51-bk1/arch/s390/kernel/Makefile	Sat Dec 14 12:32:04 2002
-+++ linux/arch/s390/kernel/Makefile	Sat Dec 14 12:38:56 2002
-@@ -17,5 +17,3 @@
- # Kernel debugging
+diff -urN linux-2.5.51-bk1/drivers/char/pcmcia/Makefile linux/drivers/char/pcmcia/Makefile
+--- linux-2.5.51-bk1/drivers/char/pcmcia/Makefile	Sun Sep 15 22:18:41 2002
++++ linux/drivers/char/pcmcia/Makefile	Sat Dec 14 12:38:56 2002
+@@ -5,5 +5,3 @@
  #
- obj-$(CONFIG_REMOTE_DEBUG)	+= gdb-stub.o #gdb-low.o 
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/s390/lib/Makefile linux/arch/s390/lib/Makefile
---- linux-2.5.51-bk1/arch/s390/lib/Makefile	Sat Dec 14 12:31:37 2002
-+++ linux/arch/s390/lib/Makefile	Sat Dec 14 12:38:56 2002
-@@ -7,6 +7,3 @@
- EXTRA_AFLAGS := -traditional
  
- obj-y = delay.o memset.o strcmp.o strncpy.o uaccess.o
+ obj-$(CONFIG_SYNCLINK_CS) += synclink_cs.o
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/char/rio/Makefile linux/drivers/char/rio/Makefile
+--- linux-2.5.51-bk1/drivers/char/rio/Makefile	Sun Sep 15 22:18:21 2002
++++ linux/drivers/char/rio/Makefile	Sat Dec 14 12:38:56 2002
+@@ -10,5 +10,3 @@
+ 
+ rio-objs := rio_linux.o rioinit.o rioboot.o riocmd.o rioctrl.o riointr.o \
+             rioparam.o riopcicopy.o rioroute.o riotable.o riotty.o
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/char/watchdog/Makefile linux/drivers/char/watchdog/Makefile
+--- linux-2.5.51-bk1/drivers/char/watchdog/Makefile	Sat Dec 14 12:32:07 2002
++++ linux/drivers/char/watchdog/Makefile	Sat Dec 14 12:38:56 2002
+@@ -23,5 +23,3 @@
+ obj-$(CONFIG_SH_WDT) += shwdt.o
+ obj-$(CONFIG_EUROTECH_WDT) += eurotechwdt.o
+ obj-$(CONFIG_SOFT_WATCHDOG) += softdog.o
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/dio/Makefile linux/drivers/dio/Makefile
+--- linux-2.5.51-bk1/drivers/dio/Makefile	Sun Sep 15 22:18:24 2002
++++ linux/drivers/dio/Makefile	Sat Dec 14 12:38:56 2002
+@@ -3,5 +3,3 @@
+ #
+ 
+ obj-y := dio.o
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/fc4/Makefile linux/drivers/fc4/Makefile
+--- linux-2.5.51-bk1/drivers/fc4/Makefile	Sun Sep 15 22:18:28 2002
++++ linux/drivers/fc4/Makefile	Sat Dec 14 12:38:56 2002
+@@ -9,5 +9,3 @@
+ obj-$(CONFIG_FC4) += fc4.o
+ obj-$(CONFIG_FC4_SOC) += soc.o
+ obj-$(CONFIG_FC4_SOCAL) += socal.o
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/hotplug/Makefile linux/drivers/hotplug/Makefile
+--- linux-2.5.51-bk1/drivers/hotplug/Makefile	Sat Dec 14 12:32:11 2002
++++ linux/drivers/hotplug/Makefile	Sat Dec 14 12:38:56 2002
+@@ -45,6 +45,3 @@
+ ifeq ($(CONFIG_HOTPLUG_PCI_COMPAQ_NVRAM),y)
+ 	cpqphp-objs += cpqphp_nvram.o
+ endif
+-
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/i2c/Makefile linux/drivers/i2c/Makefile
+--- linux-2.5.51-bk1/drivers/i2c/Makefile	Sat Dec 14 12:31:38 2002
++++ linux/drivers/i2c/Makefile	Sat Dec 14 12:38:56 2002
+@@ -21,6 +21,3 @@
+ 
+ # This is needed for automatic patch generation: sensors code starts here
+ # This is needed for automatic patch generation: sensors code ends here
 -
 -include $(TOPDIR)/Rules.make
 -
-diff -urN linux-2.5.51-bk1/arch/s390/math-emu/Makefile linux/arch/s390/math-emu/Makefile
---- linux-2.5.51-bk1/arch/s390/math-emu/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/s390/math-emu/Makefile	Sat Dec 14 12:38:56 2002
+diff -urN linux-2.5.51-bk1/drivers/ide/Makefile linux/drivers/ide/Makefile
+--- linux-2.5.51-bk1/drivers/ide/Makefile	Sat Dec 14 12:32:07 2002
++++ linux/drivers/ide/Makefile	Sat Dec 14 12:38:56 2002
+@@ -30,5 +30,3 @@
+ endif
+ 
+ obj-$(CONFIG_BLK_DEV_IDE)		+= legacy/ ppc/ arm/
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/ide/arm/Makefile linux/drivers/ide/arm/Makefile
+--- linux-2.5.51-bk1/drivers/ide/arm/Makefile	Sat Dec 14 12:31:38 2002
++++ linux/drivers/ide/arm/Makefile	Sat Dec 14 12:38:56 2002
+@@ -3,5 +3,3 @@
+ obj-$(CONFIG_BLK_DEV_IDE_RAPIDE)	+= rapide.o
+ 
+ EXTRA_CFLAGS	:= -Idrivers/ide
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/ide/legacy/Makefile linux/drivers/ide/legacy/Makefile
+--- linux-2.5.51-bk1/drivers/ide/legacy/Makefile	Sat Dec 14 12:31:38 2002
++++ linux/drivers/ide/legacy/Makefile	Sat Dec 14 12:38:56 2002
+@@ -18,5 +18,3 @@
+ obj-$(CONFIG_BLK_DEV_HD)		+= hd.o
+ 
+ EXTRA_CFLAGS	:= -Idrivers/ide
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/ide/pci/Makefile linux/drivers/ide/pci/Makefile
+--- linux-2.5.51-bk1/drivers/ide/pci/Makefile	Sat Dec 14 12:32:07 2002
++++ linux/drivers/ide/pci/Makefile	Sat Dec 14 12:38:56 2002
+@@ -34,5 +34,3 @@
+ obj-$(CONFIG_BLK_DEV_GENERIC)          += generic.o
+ 
+ EXTRA_CFLAGS	:= -Idrivers/ide
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/ide/ppc/Makefile linux/drivers/ide/ppc/Makefile
+--- linux-2.5.51-bk1/drivers/ide/ppc/Makefile	Sat Dec 14 12:31:38 2002
++++ linux/drivers/ide/ppc/Makefile	Sat Dec 14 12:38:56 2002
+@@ -4,5 +4,3 @@
+ obj-$(CONFIG_BLK_DEV_IDE_SWARM)		+= swarm.o
+ 
+ EXTRA_CFLAGS	:= -Idrivers/ide
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/ieee1394/Makefile linux/drivers/ieee1394/Makefile
+--- linux-2.5.51-bk1/drivers/ieee1394/Makefile	Sat Dec 14 12:31:33 2002
++++ linux/drivers/ieee1394/Makefile	Sat Dec 14 12:38:56 2002
+@@ -17,5 +17,3 @@
+ obj-$(CONFIG_IEEE1394_ETH1394) += eth1394.o
+ obj-$(CONFIG_IEEE1394_AMDTP) += amdtp.o
+ obj-$(CONFIG_IEEE1394_CMP) += cmp.o
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/input/Makefile linux/drivers/input/Makefile
+--- linux-2.5.51-bk1/drivers/input/Makefile	Sun Sep 15 22:18:55 2002
++++ linux/drivers/input/Makefile	Sat Dec 14 12:38:56 2002
+@@ -21,7 +21,3 @@
+ obj-$(CONFIG_INPUT_JOYSTICK)	+= joystick/
+ obj-$(CONFIG_INPUT_TOUCHSCREEN)	+= touchscreen/
+ obj-$(CONFIG_INPUT_MISC)	+= misc/
+-
+-# The global Rules.make.
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/input/gameport/Makefile linux/drivers/input/gameport/Makefile
+--- linux-2.5.51-bk1/drivers/input/gameport/Makefile	Sun Sep 15 22:18:16 2002
++++ linux/drivers/input/gameport/Makefile	Sat Dec 14 12:38:56 2002
+@@ -15,7 +15,3 @@
+ obj-$(CONFIG_GAMEPORT_L4)	+= lightning.o
+ obj-$(CONFIG_GAMEPORT_NS558)	+= ns558.o
+ obj-$(CONFIG_GAMEPORT_VORTEX)	+= vortex.o
+-
+-# The global Rules.make.
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/input/joystick/Makefile linux/drivers/input/joystick/Makefile
+--- linux-2.5.51-bk1/drivers/input/joystick/Makefile	Sun Sep 15 22:18:43 2002
++++ linux/drivers/input/joystick/Makefile	Sat Dec 14 12:38:56 2002
+@@ -28,7 +28,3 @@
+ obj-$(CONFIG_JOYSTICK_WARRIOR)		+= warrior.o
+ 
+ obj-$(CONFIG_JOYSTICK_IFORCE)		+= iforce/
+-
+-# The global Rules.make.
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/input/joystick/iforce/Makefile linux/drivers/input/joystick/iforce/Makefile
+--- linux-2.5.51-bk1/drivers/input/joystick/iforce/Makefile	Sat Dec 14 12:31:38 2002
++++ linux/drivers/input/joystick/iforce/Makefile	Sat Dec 14 12:38:56 2002
+@@ -18,7 +18,3 @@
+ endif
+ 
+ EXTRA_CFLAGS = -Werror-implicit-function-declaration
+-
+-# The global Rules.make.
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/input/keyboard/Makefile linux/drivers/input/keyboard/Makefile
+--- linux-2.5.51-bk1/drivers/input/keyboard/Makefile	Sun Sep 15 22:18:27 2002
++++ linux/drivers/input/keyboard/Makefile	Sat Dec 14 12:38:56 2002
+@@ -10,7 +10,3 @@
+ obj-$(CONFIG_KEYBOARD_XTKBD)		+= xtkbd.o
+ obj-$(CONFIG_KEYBOARD_AMIGA)		+= amikbd.o
+ obj-$(CONFIG_KEYBOARD_NEWTON)		+= newtonkbd.o
+-
+-# The global Rules.make.
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/input/mouse/Makefile linux/drivers/input/mouse/Makefile
+--- linux-2.5.51-bk1/drivers/input/mouse/Makefile	Sat Dec 14 12:32:01 2002
++++ linux/drivers/input/mouse/Makefile	Sat Dec 14 12:38:56 2002
+@@ -12,7 +12,3 @@
+ obj-$(CONFIG_MOUSE_PC110PAD)	+= pc110pad.o
+ obj-$(CONFIG_MOUSE_PS2)		+= psmouse.o
+ obj-$(CONFIG_MOUSE_SERIAL)	+= sermouse.o
+-
+-# The global Rules.make.
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/input/serio/Makefile linux/drivers/input/serio/Makefile
+--- linux-2.5.51-bk1/drivers/input/serio/Makefile	Sun Sep 15 22:18:18 2002
++++ linux/drivers/input/serio/Makefile	Sat Dec 14 12:38:56 2002
+@@ -17,7 +17,3 @@
+ obj-$(CONFIG_SERIO_SA1111)	+= sa1111ps2.o
+ obj-$(CONFIG_SERIO_AMBAKMI)	+= ambakmi.o
+ obj-$(CONFIG_SERIO_Q40KBD)	+= q40kbd.o
+-
+-# The global Rules.make.
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/input/touchscreen/Makefile linux/drivers/input/touchscreen/Makefile
+--- linux-2.5.51-bk1/drivers/input/touchscreen/Makefile	Sun Sep 15 22:18:52 2002
++++ linux/drivers/input/touchscreen/Makefile	Sat Dec 14 12:38:56 2002
 @@ -6,7 +6,3 @@
  
- EXTRA_CFLAGS = -I. -I$(TOPDIR)/include/math-emu -w
- EXTRA_AFLAGS	:= -traditional
+ obj-$(CONFIG_TOUCHSCREEN_BITSY)	+= h3600_ts_input.o
+ obj-$(CONFIG_TOUCHSCREEN_GUNZE)	+= gunze.o
+-
+-# The global Rules.make.
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/macintosh/Makefile linux/drivers/macintosh/Makefile
+--- linux-2.5.51-bk1/drivers/macintosh/Makefile	Sat Dec 14 12:32:01 2002
++++ linux/drivers/macintosh/Makefile	Sat Dec 14 12:38:56 2002
+@@ -34,8 +34,3 @@
+ obj-$(CONFIG_ADB_IOP)		+= adb-iop.o
+ obj-$(CONFIG_ADB_PMU68K)	+= via-pmu68k.o
+ obj-$(CONFIG_ADB_MACIO)		+= macio-adb.o
+-
+-# The global Rules.make.
 -
 -include $(TOPDIR)/Rules.make
 -
+diff -urN linux-2.5.51-bk1/drivers/mca/Makefile linux/drivers/mca/Makefile
+--- linux-2.5.51-bk1/drivers/mca/Makefile	Sat Dec 14 12:32:11 2002
++++ linux/drivers/mca/Makefile	Sat Dec 14 12:38:56 2002
+@@ -6,5 +6,3 @@
+ obj-$(CONFIG_MCA_LEGACY)	+= mca-legacy.o
+ 
+ export-objs	:= mca-bus.o mca-legacy.o mca-proc.o mca-driver.o
 -
-diff -urN linux-2.5.51-bk1/arch/s390/mm/Makefile linux/arch/s390/mm/Makefile
---- linux-2.5.51-bk1/arch/s390/mm/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/s390/mm/Makefile	Sat Dec 14 12:38:56 2002
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/md/Makefile linux/drivers/md/Makefile
+--- linux-2.5.51-bk1/drivers/md/Makefile	Sat Dec 14 12:31:48 2002
++++ linux/drivers/md/Makefile	Sat Dec 14 12:38:56 2002
+@@ -18,6 +18,3 @@
+ obj-$(CONFIG_MD_MULTIPATH)	+= multipath.o
+ obj-$(CONFIG_BLK_DEV_MD)	+= md.o
+ obj-$(CONFIG_BLK_DEV_DM)	+= dm-mod.o
+-
+-include $(TOPDIR)/Rules.make
+-
+diff -urN linux-2.5.51-bk1/drivers/media/Makefile linux/drivers/media/Makefile
+--- linux-2.5.51-bk1/drivers/media/Makefile	Sat Dec 14 12:31:48 2002
++++ linux/drivers/media/Makefile	Sat Dec 14 12:38:56 2002
 @@ -3,5 +3,3 @@
  #
  
- obj-y	 := init.o fault.o ioremap.o extable.o
+ obj-y        := video/ radio/ dvb/
 -
 -include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/s390x/boot/Makefile linux/arch/s390x/boot/Makefile
---- linux-2.5.51-bk1/arch/s390x/boot/Makefile	Sat Dec 14 12:32:04 2002
-+++ linux/arch/s390x/boot/Makefile	Sat Dec 14 12:38:56 2002
-@@ -4,8 +4,6 @@
- 
- EXTRA_AFLAGS := -traditional
- 
--include $(TOPDIR)/Rules.make
--
- quiet_cmd_listing = OBJDUMP $(echo_target)
- cmd_listing	  = $(OBJDUMP) --disassemble --disassemble-all \
- 			--disassemble-zeroes --reloc vmlinux > $@
-diff -urN linux-2.5.51-bk1/arch/s390x/kernel/Makefile linux/arch/s390x/kernel/Makefile
---- linux-2.5.51-bk1/arch/s390x/kernel/Makefile	Sat Dec 14 12:32:04 2002
-+++ linux/arch/s390x/kernel/Makefile	Sat Dec 14 12:38:56 2002
-@@ -24,8 +24,6 @@
- 					 exec32.o exec_domain32.o
- obj-$(CONFIG_BINFMT_ELF32)	+= binfmt_elf32.o
- 
--include $(TOPDIR)/Rules.make
--
+diff -urN linux-2.5.51-bk1/drivers/media/dvb/Makefile linux/drivers/media/dvb/Makefile
+--- linux-2.5.51-bk1/drivers/media/dvb/Makefile	Sat Dec 14 12:31:48 2002
++++ linux/drivers/media/dvb/Makefile	Sat Dec 14 12:38:56 2002
+@@ -3,5 +3,3 @@
  #
- # This is just to get the dependencies...
- #
-diff -urN linux-2.5.51-bk1/arch/s390x/lib/Makefile linux/arch/s390x/lib/Makefile
---- linux-2.5.51-bk1/arch/s390x/lib/Makefile	Sat Dec 14 12:31:37 2002
-+++ linux/arch/s390x/lib/Makefile	Sat Dec 14 12:38:56 2002
+ 
+ obj-y        := dvb-core/ frontends/ av7110/
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/media/dvb/av7110/Makefile linux/drivers/media/dvb/av7110/Makefile
+--- linux-2.5.51-bk1/drivers/media/dvb/av7110/Makefile	Sat Dec 14 12:32:07 2002
++++ linux/drivers/media/dvb/av7110/Makefile	Sat Dec 14 12:38:56 2002
 @@ -7,6 +7,3 @@
- EXTRA_AFLAGS := -traditional
+ obj-$(CONFIG_DVB_AV7110) += dvb-ttpci.o
  
- obj-y = delay.o memset.o strcmp.o strncpy.o uaccess.o
+ EXTRA_CFLAGS = -Idrivers/media/dvb/dvb-core/
+-
+-include $(TOPDIR)/Rules.make 
+-
+diff -urN linux-2.5.51-bk1/drivers/media/dvb/dvb-core/Makefile linux/drivers/media/dvb/dvb-core/Makefile
+--- linux-2.5.51-bk1/drivers/media/dvb/dvb-core/Makefile	Sat Dec 14 12:31:48 2002
++++ linux/drivers/media/dvb/dvb-core/Makefile	Sat Dec 14 12:38:56 2002
+@@ -8,6 +8,3 @@
+ 		dvb_frontend.o dvb_i2c.o dvb_net.o dvb_ksyms.o
+ 
+ obj-$(CONFIG_DVB_CORE) += dvb-core.o
 -
 -include $(TOPDIR)/Rules.make
 -
-diff -urN linux-2.5.51-bk1/arch/s390x/mm/Makefile linux/arch/s390x/mm/Makefile
---- linux-2.5.51-bk1/arch/s390x/mm/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/s390x/mm/Makefile	Sat Dec 14 12:38:56 2002
-@@ -3,5 +3,3 @@
+diff -urN linux-2.5.51-bk1/drivers/media/dvb/frontends/Makefile linux/drivers/media/dvb/frontends/Makefile
+--- linux-2.5.51-bk1/drivers/media/dvb/frontends/Makefile	Sat Dec 14 12:32:07 2002
++++ linux/drivers/media/dvb/frontends/Makefile	Sat Dec 14 12:38:56 2002
+@@ -11,6 +11,3 @@
+ obj-$(CONFIG_DVB_GRUNDIG_29504_491) += grundig_29504-491.o
+ obj-$(CONFIG_DVB_GRUNDIG_29504_401) += grundig_29504-401.o
+ obj-$(CONFIG_DVB_VES1820) += ves1820.o
+-
+-include $(TOPDIR)/Rules.make 
+- 
+diff -urN linux-2.5.51-bk1/drivers/media/radio/Makefile linux/drivers/media/radio/Makefile
+--- linux-2.5.51-bk1/drivers/media/radio/Makefile	Sun Sep 15 22:18:30 2002
++++ linux/drivers/media/radio/Makefile	Sat Dec 14 12:38:56 2002
+@@ -24,5 +24,3 @@
+ obj-$(CONFIG_RADIO_GEMTEK_PCI) += radio-gemtek-pci.o
+ obj-$(CONFIG_RADIO_TRUST) += radio-trust.o
+ obj-$(CONFIG_RADIO_MAESTRO) += radio-maestro.o
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/media/video/Makefile linux/drivers/media/video/Makefile
+--- linux-2.5.51-bk1/drivers/media/video/Makefile	Sat Dec 14 12:32:11 2002
++++ linux/drivers/media/video/Makefile	Sat Dec 14 12:38:56 2002
+@@ -37,5 +37,3 @@
+ obj-$(CONFIG_VIDEO_MEYE) += meye.o
+ obj-$(CONFIG_VIDEO_SAA7134) += saa7134/ tuner.o tda9887.o video-buf.o
+ obj-$(CONFIG_TUNER_3036) += tuner-3036.o
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/media/video/saa7134/Makefile linux/drivers/media/video/saa7134/Makefile
+--- linux-2.5.51-bk1/drivers/media/video/saa7134/Makefile	Sat Dec 14 12:31:59 2002
++++ linux/drivers/media/video/saa7134/Makefile	Sat Dec 14 12:38:56 2002
+@@ -6,6 +6,3 @@
+ obj-$(CONFIG_VIDEO_SAA7134) += saa7134.o
+ 
+ EXTRA_CFLAGS = -I$(src)/..
+-
+-include $(TOPDIR)/Rules.make
+-
+diff -urN linux-2.5.51-bk1/drivers/message/Makefile linux/drivers/message/Makefile
+--- linux-2.5.51-bk1/drivers/message/Makefile	Sun Sep 15 22:18:52 2002
++++ linux/drivers/message/Makefile	Sat Dec 14 12:38:56 2002
+@@ -4,6 +4,3 @@
+ 
+ obj-$(CONFIG_I2O)	+= i2o/
+ obj-$(CONFIG_FUSION)	+= fusion/
+-
+-include $(TOPDIR)/Rules.make
+-
+diff -urN linux-2.5.51-bk1/drivers/message/fusion/Makefile linux/drivers/message/fusion/Makefile
+--- linux-2.5.51-bk1/drivers/message/fusion/Makefile	Sat Dec 14 12:31:38 2002
++++ linux/drivers/message/fusion/Makefile	Sat Dec 14 12:38:56 2002
+@@ -52,5 +52,3 @@
+ obj-$(CONFIG_FUSION_ISENSE)	+= isense.o
+ obj-$(CONFIG_FUSION_CTL)	+= mptctl.o
+ obj-$(CONFIG_FUSION_LAN)	+= mptlan.o
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/message/i2o/Makefile linux/drivers/message/i2o/Makefile
+--- linux-2.5.51-bk1/drivers/message/i2o/Makefile	Sun Sep 15 22:18:21 2002
++++ linux/drivers/message/i2o/Makefile	Sat Dec 14 12:38:56 2002
+@@ -13,6 +13,3 @@
+ obj-$(CONFIG_I2O_LAN)	+= i2o_lan.o
+ obj-$(CONFIG_I2O_SCSI)	+= i2o_scsi.o
+ obj-$(CONFIG_I2O_PROC)	+= i2o_proc.o
+-
+-include $(TOPDIR)/Rules.make
+-
+diff -urN linux-2.5.51-bk1/drivers/misc/Makefile linux/drivers/misc/Makefile
+--- linux-2.5.51-bk1/drivers/misc/Makefile	Sat Dec 14 12:32:11 2002
++++ linux/drivers/misc/Makefile	Sat Dec 14 12:38:56 2002
+@@ -2,4 +2,3 @@
+ # Makefile for misc devices that really don't fit anywhere else.
  #
+ obj- := misc.o	# Dummy rule to force built-in.o to be made
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/mtd/Makefile linux/drivers/mtd/Makefile
+--- linux-2.5.51-bk1/drivers/mtd/Makefile	Sat Dec 14 12:31:42 2002
++++ linux/drivers/mtd/Makefile	Sat Dec 14 12:38:56 2002
+@@ -40,5 +40,3 @@
+ obj-$(CONFIG_NFTL)		+= nftl.o
  
- obj-y	 := init.o fault.o ioremap.o extable.o
+ nftl-objs	:= nftlcore.o nftlmount.o
 -
 -include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/sh/kernel/Makefile linux/arch/sh/kernel/Makefile
---- linux-2.5.51-bk1/arch/sh/kernel/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/sh/kernel/Makefile	Sat Dec 14 12:38:56 2002
-@@ -72,5 +72,3 @@
- ifeq ($(CONFIG_SH_GENERIC),y)
- obj-y		+= $(machine-specific-objs)
- endif
+diff -urN linux-2.5.51-bk1/drivers/mtd/chips/Makefile linux/drivers/mtd/chips/Makefile
+--- linux-2.5.51-bk1/drivers/mtd/chips/Makefile	Sun Sep 15 22:18:24 2002
++++ linux/drivers/mtd/chips/Makefile	Sat Dec 14 12:38:56 2002
+@@ -25,5 +25,3 @@
+ obj-$(CONFIG_MTD_ROM)		+= map_rom.o
+ obj-$(CONFIG_MTD_SHARP)		+= sharp.o
+ obj-$(CONFIG_MTD_ABSENT)	+= map_absent.o
 -
 -include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/sh/lib/Makefile linux/arch/sh/lib/Makefile
---- linux-2.5.51-bk1/arch/sh/lib/Makefile	Sat Dec 14 12:31:44 2002
-+++ linux/arch/sh/lib/Makefile	Sat Dec 14 12:38:56 2002
-@@ -5,5 +5,3 @@
- L_TARGET = lib.a
- obj-y  = delay.o memcpy.o memset.o memmove.o memchr.o \
- 	 checksum.o strcasecmp.o strlen.o
+diff -urN linux-2.5.51-bk1/drivers/mtd/devices/Makefile linux/drivers/mtd/devices/Makefile
+--- linux-2.5.51-bk1/drivers/mtd/devices/Makefile	Sun Sep 15 22:18:16 2002
++++ linux/drivers/mtd/devices/Makefile	Sat Dec 14 12:38:56 2002
+@@ -19,5 +19,3 @@
+ obj-$(CONFIG_MTD_MTDRAM)	+= mtdram.o
+ obj-$(CONFIG_MTD_LART)		+= lart.o
+ obj-$(CONFIG_MTD_BLKMTD)	+= blkmtd.o
 -
 -include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/sh/mm/Makefile linux/arch/sh/mm/Makefile
---- linux-2.5.51-bk1/arch/sh/mm/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/sh/mm/Makefile	Sat Dec 14 12:38:56 2002
+diff -urN linux-2.5.51-bk1/drivers/mtd/maps/Makefile linux/drivers/mtd/maps/Makefile
+--- linux-2.5.51-bk1/drivers/mtd/maps/Makefile	Sat Dec 14 12:31:59 2002
++++ linux/drivers/mtd/maps/Makefile	Sat Dec 14 12:38:56 2002
+@@ -37,5 +37,3 @@
+ obj-$(CONFIG_MTD_EDB7312)	+= edb7312.o
+ obj-$(CONFIG_MTD_IMPA7)		+= impa7.o
+ obj-$(CONFIG_MTD_FORTUNET)	+= fortunet.o
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/mtd/nand/Makefile linux/drivers/mtd/nand/Makefile
+--- linux-2.5.51-bk1/drivers/mtd/nand/Makefile	Sun Sep 15 22:18:17 2002
++++ linux/drivers/mtd/nand/Makefile	Sat Dec 14 12:38:56 2002
+@@ -10,5 +10,3 @@
+ 
+ obj-$(CONFIG_MTD_NAND)		+= $(nandobjs-y)
+ obj-$(CONFIG_MTD_NAND_SPIA)	+= spia.o
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/net/Makefile linux/drivers/net/Makefile
+--- linux-2.5.51-bk1/drivers/net/Makefile	Sat Dec 14 12:32:11 2002
++++ linux/drivers/net/Makefile	Sat Dec 14 12:38:56 2002
+@@ -198,6 +198,3 @@
+ obj-$(CONFIG_NET_TULIP) += tulip/
+ obj-$(CONFIG_HAMRADIO) += hamradio/
+ obj-$(CONFIG_IRDA) += irda/
+-
+-include $(TOPDIR)/Rules.make
+-
+diff -urN linux-2.5.51-bk1/drivers/net/appletalk/Makefile linux/drivers/net/appletalk/Makefile
+--- linux-2.5.51-bk1/drivers/net/appletalk/Makefile	Sun Sep 15 22:18:18 2002
++++ linux/drivers/net/appletalk/Makefile	Sat Dec 14 12:38:56 2002
+@@ -7,6 +7,3 @@
+ obj-$(CONFIG_IPDDP) += ipddp.o
+ obj-$(CONFIG_COPS) += cops.o
+ obj-$(CONFIG_LTPC) += ltpc.o
+-
+-include $(TOPDIR)/Rules.make
+-
+diff -urN linux-2.5.51-bk1/drivers/net/arcnet/Makefile linux/drivers/net/arcnet/Makefile
+--- linux-2.5.51-bk1/drivers/net/arcnet/Makefile	Sun Sep 15 22:18:21 2002
++++ linux/drivers/net/arcnet/Makefile	Sat Dec 14 12:38:56 2002
+@@ -13,5 +13,3 @@
+ obj-$(CONFIG_ARCNET_COM20020) += com20020.o
+ obj-$(CONFIG_ARCNET_COM20020_ISA) += com20020-isa.o
+ obj-$(CONFIG_ARCNET_COM20020_PCI) += com20020-pci.o
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/net/e100/Makefile linux/drivers/net/e100/Makefile
+--- linux-2.5.51-bk1/drivers/net/e100/Makefile	Sun Sep 15 22:18:53 2002
++++ linux/drivers/net/e100/Makefile	Sat Dec 14 12:38:56 2002
 @@ -6,5 +6,3 @@
  
- obj-$(CONFIG_CPU_SH3) += cache-sh3.o
- obj-$(CONFIG_CPU_SH4) += cache-sh4.o __clear_user_page-sh4.o __copy_user_page-sh4.o ioremap.o
+ e100-objs := e100_main.o e100_config.o e100_proc.o e100_phy.o \
+ 	     e100_eeprom.o e100_test.o
 -
 -include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/sh/stboards/Makefile linux/arch/sh/stboards/Makefile
---- linux-2.5.51-bk1/arch/sh/stboards/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/sh/stboards/Makefile	Sat Dec 14 12:38:56 2002
-@@ -3,5 +3,3 @@
+diff -urN linux-2.5.51-bk1/drivers/net/e1000/Makefile linux/drivers/net/e1000/Makefile
+--- linux-2.5.51-bk1/drivers/net/e1000/Makefile	Sun Sep 15 22:18:18 2002
++++ linux/drivers/net/e1000/Makefile	Sat Dec 14 12:38:56 2002
+@@ -34,5 +34,3 @@
+ 
+ e1000-objs := e1000_main.o e1000_hw.o e1000_ethtool.o e1000_param.o \
+ 	      e1000_proc.o
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/net/fc/Makefile linux/drivers/net/fc/Makefile
+--- linux-2.5.51-bk1/drivers/net/fc/Makefile	Sun Sep 15 22:18:24 2002
++++ linux/drivers/net/fc/Makefile	Sat Dec 14 12:38:56 2002
+@@ -6,5 +6,3 @@
  #
  
- obj-y := irq.o setup.o mach.o led.o
+ obj-$(CONFIG_IPHASE5526)	+= iph5526.o
 -
 -include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/sparc/boot/Makefile linux/arch/sparc/boot/Makefile
---- linux-2.5.51-bk1/arch/sparc/boot/Makefile	Sat Dec 14 12:32:00 2002
-+++ linux/arch/sparc/boot/Makefile	Sat Dec 14 12:38:56 2002
-@@ -39,5 +39,3 @@
- 
- btfix.o: btfix.s
- 	$(CC) -c -o btfix.o btfix.s
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/sparc/kernel/Makefile linux/arch/sparc/kernel/Makefile
---- linux-2.5.51-bk1/arch/sparc/kernel/Makefile	Sat Dec 14 12:32:02 2002
-+++ linux/arch/sparc/kernel/Makefile	Sat Dec 14 12:38:56 2002
-@@ -27,5 +27,3 @@
- ifdef CONFIG_SUNOS_EMUL
- obj-y += sys_sunos.o sunos_ioctl.o
- endif
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/sparc/lib/Makefile linux/arch/sparc/lib/Makefile
---- linux-2.5.51-bk1/arch/sparc/lib/Makefile	Sun Sep 15 22:18:58 2002
-+++ linux/arch/sparc/lib/Makefile	Sat Dec 14 12:38:56 2002
-@@ -11,5 +11,3 @@
- 	 strncpy_from_user.o divdi3.o udivdi3.o strlen_user.o \
- 	 copy_user.o locks.o atomic.o bitops.o debuglocks.o lshrdi3.o \
- 	 ashldi3.o rwsem.o muldi3.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/sparc/math-emu/Makefile linux/arch/sparc/math-emu/Makefile
---- linux-2.5.51-bk1/arch/sparc/math-emu/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/sparc/math-emu/Makefile	Sat Dec 14 12:38:56 2002
-@@ -6,5 +6,3 @@
- 
- EXTRA_AFLAGS := -ansi
- EXTRA_CFLAGS = -I. -I$(TOPDIR)/include/math-emu -w
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/sparc/mm/Makefile linux/arch/sparc/mm/Makefile
---- linux-2.5.51-bk1/arch/sparc/mm/Makefile	Sat Dec 14 12:31:37 2002
-+++ linux/arch/sparc/mm/Makefile	Sat Dec 14 12:38:56 2002
-@@ -21,5 +21,3 @@
- else
- obj-y   += sun4c.o
- endif
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/sparc/prom/Makefile linux/arch/sparc/prom/Makefile
---- linux-2.5.51-bk1/arch/sparc/prom/Makefile	Sat Dec 14 12:31:33 2002
-+++ linux/arch/sparc/prom/Makefile	Sat Dec 14 12:38:56 2002
-@@ -9,5 +9,3 @@
- 	 palloc.o ranges.o segment.o console.o printf.o tree.o
- 
- obj-$(CONFIG_SUN4) += sun4prom.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/sparc64/kernel/Makefile linux/arch/sparc64/kernel/Makefile
---- linux-2.5.51-bk1/arch/sparc64/kernel/Makefile	Sat Dec 14 12:32:10 2002
-+++ linux/arch/sparc64/kernel/Makefile	Sat Dec 14 12:38:56 2002
-@@ -36,7 +36,5 @@
-   CMODEL_CFLAG := -m64 -mcmodel=medlow
- endif
- 
--include $(TOPDIR)/Rules.make
--
- head.o: head.S ttable.S itlb_base.S dtlb_base.S dtlb_backend.S dtlb_prot.S \
- 	etrap.S rtrap.S winfixup.S entry.S
-diff -urN linux-2.5.51-bk1/arch/um/drivers/Makefile linux/arch/um/drivers/Makefile
---- linux-2.5.51-bk1/arch/um/drivers/Makefile	Sat Dec 14 12:32:02 2002
-+++ linux/arch/um/drivers/Makefile	Sat Dec 14 12:38:56 2002
-@@ -60,8 +60,6 @@
- 	null.o pty.o tty.o xterm.o
- USER_OBJS := $(foreach file,$(USER_OBJS),arch/um/drivers/$(file))
- 
--include $(TOPDIR)/Rules.make
--
- $(USER_OBJS) : %.o: %.c
- 	$(CC) $(CFLAGS_$@) $(USER_CFLAGS) -c -o $@ $<
- 
-diff -urN linux-2.5.51-bk1/arch/um/kernel/Makefile linux/arch/um/kernel/Makefile
---- linux-2.5.51-bk1/arch/um/kernel/Makefile	Sat Dec 14 12:32:02 2002
-+++ linux/arch/um/kernel/Makefile	Sat Dec 14 12:38:56 2002
-@@ -10,7 +10,7 @@
- 
- obj-$(CONFIG_BLK_DEV_INITRD) += initrd_kern.o initrd_user.o
- 
--# user_syms.o not included here because Rules.make has its own ideas about
-+# user_syms.o not included here because kbuild has its own ideas about
- # building anything in export-objs
- 
- USER_OBJS := $(filter %_user.o,$(obj-y)) config.o helper.o process.o \
-@@ -39,8 +39,6 @@
- 
- CFLAGS_frame.o := $(patsubst -fomit-frame-pointer,,$(USER_CFLAGS))
- 
--include $(TOPDIR)/Rules.make
--
- $(USER_OBJS) : %.o: %.c
- 	$(CC) $(CFLAGS_$@) $(USER_CFLAGS) -c -o $@ $<
- 
-diff -urN linux-2.5.51-bk1/arch/um/os-Linux/Makefile linux/arch/um/os-Linux/Makefile
---- linux-2.5.51-bk1/arch/um/os-Linux/Makefile	Sat Dec 14 12:32:02 2002
-+++ linux/arch/um/os-Linux/Makefile	Sat Dec 14 12:38:56 2002
-@@ -7,8 +7,6 @@
- 
- USER_OBJS := $(foreach file,$(obj-y),arch/um/os-Linux/$(file))
- 
--include $(TOPDIR)/Rules.make
--
- $(USER_OBJS) : %.o: %.c
- 	$(CC) $(CFLAGS_$@) $(USER_CFLAGS) -c -o $@ $<
- 
-diff -urN linux-2.5.51-bk1/arch/um/os-Linux/drivers/Makefile linux/arch/um/os-Linux/drivers/Makefile
---- linux-2.5.51-bk1/arch/um/os-Linux/drivers/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/um/os-Linux/drivers/Makefile	Sat Dec 14 12:38:56 2002
-@@ -14,7 +14,5 @@
- 
- USER_OBJS = $(filter %_user.o,$(obj-y) $(USER_SINGLE_OBJS))
- 
--include $(TOPDIR)/Rules.make
--
- $(USER_OBJS) : %.o: %.c
- 	$(CC) $(CFLAGS_$@) $(USER_CFLAGS) -c -o $@ $<
-diff -urN linux-2.5.51-bk1/arch/um/ptproxy/Makefile linux/arch/um/ptproxy/Makefile
---- linux-2.5.51-bk1/arch/um/ptproxy/Makefile	Sat Dec 14 12:31:40 2002
-+++ linux/arch/um/ptproxy/Makefile	Sat Dec 14 12:38:56 2002
-@@ -2,8 +2,6 @@
- 
- USER_OBJS := $(foreach file,$(obj-y),arch/um/ptproxy/$(file))
- 
--include $(TOPDIR)/Rules.make
--
- $(USER_OBJS) : %.o: %.c
- 	$(CC) $(CFLAGS_$@) $(USER_CFLAGS) -c -o $@ $<
- 
-diff -urN linux-2.5.51-bk1/arch/um/sys-i386/Makefile linux/arch/um/sys-i386/Makefile
---- linux-2.5.51-bk1/arch/um/sys-i386/Makefile	Sat Dec 14 12:32:02 2002
-+++ linux/arch/um/sys-i386/Makefile	Sat Dec 14 12:38:56 2002
-@@ -10,8 +10,6 @@
- 
- SYMLINKS = semaphore.c checksum.S extable.c highmem.c
- 
--include $(TOPDIR)/Rules.make
--
- $(USER_OBJS) : %.o: %.c
- 	$(CC) $(CFLAGS_$@) $(USER_CFLAGS) -c -o $@ $<
- 
-diff -urN linux-2.5.51-bk1/arch/um/sys-i386/util/Makefile linux/arch/um/sys-i386/util/Makefile
---- linux-2.5.51-bk1/arch/um/sys-i386/util/Makefile	Sat Dec 14 12:31:42 2002
-+++ linux/arch/um/sys-i386/util/Makefile	Sat Dec 14 12:38:56 2002
-@@ -4,8 +4,6 @@
- 
- mk_sc-objs	:= mk_sc.o
- 
--include $(TOPDIR)/Rules.make
--
- $(obj)/mk_thread : $(obj)/mk_thread_kern.o $(obj)/mk_thread_user.o
- 	$(CC) $(CFLAGS) -o $@ $^
- 
-diff -urN linux-2.5.51-bk1/arch/um/sys-ia64/Makefile linux/arch/um/sys-ia64/Makefile
---- linux-2.5.51-bk1/arch/um/sys-ia64/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/um/sys-ia64/Makefile	Sat Dec 14 12:38:56 2002
+diff -urN linux-2.5.51-bk1/drivers/net/hamradio/Makefile linux/drivers/net/hamradio/Makefile
+--- linux-2.5.51-bk1/drivers/net/hamradio/Makefile	Sat Dec 14 12:32:07 2002
++++ linux/drivers/net/hamradio/Makefile	Sat Dec 14 12:38:56 2002
 @@ -22,5 +22,3 @@
- 	@$(MAKEBOOT) dep
- 
- modules:
+ obj-$(CONFIG_BAYCOM_SER_HDX)	+= baycom_ser_hdx.o	hdlcdrv.o
+ obj-$(CONFIG_BAYCOM_PAR)	+= baycom_par.o		hdlcdrv.o
+ obj-$(CONFIG_BAYCOM_EPP)	+= baycom_epp.o		hdlcdrv.o
 -
 -include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/um/sys-ppc/Makefile linux/arch/um/sys-ppc/Makefile
---- linux-2.5.51-bk1/arch/um/sys-ppc/Makefile	Sat Dec 14 12:31:35 2002
-+++ linux/arch/um/sys-ppc/Makefile	Sat Dec 14 12:38:56 2002
-@@ -76,5 +76,3 @@
- dep:
+diff -urN linux-2.5.51-bk1/drivers/net/irda/Makefile linux/drivers/net/irda/Makefile
+--- linux-2.5.51-bk1/drivers/net/irda/Makefile	Sat Dec 14 12:32:01 2002
++++ linux/drivers/net/irda/Makefile	Sat Dec 14 12:38:56 2002
+@@ -40,5 +40,3 @@
  
- modules:
+ # The SIR helper module
+ sir-dev-objs := sir_core.o sir_dev.o sir_dongle.o sir_kthread.o
 -
 -include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/um/util/Makefile linux/arch/um/util/Makefile
---- linux-2.5.51-bk1/arch/um/util/Makefile	Sat Dec 14 12:31:42 2002
-+++ linux/arch/um/util/Makefile	Sat Dec 14 12:38:56 2002
-@@ -1,7 +1,5 @@
- EXTRA_TARGETS := mk_task mk_task_kern.o
+diff -urN linux-2.5.51-bk1/drivers/net/pcmcia/Makefile linux/drivers/net/pcmcia/Makefile
+--- linux-2.5.51-bk1/drivers/net/pcmcia/Makefile	Sun Sep 15 22:18:16 2002
++++ linux/drivers/net/pcmcia/Makefile	Sat Dec 14 12:38:56 2002
+@@ -21,5 +21,3 @@
+ obj-$(CONFIG_AIRONET4500_CS)	+= aironet4500_cs.o
+ 
+ obj-$(CONFIG_PCMCIA_IBMTR)	+= ibmtr_cs.o
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/net/sk98lin/Makefile linux/drivers/net/sk98lin/Makefile
+--- linux-2.5.51-bk1/drivers/net/sk98lin/Makefile	Sat Dec 14 12:31:38 2002
++++ linux/drivers/net/sk98lin/Makefile	Sat Dec 14 12:38:56 2002
+@@ -56,6 +56,3 @@
+ # SK_DBGCAT_DRV_EVENT           0x08000000      driver events
+ 
+ EXTRA_CFLAGS += -Idrivers/net/sk98lin -DSK_USE_CSUM $(DBGDEF)
+-
+-include $(TOPDIR)/Rules.make
+-
+diff -urN linux-2.5.51-bk1/drivers/net/skfp/Makefile linux/drivers/net/skfp/Makefile
+--- linux-2.5.51-bk1/drivers/net/skfp/Makefile	Sat Dec 14 12:31:38 2002
++++ linux/drivers/net/skfp/Makefile	Sat Dec 14 12:38:56 2002
+@@ -18,6 +18,3 @@
+ #   thus simplify fixes to it), please do not clean it up!
+ 
+ EXTRA_CFLAGS += -Idrivers/net/skfp -DPCI -DMEM_MAPPED_IO -Wno-strict-prototypes 
+-
+-include $(TOPDIR)/Rules.make
+-
+diff -urN linux-2.5.51-bk1/drivers/net/tokenring/Makefile linux/drivers/net/tokenring/Makefile
+--- linux-2.5.51-bk1/drivers/net/tokenring/Makefile	Sun Sep 15 22:18:21 2002
++++ linux/drivers/net/tokenring/Makefile	Sat Dec 14 12:38:56 2002
+@@ -14,5 +14,3 @@
+ obj-$(CONFIG_TMSISA) 	+= tmsisa.o
+ obj-$(CONFIG_SMCTR) 	+= smctr.o
+ obj-$(CONFIG_3C359)	+= 3c359.o
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/net/tulip/Makefile linux/drivers/net/tulip/Makefile
+--- linux-2.5.51-bk1/drivers/net/tulip/Makefile	Sun Sep 15 22:18:53 2002
++++ linux/drivers/net/tulip/Makefile	Sat Dec 14 12:38:56 2002
+@@ -15,5 +15,3 @@
+ tulip-objs			:= eeprom.o interrupt.o media.o \
+ 				   timer.o tulip_core.o		\
+ 				   21142.o pnic.o pnic2.o
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/net/wan/Makefile linux/drivers/net/wan/Makefile
+--- linux-2.5.51-bk1/drivers/net/wan/Makefile	Sun Sep 15 22:18:30 2002
++++ linux/drivers/net/wan/Makefile	Sat Dec 14 12:38:56 2002
+@@ -68,5 +68,3 @@
+ endif
+ obj-$(CONFIG_N2)		+= n2.o
+ obj-$(CONFIG_C101)		+= c101.o
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/net/wan/lmc/Makefile linux/drivers/net/wan/lmc/Makefile
+--- linux-2.5.51-bk1/drivers/net/wan/lmc/Makefile	Sat Dec 14 12:31:36 2002
++++ linux/drivers/net/wan/lmc/Makefile	Sat Dec 14 12:38:56 2002
+@@ -15,6 +15,3 @@
+ # -DLMC_PACKET_LOG
+ 
+ EXTRA_CFLAGS += -I. $(DBGDEF)
+-
+-include $(TOPDIR)/Rules.make
+-
+diff -urN linux-2.5.51-bk1/drivers/net/wireless/Makefile linux/drivers/net/wireless/Makefile
+--- linux-2.5.51-bk1/drivers/net/wireless/Makefile	Sun Sep 15 22:18:29 2002
++++ linux/drivers/net/wireless/Makefile	Sat Dec 14 12:38:56 2002
+@@ -18,5 +18,3 @@
+ 
+ obj-$(CONFIG_AIRO)		+= airo.o
+ obj-$(CONFIG_AIRO_CS)		+= airo_cs.o airo.o
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/nubus/Makefile linux/drivers/nubus/Makefile
+--- linux-2.5.51-bk1/drivers/nubus/Makefile	Sun Sep 15 22:18:54 2002
++++ linux/drivers/nubus/Makefile	Sat Dec 14 12:38:56 2002
+@@ -8,5 +8,3 @@
+ 
+ obj-$(CONFIG_MODULES) += nubus_syms.o 
+ obj-$(CONFIG_PROC_FS) += proc.o
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/parport/Makefile linux/drivers/parport/Makefile
+--- linux-2.5.51-bk1/drivers/parport/Makefile	Sun Sep 15 22:18:17 2002
++++ linux/drivers/parport/Makefile	Sat Dec 14 12:38:56 2002
+@@ -19,5 +19,3 @@
+ obj-$(CONFIG_PARPORT_ATARI)	+= parport_atari.o
+ obj-$(CONFIG_PARPORT_SUNBPP)	+= parport_sunbpp.o
+ obj-$(CONFIG_PARPORT_GSC)	+= parport_gsc.o
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/pci/Makefile linux/drivers/pci/Makefile
+--- linux-2.5.51-bk1/drivers/pci/Makefile	Sat Dec 14 12:32:04 2002
++++ linux/drivers/pci/Makefile	Sat Dec 14 12:38:56 2002
+@@ -39,8 +39,6 @@
+ # Files generated that shall be removed upon make clean
+ clean-files := devlist.h classlist.h
  
 -include $(TOPDIR)/Rules.make
 -
- $(obj)/mk_task: $(obj)/mk_task_user.o $(obj)/mk_task_kern.o
- 	$(CC) -o $@ $^
+ # Dependencies on generated files need to be listed explicitly
  
-diff -urN linux-2.5.51-bk1/arch/v850/Makefile linux/arch/v850/Makefile
---- linux-2.5.51-bk1/arch/v850/Makefile	Sat Dec 14 12:32:06 2002
-+++ linux/arch/v850/Makefile	Sat Dec 14 12:38:56 2002
-@@ -31,9 +31,6 @@
- libs-y += $(arch_dir)/lib/
- 
- 
--include $(TOPDIR)/Rules.make
--
--
- # Deal with the initial contents of the root device
- ifdef ROOT_FS_IMAGE
- core-y += root_fs_image.o
-diff -urN linux-2.5.51-bk1/arch/v850/kernel/Makefile linux/arch/v850/kernel/Makefile
---- linux-2.5.51-bk1/arch/v850/kernel/Makefile	Sat Dec 14 12:32:06 2002
-+++ linux/arch/v850/kernel/Makefile	Sat Dec 14 12:38:56 2002
-@@ -34,6 +34,3 @@
- # feature-specific code
- obj-$(CONFIG_V850E_MA1_HIGHRES_TIMER)	+= highres_timer.o
- obj-$(CONFIG_PROC_FS)		+= procfs.o
--
+ $(obj)/names.o: $(obj)/devlist.h $(obj)/classlist.h
+diff -urN linux-2.5.51-bk1/drivers/pcmcia/Makefile linux/drivers/pcmcia/Makefile
+--- linux-2.5.51-bk1/drivers/pcmcia/Makefile	Sat Dec 14 12:31:36 2002
++++ linux/drivers/pcmcia/Makefile	Sat Dec 14 12:38:56 2002
+@@ -47,5 +47,3 @@
+ sa1100_cs-objs-$(CONFIG_SA1100_TRIZEPS) 	+= sa1100_trizeps.o
+ sa1100_cs-objs-$(CONFIG_SA1100_YOPY)		+= sa1100_yopy.o
+ sa1100_cs-objs					:= $(sa1100_cs-objs-y)
 -
 -include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/v850/lib/Makefile linux/arch/v850/lib/Makefile
---- linux-2.5.51-bk1/arch/v850/lib/Makefile	Sat Dec 14 12:31:59 2002
-+++ linux/arch/v850/lib/Makefile	Sat Dec 14 12:38:56 2002
-@@ -5,5 +5,3 @@
- L_TARGET = lib.a
- obj-y  = ashrdi3.o ashldi3.o lshrdi3.o muldi3.o negdi2.o \
- 	 checksum.o memcpy.o memset.o
+diff -urN linux-2.5.51-bk1/drivers/pnp/Makefile linux/drivers/pnp/Makefile
+--- linux-2.5.51-bk1/drivers/pnp/Makefile	Sat Dec 14 12:32:11 2002
++++ linux/drivers/pnp/Makefile	Sat Dec 14 12:38:56 2002
+@@ -10,5 +10,3 @@
+ obj-$(CONFIG_ISAPNP)		+= isapnp/
+ 
+ export-objs	:= core.o driver.o resource.o $(pnp-card-y)
 -
 -include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/x86_64/boot/Makefile linux/arch/x86_64/boot/Makefile
---- linux-2.5.51-bk1/arch/x86_64/boot/Makefile	Sat Dec 14 12:31:48 2002
-+++ linux/arch/x86_64/boot/Makefile	Sat Dec 14 12:38:56 2002
-@@ -36,8 +36,6 @@
- 
- boot: bzImage
- 
--include $(TOPDIR)/Rules.make
--
- # ---------------------------------------------------------------------------
- 
- $(obj)/zImage:  IMAGE_OFFSET := 0x1000
-diff -urN linux-2.5.51-bk1/arch/x86_64/boot/compressed/Makefile linux/arch/x86_64/boot/compressed/Makefile
---- linux-2.5.51-bk1/arch/x86_64/boot/compressed/Makefile	Sat Dec 14 12:31:42 2002
-+++ linux/arch/x86_64/boot/compressed/Makefile	Sat Dec 14 12:38:56 2002
-@@ -14,8 +14,6 @@
- CFLAGS := -m32 -D__KERNEL__ -I$(TOPDIR)/include -O2  
- LDFLAGS := -m elf_i386
- 
--include $(TOPDIR)/Rules.make
--
- LDFLAGS_vmlinux := -Ttext $(IMAGE_OFFSET) -e startup_32 -m elf_i386
- 
- $(obj)/vmlinux: $(obj)/head.o $(obj)/misc.o $(obj)/piggy.o FORCE
-diff -urN linux-2.5.51-bk1/arch/x86_64/ia32/Makefile linux/arch/x86_64/ia32/Makefile
---- linux-2.5.51-bk1/arch/x86_64/ia32/Makefile	Sat Dec 14 12:31:42 2002
-+++ linux/arch/x86_64/ia32/Makefile	Sat Dec 14 12:38:56 2002
+diff -urN linux-2.5.51-bk1/drivers/pnp/isapnp/Makefile linux/drivers/pnp/isapnp/Makefile
+--- linux-2.5.51-bk1/drivers/pnp/isapnp/Makefile	Sat Dec 14 12:32:11 2002
++++ linux/drivers/pnp/isapnp/Makefile	Sat Dec 14 12:38:56 2002
 @@ -7,5 +7,3 @@
- obj-$(CONFIG_IA32_EMULATION) := ia32entry.o sys_ia32.o ia32_ioctl.o \
- 	ia32_signal.o \
- 	ia32_binfmt.o fpu32.o socket32.o ptrace32.o ipc32.o
--
--include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/x86_64/kernel/Makefile linux/arch/x86_64/kernel/Makefile
---- linux-2.5.51-bk1/arch/x86_64/kernel/Makefile	Sat Dec 14 12:31:48 2002
-+++ linux/arch/x86_64/kernel/Makefile	Sat Dec 14 12:38:56 2002
-@@ -24,6 +24,3 @@
- obj-$(CONFIG_DUMMY_IOMMU) += pci-nommu.o
+ isapnp-proc-$(CONFIG_PROC_FS) = proc.o
  
- EXTRA_AFLAGS := -traditional
+ obj-y := core.o $(isapnp-proc-y)
 -
 -include $(TOPDIR)/Rules.make
--
-diff -urN linux-2.5.51-bk1/arch/x86_64/lib/Makefile linux/arch/x86_64/lib/Makefile
---- linux-2.5.51-bk1/arch/x86_64/lib/Makefile	Sat Dec 14 12:31:42 2002
-+++ linux/arch/x86_64/lib/Makefile	Sat Dec 14 12:38:56 2002
-@@ -17,5 +17,3 @@
+diff -urN linux-2.5.51-bk1/drivers/pnp/pnpbios/Makefile linux/drivers/pnp/pnpbios/Makefile
+--- linux-2.5.51-bk1/drivers/pnp/pnpbios/Makefile	Sat Dec 14 12:31:44 2002
++++ linux/drivers/pnp/pnpbios/Makefile	Sat Dec 14 12:38:56 2002
+@@ -7,5 +7,3 @@
+ pnpbios-proc-$(CONFIG_PROC_FS) = proc.o
  
- obj-$(CONFIG_IO_DEBUG) += iodebug.o
- obj-$(CONFIG_HAVE_DEC_LOCK) += dec_and_lock.o
+ obj-y := core.o $(pnpbios-proc-y)
 -
 -include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/x86_64/mm/Makefile linux/arch/x86_64/mm/Makefile
---- linux-2.5.51-bk1/arch/x86_64/mm/Makefile	Sat Dec 14 12:31:44 2002
-+++ linux/arch/x86_64/mm/Makefile	Sat Dec 14 12:38:56 2002
+diff -urN linux-2.5.51-bk1/drivers/s390/Makefile linux/drivers/s390/Makefile
+--- linux-2.5.51-bk1/drivers/s390/Makefile	Sat Dec 14 12:32:11 2002
++++ linux/drivers/s390/Makefile	Sat Dec 14 12:38:56 2002
+@@ -6,6 +6,3 @@
+ obj-y += cio/ block/ char/ misc/ net/
+ 
+ drivers-y += drivers/s390/built-in.o
+-
+-include $(TOPDIR)/Rules.make
+-
+diff -urN linux-2.5.51-bk1/drivers/s390/block/Makefile linux/drivers/s390/block/Makefile
+--- linux-2.5.51-bk1/drivers/s390/block/Makefile	Sat Dec 14 12:32:04 2002
++++ linux/drivers/s390/block/Makefile	Sat Dec 14 12:38:56 2002
+@@ -15,5 +15,3 @@
+ obj-$(CONFIG_DASD_ECKD) += dasd_eckd_mod.o
+ obj-$(CONFIG_DASD_FBA)  += dasd_fba_mod.o
+ obj-$(CONFIG_BLK_DEV_XPRAM) += xpram.o
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/s390/char/Makefile linux/drivers/s390/char/Makefile
+--- linux-2.5.51-bk1/drivers/s390/char/Makefile	Sat Dec 14 12:32:12 2002
++++ linux/drivers/s390/char/Makefile	Sat Dec 14 12:38:56 2002
+@@ -20,5 +20,3 @@
+ tape-objs := tape_core.o tape_std.o tape_char.o $(tape-y)
+ obj-$(CONFIG_S390_TAPE) += tape.o
+ obj-$(CONFIG_S390_TAPE_34XX) += tape_34xx.o
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/s390/cio/Makefile linux/drivers/s390/cio/Makefile
+--- linux-2.5.51-bk1/drivers/s390/cio/Makefile	Sat Dec 14 12:32:12 2002
++++ linux/drivers/s390/cio/Makefile	Sat Dec 14 12:38:56 2002
+@@ -15,5 +15,3 @@
+ 
+ obj-$(CONFIG_QDIO) += qdio.o
+ export-objs += qdio.o
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/s390/misc/Makefile linux/drivers/s390/misc/Makefile
+--- linux-2.5.51-bk1/drivers/s390/misc/Makefile	Sat Dec 14 12:32:12 2002
++++ linux/drivers/s390/misc/Makefile	Sat Dec 14 12:38:56 2002
+@@ -3,5 +3,3 @@
+ #
+ 
+ # placeholder for stuff to come...
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/s390/net/Makefile linux/drivers/s390/net/Makefile
+--- linux-2.5.51-bk1/drivers/s390/net/Makefile	Sat Dec 14 12:32:12 2002
++++ linux/drivers/s390/net/Makefile	Sat Dec 14 12:38:56 2002
+@@ -10,6 +10,3 @@
+ obj-$(CONFIG_CTC) += ctc.o fsm.o cu3088.o
+ obj-$(CONFIG_IUCV) += netiucv.o
+ obj-$(CONFIG_LCS) += lcs.o cu3088.o
+-
+-include $(TOPDIR)/Rules.make
+-
+diff -urN linux-2.5.51-bk1/drivers/sbus/Makefile linux/drivers/sbus/Makefile
+--- linux-2.5.51-bk1/drivers/sbus/Makefile	Sat Dec 14 12:31:38 2002
++++ linux/drivers/sbus/Makefile	Sat Dec 14 12:38:56 2002
+@@ -7,5 +7,3 @@
+ endif
+ 
+ obj-$(CONFIG_SBUSCHAR) += char/
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/sbus/char/Makefile linux/drivers/sbus/char/Makefile
+--- linux-2.5.51-bk1/drivers/sbus/char/Makefile	Sun Sep 15 22:18:50 2002
++++ linux/drivers/sbus/char/Makefile	Sat Dec 14 12:38:56 2002
+@@ -25,5 +25,3 @@
+ obj-$(CONFIG_TADPOLE_TS102_UCTRL)	+= uctrl.o
+ obj-$(CONFIG_SUN_JSFLASH)		+= jsflash.o
+ obj-$(CONFIG_BBC_I2C)			+= bbc.o
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/scsi/Makefile linux/drivers/scsi/Makefile
+--- linux-2.5.51-bk1/drivers/scsi/Makefile	Sat Dec 14 12:32:12 2002
++++ linux/drivers/scsi/Makefile	Sat Dec 14 12:38:56 2002
+@@ -141,8 +141,6 @@
+ clean-files :=	53c8xx_d.h  53c7xx_d.h sim710_d.h  53c700_d.h	\
+ 		53c8xx_u.h  53c7xx_u.h sim710_u.h 53c700_u.h
+ 
+-include $(TOPDIR)/Rules.make
+-
+ $(obj)/53c7,8xx.o: $(obj)/53c8xx_d.h $(obj)/53c8xx_u.h
+ $(obj)/53c7xx.o:   $(obj)/53c7xx_d.h $(obj)/53c7xx_u.h
+ $(obj)/sim710.o:   $(obj)/sim710_d.h
+diff -urN linux-2.5.51-bk1/drivers/scsi/aacraid/Makefile linux/drivers/scsi/aacraid/Makefile
+--- linux-2.5.51-bk1/drivers/scsi/aacraid/Makefile	Sat Dec 14 12:31:42 2002
++++ linux/drivers/scsi/aacraid/Makefile	Sat Dec 14 12:38:56 2002
+@@ -6,5 +6,3 @@
+ 		   dpcsup.o rx.o sa.o
+ 
+ EXTRA_CFLAGS	:= -Idrivers/scsi
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/scsi/pcmcia/Makefile linux/drivers/scsi/pcmcia/Makefile
+--- linux-2.5.51-bk1/drivers/scsi/pcmcia/Makefile	Sun Sep 15 22:18:28 2002
++++ linux/drivers/scsi/pcmcia/Makefile	Sat Dec 14 12:38:56 2002
+@@ -22,5 +22,3 @@
+ aha152x_cs-objs	:= aha152x_stub.o aha152x.o
+ fdomain_cs-objs	:= fdomain_stub.o fdomain.o
+ qlogic_cs-objs	:= qlogic_stub.o qlogicfas.o
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/scsi/sym53c8xx_2/Makefile linux/drivers/scsi/sym53c8xx_2/Makefile
+--- linux-2.5.51-bk1/drivers/scsi/sym53c8xx_2/Makefile	Sat Dec 14 12:31:38 2002
++++ linux/drivers/scsi/sym53c8xx_2/Makefile	Sat Dec 14 12:38:56 2002
+@@ -2,6 +2,3 @@
+ 
+ sym53c8xx-objs := sym_fw.o sym_glue.o sym_hipd.o sym_malloc.o sym_misc.o sym_nvram.o
+ obj-$(CONFIG_SCSI_SYM53C8XX_2) := sym53c8xx.o
+-
+-include $(TOPDIR)/Rules.make
+-
+diff -urN linux-2.5.51-bk1/drivers/serial/Makefile linux/drivers/serial/Makefile
+--- linux-2.5.51-bk1/drivers/serial/Makefile	Sat Dec 14 12:32:12 2002
++++ linux/drivers/serial/Makefile	Sat Dec 14 12:38:56 2002
+@@ -29,5 +29,3 @@
+ obj-$(CONFIG_SERIAL_68360) += 68360serial.o
+ obj-$(CONFIG_SERIAL_COLDFIRE) += mcfserial.o
+ obj-$(CONFIG_V850E_NB85E_UART) += nb85e_uart.o
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/sgi/Makefile linux/drivers/sgi/Makefile
+--- linux-2.5.51-bk1/drivers/sgi/Makefile	Sun Sep 15 22:18:25 2002
++++ linux/drivers/sgi/Makefile	Sat Dec 14 12:38:56 2002
+@@ -8,5 +8,3 @@
+ subdir-m	+= char
+ 
+ obj-y		+= char/
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/sgi/char/Makefile linux/drivers/sgi/char/Makefile
+--- linux-2.5.51-bk1/drivers/sgi/char/Makefile	Sun Sep 15 22:18:17 2002
++++ linux/drivers/sgi/char/Makefile	Sat Dec 14 12:38:56 2002
+@@ -8,5 +8,3 @@
+ obj-$(CONFIG_SGI_SERIAL)	+= sgiserial.o
+ obj-$(CONFIG_SGI_DS1286)	+= ds1286.o
+ obj-$(CONFIG_SGI_NEWPORT_GFX)	+= graphics.o rrm.o
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/tc/Makefile linux/drivers/tc/Makefile
+--- linux-2.5.51-bk1/drivers/tc/Makefile	Sun Sep 15 22:18:24 2002
++++ linux/drivers/tc/Makefile	Sat Dec 14 12:38:56 2002
+@@ -13,8 +13,6 @@
+ obj-$(CONFIG_ZS) += zs.o
+ obj-$(CONFIG_VT) += lk201.o lk201-map.o lk201-remap.o
+ 
+-include $(TOPDIR)/Rules.make
+-
+ $(obj)/lk201-map.o: $(obj)/lk201-map.c
+ 
+ # Uncomment if you're changing the keymap and have an appropriate
+diff -urN linux-2.5.51-bk1/drivers/telephony/Makefile linux/drivers/telephony/Makefile
+--- linux-2.5.51-bk1/drivers/telephony/Makefile	Sun Sep 15 22:18:30 2002
++++ linux/drivers/telephony/Makefile	Sat Dec 14 12:38:56 2002
+@@ -7,6 +7,3 @@
+ obj-$(CONFIG_PHONE) += phonedev.o
+ obj-$(CONFIG_PHONE_IXJ) += ixj.o
+ obj-$(CONFIG_PHONE_IXJ_PCMCIA) += ixj_pcmcia.o
+-
+-include $(TOPDIR)/Rules.make
+-
+diff -urN linux-2.5.51-bk1/drivers/usb/Makefile linux/drivers/usb/Makefile
+--- linux-2.5.51-bk1/drivers/usb/Makefile	Sat Dec 14 12:32:03 2002
++++ linux/drivers/usb/Makefile	Sat Dec 14 12:38:56 2002
+@@ -58,5 +58,3 @@
+ obj-$(CONFIG_USB_TEST)		+= misc/
+ obj-$(CONFIG_USB_TIGL)		+= misc/
+ obj-$(CONFIG_USB_USS720)	+= misc/
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/usb/class/Makefile linux/drivers/usb/class/Makefile
+--- linux-2.5.51-bk1/drivers/usb/class/Makefile	Sun Sep 15 22:18:28 2002
++++ linux/drivers/usb/class/Makefile	Sat Dec 14 12:38:56 2002
+@@ -8,6 +8,3 @@
+ obj-$(CONFIG_USB_BLUETOOTH_TTY)	+= bluetty.o
+ obj-$(CONFIG_USB_MIDI)		+= usb-midi.o
+ obj-$(CONFIG_USB_PRINTER)	+= usblp.o
+-
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/usb/core/Makefile linux/drivers/usb/core/Makefile
+--- linux-2.5.51-bk1/drivers/usb/core/Makefile	Sat Dec 14 12:31:36 2002
++++ linux/drivers/usb/core/Makefile	Sat Dec 14 12:38:56 2002
+@@ -16,5 +16,3 @@
+ endif
+ 
+ obj-$(CONFIG_USB)	+= usbcore.o
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/usb/host/Makefile linux/drivers/usb/host/Makefile
+--- linux-2.5.51-bk1/drivers/usb/host/Makefile	Sat Dec 14 12:32:03 2002
++++ linux/drivers/usb/host/Makefile	Sat Dec 14 12:38:56 2002
+@@ -8,5 +8,3 @@
+ obj-$(CONFIG_USB_UHCI_HCD)	+= uhci-hcd.o
+ 
+ obj-$(CONFIG_USB_SL811HS)	+= hc_sl811.o
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/usb/image/Makefile linux/drivers/usb/image/Makefile
+--- linux-2.5.51-bk1/drivers/usb/image/Makefile	Sun Sep 15 22:18:16 2002
++++ linux/drivers/usb/image/Makefile	Sat Dec 14 12:38:56 2002
+@@ -6,5 +6,3 @@
+ obj-$(CONFIG_USB_HPUSBSCSI)	+= hpusbscsi.o
+ obj-$(CONFIG_USB_MICROTEK)	+= microtek.o
+ obj-$(CONFIG_USB_SCANNER)	+= scanner.o
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/usb/input/Makefile linux/drivers/usb/input/Makefile
+--- linux-2.5.51-bk1/drivers/usb/input/Makefile	Sun Sep 15 22:18:37 2002
++++ linux/drivers/usb/input/Makefile	Sat Dec 14 12:38:56 2002
+@@ -30,5 +30,3 @@
+ obj-$(CONFIG_USB_WACOM)		+= wacom.o
+ obj-$(CONFIG_USB_POWERMATE)	+= powermate.o
+ obj-$(CONFIG_USB_XPAD)		+= xpad.o
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/usb/media/Makefile linux/drivers/usb/media/Makefile
+--- linux-2.5.51-bk1/drivers/usb/media/Makefile	Sat Dec 14 12:31:42 2002
++++ linux/drivers/usb/media/Makefile	Sat Dec 14 12:38:56 2002
+@@ -15,5 +15,3 @@
+ obj-$(CONFIG_USB_SE401)		+= se401.o
+ obj-$(CONFIG_USB_STV680)	+= stv680.o
+ obj-$(CONFIG_USB_VICAM)		+= vicam.o usbvideo.o
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/usb/misc/Makefile linux/drivers/usb/misc/Makefile
+--- linux-2.5.51-bk1/drivers/usb/misc/Makefile	Sat Dec 14 12:31:38 2002
++++ linux/drivers/usb/misc/Makefile	Sat Dec 14 12:38:56 2002
+@@ -14,5 +14,3 @@
+ obj-$(CONFIG_USB_TEST)		+= usbtest.o
+ obj-$(CONFIG_USB_TIGL)		+= tiglusb.o
+ obj-$(CONFIG_USB_USS720)	+= uss720.o
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/usb/net/Makefile linux/drivers/usb/net/Makefile
+--- linux-2.5.51-bk1/drivers/usb/net/Makefile	Sun Sep 15 22:18:18 2002
++++ linux/drivers/usb/net/Makefile	Sat Dec 14 12:38:56 2002
+@@ -8,6 +8,3 @@
+ obj-$(CONFIG_USB_PEGASUS)	+= pegasus.o
+ obj-$(CONFIG_USB_RTL8150)	+= rtl8150.o
+ obj-$(CONFIG_USB_USBNET)	+= usbnet.o
+-
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/usb/serial/Makefile linux/drivers/usb/serial/Makefile
+--- linux-2.5.51-bk1/drivers/usb/serial/Makefile	Sat Dec 14 12:32:38 2002
++++ linux/drivers/usb/serial/Makefile	Sat Dec 14 12:39:38 2002
+@@ -34,6 +34,3 @@
+ export-objs	:= usb-serial.o ezusb.o
+ 
+ usbserial-objs	:= usb-serial.o generic.o bus.o $(usbserial-obj-y)
+-
+-include $(TOPDIR)/Rules.make
+-
+diff -urN linux-2.5.51-bk1/drivers/usb/storage/Makefile linux/drivers/usb/storage/Makefile
+--- linux-2.5.51-bk1/drivers/usb/storage/Makefile	Sat Dec 14 12:31:38 2002
++++ linux/drivers/usb/storage/Makefile	Sat Dec 14 12:38:56 2002
+@@ -21,5 +21,3 @@
+ 
+ usb-storage-objs :=	scsiglue.o protocol.o transport.o usb.o \
+ 			initializers.o $(usb-storage-obj-y)
+-
+-include $(TOPDIR)/Rules.make
+diff -urN linux-2.5.51-bk1/drivers/video/Makefile linux/drivers/video/Makefile
+--- linux-2.5.51-bk1/drivers/video/Makefile	Sat Dec 14 12:32:12 2002
++++ linux/drivers/video/Makefile	Sat Dec 14 12:38:56 2002
+@@ -88,8 +88,6 @@
+ # Files generated that shall be removed upon make clean
+ clean-files := promcon_tbl.c
+ 
+-include $(TOPDIR)/Rules.make
+-
+ $(obj)/promcon_tbl.c: $(src)/prom.uni
+ 	$(objtree)/scripts/conmakehash $< | \
+ 	sed -e '/#include <[^>]*>/p' -e 's/types/init/' \
+diff -urN linux-2.5.51-bk1/drivers/video/aty/Makefile linux/drivers/video/aty/Makefile
+--- linux-2.5.51-bk1/drivers/video/aty/Makefile	Sun Sep 15 22:18:25 2002
++++ linux/drivers/video/aty/Makefile	Sat Dec 14 12:38:56 2002
+@@ -4,6 +4,3 @@
+ atyfb-$(CONFIG_FB_ATY_GX)	+= mach64_gx.o
+ atyfb-$(CONFIG_FB_ATY_CT)	+= mach64_ct.o mach64_cursor.o
+ atyfb-objs			:= $(atyfb-y)
+-
+-include $(TOPDIR)/Rules.make
+-
+diff -urN linux-2.5.51-bk1/drivers/video/console/Makefile linux/drivers/video/console/Makefile
+--- linux-2.5.51-bk1/drivers/video/console/Makefile	Sat Dec 14 12:32:12 2002
++++ linux/drivers/video/console/Makefile	Sat Dec 14 12:38:56 2002
+@@ -52,8 +52,6 @@
+ # Files generated that shall be removed upon make clean
+ clean-files := promcon_tbl.c
+ 
+-include $(TOPDIR)/Rules.make
+-
+ $(obj)/promcon_tbl.c: $(src)/prom.uni
+ 	$(objtree)/scripts/conmakehash $< | \
+ 	sed -e '/#include <[^>]*>/p' -e 's/types/init/' \
+diff -urN linux-2.5.51-bk1/drivers/video/matrox/Makefile linux/drivers/video/matrox/Makefile
+--- linux-2.5.51-bk1/drivers/video/matrox/Makefile	Sat Dec 14 12:31:36 2002
++++ linux/drivers/video/matrox/Makefile	Sat Dec 14 12:38:56 2002
+@@ -15,6 +15,3 @@
+ obj-$(CONFIG_FB_MATROX)           += matroxfb_base.o matroxfb_accel.o matroxfb_DAC1064.o matroxfb_Ti3026.o matroxfb_misc.o $(my-obj-y)
+ obj-$(CONFIG_FB_MATROX_I2C)       += i2c-matroxfb.o
+ obj-$(CONFIG_FB_MATROX_MAVEN)     += matroxfb_maven.o matroxfb_crtc2.o
+-
+-include $(TOPDIR)/Rules.make
+-
+diff -urN linux-2.5.51-bk1/drivers/video/riva/Makefile linux/drivers/video/riva/Makefile
+--- linux-2.5.51-bk1/drivers/video/riva/Makefile	Sat Dec 14 12:32:13 2002
++++ linux/drivers/video/riva/Makefile	Sat Dec 14 12:38:56 2002
 @@ -5,5 +5,3 @@
- export-objs := pageattr.o
+ obj-$(CONFIG_FB_RIVA) += rivafb.o
  
- obj-y	 := init.o fault.o ioremap.o extable.o modutil.o pageattr.o
+ rivafb-objs := fbdev.o riva_hw.o
 -
 -include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.51-bk1/arch/x86_64/pci/Makefile linux/arch/x86_64/pci/Makefile
---- linux-2.5.51-bk1/arch/x86_64/pci/Makefile	Sat Dec 14 12:31:42 2002
-+++ linux/arch/x86_64/pci/Makefile	Sat Dec 14 12:38:56 2002
-@@ -12,5 +12,3 @@
+diff -urN linux-2.5.51-bk1/drivers/video/sis/Makefile linux/drivers/video/sis/Makefile
+--- linux-2.5.51-bk1/drivers/video/sis/Makefile	Sat Dec 14 12:32:13 2002
++++ linux/drivers/video/sis/Makefile	Sat Dec 14 12:39:21 2002
+@@ -7,7 +7,3 @@
+ obj-$(CONFIG_FB_SIS) += sisfb.o
  
- 
- obj-y		+= irq.o common.o
+ sisfb-objs := sis_main.o sis_accel.o init.o init301.o
 -
 -include $(TOPDIR)/Rules.make
+-
+-
+diff -urN linux-2.5.51-bk1/drivers/zorro/Makefile linux/drivers/zorro/Makefile
+--- linux-2.5.51-bk1/drivers/zorro/Makefile	Sat Dec 14 12:31:44 2002
++++ linux/drivers/zorro/Makefile	Sat Dec 14 12:38:56 2002
+@@ -12,8 +12,6 @@
+ # Files generated that shall be removed upon make clean
+ clean-files := devlist.h
+ 
+-include $(TOPDIR)/Rules.make
+-
+ # Dependencies on generated files need to be listed explicitly
+ 
+ $(obj)/names.o: $(obj)/devlist.h
 
---------------000002030106040508030604--
+--------------060405090501060708020104--
 

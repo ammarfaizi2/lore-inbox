@@ -1,51 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265689AbTA2KZ4>; Wed, 29 Jan 2003 05:25:56 -0500
+	id <S265843AbTA2LTC>; Wed, 29 Jan 2003 06:19:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265725AbTA2KZ4>; Wed, 29 Jan 2003 05:25:56 -0500
-Received: from mail.erunway.com ([12.40.51.200]:9231 "EHLO
-	mailserver.virtusa.com") by vger.kernel.org with ESMTP
-	id <S265689AbTA2KZz>; Wed, 29 Jan 2003 05:25:55 -0500
-Date: Wed, 29 Jan 2003 16:35:11 +0600
-From: Anuradha Ratnaweera <ARatnaweera@virtusa.com>
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Where are the matroxfb updates?
-Message-ID: <20030129103511.GA505@aratnaweera.virtusa.com>
-References: <20030129020639.GA10213@aratnaweera.virtusa.com> <20030129053159.GA5999@platan.vc.cvut.cz> <20030129073629.GA26091@aratnaweera.virtusa.com> <20030129080420.GB4950@vana.vc.cvut.cz> <20030129082226.GA668@aratnaweera.virtusa.com> <20030129083752.GD4950@vana.vc.cvut.cz> <20030129091608.GA549@aratnaweera.virtusa.com>
+	id <S265854AbTA2LTC>; Wed, 29 Jan 2003 06:19:02 -0500
+Received: from port94.vestas.dk ([195.41.59.94]:13318 "EHLO
+	cotas2.cotas.vestas.dom") by vger.kernel.org with ESMTP
+	id <S265843AbTA2LTA>; Wed, 29 Jan 2003 06:19:00 -0500
+Subject: Large IP packets over ArcNet (netif_wake_queue propagation)
+From: Esben Nielsen <esn@vestas.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 29 Jan 2003 12:28:16 +0100
+Message-Id: <1043839696.21327.166.camel@tux>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030129091608.GA549@aratnaweera.virtusa.com>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 29, 2003 at 03:16:08PM +0600, Anuradha Ratnaweera wrote:
-> 
->   # ./matroxset -m 00001111
->   # ioctl failed: Device or resource busy
+Synopsis:
+ I am writing test-software for our ArcNet-driver for vxWorks. I use a
+Linux machine running 2.4.18 as test-bench. I am trying to test our
+rfc1201 (IP over ArcNet) implementation by ping'ing with large packets.
+This fails:
+Linux simply doesn't send all the IP-fragments.
 
-Got it working.  Sorry about the wrong use of matroxfb.
-Here is my /etc/init.d/movefb:
+I then went into the driver and increased the queue-length
+from
+  dev->tx_queue_len = 40;
+to
+  dev->tx_queue_len = 60;
+and then it worked.
 
-#!/bin/sh
+It seems to me the IP-layer is not notified when the device queue is
+emptied by the device and thus doesn't send out the missing fragments.
+I tried to look into the net core code to find out: Indeed I could not
+find any notification to the higher level protocols.
+In vxWorks I am used to waking the higher-level protocols directly
+(there is no generic device-specific queue). Thus IP stack can continue
+with the next IP-fragment right away. Apparently the Linux IP-stack
+can't as it is not notified that the device is ready to send again.
 
-/sbin/matroxset -f /dev/fb1 -m 0
-/sbin/matroxset -f /dev/fb0 -m 1
-/sbin/matroxset -f /dev/fb1 -m 2
+I am really understanding this correctly???
 
-/sbin/con2fb /dev/fb1 /dev/tty6
+Also, I want to run a raw packet protocol along with IP. That protocol
+works best with a small queue - maximum 10 packets!
 
+Esben Nielsen
+Vestas Wind Systems
 
-Thanks, Petr.
-
-	Anuradha
-
-
--- 
-
-Debian GNU/Linux (kernel 2.4.21-pre4)
-
-According to the obituary notices, a mean and unimportant person never dies.
 

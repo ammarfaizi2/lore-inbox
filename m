@@ -1,51 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265023AbTF1CZY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 22:25:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265024AbTF1CZX
+	id S265043AbTF1C12 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 22:27:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265045AbTF1C12
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 22:25:23 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:25820 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S265023AbTF1CZX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 22:25:23 -0400
-Date: Sat, 28 Jun 2003 04:39:36 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: support@moxa.com.tw, linux-kernel@vger.kernel.org
-Subject: Re: [2.5 patch] remove two unused variables from mxser.c
-Message-ID: <20030628023935.GQ24661@fs.tum.de>
-References: <20030619231222.GF29247@fs.tum.de> <20030620050950.32FB52C11D@lists.samba.org>
+	Fri, 27 Jun 2003 22:27:28 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:51291 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S265043AbTF1C11 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jun 2003 22:27:27 -0400
+Date: Fri, 27 Jun 2003 19:41:54 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Michael Frank <mflt1@micrologica.com.hk>
+Cc: ldl@aros.net, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.73-mm1 nbd: boot hang in add_disk at first call from
+ nbd_init
+Message-Id: <20030627194154.01a06c5d.akpm@digeo.com>
+In-Reply-To: <200306271943.13297.mflt1@micrologica.com.hk>
+References: <200306271943.13297.mflt1@micrologica.com.hk>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030620050950.32FB52C11D@lists.samba.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 28 Jun 2003 02:41:43.0282 (UTC) FILETIME=[CF4E1520:01C33D1E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 20, 2003 at 02:31:06PM +1000, Rusty Russell wrote:
-> In message <20030619231222.GF29247@fs.tum.de> you write:
-> > The patch below removes two unused variables from drivers/char/mxser.c .
-> 
-> While you're there, would you fix the init returning "-1" for no good
-> reason at the bottom, too?  (I don't think they really meant EPERM).
+Michael Frank <mflt1@micrologica.com.hk> wrote:
+>
+> Changes were recently made to the nbd.c in 2.5.73-mm1
 
-There is at least one other driver under drivers/char/ doing the 
-same...
+And tons more will be in -mm2, which I shall prepare right now.
+Please retest on that and if it still hangs, capture the output
+from pressing alt-sysrq-T.
 
-Which return code do you suggest?
-
-> Thanks,
-> Rusty.
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Thanks.

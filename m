@@ -1,42 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316342AbSGVFsT>; Mon, 22 Jul 2002 01:48:19 -0400
+	id <S315437AbSGVMSJ>; Mon, 22 Jul 2002 08:18:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316397AbSGVFsT>; Mon, 22 Jul 2002 01:48:19 -0400
-Received: from rwcrmhc53.attbi.com ([204.127.198.39]:64680 "EHLO
-	rwcrmhc53.attbi.com") by vger.kernel.org with ESMTP
-	id <S316342AbSGVFsS>; Mon, 22 Jul 2002 01:48:18 -0400
-Subject: Re: PATCH: 2.5.27 port thunderlan to the new DMA API
-From: Nicholas Miell <nmiell@attbi.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: torvalds@transmeta.com, davej@suse.de, linux-kernel@vger.kernel.org
-In-Reply-To: <E17WN0K-0007Yb-00@the-village.bc.nu>
-References: <E17WN0K-0007Yb-00@the-village.bc.nu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 21 Jul 2002 22:51:19 -0700
-Message-Id: <1027317081.1092.3.camel@entropy>
-Mime-Version: 1.0
+	id <S316682AbSGVMSJ>; Mon, 22 Jul 2002 08:18:09 -0400
+Received: from www.wotug.org ([194.106.52.201]:42590 "EHLO
+	gatemaster.ivimey.org") by vger.kernel.org with ESMTP
+	id <S315437AbSGVMSJ>; Mon, 22 Jul 2002 08:18:09 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>
+To: Alexander Viro <viro@math.psu.edu>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] 2.5.17 /dev/ports
+Date: Mon, 22 Jul 2002 13:20:39 +0100
+User-Agent: KMail/1.4.2
+Cc: Martin Dalecki <dalecki@evision-ventures.com>,
+       "David S. Miller" <davem@redhat.com>, paulus@samba.org,
+       linux-kernel@vger.kernel.org
+References: <Pine.GSO.4.21.0205221109240.2737-100000@weyl.math.psu.edu>
+In-Reply-To: <Pine.GSO.4.21.0205221109240.2737-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200207221320.39382.ruthc@sharra.ivimey.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-07-21 at 13:08, Alan Cox wrote:
-> Tested and running on my Compaq both in bbuf and direct mode.
-> 
+On Wednesday 22 May 2002 16:10, Alexander Viro wrote:
+> On Wed, 22 May 2002, Alan Cox wrote:
+> > > ... and while we are at flamewar-mongering, none of these files have
+> > > any business being in procfs.
+> >
+> > That depends on how you define procfs. Linux is not Plan 9. A lot of it
+> > certainly is going to cleaner with a devicefs and sysctlfs
+>
+> OK, let me put it that way:
+>
+> none of these files has any business bringing the rest of procfs along
+> for a ride and none of them has any reason to use any code from fs/proc/*.c
 
-I need this to compile, which leads me to believe that perhaps that
-wasn't your final patch...
+Ok, I'll bite. Why? Note: I'm not necessarily saying I disagree, just that I 
+don't know what "test" you are applying to determine whether stuf should be 
+in or out?
 
---- linux-2.5.27/drivers/net/tlan.c.~1~	Sun Jul 21 18:20:49 2002
-+++ linux-2.5.27/drivers/net/tlan.c	Sun Jul 21 22:40:31 2002
-@@ -1536,7 +1536,7 @@
- 				new_skb->dev = dev;
- 				skb_reserve( new_skb, 2 );
- 				t = (void *) skb_put( new_skb, TLAN_MAX_FRAME_SIZE );
--				head_list->buffer[0].address = pci_map_single(priv->pciDev, newskb->data, TLAN_MAX_FRAME_SIZE, PCI_DMA_FROMDEVICE);
-+				head_list->buffer[0].address = pci_map_single(priv->pciDev, new_skb->data, TLAN_MAX_FRAME_SIZE, PCI_DMA_FROMDEVICE);
- 				head_list->buffer[8].address = (u32) t;
- #ifdef __LP64__
- #error "Not 64bit clean"
+Personally, my test is "does it provide useful information to a program or to 
+a user that is not available in other ways, or where the other ways require 
+an ioctl interface". 
 
+I insert the second phrase because I do like the general principle that in 
+Unix you read and write stuff to files, and procfs does provide a lot of 
+extra scope for that to happen.
+
+There is an obvious problem with formats, but that is a specification and 
+discipline issue between the various developers, and not something that is 
+wrong with procfs as such.
+
+Ruth

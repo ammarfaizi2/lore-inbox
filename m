@@ -1,76 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262972AbUDYIvm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263001AbUDYIwZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262972AbUDYIvm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Apr 2004 04:51:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262981AbUDYIvm
+	id S263001AbUDYIwZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Apr 2004 04:52:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263000AbUDYIwY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Apr 2004 04:51:42 -0400
-Received: from [81.219.144.6] ([81.219.144.6]:3339 "EHLO pointblue.com.pl")
-	by vger.kernel.org with ESMTP id S262972AbUDYIvk (ORCPT
+	Sun, 25 Apr 2004 04:52:24 -0400
+Received: from opersys.com ([64.40.108.71]:43536 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S262981AbUDYIwT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Apr 2004 04:51:40 -0400
-Message-ID: <408B7C13.1000708@pointblue.com.pl>
-Date: Sun, 25 Apr 2004 09:51:31 +0100
-From: Grzegorz Piotr Jaskiewicz <gj@pointblue.com.pl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
-X-Accept-Language: en
+	Sun, 25 Apr 2004 04:52:19 -0400
+Message-ID: <408B7DA4.7010101@opersys.com>
+Date: Sun, 25 Apr 2004 04:58:12 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
 MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-Cc: ncunningham@linuxmail.com, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: swsusp: fix error handling in "not enough swap space"
-References: <4089DC36.5020806@pointblue.com.pl> <opr6xykbzqruvnp2@laptop-linux.wpcb.org.au> <4089E761.5050708@pointblue.com.pl> <opr6x0o10uruvnp2@laptop-linux.wpcb.org.au> <4089F0E5.3050006@pointblue.com.pl> <20040424183505.GB2525@elf.ucw.cz>
-In-Reply-To: <20040424183505.GB2525@elf.ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Hand with radeon 9000 / AGP / DRI
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
 
->>Second one, starting KDE, and when swap usage != 0 (just to be sure 
->>there is no problem with any assumption), gives me loads of error 
->>messages (see attached file).
->>    
->>
->
->Can you try CONFIG_PREEMPT=n?
->	
->
-Funny, now it doesn't run BUG(), but, instead I have two way behavior. 
-Either he is complaining that bash
-will not stop !! or that there is not enough pages free. Both wrong and 
-bizzareus. This really needs fixing before 2.6.6 is out (imo).
+I've been playing around trying to get the most out of my Radeon
+9000 pro with a 2.4.x kernel and I must admit that I've been
+somewhat disapointed. There are two things I've been trying to get
+to work properly:
+1) RadeonFB
+2) Direct rendering in X (needs DRI and AGP)
 
+The first one actually works, but only if I set "mem=840MB" at
+startup (I've got 1GB.) Not sure I see why I need to give up
+some memory here. Maybe I'm just missing something ...
 
-1:
+The second needs some tweaking before it can start being played
+with (http://marc.theaimsgroup.com/?l=linux-kernel&m=107073819005830&w=2).
+But even then, it's not really stable. I just go in KDE's screensaver
+config menu, select "Flux (GL)"->Setup and try a few different types.
+Usually, but the time I've selected to preview a third type (regardless
+of the name, it's just any third), the machine simply hangs, and I
+have to hard reset. I'm not sure how this propagates down to the kernel
+in terms of calls/accesses, but it's really not an issue with time (i.e.
+leaving the screensaver run for a while will not cause any hangs,) it's
+an issue with changing the screensaver config a limited number of times,
+usually three times.
 
-Apr 25 09:47:58 nalesnik kernel: Stopping tasks: 
-========================================================================
-Apr 25 09:47:58 nalesnik kernel:  stopping tasks failed (1 tasks remaining)
-Apr 25 09:47:58 nalesnik kernel: Suspend failed: Not all processes stopped!
-Apr 25 09:47:58 nalesnik kernel: Restarting tasks...<6> Strange, bash 
-not stopped
+Here's some more info about the config:
+- RedHat 9
+- P4 2.4GHz with HT
+- P4C800-Deluxe Asus board (intel 875 chipset)
+- 1GB RAM
+- Tried with a 2.4.26 with the above-mentioned patch
 
+Anyone have something like this working?
 
-2:
-
-Apr 25 10:53:52 nalesnik kernel: Stopping tasks: 
-=======================================================================|
-Apr 25 10:53:52 nalesnik kernel: Freeing memory: ..........|
-Apr 25 10:53:52 nalesnik kernel: /critical section: counting pages to 
-copy..[nosave pfn 0x44d]........................... (pages needed: 
-24493+512=25005 free: 4162)
-Apr 25 10:53:52 nalesnik kernel: Suspend Machine: Couldn't get enough 
-free pages, on 20843 pages short
-Apr 25 10:53:52 nalesnik kernel: Suspend Machine: Suspend failed, trying 
-to recover...
-Apr 25 10:53:52 nalesnik kernel: blk: queue c6d40e00, I/O limit 4095Mb 
-(mask 0xffffffff)
-Apr 25 10:53:52 nalesnik kernel: Fixing swap signatures... ok
-Apr 25 10:53:52 nalesnik kernel: Restarting tasks... done
-
-
-
---
-GJ
+Karim
+-- 
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 1-866-677-4546
 

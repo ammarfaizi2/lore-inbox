@@ -1,74 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261691AbVCTEWK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262022AbVCTEdb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261691AbVCTEWK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Mar 2005 23:22:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262027AbVCTEWK
+	id S262022AbVCTEdb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Mar 2005 23:33:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262025AbVCTEdb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Mar 2005 23:22:10 -0500
-Received: from mail-in-01.arcor-online.net ([151.189.21.41]:49556 "EHLO
-	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
-	id S261691AbVCTEVx convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Mar 2005 23:21:53 -0500
-Date: Sun, 20 Mar 2005 05:22:19 +0100 (CET)
-From: Bodo Eggert <7eggert@gmx.de>
-To: Rene Scharfe <rene.scharfe@lsrfire.ath.cx>
-Cc: linux-kernel@vger.kernel.org, albert@users.sf.net, akpm@osdl.org,
-       viro@parcelfarce.linux.theplanet.co.uk, pj@engr.sgi.com, 7eggert@gmx.de
-Subject: Re: [PATCH][0/6] Change proc file permissions with sysctls
-In-Reply-To: <1111278162.22BA.5209@neapel230.server4you.de>
-Message-ID: <Pine.LNX.4.58.0503200255090.3692@be1.lrz>
-References: <1111278162.22BA.5209@neapel230.server4you.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	Sat, 19 Mar 2005 23:33:31 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:52673 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262022AbVCTEdI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Mar 2005 23:33:08 -0500
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-00
+From: Lee Revell <rlrevell@joe-job.com>
+To: "K.R. Foley" <kr@cybsft.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       "Paul E. McKenney" <paulmck@us.ibm.com>
+In-Reply-To: <423CD6E0.2000806@cybsft.com>
+References: <20050319191658.GA5921@elte.hu>
+	 <1111282389.15947.2.camel@mindpipe>  <423CD6E0.2000806@cybsft.com>
+Content-Type: text/plain
+Date: Sat, 19 Mar 2005 23:32:59 -0500
+Message-Id: <1111293179.16453.7.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 20 Mar 2005, Rene Scharfe wrote:
+On Sat, 2005-03-19 at 19:50 -0600, K.R. Foley wrote:
+> Lee Revell wrote:
+> > On Sat, 2005-03-19 at 20:16 +0100, Ingo Molnar wrote:
+> > 
+> >>the biggest change in this patch is the merge of Paul E. McKenney's
+> >>preemptable RCU code. The new RCU code is active on PREEMPT_RT. While it
+> >>is still quite experimental at this stage, it allowed the removal of
+> >>locking cruft (mainly in the networking code), so it could solve some of
+> >>the longstanding netfilter/networking deadlocks/crashes reported by a
+> >>number of people. Be careful nevertheless.
+> > 
+> > 
+> > With PREEMPT_RT my machine deadlocked within 20 minutes of boot.
+> > "apt-get dist-upgrade" seemed to trigger the crash.  I did not see any
+> > Oops unfortunately.
+> > 
+> > Lee
+> > 
+> 
+> Lee,
+> 
+> Just curious. Is this with UP or SMP? I currently have my UP box running 
+>   PREEMPT_RT, with no problems thus far. However, my SMP box dies while 
+> booting (with an oops). I am working on trying to get setup to capture 
+> the oops, although it might be tomorrow before I get that done.
+> 
 
-> The permissions of files in /proc/1 (usually belonging to init) are
-> kept as they are.  The idea is to let system processes be freely
-> visible by anyone, just as before.  Especially interesting in this
-> regard would be instances of login.
+UP.  It's 100% reproducible, this machine locks up over and over.  Seems
+to be associated with network activity by multiple processes.
 
-I think you mean login shells, the login process is just the thing asking
-for the password agter the (m)ingetty got the username. These processes
-are usurally created with the '-' sign in argv[0][0], but the users may
-replace that string at will. I think it's still OK to depend on that if
-you want a semi-secure system.
+Lee
 
->  I don't know how to easily
-> discriminate between system processes and "normal" processes inside
-> the kernel (apart from pid
-
-Do you mean ppid?
-
-> == 1 and uid == 0 (which is too broad)).
-> Any ideas?
-
-This feature seems to be frequently requested. I don't remember the 
-outcome, though.
-
->From a quick view, it seems the symlinks in /proc are empty for kernel 
-threads and non-empty for user processes. Since you're messing with the 
-proc entries, this could be a cheap way to find the kernel threads.
-Another possibility is by looking at the blocked signals, signal 9 may not 
-be blocked by mortals.
-
-For the system daemons, you could additionally check for the absence of a 
-controlling tty, but that's still no safe distinction from a process run 
-by nohup. Checking for sid=pid will filter additional processes, but it 
-the shell in midnight commander and screen are still false positives.
-Checking for */sbin*/ in $PID/command will fail as soon as the daemon 
-overwrites argv[0].
-
-I don't think there is a relaible way to tell the system service daemons
-from screen except for the name, and you'll want to detect screen-alike
-programs, too.
-
--- 
-Top 100 things you don't want the sysadmin to say:
-40. The sprinkler system isn't supposed to leak is it?
-
-Friﬂ, Spammer: Colorado@getthatpills.com fkOB@ynyz.7eggert.dyndns.org

@@ -1,72 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263484AbUJ2VUG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262649AbUJ2VW7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263484AbUJ2VUG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 17:20:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263575AbUJ2VS4
+	id S262649AbUJ2VW7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 17:22:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263594AbUJ2VR7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 17:18:56 -0400
-Received: from pop.gmx.de ([213.165.64.20]:18870 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263484AbUJ2VOL (ORCPT
+	Fri, 29 Oct 2004 17:17:59 -0400
+Received: from inx.pm.waw.pl ([195.116.170.20]:33477 "EHLO inx.pm.waw.pl")
+	by vger.kernel.org with ESMTP id S263519AbUJ2VPG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 17:14:11 -0400
-X-Authenticated: #4399952
-Date: Fri, 29 Oct 2004 23:31:17 +0200
-From: Florian Schmidt <mista.tapas@gmx.net>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Paul Davis <paul@linuxaudiosystems.com>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       LKML <linux-kernel@vger.kernel.org>, Lee Revell <rlrevell@joe-job.com>,
-       mark_h_johnson@raytheon.com, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       jackit-devel <jackit-devel@lists.sourceforge.net>,
-       Rui Nuno Capela <rncbc@rncbc.org>
-Subject: Re: [Fwd: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4]
-Message-ID: <20041029233117.6d29c383@mango.fruits.de>
-In-Reply-To: <20041029204220.GA6727@elte.hu>
-References: <20041029183256.564897b2@mango.fruits.de>
-	<20041029162316.GA7743@elte.hu>
-	<20041029163155.GA9005@elte.hu>
-	<20041029191652.1e480e2d@mango.fruits.de>
-	<20041029170237.GA12374@elte.hu>
-	<20041029170948.GA13727@elte.hu>
-	<20041029193303.7d3990b4@mango.fruits.de>
-	<20041029172151.GB16276@elte.hu>
-	<20041029172243.GA19630@elte.hu>
-	<20041029203619.37b54cba@mango.fruits.de>
-	<20041029204220.GA6727@elte.hu>
-X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 29 Oct 2004 17:15:06 -0400
+To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Cc: Pekka J Enberg <penberg@cs.helsinki.fi>, davem@davemloft.net,
+       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: net: generic netdev_ioaddr
+References: <1099044244.9566.0.camel@localhost>
+	<20041029131607.GU24336@parcelfarce.linux.theplanet.co.uk>
+	<courier.418290EC.00002E85@courier.cs.helsinki.fi>
+	<m3y8hpbaf9.fsf@defiant.pm.waw.pl>
+	<20041029193827.GV24336@parcelfarce.linux.theplanet.co.uk>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Fri, 29 Oct 2004 23:13:24 +0200
+In-Reply-To: <20041029193827.GV24336@parcelfarce.linux.theplanet.co.uk> (Al
+ Viro's message of "Fri, 29 Oct 2004 20:38:27 +0100")
+Message-ID: <m3u0sdb53f.fsf@defiant.pm.waw.pl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Oct 2004 22:42:20 +0200
-Ingo Molnar <mingo@elte.hu> wrote:
+Al Viro <viro@parcelfarce.linux.theplanet.co.uk> writes:
 
-> > compiles and boots fine. no observable change in xrun behaviour
-> > though. 
-> 
-> do you compile jackd from sources? If yes then could you try the patch
-> below? With this added, the kernel will produce a stackdump whenever
-> jackd does an 'illegal' sleep.
-> 
-> Also, could you do a small modification to kernel/sched.c and remove
-> this line:
-> 
-> 		send_sig(SIGUSR1, current, 1);
-> 
-> just to make it easier to get Jack up and running. (by default an
-> atomicity violation triggers a signal to make it easier to debug it in
-> userspace, but i suspect there will be alot of such violations so jackd
-> would stop all the time.)
+> What uses ->base_addr from the data returned by SIOCGIFMAP?
 
-[snip]
+ifconfig I think:
 
-will do so. btw: i think i'm a bit confused right now. What debugging
-features should i have enabled for this test?
+eth0      Link encap:Ethernet  HWaddr 00:50:BA:70:68:3E  
+          inet addr:10.0.0.2  Bcast:10.0.0.255  Mask:255.255.255.0
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:2796430 errors:1 dropped:0 overruns:0 frame:0
+          TX packets:4056563 errors:3 dropped:0 overruns:0 carrier:3
+          collisions:0 txqueuelen:1000 
+          RX bytes:285233613 (272.0 Mb)  TX bytes:1252627624 (1194.5 Mb)
+          Interrupt:10 Base address:0x4000 
 
-flo
+With this driver it happens to be MMIO address.
+
+I understand presenting this value to users might have some value:
+it can help determine the physical port/card for a given netdev.
+But it should be something like a description text set by the driver
+(ie. containing PCI bus/device, or even ISA address for ISA non-PnP
+card, possibly with other information).
+
+It seems while some devices use SIOCGIFMAP (ie. by setting the fields
+in netdev struct), support for SIOCSIFMAP doesn't make sense for most
+hardware.
+
+Drivers using SIOCSIFMAP (selecting media only?):
+arch/cris/arch-v10/drivers/ethernet.c:    dev->set_config = e100_set_config;
+drivers/net/au1000_eth.c:     dev->set_config = &au1000_set_config;
+drivers/net/sis900.c: net_dev->set_config = &sis900_set_config;
+drivers/net/arm/etherh.c:     dev->set_config         = etherh_set_config;
+drivers/net/pcmcia/3c589_cs.c:    dev->set_config = &el3_config;
+drivers/net/pcmcia/fmvj18x_cs.c:    dev->set_config = &fjn_config;
+drivers/net/pcmcia/nmclan_cs.c:    dev->set_config = &mace_config;
+drivers/net/pcmcia/pcnet_cs.c:    dev->set_config = &set_config;
+drivers/net/pcmcia/smc91c92_cs.c:    dev->set_config = &s9k_config;
+drivers/net/pcmcia/xirc2ps_cs.c:    dev->set_config = &do_config;
+drivers/net/wan/sdla.c:       dev->set_config         = sdla_set_config;
+drivers/net/wireless/ray_cs.c:    dev->set_config = &ray_dev_config;
+
+I think I would mark this stuff obsolete, and remove when the drivers
+are updated (if they need an update at all, they may support
+ethtool/mii-tool already).
+-- 
+Krzysztof Halasa

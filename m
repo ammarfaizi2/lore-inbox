@@ -1,41 +1,26 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261632AbTHSXUN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 19:20:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261641AbTHSXUN
+	id S261332AbTHSXP4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 19:15:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261341AbTHSXP4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 19:20:13 -0400
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:9911 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id S261632AbTHSXUJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 19:20:09 -0400
-Message-ID: <3F42B088.1020101@myrealbox.com>
-Date: Tue, 19 Aug 2003 16:19:36 -0700
-From: walt <wa1ter@myrealbox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
+	Tue, 19 Aug 2003 19:15:56 -0400
+Received: from HRSERVER2.HR.UPENN.EDU ([165.123.39.88]:27403 "EHLO
+	hrserver2.hr.upenn.edu") by vger.kernel.org with ESMTP
+	id S261332AbTHSXPq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 19:15:46 -0400
+Message-ID: <D6AA2F7EFFEED311890C009027724D4A100051@HRSERVER2.HR.UPENN.EDU>
+From: "Deegan, Dennis" <Deegan@hr.upenn.edu>
+To: linux-kernel@vger.kernel.org
+Subject: Out of Office AutoReply: Approved
+Date: Tue, 19 Aug 2003 19:15:45 -0400
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Broadcom gigabit ethernet question for Jeff? (correction!)
-References: <3F428E5C.80801@myrealbox.com> <3F4296B4.3050505@pobox.com>
-In-Reply-To: <3F4296B4.3050505@pobox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> walt wrote:
-> 
->> This problem first appeared in 2.4.21-rc5.  Before that the chip 
->> worked fine for me.
-> 
-> 
-> Now that's an interesting piece of information.  I'll take a look at 
-> what changes in -rc5..
-
-Good grief, I'm getting dyslexic.  That should be pre5 NOT rc5.  I hope
-you didn't waste any time on that mistake, sorry.
-
+Thank you for your message.  I am out of the office from 8/18 to 8/25.
+Please contact Toni Chambers or Sharon Harris if you require immediate
+assistance. 

@@ -1,71 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261424AbUJXKN2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261458AbUJXKRe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261424AbUJXKN2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 06:13:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261419AbUJXKLb
+	id S261458AbUJXKRe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 06:17:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261431AbUJXKRe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 06:11:31 -0400
-Received: from fw.osdl.org ([65.172.181.6]:52203 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261424AbUJXKK6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 06:10:58 -0400
-Date: Sun, 24 Oct 2004 03:08:44 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Martin Schlemmer <azarah@nosferatu.za.org>
-Cc: torvalds@osdl.org, sam@ravnborg.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.9-bk7] Select cpio_list or source directory for
- initramfs image updates [u]
-Message-Id: <20041024030844.18f2fedd.akpm@osdl.org>
-In-Reply-To: <1098533188.668.9.camel@nosferatu.lan>
-References: <200410200849.i9K8n5921516@mail.osdl.org>
-	<1098533188.668.9.camel@nosferatu.lan>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 24 Oct 2004 06:17:34 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:22283 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S261458AbUJXKPP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Oct 2004 06:15:15 -0400
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: mike lewis <lachlanlewis@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc4 stability issues
+Date: Sun, 24 Oct 2004 13:15:04 +0300
+User-Agent: KMail/1.5.4
+References: <b98c6b1a041024013067e06b0a@mail.gmail.com>
+In-Reply-To: <b98c6b1a041024013067e06b0a@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200410241315.04728.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin Schlemmer [c]" <azarah@nosferatu.za.org> wrote:
->
-> Here is some updates after talking to Sam Ravnborg.  He did not yet come
->  back to me, I am not sure if I understood 100% what he meant, but hopefully
->  somebody else will be so kind as to comment.
+On Sunday 24 October 2004 11:30, mike lewis wrote:
+> Hi All,
 > 
->  Here is a shortish changelog:
+> I wouldn't consider my self a complete newb, but you may, so feel free
+> to direct me to the newb list if this is where it should be.
 > 
->  - Fix an issue reported by Esben Nielsen <simlo@phys.au.dk> (with
->  suggestion from Sam Ravnborg).  Build failed if $O (output dir) was
->  set.  This is done by pre-pending $srctree if the shipped list is
->  referenced.
+> I've recently come across (saved and purchased) a dvb card which is
+> only supported by cvs linux-dvb of a few days ago, which in turn
+> willonly compile on 2.6.9-rc4.  So I upgraded my kernel to 2.6.9-rc4 a
+> week ago, and now I have stability issues and I'm not sure where to
+> turn.  I looked through the changelog from 2.6.8 to 2.6.9 and say a
+> lot a ACPI changes, so I turned acpi off in my kernel to see if this
+> was the source.. It is not..
 > 
->  - Also fix calling of gen_initramfs_list.sh if $O (output dir) is set
->  by pre-pending $srctree.
+> The device is remote, so I can only ssh / telnet in to debug.  I'm
+> wondering what steps I can take to establish why this particular
+> flavour of kernel is not happy on my system.   One issue I have, is
+> how to establish the cause of the system freezes?  I'm assuming a
+> segfault of some kind or another would be logged somewhere, but they
+> do not appear in /var/log/messages..
 > 
->  - I also moved initramfs_list to initramfs_list.shipped, to make sure we
->  always have an 'fall back' list (say you unset CONFIG_INITRAMFS_SOURCE
->  and deleted your custom intramfs source directory, then building will not
->  fail).
-> 
->  - Kbuild style cleanups.
-> 
->  - Improved error checking.  For example gen_initramfs_list.sh will
->  output a simple list if the target directory is empty, and we verify
->  that the shipped initramfs_list is present before touching it.
-> 
->  - Only update the temp initramfs_list if the source list/directory have
->  changed.
-> 
->  - Cleanup temporary initramfs_list when 'make clean' or 'make mrproper'
->  is called.
-> 
-> 
->  This patch should apply to both 2.6.9-bk7 and 2.6.9-mm1.
+> Is there any way to log the segfault cause to post/investigate?
 
-hmm.  You have a patch in the email body and two slightly different patches
-as attachments.  All bases covered ;)
-
-I'll stick
-"select-cpio_list-or-source-directory-for-initramfs-image-v7.patch" into
--mm but would prefer that this patch come in via Sam's tree please.
+Start with describing your problem in detail.
+--
+vda
 

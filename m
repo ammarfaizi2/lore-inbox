@@ -1,32 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261467AbTCGKHx>; Fri, 7 Mar 2003 05:07:53 -0500
+	id <S261477AbTCGKIQ>; Fri, 7 Mar 2003 05:08:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261474AbTCGKHx>; Fri, 7 Mar 2003 05:07:53 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:31110 "EHLO
-	mtvmime03.VERITAS.COM") by vger.kernel.org with ESMTP
-	id <S261467AbTCGKHw>; Fri, 7 Mar 2003 05:07:52 -0500
-Date: Fri, 7 Mar 2003 10:20:12 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Steven Schaefer <sschaefer1@woh.rr.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: mmap(.., .., PROT_READ, MAP_PRIVATE, .., ..) functionality
- question
-In-Reply-To: <001f01c2e463$9e9ed5e0$de00000a@woh.rr.com>
-Message-ID: <Pine.LNX.4.44.0303071019320.2236-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S261474AbTCGKIQ>; Fri, 7 Mar 2003 05:08:16 -0500
+Received: from pop.gmx.de ([213.165.65.60]:62262 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S261477AbTCGKIH>;
+	Fri, 7 Mar 2003 05:08:07 -0500
+Message-Id: <5.2.0.9.2.20030307111755.00ce7848@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
+Date: Fri, 07 Mar 2003 11:23:08 +0100
+To: Ingo Molnar <mingo@elte.hu>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: [patch] "interactivity changes", sched-2.5.64-B2
+Cc: Andrew Morton <akpm@digeo.com>, Linus Torvalds <torvalds@transmeta.com>,
+       Robert Love <rml@tech9.net>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0303071049500.7326-100000@localhost.localdom
+ ain>
+References: <5.2.0.9.2.20030307103430.00c87df8@pop.gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Mar 2003, Steven Schaefer wrote:
-> 
-> Doesn't mmap(), mind you with PROT_READ and MAP_PRIVATE, first copy the
-> contents of the file into the swap space and then when the data is accessed
-> into physical RAM before the CPU can get to it?
+At 11:03 AM 3/7/2003 +0100, Ingo Molnar wrote:
 
-No, it does not copy the contents of the file into swap space.
+>i've attached the -B2 patch (against vanilla 2.5.64).....
 
-Hugh
+(I'll test and report back in an hour or so.  RL honey-do's are SCHED_RR... 
+if a guy knows what's good for him;)
 

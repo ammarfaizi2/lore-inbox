@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316523AbSFEWcJ>; Wed, 5 Jun 2002 18:32:09 -0400
+	id <S316492AbSFEWbz>; Wed, 5 Jun 2002 18:31:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316532AbSFEWcJ>; Wed, 5 Jun 2002 18:32:09 -0400
-Received: from mail1.mail.iol.ie ([194.125.2.192]:17043 "EHLO
-	mail1.mail.iol.ie") by vger.kernel.org with ESMTP
-	id <S316523AbSFEWcI>; Wed, 5 Jun 2002 18:32:08 -0400
-Message-ID: <3CFE9181.7090603@antefacto.com>
-Date: Wed, 05 Jun 2002 23:32:33 +0100
-From: Padraig Brady <padraig@antefacto.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-CC: Andrew Morton <akpm@zip.com.au>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [rfc] "laptop mode"
-In-Reply-To: <3CFD50B9.259366F4@zip.com.au> <1023272806.15438.106.camel@bip> <3CFDEA79.2980BF8D@zip.com.au> <3CFE5A50.9010002@mandrakesoft.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S316523AbSFEWby>; Wed, 5 Jun 2002 18:31:54 -0400
+Received: from to-velocet.redhat.com ([216.138.202.10]:65272 "EHLO
+	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
+	id <S316492AbSFEWbx>; Wed, 5 Jun 2002 18:31:53 -0400
+Date: Wed, 5 Jun 2002 18:31:52 -0400
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Steve Lord <lord@sgi.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [RFC] 4KB stack + irq stack for x86
+Message-ID: <20020605183152.H4697@redhat.com>
+In-Reply-To: <20020604225539.F9111@redhat.com> <1023315323.17160.522.camel@jen.americas.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> I've also thought in the past of having a "machine_policy" global 
-> variable, which could indicate to random userspace and kernel code a 
-> "laptop mode" or "file server mode" or "database server mode" etc.
+On Wed, Jun 05, 2002 at 05:15:23PM -0500, Steve Lord wrote:
+> Just what are the tasks you normally run - and how many code
+> paths do you think there are out there which you do not run. XFS
+> might get a bit stack hungry in places, we try to keep it down,
+> but when you get into file system land things can stack up quickly:
 
-I'm not too sure this level of abstraction is needed by userspace.
-It would be enough if the appropriate things were all controlable
-in /proc/sys/ etc. and then you just have:
-/etc/sysctl.{laptop,server,desktop}.conf
-It would be better to have it explicit in userspace as you're
-always going to need to tweak things IMHO.
+You already lose in that case today, as multiple irqs may come in 
+from devices and eat up the stack.  The whole thing that led me down 
+this line is seeing it happen in real life.  What remains to be done 
+is to write an automated stack depth checker based on possible call 
+chains that will calculate the maximum possible stack depth.  I've 
+already got scripts for dumping the top stack users, it's a matter 
+of writing code that can show us the possible call chains.
 
-Padraig.
-
+		-ben

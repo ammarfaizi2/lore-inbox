@@ -1,49 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129905AbQLUMJG>; Thu, 21 Dec 2000 07:09:06 -0500
+	id <S129718AbQLUM0E>; Thu, 21 Dec 2000 07:26:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130193AbQLUMI4>; Thu, 21 Dec 2000 07:08:56 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:62731 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129905AbQLUMIp>; Thu, 21 Dec 2000 07:08:45 -0500
-Date: Thu, 21 Dec 2000 07:45:12 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Andrew Morton <andrewm@uow.edu.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] swap write clustering
-In-Reply-To: <3A41E522.B6C65F21@uow.edu.au>
-Message-ID: <Pine.LNX.4.21.0012210721440.1991-100000@freak.distro.conectiva>
+	id <S130193AbQLUMZx>; Thu, 21 Dec 2000 07:25:53 -0500
+Received: from delta.ds2.pg.gda.pl ([153.19.144.1]:63411 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S129718AbQLUMZm>; Thu, 21 Dec 2000 07:25:42 -0500
+Date: Thu, 21 Dec 2000 12:54:10 +0100 (MET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>, mingo@chiara.elte.hu
+Subject: Re: Startup IPI (was: Re: test13-pre3)
+In-Reply-To: <103B2E14508A@vcnet.vc.cvut.cz>
+Message-ID: <Pine.GSO.3.96.1001221123639.9979B-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 20 Dec 2000, Petr Vandrovec wrote:
 
-On Thu, 21 Dec 2000, Andrew Morton wrote:
+> /usr/bin/time says that program runs for 3.40 - 3.56secs, so after dividing
 
-> Marcelo Tosatti wrote:
-> > 
-> > Hi,
-> > 
-> > Basically this new swap_writepage function looks for dirty swapcache pages
-> > which may be contiguous (reverse and forward searching wrt to the physical
-> > address of the page being passed to swap_writepage) and builds a page list
-> > which is written "at once".
-> > 
-> > The patch is against test13pre3.
-> > 
-> > Comments are welcome. (especially about the __find_page_nolock
-> > modification)
-> > 
-> 
-> Have you any benchmarks for this?
+ Well, the test looks reasonable if the system load is low.  Still the
+performance is surprisingly low -- after changing the transfer width to 16
+bits I ran the test on my dual P5MMX system equipped with an old ISA VGA
+card and I achieved 10.74ms for VGA RAM accesses and 586.6us for uncached
+main memory accesses. 
 
-Not yet. 
+> by 1000 I get 3.4ms... Maybe I should complain to VIA or to Matrox that
+> it is piece of crap ?
 
-Under some stress tests on a 16mb machine, around 30% of the clustered
-swapouts were reaching the limit of pages, which was 16. 
+ For VIA -- definitely.  I don't think Matrox is at fault, though. 
 
-Anyway, I hope to do some useful benchmarking today.
+> My order was simple: no rambus memory, dual PIII at least on 800MHz
+> and UDMA66. Yes, maybe I should buy ServerWorks instead of VIA, but 
+> I hoped...
+
+ At least ServerWorks claims they are willing to cooperate with us
+although results seem to be questionable so far... 
+
+  Maciej
+
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

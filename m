@@ -1,40 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132825AbRDXGgc>; Tue, 24 Apr 2001 02:36:32 -0400
+	id <S132831AbRDXGvf>; Tue, 24 Apr 2001 02:51:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132829AbRDXGgX>; Tue, 24 Apr 2001 02:36:23 -0400
-Received: from ns2.Deuroconsult.com ([193.226.167.164]:2053 "EHLO
-	marte.Deuroconsult.com") by vger.kernel.org with ESMTP
-	id <S132825AbRDXGgO>; Tue, 24 Apr 2001 02:36:14 -0400
-Date: Tue, 24 Apr 2001 09:37:17 +0300 (EEST)
-From: Catalin BOIE <util@deuroconsult.ro>
-To: linux-kernel@vger.kernel.org
-Subject: disable_irq don't work corectly (ps2/kbd related)
-Message-ID: <Pine.LNX.4.20.0104240918240.2993-100000@marte.Deuroconsult.com>
+	id <S132834AbRDXGvZ>; Tue, 24 Apr 2001 02:51:25 -0400
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:59878 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S132831AbRDXGvR>; Tue, 24 Apr 2001 02:51:17 -0400
+From: Christoph Rohland <cr@sap.com>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+        "David L. Parsley" <parsley@linuxjedi.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: hundreds of mount --bind mountpoints?
+In-Reply-To: <Pine.GSO.4.21.0104231133120.3617-100000@weyl.math.psu.edu>
+Organisation: SAP LinuxLab
+In-Reply-To: <Pine.GSO.4.21.0104231133120.3617-100000@weyl.math.psu.edu>
+Message-ID: <m33dazqr86.fsf@linux.local>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Bryce Canyon)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Date: 24 Apr 2001 08:33:12 +0200
+X-SAP: out
+X-SAP: out
+X-SAP: out
+X-SAP: out
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, guys!
+Hi Alexander,
 
-I made a module that in init_module issue a "disable_irq (1)" and in
-remove_module "enable_irq (1)".
+On Mon, 23 Apr 2001, Alexander Viro wrote:
+>> I like it. ext2fs does the same, so there should be no VFS
+>> hassles involved. Al?
+> 
+> We should get ext2 and friends to move the sucker _out_ of struct
+> inode.  As it is, sizeof(struct inode) is way too large. This is 2.5
+> stuff, but it really has to be done. More filesystems adding stuff
+> into the union is a Bad Thing(tm). If you want to allocates space -
+> allocate if yourself; ->clear_inode() is the right place for freeing
+> it.
 
-Of course that I connect from the network to remove the module :))
+Yes, I agree that the union is way too large and I did not plan to
+extend it but simply use the size it has.
 
-This module don't works as expected. It disables the keyboard and the PS/2
-mouse (irq 12)! Not from the beggining. After I insert the module, the
-mouse works till I press a key.
+if (strlen(path) < sizeof(inode->u))
+        inline the symlink;
+else
+        put it into the page cache;
 
-What can be the problem?
+So if somebody really cleans up the private inode structures it will
+not trigger that often any more and we perhaps have to rethink the
+idea.
 
-Thank you very much!
+But also if we use struct shmem_inode_info which is 92 bytes right now
+we would inline all symlinks on my machine.
 
----
-Catalin(ux) BOIE
-catab@deuroconsult.ro
-A new Linux distribution: http://l13plus.deuroconsult.ro
-http://www2.deuroconsult.ro/~catab
+If we reduced its size to 32 (which could be easily done) we would
+still inline 6642 out of 9317 symlinks on my machine. That's not bad.
+
+Greetings
+		Christoph
 
 

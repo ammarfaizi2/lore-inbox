@@ -1,51 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261648AbVCYOct@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261645AbVCYOew@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261648AbVCYOct (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 09:32:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261649AbVCYOct
+	id S261645AbVCYOew (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 09:34:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261649AbVCYOew
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 09:32:49 -0500
-Received: from rproxy.gmail.com ([64.233.170.204]:60096 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261648AbVCYOcr (ORCPT
+	Fri, 25 Mar 2005 09:34:52 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:42391 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261645AbVCYOet (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 09:32:47 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=sNF31F+VYysYFwjmxVTZsBzv3wFXuVrxfd/PRfDz5Te3aW09IOaCF8AQcMLf5SBy4AglKTF0Jy9/4jjm0tj44YHcPt67C/Q5MteZJ/iIPCJLENJVIb2alcyj6tyqGKBiyut0iw6yN+CGvdnE8KTP9x02n99EgKpZb/jk9Z+1f7M=
-Message-ID: <c25b253205032506321055bc56@mail.gmail.com>
-Date: Fri, 25 Mar 2005 06:32:47 -0800
-From: Richard Hubbell <richard.hubbell@gmail.com>
-Reply-To: Richard Hubbell <richard.hubbell@gmail.com>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: CPU scheduler tests
-Cc: Kirill Korotaev <dev@sw.ru>, linux-kernel@vger.kernel.org
-In-Reply-To: <20050325083224.GA23407@elte.hu>
+	Fri, 25 Mar 2005 09:34:49 -0500
+Date: Fri, 25 Mar 2005 15:34:41 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: [patch] xfrm_policy destructor fix
+Message-ID: <20050325143440.GA4516@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-References: <4243C243.10401@sw.ru> <20050325083224.GA23407@elte.hu>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 25 Mar 2005 09:32:24 +0100, Ingo Molnar <mingo@elte.hu> wrote:
-> 
-> * Kirill Korotaev <dev@sw.ru> wrote:
-> 
-> > Can someone (Ingo?) recommend me CPU scheduler tests which are usually 
-> > used to test CPU scheduler perfomance, context switch performance, 
-> > SMP/migration/balancing performance etc.?
-> 
-> it's not really the microbenchmarks that matter (although they obviously 
-> are part of the picture), but actual application performance. There are 
-> dozens of workloads that matter. Kernel compilation timings are an 
-> obvious priority :-), but there are other things like SPECsdet, STREAM, 
-> dbt3-pgsql, kernbench, AIM7, various Java benchmarks and more.
-> 
-> now that scheduler changes have calmed down somewhat, we are mainly 
-> looking for regressions, and are checking schedstats output to see how 
-> 'healthy' a given workload behaves.
 
-Do you keep the results available somewhere they can be browsed?
+the patch below fixes a bug that i encountered while running a 
+PREEMPT_RT kernel, but i believe it should be fixed in the generic 
+kernel too. xfrm_policy_kill() queues a destroyed policy structure to 
+the GC list, and unlocks the policy->lock spinlock _after_ that point.  
+This created a scenario where GC processing got to the new structure 
+first, and kfree()d it - then the write_unlock_bh() was done on the 
+already kfreed structure. There is no guarantee that GC processing will 
+be done after policy->lock has been dropped and softirq processing has 
+been enabled.
 
-Richard
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+
+--- linux/net/xfrm/xfrm_policy.c.orig
++++ linux/net/xfrm/xfrm_policy.c
+@@ -301,18 +301,22 @@ static void xfrm_policy_gc_task(void *da
+ static void xfrm_policy_kill(struct xfrm_policy *policy)
+ {
+ 	write_lock_bh(&policy->lock);
+-	if (policy->dead)
+-		goto out;
+-
++	if (policy->dead) {
++		write_unlock_bh(&policy->lock);
++		return;
++	}
+ 	policy->dead = 1;
+ 
+ 	spin_lock(&xfrm_policy_gc_lock);
+ 	list_add(&policy->list, &xfrm_policy_gc_list);
++	/*
++	 * Unlock the policy (out of order unlocking), to make sure
++	 * the GC context does not free it with an active lock:
++	 */
++	write_unlock_bh(&policy->lock);
+ 	spin_unlock(&xfrm_policy_gc_lock);
+-	schedule_work(&xfrm_policy_gc_work);
+ 
+-out:
+-	write_unlock_bh(&policy->lock);
++	schedule_work(&xfrm_policy_gc_work);
+ }
+ 
+ /* Generate new index... KAME seems to generate them ordered by cost

@@ -1,51 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314811AbSEaES6>; Fri, 31 May 2002 00:18:58 -0400
+	id <S314885AbSEaEqT>; Fri, 31 May 2002 00:46:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314829AbSEaES5>; Fri, 31 May 2002 00:18:57 -0400
-Received: from [210.19.28.11] ([210.19.28.11]:62118 "EHLO
-	dZuRa.int.Vault-ID.com") by vger.kernel.org with ESMTP
-	id <S314811AbSEaES4> convert rfc822-to-8bit; Fri, 31 May 2002 00:18:56 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Corporal Pisang <corporal_pisang@counter-strike.com.my>
-Organization: Counter-Strike.com.my
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.19 compile error (undefined reference to `idescsi_init')
-Date: Fri, 31 May 2002 12:25:22 +0800
-User-Agent: KMail/1.4.1
+	id <S314929AbSEaEqS>; Fri, 31 May 2002 00:46:18 -0400
+Received: from dsl-213-023-038-015.arcor-ip.net ([213.23.38.15]:21728 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S314885AbSEaEqS>;
+	Fri, 31 May 2002 00:46:18 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Skip Ford <skip.ford@verizon.net>,
+        Thunder from the hill <thunder@ngforever.de>
+Subject: KBuild 2.5 Migration
+Date: Fri, 31 May 2002 06:46:02 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020531011600.ENOZ28280.pop018.verizon.net@pool-141-150-239-239.delv.east.verizon.net> <Pine.LNX.4.44.0205302129120.29405-100000@hawkeye.luckynet.adm> <20020531035702.EOBK28280.pop018.verizon.net@pool-141-150-239-239.delv.east.verizon.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200205311225.22336.corporal_pisang@counter-strike.com.my>
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17DeIc-0007kt-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Friday 31 May 2002 06:01, Skip Ford wrote:
+> Thunder from the hill wrote:
+> > On Thu, 30 May 2002, Skip Ford wrote:
+> > > I could be wrong but I think Linus wants small patches that slowly
+> > > convert kbuild24 to kbuild25, and not just a chopped up wholesale
+> > > kbuild25.
+> > 
+> > That's what we have. If you want to try kbuild-2.5, you have to use the
+> > Makefile-2.5 explicitly. If you don't explicitly do that, you're using 
+> > kbuild-2.4, so you got a pretty good chance to evaluate kbuild-2.5 and 
+> > then decide whether you leave it or pull it. Enough migration?
+> 
+> That's not a migration at all.  That's two different build systems side
+> by side.
+> 
+> A migration would mean that there is only ever 1 build system.  Send
+> patches that would convert what we have now to kbuild25 over the next 10
+> kernel releases or so.  That's a migration.
 
-I get this error while trying to compile 2.5.19.
+You're 'improving' the meaning of the term a little.  Suppose you're
+going to migrate all the servers in a company from Windows to Linux, do
+you come up with a succesion of intermediate operating systems?  IOW, in
+a migration, it is the users who migrate, not the software.  I believe
+the term you were thinking of is 'evolution'.
 
-make[1]: Leaving directory `/usr/src/linux/arch/i386/pci'
-Generating build number
-make[1]: Entering directory `/usr/src/linux/init'
-Generating ../include/linux/compile.h
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes 
--Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common 
--pipe -mpreferred-stack-boundary=2 -march=athlon     
--DKBUILD_BASENAME=version  -c -o version.o version.c
- ld -m elf_i386  -r -o init.o main.o version.o do_mounts.o
-make[1]: Leaving directory `/usr/src/linux/init'
-ld -m elf_i386 -T /usr/src/linux/arch/i386/vmlinux.lds -e stext 
-arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/init.o 
---start-group arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o 
-mm/mm.o fs/fs.o ipc/ipc.o /usr/src/linux/arch/i386/lib/lib.a 
-/usr/src/linux/lib/lib.a /usr/src/linux/arch/i386/lib/lib.a 
-drivers/built-in.o arch/i386/pci/pci.o net/network.o --end-group -o vmlinux
-drivers/built-in.o: In function `ata_module_init':
-drivers/built-in.o(.text.init+0x5666): undefined reference to `idescsi_init'
-make: *** [vmlinux] Error 1
-
-
-Regards.
 -- 
--Ubaida-
- 
+Daniel

@@ -1,34 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268589AbUI2Pky@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268580AbUI2PlR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268589AbUI2Pky (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 11:40:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268580AbUI2Pky
+	id S268580AbUI2PlR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 11:41:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268652AbUI2PlR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 11:40:54 -0400
-Received: from mail-relay-1.tiscali.it ([213.205.33.41]:37587 "EHLO
-	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
-	id S268589AbUI2Pkd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 11:40:33 -0400
-Date: Wed, 29 Sep 2004 17:40:25 +0200
-From: Andrea Arcangeli <andrea@novell.com>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: heap-stack-gap for 2.6
-Message-ID: <20040929154025.GC22008@dualathlon.random>
-References: <20040925162252.GN3309@dualathlon.random> <1096272553.6572.3.camel@laptop.fenrus.com> <20040927130919.GE28865@dualathlon.random> <20040928194351.GC5037@devserv.devel.redhat.com> <20040928221933.GG4084@dualathlon.random> <20040929060521.GA6975@devserv.devel.redhat.com> <20040929141151.GJ4084@dualathlon.random> <20040929142521.GB22928@devserv.devel.redhat.com> <20040929145344.GA22008@dualathlon.random> <20040929150148.GA14722@devserv.devel.redhat.com>
-Mime-Version: 1.0
+	Wed, 29 Sep 2004 11:41:17 -0400
+Received: from zero.aec.at ([193.170.194.10]:36877 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S268580AbUI2PlM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 11:41:12 -0400
+To: Timur Tabi <timur.tabi@ammasso.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: get_user_pages() still broken in 2.6
+References: <2JyXo-77W-19@gated-at.bofh.it> <2JzgH-7rT-11@gated-at.bofh.it>
+	<2JOpu-1y1-21@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Wed, 29 Sep 2004 17:41:09 +0200
+In-Reply-To: <2JOpu-1y1-21@gated-at.bofh.it> (Timur Tabi's message of "Wed,
+ 29 Sep 2004 17:20:14 +0200")
+Message-ID: <m3acv93wx6.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040929150148.GA14722@devserv.devel.redhat.com>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 29, 2004 at 05:01:48PM +0200, Arjan van de Ven wrote:
-> and you would have known it too if you had looked up the changeset that
-> implemented flex mmap since it was documented there.
+Timur Tabi <timur.tabi@ammasso.com> writes:
 
-I did read the source from kernel CVS and I don't see any mention of
-that in the sourcecode, I value source more than metadata in CVS logs.
+> Christoph Hellwig wrote:
+>
+>> get_user_pages locks the page in memory.  It doesn't do anything about ptes.
+>
+> I don't understand the difference.  I thought a locked page is one
+> that stays in memory (i.e. isn't swapped out) and whose physical
+> address never changes.  Is that wrong?  All I need to do is keep a
+> page in memory at the same physical address until I'm done with it.
+
+After get_user_pages you don't need the page tables anymore. 
+The struct page *s returned by it can be used for DMA.
+
+-Andi
+

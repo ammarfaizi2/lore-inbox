@@ -1,58 +1,150 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267613AbUG3Fi2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267616AbUG3FkA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267613AbUG3Fi2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jul 2004 01:38:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267616AbUG3Fi2
+	id S267616AbUG3FkA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jul 2004 01:40:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267620AbUG3FkA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jul 2004 01:38:28 -0400
-Received: from pop.gmx.de ([213.165.64.20]:39584 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S267613AbUG3Fi0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jul 2004 01:38:26 -0400
-X-Authenticated: #4512188
-Message-ID: <4109DECF.5010606@gmx.de>
-Date: Fri, 30 Jul 2004 07:38:23 +0200
-From: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040710)
-X-Accept-Language: en-us, en
+	Fri, 30 Jul 2004 01:40:00 -0400
+Received: from cust.18.243.adsl.cistron.nl ([62.216.18.243]:55713 "EHLO
+	nemiahone.tser.org") by vger.kernel.org with ESMTP id S267614AbUG3Fj1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jul 2004 01:39:27 -0400
+From: "Reinder" <tser@dwaal.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: RE: --- (or anyone else) one small i2c question. 
+Date: Fri, 30 Jul 2004 07:40:23 +0200
 MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-CC: ck kernel mailing list <ck@vds.kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.7-ck6
-References: <4109A933.60203@kolivas.org> <4109D85A.3030003@gmx.de> <4109DB13.4000705@kolivas.org>
-In-Reply-To: <4109DB13.4000705@kolivas.org>
-X-Enigmail-Version: 0.84.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+In-Reply-To: <20040717152828.3A8FA14DC10A@nemiahone.tser.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.181
+Thread-Index: AcRqC7b2AgRIn299RVWY9iczlyUCugB2PO/gAoR6Y6A=
+Message-Id: <20040730063749.B9E5F14DC10A@nemiahone.tser.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hm, Greg must be on virtual holiday.
 
-Con Kolivas wrote:
-| Prakash K. Cheemplavam wrote:
-|
-|> Con Kolivas wrote:
-|> | Patchset update:
-|>
-|> Hi, what happened to the incremental updates, ie ck5->ck6? I don't want
-|> to reverse ck5 and then apply ck6, as my kernel is furthermore patched
-|> and this complicates stuff...
-|
-| http://ck.kolivas.org/patches/2.6/2.6.7/from_2.6.7-ck5_to_2.6.7-ck6.bz2
-|
+Yoo-hoo?
 
-Thanx, new kernel is up and running. :)
+Anyone else, then alive?
 
-Prakash
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+I hope open source doesn't mean "Closed community :)"
+Here I am. I want to contribute some code. But I need some help, because not
+everything can be done alone on this planet. Sometimes you need guidance.
 
-iD8DBQFBCd7PxU2n/+9+t5gRAgM2AJ40Bx/XbnwHerD5XNrhKGI1WEHAVwCg0VN5
-KBHq1xjOAeWkd+O+a8Hg34c=
-=S6mY
------END PGP SIGNATURE-----
+It's better to talk, and send people away on a search, then to ignore
+people.
+
+And all I want is some small help with i2c.
+
+Reinder.
+
+
+
+
+
+
+
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Reinder
+Sent: Saturday, July 17, 2004 16:30
+To: linux-kernel@vger.kernel.org
+Subject: Greg (or anyone else) one small i2c question. 
+
+Greg,
+
+While having some fun, with the old 2.4 vt8231, ""porting"" that to the 2.6
+Branche, my eyes raised some strange question, which I hope you can answer.
+
+>From the Sysf-Interface, it states:
+
+temp[1-4]_max	Temperature max value.
+		Unit: Milidegrees Celsius
+		Read/Write value.
+
+
+I far as I know, one Milidegrees is one thousand Grade Celsius.
+
+The actual Reading, from the vt8231 inside the io space is an 8 bit value.
+It contains for example a number "78" in "Celsius" for de 1f CPU temp
+location.
+
+Now, from various documentations floating around, for some undocumented or
+well hidden reason, this mostly is multiplied by 0.88 giving a reading of
+68.84
+
+I assume somebody thought about it and calculated that m that was a nice
+correction value.
+
+Converting it to the required units, would be 68.84*1000 = 68840
+Or, to avoid Floating points: ( (68*1000)*880)/1000 = 68840 Milidegrees
+Celsius
+
+
+That was, when life was easy.
+
+However, my bet is somebody figured out, that bit 7 till 6 in the reserved
+area from area 4b, contains also bits of temperature information. (Although
+the datasheet I have, describe that area as "Reserved") 
+
+The value is readed, Anded with 192, then shifted to right by 6 to get the
+reading.  "0,1,2,3". We assume the value is 3.
+
+Assuming that, this Value is stored in the same Magic Celsius Value,
+Multiplied by 880, this gives a correction of 2640 Milidegrees.
+
+That is, if it where separate 8 and 2 bit values. But As I can see, from the
+original code, it assumed as 1 10bit value.
+
+Thus the first value 79 is shifted to left by 2, and the second value is
+orred into it.  Which gives (79>>2) = 316. 
+Plus the low value "3" = 319  
+
+Returning, this, in the old version, to Human readable format, it was
+multiplied by 10, and then divided by 4. Giving 797.5
+
+I assume, that something has changed, with the sensor output format.
+Thus, the new return formula would be: 
+	Multi by 1000, divide by 4.
+ Now we have 79750. 
+
+
+
+Throwing in the 0.088 Correction Factor the final result is: 
+79750* 0.088 = 70180 Milidegrees Celsius
+
+Or 319 * 880 /4 = 70180
+
+Or 319 * 220 = 70180
+
+If this was "temp3" , it would result in 1 sensors.conf line:
+
+Compute temp3 @
+
+
+
+Is my final concussing Right? 
+
+If so, I will move on to the voltage part :)
+If not, I Hope somebody can point me out where to go...
+
+
+http://tser.org/vt8231/
+
+		Regards
+			Reinder Kraaij.
+
+
+
+
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+

@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131335AbRCHM0M>; Thu, 8 Mar 2001 07:26:12 -0500
+	id <S131339AbRCHM2c>; Thu, 8 Mar 2001 07:28:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131339AbRCHM0C>; Thu, 8 Mar 2001 07:26:02 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:34291 "EHLO
+	id <S131340AbRCHM2W>; Thu, 8 Mar 2001 07:28:22 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:55027 "EHLO
 	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S131335AbRCHMZu>; Thu, 8 Mar 2001 07:25:50 -0500
-Date: Thu, 8 Mar 2001 09:24:13 -0300 (BRST)
+	id <S131339AbRCHM2S>; Thu, 8 Mar 2001 07:28:18 -0500
+Date: Thu, 8 Mar 2001 09:25:55 -0300 (BRST)
 From: Rik van Riel <riel@conectiva.com.br>
 X-X-Sender: <riel@duckman.distro.conectiva>
 To: Anton Altaparmakov <aia21@cam.ac.uk>
-cc: Andrew Morton <andrewm@uow.edu.au>, <linux-kernel@vger.kernel.org>
+cc: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+        Andrew Morton <andrewm@uow.edu.au>, <linux-kernel@vger.kernel.org>
 Subject: Re: Questions - Re: [PATCH] documentation for mm.h
-In-Reply-To: <5.0.2.1.2.20010308095213.00a59040@pop.cus.cam.ac.uk>
-Message-ID: <Pine.LNX.4.33.0103080923310.1409-100000@duckman.distro.conectiva>
+In-Reply-To: <5.0.2.1.2.20010308110922.00a41a60@pop.cus.cam.ac.uk>
+Message-ID: <Pine.LNX.4.33.0103080925010.1409-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Thu, 8 Mar 2001, Anton Altaparmakov wrote:
-> At 22:33 07/03/2001, Rik van Riel wrote:
-> [snip]
-> >  typedef struct page {
-> >+       struct list_head list;          /* ->mapping has some page lists. */
-> >+       struct address_space *mapping;  /* The inode (or ...) we belong to. */
-> >+       unsigned long index;            /* Our offset within mapping. */
+> At 10:51 08/03/01, Ingo Oeser wrote:
+> >On Thu, Mar 08, 2001 at 10:11:50AM +0000, Anton Altaparmakov wrote:
+> > > At 22:33 07/03/2001, Rik van Riel wrote:
+
+>  > * A page may belong to an inode's memory mapping. In this case,
+>  > * page->mapping is the pointer to the inode, and page->offset is the
+>  > * file offset of the page (not necessarily a multiple of PAGE_SIZE).
 >
-> Assuming index is in bytes (it looks like it is): Shouldn't index of type
+> Surely, if you have to multiply index by PAGE_{CACHE_}SIZE,
+> page->offset would be a multiple of PAGE_{CACHE_}SIZE?
 
-It's in units of PAGE_CACHE_SIZE. I've corrected the documentation.
+Whooops, indeed. This was a piece of old documentation which was
+200 lines down for inexplicable reasons. It's been corrected now.
 
-> [snip]
-> >+ * During disk I/O, PG_locked is used. This bit is set before I/O
-> >+ * and reset when I/O completes. page->wait is a wait queue of all
-> >+ * tasks waiting for the I/O on this page to complete.
->
-> Is this physical I/O only or does it include a driver
-> writing/reading the page?
-
-I'm not sure ... anyone ?
-
-regards,
+thanks,
 
 Rik
 --

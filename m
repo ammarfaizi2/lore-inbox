@@ -1,84 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315198AbSHFSWE>; Tue, 6 Aug 2002 14:22:04 -0400
+	id <S315214AbSHFSaZ>; Tue, 6 Aug 2002 14:30:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315200AbSHFSWD>; Tue, 6 Aug 2002 14:22:03 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:53254
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S315198AbSHFSWC>; Tue, 6 Aug 2002 14:22:02 -0400
-Date: Tue, 6 Aug 2002 11:17:41 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: martin@dalecki.de
-cc: Petr Vandrovec <VANDROVE@vc.cvut.cz>, Andries Brouwer <aebr@win.tue.nl>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] 2.5.30 IDE 112
-In-Reply-To: <3D4FBFA4.3030809@evision.ag>
-Message-ID: <Pine.LNX.4.10.10208061113060.15852-100000@master.linux-ide.org>
+	id <S315218AbSHFSaZ>; Tue, 6 Aug 2002 14:30:25 -0400
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:24337 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S315214AbSHFSaY>; Tue, 6 Aug 2002 14:30:24 -0400
+Message-ID: <32800.192.168.0.100.1028659510.squirrel@mail.zwanebloem.nl>
+Date: Tue, 6 Aug 2002 20:45:10 +0200 (CEST)
+Subject: Re: 2.4.18 (pre8) strange software raid0 problem
+From: "Tommy Faasen" <tommy@vuurwerk.nl>
+To: <neilb@cse.unsw.edu.au>
+In-Reply-To: <15695.46843.770054.232116@notabene.cse.unsw.edu.au>
+References: <32838.192.168.0.100.1028462137.squirrel@mail.zwanebloem.nl>
+        <15693.5974.487891.772395@notabene.cse.unsw.edu.au>
+        <2289.198.43.100.6.1028615479.squirrel@mail.zwanebloem.nl>
+        <15695.46226.763861.953550@notabene.cse.unsw.edu.au>
+        <15695.46843.770054.232116@notabene.cse.unsw.edu.au>
+X-Priority: 3
+Importance: Normal
+X-MSMail-Priority: Normal
+Cc: <linux-kernel@vger.kernel.org>
+X-Mailer: SquirrelMail (version 1.2.7)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Martin,
+> I had deleted the original email, but just found it at
+>   http://www.uwsg.indiana.edu/hypermail/linux/kernel/0208.0/0802.html
+> and there are attachments.
 
-I had this battle a long time ago.
-Every little bit of disk that is out there, regardless if they should be
-orphaned sectors or not, people want access.  This includes having the
-kernel do stupid things like seek beyond media.
+I owe you an aploogie, i indeed installed a bad version of raidtools, it
+seems to be ok, now i have upgraded.
 
-Just leave it alone.
+Bad ->128658 Aug  2 13:47 raidtools2_0.90.20010914                        
+                      -19_i386.deb
+Good -> 128742 Aug  5 01:32 raidtools2_0.90.20010914                      
+                           -20_i386.deb
 
-Once all devices are 48-bit capable, then the game is over.
 
-"All 48-bit capable shall be LBA addressed".
+Thanks for your help nonetheless!
 
-Nobody can force CHS crap down the pipes and thus the game is over on the
-stupid concept of XXX/16/63!  Until then do everyone a favor and listen
-and learn from AEB, okay?
+Tommy
 
-Regards,
-
-Andre Hedrick
-LAD Storage Consulting Group
-
-On Tue, 6 Aug 2002, Marcin Dalecki wrote:
-
-> Uz.ytkownik Petr Vandrovec napisa?:
-> > On  6 Aug 02 at 12:27, Andries Brouwer wrote:
-> > 
-> >>On Tue, Aug 06, 2002 at 10:50:42AM +0200, Marcin Dalecki wrote:
-> >>
-> >>>- Just removaing dead obscure xlate_1024 code.
-> >>
-> >>Command line options must be added to ask for what this
-> >>xlate_1024 code did earlier. So, some fragments of what you remove
-> >>in this patch will have to come back in some form.
-> > 
-> > 
-> > FYI I had to use hda=cyls,255,63 to repartition my HDD. BIOS refused
-> > to report proper size (120GB) when partition table was empty, or when
-> > it contained partitions created for xxx/16/63 geometry. It reported
-> > size ~600MB, and actively refused to allow access above this limit...
-> > 
-> > With removed (either completely, or just disabling as it is now) xlate_1024 
-> > code please talk to [cs]fdisk maintainer (and other) to print big fat
-> > warning and to allow specify BIOS heads/sectors, otherwise partitioning
-> > of empty disk in the way compatible with non-Linux OSes (Netware, Windows)
-> > is not an easy task.
-> 
-> Sidenote 1. - they can do the recalculation done by xlate_1024 themself 
-> of  course.
-> 
-> Sidenote 2. - Linux is thinking xxx/16/63 is the best way to deal with 
-> big disks. Phenix BIOS docu says xxxx/255/63 is the way to go.
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
 

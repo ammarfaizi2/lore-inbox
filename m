@@ -1,68 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262540AbSJGSt7>; Mon, 7 Oct 2002 14:49:59 -0400
+	id <S262556AbSJGSyY>; Mon, 7 Oct 2002 14:54:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262543AbSJGSt7>; Mon, 7 Oct 2002 14:49:59 -0400
-Received: from smtpout.mac.com ([204.179.120.86]:4546 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id <S262540AbSJGSt4>;
-	Mon, 7 Oct 2002 14:49:56 -0400
-Date: Mon, 7 Oct 2002 13:56:00 -0500
-Subject: Re: BK is *evil* corporate software [was Re: New BK License Problem?]
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Mime-Version: 1.0 (Apple Message framework v546)
-Cc: Ben Collins <bcollins@debian.org>, Larry McVoy <lm@bitmover.com>,
-       linux-kernel@vger.kernel.org
-To: Pavel Machek <pavel@ucw.cz>
-From: tom_gall@mac.com
-In-Reply-To: <20021007001137.A6352@elf.ucw.cz>
-Message-Id: <6BB2BEDE-DA26-11D6-990A-0003939E069A@mac.com>
+	id <S262563AbSJGSyY>; Mon, 7 Oct 2002 14:54:24 -0400
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:35745 "EHLO
+	zcars04e.ca.nortel.com") by vger.kernel.org with ESMTP
+	id <S262556AbSJGSyT>; Mon, 7 Oct 2002 14:54:19 -0400
+Message-ID: <3DA1D969.8050005@nortelnetworks.com>
+Date: Mon, 07 Oct 2002 14:58:49 -0400
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Andrew Morton <akpm@digeo.com>
+Cc: Daniel Phillips <phillips@arcor.de>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       Oliver Neukum <oliver@neukum.name>, Rob Landley <landley@trommello.org>,
+       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: The reason to call it 3.0 is the desktop (was Re: [OT] 2.6 not 3.0 -  (NUMA))
+References: <m17yCIx-006hSwC@Mail.ZEDAT.FU-Berlin.DE> <1281002684.1033892373@[10.10.2.3]> <E17ybuZ-0003tz-00@starship> <3DA1D30E.B3255E7D@digeo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Apple Mail (2.546)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton wrote:
 
-On Sunday, October 6, 2002, at 05:11 PM, Pavel Machek wrote:
+> Go into ext2_new_inode, replace the call to find_group_dir with
+> find_group_other.  Then untar a kernel tree, unmount the fs,
+> remount it and see how long it takes to do a
+> 
+> 	`find . -type f  xargs cat > /dev/null'
+> 
+> on that tree.  If your disk is like my disk, you will achieve
+> full disk bandwidth.
 
-> Hi!
->
->> We're a business.  We're a business which happens to be committed to
->> helping the kernel team because we think that the kernel is vital to
->> the world at large.  Helping the kernel absolutely does not translate
->> to helping people who happen to be our competitors.  By your own
->
-> Stop lying. Your job is to make lots of money and you are using Linux
-> as cheap advertising. You are trying to make people pay *you* to do
-> kernel development (as it stands you want $5000 for any bk-using
-> developer inside RedHat and SuSE).
+Pardon my ignorance, but what's the difference between find_group_dir 
+and find_group_other, and why aren't we using find_group_other already 
+if its so much faster?
 
-O Please!  As the person that started this thread this is way way way 
-way out there and quite frankly I find offensive.
-
-I do NOT honestly think that Larry made the change to the license that 
-he did for the express purpose of milking some set of companies out of 
-$$$$.  That's just dumb.
-
-Like Larry and others who have made some rather good points over the 
-couple of days, I think we're all trying to find a way to reasonably 
-solve this that is is everyone's best interesting, including Larry's 
-company.
-
-Granted it's a different kind of license, (IE Microsoft doesn't have a 
-clause in IE that says Netscape developers can't use IE) but hey, it's 
-Larry's company and he's perfectly in his rights to do so.  It is 
-truely a good thing that Larry is allowing some set of us in the open 
-source community to use his product without costs. Personally I'm 
-willing to pay a reasonable license fee for it but it's gotta be 
-something that I can afford without getting my head torn off by my 
-wife. Of course the other solution is to adjust the license a bit so 
-folks like me who are just doing kernel work and not in competition 
-with Larry's company (no matter what others in my company are doing) 
-can use it.
-
-That's what I hope for...   maybe it'll come true.
-
-Regards,
-
-Tom
+Chris
 

@@ -1,52 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270411AbUJUIeK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270595AbUJUIeL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270411AbUJUIeK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 04:34:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270595AbUJUId7
+	id S270595AbUJUIeL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 04:34:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270710AbUJUIae
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 04:33:59 -0400
-Received: from fmr05.intel.com ([134.134.136.6]:11240 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S270411AbUJUIdS convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 04:33:18 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: gradual timeofday overhaul
-Date: Thu, 21 Oct 2004 01:32:53 -0700
-Message-ID: <F989B1573A3A644BAB3920FBECA4D25A011F96CB@orsmsx407>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: gradual timeofday overhaul
-Thread-Index: AcS2wTYVfOEhvEjFTvCHP5zy7UEl+AAU9ouA
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: <root@chaos.analogic.com>, "George Anzinger" <george@mvista.com>
-Cc: "Brown, Len" <len.brown@intel.com>,
-       "Tim Schmielau" <tim@physik3.uni-rostock.de>,
-       "john stultz" <johnstul@us.ibm.com>,
-       "lkml" <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 21 Oct 2004 08:32:54.0143 (UTC) FILETIME=[8F3610F0:01C4B748]
+	Thu, 21 Oct 2004 04:30:34 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:62128 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S270642AbUJUITR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 04:19:17 -0400
+Date: Thu, 21 Oct 2004 10:20:33 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U8
+Message-ID: <20041021082033.GA21619@elte.hu>
+References: <20041019124605.GA28896@elte.hu> <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu> <4176403B.5@stud.feec.vutbr.cz> <20041020105630.GB2614@elte.hu> <417645A4.7000802@stud.feec.vutbr.cz> <20041020120434.GA6297@elte.hu> <4176D9CC.5010107@stud.feec.vutbr.cz> <20041021081215.GA21073@elte.hu> <20041021081805.GA21537@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041021081805.GA21537@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> From: Richard B. Johnson
->
-> You need that hardware interrupt for more than time-keeping.
-> Without a hardware-interrupt, to force a new time-slice,
-> 
->  	for(;;)
->             ;
-> 
-> ... would allow a user to grab the CPU forever ...
+* Ingo Molnar <mingo@elte.hu> wrote:
 
-But you can also schedule, before switching to the new task, 
-a local interrupt on the running processor to mark the end 
-of the timeslice. When you enter the scheduler, you just need 
-to remove that; devil is in the details, but it should be possible
-to do in a way that doesn't take too much overhead.
+> 
+> * Ingo Molnar <mingo@elte.hu> wrote:
+> 
+> > ah, indeed. Note that this is still not enough - please try to add a
+> > local_irq_enable() to netconsole.c's console-write function - does
+> > that fix it equally well for you?
+> > 
+> > the reason is that if we crash within an irqs-off section then
+> > netconsole will still be called with interrupts disabled and will
+> > trigger the assert.
+> 
+> i've added your patch to my tree, plus the extra local_irq_enable(),
+> this should also fix fbcon - so no changes needed to netconsole.c. All
+> of these problems will go away if/when the console code goes away from
+> raw spinlocks.
 
-Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own (and my fault)
+actually ... i think i'll add the local_irq_enable() to netconsole.c and
+fbcon, that way the VGA and serial consoles can still keep interrupts
+disabled. That could make the difference between a debuggable and
+undebuggable crash ...
+
+	Ingo

@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285197AbRLFVEh>; Thu, 6 Dec 2001 16:04:37 -0500
+	id <S285179AbRLFVJ5>; Thu, 6 Dec 2001 16:09:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285218AbRLFVEa>; Thu, 6 Dec 2001 16:04:30 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:10635 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S285201AbRLFVCu>;
-	Thu, 6 Dec 2001 16:02:50 -0500
-Date: Thu, 06 Dec 2001 13:02:02 -0800 (PST)
-Message-Id: <20011206.130202.107681970.davem@redhat.com>
-To: lm@bitmover.com
-Cc: phillips@bonn-fries.net, davidel@xmailserver.org, rusty@rustcorp.com.au,
-        Martin.Bligh@us.ibm.com, riel@conectiva.com.br, lars.spam@nocrew.org,
-        alan@lxorguk.ukuu.org.uk, hps@intermeta.de,
-        linux-kernel@vger.kernel.org
-Subject: Re: SMP/cc Cluster description
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20011206122116.H27589@work.bitmover.com>
-In-Reply-To: <20011206121004.F27589@work.bitmover.com>
-	<20011206.121554.106436207.davem@redhat.com>
-	<20011206122116.H27589@work.bitmover.com>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+	id <S285180AbRLFVJs>; Thu, 6 Dec 2001 16:09:48 -0500
+Received: from fencepost.gnu.org ([199.232.76.164]:13836 "EHLO
+	fencepost.gnu.org") by vger.kernel.org with ESMTP
+	id <S284248AbRLFVJm>; Thu, 6 Dec 2001 16:09:42 -0500
+Date: Thu, 6 Dec 2001 16:09:40 -0500
+From: Lennert Buytenhek <buytenh@gnu.org>
+To: netfilter@lists.samba.org, linux-kernel@vger.kernel.org
+Cc: bridge@math.leidenuniv.nl
+Subject: bridge firewalling with linux 2.4: it _is_ possible..
+Message-ID: <20011206160940.A9972@gnu.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Larry McVoy <lm@bitmover.com>
-   Date: Thu, 6 Dec 2001 12:21:16 -0800
-   
-   You tell me - which is easier, multithreading the networking stack to 
-   64 way SMP or running 64 distinct networking stacks?
+Hi,
 
-We've done %90 of the "other stuff" already, why waste the work?
-We've done the networking, we've done the scheduler, and the
-networking/block drivers are there too.
+People say my PR sucks, and it probably does.  I've been somewhat reluctant
+to announce this, but people here at Linux Kongress convinced me that a lot
+of people probably don't even know about this, so here goes.
 
-I was actually pretty happy with how easy (relatively) the networking
-was to thread nicely.
+For a while now I've had a patch that makes bridge firewalling with linux
+2.4 possible.  This gives you all the goodies of the already present
+netfilter/iptables infrastructure, including state tracking, various baroque
+packet mangling techniques and network address translation (yeah, NAT on a
+bridge, I know, you can call me sick, a lot of people do, hi Rusty).
 
-The point is, you have to make a captivating argument for ccClusters,
-what does it buy us now that we've done a lot of the work you are
-telling us it will save?
+Get the patch at:
+
+(stable)
+	http://bridge.sourceforge.net/devel/bridge-nf/bridge-nf-0.0.3-against-2.4.13-ac7.diff
+
+(devel)
+	http://bridge.sourceforge.net/devel/bridge-nf/bridge-nf-0.0.4-pre1-against-2.4.16.diff
+
+
+The patch makes bridging look like routing, as far as netfilter is concerned,
+so you can use your existing rulesets with minimal modification.  The patch
+will be submitted for netfilter patch-o-matic sometime in the future, once
+I clean it up some more (there are some known loose ends).
+
+
+cheers,
+Lennert
+

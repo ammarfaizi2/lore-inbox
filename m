@@ -1,51 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263795AbTCVUPG>; Sat, 22 Mar 2003 15:15:06 -0500
+	id <S263796AbTCVU0i>; Sat, 22 Mar 2003 15:26:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263797AbTCVUPG>; Sat, 22 Mar 2003 15:15:06 -0500
-Received: from fiberbit.xs4all.nl ([213.84.224.214]:12939 "EHLO
-	fiberbit.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S263795AbTCVUPF>; Sat, 22 Mar 2003 15:15:05 -0500
-Date: Sat, 22 Mar 2003 21:22:01 +0100
-From: Marco Roeland <marco.roeland@xs4all.nl>
-To: Alan Cox <alan@redhat.com>, Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.65-ac2 (drivers/char/genrtc.c compile failure on i386)
-Message-ID: <20030322202201.GA32386@localhost>
-References: <200303211741.h2LHfPn00366@devserv.devel.redhat.com>
+	id <S263797AbTCVU0i>; Sat, 22 Mar 2003 15:26:38 -0500
+Received: from main.gmane.org ([80.91.224.249]:23750 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id <S263796AbTCVU0h>;
+	Sat, 22 Mar 2003 15:26:37 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Nicholas Wourms <nwourms@myrealbox.com>
+Subject: Re: IDE todo list
+Date: Sat, 22 Mar 2003 15:33:46 -0500
+Message-ID: <3E7CC8AA.7060501@myrealbox.com>
+References: <1048352492.9219.4.camel@irongate.swansea.linux.org.uk>	 <20030322172453.GB9889@vana.vc.cvut.cz>	 <1048360040.9221.23.camel@irongate.swansea.linux.org.uk>	 <3E7CA555.9050203@myrealbox.com> <1048365383.9221.30.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-In-Reply-To: <200303211741.h2LHfPn00366@devserv.devel.redhat.com>
-User-Agent: Mutt/1.5.3i
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@main.gmane.org
+User-Agent: Mozilla/5.0 (Windows; U; Win 9x 4.90; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
+X-Accept-Language: en-us, en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday March 21st 2003 at 12:41 Alan Cox wrote:
+Alan Cox wrote:
+> On Sat, 2003-03-22 at 18:03, Nicholas Wourms wrote:
+> 
+>>The AMD Opus ide driver is also displaying symptoms of the 
+>>same problem I had in 2.4.21-ac with UDMA100.  To refresh, 
+>>it was detecting 80w as 40w and 40w as 80w [reverse logic]. 
+>>  I am going to try the same fix which was posted for my 
+>>2.4.21-ac problem.  I'll let you know if it worked...
+> 
+> 
+> The cable detect stuff for AMD is fixed in the current driver
+> I believe. Its not however full resynched into 2.5.6x yet. I
+> need to finish merging the proc fixes into 2.4 before I do that
+> 
 
-> Linux 2.5.65-ac2
->       ...
-> o	M68K rtc updates				(Geert Uytterhoeven)
+Well unfortunately, even with out the little modification, 
+bk-current now locks right after printing out the hdd 
+geometry/partition info.  Apparently, something in the slew 
+of patches which went in today has broke my setup. 
+Unfortunately, I'm using the -mm3 patchset, so I can't say 
+for certain that it isn't causing problems with the recently 
+checked in code.  Any suggestions on how to go about 
+debugging this?  I'm using a usb keyboard, so I don't think 
+the Magic Sys-Req button will work at this point [Alas, KDB 
+is currently non-functional for 2.5].
 
-The file drivers/char/genrtc.c was updated, but include/arch-generic/rtc.h
-which is used on i386 wasn't (yet?), leading to compile failures on i386:
-(the missing define is only the first symptom)
+Cheers,
+Nicholas
 
-  gcc -Wp,-MD,drivers/char/.genrtc.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=pentium3 -Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include -DMODULE   -DKBUILD_BASENAME=genrtc -DKBUILD_MODNAME=genrtc -c -o drivers/char/genrtc.o drivers/char/genrtc.c
-drivers/char/genrtc.c:100: warning: static declaration for `gen_rtc_interrupt' follows non-static
-drivers/char/genrtc.c: In function `gen_rtc_timer':
-drivers/char/genrtc.c:135: warning: comparison of distinct pointer types lacks a cast
-drivers/char/genrtc.c: In function `gen_rtc_open':
-drivers/char/genrtc.c:358: warning: `_MOD_INC_USE_COUNT' is deprecated (declared at include/linux/module.h:456)
-drivers/char/genrtc.c: In function `gen_rtc_release':
-drivers/char/genrtc.c:377: warning: `__MOD_DEC_USE_COUNT' is deprecated (declared at include/linux/module.h:431)
-drivers/char/genrtc.c: In function `gen_rtc_proc_output':
-drivers/char/genrtc.c:453: void value not ignored as it ought to be
-drivers/char/genrtc.c:498: `RTC_BATT_BAD' undeclared (first use in this function)
-drivers/char/genrtc.c:498: (Each undeclared identifier is reported only once
-drivers/char/genrtc.c:498: for each function it appears in.)
-make[2]: *** [drivers/char/genrtc.o] Error 1
-make[1]: *** [drivers/char] Error 2
-make: *** [drivers] Error 2
 
-Marco Roeland

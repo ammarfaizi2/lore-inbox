@@ -1,69 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261524AbUL3El7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261531AbUL3EpN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261524AbUL3El7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Dec 2004 23:41:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261531AbUL3El7
+	id S261531AbUL3EpN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Dec 2004 23:45:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261533AbUL3EpN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Dec 2004 23:41:59 -0500
-Received: from out010pub.verizon.net ([206.46.170.133]:28589 "EHLO
-	out010.verizon.net") by vger.kernel.org with ESMTP id S261524AbUL3El4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Dec 2004 23:41:56 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
+	Wed, 29 Dec 2004 23:45:13 -0500
+Received: from quechua.inka.de ([193.197.184.2]:10908 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S261531AbUL3EpK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Dec 2004 23:45:10 -0500
+From: Bernd Eckenfels <ecki-news2004-12@lina.inka.de>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.10-ac1
-Date: Wed, 29 Dec 2004 23:41:54 -0500
-User-Agent: KMail/1.7
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-References: <1104103881.16545.2.camel@localhost.localdomain>
-In-Reply-To: <1104103881.16545.2.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200412292341.54834.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out010.verizon.net from [151.205.52.185] at Wed, 29 Dec 2004 22:41:55 -0600
+Subject: Re: Is CAP_SYS_ADMIN checked by every program !?
+Organization: Deban GNU/Linux Homesite
+In-Reply-To: <200412291347.JEH41956.OOtStPFFNMLJVGMYS@i-love.sakura.ne.jp>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.7.6-20040906 ("Baleshare") (UNIX) (Linux/2.6.8.1 (i686))
+Message-Id: <E1CjsBP-0001RC-00@calista.eckenfels.6bone.ka-ip.net>
+Date: Thu, 30 Dec 2004 05:45:07 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 26 December 2004 18:31, Alan Cox wrote:
->Linux 2.6.10-ac1 is a merge of the stuff that has not yet been
-> accepted upstream along with a couple of small extra changes that
-> are needed because of changes in 2.6.10 base. In addition the
-> generic IRQ work in 2.6.10 means that the forward port of the
-> irqpoll code now covers a lot more platforms.
+In article <200412291347.JEH41956.OOtStPFFNMLJVGMYS@i-love.sakura.ne.jp> you wrote:
+> even for programs such as cat(1) sed(1) ls(1).
 
-Alan: Just a quick note to say that it appears my samba problem with 
-2.6.10 has been fixed by 2.6.10-ac1, I can now mount and unmount 
-samba shares very quickly, as in milliseconds.
+You you tried strace, if it is actually the user mode which is doing that?
+If yes, then it might be a libc issue. Perhaps hwcap or something line this.
+libc for example disables some features if running suid. Maybe those checks
+result in checking capabilities.
 
-[root@coyote root]# time service asmb restart
-Stopping share gene:
-Stopping share dlds:
-Starting share gene:
-Starting share dlds:
-
-real    0m0.276s
-user    0m0.062s
-sys     0m0.024s
-
-Thats at least a second faster than its ever been before here.  Now to 
-see if amanda likes it, something thats an amandad killer got in 
-someplace in the mm series leading up to V0.33-04, and amandad would 
-turn into a zombie, spoiling a backup.  I'll know in about 5 hours 
-how that worked.  Repeated runs of amcheck seem to be fine.
-
-[...]
-
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.31% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+Greetings
+Bernd

@@ -1,47 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263375AbTIGRsu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Sep 2003 13:48:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263388AbTIGRsr
+	id S263406AbTIGRwZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Sep 2003 13:52:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263410AbTIGRwZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Sep 2003 13:48:47 -0400
-Received: from amalthea.dnx.de ([193.108.181.146]:15511 "EHLO amalthea.dnx.de")
-	by vger.kernel.org with ESMTP id S263375AbTIGRsn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Sep 2003 13:48:43 -0400
-Date: Sun, 7 Sep 2003 19:48:34 +0200
-From: Robert Schwebel <robert@schwebel.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Adrian Bunk <bunk@fs.tum.de>, Robert Schwebel <robert@schwebel.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Russell King <rmk@arm.linux.org.uk>
+	Sun, 7 Sep 2003 13:52:25 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:12026 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S263406AbTIGRwW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Sep 2003 13:52:22 -0400
+Date: Sun, 7 Sep 2003 19:51:50 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: linux-kernel@vger.kernel.org, robert@schwebel.de, rusty@rustcorp.com.au
 Subject: Re: RFC: [2.6 patch] better i386 CPU selection
-Message-ID: <20030907174834.GA482@pengutronix.de>
-References: <20030907112813.GQ14436@fs.tum.de> <20030907124251.GC5460@pengutronix.de> <20030907130034.GT14436@fs.tum.de> <1062955895.16972.13.camel@dhcp23.swansea.linux.org.uk>
+Message-ID: <20030907175149.GE14436@fs.tum.de>
+References: <200309071647.h87Glp4t014359@harpo.it.uu.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1062955895.16972.13.camel@dhcp23.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
-X-Spam-Score: -5.0 (----)
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19w3eG-0003aG-00*fHuc315BE/A*
+In-Reply-To: <200309071647.h87Glp4t014359@harpo.it.uu.se>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 07, 2003 at 06:31:36PM +0100, Alan Cox wrote:
-> Geode is just another PC, well at least in software. In hardware its
-> rather different and uses a lot of clever magic.
+On Sun, Sep 07, 2003 at 06:47:51PM +0200, Mikael Pettersson wrote:
+> On Sun, 7 Sep 2003 13:28:13 +0200, Adrian Bunk wrote:
+> >The patch below tries to implement a better i386 CPU selection.
+> >
+> >In 2.4 selecting e.g. M486 has the semantics to get a kernel that runs 
+> >on a 486 and above.
+> >
+> >In 2.6 selecting M486 means that only the 486 is supported.
+> 
+> Can you prove your claim about 2.6?
+> 
+> There is to the best of my knowledge nothing in 2.6.0-test4
+> that prevents a kernel compiled for CPU type N from working
+> with CPU types >N. Just to prove it, I built a CONFIG_M486
+> 2.6.0-test4 and booted it w/o problems on P4, PIII, and K6-III.
 
-It seems to be similar to the Elan: the core is "just another PC", but
-in several places you need to know that you have a Geode so that you can
-provide the right tweaks and fixes. 
+Look at X86_L1_CACHE_SHIFT in arch/i386/Kconfig.
 
-Robert
+> >There are two different needs:
+> >1. the installation kernel of a distribution should support all CPUs 
+> >   this distribution supports (perhaps starting with the 386)
+> >2. a sysadmin might e.g. want a kernel that support both a Pentium-III
+> >   and a Pentium 4, but doesn't need to support a 386
+> 
+> How are 1 and 2 different? Both need support for CPU type N
+> or higher. Since a kernel configured for a lower CPU type
+> still works on higher CPU types, where is the problem?
+> (In case 2 configure for PIII and use that on PIII and P4.)
+> 
+> Maybe I'm missing something but I don't see any problem here.
+
+In current 2.6 this is only legal with X86_GENERIC enabled.
+
+> /Mikael
+
+cu
+Adrian
+
 -- 
- Dipl.-Ing. Robert Schwebel | http://www.pengutronix.de
- Pengutronix - Linux Solutions for Science and Industry
-   Handelsregister:  Amtsgericht Hildesheim, HRA 2686
-     Hornemannstraﬂe 12,  31137 Hildesheim, Germany
-    Phone: +49-5121-28619-0 |  Fax: +49-5121-28619-4
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

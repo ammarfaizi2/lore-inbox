@@ -1,60 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277547AbRJESvV>; Fri, 5 Oct 2001 14:51:21 -0400
+	id <S277512AbRJETCl>; Fri, 5 Oct 2001 15:02:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277548AbRJESvH>; Fri, 5 Oct 2001 14:51:07 -0400
-Received: from nmh.informatik.uni-bremen.de ([134.102.224.3]:60843 "EHLO
-	nmh.informatik.uni-bremen.de") by vger.kernel.org with ESMTP
-	id <S277547AbRJESur>; Fri, 5 Oct 2001 14:50:47 -0400
-Date: Wed, 3 Oct 2001 13:55:59 +0200
-From: Christof Efkemann <chref@tzi.de>
-To: David Weinehall <tao@acc.umu.se>
-Cc: Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Intel 830 support for agpgart
-Message-Id: <20011003135559.1b11f0c4.chref@tzi.de>
-In-Reply-To: <20011003045257.Q7800@khan.acc.umu.se>
-In-Reply-To: <20011002033227.6e047544.efkemann@uni-bremen.de>
-	<1001988137.2780.53.camel@phantasy>
-	<20011002151051.488306ee.efkemann@uni-bremen.de>
-	<1002066345.1003.66.camel@phantasy>
-	<20011003021658.O7800@khan.acc.umu.se>
-	<1002075650.1237.2.camel@phantasy>
-	<20011003045257.Q7800@khan.acc.umu.se>
-X-Mailer: Sylpheed version 0.6.1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S277550AbRJETCb>; Fri, 5 Oct 2001 15:02:31 -0400
+Received: from smtp7.xs4all.nl ([194.109.127.133]:11222 "EHLO smtp7.xs4all.nl")
+	by vger.kernel.org with ESMTP id <S277512AbRJETCY>;
+	Fri, 5 Oct 2001 15:02:24 -0400
+From: thunder7@xs4all.nl
+Date: Fri, 5 Oct 2001 20:59:09 +0200
+To: linux-kernel@vger.kernel.org
+Subject: can I use an udma-pci card on an alpha?
+Message-ID: <20011005205909.A6286@middle.of.nowhere>
+Reply-To: thunder7@xs4all.nl
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Oct 2001 04:52:57 +0200
-David Weinehall <tao@acc.umu.se> wrote:
+I had a spare CMD646 udma-card lying around, and put it in my alpha
+(PWS500au). Everything boots fine, but there seems to be no HD
+recognized:
 
-> On Tue, Oct 02, 2001 at 10:20:43PM -0400, Robert Love wrote:
-> > On Tue, 2001-10-02 at 20:16, David Weinehall wrote:
-> > > If the only differences between the different cards are the nr of
-> > > aperture-sizes and the status-register settings, why not have a struct
-> > > which contains all the valid cards, and use a scan-routine?!
+block: queued sectors max/low 39013kB/13004kB, 128 slots per queue
+Uniform Multi-Platform E-IDE driver Revision: 6.31
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+CMD646: IDE controller on PCI bus 00 dev 20
+CMD646: chipset revision 1
+CMD646: not 100% native mode: will probe irqs later
+CMD646: chipset revision 0x01, MultiWord DMA Limited, IRQ workaround enabled
+    ide0: BM-DMA at 0x8080-0x8087, BIOS settings: hda:pio, hdb:pio
+    ide1: BM-DMA at 0x8088-0x808f, BIOS settings: hdc:pio, hdd:pio
+Floppy drive(s): fd0 is 2.88M
 
-There is already such a struct, agp_bridge_info, and a scan-routine,
-agp_lookup_host_bridge.  These values could probably be added easily.
-Although it would then be necessary for the other chipsets, too.
+jurriaan@alpha:~$ cat /proc/ide/cmd64x
 
-> Afaik, speed is not really an issue (it's not like you're going to
-> notice a difference anyway, even if you had a struct with 100 different
-> adapters in it.) As for reapproaching the size of the current
-> implementation, the difference is that you get one single function that
-> you don't have to change. You just add one single line to the struct
-> for each adapter.
+                                CMD646 Chipset.
+--------------- Primary Channel ---------------- Secondary Channel -------------
+                 enabled                          enabled
+--------------- drive0 --------- drive1 -------- drive0 ---------- drive1 ------
+DMA enabled:    no               no              no                no
+DMA Mode:        PIO(?)           PIO(?)          PIO(?)            PIO(?)
+PIO Mode:       ?                ?               ?                 ?
+                polling                          polling
+                clear                            clear
+                enabled                          enabled
+CFR       = 0x00, HI = 0x00, LOW = 0x00
+ARTTIM23  = 0x4c, HI = 0x04, LOW = 0x0c
+MRDMODE   = 0x00, HI = 0x00, LOW = 0x00
 
-Even if it was slower it wouldn't really matter, as this is executed only
-once during initialization.
+Is the bios (which is x86) strictly necessary to set up the drives? I
+tried searching the web for 'udma on alpha' etc. but found nothing.
 
-> > There are only 3 possibilities right now (i830, i840, and everything
-> > else).
-
-And don't forget the i850 ;-)
-
--- 
-Regards,
-Christof Efkemann
+Thanks,
+Jurriaan

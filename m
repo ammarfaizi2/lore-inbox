@@ -1,69 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261929AbVDEUEm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261858AbVDEUIE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261929AbVDEUEm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 16:04:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261910AbVDEUEl
+	id S261858AbVDEUIE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 16:08:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261964AbVDEUF3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 16:04:41 -0400
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:54532 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S261925AbVDEUCX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 16:02:23 -0400
-Date: Tue, 5 Apr 2005 21:02:24 +0100 (BST)
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       Matthew Wilcox <matthew@wil.cx>,
-       "David S. Miller" <davem@davemloft.net>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: iomapping a big endian area
-In-Reply-To: <20050405195506.A16617@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.61L.0504052041250.9632@blysk.ds.pg.gda.pl>
-References: <1112475134.5786.29.camel@mulgrave>
- <20050403013757.GB24234@parcelfarce.linux.theplanet.co.uk>
- <20050402183805.20a0cf49.davem@davemloft.net>
- <20050403031000.GC24234@parcelfarce.linux.theplanet.co.uk>
- <1112499639.5786.34.camel@mulgrave> <20050405084219.A21615@flint.arm.linux.org.uk>
- <1112709915.5764.4.camel@mulgrave> <20050405195506.A16617@flint.arm.linux.org.uk>
+	Tue, 5 Apr 2005 16:05:29 -0400
+Received: from host201.dif.dk ([193.138.115.201]:36868 "EHLO
+	diftmgw2.backbone.dif.dk") by vger.kernel.org with ESMTP
+	id S261858AbVDEUAE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 16:00:04 -0400
+Date: Tue, 5 Apr 2005 22:01:49 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Roland Dreier <roland@topspin.com>
+cc: Jesper Juhl <juhl-lkml@dif.dk>, Paulo Marques <pmarques@grupopie.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: RFC: turn kmalloc+memset(,0,) into kcalloc
+In-Reply-To: <521x9pc9o6.fsf@topspin.com>
+Message-ID: <Pine.LNX.4.62.0504052148480.2444@dragon.hyggekrogen.localhost>
+References: <4252BC37.8030306@grupopie.com>
+ <Pine.LNX.4.62.0504052052230.2444@dragon.hyggekrogen.localhost>
+ <521x9pc9o6.fsf@topspin.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Apr 2005, Russell King wrote:
+On Tue, 5 Apr 2005, Roland Dreier wrote:
 
-> > > physical bus:	31...24	23...16	15...8	7...0
-> > > 
-> > > BE version 1 (word invariant)
-> > >   byte access	byte 0	byte 1	byte 2	byte 3
-> > >   word access	31-24	23-16	15-8	7-0
-> > > 
-> > > BE version 2 (byte invariant)
-> > >   byte access	byte 3	byte 2	byte 1	byte 0
-> > >   word access	7-0	15-8	23-16	31-24
-> > 
-> > These are just representations of the same thing.  However, I did
-> > deliberately elect not to try to solve this problem in the accessors.  I
-> > know all about the register relayout, because 53c700 has to do that on
-> > parisc.
+>     > or simply
+>     > 	if (!(ptr = kcalloc(n, size, ...)))
+>     > 		goto out;
+>     > and save an additional line of screen realestate while you are at it...
 > 
-> They aren't.  On some of our platforms, we have to exclusive-or the address
-> for byte accesses with 3 to convert to the right endian-ness.
+> No, please don't do that.  The general kernel style is to avoid
+> assignments within conditionals.
+> 
+It may be the prefered style to avoid assignments in conditionals, but in 
+that case we have a lot of cleanup to do. What I wrote above is quite 
+common in the current tree - a simple  egrep -r "if\ *\(\!\(.+=" *  in 
+2.6.12-rc2-mm1 will find you somewhere between 1000 and 2000 cases 
+scattered all over the tree.
 
- The same with certain MIPS configurations.  And likewise you need to xor 
-addresses with 2 for halfword accesses.
+Personally I don't see why thy should not be used. They are short, not any 
+harder to read (IMHO), save screen space & are quite common in userspace 
+code as well (so people should be used to seeing them).
 
-> Sure, from the point of view of which byte each byte of a word represents,
-> it's true that they're indentical.  But as far as the hardware is concerned,
-> they're definitely different.
+If such statements are generally frawned upon then I'd suggest an addition 
+be made to Documentation/CodingStyle mentioning that fact, and I wonder if 
+patches to clean up current users would be welcome?
 
- To clarify it a bit: both big and little endian representations are 
-always the same -- it's going to a domain of the reverse endianness that 
-can be done in two different ways, i.e. by preserving either bit or byte 
-ordering (as described above).  Depending on the interpretation of data 
-being passed you want one or the other.  That's why some systems provide 
-ways of doing both kinds of accesses in hardware (e.g. the host bus to PCI 
-bridge) to save CPU cycles needed for bit shuffling otherwise.
 
-  Maciej
+-- 
+Jesper Juhl
+

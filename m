@@ -1,37 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130051AbRBBFWN>; Fri, 2 Feb 2001 00:22:13 -0500
+	id <S129492AbRBBF3d>; Fri, 2 Feb 2001 00:29:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130428AbRBBFWD>; Fri, 2 Feb 2001 00:22:03 -0500
-Received: from [206.112.107.150] ([206.112.107.150]:59911 "EHLO
-	mercury.illtel.denver.co.us") by vger.kernel.org with ESMTP
-	id <S130364AbRBBFVs>; Fri, 2 Feb 2001 00:21:48 -0500
-Date: Thu, 1 Feb 2001 21:22:32 -0800 (PST)
-From: Alex Belits <abelits@phobos.illtel.denver.co.us>
-To: Joe deBlaquiere <jadb@redhat.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Serial device with very large buffer
-In-Reply-To: <3A7A3E14.1010300@redhat.com>
-Message-ID: <Pine.LNX.4.10.10102012111140.991-100000@mercury>
+	id <S130121AbRBBF3X>; Fri, 2 Feb 2001 00:29:23 -0500
+Received: from kiln.isn.net ([198.167.161.1]:59197 "EHLO kiln.isn.net")
+	by vger.kernel.org with ESMTP id <S129492AbRBBF3G>;
+	Fri, 2 Feb 2001 00:29:06 -0500
+Message-ID: <3A7A456E.5F659E57@isn.net>
+Date: Fri, 02 Feb 2001 01:28:14 -0400
+From: "Garst R. Reese" <reese@isn.net>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.1 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Serial device with very large buffer
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 1 Feb 2001, Joe deBlaquiere wrote:
-
-> Hi Alex!
-> 
-> 	I'm a little confused here... why are we overrunning? This thing is 
-> running externally at 19200 at best, even if it does all come in as a 
-> packet.
-
-  Different Merlin -- original Merlin is 19200, "Merlin for Ricochet" is
-128Kbps (or faster), and uses Metricom/Ricochet network.
-
--- 
-Alex
-
+How does this relate to IrDA with SIR speed of 115200 and max turnaround
+of 500ms?
+The max throughput is about 5000 bytes in 500ms.
+Garst
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

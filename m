@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262425AbTJaARa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Oct 2003 19:17:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262443AbTJaARa
+	id S262538AbTJaAZc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Oct 2003 19:25:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262731AbTJaAZc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Oct 2003 19:17:30 -0500
-Received: from delerium.codemonkey.org.uk ([81.187.208.145]:6541 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S262425AbTJaAR3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Oct 2003 19:17:29 -0500
-Date: Fri, 31 Oct 2003 00:16:08 +0000
-From: Dave Jones <davej@redhat.com>
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Post-halloween doc updates.
-Message-ID: <20031031001608.GJ11311@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20031030141519.GA10700@redhat.com> <1067555512.16868.2.camel@glass.felipe-alfaro.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1067555512.16868.2.camel@glass.felipe-alfaro.com>
-User-Agent: Mutt/1.4.1i
+	Thu, 30 Oct 2003 19:25:32 -0500
+Received: from sea2-dav13.sea2.hotmail.com ([207.68.164.117]:20747 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S262538AbTJaAZb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Oct 2003 19:25:31 -0500
+X-Originating-IP: [12.145.34.101]
+X-Originating-Email: [san_madhav@hotmail.com]
+From: "sankar" <san_madhav@hotmail.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Question on mips-linux xross compilation
+Date: Thu, 30 Oct 2003 16:20:46 -0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Message-ID: <Sea2-DAV13uJDX5gnlz0000cecd@hotmail.com>
+X-OriginalArrivalTime: 31 Oct 2003 00:25:30.0629 (UTC) FILETIME=[7DA8F350:01C39F45]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 31, 2003 at 12:11:52AM +0100, Felipe Alfaro Solana wrote:
- > > Process scheduler improvements.
- > > ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- > > - Another much talked about feature. Ingo Molnar reworked the process
- > >   scheduler to use an O(1) algorithm.  In operation, you should notice
- > >   no changes with low loads, and increased scalability with large numbers
- > >   of processes, especially on large SMP systems.
- > 
- > I think we should mention excellent Con Kolivas contributions to the 2.6
- > kernel scheduler. He did a great job in tunning the scheduler for
- > maximum interactive feeling.
-
-With no disrespect to Con, I'm not going to do this, or I'll end up
-spending far too much time adding credits to everyone whoever improved
-something in 2.5.  There's a place for such stuff, and it's aptly named
-'CREDITS' in toplevel of src dir.
-
-		Dave
-
+Hi ,
+> I am having mips-linux cross compiler toolchains installed on my machine.
+I
+> m trying to compile my code which includes the system header
+<asm/system.h>.
+> But the G++ compiler is cribbing for a particular line in this header
+file.
+> (line no 256).
+> The erro is "parse error before string constant".
+> Basically it is not liking 2 extern  declaratives in front of the function
+> void * resume().
+> Pls note one extern comes from asmlinkage definition which is defined as
+> extern "C".
+>
+> Pls help me out in this if u have any idea..
+>
+> thanks in advance.
+>
+> Sankarshana M

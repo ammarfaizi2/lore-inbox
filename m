@@ -1,25 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129098AbRBUHrn>; Wed, 21 Feb 2001 02:47:43 -0500
+	id <S129051AbRBUH7e>; Wed, 21 Feb 2001 02:59:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129127AbRBUHrd>; Wed, 21 Feb 2001 02:47:33 -0500
-Received: from snowbird.megapath.net ([216.200.176.7]:15369 "EHLO
-	megapathdsl.net") by vger.kernel.org with ESMTP id <S129098AbRBUHrX>;
-	Wed, 21 Feb 2001 02:47:23 -0500
-Message-ID: <3A93730B.1050409@megapathdsl.net>
-Date: Tue, 20 Feb 2001 23:49:31 -0800
-From: Miles Lane <miles@megapathdsl.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.1-ac12 i686; en-US; 0.8) Gecko/20010220
-X-Accept-Language: en
+	id <S129098AbRBUH7X>; Wed, 21 Feb 2001 02:59:23 -0500
+Received: from as3-3-4.ml.g.bonet.se ([194.236.33.69]:47622 "EHLO
+	tellus.mine.nu") by vger.kernel.org with ESMTP id <S129051AbRBUH7Q>;
+	Wed, 21 Feb 2001 02:59:16 -0500
+Date: Wed, 21 Feb 2001 08:59:29 +0100 (CET)
+From: Tobias Ringstrom <tori@tellus.mine.nu>
+To: Dan Christian <dac@ptolemy.arc.nasa.gov>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: hang on mount, 2.4.2-pre4, VIA
+In-Reply-To: <20010220101622.A18117@ptolemy.arc.nasa.gov>
+Message-ID: <Pine.LNX.4.30.0102210856450.12445-100000@svea.tellus>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.1-ac20 -- SMP option + Athlon target still causes the build to break
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 20 Feb 2001, Dan Christian wrote:
+> Hello,
+>   I just tried upgrading to 2.4.2-pre4 from 2.4.1 and get a hang when
+> mounting the file systems.  I have the same problem with 2.4.1-ac18.
 
-/usr/src/linux/include/asm/hw_irq.h:198: `current' undeclared (first use 
-in this function)
+Have you tried to set LOGLEVEL in /etc/sysconfig/init to something higher
+(8)? That way you may see what is happening, instead of just getting a
+kernel freeze.
+
+/Tobias
+
 

@@ -1,50 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261615AbSLOOcg>; Sun, 15 Dec 2002 09:32:36 -0500
+	id <S261660AbSLOO6w>; Sun, 15 Dec 2002 09:58:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261624AbSLOOcg>; Sun, 15 Dec 2002 09:32:36 -0500
-Received: from ping.ovh.net ([213.186.33.13]:1801 "EHLO ping.ovh.net")
-	by vger.kernel.org with ESMTP id <S261615AbSLOOcf>;
-	Sun, 15 Dec 2002 09:32:35 -0500
-Date: Sun, 15 Dec 2002 15:40:50 +0100
-From: Octave <oles@ovh.net>
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org, ext3-users@redhat.com
-Subject: problem with Andrew's patch ext3
-Message-ID: <20021215144050.GY12395@ovh.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.5.1i
+	id <S261669AbSLOO6w>; Sun, 15 Dec 2002 09:58:52 -0500
+Received: from smtp-server4.tampabay.rr.com ([65.32.1.43]:39093 "EHLO
+	smtp-server4.tampabay.rr.com") by vger.kernel.org with ESMTP
+	id <S261660AbSLOO6w>; Sun, 15 Dec 2002 09:58:52 -0500
+From: "Scott Robert Ladd" <scott@coyotegulch.com>
+To: "Dave Jones" <davej@codemonkey.org.uk>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Kernel for Pentium 4 hyperthreading?
+Date: Sun, 15 Dec 2002 10:07:43 -0500
+Message-ID: <FKEAJLBKJCGBDJJIPJLJAEICDLAA.scott@coyotegulch.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <20021215134408.GA20335@suse.de>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Andrew,
+Hi,
 
-I patched 2.4.20 with your patch found out on http://lwn.net/Articles/17447/
-and I have a big problem with:
-once server is booted on 2.4.20 with your patch, when I want to reboot
-with /sbin/reboot, server makes a Segmentation fault and it crashs.
-I tested it on 50-60 servers and it is the same problem. I tested kernel
-2.4.20 without your patch: no problem.
+What I have is, indeed, a hyperthread-enabled Pentium 4. They aren't common;
+I obtained this one direct from Intel through their Early Access Program.
+The proof in the pudding is that both Windows XP and Linux 2.5.51 recognize
+it as having "two" processors. The motherboard is an Intel Maryville2 (i850E
+chipset), with an option to enable/disable HT on the first BIOS set-up
+screen.
 
-# uname -a 
-Linux XXXXXX 2.4.20 #1 ven déc 13 17:21:23 CET 2002 i686 unknown
-# /sbin/reboot
+> Note that just because /proc/cpuinfo shows 'ht' does not mean you can
+> use it in hyperthreaded mode. To do that, you also have to have >1
+> sibling in the physical package. Non-Xeon type P4's don't have the
+> extra sibling, so don't function as a hyperthreaded CPU.
 
-Broadcast message from root (pts/0) Sun Dec 15 14:26:03 2002...
+Mine does, and so will any 3.06 or 3.6 GHz Pentium 4.
 
-The system is going down for reboot NOW !!
-Segmentation fault
-# 
-# dmRead from remote host XXXXXXXX: Connection reset by peer
+As it is, I'm past the worst of my troubles (knock on wood!) We'll see what
+happens in the coming days the machine gets stressed. It looks stable with
+2.5.51 -- so I guess I'm now a Linux kernel beta tester... ;)
 
-It is crashed.
+Thanks much.
 
-no logs :/
+..Scott
 
-Regards
-Octave
-
+--
+Scott Robert Ladd
+Coyote Gulch Productions,  http://www.coyotegulch.com
+No ads -- just very free (and somewhat unusual) code.
 

@@ -1,180 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262262AbVBQPNo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262288AbVBQPYC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262262AbVBQPNo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 10:13:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262268AbVBQPLY
+	id S262288AbVBQPYC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 10:24:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262257AbVBQPWc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 10:11:24 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:25350 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262274AbVBQPGg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 10:06:36 -0500
-Date: Thu, 17 Feb 2005 16:06:33 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: jgarzik@pobox.com
-Cc: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/net/arcnet/: possible cleanups
-Message-ID: <20050217150633.GN24808@stusta.de>
+	Thu, 17 Feb 2005 10:22:32 -0500
+Received: from styx.suse.cz ([82.119.242.94]:51942 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S261413AbVBQPVS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Feb 2005 10:21:18 -0500
+Date: Thu, 17 Feb 2005 16:19:11 +0100
+From: Jirka Bohac <jbohac@suse.cz>
+To: Andries Brouwer <Andries.Brouwer@cwi.nl>
+Cc: Jirka Bohac <jbohac@suse.cz>, lkml <linux-kernel@vger.kernel.org>,
+       vojtech@suse.cz, roman@augan.com, hch@nl.linux.org
+Subject: Re: [rfc] keytables - the new keycode->keysym mapping
+Message-ID: <20050217151911.GA10351@dwarf.suse.cz>
+References: <20050209132654.GB8343@dwarf.suse.cz> <20050209152740.GD12100@apps.cwi.nl> <20050209171921.GB11359@dwarf.suse.cz> <20050209200330.GB15005@apps.cwi.nl> <20050210125344.GA5196@dwarf.suse.cz> <20050216182035.GA7094@dwarf.suse.cz> <20050216214958.GA7682@apps.cwi.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20050216214958.GA7682@apps.cwi.nl>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the following possible cleanups:
-- make needlessly global code static
-- arcnet.c: kill the outdated VERSION
-- arcnet.c: remove the unneeded EXPORT_SYMBOL(arc_proto_null)
-- arcnet.c: remove the unneeded EXPORT_SYMBOL(arcnet_dump_packet)
+On Wed, Feb 16, 2005 at 10:49:58PM +0100, Andries Brouwer wrote:
+> On Wed, Feb 16, 2005 at 07:20:35PM +0100, Jirka Bohac wrote:
+>
+> For the time being I look only at the diacr for unicode part.
+> The fragment below looks like a strange kludge.
+> 
+> > -	if (diacr)
+> > -		value = handle_diacr(vc, value);
+> > +	if (diacr) {
+> > +		v = handle_diacr(vc, value);
+> > +
+> > +		if (kbd->kbdmode == VC_UNICODE) {
+> > +			to_utf8(vc, v & 0xFFFF);
+> > +			return;
+> > +		}
+> > +
+> > +		/* 
+> > +		 * this makes at least latin-1 compose chars work 
+> > +		 * even when using unicode keymap in non-unicode mode
+> > +		 */
+> > +		value = v & 0xFF; 
+> > +	}
+> >  
+> >  	if (dead_key_next) {
+> >  		dead_key_next = 0;
+> > @@ -637,7 +652,7 @@
+> >  {
+> >  	if (up_flag)
+> >  		return;
+> > -	diacr = (diacr ? handle_diacr(vc, value) : value);
+> > +	diacr = (diacr ? handle_diacr(vc, value) & 0xff : value);
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+I can't see your point ... you mean there is a problem that when 
+kbd->kbdmode == VC_UNICODE, then control will not reach the 
+"if (dead_key_next)"?
 
----
+I don't think this is a problem. You have type a really strange sequence
+of keypresses -- sth like: <a dead key><Compose> <a letter> in Unicode
+mode ... then the behaviour would slightly differ from today's one. 
+If you think this is worth fixing, I can do it.
 
- drivers/net/arcnet/arc-rawmode.c |    2 +-
- drivers/net/arcnet/arcnet.c      |   19 +++++++++----------
- drivers/net/arcnet/rfc1051.c     |    2 +-
- drivers/net/arcnet/rfc1201.c     |    2 +-
- include/linux/arcdevice.h        |    9 ---------
- 5 files changed, 12 insertions(+), 22 deletions(-)
+> I see twice "& 0xff" but why?
 
---- linux-2.6.11-rc3-mm2-full/drivers/net/arcnet/arc-rawmode.c.old	2005-02-16 15:16:38.000000000 +0100
-+++ linux-2.6.11-rc3-mm2-full/drivers/net/arcnet/arc-rawmode.c	2005-02-16 15:16:51.000000000 +0100
-@@ -42,7 +42,7 @@
- static int prepare_tx(struct net_device *dev, struct archdr *pkt, int length,
- 		      int bufnum);
- 
--struct ArcProto rawmode_proto =
-+static struct ArcProto rawmode_proto =
- {
- 	.suffix		= 'r',
- 	.mtu		= XMTU,
---- linux-2.6.11-rc3-mm2-full/include/linux/arcdevice.h.old	2005-02-16 15:17:26.000000000 +0100
-+++ linux-2.6.11-rc3-mm2-full/include/linux/arcdevice.h	2005-02-16 15:20:57.000000000 +0100
-@@ -206,7 +206,6 @@
- 
- extern struct ArcProto *arc_proto_map[256], *arc_proto_default,
- 	*arc_bcast_proto, *arc_raw_proto;
--extern struct ArcProto arc_proto_null;
- 
- 
- /*
-@@ -334,17 +333,9 @@
- #define arcnet_dump_skb(dev,skb,desc) ;
- #endif
- 
--#if (ARCNET_DEBUG_MAX & D_RX) || (ARCNET_DEBUG_MAX & D_TX)
--void arcnet_dump_packet(struct net_device *dev, int bufnum, char *desc,
--			int take_arcnet_lock);
--#else
--#define arcnet_dump_packet(dev, bufnum, desc,take_arcnet_lock) ;
--#endif
--
- void arcnet_unregister_proto(struct ArcProto *proto);
- irqreturn_t arcnet_interrupt(int irq, void *dev_id, struct pt_regs *regs);
- struct net_device *alloc_arcdev(char *name);
--void arcnet_rx(struct net_device *dev, int bufnum);
- 
- #endif				/* __KERNEL__ */
- #endif				/* _LINUX_ARCDEVICE_H */
---- linux-2.6.11-rc3-mm2-full/drivers/net/arcnet/arcnet.c.old	2005-02-16 15:17:47.000000000 +0100
-+++ linux-2.6.11-rc3-mm2-full/drivers/net/arcnet/arcnet.c	2005-02-16 15:21:20.000000000 +0100
-@@ -41,8 +41,6 @@
-  *     <jojo@repas.de>
-  */
- 
--#define VERSION "arcnet: v3.93 BETA 2000/04/29 - by Avery Pennarun et al.\n"
--
- #include <linux/module.h>
- #include <linux/config.h>
- #include <linux/types.h>
-@@ -61,6 +59,7 @@
- static int null_prepare_tx(struct net_device *dev, struct archdr *pkt,
- 			   int length, int bufnum);
- 
-+static void arcnet_rx(struct net_device *dev, int bufnum);
- 
- /*
-  * one ArcProto per possible proto ID.  None of the elements of
-@@ -71,7 +70,7 @@
-  struct ArcProto *arc_proto_map[256], *arc_proto_default,
-    *arc_bcast_proto, *arc_raw_proto;
- 
--struct ArcProto arc_proto_null =
-+static struct ArcProto arc_proto_null =
- {
- 	.suffix		= '?',
- 	.mtu		= XMTU,
-@@ -90,7 +89,6 @@
- EXPORT_SYMBOL(arc_proto_default);
- EXPORT_SYMBOL(arc_bcast_proto);
- EXPORT_SYMBOL(arc_raw_proto);
--EXPORT_SYMBOL(arc_proto_null);
- EXPORT_SYMBOL(arcnet_unregister_proto);
- EXPORT_SYMBOL(arcnet_debug);
- EXPORT_SYMBOL(alloc_arcdev);
-@@ -118,8 +116,6 @@
- 
- 	arcnet_debug = debug;
- 
--	printk(VERSION);
--
- #ifdef ALPHA_WARNING
- 	BUGLVL(D_EXTRA) {
- 		printk("arcnet: ***\n"
-@@ -178,8 +174,8 @@
-  * Dump the contents of an ARCnet buffer
-  */
- #if (ARCNET_DEBUG_MAX & (D_RX | D_TX))
--void arcnet_dump_packet(struct net_device *dev, int bufnum, char *desc,
--			int take_arcnet_lock)
-+static void arcnet_dump_packet(struct net_device *dev, int bufnum,
-+			       char *desc, int take_arcnet_lock)
- {
- 	struct arcnet_local *lp = dev->priv;
- 	int i, length;
-@@ -208,7 +204,10 @@
- 
- }
- 
--EXPORT_SYMBOL(arcnet_dump_packet);
-+#else
-+
-+#define arcnet_dump_packet(dev, bufnum, desc,take_arcnet_lock) do { } while (0)
-+
- #endif
- 
- 
-@@ -987,7 +986,7 @@
-  * This is a generic packet receiver that calls arcnet??_rx depending on the
-  * protocol ID found.
-  */
--void arcnet_rx(struct net_device *dev, int bufnum)
-+static void arcnet_rx(struct net_device *dev, int bufnum)
- {
- 	struct arcnet_local *lp = dev->priv;
- 	struct archdr pkt;
---- linux-2.6.11-rc3-mm2-full/drivers/net/arcnet/rfc1051.c.old	2005-02-16 15:22:16.000000000 +0100
-+++ linux-2.6.11-rc3-mm2-full/drivers/net/arcnet/rfc1051.c	2005-02-16 15:22:23.000000000 +0100
-@@ -43,7 +43,7 @@
- 		      int bufnum);
- 
- 
--struct ArcProto rfc1051_proto =
-+static struct ArcProto rfc1051_proto =
- {
- 	.suffix		= 's',
- 	.mtu		= XMTU - RFC1051_HDR_SIZE,
---- linux-2.6.11-rc3-mm2-full/drivers/net/arcnet/rfc1201.c.old	2005-02-16 15:22:35.000000000 +0100
-+++ linux-2.6.11-rc3-mm2-full/drivers/net/arcnet/rfc1201.c	2005-02-16 15:22:46.000000000 +0100
-@@ -43,7 +43,7 @@
- 		      int bufnum);
- static int continue_tx(struct net_device *dev, int bufnum);
- 
--struct ArcProto rfc1201_proto =
-+static struct ArcProto rfc1201_proto =
- {
- 	.suffix		= 'a',
- 	.mtu		= 1500,	/* could be more, but some receivers can't handle it... */
+Ok, it's not needed, because it would have been done automatically, as 
+diacr and value are both unsigned chars. But at least we can clearly see
+what's happening.
+
+> The original code was good, so the only change should be to transport
+> more than 8 bits.
+
+You only want to transport more bits when handling a dead key. If the
+put_queue at the end of the function was simply replaced by to_utf8, you
+would modify the behaviour of normal KT_LATIN keys with value > 127;
+Somebody may be rely on the current meaning.
+
+regards,
+
+-- 
+Jirka Bohac <jbohac@suse.cz>
+SUSE Labs, SUSE CR
 

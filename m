@@ -1,51 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266679AbUGQBk3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266676AbUGQBuU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266679AbUGQBk3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jul 2004 21:40:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266676AbUGQBk3
+	id S266676AbUGQBuU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jul 2004 21:50:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266678AbUGQBuU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jul 2004 21:40:29 -0400
-Received: from fw.osdl.org ([65.172.181.6]:43214 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266674AbUGQBk1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jul 2004 21:40:27 -0400
-Date: Fri, 16 Jul 2004 18:39:40 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: davidm@hpl.hp.com
-cc: Mark Haverkamp <markh@osdl.org>, Ingo Molnar <mingo@redhat.com>,
-       Jakub Jelinek <jakub@redhat.com>, suresh.b.siddha@intel.com,
-       jun.nakajima@intel.com, Andrew Morton <akpm@osdl.org>,
-       linux-ia64@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: serious performance regression due to NX patch
-In-Reply-To: <16632.28018.130890.290832@napali.hpl.hp.com>
-Message-ID: <Pine.LNX.4.58.0407161837260.20824@ppc970.osdl.org>
-References: <200407100528.i6A5SF8h020094@napali.hpl.hp.com>
- <Pine.LNX.4.58.0407110437310.26065@devserv.devel.redhat.com>
- <Pine.LNX.4.58.0407110536130.2248@devserv.devel.redhat.com>
- <Pine.LNX.4.58.0407110550340.4229@devserv.devel.redhat.com>
- <20040711123803.GD21264@devserv.devel.redhat.com>
- <Pine.LNX.4.58.0407121402160.2451@devserv.devel.redhat.com>
- <Pine.LNX.4.58.0407121315170.1764@ppc970.osdl.org> <16626.62318.880165.774044@napali.hpl.hp.com>
- <Pine.LNX.4.58.0407122358570.13111@devserv.devel.redhat.com>
- <1089734729.1356.79.camel@markh1.pdx.osdl.net> <16632.28018.130890.290832@napali.hpl.hp.com>
+	Fri, 16 Jul 2004 21:50:20 -0400
+Received: from gizmo10bw.bigpond.com ([144.140.70.20]:12514 "HELO
+	gizmo10bw.bigpond.com") by vger.kernel.org with SMTP
+	id S266676AbUGQBuR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jul 2004 21:50:17 -0400
+Message-ID: <40F885CC.2090709@bigpond.net.au>
+Date: Sat, 17 Jul 2004 11:50:04 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [BUG] Warnings building 2.6.8-rc1 on Fedora Core 2
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Using gcc-3.3.3 on a Fedora Core 2 (x86) system I get the following 
+warning messages when compiling 2.6.8-rc1:
 
+fs/smbfs/inode.c: In function `smb_fill_super':
+fs/smbfs/inode.c:563: warning: comparison is always false due to limited 
+range of data type
+fs/smbfs/inode.c:564: warning: comparison is always false due to limited 
+range of data type
 
-On Fri, 16 Jul 2004, David Mosberger wrote:
-> 
-> Am I missing something?
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
-No. Using "def_flags" was a mistake for the whole VM_EXEC thing. It's not 
-designed for that, and it doesn't work that way. I applied the paper-over 
-fix that gets it almost-working, but I'm waiting for Ingo to rewrite it by 
-just saving the "executable_stack" information at exec time, and not 
-playing with def_flags at all.
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce
 
-And if somebody else beats him to it, all the more power to that person,
-hint hint ;)
-
-		Linus

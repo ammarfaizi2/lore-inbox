@@ -1,72 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261271AbTKGAwy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Nov 2003 19:52:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262280AbTKGAwy
+	id S261406AbTKGEq5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Nov 2003 23:46:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261433AbTKGEq5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Nov 2003 19:52:54 -0500
-Received: from mailrelay.yorku.ca ([130.63.236.144]:22689 "EHLO
-	sungoddess.ccs.yorku.ca") by vger.kernel.org with ESMTP
-	id S261271AbTKGAww (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Nov 2003 19:52:52 -0500
-Subject: New MSI USB device won't accept address
-From: Austin <aacton@yorku.ca>
-Reply-To: aacton@yorku.ca
+	Thu, 6 Nov 2003 23:46:57 -0500
+Received: from web20903.mail.yahoo.com ([216.136.226.225]:6693 "HELO
+	web20903.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261406AbTKGEqz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Nov 2003 23:46:55 -0500
+Message-ID: <20031107044652.2325.qmail@web20903.mail.yahoo.com>
+Date: Thu, 6 Nov 2003 20:46:52 -0800 (PST)
+From: Brandon Stewart <rbrandonstewart@yahoo.com>
+Subject: Re: 2.6.0-test9-mm1 and mm2: Extremely slow mouse
 To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: GNU Linux
-Message-Id: <1068166362.2328.6.camel@gamma373-179.portable.resnet.yorku.ca>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4-9mdk 
-Date: Thu, 06 Nov 2003 19:52:44 -0500
-Content-Transfer-Encoding: 7bit
+Cc: Bob Gill <gillb4@telusplanet.net>, Eric Sandall <eric@sandall.us>
+In-Reply-To: <20031107014720.28888.qmail@web20902.mail.yahoo.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just tried this device out for fun, although I would really like to
-use it.  It's a USB 802.11b interface, UB11B (MS-6823).  I tried it on
-three VERY different motherboards, both with 2.4.22 and 2.6test8
-kernels: exact same error, so I'm pretty sure it's specific to this
-device.
+Simple solution. Add psmouse_resolution=200 to the boot options. No skip,
+smooth mouse. All is good.
 
-Nov  6 19:36:38 gamma373-179 kernel: hub 2-0:1.0: new USB device on port
-1, assigned address 2
-Nov  6 19:36:38 gamma373-179 kernel: [deb94240] link (1eb941e2) element
-(016bc080)
-Nov  6 19:36:38 gamma373-179 kernel:  Element != First TD
-Nov  6 19:36:38 gamma373-179 kernel:   0: [c16bc040] link (016bc080) e3
-Length=7 MaxLen=7 DT0 EndPt=0 Dev=0, PID=2d(SETUP) (buf=1c61d4e0)
-Nov  6 19:36:38 gamma373-179 kernel:   1: [c16bc080] link (00000001) e3
-IOC Stalled Babble Length=7ff MaxLen=7ff DT1 EndPt=0 Dev=0, PID=69(IN)
-(buf=00000000)
-Nov  6 19:36:38 gamma373-179 kernel:
-Nov  6 19:36:39 gamma373-179 kernel: [deb94240] link (1eb941e2) element
-(016bc040)
-Nov  6 19:36:39 gamma373-179 kernel:   0: [c16bc040] link (016bc080) e0
-Stalled CRC/Timeo Length=7 MaxLen=7 DT0 EndPt=0 Dev=0, PID=2d(SETUP)
-(buf=1c61d4e0)
-Nov  6 19:36:39 gamma373-179 kernel:   1: [c16bc080] link (00000001) e3
-IOC Active Length=0 MaxLen=7ff DT1 EndPt=0 Dev=0, PID=69(IN)
-(buf=00000000)
-Nov  6 19:36:39 gamma373-179 kernel:
-Nov  6 19:36:39 gamma373-179 kernel: usb 2-1: device not accepting
-address 2, error -110
+image=/boot/vmlinuz-2.6.0-test9-mm2
+        label=260-test9-mm2
+        root=/dev/hda5
+        read-only
+        append=" devfs=mount acpi=on resume=/dev/hda1 psmouse_resolution=200"
+        initrd=/boot/initrd-2.6.0-test9-mm2.img
 
-Device info here:
-http://www.msicomputer.com/product/detail_spec/product_detail.asp?model=UB11B
+-Brandon
 
-Unfortunately it doesn't specify the chipset anywhere in the
-documentation.
-
-Please CC me if you need any more information or a sample of the windows
-driver or the hardware.
-
-Thanks for your help, 
-Austin
--- 
-                                 Austin Acton
-        Synthetic Organic Chemist, Teaching Assistant, Ph.D. Candidate
-               Department of Chemistry, York University, Toronto
-        MandrakeLinux Volunteer Developer, homepage: www.groundstate.ca
-
-
+--- Brandon Stewart <rbrandonstewart@yahoo.com> wrote:
+> On 2.6.0-test9, sliding my finger from the left of the touchpad to the right
+> takes the cursor 3/4 of the way across the screen on a 1024x768 resolution.
+> Doing the same on 2.6.0-test9-mm1 & 2.6.0-test9-mm2 moves the mouse only
+> about
+> 30 pixels, or about 1/33 of the way across the screen. It is exactly the same
+> system, with exactly the same configuration. The only difference is the
+> kernel
+> ....
+> -Brandon

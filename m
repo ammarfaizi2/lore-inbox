@@ -1,118 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264398AbTLQODS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Dec 2003 09:03:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264426AbTLQODR
+	id S264314AbTLQN50 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Dec 2003 08:57:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264398AbTLQN50
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Dec 2003 09:03:17 -0500
-Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:61569 "EHLO
-	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S264398AbTLQODO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Dec 2003 09:03:14 -0500
-Date: Wed, 17 Dec 2003 15:03:04 +0100 (CET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: George Anzinger <george@mvista.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Catching NForce2 lockup with NMI watchdog
-In-Reply-To: <3FDF7ED3.5020802@mvista.com>
-Message-ID: <Pine.LNX.4.55.0312171410190.7484@jurand.ds.pg.gda.pl>
-References: <3FD5F9C1.5060704@nishanet.com> <Pine.LNX.4.55.0312101421540.31543@jurand.ds.pg.gda.pl>
- <brcoob$a02$1@gatekeeper.tmr.com> <3FDA40DA.20409@mvista.com>
- <Pine.LNX.4.55.0312151412270.26565@jurand.ds.pg.gda.pl> <3FDE2AC6.30902@mvista.com>
- <Pine.LNX.4.55.0312161426060.8262@jurand.ds.pg.gda.pl> <3FDF4060.30303@mvista.com>
- <Pine.LNX.4.55.0312162141070.8262@jurand.ds.pg.gda.pl> <3FDF7ED3.5020802@mvista.com>
-Organization: Technical University of Gdansk
+	Wed, 17 Dec 2003 08:57:26 -0500
+Received: from modemcable178.89-70-69.mc.videotron.ca ([69.70.89.178]:6529
+	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S264314AbTLQN5X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Dec 2003 08:57:23 -0500
+Date: Wed, 17 Dec 2003 08:56:34 -0500 (EST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+Subject: Re: 2.6.0-test11-mm1
+In-Reply-To: <20031217014350.028460b2.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0312170853370.2159@montezuma.fsmlabs.com>
+References: <20031217014350.028460b2.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Dec 2003, George Anzinger wrote:
+Hullo Andrew,
+	I believe this was the intention;
 
-> How confusing :(  Could you give me some idea how this works?  I have tried 
-> disable_irq(0) and, as best as I can tell, it does not do the trick.  The 
-> confusion I have is understanding where in the chain of hardware each of these 
-> thing is taking place.
+On Wed, 17 Dec 2003, Andrew Morton wrote:
 
- Well, strange -- it should mask the timer interrupt.  But I've never 
-tried that and have proposed based on a source study only -- perhaps it 
-needs to be further investigated.
+> mpparse_es7000.patch
+>   mpparse: fix IRQ breakage from the es7000 merge
 
-> For example, it would be "nice" if I could just turn off the PIT interrupt line 
-> so that both the NMI (PIT generated) and the PIT interrupt would be put on hold. 
+For ES7000 add an offset of 16 to the irq in order to setup a mapping where
+ISA/legacy interrupts are in the 0-15 range and PCI 16 and above. This was
+a cleanup fix in order to facilitate easy differentiating between legacy
+and non legacy interrupt setup.
 
- The counter gate of the 8254 chip is designed to do just that -- it's a
-pity it's hardwired, but I can understand another SSI TTL latch of a
-dubious utility was just too costly for the original PC in 1981.
+===
+The ES7000 merge added a bit of code of offset the IRQ numbers.  We're not
+too sure why; it wasn't changelogged.
 
->   Your answer seems to indicate that disable_irq() is working down stream from 
-> where the NMI signal is connected to the PIT interrupt line, so we need to turn 
-> of the NMI as well.  A picture would be nice here :)
+But it broke other systems, so this patch arranges for that code to only be
+activated on es7000 machines.
 
- I'll try my best:
 
- +------+ OUT0                                INTIN2 +--------+
- | 8254 +--+-----------------------------------------+        |
- +------+  |                                         |  I/O   |
-           | IR0 +------+ INT +------+        INTIN0 |  APIC  |
-           +-----+ 8259 +-----+ glue +-+-------------+        |
-                 +------+     +------+ |             +---++---+
-                                       |                 ||
-                                       |                 ||
-                                       |                 ||
-                           +-----------+---------+-...   ||
-                           |                     |       ||
-        +--------+         |  +--------+         |       ||
-        | CPU #0 |         |  | CPU #1 |         |       ||
-        +--------+         |  +--------+         |       ||
-        |        | LINT0   |  |        | LINT0   | ...   ||
-        | local  +---------+  | local  +---------+       ||
-        | APIC   |            | APIC   |                 ||
-        |        |            |        |                 ||
-        +---++---+            +---++---+                 ||
-            ||                    ||                     ||
-            || inter-APIC bus     ||                     ||
-            ++====================++===============...===++
 
-The system is a traditional i82489DX/Pentium/P6-style virtual-wire setup
-with a serial inter-APIC bus and a full MP-spec feature set.  More limited
-systems may miss the OUT0->INTIN2 line and/or one or more of the
-INT->INTIN0 or INT->LINT0 -- there needs to be only one.  If any INT->sth
-connections are missing then either the INT->LINT0 one for the bootstrap
-processor (BSP) or the INT->LINT0 has to exist; other are optional.
+ arch/i386/kernel/dmi_scan.c    |    1 +
+ arch/i386/kernel/mpparse.c     |    7 +++++--
+ arch/i386/mach-es7000/es7000.c |    2 --
+ include/asm-i386/system.h      |    1 +
+ 4 files changed, 7 insertions(+), 4 deletions(-)
 
- For the system above the path for the 8254 timer interrupt is via INTIN2
-and the inter-APIC bus as a LoPri APIC interrupt.  The path for the NMI
-watchdog is via the 8259 reconfigured to pass IR0 transparently to INT and
-then LINT0 inputs of all processors, reconfigured for a NMI APIC
-interrupt.  Some glue at the INT output may prevent the NMI watchdog from
-working -- the LINT0 inputs may not toggle back and forth.
+diff -puN arch/i386/kernel/dmi_scan.c~mpparse_es7000 arch/i386/kernel/dmi_scan.c
+--- 25/arch/i386/kernel/dmi_scan.c~mpparse_es7000	2003-11-21 01:30:11.000000000 -0800
++++ 25-akpm/arch/i386/kernel/dmi_scan.c	2003-11-21 01:30:11.000000000 -0800
+@@ -16,6 +16,7 @@ EXPORT_SYMBOL(dmi_broken);
 
- If the OUT0->INTIN2 line is missing, the path for the 8254 timer
-interrupt is via the 8259 reconfigured to pass IR0 transparently to INT,
-then INTIN0 and the inter-APIC bus as a LoPri APIC interrupt.  The path
-for the NMI watchdog is also via the 8259 and then LINT0 inputs of all
-processors, reconfigured for a NMI APIC interrupt.  Again, some glue at
-the INT output may prevent this set up from working, but if it does work,
-then both the timer interrupt and the NMI watchdog do -- I've not heard of
-a system having different glue logic for INTIN0 and LINT0.
+ int is_sony_vaio_laptop;
+ int is_unsafe_smbus;
++int es7000_plat = 0;
 
- If the above variant does not work, as a last resort, the path for the
-8254 timer interrupt is via the 8259 reconfigured back into its usual mode
-and then LINT0 of the BSP reconfigured for an ExtINTA APIC interrupt.  
-Additionally, since at this point the glue logic has probably already
-locked up due to the messing done above, a few artiffical sets of double
-INTA cycles are sent to the system bus using the RTC chip and INTIN8
-reconfigured temporarily to send ExtINTA APIC interrupts via the
-inter-APIC bus.
+ struct dmi_header
+ {
+diff -puN arch/i386/kernel/mpparse.c~mpparse_es7000 arch/i386/kernel/mpparse.c
+--- 25/arch/i386/kernel/mpparse.c~mpparse_es7000	2003-11-21 01:30:11.000000000 -0800
++++ 25-akpm/arch/i386/kernel/mpparse.c	2003-11-21 01:30:11.000000000 -0800
+@@ -1129,8 +1129,11 @@ void __init mp_parse_prt (void)
+ 			continue;
+ 		ioapic_pin = irq - mp_ioapic_routing[ioapic].irq_start;
 
- I do hope a thorough read of the description will make the available
-variants clear.  The I/O APIC input numbers may differ but so far they are
-almost always as noted above.
+-		if (!ioapic && (irq < 16))
+-			irq += 16;
++		if (es7000_plat) {
++			if (!ioapic && (irq < 16))
++				irq += 16;
++		}
++
+ 		/*
+ 		 * Avoid pin reprogramming.  PRTs typically include entries
+ 		 * with redundant pin->irq mappings (but unique PCI devices);
+diff -puN arch/i386/mach-es7000/es7000.c~mpparse_es7000 arch/i386/mach-es7000/es7000.c
+--- 25/arch/i386/mach-es7000/es7000.c~mpparse_es7000	2003-11-21 01:30:11.000000000 -0800
++++ 25-akpm/arch/i386/mach-es7000/es7000.c	2003-11-21 01:30:11.000000000 -0800
+@@ -51,8 +51,6 @@ struct mip_reg		*host_reg;
+ int 			mip_port;
+ unsigned long		mip_addr, host_addr;
 
-  Maciej
+-static int		es7000_plat;
+-
+ /*
+  * Parse the OEM Table
+  */
+diff -puN include/asm-i386/system.h~mpparse_es7000 include/asm-i386/system.h
+--- 25/include/asm-i386/system.h~mpparse_es7000	2003-11-21 01:30:11.000000000 -0800
++++ 25-akpm/include/asm-i386/system.h	2003-11-21 01:30:11.000000000 -0800
+@@ -470,6 +470,7 @@ void enable_hlt(void);
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+ extern unsigned long dmi_broken;
+ extern int is_sony_vaio_laptop;
++extern int es7000_plat;
+
+ #define BROKEN_ACPI_Sx		0x0001
+ #define BROKEN_INIT_AFTER_S1	0x0002
+
+_

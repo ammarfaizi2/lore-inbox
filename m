@@ -1,43 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270222AbTGML3k (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jul 2003 07:29:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270223AbTGML3k
+	id S270219AbTGMLRZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jul 2003 07:17:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270221AbTGMLRZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jul 2003 07:29:40 -0400
-Received: from smtp-out1.iol.cz ([194.228.2.86]:38065 "EHLO smtp-out1.iol.cz")
-	by vger.kernel.org with ESMTP id S270222AbTGML3k (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jul 2003 07:29:40 -0400
-Date: Sun, 13 Jul 2003 13:44:13 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>
-Subject: 2.5.75: problems with qtopia-embedded
-Message-ID: <20030713114413.GA388@elf.ucw.cz>
+	Sun, 13 Jul 2003 07:17:25 -0400
+Received: from 82-43-130-207.cable.ubr03.mort.blueyonder.co.uk ([82.43.130.207]:21431
+	"EHLO efix.biz") by vger.kernel.org with ESMTP id S270219AbTGMLRX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jul 2003 07:17:23 -0400
+Subject: Re: Kernel 2.4 problem with 3C905B NIC
+From: Edward Tandi <ed@efix.biz>
+To: Kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <1057256675.8992.37.camel@wires.home.biz>
+References: <1057256675.8992.37.camel@wires.home.biz>
+Content-Type: text/plain
+Message-Id: <1058095963.6144.47.camel@wires.home.biz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 13 Jul 2003 12:32:43 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+An update for those interested (and for the archive).
 
-There's something wrong with qvfb/qtopia applications under 2.5.75 (I
-have not tried any other 2.5 version, works okay in 2.4.X).
+After some further diagnostics and discussion with some net driver
+experts/maintainers, it turns out that this problem can be triggered by
+settings in the card's EEPROM settings. It is still unclear to me
+whether these settings directly affect the hardware, or whether they are
+for interpretation only by the driver software.
 
-I got this in syslog after experiments finished. (qvfb segfaulted).
+I was able to get the 3C90B working with the 3c59x driver by downloading
+3com's card configuration utility, contained with a self-extracting
+archive at:
 
-Jul 13 07:24:00 amd kernel: Unable to handle kernel paging request at virtual address 40ae7706
-Jul 13 07:24:00 amd kernel:  printing eip:
-Jul 13 07:24:00 amd kernel: 40ae7706
-Jul 13 07:24:00 amd kernel: *pde = 082dd067
-Jul 13 07:24:00 amd kernel: *pte = 00000000
-Jul 13 07:24:00 amd kernel: Oops: 0004 [#1]
-Jul 13 07:24:00 amd kernel: CPU:    0
+ftp://ftp.3com.com/pub/nic/3c90x/3c90x2.exe
 
-							Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+The utility is called '3c90xcfg.exe', which runs in DOS command mode.
+All you need to do is hit the 'auto-configure' box and it sets the
+EEPROM settings according to whatever you have the card connected to. In
+my case, it changed only one parameter -it cleared the full-duplex bit.
+
+These settings can be adjusted manually in Linux using vortex-diag, but
+I did not find it to be an easy user-facing tool, for the purpose of
+just getting your card configured right.
+
+After re-boot, the 3c59x drivers _just_work_ without any module
+parameters. Of course, one has to ask how the EEPROM got into an
+unusable state in the first place. My current speculation is that in a
+previous life, the card may have been tweaked from Windows using a 3com
+tuning tool.
+
+There is still the issue of why the 3c90x drivers worked in a situation
+where the 3c59x drivers failed. I still think there is room for
+improving the driver, although my gut feel judging from the feedback
+given by various maintainers, is that it probably won't happen any time
+soon.
+
+I did also suggest updating the kernel documentation (vortex.txt)
+suggesting that if people are having problems with the card, they should
+run this 3com utility.
+
+Ed-T.
+
+
+On Thu, 2003-07-03 at 19:24, Edward Tandi wrote:
+> I am currently using kernels 2.4.21-rc1 and 2.4.22-pre2.
+> 
+> I think there is a problem with the 3c59x module. Between two machines
+> lies a D-Link 100Base-TX Fast Ethernet Hub and a Netgear DS104 switch. I
+> think the D-Link has only half-duplex capability.
+> 
+> NICs at both ends initialise in 100Mbit mode.
+> 
+> What happens is that during large transfers, there are a very large
+> number of collisions on the network. This results in the transfer rate
+> slowing down to somewhere between 3KB-7KB per second.
+> 
+> Googling shows that there have been a number of problems in the past
+> regarding Linux and the 3C905B. History indicates that card appears to
+> work on Windows machines but have serious performance problems under
+> Linux in certain circumstances.
+> 
+> I have tried the various duplex module options and nothing helps. In
+> fact long transfers appear to trigger a Tulip lockup at the other end.
+> 
+> For those suffering, I have found a temporary work-around. Build the
+> driver (3c90x-102.tar.gz) at:
+> 
+> http://support.3com.com/infodeli/tools/nic/linuxdownload.htm
+> 
+> Despite all the compilation warnings, all works well! Transfer speeds
+> have increased to between 7MB-9MB per second, which is what I would
+> expect it to be.
+> 
+> The 3com site says that the driver is unsupported. Pity. Is there a
+> maintainer for the 3c59x module? The last entry in 3c59x.c was by akpm
+> July 2001. I presume this issues has been around for a while.
+

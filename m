@@ -1,47 +1,205 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265063AbTIIXeZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 19:34:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265065AbTIIXeZ
+	id S265091AbTIIXoj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 19:44:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265092AbTIIXoj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 19:34:25 -0400
-Received: from adsl-66-127-195-58.dsl.snfc21.pacbell.net ([66.127.195.58]:43156
-	"EHLO panda.mostang.com") by vger.kernel.org with ESMTP
-	id S265063AbTIIXeY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 19:34:24 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Minor scheduler fix to get rid of skipping in xmms
-References: <tCPY.4xU.1@gated-at.bofh.it> <tDsR.5tY.31@gated-at.bofh.it> <tZ0f.49P.5@gated-at.bofh.it> <tZjz.4Bn.7@gated-at.bofh.it>
-From: David Mosberger-Tang <David.Mosberger@acm.org>
-Date: 09 Sep 2003 16:24:24 -0700
-In-Reply-To: <tZjz.4Bn.7@gated-at.bofh.it>
-Message-ID: <ug8yoxsfyv.fsf@panda.mostang.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	Tue, 9 Sep 2003 19:44:39 -0400
+Received: from palrel10.hp.com ([156.153.255.245]:55492 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S265091AbTIIXoc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 19:44:32 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16222.26077.28147.350570@napali.hpl.hp.com>
+Date: Tue, 9 Sep 2003 16:44:29 -0700
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: davidm@HPL.HP.COM, Jes Sorensen <jes@wildopensource.com>,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       <linux-kernel@vger.kernel.org>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>,
+       "Mallick, Asit K" <asit.k.mallick@intel.com>
+Subject: Re: [Patch] asm workarounds in generic header files
+In-Reply-To: <Pine.LNX.4.44.0309091329570.30594-100000@home.osdl.org>
+References: <16222.14136.21774.211178@napali.hpl.hp.com>
+	<Pine.LNX.4.44.0309091329570.30594-100000@home.osdl.org>
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: davidm@HPL.HP.COM
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Wed, 10 Sep 2003 00:40:09 +0200, Andrew Morton <akpm@osdl.org> said:
+>>>>> On Tue, 9 Sep 2003 13:33:51 -0700 (PDT), Linus Torvalds <torvalds@osdl.org> said:
 
-  Andrew> Steven Pratt <slpratt@austin.ibm.com> wrote:
+  Linus> I might agree, but "compiler.h" is getting increasingly
+  Linus> messy, and this just makes it worse (and sets the stage for
+  Linus> making it even worse in the future).
 
-  >> >ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test4/2.6.0-test4-mm6/broken-out/sched-CAN_MIGRATE_TASK-fix.patch
-  >> >
-  >> This patch improves specjjb over test5 and has no real effect on
-  >> any of kernbench, volanomark or specsdet.
+  Linus> Is somebody willing to split up compiler.h into a
+  Linus> per-compiler file (and yes, I think "gcc-2.95" is a different
+  Linus> compiler from "gcc-3.2" in this case, since that is what most
+  Linus> of the compiler.h #ifdef's are all about).
 
-  Andrew> Fine, it's a good fix.
-
-Is it that simple?  My reading is that it will do very bad things,
-e.g., to pipe roundtrip latency on SMP machines.  Something that the
-O(1) scheduler has handled nicely so far.
-
-My preference would have been to break affinity only in the presence
-of a _persistent_ load imbalance of >> 1.  For example, it's perfectly
-OK and indeed encouraged to run N tasks on one and the same CPU, if
-those tasks are (almost) never runnable at the same time.
+How about something like this?
+(the patch has Works-for-Me status...)
 
 	--david
---
-Interested in learning more about IA-64 Linux?  Try http://www.lia64.org/book/
+
+===== include/linux/compiler.h 1.18 vs edited =====
+--- 1.18/include/linux/compiler.h	Thu Aug 14 18:17:28 2003
++++ edited/include/linux/compiler.h	Tue Sep  9 16:28:07 2003
+@@ -2,26 +2,21 @@
+ #define __LINUX_COMPILER_H
+ 
+ #ifdef __CHECKER__
+-  #define __user	__attribute__((noderef, address_space(1)))
+-  #define __kernel	/* default address space */
++# define __user		__attribute__((noderef, address_space(1)))
++# define __kernel	/* default address space */
+ #else
+-  #define __user
+-  #define __kernel
++# define __user
++# define __kernel
+ #endif
+ 
+-#if (__GNUC__ > 3) || (__GNUC__ == 3 && __GNUC_MINOR__ >= 1)
+-#define inline		__inline__ __attribute__((always_inline))
+-#define __inline__	__inline__ __attribute__((always_inline))
+-#define __inline	__inline__ __attribute__((always_inline))
+-#endif
+-
+-/* Somewhere in the middle of the GCC 2.96 development cycle, we implemented
+-   a mechanism by which the user can annotate likely branch directions and
+-   expect the blocks to be reordered appropriately.  Define __builtin_expect
+-   to nothing for earlier compilers.  */
+-
+-#if __GNUC__ == 2 && __GNUC_MINOR__ < 96
+-#define __builtin_expect(x, expected_value) (x)
++#if __GNUC__ > 3
++# include <linux/compiler-gcc+.h>	/* catch-all for GCC 4, 5, etc. */
++#elif __GNUC__ == 3
++# include <linux/compiler-gcc3.h>
++#elif __GNUC__ == 2
++# include <linux/compiler-gcc2.h>
++#else
++# error Sorry, your compiler is too old/not recognized.
+ #endif
+ 
+ #define likely(x)	__builtin_expect(!!(x), 1)
+@@ -33,10 +28,8 @@
+  * Usage is:
+  * 		int __deprecated foo(void)
+  */
+-#if ( __GNUC__ == 3 && __GNUC_MINOR__ > 0 ) || __GNUC__ > 3
+-#define __deprecated	__attribute__((deprecated))
+-#else
+-#define __deprecated
++#ifndef __deprecated
++# define __deprecated		/* unimplemented */
+ #endif
+ 
+ /*
+@@ -50,10 +43,8 @@
+  * In prior versions of gcc, such functions and data would be emitted, but
+  * would be warned about except with attribute((unused)).
+  */
+-#if __GNUC__ == 3 && __GNUC_MINOR__ >= 3 || __GNUC__ > 3
+-#define __attribute_used__	__attribute__((__used__))
+-#else
+-#define __attribute_used__	__attribute__((__unused__))
++#ifndef __attribute_used__
++# define __attribute_used__	/* unimplemented */
+ #endif
+ 
+ /*
+@@ -65,19 +56,9 @@
+  * elimination and loop optimization just as an arithmetic operator
+  * would be.
+  * [...]
+- * The attribute `pure' is not implemented in GCC versions earlier
+- * than 2.96.
+  */
+-#if (__GNUC__ == 2 && __GNUC_MINOR__ >= 96) || __GNUC__ > 2
+-#define __attribute_pure__	__attribute__((pure))
+-#else
+-#define __attribute_pure__	/* unimplemented */
++#ifndef __attribute_pure__
++# define __attribute_pure__	/* unimplemented */
+ #endif
+ 
+-/* This macro obfuscates arithmetic on a variable address so that gcc
+-   shouldn't recognize the original var, and make assumptions about it */
+-#define RELOC_HIDE(ptr, off)					\
+-  ({ unsigned long __ptr;					\
+-    __asm__ ("" : "=g"(__ptr) : "0"(ptr));		\
+-    (typeof(ptr)) (__ptr + (off)); })
+ #endif /* __LINUX_COMPILER_H */
+--- /dev/null	2003-03-27 10:58:26.000000000 -0800
++++ include/linux/compiler-gcc+.h	2003-09-09 16:39:42.000000000 -0700
+@@ -0,0 +1,13 @@
++/* Never include this file directly.  Include <linux/compiler.h> instead.  */
++
++/*
++ * These definitions are for Ueber-GCC: always newer than the latest
++ * version and hence sporting everything plus a kitchen-sink.
++ */
++
++#define inline			__inline__ __attribute__((always_inline))
++#define __inline__		__inline__ __attribute__((always_inline))
++#define __inline		__inline__ __attribute__((always_inline))
++#define __deprecated		__attribute__((deprecated))
++#define __attribute_used__	__attribute__((__used__))
++#define __attribute_pure__	__attribute__((pure))
+--- /dev/null	2003-03-27 10:58:26.000000000 -0800
++++ include/linux/compiler-gcc3.h	2003-09-09 16:40:11.000000000 -0700
+@@ -0,0 +1,21 @@
++/* Never include this file directly.  Include <linux/compiler.h> instead.  */
++
++/* These definitions are for GCC v3.x.  */
++
++#if __GNUC_MINOR__ >= 1
++# define inline		__inline__ __attribute__((always_inline))
++# define __inline__	__inline__ __attribute__((always_inline))
++# define __inline	__inline__ __attribute__((always_inline))
++#endif
++
++#if __GNUC_MINOR__ > 0
++# define __deprecated	__attribute__((deprecated))
++#endif
++
++#if __GNUC_MINOR__ >= 3
++# define __attribute_used__	__attribute__((__used__))
++#else
++# define __attribute_used__	__attribute__((__unused__))
++#endif
++
++#define __attribute_pure__	__attribute__((pure))
+--- /dev/null	2003-03-27 10:58:26.000000000 -0800
++++ include/linux/compiler-gcc2.h	2003-09-09 16:40:06.000000000 -0700
+@@ -0,0 +1,22 @@
++/* Never include this file directly.  Include <linux/compiler.h> instead.  */
++
++/* These definitions are for GCC v2.x.  */
++
++/* Somewhere in the middle of the GCC 2.96 development cycle, we implemented
++   a mechanism by which the user can annotate likely branch directions and
++   expect the blocks to be reordered appropriately.  Define __builtin_expect
++   to nothing for earlier compilers.  */
++
++#if __GNUC_MINOR__ < 96
++# define __builtin_expect(x, expected_value) (x)
++#endif
++
++#define __attribute_used__	__attribute__((__unused__))
++
++/*
++ * The attribute `pure' is not implemented in GCC versions earlier
++ * than 2.96.
++ */
++#if __GNUC_MINOR__ >= 96
++# define __attribute_pure__	__attribute__((pure))
++#endif

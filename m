@@ -1,51 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268924AbUH0Ict@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269290AbUH0Ice@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268924AbUH0Ict (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 04:32:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269260AbUH0Ics
+	id S269290AbUH0Ice (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 04:32:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269222AbUH0I2g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 04:32:48 -0400
-Received: from [139.30.44.16] ([139.30.44.16]:38362 "EHLO
-	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id S268924AbUH0I14 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 04:27:56 -0400
-Date: Fri, 27 Aug 2004 10:26:46 +0200 (CEST)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: John Hesterberg <jh@sgi.com>
-cc: Andrew Morton <akpm@osdl.org>, Jay Lan <jlan@engr.sgi.com>,
-       lkml <linux-kernel@vger.kernel.org>, erikj@dbear.engr.sgi.com,
-       limin@engr.sgi.com, lse-tech@lists.sourceforge.net,
-       Ragnar Kj?rstad <kernel@ragnark.vestdata.no>,
-       Yoshitaka ISHIKAWA <y.ishikawa@soft.fujitsu.com>,
-       Arthur Corliss <corliss@digitalmages.com>,
-       Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-Subject: Re: [Lse-tech] Re: [PATCH] new CSA patchset for 2.6.8
-In-Reply-To: <20040826184305.GB11393@sgi.com>
-Message-ID: <Pine.LNX.4.53.0408271025160.18605@gockel.physik3.uni-rostock.de>
-References: <412D2E10.8010406@engr.sgi.com> <20040825221842.72dd83a4.akpm@osdl.org>
- <Pine.LNX.4.53.0408261821090.14826@gockel.physik3.uni-rostock.de>
- <20040826184305.GB11393@sgi.com>
+	Fri, 27 Aug 2004 04:28:36 -0400
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:17361 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S268215AbUH0IZK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 04:25:10 -0400
+X-Comment: AT&T Maillennium special handling code - c
+Message-ID: <412EEC66.2070508@namesys.com>
+Date: Fri, 27 Aug 2004 01:10:14 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: viro@parcelfarce.linux.theplanet.co.uk
+CC: Linus Torvalds <torvalds@osdl.org>, Rik van Riel <riel@redhat.com>,
+       Diego Calleja <diegocg@teleline.es>, jamie@shareable.org,
+       christophe@saout.de, vda@port.imtp.ilyichevsk.odessa.ua,
+       christer@weinigel.se, spam@tnonline.net, akpm@osdl.org,
+       wichert@wiggy.net, jra@samba.org, hch@lst.de,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       flx@namesys.com, reiserfs-list@namesys.com
+Subject: Re: silent semantic changes with reiser4
+References: <Pine.LNX.4.44.0408261607070.27909-100000@chimarrao.boston.redhat.com> <Pine.LNX.4.58.0408261315110.2304@ppc970.osdl.org> <412E69D2.50503@namesys.com> <Pine.LNX.4.58.0408261625180.2304@ppc970.osdl.org> <412E769B.1090508@namesys.com> <20040827020350.GF21964@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20040827020350.GF21964@parcelfarce.linux.theplanet.co.uk>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 26 Aug 2004, John Hesterberg wrote:
+viro@parcelfarce.linux.theplanet.co.uk wrote:
 
-> On Thu, Aug 26, 2004 at 07:15:40PM +0200, Tim Schmielau wrote:
-> > ...
-> > IMHO CSA, ELSA and BSD accounting are too similar to have more than one of 
-> > them in the kernel. We should either improve BSD accounting to do the job, 
-> > or kill it in favor of a different implementation.
-> > 
-> > Tim
-> 
-> We should at least have common data collection in the kernel.
-> 
-> I could more easily understand different accounting packages on top of
-> that that might meet different needs of different classes of users.
+>On Thu, Aug 26, 2004 at 04:47:39PM -0700, Hans Reiser wrote:
+>
+>  
+>
+>>Sometimes you want the nonlocal effects and sometimes you don't, and by 
+>>decomposing streams into smaller primitives we can let users choose as 
+>>they want.
+>>    
+>>
+>
+>Right.  Now, would you kindly post the detailed technical analysis of your
+>wonderful design that handles that stuff safely?  With proof of correctness,
+>please.  Since we are expected to take your code and use it as "Uber"
+>replacement for the existing one, it surely would not be too much to expect,
+>would it?
+>
+>And no, "we have a nice presentation somewhere on namesys" does not
+>qualify.
+>
+>I apologize for the obvious posting in a thread already full of noise,
+>but I would like to make *very* sure that lack of ripping you another
+>one does *not* mutate into "no objections from viro" in a lovely thread
+>on SlashDot in a week or so.
+>
+>
+>  
+>
+Over the next 6-18 months, one piece at a time, it will all fall into 
+place. 
 
-Sorry, that is of course what I meant - I am only talking about kernel 
-code.
+Reiser4 as it is shipping today, consists of close to the minimal 
+functionality necessary to replace reiser3, albeit done according to our 
+plugin model, and with vastly higher performance.  The full solution is 
+not yet written, wait for it.  I understand why you think deadlocks are 
+everything, but avoiding them is only a small, albeit necessary, piece 
+of the task.
 
-Tim
+Thanks though for pointing out issues with unlinking files that have 
+been cd'd to.

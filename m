@@ -1,34 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262566AbUAMCae (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 21:30:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262652AbUAMCae
+	id S263053AbUAMDIQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 22:08:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263462AbUAMDIQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 21:30:34 -0500
-Received: from p508B5C87.dip.t-dialin.net ([80.139.92.135]:55173 "EHLO
-	mail.linux-mips.net") by vger.kernel.org with ESMTP id S262566AbUAMCae
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 21:30:34 -0500
-Date: Tue, 13 Jan 2004 03:28:26 +0100
-From: Ralf Baechle <ralf@linux-mips.org>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: linux-mips@linux-mips.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] fix DECSTATION depends
-Message-ID: <20040113022826.GC1646@linux-mips.org>
-References: <20040113015202.GE9677@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040113015202.GE9677@fs.tum.de>
-User-Agent: Mutt/1.4i
+	Mon, 12 Jan 2004 22:08:16 -0500
+Received: from ns1.skjellin.no ([80.239.42.66]:39382 "HELO mail.skjellin.no")
+	by vger.kernel.org with SMTP id S263053AbUAMDIP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 22:08:15 -0500
+Message-ID: <4003611D.1020105@tomt.net>
+Date: Tue, 13 Jan 2004 04:08:13 +0100
+From: Andre Tomt <andre@tomt.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: gj@pointblue.com.pl
+Subject: Re: 2.4.24+grsec compilation issue
+References: <200401122142.06931.gj@pointblue.com.pl>
+In-Reply-To: <200401122142.06931.gj@pointblue.com.pl>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 13, 2004 at 02:52:02AM +0100, Adrian Bunk wrote:
+Grzegorz Jaskiewicz wrote:
 
-> it seems the following is required in Linus' tree to get correct depends 
-> for DECSTATION:
+> Hi guys
+> 
+> Recently i tried to compile 2.4.24+grsec kernel.
+> I am getting error:
+> 
+> /usr/src/linux-2.4.24/arch/i386/vmlinux.lds:116 invalid assignment to location 
+> counter
 
-Thanks,  applied.
+This does not belong on this list unless you get the same problem with a 
+clean vanilla kernel.
 
-  Ralf
+-- 
+Cheers,
+André Tomt

@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136615AbREAOlr>; Tue, 1 May 2001 10:41:47 -0400
+	id <S136624AbREAOqh>; Tue, 1 May 2001 10:46:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136517AbREAOlj>; Tue, 1 May 2001 10:41:39 -0400
-Received: from green.mif.pg.gda.pl ([153.19.42.8]:5382 "EHLO
-	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S135982AbREAOl3>; Tue, 1 May 2001 10:41:29 -0400
-From: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
-Message-Id: <200105011440.QAA12760@green.mif.pg.gda.pl>
-Subject: Re: iso9660 endianness cleanup patch
-To: hpa@transmeta.com
-Date: Tue, 1 May 2001 16:40:58 +0200 (CEST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        linux-kernel@vger.kernel.org (kernel list), torvalds@transmeta.com,
-        Andries.Brouwer@cwi.nl
-X-Mailer: ELM [version 2.5 PL0pre8]
-MIME-Version: 1.0
+	id <S136517AbREAOqS>; Tue, 1 May 2001 10:46:18 -0400
+Received: from adsl-64-109-89-110.chicago.il.ameritech.net ([64.109.89.110]:25678
+	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S135947AbREAOqF>; Tue, 1 May 2001 10:46:05 -0400
+Message-Id: <200105011445.KAA01117@localhost.localdomain>
+X-Mailer: exmh version 2.1.1 10/15/1999
+To: "Roets, Chris" <Chris.Roets@compaq.com>
+cc: "'James Bottomley'" <James.Bottomley@steeleye.com>,
+        linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: Linux Cluster using shared scsi 
+In-Reply-To: Message from "Roets, Chris" <Chris.Roets@compaq.com> 
+   of "Tue, 01 May 2001 14:07:11 BST." <6B180991CB19D31183E40000F86AF80E037EBD0E@broexc2.bro.dec.com> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Tue, 01 May 2001 10:45:00 -0400
+From: James Bottomley <James.Bottomley@steeleye.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Chris.Roets@compaq.com said:
+> So, will Linux ever support the scsi reservation mechanism as standard? 
 
-Are you sure that the arguments of the following casting
+That's not within my gift.  I can merely write the code that corrects the 
+behaviour.  I can't force anyone else to accept it.
 
-> +	return le16_to_cpu(*(u16 *)p);
+Chris.Roets@compaq.com said:
+> Isn't there a standard that says if you scsi reserve a disk, no one
+> else should be able to access this disk, or is this a "steeleye/
+> Compaq" standard. 
 
-> +	return be16_to_cpu(*(u16 *)p);
+Use of reservations is laid out in the SCSI-2 and SCSI-3 standards (which can 
+be downloaded from the T10 site www.t10.org) which are international in scope. 
+ I think the implementation issues come because the reservations part is 
+really only relevant to a multi-initiator clustered environment which isn't an 
+every day configuration for most Linux users.  Obviously, as Linux moves into 
+the SAN arena this type of configuration will become a lot more common, at 
+which time the various problems associated with multiple initiators should 
+rise in prominence.
 
-> +	return le32_to_cpu(*(u32 *)p);
+James
 
-> +	return be32_to_cpu(*(u32 *)p);
 
-are properly aligned ?
-I did not revise the code to check it, but AFAIK improperly aligned
-char* pointers cause problem with casting to pointers to 16/32-bit data
-on some architectures (I heard of sucj a problem with alpha).
-
-Maybe there was a reason that the original code did operate on bytes here...
-
-Andrzej
-
--- 
-=======================================================================
-  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
-  phone (48)(58) 347 14 61
-Faculty of Applied Phys. & Math.,   Technical University of Gdansk

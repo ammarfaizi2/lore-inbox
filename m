@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261880AbUKJEz5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261879AbUKJEz0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261880AbUKJEz5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 23:55:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261883AbUKJEzi
+	id S261879AbUKJEz0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 23:55:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261883AbUKJEz0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 23:55:38 -0500
-Received: from l247150.ppp.asahi-net.or.jp ([218.219.247.150]:55719 "EHLO
-	mitou.ysato.dip.jp") by vger.kernel.org with ESMTP id S261880AbUKJEzS
+	Tue, 9 Nov 2004 23:55:26 -0500
+Received: from l247150.ppp.asahi-net.or.jp ([218.219.247.150]:54951 "EHLO
+	mitou.ysato.dip.jp") by vger.kernel.org with ESMTP id S261879AbUKJEzP
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 23:55:18 -0500
-Date: Wed, 10 Nov 2004 13:55:16 +0900
-Message-ID: <m21xf2qp57.wl%ysato@users.sourceforge.jp>
+	Tue, 9 Nov 2004 23:55:15 -0500
+Date: Wed, 10 Nov 2004 13:55:11 +0900
+Message-ID: <m23bziqp5c.wl%ysato@users.sourceforge.jp>
 From: Yoshinori Sato <ysato@users.sourceforge.jp>
 To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] H8/300 inline cleanup
+Subject: [PATCH] H8/300 build error fix
 User-Agent: Wanderlust/2.11.30 (Wonderwall) SEMI/1.14.6 (Maruoka)
  FLIM/1.14.6 (Marutamachi) APEL/10.6 Emacs/21.3 (i386-pc-linux-gnu)
  MULE/5.0 (SAKAKI)
@@ -23,48 +23,48 @@ Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eliminate useless clobber.
+Because reference of fls becomes error.
 
 Signed-off-by: Yoshinori Sato <ysato@users.sourceforge.jp>
 
-diff -Nru a/include/asm-h8300/delay.h b/include/asm-h8300/delay.h
---- a/include/asm-h8300/delay.h	2004-11-10 01:06:35 +09:00
-+++ b/include/asm-h8300/delay.h	2004-11-10 01:06:35 +09:00
-@@ -11,11 +11,10 @@
+diff -Nru a/include/asm-h8300/bitops.h b/include/asm-h8300/bitops.h
+--- a/include/asm-h8300/bitops.h	2004-11-10 01:06:35 +09:00
++++ b/include/asm-h8300/bitops.h	2004-11-10 01:06:35 +09:00
+@@ -6,7 +6,6 @@
+  * Copyright 2002, Yoshinori Sato
+  */
  
- extern __inline__ void __delay(unsigned long loops)
+-#include <linux/kernel.h>
+ #include <linux/config.h>
+ #include <linux/compiler.h>
+ #include <asm/byteorder.h>	/* swab32 */
+@@ -181,6 +180,8 @@
+ #define find_first_zero_bit(addr, size) \
+ 	find_next_zero_bit((addr), (size), 0)
+ 
++#define ffs(x) generic_ffs(x)
++
+ static __inline__ unsigned long __ffs(unsigned long word)
  {
--	__asm__ __volatile__ ("mov.l %0,er0\n\t"
--			      "1:\n\t"
--			      "dec.l #1,er0\n\t"
-+	__asm__ __volatile__ ("1:\n\t"
-+			      "dec.l #1,%0\n\t"
- 			      "bne 1b"
--			      ::"r" (loops):"er0");
-+			      :"=r" (loops):"0"(loops));
+ 	unsigned long result;
+@@ -195,9 +196,6 @@
+ 	return result;
  }
  
- /*
-diff -Nru a/include/asm-h8300/system.h b/include/asm-h8300/system.h
---- a/include/asm-h8300/system.h	2004-11-10 01:06:35 +09:00
-+++ b/include/asm-h8300/system.h	2004-11-10 01:06:35 +09:00
-@@ -2,7 +2,6 @@
- #define _H8300_SYSTEM_H
+-#define ffs(x) generic_ffs(x)
+-#define fls(x) generic_fls(x)
+-
+ static __inline__ int find_next_zero_bit (void * addr, int size, int offset)
+ {
+ 	unsigned long *p = (unsigned long *)(((unsigned long)addr + (offset >> 3)) & ~3);
+@@ -406,5 +404,7 @@
+ #define minix_find_first_zero_bit(addr,size) find_first_zero_bit(addr,size)
  
- #include <linux/config.h> /* get configuration macros */
--#include <linux/kernel.h>
- #include <linux/linkage.h>
+ #endif /* __KERNEL__ */
++
++#define fls(x) generic_fls(x)
  
- #define prepare_to_switch()	do { } while(0)
-@@ -119,7 +118,7 @@
-     __asm__ __volatile__
-     ("mov.b %2,%0\n\t"
-      "mov.b %1,%2"
--    : "=&r" (tmp) : "r" (x), "m" (*__xg(ptr)) : "er0","memory");
-+    : "=&r" (tmp) : "r" (x), "m" (*__xg(ptr)) : "memory");
-     break;
-   case 2:
-     __asm__ __volatile__
+ #endif /* _H8300_BITOPS_H */
 
 -- 
 Yoshinori Sato

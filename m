@@ -1,36 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265102AbSKERvF>; Tue, 5 Nov 2002 12:51:05 -0500
+	id <S265139AbSKESFB>; Tue, 5 Nov 2002 13:05:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265106AbSKERvF>; Tue, 5 Nov 2002 12:51:05 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:36757 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S265102AbSKERuN>; Tue, 5 Nov 2002 12:50:13 -0500
-Subject: Re: When laptop is docked, eth0 moves from pcmcia to docking
-	station nic (both work wth same driver)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Buddy Lumpkin <b.lumpkin@attbi.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <002601c284ef$395ef5d0$0472e50c@peecee>
-References: <002601c284ef$395ef5d0$0472e50c@peecee>
-Content-Type: text/plain
+	id <S265143AbSKESFB>; Tue, 5 Nov 2002 13:05:01 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:51875 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S265139AbSKESE7>;
+	Tue, 5 Nov 2002 13:04:59 -0500
+Date: Tue, 05 Nov 2002 11:06:27 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Werner Almesberger <wa@almesberger.net>,
+       Rusty Russell <rusty@rustcorp.com.au>
+cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+       ebiederm@xmission.com
+Subject: Re: kexec (was: Re: What's left over.)
+Message-ID: <4330000.1036523187@flay>
+In-Reply-To: <20021105142943.I1407@almesberger.net>
+References: <20021031020836.E576E2C09F@lists.samba.org> <20021105142943.I1407@almesberger.net>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 05 Nov 2002 18:18:57 +0000
-Message-Id: <1036520337.4791.111.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-11-05 at 17:17, Buddy Lumpkin wrote:
-> I have a laptop with a 3com PCMCIA NIC and a 3com NIC built into a
-> docking station. When I dock my laptop, eth0 becomes the docking station
-> NIC. I just want to know where to look to be able to control which
-> device becomes which device. Im used to Solaris where a path_to_inst
-> file correlates a device path to an instance number and device links are
-> made accordingly. Does Linux have a similar capability?
+> By the way, let's not forget Eric Biederman's kexec. While not
+> perfect, it's definitely usable, and looks good enough for
+> inclusion as an experimental feature.
 
-You can ask for the MAC or PCI address of an interface, and you can
-rename interfaces if you wish. The Red Hat 8.0 scripts are one example
-that supports this
+Another me too for this feature. I really want to be able to use this
+on the large NUMA boxes - it takes me 5 minutes to do a full reboot
+cycle, and I can't even do an init 6 due to some firmware complications,
+I have to do init 0, power off, power on, boot, etc. Whilst I have
+a remote power interface, it's still a pain in the butt.
+kexec would be Nirvana ;-) 
+
+M.
 

@@ -1,59 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263068AbTJJRrn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 13:47:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263073AbTJJRrn
+	id S263090AbTJJRwF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 13:52:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263091AbTJJRwF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 13:47:43 -0400
-Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:38131 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP id S263068AbTJJRrl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 13:47:41 -0400
-Subject: Re: original redhat config
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Daniel Harker <danielharker@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Sea2-F11XoZl0fqWcH800005aac@hotmail.com>
-References: <Sea2-F11XoZl0fqWcH800005aac@hotmail.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-t4aimzYlJgJHExlpTi+a"
-Organization: Red Hat, Inc.
-Message-Id: <1065808049.5433.9.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-2) 
-Date: Fri, 10 Oct 2003 19:47:29 +0200
+	Fri, 10 Oct 2003 13:52:05 -0400
+Received: from fw.osdl.org ([65.172.181.6]:31698 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263090AbTJJRwC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Oct 2003 13:52:02 -0400
+Date: Fri, 10 Oct 2003 10:51:52 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Joel Becker <Joel.Becker@oracle.com>
+cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Ulrich Drepper <drepper@redhat.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: statfs() / statvfs() syscall ballsup...
+In-Reply-To: <20031010173344.GC29301@ca-server1.us.oracle.com>
+Message-ID: <Pine.LNX.4.44.0310101046060.20420-100000@home.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-t4aimzYlJgJHExlpTi+a
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+On Fri, 10 Oct 2003, Joel Becker wrote:
+> 
+> 	I know that, I agree with it, and I said as much a few emails
+> past.  Linux should refuse to corrupt your data.  But you've taken the
+> tack "It is unsafe today, so we should abandon it altogether, never mind
+> fixing it.", which doesn't logically follow.
 
-On Fri, 2003-10-10 at 19:36, Daniel Harker wrote:
-> ut I just don't have the time.
->=20
-> My question:  Is there a way (without reinstalling) to get the make=20
-> menuconfig to use exactly what redhat configured for my system?  So that =
-my=20
-> mouse, soundcard, and network card work? I pretty much want it to be the=20
-> exact same kernel configuration but with the bootsplash patch.
+No, we've fixed it, the problem is that it ends up being a lot of extra
+complexity that isn't obvious when just initially looking at it. For
+example, just the IO scheduler ended up having serious problems with
+overlapping IO requests. That's in addition to all the issues with
+out-of-sync ordering etc that could cause direct_io reads to bypass
+regular writes and read stuff off the disk that was a potential security
+issue.
 
-the config file we use is stored in the /boot directory
-(and if you install the kernel-source RPM it's also in
-/usr/src/linux-2.4.20-20.9/configs)
+So right now we have extra code and extra complexity (which implies not
+only potential for more bugs, but there are performance worries etc that
+can impact even users that don't need it).
 
+And these are fundamental problems to DIRECT_IO. Which means that likely
+at some point we will _have_ to actually implement DIRECT_IO entirely
+through the page cache to make sure that it's safe. So my bet is that
+eventually we'll make DIRECT_IO just be an awkward way to do page cache
+manipulation.
 
---=-t4aimzYlJgJHExlpTi+a
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+And maybe it works out ok. And we'll clearly have to keep it working. The 
+issue is whether there are better interfaces. And I think there are bound 
+to be.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+		Linus
 
-iD8DBQA/hvCwxULwo51rQBIRAlELAJoDY/TdGOhQdygGmCtXHOeJAp5LZgCfWBv0
-qbTWbQhbVXImXqVv8FhMviA=
-=7zRx
------END PGP SIGNATURE-----
-
---=-t4aimzYlJgJHExlpTi+a--

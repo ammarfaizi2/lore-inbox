@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129731AbQJ3XZX>; Mon, 30 Oct 2000 18:25:23 -0500
+	id <S129199AbQJ3X0D>; Mon, 30 Oct 2000 18:26:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129730AbQJ3XZF>; Mon, 30 Oct 2000 18:25:05 -0500
-Received: from imladris.demon.co.uk ([193.237.130.41]:517 "EHLO
-	imladris.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S129199AbQJ3XZC>; Mon, 30 Oct 2000 18:25:02 -0500
-Date: Mon, 30 Oct 2000 23:24:57 +0000 (GMT)
-From: David Woodhouse <dwmw2@infradead.org>
-To: "H. Peter Anvin" <hpa@zytor.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: / on ramfs, possible?
-In-Reply-To: <8tj899$dqg$1@cesium.transmeta.com>
-Message-ID: <Pine.LNX.4.21.0010302323490.16101-100000@imladris.demon.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129697AbQJ3XZy>; Mon, 30 Oct 2000 18:25:54 -0500
+Received: from mail2.mail.iol.ie ([194.125.2.193]:14344 "EHLO mail.iol.ie")
+	by vger.kernel.org with ESMTP id <S129199AbQJ3XZS>;
+	Mon, 30 Oct 2000 18:25:18 -0500
+Date: Mon, 30 Oct 2000 23:25:10 +0000
+From: Kenn Humborg <kenn@linux.ie>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Third arg to switch_to()
+Message-ID: <20001030232509.A14624@excalibur.research.wombat.ie>
+In-Reply-To: <20001030191558.A10744@excalibur.research.wombat.ie>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20001030191558.A10744@excalibur.research.wombat.ie>; from kenn@linux.ie on Mon, Oct 30, 2000 at 07:15:58PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 29 Oct 2000, H. Peter Anvin wrote:
-
-> > I want my / to be a ramfs filesystem. I intend to populate it from an 
-> > initrd image, and then remount / as the ramfs filesystem. Is that at 
-> > all possible? The way I see it the kernel requires / on a device 
-> > (major,minor) or nfs.
-> > 
-> > Am I out of luck using ramfs as /? If it's easy to fix, how do I fix it?
-> > 
+On Mon, Oct 30, 2000 at 07:15:58PM +0000, I wrote:
 > 
-> Use pivot_root instead of the initrd stuff in /proc/sys.
+> Can anyone point me to an explanation of the third arg to 
+> switch_to(prev, next, last)?
+> 
+> It appeared in 2.2.8.
+> 
+> What exactly is supposed to be written to it?
 
-Urgh. Then you're still using an initrd, and you still have to include all
-the crap necessary to support those horrid block-device thingies. 
+Mea culpa...
 
-Why not just use a ramdisk?
+Further digging revealed that it's for returning prev in the
+new task, to deal with the fact that the stack has changed
+so local variables in schedule() don't exist anymore.
 
--- 
-dwmw2
+Later,
+Kenn
 
 
 -

@@ -1,50 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271212AbTG2BVE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 21:21:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271213AbTG2BVE
+	id S271210AbTG2BOX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 21:14:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271211AbTG2BOX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 21:21:04 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.92.226.49]:52121 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S271212AbTG2BVC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 21:21:02 -0400
-Message-ID: <3F25CC77.7000204@maine.rr.com>
-Date: Mon, 28 Jul 2003 21:23:03 -0400
-From: "David B. Stevens" <dsteven3@maine.rr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5a) Gecko/20030718
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ronald Jerome <imun1ty@yahoo.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: RPM QUESTION
-References: <20030728233344.43084.qmail@web13304.mail.yahoo.com>
-In-Reply-To: <20030728233344.43084.qmail@web13304.mail.yahoo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 28 Jul 2003 21:14:23 -0400
+Received: from inova102.correio.tnext.com.br ([200.222.67.102]:61096 "HELO
+	trinity-auth.correio.tnext.com.br") by vger.kernel.org with SMTP
+	id S271210AbTG2BOW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jul 2003 21:14:22 -0400
+X-Analyze: Velop Mail Shield v0.0.3
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0-test1 test report
+Message-Id: <20030729011407.4B6A126DC1@macp.eti.br>
+Date: Mon, 28 Jul 2003 22:14:07 -0300 (BRT)
+From: root@macp.eti.br (root)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ronald Jerome wrote:
-> Will RPM be working anytime soon in kernel-2.6.0-test
-> series?
-> 
-> In my opinion this question needs to be addressed
-> since two main distro's use RPM and for those who are
-> spending their time testing I would think its worth an answer.
-> 
+Now that 2.6.0-test2 is out, here's my -test1 report.
+The only issue I found is with fbcon. I have a Matrox G550, a every now and then
+the screen will get garbled on scroll. I can switch to another vc and back to
+clear up the mess, but it's pretty useless when trying to track a make bzImage,
+as the screen will get messed up again and again and again, no matter
+how many times you clear it up. So I finally gave up on fbcon, and now I'm using
+the VGA console, leaving all graphical stuff to X. Aside from that, I can play
+quake, run MPlayer under XVideo, mozilla, KMail, gcc, wine, star office, no
+other problems so far.
 
-Ronald,
+Have already upgraded the kernel to 2.6.0-test2, after 24 hrs (this is my main
+desktop), everything is fine.
 
-Make rpm works fine in 2.6.0-test2, as for them putting a RPM up for you 
-to install from it is not likely to happen.
+Specs:
+Athlon MP 1.8 GHz - 512 MB DDR PC 2100
+Asus A7S333 Motherboard
+2 IDE UDMA-100 HD's
+1 DVD  Reader
+1 CD-RW Sony writer
 
-You can always visit your distro provider to get a copy of what they 
-_may_ have if any.
+lspci output:
+00:00.0 Host bridge: Silicon Integrated Systems [SiS]: Unknown device 0745 (rev 01)
+00:01.0 PCI bridge: Silicon Integrated Systems [SiS] 5591/5592 AGP
+00:02.0 ISA bridge: Silicon Integrated Systems [SiS] SiS85C503/5513 (LPC Bridge)
+00:02.2 USB Controller: Silicon Integrated Systems [SiS] 7001 (rev 07)
+00:02.3 USB Controller: Silicon Integrated Systems [SiS] 7001 (rev 07)
+00:02.5 IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE] (rev d0)
+00:05.0 Multimedia audio controller: C-Media Electronics Inc CM8738 (rev 10)
+00:08.0 Communication controller: Lucent Microelectronics LT WinModem (rev 02)
+00:0b.0 Ethernet controller: Linksys Network Everywhere Fast Ethernet 10/100 model NC100 (rev 11)
+01:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA G550 AGP (rev 01)
 
-Most people that test are very comfortable with configuring their own 
-from the kernel sources.
-
-Cheers,
-   Dave
-
+Great job.

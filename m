@@ -1,60 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129514AbQLAKV7>; Fri, 1 Dec 2000 05:21:59 -0500
+	id <S129475AbQLAKZT>; Fri, 1 Dec 2000 05:25:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129625AbQLAKVt>; Fri, 1 Dec 2000 05:21:49 -0500
-Received: from saw.sw.com.sg ([203.120.9.98]:20355 "HELO saw.sw.com.sg")
-	by vger.kernel.org with SMTP id <S129514AbQLAKVj>;
-	Fri, 1 Dec 2000 05:21:39 -0500
-Message-ID: <20001201175109.A4209@saw.sw.com.sg>
-Date: Fri, 1 Dec 2000 17:51:09 +0800
-From: Andrey Savochkin <saw@saw.sw.com.sg>
-To: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>
-Cc: linux-kernel@vger.kernel.org, "David S. Miller" <davem@redhat.com>
-Subject: Re: eepro100 driver update for 2.4
-In-Reply-To: <20001117172336.B27444@saw.sw.com.sg> <3A269F47.17336A69@Hell.WH8.TU-Dresden.De>
+	id <S129535AbQLAKZK>; Fri, 1 Dec 2000 05:25:10 -0500
+Received: from Unable.to.handle.kernel.NULL.pointer.dereference.de ([212.6.215.146]:50182
+	"EHLO inode.real-linux.de") by vger.kernel.org with ESMTP
+	id <S129475AbQLAKY7>; Fri, 1 Dec 2000 05:24:59 -0500
+Date: Fri, 1 Dec 2000 10:52:33 +0100
+From: Florian Heinz <sky@sysv.de>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Some problems with the raid-stuff in 2.4.0-test12pre3
+Message-ID: <20001201105233.D672@inode.real-linux.de>
+In-Reply-To: <20001130123322.A672@inode.real-linux.de> <14887.2273.174231.960990@notabene.cse.unsw.edu.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93.2i
-In-Reply-To: <3A269F47.17336A69@Hell.WH8.TU-Dresden.De>; from "Udo A. Steinberg" on Thu, Nov 30, 2000 at 07:41:11PM
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <14887.2273.174231.960990@notabene.cse.unsw.edu.au>; from neilb@cse.unsw.edu.au on Fri, Dec 01, 2000 at 01:11:45PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-
-On Thu, Nov 30, 2000 at 07:41:11PM +0100, Udo A. Steinberg wrote:
-> I've been using an older EEPro100/B card until now and it's been working without any
-> problems ever since the transmitter bugs were fixed. The boot output looked like this:
-[snip]
-> Today I've installed a new model with Wake-on-LAN support and got caught by
-> above mentioned
+On Fri, Dec 01, 2000 at 01:11:45PM +1100, Neil Brown wrote:
+> On Thursday November 30, sky@dereference.de wrote:
+> > Hello people,
+> > 
+> > I have some trouble with the raid-stuff.
+> > My machine is a Pentium-III, 256 MB ram and 7 scsi-disks (IBM DNES-318350W
+> > 17B). I'm using raid5 for 6 of these disks (chunk-size 8).
+> > Machine boots, I do mkraid /dev/md0 and then mke2fs /dev/md0 and that's
+> > where the problems start. mkfs tries to write 684 inode-tables and after the
+> > first 30 it gets very slow. ps ax (with wchan) tells me it hangs in
+> > wakeup_bdflush.
+> > I'm rather sure it's related to the raidcode, because without raid the disks
+> > work as expected.
+> > I'm using an Adaptec 7892A with the aic7xxx-driver, I have disabled the TCQ
+> > and the extra checks for the new queueing code, but I have tried with both
+> > activated, too.
+> > No related messages from the kernel in the syslog.
+> > It worked fine with 2.2.x.
 > 
-> eth0: card reports no RX buffers.
-> eth0: card reports no resources.
+> Is it just "very slow", but it eventually finishes, it is it so slow,
+> that it actually stops and doesn't make any progress at all?
 > 
-> messages as well. Strangely those messages only ever happen during bootup and
-> *every* time. Shutting eth0 down and bringing it back up fixes the problem.
+> raid5 in 2.4 is definately slower than in 2.2.  Could that be all that
+> you are seeing?
 
-It's a known issue.
-I've been promised that this issue would be looked up in Intel's errata by
-people who had the access to it, but I haven't got the results yet.
-
-> What puzzles me a bit is that the newer card (721383-xxx) is an 82559 chip,
-> according to the Intel site, but the boot output doesn't say so:
-[snip]
-
-The card itself doesn't report its revision in details.
-It can be checked by `lspci'.
-Rev 8 is 82559, if I remember, and rev 9 is 82559ER.
-
-> If you have any patches or tests that would help to find and fix this init
-> bug, I'd offer to test them out, since I can reliably reproduce the problem.
-
-Sorry, no patches so far...
-I may suggest only workarounds that reduces the likelihood of the fails.
-
-Best regards
-		Andrey
+It's so slow that it's unusable. Especially writing. open() and
+close()-calls often hang for 20 seconds or more.
+write-calls hang for 3-4 seconds. This has to be a bug.
+But yes, after a long time, it finishes ;)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

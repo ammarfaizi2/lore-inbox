@@ -1,73 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132562AbQKDI0Y>; Sat, 4 Nov 2000 03:26:24 -0500
+	id <S132606AbQKDI2e>; Sat, 4 Nov 2000 03:28:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132582AbQKDI0P>; Sat, 4 Nov 2000 03:26:15 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:780 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id <S132562AbQKDI0G>;
-	Sat, 4 Nov 2000 03:26:06 -0500
-Message-ID: <3A03C7C7.87CE750F@mandrakesoft.com>
-Date: Sat, 04 Nov 2000 03:24:39 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18pre18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Russell King <rmk@arm.linux.org.uk>
-CC: "Dunlap, Randy" <randy.dunlap@intel.com>,
-        "'David Woodhouse'" <dwmw2@infradead.org>, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: USB init order dependencies.
-In-Reply-To: <200011031038.eA3Accj30162@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii
+	id <S132620AbQKDI2P>; Sat, 4 Nov 2000 03:28:15 -0500
+Received: from mr14.vic-remote.bigpond.net.au ([24.192.1.29]:10946 "EHLO
+	mr14.vic-remote.bigpond.net.au") by vger.kernel.org with ESMTP
+	id <S132606AbQKDI2J>; Sat, 4 Nov 2000 03:28:09 -0500
+Message-Id: <200011040827.TAA14095@mr14.vic-remote.bigpond.net.au>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
+Mime-Version: 1.0
+From: David Hammerton <dhammerton@labyrinth.net.au>
+To: linux-kernel@vger.kernel.org
+Subject: kernel 2.4-test10: new wrapper.h brakes drivers
+X-Mailer: Pronto v2.2.1
+Date: 04 Nov 2000 03:27:58 EST
+Reply-To: David Hammerton <dhammerton@labyrinth.net.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> 
-> Dunlap, Randy writes:
-> > David is entitled to his opinion (IMO).
-> > And I dislike this patch, as he and I have already discussed.
-> >
-> > Short of fixing the link order, I like Jeff's suggestion
-> > better (if it actually works, that is):  go back to the
-> > way it was a few months ago by calling usb_init()
-> > from init/main.c and making the module_init(usb_init);
-> > in usb.c conditional (#ifdef MODULE).
-> 
-> However, that breaks the OHCI driver on ARM.  Unless we're going to start
-> putting init calls back into init/main.c so that we can guarantee the order
-> of init calls which Linus will not like, you will end up with a lot of ARM
-> guys complaining.
-> 
-> Linus, your opinion would be helpful at this point.
+Hi,
 
-Back when some of the initial USB initcall stuff started appearing,
-there were similar discussions, similar problems, and similar
-solutions.  I was also wondering how fbdev (which needs to give you a
-console ASAP) would work with initcalls, etc.  At the time (~6 months
-ago?), Linus' opinion was basically "if the link order hacking starts to
-get ugly, just put it in init/main.c"  So, Randy really should be
-calling the quoted text above "Linus' suggestion" ;-)
+i just installed the latest kernel (2.4-test10).
 
-Putting a call into init/main.c isn't a long term solution, but it
-should get us there for 2.4.x...  init/main.c is also the best solution
-for ugly cross-directory link order dependencies.  I would say the link
-order of foo.o's in linux/Makefile is the most delicate/fragile of all
-the Makefiles...  touching linux/Makefile link order this close to 2.4.0
-is asking for trouble.  Compared to that, adding a few lines to
-init/main.c isn't so bad.
+On recompilation of my "Nvidia" kernel drivers (for geforce 2 3d video support
+in linux), it failed linking to "mem_map_inc_count" (and dec_count).
 
-IMHO,
+Im not much of a programmer, but to get it working all i had to do was to add
+to '/usr/src/linux/include/linux/wrapper.h':
+/*the patch*/
+#define mem_map_inc_count(p)    atomic_inc(&(p->count))
+#define mem_map_dec_count(p)    atomic_dec(&(p->count))
+/*end patch*/
 
-	Jeff
+yes, you'll notice i ripped this out of the older kernels..
 
+good luck in finding an alternative, or just leave it in, or whatever.
 
--- 
-Jeff Garzik             | Dinner is ready when
-Building 1024           | the smoke alarm goes off.
-MandrakeSoft            |	-/usr/games/fortune
+cheers
+
+David
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

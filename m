@@ -1,36 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131066AbQLVTws>; Fri, 22 Dec 2000 14:52:48 -0500
+	id <S129652AbQLVT4r>; Fri, 22 Dec 2000 14:56:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131118AbQLVTwi>; Fri, 22 Dec 2000 14:52:38 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:21003 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S131066AbQLVTw1>;
-	Fri, 22 Dec 2000 14:52:27 -0500
-Date: Fri, 22 Dec 2000 20:21:37 +0100
-From: Andi Kleen <ak@suse.de>
-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-Cc: Pauline Middelink <middelin@polyware.nl>, linux-kernel@vger.kernel.org,
-        jmerkey@timpanogas.org
-Subject: Re: bigphysarea support in 2.2.19 and 2.4.0 kernels
-Message-ID: <20001222202137.A27844@gruyere.muc.suse.de>
-In-Reply-To: <20001221144247.A10273@vger.timpanogas.org> <E149DKS-0003cX-00@the-village.bc.nu> <20001221154446.A10579@vger.timpanogas.org> <20001221155339.A10676@vger.timpanogas.org> <20001222093928.A30636@polyware.nl> <20001222111105.B14232@vger.timpanogas.org> <20001222113530.A14479@vger.timpanogas.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001222113530.A14479@vger.timpanogas.org>; from jmerkey@vger.timpanogas.org on Fri, Dec 22, 2000 at 11:35:30AM -0700
+	id <S129944AbQLVT4i>; Fri, 22 Dec 2000 14:56:38 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:45061 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129652AbQLVT4W>; Fri, 22 Dec 2000 14:56:22 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: recommended gcc compiler version
+Date: 22 Dec 2000 11:25:14 -0800
+Organization: Transmeta Corporation
+Message-ID: <9209qq$7pf$1@penguin.transmeta.com>
+In-Reply-To: <0012212320430F.02217@comptechnews> <E149NvR-0004Kz-00@the-village.bc.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 22, 2000 at 11:35:30AM -0700, Jeff V. Merkey wrote:
-> The real question is how to guarantee that these pages will be contiguous
-> in memory.  The slab allocator may also work, but I think there are size
-> constraints on how much I can get in one pass.
+In article <E149NvR-0004Kz-00@the-village.bc.nu>,
+Alan Cox  <alan@lxorguk.ukuu.org.uk> wrote:
+>
+>2.4.0test
+>	egcs-1.1.2
+>	(gcc 2.95 miscompiles some of the long long uses)
+>	Red Hat's 2.96 seems to generate valid kernels but don't expect
+>		sympathy if you report a bug in one built that way
 
-You cannot guarantee it after the system has left bootup stage. That's the
-whole reason why bigphysarea exists.
+Now, now, I'd love to se reports of expecially the new updated compiler. 
+I've not actually seen a single report of problems for the kernel even
+with the old 2.96, it's just that I've seen too many user-space problems
+that I would be hesitant to use it for the kernel. 
 
--Andi
+Despite my dislike of releasing snaopshot compilers, I'd _much_ rather
+see Red Hat just dropping their "kgcc" thing, and in order to do that
+people do ned to test with the new compiler. 
+
+I just want people to mention the fact, so that I can correlate any
+bug-reports with a compiler version. Just in case. It can be important
+(and not just because of compiler bugs, but due to real kernel bugs that
+just were hidden by pure luck with other compilers). And it helps a LOT
+if you have another compiler available to compare with.
+
+		Linus
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

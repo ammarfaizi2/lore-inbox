@@ -1,105 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261920AbULKDAZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261924AbULKDCN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261920AbULKDAZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 22:00:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261923AbULKDAZ
+	id S261924AbULKDCN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Dec 2004 22:02:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261923AbULKDCM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 22:00:25 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:24459 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261920AbULKDAM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 22:00:12 -0500
-Date: Fri, 10 Dec 2004 21:24:15 -0500 (EST)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org, Stephen Smalley <sds@epoch.ncsc.mil>
-Subject: [PATCH] SELinux - fix bug in avc_update_node()
-Message-ID: <Xine.LNX.4.44.0412102112170.17677-100000@thoron.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 10 Dec 2004 22:02:12 -0500
+Received: from bgm-24-94-57-164.stny.rr.com ([24.94.57.164]:62593 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261922AbULKDCC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Dec 2004 22:02:02 -0500
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-12
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Rui Nuno Capela <rncbc@rncbc.org>, LKML <linux-kernel@vger.kernel.org>,
+       Lee Revell <rlrevell@joe-job.com>,
+       Mark Johnson <Mark_H_Johnson@RAYTHEON.COM>,
+       "K.R. Foley" <kr@cybsft.com>, Florian Schmidt <mista.tapas@gmx.net>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>, emann@mrv.com,
+       Peter Zijlstra <a.p.zijlstra@chello.nl>
+In-Reply-To: <1102731973.3228.8.camel@localhost.localdomain>
+References: <32950.192.168.1.5.1102529664.squirrel@192.168.1.5>
+	 <1102532625.25841.327.camel@localhost.localdomain>
+	 <32788.192.168.1.5.1102541960.squirrel@192.168.1.5>
+	 <1102543904.25841.356.camel@localhost.localdomain>
+	 <20041209093211.GC14516@elte.hu> <20041209131317.GA31573@elte.hu>
+	 <1102602829.25841.393.camel@localhost.localdomain>
+	 <1102619992.3882.9.camel@localhost.localdomain>
+	 <20041209221021.GF14194@elte.hu>
+	 <1102659089.3236.11.camel@localhost.localdomain>
+	 <20041210111105.GB6855@elte.hu>
+	 <1102731973.3228.8.camel@localhost.localdomain>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: Kihon Technologies
+Date: Fri, 10 Dec 2004 22:01:56 -0500
+Message-Id: <1102734116.3238.2.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below fixes a bug in avc_update_node(), reported by Alan Cox.  
-This can only happen on a UP kernel (where spin_trylock() always succeeds)  
-and when SELinux is running in non-enforcing mode.  Under these
-circumstances, the code can cause an avc node to be reclaimed as it is
-updating it, leading to an oops.
+On Fri, 2004-12-10 at 21:26 -0500, Steven Rostedt wrote:
 
-The patch below fixes this by ensuring that avc node allocation and 
-possible reclamation happens before the cache lookup.
+> Hi Ingo,  I found the problem! and I now know why John Cooper didn't
+                                                    ^^^^^^^^^^^
+                                            Sorry, I meant K.R.Foley, 
+                                          Since he's the one with the
+                                          same ethernet card as me.
 
-Please apply.
-
-Signed-off-by: James Morris <jmorris@redhat.com>
-Signed-off-by: Stephen Smalley <sds@epoch.ncsc.mil>
-
----
-
- security/selinux/avc.c |   25 +++++++++++++++++--------
- 1 files changed, 17 insertions(+), 8 deletions(-)
-
-diff -purN -X dontdiff linux-2.6.10-rc2-mm4.o/security/selinux/avc.c linux-2.6.10-rc2-mm4.w/security/selinux/avc.c
---- linux-2.6.10-rc2-mm4.o/security/selinux/avc.c	2004-12-09 16:25:19.000000000 -0500
-+++ linux-2.6.10-rc2-mm4.w/security/selinux/avc.c	2004-12-10 11:26:20.903442608 -0500
-@@ -249,6 +249,13 @@ static void avc_node_delete(struct avc_n
- 	atomic_dec(&avc_cache.active_nodes);
- }
- 
-+static void avc_node_kill(struct avc_node *node)
-+{
-+	kmem_cache_free(avc_node_cachep, node);
-+	avc_cache_stats_incr(frees);
-+	atomic_dec(&avc_cache.active_nodes);
-+}
-+
- static void avc_node_replace(struct avc_node *new, struct avc_node *old)
- {
- 	list_replace_rcu(&old->list, &new->list);
-@@ -722,6 +729,12 @@ static int avc_update_node(u32 event, u3
- 	unsigned long flag;
- 	struct avc_node *pos, *node, *orig = NULL;
- 
-+	node = avc_alloc_node();
-+	if (!node) {
-+		rc = -ENOMEM;
-+		goto out;
-+	}
-+
- 	/* Lock the target slot */
- 	hvalue = avc_hash(ssid, tsid, tclass);
- 	spin_lock_irqsave(&avc_cache.slots_lock[hvalue], flag);
-@@ -737,17 +750,13 @@ static int avc_update_node(u32 event, u3
- 
- 	if (!orig) {
- 		rc = -ENOENT;
--		goto out;
-+		avc_node_kill(node);
-+		goto out_unlock;
- 	}
- 
- 	/*
- 	 * Copy and replace original node.
- 	 */
--	node = avc_alloc_node();
--	if (!node) {
--		rc = -ENOMEM;
--		goto out;
--	}
- 
- 	avc_node_populate(node, ssid, tsid, tclass, &orig->ae);
- 
-@@ -773,9 +782,9 @@ static int avc_update_node(u32 event, u3
- 		break;
- 	}
- 	avc_node_replace(node, orig);
--out:
-+out_unlock:
- 	spin_unlock_irqrestore(&avc_cache.slots_lock[hvalue], flag);
--
-+out:
- 	return rc;
- }
- 
+> have this problem too.  I have CONFIG_PCI_MSI defined. I don't know why,
+> I must have seen the option a while ago and said to myself "That looks
+> cool, lets try it". Since I started with the config file of the vanilla
+> kernel with your rt patches, it was still on. 
 

@@ -1,124 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262041AbUAOGjf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 01:39:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262458AbUAOGjf
+	id S264394AbUAOHBG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 02:01:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264415AbUAOHBG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 01:39:35 -0500
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:37254 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S262041AbUAOGjc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 01:39:32 -0500
-Message-ID: <40063583.3000000@labs.fujitsu.com>
-Date: Thu, 15 Jan 2004 15:38:59 +0900
-From: Tsuchiya Yoshihiro <tsuchiya@labs.fujitsu.com>
-Reply-To: tsuchiya@labs.fujitsu.com
-Organization: Fujitsu Labs
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
+	Thu, 15 Jan 2004 02:01:06 -0500
+Received: from smtp3.Stanford.EDU ([171.67.16.117]:55775 "EHLO
+	smtp3.Stanford.EDU") by vger.kernel.org with ESMTP id S264394AbUAOHBD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jan 2004 02:01:03 -0500
+Message-ID: <40063A20.9000406@myrealbox.com>
+Date: Wed, 14 Jan 2004 22:58:40 -0800
+From: Andy Lutomirski <luto@myrealbox.com>
+User-Agent: Mozilla Thunderbird 0.5a (20031223)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "Stephen C. Tweedie" <sct@redhat.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>, dlion2004@sina.com.cn,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Subject: Re: filesystem bug?
-References: <3FDD7DFD.7020306@labs.fujitsu.com>	 <1071582242.5462.1.camel@sisko.scot.redhat.com> <3FDF7BE0.205@jpl.nasa.gov>		 <3FDF95EB.2080903@labs.fujitsu.com> <3FE0E5C6.5040008@labs.fujitsu.com>	 <1071782986.3666.323.camel@sisko.scot.redhat.com>	 <3FE62999.90309@labs.fujitsu.com>  <3FE67362.2070704@labs.fujitsu.com> <1072094621.1967.6.camel@sisko.scot.redhat.com> <3FE8F079.7010906@labs.fujitsu.com> <3FEA1C91.2010302@labs.fujitsu.com>
-In-Reply-To: <3FEA1C91.2010302@labs.fujitsu.com>
+To: Murilo Pontes <murilo_pontes@yahoo.com.br>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: BUG: loop device not work in 2.6.1-mm2 an 2.6.1-mm3
+References: <fa.l6gqnit.t52ubp@ifi.uio.no>
+In-Reply-To: <fa.l6gqnit.t52ubp@ifi.uio.no>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Murilo Pontes wrote:
 
-Hi,
-I tried ramdisk again with more running process, and the script failed very
-early just like Mr Dlion reported previously. It is about 20 minutes on 
-my machines.
+ > 21:44:56 [root@murilo:~]#mount -V
+ > mount: mount-2.12
+ >
+ > umount: /tmp/ramdisk_mountdir: não montado
+ > ioctl: LOOP_CLR_FD: No such device or address
+ > mount: será usado o dispositivo de laço /dev/loop/0
+ > ioctl: LOOP_SET_FD: Argumento inválido
+ >
+ >
+ > -
+ > To unsubscribe from this list: send the line "unsubscribe linux-kernel"=
+ >  in
+ > the body of a message to majordomo@vger.kernel.org
+ > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+ > Please read the FAQ at  http://www.tux.org/lkml/
 
-1. The script use nvi-1.79 tar ball
-2. Prepare 64MB ramdisk, and mkfs on it.
-3. edit the first three lines and run the script below(its name is xc-1.2)
-4. wait half an hour and see the result will be in /tmp/xcresult
+Are you running reiserfs?  If so, this patch (from Ben Slusky) fixed it:
 
-Thanks,
-Yoshi
---------------------------------
-#!/bin/bash
+--- drivers/block/loop.c.old	2004-01-11 13:05:05.000000000 -0500
++++ drivers/block/loop.c	2004-01-14 07:49:24.795161024 -0500
+@@ -853,9 +853,7 @@
+  		blk_queue_merge_bvec(lo->lo_queue, q->merge_bvec_fn);
+  	}
 
-TARGETPREFIX=/mnt/foo   # filesystem that will be tested
-#MOZSRC=/home/tsuchiya/src/mozilla-source-1.3.tar.gz    # tgz used for test
-MOZSRC=/home/tsuchiya/src/nvi-1.79.tar.gz       # tgz used for test
-RDIR="/tmp/xcresult"    # result directory
-#SOURCE=mozilla
-SOURCE=nvi-1.79
+-	error = set_blocksize(bdev, lo_blocksize);
+-	if (error)
+-		goto out_putf;
++	set_blocksize(bdev, lo_blocksize);
 
-ERRORF=$RDIR/ERROR
-INOFILE=$RDIR/INOF
-
-touch $ERRORF
-
-function _xtract+compare {
-        echo "extracting directory to be compared against for $1"
-        TARGETDIR=$TARGETPREFIX/$1
-        mkdir -p $TARGETDIR
-        cd $TARGETDIR
-        tar zxf $MOZSRC
-        echo "$1 done .... now the job is started."
-# new
-#       touch $INOFILE
-        pwd >> $INOFILE-$1
-        ls -lid $SOURCE >> $INOFILE-$1
-
-        RESULTS=$RDIR/$1
-        echo "test result will be stored under $RESULTS"
-        mkdir -p $RESULTS;
-#       echo "test dir is $TARGETDIR";
-        mkdir -p $TARGETDIR;
-
-        for ((i=0; i < 100000; i++))    # ext2/3 limit 32000
-        do
-
-                cd $TARGETDIR
-                mkdir $TARGETDIR/dirXC$i
-                cd $TARGETDIR/dirXC$i > $RDIR/CD-ERR-$1 2>&1
-
-                if [ -s $RDIR/CD-ERR-$1 ]
-                then
-                        echo "something wrong happened at $1:$i-th trial "
-                        df > $RDIR/DF-$1
-                        exit;
-                fi
-
-                tar zxf $MOZSRC >> $ERRORF
-
-#                echo "test dir for $TARGETDIR" >> $INOFILE-$1
-                ls -lid $SOURCE >> $INOFILE-$1
-
-                diff -rq $TARGETDIR/$SOURCE $TARGETDIR/dirXC$i/$SOURCE > 
-$RESULT
-S/dirXC$i.result 2>&1
-                DIFFSIZE=`ls -l $RESULTS/dirXC$i.result | awk '{print $5}'`
-                if [ $DIFFSIZE != 0 ];
-                then
-                        echo "something wrong happened at $1:$i-th trial "
-                        df > $RDIR/DF-$1
-                        exit;
-                else
-                        rm $RESULTS/dirXC$i.result
-                        echo "test $1:$i-th passed"
-                fi
-
-                cd ..
-                rm -rf $TARGETDIR/dirXC$i &
-        done
-}
-
-for target in aa ab ac ad ae af #ag ah ai aj ak al am an
-do
-        _xtract+compare $target $RDIR &
-done
-
---
-Yoshihiro Tsuchiya
-
-
-
+  	kernel_thread(loop_thread, lo, CLONE_KERNEL);
+  	down(&lo->lo_sem);

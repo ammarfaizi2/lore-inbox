@@ -1,61 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266441AbUAOCoe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 21:44:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266442AbUAOCod
+	id S266454AbUAOCzP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 21:55:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266455AbUAOCzP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 21:44:33 -0500
-Received: from natsmtp00.rzone.de ([81.169.145.165]:10149 "EHLO
-	natsmtp00.webmailer.de") by vger.kernel.org with ESMTP
-	id S266441AbUAOCoa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 21:44:30 -0500
-Subject: Re: PROBLEM: AES cryptoloop corruption under recent -mm kernels
-From: Matthias Hentges <mailinglisten@hentges.net>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040114125210.1dc50593.akpm@osdl.org>
-References: <Pine.GSO.4.58.0401141357410.10111@denali.ccs.neu.edu>
-	 <20040114125210.1dc50593.akpm@osdl.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1074134668.6094.16.camel@mhcln02>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 15 Jan 2004 03:44:28 +0100
+	Wed, 14 Jan 2004 21:55:15 -0500
+Received: from mx1.it.wmich.edu ([141.218.1.89]:57059 "EHLO mx1.it.wmich.edu")
+	by vger.kernel.org with ESMTP id S266454AbUAOCzM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jan 2004 21:55:12 -0500
+Message-ID: <4006010B.7000002@wmich.edu>
+Date: Wed, 14 Jan 2004 21:55:07 -0500
+From: Ed Sweetman <ed.sweetman@wmich.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.1-mm3 lm_sensors outdated?
+References: <4005CB88.5000409@wmich.edu> <20040114232052.GA9914@kroah.com>
+In-Reply-To: <20040114232052.GA9914@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Mit, 2004-01-14 um 21.52 schrieb Andrew Morton:
-> Jim Faulkner <jfaulkne@ccs.neu.edu> wrote:
-> >
-> > I am experiencing data corruption on my AES cryptoloop partition under
-> > recent -mm kernels (including 2.6.1-mm3).  I am unsure how long this
-> > problem has existed, and I am unsure if this problem exists in the
-> > mainstream kernel (I can't test it because of an aic7xxx bug in the
-> > mainstream kernel).
+Greg KH wrote:
+> On Wed, Jan 14, 2004 at 06:06:48PM -0500, Ed Sweetman wrote:
 > 
-> It exists in the mainstream kernel.
+>>sensors: numerical sysctl 7 2 1 is obsolete.
+>>sensors: numerical sysctl 7 2 1 is obsolete.
+>>
+>>I now get these warnings when loading the i2c via686a and viapro modules 
+>> in my dmesg output.
 > 
-> I thought we had this whipped in 2.6.0-mm2, but then I removed the loop
-> patches and switched to a new set.  I think I'll switch back.
 > 
-> It would be interesting to find out if 2.6.0-mm2 is working OK for you.
+> These warnings are coming from userspace, not the modules.
+> 
+> I recommend upgrading to the latest release of lmsensors (they should be
+> making a new release any day now to handle 2.6.1 properly.)
+> 
 
-FYI: 2.6.0-mm2 fixed a nasty crypto-loop corruption bug for me.
-IIRC it was encrypted w/ AES. I did not try 2.6.1-mm3, yet.
-
-Thanks god the corruption could be fixed by running e2fsck over the
-encrypted loop device using a 2.4 kernel.
-A stock 2.6.0 would crash the machine when trying that.
-
-HTH
--- 
-
-Matthias Hentges 
-Cologne / Germany
-
-[www.hentges.net] -> PGP welcome, HTML tolerated
-ICQ: 97 26 97 4   -> No files, no URL's
-
-My OS: Debian Woody. Geek by Nature, Linux by Choice
+the modules themselves aren't making sysfs entries and lm_sensors is 
+integrated with the kernel. so i tried sensors just in case and didn't 
+realize it would output messages into the message log and not terminal. 
+   In any case, i was simply wondering if the kernel's lm_sensors was 
+outdated or if i was running into a compilation or configuration problem 
+brought on by any recent changes.   It would appear though that the 
+sensors in the kernel are incompatible with the kernel, at least some of 
+them.
 

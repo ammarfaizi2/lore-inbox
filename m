@@ -1,39 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318893AbSHSOiG>; Mon, 19 Aug 2002 10:38:06 -0400
+	id <S318898AbSHSOqb>; Mon, 19 Aug 2002 10:46:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318896AbSHSOiG>; Mon, 19 Aug 2002 10:38:06 -0400
-Received: from angband.namesys.com ([212.16.7.85]:50823 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S318893AbSHSOiF>; Mon, 19 Aug 2002 10:38:05 -0400
-Date: Mon, 19 Aug 2002 18:42:08 +0400
-From: Oleg Drokin <green@namesys.com>
-To: linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com, viro@math.psu.edu
-Subject: Need more symbols to be exported out of kernel
-Message-ID: <20020819184208.A11022@namesys.com>
+	id <S318904AbSHSOqb>; Mon, 19 Aug 2002 10:46:31 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:31700 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S318898AbSHSOqa>; Mon, 19 Aug 2002 10:46:30 -0400
+Subject: LTP-Nightly bk test
+From: Paul Larson <plars@austin.ibm.com>
+To: lkml <linux-kernel@vger.kernel.org>, lse-tech@lists.sourceforge.net,
+       ltp-results <ltp-results@lists.sourceforge.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 19 Aug 2002 09:42:36 -0500
+Message-Id: <1029768156.2582.113.camel@plars.austin.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+The 8/17 run of the nightly bk testing I'm doing turned up a lot of page
+allocation failures in the dmesg and eventually an oops in swap.c:85
+(uncaptured, will try to reproduce on current).  Unfortunatly this meant
+the test did not run after that.  This morning I rebooted the machine
+and ran it against the current bk tree and with a single test was able
+to produce a LOT of these messages:
 
-   I have implemented file_operations->write() function for reiserfs for
-   linux kernel v2.4, and it seems I need these symbols to be exported
-   out of kernel for a case when reiserfs is built as a module:
-   generic_osync_inode
-   remove_suid
-   block_commit_write
+page allocation failure. order:0, mode:0x50
 
-   I need block_commit_write just because generic_commit_write is doing
-   some extra stuff I'd better do myself.
-   Will the patch to export these symbols be accepted? (should these be
-   exported as GPL sysmbols or not?).
+The test was: 'mtest01 -p80 -w' which will essentially allocate up to
+80% of the memory and write to it.  I'll keep pounding on it with LTP to
+see if I can reproduce the swap.c:80 oops.
 
-   You can look a my current code on top of 2.4.20-pre2+ at
-   ftp://ftp.namesys.com/pub/reiserfs-for-2.4/2.4.19.pending/testing
+Thanks,
+Paul Larson
+Linux Test Project
 
-Bye,
-    Oleg

@@ -1,55 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263407AbTDCOhg>; Thu, 3 Apr 2003 09:37:36 -0500
+	id <S263413AbTDCOqH>; Thu, 3 Apr 2003 09:46:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263408AbTDCOhf>; Thu, 3 Apr 2003 09:37:35 -0500
-Received: from smtpout.mac.com ([17.250.248.85]:54252 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id <S263407AbTDCOhe>;
-	Thu, 3 Apr 2003 09:37:34 -0500
-Message-ID: <6811369.1049381341811.JavaMail.leimy2k@mac.com>
-Date: Thu, 03 Apr 2003 08:49:01 -0600
-From: David Leimbach <leimy2k@mac.com>
-To: linux-kernel@vger.kernel.org
-Subject: Interesting Logitech Keyboard problem and workaround [hardware based]
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+	id <S263414AbTDCOqH>; Thu, 3 Apr 2003 09:46:07 -0500
+Received: from rth.ninka.net ([216.101.162.244]:12754 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id <S263413AbTDCOqG>;
+	Thu, 3 Apr 2003 09:46:06 -0500
+Subject: Re: [PATCH] C99 Initializers for net/ipv6 [2.4]
+From: "David S. Miller" <davem@redhat.com>
+To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+Cc: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
+In-Reply-To: <Pine.LNX.4.51.0304031250110.13088@dns.toxicfilms.tv>
+References: <Pine.LNX.4.51.0304031250110.13088@dns.toxicfilms.tv>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1049381839.11405.1.camel@rth.ninka.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 03 Apr 2003 06:57:19 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 2003-04-03 at 02:52, Maciej Soltysiak wrote:
+> Here is a conversion to C99 initializers to the files in net/ipv6.
+> It compiles.
+> Patch is against 2.4.21pre6.
 
-I am running debian PPC linux on a PowerMac G4 Quicksilver box.
+Please DO NOT do this!  You will make merging an absolute
+nightmare for me.
 
-I have a problem involving a Logitech Wireless Elite Duo keyboard mouse 
-combo setup.  
+These kinds of across the board cleanups belong in 2.5.x and
+it has already been done there.
 
-Basically the keyboard works fine but the mouse pointer moves only up and
-down with any of the PS/2 based protocols in X as well as GPM.  I narrowed
-the problem down to the way linux is dealing with the wireless receiver for
-both devices.  
+Also, you need to be CC:'ing networking changes to me.
 
-I made the problem "go away" by hooking the wireless receiver up to a Belkin
-PS/2 -> USB converter box and plugging that into the Mac.  Now both mouse
-and keyboard work great under X.  
-
-The only problem is when I boot to Mac OS X now I have to move cables around
-to get the proper keymap labelled on the keyboard to work as well as the extra
-"multimedia" buttons etc.
-
-Another solution was to ignore the mouse part of the duo and use another older
-logitech cordless mouse on a different receiver... This works fine too but I don't
-have enough mice to go to all my machines and I don't care for KVM :).
-
-The problem is now for me only a minor annoyance but I am more than willing
-to work with anyone who has the time to work this problem out.
-
-I noticed a very recent patch was submitted to this list:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=104864596805230&w=2
-
-I hope this involves dealing with this problem.... If not, let me know.  I am available
-for testing ideas to figure this one out :)
-
-Thanks guys... Keep up the good work!
-
-Dave Leimbach

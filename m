@@ -1,58 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266240AbUHTDeD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265245AbUHTCRR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266240AbUHTDeD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 23:34:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266427AbUHTDeD
+	id S265245AbUHTCRR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 22:17:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266003AbUHTCRR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 23:34:03 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:24012 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S266240AbUHTDeA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 23:34:00 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.8.1-P4
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Thomas Charbonnel <thomas@undata.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-In-Reply-To: <20040819073247.GA1798@elte.hu>
-References: <20040816033623.GA12157@elte.hu>
-	 <1092627691.867.150.camel@krustophenia.net>
-	 <20040816034618.GA13063@elte.hu> <1092628493.810.3.camel@krustophenia.net>
-	 <20040816040515.GA13665@elte.hu> <1092654819.5057.18.camel@localhost>
-	 <20040816113131.GA30527@elte.hu> <20040816120933.GA4211@elte.hu>
-	 <1092716644.876.1.camel@krustophenia.net> <20040817080512.GA1649@elte.hu>
-	 <20040819073247.GA1798@elte.hu>
-Content-Type: text/plain
-Message-Id: <1092972918.10063.11.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 19 Aug 2004 23:35:18 -0400
-Content-Transfer-Encoding: 7bit
+	Thu, 19 Aug 2004 22:17:17 -0400
+Received: from fmr12.intel.com ([134.134.136.15]:44735 "EHLO
+	orsfmr001.jf.intel.com") by vger.kernel.org with ESMTP
+	id S265245AbUHTCRP convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 22:17:15 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: PATCH futex on fusyn (Was: RE: [RFC/PATCH] FUSYN Realtime & robust mutexes for Linux, v2.3.1)
+Date: Thu, 19 Aug 2004 19:15:42 -0700
+Message-ID: <F989B1573A3A644BAB3920FBECA4D25A011F942C@orsmsx407>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: PATCH futex on fusyn (Was: RE: [RFC/PATCH] FUSYN Realtime & robust mutexes for Linux, v2.3.1)
+Thread-Index: AcSFuZ3C5alHcAPgQc2D7zSaR6ZIQAAoKNkA
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: "Ingo Molnar" <mingo@elte.hu>
+Cc: <linux-kernel@vger.kernel.org>, <robustmutexes@lists.osdl.org>,
+       "Andrew Morton" <akpm@osdl.org>, "Ulrich Drepper" <drepper@redhat.com>
+X-OriginalArrivalTime: 20 Aug 2004 02:16:11.0285 (UTC) FILETIME=[A93F2450:01C4865B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-08-19 at 03:32, Ingo Molnar wrote:
-> i've uploaded the -P4 patch:
+> From: Ingo Molnar [mailto:mingo@elte.hu]
+> * Perez-Gonzalez, Inaky <inaky.perez-gonzalez@intel.com> wrote:
 > 
->   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8.1-P4
+> > Performance:
+> 
+> > Environment                       Seconds (10 continuous runs averaged)
+> > -----------                       -------------------
+> > plain NPTL and futexes            0.97
+> > plain NPTL, futexes use fuqueues  1.15
+> > Under RTNPTL, using fulocks       1.48
+> 
+> hm, nice - only ~18% slowdown for a very locking-intense workload. If
+> that could be made somewhat lower (without bad compromises) it would
+> kill most of the performance-based objections.
 
-I think I am seeing those weird ~1 ms latencies still (actually I am not
-sure I saw before now):
+That's what I am working on now. As I cannot find no obvious 
+bottlenecks, I am playing with some simple, small random optimizations
+[mostly centered around the hash table lookup code, vl_find*()].
+If that doesn't yield any quick improvements, I'll have to dig
+further and think some more.
 
-http://krustophenia.net/testresults.php?dataset=2.6.8.1-P4#/var/www/2.6.8.1-P4/kswapd_latency_trace.txt
+Volanomark is showing some slowdown too, although smaller. However,
+seems on the right track.
 
-This was the result of doing `make -j12' with a large C++ program (I
-know, I wanted to see what would happen).  This gradually slowed the
-machine to a crawl - for a while I could watch the /proc/latency_trace
-fiels and see the latency gradually climbing.  Eventually tha machine
-ground almost to a halt, with lots of disk activity., and trying to
-switch from X to a console window resulted in a blank screen for 2-3
-minutes.  I did eventually get a text console and was able to kill all
-the cc1plus processes, and the machine went back to normal.
+> the RTNPTL overhead (+~30%) is to be expected i guess - but it's
+> optional so no pain.
 
-The link above is the highest latency recorded during this episode.
+Still it is too much--I need to at least cut that in half.
 
-Lee
+Will let you know as soon as I have some new stuff.
 
+Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own (and my fault)

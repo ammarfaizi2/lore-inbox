@@ -1,34 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292444AbSBPQ61>; Sat, 16 Feb 2002 11:58:27 -0500
+	id <S292450AbSBPRA5>; Sat, 16 Feb 2002 12:00:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292445AbSBPQ6L>; Sat, 16 Feb 2002 11:58:11 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:37126 "EHLO
+	id <S292449AbSBPRAs>; Sat, 16 Feb 2002 12:00:48 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:39430 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S292444AbSBPQ57>; Sat, 16 Feb 2002 11:57:59 -0500
-Subject: Re: Missed jiffies
-To: yodaiken@fsmlabs.com
-Date: Sat, 16 Feb 2002 17:11:50 +0000 (GMT)
-Cc: george@mvista.com (george anzinger), tyson@rwii.com (Tyson D Sawyer),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20020216091405.D29832@hq.fsmlabs.com> from "yodaiken@fsmlabs.com" at Feb 16, 2002 09:14:05 AM
+	id <S292447AbSBPRAd>; Sat, 16 Feb 2002 12:00:33 -0500
+Subject: Re: kernel 2.2.14 + AMI RAID
+To: pmartinez@heraldo.es (Paco Martinez)
+Date: Sat, 16 Feb 2002 17:14:38 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <01d101c1b6e5$3e9c20f0$ef01a8c0@PCZ014> from "Paco Martinez" at Feb 16, 2002 01:27:05 PM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16c8NK-0006gR-00@the-village.bc.nu>
+Message-Id: <E16c8Q2-0006gn-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The SMI is an unbearable abomination and it is an issue that even Microsoft
-> has been unable to make Intel respond to properly. It makes Rambus seem brilliant.
+> My PC has Red Hat 6.2 + kernel 2.2.14 + AMI MegaRAID LD0 RAID5 + 5 Hard Disk
+> Ultra SCSI..
+> 
+> That kernel is giving me many problems -about virtual memory and mysql-.
+> Therefore, I would like to install another newer kernel, but I'm afraid AMI
+> MegaRAID could give problems after upgrading..
 
-To be fair Intel have made it possible to pull this out into processor
-control with ACPI. ACPI isnt the greatest bit of design I've ever seen (not
-by far) but they addressed the problem.
+I've not seen any "new" problems with the megaraid appear in newer drivers
+except for a now squashed problem with 64bit support and HP firmware that
+was killed pretty rapidly.
 
-The BIOS vendors duely decided that the problem was one they didnt mind
-having, and it saved code. Especially anyone still doing APM support where
-SMI is the only sane implementation approach
-
+The current firmware seems to have precisely the same problems in 2.4 as
+in 2.2 and nothing worse. (That is if you have spare CPU you'll probably
+double your performance by throwing it in the bin and using software raid5
+and a generic aic7xxx scsi controller)

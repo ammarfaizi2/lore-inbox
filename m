@@ -1,148 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267164AbSKXC7N>; Sat, 23 Nov 2002 21:59:13 -0500
+	id <S267152AbSKXDCD>; Sat, 23 Nov 2002 22:02:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267166AbSKXC7M>; Sat, 23 Nov 2002 21:59:12 -0500
-Received: from CPE3236333432363339.cpe.net.cable.rogers.com ([24.114.185.204]:2820
-	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
-	id <S267164AbSKXC7K>; Sat, 23 Nov 2002 21:59:10 -0500
-From: Shawn Starr <spstarr@sh0n.net>
-Organization: sh0n.net
-To: linux-kernel@vger.kernel.org
-Subject: [RFC][TRIVIAL][PATCH][2.5] - Supplimental fix to ACPI_SLEEP & SOFTWARE_SUSPEND compile issue
-Date: Sat, 23 Nov 2002 22:06:52 -0500
-User-Agent: KMail/1.5
-Cc: Andrew Grover <andrew.grover@intel.com>, Pavel Machek <pavel@ucw.cz>
+	id <S267158AbSKXDCD>; Sat, 23 Nov 2002 22:02:03 -0500
+Received: from mx1.it.wmich.edu ([141.218.1.89]:51847 "EHLO mx1.it.wmich.edu")
+	by vger.kernel.org with ESMTP id <S267152AbSKXDCC>;
+	Sat, 23 Nov 2002 22:02:02 -0500
+Message-ID: <3DE042DA.4040701@wmich.edu>
+Date: Sat, 23 Nov 2002 22:09:14 -0500
+From: Ed Sweetman <ed.sweetman@wmich.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
 MIME-Version: 1.0
-Content-Type: Multipart/Alternative;
-  boundary="Boundary-00=_MJE49WnBlLfjFip"
-Message-Id: <200211232206.58081.spstarr@sh0n.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.49-mm1 paging request error -> kernel panic
+References: <3DE04028.5090007@wmich.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This doesn't seem to have anything to do wtih the share pagetables 
+option in mm1.  I get it when that option is disabled as well.
 
---Boundary-00=_MJE49WnBlLfjFip
-Content-Type: Text/Plain;
-  charset="iso-8859-3"
-Content-Transfer-Encoding: 7bit
-Content-Description: clearsigned data
-Content-Disposition: inline
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Ed Sweetman wrote:
+> after finishing boot sequence, ntpd eventually does something bad.  i 
+> get an "Unable to handle kernel paging request at virtual address 400413cc"
+> I have that share bottom level page tables option enabled. Also preempt.
+> 
+> printing eip:
+> 400085ca
+> *pde = 0ec26067
+> *pte = 0fc18065
+> Oops: 0007
+> CPU: 0
+> EIP: 0023:[<400085ca>] Not tainted
+> EFLAGS: 00010202
+> eax: 0000003d ebx: 400114a8 ecx: 4004147a edx: 40041258
+> esi: bffff0e0 edi: 00000000 ebp: bffff1a8 esp: bffff0d0
+> ds: 002b es: 002b ss: 002b
+> Process ntpd (pid: 385, theradinfo=ceb02000 task=cfc53380)
+> <0>Kernel panic: Aiee, killing interrupt handler!
+> In interrupt handler - not syncing
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-This patch should fix remaining issues regarding compiling ACPI Sleep states with Software suspend. 
-You need to enable ACPI_SLEEP in config to use software suspend.
-
-The problem is, kbuild doesn't seem to allow this (right?). if ACPI_SLEEP is enabled it will allow you to select 
-SOFTWARE_SUSPEND but if you uncheck SOFTWARE_SUSPEND it doesn't disable ACPI_SLEEP which 
-IMHO it should not be because sleeping the system doesn't always mean power off. Standby might be a 
-sleep state too.
-
-Here's the patch, please comment :)
-
-Shawn.
-
-- From Pavel:
-
-> > Could you make it so that CONFIG_ACPI_SLEEP is not selectable without
-> > CONFIG_SOFTWARE_SUSPEND  and move CONFIG_SOFTWARE_SUSPEND into "power
-> > managment" submenu?
-> >                                                             Pavel
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE94EJQePHb7Xli5GsRAiYgAJ0ZQYfqCSKn+IL6VPeym44mgUbF8gCfW30a
-u03BGOgvMjFwIJ5EoF4ByR8=
-=kv0+
------END PGP SIGNATURE-----
-
---Boundary-00=_MJE49WnBlLfjFip
-Content-Type: text/x-diff;
-  charset="iso-8859-3";
-  name="2.5.49-acpi-swsusp-2.diff.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="2.5.49-acpi-swsusp-2.diff.patch"
-
-diff -Nrup linux-2.5.49-vanilla/arch/i386/Kconfig linux-2.5.49-wip/arch/i386/Kconfig
---- linux-2.5.49-vanilla/arch/i386/Kconfig	2002-11-22 16:40:21.000000000 -0500
-+++ linux-2.5.49-wip/arch/i386/Kconfig	2002-11-23 17:48:33.000000000 -0500
-@@ -1516,35 +1516,6 @@ source "arch/i386/oprofile/Kconfig"
- 
- menu "Kernel hacking"
- 
--config SOFTWARE_SUSPEND
--	bool "Software Suspend (EXPERIMENTAL)"
--	depends on EXPERIMENTAL && PM
--	---help---
--	  Enable the possibilty of suspendig machine. It doesn't need APM.
--	  You may suspend your machine by 'swsusp' or 'shutdown -z <time>' 
--	  (patch for sysvinit needed). 
--
--	  It creates an image which is saved in your active swaps. By the next
--	  booting the, pass 'resume=/path/to/your/swap/file' and kernel will 
--	  detect the saved image, restore the memory from
--	  it and then it continues to run as before you've suspended.
--	  If you don't want the previous state to continue use the 'noresume'
--	  kernel option. However note that your partitions will be fsck'd and
--	  you must re-mkswap your swap partitions/files.
--
--	  Right now you may boot without resuming and then later resume but
--	  in meantime you cannot use those swap partitions/files which were
--	  involved in suspending. Also in this case there is a risk that buffers
--	  on disk won't match with saved ones.
--
--	  SMP is supported ``as-is''. There's a code for it but doesn't work.
--	  There have been problems reported relating SCSI.
--
--	  This option is about getting stable. However there is still some
--	  absence of features.
--
--	  For more information take a look at Documentation/swsusp.txt.
--
- config DEBUG_KERNEL
- 	bool "Kernel debugging"
- 	help
-diff -Nrup linux-2.5.49-vanilla/drivers/acpi/Kconfig linux-2.5.49-wip/drivers/acpi/Kconfig
---- linux-2.5.49-vanilla/drivers/acpi/Kconfig	2002-11-22 16:41:12.000000000 -0500
-+++ linux-2.5.49-wip/drivers/acpi/Kconfig	2002-11-23 18:04:55.000000000 -0500
-@@ -76,6 +76,36 @@ config ACPI_SLEEP
- 	  This option is not recommended for anyone except those doing driver
- 	  power management development.
- 
-+config SOFTWARE_SUSPEND
-+        bool "Software Suspend (EXPERIMENTAL)"
-+        depends on EXPERIMENTAL && X86 && ACPI && ACPI_SLEEP && !ACPI_HT_ONLY
-+	default y
-+        ---help---
-+          Enable the possibilty of suspendig machine. It doesn't need APM.
-+          You may suspend your machine by 'swsusp' or 'shutdown -z <time>'
-+          (patch for sysvinit needed).
-+
-+          It creates an image which is saved in your active swaps. By the next
-+          booting the, pass 'resume=/path/to/your/swap/file' and kernel will
-+          detect the saved image, restore the memory from
-+          it and then it continues to run as before you've suspended.
-+          If you don't want the previous state to continue use the 'noresume'
-+          kernel option. However note that your partitions will be fsck'd and
-+          you must re-mkswap your swap partitions/files.
-+
-+          Right now you may boot without resuming and then later resume but
-+          in meantime you cannot use those swap partitions/files which were
-+          involved in suspending. Also in this case there is a risk that buffers
-+          on disk won't match with saved ones.
-+
-+          SMP is supported ``as-is''. There's a code for it but doesn't work.
-+          There have been problems reported relating SCSI.
-+
-+          This option is about getting stable. However there is still some
-+          absence of features.
-+
-+          For more information take a look at Documentation/swsusp.txt.
-+
- config ACPI_AC
- 	tristate "AC Adapter"
- 	depends on X86 && ACPI && !ACPI_HT_ONLY
-
---Boundary-00=_MJE49WnBlLfjFip--
 

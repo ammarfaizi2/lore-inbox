@@ -1,63 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266854AbUH2Mgh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267786AbUH2MlN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266854AbUH2Mgh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 08:36:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267786AbUH2Mgh
+	id S267786AbUH2MlN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 08:41:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267792AbUH2MlN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 08:36:37 -0400
-Received: from fmmailgate02.web.de ([217.72.192.227]:65425 "EHLO
-	fmmailgate02.web.de") by vger.kernel.org with ESMTP id S266854AbUH2Mge
+	Sun, 29 Aug 2004 08:41:13 -0400
+Received: from clusterfw.beeline3G.net ([217.118.66.232]:1082 "EHLO
+	crimson.namesys.com") by vger.kernel.org with ESMTP id S267786AbUH2MlI
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 08:36:34 -0400
-Date: Sun, 29 Aug 2004 14:36:32 +0200
-Message-Id: <1248337375@web.de>
-MIME-Version: 1.0
-From: "Joachim Bremer" <joachim.bremer@web.de>
-To: linux-kernel@vger.kernel.org
-Cc: nickpiggin@yahoo.com.au
-Subject: <no subject>
-Organization: http://freemail.web.de/
-Content-Type: multipart/mixed; boundary="STEFAN4131cdd13d1e"
+	Sun, 29 Aug 2004 08:41:08 -0400
+Date: Sun, 29 Aug 2004 16:34:28 +0400
+From: Alex Zarochentsev <zam@namesys.com>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Christophe Saout <christophe@saout.de>, Adrian Bunk <bunk@fs.tum.de>,
+       Hans Reiser <reiser@namesys.com>,
+       viro@parcelfarce.linux.theplanet.co.uk,
+       Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: silent semantic changes with reiser4
+Message-ID: <20040829123428.GP5108@backtop.namesys.com>
+References: <20040825204240.GI21964@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0408251348240.17766@ppc970.osdl.org> <20040825212518.GK21964@parcelfarce.linux.theplanet.co.uk> <20040826001152.GB23423@mail.shareable.org> <20040826003055.GO21964@parcelfarce.linux.theplanet.co.uk> <20040826010049.GA24731@mail.shareable.org> <412DA40B.5040806@namesys.com> <20040826140500.GA29965@fs.tum.de> <1093530313.11694.56.camel@leto.cs.pocnet.net> <20040826150434.GF5733@mail.shareable.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040826150434.GF5733@mail.shareable.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME encoded message.
---STEFAN4131cdd13d1e
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+On Thu, Aug 26, 2004 at 04:04:34PM +0100, Jamie Lokier wrote:
+> Christophe Saout wrote:
+> > What reiser4 can do, but the VFS can't is to insert or remove data in
+> > the middle of a file. Adding this above the page cache would probably be
+> > almost impossible (truncate seems already complicated enough).
+> 
+> That would be one of those "special features" that a
+> VFS-plus-userspace implementation of archive views could take
+> advantage of on reiser4, while using a slower method (sometimes much
+> slower) on all other filesystems.
+> 
+> By the way, can reiser4 share parts of files between different files?
 
-As mentioned before I got even with Nicks patch some errors. Looking
-closer at the source there is is a second "goto page_ok" a few lines
-down the label "page_not_up_to_date". Inserting the same calculating
-code used before the label "readpage_error" fixes the errors on my machine.
-These for instance where failure to do reiserfsck (bread complains on last block
-of device) and compiling the linux-tree (file truncated).
+no, those file plugins are not written yet :)
 
-The leads to the same calculation 3 times...
+Do you mean COW files or some another thing?  For COW files, the reiser4
+support is not enough, we need to teach cp(1) or another utility to inform the
+fs layer that copying can be done by creation of COW files.
 
-Patch attached
+> -- Jamie
 
-
-Joachim
-_______________________________________________________
-WEB.DE Video-Mail - Sagen Sie mehr mit bewegten Bildern
-Informationen unter: http://freemail.web.de/?mc=021199
---STEFAN4131cdd13d1e
-Content-Type: text/plain; name="mm-filemap-np-missing.patch.txt"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="mm-filemap-np-missing.patch.txt"
-
-LS0tIGxpbnV4LTIuNi45LW5wL21tL2ZpbGVtYXAuYwkyMDA0LTA4LTI5IDE0OjAzOjQwLjk4
-OTM1MzQ0OCArMDIwMAorKysgbGludXgtMi42L21tL2ZpbGVtYXAuYwkyMDA0LTA4LTI5IDEz
-OjQ4OjM3LjAwMDAwMDAwMCArMDIwMApAQCAtNzk4LDYgKzc5OCwxNSBAQCBwYWdlX25vdF91
-cF90b19kYXRlOgogCQkvKiBEaWQgc29tZWJvZHkgZWxzZSBmaWxsIGl0IGFscmVhZHk/ICov
-CiAJCWlmIChQYWdlVXB0b2RhdGUocGFnZSkpIHsKIAkJCXVubG9ja19wYWdlKHBhZ2UpOwor
-CQkJbnIgPSBQQUdFX0NBQ0hFX1NJWkU7CisJCQlpZiAoaW5kZXggPT0gZW5kX2luZGV4KSB7
-CisJCQkJbnIgPSBpc2l6ZSAmIH5QQUdFX0NBQ0hFX01BU0s7CisJCQkJaWYgKG5yIDw9IG9m
-ZnNldCkgeworCQkJCQlwYWdlX2NhY2hlX3JlbGVhc2UocGFnZSk7CisJCQkJCWdvdG8gb3V0
-OworCQkJCX0KKwkJCX0KKwkJCW5yID0gbnIgLSBvZmZzZXQ7CiAJCQlnb3RvIHBhZ2Vfb2s7
-CiAJCX0KIAo=
-
---STEFAN4131cdd13d1e--
-
-
+-- 
+Alex.

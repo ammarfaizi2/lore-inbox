@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261452AbTDBDt0>; Tue, 1 Apr 2003 22:49:26 -0500
+	id <S261459AbTDBDvL>; Tue, 1 Apr 2003 22:51:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261454AbTDBDt0>; Tue, 1 Apr 2003 22:49:26 -0500
-Received: from dsl081-142-120.chi1.dsl.speakeasy.net ([64.81.142.120]:22270
-	"EHLO topaz") by vger.kernel.org with ESMTP id <S261452AbTDBDtZ>;
-	Tue, 1 Apr 2003 22:49:25 -0500
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.66-bk5 spinlock warnings/errors
-From: Narayan Desai <desai@mcs.anl.gov>
-Date: Tue, 01 Apr 2003 22:01:02 -0600
-Message-ID: <87el4l4kg1.fsf@mcs.anl.gov>
-User-Agent: Gnus/5.090016 (Oort Gnus v0.16) XEmacs/21.4 (Portable Code,
- linux)
+	id <S261464AbTDBDvL>; Tue, 1 Apr 2003 22:51:11 -0500
+Received: from mail.internetwork-ag.de ([217.6.75.131]:40375 "EHLO
+	mail.internetwork-ag.de") by vger.kernel.org with ESMTP
+	id <S261459AbTDBDvJ>; Tue, 1 Apr 2003 22:51:09 -0500
+Message-ID: <3E8A60B5.E4308534@inw.de>
+Date: Tue, 01 Apr 2003 20:01:57 -0800
+From: Till Immanuel Patzschke <tip@inw.de>
+Organization: interNetwork AG
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-4GB i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: [Q] cache/buffers growing constantly (2.4.20aa1)
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am running 2.5.66-bk5 on an thinkpad t21. This model has BIOS
-suspend to disk function that is independent from the OS. (I think
-that this is implemented as S3BIOS in ACPI)
+Dear list,
 
-I am using the laptop with apm, and whenever i hibernate to disk and
-resume, i get the following in dmesg:
+I am constantly running a process creating child processes, running them for a
+while, then terminating, restarting and so on...
+The process restarted over and over again is the same (same executable) the
+launching process doesn't stop.
+Running this for a while (or increasing the number of "launchers" but keeping
+the launched process the same all the time lets the buffers/cache constantly
+grow up to the point where all memory is taken and the machine starts
+swapping...
 
-uhci-hcd 00:07.2: suspend to state 3
-include/linux/seqlock.h:52: spin_lock(kernel/timer.c:c0341894) already locked by include/linux/seqlock.h/52
-arch/i386/kernel/timers/timer_tsc.c:85: spin_lock(arch/i386/kernel/time.c:c033ea40) already locked by arch/i386/kernel/apm.c/1244
-arch/i386/kernel/apm.c:1252: spin_unlock(arch/i386/kernel/time.c:c033ea40) not locked
-include/linux/seqlock.h:61: spin_unlock(kernel/timer.c:c0341894) not locked
-uhci-hcd 00:07.2: resume
-eth1: New link status: Connected (0001)
-hda: dma_timer_expiry: dma status == 0x24
-drivers/ide/ide-io.c:109: spin_lock(drivers/ide/ide.c:c037abe8) already locked by drivers/ide/ide-io.c/948
-drivers/ide/ide-io.c:990: spin_unlock(drivers/ide/ide.c:c037abe8) not locked
-hda: lost interrupt
-hda: dma_intr: bad DMA status (dma_stat=30)
-hda: dma_intr: status=0x50 { DriveReady SeekComplete }
+Q:Is there any way to limit the cache/buffe usage? And, if yes, how?
 
-Any pointers/patches would be appreciated.
- -nld
+Thanks for the help,
+
+Immanuel
+

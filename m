@@ -1,53 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277519AbRJERcU>; Fri, 5 Oct 2001 13:32:20 -0400
+	id <S277526AbRJERfu>; Fri, 5 Oct 2001 13:35:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277520AbRJERcK>; Fri, 5 Oct 2001 13:32:10 -0400
-Received: from mail.spylog.com ([194.67.35.220]:39898 "HELO mail.spylog.com")
-	by vger.kernel.org with SMTP id <S277519AbRJERcI>;
-	Fri, 5 Oct 2001 13:32:08 -0400
-Date: Fri, 5 Oct 2001 21:32:31 +0400
-From: Andrey Nekrasov <andy@spylog.ru>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.11-pre2-xfs
-Message-ID: <20011005213231.C13046@spylog.ru>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <andy@spylog.ru> <20011005022213.A8501@spylog.ru> <200110051420.f95EKVr12837@jen.americas.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <200110051420.f95EKVr12837@jen.americas.sgi.com>
-User-Agent: Mutt/1.3.22i
-Organization: SpyLOG ltd.
+	id <S277527AbRJERfk>; Fri, 5 Oct 2001 13:35:40 -0400
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:4366 "EHLO
+	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id <S277526AbRJERfg>; Fri, 5 Oct 2001 13:35:36 -0400
+Message-Id: <200110051735.f95HZ4ou003296@pincoya.inf.utfsm.cl>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+Subject: Re: Security question: "Text file busy" overwriting executables but 
+In-Reply-To: Message from Linus Torvalds <torvalds@transmeta.com> 
+   of "Fri, 05 Oct 2001 09:58:04 MST." <Pine.LNX.4.33.0110050952510.1540-100000@penguin.transmeta.com> 
+Date: Fri, 05 Oct 2001 13:35:04 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Steve Lord,
+Linus Torvalds <torvalds@transmeta.com> said:
+> On 5 Oct 2001, Eric W. Biederman wrote:
 
-> Oh well, thats really useful, maybe __alloc_pages should report on its
-> caller's caller.
+[...]
 
-I am use gcc gcc version 2.95.2 19991024 (release).
-May be with egcs will be better result?
+> > Currently checking to see if the file is executable looks good
+> > enough.
+> 
+> [ executable by the user in question, not just anybody ]
+> 
+> Yes, I suspect it is.
 
-
-> > ...
-> > swap_dup: Bad swap file entry 3f41e02c
-> > VM: killing process forwarderng
-> > swap_free: Bad swap offset entry 3ce50000
-> > swap_free: Bad swap file entry 3f41e02c
-> > swap_free: Bad swap offset entry 38bb5000
-> > ...
-> > 
-> > What is it? Kernel or may be my hardware problem?
-
-
-> Probably kernel, but I am not really an expert on this part of the system,
-> is your swap a device or a file on a filesystem?
-
-/dev/hdg1             1      4145   2089048+  82  Linux swap
-
-
+Who is "user in question"? It is quite legal (if strange) to have a file
+user A can modify, but not execute, while B can execute it.
 -- 
-bye.
-Andrey Nekrasov, SpyLOG.
+Dr. Horst H. von Brand                Usuario #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

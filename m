@@ -1,86 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262596AbUCaWjX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 17:39:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262549AbUCaWjU
+	id S262515AbUCaWgl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 17:36:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262547AbUCaWgl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Mar 2004 17:39:20 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:654 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262596AbUCaWhu (ORCPT
+	Wed, 31 Mar 2004 17:36:41 -0500
+Received: from mail.tpgi.com.au ([203.12.160.57]:24778 "EHLO mail1.tpgi.com.au")
+	by vger.kernel.org with ESMTP id S262515AbUCaWgj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 17:37:50 -0500
-Date: Wed, 31 Mar 2004 16:37:37 -0600
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Subject: Re: [PATCH] ibmvscsi driver - sixth version
-References: <opr3u0ffo7l6e53g@us.ibm.com> <20040225134518.A4238@infradead.org>  <opr3xta6gbl6e53g@us.ibm.com> <1079027038.2820.57.camel@mulgrave>  <opr5qwiyw4l6e53g@us.ibm.com> <1080770310.2071.44.camel@mulgrave>
-Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, paulus@samba.org,
-       anton@samba.org
-From: Dave Boutcher <sleddog@us.ibm.com>
-Organization: IBM
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <opr5qzszzml6e53g@us.ibm.com>
-In-Reply-To: <1080770310.2071.44.camel@mulgrave>
-User-Agent: Opera7.23/Win32 M2 build 3227
+	Wed, 31 Mar 2004 17:36:39 -0500
+Subject: Re: [Swsusp-devel] [PATCH 2.6]: suspend to disk only available if
+	non-modular IDE
+From: Nigel Cunningham <ncunningham@users.sourceforge.net>
+Reply-To: ncunningham@users.sourceforge.net
+To: Pavel Machek <pavel@suse.cz>
+Cc: Arkadiusz Miskiewicz <arekm@pld-linux.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Suspend development list <swsusp-devel@lists.sourceforge.net>
+In-Reply-To: <20040330201123.GE3084@openzaurus.ucw.cz>
+References: <200403282136.55435.arekm@pld-linux.org>
+	 <1080517040.2223.3.camel@laptop-linux.wpcb.org.au>
+	 <20040330201123.GE3084@openzaurus.ucw.cz>
+Content-Type: text/plain
+Message-Id: <1080772560.3081.0.camel@calvin.wpcb.org.au>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5-2.norlug 
+Date: Thu, 01 Apr 2004 08:36:01 +1000
+Content-Transfer-Encoding: 7bit
+X-TPG-Antivirus: Passed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 31 Mar 2004 16:58:28 -0500, James Bottomley 
-<James.Bottomley@SteelEye.com> wrote:
-> Actually, this:
->
-> +	    (u64) (unsigned long)dma_map_single(dev, cmd->request_buffer,
-> +						cmd->request_bufflen,
-> +						DMA_BIDIRECTIONAL);
-> +	if (pci_dma_mapping_error(data->virtual_address)) {
-> +		printk(KERN_ERR
-> +		       "ibmvscsi: Unable to map request_buffer for command!\n");
-> +		return 0;
->
-> Should be
->
-> if(dma_mapping_error())
->
-> I have no idea why there are two identical APIs for the mapping error,
-> but since you use the DMA API, you should use its version.  You can also
-> drop the #include <linux/pci.h> as well.
+Hi.
 
-Well, that would be true if arch/ppc64 had dma_mapping_error implemented.
-Which it not.  You would need something like the following patch, which
-will show up when we rationalize it with the rest of ppc64 and an
-appropriate bk pull happens...I'll work with my ppc64 bretheren and then
-re-submit the ibmvscsi patch.
+On Wed, 2004-03-31 at 06:11, Pavel Machek wrote:
+> Hi!
+> 
+> > Applied to 2.4 and 2.6.
+> 
+> Bad idea. For swsusp2 the patch is bad because it can resume from 
+> after initrd (IIRC). For swsusp1 patch is bad
+> because it should be able to resume
+> from usb mass storage drive.
 
-===== dma-mapping.h 1.5 vs edited =====
---- 1.5/include/asm-ppc64/dma-mapping.hTue Mar 16 18:47:00 2004
-+++ edited/dma-mapping.hWed Mar 31 16:33:07 2004
-@@ -15,6 +15,11 @@
-  #include <asm/scatterlist.h>
-  #include <asm/bug.h>
+So long as the initrd doesn't mess our filesystems up, we should be
+okay, shouldn't we?
 
-+#define DMA_ERROR_CODE      (~(dma_addr_t)0x0)
-+static inline int dma_mapping_error(dma_addr_t dma_addr) {
-+        return (dma_addr == DMA_ERROR_CODE);
-+}
-+
-  extern int dma_supported(struct device *dev, u64 mask);
-  extern int dma_set_mask(struct device *dev, u64 dma_mask);
-  extern void *dma_alloc_coherent(struct device *dev, size_t size,
+Nigel
+-- 
+Nigel Cunningham
+C/- Westminster Presbyterian Church Belconnen
+61 Templeton Street, Cook, ACT 2614.
++61 (2) 6251 7727(wk); +61 (2) 6253 0250 (home)
 
-> This:
->
-> +	sg_mapped = dma_map_sg(dev, sg, cmd->use_sg, DMA_BIDIRECTIONAL);
-> +
-> +	if (pci_dma_mapping_error(sg_dma_address(&sg[0])))
-> +		return 0;
->
-> Is wrong.  dma_map_sg returns zero if there's a mapping error, you
-> should check for that.
+Evolution (n): A hypothetical process whereby infinitely improbable events occur 
+with alarming frequency, order arises from chaos, and no one is given credit.
 
-Yes, my bad.  I was so delighted with pci_dma_mapping_error() that I
-got a little carried away.  Thanks.
-
-Dave B

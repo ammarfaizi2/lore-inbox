@@ -1,49 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262032AbUKVLUT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262069AbUKVLUU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262032AbUKVLUT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 06:20:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262069AbUKVLSS
+	id S262069AbUKVLUU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 06:20:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262067AbUKVLSC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 06:18:18 -0500
-Received: from tri-e2k.ethz.ch ([129.132.112.23]:34608 "EHLO tri-e2k.ethz.ch")
-	by vger.kernel.org with ESMTP id S262076AbUKVLRv (ORCPT
+	Mon, 22 Nov 2004 06:18:02 -0500
+Received: from holomorphy.com ([207.189.100.168]:49559 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S262086AbUKVLRS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 06:17:51 -0500
-Message-ID: <41A1CAD4.20101@dbservice.com>
-Date: Mon, 22 Nov 2004 12:17:40 +0100
-From: Tomas Carnecky <tom@dbservice.com>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Helge Hafting <helge.hafting@hist.no>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Kernel thoughts of a Linux user
-References: <200411181859.27722.gjwucherpfennig@gmx.net> <419CFF73.3010407@dbservice.com> <41A19E44.9080005@hist.no>
-In-Reply-To: <41A19E44.9080005@hist.no>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 22 Nov 2004 11:17:47.0785 (UTC) FILETIME=[E5800790:01C4D084]
+	Mon, 22 Nov 2004 06:17:18 -0500
+Date: Mon, 22 Nov 2004 03:17:09 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [bugfix] fix do_wp_page_mk_pte_writable() in 2.6.10-rc2-mm3
+Message-ID: <20041122111709.GD2714@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Helge Hafting wrote:
->> Is it possible to have two or more 'workstations' on one computer?
-> 
-> Yes - thats what the "ruby" kernel patch is all about.  I have a computer
-> with two "workstations" at home.  Compared to two computers, it
-> saves space, power, parts,  and above all - administrative work.  Only one
-> machine to upgrade, secure, configure.
-> 
+On Sun, Nov 21, 2004 at 10:39:29PM -0800, Andrew Morton wrote:
+> 4level-core-patch.patch
+>   4level core patch
 
-Thanks, that's what I've been looking for...
+vma->vm_ops->page_mkwrite() is supposed to be able to sleep, but this
+function doesn't unmap the pte across the call and worse yet, reuses
+the pte across a drop and reacquisition of ->page_table_lock.
 
- From the documentation:
-The main problem up to this date (November 2004) is that linux kernel 
-has only one behaviour regarding multiple keyboards : any key pressed 
-catched on any keyboard is redirected to the one and only active Virtual 
-Terminal (VT).
 
-Will this be changed/improved when the console code is moved into 
-userspace, like some have proposed?
-
-tom
+Index: mm3-2.6.10-rc2/mm/memory.c
+===================================================================
+--- mm3-2.6.10-rc2.orig/mm/memory.c	2004-11-22 02:54:12.815541779 -0800
++++ mm3-2.6.10-rc2/mm/memory.c	2004-11-22 02:57:22.095766811 -0800
+@@ -1268,6 +1268,7 @@
+ static inline int do_wp_page_mk_pte_writable(struct mm_struct *mm,
+ 					     struct vm_area_struct *vma,
+ 					     unsigned long address,
++					     pmd_t *pmd,
+ 					     pte_t *page_table,
+ 					     struct page *old_page,
+ 					     pte_t pte)
+@@ -1279,6 +1280,7 @@
+ 	if (vma->vm_ops && vma->vm_ops->page_mkwrite) {
+ 		/* Notify the page owner without the lock held so they can
+ 		 * sleep if they want to */
++		pte_unmap(page_table);
+ 		spin_unlock(&mm->page_table_lock);
+ 
+ 		if (vma->vm_ops->page_mkwrite(vma, old_page) < 0)
+@@ -1291,6 +1293,7 @@
+ 		 * return, as we can count on the MMU to tell us if they didn't
+ 		 * also make it writable
+ 		 */
++		page_table = pte_offset_map(pmd, address);
+ 		if (!pte_same(*page_table, pte))
+ 			goto minor_fault;
+ 	}
+@@ -1352,7 +1355,7 @@
+ 		unlock_page(old_page);
+ 		if (reuse)
+ 			/* We can just make the PTE writable */
+-			return do_wp_page_mk_pte_writable(mm, vma, address,
++			return do_wp_page_mk_pte_writable(mm, vma, address, pmd,
+ 							  page_table, old_page,
+ 							  pte);
+ 	}

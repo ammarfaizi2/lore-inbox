@@ -1,69 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266058AbTGIPxr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 11:53:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268383AbTGIPxr
+	id S268383AbTGIQC3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 12:02:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268392AbTGIQC3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 11:53:47 -0400
-Received: from 12-226-168-214.client.attbi.com ([12.226.168.214]:48779 "EHLO
-	marta.kurtwerks.com") by vger.kernel.org with ESMTP id S266058AbTGIPxp
+	Wed, 9 Jul 2003 12:02:29 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:15023 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S268383AbTGIQC2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 11:53:45 -0400
-Date: Wed, 9 Jul 2003 12:08:23 -0400
-From: Kurt Wall <kwall@kurtwerks.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: modutils-2.3.15 'insmod'
-Message-ID: <20030709160823.GC267@kurtwerks.com>
-References: <Pine.LNX.4.53.0307091119450.470@chaos>
+	Wed, 9 Jul 2003 12:02:28 -0400
+Date: Wed, 9 Jul 2003 09:16:51 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: mru@users.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Promise SATA 150 TX2 plus
+Message-ID: <20030709161651.GA1526@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	mru@users.sourceforge.net, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.53.0307091413030.683@mx.homelinux.com> <027901c3461e$e023c670$401a71c3@izidor> <yw1xadbnx017.fsf@users.sourceforge.net> <20030709150852.GA11309@work.bitmover.com> <yw1x1xwzwwwk.fsf@users.sourceforge.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0307091119450.470@chaos>
+In-Reply-To: <yw1x1xwzwwwk.fsf@users.sourceforge.net>
 User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.4.21-krw
-X-Woot: Woot!
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoth Richard B. Johnson:
+On Wed, Jul 09, 2003 at 05:19:07PM +0200, mru@users.sourceforge.net wrote:
+> Larry McVoy <lm@bitmover.com> writes:
 > 
-> modutils-2.3.15, and probably later, has a bug that can prevent
-> modules from being loaded from initrd, this results in not
-> being able to mount a root file-system. The bug assumes that
-> malloc() will return a valid pointer when given an allocation
-> size of zero.
-
-This isn't a bug. The standard allow returning a non-null pointer
-for malloc(0).
-
-> When there are no modules loaded, insmod scans for modules
-> and allocates data using its xmalloc() based upon the number
-> of modules found. If the number was 0, it attempts to allocate
-> 0 bytes (0 times the size of a structure). If malloc() returns
-> NULL (and it can, probably should), xmalloc() will write an
-> "out of memory" diagnostic and call exit().
+> >> > Thanks for the answer, it has got PDC 20375, not
+> >> > 20376, but it changes nothing. As Alan mentioned
+> >> > here: http://marc.theaimsgroup.com/?l=linux-kernel&m=105440080221319&w=2
+> >> > promise has got their own drivers. Have somebody seen
+> >> > this drivers really working? My card is not RAID,
+> >> > its only controller, I want only see the harddrives.
+> >> 
+> >> Do yourself a favor, and get a Highpoint card instead.
+> >
+> > I can't speak to the highpoint card, I don't have one of those.  I do have
+> > a 3ware 8500-4 which works great.  I believe that I had to use a later
+> > kernel (2.4.20? .21?) to get it to work but it has been working flawlessly.
+> > I'm using it in RAID 10 mode.
 > 
-> The most recent `man` pages that RH 9.0 distributes states that
-> malloc() can return either NULL of a pointer that is valid for
-> free(). This, of course, depends upon the 'C' runtime library's
-> malloc() implementation.
+> The 3ware does real RAID, right?  I think the OP didn't need that.
 
-Perhaps, but IIRC, the rationale in the GNU C library was that
-existing programs assume malloc(0) != 0, which allows you to call
-realloc on the pointer. Returning NULL only makes sense if the 
-malloc() call fails.
-
-> It is likely that malloc(0) returning a valid pointer is a bug
-> that has prevented this problem from being observed. Such a
-> bug in malloc() is probably necessary to keep legacy software
-
-Not a bug. Bad design perhaps, but not a bug.
-
-> running, but new software shouldn't use such atrocious side-effects.
-> An allocation of zero needs to be discovered and fixed early
-> in code design.
-
-Kurt
+The 3ware does RAID or JBOD.
 -- 
-If you sit down at a poker game and don't see a sucker, get up.  You're
-the sucker.
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

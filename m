@@ -1,30 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270450AbRHHK6o>; Wed, 8 Aug 2001 06:58:44 -0400
+	id <S270452AbRHHK7y>; Wed, 8 Aug 2001 06:59:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270451AbRHHK6h>; Wed, 8 Aug 2001 06:58:37 -0400
-Received: from mx7.sac.fedex.com ([199.81.194.38]:34830 "EHLO
-	mx7.sac.fedex.com") by vger.kernel.org with ESMTP
-	id <S270450AbRHHK6U>; Wed, 8 Aug 2001 06:58:20 -0400
-Date: Wed, 8 Aug 2001 18:59:35 +0800 (SGT)
-From: Jeff Chua <jeffchua@silk.corp.fedex.com>
-X-X-Sender: <root@boston.corp.fedex.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: 2.4.8-pre6 says pre5
-Message-ID: <Pine.LNX.4.33.0108081856270.208-100000@boston.corp.fedex.com>
+	id <S270454AbRHHK7s>; Wed, 8 Aug 2001 06:59:48 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:56670 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S270451AbRHHK71>; Wed, 8 Aug 2001 06:59:27 -0400
+To: ankry@green.mif.pg.gda.pl
+Cc: rhw@MemAlpha.CX (Riley Williams), mra@pobox.com (Mark Atwood),
+        linux-kernel@vger.kernel.org (Linux Kernel)
+Subject: Re: How does "alias ethX drivername" in modules.conf work?
+In-Reply-To: <200108080841.KAA26569@sunrise.pg.gda.pl>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 08 Aug 2001 04:52:51 -0600
+In-Reply-To: <200108080841.KAA26569@sunrise.pg.gda.pl>
+Message-ID: <m11ymmvn5o.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrzej Krzysztofowicz <ankry@pg.gda.pl> writes:
 
-minor one. 2.4.8-pre6 says it's pre5. Should be pre6.
+> 1. NFS-root needs to have RARP/NFS servers on eth0.
+>    How can you deal with it if you have two boards supported by a single
+>    driver and, unfortunately, the one you need is detected as eth1 ?
+>    Assume that you cannot switch them as they use different media type...
 
-EXTRAVERSION =-pre5.
+Hmm.  Then my system that does DHCP/NFS root with 2.4.7 and comes up
+on eth2 is doesn't work?  Hmm it looks like it works to me.
 
-
-Thanks,
-Jeff
-[ jchua@fedex.com ]
-
+Eric

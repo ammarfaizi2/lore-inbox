@@ -1,32 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314584AbSDTIX1>; Sat, 20 Apr 2002 04:23:27 -0400
+	id <S314582AbSDTIXP>; Sat, 20 Apr 2002 04:23:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314587AbSDTIX0>; Sat, 20 Apr 2002 04:23:26 -0400
-Received: from vaak.stack.nl ([131.155.140.140]:27401 "HELO mailhost.stack.nl")
-	by vger.kernel.org with SMTP id <S314584AbSDTIXZ>;
-	Sat, 20 Apr 2002 04:23:25 -0400
-Date: Sat, 20 Apr 2002 10:23:22 +0200 (CEST)
-From: Jos Hulzink <josh@stack.nl>
-To: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: [BUG] 2.5.8: ACPI: PCI IRQ remapping goes wrong.
-Message-ID: <20020420101214.I33806-100000@toad.stack.nl>
+	id <S314584AbSDTIXO>; Sat, 20 Apr 2002 04:23:14 -0400
+Received: from web13307.mail.yahoo.com ([216.136.175.43]:54544 "HELO
+	web13307.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S314582AbSDTIXO>; Sat, 20 Apr 2002 04:23:14 -0400
+Message-ID: <20020420082314.34809.qmail@web13307.mail.yahoo.com>
+Date: Sat, 20 Apr 2002 01:23:14 -0700 (PDT)
+From: Shobana Valli M <shobanavalli@yahoo.com>
+Subject: Will missing libraries lead to kernel panic?
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi guys,
+	I am trying to boot my board with 2.4.18 kernel. I am
+getting the Kernel panic: No init found error when
+tried with all kernels  above 2.4.8. But, in pc
+environment,they are working fine. Why is this so? 
+The distribution is Redhat 7.2. The 2.4.8 kernel, is
+bringing the board up with the same rootfs.  
+	
+	The root file system is mounted.  The rootfs has
+/sbin/init and /bin/sh. Init may not be corrupted,
+since it is working with 2.4.8 and other lower
+versions. 
 
-My SCSI card didn't work anymore, my NIC was unable to connect and my SB
-Live! didn't work anymore. I thought 2.5.8 was a huge mess :)
+	I tried including /initrd directory in the rootfs,
+but that couldn't solve the problem. Am I missing any
+libraries  needed for kernels above 2.4.8 in my
+rootfs? Where can I get those details? As of now, all
+files in  my rootfs /lib donot have executable
+permission and are without symbolic links. Are these a
+must for kernels above 2.4.8?
+ 
+    ext3 is deselected in Kernel configuration. Does
+ext3 file system has anything to do here? This kernel
+panic problem persists even when the .config of 2.4.8
+is used for configuring the kernel...Does the problem
+lie in the kernel configuration or rootfs? 
 
-Anyway: ACPI sets up IRQ remapping to IRQs > 15, but all PCI devices claim
-the old =< 15 IRQ's. My guess is that the ACPI code doesn't update the pci
-irq data.
+Please enlighten me
+Regards
+Shobana
 
-If it matters: The system I talk about is a dual PII 333, on an Intel LX
-chipset. 2.5.6 did boot fine.
 
-Jos
-
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Games - play chess, backgammon, pool and more
+http://games.yahoo.com/

@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267843AbTCFGhF>; Thu, 6 Mar 2003 01:37:05 -0500
+	id <S266994AbTCFGov>; Thu, 6 Mar 2003 01:44:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266994AbTCFGhE>; Thu, 6 Mar 2003 01:37:04 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:11734 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S266932AbTCFGhD>; Thu, 6 Mar 2003 01:37:03 -0500
-Date: Wed, 5 Mar 2003 22:49:21 -0800
-From: Mike Anderson <andmike@us.ibm.com>
-To: Andries.Brouwer@cwi.nl
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: 2.5.63/64 do not boot: loop in scsi_error
-Message-ID: <20030306064921.GA1425@beaverton.ibm.com>
-Mail-Followup-To: Andries.Brouwer@cwi.nl, torvalds@transmeta.com,
-	linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-References: <UTC200303060639.h266dIo22884.aeb@smtp.cwi.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <UTC200303060639.h266dIo22884.aeb@smtp.cwi.nl>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.0.32 on an i486
+	id <S267847AbTCFGov>; Thu, 6 Mar 2003 01:44:51 -0500
+Received: from smtp02.web.de ([217.72.192.151]:60934 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id <S266994AbTCFGov>;
+	Thu, 6 Mar 2003 01:44:51 -0500
+Message-ID: <3E66F185.4020201@web.de>
+Date: Thu, 06 Mar 2003 07:58:13 +0100
+From: Todor Todorov <ttodorov@web.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4a) Gecko/20030303
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Problem with rebooting on an HP Omnibook vt6200
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries.Brouwer@cwi.nl [Andries.Brouwer@cwi.nl] wrote:
-> > See if this fixes it..
-> 
-> No, I am afraid not. My infinite loop does not pass through
-> scsi_eh_ready_devs().
-> 
+Hi everyone,
 
-Can you send me your console log. If you have scsi_logging=1 that would
-be greate also.
+I have a new HP Omnibook vt6200, on which I tried to install Linux. 
+Installation succeeded but the reboot doesn't. Nor a complete shutdown 
+does. The machine does nothing more after showing the messages 
+"Restarting the system" or "Power down". So here is the data:
+Prozessor: Pentium4 1,7 GHz
+Bridge: ALi 1671
+BIOS: Phoenix, current HP revision EG.M.2.31
+ From the kernels I tried 2.4.20 with both APM and ACPI and with no 
+power management at all. There was no swith in the bios setup to try and 
+shut off power management at all. Since the kernel does not bail out, 
+how do I find some more insightful information on what is going on?
 
--andmike
---
-Michael Anderson
-andmike@us.ibm.com
+I'd be glad to get any information from you guys, even if it is only 
+that it won't work so I can  return the laptop and choose another one...TIA
+
+Regards,
+Todor
 

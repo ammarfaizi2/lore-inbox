@@ -1,70 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265999AbUH0Pmv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266249AbUH0Pmu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265999AbUH0Pmv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 11:42:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266216AbUH0Pjb
+	id S266249AbUH0Pmu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 11:42:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265999AbUH0PkD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 11:39:31 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:36328 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S266204AbUH0Pfg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 11:35:36 -0400
-Message-ID: <412F54D4.2020905@sgi.com>
-Date: Fri, 27 Aug 2004 10:35:48 -0500
-From: Patrick Gefre <pfg@sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Latest Altix I/O code reorganization code
-References: <200408042014.i74KE8fD141211@fsgi900.americas.sgi.com> <20040806141836.A9854@infradead.org> <411AAABB.8070707@sgi.com> <412F4EC9.7050003@sgi.com> <412F4FCF.6010507@sgi.com> <20040827162127.A32090@infradead.org>
-In-Reply-To: <20040827162127.A32090@infradead.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 27 Aug 2004 11:40:03 -0400
+Received: from mail4.bluewin.ch ([195.186.4.74]:55741 "EHLO mail4.bluewin.ch")
+	by vger.kernel.org with ESMTP id S266155AbUH0Pex (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 11:34:53 -0400
+Date: Fri, 27 Aug 2004 17:26:16 +0200
+From: Roger Luethi <rl@hellgate.ch>
+To: James Morris <jmorris@redhat.com>
+Cc: linux-kernel@vger.kernel.org,
+       Albert Cahalan <albert@users.sourceforge.net>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, Paul Jackson <pj@sgi.com>,
+       Chris Wright <chrisw@osdl.org>, Stephen Smalley <sds@epoch.ncsc.mil>
+Subject: Re: [0/2][ANNOUNCE] nproc: netlink access to /proc information
+Message-ID: <20040827152615.GA28531@k3.hellgate.ch>
+Mail-Followup-To: James Morris <jmorris@redhat.com>,
+	linux-kernel@vger.kernel.org,
+	Albert Cahalan <albert@users.sourceforge.net>,
+	William Lee Irwin III <wli@holomorphy.com>,
+	"Martin J. Bligh" <mbligh@aracnet.com>, Paul Jackson <pj@sgi.com>,
+	Chris Wright <chrisw@osdl.org>, Stephen Smalley <sds@epoch.ncsc.mil>
+References: <20040827122412.GA20052@k3.hellgate.ch> <Xine.LNX.4.44.0408271043130.7393-100000@thoron.boston.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Xine.LNX.4.44.0408271043130.7393-100000@thoron.boston.redhat.com>
+X-Operating-System: Linux 2.6.8 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> On Fri, Aug 27, 2004 at 10:14:23AM -0500, Patrick Gefre wrote:
+On Fri, 27 Aug 2004 10:50:23 -0400, James Morris wrote:
+> On Fri, 27 Aug 2004, Roger Luethi wrote:
 > 
->>Patch 1 of 26
->>
->>This patch is too large for email see:
->>
->>ftp://oss.sgi.com/projects/sn2/sn2-update/001-kill-files
+> > At the moment, the kernel sends a separate netlink message for every
+> > process.
 > 
+> You should look at the way rtnetlink dumps large amounts of data to  
+> userspace.
+
+At this point, I am just using a working prototype to gauge the interest
+in an improved interface. Other than that, I agree. This would be one
+of the "speed optimizations I haven't tried".
+
+> > I haven't implemented any form of access control. One possibility is
+> > to use some of the reserved bits in the ID field to indicate access
+> > restrictions to both kernel and user space (e.g. everyone, process owner,
+> > root) 
 > 
-> 
-> Stoop again.  This absolutely does not look like a change after which the
-> tree build, right?  After how many of the patches do we get a useable
+> So, user tools would all need to be privileged?  That sounds problematic.
 
-Right
+It just means that not all the pieces that would be required to make
+this a merge candidate have been implemented. I focused on the basic
+infrastructure that is needed for the basic protocol.
 
-> kernel for SN2?  Please split your changes into LOGICAL steps, e.g.
+Adding some access control that is about as smart as file permissions
+in /proc is fairly easy (we have the caller pid and netlink_skb_parms
+as a starting point). We only have read permissions to care about. It's
+trivial to flag each field as "world readable", "owner only" (for fields
+with process scope), and "root only". That covers pretty much what
+/proc permissions achieve. While I am confident that this will work,
+others may have better ideas for access control.
 
-26 - hence the 1 of 26
-
-> 
->  - dma mapping rework
->  - usage of SAL interfaces
->  - hwgrpah removal
->  - renaming of files without code changes
->  - addition of new hardware support
->  - etc..
-> 
-
-The code was completely redone. It was not done in sections. Breaking them into
-pieces is nothing more than an academic exercise. It is not useable until all
-the code changes have been made because it would require a prom that followed these
-changes.  The point of a review was to get comments on the CONTENT of the code not
-the format of the patches.
-
-
-> everything else is simply not reviewable. (and the above is intentionally
-> an order which I think would make sense)
-
-The easiest way to review is to delete the old directorory and apply the new ioif
-files. Reviewing it as patches doesn't make any sense. The new code is very small and
-it should be possible to look at it intact.
+Roger
 

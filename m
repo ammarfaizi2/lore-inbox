@@ -1,38 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262670AbSKIVHs>; Sat, 9 Nov 2002 16:07:48 -0500
+	id <S262667AbSKIVNT>; Sat, 9 Nov 2002 16:13:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262679AbSKIVHs>; Sat, 9 Nov 2002 16:07:48 -0500
-Received: from smtp.terra.es ([213.4.129.129]:55483 "EHLO tsmtp10.mail.isp")
-	by vger.kernel.org with ESMTP id <S262670AbSKIVHs>;
-	Sat, 9 Nov 2002 16:07:48 -0500
-Date: Sat, 9 Nov 2002 22:12:06 +0100
-From: Arador <diegocg@teleline.es>
-To: Jens Axboe <axboe@suse.de>
-Cc: conman@kolivas.net, akpm@digeo.com, linux-kernel@vger.kernel.org,
-       marcelo@conectiva.com.br, andrea@suse.de
-Subject: Re: [BENCHMARK] 2.4.{18,19{-ck9},20rc1{-aa1}} with contest
-Message-Id: <20021109221206.72d46e49.diegocg@teleline.es>
-In-Reply-To: <20021109135446.GA2551@suse.de>
-References: <200211091300.32127.conman@kolivas.net>
-	<200211091612.08718.conman@kolivas.net>
-	<20021109112135.GB31134@suse.de>
-	<200211100009.55844.conman@kolivas.net>
-	<20021109135446.GA2551@suse.de>
-X-Mailer: Sylpheed version 0.8.5 (GTK+ 1.2.10; i386-debian-linux-gnu)
+	id <S262679AbSKIVNT>; Sat, 9 Nov 2002 16:13:19 -0500
+Received: from mnh-1-11.mv.com ([207.22.10.43]:6661 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S262667AbSKIVNT>;
+	Sat, 9 Nov 2002 16:13:19 -0500
+Message-Id: <200211102122.QAA02565@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.20-rc1 - hang with processes stuck in D 
+In-Reply-To: Your message of "Fri, 08 Nov 2002 07:01:38 -0200."
+             <Pine.LNX.4.44L.0211080700120.27560-100000@freak.distro.conectiva> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 10 Nov 2002 16:22:57 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 9 Nov 2002 14:54:46 +0100
-Jens Axboe <axboe@suse.de> wrote:
+marcelo@conectiva.com.br said:
+> Or rather try it on a different box. 
 
-> The default is 2048. How long does the io_load test take, or rather how
+This has been seen on a number of different boxes running a variety of kernels.
 
-then, shouldn't the default be changed?. There's a big performance drop (/2)
-(in that case of course)
+The ones that have happened to other people that I have heard of have all
+involved UML.  I've also make my laptop hang with BK, diff, and emacs.
 
+Here are some threads talking about this problem:
 
-Diego Calleja
+    http://marc.theaimsgroup.com/?l=user-mode-linux-user&m=103644225423660&w=2
+and http://marc.theaimsgroup.com/?l=user-mode-linux-user&m=103644252023954&w=2
+
+    http://marc.theaimsgroup.com/?l=linux-kernel&m=103351640614665&w=2
+
+    http://marc.theaimsgroup.com/?l=user-mode-linux-user&m=103582756229685&w=2
+and http://marc.theaimsgroup.com/?l=user-mode-linux-user&m=103582861831037&w=2
+
+There's a variety of kernels and hardware involved here.  My laptop is 
+bog-standard IDE afaik.  Zaphod, the subject of the second URL, is IDE behind
+a 3ware raid controller.  Not sure about the others.
+
+				Jeff
+

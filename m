@@ -1,43 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262268AbSI3RXk>; Mon, 30 Sep 2002 13:23:40 -0400
+	id <S262336AbSI3RXo>; Mon, 30 Sep 2002 13:23:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262336AbSI3RXk>; Mon, 30 Sep 2002 13:23:40 -0400
-Received: from [198.149.18.6] ([198.149.18.6]:23464 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id <S262268AbSI3RXk>;
-	Mon, 30 Sep 2002 13:23:40 -0400
-Date: Mon, 30 Sep 2002 20:43:20 -0400
-From: Christoph Hellwig <hch@sgi.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: lord@sgi.com, Arjan van de Ven <arjanv@redhat.com>, cw@f00f.org,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [patch] smptimers, old BH removal, tq-cleanup, 2.5.39
-Message-ID: <20020930204320.A21715@sgi.com>
-Mail-Followup-To: Christoph Hellwig <hch@sgi.com>,
-	Ingo Molnar <mingo@elte.hu>, lord@sgi.com,
-	Arjan van de Ven <arjanv@redhat.com>, cw@f00f.org,
-	linux-kernel@vger.kernel.org,
-	Linus Torvalds <torvalds@transmeta.com>
-References: <20020930194529.A15138@sgi.com> <Pine.LNX.4.44.0209301911180.21901-100000@localhost.localdomain>
+	id <S262339AbSI3RXo>; Mon, 30 Sep 2002 13:23:44 -0400
+Received: from mailrelay1.lanl.gov ([128.165.4.101]:15017 "EHLO
+	mailrelay1.lanl.gov") by vger.kernel.org with ESMTP
+	id <S262336AbSI3RXn>; Mon, 30 Sep 2002 13:23:43 -0400
+Subject: Re: 2.5.39-bk2 compile failure with CONFIG_XFS_FS=y
+From: Steven Cole <elenstev@mesatop.com>
+To: Christoph Hellwig <hch@sgi.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020930194628.B15138@sgi.com>
+References: <1033401002.32409.62.camel@spc9.esa.lanl.gov> 
+	<20020930194628.B15138@sgi.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2-5mdk 
+Date: 30 Sep 2002 11:01:16 -0600
+Message-Id: <1033405276.32404.70.camel@spc9.esa.lanl.gov>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0209301911180.21901-100000@localhost.localdomain>; from mingo@elte.hu on Mon, Sep 30, 2002 at 07:12:54PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 30, 2002 at 07:12:54PM +0200, Ingo Molnar wrote:
-> > Not exactly.  All your work on one queue is internally serialize.  An
-> > totally unserialized workqueue would be best for XFS.
+On Mon, 2002-09-30 at 17:46, Christoph Hellwig wrote:
+> On Mon, Sep 30, 2002 at 09:50:02AM -0600, Steven Cole wrote:
+> > I got the following compile error building 2.5.39-bk2 with CONFIG_XFS_FS=y:
 > 
-> you can create as many queues as you wish - one per CPU for example. Or
-> one per mounted fs per CPU.
+> That's ingo smptimers work.  Quick hack below, but doesn't peform nicely
+> on smp..
+> 
+[patch snipped]
 
-Yeah.  But adding a create_workqueue_per_cpu that has one queue and thead
-per cpu to which queue_work dispatches would centralize the code needed
-to manage that in one place instead of duplicating it over and over.
+Thanks.  That works for me for now.  Unfortunately, I only have an UP
+box to do XFS testing presently, but I'll try to change that soon.  I'm
+presently running dbench with increasing client counts on my xfs
+partition with 3.5.39bk2.
 
-Sure both works, but IMHO hiding it behind a nice abstraction is much
-better.
+Filesystem    Type    Size  Used Avail Use% Mounted on
+/dev/hda1     ext3    236M   68M  156M  31% /
+/dev/hda9     ext3     20G  3.5G   17G  18% /home
+/dev/hda11     jfs    3.9G  5.3M  3.9G   1% /share_j
+/dev/hda10
+          reiserfs    4.0G   37M  3.9G   1% /share_r
+/dev/hda12     xfs    4.8G  250M  4.6G   6% /share_x
+/dev/hda8     ext3    236M  5.2M  219M   3% /tmp
+/dev/hda6     ext3    2.9G  1.5G  1.3G  55% /usr
+/dev/hda7     ext3    479M   83M  372M  19% /var
+
+Steven
 

@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290228AbSCCW66>; Sun, 3 Mar 2002 17:58:58 -0500
+	id <S290333AbSCCXZN>; Sun, 3 Mar 2002 18:25:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290289AbSCCW6r>; Sun, 3 Mar 2002 17:58:47 -0500
-Received: from mail.cert.uni-stuttgart.de ([129.69.16.17]:26050 "HELO
-	Mail.CERT.Uni-Stuttgart.DE") by vger.kernel.org with SMTP
-	id <S290228AbSCCW6d>; Sun, 3 Mar 2002 17:58:33 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: Congrats Marcelo,
-In-Reply-To: <2D0AFEFEE711D611923E009027D39F2B153ADF@cdserv.meridian-data.com>
-From: Florian Weimer <Weimer@CERT.Uni-Stuttgart.DE>
-Date: Sun, 03 Mar 2002 23:58:24 +0100
-In-Reply-To: <2D0AFEFEE711D611923E009027D39F2B153ADF@cdserv.meridian-data.com> ("Dennis,
- Jim"'s message of "Fri, 1 Mar 2002 20:13:37 -0800")
-Message-ID: <877kot9s33.fsf@CERT.Uni-Stuttgart.DE>
-User-Agent: Gnus/5.090005 (Oort Gnus v0.05) Emacs/21.1 (i686-pc-linux-gnu)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S290423AbSCCXZF>; Sun, 3 Mar 2002 18:25:05 -0500
+Received: from h24-71-223-13.cg.shawcable.net ([24.71.223.13]:9942 "EHLO
+	pd5mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id <S290333AbSCCXYo>; Sun, 3 Mar 2002 18:24:44 -0500
+Date: Sun, 03 Mar 2002 15:33:45 -0800
+From: Shaun Jackman <sjackman@shaw.ca>
+Subject: swsusp: Unable to find swap-space signature
+In-Reply-To: <20020228094035.GB4760@atrey.karlin.mff.cuni.cz>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <E16hfU9-00009r-00@quince.jackman>
+MIME-version: 1.0
+X-Mailer: KMail [version 1.3.2]
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
+In-Reply-To: <E16gLkD-0000KR-00@quince.jackman>
+ <20020228094035.GB4760@atrey.karlin.mff.cuni.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Dennis, Jim" <jdennis@snapserver.com> writes:
+I think I'm making progress.
+I have 128 MB RAM, and a single 256 MB swap partition.
+I pressed SysRq-D, swsusp displayed all sorts of successful messages, and 
+then rebooted my computer. (can I get it to poweroff my computer instead of 
+reboot it?)
 
->> FYI crypto is included in (Net|Free|Open)BSD source releases and I don't
->> believe it is an issue for them.
->
->> skd
->
->  OpenBSD is maintained in Canada.
+When it started up again, the kernel displayed the message "Unable to find 
+swap-space signature" and went on to fsck. The swap partition seemed dead. I 
+ran mkswap and swapon to get my swap partition back.
 
-Does it really matter?
+Any idea what went wrong? I'd love to get swsusp working.
 
-When most people download something from ftp.openbsd.com, the packets
-travel through US territory. ;-)
-
--- 
-Florian Weimer 	                  Weimer@CERT.Uni-Stuttgart.DE
-University of Stuttgart           http://CERT.Uni-Stuttgart.DE/people/fw/
-RUS-CERT                          +49-711-685-5973/fax +49-711-685-5898
+Thanks,
+Shaun

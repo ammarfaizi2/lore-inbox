@@ -1,105 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261940AbTH3HbK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Aug 2003 03:31:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262080AbTH3HbK
+	id S262296AbTH3HdE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Aug 2003 03:33:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263041AbTH3HdE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Aug 2003 03:31:10 -0400
-Received: from sunpizz1.rvs.uni-bielefeld.de ([129.70.123.31]:18391 "EHLO
-	mail.rvs.uni-bielefeld.de") by vger.kernel.org with ESMTP
-	id S261940AbTH3HbF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Aug 2003 03:31:05 -0400
-Subject: [PATCH 2.4.23-pre1] request_firmware() backport
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 30 Aug 2003 09:30:45 +0200
-Message-Id: <1062228651.11258.35.camel@pegasus>
+	Sat, 30 Aug 2003 03:33:04 -0400
+Received: from 224.Red-217-125-129.pooles.rima-tde.net ([217.125.129.224]:10737
+	"HELO cocodriloo.com") by vger.kernel.org with SMTP id S262296AbTH3Hc6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Aug 2003 03:32:58 -0400
+Date: Sat, 30 Aug 2003 07:01:11 +0200
+From: Antonio Vargas <wind@cocodriloo.com>
+To: Shantanu Goel <sgoel01@yahoo.com>
+Cc: Andrea Arcangeli <andrea@suse.de>, Antonio Vargas <wind@cocodriloo.com>,
+       linux-kernel@vger.kernel.org,
+       Marc-Christian Petersen <m.c.p@wolk-project.de>
+Subject: Re: [VM PATCH] Faster reclamation of dirty pages and unused inode/dcache entries in 2.4.22
+Message-ID: <20030830050111.GD640@wind.cocodriloo.com>
+References: <20030829195543.GD24409@dualathlon.random> <20030829202001.38031.qmail@web12807.mail.yahoo.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030829202001.38031.qmail@web12807.mail.yahoo.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
+On Fri, Aug 29, 2003 at 01:20:01PM -0700, Shantanu Goel wrote:
+> Thanks for the pointer to the benchmarks.
+> 
+> The patch I posted only helps the mmap case so it
+> won't help (or hurt hopefully ;-) any program that
+> primarily does read/write instead of mmap.  The
+> extreme case where I observed this was a perl script
+> that created a gigantic hash and tried to populate it.
 
-I have collected the patches for the request_firmware() interface
-backport for 2.4 done by Manuel Estrada Sainz. It is now in -ac for a
-while and I have used it successfully in my -mh patches from 2.4.18
-onwards. It works fine and seems to be clean and very stable. Karsten
-Keil has tested it together with my ported bfusb.o Bluetooth driver on
-the AMD64 platform.
+I've experienced this workload and it's easily reproducible:
+get the lxr tools and try to build the indexes.
 
-The individual changesets have been already sent to the mailing list
-some time ago. But if you want to look at them again, drop me a note and
-I send them to you.
+>  The perl in question uses mmap for malloc.  The
+> difference in execution time between stock 2.4.22 and
+> one with the patch was insignificant because it is
+> primarily I/O bound, however the other apps I was
+> running, Mozilla and several xterm's, were paged out
+> much less frequently in the latter case.  The machine
+> has 256MB of memory and perl grew to about 1 GB.
+> 
+> I have written another patch that more aggresively
+> tries to free pages with dirty buffers which should
+> help with the buffer I/O case.  It essentially changes
+> try_to_free_buffers() so it immediately starts and
+> waits for I/O to complete if the gfp_mask allows it. 
+> It does not do any clustering so its performance is
+> questionable at the moment.
+> 
+> --- Andrea Arcangeli <andrea@suse.de> wrote:
+> > On Fri, Aug 29, 2003 at 12:46:36PM -0700, Shantanu
+> > Goel wrote:
+> > > Andrea,
+> > > 
+> > > I'll test and submit a patch against -aa.  Also,
+> > is
+> > > there a common benchmark that you use to test for
+> > > regression?
+> > 
+> > bonnie,tiobench,dbench would be a very good start
+> > for the basics (note:
+> > dbench can be misleading, but at the same fariness
+> > levels, it's
+> > interesting too, it's just that dbench doesn't
+> > measure the fariness
+> > level itself [like tiobench started doing relatively
+> > recently]).
+> > 
+> > (I'm assuming the patch makes difference not only
+> > for mmapped dirty
+> > pages, in such case the above would be non
+> > interesting)
+> > 
+> > thanks,
+> > 
+> > Andrea
+> 
+> 
+> __________________________________
+> Do you Yahoo!?
+> Yahoo! SiteBuilder - Free, easy-to-use web site design software
+> http://sitebuilder.yahoo.com
 
-One of the andvantages is that we can kick off the bfusb.h file, which
-contains the needed firmware for the BlueFRITZ! devices. And in future
-more drivers will come :)
+-- 
+winden/network
 
-Regards
-
-Marcel
-
-
-Please do a
-
-        bk pull http://linux-mh.bkbits.net/fw-loader-2.4
-
-This will update the following files:
-
- drivers/bluetooth/bfusb.h                             |52261 ------------------
- Documentation/Configure.help                          |    6 
- Documentation/firmware_class/README                   |   58 
- Documentation/firmware_class/firmware_sample_driver.c |  121 
- Documentation/firmware_class/hotplug-script           |   16 
- drivers/bluetooth/Makefile.lib                        |    1 
- drivers/bluetooth/bfusb.c                             |   38 
- include/linux/firmware.h                              |   20 
- lib/Config.in                                         |    7 
- lib/Makefile                                          |    4 
- lib/firmware_class.c                                  |  581 
- 11 files changed, 830 insertions(+), 52283 deletions(-)
-
-through these ChangeSets:
-
-<marcel@holtmann.org> (03/08/19 1.1078.1.5)
-   [PATCH] Make request_firmware() compile cleanly
-   
-   This patch makes the request_firmware() compile on other platforms
-   than i386. It adds the missing include <linux/init.h> and replaces
-   some ssize_t with int.
-
-<marcel@holtmann.org> (03/08/16 1.1078.1.4)
-   [Bluetooth] Make use of request_firmware() for the BlueFRITZ! USB driver
-   
-   The BlueFRITZ! USB devices need a firmware download every time they are
-   plugged in. With request_firmware() the file bfubase.frm is now loaded
-   from the userspace and the included firmware is removed.
-
-<marcel@holtmann.org> (03/08/15 1.1078.1.3)
-   [PATCH] Firmware loading depends on hotplug support
-   
-   This patch makes the firmware loading support only selectable if the
-   hotplug support is also enabled.
-
-<marcel@holtmann.org> (03/08/11 1.1078.1.2)
-   [PATCH] Make request_firmware() compile if hotplug support is disabled
-   
-   This patch fixes the problem, where hotplug support is disabled and an
-   internal kernel driver uses request_firmware(). The driver will compile
-   and load now, but it must handle the case where the firmware loading
-   fails, because the kernel is build without hotplug support, by itself.
-
-<ranty@debian.org> (03/08/11 1.1078.1.1)
-   [PATCH] request_firmware() backport to 2.4 kernels
-   
-   A while back request_firmware() was added to the 2.5 kernel series
-   to support firmware needing drivers keeping the firmware images in
-   userspace. And I also backported it to the 2.4 kernel series on top
-   of procfs.
-
-
-
+1. Dado un programa, siempre tiene al menos un fallo.
+2. Dadas varias lineas de codigo, siempre se pueden acortar a menos lineas.
+3. Por induccion, todos los programas se pueden
+   reducir a una linea que no funciona.

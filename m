@@ -1,42 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267906AbTAHVpN>; Wed, 8 Jan 2003 16:45:13 -0500
+	id <S267922AbTAHVqN>; Wed, 8 Jan 2003 16:46:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267922AbTAHVpN>; Wed, 8 Jan 2003 16:45:13 -0500
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:15601 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S267906AbTAHVpM>; Wed, 8 Jan 2003 16:45:12 -0500
-Date: Wed, 8 Jan 2003 22:53:53 +0100 (MET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: PCI code:  why need  outb (0x01, 0xCFB); ?
-In-Reply-To: <CAD6B2D09F9@vcnet.vc.cvut.cz>
-Message-ID: <Pine.GSO.3.96.1030108224859.11293F-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
+	id <S267925AbTAHVqN>; Wed, 8 Jan 2003 16:46:13 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:8164 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S267922AbTAHVqM>;
+	Wed, 8 Jan 2003 16:46:12 -0500
+Date: Wed, 8 Jan 2003 13:51:18 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: John Bradford <john@grabjohn.com>
+cc: <Valdis.Kletnieks@vt.edu>, <linux-kernel@vger.kernel.org>
+Subject: Re: Undelete files on ext3 ??
+In-Reply-To: <200301082147.h08Llfpp003623@darkstar.example.net>
+Message-ID: <Pine.LNX.4.33L2.0301081351010.6873-100000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 Jan 2003, Petr Vandrovec wrote:
+On Wed, 8 Jan 2003, John Bradford wrote:
 
-> >  Fortunately that's not true.  Grab the relevant docs from: 
-> > 'ftp://download.intel.com/support/chipsets/430nx/'.  The semantics of
-> > 0xcf8, 0xcf9, 0xcfa and 0xcfb I/O ports when used as byte quantities is
-> > explained there.  Note that 0xcf8 and 0xcfa are the way to get at the PCI
-> > config space using conf2 accesses. 
-> 
-> Thanks, page 34 of 290479.pdf is exactly what I was looking for 
-> (i.e. write 1 to 0xCFB to get PCI conf1, write 0 to get PCI conf2).
-> Next time I'll complain immediately instead of spending time with
-> browsing Intel website and google.
+| > > What I was thinking of was a virtual device that allocated a new
+| > > sector whenever an old one was overwritten - kind of like a journaled
+| > > filesystem, but without the filesystem, (I.E. just the journal) :-).
+| >
+| > $ DIR FOO.TXT;*
+| > FOO.TXT;1   FOO.TXT;2   FOO.TXT;2
+| >
+| > VMS-style file versioning, anybody? ;)
+|
+| Brilliant!
 
- Well, the download.intel.com docs are sometimes hard to get by.  There
-are a few EISA and basic peripheral specs nearby, too.
+re-read the archives from 6-8 months ago.
 
 -- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+~Randy
 

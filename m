@@ -1,69 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265285AbTCEVaf>; Wed, 5 Mar 2003 16:30:35 -0500
+	id <S264940AbTCEV3b>; Wed, 5 Mar 2003 16:29:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266114AbTCEVaf>; Wed, 5 Mar 2003 16:30:35 -0500
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:55942 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id <S265285AbTCEVaA>; Wed, 5 Mar 2003 16:30:00 -0500
-Date: Wed, 5 Mar 2003 22:40:17 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Russell King <rmk@arm.linux.org.uk>, kraxel@bytesex.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: reducing stack usage in v4l?
-Message-ID: <20030305214017.GA25225@wohnheim.fh-wedel.de>
-References: <32833.4.64.238.61.1046841945.squirrel@www.osdl.org> <87u1eigomv.fsf@bytesex.org> <20030305093534.A8883@flint.arm.linux.org.uk> <20030305073437.0673458e.rddunlap@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030305073437.0673458e.rddunlap@osdl.org>
-User-Agent: Mutt/1.3.28i
+	id <S265008AbTCEV3b>; Wed, 5 Mar 2003 16:29:31 -0500
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:13199 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S264940AbTCEV3a>; Wed, 5 Mar 2003 16:29:30 -0500
+Date: Wed, 5 Mar 2003 15:39:51 -0600 (CST)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: ravikumar.chakaravarthy@amd.com
+cc: mbligh@aracnet.com, <linux-kernel@vger.kernel.org>
+Subject: RE: Loading and executing kernel from a non-standard address usin
+ g SY SLINUX
+In-Reply-To: <99F2150714F93F448942F9A9F112634CA54B08@txexmtae.amd.com>
+Message-ID: <Pine.LNX.4.44.0303051536250.31461-100000@chaos.physics.uiowa.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 March 2003 07:34:37 -0800, Randy.Dunlap wrote:
-> Russell King <rmk@arm.linux.org.uk> wrote:
-> | On Wed, Mar 05, 2003 at 10:15:52AM +0100, Gerd Knorr wrote:
-> 
-> | > Not sure what is the best idea to fix that.  Don't like the kmalloc
-> | > idea that much.  The individual structs are not huge, the real problem
-> | > is that many of them are allocated and only few are needed.  Any
-> | > chance to tell gcc that it should allocate block-local variables at
-> | > the start block not at the start of the function?
-> | 
-> | Not a particularly clean idea, but maybe creating a union of the
-> | structures and putting that on the stack? (ie, doing what GCC should
-> | be doing in the first place.)
-> 
-> That's an idea.  Or make separate called functions for each ioctl and declare
-> the structures inside them?
+On Tue, 4 Mar 2003 ravikumar.chakaravarthy@amd.com wrote:
 
-As far as I have seen, at least ds_ioctl uses the union trick. And the
-three marked (*) ioctl-functions appear to be suffering from the same
-gcc inability.
+> Yes the kernel is uncompressed to the right location (0x200000), in my
+> case. When I try to uncompress it to a non standard address (other than
+> 0x100000), the address mapping is affected. Thats why I tried to change
+> the PAGE_OFFSET value to 0xc0100000, which should be the right value
+> corresponding to (0x200000).
 
-How much complaining is necessary for the gcc folks to worry about
-this?
+> So the problem now is that, when a function is invoked it is unable to
+> fetch the right physical address, since my address mapping (System.map)
+> does not change when I change the value of PAGE_OFFSET and recompile the
+> kernel.
 
-0xc0ad420b <snd_emu10k1_fx8010_ioctl+3/5ec>:             sub    $0x814,%esp
-0xc06dbd77 <v4l_compat_translate_ioctl+3/159c>:          sub    $0x804,%esp
-0xc0521e43 <ida_ioctl+3/388>:                            sub    $0x528,%esp
-* 0xc01ed733 <presto_ioctl+3/13c4>:                        sub    $0x4d0,%esp
-* 0xc0bfbfd3 <br_ioctl_device+3/454>:                      sub    $0x474,%esp
-0xc07968bb <megadev_ioctl+3/c94>:                        sub    $0x394,%esp
-* 0xc068ff5b <ray_dev_ioctl+3/8b8>:                        sub    $0x2e0,%esp
-0xc0583a63 <netdev_ethtool_ioctl+3/e64>:                 sub    $0x2c8,%esp
-0xc0865963 <ds_ioctl+3/6b0>:                             sub    $0x2ac,%esp
-0xc04370c3 <vt_ioctl+3/1a84>:                            sub    $0x29c,%esp
-0xc054c5eb <e1000_ethtool_ioctl+3/6f8>:                  sub    $0x290,%esp
-0xc0299b23 <ncp_ioctl+3/13b0>:                           sub    $0x278,%esp
-0xc0532e67 <DAC960_UserIOCTL+3/17c0>:                    sub    $0x230,%esp
+Well, this sounds very much like your vmlinux is relocated to the wrong 
+adresses, and then it's not surprising it doesn't work. You definitely 
+want to change arch/i386/vmlinux.lds.S. I'm not sure if you actually want 
+to change PAGE_OFFSET, but I don't see a fundamental reason why it should 
+be needed, so I think you should try as-is.
 
-Jörn
+--Kai
 
--- 
-Optimizations always bust things, because all optimizations are, in
-the long haul, a form of cheating, and cheaters eventually get caught.
--- Larry Wall 
+

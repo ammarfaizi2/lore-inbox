@@ -1,59 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269261AbRHGSSj>; Tue, 7 Aug 2001 14:18:39 -0400
+	id <S269262AbRHGSTj>; Tue, 7 Aug 2001 14:19:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269262AbRHGSS3>; Tue, 7 Aug 2001 14:18:29 -0400
-Received: from dev.audiogalaxy.com ([64.245.48.170]:27154 "EHLO
-	dev.audiogalaxy.com") by vger.kernel.org with ESMTP
-	id <S269274AbRHGSSR>; Tue, 7 Aug 2001 14:18:17 -0400
-Date: Tue, 7 Aug 2001 13:18:29 -0500 (CDT)
-From: Michael Merhej <michael@audiogalaxy.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: VM issues (2.4.8pre4 and 2.4.8pre5) vs 2.4.7
-Message-ID: <Pine.LNX.4.33.0108071207070.26895-100000@dev.audiogalaxy.com>
+	id <S269263AbRHGSTb>; Tue, 7 Aug 2001 14:19:31 -0400
+Received: from mail.libertysurf.net ([213.36.80.91]:5162 "EHLO
+	mail.libertysurf.net") by vger.kernel.org with ESMTP
+	id <S269262AbRHGSTX>; Tue, 7 Aug 2001 14:19:23 -0400
+Message-ID: <3B704EC5.2090900@paulbristow.net>
+Date: Tue, 07 Aug 2001 20:25:41 +0000
+From: Paul Bristow <paul@paulbristow.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010801
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Kevin P. Fleming" <kevin@labsysgrp.com>
+CC: Richard Gooch <rgooch@ras.ucalgary.ca>,
+        Martin Wilck <Martin.Wilck@fujitsu-siemens.com>,
+        devfs mailing list <devfs@oss.sgi.com>,
+        Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH]: ide-floppy & devfs
+In-Reply-To: <Pine.LNX.4.30.0107272127060.16993-100000@biker.pdb.fsc.net><000701c116f5$8268a820$6baaa8c0@kevin> <200107281215.f6SCFt716350@mobilix.ras.ucalgary.ca> <001001c11781$9db10a50$6baaa8c0@kevin>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Box configuration:
-dual 1ghz box, 2gigs of RAM, 15k RPM scsi drive, eepro100, aic7xxx host
-MySQL 3.23.40
-database size = ~5 gigs on ext2 filesystem
+OK.  I am the maintainer of the code, and I will try to make sense out 
+of all the patches that got submitted while I was away on holiday...
 
-The database is mostly random access with most hits resulting in non
-cached data.  MySQL is heavily IO bound.
+BTW, I also am looking forward to 2.5 starting when we can get this 
+devfs stuff really working.  I have a version of ide-floppy "working 
+with devfs" on my system but it still has too many funnies.
 
-We have seen a 40% increase in queries per second that our
-machines can perform on the above configuration on 2.4.7pre4 compared
-to 2.4.7 which is excellent.  This was verfied on several machines within
-one of our database farms.  BTW We tried 2.4.7pre5 on several of
-these machines and they all locked up after an hour.
+Watch this space.
+
+Paul
+
+Kevin P. Fleming wrote:
+> <snip>
+> 
+>>Are you saying that the two patch conflict? If not, can someone please
+>>verify that both together are safe? Or is your patch a superset?
+>>
+>>
+> 
+> Actually, the patches are complementary. However, my patch I won't be
+> continuing to work on, as the entire way that partitions are
+> read/validated/passed to devfs/etc will be changed in 2.5, and I've already
+> forwarded this patch over to the maintainer of that code (whose name escapes
+> my memory at the moment). So I'd say don't worry about it from the devfs
+> end, you'll see the changes once 2.5 opens and these changes get merged in
+> to that tree.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
 
-Box configuration:
-dual 1ghz box, 1gig of RAM, 4 x 15k RPM scsi drives in RAID 0 on 1
-reiserfs partition, aic7xxx host, eepro100 and 3com gigabit card
-kernel NFSD
+-- 
 
-the reiserfs parition contains about 44gigs of small files (200bytes-20k)
+Paul
 
-data access is also random access:
-nfsstat -o rc
-Server reply cache:
-hits       misses     nocache
-1337       456292     14301729
-
-
-On kernel 2.4.7pre6 and below we had majors problems where nfsd would
-appear to freeze in the "down" state reported by WCHAN and the load would
-jump to the number of NFSD processes.  Throughput would go from several
-megabytes per second to a few kilobytes per second on NFS.  The partiton
-was still very readable and writeable though on the machine locally.  The
-box would stay in the state for several minutes to an hour then magically
-resume nfs transfers.  Kernel 2.4.8pre4 appears to have made this much
-better.
-
-Hope this helps
-
+Email: 
+paul@paulbristow.net
+Web: 
+http://paulbristow.net
+ICQ: 
+11965223
 

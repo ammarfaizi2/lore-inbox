@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282956AbRLDV6U>; Tue, 4 Dec 2001 16:58:20 -0500
+	id <S283537AbRLDV7N>; Tue, 4 Dec 2001 16:59:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283537AbRLDV6K>; Tue, 4 Dec 2001 16:58:10 -0500
-Received: from marine.sonic.net ([208.201.224.37]:17776 "HELO marine.sonic.net")
-	by vger.kernel.org with SMTP id <S283534AbRLDV54>;
-	Tue, 4 Dec 2001 16:57:56 -0500
-X-envelope-info: <dalgoda@ix.netcom.com>
-Date: Tue, 4 Dec 2001 13:57:48 -0800
-From: Mike Castle <dalgoda@ix.netcom.com>
+	id <S283534AbRLDV7C>; Tue, 4 Dec 2001 16:59:02 -0500
+Received: from [213.96.124.18] ([213.96.124.18]:27371 "HELO dardhal")
+	by vger.kernel.org with SMTP id <S283532AbRLDV65>;
+	Tue, 4 Dec 2001 16:58:57 -0500
+Date: Tue, 4 Dec 2001 22:58:49 +0100
+From: =?iso-8859-1?Q?Jos=E9_Luis_Domingo_L=F3pez?= 
+	<jdomingo@internautas.org>
 To: linux-kernel@vger.kernel.org
-Cc: Roland Bauerschmidt <rb@debian.org>
-Subject: Re: virtual filesystem with data managed in userspace
-Message-ID: <20011204135748.F1348@thune.mrc-home.com>
-Reply-To: Mike Castle <dalgoda@ix.netcom.com>
-Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
-	linux-kernel@vger.kernel.org, Roland Bauerschmidt <rb@debian.org>
-In-Reply-To: <20011204224026.A18753@g>
+Subject: Re: Netfilter hooks.
+Message-ID: <20011204225849.B5940@dardhal.mired.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <3C0CCDAD.BC8F01B8@uab.ericsson.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20011204224026.A18753@g>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <3C0CCDAD.BC8F01B8@uab.ericsson.se>
 User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 04, 2001 at 10:40:26PM +0100, Roland Bauerschmidt wrote:
-> Do you think this concept is workable at all? What I am most worried
+On Tuesday, 04 December 2001, at 14:20:46 +0100,
+Simona wrote:
 
-Workable, and done.  Several times over.
+> Question: do I need to register a target for this?
+> Can I call a hook in the same way that I am getting called if I am
+> registering to a hook?
+> 
+http://netfilter.samba.org/unreliable-guides/netfilter-hacking-HOWTO
 
-The old userfs stuff, for instance.
-
-Any number of NFSD and the ilk (the Berkeley automount daemon, amd, for
-instance, could do this kind of stuff it wanted to).
-
-I believe CODA plays that game as well (at least to some extent).
-
-mrc
 -- 
-     Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
-    We are all of us living in the shadow of Manhattan.  -- Watchmen
-fatal ("You are in a maze of twisty compiler features, all different"); -- gcc
+José Luis Domingo López
+Linux Registered User #189436     Debian Linux Woody (P166 64 MB RAM)
+ 
+jdomingo EN internautas PUNTO org  => ¿ Spam ? Atente a las consecuencias
+jdomingo AT internautas DOT   org  => Spam at your own risk
+

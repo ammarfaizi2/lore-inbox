@@ -1,57 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262893AbTHUUoK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Aug 2003 16:44:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262906AbTHUUoK
+	id S262885AbTHUUgs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Aug 2003 16:36:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262892AbTHUUgs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Aug 2003 16:44:10 -0400
-Received: from post.tau.ac.il ([132.66.16.11]:17899 "EHLO post.tau.ac.il")
-	by vger.kernel.org with ESMTP id S262893AbTHUUoH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Aug 2003 16:44:07 -0400
-Subject: Re: Centrino support
-From: Micha Feigin <michafeigin@yahoo.com>
-Reply-To: michf@math.tau.ac.il
-To: Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030819235500.GB18035@mail.jlokier.co.uk>
-References: <m2wude3i2y.fsf@tnuctip.rychter.com>
-	 <1060972810.29086.8.camel@serpentine.internal.keyresearch.com>
-	 <3F3D469B.2020507@yahoo.com> <3F408EC9.809@aitel.hist.no>
-	 <m3brulfixt.fsf@lugabout.jhcloos.org>
-	 <20030819235500.GB18035@mail.jlokier.co.uk>
+	Thu, 21 Aug 2003 16:36:48 -0400
+Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:56253 "EHLO
+	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S262885AbTHUUgp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Aug 2003 16:36:45 -0400
+Subject: Re: [PATCH] Call security hook from pid*_revalidate
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Cc: Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
+       Chris Wright <chrisw@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <87wud8pecx.fsf@devron.myhome.or.jp>
+References: <20030819013834.1fa487dc.akpm@osdl.org>
+	 <1061327958.28439.62.camel@moss-spartans.epoch.ncsc.mil>
+	 <20030819142234.64433bad.akpm@osdl.org>
+	 <87wud8pecx.fsf@devron.myhome.or.jp>
 Content-Type: text/plain
-Message-Id: <1061425558.2441.19.camel@litshi.luna.local>
+Organization: National Security Agency
+Message-Id: <1061498191.25855.77.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Thu, 21 Aug 2003 22:33:05 +0300
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 21 Aug 2003 16:36:31 -0400
 Content-Transfer-Encoding: 7bit
-X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.13; VAE: 6.21.0.1; VDF: 6.21.0.26; host: vexira.tau.ac.il)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-08-20 at 02:55, Jamie Lokier wrote:
-> James H. Cloos Jr. wrote:
-> > Helge> This does not in any way prevent them from releasing a driver,
-> > Helge> open or closed source.  It merely makes tampering with the
-> > Helge> driver illegal.
-> > 
-> > Unless of course it can be programmed to listen in on the AMPS cell
-> > phone band(s).  In that case it could arguably be a felony for them to
-> > release the programming info....  (Stupid law, but it has been
-> > enforced rather obsessively....)
+On Wed, 2003-08-20 at 10:56, OGAWA Hirofumi wrote:
+> Umm.. Wasn't the following needed?
 > 
-> How is that different from selling a radio which can be retuned by
-> opening it up and changing some resistors and capacitors?
+> 	inode->i_uid = 0;
+> 	inode->i_gid = 0;
+> 	if (ino == PROC_PID_INO || task_dumpable(task)) {
 
-arguably a patch is much easier to implement and distribute where as
-changing some resistors and capacitors would take more technical
-knowledge, although I don't know where the stands on that.
+Yes, good catch.  That's an omission from the original
+proc-pid-setuid-ownership-fix.patch, not mine.  How about the patch
+below, against 2.6.0-test3-mm3, which both addresses the omission from
+the original patch and adds the security hook call.  Note that the
+security hook call is still unconditional, as in proc_pid_make_inode;
+the security module can decide how it wants to deal with non-dumpable
+tasks when setting the inode security field.
 
-> 
-> -- Jamie
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+diff -X /home/sds/dontdiff -ru linux-2.6.0-test3-mm3/fs/proc/base.c linux-2.6.0-test3-mm3-sds/fs/proc/base.c
+--- linux-2.6.0-test3-mm3/fs/proc/base.c	2003-08-21 16:24:17.469096884 -0400
++++ linux-2.6.0-test3-mm3-sds/fs/proc/base.c	2003-08-21 16:09:40.000000000 -0400
+@@ -870,11 +870,17 @@
+  */
+ static int pid_revalidate(struct dentry *dentry, struct nameidata *nd)
+ {
+-	if (pid_alive(proc_task(dentry->d_inode))) {
+-		struct task_struct *task = proc_task(dentry->d_inode);
+-
+-		dentry->d_inode->i_uid = task->euid;
+-		dentry->d_inode->i_gid = task->egid;
++	struct inode *inode = dentry->d_inode;
++	struct task_struct *task = proc_task(inode);
++	if (pid_alive(task)) {
++		int ino = inode->i_ino & 0xffff;
++		inode->i_uid = 0;
++		inode->i_gid = 0;
++		if (ino == PROC_PID_INO || task_dumpable(task)) {
++			inode->i_uid = task->euid;
++			inode->i_gid = task->egid;
++		}
++		security_task_to_inode(task, inode);
+ 		return 1;
+ 	}
+ 	d_drop(dentry);
+@@ -883,8 +889,9 @@
+ 
+ static int pid_fd_revalidate(struct dentry *dentry, struct nameidata *nd)
+ {
+-	struct task_struct *task = proc_task(dentry->d_inode);
+-	int fd = proc_type(dentry->d_inode) - PROC_PID_FD_DIR;
++	struct inode *inode = dentry->d_inode;
++	struct task_struct *task = proc_task(inode);
++	int fd = proc_type(inode) - PROC_PID_FD_DIR;
+ 	struct files_struct *files;
+ 
+ 	task_lock(task);
+@@ -895,10 +902,16 @@
+ 	if (files) {
+ 		spin_lock(&files->file_lock);
+ 		if (fcheck_files(files, fd)) {
++			int ino = inode->i_ino & 0xffff;
+ 			spin_unlock(&files->file_lock);
+ 			put_files_struct(files);
+-			dentry->d_inode->i_uid = task->euid;
+-			dentry->d_inode->i_gid = task->egid;
++			inode->i_uid = 0;
++			inode->i_gid = 0;
++			if (ino == PROC_PID_INO || task_dumpable(task)) {
++				inode->i_uid = task->euid;
++				inode->i_gid = task->egid;
++			}
++			security_task_to_inode(task, inode);
+ 			return 1;
+ 		}
+ 		spin_unlock(&files->file_lock);
+
+
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 

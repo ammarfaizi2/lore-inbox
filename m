@@ -1,62 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261501AbVCaPDW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261496AbVCaPEw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261501AbVCaPDW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 10:03:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261496AbVCaPBX
+	id S261496AbVCaPEw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 10:04:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261490AbVCaPD6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 10:01:23 -0500
-Received: from mail.dif.dk ([193.138.115.101]:24802 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S261490AbVCaPAp (ORCPT
+	Thu, 31 Mar 2005 10:03:58 -0500
+Received: from wproxy.gmail.com ([64.233.184.205]:58738 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261497AbVCaPBa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 10:00:45 -0500
-Date: Thu, 31 Mar 2005 17:00:26 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: DervishD <lkml@dervishd.net>
-Cc: Mariusz Mazur <mmazur@kernel.pl>,
-       Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: linux-libc-headers scsi headers vs libc scsi headers
-In-Reply-To: <20050331141726.GA654@DervishD>
-Message-ID: <Pine.LNX.4.62.0503311659040.7825@jjulnx.backbone.dif.dk>
-References: <20050330162114.GA1028@DervishD> <200503302240.08200.mmazur@kernel.pl>
- <20050331074526.GA8614@DervishD> <200503311426.48435.mmazur@kernel.pl>
- <20050331141726.GA654@DervishD>
+	Thu, 31 Mar 2005 10:01:30 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:content-type:content-transfer-encoding;
+        b=VMPiSofsVjJH4Tb2//J0iMNM6uQyzl3ixFqrcdT549brxfSlx5Ye3DfVU3oYLw1m11MQpon58h3GEPR08VeXB/YflH9MzIiPpfKwZ88+5vCP7UZlWsfSACZt3np1zbcHhLt8NNeiFk62TVlvsUfrpFkvgIwm9yrGAU1Wxz/1s/k=
+Message-ID: <424C10C3.9080102@gmail.com>
+Date: Fri, 01 Apr 2005 00:01:23 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Debian Thunderbird 1.0 (X11/20050118)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: lkml <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org
+Cc: mage@adamant.ua
+Subject: sata_sil Mod15Write quirk workaround patch for vanilla kernel avaialble.
+Content-Type: text/plain; charset=EUC-KR
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 31 Mar 2005, DervishD wrote:
 
-> Date: Thu, 31 Mar 2005 16:17:26 +0200
-> From: DervishD <lkml@dervishd.net>
-> To: Mariusz Mazur <mmazur@kernel.pl>
-> Cc: Linux-kernel <linux-kernel@vger.kernel.org>
-> Subject: Re: linux-libc-headers scsi headers vs libc scsi headers
-> 
->     Hi Mariusz :)
-> 
->  * Mariusz Mazur <mmazur@kernel.pl> dixit:
-> > >     I don't know which set of headers will work, and in fact I don't
-> > > know if I must follow 'Linux From Scratch' advice and use raw kernel
-> > > headers for building glibc and LLH headers for any other thing. I
-> > > think I probably will use the LLH headers (including scsi) for
-> > > everything since glibc passes the 'make check' doing that... If I
-> > > screw my system badly, I have lotsa backups at hand.
-> > Like I've said, you're unable to break your system this way.
-> 
->     I think so... 
-> 
-> > And I don't see any point in LFS suggesting using raw kernel
-> > headers to compile glibc
-> 
->     I don't know their reasons because I haven't read any rationale
-> (if any exists at all). Anyway, I've used LLH (including the scsi
+ Hello, guys.
 
+ I  generated m16w workaround patch for 2.6.11.6 (by just removing two
+lines :-) and set up a page regarding m15w quirk and the workaournd.
+I'm planning on updating m15w patch against the vanilla tree until it
+gets into the mainline so that impatient users can try out and it gets
+more testing.
 
-http://uwsg.iu.edu/hypermail/linux/kernel/0007.3/0587.html seems to have a 
-bearing on what you are discussing - just FYI.
+ http://home-tj.org/m15w
 
+ Thanks.
 
 -- 
-Jesper Juhl
+tejun
 

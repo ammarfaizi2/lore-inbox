@@ -1,55 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129950AbRANN4y>; Sun, 14 Jan 2001 08:56:54 -0500
+	id <S130540AbRANOfF>; Sun, 14 Jan 2001 09:35:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129994AbRANN4o>; Sun, 14 Jan 2001 08:56:44 -0500
-Received: from austin.jhcloos.com ([206.224.83.202]:27396 "HELO
-	austin.jhcloos.com") by vger.kernel.org with SMTP
-	id <S129950AbRANN43>; Sun, 14 Jan 2001 08:56:29 -0500
-To: Christoph Rohland <cr@sap.com>
-Cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>, david+validemail@kalifornia.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: shmem or swapfs? was: [Patch] make shm filesystem part configurable
-In-Reply-To: <200101132014.f0DKEJh153332@saturn.cs.uml.edu>
-	<m3itnih3eb.fsf@linux.local>
-From: "James H. Cloos Jr." <cloos@jhcloos.com>
-In-Reply-To: <m3itnih3eb.fsf@linux.local>
-Date: 14 Jan 2001 07:56:28 -0600
-Message-ID: <m37l3yck4z.fsf@austin.jhcloos.com>
+	id <S130462AbRANOez>; Sun, 14 Jan 2001 09:34:55 -0500
+Received: from barn.holstein.com ([198.134.143.193]:2830 "EHLO holstein.com")
+	by vger.kernel.org with ESMTP id <S129994AbRANOep>;
+	Sun, 14 Jan 2001 09:34:45 -0500
+Message-Id: <3A61B841.81B1D0F5@holstein.com>
+Date: Sun, 14 Jan 2001 09:31:29 -0500
+From: "Todd M. Roy" <troy@holstein.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Andrea Arcangeli <andrea@suse.de>,
+        "Heinz J. Mauelshagen" <Heinz.Mauelshagen@t-online.de>,
+        linux-kernel@vger.kernel.org
+Subject: lvm 0.9.1-beta1 still segfaults vgexport
+In-Reply-To: <3A45192F.8C149F93@softhome.net> <20001227205336.A10446@athlon.random> <200101081918.f08JIrT06681@pcx4168.holstein.com> <20010108234339.F27646@athlon.random> <3A5B3422.F63D7DDD@holstein.com> <20010109170424.A29468@athlon.random> <3A5BBD0E.9F7DA88B@holstein.com> <20010110024743.R29904@athlon.random>
+X-MIMETrack: Itemize by SMTP Server on Imail/Holstein(Release 5.0.1b|September 30, 1999) at
+ 01/14/2001 09:29:49 AM,
+	Serialize by Router on Imail/Holstein(Release 5.0.1b|September 30, 1999) at
+ 01/14/2001 09:29:50 AM,
+	Serialize complete at 01/14/2001 09:29:50 AM
+X-Priority: 3 (Normal)
+Content-Transfer-Encoding: 7bit
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Christoph" == Christoph Rohland <cr@sap.com> writes:
+Andrea,
+  Sorry to say but lvm 0.9.1-beta1 still segfaults
+at the same place, line 140 of pv_read_all_pv_of_vg.c
+pv_this is still null.
+This with a straight 2.4.0 kernel with an onstream tape
+patch and the generated lvm patch.  Lvm is a module (on
+my home machine).
+
+-- todd --
+gdb /sbin/vgexport core:
+...
 
-Christoph> OK right now I see two alternatives for the name: "tmpfs"
-Christoph> for the SUN admins and "vmfs" for expressing what it does
-Christoph> and to be in line with "ramfs". Any votes?
-
-I think vmfs is the better choice.  Not to be gratuitously
-incompatable with sun, but there is no guarentee linux's
-implementation and sun's will be or remain compatable, so it really
-doesn't hurt to choose a name which is more descriptive rather than
-that used by someone else's product -- even if the other product is
-widely deployed and understood.
-
->> I'd prefer k for ISO standard and K for base-2.  Of course m isn't
->> millibytes, but that isn't horrible.
-
-Christoph> No, I would go for base-2 only. That's what we typically
-Christoph> mean with K and M in the IT world. To be case sensitive is
-Christoph> IMHO overkill and confusing.
-
-Unquestionably the Right Thing.  VM is after all being measured, and
-RAM is always measured in binary.  (OK, I just *know* someone will
-provide a counter-example disproving that assertion -- perhaps the old
-36 bit systems?  Or core?  But are there any modern counter-examples?)
-
--JimC
--- 
-James H. Cloos, Jr.  <http://jhcloos.com/public_key>     1024D/ED7DAEA6 
-<cloos@jhcloos.com>  E9E9 F828 61A4 6EA9 0F2B  63E7 997A 9F17 ED7D AEA6
+#0  0x400427f3 in pv_read_all_pv_of_vg (vg_name=0xbffff794 "vg01PV_EXP", 
+    pv=0xbffff710, reread=0) at pv_read_all_pv_of_vg.c:140
+140	      for ( p = 0; pv_this[p] != NULL; p++) {
+(gdb) print pv_this
+$1 = (pv_v2_t **) 0x0
+(gdb) bt
+#0  0x400427f3 in pv_read_all_pv_of_vg (vg_name=0xbffff794 "vg01PV_EXP", 
+    pv=0xbffff710, reread=0) at pv_read_all_pv_of_vg.c:140
+#1  0x400487af in vg_read (vg_name=0xbffff794 "vg01PV_EXP",
+vg=0xbffff750)
+    at vg_read.c:61
+#2  0x4004733d in vg_check_exist (vg_name=0xbffff794 "vg01PV_EXP")
+    at vg_check_exist.c:54
+#3  0x80491ee in main (argc=2, argv=0xbffff8cc) at vgexport.c:182
+#4  0x4007b213 in __libc_start_main (main=0x8048d00 <main>, argc=2, 
+    ubp_av=0xbffff8cc, init=0x80489c4 <_init>, fini=0x80495b4 <_fini>, 
+    rtld_fini=0x4000d660 <_dl_fini>, stack_end=0xbffff8c4)
+    at ../sysdeps/generic/libc-start.c:129
+...
+**********************************************************************
+This footnote confirms that this email message has been swept by 
+MIMEsweeper for the presence of computer viruses.
+**********************************************************************
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

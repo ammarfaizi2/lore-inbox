@@ -1,33 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264156AbRFHQKY>; Fri, 8 Jun 2001 12:10:24 -0400
+	id <S264120AbRFHQMe>; Fri, 8 Jun 2001 12:12:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264139AbRFHQKO>; Fri, 8 Jun 2001 12:10:14 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:30224 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S264120AbRFHQKM>; Fri, 8 Jun 2001 12:10:12 -0400
-Subject: Re: ftape and kernel 2.4 problem
-To: fl@fl.priv.at (Friedrich Lobenstock)
-Date: Fri, 8 Jun 2001 17:08:37 +0100 (BST)
-Cc: srwalter@yahoo.com (Steven Walter), linux-kernel@vger.kernel.org,
-        alan@lxorguk.ukuu.org.uk
-In-Reply-To: <Pine.LNX.4.33.0106072332100.25948-100000@www.scotty.co.at> from "Friedrich Lobenstock" at Jun 07, 2001 11:39:22 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S264183AbRFHQMO>; Fri, 8 Jun 2001 12:12:14 -0400
+Received: from mail.aslab.com ([205.219.89.194]:22568 "EHLO mail.aslab.com")
+	by vger.kernel.org with ESMTP id <S264120AbRFHQMM>;
+	Fri, 8 Jun 2001 12:12:12 -0400
+Date: Fri, 8 Jun 2001 09:12:07 -0700 (PDT)
+From: Andre Hedrick <andre@aslab.com>
+To: Frank Neuber <neuber@convergence.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux support for PDC20268
+In-Reply-To: <3B20B8BD.410364E0@convergence.de>
+Message-ID: <Pine.LNX.4.04.10106080911110.31794-100000@mail.aslab.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E158OoP-0002qk-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Alan, how could we get the current in kernel ftape driver updated?
-> What needs to be done?
 
-Someone needs to do it. To be honest the last ftape contribution I can find
-is back in 2.3.30 or so and was some fixes to make it compile which were done
-I think by someone without the hardware.
+I am betting on CMD and Highpoint.
+I will meet with CMD in Irvine during the next T13 meeting in two weeks.
 
-If you are actually using ftape you are I suspect the most qualified volunteer
-for doing something about it I've seen for two years 8)
+Andre Hedrick
+ASL Kernel Development
+Linux ATA Development
+-----------------------------------------------------------------------------
+ASL, Inc.                                     Toll free: 1-877-ASL-3535
+1757 Houret Court                             Fax: 1-408-941-2071
+Milpitas, CA 95035                            Web: www.aslab.com
+
+On Fri, 8 Jun 2001, Frank Neuber wrote:
+
+> Andre Hedrick wrote:
+> > 
+> > Frank,
+> > 
+> > "Frank Tiernan" does not exist at Promise anymore, and that company is
+> > HOSTILE towards Linux Now.
+> Hi Andre,
+> thanks for your response. What is your advice for an IDE-Controller
+> in an multi platform environment?
+> 
+> Frank
+> 
+> -- 
+> Dipl.-Ing. Elektrotechnik     convergence integrated media gmbh / HW
+> Frank Neuber                        Rosenthalerstr.51 / 10178 Berlin
+> Email:  neuber@convergence.de           Phone:  +49(0)30-72 62 06 50
+> WWW:    www.convergence.de              Fax:    +49(0)30-72 62 06 55
+> 
 

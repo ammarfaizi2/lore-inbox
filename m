@@ -1,399 +1,403 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264861AbSJPFSE>; Wed, 16 Oct 2002 01:18:04 -0400
+	id <S264886AbSJPFg7>; Wed, 16 Oct 2002 01:36:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264879AbSJPFSE>; Wed, 16 Oct 2002 01:18:04 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:9220 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S264861AbSJPFSA>; Wed, 16 Oct 2002 01:18:00 -0400
-Message-Id: <200210160519.g9G5JDp28181@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: linux-kernel@vger.kernel.org
-Subject: lk maintainers
-Date: Wed, 16 Oct 2002 08:12:16 -0200
-X-Mailer: KMail [version 1.3.2]
+	id <S264887AbSJPFg7>; Wed, 16 Oct 2002 01:36:59 -0400
+Received: from TYO201.gate.nec.co.jp ([210.143.35.51]:16320 "EHLO
+	TYO201.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id <S264886AbSJPFgx>; Wed, 16 Oct 2002 01:36:53 -0400
+To: Greg Ungerer <gerg@snapgear.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH]: linux-2.5.42uc1 (MMU-less support)
+References: <3DAC337D.7010804@snapgear.com>
+Reply-To: Miles Bader <miles@gnu.org>
+System-Type: i686-pc-linux-gnu
+Blat: Foop
+From: Miles Bader <miles@lsi.nec.co.jp>
+Date: 16 Oct 2002 14:42:44 +0900
+In-Reply-To: <3DAC337D.7010804@snapgear.com>
+Message-ID: <buoit03lz1n.fsf@mcspd15.ucom.lsi.nec.co.jp>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/mixed; boundary="=-=-="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This document is mailed to lkml regularly and will be modified
-whenever new victim wishes to be listed in it or someone can
-no longer devote his time to maintainer work.
-
-If you want your entry added/updated/removed, contact me.
-
-BTW, requests to move your entry to the top of the list
-without actually changing the text are fine too: that
-will indicate that entry is not outdated, so don't be shy ;-)
---
-vda
-------- cut here ------ cut here ------ cut here ------ cut here ------
-
-So, you are new to Linux kernel hacking and want to submit a kernel bug
-report or a patch but don't know how to do it and _where_ to report it?
-
-Preparing bug report:
-=====================
-*** Remember: bad/incomplete bug report ONLY wastes bandwidth! ***
-How To Ask Questions The Smart Way:
-    http://www.tuxedo.org/~esr/faqs/smart-questions.html
-	Anybody who has written software for public use will
-	probably have received at least one bad bug report.
-	Reports that say nothing ("It doesn't work!");
-	reports that make no sense; reports that don't give
-	enough information; reports that give wrong information.
-How to Report Bugs Effectively:
-    http://www.chiark.greenend.org.uk/~sgtatham/bugs.html
-	Before asking a technical question by email, or in
-	a newsgroup, or on a website chat board, do the following:
-	* Try to find an answer by searching the Web.
-	* Try to find an answer by reading the manual.
-	* Try to find an answer by reading a FAQ.
-	* Try to find an answer by inspection or experimentation.
-	* Try to find an answer by reading the source code.
-Compile problems: report GCC output and result of "grep '^CONFIG_' .config"
-Oops: decode it with ksymoops.
-Unkillable process: Alt-SysRq-T and ksymoops relevant part.
-Yes it means you should have ksymoops installed and tested,
-which is easy to get wrong. I've done that too often.
-
-Sending bug report/patch:
-=========================
-* Some device drivers have active developers, try to contact them first.
-* Otherwise find a subsystem maintainer to which your report pertains
-  and send report to his address.
-* Small fixes and device driver updates are best directed to subsystem
-  maintainers and "small bits" integrators.
-* It never hurts to CC: Linux kernel mailing list, but without specific
-  maintainer address in To: field there is high probability that your
-  patch won't be noticed. You have been warned.
-* Do not send it to all addresses at once! This will annoy lots of people
-  and isn't useful at all. It's a spam.
-* Do NOT send small fixes to Linus, he just can't handle _everything_.
-  He will eventually receive it from maintainers/integrators, send it
-  their way.
-* If your patch is something big and new, announce it on lkml and try
-  to attract testers. After it has been tested and discussed, you can
-  expect Linus to consider inclusion in mainline.
-
-
-		Current Linux kernel people
-
-Note that this list is sorted in reversed date order, most recent
-entries first. This means than entries at bottom can be outdated :-(
-
-
-Linux kernel mailing list <linux-kernel@vger.kernel.org>
-	Post anything related to Linux kernel here, but nothing else :-)
-
-Andre Hedrick <andre@linux-ide.org> [02 oct 2002]
-	ATA/ATAPI Storage Architect [2.0,2.2,2.4,2.5]
-	HBA interface developer
-	Serial ATA Architect [future release]
-	Voting NCITS member AT-Attachment Committee
-
-Jeff Garzik <jgarzik@mandrakesoft.com> [24 sep 2002]
-	I am the network-card-drivers guy (8139 for instance).
-	CC me and Andrew Morton <akpm@zip.com.au> on network driver patches.
-
-Jan-Benedict Glaw <jbglaw@lug-owl.de> [18 sep 2002]
-	I'm responsible for Alpha's srm_env driver, providing access to
-	SRM's firmware variables.
-
-Stuart MacDonald <stuartm@connecttech.com> [13 sep 2002]
-	Connect Tech's linux kernel guy. Currently includes hacking on
-	drivers/char/serial.c (Blue Heat, Xtreme, Dflex) and maintaining
-	drivers/usb/serial/whiteheat.c (WhiteHEAT)
-
-Vojtech Pavlik <vojtech@ucw.cz> [13 sep 2002]
-	Feel free to send me bug reports and patches to input device drivers
-	(drivers/input/*, drivers/char/joystick/*)
-	I also want to receive bug reports and patches for following
-	USB drivers: printer, acm, catc, hid*, usbmouse, usbkbd, wacom.
-	All other (not in the list) USB driver changes should go to USB
-	maintainer (hopefully there is one listed here :-).
-	Also CC me if you are posting VIA IDE driver related message
-	(although I am not IDE subsystem maintainer).
-
-Robert Love <rml@tech9.net> [12 sep 2002]
-	Preemptible kernel maintainer.
-	I am also interesting in anything related to scheduling or locking
-	primitives.
-
-Jan Kara <jack@suse.cz> [22 aug 2002]
-	quota subsystem maintainer
-
-Paul Larson <plars@linuxtestproject.org> [20 aug 2002]
-	I'm a maintainer for the Linux Test Project and it would be nice
-	if people knew to send their test programs, etc. to me.  I see
-	a lot of them flying around on lkml and try to catch them when
-	I can, but it's a lot to keep up with.  It would be even better
-	if people just knew to send them our way so we could clean
-	them up and put them in LTP for regression testing.
-
-Dave Engebretsen <engebret@vnet.ibm.com> [15 aug 2002]
-	PPC64 architecture maintainer.  Please send PPC64 patches to me
-	and our mailing list at <linuxppc64-dev@lists.linuxppc.org>
-
-Ingo Molnar <mingo@elte.hu> [30 jul 2002]
-	Ingo wrote the new scheduler for 2.5.
-
-Ralf Baechle <ralf@uni-koblenz.de> [30 jul 2002]
-	I am maintainer of the AX.25 code
-
-Victor Yodaiken <yodaiken@fsmlabs.com> [30 jul 2002]
-	RTLinux patches, updates, contributions, drivers.
-	Please send first to the list: rtl@rtlinux.org
-
-Pavel Machek <pavel@ucw.cz> [27 jul 2002]
-	I am network block device maintainer. Visit http://nbd.sf.net.
-	(see Steven Whitehouse <steve@gw.chygwyn.com> entry)
-	I am working on software suspend.
-
-William Irwin <wli@holomorphy.com> [02 jul 2002]
-	Send bug reports and/or feature requests related to many tasks,
-	rmap, space consumption, or allocators to me. I'm involved in
-	* rmap
-	* memory allocators
-	* reducing space consumed by data structures (e.g. struct page)
-	* issues arising in workloads with many tasks
-	* kernel janitoring
-	See also:
-	Rik van Riel <riel@surriel.com>
-	Andrea Arcangeli <andrea@suse.de>
-	Martin Bligh <Martin.Bligh@us.ibm.com>
-	Andrew Morton <akpm@zip.com.au>
-
-Dave Jones <davej@suse.de> [23 apr 2002]
-	I collect various bits and pieces for inclusion in 2.5,
-	especially small and trivial ones and driver updates.
-	I'll feed them to Linus when (and if) they
-	are proved to be worthy.
-
-Andrea Arcangeli <andrea@suse.de> [28 mar 2002]
-	Send VM related bug reports and patches to me.
-	I'm especially interested in VM issues with:
-	* lots of RAM and CPUs
-	* NUMA
-	* heavy swap scenarios
-	* performance of I/O intensive workloads (in particular
-	  with lots of async buffer flushing involved)
-	See also Martin J. Bligh <Martin.Bligh@us.ibm.com> entry
-	Mail also:
-	Arjan van de Ven <arjanv@redhat.com>
-
-Martin J. Bligh <Martin.Bligh@us.ibm.com> [28 mar 2002]
-	I'm interested in VM issues with lots (>4G for i386)
-	of RAM, lots of CPUs, NUMA
-
-Steven Whitehouse <steve@chygwyn.com> [27 mar 2002]
-	I am the Linux DECnet network stack maintainer
-	Visit http://www.chygwyn.com/decnet/
-
-Arnaldo Carvalho de Melo <acme@conectiva.com.br> [26 mar 2002]
-	IPX, 802.2 LLC, NetBEUI, http://kerneljanitors.org,
-	cyclom2x sync card driver
-
-John Cagle <jcagle@kernel.org> [19 mar 2002]
-	The current maintainer of devices.txt, the list of
-	assigned device numbers for LANANA.  Consult the web
-	site (www.lanana.org) for instructions on submitting
-	requests for new device numbers.  Send all device
-	related email to <device@lanana.org>.
-
-Tigran Aivazian <tigran@veritas.com>
-	I am author and maintainer of BFS filesystem and IA32
-	microcode update driver.
-
-Rogier Wolff <R.E.Wolff@BitWizard.nl> [12 mar 2002]
-	I do "specialix serial ports":
-	drivers/char/specialix.c (IO8+)
-	drivers/char/sx.c        (SX, SI, SIO)
-	drivers/char/rio/*.c     (RIO)
-
-Martin Dalecki <martin@dalecki.de> [11 mar 2002]
-	IDE subsystem maintainer for 2.5
-	(mail Vojtech Pavlik <vojtech@suse.cz> too)
-
-Ed Vance <serial24@macrolink.com> [05 mar 2002]
-	Maintainer for the generic serial driver, serial.c,
-	for 2.2 and 2.4 kernels.  Please post patches to
-	linux-serial@vger.kernel.org for tested bug
-	fixes or to add support for a new serial device.
-	Limited to time available. If I have not responded
-	in a week, yell at serial24@macrolink.com
-
-netfilter/iptables development <netfilter-devel@lists.samba.org> [23 feb 2002]
-	Please report all netfilter/iptables related problems
-	to this mailinglist, where all netfilter developers are present.
-	See also http://www.netfilter.org/contact.html
-
-Hans Reiser <reiser@namesys.com> [16 feb 2002]
-	Send me all reiserfs related patches with a cc to
-	reiserfs-dev@namesys.com, send bug reports to
-	reiserfs-dev@namesys.com, send paid support requests to
-	support@namesys.com after going to www.namesys.com/support.html
-	to pay, send discussions (not bug reports unless they are
-	interesting to most persons) to reiserfs-list@namesys.com.
-	If we sit on your patch for a week without responding,
-	yell at us, we deserve it.  Look at our web page
-	at www.namesys.com for more about sending us code,
-	working with us, and our patch submission and tracking system.
-
-Paul Bristow <paul@paulbristow.net> [16 feb 2002]
-	I am an ide-floppy driver maintainer
-	(ATAPI ZIP, LS-120/240 Superdisk, Clik! drives).
-
-Mike Phillips <phillim2@comcast.net> [15 feb 2002]
-	Token ring subsystem and drivers.
-
-Anton Altaparmakov <aia21@cam.ac.uk> [15 feb 2002]
-	I am the NTFS guy.
-
-https://bugzilla.redhat.com/bugzilla [14 feb 2002]
-	Reports of problems with the Red Hat shipped kernels.
-
-Alan Cox <alan@lxorguk.ukuu.org.uk> [14 feb 2002]
-	Linux 2.2 maintainer (maintenance fixes only).
-	Collator of patches for unmaintained things in 2.2/2.4.
-	Maintainer of the 2.4-ac (2.4 plus stuff being tested) tree.
-	I2O, sound, 3c501 maintainer for 2.2/2.4.
-
-ALSA development <alsa-devel@alsa-project.org> [12 feb 2002]
-Jaroslav Kysela <perex@perex.cz> [12 feb 2002]
-	Advanced Linux Sound Architecture
-	ALSA patches are available at
-	ftp://ftp.alsa-project.org/pub/kernel-patches/*
-
-Neil Brown <neilb@cse.unsw.edu.au> [08 feb 2002]
-	I am interested in any issues with the code in:
-	NFS server    (fs/nfsd/*)
-	software RAID (drivers/md/{md,raid,linear}*)
-	or related include files.
-
-Maksim Krasnyanskiy <maxk@qualcomm.com> [08 feb 2002]
-	I'm author and maintainer of the Bluetooth subsystem
-	and Universal TUN/TAP device driver.
-	These days mostly working on Bluetooth stuff.
-
-Rik van Riel <riel@conectiva.com.br> [07 feb 2002]
-	Send me VM related stuff, please CC to linux-mm@kvack.org
-
-Geert Uytterhoeven <geert@linux-m68k.org> [07 feb 2002]
-	I work on the frame buffer subsystem, the m68k port (Amiga part),
-	and the PPC port (CHRP LongTrail part).
-	Unfortunately I barely have spare time to really work on these
-	things. My job is not Linux-related (so far :-). I can not
-	promise anything about my maintainership performance.
-
-H. Peter Anvin <hpa@zytor.com> [07 feb 2002]
-	i386 boot and feature code, i386 boot protocol, autofs3,
-	compressed iso9660 (but I'll accept all iso9660-related
-	changes).  kernel.org site manager; please contact me
-	for sponsorship-related issues.
-
-kernel.org admins <ftpadmin@kernel.org> [07 feb 2002]
-	Kernel.org sysadmins.  Contact us if you notice something breaks,
-	or if you want a change make sure you give us at least 1-2 weeks.
-	Please note that we got a lot of feature requests, a lot of
-	which conflict or simply aren't practical; we don't have time to
-	respond to all requests.
-
-Greg KH <greg@kroah.com> [07 feb 2002]
-	I am USB and PCI Hotplug maintainer.
-
-Trond Myklebust <trond.myklebust@fys.uio.no> [07 feb 2002]
-	I am NFS client maintainer.
-
-James Simmons <jsimmons@transvirtual.com> [07 feb 2002]
-	Console and framebuffer sybsustems.
-	I also play around with the input layer.
-
-Richard Gooch <rgooch@atnf.csiro.au> [07 feb 2002]
-	I maintain devfs. I want people to Cc: me when reporting devfs
-	problems, since I don't read all messages on linux-kernel.
-	Send devfs related patches to me directly, rather than
-	bypassing me and sending to Linus/Marcelo/Alan/Dave etc.
-
-Russell King <rmk@arm.linux.org.uk> [06 feb 2002]
-	ARM architecture maintainer.  Please send all ARM patches through
-	the patch system at http://www.arm.linux.org.uk/developer/patches/
-	New serial drivers maintainer for 2.5.  Submit patches to
-	rmk+serial@arm.linux.org.uk
-
-Andrew Morton <akpm@zip.com.au> [05 feb 2002]
-	I'm receptive to any reproducible bug anywhere in the 2.4 kernel.
-	Specialising in ext2, ext3 and network drivers.
-	Not thinking about 2.5.x at this time.
-
-Petr Vandrovec <vandrove@vc.cvut.cz> [05 feb 2002]
-	ncpfs filesystem, matrox framebuffer driver, problems related
-	to VMware - in all of 2.2.x, 2.4.x and 2.5.x.
-
-Reiserfs developers list <reiserfs-dev@namesys.com> [05 feb 2002]
-	Send all reiserfs-related stuff here including but not limited to bug
-	reports, fixes, suggestions.
-
-Oleg Drokin <green@linuxhacker.ru> [05 feb 2002]
-	SA11x0 USB-ethernet and SA11x0 watchdog are mine.
-
-======= These entries are suggested by lkml folks ========
-
-Ralf Baechle <ralf@gnu.org> [27 mar 2002]
-	I am mips/mips64 maintainer.
-
-David S. Miller <davem@redhat.com> [07 feb 2002]
-	I am Sparc64 and networking core maintainer.
-
-======= These ones I made myself ========
-======= I am waiting confirmation/correction from these people ========
-
-Urban Widmark <urban@teststation.com> [13 feb 2002]
-	smbfs
-
-video4linux list <video4linux-list@redhat.com> [12 feb 2002]
-Gerd Knorr <kraxel@bytesex.org> [12 feb 2002]
-	video4linux
-
-Tim Waugh <twaugh@redhat.com> [08 feb 2002]
-	> Who is maintaining the linux iomega stuff?
-	For 2.4.x, me (in theory). I don't have time for 2.5.x at the moment.
-
-Alexander Viro <viro@math.psu.edu> [5 feb 2002]
-	I am NOT a fs subsystem maintainer. But I won't kill
-	you if you send me some generic fs bug reports and (hopefully) patches.
-
-Eric S. Raymond <esr@thyrsus.com> [5 feb 2002]
-	Send kernel configuration bug reports and suggestions to me.
-	Also I'll be more than happy to accept help enties for kernel config
-	options (Configure.help).
-
-G?rard Roudier <groudier@free.fr> [5 feb 2002]
-	I am SCSI guy.
-
-Jens Axboe <axboe@suse.de> [5 feb 2002]
-	I am block device subsystem maintainer.
-
-Linus Torvalds <torvalds@transmeta.com> [5 feb 2002]
-	Do not send anything to me unless it is for 2.5, well tested,
-	discussed on lkml and is used by significant number of people.
-	In general it is a bad idea to send me small fixes and driver
-	updates, send them to subsystem maintainers and/or
-	"small stuff" integrator (currently Dave Jones <davej@suse.de>,
-	see his entry). Sorry, I can't do everything.
-
-Marcelo Tosatti <marcelo@conectiva.com.br> [5 feb 2002]
-	Do not send anything to me unless it is for 2.4 and well tested.
-	If you are sending me small fixes and driver updates, send
-	a copy to subsystem maintainers and/or "small stuff" integrators:
-	- Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	- Rusty Russell <trivial@rustcorp.com.au>.
-
-Rusty Russell <rusty@rustcorp.com.au> [5 feb 2002]
-	> Here are some cleanups of whitespace in .....
-	Want me to add this to the trivial patch collection for tracking?
-	If so just send (or cc:) it to trivial@rustcorp.com.au.
+--=-=-=
+
+Hi,
+
+Here's a v850 update for 2.5.42uc1.
+
+I addressed two of Christoph Hellwig's concerns, (1) vmlinux.lds.S
+[barf] and (2) the asm-constant generation mechanism.
+
+He also complained about using the MD driver &c instead of initrd, but
+I'm not sure what do about that -- it'd be nice to use a `standard'
+solution, but when I originally looked at the initrd stuff, it seemed
+very convoluted and confusing; since earlier lkml discussion had pointed
+to using MD as the nearest thing to the old blkmem device, that seemed
+like the way to go.
+
+What's your opinion on this?
+
+
+Patch:
+
+
+
+--=-=-=
+Content-Type: text/x-patch
+Content-Disposition: attachment;
+  filename=linux-2.5.42uc1-v850-20021016-dist.patch
+Content-Description: linux-2.5.42uc1-v850-20021016-dist.patch
+
+diff -ruN -X../cludes ../orig/linux-2.5.42uc1/arch/v850/Makefile arch/v850/Makefile
+--- ../orig/linux-2.5.42uc1/arch/v850/Makefile	2002-10-16 10:45:53.000000000 +0900
++++ arch/v850/Makefile	2002-10-16 13:46:51.000000000 +0900
+@@ -23,32 +23,6 @@
+ CFLAGS += -D__linux__ -DUTS_SYSNAME=\"uClinux\"
+ 
+ 
+-# linker scripts
+-ifdef CONFIG_V850E_SIM
+-LINKER_SCRIPT = $(arch_dir)/sim.ld
+-endif
+-ifdef CONFIG_V850E2_SIM85E2C
+-LINKER_SCRIPT = $(arch_dir)/sim85e2c.ld
+-endif
+-ifdef CONFIG_V850E2_FPGA85E2C
+-LINKER_SCRIPT = $(arch_dir)/fpga85e2c.ld
+-endif
+-ifdef CONFIG_V850E2_ANNA
+-LINKER_SCRIPT = $(arch_dir)/anna.ld
+-endif
+-ifdef CONFIG_RTE_CB_MA1
+-ifdef CONFIG_ROM_KERNEL
+-LINKER_SCRIPT = $(arch_dir)/rte_ma1_cb-rom.ld
+-else
+-ifdef CONFIG_RTE_CB_MA1_KSRAM
+-LINKER_SCRIPT = $(arch_dir)/rte_ma1_cb-ksram.ld
+-else
+-LINKER_SCRIPT = $(arch_dir)/rte_ma1_cb.ld
+-endif
+-endif
+-endif
+-
+-
+ HEAD := $(arch_dir)/kernel/head.o $(arch_dir)/kernel/init_task.o
+ core-y += $(arch_dir)/kernel/
+ libs-y += $(arch_dir)/lib/
+@@ -73,17 +47,19 @@
+ endif
+ 
+ 
+-# Barf.
+-$(arch_dir)/vmlinux.lds.S: $(LINKER_SCRIPT)
+-	cp $< $@
+-
+-
+-archmrproper:
+-
+-archdep:
++prepare: include/asm-$(ARCH)/asm-consts.h
+ 
+-archclean:
+-	rm -f vmlinux
+-	rm -f root_fs_image.o
+-	rm -f $(arch_dir)/kernel/v850_defs.h $(arch_dir)/kernel/v850_defs.d
+-	rm -f $(arch_dir)/vmlinux.lds.S $(arch_dir)/vmlinux.lds.s
++# Generate constants from C code for use by asm files
++arch/$(ARCH)/kernel/asm-consts.s: include/asm include/linux/version.h \
++				   include/config/MARKER
++include/asm-$(ARCH)/asm-consts.h.tmp: arch/$(ARCH)/kernel/asm-consts.s
++	@$(generate-asm-offsets.h) < $< > $@
++include/asm-$(ARCH)/asm-consts.h: include/asm-$(ARCH)/asm-consts.h.tmp
++	@echo -n '  Generating $@'
++	@$(update-if-changed)
++
++
++CLEAN_FILES += include/asm-$(ARCH)/asm-consts.h.tmp \
++	       include/asm-$(ARCH)/asm-consts.h \
++	       arch/$(ARCH)/kernel/asm-consts.s \
++	       root_fs_image.o
+diff -ruN -X../cludes ../orig/linux-2.5.42uc1/arch/v850/kernel/Makefile arch/v850/kernel/Makefile
+--- ../orig/linux-2.5.42uc1/arch/v850/kernel/Makefile	2002-10-16 10:45:54.000000000 +0900
++++ arch/v850/kernel/Makefile	2002-10-16 13:47:05.000000000 +0900
+@@ -36,17 +36,3 @@
+ 
+ 
+ include $(TOPDIR)/Rules.make
+-
+-
+-$(obj)/head.o: $(src)/head.S $(obj)/v850_defs.h
+-$(obj)/entry.o: $(src)/entry.S $(obj)/v850_defs.h
+-
+--include $(obj)/v850_defs.d
+-
+-$(obj)/v850_defs.h: $(src)/v850_defs.c $(src)/v850_defs.head
+-	rm -f $(obj)/v850_defs.d
+-	SUNPRO_DEPENDENCIES="$(obj)/v850_defs.d $(obj)/v850_defs.h" \
+-	$(CC) $(filter-out -MD,$(CFLAGS)) -S -o $(obj)/v850_defs.s $(src)/v850_defs.c
+-	cp $(src)/v850_defs.head $(src)/v850_defs.h
+-	grep '^#define' $(obj)/v850_defs.s >> $(obj)/v850_defs.h
+-	rm $(obj)/v850_defs.s
+diff -ruN -X../cludes ../orig/linux-2.5.42uc1/arch/v850/kernel/asm-consts.c arch/v850/kernel/asm-consts.c
+--- ../orig/linux-2.5.42uc1/arch/v850/kernel/asm-consts.c	1970-01-01 09:00:00.000000000 +0900
++++ arch/v850/kernel/asm-consts.c	2002-10-16 13:51:15.000000000 +0900
+@@ -0,0 +1,60 @@
++/*
++ * This program is used to generate definitions needed by
++ * assembly language modules.
++ *
++ * We use the technique used in the OSF Mach kernel code:
++ * generate asm statements containing #defines,
++ * compile this file to assembler, and then extract the
++ * #defines from the assembly-language output.
++ */
++
++#include <linux/stddef.h>
++#include <linux/sched.h>
++#include <linux/kernel_stat.h>
++#include <asm/irq.h>
++#include <asm/hardirq.h>
++#include <asm/errno.h>
++
++#define DEFINE(sym, val) \
++	asm volatile("\n->" #sym " %0 " #val : : "i" (val))
++
++#define BLANK() asm volatile("\n->" : : )
++
++int main (void)
++{
++	/* offsets into the task struct */
++	DEFINE (TASK_STATE, offsetof (struct task_struct, state));
++	DEFINE (TASK_FLAGS, offsetof (struct task_struct, flags));
++	DEFINE (TASK_PTRACE, offsetof (struct task_struct, ptrace));
++	DEFINE (TASK_BLOCKED, offsetof (struct task_struct, blocked));
++	DEFINE (TASK_THREAD, offsetof (struct task_struct, thread));
++	DEFINE (TASK_THREAD_INFO, offsetof (struct task_struct, thread_info));
++	DEFINE (TASK_MM, offsetof (struct task_struct, mm));
++	DEFINE (TASK_ACTIVE_MM, offsetof (struct task_struct, active_mm));
++	DEFINE (TASK_PID, offsetof (struct task_struct, pid));
++
++	/* offsets into the kernel_stat struct */
++	DEFINE (STAT_IRQ, offsetof (struct kernel_stat, irqs));
++
++
++	/* signal defines */
++	DEFINE (SIGSEGV, SIGSEGV);
++	DEFINE (SEGV_MAPERR, SEGV_MAPERR);
++	DEFINE (SIGTRAP, SIGTRAP);
++	DEFINE (SIGCHLD, SIGCHLD);
++	DEFINE (SIGILL, SIGILL);
++	DEFINE (TRAP_TRACE, TRAP_TRACE);
++
++	/* ptrace flag bits */
++	DEFINE (PT_PTRACED, PT_PTRACED);
++	DEFINE (PT_DTRACE, PT_DTRACE);
++
++	/* error values */
++	DEFINE (ENOSYS, ENOSYS);
++
++	/* clone flag bits */
++	DEFINE (CLONE_VFORK, CLONE_VFORK);
++	DEFINE (CLONE_VM, CLONE_VM);
++
++	return 0;
++}
+diff -ruN -X../cludes ../orig/linux-2.5.42uc1/arch/v850/kernel/entry.S arch/v850/kernel/entry.S
+--- ../orig/linux-2.5.42uc1/arch/v850/kernel/entry.S	2002-10-16 10:45:54.000000000 +0900
++++ arch/v850/kernel/entry.S	2002-10-16 13:44:55.000000000 +0900
+@@ -22,7 +22,7 @@
+ #include <asm/irq.h>
+ #include <asm/errno.h>
+ 
+-#include "v850_defs.h"
++#include <asm/asm-consts.h>
+ 
+ 
+ /* Make a slightly more convenient alias for C_SYMBOL_NAME.  */
+diff -ruN -X../cludes ../orig/linux-2.5.42uc1/arch/v850/kernel/v850_defs.c arch/v850/kernel/v850_defs.c
+--- ../orig/linux-2.5.42uc1/arch/v850/kernel/v850_defs.c	2002-10-16 10:45:54.000000000 +0900
++++ arch/v850/kernel/v850_defs.c	1970-01-01 09:00:00.000000000 +0900
+@@ -1,58 +0,0 @@
+-/*
+- * This program is used to generate definitions needed by
+- * assembly language modules.
+- *
+- * We use the technique used in the OSF Mach kernel code:
+- * generate asm statements containing #defines,
+- * compile this file to assembler, and then extract the
+- * #defines from the assembly-language output.
+- */
+-
+-#include <linux/stddef.h>
+-#include <linux/sched.h>
+-#include <linux/kernel_stat.h>
+-#include <asm/irq.h>
+-#include <asm/hardirq.h>
+-#include <asm/errno.h>
+-
+-#define DEFINE(sym, val) \
+-	asm volatile ("\n#define " #sym " %0" : : "i" (val))
+-
+-int main (void)
+-{
+-	/* offsets into the task struct */
+-	DEFINE (TASK_STATE, offsetof (struct task_struct, state));
+-	DEFINE (TASK_FLAGS, offsetof (struct task_struct, flags));
+-	DEFINE (TASK_PTRACE, offsetof (struct task_struct, ptrace));
+-	DEFINE (TASK_BLOCKED, offsetof (struct task_struct, blocked));
+-	DEFINE (TASK_THREAD, offsetof (struct task_struct, thread));
+-	DEFINE (TASK_THREAD_INFO, offsetof (struct task_struct, thread_info));
+-	DEFINE (TASK_MM, offsetof (struct task_struct, mm));
+-	DEFINE (TASK_ACTIVE_MM, offsetof (struct task_struct, active_mm));
+-	DEFINE (TASK_PID, offsetof (struct task_struct, pid));
+-
+-	/* offsets into the kernel_stat struct */
+-	DEFINE (STAT_IRQ, offsetof (struct kernel_stat, irqs));
+-
+-
+-	/* signal defines */
+-	DEFINE (SIGSEGV, SIGSEGV);
+-	DEFINE (SEGV_MAPERR, SEGV_MAPERR);
+-	DEFINE (SIGTRAP, SIGTRAP);
+-	DEFINE (SIGCHLD, SIGCHLD);
+-	DEFINE (SIGILL, SIGILL);
+-	DEFINE (TRAP_TRACE, TRAP_TRACE);
+-
+-	/* ptrace flag bits */
+-	DEFINE (PT_PTRACED, PT_PTRACED);
+-	DEFINE (PT_DTRACE, PT_DTRACE);
+-
+-	/* error values */
+-	DEFINE (ENOSYS, ENOSYS);
+-
+-	/* clone flag bits */
+-	DEFINE (CLONE_VFORK, CLONE_VFORK);
+-	DEFINE (CLONE_VM, CLONE_VM);
+-
+-	return 0;
+-}
+diff -ruN -X../cludes ../orig/linux-2.5.42uc1/arch/v850/kernel/v850_defs.head arch/v850/kernel/v850_defs.head
+--- ../orig/linux-2.5.42uc1/arch/v850/kernel/v850_defs.head	2002-10-16 10:45:54.000000000 +0900
++++ arch/v850/kernel/v850_defs.head	1970-01-01 09:00:00.000000000 +0900
+@@ -1,5 +0,0 @@
+-/*
+- * WARNING! This file is automatically generated - DO NOT EDIT!
+- */
+-
+-#define TS_MAGICKEY	0x5a5a5a5a
+diff -ruN -X../cludes ../orig/linux-2.5.42uc1/arch/v850/vmlinux.lds.S arch/v850/vmlinux.lds.S
+--- ../orig/linux-2.5.42uc1/arch/v850/vmlinux.lds.S	1970-01-01 09:00:00.000000000 +0900
++++ arch/v850/vmlinux.lds.S	2002-10-16 13:30:43.000000000 +0900
+@@ -0,0 +1,27 @@
++#include <linux/config.h>
++
++#ifdef CONFIG_V850E_SIM
++#include "sim.ld"
++#endif
++
++#ifdef CONFIG_V850E2_SIM85E2C
++#include "sim85e2c.ld"
++#endif
++
++#ifdef CONFIG_V850E2_FPGA85E2C
++#include "fpga85e2c.ld"
++#endif
++
++#ifdef CONFIG_V850E2_ANNA
++#include "anna.ld"
++#endif
++
++#ifdef CONFIG_RTE_CB_MA1
++# ifdef CONFIG_ROM_KERNEL
++#  include "rte_ma1_cb-rom.ld"
++# elif CONFIG_RTE_CB_MA1_KSRAM
++#  include "rte_ma1_cb-ksram.ld"
++# else /* !CONFIG_ROM_KERNEL && !CONFIG_RTE_CB_MA1_KSRAM */
++#  include "rte_ma1_cb.ld"
++# endif /* CONFIG_ROM_KERNEL */
++#endif /* CONFIG_RTE_CB_MA1 */
+diff -ruN -X../cludes ../orig/linux-2.5.42uc1/include/asm-v850/page.h include/asm-v850/page.h
+--- ../orig/linux-2.5.42uc1/include/asm-v850/page.h	2002-10-16 10:45:57.000000000 +0900
++++ include/asm-v850/page.h	2002-10-16 11:53:42.000000000 +0900
+@@ -21,6 +21,7 @@
+ #define PAGE_SIZE       (1UL << PAGE_SHIFT)
+ #define PAGE_MASK       (~(PAGE_SIZE-1))
+ 
++
+ /*
+  * PAGE_OFFSET -- the first address of the first page of memory. For archs with
+  * no MMU this corresponds to the first free page in physical memory (aligned
+@@ -30,11 +31,6 @@
+ #define PAGE_OFFSET  0x0000000
+ #endif
+ 
+-/*
+- * MAP_NR -- given an address, calculate the index of the page struct which
+- * points to the address's page.
+- */
+-#define MAP_NR(addr) (((unsigned long)(addr) - PAGE_OFFSET) >> PAGE_SHIFT)
+ 
+ #ifdef __KERNEL__
+ #ifndef __ASSEMBLY__
+@@ -91,9 +87,11 @@
+ 
+ #endif /* !__ASSEMBLY__ */
+ 
++
+ /* to align the pointer to the (next) page boundary */
+ #define PAGE_ALIGN(addr)	(((addr) + PAGE_SIZE - 1) & PAGE_MASK)
+ 
++
+ #ifndef __ASSEMBLY__
+ 
+ extern void __bug (void) __attribute__ ((noreturn));
+@@ -116,18 +114,31 @@
+ 
+ #endif /* !__ASSEMBLY__ */
+ 
+-#define __pa(x)			__virt_to_phys ((unsigned long)(x))
+-#define __va(x)			((void *)__phys_to_virt ((unsigned long)(x)))
+ 
+ /* No current v850 processor has virtual memory.  */
+ #define __virt_to_phys(addr)	(addr)
+ #define __phys_to_virt(addr)	(addr)
+ 
+-#define virt_to_page(kaddr) 	(mem_map + MAP_NR (kaddr))
++#define virt_to_pfn(kaddr)	(__virt_to_phys (kaddr) >> PAGE_SHIFT)
++#define pfn_to_virt(pfn)	__phys_to_virt ((pfn) << PAGE_SHIFT)
++
++#define MAP_NR(kaddr) \
++  (((unsigned long)(kaddr) - PAGE_OFFSET) >> PAGE_SHIFT)
++#define virt_to_page(kaddr)	(mem_map + MAP_NR (kaddr))
++#define page_to_virt(page) \
++  ((((page) - mem_map) << PAGE_SHIFT) + PAGE_OFFSET)
++
++#define pfn_to_page(pfn)	virt_to_page (pfn_to_virt (pfn))
++#define page_to_pfn(page)	virt_to_pfn (page_to_virt (page))
++
+ #define	virt_addr_valid(kaddr)						\
+   (((void *)(kaddr) >= (void *)PAGE_OFFSET) && MAP_NR (kaddr) < max_mapnr)
+ 
+ 
++#define __pa(x)		     __virt_to_phys ((unsigned long)(x))
++#define __va(x)		     ((void *)__phys_to_virt ((unsigned long)(x)))
++
++
+ #endif /* KERNEL */
+ 
+ #ifdef CONFIG_CONTIGUOUS_PAGE_ALLOC
+
+--=-=-=
+
+
+
+Thanks,
+
+-Miles
+-- 
+Occam's razor split hairs so well, I bought the whole argument!
+
+--=-=-=--

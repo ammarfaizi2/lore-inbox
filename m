@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318034AbSGWLot>; Tue, 23 Jul 2002 07:44:49 -0400
+	id <S318041AbSGWLu5>; Tue, 23 Jul 2002 07:50:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318036AbSGWLot>; Tue, 23 Jul 2002 07:44:49 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:11486 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S318034AbSGWLoq>; Tue, 23 Jul 2002 07:44:46 -0400
-Subject: Re: [OOPS] 2.5.27 - __free_pages_ok()
-From: Paul Larson <plars@austin.ibm.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Rik van Riel <riel@conectiva.com.br>, lkml <linux-kernel@vger.kernel.org>,
-       linux-mm@kvack.org, haveblue@us.ibm.com
-In-Reply-To: <1027383490.32299.94.camel@irongate.swansea.linux.org.uk>
-References: <Pine.LNX.4.44L.0207221704120.3086-100000@imladris.surriel.com>
-	<1027377273.5170.37.camel@plars.austin.ibm.com> 
-	<1027383490.32299.94.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 23 Jul 2002 06:34:56 -0500
-Message-Id: <1027424097.5170.43.camel@plars.austin.ibm.com>
-Mime-Version: 1.0
+	id <S318040AbSGWLu4>; Tue, 23 Jul 2002 07:50:56 -0400
+Received: from [196.26.86.1] ([196.26.86.1]:34738 "HELO
+	infosat-gw.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S318036AbSGWLu4>; Tue, 23 Jul 2002 07:50:56 -0400
+Date: Tue, 23 Jul 2002 14:11:50 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@linux-box.realnet.co.sz
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, James Cleverdon <jamesclv@us.ibm.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.19-rc3-ac2 SMP
+In-Reply-To: <Pine.LNX.4.44.0207231355230.32636-100000@linux-box.realnet.co.sz>
+Message-ID: <Pine.LNX.4.44.0207231409000.32636-100000@linux-box.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-07-22 at 19:18, Alan Cox wrote:
-> > and it still hung on boot, but kgcc is egcs-2.91.66 19990314/Linux
-> > (egcs-1.1.2 release).  If it would be helpful, I'll try compiling my
-> > kernel on a debian box tomorrow and booting with that.
-> 
-> egcs-1.1.2 does have real problems with 2.5
-> 
-> 7.1 errata/7.2/7.3 gcc 2.96 appear quite happy
-7.3 gcc 2.96 was the one I was originally using when I found this
-problem.  I decided to go back and try kgcc just in case.  I'll try
-compiling it on another machine and moving it over today.
+On Tue, 23 Jul 2002, Zwane Mwaikambo wrote:
 
--Paul Larson
+> Around here the machine gets a vector 0x31 (timer) interrupt on CPU0 then 
+> locks up since the destination cpu bitmask is 0, It also seems that the 
+> code is trying to use logical apic id in places instead of the physical 
+> apic id, i saw attempted deliveries to physical apic id 4 and 8, this can 
+> possibly explain the APIC receive errors people were reporting? 
+
+Correction, the logical/physical apic id problem doesn't appear to be 
+there with the summit patch. What i'm currently seeing is a destination of 
+0 with a non flat/physical destination format.
+
+-- 
+function.linuxpower.ca
 

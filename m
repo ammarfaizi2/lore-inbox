@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262133AbUCITPx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 14:15:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262131AbUCITPw
+	id S262120AbUCITOg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 14:14:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262122AbUCITJL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 14:15:52 -0500
-Received: from palrel12.hp.com ([156.153.255.237]:13538 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S262135AbUCITOI (ORCPT
+	Tue, 9 Mar 2004 14:09:11 -0500
+Received: from palrel11.hp.com ([156.153.255.246]:28313 "EHLO palrel11.hp.com")
+	by vger.kernel.org with ESMTP id S262117AbUCITGd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 14:14:08 -0500
-Date: Tue, 9 Mar 2004 11:14:05 -0800
+	Tue, 9 Mar 2004 14:06:33 -0500
+Date: Tue, 9 Mar 2004 11:06:30 -0800
 To: "David S. Miller" <davem@redhat.com>,
        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.6 IrDA] (11/14) irda_device inlines and symbols
-Message-ID: <20040309191405.GL14543@bougret.hpl.hp.com>
+Subject: [PATCH 2.6 IrDA] (5/14) irias exports
+Message-ID: <20040309190630.GF14543@bougret.hpl.hp.com>
 Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -26,223 +26,228 @@ From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ir264_irsyms_11_device-2.diff :
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ir264_irsyms_05_irias.diff :
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 		<Patch from Stephen Hemminger>
-(11/14) irda_device inlines and symbols   
+(5/14) irias exports
 
-Make irda_get_mtt, et all inline's not #defines for better
-type checking.
-
-irda_device_setup can now be static only called from alloc_irdadev
+Move iriap_reoutines out of irsyms
+Rename variable "missing" to irias_missing
 
 
-diff -u -p -r linux/include/net/irda.sA/irda_device.h linux/include/net/irda/irda_device.h
---- linux/include/net/irda.sA/irda_device.h	Wed Mar  3 17:02:52 2004
-+++ linux/include/net/irda/irda_device.h	Mon Mar  8 19:44:34 2004
-@@ -227,7 +227,6 @@ static inline int irda_device_txqueue_em
- int  irda_device_set_raw_mode(struct net_device* self, int status);
- int  irda_device_set_dtr_rts(struct net_device *dev, int dtr, int rts);
- int  irda_device_change_speed(struct net_device *dev, __u32 speed);
--void irda_device_setup(struct net_device *dev);
- struct net_device *alloc_irdadev(int sizeof_priv);
+diff -u -p -r linux/include/net/irda.s4/irias_object.h linux/include/net/irda/irias_object.h
+--- linux/include/net/irda.s4/irias_object.h	Mon Mar  8 19:03:15 2004
++++ linux/include/net/irda/irias_object.h	Mon Mar  8 19:03:37 2004
+@@ -101,7 +101,7 @@ struct ias_value *irias_new_octseq_value
+ struct ias_value *irias_new_missing_value(void);
+ void irias_delete_value(struct ias_value *value);
  
- /* Dongle interface */
-@@ -253,28 +252,11 @@ void irda_task_next_state(struct irda_ta
-  *    Utility function for getting the minimum turnaround time out of 
-  *    the skb, where it has been hidden in the cb field.
-  */
--#define irda_get_mtt(skb) (                                                 \
--        IRDA_MIN(10000,                                                     \
--                  (((struct irda_skb_cb *) skb->cb)->magic == LAP_MAGIC) ?  \
--                          ((struct irda_skb_cb *)(skb->cb))->mtt : 10000    \
--                 )							    \
--)
--
--#if 0
--extern inline __u16 irda_get_mtt(struct sk_buff *skb)
-+static inline __u16 irda_get_mtt(const struct sk_buff *skb)
- {
--	__u16 mtt;
--
--	if (((struct irda_skb_cb *)(skb->cb))->magic != LAP_MAGIC)
--		mtt = 10000;
--	else
--		mtt = ((struct irda_skb_cb *)(skb->cb))->mtt;
--
--	ASSERT(mtt <= 10000, return 10000;);
--	
--	return mtt;
-+	const struct irda_skb_cb *cb = (const struct irda_skb_cb *) skb->cb;
-+	return (cb->magic == LAP_MAGIC) ? cb->mtt : 10000;
+-extern struct ias_value missing;
++extern struct ias_value irias_missing;
+ extern hashbin_t *irias_objects;
+ 
+ #endif
+diff -u -p -r linux/net/irda.s4/iriap.c linux/net/irda/iriap.c
+--- linux/net/irda.s4/iriap.c	Wed Dec 17 18:58:38 2003
++++ linux/net/irda/iriap.c	Mon Mar  8 19:03:37 2004
+@@ -25,6 +25,7 @@
+  ********************************************************************/
+ 
+ #include <linux/config.h>
++#include <linux/module.h>
+ #include <linux/types.h>
+ #include <linux/skbuff.h>
+ #include <linux/string.h>
+@@ -200,6 +201,7 @@ struct iriap_cb *iriap_open(__u8 slsap_s
+ 
+ 	return self;
  }
--#endif
++EXPORT_SYMBOL(iriap_open);
  
  /*
-  * Function irda_get_next_speed (skb)
-@@ -283,24 +265,11 @@ extern inline __u16 irda_get_mtt(struct 
-  *
-  * Note : return -1 for user space frames
-  */
--#define irda_get_next_speed(skb) (	                                        \
--	(((struct irda_skb_cb*) skb->cb)->magic == LAP_MAGIC) ? 	\
--                  ((struct irda_skb_cb *)(skb->cb))->next_speed : -1 	\
--)
--
--#if 0
--extern inline __u32 irda_get_next_speed(struct sk_buff *skb)
-+static inline __u32 irda_get_next_speed(const struct sk_buff *skb)
+  * Function __iriap_close (self)
+@@ -248,6 +250,7 @@ void iriap_close(struct iriap_cb *self)
+ 
+ 	__iriap_close(self);
+ }
++EXPORT_SYMBOL(iriap_close);
+ 
+ static int iriap_register_lsap(struct iriap_cb *self, __u8 slsap_sel, int mode)
  {
--	__u32 speed;
--
--	if (((struct irda_skb_cb *)(skb->cb))->magic != LAP_MAGIC)
--		speed = -1;
--	else
--		speed = ((struct irda_skb_cb *)(skb->cb))->next_speed;
--
--	return speed;
-+	const struct irda_skb_cb *cb = (const struct irda_skb_cb *) skb->cb;
-+	return (cb->magic == LAP_MAGIC) ? cb->next_speed : -1;
- }
--#endif
- 
- /*
-  * Function irda_get_next_xbofs (skb)
-@@ -309,10 +278,11 @@ extern inline __u32 irda_get_next_speed(
-  *
-  * Note : default to 10 for user space frames
-  */
--#define irda_get_xbofs(skb) (	                                        \
--	(((struct irda_skb_cb*) skb->cb)->magic == LAP_MAGIC) ? 	\
--                  ((struct irda_skb_cb *)(skb->cb))->xbofs : 10 	\
--)
-+static inline __u16 irda_get_xbofs(const struct sk_buff *skb)
-+{
-+	const struct irda_skb_cb *cb = (const struct irda_skb_cb *) skb->cb;
-+	return (cb->magic == LAP_MAGIC) ? cb->xbofs : 10;
-+}
- 
- /*
-  * Function irda_get_next_xbofs (skb)
-@@ -321,11 +291,11 @@ extern inline __u32 irda_get_next_speed(
-  *
-  * Note : return -1 for user space frames
-  */
--#define irda_get_next_xbofs(skb) (	                                        \
--	(((struct irda_skb_cb*) skb->cb)->magic == LAP_MAGIC) ? 	\
--                  ((struct irda_skb_cb *)(skb->cb))->next_xbofs : -1 	\
--)
--
-+static inline __u16 irda_get_next_xbofs(const struct sk_buff *skb)
-+{
-+	const struct irda_skb_cb *cb = (const struct irda_skb_cb *) skb->cb;
-+	return (cb->magic == LAP_MAGIC) ? cb->next_xbofs : -1;
-+}
- #endif /* IRDA_DEVICE_H */
- 
- 
-diff -u -p -r linux/net/irda.sA/irda_device.c linux/net/irda/irda_device.c
---- linux/net/irda.sA/irda_device.c	Wed Mar  3 17:02:54 2004
-+++ linux/net/irda/irda_device.c	Mon Mar  8 19:45:39 2004
-@@ -140,6 +140,8 @@ void irda_device_set_media_busy(struct n
- 		irlap_stop_mbusy_timer(self);
- 	}
- }
-+EXPORT_SYMBOL(irda_device_set_media_busy);
-+
- 
- int irda_device_set_dtr_rts(struct net_device *dev, int dtr, int rts)
- {
-@@ -214,6 +216,7 @@ void irda_task_next_state(struct irda_ta
- 
- 	task->state = state;
- }
-+EXPORT_SYMBOL(irda_task_next_state);
- 
- static void __irda_task_delete(struct irda_task *task)
- {
-@@ -320,7 +323,6 @@ struct irda_task *irda_task_execute(void
- 				    struct irda_task *parent, void *param)
- {
- 	struct irda_task *task;
--	int ret;
- 
- 	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
- 
-@@ -342,12 +344,9 @@ struct irda_task *irda_task_execute(void
- 	hashbin_insert(tasks, (irda_queue_t *) task, (long) task, NULL);
- 
- 	/* No time to waste, so lets get going! */
--	ret = irda_task_kick(task);
--	if (ret)
--		return NULL;
--	else
--		return task;
-+	return irda_task_kick(task) ? NULL : task;
- }
-+EXPORT_SYMBOL(irda_task_execute);
- 
- /*
-  * Function irda_task_timer_expired (data)
-@@ -395,6 +394,7 @@ struct net_device *alloc_irdadev(int siz
- {
- 	return alloc_netdev(sizeof_priv, "irda%d", irda_device_setup);
- }
-+EXPORT_SYMBOL(alloc_irdadev);
- 
- /*
-  * Function irda_device_init_dongle (self, type, qos)
-@@ -446,6 +446,7 @@ dongle_t *irda_device_dongle_init(struct
- 	spin_unlock(&dongles->hb_spinlock);
- 	return dongle;
- }
-+EXPORT_SYMBOL(irda_device_dongle_init);
- 
- /*
-  * Function irda_device_dongle_cleanup (dongle)
-@@ -460,6 +461,7 @@ int irda_device_dongle_cleanup(dongle_t 
+@@ -435,6 +438,7 @@ int iriap_getvaluebyclass_request(struct
  
  	return 0;
  }
-+EXPORT_SYMBOL(irda_device_dongle_cleanup);
++EXPORT_SYMBOL(iriap_getvaluebyclass_request);
  
  /*
-  * Function irda_device_register_dongle (dongle)
-@@ -479,6 +481,7 @@ int irda_device_register_dongle(struct d
+  * Function iriap_getvaluebyclass_confirm (self, skb)
+@@ -674,7 +678,7 @@ void iriap_getvaluebyclass_indication(st
+ 	if (obj == NULL) {
+ 		IRDA_DEBUG(2, "LM-IAS: Object %s not found\n", name);
+ 		iriap_getvaluebyclass_response(self, 0x1235, IAS_CLASS_UNKNOWN,
+-					       &missing);
++					       &irias_missing);
+ 		return;
+ 	}
+ 	IRDA_DEBUG(4, "LM-IAS: found %s, id=%d\n", obj->name, obj->id);
+@@ -683,7 +687,8 @@ void iriap_getvaluebyclass_indication(st
+ 	if (attrib == NULL) {
+ 		IRDA_DEBUG(2, "LM-IAS: Attribute %s not found\n", attr);
+ 		iriap_getvaluebyclass_response(self, obj->id,
+-					       IAS_ATTRIB_UNKNOWN, &missing);
++					       IAS_ATTRIB_UNKNOWN, 
++					       &irias_missing);
+ 		return;
+ 	}
  
-         return 0;
+diff -u -p -r linux/net/irda.s4/irias_object.c linux/net/irda/irias_object.c
+--- linux/net/irda.s4/irias_object.c	Wed Dec 17 18:59:05 2003
++++ linux/net/irda/irias_object.c	Mon Mar  8 19:03:37 2004
+@@ -24,6 +24,7 @@
+ 
+ #include <linux/string.h>
+ #include <linux/socket.h>
++#include <linux/module.h>
+ 
+ #include <net/irda/irda.h>
+ #include <net/irda/irias_object.h>
+@@ -33,7 +34,7 @@ hashbin_t *irias_objects;
+ /*
+  *  Used when a missing value needs to be returned
+  */
+-struct ias_value missing = { IAS_MISSING, 0, 0, 0, {0}};
++struct ias_value irias_missing = { IAS_MISSING, 0, 0, 0, {0}};
+ 
+ /*
+  * Function strndup (str, max)
+@@ -107,6 +108,7 @@ struct ias_object *irias_new_object( cha
+ 
+ 	return obj;
  }
-+EXPORT_SYMBOL(irda_device_register_dongle);
++EXPORT_SYMBOL(irias_new_object);
  
  /*
-  * Function irda_device_unregister_dongle (dongle)
-@@ -496,6 +499,7 @@ void irda_device_unregister_dongle(struc
- 		ERROR("%s: dongle not found!\n", __FUNCTION__);
- 	spin_unlock(&dongles->hb_spinlock);
+  * Function irias_delete_attrib (attrib)
+@@ -165,6 +167,7 @@ int irias_delete_object(struct ias_objec
+ 
+ 	return 0;
  }
-+EXPORT_SYMBOL(irda_device_unregister_dongle);
++EXPORT_SYMBOL(irias_delete_object);
  
  /*
-  * Function irda_device_set_mode (self, mode)
-diff -u -p -r linux/net/irda.sA/irsyms.c linux/net/irda/irsyms.c
---- linux/net/irda.sA/irsyms.c	Mon Mar  8 19:18:01 2004
-+++ linux/net/irda/irsyms.c	Mon Mar  8 19:20:34 2004
-@@ -82,18 +82,6 @@ EXPORT_SYMBOL(irda_param_unpack);
- /* IrLAP */
- EXPORT_SYMBOL(irda_init_max_qos_capabilies);
- EXPORT_SYMBOL(irda_qos_bits_to_value);
--EXPORT_SYMBOL(irda_device_setup);
--EXPORT_SYMBOL(alloc_irdadev);
--EXPORT_SYMBOL(irda_device_set_media_busy);
--EXPORT_SYMBOL(irda_device_txqueue_empty);
+  * Function irias_delete_attrib (obj)
+@@ -210,6 +213,7 @@ void irias_insert_object(struct ias_obje
+ 
+ 	hashbin_insert(irias_objects, (irda_queue_t *) obj, 0, obj->name);
+ }
++EXPORT_SYMBOL(irias_insert_object);
+ 
+ /*
+  * Function irias_find_object (name)
+@@ -224,6 +228,7 @@ struct ias_object *irias_find_object(cha
+ 	/* Unsafe (locking), object might change */
+ 	return hashbin_lock_find(irias_objects, 0, name);
+ }
++EXPORT_SYMBOL(irias_find_object);
+ 
+ /*
+  * Function irias_find_attrib (obj, name)
+@@ -246,6 +251,7 @@ struct ias_attrib *irias_find_attrib(str
+ 	/* Unsafe (locking), attrib might change */
+ 	return attrib;
+ }
++EXPORT_SYMBOL(irias_find_attrib);
+ 
+ /*
+  * Function irias_add_attribute (obj, attrib)
+@@ -318,6 +324,7 @@ int irias_object_change_attribute(char *
+ 	spin_unlock_irqrestore(&obj->attribs->hb_spinlock, flags);
+ 	return 0;
+ }
++EXPORT_SYMBOL(irias_object_change_attribute);
+ 
+ /*
+  * Function irias_object_add_integer_attrib (obj, name, value)
+@@ -350,6 +357,7 @@ void irias_add_integer_attrib(struct ias
+ 
+ 	irias_add_attrib(obj, attrib, owner);
+ }
++EXPORT_SYMBOL(irias_add_integer_attrib);
+ 
+  /*
+  * Function irias_add_octseq_attrib (obj, name, octet_seq, len)
+@@ -384,6 +392,7 @@ void irias_add_octseq_attrib(struct ias_
+ 
+ 	irias_add_attrib(obj, attrib, owner);
+ }
++EXPORT_SYMBOL(irias_add_octseq_attrib);
+ 
+ /*
+  * Function irias_object_add_string_attrib (obj, string)
+@@ -417,6 +426,7 @@ void irias_add_string_attrib(struct ias_
+ 
+ 	irias_add_attrib(obj, attrib, owner);
+ }
++EXPORT_SYMBOL(irias_add_string_attrib);
+ 
+ /*
+  * Function irias_new_integer_value (integer)
+@@ -441,6 +451,7 @@ struct ias_value *irias_new_integer_valu
+ 
+ 	return value;
+ }
++EXPORT_SYMBOL(irias_new_integer_value);
+ 
+ /*
+  * Function irias_new_string_value (string)
+@@ -467,7 +478,7 @@ struct ias_value *irias_new_string_value
+ 
+ 	return value;
+ }
 -
--EXPORT_SYMBOL(irda_device_dongle_init);
--EXPORT_SYMBOL(irda_device_dongle_cleanup);
--EXPORT_SYMBOL(irda_device_register_dongle);
--EXPORT_SYMBOL(irda_device_unregister_dongle);
--EXPORT_SYMBOL(irda_task_execute);
--EXPORT_SYMBOL(irda_task_next_state);
--EXPORT_SYMBOL(irda_task_delete);
++EXPORT_SYMBOL(irias_new_string_value);
  
+ /*
+  * Function irias_new_octseq_value (octets, len)
+@@ -502,6 +513,7 @@ struct ias_value *irias_new_octseq_value
+ 	memcpy(value->t.oct_seq, octseq , len);
+ 	return value;
+ }
++EXPORT_SYMBOL(irias_new_octseq_value);
  
- #ifdef CONFIG_IRDA_DEBUG
+ struct ias_value *irias_new_missing_value(void)
+ {
+@@ -553,3 +565,4 @@ void irias_delete_value(struct ias_value
+ 	}
+ 	kfree(value);
+ }
++EXPORT_SYMBOL(irias_delete_value);
+diff -u -p -r linux/net/irda.s4/irsyms.c linux/net/irda/irsyms.c
+--- linux/net/irda.s4/irsyms.c	Mon Mar  8 18:57:25 2004
++++ linux/net/irda/irsyms.c	Mon Mar  8 19:03:37 2004
+@@ -79,24 +79,6 @@ EXPORT_SYMBOL(irda_param_extract_all);
+ EXPORT_SYMBOL(irda_param_pack);
+ EXPORT_SYMBOL(irda_param_unpack);
+ 
+-/* IrIAP/IrIAS */
+-EXPORT_SYMBOL(iriap_open);
+-EXPORT_SYMBOL(iriap_close);
+-EXPORT_SYMBOL(iriap_getvaluebyclass_request);
+-EXPORT_SYMBOL(irias_object_change_attribute);
+-EXPORT_SYMBOL(irias_add_integer_attrib);
+-EXPORT_SYMBOL(irias_add_octseq_attrib);
+-EXPORT_SYMBOL(irias_add_string_attrib);
+-EXPORT_SYMBOL(irias_insert_object);
+-EXPORT_SYMBOL(irias_new_object);
+-EXPORT_SYMBOL(irias_delete_object);
+-EXPORT_SYMBOL(irias_delete_value);
+-EXPORT_SYMBOL(irias_find_object);
+-EXPORT_SYMBOL(irias_find_attrib);
+-EXPORT_SYMBOL(irias_new_integer_value);
+-EXPORT_SYMBOL(irias_new_string_value);
+-EXPORT_SYMBOL(irias_new_octseq_value);
+-
+ /* IrLMP */
+ EXPORT_SYMBOL(irlmp_discovery_request);
+ EXPORT_SYMBOL(irlmp_get_discoveries);

@@ -1,64 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267552AbUJVTtx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265222AbUJVTxl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267552AbUJVTtx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 15:49:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267553AbUJVTtf
+	id S265222AbUJVTxl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 15:53:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267553AbUJVTtz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 15:49:35 -0400
-Received: from main.gmane.org ([80.91.229.2]:24791 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S267502AbUJVTsP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 15:48:15 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Giuseppe Bilotta <bilotta78@hotpop.com>
-Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
-Date: Fri, 22 Oct 2004 21:47:47 +0200
-Message-ID: <MPG.1be33691eb7f6cd59896ff@news.gmane.org>
-References: <4176E08B.2050706@techsource.com> <1098442636l.17554l.0l@hh>
+	Fri, 22 Oct 2004 15:49:55 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:32923 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S265222AbUJVTrA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 15:47:00 -0400
+Subject: Re: How is user space notified of CPU speed changes?
+From: Lee Revell <rlrevell@joe-job.com>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Robert Love <rml@novell.com>
+In-Reply-To: <4179623C.9050807@nortelnetworks.com>
+References: <1098399709.4131.23.camel@krustophenia.net>
+	 <1098444170.19459.7.camel@localhost.localdomain>
+	 <1098468316.5580.18.camel@krustophenia.net>
+	 <4179623C.9050807@nortelnetworks.com>
+Content-Type: text/plain
+Message-Id: <1098474416.5580.52.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-15"
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 22 Oct 2004 15:46:57 -0400
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: ppp-253-128.29-151.libero.it
-User-Agent: MicroPlanet-Gravity/2.70.2067
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Helge Hafting wrote:
-> * Consider a version to include on motherboards.  Low-end 3D shouldn't
->   be a problem there, because those who really care about 3D always
->   buys the latest 3D board anyway and never use the onboard thing.
->   Not even if it is good 3D, because the very best is always newer.
->   Make sure it works both as primary and secondary device in this case
->   too.  It'll be nice for server boards - those rarely need  high-
->   end 3D.  Those concerned about security might like the fact that
->   hw bugs may be fixed by reprogramming the FPGA. It may also be an
->   option for makers of cheap boards - they might want to boast about
->   having on-board graphichs for a all-in-one motherboard, but they
->   might not want to include a expensive high-end chip.
->   Also, a deal with some board manufacturer might get you some volume
->   for the chips.  The windows driver will probably be necessary for
->   this.
+On Fri, 2004-10-22 at 15:40, Chris Friesen wrote:
+> Lee Revell wrote:
+> 
+> > Seems like you are implying that any userspace app that needs to know
+> > the CPU speed is broken.  Is this correct?
+> 
+> No, we're saying that Intel's tsc implementation is broken.  <grin>
+> 
+> x86 really could use an on-die register that increments at 1GHz independent of 
+> clock speed and is synchronized across all CPUs in an SMP box.
 
-Very good post, Helge. Excellent, if I might say.
+Well, it looks like we can just fix JACK to not use the TSC for timing. 
+Seems like the current design is fundamentally incompatible with CPU
+scaling.
 
-Another important market to look into is laptops, IMO. 
-Especially when memory consumption comes in, if the card can do 
-"enough" 3D you could probably beat ATI and nVidia on the 
-market.
-
-(Of course, the definition of "enough" is quite subjective ... 
-my 3D game is BZFlag, and for very complex maps at the max 
-quality settings even my nVidia GeForce2 Go has its problems at 
-1600x1200x32 ...)
-
--- 
-Giuseppe "Oblomov" Bilotta
-
-Can't you see
-It all makes perfect sense
-Expressed in dollar and cents
-Pounds shillings and pence
-                  (Roger Waters)
+Lee
 

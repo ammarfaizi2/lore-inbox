@@ -1,61 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263135AbTI3HHK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 03:07:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263137AbTI3HHK
+	id S263133AbTI3G72 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 02:59:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263135AbTI3G72
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 03:07:10 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:24325 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S263135AbTI3HHH (ORCPT
+	Tue, 30 Sep 2003 02:59:28 -0400
+Received: from [195.249.40.37] ([195.249.40.37]:29452 "HELO nettonet.dk")
+	by vger.kernel.org with SMTP id S263133AbTI3G70 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 03:07:07 -0400
-Date: Tue, 30 Sep 2003 00:03:02 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: bunk@fs.tum.de, acme@conectiva.com.br, netdev@oss.sgi.com,
-       pekkas@netcore.fi, lksctp-developers@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: RFC: [2.6 patch] disallow modular IPv6
-Message-Id: <20030930000302.3e1bf8bb.davem@redhat.com>
-In-Reply-To: <1064903562.6154.160.camel@imladris.demon.co.uk>
-References: <20030928225941.GW15338@fs.tum.de>
-	<20030928231842.GE1039@conectiva.com.br>
-	<20030928232403.GX15338@fs.tum.de>
-	<20030929220916.19c9c90d.davem@redhat.com>
-	<1064903562.6154.160.camel@imladris.demon.co.uk>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 30 Sep 2003 02:59:26 -0400
+From: Simon Ask Ulsnes <simon@ulsnes.dk>
+To: Matt Gibson <gothick@gothick.org.uk>
+Subject: Re: Complaint: Wacom driver in 2.6
+Date: Tue, 30 Sep 2003 08:59:23 +0200
+User-Agent: KMail/1.5.4
+References: <200309291421.45692.simon@ulsnes.dk> <200309291956.27688.gothick@gothick.org.uk>
+In-Reply-To: <200309291956.27688.gothick@gothick.org.uk>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200309300859.23281.simon@ulsnes.dk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Sep 2003 07:32:42 +0100
-David Woodhouse <dwmw2@infradead.org> wrote:
+Thanks for replying.
+You aren't even using the wacom driver!
+Mine works too in that way (I think it is some kind of regular PS/2 mouse 
+emulation or so).
 
-> On Mon, 2003-09-29 at 22:09 -0700, David S. Miller wrote:
-> > For things inside the kernel, what ipv6 is doing is completely legal.
-> > Changing your config setting in any way in the main kernel tree can
-> > change just about anything else in the kernel, including the layout
-> > of structures.
-> 
-> With boolean options that's fair enough. But changing any config option
-> from 'n' to 'm' should not change anything in the main kernel. To do so
-> is confusing and should be considered broken, as Adrian says.
+Come to think of it, maybe the problem lies in the XFree86 driver, which I 
+suppose isn't really compatible with the new kernel. Well, whatayaknow... ;-)
 
-This conflicts with the other reply you've made to me in this
-thread where you say that you agree with me.
+- Simon
 
-So which is it? :-)
+On Monday 29 September 2003 20:56, you wrote:
+> On Monday 29 Sep 2003 13:21, Simon Ask Ulsnes wrote:
+> > Hello there!
+> > I am the lucky owner of a Wacom Graphire 2 tablet, which works great with
+> > the latest 2.4-kernels. However, the 2.6-drive is unusually and utterly
+> > broken. Frankly, it doesn't work at all.
+>
+> If it's any hope for you, I'm using the Wacom driver with an original
+> Graphire, and it's working OK for me.  I'm currently on 2.6.0-test5, and
+> I'm pretty sure I'm using the vanilla wacom.c (it's version 1.30 according
+> to the comments.)
+>
+> If you want any info about how I've got things configured, feel free to
+> give me a shout.  In particular, I've got these relevant entries in my
+> XF86Config:
+>
+> # Our ordinary PS/2 and Wacom mice; they're both multiplexed into
+> # /dev/mice by the kernel input event handling.
+> Section "InputDevice"
+>   Driver       "mouse"
+>   Identifier   "Mouse[1]"
+>   Option       "ButtonNumber" "5"
+>   Option       "Device" "/dev/input/mice"
+>   Option       "Name" "Autodetection"
+>   Option       "Protocol" "imps/2"
+>   Option       "Vendor" "Random"
+>   Option       "ZAxisMapping" "4 5"
+> EndSection
+>
+> Goodness knows if I need half those options set up; it's a
+> much-hacked-about-with old file that was originally set up by the SuSE SaX2
+> configuration tool, about three years ago!  But I tend to live by "if it
+> ain't broke, don't fix it."  I guess the important thing I did to get it
+> working under 2.6.0 was just to drop all the event interface crap and just
+> run it off /dev/input/mice, which is where the kernel happily feeds all the
+> wacom input through into.
+>
+> Section "ServerLayout"
+> 	... other stuff deleted ...
+>   InputDevice  "Mouse[1]" "CorePointer"
+> EndSection
+>
+> That's all I needed to get the mouse and pen working.  Of course, to go the
+> whole hog and get the pressure sensitive stuff and the pointer vs. eraser
+> functionality etc. you'd need to use the X11 wacom driver, but I've never
+> actually felt the need.
+>
+> Cheers,
+>
+> Matt
 
-I don't see why "enabling to 'y'" and "enabling to 'm'" are in any
-way fundamentally different.  You're turning something on, therefore
-something is going to change.
 
-And when I see suggestions that we add four options to replace the
-single one we have now, with a addendum saying "it's not really
-complex, we'll explain it in the documentation", I want to pull my
-hair out.
-
-I would rather apply a patch that bloats up the structures than
-subscribe to crazy ideas such as this four option one being proposed.

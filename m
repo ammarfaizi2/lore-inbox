@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315119AbSESTiZ>; Sun, 19 May 2002 15:38:25 -0400
+	id <S314957AbSESTkI>; Sun, 19 May 2002 15:40:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315042AbSESThV>; Sun, 19 May 2002 15:37:21 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:9220 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S314957AbSESTg5>;
-	Sun, 19 May 2002 15:36:57 -0400
-Message-ID: <3CE7FFB1.592A60F4@zip.com.au>
-Date: Sun, 19 May 2002 12:40:33 -0700
+	id <S315218AbSESTjM>; Sun, 19 May 2002 15:39:12 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:12548 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315115AbSESTiY>;
+	Sun, 19 May 2002 15:38:24 -0400
+Message-ID: <3CE80008.5A9CA5DA@zip.com.au>
+Date: Sun, 19 May 2002 12:42:00 -0700
 From: Andrew Morton <akpm@zip.com.au>
 X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
 To: Linus Torvalds <torvalds@transmeta.com>
 CC: lkml <linux-kernel@vger.kernel.org>
-Subject: [patch 7/15] dirty inode management
+Subject: [patch 9/15] pdflush exclusion
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -22,256 +22,262 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-Fix the "race with umount" in __sync_list().  __sync_list() no longer
-puts inodes onto a local list while writing them out.
+Use the pdflush exclusion infrastructure to ensure that only one
+pdlfush thread is ever performing writeback against a particular
+request_queue.
 
-The super_block.sb_dirty list is kept time-ordered.  Mappings which
-have the "oldest" ->dirtied_when are kept at sb->s_dirty.prev.
+This works rather well.  It requires a lot of activity against a lot of
+disks to cause more pdflush threads to start up.  Possibly the
+thread-creation logic is a little weak: it starts more threads when a
+pdflush thread goes back to sleep.  It may be better to start new
+threads within pdlfush_operation().
 
-So the time-based writeback (kupdate) can just bale out when it
-encounters a not-old-enough mapping, rather than walking the entire
-list.
+All non-request_queue-backed address_spaces share the global
+default_backing_dev_info structure.  So at present only a single
+pdflush instance will be available for background writeback of *all*
+NFS filesystems (for example).
 
-dirtied_when is set on the *first* dirtying of a mapping.  So once the
-mapping is marked dirty it strictly retains its place on s_dirty until
-it reaches the oldest end and is written out.  So frequently-dirtied
-mappings don't stay dirty at the head of the list for all time.
-
-That local inode list was there for livelock avoidance.  Livelock is
-instead avoided by looking at each mapping's ->dirtied_when.  If we
-encounter one which was dirtied after this invokation of __sync_list(),
-then just bale out - the sync functions are only required to write out
-data which was dirty at the time when they were called.
-
-Keeping the s_dirty list in time-order is the right thing to do anyway
-- so all the various writeback callers always work against the oldest
-data.
+It there is benefit in concurrent background writeback for multiple NFS
+mounts then NFS would need to create per-mount backing_dev_info
+structures and install those into new inode's address_spaces in some
+manner.
 
 
 =====================================
 
---- 2.5.16/fs/fs-writeback.c~sync_one-fix	Sun May 19 11:49:47 2002
-+++ 2.5.16-akpm/fs/fs-writeback.c	Sun May 19 12:02:58 2002
-@@ -62,8 +62,14 @@ void __mark_inode_dirty(struct inode *in
- 
- 	spin_lock(&inode_lock);
- 	if ((inode->i_state & flags) != flags) {
-+		const int was_dirty = inode->i_state & I_DIRTY;
-+		struct address_space *mapping = inode->i_mapping;
-+
- 		inode->i_state |= flags;
- 
-+		if (!was_dirty)
-+			mapping->dirtied_when = jiffies;
-+
- 		/*
- 		 * If the inode is locked, just update its dirty state. 
- 		 * The unlocker will place the inode on the appropriate
-@@ -78,10 +84,15 @@ void __mark_inode_dirty(struct inode *in
- 		 */
- 		if (list_empty(&inode->i_hash) && !S_ISBLK(inode->i_mode))
- 			goto same_list;
--		if (inode->i_mapping->dirtied_when == 0)
--			inode->i_mapping->dirtied_when = jiffies;
--		list_del(&inode->i_list);
--		list_add(&inode->i_list, &sb->s_dirty);
-+
-+		/*
-+		 * If the inode was already on s_dirty, don't reposition
-+		 * it (that would break s_dirty time-ordering).
-+		 */
-+		if (!was_dirty) {
-+			list_del(&inode->i_list);
-+			list_add(&inode->i_list, &sb->s_dirty);
-+		}
- 	}
- same_list:
- 	spin_unlock(&inode_lock);
-@@ -116,18 +127,20 @@ static inline void write_inode(struct in
- static void __sync_single_inode(struct inode *inode, int wait, int *nr_to_write)
+--- 2.5.16/fs/fs-writeback.c~pdflush-single	Sun May 19 11:49:48 2002
++++ 2.5.16-akpm/fs/fs-writeback.c	Sun May 19 12:02:57 2002
+@@ -187,6 +187,9 @@ static void __sync_single_inode(struct i
+ static void
+ __writeback_single_inode(struct inode *inode, int sync, int *nr_to_write)
  {
- 	unsigned dirty;
-+	unsigned long orig_dirtied_when;
- 	struct address_space *mapping = inode->i_mapping;
- 
- 	list_del(&inode->i_list);
- 	list_add(&inode->i_list, &inode->i_sb->s_locked_inodes);
- 
--	if (inode->i_state & I_LOCK)
--		BUG();
-+	BUG_ON(inode->i_state & I_LOCK);
- 
- 	/* Set I_LOCK, reset I_DIRTY */
- 	dirty = inode->i_state & I_DIRTY;
- 	inode->i_state |= I_LOCK;
- 	inode->i_state &= ~I_DIRTY;
-+	orig_dirtied_when = mapping->dirtied_when;
-+	mapping->dirtied_when = 0;	/* assume it's whole-file writeback */
- 	spin_unlock(&inode_lock);
- 
- 	if (wait)
-@@ -145,36 +158,26 @@ static void __sync_single_inode(struct i
- 	if (wait)
- 		filemap_fdatawait(mapping);
- 
--	/*
--	 * For non-blocking writeout (wait == 0), we still
--	 * count the inode as being clean.
--	 */
- 	spin_lock(&inode_lock);
- 
--	/*
--	 * Did we write back all the pages?
--	 */
--	if (nr_to_write && *nr_to_write == 0) {
--		/*
--		 * Maybe not
--		 */
--		if (!list_empty(&mapping->dirty_pages))	/* No lock needed */
--			inode->i_state |= I_DIRTY_PAGES;
--	}
--
- 	inode->i_state &= ~I_LOCK;
- 	if (!(inode->i_state & I_FREEING)) {
--		struct list_head *to;
--		if (inode->i_state & I_DIRTY)
--			to = &inode->i_sb->s_dirty;
--		else if (atomic_read(&inode->i_count))
--			to = &inode_in_use;
--		else
--			to = &inode_unused;
- 		list_del(&inode->i_list);
--		list_add(&inode->i_list, to);
-+		if (!list_empty(&mapping->dirty_pages)) {
-+		 	/* Not a whole-file writeback */
-+			mapping->dirtied_when = orig_dirtied_when;
-+			inode->i_state |= I_DIRTY_PAGES;
-+			list_add_tail(&inode->i_list, &inode->i_sb->s_dirty);
-+		} else if (inode->i_state & I_DIRTY) {
-+			list_add(&inode->i_list, &inode->i_sb->s_dirty);
-+		} else if (atomic_read(&inode->i_count)) {
-+			list_add(&inode->i_list, &inode_in_use);
-+		} else {
-+			list_add(&inode->i_list, &inode_unused);
-+		}
- 	}
--	wake_up(&inode->i_wait);
-+	if (waitqueue_active(&inode->i_wait))
-+		wake_up(&inode->i_wait);
- }
- 
- /*
-@@ -201,38 +204,34 @@ void writeback_single_inode(struct inode
- }
- 
- /*
-- * Write out a list of inodes' pages, and the inode itself.
-+ * Write out a list of dirty inodes.
-  *
-- * If `sync' is true, wait on writeout of the last mapping
-- * which we write.
-+ * If `sync' is true, wait on writeout of the last mapping which we write.
-  *
-  * If older_than_this is non-NULL, then only write out mappings which
++	if (current_is_pdflush() && (inode->i_state & I_LOCK))
++		return;
++
+ 	while (inode->i_state & I_LOCK) {
+ 		__iget(inode);
+ 		spin_unlock(&inode_lock);
+@@ -213,6 +216,9 @@ void writeback_single_inode(struct inode
   * had their first dirtying at a time earlier than *older_than_this.
   *
   * Called under inode_lock.
-- *
-- * FIXME: putting all the inodes on a local list could introduce a
-- * race with umount.  Bump the superblock refcount?
++ *
++ * If we're a pdlfush thread, then implement pdlfush collision avoidance
++ * against the entire list.
   */
  static void __sync_list(struct list_head *head, int sync_mode,
  		int *nr_to_write, unsigned long *older_than_this)
- {
--	struct list_head * tmp;
--	LIST_HEAD(hold);	/* Unready inodes go here */
-+	struct list_head *tmp;
-+	const unsigned long start = jiffies;	/* livelock avoidance */
- 
+@@ -223,6 +229,8 @@ static void __sync_list(struct list_head
  	while ((tmp = head->prev) != head) {
  		struct inode *inode = list_entry(tmp, struct inode, i_list);
  		struct address_space *mapping = inode->i_mapping;
++		struct backing_dev_info *bdi;
++
  		int really_sync;
  
--		if (older_than_this && *older_than_this) {
--			if (time_after(mapping->dirtied_when,
--						*older_than_this)) {
--				list_del(&inode->i_list);
--				list_add(&inode->i_list, &hold);
--				continue;
--			}
--		}
-+		/* Was this inode dirtied after __sync_list was called? */
-+		if (time_after(mapping->dirtied_when, start))
-+			break;
-+
-+		if (older_than_this &&
-+			time_after(mapping->dirtied_when, *older_than_this))
+ 		/* Was this inode dirtied after __sync_list was called? */
+@@ -233,10 +241,18 @@ static void __sync_list(struct list_head
+ 			time_after(mapping->dirtied_when, *older_than_this))
+ 			break;
+ 
++		bdi = mapping->backing_dev_info;
++		if (current_is_pdflush() && !writeback_acquire(bdi))
 +			break;
 +
  		really_sync = (sync_mode == WB_SYNC_ALL);
  		if ((sync_mode == WB_SYNC_LAST) && (head->prev == head))
  			really_sync = 1;
-@@ -240,11 +239,7 @@ static void __sync_list(struct list_head
+ 		__writeback_single_inode(inode, really_sync, nr_to_write);
++
++		if (current_is_pdflush())
++			writeback_release(bdi);
++
  		if (nr_to_write && *nr_to_write == 0)
  			break;
  	}
--	/*
--	 * Put the not-ready inodes back
--	 */
--	if (!list_empty(&hold))
--		list_splice(&hold, head);
-+	return;
- }
- 
- /*
-@@ -258,8 +253,7 @@ static void __sync_list(struct list_head
-  * inode from superblock lists we are OK.
+@@ -255,6 +271,8 @@ static void __sync_list(struct list_head
   *
   * If `older_than_this' is non-zero then only flush inodes which have a
-- * flushtime older than *older_than_this.  Unless *older_than_this is
-- * zero.  In which case we flush everything, like the old (dumb) wakeup_bdflush.
-+ * flushtime older than *older_than_this.
+  * flushtime older than *older_than_this.
++ *
++ * This is a "memory cleansing" operation, not a "data integrity" operation.
   */
  void writeback_unlocked_inodes(int *nr_to_write, int sync_mode,
  				unsigned long *older_than_this)
-@@ -434,11 +428,13 @@ void try_to_writeback_unused_inodes(unsi
- 	spin_lock(&inode_lock);
- 	spin_lock(&sb_lock);
- 	sb = sb_entry(super_blocks.next);
--	for (; nr_inodes && sb != sb_entry(&super_blocks); sb = sb_entry(sb->s_list.next)) {
-+	for (; nr_inodes && sb != sb_entry(&super_blocks);
-+			sb = sb_entry(sb->s_list.next)) {
- 		if (list_empty(&sb->s_dirty))
+@@ -276,29 +294,12 @@ void writeback_unlocked_inodes(int *nr_t
+ 		if (sb->s_writeback_gen == writeback_gen)
  			continue;
- 		spin_unlock(&sb_lock);
--		nr_inodes = __try_to_writeback_unused_list(&sb->s_dirty, nr_inodes);
-+		nr_inodes = __try_to_writeback_unused_list(&sb->s_dirty,
-+							nr_inodes);
- 		spin_lock(&sb_lock);
+ 		sb->s_writeback_gen = writeback_gen;
+-
+-		if (current->flags & PF_FLUSHER) {
+-			if (sb->s_flags & MS_FLUSHING) {
+-				/*
+-				 * There's no point in two pdflush threads
+-				 * flushing the same device.  But for other
+-				 * callers, we want to perform the flush
+-				 * because the fdatasync is how we implement
+-				 * writer throttling.
+-				 */
+-				continue;
+-			}
+-			sb->s_flags |= MS_FLUSHING;
+-		}
+-
+ 		if (!list_empty(&sb->s_dirty)) {
+ 			spin_unlock(&sb_lock);
+ 			__sync_list(&sb->s_dirty, sync_mode,
+ 					nr_to_write, older_than_this);
+ 			spin_lock(&sb_lock);
+ 		}
+-		if (current->flags & PF_FLUSHER)
+-			sb->s_flags &= ~MS_FLUSHING;
+ 		if (nr_to_write && *nr_to_write == 0)
+ 			break;
+ 	}
+@@ -307,7 +308,7 @@ void writeback_unlocked_inodes(int *nr_t
+ }
+ 
+ /*
+- * Called under inode_lock
++ * Called under inode_lock.
+  */
+ static int __try_to_writeback_unused_list(struct list_head *head, int nr_inodes)
+ {
+@@ -318,7 +319,17 @@ static int __try_to_writeback_unused_lis
+ 		inode = list_entry(tmp, struct inode, i_list);
+ 
+ 		if (!atomic_read(&inode->i_count)) {
++			struct backing_dev_info *bdi;
++
++			bdi = inode->i_mapping->backing_dev_info;
++			if (current_is_pdflush() && !writeback_acquire(bdi))
++				goto out;
++
+ 			__sync_single_inode(inode, 0, NULL);
++
++			if (current_is_pdflush())
++				writeback_release(bdi);
++
+ 			nr_inodes--;
+ 
+ 			/* 
+@@ -328,7 +339,7 @@ static int __try_to_writeback_unused_lis
+ 			tmp = head;
+ 		}
+ 	}
+-
++out:
+ 	return nr_inodes;
+ }
+ 
+@@ -421,7 +432,11 @@ void sync_inodes(void)
+ 	}
+ }
+ 
+-void try_to_writeback_unused_inodes(unsigned long pexclusive)
++/*
++ * FIXME: the try_to_writeback_unused functions look dreadfully similar to
++ * writeback_unlocked_inodes...
++ */
++void try_to_writeback_unused_inodes(unsigned long unused)
+ {
+ 	struct super_block * sb;
+ 	int nr_inodes = inodes_stat.nr_unused;
+@@ -440,7 +455,6 @@ void try_to_writeback_unused_inodes(unsi
  	}
  	spin_unlock(&sb_lock);
---- 2.5.16/mm/page-writeback.c~sync_one-fix	Sun May 19 11:49:47 2002
-+++ 2.5.16-akpm/mm/page-writeback.c	Sun May 19 12:02:58 2002
-@@ -175,10 +175,6 @@ static int wb_writeback_jifs = 5 * HZ;
-  * just walks the superblock inode list, writing back any inodes which are
-  * older than a specific point in time.
-  *
-- * Spot the bug: at jiffies wraparound, the attempt to set the inode's dirtying
-- * time won't work, because zero means not-dirty.  That's OK. The data will get
-- * written out later by the VM (at least).
-- *
-  * We also limit the number of pages which are written out, to avoid writing
-  * huge amounts of data against a single file, which would cause memory
-  * allocators to block for too long.
-@@ -328,7 +324,6 @@ int generic_writeback_mapping(struct add
+ 	spin_unlock(&inode_lock);
+-	clear_bit(0, (unsigned long *)pexclusive);
+ }
  
- 	list_splice(&mapping->dirty_pages, &mapping->io_pages);
- 	INIT_LIST_HEAD(&mapping->dirty_pages);
--	mapping->dirtied_when = 0;
+ /**
+--- 2.5.16/include/linux/writeback.h~pdflush-single	Sun May 19 11:49:48 2002
++++ 2.5.16-akpm/include/linux/writeback.h	Sun May 19 12:02:57 2002
+@@ -13,6 +13,15 @@ extern struct list_head inode_in_use;
+ extern struct list_head inode_unused;
  
-         while (!list_empty(&mapping->io_pages) && !done) {
- 		struct page *page = list_entry(mapping->io_pages.prev,
-
+ /*
++ * Yes, writeback.h requires sched.h
++ * No, sched.h is not included from here.
++ */
++static inline int current_is_pdflush(void)
++{
++	return current->flags & PF_FLUSHER;
++}
++
++/*
+  * fs/fs-writeback.c
+  */
+ #define WB_SYNC_NONE	0	/* Don't wait on anything */
+--- 2.5.16/fs/inode.c~pdflush-single	Sun May 19 11:49:48 2002
++++ 2.5.16-akpm/fs/inode.c	Sun May 19 12:02:57 2002
+@@ -404,21 +404,14 @@ void prune_icache(int goal)
+ 	dispose_list(freeable);
+ 
+ 	/* 
+-	 * If we didn't freed enough clean inodes schedule
+-	 * a sync of the dirty inodes, we cannot do it
+-	 * from here or we're either synchronously dogslow
+-	 * or we deadlock with oom.
++	 * If we didn't free enough clean inodes then schedule writeback of
++	 * the dirty inodes.  We cannot do it from here or we're either
++	 * synchronously dogslow or we deadlock with oom.
+ 	 */
+-	if (goal) {
+-		static unsigned long exclusive;
+-
+-		if (!test_and_set_bit(0, &exclusive)) {
+-			if (pdflush_operation(try_to_writeback_unused_inodes,
+-						(unsigned long)&exclusive))
+-				clear_bit(0, &exclusive);
+-		}
+-	}
++	if (goal)
++		pdflush_operation(try_to_writeback_unused_inodes, 0);
+ }
++
+ /*
+  * This is called from kswapd when we think we need some
+  * more memory, but aren't really sure how much. So we
+--- 2.5.16/include/linux/fs.h~pdflush-single	Sun May 19 11:49:48 2002
++++ 2.5.16-akpm/include/linux/fs.h	Sun May 19 12:02:57 2002
+@@ -112,7 +112,6 @@ extern int leases_enable, dir_notify_ena
+ #define MS_MOVE		8192
+ #define MS_REC		16384
+ #define MS_VERBOSE	32768
+-#define MS_FLUSHING	(1<<16)	/* inodes are currently under writeout */
+ #define MS_ACTIVE	(1<<30)
+ #define MS_NOUSER	(1<<31)
+ 
+@@ -156,7 +155,6 @@ extern int leases_enable, dir_notify_ena
+ #define IS_RDONLY(inode) ((inode)->i_sb->s_flags & MS_RDONLY)
+ #define IS_SYNC(inode)		(__IS_FLG(inode, MS_SYNCHRONOUS) || ((inode)->i_flags & S_SYNC))
+ #define IS_MANDLOCK(inode)	__IS_FLG(inode, MS_MANDLOCK)
+-#define IS_FLUSHING(inode)	__IS_FLG(inode, MS_FLUSHING)
+ 
+ #define IS_QUOTAINIT(inode)	((inode)->i_flags & S_QUOTA)
+ #define IS_NOQUOTA(inode)	((inode)->i_flags & S_NOQUOTA)
+--- 2.5.16/mm/page-writeback.c~pdflush-single	Sun May 19 11:49:48 2002
++++ 2.5.16-akpm/mm/page-writeback.c	Sun May 19 12:02:57 2002
+@@ -20,6 +20,7 @@
+ #include <linux/writeback.h>
+ #include <linux/init.h>
+ #include <linux/sysrq.h>
++#include <linux/backing-dev.h>
+ 
+ /*
+  * Memory thresholds, in percentages
+@@ -86,10 +87,7 @@ void balance_dirty_pages(struct address_
+ 		wake_pdflush = 1;
+ 	}
+ 
+-	if (wake_pdflush && !IS_FLUSHING(mapping->host)) {
+-		/*
+-		 * There is no flush thread against this device. Start one now.
+-		 */
++	if (wake_pdflush && !writeback_in_progress(mapping->backing_dev_info)) {
+ 		if (dirty_and_writeback > async_thresh) {
+ 			pdflush_flush(dirty_and_writeback - async_thresh);
+ 			yield();
 
 -

@@ -1,51 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269611AbUICRjj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269719AbUICRrl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269611AbUICRjj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 13:39:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269698AbUICRh6
+	id S269719AbUICRrl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 13:47:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269724AbUICRqm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 13:37:58 -0400
-Received: from gsstark.mtl.istop.com ([66.11.160.162]:38791 "EHLO
-	stark.xeocode.com") by vger.kernel.org with ESMTP id S269611AbUICRfU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 13:35:20 -0400
-To: Eric Mudama <edmudama@gmail.com>
-Cc: Greg Stark <gsstark@mit.edu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Brad Campbell <brad@wasp.net.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: Crashed Drive, libata wedges when trying to recover data
-References: <87oekpvzot.fsf@stark.xeocode.com> <4136E277.6000408@wasp.net.au>
-	<87u0ugt0ml.fsf@stark.xeocode.com>
-	<1094209696.7533.24.camel@localhost.localdomain>
-	<87d613tol4.fsf@stark.xeocode.com>
-	<1094219609.7923.0.camel@localhost.localdomain>
-	<877jrbtkds.fsf@stark.xeocode.com>
-	<1094224166.8102.7.camel@localhost.localdomain>
-	<871xhjti4b.fsf@stark.xeocode.com>
-	<311601c904090310083d057c25@mail.gmail.com>
-In-Reply-To: <311601c904090310083d057c25@mail.gmail.com>
-From: Greg Stark <gsstark@mit.edu>
-Organization: The Emacs Conspiracy; member since 1992
-Date: 03 Sep 2004 13:35:08 -0400
-Message-ID: <87pt53s1bn.fsf@stark.xeocode.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+	Fri, 3 Sep 2004 13:46:42 -0400
+Received: from fed1rmmtao05.cox.net ([68.230.241.34]:32978 "EHLO
+	fed1rmmtao05.cox.net") by vger.kernel.org with ESMTP
+	id S269719AbUICRkj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 13:40:39 -0400
+Date: Fri, 3 Sep 2004 10:40:10 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Paul Mackerras <paulus@samba.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH,RFC 2.6.9-rc1 2/2] zlib_inflate: Add __BOOTER__ around zlib_inflate_trees_fixed(...)
+Message-ID: <20040903174010.GB6290@smtp.west.cox.net>
+References: <20040901231659.GA20624@smtp.west.cox.net> <20040902173626.GB26144@smtp.west.cox.net> <20040902174707.GC26144@smtp.west.cox.net> <16695.50554.389435.137893@cargo.ozlabs.ibm.com> <20040903014520.GE26144@smtp.west.cox.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040903014520.GE26144@smtp.west.cox.net>
+User-Agent: Mutt/1.5.6+20040818i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Sep 02, 2004 at 06:45:20PM -0700, Tom Rini wrote:
 
-Eric Mudama <edmudama@gmail.com> writes:
+> On Fri, Sep 03, 2004 at 11:14:34AM +1000, Paul Mackerras wrote:
+> 
+> > Tom Rini writes:
+> > 
+> > > This is the second part of what I found.  zlib_inflate_trees_fixed(...)
+> > > isn't called in decompressing a kernel.  Dropping this, and the call to
+> > 
+> > I think it is just luck that gzip hasn't used the fixed table in
+> > compressing the kernel.  I don't think we have any guarantee that gzip
+> > won't use the fixed table.
+> 
+> That is a good point.  Looking at arch/ppc/boot/lib/zlib.c it generates
+> the table, instead of having a static one.  So perhaps we should move to
+> that instead for lib/zlib_inflate ?
 
-> Today's (and tomorrow's) generation of SATA drives will never ever
-> generate a 0x59 status... the error and DRQ bits become mutually
-> exclusive.  
-
-This is a very recent Maxtor drive, a 7Y250M0. It's not the new drives that
-were recently announced but I think it's the most recent you can find in
-stores.
+I've moved lib/zlib_inflate over to generating the table.  But, in
+trying to test it, I haven't been able to find anything that will
+actually use this (it appears that using this static table was something
+that pkzip introduced long ago as an alternative method of good
+compression / speed) so I can't actually test it.  But the image size is
+back in line.
 
 -- 
-greg
-
+Tom Rini
+http://gate.crashing.org/~trini/

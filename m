@@ -1,54 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270472AbTGZQk5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jul 2003 12:40:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270470AbTGZQkn
+	id S270425AbTGZQjK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jul 2003 12:39:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270468AbTGZQjJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 12:40:43 -0400
-Received: from hera.kernel.org ([63.209.29.2]:700 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S270468AbTGZQjQ (ORCPT
+	Sat, 26 Jul 2003 12:39:09 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:51358 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S270425AbTGZQi6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 12:39:16 -0400
-To: linux-kernel@vger.kernel.org
-From: OSDL <torvalds@osdl.org>
-Subject: Re: Does sysfs really provides persistent hardware path to devices?
-Date: Sat, 26 Jul 2003 09:54:09 -0700
-Organization: OSDL
-Message-ID: <bfubnh$vil$1@build.pdx.osdl.net>
-References: <200307262036.13989.arvidjaar@mail.ru>
-Reply-To: torvalds@osdl.org
+	Sat, 26 Jul 2003 12:38:58 -0400
+Date: Sat, 26 Jul 2003 18:40:58 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Lou Langholtz <ldl@aros.net>
+Cc: Con Kolivas <kernel@kolivas.org>,
+       Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       LKML <linux-kernel@vger.kernel.org>, mingo@elte.hu
+Subject: Re: Ingo Molnar and Con Kolivas 2.6 scheduler patches
+Message-ID: <20030726164058.GD518@suse.de>
+References: <1059211833.576.13.camel@teapot.felipe-alfaro.com> <200307261142.43277.m.c.p@wolk-project.de> <200307270047.54349.kernel@kolivas.org> <3F22AF7E.1080601@aros.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Trace: build.pdx.osdl.net 1059238449 32341 172.20.1.2 (26 Jul 2003 16:54:09 GMT)
-X-Complaints-To: abuse@osdl.org
-NNTP-Posting-Date: Sat, 26 Jul 2003 16:54:09 +0000 (UTC)
-User-Agent: KNode/0.7.2
+Content-Disposition: inline
+In-Reply-To: <3F22AF7E.1080601@aros.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrey Borzenkov wrote:
+On Sat, Jul 26 2003, Lou Langholtz wrote:
+> Con Kolivas wrote:
 > 
-> As far as I can tell sysfs device names include logical bus numbers which
-> means, if hardware is added or removed it is possible names do change.
+> >. . .
+> >Actually this is not strange to me. It has become obvious that the 
+> >problems with interactivity that have evolved in 2.5 are not scheduler 
+> >related. Just try plugging in all the old 2.4 O(1) scheduler settings into 
+> >the current scheduler and you will see that it still performs badly. What 
+> >exactly is the cause is a mystery but seems to be more a combination of 
+> >factors with a careful look at the way the vm behaves being part of that. 
+> >. . .
+> >
+> Any chance that the problem may be due to the block layer system (and 
+> block driver(s)) getting more cycles than it should? Particularly with 
 
-Absolutely.
+Not likely
 
-The fact is, the kernel _cannot_ give persistent names to devices, because
-it is simply not a problem that is solvable with the resources the kernel
-has access to.
+> the out-of-band like work queue scheduling? That would at least explain 
 
-For persistent naming, you need (a) user policy and (b) stable storage,
-neither of which the kernel has. 
+If anything, 2.6 will unplug sooner than 2.4. 2.4 will unplug only when
+someone does a wait_on_buffer/page, 2.6 will unplug when:
 
-GregKH has a "udev" setup that plugs into /sbin/hotplug and uses sysfs
-to implement stable naming. So sysfs is part of the picture, but it's
-not the whole answer.
+- queued requests exceed unplug threshold, 4 requests
+- unplug timeout, 3ms
+- someone doing wait_on_page/buffer
 
-> the point is - I want to create aliases that would point to specific
-> slots. I.e. when I plug USB memory stick in upper slot on front panel I'd
-> like to always create the same device alias for it.
+Can't rule out a bug of course, the horrible audio skips I've seen in
+2.6 are not io related though. Block layer will only do out of band
+unplugs for the timer unplug, and even that could be superceded by a new
+request entering the queue (or someone doing wait_bla)
 
-Right: what you're asking for is persistent per-device user policy.
+> the scheduling oddities I'm seeing with 2.6.0-test1 after a minute of so 
+> of intense I/O.
 
-                Linus 
+CPU or disk scheduling oddities?
+
+People should try booting with elevator=deadline to see if it changes
+anything for these types of workloads, AS is really not optimal for that
+at all.
+
+-- 
+Jens Axboe
+

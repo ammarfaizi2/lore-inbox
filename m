@@ -1,78 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129069AbRBHWhy>; Thu, 8 Feb 2001 17:37:54 -0500
+	id <S129075AbRBHWjy>; Thu, 8 Feb 2001 17:39:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129075AbRBHWho>; Thu, 8 Feb 2001 17:37:44 -0500
-Received: from roc-24-95-203-215.rochester.rr.com ([24.95.203.215]:51718 "EHLO
-	d185fcbd7.rochester.rr.com") by vger.kernel.org with ESMTP
-	id <S129069AbRBHWhb>; Thu, 8 Feb 2001 17:37:31 -0500
-Date: Thu, 08 Feb 2001 17:37:15 -0500
-From: Chris Mason <mason@suse.com>
-To: Andrius Adomaitis <charta@gaumina.lt>, linux-kernel@vger.kernel.org
-Subject: Re: Problems with 2.4.2-pre1 & reiser & vfs
-Message-ID: <1220580000.981671835@tiny>
-In-Reply-To: <0102081600260I.32334@castle.gaumina.lt>
-X-Mailer: Mulberry/2.0.6b4 (Linux/x86)
-MIME-Version: 1.0
+	id <S129213AbRBHWjo>; Thu, 8 Feb 2001 17:39:44 -0500
+Received: from fe070.worldonline.dk ([212.54.64.208]:3597 "HELO
+	fe070.worldonline.dk") by vger.kernel.org with SMTP
+	id <S129075AbRBHWjl>; Thu, 8 Feb 2001 17:39:41 -0500
+Date: Thu, 8 Feb 2001 23:37:31 +0100
+From: Torben Mathiasen <torben@kernel.dk>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.1-ac7
+Message-ID: <20010208233731.A661@fry>
+In-Reply-To: <E14QwU4-0004QE-00@the-village.bc.nu> <Pine.LNX.4.21.0102082005400.2378-100000@duckman.distro.conectiva>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <Pine.LNX.4.21.0102082005400.2378-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Thu, Feb 08, 2001 at 08:12:39PM -0200
+X-OS: Linux 2.4.1-ac7 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thursday, February 08, 2001 04:00:26 PM +0100 Andrius Adomaitis <charta@gaumina.lt> wrote:
-
+On Thu, Feb 08 2001, Rik van Riel wrote:
+> On Thu, 8 Feb 2001, Alan Cox wrote:
 > 
-> Hello,
+> > 	ftp://ftp.kernel.org/pub/linux/kernel/people/alan/2.4/
+> > 
+> > 2.4.1-ac7
+> > o	Rebalance the 2.4.1 VM				(Rik van Riel)
+> > 	| This should make things feel a lot faster especially
+> > 	| on small boxes .. feedback to Rik
 > 
-> I have  dual PIII 800 machine running as mail server on DAC 960 RAID & 
-> reiserfs comming with 2.4.1kernel.
-> 
-> Under very high loads I get  following messages in my kernel log:
-> 
-> kernel: vs-13060: reiserfs_update_sd: stat data of object [7906789 
-> 7906806 0x0 SD](nlink == 1) not found (pos 23)
-> kernel: vs-13060: reiserfs_update_sd: stat data of object [7906789 
-> 7906806 0x0 SD] (nlink == 1) not found (pos 23)
-> kernel: PAP-5660: reiserfs_do_truncate: wrong result -1 of search for 
-> [7906789 7906806 0xfffffffffffffff DIRECT]
-> kernel: vs-13060: reiserfs_update_sd: stat data of object [7906789 
-> 7906806 0x0 SD] (nlink == 1) not found (pos 23)
-> kernel: PAP-5660: reiserfs_do_truncate: wrong result -1 of search for 
-> [7906789 7906806 0xfffffffffffffff DIRECT]
-> .....
+> I'd really like feedback from people when it comes to this
+> change. The change /should/ fix most paging performance bugs
+> because it makes kswapd do the right amount of work in order
+> to solve the free memory shortage every time it is run.
+ 
+Rik,
 
-These aren't good at all, and show a general corruption problem.  I know the ac kernels have at least one small DAC960 bug fixes, are there other fixes pending?
+Just installed ac7 and after some 30 minutes of unpacking
+kernel-sources and diffing patches, I left my computer unattended
+for about 1 hour. When I came back the system was unusable (like it 
+was frozen), and /var/log/messages just displayed messages of the
+type:
 
-> 
-> and afterwards come these:
-> 
-> kernel: vs-3050: wait_buffer_until_released: nobody releases buffer 
-> (dev 30:09, size 4096, blocknr 1661732, count 16,
-> kernel: vs-3050: wait_buffer_until_released: nobody releases buffer 
-> (dev 30:09, size 4096, blocknr 1661732, count 16,
-> ...
-> and so on.
-> 
+Feb  8 22:54:40 fry kernel: Out of Memory: Killed process 455 (xmms).
+...
 
-There is more info in this message, it would help if you could send the entire line.
+The OOM killer killed most of my apps, and finally X. I had to reboot
+in order to get the system back. I've been running ac1-ac6 since they
+came out with no problems, so I guess its the VM hack that is buggy.
 
-> The interesting thing is that system is still operational, but load 
-> jumps up to 260 or so, and any attempts to reboot system fail. ps aux 
-> shows that there exists imortal (kill -9 $PID doesn't kill it) qmail 
-> process that consumes 97% of one CPU's resources.  Also `vmstat` shows 
-> tons of processes in uninterruptable sleep, but `free` reports that it 
-> is still enough memory (no swap used) and huge buffers... Machine gets 
-> slugish but works for a while (0.5-2h dependent on mail request rate).
-> 
+This is on an AMD K7 1200Mhz, 512MB Ram, ATA100. Nothing big was
+running at the time (xchat, xmms, mozilla, gnome, x, a few xterms).
 
-Once you get a vs-3050, any process that tries to change the FS ends up waiting on the journal, which is waiting on the process stuck in vs-3050.  There is no escape.
-
--chris
+I'll do some more testing tomorrow and provide any further information
+you might need.
 
 
+
+-- 
+Torben Mathiasen <torben@kernel.dk>
+Linux ThunderLAN maintainer 
+http://opensource.compaq.com
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

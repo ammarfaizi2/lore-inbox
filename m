@@ -1,42 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131941AbRCVIwN>; Thu, 22 Mar 2001 03:52:13 -0500
+	id <S131998AbRCVJGH>; Thu, 22 Mar 2001 04:06:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131942AbRCVIvy>; Thu, 22 Mar 2001 03:51:54 -0500
-Received: from [213.158.195.134] ([213.158.195.134]:49159 "EHLO
-	plwawtl0.pl.ccbeverages.com") by vger.kernel.org with ESMTP
-	id <S131941AbRCVIvw>; Thu, 22 Mar 2001 03:51:52 -0500
-From: "Tomasz Sterna" <smoku@jaszczur.org>
-Date: Thu, 22 Mar 2001 09:41:59 +0100
-To: James Simmons <jsimmons@linux-fbdev.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: standard_io_resources[]
-Message-ID: <20010322094159.A7407@plwawtl0.pl.ccbeverages.com>
-In-Reply-To: <Pine.LNX.4.31.0103210908560.2648-100000@linux.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.31.0103210908560.2648-100000@linux.local>; from jsimmons@linux-fbdev.org on Wed, Mar 21, 2001 at 09:13:05AM -0800
+	id <S132026AbRCVJF5>; Thu, 22 Mar 2001 04:05:57 -0500
+Received: from www.wen-online.de ([212.223.88.39]:32013 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S131998AbRCVJFu>;
+	Thu, 22 Mar 2001 04:05:50 -0500
+Date: Thu, 22 Mar 2001 10:04:28 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Kevin Buhr <buhr@stat.wisc.edu>
+cc: linux-kernel <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Linux 2.4.2 fails to merge mmap areas, 700% slowdown.
+In-Reply-To: <vba4rwm6fp5.fsf@mozart.stat.wisc.edu>
+Message-ID: <Pine.LNX.4.33.0103220951460.1667-100000@mikeg.weiden.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 21, 2001 at 09:13:05AM -0800, James Simmons wrote:
-> >Isn't that a job of the device drivers?
-> Well most of those resources are present on every PC motherboard.
+On 21 Mar 2001, Kevin Buhr wrote:
 
-I still can't see a reason for allocating it before the device drivers 
-could do that.
+> Mike Galbraith <mikeg@wen-online.de> writes:
+> >
+> > Yes.  I'm so used to UP numbers I didn't think.  I saw user larger than
+> > real on my UP box yesterday during some testing, and then seeing this
+> > post... oops.
+>
+> Okay, so you see "user > real" on a UP box running an SMP kernel.
 
-Any suggestions? Anyone?
+On ac20 I see this (has rw_mmap_sem patch in place tho..), but not on
+2.4.3-pre6 with Linus' deadlock fix.
 
-> This will also be the case for 2.5.X. We already have the PS/2 keyboard
-> ported over to the input api.
+[snip nice explanation.. thanks]  box is genuine UP btw.
 
-What is the "input api"? Could You give me any URL to read?
+> In any event, if the discrepancy is large: if user, for a
+> single-threaded process, exceeds the real time by more than 1% (or a
+> few hundredths of a second, whichever is greater) on any system, I
+> think this indicates a serious problem.
 
+Let me check virgin ac20 and see what it does.
 
--- 
-   __  ___   __
-__`-,_( | )_(__)_|-<_(__)___ _
-http://www.jaszczur.org/~smoku/
+2.4.2.ac20.virgin   2.4.3-pre6
+real    11m0.708s   11m58.617s
+user    15m8.720s   7m29.970s
+sys     1m31.410s   0m41.590s
+
+It looks like ac20 is doing some double accounting.
+
+	-Mike
+
+(fwiw, the smp/up numbers suck rocks compared to up/up)
+

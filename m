@@ -1,56 +1,55 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315871AbSEGTVT>; Tue, 7 May 2002 15:21:19 -0400
+	id <S315949AbSEGTW2>; Tue, 7 May 2002 15:22:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315949AbSEGTVS>; Tue, 7 May 2002 15:21:18 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:26051 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S315871AbSEGTVR>; Tue, 7 May 2002 15:21:17 -0400
-Date: Tue, 7 May 2002 13:21:10 -0600
-Message-Id: <200205071921.g47JLAV00682@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Patrick Mochel <mochel@osdl.org>
-Cc: <benh@kernel.crashing.org>, Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Padraig Brady <padraig@antefacto.com>,
-        Anton Altaparmakov <aia21@cantab.net>,
-        Martin Dalecki <dalecki@evision-ventures.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.14 IDE 56
-In-Reply-To: <Pine.LNX.4.33.0205071141230.6307-100000@segfault.osdl.org>
+	id <S315950AbSEGTW1>; Tue, 7 May 2002 15:22:27 -0400
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:22541 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S315949AbSEGTWZ>; Tue, 7 May 2002 15:22:25 -0400
+Date: Tue, 7 May 2002 21:22:13 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+To: Thunder from the hill <thunder@ngforever.de>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: pfn-Functionset out of order for sparc64 in current Bk tree?
+In-Reply-To: <Pine.LNX.4.44.0205051708420.23089-100000@hawkeye.luckynet.adm>
+Message-ID: <Pine.LNX.4.21.0205072115360.32715-100000@serv>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick Mochel writes:
-> 
-> On Tue, 7 May 2002, Richard Gooch wrote:
-> 
-> > Patrick Mochel writes:
-> > > Oh, and it's with a modern, clean filesystem, 1/5 the size of devfs. 
-> > 
-> > The size argument is not an issue. I've already said that devfs will
-> > shrink a lot once I move tree management from my own code to the VFS.
-> 
-> I agree 100%. However, I think that move will be very painful. I
-> tried to do it a couple of months ago, and there were so many
-> interdependencies and oddities that I gave up after about 6 hours.
+Hi,
 
-Oh, it's certainly more that 6 hours of work. But it *will* get done.
+On Tue, 7 May 2002, Thunder from the hill wrote:
 
-> > At that point devfs will mostly be:
-> > - an API
-> > - a way fo supporting the devfsd protocol.
-> 
-> I argue that you shouldn't need a separate daemon. We already have
-> the /sbin/hotplug interface. It's simple and sweet. We shouldn't
-> need to rely on an entirely separate daemon.
+As long as CONFIG_DISCONTIGMEM isn't used the replacement functions are
+quite simple.
 
-The devfsd protocol is more lightweight. Plus it doesn't require
-fork(2)+execve(2) overheads. And more importantly, you can capture
-lookup() events.
+>  - pfn_to_page(pfn) is declared as (mem_map + (pfn)) for i386. Can this 
+>    apply to Sparc64 as well?
 
-				Regards,
+Yes.
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+>  - pte_pfn(x) is declared as
+>    ((unsigned long)(((x).pte_low >> PAGE_SHIFT)))
+>    in 2-level pgtable,
+>    (((x).pte_low >> PAGE_SHIFT) | ((x).pte_high << (32 - PAGE_SHIFT)))
+>    in 3-level. I suppose 2-level shouldn't exactly match here, how far 
+>    must the 3-level version be changed in order to fit sparc64? A lot?
+
+#define pte_pfn(x) (pte_val(x) >> PAGE_SHIFT)
+
+>  - pfn_valid(pfn) is described as ((pfn) < max_mapnr). Suppose this is OK 
+>    on Sparc64 either?
+
+Yes.
+
+>  - pfn_pte(page,prot) is defined as
+>    __pte(((pfn) << PAGE_SHIFT) | pgprot_val(prot))
+>    How far does this go for Sparc64?
+
+#define pfn_pte(pfn,prot) mk_pte_phys(pfn << PAGE_SHIFT, prot)
+but you should better replace mk_pte_phys completely.
+
+bye, Roman
+

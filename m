@@ -1,39 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266067AbRF1RwP>; Thu, 28 Jun 2001 13:52:15 -0400
+	id <S266060AbRF1Rwp>; Thu, 28 Jun 2001 13:52:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266064AbRF1RwF>; Thu, 28 Jun 2001 13:52:05 -0400
-Received: from boreas.isi.edu ([128.9.160.161]:32662 "EHLO boreas.isi.edu")
-	by vger.kernel.org with ESMTP id <S266060AbRF1Rv6>;
-	Thu, 28 Jun 2001 13:51:58 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Cosmetic JFFS patch. 
-In-Reply-To: Your message of "Thu, 28 Jun 2001 18:14:15 BST."
-             <E15FfMt-0007Ht-00@the-village.bc.nu> 
-Date: Thu, 28 Jun 2001 10:51:50 -0700
-Message-ID: <503.993750710@ISI.EDU>
-From: Craig Milo Rogers <rogers@ISI.EDU>
+	id <S266064AbRF1Rwh>; Thu, 28 Jun 2001 13:52:37 -0400
+Received: from altus.drgw.net ([209.234.73.40]:15884 "EHLO altus.drgw.net")
+	by vger.kernel.org with ESMTP id <S266060AbRF1Rwc>;
+	Thu, 28 Jun 2001 13:52:32 -0400
+Date: Thu, 28 Jun 2001 12:50:45 -0500
+From: Troy Benjegerdes <hozer@drgw.net>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Patrick Dreker <patrick@dreker.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        David Woodhouse <dwmw2@infradead.org>, jffs-dev@axis.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: Cosmetic JFFS patch.
+Message-ID: <20010628125045.P8027@altus.drgw.net>
+In-Reply-To: <01062809432100.00590@wintermute> <Pine.LNX.4.33.0106280956030.15199-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0106280956030.15199-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Thu, Jun 28, 2001 at 10:05:22AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Q: Would it be worth making the module author/version strings survive in
->a non modular build but stuffed into their own section so you can pull them
->out with some magic that we'd include in 'REPORTING-BUGS'
+<snip>
 
-	In a /proc file, maybe?  A single file ("/proc/authors"?
-"/proc/versions"? "/proc/brags"? "/proc/kvell"?)  could present the
-whole section.  Alternatively, you could have one /proc file per
-attributed source file; I suspect that would be messier to code.  In a
-modular system, would it be feasible to dynamically link/unlink
-attribution strings from a global list as modules are loaded/unloaded,
-and display linked attributions along with static ones in the /proc
-file?
+> Let's make it policy that we _never_ print out annoying messages that have
+> no useful purpose for debugging or running the system, ok?
+> 
+> "Informational" messages aren't informational, they're just annoying, and
+> they hide the _real_ stuff.
 
-	Extrapolating from past behavior into the future:  someone will
-submit code with a multi-page attribution string.  It is likely that
-we'd need a formal policy on the length, content, and maybe even format
-of attribution strings.
+Sometimes, but I've run into WAY too many occasions where all I know about
+why this sytem died was "what was the last annoying informational boot
+message". This gets really usefull when you have either old crufty
+hardware that's questionable OR fresh alpha silicon for some new
+whizz-bang processor.
 
-					Craig Milo Rogers
+> Things like version strings etc sound useful, but the fact is that the
+> only _real_ problem it has ever solved for anybody is when somebody thinks
+> they install a new kernel, and forgets to run "lilo" or something. But
+> even that information you really get from a simple "uname -a".
+> 
+> Do we care that when you boot kernel-2.4.5 you get "net-3"? No. Do we care
+> that we have quota version "dquot_6.4.0"? No. Do we want to get the
+> version printed for every single driver we load? No.
+> 
+> If people care about version printing, it (a) only makes sense for modules
+> and (b) should therefore maybe be done by the module loader. And modules
+> already have the MODULE_DESCRIPTION() thing, so they should NOT printk it
+> on their own.  modprobe can do it if it wants to.
+> 
+> So let's simply disallow versions, author information, and "good status"
+> messages, ok? For stuff that is useful for debugging (but that the driver
+> doesn't _know_ is needed), use KERN_DEBUG, so that it doesn't actually end
+> up printed on the screen normally.
+> 
+> Authors willing to start sending me patches?
+> 
+> 		Linus
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
+-- 
+Troy Benjegerdes | master of mispeeling | 'da hozer' |  hozer@drgw.net
+-----"If this message isn't misspelled, I didn't write it" -- Me -----
+"Why do musicians compose symphonies and poets write poems? They do it
+because life wouldn't have any meaning for them if they didn't. That's 
+why I draw cartoons. It's my life." -- Charles Shulz

@@ -1,56 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267478AbUH1RTI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266741AbUH1RdJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267478AbUH1RTI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 13:19:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267476AbUH1RTI
+	id S266741AbUH1RdJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 13:33:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267344AbUH1RdJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 13:19:08 -0400
-Received: from fw.osdl.org ([65.172.181.6]:62085 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266674AbUH1RTD (ORCPT
+	Sat, 28 Aug 2004 13:33:09 -0400
+Received: from gl177a.glassen.ac ([82.182.223.101]:47111 "HELO findus.dhs.org")
+	by vger.kernel.org with SMTP id S266741AbUH1RdF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 13:19:03 -0400
-Date: Sat, 28 Aug 2004 10:18:44 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Alexander Lyamin <flx@msu.ru>
-cc: Christoph Hellwig <hch@lst.de>, Christophe Saout <christophe@saout.de>,
-       Andrew Morton <akpm@osdl.org>, Hans Reiser <reiser@namesys.com>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       flx@namesys.com, reiserfs-list@namesys.com
-Subject: Re:  reiser4 plugins (was: silent semantic changes with reiser4)
-In-Reply-To: <20040828105929.GB6746@alias>
-Message-ID: <Pine.LNX.4.58.0408281011280.2295@ppc970.osdl.org>
-References: <412CEE38.1080707@namesys.com> <20040825152805.45a1ce64.akpm@osdl.org>
- <412D9FE6.9050307@namesys.com> <20040826014542.4bfe7cc3.akpm@osdl.org>
- <1093522729.9004.40.camel@leto.cs.pocnet.net> <20040826124929.GA542@lst.de>
- <1093525234.9004.55.camel@leto.cs.pocnet.net> <20040826130718.GB820@lst.de>
- <1093526273.11694.8.camel@leto.cs.pocnet.net> <20040826132439.GA1188@lst.de>
- <20040828105929.GB6746@alias>
+	Sat, 28 Aug 2004 13:33:05 -0400
+Message-ID: <4130C1D1.7000404@findus.dhs.org>
+Date: Sat, 28 Aug 2004 19:33:05 +0200
+From: =?ISO-8859-1?Q?Petter_Sundl=F6f?= <petter.sundlof@findus.dhs.org>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040825)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andi Kleen <ak@muc.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Voluntary Preempt P9 againstclean  2.6.8.1 -- on AMD64, compile
+ failure
+References: <2xSys-7h8-11@gated-at.bofh.it> <m3vff3cqz9.fsf@averell.firstfloor.org>
+In-Reply-To: <m3vff3cqz9.fsf@averell.firstfloor.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Tree was clean.
 
-
-On Sat, 28 Aug 2004, Alexander Lyamin wrote:
+Andi Kleen wrote:
+> Petter Sundlöf <petter.sundlof@findus.dhs.org> writes:
 > 
-> VFS never was "an integral part" of ANY filesystem. my dog knows it.
-
-That's not really true.
-
-Name handling (dentry layer, mounting) is very much an integral part of
-the filesystem. Almost everything else in the VFS is "helper functions",
-ie a filesystem can choose to ignore buffer heads, page cache etc, but a 
-filesystem really cannot ignore or override the VFS naming stuff.
-
-(Arguably the page cache isn't part of the VFS layer at all, it's really a 
-memory management thing, although it's so intertwined with the VFS helper 
-functions that you can't really draw the line).
-
-> its just unified INTERFACE TO any filesystem (including reiser4).
-
-True, but that's not the whole truth. It's way more than just an
-interface. It's a set of rules, and it's in many way the controlling
-party.
-
-		Linus
+> 
+>>On Debian-AMD64
+>>Applied
+>>http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8.1-P9
+>>to a clean 2.6.8.1 (simply copied over my old .config). Patching went
+>>fine. Using gcc 3.3.4.
+> 
+> 
+> 
+> Looks like your tree is broken. Download a fresh tarball.
+> I tried to compile your configuration and it worked just fine.
+> 
+> -Andi
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,40 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261678AbTFJWgF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 18:36:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261710AbTFJWgF
+	id S261564AbTFJWtL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 18:49:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261568AbTFJWtL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 18:36:05 -0400
-Received: from deviant.impure.org.uk ([195.82.120.238]:2502 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id S261678AbTFJWgD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 18:36:03 -0400
-Date: Tue, 10 Jun 2003 23:49:35 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Nathan Conrad <conrad@bungled.net>
-Cc: Oleg Drokin <green@namesys.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ext3 / reiserfs data corruption, 2.5-bk
-Message-ID: <20030610224935.GC29407@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Nathan Conrad <conrad@bungled.net>, Oleg Drokin <green@namesys.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20030609193541.GA21106@suse.de> <20030610084323.GA16435@namesys.com> <20030610214436.GA6719@bungled.net>
+	Tue, 10 Jun 2003 18:49:11 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:26837 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261564AbTFJWtI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jun 2003 18:49:08 -0400
+Date: Tue, 10 Jun 2003 16:03:18 -0700
+From: Dave Olien <dmo@osdl.org>
+To: Steven Cole <elenstev@mesatop.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] sparse type checking on function pointers
+Message-ID: <20030610230318.GA10106@osdl.org>
+References: <20030610212404.GA25410@osdl.org> <1055284400.2269.56.camel@spc9.esa.lanl.gov>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030610214436.GA6719@bungled.net>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <1055284400.2269.56.camel@spc9.esa.lanl.gov>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 10, 2003 at 05:44:36PM -0400, Nathan Conrad wrote:
- > I've been noticing a similar problem on my laptop. This may, or may
- > not be related, but it did start somewhere within the past week (maybe
- > the IDE taskfile conversion???, to throw out a guess). I wonder if
- > Dave Jones is using IDE or SCSI.
+On Tue, Jun 10, 2003 at 04:33:20PM -0600, Steven Cole wrote:
+>
+> That reduced the number of that kind of warning significantly.
+> 
 
-IDE. I'm too cheap to buy SCSI.
+Thanks! I'm still kind of groping my way through the code, fixing
+these warnings as a motivator to keep me working my way through it.
 
-		Dave
+> 
+> Now, if only Linus would change this:
+> 
+> CHECK           = /home/torvalds/parser/check
+> 
+> to something more reasonable like
+> 
+> CHECK           = /usr/local/bin/check
+> 
+> Steven
+> 
 
+I assume Linus has done this because the sparse library is still
+a prototype, and the "check" binary is not really the intended end point
+but just a simple front-end to invoke the library to test it.
+
+I find it really easy to just over-ride this on the make command line:
+
+	make CHECK=/dmo_local/BK_TREES/sparse_original/check C=1
+
+This makes it easy for me to test different versions of the library as
+I'm making modifications either to fix a problem, or to put debug statements
+into the source code to undestand it.
+
+Combine this with a good shell that supports history editing, and it's
+not really a big problem.
+
+Dave

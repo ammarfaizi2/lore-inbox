@@ -1,49 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311264AbSDSGLb>; Fri, 19 Apr 2002 02:11:31 -0400
+	id <S311180AbSDSGfB>; Fri, 19 Apr 2002 02:35:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311575AbSDSGLa>; Fri, 19 Apr 2002 02:11:30 -0400
-Received: from smtp2.san.rr.com ([24.25.195.39]:21955 "EHLO smtp2.san.rr.com")
-	by vger.kernel.org with ESMTP id <S311264AbSDSGLa>;
-	Fri, 19 Apr 2002 02:11:30 -0400
-Subject: Re: [linux-usb-devel] Re: [BK PATCH] USB device support for
-	2.5.8(take 2)
-From: George J Karabin <gkarabin@pobox.com>
-To: Oliver Neukum <oliver@neukum.name>
-Cc: Greg KH <greg@kroah.com>, Linus Torvalds <torvalds@transmeta.com>,
-        David Brownell <david-b@pacbell.net>,
-        linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <16yRDq-2G4UamC@fmrl04.sul.t-online.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-3) 
-Date: 18 Apr 2002 23:11:22 -0700
-Message-Id: <1019196683.1733.34.camel@pane.chasm.dyndns.org>
-Mime-Version: 1.0
+	id <S311575AbSDSGfA>; Fri, 19 Apr 2002 02:35:00 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:25575 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S311180AbSDSGfA>;
+	Fri, 19 Apr 2002 02:35:00 -0400
+Date: Fri, 19 Apr 2002 06:31:15 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: mingo@elte.hu
+To: Erich Focht <efocht@ess.nec.de>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] migration thread fix
+In-Reply-To: <Pine.LNX.4.44.0204182043110.2453-100000@beast.local>
+Message-ID: <Pine.LNX.4.44.0204190629360.3799-100000@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-04-18 at 22:46, Oliver Neukum wrote:
-> Too short a difference. You easily skip it reading and there's a chance of typos.
-> Furthermore the first latter should differ for tab completion.
-> Target is actually quite good a name. It makes clear that there's only
-> one initiator of transactions on USB.
 
-Those are good points. The shortcomings you mentioned are solved easily
-enough, although the solutions that come to mind may not sound much
-better either. 
+On Thu, 18 Apr 2002, Erich Focht wrote:
 
-Easy tab completion could be provided using prefixes instead of
-suffixes, like l and lh for lhusb and husb. Alternately, you could use
-the long forms localusb, local-usb, or local_usb, or hostusb, host-usb,
-or host_usb, taking care of the "too short a difference" concern. I'm
-not sure these solutions are any better.
+> The patch below applies to the 2.5.8 kernel. It does two things:
+> 
+> 1: Fixes a BUG in the migration threads: the interrupts MUST be disabled
+> before the double runqueue lock is aquired, otherwise this thing will
+> deadlock sometimes.
+> 
+> 2: Streamlines the initialization of migration threads. Instead of
+> fiddling around with cache_deccay_ticks, waiting for migration_mask bits
+> and relying on the scheduler to distribute the tasks uniformly among
+> processors, it starts the migration thread on the boot cpu and uses it
+> to reliably distribute the other threads to their target cpus.
+> 
+> Please consider applying it!
 
-That said, target or client or anything else distinctive sounds fine
-too. I'm just partial to the spec-derived-naming idea. (Although I
-really wish the USB spec folks could have come up with two names that
-were more descriptively different...)
+looks perfectly good to me. Even with wli's patch i saw some migration
+thread initialization weirdnesses.
 
-- George
-
+	Ingo
 

@@ -1,58 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261613AbUAIOPA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jan 2004 09:15:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261731AbUAIOPA
+	id S261606AbUAIOOS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jan 2004 09:14:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261613AbUAIOOS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jan 2004 09:15:00 -0500
-Received: from macvin.cri2000.ens-lyon.fr ([140.77.13.138]:33484 "EHLO macvin")
-	by vger.kernel.org with ESMTP id S261613AbUAIOO5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jan 2004 09:14:57 -0500
-Date: Fri, 9 Jan 2004 15:14:55 +0100
-From: Brice Goglin <Brice.Goglin@ens-lyon.fr>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.1 make menuconfig error
-Message-ID: <20040109141455.GJ4485@ens-lyon.fr>
+	Fri, 9 Jan 2004 09:14:18 -0500
+Received: from pentafluge.infradead.org ([213.86.99.235]:11136 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261606AbUAIOOR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jan 2004 09:14:17 -0500
+Subject: Re: New FBDev patch
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andreas Theofilu <noreply@TheosSoft.net>
+Cc: James Simmons <jsimmons@infradead.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040109112733.EB14228003@chello062178157104.9.14.vie.surfer.at>
+References: <1bRBM-5lD-13@gated-at.bofh.it> <1bSRe-19C-21@gated-at.bofh.it>
+	 <20040109112733.EB14228003@chello062178157104.9.14.vie.surfer.at>
+Content-Type: text/plain
+Message-Id: <1073657453.795.10.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-X-Operating-System: Linux 2.6.0 i686
-Organization: Ecole Normale Superieure de Lyon
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sat, 10 Jan 2004 01:10:53 +1100
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, 2004-01-09 at 22:27, Andreas Theofilu wrote:
+> James Simmons wrote:
+> 
+> > 
+> > 
+> > Try it again. I missed a patch for the radeon.
+> > 
+> This is what happens here:
 
-When configuring 2.6.1 with make menuconfig,
-if I choose not to save my configuration changes,
-I get this error:
+Looks like James cloned my tree right at the wrong time :)
 
+This is fixed in the current one. In the meantime, change
+"rom" with "rom_base"
 
-puligny:~/build/linux-2.6.1% make menuconfig
-make[1]: scripts/fixdep' is up to date.
-scripts/kconfig/mconf arch/i386/Kconfig
-#
-# using defaults found in .config
-#
-
-
-Your kernel configuration changes were NOT saved.
-
-make[1]: *** [menuconfig] Error 1
-make: *** [menuconfig] Error 2
-puligny:~/build/linux-2.6.1%
+Ben.
 
 
-2.6.0 does not show such two error lines.
-
-Best regards.
--- 
-Brice Goglin
-================================================
-Ph.D Student
-Laboratoire de l'Informatique et du Parallélisme
-CNRS-INRIA-ENS Lyon
-France

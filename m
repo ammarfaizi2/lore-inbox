@@ -1,68 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316567AbSGIBXA>; Mon, 8 Jul 2002 21:23:00 -0400
+	id <S316614AbSGIBoA>; Mon, 8 Jul 2002 21:44:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316614AbSGIBW7>; Mon, 8 Jul 2002 21:22:59 -0400
-Received: from jalon.able.es ([212.97.163.2]:60319 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S316567AbSGIBW6>;
-	Mon, 8 Jul 2002 21:22:58 -0400
-Date: Tue, 9 Jul 2002 03:25:34 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: rwhron@earthlink.net
-Cc: andrea@suse.de, jamagallon@able.es, linux-kernel@vger.kernel.org,
-       lse-tech@lists.sourceforge.net
-Subject: Re: pipe and af/unix latency differences between aa and jam on smp
-Message-ID: <20020709012534.GE1835@werewolf.able.es>
-References: <20020709005901.GA9616@rushmore>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20020709005901.GA9616@rushmore>; from rwhron@earthlink.net on Tue, Jul 09, 2002 at 02:59:01 +0200
-X-Mailer: Balsa 1.3.6
+	id <S316663AbSGIBn7>; Mon, 8 Jul 2002 21:43:59 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:53128 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S316614AbSGIBn6>;
+	Mon, 8 Jul 2002 21:43:58 -0400
+Message-Id: <200207090146.g691kD429646@eng4.beaverton.ibm.com>
+To: Greg KH <greg@kroah.com>
+cc: Dave Hansen <haveblue@us.ibm.com>,
+       Thunder from the hill <thunder@ngforever.de>,
+       kernel-janitor-discuss 
+	<kernel-janitor-discuss@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: BKL removal 
+In-reply-to: Your message of "Sun, 07 Jul 2002 19:12:29 PDT."
+             <20020708021228.GA19336@kroah.com> 
+Date: Mon, 08 Jul 2002 18:46:12 -0700
+From: Rick Lindsley <ricklind@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+    So you agree with me?  Good.  I know you think the code is better
+    than it was before, but beauty is in the eye of the beholder, or in
+    this case, the eye of the people that fully understand the code :)
 
-On 2002.07.09 rwhron@earthlink.net wrote:
->The -jam patchset is interesting because it starts out
->with the entire -aa patchset and adds a few things.
->
->Sometimes small differences in LMbench between -jam and -aa are 
->just CPU bounces on SMP.  The difference for pipe and af/unix latency
->only appears on SMP too, but it is very consistent.  (My k6/2
->has small differences between -aa and -jam for pipe and af/unix
->latency).
->
->You will know better what could make the difference:
->
->This is the averages:
->
->*Local* Communication latencies in microseconds - smaller is better
->-------------------------------------------------------------------
->kernel              Pipe    AF/Unix
->-----------------  -------  -------
->2.4.19-pre10-aa4    33.941   70.216
->2.4.19-pre10-jam2    7.877   16.699
->
+The problem is, of course, that to responsibly use the BKL, you must
+fully understand ALL the code that utilizes it, so that you know your
+new use of it doesn't conflict or interfere with existing code and
+usage.  That's the same problem we have when it DOES show contention --
+is the problem in the functions which can't grab it (for trying
+unnecessarily), or in the functions that can (for holding it
+unnecessarily)?
 
-I took a look at your numbers:
+If you are the person who understands the BKL in all its usages
+throughout the kernel, then thankfully, our search is over.  We've been
+looking for you to help resolve some of these discussions.  If you
+aren't that person, though, then you can't accurately say your use of
+it doesn't affect anybody else adversely.  All you can assert is that
+in your corner of the kernel, *you* use it for X, Y, and Z and they
+don't interact poorly with each other.
 
-*Local* Communication latencies in microseconds - smaller is better
--------------------------------------------------------------------
-kernel                          Pipe    AF/Unix    UDP    RPC/UDP    TCP    RPC/TCP  TCPconn
------------------------------  -------  -------  -------  -------  -------  -------  -------
-2.4.19-pre7-jam6                29.513   42.369  58.6165  60.7792  50.2572  82.4976   87.321
-2.4.19-pre8-jam2                 7.697   15.274  59.6730  60.8190   55.276  82.1297   89.416
-2.4.19-pre8-jam2-nowuos          7.739   14.929  57.9326  60.5497  55.9745  81.8908   90.370
+With a narrowly defined and used lock, it is much less difficult to
+determine who uses it, what it is guarding, and what impact yet another
+use of it will have.  With the BKL (and a few other poorly documented
+locks which have recently been cleaned up) nobody has had a hope of
+understanding the interactions.
 
-(last line says that wake-up-sync is not responsible...)
+    If nothing else, I hope you will think twice before sending off
+    your next BKL removel patch in a subsystem that you haven't fully
+    tested or understood.  That's the point I keep trying to get across
+    here.
 
-Main changes between first two were irqbalance and ide6->ide10.
+So can you define for me under what conditions the BKL is appropriate
+to use?  Removing it from legitimate uses would be bad, of course, but
+part of the problem here is that it's currently used for a variety of
+unrelated purposes.
 
-
--- 
-J.A. Magallon             \   Software is like sex: It's better when it's free
-mailto:jamagallon@able.es  \                    -- Linus Torvalds, FSF T-shirt
-Linux werewolf 2.4.19-rc1-jam2, Mandrake Linux 8.3 (Cooker) for i586
-gcc (GCC) 3.1.1 (Mandrake Linux 8.3 3.1.1-0.7mdk)
+Rick

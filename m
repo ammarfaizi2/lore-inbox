@@ -1,50 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129523AbQKBQUa>; Thu, 2 Nov 2000 11:20:30 -0500
+	id <S131527AbQKBQXk>; Thu, 2 Nov 2000 11:23:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131527AbQKBQUU>; Thu, 2 Nov 2000 11:20:20 -0500
-Received: from Prins.externet.hu ([212.40.96.161]:57348 "EHLO
-	prins.externet.hu") by vger.kernel.org with ESMTP
-	id <S129523AbQKBQUM>; Thu, 2 Nov 2000 11:20:12 -0500
-Date: Thu, 2 Nov 2000 17:20:07 +0100 (CET)
-From: Narancs 1 <narancs1@externet.hu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: so vesafb doesn't work in i815
-In-Reply-To: <E13rLJT-0001b2-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.02.10011021714550.9875-100000@prins.externet.hu>
+	id <S132224AbQKBQXa>; Thu, 2 Nov 2000 11:23:30 -0500
+Received: from c90610-a.alton1.il.home.com ([24.11.42.157]:64271 "EHLO
+	www.linuxnet") by vger.kernel.org with ESMTP id <S131527AbQKBQXM>;
+	Thu, 2 Nov 2000 11:23:12 -0500
+Date: Thu, 2 Nov 2000 10:22:22 -0600 (CST)
+From: matthew <matthew@mattshouse.com>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Christoph Rohland <cr@sap.com>,
+        Jonathan George <Jonathan.George@trcinc.com>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.0-test10 Sluggish After Load
+In-Reply-To: <Pine.LNX.4.21.0011021152310.15168-100000@duckman.distro.conectiva>
+Message-ID: <Pine.LNX.4.21.0011021016120.12598-100000@matthew.linuxnet>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2 Nov 2000, Alan Cox wrote:
+On Thu, 2 Nov 2000, Rik van Riel wrote:
 
-> > It seems that the i815 is not vesa compliant?
-> > Cheap!
+> > > Of course, this also depends on the amount of people willing
+> > > to test out new VM patches and/or help with development.
+> > 
+> > As you know I am doing regular thrash tests and I am willing to do
+> > this further. I would hate to see a customer go down because his
+> > machine becomes unusable. IMHO we should try to fix this during 2.4.
 > 
-> The i810 hardware only has limited support for old style linear video modes
-> so that is quite possible.
-> 
+> Agreed. Also, we don't have to have the thrashing control
+> be too friendly, as long as it is effective and simple ;)
 
-Wow! So then I just cannot use this motherboard at all!
-xfree 3.3.6 , also with the driver that can be downloaded from intel - I
-could run it only at 320x200x4.
-xfree 4.0.1d supports it, but the screen flicker so hard, that is is
-unusable. 
-Now there is no fb support for it. If they sell a vga card that is not
-vesa compliant, they are crazy.
 
-I am angry with intel!
-And my bosses, who decided to buy 1500 pcs of this IBM Netvista :-(((
+Here's an update.  I never lost control of the machine, so after about 24
+hours I decided to try to fix it without the use of the Big Red
+Switch.  There were still > 1000 connections showing, and pstools were
+unresponsive, so I did:
 
-Anyway, I'll have to buy a vga card on my own, if I want to use linux.
+ls /proc > killscript
+added "kill -9" to the beginning and "\" to the end of each line,
+ran it as the database user.  It worked pretty well.  After about 5
+minutes it killed all of the oracle processes and the machine appeared to
+have returned to normal.  I've since installed Oracle 81610 and everything
+looks good.
 
-2.4.0-test10 seems to be really fine and stable to me!
-Thx for your great work guys!
+Matthew
 
-10x4all
-Narancs v1
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

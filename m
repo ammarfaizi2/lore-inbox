@@ -1,102 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262215AbSLORcD>; Sun, 15 Dec 2002 12:32:03 -0500
+	id <S262224AbSLORcK>; Sun, 15 Dec 2002 12:32:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262224AbSLORcD>; Sun, 15 Dec 2002 12:32:03 -0500
-Received: from port48.ds1-vbr.adsl.cybercity.dk ([212.242.58.113]:18002 "EHLO
-	brian.localnet") by vger.kernel.org with ESMTP id <S262215AbSLORcB>;
-	Sun, 15 Dec 2002 12:32:01 -0500
-To: alan@redhat.com, linus@transmeta.com
-Subject: [PATCH 2.4] Titan pci serial card recognition fix
-Cc: linux-kernel@vger.kernel.org
-Message-Id: <E18Ncjo-000152-00@brian.localnet>
-From: Brian Murphy <brm@murphy.dk>
-Date: Sun, 15 Dec 2002 18:39:36 +0100
+	id <S262258AbSLORcK>; Sun, 15 Dec 2002 12:32:10 -0500
+Received: from smtp-server3.tampabay.rr.com ([65.32.1.41]:18841 "EHLO
+	smtp-server3.tampabay.rr.com") by vger.kernel.org with ESMTP
+	id <S262224AbSLORcJ>; Sun, 15 Dec 2002 12:32:09 -0500
+From: "Scott Robert Ladd" <scott@coyotegulch.com>
+To: "Dave Jones" <davej@codemonkey.org.uk>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Kernel for Pentium 4 hyperthreading?
+Date: Sun, 15 Dec 2002 12:40:59 -0500
+Message-ID: <FKEAJLBKJCGBDJJIPJLJGEIHDLAA.scott@coyotegulch.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <20021215155728.GB20335@suse.de>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes an error in the pci recognition table which
-means that otherwise supportes Titan pci serial cards fail to
-work.
+Dave Jones wrote:
+> Ah, apologies. Yes. In this case, you win. I bit the same problem you
+> had btw with this box in 2.4. You need an updated BIOS. Contact Intel.
 
-This is the same as I just posted for the 2.5 kernel.
+I'll ask Intel if there's a BIOS update. Computers are almost as bad as
+games now; the first thing you need to do before using them is patch!
 
-/Brian
+What evokes my curiosity is that the 2.5.51 kernel detects and correctly
+uses the processor siblings, while 2.4.20 does not. Given that 2.5.51 is
+running quite well, I think I'll just stay on the bleeding edge of Linux for
+a while.
 
---- drivers/char/serial.c	2002-12-15 18:21:15.000000000 +0100
-+++ drivers/char/serial.c	2002-12-15 17:00:41.000000000 +0100
-@@ -473,6 +473,7 @@
- 	pbn_b1_4_115200,
- 	pbn_b1_8_115200,
- 
-+	pbn_b1_1_921600,
- 	pbn_b1_2_921600,
- 	pbn_b1_4_921600,
- 	pbn_b1_8_921600,
-@@ -481,6 +482,8 @@
- 	pbn_b1_4_1382400,
- 	pbn_b1_8_1382400,
- 
-+	pbn_b1_bt_2_921600,
-+
- 	pbn_b2_1_115200,
- 	pbn_b2_8_115200,
- 	pbn_b2_4_460800,
-@@ -494,6 +497,9 @@
- 	pbn_b2_bt_4_115200,
- 	pbn_b2_bt_2_921600,
- 
-+	pbn_bt_4_921600,
-+	pbn_bt_8_921600,
-+
- 	pbn_panacom,
- 	pbn_panacom2,
- 	pbn_panacom4,
-@@ -553,6 +559,7 @@
- 	{ SPCI_FL_BASE1, 4, 115200 },		/* pbn_b1_4_115200 */
- 	{ SPCI_FL_BASE1, 8, 115200 },		/* pbn_b1_8_115200 */
- 
-+	{ SPCI_FL_BASE1, 1, 921600 },		/* pbn_b1_1_921600 */
- 	{ SPCI_FL_BASE1, 2, 921600 },		/* pbn_b1_2_921600 */
- 	{ SPCI_FL_BASE1, 4, 921600 },		/* pbn_b1_4_921600 */
- 	{ SPCI_FL_BASE1, 8, 921600 },		/* pbn_b1_8_921600 */
-@@ -561,6 +568,7 @@
- 	{ SPCI_FL_BASE1, 4, 1382400 },		/* pbn_b1_4_1382400 */
- 	{ SPCI_FL_BASE1, 8, 1382400 },		/* pbn_b1_8_1382400 */
- 
-+	{ SPCI_FL_BASE1 | SPCI_FL_BASE_TABLE, 2, 921600 }, /* pbn_b1_bt_2_921600 */
- 	{ SPCI_FL_BASE2, 1, 115200 },		/* pbn_b2_1_115200 */
- 	{ SPCI_FL_BASE2, 8, 115200 },		/* pbn_b2_8_115200 */
- 	{ SPCI_FL_BASE2, 4, 460800 },		/* pbn_b2_4_460800 */
-@@ -574,6 +582,9 @@
- 	{ SPCI_FL_BASE2 | SPCI_FL_BASE_TABLE, 4, 115200 }, /* pbn_b2_bt_4_115200 */
- 	{ SPCI_FL_BASE2 | SPCI_FL_BASE_TABLE, 2, 921600 }, /* pbn_b2_bt_2_921600 */
- 
-+	{ SPCI_FL_BASE_TABLE, 4, 921600 },		/* pbn_bt_4_921600 */
-+	{ SPCI_FL_BASE_TABLE, 8, 921600 },		/* pbn_bt_8_921600 */
-+
- 	{ SPCI_FL_BASE2, 2, 921600, /* IOMEM */		   /* pbn_panacom */
- 		0x400, 7, pci_plx9050_fn },
- 	{ SPCI_FL_BASE2 | SPCI_FL_BASE_TABLE, 2, 921600,   /* pbn_panacom2 */
-@@ -1000,17 +1011,17 @@
- 		pbn_b0_4_921600 },
- 	{	PCI_VENDOR_ID_TITAN, PCI_DEVICE_ID_TITAN_100L,
- 		PCI_ANY_ID, PCI_ANY_ID,
--		SPCI_FL_BASE1, 1, 921600 },
-+		pbn_b1_1_921600 },
- 	{	PCI_VENDOR_ID_TITAN, PCI_DEVICE_ID_TITAN_200L,
- 		PCI_ANY_ID, PCI_ANY_ID,
--		SPCI_FL_BASE1 | SPCI_FL_BASE_TABLE, 2, 921600 },
-+		pbn_b1_bt_2_921600 },
- 	/* The 400L and 800L have a custom hack in get_pci_port */
- 	{	PCI_VENDOR_ID_TITAN, PCI_DEVICE_ID_TITAN_400L,
- 		PCI_ANY_ID, PCI_ANY_ID,
--		SPCI_FL_BASE_TABLE, 4, 921600 },
-+		pbn_bt_4_921600 },
- 	{	PCI_VENDOR_ID_TITAN, PCI_DEVICE_ID_TITAN_800L,
- 		PCI_ANY_ID, PCI_ANY_ID,
--		SPCI_FL_BASE_TABLE, 8, 921600 },
-+		pbn_bt_8_921600 },
- 
- 	{	PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_1S_10x_550,
- 		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+..Scott
+
+--
+Scott Robert Ladd
+Coyote Gulch Productions,  http://www.coyotegulch.com
+No ads -- just very free (and somewhat unusual) code.
+

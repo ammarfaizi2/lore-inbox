@@ -1,42 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267472AbUBSSbZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 13:31:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267469AbUBSSbZ
+	id S267470AbUBSSaz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 13:30:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267466AbUBSSaz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 13:31:25 -0500
-Received: from viper.first4it.co.uk ([212.69.243.52]:23738 "HELO
-	viper.first4it.co.uk") by vger.kernel.org with SMTP id S267472AbUBSSan
+	Thu, 19 Feb 2004 13:30:55 -0500
+Received: from mail.shareable.org ([81.29.64.88]:14464 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S267470AbUBSS3y
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 13:30:43 -0500
-Message-ID: <403500DA.3060906@ihateaol.co.uk>
-Date: Thu, 19 Feb 2004 18:30:50 +0000
-From: Kieran <kieran@ihateaol.co.uk>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: proc_pid_stat crashes in 2.6.2 (was 2.6.0-test11: Crash in ps
- axH)
-References: <20040219182329.GA10868@vana.vc.cvut.cz>
-In-Reply-To: <20040219182329.GA10868@vana.vc.cvut.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 19 Feb 2004 13:29:54 -0500
+Date: Thu, 19 Feb 2004 18:29:48 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: tridge@samba.org, "H. Peter Anvin" <hpa@zytor.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: UTF-8 and case-insensitivity
+Message-ID: <20040219182948.GA3414@mail.shareable.org>
+References: <Pine.LNX.4.58.0402181422180.2686@home.osdl.org> <Pine.LNX.4.58.0402181427230.2686@home.osdl.org> <16435.60448.70856.791580@samba.org> <Pine.LNX.4.58.0402181457470.18038@home.osdl.org> <16435.61622.732939.135127@samba.org> <Pine.LNX.4.58.0402181511420.18038@home.osdl.org> <20040219081027.GB4113@mail.shareable.org> <Pine.LNX.4.58.0402190759550.1222@ppc970.osdl.org> <20040219163838.GC2308@mail.shareable.org> <Pine.LNX.4.58.0402190853500.1222@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0402190853500.1222@ppc970.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hi,
->   I already reported this crash twice on 2.6.0-test11, and now I
-> reproduced it on something more fresh - on 2.6.2-bk-something like it
-> was actual on Feb 4. It is really annoying, as any user can do 'ps axH'
-> and crash system after some uptime :-( Crash is identical to one
-> I got with 2.6.0-test11, so it looks like that I'll have to go back
-> to 2.4.x on publicly accessible machines. After about 14 days uptime. 
+Linus Torvalds wrote:
+> > > For example, the rule can be that _any_ regular dentry create will 
+> > > invalidate all the "case-insensitive" dentries. Just to be simple about 
+> > > it.
+> > 
+> > If that's the rule, then with exactly the same algorithmic efficiency,
+> > readdir+dnotify can be used to maintain the cache in userspace
+> > instead.  There is nothing gained by using the helper module in that case.
 > 
->   I've got no replies to previous reports.
->   						Thanks,
-> 							Petr Vandrovec
-> 							vandrove@vc.cvut.cz
+> Wrong.
+> Because the dnotify would trigger EVEN FOR SAMBA OPERATIONS.
 
-what version of procps?
+Ah, I didn't know you meant "_any_ regular dentry create (except for
+Samba operations)".
+
+To apply that rule, you either need alternate versions of rename() and
+other file syscalls, or something akin to a process-specific flag (set
+by the helper module) saying that this is a Samba process and dentry
+creation _by this process_ shouldn't invalidate case-insensitive
+dentries.
+
+And if you have either of those, the bit of code which says "don't
+invalidate case-insenitive dentries because this is a Samba process"
+can just as easily say "don't send dnotify events to the current
+process".
+
+And once you've done that, it's easier just to add a DN_IGNORE_SELF
+flag to dnotify meaning to ignore events caused by the current
+process, and forget about the helper module.  That'd be useful for
+other programs, too.
+
+-- Jamie

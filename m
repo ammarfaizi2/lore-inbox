@@ -1,45 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267624AbUHJSVU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267578AbUHJSVT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267624AbUHJSVU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 14:21:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267652AbUHJSRj
+	id S267578AbUHJSVT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 14:21:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267631AbUHJSRS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 14:17:39 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:54930 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S267651AbUHJSP5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 14:15:57 -0400
-Date: Tue, 10 Aug 2004 14:10:00 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Kai Militzer <km@westend.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: uhci-hcd oops with 2.4.27/ intel D845GLVA
-Message-ID: <20040810171000.GC12702@logos.cnet>
-References: <1092142777.1042.30.camel@bart.intern>
+	Tue, 10 Aug 2004 14:17:18 -0400
+Received: from mail.kroah.org ([69.55.234.183]:3041 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S267652AbUHJSQH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 14:16:07 -0400
+Date: Tue, 10 Aug 2004 09:40:31 -0700
+From: Greg KH <greg@kroah.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: dsaxena@plexity.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.6] Remove spaces from PCI IDE pci_driver.name field
+Message-ID: <20040810164031.GB31655@kroah.com>
+References: <20040810001316.GA7292@plexity.net> <1092096699.14934.4.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1092142777.1042.30.camel@bart.intern>
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <1092096699.14934.4.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 10, 2004 at 02:59:37PM +0200, Kai Militzer wrote:
-> Hello everyone!
+On Tue, Aug 10, 2004 at 01:11:42AM +0100, Alan Cox wrote:
+> On Maw, 2004-08-10 at 01:13, Deepak Saxena wrote:
+> > Spaces in driver names show up as spaces in sysfs. Annoying.  
+> > I went ahead and changed ones that don't have spaces to use
+> > ${NAME}_IDE so they are all consistent.
 > 
-> > I unable to boot due to a kernel oops on my D845GLVA.  This 
-> > worked fine in 2.4.26, but with the same (well, except for the 
-> > new features) config 2.4.27 does not.
-> 
-> I've got the same problem here. Did an make oldconfig from a 2.4.26 
-> config, booted and the systems made an oops.
-> 
-> Problem is, that the system is production and I can't test, where the 
-> problem is in special. We had two reboots already and even that is 
-> nearly too much.
+> I don't see the problem with spaces in the filenames. I do see the 
+> problem in changing stuff under people for now reason other than
+> "I don't like it".
 
-Kai,
+We tried to keep spaces out of device and driver names from the very
+beginning, in 2.5 during the conversion to the driver model, due to the
+confusion it caused people.  It seems that a few have snuck back in.
+I'm all for consistancy, so I'll apply these patches.
 
-Can you please post the oops message? 
+thanks,
 
-Thats the only way we can try fix it.
+greg k-h

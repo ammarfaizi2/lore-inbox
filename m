@@ -1,50 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284899AbRLPXLr>; Sun, 16 Dec 2001 18:11:47 -0500
+	id <S284914AbRLPX0S>; Sun, 16 Dec 2001 18:26:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284906AbRLPXLh>; Sun, 16 Dec 2001 18:11:37 -0500
-Received: from ns01.netrox.net ([64.118.231.130]:37074 "EHLO smtp01.netrox.net")
-	by vger.kernel.org with ESMTP id <S284899AbRLPXL0> convert rfc822-to-8bit;
-	Sun, 16 Dec 2001 18:11:26 -0500
+	id <S284916AbRLPX0I>; Sun, 16 Dec 2001 18:26:08 -0500
+Received: from 217-126-161-163.uc.nombres.ttd.es ([217.126.161.163]:60544 "EHLO
+	DervishD.viadomus.com") by vger.kernel.org with ESMTP
+	id <S284914AbRLPXZx>; Sun, 16 Dec 2001 18:25:53 -0500
+To: adam@tabris.net, raul@viadomus.com, rml@tech9.net
 Subject: Re: Is /dev/shm needed?
-From: Robert Love <rml@tech9.net>
-To: =?ISO-8859-1?Q?Ra=FAl_N=FA=F1ez?= de Arenas Coronado 
-	<raul@viadomus.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E16FkV9-00010E-00@DervishD.viadomus.com>
-In-Reply-To: <E16FkV9-00010E-00@DervishD.viadomus.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Evolution/1.0.0.99+cvs.2001.12.10.08.57 (Preview Release)
-Date: 16 Dec 2001 18:12:04 -0500
-Message-Id: <1008544328.843.0.camel@phantasy>
-Mime-Version: 1.0
+Message-Id: <E16Fkqc-0001Z0-00@DervishD.viadomus.com>
+Date: Mon, 17 Dec 2001 00:37:34 +0100
+From: =?ISO-8859-1?Q?Ra=FAl?= =?ISO-8859-1?Q?N=FA=F1ez?= de Arenas
+	 Coronado <raul@viadomus.com>
+Reply-To: =?ISO-8859-1?Q?Ra=FAl?= =?ISO-8859-1?Q?N=FA=F1ez?= de Arenas
+	   Coronado <raul@viadomus.com>
+X-Mailer: DervishD TWiSTiNG Mailer
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2001-12-16 at 18:15, Raúl Núñez de Arenas Coronado wrote:
->     Hello Robert :)
-> 
-> >It is not needed.  /dev/shm mounted with tmpfs is only needed for POSIX
-> >shared memory, which is still fairly rare.
->
->     That this means that I can mount more than one 'tmpfs' just like
-> if it's a *real* filesystem? I wasn't sure, since it's implemented
-> thru the page cache.
+    Hello Adam :))
 
-Yes, you can mount as many as you like.
+>> have lots of memory to spare, give it a try.  Mount /tmp or all of /var
+>> in tmpfs.
+>Unfortunately, some(many?) distros are b0rken in re /var/. There is
+>stuff put there that is needed across boots (for example, mandrake
+>puts the DNS master files in /var/named.)
 
-> >It is dynamic, so you don't need to specify a size.
-> 
->     Yes, I knew, I meant the maximum size. I don't want half of the
-> RAM occupied just by a programming mistake ;)))
+    Moreover, didn't the LHS say that /var/tmp is supposed to be
+maintained across reboots? I'm not sure about this, but anyway /var
+is supposed to hold temporary data, not boot-throwable data, isn't
+it?
 
-Ah, right.  Set the size to the minimum of the most RAM you can spare
-and the biggest size of your tmp.  You can also specify max inode
-entries, but size is probably best here.  You can pass "size=32m" or
-whatever as an option.
-
-See Documentation/filesystems/tmpfs.txt for more information.
-
-	Robert Love
-
+    Raúl

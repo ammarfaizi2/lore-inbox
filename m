@@ -1,39 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267221AbRGYXSu>; Wed, 25 Jul 2001 19:18:50 -0400
+	id <S267390AbRGYXVa>; Wed, 25 Jul 2001 19:21:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267390AbRGYXSk>; Wed, 25 Jul 2001 19:18:40 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:51721 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267221AbRGYXSd>; Wed, 25 Jul 2001 19:18:33 -0400
-Date: Wed, 25 Jul 2001 16:16:32 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Richard Gooch <rgooch@ras.ucalgary.ca>,
-        Chris Friesen <cfriesen@nortelnetworks.com>,
-        Jeff Dike <jdike@karaya.com>,
-        user-mode-linux-user <user-mode-linux-user@lists.sourceforge.net>,
-        linux-kernel <linux-kernel@vger.kernel.org>, Jan Hubicka <jh@suse.cz>
-Subject: Re: user-mode port 0.44-2.4.7
-In-Reply-To: <20010726004957.F32148@athlon.random>
-Message-ID: <Pine.LNX.4.33.0107251615430.22383-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267405AbRGYXVU>; Wed, 25 Jul 2001 19:21:20 -0400
+Received: from quechua.inka.de ([212.227.14.2]:18492 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S267390AbRGYXVC>;
+	Wed, 25 Jul 2001 19:21:02 -0400
+From: Bernd Eckenfels <W1012@lina.inka.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: route problem.. kernel/driver ?
+In-Reply-To: <Pine.GSO.4.33.0107251605050.18465-100000@noella.mindsec.com>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.0.39 (i686))
+Message-Id: <E15PXxl-0001sB-00@sites.inka.de>
+Date: Thu, 26 Jul 2001 01:21:09 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
+In article <Pine.GSO.4.33.0107251605050.18465-100000@noella.mindsec.com> you wrote:
+> After doing the same research I've been doing the past week or so.. I'm
+> coming back to the conclusion that you "can't" have two default routes.
 
-On Thu, 26 Jul 2001, Andrea Arcangeli wrote:
->
-> I will if Honza assures me that no future version of gcc will cause me to
-> crash if I don't declare xtime volatile and I play with it while it can
-> change under me (which seems not the case from his last email).
+> Which doesn't explain why it works at all.
 
-WHY DO YOU NOT ADD THE "VOLATILE" TO THE PLACES THAT _CARE_?
+You can have two default routes. In one case you have different metrics, then
+only the one with the smaller metric is used. This is good for situations
+where the better route may get dropped (link down).
 
-This is not a gcc issue. Even if gcc _were_ to generate bad code, the
-global volatile _still_ wouldn't be the correct answer.
+Yu can have also 2 default routes to the same destination, it is called equal
+cost multi route and a kernel option, used for load balancing.
 
-		Linus
+any other configurations are great problem.
 
+It is related to the route cache, why it did worked.
+
+route -C
+
+Greetings
+Bernd

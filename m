@@ -1,42 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286966AbRL1SKB>; Fri, 28 Dec 2001 13:10:01 -0500
+	id <S286959AbRL1SJV>; Fri, 28 Dec 2001 13:09:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286965AbRL1SJx>; Fri, 28 Dec 2001 13:09:53 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:44042 "EHLO
+	id <S286948AbRL1SJB>; Fri, 28 Dec 2001 13:09:01 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:41994 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S286948AbRL1SJm>; Fri, 28 Dec 2001 13:09:42 -0500
-Subject: Re: zImage not supported for 2.2.20?
-To: linux-kernel-l@nta-monitor.com (Roy Hills)
-Date: Fri, 28 Dec 2001 18:19:38 +0000 (GMT)
-Cc: kaukasoi@elektroni.ee.tut.fi (Petri Kaukasoina),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <4.3.2.7.2.20011228173505.00aa3da0@192.168.124.1> from "Roy Hills" at Dec 28, 2001 05:44:10 PM
+	id <S286959AbRL1SI7>; Fri, 28 Dec 2001 13:08:59 -0500
+Subject: Re: State of the new config & build system
+To: lm@bitmover.com (Larry McVoy)
+Date: Fri, 28 Dec 2001 18:17:57 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), lm@bitmover.com (Larry McVoy),
+        kaos@ocs.com.au (Keith Owens), esr@thyrsus.com (Eric S. Raymond),
+        davej@suse.de (Dave Jones), esr@snark.thyrsus.com (Eric S. Raymond),
+        torvalds@transmeta.com (Linus Torvalds),
+        marcelo@conectiva.com.br (Marcelo Tosatti),
+        linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+In-Reply-To: <20011228094318.B3727@work.bitmover.com> from "Larry McVoy" at Dec 28, 2001 09:43:19 AM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16K1bW-0001K0-00@the-village.bc.nu>
+Message-Id: <E16K1Zt-0001JS-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Unfortunately, I need to use zImage on my Tecra.  I know that zImage is
-> old, and I've heard that support for it will eventually be withdrawn, but I
-> don't really have much alternative right now unless there is a patch which
-> works around the Tecra's buggy A20 handling.
+> that if there is reusable code in BK, we're willing to let people use
+> it under whatever license they want.  It would be nice if that actually
+> happened after all the yelling and screaming.
 
-If your tecra is one with the problem early intel PCI chipsets the
-documentation on the workaround is on the intel.com site if you feel
-creative 8)
-
-Basically the A20 handling for hardware caches on some of these early chips
-was broken. There were real hardware fixes for new boards and a software
-workaround for old ones is described in the errata docs for the chip.
-
-> Does anyone know the status of zImage format in modern kernels?
-> Is it _supposed_ to be supported under 2.2.recent?  How about 2.4.recent?
-
-It works for me. It is meant to work
+mdbm is one I've not seen. The timings I've done are with db2/db3/tdb when
+I was playing with a fast UDP server that had to do a db lookup per packet.
 
 Alan

@@ -1,68 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262306AbVDFUDO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262305AbVDFUDG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262306AbVDFUDO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 16:03:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262307AbVDFUDN
+	id S262305AbVDFUDG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 16:03:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262307AbVDFUDF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 16:03:13 -0400
-Received: from smtp004.mail.ukl.yahoo.com ([217.12.11.35]:60559 "HELO
+	Wed, 6 Apr 2005 16:03:05 -0400
+Received: from smtp004.mail.ukl.yahoo.com ([217.12.11.35]:58767 "HELO
 	smtp004.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S262306AbVDFUDA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 16:03:00 -0400
+	id S262305AbVDFUC7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Apr 2005 16:02:59 -0400
 From: Blaisorblade <blaisorblade@yahoo.it>
-To: user-mode-linux-devel@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>
-Subject: Re: [uml-devel] [linux-2.6-bk] UML compile broken!
-Date: Wed, 6 Apr 2005 22:01:41 +0200
+Subject: Fwd: [uml-devel] [UML/2.6] -bk7 tree does not run when compiled as SKAS-only
+Date: Wed, 6 Apr 2005 22:01:36 +0200
 User-Agent: KMail/1.7.2
-Cc: Anton Altaparmakov <aia21@cam.ac.uk>, jdike@karaya.com,
-       lkml <linux-kernel@vger.kernel.org>
-References: <1112793369.32726.4.camel@imp.csi.cam.ac.uk>
-In-Reply-To: <1112793369.32726.4.camel@imp.csi.cam.ac.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: LKML <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-15"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200504062201.41991.blaisorblade@yahoo.it>
+Message-Id: <200504062201.36656.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 06 April 2005 15:16, Anton Altaparmakov wrote:
-> Uml compile is btoken in current linus bk 2.6:
->
->   CC      arch/um/kernel/ptrace.o
-> arch/um/kernel/ptrace.c: In function `send_sigtrap':
-> arch/um/kernel/ptrace.c:324: warning: implicit declaration of function
-> `SC_IP'
-> arch/um/kernel/ptrace.c:324: error: union has no member named `tt'
-> arch/um/kernel/ptrace.c:324: error: union has no member named `tt'
-> arch/um/kernel/ptrace.c:324: error: invalid lvalue in unary `&'
-> make[1]: *** [arch/um/kernel/ptrace.o] Error 1
-> make: *** [arch/um/kernel] Error 2
->
-> My .config is attached.  I suspect it is because I am not compiling in
-> TT support and only SKAS...
-Well, good guess - you're getting more and more used with UML!
+Andrew, could you please put this in your -rc regressions folder? Thanks.
 
-Yes, the fix is in -mm.
+----------  Forwarded Message  ----------
 
-Quoting from -rc2-mm1 announce:
+Subject: [uml-devel] [UML/2.6] -bk7 tree does not run when compiled as 
+SKAS-only
+Date: Tuesday 22 March 2005 18:32
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: Jeff Dike <jdike@addtoit.com>, Bodo Stroesser 
+<bstroesser@fujitsu-siemens.com>
+Cc: user-mode-linux-devel@lists.sourceforge.net
 
-+uml-fix-compilation-for-__choose_mode-addition.patch
+Just verified that without TT mode enabled, 2.6.11-bk7 tree compiles (when
+CONFIG_SYSCALL_DEBUG is disabled) but does not run if when compiled TT mode
+was disabled. I've verified this with a clean compile (I had this doubt),
+ both with static link enabled and disabled. Sample output:
 
- UML fix
+./vmlinux ubd0=~/Uml/toms.rootfs
+Checking for /proc/mm...found
+Checking for the skas3 patch in the host...found
+Checking PROT_EXEC mmap in /tmp...OK
 
-Andrew, can you merge it now, if you want, after Anton verifies it's the 
-correct fix indeed for his problem? I *do* expect his situation to fail 
-without the patch, but just to be more sure.
+[end of output]
 
-However, I recall with 2.6.11-bk7 a slightly different problem, when compiling 
-only SKAS mode in, and I don't think this has been fixed:
+2.6.11 works in the same situation (both with static link enabled and
+disabled).
 
-[uml-devel] [UML/2.6] -bk7 tree does not run when compiled as SKAS-only
+I'm investigating but busy with other stuff, however there are not many
+patches which went in for this release.
 
-I'm forwarding that mail to LKML and you, Andrew - for your -rc regressions 
-mail folder.
+Jeff, any ideas?
+--
+Paolo Giarrusso, aka Blaisorblade
+Linux registered user n. 292729
+http://www.user-mode-linux.org/~blaisorblade
+
+
+
+
+
+-------------------------------------------------------
+This SF.net email is sponsored by: 2005 Windows Mobile Application Contest
+Submit applications for Windows Mobile(tm)-based Pocket PCs or Smartphones
+for the chance to win $25,000 and application distribution. Enter today at
+http://ads.osdn.com/?ad_id=6882&alloc_id=15148&op=click
+_______________________________________________
+User-mode-linux-devel mailing list
+User-mode-linux-devel@lists.sourceforge.net
+https://lists.sourceforge.net/lists/listinfo/user-mode-linux-devel
+
+-------------------------------------------------------
+
 -- 
 Paolo Giarrusso, aka Blaisorblade
 Linux registered user n. 292729

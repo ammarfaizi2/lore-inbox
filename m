@@ -1,49 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131063AbRCUDKy>; Tue, 20 Mar 2001 22:10:54 -0500
+	id <S131140AbRCUDUX>; Tue, 20 Mar 2001 22:20:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131140AbRCUDKn>; Tue, 20 Mar 2001 22:10:43 -0500
-Received: from blount.mail.mindspring.net ([207.69.200.226]:61476 "EHLO
-	blount.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S131063AbRCUDKj>; Tue, 20 Mar 2001 22:10:39 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Jeff Lightfoot <jeffml@pobox.com>
-Reply-To: jeffml@pobox.com
-To: jgarzik@mandrakesoft.com (Jeff Garzik), "Manuel A. McLure" <mmt@unify.com>
-Subject: Re: NETDEV WATCHDOG: eth0: transmit timed out on LNE100TX 4.0, kernel2.4.2-ac11 and earlier.
-Date: Tue, 20 Mar 2001 20:09:45 -0700
-X-Mailer: KMail [version 1.2]
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-In-Reply-To: <419E5D46960FD211A2D5006008CAC79902E5C134@pcmailsrv1.sac.unify.com> <3AB7CFF1.FFC17E31@mandrakesoft.com>
-In-Reply-To: <3AB7CFF1.FFC17E31@mandrakesoft.com>
+	id <S131151AbRCUDUO>; Tue, 20 Mar 2001 22:20:14 -0500
+Received: from glatton.cnchost.com ([207.155.248.47]:7604 "EHLO
+	glatton.cnchost.com") by vger.kernel.org with ESMTP
+	id <S131140AbRCUDUB>; Tue, 20 Mar 2001 22:20:01 -0500
+Message-ID: <3AB81E4A.9060604@devries.tv>
+Date: Tue, 20 Mar 2001 22:21:46 -0500
+From: Peter DeVries <peter@devries.tv>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22 i686; en-US; 0.7) Gecko/20010105
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <01032020094500.03835@earth>
-Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org
+Subject: Re: Drvie Corruption CONSTANTLY with Linux and KT7-RAID
+In-Reply-To: <Pine.LNX.4.10.10103151153050.28602-100000@coffee.psychology.mcmaster.ca>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 20 March 2001 14:58, Jeff Garzik wrote:
-> > With all the above kernel revisions/drivers, my network card
-> > hangs at random (sometimes within minutes, other times it takes
-> > days). To restart it I need to do an ifdown/ifup cycle and it
-> > will work fine until the next hang. I upgraded to 2.4.2-ac11
-> > because of the documented tulip fixes, but after a few days got
-> > this again. The error log shows:
->
-> In Alan Cox terms, that's a long time ago :)
->
-> Can you please try 2.4.2-ac20?  It includes fixes specifically for
-> this problem.
+I have noiw tried the following
+   Diffrent Ram
+   No PNP/ Manual set IRQ's
+   All bios settings are manual. CPU speed etc
+   -X 34
+   Diffrent Controlllers ide0,ide1,ide2
+   
+Still getting drive corruption as soon as I turn on DMA mode..  I even 
+tested 2 HD's and only activating DMA on 1.  (seperate controllers) and 
+the both got corrupted. 
 
-I started having the same problem with my LNE100TX and switched it 
-out with another LNE100TX and had the same problem.  Figured it was 
-my BP6 SMP motherboard and ordered a new computer. Doh. :-)
+any ideas? 
 
-Using 2.4.2-ac20.
-Current LNE100TX having problems (other is different Rev):
-  Lite-On Communications Inc LNE100TX (rev 20)
 
-The first card would get "unexpected IRQ trap at vector d0" before 
-dying whereas the second one didn't give that indication.  It would 
-just freeze and the traditional "NETDEV WATCHDOG: eth0: transmit 
-timed out" message.
+
+
+
+
+Mark Hahn wrote:
+
+>> least 30 times now.  I have a ABIT KT7-RAID and no
+> 
+> 
+> have you installed the latest bios, and/or turned off the 
+> bugusly agressive pci-bridge settings?  they are responsible 
+> for all verified kt133/ide problems reported so far.
+> 
+> 
+> 
+
+

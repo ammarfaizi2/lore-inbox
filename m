@@ -1,82 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261351AbTDONJX (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 09:09:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261360AbTDONJX 
+	id S261360AbTDONMf (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 09:12:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261362AbTDONMf 
 	(for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 09:09:23 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:38188 "EHLO
-	pd4mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S261351AbTDONJW (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 15 Apr 2003 09:09:22 -0400
-Date: Tue, 15 Apr 2003 06:21:43 -0700
-From: Alex Combas <ghetto_samurai@shaw.ca>
-Subject: Re: kernel support for non-English user messages
-In-reply-to: <Pine.LNX.4.44.0304141024250.19302-100000@home.transmeta.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <1050412903.1808.97.camel@bif.underground>
-Organization: 
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.2.4-
-Content-type: multipart/signed; boundary="=-HsjRVsMPHTzODZ9K7SJU";
- protocol="application/pgp-signature"; micalg=pgp-sha1
-References: <Pine.LNX.4.44.0304141024250.19302-100000@home.transmeta.com>
+	Tue, 15 Apr 2003 09:12:35 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:27305 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S261360AbTDONMe 
+	(for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Apr 2003 09:12:34 -0400
+Date: Tue, 15 Apr 2003 06:24:20 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Dominik Kubla <dominik@kubla.de>
+Cc: Chris Wedgwood <cw@f00f.org>, Larry McVoy <lm@bitmover.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: ECC error in 2.5.64 + some patches
+Message-ID: <20030415132420.GA11659@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Dominik Kubla <dominik@kubla.de>, Chris Wedgwood <cw@f00f.org>,
+	Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
+References: <20030324212813.GA6310@osiris.silug.org> <20030327160220.GA29195@work.bitmover.com> <20030327170039.GA26452@f00f.org> <200303271819.41971.dominik@kubla.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200303271819.41971.dominik@kubla.de>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=0.5, required 4.5,
+	DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Mar 27, 2003 at 06:19:41PM +0100, Dominik Kubla wrote:
+> Am Donnerstag, 27. M?rz 2003 18:00 schrieb Chris Wedgwood:
+> 
+> > > Message from syslogd@slovax at Thu Mar 27 05:53:49 2003 ...
+> > > slovax kernel: Bank 1: 9000000000000151
+> >
+> > Status: (9000000000000151) Restart IP valid.
+> >
+> > *Exactly* what this means I don't know --- but I'm guessing the CPU is
+> > overheating.  Check fans, air-flow, etc. and see if that helps.  So
+> > far whenever I've seen the above problem it's *ALWAYS* been related to
+> > the CPU getting too hot.
 
---=-HsjRVsMPHTzODZ9K7SJU
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, 2003-04-14 at 10:29, Linus Torvalds wrote:
-
-Hi Linus,
-I hope Im not being a nerd..
-
-> The whole open source idea is that people do what they care=20
-> about and what they are good at, and exactly because they aren't forced t=
-o=20
-> deal with issues they don't have a heart for they take  more pride and=20
-> interest in the stuff they _do_ do.
-
-I thought the whole open source idea was that people could share quality
-software that is free to view and modify. :)
-
-> Personally, I don't write documentation. I don't much even write
-> comments in my code.
-
-Maybe Im too naive but I really believe that good commenting style
-should be the default way for _all_ opensource developers to opperate
-simply because the practise of "being free to view and modify code" is
-helped by good comments.=20
-
-However I do understand that unpaid volunteers will tend to focus on the
-things they enjoy more so than things they do not, and I dont have any
-problems with that.
-
-The Learning curve with a project this big is hellishly steep though, so
-young ones such as myself can use all the code comments we can get.
-I know it seems rather obnoxious to be telling you this, sorry.
-
-Best Regards.
-
---=20
-Alex Combas <ghetto_samurai@shaw.ca>
-This message is digitally signed.
-The public decryption key for my signature is available at pgp.mit.edu
-Secure email is preferred.
-
---=-HsjRVsMPHTzODZ9K7SJU
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+nAdnzO440pWfvJURAgTcAJ95RIW1kQc+xd/gF/WmtnfgEHmBzgCdHaz6
-sKVyZogxRUS5TbM4lt+K8TA=
-=//3z
------END PGP SIGNATURE-----
-
---=-HsjRVsMPHTzODZ9K7SJU--
-
+FYI - it was a too small case with the power supply sitting more or less
+on top of the CPU.  Moving everything to a bigger case fixed it.
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

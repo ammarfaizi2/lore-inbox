@@ -1,54 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132651AbRA3WXS>; Tue, 30 Jan 2001 17:23:18 -0500
+	id <S132557AbRA3Wan>; Tue, 30 Jan 2001 17:30:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132752AbRA3WXI>; Tue, 30 Jan 2001 17:23:08 -0500
-Received: from adsl-63-207-97-74.dsl.snfc21.pacbell.net ([63.207.97.74]:61169
-	"EHLO nova.botz.org") by vger.kernel.org with ESMTP
-	id <S132651AbRA3WW7> convert rfc822-to-8bit; Tue, 30 Jan 2001 17:22:59 -0500
-Message-Id: <200101302222.OAA04184@nova.botz.org>
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.3
-To: Eric Molitor <emolitor@molitor.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Wavelan IEEE driver 
-In-Reply-To: Message from Eric Molitor <emolitor@molitor.org> 
-   of "Tue, 30 Jan 2001 14:38:50 CST." <Pine.LNX.4.10.10101301434420.3934-100000@www.llamacom.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Date: Tue, 30 Jan 2001 14:22:43 -0800
-From: Jurgen Botz <jurgen@botz.org>
+	id <S132569AbRA3Wac>; Tue, 30 Jan 2001 17:30:32 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:12422 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S132703AbRA3WaR>;
+	Tue, 30 Jan 2001 17:30:17 -0500
+From: "David S. Miller" <davem@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <14967.16395.42967.978677@pizda.ninka.net>
+Date: Tue, 30 Jan 2001 14:28:27 -0800 (PST)
+To: Andrew Morton <andrewm@uow.edu.au>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+        "netdev@oss.sgi.com" <netdev@oss.sgi.com>
+Subject: Re: sendfile+zerocopy: fairly sexy (nothing to do with ECN)
+In-Reply-To: <3A76D6A4.2385185E@uow.edu.au>
+In-Reply-To: <3A76B72D.2DD3E640@uow.edu.au>
+	<3A728475.34CF841@uow.edu.au>
+	<3A726087.764CC02E@uow.edu.au>
+	<20010126222003.A11994@vitelus.com>
+	<14966.22671.446439.838872@pizda.ninka.net>
+	<14966.47384.971741.939842@pizda.ninka.net>
+	<3A76D6A4.2385185E@uow.edu.au>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric Molitor wrote:
-> I updated the Wavelan IEEE driver from 2.3.50 so that it builds with 2.4.0
-> (The 2.3.50 patch is available at
-> http://www.fasta.fh-dortmund.de/users/andy/wvlan/ ) It works for me but
-> I've heard there are issues with firmware 6.xx not initializing.
-> 
-> The patch against 2.4.0 is at http://www.molitor.org/wavelan
 
-Actually the 1.0.6 driver included in the latest pcmcia-cs packages
-works with 2.4.  Normally, when you build pcmcia-cs against a 2.4
-kernel the modules are not built since they are supposed to be included
-with the kernel... obviously not all of them are, however.  You can
-force it to build the wvlan_cs driver by adding "wireless" to the
-end of DIRS in the top-level makefile.  This will successfully build
-the wvlan_cs module, which can then be inserted into a 2.4 kernel
-and appears to work.  I did observe a problem with iwconfig dumping
-core, but it seems to do its job before it dies, so this may be non-
-critical.
+Andrew Morton writes:
+ > The box has 130 mbyte/sec memory write bandwidth, so saving
+ > a copy should save 10% of this.   (Wanders away, scratching
+ > head...)
 
-The 1.0.6 driver is dated Dec-7-2000 and supports all the latest
-"orinico" firmware revisions.  Somebody with the time and inclination
-should probably integrate it into the main kernel source and send a
-patch to Linus.
+Are you sure your measurment program will account properly
+for all system cycles spent in softnet processing?  This is
+where the bulk of the cpu cycle savings will occur.
 
-- Jürgen
-
-
-
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,60 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268729AbUIQNFj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268672AbUIQNPg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268729AbUIQNFj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 09:05:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268730AbUIQNFj
+	id S268672AbUIQNPg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 09:15:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268698AbUIQNPf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 09:05:39 -0400
-Received: from sd291.sivit.org ([194.146.225.122]:63201 "EHLO sd291.sivit.org")
-	by vger.kernel.org with ESMTP id S268729AbUIQNFf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 09:05:35 -0400
-Date: Fri, 17 Sep 2004 15:05:32 +0200
-From: Stelian Pop <stelian@popies.net>
-To: Duncan Sands <baldrick@free.fr>
-Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
+	Fri, 17 Sep 2004 09:15:35 -0400
+Received: from mail-relay-4.tiscali.it ([213.205.33.44]:57733 "EHLO
+	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
+	id S268672AbUIQNPd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Sep 2004 09:15:33 -0400
+Date: Fri, 17 Sep 2004 15:15:23 +0200
+From: Andrea Arcangeli <andrea@novell.com>
+To: Stelian Pop <stelian@popies.net>, Hugh Dickins <hugh@veritas.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
 Subject: Re: [RFC, 2.6] a simple FIFO implementation
-Message-ID: <20040917130532.GA22386@sd291.sivit.org>
-Reply-To: Stelian Pop <stelian@popies.net>
-Mail-Followup-To: Stelian Pop <stelian@popies.net>,
-	Duncan Sands <baldrick@free.fr>, Hugh Dickins <hugh@veritas.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20040917102413.GA3089@crusoe.alcove-fr> <200409171437.57766.baldrick@free.fr> <20040917124815.GE3089@crusoe.alcove-fr> <200409171500.35499.baldrick@free.fr>
+Message-ID: <20040917131523.GQ15426@dualathlon.random>
+References: <20040917102413.GA3089@crusoe.alcove-fr> <Pine.LNX.4.44.0409171228240.4678-100000@localhost.localdomain> <20040917122400.GD3089@crusoe.alcove-fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200409171500.35499.baldrick@free.fr>
-User-Agent: Mutt/1.5.6+20040523i
+In-Reply-To: <20040917122400.GD3089@crusoe.alcove-fr>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 17, 2004 at 03:00:35PM +0200, Duncan Sands wrote:
+this is nice, I had to write a ring buffer myself last month for
+bootcache (you can find the patch on l-k searching for "bootcache"). It
+was fun so I don't mind but certainly it took me a few reboots to make
+it work ;)
 
-> > But the order in which in and out get modified guarantees that you
-> > will still have a coherent content (provided the assignments are 
-> > atomic, which they are).
-> 
-> Hi Stelian, what is to stop the compiler putting, say, "in" in a register
-> for the process calling __kfifo_get, so that it only sees a constant
-> value.  Then after a while that process will think there is nothing
-> to get even though another process is shoving stuff into the fifo and
-> modifying "in".
+My main issue with this is that I don't like to use kmalloc, I expect
+most people will use a page anyways, I'm using alloc_page myself (and I
+may want to switch to vmalloc to get a larger buffer, that's fine for
+bootcache since the allocation is in a slow path). I wonder if it worth
+to generalize the allocator passing down a callback or something like
+that. I can still use kmalloc but it'd be just a waste of some memory
+and risk fragmentation for >PAGE_SIZE (OTOH the callback as well will
+waste some byte).
 
-This can happen all right, but the buffer (or the indices) will not
-get corrupt (this is what I call coherent). Its just like the __kfifo_get()
-was executed entirely before the __kfifo_put().
-
-There is no problem here.
-
-> 
-> By the way, the comment for __kfifo_get has a typo:
-> 
-> + * kfifo_get - gets some data from the FIFO, no locking version
->     ^^^^^^^^^ should be __kfifo_get
-
-Same for kfifo_len, too much cut & paste here. Thanks.
-
-Stelian.
--- 
-Stelian Pop <stelian@popies.net>    
+The other issue with the locking is that I will not need locking since
+I've my own external locking used for other stuff too that serializes
+the fifo as well, so I wonder if the "spinlock_t *" could as well be
+passed down to kfifo_get so I won't need to allocate the spinlock
+structure as well inside the kfifo.  Otherwise I could start to use such
+a spinlock inside the kfifo for the external locking too (and then I
+could call only the __ functions), that means guys outside your
+kfifo.[ch] would use the kfifo->lock which doesn't sound that clean,
+kfifo using an external lock passed down by the caller as parameter
+looks more robust.

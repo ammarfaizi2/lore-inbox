@@ -1,66 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271075AbUJUW4J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271092AbUJUXLX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271075AbUJUW4J (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 18:56:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271052AbUJUWvu
+	id S271092AbUJUXLX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 19:11:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271030AbUJUXEy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 18:51:50 -0400
-Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:54918 "EHLO
-	mail.rtr.ca") by vger.kernel.org with ESMTP id S271051AbUJUWvE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 18:51:04 -0400
-Message-ID: <41783CDF.80007@rtr.ca>
-Date: Thu, 21 Oct 2004 18:49:03 -0400
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en, en-us
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Subject: Re: [PATCH 2.4.28-pre4-bk6] delkin_cb: new driver for Cardbus IDE
- CF adaptor
-References: <41780393.3000606@rtr.ca>	 <58cb370e041021121317083a3a@mail.gmail.com> <1098394354.17096.174.camel@localhost.localdomain>
-In-Reply-To: <1098394354.17096.174.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 21 Oct 2004 19:04:54 -0400
+Received: from fw.osdl.org ([65.172.181.6]:41936 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S271077AbUJUW7O (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 18:59:14 -0400
+Date: Thu, 21 Oct 2004 16:02:33 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andrea Arcangeli <andrea@novell.com>
+Cc: shaggy@austin.ibm.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH] zap_pte_range should not mark non-uptodate pages dirty
+Message-Id: <20041021160233.68a84971.akpm@osdl.org>
+In-Reply-To: <20041021223613.GA8756@dualathlon.random>
+References: <1098393346.7157.112.camel@localhost>
+	<20041021144531.22dd0d54.akpm@osdl.org>
+	<20041021223613.GA8756@dualathlon.random>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
- >
->>From review I think I've got them all fixed in 2.6, but yes 2.4 is a
-> bit of a lost cause there (although ide-cs works generally so its no big
-> barrier)
+Andrea Arcangeli <andrea@novell.com> wrote:
+>
+> On Thu, Oct 21, 2004 at 02:45:31PM -0700, Andrew Morton wrote:
+> > Maybe we should revisit invalidate_inode_pages2().  It used to be an
+> > invariant that "pages which are mapped into process address space are
+> > always uptodate".  We broke that (good) invariant and we're now seeing
+> > some fallout.  There may be more.
+> 
+> such invariant doesn't exists since 2.4.10. There's no way to get mmaps
+> reload data from disk without breaking such an invariant.
 
-That was my feeling on it too.  Any races that remain in 2.4 are really
-a non-issue for removable PC-CARD devices -- the user is popping them
-out of the socket regardless, so it cannot really be any more harmful
-to tell the kernel they don't physically exist afterwards.  :)
+There are at least two ways:
 
-ide-cs does seem to be reliable, as is delkin_cb.  It's not like these
-devices are proliferating -- USB flash readers are pretty much taking
-over on newer USB2 machines, and this unit is likely the last of the breed.
+a) Set a new page flag in invalidate, test+clear that at fault time
 
-The adapter I have here is a "Delkin Devices Cardbus 32 eFilm PRO"
-compact flash adapter.  They are also sold in Japan under the ASKA name,
-and the chipset is by Workbit.  The only North American sources I know
-of for this card are B&H Photo in New York (they have a website)
-and Downtown Camera in Toronto.
+b) shoot down all pte's mapping the locked page at invalidate time, mark the
+   page not uptodate.
 
-These cards are popular among photographic professionals (and keen
-amateurs) because of the compact size, and under Windows they are
-much faster than many USB2 or Firewire readers.  Under Linux, they
-just plain are not recognized -- unless delkin_cb is configured,
-in which case they currently achieve about 2/3 the speed of the
-MS driver.
+The latter is complex but has the advantage of fixing the current
+half-assed situation wherein existing mmaps are seeing invalidated data.
 
-I'll pull down your (Alan) latest tree and re-post a 2.6 patch against it.
-But I would really like to see Marcelo pick up the 2.4 version as well,
-since that is what people are using today.
+> It's not even
+> for the write side, it's buffered read against O_DIRECT write that
+> requires breaking such invariant.
+> 
+> Either you fix it the above way, or you remove the BUG() in pdflush and
+> you simply clear the dirty bit without doing anything, both are fine,
+> peraphs we should do both, but the above is good to have anyways since
+> it's more efficient to not even show the not uptodate pages to pdflush.
 
-Cheers
--- 
-Mark Lord
-(hdparm keeper & the original "Linux IDE Guy")
+We could just remove the BUG in mpage_writepage() (which I assume is the
+one which was being hit) but we might still have a not uptodate page with
+uptodate buffers and I suspect that the kernel will either go BUG there
+instead or will bring the page uptodate again without performing any I/O. 
+But I haven't checked that.

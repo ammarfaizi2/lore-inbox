@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281392AbRKPNVf>; Fri, 16 Nov 2001 08:21:35 -0500
+	id <S281404AbRKPN0F>; Fri, 16 Nov 2001 08:26:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281391AbRKPNVZ>; Fri, 16 Nov 2001 08:21:25 -0500
-Received: from ezri.xs4all.nl ([194.109.253.9]:4573 "HELO ezri.xs4all.nl")
-	by vger.kernel.org with SMTP id <S281383AbRKPNVG>;
-	Fri, 16 Nov 2001 08:21:06 -0500
-Date: Fri, 16 Nov 2001 14:21:04 +0100 (CET)
-From: Eric Lammerts <eric@lammerts.org>
-To: Pete Zaitcev <zaitcev@redhat.com>
-cc: josn@josn.myip.org, Greg KH <greg@kroah.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: rootfs on USB storage device
-In-Reply-To: <200111160306.fAG36ZW05331@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.4.40.0111161403001.991-100000@ally.lammerts.org>
+	id <S281395AbRKPNZz>; Fri, 16 Nov 2001 08:25:55 -0500
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:28819 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S281393AbRKPNZn>; Fri, 16 Nov 2001 08:25:43 -0500
+From: Christoph Rohland <cr@sap.com>
+To: Cristiano Paris <c.paris@libero.it>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: ramfs and inode
+In-Reply-To: <Pine.LNX.4.33.0111151746490.405-100000@lisa.rhpk.springfield.inwind.it>
+Organisation: SAP LinuxLab
+Date: 16 Nov 2001 14:25:29 +0100
+In-Reply-To: <Pine.LNX.4.33.0111151746490.405-100000@lisa.rhpk.springfield.inwind.it>
+Message-ID: <m3adxmlueu.fsf@linux.local>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+X-SAP: out
+X-SAP: out
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Cristiano,
 
-On Thu, 15 Nov 2001, Pete Zaitcev wrote:
-> I think khubd needs to run to complete whole process and mdelay()
-> locks it out. You need something that calls schedule() for USB
-> detection to work. Try to use schedule_timeout() instead of mdelay().
+On Thu, 15 Nov 2001, Cristiano Paris wrote:
+> I need an explanation, if possible.
+> 
+> I'm pretty sure that a VFS' inode which refers to a ramfs' file is
+> never released (i.e. deleted) until that is unlinked. Anyway, I
+> cannot find a formal verification of this assertion.
 
-This patch works for me.
+Yes, that's the way it is designed. The struct inode _is_ the ramfs
+inode. If you delete the inode, the content is gone...
 
-Eric
+Greetings
+		Christoph
 
---- linux-2.4.14-pre8-ext3/fs/super.c.orig	Fri Nov 16 00:59:18 2001
-+++ linux-2.4.14-pre8-ext3/fs/super.c	Fri Nov 16 01:07:26 2001
-@@ -1009,11 +1009,13 @@
- 		 * Allow the user to distinguish between failed open
- 		 * and bad superblock on root device.
- 		 */
--		printk ("VFS: Cannot open root device \"%s\" or %s\n",
-+		printk ("VFS: Cannot open root device \"%s\" or %s, retrying in 1s.\n",
- 			root_device_name, kdevname (ROOT_DEV));
--		printk ("Please append a correct \"root=\" boot option\n");
--		panic("VFS: Unable to mount root fs on %s",
--			kdevname(ROOT_DEV));
-+
-+		/* wait 1 second and try again */
-+		current->state = TASK_INTERRUPTIBLE;
-+		schedule_timeout(HZ);
-+		goto retry;
- 	}
-
- 	check_disk_change(ROOT_DEV);
 

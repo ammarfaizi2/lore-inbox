@@ -1,54 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262419AbTJJRya (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 13:54:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263024AbTJJRya
+	id S263068AbTJJRrn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 13:47:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263073AbTJJRrn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 13:54:30 -0400
-Received: from pat.uio.no ([129.240.130.16]:59026 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S262419AbTJJRy2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 13:54:28 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16262.62026.603149.157026@charged.uio.no>
-Date: Fri, 10 Oct 2003 13:54:18 -0400
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Joel Becker <Joel.Becker@oracle.com>,
-       Chris Friesen <cfriesen@nortelnetworks.com>,
-       Jamie Lokier <jamie@shareable.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: statfs() / statvfs() syscall ballsup...
-In-Reply-To: <Pine.LNX.4.44.0310101024200.20420-100000@home.osdl.org>
-References: <20031010172001.GA29301@ca-server1.us.oracle.com>
-	<Pine.LNX.4.44.0310101024200.20420-100000@home.osdl.org>
-X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
-X-UiO-MailScanner: No virus found
+	Fri, 10 Oct 2003 13:47:43 -0400
+Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:38131 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S263068AbTJJRrl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Oct 2003 13:47:41 -0400
+Subject: Re: original redhat config
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Daniel Harker <danielharker@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Sea2-F11XoZl0fqWcH800005aac@hotmail.com>
+References: <Sea2-F11XoZl0fqWcH800005aac@hotmail.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-t4aimzYlJgJHExlpTi+a"
+Organization: Red Hat, Inc.
+Message-Id: <1065808049.5433.9.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-2) 
+Date: Fri, 10 Oct 2003 19:47:29 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Linus Torvalds <torvalds@osdl.org> writes:
 
-     > On Fri, 10 Oct 2003, Joel Becker wrote:
-    >>
-    >> msync() forces write(), like fsync().  It doesn't force read().
+--=-t4aimzYlJgJHExlpTi+a
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-     > Actually, the kernel has a "readahead(fd, offset, size)" system
-     > call that will start asynchronous read-ahead on any
-     > mapping. After that, just touching the page will obviously map
-     > in and synchronize the result.
+On Fri, 2003-10-10 at 19:36, Daniel Harker wrote:
+> ut I just don't have the time.
+>=20
+> My question:  Is there a way (without reinstalling) to get the make=20
+> menuconfig to use exactly what redhat configured for my system?  So that =
+my=20
+> mouse, soundcard, and network card work? I pretty much want it to be the=20
+> exact same kernel configuration but with the bootsplash patch.
 
-That's different. That's just preheating the page cache.
+the config file we use is stored in the /boot directory
+(and if you install the kernel-source RPM it's also in
+/usr/src/linux-2.4.20-20.9/configs)
 
-It does nothing for the case Joel mentioned where 2 different nodes
-are writing to the same device, and you need to force a read in order
-to resynchronize the page cache.
-Apart from O_DIRECT, we have nothing in the kernel as it stands that
-will allow userland to deal with this case.
 
-Cheers,
-  Trond
+--=-t4aimzYlJgJHExlpTi+a
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/hvCwxULwo51rQBIRAlELAJoDY/TdGOhQdygGmCtXHOeJAp5LZgCfWBv0
+qbTWbQhbVXImXqVv8FhMviA=
+=7zRx
+-----END PGP SIGNATURE-----
+
+--=-t4aimzYlJgJHExlpTi+a--

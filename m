@@ -1,105 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262482AbUKZWvu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263391AbUKZWwM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262482AbUKZWvu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 17:51:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262479AbUKZWtp
+	id S263391AbUKZWwM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 17:52:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263436AbUKZWs7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 17:49:45 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:49861 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S263439AbUKZTuE (ORCPT
+	Fri, 26 Nov 2004 17:48:59 -0500
+Received: from mail.charite.de ([160.45.207.131]:33671 "EHLO mail.charite.de")
+	by vger.kernel.org with ESMTP id S262831AbUKZWrY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:50:04 -0500
-Message-ID: <21889.195.245.190.93.1101377024.squirrel@195.245.190.93>
-In-Reply-To: <20041124112745.GA3294@elte.hu>
-References: <20041111215122.GA5885@elte.hu> <20041116125402.GA9258@elte.hu>
-    <20041116130946.GA11053@elte.hu> <20041116134027.GA13360@elte.hu>
-    <20041117124234.GA25956@elte.hu> <20041118123521.GA29091@elte.hu>
-    <20041118164612.GA17040@elte.hu> <20041122005411.GA19363@elte.hu>
-    <20041123175823.GA8803@elte.hu> <20041124101626.GA31788@elte.hu>
-    <20041124112745.GA3294@elte.hu>
-Date: Thu, 25 Nov 2004 10:03:44 -0000 (WET)
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.31-0
-From: "Rui Nuno Capela" <rncbc@rncbc.org>
-To: "Ingo Molnar" <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, "Lee Revell" <rlrevell@joe-job.com>,
-       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       "Bill Huey" <bhuey@lnxw.com>, "Adam Heath" <doogie@debian.org>,
-       "Florian Schmidt" <mista.tapas@gmx.net>,
-       "Thomas Gleixner" <tglx@linutronix.de>,
-       "Michal Schmidt" <xschmi00@stud.feec.vutbr.cz>,
-       "Fernando Pablo Lopez-Lezcano" <nando@ccrma.stanford.edu>,
-       "Karsten Wiese" <annabellesgarden@yahoo.de>,
-       "Gunther Persoons" <gunther_persoons@spymac.com>, emann@mrv.com,
-       "Shane Shrybman" <shrybman@aei.ca>, "Amit Shah" <amit.shah@codito.com>,
-       "Esben Nielsen" <simlo@phys.au.dk>
-User-Agent: SquirrelMail/1.4.3a
-X-Mailer: SquirrelMail/1.4.3a
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
-X-OriginalArrivalTime: 25 Nov 2004 10:04:37.0103 (UTC) FILETIME=[2BB05FF0:01C4D2D6]
+	Fri, 26 Nov 2004 17:47:24 -0500
+Date: Fri, 26 Nov 2004 23:47:22 +0100
+From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+To: linux-kernel@vger.kernel.org
+Subject: Out of memory, but no OOM Killer? (2.6.9-ac11)
+Message-ID: <20041126224722.GK30987@charite.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
->
-> i have released the -V0.7.31-0 Real-Time Preemption patch, which can be
-> downloaded from the usual place:
->
->     http://redhat.com/~mingo/realtime-preempt/
->
-> this is a merge of the -30-10 patch to 2.6.10-rc2-mm3. There are no
-> other changes.
->
+rsync seems to want lots of memory, yet the OOM killer doesn't strike.
+Subsequently, that machine died an ugly death until delivered by a
+power-cycle.
 
-I have a problem. Better said, one half-of-a-problem :)
+Why doesn't the OOM killer reap rsync?
+...
+Nov 26 05:58:19 backup-in -- MARK --
+Nov 26 06:02:04 backup-in kernel: rsync: page allocation failure. order:3, mode:0x20
+Nov 26 06:02:04 backup-in kernel: Stack pointer is garbage, not printing trace
+Nov 26 06:02:04 backup-in kernel: rsync: page allocation failure. order:3, mode:0x20
+Nov 26 06:02:04 backup-in kernel: Stack pointer is garbage, not printing trace
+Nov 26 06:02:08 backup-in kernel: rsync: page allocation failure. order:3, mode:0x20
+Nov 26 06:02:08 backup-in kernel: Stack pointer is garbage, not printing trace
+Nov 26 06:02:08 backup-in kernel: rsync: page allocation failure. order:3, mode:0x20
+Nov 26 06:02:08 backup-in kernel: Stack pointer is garbage, not printing trace
+Nov 26 06:02:08 backup-in kernel: rsync: page allocation failure. order:3, mode:0x20
+Nov 26 06:02:08 backup-in kernel: Stack pointer is garbage, not printing trace
+Nov 26 06:02:08 backup-in kernel: rsync: page allocation failure. order:3, mode:0x20
+Nov 26 06:02:08 backup-in kernel: Stack pointer is garbage, not printing trace
+Nov 26 06:02:08 backup-in kernel: rsync: page allocation failure. order:3, mode:0x20
+Nov 26 06:02:08 backup-in kernel: Stack pointer is garbage, not printing trace
+Nov 26 06:02:08 backup-in kernel: rsync: page allocation failure. order:3, mode:0x20
+Nov 26 06:02:08 backup-in kernel: Stack pointer is garbage, not printing trace
+Nov 26 06:02:08 backup-in kernel: rsync: page allocation failure. order:3, mode:0x20
+Nov 26 06:02:08 backup-in kernel: Stack pointer is garbage, not printing trace
+Nov 26 06:02:08 backup-in kernel: rsync: page allocation failure. order:3, mode:0x20
+Nov 26 06:02:08 backup-in kernel: Stack pointer is garbage, not printing trace
+Nov 26 06:02:17 backup-in kernel: printk: 32 messages suppressed.
+Nov 26 06:02:17 backup-in kernel: pdflush: page allocation failure. order:3, mode:0x20
+Nov 26 06:02:17 backup-in kernel: Stack pointer is garbage, not printing trace
+Nov 26 06:02:17 backup-in kernel: pdflush: page allocation failure. order:3, mode:0x20
+Nov 26 06:02:17 backup-in kernel: Stack pointer is garbage, not printing trace
+Nov 26 06:03:33 backup-in kernel: printk: 11 messages suppressed.
+Nov 26 06:03:33 backup-in kernel: pdflush: page allocation failure. order:3, mode:0x20
+Nov 26 06:03:33 backup-in kernel: Stack pointer is garbage, not printing trace
+Nov 26 06:03:33 backup-in kernel: pdflush: page allocation failure. order:3, mode:0x20
+Nov 26 06:03:33 backup-in kernel: Stack pointer is garbage, not printing trace
+Nov 26 06:03:33 backup-in kernel: pdflush: page allocation failure. order:3, mode:0x20
+Nov 26 06:03:33 backup-in kernel: Stack pointer is garbage, not printing trace
+Nov 26 06:03:33 backup-in kernel: pdflush: page allocation failure. order:3, mode:0x20
+Nov 26 06:03:33 backup-in kernel: Stack pointer is garbage, not printing trace
+Nov 26 06:03:33 backup-in kernel: pdflush: page allocation failure. order:3, mode:0x20
+Nov 26 06:03:33 backup-in kernel: Stack pointer is garbage, not printing trace
+Nov 26 06:03:33 backup-in kernel: pdflush: page allocation failure. order:3, mode:0x20
+Nov 26 06:03:33 backup-in kernel: Stack pointer is garbage, not printing trace
+Nov 26 06:03:33 backup-in kernel: pdflush: page allocation failure. order:3, mode:0x20
+Nov 26 06:03:33 backup-in kernel: Stack pointer is garbage, not printing trace
+Nov 26 06:03:33 backup-in kernel: pdflush: page allocation failure. order:3, mode:0x20
+Nov 26 06:03:33 backup-in kernel: Stack pointer is garbage, not printing trace
+Nov 26 06:04:08 backup-in kernel: swapper: page allocation failure. order:3, mode:0x20
+Nov 26 06:04:08 backup-in kernel:  [__alloc_pages+576/908] __alloc_pages+0x240/0x38c
+Nov 26 06:04:08 backup-in kernel:  [__get_free_pages+24/49] __get_free_pages+0x18/0x31
+Nov 26 06:04:08 backup-in kernel:  [kmem_getpages+30/201] kmem_getpages+0x1e/0xc9
+Nov 26 06:04:08 backup-in kernel:  [cache_grow+188/390] cache_grow+0xbc/0x186
+Nov 26 06:04:08 backup-in kernel:  [cache_alloc_refill+468/532] cache_alloc_refill+0x1d4/0x214
+Nov 26 06:04:08 backup-in kernel:  [__kmalloc+122/124] __kmalloc+0x7a/0x7c
+Nov 26 06:04:08 backup-in kernel:  [alloc_skb+83/252] alloc_skb+0x53/0xfc
+Nov 26 06:04:08 backup-in kernel:  [pg0+545011501/1068684288] e1000_alloc_rx_buffers+0x47/0xe8 [e1000]
+Nov 26 06:04:08 backup-in kernel:  [pg0+545010700/1068684288] e1000_clean_rx_irq+0x184/0x45e [e1000]
+Nov 26 06:04:08 backup-in kernel:  [pg0+545010212/1068684288] e1000_clean_tx_irq+0x1a0/0x204 [e1000]
+Nov 26 06:04:08 backup-in kernel:  [pg0+545009728/1068684288] e1000_intr+0x3e/0x82 [e1000]
+Nov 26 06:04:08 backup-in kernel:  [handle_IRQ_event+60/110] handle_IRQ_event+0x3c/0x6e
+Nov 26 06:04:08 backup-in kernel:  [do_IRQ+222/422] do_IRQ+0xde/0x1a6
+Nov 26 06:04:08 backup-in kernel:  =======================
+Nov 26 06:04:08 backup-in kernel:  [common_interrupt+24/32] common_interrupt+0x18/0x20
+Nov 26 06:04:08 backup-in kernel:  [default_idle+0/44] default_idle+0x0/0x2c
+Nov 26 06:04:08 backup-in kernel:  [default_idle+41/44] default_idle+0x29/0x2c
+Nov 26 06:04:08 backup-in kernel:  [cpu_idle+46/60] cpu_idle+0x2e/0x3c
+Nov 26 06:04:08 backup-in kernel:  [start_kernel+356/383] start_kernel+0x164/0x17f
+Nov 26 06:04:08 backup-in kernel:  [unknown_bootoption+0/374] unknown_bootoption+0x0/0x176
+Nov 26 06:04:08 backup-in kernel: swapper: page allocation failure. order:3, mode:0x20
+Nov 26 06:04:08 backup-in kernel:  [__alloc_pages+576/908] __alloc_pages+0x240/0x38c
+Nov 26 06:04:08 backup-in kernel:  [__get_free_pages+24/49] __get_free_pages+0x18/0x31
+Nov 26 06:04:08 backup-in kernel:  [kmem_getpages+30/201] kmem_getpages+0x1e/0xc9
+Nov 26 06:04:08 backup-in kernel:  [cache_grow+188/390] cache_grow+0xbc/0x186
+Nov 26 06:04:08 backup-in kernel:  [cache_alloc_refill+468/532] cache_alloc_refill+0x1d4/0x214
+Nov 26 06:04:08 backup-in kernel:  [__kmalloc+122/124] __kmalloc+0x7a/0x7c
+Nov 26 06:04:08 backup-in kernel:  [alloc_skb+83/252] alloc_skb+0x53/0xfc
+Nov 26 06:04:08 backup-in kernel:  [pg0+545011501/1068684288] e1000_alloc_rx_buffers+0x47/0xe8 [e1000]
+Nov 26 06:04:08 backup-in kernel:  [pg0+545010700/1068684288] e1000_clean_rx_irq+0x184/0x45e [e1000]
+Nov 26 06:04:08 backup-in kernel:  [pg0+545010212/1068684288] e1000_clean_tx_irq+0x1a0/0x204 [e1000]
+Nov 26 06:04:08 backup-in kernel:  [pg0+545009728/1068684288] e1000_intr+0x3e/0x82 [e1000]
+Nov 26 06:04:08 backup-in kernel:  [handle_IRQ_event+60/110] handle_IRQ_event+0x3c/0x6e
+Nov 26 06:04:08 backup-in kernel:  [do_IRQ+222/422] do_IRQ+0xde/0x1a6
+Nov 26 06:04:08 backup-in kernel:  =======================
+Nov 26 06:04:08 backup-in kernel:  [common_interrupt+24/32] common_interrupt+0x18/0x20
+Nov 26 06:04:08 backup-in kernel:  [default_idle+0/44] default_idle+0x0/0x2c
+Nov 26 06:04:08 backup-in kernel:  [default_idle+41/44] default_idle+0x29/0x2c
+Nov 26 06:04:08 backup-in kernel:  [cpu_idle+46/60] cpu_idle+0x2e/0x3c
+Nov 26 06:04:08 backup-in kernel:  [start_kernel+356/383] start_kernel+0x164/0x17f
+Nov 26 06:04:08 backup-in kernel:  [unknown_bootoption+0/374] unknown_bootoption+0x0/0x176
+Nov 26 06:04:08 backup-in kernel: klogd: page allocation failure. order:3, mode:0x20
+Nov 26 06:04:08 backup-in kernel: Stack pointer is garbage, not printing trace
+Nov 26 06:04:08 backup-in kernel: klogd: page allocation failure. order:3, mode:0x20
 
-I've been testing the RT patches on both of my personal machines, one
-laptop (P4/UP) and a desktop (P4/SMT). That you probably already know.
+... and it goes on like that for hours...
 
-On the P4/UP side everything has evolved smoothly, with the only major
-quirk now being the loopback device hanging while on mkinitrd. It's not a
-system lockup, only the "mkinitrd" and "mount -o loop" processes gets
-stuck (distro is Mandrake 10.1c). OTOH, audio performance when regarding
-jackd low-latency has reached such levels never dreamt before. To seal my
-confidence on the RT I've committed to be the primary kernel that boots by
-default and production. I'm happy here, so let's get to the topic.
-
-On the P4/SMP/HT side, history has tought quite a different tale. It was
-already late on the VP era when this was even able to boot to the
-login-prompt. Then it suffered from all sorts of lockups and starvations
-when able to start jackd. Then happily, all that has been ironed out. One
-last thing, at the moment, that "reliably" locks up the machine is
-accessing the floppy-disk (dev/fd0). Yes, I still have one here, and it
-was just yesterday that I've tried to mount on it and bang! power-off and
-a cold-boot follows. Reproducibility? ALWAYS is often enough. Nothing
-shows up via serial console.
-
-OTOH, my confidence goes down the drain when I compare the jackd
-low-latency performance between the latest RT-V0.7.31-3 kernel and the one
-supplied from SUSE 9.2 Pro (2.6.8-24). I have been checking and
-double-checking this too far many times with even stressful workloads:
-SUSE's non-RT kernel has an edge over the latest RT ones. Jackd XRUN rates
-are pretty low and on the same level (e.g. less than 5 per hour with the
-default jack_test3.1 test), but SUSE's 2.6.8-24 is consistently on par of
-RT-V0.7.31-3, and even better if the RT kernel is built with some
-preempt-debugging options set.
-
-Is this black-magic or what? :)
-
-Oh well. But let's get back to reality :) How can I help on fixing this
-floppy showstopper? I've tried with almost every debug option set and
-nothing is dumped either on syslog or serial console. The only visible
-thing is that, once the floppy starts spinning (LED is on) the machine
-freezes. Weird.
-
-Nuff said.
-
-Cheers.
 -- 
-rncbc aka Rui Nuno Capela
-rncbc@rncbc.org
-
-
+Ralf Hildebrandt (i.A. des IT-Zentrum)          Ralf.Hildebrandt@charite.de
+Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
+Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-962
+IT-Zentrum Standort CBF                 send no mail to spamtrap@charite.de

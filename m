@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267273AbUBMWtz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 17:49:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267271AbUBMWty
+	id S267262AbUBMWjh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 17:39:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267263AbUBMWjg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 17:49:54 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:2830 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S267304AbUBMWr6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 17:47:58 -0500
-Date: Fri, 13 Feb 2004 23:45:24 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: "Eric D. Mudama" <edmudama@mail.bounceswoosh.org>,
-       Timothy Miller <miller@techsource.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: File system performance, hardware performance, ext3, 3ware RAID1, etc.
-Message-ID: <20040213224524.GB13937@alpha.home.local>
-References: <402C0D0F.6090203@techsource.com> <20040213055350.GG29363@alpha.home.local> <20040213193046.GA17790@bounceswoosh.org> <Pine.LNX.4.58.0402131146040.2144@home.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0402131146040.2144@home.osdl.org>
-User-Agent: Mutt/1.4i
+	Fri, 13 Feb 2004 17:39:36 -0500
+Received: from pxy1allmi.all.mi.charter.com ([24.247.15.38]:61129 "EHLO
+	proxy1.gha.chartermi.net") by vger.kernel.org with ESMTP
+	id S267262AbUBMWit (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Feb 2004 17:38:49 -0500
+Message-ID: <402D528E.5070105@quark.didntduck.org>
+Date: Fri, 13 Feb 2004 17:41:18 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040116
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: RANDAZZO@ddc-web.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: FW: spinlocks dont work
+References: <89760D3F308BD41183B000508BAFAC4104B16F74@DDCNYNTD>
+In-Reply-To: <89760D3F308BD41183B000508BAFAC4104B16F74@DDCNYNTD>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Charter-MailScanner-Information: 
+X-Charter-MailScanner: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 13, 2004 at 11:55:16AM -0800, Linus Torvalds wrote:
- 
-> > the absolute worst-case write performance should be the same as read
-> > performance.
+RANDAZZO@ddc-web.com wrote:
+> On a uniprocessor system, with config_smp NOT Defined...
 > 
-> That is only true if the disk block-size is smaller than the IO blocksize. 
-> Can somebody fill me in on what modern disks do, especially the 
-> high-density ones?
+> Note the following example:
+> 
+> driver 'A' calls spin_lock_irqsave and gets through (but does not call
+> ..unlock).
+> driver 'B' calls spin_lock_irqsave and gets through???
+> 
+> How can B get through if A did not unlock yet?
+> 
 
-This is purely hypothetical, but perhaps write-precompensation or the signal
-intensity or shape in the head implies to write at "safer" frequencies ? we're
-speaking about hundreds of megahertz, and I've always wondered what the signal
-looks like when it reaches the head.
+On UP, spinlocks are no-ops.
 
-Cheers,
-Willy
-
+--
+				Brian Gerst

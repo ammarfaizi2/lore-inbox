@@ -1,95 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262598AbVA0Mse@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262599AbVA0Mt3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262598AbVA0Mse (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 07:48:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262599AbVA0Mse
+	id S262599AbVA0Mt3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 07:49:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262600AbVA0Mt2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 07:48:34 -0500
-Received: from cantor.suse.de ([195.135.220.2]:48817 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262598AbVA0Msa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 07:48:30 -0500
-Date: Thu, 27 Jan 2005 13:48:14 +0100
-From: Olaf Hering <olh@suse.de>
-To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Cc: Deepak Saxena <dsaxena@plexity.net>, Oleg Drokin <green@crimea.edu>,
-       Christer Weinigel <wingel@nano-system.com>
-Subject: [PATCH] correct sysfs name for watchdog devices
-Message-ID: <20050127124814.GA22674@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+	Thu, 27 Jan 2005 07:49:28 -0500
+Received: from gizmo03bw.bigpond.com ([144.140.70.13]:6620 "HELO
+	gizmo03bw.bigpond.com") by vger.kernel.org with SMTP
+	id S262599AbVA0MtT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jan 2005 07:49:19 -0500
+Message-ID: <41F8E33A.9030100@bigpond.net.au>
+Date: Thu, 27 Jan 2005 23:48:58 +1100
+From: Cal <hihone@bigpond.net.au>
+Reply-To: hihone@bigpond.net.au
+User-Agent: Mozilla Thunderbird 0.6+ (X11/20050122)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+Cc: "Jack O'Quin" <joq@io.com>, linux <linux-kernel@vger.kernel.org>,
+       CK Kernel <ck@vds.kolivas.org>, Mike Galbraith <efault@gmx.de>
+Subject: Re: [patch, 2.6.11-rc2] sched: RLIMIT_RT_CPU feature, -D8
+References: <20050124125814.GA31471@elte.hu> <20050125135613.GA18650@elte.hu> <41F6C5CE.9050303@bigpond.net.au> <41F6C797.80403@bigpond.net.au> <20050126100846.GB8720@elte.hu> <41F7C2CA.2080107@bigpond.net.au> <87acqwnnx1.fsf@sulphur.joq.us> <41F7DA1B.5060806@bigpond.net.au> <87vf9km31j.fsf@sulphur.joq.us> <41F84BDF.3000506@bigpond.net.au> <20050127085120.GF22482@elte.hu>
+In-Reply-To: <20050127085120.GF22482@elte.hu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Bogosity: Ham, tests=bogofilter, spamicity=0.000001, version=0.93.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ingo Molnar wrote:
+> thanks, this pinpointed the bug - i've uploaded the -D8 patch to the
+> usual place:
+> 
+>   http://redhat.com/~mingo/rt-limit-patches/
+> 
+> does it fix your crash? Mike Galbraith reported a crash too that i think
+> could be the same one.
 
-While looking for possible candidates for our udev.rules package,
-I found a few odd ->name properties. /dev/watchdog has minor 130 according
-to devices.txt. Since all watchdog drivers use the misc_register() call,
-they will end up in /sys/class/misc/$foo. udev may create the
-/dev/watchdog node if the driver is loaded.
-I dont have such a device, so I cant test it.
-The drivers below provide names with spaces and even with / in it.
-Not a big deal, but apps (which apps?) may expect /dev/watchdog.
+Yep, with D8 and SMP the test completes successfully.
 
-
-Signed-off-by: Olaf Hering <olh@suse.de>
-
-
- ixp2000_wdt.c |    2 +-
- ixp4xx_wdt.c  |    2 +-
- sa1100_wdt.c  |    2 +-
- scx200_wdt.c  |    2 +-
- 4 files changed, 4 insertions(+), 4 deletions(-)
-
-diff -purN linux-2.6.11-rc2/drivers/char/watchdog/ixp2000_wdt.c linux-2.6.10/drivers/char/watchdog/ixp2000_wdt.c
---- linux-2.6.11-rc2/drivers/char/watchdog/ixp2000_wdt.c	2005-01-22 02:47:18.000000000 +0100
-+++ linux-2.6.10/drivers/char/watchdog/ixp2000_wdt.c	2005-01-27 13:29:04.767990264 +0100
-@@ -186,7 +186,7 @@ static struct file_operations ixp2000_wd
- static struct miscdevice ixp2000_wdt_miscdev =
- {
- 	.minor		= WATCHDOG_MINOR,
--	.name		= "IXP2000 Watchdog",
-+	.name		= "watchdog",
- 	.fops		= &ixp2000_wdt_fops,
- };
- 
-diff -purN linux-2.6.11-rc2/drivers/char/watchdog/ixp4xx_wdt.c linux-2.6.10/drivers/char/watchdog/ixp4xx_wdt.c
---- linux-2.6.11-rc2/drivers/char/watchdog/ixp4xx_wdt.c	2005-01-22 02:48:48.000000000 +0100
-+++ linux-2.6.10/drivers/char/watchdog/ixp4xx_wdt.c	2005-01-27 13:29:25.564948422 +0100
-@@ -180,7 +180,7 @@ static struct file_operations ixp4xx_wdt
- static struct miscdevice ixp4xx_wdt_miscdev =
- {
- 	.minor		= WATCHDOG_MINOR,
--	.name		= "IXP4xx Watchdog",
-+	.name		= "watchdog",
- 	.fops		= &ixp4xx_wdt_fops,
- };
- 
-diff -purN linux-2.6.11-rc2/drivers/char/watchdog/sa1100_wdt.c linux-2.6.10/drivers/char/watchdog/sa1100_wdt.c
---- linux-2.6.11-rc2/drivers/char/watchdog/sa1100_wdt.c	2005-01-22 02:48:00.000000000 +0100
-+++ linux-2.6.10/drivers/char/watchdog/sa1100_wdt.c	2005-01-27 13:30:33.613746093 +0100
-@@ -176,7 +176,7 @@ static struct file_operations sa1100dog_
- static struct miscdevice sa1100dog_miscdev =
- {
- 	.minor		= WATCHDOG_MINOR,
--	.name		= "SA1100/PXA2xx watchdog",
-+	.name		= "watchdog",
- 	.fops		= &sa1100dog_fops,
- };
- 
-diff -purN linux-2.6.11-rc2/drivers/char/watchdog/scx200_wdt.c linux-2.6.10/drivers/char/watchdog/scx200_wdt.c
---- linux-2.6.11-rc2/drivers/char/watchdog/scx200_wdt.c	2005-01-22 02:48:28.000000000 +0100
-+++ linux-2.6.10/drivers/char/watchdog/scx200_wdt.c	2005-01-27 13:32:08.321384209 +0100
-@@ -210,7 +210,7 @@ static struct file_operations scx200_wdt
- 
- static struct miscdevice scx200_wdt_miscdev = {
- 	.minor = WATCHDOG_MINOR,
--	.name  = NAME,
-+	.name  = NAME, /* make that "watchdog" ? */
- 	.fops  = &scx200_wdt_fops,
- };
- 
+cheers, Cal

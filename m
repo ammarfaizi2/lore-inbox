@@ -1,70 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263444AbTKAVCb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Nov 2003 16:02:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263445AbTKAVCb
+	id S263447AbTKAVEL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Nov 2003 16:04:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263448AbTKAVEL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Nov 2003 16:02:31 -0500
-Received: from twilight.cs.hut.fi ([130.233.40.5]:65069 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP id S263444AbTKAVC3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Nov 2003 16:02:29 -0500
-Date: Sat, 1 Nov 2003 23:02:23 +0200
-From: Ville Herva <vherva@niksula.hut.fi>
-To: Willy Tarreau <willy@w.ods.org>
+	Sat, 1 Nov 2003 16:04:11 -0500
+Received: from smtp7.hy.skanova.net ([195.67.199.140]:53955 "EHLO
+	smtp7.hy.skanova.net") by vger.kernel.org with ESMTP
+	id S263447AbTKAVEH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Nov 2003 16:04:07 -0500
+To: Ricardo Galli <gallir@uib.es>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: ide write cache issue? [Re: Something corrupts raid5 disks slightly during reboot]
-Message-ID: <20031101210223.GM4640@niksula.cs.hut.fi>
-Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
-	Willy Tarreau <willy@w.ods.org>, linux-kernel@vger.kernel.org
-References: <20031031190829.GM4868@niksula.cs.hut.fi> <3FA30F4A.5030500@hundstad.net> <20031101082745.GF4640@niksula.cs.hut.fi> <20031101155604.GB530@alpha.home.local> <20031101182518.GL4640@niksula.cs.hut.fi> <20031101190114.GA936@alpha.home.local>
-Mime-Version: 1.0
+Subject: Re: Synaptics losing sync
+References: <200311011751.39610.gallir@uib.es>
+From: Peter Osterlund <petero2@telia.com>
+Date: 01 Nov 2003 22:04:02 +0100
+In-Reply-To: <200311011751.39610.gallir@uib.es>
+Message-ID: <m2k76jssvx.fsf@p4.localdomain>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031101190114.GA936@alpha.home.local>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 01, 2003 at 08:01:14PM +0100, you [Willy Tarreau] wrote:
-> On Sat, Nov 01, 2003 at 08:25:18PM +0200, Ville Herva wrote:
->  
-> > Is there anything special in booting to DOS instead of different linux
-> > kernel, other than that it would rule out some strange kernel bug that is
-> > present in 2.2 and 2.4?
+Ricardo Galli <gallir@uib.es> writes:
+
+> I've sent this report before. 
 > 
-> No, it was just to quicky confirm or deny the fact that it's the kernel
-> which causes the problem. It could have been a long standing bug in the IDE
-> or partition code, and which is present in several kernels. 
-
-I vaguely recall some ide write cache flushing code was fixed some time ago,
-but I can't find it in the archives. Maybe I dreamed that up. But I still
-wonder why an otherwise idle drive would hold the data in write cache for so
-long (several minutes.)
-
-> But as you say that it affects two different controllers, there's little
-> chance that it's caused by anything except linux itself. 
-
-Unless the drive is buggy wrt. flushing its write cache. But I think it's
-a quite distant possibility.
-
-> Then, the reboot on DOS will only tell you if the drives were corrupted at
-> startup or at shutdown.
-
-Yep. I'll try to find the moment to boot the beast into something else than
-the current kernel / distro (it could in theory be something in userspace,
-though I cannot think what). 
-
-> > BTW: the corruption happens on warm reboots (running reboot command), not
-> > just on power off / on.
+> I repeat it just in case someone found a workaround, and because 
+> 2.6.0-test9 gives other related errors as well (TSC error):
 > 
-> OK, but the BIOS scans your disks even during warm reboots. 
+> ...
+> Synaptics driver lost sync at 1st byte
+> Synaptics driver lost sync at 1st byte
+> Synaptics driver lost sync at 1st byte
+> Synaptics driver lost sync at 4th byte
+> Synaptics driver lost sync at 1st byte
+> Synaptics driver lost sync at 1st byte
+> Synaptics driver lost sync at 1st byte
+> Synaptics driver lost sync at 1st byte
+> Synaptics driver resynced.
+> Losing too many ticks!
+> TSC cannot be used as a timesource. (Are you running with SpeedStep?)
+> Falling back to a sane timesource.
+> Synaptics driver lost sync at 1st byte
+> ...
+> 
+> The laptop is a Dell X200 with APM and cpufreq enabled, and IO-apic 
+> disabled.
+> 
+> I tested with and w/o preemptive kernel and cpufreq with the same results. 
 
-True, I mainly made this note because I hadn't mentioned it before in the
-thread, and I thought it might have some relevance wrt. possible ide write
-caching problems. I didn't mean it as a response to the BIOS theory.
+Did you try without APM? My laptop loses many clock ticks if I enable
+APM. It works fine with ACPI though.
 
-
--- v --
-
-v@iki.fi
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

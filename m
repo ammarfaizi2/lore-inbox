@@ -1,42 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262866AbVCDOkk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261410AbVCDOrW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262866AbVCDOkk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 09:40:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262405AbVCDOha
+	id S261410AbVCDOrW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 09:47:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262405AbVCDOrV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 09:37:30 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:9371 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S262212AbVCDOeB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 09:34:01 -0500
-Date: Fri, 4 Mar 2005 14:22:36 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       Russell King <rmk+lkml@arm.linux.org.uk>, Ian Molton <spyro@f2s.com>,
-       Richard Purdie <rpurdie@rpsys.net>
-Subject: Re: [PATCH][MMC] Secure Digital (SD) support
-Message-ID: <20050304132236.GB3485@openzaurus.ucw.cz>
-References: <422701A0.8030408@drzeus.cx>
+	Fri, 4 Mar 2005 09:47:21 -0500
+Received: from rproxy.gmail.com ([64.233.170.195]:47383 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261410AbVCDOrP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 09:47:15 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=eDFy466q56/p/MZPlfZdinz/aA+hhd49cbv4YhBsmegtaoUu9McnIeDD0JiC5w776vLc8U+5kmWKPELNLuQk1H/XFeiQeYgb3Cnsqi4fm1Gc71LU6sm+MIa0lQRrJhv1sg6QovpBCPGUv9yW9anBOavOvLEbmY0qOSjlBHuJ/8Y=
+Message-ID: <65258a58050304064710b403d7@mail.gmail.com>
+Date: Fri, 4 Mar 2005 15:47:10 +0100
+From: Vincent Vanackere <vincent.vanackere@gmail.com>
+Reply-To: Vincent Vanackere <vincent.vanackere@gmail.com>
+To: Con Kolivas <kernel@kolivas.org>, axboe@suse.de
+Subject: Re: 2.6.11-ck1 (cfq-timeslice)
+Cc: ck@vds.kolivas.org,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <200503030030.29722.kernel@kolivas.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <422701A0.8030408@drzeus.cx>
-User-Agent: Mutt/1.3.27i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <200503030030.29722.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> Added since 2.6.10-ck7:
+> +cfq-ts-21.diff
+> The latest version of Jens' cfq-timeslice i/o scheduler now heavily tested and
+> with full read i/o priority support
 
-> Here are the patches for Secure Digital support that I've been 
-> sitting on for a while. I tried to get some feedback on inclusion of 
-> this previously but since I didn't get any I'll just submit the thing.
-> It was originally diffed against 2.6.10 but it applies to 2.6.11 just 
-> fine (only minor fuzz).
+Speaking of the cfq-timeslice scheduler, is there a version that
+applies to recent -mm kernels ?
+(I cannot find anything more recent than 2.6.10-rc3-mm1).
+I'd really love to try it again as it made quite a noticeable
+difference last time I've tried (but I can't live without reiser4 any
+more...).
 
-This is great! Hopefully it will mean no-more-binary-only-modules-on-zaurus...
+Best regards,
 
-
--- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
-
+Vincent

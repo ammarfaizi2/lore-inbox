@@ -1,40 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263187AbTGXT27 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jul 2003 15:28:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268019AbTGXT27
+	id S269473AbTGXT3i (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jul 2003 15:29:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268019AbTGXT3i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jul 2003 15:28:59 -0400
-Received: from crosslink-village-512-1.bc.nu ([81.2.110.254]:62202 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S263187AbTGXT26
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jul 2003 15:28:58 -0400
-Subject: Re: [uClinux-dev] Kernel 2.6 size increase - get_current()?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Hollis Blanchard <hollisb@us.ibm.com>
-Cc: David McCullough <davidm@snapgear.com>, uclinux-dev@uclinux.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <B45078B7-BDEB-11D7-B453-000A95A0560C@us.ibm.com>
-References: <B45078B7-BDEB-11D7-B453-000A95A0560C@us.ibm.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1059075436.7998.58.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 24 Jul 2003 20:37:17 +0100
+	Thu, 24 Jul 2003 15:29:38 -0400
+Received: from tomts12.bellnexxia.net ([209.226.175.56]:56306 "EHLO
+	tomts12-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S269473AbTGXT3g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jul 2003 15:29:36 -0400
+Date: Thu, 24 Jul 2003 15:43:11 -0400 (EDT)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@localhost.localdomain
+To: Diego Calleja =?ISO-8859-15?Q?Garc=EDa?= <diegocg@teleline.es>
+cc: ml@basmevissen.nl, linux-kernel@vger.kernel.org
+Subject: Re: time for some drivers to be removed?
+In-Reply-To: <20030724211611.3f969ae4.diegocg@teleline.es>
+Message-ID: <Pine.LNX.4.53.0307241541200.21531@localhost.localdomain>
+References: <Pine.LNX.4.53.0307240817520.19533@localhost.localdomain>
+ <1059058737.7994.25.camel@dhcp22.swansea.linux.org.uk> <3F1FFC94.7080409@basmevissen.nl>
+ <20030724193211.39d7ed68.diegocg@teleline.es>
+ <Pine.LNX.4.53.0307241346490.20950@localhost.localdomain>
+ <20030724211611.3f969ae4.diegocg@teleline.es>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2003-07-24 at 16:30, Hollis Blanchard wrote:
-> So you're arguing for more inlining, because icache speculative 
-> prefetch will pick up the inlined code?
+On Thu, 24 Jul 2003, Diego Calleja [ISO-8859-15] García wrote:
 
-I'm arguing for short inlined fast paths and non inlined unusual
-paths.
+> El Thu, 24 Jul 2003 13:50:48 -0400 (EDT) "Robert P. J. Day" <rpjday@mindspring.com> escribió:
+> 
+> > and in the end, while i know some folks don't think it's a big
+> > deal, i think doing a "make allyesconfig" really should work.
+> 
+> well, AFAIK "make allyesconfig" is a debug target; ie. it 
+> shouldn't be succesful from a developer point of view.
 
-> Or you're arguing for less, because code like get_current() which is 
-> called frequently could have a single copy living in icache?
+you're right, that's a good point.  but using the example
+i used before, it should still not be acceptable to allow
+someone to select the "riscom8" driver explicitly and have 
+it fail to compile.
 
-Depends how much the jump costs you.
+your point about the debug target is well taken, though.
 
+ok, i'm going back to work now.  really.
+
+rday

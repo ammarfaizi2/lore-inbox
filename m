@@ -1,39 +1,143 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280059AbRKXU7h>; Sat, 24 Nov 2001 15:59:37 -0500
+	id <S280028AbRKXU6y>; Sat, 24 Nov 2001 15:58:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280037AbRKXU7O>; Sat, 24 Nov 2001 15:59:14 -0500
-Received: from h24-77-26-115.gv.shawcable.net ([24.77.26.115]:34703 "EHLO
-	localhost") by vger.kernel.org with ESMTP id <S280130AbRKXU7I>;
-	Sat, 24 Nov 2001 15:59:08 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Ryan Cumming <bodnar42@phalynx.dhs.org>
-To: Phil Sorber <aafes@psu.edu>
-Subject: Re: Linux 2.4.16-pre1
-Date: Sat, 24 Nov 2001 12:58:50 -0800
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <Pine.LNX.4.21.0111241639480.12066-100000@freak.distro.conectiva> <1006634201.290.11.camel@praetorian>
-In-Reply-To: <1006634201.290.11.camel@praetorian>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E167jsx-0005PL-00@localhost>
+	id <S280136AbRKXU6p>; Sat, 24 Nov 2001 15:58:45 -0500
+Received: from [200.222.192.170] ([200.222.192.170]:20385 "EHLO
+	pervalidus.dyndns.org") by vger.kernel.org with ESMTP
+	id <S280028AbRKXU6f>; Sat, 24 Nov 2001 15:58:35 -0500
+Date: Sat, 24 Nov 2001 18:58:50 -0200
+From: =?unknown-8bit?B?RnLpZOlyaWMgTC4gVy4=?= Meunier <0@pervalidus.net>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: Chris Ricker <kaboom@gatech.edu>
+Subject: Re: [PATCH] Documentation/Changes
+Message-ID: <20011124205850.GA24543@pervalidus>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="wRRV7LY7NUeQGEoC"
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.23.1i
+X-Mailer: Mutt/1.3.23.1i - Linux 2.4.14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On November 24, 2001 12:36, Phil Sorber wrote:
-> On Sat, 2001-11-24 at 13:40, Marcelo Tosatti wrote:
-> > Its available at
-> > ftp.xx.kernel.org/pub/linux/kernel/people/marcelo/2.4/testing/
-> >
-> > duh. :)
->
-> Are these going to appear on the front page of kernel.org? all i see
-> there now is 2.5.1pre1, no 2.4.16pre1.
 
-I doubt that the kernel.org update scripts respect Marcelo's new position by 
-checking people/marcelo/2.4/testing/ for prepatches. Personally, I think his 
-prepatches should go in v2.4/testing, and Linus' should go in v2.5/testing, 
-it'd be much cleaner that way.
+--wRRV7LY7NUeQGEoC
+Content-Type: text/plain; charset=unknown-8bit
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
--Ryan
+OK, so here's a new Documentation/Changes file against
+2.4.15. Now, with the addition of ext3, we need at least a
+recent e2fsprogs. 1.19 should be OK for ext2, but not for
+ext3, right ? I included it in the e2fsprogs section. Feel
+free to modify accordingly.
+
+Nerijus Baliunas: I renamed GNU Compiler Collection to GNU C.
+
+Dmitri Popov: Do you have a patch for quota-tools ? What's
+the minimal requirement ?
+
+The old one I made against 2.4.14 is in the
+http://marc.theaimsgroup.com/?l=linux-kernel&m=100639925307718&w=2
+thread.
+
+PS: Chris, your other e-mail address doesn't work. I removed
+it.
+
+-- 
+0@pervalidus.{net, {dyndns.}org} Tel: 55-21-2717-2399 (Niterói-RJ BR)
+
+--wRRV7LY7NUeQGEoC
+Content-Type: application/octet-stream
+Content-Disposition: attachment; filename="Changes.gz"
+Content-Transfer-Encoding: base64
+
+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
+UR/8uRV1xqtqF/prlK6+E/8P+EKq+P0qAAA=
+
+--wRRV7LY7NUeQGEoC--

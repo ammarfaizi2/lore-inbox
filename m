@@ -1,45 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271042AbTGVXa3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 19:30:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271044AbTGVXa3
+	id S271047AbTGVXyx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 19:54:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271048AbTGVXyx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 19:30:29 -0400
-Received: from crosslink-village-512-1.bc.nu ([81.2.110.254]:27120 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S271042AbTGVXa2 convert rfc822-to-8bit
+	Tue, 22 Jul 2003 19:54:53 -0400
+Received: from bay2-f83.bay2.hotmail.com ([65.54.247.83]:18449 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S271047AbTGVXyw
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 19:30:28 -0400
-Subject: Re: pivot_root seems to be broken in 2.4.21-ac4
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Mika =?ISO-8859-1?Q?Penttil=E4?= <mika.penttila@kolumbus.fi>
-Cc: Rene Mayrhofer <rene.mayrhofer@gibraltar.at>,
-       Jason Baron <jbaron@redhat.com>, vda@port.imtp.ilyichevsk.odessa.ua,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3F1DB75E.1050906@kolumbus.fi>
-References: <Pine.LNX.4.44.0307221331090.2754-100000@dhcp64-178.boston.redhat.com>
-	 <1058895650.4161.23.camel@dhcp22.swansea.linux.org.uk>
-	 <3F1D7C80.6020605@gibraltar.at>
-	 <1058904025.4160.30.camel@dhcp22.swansea.linux.org.uk>
-	 <3F1DB75E.1050906@kolumbus.fi>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-Organization: 
-Message-Id: <1058917089.4768.6.camel@dhcp22.swansea.linux.org.uk>
+	Tue, 22 Jul 2003 19:54:52 -0400
+X-Originating-IP: [147.145.40.43]
+X-Originating-Email: [sumanesh@hotmail.com]
+From: "sumanesh samanta" <sumanesh@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: kernel 2.4x - getting physical address for pages in HIGHMEM 
+Date: Wed, 23 Jul 2003 00:09:54 +0000
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 23 Jul 2003 00:38:09 +0100
+Content-Type: text/plain; format=flowed
+Message-ID: <BAY2-F83zgm7hVTThPD00010aa2@hotmail.com>
+X-OriginalArrivalTime: 23 Jul 2003 00:09:57.0275 (UTC) FILETIME=[C0076EB0:01C350AE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2003-07-22 at 23:14, Mika Penttilä wrote:
-> /sbin/init used to start up with files->count > 1 and does 
-> close(0);close(1);close(2); -> kernel thread fds close.
-> 
-> Now with unshare_files() and init's files->count ==1 the kernel threads  
-> /dev/console fds remain open. But one could ask of course so what :)
+Hi,
 
-In other words the kernel side got caught out because it assumed 
-the bogus thread behaviour and needs some close() calls adding. That
-would make sense.
+I am facing a lot of problems in trying to get the physical address(actually 
+bus address) from of page.
 
+The most obvious answer, virt_to_bus(kmap(page)) seems to work for pages 
+that are NOT  in high memory.
+
+For pages in high memory, I have read up a lot of documentation, and mailing 
+list questions, but the only thing that seems to work for me is,
+(page-mem_map)<<PAGE_SHIFT
+
+Now, the mail i got this from says that this would work only when  mem_map 
+[] starts at zero.
+
+I am pretty confused here, this seems to be a obvious problem, why does 
+Linux not have a pretty macro or function that would work in all situations?
+
+PS. please cc me in any answers, as I am not subscribed to this list.
+
+Thanks
+sumanesh
+
+_________________________________________________________________
+Protect your PC - get McAfee.com VirusScan Online  
+http://clinic.mcafee.com/clinic/ibuy/campaign.asp?cid=3963
 

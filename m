@@ -1,87 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262647AbTJXVYx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Oct 2003 17:24:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262648AbTJXVYx
+	id S262652AbTJXVdL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Oct 2003 17:33:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262665AbTJXVdL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Oct 2003 17:24:53 -0400
-Received: from smtp01.web.de ([217.72.192.180]:28932 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id S262647AbTJXVYs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Oct 2003 17:24:48 -0400
-From: Heinz-Georg Sawicki <hgsawicki@web.de>
-Reply-To: hgsawicki@web.de
+	Fri, 24 Oct 2003 17:33:11 -0400
+Received: from vladimir.pegasys.ws ([64.220.160.58]:63758 "EHLO
+	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S262652AbTJXVdH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Oct 2003 17:33:07 -0400
+Date: Fri, 24 Oct 2003 14:33:04 -0700
+From: jw schultz <jw@pegasys.ws>
 To: linux-kernel@vger.kernel.org
-Subject: Bug+Bugfix: Serialdriver 2.6.0-test8(setting custum speed)
-Date: Fri, 24 Oct 2003 23:19:57 +0200
-User-Agent: KMail/1.5.3
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Subject: Re: [RFC] frandom - fast random generator module
+Message-ID: <20031024213304.GA29903@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	linux-kernel@vger.kernel.org
+References: <3F8E552B.3010507@users.sf.net> <20031022122251.A3921@borg.org> <3F97498D.9050704@storm.ca> <bnbo18$49b$1@gatekeeper.tmr.com> <bnc3ru$kab$2@abraham.cs.berkeley.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200310242319.59470.hgsawicki@web.de>
+In-Reply-To: <bnc3ru$kab$2@abraham.cs.berkeley.edu>
+User-Agent: Mutt/1.3.27i
+X-Message-Flag: This message may contain content offensive to the humour impaired.  Read at your own risk.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Fri, Oct 24, 2003 at 08:59:42PM +0000, David Wagner wrote:
+> bill davidsen wrote:
+> >I know someone noted that frandom couldn't just replace urandom, but I
+> >don't recall why.
+> 
+> Because we don't have enough confidence in the cryptographic
+> security of frandom.
 
-First excuse me for my bad english.
-In case of custom speed the routine   uart_get_divisor  in  serial_core.c  
-must calcuate the custom baudrate and return it to the caller. It may look
-somewhat like this:
+If that is the only reason there is no need for further
+discussion on this thread.  The idea of adding /dev/frandom
+is i think clearly rejected.  Frandom as replacement for
+urandom is a future possibility.
 
-unsigned int
-uart_get_divisor(struct uart_port *port, unsigned int* pBaud)
-{
-	unsigned int quot;
+The frandom author or someone else who cares enough can code
+a patch that provides does do a drop-in replacement for
+urandom.  Preferably that patch could have a build option to
+chose which PRNG to use.  People that care can try the
+patch.  Everyone else can ignore it.
 
-	/*
-	 * Old custom speed handling.
-	 */
-	if (*pBaud == 38400 && (port->flags & UPF_SPD_MASK) == UPF_SPD_CUST)
-    {
-		quot = port->custom_divisor;
-        *pBaud = port->uartclk / (16 * quot);
-    }
-	else
-		quot = port->uartclk / (16 * (*pBaud));
+In the mean time the cryptogeeks can analise it, bang on it,
+sprinkle it with pixie dust, or whatever until there is
+enough confidence or its weaknesses are known.
 
-	return quot;
-}
+If after these things are done, months from now, it can be
+considered a candidate, or not, for inclusion in some of the
+speciality, distribution or development trees.
 
-This is necessary because  serial8250_set_termios  in   8250.c   uses the 
-baudrate for setting the fifotriggerlevel
 
-		if (baud < 2400)
-			fcr = UART_FCR_ENABLE_FIFO | UART_FCR_TRIGGER_1;
-#ifdef CONFIG_SERIAL_8250_RSA
-		else if (up->port.type == PORT_RSA)
-			fcr = UART_FCR_ENABLE_FIFO | UART_FCR_TRIGGER_14;
-#endif
-		else
-			fcr = UART_FCR_ENABLE_FIFO | UART_FCR_TRIGGER_8;
+-- 
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
 
-In my case i setup a customdivisor of 11520 to get a baudrate of 10 baud, to 
-receive the dcf77-signal(UART 16550A, PC-Hardware). Instead of one byte per 
-second i received 8 bytes at once because of the wrong triggerlevel. By 
-setting the triggerlevel always to one 
-		:
-		else
-			fcr = UART_FCR_ENABLE_FIFO | UART_FCR_TRIGGER_1;
-
-i checked that this was the cause for the problem.
-
-By the way, the comment
-
-	/*
-	 * Old custom speed handling.
-	 */
- 
-says, that this is the old way for setting up a custom speed. Can you please 
-tell me the new way for doing this. Thanks.
-
-Have a nice day,
-
-	Heinz-Georg Sawicki
-
+		Remember Cernan and Schmitt

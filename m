@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129429AbQK1AHU>; Mon, 27 Nov 2000 19:07:20 -0500
+        id <S129476AbQK1Aca>; Mon, 27 Nov 2000 19:32:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129639AbQK1AHK>; Mon, 27 Nov 2000 19:07:10 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:44548 "EHLO
-        vger.timpanogas.org") by vger.kernel.org with ESMTP
-        id <S129429AbQK1AG6>; Mon, 27 Nov 2000 19:06:58 -0500
-Message-ID: <3A22EF12.4A5D0121@timpanogas.org>
-Date: Mon, 27 Nov 2000 16:32:34 -0700
-From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
-Organization: TRG, Inc.
-X-Mailer: Mozilla 4.7 [en] (WinNT; I)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Sven Koch <haegar@cut.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.2.18-23 w/Frame Buffer (LEVEL IV)
-In-Reply-To: <Pine.LNX.4.30.0011280012530.22068-100000@space.comunit.de>
+        id <S129539AbQK1AcV>; Mon, 27 Nov 2000 19:32:21 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:17412 "EHLO
+        wire.cadcamlab.org") by vger.kernel.org with ESMTP
+        id <S129476AbQK1AcN>; Mon, 27 Nov 2000 19:32:13 -0500
+Date: Mon, 27 Nov 2000 18:01:58 -0600
+To: Tigran Aivazian <tigran@veritas.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] removal of "static foo = 0"
+Message-ID: <20001127180158.G8881@wire.cadcamlab.org>
+In-Reply-To: <20001125235511.A16662@redhat.com> <Pine.LNX.4.21.0011261036001.1015-100000@penguin.homenet>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.21.0011261036001.1015-100000@penguin.homenet>; from tigran@veritas.com on Sun, Nov 26, 2000 at 10:37:07AM +0000
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+[Tigran Aivazian]
+> _BUT_ never let this to be a default option, please.  Because there
+> are valid cases where a programmer things "this is in .data" and that
+> means this should be in .data.
 
-Sven Koch wrote:
-> 
-> On Mon, 27 Nov 2000, Jeff V. Merkey wrote:
-> 
-> > A level IV issue in 2.2.18-23.  With frame buffer enabled, upon boot,
-> > the OS is displaying four penguin images instead of one penguin in the
-> > upper left corner of the screen.  Looks rather tacky.  Also puts the VGA
-> > text mode default into mode 274.   Is this what's supposed to happen?
-> 
-> Let me guess: it's a 4 cpu smp system?
+If you are writing the sort of code that cares which section it ends up
+in, you need to use __attribute__((section)).  You probably will be
+using things like __attribute__((align)) as well.  Relying on compiler
+behavior here is dangerous.
 
-Correct.  I take it them this is supposed to happen.
+I agree though that an option is called for, either -fassume-bss-zero
+or -fno-assume-bss-zero, not sure which should be the default.
 
-Jeff
-
-> 
-> c'ya
-> sven
-> 
-> --
-> 
-> The Internet treats censorship as a routing problem, and routes around it.
-> (John Gilmore on http://www.cygnus.com/~gnu/)
+Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

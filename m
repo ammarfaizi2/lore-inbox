@@ -1,52 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269892AbRHIQ7k>; Thu, 9 Aug 2001 12:59:40 -0400
+	id <S270115AbRHIRJY>; Thu, 9 Aug 2001 13:09:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269994AbRHIQ7a>; Thu, 9 Aug 2001 12:59:30 -0400
-Received: from adsl-151-204-73-220.delval.adsl.bellatlantic.net ([151.204.73.220]:6736
-	"EHLO linajudo.owsla.net") by vger.kernel.org with ESMTP
-	id <S269981AbRHIQ7U>; Thu, 9 Aug 2001 12:59:20 -0400
-Date: Thu, 9 Aug 2001 11:14:08 -0400
-From: Andrew Ferguson <andrew@owsla.cjb.net>
-To: linux-kernel@vger.kernel.org
-Subject: Compile Error in 2.4.7-ac10
-Message-ID: <20010809111408.A19599@linajudo.princeton.edu>
+	id <S270233AbRHIRJO>; Thu, 9 Aug 2001 13:09:14 -0400
+Received: from chunnel.redhat.com ([199.183.24.220]:35577 "EHLO
+	dukat.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S270115AbRHIRJC>; Thu, 9 Aug 2001 13:09:02 -0400
+Date: Thu, 9 Aug 2001 17:22:46 +0100
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Christian Borntraeger <CBORNTRA@de.ibm.com>
+Cc: ext3-users@redhat.com, linux-kernel@vger.kernel.org, arjanv@redhat.com,
+        sct@redhat.com, trini@kernel.crashing.org,
+        Carsten Otte <COTTE@de.ibm.com>
+Subject: Re: Debugging help: BUG: Assertion failure with ext3-0.95 for 2.4.7
+Message-ID: <20010809172246.B20408@redhat.com>
+In-Reply-To: <OFA546F20C.78C10EBF-ONC1256AA3.0052D4C2@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.1.1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <OFA546F20C.78C10EBF-ONC1256AA3.0052D4C2@de.ibm.com>; from CBORNTRA@de.ibm.com on Thu, Aug 09, 2001 at 05:24:05PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Attempting to compile the last several 2.4.7-ac kernels (not sure when it
-started, sorry) has led to the following errors:
+On Thu, Aug 09, 2001 at 05:24:05PM +0200, Christian Borntraeger wrote:
+> 
+> Hello ext3-developers,
+> 
+> Just to summarize, I reported a kernel bug message with ext3 on S/390 in
+> transaction.c. I was able to reproduce it with a ext3 on LVM  and on MD.
+> Tom Rini reported a similar problem on PPC. (both big endian). I have sent
+> a backtrace and with jbd-debug set to 5 I was not able to reproduce the
+> problem until now.
 
-make[1]: Entering directory `/usr/src/linux/arch/i386/kernel'
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes
-  -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common
-  -pipe  -march=i586    -c -o traps.o traps.c
-{standard input}: Assembler messages:
-{standard input}:451: Error: suffix or operands invalid for `jmp'
-{standard input}:537: Error: suffix or operands invalid for `jmp'
-{standard input}:621: Error: suffix or operands invalid for `jmp'
-{standard input}:705: Error: suffix or operands invalid for `jmp'
-{standard input}:795: Error: suffix or operands invalid for `jmp'
-{standard input}:870: Error: suffix or operands invalid for `jmp'
-{standard input}:952: Error: suffix or operands invalid for `jmp'
-{standard input}:1023: Error: suffix or operands invalid for `jmp'
-{standard input}:1094: Error: suffix or operands invalid for `jmp'
-{standard input}:1165: Error: suffix or operands invalid for `jmp'
-{standard input}:1236: Error: suffix or operands invalid for `jmp'
-{standard input}:1316: Error: suffix or operands invalid for `jmp'
-make[1]: *** [traps.o] Error 1
-make[1]: Leaving directory `/usr/src/linux/arch/i386/kernel'
-make: *** [_dir_arch/i386/kernel] Error 2
+Thanks.  I think it's due to a missing endian-conversion in
+ext3_clear_blocks().  Could you try the patch below?
 
-Lines 283-286 in the file arch/i386/kernel/traps.c are the source of this
-problem. I can give more information as needed. Thanks.
+Cheers,
+ Stephen
 
-_________________________________________________
-Andrew Ferguson
-http://owsla.cjb.net | andrew@owsla.cjb.net
-AfterStep WM Project: http://www.afterstep.org
+
+Index: fs/ext3/inode.c
+===================================================================
+RCS file: /cvsroot/gkernel/ext3/fs/ext3/inode.c,v
+retrieving revision 1.63
+diff -u -r1.63 inode.c
+--- fs/ext3/inode.c	2001/07/30 12:46:12	1.63
++++ fs/ext3/inode.c	2001/08/09 16:19:29
+@@ -1522,7 +1522,7 @@
+ 	 * AKPM: turn on bforget in journal_forget()!!!
+ 	 */
+ 	for (p = first; p < last; p++) {
+-		u32 nr = *p;
++		u32 nr = le32_to_cpu(*p);
+ 		if (nr) {
+ 			struct buffer_head *bh;
+ 

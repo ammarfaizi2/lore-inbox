@@ -1,56 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130102AbRBGVkm>; Wed, 7 Feb 2001 16:40:42 -0500
+	id <S129032AbRBGVsD>; Wed, 7 Feb 2001 16:48:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130213AbRBGVkc>; Wed, 7 Feb 2001 16:40:32 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:18446 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130102AbRBGVkZ>; Wed, 7 Feb 2001 16:40:25 -0500
-Date: Wed, 7 Feb 2001 13:40:04 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Hugh Dickins <hugh@veritas.com>
-cc: Rik van Riel <riel@conectiva.com.br>,
-        Mark Hahn <hahn@coffee.psychology.mcmaster.ca>,
-        David Howells <dhowells@cambridge.redhat.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] micro-opt DEBUG_ADD_PAGE
-In-Reply-To: <Pine.LNX.4.21.0102071948260.5423-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.10.10102071336230.5084-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129047AbRBGVry>; Wed, 7 Feb 2001 16:47:54 -0500
+Received: from f00f.stub.clear.net.nz ([203.167.224.51]:18436 "HELO
+	metastasis.f00f.org") by vger.kernel.org with SMTP
+	id <S129032AbRBGVrg>; Wed, 7 Feb 2001 16:47:36 -0500
+Date: Thu, 8 Feb 2001 10:47:29 +1300
+From: Chris Wedgwood <cw@f00f.org>
+To: Xuan Baldauf <xuan--reiserfs@baldauf.org>
+Cc: David Rees <dbr@spoke.nols.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "reiserfs-list@namesys.com" <reiserfs-list@namesys.com>
+Subject: Re: [reiserfs-list] Re: Apparent instability of reiserfs on 2.4.1
+Message-ID: <20010208104729.B4749@metastasis.f00f.org>
+In-Reply-To: <3A813A63.EBD1B768@namesys.com> <420500000.981560829@tiny> <20010207083854.F24270@spoke.nols.com> <3A818619.7C3967BC@baldauf.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3A818619.7C3967BC@baldauf.org>; from xuan--reiserfs@baldauf.org on Wed, Feb 07, 2001 at 06:30:01PM +0100
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Feb 07, 2001 at 06:30:01PM +0100, Xuan Baldauf wrote:
+
+    and so on. Maybe I should write a program which automatically
+    detects and reports the zero blocks. I think the theory of tails
+    unpacking does not work out, because there are also areas
+    affected which are not between 2048 and 4096. Also the length of
+    the zeroing can be greater than 2048.  However, I did not
+    encounter a length of over 4096.
+
+these appear on your system every couple of days right? if so... are
+you able to run with the fs mount notails for a couple of days and
+see if you still experience these?
+
+my guess is you probably still will as most log files aren't
+candidates for tail-packing (too large) but it will help eliminate
+one more thing....
 
 
-On Wed, 7 Feb 2001, Hugh Dickins wrote:
-> 
-> The "(1<<PG_bitshift)" part of it is done, sure; but I've rechecked
-> activate_page_nolock() compiled -O2 -march=i686 with egcs-2.91.66 (RH7.0
-> kgcc), gcc-2.96-69 (RH7.0 gcc+fixes), gcc-2.97 (gcc-snapshot-20010207-1).
-> 
-> None of those optimizes this: I believe the semantics of "||" (don't
-> try next test if first succeeds) forbid the optimization "|" gives?
-
-No. The optimization is entirely legal - but the fact that
-"constant_test_bit()" uses a "volatile unsigned int *" is the reason why
-gcc thinks it can't optimize it.
-
-Oh, well. That "volatile" is really totally bogus. But it's there because
-there are probably drivers that do
-
-	while (test_bit(...))
-		/* nothing */;
-
-and the compiler woul doptimize it away a bit too much without the
-volatile. Dang.
-
-You could try to remove the volatile from test_bit, and see if that fixes
-it - but then we'd have to find and add the proper "rmb()" calls to people
-who do the endless loop kind of thing like above.
-
-		Linus
-
+  --cw
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

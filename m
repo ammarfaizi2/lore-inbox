@@ -1,79 +1,48 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: (majordomo@vger.rutgers.edu) by vger.rutgers.edu via listexpand id <S157224AbQG1Xmo>; Fri, 28 Jul 2000 19:42:44 -0400
-Received: by vger.rutgers.edu id <S157229AbQG1Xl5>; Fri, 28 Jul 2000 19:41:57 -0400
-Received: from firewall-in.sch57.msk.ru ([195.178.195.6]:2133 "EHLO dell.sch57.msk.ru") by vger.rutgers.edu with ESMTP id <S161152AbQG1Uo4>; Fri, 28 Jul 2000 16:44:56 -0400
-Date: Sat, 29 Jul 2000 01:02:06 +0400 (MSD)
-From: Khimenko Victor <khim@dell.sch57.msk.ru>
-To: "H. Peter Anvin" <hpa@transmeta.com>
-Cc: Peter Jones <pjones@redhat.com>, clubneon@hereintown.net, linux-kernel@vger.rutgers.edu
+Received: (majordomo@vger.rutgers.edu) by vger.rutgers.edu via listexpand id <S160212AbQG1X6M>; Fri, 28 Jul 2000 19:58:12 -0400
+Received: by vger.rutgers.edu id <S157671AbQG1X4D>; Fri, 28 Jul 2000 19:56:03 -0400
+Received: from [168.143.241.209] ([168.143.241.209]:1478 "EHLO clubneon.com") by vger.rutgers.edu with ESMTP id <S157685AbQG1XyR>; Fri, 28 Jul 2000 19:54:17 -0400
+Date: Fri, 28 Jul 2000 16:13:22 -0400 (EDT)
+From: clubneon <clubneon@clubneon.com>
+To: sl@fireplug.net
+Cc: linux-kernel@vger.rutgers.edu
 Subject: Re: RLIM_INFINITY inconsistency between archs
-In-Reply-To: <3981ED0C.CBE0A0F9@transmeta.com>
-Message-ID: <Pine.LNX.4.10.KSI2.10007290035410.28600-100000@dell.sch57.msk.ru>
+In-Reply-To: <8lss28$v2e$1@whiskey.fireplug.net>
+Message-ID: <Pine.LNX.4.21.0007281602580.3697-100000@clubneon.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-linux-kernel@vger.rutgers.edu
 
+On 28 Jul 2000, Stuart Lynne wrote:
 
-
-On Fri, 28 Jul 2000, H. Peter Anvin wrote:
-
-> Peter Jones wrote:
-> > >
-> > > You missed the point here. Yes, /usr/lib/perl is just fine. But what
-> > > about locally compiled modules ? You can download thing from CPAN,
-> > > compile it and install. It's simple: perl Makefile.PL ; make ; make
-> > > install ... It'll compile CPAN module and will install it ... where
-> > > it'll install it ? Currently it'll install it in
-> > > /usr/lib/perl5/site_perl/i386-linux (arch-dependant files) or in
-> > > /usr/lib/perl5/site_perl (non-arch-dependant files). Emacs will search
-> > > for additional packages in /usr/share/emacs/20.7/site-lisp (and
-> > > /usr/share/emacs/site-lisp) and so on. And sysadmin can not change it
-> > > easily: you need to recompile perl, emacs or tcl.
-> > 
+> In article <Pine.LNX.4.21.0007280808460.73-100000@rc.priv.hereintown.net>,
+> Chris Meadors <clubneon@hereintown.net> wrote:
+> >
+> >But the FHS also says you can't have things like /usr/apache.  But I find
+> >that most useful, as deleting one directory removes all traces of the
+> >program.  Large packages that would normally end up all over the place can
+> >be contained (like X, which FHS does allow to have its own place under
+> >/usr).
 > 
-> Ever heard of "symlinks"?
-> 
+> You can do that in /opt or /usr/local if you like. 
 
-Yeah, of course. Just FHS closed this way as well. Yes, I (as distribution
-maker) can make /usr/lib/perl5/site_perl/i386-linux symlink to
-/usr/local/lib/perl but since
--- cut --
-This directory should always be empty after first installing a
-FHS-compliant system.  No exceptions to this rule should be made other
-than the listed directory stubs.
--- cut --
-I (as distribution maker) can not create /usr/local/lib/perl directory.
-Thus perl's make install will mysteriously fail while trying to install
-stuff. Or I (as sysadmin) must GUESS that I should create /usr/local/lib/perl 
-before using perl's `make install' ? Gosh. So much for FHS-compliance.
-Or may be you can suggest some other clever way to solve this problem ?
+Just because so many (2 or 3) people have mentioned this to me I'll reply
+to it shortly.
 
-P.S. May be I just poor in English and in fact creation of subdirectories
-UNDER /usr/local (not IN /usr/local) is allowed ? At least it looks like
-Debian mantainers think so:
--- cut --
-  3.1.2 Site-specific programs
+The problem I have with /opt is I'm not used to it yet.  I'd have to put
+it on it's own partition just like /usr, /home, and /var.  I don't have
+any feeling for how big /opt should be and I usually totally just forget
+about it.
 
-   As mandated by the FHS no package should place any files in
-   /usr/local, either by putting them in the file system archive to be
-   unpacked by dpkg or by manipulating them in their maintainer scripts.
+I'm building a new system now, I'm going to attempt to make use of /opt
+for larger, self-contained packages.  BUT /opt is going to be a symlink to
+/usr/local (take that FHS).  At least now I'll get a little more used to
+using /opt.
 
-   However, the package should create empty directories below /usr/local
-   so that the system administrator knows where to place site-specific
-   files. These directories should be removed on package removal if they
-   are empty.
+Boy, I can't think of one thing to say that'll make this relevent to the
+kernel.
 
-   Note, that this applies only to directories below /usr/local, not in
-   /usr/local. The directory /usr/local itself may only contain the
-   sub-directories listed in FHS, section 4.6. However, you may create
-   directories below them as you wish. You may not remove any of the
-   directories listed in 4.6, even if you created them.
--- cut --
-It this is so then it's Ok: there are really no need to put anything in
-/usr/local itself and under /usr/local only empty directoryes for local
-stuff are needed...
-
-Looks like FHS wording is too vague in this place...
+Chris Meadors (at home)
 
 
 -

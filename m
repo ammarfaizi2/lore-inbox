@@ -1,112 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261674AbVBWW6g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261628AbVBWW75@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261674AbVBWW6g (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 17:58:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261670AbVBWW4g
+	id S261628AbVBWW75 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 17:59:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261665AbVBWW6y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 17:56:36 -0500
-Received: from mailwasher.lanl.gov ([192.65.95.54]:51693 "EHLO
-	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
-	id S261663AbVBWWyo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 17:54:44 -0500
-Message-ID: <421D09AE.4090100@mesatop.com>
-Date: Wed, 23 Feb 2005 15:54:38 -0700
-From: Steven Cole <elenstev@mesatop.com>
-User-Agent: Mozilla Thunderbird 1.0 (Macintosh/20041206)
+	Wed, 23 Feb 2005 17:58:54 -0500
+Received: from jagor.srce.hr ([161.53.2.130]:45300 "EHLO jagor.srce.hr")
+	by vger.kernel.org with ESMTP id S261628AbVBWW4m (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Feb 2005 17:56:42 -0500
+Message-ID: <421D0A21.5000401@spymac.com>
+Date: Wed, 23 Feb 2005 23:56:33 +0100
+From: zhilla <zhilla@spymac.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Steven Cole <elenstev@mesatop.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc4-mm1 (VFS: Cannot open root device "301")
-References: <20050223014233.6710fd73.akpm@osdl.org>	<421CB161.7060900@mesatop.com> <20050223121759.5cb270ee.akpm@osdl.org> <421CFF5E.4030402@mesatop.com>
-In-Reply-To: <421CFF5E.4030402@mesatop.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: Well, powersaving weirdness.
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
 Content-Transfer-Encoding: 7bit
-X-PMX-Version: 4.7.0.111621
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Cole wrote:
-> Andrew Morton wrote:
-> 
->> Steven Cole <elenstev@mesatop.com> wrote:
-> 
-> 
->>> I am having trouble getting recent -mm kernels to boot on my test box.
->>> For 2.6.11-rc3-mm2 and 2.6.11-rc4-mm1 I get the following:
->>>
->>> VFS: Cannot open root device "301" or unknown-block(3,1)
->>> Please append a correct "root=" boot option
->>> Kernel panic - not syncing: VFS: Unable to mount root fs on 
->>> unknown-block(3,1)
->>>
-> [snipped]
-> 
->>
->> Please set CONFIG_BASE_FULL=y.  Check that this causes 
->> CONFIG_BASE_SMALL=0,
->> then retest.
-> 
-> 
-> Yes, that worked.  2.6.11-rc4-mm1 now boots OK, but hdb1 seems to be 
-> missing.
-> 
-> [root@spc1 steven]# uname -r
-> 2.6.11-rc4-mm1-GX110
-> [root@spc1 steven]# mount -t reiser4 /dev/hdb1 /reiser4_testing
-> mount: special device /dev/hdb1 does not exist
-> 
-> Reading another post (and looking in /dev), I tried hdq:
-> 
-> [root@spc1 steven]# mount -t reiser4 /dev/hdq1 /reiser4_testing
-> [root@spc1 steven]# df -T
-> Filesystem    Type    Size  Used Avail Use% Mounted on
-> /dev/hda1     ext3    304M   75M  214M  26% /
-> /dev/hda9 reiserfs    8.3G  3.9G  4.4G  48% /home
-> /dev/hda8     ext3    464M  8.1M  432M   2% /tmp
-> /dev/hda6     ext3    7.4G  1.7G  5.4G  24% /usr
-> /dev/hda7     ext3    1.9G   86M  1.7G   5% /var
-> /dev/hdq1  reiser4     18G  217M   18G   2% /reiser4_testing
-> 
-> Snipped from dmesg:
-> 
-> hda: ST320423A, ATA DISK drive
-> hdb: WDC WD200BB-75AUA1, ATA DISK drive
-> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-> Probing IDE interface ide1...
-> hdc: SONY CD-RW CRX160E, ATAPI CD/DVD-ROM drive
-> ide1 at 0x170-0x177,0x376 on irq 15
-> Probing IDE interface ide2...
-> Probing IDE interface ide3...
-> Probing IDE interface ide4...
-> Probing IDE interface ide5...
-> hda: max request size: 128KiB
-> hda: 40011300 sectors (20485 MB) w/512KiB Cache, CHS=39693/16/63, UDMA(66)
-> hda: cache flushes not supported
->  /dev/ide/host0/bus0/target0/lun0: p1 p2 < p5 p6 p7 p8 p9 >
-> hdb: max request size: 128KiB
-> hdb: 39102336 sectors (20020 MB) w/2048KiB Cache, CHS=38792/16/63, UDMA(66)
-> hdb: cache flushes not supported
->  /dev/ide/host0/bus0/target1/lun0: p1
-> 
-> 
-> Steven
+Not the most clever subject, I agree :)
 
-(Replying to myself)
-I decided to fix 2.6.11-rc3-mm1 with CONFIG_BASE_FULL=y and see if
-the hdb/hdq confusion existed with that earlier kernel, but when I
-ran lilo, I got a "Fatal: cache_add: LILO internal error" message.
-
-[root@spc1 steven]# /sbin/lilo -v
-LILO version 22.6.1, Copyright (C) 1992-1998 Werner Almesberger
-Development beyond version 21 Copyright (C) 1999-2004 John Coffman
-Released 17-Nov-2004, and compiled at 20:03:17 on Jan 15 2005
-
-Reading boot sector from /dev/hda
-Fatal: cache_add: LILO internal error
-
-This box is still running 2.6.11-rc4-mm1 from above, and was booted
-with append="root=0301" accidentally left in lilo.conf from earlier testing.
-
-Steven
-
+hell, i'm not sure if this is a KERNEL bug. but it definitely is an 
+annoyance, so...
+distro is slackware 10.
+i have a small script i run every time i connect to the internet (and i 
+connect via dial-up when )
+this is one command in the script:
+/usr/sbin/ntpdate zg1.ntp.carnet.hr
+well, as my bios battery is a bit weak, hardware clock resets to its 
+defaults when computer is powerless for few minutes.
+ok, i fire it up, time is set to something like ie 0:01:15 1/1/2003, 
+connect to the net, it sets the time ie. 23:46:23 23/02/2005... and its 
+monitor off! puff, powersaving (is that in acpi? apm?) suddenly decides 
+that computer is left untouched for more 2-3 years now and initiates 
+powersaving mode. ok, not a big problem, but somehow i think it IS a 
+easily fixable small kernel bug... if i'm wrong, please direct  me to 
+the right place to report this? thanks.

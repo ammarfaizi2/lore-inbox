@@ -1,35 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312480AbSDARFc>; Mon, 1 Apr 2002 12:05:32 -0500
+	id <S312489AbSDARIN>; Mon, 1 Apr 2002 12:08:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312489AbSDARFW>; Mon, 1 Apr 2002 12:05:22 -0500
-Received: from ns.suse.de ([213.95.15.193]:49680 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S312480AbSDARFL>;
-	Mon, 1 Apr 2002 12:05:11 -0500
-To: Beng Asuncion <asmismn1@globalsources.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: CLOSE_WAIT bug?
-In-Reply-To: <3CA82F7F.312547B8@globalsources.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 01 Apr 2002 19:05:10 +0200
-Message-ID: <p734rivtkmx.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+	id <S312492AbSDARID>; Mon, 1 Apr 2002 12:08:03 -0500
+Received: from mailhost.teleline.es ([195.235.113.141]:45650 "EHLO
+	tsmtp10.mail.isp") by vger.kernel.org with ESMTP id <S312489AbSDARIA>;
+	Mon, 1 Apr 2002 12:08:00 -0500
+Date: Mon, 1 Apr 2002 20:09:00 +0200
+From: Diego Calleja <DiegoCG@teleline.es>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux needs new leadership.
+Message-Id: <20020401200900.6bf76f7f.DiegoCG@teleline.es>
+In-Reply-To: <Pine.LNX.4.01.2002ApR11F0015.31337-101723@transmeta.com>
+X-Mailer: Sylpheed version 0.7.2 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Beng Asuncion <asmismn1@globalsources.com> writes:
-
-> Dear List,
+On Mon, 01 Apr 2002 00:00:00 -0700 (PDT)
+Linus Torvalds <torvalds@transmeta.com> escribió:
+> Fellow hackers,
 > 
-> We are using 2.4.17 kernel for our Production machines running JRun/Java
-> applications + Apache. We are encountering a lot of CLOSE_WAITs like the
-> following before our JRun applications die (port 53001 is the Jrun
-> port):
 
-You can do a very simple test: if you kill your application completely
-(= killing all threads and processes that could keep a socket open) 
-and then wait a few minutes the CLOSE_WAITs should go away. If they do
-it's not a kernel problem and you just need to fix the application 
-to close sockets properly.
-
--Andi
+I thought Linus wasn't here.....he's on holidays...

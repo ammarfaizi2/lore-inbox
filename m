@@ -1,199 +1,162 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261996AbSKTS33>; Wed, 20 Nov 2002 13:29:29 -0500
+	id <S261333AbSKTSf2>; Wed, 20 Nov 2002 13:35:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262023AbSKTS33>; Wed, 20 Nov 2002 13:29:29 -0500
-Received: from imrelay-2.zambeel.com ([209.240.48.8]:36882 "EHLO
-	imrelay-2.zambeel.com") by vger.kernel.org with ESMTP
-	id <S261996AbSKTS30>; Wed, 20 Nov 2002 13:29:26 -0500
-Message-ID: <233C89823A37714D95B1A891DE3BCE5202AB1969@xch-a.win.zambeel.com>
-From: Manish Lachwani <manish@Zambeel.com>
-To: "'Steven Timm'" <timm@fnal.gov>, Manish Lachwani <manish@Zambeel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: AMD 760MPX dma_intr: error=0x40 { UncorrectableError }
-Date: Wed, 20 Nov 2002 10:36:20 -0800
+	id <S261416AbSKTSf2>; Wed, 20 Nov 2002 13:35:28 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:13701 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S261333AbSKTSf0>;
+	Wed, 20 Nov 2002 13:35:26 -0500
+Message-ID: <3DDBD70B.7090501@us.ibm.com>
+Date: Wed, 20 Nov 2002 10:40:11 -0800
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (compatible; MSIE5.5; Windows 98;
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: David Woodhouse <dwmw2@infradead.org>
+Subject: [RFC][PATCH] early command-line parsing
+Content-Type: multipart/mixed;
+ boundary="------------020207050104080006020709"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-you should do this. For example, the drive is hda and the raw device is
-rhda. Then, you could remap using:
+This is a multi-part message in MIME format.
+--------------020207050104080006020709
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-dd if=/dev/zero of=/dev/rhda 
+We need a way to parse command-line options before setup_arch() for 
+early printk.  On x86, the only thing that is needed to get an early 
+serial console is:
+console_setup("ttyS0,115200");
+serial8250_console_init();
 
-This will basically write accross the whole disk and is very time consuming.
-However, you need to get the SMART data first from the drive using smartctl
-and determine which sector needs to be remapped from SMART error log. Then
-you could do :
+So, in addition to this patch, all you need to get early printk on x86 
+is serial8250_console_init() in i386's setup_arch() and a 
+console=ttyS0,speed on the kernel command line.
 
-dd if=/dev/zero of=/dev/rhda skip=<sectors obtained from above>
+Are there any architectures that can't even do a memcpy before 
+setup_arch()?
+-- 
+Dave Hansen
+haveblue@us.ibm.com
 
-Send me the SMART data and I will tell you the sector number ...
+--------------020207050104080006020709
+Content-Type: text/plain;
+ name="early_setup-2.5.48-2.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="early_setup-2.5.48-2.patch"
 
-Thanks
-Manish
+diff -ru linux-2.5.48-clean/include/linux/init.h linux-2.5.48-early_setup/include/linux/init.h
+--- linux-2.5.48-clean/include/linux/init.h	Tue Nov 19 13:53:09 2002
++++ linux-2.5.48-early_setup/include/linux/init.h	Tue Nov 19 12:02:45 2002
+@@ -90,17 +90,21 @@
+  * Used for kernel command line parameter setup
+  */
+ struct kernel_param {
++	int order;
+ 	const char *str;
+ 	int (*setup_func)(char *);
+ };
+ 
+ extern struct kernel_param __setup_start, __setup_end;
+ 
+-#define __setup(str, fn)						\
++#define __early_setup(str, fn)	__raw_setup(0, str, fn)
++#define __setup(str, fn)	__raw_setup(1, str, fn)
++
++#define __raw_setup(order, str, fn)					\
+ 	static char __setup_str_##fn[] __initdata = str;		\
+ 	static struct kernel_param __setup_##fn				\
+ 		 __attribute__((unused,__section__ (".init.setup")))	\
+-		= { __setup_str_##fn, fn }
++		= { order, __setup_str_##fn, fn }
+ 
+ #endif /* __ASSEMBLY__ */
+ 
+diff -ru linux-2.5.48-clean/init/main.c linux-2.5.48-early_setup/init/main.c
+--- linux-2.5.48-clean/init/main.c	Tue Nov 19 13:53:09 2002
++++ linux-2.5.48-early_setup/init/main.c	Wed Nov 20 10:29:03 2002
+@@ -36,6 +36,7 @@
+ 
+ #include <asm/io.h>
+ #include <asm/bugs.h>
++#include <asm/setup.h>
+ 
+ #if defined(CONFIG_ARCH_S390)
+ #include <asm/s390mach.h>
+@@ -136,15 +137,17 @@
+ 
+ __setup("profile=", profile_setup);
+ 
+-static int __init checksetup(char *line)
++static int __init checksetup(int run_number, char *line) 
+ {
+ 	struct kernel_param *p;
+ 
+ 	p = &__setup_start;
+ 	do {
+ 		int n = strlen(p->str);
+-		if (!strncmp(line,p->str,n)) {
+-			if (p->setup_func(line+n))
++		if(strncmp(linux, p->str, n)) {
++			if (p->order == run_number)
++				return (p->setup_func(line+n) != 0);
++			else if (p->order < run_number)
+ 				return 1;
+ 		}
+ 		p++;
+@@ -230,7 +233,7 @@
+  * This routine also checks for options meant for the kernel.
+  * These options are not given to init - they are for internal kernel use only.
+  */
+-static void __init parse_options(char *line)
++static void __init parse_options(int setup_order, char *line)
+ {
+ 	char *next,*quote;
+ 	int args, envs;
+@@ -266,7 +269,7 @@
+ 			args = 0;
+ 			continue;
+ 		}
+-		if (checksetup(line))
++		if (checksetup(setup_order, line))
+ 			continue;
+ 		
+ 		/*
+@@ -386,6 +389,10 @@
+  * Interrupts are still disabled. Do necessary setups, then
+  * enable them
+  */
++	memcpy(saved_command_line, COMMAND_LINE, COMMAND_LINE_SIZE);
++	command_line = saved_command_line;
++
++	parse_options(0, command_line);
+ 	lock_kernel();
+ 	printk(linux_banner);
+ 	setup_arch(&command_line);
+@@ -393,7 +400,7 @@
+ 	build_all_zonelists();
+ 	page_alloc_init();
+ 	printk("Kernel command line: %s\n", saved_command_line);
+-	parse_options(command_line);
++	parse_options(1, command_line);
+ 	trap_init();
+ 	extable_init();
+ 	rcu_init();
+diff -ru linux-2.5.48-clean/kernel/printk.c linux-2.5.48-early_setup/kernel/printk.c
+--- linux-2.5.48-clean/kernel/printk.c	Sun Nov 10 19:28:32 2002
++++ linux-2.5.48-early_setup/kernel/printk.c	Wed Nov 20 10:30:05 2002
+@@ -149,7 +149,7 @@
+ 	return 1;
+ }
+ 
+-__setup("console=", console_setup);
++__early_setup("console=", console_setup);
+ 
+ /*
+  * Commands to do_syslog:
 
+--------------020207050104080006020709--
 
-
------Original Message-----
-From: Steven Timm [mailto:timm@fnal.gov]
-Sent: Wednesday, November 20, 2002 6:23 AM
-To: Manish Lachwani
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: AMD 760MPX dma_intr: error=0x40 { UncorrectableError }
-
-
-Our boxes are actually running pretty cool (45C, with drives at the
-front) and the drives seem
-to be well mounted.  The power supply, and the power itself should
-be OK.
-
-Thanks for the hint on remapping the sectors... what technique
-would you use to do this?  Would zero-fill from the seagate
-diagnostics work or should we use something else?
-
-Steve Timm
-
-
-------------------------------------------------------------------
-Steven C. Timm (630) 840-8525  timm@fnal.gov  http://home.fnal.gov/~timm/
-Fermilab Computing Division/Operating Systems Support
-Scientific Computing Support Group--Computing Farms Operations
-
-On Tue, 19 Nov 2002, Manish Lachwani wrote:
-
-> I have seen this errors on Seagate ST380021A 80 GB drive on a large scale
-in
-> our storage systems that make use of 3ware controllers. Seagate claims the
-> following reasons:
->
-> 1. Weak Power supply
-> 2. tempeature and heat
-> 3. vibration
->
-> Although, the maxtor 160 GB drives do not show such problems at all. Such
-> problems can be eliminated though. From the SMART data, get the bad
-sectors
-> and remap them by writing to the raw device. Those pending sectors will
-get
-> remapped. However, the problems will persist with these drives. In our
-> boxes, the operating temperature is abt 55 C ...
->
-> -----Original Message-----
-> From: Steven Timm [mailto:timm@fnal.gov]
-> Sent: Tuesday, November 19, 2002 1:37 PM
-> To: linux-kernel@vger.kernel.org
-> Subject: AMD 760MPX dma_intr: error=0x40 { UncorrectableError }
->
->
->
-> I have recently observed a large frequency of this error on
-> a bunch of compute servers with brand new disks.
->
-> Nov 15 01:42:52 fnd0172 kernel: hdb: dma_intr: status=0x51 { DriveReady
-> SeekComplete Error }
-> Nov 15 01:42:52 fnd0172 kernel: hdb: dma_intr: error=0x40 {
-> UncorrectableError }, LBAsect=44763517, sector=11235856
-> Nov 15 01:42:52 fnd0172 kernel: end_request: I/O error, dev 03:42 (hdb),
-> sector 11235856
->
-> Configuration is the following:
-> Tyan 2466 motherboard which has AMD760MPX chipset, dual Athlon MP2000+
-> processors  (supports UltraATA100)
->
-> hda=Seagate ST340016A 40 GB drive, ext2 FS
-> hdb=Seagate ST380021A 80 GB drive, ext2 FS.
->
-> There are many entries in this mailing list saying that
-> the above error is a sign of a bad disk.  Seagate diagnostics
-> say so too.. It is just hard to believe that 30 hard drives could
-> go bad in less than a month.
->
-> I know errors of this type were common on machines with Serverworks
-> OSB4 chipsets.  Has anyone else heard of this error happening on
-> non-serverworks chipsets such as VIA or AMD?  And is the drive
-> really bad or will a low level format clear the bad blocks
-> and let the drive operate again?
->
-> Steve Timm
->
-> ------------------------------------------------------------------
->
-> SMART shows the following error structure:
->
-> SMART Error Log:
-> SMART Error Logging Version: 1
-> Error Log Data Structure Pointer: 03
-> ATA Error Count: 13
-> Non-Fatal Count: 0
->
-> Error Log Structure 1:
-> DCR   FR   SC   SN   CL   SH   D/H   CR   Timestamp
->  00   00   08   57   09   ab    f2   c8     40315
->  00   00   08   5f   09   ab    f2   c8     40315
->  00   00   08   67   09   ab    f2   c8     40315
->  00   00   08   6f   09   ab    f2   c8     40315
->  00   00   08   77   09   ab    f2   c8     40315
->  00   40   00   7d   09   ab    f2   51     922746
-> Error condition:  33    Error State:       3
-> Number of Hours in Drive Life: 1021 (life of the drive in hours)
->
-> Error Log Structure 2:
-> DCR   FR   SC   SN   CL   SH   D/H   CR   Timestamp
->  00   00   08   07   d5   55    f1   ca     40320
->  00   00   08   3f   00   5c    f1   ca     40320
->  00   00   08   97   33   5d    f1   ca     40320
->  00   00   08   87   97   0f    f2   ca     40320
->  00   00   08   77   09   ab    f2   c8     40320
->  00   40   00   7d   09   ab    f2   51     922746
-> Error condition:  33    Error State:       3
-> Number of Hours in Drive Life: 1021 (life of the drive in hours)
->
-> Error Log Structure 3:
-> DCR   FR   SC   SN   CL   SH   D/H   CR   Timestamp
->  00   00   28   bf   8f   52    f1   c8     23662
->  00   00   98   e7   8f   52    f1   c8     23662
->  00   00   68   ff   9a   52    f1   c8     23662
->  00   00   d8   67   9b   52    f1   c8     23662
->  00   00   28   07   a3   52    f1   c8     23662
->  00   40   00   25   a3   52    f1   51     1124073
-> Error condition: 161    Error State:       3
-> Number of Hours in Drive Life: 1040 (life of the drive in hours)
->
-> Error Log Structure 4:
-> DCR   FR   SC   SN   CL   SH   D/H   CR   Timestamp
->  00   00   e0   4f   09   ab    f2   c8     40280
->  00   00   d8   57   09   ab    f2   c8     40285
->  00   00   d0   5f   09   ab    f2   c8     40290
->  00   00   c8   67   09   ab    f2   c8     40296
->  00   00   c0   6f   09   ab    f2   c8     40301
->  00   40   00   7d   09   ab    f2   51     922746
-> Error condition:  33    Error State:       3
-> Number of Hours in Drive Life: 1021 (life of the drive in hours)
->
-> Error Log Structure 5:
-> DCR   FR   SC   SN   CL   SH   D/H   CR   Timestamp
->  00   00   d8   57   09   ab    f2   c8     40285
->  00   00   d0   5f   09   ab    f2   c8     40290
->  00   00   c8   67   09   ab    f2   c8     40296
->  00   00   c0   6f   09   ab    f2   c8     40301
->  00   00   b8   77   09   ab    f2   c8     40306
->  00   40   00   7d   09   ab    f2   51     922746
-> Error condition:  33    Error State:       3
-> Number of Hours in Drive Life: 1021 (life of the drive in hours)
->
->
->
-> Steven C. Timm (630) 840-8525  timm@fnal.gov  http://home.fnal.gov/~timm/
-> Fermilab Computing Division/Operating Systems Support
-> Scientific Computing Support Group--Computing Farms Operations
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->

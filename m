@@ -1,62 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266682AbTATSwy>; Mon, 20 Jan 2003 13:52:54 -0500
+	id <S266443AbTATSts>; Mon, 20 Jan 2003 13:49:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266686AbTATSwx>; Mon, 20 Jan 2003 13:52:53 -0500
-Received: from havoc.daloft.com ([64.213.145.173]:33691 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id <S266682AbTATSv4>;
-	Mon, 20 Jan 2003 13:51:56 -0500
-Date: Mon, 20 Jan 2003 14:00:55 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: David Brownell <david-b@pacbell.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: pci_set_mwi() ... why isn't it used more?
-Message-ID: <20030120190055.GA4940@gtf.org>
-References: <3E2C42DF.1010006@pacbell.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E2C42DF.1010006@pacbell.net>
-User-Agent: Mutt/1.3.28i
+	id <S266637AbTATSts>; Mon, 20 Jan 2003 13:49:48 -0500
+Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:11462 "EHLO
+	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S266443AbTATSsy>; Mon, 20 Jan 2003 13:48:54 -0500
+Message-Id: <200301201338.h0KDcLjd001178@eeyore.valparaiso.cl>
+To: rms@gnu.org
+cc: "Steve Lee" <steve@tuxsoft.com>, linux-kernel@vger.kernel.org,
+       brand@eeyore.valparaiso.cl
+Subject: Re: [OFFTOPIC] RMS and reactions to him 
+In-Reply-To: Your message of "Fri, 17 Jan 2003 19:47:13 EST."
+             <E18Zh8j-0000vf-00@fencepost.gnu.org> 
+Date: Mon, 20 Jan 2003 14:38:21 +0100
+From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 20, 2003 at 10:41:35AM -0800, David Brownell wrote:
-> I was looking at some new hardware and noticed that it's
-> got explicit support for the PCI Memory Write and Invalidate
-> command ... enabled (in part) under Linux by pci_set_mwi().
+Richard Stallman <rms@gnu.org> said:
+>       Favorable or not, "Linux" has become the symbol for a whole
+>     system of free software.
 > 
-> However, very few Linux drivers use that routine.  Given
-> that it can lead to improved performance, and that devices
-> don't have to implement that enable bit, I'm curious what
-> the story is...
-> 
->  - Just laziness or lack-of-education on the part of
->    driver writers?
-> 
->  - Iffy upport in motherboard chipsets or CPUs?  If so,
->    which ones?
-> 
->  - Flakey support in PCI devices, so that enabling it
->    leads to trouble?
-> 
->  - Something else?
-> 
->  - Combination of all the above?
+> The meaning attached to this symbol is one we disagree with (see
+> http://www.gnu.org/gnu/why-gnu-linux.html), so we will not accept
+> it as the symbol of our work.
 
-You missed the reason entirely ;-)
+But you don't attach strings about naming in GPL, so you are SOL respect
+FSF owned software. The owners of the other bits of the operating systems
+(wide sense, otherwise called "distributions") usually called "Linux"
+(independently GPLed, BSD stuff, X11, Knuth (TeX), in-house installation
+and configuration tools, ...) have no such naming restrinctions AFAIK, and
+have not complained either, even less in your direction.
 
-pci_set_mwi() is brand new, I just added it.  Hasn't filtered down to
-drivers yet.  The few drivers that cared prior to its addition, like
-drivers/net/acenic.c, just hand-coded the workarounds needed for proper
-MWI support on all chipsets.
-
-pci_set_mwi() would not exist at all, were it not for the existing
-hardware quirks.  (if hardware were sane, drivers would just
-individually twiddle the _INVALIDATE bit in PCI_COMMAND, and never call
-functions other than pci_{read,write}_config_word.
-
-	Jeff
-
-
-
+What is discussed here is the operating system (narrow sense, i.e., kernel
+only) called Linux, on which you have no claim whatsoever.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

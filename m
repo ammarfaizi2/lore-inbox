@@ -1,61 +1,187 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261500AbTLCUpV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Dec 2003 15:45:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261569AbTLCUpV
+	id S261188AbTLCUpM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Dec 2003 15:45:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261569AbTLCUpL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Dec 2003 15:45:21 -0500
-Received: from aples1.dom1.jhuapl.edu ([128.244.26.85]:4626 "EHLO
-	aples1.jhuapl.edu") by vger.kernel.org with ESMTP id S261500AbTLCUov convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Dec 2003 15:44:51 -0500
-Message-ID: <E37E01957949D611A4C30008C7E691E20915BBC3@aples3.dom1.jhuapl.edu>
-From: "Collins, Bernard F. (Skip)" <Bernard.Collins@jhuapl.edu>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Visor USB hang
-Date: Wed, 3 Dec 2003 15:44:47 -0500 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Wed, 3 Dec 2003 15:45:11 -0500
+Received: from havoc.gtf.org ([63.247.75.124]:37808 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S261188AbTLCUor (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Dec 2003 15:44:47 -0500
+Date: Wed, 3 Dec 2003 15:44:46 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Serial ATA (SATA) for Linux status report
+Message-ID: <20031203204445.GA26987@gtf.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am running 2.4.23 on a RedHat 9 system. Whenever I try to sync my Visor
-Deluxe, the system hangs/freezes soon after I press the sync button on my
-cradle. Trying to find the cause of the problem, I preloaded the usbserial
-and visor modules with "debug=1". Nothing obviously wrong appears in the
-logs. The last message before the system freezes is a usb-uhci.c interrupt
-message. Any help debugging this further would be appreciated. Please CC me
-on any replies.
 
-Here are the relevant lines from /var/log/messages:
-Dec  3 15:19:20 xtr45wac kernel: usb.c: registered new driver serial
-Dec  3 15:19:20 xtr45wac kernel: usbserial.c: USB Serial support registered
-for Generic
-Dec  3 15:19:20 xtr45wac kernel: usbserial.c: USB Serial Driver core v1.4
-Dec  3 15:19:27 xtr45wac kernel: usbserial.c: USB Serial support registered
-for Handspring Visor / Treo / Palm 4.0 / Clié4.x
-Dec  3 15:19:28 xtr45wac kernel: usbserial.c: USB Serial support registered
-for Sony Clié3.5
-Dec  3 15:19:28 xtr45wac kernel: visor.c: USB HandSpring Visor, Palm m50x,
-Treo, Sony Cliédriver v1.7
-Dec  3 15:20:35 xtr45wac kernel: hub.c: new USB device 00:1d.1-2, assigned
-address 3
-Dec  3 15:20:35 xtr45wac kernel: usbserial.c: Handspring Visor / Treo / Palm
-4.0 / Clié4.x converter detected
-Dec  3 15:20:35 xtr45wac kernel: visor.c: Handspring Visor / Treo / Palm 4.0
-/ Clié4.x: Number of ports: 2
-Dec  3 15:20:35 xtr45wac kernel: visor.c: Handspring Visor / Treo / Palm 4.0
-/ Clié4.x: port 1, is for Generic use and is bound to ttyUSB0
-Dec  3 15:20:35 xtr45wac kernel: visor.c: Handspring Visor / Treo / Palm 4.0
-/ Clié4.x: port 2, is for HotSync use and is bound to ttyUSB1
-Dec  3 15:20:35 xtr45wac kernel: usbserial.c: Handspring Visor / Treo / Palm
-4.0 / Clié4.x converter now attached to ttyUSB0 (or usb/tts/0 for devfs)
-Dec  3 15:20:35 xtr45wac kernel: usbserial.c: Handspring Visor / Treo / Palm
-4.0 / Clié4.x converter now attached to ttyUSB1 (or usb/tts/1 for devfs)
-Dec  3 15:20:36 xtr45wac kernel: usb-uhci.c: interrupt, status 2, frame#
-1499
-Dec  3 15:21:58 xtr45wac syslogd 1.4.1: restart.
-D
+
+
+Editor's preface:  This is clearly a first draft, only covering the
+basics.  In order for this document to be effective, I request that
+users and developers send me (or post) their SATA driver questions and
+issues.  I will do my best to address them here.
+
+
+Serial ATA (SATA) for Linux
+status report
+Dec 3, 2003
+
+
+Hardware support
+================
+
+
+Intel ICH5
+----------
+Summary:  No TCQ.  Looks like a PATA controller, but with a few added,
+non-standard SATA port controls.
+
+libata driver status:  Production, but see issue #2, #3.
+
+drivers/ide driver status:  Production, but see issue #1, #2.
+
+
+Issue #1:  Depending on BIOS settings, IDE driver may lock up computer
+when probing drives.
+
+Issue #2:  Excessive interrupts are seen in some configurations.
+
+Issue #3:  "Enhanced mode" or "SATA-only mode" may need to be set in BIOS.
+
+
+Intel ICH6 ("AHCI")
+-------------------
+Summary:  Per-device queues, full SATA control including hotplug
+and PM.
+
+libata driver status:  In development.
+
+
+Promise
+-------
+Summary:  Per-host queues on all controllers.  Full SATA control
+including hotplug and PM on all but one controller.
+
+libata driver status:  Beta.
+
+
+Silicon Image 3112
+------------------
+Summary:  No TCQ.  Looks like a PATA controller, but with full SATA
+control including hotplug and PM.
+
+libata driver status:  Alpha.
+
+drivers/ide driver status:  Production, but see issue #4.
+
+Issue #4:  Need to have the most recent fixes posted to lkml, for stable
+operation and full performance (where possible).
+
+
+Broadcom/ServerWorks/Apple
+--------------------------
+Summary:  Huge per-device queues, full SATA control including hotplug
+and PM.
+
+libata driver status:  Beta.
+
+
+VIA
+---
+Summary:  No TCQ.  Looks like a PATA controller, but with full SATA
+control including hotplug and PM.
+
+libata driver status:  Beta.
+
+
+
+
+Software support
+================
+
+
+Basic Serial ATA support
+------------------------
+The "ATA host state machine", the core of the entire driver, is
+considered production-stable.
+
+The error handling is _very_ simple, but at this stage that is an
+advantage.  Error handling code anywhere is inevitably both complex and
+sorely under-tested.  libata error handling is intentionally simple.
+Positives:  Easy to review and verify correctness.  Never data
+corruption.  Negatives:  if an error occurs, libata will simply send
+the error back the block layer.  There are limited retries by the block
+layer, depending on the type of error, but there is never a bus reset.
+
+Or in other words:  "it's better to stop talking to the disk than
+compound existing problems with further problems."
+
+As Serial ATA matures, and host- and device-side errata become apparent,
+the error handling will be slowly refined.  I am planning to work with a
+few (kind!) disk vendors, to obtain special drives/firmwares that allow
+me to inject faults, and otherwise exercise error handling code.
+
+
+
+Queueing support
+----------------
+Even though some SATA host controllers on the market already support
+command queueing (a.k.a. "TCQ"), libata does not yet support it.
+
+However, libata was designed from the ground-up to support queueing, so
+I need only change a few lines of code, and write two functions, to
+enable this behavior.
+
+Queueing will be enabled in libata soon, but to do so requires a long
+stretch of testing on a large variety of controllers and drives.  This
+is very time-intensive, and is the largest part of this task.
+
+
+Tangent:  Host-based queueing and Native Command Queueing
+
+Queueing is the process of sending multiple commands to a single device,
+without waiting for prior commands to finish.  This increases
+performance and reduces latency.  There are three types of queueing in
+the ATA world:
+
+1) "legacy TCQ" -- some PATA devices support this.  Just ignore it,
+it's going away.
+
+2) "host-based TCQ" -- the host controller supports a queue of drive
+commands, whether or not the drive supports it.
+
+3) "Native Command Queueing" -- both host and drive cooperate in the
+queueing and execution of drive commands.  This should provide the
+highest performance and lowest latency of all three options.
+
+
+#1 is support by drivers/ide _only_.  libata will not support this.
+#2 will soon be supported by libata.
+#3 will be supported by libata when hardware is available from drive
+manufacturers.
+
+
+Hotplug support
+---------------
+All SATA is hotplug.
+
+libata does not support hotplug... yet.
+
+
+
+Power Management support
+------------------------
+Over and above the power management specified in the ATA/ATAPI
+specification, one can aggressively control the power consumption of
+SATA hosts, the SATA bus, and the SATA device.
+
+

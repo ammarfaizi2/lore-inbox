@@ -1,34 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281770AbRKWXsf>; Fri, 23 Nov 2001 18:48:35 -0500
+	id <S282292AbRKWXuZ>; Fri, 23 Nov 2001 18:50:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282287AbRKWXsZ>; Fri, 23 Nov 2001 18:48:25 -0500
-Received: from samba.sourceforge.net ([198.186.203.85]:51726 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S281770AbRKWXsQ>;
-	Fri, 23 Nov 2001 18:48:16 -0500
-Date: Sat, 24 Nov 2001 10:47:16 +1100
-From: Anton Blanchard <anton@samba.org>
-To: Phil Howard <phil-linux-kernel@ipal.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.15: undefined reference to `show_trace_task'
-Message-ID: <20011124104716.C1178@krispykreme>
-In-Reply-To: <20011123173602.A14759@vega.ipal.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011123173602.A14759@vega.ipal.net>
-User-Agent: Mutt/1.3.23i
+	id <S282287AbRKWXuP>; Fri, 23 Nov 2001 18:50:15 -0500
+Received: from outmail6.pacificnet.net ([207.171.0.134]:60723 "EHLO
+	outmail6.pacificnet.net") by vger.kernel.org with ESMTP
+	id <S282289AbRKWXuG>; Fri, 23 Nov 2001 18:50:06 -0500
+Message-ID: <013601c17479$933f0450$2b910404@Molybdenum>
+From: "Jahn Veach" <V64@Galaxy42.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: <viro@math.psu.edu>
+Subject: Re: 2.4.15 + fs corruption.
+Date: Fri, 23 Nov 2001 17:50:03 -0600
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-> Can the call to show_trace_task() in kernel/sched.c be safely commented
-> out for now?
+> Breakage happens when you umount filesystem (_any_ local filesystem, be
+> it ext2, reiserfs, whatever) that still has dirty inodes.
 
-Yes I tried to get Linus to add just one more #ifdef around
-show_trace_task and I guess it was one too many :) 
+What kind of breakage are we looking at here? I had a system that ran 2.4.15
+and got shut down without a sync. What kind of corruption will occur and is
+it something a simple fsck will fix?
 
-Its only a debugging aid, for the moment just create an empty
-show_trace_task() 
-
-Anton

@@ -1,52 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261173AbSKXM5j>; Sun, 24 Nov 2002 07:57:39 -0500
+	id <S261205AbSKXNKK>; Sun, 24 Nov 2002 08:10:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261205AbSKXM5j>; Sun, 24 Nov 2002 07:57:39 -0500
-Received: from almesberger.net ([63.105.73.239]:23813 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id <S261173AbSKXM5j>; Sun, 24 Nov 2002 07:57:39 -0500
-Date: Sun, 24 Nov 2002 10:04:45 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Patrick Mochel <mochel@osdl.org>
-Cc: Rusty Lynch <rusty@linux.co.intel.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] sysfs on 2.5.48 unable to remove files while in use
-Message-ID: <20021124100445.Q1407@almesberger.net>
-References: <003701c291aa$a3b28a10$94d40a0a@amr.corp.intel.com> <Pine.LNX.4.33.0211211637560.913-200000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0211211637560.913-200000@localhost.localdomain>; from mochel@osdl.org on Thu, Nov 21, 2002 at 05:03:44PM -0600
+	id <S261206AbSKXNKK>; Sun, 24 Nov 2002 08:10:10 -0500
+Received: from mail-01.iinet.net.au ([203.59.3.33]:23059 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id <S261205AbSKXNKJ>;
+	Sun, 24 Nov 2002 08:10:09 -0500
+Message-ID: <3DE0D157.9020906@iinet.net.au>
+Date: Mon, 25 Nov 2002 00:17:11 +1100
+From: Nero <neroz@iinet.net.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021016
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: lkml <linux-kernel@vger.kernel.org>
+CC: Rik van Riel <riel@conectiva.com.br>, Con Kolivas <conman@kolivas.net>
+Subject: [BENCHMARK] rmap15, rmap14c and rc1aa1 with contest
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick Mochel wrote:
->  * This uses a sysfs control file to manage a list of probes. 
->  * The sysfs directory is at
->  *
->  * /sys/noisy/
+noload:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.4.19-rmap15 [1]       84.6    95      0       0       1.00
+2.4.19-rmap14c [1]      84.2    96      0       0       1.00
+2.4.20-rc1aa1 [2]       41.0    49      0       0       inf
 
-I really like the idea of controlling kprobes through sysfs.
-However, ...
+process_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.4.19-rmap15 [1]       140.8   55      133     45      1.66
+2.4.19-rmap14c [1]      139.4   56      126     45      1.65
+2.4.20-rc1aa1 [2]       133.9   14      211     84      inf
 
->  * A Noisy Probe can be added by echoing into the file, like:
->  *
->  *	$ echo "add <address> <message>" > /sys/noisy/ctl
+io_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.4.19-rmap15 [1]       164.8   51      33      19      1.95
+2.4.19-rmap14c [1]      160.1   53      33      21      1.90
+2.4.20-rc1aa1 [1]       166.2   49      44      23      inf
 
-do you really need a "magic" file for this ? I don't know how
-well sysfs supports mkdir/rmdir (if at all), but they would
-seem to provide a much more natural interface. (VFS allows
-rmdir to remove non-empty directories, so you wouldn't have
-to rm -r.)
+read_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.4.19-rmap15 [1]       0.0     0       0       7       0.00
+2.4.19-rmap14c [1]      121.0   72      20      7       1.44
+2.4.20-rc1aa1 [1]       111.2   79      34      14      inf
 
-I don't think you need probe installation and message setting
-to be atomic, so you could just assign a unique default
-message, e.g. the probe address.
+rmap15 OOM'd the cc1 process twice and fscked this run up.
 
-- Werner
+list_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.4.19-rmap15 [1]       99.2    84      0       7       1.17
+2.4.19-rmap14c [1]      100.7   83      0       7       1.20
+2.4.20-rc1aa1 [1]       96.7    85      0       8       inf
 
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+mem_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.4.19-rmap15 [1]       111.2   80      96      8       1.31
+2.4.19-rmap14c [1]      106.1   82      96      9       1.26
+2.4.20-rc1aa1 [1]       126.3   66      77      3       inf
+
+
+
+
+

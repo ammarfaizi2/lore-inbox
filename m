@@ -1,55 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262815AbUJ1H4P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262816AbUJ1H5x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262815AbUJ1H4P (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 03:56:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262816AbUJ1H4P
+	id S262816AbUJ1H5x (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 03:57:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262818AbUJ1H5x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 03:56:15 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:22284 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S262815AbUJ1H4L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 03:56:11 -0400
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Nigel Kukard <nkukard@lbsd.net>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9bk6 msdos fs OOPS
-Date: Thu, 28 Oct 2004 10:55:47 +0300
-User-Agent: KMail/1.5.4
-References: <41809921.10200@lbsd.net>
-In-Reply-To: <41809921.10200@lbsd.net>
+	Thu, 28 Oct 2004 03:57:53 -0400
+Received: from [213.188.213.77] ([213.188.213.77]:17304 "EHLO
+	server1.navynet.it") by vger.kernel.org with ESMTP id S262816AbUJ1H5p
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 03:57:45 -0400
+From: "Massimo Cetra" <mcetra@navynet.it>
+To: <michael@optusnet.com.au>, "'John Richard Moser'" <nigelenki@comcast.net>
+Cc: "'Marcos D. Marado Torres'" <marado@student.dei.uc.pt>,
+       "'Ed Tomlinson'" <edt@aei.ca>,
+       "'Chuck Ebbert'" <76306.1226@compuserve.com>,
+       "'Bill Davidsen'" <davidsen@tmr.com>,
+       "'William Lee Irwin III'" <wli@holomorphy.com>,
+       "'linux-kernel'" <linux-kernel@vger.kernel.org>
+Subject: RE: My thoughts on the "new development model"
+Date: Thu, 28 Oct 2004 09:57:34 +0200
+Message-ID: <004601c4bcc3$ca7eaac0$e60a0a0a@guendalin>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="koi8-r"
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410281055.47263.vda@port.imtp.ilyichevsk.odessa.ua>
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2627
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+In-Reply-To: <m1sm7znxul.fsf@mo.optusnet.com.au>
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 28 October 2004 10:00, Nigel Kukard wrote:
-> I just got the below oops when i mounted a usb camera's SD-Card.
-> 
-> Could anyone share some light on the issue?
-> 
-> -Nigel
-> 
-> 
-> ------------[ cut here ]------------
-> kernel BUG at fs/fat/cache.c:150!
-> invalid operand: 0000 [#1]
-> PREEMPT SMP
-> Modules linked in: smbfs autofs4 nls_cp437 msdos fat nfsd exportfs lockd 
-> sunrpc tsdev uhci_hcd parport_pc parport eth1394 nvidia ohci1394 
-                                                   ^^^^^^
-> ieee1394 usbmouse usbkbd usbhid ehci_hcd ub ohci_hcd usbcore i2c_sis96x 
-> i2c_core pci_hotplug sis_agp agpgart evdev sis900 crc32 snd_als4000 
-> snd_sb_common snd_pcm snd_page_alloc snd_opl3_lib snd_timer snd_hwdep 
-> snd_mpu401_uart snd_rawmidi snd_seq_device snd
-> CPU:    0
-> EIP:    0060:[<f8cec268>]    Tainted: P      VLI
-                               ^^^^^^^^^^
 
-Try to reproduce without it and/or
-contact nvidia on the issue
---
-vda
+> There seems to be a lot of strange notions on this concept of 
+> 'stable'. The only thing that makes a kernel 'stable' is 
+> time. Not endless bugfixes. Just time. The idea of stable 
+> software is software that not going to give you any suprises, 
+> software that you can trust.
+> 
+> That's NOT the same as bug free software. For a start, 
+> there's no such thing. For another, many bugs are perfectly 
+> acceptable in a production environment as long as they're not 
+> impacting. (The linux kernel is a very large piece of work. 
+> Few installations would use even 20% of the total kernel 
+> functionality).
+> 
+
+Yes, perfectly right.
+You would agree (for example) that this: 
+
+> On Wed, 27 Oct 2004, Danny Brow wrote:
+>
+> Ok, thank you for the feedback, glad you fixed your problem. 
+> Now I guess we just need for someone to find out why 
+> LEGACY_PTYS breaks 
+> ssh (and other apps?) with kernels >= 2.6.9, but I'm afraid 
+> thats beyond 
+
+Does not reflect the behaviour of a stable kernel.
+Yes, of course, there's the workaround. But I don't think this bug is
+not impacting.
+
+I repeat once again. To me something is going in the wrong direction.
+
+Massimo
+
+
+
+
+
 

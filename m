@@ -1,85 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276981AbRJCVJf>; Wed, 3 Oct 2001 17:09:35 -0400
+	id <S276978AbRJCVGG>; Wed, 3 Oct 2001 17:06:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276980AbRJCVJZ>; Wed, 3 Oct 2001 17:09:25 -0400
-Received: from dermis.amis.com ([207.141.5.253]:20100 "HELO dermis.amis.com")
-	by vger.kernel.org with SMTP id <S276981AbRJCVJN>;
-	Wed, 3 Oct 2001 17:09:13 -0400
-Message-ID: <3BBB7E8C.89B78444@amis.com>
-Date: Wed, 03 Oct 2001 15:09:32 -0600
-From: Eric Whiting <ewhiting@amis.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.11-pre1 i686)
-X-Accept-Language: en
+	id <S276979AbRJCVFr>; Wed, 3 Oct 2001 17:05:47 -0400
+Received: from robur.slu.se ([130.238.98.12]:36103 "EHLO robur.slu.se")
+	by vger.kernel.org with ESMTP id <S276978AbRJCVFa>;
+	Wed, 3 Oct 2001 17:05:30 -0400
+From: Robert Olsson <Robert.Olsson@data.slu.se>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org,
-        "jfs-discussion@oss.software.ibm.com" 
-	<jfs-discussion@www-124.southbury.usf.ibm.com>
-CC: reiserfs-list@namesys.com, Chris Mason <mason@suse.com>
-Subject: Buffer cache confusion? Re: [reiserfs-list] bug? in using generic 
- read/write functions to read/write block devices in 2.4.11-pre2
-In-Reply-To: <3BBB01F2.F82BDB46@namesys.com>
-X-MIMETrack: Itemize by SMTP Server on mx1/amis(Release 5.0.8 |June 18, 2001) at 10/03/2001
- 03:09:34 PM,
-	Serialize by Router on mx1/amis(Release 5.0.8 |June 18, 2001) at 10/03/2001
- 03:09:37 PM,
-	Serialize complete at 10/03/2001 03:09:37 PM
-Content-Transfer-Encoding: 7bit
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15291.32311.499838.886628@robur.slu.se>
+Date: Wed, 3 Oct 2001 23:08:07 +0200
+To: <mingo@elte.hu>
+Cc: jamal <hadi@cyberus.ca>, <linux-kernel@vger.kernel.org>,
+        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+        Robert Olsson <Robert.Olsson@data.slu.se>,
+        Benjamin LaHaise <bcrl@redhat.com>, <netdev@oss.sgi.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
+In-Reply-To: <Pine.LNX.4.33.0110031828060.8633-100000@localhost.localdomain>
+In-Reply-To: <Pine.GSO.4.30.0110031138150.4833-100000@shell.cyberus.ca>
+	<Pine.LNX.4.33.0110031828060.8633-100000@localhost.localdomain>
+X-Mailer: VM 6.92 under Emacs 19.34.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Ingo Molnar writes:
 
-I see a similar odd failure with jfs in 2.4.11pre1. Is this related to
-the 2.4.11preX buffer cache improvements?
+ > (i did not criticize the list_add/list_del in any way, it's obviously
+ > correct to cycle the polled devices. I highlited that code only to show
+ > that the current patch as-is polls too agressively for generic server
+ > load.)
 
-eric
+ Yes I think we need some data here... 
+
+ > can you really make it 100% successful for rx? Ie. do you only ever call
+ > the ->poll() function if there is a new packet waiting? How do you know
+ > with a 100% probability that someone on the network just sent a new packet
+ > waiting? (without receiving an interrupt to begin with that is.)
+
+ Well we need RX-interrupts not to spin away the CPU or exhaust the the PCI-
+ bus. The NAPI scheme is simple, turn off RX-interrupts when the first packet
+ comes and have the kernel to pull packets from the RX-ring. 
+
+ I tried have pure polling... it easy do just have your driver return
+ "not_done" all the time. Not a good idea. :-) Maybe as sofirq test.
+ 
+ If the device has more packets to deliver than is "allowed" we put this
+ back on list and the polling process can give the next device its share
+ and so on. So we handle screaming network devices and packet flooding 
+ nicely a deliver a decent performance even under those circumstances.
+
+ As you seen from some code fragments we have played with some mechanisms 
+ to delay the transition from polling to irq-enable. I think I accepted
+ a not_done polls for jiffies in some of the tests. Agree other variants 
+ are possible and hopefully better.
+
+ SMP is another area, robustness and performance of course but in case
+ of SMP we also have to deal with packet reordering which is something
+ we really like to minimize. Even here I think the NAPI polling scheme 
+ is interesting. During consecutive polls the device is bound to the same 
+ CPU and no packet reordering should occur. 
+
+ And from data we have now we can see packet load is even distributed
+ among different CPU's and should follow the smp_affinity.
+
+ Cheers.
+
+						--ro
 
 
-# uname -a
-2.4.11-pre1 #1 SMP Tue Oct 2 12:28:07 MDT 2001 i686
-# mkfs.jfs /dev/hdc3
-mkfs.jfs development version: $Name: v1_0_6 $
-Warning!  All data on device /dev/hdc3 will be lost!
-Continue? (Y/N) Y
-Format completed successfully.
-10241436 kilobytes total disk space.
-# mount -t jfs /dev/hdc3 /mnt
-mount: wrong fs type, bad option, bad superblock on /dev/hdc3,
-        or too many mounted file systems
-
-
-"Vladimir V. Saveliev" wrote:
-> 
-> Hi
-> 
-> It looks like something wrong happens with writing/reading to block
-> device using generic read/write functions when one does:
-> 
-> mke2fs /dev/hda1 (blocksize is 4096)
-> mount /dev/hda1
-> umount /dev/hda1
-> mke2fs /dev/hda1 - FAILS with
-> Warning: could not write 8 blocks in inode table starting at 492004:
-> Attempt to write block from filesystem resulted in short write
-> 
-> (note that /dev/hda1 should be big enough - 3gb is enogh for example)
-> 
-> Explanation of what happens (could be wrong and unclear):
-> 
-> blocksize of /dev/hda1 was 1024. So, /dev/hda1's inode->i_blkbits is set
-> to 10.
-> mount-ing used set_blocksize() to change blocksize to 4096 in
-> blk_size[][].
-> But inode of /dev/hda1 still has i_blkbits which makes
-> block_prepare_write to create buffers of 1024 bytes and call
-> blkdev_get_block for each of them.
-> fs/block_dev.c:/max_block calculates number of blocks on the device
-> using blk_size[][] and thinks that there are 4 times less blocks on the
-> device.
-> 
-> Thanks,
-> vs
-> 
-> PS: thanks to Elena <grev@namesys.botik.ru> for finding that
+ 

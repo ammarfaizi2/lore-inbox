@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272059AbTHRPcs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 11:32:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272053AbTHRPcr
+	id S272069AbTHRPge (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 11:36:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272070AbTHRPge
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 11:32:47 -0400
-Received: from [63.247.75.124] ([63.247.75.124]:32142 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S272050AbTHRPcl (ORCPT
+	Mon, 18 Aug 2003 11:36:34 -0400
+Received: from dp.samba.org ([66.70.73.150]:62372 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S272069AbTHRPgc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 11:32:41 -0400
-Date: Mon, 18 Aug 2003 11:32:39 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andries.Brouwer@cwi.nl, Dominik.Strasser@t-online.de, hch@infradead.org,
-       linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [PATCH] Re: [PATCH] scsi.h uses "u8" which isn't defined.
-Message-ID: <20030818153239.GC24693@gtf.org>
-References: <UTC200308181219.h7ICJfw14963.aeb@smtp.cwi.nl> <Pine.LNX.4.44.0308180820470.1672-100000@home.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0308180820470.1672-100000@home.osdl.org>
-User-Agent: Mutt/1.3.28i
+	Mon, 18 Aug 2003 11:36:32 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] use simple_strtoul for unsigned kernel parameters 
+In-reply-to: Your message of "Mon, 18 Aug 2003 13:09:55 +0100."
+             <20030818120955.GB7147@mail.jlokier.co.uk> 
+Date: Tue, 19 Aug 2003 01:32:59 +1000
+Message-Id: <20030818153632.98AF22C0DA@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 18, 2003 at 08:21:45AM -0700, Linus Torvalds wrote:
-> 
-> On Mon, 18 Aug 2003 Andries.Brouwer@cwi.nl wrote:
+In message <20030818120955.GB7147@mail.jlokier.co.uk> you write:
+> Rusty Russell wrote:
+> > In message <20030818004618.GA5094@mail.jlokier.co.uk> you write:
+> > > The largest "unsigned int" value doesn't fit in a "long", on many machines.
+> > > So we should use simple_strtoul, not simple_strtol, to decode these values.
 > > 
-> > I see that Linus already applied this, but I am quite unhappy with
-> > these changes. Entirely needlessly user space software is broken.
+> > Half right.  The second part is fine, the first part is redundant
 > 
-> If it's supposed to be exported to user space, it _still_ must not use 
-> "u_char", since that isn't namespace-clean.
+> Do you mean the first part of the comment or the first part of the patch?
 > 
-> If it needs exporting, it must use "__u8".
+> Assuming you mean the patch, you're right: the unsigned short case
+> doesn't need to be changed.  It should be anyway because it is just
+> the right thing to do.
 
-Maybe I am biased, but I actually prefer to use the C99 size-specific
-types, when code will be used outside the kernel tree...  even if that
-userland code is entirely Linux-kernel-specific.  I try to avoid "__u<size>"
-since it's typically a gcc-specific type.
+<shrug>.  Linus took the patch.  If you think it's the Right Thing,
+great.
 
-C99 gave us the tools, we should use them :)
-
-	Jeff
-
-
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

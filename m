@@ -1,83 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132411AbQKSNz6>; Sun, 19 Nov 2000 08:55:58 -0500
+	id <S129904AbQKSNz7>; Sun, 19 Nov 2000 08:55:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129904AbQKSNzt>; Sun, 19 Nov 2000 08:55:49 -0500
-Received: from einhorn.colt.in-berlin.de ([213.61.118.8]:37895 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id <S131139AbQKSNzf>; Sun, 19 Nov 2000 08:55:35 -0500
-To: linux-kernel@vger.kernel.org
-Path: kraxel
-From: kraxel@bytesex.org (Gerd Knorr)
-Newsgroups: lists.linux.kernel
-Subject: Re: BTTV detection broken in 2.4.0-test11-pre5
-Date: 19 Nov 2000 12:56:17 GMT
-Organization: Strusel 007
-Message-ID: <slrn91fjfh.dta.kraxel@bogomips.masq.in-berlin.de>
-In-Reply-To: <20001117013157.A21329@almesberger.net> <slrn91b42n.fs.kraxel@bogomips.masq.in-berlin.de> <20001118141426.B23033@almesberger.net> <slrn91f3hr.jt.kraxel@bogomips.masq.in-berlin.de> <3A17AF88.F1319C2C@linux.com>
-NNTP-Posting-Host: bogomips.masq.in-berlin.de
-X-Trace: goldbach.masq.in-berlin.de 974638577 11812 192.168.69.77 (19 Nov 2000 12:56:17 GMT)
-X-Complaints-To: news@goldbach.in-berlin.de
-NNTP-Posting-Date: 19 Nov 2000 12:56:17 GMT
-User-Agent: slrn/0.9.6.3 (Linux)
+	id <S132406AbQKSNzt>; Sun, 19 Nov 2000 08:55:49 -0500
+Received: from lsb-catv-1-p021.vtxnet.ch ([212.147.5.21]:31754 "EHLO
+	almesberger.net") by vger.kernel.org with ESMTP id <S129904AbQKSNzf>;
+	Sun, 19 Nov 2000 08:55:35 -0500
+Date: Sun, 19 Nov 2000 14:25:30 +0100
+From: Werner Almesberger <Werner.Almesberger@epfl.ch>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Q: Linux rebooting directly into linux.
+Message-ID: <20001119142530.B31695@almesberger.net>
+In-Reply-To: <m17l6deey7.fsf@frodo.biederman.org> <20001111171158.B17692@progenylinux.com> <m1bsvmcb4z.fsf@frodo.biederman.org> <20001114154953.E8753@almesberger.net> <m1vgtn7rfw.fsf@frodo.biederman.org> <20001119032439.H23033@almesberger.net> <m1wve04ed5.fsf@frodo.biederman.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1wve04ed5.fsf@frodo.biederman.org>; from ebiederm@xmission.com on Sun, Nov 19, 2000 at 12:20:38AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Why?  What is the point in compiling bttv statically into the kernel?
-> > Unlike filesystems/ide/scsi/... you don't need it to get the box up.
-> > No problem to compile the driver as module and configure it with
-> > /etc/modules.conf ...
-> 
-> Huh?
-> 
-> Some systems are built without module support for numerous reasons.  I don't
-> need 50% of the entire kernel to get the box up, but I surely use it and I
-> don't want 100 modules loaded.
+Eric W. Biederman wrote:
+> The code wasn't trivially reusable, and the structures had a lot
+> of overhead.
 
-Why not?  /me has nearly everything compiled as modules.
+There's some overhead, but I think it's not too bad. I'll give it a
+try ...
 
-> There is an introduced security weakness by using kernels.
+> The rebooting is done the rest is not yet.
 
-???  Guess you mean "by using modules"?  Which weakness?  Other than
-bugs?  I don't see bugs like the recent modprobe oops as major problem.
-They happen (everythere), they get fixed.
+Ah, and I already wondered where in all the APIC code you've hidden
+the magic to avoid the config data clobbering issues ;-)
 
-> So..what is the point in making it modular?
+> I agree writing the code to understand the table may be a significant
+> issue.  On the other hand I still think it is worth a look, being
+> able to unify option parsing for multiple platforms is not a small
+> gain, nor is getting out from short sighted vendor half standards.
 
-It's much more flexible.
+Well, you certainly have a point where stupid vendors and BIOS nonsense
+are concerned. However, if we ignore LinuxBIOS for a moment, each
+platform already has a set of configuration parameter passing conventions
+imposed by the firmware. So we need to be able to handle this anyway, and
+most of the information is highly platform-specific.
 
-You can reconfigure/update the driver without recompiling the kernel
-and without rebooting.  If the driver needs some tweaks to make it
-work with your hardware you can update /etc/modules.conf and reload
-the modules with the new options.  If you have found a working
-configuration, you can simply leave it as is.
+LinuxBIOS is a special case, because you have your own firmware. But
+what you're suggesting is basically yet another parameter format, which
+needs to incorporate and possibly unify much of the information
+contained in all those platform-specific formats. I'm not sure it's worth
+the effort.
 
+And, besides, I think it complicates the kernel, because you either
+have to add a parallel set of functions extracting and processing data
+from the "native" or the UBE environment, or you have to add a converter
+between "native" and UBE for each platform. Or do you have a better
+plan ?
 
-Distributions ship with modularized kernels.  Most external drivers
-can't be compiled into the kernel (alsa, lirc, vmware, ...).  Sometimes
-I find it very useful to be able to switch drivers on the fly:
+When I started with bootimg, I also thought that we'd need some
+parameter passing mechanism, a bit similar to UBE (although I would
+have tried to be more text-based). Then I realized that there are
+actually only a few tables, and we can just keep them in memory. And
+some of them need to be modified before we can re-use them. (Trivial
+example: the boot command line. Video modes are a similar, although
+much more complicated issue.)
 
- * rmmod ide-cd; modprobe ide-scsi; modprobe sr_mod (for burning CD's)
- * /etc/rc.d/init.d/network stop; rmmod de4x5; modprobe tulip;
-   /etc/rc.d/init.d/network start (tulip manages it to drive the card
-   full-duplex, de4x5 doesn't).
+> Besides which most tables seem to contain a lot of information that
+> is probeable.  Which just makes them a waste of BIOS space, and
+> sources of bugs.
 
+Agreed with BIOS bugs ;-) Where probing is possible, is it reliable ?
+It'd take some baroque BIOS parameter table over yet another mandatory
+boot command line parameter any time ...
 
-And I don't like fact that I have to add one more function for every
-cmd line option (looks like this from Werner's patch, hav'nt checked).
+> Hmm. I wonder how hard it would be to add -fPIC to the compilation
+> line for that file.  But I'm not certain that would do what I want
+> in this instance...
 
-Some generic way to make module args available as kernel args too
-would be nice.  Or at least some simple one-liner I could put next to
-the MODULE_PARM() macro...
+Are there actually architectures where the compiler generates
+position-dependent code even if you're careful ? (I.e. all functions
+inlined, only auto variables.)
 
-> --------------E48A413646B728A179A7D2FC
-> Content-Type: text/x-vcard; charset=us-ascii;
->  name="david.vcf"
+- Werner
 
-Please turn this off.
-
-  Gerd
-
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, ICA, EPFL, CH           Werner.Almesberger@epfl.ch /
+/_IN_N_032__Tel_+41_21_693_6621__Fax_+41_21_693_6610_____________________/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

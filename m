@@ -1,81 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262916AbUJ0Vt6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262633AbUJ0VRg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262916AbUJ0Vt6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 17:49:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262720AbUJ0Vsj
+	id S262633AbUJ0VRg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 17:17:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262744AbUJ0VIP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 17:48:39 -0400
-Received: from fms.tor.istop.com ([66.11.182.43]:5765 "EHLO
-	maximus.fullmotions.com") by vger.kernel.org with ESMTP
-	id S262916AbUJ0ViR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 17:38:17 -0400
-Subject: Re: SSH and 2.6.9
-From: Danny Brow <dan@fullmotions.com>
-To: Kernel-List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1098912301.4535.1.camel@hanzo.fullmotions.com>
-References: <1098906712.2972.7.camel@hanzo.fullmotions.com>
-	 <Pine.LNX.4.61.0410272247460.3284@dragon.hygekrogen.localhost>
-	 <1098912301.4535.1.camel@hanzo.fullmotions.com>
-Content-Type: text/plain
-Date: Wed, 27 Oct 2004 17:49:57 -0400
-Message-Id: <1098913797.3495.0.camel@hanzo.fullmotions.com>
+	Wed, 27 Oct 2004 17:08:15 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:38924 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262726AbUJ0Uzt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 16:55:49 -0400
+Date: Wed, 27 Oct 2004 22:55:13 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: greg@kroah.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] kill old PCI changelog
+Message-ID: <20041027205512.GD2713@stusta.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii; x-action=pgp-signed
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-That was it, thanks.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On Wed, 2004-10-27 at 17:25 -0400, Danny Brow wrote:
-> I'm recompiling right now. 
-> 
-> On Wed, 2004-10-27 at 22:54 +0200, Jesper Juhl wrote:
-> > On Wed, 27 Oct 2004, Danny Brow wrote:
-> > 
-> > > I have this odd issue with the 2.6.9 & greater kernels, that I can't ssh
-> > > or use scp any more, this is what happens when I try:
-> > > 
-> > > SSH Error with-in X:
-> > > ssh_askpass: exec(/usr/libexec/ssh-askpass): No such file or directory
-> > > Host key verification failed.
-> > > 
-> > > SCP Error with-in X:
-> > > ssh_askpass: exec(/usr/libexec/ssh-askpass): No such file or directory
-> > > Host key verification failed.
-> > > lost connection
-> > > 
-> > > I just get Host key verification failed in the terminal with either
-> > > command.
-> > > 
-> > > ssh-askpass does not exsisit but it never has & ssh/scp works fine with
-> > > 2.6.8.1 and below. When upgrading to the new kernel I just copied my
-> > > old .config and did a make oldconfig, make, etc.
-> > > 
-> > > Any ideas?
-> > > 
-> > 
-> > As it happens, I had a chat with a few people on IRC a few days ago who 
-> > had very similar trouble and I had no such trouble. After talking about 
-> > our kernel configs a bit we came to the conclusion that the main 
-> > difference between our .config's (except for some hardware specific 
-> > drivers and a few other bits that seemed unrelated) was that they had 
-> > CONFIG_LEGACY_PTYS=y while I had it unset. One guy recompiled his kernel 
-> > on the spot and disabled CONFIG_LEGACY_PTYS and then reported that his 
-> > trouble went away. He may have made other changes as well, I don't know, 
-> > and it may have been some of the seemingly unrelated bits that did the 
-> > trick, again I don't know.
-> > 
-> > I have not attempted to verify this myself, but I'd say it's worth a try 
-> > for you to disable CONFIG_LEGACY_PTYS (if you have it enabled) and then 
-> > test that (and report your findings back).
-> > 
-> > --
-> > Jesper Juhl
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+There's not much value in shipping a changelog who's last update was 
+five years ago.
 
+diffstat output:
+ arch/i386/pci/changelog |   62 ----------------------------------------
+ 1 files changed, 62 deletions(-)
+
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+- --- linux-2.6.10-rc1-mm1-full/arch/i386/pci/changelog	2004-10-18 23:55:06.000000000 +0200
++++ /dev/null	2004-08-23 02:01:39.000000000 +0200
+@@ -1,62 +0,0 @@
+- -/*
+- - * CHANGELOG :
+- - * Jun 17, 1994 : Modified to accommodate the broken pre-PCI BIOS SPECIFICATION
+- - *	Revision 2.0 present on <thys@dennis.ee.up.ac.za>'s ASUS mainboard.
+- - *
+- - * Jan 5,  1995 : Modified to probe PCI hardware at boot time by Frederic
+- - *     Potter, potter@cao-vlsi.ibp.fr
+- - *
+- - * Jan 10, 1995 : Modified to store the information about configured pci
+- - *      devices into a list, which can be accessed via /proc/pci by
+- - *      Curtis Varner, cvarner@cs.ucr.edu
+- - *
+- - * Jan 12, 1995 : CPU-PCI bridge optimization support by Frederic Potter.
+- - *	Alpha version. Intel & UMC chipset support only.
+- - *
+- - * Apr 16, 1995 : Source merge with the DEC Alpha PCI support. Most of the code
+- - *	moved to drivers/pci/pci.c.
+- - *
+- - * Dec 7, 1996  : Added support for direct configuration access of boards
+- - *      with Intel compatible access schemes (tsbogend@alpha.franken.de)
+- - *
+- - * Feb 3, 1997  : Set internal functions to static, save/restore flags
+- - *	avoid dead locks reading broken PCI BIOS, werner@suse.de 
+- - *
+- - * Apr 26, 1997 : Fixed case when there is BIOS32, but not PCI BIOS
+- - *	(mj@atrey.karlin.mff.cuni.cz)
+- - *
+- - * May 7,  1997 : Added some missing cli()'s. [mj]
+- - * 
+- - * Jun 20, 1997 : Corrected problems in "conf1" type accesses.
+- - *      (paubert@iram.es)
+- - *
+- - * Aug 2,  1997 : Split to PCI BIOS handling and direct PCI access parts
+- - *	and cleaned it up...     Martin Mares <mj@atrey.karlin.mff.cuni.cz>
+- - *
+- - * Feb 6,  1998 : No longer using BIOS to find devices and device classes. [mj]
+- - *
+- - * May 1,  1998 : Support for peer host bridges. [mj]
+- - *
+- - * Jun 19, 1998 : Changed to use spinlocks, so that PCI configuration space
+- - *	can be accessed from interrupts even on SMP systems. [mj]
+- - *
+- - * August  1998 : Better support for peer host bridges and more paranoid
+- - *	checks for direct hardware access. Ugh, this file starts to look as
+- - *	a large gallery of common hardware bug workarounds (watch the comments)
+- - *	-- the PCI specs themselves are sane, but most implementors should be
+- - *	hit hard with \hammer scaled \magstep5. [mj]
+- - *
+- - * Jan 23, 1999 : More improvements to peer host bridge logic. i450NX fixup. [mj]
+- - *
+- - * Feb 8,  1999 : Added UM8886BF I/O address fixup. [mj]
+- - *
+- - * August  1999 : New resource management and configuration access stuff. [mj]
+- - *
+- - * Sep 19, 1999 : Use PCI IRQ routing tables for detection of peer host bridges.
+- - *		  Based on ideas by Chris Frantz and David Hinds. [mj]
+- - *
+- - * Sep 28, 1999 : Handle unreported/unassigned IRQs. Thanks to Shuu Yamaguchi
+- - *		  for a lot of patience during testing. [mj]
+- - *
+- - * Oct  8, 1999 : Split to pci-i386.c, pci-pc.c and pci-visws.c. [mj]
+- - */
+\ No newline at end of file
+
+
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQFBgAswmfzqmE8StAARAtMyAJ4+cKLyitL0by8XQlDRdcy9KGw/5QCffy88
+JTyxEpMwlSsRSW6xZ26XBbY=
+=1ny4
+-----END PGP SIGNATURE-----

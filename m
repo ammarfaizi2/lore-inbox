@@ -1,61 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261455AbTCGIKt>; Fri, 7 Mar 2003 03:10:49 -0500
+	id <S261424AbTCGIGu>; Fri, 7 Mar 2003 03:06:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261457AbTCGIKt>; Fri, 7 Mar 2003 03:10:49 -0500
-Received: from pop.gmx.net ([213.165.65.60]:62712 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S261455AbTCGIKs>;
-	Fri, 7 Mar 2003 03:10:48 -0500
-Message-Id: <5.2.0.9.2.20030307091633.00cfbd28@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
-Date: Fri, 07 Mar 2003 09:26:00 +0100
-To: Andrew Morton <akpm@digeo.com>
-From: Mike Galbraith <efault@gmx.de>
-Subject: Re: [patch] "HT scheduler", sched-2.5.63-B3
-Cc: mingo@elte.hu, torvalds@transmeta.com, rml@tech9.net,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20030307001002.74b8662b.akpm@digeo.com>
-References: <5.2.0.9.2.20030307085949.00ce8008@pop.gmx.net>
- <5.2.0.9.2.20030307075851.00cf5448@pop.gmx.net>
- <5.2.0.9.2.20030307085949.00ce8008@pop.gmx.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S261435AbTCGIGu>; Fri, 7 Mar 2003 03:06:50 -0500
+Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:142
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S261424AbTCGIGG>; Fri, 7 Mar 2003 03:06:06 -0500
+Date: Fri, 7 Mar 2003 03:14:17 -0500 (EST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH][RFT] noirqbalance still doesn't do anything
+In-Reply-To: <323650000.1047024141@[10.10.2.4]>
+Message-ID: <Pine.LNX.4.50.0303070306270.18716-100000@montezuma.mastecende.com>
+References: <Pine.LNX.4.50.0303070224190.18716-100000@montezuma.mastecende.com>
+ <323650000.1047024141@[10.10.2.4]>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 12:10 AM 3/7/2003 -0800, Andrew Morton wrote:
->Mike Galbraith <efault@gmx.de> wrote:
-> >
-> > ...
-> > Best would be for other testers to run some tests.  With the make -j30
-> > weirdness, I _suspect_ that other oddities (hmm... multi-client db load...
-> > query service time) will show.
-> >
->
->Yes, this is the second surprise interaction between the CPU scheduler
->and the IO system.
->
->Perhaps.  In your case it seems that you're simply unable to generate
->the amount of concurrency which you used to.  Which would make it purely
->a CPU scheduler thing.
+On Fri, 7 Mar 2003, Martin J. Bligh wrote:
 
-Yes, of this I'm sure.
+> Actually, I think your first patch is correct. TARGET_CPUS seems like the 
+> wrong thing to be changing (for example, if we take a CPU offline later)
+> However, doesn't this:
 
->It is not necessarily a bad thing (unless your total runtime has increased?)
->but we need to understand what has happened.
+Not to mention if we take an interrupt (say pit doing timer ints) and it 
+gets sent to one of the still yet to boot cpus? (Although we're so close 
+to bringing them up it really doesn't matter).
 
-Total system throughput is fine, and as expected, the only difference is 
-the modest overhead of paging heftily or lightly and/or not at all.  The 
-realtime throughput difference between kernels is ~10 seconds... very 
-definitely concurrency issue imvho.  And I agree 100% that this is not 
-_necessarily_ a bad thing.  The time it takes for _any_ pressure to build 
-looks decidedly bad though.  With the combo patch it does look better than 
-earlier patches... sudden bursts of paging do not occurr, it's..... 
-smoother once it starts acting something resembling normal.
+> > +/*
+> > + * This function currently is only a helper for the i386 smp boot process where 
+> > + * we need to reprogram the ioredtbls to cater for the cpus which have come online
+> > + * so mask in all cases should simply be TARGET_CPUS
+> > + */
+> > +void __devinit set_ioapic_logical_dest (unsigned long mask)
+> > +{
+> > +	struct IO_APIC_route_entry entry;
+> > +	unsigned long flags;
+> > +	int apic, pin;
+> > +
+> > +	spin_lock_irqsave(&ioapic_lock, flags);
+> > +	for (apic = 0; apic < nr_ioapics; apic++) {
+> > +		for (pin = 0; pin < nr_ioapic_registers[apic]; pin++) {
+> > +			*(((int *)&entry)+0) = io_apic_read(apic, 0x10+pin*2);
+> > +			*(((int *)&entry)+1) = io_apic_read(apic, 0x11+pin*2);
+> > +			entry.dest.logical.logical_dest = mask;
+> > +			io_apic_write(apic, 0x10 + 2 * pin, *(((int *)&entry) + 0));
+> > +			io_apic_write(apic, 0x11 + 2 * pin, *(((int *)&entry) + 1));
+> > +		}
+> > +
+> > +	}
+> > +	spin_unlock_irqrestore(&ioapic_lock, flags);
+> > +}
+> 
+> do more or less the same as set_ioapic_affinity? And even if not, don't
+> you have to do "mask << 24" instead of "mask" ... or am I just confused?
 
->What filesystem are you using?
+union {	struct { __u32
+		__reserved_1	: 24,
+		physical_dest	:  4,
+		__reserved_2	:  4;
+		} physical;
+	struct { __u32
+		__reserved_1	: 24,
+		logical_dest	:  8;
+		} logical;
+} dest;
 
-The build is running in a small EXt2 partition.
+Yes. But here we're lucky here because IO_APIC_route_entry is a nicely 
+setup struct, all we need to do is put in the mask, for SMP boxes 
+with over 8 cpus we'd stuff 0xf with all the magic being in TARGET_CPUS 
+for each sub architecture.
 
-         -Mike 
-
+Thanks,
+	Zwane
+-- 
+function.linuxpower.ca

@@ -1,91 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268925AbUHZMdX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268769AbUHZMJB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268925AbUHZMdX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 08:33:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263001AbUHZMbH
+	id S268769AbUHZMJB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 08:09:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268886AbUHZMGo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 08:31:07 -0400
-Received: from websrv2.werbeagentur-aufwind.de ([213.239.197.240]:29585 "EHLO
+	Thu, 26 Aug 2004 08:06:44 -0400
+Received: from websrv2.werbeagentur-aufwind.de ([213.239.197.240]:13968 "EHLO
 	websrv2.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
-	id S268925AbUHZMXr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 08:23:47 -0400
+	id S268802AbUHZMAz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 08:00:55 -0400
 Subject: Re: silent semantic changes with reiser4
 From: Christophe Saout <christophe@saout.de>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Hans Reiser <reiser@namesys.com>, viro@parcelfarce.linux.theplanet.co.uk,
-       Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
+To: Rik van Riel <riel@redhat.com>
+Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Matt Mackall <mpm@selenic.com>, Nicholas Miell <nmiell@gmail.com>,
+       Wichert Akkerman <wichert@wiggy.net>, Jeremy Allison <jra@samba.org>,
+       Andrew Morton <akpm@osdl.org>, Spam <spam@tnonline.net>,
+       torvalds@osdl.org, reiser@namesys.com, hch@lst.de,
        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-In-Reply-To: <20040826121630.GN5618@nocona.random>
-References: <20040824202521.GA26705@lst.de> <412CEE38.1080707@namesys.com>
-	 <20040825200859.GA16345@lst.de>
-	 <Pine.LNX.4.58.0408251314260.17766@ppc970.osdl.org>
-	 <20040825204240.GI21964@parcelfarce.linux.theplanet.co.uk>
-	 <1093467601.9749.14.camel@leto.cs.pocnet.net>
-	 <20040825225933.GD5618@nocona.random> <412DA0B5.3030301@namesys.com>
-	 <20040826112818.GL5618@nocona.random>
-	 <1093520699.9004.11.camel@leto.cs.pocnet.net>
-	 <20040826121630.GN5618@nocona.random>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-D3ArTSO9oAYRBV+cOuLD"
-Date: Thu, 26 Aug 2004 14:23:34 +0200
-Message-Id: <1093523014.9004.45.camel@leto.cs.pocnet.net>
+       flx@namesys.com, reiserfs-list@namesys.com
+In-Reply-To: <Pine.LNX.4.44.0408260736080.23532-100000@chimarrao.boston.redhat.com>
+References: <Pine.LNX.4.44.0408260736080.23532-100000@chimarrao.boston.redhat.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-wqpJ0jQK10SAdFjTAomn"
+Date: Thu, 26 Aug 2004 14:00:27 +0200
+Message-Id: <1093521627.9004.23.camel@leto.cs.pocnet.net>
 Mime-Version: 1.0
 X-Mailer: Evolution 1.5.92.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-D3ArTSO9oAYRBV+cOuLD
+--=-wqpJ0jQK10SAdFjTAomn
 Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
 
-Am Donnerstag, den 26.08.2004, 14:16 +0200 schrieb Andrea Arcangeli:
+Am Donnerstag, den 26.08.2004, 07:42 -0400 schrieb Rik van Riel:
 
-> > Currently plugins are not modules. It just means that there's a defined
-> > interface between the reiser4 core and the plugins. Just like you could
-> > see filesystems as "VFS plugins".
+> > > I like cat < a > b. You can keep your progress.
+> >=20
+> > cat <a >b does not preserve following file properties even on standard
+> > UNIX filesystems: name,owner,group,permissions.
 >=20
-> but filesystems are exactly always modules (in precompiled kernels at
-> least).
-
-Yes, of cousre.
-
-> Anyways I don't see any visible EXPORT_SYMBOL in reiser4.
-
-Yes, there's no module infrastructure there. These "plugins" need to be
-linked at compile time. Some plugins need to be anyway since the the
-filesystem is useless without them. Others whould be optional features.
-
-> > In fact, reiser4 plugins are
-> > - users of the reiser4 core API
-> > - some of them are implementing Linux VFS methods (thus being some sort
-> > of glue code between the Reiser4 storage tree and the Linux VFS)
+> Losing permissions is one thing.  Annoying, mostly.
 >=20
-> then it seems a bit misleading to call those things plugins.
+> However, actual losing file data during such a copy is
+> nothing short of a disaster, IMHO. =20
 >=20
-> As you wrote those are "users of the reiser4 core API", with plugins I
-> always meant dynamically loadable things, like plugins for web browers
-> (hence kernel modules in kernel space). While here apparently you can't
-> plugin anything at runtime, it's just code that uses the reiser4 core
-> API that can be modified with a kernel patch as usual.
+> In my opinion we shouldn't merge file-as-a-directory
+> semantics into the kernel until we figure out how to
+> fix the backup/restore problem and keep standard unix
+> utilities work.
 
-Right. The name is probably at bit misleading. But assuming the
-compression "plugin" whould be dynamically loadable at some later point
-it would be a plugin then?
+Well, again, what about xattrs and ACLs...?
+
+Actually, reiser4 doesn't currently implement storage of arbitrary user
+data under a file.
+
+It's just some sysfs-like information that can be retrieved, some
+properties can be changed. If you copy a file the worst thing that can
+happen right now is that you lose the information whether that file
+should be encrypted or compressed. You don't lose data.
+
+In case some people are wondering, this is what you can find in the
+reiser4 metas:
+
+leto:/home/chtephan/.muttrc/metas > la
+insgesamt 1
+dr-xr-xr-x  1 chtephan users   0 26. Aug 13:52 .
+-rwx------  1 chtephan users 290 12. Jan 2004  ..
+-r--r--r--  1 chtephan users   0 26. Aug 13:52 bmap
+-rw-r--r--  1 chtephan users   0 26. Aug 13:52 gid
+-r--r--r--  1 chtephan users   0 26. Aug 13:52 items
+-r--r--r--  1 chtephan users   0 26. Aug 13:52 key
+-r--r--r--  1 chtephan users   0 26. Aug 13:52 locality
+--w-------  1 chtephan users   0 26. Aug 13:52 new
+-r--r--r--  1 chtephan users   0 26. Aug 13:52 nlink
+-r--r--r--  1 chtephan users   0 26. Aug 13:52 oid
+dr-xr-xr-x  1 chtephan users   0 26. Aug 13:52 plugin
+-r--r--r--  1 chtephan users   0 26. Aug 13:52 pseudo
+-r--r--r--  1 chtephan users   0 26. Aug 13:52 readdir
+-rw-r--r--  1 chtephan users   0 26. Aug 13:52 rwx
+-r--r--r--  1 chtephan users   0 26. Aug 13:52 size
+-rw-r--r--  1 chtephan users   0 26. Aug 13:52 uid
+
+Some of them are reiser4 specific things (items, key, locality, oid)
+which can only be queried anyway.
+
+The rest is what you can also get using other VFS calls.
+
+leto:/home/chtephan/.muttrc/metas/plugin > la
+insgesamt 0
+dr-xr-xr-x  1 chtephan users 0 26. Aug 13:52 .
+dr-xr-xr-x  1 chtephan users 0 26. Aug 13:52 ..
+-rwxr-xr-x  1 chtephan users 0 26. Aug 13:54 compression
+-rwxr-xr-x  1 chtephan users 0 26. Aug 13:54 crypto
+-rwxr-xr-x  1 chtephan users 0 26. Aug 13:54 digest
+-rwxr-xr-x  1 chtephan users 0 26. Aug 13:54 dir
+-rwxr-xr-x  1 chtephan users 0 26. Aug 13:54 dir_item
+-rwxr-xr-x  1 chtephan users 0 26. Aug 13:54 fibration
+-rwxr-xr-x  1 chtephan users 0 26. Aug 13:54 file
+-rwxr-xr-x  1 chtephan users 0 26. Aug 13:54 formatting
+-rwxr-xr-x  1 chtephan users 0 26. Aug 13:54 hash
+-rwxr-xr-x  1 chtephan users 0 26. Aug 13:54 perm
+-rwxr-xr-x  1 chtephan users 0 26. Aug 13:54 sd
+
+Here you can change reiser4 specific things. Here you can change some
+properties how the file is stored in the reiser4 tree. For example you
+can activate compression, encryption or authentication or set some hints
+to optimize speed.
+
+You can't create or remove these pseudo-files, just like in sysfs.
+
+I don't know, but if someone wants to store user data I think you would
+have to implement a directory "userdata" or something where you can
+store it.
+
+Not all of the information does make a lot sense inside a modified tar.
+Who is interested in the bmap information of the file or some other
+read-only information?
 
 
---=-D3ArTSO9oAYRBV+cOuLD
+--=-wqpJ0jQK10SAdFjTAomn
 Content-Type: application/pgp-signature; name=signature.asc
 Content-Description: Dies ist ein digital signierter Nachrichtenteil
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.5 (GNU/Linux)
 
-iD8DBQBBLdZGZCYBcts5dM0RAh0HAJ0WXyorP8GvKodLywpP+QzD0Sn03QCfdDYZ
-sIx3tTLZcRlZL7iW0k+UM/I=
-=DB1N
+iD8DBQBBLdDbZCYBcts5dM0RAizLAJoDIUG7l/J0r/+Q7Qhvys/jNCeB7QCePDbv
+vUQPq1FsqrzE2TSkcAxFkYc=
+=MYx8
 -----END PGP SIGNATURE-----
 
---=-D3ArTSO9oAYRBV+cOuLD--
+--=-wqpJ0jQK10SAdFjTAomn--
 

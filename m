@@ -1,137 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262147AbUJZFRw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261913AbUJZFRz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262147AbUJZFRw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 01:17:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261924AbUJZFN5
+	id S261913AbUJZFRz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 01:17:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261841AbUJZFMw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 01:13:57 -0400
-Received: from higgs.elka.pw.edu.pl ([194.29.160.5]:59020 "EHLO
-	higgs.elka.pw.edu.pl") by vger.kernel.org with ESMTP
-	id S261667AbUJZBfm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 21:35:42 -0400
-Date: Tue, 26 Oct 2004 03:34:45 +0200 (CEST)
-From: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-mm1
-In-Reply-To: <417D8DFF.1060104@osdl.org>
-Message-ID: <Pine.GSO.4.58.0410260319100.17615@mion.elka.pw.edu.pl>
-References: <20041022032039.730eb226.akpm@osdl.org> <417D7EB9.4090800@osdl.org>
- <20041025155626.11b9f3ab.akpm@osdl.org> <417D88BB.70907@osdl.org>
- <20041025164743.0af550ce.akpm@osdl.org> <417D8DFF.1060104@osdl.org>
+	Tue, 26 Oct 2004 01:12:52 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:48296 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262110AbUJZFE2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 01:04:28 -0400
+Date: Mon, 25 Oct 2004 22:04:14 -0700
+Message-Id: <200410260504.i9Q54Es8010423@magilla.sf.frob.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+From: Roland McGrath <roland@redhat.com>
+To: Gerd Knorr <kraxel@bytesex.org>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+X-Fcc: ~/Mail/linus
+Cc: Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: ptrace bug in -rc2+
+In-Reply-To: Gerd Knorr's message of  Thursday, 14 October 2004 19:49:53 +0200 <20041014174952.GA29335@bytesex>
+X-Zippy-Says: Ask me the DIFFERENCE between PHIL SILVERS and ALEXANDER HAIG!!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Sorry it took a while for me to get back to you on this problem.
 
-On Mon, 25 Oct 2004, Randy.Dunlap wrote:
+> The introduction of the new TASK_TRACED state in 2.6.9-rc2 changed the
+> behavior of the kernel in a IMHO buggy way.  Sending a SIGKILL to a
+> process which is traced _and_ stopped doesn't work any more.  user mode
+> linux kernels do that on shutdown, thats why I ran into this.
 
-> Andrew Morton wrote:
-> > "Randy.Dunlap" <rddunlap@osdl.org> wrote:
-> >
-> >>Andrew Morton wrote:
-> >>
-> >>>"Randy.Dunlap" <rddunlap@osdl.org> wrote:
-> >>>
-> >>>
-> >>>>I'm trying to spend time on kexec++ this week, but this little BUG
-> >>>>keeps getting in the way.  Has it already been reported/fixed?
-> >>>>
-> >>>>kernel BUG at arch/i386/mm/highmem.c:42!
-> >>>
-> >>>
-> >>>oops, we did it again.
+This is a change that I explained when I posted the ptrace cleanup patches.
+In general it is not safe to do any non-ptrace wakeup of a thread in
+TASK_TRACED, because the waking thread could race with a ptrace call that
+could be doing things like mucking directly with its kernel stack.  AFAIK
+noone has established that whatever clobberation ptrace can do to a running
+thread is safe even if it will never return to user mode, so we can't allow
+this even for SIGKILL.
 
-Doh.
+What we can safely do is make a thread switching out of TASK_TRACED resume
+rather than sitting in TASK_STOPPED if it has a pending SIGKILL or SIGCONT.
+The following patch does this.  
 
-> >>>
-> >>>--- 25/drivers/ide/ide-taskfile.c~ide_pio_sector-kmap-fix	Mon Oct 25 15:54:35 2004
-> >>>+++ 25-akpm/drivers/ide/ide-taskfile.c	Mon Oct 25 15:54:48 2004
-> >>>@@ -304,7 +304,7 @@ static void ide_pio_sector(ide_drive_t *
-> >>> 	else
-> >>> 		taskfile_input_data(drive, buf, SECTOR_WORDS);
-> >>>
-> >>>-	kunmap_atomic(page, KM_BIO_SRC_IRQ);
-> >>>+	kunmap_atomic(buf, KM_BIO_SRC_IRQ);
-> >>> #ifdef CONFIG_HIGHMEM
-> >>> 	local_irq_restore(flags);
-> >>> #endif
-> >>>_
-> >>
-> >>Yes, that gets further.   :(
-> >>Maybe I'll just (try) apply the kexec patch to a vanilla kernel.
+That doesn't make your test program happy.  But it should be sufficient for
+the shutdown case.  When killing all processes, if the tracer gets killed
+first, the tracee goes into TASK_STOPPED and will be woken and killed by
+the SIGKILL (same as before).  If the tracee gets killed first, it gets a
+pending SIGKILL and doesn't wake up immediately--but, now, when the tracer
+gets killed, the tracee will then wake up to die.  You can observe the
+change by kill -9'ing your test program and seeing that its child winds up
+dead rather than stopped.  This will also fix the (same) situations that
+can arise now where you have used gdb (or whatever ptrace caller), killed
+-9 the gdb and the process being debugged, but still have to kill -CONT the
+process before it goes away (now it should just go away either the first
+time or when you kill gdb).
 
-IDE PIO changes are the part of a vanilla kernel.
+Your particular test program is the one special case where we could make
+the SIGKILL work immediately: the caller of kill is the ptracer, so we know
+noone else can be using ptrace at the same time.  But I am not in favor of
+adding this special case.  If you use ptrace yourself, you should cope.
 
-If vanilla kernel (+akpm's fix) works OK then
-this bug is not mine fault. :)
 
-> >
-> > I doubt if it'll help much.  It looks like IDE PIO got badly broken.
+Thanks,
+Roland
 
-Weird, this code was in -mm for over a month.
 
-> > That's something we have to fix - could you work with Bart on it please?
->
-> Sure.  Bart?
+Signed-off-by: Roland McGrath <roland@redhat.com>
 
-I need more data, IDE PIO works fine here.
-
-> > How come your disks are running in PIO mode anyway?
-
-Maybe disks are runing in DMA mode but some application
-triggers PIO access (IDENTIFY command, S.M.A.R.T. etc.)...
-
-> No idea.
->
->
-> >>Unable to handle kernel paging request at virtual address fffea000
-> >>  printing eip:
-> >>c02c8e4d
-> >>*pde = 0064b067
-> >>*pte = 00000000
-> >>Oops: 0002 [#1]
-> >>SMP DEBUG_PAGEALLOC
-> >>Modules linked in:
-> >>CPU:    0
-> >>EIP:    0060:[<c02c8e4d>]    Not tainted VLI
-> >>EFLAGS: 00010006   (2.6.9-mm1)
-> >>EIP is at ide_insw+0xd/0x20
-> >>eax: 000001f0   ebx: c05ee7ec   ecx: 00000100   edx: 000001f0
-> >>esi: c05ee7ec   edi: fffea000   ebp: c056fe80   esp: c056fe7c
-> >>ds: 007b   es: 007b   ss: 0068
-> >>Process swapper (pid: 0, threadinfo=c056e000 task=c0486b80)
-> >>Stack: c05ee740 c056fea0 c02c93b8 000001f0 fffea000 00000100 c05ee7ec
-> >>00000080
-> >>        fffea000 c056fec0 c02ccf06 c05ee7ec fffea000 00000080 00000000
-> >>00000000
-> >>        c05ee740 c056feec c02cd62b c05ee7ec fffea000 00000080 00000000
-> >>fffea000
-> >>Call Trace:
-> >>  [<c0107eff>] show_stack+0xaf/0xc0
-> >>  [<c010808d>] show_registers+0x15d/0x1e0
-> >>  [<c01082a6>] die+0x106/0x190
-> >>  [<c011c707>] do_page_fault+0x517/0x6a6
-> >>  [<c0107b4d>] error_code+0x2d/0x38
-> >>  [<c02c93b8>] ata_input_data+0x98/0xa0
-> >>  [<c02ccf06>] taskfile_input_data+0x26/0x50
-> >>  [<c02cd62b>] ide_pio_sector+0xcb/0xf0
-> >>  [<c02cd892>] task_in_intr+0xe2/0x100
-> >>  [<c02c8c16>] ide_intr+0xb6/0x150
-> >>  [<c0142cd8>] handle_IRQ_event+0x38/0x70
-> >>  [<c0142df2>] __do_IRQ+0xe2/0x150
-> >>  [<c0109606>] do_IRQ+0x36/0x60
-> >>  [<c0107a30>] common_interrupt+0x18/0x20
-> >>  [<c01050f1>] cpu_idle+0x31/0x50
-> >>  [<c05709bf>] start_kernel+0x15f/0x180
-> >>  [<c0100211>] 0xc0100211
-> >>Code: e5 8b 55 08 ec 0f b6 c0 5d c3 8d 74 26 00 55 89 e5 8b 55 08 66
-> >>ed 0f b7 c
-> >>  <0>Kernel panic - not syncing: Fatal exception in interrupt
-> >>  <0>Dumping messages in 0 seconds : last chance for Alt-SysRq...
->
->
-> --
-> ~Randy
->
+--- linux-2.6/kernel/ptrace.c 23 Oct 2004 17:07:11 -0000 1.39
++++ linux-2.6/kernel/ptrace.c 26 Oct 2004 04:13:16 -0000
+@@ -38,6 +38,12 @@ void __ptrace_link(task_t *child, task_t
+ 	SET_LINKS(child);
+ }
+  
++static inline int pending_resume_signal(struct sigpending *pending)
++{
++#define M(sig) (1UL << ((sig)-1))
++	return sigtestsetmask(&pending->signal, M(SIGCONT) | M(SIGKILL));
++}
++
+ /*
+  * unptrace a task: move it back to its original parent and
+  * remove it from the ptrace list.
+@@ -61,8 +67,16 @@ void __ptrace_unlink(task_t *child)
+ 		 * Turn a tracing stop into a normal stop now,
+ 		 * since with no tracer there would be no way
+ 		 * to wake it up with SIGCONT or SIGKILL.
++		 * If there was a signal sent that would resume the child,
++		 * but didn't because it was in TASK_TRACED, resume it now.
+ 		 */
++		spin_lock(&child->sighand->siglock);
+ 		child->state = TASK_STOPPED;
++		if (pending_resume_signal(&child->pending) ||
++		    pending_resume_signal(&child->signal->shared_pending)) {
++			signal_wake_up(child, 1);
++		}
++		spin_unlock(&child->sighand->siglock);
+ 	}
+ }

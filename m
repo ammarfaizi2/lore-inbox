@@ -1,40 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316010AbSEOHeh>; Wed, 15 May 2002 03:34:37 -0400
+	id <S316176AbSEOHfj>; Wed, 15 May 2002 03:35:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316185AbSEOHeg>; Wed, 15 May 2002 03:34:36 -0400
-Received: from APuteaux-101-2-1-180.abo.wanadoo.fr ([193.251.40.180]:51972
-	"EHLO inet6.dyn.dhs.org") by vger.kernel.org with ESMTP
-	id <S316010AbSEOHeg>; Wed, 15 May 2002 03:34:36 -0400
-Date: Wed, 15 May 2002 09:34:31 +0200
-From: Lionel Bouton <Lionel.Bouton@inet6.fr>
-To: Andre LeBlanc <ap.leblanc@shaw.ca>
-Cc: linux-kernel@vger.kernel.org, debian-testing@lists.debian.org
-Subject: Re: No Network after Compiling, 2.4.19-pre8 under Debian Woody
-Message-ID: <20020515093431.B13317@bouton.inet6-interne.fr>
-Mail-Followup-To: Andre LeBlanc <ap.leblanc@shaw.ca>,
-	linux-kernel@vger.kernel.org, debian-testing@lists.debian.org
-In-Reply-To: <003c01c1fb9d$345e0a20$2000a8c0@metalbox>
+	id <S316185AbSEOHfi>; Wed, 15 May 2002 03:35:38 -0400
+Received: from ltspc67.epfl.ch ([128.178.121.34]:24205 "EHLO ltspc67.epfl.ch")
+	by vger.kernel.org with ESMTP id <S316176AbSEOHfg>;
+	Wed, 15 May 2002 03:35:36 -0400
+Subject: Re: PROBLEM: `modprobe agpgart` locks machine badly
+From: Diego SANTA CRUZ <Diego.SantaCruz@epfl.ch>
+To: vda@port.imtp.ilyichevsk.odessa.ua
+Cc: linux-kernel@vger.kernel.org, Alex Brotman <atbrotman@earthlink.net>
+In-Reply-To: <200205150647.g4F6ljY12346@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 15 May 2002 09:35:06 +0200
+Message-Id: <1021448108.20977.68.camel@ltspc67>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 14, 2002 at 04:15:14PM -0700, Andre LeBlanc wrote:
-> [...]
+On Wed, 2002-05-15 at 13:50, Denis Vlasenko wrote:
+> On 14 May 2002 06:11, Diego SANTA CRUZ wrote:
+> > I did a bit of debugging some time ago with the datasheets from intel.
+> > If i remember well, the problem was that the base of the aperture is not
+> > initialized by the BIOS (i.e. the APBASE register of the AGP bridge).
+> >
+> > This is visible in the lspci listing above, in that the Region 0 memory
+> > is "<unassigned>". On the machines that I have seen with agpgart
+> > working, the address of Region 0 is the address that appears in the
+> > APBASE register.
 > 
-> #
-> # Networking options
-> #
-> CONFIG_PACKET=y
-> # CONFIG_PACKET_MMAP is not set
-> # CONFIG_NETLINK_DEV is not set
+> Can it be set manually with setpci?
 
-Try with 
-CONFIG_NETLINK_DEV=y or m
+Not that I know. Besides, what would be the correct value? However, my
+knowledge of hardware programming in nearly zero so...
 
-> [...]
+Best,
 
-LB.
+Diego
+
+> --
+> vda
+-- 
+-------------------------------------------------------
+Diego Santa Cruz
+PhD. student
+Publications available at http://ltswww.epfl.ch/~dsanta
+Signal Processing Institute (ITS) -- formerly LTS
+Swiss Federal Institute of Technology (EPFL)
+EPFL - STI - ITS, CH-1015 Lausanne, Switzerland
+E-mail:     Diego.SantaCruz@epfl.ch
+Phone:      +41 - 21 - 693 26 57
+Fax:        +41 - 21 - 693 76 00
+-------------------------------------------------------
+

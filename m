@@ -1,43 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267134AbRG1VVQ>; Sat, 28 Jul 2001 17:21:16 -0400
+	id <S267196AbRG1Wec>; Sat, 28 Jul 2001 18:34:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267180AbRG1VVH>; Sat, 28 Jul 2001 17:21:07 -0400
-Received: from ohiper1-178.apex.net ([209.250.47.193]:12548 "EHLO
-	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
-	id <S267134AbRG1VVA>; Sat, 28 Jul 2001 17:21:00 -0400
-Date: Sat, 28 Jul 2001 16:21:17 -0500
-From: Steven Walter <srwalter@yahoo.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Port tdfxfb to new-style PCI API
-Message-ID: <20010728162117.A9266@hapablap.dyn.dhs.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Uptime: 4:15pm  up 23 min,  1 user,  load average: 1.00, 1.00, 0.80
+	id <S267188AbRG1WeN>; Sat, 28 Jul 2001 18:34:13 -0400
+Received: from oboe.it.uc3m.es ([163.117.139.101]:22789 "EHLO oboe.it.uc3m.es")
+	by vger.kernel.org with ESMTP id <S267180AbRG1WeG>;
+	Sat, 28 Jul 2001 18:34:06 -0400
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200107282234.f6SMY8421363@oboe.it.uc3m.es>
+Subject: Re: what's the semaphore in requests for?
+In-Reply-To: From (env: ptb) at "Jul 24, 2001 01:39:33 am"
+To: "linux kernel" <linux-kernel@vger.kernel.org>
+Date: Sun, 29 Jul 2001 00:34:08 +0200 (MET DST)
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-I have created a patch that changes the 3dfx framebuffer driver so that
-it uses the new-style PCI api.  Additionally, it adds the ability to
-pass parameters to the module (previously these were only availible when
-built into the kernel) and makes the indention conformant to
-Coding-Style.
+"A month of sundays ago ptb wrote:"
+> What's the semaphore field in requests for?  Are driver writers supposed
+> to be using it?
 
-I've tested it myself as both module and built-in with no problems, but
-you can never test too much.  I'd like to ask adventuresome users of
-this driver to try out my patch, with the hopeful end result of
-inclusion into the kernel.
+It seems nobody knows.
 
-The patch is availible from:
-http://www.apex.net/users/trwalter/tdfxfb-patch.gz
-Its 22k compressed (large because of style/indention changes), so I was
-hesitant to post it to the list.
+> The reason I ask is that I've been chasing an smp bug in a block driver
+> of mine for a week.  The bug only shows up in 2.4 kernels (not in same
+> code under 2.2.18) and only with smp ("nosmp" squashes it).  It only
 
-Many thanks in advance to testers, comments are welcome.
--- 
--Steven
-In a time of universal deceit, telling the truth is a revolutionary act.
-			-- George Orwell
+I've made more progress in seeking this bug.  The test is
+just dd if=/dev/mine of=/dev/null bs=4k over 2GB of data.
+
+2 processors + 1 userspace helper daemon on device = no bug 
+2 processors + 2 userspace helper daemon on device = bug  (lockup)
+1 processors + 1 userspace helper daemon on device = no bug 
+1 processors + 2 userspace helper daemon on device = no bug 
+
+Seeing this, I added a semaphore that forces the helper daemons to
+exclude each other as they enter the kernel in their ioctl calls.
+Still the lockup occurred with two processors and two daemons.
+
+IMO that's impossible.  With the semaphore, the daemons should have
+behaved like one daemon, since they don't maintain any state.  They just
+run in two threads instead of one.  I was careful to lock the entire
+daemon interaction cycle with the kernel (a get and an ack ioctl) into
+one atomic unit with the semaphore, not just exclude simultaneous entry.
+
+OK .. so let's treat this as an opportunity to learn something more
+about the kernel.
+
+I believe the above data indicates that the act of doing an ioctl
+may prompt activity in the kernel request function, perhaps as the
+scheduler triggers the helper daemon process on the way in to the
+kernel. And perhaps that leads to the kernel request function for
+the device running twice simultaneously? It runs when the device
+unplugs, surely, and never any other time?
+
+I've been through adding spinlocks to exclude the kernel request
+function and the helper daemon ioctls on shared resources. Surely
+if there were a problem there I'd see it with 2 cpus and 1 helper
+daemon!
+
+Peter
+

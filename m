@@ -1,58 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261561AbULNRPp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261564AbULNRVt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261561AbULNRPp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 12:15:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261565AbULNRPp
+	id S261564AbULNRVt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 12:21:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261569AbULNRVs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 12:15:45 -0500
-Received: from mail-relay-4.tiscali.it ([213.205.33.44]:12769 "EHLO
-	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
-	id S261561AbULNRPP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 12:15:15 -0500
-Date: Tue, 14 Dec 2004 18:15:03 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Nish Aravamudan <nish.aravamudan@gmail.com>
-Cc: linux-os@analogic.com, Andrew Morton <akpm@osdl.org>, kernel@kolivas.org,
-       pavel@suse.cz, linux-kernel@vger.kernel.org
-Subject: Re: dynamic-hz
-Message-ID: <20041214171503.GG16322@dualathlon.random>
-References: <20041211142317.GF16322@dualathlon.random> <20041212163547.GB6286@elf.ucw.cz> <20041212222312.GN16322@dualathlon.random> <41BCD5F3.80401@kolivas.org> <20041213030237.5b6f6178.akpm@osdl.org> <20041213111741.GR16322@dualathlon.random> <20041213032521.702efe2f.akpm@osdl.org> <29495f1d041213195451677dab@mail.gmail.com> <Pine.LNX.4.61.0412140914360.13406@chaos.analogic.com> <29495f1d041214085457b8c725@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <29495f1d041214085457b8c725@mail.gmail.com>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+	Tue, 14 Dec 2004 12:21:48 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:36244 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S261564AbULNRVk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Dec 2004 12:21:40 -0500
+Date: Tue, 14 Dec 2004 18:21:33 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Peter Foldiak <Peter.Foldiak@st-andrews.ac.uk>
+cc: Hans Reiser <reiser@namesys.com>, reiserfs-list@namesys.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: file as a directory
+In-Reply-To: <1103043518.21728.159.camel@pear.st-and.ac.uk>
+Message-ID: <Pine.LNX.4.61.0412141812250.5600@yvahk01.tjqt.qr>
+References: <200411301631.iAUGVT8h007823@laptop11.inf.utfsm.cl> 
+ <41ACA7C9.1070001@namesys.com> <1103043518.21728.159.camel@pear.st-and.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 14, 2004 at 08:54:29AM -0800, Nish Aravamudan wrote:
-> Hmm, schedule_timeout(0) working that way is interesting. There is
-> also the option to use schedule_timeout(MAX_SCHEDULE_TIMEOUT) which
-> should sleep indefinitely (depending of course on the conditions of
-> the state). Oh but I think I understand what you're saying... the
-> driver needs to sleep indefinitely in total (potentially), but needs
-> to be able to return quite often (like yield() used to) so they could
-> check a condition...
-> 
-> Thanks for the input!
+>Following the recent discussions on the lists on "file as directory", I
+[...]
 
-what do you mean like yield() used to? yield() is still there in latest
-2.6, just call yield() and you'll get the same effect of sched_yield in
-userspace. yields in the kernel are a bad thing though (they usually
-mean code is not well written, code should be event driven not polled
-driven).
+Recently I discovered that calling "joe /etc" on FreeBSD opens the directory 
+itself (rather than erroring out with EISDIR). The byte string looked like a 
+number of "struct dirent"s. Did it break apps in BSD? I donot think so.
 
-Note that __set_current_state(..); schedule_timeout(0) is not like
-yield. yield will return immediatly if it's the only task running. A
-yielding loop will consume all available cpu, while the
-schedule_timeout(0) will wait less than 1/HZ sec. But really
-schedule_timeout(0) makes little sense, either use schedule_timeout(1)
-and explicitly wait 1msec, or use yield. schedule_timeout(0) just
-happens to work because the timer code has to approximate for excess and
-it will wait for the next timer irq for timeouts <= 0 and it will wait
-for two ticks for timeouts == 1 etc...
+(Hell, I just voted _for_ the directory-as-a-file and vice-versa stuff, I'm 
+never gonna regret it to myself :)
 
-I guess we could change schedule_timeout() to WARN_ON if 0 is being
-passed to it.
+>would automatically give you the glued file (without having to add the
+>.glued !) and when you access it as a directory (using readdir(), for
+>instance), you would get the components listed as a directory.
+>(I am not sure whether the access method, e.g. read() vs. readdir() is
+>sufficient to distinguish the meaning. Another way may be putting a "/"
+>after the objectname to indicate that you want it as a directory.)
+
+I would not rely on that. Many apps strip a trailing slash (just to add it 
+later again) or vice versa!
+
+>If we do this, the applications don't need to know whether they are
+>dealing with an object consisting of small files, aggregated, or whether
+>they are looking at a big file with some way of accessing their parts.
+>If an old application (or user) looks for the /etc/passwd file, it will
+>still get what it expects without having to know that the file is an
+>aggregate.
+
+What will ls do? Consider this on a "normal" filesystem:
+
+ls -l /etc/passwd
+-rw-r--r--  1 root root 1614 Dec 12 23:57 /etc/passwd
+ls -l /etc
+[lots of files]
+
+
+What will happen on v4 then?
+ls -l /etc
+-rw-r--r-- 1 root root 123456 Dec 01 23:45 /etc
+ls -l /etc/passwd
+-rw-r--r-- 1 root root 1234 Dec 01 23:45 root
+-rw-r--r-- 1 root root 1234 Dec 01 23:45 jengelh
+-rw-r--r-- 1 root root 1234 Dec 01 23:45 daemon
+-rw-r--r-- 1 root root 1234 Dec 01 23:45 sys
+-rw-r--r-- 1 root root 1234 Dec 01 23:45 stduser
+
+It's because "ls" checks the type of the argument to decide what to do (unless
+you add -d).
+
+
+Jan Engelhardt
+-- 
+ENOSPC

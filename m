@@ -1,43 +1,60 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314646AbSESQrV>; Sun, 19 May 2002 12:47:21 -0400
+	id <S314583AbSESQwY>; Sun, 19 May 2002 12:52:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314670AbSESQrV>; Sun, 19 May 2002 12:47:21 -0400
-Received: from ns.suse.de ([213.95.15.193]:35334 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S314646AbSESQrU>;
-	Sun, 19 May 2002 12:47:20 -0400
-Date: Sun, 19 May 2002 18:47:20 +0200
-From: Dave Jones <davej@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Roy Sigurd Karlsbakk <roy@karlsbakk.net>, linux-kernel@vger.kernel.org
-Subject: Re: nVidia NIC/IDE/something support?
-Message-ID: <20020519184720.J15417@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <200205191514.g4JFEsV13608@mail.pronto.tv> <E179T6e-0003x5-00@the-village.bc.nu>
+	id <S314643AbSESQwX>; Sun, 19 May 2002 12:52:23 -0400
+Received: from rongage.org ([63.83.235.147]:46759 "EHLO net.rongage.org")
+	by vger.kernel.org with ESMTP id <S314583AbSESQwX>;
+	Sun, 19 May 2002 12:52:23 -0400
+Subject: [PATCH][RFQ] - Kernel Janitor Project - Compiler Cleanups
+From: Ron Gage <ron@rongage.org>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 19 May 2002 12:46:23 -0400
+Message-Id: <1021826787.7867.32.camel@portable>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 19, 2002 at 05:00:24PM +0100, Alan Cox wrote:
- > > I just bought this Asus board, A7N266-VM, with nVidia IDE, LAN and god knows 
- > > chipset. Linux doesn't understand it, and I really want it... Any plans of 
- > > supporting this? See below for /proc/pci output.
- > 
- > Depends if Nvidia want to be helpful. The audio is now supported (someone
- > was able to deduce that it was a clone of the intel one). For the ethernet
- > you might want to try random things that expect that much mmio and I/O 
- > space until you find what they licensed if its not their own
+Hi folks:
 
-In 2.5 the amd74xx.c ide driver has an entry to support the nforce IDE
-too, so it looks like quite a bit of the chipset could be variants of
-existing components.
+In my delusional attempt to contribute to the Linux Kernel, I have
+chosen the "clean up compiler warnings" item from the Kernel Janitors
+list.  This cleanup applies to base 2.4.18.
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+To expose the warnings, all one needs to do is change the CC defination
+from "gcc" to "gcc -w" in the toplevel Makefile.
+
+The typical warnings exposed are:
+signed vs unsigned comparison
+unsigned compared to negative constant
+unused parameters
+unused variables
+missing initializers
+
+While there has been some limited discussion (thanks Keith Owens)
+regarding if GCC is doing the right thing wrt initializing structures,
+the fact remains that if GCC is emitting a warning, then I did what I
+could to squash it.  I am usign GCC v2.95.3 as distributed with
+Slackware 8.0.
+
+This patch touches a LOT of different files in the include, kernel,
+drivers/block, drivers/acpi, and drivers/char directories and while the
+changes should be benign, you are advised to handle with care.
+
+This patch is a work in progress so expect more in the future from me. 
+I am releasing what I have now for commentary and if necessary, course
+correction.  PLEASE be gentle in the commentary as this is my first
+major contribution to the kernel.
+
+The patch, at 42k gzip'ed, is sitting on my webserver: 
+http://www.rongage.org/2.4.18-rg1-diff.gz
+
+Thanks!
+
+Ron Gage - Saginaw, MI
+(ron@rongage.org)
+
+

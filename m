@@ -1,101 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262430AbSJ0P3G>; Sun, 27 Oct 2002 10:29:06 -0500
+	id <S262437AbSJ0PlZ>; Sun, 27 Oct 2002 10:41:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262434AbSJ0P3G>; Sun, 27 Oct 2002 10:29:06 -0500
-Received: from sccrmhc02.attbi.com ([204.127.202.62]:2695 "EHLO
-	sccrmhc02.attbi.com") by vger.kernel.org with ESMTP
-	id <S262430AbSJ0P3E>; Sun, 27 Oct 2002 10:29:04 -0500
-Date: Sun, 27 Oct 2002 10:20:38 -0500
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: The return of the return of crunch time (2.5 merge candidate list 1.6)
-Message-ID: <20021027152038.GA26297@pimlott.net>
-Mail-Followup-To: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-References: <200210251557.55202.landley@trommello.org.suse.lists.linux.kernel> <p7365vptz49.fsf@oldwotan.suse.de> <20021026190906.GA20571@pimlott.net> <20021027080125.A14145@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021027080125.A14145@wotan.suse.de>
-User-Agent: Mutt/1.3.28i
-From: Andrew Pimlott <andrew@pimlott.net>
+	id <S262440AbSJ0PlZ>; Sun, 27 Oct 2002 10:41:25 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:23824 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262437AbSJ0PlY>;
+	Sun, 27 Oct 2002 10:41:24 -0500
+Message-ID: <3DBC0A87.1000102@pobox.com>
+Date: Sun, 27 Oct 2002 10:47:19 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Peter Waechtler <pwaechtler@mac.com>
+CC: linux-kernel@vger.kernel.org, jakub@redhat.com, torvalds@transmeta.com
+Subject: Re: [PATCH] unified SysV and Posix mqueues as FS
+References: <3DBC075B.AF32C23@mac.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 27, 2002 at 08:01:25AM +0100, Andi Kleen wrote:
-> On Sat, Oct 26, 2002 at 03:09:06PM -0400, Andrew Pimlott wrote:
-> > Would you mind spelling out the problem case?  It's ususally not a
-> > big deal, because when a target and dependency have the same
-> > timestamp, make considers the target to be newer.
-> 
-> I assume you mean 'older', not 'newer'?
+Peter Waechtler wrote:
 
-No (but maybe I phrased it badly):
+>I applied the patch from Jakub against 2.5.44
+>There are still open issues but it's important to get this in before
+>feature freeze.
+>
+>While you can implement Posix mqueues in userland (Irix is doing this
+>with fcntl(fd,F_SETLKW,) and shmem) a kernel implementation has some advantages:
+>
+>a) no hassle with locks in case an app crashes
+>b) guaranteed notification with signals (you can have two apps with
+>	different uid that can acces the queue but aren't allowed to
+>	send signals)
+>c) surprisingly, seems a little faster - did not test with NPT
+>
+>
+>Open issues are:
+>
+>- notification not tested
+>- still linear search in queues
+>- I would really enhance the sys_ipc for handling posix mqueue as well
+>	(yes, perhaps it's more ugly - but it fits naturally, you can't
+>	specify a priority with a read() - ending up with ioctl())
+>- funny "locking" in ipc/util.c 
+>- check the ipc ids
+>
+>  
+>
 
-    % cat Makefile 
-    foo: bar
-            echo did it
-    % touch foo bar
-    % ls --full-time foo bar
-    -rw-r--r--    1 pimlott  pimlott         0 Sun Oct 27 09:36:26 2002 bar
-    -rw-r--r--    1 pimlott  pimlott         0 Sun Oct 27 09:36:26 2002 foo
-    % make
-    make: `foo' is up to date.
+I don't comment on the overall concept of the patch itself, it's not my 
+area of expertise and it's too early in the morning to think about it ;-)
 
-Ie, foo is considered newer.
+However, there are three issues to consider in the meantime:
+* Documentation/CodingStyle problems.  You need to use standard 
+one-tab-for-indentation formatting, just like the code around what you 
+are adding/modifying.
+* There is weird text translation in the patch (short example follows). 
+ It may be better if you use mutt and vi to include your patch directly, 
+without word wrapping, if attachments are getting mangled.
 
-> Any default action is wrong in some case when an rule can take less
-> than a second,
+-		msq =3D msg_lock(msqid);
+-		err =3D -EIDRM;
+-		if(msq=3D=3DNULL)
+-			goto out_free;
+-		ss_del(&s);
+-		=
 
-I'm sure there is a case where this is true, but my imagination and
-googling failed to provide one.  Even the messages to the GNU make
-mailing list when Paul Eggert implemented nanosecond support didn't
-include a specific rationale.
+* Linus probably won't see your email, he has threatened to flush his entire inbox when he returns from his trip ;-)
 
-> there is no replacement for an accurate time stamp.
+Regards,
 
-While I agree, I thought that a concrete example might help persuade
-others.  (I think I've even run into instances where second
-resolution was a real problem, I just can't recall them.)
+	Jeff
 
-> > I really feel strongly that you should not export resolution finer
-> > that what the filesystem can store.  There is too much risk of
-> > breakage (especially given the late date of submission), and if (as
-> > you said) all common filesystems will be able to store sub-second
-> > timestamps soon, this shouldn't be a significant drawback.  If this
-> > requires a new hook into the filesystem, so be it.
-> 
-> You have to export in some unit and it is convenient to use the most
-> finegrained available (ns). This matches what other Unixes like
-> Solaris do too. The program can always chose to ignore the ns 
-> (which will most do at least initially) part or even round more.
-> 
-> What happens currently in my patch is that the inode in memory stores jiffies
-> resolution. As long as you don't run out of inode cache and need to
-> flush/reload an inode you always have the best resolution.
-> 
-> When an inode is flushed on an old fs with only second resolution the 
-> subsecond part is truncated. This has the drawback that an inode
-> timestamp can jump backwards on reload as seen by user space.
 
-Example problem case (assuming a fs that stores only seconds, and a
-make that uses nanoseconds):
 
-- I run the "save and build" command while editing foo.c at T = 0.1.
-- foo.o is built at T = 0.2.
-- I do some read-only operations on foo.c (eg, checkin), such that
-  foo.o gets flushed but foo.c stays in memory.
-- I build again.  foo.o is reloaded and has timestamp T = 0, and so
-  gets spuriously rebuilt.
 
-> Another way would be to round on flush, but that also has some problems :-
-> for example you can get timestamps which are ahead of the current
-> wall clock.
 
-Only if the flush is less than a second after the write, right?
-How likely is that in Linux?
-
-I tend to prefer the proposal to set the nanosecond field to 10^9-1.
-At least my scenario above doesn't happen.
-
-Andrew

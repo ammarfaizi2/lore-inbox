@@ -1,49 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136400AbREDOa6>; Fri, 4 May 2001 10:30:58 -0400
+	id <S136401AbREDOe6>; Fri, 4 May 2001 10:34:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136403AbREDOas>; Fri, 4 May 2001 10:30:48 -0400
-Received: from lange.hostnamen.sind-doof.de ([212.15.192.219]:34822 "HELO
-	xena.sind-doof.de") by vger.kernel.org with SMTP id <S136401AbREDOal>;
-	Fri, 4 May 2001 10:30:41 -0400
-Date: Fri, 4 May 2001 16:21:26 +0200
-From: Andreas Ferber <aferber@techfak.uni-bielefeld.de>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Todd Inglett <tinglett@vnet.ibm.com>, Alexander Viro <viro@math.psu.edu>,
-        linux-kernel@vger.kernel.org
-Subject: Re: SMP races in proc with thread_struct
-Message-ID: <20010504162126.A14679@kallisto.sind-doof.de>
-Mail-Followup-To: Keith Owens <kaos@ocs.com.au>,
-	Todd Inglett <tinglett@vnet.ibm.com>,
-	Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
-In-Reply-To: <3AF2A1CC.C22A48E7@vnet.ibm.com> <8541.988980403@ocs3.ocs-net>
+	id <S136403AbREDOes>; Fri, 4 May 2001 10:34:48 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:10571 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S136401AbREDOeh>; Fri, 4 May 2001 10:34:37 -0400
+Date: Fri, 4 May 2001 16:33:59 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: Richard Henderson <rth@twiddle.net>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] 2.4.4 alpha semaphores optimization
+Message-ID: <20010504163359.F3762@athlon.random>
+In-Reply-To: <20010503194747.A552@jurassic.park.msu.ru> <20010503192848.V1162@athlon.random> <20010504131528.A2228@jurassic.park.msu.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <8541.988980403@ocs3.ocs-net>; from kaos@ocs.com.au on Fri, May 04, 2001 at 10:46:43PM +1000
-X-Operating-System: Debian GNU/Linux (Linux 2.4.4-int1-vlan101-nf20010428 i686)
-X-Disclaimer: Are you really taking me serious?
+In-Reply-To: <20010504131528.A2228@jurassic.park.msu.ru>; from ink@jurassic.park.msu.ru on Fri, May 04, 2001 at 01:15:28PM +0400
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, May 04, 2001 at 01:15:28PM +0400, Ivan Kokshaysky wrote:
+> However, there are 3 reasons why I prefer 16-bit counters:
 
-On Fri, May 04, 2001 at 10:46:43PM +1000, Keith Owens wrote:
+I assume you mean 32bit counter. (that gives max 2^16 sleepers)
 
-> For a read only case, the only important
-> thing is not to die, one occurrence of bad data is tolerable.
+> a. "max user processes" ulimit is much lower than 64K anyway;
 
-Strong NACK. The pages where the bad data comes from may in some cases
-already be reclaimed for other data, probably something security
-relevant, which should never ever be given even read access by an
-unauthorized user. Even if this event may be a very rare case, one
-single occurrence of this is one to much.
+the 2^16 limit is not a per-user limit it is a global one so the max
+user process ulimit is irrelevant.
 
-Andreas
--- 
->Ich nehm nicht mal Zucker in den den Kaffee.
-Dafür nehm ich nichtmal Kaffee.
-   (Peter Backof + Bernhard Schultz in detebe)
+Only the number of pid and the max number of tasks supported by the
+architecture is a relevant limit for this.
 
+> b. "long" count would cost extra 8 bytes in the struct rw_semaphore;
+
+correct but that's the "feature" to be able to support 2^32 concurrent
+sleepers at not relevant runtime cost 8).
+
+> c. I can use existing atomic routines which deal with ints.
+
+I was thinking at a dedicated routine that implements the slow path by
+hand as well like x86 just do. Then using ldq instead of ldl isn't
+really a big deal programmer wise.
+
+Andrea

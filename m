@@ -1,34 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314079AbSEXBQD>; Thu, 23 May 2002 21:16:03 -0400
+	id <S317067AbSEXB3p>; Thu, 23 May 2002 21:29:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317067AbSEXBQC>; Thu, 23 May 2002 21:16:02 -0400
-Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:4878 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S317066AbSEXBQB>; Thu, 23 May 2002 21:16:01 -0400
-Date: Fri, 24 May 2002 03:15:59 +0200
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: 2.4.19-pre8-ac5: cannot mount FreeBSD file system
-Message-ID: <20020524011559.GA7634@merlin.emma.line.org>
-Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+	id <S317068AbSEXB3o>; Thu, 23 May 2002 21:29:44 -0400
+Received: from outbound.ea.com ([12.35.91.3]:59558 "EHLO outbound.ea.com")
+	by vger.kernel.org with ESMTP id <S317067AbSEXB3o>;
+	Thu, 23 May 2002 21:29:44 -0400
+Subject: Nforce chipset and 2.2 kernels
+From: Thomas Schenk <tschenk@origin.ea.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 23 May 2002 20:29:36 -0500
+Message-Id: <1022203781.13260.101.camel@bagend.origin.ea.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.99i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trying to mount my FreeBSD 4.6-RC ufs file systems (softupdates enabled,
-FWIW), I get this:
+Yes, I know that nVidia is evil, but I am stuck with 20 AMD systems with
+the Nforce 420 chipset and was wondering if there is any possibility of
+getting the integrated network component working with a 2.2.x kernel. 
+Upgrading to a 2.4.x kernel is not an option.  Any pointers would be
+appreciated.
 
-May 24 03:14:13 merlin kernel: ufs_read_super: fragment size 1024 is too
-large
+Tom S.
 
-My UFS is compiled for read-only mode, and my command line is:
-sudo mount -v -t ufs -r -o ufstype=44bsd  /dev/hdd14 /bsd/
-
-With some older kernel (maybe before 2.4.18), it could be mounted.
+P.S.  Please don't flame me.  I do my best to influence the hardware
+buying decisions in this company towards vendors that support Linux. 
+This one slipped under my radar, unfortunately.
 
 -- 
-Matthias Andree
++=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+| Tom Schenk      | A positive attitude may not solve all your    |
+| Online Ops      | problems, but it will annoy enough people to  |
+| tschenk@ea.com  | make it worth the effort. -- Herm Albright    |
++=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+

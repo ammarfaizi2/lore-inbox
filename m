@@ -1,60 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261420AbVCOQmT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261413AbVCOQlp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261420AbVCOQmT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 11:42:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261434AbVCOQmS
+	id S261413AbVCOQlp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 11:41:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261427AbVCOQlp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 11:42:18 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:13979 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261420AbVCOQmF (ORCPT
+	Tue, 15 Mar 2005 11:41:45 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:1165 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261413AbVCOQlZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 11:42:05 -0500
-Date: Tue, 15 Mar 2005 11:41:58 -0500
-From: Dave Jones <davej@redhat.com>
-To: Dave Airlie <airlied@linux.ie>
-Cc: Andrew Clayton <andrew@digital-domain.net>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, dri-devel@lists.sourceforge.net
-Subject: Re: drm lockups since 2.6.11-bk2
-Message-ID: <20050315164158.GE15531@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Dave Airlie <airlied@linux.ie>,
-	Andrew Clayton <andrew@digital-domain.net>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	dri-devel@lists.sourceforge.net
-References: <Pine.LNX.4.58.0503151033110.22756@skynet> <20050315143629.GA27654@redhat.com> <Pine.LNX.4.58.0503151610560.443@skynet>
+	Tue, 15 Mar 2005 11:41:25 -0500
+Subject: Re: [Ext2-devel] Re: [PATCH] 2.6.11-mm3 patch for ext3 writeback
+	"nobh" option
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ext2-devel <ext2-devel@lists.sourceforge.net>
+In-Reply-To: <1110903996.6290.73.camel@laptopd505.fenrus.org>
+References: <1110827903.24286.275.camel@dyn318077bld.beaverton.ibm.com>
+	 <20050314180917.07f7ac58.akpm@osdl.org>
+	 <1110902996.24286.328.camel@dyn318077bld.beaverton.ibm.com>
+	 <1110903996.6290.73.camel@laptopd505.fenrus.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1110904587.24286.353.camel@dyn318077bld.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0503151610560.443@skynet>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 15 Mar 2005 08:36:28 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 15, 2005 at 04:15:42PM +0000, Dave Airlie wrote:
+On Tue, 2005-03-15 at 08:26, Arjan van de Ven wrote:
+> On Tue, 2005-03-15 at 08:09 -0800, Badari Pulavarty wrote:
+> > On Mon, 2005-03-14 at 18:09, Andrew Morton wrote:
+> > > Badari Pulavarty <pbadari@us.ibm.com> wrote:
+> > > >
+> > > > Here is the 2.6.11-mm3 version of patch for adding "nobh"
+> > > >  support for ext3 writeback mode.
+> > > 
+> > > Care to update Documentation/filesystems/ext3.txt?
+> > 
+> > Yes. I will do that. I am planning to add "nobh" support to
+> > ext3 ordered mode also, since its the default one. We need
+> > to modify generic interfaces like mpage_writepage(s) to
+> > keep track of bio count and make journal code wait for them etc. -
+> > at that point the "generic" code will no longer be generic.
+> > I am thinking of a way to do it *less* intrusively. 
+> > 
+> > At that point, we can make "nobh" default option. (which
+> > needs less documentation).
+> 
+> I still don't get why you want a mount option. Sure during development
+> it can be nice.. but do you still want it in the production trees??
 
- > > I saw one report where the recent drm security hole fix broke dri
- > > for one user.  Whilst it seems an isolated incident, could this have
- > > more impact than we first realised ?
- > 
- > the radeon security changes? I've gotten no bad feedback on those neither
- > has dri-devel, so I've assumed they were all fine (usually radeon bug
- > reports get back fairly quickly as everyone has one ..),
+Once I get "nobh" working for both ordered and writeback mode - 
+I will take out the option. Only reason why, you may
+want "bh"s are for faster lookups. "bh" stores the get_block()
+information, getting rid of it means - we need to do few more
+get_block() calls when we need the disk mapping. 
 
-The missing memset in setversion ioctl.
-What sounded odd was that this was reproduced on 2.6.11.x, rather
-than 2.6.11-bk, which has none of the AGP changes.
-Could be a red herring though, as it was only one report.
+We have seen small amount of "reads" when we are doing write-only 
+tests with "nobh" option. I am not at a point, where I can quantify
+the performance hit due to not caching the disk mapping info. 
 
- > > Worse case scenario we can drop out the multi-bridge support for now
- > > if it needs work. Mike left SGI now, so we'll need to find someone else
- > > with access to a Prism to make sure it still works correctly on a
- > > real multi-gart system.
- > 
- > I'd like to make it work I'm sure it is some thing small wrong, but I've
- > no access for > 1 week to my radeon machine so unless someone else picks
- > it up we may need to drop it for now..
+Thanks,
+Badari
 
-I'll try and dig into it over the next few days, but I'm swamped
-in other stuff right now :-/
-
-		Dave

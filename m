@@ -1,59 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262887AbSKHXTS>; Fri, 8 Nov 2002 18:19:18 -0500
+	id <S263026AbSKHXY5>; Fri, 8 Nov 2002 18:24:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262914AbSKHXTS>; Fri, 8 Nov 2002 18:19:18 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:34323 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262887AbSKHXTR>; Fri, 8 Nov 2002 18:19:17 -0500
-Date: Fri, 8 Nov 2002 23:25:55 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Martin Diehl <lists@mdiehl.de>
-Cc: Jean Tourrilhes <jt@bougret.hpl.hp.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [Serial 2.5]: packet drop problem (FE ?)
-Message-ID: <20021108232555.E24905@flint.arm.linux.org.uk>
-Mail-Followup-To: Martin Diehl <lists@mdiehl.de>,
-	Jean Tourrilhes <jt@bougret.hpl.hp.com>,
-	Linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <20021108024058.GA1266@bougret.hpl.hp.com> <Pine.LNX.4.44.0211081308190.1320-100000@notebook.home.mdiehl.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0211081308190.1320-100000@notebook.home.mdiehl.de>; from lists@mdiehl.de on Fri, Nov 08, 2002 at 11:34:18PM +0100
+	id <S263135AbSKHXY4>; Fri, 8 Nov 2002 18:24:56 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:42251 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S263026AbSKHXY4>; Fri, 8 Nov 2002 18:24:56 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: RFC: mmap(PROT_READ, MAP_SHARED) fails if !writepage.
+Date: Fri, 8 Nov 2002 23:31:09 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <aqhhft$19b$1@penguin.transmeta.com>
+References: <24305.1036795742@passion.cambridge.redhat.com>
+X-Trace: palladium.transmeta.com 1036798269 18783 127.0.0.1 (8 Nov 2002 23:31:09 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 8 Nov 2002 23:31:09 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 08, 2002 at 11:34:18PM +0100, Martin Diehl wrote:
-> The next to know is whether irtty_receive_buf() reports any "Framing or 
-> parity error"? IIRC with IGNPAR set we should neither get parity nor 
-> framing errors reported and it seems this is how serial8250_change_speed()
-> deals with ignore_status_mask. But wait - yes, 8250's receive_chars() 
-> seems to accept the character,
+In article <24305.1036795742@passion.cambridge.redhat.com>,
+David Woodhouse  <dwmw2@infradead.org> wrote:
+>Why does a _readonly_ mapping fail if the file system has no writepage 
+>method? 
+>
+>do_mmap_pgoff() sets VM_MAYWRITE on the vma and then generic_file_mmap() 
+>refuses to allow it. 
+>
+>Suggested patch below.... or should I just hack fsx-linux to use 
+>MAP_PRIVATE for its readonly mappings and ignore it?
 
-Correct.
+This is broken. Since it has VM_MAYWRITE, a subsequent mprotect() may
+mark it writable, and you you went boom.
 
-> but set TTY_FRAME anyway.
+If you really want a shared mapping, you'd better open with O_RDONLY, at
+which point the existing code should be perfectly happy and does the
+right thing.
 
-Only if INPCK is set.  If it's clear, then it will ignore framing and
-parity errors.  (Irrespective of this, it will still internally count
-them for statistical purposes, just like 2.4 used to.)
+In other words: the code is correct as-is.
 
-However, since INPCK is clear (from the info Jean's already sent) you'll
-receive the character a TTY_NORMAL flag, even though the hardware flagged
-an error.
-
-> Ok, I think what might happen is you are receiving some kind of IR-noise 
-> (maybe environment, maybe reflected, maybe dongle echo) causing bytes with 
-> framing errors to get passed to and handled by irtty in one go with the 
-> beginning of the first byte(s) from the next incoming frame. Thus we 
-> discard the BOF and the whole frame is missed :-(
-
-Maybe the problem is that you want to discard the bad byte (by flagging
-it with a non-TTY_NORMAL flag.)
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+		Linus

@@ -1,51 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131940AbRAPVME>; Tue, 16 Jan 2001 16:12:04 -0500
+	id <S132894AbRAPVNy>; Tue, 16 Jan 2001 16:13:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132679AbRAPVLy>; Tue, 16 Jan 2001 16:11:54 -0500
-Received: from [24.65.192.120] ([24.65.192.120]:20472 "EHLO webber.adilger.net")
-	by vger.kernel.org with ESMTP id <S132873AbRAPVLp>;
-	Tue, 16 Jan 2001 16:11:45 -0500
+	id <S132895AbRAPVNo>; Tue, 16 Jan 2001 16:13:44 -0500
+Received: from [24.65.192.120] ([24.65.192.120]:20984 "EHLO webber.adilger.net")
+	by vger.kernel.org with ESMTP id <S132894AbRAPVNb>;
+	Tue, 16 Jan 2001 16:13:31 -0500
 From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200101162111.f0GLBNb14141@webber.adilger.net>
-Subject: Re: Linux not adhering to BIOS Drive boot order?
-In-Reply-To: <12057.979667891@redhat.com> "from David Woodhouse at Jan 16, 2001
- 05:58:11 pm"
-To: David Woodhouse <dwmw2@infradead.org>
-Date: Tue, 16 Jan 2001 14:11:21 -0700 (MST)
-CC: Venkatesh Ramamurthy <Venkateshr@ami.com>,
-        "'Bryan Henderson'" <hbryan@us.ibm.com>, linux-kernel@vger.kernel.org
+Message-Id: <200101162113.f0GLDPo14154@webber.adilger.net>
+Subject: Re: Name of SCSI Device
+In-Reply-To: <Pine.LNX.4.30.0101162111550.15252-100000@vela.salleURL.edu>
+ "from Carles Pina i Estany at Jan 16, 2001 09:17:53 pm"
+To: Carles Pina i Estany <is08139@salleURL.edu>
+Date: Tue, 16 Jan 2001 14:13:24 -0700 (MST)
+CC: linux-kernel@vger.kernel.org
 X-Mailer: ELM [version 2.4ME+ PL73 (25)]
 MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Woodhouse writes:
-> There are patches available for the 2.2 kernel which provide the facility 
-> to mount by UUID or volume label. It seems that nobody is actively 
-> maintaining those at the moment. If you want to update those to the current 
-> 2.2 and 2.4 kernels, well volunteered.
+You write:
+> If we install a SCSI hard disk drive, with ID3, an nothing on ID1 or ID2,
+> will be sda. If we install a new disk on ID1, the drive that before was
+> sda now change the name to sdb.
+> 
+> Why the name of hard disk drive of SCSI Controller are not fixed?
+> ID0=sda
+> ID1=sdb
+> ID2=sdc
 
-I'm quite interested in this patch, and have taken a good look at it.
-Some changes are in order (IMHO) to make it more usable.  It should take
-parameters that are the same as in /etc/fstab (i.e. LABEL= and UUID=
-instead of L: and UUID:).  In the end I re-wrote most of the patch, so
-that we resolve ROOT_DEV before calling mount_root(), just to be a bit
-more consistent.  I will release a new patch for 2.2.18 and 2.4.0 after
-David Balazic has a look at it.
+There are not enough major/minor numbers to do this.
 
-I know a bit about LILO, so I should be able to get the "root=LABEL=" to
-work there as well.
+> Then, it is possible that we must change /etc/fstab
 
-I also need to do some work like this in e2fsprogs, so it may make sense
-to create a little library that can be updated to handle other kinds of
-filesystem/partition LABELs and UUIDs as the need arises.  They were
-talking about putting a LABEL/UUID into reiserfs recently.  This saves
-us from having to fix ext2-specific in dozens of utilities (e.g. LILO,
-mount, fsck, dump, etc).
-
-One reason why this may NOT ever make it into the kernel is that I know
-"kernel poking at devices" is really frowned upon.
+If you are using ext2 (or ext3), it is possible to mount by filesystem
+LABEL or UUID.  See man pages for e2label/tune2fs/dumpe2fs/mount(8)/fstab(5).
 
 Cheers, Andreas
 -- 

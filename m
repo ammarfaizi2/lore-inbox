@@ -1,88 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266613AbUBLWGa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 17:06:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266628AbUBLWGa
+	id S266627AbUBLWCW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 17:02:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266630AbUBLWCW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 17:06:30 -0500
-Received: from legolas.restena.lu ([158.64.1.34]:30147 "EHLO smtp.restena.lu")
-	by vger.kernel.org with ESMTP id S266613AbUBLWGG (ORCPT
+	Thu, 12 Feb 2004 17:02:22 -0500
+Received: from fw.osdl.org ([65.172.181.6]:24272 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266627AbUBLWCT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 17:06:06 -0500
-Subject: Re: [PATCH] 2.6, 2.4, Nforce2, Experimental idle halt workaround
-	instead of apic ack delay.
-From: Craig Bradney <cbradney@zip.com.au>
-To: Derek Foreman <manmower@signalmarketing.com>
-Cc: Jesse Allen <the3dfxdude@hotmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.58.0402121544470.962@gonopodium.signalmarketing.com>
-References: <200402120122.06362.ross@datscreative.com.au>
-	 <Pine.LNX.4.58.0402121118490.515@gonopodium.signalmarketing.com>
-	 <20040212214407.GA865@tesore.local>
-	 <Pine.LNX.4.58.0402121544470.962@gonopodium.signalmarketing.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-jRt/AODbNISkcHOASdSS"
-Message-Id: <1076623565.16585.11.camel@athlonxp.bradney.info>
+	Thu, 12 Feb 2004 17:02:19 -0500
+Date: Thu, 12 Feb 2004 14:03:56 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Jim Houston <jim.houston@ccur.com>
+Cc: thockin@sun.com, torvalds@osdl.org, viro@parcelfarce.linux.theplanet.co.uk,
+       linux-kernel@vger.kernel.org, george@mvista.com
+Subject: Re: PATCH - raise max_anon limit
+Message-Id: <20040212140356.70be613f.akpm@osdl.org>
+In-Reply-To: <1076606773.990.165.camel@new.localdomain>
+References: <20040211203306.GI9155@sun.com>
+	<Pine.LNX.4.58.0402111236460.2128@home.osdl.org>
+	<20040211210930.GJ9155@sun.com>
+	<20040211135325.7b4b5020.akpm@osdl.org>
+	<20040211222849.GL9155@sun.com>
+	<20040211144844.0e4a2888.akpm@osdl.org>
+	<20040211233852.GN9155@sun.com>
+	<20040211155754.5068332c.akpm@osdl.org>
+	<20040212003840.GO9155@sun.com>
+	<20040211164233.5f233595.akpm@osdl.org>
+	<20040212010822.GP9155@sun.com>
+	<20040211172046.37e18a2f.akpm@osdl.org>
+	<1076606773.990.165.camel@new.localdomain>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 12 Feb 2004 23:06:05 +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jim Houston <jim.houston@ccur.com> wrote:
+>
+> On Wed, 2004-02-11 at 20:20, Andrew Morton wrote:
+> > Tim Hockin <thockin@sun.com> wrote:
+> > > No, it doesn't store the counter with the id.  They expect you to do that.
+> > > My best understanding is that thi sis to prevent re-use of the same key.
+> > > I'm not sure I grok why it is useful.  If you release a key, it should be
+> > > safe to reuse.  Period.  I assume there was some use case that brought about
+> > > this "feature" but if so, I don't know what it is.  The big comment about it
+> > > is just confusing me.
+> > 
+> > Maybe Jim can tell us why it's there.  Certainly, the idr interface would
+> > be more useful if it just returned id's which start from zero.
+> 
+> Hi Andrew, Everyone,
+> 
+> If this new use of idr.c as a sparse bitmap catches on,
 
---=-jRt/AODbNISkcHOASdSS
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I think it should catch on - it is a fairly common kernel requirement.  The
+max_anon thing requires it, and I am also pressing it upon the scsi guys to
+handle enormous numbers of disks (depends on how they end up doing that). 
+In neither case is the associated pointer needed.
 
-On Thu, 2004-02-12 at 22:52, Derek Foreman wrote:
-> On Thu, 12 Feb 2004, Jesse Allen wrote:
->=20
-> > On Thu, Feb 12, 2004 at 12:17:12PM -0600, Derek Foreman wrote:
-> > > Some nforce2 systems work just fine.  Is there a way to distinguish
-> > > between systems that need it and those that don't?
-> > >
-> >
-> > Some nforce2 systems are fixed in certain bioses.  The problem is we
-> > don't know where/what it is in the bios.  C1 disconnect is a clue.
->=20
-> So a machine that locks up with stop grant enabled under one bios
-> revision might run just fine with stop grant enabled on another?
+> When I wrote the original code, I was thinking of allocating process
+> id values where there is a tradition of allocating sequential values.
 
-Surely someone can decode the BIOS of an nforce user that is now ok
-after a BIOS update?.
+File descriptors are like that too.
 
-> > > (if anyone's running a betting pool, my money's on nforce2+cpu with h=
-alf
-> > > frequency multiplier ;)
-> >
-> > I don't know what your talking about.  My Shuttle AN35N nforce2 board
-> > can run vanilla kernels with the 12-5-2003 dated bios version and not
-> > lock up.  The frequencies I run are all the default/standard ones.
->=20
-> Some old (model 4, I think) athlons had a problem with disconnect, but
-> only in the half multiplier versions.
->=20
-> Carlos' athlon has a 12.5 multiplier, so my theory's bogus
+> George Anzinger rewrote most of my code.  The r in idr.c is for
+> immediate reuse.  His version picks the lowest available bit in the
+> sparse bitmap.  The RESERVED_BITS comments seem to be stale.
+> 
+> The rational for avoiding immediate reuse of id values is to catch
+> application errors.   Consider:
+> 
+> 	fd1 = open_like_call(...);
+> 	read(fd1,...);
+> 	close(fd1);
+> 	fd2 = open_like_call(...);
+> 	write(fd1...);
+> 
+> If fd2 has a different value than the recently closed fd1, the
+> error is detected immediately.
+> 
 
-Whenthis thread first(?) started way back when in Nov or Dec last year I
-was pretty happy.. no lockups until the 5th day. so what does "My
-Shuttle AN35N nforce2 board can run vanilla kernels with the 12-5-2003
-dated bios version and not lock up." mean?
+In this case the debug capability is getting in the way of real-world
+requirements, which is not good.
 
-Ross's v3 patches for 2.6/2.61 are still running well here on 2.6.1. I'm
-waiting for work to settle down before trying his new ones.
+idr_pre_get() is not very good IMO.  For a start, it's racy:
 
-Craig
+	idr_pre_get();
+	lock();
+	idr_get_new();
+	unlock();
 
---=-jRt/AODbNISkcHOASdSS
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+how do we know that some other CPU didn't come in and steal our
+preallocation?  That's why I (buggily) converted unnamed_dev_lock from a
+spinlock to a semaphore, so we could perform the preallocation under the
+same locking.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+It would be better, and more idiomatic if idr_get_new() were to take a gfp
+mask and to perform its own allocation.  That has its own problems and if
+the code is under really heavy stress one might need to emulate
+radix_tree_preload()/radix_tree_preload_end(), but for most things that's a
+bit over the top.
 
-iD8DBQBAK/jNi+pIEYrr7mQRAhfzAJ9JHTC+wmAE+q/EcLqpo1dacHAlggCeLXdt
-lcfpjVyxs1jDGT/vkcv3yYk=
-=gRDz
------END PGP SIGNATURE-----
-
---=-jRt/AODbNISkcHOASdSS--
 

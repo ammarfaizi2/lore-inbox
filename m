@@ -1,63 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261438AbTEKOHb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 May 2003 10:07:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261444AbTEKOHa
+	id S261489AbTEKOLp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 May 2003 10:11:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261515AbTEKOLp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 May 2003 10:07:30 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:25577 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S261438AbTEKOH3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 May 2003 10:07:29 -0400
-Date: Sun, 11 May 2003 16:20:05 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Alan Cox <alan@redhat.com>, Atul Mukker <Atul.Mukker@lsil.com>
+	Sun, 11 May 2003 10:11:45 -0400
+Received: from ulima.unil.ch ([130.223.144.143]:25265 "EHLO ulima.unil.ch")
+	by vger.kernel.org with ESMTP id S261489AbTEKOLo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 May 2003 10:11:44 -0400
+Date: Sun, 11 May 2003 16:24:26 +0200
+From: Gregoire Favre <greg@ulima.unil.ch>
+To: Helge Hafting <helgehaf@aitel.hist.no>
 Cc: linux-kernel@vger.kernel.org
-Subject: [patch] 2.4.21-rc2-ac1: compile error with both AMI Megaraid drivers
-Message-ID: <20030511142005.GI1107@fs.tum.de>
-References: <200305101412.h4AEC3107645@devserv.devel.redhat.com>
+Subject: Re: lilo and 2.5.69?
+Message-ID: <20030511142426.GB11050@ulima.unil.ch>
+References: <20030511130945.GA10607@ulima.unil.ch> <20030511142224.GA16287@hh.idb.hist.no>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <200305101412.h4AEC3107645@devserv.devel.redhat.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030511142224.GA16287@hh.idb.hist.no>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 10, 2003 at 10:12:03AM -0400, Alan Cox wrote:
->...
-> Linux 2.4.21rc1-ac4
->...
-> o	Merge new AMI Megaraid driver as megaraid2	(Atul Mukker)
->...
+On Sun, May 11, 2003 at 04:22:24PM +0200, Helge Hafting wrote:
 
-This fails when trying to build both AMI Megaraid drivers statically 
-into the kernel.
+> Looks like a bug that truncates long device names.
+> Looks like your'e using devfs, using
+> /dev/discs/discX/part2
+> is a fine workaround - because it is short enough.
+> Replace the X with whatever number your
+> host0-target15 disk has.
 
-The following patch fixes it:
+I have put:
 
---- linux-2.4.21-rc2-ac1-full/drivers/scsi/Config.in.old	2003-05-11 16:14:23.000000000 +0200
-+++ linux-2.4.21-rc2-ac1-full/drivers/scsi/Config.in	2003-05-11 16:15:42.000000000 +0200
-@@ -66,7 +66,9 @@
- dep_tristate 'Always IN2000 SCSI support' CONFIG_SCSI_IN2000 $CONFIG_SCSI
- dep_tristate 'AM53/79C974 PCI SCSI support' CONFIG_SCSI_AM53C974 $CONFIG_SCSI $CONFIG_PCI
- dep_tristate 'AMI MegaRAID support (old driver)' CONFIG_SCSI_MEGARAID $CONFIG_SCSI
--dep_tristate 'AMI MegaRAID support (new driver)' CONFIG_SCSI_MEGARAID2 $CONFIG_SCSI
-+if [ "$CONFIG_SCSI_MEGARAID" != "y" ]; then
-+   dep_tristate 'AMI MegaRAID support (new driver)' CONFIG_SCSI_MEGARAID2 $CONFIG_SCSI
-+fi
- 
- dep_tristate 'BusLogic SCSI support' CONFIG_SCSI_BUSLOGIC $CONFIG_SCSI
- if [ "$CONFIG_SCSI_BUSLOGIC" != "n" ]; then
+append = "root=/dev/discs/disc2/part2 video=matrox:1600x1200-16@75"
 
+And it produces the same error:
 
-cu
-Adrian
+Fatal: open /dev/ide/host0/bus0/target0/lun0/par: No such file or directory     8,1           Top
+Exit 1
 
--- 
+which was previsible as dev/sdb2 produced the same problem.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Thank you very much,
 
+	Grégoire
+________________________________________________________________
+http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch

@@ -1,95 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264751AbUEYLqP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264643AbUEYMgj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264751AbUEYLqP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 07:46:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264760AbUEYLqO
+	id S264643AbUEYMgj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 08:36:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264646AbUEYMgj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 07:46:14 -0400
-Received: from moraine.clusterfs.com ([66.246.132.190]:35802 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S264751AbUEYLp4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 07:45:56 -0400
-From: "braam" <braam@clusterfs.com>
-To: "'Lars Marowsky-Bree'" <lmb@suse.de>, "'Jens Axboe'" <axboe@suse.de>
-Cc: <torvalds@osdl.org>, <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
-       "'Phil Schwan'" <phil@clusterfs.com>
-Subject: RE: [PATCH/RFC] Lustre VFS patch
-Date: Tue, 25 May 2004 19:45:24 +0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-Thread-Index: AcRCRn1EDT5JHeVGSx+PhgksJmVcCgAA6sYg
-In-Reply-To: <20040525105252.GJ22750@marowsky-bree.de>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
-Message-Id: <20040525114549.B8EF731012F@moraine.clusterfs.com>
+	Tue, 25 May 2004 08:36:39 -0400
+Received: from colin2.muc.de ([193.149.48.15]:34309 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S264643AbUEYMgi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 May 2004 08:36:38 -0400
+Date: 25 May 2004 14:36:36 +0200
+Date: Tue, 25 May 2004 14:36:36 +0200
+From: Andi Kleen <ak@muc.de>
+To: Malte Schr?der <MalteSch@gmx.de>
+Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@muc.de>
+Subject: Re: Bad X-performance on 2.6.6 & 2.6.7-rc1 on x86-64
+Message-ID: <20040525123636.GA13817@colin2.muc.de>
+References: <1ZqbC-5Gl-13@gated-at.bofh.it> <m3r7t9d3li.fsf@averell.firstfloor.org> <20040525122659.395783f4@highlander.Home.LAN>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040525122659.395783f4@highlander.Home.LAN>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Lars, 
+On Tue, May 25, 2004 at 12:26:59PM +0200, Malte Schr?der wrote:
+> New information :)
+> I didn't profile it yet but I think I found what caused the problem.
+> It turned out that I have to disable alsa mmap-support in xine (mplayer worked w/o problems, it does not offer alsa mmap), so X is not involved at all. Do you still need a profile or is this a known thing?
 
-> -----Original Message-----
-> From: Lars Marowsky-Bree [mailto:lmb@suse.de] 
-> Sent: Tuesday, May 25, 2004 6:53 PM
-> To: braam; 'Jens Axboe'
-> Cc: torvalds@osdl.org; akpm@osdl.org; 
-> linux-kernel@vger.kernel.org; 'Phil Schwan'
-> Subject: Re: [PATCH/RFC] Lustre VFS patch
-> 
-> On 2004-05-25T16:21:29,
->    braam <braam@clusterfs.com> said:
-> 
-> > I think do answer your question:  ...
-> > > > If we were to return errors, (which, I agree, _seems_ much more 
-> > > > sane, and we _did_ try that for a while!) then there is a good 
-> > > > chance, namely immediately when something is flushed to 
-> disk, that 
-> > > > the system will detect the errors and not continue to execute 
-> > > > transactions making consistent testing of our replay mechanisms 
-> > > > impossible.
-> > So: we can use the flags, but we cannot return the errors.
-> 
-> Maybe I am missing something here, but is this testing not 
-> somewhat unrealistic then? In the general case, the system in 
-> production _will_ report an error and not silently throw away 
-> the writes.
+Ask the xine guys if it's known, I don't know much about xine.
+If a user space change fixes it then I don't need any profiles.
 
-I would not say "unrealistic": It is a harsh way to systematically and
-consistently generate failure patterns that are otherwise subject to winning
-races with the flushing daemons. 
-
-Semantically what we add a new flag: 
- IGNORE_IO_ERRORS
-The ioctl in our patch has the same effect as setting IGNORE_IO_ERRORS |
-RDONLY
-
-Is it really terrible to have that flag?
-
-> > Some people find it very convenient to have this available, 
-> but if the 
-> > opinion is that it is better to let development teams 
-> manage their own 
-> > testing infrastructure that is acceptable to me.
-> 
-> Yes, this is very "convenient" and actually, "some people" 
-> think it is absolutely mandatory that the kernel which is 
-> used for production sites is 1:1 bit-wise identical than the 
-> one used for load & stress testing, otherwise the testing is 
-> void to a certain degree...
-> 
-> Maybe you could fix this in the test harness / Lustre itself 
-> instead and silently discard the writes internally if told so 
-> via an (internal) option, instead of needing a change deeper 
-> down in the IO layer, or use a DM target which can give you 
-> all the failure scenarios you need?
-> 
-> In particular the last one - a fault-injection DM target - 
-> seems like a very valuable tool for testing in general, but 
-> the Lustre-internal approach may be easier in the long run.
-
-Yes, a (virtual) block device can do this easily.  If Jens can accept the
-new flag that is easiest, if not we will hack up a DM target in due course.
-
-- Peter -
-
+-Andi

@@ -1,100 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312510AbSCYTNr>; Mon, 25 Mar 2002 14:13:47 -0500
+	id <S312519AbSCYTR1>; Mon, 25 Mar 2002 14:17:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312513AbSCYTNj>; Mon, 25 Mar 2002 14:13:39 -0500
-Received: from green.csi.cam.ac.uk ([131.111.8.57]:1973 "EHLO
-	green.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S312510AbSCYTN1>; Mon, 25 Mar 2002 14:13:27 -0500
-Message-Id: <5.1.0.14.2.20020325190440.03f99420@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Mon, 25 Mar 2002 19:13:58 +0000
-To: Grogan <grogan@pcnineoneone.com>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: ANN: New NTFS driver (2.0.0/TNG) now finished.
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020325121725.71f6df02.grogan@pcnineoneone.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S312516AbSCYTRS>; Mon, 25 Mar 2002 14:17:18 -0500
+Received: from air-2.osdl.org ([65.201.151.6]:4235 "EHLO segfault.osdl.org")
+	by vger.kernel.org with ESMTP id <S312513AbSCYTQ7>;
+	Mon, 25 Mar 2002 14:16:59 -0500
+Date: Mon, 25 Mar 2002 11:15:02 -0800 (PST)
+From: Patrick Mochel <mochel@osdl.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Keith Owens <kaos@ocs.com.au>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] devexit fixes in i82092.c 
+In-Reply-To: <Pine.LNX.4.33.0203160010510.2448-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.33.0203251105370.3237-100000@segfault.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 17:17 25/03/02, Grogan wrote:
->On Mon, 25 Mar 2002 02:26:41 +0000
->Anton Altaparmakov <aia21@cam.ac.uk> wrote:
-> > Please everyone courageous enough to use a bleeding edge kernel and who is
-> > also an NTFS user give this a try and let me know if you encounter any
-> > problems! - Thanks!
->
->Hello everyone
->
->    I have been lurking here for a while on and off (to read the 
-> interesting discussions and learn). Since I've got a Windows XP 
-> installation on an NTFS partition on one of my hard disks, I went and got 
-> the 2.5.7 source and applied this patch last night.
->
->It compiled cleanly with gcc 2.95.3 and is considerably faster than any of 
->the old NTFS drivers. Before, there was a bit of a CPU intensive delay 
->browsing directories in a file manager, like system32 and i386 with alot 
->of files when they have to be initially read from disk. The perceived 
->difference between the driver in 2.4.19-pre4 is certainly noticable on an 
->older system like this one. (PII @266 with 128 Mb RAM). I figured I'd best 
->measure something here, so I tried a bit of a test.
 
-Great to hear! (-:
+On Sat, 16 Mar 2002, Linus Torvalds wrote:
 
->Now, I realize this test is flawed because it also tests file creation and 
->buffers and cache and everything between the two kernels but it sure shows 
->that someone is on the right track, somewhere.
+> 
+> 
+> On Sat, 16 Mar 2002, Keith Owens wrote:
+> >
+> > Does that mean that we also get rid of the initcall methods?  If
+> > shutdown follows a device tree then startup should also use that tree.
+> 
+> You cannot _build_ the tree without the initcall methods - it's populating
+> the tree that the initcalls mostly do, after all.
 
-Yes it is flawed indeed but even if you would compare 2.5.7/old ntfs with 
-2.5.7/new ntfs you would notice significant speed improvements.
+Actually, you could theoretically get rid of the device initcalls. 
 
->On a fresh boot with 2.4.19-pre4:
->
->bash-2.05$ time cp -r /mnt/windows3/windows/system32 /home/grogan/test
->
->real    8m45.256s
->user    0m0.730s
->sys     6m27.030s
->
->On a fresh boot with 2.5.7 with the new NTFS driver:
->
->bash-2.05$ time cp -r /mnt/windows3/windows/system32 /home/grogan/test
->
->real    3m13.190s
->user    0m0.610s
->sys     0m51.660s
->
->This "test" was repeated twice under the same conditions, with negligible 
->difference in the result (couple of seconds). Both of these disks are on 
->the same IDE controller (/home is /dev/hda8 and the NTFS partition is 
->/dev/hdb2). I must say I wasn't expecting such a drastic difference. The 
->data appears to be intact. (correct size and number of files, anyway)
+The device tree is built by the bus drivers, before the driver initcalls. 
+The driver initcalls simply check for existence of devices they support. 
 
-The new driver has very significant advances in the way it accesses 
-metadata as it is completely stored in the page cache which means that your 
-directory contents are cached in memory so directory lookups take fractions 
-of a second instead of seconds during which the device has to be accessed 
-again and again.
+Once the device tree is built, you could do one walk of the tree, take the 
+device id of each device, and query the device drivers to see if they 
+support it or not. 
 
-Memory mapping and read ahead are further features which impact streaming 
-performance such as copying files dramatically.
+This requires the device ID tables to be in a special section; or to use 
+the probe() function and pass it a device id. Or, pass the device id to 
+/sbin/hotplug so it can load the right module.
 
->I wanted to send  a "thumbs up". Thanks, Anton, and everyone else that 
->does what they do around here : - )
+> We could make one of the methods be "startup", of course, and move the
+> actual device initialization there (and leave just the "find driver" in
+> the initcall logic), but that would not get rid of the initcalls, it would
+> just split them into two parts.
 
-Thanks. (-:
+Yes. jgarzik has been saying this for some time, and I fully agree. You 
+really only want to check if you have a device you support and continue 
+on. (By delaying initialization, you can also keep the device in a low 
+power state until you're really ready to use it as well.)
 
-Best regards,
-
-         Anton
-
-
--- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+	-pat
 

@@ -1,36 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271798AbRIQQWl>; Mon, 17 Sep 2001 12:22:41 -0400
+	id <S271845AbRIQQZV>; Mon, 17 Sep 2001 12:25:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271818AbRIQQWb>; Mon, 17 Sep 2001 12:22:31 -0400
-Received: from ns.suse.de ([213.95.15.193]:23571 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S271798AbRIQQWT>;
-	Mon, 17 Sep 2001 12:22:19 -0400
-Date: Mon, 17 Sep 2001 18:22:33 +0200 (CEST)
-From: Dave Jones <davej@suse.de>
-To: Jean-Marc Saffroy <saffroy@ri.silicomp.fr>
-Cc: <linux-kernel@vger.kernel.org>, <linux-smp@vger.kernel.org>
-Subject: Re: [Q] Implementation of spin_lock on i386: why "rep;nop" ?
-In-Reply-To: <Pine.LNX.4.31.0109171725140.26090-100000@sisley.ri.silicomp.fr>
-Message-ID: <Pine.LNX.4.30.0109171821340.27689-100000@Appserv.suse.de>
+	id <S271818AbRIQQZM>; Mon, 17 Sep 2001 12:25:12 -0400
+Received: from unimur.um.es ([155.54.1.1]:22921 "EHLO unimur.um.es")
+	by vger.kernel.org with ESMTP id <S271809AbRIQQY6>;
+	Mon, 17 Sep 2001 12:24:58 -0400
+Message-ID: <3BA62575.E14C5808@ditec.um.es>
+Date: Mon, 17 Sep 2001 18:31:49 +0200
+From: Juan <piernas@ditec.um.es>
+X-Mailer: Mozilla 4.77 [es] (X11; U; Linux 2.4.6 i686)
+X-Accept-Language: es-ES, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Christian =?iso-8859-1?Q?Borntr=E4ger?= 
+	<linux-kernel@borntraeger.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Ext3 journal on its own device?
+In-Reply-To: <3BA61CC0.C9ECC8A0@ditec.um.es> <E15j19N-0006Gh-00@mrvdom03.schlund.de>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Sep 2001, Jean-Marc Saffroy wrote:
+Christian Bornträger escribió:
+> 
+> > I have been browsing the Ext3 source (version 0.0.7a), and it seems
+> > impossible to use a block device as an Ext3 journal. Is that true?.
+> 
+> As the actual version of ext3 is 0.99 you should consider an update....
+> It is possible to have the ext3 journal on a second device with ext3 0.95 or
+> higher.
+> 
+> Check out http://www.uow.edu.au/~andrewm/linux/ext3/ext3-usage.html
+> 
+> greetings
+> 
+> Christian Bornträger
+Thanks.
 
-> What is the intent behind this "rep;nop" ? Does it really rely on an
-> undocumented behaviour ?
+But the problem is that I need to use Linux 2.2.19, and the latest Ext3
+version for that kernel is 0.0.7a, isn't it?.
 
-Its used to stop Pentium 4's from cooking themselves.
-See the P4 manuals for more info.
-
-regards,
-
-Dave.
 
 -- 
-| Dave Jones.        http://www.suse.de/~davej
-| SuSE Labs
-
+D. Juan Piernas Cánovas
+Departamento de Ingeniería y Tecnología de Computadores
+Facultad de Informática. Universidad de Murcia
+Campus de Espinardo - 30080 Murcia (SPAIN)
+Tel.: +34968367657    Fax: +34968364151
+email: piernas@ditec.um.es
+PGP public key:
+http://pgp.rediris.es:11371/pks/lookup?search=piernas%40ditec.um.es&op=index

@@ -1,52 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130311AbQLNP2c>; Thu, 14 Dec 2000 10:28:32 -0500
+	id <S129449AbQLNPcV>; Thu, 14 Dec 2000 10:32:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130570AbQLNP2W>; Thu, 14 Dec 2000 10:28:22 -0500
-Received: from smtprelay.abs.adelphia.net ([64.8.20.11]:38560 "EHLO
-	smtprelay2.abs.adelphia.net") by vger.kernel.org with ESMTP
-	id <S130311AbQLNP2M>; Thu, 14 Dec 2000 10:28:12 -0500
-Date: Thu, 14 Dec 2000 10:03:29 -0500 (EST)
-From: "Steven N. Hirsch" <shirsch@adelphia.net>
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Adaptec AIC7XXX v 6.0.6 BETA Released 
-In-Reply-To: <200012141359.eBEDxFs46530@aslan.scsiguy.com>
-Message-ID: <Pine.LNX.4.21.0012141001380.1522-100000@pii.fast.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132012AbQLNPcL>; Thu, 14 Dec 2000 10:32:11 -0500
+Received: from smtp.kolej.mff.cuni.cz ([195.113.25.225]:48391 "EHLO
+	smtp.kolej.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S130570AbQLNPcA> convert rfc822-to-8bit; Thu, 14 Dec 2000 10:32:00 -0500
+Date: Thu, 14 Dec 2000 16:00:48 +0100
+From: Martin Macok <martin.macok@underground.cz>
+To: David Riley <oscar@the-rileys.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0-test12 randomly hangs up
+Message-ID: <20001214160048.A1355@sarah.kolej.mff.cuni.cz>
+In-Reply-To: <20001213105153.A6624@sarah.kolej.mff.cuni.cz> <3A37F7B7.1A207AB7@the-rileys.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3A37F7B7.1A207AB7@the-rileys.net>; from oscar@the-rileys.net on Wed, Dec 13, 2000 at 05:27:03PM -0500
+X-Echelon: GRU NSA GCHQ KGB CIA nuclear conspiration war weapon spy agent
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 14 Dec 2000, Justin T. Gibbs wrote:
-
-> >> I'll update my patch tomorrow to restore the definition of current.
-> >> I do fear, however, that this will perpetuate the polution of the
-> >> namespace should "current" ever get cleaned up.
-> >
-> >It can probably get cleaned up after 2.4 by making current() the actual 
-> >inline. For 2.2 it won't change. Consider it a feature.
-> >
-> >It was done originally because the 2.0 code using #define based current
-> >generated better code than using inline functions. 2.2 upwards use a different
-> >(far nicer) method to find current.
-> >
-> >Note also that you cannot rely on 'get_current()'. The only way to find 
-> >current is to use current. get_current() the inline is an x86ism.
+On Wed, Dec 13, 2000 at 05:27:03PM -0500, David Riley wrote:
+> > DMESG:   http://kocour.ms.mff.cuni.cz/~macok/kernel/dmesg (Abit
+> > PX5, P166 (ovrclckd to 166), 128MB RAM, 2x IDE HDD, 3com509b ISA,
+> > Opti931)
 > 
-> I figured as much.  I will test for the #define, stash it in a #define
-> unique within my namespace, and #define it back in hosts.c should my
-> local define exist.
+> Overclocking is a guaranteed way to get random hangups.  Put it back
+> to its recommended clock and it might work fine.  Keep in mind that
+> while this may not have shown up before, overclocking gradually
+> degrades a processor's stability (trust me, I ran several 486 and
+> pentiums and even a k6-2 down to where they wouldn't even work at
+> the normal clock).  Try sticking it back to normal.
 
-Justin,
+I know it, but it's P150 overclocked to 166 and it can run even on 200
+with 2.4.0-test11 and 2.2.x for several weeks without hanging up. But it
+hangs up with -test12 several minutes after I start X server and
+several people have already confirm that ...
 
-While you're at it, can you have the new driver provide status information
-under /proc/scsi/aic7xxx?  There is simply an empty pseudo-file called '0'
-instead of the display provided by the current driver.
+(I'm going to try latest -test13-pre ... I cannot see Changelog or
+test13.log anywhere ...)
 
-Steve
+Have a nice day
 
+(Thank you for Cc:'ing me, I'm not subscribed)
 
+-- 
+   Martin Maèok
+  underground.cz
+    openbsd.cz
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

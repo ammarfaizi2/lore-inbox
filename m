@@ -1,61 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263371AbUDBJOS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Apr 2004 04:14:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263557AbUDBJOS
+	id S263372AbUDBJTi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Apr 2004 04:19:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263561AbUDBJTi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Apr 2004 04:14:18 -0500
-Received: from fmr10.intel.com ([192.55.52.30]:55452 "EHLO
-	fmsfmr003.fm.intel.com") by vger.kernel.org with ESMTP
-	id S263371AbUDBJOQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Apr 2004 04:14:16 -0500
-Subject: Re: irq 16 : Nobody cared  - alsa v. io-apic in 2.6.5-rc3-bk2
-From: Len Brown <len.brown@intel.com>
-To: sean <seandarcy@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <A6974D8E5F98D511BB910002A50A6647615F7212@hdsmsx402.hd.intel.com>
-References: <A6974D8E5F98D511BB910002A50A6647615F7212@hdsmsx402.hd.intel.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1080897252.30361.147.camel@dhcppc4>
+	Fri, 2 Apr 2004 04:19:38 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:22915 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S263372AbUDBJTh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Apr 2004 04:19:37 -0500
+Date: Fri, 2 Apr 2004 04:19:11 -0500
+From: Alan Cox <alan@redhat.com>
+To: Ken Ashcraft <kash@stanford.edu>
+Cc: linux-kernel@vger.kernel.org, alan@redhat.com, mc@cs.stanford.edu
+Subject: Re: [CHECKER] Race condition in i2o_core.c
+Message-ID: <20040402091911.GB22652@devserv.devel.redhat.com>
+References: <5.2.1.1.2.20040401172809.01bcfa50@kash.pobox.stanford.edu>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 02 Apr 2004 04:14:12 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5.2.1.1.2.20040401172809.01bcfa50@kash.pobox.stanford.edu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Thu, 2004-04-01 at 14:24, sean wrote:
-> I have a VIA k400 motherboard.
+On Thu, Apr 01, 2004 at 05:46:00PM -0800, Ken Ashcraft wrote:
+> Looks like there is a race condition in i2o_core_reply involving the 
+> variable "evt_in".  Notice that the increment of evt_in is protected by the 
+> lock, but the reads are not protected.  It looks like "events" should also 
+> be protected by the lock.  If this is not a race condition, the increment 
+> should not be inside the critical section.
 > 
+> Feedback is appreciated.
 
-> irq 16: nobody cared!
-> Call Trace:
->   [<c0108508>] __report_bad_irq+0x28/0x80
->   [<c01088ae>] do_IRQ+0x15e/0x1a0
->   [<c0106e08>] common_interrupt+0x18/0x20
->   [<c01044e3>] default_idle+0x23/0x30
->   [<c010455d>] cpu_idle+0x2d/0x40
->   [<c04ee61b>] start_kernel+0x2ab/0x320
->   [<c04ee1c0>] unknown_bootoption+0x0/0x180
->  
-> 
-> handlers:
-> [<c0395800>] (snd_cmipci_interrupt+0x0/0x130)
-> Disabling IRQ #16
-> ..............
-
-> IOAPIC[0]: Set PCI routing entry (2-16 -> 0xa9 -> IRQ 16 Mode:1
-> Active:1)
-> 00:00:01[A] -> 2-16 -> IRQ 16
-
-Does acpi=off make a difference and change how /proc/interrupts looks?
-
-If yes, can you try the latest ACPI code that 2.6.5 is missing?
-http://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/patches/release/2.6.5/
-
-thanks,
--Len
-
-
+Looks a fair catch to me.

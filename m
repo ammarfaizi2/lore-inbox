@@ -1,60 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269938AbUIDBCp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270017AbUIDBFD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269938AbUIDBCp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 21:02:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270005AbUIDBCp
+	id S270017AbUIDBFD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 21:05:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270012AbUIDBDI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 21:02:45 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:44708 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S269938AbUIDAv3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 20:51:29 -0400
-Date: Sat, 4 Sep 2004 01:51:24 +0100 (IST)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: Jon Smirl <jonsmirl@yahoo.com>
-Cc: dri-devel@lists.sf.net, linux-kernel@vger.kernel.org
-Subject: Re: New proposed DRM interface design
-In-Reply-To: <20040904004424.93643.qmail@web14921.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.58.0409040145240.25475@skynet>
-References: <20040904004424.93643.qmail@web14921.mail.yahoo.com>
+	Fri, 3 Sep 2004 21:03:08 -0400
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:57007 "EHLO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
+	id S270038AbUIDA5H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 20:57:07 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Christoph Hellwig <hch@lst.de>
+Date: Sat, 4 Sep 2004 10:56:49 +1000
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16697.4817.621088.474648@cse.unsw.edu.au>
+Cc: axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: bug in md write barrier support?
+In-Reply-To: message from Christoph Hellwig on Friday September 3
+References: <20040903172414.GA6771@lst.de>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> Then drm_core would always be bundled with the OS.
->
-> Is there any real advantage to spliting core/library and creating three
-> interface compatibily problems?
+On Friday September 3, hch@lst.de wrote:
+> md_flush_mddev just passes on the sector relative to the raid device,
+> shouldn't it be translated somewhere?
 
-Yes we only have one binary interface, between the core and module, this
-interface is minimal, so AGP won't go in it... *ALL* the core does is deal
-with the addition/removal of modules, the idea being that the interface is
-very minor and new features won't change it...
+Yes.  md_flush_mddev should simply be removed.  
+The functionality should be, and largely is, in the individual
+personalities. 
 
-The library/driver interface then becomes a source interface as the
-library isn't a separate module, it is linked into the modules, so we have
-no binary interface issues with it, so the library/driver interface is
-what we have at the moment minus the uglyness of DRM() and templated
-header files... so if a vendor wants to ship a binary DRM, they only worry
-about the drm core interface, and we avoid moving that interface as all it
-does is keep track of all installed drms and the major device number..
+Is there documentation somewhere on exactly what an issue_flush_fn
+should do (is it  allowed to sleep? what must happen before it is
+allowed to return, what is the "error_sector" for,  that sort of thing).
 
-> What about the VM page fault routines with 2.4 vs 2.6 differences?
-> How about HAS_WORKQUEUE?
+I suspect that at least raid5 will need some fairly special handling.
 
-These are things to worry about later, as I said the code was just
-experimental hackery to get my head around the issues. I'm not proposing
-it for inclusion at any point, it also doesn't follow the design I
-proposed, it makes the library as a separate module at the moment, and
-uses an EXPORT_SYMBOL table, which isn't what I want to do...
-
-Dave.
-
--- 
-David Airlie, Software Engineer
-http://www.skynet.ie/~airlied / airlied at skynet.ie
-pam_smb / Linux DECstation / Linux VAX / ILUG person
-
+NeilBrown

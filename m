@@ -1,33 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281427AbRKZC2h>; Sun, 25 Nov 2001 21:28:37 -0500
+	id <S281453AbRKZCpl>; Sun, 25 Nov 2001 21:45:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281429AbRKZC21>; Sun, 25 Nov 2001 21:28:27 -0500
-Received: from chac.inf.utfsm.cl ([200.1.19.54]:57865 "EHLO chac.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id <S281428AbRKZC2S>;
-	Sun, 25 Nov 2001 21:28:18 -0500
-Message-Id: <200111260120.fAQ1KSwl017797@sleipnir.valparaiso.cl>
-To: arjan@fenrus.demon.nl
+	id <S281448AbRKZCpc>; Sun, 25 Nov 2001 21:45:32 -0500
+Received: from viper.haque.net ([66.88.179.82]:24717 "EHLO mail.haque.net")
+	by vger.kernel.org with ESMTP id <S281453AbRKZCpW>;
+	Sun, 25 Nov 2001 21:45:22 -0500
+Date: Sun, 25 Nov 2001 21:45:20 -0500
+Subject: Re: Linux 2.4.16-pre1
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Mime-Version: 1.0 (Apple Message framework v475)
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: linux 2.4.13 Kernel and Ext3 vs Ext2 
-In-Reply-To: Your message of "Sun, 25 Nov 2001 13:37:38 -0000."
-             <E167zTW-0002SK-00@fenrus.demon.nl> 
-X-mailer: MH [Version 6.8.4]
-X-charset: ISO_8859-1
-Date: Sun, 25 Nov 2001 22:20:28 -0300
-From: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
+To: Patrick McFarland <unknown@panax.com>
+From: "Mohammad A. Haque" <mhaque@haque.net>
+In-Reply-To: <20011125203330.P238@localhost>
+Message-Id: <A22FBE72-E217-11D5-AEE4-00306569F1C6@haque.net>
+Content-Transfer-Encoding: 7bit
+X-Mailer: Apple Mail (2.475)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-arjan@fenrus.demon.nl said:
+On Sunday, November 25, 2001, at 08:33 , Patrick McFarland wrote:
 
-[...]
+> No, you are. Sorry to say that but you are. Im probably maybe one of 10 
+> people on
 
-> Ehmmm..... The last released kernel by Red Hat is 2.4.9-13, not
-> 2.4.13-something....
+I know I am. No new news here. =)
 
-Most distribution kernels (RH included) are *far* from their base versions,
-with lots of unofficial and official patches from later kernels.
--- 
-Horst von Brand                             vonbrand@sleipnir.valparaiso.cl
-Casilla 9G, Vin~a del Mar, Chile                               +56 32 672616
+> this whole planet that would like to see the kernel become more than it 
+> is, and would actually help doing it. Obviously, the whole damn 
+> community is having problems with me disagreeing with it, so screw it. 
+> You guys blew it.
+
+Well, the fact that you lashed out saying Linus shouldn't be maintainer 
+for 2.5 is just completely ludicrous.
+
+For one, it's the developmental tree. There's nothing to maintain. No 
+one should be using it on productions boxes. No distribution should be 
+including it with any of their released product.
+
+Second, where do you draw the line between development and maintenance 
+on a dev tree?
+	def. maintenance: The work of keeping something in proper 
+condition; upkeep.
+
+	* Linus develops new driver model.
+	* Linus updates basic drivers to work with new driver model so 
+kernel can at least compile so he can see if driver model is good.
+		*slap on Linus' wrist* You're not supposed to be doing maintenance.
+
+
+I also don't see how you propose that these two tasks be split up for 
+2.5. You don't provide any backing and you're surprised the whole group 
+is disagreeing with you?
+
+
+--
+
+=====================================================================
+Mohammad A. Haque                              http://www.haque.net/
+                                                mhaque@haque.net
+
+   "Alcohol and calculus don't mix.             Developer/Project Lead
+    Don't drink and derive." --Unknown          http://www.themes.org/
+                                                batmanppc@themes.org
+=====================================================================
+

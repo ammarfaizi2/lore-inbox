@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262964AbSJBET6>; Wed, 2 Oct 2002 00:19:58 -0400
+	id <S262961AbSJBES1>; Wed, 2 Oct 2002 00:18:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262965AbSJBET6>; Wed, 2 Oct 2002 00:19:58 -0400
-Received: from thunk.org ([140.239.227.29]:49080 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id <S262964AbSJBET6>;
-	Wed, 2 Oct 2002 00:19:58 -0400
-Date: Wed, 2 Oct 2002 00:24:35 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Lars Marowsky-Bree <lmb@suse.de>, Dave Jones <davej@codemonkey.org.uk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Remove LVM from 2.5 (resend)
-Message-ID: <20021002042434.GA13971@think.thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Lars Marowsky-Bree <lmb@suse.de>,
-	Dave Jones <davej@codemonkey.org.uk>, linux-kernel@vger.kernel.org
-References: <Pine.GSO.4.21.0210011010380.4135-100000@weyl.math.psu.edu> <Pine.LNX.4.43.0210011650490.12465-100000@cibs9.sns.it> <20021001154808.GD126@suse.de> <20021001184225.GC29788@marowsky-bree.de> <1033520458.20284.46.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S262962AbSJBES1>; Wed, 2 Oct 2002 00:18:27 -0400
+Received: from packet.digeo.com ([12.110.80.53]:49399 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S262961AbSJBES0>;
+	Wed, 2 Oct 2002 00:18:26 -0400
+Message-ID: <3D9A74CF.8C8585E7@digeo.com>
+Date: Tue, 01 Oct 2002 21:23:43 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.38 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: lkml <linux-kernel@vger.kernel.org>, Vojtech Pavlik <vojtech@suse.cz>
+Subject: input layer strangeness
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1033520458.20284.46.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.28i
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 02 Oct 2002 04:23:44.0180 (UTC) FILETIME=[7E863F40:01C269CB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 02, 2002 at 02:00:58AM +0100, Alan Cox wrote:
-> DM is small and clean. It may well be that if we go the DM way (and I
-> think we should) that those bits of EVMS that we want (like cluster)
-> actually come out a lot cleaner than in EVMS itself
 
-DM is small and clean because it's severely lacking in functionality.
-Last I checked it couldn't do RAID 5 or r/w snapshots without
-completely bypassing its core infrastructure (since you're no longer
-just doing simple block remapping at that point), and once you add all
-that stuff, it's likely to become much more complex.
+It's been doing this ever since the input layer changes:
 
-							- Ted
+- open a few xterms
+- press the spacebar, leave pressed
+- start waggling the mouse about
+- stop pressing spacebar, keep waggling the mouse about,
+  across the xterms
+
+The keystrokes *never* stop coming.  Just the continuous mouse
+activity causes a stream of keyboard input, at seemingly the normal
+autorepeat rate. I can keep them coming for 30 seconds, just by
+moving the mouse.
+
+In practice, it's irritating because it's quite easy to get a
+stream of erroneous input dumped into the wrong windows.
+
+It's a vanilla dual pentium with an AT keyboard and a PS/2
+mouse.

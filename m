@@ -1,70 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262065AbUF0TYJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262060AbUF0TaQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262065AbUF0TYJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jun 2004 15:24:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262080AbUF0TYI
+	id S262060AbUF0TaQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jun 2004 15:30:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262071AbUF0TaQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jun 2004 15:24:08 -0400
-Received: from wblv-227-07.telkomadsl.co.za ([165.165.227.7]:11201 "EHLO
-	gateway.lan") by vger.kernel.org with ESMTP id S262071AbUF0TXy
+	Sun, 27 Jun 2004 15:30:16 -0400
+Received: from mout2.freenet.de ([194.97.50.155]:48357 "EHLO mout2.freenet.de")
+	by vger.kernel.org with ESMTP id S262060AbUF0TaL convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jun 2004 15:23:54 -0400
-Subject: Re: [PATCH] Staircase scheduler v7.7
-From: Martin Schlemmer <azarah@nosferatu.za.org>
-Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
-To: Con Kolivas <lkml@kolivas.org>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <40DEF1E2.6020609@kolivas.org>
-References: <40DEF1E2.6020609@kolivas.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-PSx6yLBRCdymoUhToeC5"
-Message-Id: <1088364206.9556.8.camel@nosferatu.lan>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 27 Jun 2004 21:23:26 +0200
+	Sun, 27 Jun 2004 15:30:11 -0400
+From: Michael Buesch <mbuesch@freenet.de>
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Subject: Re: [PATCH] Staircase scheduler v7.4
+Date: Sun, 27 Jun 2004 21:28:54 +0200
+User-Agent: KMail/1.6.2
+References: <200406251840.46577.mbuesch@freenet.de> <200406261929.35950.mbuesch@freenet.de> <1088363821.1698.1.camel@teapot.felipe-alfaro.com>
+In-Reply-To: <1088363821.1698.1.camel@teapot.felipe-alfaro.com>
+Cc: kernel@kolivas.org,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Willy Tarreau <willy@w.ods.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200406272128.57367.mbuesch@freenet.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
---=-PSx6yLBRCdymoUhToeC5
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Quoting Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>:
+> On Sat, 2004-06-26 at 19:29 +0200, Michael Buesch wrote:
+> 
+> > Now another "problem":
+> > Maybe it's because I'm tired, but it seems like
+> > your fix-patch made moving windows in X11 is less smooth.
+> > I wanted to mention it, just in case there's some other
+> > person, who sees this behaviour, too. In case I'm the
+> > only one seeing it, you may forget it. ;)
+> 
+> I can see the same with 7.4-1 (that's 2.6.7-ck2 plus the fix-patch): X11
+> feels sluggish while moving windows around. Simply by loading a Web page
+> into Konqueror and dragging Evolution over it, makes me able to
+> reproduce this problem.
+> 
+> Doing the same on 2.6.7-mm3 is totally smooth, however.
 
-On Sun, 2004-06-27 at 18:12, Con Kolivas wrote:
+I think staircase-7.7 fixed this, too. (for me).
+Have a try.
 
-> Changes since v7.4:
->=20
-> Two major bugs:
-> - Nanosecond to jiffy conversion meant it was possible to queue a task=20
-> with no timeslice. Fixed.
-> - The preempt logic I added to 7.4 to allow preempted tasks to continue=20
-> where they left off turned out to be a DoS recipe. Fixed.
->=20
+- -- 
+Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
 
-Seems all right in regards to the issues with 7.4.
-
-I do though get that xmms sort of 'hangs'.  Its not hard, it just say in
-the 'play' state, but the graph do not move, and no sound.  This is
-fairly intermittently.  Not sure though if it is scheduler only,
-something recent in -bk, or the recent alsa patch Takashi Iwai
-posted (using dmix btw).   I will have a look and let you know.
-
-
-Cheers,
-
---=20
-Martin Schlemmer
-
---=-PSx6yLBRCdymoUhToeC5
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQBA3x6uqburzKaJYLYRApAkAJ97ZA5JE2d601aDREyoe5SikPTQSgCfdKPp
-gX4pU0ZOzQUs6aPeMlTRMtw=
-=tEwp
+iD8DBQFA3x/2FGK1OIvVOP4RAnxTAJ9NUM6V1bccFgAauHx6sV6+80DjLQCg1hE8
+c2krr3+fW/notHs8mc8it48=
+=OQoZ
 -----END PGP SIGNATURE-----
-
---=-PSx6yLBRCdymoUhToeC5--
-

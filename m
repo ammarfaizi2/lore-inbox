@@ -1,57 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264430AbUD0Xmw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264414AbUD0Xqy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264430AbUD0Xmw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 19:42:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264515AbUD0Xmw
+	id S264414AbUD0Xqy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 19:46:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264468AbUD0Xqx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 19:42:52 -0400
-Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:30388 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S264430AbUD0Xmm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 19:42:42 -0400
-Date: Wed, 28 Apr 2004 01:42:39 +0200
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: jamagallon@able.es, Matthias Andree <matthias.andree@gmx.de>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] incomplete dependencies with BK tree (was: Anyone got aic7xxx working with 2.4.26?)
-Message-ID: <20040427234239.GA12753@merlin.emma.line.org>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	jamagallon@able.es, Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-	linux-kernel@vger.kernel.org
-References: <200404261532.37860.dj@david-web.co.uk> <20040426161004.GE5430@merlin.emma.line.org> <20040427131941.GC10264@logos.cnet> <20040427142643.GA10553@merlin.emma.line.org> <6A88E87D-985B-11D8-AA97-000A9585C204@able.es> <20040427161314.GA18682@merlin.emma.line.org> <20040427180924.GA22366@merlin.emma.line.org> <1911B825-989D-11D8-A81A-000A9585C204@able.es> <Pine.LNX.4.58.0404271555130.20443@ppc970.osdl.org>
+	Tue, 27 Apr 2004 19:46:53 -0400
+Received: from hell.org.pl ([212.244.218.42]:54289 "HELO hell.org.pl")
+	by vger.kernel.org with SMTP id S264414AbUD0Xqr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 19:46:47 -0400
+Date: Wed, 28 Apr 2004 01:46:53 +0200
+From: Karol Kozimor <sziwan@hell.org.pl>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: 234976@bugs.debian.org, linux-kernel@vger.kernel.org
+Subject: Re: Bug#234976: kernel-source-2.6.4: Software Suspend doesn't work
+Message-ID: <20040427234653.GA23804@hell.org.pl>
+References: <1Pb4h-8hZ-11@gated-at.bofh.it> <1Pc0Y-BC-45@gated-at.bofh.it> <1PcWn-1tE-11@gated-at.bofh.it> <1Pf8I-3qP-31@gated-at.bofh.it> <1PuTf-7ZO-7@gated-at.bofh.it> <1Py1q-1ZH-23@gated-at.bofh.it> <1Py1y-1ZH-43@gated-at.bofh.it> <1PAlX-3Vx-1@gated-at.bofh.it> <20040427233009.GA24051@hell.org.pl> <20040427233341.GA6592@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0404271555130.20443@ppc970.osdl.org>
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <20040427233341.GA6592@elf.ucw.cz>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Apr 2004, Linus Torvalds wrote:
+Thus wrote Pavel Machek:
+> > > This should be better solution, could anyone test it? [It compiles,
+> > > and I'm out of time now].
+> > It reboots my system while reading pageset.
+> And it worked before?
 
-> How about just _always_ including stdarg.h, and doing it by just making 
-> the main Makefile add a "-include <pathname>" to the CFLAGS? We should be 
-> able to generate the stdarg.h pathname pretty easily, with something like
-> 
-> 	gcc --print-file-name=include/stdarg.h
-> 
-> (and that may depend on gcc versions too, of course).
-
-stdarg.h is innocent, it is just one of the few include files valid in
-the stdinc paths.
-
-How about making sure the dependency information is complete, even when
-BK has just "bk clean"ed an unedited file in the course of a "bk pull"?
-
-Maybe mkdep or Makefile should just try to check out missing files and
-mkdep barf if it cannot open a file it was given? It works for .c files,
-it works for many of the .h files - it lacks for some other .h files and
-for the Config.in or Kconfig files. That would leave the BK user with
-just the "bk get" boot-strap at top level.
+Right, you didn't receive that. Yes, plain swsusp1 passes that stage but
+hangs or reboots during copying (or a little bit after) and with Herbert 
+Xu's patch I can suspend and resume with glxgears running.
+Best regards,
 
 -- 
-Matthias Andree
-
-Encrypt your mail: my GnuPG key ID is 0x052E7D95
+Karol 'sziwan' Kozimor
+sziwan@hell.org.pl

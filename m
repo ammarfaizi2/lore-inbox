@@ -1,244 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262631AbSJRBqP>; Thu, 17 Oct 2002 21:46:15 -0400
+	id <S262743AbSJRBzW>; Thu, 17 Oct 2002 21:55:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262776AbSJRBqP>; Thu, 17 Oct 2002 21:46:15 -0400
-Received: from adsl-67-64-81-217.dsl.austtx.swbell.net ([67.64.81.217]:61328
-	"HELO digitalroadkill.net") by vger.kernel.org with SMTP
-	id <S262631AbSJRBqM>; Thu, 17 Oct 2002 21:46:12 -0400
-Subject: Re: Kernel Panic 2.4.19 with Segate 80GB HDD
-From: GrandMasterLee <masterlee@digitalroadkill.net>
-To: JunHyeok Heo <jhheo@idis.co.kr>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <02c201c27646$98297fc0$135deecb@jhheo>
-References: <02c201c27646$98297fc0$135deecb@jhheo>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: Digitalroadkill.net
-Message-Id: <1034905931.4176.0.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.1.2.99 (Preview Release)
-Date: 17 Oct 2002 20:52:11 -0500
+	id <S262776AbSJRBzW>; Thu, 17 Oct 2002 21:55:22 -0400
+Received: from services.cam.org ([198.73.180.252]:12828 "EHLO mail.cam.org")
+	by vger.kernel.org with ESMTP id <S262743AbSJRBzV>;
+	Thu, 17 Oct 2002 21:55:21 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
+To: linux-kernel@vger.kernel.org
+Subject: usb storage sddr09 
+Date: Thu, 17 Oct 2002 21:55:49 -0400
+User-Agent: KMail/1.4.3
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <200210172155.49349.tomlins@cam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-10-17 at 20:35, JunHyeok Heo wrote:
-> I used kernel 2.4.19 with Segate 80GB HDD (ST380020ACE).
-> The kernel could not recognize the number of sectors correctly, and then
-> result in kernel panic.
-> I tried kernel 2.4.18 with the same HDD, there is no problem.
+Hi,
 
-I've been running 2.4.19 with ALi Magic chipset for a long time, with no
-oops or panics related to HDD, FS, or anything. 
+In the patch fest in the last couple of days usb storage support for sddr09 
+has broken.  I see the following in the log (2.5.43-mm2):
 
-> Is this a bug in the ide device driver ? or  is there any compatible HDD
-> list for 2.4.19 kernel ?
-> 
-> The cpu is PentiumIII 700Mhz cpu and
-> The chipset of motherboard is Intel BX.
-> The IDE controller is INTEL82801BA_9
-> 
-> In case of 2.4.19 kernel, the booting message as follows...
-> --
-> Linux version 2.4.19 (root@i74) (gcc version 2.95.4 (Debian prerelease)) #2
-> Wed
-> Oct 16 21:27:55 KST 2002
-> BIOS-provided physical RAM map:
->  BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
->  BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
->  BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
->  BIOS-e820: 0000000000100000 - 000000000bfeb000 (usable)
->  BIOS-e820: 000000000bfeb000 - 000000000bfef000 (ACPI data)
->  BIOS-e820: 000000000bfef000 - 000000000bfff000 (reserved)
->  BIOS-e820: 000000000bfff000 - 000000000c000000 (ACPI NVS)
->  BIOS-e820: 00000000ffff0000 - 0000000100000000 (reserved)
-> 191MB LOWMEM available.
-> On node 0 totalpages: 49131
-> zone(0): 4096 pages.
-> zone(1): 45035 pages.
-> zone(2): 0 pages.
-> Kernel command line: BOOT_IMAGE=host19 ro root=301
-> BOOT_FILE=/boot/vmlinuz-2.4.1
-> 9 console=ttyS0,9600 console=ttyS0,9600
-> Initializing CPU#0
-> Detected 706.972 MHz processor.
-> Console: colour VGA+ 80x25
-> Calibrating delay loop... 1412.30 BogoMIPS
-> Memory: 192408k/196524k available (1069k kernel code, 3728k reserved, 260k
-> data,
->  60k init, 0k highmem)
-> Dentry cache hash table entries: 32768 (order: 6, 262144 bytes)
-> Inode cache hash table entries: 16384 (order: 5, 131072 bytes)
-> Mount-cache hash table entries: 4096 (order: 3, 32768 bytes)
-> Buffer-cache hash table entries: 8192 (order: 3, 32768 bytes)
-> Page-cache hash table entries: 65536 (order: 6, 262144 bytes)
-> CPU: L1 I cache: 16K, L1 D cache: 16K
-> CPU: L2 cache: 256K
-> Intel machine check architecture supported.
-> Intel machine check reporting enabled on CPU#0.
-> CPU: Intel Pentium III (Coppermine) stepping 03
-> Enabling fast FPU save and restore... done.
-> Enabling unmasked SIMD FPU exception support... done.
-> Checking 'hlt' instruction... OK.
-> POSIX conformance testing by UNIFIX
-> PCI: PCI BIOS revision 2.10 entry at 0xf0d90, last bus=2
-> PCI: Using configuration type 1
-> PCI: Probing PCI hardware
-> Unknown bridge resource 0: assuming transparent
-> PCI: Using IRQ router PIIX [8086/2440] at 00:1f.0
-> Linux NET4.0 for Linux 2.4
-> Based upon Swansea University Computer Society NET3.039
-> Initializing RT netlink socket
-> Starting kswapd
-> Installing knfsd (copyright (C) 1996 okir@monad.swb.de).
-> pty: 256 Unix98 ptys configured
-> Serial driver version 5.05c (2001-07-08) with MANY_PORTS SHARE_IRQ
-> SERIAL_PCI en
-> abled
-> ttyS00 at 0x03f8 (irq = 4) is a 16550A
-> ttyS01 at 0x02f8 (irq = 3) is a 16550A
-> Real Time Clock Driver v1.10e
-> Uniform Multi-Platform E-IDE driver Revision: 6.31
-> ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-> ICH2: IDE controller on PCI bus 00 dev f9
-> ICH2: chipset revision 1
-> ICH2: not 100% native mode: will probe irqs later
->     ide0: BM-DMA at 0xb800-0xb807, BIOS settings: hda:DMA, hdb:pio
->     ide1: BM-DMA at 0xb808-0xb80f, BIOS settings: hdc:pio, hdd:pio
-> hda: ST380020ACE, ATA DISK drive
-> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-> hda: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
-> hda: task_no_data_intr: error=0x04 { DriveStatusError }
-> hda: setmax_ext LBA 1, native  0
-> hda: 0 sectors (0 MB) w/2048KiB Cache, CHS=0/255/63, UDMA(33)
-> PPP generic driver version 2.4.2
-> NET4: Linux TCP/IP 1.0 for NET4.0
-> IP Protocols: ICMP, UDP, TCP
-> IP: routing cache hash table of 1024 buckets, 8Kbytes
-> TCP: Hash tables configured (established 16384 bind 16384)
-> NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
-> hda1: bad access: block=2, count=2
-> end_request: I/O error, dev 03:01 (hda), sector 2
-> EXT2-fs: unable to read superblock
-> hda1: bad access: block=0, count=1
-> end_request: I/O error, dev 03:01 (hda), sector 0
-> FAT: unable to read boot sector
-> hda1: bad access: block=128, count=1
-> end_request: I/O error, dev 03:01 (hda), sector 128
-> read_super_block: bread failed (dev 03:01, block 128, size 512)
-> hda1: bad access: block=16, count=1
-> end_request: I/O error, dev 03:01 (hda), sector 16
-> read_super_block: bread failed (dev 03:01, block 16, size 512)
-> Kernel panic: VFS: Unable to mount root fs on 03:01
-> 
-> --
-> 
-> In case of 2.4.18 kernel, the booting message as follows...
-> 
-> Linux version 2.4.18 (root@i076) (gcc version 2.95.4 (Debian prerelease)) #5
-> Fri Mar 22 19:21:49 KST 2002
-> BIOS-provided physical RAM map:
->  BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
->  BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
->  BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
->  BIOS-e820: 0000000000100000 - 000000000bfeb000 (usable)
->  BIOS-e820: 000000000bfeb000 - 000000000bfef000 (ACPI data)
->  BIOS-e820: 000000000bfef000 - 000000000bfff000 (reserved)
->  BIOS-e820: 000000000bfff000 - 000000000c000000 (ACPI NVS)
->  BIOS-e820: 00000000ffff0000 - 0000000100000000 (reserved)
-> On node 0 totalpages: 49131
-> zone(0): 4096 pages.
-> zone(1): 45035 pages.
-> zone(2): 0 pages.
-> Local APIC disabled by BIOS -- reenabling.
-> Found and enabled local APIC!
-> Kernel command line: BOOT_IMAGE=host18 ro root=301
-> BOOT_FILE=/boot/vmlinuz-2.4.18
-> Initializing CPU#0
-> Detected 706.973 MHz processor.
-> Console: colour VGA+ 80x25
-> Calibrating delay loop... 1412.30 BogoMIPS
-> Memory: 191400k/196524k available (1064k kernel code, 4736k reserved, 287k
-> data, 76k init, 0k highmem)
-> Dentry-cache hash table entries: 32768 (order: 6, 262144 bytes)
-> Inode-cache hash table entries: 16384 (order: 5, 131072 bytes)
-> Mount-cache hash table entries: 4096 (order: 3, 32768 bytes)
-> Buffer-cache hash table entries: 8192 (order: 3, 32768 bytes)
-> Page-cache hash table entries: 65536 (order: 6, 262144 bytes)
-> CPU: Before vendor init, caps: 0383fbff 00000000 00000000, vendor = 0
-> CPU: L1 I cache: 16K, L1 D cache: 16K
-> CPU: L2 cache: 256K
-> CPU: After vendor init, caps: 0383fbff 00000000 00000000 00000000
-> Intel machine check architecture supported.
-> Intel machine check reporting enabled on CPU#0.
-> CPU:     After generic, caps: 0383fbff 00000000 00000000 00000000
-> CPU:             Common caps: 0383fbff 00000000 00000000 00000000
-> CPU: Intel Pentium III (Coppermine) stepping 03
-> Enabling fast FPU save and restore... done.
-> Enabling unmasked SIMD FPU exception support... done.
-> Checking 'hlt' instruction... OK.
-> POSIX conformance testing by UNIFIX
-> enabled ExtINT on CPU#0
-> ESR value before enabling vector: 00000000
-> ESR value after enabling vector: 00000000
-> Using local APIC timer interrupts.
-> calibrating APIC timer ...
-> ..... CPU clock speed is 706.9670 MHz.
-> ..... host bus clock speed is 100.9952 MHz.
-> cpu: 0, clocks: 1009952, slice: 504976
-> CPU0<T0:1009952,T1:504976,D:0,S:504976,C:1009952>
-> mtrr: v1.40 (20010327) Richard Gooch (rgooch@atnf.csiro.au)
-> mtrr: detected mtrr type: Intel
-> PCI: PCI BIOS revision 2.10 entry at 0xf0d90, last bus=2
-> PCI: Using configuration type 1
-> PCI: Probing PCI hardware
-> Unknown bridge resource 0: assuming transparent
-> PCI: Using IRQ router PIIX [8086/2440] at 00:1f.0
-> Linux NET4.0 for Linux 2.4
-> Based upon Swansea University Computer Society NET3.039
-> Initializing RT netlink socket
-> Starting kswapd
-> pty: 256 Unix98 ptys configured
-> Serial driver version 5.05c (2001-07-08) with MANY_PORTS SHARE_IRQ
-> SERIAL_PCI enabled
-> ttyS00 at 0x03f8 (irq = 4) is a 16550A
-> ttyS01 at 0x02f8 (irq = 3) is a 16550A
-> request_module[parport_lowlevel]: Root fs not mounted
-> lp: driver loaded but no devices found
-> ppdev: user-space parallel port driver
-> block: 128 slots per queue, batch=32
-> Uniform Multi-Platform E-IDE driver Revision: 6.31
-> ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-> PIIX4: IDE controller on PCI bus 00 dev f9
-> PIIX4: chipset revision 1
-> PIIX4: not 100% native mode: will probe irqs later
->     ide0: BM-DMA at 0xb800-0xb807, BIOS settings: hda:DMA, hdb:pio
->     ide1: BM-DMA at 0xb808-0xb80f, BIOS settings: hdc:pio, hdd:pio
-> hda: ST380020ACE, ATA DISK drive
-> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-> hda: 156301488 sectors (80026 MB) w/2048KiB Cache, CHS=9729/255/63, UDMA(33)
-> Partition check:
->  hda: hda1
-> PPP generic driver version 2.4.1
-> NET4: Linux TCP/IP 1.0 for NET4.0
-> IP Protocols: ICMP, UDP, TCP
-> IP: routing cache hash table of 1024 buckets, 8Kbytes
-> TCP: Hash tables configured (established 16384 bind 16384)
-> NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
-> FAT: bogus logical sector size 0
-> reiserfs: checking transaction log (device 03:01) ...
-> Using r5 hash to sort names
-> ReiserFS version 3.6.25
-> VFS: Mounted root (reiserfs filesystem) readonly.
-> Freeing unused kernel memory: 76k freed
-> 8139too Fast Ethernet driver 0.9.24
-> PCI: Found IRQ 10 for device 02:0e.0
-> eth0: RealTek RTL8139 Fast Ethernet at 0xcc8b5000, 00:50:fc:3b:2a:76, IRQ 10
-> eth0:  Identified 8139 chip type 'RTL-8139C'
-> eth0: Setting half-duplex based on auto-negotiated partner ability 0000.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Oct 17 21:37:07 oscar kernel: SCSI subsystem driver Revision: 1.00
+Oct 17 21:37:07 oscar kernel: Initializing USB Mass Storage driver...
+Oct 17 21:37:07 oscar kernel: scsi0 : SCSI emulation for USB Mass Storage devices
+Oct 17 21:37:07 oscar kernel:   Vendor: Sandisk   Model: ImageMate SDDR-0  Rev: 0208
+Oct 17 21:37:07 oscar kernel:   Type:   Direct-Access                      ANSI SCSI revision: 02
+Oct 17 21:37:07 oscar kernel: drivers/usb/core/usb.c: registered new driver usb-storage
+Oct 17 21:37:07 oscar kernel: USB Mass Storage support registered.
+
+Oct 17 21:37:07 oscar kernel: Attached scsi removable disk sda at scsi0, channel 0, id 0, lun 0
+Oct 17 21:37:07 oscar kernel: sda : status = 0, message = 00, host = 7, driver = 00
+Oct 17 21:37:07 oscar kernel: sddr09: Found Flash card, ID = 00 00 00 00: Manuf. unknown, 4096 MB
+Oct 17 21:37:07 oscar kernel: sda : unsupported sector size 1.
+Oct 17 21:37:07 oscar kernel: SCSI device sda: 0 1-byte hdwr sectors (0 MB)
+Oct 17 21:37:07 oscar kernel: sda: Write Protect is off
+
+mounting then complains /dev/sda1 is not a valid block device.  Also attempting to rmmod 
+usb-storage gets:
+
+Oct 17 21:53:12 oscar kernel: kernel BUG at drivers/base/core.c:269!
+Oct 17 21:53:12 oscar kernel: invalid operand: 0000
+Oct 17 21:53:12 oscar kernel: vfat af_packet snd-cs46xx snd-pcm snd-timer snd-rawmidi snd-seq-device snd-ac97-codec snd s
+oundcore gameport softdog matroxfb_base matroxfb_g450 matroxfb_DAC1064 g450_pll matroxfb_accel fbcon-cfb32 fbcon-cfb8 fbc
+on-cfb24 fbcon-cfb16 matroxfb_misc mga agpgart pppoe pppox ipchains msdos fat sd_mod floppy dummy bsd_comp ppp_generic sl
+hc parport_pc lp parport ipip smbfs nls_cp850 nls_cp437 binfmt_aout autofs4 cdrom via-rhine mii tulip crc32 usb-storage s
+csi_mod pl2303 usbserial hid
+Oct 17 21:53:12 oscar kernel: CPU:    0
+Oct 17 21:53:12 oscar kernel: EIP:    0060:[put_device+71/112]    Not tainted
+Oct 17 21:53:12 oscar kernel: EFLAGS: 00010202
+Oct 17 21:53:12 oscar kernel: EIP is at put_device+0x47/0x70
+Oct 17 21:53:12 oscar kernel: eax: 00000000   ebx: df39bd64   ecx: df39bdfc   edx: c5be0000
+Oct 17 21:53:12 oscar kernel: esi: dfacaa98   edi: c5b73000   ebp: dfacaa00   esp: c5be1f2c
+Oct 17 21:53:12 oscar kernel: ds: 0068   es: 0068   ss: 0068
+Oct 17 21:53:12 oscar kernel: Process rmmod (pid: 1353, threadinfo=c5be0000 task=c857b9c0)
+Oct 17 21:53:12 oscar kernel: Stack: 00000000 df39bc00 e0958bb0 df39bd64 dfacac00 e0966000 c5b73000 e0966000
+Oct 17 21:53:12 oscar kernel:        c03099d0 e096e3d8 c0197f09 c0311980 c031199c c0197f56 e096e3d8 e096e3d8
+Oct 17 21:53:12 oscar kernel:        e0966000 c01c942c e096e3d8 c02402c0 e096bffb fffffff0 e096963c dfacacc0
+Oct 17 21:53:12 oscar kernel: Call Trace:
+Oct 17 21:53:12 oscar kernel:  [<e0958bb0>] scsi_unregister_host_R98f50472+0x214/0x4e8 [scsi_mod]
+Oct 17 21:53:12 oscar kernel:  [<e096e3d8>] usb_storage_driver+0x18/0x7c [usb-storage]
+Oct 17 21:53:12 oscar kernel:  [__remove_driver+41/48] __remove_driver+0x29/0x30
+Oct 17 21:53:12 oscar kernel:  [remove_driver+70/76] remove_driver+0x46/0x4c
+Oct 17 21:53:12 oscar kernel:  [<e096e3d8>] usb_storage_driver+0x18/0x7c [usb-storage]
+Oct 17 21:53:12 oscar kernel:  [<e096e3d8>] usb_storage_driver+0x18/0x7c [usb-storage]
+Oct 17 21:53:12 oscar kernel:  [usb_deregister+32/40] usb_deregister+0x20/0x28
+Oct 17 21:53:12 oscar kernel:  [<e096e3d8>] usb_storage_driver+0x18/0x7c [usb-storage]
+Oct 17 21:53:12 oscar kernel:  [<e096bffb>] __module_usb_device_size+0x4bf/0xcb5 [usb-storage]
+Oct 17 21:53:12 oscar kernel:  [<e096963c>] usb_stor_exit+0x24/0x86 [usb-storage]
+Oct 17 21:53:12 oscar kernel:  [free_module+23/192] free_module+0x17/0xc0
+Oct 17 21:53:12 oscar kernel:  [sys_delete_module+284/628] sys_delete_module+0x11c/0x274
+Oct 17 21:53:12 oscar kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
+Oct 17 21:53:12 oscar kernel:
+Oct 17 21:53:12 oscar kernel: Code: 0f 0b 0d 01 69 70 23 c0 8b 83 d0 00 00 00 85 c0 74 06 53 ff
+Oct 17 21:53:12 oscar /sbin/hotplug: no runnable /etc/hotplug/block.agent is installed
+
+Last time I used the device was around 2.5.40 or so - it worked then, but was
+much happier if I left a card in the reader during boot.
+
+Ideas?
+Ed Tomlinson
+
+
+

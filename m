@@ -1,80 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262692AbRE3J57>; Wed, 30 May 2001 05:57:59 -0400
+	id <S262659AbRE3J4R>; Wed, 30 May 2001 05:56:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262694AbRE3J5t>; Wed, 30 May 2001 05:57:49 -0400
-Received: from deadlock.et.tudelft.nl ([130.161.36.93]:26888 "EHLO
-	deadlock.et.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S262692AbRE3J5k>; Wed, 30 May 2001 05:57:40 -0400
-Date: Wed, 30 May 2001 11:57:38 +0200 (CEST)
-From: Joris van Rantwijk <joris@deadlock.et.tudelft.nl>
-To: linux-kernel@vger.kernel.org
-Subject: Minor problem in shmem_remount_fs()
-Message-ID: <Pine.LNX.4.21.0105301137180.22235-100000@deadlock.et.tudelft.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262692AbRE3J4H>; Wed, 30 May 2001 05:56:07 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:1040 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S262659AbRE3J4B>;
+	Wed, 30 May 2001 05:56:01 -0400
+Date: Wed, 30 May 2001 11:55:38 +0200
+From: Jens Axboe <axboe@kernel.org>
+To: Mark Hemment <markhe@veritas.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, riel@conectiva.com.br,
+        andrea@e-mind.com
+Subject: Re: [patch] 4GB I/O, cut three
+Message-ID: <20010530115538.B15089@suse.de>
+In-Reply-To: <20010529160704.N26871@suse.de> <Pine.LNX.4.21.0105301022410.7153-100000@alloc>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.21.0105301022410.7153-100000@alloc>; from markhe@veritas.com on Wed, May 30, 2001 at 10:43:33AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
-I'm sorry if this isn't the right place to send this stuff, but
-the MAINTAINERS file wasn't being very helpful either.
+On Wed, May 30 2001, Mark Hemment wrote:
+> Hi Jens,
+> 
+>   I ran this (well, cut-two) on a 4-way box with 4GB of memory and a
+> modified qlogic fibre channel driver with 32disks hanging off it, without
+> any problems.  The test used was SpecFS 2.0
 
-I believe there is a minor bug in the remount code for the shm
-filesystem in the Linux 2.4.5 kernel. When parsing the mount flags,
-the code fails to set default values for unspecified options.
+Cool, could you send me the qlogic diff? It's the one-liner can_dma32
+chance I'm interested in, I'm just not sure what driver you used :-)
+I'll add that to the patch then. Basically all the PCI cards should
+work, I'm just being cautious and only enabling highmem I/O to the ones
+that have been tested.
 
-mm/shmem.c: 1026:
-        unsigned long max_blocks, blocks;
-        unsigned long max_inodes, inodes;
-        struct shmem_sb_info *info = &sb->u.shmem_sb;
+>   Peformance is definitely up - but I can't give an exact number, as the
+> run with this patch was compiled with no-omit-frame-pointer for debugging
+> any probs.
 
-        if (shmem_parse_options (data, NULL, &max_blocks, &max_inodes))
-                return -EINVAL;
----
-If the nr_blocks / nr_inodes options are not specified, the value of
-max_(block|inodes) will be undefined.
+Good
 
-This would explain the following observed behaviour:
-[root@kitty /]# mount -t shm none /mnt
-[root@kitty /]# df
-Filesystem           1k-blocks      Used Available Use% Mounted on
-/dev/hda7              1981000   1258014    620574  67% /
-/dev/hda8               995115    447813    495896  47% /home
-/dev/hda1              2557352   1807324    750028  71% /dosc
-/dev/hda5              1027856    550192    477664  54% /dosd
-/dev/hda6               513776    270480    243296  53% /dose
-none                    163616         0    163616   0% /mnt
-[root@kitty /]# mount -o remount /mnt
-[root@kitty /]# df
-Filesystem           1k-blocks      Used Available Use% Mounted on
-/dev/hda7              1981000   1258014    620574  67% /
-/dev/hda8               995115    447813    495896  47% /home
-/dev/hda1              2557352   1807324    750028  71% /dosc
-/dev/hda5              1027856    550192    477664  54% /dosd
-/dev/hda6               513776    270480    243296  53% /dose
-none                 17179869096         0 17179869096   0% /mnt
-[root@kitty /]# ?
+>   I did change the patch so that bounce-pages always come from the NORMAL
+> zone, hence the ZONE_DMA32 zone isn't needed.  I avoided the new zone, as
+> I'm not 100% sure the VM is capable of keeping the zones it already has
+> balanced - and adding another one might break the camels back.  But as the
+> test box has 4GB, it wasn't bouncing anyway.
 
-Just to give complete information, ver_linux:
-Linux kitty 2.4.5 #1 Tue May 29 20:46:15 CEST 2001 i586 unknown
-Gnu C                  2.95.2
-Gnu make               3.78.1
-binutils               2.9.5.0.37
-mount                  2.10f
-modutils               2.4.1
-e2fsprogs              1.18
-Linux C Library        2.1.3
-ldd: version 1.9.11
-Procps                 2.0.6
-Net-tools              1.54
-Kbd                    0.99
-Sh-utils               2.0
-Modules Loaded         rtc nls_iso8859-1 nls_cp437 vfat fat powerswitch \
-                         mad16 ad1848 uart401 sound soundcore ne2k-pci 8390
-Bye,
-  Joris.
+You are right, this is definitely something that needs checking. I
+really want this to work though. Rik, Andrea? Will the balancing handle
+the extra zone?
 
-Joris van Rantwijk
-joris@deadlock.et.tudelft.nl - http://deadlock.et.tudelft.nl/~joris/
+-- 
+Jens Axboe
 

@@ -1,51 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264477AbTLCDXK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 22:23:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264481AbTLCDXK
+	id S264489AbTLCDiO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 22:38:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264492AbTLCDiO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 22:23:10 -0500
-Received: from web40202.mail.yahoo.com ([66.218.78.63]:47367 "HELO
-	web40202.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S264477AbTLCDXH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 22:23:07 -0500
-Message-ID: <20031203032307.33575.qmail@web40202.mail.yahoo.com>
-Date: Tue, 2 Dec 2003 19:23:07 -0800 (PST)
-From: Jim Stark <loontaubag@yahoo.com>
-Subject: Problem with USB storage
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Tue, 2 Dec 2003 22:38:14 -0500
+Received: from dhcp024-209-033-037.neo.rr.com ([24.209.33.37]:46979 "EHLO
+	neo.rr.com") by vger.kernel.org with ESMTP id S264489AbTLCDiM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Dec 2003 22:38:12 -0500
+Date: Tue, 2 Dec 2003 22:31:03 +0000
+From: Adam Belay <ambx1@neo.rr.com>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: Andrey Borzenkov <arvidjaar@mail.ru>, rusty@rustcorp.com.au,
+       linux-kernel@vger.kernel.org
+Subject: Re: file2alias for pnp (Re: modules.pnpmap output support)
+Message-ID: <20031202223103.GB1718@neo.rr.com>
+Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
+	Takashi Iwai <tiwai@suse.de>, Andrey Borzenkov <arvidjaar@mail.ru>,
+	rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
+References: <s5hoevbjdjj.wl@alsa2.suse.de> <s5h65hf1iou.wl@alsa2.suse.de> <s5hn0ahdgbm.wl@alsa2.suse.de> <200311272159.00184.arvidjaar@mail.ru> <s5hk75kbsm1.wl@alsa2.suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <s5hk75kbsm1.wl@alsa2.suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi:
+On Fri, Nov 28, 2003 at 01:11:18PM +0100, Takashi Iwai wrote:
+> Adam, any plan to give the card id to sysfs ?
+>
 
-I am currently using Slackware 9.1 with a custom built
-kernel (2.4.22).  The problem I am having is that
-sometimes (not always), I can mount my USB memory
-stick.  It happens very infrequently.  When I insert,
-the hotplug support detects it and loads usb-storage
-and starts two processes (usb-storage-0 and
-scsi_eh_1).  Most (99%) of the time, the mount program
-freezes when attempting to mount the device, and can
-only be stopped by waiting and sending kill -9. 
-Thereafter, the device (/dev/sda1) states that it is
-not a valid black device AND the USB port I tried to
-use becomes unusable until a restart.  Further, the
-two processes I described earlier are impossible to
-kill.
+Sure, would you prefer to see it in the isapnp device's parent
+card device under "id" or in the device's own directory under
+"card_id"?
 
-Any ideas?  I am currently in the process of upgrading
-to the newest kernel (2.4.23).  An additional note is
-that the ehci-hcd (usb2) module is loaded and I am
-trying to use it for the higher transfer rates.
-
-Thanks
-
-Mike
-
-__________________________________
-Do you Yahoo!?
-Free Pop-Up Blocker - Get it now
-http://companion.yahoo.com/
+Thanks,
+Adam

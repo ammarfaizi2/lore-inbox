@@ -1,89 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262932AbTDDHvR (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 02:51:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261530AbTDDHvR (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 02:51:17 -0500
-Received: from dns.toxicfilms.tv ([150.254.37.24]:3224 "EHLO dns.toxicfilms.tv")
-	by vger.kernel.org with ESMTP id S262932AbTDDHsv (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Apr 2003 02:48:51 -0500
-Date: Fri, 4 Apr 2003 10:00:18 +0200 (CEST)
-From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-To: Andrew Morton <akpm@digeo.com>
+	id S263458AbTDDIAm (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 03:00:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263469AbTDDIAm (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 03:00:42 -0500
+Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:49162 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id S263458AbTDDIAf (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 4 Apr 2003 03:00:35 -0500
+Message-Id: <200304040802.h3482Zu20691@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Dave Jones <davej@codemonkey.org.uk>,
+       Fendrakyn <fendrakyn@europaguild.com>
+Subject: Re: [BUG] E7x05 chipset bug in 2.5 kernels' AGPGART driver.
+Date: Fri, 4 Apr 2003 09:58:08 +0200
+X-Mailer: KMail [version 1.3.2]
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.66-mm2
-In-Reply-To: <20030403132243.7bc9a22d.akpm@digeo.com>
-Message-ID: <Pine.LNX.4.51.0304040955060.20588@dns.toxicfilms.tv>
-References: <20030401000127.5acba4bc.akpm@digeo.com>
- <Pine.LNX.4.51.0304031947321.16306@dns.toxicfilms.tv> <20030403132243.7bc9a22d.akpm@digeo.com>
+References: <200304022050.03026.fendrakyn@europaguild.com> <20030402221046.GA30881@suse.de>
+In-Reply-To: <20030402221046.GA30881@suse.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-2
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > remember my post about the machine locking up for a few seconds?
+On 3 April 2003 00:10, Dave Jones wrote:
+> On Wed, Apr 02, 2003 at 08:50:03PM +0200, Fendrakyn wrote:
+>  > There is a mistake in the Makefile of drivers/char/agp, the line
+>  > concerning i7x05-agp support does not match the one in the
+>  > Kconfig, thus e7x05 support is never compiled, be it as a module
+>  > or in the kernel.
 >
-> Could you try 2.5.66-mm3?  It has a CPU scheduler fix which might well help here.
-It's still there.
-Using the following script to get vmstat output...
-#!/bin/sh
-rm vmlog
-while (true);
-do
-        echo "-----" >> vmlog
-        date >> vmlog
-        for i in `seq 1 5`; do
-                vmstat >> vmlog
-                sleep 1;
-        done;
-done
+> I'm really amazed. This has been broken for months, and no-one
+> noticed. The day I fixed it in the agpgart bk tree, I got a half
+> dozen reports, and now I'm getting one daily. Truly bizarre.
 
-I managed to get the following. The lockup occured between 9:53:00, and
-9:53:20.
+Jargon file have an entry about class of bugs which
+are latent (do not bite anybody) until discovered.
+When discovered, relevant pieces of code promptly stop working.
 
-pi± kwi  4 09:52:58 CEST 2003
-procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
- r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
- 2  1  65724   4676   7256  48936    8    6    42    44  224   472 98  1  0  0
-procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
- r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
- 2  2  65724   4636   8184  49048    8    6    42    44  224   472 98  1  0  0
-procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
- r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
- 2  2  65724   4636   8184  49048    8    6    42    44  224   472 98  1  0  0
-procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
- r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
- 2  2  65716   5452   7456  49028    8    6    42    44  224   472 98  1  0  0
-procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
- r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
- 2  2  65716   5452   7456  49028    8    6    42    44  224   472 98  1  0  0
-procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
- r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
- 7 10  65716   4148   7476  49040    8    6    42    44  224   472 98  1  0  0
-procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
- r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
- 6 10  65716   4148   7476  49040    8    6    42    44  224   472 98  1  0  0
------
-pi± kwi  4 09:53:20 CEST 2003
-procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
- r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
- 5  6  65736   4532   7344  48804    8    6    42    44  224   472 98  1  0  0
-procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
- r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
- 4  6  65736   4532   7348  48804    8    6    42    44  224   472 98  1  0  0
-procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
------
-pi± kwi  4 09:53:21 CEST 2003
-
-Running apps: [debian] xmms + opera + setiathome + x-terminal-emulator
-
-It just stopped responding suddenly for 20 seconds and went on.
-I think i need some other method of measuring what is going on.
-
-Notice, that there are only 7 results between these 20 seconds, and there
-should be 20. Earlier in the logs i also get these irregularities, the
-script can not manage to get it on time, or the script is getting skewed
-by some other factors i am unaware of.
-
-
-Regards,
-Maciej
+I thought that was a joke ;)
+--
+vda

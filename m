@@ -1,100 +1,65 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317314AbSFLTl6>; Wed, 12 Jun 2002 15:41:58 -0400
+	id <S317316AbSFLTrm>; Wed, 12 Jun 2002 15:47:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317316AbSFLTl5>; Wed, 12 Jun 2002 15:41:57 -0400
-Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:34542 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S317314AbSFLTlz>; Wed, 12 Jun 2002 15:41:55 -0400
-Date: Wed, 12 Jun 2002 13:39:21 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Anton Altaparmakov <aia21@cantab.net>
-Cc: vda@port.imtp.ilyichevsk.odessa.ua, Rusty Russell <rusty@rustcorp.com.au>,
-        torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-        k-suganuma@mvj.biglobe.ne.jp, Andrew Morton <akpm@zip.com.au>
-Subject: Re: [PATCH] 2.5.21 Nonlinear CPU support
-Message-ID: <20020612193921.GA682@clusterfs.com>
-Mail-Followup-To: Anton Altaparmakov <aia21@cantab.net>,
-	vda@port.imtp.ilyichevsk.odessa.ua,
-	Rusty Russell <rusty@rustcorp.com.au>, torvalds@transmeta.com,
-	linux-kernel@vger.kernel.org, k-suganuma@mvj.biglobe.ne.jp,
-	Andrew Morton <akpm@zip.com.au>
-In-Reply-To: <5.1.0.14.2.20020612155646.048fd520@pop.cus.cam.ac.uk> <5.1.0.14.2.20020611155046.00af3980@pop.cus.cam.ac.uk> <5.1.0.14.2.20020611114701.00aefec0@pop.cus.cam.ac.uk> <5.1.0.14.2.20020611155046.00af3980@pop.cus.cam.ac.uk> <5.1.0.14.2.20020612155646.048fd520@pop.cus.cam.ac.uk> <5.1.0.14.2.20020612192802.045b08c0@pop.cus.cam.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S317320AbSFLTrl>; Wed, 12 Jun 2002 15:47:41 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:2221 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S317316AbSFLTrk>;
+	Wed, 12 Jun 2002 15:47:40 -0400
+Date: Wed, 12 Jun 2002 21:45:22 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: mingo@elte.hu
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Linus Torvalds <torvalds@transmeta.com>, <dent@cosy.sbg.ac.at>,
+        <adilger@clusterfs.com>, <da-x@gmx.net>, <patch@luckynet.dynu.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.21 - list.h cleanup 
+In-Reply-To: <E17Hhjo-0007rM-00@wagner.rustcorp.com.au>
+Message-ID: <Pine.LNX.4.44.0206122125210.17567-100000@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jun 12, 2002  19:34 +0100, Anton Altaparmakov wrote:
-> At 18:36 12/06/02, Andreas Dilger wrote:
-> >1) Allocate an array of NULL pointers which is NR_CPUs in size (you could 
-> >   do this all the time, as it would only be a few bytes)
+
+On Tue, 11 Jun 2002, Rusty Russell wrote:
+
+> The number of structures and functions which need only "struct xxx *"
+> is very high: removing typedefs is something about with ~zero pain
+> (unlike dropping the sometimes-dubious loveaffair with inlines).
 > 
-> Yes, that is fine.
-> 
-> >2) If you need to do decompression on a cpu you check the array entry
-> >   for that CPU and if is NULL you vmalloc() the decompression buffers once
-> >   for that CPU.  This avoid vmalloc() overhead for each read.
-> 
-> The vmalloc() sleeps and by the time you get control back you are executing 
-> on a different CPU. Ooops. The only valid way of treating per-cpu data is:
-> 
-> - disable preemption
-> - get the cpu number = START OF CRITICAL SECTION: no sleep/schedule allowed
-> - do work using the cpu number
-> - reenable preemption = END OF CRITICAL SECTION
-> 
-> The only thing that could possibly be used inside the critical region is 
-> kmalloc(GFP_ATOMIC) but we are allocating 64kiB so that is not an option. 
-> (It would fail very quickly due to memory fragmentation, the order of the 
-> allocation is too high.)
+> Rusty.
+> PS.  I blame Ingo: list_t indeed!
 
-Well, then you can still do the one-time allocation for that CPU slot,
-and re-check the CPU number after vmalloc() returns.  If it is different
-(or always, for that matter) then you jump back to the "is the array for
-this CPU allocated" check until the array _is_ allocated for that CPU
-and you don't need to allocate it (so you won't sleep).  At most you
-will need to loop once for each available CPU if you are unlucky enough
-to be rescheduled to a different CPU after each call to vmalloc().
+the reason why i added list_t to the scheduler code was mainly for
+aesthetic reasons. I'm still using 80x25 text consoles mainly, which are
+more sensitive to code length. Also, 'struct list_head' did not reflect
+the kind of lightweight list type we have, 'list_t' does that better. Eg.:
 
-Like:
-	int cpunum = this_cpu();
-	char *newbuf = NULL;
+unsigned int void some_function(list_t *head, list_t *next, list_t *prev)
+{
+}
 
-	while (unlikely(NTFS_SB(sb)->s_compr_array[cpunum] == NULL)) {
-		newbuf = vmalloc(NTFS_DECOMPR_BUFFER_SIZE);
+instead of:
 
-		/* Re-check the buffer case we slept in vmalloc() and
-		 * someone else already allocated a buffer for "this" CPU.
-		 */
-		if (likely(NTFS_SB(sb)->s_compr_array[cpunum] == NULL)) {
-			NTFS_SB(sb)->s_compr_array[cpunum] = newbuf;
-			newbuf = NULL;
-		}
-		cpunum = this_cpu();
-	}
-	/* Hmm, we slept in vmalloc and we don't need the new buffer */
-	if (unlikely(newbuf != NULL))
-		vfree(newbuf);
+unsigned int some_function(struct list_head *head, struct list_head *next,
+			 struct list_head *prev)
+{
+}
 
-> >3) Any allocated buffers are freed in the same manner they are now -
-> >   when the last compressed volume is unmounted.  There may be some or
-> >   all entries that are still NULL.
-> >
-> >This also avoids allocating buffers when there are no files which are
-> >actually compressed.
-> 
-> True it does, but unfortunately it doesn't work. )-:
+but if typedefs create other problems then these arguments are secondary i
+guess. I'm completely against redefining base types for no particular
+reason, like counter_t.
 
-Now it does... ;-).
+But i think it would be useful to introduce some sort of '_t convention',
+where _t always means a complex (or potentially complex - opaque) type. It
+makes code so much more compact and readable, and it does not hide
+anything - _t *always* means a complex type in the way i use it.
 
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
+To see this in action check out 2.5's drivers/md/raid5.c for example,
+replace all the _t types with their full-blown struct equivalents and
+compare code readability. And this is not broken code in any way, it's
+just code that uses lots of complex types.
+
+	Ingo
 

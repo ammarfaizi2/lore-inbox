@@ -1,44 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268077AbUGWVYm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268076AbUGWV24@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268077AbUGWVYm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jul 2004 17:24:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268075AbUGWVYm
+	id S268076AbUGWV24 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jul 2004 17:28:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268078AbUGWV24
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jul 2004 17:24:42 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:20928 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S268077AbUGWVYc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jul 2004 17:24:32 -0400
-Date: Fri, 23 Jul 2004 23:24:23 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: linux-kernel@vger.kernel.org
-Subject: [OT] German court says the GPL is effective
-Message-ID: <20040723212423.GQ19329@fs.tum.de>
+	Fri, 23 Jul 2004 17:28:56 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:5276 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S268076AbUGWV2y (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jul 2004 17:28:54 -0400
+Message-Id: <200407232128.i6NLSsLp001867@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.0.4+dev
+To: Steve G <linux_4ever@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Ext3 problems in dual booting machine with SE Linux 
+In-Reply-To: Your message of "Fri, 23 Jul 2004 14:21:31 PDT."
+             <20040723212131.86635.qmail@web50609.mail.yahoo.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <20040723212131.86635.qmail@web50609.mail.yahoo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+Content-Type: multipart/signed; boundary="==_Exmh_2077760884P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Fri, 23 Jul 2004 17:28:54 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I know this is off-topic, but a court in my home town Munich has decided 
-that a cease and desist letter Harald Welte sent to a router producer 
-(Sitecom) who used netfilter/iptables in his router but didn't publish 
-the sources of the firmware with a penalty of up to 100 000 Euro is  
-valid (a German version of the decision of the three judges is at [1]).
+--==_Exmh_2077760884P
+Content-Type: text/plain; charset=us-ascii
 
-It's quite nice to hear that a court has decided that the GPL is 
-enforceable under German law.
+On Fri, 23 Jul 2004 14:21:31 PDT, Steve G said:
 
-cu
-Adrian
+> The problem is not that I trash my root filesystem under 2.4, my problem is I
+> cannot unmount /mnt/target after I have been in SE Linux and ran fixfiles. My
+> method of recovery is to remove files from /mnt/target until I get corruption
+> detected at boot which finally lets me run mke2fs to get it back.
 
-[1] http://www.jbb.de/urteil_lg_muenchen_gpl.pdf
+Sorry, I thought you were doing the rm -r under 2.6 and trashing it out from under you.
 
--- 
+Couldn't you have just added:
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+/dev/sda3 /mnt/target ext3 noauto
 
+to your 2.4 fstab, so it doesn't mount automagically, and then mke2fs it?
+
+--==_Exmh_2077760884P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFBAYMWcC3lWbTT17ARAgSFAJ9ER2ErWRCAzQsf7YJfai6L2uw4FACfTiPz
+yN796kuzGCkHJoo7lxL/il0=
+=K8Ga
+-----END PGP SIGNATURE-----
+
+--==_Exmh_2077760884P--

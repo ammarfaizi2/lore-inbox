@@ -1,59 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293191AbSCEXXY>; Tue, 5 Mar 2002 18:23:24 -0500
+	id <S293155AbSCEX0E>; Tue, 5 Mar 2002 18:26:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293155AbSCEXXO>; Tue, 5 Mar 2002 18:23:14 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:26887 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S293163AbSCEXXD>; Tue, 5 Mar 2002 18:23:03 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Tue, 5 Mar 2002 15:26:31 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Hubertus Franke <frankeh@watson.ibm.com>
-cc: Rusty Russell <rusty@rustcorp.com.au>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Futexes IV (Fast Lightweight Userspace Semaphores)
-In-Reply-To: <20020305231747.5F95B3FE06@smtp.linux.ibm.com>
-Message-ID: <Pine.LNX.4.44.0203051525460.1475-100000@blue1.dev.mcafeelabs.com>
+	id <S293163AbSCEXZy>; Tue, 5 Mar 2002 18:25:54 -0500
+Received: from [208.29.163.248] ([208.29.163.248]:7918 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id <S293155AbSCEXZn>; Tue, 5 Mar 2002 18:25:43 -0500
+Date: Tue, 5 Mar 2002 15:25:29 -0800 (PST)
+From: David Lang <dlang@diginsite.com>
+To: "H. Peter Anvin" <hpa@zytor.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [opensource] Re: Petition Against Official Endorsement of
+ BitKeeper by Linux Maintainers
+In-Reply-To: <a63jgb$dpt$1@cesium.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0203051523520.20527-100000@dlang.diginsite.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Mar 2002, Hubertus Franke wrote:
+change 'bitkeeper, is open source' to 'bitkeeper, has the source code
+available, including provisions to allow you to modify it (as long as the
+openlogging isn't removed'
 
-> On Tuesday 05 March 2002 05:39 pm, Davide Libenzi wrote:
-> > On Tue, 5 Mar 2002, Rusty Russell wrote:
-> > > +	pos_in_page = ((unsigned long)uaddr) % PAGE_SIZE;
-> > > +
-> > > +	/* Must be "naturally" aligned, and not on page boundary. */
-> > > +	if ((pos_in_page % __alignof__(atomic_t)) != 0
-> > > +	    || pos_in_page + sizeof(atomic_t) > PAGE_SIZE)
-> > > +		return -EINVAL;
+David Lang
+
+ On 5 Mar 2002, H. Peter Anvin wrote:
+
+> Date: 5 Mar 2002 15:14:19 -0800
+> From: H. Peter Anvin <hpa@zytor.com>
+> To: linux-kernel@vger.kernel.org
+> Subject: Re: [opensource] Re: Petition Against Official Endorsement of
+>     BitKeeper by Linux Maintainers
+>
+> Followup to:  <20020305230143.GB5538@matchmail.com>
+> By author:    Mike Fedyk <mfedyk@matchmail.com>
+> In newsgroup: linux.dev.kernel
 > >
-> > How can this :
-> >
-> > 	(pos_in_page % __alignof__(atomic_t)) != 0
-> >
-> > to be false, and together this :
-> >
-> > 	pos_in_page + sizeof(atomic_t) > PAGE_SIZE
-> >
-> > to be true ?
-> > This is enough :
-> >
-> > 	if ((pos_in_page % __alignof__(atomic_t)) != 0)
-> >
+> > IIRC, bitkeeper, is open source.  It just doesn't have a free license.  I
+> > could be wrong(I haven't checked).  If I am, someone will say so...
 > >
 >
-> I believe not all machine have  alignof  == sizeof
-
-Yes but this is always true   alignof >= sizeof
-
-
-
-
-- Davide
-
-
+> A free license is a necessary, but not sufficient, requirement for
+> something to be Open Source.
+>
+> 	-hpa
+> --
+> <hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+> "Unix gives you enough rope to shoot yourself in the foot."
+> http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

@@ -1,42 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130192AbRAKT5s>; Thu, 11 Jan 2001 14:57:48 -0500
+	id <S131576AbRAKT6i>; Thu, 11 Jan 2001 14:58:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131576AbRAKT5i>; Thu, 11 Jan 2001 14:57:38 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:23763 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S130192AbRAKT5c>;
-	Thu, 11 Jan 2001 14:57:32 -0500
-Date: Thu, 11 Jan 2001 14:57:30 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, Andi Kleen <ak@suse.de>,
-        Daniel Phillips <phillips@innominate.de>, linux-kernel@vger.kernel.org
-Subject: Re: Subtle MM bug
-In-Reply-To: <20010111194753.P25375@redhat.com>
-Message-ID: <Pine.GSO.4.21.0101111452070.17363-100000@weyl.math.psu.edu>
+	id <S132541AbRAKT63>; Thu, 11 Jan 2001 14:58:29 -0500
+Received: from capricorn.iris.com ([198.112.211.43]:29446 "EHLO
+	capricorn.iris.com") by vger.kernel.org with ESMTP
+	id <S131576AbRAKT6M>; Thu, 11 Jan 2001 14:58:12 -0500
+Subject: Re: linux-2.4.0 scsi problems on NetFinity servers
+To: JP Navarro <navarro@mcs.anl.gov>
+Cc: linux-kernel@vger.kernel.org, Tim Wright <timw@splhi.com>
+X-Mailer: Lotus Notes Build V60_12122000 December 12, 2000
+Message-ID: <OFF7FB1A80.74461F2E-ON852569D1.006C1FF2@iris.com>
+From: kenbo@iris.com
+Date: Thu, 11 Jan 2001 15:00:30 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-MIMETrack: Serialize by Router on chablis/UNIX/Notes(Build V60_M7_01092001|January 9, 2001) at
+ 01/11/2001 02:58:48 PM,
+	Itemize by SMTP Server on Capricorn/Iris(Build V60_01012001|January 01, 2001) at
+ 01/11/2001 02:58:07 PM,
+	Serialize by Router on Capricorn/Iris(Build V60_01012001|January 01, 2001) at
+ 01/11/2001 02:58:13 PM,
+	Serialize complete at 01/11/2001 02:58:13 PM
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I sent an email to the NetFinity mailing list, and here is there response
+after they started testing with 2.4.0.  FYI: I've tried all suggestions
+(non-SMP, flag at boot time,...) and none of them have worked yet; I did
+see that someone thought they had found an nfs bug and posted a patch for
+it, so I'm gonna patch and test next.
+
+Still looking into it )
+
+Thanks!
+
+kenbo
+
+______________________
+Firebirds rule, `stangs serve!
+
+Kenneth "kenbo" Brunsen
+Iris Associates
+----- Forwarded by Ken Brunsen/Iris on 01/11/01 02:37 PM -----
+                                                                                                                           
+                    "ServeRAID                                                                                             
+                    For Linux"           To:     kenbo@iris.com                                                            
+                    <ipslinux@us.        cc:                                                                               
+                    ibm.com>             Subject:     Re: linux-2.4.0 scsi problems on NetFinity servers                   
+                                                                                                                           
+                    01/11/01                                                                                               
+                    12:38 PM                                                                                               
+                                                                                                                           
+                                                                                                                           
 
 
-On Thu, 11 Jan 2001, Stephen C. Tweedie wrote:
 
-> > And how is that different from the current situation?
-> 
-> It's not, which is the point I was making: COW doesn't actually solve
-> the pthreads problem.  Far better to do it in user space.
 
-Oh, certainly. We need COW for completely unrelated reasons - suppose
-you open() a file and then change your *ID. You definitely want credentials
-on the opened file to stay unchanged.
+We have been able to reproduce this problem in our lab ( using ServeRAID )
+.    We have also seen this same lockup at least once in a system which did
+not contain any ServeRAID ( only Adaptec ).   Our engineers are
+investigating this issue at this time and we are also notifying the Red Hat
+engineers of the problem.
 
-Pthreads are non-issue as far as I'm concerned. I'ld rather avoid mixing
-them with credentials' cache. BTW, what about *BSD implementations? Do
-they change creds of all threads upon set*id(2)?
+Thanks for bringing this to our attention.
+
+
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

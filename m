@@ -1,45 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264529AbUDTWYL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264164AbUDTW1t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264529AbUDTWYL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Apr 2004 18:24:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264365AbUDTWVQ
+	id S264164AbUDTW1t (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Apr 2004 18:27:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264535AbUDTW0W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Apr 2004 18:21:16 -0400
-Received: from ausmtp02.au.ibm.com ([202.81.18.187]:43694 "EHLO
-	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP id S264581AbUDTV4Y
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Apr 2004 17:56:24 -0400
-Subject: Re: [module-init-tools] Segmentation fault
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: =?ISO-8859-1?Q?M=E9her?= Khiari <meher@wanadoo.fr>
-Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <4083A05F.8060309@wanadoo.fr>
-References: <4083A05F.8060309@wanadoo.fr>
-Content-Type: text/plain; charset=iso-8859-1
-Message-Id: <1082444781.5566.166.camel@bach>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 21 Apr 2004 07:56:02 +1000
-Content-Transfer-Encoding: 8bit
+	Tue, 20 Apr 2004 18:26:22 -0400
+Received: from twin.uoregon.edu ([128.223.214.27]:42886 "EHLO twin.uoregon.edu")
+	by vger.kernel.org with ESMTP id S264164AbUDTT2K (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Apr 2004 15:28:10 -0400
+Date: Tue, 20 Apr 2004 12:28:08 -0700 (PDT)
+From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
+X-X-Sender: joelja@twin.uoregon.edu
+To: Timothy Miller <miller@techsource.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: System hang with ATI's lousy driver
+In-Reply-To: <4085753B.2010700@techsource.com>
+Message-ID: <Pine.LNX.4.44.0404201216280.10469-100000@twin.uoregon.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-04-19 at 19:48, Méher Khiari wrote:
-> Hi all
-> It is my first post here.
-> I didn't find any other mailing list talking about module-init-tools 
-> (nor a wiki page), so I am posting here.
-> I got module-init-tools-0.9.14, I compiled and installed (as written in 
-> the README) but I got a segmentation fault when I tested modprobe.
-> Although, I got the testsuite and ran the test and all went well !!!!
+On Tue, 20 Apr 2004, Timothy Miller wrote:
 
-Yes.  The testsuite rebuilds the binaries with -DJUST_TESTING so it can
-do nasty things to the internals (like control uname).  These will
-segfault if run normally.  Hence "make check" now does a "make clean" at
-the end.
+> 
+> 
+> Joel Jaeggli wrote:
+> > On Tue, 20 Apr 2004, Timothy Miller wrote:
+> > 
+> > 
+> >>So, since XFree86's lousy open-source Radeon driver won't do OpenGL 
+> >>right, I am forced to use ATI's lousy proprietary Radeon driver.  With 
+> >>that, I can do OpenGL right, but when I exit the X server, the system 
+> >>hangs completely.  I get lots of vertical lines on the screen, but I 
+> >>can't even ping the computer.
+> > 
+> > 
+> > you didn't specify which ati card?
+> 
+> Sorry.  Radeon 9000 Pro.
 
-Hope that helps!
-Rusty.
+kernel drm + xfree86 driver will actually provide accelerated opengl 
+support in Xwindows albiet without quite as many hardware features as the 
+proprietary driver on all the rv2xx chipsets including the 9000 but not 
+on the later models. 
+
+kernel drm & radeonfb have been reported to not play very well with each 
+other in other venues. vesafb is known to work in this situation though.
+ 
+> >  
+> > 
+> >>Does anyone know of any conflict between using ATI's X11 driver and the 
+> >>Radeon console driver at the same time?
+> >>
+> >>I'm using kernel gentoo-2.4.25.
+> >>
+> >>
+> >>I'm getting really sick of not being able to get new graphics cards to 
+> >>just work properly under Linux.
+> >>
+> >>
+> >>Thanks.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
 -- 
-Anyone who quotes me in their signature is an idiot -- Rusty Russell
+-------------------------------------------------------------------------- 
+Joel Jaeggli  	       Unix Consulting 	       joelja@darkwing.uoregon.edu    
+GPG Key Fingerprint:     5C6E 0104 BAF0 40B0 5BD3 C38B F000 35AB B67F 56B2
+
 

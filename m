@@ -1,47 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266682AbUF3OiT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266684AbUF3OjA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266682AbUF3OiT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jun 2004 10:38:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266684AbUF3OiS
+	id S266684AbUF3OjA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jun 2004 10:39:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266686AbUF3OjA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jun 2004 10:38:18 -0400
-Received: from sv1.valinux.co.jp ([210.128.90.2]:30957 "EHLO sv1.valinux.co.jp")
-	by vger.kernel.org with ESMTP id S266682AbUF3OiR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jun 2004 10:38:17 -0400
-Date: Wed, 30 Jun 2004 23:33:50 +0900 (JST)
-Message-Id: <20040630.233350.74723167.taka@valinux.co.jp>
-To: arjanv@redhat.com
-Cc: iwamoto@valinux.co.jp, linux-kernel@vger.kernel.org,
-       lhms-devel@lists.sourceforge.net, linux-mm@kvack.org
-Subject: Re: [Lhms-devel] Re: new memory hotremoval patch
-From: Hirokazu Takahashi <taka@valinux.co.jp>
-In-Reply-To: <1088595151.2706.12.camel@laptop.fenrus.com>
-References: <20040630111719.EBACF70A92@sv1.valinux.co.jp>
-	<1088595151.2706.12.camel@laptop.fenrus.com>
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
+	Wed, 30 Jun 2004 10:39:00 -0400
+Received: from mail.shareable.org ([81.29.64.88]:15533 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S266684AbUF3Oiy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jun 2004 10:38:54 -0400
+Date: Wed, 30 Jun 2004 15:38:50 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>
+Subject: Re: Do x86 NX and AMD prefetch check cause page fault infinite loop?
+Message-ID: <20040630143850.GF29285@mail.shareable.org>
+References: <20040630013824.GA24665@mail.shareable.org> <20040630055041.GA16320@elte.hu>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040630055041.GA16320@elte.hu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On x86 and x86-64 with NX, is a fault due to non-exec permission
+distinguishable from a fault due to lack of read/write permissions?
 
-> > Page "remapping" is a mechanism to free a specified page by copying the
-> > page content to a newly allocated replacement page and redirecting
-> > references to the original page to the new page.
-> > This was designed to reliably free specified pages, unlike the swapout
-> > code.
-> 
-> are you 100% sure the locking is correct wrt O_DIRECT, AIO or futexes ??
+I.e. does the flags word have a different bit set?
 
-Sure, it can handle that!
-And it can handle pages on RAMDISK and sysfs and so on.
+If so, the solution is simple: don't just return if it's a non-exec fault.
 
+(It's possible that won't work if the CPU is very speculative and
+generates data faults from prefetches despite them being in non-exec
+area -- i.e. if the buggy data fault gets precedence over the non-exec
+fault or segment.  But I'd hope that's not the case).
 
-Thank you,
-Hirokazu Takahashi.
-
-
+-- Jamie
 

@@ -1,38 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317677AbSGUOYh>; Sun, 21 Jul 2002 10:24:37 -0400
+	id <S317679AbSGUO0A>; Sun, 21 Jul 2002 10:26:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317689AbSGUOYh>; Sun, 21 Jul 2002 10:24:37 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:37536 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S317677AbSGUOYg>;
-	Sun, 21 Jul 2002 10:24:36 -0400
-Date: Sun, 21 Jul 2002 16:26:17 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: anton wilson <anton.wilson@camotion.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4 O(1) scheduler
-In-Reply-To: <200207191943.PAA00351@test-area.com>
-Message-ID: <Pine.LNX.4.44.0207211624580.12365-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317680AbSGUO0A>; Sun, 21 Jul 2002 10:26:00 -0400
+Received: from admin.nni.com ([216.107.0.51]:35851 "EHLO admin.nni.com")
+	by vger.kernel.org with ESMTP id <S317679AbSGUOZ7>;
+	Sun, 21 Jul 2002 10:25:59 -0400
+Date: Mon, 22 Jul 2002 10:26:58 -0400
+From: Andrew Rodland <arodland@noln.com>
+To: Martin Josefsson <gandalf@wlug.westbo.se>
+Cc: mru@users.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: memory leak?
+Message-Id: <20020722102658.731a2200.arodland@noln.com>
+In-Reply-To: <1027261239.785.8.camel@tux>
+References: <yw1xn0sluqom.fsf@gladiusit.e.kth.se>
+	<20020722100840.2599c2f3.arodland@noln.com>
+	<1027261239.785.8.camel@tux>
+X-Mailer: Sylpheed version 0.7.8claws55 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 21 Jul 2002 16:20:39 +0200
+Martin Josefsson <gandalf@wlug.westbo.se> wrote:
 
-On Fri, 19 Jul 2002, anton wilson wrote:
+> free don't know about slabcaches. take a look in /proc/slabinfo and
+> see what's using that memory. it's not a leak, the memory will be
+> free'd when the machine is under enough memory pressure.
+> 
 
-> I'm working on a project that uses the O(1) scheduler and I am forced to
-> use a 2.4 kernel for time issues. Will the O(1) patches for 2.4 kernels
-> be updated once the 2.5.26+ patch becomes stable?
-
-you can find the latest 2.4 based O(1) scheduler patch at:
-
-  http://redhat.com/~mingo/O(1)-scheduler/sched-2.4.19-rc2-A4
-
-this patch includes the load_balance() fixes as well. (generally you
-should check this directory regularly, sometimes i put out patches without
-announcing them - like this one.)
-
-	Ingo
+Yeah... look at that. looks like I've got quite a bit of memory
+invested in inode_cache and dentry_cache. There's no way to have them
+reported as "cache" memory anymore?
 

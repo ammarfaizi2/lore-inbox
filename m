@@ -1,64 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261881AbRFLRYW>; Tue, 12 Jun 2001 13:24:22 -0400
+	id <S262600AbRFLR0M>; Tue, 12 Jun 2001 13:26:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262600AbRFLRYM>; Tue, 12 Jun 2001 13:24:12 -0400
-Received: from gadolinium.btinternet.com ([194.73.73.111]:56495 "EHLO
-	gadolinium.btinternet.com") by vger.kernel.org with ESMTP
-	id <S261881AbRFLRX4>; Tue, 12 Jun 2001 13:23:56 -0400
-Date: Tue, 12 Jun 2001 17:05:33 GMT
-From: James Stevenson <mistral@stev.org>
-Message-Id: <200106121705.f5CH5X028029@cyrix.stev.org>
-To: p.caci@seabone.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: es1371 and recent kernels
-In-Reply-To: <873d95lnqr.fsf@paperino.int-seabone.net>
-In-Reply-To: <873d95lnqr.fsf@paperino.int-seabone.net>
-Reply-To: mistral@stev.org
+	id <S262634AbRFLR0C>; Tue, 12 Jun 2001 13:26:02 -0400
+Received: from armitage.toyota.com ([63.87.74.3]:46862 "EHLO
+	armitage.toyota.com") by vger.kernel.org with ESMTP
+	id <S262600AbRFLRZw>; Tue, 12 Jun 2001 13:25:52 -0400
+Message-ID: <3B265085.32DFDBAF@lexus.com>
+Date: Tue, 12 Jun 2001 10:25:26 -0700
+From: J Sloan <jjs@toyota.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+CC: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: [OT]: Tux vs khttpd? (fwd)
+In-Reply-To: <Pine.LNX.4.30.0106121439020.29762-100000@mustard.heime.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Roy,
 
-Hi
+IIRC Ingo posted some tux benchmark results on
+the khttpd mailing list some weeks ago - basically
+khttpd is not in the same ballpark at this point.
 
-yes i can
+cu
 
-Multimedia audio controller: Ensoniq ES1371 [AudioPCI-97] (rev 6).
-   IRQ 12.
-   Master Capable.  Latency=64.  Min Gnt=12.Max Lat=128.
-   I/O at 0xe800 [0xe83f].
+jjs
 
-           CPU0       
-  0:   17921979          XT-PIC  timer
-  1:      82047          XT-PIC  keyboard
-  2:          0          XT-PIC  cascade
-  4:         10          XT-PIC  
-  8:          1          XT-PIC  rtc
- 10:   17414341          XT-PIC  eth0
- 12:   12959553          XT-PIC  es1371
- 14:    3066619          XT-PIC  ide0
- 15:         16          XT-PIC  ide1
+Roy Sigurd Karlsbakk wrote:
 
-e800-e83f : Ensoniq ES1371 [AudioPCI-97]
-  e800-e83f : es1371
-
-
-no problems with it at all
-though it is the same card as yours
-
-thats on a 2.4.5 kernel
-
+> Hi everyone!
 >
->[please be kind and Cc when replying]
+> I tried to send this message to the khttpd group, but got no answer. Can
+> any of you help me?
 >
->Has someone been able to get es1371 to actually produce anything
->audible with latest kernels? The last version I could use was 2.4.0.
->Then I had some trouble but I attributed them to devfs. Now I've
+> ---------- Forwarded message ----------
+> Date: Thu, 07 Jun 2001 17:31:20 +0000
+> From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+> To: khttpd-users@zgp.org
+> Subject: Tux vs khttpd?
+>
+> hi
+>
+> Does anyone know any details about how Tux performs in comparison with
+> khttpd?
+> Is this a separate project, or is it a somehow 'better version' of the
+> khttpd?
+> Are these going to be merged?
+>
+> roy
+> -----
+> Roy Sigurd Karlsbakk
+> <roy@karlsbakk.net>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-
--- 
----------------------------------------------
-Web: http://www.stev.org
-Mobile: +44 07779080838
-E-Mail: mistral@stev.org
-  5:00pm  up 2 days,  1:42,  3 users,  load average: 0.00, 0.00, 0.00

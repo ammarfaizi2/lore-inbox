@@ -1,47 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267571AbUI2S7U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267360AbUI2TJo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267571AbUI2S7U (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 14:59:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267507AbUI2S57
+	id S267360AbUI2TJo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 15:09:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268868AbUI2TJo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 14:57:59 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:44256 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S268831AbUI2S40 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 14:56:26 -0400
-Subject: Re: 2.6.9-rc2-mm4 drm and XFree oopses
-From: Lee Revell <rlrevell@joe-job.com>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: Dave Airlie <airlied@gmail.com>, Borislav Petkov <petkov@uni-muenster.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <200409292143.18847.vda@port.imtp.ilyichevsk.odessa.ua>
-References: <20040929102840.GA11325@none>
-	 <21d7e99704092905284f48af35@mail.gmail.com>
-	 <200409292143.18847.vda@port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain
-Message-Id: <1096484185.1600.50.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 29 Sep 2004 14:56:25 -0400
+	Wed, 29 Sep 2004 15:09:44 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:18120 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267360AbUI2TJf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 15:09:35 -0400
+Message-ID: <415B0841.8010009@redhat.com>
+Date: Wed, 29 Sep 2004 15:08:49 -0400
+From: Neil Horman <nhorman@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0; hi, Mom) Gecko/20020604 Netscape/7.01
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: mike.miller@hp.com, mikem@beardog.cca.cpqcorp.net
+CC: marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org, brian.b@hp.com
+Subject: Re: patch so cciss stats are collected in /proc/stat
+References: <20040929161345.GB22308@beardog.cca.cpqcorp.net>
+In-Reply-To: <20040929161345.GB22308@beardog.cca.cpqcorp.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-09-29 at 14:43, Denis Vlasenko wrote:
-> On Wednesday 29 September 2004 15:28, Dave Airlie wrote:
-> > It might help if you enabled AGP for your chipset, you have no agp
-> > compiled in for your Intel motherboard, you need intel agp chipset
-> > support..
+mike.miller@hp.com wrote:
+> Currently cciss statistics are not collected in /proc/stat. This patch
+> bumps DK_MAX_MAJOR to 111 to fix that. This has been a common complaint
+> by customers wishing to gather info about cciss devices.
+> Please consider this for inclusion. Applies to 2.4.28-pre3.
 > 
-> However kernel shouldn't use using smp_processor_id() in preemptible
-> regions, with or without Intel AGP support compuled in.
+> Thanks,
+> mikem
+> -------------------------------------------------------------------------------
+> 
+> diff -burNp lx2428-pre1.orig/include/linux/kernel_stat.h lx2428-pre1/include/linux/kernel_stat.h
+> --- lx2428-pre1.orig/include/linux/kernel_stat.h	2004-08-23 15:41:43.640300000 -0500
+> +++ lx2428-pre1/include/linux/kernel_stat.h	2004-08-23 15:43:07.097613064 -0500
+> @@ -12,7 +12,7 @@
+>   * used by rstatd/perfmeter
+>   */
 >  
-> > > Sep 29 12:03:07 zmei kernel: [drm:radeon_cp_init] *ERROR* radeon_cp_init called without lock held
-> > > Sep 29 12:03:07 zmei kernel: [drm:radeon_unlock] *ERROR* Process 2807 using kernel context 0
-> > > Sep 29 12:03:07 zmei kernel: using smp_processor_id() in preemptible code: XFree86/2807
+> -#define DK_MAX_MAJOR 16
+> +#define DK_MAX_MAJOR 111
+>  #define DK_MAX_DISK 16
+>  
+>  struct kernel_stat {
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+The answer to this is to use the latest sysstat tools.  the latest 
+version of iostat, sar, etc draw information out of /proc/partitions 
+rather than out of /proc/stat.  Or are you using some other home rolled 
+tool in this case?
 
-It looks like that code that uses smp_processor_id assumes that it has
-the DRM lock, but for whatever reason you don't have it.
+Neil
 
-Lee
-
+-- 
+/***************************************************
+  *Neil Horman
+  *Software Engineer
+  *Red Hat, Inc.
+  *nhorman@redhat.com
+  *gpg keyid: 1024D / 0x92A74FA1
+  *http://pgp.mit.edu
+  ***************************************************/

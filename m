@@ -1,73 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268297AbUH2UWP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268280AbUH2U0K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268297AbUH2UWP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 16:22:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268301AbUH2UWO
+	id S268280AbUH2U0K (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 16:26:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268296AbUH2U0K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 16:22:14 -0400
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:27111 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S268297AbUH2UUH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 16:20:07 -0400
-X-Comment: AT&T Maillennium special handling code - c
-Subject: Re: silent semantic changes with reiser4
-From: Nicholas Miell <nmiell@comcast.net>
-To: Hans Reiser <reiser@namesys.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Helge Hafting <helgehaf@aitel.hist.no>,
-       Rik van Riel <riel@redhat.com>, Spam <spam@tnonline.net>,
-       Jamie Lokier <jamie@shareable.org>, David Masover <ninja@slaphack.com>,
-       Diego Calleja <diegocg@teleline.es>, christophe@saout.de,
-       vda@port.imtp.ilyichevsk.odessa.ua, christer@weinigel.se,
-       Andrew Morton <akpm@osdl.org>, wichert@wiggy.net, jra@samba.org,
-       hch@lst.de, linux-fsdevel@vger.kernel.org,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>, flx@namesys.com,
-       reiserfs-list@namesys.com,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <41323436.80007@namesys.com>
-References: <Pine.LNX.4.44.0408272158560.10272-100000@chimarrao.boston.redhat.com>
-	 <Pine.LNX.4.58.0408271902410.14196@ppc970.osdl.org>
-	 <20040828170515.GB24868@hh.idb.hist.no>
-	 <Pine.LNX.4.58.0408281038510.2295@ppc970.osdl.org>
-	 <4131074D.7050209@namesys.com>
-	 <Pine.LNX.4.58.0408282159510.2295@ppc970.osdl.org>
-	 <4131A3B2.30203@namesys.com>
-	 <Pine.LNX.4.58.0408291055140.2295@ppc970.osdl.org>
-	 <41323436.80007@namesys.com>
-Content-Type: text/plain
-Message-Id: <1093810490.2766.8.camel@entropy>
+	Sun, 29 Aug 2004 16:26:10 -0400
+Received: from holomorphy.com ([207.189.100.168]:2480 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S268280AbUH2U0G (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Aug 2004 16:26:06 -0400
+Date: Sun, 29 Aug 2004 13:25:43 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Roger Luethi <rl@hellgate.ch>
+Cc: Paul Jackson <pj@sgi.com>, linux-kernel@vger.kernel.org,
+       albert@users.sourceforge.net
+Subject: Re: [BENCHMARK] nproc: netlink access to /proc information
+Message-ID: <20040829202543.GV5492@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Roger Luethi <rl@hellgate.ch>, Paul Jackson <pj@sgi.com>,
+	linux-kernel@vger.kernel.org, albert@users.sourceforge.net
+References: <20040827162308.GP2793@holomorphy.com> <20040828194546.GA25523@k3.hellgate.ch> <20040828195647.GP5492@holomorphy.com> <20040828201435.GB25523@k3.hellgate.ch> <20040829160542.GF5492@holomorphy.com> <20040829170247.GA9841@k3.hellgate.ch> <20040829172022.GL5492@holomorphy.com> <20040829120733.455f0c82.pj@sgi.com> <20040829191707.GU5492@holomorphy.com> <20040829194926.GA3289@k3.hellgate.ch>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.njm.1) 
-Date: Sun, 29 Aug 2004 13:14:50 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040829194926.GA3289@k3.hellgate.ch>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-08-29 at 12:53, Hans Reiser wrote:
-> With your model, can I do:
-> 
-> cat filenameA/metas/permissions > filenameB/metas/permissions
-> 
+On Sun, 29 Aug 2004 12:17:07 -0700, William Lee Irwin III wrote:
+>> Introducing another whole-tasklist scan, even if feasible, is probably
+>> not a good idea.
 
-runat filenameA "cat permissions" | runat filenameB "cat > permissions"
+On Sun, Aug 29, 2004 at 09:49:26PM +0200, Roger Luethi wrote:
+> I'm not sure whether I should participate in that discussion. I'll risk
+> discrediting nproc with wild speculations on a subject I haven't really
+> looked into yet. Ah well...
 
-> find / -exec cat {}/permissions \; | grep 4777 | wc -l
+There isn't much to speculate about here; reducing the arrival rate to
+tasklist_lock is okay, but it can't be held forever or use unbounded
+allocations or anything like that.
 
-find / -exec runat {} "cat permissions" \; | grep 4777 | wc -l
 
-Although, whether or not the kernel exposes file permissions as an
-attribute named permissions is up to the filesystem. (And the wrong
-thing to do, in my opinion, but that's irrelevant.)
+On Sun, Aug 29, 2004 at 09:49:26PM +0200, Roger Luethi wrote:
+> As far as nproc (and process monitoring) is concerned, we aren't really
+> interested in walking a complete process list. All we care about is
+> which pids exist right now. How about a bit field, maintained by the
+> kernel, to indicate for each pid whether it exists or not? This would
+> amount to 4 KiB by default and 512 KiB for PID_MAX_LIMIT (4 million
+> processes). Maintenance cost would be one atomic bit operation per
+> process creation/deletion. No contested locks.
+> The list for the nproc user could be prepared based on the bit field
+> (or simply memcpy'd), no tasklist_lock or walking linked lists required.
+> What am I missing?
 
-> If yes, then we are talking past each other somehow rather than 
-> disagreeing. If metafiles can be opened with both open and openat() in 
-> your model, then we are discussing some small detail.
+The pid bitmap could be exported to userspace rather easily.
 
-It can be opened by both, but in order to do it via open(2), you need to
-fchdir(2) to the attribute directory as returned by openat(2) and then
-use a relative pathname.
 
-> I think the answer is no though, in which case you are missing the point 
-> of the new design. Is the answer no?
--- 
-Nicholas Miell <nmiell@comcast.net>
-
+-- wli

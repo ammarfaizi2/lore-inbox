@@ -1,49 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266193AbUHRM3q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266200AbUHRMhR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266193AbUHRM3q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 08:29:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266186AbUHRM3j
+	id S266200AbUHRMhR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 08:37:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266173AbUHRMgr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 08:29:39 -0400
-Received: from [144.51.25.10] ([144.51.25.10]:30339 "EHLO epoch.ncsc.mil")
-	by vger.kernel.org with ESMTP id S266181AbUHRM0O (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 08:26:14 -0400
-Subject: Re: 2.6.8.1-mm1 Tty problems?
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Paul Fulghum <paulkf@microgate.com>
-Cc: ismail =?ISO-8859-1?Q?d=F6nmez?= <ismail.donmez@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       James Morris <jmorris@redhat.com>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <412271EF.6040201@microgate.com>
-References: <2a4f155d040817070854931025@mail.gmail.com>
-	 <412271EF.6040201@microgate.com>
-Content-Type: text/plain
-Organization: National Security Agency
-Message-Id: <1092831738.26566.68.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 18 Aug 2004 08:22:18 -0400
-Content-Transfer-Encoding: 7bit
+	Wed, 18 Aug 2004 08:36:47 -0400
+Received: from viriato1.servicios.retecal.es ([212.89.0.44]:54467 "EHLO
+	viriato1.servicios.retecal.es") by vger.kernel.org with ESMTP
+	id S266200AbUHRMgN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Aug 2004 08:36:13 -0400
+Message-ID: <41234D31.3010904@hispalinux.es>
+Date: Wed, 18 Aug 2004 14:36:01 +0200
+From: =?ISO-8859-1?Q?Ram=F3n_Rey_Vicente?= <ramon.rey@hispalinux.es>
+User-Agent: Mozilla Thunderbird 0.7.2 (X11/20040714)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: akpm@osdl.org
+Subject: [PATCH] Update ACI MIXER DRIVER webpage
+X-Enigmail-Version: 0.84.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig272D1163923363D2CF867931"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-08-17 at 17:00, Paul Fulghum wrote:
-> Stephen, James, Andrew:
-> 
-> the selinux-revalidate-access-to-controlling-tty patch
-> seems to be causing the problem with less program as
-> shown above. See the rest of this thread for more details.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig272D1163923363D2CF867931
+Content-Type: multipart/mixed;
+ boundary="------------030503050600010805040003"
 
-I find that puzzling, given that flush_unauthorized_files is only called
-if the process is changing SIDs on exec, and running less certainly
-doesn't involve a SID transition (at least for any policy that I have
-seen).  I tried the sequence shown with 2.6.8.1-mm1 with SELinux enabled
-and disabled, and did not see the behavior he describes.  Is the bug
-reproducible?  Was he running with SELinux enabled or disabled?  What
-policy did he have loaded?
+This is a multi-part message in MIME format.
+--------------030503050600010805040003
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+Ramón Rey Vicente       <ramon dot rey at hispalinux dot es>
+jabber ID               <rreylinux at jabber dot org>
+Huella GPG - 0BC2 8014 2445 51E8 DE87  C888 C385 A9D3 9F28 E377
+---------------------------------------------------------------
+	http://augcyl.org/planet/
+---------------------------------------------------------------
 
+--------------030503050600010805040003
+Content-Type: text/plain;
+ name="update_aci_mixer_driver_webpage.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="update_aci_mixer_driver_webpage.patch"
+
+--- linux-2.6-rrey/MAINTAINERS.orig	2004-08-18 03:23:26.000000000 +0200
++++ linux-2.6-rrey/MAINTAINERS	2004-08-18 14:32:08.644383250 +0200
+@@ -169,7 +169,7 @@
+ P:	Robert Siemer
+ M:	Robert.Siemer@gmx.de
+ L:	linux-sound@vger.kernel.org
+-W:	http://www.uni-karlsruhe.de/~Robert.Siemer/Private/
++W:	http://www.stud.uni-karlsruhe.de/~uh1b/
+ S:	Maintained
+ 
+ ACP/MWAVE MODEM
+
+--------------030503050600010805040003--
+
+--------------enig272D1163923363D2CF867931
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBI00xw4Wp058o43cRAgv9AKC4DxWcqHuneyXQZ1uHGpbyoHhhbACfTwKq
+v2m8l4lTkx204YeOy4FDYYE=
+=+Ide
+-----END PGP SIGNATURE-----
+
+--------------enig272D1163923363D2CF867931--

@@ -1,75 +1,85 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316780AbSE0XI6>; Mon, 27 May 2002 19:08:58 -0400
+	id <S316781AbSE0XSC>; Mon, 27 May 2002 19:18:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316781AbSE0XI5>; Mon, 27 May 2002 19:08:57 -0400
-Received: from [209.184.141.163] ([209.184.141.163]:16283 "HELO UberGeek")
-	by vger.kernel.org with SMTP id <S316780AbSE0XI4>;
-	Mon, 27 May 2002 19:08:56 -0400
-Subject: Re: [BUG] 2.4 VM sucks. Again
-From: Austin Gonyou <austin@digitalroadkill.net>
-To: Austin Gonyou <austin@digitalroadkill.net>
-Cc: Marco Colombo <marco@esi.it>, linux-kernel@vger.kernel.org
-In-Reply-To: <1022538288.25097.2.camel@UberGeek>
-Content-Type: text/plain
+	id <S316782AbSE0XSB>; Mon, 27 May 2002 19:18:01 -0400
+Received: from relay04.valueweb.net ([216.219.253.238]:46098 "EHLO
+	relay04.valueweb.net") by vger.kernel.org with ESMTP
+	id <S316781AbSE0XSA>; Mon, 27 May 2002 19:18:00 -0400
+Message-ID: <3CF2BE26.4FF03387@opersys.com>
+Date: Mon, 27 May 2002 19:15:50 -0400
+From: Karim Yaghmour <karim@opersys.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.16 i686)
+X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
+MIME-Version: 1.0
+To: Larry McVoy <lm@bitmover.com>
+CC: "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org
+Subject: Re: business models [was patent stuff]
+In-Reply-To: <200205272152.OAA03070@adam.yggdrasil.com> <20020527152452.A24502@work.bitmover.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Organization: 
-X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
-Date: 27 May 2002 18:08:52 -0500
-Message-Id: <1022540932.29149.3.camel@UberGeek>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just to clarify, it was Sparc v. x86. (which is what I meant to state in
-my first sentence there. :)
 
-On Mon, 2002-05-27 at 17:24, Austin Gonyou wrote:
-> I'm not referring to just *non* x86 arches in this case. Sorry about
-> that. Any setup can be non-monolithic, but the measurement to decide if
-> it is cost worthy is price/performance ratio. 
-> 
-> I'm not saying that "if it's not x86, it's monolithic",  in the context
-> of the discussion, it's really about large costly boxes, designed to be
-> large, costly boxes. That, from this perspective, is monolithic. 
-> 
-> 
-> On Mon, 2002-05-27 at 04:24, Marco Colombo wrote:
-> > On 24 May 2002, Austin Gonyou wrote:
-> > 
-> > > On Fri, 2002-05-24 at 11:31, Martin J. Bligh wrote:
-> > > > >> I'm not sure exactly what Roy was doing, but we were taking a machine
-> > > > >> with 16Gb of RAM, and reading files into the page cache - I think we built up
-> > > > >> 8 million buffer_heads according to slabinfo ... on a P4 they're 128 bytes each,
-> > > > >> on a P3 96 bytes.
-> > > > > 
-> > > > > The buffer heads one would make sense. I only test on realistic sized systems. 
-> > > > 
-> > > > Well, it'll still waste valuable memory there too, though you may not totally kill it.
-> > > > 
-> > > > > Once you pass 4Gb there are so many problems its not worth using x86 in the
-> > > > > long run
-> > > > 
-> > > I assume that you mean by "not worth using x86" you're referring to say,
-> > > degraded performance over other platforms? Well...if you talk
-> > > price/performance, using x86 is perfect in those terms since you can buy
-> > > more boxes and have a more fluid architecture, rather than building a
-> > > monolithic system. Monolithic systems aren't always the best. Just look
-> > > at Fermilab!
-> > 
-> > Uh? There are many alpha-based clusters out there. Why do you think 
-> > !x86 == monolithic?
-> > 
-> > .TM.
-> > -- 
-> >       ____/  ____/   /
-> >      /      /       /			Marco Colombo
-> >     ___/  ___  /   /		      Technical Manager
-> >    /          /   /			 ESI s.r.l.
-> >  _____/ _____/  _/		       Colombo@ESI.it
-> > 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+I agree that this should go on some other list, but 'til then, here are my 2c.
+
+No offense Larry, but many of your arguments are the same used by Microsoft
+to push their vision of publicly available source.
+
+Larry McVoy wrote:
+> It's economics 101 - a free market will go to whomever can provide the
+> needed service most cheaply.
+
+I will take the liberty of rephrasing to illustrate my point of view:
+"a free market will go to whomever can provide the needed service."
+
+The question is: Can you provide the service? Of course if the service
+you are selling is common knowledge, then you've got nothing to sell
+your competitor can't. But if you're part of building the technology
+then you're certainly in a know-how monopoly position. This is why I
+don't think any of the kernel developers will ever be out of a job.
+
+The drawback to this is that you simply can't scale a knowledge-based
+company the way you do with a classical intellectual-property-based
+company. The way I see it, the software industry will look increasingly
+like that of other speciality fields such as law and medicine. Sure, any
+doctor can administer a serum, but not every doctor can actually perform
+robotic heart-surgery. He who can perform robotic heart-surgery can
+offer something other doctors can't. Same will be with the software field.
+
+> In my opinion, it's time for the free software fanatics to ease off and
+> let some moderates come in and try and define a reasonable compromise.
+
+Can you suggest a list of names of some "moderates"?
+
+> If you hold the "It's GPL or bugger off" position, people will figure out
+> how to work around it and it is virtually certain you won't like what they
+> do.  If you offer them some sort of reasonable compromise, I'll bet they
+> take it.  If you don't, you get to live with whatever their nasty evil
+> business minds dream up.
+
+I predict the inverse. Of course, people will actually try to use patents to
+restrict free and open source software. And of course, they will push this
+as hard and as far as they can. The community, however, will always find
+alternative ways to obtain the same results and, in the end, no client wil
+use the patent holder's products or services. Instead, they will use the
+community's alternative solutions.
+
+You would like the open source and free software communities to get used
+to having their rights being violated. I think the software "manufacturers"
+better get used to the fact that they can't outsmart the community,
+regardless of the legal/political/financial tools they use.
+
+As I said earlier, the current software business model is an endangered
+species.
+
+Best regards,
+
+Karim
+
+===================================================
+                 Karim Yaghmour
+               karim@opersys.com
+      Embedded and Real-Time Linux Expert
+===================================================

@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318035AbSIETAe>; Thu, 5 Sep 2002 15:00:34 -0400
+	id <S318118AbSIETIs>; Thu, 5 Sep 2002 15:08:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318040AbSIETAe>; Thu, 5 Sep 2002 15:00:34 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:10763 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S318035AbSIETAd>; Thu, 5 Sep 2002 15:00:33 -0400
-Message-ID: <3D77AA63.D4E5AA9F@zip.com.au>
-Date: Thu, 05 Sep 2002 12:02:59 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Kianusch Sayah Karadji <kianusch@sk-tech.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: tuning/turning off disc caching?
-References: <Pine.LNX.4.43.0209051929160.2388-100000@merlin>
+	id <S318123AbSIETIs>; Thu, 5 Sep 2002 15:08:48 -0400
+Received: from [195.223.140.120] ([195.223.140.120]:14194 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S318118AbSIETIr>; Thu, 5 Sep 2002 15:08:47 -0400
+Date: Thu, 5 Sep 2002 21:13:25 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       lord@sgi.com
+Subject: Re: 2.4.20pre5aa1
+Message-ID: <20020905191325.GI1657@dualathlon.random>
+References: <20020904233528.GA1238@dualathlon.random> <20020905134414.A1784@infradead.org> <20020905165307.GC1254@dualathlon.random> <20020905180904.A8406@infradead.org> <20020905184125.GA1657@dualathlon.random> <20020905194649.A11789@infradead.org> <20020905185917.GG1657@dualathlon.random> <20020905200240.A12253@infradead.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20020905200240.A12253@infradead.org>
+User-Agent: Mutt/1.3.27i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kianusch Sayah Karadji wrote:
-> 
-> Hi!
-> 
-> Is there a way tuning (down) or turning off the disc caching in Linux for
-> certain devices?
-> 
-> What I do is writing data via dd or mkisofs directly to a DVD-RAM
-> (/dev/srX).  The kernel sees the DVD-RAM as a hard-disc.  It works fine.
-> The Problem is that during the write operation (which takes some time for
-> 4,7GB data).  The system slows down extremely and all the memory is used
-> for caching.
-> 
+On Thu, Sep 05, 2002 at 08:02:40PM +0100, Christoph Hellwig wrote:
+> we either need to use your accessors for i_size or take the XFS inode
+> lock around vmtruncate.
 
-There are no very good solutions to this at present.  The following should
-help:
+the latter would take care of O_DIRECT too I think. Of course it's
+mostly a theorical issue, I mentioned it just so you would check it,
+keep it in mind and eventually fix it, we had this kind of races in the
+32bit architectures in on all the fs for ages, infact you know 2.4-aa is
+the only tree out there with these race fixed for most important fs, 2.4
+and 2.5 mainline are still racy too (2.4 because it was a recent
+discovery, 2.5 because it's my mistake that I didn't yet had time to
+submit fixes, btw, if anybody is interested to port to 2.5 that's
+welcome).  For the normal fs I didn't want to add locks around the read
+and truncate paths, and that's why I implemented the lockless accessors,
+also consiering the accessors are zerocost noops on all the 64bit archs
+(long [or should now say "short" :) ] term thinking).
 
-- Drastically decrease the dirty memory thresholds in /proc/sys/vm/bdflush
-
-- Make the writing application run fsync(fd) every few megabytes.
-
-- Run /bin/sync once per second.
+Andrea

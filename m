@@ -1,54 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262450AbVA0I3Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262195AbVA0IhN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262450AbVA0I3Y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 03:29:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262533AbVA0I3Y
+	id S262195AbVA0IhN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 03:37:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262510AbVA0IhN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 03:29:24 -0500
-Received: from wproxy.gmail.com ([64.233.184.202]:45282 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262450AbVA0I3F (ORCPT
+	Thu, 27 Jan 2005 03:37:13 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:56768 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262195AbVA0IhH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 03:29:05 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=NxwlY4Ejp6ZXhXwqmSC89Tt1IL0JOonOHw0A7HqO/v9DkIkxV9C0h8qMzntck5NqfVVLCycQe1f3G29TuCBkSdIDKbJcNC5oL5Mbg56wCFJBmXoTl39p0hdiK8yyHs+0wbExrmtWtnmKMYD3jMVT7FmiKHxRibteEqdvn20uxHw=
-Message-ID: <81b0412b050127002965e21f74@mail.gmail.com>
-Date: Thu, 27 Jan 2005 09:29:04 +0100
-From: Alex Riesen <raa.lkml@gmail.com>
-Reply-To: Alex Riesen <raa.lkml@gmail.com>
-To: Pavel Fedin <sonic_amiga@rambler.ru>
-Subject: Re: [PATCH] Russian encoding support for MacHFS
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050125123516.7f40a397.sonic_amiga@rambler.ru>
+	Thu, 27 Jan 2005 03:37:07 -0500
+Date: Thu, 27 Jan 2005 09:35:06 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: "Jack O'Quin" <joq@io.com>, Paul Davis <paul@linuxaudiosystems.com>,
+       Con Kolivas <kernel@kolivas.org>, linux <linux-kernel@vger.kernel.org>,
+       rlrevell@joe-job.com, CK Kernel <ck@vds.kolivas.org>,
+       utz <utz@s2y4n2c.de>, Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
+       Rui Nuno Capela <rncbc@rncbc.org>, Chris Wright <chrisw@osdl.org>,
+       Arjan van de Ven <arjanv@redhat.com>
+Subject: Re: [patch, 2.6.11-rc2] sched: RLIMIT_RT_CPU_RATIO feature
+Message-ID: <20050127083506.GD22482@elte.hu>
+References: <20050124125814.GA31471@elte.hu> <20050125135613.GA18650@elte.hu> <87sm4opxto.fsf@sulphur.joq.us> <20050126070404.GA27280@elte.hu> <87fz0neshg.fsf@sulphur.joq.us> <1106782165.5158.15.camel@npiggin-nld.site> <874qh3bo1u.fsf@sulphur.joq.us> <1106796360.5158.39.camel@npiggin-nld.site> <87pszr1mi1.fsf@sulphur.joq.us> <1106805249.5158.77.camel@npiggin-nld.site>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20050124125756.60c5ae01.sonic_amiga@rambler.ru>
-	 <81b0412b05012410463c7fd842@mail.gmail.com>
-	 <20050125123516.7f40a397.sonic_amiga@rambler.ru>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1106805249.5158.77.camel@npiggin-nld.site>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Jan 2005 12:35:16 +0300, Pavel Fedin <sonic_amiga@rambler.ru> wrote:
-> > how about just leave the characters unchanged? (remap them to the same
-> > codes in Unicode).
-> 
->  But what to do when i convert then from unicode to 8-bit iocharset? This can lead to that several characters in Mac charset will be converted to the same character in Linux charset. This will lead to information loss and name will not be reverse-translatable.
->  To describe the thing better: i have 8-bit Mac encoding and 8-bit target encoding (iocharset). I need to convert from (1) to (2) and be able to convert back. I tried to perform a one-way conversion like in other filesystems but this didn't work.
->  Probably NLS tables can be used when iocharset is UTF8. If you wish i can try to implement it after some time.
 
-remap unicode character missing in filesystem codepage into something like '?'.
-I believe this is what nls routines do if converter returns -1 (error).
-You'd loose the new characters, right. But you'd loose them anyway, as they
-have no place in mac software.
+* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 
-> > Unicode, and its encoding UTF8 IS commonly used everywhere.
-> > And Russia can (and often does) use it just as well.
-> 
->  Many people say many software is not UTF8-ready yet. Anyway i had problems when tried to use it. Many russian ASCII documents use 8-bit encoding so i need to be able to deal with them. Many software assumes that 1 byte is 1 character.
+> Well in the context of a multi user system, this really is a
+> privileged operation. Witness: a normal user isn't even allowed to
+> raise the nice priority of a normal task. Note that I think everyone
+> agrees here, but I'm just repeating the point.
 
-just fix that software instead of polluting the kernel.
+i've seen this argument repeated a number of times, but i'd like to
+point out that with the rlimit set to a sane value, a user can do 'less
+damage' to the system via SCHED_FIFO than it could do via nice--20!
 
-And besides: software which _does_ work with unicode,
-can make a good use of an nls module for HFS.
+negative nice levels are a guaranteed way to monopolize the CPU. 
+SCHED_FIFO with throttling could at most be used to 'steal' CPU time up
+to the threshold. Also, if a task 'runs away' in SCHED_FIFO mode it will
+be efficiently throttled. While if it 'runs away' in nice--20 mode, it
+will take away 95+% of the CPU time quite agressively. Furthermore, more
+nice--20 tasks will do much more damage (try thunk.c at nice--20!),
+while more throttled SCHED_FIFO tasks only do damage to their own class
+- the guaranteed share of SCHED_OTHER tasks (and privileged RT tasks) is
+not affected.
+
+so while it is true that in terms of priorities, throttled SCHED_FIFO
+trumps all SCHED_OTHER tasks, but in the "potential damage" sense,
+"throttled real-time" is less of a privilege than "nice--20".
+
+	Ingo

@@ -1,35 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262618AbSJBVkb>; Wed, 2 Oct 2002 17:40:31 -0400
+	id <S262644AbSJBVzm>; Wed, 2 Oct 2002 17:55:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262620AbSJBVka>; Wed, 2 Oct 2002 17:40:30 -0400
-Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:24829 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262618AbSJBVk3>; Wed, 2 Oct 2002 17:40:29 -0400
-Subject: PATCH: 2.5 trivial - MCA comments
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
+	id <S262646AbSJBVzl>; Wed, 2 Oct 2002 17:55:41 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:55999 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S262644AbSJBVzl>; Wed, 2 Oct 2002 17:55:41 -0400
+Subject: Re: compile failure in orinoco_cs.c (from bk pull)
+From: Paul Larson <plars@linuxtestproject.org>
+To: pee@erkkila.org
+Cc: lkml <linux-kernel@vger.kernel.org>, hermes@gibson.dropbear.id.au
+In-Reply-To: <3D9B689B.2040807@erkkila.org>
+References: <3D9B689B.2040807@erkkila.org>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 02 Oct 2002 22:53:35 +0100
-Message-Id: <1033595616.25240.0.camel@irongate.swansea.linux.org.uk>
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 02 Oct 2002 16:57:06 -0500
+Message-Id: <1033595826.11325.11.camel@plars>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2002-10-02 at 16:43, Paul E. Erkkila wrote:
+> The orinoco_cs.c wireless driver no longer compiles after yesterdays
+> tree changes.
+I think you posted this simultaneous to someone posting a patch for it.
+Basically just remove the #include <linux/tqueue.h> line and all should
+be good.
 
+-Paul Larson
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.2.5.40/arch/i386/kernel/mca.c linux.2.5.40-ac1/arch/i386/kernel/mca.c
---- linux.2.5.40/arch/i386/kernel/mca.c	2002-10-02 21:33:55.000000000 +0100
-+++ linux.2.5.40-ac1/arch/i386/kernel/mca.c	2002-10-02 21:37:04.000000000 +0100
-@@ -106,6 +106,8 @@
- /*
-  * Motherboard register spinlock. Untested on SMP at the moment, but
-  * are there any MCA SMP boxes?
-+ *
-+ * Yes - Alan
-  */
- static spinlock_t mca_lock = SPIN_LOCK_UNLOCKED;
- 

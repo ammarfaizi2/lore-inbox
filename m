@@ -1,38 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278306AbRJMOqj>; Sat, 13 Oct 2001 10:46:39 -0400
+	id <S278307AbRJMOs3>; Sat, 13 Oct 2001 10:48:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278307AbRJMOqa>; Sat, 13 Oct 2001 10:46:30 -0400
-Received: from ausxc07.us.dell.com ([143.166.99.215]:38277 "EHLO
-	ausxc07.us.dell.com") by vger.kernel.org with ESMTP
-	id <S278306AbRJMOq0>; Sat, 13 Oct 2001 10:46:26 -0400
-Message-ID: <71714C04806CD51193520090272892178BD70E@ausxmrr502.us.dell.com>
-From: Matt_Domsch@Dell.com
-To: jhingber@ix.netcom.com, linux-kernel@vger.kernel.org
-Subject: RE: ServerWorks LE MTRR's disabled?
-Date: Sat, 13 Oct 2001 09:46:50 -0500
+	id <S278312AbRJMOsT>; Sat, 13 Oct 2001 10:48:19 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:31112 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S278307AbRJMOsM>; Sat, 13 Oct 2001 10:48:12 -0400
+From: "Paul E. McKenney" <pmckenne@us.ibm.com>
+Message-Id: <200110131448.f9DEmVR07852@eng4.beaverton.ibm.com>
+Subject: Re: RFC: patch to allow lock-free traversal of lists with insertion
+To: rusty@rustcorp.com.au (Rusty Russell)
+Date: Sat, 13 Oct 2001 07:48:30 -0700 (PDT)
+Cc: mckenney@eng4.beaverton.ibm.com (Paul E. McKenney),
+        lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: <20011012141419.4ea534b5.rusty@rustcorp.com.au> from "Rusty Russell" at Oct 12, 2001 01:14:19 PM PST
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 	MTRR's for ServerWorks LE chipsets are disabled in
-> arch/i386/kernel/mtrr.c.  What particular problem does this chipset
-> have?  I have a revision 5 board which does infact work properly with
-> MTRR's.  The system is an IBM NetFinity 5600 with 2 PIII's 800's.  Is
-> this problem dependant on certain board/configurations?  If so, might
-> there be a better workaround than disabling MTRR entirely?
+>> Here are two patches.  The wmbdd patch has been modified to use
+>> the lighter-weight SPARC instruction, as suggested by Dave Miller.
+>> The rmbdd patch defines an rmbdd() primitive that is defined to be
+>> rmb() on Alpha and a nop on other architectures.  I believe this
+>> rmbdd() primitive is what Richard is looking for.
+>
+>Surely we don't need both?  If rmbdd exists, any code needing wmbdd
+>is terminally broken?
 
-There was some speculation that LE rev. 5 chips don't have a problem, but no
-definitive answer from ServrWorks yet that I'm aware of.
+One or the other.  And at this point, it looks like rmbdd() (or
+read_cache_depends()) is the mechanism of choice, given wmbdd()'s
+performance on Alpha.
 
-
--- 
-Matt Domsch
-Sr. Software Engineer
-Dell Linux Solutions
-www.dell.com/linux
-#2 Linux Server provider with 17% in the US and 14% Worldwide (IDC)!
-#3 Unix provider with 18% in the US (Dataquest)!
+						Thanx, Paul

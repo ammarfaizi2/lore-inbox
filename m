@@ -1,55 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268467AbTANBYy>; Mon, 13 Jan 2003 20:24:54 -0500
+	id <S268483AbTANBe0>; Mon, 13 Jan 2003 20:34:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268472AbTANBYy>; Mon, 13 Jan 2003 20:24:54 -0500
-Received: from bi01p1.co.us.ibm.com ([32.97.110.142]:13771 "EHLO w-patman.des")
-	by vger.kernel.org with ESMTP id <S268467AbTANBYw>;
-	Mon, 13 Jan 2003 20:24:52 -0500
-Date: Mon, 13 Jan 2003 17:30:51 -0800
-From: Patrick Mansfield <patmans@us.ibm.com>
-To: Andries.Brouwer@cwi.nl
-Cc: greg@kroah.com, mdharm-usb@one-eyed-alien.net,
-       linux-kernel@vger.kernel.org, mochel@osdl.org
-Subject: Re: sysfs
-Message-ID: <20030113173051.A18731@beaverton.ibm.com>
-References: <UTC200301140109.h0E196W01345.aeb@smtp.cwi.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <UTC200301140109.h0E196W01345.aeb@smtp.cwi.nl>; from Andries.Brouwer@cwi.nl on Tue, Jan 14, 2003 at 02:09:06AM +0100
+	id <S268485AbTANBeZ>; Mon, 13 Jan 2003 20:34:25 -0500
+Received: from adsl-67-114-192-42.dsl.pltn13.pacbell.net ([67.114.192.42]:5656
+	"EHLO mx1.corp.rackable.com") by vger.kernel.org with ESMTP
+	id <S268483AbTANBeY>; Mon, 13 Jan 2003 20:34:24 -0500
+Message-ID: <3E236B2C.1050403@rackable.com>
+Date: Mon, 13 Jan 2003 17:43:08 -0800
+From: Samuel Flory <sflory@rackable.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Edward Tandi <ed@efix.biz>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.21-pre3-ac3 and KT400
+References: <1042489183.2617.28.camel@wires.home.biz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 14 Jan 2003 01:43:11.0642 (UTC) FILETIME=[4C0B97A0:01C2BB6E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 14, 2003 at 02:09:06AM +0100, Andries.Brouwer@cwi.nl wrote:
-> > It looks like there is a missing scsi_set_device() call in scsiglue.c,
-> 
-> OK, added. Now rmmod usb-storage followed by insmod usb-storage
-> resulted in an oops, as usual, but after a fresh reboot:
-> Yes indeed, just like desired:
-> 
-> % ls -l /sysfs/block/sdb/device
-> ... -> ../../devices/pci0/00:07.2/usb1/1-2/1-2.4/1-2.4.1/2:0:0:0
-> 
-> Good.
-> Now that you removed this scsi device from /sysfs/devices, I suppose
-> you'll also want to remove
-> 
-> /sysfs/devices/1:0:6:0
-> 
-> which is an Iomega ZIP drive on the parallel port, driver imm.c,
-> device sda.
-> (I can also do it but have no time now. Friday.)
-> 
-> All the best - Andries
+Edward Tandi wrote:
 
-I don't know and have not used the parport code, it needs to be ported to
-sysfs before we could simply call scsi_set_device() call in imm.c, or
-maybe have a /sysfs/scsi/pseudo added via scsi_add_host(shost, NULL) or a
-/sysfs/scsi/unported, similiar to was discussed on the linux-scsi thread
-"[PATCH] allow NULL dev argument to scsi_add_host":
+>I'm new to this list and most of the e-mail here seems to be very
+>low-level, so I'm not so sure if this is the right forum for these kinds
+>of questions -please do point me in the right direction...
+>
+>I am running Linux on an ASUS A7V8X, VIA KT400 chipset motherboard. The
+>processor is a 1.5GHz Athlon XP. I started experimenting with new-ish
+>kernels again because of the general lack of kernel support for this
+>chipset in stock kernels. 3 questions below:
+>
+>
+>1) I have 1GB ram, but I cannot get high memory support to work. It
+>falls over during boot. I've seen discussions about AMD cache issues,
+>but has it been fixed yet? Is it supposed to work?
+>
+>  
+>
 
-http://marc.theaimsgroup.com/?t=104231385300005&r=1&w=2
+  Have you tried to forcing the amount of memory?  Try something short 
+of you expected total.  Maybe "mem=1000M".
 
--- Patrick Mansfield
+-- 
+There is no such thing as obsolete hardware.
+Merely hardware that other people don't want.
+(The Second Rule of Hardware Acquisition)
+Sam Flory  <sflory@rackable.com>
+
+
+

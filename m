@@ -1,41 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286349AbRLJSds>; Mon, 10 Dec 2001 13:33:48 -0500
+	id <S286354AbRLJSfi>; Mon, 10 Dec 2001 13:35:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286353AbRLJSdi>; Mon, 10 Dec 2001 13:33:38 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:42764 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S286349AbRLJSd0>; Mon, 10 Dec 2001 13:33:26 -0500
-Date: Mon, 10 Dec 2001 19:32:32 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: John Clemens <john@deater.net>
-Cc: Cory Bell <cory.bell@usa.net>,
-        Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: IRQ Routing Problem on ALi Chipset Laptop (HP Pavilion N5425)
-Message-ID: <20011210193232.C24549@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20011209131332.A37@toy.ucw.cz> <Pine.LNX.4.33.0112101016140.15280-100000@pianoman.cluster.toy>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0112101016140.15280-100000@pianoman.cluster.toy>
-User-Agent: Mutt/1.3.20i
+	id <S286353AbRLJSf2>; Mon, 10 Dec 2001 13:35:28 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:8199 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S286358AbRLJSfU>;
+	Mon, 10 Dec 2001 13:35:20 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200112101834.VAA17862@ms2.inr.ac.ru>
+Subject: Re: TCP LAST-ACK state broken in 2.4.17-pre2
+To: Mika.Liljeberg@welho.com (Mika Liljeberg)
+Date: Mon, 10 Dec 2001 21:34:47 +0300 (MSK)
+Cc: davem@redhat.com, linux-kernel@vger.kernel.org
+In-Reply-To: <3C14FBE7.E3A5F745@welho.com> from "Mika Liljeberg" at Dec 10, 1 08:16:07 pm
+X-Mailer: ELM [version 2.4 PL24]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hello!
 
-> > > > Hey, this gross hack fixed USB on HP OmniBook xe3. Good! (Perhaps you
-> > > > know what interrupt is right for maestro3, also on omnibook? ;-).
-> 
-> I've updated my bios on my Pavilion N5430 and guess what is shows on
-> the bios boot screen (if you disable the bios splash screen)... Omnibook
-> XE3.  They are one in the same, at least model number wise.  weird,
-> considering there are no AMD omnibooks..
+> Either LAST-ACK is completely broken or Linux just cannot handle a
+> FIN-ACK that is piggybacked on a data segment, when received in LAST-ACK
+> state. 
 
-Get /tmp/xe3-tech-code-11-2-01.pdf document from hp. It looks like
-they are ;-).
-								Pavel
--- 
-Casualities in World Trade Center: 6453 dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+It cannot handle even pure FIN in this state. :-( I bring apologies,
+it is my fault. Thank you.
+
+Well, you can just add one line to tcp_input.c to repair this.
+
+                }
+                /* Fall through */
++       case TCP_LAST_ACK:
+        case TCP_ESTABLISHED:
+                tcp_data_queue(sk, skb);
+
+
+Dave, "official" patch will follow later. I must think about
+some marginal effect in TCP_CLOSE_WAIT and TCP_CLOSING, which can break
+out of switch too. Duh, do specs say something about segments with seqs
+above fin? I do not remember.
+
+Alexey

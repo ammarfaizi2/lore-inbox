@@ -1,42 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271365AbRIAUmj>; Sat, 1 Sep 2001 16:42:39 -0400
+	id <S271349AbRIAUsL>; Sat, 1 Sep 2001 16:48:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271349AbRIAUma>; Sat, 1 Sep 2001 16:42:30 -0400
-Received: from buzz.sonic.net ([208.201.224.78]:15921 "EHLO buzz.sonic.net")
-	by vger.kernel.org with ESMTP id <S271348AbRIAUmL>;
-	Sat, 1 Sep 2001 16:42:11 -0400
-X-envelope-info: <dalgoda@ix.netcom.com>
-Date: Sat, 1 Sep 2001 13:42:29 -0700
-From: Mike Castle <dalgoda@ix.netcom.com>
-To: linux-kernel@vger.kernel.org
+	id <S271368AbRIAUsB>; Sat, 1 Sep 2001 16:48:01 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:55981 "EHLO
+	e34.bld.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S271349AbRIAUru>; Sat, 1 Sep 2001 16:47:50 -0400
+Message-ID: <3B914805.F9883E5E@vnet.ibm.com>
+Date: Sat, 01 Sep 2001 15:41:41 -0500
+From: Tom Gall <tom_gall@vnet.ibm.com>
+X-Mailer: Mozilla 4.7 [en] (Win98; I)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Samium Gromoff <_deepfire@mail.ru>
+CC: linux-kernel@vger.kernel.org
 Subject: Re: is bzImage container large enough?
-Message-ID: <20010901134229.A16630@thune.mrc-home.com>
-Reply-To: Mike Castle <dalgoda@ix.netcom.com>
-Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 In-Reply-To: <22500.999376181@ocs3.ocs-net>
-User-Agent: Mutt/1.3.18i
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 02, 2001 at 06:29:41AM +1000, Keith Owens wrote:
-> allmod and make randconfig.  Included in separate mail.
 
-randconfig?
 
-This scares me.   :->
+Keith Owens wrote:
 
-Btw, are such things independent of CML being used?  Was wondering if a
-"randconfig" might use CML2 to validate the configuration (as far as CML2
-knows about it).  _Might_ be useful to enhance CML2 to track down
-incompatible configurations.
+> On Sat, 1 Sep 2001 16:28:06 +0000 (UTC),
+> Samium Gromoff <_deepfire@mail.ru> wrote:
+> >      If one wanting to turn on virtually every kernel CONFIG_* option
+> >  in order to check if the kernel compiles and then report possible
+> >  gcc errors to lkml, will the resulting kernel fit the bzImage format?
+>
+> No, it is far too big.
 
-mrc
--- 
-     Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
-    We are all of us living in the shadow of Manhattan.  -- Watchmen
-fatal ("You are in a maze of twisty compiler features, all different"); -- gcc
+We just "fixed" this sort of problem for ppc64 the other day. Course we
+don't use bzImages but rather zImages but none the less it was still
+anoying since we can boot zImages over the network and
+of course that makes it quite reasonable to blow past the 1.44
+floppy limitation. The bug we fixed was that an uncompressed
+kernel could only be up to 4 meg in size, if it was larger, at
+uncompression time you'd just lose everything past the 4M mark.
+Todd Inglett raised the limit to 8 meg for us, and that's a mighty
+large penguin....
+
+Regards,
+
+Tom
+
+--
+Tom Gall - PPC64 Code Monkey  "Where's the ka-boom? There was
+Linux Technology Center           supposed to be an earth
+(w) tom_gall@vnet.ibm.com         shattering ka-boom!"
+(w) 507-253-4558                 -- Marvin Martian
+(h) tgall@rochcivictheatre.org
+http://www.ibm.com/linux/ltc/projects/ppc
+
+

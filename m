@@ -1,63 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261706AbVA3Oju@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261707AbVA3Ona@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261706AbVA3Oju (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jan 2005 09:39:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261707AbVA3Oju
+	id S261707AbVA3Ona (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jan 2005 09:43:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261708AbVA3Ona
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jan 2005 09:39:50 -0500
-Received: from relay1.tiscali.de ([62.26.116.129]:62889 "EHLO
-	webmail.tiscali.de") by vger.kernel.org with ESMTP id S261706AbVA3Ojs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jan 2005 09:39:48 -0500
-Message-ID: <41FCFED4.1070301@tiscali.de>
-Date: Sun, 30 Jan 2005 16:35:48 +0100
-From: Matthias-Christian Ott <matthias.christian@tiscali.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050108)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andi Kleen <ak@muc.de>
-CC: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] add compiler-gcc4.h
-References: <20050130130308.GK3185@stusta.de> <m1pszn3t2w.fsf@muc.de>
-In-Reply-To: <m1pszn3t2w.fsf@muc.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 30 Jan 2005 09:43:30 -0500
+Received: from rproxy.gmail.com ([64.233.170.195]:57918 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261707AbVA3On3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jan 2005 09:43:29 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=oY9S26kPevROxf1Mmg8DlcI9bqFz/g1MIH3SQh5Xvb+L8oWLPS0BycJ0H1VmQWWBzNThx+C65mdzNHk8mk+Fs0vWtcfxEdgEUKOMPv3Huk8dRA+9oeymJjydlGaR7wQCtNxiaCETPjCH89L5G1Uocezl16oNl8qGD3yOZ29tFko=
+Message-ID: <9e47339105013006435b7554f6@mail.gmail.com>
+Date: Sun, 30 Jan 2005 09:43:28 -0500
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Dave Airlie <airlied@gmail.com>
+Subject: Re: 2.6.10 dies when X uses PCI radeon 9200 SE, further binary search result
+Cc: Helge Hafting <helgehaf@aitel.hist.no>,
+       Andreas Hartmann <andihartmann@01019freenet.de>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <21d7e9970501300322ffdabe0@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <fa.ks44mbo.ljgao4@ifi.uio.no> <fa.hinb9iv.s38127@ifi.uio.no>
+	 <41F21FA4.1040304@pD9F8757A.dip0.t-ipconnect.de>
+	 <21d7e99705012205012c95665@mail.gmail.com> <41F76B4D.8090905@hist.no>
+	 <20050130111634.GA9269@hh.idb.hist.no>
+	 <21d7e9970501300322ffdabe0@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
+On Sun, 30 Jan 2005 22:22:24 +1100, Dave Airlie <airlied@gmail.com> wrote:
+> Just another guess, but Jon could the PCI ROM patch mess up X's access
+> via the Int10 handler .. maybe if it isn't mapped properly..?
 
->Adrian Bunk <bunk@stusta.de> writes:
->
->  
->
->>With the release of gcc 4.0 being only a few months away and people 
->>already tring compiling with it, it's time for adding a compiler-gcc4.h .
->>
->>This patch contains the following changes:
->>- compiler-gcc+.h: add the missing noinline and __compiler_offsetof
->>- compiler-gcc4.h: new file based on the corrected compiler-gcc+.h
->>- compiler.h: include compiler-gcc4.h for gcc 4
->>- compiler-gcc3.h: remove __compiler_offsetof (there will never be a
->>                                               gcc 3.5)
->>                   small indention corrections
->>    
->>
->
->I don't think it makes much sense right now because it's basically
->identical to compiler-gcc3.h. I would only add it where there is a 
->need for a real difference.
->
->-Andi
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
-Hi!
-But maybe gcc 4 will get different later, so I think this patch makes sense.
+The ROM patch is inactive until you echo something to the sysfs ROM variable.
 
-Matthias-Christian Ott
+> 
+> Dave.
+> 
+
+
+-- 
+Jon Smirl
+jonsmirl@gmail.com

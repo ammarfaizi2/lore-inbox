@@ -1,39 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267984AbUJNXRp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267638AbUJNWOw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267984AbUJNXRp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 19:17:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267807AbUJNXRZ
+	id S267638AbUJNWOw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 18:14:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268031AbUJNWOW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 19:17:25 -0400
-Received: from smtp801.mail.sc5.yahoo.com ([66.163.168.180]:63885 "HELO
-	smtp801.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S267508AbUJNXPG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 19:15:06 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc4-mm1
-Date: Thu, 14 Oct 2004 18:15:02 -0500
-User-Agent: KMail/1.6.2
-Cc: William Wolf <wwolf@vt.edu>, akpm@zip.com.au
-References: <416EE7EB.4070209@vt.edu>
-In-Reply-To: <416EE7EB.4070209@vt.edu>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200410141815.03110.dtor_core@ameritech.net>
+	Thu, 14 Oct 2004 18:14:22 -0400
+Received: from host157-148.pool8289.interbusiness.it ([82.89.148.157]:46469
+	"EHLO zion.localdomain") by vger.kernel.org with ESMTP
+	id S267263AbUJNWFi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 18:05:38 -0400
+Subject: [patch 1/1] uml: readd linux Makefile target
+To: akpm@osdl.org
+Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net, blaisorblade_spam@yahoo.it
+From: blaisorblade_spam@yahoo.it
+Date: Fri, 15 Oct 2004 00:05:53 +0200
+Message-Id: <20041014220554.0F20244BE@zion.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 14 October 2004 03:56 pm, William Wolf wrote:
-> Hey, I just tried -rc4-mm1 on my amd64 laptop, and my keyboard fails to
-> work, I don't even think it is being recognized. 
 
-Could you try booting with i8042.noacpi and if it helps mailing me your
-/proc/acpi/dsdt?
+Since people are used to doing "make linux ARCH=um" and to use "linux" as the
+kernel image, make it be an hard link to vmlinux. This should hurt the less
+possible the users (actually nothing) while not slowing down the build.
 
-Thanks!
+Acked-by: Jeff Dike <jdike@addtoit.com>
 
--- 
-Dmitry
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
+---
+
+ linux-2.6.9-current-paolo/arch/um/Makefile |   12 ++++++++++++
+ 1 files changed, 12 insertions(+)
+
+diff -puN arch/um/Makefile~uml-readd-linux-target arch/um/Makefile
+--- linux-2.6.9-current/arch/um/Makefile~uml-readd-linux-target	2004-10-14 22:52:47.274383552 +0200
++++ linux-2.6.9-current-paolo/arch/um/Makefile	2004-10-14 22:52:47.276383248 +0200
+@@ -62,6 +62,18 @@ ifeq ($(CONFIG_MODE_SKAS), y)
+ $(SYS_HEADERS) : $(ARCH_DIR)/include/skas_ptregs.h
+ endif
+ 
++all: linux
++
++linux: vmlinux
++	$(RM) $@
++	ln $< $@
++
++define archhelp
++  echo '* linux		- Binary kernel image (./linux) - for backward'
++  echo '		   compatibility only: now you can simply run'
++  echo '		   the vmlinux binary you find in the kernel root.'
++endef
++
+ prepare: $(ARCH_SYMLINKS) $(SYS_HEADERS) $(GEN_HEADERS) \
+ 	$(ARCH_DIR)/kernel/vmlinux.lds.S
+ 
+_

@@ -1,56 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262645AbVDAGAy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261245AbVDAGGT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262645AbVDAGAy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 01:00:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262648AbVDAGAy
+	id S261245AbVDAGGT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 01:06:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261592AbVDAGGT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 01:00:54 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:43450 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262645AbVDAGAt (ORCPT
+	Fri, 1 Apr 2005 01:06:19 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:3543 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261245AbVDAGGM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 01:00:49 -0500
-Date: Fri, 1 Apr 2005 07:55:39 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Mark Gross <mgross@linux.intel.com>
-Cc: rostedt@kihontech.com, Steven Rostedt <rostedt@goodmis.org>,
-       "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org,
-       Mark_H_Johnson@raytheon.com
-Subject: Re: queue_work from interrupt Real time preemption2.6.11-rc2-RT-V0.7.37-03
-Message-ID: <20050401055539.GB24508@elte.hu>
-References: <200502141240.14355.mgross@linux.intel.com> <200502170814.42903.mgross@linux.intel.com> <20050329085734.GA7074@elte.hu> <200503311041.05955.mgross@linux.intel.com>
+	Fri, 1 Apr 2005 01:06:12 -0500
+Date: Thu, 31 Mar 2005 22:05:26 -0800
+From: Paul Jackson <pj@engr.sgi.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: kenneth.w.chen@intel.com, torvalds@osdl.org, mingo@elte.hu, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Industry db benchmark result on recent 2.6 kernels
+Message-Id: <20050331220526.3719ed7f.pj@engr.sgi.com>
+In-Reply-To: <424C8956.7070108@yahoo.com.au>
+References: <200503312214.j2VMEag23175@unix-os.sc.intel.com>
+	<424C8956.7070108@yahoo.com.au>
+Organization: SGI
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200503311041.05955.mgross@linux.intel.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Nick wrote:
+> Ingo had a cool patch to estimate dirty => dirty cacheline transfer latency
+> ... Unfortunately ... and it is an O(cpus^2) operation.
 
-* Mark Gross <mgross@linux.intel.com> wrote:
+Yes - a cool patch.
 
-> BTW:
-> 
-> My work on this has been mostly in the context of a 2.6 kernel based 
-> generalization of a softIRQ as thread patch for 2.4 that enables 
-> priority tuning of the bottom half processing as well as /proc support 
-> for turning on and off the feature.  We got it to work.
-> 
-> However; I don't know what good workloads and metrics to measure the 
-> goodness of the work look like.  If folks think priority tuning of 
-> bottom half processing is worth persuing and can help me quantify its 
-> effectiveness better than running a jitter test while doing a BONNIE 
-> test run on a SCSI JBOD, then I'm happy to do more with this.
+If we had an arch-specific bit of code, that for any two cpus, could
+give a 'pseudo-distance' between them, where the only real requirements
+were that (1) if two pairs of cpus had the same pseudo-distance, then
+that meant they had the same size, layout, kind and speed of bus amd
+cache hardware between them (*), and (2) it was cheap - hardly more than
+a few lines of code and a subroutine call to obtain, then Ingo's code
+could be:
 
-anything that generates a consistent interrupt rate is pretty good for 
-testing. Networking is the most softirq-dependent code, so i'd say 
-tbench over a real network ought to be a good benchmark.
+	for each cpu c1:
+	    for each cpu c2:
+		psdist = pseudo_distance(c1, c2)
+		if I've seen psdist before, use the latency computed for that psdist
+		else compute a real latency number and remember it for that psdist
 
-	Ingo
+A generic form of pseudo_distance, which would work for all normal
+sized systems, would be:
+
+int pseudo_distance(int c1, int c2)
+{
+	static int x;
+	return x++;
+}
+
+Then us poor slobs with big honkin numa iron could code up a real
+pseudo_distance() routine, to avoid the actual pain of doing real work
+for cpus^2 iterations for large cpu counts.
+
+Our big boxes have regular geometries with much symmetry, so would
+provide significant opportunity to exploit equal pseudo-distances.
+
+And I would imagine that costs of K * NCPU * NCPU are tolerable in this
+estimation routine. for sufficiently small K, and existing values of
+NCPU.
+
+(*) That is, if pseudo_distance(c1, c2) == pseudo_distance(d1, d2), then
+    this meant that however c1 and c2 were connected to each other in the
+    system (intervening buses and caches and such), cpus d1 and d2 were
+    connected the same way, so could be presumed to have the same latency,
+    close enough.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401

@@ -1,58 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282378AbRLMK2M>; Thu, 13 Dec 2001 05:28:12 -0500
+	id <S282906AbRLMKhN>; Thu, 13 Dec 2001 05:37:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282190AbRLMK2D>; Thu, 13 Dec 2001 05:28:03 -0500
-Received: from zikova.cvut.cz ([147.32.235.100]:37391 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S280771AbRLMK1n>;
-	Thu, 13 Dec 2001 05:27:43 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Wayne Whitney <whitney@math.berkeley.edu>
-Date: Thu, 13 Dec 2001 11:27:10 MET-1
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: Repost: could ia32 mmap() allocations grow downward?
-CC: LKML <linux-kernel@vger.kernel.org>
-X-mailer: Pegasus Mail v3.40
-Message-ID: <BDD02BB0D67@vcnet.vc.cvut.cz>
+	id <S282190AbRLMKgu>; Thu, 13 Dec 2001 05:36:50 -0500
+Received: from mail1.upco.es ([130.206.70.227]:37464 "HELO mail1.upco.es")
+	by vger.kernel.org with SMTP id <S281818AbRLMKgi>;
+	Thu, 13 Dec 2001 05:36:38 -0500
+Date: Thu, 13 Dec 2001 11:36:16 +0100
+From: Romano Giannetti <romano@dea.icai.upco.es>
+To: linux-kernel@vger.kernel.org
+Subject: User-manageable sub-ids proposals
+Message-ID: <20011213113616.B6547@pern.dea.icai.upco.es>
+Reply-To: romano@dea.icai.upco.es
+Mail-Followup-To: Romano Giannetti <romano@dea.icai.upco.es>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20011205143209.C44610@wobbly.melbourne.sgi.com> <20011207202036.J2274@redhat.com> <20011208155841.A56289@wobbly.melbourne.sgi.com> <3C127551.90305@namesys.com> <20011211134213.G70201@wobbly.melbourne.sgi.com> <5.1.0.14.2.20011211184721.04adc9d0@pop.cus.cam.ac.uk> <3C1678ED.8090805@namesys.com> <20011212204333.A4017@pimlott.ne.mediaone.net> <3C1873A2.1060702@namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C1873A2.1060702@namesys.com>; from reiser@namesys.com on Thu, Dec 13, 2001 at 12:23:46PM +0300
+X-Edited-With-Muttmode: muttmail.sl - 2000-11-20 - RGtti 2001-01-29
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12 Dec 01 at 22:28, Wayne Whitney wrote:
+Good morning to everyone.
 
-> BTW, if one were trying to port some code that uses brk() directly and
-> even frees memory that way, then it seems that with glibc's malloc(), one
-> could make it work by instructing malloc() always to use mmap().
+I was thinking about the idea of sub-ids to enable users to run "untrusted"
+binary or "dangerous" one without risk for their files/privacy. 
 
-> P.S.  I am 100% sure that the particular application of mine that started
-> me thinking about this, MAGMA, uses its own allocator built on top of
-> brk() and never calls malloc() itself.
+I had an idea to a low-profile, almost no invasive way to implement it that
+should be almost transparent to user-space application (almost all). Let me
+explain with an example. 
 
-If you have legacy app, how it comes that it uses mmap? And if I do
-not use mmap, I have nothing at 1GB:
+Let's add to task_struct another array like groups[NGROUPS], calling it
+slave_uids[NSLAVES]. Add a (privileged) syscall, addslave(uid_t, uid_t), 
+that can fill that arrays.
 
-void main() { sleep(10); brk((void*)0xBF000000); pause(); }
+Now, the user space configuration is the following: 
 
-/proc/`pidof x`/maps says during sleep(10):
+I am romano, uid 300.
+There is(/are) another(s) user, for example r-slave, uid 3001, no login
+shell, with home dir in ~romano/r-slave.
 
-08048000-080a1000 r-xp 00000000 03:03 230941   /usr/src/linus/x
-080a1000-080a5000 rw-p 00058000 03:03 230941   /usr/src/linus/x
-080a5000-080a6000 rwxp 00000000 00:00 0
-bffff000-c0000000 rwxp 00000000 00:00 0
+When I login as romano, the login binary call a addslave(300, 3001), looking
+at a /etc/slaves that has a line that says romano:r-slave
 
-and after brk() (which suceeded after I did ulimit -d unlimited
-and 'echo 1 >/proc/sys/vm/overcommit_memory') I see:
+Now change the kernel so that: 
 
-08048000-080a1000 r-xp 00000000 03:03 230941   /usr/src/linus/x
-080a1000-080a5000 rw-p 00058000 03:03 230941   /usr/src/linus/x
-080a5000-bf000000 rwxp 00000000 00:00 0
-bffff000-c0000000 rwxp 00000000 00:00 0
+1) user romano can do a setuid() call to become anyone of its slaves, with
+   no way back possible. 
 
-So maybe MAGMA uses some API which it should not use under any
-circumstances... Such as that you linked it with libc6 stdio.
-                                                    Best regards,
-                                                        Petr Vandrovec
-                                                        vandrove@vc.cvut.cz
-                                                        
+2) user romano can chown() files owned by him and by any of its slaves to
+   any of the romano or slaves uids. 
+
+And that's all. All the other strange file management that user romano would
+want to do on the slave-id environment, he can do by doing a kind-of-su(*)
+to one of its slaves (with setuid) and then play in the restricted
+enviroment. If you add ACL to this(**), you could easily fine-control what the
+untrusted binary can see of your environment; add the per-vfsmount ro-flag
+and it gives to you a lot of flexibility. 
+
+This should be a change simple enough for the kernel, and for the userspace
+too: just change login to add addslave call, and the tools that need to
+spawn untrusted binaries can do a setuid() to a slave before the exec(). 
+
+Is there something that I am missing here? 
+
+                 Romano 
+
+
+(*) probably to be called giu... (sorry, Italian-speaking only joke: /su/
+means 'up' in Italian, and /giu/ means 'down'). 
+
+(**) and without ACL, if you makes a parallel thing for gid, you can
+probably fine-tune access in the old-style ways, provided that the system
+set-up is the "every user in its own group" style.
+
+
+-- 
+Romano Giannetti             -  Univ. Pontificia Comillas (Madrid, Spain)
+Electronic Engineer - phone +34 915 422 800 ext 2416  fax +34 915 411 132

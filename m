@@ -1,73 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263106AbSJOGzK>; Tue, 15 Oct 2002 02:55:10 -0400
+	id <S263173AbSJOG4n>; Tue, 15 Oct 2002 02:56:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263173AbSJOGyl>; Tue, 15 Oct 2002 02:54:41 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:5892 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S263039AbSJOGx1>;
-	Tue, 15 Oct 2002 02:53:27 -0400
-Date: Tue, 15 Oct 2002 00:17:47 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Ingo Adlung <Ingo.Adlung@t-online.de>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH 2/3] High-res-timers part 2 (x86 platform code) take 5.1
-Message-ID: <20021015001747.A661@elf.ucw.cz>
-References: <3DA4B1EC.781174A6@mvista.com> <Pine.LNX.4.44.0210091613590.9234-100000@home.transmeta.com> <3DA94F07.7070109@t-online.de> <20021014091855.A4197@ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021014091855.A4197@ucw.cz>
-User-Agent: Mutt/1.3.23i
-X-Warning: Reading this can be dangerous to your mental health.
+	id <S263207AbSJOG4m>; Tue, 15 Oct 2002 02:56:42 -0400
+Received: from dhcp101-dsl-usw4.w-link.net ([208.161.125.101]:8630 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S263173AbSJOGzZ>;
+	Tue, 15 Oct 2002 02:55:25 -0400
+Message-ID: <3DABBD3A.2000901@candelatech.com>
+Date: Tue, 15 Oct 2002 00:01:14 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2a) Gecko/20020910
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Feldman, Scott" <scott.feldman@intel.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>,
+       "'netdev@oss.sgi.com'" <netdev@oss.sgi.com>
+Subject: Re: Update on e1000 troubles (over-heating!)
+References: <288F9BF66CD9D5118DF400508B68C44604758B78@orsmsx113.jf.intel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > >>This patch, in conjunction with the "core" high-res-timers
-> > >>patch implements high resolution timers on the i386
-> > >>platforms.
-> > > 
-> > > 
-> > > I really don't get the notion of partial ticks, and quite frankly, this 
-> > > isn't going into my tree until some major distribution kicks me in the 
-> > > head and explains to me why the hell we have partial ticks instead of just 
-> > > making the ticks shorter.
+Feldman, Scott wrote:
+>>Here is the lspci information, both -x and -vv.  This is with 
+>>two of the e1000 single-port NICS side-by-side.  I have also 
+>>strapped a P-IV CPU fan on top of the two cards to blow some 
+>>air over them....running tests now to see if that actually 
+>>helps anything.  If it does, I'll be sure to send you a picture :)
 > 
-> Not speaking for a major distro, just for me writing HPET (high
-> performance event timer ...) support for x86-64 (and it happens to exist
-> on ia64 as well, and possibly might be in new Intel P4 chipsets, too).
 > 
-> It's a very nice piece of hardware that allows very fine granularity
-> aperiodic interrupts (in each interrupt you set when the next one will
-> happen), without much overhead.
+> Ben, I checked the datasheet for the part shown in the lspci dump, and it
+> shows an operating temperature of 0-55 degrees C.  You said you measured 50
+> degrees C, so you're within the safe range.  Did the fans help?
 
-I believe the problem is like this: assume you have three timers,
-10msec polling of mouse, 30msec keyboard autorepeat and 50msec cursor
-blinking. With current approach, you get
+The fan did help, and Andi is right, the chip was much hotter than what
+my probe read (I was gently pushing it against the top of the chip, cause it
+was too hot to really press my finger against it to get good contact :))
 
-10msec userland runs
-<enter kernel>
-<process mouse>
-<process keyboard>
-<process cursor>
-<exit kernel>
+With the fan blowing on the chips, it has been perfect.  This implies to me
+that if you are going to run the e1000, you need significant air-flow over
+the chipset, and the generic 2U chassis that I have is definately inadequate,
+partially because the MB is so big that the fans are too far away from the
+PCI slots...  This is all doubly true if you are running two NICs side-by-side,
+which is what I was doing.
 
-With hires timers, you get:
+I am also considering glueing heat-sinks onto the main chip, which may make it
+work in more marginal environments.
 
-3msec userland runs
-<enter kernel>
-<process mouse>
-<exit kernel>
-2msec userland runs
-<enter kernel>
-<process keyboard>
-<exit kernel>
-...
+Ben
 
-which is not so efficient. I guess rounding could be implemented to
-preserve this "do-all-together" ability?
-								Pavel
 -- 
-When do you have heart between your knees?
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+
+

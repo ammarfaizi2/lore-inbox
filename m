@@ -1,34 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264755AbSKNTmW>; Thu, 14 Nov 2002 14:42:22 -0500
+	id <S265192AbSKNTsu>; Thu, 14 Nov 2002 14:48:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264990AbSKNTmV>; Thu, 14 Nov 2002 14:42:21 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:34054 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S264755AbSKNTmT>;
-	Thu, 14 Nov 2002 14:42:19 -0500
-Message-ID: <3DD3FE1A.8070102@pobox.com>
-Date: Thu, 14 Nov 2002 14:48:42 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021018
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pete Zaitcev <zaitcev@redhat.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Bugzilla bug tracking database for 2.5 now available.
-References: <225710000.1037241209@flay> <mailman.1037294313.19087.linux-kernel2news@redhat.com> <200211141912.gAEJCwH01539@devserv.devel.redhat.com> <225710000.1037241209@flay> <3DD3FB29.6020504@pobox.com> <20021114144345.D5294@devserv.devel.redhat.com>
-In-Reply-To: <225710000.1037241209@flay>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S265196AbSKNTsu>; Thu, 14 Nov 2002 14:48:50 -0500
+Received: from ns.suse.de ([213.95.15.193]:773 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S265192AbSKNTst>;
+	Thu, 14 Nov 2002 14:48:49 -0500
+Date: Thu, 14 Nov 2002 20:55:43 +0100
+From: Andi Kleen <ak@suse.de>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH] early printk for x86
+Message-ID: <20021114205543.A9383@wotan.suse.de>
+References: <3DD3FCB3.40506@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3DD3FCB3.40506@us.ibm.com>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pete Zaitcev wrote:
+On Thu, Nov 14, 2002 at 11:42:43AM -0800, Dave Hansen wrote:
+> I copied the x86_64 early printk support for plain x86.  Is anyone 
+> opposed to me sending this on to Linus?
 
-> No, wait, I'm not talking about triage here, just admining the
-> Bugzilla itself. I'll poke bugme-admin@ and see what comes out.
+No problem from my side.
 
+although it may make sense to just put in the #ifdef __i386__ for vgabase
+and then #include it.
 
-
-There _should_ be a live person doing that, but ping Martin as well if 
-bugme-admin doesn't answer... :)
-
+-Andi

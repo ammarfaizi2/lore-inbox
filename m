@@ -1,117 +1,197 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265754AbTAVNix>; Wed, 22 Jan 2003 08:38:53 -0500
+	id <S261286AbTAVOPU>; Wed, 22 Jan 2003 09:15:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266720AbTAVNix>; Wed, 22 Jan 2003 08:38:53 -0500
-Received: from mta03ps.bigpond.com ([144.135.25.135]:36049 "EHLO
-	mta03ps.bigpond.com") by vger.kernel.org with ESMTP
-	id <S265754AbTAVNiv> convert rfc822-to-8bit; Wed, 22 Jan 2003 08:38:51 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Srihari Vijayaraghavan <harisri@bigpond.com>
-To: lkml <linux-kernel@vger.kernel.org>, Andrea Arcangeli <andrea@suse.de>
-Subject: Re: 2.4.21-pre3aa1 and RAID0 issue (was: 2.4.21-pre2aa1 - RAID0 issue.)
-Date: Thu, 23 Jan 2003 01:02:25 +1100
-User-Agent: KMail/1.4.3
-References: <200212270856.13419.harisri@bigpond.com> <200301222007.48055.harisri@bigpond.com>
-In-Reply-To: <200301222007.48055.harisri@bigpond.com>
+	id <S261292AbTAVOPT>; Wed, 22 Jan 2003 09:15:19 -0500
+Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:5601 "EHLO
+	epoch.ncsc.mil") by vger.kernel.org with ESMTP id <S261286AbTAVOPR>;
+	Wed, 22 Jan 2003 09:15:17 -0500
+Message-Id: <200301221431.JAA02913@moss-shockers.ncsc.mil>
+Date: Wed, 22 Jan 2003 09:31:53 -0500 (EST)
+From: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
+Reply-To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
+Subject: [RFC][PATCH] Add LSM syslog hook to 2.5.59
+To: linux-kernel@vger.kernel.org
+Cc: linux-security-module@wirex.com, sds@epoch.ncsc.mil
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200301230102.25399.harisri@bigpond.com>
+Content-Type: TEXT/plain; charset=us-ascii
+Content-MD5: DTOY9RKCXy5zip/bD9s/qg==
+X-Mailer: dtmail 1.2.0 CDE Version 1.2 SunOS 5.6 sun4u sparc 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-On Wednesday 22 January 2003 20:07, Srihari Vijayaraghavan wrote:
-> ...
-> The RAID0 doesn't work in 2.4.21-pre3aa1 in my computer, while it is fine
-> with 2.4.21-pre3 and 2.4.20-aa1.
-> ...
+This patch adds the LSM security_syslog hook for controlling the
+syslog(2) interface relative to 2.5.59 plus the previously posted
+security_sysctl patch.  In response to earlier comments by Christoph,
+the existing capability check for syslog(2) is moved into the
+capability security module hook function, and a corresponding dummy
+security module hook function is defined that provides traditional
+superuser behavior.  The LSM hook is placed in do_syslog rather than
+sys_syslog so that it is called when either the system call interface
+or the /proc/kmsg interface is used.  SELinux uses this hook to
+control access to the kernel message ring and to the console log
+level.
 
-Ok. I did some more testing, and this is what happens:
-/sbin/raidstart /dev/md0 executes and exits fine under 2.4.21-pre3. Where as 
-under 2.4.21-pre3aa1 it starts executing but _never_ exits (I waited for few 
-minutes). I had to kill it using alt + sysrq + k.
+If anyone has any objections to this change, please let me know.
 
-I have captured the dmesg outputs of both 2.4.21-pre3aa1 and 2.4.21-pre3 and 
-here is the diff between them:
- --- dmesg-2.4.21-pre3aa1	2003-01-23 00:38:11.000000000 +1100
-+++ dmesg-2.4.21-pre3	2003-01-23 00:41:11.000000000 +1100
-@@ -1,4 +1,4 @@
--Linux version 2.4.21-pre3aa1 (hari@localhost.localdomain) (gcc version 3.2 
-20020903 (Red Hat Linux 8.0 3.2-7)) #9 Tue Jan 21 23:27:11 EST 2003
-+Linux version 2.4.21-pre3 (hari@localhost.localdomain) (gcc version 3.2 
-20020903 (Red Hat Linux 8.0 3.2-7)) #9 Wed Jan 22 19:28:29 EST 2003
- BIOS-provided physical RAM map:
-  BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
-  BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
-@@ -12,14 +12,13 @@
- zone(0): 4096 pages.
- zone(1): 126960 pages.
- zone(2): 0 pages.
--Building zonelist for node : 0
- Kernel command line: ro root=/dev/hda5 hdb=ide-scsi single
- ide_setup: hdb=ide-scsi
- Initializing CPU#0
--Detected 1200.072 MHz processor.
-+Detected 1200.061 MHz processor.
- Console: colour VGA+ 80x25
- Calibrating delay loop... 2392.06 BogoMIPS
--Memory: 516560k/524224k available (955k kernel code, 7276k reserved, 209k 
-data, 220k init, 0k highmem)
-+Memory: 516652k/524224k available (923k kernel code, 7184k reserved, 204k 
-data, 216k init, 0k highmem)
- Dentry cache hash table entries: 65536 (order: 7, 524288 bytes)
- Inode cache hash table entries: 32768 (order: 6, 262144 bytes)
- Mount-cache hash table entries: 8192 (order: 4, 65536 bytes)
-@@ -45,9 +44,6 @@
- Based upon Swansea University Computer Society NET3.039
- Initializing RT netlink socket
- Starting kswapd
--bigpage subsystem: allocated 0 bigpages (=0MB).
--aio_setup: num_physpages = 32764
--aio_setup: sizeof(struct page) = 44
- Journalled Block Device driver loaded
- pty: 256 Unix98 ptys configured
- Uniform Multi-Platform E-IDE driver Revision: 7.00beta-2.4
-@@ -61,12 +57,12 @@
- hda: QUANTUM FIREBALL CX10.2A, ATA DISK drive
- hdb: RICOH CD-R/RW MP7083A, ATAPI CD/DVD-ROM drive
- hda: DMA disabled
--blk: queue c028ace0, I/O limit 4095Mb (mask 0xffffffff)
-+blk: queue c0274460, I/O limit 4095Mb (mask 0xffffffff)
- hdb: DMA disabled
- hdc: SAMSUNG SV1022D, ATA DISK drive
- hdd: Pioneer DVD-ROM ATAPIModel DVD-113 0113, ATAPI CD/DVD-ROM drive
- hdc: DMA disabled
--blk: queue c028b144, I/O limit 4095Mb (mask 0xffffffff)
-+blk: queue c02748ac, I/O limit 4095Mb (mask 0xffffffff)
- hdd: DMA disabled
- ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
- ide1 at 0x170-0x177,0x376 on irq 15
-@@ -84,7 +80,7 @@
- kjournald starting.  Commit interval 5 seconds
- EXT3-fs: mounted filesystem with ordered data mode.
- VFS: Mounted root (ext3 filesystem) readonly.
--Freeing unused kernel memory: 220k freed
-+Freeing unused kernel memory: 216k freed
- NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
- Real Time Clock Driver v1.10e
- EXT3 FS 2.4-0.9.19, 19 August 2002 on ide0(3,5), internal journal
-@@ -128,4 +124,5 @@
- raid0 : Allocating 8 bytes for hash.
- md: updating md0 RAID superblock on device
- md: hdc1 [events: 00000193]<6>(write) hdc1's sb offset: 2562240
--SysRq : SAK
-+md: hda3 [events: 00000193]<6>(write) hda3's sb offset: 2562240
-+md: ... autorun DONE.
+ include/linux/security.h |   18 ++++++++++++++++++
+ kernel/printk.c          |    7 +++++--
+ security/capability.c    |   10 ++++++++++
+ security/dummy.c         |    8 ++++++++
+ 4 files changed, 41 insertions(+), 2 deletions(-)
+-----
 
-It looks though the kernel raid sub-system on 2.4.21-pre3aa1 is not able to 
-access/activate /dev/hda3 properly, which is part of /dev/md0 raid0 array 
-(this raid0 array is made up of /dev/hdc1 and /dev/hda3).
+diff -X /home/sds/dontdiff -ru sysctl-2.5.59/include/linux/security.h syslog-2.5.59/include/linux/security.h
+--- sysctl-2.5.59/include/linux/security.h	Tue Jan 21 16:53:08 2003
++++ syslog-2.5.59/include/linux/security.h	Tue Jan 21 16:56:27 2003
+@@ -47,6 +47,7 @@
+ extern int cap_task_post_setuid (uid_t old_ruid, uid_t old_euid, uid_t old_suid, int flags);
+ extern void cap_task_kmod_set_label (void);
+ extern void cap_task_reparent_to_init (struct task_struct *p);
++extern int cap_syslog (int type);
+ 
+ /*
+  * Values used in the task_security_ops calls
+@@ -782,6 +783,12 @@
+  *	@tsk contains the task_struct for the process.
+  *	@cap contains the capability <include/linux/capability.h>.
+  *	Return 0 if the capability is granted for @tsk.
++ * @syslog:
++ *	Check permission before accessing the kernel message ring or changing
++ *	logging to the console.
++ *	See the syslog(2) manual page for an explanation of the @type values.  
++ *	@type contains the type of action.
++ *	Return 0 if permission is granted.
+  *
+  * @register_security:
+  * 	allow module stacking.
+@@ -812,6 +819,7 @@
+ 	int (*capable) (struct task_struct * tsk, int cap);
+ 	int (*quotactl) (int cmds, int type, int id, struct super_block * sb);
+ 	int (*quota_on) (struct file * f);
++	int (*syslog) (int type);
+ 
+ 	int (*bprm_alloc_security) (struct linux_binprm * bprm);
+ 	void (*bprm_free_security) (struct linux_binprm * bprm);
+@@ -1015,6 +1023,11 @@
+ 	return security_ops->quota_on (file);
+ }
+ 
++static inline int security_syslog(int type)
++{
++	return security_ops->syslog(type);
++}
++
+ static inline int security_bprm_alloc (struct linux_binprm *bprm)
+ {
+ 	return security_ops->bprm_alloc_security (bprm);
+@@ -1625,6 +1638,11 @@
+ 	return 0;
+ }
+ 
++static inline int security_syslog(int type)
++{
++	return cap_syslog(type);
++}
++
+ static inline int security_bprm_alloc (struct linux_binprm *bprm)
+ {
+ 	return 0;
+diff -X /home/sds/dontdiff -ru sysctl-2.5.59/kernel/printk.c syslog-2.5.59/kernel/printk.c
+--- sysctl-2.5.59/kernel/printk.c	Thu Jan 16 21:22:59 2003
++++ syslog-2.5.59/kernel/printk.c	Tue Jan 21 16:56:27 2003
+@@ -28,6 +28,7 @@
+ #include <linux/config.h>
+ #include <linux/delay.h>
+ #include <linux/smp.h>
++#include <linux/security.h>
+ 
+ #include <asm/uaccess.h>
+ 
+@@ -161,6 +162,10 @@
+ 	char c;
+ 	int error = 0;
+ 
++	error = security_syslog(type);
++	if (error)
++		return error;
++
+ 	switch (type) {
+ 	case 0:		/* Close log */
+ 		break;
+@@ -283,8 +288,6 @@
+ 
+ asmlinkage long sys_syslog(int type, char * buf, int len)
+ {
+-	if ((type != 3) && !capable(CAP_SYS_ADMIN))
+-		return -EPERM;
+ 	return do_syslog(type, buf, len);
+ }
+ 
+diff -X /home/sds/dontdiff -ru sysctl-2.5.59/security/capability.c syslog-2.5.59/security/capability.c
+--- sysctl-2.5.59/security/capability.c	Thu Jan 16 21:22:01 2003
++++ syslog-2.5.59/security/capability.c	Tue Jan 21 16:56:27 2003
+@@ -266,6 +266,13 @@
+ 	return;
+ }
+ 
++int cap_syslog (int type)
++{
++	if ((type != 3) && !capable(CAP_SYS_ADMIN))
++		return -EPERM;
++	return 0;
++}
++
+ EXPORT_SYMBOL(cap_capable);
+ EXPORT_SYMBOL(cap_ptrace);
+ EXPORT_SYMBOL(cap_capget);
+@@ -276,6 +283,7 @@
+ EXPORT_SYMBOL(cap_task_post_setuid);
+ EXPORT_SYMBOL(cap_task_kmod_set_label);
+ EXPORT_SYMBOL(cap_task_reparent_to_init);
++EXPORT_SYMBOL(cap_syslog);
+ 
+ #ifdef CONFIG_SECURITY
+ 
+@@ -293,6 +301,8 @@
+ 	.task_post_setuid =		cap_task_post_setuid,
+ 	.task_kmod_set_label =		cap_task_kmod_set_label,
+ 	.task_reparent_to_init =	cap_task_reparent_to_init,
++
++	.syslog =                       cap_syslog,
+ };
+ 
+ #if defined(CONFIG_SECURITY_CAPABILITIES_MODULE)
+diff -X /home/sds/dontdiff -ru sysctl-2.5.59/security/dummy.c syslog-2.5.59/security/dummy.c
+--- sysctl-2.5.59/security/dummy.c	Tue Jan 21 16:53:08 2003
++++ syslog-2.5.59/security/dummy.c	Tue Jan 21 16:56:47 2003
+@@ -90,6 +90,13 @@
+ 	return 0;
+ }
+ 
++static int dummy_syslog (int type)
++{
++	if ((type != 3) && current->euid)
++		return -EPERM;
++	return 0;
++}
++
+ static int dummy_bprm_alloc_security (struct linux_binprm *bprm)
+ {
+ 	return 0;
+@@ -634,6 +641,7 @@
+ 	set_to_dummy_if_null(ops, quotactl);
+ 	set_to_dummy_if_null(ops, quota_on);
+ 	set_to_dummy_if_null(ops, sysctl);
++	set_to_dummy_if_null(ops, syslog);
+ 	set_to_dummy_if_null(ops, bprm_alloc_security);
+ 	set_to_dummy_if_null(ops, bprm_free_security);
+ 	set_to_dummy_if_null(ops, bprm_compute_creds);
 
-Please feel free to ask for more informartion. Thanks.
--- 
-Hari
-harisri@bigpond.com
+
+
+--
+Stephen Smalley, NSA
+sds@epoch.ncsc.mil
 

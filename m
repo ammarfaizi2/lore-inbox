@@ -1,34 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284892AbRLFAd6>; Wed, 5 Dec 2001 19:33:58 -0500
+	id <S284890AbRLFAiS>; Wed, 5 Dec 2001 19:38:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284902AbRLFAds>; Wed, 5 Dec 2001 19:33:48 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:29960 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S284892AbRLFAdm>; Wed, 5 Dec 2001 19:33:42 -0500
-Subject: Re: VIA acknowledges North Bridge bug (AKA Linux Kernel with Athlon
-To: calin@ajvar.org (Calin A. Culianu)
-Date: Thu, 6 Dec 2001 00:41:36 +0000 (GMT)
-Cc: troels@thule.no (Troels Walsted Hansen), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0112051609200.21129-100000@rtlab.med.cornell.edu> from "Calin A. Culianu" at Dec 05, 2001 04:09:57 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S284902AbRLFAiI>; Wed, 5 Dec 2001 19:38:08 -0500
+Received: from ns.suse.de ([213.95.15.193]:56069 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S284890AbRLFAhw>;
+	Wed, 5 Dec 2001 19:37:52 -0500
+Date: Thu, 6 Dec 2001 01:37:51 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: Rob Landley <landley@trommello.org>
+Cc: "Eric S. Raymond" <esr@thyrsus.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        <kbuild-devel@lists.sourceforge.net>
+Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
+In-Reply-To: <20011206001558.OQCD485.femail3.sdc1.sfba.home.com@there>
+Message-ID: <Pine.LNX.4.33.0112060128420.18145-100000@Appserv.suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16BmbY-0008DS-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> So does this mean we will be seeing a patch that clears bits 6,7, and 8 in
-> register 55 on the northbridge soon?
+On Wed, 5 Dec 2001, Rob Landley wrote:
 
-We already have one. The Linux folks saw the problem much earlier than
-windows people because our athlon optimised memory copies triggered it
-reliably on many boards.
+> > So anyone perfectly happy with an older distro that didn't
+> > ship python2-and-whatever-else gets screwed when they want to
+> > build a newer kernel. Nice.
+>
+> 1) Moving from 2.2->2.4, it wouldn't work at all without a newer compiler and
+> newer modutils, and it really helped to have a C library and eight zillion
+> other things upgraded.  So talking about what 2.6 will need that's an amazing
+> red herring.
 
-Whats sad is its taken VIA this long to finally acknowledge a bug that we
-have shown existed months and months ago, and even had Linux fixes for a 
-while in 2.4
+My comment was in regard to the subthread concerning the backport of
+CML2 to 2.4 only. Not 2.5/2.6. Yes, tools need to be upgraded
+OVER MAJOR VERSIONS. I was not debating that.
 
-Alan
+> 2) In terms of a 2.4 backport, if the old stuff isn't removed (the current
+> garbage that does menuconfig et al), then who cares?
+
+Anyone maintaining Config.in files. What you're proposing doubles the
+amount of work to keep them up to date. Especially for out-of-tree code.
+
+> It's also Marcelo's call.
+
+Absolutely.
+
+> It's not about the fact that reiserfs, ext3, and a new VM subsystem went
+> into 2.4 but THIS is way too much
+
+And did any of these require updated tools to build the kernel ?
+No. I could take a kernel with these features, and build it on
+a 6 month old distro.
+
+> it's a group of people bitching about python because they don't like the
+> concept of significant whitespace.
+
+Crap. It's about not screwing over an installed userbase for a
+feature that is nothing more than a "Nice to have" add-on for 2.4.
+
+It's taken us long enough to get 2.4 where it is, hopefully the
+days of things getting shovelled in enmasse are over.
+
+>  Technically speaking, this is another variant of the good old
+> indentation/coding style thread that just won't die.
+
+I recommend "Kill by thread". Works wonders.
+
+regards,
+Dave.
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
+

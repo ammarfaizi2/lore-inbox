@@ -1,43 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269163AbTB0FFR>; Thu, 27 Feb 2003 00:05:17 -0500
+	id <S261290AbTB0FWS>; Thu, 27 Feb 2003 00:22:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269164AbTB0FFR>; Thu, 27 Feb 2003 00:05:17 -0500
-Received: from MTJ-HS-031.montrose.net ([65.169.6.40]:16964 "EHLO
-	tenax.loup.net") by vger.kernel.org with ESMTP id <S269163AbTB0FFQ>;
-	Thu, 27 Feb 2003 00:05:16 -0500
-Date: Wed, 26 Feb 2003 22:13:38 -0700
-Message-Id: <200302270513.h1R5DcG23996@flux.loup.net>
-From: Mike Hayward <hayward@loup.net>
+	id <S261295AbTB0FWS>; Thu, 27 Feb 2003 00:22:18 -0500
+Received: from syr-24-92-237-98.twcny.rr.com ([24.92.237.98]:26365 "EHLO
+	server.foo") by vger.kernel.org with ESMTP id <S261290AbTB0FWR>;
+	Thu, 27 Feb 2003 00:22:17 -0500
+Date: Thu, 27 Feb 2003 00:32:27 -0500
+From: Dan Maas <dmaas@maasdigital.com>
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.19 corrupt file system, 2.4.20 Makefile problem
+Subject: Ping-pong on Hyperthread CPUs?
+Message-ID: <20030227003227.A23919@morpheus>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+X-Info: http://www.maasdigital.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been running 2.4.19 for quite awhile, but today it locked up, had
-to be hard rebooted, and trashed my ext3 file system.  Something about
-a seemingly infinite number of Duplicate/Bad Blocks from fsck even
-though the hard drive is fine.  I assumed with the journal the file
-system would be rock solid, but ...  I'm hoping 2.4.20 proves more
-stable; has anyone else seen 2.4.19 trash the hard drive?
+I have noticed that processes tend to ping-ping between the two
+virtual CPUs in my Hyperthreaded P4 machine (kernel 2.4.20). I know
+this would be bad on true SMP systems, but does it have any impact
+with Hyperthread CPUs? Should I be worried?
 
-2.4.20 doesn't build on my RH7.2 box which uses gcc 2.96 due to a mod
-to the Makefile which I just undid and subsequently compiled just
-fine.  Without said line, stdarg.h (which isn't part of the linux
-kernel includes) is not found since -nostdinc probably removes *all*
-include directories not explicitly specified, including:
-/usr/lib/gcc-lib/i386-redhat-linux/2.96/include
+Also, hardware interrupts all seem to be going to the first virtual
+CPU. I assume this is intentional.
 
----New make line---
-kbuild_2_4_nostdinc    := -nostdinc -iwithprefix include
-
----Old make line---
-kbuild_2_4_nostdinc     := -nostdinc $(shell $(CC) -print-search-dirs
-| sed -ne 's/install: \(.*\)/-I \1include/gp')
-
-If stdarg.h doesn't belong in the kernel distribution, perhaps the
-configure or make process could do some checking to make sure the
-appropriate include directory for stdarg.h is included in that
-variable?
-
-- Mike
+Thanks,
+Dan

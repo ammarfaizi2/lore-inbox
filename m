@@ -1,32 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282308AbRKXAVI>; Fri, 23 Nov 2001 19:21:08 -0500
+	id <S282313AbRKXAXI>; Fri, 23 Nov 2001 19:23:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282310AbRKXAU7>; Fri, 23 Nov 2001 19:20:59 -0500
-Received: from mail.gmd.de ([129.26.8.90]:33801 "EHLO mail.gmd.de")
-	by vger.kernel.org with ESMTP id <S282308AbRKXAUq>;
-	Fri, 23 Nov 2001 19:20:46 -0500
-Message-ID: <3BFEE74A.30909@gmd.de>
-Date: Sat, 24 Nov 2001 01:18:18 +0100
-From: Pavel Frolov <pavel.frolov@gmd.de>
-Reply-To: pavel.frolov@gmd.de
-Organization: GMD
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us, ru
+	id <S282305AbRKXAXB>; Fri, 23 Nov 2001 19:23:01 -0500
+Received: from windsormachine.com ([206.48.122.28]:55058 "EHLO
+	router.windsormachine.com") by vger.kernel.org with ESMTP
+	id <S282313AbRKXAWG>; Fri, 23 Nov 2001 19:22:06 -0500
+Date: Fri, 23 Nov 2001 19:21:48 -0500 (EST)
+From: Mike Dresser <mdresser@windsormachine.com>
+To: David Relson <relson@osagesoftware.com>
+cc: "Paulo J. Matos aka PDestroy" <pocm@rnl.ist.utl.pt>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel Compilation Basics
+In-Reply-To: <4.3.2.7.2.20011123191428.00db08a0@mail.osagesoftware.com>
+Message-ID: <Pine.LNX.4.33.0111231920450.30808-100000@router.windsormachine.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: broken highmemory working in new WM (2.4.14 freeze continuation) 
-Content-Type: text/plain; charset=KOI8-R; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, ppl!
-   I have tried to use HIGHMEM on 2.4.15 and 2.4.14 as had written 
-before without success.
-   On 2.4.9 kernel HIGHMEM is working.
 
-    Please check new VM stuff.
- 
-                                                          pasha.
+
+On Fri, 23 Nov 2001, David Relson wrote:
+
+> At 04:57 PM 11/23/01, Paulo J. Matos aka PDestroy wrote:
+> >Hi all,
+> >
+> >I'm trying to compile 2.4.15.
+> >I've read Kernel Howto and I've done the quick compilation steps:
+> >make xconfig
+> >make dep
+> >make clean
+> >make bzImage
+> >cp arch/i386/boot/bzImage /boot/vmlinuz-2.4.15
+> Rather than "cp ... /boot/..."  use "make install".  If I remember
+> correctly, "make install" will even add the proper entry to
+> /etc/lilo.conf.  Assuming you are using lilo, you will also need to run it
+> after "make modules_install".
+>
+> David
+
+I've always done a make bzlilo after the dep clean, is this wrong?
+Updates my lilo for me just fine.
+
+Mike
+
+
+
 

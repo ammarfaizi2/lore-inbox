@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261903AbREYVLp>; Fri, 25 May 2001 17:11:45 -0400
+	id <S261907AbREYVNf>; Fri, 25 May 2001 17:13:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261907AbREYVLf>; Fri, 25 May 2001 17:11:35 -0400
-Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:53287
-	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
-	id <S261903AbREYVL3>; Fri, 25 May 2001 17:11:29 -0400
-Date: Fri, 25 May 2001 23:11:22 +0200
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: vandrove@vc.cvut.cz
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] __init -> __initdata in drivers/video/matrox/matroxfb_base.c (244ac16)
-Message-ID: <20010525231122.N851@jaquet.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S261910AbREYVNZ>; Fri, 25 May 2001 17:13:25 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:11281 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261907AbREYVNT>; Fri, 25 May 2001 17:13:19 -0400
+Date: Fri, 25 May 2001 14:12:48 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [with-PATCH-really] highmem deadlock removal, balancing & cleanup
+In-Reply-To: <Pine.LNX.4.33.0105251659290.10469-100000@duckman.distro.conectiva>
+Message-ID: <Pine.LNX.4.31.0105251410040.7867-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
-
-The following patch changes an __init to __initdata. Applies against
-2.4.4-ac11.
 
 
---- linux-244-ac11-clean/drivers/video/matrox/matroxfb_base.c	Sat May 19 20:58:43 2001
-+++ linux-244-ac11/drivers/video/matrox/matroxfb_base.c	Sun May 20 23:55:24 2001
-@@ -2483,7 +2483,7 @@
- 	return 0;
- }
- 
--static int __init initialized = 0;
-+static int __initdata initialized = 0;
- 
- int __init matroxfb_init(void)
- {
+On Fri, 25 May 2001, Rik van Riel wrote:
+>
+> OK, shoot me.  Here it is again, this time _with_ patch...
 
--- 
-Regards,
-        Rasmus(rasmus@jaquet.dk)
+I'm not going to apply this as long as it plays experimental games with
+"shrink_icache()" and friends. I haven't seen anybody comment on the
+performance on this, and I can well imagine that it would potentially
+shrink the dcache too aggressively when there are lots of inactive-dirty
+pages around, where page_launder is the right thing to do, and shrinking
+icache/dcache might not be.
+
+I'd really like to avoid having the MM stuff fluctuate too much. Have
+people tested this under different loads etc?
+
+		Linus
+

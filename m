@@ -1,102 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265626AbSJXXwD>; Thu, 24 Oct 2002 19:52:03 -0400
+	id <S265712AbSJXXwb>; Thu, 24 Oct 2002 19:52:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265631AbSJXXwC>; Thu, 24 Oct 2002 19:52:02 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:64625 "EHLO
-	mtvmime01.veritas.com") by vger.kernel.org with ESMTP
-	id <S265626AbSJXXwA>; Thu, 24 Oct 2002 19:52:00 -0400
-Date: Fri, 25 Oct 2002 00:59:03 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Andrew Morton <akpm@digeo.com>
-cc: cmm@us.ibm.com, <manfred@colorfullife.com>, <linux-kernel@vger.kernel.org>,
-       <dipankar@in.ibm.com>, <lse-tech@lists.sourceforge.net>
-Subject: Re: [PATCH]updated ipc lock patch
-In-Reply-To: <3DB88298.735FD044@digeo.com>
-Message-ID: <Pine.LNX.4.44.0210250038330.1240-100000@localhost.localdomain>
+	id <S265710AbSJXXwZ>; Thu, 24 Oct 2002 19:52:25 -0400
+Received: from fw-az.mvista.com ([65.200.49.158]:3063 "EHLO
+	zipcode.az.mvista.com") by vger.kernel.org with ESMTP
+	id <S265631AbSJXXwV>; Thu, 24 Oct 2002 19:52:21 -0400
+Message-ID: <3DB886B9.3060304@mvista.com>
+Date: Thu, 24 Oct 2002 16:48:09 -0700
+From: Steven Dake <sdake@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+To: Greg KH <greg@kroah.com>
+CC: Scott Murray <scottm@somanetworks.com>, "Randy.Dunlap" <rddunlap@osdl.org>,
+       James Bottomley <James.Bottomley@steeleye.com>,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [RFC] Advanced TCA SCSI Disk Hotswap
+References: <Pine.LNX.4.33L2.0210241350230.20950-100000@dragon.pdx.osdl.net> <Pine.LNX.4.33.0210241839490.10937-100000@rancor.yyz.somanetworks.com> <20021024232258.GA26093@kroah.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 Oct 2002, Andrew Morton wrote:
-> Hugh Dickins wrote:
-> > 
-> > ...
-> > Manfred and I have both reviewed the patch (or the 2.5.44 version)
-> > and we both recommend it highly (well, let Manfred speak for himself).
-> 
-> OK, thanks.
-> 
-> So I took a look.  Wish I hadn't :(  The locking rules in there
-> are outrageously uncommented.  You must be brave people.
+Montavista has discussed at length Compact PCI hotswap using surprise 
+removal events.
 
-Ah, we all like to criticize the lack of comments in others' code.
+The key feature of any hotswap operation that happens in a surprise 
+fashion is that
+the device driver might want a hint that the hardware is no longer 
+present so it can
+immediatly dump its buffers/io maps/etc and totally stop accessing the 
+device.  An
+expected removal, on the other hand, would give the device driver time 
+to flush its
+buffers (for example a scsi driver could dump its outstanding queued 
+scsi messages).
+Once the driver is done accessing the device, the blue led on the 
+CompactPCI board
+can be lit and it can be removed.
 
-> What about this code?
-> 
-> void ipc_rcu_free(void* ptr, int size)
-> {
->         struct rcu_ipc_free* arg;
-> 
->         arg = (struct rcu_ipc_free *) kmalloc(sizeof(*arg), GFP_KERNEL);
->         if (arg == NULL)
->                 return;
->         arg->ptr = ptr;
->         arg->size = size;
->         call_rcu(&arg->rcu_head, ipc_free_callback, arg);
-> }
-> 
-> Are we sure that it's never called under locks?
+This is the main difference.  Since the driver model of Linux doesn't 
+support a surprise
+extract method call for drivers, I don't think its been implemented 
+here.  Further the
+drivers must be modified to actually use the hint instead of doing its 
+normal shutdown
+operation.
 
-Yes.
+Surprise extraction is not a simple problem especially to ensure the 
+device drivers exit
+cleanly without dumping more data on the PCI bus to a PCI device that 
+may not
+exist.
 
-> And it seems that if the kmalloc fails, we decide to leak some
-> memory, yes?
+Thanks!
+-steve
 
-Yes, but why would it fail?
-and what do you think should be the alternative?
+Greg KH wrote:
 
-> If so it would be better to use GFP_ATOMIC there.  Avoids any
-> locking problems and also increases the chance of the allocation
-> succeeding.  (With an explanatory comment, naturally :)).
-
-There are no locking doubts here.
-GFP_ATOMIC would _reduce_ the chance of the allocation succeeding:
-GFP_KERNEL does include the __GFP_WAIT flag, GFP_ATOMIC does not.
-
-> Even better: is it possible to embed the rcu_ipc_free inside the
-> object-to-be-freed?  Perhaps not?
-
-It would certainly be possible (I did suggest it as a maybe),
-but it's unclear whether it's worthwhile wasting the extra memory
-longterm like that.  Mingming chose not to embed, I see no reason
-to overrule.
-
-> Stylistically, it is best to not typecast the return value
-> from kmalloc, btw.  You should never typecast the return
-> value of anything which returns a void *, because it weakens
-> your compile-time checking.  Example:
-> 
-> 	foo *bar = (foo *)zot();
-> 
-> The compiler will swallow that, regardless of what zot() returns.
-> Someone could go and change zot() to return a reiserfs_inode *
-> and you would never know about it.  Whereas:
-> 
-> 	foo *bar = zot();
-> 
-> Says to the compiler "zot() must return a bar * or a void *",
-> which is much tighter checking, yes?
-
-You have too much time on your hands, Andrew :-)
-
-> There is an insane amount of inlining in the ipc code.  I
-> couldn't keep my paws off it.
-
-I agree tempting: I thought you might like that in a subsequent patch,
-yes?  Mingming was splitting locks, not doing a cleanup of inlines.
-
-Hugh
+>On Thu, Oct 24, 2002 at 07:00:23PM -0400, Scott Murray wrote:
+>  
+>
+>>I've not implemented it yet, but I'm pretty sure I can detect surprise
+>>extractions in my cPCI driver.  The only thing holding me back at the
+>>moment is that there's no clear way to report this status change via
+>>pcihpfs without doing something a bit funky like reporting "-1" in the
+>>"adapter" node.
+>>    
+>>
+>
+>Why would you need to report anything other than if the card is present
+>or not?  What would a "supprise" removal cause you to do differently?
+>Hm, well I guess we should be extra careful in trying to shut down any
+>driver bound to that card...
+>
+>thanks,
+>
+>greg k-h
+>
+>
+>
+>  
+>
 

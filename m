@@ -1,117 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262310AbTK3JAg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Nov 2003 04:00:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262315AbTK3JAg
+	id S262280AbTK3I7U (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Nov 2003 03:59:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262310AbTK3I7U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Nov 2003 04:00:36 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:27578 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S262310AbTK3JAc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Nov 2003 04:00:32 -0500
-Date: Sun, 30 Nov 2003 10:00:09 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [2.6 RFC/PATCH] Input: possible deadlock in i8042
-Message-ID: <20031130090009.GA17038@ucw.cz>
-References: <200311300303.57654.dtor_core@ameritech.net>
+	Sun, 30 Nov 2003 03:59:20 -0500
+Received: from node-d-1fcf.a2000.nl ([62.195.31.207]:20352 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S262280AbTK3I7H
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Nov 2003 03:59:07 -0500
+Subject: Re: Disk Geometries reported incorrectly on 2.6.0-testX
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Andrew Clausen <clausen@gnu.org>
+Cc: John Bradford <john@grabjohn.com>, Andries Brouwer <aebr@win.tue.nl>,
+       Szakacsits Szabolcs <szaka@sienet.hu>, Apurva Mehta <apurva@gmx.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       bug-parted@gnu.org
+In-Reply-To: <20031129223103.GB505@gnu.org>
+References: <20031128045854.GA1353@home.woodlands>
+	 <20031128142452.GA4737@win.tue.nl> <20031129022221.GA516@gnu.org>
+	 <Pine.LNX.4.58.0311290550190.21441@ua178d119.elisa.omakaista.fi>
+	 <20031129123451.GA5372@win.tue.nl>
+	 <200311291350.hATDo0CY001142@81-2-122-30.bradfords.org.uk>
+	 <20031129223103.GB505@gnu.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-+8BTWesL3HCVRtpJbSVZ"
+Organization: Red Hat, Inc.
+Message-Id: <1070182676.5214.2.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200311300303.57654.dtor_core@ameritech.net>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Sun, 30 Nov 2003 09:57:56 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 30, 2003 at 03:03:57AM -0500, Dmitry Torokhov wrote:
-> If request_irq fails in i8042_open it will call serio_unregister_port,
-> which takes serio_sem. i8042_open may be called:
-> 
-> serio_register_port - serio_find_dev - dev->connect
-> serio_register_device - dev->connect
-> 
-> Both serio_register_port and serio_register_device take serio_sem as well.
-> 
-> I think that serio_{register|unregister}_port can be converted into
-> submitting requests to kseriod thus removing deadlock on the serio_sem.
-> 
-> The patch below is on top of serio* patches in Andrew Morton's -mm tree.
 
-It's nice to avoid the deadlock this way, but I think it's not a good
-idea to make the register/unregister asynchronous - it could be a nasty
-surprise for an unsuspecting driver writer.
+--=-+8BTWesL3HCVRtpJbSVZ
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> Dmitry
-> 
-> ===================================================================
-> 
-> 
-> ChangeSet@1.1512, 2003-11-30 02:42:54-05:00, dtor_core@ameritech.net
->   Input: Use kseriod to register/unregister serio ports
-> 
-> 
->  serio.c |   22 ++++++++++++++--------
->  1 files changed, 14 insertions(+), 8 deletions(-)
-> 
-> ===================================================================
-> 
-> diff -Nru a/drivers/input/serio/serio.c b/drivers/input/serio/serio.c
-> --- a/drivers/input/serio/serio.c	Sun Nov 30 03:01:40 2003
-> +++ b/drivers/input/serio/serio.c	Sun Nov 30 03:01:40 2003
-> @@ -83,8 +83,10 @@
->  	}
->  }
->  
-> -#define SERIO_RESCAN	1
-> -#define SERIO_RECONNECT	2
-> +#define SERIO_RESCAN		1
-> +#define SERIO_RECONNECT		2
-> +#define SERIO_REGISTER_PORT	3
-> +#define SERIO_UNREGISTER_PORT	4
->  
->  static DECLARE_WAIT_QUEUE_HEAD(serio_wait);
->  static DECLARE_COMPLETION(serio_exited);
-> @@ -111,6 +113,14 @@
->  			goto event_done;
->  		
->  		switch (event->type) {
-> +			case SERIO_REGISTER_PORT :
-> +				__serio_register_port(event->serio);
-> +				break;
-> +
-> +			case SERIO_UNREGISTER_PORT :
-> +				__serio_unregister_port(event->serio);
-> +				break;
-> +
->  			case SERIO_RECONNECT :
->  				if (event->serio->dev && event->serio->dev->reconnect)
->  					if (event->serio->dev->reconnect(event->serio) == 0)
-> @@ -192,9 +202,7 @@
->  
->  void serio_register_port(struct serio *serio)
->  {
-> -	down(&serio_sem);
-> -	__serio_register_port(serio);
-> -	up(&serio_sem);
-> +	serio_queue_event(serio, SERIO_REGISTER_PORT);
->  }
->  
->  /*
-> @@ -210,9 +218,7 @@
->  
->  void serio_unregister_port(struct serio *serio)
->  {
-> -	down(&serio_sem);
-> -	__serio_unregister_port(serio);
-> -	up(&serio_sem);
-> +	serio_queue_event(serio, SERIO_UNREGISTER_PORT);
->  }
->  
->  /*
-> 
+On Sat, 2003-11-29 at 23:31, Andrew Clausen wrote:
+> On Sat, Nov 29, 2003 at 01:50:00PM +0000, John Bradford wrote:
+> > Why don't we take the opporunity to make all CHS code configurable out
+> > of the kernel, and define a new, more compact, partition table format
+> > which used LBA exclusively, and allowed more than four partitions in
+> > the main partition table?
+>=20
+> Intel's EFI GPT partition table format seems quite acceptable.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+EFI GPT has some severe downsides (like requiring the last sector on
+disk, which in linux may not be accessible if the total number of
+sectors is not a multiple of 2, and making dd of one disk to another
+impossible if the second one is bigger)
+
+
+--=-+8BTWesL3HCVRtpJbSVZ
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/ybEUxULwo51rQBIRAs73AKCVgCTSiujCgnQBocOsiyronOXVEgCgmgTx
+cv9yhia5EE8CkRZif33wcLk=
+=ErpM
+-----END PGP SIGNATURE-----
+
+--=-+8BTWesL3HCVRtpJbSVZ--

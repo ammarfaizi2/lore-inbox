@@ -1,92 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275233AbTHMPUf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 11:20:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275232AbTHMPUf
+	id S275235AbTHMPX5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 11:23:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275237AbTHMPX5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 11:20:35 -0400
-Received: from crosslink-village-512-1.bc.nu ([81.2.110.254]:53496 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S275233AbTHMPU0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 11:20:26 -0400
-Subject: Re: 2.6.0-test3-mm1: scheduling while atomic (ext3?)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andi Kleen <ak@suse.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030813142055.GC9179@wotan.suse.de>
-References: <20030813014746.412660ae.akpm@osdl.org.suse.lists.linux.kernel>
-	 <20030813091958.GA30746@gates.of.nowhere.suse.lists.linux.kernel>
-	 <20030813025542.32429718.akpm@osdl.org.suse.lists.linux.kernel>
-	 <1060772769.8009.4.camel@localhost.localdomain.suse.lists.linux.kernel>
-	 <20030813042544.5064b3f4.akpm@osdl.org.suse.lists.linux.kernel>
-	 <1060774803.8008.24.camel@localhost.localdomain.suse.lists.linux.kernel>
-	 <p7365l17o70.fsf@oldwotan.suse.de>
-	 <1060778924.8008.39.camel@localhost.localdomain>
-	 <20030813131457.GD32290@wotan.suse.de>
-	 <1060783794.8008.62.camel@dhcp23.swansea.linux.org.uk>
-	 <20030813142055.GC9179@wotan.suse.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1060788009.8957.5.camel@dhcp23.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
-Date: 13 Aug 2003 16:20:11 +0100
+	Wed, 13 Aug 2003 11:23:57 -0400
+Received: from rosdorff.xs4all.nl ([213.84.29.108]:45956 "EHLO
+	rosdorff.xs4all.nl") by vger.kernel.org with ESMTP id S275235AbTHMPXy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 11:23:54 -0400
+Date: Wed, 13 Aug 2003 17:23:53 +0200 (CEST)
+From: Coen Rosdorff <coen@rosdorff.dyndns.org>
+To: linux-kernel@vger.kernel.org
+Subject: VM: killing process amavis
+Message-ID: <Pine.LNX.4.44.0308131708570.29133-100000@rosdorff.dyndns.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2003-08-13 at 15:20, Andi Kleen wrote:
-> stuff is basically useless in the kernel because it only helps with data
-> sets significantly bigger than your cache, and we usually only deal
-> with 4K chunks of everything.
+Who can tell me something about this error in /var/log/messages:
 
-Could be. I didnt write that code. I think Manfred also played with the
-copy tricks that came from the AMD slides.
+Aug 13 10:12:51 rosdorff kernel: VM: killing process amavis
+Aug 13 10:12:51 rosdorff kernel: swap_free: Unused swap offset entry 02000000
 
-> The K6 has it, right?
-> Is there a "more original" 3dnow that what has been in the K6?
+Memtest86: No errors.
 
-K6-II/III does. I don't know about original K6. but I believe it
-doesn't. The original 3Dnow was a joint Cyrix/AMD thing and it lacks 
-several instructions later added (including prefetch). The later Cyrix
-also has a couple of the additional ones but not prefetch.
- 
-> > "Mummy it doesnt work like I personally have decreed it shall lets break
-> > it and screw all the users". Thats the Dan Bernstein school of charm
-> 
-> It doesn't work like the AMD instruction reference manual describes it.
+Kernel: 2.4.21
+Mem: 256MB
+CPU: Intel PII 300Mhz
 
-Well there is a suprise, AMD didn't design it 8)
+# cat /proc/swaps 
+Filename                        Type            Size    Used    Priority
+/dev/sda2                       partition       530136  44256   -1
 
-> Of course it should be fixed, but the fix as it is a bug workaround
-> doesn't have to be very fast. So it would be ok to just clear the 3dnow bit.
-> But then to handle the K6 case (which is interesting, I didn't know) too it
-> would be probably better to define a separate bit. 
-
-What else checks the 3Dnow bit ?
-
-> > We want a pseudobit - otherwise we'll break other code that checks
-> > 3dnow is present properly.
-> 
-> Ok. I will do that when I'm back next week unless someone beats me
-> to it ;-)
-
-Some kind of "has prefetch and its actually useful" 8)
-
-> > If you misalign the instruction you don't seem to get the exception on
-> > Athlon, dunno about the Opteron errata or if the opteron errata bites in
-> > 32bit. If it does I guess we should clear mmx, xmm for Opteron by your
-> > arguments ;)
-> 
-> I didn't know about the misalignment bit. Interesting. Misalignment to
-> what boundary?
-
-I'll have to go check again. Its something RH internal testing found
-when people were going "uh what the hell is going on here" 8)
-
-> But is it slower than an aligned execution? If yes I would prefer my 
-> solution because it keeps the fast path as fast as possible.
-
-Has AMD confirmed that your solution is ok for the K7 as well as K8 - ie
-that if we hit the errata the fixup recovers the CPU from whatever
-lunatic state it is now in  ?
+# cat /proc/meminfo 
+        total:    used:    free:  shared: buffers:  cached:
+Mem:  263229440 194764800 68464640        0 55820288 91078656
+Swap: 542859264 45318144 497541120
+MemTotal:       257060 kB
+MemFree:         66860 kB
+MemShared:           0 kB
+Buffers:         54512 kB
+Cached:          58248 kB
+SwapCached:      30696 kB
+Active:          90332 kB
+Inactive:        74088 kB
+HighTotal:           0 kB
+HighFree:            0 kB
+LowTotal:       257060 kB
+LowFree:         66860 kB
+SwapTotal:      530136 kB
+SwapFree:       485880 kB
 

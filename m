@@ -1,45 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268972AbUJQA0J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268978AbUJQA3j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268972AbUJQA0J (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Oct 2004 20:26:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268978AbUJQA0I
+	id S268978AbUJQA3j (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Oct 2004 20:29:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268980AbUJQA3j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Oct 2004 20:26:08 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:192 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S268972AbUJQA0F
+	Sat, 16 Oct 2004 20:29:39 -0400
+Received: from mail1.webmaster.com ([216.152.64.168]:59400 "EHLO
+	mail1.webmaster.com") by vger.kernel.org with ESMTP id S268978AbUJQA33
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Oct 2004 20:26:05 -0400
-Message-ID: <4171BC0F.70901@pobox.com>
-Date: Sat, 16 Oct 2004 20:25:51 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
+	Sat, 16 Oct 2004 20:29:29 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: <aebr@win.tue.nl>
+Cc: <mark@mark.mielke.cc>,
+       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: RE: UDP recvmsg blocks after select(), 2.6 bug?
+Date: Sat, 16 Oct 2004 17:28:22 -0700
+Message-ID: <MDEHLPKNGKAHNMBLJOLKKEONPAAA.davids@webmaster.com>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, ak@suse.de, axboe@suse.de
-Subject: Re: Hang on x86-64, 2.6.9-rc3-bk4
-References: <41719537.1080505@pobox.com>	<417196AA.3090207@pobox.com>	<20041016154818.271a394b.akpm@osdl.org>	<4171B23F.6060305@pobox.com> <20041016171458.4511ad8b.akpm@osdl.org>
-In-Reply-To: <20041016171458.4511ad8b.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <20041016182544.GC3379@pclin040.win.tue.nl>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+Importance: Normal
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Sat, 16 Oct 2004 17:05:03 -0700
+	(not processed: message from trusted or authenticated source)
+X-MDRemoteIP: 206.171.168.138
+X-Return-Path: davids@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: davids@webmaster.com
+X-MDAV-Processed: mail1.webmaster.com, Sat, 16 Oct 2004 17:05:08 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Jeff Garzik <jgarzik@pobox.com> wrote:
-> 
->>>I'd be suspecting the vmscan.c change, but we allegedly fixed that later on.
->>
->> > Can you try reverting it?  (Can't reproduce the problem here)
->>
->>
->> Verified -- reverting the vmscan.c changeset (attached) fixed my hang.
-> 
-> 
-> Can we get a sysrq-M dump from that machine please?
 
-For which?  fixed or hung?
+> On Fri, Oct 15, 2004 at 09:58:38PM -0700, David Schwartz wrote:
+>
+> > Linux's behavior is correct in the literal sense that it is
+> > doing something
+> > that is allowed. It's incorrect in the sense that it's sub-optimal.
+>
+> "Allowed" by whom? By you?
 
-	Jeff
+	I clearly explained what I meant in context that you snipped. In summary, I
+mean 'allowed' in the sense that it's not prohibited by the standard and
+arguing that it's not allowed leads to direct logical contradictions.
+Nothing prohibits an implementation from dropping a UDP packet after it has
+been received. Nothing in POSIX requires that a subsequent operation
+actually does not block.
+
+	Would you argue that an implementation cannot drop a UDP packet after it
+has indicated a read hit on 'select' because of that packet? If so, where
+does POSIX say this? And if not, then it can drop a corrupt packet on a call
+to 'recvmsg' as well.
+
+	DS
+
 
 

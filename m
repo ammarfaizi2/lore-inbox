@@ -1,80 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266930AbTGOJIk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 05:08:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266931AbTGOJIk
+	id S266939AbTGOJOn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 05:14:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266945AbTGOJOm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 05:08:40 -0400
-Received: from 69-55-72-150.ppp.netsville.net ([69.55.72.150]:42195 "EHLO
-	tiny.suse.com") by vger.kernel.org with ESMTP id S266930AbTGOJIe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 05:08:34 -0400
-Subject: Re: RFC on io-stalls patch
-From: Chris Mason <mason@suse.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@osdl.org>,
-       marcelo@conectiva.com.br, linux-kernel@vger.kernel.org, akpm@digeo.com
-In-Reply-To: <1058260347.4012.11.camel@tiny.suse.com>
-References: <20030714202434.GS16313@dualathlon.random>
-	 <1058214881.13313.291.camel@tiny.suse.com>
-	 <20030714224528.GU16313@dualathlon.random>
-	 <1058229360.13317.364.camel@tiny.suse.com>
-	 <20030714175238.3eaddd9a.akpm@osdl.org>
-	 <20030715020706.GC16313@dualathlon.random> <20030715054551.GD833@suse.de>
-	 <20030715060101.GB30537@dualathlon.random> <20030715060857.GG833@suse.de>
-	 <20030715070314.GD30537@dualathlon.random>  <20030715082850.GH833@suse.de>
-	 <1058260347.4012.11.camel@tiny.suse.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1058260920.4012.15.camel@tiny.suse.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 15 Jul 2003 05:22:02 -0400
-Content-Transfer-Encoding: 7bit
+	Tue, 15 Jul 2003 05:14:42 -0400
+Received: from anchor-post-35.mail.demon.net ([194.217.242.85]:21985 "EHLO
+	anchor-post-35.mail.demon.net") by vger.kernel.org with ESMTP
+	id S266939AbTGOJOj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 05:14:39 -0400
+From: "" <simon@baydel.com>
+To: linux-kernel@vger.kernel.org
+Date: Tue, 15 Jul 2003 10:24:13 +0100
+MIME-Version: 1.0
+Subject: Re: PPC 440 System
+Message-ID: <3F13D64D.12715.E1BA3@localhost>
+In-reply-to: <524r1pw0bd.fsf@topspin.com>
+References: <3F12A1B9.3086.614B56@localhost>
+X-mailer: Pegasus Mail for Windows (v4.11)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-07-15 at 05:12, Chris Mason wrote:
-> On Tue, 2003-07-15 at 04:28, Jens Axboe wrote:
-> 
-> > Definitely, because prepare to be a bit disappointed. Here are scores
-> > that include 2.4.21 as well:
-> 
-> > io_load:
-> > Kernel            [runs]        Time    CPU%    Loads   LCPU%   Ratio
-> > 2.4.21                 3        543     49.7    100.4   19.0    4.08
-> > 2.4.22-pre5            3        637     42.5    120.2   18.5    4.75
-> > 2.4.22-pre5-axboe      3        540     50.0    103.0   18.1    4.06
-> 
-> Huh, this is completely different than io_load on my box (2P scsi, ext3,
-> data=writeback)
-> 
-> io_load:
-> Kernel      [runs]      Time    CPU%    Loads   LCPU%   Ratio
-> 2.4.21           3      520     52.5    27.8    15.2    3.80
-> 2.4.22-pre5      3      394     69.0    21.5    15.4    2.90
-> 2.4.22-sync      3      321     84.7    16.2    15.8    2.36
-> 
-> Where 2.4.22-sync was the variant I posted yesterday.  I don't really
-> see how 2.4.21 can get numbers as good as 2.4.22-pre5 on the io_load
-> test, the read starvation with a big streaming io is horrible.
-> 
-> The data=writeback is changing the workload significantly, I used it
-> because I didn't want the data=ordered code to flush all dirty buffers
-> every 5 seconds.  I would expect ext3 data=ordered to be pretty
-> starvation prone in 2.4.21 as well though.
-> 
+I don't understand. Can I not just use the math emulation in the kernel ?
 
-A quick tests show data=ordered doesn't starve as badly as
-data=writeback (streaming writer, find .), but both ext3 modes are
-significantly better than ext2.
+Cheers
 
-> BTW, the contest run times vary pretty wildy.  My 3 compiles with
-> io_load running on 2.4.21 were 603s, 443s and 515s.  This doesn't make
-> the average of the 3 numbers invalid, but we need a more stable metric.
+Simon.
 
-<experimenting here>
+On 14 Jul 2003 at 9:16, Roland Dreier wrote:
 
--chris
+>     simon> If I remove /sbin/init from the nfs root the kernel panics
+>     simon> as expected, so I assume root is mounted ok. I have tried
+>     simon> to build a minimum root filesystem which contains
+>     simon> /dev/console, /dev/ttyS0 and a statically linked
+>     simon> /sbin/init. The init just does a printf but I do not see
+>     simon> this message. Does anyone know it this should work ?
+> 
+> Yes, a static /sbin/init should work.
+> 
+>     simon> Initially I tried to build a root filesystem from files on
+>     simon> a Mac Clone running Yellow Dog Linux. I believe this has a
+>     simon> PPC 604e processor. Should this systems binaries/libraries
+>     simon> run on the 440GP ?
+> 
+>     simon> Can I expect a statically linked executable, made on the
+>     simon> Mac, to run on the 440GP?
+> 
+> Probably not.  The 440GP has no floating point hardware, so you will
+> need (at least) to build a special glibc without FP instructions and
+> also make sure your gcc is set up not to generate FP instructions.
+> 
+> Your best bet is probably to download ELDK (a free Embedded Linux
+> Development Kit) from www.denx.de.  Dan Kegel also has some good PPC
+> 4xx cross development information at www.kegel.com.
+> 
+> Best,
+>   Roland
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
+__________________________
+
+Simon Haynes - Baydel 
+Phone : 44 (0) 1372 378811
+Email : simon@baydel.com
+__________________________
 

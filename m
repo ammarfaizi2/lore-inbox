@@ -1,27 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264193AbRFXMZh>; Sun, 24 Jun 2001 08:25:37 -0400
+	id <S265746AbRFXM3i>; Sun, 24 Jun 2001 08:29:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265746AbRFXMZ2>; Sun, 24 Jun 2001 08:25:28 -0400
-Received: from juicer13.bigpond.com ([139.134.6.21]:27872 "EHLO
-	mailin1.bigpond.com") by vger.kernel.org with ESMTP
-	id <S264193AbRFXMZU>; Sun, 24 Jun 2001 08:25:20 -0400
-Message-ID: <3B35DC3D.6D2DC9C@bigpond.com>
-Date: Sun, 24 Jun 2001 22:25:33 +1000
-From: Allan Duncan <allan.d@bigpond.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre5 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Christoph Rohland <cr@sap.com>
-CC: "Albert D. Cahalan" <acahalan@cs.uml.edu>, linux-kernel@vger.kernel.org
-Subject: Re: Shared memory quantity not being reflected by /proc/meminfo
-In-Reply-To: <200106240249.f5O2nIF07215@saturn.cs.uml.edu> <m3n16yjmkl.fsf@linux.local>
+	id <S265749AbRFXM32>; Sun, 24 Jun 2001 08:29:28 -0400
+Received: from nic.lth.se ([130.235.20.3]:54947 "EHLO nic.lth.se")
+	by vger.kernel.org with ESMTP id <S265746AbRFXM3M>;
+	Sun, 24 Jun 2001 08:29:12 -0400
+Date: Sun, 24 Jun 2001 14:29:10 +0200
+From: Jakob Borg <jakob@borg.pp.se>
+To: linux-kernel@vger.kernel.org
+Subject: SMP+USB still crashes in 2.4.6-pre5
+Message-ID: <20010624142910.A434@borg.pp.se>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.18i
+X-Operating-System: Linux narayan 2.4.3 i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK, it's fine by me if the "shared" under 2.2.x is not the same, however
-in that case the field should not appear at all in meminfo, rather than
-the current zero value, which leads lesser kernel hackers like me up the
-garden path.
+Hey,
+
+Just wanted people to know that the same problem I reported about 2.4.4 a
+while back is still present in 2.4.6-pre6 (hard crash when doing "cat
+whatever > /dev/dsp1" where /dev/dsp1 is an external USB audio device, where
+"hard crash" means a freeze followed by "wait on irq" message as reported
+earlier).
+
+I have tracked down the problem to having appeared between 2.4.3 and 2.4.4
+and occuring only on kernels compiled SMP (actual number of processors
+doesn't matter), but the only response I have got is "no major changes
+occured between those kernel versions" and I am not competent to find it
+myself. :(
+
+Any help appreciated...
+
+//jb

@@ -1,41 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267817AbUHPRkW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267818AbUHPRkQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267817AbUHPRkW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 13:40:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267820AbUHPRkV
+	id S267818AbUHPRkQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 13:40:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267820AbUHPRkP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 13:40:21 -0400
-Received: from 64.89.71.154.nw.nuvox.net ([64.89.71.154]:26757 "EHLO
-	gate.apago.com") by vger.kernel.org with ESMTP id S267817AbUHPRkL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 13:40:11 -0400
-SMTP-Relay: dogwood.freil.com
-Message-Id: <200408161740.i7GHe4Aa022031@dogwood.freil.com>
-X-Mailer: exmh version 2.0.2 2/24/98
+	Mon, 16 Aug 2004 13:40:15 -0400
+Received: from main.gmane.org ([80.91.224.249]:32232 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S267818AbUHPRkK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 13:40:10 -0400
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-Subject: Re: Serious Kernel slowdown with HIMEM (4Gig) in 2.6.7
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 16 Aug 2004 13:40:03 -0400
-From: "Lawrence E. Freil" <lef@freil.com>
+From: Adam Jones <adam@yggdrasl.demon.co.uk>
+Subject: Re: growisofs stopped working with 2.6.8
+Date: Mon, 16 Aug 2004 18:28:37 +0100
+Message-ID: <5f77v1-cei.ln1@yggdrasl.demon.co.uk>
+References: <1092674287.3021.19.camel@bony>
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: yggdrasl.demon.co.uk
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Problem solved.
+In a futile gesture against entropy, Tony A. Lambley wrote:
+> Hi, burning a dvd iso now fails :(
+> 
+> $ growisofs -Z /dev/hdc=file.iso
+> :-( unable to GET CONFIGURATION: Operation not permitted
+> :-( non-MMC unit?
 
-I found a reference to a very similar (turns out same) problem with the
-2.4 series kernels.  The problem is because the mtrr maps do not quite
-cover all the memory the system was reporting.   Memory that does not
-show up in the mtrr must be being mapped as non-cacheable.  Is there
-a reason the system defaults to this as oppose to cacheable?  It obviously
-sees the holes?  I can work around the problem by adding "mem=1008" instead
-of letting it default (or I suppose I could patch the mtrr after boot).
+In case it's helpful, when running growisofs setuid from a normal user
+account (with write access to the device node), the error is:
 
-Thanks for all those with suggestions and what to look for.
+:-( unable to PREVENT MEDIA REMOVAL: Operation not permitted
 
+Should locking the drive door be allowed for normal users?
 -- 
-        Lawrence Freil                      Email:lef@freil.com
-        1768 Old Country Place              Phone:(770) 667-9274
-        Woodstock, GA 30188
-
+Adam Jones (adam@yggdrasl.demon.co.uk)(http://www.yggdrasl.demon.co.uk/)
+.oO("what's big iron?"                                                 )
+PGP public key: http://www.yggdrasl.demon.co.uk/pubkey.asc
 

@@ -1,65 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266169AbTGIVv4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 17:51:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266168AbTGIVv4
+	id S268526AbTGIVum (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 17:50:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268566AbTGIVum
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 17:51:56 -0400
-Received: from palrel13.hp.com ([156.153.255.238]:55698 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S266169AbTGIVvx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 17:51:53 -0400
-Date: Wed, 9 Jul 2003 15:06:30 -0700
-From: David Mosberger <davidm@napali.hpl.hp.com>
-Message-Id: <200307092206.h69M6UFX003197@napali.hpl.hp.com>
-To: torvalds@transmeta.com
-Cc: sam@ravnborg.org, linux-kernel@vger.kernel.org
-Subject: .incbin patch
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
-Reply-To: davidm@hpl.hp.com
+	Wed, 9 Jul 2003 17:50:42 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64387 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S268526AbTGIVul
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jul 2003 17:50:41 -0400
+Message-ID: <3F0C9194.5060206@pobox.com>
+Date: Wed, 09 Jul 2003 18:05:08 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Bas Mevissen <bas@basmevissen.nl>
+CC: torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: REQ: BCM4400 network driver for 2.4.22
+References: <200307092333.36917.bas@basmevissen.nl>
+In-Reply-To: <200307092333.36917.bas@basmevissen.nl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
+Bas Mevissen wrote:
+> Hi Linus, Alan, all,
+> 
+> Is the BCM4400 network driver planned for 2.4.22? It is in 2.4.22-pre3-ac1, 
+> but not in 2.4.22-pre3.
+> 
+> As far as I can tell, it works fine. If needed, I can do some more testing.
+> 
+> I hope it can be included in the mainstream 2.4. It saves me (and a lot of 
+> other people) the trouble of using an external driver.
 
-Would you mind applying the attached small patch (originally by H.J. Lu)?
-It's the last thing that keeps your tree from building directly for ia64.
 
-Sam said he would submit the patch to you, but this was over a week
-ago.  I tried to contact Sam, but it looks like his mailbox is full
-(probably on vacation).
+b44 in 2.5 supports this, and it will be backported to 2.4.
 
-As I recall, the only objection to this patch came from Russell King,
-since it would force ARM to upgrade to a reasonably recent version of
-binutils, but he (grudingly) agreed to the change.
+Pekka Pietikainen just identified several bugs, so those will get fixed 
+in the next day or so, then b44 will be sent to Marcelo.
 
-Thanks,
+	Jeff
 
-	--david
 
-===== usr/Makefile 1.6 vs edited =====
---- 1.6/usr/Makefile	Sun Mar  9 13:47:41 2003
-+++ edited/usr/Makefile	Tue Jul  8 10:29:19 2003
-@@ -5,11 +5,9 @@
- 
- clean-files := initramfs_data.cpio.gz
- 
--LDFLAGS_initramfs_data.o := $(LDFLAGS_BLOB) -r -T
--
--$(obj)/initramfs_data.o: $(src)/initramfs_data.scr \
--			 $(obj)/initramfs_data.cpio.gz FORCE
--	$(call if_changed,ld)
-+$(src)/initramfs_data.S: $(obj)/initramfs_data.cpio.gz
-+	echo "	.section .init.ramfs,\"a\"" &gt; $(src)/initramfs_data.S
-+	echo ".incbin \"usr/initramfs_data.cpio.gz\"" &gt;&gt; $(src)/initramfs_data.S
- 
- # initramfs-y are the programs which will be copied into the CPIO
- # archive. Currently, the filenames are hardcoded in gen_init_cpio,
-===== usr/initramfs_data.scr 1.1 vs edited =====
---- 1.1/usr/initramfs_data.scr	Mon Nov  4 14:04:41 2002
-+++ edited/usr/initramfs_data.scr	Tue Jul  8 10:29:19 2003
-@@ -1,4 +0,0 @@
--SECTIONS
--{
--	.init.ramfs : { *(.data) }
--}
+

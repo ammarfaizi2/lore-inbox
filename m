@@ -1,77 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129884AbRB0XOP>; Tue, 27 Feb 2001 18:14:15 -0500
+	id <S129899AbRB0XPI>; Tue, 27 Feb 2001 18:15:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129899AbRB0XOG>; Tue, 27 Feb 2001 18:14:06 -0500
-Received: from etpmod.phys.tue.nl ([131.155.111.35]:21007 "EHLO
-	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
-	id <S129884AbRB0XNy>; Tue, 27 Feb 2001 18:13:54 -0500
-Date: Wed, 28 Feb 2001 00:12:21 +0100
-From: Kurt Garloff <garloff@suse.de>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Linux kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Announce: modutils 2.4.3 is available
-Message-ID: <20010228001221.P21238@garloff.etpnet.phys.tue.nl>
-Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
-	Keith Owens <kaos@ocs.com.au>,
-	Linux kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <3A9A2B3B.421AE7E8@hanse.com> <22995.983227286@ocs3.ocs-net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="b5sSX5qSQrSInIHt"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <22995.983227286@ocs3.ocs-net>; from kaos@ocs.com.au on Tue, Feb 27, 2001 at 09:41:26AM +1100
-X-Operating-System: Linux 2.2.16 i686
-X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
-X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
-Organization: TUE/NL, SuSE/FRG
+	id <S129900AbRB0XO4>; Tue, 27 Feb 2001 18:14:56 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:27268 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S129899AbRB0XOk>; Tue, 27 Feb 2001 18:14:40 -0500
+Date: Tue, 27 Feb 2001 18:13:22 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Peter.Havens@Level3.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Promise Ultra100 IDE PDC20265 chip problem
+In-Reply-To: <7599F001C7F8D4118AAD0008C791997403E947@N0239IDC1.oss.level3.com>
+Message-ID: <Pine.LNX.3.95.1010227181041.23089A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 27 Feb 2001 Peter.Havens@Level3.com wrote:
 
---b5sSX5qSQrSInIHt
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> 
+> (I am not subscribed to this list, if it is in fact a list. Please CC any
+> replies to me directly - Thanks)
+> 
 
-On Tue, Feb 27, 2001 at 09:41:26AM +1100, Keith Owens wrote:
-> On Mon, 26 Feb 2001 11:08:59 +0100,=20
-> Stefan Smietanowski <stefan@hanse.com> wrote:
-> >Keith Owens wrote
-> >> modutils-2.4.3.tar.gz           Source tarball, includes RPM spec file
-> >
-> >IIRC 2.4.2 was 2.4 only, and was released under protest, is it the same
-> >for 2.4.3?
->=20
-> modutils 2.4 will work on kernel 2.0 and libc 5, one of the changes in
-> 2.4.3 is for libc5 support.  The protest period has expired.
+If you are, in fact, I suggest you contact RedHat.
 
-To clearify: The incompatibility only affects the hotplug kernel device
-tables ...=20
-As there was no support amongst USB crowds for adding a version info for the
-table formats, the modutils-2.4.2 could not provide support for per 2.4.0
-kernel hotplug device tables. Nor can 2.4.3. The rest of the functionality
-is unaffected.
-Keith, correct me if I misunderstood ...
+> hde: dma_intr: error=0x10 { SectorIdNotFound }, LBAsect=32885055, sector=0
+                              ----------------
+This is something that windows has been hiding from you.
 
-Regards,
---=20
-Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
-GPG key: See mail header, key servers         Linux kernel development
-SuSE GmbH, Nuernberg, FRG                               SCSI, Security
 
---b5sSX5qSQrSInIHt
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Cheers,
+Dick Johnson
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
 
-iD8DBQE6nDRUxmLh6hyYd04RAs2/AKCn8eobQyqZ9718Gz8CLpSVFNlQewCfQfyg
-tZlKqME/cUYSZVrrLKbuCJg=
-=rR/t
------END PGP SIGNATURE-----
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
 
---b5sSX5qSQrSInIHt--
+

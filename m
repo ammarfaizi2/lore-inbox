@@ -1,56 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263504AbTKZFlb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 00:41:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263823AbTKZFlb
+	id S263963AbTKZFxv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 00:53:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263965AbTKZFxv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 00:41:31 -0500
-Received: from h80ad25ef.async.vt.edu ([128.173.37.239]:49796 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S263504AbTKZFla (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 00:41:30 -0500
-Message-Id: <200311260541.hAQ5fPmw029996@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: "Mr. BOFH" <icerbofh@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Fire Engine?? 
-In-Reply-To: Your message of "Tue, 25 Nov 2003 16:15:12 PST."
-             <BAY1-DAV15JU71pROHD000040e2@hotmail.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <BAY1-DAV15JU71pROHD000040e2@hotmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_4772620P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Wed, 26 Nov 2003 00:41:24 -0500
+	Wed, 26 Nov 2003 00:53:51 -0500
+Received: from fmr05.intel.com ([134.134.136.6]:13544 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S263963AbTKZFxt convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Nov 2003 00:53:49 -0500
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: hash table sizes
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Date: Wed, 26 Nov 2003 13:53:47 +0800
+Message-ID: <3AA03342E913FA4BA6D8BD0732BFC74B041F8424@pdsmsx402.pd.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: hash table sizes
+Thread-Index: AcOz3kDmMxayzrcxSc6FSfGoRuQBigAATZSg
+From: "Zhang, Yanmin" <yanmin.zhang@intel.com>
+To: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 26 Nov 2003 05:53:47.0936 (UTC) FILETIME=[A8E8FA00:01C3B3E1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_4772620P
-Content-Type: text/plain; charset=us-ascii
+Tcp/ip have the same problem. See function tcp_init/ip_rt_init.
 
-On Tue, 25 Nov 2003 16:15:12 PST, "Mr. BOFH" <icerbofh@hotmail.com>  said:
-> 
-> Sun has announced that they have redone their TCP/IP stack and is showing
-> for some instances a 30% improvement over Linux....
-> 
-> http://www.theregister.co.uk/content/61/33440.html
+My colleague's testing on IA64 shows the same result like Jef's while
+tcp_establish hash table applies for about 1G memory! Actually, it seems
+it wants to apply for 4G memory at the beginning!
 
-Hmm.. IBM tried this same idea with their 8232 Ethernet controller
-(basically, an 'industrial' PC with a 3Com card and a bus&tag card)
-and offload of some TCP/IP functionality back in 1988 or so.
+It's not a good idea to find a smart formula to fit into all scenarios.
+We can add new command line parameters to setup the hash table size,
+such as dentry_ht_size/inode_ht_size/tcp_estab_ht_size/ip_rt_ht_szie. If
+users don't input such parameters, then kernel can use Jes's formula to
+work out the size. 
 
-
---==_Exmh_4772620P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE/xD0EcC3lWbTT17ARAsKyAJ4ju8BoQRUeJ6HK+gD3u5rmeVDArgCgmQAW
-PcIgkh4x7pLSn+iZJTUogsE=
-=CjBq
------END PGP SIGNATURE-----
-
---==_Exmh_4772620P--

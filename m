@@ -1,50 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261349AbSKTQCT>; Wed, 20 Nov 2002 11:02:19 -0500
+	id <S261375AbSKTQGe>; Wed, 20 Nov 2002 11:06:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261416AbSKTQCT>; Wed, 20 Nov 2002 11:02:19 -0500
-Received: from chico.rediris.es ([130.206.1.3]:42464 "EHLO chico.rediris.es")
-	by vger.kernel.org with ESMTP id <S261349AbSKTQCS>;
-	Wed, 20 Nov 2002 11:02:18 -0500
-Content-Type: text/plain;
-  charset="iso-8859-15"
-From: David =?iso-8859-15?q?Mart=EDnez=20Moreno?= <ender@debian.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: PROBLEM: kernel oopsing in ftp.es.debian.org.
-Date: Wed, 20 Nov 2002 17:09:22 +0100
-User-Agent: KMail/1.4.3
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200211201226.18015.ender@debian.org> <200211201648.58812.ender@debian.org> <1037809464.3702.45.camel@irongate.swansea.linux.org.uk>
-In-Reply-To: <1037809464.3702.45.camel@irongate.swansea.linux.org.uk>
+	id <S261446AbSKTQGe>; Wed, 20 Nov 2002 11:06:34 -0500
+Received: from 208-135-136-018.customer.apci.net ([208.135.136.18]:15117 "EHLO
+	blessed.joshisanerd.com") by vger.kernel.org with ESMTP
+	id <S261375AbSKTQGd>; Wed, 20 Nov 2002 11:06:33 -0500
+Date: Wed, 20 Nov 2002 10:13:20 -0600 (CST)
+From: Josh Myer <jbm@joshisanerd.com>
+To: Jacob Kroon <d00jkr@efd.lth.se>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: OSS VIA82cxxx sound driver problem.
+In-Reply-To: <Pine.GSO.4.44.0211201535470.12611-200000@login-4.efd.lth.se>
+Message-ID: <Pine.LNX.4.44.0211201005050.30881-100000@blessed.joshisanerd.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200211201709.22394.ender@debian.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Mié 20 Nov 2002 17:24, Alan Cox escribió:
-> On Wed, 2002-11-20 at 15:48, David Martínez Moreno wrote:
-> > 	The last kernel that it ran stably I think that was 2.4.19-pre10. I can
-> > reboot with this kernel, because the machine has hung again. One more
-> > reboot doesn't mind. :-(
->
-> Stick the last stable kernel on it and see if becomes stable again. My
-> first guess is you've developed a hardware problem, going back to the
-> old kernel will eliminate that doubt
+Give 2.5.x a shot. In some versions there's a buglet, which was hopefully
+fixed (I kludged a patch, then the maintainer sent a proper one, and I
+haven't had time to try it out).
 
-	Ok, box has frozen again. I'm going to the University just now and switch to 
-another kernel (2.4.19-pre10). I'll keep you informed.
+I saw similar problems under 2.4 (it almost seems like the chipset is
+expecting aligned input; lots of errors after closing the device at the
+end of a song), but they went away when switching to 2.5.44.
 
-	Thank you,
-
-
-		Ender.
--- 
- Why is a cow? Mu. (Ommmmmmmmmm)
+Basically, the OSS driver for this chipset is hopelessly bad (no offense
+Jeff!), but ALSA one is pretty well-done and handles the quirks of the
+device.
 --
-Servicios de red - Network services
-Centro de Comunicaciones CSIC/RedIRIS
-Spanish Academic Network for Research and Development
-Madrid (Spain)
-Tlf (+34) 91.585.49.05
+/jbm, but you can call me Josh. Really, you can!
+ "What's a metaphor?" "For sheep to graze in"
+7958 1C1C 306A CDF8 4468  3EDE 1F93 F49D 5FA1 49C4
+
+
+On Wed, 20 Nov 2002, Jacob Kroon wrote:
+
+>
+> System:
+> AMD Athlon 800Mhz
+> Kernel 2.4.19, built with GCC 3.2
+> VIA Technologies, Inc. VT82C686 [Apollo Super ACPI]
+> PCI bridge: VIA Technologies, Inc. VT8371 [KX133 AGP] (rev 0).
+>
+> I've compiled the VIA82cxxx driver into the kernel, not as a module. The
+> driver works correctly for some time, but after a while it seems that it
+> can't set certain output frequencies (but it still plays sound), as I
+> noticed that XMMS plays songs at a slower frequency.
+>
+> Small output of "dmesg", whole log in attachment:
+>
+> ...
+> ...
+> attempt to access beyond end of device
+> 16:40: rw=0, want=479602, limit=479600
+> via82cxxx: timeout while reading AC97 codec (0xAC0000)
+> via82cxxx: Codec rate locked at 48Khz
+> via_audio: ignoring drain playback error -11
+> via_audio: ignoring drain playback error -11
+>
+> Quake 3 sounds ok, probably becuse it's playing audio at a rate that the
+> driver still can set (11Khz i think).
+>
+> /Jacob
+>
 

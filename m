@@ -1,48 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264755AbUE0PXM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264761AbUE0P0N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264755AbUE0PXM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 11:23:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264799AbUE0PXM
+	id S264761AbUE0P0N (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 11:26:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264790AbUE0P0N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 11:23:12 -0400
-Received: from mail.fh-wedel.de ([213.39.232.194]:3992 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S264755AbUE0PXJ (ORCPT
+	Thu, 27 May 2004 11:26:13 -0400
+Received: from zero.aec.at ([193.170.194.10]:13062 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S264761AbUE0P0I (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 11:23:09 -0400
-Date: Thu, 27 May 2004 17:21:56 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 4k stacks in 2.6
-Message-ID: <20040527152156.GI23194@wohnheim.fh-wedel.de>
-References: <20040527145935.GE23194@wohnheim.fh-wedel.de> <4382.1085670482@ocs3.ocs.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <4382.1085670482@ocs3.ocs.com.au>
-User-Agent: Mutt/1.3.28i
+	Thu, 27 May 2004 11:26:08 -0400
+To: Arthur Perry <kernel@linuxfarms.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: GART error 11 (fwd)
+References: <20uGg-17i-23@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Thu, 27 May 2004 17:26:05 +0200
+In-Reply-To: <20uGg-17i-23@gated-at.bofh.it> (Arthur Perry's message of
+ "Thu, 27 May 2004 17:10:12 +0200")
+Message-ID: <m3d64pvqlu.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 May 2004 01:08:02 +1000, Keith Owens wrote:
-> On Thu, 27 May 2004 16:59:35 +0200, 
-> =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de> wrote:
-> >
-> >Plus the script is wrong sometimes.  I have had trouble with sizes
-> >around 4G or 2G, and never found the time to really figure out what's
-> >going on.  Might be an alloca thing that got misparsed somehow.
-> 
-> Some code results in negative adjustments to the stack size on exit,
-> which look like 4G sizes.  My script checks for those and ignores them.
-> /^[89a-f].......$/d;
+Arthur Perry <kernel@linuxfarms.com> writes:
 
-Ok, looks as if only my script is wrong.  Do you know what exactly
-causes such a negative adjustment?
+> Here is a posting that I dropped off in RedHat's amd64-list.
+> It is a kernel related issue, so if anybody has any insight or opinion of
+> proper implementation here, please jump in!
 
-Jörn
+Machine Check Exceptions are in front of all hardware issues, not kernel 
+issues. It is your CPU trying to tell you that something is wrong in the
+hardware.
 
--- 
-Optimizations always bust things, because all optimizations are, in
-the long haul, a form of cheating, and cheaters eventually get caught.
--- Larry Wall 
+The 2.4 MCE code tends to label unrelated MCEs as "GART error" because
+of bugs in the MCE decoding functions. There is a full fix for that 
+in the works.
+
+In some early 2.4 kernels it also managed to trigger a CPU bug
+by writing directly nb registers.  This should be fixed in later
+2.4 kernels and also in SuSE SLES8-SP3.
+
+Best alternative is to use 2.6 which has much improved MCE handling.
+
+-Andi
+

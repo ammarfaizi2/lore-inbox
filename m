@@ -1,65 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264432AbTIITzx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 15:55:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264431AbTIITzw
+	id S264431AbTIIT5Y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 15:57:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264434AbTIIT5X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 15:55:52 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:39040 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S264432AbTIITzn (ORCPT
+	Tue, 9 Sep 2003 15:57:23 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:44248 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S264431AbTIIT5Q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 15:55:43 -0400
-Date: Tue, 9 Sep 2003 21:55:49 +0200
-From: Jens Axboe <axboe@suse.de>
+	Tue, 9 Sep 2003 15:57:16 -0400
+Date: Tue, 9 Sep 2003 12:46:35 -0700
+From: "David S. Miller" <davem@redhat.com>
 To: Felipe W Damasio <felipewd@terra.com.br>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] blk API update (and bug fix) to CDU535 cdrom driver
-Message-ID: <20030909195549.GR4755@suse.de>
-References: <3F5DDEA8.6040901@terra.com.br> <20030909143341.GA18257@suse.de> <3F5DEA0D.6030701@terra.com.br> <20030909153536.GH18257@suse.de> <3F5E12EC.6040502@terra.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Missing memory barrier on net/core/dev.c
+Message-Id: <20030909124635.3c0d522b.davem@redhat.com>
+In-Reply-To: <3F5E14D7.9030809@terra.com.br>
+References: <3F5E14D7.9030809@terra.com.br>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F5E12EC.6040502@terra.com.br>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 09 2003, Felipe W Damasio wrote:
-> 	Hi Jens,
-> 
-> Jens Axboe wrote:
-> >held! Ugh, and the request function do_cdu535_request calls
-> >schedule_timeout with the queue lock held (that is held when that
-> >function is entered), that is very buggy as well. Should also use
-> >set_current_state() right above that call, not open code it (that also
-> >misses a memory barrier). Same function also has problems with request
-> >handling. You should kill:
-> >
-> >	if (!(req->flags & REQ_CMD))
-> >		continue;       /* FIXME */
-> >
-> >that is very broken, make that:
-> >
-> >	if (!blk_fs_request(req)) {
-> >		end_request(req, 0);
-> >		continue;
-> >	}
-> >
-> >and kill these two lines:
-> >
-> >	if (rq_data_dir(req) != READ)
-> >		panic("Unknown SONY CD cmd");
-> >
-> >they are screwy too.
-> >
-> >Care to fix the things I outlined above?
-> 
-> 	This patch I think fixes all these, doesn't it?
-> 
-> 	It applies on top of my latest cli-sti-removal patch that I sent you.
+On Tue, 09 Sep 2003 14:58:47 -0300
+Felipe W Damasio <felipewd@terra.com.br> wrote:
 
-That needed changes too, as per my last mail. Please send one complete
-patch with all the fixes in, thanks.
+> 	I *think* net/core/dev.c is missing a mb() before calling 
+> schedule_timoeut.
 
--- 
-Jens Axboe
-
+I have another patch in my queue from Andrew Morton that
+removes the TASK_RUNNING setting altogether, schedule_timeout()
+always returns with the task in that state.

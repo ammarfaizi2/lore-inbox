@@ -1,73 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262005AbTCQXPm>; Mon, 17 Mar 2003 18:15:42 -0500
+	id <S261972AbTCQXOu>; Mon, 17 Mar 2003 18:14:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262008AbTCQXPm>; Mon, 17 Mar 2003 18:15:42 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:13544 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S262005AbTCQXP1>; Mon, 17 Mar 2003 18:15:27 -0500
-Date: Mon, 17 Mar 2003 20:25:25 -0300
-From: Eduardo Pereira Habkost <ehabkost@conectiva.com.br>
-To: trond.myklebust@fys.uio.no, neilb@cse.unsw.edu.au
+	id <S262000AbTCQXOu>; Mon, 17 Mar 2003 18:14:50 -0500
+Received: from mail-7.tiscali.it ([195.130.225.153]:4180 "EHLO mail.tiscali.it")
+	by vger.kernel.org with ESMTP id <S261972AbTCQXOt>;
+	Mon, 17 Mar 2003 18:14:49 -0500
+Date: Tue, 18 Mar 2003 00:25:44 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: David Mansfield <lkml@dm.cobite.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] race on rpc code
-Message-ID: <20030317232525.GC23932@duckman.distro.conectiva>
+Subject: Re: [ANNOUNCE] BK->CVS (real time mirror)
+Message-ID: <20030317232544.GB30541@dualathlon.random>
+References: <Pine.LNX.4.44.0303171804010.23829-100000@admin>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="2B/JsCI69OhZNC5r"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <Pine.LNX.4.44.0303171804010.23829-100000@admin>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Mar 17, 2003 at 06:08:11PM -0500, David Mansfield wrote:
+> 
+> Andrea,
+> 
+> FWIW, I have already written a program called cvsps (www.cobite.com/cvsps) 
+> which extracts 'patchset' information from cvs log output.  
+> 
+> Currently, this program doesn't work with the bk-cvs because the log 
+> messages that are committed with each file in a changeset can be 
+> different, and cvsps assumes the log message will  be the same.  
+> 
+> However, about a 5 line hack to my program (in progress) will allow it to 
+> recreate the ChangeSet information, since Larry has promised that the 
+> timestamps of all files touched by a changeset will be unique.
+> 
+> This might help you out.  I'll let you know when the '--bk-cvs' option has 
+> been implemented ;-)
 
---2B/JsCI69OhZNC5r
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+yes, this is very helpful thanks ;). I'd suggest you to also parse the
+logic tag and to print a warning if there's an error and not only to
+trust the timestamps. In general I don't love to depend on timestamps,
+so I appreciate the availability of the logical tag in the cvs log.
 
-Hi!
+Infact it would be nice to also be able to ask for the extraction of a
+certain logic tag out of the tree. This logic tag will be the
+"changeset" number for us, but one that is also persistent and no only
+unique (unlike in bk where the changeset number of a changeset can
+change anytime AFIK)
 
-The following patch fixes a race on the rpc code, it is the
-same race that was reported some weeks ago:
-http://marc.theaimsgroup.com/?l=3Dlinux-kernel&m=3D104462124226133&w=3D2
+I also wonder if it wouldn't be better if Larry would simply tag the CVS
+with the logic tag number since the first place, rather than writing it
+in the logs and having to parse the stuff with an external utility. 
+Personally I would prefer the logical tag to be applied to the CVS with
+a true `cvs tag`, not only written into the logs. dozen thousand of tags
+(i.e. changesets) shouldn't be a problem for cvs. Doing this change
+should be trivial, it should be easier than embedding the logical tag in
+the cvs comments. what do you think?
 
-After some minutes doing transfer of multiple files in parallel, it Oopses
-at xprt_timer because task->tk_client is NULL. It can happens because
-rpc_del_timer don't call timer_del_sync if the timer is running. But
-if xprt_timer is running, it can can setup itself to run again, even if
-the task is already being released by rpc_release_task.
-
---=20
-Eduardo
-
-diff -Nru a/net/sunrpc/sched.c b/net/sunrpc/sched.c
---- a/net/sunrpc/sched.c        Mon Mar 17 20:19:20 2003
-+++ b/net/sunrpc/sched.c        Mon Mar 17 20:19:20 2003
-@@ -169,10 +169,8 @@
- static inline void
- rpc_delete_timer(struct rpc_task *task)
- {
--       if (timer_pending(&task->tk_timer)) {
--               dprintk("RPC: %4d deleting timer\n", task->tk_pid);
--               del_timer_sync(&task->tk_timer);
--       }
-+       dprintk("RPC: %4d deleting timer\n", task->tk_pid);
-+       del_timer_sync(&task->tk_timer);
- }
-
- /*
-
---2B/JsCI69OhZNC5r
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+dlllcaRJ66w1lWgRAnGfAJ9OBt24fL4Y6mv93q4NVpC9jyC4KgCgmSu2
-4zKJbnWXGPY1QHEFlFPXU38=
-=Cl2Y
------END PGP SIGNATURE-----
-
---2B/JsCI69OhZNC5r--
+Andrea

@@ -1,45 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267397AbUJGRD3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267469AbUJGSBN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267397AbUJGRD3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 13:03:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267431AbUJGRBp
+	id S267469AbUJGSBN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 14:01:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267552AbUJGSAL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 13:01:45 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:35547 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S267433AbUJGQ2N (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 12:28:13 -0400
-Date: Thu, 7 Oct 2004 18:28:04 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Hollis Blanchard <hollisb@us.ibm.com>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Greg Kroah-Hartman <greg@kroah.com>, katzj@redhat.com
-Subject: Re: [patch] add class/tty/console/real_dev symlink
-In-Reply-To: <200410061830.52563.hollisb@us.ibm.com>
-Message-ID: <Pine.GSO.4.61.0410071827370.9319@waterleaf.sonytel.be>
-References: <200410061830.52563.hollisb@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 7 Oct 2004 14:00:11 -0400
+Received: from stat16.steeleye.com ([209.192.50.48]:32400 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S267469AbUJGRvy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 13:51:54 -0400
+Subject: Re: 2.6.9-rc3-mm3: `risc_code_addr01' multiple definition
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Andrew Vasquez <andrew.vasquez@qlogic.com>
+Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1097170149.12535.27.camel@praka>
+References: <20041007015139.6f5b833b.akpm@osdl.org>
+	<20041007165849.GA4493@stusta.de>  <1097170149.12535.27.camel@praka>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 07 Oct 2004 12:50:14 -0500
+Message-Id: <1097171420.1718.332.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Oct 2004, Hollis Blanchard wrote:
-> This patch adds a symlink from /sys/class/tty/console/real_dev to 
-> e.g. /sys/class/tty/ttyS0 . This is needed because there is no way for 
-> userspace to determine what device the kernel is using as its console, and in 
-> the case of an installer that is important information. Otherwise, the 
-> installer cannot know which serial port you're booting on, for example, and 
-> so wouldn't know where to display itself.
+On Thu, 2004-10-07 at 12:29, Andrew Vasquez wrote:
+> Hmm, seems the additional 1040 support in qla1280.c is causing name
+> clashes with the firmware image in qlogicfc_asm.c.  Try out the attached
+> patch (not tested) which provides the 1040 firmware image unique
+> variable names.
+> 
+> Looks like there would be some name clashes in qlogicfc and qlogicisp.
 
-The installer can just open /dev/console?
+Is there any reason for these firmware image pointers not to be static? 
+At least for these drivers which are single files.
 
-Gr{oetje,eeting}s,
+James
 
-						Geert
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds

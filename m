@@ -1,98 +1,531 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264648AbUH1KqY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264903AbUH1Kzx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264648AbUH1KqY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 06:46:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262329AbUH1KqY
+	id S264903AbUH1Kzx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 06:55:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263736AbUH1Kzp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 06:46:24 -0400
-Received: from may.priocom.com ([213.156.65.50]:29856 "EHLO may.priocom.com")
-	by vger.kernel.org with ESMTP id S261234AbUH1KqR (ORCPT
+	Sat, 28 Aug 2004 06:55:45 -0400
+Received: from verein.lst.de ([213.95.11.210]:61593 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S262329AbUH1KzT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 06:46:17 -0400
-Message-ID: <41306353.8090504@ukrpost.net>
-Date: Sat, 28 Aug 2004 13:49:55 +0300
-From: Yury Umanets <torque@ukrpost.net>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@suse.de>
-CC: Hans Reiser <reiser@namesys.com>, Christophe Saout <christophe@saout.de>,
-       viro@parcelfarce.linux.theplanet.co.uk,
-       Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: silent semantic changes with reiser4
-References: <20040824202521.GA26705@lst.de> <412CEE38.1080707@namesys.com> <20040825200859.GA16345@lst.de> <Pine.LNX.4.58.0408251314260.17766@ppc970.osdl.org> <20040825204240.GI21964@parcelfarce.linux.theplanet.co.uk> <1093467601.9749.14.camel@leto.cs.pocnet.net> <20040825225933.GD5618@nocona.random> <412DA0B5.3030301@namesys.com> <20040826112818.GL5618@nocona.random>
-In-Reply-To: <20040826112818.GL5618@nocona.random>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 28 Aug 2004 06:55:19 -0400
+Date: Sat, 28 Aug 2004 12:55:12 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] move ghash.h were it does less harm
+Message-ID: <20040828105512.GA11067@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch>, akpm@osdl.org,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00,UPPERCASE_25_50
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
-
->On Thu, Aug 26, 2004 at 01:35:01AM -0700, Hans Reiser wrote:
->  
->
->>Reiser4 plugins are not for end users to download from amazon.com, they 
->>are for weekend hackers to send me a cool plugin for me to review, 
->>assign a plugin id to, and send to Linus in the next release.  Sometimes 
->>    
->>
->
->then what's the difference in having the plugin fixed in stone into
->reiserfs? That's my whole point. Get the patch from the weekend hacker,
->check it, send the patch to Linus to add the new feature to reiser4,
->just call it "feature" not plugin. That's how it works normally for
->everything. Many fs have many features, many of them optional.  you
->wouldn't need to build any hook infrastructure either that way. Hooks
->would be needed if this wasn't open source me thinks. Or if you want
->people to fetch the module from amazon without your review.
->
->Another reason I could see the modularization/hooking useful is if those
->feature would take lots of kernel space, but this sure isn't the case
->for reiserfs, infact having modules would waste _more_ ram due the half
->wasted page allocation for the module text. The only single reason we
->use modules is to avoid wasting tons of ram by loading every possible
->device driver on earth, it's not that we use modules because they're
->more flexible, if something they're more fragile. I never use modules in
->my test kernel just to go fast (because I self compile them). The last
->good thing of the modules is during development you don't need to reboot
->the machine to test a kernel change in a driver, but you don't need that
->with reiserfs since you can make the fs itself a module (just change the
->name of the fs, AFIK you do that all the time already).
->  
->
-There lots of good things about plugins as they are in reiser4. And 
-probably the best one (as for me) is that, reiser4 core code (quite 
-complex thing) does not need to be changed after adding new plugins 
-(read new features).
-
-It is written once and provides some basic functionality (balancing, 
-atoms, etc.), which works well with all kinds of plugins if they 
-implement required functions from plugin interface.
-
-As for me, this looks like Linux's VFS. Sure, if I want to add some very 
-new filesystem with features which were not foreseen,  and VFS does not 
-provide needed interface, it will need some changes. But in simple case, 
-when I just want to develop once more disk filesystem, which say will be 
-different from another disk filesystem in only that respect it manages 
-its metadata in different manner and aims to achieve better performance 
-this way. In this case I will not need to chnage VFS at all. The same 
-about reiser4 core and new plugins.
-
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->
->  
->
+grmp, UML folks re-added ghash.h despite beeing told repeatedly not to
+do so.  At least move it to arch/um/ so people don't start to use it
+again when they are on similar drugs as thge UML people.
 
 
--- 
-umka
-
+diff -uNr linux-2.6.9-rc1-mm1/arch/um/kernel/ghash.h linux-2.6.9-rc1-mm1-hch/arch/um/kernel/ghash.h
+--- linux-2.6.9-rc1-mm1/arch/um/kernel/ghash.h	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.9-rc1-mm1-hch/arch/um/kernel/ghash.h	2004-08-28 12:17:39.033454000 +0200
+@@ -0,0 +1,236 @@
++/*
++ * include/linux/ghash.h -- generic hashing with fuzzy retrieval
++ *
++ * (C) 1997 Thomas Schoebel-Theuer
++ *
++ * The algorithms implemented here seem to be a completely new invention,
++ * and I'll publish the fundamentals in a paper.
++ */
++
++#ifndef _GHASH_H
++#define _GHASH_H
++/* HASHSIZE _must_ be a power of two!!! */
++
++
++#define DEF_HASH_FUZZY_STRUCTS(NAME,HASHSIZE,TYPE) \
++\
++struct NAME##_table {\
++	TYPE * hashtable[HASHSIZE];\
++	TYPE * sorted_list;\
++	int nr_entries;\
++};\
++\
++struct NAME##_ptrs {\
++	TYPE * next_hash;\
++	TYPE * prev_hash;\
++	TYPE * next_sorted;\
++	TYPE * prev_sorted;\
++};
++
++#define DEF_HASH_FUZZY(LINKAGE,NAME,HASHSIZE,TYPE,PTRS,KEYTYPE,KEY,KEYCMP,KEYEQ,HASHFN)\
++\
++LINKAGE void insert_##NAME##_hash(struct NAME##_table * tbl, TYPE * elem)\
++{\
++	int ix = HASHFN(elem->KEY);\
++	TYPE ** base = &tbl->hashtable[ix];\
++	TYPE * ptr = *base;\
++	TYPE * prev = NULL;\
++\
++	tbl->nr_entries++;\
++	while(ptr && KEYCMP(ptr->KEY, elem->KEY)) {\
++		base = &ptr->PTRS.next_hash;\
++		prev = ptr;\
++		ptr = *base;\
++	}\
++	elem->PTRS.next_hash = ptr;\
++	elem->PTRS.prev_hash = prev;\
++	if(ptr) {\
++		ptr->PTRS.prev_hash = elem;\
++	}\
++	*base = elem;\
++\
++	ptr = prev;\
++	if(!ptr) {\
++		ptr = tbl->sorted_list;\
++		prev = NULL;\
++	} else {\
++		prev = ptr->PTRS.prev_sorted;\
++	}\
++	while(ptr) {\
++		TYPE * next = ptr->PTRS.next_hash;\
++		if(next && KEYCMP(next->KEY, elem->KEY)) {\
++			prev = ptr;\
++			ptr = next;\
++		} else if(KEYCMP(ptr->KEY, elem->KEY)) {\
++			prev = ptr;\
++			ptr = ptr->PTRS.next_sorted;\
++		} else\
++			break;\
++	}\
++	elem->PTRS.next_sorted = ptr;\
++	elem->PTRS.prev_sorted = prev;\
++	if(ptr) {\
++		ptr->PTRS.prev_sorted = elem;\
++	}\
++	if(prev) {\
++		prev->PTRS.next_sorted = elem;\
++	} else {\
++		tbl->sorted_list = elem;\
++	}\
++}\
++\
++LINKAGE void remove_##NAME##_hash(struct NAME##_table * tbl, TYPE * elem)\
++{\
++	TYPE * next = elem->PTRS.next_hash;\
++	TYPE * prev = elem->PTRS.prev_hash;\
++\
++	tbl->nr_entries--;\
++	if(next)\
++		next->PTRS.prev_hash = prev;\
++	if(prev)\
++		prev->PTRS.next_hash = next;\
++	else {\
++		int ix = HASHFN(elem->KEY);\
++		tbl->hashtable[ix] = next;\
++	}\
++\
++	next = elem->PTRS.next_sorted;\
++	prev = elem->PTRS.prev_sorted;\
++	if(next)\
++		next->PTRS.prev_sorted = prev;\
++	if(prev)\
++		prev->PTRS.next_sorted = next;\
++	else\
++		tbl->sorted_list = next;\
++}\
++\
++LINKAGE TYPE * find_##NAME##_hash(struct NAME##_table * tbl, KEYTYPE pos)\
++{\
++	int ix = hashfn(pos);\
++	TYPE * ptr = tbl->hashtable[ix];\
++	while(ptr && KEYCMP(ptr->KEY, pos))\
++		ptr = ptr->PTRS.next_hash;\
++	if(ptr && !KEYEQ(ptr->KEY, pos))\
++		ptr = NULL;\
++	return ptr;\
++}\
++\
++LINKAGE TYPE * find_##NAME##_hash_fuzzy(struct NAME##_table * tbl, KEYTYPE pos)\
++{\
++	int ix;\
++	int offset;\
++	TYPE * ptr;\
++	TYPE * next;\
++\
++	ptr = tbl->sorted_list;\
++	if(!ptr || KEYCMP(pos, ptr->KEY))\
++		return NULL;\
++	ix = HASHFN(pos);\
++	offset = HASHSIZE;\
++	do {\
++		offset >>= 1;\
++		next = tbl->hashtable[(ix+offset) & ((HASHSIZE)-1)];\
++		if(next && (KEYCMP(next->KEY, pos) || KEYEQ(next->KEY, pos))\
++		   && KEYCMP(ptr->KEY, next->KEY))\
++			ptr = next;\
++	} while(offset);\
++\
++	for(;;) {\
++		next = ptr->PTRS.next_hash;\
++		if(next) {\
++			if(KEYCMP(next->KEY, pos)) {\
++				ptr = next;\
++				continue;\
++			}\
++		}\
++		next = ptr->PTRS.next_sorted;\
++		if(next && KEYCMP(next->KEY, pos)) {\
++			ptr = next;\
++			continue;\
++		}\
++		return ptr;\
++	}\
++	return NULL;\
++}
++
++/* LINKAGE - empty or "static", depending on whether you want the definitions to
++ *	be public or not
++ * NAME - a string to stick in names to make this hash table type distinct from
++ * 	any others
++ * HASHSIZE - number of buckets
++ * TYPE - type of data contained in the buckets - must be a structure, one
++ * 	field is of type NAME_ptrs, another is the hash key
++ * PTRS - TYPE must contain a field of type NAME_ptrs, PTRS is the name of that
++ * 	field
++ * KEYTYPE - type of the key field within TYPE
++ * KEY - name of the key field within TYPE
++ * KEYCMP - pointer to function that compares KEYTYPEs to each other - the
++ * 	prototype is int KEYCMP(KEYTYPE, KEYTYPE), it returns zero for equal,
++ * 	non-zero for not equal
++ * HASHFN - the hash function - the prototype is int HASHFN(KEYTYPE),
++ * 	it returns a number in the range 0 ... HASHSIZE - 1
++ * Call DEF_HASH_STRUCTS, define your hash table as a NAME_table, then call
++ * DEF_HASH.
++ */
++
++#define DEF_HASH_STRUCTS(NAME,HASHSIZE,TYPE) \
++\
++struct NAME##_table {\
++	TYPE * hashtable[HASHSIZE];\
++	int nr_entries;\
++};\
++\
++struct NAME##_ptrs {\
++	TYPE * next_hash;\
++	TYPE * prev_hash;\
++};
++
++#define DEF_HASH(LINKAGE,NAME,TYPE,PTRS,KEYTYPE,KEY,KEYCMP,HASHFN)\
++\
++LINKAGE void insert_##NAME##_hash(struct NAME##_table * tbl, TYPE * elem)\
++{\
++	int ix = HASHFN(elem->KEY);\
++	TYPE ** base = &tbl->hashtable[ix];\
++	TYPE * ptr = *base;\
++	TYPE * prev = NULL;\
++\
++	tbl->nr_entries++;\
++	while(ptr && KEYCMP(ptr->KEY, elem->KEY)) {\
++		base = &ptr->PTRS.next_hash;\
++		prev = ptr;\
++		ptr = *base;\
++	}\
++	elem->PTRS.next_hash = ptr;\
++	elem->PTRS.prev_hash = prev;\
++	if(ptr) {\
++		ptr->PTRS.prev_hash = elem;\
++	}\
++	*base = elem;\
++}\
++\
++LINKAGE void remove_##NAME##_hash(struct NAME##_table * tbl, TYPE * elem)\
++{\
++	TYPE * next = elem->PTRS.next_hash;\
++	TYPE * prev = elem->PTRS.prev_hash;\
++\
++	tbl->nr_entries--;\
++	if(next)\
++		next->PTRS.prev_hash = prev;\
++	if(prev)\
++		prev->PTRS.next_hash = next;\
++	else {\
++		int ix = HASHFN(elem->KEY);\
++		tbl->hashtable[ix] = next;\
++	}\
++}\
++\
++LINKAGE TYPE * find_##NAME##_hash(struct NAME##_table * tbl, KEYTYPE pos)\
++{\
++	int ix = HASHFN(pos);\
++	TYPE * ptr = tbl->hashtable[ix];\
++	while(ptr && KEYCMP(ptr->KEY, pos))\
++		ptr = ptr->PTRS.next_hash;\
++	return ptr;\
++}
++
++#endif
+diff -uNr linux-2.6.9-rc1-mm1/arch/um/kernel/physmem.c linux-2.6.9-rc1-mm1-hch/arch/um/kernel/physmem.c
+--- linux-2.6.9-rc1-mm1/arch/um/kernel/physmem.c	2004-08-28 12:17:24.928599096 +0200
++++ linux-2.6.9-rc1-mm1-hch/arch/um/kernel/physmem.c	2004-08-28 12:26:10.152752888 +0200
+@@ -4,7 +4,6 @@
+  */
+ 
+ #include "linux/mm.h"
+-#include "linux/ghash.h"
+ #include "linux/slab.h"
+ #include "linux/vmalloc.h"
+ #include "linux/bootmem.h"
+@@ -18,6 +17,7 @@
+ #include "os.h"
+ #include "kern.h"
+ #include "init.h"
++#include "ghash.h"
+ 
+ #if 0
+ static pgd_t physmem_pgd[PTRS_PER_PGD];
+diff -uNr linux-2.6.9-rc1-mm1/include/linux/ghash.h linux-2.6.9-rc1-mm1-hch/include/linux/ghash.h
+--- linux-2.6.9-rc1-mm1/include/linux/ghash.h	2004-08-28 12:17:39.033454832 +0200
++++ linux-2.6.9-rc1-mm1-hch/include/linux/ghash.h	1970-01-01 01:00:00.000000000 +0100
+@@ -1,236 +0,0 @@
+-/*
+- * include/linux/ghash.h -- generic hashing with fuzzy retrieval
+- *
+- * (C) 1997 Thomas Schoebel-Theuer
+- *
+- * The algorithms implemented here seem to be a completely new invention,
+- * and I'll publish the fundamentals in a paper.
+- */
+-
+-#ifndef _GHASH_H
+-#define _GHASH_H
+-/* HASHSIZE _must_ be a power of two!!! */
+-
+-
+-#define DEF_HASH_FUZZY_STRUCTS(NAME,HASHSIZE,TYPE) \
+-\
+-struct NAME##_table {\
+-	TYPE * hashtable[HASHSIZE];\
+-	TYPE * sorted_list;\
+-	int nr_entries;\
+-};\
+-\
+-struct NAME##_ptrs {\
+-	TYPE * next_hash;\
+-	TYPE * prev_hash;\
+-	TYPE * next_sorted;\
+-	TYPE * prev_sorted;\
+-};
+-
+-#define DEF_HASH_FUZZY(LINKAGE,NAME,HASHSIZE,TYPE,PTRS,KEYTYPE,KEY,KEYCMP,KEYEQ,HASHFN)\
+-\
+-LINKAGE void insert_##NAME##_hash(struct NAME##_table * tbl, TYPE * elem)\
+-{\
+-	int ix = HASHFN(elem->KEY);\
+-	TYPE ** base = &tbl->hashtable[ix];\
+-	TYPE * ptr = *base;\
+-	TYPE * prev = NULL;\
+-\
+-	tbl->nr_entries++;\
+-	while(ptr && KEYCMP(ptr->KEY, elem->KEY)) {\
+-		base = &ptr->PTRS.next_hash;\
+-		prev = ptr;\
+-		ptr = *base;\
+-	}\
+-	elem->PTRS.next_hash = ptr;\
+-	elem->PTRS.prev_hash = prev;\
+-	if(ptr) {\
+-		ptr->PTRS.prev_hash = elem;\
+-	}\
+-	*base = elem;\
+-\
+-	ptr = prev;\
+-	if(!ptr) {\
+-		ptr = tbl->sorted_list;\
+-		prev = NULL;\
+-	} else {\
+-		prev = ptr->PTRS.prev_sorted;\
+-	}\
+-	while(ptr) {\
+-		TYPE * next = ptr->PTRS.next_hash;\
+-		if(next && KEYCMP(next->KEY, elem->KEY)) {\
+-			prev = ptr;\
+-			ptr = next;\
+-		} else if(KEYCMP(ptr->KEY, elem->KEY)) {\
+-			prev = ptr;\
+-			ptr = ptr->PTRS.next_sorted;\
+-		} else\
+-			break;\
+-	}\
+-	elem->PTRS.next_sorted = ptr;\
+-	elem->PTRS.prev_sorted = prev;\
+-	if(ptr) {\
+-		ptr->PTRS.prev_sorted = elem;\
+-	}\
+-	if(prev) {\
+-		prev->PTRS.next_sorted = elem;\
+-	} else {\
+-		tbl->sorted_list = elem;\
+-	}\
+-}\
+-\
+-LINKAGE void remove_##NAME##_hash(struct NAME##_table * tbl, TYPE * elem)\
+-{\
+-	TYPE * next = elem->PTRS.next_hash;\
+-	TYPE * prev = elem->PTRS.prev_hash;\
+-\
+-	tbl->nr_entries--;\
+-	if(next)\
+-		next->PTRS.prev_hash = prev;\
+-	if(prev)\
+-		prev->PTRS.next_hash = next;\
+-	else {\
+-		int ix = HASHFN(elem->KEY);\
+-		tbl->hashtable[ix] = next;\
+-	}\
+-\
+-	next = elem->PTRS.next_sorted;\
+-	prev = elem->PTRS.prev_sorted;\
+-	if(next)\
+-		next->PTRS.prev_sorted = prev;\
+-	if(prev)\
+-		prev->PTRS.next_sorted = next;\
+-	else\
+-		tbl->sorted_list = next;\
+-}\
+-\
+-LINKAGE TYPE * find_##NAME##_hash(struct NAME##_table * tbl, KEYTYPE pos)\
+-{\
+-	int ix = hashfn(pos);\
+-	TYPE * ptr = tbl->hashtable[ix];\
+-	while(ptr && KEYCMP(ptr->KEY, pos))\
+-		ptr = ptr->PTRS.next_hash;\
+-	if(ptr && !KEYEQ(ptr->KEY, pos))\
+-		ptr = NULL;\
+-	return ptr;\
+-}\
+-\
+-LINKAGE TYPE * find_##NAME##_hash_fuzzy(struct NAME##_table * tbl, KEYTYPE pos)\
+-{\
+-	int ix;\
+-	int offset;\
+-	TYPE * ptr;\
+-	TYPE * next;\
+-\
+-	ptr = tbl->sorted_list;\
+-	if(!ptr || KEYCMP(pos, ptr->KEY))\
+-		return NULL;\
+-	ix = HASHFN(pos);\
+-	offset = HASHSIZE;\
+-	do {\
+-		offset >>= 1;\
+-		next = tbl->hashtable[(ix+offset) & ((HASHSIZE)-1)];\
+-		if(next && (KEYCMP(next->KEY, pos) || KEYEQ(next->KEY, pos))\
+-		   && KEYCMP(ptr->KEY, next->KEY))\
+-			ptr = next;\
+-	} while(offset);\
+-\
+-	for(;;) {\
+-		next = ptr->PTRS.next_hash;\
+-		if(next) {\
+-			if(KEYCMP(next->KEY, pos)) {\
+-				ptr = next;\
+-				continue;\
+-			}\
+-		}\
+-		next = ptr->PTRS.next_sorted;\
+-		if(next && KEYCMP(next->KEY, pos)) {\
+-			ptr = next;\
+-			continue;\
+-		}\
+-		return ptr;\
+-	}\
+-	return NULL;\
+-}
+-
+-/* LINKAGE - empty or "static", depending on whether you want the definitions to
+- *	be public or not
+- * NAME - a string to stick in names to make this hash table type distinct from
+- * 	any others
+- * HASHSIZE - number of buckets
+- * TYPE - type of data contained in the buckets - must be a structure, one
+- * 	field is of type NAME_ptrs, another is the hash key
+- * PTRS - TYPE must contain a field of type NAME_ptrs, PTRS is the name of that
+- * 	field
+- * KEYTYPE - type of the key field within TYPE
+- * KEY - name of the key field within TYPE
+- * KEYCMP - pointer to function that compares KEYTYPEs to each other - the
+- * 	prototype is int KEYCMP(KEYTYPE, KEYTYPE), it returns zero for equal,
+- * 	non-zero for not equal
+- * HASHFN - the hash function - the prototype is int HASHFN(KEYTYPE),
+- * 	it returns a number in the range 0 ... HASHSIZE - 1
+- * Call DEF_HASH_STRUCTS, define your hash table as a NAME_table, then call
+- * DEF_HASH.
+- */
+-
+-#define DEF_HASH_STRUCTS(NAME,HASHSIZE,TYPE) \
+-\
+-struct NAME##_table {\
+-	TYPE * hashtable[HASHSIZE];\
+-	int nr_entries;\
+-};\
+-\
+-struct NAME##_ptrs {\
+-	TYPE * next_hash;\
+-	TYPE * prev_hash;\
+-};
+-
+-#define DEF_HASH(LINKAGE,NAME,TYPE,PTRS,KEYTYPE,KEY,KEYCMP,HASHFN)\
+-\
+-LINKAGE void insert_##NAME##_hash(struct NAME##_table * tbl, TYPE * elem)\
+-{\
+-	int ix = HASHFN(elem->KEY);\
+-	TYPE ** base = &tbl->hashtable[ix];\
+-	TYPE * ptr = *base;\
+-	TYPE * prev = NULL;\
+-\
+-	tbl->nr_entries++;\
+-	while(ptr && KEYCMP(ptr->KEY, elem->KEY)) {\
+-		base = &ptr->PTRS.next_hash;\
+-		prev = ptr;\
+-		ptr = *base;\
+-	}\
+-	elem->PTRS.next_hash = ptr;\
+-	elem->PTRS.prev_hash = prev;\
+-	if(ptr) {\
+-		ptr->PTRS.prev_hash = elem;\
+-	}\
+-	*base = elem;\
+-}\
+-\
+-LINKAGE void remove_##NAME##_hash(struct NAME##_table * tbl, TYPE * elem)\
+-{\
+-	TYPE * next = elem->PTRS.next_hash;\
+-	TYPE * prev = elem->PTRS.prev_hash;\
+-\
+-	tbl->nr_entries--;\
+-	if(next)\
+-		next->PTRS.prev_hash = prev;\
+-	if(prev)\
+-		prev->PTRS.next_hash = next;\
+-	else {\
+-		int ix = HASHFN(elem->KEY);\
+-		tbl->hashtable[ix] = next;\
+-	}\
+-}\
+-\
+-LINKAGE TYPE * find_##NAME##_hash(struct NAME##_table * tbl, KEYTYPE pos)\
+-{\
+-	int ix = HASHFN(pos);\
+-	TYPE * ptr = tbl->hashtable[ix];\
+-	while(ptr && KEYCMP(ptr->KEY, pos))\
+-		ptr = ptr->PTRS.next_hash;\
+-	return ptr;\
+-}
+-
+-#endif

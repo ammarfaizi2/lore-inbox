@@ -1,46 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275278AbRJFQeH>; Sat, 6 Oct 2001 12:34:07 -0400
+	id <S275294AbRJFQmR>; Sat, 6 Oct 2001 12:42:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275290AbRJFQd6>; Sat, 6 Oct 2001 12:33:58 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:1034 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S275278AbRJFQdw>; Sat, 6 Oct 2001 12:33:52 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Andrew Morton <akpm@zip.com.au>,
-        Bob McElrath <mcelrath+linux@draal.physics.wisc.edu>
-Subject: Re: low-latency patches
-Date: Sat, 6 Oct 2001 18:33:42 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20011006010519.A749@draal.physics.wisc.edu> <3BBEA8CF.D2A4BAA8@zip.com.au>
-In-Reply-To: <3BBEA8CF.D2A4BAA8@zip.com.au>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011006163412Z16352-2758+1299@humbolt.nl.linux.org>
+	id <S275291AbRJFQmH>; Sat, 6 Oct 2001 12:42:07 -0400
+Received: from quechua.inka.de ([212.227.14.2]:53617 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S275290AbRJFQlt>;
+	Sat, 6 Oct 2001 12:41:49 -0400
+From: Bernd Eckenfels <ecki@lina.inka.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [POT] Which journalised filesystem ?
+In-Reply-To: <1002357150.3083.20.camel@volk.internalnet>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.11-pre3-xfs (i686))
+Message-Id: <E15puWn-0000RP-00@calista.inka.de>
+Date: Sat, 06 Oct 2001 18:42:17 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On October 6, 2001 08:46 am, Andrew Morton wrote:
-> Bob McElrath wrote:
-> > 1) Which of these two projects has better latency performance?  Has anyone
-> >     benchmarked them against each other?
-> 
-> I haven't seen any rigorous latency measurements on Rob's stuff, and
-> I haven't seriously measured the reschedule-based patch for months.  But
-> I would expect the preempt patch to perform significantly worse because
-> it doesn't attempt to break up the abovementioned long-held locks.
+In article <1002357150.3083.20.camel@volk.internalnet> you wrote:
+>> Well hdparm has a -W option with which you can turn on/off the
+>> write cache. If that works (and it appears it does) you should be
+>> able to turn write cache off, write *one* block so that the
+>> cache gets flushed and turn it back on. I'm not sure how to
+>> test this, though.
 
-Nor should it.  The preemption patch should properly address only what is 
-needed to implement preemption, and a patch similar to yours should be 
-applied on top to break up the remaining lock latencies.  (Perhaps a duh?)
+> Doesn't hdparm -W0f do the work?
 
-> (It can
-> do so, though - a straightforward adaptation of the reschedule patch's
-> changes will fix it).
+We are talking about a write barrier. This means you write all stuff which
+can be written unordered (all data) and then you initiate the barrier.. and
+if that is finished, you write the commit block. That way you can get
+increased write performance and still transaction safe persitence.
 
-Yep.
-
---
-Daniel
+Gruss
+Bernd

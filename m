@@ -1,31 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273996AbRJ0Phi>; Sat, 27 Oct 2001 11:37:38 -0400
+	id <S273902AbRJ0Psl>; Sat, 27 Oct 2001 11:48:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274774AbRJ0Ph2>; Sat, 27 Oct 2001 11:37:28 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:28420 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S273996AbRJ0PhS>; Sat, 27 Oct 2001 11:37:18 -0400
-Subject: Re: Non-standard MODULE_LICENSEs in 2.4.13-ac2
-To: adilger@turbolabs.com (Andreas Dilger)
-Date: Sat, 27 Oct 2001 16:43:14 +0100 (BST)
-Cc: kaos@ocs.com.au (Keith Owens), linux-kernel@vger.kernel.org
-In-Reply-To: <20011027012016.F23590@turbolinux.com> from "Andreas Dilger" at Oct 27, 2001 01:20:16 AM
+	id <S274809AbRJ0Psc>; Sat, 27 Oct 2001 11:48:32 -0400
+Received: from mx1.port.ru ([194.67.57.11]:15373 "EHLO smtp1.port.ru")
+	by vger.kernel.org with ESMTP id <S273902AbRJ0PsR>;
+	Sat, 27 Oct 2001 11:48:17 -0400
+From: Samium Gromoff <_deepfire@mail.ru>
+Message-Id: <200110271550.f9RFof113567@vegae.deep.net>
+Subject: Re: 2.4.12-ac4 10Mbit NE2k interrupt load kills p166
+To: jussi.laako@kolumbus.fi (Jussi Laako)
+Date: Sat, 27 Oct 2001 19:50:40 +0400 (MSD)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3BDAD140.2993B571@kolumbus.fi> from "Jussi Laako" at Oct 27, 2001 06:22:40 PM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15xVcA-0003bG-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> but I think you are confusing intent with implementation.  The intent
-> (AFAICS) is to mark the kernel tainted ONLY if a closed-source module
-> is loaded, rather than to be a "license police" mechanism, especially
-> for sources that have been included in the kernel for a long time.
+"  Jussi Laako wrote:"
+> 
+> Benjamin LaHaise wrote:
+> > 
+> > >       Host A: p166, ISA NE2K, linux-2.4.12-ac4
+> > Solution: replace NE2K with a decent network card.
+> 
+> Load of NE2k running at full 10 Mbps is 60% on P100 running OpenBSD...
+  ISA-based one?
+  sane service? (i mean not smb, but smth like ftp)
 
-"BSD" can indicate totally closed source material as well as other stuff
+  thanks in advance...
+> 
+> 
+>  - Jussi Laako
+> 
+> -- 
+> PGP key fingerprint: 161D 6FED 6A92 39E2 EB5B  39DD A4DE 63EB C216 1E4B
+> Available at PGP keyservers
+> 
 
-Also Keith is right - if it is GPL compatible BSD code linked with the
-kernel then its correct to describe it as Dual BSD/GPL anyway
+cheers, Samium Gromoff

@@ -1,48 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276364AbRJCPVD>; Wed, 3 Oct 2001 11:21:03 -0400
+	id <S276370AbRJCPWn>; Wed, 3 Oct 2001 11:22:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276370AbRJCPUy>; Wed, 3 Oct 2001 11:20:54 -0400
-Received: from mail1.panix.com ([166.84.0.212]:31487 "HELO mail1.panix.com")
-	by vger.kernel.org with SMTP id <S276364AbRJCPUr>;
-	Wed, 3 Oct 2001 11:20:47 -0400
-From: "Roy Murphy" <murphy@panix.com>
-Reply-To: murphy@panix.com
-To: linux-kernel@vger.kernel.org
-Date: Wed, 3 Oct 2001 11:21:16 -0500
-Subject: Re: [POT] Which journalised filesystem uses Linus Torvalds ?
-X-Mailer: DMailWeb Web to Mail Gateway 2.6k, http://netwinsite.com/top_mail.htm
-Message-id: <3bbb2cec.6d.0@panix.com>
+	id <S276377AbRJCPWe>; Wed, 3 Oct 2001 11:22:34 -0400
+Received: from 216-21-153-1.ip.van.radiant.net ([216.21.153.1]:5649 "HELO
+	innerfire.net") by vger.kernel.org with SMTP id <S276370AbRJCPWU>;
+	Wed, 3 Oct 2001 11:22:20 -0400
+Date: Wed, 3 Oct 2001 08:24:15 -0700 (PDT)
+From: Gerhard Mack <gmack@innerfire.net>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+cc: Ulrich Drepper <drepper@cygnus.com>, Andi Kleen <ak@suse.de>,
+        Alex Larsson <alexl@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: Finegrained a/c/mtime was Re: Directory notification problem
+In-Reply-To: <m1k7yc3ky5.fsf@frodo.biederman.org>
+Message-ID: <Pine.LNX.4.10.10110030822130.3933-100000@innerfire.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-'Twas brillig when Sebastien Cabaniols scrobe:
->With the availability of XFS,JFS,ext3 and ReiserFS I am a 
->little lost and I don't know which one I should use for entreprise 
->class servers. 
+On 3 Oct 2001, Eric W. Biederman wrote:
 
-Well, the Linus Torvalds filesystem (ltfs for short) is a highly developed,
-version control filesystem, but it still has a few shortcomings.
+> Ulrich Drepper <drepper@redhat.com> writes:
+> 
+> > Andi Kleen <ak@suse.de> writes:
+> > 
+> > > For stat is also requires a changed glibc ABI -- the glibc/2.4 stat64
+> > 
+> > Not only stat64, also plain stat.
+> > 
+> > > structure reserved an additional 4 bytes for every timestamp, but these
+> > > either need to be used to give more seconds for the year 2038 problem
+> > > or be used for the ms fractions. y2038 is somewhat important too.
+> > 
+> > The fields are meant for nanoseconds.  The y2038 will definitely be
+> > solved by time-shifting or making time_t unsigned.  In any way nothing
+> > of importance here and now.  Especially since there won't be many
+> > systems which are running today and which have a 32-bit time_t be used
+> > then.  For the rest I'm sure that in 37 years there will be the one or
+> > the other ABI change.
+> 
+> Right.  Given current uptimes and being optimistic the fix for y2038 
+> is probably needed by 2030 or just a little later.  But in any case
+> 64 bit systems should be maxing out by then, and the conversion to 128
+> bit systems should have already happened on the server side.  32 bit
+> systems will likely be limited to embedded and legacy systems by then.
+> 
+> Eric
 
-When saving a file to ltfs, it sometimes suggests that you should do it a different
-way.  The ltfs is very particular about how things should be done.
+Why do I get the feeling no one has learned from the problems the computer
+industry had with 2 digit date fields?
 
-Often, when saving a file, it is dropped without any notification.  Experienced
-users of the ltfs follow the mantra "submit early and submit often".  They repeatedly
-resave their files hoping that one of them will be accepted into a "version"
-that does get saved to disk.
+Odds are legacy systems will be running something people for whatever
+reason couldn't replace.
 
-Several forks of the ltfs (i.e the Alan Cox filesystem -- acfs and the Anread
-Arcangeli filesystem -- aafs) are a little better about saving files, but each
-of them has its own idea about which files are worthy of being saved.
 
-While these advanced filesystems hold great promise for the future, they should
-probably not be used in a production server due to these failings.  In fact,
-one user of the acfs, Telsa Cox, reports that the acfs often dosn't work at
-all before noon local time.
+	Gerhard
 
-YMMV.
- 
+--
+Gerhard Mack
+
+gmack@innerfire.net
+
+<>< As a computer I find your faith in technology amusing.
+

@@ -1,71 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267730AbUHSA2J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267753AbUHSAdY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267730AbUHSA2J (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 20:28:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267753AbUHSA2J
+	id S267753AbUHSAdY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 20:33:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267772AbUHSAdX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 20:28:09 -0400
-Received: from MAIL.13thfloor.at ([212.16.62.51]:14219 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S267730AbUHSA2E (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 20:28:04 -0400
-Date: Thu, 19 Aug 2004 02:28:03 +0200
-From: Herbert Poetzl <herbert@13thfloor.at>
+	Wed, 18 Aug 2004 20:33:23 -0400
+Received: from viriato1.servicios.retecal.es ([212.89.0.44]:15074 "EHLO
+	viriato1.servicios.retecal.es") by vger.kernel.org with ESMTP
+	id S267753AbUHSAdV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Aug 2004 20:33:21 -0400
+Message-ID: <4123F54E.4090900@hispalinux.es>
+Date: Thu, 19 Aug 2004 02:33:18 +0200
+From: =?ISO-8859-1?Q?Ram=F3n_Rey_Vicente?= <ramon.rey@hispalinux.es>
+User-Agent: Mozilla Thunderbird 0.7.2 (X11/20040714)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Bind Mount Extensions 0.05
-Message-ID: <20040819002803.GA18304@MAIL.13thfloor.at>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20040818125104.GA12286@MAIL.13thfloor.at> <20040818172855.GC14628@MAIL.13thfloor.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040818172855.GC14628@MAIL.13thfloor.at>
-User-Agent: Mutt/1.4.1i
+CC: akpm@osdl.org
+Subject: [PATCH] Update ftape webpage
+X-Enigmail-Version: 0.84.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigF959FD531BBDFE88F22B6139"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 18, 2004 at 07:28:55PM +0200, Herbert Poetzl wrote:
-> On Wed, Aug 18, 2004 at 02:51:04PM +0200, Herbert Poetzl wrote:
-> > 
-> > Greetings!
-> > 
-> > The following patch extends the 'noatime', 'nodiratime' and
-> > last but not least the 'ro' (read only) mount option to the
-> > vfs --bind mounts, allowing them to behave like any other
-> > mount, by honoring those mount flags (which are silently
-> > ignored by the current implementation in 2.4.x and 2.6.x)
-> > 
-> > I don't want to pollute your mailbox with useless patches,
-> > so for those who are interested in this stuff, get them
-> > here (for 2.4.27 and 2.6.8.1)
-> 
-> patch for 2.6.8.1 is broken, but it will be updated soon
-> please don't use it for now ...
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigF959FD531BBDFE88F22B6139
+Content-Type: multipart/mixed;
+ boundary="------------080701010208090404070304"
 
-okay, the patch for 2.6.8.1 was updated and should be fine
-now, please let me know if you encounter any issues, as the
-version for 2.6.8.1 is relatively new ...
+This is a multi-part message in MIME format.
+--------------080701010208090404070304
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 
-http://www.13thfloor.at/patches/patch-2.6.8.1-bme0.05.1.diff
 
-best,
-Herbert
+-- 
+Ramón Rey Vicente       <ramon dot rey at hispalinux dot es>
+jabber ID               <rreylinux at jabber dot org>
+Huella GPG - 0BC2 8014 2445 51E8 DE87  C888 C385 A9D3 9F28 E377
+---------------------------------------------------------------
+	http://augcyl.org/planet/
+---------------------------------------------------------------
 
-> >   http://www.13thfloor.at/patches/
-> > 
-> > many thanks to Willy Tarreau for spotting the bug in the
-> > previous bme0.04 for linux 2.4.x.
-> > 
-> > enjoy,
-> > Herbert
-> > 
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+--------------080701010208090404070304
+Content-Type: text/plain;
+ name="update_ftape_webpage.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="update_ftape_webpage.patch"
+
+--- linux-2.6-rrey/MAINTAINERS.orig	2004-08-19 01:57:52.405537120 +0200
++++ linux-2.6-rrey/MAINTAINERS	2004-08-19 02:26:44.012733140 +0200
+@@ -849,7 +849,7 @@
+ P:	Claus-Justus Heine
+ M:	claus@momo.math.rwth-aachen.de
+ L:	linux-tape@vger.kernel.org
+-W:	http://www-math.math.rwth-aachen.de/~LBFM/claus/ftape/
++W:	http://www.instmath.rwth-aachen.de/~heine/ftape/
+ S:	Maintained
+ 
+ FUTURE DOMAIN TMC-16x0 SCSI DRIVER (16-bit)
+
+--------------080701010208090404070304--
+
+--------------enigF959FD531BBDFE88F22B6139
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBI/VOw4Wp058o43cRAvSNAJwOleq8maKe1LqIod9Nun4hCPGarwCdGDUh
+7Kkj1QHW0d+YOoWTnO+7Tjc=
+=WlW8
+-----END PGP SIGNATURE-----
+
+--------------enigF959FD531BBDFE88F22B6139--

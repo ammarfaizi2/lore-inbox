@@ -1,55 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272028AbRIDRSJ>; Tue, 4 Sep 2001 13:18:09 -0400
+	id <S272036AbRIDRWT>; Tue, 4 Sep 2001 13:22:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272025AbRIDRSA>; Tue, 4 Sep 2001 13:18:00 -0400
-Received: from fe070.worldonline.dk ([212.54.64.208]:1545 "HELO
-	fe070.worldonline.dk") by vger.kernel.org with SMTP
-	id <S272003AbRIDRRs>; Tue, 4 Sep 2001 13:17:48 -0400
-Date: Tue, 4 Sep 2001 19:17:59 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Jonathan Lahr <lahr@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: io_request_lock/queue_lock patch
-Message-ID: <20010904191759.P550@suse.de>
-In-Reply-To: <20010830134930.F23680@us.ibm.com> <20010831075613.A2855@suse.de> <20010831075201.N23680@us.ibm.com> <20010831200333.A9069@suse.de> <20010831113308.A28193@us.ibm.com> <20010903090703.C6875@suse.de> <20010904094600.A6082@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010904094600.A6082@us.ibm.com>
+	id <S272034AbRIDRWJ>; Tue, 4 Sep 2001 13:22:09 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:28941 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S272036AbRIDRVz>; Tue, 4 Sep 2001 13:21:55 -0400
+Date: Tue, 4 Sep 2001 12:56:32 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Jan Harkes <jaharkes@cs.cmu.edu>
+Cc: Rik van Riel <riel@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: page_launder() on 2.4.9/10 issue
+In-Reply-To: <20010904131349.B29711@cs.cmu.edu>
+Message-ID: <Pine.LNX.4.21.0109041253510.2038-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 04 2001, Jonathan Lahr wrote:
+
+
+On Tue, 4 Sep 2001, Jan Harkes wrote:
+
+> On Tue, Sep 04, 2001 at 01:27:50PM -0300, Rik van Riel wrote:
+> > I've been working on a CPU and memory efficient reverse
+> > mapping patch for Linux, one which will allow us to do
+> > a bunch of optimisations for later on (infrastructure)
+> > and has as its short-term benefit the potential for
+> > better page aging.
 > 
-> > You are now browsing the request list without agreeing on what lock
-> > is
-> > being held -- what happens to drivers assuming that io_request_lock
-> > protects the list? Boom. For 2.4 we simply cannot afford to muck
-> > around
-> > with this, it's jsut too dangerous. For 2.5 I already completely
-> > removed
-> > the io_request_lock (also helps to catch references to it from
-> > drivers).
+> Yes, I can see that using reverse mappings would be a way of correcting
+> the aging if you call page_age_up from try_to_swap_out, in which case
+> there probably needs to be a page_age_down on virtual mappings as well
+> to correctly balance things.
 > 
-> In this patch, io_request_lock and queue_lock are both acquired in  
-> generic_unplug_device, so request_fn invocations protect request queue 
-> integrity.  __make_request acquires queue_lock instead of
-> io_request_lock 
-> thus protecting queue integrity while allowing greater concurrency.
+> > It seems the balancing FreeBSD does (up aging +3, down
+> > aging -1, inactive list in LRU order as extra stage) is
+> 
+> One other observation, we should add anonymously allocated memory to the
+> active-list as soon as they are allocated in do_nopage. At the moment a
+> large part of memory is not aged at all until we start swapping things
+> out.
 
-You fixed SCSI for q->queue_head usage, that part looks ok. The low
-level call backs are a much bigger mess though. And you broke IDE,
-cciss, cpqarray, DAC960, etc etc in the process.
+With reverse mappings we can completly remove the "swap_out()" loop logic
+and age pte's at refill_inactive_scan(). 
 
-> Nevertheless, I understand your unwillingness to change locking as 
-> pervasive as io_request_lock.  Such changes would of course involve 
-> risk.  I am simply trying to improve 2.4 i/o performance, since 2.4
-> could have a long time left to live.  
+All that with anon memory added to the active-list as soon as allocated,
+of course.
 
-I can certainly understand that, but I really hope you see what I mean
-that we cannot change this locking now.
-
--- 
-Jens Axboe
+Jan, I suggest you to take a look at the reverse mapping code. 
 

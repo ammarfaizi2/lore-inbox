@@ -1,35 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261769AbSIXRuh>; Tue, 24 Sep 2002 13:50:37 -0400
+	id <S261732AbSIXRa6>; Tue, 24 Sep 2002 13:30:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261731AbSIXRtS>; Tue, 24 Sep 2002 13:49:18 -0400
-Received: from dsl-213-023-039-208.arcor-ip.net ([213.23.39.208]:4284 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S261736AbSIXRkL>;
-	Tue, 24 Sep 2002 13:40:11 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Dave Olien <dmo@osdl.org>, "David S. Miller" <davem@redhat.com>
-Subject: Re: DAC960 in 2.5.38, with new changes
-Date: Tue, 24 Sep 2002 19:45:26 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: davidm@hpl.hp.com, davidm@napali.hpl.hp.com, axboe@suse.de,
-       _deepfire@mail.ru, linux-kernel@vger.kernel.org
-References: <20020923120400.A15452@acpi.pdx.osdl.net> <20020923.135447.24672280.davem@redhat.com> <20020924095456.A17658@acpi.pdx.osdl.net>
-In-Reply-To: <20020924095456.A17658@acpi.pdx.osdl.net>
+	id <S261731AbSIXRaO>; Tue, 24 Sep 2002 13:30:14 -0400
+Received: from d12lmsgate-4.de.ibm.com ([195.212.91.196]:19085 "EHLO
+	d12lmsgate-4.de.ibm.com") by vger.kernel.org with ESMTP
+	id <S261734AbSIXRWq> convert rfc822-to-8bit; Tue, 24 Sep 2002 13:22:46 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Organization: IBM Deutschland GmbH
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: [PATCH] 2.5.38 s390 fixes: 23_boot_common.
+Date: Tue, 24 Sep 2002 19:24:17 +0200
+X-Mailer: KMail [version 1.4]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17ttkV-0003id-00@starship>
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200209241924.17881.schwidefsky@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 24 September 2002 18:54, Dave Olien wrote:
-> According to the Documentation/DMA-mapping.txt file, the new
-> DMA mapping interfaces should allow all PCI transfers to use 32-bit DMA
-> addresses. Controllers on the PCI bus should never need to use DAC
-> PCI transfers.  Based on this, writel() should work even on ia64.
+Remove call to s390_init_machine_check in init/main.c, the new boot code
+on s390 calls it via arch_initcall.
 
-A totally disgusting idea: MMX/x87 are also capable of transferring 8
-bytes in one instruction on ia32.
+diff -urN linux-2.5.38/init/main.c linux-2.5.38-s390/init/main.c
+--- linux-2.5.38/init/main.c	Sun Sep 22 06:25:02 2002
++++ linux-2.5.38-s390/init/main.c	Tue Sep 24 17:53:26 2002
+@@ -493,13 +493,6 @@
+ 	sysctl_init();
+ #endif
+ 
+-	/*
+-	 * Ok, at this point all CPU's should be initialized, so
+-	 * we can start looking into devices..
+-	 */
+-#if defined(CONFIG_ARCH_S390)
+-	s390_init_machine_check();
+-#endif
+ 	/* Networking initialization needs a process context */ 
+ 	sock_init();
+ 
 
--- 
-Daniel

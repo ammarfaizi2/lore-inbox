@@ -1,111 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268212AbUJJJXj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268214AbUJJKKY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268212AbUJJJXj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Oct 2004 05:23:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268214AbUJJJXj
+	id S268214AbUJJKKY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Oct 2004 06:10:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268218AbUJJKKY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Oct 2004 05:23:39 -0400
-Received: from fep03fe.ttnet.net.tr ([212.156.4.134]:17619 "EHLO
-	fep03.ttnet.net.tr") by vger.kernel.org with ESMTP id S268212AbUJJJXf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Oct 2004 05:23:35 -0400
-Message-ID: <4168FF34.2080007@ttnet.net.tr>
-Date: Sun, 10 Oct 2004 12:21:56 +0300
-From: "O.Sezer" <sezeroz@ttnet.net.tr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.3) Gecko/20041003
-X-Accept-Language: tr, en-us, en
-MIME-Version: 1.0
-To: marcelo.tosatti@cyclades.com
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.4.28-pre4] e1000 driver, gcc-3.4 inlining fix
-Content-Type: multipart/mixed;
-	boundary="------------030306030204000800040607"
-X-ESAFE-STATUS: Mail clean
-X-ESAFE-DETAILS: Clean
+	Sun, 10 Oct 2004 06:10:24 -0400
+Received: from [203.124.158.219] ([203.124.158.219]:42112 "EHLO
+	ganesha.intranet.calsoftinc.com") by vger.kernel.org with ESMTP
+	id S268214AbUJJKKP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Oct 2004 06:10:15 -0400
+Subject: Re: [RFC] [PATCH] Performance of del_single_shot_timer_sync
+From: shobhit dayal <shobhit@calsoftinc.com>
+Reply-To: shobhit@calsoftinc.com
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20041008101949.49cda1a8.akpm@osdl.org>
+References: <1097242659.11717.483.camel@kuber>
+	 <20041008101949.49cda1a8.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1097404176.11717.510.camel@kuber>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sun, 10 Oct 2004 15:59:36 +0530
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030306030204000800040607
-Content-Type: text/plain;
-	charset=us-ascii;
-	format=flowed
-Content-Transfer-Encoding: 7bit
 
-Marcelo:
-The changes to e1000_main.c introduced in -pre4 via the cset:
-"e1000 - white space corrections, other cleanups" results in
-the compiler failure below:
+On Fri, 2004-10-08 at 22:49, Andrew Morton wrote:
+> shobhit dayal <shobhit@calsoftinc.com> wrote:
+> > 
+> > del_timer_sync was responsible for about 2% of all remote memory
+> > accesses on the system and came up as part of the top 10 functions who
+> > were doing this. On top was schedule(7.52%) followed by
+> > default_wake_function(2.79%). Rest every one in the top 10 were
+> > around the range of 2%.
+> > 
+> > After the patch it never came up in the logs again( so less than 0.5% of
+> > all faulting eip's).
+> > 
+> 
+> And what is the overall improvement from the del_timer_sync speedup patch? 
+> I mean: overall runtime and CPU time improvements for a
+> relatively-real-world benchmark?
+> 
 
-e1000_main.c: In function `e1000_up':
-e1000_main.c:132: sorry, unimplemented: inlining failed in call to 
-'e1000_irq_enable': function body not available
-e1000_main.c:277: sorry, unimplemented: called from here
+I have Geoff's figures 
 
-The attached patch, taken from 2.6, fixes it.
+Before:             32p     4p
+     Warm cache   29,000    505
+     Cold cache   37,800   1220
 
-Ozkan Sezer
+After:              32p     4p
+     Warm cache       95     88
+     Cold cache    1,800    140
+[Measurements are CPU cycles spent in a call to del_timer_sync, the average
+of 1000 calls. 32p is 16-node NUMA, 4p is SMP.]
 
+These figures, would apply for the case for where del_timer_sync does get called from del_single_shot_timer_sync.
+That is del_singe_shot_timer_sync gets called after timer has expired
 
---------------030306030204000800040607
-Content-Type: text/plain;
-	name="e1000_gcc34.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
-	filename="e1000_gcc34.diff"
+For my profiling workload i used the standard pg_regress module from the postgres installation and noticed that
+the ratio of calls to del_single_shot_timer_sync after expiry to before expiry was 10:1. over 11000 calls to
+del_single_shot_timer_sync.
 
---- 28p4/drivers/net/e1000/e1000_main.c.BAK	2004-10-09 14:45:37.000000000 +0300
-+++ 28p4/drivers/net/e1000/e1000_main.c	2004-10-10 12:15:15.000000000 +0300
-@@ -128,8 +128,8 @@
- static struct net_device_stats * e1000_get_stats(struct net_device *netdev);
- static int e1000_change_mtu(struct net_device *netdev, int new_mtu);
- static int e1000_set_mac(struct net_device *netdev, void *p);
--static inline void e1000_irq_disable(struct e1000_adapter *adapter);
--static inline void e1000_irq_enable(struct e1000_adapter *adapter);
-+static void e1000_irq_disable(struct e1000_adapter *adapter);
-+static void e1000_irq_enable(struct e1000_adapter *adapter);
- static irqreturn_t e1000_intr(int irq, void *data, struct pt_regs *regs);
- static boolean_t e1000_clean_tx_irq(struct e1000_adapter *adapter);
- #ifdef CONFIG_E1000_NAPI
-@@ -146,9 +146,9 @@
- void set_ethtool_ops(struct net_device *netdev);
- static void e1000_enter_82542_rst(struct e1000_adapter *adapter);
- static void e1000_leave_82542_rst(struct e1000_adapter *adapter);
--static inline void e1000_rx_checksum(struct e1000_adapter *adapter,
--                                     struct e1000_rx_desc *rx_desc,
--                                     struct sk_buff *skb);
-+static void e1000_rx_checksum(struct e1000_adapter *adapter,
-+                              struct e1000_rx_desc *rx_desc,
-+                              struct sk_buff *skb);
- static void e1000_tx_timeout(struct net_device *dev);
- static void e1000_tx_timeout_task(struct net_device *dev);
- static void e1000_smartspeed(struct e1000_adapter *adapter);
-@@ -2063,7 +2063,7 @@
-  * @adapter: board private structure
-  **/
- 
--static inline void
-+static void
- e1000_irq_disable(struct e1000_adapter *adapter)
- {
- 	atomic_inc(&adapter->irq_sem);
-@@ -2077,7 +2077,7 @@
-  * @adapter: board private structure
-  **/
- 
--static inline void
-+static void
- e1000_irq_enable(struct e1000_adapter *adapter)
- {
- 	if(likely(atomic_dec_and_test(&adapter->irq_sem))) {
-@@ -2582,7 +2582,7 @@
-  * @sk_buff: socket buffer with received data
-  **/
- 
--static inline void
-+static void
- e1000_rx_checksum(struct e1000_adapter *adapter,
-                   struct e1000_rx_desc *rx_desc,
-                   struct sk_buff *skb)
+regards
+shobhit
 
---------------030306030204000800040607--

@@ -1,63 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261936AbTKGXHl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Nov 2003 18:07:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261938AbTKGWXx
+	id S261938AbTKGXHm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Nov 2003 18:07:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261930AbTKGWXm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Nov 2003 17:23:53 -0500
-Received: from dclient217-162-71-11.hispeed.ch ([217.162.71.11]:18103 "EHLO
-	steudten.com") by vger.kernel.org with ESMTP id S264493AbTKGRPd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Nov 2003 12:15:33 -0500
-Message-ID: <3FABD32A.9090601@steudten.com>
-Date: Fri, 07 Nov 2003 18:15:22 +0100
-From: Thomas Steudten <alpha@steudten.com>
-Organization: STEUDTEN ENGINEERING
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Andrew Morton <akpm@osdl.org>
-Subject: [BUG Missing define] 2.6.0-test 9-bk11: ALPHA:  missing asm/mca.h
-References: <3FA02762.2070304@steudten.com> <20031029131132.422cb65a.akpm@osdl.org>
-In-Reply-To: <20031029131132.422cb65a.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 7 Nov 2003 17:23:42 -0500
+Received: from fmr04.intel.com ([143.183.121.6]:56036 "EHLO
+	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
+	id S264072AbTKGLDn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Nov 2003 06:03:43 -0500
+Subject: Re: Shared ACPI/USB IRQ working in 2.6 but not in 2.4
+From: Len Brown <len.brown@intel.com>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>,
+       David van Hoose <david.vanhoose@comcast.net>
+In-Reply-To: <Pine.LNX.4.44.0311060949340.7886-100000@logos.cnet>
+References: <Pine.LNX.4.44.0311060949340.7886-100000@logos.cnet>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1068203016.2684.976.camel@dhcppc4>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 07 Nov 2003 06:03:36 -0500
 Content-Transfer-Encoding: 7bit
-X-Mailer: Mailer
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Problem still there in -bk11. Who can fix this in the kernel
-source code?
+The details of this issue are here:
 
-Andrew Morton wrote:
+http://bugzilla.kernel.org/show_bug.cgi?id=1283
 
-> Thomas Steudten <alpha@steudten.com> wrote:
+Looks like the IOAPIC is in a different state in 2.4 and 2.6 before ACPI
+programs it.  Also 2.6 has sis_apic_bug code that 2.4 does not -- though
+I don't know yet if it actually runs on this box.
+
+cheers,
+-Len
+
+On Thu, 2003-11-06 at 07:05, Marcelo Tosatti wrote:
+> Hi, 
 > 
->>This problem ist still there in -test9..
->>
->>In file included from drivers/net/3c509.c:77:
->>include/linux/mca.h:15:21: asm/mca.h: No such file or directory
+> David van Hoose started having problems with USB on 2.4.23-pre5. USB
+> device and acpi were now using irq 20:
+> 
+> host/usb-ohci.c: USB OHCI at membase 0xe081a000, IRQ 20
+> 
+> /proc/interrupts:
+> 
+> 20:          1   IO-APIC-level  acpi, usb-ohci 
 > 
 > 
-> --- 25/drivers/net/3c509.c~3c509-mca-fix	Wed Oct 29 13:11:02 2003
-> +++ 25-akpm/drivers/net/3c509.c	Wed Oct 29 13:11:02 2003
-> @@ -74,7 +74,9 @@ static int max_interrupt_work = 10;
+> Which makes the USB device not work.
+> 
+> With -pre4 the USB device was using interrupt 9, because acpi failed to 
+> find the correct IRQ:
+> 
+> pci_irq-0302 [18] acpi_pci_irq_derive   : Unable to derive IRQ for  device 00:03.0 
+> PCI: No IRQ known for interrupt pin A of device 00:03.0 
+> host/usb-ohci.c: USB OHCI at membase 0xe081a000, IRQ 9 
+> 
+> Now 2.6 assigns interrupt 20 to acpi and usb-ohci just like in
+> 2.4.23-pre5+, but the USB device works!
+> 
+> Anyone has an idea why the interrupt sharing works with 2.6 but not with
+> 2.4?
+> 
 >  
->  #include <linux/config.h>
->  #include <linux/module.h>
-> +#ifdef CONFIG_MCA
->  #include <linux/mca.h>
-> +#endif
->  #include <linux/isapnp.h>
->  #include <linux/string.h>
->  #include <linux/interrupt.h>
 > 
-> _
-
--- 
-Tom
-
-LINUX user since kernel 0.99.x 1994.
-RPM Alpha packages at http://alpha.steudten.com/packages
-Want to know what S.u.S.E 1995 cdrom-set contains?
-
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

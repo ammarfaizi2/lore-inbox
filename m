@@ -1,76 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262496AbULOV3T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262493AbULOVcW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262496AbULOV3T (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 16:29:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262502AbULOV3T
+	id S262493AbULOVcW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 16:32:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262509AbULOVcV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 16:29:19 -0500
-Received: from H190.C26.B96.tor.eicat.ca ([66.96.26.190]:47488 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S262496AbULOVW7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 16:22:59 -0500
-Date: Wed, 15 Dec 2004 14:22:53 -0700
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Vineet Joglekar <vintya@excite.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: is there any prob in accessing new field added to inode mem structure, in some other functions?
-Message-ID: <20041215212253.GL9923@schnapps.adilger.int>
-Mail-Followup-To: Vineet Joglekar <vintya@excite.com>,
-	linux-kernel@vger.kernel.org
-References: <20041215164101.A52C3B740@xprdmailfe18.nwk.excite.com>
+	Wed, 15 Dec 2004 16:32:21 -0500
+Received: from linux.us.dell.com ([143.166.224.162]:28504 "EHLO
+	lists.us.dell.com") by vger.kernel.org with ESMTP id S262493AbULOVb0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Dec 2004 16:31:26 -0500
+Date: Wed, 15 Dec 2004 15:30:01 -0600
+From: Matt Domsch <Matt_Domsch@dell.com>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>,
+       "Bagalkote, Sreenivas" <sreenib@lsil.com>, brking@us.ibm.com,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>, bunk@fs.tum.de,
+       Andrew Morton <akpm@osdl.org>, "Ju, Seokmann" <sju@lsil.com>,
+       "Doelfel, Hardy" <hdoelfel@lsil.com>, "Mukker, Atul" <Atulm@lsil.com>
+Subject: Re: How to add/drop SCSI drives from within the driver?
+Message-ID: <20041215213001.GA9284@lists.us.dell.com>
+References: <60807403EABEB443939A5A7AA8A7458B7F5071@otce2k01.adaptec.com> <1102536081.4218.0.camel@localhost.localdomain> <20041215072453.GB17274@lists.us.dell.com> <1103136559.5232.1.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="eWbcAUUbgrfSEG1c"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041215164101.A52C3B740@xprdmailfe18.nwk.excite.com>
+In-Reply-To: <1103136559.5232.1.camel@mulgrave>
 User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Dec 15, 2004 at 01:49:18PM -0500, James Bottomley wrote:
+> On Wed, 2004-12-15 at 01:24 -0600, Matt Domsch wrote:
+> > James, I've been thinking about this a little more, and you may be on
+> > to something here. Let each driver add files as such:
+> > 
+> > /sys/class/scsi_host
+> >  |-- host0
+> >  |   |-- add_logical_drive
+> >  |   |-- remove_logical_drive
+> >  |   `-- rescan_logical_drive
+> > 
+> > Then we can go 2 ways with this.
+> > 1) driver functions directly call scsi_add_device(),
+> > scsi_remove_device(), and something for rescan (option 2 handles this
+> > one cleanly for us).  ATM, megaraid_mbox doesn't implement a rescan
+> > function, so this point may be moot. 
+> > 
+> > 2) driver functions call a midlayer library function, which invokes
+> >    /sbin/hotplug with appropriate data, and add a new /etc/hotplug.d
+> >    helper app which would then write to these files:
+> > to do likewise.
+> 
+> I'll buy this (option 2).. it seems like a good way to export the
+> megaraid specific information and at the same time integrate it more
+> fully into the evolving hotplug infrastructure.
 
---eWbcAUUbgrfSEG1c
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Great, I think that's the right long-term solution.  Can we consider
+other paths for the short term, while we evolve the hotplug
+infrastructure?  I don't know all the details involved in jumping
+straight to option 2 today.
 
-On Dec 15, 2004  11:41 -0500, Vineet Joglekar wrote:
-> I am using linux 2.4.21 and I am trying to play with the etx2 file system=
-. My aim is to allocate a data structure dynamically to every file that is =
-opened, at the time of opening.
-> What I tried to do was: added the structure pointer in the inode data str=
-ucture "ext2_inode" say "x_ptr". In the function "ext2_read_inode" which re=
-ads the hard disk copy of inode into memory, I allocated memory to this poi=
-nter and filled the appropriate value. I chose this function as I thought w=
-hen a file is opened, this function will be always called once. Upto this i=
-s working fine.
->=20
-> Now when I try to use this pointer "x_ptr" in some other function, that i=
-s, "do_generic_file_read" - which is called while reading a file, I am not =
-getting any value in that pointer, but a null. (which is supposed to be the=
-re as I am filling up appropriate value in function ext2_read_inode)
+Do you plan to apply LSI's driver patch which adds the driver-private
+ioctl to provide the mapping from logical drive address to HCTL value?
+Both Dell and LSI have products which are lined up to use this new
+ioctl because it's the most expedient thing to do, maintains internal
+project schedules, etc, which delaying until this sysfs mechanism hits
+will greatly impact those schedules. (I know, many folks on this list
+don't care about business-side impacts of choices made on-list.)
 
-You are confusing "ext2_inode" (on disk structure, never change that) with
-"ext2_inode_info" (in memory structure, what you want to change).
+If you were to apply LSI's ioctl patch, then that patch becomes stage
+0.
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://members.shaw.ca/adilger/             http://members.shaw.ca/golinux/
+Stage 1 is what I posted last night, once tested, and the mgmt apps
+convert to use that.
+
+The above can happen pretty quickly I think, i.e. before the holidays.
+
+Stage 2 is option 2 above, which removes the driver calling
+scsi_add_device() and friends directly.  Userspace apps converted for
+stage 1 are none-the-wiser, as their interface hasn't changed.
+
+This is a Jan-Feb kind of thing, to give proper time for all concerns
+to be voiced and included in the kernel-internal APIs, /sbin/hotplug
+environment, and userspace helper.
+
+Stage 3, convert all other drivers who need a similar mechanism over
+to the new helper functions added in stage 2.
+
+This would be ongoing.
 
 
---eWbcAUUbgrfSEG1c
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Thoughts?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+Thanks,
+Matt
 
-iD8DBQFBwKstpIg59Q01vtYRAjEkAKDbq1ItQqiCdG9l53SHsihd8m6vDACfU9C0
-lfg076hMZatS6N30t/WCrjs=
-=7DoO
------END PGP SIGNATURE-----
-
---eWbcAUUbgrfSEG1c--
+-- 
+Matt Domsch
+Sr. Software Engineer, Lead Engineer
+Dell Linux Solutions linux.dell.com & www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com

@@ -1,46 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289016AbSAZEEs>; Fri, 25 Jan 2002 23:04:48 -0500
+	id <S289017AbSAZEeL>; Fri, 25 Jan 2002 23:34:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289012AbSAZEEi>; Fri, 25 Jan 2002 23:04:38 -0500
-Received: from pc-62-31-92-140-az.blueyonder.co.uk ([62.31.92.140]:48514 "EHLO
-	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
-	id <S289016AbSAZEEZ>; Fri, 25 Jan 2002 23:04:25 -0500
-Date: Sat, 26 Jan 2002 04:00:05 +0000
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] syscall latency improvement #1
-Message-ID: <20020126040005.H5730@kushida.apsleyroad.org>
-In-Reply-To: <18993.1011984842@warthog.cambridge.redhat.com> <Pine.LNX.4.33.0201251626490.2042-100000@penguin.transmeta.com> <3C51FF0C.D3B1E2F7@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3C51FF0C.D3B1E2F7@zip.com.au>; from akpm@zip.com.au on Fri, Jan 25, 2002 at 04:57:48PM -0800
+	id <S289020AbSAZEdz>; Fri, 25 Jan 2002 23:33:55 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:34025 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S289017AbSAZEdu>;
+	Fri, 25 Jan 2002 23:33:50 -0500
+Date: Fri, 25 Jan 2002 23:33:44 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+cc: Dan Maas <dmaas@dcine.com>, Andreas Schwab <schwab@suse.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [ACPI] ACPI mentioned on lwn.net/kernel
+In-Reply-To: <20020126034559.G5730@kushida.apsleyroad.org>
+Message-ID: <Pine.GSO.4.21.0201252327001.27397-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> > NOTE! There are potentially other ways to do all of this, _without_ losing
-> > atomicity. For example, you can move the "flags" value into the slot saved
-> > for the CS segment (which, modulo vm86, will always be at a constant
-> > offset on the stack), and make CS=0 be the work flag. That will cause the
-> > CPU to trap atomically at the "iret".
+
+
+On Sat, 26 Jan 2002, Jamie Lokier wrote:
+
+> I once wrote a Perl script that needed to know the current directory.
+> It did:
 > 
-> Ingo's low-latency patch put markers around the critical code section,
-> and inspected the return EIP on the way back out of the interrupt.
-> If it falls inside the racy region, do special stuff.
+>    use POSIX 'getcwd'
+>    getcwd(...)
+> 
+> After a few months, I was annoyed by the slowness of this script
+> (compared with other scripts) and decided to try speeding it up.  It
+> turns out that the above two lines took about 0.25 of a second, and that
+> was the dominant running time of the script.
+> 
+> I replaced getcwd() with `/bin/pwd`.  Lo!  It took about 0.0075 second.
+> 
+> Says very good things about Linux' fork, exec and mmap times, and about
+> Glibc's dynamic loading time, I think.
 
-Latency tests showed that fixed the problem as well as the cli.  It's
-just _much_ uglier to read, is all.
+Most likely it says very bad things about getcwd() implementation in Perl
+compared to sys_getcwd() in the kernel.  The latter just walks the chain
+of dentries copying ->d_name.name into the buffer.  The former... my guess
+would be stat ".", open "..", readdir from it, stat every damn object in
+there until you find one with the right ->st_ino, put its name as the
+last component and repeat the whole thing until you reach root...
 
-Although it saves the cli from syscalls and interrupts, it adds back a
-small cost to interrupts.  Fortunately, syscall latency is far more
-important than interrupt latency.
-
-If we're going to micro-optimise the system calls, then markers are
-definitely the way to fix the return path race IMHO.
-
--- Jamie

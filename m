@@ -1,48 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265697AbUFOPmI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265703AbUFOPnr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265697AbUFOPmI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 11:42:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265695AbUFOPmH
+	id S265703AbUFOPnr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 11:43:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265706AbUFOPnr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 11:42:07 -0400
-Received: from fed1rmmtao01.cox.net ([68.230.241.38]:31972 "EHLO
-	fed1rmmtao01.cox.net") by vger.kernel.org with ESMTP
-	id S265697AbUFOPlh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 11:41:37 -0400
-Date: Tue, 15 Jun 2004 08:41:36 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH 0/5] kbuild
-Message-ID: <20040615154136.GD11113@smtp.west.cox.net>
-References: <20040614204029.GA15243@mars.ravnborg.org>
+	Tue, 15 Jun 2004 11:43:47 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:36810 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S265703AbUFOPnj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jun 2004 11:43:39 -0400
+Subject: [PATCH] insert_resource fix
+From: John Rose <johnrose@austin.ibm.com>
+To: torvalds@osdl.org
+Cc: greg@kroah.org, lkml <linux-kernel@vger.kernel.org>,
+       Mike Wortman <wortman@us.ibm.com>
+Content-Type: text/plain
+Message-Id: <1087314094.3094.9.camel@sinatra.austin.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040614204029.GA15243@mars.ravnborg.org>
-User-Agent: Mutt/1.5.6+20040523i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 15 Jun 2004 10:41:34 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 14, 2004 at 10:40:29PM +0200, Sam Ravnborg wrote:
+Hi Linus, Greg-
 
-> Hi Andrew. Here follows a number of kbuild patches.
-> 
-> The first replaces kbuild-specify-default-target-during-configuration.patch
-> 
-> They have seen ligiht testing here, but on the other hand the do not touch
-> any critical part of kbuild.
-> 
-> Patches:
-> 
-> default kernel image:		Specify default target at config
-> 				time rather then hardcode it.
-> 				Only enabled for i386 for now.
+I sent this yesterday to lkml, but forgot to copy Linus and forgot to
+sign off.  And I used the wrong address for Greg :)
 
-While I'd guess this is better than the patch it's replacing, given that
-most i386 kernels are 'bzImage', what's wrong with the current logic
-that picks out what to do for the all target now?
+Noticed that insert_resource() incorrectly handles the case of an existing
+parent resource with the same ending address as a newly added child.  This
+results in incorrect nesting, like the following:
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+# cat /proc/ioports
+<snip>
+002f0000-002fffff : PCI Bus #48
+  00200000-002fffff : /pci@800000020000003
+</snip>
+
+Thanks-
+John
+
+Signed-off-by: John Rose <johnrose@austin.ibm.com>
+
+diff -Nru a/kernel/resource.c b/kernel/resource.c
+--- a/kernel/resource.c	Mon Jun 14 15:42:29 2004
++++ b/kernel/resource.c	Mon Jun 14 15:42:29 2004
+@@ -332,8 +332,8 @@
+ 		if (next->sibling->start > new->end)
+ 			break;
+ 
+-	/* existing resource overlaps end of new resource */
+-	if (next->end > new->end) {
++	/* existing resource includes new resource */
++	if (next->end >= new->end) {
+ 		parent = next;
+ 		result = 0;
+ 		goto begin;
+

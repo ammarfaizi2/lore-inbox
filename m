@@ -1,98 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271741AbRIGLnp>; Fri, 7 Sep 2001 07:43:45 -0400
+	id <S271738AbRIGLmf>; Fri, 7 Sep 2001 07:42:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271742AbRIGLnZ>; Fri, 7 Sep 2001 07:43:25 -0400
-Received: from mx3.port.ru ([194.67.57.13]:36620 "EHLO smtp3.port.ru")
-	by vger.kernel.org with ESMTP id <S271741AbRIGLnY>;
-	Fri, 7 Sep 2001 07:43:24 -0400
-Date: Fri, 7 Sep 2001 15:46:38 +0400
-From: Nick Kurshev <nickols_k@mail.ru>
-To: linux-kernel@vger.kernel.org
-Cc: ajoshi@unixbox.com
-Subject: [linux-2.4.9-ac9 PATCH] ATI Radeon VE framebuffer support
-Message-Id: <20010907154638.53f86f92.nickols_k@mail.ru>
-X-Mailer: Sylpheed version 0.6.1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S271741AbRIGLmZ>; Fri, 7 Sep 2001 07:42:25 -0400
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:22026 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S271738AbRIGLmL>; Fri, 7 Sep 2001 07:42:11 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Caleb Epstein <cae@bklyn.org>
+Date: Fri, 7 Sep 2001 21:42:16 +1000 (EST)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15256.45720.351124.767983@notabene.cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
+Subject: Re: [NFS] Spurious NFS ESTALE errors w/NFSv3 server, non-v3 client
+In-Reply-To: message from Caleb Epstein on Thursday September 6
+In-Reply-To: <20010906141117.B7579@tela.bklyn.org>
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Thursday September 6, cae@bklyn.org wrote:
+> 
+> 	I belive this is new behavior in the latest (post-2.4.7 I
+> 	believe) kernel NFS software:
+> 
+> 	I have two machines, both running kernel 2.4.9, each of which
+> 	act as both an NFS client and server to the other.  I am using
+> 	the kernel NFS daemon and am exporting ext2fs filesystems on a
+> 	local switched LAN.
+> 
+> 	One box, called tela, was configured with NFSv3 enabled for
+> 	both the client and server code.  The other box, hagrid, was
+> 	not configured with any NFSv3 support enabled.  I just neglected
+> 	to enable this in the configuration, its was not for any
+> 	particular reason.
+> 
+> 	When I did large file reads on hagrid (the v2 client), I
+> 	would get spurious ESTALE errors on files which are totally
+> 	static and haven't been
+> 	touched in months.  Basically the filesystem contains a lot
+> 	of audio files, and I was running md5 checksums on them from
+> 	hagrid, while they were hosted on tela.
 
-I've found that linux doesn't support ATI Radeon VE frame buffer.
-Bellow is patch for latest Alan's linux distribution to enable support of subj
-This patch works (at least for me) and I get graphic screen with 640x480x256
-on my Radeon VE chip.
+NFSv2 has a limit of 2Gigabytes per file.  Are the files that you are
+reading close to, or exceeding, this size?
 
-Best regards! Nick
+However, I wouldn't expect an ESTALE for that reason. 
 
+Can you run "tcpdump -s 1024", the the response that contains the
+error, and send the dozon or so lines around that?
 
---- linux/drivers/video/radeonfb.c.old	Fri Sep  7 12:10:49 2001
-+++ linux/drivers/video/radeonfb.c	Fri Sep  7 15:36:10 2001
-@@ -12,13 +12,14 @@
-  *	2001-07-05	fixed scrolling issues, engine initialization,
-  *			and minor mode tweaking, 0.0.9
-  *
-+ *	2001-09-07	Radeon VE support
-  *
-  *	Special thanks to ATI DevRel team for their hardware donations.
-  *
-  */
- 
- 
--#define RADEON_VERSION	"0.0.9"
-+#define RADEON_VERSION	"0.0.10"
- 
- 
- #include <linux/config.h>
-@@ -62,7 +63,8 @@
- 	RADEON_QD,
- 	RADEON_QE,
- 	RADEON_QF,
--	RADEON_QG
-+	RADEON_QG,
-+	RADEON_VE
- };
- 
- 
-@@ -71,6 +73,7 @@
- 	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_RADEON_QE, PCI_ANY_ID, PCI_ANY_ID, 0, 0, RADEON_QE},
- 	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_RADEON_QF, PCI_ANY_ID, PCI_ANY_ID, 0, 0, RADEON_QF},
- 	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_RADEON_QG, PCI_ANY_ID, PCI_ANY_ID, 0, 0, RADEON_QG},
-+	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_RADEON_VE, PCI_ANY_ID, PCI_ANY_ID, 0, 0, RADEON_VE},
- 	{ 0, }
- };
- MODULE_DEVICE_TABLE(pci, radeonfb_pci_table);
-@@ -639,6 +642,9 @@
- 		case PCI_DEVICE_ID_RADEON_QG:
- 			strcpy(rinfo->name, "Radeon QG ");
- 			break;
-+		case PCI_DEVICE_ID_RADEON_VE:
-+			strcpy(rinfo->name, "Radeon VE ");
-+			break;
- 		default:
- 			return -ENODEV;
- 	}
-@@ -754,7 +760,7 @@
- 		radeon_engine_init (rinfo);
- 	}
- 
--	printk ("radeonfb: ATI Radeon %s %d MB\n", rinfo->ram_type,
-+	printk ("radeonfb: ATI %s %d MB\n",rinfo->name,
- 		(rinfo->video_ram/(1024*1024)));
- 
- 	return 0;
-
---- linux/drivers/video/radeon.h.old	Fri Sep  7 12:10:49 2001
-+++ linux/drivers/video/radeon.h	Fri Sep  7 14:09:54 2001
-@@ -7,6 +7,7 @@
- #define PCI_DEVICE_ID_RADEON_QE		0x5145
- #define PCI_DEVICE_ID_RADEON_QF		0x5146
- #define PCI_DEVICE_ID_RADEON_QG		0x5147
-+#define PCI_DEVICE_ID_RADEON_VE		0x5159
- 
- #define RADEON_REGSIZE			0x4000
- 
-
+NeilBrown

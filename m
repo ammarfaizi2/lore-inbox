@@ -1,40 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318873AbSH1PeP>; Wed, 28 Aug 2002 11:34:15 -0400
+	id <S318878AbSH1P3P>; Wed, 28 Aug 2002 11:29:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318875AbSH1PeP>; Wed, 28 Aug 2002 11:34:15 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:30144 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S318873AbSH1PeP>; Wed, 28 Aug 2002 11:34:15 -0400
-Subject: Re: LTP Nightly BK Test Failure
-From: Paul Larson <plars@austin.ibm.com>
-To: Larry McVoy <lm@bitmover.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, scott.feldman@intel.com
-In-Reply-To: <20020828081036.B28927@work.bitmover.com>
-References: <1030545604.2601.3.camel@plars.austin.ibm.com> 
-	<20020828081036.B28927@work.bitmover.com>
-Content-Type: text/plain
+	id <S318879AbSH1P3P>; Wed, 28 Aug 2002 11:29:15 -0400
+Received: from syndetix.com ([204.134.124.201]:56995 "HELO zianet.com")
+	by vger.kernel.org with SMTP id <S318878AbSH1P3N>;
+	Wed, 28 Aug 2002 11:29:13 -0400
+Message-ID: <3D6CE241.3060802@zianet.com>
+Date: Wed, 28 Aug 2002 08:46:25 -0600
+From: kwijibo@zianet.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020827
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: mucharek@o2.pl
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Bug when compiled \"under\" Athlon
+References: <20020828064718.225E4C22A@rekin.go2.pl>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 28 Aug 2002 10:28:30 -0500
-Message-Id: <1030548511.2602.8.camel@plars.austin.ibm.com>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-08-28 at 10:10, Larry McVoy wrote:
-> On Wed, Aug 28, 2002 at 09:40:03AM -0500, Paul Larson wrote:
-> > This bk tree covered up to cset 1.523.1.3 and there were several e100
-> 
-> Because revisions in BK change if there is parallel development, it's
-> far more effective if you list a changeset as either
-...
-I didn't think about that, thanks for the tip.  I'll make sure to do it
-like that in future reports.  Of course if there's any confusion, the
-cset numbers I've been giving can be looked up on the linux-2.5 tree at
-bkbits since I test against an unmodified pull from that tree.
+cd /usr/src/linux
+make modules
+make modules_install
 
-Thanks,
-Paul Larson
+mucharek@o2.pl wrote:
+
+>1. After compiling the kernel to work with AMD Athlons', some modules 
+>do not load.
+>2. After compiling the kernel, to work with "Athlon/Duron" some 
+>modules lik ppp* usb* do not get modeprobed or insmoded. I get an 
+>error message about a "unresolved definition: _mmxmem_cpy".
+>3. kernel, Athlon, compiling, insmod, modprobe, ppp.o, usbcore.o
+>4. Kernel version: 2.4.19
+>5. Environment: Slackware 8.0, Athlon 900MHz, 512 MB RAM, GeForce2 
+>GTS 64MB DDR, AC97 soundcard, mainboard based on VIA chipsets.
+>
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+>  
+>
+
 
 

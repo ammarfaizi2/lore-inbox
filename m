@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261175AbTD1P24 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Apr 2003 11:28:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261181AbTD1P24
+	id S261168AbTD1Pa5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Apr 2003 11:30:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261172AbTD1Pa5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Apr 2003 11:28:56 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:5760 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261175AbTD1P2z (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Apr 2003 11:28:55 -0400
-Message-Id: <200304281541.h3SFf35U001534@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: margitsw@t-online.de (Margit Schubert-While)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: #if vs #ifdef - 2.4.x/2.5.x 
-In-Reply-To: Your message of "Mon, 28 Apr 2003 16:51:21 +0200."
-             <4.3.2.7.2.20030428164640.00b72c00@pop.t-online.de> 
-From: Valdis.Kletnieks@vt.edu
-References: <4.3.2.7.2.20030428164640.00b72c00@pop.t-online.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_101661447P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Mon, 28 Apr 2003 11:30:57 -0400
+Received: from relay04.valueweb.net ([216.219.253.238]:2963 "EHLO
+	relay04.valueweb.net") by vger.kernel.org with ESMTP
+	id S261168AbTD1Pa4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Apr 2003 11:30:56 -0400
+Message-ID: <3EAD4BF3.1090408@coyotegulch.com>
+Date: Mon, 28 Apr 2003 11:42:43 -0400
+From: Scott Robert Ladd <coyote@coyotegulch.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Takashi Iwai <tiwai@suse.de>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.6x Sound frustration
+References: <3EA9AC16.4070903@coyotegulch.com> <s5hr87myb6c.wl@alsa2.suse.de>
+In-Reply-To: <s5hr87myb6c.wl@alsa2.suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Mon, 28 Apr 2003 11:41:03 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_101661447P
-Content-Type: text/plain; charset=us-ascii
+Takashi Iwai wrote:
+ > if it's not the case, try to unmute and raise "Headphone" volume.
+ > some devices use True LINEOUT as the wave lineout.
 
-On Mon, 28 Apr 2003 16:51:21 +0200, margitsw@t-online.de (Margit Schubert-While)  said:
-> 	Anybody tried a "grep -r #if CONFIG" on 2.4 and 2.5
-> 	kernels recently ?
-> 	Most revealing :-)
+Apologies for a slightly misleading response a few minutes ago.
 
-Umm.. that's probably my fault. ;)
+Raising the Headphone volume (with alsamixer) *did* solve my problem -- 
+but only *after* I rebooted the system. I now have sound.
 
---==_Exmh_101661447P
-Content-Type: application/pgp-signature
+The previous e-mail contains the system information your requested.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+Thanks.
 
-iD8DBQE+rUuPcC3lWbTT17ARAuwWAKCbFjWQNN5Ur8pW43/6uT13fpcPBACgkQI5
-yLHYq8C0dSLxq+bPu9CjNzE=
-=FIER
------END PGP SIGNATURE-----
+-- 
+Scott Robert Ladd
+Coyote Gulch Productions (http://www.coyotegulch.com)
+Professional programming for science and engineering;
+Interesting and unusual bits of very free code.
 
---==_Exmh_101661447P--

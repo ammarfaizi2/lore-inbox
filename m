@@ -1,80 +1,328 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262015AbTJIK4x (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 06:56:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261971AbTJIK4Q
+	id S261971AbTJIK4y (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 06:56:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262009AbTJIKzu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 06:56:16 -0400
-Received: from [213.78.110.92] ([213.78.110.92]:1665 "HELO stockwith.co.uk")
-	by vger.kernel.org with SMTP id S261996AbTJIKvl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 06:51:41 -0400
-From: Chris Lingard <chris@ukpost.com>
-To: hpa@zytor.com
-Subject: 2.4.22 init/do_mounts.c Bug when booting a devfs CD
-Date: Thu, 9 Oct 2003 11:51:37 +0100
-User-Agent: KMail/1.5.2
-Cc: linux-kernel@vger.kernel.org
+	Thu, 9 Oct 2003 06:55:50 -0400
+Received: from dclient217-162-71-11.hispeed.ch ([217.162.71.11]:14260 "EHLO
+	steudten.com") by vger.kernel.org with ESMTP id S261988AbTJIKul
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Oct 2003 06:50:41 -0400
+Message-ID: <3F853D7F.1030903@steudten.com>
+Date: Thu, 09 Oct 2003 12:50:39 +0200
+From: Thomas Steudten <alpha@steudten.com>
+Reply-To: alpha@steudten.com
+Organization: STEUDTEN ENGINEERING
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_52Th/5ciwsSS1FR"
-Message-Id: <200310091151.38016.chris@ukpost.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: [BUG] 2.6.0-test 7: ALPHA:  missing asm/mca.h
+Content-Type: multipart/mixed;
+ boundary="------------040601070305070009060503"
+X-Mailer: Mailer
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------040601070305070009060503
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 
---Boundary-00=_52Th/5ciwsSS1FR
+Hello
+
+A fresh build with make O=../foo oldconfig for ALPHA CPU fails
+with: (There´s no mca.h in the alpha-asm/ source tree.
+
+LD      drivers/media/dvb/ttusb-budget/built-in.o
+   LD      drivers/media/dvb/ttusb-dec/built-in.o
+   LD      drivers/media/dvb/built-in.o
+   LD      drivers/media/radio/built-in.o
+   LD      drivers/media/video/built-in.o
+   LD      drivers/media/built-in.o
+   LD      drivers/misc/built-in.o
+   CC      drivers/net/3c59x.o
+   CC      drivers/net/Space.o
+   CC      drivers/net/net_init.o
+   CC      drivers/net/loopback.o
+   CC      drivers/net/3c509.o
+In file included from /usr/src/linux_dir/kernel2.6/linux-2.6.0-test7/drivers/net/3c509.c:77:
+/usr/src/linux_dir/kernel2.6/linux-2.6.0-test7/include/linux/mca.h:15: asm/mca.h: No such file or directory
+make[3]: *** [drivers/net/3c509.o] Error 1
+make[2]: *** [drivers/net] Error 2
+make[1]: *** [drivers] Error 2
+make: *** [boot] Error 2
+
+--
+Tom
+
+--------------040601070305070009060503
 Content-Type: text/plain;
-  charset="us-ascii"
+ name="config"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Disposition: inline;
+ filename="config"
 
-Hope I have the right person;  you may be interested in this.
+CONFIG_ALPHA=y
+CONFIG_64BIT=y
+CONFIG_MMU=y
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_CLEAN_COMPILE=y
+CONFIG_STANDALONE=y
+CONFIG_BROKEN_ON_SMP=y
+CONFIG_SWAP=y
+CONFIG_SYSVIPC=y
+CONFIG_BSD_PROCESS_ACCT=y
+CONFIG_SYSCTL=y
+CONFIG_LOG_BUF_SHIFT=17
+CONFIG_IKCONFIG=y
+CONFIG_IKCONFIG_PROC=y
+CONFIG_KALLSYMS=y
+CONFIG_FUTEX=y
+CONFIG_EPOLL=y
+CONFIG_IOSCHED_NOOP=y
+CONFIG_IOSCHED_AS=y
+CONFIG_IOSCHED_DEADLINE=y
+CONFIG_MODULES=y
+CONFIG_MODULE_UNLOAD=y
+CONFIG_MODULE_FORCE_UNLOAD=y
+CONFIG_OBSOLETE_MODPARM=y
+CONFIG_MODVERSIONS=y
+CONFIG_KMOD=y
+CONFIG_ALPHA_SX164=y
+CONFIG_ISA=y
+CONFIG_PCI=y
+CONFIG_PCI_DOMAINS=y
+CONFIG_ALPHA_EV5=y
+CONFIG_ALPHA_CIA=y
+CONFIG_ALPHA_EV56=y
+CONFIG_ALPHA_PYXIS=y
+CONFIG_VERBOSE_MCHECK=y
+CONFIG_VERBOSE_MCHECK_ON=1
+CONFIG_PCI_LEGACY_PROC=y
+CONFIG_PCI_NAMES=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_EM86=m
+CONFIG_PARPORT=m
+CONFIG_PARPORT_PC=m
+CONFIG_PARPORT_PC_FIFO=y
+CONFIG_PARPORT_PC_SUPERIO=y
+CONFIG_PARPORT_1284=y
+CONFIG_PNP=y
+CONFIG_BLK_DEV_FD=m
+CONFIG_BLK_CPQ_DA=m
+CONFIG_BLK_DEV_LOOP=m
+CONFIG_BLK_DEV_NBD=y
+CONFIG_BLK_DEV_RAM=m
+CONFIG_BLK_DEV_RAM_SIZE=4096
+CONFIG_MD=y
+CONFIG_BLK_DEV_MD=y
+CONFIG_MD_LINEAR=y
+CONFIG_MD_RAID1=y
+CONFIG_IDE=y
+CONFIG_IDE_MAX_HWIFS=4
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_BLK_DEV_IDECD=m
+CONFIG_IDE_TASK_IOCTL=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_IDEDMA_PCI_WIP=y
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_BLK_DEV_ALI15X3=y
+CONFIG_BLK_DEV_CMD64X=y
+CONFIG_BLK_DEV_CY82C693=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_SCSI=y
+CONFIG_SCSI_PROC_FS=y
+CONFIG_BLK_DEV_SD=y
+CONFIG_CHR_DEV_ST=m
+CONFIG_BLK_DEV_SR=m
+CONFIG_CHR_DEV_SG=m
+CONFIG_SCSI_REPORT_LUNS=y
+CONFIG_SCSI_CONSTANTS=y
+CONFIG_SCSI_LOGGING=y
+CONFIG_SCSI_AIC7XXX=y
+CONFIG_AIC7XXX_CMDS_PER_DEVICE=253
+CONFIG_AIC7XXX_RESET_DELAY_MS=2000
+CONFIG_AIC7XXX_DEBUG_ENABLE=y
+CONFIG_AIC7XXX_DEBUG_MASK=0
+CONFIG_AIC7XXX_REG_PRETTY_PRINT=y
+CONFIG_SCSI_QLOGIC_ISP=y
+CONFIG_SCSI_DEBUG=m
+CONFIG_NET=y
+CONFIG_PACKET=y
+CONFIG_PACKET_MMAP=y
+CONFIG_NETLINK_DEV=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+CONFIG_IP_ADVANCED_ROUTER=y
+CONFIG_IP_MULTIPLE_TABLES=y
+CONFIG_IP_ROUTE_NAT=y
+CONFIG_IP_ROUTE_TOS=y
+CONFIG_IP_ROUTE_VERBOSE=y
+CONFIG_NET_IPIP=m
+CONFIG_INET_ECN=y
+CONFIG_SYN_COOKIES=y
+CONFIG_NETFILTER=y
+CONFIG_NETFILTER_DEBUG=y
+CONFIG_IP_NF_CONNTRACK=m
+CONFIG_IP_NF_FTP=m
+CONFIG_IP_NF_IRC=m
+CONFIG_IP_NF_IPTABLES=m
+CONFIG_IP_NF_MATCH_LIMIT=m
+CONFIG_IP_NF_MATCH_MAC=m
+CONFIG_IP_NF_MATCH_PKTTYPE=m
+CONFIG_IP_NF_MATCH_MARK=m
+CONFIG_IP_NF_MATCH_MULTIPORT=m
+CONFIG_IP_NF_MATCH_TOS=m
+CONFIG_IP_NF_MATCH_ECN=m
+CONFIG_IP_NF_MATCH_DSCP=m
+CONFIG_IP_NF_MATCH_AH_ESP=m
+CONFIG_IP_NF_MATCH_LENGTH=m
+CONFIG_IP_NF_MATCH_TTL=m
+CONFIG_IP_NF_MATCH_TCPMSS=m
+CONFIG_IP_NF_MATCH_STATE=m
+CONFIG_IP_NF_MATCH_CONNTRACK=m
+CONFIG_IP_NF_MATCH_OWNER=m
+CONFIG_IP_NF_FILTER=m
+CONFIG_IP_NF_TARGET_REJECT=m
+CONFIG_IP_NF_NAT=m
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_TARGET_MASQUERADE=m
+CONFIG_IP_NF_TARGET_REDIRECT=m
+CONFIG_IP_NF_NAT_IRC=m
+CONFIG_IP_NF_NAT_FTP=m
+CONFIG_IP_NF_MANGLE=m
+CONFIG_IP_NF_TARGET_TOS=m
+CONFIG_IP_NF_TARGET_MARK=m
+CONFIG_IP_NF_TARGET_LOG=m
+CONFIG_IP_NF_TARGET_ULOG=m
+CONFIG_IP_NF_COMPAT_IPCHAINS=m
+CONFIG_XFRM=y
+CONFIG_IPV6_SCTP__=y
+CONFIG_NET_SCHED=y
+CONFIG_NET_QOS=y
+CONFIG_NET_ESTIMATOR=y
+CONFIG_NETDEVICES=y
+CONFIG_DUMMY=m
+CONFIG_BONDING=m
+CONFIG_NET_ETHERNET=y
+CONFIG_NET_VENDOR_3COM=y
+CONFIG_EL3=y
+CONFIG_VORTEX=y
+CONFIG_NET_ISA=y
+CONFIG_NE2000=m
+CONFIG_PPP=m
+CONFIG_INPUT=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+CONFIG_SOUND_GAMEPORT=y
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_SERIO_SERPORT=y
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
+CONFIG_PRINTER=m
+CONFIG_TIPAR=m
+CONFIG_WATCHDOG=y
+CONFIG_SOFT_WATCHDOG=m
+CONFIG_RTC=y
+CONFIG_DRM=y
+CONFIG_EXT2_FS=y
+CONFIG_EXT3_FS=y
+CONFIG_EXT3_FS_XATTR=y
+CONFIG_JBD=y
+CONFIG_JBD_DEBUG=y
+CONFIG_FS_MBCACHE=y
+CONFIG_REISERFS_FS=m
+CONFIG_REISERFS_PROC_INFO=y
+CONFIG_JFS_FS=m
+CONFIG_JFS_STATISTICS=y
+CONFIG_MINIX_FS=m
+CONFIG_ROMFS_FS=m
+CONFIG_QUOTA=y
+CONFIG_QUOTACTL=y
+CONFIG_AUTOFS_FS=m
+CONFIG_AUTOFS4_FS=m
+CONFIG_ISO9660_FS=m
+CONFIG_JOLIET=y
+CONFIG_ZISOFS=y
+CONFIG_ZISOFS_FS=m
+CONFIG_UDF_FS=m
+CONFIG_FAT_FS=m
+CONFIG_MSDOS_FS=m
+CONFIG_VFAT_FS=m
+CONFIG_NTFS_FS=m
+CONFIG_PROC_FS=y
+CONFIG_PROC_KCORE=y
+CONFIG_DEVPTS_FS=y
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_EFS_FS=m
+CONFIG_CRAMFS=m
+CONFIG_NFS_FS=m
+CONFIG_NFS_V3=y
+CONFIG_NFSD=m
+CONFIG_NFSD_V3=y
+CONFIG_LOCKD=m
+CONFIG_LOCKD_V4=y
+CONFIG_EXPORTFS=m
+CONFIG_SUNRPC=m
+CONFIG_SMB_FS=m
+CONFIG_OSF_PARTITION=y
+CONFIG_MSDOS_PARTITION=y
+CONFIG_SMB_NLS=y
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="cp437"
+CONFIG_NLS_CODEPAGE_437=m
+CONFIG_NLS_CODEPAGE_850=m
+CONFIG_NLS_ISO8859_1=m
+CONFIG_NLS_ISO8859_2=m
+CONFIG_VGA_CONSOLE=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_ALPHA_LEGACY_START_ADDRESS=y
+CONFIG_DEBUG_KERNEL=y
+CONFIG_MATHEMU=y
+CONFIG_DEBUG_SLAB=y
+CONFIG_MAGIC_SYSRQ=y
+CONFIG_SECURITY=y
+CONFIG_SECURITY_CAPABILITIES=m
+CONFIG_CRYPTO=y
+CONFIG_CRYPTO_HMAC=y
+CONFIG_CRYPTO_NULL=m
+CONFIG_CRYPTO_MD4=m
+CONFIG_CRYPTO_MD5=m
+CONFIG_CRYPTO_SHA1=m
+CONFIG_CRYPTO_SHA256=m
+CONFIG_CRYPTO_SHA512=m
+CONFIG_CRYPTO_DES=m
+CONFIG_CRYPTO_BLOWFISH=m
+CONFIG_CRYPTO_TWOFISH=m
+CONFIG_CRYPTO_SERPENT=m
+CONFIG_CRYPTO_AES=m
+CONFIG_CRYPTO_CAST5=m
+CONFIG_CRYPTO_CAST6=m
+CONFIG_CRYPTO_DEFLATE=m
+CONFIG_CRYPTO_TEST=m
+CONFIG_CRC32=y
+CONFIG_ZLIB_INFLATE=m
+CONFIG_ZLIB_DEFLATE=m
 
-I boot a CD using initrd; the RAMDISK uses devfs within the linuxrc script
-to pivot_root/chroot as in the documentation.  In the documentation it
-is suggested that root=/dev/rd/0  is used, if using devfs.
+--------------040601070305070009060503--
 
-A boot using root=/dev/ram0 works fine, root=/dev/rd/0 shows a bug
-in init/do_mounts.c, in void prepare_namespace(void)
-
-The test:
-if (initrd_load() && ROOT_DEV != MKDEV(RAMDISK_MAJOR, 0))
-is true, and handle_initrd() is wrongly called.  This is a bug, (I assume
-that this code is to relinquish the original boot).  The call that is used
-is at the end of main.c where linuxrc is called instead of /sbin/init.
-
-This is because rd/0 is not in root_dev_names; a patch is attached to fix
-this.
-
-Strangly enough, it still boots, despite linuxrc being called twice :-)
-
-An alternative would be to change the documentation of initrd, so
-that only root=/dev/ram0 is mentioned, despite using devfs.
-
-Chris Lingard
-
---Boundary-00=_52Th/5ciwsSS1FR
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="linux-2.4.22-rd0.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="linux-2.4.22-rd0.patch"
-
-diff -Naur linux-2.4.22.old/init/do_mounts.c linux-2.4.22/init/do_mounts.c
---- linux-2.4.22.old/init/do_mounts.c	2003-09-10 12:18:55.000000000 +0100
-+++ linux-2.4.22/init/do_mounts.c	2003-09-23 12:46:36.000000000 +0100
-@@ -227,6 +227,11 @@
- 	{ "ataraid/d13p",0x72D0 },
- 	{ "ataraid/d14p",0x72E0 },
- 	{ "ataraid/d15p",0x72F0 },
-+#ifdef CONFIG_BLK_DEV_RAM
-+#ifdef CONFIG_BLK_DEV_INITRD
-+        { "rd/0",     0x0100 },
-+#endif
-+#endif
-         { "rd/c0d0p",0x3000 },
-         { "rd/c0d0p1",0x3001 },
-         { "rd/c0d0p2",0x3002 },
-
---Boundary-00=_52Th/5ciwsSS1FR--

@@ -1,81 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265022AbUGANEK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265262AbUGANGw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265022AbUGANEK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 09:04:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265075AbUGANEK
+	id S265262AbUGANGw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 09:06:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265248AbUGANGw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 09:04:10 -0400
-Received: from smtp810.mail.sc5.yahoo.com ([66.163.170.80]:9301 "HELO
-	smtp810.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S265022AbUGANED (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 09:04:03 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Marc Waeckerlin <Marc.Waeckerlin@siemens.com>
-Subject: Re: Continue: psmouse.c - synaptics touchpad driver sync problem
-Date: Thu, 1 Jul 2004 08:03:59 -0500
+	Thu, 1 Jul 2004 09:06:52 -0400
+Received: from natnoddy.rzone.de ([81.169.145.166]:51198 "EHLO
+	natnoddy.rzone.de") by vger.kernel.org with ESMTP id S265075AbUGANGu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jul 2004 09:06:50 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Subject: Re: s390(64) per_cpu in modules (ipv6)
+Date: Thu, 1 Jul 2004 15:05:55 +0200
 User-Agent: KMail/1.6.2
-Cc: laflipas@telefonica.net, linux-kernel@vger.kernel.org, t.hirsch@web.de,
-       Vojtech Pavlik <vojtech@suse.cz>
-References: <20040630132305.98864.qmail@web81306.mail.yahoo.com> <200407011434.59340.Marc.Waeckerlin@siemens.com>
-In-Reply-To: <200407011434.59340.Marc.Waeckerlin@siemens.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       linux-kernel@vger.kernel.org
+References: <20040630130442.GA2440@mschwid3.boeblingen.de.ibm.com> <20040630135505.5e1fcb4d@lembas.zaitcev.lan>
+In-Reply-To: <20040630135505.5e1fcb4d@lembas.zaitcev.lan>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="utf-8"
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_zwA5AB51DxPIcWo";
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200407010804.00438.dtor_core@ameritech.net>
+Message-Id: <200407011505.55842.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 01 July 2004 07:34 am, Marc Waeckerlin wrote:
-> Dmitry: On synaptics page, I've seen that you've got tons of bugfixes for 
-> 2.6.7 on http://www.geocities.com/dt_or/input/2_6_7. Do I need something from 
-> there and is there a patch that contains all patches?
->
 
-These are serio sysfs integration patches, they should not change the behavior
-of the system.
- 
-> > >
-> > > Well, there are several things:
-> > >  1) Cursor hangs on system load with internal mousepad
-> > >     (no external mouse connected)
-> >
-> > You mean when the system load is high? Yes, that can happen..
-> 
-> System load does not have to be really high, so it happens quite often. This 
-> is very disturbing, like in MacOS 15 years ago! (That was one of the main 
-> reasons for me not to use Mac, besides the fact that an application could 
-> crash the whole system!) I think we now have a multitasking OS, haven't 
-> we?!? :-(
-> 
-> It is sometimes better, sometimes worse, but not really depending on system 
-> load, it seems. Just a minute ago it was really bad. Strange.
+--Boundary-02=_zwA5AB51DxPIcWo
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-I usually feel some hesitation in cursor movement under high disk load -
-do you experience something like that? Although, now that I think about it,
-it's usually not the cursor itself but KDE is lagging to redraw...
+On Mittwoch, 30. Juni 2004 22:55, Pete Zaitcev wrote:
+> What is the minimum gcc version which supports "X" constraint?
+>=20
+It's already there in 2.95, which was the oldest version with
+s390 support.
 
-> 
-> 
-> > >  2) Cursor jumps a bit with internal mousepad
-> > >     (no external mouse connected)
-> > >  3) Cursor jumps like crazy when moving external mouse
-> > >  4) Cursor randomly clicks when moving external mouse
-> >
-> > Has the external mouse ever worked in 2.6? Or is it always
-> > just randomly clickng stuff? Have you tried connecting another
-> > mouse?
-> 
-> No and yes. At home I have a wheel mouse, at work a normal PS/2 mouse, both 
-> with diffrent keyboards and both with the same problem. I never successfully 
-> used an external mouse since I upgraded to SuSE 9.1 (Kernel 2.6). I had no 
-> problems with kernel 2.4 and the same hardware.
-> 
+	Arnd <><
 
-Just out of curiosity, what happens when you pass psmouse.proto=bare to the
-kernel as a boot option (or put "options psmouse proto=bare" in your
-/etc/modprobe.conf file if psmouse is compiled as a module)?	
+--Boundary-02=_zwA5AB51DxPIcWo
+Content-Type: application/pgp-signature
+Content-Description: signature
 
--- 
-Dmitry
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBA5Awz5t5GS2LDRf4RAo1BAJ48UM16Pfp67VEjNmvhsN9eqjmpuwCfRYvB
+ZaTS/mWNxIaV//3T+ZGG+DI=
+=PiPY
+-----END PGP SIGNATURE-----
+
+--Boundary-02=_zwA5AB51DxPIcWo--

@@ -1,157 +1,210 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262365AbUDKO0U (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Apr 2004 10:26:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262368AbUDKO0U
+	id S262351AbUDKOYT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Apr 2004 10:24:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262356AbUDKOYT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Apr 2004 10:26:20 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:21845 "EHLO
-	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S262365AbUDKO0O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Apr 2004 10:26:14 -0400
-Date: Sun, 11 Apr 2004 15:26:10 +0100 (BST)
+	Sun, 11 Apr 2004 10:24:19 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:5927 "EHLO
+	MTVMIME02.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S262351AbUDKOYN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Apr 2004 10:24:13 -0400
+Date: Sun, 11 Apr 2004 15:24:04 +0100 (BST)
 From: Hugh Dickins <hugh@veritas.com>
 X-X-Sender: hugh@localhost.localdomain
 To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] rmap 6 swap_unplug page
-In-Reply-To: <Pine.LNX.4.44.0404111520210.1923-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0404111524240.1923-100000@localhost.localdomain>
+cc: rmk@arm.linux.org.uk, <ralf@linux-mips.org>,
+       <James.Bottomley@SteelEye.com>, <davem@redhat.com>, <gniibe@m17n.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: [PATCH] rmap 4 flush_dcache revisited
+Message-ID: <Pine.LNX.4.44.0404111520210.1923-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-rmap 6 swap_unplug page
+First of another batch of three rmap patches: not the batch which will
+change rmap around, just a set of fixes to issues which arose with the
+first batch, scarcely related to rmap itself.  Based on 2.6.5-mc4, but
+apply easily to 2.6.5-mm4 (except fault-armv.c, where -mm4 has a prior
+fix in that area).
 
-Good example of "swapper_space considered harmful": swap_unplug_io_fn
-was originally designed for calling via swapper_space.backing_dev_info;
-but that way it loses track of which device is to be unplugged, so had
-to unplug all swap devices.  But now sync_page tests SwapCache anyway,
-can call swap_unplug_io_fn with page, which leads direct to the device.
+rmap 4 flush_dcache_page revisited
 
-Reverted -mc4's CONFIG_SWAP=n fix, just add another NOTHING for it.
-Reverted -mc3's editorial adjustments to swap_backing_dev_info and
-swapper_space initializations: they document the few fields which are
-actually used now, as comment above them says (sound of slapped wrist).
+Sorry to follow up on the same files so soon, but I realized that this
+arch code has long been slightly unsafe (if SMP or PREEMPT), silly not
+to fix it while we're here.
 
- include/linux/swap.h |    5 ++---
- mm/filemap.c         |    2 +-
- mm/nommu.c           |    5 -----
- mm/swap_state.c      |    4 ++--
- mm/swapfile.c        |   23 +++++++++++++++--------
- 5 files changed, 20 insertions(+), 19 deletions(-)
+One of the callers of flush_dcache_page is do_generic_mapping_read,
+where file is read without i_sem and without page lock: concurrent
+truncation may at any moment remove page from cache, NULLing ->mapping,
+making flush_dcache_page liable to oops.  Put result of page_mapping in
+a local variable and apply mapping_mapped to that (if we were to check
+for NULL within mapping_mapped, it's unclear whether to say yes or no).
 
---- rmap4/include/linux/swap.h	2004-04-11 07:19:24.105429504 +0100
-+++ rmap5/include/linux/swap.h	2004-04-11 10:38:07.223816856 +0100
-@@ -181,8 +181,6 @@ extern int vm_swappiness;
- extern int shmem_unuse(swp_entry_t entry, struct page *page);
- #endif /* CONFIG_MMU */
+parisc and arm do have other locking unsafety in their i_mmap(_shared)
+searching, but that's a larger issue to be dealt with down the line.
+
+ arch/arm/mm/fault-armv.c        |   13 +++++++++----
+ arch/mips/mm/cache.c            |    3 ++-
+ arch/parisc/kernel/cache.c      |    7 ++++---
+ arch/sparc64/mm/init.c          |    3 ++-
+ include/asm-arm/cacheflush.h    |    4 +++-
+ include/asm-parisc/cacheflush.h |    4 +++-
+ include/asm-sh/pgalloc.h        |    7 +++----
+ 7 files changed, 26 insertions(+), 15 deletions(-)
+
+--- 2.6.5-mc4/arch/arm/mm/fault-armv.c	2004-04-11 07:19:15.991662984 +0100
++++ rmap4/arch/arm/mm/fault-armv.c	2004-04-11 10:37:55.817550872 +0100
+@@ -186,19 +186,20 @@ no_pmd:
  
--extern void swap_unplug_io_fn(struct backing_dev_info *);
--
- #ifdef CONFIG_SWAP
- /* linux/mm/page_io.c */
- extern int swap_readpage(struct file *, struct page *);
-@@ -218,7 +216,7 @@ extern sector_t map_swap_page(struct swa
- extern struct swap_info_struct *get_swap_info_struct(unsigned);
- extern int can_share_swap_page(struct page *);
- extern int remove_exclusive_swap_page(struct page *);
--struct backing_dev_info;
-+extern void swap_unplug_io_fn(struct page *);
- 
- extern struct swap_list_t swap_list;
- extern spinlock_t swaplock;
-@@ -252,6 +250,7 @@ extern spinlock_t swaplock;
- #define move_from_swap_cache(p, i, m)		1
- #define __delete_from_swap_cache(p)		/*NOTHING*/
- #define delete_from_swap_cache(p)		/*NOTHING*/
-+#define swap_unplug_io_fn(p)			/*NOTHING*/
- 
- static inline int remove_exclusive_swap_page(struct page *p)
+ void __flush_dcache_page(struct page *page)
  {
---- rmap4/mm/filemap.c	2004-04-11 07:19:24.796324472 +0100
-+++ rmap5/mm/filemap.c	2004-04-11 10:38:07.226816400 +0100
-@@ -127,7 +127,7 @@ static inline int sync_page(struct page 
- 		if (mapping->a_ops && mapping->a_ops->sync_page)
- 			return mapping->a_ops->sync_page(page);
- 	} else if (PageSwapCache(page)) {
--		swap_unplug_io_fn(NULL);
-+		swap_unplug_io_fn(page);
++	struct address_space *mapping = page_mapping(page);
+ 	struct mm_struct *mm = current->active_mm;
+ 	struct list_head *l;
+ 
+ 	__cpuc_flush_dcache_page(page_address(page));
+ 
+-	if (!page_mapping(page))
++	if (!mapping)
+ 		return;
+ 
+ 	/*
+ 	 * With a VIVT cache, we need to also write back
+ 	 * and invalidate any user data.
+ 	 */
+-	list_for_each(l, &page->mapping->i_mmap_shared) {
++	list_for_each(l, &mapping->i_mmap_shared) {
+ 		struct vm_area_struct *mpnt;
+ 		unsigned long off;
+ 
+@@ -224,17 +225,21 @@ void __flush_dcache_page(struct page *pa
+ static void
+ make_coherent(struct vm_area_struct *vma, unsigned long addr, struct page *page, int dirty)
+ {
+-	struct list_head *l;
++	struct address_space *mapping = page_mapping(page);
+ 	struct mm_struct *mm = vma->vm_mm;
++	struct list_head *l;
+ 	unsigned long pgoff = (addr - vma->vm_start) >> PAGE_SHIFT;
+ 	int aliases = 0;
+ 
++	if (!mapping)
++		return;
++
+ 	/*
+ 	 * If we have any shared mappings that are in the same mm
+ 	 * space, then we need to handle them specially to maintain
+ 	 * cache coherency.
+ 	 */
+-	list_for_each(l, &page->mapping->i_mmap_shared) {
++	list_for_each(l, &mapping->i_mmap_shared) {
+ 		struct vm_area_struct *mpnt;
+ 		unsigned long off;
+ 
+--- 2.6.5-mc4/arch/mips/mm/cache.c	2004-04-11 07:19:17.312462192 +0100
++++ rmap4/arch/mips/mm/cache.c	2004-04-11 10:37:55.818550720 +0100
+@@ -55,9 +55,10 @@ asmlinkage int sys_cacheflush(void *addr
+ 
+ void flush_dcache_page(struct page *page)
+ {
++	struct address_space *mapping = page_mapping(page);
+ 	unsigned long addr;
+ 
+-	if (page_mapping(page) && !mapping_mapped(page->mapping)) {
++	if (mapping && !mapping_mapped(mapping)) {
+ 		SetPageDcacheDirty(page);
+ 		return;
  	}
- 	return 0;
- }
---- rmap4/mm/nommu.c	2004-04-11 07:19:24.866313832 +0100
-+++ rmap5/mm/nommu.c	2004-04-11 10:38:07.227816248 +0100
-@@ -18,7 +18,6 @@
- #include <linux/slab.h>
- #include <linux/vmalloc.h>
- #include <linux/blkdev.h>
--#include <linux/backing-dev.h>
+--- 2.6.5-mc4/arch/parisc/kernel/cache.c	2004-04-11 07:19:17.322460672 +0100
++++ rmap4/arch/parisc/kernel/cache.c	2004-04-11 10:37:55.819550568 +0100
+@@ -229,16 +229,17 @@ void disable_sr_hashing(void)
  
- #include <asm/pgalloc.h>
- #include <asm/uaccess.h>
-@@ -572,7 +571,3 @@ unsigned long get_unmapped_area(struct f
- void pte_chain_init(void)
+ void __flush_dcache_page(struct page *page)
  {
- }
--
--void swap_unplug_io_fn(struct backing_dev_info *)
--{
--}
---- rmap4/mm/swap_state.c	2004-04-11 07:19:25.004292856 +0100
-+++ rmap5/mm/swap_state.c	2004-04-11 10:38:07.228816096 +0100
-@@ -25,13 +25,13 @@ static struct address_space_operations s
- };
++	struct address_space *mapping = page_mapping(page);
+ 	struct mm_struct *mm = current->active_mm;
+ 	struct list_head *l;
  
- static struct backing_dev_info swap_backing_dev_info = {
--	.memory_backed	= 1,	/* Does not contribute to dirty memory */
--	.unplug_io_fn	= swap_unplug_io_fn,
-+	.state		= 0,	/* uncongested */
- };
+ 	flush_kernel_dcache_page(page_address(page));
  
- struct address_space swapper_space = {
- 	.page_tree	= RADIX_TREE_INIT(GFP_ATOMIC),
- 	.tree_lock	= SPIN_LOCK_UNLOCKED,
-+	.nrpages	= 0,	/* total_swapcache_pages */
- 	.a_ops		= &swap_aops,
- 	.backing_dev_info = &swap_backing_dev_info,
- };
---- rmap4/mm/swapfile.c	2004-04-11 07:19:24.975297264 +0100
-+++ rmap5/mm/swapfile.c	2004-04-11 10:38:07.231815640 +0100
-@@ -86,19 +86,26 @@ static void remove_swap_bdev(struct bloc
- 	BUG();
- }
+-	if (!page_mapping(page))
++	if (!mapping)
+ 		return;
+ 	/* check shared list first if it's not empty...it's usually
+ 	 * the shortest */
+-	list_for_each(l, &page->mapping->i_mmap_shared) {
++	list_for_each(l, &mapping->i_mmap_shared) {
+ 		struct vm_area_struct *mpnt;
+ 		unsigned long off;
  
--void swap_unplug_io_fn(struct backing_dev_info *unused_bdi)
-+/*
-+ * Unlike a standard unplug_io_fn, swap_unplug_io_fn is never called
-+ * through swap's backing_dev_info (which is only used by shrink_list),
-+ * but directly from sync_page when PageSwapCache: and takes the page
-+ * as argument, so that it can find the right device from swp_entry_t.
-+ */
-+void swap_unplug_io_fn(struct page *page)
+@@ -267,7 +268,7 @@ void __flush_dcache_page(struct page *pa
+ 
+ 	/* then check private mapping list for read only shared mappings
+ 	 * which are flagged by VM_MAYSHARE */
+-	list_for_each(l, &page->mapping->i_mmap) {
++	list_for_each(l, &mapping->i_mmap) {
+ 		struct vm_area_struct *mpnt;
+ 		unsigned long off;
+ 
+--- 2.6.5-mc4/arch/sparc64/mm/init.c	2004-04-11 07:19:17.961363544 +0100
++++ rmap4/arch/sparc64/mm/init.c	2004-04-11 10:37:55.821550264 +0100
+@@ -224,10 +224,11 @@ void update_mmu_cache(struct vm_area_str
+ 
+ void flush_dcache_page(struct page *page)
  {
--	int i;
-+	swp_entry_t entry;
++	struct address_space *mapping = page_mapping(page);
+ 	int dirty = test_bit(PG_dcache_dirty, &page->flags);
+ 	int dirty_cpu = dcache_dirty_cpu(page);
  
- 	down(&swap_bdevs_sem);
--	for (i = 0; i < MAX_SWAPFILES; i++) {
--		struct block_device *bdev = swap_bdevs[i];
-+	entry.val = page->private;
-+	if (PageSwapCache(page)) {
-+		struct block_device *bdev = swap_bdevs[swp_type(entry)];
- 		struct backing_dev_info *bdi;
+-	if (page_mapping(page) && !mapping_mapped(page->mapping)) {
++	if (mapping && !mapping_mapped(mapping)) {
+ 		if (dirty) {
+ 			if (dirty_cpu == smp_processor_id())
+ 				return;
+--- 2.6.5-mc4/include/asm-arm/cacheflush.h	2004-04-11 07:19:22.378692008 +0100
++++ rmap4/include/asm-arm/cacheflush.h	2004-04-11 10:37:55.823549960 +0100
+@@ -295,7 +295,9 @@ extern void __flush_dcache_page(struct p
  
--		if (bdev == NULL)
--			break;
--		bdi = bdev->bd_inode->i_mapping->backing_dev_info;
--		(*bdi->unplug_io_fn)(bdi);
-+		if (bdev) {
-+			bdi = bdev->bd_inode->i_mapping->backing_dev_info;
-+			(*bdi->unplug_io_fn)(bdi);
-+		}
+ static inline void flush_dcache_page(struct page *page)
+ {
+-	if (page_mapping(page) && !mapping_mapped(page->mapping))
++	struct address_space *mapping = page_mapping(page);
++
++	if (mapping && !mapping_mapped(mapping))
+ 		set_bit(PG_dcache_dirty, &page->flags);
+ 	else
+ 		__flush_dcache_page(page);
+--- 2.6.5-mc4/include/asm-parisc/cacheflush.h	2004-04-11 07:19:22.804627256 +0100
++++ rmap4/include/asm-parisc/cacheflush.h	2004-04-11 10:37:55.823549960 +0100
+@@ -69,7 +69,9 @@ extern void __flush_dcache_page(struct p
+ 
+ static inline void flush_dcache_page(struct page *page)
+ {
+-	if (page_mapping(page) && !mapping_mapped(page->mapping)) {
++	struct address_space *mapping = page_mapping(page);
++
++	if (mapping && !mapping_mapped(mapping)) {
+ 		set_bit(PG_dcache_dirty, &page->flags);
+ 	} else {
+ 		__flush_dcache_page(page);
+--- 2.6.5-mc4/include/asm-sh/pgalloc.h	2004-04-11 07:19:23.002597160 +0100
++++ rmap4/include/asm-sh/pgalloc.h	2004-04-11 10:37:55.824549808 +0100
+@@ -97,12 +97,11 @@ static inline pte_t ptep_get_and_clear(p
+ 
+ 	pte_clear(ptep);
+ 	if (!pte_not_present(pte)) {
+-		struct page *page;
+ 		unsigned long pfn = pte_pfn(pte);
+ 		if (pfn_valid(pfn)) {
+-			page = pfn_to_page(pfn);
+-			if (!page_mapping(page) ||
+-			    !mapping_writably_mapped(page->mapping))
++			struct page *page = pfn_to_page(pfn);
++			struct address_space *mapping = page_mapping(page);
++			if (!mapping || !mapping_writably_mapped(mapping))
+ 				__clear_bit(PG_mapped, &page->flags);
+ 		}
  	}
- 	up(&swap_bdevs_sem);
- }
 

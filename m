@@ -1,34 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135813AbREGGcl>; Mon, 7 May 2001 02:32:41 -0400
+	id <S135939AbREGGkD>; Mon, 7 May 2001 02:40:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135937AbREGGcc>; Mon, 7 May 2001 02:32:32 -0400
-Received: from as3-3-4.ml.g.bonet.se ([194.236.33.69]:19216 "EHLO
-	tellus.mine.nu") by vger.kernel.org with ESMTP id <S135813AbREGGcS>;
-	Mon, 7 May 2001 02:32:18 -0400
-Date: Mon, 7 May 2001 08:26:58 +0200 (CEST)
-From: Tobias Ringstrom <tori@tellus.mine.nu>
-X-X-Sender: <tori@svea.tellus>
-To: "David S. Miller" <davem@redhat.com>
-cc: Jonathan Morton <chromi@cyberspace.org>,
-        BERECZ Szabolcs <szabi@inf.elte.hu>, <linux-kernel@vger.kernel.org>,
-        <linux-mm@kvack.org>
-Subject: Re: page_launder() bug
-In-Reply-To: <15094.10942.592911.70443@pizda.ninka.net>
-Message-ID: <Pine.LNX.4.33.0105070823060.24073-100000@svea.tellus>
+	id <S136017AbREGGjw>; Mon, 7 May 2001 02:39:52 -0400
+Received: from mailout04.sul.t-online.com ([194.25.134.18]:1799 "EHLO
+	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S135939AbREGGjn>; Mon, 7 May 2001 02:39:43 -0400
+Date: 07 May 2001 08:37:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: linux-kernel@vger.kernel.org
+Message-ID: <80OKvFpXw-B@khms.westfalen.de>
+In-Reply-To: <9d4ut6$9b9$1@cesium.transmeta.com>
+Subject: Re: [PATCH] for iso8859-13
+X-Mailer: CrossPoint v3.12d.kh6 R/C435
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Organization: Organisation? Me?! Are you kidding?
+In-Reply-To: <9d4ut6$9b9$1@cesium.transmeta.com>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 6 May 2001, David S. Miller wrote:
-> It is the most straightforward way to make a '1' or '0'
-> integer from the NULL state of a pointer.
+hpa@zytor.com (H. Peter Anvin)  wrote on 06.05.01 in <9d4ut6$9b9$1@cesium.transmeta.com>:
 
-But is it really specified in the C "standards" to be exctly zero or one,
-and not zero and non-zero?
+> Followup to:  <200105062104.XAA24831@green.mif.pg.gda.pl>
+> By author:    Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
+> In newsgroup: linux.dev.kernel
+> >
+> > Hi,
+> >    The following patch removed unused and broken conversion table from
+> > nls_iso8859-13.c.
+> >
+>
+> Wouldn't it make a heck of a lot more sense if we had a preprocessor
+> which could produce these kinds of tables from a more sensible input
+> format (preferrably one which is already in use somewhere.)
 
-IMHO, the ?: construct is way more readable and reliable.
+For example from the tables on the Unicode webserver or from the IBM  
+charset registry ...
 
-/Tobias
 
+MfG Kai

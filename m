@@ -1,60 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270514AbTGSUNS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jul 2003 16:13:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270522AbTGSUNS
+	id S270536AbTGSUPc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jul 2003 16:15:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270537AbTGSUPc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jul 2003 16:13:18 -0400
-Received: from h80ad2559.async.vt.edu ([128.173.37.89]:28056 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S270514AbTGSUNO (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jul 2003 16:13:14 -0400
-Message-Id: <200307192028.h6JKS6bF013927@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: kilobug@freesurf.fr (=?iso-8859-1?q?Ga=EBl_Le_Mignot?=)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [OT] HURD vs Linux/HURD 
-In-Reply-To: Your message of "Sat, 19 Jul 2003 22:05:12 +0200."
-             <plopm38yqu8epz.fsf@drizzt.kilobug.org> 
-From: Valdis.Kletnieks@vt.edu
-References: <200307191503.h6JF3tac002376@81-2-122-30.bradfords.org.uk> <1058626962.30424.6.camel@stargate> <plopm3lluu8mv0.fsf@drizzt.kilobug.org> <20030719172311.GA23246@work.bitmover.com> <plopm3he5i8l4h.fsf@drizzt.kilobug.org> <20030719181249.GA24197@work.bitmover.com>
-            <plopm38yqu8epz.fsf@drizzt.kilobug.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-422410713P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Sat, 19 Jul 2003 16:28:06 -0400
+	Sat, 19 Jul 2003 16:15:32 -0400
+Received: from filesrv1.system-techniques.com ([199.33.245.55]:64135 "EHLO
+	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
+	id S270536AbTGSUP1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jul 2003 16:15:27 -0400
+Date: Sat, 19 Jul 2003 16:30:24 -0400 (EDT)
+From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+To: Mark Mielke <mark@mark.mielke.cc>
+cc: Linux Kernel Maillist <linux-kernel@vger.kernel.org>
+Subject: SCM file system (Was Re: Bitkeeper)
+In-Reply-To: <20030719161725.GD17587@mark.mielke.cc>
+Message-ID: <Pine.LNX.4.56.0307191627200.3541@filesrv1.baby-dragons.com>
+References: <200307191600.h6JG0OZd002669@81-2-122-30.bradfords.org.uk>
+ <20030719161725.GD17587@mark.mielke.cc>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-422410713P
-Content-Type: text/plain; charset=us-ascii
+	Hello Mark All ,  (I hate continuing this thread But) A thought
+	just (re-)occured to me that for those people who -really- need
+	it .  What about an SCM file system ?  Thoughts , anger ,
+	complancency ?  Twys ,  JimL
 
-On Sat, 19 Jul 2003 22:05:12 +0200, =?iso-8859-1?q?Ga=EBl_Le_Mignot?= said:
-> Stop lying. No one at the GNU project ever claimed a code to be his if
-> he didn't  write it.
-
-Oh. *NOW* I see.  You don't actually *CLAIM* it's your code, you just
-rename it in a misleading manner to create the impression.
-
-"Yes, we asked the author to rename it GNU/Wombat, even though the GNU
-project didn't actually do anything other than GNU/Rename it and then GNU/Borg it..."
-
-I think you need to call the guys in Redmond, and ask if they could please
-use the name 'GNU/Innovation"....
-
-(And yes, I *used* to have a lot of respect for the GNU crew....)
-
---==_Exmh_-422410713P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE/GanVcC3lWbTT17ARAmaEAKD4aQNAAH3F3bRXOT7NkLYbsVW4IACfWq2B
-wz5X4qt+MOELZPUO8ylAZcc=
-=bp6Y
------END PGP SIGNATURE-----
-
---==_Exmh_-422410713P--
+On Sat, 19 Jul 2003, Mark Mielke wrote:
+> On Sat, Jul 19, 2003 at 05:00:24PM +0100, John Bradford wrote:
+> > > Any investment into writing a new source management
+> > > system would be better served by improving the linux source code.
+> > What happens if somebody develops a really good versioned filesystem
+> > for Linux, would it not get merged, because the linux kernel would
+> > then contain SCM-like functionality?
+> One day, when it happens, we'll see what ripple effects it has.
+> In most cases, however, I suspect that a versioned file system will never
+> be a replacement for a good source management system. The lines could become
+> blurred, but the 'good versioned file system' might take the form a kernel
+> module that allowed SCM systems to plug into it, at which point, Bit Keeper
+> might plug into it, and everybody would be happy. I doubt you want to put
+> merge manager functionality into the kernel, or many of the other components
+> of a good source management system. The storage and access is one of the
+> lesser concerns. Bit Keeper uses similar storage and access methods as
+> SCCS, does it not?
+-- 
+       +------------------------------------------------------------------+
+       | James   W.   Laferriere | System    Techniques | Give me VMS     |
+       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
+       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
+       +------------------------------------------------------------------+

@@ -1,45 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263002AbUB0TmR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 14:42:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263001AbUB0TmR
+	id S263004AbUB0TtE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 14:49:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263005AbUB0TtE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 14:42:17 -0500
-Received: from nsmtp.pacific.net.th ([203.121.130.117]:20708 "EHLO
-	nsmtp.pacific.net.th") by vger.kernel.org with ESMTP
-	id S263003AbUB0TmP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 14:42:15 -0500
-Date: Sat, 28 Feb 2004 03:42:05 +0800
-From: "Michael Frank" <mhf@linuxmail.org>
-To: root@chaos.analogic.com, "Chris Friesen" <cfriesen@nortelnetworks.com>
-Subject: Re: Why no interrupt priorities?
-Cc: "Grover, Andrew" <andrew.grover@intel.com>,
-       "Helge Hafting" <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org
-References: <F760B14C9561B941B89469F59BA3A8470255F02D@orsmsx401.jf.intel.com> <403F894C.1050808@nortelnetworks.com> <Pine.LNX.4.53.0402271336010.8356@chaos>
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed	delsp=yes
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <opr31noft84evsfm@smtp.pacific.net.th>
-In-Reply-To: <Pine.LNX.4.53.0402271336010.8356@chaos>
-User-Agent: Opera M2/7.50 (Linux, build 600)
+	Fri, 27 Feb 2004 14:49:04 -0500
+Received: from mail.kroah.org ([65.200.24.183]:60868 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263004AbUB0TtA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 14:49:00 -0500
+Date: Fri, 27 Feb 2004 11:48:55 -0800
+From: Greg KH <greg@kroah.com>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: Question about (or bug in?) the kobject implementation
+Message-ID: <20040227194855.GB10864@kroah.com>
+References: <Pine.LNX.4.44L0.0402250955090.790-100000@ida.rowland.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44L0.0402250955090.790-100000@ida.rowland.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Feb 2004 13:42:12 -0500 (EST), Richard B. Johnson <root@chaos.analogic.com> wrote:
+On Wed, Feb 25, 2004 at 10:05:37AM -0500, Alan Stern wrote:
+> Is it supposed to be legal to repeatedly call kobject_add() and 
+> kobject_del() for the same kobject?  That is, is
+> 
+> 	kobject_add(&kobj);
+> 	...
+> 	kobject_del(&kobj);
+> 	...
+> 	kobject_add(&kobj);
+> 	...
+> 	kobject_del(&kobj);
+> 
+> supposed to work?
 
->
-> In the early IBM/AT, there was a port to which a user of
-> a shared "edge" interrupt could write. If the interrupt
-> line was still asserted, this would generate another edge.
->
-> This meant that any ISR needed to know about other users
-> of the same interrupt. This is probably why it didn't
-> catch on.
+No.
 
-Oops, never seen that in the circuit diagrams. Was that an internal prototype?
+> The API doesn't forbid it, and there's no apparent reason why it
+> should be illegal.
 
-Regards
-Michael
+We prevent race conditions in kobject_put() by saying "Don't do that!"
+:)
 
-Ooops2 sorry for priv msg, time to have a nap....
+Seriously, once kobject_del() is called, you can't safely call
+kobject_get() anymore on that object.
+
+If you can think of a way we can implement this in the code to prevent
+people from doing this, please send a patch.  We've been getting by
+without such a "safeguard" so far...
+
+> Why would anyone want to do this, you ask?  Well the USB subsystem does it 
+> already.  Each USB device can have several configurations, only one of 
+> which is active at any time.  Corresponding to each configuration is a set 
+> of struct devices, and they (together with their embedded kobjects) are 
+> allocated and initialized when the USB device is first detected.  The 
+> struct devices are add()'ed and del()'ed as configurations are activated 
+> and deactivated, leading to just the sort of call sequence shown above.
+
+Then we need to fix this.
+
+thanks,
+
+greg k-h

@@ -1,55 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283705AbRK3Tjl>; Fri, 30 Nov 2001 14:39:41 -0500
+	id <S283710AbRK3TkV>; Fri, 30 Nov 2001 14:40:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280984AbRK3Tjb>; Fri, 30 Nov 2001 14:39:31 -0500
-Received: from cp1s4p1.dashmail.net ([216.36.32.37]:16400 "EHLO sr71.net")
-	by vger.kernel.org with ESMTP id <S280994AbRK3TjW>;
-	Fri, 30 Nov 2001 14:39:22 -0500
-Message-ID: <3C07E04A.7020301@sr71.net>
-Date: Fri, 30 Nov 2001 11:38:50 -0800
-From: "David C. Hansen" <dave@sr71.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6+) Gecko/20011129
-X-Accept-Language: en-us
+	id <S280994AbRK3TkM>; Fri, 30 Nov 2001 14:40:12 -0500
+Received: from [212.103.141.42] ([212.103.141.42]:8176 "EHLO
+	godzilla.infohit.si") by vger.kernel.org with ESMTP
+	id <S280984AbRK3TkE> convert rfc822-to-8bit; Fri, 30 Nov 2001 14:40:04 -0500
+Subject: Device (LAN Cards) Naming
+Date: Fri, 30 Nov 2001 20:35:14 +0100
+Message-ID: <A57F0FE23B31C14E84E38657C03A44982BB3@Godzilla>
 MIME-Version: 1.0
-To: Alexander Viro <viro@math.psu.edu>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-        Rick Lindsley <ricklind@us.ibm.com>
-Subject: Re: [PATCH] remove BKL from drivers' release functions
-In-Reply-To: <Pine.GSO.4.21.0111300444180.13367-100000@weyl.math.psu.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.4712.0
+Thread-Topic: Device (LAN Cards) Naming
+Thread-Index: AcF51tOnL3654OVmEdWK5AACsy5ICg==
+content-class: urn:content-classes:message
+From: "Mauricio Culibrk" <mauricio@infohit.si>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro wrote:
- > ->release() is not serialized AT ALL.  It is serialized for given
- > struct file, but call open(2) twice and you've got two struct file
- > for the same device. close() both and you've got two calls of
- > ->release(), quite possibly - simultaneous.
-OK, that clears some things up.  So, the file->fcount is only used in 
-cases where the file descriptor was dup'd, right?
+Hi to all!
 
-As Rick Lindsley pointed out to me:
- > In cases where we removed BKL from release() and left obvious locking
- > issues as "an exercise to the reader", we MAY have broken things
- > because the BKL (we now know) may have been serializing opens and
- > closes.
- > In cases where we replaced it with atomic locking or a spinlock, we've
- > done nothing but replace one lock with another (unless there are
- > subtleties
+*** PLEASE, respond directly to mauricio@infohit.si (I'm not subscribed)
+***
 
-back to Alexander  Viro:
- > In other words, patch is completely bogus.
-No, not completely.  In a lot of cases we just replaced some regular 
-arithmetic with atomic instructions of some sort.  These changes are 
-still completely valid.  But, in the cases where we added locking, we 
-need to reevaluate them for potential problem.  In the cases where we 
-just removed the BKL, we really need to check them to make sure that we 
-didn't introduce anything.
-Thanks for the feedback, Al!  This has been very helpful!
+I have a question about network interface naming in linux 2.4.x or 2.2.x
 
---
-Dave Hansen
-dave@sr71.net
+Is it possible to define a name for each interface instead of having
+eth0, eth1 etc?
 
+I'm using a linux box dedicated for routing & filtering and I would like
+to have descriptive interface names such as:
+
+public, private, branch etc...
+
+so the output of ifconfig (and all other commands dealing with
+interfaces) would be more 'concrete'
+
+Is it possible? How?
+
+
+Thanks a lot!
+
+mauricio
+
+*** PLEASE, respond directly to mauricio@infohit.si (I'm not subscribed)
+***

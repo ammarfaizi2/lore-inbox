@@ -1,112 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262482AbUCHM3Y (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 07:29:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262483AbUCHM3X
+	id S261696AbUCHMzH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 07:55:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262485AbUCHMzH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 07:29:23 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:52177 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262482AbUCHM3U (ORCPT
+	Mon, 8 Mar 2004 07:55:07 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:47502 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S262483AbUCHMy7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 07:29:20 -0500
-Date: Mon, 8 Mar 2004 18:00:30 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: mingo@redhat.com
-Cc: rusty@au1.ibm.com, linux-kernel@vger.kernel.org
-Subject: more efficient current_is_keventd macro? [was Re: [lhcs-devel] Re: Kthread_create() never returns when called from worker_thread]
-Message-ID: <20040308123030.GA7428@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Mon, 8 Mar 2004 07:54:59 -0500
+Message-Id: <200403081254.i28Csinj002627@eeyore.valparaiso.cl>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
+       linux-net@vger.kernel.org
+Subject: Re: [2.4 patch] MAINTAINERS: remove LAN media entry 
+In-Reply-To: Message from Marcelo Tosatti <marcelo.tosatti@cyclades.com> 
+   of "Mon, 08 Mar 2004 02:22:36 -0300." <Pine.LNX.4.44.0403080221520.2604-100000@dmt.cyclades> 
+X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 14)
+Date: Mon, 08 Mar 2004 09:54:43 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ingo,
-	current_is_keventd() macro checks "current" with the per-cpu
-thread of _all_ possible cpus attached to keventd_wq. Can't it just check 
-against the per-cpu thread of _current_ cpu alone (since the per-cpu workqueue
-threads are anyway bound only to their cpus)?  
-
-int current_is_keventd(void)
-{
-        struct cpu_workqueue_struct *cwq;
--       int cpu;
-+       int cpu = smp_processor_id();
-
-        BUG_ON(!keventd_wq);
-
--       for_each_cpu(cpu) {
--               cwq = keventd_wq->cpu_wq + cpu;
--               if (current == cwq->thread)
--                       return 1;
--       }
-
--       return 0;
-
-+	cwq = keventd_wq->cpu_wq + cpu;
-+	if (current == cwq->thread)
-+		return 1;
-+	else
-+		return 0;
-}
-
-
------ Forwarded message from Rusty Russell <rusty@rustcorp.com.au> -----
-
-Subject: Re: [lhcs-devel] Re: Kthread_create() never returns when called
-	from worker_thread
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: vatsa@in.ibm.com
-Cc: rusty@au1.ibm.com,
-	"Keshavamurthy, Anil S" <anil.s.keshavamurthy@intel.com>,
-	lhcs-devel@lists.sourceforge.net, "Raj, Ashok" <ashok.raj@intel.com>,
-	"Shah, Rajesh" <rajesh.shah@intel.com>
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 08 Mar 2004 11:29:27 +1100
-
-On Wed, 2004-03-03 at 20:08, Srivatsa Vaddagiri wrote: 
-> On Tue, Mar 02, 2004 at 12:10:08PM +1100, Rusty Russell wrote:
-> >  	/* If we're being called to start the first workqueue, we
-> >  	 * can't use keventd. */
-> > -	if (!keventd_up())
-> > +	if (!keventd_up() || current_is_keventd())
-> >  		work.func(work.data);
-> >  	else {
-> >  		schedule_work(&work);
+Marcelo Tosatti <marcelo.tosatti@cyclades.com> said:
+> On Sun, 7 Mar 2004, Adrian Bunk wrote:
 > 
-> I noticed that current_is_keventd() check actually goes and compares
-> "current" with all the per-cpu threads attached to keventd() workqueue ..
-> Is that really necessary? Can't it compare with the per-cpu thread
-> attached to _current_ cpu only? 
+> > On Sat, Feb 28, 2004 at 11:57:11AM +0100, Daniel Egger wrote:
+> > > On Feb 27, 2004, at 9:54 pm, Adrian Bunk wrote:
+> > > 
+> > > >IOW:
+> > > >The entry from MAINTAINER can be removed?
+> > > 
+> > > This one for sure. The same is probably sensible for the
+> > > drivers, too. It's just too confusing to not several
+> > > versions of the driver floating around which need different
+> > > tools. And since the manufacturer propagates their own
+> > > version, the linux one should go...
+> > >...
+> > 
+> > 
+> > It's a question whether removing drivers from a stable kernel series is 
+> > a good idea, but the following is definitely correct:
+> > 
+> > 
+> > --- linux-2.4.26-pre2-full/MAINTAINERS.old	2004-03-07 16:48:59.000000000 +0100
+> > +++ linux-2.4.26-pre2-full/MAINTAINERS	2004-03-07 16:49:09.000000000 +0100
+> > @@ -1077,12 +1077,6 @@
+> >  W:	http://www.cse.unsw.edu.au/~neilb/oss/knfsd/
+> >  S:	Maintained
+> >  
+> > -LANMEDIA WAN CARD DRIVER
+> > -P:      Andrew Stanley-Jones
+> > -M:      asj@lanmedia.com
+> > -W:      http://www.lanmedia.com/
+> > -S:      Supported
+> > - 
+> >  LAPB module
+> >  P:	Henner Eisen
+> >  M:	eis@baty.hanse.de
+> > 
+> 
+> I think it might be better to change to
+> 
+> 
+> LANMEDIA WAN CARD DRIVER
+> S: UNMAINTAINED
+> 
+> Thoughts? 
 
-You'd think so, but it's not my code.  I believe you are correct though.
-
-Cheers,
-Rusty.
+Sounds right to me.
 -- 
-Anyone who quotes me in their signature is an idiot -- Rusty Russell
-
-
-
--------------------------------------------------------
-This SF.Net email is sponsored by: IBM Linux Tutorials
-Free Linux tutorial presented by Daniel Robbins, President and CEO of
-GenToo technologies. Learn everything from fundamentals to system
-administration.http://ads.osdn.com/?ad_id=1470&alloc_id=3638&op=click
-_______________________________________________
-lhcs-devel mailing list
-lhcs-devel@lists.sourceforge.net
-https://lists.sourceforge.net/lists/listinfo/lhcs-devel
-
------ End forwarded message -----
-
--- 
-
-
-Thanks and Regards,
-Srivatsa Vaddagiri,
-Linux Technology Center,
-IBM Software Labs,
-Bangalore, INDIA - 560017
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

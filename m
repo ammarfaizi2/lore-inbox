@@ -1,34 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129188AbQKOAR6>; Tue, 14 Nov 2000 19:17:58 -0500
+	id <S129045AbQKOAWt>; Tue, 14 Nov 2000 19:22:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131034AbQKOARu>; Tue, 14 Nov 2000 19:17:50 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:52998 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129188AbQKOARd>; Tue, 14 Nov 2000 19:17:33 -0500
-Date: Tue, 14 Nov 2000 15:47:10 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Dan Aloni <karrde@callisto.yi.org>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Re: test11-pre5
-In-Reply-To: <Pine.LNX.4.21.0011150030030.26513-100000@callisto.yi.org>
-Message-ID: <Pine.LNX.4.10.10011141546140.972-100000@penguin.transmeta.com>
+	id <S130414AbQKOAW3>; Tue, 14 Nov 2000 19:22:29 -0500
+Received: from burdell.cc.gatech.edu ([130.207.3.207]:3077 "EHLO
+	burdell.cc.gatech.edu") by vger.kernel.org with ESMTP
+	id <S129047AbQKOAWX>; Tue, 14 Nov 2000 19:22:23 -0500
+Date: Tue, 14 Nov 2000 18:52:21 -0500 (EST)
+From: Zhiruo Cao <zhiruo@cc.gatech.edu>
+To: linux-kernel@vger.kernel.org
+Subject: Question on bdflush
+Message-ID: <Pine.GSU.4.21.0011141847460.26147-100000@lennon.cc.gatech.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Hello,
 
-On Wed, 15 Nov 2000, Dan Aloni wrote:
->
-> summery: dev_3c501.name shouldn't be NULL, or we get oops
+Why does bdflush (kupdated and kflushed) writes to disk periodically even
+though the system is apparently idle.  I think if no more new buffers
+becomes dirty, kflushed show not write anything to disk.   I'm working
+on a notebook, and I found the periodic disk access is very annoying and
+consuming a lot of power.
 
-Note that these days "name" is not a pointer at all, but an array, and as
-such cannot be NULL any more. Not initializing it will just cause it to be
-empty (ie is the same as initializing it to "").
+Thanks!
 
-		Linus
+Joe
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,97 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261568AbSLRJi4>; Wed, 18 Dec 2002 04:38:56 -0500
+	id <S267210AbSLRKEG>; Wed, 18 Dec 2002 05:04:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267210AbSLRJi4>; Wed, 18 Dec 2002 04:38:56 -0500
-Received: from cibs9.sns.it ([192.167.206.29]:41734 "EHLO cibs9.sns.it")
-	by vger.kernel.org with ESMTP id <S261568AbSLRJiz>;
-	Wed, 18 Dec 2002 04:38:55 -0500
-Date: Wed, 18 Dec 2002 10:46:50 +0100 (CET)
-From: venom@sns.it
-To: linux-kernel@vger.kernel.org
-Subject: problems with NFSv3 kernel 2.5.52 server, 2.4.20 client. (server
- x86 linux, clientsparclinux)
-Message-ID: <Pine.LNX.4.43.0212181026370.25931-100000@cibs9.sns.it>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267216AbSLRKEG>; Wed, 18 Dec 2002 05:04:06 -0500
+Received: from jurassic.park.msu.ru ([195.208.223.243]:41479 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id <S267210AbSLRKEF>; Wed, 18 Dec 2002 05:04:05 -0500
+Date: Wed, 18 Dec 2002 13:11:24 +0300
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Dave Jones <davej@codemonkey.org.uk>, Jeff Garzik <jgarzik@pobox.com>,
+       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch 2.5] PCI: kill pdev_enable_device()
+Message-ID: <20021218131124.A18949@jurassic.park.msu.ru>
+References: <20021217201938.A16940@jurassic.park.msu.ru> <3DFFA5DD.4030804@pobox.com> <20021218004226.GA3204@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20021218004226.GA3204@suse.de>; from davej@codemonkey.org.uk on Wed, Dec 18, 2002 at 12:42:26AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Dec 18, 2002 at 12:42:26AM +0000, Dave Jones wrote:
+> On Tue, Dec 17, 2002 at 05:31:57PM -0500, Jeff Garzik wrote:
+>  > Not only that, a driver _should_ be calling pci-enable-device, it's an 
+>  > API requirement.  J Random Driver should have a good reason _not_ to 
+>  > call pci_enable_device() ...
+> 
+> What about the xircom issue that was discussed in the last days ?
+> Sounds like the solution isn't a full on pci_enable_device() as
+> pcmcia 'knows better than us' at that stage aparently.
 
-HI,
+pdev_enable_device() has nothing to do with pcmcia anyway. :-)
 
-I am having some problem with NFS v3 with kernel 2.5.52 for the NFS server and
-2.4.20 as NFS client..
-
-I was doing some extended test with an x86 server (Pentium3 933 Mhz,
-with 512 MB RAM,
-i810 chipset), and a client sparclinux (Sparc64 II,on an Ultra 2 single CPU,
-1GB RAM).
-
-The first test I was doing was compilation of gcc, the kernel and so on on NFS
-with an async export.
-
-(Then the day after I would have started some real stress test)
-
-Anyway the compilation seemed to go well, and I left to go home when gcc was
-compiling stage 2.
-
-When I come back this morning NFS was still mounted, bu I could not
-access any NFS mounted partyition on the sparc because of I/O error (not df
-was showing the the real disk occupation on those NFS partitions, just 0).
-
-On the server I could not find any error message, while on the sparclink client
-I found:
-
-Dec 17 18:08:16 storm kernel: call_verify: server accept status: 1
-Dec 17 18:08:16 storm last message repeated 2 times
-Dec 17 18:08:16 storm kernel: RPC: garbage, exit EIO
-Dec 17 18:08:16 storm kernel: call_verify: server accept status: 1
-Dec 17 18:08:16 storm last message repeated 2 times
-Dec 17 18:08:16 storm kernel: RPC: garbage, exit EIO
-Dec 17 18:08:16 storm kernel: call_verify: server accept status: 1
-Dec 17 18:08:16 storm last message repeated 2 times
-Dec 17 18:08:16 storm kernel: RPC: garbage, exit EIO
-Dec 17 18:08:16 storm kernel: call_verify: server accept status: 1
-Dec 17 18:08:16 storm last message repeated 2 times
-Dec 17 18:08:16 storm kernel: RPC: garbage, exit EIO
-
-and so on.
-
-Those are the systems:
-
-PentiumIII 933 Mhz
-i810 chipset
-512MB RAM
-2 ATA66 DISK
-kernel 2.5.52
-glibc 2.3.1
-binutils 2.13.90.0.16
-gcc 3.2.1
-nfs and nfsd support compiled as modules
-init-modules-utils 0.9.3
-in nfsd support version 4 is not enabled.
-nfs-utils 1.0.1
-nfsd is runned with async exports
-
-
-SUN UltraII
-Sparc64 II 400Mhz
-1GB RAM
-Creator3D video card, with DRM enabled in the kernel
-PROMLIB: Sun IEEE Boot Prom 3.25.0 1999/12/03 11:35
-SYSIO: UPA portID 1f, at 000001fe00000000
-sbus0 with clock at 25 Mhz
-kernel 2.4.20 compiled with egcs-2.92.11 (gcc2 ss-980609 experimental) 64 bit.
-glibc 2.3.1 (32 bit userspace)
-binutils 2.13.90.0.16
-gcc 3.2.1
-nfs client support compiled as modules
-
-
-
-bests
-
-Luigi
-
-
+Ivan.

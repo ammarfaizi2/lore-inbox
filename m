@@ -1,56 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264212AbUDRXwV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Apr 2004 19:52:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264219AbUDRXwV
+	id S264215AbUDSAIx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Apr 2004 20:08:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264218AbUDSAIx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Apr 2004 19:52:21 -0400
-Received: from smtp.dkm.cz ([62.24.64.34]:49937 "HELO smtp.dkm.cz")
-	by vger.kernel.org with SMTP id S264212AbUDRXwT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Apr 2004 19:52:19 -0400
-From: "Michal Semler (volny.cz)" <cijoml@volny.cz>
-Reply-To: cijoml@volny.cz
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.26 IRDA BUG - blocker
-Date: Mon, 19 Apr 2004 01:52:16 +0200
-User-Agent: KMail/1.6
-MIME-Version: 1.0
+	Sun, 18 Apr 2004 20:08:53 -0400
+Received: from mail.shareable.org ([81.29.64.88]:49315 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S264215AbUDSAIw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Apr 2004 20:08:52 -0400
+Date: Mon, 19 Apr 2004 01:08:47 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: "H. J. Lu" <hjl@lucon.org>
+Cc: Arjan van de Ven <arjanv@redhat.com>,
+       linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: How to make stack executable on demand?
+Message-ID: <20040419000847.GB11064@mail.shareable.org>
+References: <20040416170915.GA20260@lucon.org> <1082145778.9600.6.camel@laptop.fenrus.com> <20040416204651.GA24194@lucon.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200404190152.16594.cijoml@volny.cz>
+In-Reply-To: <20040416204651.GA24194@lucon.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+H. J. Lu wrote:
+> On Fri, Apr 16, 2004 at 10:02:58PM +0200, Arjan van de Ven wrote:
+> > >  But it will either fail if
+> > > kernel is set with non-executable stack,
+> > 
+> > eh no. mprotect with prot_exec is still supposed to work. The stacks
+> > still have MAY_EXEC attribute, just not the actual EXEC attribute
+> 
+> [...]
+> The VM_MAYEXEC bit is untouched. Now the question is if it is a good
+> idea for user to change stack permission.
 
-I have in my laptop this irda port:
-IrCOMM protocol (Dag Brattli)
-nsc-ircc, Found chip at base=0x02e
-nsc-ircc, driver loaded (Dag Brattli)
-IrDA: Registered device irda0
+You can create a new executable data area with mmap(), copy the stack
+to it, unmap the stack, and mremap() to move the copy to where the
+stack was.  The run time linker can do this if you're on a kernel
+where mprotect() fails.
 
-modules.conf:
-alias irda0 nsc-ircc
-options nsc-ircc dongle_id=0x08
+In other words, even those kernels which disable VM_MAYEXEC don't
+protect against this alternative way of simulating mprotect().  There
+is no point in them prohibiting it.
 
-When I try connect with 2.4.26 kernel to T68i
-I getts this message and then port freezes - no devices discovered and no 
-communication, sometimes freezes whole laptop:
-
-irlap_adjust_qos_settings(), Detected buggy peer, adjust mtt to 10us!
-IrLAP, no activity on link!
-IrLAP, no activity on link!
-IrLAP, no activity on link!
-IrLAP, no activity on link!
-
-previous versions were OK
-
-2.4.26-vanilla
-debian woody with bunk2 debs
-
-Thanks a lot
-
-Michal
+-- Jamie

@@ -1,27 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316588AbSGLPfm>; Fri, 12 Jul 2002 11:35:42 -0400
+	id <S316591AbSGLPgC>; Fri, 12 Jul 2002 11:36:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316591AbSGLPfl>; Fri, 12 Jul 2002 11:35:41 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:40709 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S316588AbSGLPfk>; Fri, 12 Jul 2002 11:35:40 -0400
-Subject: Re: ext3 corruption
-To: alec@shadowstar.net (Alec Smith)
-Date: Fri, 12 Jul 2002 17:02:03 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org, ext3-users@redhat.com
-In-Reply-To: <Pine.LNX.4.44.0207121127001.7507-100000@bugs.home.shadowstar.net> from "Alec Smith" at Jul 12, 2002 11:32:44 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S316594AbSGLPgA>; Fri, 12 Jul 2002 11:36:00 -0400
+Received: from [208.33.57.99] ([208.33.57.99]:45789 "EHLO
+	radioflyer.ibocradio.com") by vger.kernel.org with ESMTP
+	id <S316591AbSGLPfx>; Fri, 12 Jul 2002 11:35:53 -0400
+Message-ID: <3D2EF7F2.1070107@homemail.com>
+Date: Fri, 12 Jul 2002 11:38:26 -0400
+From: "D. Sen" <dsen@homemail.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1a) Gecko/20020610
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: "PCI: Cannot allocate resource region" messages at boot
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <E17T2rr-0003Hr-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-OriginalArrivalTime: 12 Jul 2002 15:38:35.0098 (UTC) FILETIME=[2F1E83A0:01C229BA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Over the last month or so, I've noticed the following error showing up
-> repeatedly in my system logs under kernel 2.4.18-ac3 and more recently
-> under 2.4.19-rc1:
+I am getting these messages during bootup time on an IBM Thinkpad T30:
 
-Force an fsck on the file system firstly
+Jul 11 17:17:24 calliope kernel: PCI: Cannot allocate resource region 0 
+of device 02:00.0
+Jul 11 17:17:24 calliope kernel: PCI: Cannot allocate resource region 0 
+of device 02:00.1
+
+lspci -vv identifies these devices as:
+
+02:00.0 CardBus bridge: Texas Instruments: Unknown device ac55 (rev 01)
+         Subsystem: IBM: Unknown device 0512
+         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+         Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium 
+ >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+         Latency: 168, cache line size 20
+         Interrupt: pin A routed to IRQ 11
+         Region 0: Memory at d0201000 (32-bit, non-prefetchable) [size=4K]
+         Bus: primary=02, secondary=03, subordinate=05, sec-latency=176
+         Memory window 0: f0000000-f03ff000 (prefetchable)
+         Memory window 1: d0400000-d07ff000
+         I/O window 0: 00004000-000040ff
+         I/O window 1: 00004400-000044ff
+         BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset+ 16bInt+ 
+PostWrite+
+         16-bit legacy interface ports at 0001
+
+02:00.1 CardBus bridge: Texas Instruments: Unknown device ac55 (rev 01)
+         Subsystem: IBM: Unknown device 0512
+         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+         Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium 
+ >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+         Latency: 168, cache line size 20
+         Interrupt: pin B routed to IRQ 11
+         Region 0: Memory at d0202000 (32-bit, non-prefetchable) [size=4K]
+         Bus: primary=02, secondary=06, subordinate=08, sec-latency=176
+         Memory window 0: f0400000-f07ff000 (prefetchable)
+         Memory window 1: d0800000-d0bff000
+         I/O window 0: 00004800-000048ff
+         I/O window 1: 00004c00-00004cff
+         BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset+ 16bInt+ 
+PostWrite+
+         16-bit legacy interface ports at 0001
+
+
+
+We are also seeing weird PCMCIA behaviour whereby cardmgr does not 
+detect the insertion and removal of PCMCIA devices. Using the Yenta 
+socket in the 2.4.18 kernel. Perhaps the boot messages and this 
+behaviour is related?
+
+DS
+

@@ -1,80 +1,36 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316541AbSFEXQ7>; Wed, 5 Jun 2002 19:16:59 -0400
+	id <S316567AbSFEXTp>; Wed, 5 Jun 2002 19:19:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316542AbSFEXQ6>; Wed, 5 Jun 2002 19:16:58 -0400
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:58525 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S316541AbSFEXQ4>; Wed, 5 Jun 2002 19:16:56 -0400
-Date: Wed, 5 Jun 2002 18:15:36 -0500 (CDT)
-From: Kai Germaschewski <kai-germaschewski@uiowa.edu>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Greg KH <greg@kroah.com>
-cc: Patrick Mochel <mochel@osdl.org>, Andrew Morton <akpm@zip.com.au>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Kees Bakker <kees.bakker@xs4all.nl>,
-        Anton Altaparmakov <aia21@cantab.net>,
-        Anton Blanchard <anton@samba.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] PCI device matching fix
-In-Reply-To: <20020604051704.GA26058@kroah.com>
-Message-ID: <Pine.LNX.4.44.0206051759440.8309-100000@chaos.physics.uiowa.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316568AbSFEXTo>; Wed, 5 Jun 2002 19:19:44 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:63884 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S316567AbSFEXTn>;
+	Wed, 5 Jun 2002 19:19:43 -0400
+Date: Wed, 05 Jun 2002 16:13:42 -0700 (PDT)
+Message-Id: <20020605.161342.71552259.davem@redhat.com>
+To: bcrl@redhat.com
+Cc: lord@sgi.com, linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [RFC] 4KB stack + irq stack for x86
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020605183152.H4697@redhat.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: Benjamin LaHaise <bcrl@redhat.com>
+   Date: Wed, 5 Jun 2002 18:31:52 -0400
 
-> @@ -101,6 +96,28 @@
->  		drv->release(drv);
->  }
->  
-> +void remove_driver(struct device_driver * drv)
-> +{
-> +	spin_lock(&device_lock);
-> +	atomic_set(&drv->refcount,0);
-> +	spin_unlock(&device_lock);
-> +	__remove_driver(drv);
-> +}
+   On Wed, Jun 05, 2002 at 05:15:23PM -0500, Steve Lord wrote:
+   > Just what are the tasks you normally run - and how many code
+   > paths do you think there are out there which you do not run. XFS
+   > might get a bit stack hungry in places, we try to keep it down,
+   > but when you get into file system land things can stack up quickly:
+   
+   You already lose in that case today, as multiple irqs may come in 
+   from devices and eat up the stack.
 
-> @@ -124,7 +136,7 @@
->  void
->  pci_unregister_driver(struct pci_driver *drv)
->  {
-> -	put_driver(&drv->driver);
-> +	remove_driver(&drv->driver);
->  }
->  
->  static struct pci_driver pci_compat_driver = {
-
-Now does that mean you have given up on getting the ref counting right? 
-Forcing the ref count to zero is obviously not a solution, 
-pci_unregister_driver is usually called at module unload time, which means 
-that struct pci_driver will go away immediately after the call returns. If 
-you know that there are no other users at this time (which I doubt), you 
-don't need to do the whole refcounting thing at all (since at all times 
-before the ref count is surely >= 1). If not, you're racy.
-
-I think I brought up that issue before, though nobody seemed interested. 
-AFAICS there are two possible solutions:
-
-o provide a destructor callback which is called from put_driver when we're 
-  about to throw away the last reference which would let whoever registered 
-  the thing in the beginning know that it's all his again now (If it was
-  kmalloced, that would be the time to kfree it). In this case it's 
-  rather that the callback would tell us we can now finish 
-  module_exit().
-o Use a completion or something and do the above inside 
-  pci_unregister_driver (or remove_driver). I.e. have it sleep until
-  all references are gone. That would fix the race for the typical
-
-void my_module_exit(void) { pci_unregister_driver(&my_driver); }
-
-  case.
-
-(The latter would be my preference, as I see no point in having driver
- authors deal with the complication of waiting for completion of 
- pci_unregister_driver() themselves)
-
---Kai
-
-
+I agree with Ben, if things explode due to stack overflow with his
+changes they are almost certain to explode before his changes.

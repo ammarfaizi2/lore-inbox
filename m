@@ -1,36 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267438AbSLLI0H>; Thu, 12 Dec 2002 03:26:07 -0500
+	id <S267439AbSLLI0T>; Thu, 12 Dec 2002 03:26:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267439AbSLLI0H>; Thu, 12 Dec 2002 03:26:07 -0500
-Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:26862 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP
-	id <S267438AbSLLI0H>; Thu, 12 Dec 2002 03:26:07 -0500
-Subject: Re: 2.4.20-ac2 and i810 drm
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Dave Airlie <airlied@linux.ie>
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-In-Reply-To: <3457.210.8.93.34.1039665245.squirrel@www.csn.ul.ie>
-References: <3457.210.8.93.34.1039665245.squirrel@www.csn.ul.ie>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 12 Dec 2002 09:32:46 +0100
-Message-Id: <1039681967.1450.0.camel@laptop.fenrus.com>
-Mime-Version: 1.0
+	id <S267440AbSLLI0T>; Thu, 12 Dec 2002 03:26:19 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:57353
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S267439AbSLLI0R>; Thu, 12 Dec 2002 03:26:17 -0500
+Date: Thu, 12 Dec 2002 00:33:01 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Ted Kaminski <mouschi@wi.rr.com>
+cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>, Jens Axboe <axboe@suse.de>
+Subject: Re: pnp/IDE question- help fixing up a patch
+In-Reply-To: <007e01c2a19b$934e9a00$6400a8c0@win01>
+Message-ID: <Pine.LNX.4.10.10212120025570.7114-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-12-12 at 04:54, Dave Airlie wrote:
-> 
-> I've been running 2.4.20-rc4 up to now with DRM enabled for my i810
-> chipset and XFree86 4.2 from RH 7.3.
-> 
-> When I run my OpenGL application (internal app) under 2.4.20-ac2 with the
-> same .config when I ctrl-c the application the machine hangs hard.
-> 
-> It is the only application running on the X server so the X server
-> restarts when I exit the app.. under 2.4.20-rc4 this works fine...
 
-I just got an updated source for the i810 DRM and will port it to -ac2;
-lots of i810 bugfixes
+Ted,
+
+Somebody asked me to poke my nose in here, so here goes.
+
+The difference in the two locations has to do with early initalization.
+One the issues of concern in the patch, is the usage of "passive".
+A stronger position for setup would have a hwif->intq_mode operator.
+Regardless if it is a bit field or not.
+
+This would force ide-probe to initialize the hwif_intr properly.
+Next the mask of the field would provide a method for poking the
+drive_is_ready().
+
+This would remove several issue.
+
+One the config option for share or not interrupts goes away.
+
+The list is short and obvious.
+
+Cheers,
+
+Andre Hedrick
+LAD Storage Consulting Group
+
+On Wed, 11 Dec 2002, Ted Kaminski wrote:
+
+> Hello all,
+> 
+> I've got an ide, and an idepnp question... (for 2.4)
+> 
+> I'm working on refining a patch sent previously
+> (http://groups.google.com/groups?selm=20021108061020.A14168%40localhost) to
+> be less intrusive. I'll be refering to things done in that patch...
+> 
+> The short of it is, this sb16 pnpide interface apparently cannot use
+> ALTSTATUS at a certain point. (I'm no ide whiz, I'm just simplifying the
+> code that David Meybohm wrote, so maybe I'm off a bit) at any rate, this
+> seems to require a new flag be listed along with the hardware information.
+> 
+> His solution was to add
+> + int  no_passive;  /* no passive status tests */
+> to hw_reg_s in ide.h and check that flag in drive_is_ready()
+> 
+> I *think* it's out of place. It seems to me it'd be more appropriate to add
+> + unsigned no_passive : 1;   /* no passive status tests */
+> to hwif_s in ide.h.  Right next to a few other bitfields
+> 
+> Which is better? or is there a different, even better spot?
+> 
+> As for the idepnp part, he added a "dev = NULL" into the loop, and was
+> unsure of whether or not this was a good idea.  I have the same question.
+> Or perhaps this smells of a seperate patch?
+> 
+> I'd rather ask these question in the form of my own patch, but... I'm a bit
+> short on time, atm. sorry.
+> 
+> Thanks in advace,
+> -Ted
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+

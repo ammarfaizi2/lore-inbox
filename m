@@ -1,42 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283527AbRLDVpa>; Tue, 4 Dec 2001 16:45:30 -0500
+	id <S283479AbRLDVou>; Tue, 4 Dec 2001 16:44:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283526AbRLDVpU>; Tue, 4 Dec 2001 16:45:20 -0500
-Received: from [216.211.0.6] ([216.211.0.6]:28813 "EHLO mail.lakeheadu.ca")
-	by vger.kernel.org with ESMTP id <S283512AbRLDVpC>;
-	Tue, 4 Dec 2001 16:45:02 -0500
-Message-ID: <3C0D43DC.6020403@mail.myrealbox.com>
-Date: Tue, 04 Dec 2001 16:45:00 -0500
-From: "Daniel R. Warner" <drwarner@mail.myrealbox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:0.9.6) Gecko/20011202
-MIME-Version: 1.0
-To: Cheryl Homiak <chomiak@chartermi.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Via82cxx chipset problem
-In-Reply-To: <Pine.LNX.4.40.0112030943110.223-100000@maranatha.chartermi.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S283524AbRLDVoa>; Tue, 4 Dec 2001 16:44:30 -0500
+Received: from stud.tb.fh-muenchen.de ([129.187.138.35]:13697 "EHLO
+	server.intern.stud.fh-muenchen.de") by vger.kernel.org with ESMTP
+	id <S283512AbRLDVoU>; Tue, 4 Dec 2001 16:44:20 -0500
+Subject: ACPI / APM - Battery level not readable on HP Omnibook XE3
+From: Lars Duesing <ld@stud.fh-muenchen.de>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 04 Dec 2001 22:44:11 +0100
+Message-Id: <1007502251.13475.1.camel@ws1.intern.stud.fh-muenchen.de>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cheryl Homiak wrote:
+Hi List,
 
-> I tried this question on another list and was told not to try to change my
-> mhz speed because I would corrupt my hard drive possibly. But does this
-> mean I am actually running at only 33mhz.? This doesn't seem like a viable
-> way to run my computer and I am having problems with installing new memory
-> that may be related to this. My original message is below; any help would
-> be appreciated.
-> Thanks.
+I do have some nice problem.
+I got a new Omnibook XE3/1066, and wanted to install Linux.
+Problems are growing big :)
+
+All information regards to kernel 2.5.0.
+
+One of my Problems is: I cannot read battery-level trough either acpi
+nor apm.
+On acpi kernel tells me on cat /proc/acpi/battery/1/info:
+Present:		yes
+Design Capacity:	5400 mAh
+Last Full Capacity:	5400 mAh
+...
+Model Number:		LIP9071
+...
+Battery Type:		LiON
+OEM Info:		HP
+
+so far so good.
+cat /proc/acpi/battery/1/status:
+Present:		yes
+Error reading battery status (_BST)
+
+ouch.
+best thing - next cat /proc/acpi/battery/1/info:
+Present:		yes
+Error reading battery information (_BIF)
+
+double ouch.
+
+Using APM results are more or less the same.
+
+any hints?
+
+thanks
+
+	Lars Duesing
 
 
-The PCI bus runs at 33mhz on modern motherboards. Only motherboards made 
-to provide "odd" FSB timings (such at 75, 83 mhz) need change this. 
-Although your FSB (also known as memory bus) runs at 100, 133 or faster, 
-the PCI bus is still running at 33mhz.
-The short?
-Don't worry about that warning, it's not really a warning :)
--D
 
 

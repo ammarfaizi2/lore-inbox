@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317211AbSFBQMN>; Sun, 2 Jun 2002 12:12:13 -0400
+	id <S316840AbSFBRVL>; Sun, 2 Jun 2002 13:21:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317212AbSFBQMM>; Sun, 2 Jun 2002 12:12:12 -0400
-Received: from as3-1-8.ras.s.bonet.se ([217.215.75.181]:3215 "EHLO
-	garbo.kenjo.org") by vger.kernel.org with ESMTP id <S317211AbSFBQML>;
-	Sun, 2 Jun 2002 12:12:11 -0400
-Subject: Re: Need help tracing regular write activity in 5 s interval
-From: Kenneth Johansson <ken@canit.se>
-To: Thunder from the hill <thunder@ngforever.de>
-Cc: Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0206020922410.29405-100000@hawkeye.luckynet.adm>
-Content-Type: text/plain
+	id <S317212AbSFBRVK>; Sun, 2 Jun 2002 13:21:10 -0400
+Received: from relay-1m.club-internet.fr ([194.158.104.40]:52208 "HELO
+	relay-1m.club-internet.fr") by vger.kernel.org with SMTP
+	id <S316840AbSFBRVJ>; Sun, 2 Jun 2002 13:21:09 -0400
+Message-ID: <3CFA5411.3030600@freesurf.fr>
+Date: Sun, 02 Jun 2002 19:21:21 +0200
+From: Kilobug <kilobug@freesurf.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0+) Gecko/20020601
+X-Accept-Language: fr-fr, fr, en
+MIME-Version: 1.0
+To: lkm <linux-kernel@vger.kernel.org>
+Subject: Very big shm area
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 02 Jun 2002 18:12:08 +0200
-Message-Id: <1023034329.765.16.camel@tiger>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-06-02 at 17:25, Thunder from the hill wrote:
-> Hi,
-> 
-> > So: is there any trace software that can tell me "at 15:52:43.012345,
-> > process 4321 marked 7 blocks dirty on device /dev/hda5" (or even more
-> > detail so I can figure if it's just an atime update -- as with svscan --
-> > or a write access)? And that is NOT to be attached to a specific process
-> > (hint: strace is not an option).
-> 
-> Problem: we'd have to do that using printk. printk issues another write 
-> call, which will mark things dirty. Issued is another printk, which marks 
-> things dirty and issues another printk...
-> 
-> I suppose one write would become looped here?
+Hello,
+	I wanted to know if it is possible to have a very big system V shared 
+memory segment (say about 1Gb) ?
 
-Been there done that :) 
+	I've quickly looked into the source code of shm.c and shm.h in ipc/ and 
+I've read the following:
+/*
+  * SHMMAX, SHMMNI and SHMALL are upper limits are defaults which can
+  * be increased by sysctl
+  */
 
-I turned on debug output for jffs2 without changing klog/syslog to log
-to a remote machine. Did not take long for the machine to get unusable.
+But how far is it possible to increase them ? And which sysctl must be 
+done ?
+
+Thank you for answering,
+
+-- 
+** Gael Le Mignot "Kilobug", Ing3 EPITA - http://kilobug.free.fr **
+Home Mail   : kilobug@freesurf.fr          Work Mail : le-mig_g@epita.fr
+GSM         : 06.71.47.18.22 (in France)   ICQ UIN   : 7299959
+Fingerprint : 1F2C 9804 7505 79DF 95E6 7323 B66B F67B 7103 C5DA
+
+"Software is like sex it's better when it's free.", Linus Torvalds
 

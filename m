@@ -1,98 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279706AbRJYEyJ>; Thu, 25 Oct 2001 00:54:09 -0400
+	id <S279709AbRJYE6j>; Thu, 25 Oct 2001 00:58:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279707AbRJYEx6>; Thu, 25 Oct 2001 00:53:58 -0400
-Received: from marine.sonic.net ([208.201.224.37]:58665 "HELO marine.sonic.net")
-	by vger.kernel.org with SMTP id <S279706AbRJYExs>;
-	Thu, 25 Oct 2001 00:53:48 -0400
-X-envelope-info: <dalgoda@ix.netcom.com>
-Date: Wed, 24 Oct 2001 21:53:28 -0700
-From: Mike Castle <dalgoda@ix.netcom.com>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: modprobe problem with block-major-11
-Message-ID: <20011024215328.A195@thune.mrc-home.com>
-Reply-To: Mike Castle <dalgoda@ix.netcom.com>
-Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.18i
+	id <S279708AbRJYE63>; Thu, 25 Oct 2001 00:58:29 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:32777 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S279709AbRJYE6L>; Thu, 25 Oct 2001 00:58:11 -0400
+Date: Wed, 24 Oct 2001 21:57:18 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Zlatko Calusic <zlatko.calusic@iskon.hr>
+cc: Marcelo Tosatti <marcelo@conectiva.com.br>, <linux-mm@kvack.org>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: xmm2 - monitor Linux MM active/inactive lists graphically
+In-Reply-To: <Pine.LNX.4.33.0110242117150.9147-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.33.0110242140350.9147-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If there is a better list for this, let me know and I'll take the question
-there.
 
-I have a new CDRW I've been trying to get working for a couple of months
-now.  Working with autoloading the modules anyway.
+On Wed, 24 Oct 2001, Linus Torvalds wrote:
+>
+> On 25 Oct 2001, Zlatko Calusic wrote:
+> >
+> > Sure. Output of 'vmstat 1' follows:
+> >
+> >  1  0  0      0 254552   5120 183476   0   0    12    24  178   438 2  37  60
+> >  0  1  0      0 137296   5232 297760   0   0     4  5284  195   440 3  43  54
+> >  1  0  0      0 126520   5244 308260   0   0     0 10588  215   230 0   3  96
+> >  0  2  0      0 117488   5252 317064   0   0     0  8796  176   139 1   3  96
+> >  0  2  0      0 107556   5264 326744   0   0     0  9704  174    78 0   3  97
+>
+> This does not look like a VM issue at all - at this point you're already
+> getting only 10MB/s, yet the VM isn't even involved (there's definitely no
+> VM pressure here).
 
-I've tried following the CD-Writing HOWTO for setting up modules.conf with
-no luck.
+I wonder if you're getting screwed by bdflush().. You do have a lot of
+context switching going on, and you do have a clear pattern: once the
+write-out gets going, you're filling new cached pages at about the same
+pace that you're writing them out, which definitely means that the dirty
+buffer balancing is nice and active.
 
-Currently my modules.conf has:
-options ide-cd ignore=hdc            # tell the ide-cd module to ignore h
-alias block-major-11 sr_mod          # load sr_mod upon access of scd0
-pre-install sg     modprobe ide-scsi # load ide-scsi before sg
-pre-install sr_mod modprobe ide-scsi # load ide-scsi before sr_mod
-pre-install ide-scsi modprobe ide-cd # load ide-cd   before ide-scsi
+So the problem is that you're obviously not actually getting the
+throughput you should - it's not the VM, as the page cache grows nicely at
+the same rate you're writing.
 
-And lilo.conf has:
-append="hdc=scsi"
+Try something for me: in fs/buffer.c make "balance_dirty_state()" never
+return > 0, ie make the "return 1" be a "return 0" instead.
 
-Of course, also tried hdc=ide-scsi with same results.
+That will cause us to not wake up bdflush at all, and if you're just on
+the "border" of 40% dirty buffer usage you'll have bdflush work in
+lock-step with you, alternately writing out buffers and waiting for them.
 
-Now, if I try something like ``head /dev/scd0''  I see the following in
-dmesg:
-SCSI subsystem driver Revision: 1.00
-Uniform CD-ROM driver unloaded
+Quite frankly, just the act of doing the "write_some_buffers()" in
+balance_dirty() should cause us to block much better than the synchronous
+waiting anyway, because then we will block when the request queue fills
+up, not at random points.
 
-And the following in /var/log/ksymoops:
-20011024 214049 start /sbin/modprobe -s -k -- block-major-11 safemode=1
-20011024 214050 probe ended
+Even so, considering that you have such a steady 9-10MB/s, please double-
+check that it's not something even simpler and embarrassing, like just
+having forgotten to enable auto-DMA in the kernel config ;)
 
-Now, if I take the command from that:
-/sbin/modprobe -s -k -- block-major-11
+		Linus
 
-I get the following:
-thune:~# /sbin/modprobe -s -k -- block-major-11
-Warning: loading /lib/modules/2.4.12/kernel/drivers/cdrom/cdrom.o will
-taint the kernel: no license
-Warning: loading /lib/modules/2.4.12/kernel/drivers/ide/ide-cd.o will taint the
-kernel: no license
-ide-cd: ignoring drive hdc
-  Vendor: PHILIPS   Model: PCRW804           Rev:  2,1
-  Type:   CD-ROM                             ANSI SCSI revision: 02
-Attached scsi CD-ROM sr0 at scsi0, channel 0, id 0, lun 0
-sr0: scsi3-mmc drive: 32x/32x writer cd/rw xa/form2 cdda tray
-
-ksymoops has:
-20011024 214923 start /sbin/modprobe -s -k -- block-major-11 safemode=0
-20011024 214923 start modprobe ide-scsi safemode=0
-20011024 214923 start modprobe ide-cd safemode=0
-20011024 214924 probe ended
-20011024 214924 probe ended
-20011024 214924 probe ended
-
-And dmesg shows:
-CSI subsystem driver Revision: 1.00
-ide-cd: ignoring drive hdc
-scsi0 : SCSI host adapter emulation for IDE ATAPI devices
-  Vendor: PHILIPS   Model: PCRW804           Rev:  2,1
-  Type:   CD-ROM                             ANSI SCSI revision: 02
-Attached scsi CD-ROM sr0 at scsi0, channel 0, id 0, lun 0
-sr0: scsi3-mmc drive: 32x/32x writer cd/rw xa/form2 cdda tray
-Uniform CD-ROM driver Revision: 3.12
-
-
-So, it appears to me that the autoloading should work.  But it's not.
-
-What am I missing?
-
-Help appreciated,
-mrc
--- 
-     Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
-    We are all of us living in the shadow of Manhattan.  -- Watchmen
-fatal ("You are in a maze of twisty compiler features, all different"); -- gcc

@@ -1,45 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291727AbSBHSuo>; Fri, 8 Feb 2002 13:50:44 -0500
+	id <S291729AbSBHSyO>; Fri, 8 Feb 2002 13:54:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291729AbSBHSue>; Fri, 8 Feb 2002 13:50:34 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:30888 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S291727AbSBHSuY>;
-	Fri, 8 Feb 2002 13:50:24 -0500
-Date: Fri, 8 Feb 2002 21:47:23 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Christoph Hellwig <hch@ns.caldera.de>, yodaiken <yodaiken@fsmlabs.com>,
-        Martin Wirth <Martin.Wirth@dlr.de>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        torvalds <torvalds@transmet.com>, rml <rml@tech9.net>,
-        nigel <nigel@nrg.org>
-Subject: Re: [RFC] New locking primitive for 2.5
-In-Reply-To: <3C641BCE.196E1A37@zip.com.au>
-Message-ID: <Pine.LNX.4.33.0202082144350.15826-100000@localhost.localdomain>
+	id <S291732AbSBHSyE>; Fri, 8 Feb 2002 13:54:04 -0500
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:13724 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S291729AbSBHSxq>; Fri, 8 Feb 2002 13:53:46 -0500
+Date: Fri, 8 Feb 2002 19:49:30 +0100 (MET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+Reply-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Troy Benjegerdes <hozer@drgw.net>
+cc: Anton Altaparmakov <aia21@cam.ac.uk>, wli@holomorphy.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] bring sanity to div64.h and do_div usage
+In-Reply-To: <20020208115726.U17426@altus.drgw.net>
+Message-ID: <Pine.GSO.3.96.1020208190416.15044F-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 8 Feb 2002, Troy Benjegerdes wrote:
 
-On Fri, 8 Feb 2002, Andrew Morton wrote:
+> Several people I have talked to on the issue specifically asked for the 
+> panic(), as people using do_div() should really know better than to do 64 
+> bit divides in the kernel.
 
-> I'd be interested in hearing more details on the regression which Ingo
-> has seen due to the introduction of i_sem locking in llseek. [...]
+ There are legitimate cases where you cannot avoid a double-precision
+division and the inefficiency is negligible.  For example for MIPS it's
+used in do_*_gettimeoffset() and at most once a jiffy (actually we use
+do_div64_32() to reduce work, as we know the quotient will *always* fit in
+32 bits).
 
-i saw heavy scheduling during dbench runs (even if just running 6 threads
-on an 8 CPU box), and checked out the source of the scheduling storm -
-most of it was due to llseek()'s down().
+> The generic C algorithm only handles base < 65536.
+> 
+> I can think of a couple ways around this..
+> 
+> 1) Make the base argument be a 'u16 base', and people with too large a
+>    base would get compile warnings/errors.
+> 
+> 2) run-time check on base, and panic if too large
+> 
+> 3) run-time check on base, print dmesg warning if too large
 
-i also wrote a dbench-alike load simulator for pagecache scalability,
-there i saw this in an even more prominent way, 200k/sec reschedules in a
-situation when there should be none.
+ 4) Use a generic division algorithm using shifts and subtracts such as
+one of these described in academic books.  You may port the implementation
+from include/asm-mips/div64.h. ;-) 
 
-i'd suggest 64-bit update instructions on x86 as well, they do exist.
-spinlock only for the truly hopeless cases like SMP boxes composed of
-i486's. We really want llseek() to scale ...
+Note that in do_*_gettimeoffset() the divisor is an arbitrary 32-bit
+number, mostly depending on the uptime.
 
-	Ingo
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 

@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261762AbUK2TfT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261578AbUK2URX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261762AbUK2TfT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 14:35:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261614AbUK2TeO
+	id S261578AbUK2URX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 15:17:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261768AbUK2URX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 14:34:14 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:6089 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261640AbUK2TKq (ORCPT
+	Mon, 29 Nov 2004 15:17:23 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:9965 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261578AbUK2URU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 14:10:46 -0500
-Date: Mon, 29 Nov 2004 11:07:20 -0800
-From: Greg KH <greg@kroah.com>
-To: Marcel Holtmann <marcel@holtmann.org>
-Cc: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] fix unnecessary increment in firmware_class_hotplug()
-Message-ID: <20041129190720.GB15452@kroah.com>
-References: <20041125201935.213944c9.tokunaga.keiich@jp.fujitsu.com> <1101501024.6514.52.camel@pegasus>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1101501024.6514.52.camel@pegasus>
-User-Agent: Mutt/1.5.6i
+	Mon, 29 Nov 2004 15:17:20 -0500
+To: Doug Maxey <dwm@austin.ibm.com>
+cc: linux-kernel@vger.kernel.org, akpm@osdl.org,
+       Rik van Riel <riel@redhat.com>, Chris Mason <mason@suse.com>,
+       ckrm-tech <ckrm-tech@lists.sourceforge.net>
+Reply-To: Gerrit Huizenga <gh@us.ibm.com>
+From: Gerrit Huizenga <gh@us.ibm.com>
+Subject: Re: [PATCH] CKRM: 3/10 CKRM: Core ckrm, rcfs 
+In-reply-to: Your message of Mon, 29 Nov 2004 14:00:56 CST.
+             <200411292000.iATK0uuD003049@falcon10.austin.ibm.com> 
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <1442.1101759283.1@us.ibm.com>
+Date: Mon, 29 Nov 2004 12:14:43 -0800
+Message-Id: <E1CYrv1-0000NJ-00@w-gerrit.beaverton.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 26, 2004 at 09:30:24PM +0100, Marcel Holtmann wrote:
-> Hi Keiichiro,
+On Mon, 29 Nov 2004 14:00:56 CST, Doug Maxey wrote:
 > 
-> >   This patch is to fix unnecessary increment of 'i' used to
-> > specify an element of an arry 'envp[]' in firmware_class_hotplug().
-> > The 'i' is already incremented in add_hotplug_env_var(), actually.
+> On Mon, 29 Nov 2004 10:47:32 PST, Gerrit Huizenga wrote:
+> >+extern struct rcfs_mfdesc *genmfdesc[]; 
+> >+ 
+> >+inline struct rcfs_inode_info *RCFS_I(struct inode *inode); <<<<<<<<
+> >+ 
+> >+int rcfs_empty(struct dentry *); 
+> >+struct inode *rcfs_get_inode(struct super_block *, int, dev_t); 
 > 
-> you are right. The incrementation is wrong, but it doesn't have any
-> negative effect. However the same applies for the usb_hotplug() function
-> in drivers/usb/core/usb.c.
+> You have this as both inline and exported.  The usage implies that it is 
+> indeed exported, so inline should not be used in the decl.
 > 
-> > Signed-off-by: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
-> 
-> Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+> ++doug
 
-Applied, thanks.
+Good catch - will fix - thanks!
 
-greg k-h
-
+gerrit

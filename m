@@ -1,40 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275521AbRIZTaM>; Wed, 26 Sep 2001 15:30:12 -0400
+	id <S275526AbRIZTdc>; Wed, 26 Sep 2001 15:33:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275526AbRIZTaD>; Wed, 26 Sep 2001 15:30:03 -0400
-Received: from freeside.toyota.com ([63.87.74.7]:58642 "EHLO
-	freeside.toyota.com") by vger.kernel.org with ESMTP
-	id <S275521AbRIZT3t>; Wed, 26 Sep 2001 15:29:49 -0400
-Message-ID: <3BB22CBF.23351F2E@lexus.com>
-Date: Wed, 26 Sep 2001 12:30:07 -0700
-From: J Sloan <jjs@toyota.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.10 i686)
-X-Accept-Language: en
+	id <S275528AbRIZTdW>; Wed, 26 Sep 2001 15:33:22 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:42759 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S275526AbRIZTdL>; Wed, 26 Sep 2001 15:33:11 -0400
+Subject: Re: Binary only module overview
+To: crispin@wirex.com (Crispin Cowan)
+Date: Wed, 26 Sep 2001 20:34:40 +0100 (BST)
+Cc: greg@kroah.com (Greg KH), alan@lxorguk.ukuu.org.uk (Alan Cox),
+        linux-security-module@wirex.com, linux-kernel@vger.kernel.org
+In-Reply-To: <3BB229D1.10401@wirex.com> from "Crispin Cowan" at Sep 26, 2001 12:17:37 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: Steve Pirk <orion@deathcon.com>
-CC: J Sloan <jjs@toyota.com>, linux-kernel@vger.kernel.org
-Subject: Re: IP aliasing/Virtual IP's in 2.2.19 or 2.4.10
-In-Reply-To: <Pine.LNX.4.21.0109261215270.7017-100000@mail.pirk.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15mKS8-0001ah-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steve Pirk wrote:
+> If you (Greg, Alan) are confident that your interpretation of the GPL is 
+> correct, then just marking the files as GPL should be sufficient. What 
+> purpose is served by saying anything else?
 
-> This makes sense now... The version I am having trouble with
-> is 2.2.19. I think I will grab 2.4.4 and try that...
->
-
-Well, if you're going to compile a kernel from
-scratch, why not get the benefit of all the
-bug fixes and enhancements of the last
-6 months and start with 2.4.10?
-
-(or a 2.4.9-ac if you prefer)
-
-cu
-
-jjs
-
+It avoids confusion with some of Linus' more strange interpretations which
+as a major copyright holder may otherwise be considered to the detriment
+of other copyright holders

@@ -1,50 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262106AbTEHU7M (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 16:59:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262108AbTEHU7M
+	id S262108AbTEHVAP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 17:00:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262115AbTEHVAP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 16:59:12 -0400
-Received: from palrel13.hp.com ([156.153.255.238]:7376 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S262106AbTEHU7L (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 16:59:11 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	Thu, 8 May 2003 17:00:15 -0400
+Received: from 80.179.100.73.forward.012.net.il ([80.179.100.73]:15878 "HELO
+	localhst2853.com") by vger.kernel.org with SMTP id S262108AbTEHVAN convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 May 2003 17:00:13 -0400
+From: "tutu joseph" <tutu.joseph4@caramail.com>
+Reply-To: tutu.joseph4@caramail.com
+To: linux-kernel@vger.kernel.org
+Date: Thu, 8 May 2003 22:13:33 +0200
+Subject: Business
+X-Mailer: Microsoft Outlook Express 5.00.2919.6900 DM
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16058.51215.725945.667247@napali.hpl.hp.com>
-Date: Thu, 8 May 2003 14:11:43 -0700
-To: arjanv@redhat.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ioctl cleanups: enable sg_io and serial stuff to be shared
-In-Reply-To: <1052426022.1677.3.camel@laptop.fenrus.com>
-References: <20030507104008$12ba@gated-at.bofh.it>
-	<200305071154.h47BsbsD027038@post.webmailer.de>
-	<20030507124113.GA412@elf.ucw.cz>
-	<20030507135600.A22642@infradead.org>
-	<1052318339.9817.8.camel@rth.ninka.net>
-	<20030508151643.GO679@phunnypharm.org>
-	<20030508193430.GC933@elf.ucw.cz>
-	<20030508192730.GX679@phunnypharm.org>
-	<16058.48490.620518.27093@napali.hpl.hp.com>
-	<1052426022.1677.3.camel@laptop.fenrus.com>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <S262108AbTEHVAN/20030508210013Z+6363@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On 08 May 2003 22:33:42 +0200, Arjan van de Ven <arjanv@redhat.com> said:
+Tutu Joseph O
+#20 Louis BOTHA CRESENT,
+SANDTON, SOUTH AFRICA.
+Let me start  by introducing myself to you properly. I am an external auditor with the African Bank in South Africa. I came to know about you in my private search for a reliable person to handle a confidential transaction on behalf of my colleagues and myself. As a matter of fact your contact was given to me by a  close friend of mine Mr Hasan Alasa who works with your country's embassy here in South Africa.
+My proposition:
+Mr. Fernando Carlos, a foreigner,  was a miner and a geologist by profession and was working at Kruger gold company.Unfortunately he died in December 1990 in a  motor accident.Before his death he was banking his money with the African Development Bank, and had a closing balance of Eighteen Million five hundred Thousand United States Dollars (US$18.5m)  before his death.He must have been involved in illegal sale of gold and that is why he did not name anybody as his next of kin. Even his residential address is fake. The  bank now  expects these funds to be claimed by his next of kin . If nobody comes for it,the funds will be donated to a discredited trust fund for arms and ammunition at a military war college here in South Africa.  
+Fervent efforts  made by the Bank to get in touch with any of his relatives has proved abortive.  It is because of the impossibility of locating his next of kin  that made the management of the bank  to decide that an arrangement be made for the funds to be declared “Unclaimed” and to be donated to the trust fund for arms and ammunition to further enhance the cause of war in Africa and the world in general.  
+In order to avert this negative development,  my friends in the bank have mandated me to seek your permission to have you stand as the next-of-kin , so that the funds USD18.5m would be released  to you .The bank can only release the money to a foreigner and not to a native like me.  All documents and proofs that will enable you to get this fund will be carefully worked out since there is an insider arrangement.You do not need to visit my country for this purpose. And moreso, I am  assuring you of 100% percent risk free. My group is willing to offer you 20% of the funds as  commission  for your assistance.
+If this offer is acceptable to you ,please send me a bank account where the funds will be transfered to.You may open a new account for the deal.But do not disclose the purpose to your bankers as every document that will enable you  to pick the money will be sent to you as soon as the funds hit your account.Reply through  these boxes-tutu.joseph4@caramail.com,tutu4j@elvis.com,tutu202j@netscape.com.
+I look forward to hear from you. 
 
-  >> Definitely.  I turn it off on a regular basis and expect to use it
-  >> even less in the future.
+Best regards,
+tutu Joseph O
 
-  Arjan> working on a qemu port to ia64 ?
 
-Who, me?  I know better than that.
-
-Last time I worked on x86 emulation was on Alpha for BIOS emulation.
-It wasn't fun then.
-
-	--david

@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317119AbSEXKG0>; Fri, 24 May 2002 06:06:26 -0400
+	id <S314295AbSEXKgk>; Fri, 24 May 2002 06:36:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317121AbSEXKGZ>; Fri, 24 May 2002 06:06:25 -0400
-Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:11276 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317119AbSEXKGY>; Fri, 24 May 2002 06:06:24 -0400
-Date: Fri, 24 May 2002 11:06:18 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: =?iso-8859-1?Q?Fran=E7ois_Leblanc?= <francois.leblanc@cev-sa.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] kernel 2.4.18 endianness logical mistakes correction on fbcon-cfb2.c and fbcon-cfb4.c
-Message-ID: <20020524110618.A7299@flint.arm.linux.org.uk>
-In-Reply-To: <004001c20309$2832c4c0$6601a8c0@stlo.cevsa.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
+	id <S317122AbSEXKgj>; Fri, 24 May 2002 06:36:39 -0400
+Received: from [62.70.58.70] ([62.70.58.70]:59288 "EHLO mail.pronto.tv")
+	by vger.kernel.org with ESMTP id <S314295AbSEXKgj> convert rfc822-to-8bit;
+	Fri, 24 May 2002 06:36:39 -0400
+Message-Id: <200205241036.g4OAaXR28572@mail.pronto.tv>
+Content-Type: text/plain; charset=US-ASCII
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Organization: Pronto TV AS
+To: jlnance@intrex.net, linux-kernel@vger.kernel.org
+Subject: Re: [BUG] 2.4 VM sucks. Again
+Date: Fri, 24 May 2002 12:36:32 +0200
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <200205231311.g4NDBO613726@mail.pronto.tv> <20020523141243.A1178@tricia.dyndns.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 24, 2002 at 11:55:38AM +0200,  François Leblanc wrote:
-> This patchs correct the endianness logical of nibbletab, the first table is
-> u_char mades so no endian needed and the second swap correctly bytes in
-> LITTLE_ENDIAN. (old version swap half bytes instead of bytes).
+On Thursday 23 May 2002 20:12, jlnance@intrex.net wrote:
+> On Thu, May 23, 2002 at 03:11:24PM +0200, Roy Sigurd Karlsbakk wrote:
+> > Starting up 30 downloads from a custom HTTP server (or Tux - or Apache -
+> > doesn't matter), file size is 3-6GB, download speed = ~4.5Mbps. After
+> > some time the kernel (a) goes bOOM (out of memory) if not having any
+> > swap, or (b) goes gong swapping out anything it can.
+>
+> Does this work if the client and the server are on the same machine?  It
+> would make reproducing this a lot easier if it only required 1 machine.
 
-A recent discussion on the ARM mailing lists has highlighted that hardware
-designers seem to like connecting such things like LCD panels up to devices
-in weird and wonderful ways - sometimes with a set of 4 pixels reversed,
-sometimes with even weirder connectivity.  I've pointed them at the
-framebuffer dev list.
-
-Certainly your fbcon-cfb4 changes will break at least one of my machines
-here.
-
-Please talk this over with the framebuffer dev list.
-
-	linux-fbdev-devel@lists.sourceforge.net
-
+I guess it'd work fine with only one machine, as IMO, the problem must be the 
+kernel not releasing buffers
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Roy Sigurd Karlsbakk, Datavaktmester
 
+Computers are like air conditioners.
+They stop working when you open Windows.

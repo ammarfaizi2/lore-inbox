@@ -1,328 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269073AbUJEN5v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269030AbUJEOAR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269073AbUJEN5v (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 09:57:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269099AbUJEN5u
+	id S269030AbUJEOAR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 10:00:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269829AbUJEOAF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 09:57:50 -0400
-Received: from mail.renesas.com ([202.234.163.13]:29142 "EHLO
-	mail03.idc.renesas.com") by vger.kernel.org with ESMTP
-	id S269884AbUJENyu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 09:54:50 -0400
-Date: Tue, 05 Oct 2004 22:54:28 +0900 (JST)
-Message-Id: <20041005.225428.728248907.takata.hirokazu@renesas.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, takata@linux-m32r.org
-Subject: [PATCH 2.6.9-rc3-mm2] [m32r] Remove arch/m32r/kernel/io_m32102.c
-From: Hirokazu Takata <takata@linux-m32r.org>
-X-Mailer: Mew version 3.3 on XEmacs 21.4.15 (Security Through Obscurity)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Tue, 5 Oct 2004 10:00:05 -0400
+Received: from stat16.steeleye.com ([209.192.50.48]:50603 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S269758AbUJEN4g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 09:56:36 -0400
+Subject: Re: Core scsi layer crashes in 2.6.8.1
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Anton Blanchard <anton@samba.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+In-Reply-To: <20041005114951.GD22396@krispykreme.ozlabs.ibm.com>
+References: <1096401785.13936.5.camel@localhost.localdomain>
+	<1096467125.2028.11.camel@mulgrave> 
+	<20041005114951.GD22396@krispykreme.ozlabs.ibm.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 05 Oct 2004 08:56:22 -0500
+Message-Id: <1096984590.1765.2.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-Please remove arch/m32r/kernel/io_m32102.c, which is no longer used.
-# I forgot to attach this patch in the previous e-mail as following.
-
-From: Hirokazu Takata <takata@linux-m32r.org>
-Subject: [PATCH 2.6.9-rc2-mm4] [m32r] Architecture upgrade on 20040928
-Date: Wed, 29 Sep 2004 21:52:55 +0900 (JST)
+On Tue, 2004-10-05 at 06:49, Anton Blanchard wrote:
 > 
-> 	* arch/m32r/kernel/io_m32102.c: Remove.
-> 	This file is no longer used. Please remove this file.
-> 	
+> Hi James,
+> 
+> > These state transition warnings are currently expected in this code
+> > (they're basically verbose warnings).
+> > 
+> > What was the oops?
+> > 
+> > I have a theory that we should be taking a device reference before
+> > waking up the error handler, otherwise host removal can race with error
+> > handling.
+> 
+> Did this get sorted out? Here is an oops from a few week old BK tree.
+> FYI I just noticed I have disabled host reset in the sym2 driver (it
+> was locking up at the time and I never went back to work out why).
+> However, even with a host reset this could happen right?
 
-Thanks.
+Well, the theoretical hole is fixed ... If you test the current tree
+we'll find out if this is indeed your problem.
 
-Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
----
+James
 
- arch/m32r/kernel/io_m32102.c |  277 -------------------------------------------
- 1 files changed, 277 deletions(-)
-
-
-diff -ruNp a/arch/m32r/kernel/io_m32102.c b/arch/m32r/kernel/io_m32102.c
---- a/arch/m32r/kernel/io_m32102.c	2004-10-01 11:14:54.000000000 +0900
-+++ b/arch/m32r/kernel/io_m32102.c	1970-01-01 09:00:00.000000000 +0900
-@@ -1,277 +0,0 @@
--/*
-- * Mitsubishi M32R 32102 group
-- * Typical I/O routines.
-- *
-- * Copyright (c) 2001 Hitoshi Yamamoto
-- */
--
--/* $Id$ */
--
--#include <linux/config.h>
--#include <asm/page.h>
--
--#if defined(CONFIG_PCMCIA) && defined(CONFIG_M32RPCC)
--#include <linux/types.h>
--
--#define M32R_PCC_IOMAP_SIZE 0x1000
--
--#define M32R_PCC_IOSTART0 0x1000
--#define M32R_PCC_IOEND0   (M32R_PCC_IOSTART0 + M32R_PCC_IOMAP_SIZE - 1)
--#define M32R_PCC_IOSTART1 0x2000
--#define M32R_PCC_IOEND1   (M32R_PCC_IOSTART1 + M32R_PCC_IOMAP_SIZE - 1)
--
--extern void pcc_ioread(int, unsigned long, void *, size_t, size_t, int);
--extern void pcc_iowrite(int, unsigned long, void *, size_t, size_t, int);
--#endif /* CONFIG_PCMCIA && CONFIG_M32RPCC */
--
--
--/*
-- * Function prototypes
-- */
--unsigned char  ne_inb(unsigned long);
--void  ne_outb(unsigned char, unsigned long);
--void  ne_insb(unsigned int, void *, unsigned long);
--void  ne_insw(unsigned int, void *, unsigned long);
--void  ne_outsb(unsigned int, const void *, unsigned long);
--void  ne_outsw(unsigned int, const void *, unsigned long);
--
--#define PORT2ADDR(port)  m32102_port2addr(port)
--
--static __inline__ unsigned long
--m32102_port2addr(unsigned long port)
--{
--	unsigned long  ul;
--	ul = port + PAGE_OFFSET + 0x20000000;
--	return (ul);
--}
--
--unsigned char
--m32102_inb(unsigned long port)
--{
--#ifdef CONFIG_PLAT_MAPPI
--	if(port >= 0x300 && port < 0x320)
--		return ne_inb(port);
--	else
--#if defined(CONFIG_PCMCIA) && defined(CONFIG_M32RPCC)
--	if (port >= M32R_PCC_IOSTART0 && port <= M32R_PCC_IOEND0) {
--	   unsigned char b;
--	   pcc_ioread(0, port, &b, sizeof(b), 1, 0);
--	   return b;
--	} else 	if (port >= M32R_PCC_IOSTART1 && port <= M32R_PCC_IOEND1) {
--	  unsigned char b;
--	   pcc_ioread(1, port, &b, sizeof(b), 1, 0);
--	   return b;
--	} else
--#endif
--#endif /*  CONFIG_PLAT_MAPPI  */
--	return *(unsigned char *)PORT2ADDR(port);
--}
--
--unsigned short
--m32102_inw(unsigned long port)
--{
--#if defined(CONFIG_PCMCIA) && defined(CONFIG_M32RPCC)
--	if (port >= M32R_PCC_IOSTART0 && port <= M32R_PCC_IOEND0) {
--	   unsigned short w;
--	   pcc_ioread(0, port, &w, sizeof(w), 1, 0);
--	   return w;
--	} else 	if (port >= M32R_PCC_IOSTART1 && port <= M32R_PCC_IOEND1) {
--	   unsigned short w;
--	   pcc_ioread(1, port, &w, sizeof(w), 1, 0);
--	   return w;
--	} else
--#endif
--	return *(unsigned short *)PORT2ADDR(port);
--}
--
--unsigned long
--m32102_inl(unsigned long port)
--{
--#if defined(CONFIG_PCMCIA) && defined(CONFIG_M32RPCC)
--	if (port >= M32R_PCC_IOSTART0 && port <= M32R_PCC_IOEND0) {
--	   unsigned long l;
--	   pcc_ioread(0, port, &l, sizeof(l), 1, 0);
--	   return l;
--	} else 	if (port >= M32R_PCC_IOSTART1 && port <= M32R_PCC_IOEND1) {
--	   unsigned short l;
--	   pcc_ioread(1, port, &l, sizeof(l), 1, 0);
--	   return l;
--	} else
--#endif
--	return *(unsigned long *)PORT2ADDR(port);
--}
--
--void
--m32102_outb(unsigned char b, unsigned long port)
--{
--#ifdef CONFIG_PLAT_MAPPI
--	if(port >= 0x300 && port < 0x320)
--		ne_outb(b,port);
--	else
--#if defined(CONFIG_PCMCIA) && defined(CONFIG_M32RPCC)
--	if (port >= M32R_PCC_IOSTART0 && port <= M32R_PCC_IOEND0) {
--	   pcc_iowrite(0, port, &b, sizeof(b), 1, 0);
--	} else 	if (port >= M32R_PCC_IOSTART1 && port <= M32R_PCC_IOEND1) {
--	   pcc_iowrite(1, port, &b, sizeof(b), 1, 0);
--	} else
--#endif
--#endif /*  CONFIG_PLAT_MAPPI  */
--	*(unsigned volatile char *)PORT2ADDR(port) = b;
--}
--
--void
--m32102_outw(unsigned short w, unsigned long port)
--{
--#if defined(CONFIG_PCMCIA) && defined(CONFIG_M32RPCC)
--	if (port >= M32R_PCC_IOSTART0 && port <= M32R_PCC_IOEND0) {
--	   pcc_iowrite(0, port, &w, sizeof(w), 1, 0);
--	} else 	if (port >= M32R_PCC_IOSTART1 && port <= M32R_PCC_IOEND1) {
--	   pcc_iowrite(1, port, &w, sizeof(w), 1, 0);
--	} else
--#endif
--*(unsigned volatile short *)PORT2ADDR(port) = w;
--}
--
--void
--m32102_outl(unsigned long l, unsigned long port)
--{
--#if defined(CONFIG_PCMCIA) && defined(CONFIG_M32RPCC)
--	if (port >= M32R_PCC_IOSTART0 && port <= M32R_PCC_IOEND0) {
--	   pcc_iowrite(0, port, &l, sizeof(l), 1, 0);
--	} else 	if (port >= M32R_PCC_IOSTART1 && port <= M32R_PCC_IOEND1) {
--	   pcc_iowrite(1, port, &l, sizeof(l), 1, 0);
--	} else
--#endif
--	*(unsigned volatile long *)PORT2ADDR(port) = l;
--}
--
--void
--m32102_insb(unsigned int port, void * addr, unsigned long count)
--{
--#if defined(CONFIG_PCMCIA) && defined(CONFIG_M32RPCC)
--	if (port >= M32R_PCC_IOSTART0 && port <= M32R_PCC_IOEND0) {
--	   pcc_ioread(0, port, (void *)addr, sizeof(unsigned char), count, 1);
--	} else 	if (port >= M32R_PCC_IOSTART1 && port <= M32R_PCC_IOEND1) {
--	   pcc_ioread(1, port, (void *)addr, sizeof(unsigned char), count, 1);
--	} else
--#endif
--	while(count--){
--		*(unsigned char *)addr = *(unsigned volatile char *)PORT2ADDR(port);
--		addr+=1;
--	}
--}
--
--void
--m32102_insw(unsigned int port, void * addr, unsigned long count)
--{
--#if defined(CONFIG_PCMCIA) && defined(CONFIG_M32RPCC)
--	if (port >= M32R_PCC_IOSTART0 && port <= M32R_PCC_IOEND0) {
--	   pcc_ioread(0, port, (void *)addr, sizeof(unsigned short), count, 1);
--	} else 	if (port >= M32R_PCC_IOSTART1 && port <= M32R_PCC_IOEND1) {
--	   pcc_ioread(1, port, (void *)addr, sizeof(unsigned short), count, 1);
--	} else
--#endif
--while(count--){
--		*(unsigned short *)addr = *(unsigned volatile short *)PORT2ADDR(port);
--		addr+=2;
--	}
--}
--
--void
--m32102_outsb(unsigned int port, const void * addr, unsigned long count)
--{
--#if defined(CONFIG_PCMCIA) && defined(CONFIG_M32RPCC)
--	if (port >= M32R_PCC_IOSTART0 && port <= M32R_PCC_IOEND0) {
--	   pcc_iowrite(0, port, (void *)addr, sizeof(unsigned char), count, 1);
--	} else 	if (port >= M32R_PCC_IOSTART1 && port <= M32R_PCC_IOEND1) {
--	   pcc_iowrite(1, port, (void *)addr, sizeof(unsigned char), count, 1);
--	} else
--#endif
--while(count--){
--		*(unsigned volatile char *)PORT2ADDR(port) = *(unsigned char *)addr;
--		addr+=1;
--	}
--}
--void
--m32102_outsw(unsigned int port, const void * addr, unsigned long count)
--{
--#if defined(CONFIG_PCMCIA) && defined(CONFIG_M32RPCC)
--	if (port >= M32R_PCC_IOSTART0 && port <= M32R_PCC_IOEND0) {
--	   pcc_iowrite(0, port, (void *)addr, sizeof(unsigned short), count, 1);
--	} else 	if (port >= M32R_PCC_IOSTART1 && port <= M32R_PCC_IOEND1) {
--	   pcc_iowrite(1, port, (void *)addr, sizeof(unsigned short), count, 1);
--	} else
--#endif
--while(count--){
--		*(unsigned volatile short *)PORT2ADDR(port) = *(unsigned short *)addr;
--		addr+=2;
--	}
--}
--
--#ifdef CONFIG_PLAT_MAPPI
--unsigned char
--ne_inb(unsigned long port)
--{
--	unsigned short tmp;
--	port <<= 1;
--	port+= PAGE_OFFSET + 0x20000000 + 0x0c000000;
--	tmp = *(unsigned short *)port;
--	return (unsigned char)tmp;
--}
--void
--ne_outb(unsigned char b, unsigned long port)
--{
--	port <<= 1;
--	port += PAGE_OFFSET + 0x20000000 + 0x0c000000;
--	*(unsigned volatile short *)port = (unsigned short)b;
--}
--void
--ne_insb(unsigned int port, void * addr, unsigned long count)
--{
--
--	unsigned short tmp;
--	port <<= 1;
--	port+= PAGE_OFFSET + 0x20000000 + 0x0c000000;
--	tmp = *(unsigned short *)port;
--	while(count--){
--		*(unsigned char *)addr = *(unsigned volatile char *)port;
--		addr+=1;
--	}
--}
--
--void
--ne_insw(unsigned int port, void * addr, unsigned long count) {
--	unsigned short tmp;
--	port <<= 1;
--	port+= PAGE_OFFSET + 0x20000000 + 0x0c000000;
--	while(count--){
--		tmp = *(unsigned volatile short *)port;
--		*(unsigned short *)addr = (tmp>>8) | (tmp <<8);
--		addr+=2;
--	}
--}
--
--void
--ne_outsb(unsigned int port, const void * addr, unsigned long count)
--{
--	port <<= 1;
--	port += PAGE_OFFSET + 0x20000000 + 0x0c000000;
--	while(count--){
--		*(unsigned volatile short *)port = *(unsigned char *)addr;
--		addr+=1;
--	}
--}
--void
--ne_outsw(unsigned int port, const void * addr, unsigned long count)
--{
--	unsigned short tmp;
--	port <<= 1;
--	port += PAGE_OFFSET + 0x20000000 + 0x0c000000;
--	while(count--){
--		tmp = *(unsigned short *)addr;
--		*(unsigned volatile short *)port = (tmp>>8)|(tmp<<8);
--		addr+=2;
--	}
--}
--
--#endif /*  CONFIG_PLAT_MAPPI  */
 

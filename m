@@ -1,39 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268580AbUJKAGk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268581AbUJKAGq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268580AbUJKAGk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Oct 2004 20:06:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268581AbUJKAGk
+	id S268581AbUJKAGq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Oct 2004 20:06:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268582AbUJKAGq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Oct 2004 20:06:40 -0400
-Received: from [193.22.164.111] ([193.22.164.111]:11650 "EHLO
-	vserver151.vserver151.serverflex.de") by vger.kernel.org with ESMTP
-	id S268580AbUJKAGj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Oct 2004 20:06:39 -0400
-To: "Yoshinori K. Okuji" <okuji@gnu.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: possible GPL violation by Free
-In-Reply-To: <200410091958.25251.okuji@gnu.org>
-References: <200410091958.25251.okuji@gnu.org>
-Date: Mon, 11 Oct 2004 02:06:30 +0200
-Message-Id: <E1CGnhu-0001zE-Pb@localhost.localdomain>
-From: Moritz Muehlenhoff <jmm@inutil.org>
-X-SA-Exim-Connect-IP: 84.129.20.153
-X-SA-Exim-Mail-From: jmm@inutil.org
-X-SA-Exim-Scanned: No (on vserver151.vserver151.serverflex.de); SAEximRunCond expanded to false
+	Sun, 10 Oct 2004 20:06:46 -0400
+Received: from hacksaw.org ([66.92.70.107]:21918 "EHLO hacksaw.org")
+	by vger.kernel.org with ESMTP id S268581AbUJKAGn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Oct 2004 20:06:43 -0400
+Message-Id: <200410110006.i9B06aF9019868@hacksaw.org>
+X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.0.4
+To: "J.A. Magallon" <jamagallon@able.es>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: udev: what's up with old /dev ? 
+In-reply-to: Your message of "Sun, 10 Oct 2004 23:25:46 -0000."
+             <1097450746l.5993l.0l@werewolf.able.es> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 10 Oct 2004 20:06:36 -0400
+From: Hacksaw <hacksaw@hacksaw.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In gmane.linux.kernel, you wrote:
-> Although the "Freebox" does not contain any information about GPL,
-> a rumor says that this runs Linux as the kernel and VideoLAN for the
-> video streaming.
+>I don't think it is needed. There is no problem (i am thinking on rootles
+>nodes and PXE and so on...) on building a simple initrd with /dev/console,
+>/dev/null
 
-Please research such issues further before making public accusations.
+I'm looking for no initrd. I'm not a fan of them. It seems like having to use 
+an electric drill to start your car.
 
-I don't know the internals of Freebox, but Free surely has profound
-knowledge of free software and it's licensing issues (they funded
-libavcodec development and provide the bandwidth for the savannah/
-sourceforge alike gna.org in cooperation with FSF France.)
+I like the idea that someone could accidentally scribble all over /dev, and on 
+reboot the system would just rebuild it. It makes /dev less of a vulnerability.
 
-Cheers,
-        Morit
+
+-- 
+Sleepy, Dopey, Sneezy, Bashful, Grumpy, Happy, Doc
+Just in case you'd forgotten...
+http://www.hacksaw.org -- http://www.privatecircus.com -- KB1FVD
+
+

@@ -1,51 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135241AbRDLR77>; Thu, 12 Apr 2001 13:59:59 -0400
+	id <S135244AbRDLSJB>; Thu, 12 Apr 2001 14:09:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135243AbRDLR7t>; Thu, 12 Apr 2001 13:59:49 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:64263 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S135241AbRDLR7i>;
-	Thu, 12 Apr 2001 13:59:38 -0400
-Date: Thu, 12 Apr 2001 14:56:46 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Szabolcs Szakacsits <szaka@f-secure.com>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, Hugh Dickins <hugh@veritas.com>,
-        Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
-Subject: Re: scheduler went mad?
-In-Reply-To: <Pine.LNX.4.30.0104122008590.19377-100000@fs131-224.f-secure.com>
-Message-ID: <Pine.LNX.4.21.0104121456020.18260-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135246AbRDLSIv>; Thu, 12 Apr 2001 14:08:51 -0400
+Received: from pD953898E.dip.t-dialin.net ([217.83.137.142]:6391 "EHLO
+	tolot.escape.de") by vger.kernel.org with ESMTP id <S135244AbRDLSIq>;
+	Thu, 12 Apr 2001 14:08:46 -0400
+Date: Thu, 12 Apr 2001 19:59:11 +0200
+From: Jochen Striepe <jochen@tolot.escape.de>
+To: Steven Cole <elenstev@mesatop.com>
+Cc: Dave Jones <davej@suse.de>, esr@thyrsus.com,
+        Aaron Lehmann <aaronl@vitelus.com>,
+        Michael Elizabeth Chastain <chastain@cygnus.com>,
+        kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [kbuild-devel] Re: CML2 1.0.0 release announcement
+Message-ID: <20010412195911.A13744@tolot.escape.de>
+In-Reply-To: <Pine.LNX.4.30.0104121400420.7530-100000@Appserv.suse.de> <01041206002400.19748@gopnik.dom-duraki>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="Qxx1br4bt0+wmkIi"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <01041206002400.19748@gopnik.dom-duraki>; from elenstev@mesatop.com on Thu, Apr 12, 2001 at 06:00:24AM -0600
+X-Editor: vim/5.7.28
+X-Signature-Color: blue
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Apr 2001, Szabolcs Szakacsits wrote:
-> On Thu, 12 Apr 2001, Marcelo Tosatti wrote:
-> 
-> > This patch is broken, ignore it.
-> > Just removing wakeup_bdflush() is indeed correct.
-> > We already wakeup bdflush at try_to_free_buffers() anyway.
-> 
-> I still feel a bit unconfortable about processes looping forever in
-> __alloc_pages and because of this oom_killer also can't be moved to
-> page fault handler where I think its place should be. I'm using the
-> patch below.
 
-It's BROKEN.  This means that if you have one task using up
-all memory and you're waiting for the OOM kill of that task
-to have effect, your syslogd, etc... will have their allocations
-fail and will die.
+--Qxx1br4bt0+wmkIi
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-regards,
+        Hi,
 
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
+On 12 Apr 2001, Steven Cole <elenstev@mesatop.com> wrote:
+>=20
+> Excuse me, but this seems to be something of a red herring.  I've got
+> a crowd of Pentium-90 and 100 machines at work, and they get new kernels
+> occasionally, but I haven't built a kernel using that class of machine
+> in 5 years or so.  I build new kernels using a dual 733 PIII.  Just for
+> "fun", I built a kernel using a uniprocessor 266 PII a few months ago, but
+> I have much better things to do with my time.
 
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
+I have an AMD K6/2-400. But I do know _many_ people who do own slower
+Hardware, and run Linux on it. They do not want and cannot afford to buy
+the newest shiny box. And, they have better things to do with their time
+as well. Please note, I live in a country where people are not _poor_.
+Just think of others some time, not only of yourself.=20
 
+
+So long,
+
+Jochen Striepe.
+
+--=20
+"He was so narrow minded he could see through a keyhole with both
+eyes ..."
+
+
+--Qxx1br4bt0+wmkIi
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iQEVAwUBOtXs76rOdlPj1wR/AQFc+Af/ZMPUQZ5TUcY+c9N/1EqLr2ZwHzRHFZku
+vlTO/kau4x8fFCGPR6O4kLUT4fmEhRYmigSkidcP1Pa9eK0zm3KdOwV7b+Kin2xq
+5wO1pLEShGYXsW2fftktCT31QjB0F3Yp8BgC7jZCX4SzDLUtf9OKn/C5vfRly7VH
+QStz2WDotwlDCeORnWVEmzheBg2R2u9ZTC+XOI4nYoz+6WYzglLMBnwcnOu4n0AB
+doBn7IdvYoYM3cHnCkrztjVx9rrG5e8NcGqrNpoMm4rM1T+Vt0pUFNhv/6sdfUZ/
+gm1LOxUvujiBEi4ns3IrVKLvcZaJNHMcTXn9wFJxbSYkTFFDP5GQFg==
+=mWO2
+-----END PGP SIGNATURE-----
+
+--Qxx1br4bt0+wmkIi--

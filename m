@@ -1,63 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291578AbSBAHPI>; Fri, 1 Feb 2002 02:15:08 -0500
+	id <S291582AbSBAHX7>; Fri, 1 Feb 2002 02:23:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291579AbSBAHO6>; Fri, 1 Feb 2002 02:14:58 -0500
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:40461 "HELO
-	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
-	id <S291578AbSBAHOo>; Fri, 1 Feb 2002 02:14:44 -0500
-Date: Fri, 1 Feb 2002 08:14:42 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: James Simmons <jsimmons@transvirtual.com>, Vojtech Pavlik <vojtech@ucw.cz>,
-        Linux/m68k <linux-m68k@lists.linux-m68k.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] amiga input api drivers
-Message-ID: <20020201081442.G15571@suse.cz>
-In-Reply-To: <Pine.LNX.4.10.10201310712130.20956-100000@www.transvirtual.com> <Pine.GSO.4.21.0201312153250.24581-100000@vervain.sonytel.be>
+	id <S291585AbSBAHXu>; Fri, 1 Feb 2002 02:23:50 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:8202 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S291582AbSBAHXh>;
+	Fri, 1 Feb 2002 02:23:37 -0500
+Date: Thu, 31 Jan 2002 23:22:02 -0800
+From: Greg KH <greg@kroah.com>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+        Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Werner Almesberger <wa@almesberger.net>,
+        "Erik A. Hendriks" <hendriks@lanl.gov>
+Subject: Re: [RFC] x86 ELF bootable kernels/Linux booting Linux/LinuxBIOS
+Message-ID: <20020201072201.GA5666@kroah.com>
+In-Reply-To: <m1zo2vb5rt.fsf@frodo.biederman.org> <8200.1012446189@kao2.melbourne.sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.GSO.4.21.0201312153250.24581-100000@vervain.sonytel.be>; from geert@linux-m68k.org on Thu, Jan 31, 2002 at 09:54:51PM +0100
+In-Reply-To: <8200.1012446189@kao2.melbourne.sgi.com>
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Fri, 04 Jan 2002 05:11:17 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 31, 2002 at 09:54:51PM +0100, Geert Uytterhoeven wrote:
-> On Thu, 31 Jan 2002, James Simmons wrote:
-> >   The amiga mouse and amiga joystick have been already ported over to the
-> > input api. Now for the keyboard. This patch is the input api amiga
-> > keyboard. I wanted people to try it out before I send it off to be
-> > included in the DJ tree. Have fun!!!
+On Thu, Jan 31, 2002 at 02:03:09PM +1100, Keith Owens wrote:
+> On 30 Jan 2002 19:42:14 -0700, 
+> ebiederm@xmission.com (Eric W. Biederman) wrote:
+> >I like the other suggestion of extending the Hot-plug infrastructure.
+> >In that case I just need to figure out how to logically Hot-unplug all
+> >the devices in the system.  That may be better than a
+> >do_exitcalls()...  As it automatically gets the discrimination right. 
 > 
-> > diff -urN -X /home/jsimmons/dontdiff linux-2.5.2-dj7/drivers/input/keyboard/amikbd.c linux/drivers/input/keyboard/amikbd.c
-> > --- linux-2.5.2-dj7/drivers/input/keyboard/amikbd.c	Wed Dec 31 16:00:00 1969
-> > +++ linux/drivers/input/keyboard/amikbd.c	Thu Jan 31 07:44:05 2002
-> 
-> > +static char *amikbd_messages[] = {
-> > +	KERN_ALERT "amikbd: Ctrl-Amiga-Amiga reset warning!!\n",
-> > +	KERN_WARNING "amikbd: keyboard lost sync\n",
-> > +	KERN_WARNING "amikbd: keyboard buffer overflow\n",
-> > +	KERN_WARNING "amikbd: keyboard controller failure\n",
-> > +	KERN_ERR "amikbd: keyboard selftest failure\n",
-> > +	KERN_INFO "amikbd: initiate power-up key stream\n",
-> > +	KERN_INFO "amikbd: terminate power-up key stream\n",
-> > +	KERN_WARNING "amikbd: keyboard interrupt\n"
-> > +};
-> 
-> > +	if (scancode < 0x78) {		/* scancodes < 0x78 are keys */
-> 
->   [...]
-> 
-> > +	}
-> > +
-> > +	printk(amikbd_messages[scancode]);	/* scancodes >= 0x78 are error codes */
-> 
-> Oops, amikbd_messages[scancode-0x78]?
+> In an ideal world, it should be enough to call the module_exit()
+> functions in reverse order to the module_init(), LIFO.  But check with
+> the hotplug list, they have done most of the work on this problem.
 
-Thanks. And thanks to James for fixing this in the CVS as well.
-Does it work otherwise?
+Actually, no we haven't :)
 
--- 
-Vojtech Pavlik
-SuSE Labs
+We punt on the "do we remove the driver when the device disappears"
+issue, and instead ignore the hotplug REMOVE events right now.
+
+So far, no one's complained.
+
+But to unplug all of the devices in the system in the proper order,
+you're probably going to have to use the driverfs tree that is slowly
+taking shape.  That's the only representation of all physical devices in
+the system that shows the topology correctly.
+
+Hope this helps,
+
+greg k-h

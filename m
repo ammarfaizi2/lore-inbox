@@ -1,73 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263816AbTKKXrF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Nov 2003 18:47:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263821AbTKKXrF
+	id S263848AbTKKXwp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Nov 2003 18:52:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263849AbTKKXwp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Nov 2003 18:47:05 -0500
-Received: from mail0-96.ewetel.de ([212.6.122.96]:39163 "EHLO mail0.ewetel.de")
-	by vger.kernel.org with ESMTP id S263816AbTKKXrC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Nov 2003 18:47:02 -0500
-Date: Wed, 12 Nov 2003 00:46:51 +0100 (CET)
-From: Pascal Schmidt <der.eremit@email.de>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Jens Axboe <axboe@suse.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
-In-Reply-To: <Pine.LNX.4.44.0311111348190.1960-100000@home.osdl.org>
-Message-ID: <Pine.LNX.4.44.0311120039090.909-100000@neptune.local>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-CheckCompat: OK
+	Tue, 11 Nov 2003 18:52:45 -0500
+Received: from law12-f60.law12.hotmail.com ([64.4.19.60]:34835 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S263848AbTKKXwn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Nov 2003 18:52:43 -0500
+X-Originating-IP: [24.82.225.198]
+X-Originating-Email: [justformoonie@hotmail.com]
+From: "kirk bae" <justformoonie@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: So, Poll is not scalable... what to do?
+Date: Tue, 11 Nov 2003 17:52:42 -0600
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <LAW12-F60bw5TYIo9WF0002bec8@hotmail.com>
+X-OriginalArrivalTime: 11 Nov 2003 23:52:42.0813 (UTC) FILETIME=[E5B50ED0:01C3A8AE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 11 Nov 2003, Linus Torvalds wrote:
+If poll is not scalable, which method should I use when writing 
+multithreaded socket server?
 
-> Ok, that's just strange. You can't even _read_ from the raw device, but 
-> the mount works ok?
+What is the most efficient model to use?
 
-Exactly.
+Is there a "standard" model to use when writing a scalable multithreaded 
+socket serve such as "io completion ports" on windows?
 
-> And you got no IO errors anywhere? I don't see why the write would fail 
-> silently.
+>From the "Microbenchmark comparing poll, kqueue, and /dev/poll", kqueue is 
+the way to go. Am I correct?
 
-Nope, no errors anywhere.
+What is the best solution to use on Linux?
 
-> I wonder whether the disk capacity is set to zero. See 
-> drivers/ide/ide-cd.c, and in particular the 
-> 
->         /* Now try to get the total cdrom capacity. */
->         stat = cdrom_get_last_written(cdi, (long *) &toc->capacity);
->         if (stat || !toc->capacity)
->                 stat = cdrom_read_capacity(drive, &toc->capacity, sense);
->         if (stat)
->                 toc->capacity = 0x1fffff;
-> 
-> and see what that says.. I really think you should start sprinkling 
-> printk's around the thing to determine what goes on..
+Also, why is it that poll doesn not return with "close signal" when a 
+thread-1 calls poll and thread-2 calls close on a sockfd1? It seems that 
+poll only handles close signal when a client disconnects from the server. 
+I've seen this mentioned here before, has it been fixed?
 
-Did that. The code you quote from cdrom_read_toc is never even reached,
-the first cdrom_read_tocentry in there just errors out because there
-is no toc to read on an MO disk. This leaves the capacity64 member in
-the associated ide_drive_t at 0 and also the capacity member in the
-corresponding gendisk structure.
+Thank you~~~
 
-On mount, idecd_revalidate_disk gets called and also tries a
-cdrom_read_toc, once again leaving the capacity at 0. Nevertheless,
-the mount succeeds.
-
-So, reading via dd seems to respect capacity, that explains the "no
-space left on device" on writing and the read resulting in zero data
-without error. Mounting doesn't even seem to look at the capacity.
-
-My guess would be that an MO drive needs a different way to find out
-the capacity than a CD-ROM. After all, when using ide-scsi, it is the
-sd driver and not sr that handles the drive. The rest of the problems
-could be due to the wrong capacity information?
-
--- 
-Ciao,
-Pascal
-
+_________________________________________________________________
+>From Beethoven to the Rolling Stones, your favorite music is always playing 
+on MSN Radio Plus. No ads, no talk. Trial month FREE!  
+http://join.msn.com/?page=offers/premiumradio
 

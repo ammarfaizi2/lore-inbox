@@ -1,72 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316608AbSGOPSc>; Mon, 15 Jul 2002 11:18:32 -0400
+	id <S317375AbSGOPUd>; Mon, 15 Jul 2002 11:20:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316786AbSGOPSb>; Mon, 15 Jul 2002 11:18:31 -0400
-Received: from 209-166-240-202.cust.walrus.com.240.166.209.in-addr.arpa ([209.166.240.202]:64151
-	"EHLO ti3.telemetry-investments.com") by vger.kernel.org with ESMTP
-	id <S316608AbSGOPSa>; Mon, 15 Jul 2002 11:18:30 -0400
-Date: Mon, 15 Jul 2002 11:20:59 -0400
-From: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
-To: linux-kernel@vger.kernel.org
-Cc: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-Subject: Re: [PATCH] 2.4.19-rc1/2.5.25 provide dummy fsync() routine for directories on NFS mounts
-Message-ID: <20020715112059.A2316@ti20>
-References: <20020715075221.GC21470@uncarved.com> <Pine.LNX.3.95.1020715084232.22834A-100000@chaos.analogic.com> <20020715133507.GF32155@merlin.emma.line.org>
+	id <S317378AbSGOPUc>; Mon, 15 Jul 2002 11:20:32 -0400
+Received: from ns.suse.de ([213.95.15.193]:8204 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S317375AbSGOPUa>;
+	Mon, 15 Jul 2002 11:20:30 -0400
+Date: Mon, 15 Jul 2002 17:23:22 +0200
+From: Dave Jones <davej@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
+       mingo@redhat.com, Linus Torvalds <torvalds@transmeta.com>,
+       davidm@hpl.hp.com, ralf@gnu.org, paulus@samba.org, anton@samba.org,
+       schwidefsky@de.ibm.com, ak@suse.de, davem@redhat.com
+Subject: Re: [PATCH] 2.5.25 Hotplug CPU boot changes
+Message-ID: <20020715172322.B13036@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
+	mingo@redhat.com, Linus Torvalds <torvalds@transmeta.com>,
+	davidm@hpl.hp.com, ralf@gnu.org, paulus@samba.org, anton@samba.org,
+	schwidefsky@de.ibm.com, ak@suse.de, davem@redhat.com
+References: <20020715090336.19E604130@lists.samba.org> <1026736141.13885.105.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <20020715133507.GF32155@merlin.emma.line.org>; from matthias.andree@stud.uni-dortmund.de on Mon, Jul 15, 2002 at 03:35:07PM +0200
+In-Reply-To: <1026736141.13885.105.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 15, 2002 at 03:35:07PM +0200, Matthias Andree wrote:
-> For the data of users not acquainted with kernel intrinsics, the way
-> things are now are most dangerous, and I'd really ask that Andrew
-> Morton's dirsync() patches (where still necessary) and tool patches
-> (chattr, mount) be deployed NOW and that -o dirsync (call it noasync for
-> compatibility) be the default. A safety-speed tradeoff should only
-> sacrifice safety at the explicit request and mke2fs should be told to
-> generate ext3fs by default NOW.
+On Mon, Jul 15, 2002 at 01:29:01PM +0100, Alan Cox wrote:
 
-Put dirsync in 2.4? Sure, good idea.  Dangerous without it? To whom?
+ > Q: What prevents a CPU coming up -during- an MTRR change once the rest
+ > of the cpu hot plugging is present ?
 
-Explain how it is dangerous?  The journalling filesystems perform
-directory updates as transactions.  It's dangerous to your MTA
-perhaps.  Andrew Morton has bent over backwards to find and fix bugs in
-the synchronous write logic and to provide what you wanted, i.e.,
-dirsync.  He and Chris Mason fixed performance problems in ext3 and
-Reiserfs.  Reread the thread -- you insisted repeatedly that you just
-wanted dirsync.  Or was that just the opening gambit?
+"The force". The more I think about mtrr.c and hotplug, the more I
+regret having eaten lunch today.  I'm not convinced it will do the right
+thing at all with hotplug. init_secondary_cpu() does no frobbing of
+the MSRs. For this we relied upon that IPI from cpu #0, which we never
+saw. Ugh. horrid.
 
-> The argumentation that Linux leaves the choice of when to sync directory
-> data to the application is nice, but not more, and having this as tuning
-> option is fine, but to quote Wietse Venema "it's interesting to see that
-> out of the box, Linux handles logging more securely (sync writes) than
-> email (async directory updates)". And right he is.
+So possible issues are..
 
-With all due respect to Wieste, that's nonsense: synchronous write
-in syslog or other logging facilities is a *userspace* policy issue.
-Default synchronous directory updates is a *kernel* policy issue.
+1. cpu #0 sets MSRs, then sets off an IPI. cpu #n isn't 'plugged' yet,
+   so we miss the IPI and new processors don't get the MSRs poked,
+   but get their 'state' set so it appears to be ok, but isn't.
+2. init on secondary cpu's probably needs to wait until the boot CPU mtrr
+   code is in a 'known safe' state before it does the magickal
+   'sync based on whats in cpu #0'
+3. What happens when cpu #0 has finished poking registers, and then sets
+   off an IPI to resync the others, when cpu #n hasn't gotten as far in the
+   boot sequence to handle that IPI correctly yet ?
 
-I don't have dirsync handy at the moment, so I can't test, but
-I have to ask: have you tried the simple (and IMHO devastating) benchmark
-that I posted back on 2001-08-02 comparing Linux to Solaris file creation,
+        Dave.
 
-   http://marc.theaimsgroup.com/?l=linux-kernel&m=99678208121947&w=2
-
-i.e., copy a file tree (XFree86-4.1, 33027 files) with hard links.
-
-Recall:
-
-Solaris: 363.46s real    0.84s user   10.13s system
-Ext2:    real    0m3.823s user    0m0.240s sys     0m3.570s
-Ext3:    real    0m5.106s user    0m0.200s sys     0m3.700s
-
-"dirsync" gives you what you want; please mount /var (or wherever)
--o dirsync and leave the kernel defaults as they are.
-
-Regards,
-
-  Bill Rugolsky
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,24 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261849AbTDIDIp (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 23:08:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262001AbTDIDIp (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 23:08:45 -0400
-Received: from trantor.dso.org.sg ([192.190.204.1]:41956 "EHLO
-	trantor.dso.org.sg") by vger.kernel.org with ESMTP id S261849AbTDIDIp (for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Apr 2003 23:08:45 -0400
-Message-ID: <3E939034.8010106@dso.org.sg>
-Date: Wed, 09 Apr 2003 11:15:00 +0800
-From: R S-P Chan <rspchan@dso.org.sg>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030317
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Does kbuild 2.5 support separate obj/src trees
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id S262001AbTDIDN7 (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 23:13:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262005AbTDIDN6 (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 23:13:58 -0400
+Received: from dp.samba.org ([66.70.73.150]:24231 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S262001AbTDIDN6 (for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Apr 2003 23:13:58 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: SET_MODULE_OWNER? 
+Cc: zwane@linuxpower.ca, linux-kernel@vger.kernel.org, hch@infradead.org,
+       Kai Germaschewski <kai.germaschewski@gmx.de>, sfr@canb.auug.org.au,
+       "Nemosoft Unv." <nemosoft@smcc.demon.nl>, davem@redhat.com
+In-reply-to: Your message of "Tue, 08 Apr 2003 21:03:00 -0400."
+             <3E937144.9090105@pobox.com> 
+Date: Wed, 09 Apr 2003 13:23:33 +1000
+Message-Id: <20030409032537.547E32C06F@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Haven't been building kernels for a while but the Makefile contains
-srctree/objtree variables - so does kbuild 2.5 now support
-separate obj/src trees? Tks.
+In message <3E937144.9090105@pobox.com> you write:
+> Why don't you just let the maintainers apply the driver "cleanups" if 
+> they wish, or do not wish, like DaveM did.  Only when that is 
+> accomplished is it reasonable to consider moving SET_MODULE_OWNER -- and 
+> only then if other people do not need it's obvious utility.
 
+The please define when it should and should not be used, so everyone
+knows.
+
+Currently it seems to be:
+
+/* This macro should be used on structures which had the owner field
+   added between 2.2 and 2.4, and not others. */
+
+Is that correct?
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

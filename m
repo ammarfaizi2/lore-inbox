@@ -1,50 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262243AbSJTGz3>; Sun, 20 Oct 2002 02:55:29 -0400
+	id <S262602AbSJTG54>; Sun, 20 Oct 2002 02:57:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262602AbSJTGz2>; Sun, 20 Oct 2002 02:55:28 -0400
-Received: from h-66-167-77-78.SNVACAID.covad.net ([66.167.77.78]:10171 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S262243AbSJTGz2>; Sun, 20 Oct 2002 02:55:28 -0400
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Sun, 20 Oct 2002 00:01:15 -0700
-Message-Id: <200210200701.AAA02683@adam.yggdrasil.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Patch: linux-2.5.42/kernel/sys.c - warm reboot should not suspend devices
-Cc: ebiederm@xmission.com, eblade@blackmagik.dynup.net, mochel@osdl.org
+	id <S262625AbSJTG54>; Sun, 20 Oct 2002 02:57:56 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:15833 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S262602AbSJTG5z>;
+	Sun, 20 Oct 2002 02:57:55 -0400
+Date: Sat, 19 Oct 2002 23:56:05 -0700 (PDT)
+Message-Id: <20021019.235605.15274262.davem@redhat.com>
+To: acme@conectiva.com.br
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ipv4: only produce one record per fib_seq_sholl call
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20021020061031.GA15857@conectiva.com.br>
+References: <20021020061031.GA15857@conectiva.com.br>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
->Hopefully I am not coming off harsh but I am a little cranky this
->morning,  As before this change I thought things on the device side
->were pretty much under control they just needed a little stabilization
->and testing.  And now someone possibly me has to go through every
->driver and write a shutdown method because someone figured calling
->free was expensive.
+   From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+   Date: Sun, 20 Oct 2002 03:10:31 -0300
 
-	I think I've essentially refuted this in parts of previous
-messages on this thread that Eric has basically ignored in his
-responses.
+   	Here it is, fib code fixed and moved back to fib
+   implementation, please consider pulling from:
+   
+   master.kernel.org:/home/acme/BK/net-2.5
 
-	Interested readers should check the previous lkml messages
-with this subject line.  Of particular relevance to this issue, see my
-list of three advantages of the 2.4.x approach of not calling
-unnecessary device-specific shutdown sequences in my message at
-http://marc.theaimsgroup.com/?l=linux-kernel&m=103481960911183&w=2,
-where I pasted in a response on the same issue that I originally
-wroted in this thread to Eric Blade (after the paragraph that begins
-"Changing the interface will reduce coplexity as only the code that
-needs to be executed will be called.").  Also of interest is Richard
-B. Johnson's example of BIOS reset code that shuts off the PCI bus
-before touching any RAM at
-http://marc.theaimsgroup.com/?l=linux-kernel&m=103462697923792&w=2.
+Looks great, pulled.
 
-	I'm willing to get into this in detail again upon request.
-Otherwise, I think it would be a better use of everyone's time not to
-subject linux-kernel readers to an infinite loop.
-
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+Thanks a lot for this work.

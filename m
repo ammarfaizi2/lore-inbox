@@ -1,35 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317820AbSGKMTX>; Thu, 11 Jul 2002 08:19:23 -0400
+	id <S317826AbSGKMeN>; Thu, 11 Jul 2002 08:34:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317821AbSGKMTW>; Thu, 11 Jul 2002 08:19:22 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:35336 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S317820AbSGKMTV>; Thu, 11 Jul 2002 08:19:21 -0400
-Subject: Re: HZ, preferably as small as possible
-To: jgarzik@mandrakesoft.com (Jeff Garzik)
-Date: Thu, 11 Jul 2002 12:45:21 +0100 (BST)
-Cc: andrew.grover@intel.com (Grover Andrew), cat@zip.com.au ('CaT'),
-       bcrl@redhat.com (Benjamin LaHaise), akpm@zip.com.au (Andrew Morton),
-       linux-kernel@vger.kernel.org (Linux)
-In-Reply-To: <3D2CF4FB.5030600@mandrakesoft.com> from "Jeff Garzik" at Jul 10, 2002 11:01:15 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S317830AbSGKMeM>; Thu, 11 Jul 2002 08:34:12 -0400
+Received: from hermes8.atos-group.com ([160.92.18.57]:51979 "EHLO
+	hermes8.segin.com") by vger.kernel.org with ESMTP
+	id <S317826AbSGKMeM>; Thu, 11 Jul 2002 08:34:12 -0400
+Message-ID: <8D7D56C6ED3DD411998D009027DC685E04664E76@srv-grp-s1.segin.com>
+From: =?iso-8859-1?Q?Brasseur_Val=E9ry?= <Valery.Brasseur@atosorigin.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: kernel hang on reading /proc/<pid>/stat
+Date: Thu, 11 Jul 2002 14:36:55 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E17ScNt-0000iE-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Grover, Andrew wrote:
-> > So, a changing tick *can* be done. If Linux does the same thing, seems like
-> > everyone is happy. What are the obstacles to this for Linux? If code is
-> > based on the assumption of a constant timer tick, I humbly assert that the
-> > code is broken.
-> 
-> I don't see that making 'HZ' a variable is really an option, because 
-> many drivers and scheduler-related code will be wildly inaccurate as 
-> soon as HZ actually changes values.
+I am running kernel 2.4.18 + SGI xfs 1.1 + Trond NFS patch +
+ext2_get_block_blk_removal on bi-PIII SMP kernel (Compaq DL360) with 4Gb
+memory
 
-HZ never changes value. HZ is the top granularity we choose to operate at.
+the ps -ef hang in reading /proc/<pid>/stat after displaying some of the
+process.
+
+top & vmstat hang too !
+
+the rest of process continue to run OK !
+
+the machine was up for 1 week before this ! and now it's 2 time in 4 hour
+which it does this !
+
+
+NB : look like "ps -ax hang with Mozilla in 2.4.9" but I am on a 2.4.18 !!
+but don't find how it have been corrected to check !
+
+any help would be appreciated !
+valery

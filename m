@@ -1,138 +1,129 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275754AbRJBBcI>; Mon, 1 Oct 2001 21:32:08 -0400
+	id <S275761AbRJBB52>; Mon, 1 Oct 2001 21:57:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275755AbRJBBb6>; Mon, 1 Oct 2001 21:31:58 -0400
-Received: from alf.zfn.uni-bremen.de ([134.102.20.22]:25235 "EHLO
-	alf.zfn.uni-bremen.de") by vger.kernel.org with ESMTP
-	id <S275754AbRJBBbu>; Mon, 1 Oct 2001 21:31:50 -0400
-Date: Tue, 2 Oct 2001 03:32:27 +0200
-From: Christof Efkemann <efkemann@uni-bremen.de>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Intel 830 support for agpgart
-Message-Id: <20011002033227.6e047544.efkemann@uni-bremen.de>
-X-Mailer: Sylpheed version 0.6.1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart_Tue__2_Oct_2001_03:32:27_+0200_0822ce98"
+	id <S275758AbRJBB5S>; Mon, 1 Oct 2001 21:57:18 -0400
+Received: from shell.cyberus.ca ([209.195.95.7]:12724 "EHLO shell.cyberus.ca")
+	by vger.kernel.org with ESMTP id <S275757AbRJBB5J>;
+	Mon, 1 Oct 2001 21:57:09 -0400
+Date: Mon, 1 Oct 2001 21:54:49 -0400 (EDT)
+From: jamal <hadi@cyberus.ca>
+To: Benjamin LaHaise <bcrl@redhat.com>
+cc: <linux-kernel@vger.kernel.org>, <kuznet@ms2.inr.ac.ru>,
+        Robert Olsson <Robert.Olsson@data.slu.se>, Ingo Molnar <mingo@elte.hu>,
+        <netdev@oss.sgi.com>
+Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
+In-Reply-To: <20011001210445.D15341@redhat.com>
+Message-ID: <Pine.GSO.4.30.0110012127410.28105-100000@shell.cyberus.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
 
---Multipart_Tue__2_Oct_2001_03:32:27_+0200_0822ce98
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
 
-Hi,
+On Mon, 1 Oct 2001, Benjamin LaHaise wrote:
 
-this patch for 2.4.10 adds support for the Intel i830 chipset to the agpgart
-module, thus eliminating the need for "agp_try_unsupported" with this chip.
-It seems to work fine on my Siemens Fujitsu notebook which has an ATI Radeon
-Mobility M6 graphics chip.
-I guess it should work for others too, maybe someone could try.
+> On Mon, Oct 01, 2001 at 08:41:20PM -0400, jamal wrote:
+> >
+> > >The new mechanizm:
+> > >
+> > >- the irq handling code has been extended to support 'soft mitigation',
+> > >  ie. to mitigate the rate of hardware interrupts, without support from
+> > >  the actual hardware. There is a reasonable default, but the value can
+> > >  also be decreased/increased on a per-irq basis via
+> > > /proc/irq/NR/max_rate.
+> >
+> > I am sorry, but this is bogus. There is no _reasonable value_. Reasonable
+> > value is dependent on system load and has never been and never
+> > will be measured by interupt rates. Even in non-work conserving schemes
+>
+> It is not dependant on system load, but rather on the performance of the
+> CPU and the number of interrupt sources in the system.
 
--- 
-Regards,
-Christof Efkemann
+i am not sure what you are getting at. CPU load is of course a function of
+the CPU capacity. assuming that interupts are the only source of system
+load is just bad engineering.
 
---Multipart_Tue__2_Oct_2001_03:32:27_+0200_0822ce98
-Content-Type: application/octet-stream;
- name="i830-agp.patch"
-Content-Disposition: attachment;
- filename="i830-agp.patch"
-Content-Transfer-Encoding: base64
+>
+> > There is already a feedback system that is built into 2.4 that
+> > measures system load by the rate at which the system processes the backlog
+> > queue. Look at netif_rx return values. The only driver that utilizes this
+> > is currently the tulip. Look at the tulip code.
+> > This in conjuction with h/ware flow control should give you sustainable
+> > system.
+>
+> Not quite.  You're still ignoring the effect of interrupts on the users'
+> ability to execute instructions during their timeslice.
+>
 
-ZGlmZiAtdXIgbGludXgtMi40LjEwLm9yaWcvZHJpdmVycy9jaGFyL0NvbmZpZy5pbiBsaW51eC9k
-cml2ZXJzL2NoYXIvQ29uZmlnLmluCi0tLSBsaW51eC0yLjQuMTAub3JpZy9kcml2ZXJzL2NoYXIv
-Q29uZmlnLmluCVN1biBTZXAgMjMgMTg6NTI6MzggMjAwMQorKysgbGludXgvZHJpdmVycy9jaGFy
-L0NvbmZpZy5pbglUdWUgT2N0ICAyIDAxOjAwOjM3IDIwMDEKQEAgLTIwNSw3ICsyMDUsNyBAQAog
-CiBkZXBfdHJpc3RhdGUgJy9kZXYvYWdwZ2FydCAoQUdQIFN1cHBvcnQpJyBDT05GSUdfQUdQICRD
-T05GSUdfRFJNX0FHUAogaWYgWyAiJENPTkZJR19BR1AiICE9ICJuIiBdOyB0aGVuCi0gICBib29s
-ICcgIEludGVsIDQ0MExYL0JYL0dYIGFuZCBJODE1L0k4NDAvSTg1MCBzdXBwb3J0JyBDT05GSUdf
-QUdQX0lOVEVMCisgICBib29sICcgIEludGVsIDQ0MExYL0JYL0dYIGFuZCBJODE1L0k4MzAvSTg0
-MC9JODUwIHN1cHBvcnQnIENPTkZJR19BR1BfSU5URUwKICAgIGJvb2wgJyAgSW50ZWwgSTgxMC9J
-ODE1IChvbi1ib2FyZCkgc3VwcG9ydCcgQ09ORklHX0FHUF9JODEwCiAgICBib29sICcgIFZJQSBj
-aGlwc2V0IHN1cHBvcnQnIENPTkZJR19BR1BfVklBCiAgICBib29sICcgIEFNRCBJcm9uZ2F0ZSwg
-NzYxLCBhbmQgNzYyIHN1cHBvcnQnIENPTkZJR19BR1BfQU1ECmRpZmYgLXVyIGxpbnV4LTIuNC4x
-MC5vcmlnL2RyaXZlcnMvY2hhci9hZ3AvYWdwLmggbGludXgvZHJpdmVycy9jaGFyL2FncC9hZ3Au
-aAotLS0gbGludXgtMi40LjEwLm9yaWcvZHJpdmVycy9jaGFyL2FncC9hZ3AuaAlTdW4gU2VwIDIz
-IDE4OjUyOjM4IDIwMDEKKysrIGxpbnV4L2RyaXZlcnMvY2hhci9hZ3AvYWdwLmgJVHVlIE9jdCAg
-MiAwMTowMTozMSAyMDAxCkBAIC0xNjYsNiArMTY2LDkgQEAKICNpZm5kZWYgUENJX0RFVklDRV9J
-RF9JTlRFTF84MTBfMAogI2RlZmluZSBQQ0lfREVWSUNFX0lEX0lOVEVMXzgxMF8wICAgICAgIDB4
-NzEyMAogI2VuZGlmCisjaWZuZGVmIFBDSV9ERVZJQ0VfSURfSU5URUxfODMwXzAKKyNkZWZpbmUg
-UENJX0RFVklDRV9JRF9JTlRFTF84MzBfMAkweDM1NzUKKyNlbmRpZgogI2lmbmRlZiBQQ0lfREVW
-SUNFX0lEX0lOVEVMXzg0MF8wCiAjZGVmaW5lIFBDSV9ERVZJQ0VfSURfSU5URUxfODQwXzAJCTB4
-MWEyMQogI2VuZGlmCkBAIC0yNDAsNiArMjQzLDEwIEBACiAjZGVmaW5lIElOVEVMX0FHUENUUkwg
-ICAweGIwCiAjZGVmaW5lIElOVEVMX05CWENGRyAgICAweDUwCiAjZGVmaW5lIElOVEVMX0VSUlNU
-UyAgICAweDkxCisKKy8qIGludGVsIGk4MzAgcmVnaXN0ZXJzICovCisjZGVmaW5lIElOVEVMX0k4
-MzBfR0NDMCAgICAgMHg1MAorI2RlZmluZSBJTlRFTF9JODMwX0VSUlNUUyAgIDB4OTIKIAogLyog
-aW50ZWwgaTg0MCByZWdpc3RlcnMgKi8KICNkZWZpbmUgSU5URUxfSTg0MF9NQ0hDRkcgICAweDUw
-CmRpZmYgLXVyIGxpbnV4LTIuNC4xMC5vcmlnL2RyaXZlcnMvY2hhci9hZ3AvYWdwZ2FydF9iZS5j
-IGxpbnV4L2RyaXZlcnMvY2hhci9hZ3AvYWdwZ2FydF9iZS5jCi0tLSBsaW51eC0yLjQuMTAub3Jp
-Zy9kcml2ZXJzL2NoYXIvYWdwL2FncGdhcnRfYmUuYwlTdW4gU2VwIDIzIDE4OjUyOjM4IDIwMDEK
-KysrIGxpbnV4L2RyaXZlcnMvY2hhci9hZ3AvYWdwZ2FydF9iZS5jCVR1ZSBPY3QgIDIgMDE6MDU6
-MDEgMjAwMQpAQCAtMzg3LDcgKzM4Nyw3IEBACiAvKiAKICAqIERyaXZlciByb3V0aW5lcyAtIHN0
-YXJ0CiAgKiBDdXJyZW50bHkgdGhpcyBtb2R1bGUgc3VwcG9ydHMgdGhlIGZvbGxvd2luZyBjaGlw
-c2V0czoKLSAqIGk4MTAsIGk4MTUsIDQ0MGx4LCA0NDBieCwgNDQwZ3gsIGk4NDAsIGk4NTAsIHZp
-YSB2cDMsIHZpYSBtdnAzLAorICogaTgxMCwgaTgxNSwgNDQwbHgsIDQ0MGJ4LCA0NDBneCwgaTgz
-MCwgaTg0MCwgaTg1MCwgdmlhIHZwMywgdmlhIG12cDMsCiAgKiB2aWEga3gxMzMsIHZpYSBrdDEz
-MywgYW1kIGlyb25nYXRlLCBhbWQgNzYxLCBhbWQgNzYyLCBBTGkgTTE1NDEsCiAgKiBhbmQgZ2Vu
-ZXJpYyBzdXBwb3J0IGZvciB0aGUgU2lTIGNoaXBzZXRzLgogICovCkBAIC0xMTg4LDYgKzExODgs
-MzggQEAKIAlyZXR1cm4gMDsKIH0KIAorc3RhdGljIGludCBpbnRlbF84MzBfY29uZmlndXJlKHZv
-aWQpCit7CisJdTMyIHRlbXA7CisJdTE2IHRlbXAyOworCWFwZXJfc2l6ZV9pbmZvXzE2ICpjdXJy
-ZW50X3NpemU7CisKKwljdXJyZW50X3NpemUgPSBBX1NJWkVfMTYoYWdwX2JyaWRnZS5jdXJyZW50
-X3NpemUpOworCisJLyogYXBlcnR1cmUgc2l6ZSAqLworCXBjaV93cml0ZV9jb25maWdfYnl0ZShh
-Z3BfYnJpZGdlLmRldiwgSU5URUxfQVBTSVpFLAorCQkJICAgICAgKGNoYXIpY3VycmVudF9zaXpl
-LT5zaXplX3ZhbHVlKTsgCisKKwkvKiBhZGRyZXNzIHRvIG1hcCB0byAqLworCXBjaV9yZWFkX2Nv
-bmZpZ19kd29yZChhZ3BfYnJpZGdlLmRldiwgSU5URUxfQVBCQVNFLCAmdGVtcCk7CisJYWdwX2Jy
-aWRnZS5nYXJ0X2J1c19hZGRyID0gKHRlbXAgJiBQQ0lfQkFTRV9BRERSRVNTX01FTV9NQVNLKTsK
-KworCS8qIGF0dGJhc2UgLSBhcGVydHVyZSBiYXNlICovCisJcGNpX3dyaXRlX2NvbmZpZ19kd29y
-ZChhZ3BfYnJpZGdlLmRldiwgSU5URUxfQVRUQkFTRSwKKwkJCSAgICAgICBhZ3BfYnJpZGdlLmdh
-dHRfYnVzX2FkZHIpOyAKKworCS8qIGFncGN0cmwgKi8KKwlwY2lfd3JpdGVfY29uZmlnX2R3b3Jk
-KGFncF9icmlkZ2UuZGV2LCBJTlRFTF9BR1BDVFJMLCAweDAwMDApOyAKKworCS8qIG1jZ2NmZyAq
-LworCXBjaV9yZWFkX2NvbmZpZ193b3JkKGFncF9icmlkZ2UuZGV2LCBJTlRFTF9JODMwX0dDQzAs
-ICZ0ZW1wMik7CisJcGNpX3dyaXRlX2NvbmZpZ193b3JkKGFncF9icmlkZ2UuZGV2LCBJTlRFTF9J
-ODMwX0dDQzAsCisJCQkgICAgICB0ZW1wMiB8ICgxIDw8IDkpKTsKKwkvKiBjbGVhciBhbnkgcG9z
-c2libGUgQUdQLXJlbGF0ZWQgZXJyb3IgY29uZGl0aW9ucyAqLworCXBjaV93cml0ZV9jb25maWdf
-d29yZChhZ3BfYnJpZGdlLmRldiwgSU5URUxfSTgzMF9FUlJTVFMsIDB4MDAxYyk7IAorCXJldHVy
-biAwOworfQorCiBzdGF0aWMgaW50IGludGVsXzg0MF9jb25maWd1cmUodm9pZCkKIHsKIAl1MzIg
-dGVtcDsKQEAgLTEzMTQsNiArMTM0NiwzOSBAQAogCSh2b2lkKSBwZGV2OyAvKiB1bnVzZWQgKi8K
-IH0KIAorc3RhdGljIGludCBfX2luaXQgaW50ZWxfODMwX3NldHVwIChzdHJ1Y3QgcGNpX2RldiAq
-cGRldikKK3sKKwlhZ3BfYnJpZGdlLm1hc2tzID0gaW50ZWxfZ2VuZXJpY19tYXNrczsKKwlhZ3Bf
-YnJpZGdlLm51bV9vZl9tYXNrcyA9IDE7CisJYWdwX2JyaWRnZS5hcGVydHVyZV9zaXplcyA9ICh2
-b2lkICopIGludGVsX2dlbmVyaWNfc2l6ZXM7CisJYWdwX2JyaWRnZS5zaXplX3R5cGUgPSBVMTZf
-QVBFUl9TSVpFOworCWFncF9icmlkZ2UubnVtX2FwZXJ0dXJlX3NpemVzID0gNDsKKwlhZ3BfYnJp
-ZGdlLmRldl9wcml2YXRlX2RhdGEgPSBOVUxMOworCWFncF9icmlkZ2UubmVlZHNfc2NyYXRjaF9w
-YWdlID0gRkFMU0U7CisJYWdwX2JyaWRnZS5jb25maWd1cmUgPSBpbnRlbF84MzBfY29uZmlndXJl
-OworCWFncF9icmlkZ2UuZmV0Y2hfc2l6ZSA9IGludGVsX2ZldGNoX3NpemU7CisJYWdwX2JyaWRn
-ZS5jbGVhbnVwID0gaW50ZWxfY2xlYW51cDsKKwlhZ3BfYnJpZGdlLnRsYl9mbHVzaCA9IGludGVs
-X3RsYmZsdXNoOworCWFncF9icmlkZ2UubWFza19tZW1vcnkgPSBpbnRlbF9tYXNrX21lbW9yeTsK
-KwlhZ3BfYnJpZGdlLmFncF9lbmFibGUgPSBhZ3BfZ2VuZXJpY19hZ3BfZW5hYmxlOworCWFncF9i
-cmlkZ2UuY2FjaGVfZmx1c2ggPSBnbG9iYWxfY2FjaGVfZmx1c2g7CisJYWdwX2JyaWRnZS5jcmVh
-dGVfZ2F0dF90YWJsZSA9IGFncF9nZW5lcmljX2NyZWF0ZV9nYXR0X3RhYmxlOworCWFncF9icmlk
-Z2UuZnJlZV9nYXR0X3RhYmxlID0gYWdwX2dlbmVyaWNfZnJlZV9nYXR0X3RhYmxlOworCWFncF9i
-cmlkZ2UuaW5zZXJ0X21lbW9yeSA9IGFncF9nZW5lcmljX2luc2VydF9tZW1vcnk7CisJYWdwX2Jy
-aWRnZS5yZW1vdmVfbWVtb3J5ID0gYWdwX2dlbmVyaWNfcmVtb3ZlX21lbW9yeTsKKwlhZ3BfYnJp
-ZGdlLmFsbG9jX2J5X3R5cGUgPSBhZ3BfZ2VuZXJpY19hbGxvY19ieV90eXBlOworCWFncF9icmlk
-Z2UuZnJlZV9ieV90eXBlID0gYWdwX2dlbmVyaWNfZnJlZV9ieV90eXBlOworCWFncF9icmlkZ2Uu
-YWdwX2FsbG9jX3BhZ2UgPSBhZ3BfZ2VuZXJpY19hbGxvY19wYWdlOworCWFncF9icmlkZ2UuYWdw
-X2Rlc3Ryb3lfcGFnZSA9IGFncF9nZW5lcmljX2Rlc3Ryb3lfcGFnZTsKKwlhZ3BfYnJpZGdlLnN1
-c3BlbmQgPSBhZ3BfZ2VuZXJpY19zdXNwZW5kOworCWFncF9icmlkZ2UucmVzdW1lID0gYWdwX2dl
-bmVyaWNfcmVzdW1lOworCWFncF9icmlkZ2UuY2FudF91c2VfYXBlcnR1cmUgPSAwOworCisJcmV0
-dXJuIDA7CisJCisJKHZvaWQpIHBkZXY7IC8qIHVudXNlZCAqLworfQorCiBzdGF0aWMgaW50IF9f
-aW5pdCBpbnRlbF84NDBfc2V0dXAgKHN0cnVjdCBwY2lfZGV2ICpwZGV2KQogewogCWFncF9icmlk
-Z2UubWFza3MgPSBpbnRlbF9nZW5lcmljX21hc2tzOwpAQCAtMjk3Niw2ICszMDQxLDEyIEBACiAJ
-CSJJbnRlbCIsCiAJCSJpODE1IiwKIAkJaW50ZWxfZ2VuZXJpY19zZXR1cCB9LAorCXsgUENJX0RF
-VklDRV9JRF9JTlRFTF84MzBfMCwKKwkgIAlQQ0lfVkVORE9SX0lEX0lOVEVMLAorCSAgCUlOVEVM
-X0k4MzAsCisJICAJIkludGVsIiwKKwkgIAkiaTgzMCIsCisJICAJaW50ZWxfODMwX3NldHVwIH0s
-CiAJeyBQQ0lfREVWSUNFX0lEX0lOVEVMXzg0MF8wLAogCQlQQ0lfVkVORE9SX0lEX0lOVEVMLAog
-CQlJTlRFTF9JODQwLApkaWZmIC11ciBsaW51eC0yLjQuMTAub3JpZy9pbmNsdWRlL2xpbnV4L2Fn
-cF9iYWNrZW5kLmggbGludXgvaW5jbHVkZS9saW51eC9hZ3BfYmFja2VuZC5oCi0tLSBsaW51eC0y
-LjQuMTAub3JpZy9pbmNsdWRlL2xpbnV4L2FncF9iYWNrZW5kLmgJU3VuIFNlcCAyMyAxODo1Mjoz
-OCAyMDAxCisrKyBsaW51eC9pbmNsdWRlL2xpbnV4L2FncF9iYWNrZW5kLmgJVHVlIE9jdCAgMiAw
-MTowMDozNyAyMDAxCkBAIC00Niw2ICs0Niw3IEBACiAJSU5URUxfR1gsCiAJSU5URUxfSTgxMCwK
-IAlJTlRFTF9JODE1LAorCUlOVEVMX0k4MzAsCiAJSU5URUxfSTg0MCwKIAlJTlRFTF9JODUwLAog
-CVZJQV9HRU5FUklDLAo=
+And how does /proc/irq/NR/max_rate solve this?
+I have a feeling you are trying to say that varying /proc/irq/NR/max_rate
+gives opportunity for user processes to execute;
+note, although that is bad logic, you could also modify the high and low
+watermarks for when we have congestion in the backlog queue
+(This is already doable via /proc)
 
---Multipart_Tue__2_Oct_2001_03:32:27_+0200_0822ce98--
+> > [Granted that mitigation is a hardware specific solution; the scheme we
+> > presented at the kernel summit is the next level to this and will be
+> > non-dependednt on h/ware.]
+> >
+> > >(note that in case of shared interrupts, another 'innocent' device might
+> > >stay disabled for some short amount of time as well - but this is not an
+> > >issue because this mitigation does not make that device inoperable, it
+> > >just delays its interrupt by up to 10 msecs. Plus, modern systems have
+> > >properly distributed interrupts.)
+> >
+> > This is a _really bad_ idea. not just because you are punishing other
+> > devices.
+>
+> I'm afraid I have to disagree with you on this statement.  What I will
+> agree with is that 10msec is too much.
+>
+
+It is unfair to add any latency to a device that didnt cause or
+contributre to the havoc.
+
+
+> > Lets take network devices as examples: we dont want to disable interupts;
+> > we want to disable offending actions within the device. For example, it is
+> > ok to disable/mitigate receive interupts because they are overloading the
+> > system but not transmit completion because that will add to the overall
+> > latency.
+>
+> Wrong.  Let me introduce you to my 486DX/33.  It has PCI.  I'm putting my
+> gige card into the poor beast.  transmitting full out, it can receive a
+> sufficiently high number of tx done interrupts that it has no CPU cycles left
+> to run, say, gated in userspace.
+>
+
+I think you missed my point. i am saying there is more than one source of
+interupt for that same IRQ number that you are indiscrimately shutting
+down in a network device.
+So, assuming that tx complete interupts do actually shut you down
+(although i doubt that very much given the classical Donald Becker tx
+descriptor prunning) pick another interupt source; lets say MII link
+status; why do you want to kill that when it is not causing any noise but
+is a source of good asynchronous information (that could be used for
+example in HA systems)?
+
+> Falling back to polled operation is a well known technique in realtime and
+> reliable systems.  By limiting the interrupt rate to a known safe limit,
+> the system will remain responsive to non-interrupt tasks even under heavy
+> interrupt loads.  This is the point at which a thruput graph on a slow
+> machine shows a complete breakdown in performance, which is always possible
+> on a slow enough CPU with a high performance device that takes input from
+> a remotely controlled user.  This is *required*, and is not optional, and
+> there is no way that a system can avoid it without making every interrupt
+> a task, but that's a mess nobody wants to see in Linux.
+>
+
+and what is this "known safe limit"? ;->
+What we are providing is actually a scheme to exactly measure that "known
+safe limit" you are refering to without depending on someone having to
+tell you "here's a good number for that 8 way xeon"
+If there is system capacity available  why the fsck is it not being used?
+
+cheers,
+jamal
+

@@ -1,118 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263802AbTDIUsd (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 16:48:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263804AbTDIUsd (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 16:48:33 -0400
-Received: from palrel13.hp.com ([156.153.255.238]:57223 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S263802AbTDIUs3 (for <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Apr 2003 16:48:29 -0400
-Date: Wed, 9 Apr 2003 14:00:07 -0700
-From: David Mosberger <davidm@napali.hpl.hp.com>
-Message-Id: <200304092100.h39L07mW010838@napali.hpl.hp.com>
-To: torvalds@transmeta.com
+	id S263789AbTDIUrf (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 16:47:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263802AbTDIUrf (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 16:47:35 -0400
+Received: from mailgw.cvut.cz ([147.32.3.235]:29418 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id S263789AbTDIUrd (for <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Apr 2003 16:47:33 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Date: Wed, 9 Apr 2003 22:58:45 +0200
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: 2.5.67-mm1 cause framebuffer crash at bootup
 Cc: linux-kernel@vger.kernel.org
-Subject: [patch] add ia64 relocs to <linux/elf.h>
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
-Reply-To: davidm@hpl.hp.com
+X-mailer: Pegasus Mail v3.50
+Message-ID: <1A6006592C@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch below is needed for the ia64 kernel module loader.
+[As this one is matroxfb only, I removed others...]
 
-Thanks,
+> I can reproduce the problem with the earlier-keyboard-init.patch, but if
+> I reverse it, I get this [using Petr's 2.5.66-bk12 mga patch].  Is that the
+> right one to use?  do I need to use any kernel command line options with it?
+> Matrox G400 dual-head capable, but only using one of them.
+> 
+> 
+> matroxfb: Matrox G450 detected
+> matroxfb: MTRR's turned on
+> matroxfb: 640x480x8bpp (virtual: 640x26208)
+> matroxfb: framebuffer at 0xEC000000, mapped to 0xf8805000, size 16777216
+> <1>Unable to handle kernel NULL pointer dereference at virtual address 00000000
+>  printing eip:
+> 00000000
+> *pde = 00000000
 
-	--david
+It should not happen. Did not you get some rejects while patching?
 
-diff -Nru a/include/linux/elf.h b/include/linux/elf.h
---- a/include/linux/elf.h	Wed Apr  9 13:28:52 2003
-+++ b/include/linux/elf.h	Wed Apr  9 13:28:52 2003
-@@ -226,6 +226,90 @@
- #define R_386_GOTPC	10
- #define R_386_NUM	11
- 
-+#define R_IA64_NONE		0x00	/* none */
-+#define R_IA64_IMM14		0x21	/* symbol + addend, add imm14 */
-+#define R_IA64_IMM22		0x22	/* symbol + addend, add imm22 */
-+#define R_IA64_IMM64		0x23	/* symbol + addend, mov imm64 */
-+#define R_IA64_DIR32MSB		0x24	/* symbol + addend, data4 MSB */
-+#define R_IA64_DIR32LSB		0x25	/* symbol + addend, data4 LSB */
-+#define R_IA64_DIR64MSB		0x26	/* symbol + addend, data8 MSB */
-+#define R_IA64_DIR64LSB		0x27	/* symbol + addend, data8 LSB */
-+#define R_IA64_GPREL22		0x2a	/* @gprel(sym+add), add imm22 */
-+#define R_IA64_GPREL64I		0x2b	/* @gprel(sym+add), mov imm64 */
-+#define R_IA64_GPREL32MSB	0x2c	/* @gprel(sym+add), data4 MSB */
-+#define R_IA64_GPREL32LSB	0x2d	/* @gprel(sym+add), data4 LSB */
-+#define R_IA64_GPREL64MSB	0x2e	/* @gprel(sym+add), data8 MSB */
-+#define R_IA64_GPREL64LSB	0x2f	/* @gprel(sym+add), data8 LSB */
-+#define R_IA64_LTOFF22		0x32	/* @ltoff(sym+add), add imm22 */
-+#define R_IA64_LTOFF64I		0x33	/* @ltoff(sym+add), mov imm64 */
-+#define R_IA64_PLTOFF22		0x3a	/* @pltoff(sym+add), add imm22 */
-+#define R_IA64_PLTOFF64I	0x3b	/* @pltoff(sym+add), mov imm64 */
-+#define R_IA64_PLTOFF64MSB	0x3e	/* @pltoff(sym+add), data8 MSB */
-+#define R_IA64_PLTOFF64LSB	0x3f	/* @pltoff(sym+add), data8 LSB */
-+#define R_IA64_FPTR64I		0x43	/* @fptr(sym+add), mov imm64 */
-+#define R_IA64_FPTR32MSB	0x44	/* @fptr(sym+add), data4 MSB */
-+#define R_IA64_FPTR32LSB	0x45	/* @fptr(sym+add), data4 LSB */
-+#define R_IA64_FPTR64MSB	0x46	/* @fptr(sym+add), data8 MSB */
-+#define R_IA64_FPTR64LSB	0x47	/* @fptr(sym+add), data8 LSB */
-+#define R_IA64_PCREL60B		0x48	/* @pcrel(sym+add), brl */
-+#define R_IA64_PCREL21B		0x49	/* @pcrel(sym+add), ptb, call */
-+#define R_IA64_PCREL21M		0x4a	/* @pcrel(sym+add), chk.s */
-+#define R_IA64_PCREL21F		0x4b	/* @pcrel(sym+add), fchkf */
-+#define R_IA64_PCREL32MSB	0x4c	/* @pcrel(sym+add), data4 MSB */
-+#define R_IA64_PCREL32LSB	0x4d	/* @pcrel(sym+add), data4 LSB */
-+#define R_IA64_PCREL64MSB	0x4e	/* @pcrel(sym+add), data8 MSB */
-+#define R_IA64_PCREL64LSB	0x4f	/* @pcrel(sym+add), data8 LSB */
-+#define R_IA64_LTOFF_FPTR22	0x52	/* @ltoff(@fptr(s+a)), imm22 */
-+#define R_IA64_LTOFF_FPTR64I	0x53	/* @ltoff(@fptr(s+a)), imm64 */
-+#define R_IA64_LTOFF_FPTR32MSB	0x54	/* @ltoff(@fptr(s+a)), 4 MSB */
-+#define R_IA64_LTOFF_FPTR32LSB	0x55	/* @ltoff(@fptr(s+a)), 4 LSB */
-+#define R_IA64_LTOFF_FPTR64MSB	0x56	/* @ltoff(@fptr(s+a)), 8 MSB */
-+#define R_IA64_LTOFF_FPTR64LSB	0x57	/* @ltoff(@fptr(s+a)), 8 LSB */
-+#define R_IA64_SEGREL32MSB	0x5c	/* @segrel(sym+add), data4 MSB */
-+#define R_IA64_SEGREL32LSB	0x5d	/* @segrel(sym+add), data4 LSB */
-+#define R_IA64_SEGREL64MSB	0x5e	/* @segrel(sym+add), data8 MSB */
-+#define R_IA64_SEGREL64LSB	0x5f	/* @segrel(sym+add), data8 LSB */
-+#define R_IA64_SECREL32MSB	0x64	/* @secrel(sym+add), data4 MSB */
-+#define R_IA64_SECREL32LSB	0x65	/* @secrel(sym+add), data4 LSB */
-+#define R_IA64_SECREL64MSB	0x66	/* @secrel(sym+add), data8 MSB */
-+#define R_IA64_SECREL64LSB	0x67	/* @secrel(sym+add), data8 LSB */
-+#define R_IA64_REL32MSB		0x6c	/* data 4 + REL */
-+#define R_IA64_REL32LSB		0x6d	/* data 4 + REL */
-+#define R_IA64_REL64MSB		0x6e	/* data 8 + REL */
-+#define R_IA64_REL64LSB		0x6f	/* data 8 + REL */
-+#define R_IA64_LTV32MSB		0x74	/* symbol + addend, data4 MSB */
-+#define R_IA64_LTV32LSB		0x75	/* symbol + addend, data4 LSB */
-+#define R_IA64_LTV64MSB		0x76	/* symbol + addend, data8 MSB */
-+#define R_IA64_LTV64LSB		0x77	/* symbol + addend, data8 LSB */
-+#define R_IA64_PCREL21BI	0x79	/* @pcrel(sym+add), ptb, call */
-+#define R_IA64_PCREL22		0x7a	/* @pcrel(sym+add), imm22 */
-+#define R_IA64_PCREL64I		0x7b	/* @pcrel(sym+add), imm64 */
-+#define R_IA64_IPLTMSB		0x80	/* dynamic reloc, imported PLT, MSB */
-+#define R_IA64_IPLTLSB		0x81	/* dynamic reloc, imported PLT, LSB */
-+#define R_IA64_COPY		0x84	/* dynamic reloc, data copy */
-+#define R_IA64_SUB		0x85	/* -symbol + addend, add imm22 */
-+#define R_IA64_LTOFF22X		0x86	/* LTOFF22, relaxable.  */
-+#define R_IA64_LDXMOV		0x87	/* Use of LTOFF22X.  */
-+#define R_IA64_TPREL14		0x91	/* @tprel(sym+add), add imm14 */
-+#define R_IA64_TPREL22		0x92	/* @tprel(sym+add), add imm22 */
-+#define R_IA64_TPREL64I		0x93	/* @tprel(sym+add), add imm64 */
-+#define R_IA64_TPREL64MSB	0x96	/* @tprel(sym+add), data8 MSB */
-+#define R_IA64_TPREL64LSB	0x97	/* @tprel(sym+add), data8 LSB */
-+#define R_IA64_LTOFF_TPREL22	0x9a	/* @ltoff(@tprel(s+a)), add imm22 */
-+#define R_IA64_DTPMOD64MSB	0xa6	/* @dtpmod(sym+add), data8 MSB */
-+#define R_IA64_DTPMOD64LSB	0xa7	/* @dtpmod(sym+add), data8 LSB */
-+#define R_IA64_LTOFF_DTPMOD22	0xaa	/* @ltoff(@dtpmod(s+a)), imm22 */
-+#define R_IA64_DTPREL14		0xb1	/* @dtprel(sym+add), imm14 */
-+#define R_IA64_DTPREL22		0xb2	/* @dtprel(sym+add), imm22 */
-+#define R_IA64_DTPREL64I	0xb3	/* @dtprel(sym+add), imm64 */
-+#define R_IA64_DTPREL32MSB	0xb4	/* @dtprel(sym+add), data4 MSB */
-+#define R_IA64_DTPREL32LSB	0xb5	/* @dtprel(sym+add), data4 LSB */
-+#define R_IA64_DTPREL64MSB	0xb6	/* @dtprel(sym+add), data8 MSB */
-+#define R_IA64_DTPREL64LSB	0xb7	/* @dtprel(sym+add), data8 LSB */
-+#define R_IA64_LTOFF_DTPREL22	0xba	/* @ltoff(@dtprel(s+a)), imm22 */
-+
-+#define SHF_IA_64_SHORT		0x10000000	/* section near gp */
-+
- #define R_MIPS_NONE		0
- #define R_MIPS_16		1
- #define R_MIPS_32		2
+> Oops: 0000 [#1]
+> CPU:    0
+> EIP:    0060:[<00000000>]    Not tainted
+> EFLAGS: 00010246
+> EIP is at 0x0
+> eax: c04b77c8   ebx: f7f9fccc   ecx: c1ada17f   edx: c04b6f40
+> esi: ffffffff   edi: 00000030   ebp: 00000030   esp: f7f9fc78
+> ds: 007b   es: 007b   ss: 0068
+> Process swapper (pid: 1, threadinfo=f7f9e000 task=f7f9c080)
+> Stack: c0292c1e c04b6f40 f7f9fccc ffffffff ffffffff 00000000 00000000 00000400 
+>        00000008 00000001 000000ff 0000000c c04b6f40 00000030 c1a41480 c0292e65 
+>        c1a41480 c04b6f40 f7f9fccc 00000030 c00bb1c0 00000000 00000108 00000180 
+> Call Trace:
+>  [<c0292c1e>] putcs_aligned+0x16e/0x1b0
+>  [<c0292e65>] accel_putcs+0xc5/0xf0
+>  [<c02939ce>] fbcon_putcs+0x7e/0x90
+
+If your kernel binary is simillar to mine, it looks like that 
+fbops->fb_imageblit was NULL. It should not happen, as matroxfb's 
+fb_imageblit should point either to no_imageblit (which currenlty does 
+nothing, but it should complain loudly) or to cfb_imageblit (which 
+paints character) or matroxfb_imageblit (which should paint character too).
+
+But from call trace it looks like that some printk() error got
+triggered on your config. Can you try booting with serial console? 
+Do you see penguins on the screen, or not? 
+
+Or remove body from drivers/video/console/fbcon.c:check_vc() - it should
+is not triggered on Linus kernels, but maybe -mm1 moved something around.
+It looks like that it is time to download -mm1 :-(
+                                            Thanks,
+                                                Petr Vandrovec
+                                                vandrove@vc.cvut.cz
+                                                
+

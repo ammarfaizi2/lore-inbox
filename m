@@ -1,969 +1,299 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267187AbTAKLJo>; Sat, 11 Jan 2003 06:09:44 -0500
+	id <S267188AbTAKLRm>; Sat, 11 Jan 2003 06:17:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267188AbTAKLJo>; Sat, 11 Jan 2003 06:09:44 -0500
-Received: from zamok.crans.org ([138.231.136.6]:42632 "EHLO zamok.crans.org")
-	by vger.kernel.org with ESMTP id <S267187AbTAKLJb>;
-	Sat, 11 Jan 2003 06:09:31 -0500
-Message-Id: <6599015.32TDcXEdQ7@adelaide.crans.org>
-From: Bertrand VIEILLE =?ISO-8859-15?Q?=5BB=E9bert=5D?= 
-	<Bertrand.Vieille@crans.org>
-Subject: Re: 2.4.21-pre3-acX oops
-To: Magnus =?ISO-8859-15?Q?M=E5nsson?= <ganja@0x63.nu>,
-       linux-kernel@vger.kernel.org
-Date: Sat, 11 Jan 2003 12:18:17 +0100
-References: <20030110222008$074c@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
+	id <S267190AbTAKLRm>; Sat, 11 Jan 2003 06:17:42 -0500
+Received: from mta08bw.bigpond.com ([144.135.24.137]:6637 "EHLO
+	mta08bw.bigpond.com") by vger.kernel.org with ESMTP
+	id <S267188AbTAKLRi>; Sat, 11 Jan 2003 06:17:38 -0500
+Date: Sat, 11 Jan 2003 22:26:04 +1100
+From: Michael Still <mikal@stillhq.com>
+To: <linux-kernel@vger.kernel.org>
+cc: Linus Torvalds <torvalds@transmeta.com>
+Subject: [Patch] Fix errors in aironet4500 driver (cli_sti_removal-004)
+Message-ID: <Pine.LNX.4.30.0301112221360.8693-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="nextPart4089674.tCfMA44Yjd"
-Content-Transfer-Encoding: 7Bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart4089674.tCfMA44Yjd
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 8Bit
 
-Magnus Månsson wrote:
+Hello.
 
-> Hi,
-> I have a problem while accessing one of my partitions. It started with
-> oopses when I was rsyncing to the partition. After that I thought that I
-> should run fsck and that also made my system oops.
-> 
-> I have the same problem with 2.4.21-pre3-ac3, but it started in -ac2.
+Linux 2.5.55 includes a trivial patch from me which removed some
+references to cli() and sti() from the aironet4500 driver. There were two
+errors in the implementation of this patch, as well as the rest of the
+files in the driver not having been updated. My apologies for this.
 
-I have the same problem with 2.4.21-pre3-ac1 compiled with GCC-3.2.2 and
-make 3.80 (Debian Unstable)
+This patch below (which is against 2.5.55) corrects these problems. Please
+let me know if you think there are errors I have still made, for future
+reference.
 
-printing eip:
-c013172d
-Oops: 0002
-CPU:    0
-EIP:    0010:[__free_pages_ok+637/672]    Tainted: P
-EFLAGS: 00013246
-eax: 00000000   ebx: c1468dd0   ecx: f7256000   edx: f725605c
-esi: 00000000   edi: 00000000   ebp: 00000000   esp: f7257dcc
-ds: 0018   es: 0018   ss: 0018
-Process X (pid: 547, stackpage=f7257000)
-Stack: 00003246 f7257de4 f89ce0a6 f8aa4c00 f8aa4c00 00000000 f7257df8
-f89ce06a
-c1c1e270 d7849000 c1000020 d784900c c012f429 f7100000 f7257e08 00000001
-00000000 00000000 00000000 c1c1e270 c012fe46 c1c1e270 d784900c c1c1fdd4
-Call Trace:    [<f89ce0a6>] [<f8aa4c00>] [<f8aa4c00>] [<f89ce06a>]
-[kmem_slab_destroy+169/256]
-[kmem_cache_reap+230/464] [shrink_caches+40/160]
-[try_to_free_pages_zone+54/80] [balanc
-e_classzone+87/496] [__alloc_pages+243/400]
-[__constant_c_and_count_memset+133/160]
-[do_anonymous_page+94/272] [handle_mm_fault+119/272]
-[do_page_fault+312/1231] [old_mmap
-+222/288] [do_page_fault+0/1231] [error_code+52/60]
+Please apply.
 
-Code: 89 58 04 89 03 89 53 04 89 59 5c 89 7b 0c ff 41 68 eb bf 0f
-<1>Unable to handle kernel NULL pointer dereference at virtual address
-00000004
-printing eip:
-c013172d
-Oops: 0002
-CPU:    0
-EIP:    0010:[__free_pages_ok+637/672]    Tainted: P
-EFLAGS: 00013246
-eax: 00000000   ebx: c1ab87e0   ecx: f7256000   edx: f725605c
-esi: 00000000   edi: 00000000   ebp: 00000000   esp: f7257bf4
-ds: 0018   es: 0018   ss: 0018
-Process X (pid: 547, stackpage=f7257000)
-Stack: c01dad09 00000006 c0117c2f c02ddfc0 c033113d 00000001 00000000
-0000957e
-00000000 f72a563c 00030000 00000001 c012788b c1ab87e0 00000000 00000003
-c02ddfc0 08400000 f7255084 081bf000 00000000 c012607b f7911da0 f7255080
-Call Trace:    [vt_console_print+89/784] [__call_console_drivers+95/112]
-[zap_pte_range+235/272] [zap_page_range+139/240] [exit_mmap+185/352]
-[mmput+71/160] [do_exit+135/560] [die+114/128] [do_page_fault+676/1231]
-[sock_def_readable+95/112] [tcp_rfree+0/32]
-[tcp_data_queue+772/2656]
-[tcp_send_delayed_ack+199/224][tcp_rcv_established+666/2128]
- [do_page_fault+0/1231] [error_code+52/60]
-[__free_pages_ok+637/672][<f89ce0a6>] [<f8aa4c00>] [<f8aa4c00>]
-[<f89ce06a>] [kmem_slab_destroy+169/256] [kmem_cache_reap+230/464]
-[shrink_caches+40/160][try_to_free_pages_zone+54/80][balance_classzone+87/496]
-[__alloc_pages+243/400] [__constant_c_and_count_memset+133/160]
-[do_anonymous_page+94/272]
-[handle_mm_fault+119/272] [do_page_fault+312/1231]
-[old_mmap+222/288][do_page_fault+0/1231] [error_code+52/60]
+Cheers,
+Mikal
 
-Code: 89 58 04 89 03 89 53 04 89 59 5c 89 7b 0c ff 41 68 eb bf 0f
-<1>Unable to handle kernel NULL pointer dereference at virtual address
-00000004
-printing eip:
-c013172d
-Oops: 0002
+Binary files linux-2.5.55/drivers/atm/pca200e.bin and linux-2.5.55-cli_sti_removal-002/drivers/atm/pca200e.bin differ
+diff -Nur linux-2.5.55/drivers/net/aironet4500.h linux-2.5.55-cli_sti_removal-002/drivers/net/aironet4500.h
+--- linux-2.5.55/drivers/net/aironet4500.h	Fri Jan 10 09:21:06 2003
++++ linux-2.5.55-cli_sti_removal-002/drivers/net/aironet4500.h	Thu Jan  9 22:19:56 2003
+@@ -1,13 +1,13 @@
+ /*
+  *	 Aironet 4500 Pcmcia driver
+  *
+- *		Elmer Joandi, Januar 1999
++ *		Elmer Joandi, January 1999
++ *              Michael Still, January 2003
+  *	Copyright:	GPL
+  *
+  *
+  *	Revision 0.1 ,started  30.12.1998
+- *      Revision 0.3, Jan 10, 2003
+- *              Michael Still (mikal@stillhq.com) - cli / sti conversion
++ *      Revision 0.2, locking tweaks 10 Jan 2003
+  *
+  *
+  */
+@@ -15,24 +15,12 @@
+
+ #ifndef AIRONET4500_H
+ #define	AIRONET4500_H
+-// redefined to avoid PCMCIA includes
+
+- #include <linux/version.h>
+-/*#include <linux/module.h>
+- #include <linux/kernel.h>
+-*/
+-
+-/*
+-#include <linux/types.h>
+-#include <linux/netdevice.h>
+-#include <linux/etherdevice.h>
+-#include <linux/delay.h>
+-#include <linux/time.h>
+-*/
++#include <linux/version.h>
+ #include <linux/802_11.h>
+ #include <linux/workqueue.h>
+
+-//damn idiot PCMCIA stuff
++/* Damn idiot PCMCIA stuff */
+ #ifndef DEV_NAME_LEN
+ 	#define DEV_NAME_LEN 32
+ #endif
+@@ -94,7 +82,7 @@
+ #define awc_Select1_register 		0x1A
+ #define awc_Offset1_register 		0x1E
+ #define awc_Data1_register 		0x38
+-//
++
+ #define awc_RxFID_register 		0x20
+ #define awc_TxAllocFID_register 	0x22
+ #define awc_TxComplFID_register 	0x24
+@@ -1606,4 +1594,7 @@
+ 	#define AWC_ENTRY_EXIT_DEBUG(a)
+ #endif
+
++/* This has been changed to a hopefully globally unique name */
++spinlock_t aironet4500_lock = SPIN_LOCK_UNLOCKED;
++
+ #endif /* AIRONET4500_H */
+diff -Nur linux-2.5.55/drivers/net/aironet4500_card.c linux-2.5.55-cli_sti_removal-002/drivers/net/aironet4500_card.c
+--- linux-2.5.55/drivers/net/aironet4500_card.c	Fri Jan 10 09:18:46 2003
++++ linux-2.5.55-cli_sti_removal-002/drivers/net/aironet4500_card.c	Thu Jan  9 22:24:11 2003
+@@ -10,13 +10,10 @@
+  *	Revision 0.2, Feb 27, 2000
+  *		Jeff Garzik - softnet, cleanups
+  *
+- *      Revision 0.3, Jan 10, 2003
+- *              Michael Still (mikal@stillhq.com) - cli / sti conversion
+- *
+  */
+ #ifdef MODULE
+ static const char *awc_version =
+-"aironet4500_cards.c v0.3  Jan, 2003  Elmer Joandi, elmer@ylenurme.ee and Michael Still (mikal@stillhq.com)\n";
++"aironet4500_cards.c v0.2  Feb 27, 2000  Elmer Joandi, elmer@ylenurme.ee.\n";
+ #endif
+
+ #include <linux/delay.h>
+@@ -381,14 +378,9 @@
+ 		};
+ 		((struct awc_private *)dev->priv)->bus =  logdev;
+
+-	//	ether_setup(dev);
+-
+-	//	dev->tx_queue_len = tx_queue_len;
+
+ 		dev->hard_start_xmit = 		&awc_start_xmit;
+-	//	dev->set_config = 		&awc_config_misiganes,aga mitte awc_config;
+ 		dev->get_stats = 		&awc_get_stats;
+-	//	dev->set_multicast_list = 	&awc_set_multicast_list;
+ 		dev->change_mtu		=	awc_change_mtu;
+ 		dev->init = &awc_init;
+ 		dev->open = &awc_open;
+@@ -406,18 +398,18 @@
+
+ 		((struct awc_private *)dev->priv)->bus =  logdev;
+
+-		cli();
++		spin_lock_irq(&aironet4500_lock);
+ 		if ( awc_init(dev) ){
+ 			printk("card not found at irq %x io %lx\n",dev->irq, dev->base_addr);
+ 			if (card==0){
+-				sti();
++				spin_unlock_irq(&aironet4500_lock);
+ 				return -1;
+ 			}
+-			sti();
++			spin_unlock_irq(&aironet4500_lock);
+ 			break;
+ 		}
+ 		udelay(10);
+-		sti();
++		spin_unlock_irq(&aironet4500_lock);
+ 		i=0;
+ 		while (aironet4500_devices[i] && i < MAX_AWCS-1) i++;
+ 		if (!aironet4500_devices[i] && i < MAX_AWCS-1 ){
+diff -Nur linux-2.5.55/drivers/net/aironet4500_core.c linux-2.5.55-cli_sti_removal-002/drivers/net/aironet4500_core.c
+--- linux-2.5.55/drivers/net/aironet4500_core.c	Fri Jan 10 09:20:35 2003
++++ linux-2.5.55-cli_sti_removal-002/drivers/net/aironet4500_core.c	Thu Jan  9 23:08:29 2003
+@@ -6,19 +6,16 @@
+  *
+  *
+  *	Revision 0.1 ,started  30.12.1998
+- *      Revision 0.3, Jan 10, 2003
+- *              Michael Still (mikal@stillhq.com) - cli / sti conversion
+  *
+  *
+  */
+  /* CHANGELOG:
+- 	   03.99, stable version 2.0
+- 	   08.99, stable version 2.2
+- 	   11.99, integration with 2.3
+-	17.12.99, finally, got SMP near-correct.
+-		  timing issues remain- on SMP box its 15% slower on tcp
+-	10.03.00, looks like softnet take us back to normal on SMP
+-	10.01.03, cli / sti removal
++ 	march 99, stable version 2.0
++ 	august 99, stable version 2.2
++ 	november 99, integration with 2.3
++	17.12.99: finally, got SMP near-correct.
++		timing issues remain- on SMP box its 15% slower on tcp
++	10.03.00 looks like softnet take us back to normal on SMP
+  */
+
+ #include <linux/delay.h>
+@@ -427,14 +424,11 @@
+ 	  	//	AWC_OUT(cmd->bap->offset, 0x800);
+ 	  }
+
+-	  save_flags(flags);
+-	  cli();
+-
++	  spin_lock_irqsave(&aironet4500_lock, flags);
+           AWC_OUT(cmd->bap->select, cmd->rid);
+ 	  WAIT61x3;
+           AWC_OUT(cmd->bap->offset, cmd->offset);
+-
+-          restore_flags(flags);
++	  spin_unlock_irqrestore(&aironet4500_lock, flags);
+
+ 	  WAIT61x3;
+
+@@ -454,48 +448,47 @@
+ 	      };
+               status = AWC_IN(cmd->bap->offset);
+               if (status & AWC_BAP_BUSY) {
+-                 if (cycles % 100 == 99 ) {
+-                      save_flags(flags);
+-                      cli();
+-                      if (!cleared){
+-                      	AWC_IN(cmd->dev->base_addr + 0x26);
+-                      	AWC_OUT(cmd->dev->base_addr + 0x26, 0);
+-                      	WAIT61x3;
+-                      	cleared = 1;
+-                      }
+-                      AWC_OUT(cmd->bap->select, cmd->rid);
+-                      WAIT61x3;
+-                      AWC_OUT(cmd->bap->offset, cmd->offset);
+-                      restore_flags(flags);
+-                	#ifdef AWC_DEBUG
+-	  			printk("B");
+-	  		#endif
+-
+-                      if ( cmd->priv->sleeping_bap)
+-         		udelay(bap_sleep);
+-         	      else udelay(30);
+-                      //restart_timeout();
+-                  }
+-                  if (jiffies - jiff > 1 ) {
+-                  	AWC_ENTRY_EXIT_DEBUG(" BAD BUSY  exit \n");
+-                  	awc_dump_registers(cmd->dev);
+-                  	goto return_AWC_ERROR;
+-                  }
+-                  continue;
++		      if (cycles % 100 == 99 ) {
++			      spin_lock_irqsave(&aironet4500_lock, flags);
++			      if (!cleared){
++				      AWC_IN(cmd->dev->base_addr + 0x26);
++				      AWC_OUT(cmd->dev->base_addr + 0x26, 0);
++				      WAIT61x3;
++				      cleared = 1;
++			      }
++			      AWC_OUT(cmd->bap->select, cmd->rid);
++			      WAIT61x3;
++			      AWC_OUT(cmd->bap->offset, cmd->offset);
++			      spin_unlock_irqrestore(&aironet4500_lock, flags);
++#ifdef AWC_DEBUG
++			      printk("B");
++#endif
++
++			      if ( cmd->priv->sleeping_bap)
++				      udelay(bap_sleep);
++			      else udelay(30);
++			      //restart_timeout();
++		      }
++		      if (jiffies - jiff > 1 ) {
++			      AWC_ENTRY_EXIT_DEBUG(" BAD BUSY  exit \n");
++			      awc_dump_registers(cmd->dev);
++			      goto return_AWC_ERROR;
++		      }
++		      continue;
+               }
+-             if (status & AWC_BAP_DONE) {
+-                  WAIT61x3; WAIT61x3; WAIT61x3;
+-
+-                //  if ((status & 0xfff) != cmd->offset)
+-                //  	printk(KERN_ERR "awcPBD %x ",status);
+-                   AWC_ENTRY_EXIT_DEBUG(" exit \n");
+-                  if (cmd->priv->sleeping_bap)
+-                  	udelay(bap_sleep_after_setup);
+-
+-                  // success
+-                  goto return_AWC_SUCCESS;
++	      if (status & AWC_BAP_DONE) {
++		      WAIT61x3; WAIT61x3; WAIT61x3;
++
++		      //  if ((status & 0xfff) != cmd->offset)
++		      //  	printk(KERN_ERR "awcPBD %x ",status);
++		      AWC_ENTRY_EXIT_DEBUG(" exit \n");
++		      if (cmd->priv->sleeping_bap)
++			      udelay(bap_sleep_after_setup);
++
++		      // success
++		      goto return_AWC_SUCCESS;
+               }
+-
++
+               if (status & AWC_BAP_ERR) {
+              	  AWC_ENTRY_EXIT_DEBUG(" BAD  exit \n");
+                   // invalid rid or offse
 
 -- 
-Bertrand Vieille
---nextPart4089674.tCfMA44Yjd
-Content-Type: text/plain; name="config-2.4.21-pre3-ac1"
-Content-Transfer-Encoding: 8Bit
-Content-Disposition: attachment; filename="config-2.4.21-pre3-ac1"
 
-#
-# Automatically generated by make menuconfig: don't edit
-#
-CONFIG_X86=y
-# CONFIG_SBUS is not set
-CONFIG_UID16=y
+Michael Still (mikal@stillhq.com) | Stage 1: Steal underpants
+http://www.stillhq.com            | Stage 2: ????
+UTC + 11                          | Stage 3: Profit
 
-#
-# Code maturity level options
-#
-CONFIG_EXPERIMENTAL=y
 
-#
-# Loadable module support
-#
-CONFIG_MODULES=y
-CONFIG_MODVERSIONS=y
-CONFIG_KMOD=y
-
-#
-# Processor type and features
-#
-# CONFIG_M386 is not set
-# CONFIG_M486 is not set
-# CONFIG_M586 is not set
-# CONFIG_M586TSC is not set
-# CONFIG_M586MMX is not set
-# CONFIG_M686 is not set
-CONFIG_MPENTIUMIII=y
-# CONFIG_MPENTIUM4 is not set
-# CONFIG_MK6 is not set
-# CONFIG_MK7 is not set
-# CONFIG_MELAN is not set
-# CONFIG_MCRUSOE is not set
-# CONFIG_MWINCHIPC6 is not set
-# CONFIG_MWINCHIP2 is not set
-# CONFIG_MWINCHIP3D is not set
-# CONFIG_MCYRIXIII is not set
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-# CONFIG_RWSEM_GENERIC_SPINLOCK is not set
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_L1_CACHE_SHIFT=5
-CONFIG_X86_HAS_TSC=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_PGE=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_X86_F00F_WORKS_OK=y
-CONFIG_X86_MCE=y
-
-#
-# CPU Frequency scaling
-#
-# CONFIG_CPU_FREQ is not set
-# CONFIG_TOSHIBA is not set
-# CONFIG_I8K is not set
-# CONFIG_MICROCODE is not set
-# CONFIG_X86_MSR is not set
-# CONFIG_X86_CPUID is not set
-# CONFIG_EDD is not set
-# CONFIG_NOHIGHMEM is not set
-CONFIG_HIGHMEM4G=y
-# CONFIG_HIGHMEM64G is not set
-CONFIG_HIGHMEM=y
-# CONFIG_HIGHIO is not set
-# CONFIG_MATH_EMULATION is not set
-CONFIG_MTRR=y
-# CONFIG_SMP is not set
-# CONFIG_X86_UP_APIC is not set
-# CONFIG_X86_UP_IOAPIC is not set
-# CONFIG_X86_TSC_DISABLE is not set
-CONFIG_X86_TSC=y
-
-#
-# General setup
-#
-CONFIG_NET=y
-CONFIG_PCI=y
-# CONFIG_PCI_GOBIOS is not set
-# CONFIG_PCI_GODIRECT is not set
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-# CONFIG_ISA is not set
-# CONFIG_SCx200 is not set
-CONFIG_PCI_NAMES=y
-# CONFIG_EISA is not set
-# CONFIG_MCA is not set
-# CONFIG_HOTPLUG is not set
-# CONFIG_PCMCIA is not set
-# CONFIG_HOTPLUG_PCI is not set
-CONFIG_SYSVIPC=y
-# CONFIG_BSD_PROCESS_ACCT is not set
-CONFIG_SYSCTL=y
-CONFIG_KCORE_ELF=y
-# CONFIG_KCORE_AOUT is not set
-# CONFIG_BINFMT_AOUT is not set
-CONFIG_BINFMT_ELF=y
-# CONFIG_BINFMT_MISC is not set
-# CONFIG_IKCONFIG is not set
-CONFIG_PM=y
-# CONFIG_ACPI is not set
-CONFIG_APM=y
-# CONFIG_APM_IGNORE_USER_SUSPEND is not set
-# CONFIG_APM_DO_ENABLE is not set
-# CONFIG_APM_CPU_IDLE is not set
-# CONFIG_APM_DISPLAY_BLANK is not set
-# CONFIG_APM_RTC_IS_GMT is not set
-# CONFIG_APM_ALLOW_INTS is not set
-# CONFIG_APM_REAL_MODE_POWER_OFF is not set
-
-#
-# Memory Technology Devices (MTD)
-#
-# CONFIG_MTD is not set
-
-#
-# Parallel port support
-#
-# CONFIG_PARPORT is not set
-
-#
-# Plug and Play configuration
-#
-# CONFIG_PNP is not set
-# CONFIG_ISAPNP is not set
-# CONFIG_PNPBIOS is not set
-
-#
-# Block devices
-#
-CONFIG_BLK_DEV_FD=y
-# CONFIG_BLK_DEV_XD is not set
-# CONFIG_PARIDE is not set
-# CONFIG_BLK_CPQ_DA is not set
-# CONFIG_BLK_CPQ_CISS_DA is not set
-# CONFIG_CISS_SCSI_TAPE is not set
-# CONFIG_BLK_DEV_DAC960 is not set
-# CONFIG_BLK_DEV_UMEM is not set
-CONFIG_BLK_DEV_LOOP=y
-# CONFIG_BLK_DEV_NBD is not set
-# CONFIG_BLK_DEV_RAM is not set
-# CONFIG_BLK_DEV_INITRD is not set
-# CONFIG_BLK_STATS is not set
-
-#
-# Multi-device support (RAID and LVM)
-#
-# CONFIG_MD is not set
-# CONFIG_BLK_DEV_MD is not set
-# CONFIG_MD_LINEAR is not set
-# CONFIG_MD_RAID0 is not set
-# CONFIG_MD_RAID1 is not set
-# CONFIG_MD_RAID5 is not set
-# CONFIG_MD_MULTIPATH is not set
-# CONFIG_BLK_DEV_LVM is not set
-# CONFIG_BLK_DEV_DM is not set
-
-#
-# Networking options
-#
-CONFIG_PACKET=y
-# CONFIG_PACKET_MMAP is not set
-# CONFIG_NETLINK_DEV is not set
-CONFIG_NETFILTER=y
-# CONFIG_NETFILTER_DEBUG is not set
-CONFIG_FILTER=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-# CONFIG_IP_MULTICAST is not set
-# CONFIG_IP_ADVANCED_ROUTER is not set
-# CONFIG_IP_PNP is not set
-# CONFIG_NET_IPIP is not set
-# CONFIG_NET_IPGRE is not set
-# CONFIG_ARPD is not set
-# CONFIG_INET_ECN is not set
-# CONFIG_SYN_COOKIES is not set
-
-#
-#   IP: Netfilter Configuration
-#
-CONFIG_IP_NF_CONNTRACK=y
-CONFIG_IP_NF_FTP=y
-CONFIG_IP_NF_IRC=y
-# CONFIG_IP_NF_QUEUE is not set
-CONFIG_IP_NF_IPTABLES=y
-CONFIG_IP_NF_MATCH_LIMIT=y
-# CONFIG_IP_NF_MATCH_MAC is not set
-# CONFIG_IP_NF_MATCH_PKTTYPE is not set
-# CONFIG_IP_NF_MATCH_MARK is not set
-# CONFIG_IP_NF_MATCH_MULTIPORT is not set
-# CONFIG_IP_NF_MATCH_TOS is not set
-# CONFIG_IP_NF_MATCH_ECN is not set
-# CONFIG_IP_NF_MATCH_DSCP is not set
-# CONFIG_IP_NF_MATCH_AH_ESP is not set
-# CONFIG_IP_NF_MATCH_LENGTH is not set
-# CONFIG_IP_NF_MATCH_TTL is not set
-# CONFIG_IP_NF_MATCH_TCPMSS is not set
-# CONFIG_IP_NF_MATCH_HELPER is not set
-CONFIG_IP_NF_MATCH_STATE=y
-CONFIG_IP_NF_MATCH_CONNTRACK=y
-# CONFIG_IP_NF_MATCH_UNCLEAN is not set
-# CONFIG_IP_NF_MATCH_OWNER is not set
-CONFIG_IP_NF_FILTER=y
-CONFIG_IP_NF_TARGET_REJECT=y
-# CONFIG_IP_NF_TARGET_MIRROR is not set
-CONFIG_IP_NF_NAT=y
-CONFIG_IP_NF_NAT_NEEDED=y
-CONFIG_IP_NF_TARGET_MASQUERADE=y
-CONFIG_IP_NF_TARGET_REDIRECT=y
-CONFIG_IP_NF_NAT_LOCAL=y
-# CONFIG_IP_NF_NAT_SNMP_BASIC is not set
-CONFIG_IP_NF_NAT_IRC=y
-CONFIG_IP_NF_NAT_FTP=y
-# CONFIG_IP_NF_MANGLE is not set
-# CONFIG_IP_NF_TARGET_LOG is not set
-# CONFIG_IP_NF_TARGET_ULOG is not set
-# CONFIG_IP_NF_TARGET_TCPMSS is not set
-# CONFIG_IP_NF_ARPTABLES is not set
-# CONFIG_IPV6 is not set
-# CONFIG_KHTTPD is not set
-# CONFIG_ATM is not set
-# CONFIG_VLAN_8021Q is not set
-# CONFIG_IPX is not set
-# CONFIG_ATALK is not set
-
-#
-# Appletalk devices
-#
-# CONFIG_DEV_APPLETALK is not set
-# CONFIG_DECNET is not set
-# CONFIG_BRIDGE is not set
-# CONFIG_X25 is not set
-# CONFIG_LAPB is not set
-# CONFIG_LLC is not set
-# CONFIG_NET_DIVERT is not set
-# CONFIG_ECONET is not set
-# CONFIG_WAN_ROUTER is not set
-# CONFIG_NET_FASTROUTE is not set
-# CONFIG_NET_HW_FLOWCONTROL is not set
-
-#
-# QoS and/or fair queueing
-#
-# CONFIG_NET_SCHED is not set
-
-#
-# Network testing
-#
-# CONFIG_NET_PKTGEN is not set
-
-#
-# Telephony Support
-#
-# CONFIG_PHONE is not set
-# CONFIG_PHONE_IXJ is not set
-# CONFIG_PHONE_IXJ_PCMCIA is not set
-
-#
-# ATA/IDE/MFM/RLL support
-#
-CONFIG_IDE=y
-
-#
-# IDE, ATA and ATAPI Block devices
-#
-CONFIG_BLK_DEV_IDE=y
-# CONFIG_BLK_DEV_HD_IDE is not set
-# CONFIG_BLK_DEV_HD is not set
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-# CONFIG_IDEDISK_STROKE is not set
-# CONFIG_BLK_DEV_IDECS is not set
-CONFIG_BLK_DEV_IDECD=y
-# CONFIG_BLK_DEV_IDETAPE is not set
-# CONFIG_BLK_DEV_IDEFLOPPY is not set
-CONFIG_BLK_DEV_IDESCSI=y
-# CONFIG_IDE_TASK_IOCTL is not set
-# CONFIG_BLK_DEV_CMD640 is not set
-# CONFIG_BLK_DEV_CMD640_ENHANCED is not set
-# CONFIG_BLK_DEV_ISAPNP is not set
-CONFIG_BLK_DEV_IDEPCI=y
-# CONFIG_BLK_DEV_GENERIC is not set
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-# CONFIG_BLK_DEV_OFFBOARD is not set
-# CONFIG_BLK_DEV_IDEDMA_FORCED is not set
-CONFIG_IDEDMA_PCI_AUTO=y
-# CONFIG_IDEDMA_ONLYDISK is not set
-CONFIG_BLK_DEV_IDEDMA=y
-# CONFIG_IDEDMA_PCI_WIP is not set
-CONFIG_BLK_DEV_ADMA=y
-# CONFIG_BLK_DEV_AEC62XX is not set
-# CONFIG_BLK_DEV_ALI15X3 is not set
-# CONFIG_WDC_ALI15X3 is not set
-# CONFIG_BLK_DEV_AMD74XX is not set
-# CONFIG_AMD74XX_OVERRIDE is not set
-# CONFIG_BLK_DEV_CMD64X is not set
-# CONFIG_BLK_DEV_TRIFLEX is not set
-# CONFIG_BLK_DEV_CY82C693 is not set
-# CONFIG_BLK_DEV_CS5530 is not set
-# CONFIG_BLK_DEV_HPT34X is not set
-# CONFIG_HPT34X_AUTODMA is not set
-# CONFIG_BLK_DEV_HPT366 is not set
-# CONFIG_BLK_DEV_PIIX is not set
-# CONFIG_BLK_DEV_NFORCE is not set
-# CONFIG_BLK_DEV_NS87415 is not set
-# CONFIG_BLK_DEV_OPTI621 is not set
-# CONFIG_BLK_DEV_PDC202XX_OLD is not set
-# CONFIG_PDC202XX_BURST is not set
-# CONFIG_BLK_DEV_PDC202XX_NEW is not set
-# CONFIG_PDC202XX_FORCE is not set
-# CONFIG_BLK_DEV_RZ1000 is not set
-# CONFIG_BLK_DEV_SC1200 is not set
-# CONFIG_BLK_DEV_SVWKS is not set
-# CONFIG_BLK_DEV_SIIMAGE is not set
-# CONFIG_BLK_DEV_SIS5513 is not set
-# CONFIG_BLK_DEV_SLC90E66 is not set
-# CONFIG_BLK_DEV_TRM290 is not set
-CONFIG_BLK_DEV_VIA82CXXX=y
-# CONFIG_IDE_CHIPSETS is not set
-CONFIG_IDEDMA_AUTO=y
-# CONFIG_IDEDMA_IVB is not set
-# CONFIG_DMA_NONPCI is not set
-CONFIG_BLK_DEV_IDE_MODES=y
-# CONFIG_BLK_DEV_ATARAID is not set
-# CONFIG_BLK_DEV_ATARAID_PDC is not set
-# CONFIG_BLK_DEV_ATARAID_HPT is not set
-# CONFIG_BLK_DEV_ATARAID_SII is not set
-
-#
-# SCSI support
-#
-CONFIG_SCSI=y
-# CONFIG_BLK_DEV_SD is not set
-# CONFIG_CHR_DEV_ST is not set
-# CONFIG_CHR_DEV_OSST is not set
-CONFIG_BLK_DEV_SR=y
-# CONFIG_BLK_DEV_SR_VENDOR is not set
-CONFIG_SR_EXTRA_DEVS=2
-CONFIG_CHR_DEV_SG=y
-CONFIG_SCSI_DEBUG_QUEUES=y
-# CONFIG_SCSI_MULTI_LUN is not set
-# CONFIG_SCSI_CONSTANTS is not set
-# CONFIG_SCSI_LOGGING is not set
-
-#
-# SCSI low-level drivers
-#
-# CONFIG_BLK_DEV_3W_XXXX_RAID is not set
-# CONFIG_SCSI_7000FASST is not set
-# CONFIG_SCSI_ACARD is not set
-# CONFIG_SCSI_AHA152X is not set
-# CONFIG_SCSI_AHA1542 is not set
-# CONFIG_SCSI_AHA1740 is not set
-# CONFIG_SCSI_AACRAID is not set
-# CONFIG_SCSI_AIC7XXX is not set
-# CONFIG_SCSI_AIC7XXX_OLD is not set
-# CONFIG_SCSI_DPT_I2O is not set
-# CONFIG_SCSI_ADVANSYS is not set
-# CONFIG_SCSI_IN2000 is not set
-# CONFIG_SCSI_AM53C974 is not set
-# CONFIG_SCSI_MEGARAID is not set
-# CONFIG_SCSI_BUSLOGIC is not set
-# CONFIG_SCSI_CPQFCTS is not set
-# CONFIG_SCSI_DMX3191D is not set
-# CONFIG_SCSI_DTC3280 is not set
-# CONFIG_SCSI_EATA is not set
-# CONFIG_SCSI_EATA_DMA is not set
-# CONFIG_SCSI_EATA_PIO is not set
-# CONFIG_SCSI_FUTURE_DOMAIN is not set
-# CONFIG_SCSI_GDTH is not set
-# CONFIG_SCSI_GENERIC_NCR5380 is not set
-# CONFIG_SCSI_IPS is not set
-# CONFIG_SCSI_INITIO is not set
-# CONFIG_SCSI_INIA100 is not set
-# CONFIG_SCSI_NCR53C406A is not set
-# CONFIG_SCSI_NCR53C7xx is not set
-# CONFIG_SCSI_SYM53C8XX_2 is not set
-# CONFIG_SCSI_NCR53C8XX is not set
-# CONFIG_SCSI_SYM53C8XX is not set
-# CONFIG_SCSI_PAS16 is not set
-# CONFIG_SCSI_PCI2000 is not set
-# CONFIG_SCSI_PCI2220I is not set
-# CONFIG_SCSI_PSI240I is not set
-# CONFIG_SCSI_QLOGIC_FAS is not set
-# CONFIG_SCSI_QLOGIC_ISP is not set
-# CONFIG_SCSI_QLOGIC_FC is not set
-# CONFIG_SCSI_QLOGIC_1280 is not set
-# CONFIG_SCSI_SEAGATE is not set
-# CONFIG_SCSI_SIM710 is not set
-# CONFIG_SCSI_SYM53C416 is not set
-# CONFIG_SCSI_DC390T is not set
-# CONFIG_SCSI_T128 is not set
-# CONFIG_SCSI_U14_34F is not set
-# CONFIG_SCSI_ULTRASTOR is not set
-# CONFIG_SCSI_NSP32 is not set
-# CONFIG_SCSI_DEBUG is not set
-
-#
-# Fusion MPT device support
-#
-# CONFIG_FUSION is not set
-# CONFIG_FUSION_BOOT is not set
-# CONFIG_FUSION_ISENSE is not set
-# CONFIG_FUSION_CTL is not set
-# CONFIG_FUSION_LAN is not set
-
-#
-# IEEE 1394 (FireWire) support (EXPERIMENTAL)
-#
-# CONFIG_IEEE1394 is not set
-
-#
-# I2O device support
-#
-# CONFIG_I2O is not set
-# CONFIG_I2O_PCI is not set
-# CONFIG_I2O_BLOCK is not set
-# CONFIG_I2O_LAN is not set
-# CONFIG_I2O_SCSI is not set
-# CONFIG_I2O_PROC is not set
-
-#
-# Network device support
-#
-CONFIG_NETDEVICES=y
-
-#
-# ARCnet devices
-#
-# CONFIG_ARCNET is not set
-# CONFIG_DUMMY is not set
-# CONFIG_BONDING is not set
-# CONFIG_EQUALIZER is not set
-# CONFIG_TUN is not set
-# CONFIG_ETHERTAP is not set
-
-#
-# Ethernet (10 or 100Mbit)
-#
-CONFIG_NET_ETHERNET=y
-# CONFIG_SUNLANCE is not set
-# CONFIG_HAPPYMEAL is not set
-# CONFIG_SUNBMAC is not set
-# CONFIG_SUNQE is not set
-# CONFIG_SUNGEM is not set
-CONFIG_NET_VENDOR_3COM=y
-# CONFIG_EL1 is not set
-# CONFIG_EL2 is not set
-# CONFIG_ELPLUS is not set
-# CONFIG_EL16 is not set
-# CONFIG_ELMC is not set
-# CONFIG_ELMC_II is not set
-CONFIG_VORTEX=y
-# CONFIG_LANCE is not set
-# CONFIG_NET_VENDOR_SMC is not set
-# CONFIG_NET_VENDOR_RACAL is not set
-# CONFIG_HP100 is not set
-# CONFIG_NET_ISA is not set
-# CONFIG_NET_PCI is not set
-# CONFIG_NET_POCKET is not set
-
-#
-# Ethernet (1000 Mbit)
-#
-# CONFIG_ACENIC is not set
-# CONFIG_DL2K is not set
-# CONFIG_E1000 is not set
-# CONFIG_MYRI_SBUS is not set
-# CONFIG_NS83820 is not set
-# CONFIG_HAMACHI is not set
-# CONFIG_YELLOWFIN is not set
-# CONFIG_R8169 is not set
-# CONFIG_SK98LIN is not set
-# CONFIG_TIGON3 is not set
-# CONFIG_FDDI is not set
-# CONFIG_HIPPI is not set
-# CONFIG_PLIP is not set
-# CONFIG_PPP is not set
-# CONFIG_SLIP is not set
-
-#
-# Wireless LAN (non-hamradio)
-#
-# CONFIG_NET_RADIO is not set
-
-#
-# Token Ring devices
-#
-# CONFIG_TR is not set
-# CONFIG_NET_FC is not set
-# CONFIG_RCPCI is not set
-# CONFIG_SHAPER is not set
-
-#
-# Wan interfaces
-#
-# CONFIG_WAN is not set
-
-#
-# Amateur Radio support
-#
-# CONFIG_HAMRADIO is not set
-
-#
-# IrDA (infrared) support
-#
-# CONFIG_IRDA is not set
-
-#
-# ISDN subsystem
-#
-# CONFIG_ISDN is not set
-
-#
-# Input core support
-#
-# CONFIG_INPUT is not set
-# CONFIG_INPUT_KEYBDEV is not set
-# CONFIG_INPUT_MOUSEDEV is not set
-# CONFIG_INPUT_JOYDEV is not set
-# CONFIG_INPUT_EVDEV is not set
-
-#
-# Character devices
-#
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_SERIAL=y
-# CONFIG_SERIAL_CONSOLE is not set
-# CONFIG_SERIAL_EXTENDED is not set
-# CONFIG_SERIAL_NONSTANDARD is not set
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=16
-
-#
-# I2C support
-#
-CONFIG_I2C=y
-# CONFIG_I2C_ALGOBIT is not set
-# CONFIG_I2C_ALGOPCF is not set
-CONFIG_I2C_MAINBOARD=y
-# CONFIG_I2C_ALI1535 is not set
-# CONFIG_I2C_ALI15X3 is not set
-# CONFIG_I2C_HYDRA is not set
-# CONFIG_I2C_AMD756 is not set
-# CONFIG_I2C_TSUNAMI is not set
-# CONFIG_I2C_I801 is not set
-# CONFIG_I2C_I810 is not set
-# CONFIG_I2C_PIIX4 is not set
-# CONFIG_I2C_SIS5595 is not set
-# CONFIG_I2C_SAVAGE4 is not set
-# CONFIG_I2C_VIA is not set
-CONFIG_I2C_VIAPRO=y
-# CONFIG_I2C_VOODOO3 is not set
-# CONFIG_I2C_ISA is not set
-# CONFIG_I2C_CHARDEV is not set
-CONFIG_I2C_PROC=y
-
-#
-# Hardware sensors support
-#
-CONFIG_SENSORS=y
-# CONFIG_SENSORS_ADM1021 is not set
-# CONFIG_SENSORS_ADM1024 is not set
-# CONFIG_SENSORS_ADM1025 is not set
-# CONFIG_SENSORS_ADM9240 is not set
-# CONFIG_SENSORS_DS1621 is not set
-# CONFIG_SENSORS_FSCPOS is not set
-# CONFIG_SENSORS_FSCSCY is not set
-# CONFIG_SENSORS_GL518SM is not set
-# CONFIG_SENSORS_GL520SM is not set
-# CONFIG_SENSORS_MAXILIFE is not set
-# CONFIG_SENSORS_IT87 is not set
-# CONFIG_SENSORS_MTP008 is not set
-# CONFIG_SENSORS_LM75 is not set
-# CONFIG_SENSORS_LM78 is not set
-# CONFIG_SENSORS_LM80 is not set
-# CONFIG_SENSORS_LM87 is not set
-# CONFIG_SENSORS_LM92 is not set
-# CONFIG_SENSORS_SIS5595 is not set
-# CONFIG_SENSORS_SMSC47M1 is not set
-# CONFIG_SENSORS_THMC50 is not set
-# CONFIG_SENSORS_VIA686A is not set
-# CONFIG_SENSORS_VT1211 is not set
-# CONFIG_SENSORS_VT8231 is not set
-CONFIG_SENSORS_W83781D=y
-# CONFIG_SENSORS_OTHER is not set
-
-#
-# Mice
-#
-# CONFIG_BUSMOUSE is not set
-CONFIG_MOUSE=y
-CONFIG_PSMOUSE=y
-# CONFIG_82C710_MOUSE is not set
-# CONFIG_PC110_PAD is not set
-# CONFIG_MK712_MOUSE is not set
-
-#
-# Joysticks
-#
-# CONFIG_INPUT_GAMEPORT is not set
-# CONFIG_QIC02_TAPE is not set
-# CONFIG_IPMI_HANDLER is not set
-# CONFIG_IPMI_PANIC_EVENT is not set
-# CONFIG_IPMI_DEVICE_INTERFACE is not set
-# CONFIG_IPMI_KCS is not set
-# CONFIG_IPMI_WATCHDOG is not set
-
-#
-# Watchdog Cards
-#
-# CONFIG_WATCHDOG is not set
-# CONFIG_SCx200_GPIO is not set
-# CONFIG_AMD_RNG is not set
-# CONFIG_INTEL_RNG is not set
-# CONFIG_AMD_PM768 is not set
-# CONFIG_NVRAM is not set
-# CONFIG_RTC is not set
-# CONFIG_DTLK is not set
-# CONFIG_R3964 is not set
-# CONFIG_APPLICOM is not set
-# CONFIG_SONYPI is not set
-
-#
-# Ftape, the floppy tape device driver
-#
-# CONFIG_FTAPE is not set
-CONFIG_AGP=m
-# CONFIG_AGP_INTEL is not set
-# CONFIG_AGP_I810 is not set
-CONFIG_AGP_VIA=y
-# CONFIG_AGP_AMD is not set
-# CONFIG_AGP_AMD_8151 is not set
-# CONFIG_AGP_SIS is not set
-# CONFIG_AGP_ALI is not set
-# CONFIG_AGP_SWORKS is not set
-CONFIG_DRM=y
-# CONFIG_DRM_OLD is not set
-CONFIG_DRM_NEW=y
-# CONFIG_DRM_TDFX is not set
-# CONFIG_DRM_GAMMA is not set
-# CONFIG_DRM_R128 is not set
-# CONFIG_DRM_RADEON is not set
-# CONFIG_DRM_I810 is not set
-# CONFIG_DRM_I810_XFREE_41 is not set
-# CONFIG_DRM_I830 is not set
-# CONFIG_DRM_MGA is not set
-# CONFIG_DRM_SIS is not set
-# CONFIG_MWAVE is not set
-
-#
-# Multimedia devices
-#
-# CONFIG_VIDEO_DEV is not set
-
-#
-# File systems
-#
-# CONFIG_QUOTA is not set
-# CONFIG_QFMT_V1 is not set
-# CONFIG_QFMT_V2 is not set
-# CONFIG_QIFACE_COMPAT is not set
-# CONFIG_AUTOFS_FS is not set
-# CONFIG_AUTOFS4_FS is not set
-CONFIG_REISERFS_FS=y
-# CONFIG_REISERFS_CHECK is not set
-# CONFIG_REISERFS_PROC_INFO is not set
-# CONFIG_ADFS_FS is not set
-# CONFIG_ADFS_FS_RW is not set
-# CONFIG_AFFS_FS is not set
-# CONFIG_HFS_FS is not set
-# CONFIG_BEFS_FS is not set
-# CONFIG_BEFS_DEBUG is not set
-# CONFIG_BFS_FS is not set
-CONFIG_EXT3_FS=y
-CONFIG_JBD=y
-# CONFIG_JBD_DEBUG is not set
-CONFIG_FAT_FS=y
-CONFIG_MSDOS_FS=y
-# CONFIG_UMSDOS_FS is not set
-# CONFIG_VFAT_FS is not set
-# CONFIG_EFS_FS is not set
-# CONFIG_JFFS_FS is not set
-# CONFIG_JFFS2_FS is not set
-# CONFIG_CRAMFS is not set
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-CONFIG_ISO9660_FS=y
-CONFIG_JOLIET=y
-# CONFIG_ZISOFS is not set
-# CONFIG_JFS_FS is not set
-# CONFIG_JFS_DEBUG is not set
-# CONFIG_JFS_STATISTICS is not set
-# CONFIG_MINIX_FS is not set
-# CONFIG_VXFS_FS is not set
-# CONFIG_NTFS_FS is not set
-# CONFIG_NTFS_RW is not set
-# CONFIG_HPFS_FS is not set
-CONFIG_PROC_FS=y
-# CONFIG_DEVFS_FS is not set
-# CONFIG_DEVFS_MOUNT is not set
-# CONFIG_DEVFS_DEBUG is not set
-# CONFIG_DEVPTS_FS is not set
-# CONFIG_QNX4FS_FS is not set
-# CONFIG_QNX4FS_RW is not set
-# CONFIG_ROMFS_FS is not set
-CONFIG_EXT2_FS=y
-# CONFIG_SYSV_FS is not set
-CONFIG_UDF_FS=y
-# CONFIG_UDF_RW is not set
-# CONFIG_UFS_FS is not set
-# CONFIG_UFS_FS_WRITE is not set
-
-#
-# Network File Systems
-#
-# CONFIG_CODA_FS is not set
-# CONFIG_INTERMEZZO_FS is not set
-# CONFIG_NFS_FS is not set
-# CONFIG_NFS_V3 is not set
-# CONFIG_NFS_DIRECTIO is not set
-# CONFIG_ROOT_NFS is not set
-# CONFIG_NFSD is not set
-# CONFIG_NFSD_V3 is not set
-# CONFIG_NFSD_TCP is not set
-# CONFIG_SUNRPC is not set
-# CONFIG_LOCKD is not set
-CONFIG_SMB_FS=y
-CONFIG_SMB_NLS_DEFAULT=y
-CONFIG_SMB_NLS_REMOTE="cp850"
-# CONFIG_NCP_FS is not set
-# CONFIG_NCPFS_PACKET_SIGNING is not set
-# CONFIG_NCPFS_IOCTL_LOCKING is not set
-# CONFIG_NCPFS_STRONG is not set
-# CONFIG_NCPFS_NFS_NS is not set
-# CONFIG_NCPFS_OS2_NS is not set
-# CONFIG_NCPFS_SMALLDOS is not set
-# CONFIG_NCPFS_NLS is not set
-# CONFIG_NCPFS_EXTRAS is not set
-# CONFIG_ZISOFS_FS is not set
-
-#
-# Partition Types
-#
-# CONFIG_PARTITION_ADVANCED is not set
-CONFIG_MSDOS_PARTITION=y
-CONFIG_SMB_NLS=y
-CONFIG_NLS=y
-
-#
-# Native Language Support
-#
-CONFIG_NLS_DEFAULT="iso8859-15"
-# CONFIG_NLS_CODEPAGE_437 is not set
-# CONFIG_NLS_CODEPAGE_737 is not set
-# CONFIG_NLS_CODEPAGE_775 is not set
-# CONFIG_NLS_CODEPAGE_850 is not set
-# CONFIG_NLS_CODEPAGE_852 is not set
-# CONFIG_NLS_CODEPAGE_855 is not set
-# CONFIG_NLS_CODEPAGE_857 is not set
-# CONFIG_NLS_CODEPAGE_860 is not set
-# CONFIG_NLS_CODEPAGE_861 is not set
-# CONFIG_NLS_CODEPAGE_862 is not set
-# CONFIG_NLS_CODEPAGE_863 is not set
-# CONFIG_NLS_CODEPAGE_864 is not set
-# CONFIG_NLS_CODEPAGE_865 is not set
-# CONFIG_NLS_CODEPAGE_866 is not set
-# CONFIG_NLS_CODEPAGE_869 is not set
-# CONFIG_NLS_CODEPAGE_936 is not set
-# CONFIG_NLS_CODEPAGE_950 is not set
-# CONFIG_NLS_CODEPAGE_932 is not set
-# CONFIG_NLS_CODEPAGE_949 is not set
-# CONFIG_NLS_CODEPAGE_874 is not set
-# CONFIG_NLS_ISO8859_8 is not set
-# CONFIG_NLS_CODEPAGE_1250 is not set
-# CONFIG_NLS_CODEPAGE_1251 is not set
-# CONFIG_NLS_ISO8859_1 is not set
-# CONFIG_NLS_ISO8859_2 is not set
-# CONFIG_NLS_ISO8859_3 is not set
-# CONFIG_NLS_ISO8859_4 is not set
-# CONFIG_NLS_ISO8859_5 is not set
-# CONFIG_NLS_ISO8859_6 is not set
-# CONFIG_NLS_ISO8859_7 is not set
-# CONFIG_NLS_ISO8859_9 is not set
-# CONFIG_NLS_ISO8859_13 is not set
-# CONFIG_NLS_ISO8859_14 is not set
-# CONFIG_NLS_ISO8859_15 is not set
-# CONFIG_NLS_KOI8_R is not set
-# CONFIG_NLS_KOI8_U is not set
-# CONFIG_NLS_UTF8 is not set
-
-#
-# Console drivers
-#
-CONFIG_VGA_CONSOLE=y
-CONFIG_VIDEO_SELECT=y
-# CONFIG_MDA_CONSOLE is not set
-
-#
-# Frame-buffer support
-#
-# CONFIG_FB is not set
-
-#
-# Sound
-#
-CONFIG_SOUND=y
-# CONFIG_SOUND_ALI5455 is not set
-# CONFIG_SOUND_BT878 is not set
-# CONFIG_SOUND_CMPCI is not set
-# CONFIG_SOUND_EMU10K1 is not set
-# CONFIG_MIDI_EMU10K1 is not set
-# CONFIG_SOUND_FUSION is not set
-# CONFIG_SOUND_CS4281 is not set
-# CONFIG_SOUND_ES1370 is not set
-CONFIG_SOUND_ES1371=y
-# CONFIG_SOUND_ESSSOLO1 is not set
-# CONFIG_SOUND_MAESTRO is not set
-# CONFIG_SOUND_MAESTRO3 is not set
-# CONFIG_SOUND_FORTE is not set
-# CONFIG_SOUND_ICH is not set
-# CONFIG_SOUND_RME96XX is not set
-# CONFIG_SOUND_SONICVIBES is not set
-# CONFIG_SOUND_TRIDENT is not set
-# CONFIG_SOUND_MSNDCLAS is not set
-# CONFIG_SOUND_MSNDPIN is not set
-# CONFIG_SOUND_VIA82CXXX is not set
-# CONFIG_MIDI_VIA82CXXX is not set
-# CONFIG_SOUND_OSS is not set
-# CONFIG_SOUND_TVMIXER is not set
-
-#
-# USB support
-#
-# CONFIG_USB is not set
-
-#
-# Bluetooth support
-#
-# CONFIG_BLUEZ is not set
-
-#
-# Kernel hacking
-#
-# CONFIG_DEBUG_KERNEL is not set
-
-#
-# Library routines
-#
-# CONFIG_ZLIB_INFLATE is not set
-# CONFIG_ZLIB_DEFLATE is not set
-
---nextPart4089674.tCfMA44Yjd--

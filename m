@@ -1,42 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270085AbTG3KfV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 06:35:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270218AbTG3KfV
+	id S270327AbTG3Kv0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 06:51:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270330AbTG3Kv0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 06:35:21 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:6024 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S270085AbTG3KfR (ORCPT
+	Wed, 30 Jul 2003 06:51:26 -0400
+Received: from fw.osdl.org ([65.172.181.6]:17337 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S270327AbTG3KvZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 06:35:17 -0400
-Date: Wed, 30 Jul 2003 12:34:39 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, <linas@austin.ibm.com>,
-       <linux-kernel@vger.kernel.org>
+	Wed, 30 Jul 2003 06:51:25 -0400
+Date: Wed, 30 Jul 2003 03:51:40 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: andrea@suse.de, linas@austin.ibm.com, linux-kernel@vger.kernel.org
 Subject: Re: PATCH: Race in 2.6.0-test2 timer code
-In-Reply-To: <20030730083726.GE23835@dualathlon.random>
-Message-ID: <Pine.LNX.4.44.0307301232220.13891-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <20030730035140.7c834268.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.44.0307301232220.13891-100000@localhost.localdomain>
+References: <20030730083726.GE23835@dualathlon.random>
+	<Pine.LNX.4.44.0307301232220.13891-100000@localhost.localdomain>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ingo Molnar <mingo@elte.hu> wrote:
+>
+> But on 2.6 the timer will run precisely on the CPU it was added, so i
+>  think the race is not possible.
 
-On Wed, 30 Jul 2003, Andrea Arcangeli wrote:
+well there is add_timer_on()...
 
-> I never did any 2.6 patch, so it maybe a different thing what you've
-> seen, not what I applied to 2.4. Infact even the 2.4 patch isn't from
-> me.
+I still don't see the race in the itimer code actually.  On return
+from del_timer_sync() we know that the timer is not pending, even
+if it_real_fn() tried to re-add it.
 
-the 2.4 timer-scalability patches do have a problem: due to TIMER_BH the
-actual timer expiry can happen on a different CPU, which opens up a
-del_timer()/add_timer() race in the itimer code. Your patch closes that
-hole.
+ie: why does the below "crash"?
 
-But on 2.6 the timer will run precisely on the CPU it was added, so i
-think the race is not possible.
 
-	Ingo
+Andrea Arcangeli <andrea@suse.de> wrote:
+>
+> 	cpu0			cpu1
+>  	------------		--------------------
+> 
+>  	do_setitimer
+>  				it_real_fn
+>  	del_timer_sync		add_timer	-> crash
+
+
+(Does the timer_pending() test in del_timer_sync() needs some
+barriers btw?)
 

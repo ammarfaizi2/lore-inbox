@@ -1,31 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267243AbTAVBZw>; Tue, 21 Jan 2003 20:25:52 -0500
+	id <S267217AbTAVBZp>; Tue, 21 Jan 2003 20:25:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267253AbTAVBZw>; Tue, 21 Jan 2003 20:25:52 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:17403 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S267243AbTAVBZv>;
-	Tue, 21 Jan 2003 20:25:51 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Wed, 22 Jan 2003 02:34:57 +0100 (MET)
-Message-Id: <UTC200301220134.h0M1Yvu28355.aeb@smtp.cwi.nl>
-To: Andries.Brouwer@cwi.nl, alan@lxorguk.ukuu.org.uk
-Subject: Re: [patch] IDE OnTrack remap for 2.5.58
-Cc: jim.houston@attbi.com, linux-kernel@vger.kernel.org
+	id <S267243AbTAVBZp>; Tue, 21 Jan 2003 20:25:45 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:20184 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S267217AbTAVBZo>;
+	Tue, 21 Jan 2003 20:25:44 -0500
+Date: Wed, 22 Jan 2003 01:31:30 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Alan <alan@lxorguk.ukuu.org.uk>
+Cc: "Matthew D. Pitts" <mpitts@suite224.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: NForce Chipset support in which kernels?
+Message-ID: <20030122013130.GA1652@codemonkey.org.uk>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Alan <alan@lxorguk.ukuu.org.uk>,
+	"Matthew D. Pitts" <mpitts@suite224.net>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <3E287188.9030909@hanaden.com> <1043052878.12182.26.camel@dhcp22.swansea.linux.org.uk> <001d01c2c161$90449f40$0100a8c0@pcs686> <1043189251.1384.9.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1043189251.1384.9.camel@dhcp22.swansea.linux.org.uk>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Are you unhappy with this change? And if so, why?
+On Tue, Jan 21, 2003 at 10:47:32PM +0000, Alan Cox wrote:
+ > On Tue, 2003-01-21 at 15:24, Matthew D. Pitts wrote:
+ > > Unless you get the drivers from nVIDIA website.
+ > 
+ > Which are binary only. So its still best avoided
+ 
+For someone with far too much time on their hands, the
+20KB binary object (complete with symbols) shouldn't be
+too much work to reverse engineer 8)
 
-> By volume of mail I get about it.
-> I hadn't realised just how common DM was.
+Although Jeff seems to be think that the chip is a clone
+of another existing NIC, so it may not be worth the effort
+if $driver can be made to work with it by adding some IDs..
 
-Any numbers?
-I do coach someone in getting rid of DM or EZD
-perhaps once or twice a month.
+		Dave
 
-As far as I can see, it is rare that DM is needed.
-What sometimes happens is that DM is preinstalled on a disk,
-and users first become aware of it when there are problems.
-
-Andries
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

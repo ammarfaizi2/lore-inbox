@@ -1,60 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265634AbUFCQVA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265639AbUFCQXL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265634AbUFCQVA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 12:21:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265636AbUFCQVA
+	id S265639AbUFCQXL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 12:23:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265636AbUFCQXL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 12:21:00 -0400
-Received: from [193.232.119.74] ([193.232.119.74]:46725 "EHLO thong.s2s.msu.ru")
-	by vger.kernel.org with ESMTP id S265634AbUFCQU5 (ORCPT
+	Thu, 3 Jun 2004 12:23:11 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:14770 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265639AbUFCQXF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 12:20:57 -0400
-Date: Thu, 3 Jun 2004 20:20:53 +0400
-From: "Alexander V. Inyukhin" <shurick@sectorb.msk.ru>
-To: linux-kernel@vger.kernel.org
-Subject: i2c-matroxfb and i2c initialization order
-Message-ID: <20040603162053.GA5016@shurick.s2s.msu.ru>
+	Thu, 3 Jun 2004 12:23:05 -0400
+Subject: Re: [announce] [patch] NX (No eXecute) support for x86,
+	2.6.7-rc2-bk2
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Gerhard Mack <gmack@innerfire.net>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
+       Linus Torvalds <torvalds@osdl.org>,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>
+In-Reply-To: <Pine.LNX.4.58.0406031031480.14817@innerfire.net>
+References: <20040602205025.GA21555@elte.hu>
+	 <Pine.LNX.4.58.0406031031480.14817@innerfire.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ggoJnIqgl02oXsC1s9kr"
+Organization: Red Hat UK
+Message-Id: <1086279741.2709.6.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="WIyZ46R2i8wDzkSu"
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 03 Jun 2004 18:22:21 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---WIyZ46R2i8wDzkSu
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+--=-ggoJnIqgl02oXsC1s9kr
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Hi!
+On Thu, 2004-06-03 at 16:36, Gerhard Mack wrote:
+> >  kernel tried to access NX-protected page - exploit attempt? (uid: 500)
+> >  Unable to handle kernel paging request at virtual address f78d0f40
+> >   printing eip:
+> >  ...
+>=20
+> Just a small nitpick...
+>=20
+> Can you please drop the "- exploit attempt" from the error?  Buffer
+> overflows aren't always exploits.
 
-Since i2c-matroxfb is initialized before i2c subsystem,
-there are troubles with accessing this module
-via i2c interface.
+buffer overflows that then also execute code are pretty much always
+exploits tho ;)
 
-I solved this problem using a patch attached.
 
---WIyZ46R2i8wDzkSu
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="linux-2.4.26-i2c.patch"
+--=-ggoJnIqgl02oXsC1s9kr
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
---- Makefile.orig	2004-06-03 18:29:04.000000000 +0400
-+++ Makefile	2004-06-03 18:29:19.000000000 +0400
-@@ -175,6 +175,7 @@
- DRIVERS-$(CONFIG_PPC32) += drivers/macintosh/macintosh.o
- DRIVERS-$(CONFIG_MAC) += drivers/macintosh/macintosh.o
- DRIVERS-$(CONFIG_ISAPNP) += drivers/pnp/pnp.o
-+DRIVERS-$(CONFIG_I2C) += drivers/i2c/i2c.o
- DRIVERS-$(CONFIG_VT) += drivers/video/video.o
- DRIVERS-$(CONFIG_PARIDE) += drivers/block/paride/paride.a
- DRIVERS-$(CONFIG_HAMRADIO) += drivers/net/hamradio/hamradio.o
-@@ -186,7 +187,6 @@
- DRIVERS-$(CONFIG_HIL) += drivers/hil/hil.o
- DRIVERS-$(CONFIG_I2O) += drivers/message/i2o/i2o.o
- DRIVERS-$(CONFIG_IRDA) += drivers/net/irda/irda.o
--DRIVERS-$(CONFIG_I2C) += drivers/i2c/i2c.o
- DRIVERS-$(CONFIG_PHONE) += drivers/telephony/telephony.o
- DRIVERS-$(CONFIG_MD) += drivers/md/mddev.o
- DRIVERS-$(CONFIG_GSC) += drivers/gsc/gscbus.o
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
---WIyZ46R2i8wDzkSu--
+iD8DBQBAv1A9xULwo51rQBIRAmu5AJ4ly2uV0aXGpPMOlmJskylSCAdklgCeKsLR
+IXIgfA99X10YG/HI3zRCTmg=
+=474N
+-----END PGP SIGNATURE-----
+
+--=-ggoJnIqgl02oXsC1s9kr--
+

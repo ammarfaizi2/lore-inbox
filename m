@@ -1,51 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265152AbUEYWQy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265154AbUEYWUC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265152AbUEYWQy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 18:16:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265154AbUEYWQg
+	id S265154AbUEYWUC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 18:20:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265170AbUEYWT6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 18:16:36 -0400
-Received: from fw.osdl.org ([65.172.181.6]:9105 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265162AbUEYWOu (ORCPT
+	Tue, 25 May 2004 18:19:58 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:32910 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S265161AbUEYWT0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 18:14:50 -0400
-Date: Tue, 25 May 2004 15:14:37 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: "David S. Miller" <davem@redhat.com>, wesolows@foobazco.org,
-       willy@debian.org, Andrea Arcangeli <andrea@suse.de>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>, mingo@elte.hu,
-       bcrl@kvack.org, linux-mm@kvack.org,
-       Linux Arch list <linux-arch@vger.kernel.org>
-Subject: Re: [PATCH] ppc64: Fix possible race with set_pte on a present PTE
-In-Reply-To: <1085522860.15315.133.camel@gaston>
-Message-ID: <Pine.LNX.4.58.0405251514200.9951@ppc970.osdl.org>
-References: <1085369393.15315.28.camel@gaston>  <Pine.LNX.4.58.0405232046210.25502@ppc970.osdl.org>
-  <1085371988.15281.38.camel@gaston>  <Pine.LNX.4.58.0405232134480.25502@ppc970.osdl.org>
-  <1085373839.14969.42.camel@gaston>  <Pine.LNX.4.58.0405232149380.25502@ppc970.osdl.org>
-  <20040525034326.GT29378@dualathlon.random>  <Pine.LNX.4.58.0405242051460.32189@ppc970.osdl.org>
-  <20040525114437.GC29154@parcelfarce.linux.theplanet.co.uk> 
- <Pine.LNX.4.58.0405250726000.9951@ppc970.osdl.org>  <20040525153501.GA19465@foobazco.org>
-  <Pine.LNX.4.58.0405250841280.9951@ppc970.osdl.org>  <20040525102547.35207879.davem@redhat.com>
-  <Pine.LNX.4.58.0405251034040.9951@ppc970.osdl.org>  <20040525105442.2ebdc355.davem@redhat.com>
-  <Pine.LNX.4.58.0405251056520.9951@ppc970.osdl.org>  <1085521251.24948.127.camel@gaston>
-  <Pine.LNX.4.58.0405251452590.9951@ppc970.osdl.org> 
- <Pine.LNX.4.58.0405251455320.9951@ppc970.osdl.org> <1085522860.15315.133.camel@gaston>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 25 May 2004 18:19:26 -0400
+Date: Wed, 26 May 2004 00:20:32 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: "David S. Miller" <davem@redhat.com>
+Cc: akpm@osdl.org, riel@redhat.com, andrea@suse.de, torvalds@osdl.org,
+       phyprabab@yahoo.com, linux-kernel@vger.kernel.org
+Subject: Re: 4g/4g for 2.6.6
+Message-ID: <20040525222031.GA11436@elte.hu>
+References: <Pine.LNX.4.44.0405251549530.26157-100000@chimarrao.boston.redhat.com> <Pine.LNX.4.44.0405251607520.26157-100000@chimarrao.boston.redhat.com> <20040525141622.49e86eb9.akpm@osdl.org> <20040525214817.GA21112@elte.hu> <20040525150916.6f385bc9.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040525150916.6f385bc9.davem@redhat.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+* David S. Miller <davem@redhat.com> wrote:
 
-On Wed, 26 May 2004, Benjamin Herrenschmidt wrote:
->
-> Note that I'd rather call the function ptep_set_* than ptep_update_* to
-> make clear that it can only ever be used to _set_ those bits.
+> > hm, 1.5K pretty much seems to be the standard. Plus large frames can be
+> > scatter-gathered via fragmented skbs. Seldom is there a need for a large
+> > skb to be linear.
+> 
+> Unfortunately TSO with non-sendfile apps makes huge 64K SKBs get
+> built.
 
-Good point.
+hm, shouldnt we disable TSO in this case - or is it a win even in this
+case?
 
-Too late.
-
-		Linus
+	Ingo

@@ -1,72 +1,80 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312316AbSDXQj4>; Wed, 24 Apr 2002 12:39:56 -0400
+	id <S312332AbSDXQmd>; Wed, 24 Apr 2002 12:42:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312332AbSDXQjz>; Wed, 24 Apr 2002 12:39:55 -0400
-Received: from edu.joroinen.fi ([195.156.135.125]:41993 "HELO edu.joroinen.fi")
-	by vger.kernel.org with SMTP id <S312316AbSDXQjy> convert rfc822-to-8bit;
-	Wed, 24 Apr 2002 12:39:54 -0400
-Date: Wed, 24 Apr 2002 19:39:52 +0300 (EEST)
-From: =?ISO-8859-1?Q?Pasi_K=E4rkk=E4inen?= <pasik@iki.fi>
-X-X-Sender: <pk@edu.joroinen.fi>
-To: <jd@epcnet.de>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: AW: Re: VLAN and Network Drivers 2.4.x
-In-Reply-To: <527944032.avixxmail@nexxnet.epcnet.de>
-Message-ID: <Pine.LNX.4.33.0204241938140.32094-100000@edu.joroinen.fi>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S312357AbSDXQmc>; Wed, 24 Apr 2002 12:42:32 -0400
+Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:12783 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S312332AbSDXQma>; Wed, 24 Apr 2002 12:42:30 -0400
+From: Andreas Dilger <adilger@clusterfs.com>
+Date: Wed, 24 Apr 2002 10:40:56 -0600
+To: il boba <il_boba@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: what`s wrong?
+Message-ID: <20020424164056.GA15812@turbolinux.com>
+Mail-Followup-To: il boba <il_boba@hotmail.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <F218eE3VsX7PVTdAMDm0000842f@hotmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Apr 24, 2002  18:06 +0200, il boba wrote:
+> Is there anybody that can help me understand what`s wrong with this code?
 
-On Wed, 24 Apr 2002 jd@epcnet.de wrote:
+Yes, easily spotted a major problem without even reading the whole
+thing.
 
-> > Von: <davem@redhat.com>
-> > Gesendet: 24.04.2002 16:11
-> >
-> >    2.4.x-kernel, when it's useless without patching Network Drivers?
-> > It is not useless for the drivers that have been fixed.
->
-> Ok, but i have a stock 2.4.18 kernel, i can enable the VLAN option, recompile the kernel, configure a VLAN without any error or hint.
->
-> BUT: If i try to do ftp or ping with a payload greater than 1468 my
-> tulipbased ZNYX 346Q ethernetcards drop those packets. The driver or the
-> card cannot handle those packets. They are to large. Maybe a driverpatch
-> solve my problem - maybe not. The kernel itself doesn't care. vconfig
-> doesn't barf. It silently fails.. not so good behaviour in my opinion.
-> This is why there are always the same questions on the vlan mailinglist.
->
+> #define BUFSIZ 8192
+> 
+> int init_module()
+> {
+>  int err_frame[BUFSIZ];
 
-See linux-kernel archives.. some time ago Paul P Komkoff Jr <i@stingr.net>
-posted a patch for tulip to make VLANs work.. the subject of the post was
-something like "tulip and VLAN tagging".
+The entire kernel stack is only 8kB in size.  You have already killed
+a bunch of random memory by allocating this much memory on the stack.
+You allocated 4*8192 = 32kB on the stack here.
 
+> #if CONFIG_MODVERSIONS==1
+> #define MODVERSIONS
+> #include <linux/modversions.h>
+> #endif
 
-> > Because the solutions are hardware specific to allow these extra
-> > 4 bytes to be received by the card.  Some cards, in fact, cannot
-> > support VLAN at all because they cannot be programmed at all to
-> > take those 4 extra bytes.
->
-> Ok. But why isn't there a "tag" (capabilities?) on the drivers which let vconfig barf with a message like "underlying network driver or hardware doesn't support VLAN"?
->
-> > No it isn't useless.  There are many network drivers for which VLAN
-> > works out of the box RIGHT NOW.
->
-> Ok. But i don't get a message about the drivers which don't work. Which driver work/which not? Isn't it easier to tag all drivers as not VLAN-ready till somebody make a patch or confirm that its working with VLAN?
->
-> On the other side, my ZNYX works "out of the box" too. It works till 1468 Bytes ;) - I tend to say that ALL nic-drivers/hardware work till 1468 Bytes. But its not the intention of VLAN to lower the MTU on each Client.
->
+You shouldn't do things like this.  Rather have a makefile which sets
+the correct defines.
 
+> int init_err_frame(int err_frame[]) {
+>  int i, k = 0, j = 0;
+>  char buffer[BUFSIZ];
 
-- Pasi Kärkkäinen
+Another 8kB on the stack here - further random corruption.
 
+>  struct file * f = 
+> filp_open("/usr/src/kernel-source-2.2.19/pinux/misc/err_file", 0, 0);  /* i 
+> want it only readable */
 
-                                   ^
-                                .     .
-                                 Linux
-                              /    -    \
-                             Choice.of.the
-                           .Next.Generation.
+More clear to add "O_RDONLY" to filp_open, even though it is still 0.
+
+>  if (f == '\0'){
+>       printk ("errore nell' APERTURA del file d'errore");
+>       return -1;
+>  }
+
+How about "if (f == NULL)"?
+
+>  if ((generic_file_read(f, buffer, BUFSIZ, &f->f_pos)) < 0 ){
+
+Calling generic_file_read() may work in some cases, but not others.  It
+depends on the filesystem.  Use "f->f_op->read" instead.
+
+Cheers, Andreas
+--
+Andreas Dilger
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+http://sourceforge.net/projects/ext2resize/
 

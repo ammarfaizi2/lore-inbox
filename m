@@ -1,38 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262324AbTKRDSk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Nov 2003 22:18:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262349AbTKRDSj
+	id S261831AbTKREGI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Nov 2003 23:06:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261947AbTKREGI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Nov 2003 22:18:39 -0500
-Received: from rth.ninka.net ([216.101.162.244]:6016 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id S262324AbTKRDSj (ORCPT
+	Mon, 17 Nov 2003 23:06:08 -0500
+Received: from jive.SoftHome.net ([66.54.152.27]:28388 "HELO jive.SoftHome.net")
+	by vger.kernel.org with SMTP id S261831AbTKREGG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Nov 2003 22:18:39 -0500
-Date: Mon, 17 Nov 2003 19:18:17 -0800
-From: "David S. Miller" <davem@redhat.com>
-To: Christopher Cyrus <dust_ml@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ipchains crashing in 2.6.0-test9
-Message-Id: <20031117191817.60ebda93.davem@redhat.com>
-In-Reply-To: <20031117220931.79fdd609.dust_ml@gmx.de>
-References: <20031117220931.79fdd609.dust_ml@gmx.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 17 Nov 2003 23:06:06 -0500
+Subject: what option in the kernel allows computer to fully reboot?
+From: Tom Cruickshank <tcruicksh@softhome.net>
+To: linux-kernel@vger.kernel.org
+Message-Id: <1069128303.21949.53.camel@CPE0080c6e9c269-CM024400001649>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 17 Nov 2003 23:05:03 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Nov 2003 22:09:31 +0100
-Christopher Cyrus <dust_ml@gmx.de> wrote:
+Hello,
+    My apologizes in advance if this is the wrong place to ask this
+question. If there is a more appropriate mailing list, please feel free
+to direct me towards it.
 
-> My masqueradeing with ipchains causes a system freeze after the first
-> transmittet packages with my 2.6.0-test9.
-> perhaps anyone is using this "ancient technology", too. ;)
+I'm using a custom made kernel (I didn't create it, someone else did)
+and each time I try to reboot linux, it goes through the reboot sequence
+and then just hangs (last ling is "Rebooting Computer". Goes as if to
+reboot (no signal is given to the monitor). What option in the kernel
+permits the computer to actually reboot? I've already selected Power
+Management supportand all the options in Advanced Power Management BIOS
+support.
 
-This is definitely fixed in the current 2.6.x sources, please
-give it a try.
+Using kernel 2.4.19. PC is an IBM. Any help would be deeply appreicated.
+Thanks. 
 
-(And please in the future post this kind of report to the networking
- and netfilter mailing lists, thanks.)
+If you need any more information, please feel free to ask.
+
+Sincerely,
+
+Tom Cruickshank
+
+

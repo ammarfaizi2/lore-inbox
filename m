@@ -1,45 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264215AbRGCMLS>; Tue, 3 Jul 2001 08:11:18 -0400
+	id <S264376AbRGCMsC>; Tue, 3 Jul 2001 08:48:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264259AbRGCMLI>; Tue, 3 Jul 2001 08:11:08 -0400
-Received: from mail.intrex.net ([209.42.192.246]:44552 "EHLO intrex.net")
-	by vger.kernel.org with ESMTP id <S264215AbRGCMKw>;
-	Tue, 3 Jul 2001 08:10:52 -0400
-Date: Tue, 3 Jul 2001 08:15:15 -0400
-From: jlnance@intrex.net
-To: linux-kernel@vger.kernel.org
-Subject: Re: RFC: modules and 2.5
-Message-ID: <20010703081515.B1146@bessie.localdomain>
-In-Reply-To: <3B415489.77425364@mandrakesoft.com>
-Mime-Version: 1.0
+	id <S264352AbRGCMrw>; Tue, 3 Jul 2001 08:47:52 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:11524 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S264300AbRGCMrj>;
+	Tue, 3 Jul 2001 08:47:39 -0400
+From: Paul Mackerras <paulus@samba.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3B415489.77425364@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Tue, Jul 03, 2001 at 01:13:45AM -0400
+Content-Transfer-Encoding: 7bit
+Message-ID: <15169.48856.428247.217216@cargo.ozlabs.ibm.com>
+Date: Tue, 3 Jul 2001 22:47:20 +1000 (EST)
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: about kmap_high function
+In-Reply-To: <20010703103809.A29868@redhat.com>
+In-Reply-To: <3620762046.20010629150601@turbolinux.com.cn>
+	<20010703103809.A29868@redhat.com>
+X-Mailer: VM 6.75 under Emacs 20.7.2
+Reply-To: paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 03, 2001 at 01:13:45AM -0400, Jeff Garzik wrote:
-> A couple things that would be nice for 2.5 is
-> - let MOD_INC_USE_COUNT work even when module is built into kernel, and
-> - let THIS_MODULE exist and be valid even when module is built into
-> kernel
+Stephen C. Tweedie writes:
 
-I have something similar that I have wanted for a long time, and it would
-accomplish what you want too.  I would like for the .o files for modules and
-compiled in drivers to be identical.  It seems like this would be better for
-testing because it should eleminate module vs non-module bugs.  We might
-even want them to show up in /proc/modules, perhaps with some mechinism to
-keep the reference count from going to 0.
+> kmap_high is intended to be called routinely for access to highmem
+> pages.  It is coded to be as fast as possible as a result.  TLB
+> flushes are expensive, especially on SMP, so kmap_high tries hard to
+> avoid unnecessary flushes.
 
-I dont think I would want to unleash it on an end user, but if you omit the
-part about letting the reference count go to zero, it should even be possible
-to unload a compiled in driver and replace it with a new module.  If you
-did not load each module into its own section, you would have to leak its
-text and data memory, but this still might be useful for development.
+The code assumes that flushing a single TLB entry is expensive on SMP,
+while flushing the whole TLB is relatively cheap - certainly cheaper
+than flushing several individual entries.  And that assumption is of
+course true on i386.
 
-Anyway, just some ideas I have been wanting to share for about 5 years.
-Thanks for giving me an excuse.
+On PPC it is a bit different.  Flushing a single TLB entry is
+relatively cheap - the hardware broadcasts the TLB invalidation on the
+bus (in most implementations) so there are no cross-calls required.  But
+flushing the whole TLB is expensive because we (strictly speaking)
+have to flush the whole of the MMU hash table as well.
 
-Jim
+The MMU gets its PTEs from a hash table (which can be very large) and
+we use the hash table as a kind of level-2 cache of PTEs, which means
+that the flush_tlb_* routines have to flush entries from the MMU hash
+table as well.  The hash table can store PTEs from many contexts, so
+it can have a lot of PTEs in it at any given time.  So flushing the
+whole TLB would imply going through every single entry in the hash
+table and clearing it.  In fact, currently we cheat - flush_tlb_all
+actually only flushes the kernel portion of the address space, which
+is all that is required in the three places where flush_tlb_all is
+called at the moment.
+
+This is not a criticism, rather a request that we expand the
+interfaces so that the architecture-specific code can make the
+decisions about when and how to flush TLB entries.
+
+For example, I would like to get rid of flush_tlb_all and define a
+flush_tlb_kernel_range instead.  In all the places where flush_tlb_all
+is currently used, we do actually know the range of addresses which
+are affected, and having that information would let us do things a lot
+more efficiently on PPC.  On other platforms we could define
+flush_tlb_kernel_range to just flush the whole TLB, or whatever.
+
+Note that there is already a flush_tlb_range which could be used, but
+some architectures assume that it is only used on user addresses.
+
+Regards,
+Paul.

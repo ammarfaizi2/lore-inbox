@@ -1,66 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262890AbVCMFFc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263138AbVCMFLT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262890AbVCMFFc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Mar 2005 00:05:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262885AbVCMFFT
+	id S263138AbVCMFLT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Mar 2005 00:11:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263182AbVCMFLT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Mar 2005 00:05:19 -0500
-Received: from pat.uio.no ([129.240.130.16]:50819 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S263166AbVCMFEq (ORCPT
+	Sun, 13 Mar 2005 00:11:19 -0500
+Received: from fire.osdl.org ([65.172.181.4]:59862 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S263138AbVCMFH7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Mar 2005 00:04:46 -0500
-Subject: Re: [CHECKER] inconsistent NFS stat cache (NFS on ext3, 2.6.11)
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Junfeng Yang <yjf@stanford.edu>
-Cc: nfs@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ext2-devel@lists.sourceforge.net, mc@cs.Stanford.EDU
-In-Reply-To: <Pine.GSO.4.44.0503120335160.12085-100000@elaine24.Stanford.EDU>
-References: <Pine.GSO.4.44.0503120335160.12085-100000@elaine24.Stanford.EDU>
-Content-Type: text/plain
-Date: Sun, 13 Mar 2005 00:04:27 -0500
-Message-Id: <1110690267.24123.7.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+	Sun, 13 Mar 2005 00:07:59 -0500
+Date: Sat, 12 Mar 2005 21:08:45 -0800
+From: John Cherry <cherry@osdl.org>
+Message-Id: <200503130508.j2D58jTQ014587@ibm-f.pdx.osdl.net>
+To: linux-kernel@vger.kernel.org
+Subject: IA32 (2.6.11 - 2005-03-12.16.00) - 56 New warnings
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-lau den 12.03.2005 Klokka 03:56 (-0800) skreiv Junfeng Yang:
-> Hi,
-> 
-> We checked NFS on top of ext3 using FiSC (our file system model checker)
-> and found a case where NFS stat cache can contain inconsistent entries.
-> 
-> Basically, to trigger this inconsistency, just do the following steps:
-> 1. create a file A1, write a few bytes to it, so A1 is 4 words
-> 2. create a hard link A2, pointing to A1
-> 3. stat on A2. A2's size is 4 words
-> 4. truncate A1 to a larger size, write a few bytes at the end. now it's
-> 1031 words.
-> 5. stat on A2. it's size is still 4 words, which should be 1031 words
-> 
-> We have a test case to re-create this warning.  You can download it at
-> http://fisc.stanford.edu/bug16/crash.c.  It includes some sudo commands
-> to mount nfs partitions, which you might want to change according to your
-> local settings.
-> 
-> cat /etc/exports shows:
-> /mnt/sbd0-export          localhost(rw,sync)
-> /mnt/sbd1-export          localhost(rw,sync)
-> 
-> Let me know if you have any problems reproducing the warning. We'd
-> appreciate any confirmations/clarifications.
-> 
-
-This is a known problem. Turn off the (default - grrr) subtree checking
-export option on the server, and it will all work properly. The subtree
-checking option violates the NFS standards for filehandle generation in
-so many ways, that it isn't even funny.
-
-Cheers,
-  Trond
-
--- 
-Trond Myklebust <trond.myklebust@fys.uio.no>
-
+drivers/media/dvb/frontends/dvb-pll.c:104: warning: (near initialization for `dvb_pll_unknown_1.entries')
+drivers/media/dvb/frontends/dvb-pll.c:104: warning: excess elements in array initializer
+drivers/media/dvb/frontends/dvb-pll.c:105: warning: (near initialization for `dvb_pll_unknown_1.entries')
+drivers/media/dvb/frontends/dvb-pll.c:105: warning: excess elements in array initializer
+drivers/media/dvb/frontends/dvb-pll.c:106: warning: (near initialization for `dvb_pll_unknown_1.entries')
+drivers/media/dvb/frontends/dvb-pll.c:106: warning: excess elements in array initializer
+drivers/media/dvb/frontends/dvb-pll.c:107: warning: (near initialization for `dvb_pll_unknown_1.entries')
+drivers/media/dvb/frontends/dvb-pll.c:107: warning: excess elements in array initializer
+drivers/media/dvb/frontends/dvb-pll.c:108: warning: (near initialization for `dvb_pll_unknown_1.entries')
+drivers/media/dvb/frontends/dvb-pll.c:108: warning: excess elements in array initializer
+drivers/media/dvb/frontends/dvb-pll.c:109: warning: (near initialization for `dvb_pll_unknown_1.entries')
+drivers/media/dvb/frontends/dvb-pll.c:109: warning: excess elements in array initializer
+drivers/media/dvb/frontends/dvb-pll.c:110: warning: (near initialization for `dvb_pll_unknown_1.entries')
+drivers/media/dvb/frontends/dvb-pll.c:110: warning: excess elements in array initializer
+drivers/media/dvb/frontends/dvb-pll.c:111: warning: (near initialization for `dvb_pll_unknown_1.entries')
+drivers/media/dvb/frontends/dvb-pll.c:111: warning: excess elements in array initializer
+drivers/media/dvb/frontends/dvb-pll.c:112: warning: (near initialization for `dvb_pll_unknown_1.entries')
+drivers/media/dvb/frontends/dvb-pll.c:112: warning: excess elements in array initializer
+drivers/media/dvb/frontends/dvb-pll.c:38: warning: (near initialization for `dvb_pll_thomson_dtt7579.entries')
+drivers/media/dvb/frontends/dvb-pll.c:38: warning: excess elements in array initializer
+drivers/media/dvb/frontends/dvb-pll.c:39: warning: (near initialization for `dvb_pll_thomson_dtt7579.entries')
+drivers/media/dvb/frontends/dvb-pll.c:39: warning: excess elements in array initializer
+drivers/media/dvb/frontends/dvb-pll.c:40: warning: (near initialization for `dvb_pll_thomson_dtt7579.entries')
+drivers/media/dvb/frontends/dvb-pll.c:40: warning: excess elements in array initializer
+drivers/media/dvb/frontends/dvb-pll.c:41: warning: (near initialization for `dvb_pll_thomson_dtt7579.entries')
+drivers/media/dvb/frontends/dvb-pll.c:41: warning: excess elements in array initializer
+drivers/media/dvb/frontends/dvb-pll.c:42: warning: (near initialization for `dvb_pll_thomson_dtt7579.entries')
+drivers/media/dvb/frontends/dvb-pll.c:42: warning: excess elements in array initializer
+drivers/media/dvb/frontends/dvb-pll.c:53: warning: (near initialization for `dvb_pll_thomson_dtt7610.entries')
+drivers/media/dvb/frontends/dvb-pll.c:53: warning: excess elements in array initializer
+drivers/media/dvb/frontends/dvb-pll.c:54: warning: (near initialization for `dvb_pll_thomson_dtt7610.entries')
+drivers/media/dvb/frontends/dvb-pll.c:54: warning: excess elements in array initializer
+drivers/media/dvb/frontends/dvb-pll.c:55: warning: (near initialization for `dvb_pll_thomson_dtt7610.entries')
+drivers/media/dvb/frontends/dvb-pll.c:55: warning: excess elements in array initializer
+drivers/media/dvb/frontends/dvb-pll.c:73: warning: (near initialization for `dvb_pll_thomson_dtt759x.entries')
+drivers/media/dvb/frontends/dvb-pll.c:73: warning: excess elements in array initializer
+drivers/media/dvb/frontends/dvb-pll.c:74: warning: (near initialization for `dvb_pll_thomson_dtt759x.entries')
+drivers/media/dvb/frontends/dvb-pll.c:74: warning: excess elements in array initializer
+drivers/media/dvb/frontends/dvb-pll.c:75: warning: (near initialization for `dvb_pll_thomson_dtt759x.entries')
+drivers/media/dvb/frontends/dvb-pll.c:75: warning: excess elements in array initializer
+drivers/media/dvb/frontends/dvb-pll.c:76: warning: (near initialization for `dvb_pll_thomson_dtt759x.entries')
+drivers/media/dvb/frontends/dvb-pll.c:76: warning: excess elements in array initializer
+drivers/media/dvb/frontends/dvb-pll.c:77: warning: (near initialization for `dvb_pll_thomson_dtt759x.entries')
+drivers/media/dvb/frontends/dvb-pll.c:77: warning: excess elements in array initializer
+drivers/media/dvb/frontends/dvb-pll.c:78: warning: (near initialization for `dvb_pll_thomson_dtt759x.entries')
+drivers/media/dvb/frontends/dvb-pll.c:78: warning: excess elements in array initializer
+drivers/media/dvb/frontends/dvb-pll.c:89: warning: (near initialization for `dvb_pll_lg_z201.entries')
+drivers/media/dvb/frontends/dvb-pll.c:89: warning: excess elements in array initializer
+drivers/media/dvb/frontends/dvb-pll.c:90: warning: (near initialization for `dvb_pll_lg_z201.entries')
+drivers/media/dvb/frontends/dvb-pll.c:90: warning: excess elements in array initializer
+drivers/media/dvb/frontends/dvb-pll.c:91: warning: (near initialization for `dvb_pll_lg_z201.entries')
+drivers/media/dvb/frontends/dvb-pll.c:91: warning: excess elements in array initializer
+drivers/media/dvb/frontends/dvb-pll.c:92: warning: (near initialization for `dvb_pll_lg_z201.entries')
+drivers/media/dvb/frontends/dvb-pll.c:92: warning: excess elements in array initializer
+drivers/media/dvb/frontends/dvb-pll.c:93: warning: (near initialization for `dvb_pll_lg_z201.entries')
+drivers/media/dvb/frontends/dvb-pll.c:93: warning: excess elements in array initializer

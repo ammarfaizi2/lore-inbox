@@ -1,45 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262351AbVAZRD2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262298AbVAZQ64@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262351AbVAZRD2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jan 2005 12:03:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262435AbVAZRCc
+	id S262298AbVAZQ64 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 11:58:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262417AbVAZQ4I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 12:02:32 -0500
-Received: from mail.kroah.org ([69.55.234.183]:20972 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262351AbVAZQ5b (ORCPT
+	Wed, 26 Jan 2005 11:56:08 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:48266 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S262431AbVAZQzr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 11:57:31 -0500
-Date: Wed, 26 Jan 2005 08:57:07 -0800
-From: Greg KH <greg@kroah.com>
-To: Mikkel Krautz <krautz@gmail.com>
-Cc: linux-kernel@vger.kernel.org, roms@lpg.ticalc.org, jb@technologeek.org
-Subject: Re: [PATCH 0/3] TIGLUSB Cleanups
-Message-ID: <20050126165707.GA3684@kroah.com>
-References: <41F7C9D3.3030307@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41F7C9D3.3030307@gmail.com>
-User-Agent: Mutt/1.5.6i
+	Wed, 26 Jan 2005 11:55:47 -0500
+Date: Wed, 26 Jan 2005 08:52:12 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, Andi Kleen <ak@suse.de>,
+       albert@users.sourceforge.net, Max Asbock <amax@us.ibm.com>,
+       Anton Blanchard <anton@samba.org>, Darren Hart <darren@dvhart.com>,
+       David Mosberger <davidm@hpl.hp.com>,
+       "Darrick J. Wong" <djwong@us.ibm.com>,
+       George Anzinger <george@mvista.com>, Patricia Gaughen <gone@us.ibm.com>,
+       john stultz <johnstul@us.ibm.com>, keith maanthey <kmannth@us.ibm.com>,
+       Chris McDermott <lcm@us.ibm.com>,
+       Dominik Brodowski <linux@dominikbrodowski.de>,
+       lkml <linux-kernel@vger.kernel.org>, mahuja@us.ibm.com,
+       Nishanth Aravamudan <nacc@us.ibm.com>,
+       Paul Mackerras <paulus@samba.org>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>
+Subject: Re: [RFC][PATCH] new timeofday arch specific hooks (v. A2)
+In-Reply-To: <OFF640EFCB.17A81893-ON41256F95.0033EA1D-41256F95.00342F11@de.ibm.com>
+Message-ID: <Pine.LNX.4.58.0501260851450.1852@schroedinger.engr.sgi.com>
+References: <OFF640EFCB.17A81893-ON41256F95.0033EA1D-41256F95.00342F11@de.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 26, 2005 at 05:48:19PM +0100, Mikkel Krautz wrote:
-> On Wed, 26 Jan 2005 08:40:10 -0800, Greg KH <greg@kroah.com> wrote:
-> >
-> > Use a different email client, or attach the patches as plain text.
-> >
-> > Good luck,
-> >
-> > greg k-h
-> >
-> 
-> Alright, they're attached this time.
-> I hope this'll do for now. :-)
+On Wed, 26 Jan 2005, Martin Schwidefsky wrote:
 
-Nope, please break them out into the three pieces, in three different
-emails like you did before so I can apply them all properly.
+> Why not add an if at the start of gettimeofday to check when the last
+> ntp updates has been done and if it has been too long since the last time
+> then call ntp_scale ? That way the update isn't done on every call to
+> gettimeofday and we don't depend on the regular timer tick.
 
-thanks,
+Because ia64 does not support calling arbitrary C functions in fastcalls.
 
-greg k-h

@@ -1,68 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279064AbRJVXBa>; Mon, 22 Oct 2001 19:01:30 -0400
+	id <S279065AbRJVXBV>; Mon, 22 Oct 2001 19:01:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279051AbRJVXBX>; Mon, 22 Oct 2001 19:01:23 -0400
-Received: from mailhost.idcomm.com ([207.40.196.14]:435 "EHLO
-	mailhost.idcomm.com") by vger.kernel.org with ESMTP
-	id <S279064AbRJVXBL>; Mon, 22 Oct 2001 19:01:11 -0400
-Message-ID: <3BD4A583.36498CBA@idcomm.com>
-Date: Mon, 22 Oct 2001 17:02:27 -0600
-From: "D. Stimits" <stimits@idcomm.com>
-Reply-To: stimits@idcomm.com
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre1-xfs-4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.2.20pre10
-In-Reply-To: <20011022135759.A17384@crdic.ath.cx> <20011022163755.A2727@kittpeak.ece.umn.edu> <3BD4978E.3802AC91@idcomm.com> <EXCH01SMTP01rMum5Tj0005a0a7@smtp.netcabo.pt>
-Content-Type: text/plain; charset=us-ascii
+	id <S279051AbRJVW6m>; Mon, 22 Oct 2001 18:58:42 -0400
+Received: from zero.tech9.net ([209.61.188.187]:41226 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S279053AbRJVW6X>;
+	Mon, 22 Oct 2001 18:58:23 -0400
+Subject: Re: 2.4.12 w/ preempt patch
+From: Robert Love <rml@tech9.net>
+To: steve <sdroemen@home.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1003790595.3536.9.camel@lws01>
+In-Reply-To: <1003790595.3536.9.camel@lws01>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+X-Mailer: Evolution/0.16.99+cvs.2001.10.18.15.19 (Preview Release)
+Date: 22 Oct 2001 18:58:59 -0400
+Message-Id: <1003791539.1712.50.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pedro Corte-Real wrote:
+On Mon, 2001-10-22 at 18:43, steve wrote:
+> I got a bug error in my syslog  My machine had been running about 1 day.
+> it is the 2.4.12 kernel with the preempt-kernel-rml-2.4.12-1.patch 
+> patch from http://www.tech9.net/rml/linux
 > 
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> On Monday 22 October 2001 23:02, D. Stimits wrote:
-> >
-> >
-> > Too bad the option only applies to people with enough money to relocate.
-> >
-> 
-> Well, freedom in the US has always been about money. The independence war was
-> about getting rid of taxes and modern freedom is bought in the courtrooms
-> with expensive lawyers. Why should it change now?
+> anybody know what went wrong, and how to fix it?
 
-When talking about why Americans don't go out and magically change
-things, this is the key. When talking about who is harmed most by
-injustices, the theme of the poorest is true anywhere. Just a point when
-criticizing Americans, contrary to popular opinion, not starving is not
-the same as having power or influence. When someone without money
-complains, it is called "whining"; when someone with money complains, it
-is called "free market".
+First, get the most recent patch.  revision -3 is out now at
+http://tech9.net/rml/linux
 
-D. Stimits, stimits@idcomm.com
+Try this.  Even better, try the 2.4.13-pre6 patch against that kernel. 
+Either way, a possible race was fixed in the newer versions.
 
-> 
-> Greetings,
-> 
-> Pedro.
-> 
-> PS: sorry for fueling offtopic posts into an offtopic thread.
-> -----BEGIN PGP SIGNATURE-----
-> Version: GnuPG v1.0.6 (GNU/Linux)
-> Comment: For info see http://www.gnupg.org
-> 
-> iD8DBQE71JsD2SBo0jBmgGARAvx8AKDFN+CuPqCYZDbBryK9dKRcy+8OGgCfVcPl
-> gCZ4lh5AQZkzubm+M4qYE7A=
-> =SK5+
-> -----END PGP SIGNATURE-----
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+If you still have an oops, try to reproduce it without any binary
+modules loaded.
+
+	Robert Love
+

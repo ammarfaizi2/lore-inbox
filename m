@@ -1,39 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281657AbRKUHvJ>; Wed, 21 Nov 2001 02:51:09 -0500
+	id <S281659AbRKUHwi>; Wed, 21 Nov 2001 02:52:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281659AbRKUHu7>; Wed, 21 Nov 2001 02:50:59 -0500
-Received: from pc1-camc3-0-cust88.cam.cable.ntl.com ([80.2.244.88]:58834 "EHLO
-	fenrus.demon.nl") by vger.kernel.org with ESMTP id <S281657AbRKUHuq>;
-	Wed, 21 Nov 2001 02:50:46 -0500
-From: arjan@fenrus.demon.nl
-To: jmerkey@timpanogas.org (Jeff Merkey)
-Subject: Re: [VM/MEMORY-SICKNESS] 2.4.15-pre7 kmem_cache_create invalid opcode
-cc: linux-kernel@vger.kernel.org
-In-Reply-To: <003401c1725a$975ad4e0$f5976dcf@nwfs>
-X-Newsgroups: fenrus.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.3-6.0.1 (i586))
-Message-Id: <E166S8l-0007hs-00@fenrus.demon.nl>
-Date: Wed, 21 Nov 2001 07:49:51 +0000
+	id <S281662AbRKUHw3>; Wed, 21 Nov 2001 02:52:29 -0500
+Received: from thebsh.namesys.com ([212.16.0.238]:18448 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S281659AbRKUHwO>; Wed, 21 Nov 2001 02:52:14 -0500
+From: Nikita Danilov <Nikita@Namesys.COM>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 8bit
+Message-ID: <15355.27299.252362.983624@beta.reiserfs.com>
+Date: Wed, 21 Nov 2001 11:49:39 +0300
+To: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Cc: ReiserFS List <reiserfs-list@Namesys.COM>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [REISERFS TESTING] new patches on ftp.namesys.com: 2.4.15-pre7
+In-Reply-To: <200111210110.fAL1Atc11275@beta.namesys.com>
+In-Reply-To: <200111210110.fAL1Atc11275@beta.namesys.com>
+X-Mailer: VM 6.96 under 21.4 (patch 3) "Academic Rigor" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <003401c1725a$975ad4e0$f5976dcf@nwfs> you wrote:
+Dieter Nützel writes:
+ > Sorry Nikita,
+ > 
+ > but kernel 2.4.15-pre7 + preempt + ReiserFS A-N do _NOT_ boot for me.
+ > I've tried it with "old" and "new" (current) N-inode-attrs.patch. But that doesn't matter.
+ > 
+ > [-]
+ > IP: routing cache hash table of 8192 buckets, 64Kbytes
+ > TCP: Hash tables configured (established 262144 bind 65536)
+ > NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
+ > reiserfs: checking transaction log (device 08:03) ...
+ > Using r5 hash to sort names
+ > ReiserFS version 3.6.25
+ > VFS: Mounted root (reiserfs filesystem) readonly.
+ > Freeing unused kernel memory: 208k freed
+ > "Warning: unable to open an initial console." 
 
-> OK.  Cool.  Now we are making progress.  I think this is a nasty problem.
-> There are numerous RPMs that will build against the kernel tree and be
-> busted.  I would expect an rpm -ba on your DEFAULT kernel in Redhat with
-> the sources contained in the kernel.rpm files to also be broken unless
-> someone has done this.
+N-inode-attrs.patch uses previously unused field in reiserfs on-disk
+inode structure to store inode attributes. It seems that in some cases
+this field actually contains garbage. It may happen that you have got
+immutable bit for your console device this way.
 
-That's why Red Hat ships the kernel-source RPM; you can build external
-modules against that and it has the "make dep" information for all kernels
-Red Hat ships for that platform (with a smart "if" that selects the
-currently running one)........... But note the word "external". You build in
-another directory and don't touch the original .config file or tree......
-Unless you need core changes, that's perfectly possible for almost all
-modules....
+As a work around try to boot with ext2, do
 
-Greetings,
-    Arjan van de Ven
+lsattr /dev/console to check, and run 
 
+chattr -R -SAadiscu /reiserfs-mount-point
+
+for each reiserfs file system to clear all attributes. Yes, it's silly.
+
+ > 
+ > SysRq: Show Regs
+ > 
+ > Pid: 1, comm: init
+ > EIP: 0023 : [<0804c842>] CPU: 0 ESP: 002b:bffffe10 EFLAGS: 00010246 Not tainted
+ > EAX: ffffffff EBX: bfffff00 ECX: 0000000d EDX: ffffffff
+ > ESI: bffffef4 EDI: 00000002 EBP: bffffe78 DS: 002b ES: 002b
+ > CR0: 8005003b CR2: 080609c0 CR3: 27adc000 CR4: 000002d0
+ > Call Trace:
+ > 
+ > SysRq: Show State
+ > 
+ > init, keventd, ksoftirqd_CPU, kswapd, bdflush, kupdated, scsi_eh_0, kreiserfsd
+ > 
+ > Thanks,
+ > 	Dieter
+ > -- 
+ > Dieter Nützel
+ > Graduate Student, Computer Science
+ > @home: Dieter.Nuetzel@hamburg.de
+
+Nikita.

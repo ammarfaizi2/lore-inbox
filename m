@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272677AbRIXB1n>; Sun, 23 Sep 2001 21:27:43 -0400
+	id <S273734AbRIXBZN>; Sun, 23 Sep 2001 21:25:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273737AbRIXB1X>; Sun, 23 Sep 2001 21:27:23 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:35847 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S273736AbRIXB1Q>; Sun, 23 Sep 2001 21:27:16 -0400
-Date: Sun, 23 Sep 2001 18:25:53 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: <zefram@fysh.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] tty canonical mode: nicer erase behaviour
-In-Reply-To: <E15lHUG-0001N5-00@bowl.fysh.org>
-Message-ID: <Pine.LNX.4.33.0109231823480.1552-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S273736AbRIXBZD>; Sun, 23 Sep 2001 21:25:03 -0400
+Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:59910 "HELO
+	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
+	id <S273734AbRIXBY5>; Sun, 23 Sep 2001 21:24:57 -0400
+Date: Mon, 24 Sep 2001 03:25:18 +0200
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.4.10
+Message-ID: <20010924032518.A8680@emma1.emma.line.org>
+Mail-Followup-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0109231142060.1078-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0109231142060.1078-100000@penguin.transmeta.com>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 23 Sep 2001, Linus Torvalds wrote:
 
-On Sun, 23 Sep 2001 zefram@fysh.org wrote:
+> Ok, I released a real 2.4.10, let the fun begin..
 
-> Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> >Your xterm is not following Linux policy - this is a solved problem in
-> >Linuxspace. Debian bit the bullet a few years ago and did the neccessary
-> >deed to make all their terminal emulators and console match.
->
-> So Linux policy is to support only terminals that generate ^? for
-> backspace?
+...
 
-No.
+> Give it hell,
 
-Linux supports everything. Try doing a "man stty".
+Well, if I run XFree86 4.1.0 (SuSE Linux 7.0 here, Diamond Viper V550
+(nVidia Riva TNT)) and switch to virtual text-mode tty (Ctrl Alt F1),
+hell freezes over. Screen turns black (but monitor syncs), machine is
+totally frozen. No Magic SysRq can help. Just Reset can. I use ext3fs on
+several partitions. 2.4.9 is fine, 2.4.9-ac7, -ac10 and 2.4.10 are
+broken.
 
-But the default behaviour is ^?, which makes emacs happy, and also happens
-to be the default mode for most real vt100 terminals out there.
+Serial console on 2.4.9-ac10 didn't have output, didn't attach serial
+console to 2.4.10 yet.
 
-If you have a terminal that really really wants ^H, just do
+Since this is somewhat hopeless to debug, I'm trying to do a binary
+search to figure which 2.4.10-pre broke things, but it'll take a while.
+Don't expect results before Monday evening UT +0200.
 
-	stty erase ^H
-
-and Linux will happily believe you.
-
-		Linus
-
+Are there any particular suspect changes I should try to back out?

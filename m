@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285151AbRLRVFD>; Tue, 18 Dec 2001 16:05:03 -0500
+	id <S285163AbRLRVDD>; Tue, 18 Dec 2001 16:03:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285165AbRLRVEy>; Tue, 18 Dec 2001 16:04:54 -0500
-Received: from [65.201.154.134] ([65.201.154.134]:6961 "EHLO
+	id <S285161AbRLRVCq>; Tue, 18 Dec 2001 16:02:46 -0500
+Received: from [65.201.154.134] ([65.201.154.134]:5937 "EHLO
 	EXCHANGE01.domain.ecutel.com") by vger.kernel.org with ESMTP
-	id <S285151AbRLRVC5> convert rfc822-to-8bit; Tue, 18 Dec 2001 16:02:57 -0500
+	id <S285160AbRLRVC0> convert rfc822-to-8bit; Tue, 18 Dec 2001 16:02:26 -0500
 X-MimeOLE: Produced By Microsoft Exchange V6.0.4712.0
 content-class: urn:content-classes:message
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Subject: need help (using netlink sockets)
+Subject: a question
 Content-Transfer-Encoding: 7BIT
-Date: Tue, 18 Dec 2001 16:02:52 -0500
-Message-ID: <AF2378CBE7016247BC0FD5261F1EEB210B6A10@EXCHANGE01.domain.ecutel.com>
+Date: Tue, 18 Dec 2001 16:02:20 -0500
+Message-ID: <AF2378CBE7016247BC0FD5261F1EEB210DB5C3@EXCHANGE01.domain.ecutel.com>
 X-MS-Has-Attach: 
 X-MS-TNEF-Correlator: 
 Thread-Topic: a question

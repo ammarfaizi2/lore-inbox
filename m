@@ -1,63 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261684AbTICIOX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 04:14:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261682AbTICIOX
+	id S261644AbTICIIM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 04:08:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261637AbTICIH3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 04:14:23 -0400
-Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:52718 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP id S261686AbTICINs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 04:13:48 -0400
-Subject: Re: 2.6.0-test4(-mmX) via-rhine ethernet onboard C3 mini-itx
-	doesn't work
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Damian Kolkowski <deimos@deimos.one.pl>
-Cc: Danny ter Haar <dth@ncc1701.cistron.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <20030903074902.GA1786@deimos.one.pl>
-References: <bj447c$el6$1@news.cistron.nl>
-	 <20030903074902.GA1786@deimos.one.pl>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-kdGl8FvSU92hyhZXTck1"
-Organization: Red Hat, Inc.
-Message-Id: <1062576819.5058.2.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-4) 
-Date: Wed, 03 Sep 2003 10:13:39 +0200
+	Wed, 3 Sep 2003 04:07:29 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:42478 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S261644AbTICIGA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 04:06:00 -0400
+Date: Wed, 3 Sep 2003 10:05:22 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Kars de Jong <jongk@linux-m68k.org>
+cc: Jamie Lokier <jamie@shareable.org>,
+       Linux/m68k kernel mailing list 
+	<linux-m68k@lists.linux-m68k.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this
+In-Reply-To: <1062576038.1221.4.camel@laptop.locamation.com>
+Message-ID: <Pine.GSO.4.21.0309031004480.6985-100000@waterleaf.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 3 Sep 2003, Kars de Jong wrote:
+> On Mon, 2003-09-01 at 10:34, Geert Uytterhoeven wrote:
+> > BTW, probably you want us to run your test program on other m68k boxes? Mine
+> > got a 68040, that leaves us with:
+> >   - 68030
+> 
+> Ah, I forgot, I've got one of these here too, a Motorola MVME147 board:
+> 
+> sasscm:/tmp# time ./jamie_test2
+> Test separation: 4096 bytes: FAIL - cache not coherent
 
---=-kdGl8FvSU92hyhZXTck1
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I guess the Plessey PME 68-22 didn't have cache, since the test passed?
 
-On Wed, 2003-09-03 at 09:49, Damian Kolkowski wrote:
-> On Wed, Sep 03, 2003 at 07:11:40AM +0000, Danny ter Haar wrote:
-> > vanilla 2.6.0-test4 & test4-mm[45] & the onboard ethernet doesn't seem =
-to work.
-> > No kernel panics, it just doesn't work :-(
->=20
-> It's standard APIC bug that no one care!
+Gr{oetje,eeting}s,
 
-if you enable APIC (and not ACPI) then you start using a different BIOS
-table for IRQ routing. Several BIOSes have bugs in this table since it's
-not a table that is generally used by Windows on UP boxes. Saying that
-it's the kernel's fault is rather unfair; most (if not all) distros for
-example ship with APIC disabled for this reason. It's nice if it works
-for you but there's quite a few boxes out there that just can't work....
-Don't configure it if you have such a box.
+						Geert
 
---=-kdGl8FvSU92hyhZXTck1
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 
-iD8DBQA/VaKzxULwo51rQBIRAo/kAJ43wQSldpC1zZKifCvjdAiOs2PuxgCfc3P1
-xh6dv5HNhgnkNTG5oJrhJd4=
-=+8nm
------END PGP SIGNATURE-----
-
---=-kdGl8FvSU92hyhZXTck1--

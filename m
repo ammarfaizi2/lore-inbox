@@ -1,50 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267006AbUBMN5g (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 08:57:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267019AbUBMN5g
+	id S266771AbUBMNzV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 08:55:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266784AbUBMNzV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 08:57:36 -0500
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:30468 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S267006AbUBMN5d convert rfc822-to-8bit (ORCPT
+	Fri, 13 Feb 2004 08:55:21 -0500
+Received: from denise.shiny.it ([194.20.232.1]:64972 "EHLO denise.shiny.it")
+	by vger.kernel.org with ESMTP id S266771AbUBMNzR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 08:57:33 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Maciej Zenczykowski <maze@cela.pl>
-Subject: Re: PATCH, RFC: 2.6 Documentation/Codingstyle
-Date: Fri, 13 Feb 2004 15:57:16 +0200
-X-Mailer: KMail [version 1.4]
-Cc: Junio C Hamano <junkio@cox.net>, Michael Frank <mhf@linuxmail.org>,
-       linux kernel <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0402131322280.12513-100000@gaia.cela.pl>
-In-Reply-To: <Pine.LNX.4.44.0402131322280.12513-100000@gaia.cela.pl>
+	Fri, 13 Feb 2004 08:55:17 -0500
+Message-ID: <XFMail.20040213145513.pochini@shiny.it>
+X-Mailer: XFMail 1.4.7 on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200402131557.16971.vda@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <20040213124232.B2871@pclin040.win.tue.nl>
+Date: Fri, 13 Feb 2004 14:55:13 +0100 (CET)
+From: Giuliano Pochini <pochini@shiny.it>
+To: Andries Brouwer <aebr@win.tue.nl>
+Subject: Re: PATCH, RFC: 2.6 Documentation/Codingstyle
+Cc: linux kernel <linux-kernel@vger.kernel.org>
+Cc: linux kernel <linux-kernel@vger.kernel.org>,
+       Michael Frank <mhf@linuxmail.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 13 February 2004 14:37, Maciej Zenczykowski wrote:
-> > 126MB LOWMEM available
-> > Detected 1196.031 MHz processor
-> > Intel machine check architecture supported
-> > POSIX conformance testing by UNIFIX
-> > PCI: Probing PCI hardware
+
+On Fri, 13 Feb 2004, Andries Brouwer wrote:
+
+> I do. (That is, 80xN with N in 24..60 or so.)
 >
-> In your post only the above could be considered sentences and even then
-> most are really too short, or end with numerals or acronyms which make
-> dots look stupid.  Personally I'd think the "Intel machine check
-> architecture supported." message looks better with a period and I'd leave
-> all the rest alone.  Nevertheless, all 5 of the above could possibly end
-> with periods, the rest never.
+> The 80 here has a pedagogical and a practical purpose.
+> The practical one is that it makes sure that everybody can read the source.
+> The pedagogical is to invite you to arrange the code in a different way
+> if you are nesting too deeply or your expressions are too complicated.
 
-If we adopt this, 'what is a sentence and what is not'
-will be debated again and again at lkml. For
-each particular sentence. Do you want that? ;)
+Deeply nested doesn't mean unreadable or badly structured. 1 tab in the
+function, 1tab a switch, 1 if, 1 for, 1 if and you have already lost
+half of the available space. It's not difficult to find lines compressed
+towards the 79th column in the kernel sources.
+I propose to change "hard limit" to "soft limit" to avoid things like this:
 
-OTOH 'no trailing dots in logs' rule is simple and not
-too ugly for any log message.
--- 
-vda
+                                rc=idefloppy_begin_format(drive, inode,
+                                                              file,
+                                                              (int *)arg);
+
+IMO we should try to keep function calls on the same line. btw it's
+only a matter of taste and the compiler accepts ugly code too :))
+
+> There is also ergonomics. There is a reason newspapers do not print
+> text across the full width of the page - it would be very difficult
+> to read.
+  
+Code has only one instruction per line.
+  
+  
+--
+Giuliano.
+

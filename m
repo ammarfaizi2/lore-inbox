@@ -1,79 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132861AbRDIWUi>; Mon, 9 Apr 2001 18:20:38 -0400
+	id <S132862AbRDIWYT>; Mon, 9 Apr 2001 18:24:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132862AbRDIWU2>; Mon, 9 Apr 2001 18:20:28 -0400
-Received: from [202.123.212.187] ([202.123.212.187]:12305 "EHLO ns1.b2s.com")
-	by vger.kernel.org with ESMTP id <S132861AbRDIWUP>;
-	Mon, 9 Apr 2001 18:20:15 -0400
-Message-ID: <3AD235D7.E590147@vtc.edu.hk>
-Date: Tue, 10 Apr 2001 06:21:11 +0800
-From: Nick Urbanik <nicku@vtc.edu.hk>
-Organization: Institute of Vocational Education (Tsing Yi)
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre7 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.4-pre1 Unresolved symbols "strstr"
-In-Reply-To: <Pine.LNX.4.33.0104090940520.5815-100000@boston.corp.fedex.com>
+	id <S132863AbRDIWYJ>; Mon, 9 Apr 2001 18:24:09 -0400
+Received: from mail.zmailer.org ([194.252.70.162]:61450 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S132862AbRDIWX5>;
+	Mon, 9 Apr 2001 18:23:57 -0400
+Date: Tue, 10 Apr 2001 01:23:37 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [OT] Re: goodbye
+Message-ID: <20010410012337.Z805@mea-ext.zmailer.org>
+In-Reply-To: <Pine.LNX.4.21.0104031800030.14090-100000@imladris.rielhome.conectiva> <986844003.21377.12.camel@mistress> <9at9sc$kva$1@forge.intermeta.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+Content-Disposition: inline
+In-Reply-To: <9at9sc$kva$1@forge.intermeta.de>; from hps@intermeta.de on Mon, Apr 09, 2001 at 09:34:04PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Chua wrote:
+On Mon, Apr 09, 2001 at 09:34:04PM +0000, Henning P. Schmiedehausen wrote:
+> Michael Peddemors <michael@linuxmagic.com> writes:
+> 
+> >Uh... use their ISP relay service anyway???
+> >I take my laptop all over, to lot's of my clients locations, and if I
+> >could relay through their servers, then I had better give them some good
+> >advice.. Some places I just pick an available IP and it might not be in
+> >the allowed relay list.  And this happens when I am in M$ or Linux..
+> 
+> So, Mr. Admin, setup your laptop to use SSL to your SMTP and POP
+> server and authenticate with a client side certificate on your
+> laptop. Welcome to the 21st century. You may, however, need a little
+> more infrastructure than you can pull from your favourite distribution
+> box.
 
-> depmod version 2.4.5
->
-> Compiled 2.4.4-pre1 but running "depmod" generates a lot of these ...
->
-> depmod: *** Unresolved symbols in
-> /lib/modules/2.4.4-pre1/kernel/drivers/char/ltmodem.o
-> depmod:         strstr
-> depmod: *** Unresolved symbols in
-> /lib/modules/2.4.4-pre1/kernel/drivers/char/serial.o
-> depmod:         strstr
-> depmod: *** Unresolved symbols in
-> /lib/modules/2.4.4-pre1/kernel/drivers/ide/ide-cd.o
-> depmod:         strstr
-> depmod: *** Unresolved symbols in
-> /lib/modules/2.4.4-pre1/kernel/drivers/ide/ide-mod.o
-> depmod:         strstr
-> depmod: *** Unresolved symbols in
-> /lib/modules/2.4.4-pre1/kernel/drivers/ide/ide-probe-mod.o
-> depmod:         strstr
-> depmod: *** Unresolved symbols in
-> /lib/modules/2.4.4-pre1/pcmcia/xirc2ps_cs.o
-> depmod:         strstr
+        RFC 2487        STARTTLS
+        RFC 2554        SMTP-Auth, + M$ Exchange / + Netscape
+                        ( + a bunch of other authenticator methods )
 
-depmod: *** Unresolved symbols in /lib/modules/2.4.4-pre1/kernel/drivers/ide/ide-cd.o
-depmod:         strstr
-depmod: *** Unresolved symbols in /lib/modules/2.4.4-pre1/kernel/drivers/ide/ide-tape.o
-depmod:         strstr
-depmod: *** Unresolved symbols in /lib/modules/2.4.4-pre1/kernel/drivers/isdn/avmb1/capidrv.o
-depmod:         strstr
-depmod: *** Unresolved symbols in /lib/modules/2.4.4-pre1/kernel/drivers/isdn/icn/icn.o
-depmod:         strstr
-depmod: *** Unresolved symbols in /lib/modules/2.4.4-pre1/kernel/drivers/net/de4x5.o
-depmod:         strstr
-depmod: *** Unresolved symbols in /lib/modules/2.4.4-pre1/kernel/drivers/net/depca.o
-depmod:         strstr
-depmod: *** Unresolved symbols in /lib/modules/2.4.4-pre1/kernel/drivers/net/ewrk3.o
-depmod:         strstr
-depmod: *** Unresolved symbols in /lib/modules/2.4.4-pre1/kernel/drivers/net/hamradio/baycom_epp.o
-depmod:         strstr
-depmod: *** Unresolved symbols in /lib/modules/2.4.4-pre1/kernel/drivers/parport/parport.o
-depmod:         strstr
+        Under encryption, plaintext username + password login.
+        The IETF protocols DO NOT support plaintext login for
+        obvious security reasons.
 
-This is on a Cyrix P-166.  Same with depmod 2.4.2 or 2.3.21
+        No hazzles about autenticating by certificates.
 
---
-Nick Urbanik, Dept. of Computing and Mathematics
-Hong Kong Institute of Vocational Education (Tsing Yi)
-email: nicku@vtc.edu.hk
-Tel:   (852) 2436 8576, (852) 2436 8579   Fax: (852) 2435 1406
-pgp ID: 7529555D fingerprint: 53 B6 6D 73 52 EE 1F EE EC F8 21 98 45 1C 23 7B
+        Availability of the feature is probably excidingly rare..
 
+> 	Regards
+> 		Henning
+> -- 
+> Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+> INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
 
-
+/Matti Aarnio

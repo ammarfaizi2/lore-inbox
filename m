@@ -1,60 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266210AbTBQDPQ>; Sun, 16 Feb 2003 22:15:16 -0500
+	id <S266453AbTBQDXr>; Sun, 16 Feb 2003 22:23:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266298AbTBQDPQ>; Sun, 16 Feb 2003 22:15:16 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:18448 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S266210AbTBQDO4>;
-	Sun, 16 Feb 2003 22:14:56 -0500
-Message-ID: <3E5055EA.7080507@pobox.com>
-Date: Sun, 16 Feb 2003 22:24:26 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
+	id <S266645AbTBQDXr>; Sun, 16 Feb 2003 22:23:47 -0500
+Received: from csa.iisc.ernet.in ([144.16.67.8]:51148 "EHLO csa.iisc.ernet.in")
+	by vger.kernel.org with ESMTP id <S266453AbTBQDXp>;
+	Sun, 16 Feb 2003 22:23:45 -0500
+Date: Mon, 17 Feb 2003 09:03:30 +0530 (IST)
+From: Rahul Vaidya <rahulv@csa.iisc.ernet.in>
+To: Daniel Jacobowitz <dan@debian.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: linux 2.5.53 not compiling
+In-Reply-To: <20030216182512.GB4861@nevyn.them.org>
+Message-ID: <Pine.SOL.3.96.1030217085753.27558A-100000@osiris.csa.iisc.ernet.in>
 MIME-Version: 1.0
-To: Mark J Roberts <mjr@znex.org>
-CC: Chris Wedgwood <cw@f00f.org>, linux-kernel@vger.kernel.org
-Subject: Re: Annoying /proc/net/dev rollovers.
-References: <20030216221616.GA246@znex> <20030217014111.GA2244@f00f.org> <20030217024605.GB246@znex>
-In-Reply-To: <20030217024605.GB246@znex>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark J Roberts wrote:
-> Chris Wedgwood:
->>>total_rx_bytes += rx_bytes;
->>
->>if lval is 64-bit, then this cannot be done reliably on all
->>architectures
+The command ./gcc -v -iwithprefix include -E - < /dev/null
+from the directory containing the actual gcc file.
+
+Reading specs from ./../lib/gcc-lib/i686-pc-linux-gnu/3.2/specs
+Configured with: ../gcc-3.2/configure --prefix=/usr/local/gcc-3.2
+Thread model: posix
+gcc version 3.2
+ ./../lib/gcc-lib/i686-pc-linux-gnu/3.2/cpp0 -lang-c -v -iprefix
+./../lib/gcc-lib/i686-pc-linux-gnu/3.2/ -D__GNUC__=3 -D__GNUC_MINOR__=2
+-D__GNUC_PATCHLEVEL__=0
+ -D__GXX_ABI_VERSION=102 -D__ELF__ -Dunix -D__gnu_linux__ -Dlinux
+-D__ELF__ -D__
+unix__ -D__gnu_linux__ -D__linux__ -D__unix -D__linux -Asystem=posix
+-D__NO_INLI
+NE__ -D__STDC_HOSTED__=1 -Acpu=i386 -Amachine=i386 -Di386 -D__i386
+-D__i386__ -D
+__tune_i686__ -D__tune_pentiumpro__ -iwithprefix include -
+GNU CPP version 3.2 (cpplib) (i386 Linux/ELF)
+ignoring nonexistent directory "../i686-pc-linux-gnu/include"
+ignoring nonexistent directory
+"/usr/local/gcc-3.2/i686-pc-linux-gnu/include"
+ignoring duplicate directory
+"../lib/gcc-lib/i686-pc-linux-gnu/3.2/include"
+ignoring duplicate directory
+"/usr/local/gcc-3.2/lib/gcc-lib/i686-pc-linux-gnu/3
+.2/include"
+#include "..." search starts here:
+#include <...> search starts here:
+ ../lib/gcc-lib/i686-pc-linux-gnu/3.2/include
+ /usr/local/include
+ /usr/local/gcc-3.2/include
+ /usr/include
+End of search list.
+# 1 "<stdin>"
+# 1 "<built-in>"
+# 1 "<command line>"
+# 1 "<stdin>"
+
+Please CC to rahulv@csa.iisc.ernet.in
+--
+Rahul Vaidya
+Hostel Room G46,
+Ph.3942451
+
+"Life can only be understood going backwards, 
+	            but it must be lived going forwards"
+						-Kierkegaard
+
+On Sun, 16 Feb 2003, Daniel Jacobowitz wrote:
+
+> On Sun, Feb 16, 2003 at 05:44:11PM +0000, Russell King wrote:
+> > Please copy replies back to lkml.
+> > 
+> > On Sun, Feb 16, 2003 at 10:43:01PM +0530, Rahul Vaidya wrote:
+> > > the command is giving me the following:
+> > > 
+> > > Reading specs from
+> > > /usr/local/gcc-3.2/lib/gcc-lib/i686-pc-linux-gnu/3.2/specs
+> > > Configured with: ../gcc-3.2/configure --prefix=/usr/local/gcc-3.2
+> > > Thread model: posix
+> > > gcc version 3.2
+> > >  /usr/local/gcc-3.2/lib/gcc-lib/i686-pc-linux-gnu/3.2/cpp0 -lang-c -v
+> > > -iprefix /usr/local/bin/../lib/gcc-lib/i686-pc-linux-gnu/3.2/
+> >                       ^^^^^^^^^^
+> > 
+> > It looks like gcc 3.2 thinks its compiler prefix is in a place where it
+> > is not.  I'd suggest you report this to the gcc people; at a guess, it
+> > may be due to gcc getting confused during its configuration:
+> > 
+> > 	../gcc-3.2/configure --prefix=/usr/local/gcc-3.2
+> >         ^^^
 > 
+> No, that doesn't affect the search path.  It's detecting a GCC in
+> /usr/local and assuming the installation was moved.  Rahul, what does
+> it say when you run it from its real location?
 > 
-> I'm not sure why. I realize that x86 can't do atomic 64-bit
-> operations, but what I propose is to leave the 32-bit rx_bytes code
-> the way it is, and just have some heuristic for updating the 64-bit
-> value every so often, which can be done under a lock, so there would
-> be no opportunity for races to corrupt the counter. (This is also an
-> optimization since there needn't be any locks in the actual packet
-> handling code.)
-
-
-I was one of the ones who was interested in making the statistics 
-64-bit, and adding locking to do it right.  The solution finally 
-appeared, many months ago:
-
-The counters don't need to be 64-bit, because it is trivially possible 
-for userspace to track the statistics, and to simply use the difference 
-between two samples as the increment used in calculating whatever 
-numbers you wish -- 64-bit SNMP MIB statistics were what I was 
-interested in.  Wrapping is trivially handled by standard unsigned int 
-arithmetic, among other methods.
-
-If you really want the raw data, then use ethtool's NIC-specific stats 
-facility, to retrieve raw statistics directly from the NIC.  [this of 
-course requires driver modifications, but they are easy on modern NICs]
-
-	Jeff
-
+> -- 
+> Daniel Jacobowitz
+> MontaVista Software                         Debian GNU/Linux Developer
+> 
 

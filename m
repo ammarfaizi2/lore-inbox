@@ -1,51 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131227AbQLKAAo>; Sun, 10 Dec 2000 19:00:44 -0500
+	id <S129977AbQLKALQ>; Sun, 10 Dec 2000 19:11:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131573AbQLJX7k>; Sun, 10 Dec 2000 18:59:40 -0500
-Received: from smtp1.cern.ch ([137.138.128.38]:13578 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S131524AbQLJX7Z>;
-	Sun, 10 Dec 2000 18:59:25 -0500
-Date: Mon, 11 Dec 2000 00:28:50 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: davej@suse.de
-Cc: Martin Mares <mj@suse.cz>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: pdev_enable_device no longer used ?
-Message-ID: <20001211002850.A14393@pcep-jamie.cern.ch>
-In-Reply-To: <20001209160403.A28562@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.21.0012091803270.571-100000@neo.local>
+	id <S129906AbQLKALG>; Sun, 10 Dec 2000 19:11:06 -0500
+Received: from orange.csi.cam.ac.uk ([131.111.8.77]:36778 "EHLO
+	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S129977AbQLKAKv>; Sun, 10 Dec 2000 19:10:51 -0500
+Message-Id: <5.0.2.1.2.20001210232808.04affbd0@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
+Date: Sun, 10 Dec 2000 23:34:18 +0000
+To: Ion Badulescu <ionut@cs.columbia.edu>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: eepro100 driver update for 2.4
+Cc: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>,
+        Andrey Savochkin <saw@saw.sw.com.sg>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0012081254360.26353-100000@age.cs.columbia.e
+ du>
+In-Reply-To: <3A3143D5.98E8E948@Hell.WH8.TU-Dresden.De>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0012091803270.571-100000@neo.local>; from davej@suse.de on Sat, Dec 09, 2000 at 06:11:08PM +0000
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here are a few more:
+At 20:57 08/12/2000, Ion Badulescu wrote:
+>On Fri, 8 Dec 2000, Udo A. Steinberg wrote:
+>
+> > > +               /* disable advertising the flow-control capability */
+> > > +               sp->advertising &= ~0x0400;
+> > > +               mdio_write(ioaddr, sp->phy[0] & 0x1f, sp->advertising);
+> >
+> >                                                       ^^^
+> >                                                  missing a 4 here?
+>
+>Yes, sorry about that.
+>
+> > I've tried the patch putting a 4 in the place noted above. It doesn't
+> > help with the issue at all.
 
- net/acenic.c: pci_write_config_byte(ap->pdev, PCI_CACHE_LINE_SIZE,
- net/gmac.c: PCI_CACHE_LINE_SIZE, 8);
- scsi/sym53c8xx.c: printk(NAME53C8XX ": PCI_CACHE_LINE_SIZE set to %d (fix-up).\n",
- video/pm2fb.c: WR32(p->pci_config, PCI_CACHE_LINE_SIZE, 0xff00);
+Just to say that the patch (including added 4) fixed the "card reports no 
+resources" messages for me. - Looking at my logs the messages appeared once 
+every 10-40 minutes. - Now the box is up for more than 5 hours with the 
+patch and test12-pre7 and not a single no resources message logged so far. 
+(Note, I upgraded the kernel at the same time as adding the patch so it is 
+actually possible that test12-pre7 vanilla is fixed as well.)
 
--- Jamie
+My card is an Ether Express Pro 100, lcpci says: Intel Corporation 82557 
+[Ethernet Pro 100] (rev 04) and lspci -n gives: class 0200: 10b7:9004
 
-davej@suse.de wrote:
-> > > 1. Is there reason for the drivers to be setting this themselves
-> > >    to hardcoded values ?
-> > 
-> > Definitely not unless the devices are buggy and need a work-around.
-> 
-> Maybe that's the case. The culprits are mostly IDE interfaces. Andre ?
-> 
-> drivers/ide/cmd64x.c:   (void) pci_write_config_byte(dev,PCI_CACHE_LINE_SIZE, 0x10);
-> drivers/ide/cs5530.c:   pci_write_config_byte(cs5530_0,PCI_CACHE_LINE_SIZE, 0x04);
-> drivers/ide/hpt366.c:   pci_write_config_byte(dev,PCI_CACHE_LINE_SIZE, 0x08);
-> drivers/ide/ns87415.c:  (void) pci_write_config_byte(dev,PCI_CACHE_LINE_SIZE, 0x10);
-> 
-> drivers/atm/eni.c:      pci_write_config_byte(eni_dev->pci_dev,PCI_CACHE_LINE_SIZE, 0x10);
-> drivers/media/video/planb.c:    pci_write_config_byte (pdev,PCI_CACHE_LINE_SIZE, 0x8);
+Just my 2p.
+
+Anton
+
+
+-- 
+      "Education is what remains after one has forgotten everything he 
+learned in school." - Albert Einstein
+-- 
+Anton Altaparmakov  Voice: +44-(0)1223-333541(lab) / +44-(0)7712-632205(mobile)
+Christ's College    eMail: AntonA@bigfoot.com / aia21@cam.ac.uk
+Cambridge CB2 3BU    ICQ: 8561279
+United Kingdom       WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

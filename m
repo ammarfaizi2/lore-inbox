@@ -1,73 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263847AbUGRMWn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263865AbUGRMZx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263847AbUGRMWn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jul 2004 08:22:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263850AbUGRMWn
+	id S263865AbUGRMZx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jul 2004 08:25:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263893AbUGRMZw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jul 2004 08:22:43 -0400
-Received: from slimnet.xs4all.nl ([194.109.194.192]:18320 "EHLO slimnas.slim")
-	by vger.kernel.org with ESMTP id S263847AbUGRMWl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jul 2004 08:22:41 -0400
-Subject: Re: Linux 2.6.8-rc2
-From: Jurgen Kramer <gtm.kramer@inter.nl.net>
-To: Jurriaan <thunder7@xs4all.nl>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040718113552.GA23190@middle.of.nowhere>
-References: <Pine.LNX.4.58.0407172237370.12598@ppc970.osdl.org>
-	 <1090149153.3198.3.camel@paragon.slim>
-	 <20040718113552.GA23190@middle.of.nowhere>
-Content-Type: text/plain
-Message-Id: <1090153502.3198.7.camel@paragon.slim>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 18 Jul 2004 14:25:02 +0200
-Content-Transfer-Encoding: 7bit
+	Sun, 18 Jul 2004 08:25:52 -0400
+Received: from delta.ds3.agh.edu.pl ([149.156.124.3]:14602 "EHLO
+	pluto.ds14.agh.edu.pl") by vger.kernel.org with ESMTP
+	id S263865AbUGRMZt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jul 2004 08:25:49 -0400
+From: =?iso-8859-2?q?Pawe=B3_Sikora?= <pluto@pld-linux.org>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] security/selinux/hooks.c:1898: error: `PER_CLEAR_ON_SETID' undeclared
+Date: Sun, 18 Jul 2004 14:25:43 +0200
+User-Agent: KMail/1.6.2
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_Hxm+AXxNBxz5byy"
+Message-Id: <200407181425.43629.pluto@pld-linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-07-18 at 13:35, Jurriaan wrote:
-> From: Jurgen Kramer <gtm.kramer@inter.nl.net>
-> Date: Sun, Jul 18, 2004 at 01:12:33PM +0200
-> > On Sun, 2004-07-18 at 07:41, Linus Torvalds wrote:
-> > > MTD updates, i2c updates and some USB updates, and a lot of small stuff
-> > > (sparse cleanups and fixes from Al etc).
-> > > 
-> > > 		Linus
-> > > 
-> > Just gave it a try. My EHCI controller is still failing (Asus P4C800-E
-> > i875p) as in the 2.6.7-mm series.
-> > 
-> > <snip>
-> > ACPI: PCI interrupt 0000:00:1d.7[D] -> GSI 23 (level, low) -> IRQ 23
-> > ehci_hcd 0000:00:1d.7: EHCI Host Controller
-> > ehci_hcd 0000:00:1d.7: BIOS handoff failed (104, 1010001)
-> > ehci_hcd 0000:00:1d.7: can't reset
-> > ehci_hcd 0000:00:1d.7: init 0000:00:1d.7 fail, -95
-> > ehci_hcd: probe of 0000:00:1d.7 failed with error -95
-> > USB Universal Host Controller Interface driver v2.2
-> > <snip>
-> > 
-> That is most probably something in your bios. My Epox 4PCA3+ (also i875
-> chipset) says:
-> 
-> ACPI: PCI interrupt 0000:00:1d.7[D] -> GSI 23 (level, low) -> IRQ 23
-> ehci_hcd 0000:00:1d.7: Intel Corp. 82801EB/ER (ICH5/ICH5R) USB2 EHCI Controller
-> PCI: Setting latency timer of device 0000:00:1d.7 to 64
-> ehci_hcd 0000:00:1d.7: irq 23, pci mem f988a000
-> ehci_hcd 0000:00:1d.7: new USB bus registered, assigned bus number 1
-> PCI: cache line size of 128 is not supported by device 0000:00:1d.7
-> ehci_hcd 0000:00:1d.7: USB 2.0 enabled, EHCI 1.00, driver 2004-May-10
-> hub 1-0:1.0: USB hub found
-> hub 1-0:1.0: 8 ports detected
-> USB Universal Host Controller Interface driver v2.2
 
-I didn't change any BIOS settings lately and newer BIOS versions stop
-booting stops after initializing ACPI..:-(. 2.6.5 works as a charm.
+--Boundary-00=_Hxm+AXxNBxz5byy
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-> HTH,
-> Jurriaan
+  CC      security/selinux/hooks.o
+security/selinux/hooks.c: In function `selinux_bprm_apply_creds':
+security/selinux/hooks.c:1898: error: `PER_CLEAR_ON_SETID' undeclared
+                                      (first use in this function)
+security/selinux/hooks.c:1898: error: (Each undeclared identifier
+                                      is reported only once
+security/selinux/hooks.c:1898: error: for each function it appears in.)
 
-Jurgen
+-- 
+/* Copyright (C) 2003, SCO, Inc. This is valuable Intellectual Property. */
 
+                           #define say(x) lie(x)
 
+--Boundary-00=_Hxm+AXxNBxz5byy
+Content-Type: text/x-diff;
+  charset="iso-8859-2";
+  name="hook.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="hook.patch"
+
+--- linux-2.6.8-rc2/security/selinux/hooks.c.orig	2004-07-18 11:56:07.000000000 +0200
++++ linux-2.6.8-rc2/security/selinux/hooks.c	2004-07-18 14:21:27.429622416 +0200
+@@ -63,6 +63,7 @@
+ #include <net/ipv6.h>
+ #include <linux/hugetlb.h>
+ #include <linux/major.h>
++#include <linux/personality.h>
+ 
+ #include "avc.h"
+ #include "objsec.h"
+
+--Boundary-00=_Hxm+AXxNBxz5byy--

@@ -1,34 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261464AbVBWLnA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261465AbVBWLsw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261464AbVBWLnA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 06:43:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261465AbVBWLnA
+	id S261465AbVBWLsw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 06:48:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261468AbVBWLsw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 06:43:00 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:15827 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261464AbVBWLm7 (ORCPT
+	Wed, 23 Feb 2005 06:48:52 -0500
+Received: from mail.dif.dk ([193.138.115.101]:1934 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S261465AbVBWLss (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 06:42:59 -0500
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20050222134010.4c286e64.akpm@osdl.org> 
-References: <20050222134010.4c286e64.akpm@osdl.org>  <20050222190646.GA7079@austin.ibm.com> <20050222115503.729cd17b.akpm@osdl.org> <20050222210752.GG22555@mail.shareable.org> 
+	Wed, 23 Feb 2005 06:48:48 -0500
+Date: Wed, 23 Feb 2005 12:49:27 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
 To: Andrew Morton <akpm@osdl.org>
-Cc: Jamie Lokier <jamie@shareable.org>, olof@austin.ibm.com,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org, rusty@rustcorp.com.au
-Subject: Re: [PATCH/RFC] Futex mmap_sem deadlock 
-X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 21.3.50.1
-Date: Wed, 23 Feb 2005 11:42:47 +0000
-Message-ID: <5410.1109158967@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc4-mm1
+Message-ID: <Pine.LNX.4.62.0502231208470.2948@dragon.hygekrogen.localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
 
-> wrt this down_read/down_write/down_read deadlock: iirc, the reason why
-> down_write() takes precedence over down_read() is to avoid the permanent
-> writer starvation which would occur if there is heavy down_read() traffic.
+> - Last, final, ultimate call: if anyone has patches in here which are 2.6.11
+>   material, please tell me.
 
-down_write() doesn't actually take precedence over down_read() as such. The
-rwsems try to implement a strict FIFO queue (the fairness thing).
+I guess that depends on how you define 2.6.11 material at this point, but 
+I have a few patches that I wrote in there, that I think are potential 
+candidates due to them being fairly trivial, obviously correct and not 
+having caused any problems since entering -mm. Those patches might as well 
+get merged into 2.6.11 now and get out of your queue/hair.
 
-David
+
+The patches I have in mind are these:
+
+fix-placement-of-static-inline-in-nfsdh.patch
+--
+This one has no actual impact on the generated code, it just kills a few 
+warnings when building with gcc -W, so merging that up should be harmless.
+
+kyrofb-copy__user-return-value-checks-added-to-kyro-fb.patch
+--
+This one just adds a few return value checks to copy_*_user calls and 
+returns -EFAULT when failing. I've seen no complains about the patch on 
+the list and it seems to be the obviously correct thing to do - might as 
+well get merged.
+
+warning-fix-in-drivers-cdrom-mcdc.patch
+--
+Trivial, obviously correct, warning fix to an ancient driver. No point in 
+having you carry it around in -mm, let's just merge it.
+
+make-loglevels-in-init-mainc-a-little-more-sane.patch
+--
+This one just changes a few loglevels, so the potential for breakage is 
+extremely low. Besides I believe I've argued the case for the new 
+loglevels being more sane than the old ones well enough, and noone has 
+complained about the patch.
+
+
+The patches above are all very low risk, so they shouldn't cause any 
+problems for 2.6.11. Let us merge them now to a) get the bennefit of them 
+in 2.6.11 and b) get them out of your -mm queue.
+
+
+nitpick note: despite some of these patches having From: lines in them in 
+your -mm patch set that list other people they where all written by me. 
+Other people getting listed as From: (and thus later as patch author in 
+the changelogs and bk) seems to happen when other people resend the 
+patches to the list or when they pass through maintainers before they 
+reach you. Just to set the record straight; I initially wrote the patches 
+above.
+
+
+Kind regards,
+
+Jesper Juhl <juhl-lkml@dif.dk>
+
+

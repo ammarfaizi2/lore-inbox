@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262245AbTERWgX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 May 2003 18:36:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262246AbTERWgX
+	id S262246AbTERWpP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 May 2003 18:45:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262247AbTERWpP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 May 2003 18:36:23 -0400
-Received: from deviant.impure.org.uk ([195.82.120.238]:43974 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id S262245AbTERWgX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 May 2003 18:36:23 -0400
-Date: Sun, 18 May 2003 23:52:04 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andi Kleen <ak@muc.de>,
-       kraxel@suse.de, jsimmons@infradead.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Use MTRRs by default for vesafb on x86-64
-Message-ID: <20030518225204.GA21068@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Jamie Lokier <jamie@shareable.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, Andi Kleen <ak@muc.de>,
-	kraxel@suse.de, jsimmons@infradead.org,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030515145640.GA19152@averell> <20030515151633.GA6128@suse.de> <1053118296.5599.27.camel@dhcp22.swansea.linux.org.uk> <20030518053935.GA4112@averell> <20030518161105.GA7404@mail.jlokier.co.uk> <1053290431.27107.4.camel@dhcp22.swansea.linux.org.uk> <20030518223446.GA8591@mail.jlokier.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030518223446.GA8591@mail.jlokier.co.uk>
-User-Agent: Mutt/1.5.4i
+	Sun, 18 May 2003 18:45:15 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:44979 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S262246AbTERWpO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 May 2003 18:45:14 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Mon, 19 May 2003 00:57:37 +0200 (MEST)
+Message-Id: <UTC200305182257.h4IMvbe09239.aeb@smtp.cwi.nl>
+To: torvalds@transmeta.com, viro@math.psu.edu
+Subject: [PATCH] fix oops in namespace.c
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 18, 2003 at 11:34:46PM +0100, Jamie Lokier wrote:
+Number four in the series of namespace.c fixes:
 
- > If that's the problem, a test which writes a data pattern to a
- > significant chunk of video RAM in sequence, as fast as possible, and
- > then reads it would be practically guaranteed to spot this and
- > indicate that MTRRs aren't suitable for this card in this mode.
+A familar type of Oops: d_path() can return an error ENAMETOOLONG,
+and if we fail to test a segfault occurs.
 
-Or you could just add the PCI ID to the quirks list..
+So we must test. What we do is a different matter.
+Rather arbitrarily I return the string " (too long)"
+for use in /proc/mounts.
 
-		Dave
+Andries
 
+--- namespace.c~	Mon May 19 01:50:48 2003
++++ namespace.c	Mon May 19 01:51:24 2003
+@@ -217,6 +217,8 @@
+ 	if (!path_buf)
+ 		return -ENOMEM;
+ 	path = d_path(mnt->mnt_root, mnt, path_buf, PAGE_SIZE);
++	if (IS_ERR(path))
++		path = " (too long)";
+ 
+ 	mangle(m, mnt->mnt_devname ? mnt->mnt_devname : "none");
+ 	seq_putc(m, ' ');

@@ -1,36 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261986AbSJIVXc>; Wed, 9 Oct 2002 17:23:32 -0400
+	id <S261963AbSJIVZZ>; Wed, 9 Oct 2002 17:25:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262007AbSJIVXb>; Wed, 9 Oct 2002 17:23:31 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:36787 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S261986AbSJIVXb> convert rfc822-to-8bit;
-	Wed, 9 Oct 2002 17:23:31 -0400
-Date: Wed, 09 Oct 2002 14:21:48 -0700 (PDT)
-Message-Id: <20021009.142148.131274439.davem@redhat.com>
-To: nick@technisys.com.ar
+	id <S262022AbSJIVZY>; Wed, 9 Oct 2002 17:25:24 -0400
+Received: from holomorphy.com ([66.224.33.161]:17382 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S261963AbSJIVZX>;
+	Wed, 9 Oct 2002 17:25:23 -0400
+Date: Wed, 9 Oct 2002 14:27:43 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Guillaume Boissiere <boissiere@adiglobal.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.41 does not build: ipv6/addrconf.c: case label
- (htonln(something)) does not reduce to an integer constant
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3DA47DA1.4050804@technisys.com.ar>
-References: <3DA47DA1.4050804@technisys.com.ar>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Subject: Re: [STATUS 2.5]  October 9, 2002
+Message-ID: <20021009212743.GI12432@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Guillaume Boissiere <boissiere@adiglobal.com>,
+	linux-kernel@vger.kernel.org
+References: <3DA41B88.14599.2336B580@localhost>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3DA41B88.14599.2336B580@localhost>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Nicolás Lichtmaier <nick@technisys.com.ar>
-   Date: Wed, 09 Oct 2002 16:04:01 -0300
+On Wed, Oct 09, 2002 at 12:05:28PM -0400, Guillaume Boissiere wrote:
+> The latest 2.5 status update is available at 
+>     http://www.kernelnewbies.org/status
+> Only 3 weeks left till Halloween, and still way to many 
+> items left on the list to be merged in that timeframe.
+> Come on, be real and tell me what to remove!  :-)
 
-   In that line:
-                   switch((st & htonl(0x00FF0000))) {
-                           case htonl(0x00010000):
-   
-   Perhaps it's a matter of includes again.
+Um, you removed two items I reported as done and merged since the last
+time you posted one of these.
 
-This is fixed in the current sources, just change the
-"htonl" to "__constant_htonl" in the case statements.
+
+Bill

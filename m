@@ -1,81 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261487AbVANWug@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261968AbVANXBm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261487AbVANWug (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 17:50:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261489AbVANWtG
+	id S261968AbVANXBm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 18:01:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261945AbVANXAZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 17:49:06 -0500
-Received: from anchor-post-36.mail.demon.net ([194.217.242.86]:16649 "EHLO
-	anchor-post-36.mail.demon.net") by vger.kernel.org with ESMTP
-	id S261487AbVANWr7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 17:47:59 -0500
-Message-ID: <41E84C1D.9060505@superbug.co.uk>
-Date: Fri, 14 Jan 2005 22:47:57 +0000
-From: James Courtier-Dutton <James@superbug.co.uk>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041208)
-X-Accept-Language: en-us, en
+	Fri, 14 Jan 2005 18:00:25 -0500
+Received: from igw2.watson.ibm.com ([129.34.20.6]:24819 "EHLO
+	igw2.watson.ibm.com") by vger.kernel.org with ESMTP id S261917AbVANW6N
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jan 2005 17:58:13 -0500
 MIME-Version: 1.0
-To: Jan De Luyck <lkml@kcore.org>
-CC: Steve Iribarne <steve.iribarne@dilithiumnetworks.com>,
-       linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-Subject: Re: ARP routing issue
-References: <B8561865DB141248943E2376D0E85215846787@DHOST001-17.DEX001.intermedia.net> <200501061711.59301.lkml@kcore.org>
-In-Reply-To: <200501061711.59301.lkml@kcore.org>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Date: Fri, 14 Jan 2005 17:57:21 -0500 (EST)
+To: greg@kroah.com
+Cc: trz@us.ibm.com, karim@opersys.com, richardj_moore@uk.ibm.com,
+       michel.dagenais@polymtl.ca, linux-kernel@vger.kernel.org,
+       ltt-dev@shafik.org
+Subject: Re: [PATCH 3/4] relayfs for 2.6.10: locking/lockless implementation
+X-Mailer: VM 6.43 under 20.4 "Emerald" XEmacs  Lucid
+Message-ID: <16872.19899.179380.51583@kix.watson.ibm.com>
+From: Robert Wisniewski <bob@watson.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan De Luyck wrote:
-> On Thursday 06 January 2005 17:06, Steve Iribarne wrote:
-> 
->>Hi Jan,
->>
->>
->>-> default gateway is set to 10.0.22.1, on eth0.
->>->
->>-> Problem is, if I try to ping from another network
->>-> (10.216.0.xx) to 10.0.24.xx, i see the following ARP request:
->>->
->>-> arp who-has 10.0.22.1 tell 10.0.24.xx
->>->
->>
->>You see that coming out the eth0 interface??
->>
->>If that is the case it is most definately wrong.  Assuming that your
->>masks are setup properly.  But I haven't worked on the 2.4 kernel for a
->>long time so I'm not so sure if what you are seeing is a bug that has
->>been fixed.
-> 
-> 
-> The network information is:
-> eth0 10.0.22.xxx mask 255.255.255.0
-> eth1 10.0.24.xxx mask 255.255.255.0
-> 
-> routing:
-> 10.0.22.0 0.0.0.0 255.255.255.0 eth0
-> 10.0.24.0 0.0.0.0 255.255.255.0 eth1
-> 0.0.0.0  10.0.22.1 0.0.0.0  eth0
-> 
-> Jan
-> 
+Greg,
+     There are a couple variables used throughout relayfs code that could
+be modified at any point "simultaneously" by different processes.  These
+variables were not declared volatile, thus when we modify them we need to
+tell the compiler to refetch from memory as another process could have
+changed out from under the current stream of execution since the last time
+there were accessed in the function.  An alternative would be to mark the
+variables that we care about as volatile.  I am not sure how best to make
+that tradeoff (i.e., always forcing a refetch by marking a variable
+volatile or only at points were we know we need to by memory clobbering) or
+on what side the Linux community comes down on.  We certainly would be
+happy to go either way with the relayfs code, i.e., mark them variable and
+used the standard atomic operations.  That explains compare_and_store,
+atomic_add, and atomic_sub.  It does not explain the memory clobbering
+around the atomic set operation, which I'm guessing was there just to be
+consistent with the other operations, and could, I believe, be removed.
+Hopefully that helps answer the question.  If it doesn't please feel free
+to ask more.  Thanks.
 
-That arp is perfectly OK.
-The routing table will cause the icmp echo packet to go from 10.216.0.xx 
-to 10.0.24.xx via the 10.0.24.x network.
-The icmp echo response will return via the 10.0.22.x network back to the 
-10.216.0.xx network.
-So the paths in each direction are different.
+-bob
 
-the "arp who-has 10.0.22.1 tell 10.0.24.xx", you can safely ignore the 
-"10.0.24.xx" bit, as that will be ignored by the device responding to 
-the ARP.
-It is just highlighting the point that you have 2 paths to the same 
-destination.
+Robert Wisniewski
+The K42 MP OS Project
+Advanced Operating Systems
+Scalable Parallel Systems
+IBM T.J. Watson Research Center
+914-945-3181
+http://www.research.ibm.com/K42/
+bob@watson.ibm.com
 
-Cheers
+----
 
-James
+On Thu, Jan 13, 2005 at 10:04:33PM -0500, Karim Yaghmour wrote:
+> +/**
+> + *	compare_and_store_volatile - self-explicit
+> + *	@ptr: ptr to the word that will receive the new value
+> + *	@oval: the value we think is currently in *ptr
+> + *	@nval: the value *ptr will get if we were right
+> + */
+> +inline int
+> +compare_and_store_volatile(volatile u32 *ptr,
+> +			   u32 oval,
+> +			   u32 nval)
+> +{
+> +	u32 prev;
+> +
+> +	barrier();
+> +	prev = cmpxchg(ptr, oval, nval);
+> +	barrier();
+> +
+> +	return (prev == oval);
+> +}
 
+Why is this function needed?  What's wrong with the "normal" cmpxchg?
+
+
+
+
+> +/**
+> + *	atomic_set_volatile - atomically set the value in ptr to nval.
+> + *	@ptr: ptr to the word that will receive the new value
+> + *	@nval: the new value
+> + */
+> +inline void
+> +atomic_set_volatile(atomic_t *ptr,
+> +		    u32 nval)
+> +{
+> +	barrier();
+> +	atomic_set(ptr, (int)nval);
+> +	barrier();
+> +}
+
+Same here, what's wrong with the normal atomic_set()?
+
+Same question also goes for the other functions like this in this file.
+
+thanks,
+
+greg k-h
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+
+--------------080309080704060007080707--

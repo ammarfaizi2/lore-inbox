@@ -1,47 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277281AbRJJPqJ>; Wed, 10 Oct 2001 11:46:09 -0400
+	id <S277284AbRJJPw2>; Wed, 10 Oct 2001 11:52:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277284AbRJJPp6>; Wed, 10 Oct 2001 11:45:58 -0400
-Received: from smtp-out.student.liu.se ([130.236.230.80]:20577 "EHLO arcadia")
-	by vger.kernel.org with ESMTP id <S277281AbRJJPpu>;
-	Wed, 10 Oct 2001 11:45:50 -0400
-Date: Wed, 10 Oct 2001 17:46:05 +0200 (CEST)
-From: Erik Gustavsson <cyrano@algonet.se>
-Subject: 2.4.10-acX VM troubles
-To: linux-kernel@vger.kernel.org
-Message-id: <Pine.LNX.4.21.0110101727070.777-100000@lillan>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
-Content-transfer-encoding: 7BIT
+	id <S277288AbRJJPwS>; Wed, 10 Oct 2001 11:52:18 -0400
+Received: from host115.express.visi.com ([209.98.212.115]:46213 "EHLO skuld.wk")
+	by vger.kernel.org with ESMTP id <S277284AbRJJPwA>;
+	Wed, 10 Oct 2001 11:52:00 -0400
+To: David Rees <dbr@greenhydrant.com>
+Cc: "Chad C. Walstrom" <chewie@wookimus.net>, linux-kernel@vger.kernel.org,
+        debian-user@lists.debian.org
+Subject: Re: Problems with NFS between IRIX Server and Linux client 
+In-Reply-To: Your message of "Wed, 10 Oct 2001 08:36:21 PDT."
+             <20011010083621.A12866@greenhydrant.com> 
+In-Reply-To: <20011010152602.E11EE184B3@skuld.wk>  <20011010083621.A12866@greenhydrant.com> 
+Date: Wed, 10 Oct 2001 10:49:26 -0500
+From: "Chad C. Walstrom" <chewie@wookimus.net>
+Message-Id: <20011010154926.7C336184B2@skuld.wk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At first I thought that the VM in 2.4.10-acX (I've tried ac3 and ac7) was
-a big improvement over vanilla 2.4.9 (my previous kernel). But after
-playing around with different versions and patches, and actually running
-the same kernel for a day or more I ran into severe problems. 
+In message <20011010083621.A12866@greenhydrant.com>, David Rees writes:
+> Known problem.  See the NFS patches here, specificall the seedir patch.
+> 
+> http://www.fys.uio.no/~trondmy/src/
 
-The problem can be triggered by a number of things, ususally involving
-semi-heavy disk activitity (kernel recompile, apt-get installs...). It
-seems to only happen after the system has been up for a while (10+
-hours).
+Thanks Dave!
 
-Suddenly the CPU usage jumps to 100%, and the load avarage to 10 or
-more. The system becomes completely unresponsive, even the mouse pointer
-freezes for long periods of time. It looks like most of the CPU time is
-spent in kswapd, and some in kupdated. The harddisk LED shows almost no
-activity. 
-
-I haven't verified (yet) that this is -acX only, but vanilla 2.4.9 did not
-have this problem.
-
-System is a Duron on KT133 chipset, 256M RAM, 300M swap, reiserfs.
-
-/cyr
-
------------------------------------------------------------------------
-Cat: Come on bud, you're not doing anything I wouldn't do.
-Rimmer: What? You'd sacrifice your life for the sake of the crew?
-Cat: No, I'd sacrifice *your* life for the sake of the crew.
-
+--
+Chad Walstrom <chewie@wookimus.net>                 | a.k.a. ^chewie
+http://www.wookimus.net/                            | s.k.a. gunnarr
+Key fingerprint = B4AB D627 9CBD 687E 7A31  1950 0CC7 0B18 206C 5AFD

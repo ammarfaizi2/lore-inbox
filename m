@@ -1,76 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264756AbSJVP5t>; Tue, 22 Oct 2002 11:57:49 -0400
+	id <S264648AbSJVP4n>; Tue, 22 Oct 2002 11:56:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261502AbSJVP5t>; Tue, 22 Oct 2002 11:57:49 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:58158 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S264756AbSJVP5r>; Tue, 22 Oct 2002 11:57:47 -0400
-To: landley@trommello.org, Andy Pfiffer <andyp@osdl.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Suparna Bhattacharya <suparna@in.ibm.com>,
-       Petr Vandrovec <VANDROVE@vc.cvut.cz>, fastboot@osdl.org,
-       Werner Almesberger <wa@almesberger.net>
-Subject: Re: [Fastboot] [CFT] kexec syscall for 2.5.43 (linux booting linux)
-References: <m1k7kfzffk.fsf@frodo.biederman.org>
-	<m1ptu3t3ec.fsf@frodo.biederman.org>
-	<m1fzuyub3z.fsf@frodo.biederman.org>
-	<200210212257.40050.landley@trommello.org>
-	<m17kgattpw.fsf@frodo.biederman.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 22 Oct 2002 10:02:03 -0600
-In-Reply-To: <m17kgattpw.fsf@frodo.biederman.org>
-Message-ID: <m11y6itqbo.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S264726AbSJVP4n>; Tue, 22 Oct 2002 11:56:43 -0400
+Received: from 12-237-170-171.client.attbi.com ([12.237.170.171]:6160 "EHLO
+	wf-rch.cirr.com") by vger.kernel.org with ESMTP id <S264648AbSJVP4m>;
+	Tue, 22 Oct 2002 11:56:42 -0400
+Message-ID: <3DB576BB.1010404@acm.org>
+Date: Tue, 22 Oct 2002 11:03:07 -0500
+From: Corey Minyard <minyard@acm.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020523
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: John Levon <levon@movementarian.org>
+CC: Corey Minyard <cminyard@mvista.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] NMI request/release
+References: <3DB4AABF.9020400@mvista.com> <20021022021005.GA39792@compsoc.man.ac.uk> <3DB4B8A7.5060807@mvista.com> <20021022025346.GC41678@compsoc.man.ac.uk> <3DB54C53.9010603@mvista.com> <20021022150944.GC70310@compsoc.man.ac.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ebiederm@xmission.com (Eric W. Biederman) writes:
+John Levon wrote:
 
-> Rob Landley <landley@trommello.org> writes:
-> 
-> > On Tuesday 22 October 2002 03:33, Eric W. Biederman wrote:
-> > 
-> > > j < Printed from the second callback in setup.S, just before the
-> > > kernel decompresser is run >
-> > >
-> > >
-> > > I have a very strange node that makes it all of the way to 'j' before
-> > > rebooting. The concept that something is dying in protected mode will all
-> > > of the interrupts disabled is so novel that I really don't know what to
-> > > make of it, yet.
-> > 
-> > It would almost have to be the MMU.  Any way to dump the page tables?
-> 
-> I don't know yet.  I need to find a way to install some additional hooks
-> at run time so I can narrow down where the failure is occuring.  I
-> will have to look, but I should be able to set up an interrupt
-> descriptor table and single step through the code.  
+>On Tue, Oct 22, 2002 at 08:02:11AM -0500, Corey Minyard wrote:
+>
+>>Ok.  I'd be inclined to leave the high-usage things where they are, 
+>>although it would be nice to be able to make the NMI watchdog a module. 
+>>oprofile should probably stay where it is.  Do you have an alternate 
+>>implementation that would be more efficient?
+>>    
+>>
+>I'm beginning to think you're right. You should ask Keith Owens if kdb
+>etc. can use your API successfully.
+>
+Ok.  Good thought, that would decouple kdb a little.
 
-In the process of setting up hooks, I have run across a very interesting
-data point.  If I load %ds, %es, %ss in my hook the problem goes away.
-But I must load all 3.
+>>>>dev_name could be removed, although it would be nice for reporting 
+>>>>
+>>>Reporting what ? from where ?
+>>>
+>>Registered NMI users in procfs.
+>>    
+>>
+>Then if you add such code, you can add dev_name ... I hate code that
+>does nothing ...
+>
+Ok, I'll add a procfs interface then :-).  IMHO, there's a different 
+between stuff in an interface that is looking forward and dead code, 
+though.  If I added it later, I would break all the users.  But there is 
+a balance.
 
-Given that the code sequence that is executed if my hook is not run is:
+>>Yes.  But I don't understand why they would be used in the notifier code.
+>>    
+>>
+>I'm trying to reduce code duplication - you do basically the same thing
+>notifier register/unregister does.
+>
+Ah.  Yes, there is some stuff that looks the same but is subtly 
+different.  I'll see what I can do.
 
-	cld
-	cli
-	movl $(__KERNEL_DS),%eax
-	movl %eax,%ds
-	movl %eax,%es
-	movl %eax,%fs
-	movl %eax,%gs
+>btw, the stuff you add to header files should all be in asm-i386/nmi.h
+>IMHO.
+>
+Ok, I agree.
 
-	lss stack_start,%esp
+>It would make it clear that there's a fast-path "set nmi handler" and
+>the slow one, and you can document the difference there, if that's what
+>we're going to do.
+>
+>regards
+>john
+>
+>  
+>
+Thanks,
 
-I am rather confused.  I am not changing the gdt or anything like that so it
-appears I may have found a way to tickle a processor errata.
+-Corey
 
-Anyway Andy if you have a second please try kexec-tools 1.3 and see what
-happens when you pass it the debug option.  I am really curious if your lockup
-is anywhere near mine.  I doubt it as I am running on a P4.  But it appears
-you never know what the problems will look like until you test them.
-
-Eric

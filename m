@@ -1,88 +1,152 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262265AbUK3TWh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262274AbUK3TZW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262265AbUK3TWh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 14:22:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262266AbUK3TWh
+	id S262274AbUK3TZW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 14:25:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262273AbUK3TZW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 14:22:37 -0500
-Received: from rproxy.gmail.com ([64.233.170.192]:58501 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262265AbUK3TW3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 14:22:29 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=QV1wh+P/QeuCYO1J3etq0ZFMuDaWqV9iSHw5ORyM/T3QiaQuK91/zKyY5rfByEgh3sXRXtiLAEx1SDv+SAOx9aEmXknMiK5DUD2pSLfR9V41viLm7Uuv5AW2NBqmoaZ+OYwfX1XbitoHZozTK0fyJlmla9LfcYcfp26uwrefERo=
-Message-ID: <cce9e37e041130112243beb62d@mail.gmail.com>
-Date: Tue, 30 Nov 2004 19:22:29 +0000
-From: Phil Lougher <phil.lougher@gmail.com>
-Reply-To: Phil Lougher <phil.lougher@gmail.com>
-To: John Richard Moser <nigelenki@comcast.net>
-Subject: Re: Designing Another File System
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <41ABF7C5.5070609@comcast.net>
+	Tue, 30 Nov 2004 14:25:22 -0500
+Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:50319 "EHLO
+	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S262266AbUK3TX1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 14:23:27 -0500
+Subject: Re: 2.6.10-rc2-mm4
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Andrew Morton <akpm@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, Jeff Mahoney <jeffm@suse.com>,
+       James Morris <jmorris@redhat.com>, Chris Wright <chrisw@osdl.org>
+In-Reply-To: <20041130095045.090de5ea.akpm@osdl.org>
+References: <20041130095045.090de5ea.akpm@osdl.org>
+Content-Type: text/plain
+Organization: National Security Agency
+Message-Id: <1101842310.4401.111.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 30 Nov 2004 14:18:30 -0500
 Content-Transfer-Encoding: 7bit
-References: <41ABF7C5.5070609@comcast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Nov 2004 23:32:05 -0500, John Richard Moser
-<nigelenki@comcast.net> wrote:
+On Tue, 2004-11-30 at 12:50, Andrew Morton wrote:
+> http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10-rc2/2.6.10-rc2-mm4/
+<snip>
+> selinux-adds-a-private-inode-operation.patch
+>   selinux: adds a private inode operation
 
-> - - localization of Inodes and related meta-data to prevent disk thrashing
+Below is a re-base to 2.6.10-rc2-mm4 of a patch I posted earlier during
+the original discussion of the above referenced patch.  This patch
+removes the unnecessary code in inode_doinit_with_dentry, replaces the
+unused inherits flag field (legacy from earlier code) with a private
+flag field, does not set the SID in selinux_inode_mark_private (leaving
+it with the unlabeled SID, which will ensure that we notice it if it
+ever reaches a SELinux permission check), and modifies SELinux
+permission checking functions and post_create() to test for the private
+flag and skip SELinux processing in that case.  Please include if/when
+the reiserfs/selinux patchset goes upstream.  I know that Chris Wright
+had raised the question of whether we should be using i_flags to convey
+the "private" nature of the inode rather than using a security hook, but
+didn't see any resolution of that issue.
 
-All filesystems place their filesystem metadata inside the inodes.  If
-you mean file metadata then please be more precise.  This isn't
-terribly new, recent posts have discussed how moving eas/acls inside
-the inode for ext3 has sped up performance.
+Signed-off-by:  Stephen Smalley <sds@epoch.ncsc.mil>
 
-> 
-> - - a scheme which allows Inodes to be dynamically allocated and
-> deallocated out of order
->
+ security/selinux/hooks.c          |   27 ++++++++++++++++-----------
+ security/selinux/include/objsec.h |    2 +-
+ 2 files changed, 17 insertions(+), 12 deletions(-)
 
-Um,  all filesystems do that, I think you're missing words to the
-effect "without any performance loss or block fragmentation" !
+diff -X /home/sds/dontdiff -rup linux-2.6.10-rc2-mm4/security/selinux/hooks.c linux-2.6.10-rc2-mm4-work/security/selinux/hooks.c
+--- linux-2.6.10-rc2-mm4/security/selinux/hooks.c	2004-11-30 13:36:45.525519696 -0500
++++ linux-2.6.10-rc2-mm4-work/security/selinux/hooks.c	2004-11-30 13:52:30.550854008 -0500
+@@ -737,15 +737,6 @@ static int inode_doinit_with_dentry(stru
+ 	if (isec->initialized)
+ 		goto out;
+ 
+-	if (opt_dentry && opt_dentry->d_parent && opt_dentry->d_parent->d_inode) {
+-		struct inode_security_struct *pisec = opt_dentry->d_parent->d_inode->i_security;
+-		if (pisec->inherit) {
+-			isec->sid = pisec->sid;
+-			isec->initialized = 1;
+-			goto out;
+-		}
+-	}
+-
+ 	down(&isec->sem);
+ 	hold_sem = 1;
+ 	if (isec->initialized)
+@@ -983,6 +974,9 @@ int inode_has_perm(struct task_struct *t
+ 	tsec = tsk->security;
+ 	isec = inode->i_security;
+ 
++	if (isec->private)
++		return 0;
++
+ 	if (!adp) {
+ 		adp = &ad;
+ 		AVC_AUDIT_DATA_INIT(&ad, FS);
+@@ -1064,6 +1058,9 @@ static int may_create(struct inode *dir,
+ 	dsec = dir->i_security;
+ 	sbsec = dir->i_sb->s_security;
+ 
++	if (dsec->private)
++		return 0;
++
+ 	AVC_AUDIT_DATA_INIT(&ad, FS);
+ 	ad.u.fs.dentry = dentry;
+ 
+@@ -1111,6 +1108,9 @@ static int may_link(struct inode *dir,
+ 	dsec = dir->i_security;
+ 	isec = dentry->d_inode->i_security;
+ 
++	if (dsec->private)
++		return 0;
++
+ 	AVC_AUDIT_DATA_INIT(&ad, FS);
+ 	ad.u.fs.dentry = dentry;
+ 
+@@ -1157,6 +1157,9 @@ static inline int may_rename(struct inod
+ 	old_is_dir = S_ISDIR(old_dentry->d_inode->i_mode);
+ 	new_dsec = new_dir->i_security;
+ 
++	if (old_dsec->private)
++		return 0;
++
+ 	AVC_AUDIT_DATA_INIT(&ad, FS);
+ 
+ 	ad.u.fs.dentry = old_dentry;
+@@ -1292,6 +1295,9 @@ static int post_create(struct inode *dir
+ 	dsec = dir->i_security;
+ 	sbsec = dir->i_sb->s_security;
+ 
++	if (dsec->private)
++		return 0;
++
+ 	inode = dentry->d_inode;
+ 	if (!inode) {
+ 		/* Some file system types (e.g. NFS) may not instantiate
+@@ -2379,9 +2385,8 @@ static void selinux_inode_mark_private(s
+ {
+ 	struct inode_security_struct *isec = inode->i_security;
+ 
+-	isec->sid = SECINITSID_KERNEL;
++	isec->private = 1;
+ 	isec->initialized = 1;
+-	isec->inherit = 1;
+ }
+ 
+ /* file security operations */
+diff -X /home/sds/dontdiff -rup linux-2.6.10-rc2-mm4/security/selinux/include/objsec.h linux-2.6.10-rc2-mm4-work/security/selinux/include/objsec.h
+--- linux-2.6.10-rc2-mm4/security/selinux/include/objsec.h	2004-11-30 13:36:45.526519544 -0500
++++ linux-2.6.10-rc2-mm4-work/security/selinux/include/objsec.h	2004-11-30 13:52:30.551853856 -0500
+@@ -45,7 +45,7 @@ struct inode_security_struct {
+ 	u16 sclass;       /* security class of this object */
+ 	unsigned char initialized;     /* initialization flag */
+ 	struct semaphore sem;
+-	unsigned char inherit;         /* inherit SID from parent entry */
++       unsigned char private;         /* private file, skip checks */
+ };
+ 
+ struct file_security_struct {
 
-> - - 64 bit indices indicating the exact physical location on disk of
-> Inodes, giving a O(1) seek to the Inode itself
 
-> 1)  Can Unix utilities in general deal with 64 bit Inodes?  (Most
-> programs I assume won't care; ls -i and df -i might have trouble)
-> 
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
-There seems to be some confusion here.  The filesystem can use 64 bit
-inode numbers internally but hide these 64 bits and instead present
-munged 32 bit numbers to Linux.
-
-The 64 bit resolution is only necessary within the filesystem dentry
-lookup function to go from a directory name entry to the physical
-inode location on disk.  The inode number can then be reduced to 32
-bits for 'presentation' to the VFS.  AFAIK as all file access is
-through the dentry cache this is sufficient.  The only problems are
-that VFS iget() needs to be replaced with a filesystem specific iget. 
-A number of filesystems do this.  Squashfs internally uses 37 bit
-inode numbers and presents them as 32 bit inode numbers in this way.
-
-> 3)  What basic information do I absolutely *need* in my super block?
-> 4)  What basic information do I absolutely *need* in my Inodes? (I'm
-> thinking {type,atime,dtime,ctime,mtime,posix_dac,meta_data_offset,size,\
-> links}
-
-Very much depends on your filesystem.  Cramfs is a good example of the
-minimum you need to store to satisfy the Linux VFS.  If you don't care
-what they are almost anything can be invented (uid, gid, mode, atime,
-dtime etc) and set to a useful default.  The *absolute* minimum is
-probably type, file/dir size, and file/dir data location on disk.
-
-> I guess the second would be better?  I can't locate any directories on
-> my drive with >2000 entries *shrug*.  The end key is just the entry
-> {name,inode} pair.
-
-I've had people trying to store 500,000 + files in a Squashfs
-directory.  Needless to say with the original directory implementation
-this didn't work terribly well...
-
-Phillip Lougher

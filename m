@@ -1,51 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262883AbSJLJiK>; Sat, 12 Oct 2002 05:38:10 -0400
+	id <S262842AbSJLJon>; Sat, 12 Oct 2002 05:44:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262884AbSJLJiJ>; Sat, 12 Oct 2002 05:38:09 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:64783 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S262883AbSJLJiJ>;
-	Sat, 12 Oct 2002 05:38:09 -0400
-Date: Sat, 12 Oct 2002 11:41:17 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Mitchell Blank Jr <mitch@sfgoth.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>
+	id <S262862AbSJLJon>; Sat, 12 Oct 2002 05:44:43 -0400
+Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:15634 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S262842AbSJLJom>; Sat, 12 Oct 2002 05:44:42 -0400
+Date: Sat, 12 Oct 2002 11:50:26 +0200
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Linux v2.5.42
-Message-ID: <20021012114117.A5374@mars.ravnborg.org>
-Mail-Followup-To: Adrian Bunk <bunk@fs.tum.de>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Mitchell Blank Jr <mitch@sfgoth.com>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Christoph Hellwig <hch@infradead.org>
-References: <Pine.LNX.4.44.0210112134160.7166-100000@penguin.transmeta.com> <Pine.NEB.4.44.0210121121150.8340-100000@mimas.fachschaften.tu-muenchen.de>
+Message-ID: <20021012095026.GC28537@merlin.emma.line.org>
+Mail-Followup-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0210112134160.7166-100000@penguin.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.NEB.4.44.0210121121150.8340-100000@mimas.fachschaften.tu-muenchen.de>; from bunk@fs.tum.de on Sat, Oct 12, 2002 at 11:24:48AM +0200
+In-Reply-To: <Pine.LNX.4.44.0210112134160.7166-100000@penguin.transmeta.com>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 12, 2002 at 11:24:48AM +0200, Adrian Bunk wrote:
-> This patch fixed part of the kbuild breakage in drivers/atm/Makefile, the
-> following patch fixes the rest:
-Small adjustment:
+On Fri, 11 Oct 2002, Linus Torvalds wrote:
 
-	Sam
- 
---- linux-2.5.42-full/drivers/atm/Makefile.old	2002-10-12 11:13:48.000000000 +0200
-+++ linux-2.5.42-full/drivers/atm/Makefile	2002-10-12 11:20:15.000000000 +0200
- @@ -36,7 +36,7 @@
-    fore_200e-objs		+= fore200e_pca_fw.o
-    # guess the target endianess to choose the right PCA-200E firmware image
-    ifeq ($(CONFIG_ATM_FORE200E_PCA_DEFAULT_FW),y)
- -    CONFIG_ATM_FORE200E_PCA_FW = $(shell if test -n "`$(CC) -E -dM $(src)/../../include/asm/byteorder.h | grep ' __LITTLE_ENDIAN '`"; then echo pca200e.bin; else echo pca200e_ecd.bin2; fi)
- +    CONFIG_ATM_FORE200E_PCA_FW = $(shell if test -n "`$(CC) -E -dM $(src)/../../include/asm/byteorder.h | grep ' __LITTLE_ENDIAN '`"; then echo $(obj)/pca200e.bin; else echo $(obj)/pca200e_ecd.bin2; fi)
-    endif
-  endif
- 
- 
- 
+> PS: NOTE - I'm not going to merge either EVMS or LVM2 right now as things
+> stand.  I'm not using any kind of volume management personally, so I just
+> don't have the background or inclination to walk through the patches and
+> make that kind of decision. My non-scientific opinion is that it looks 
+> like the EVMS code is going to be merged, but ..
+> 
+> Alan, Jens, Christoph, others - this is going to be an area where I need
+> input from people I know, and preferably also help merging. I've been 
+> happy to see the EVMS patches being discussed on linux-kernel, and I just 
+> wanted to let people know that this needs outside help.
+
+A user's input, of not nearly as much weight as of the input you
+suggested, and totally unencumbered by technical details:
+
+EVMS has been much more present to interested parties than LVM2. If --
+as a user -- I was to choose either one RIGHT NOW (i. e. with a gun
+against a head, a boss telling me 'I want a decision in 30 minutes', you
+name it), I'd go for EVMS.
+
+Not for the names behind, the LVM2 and the EVMS teams both have their
+reputation, and from my POV, they are equally good.
+
+Not for technical reasons either, because I just cannot judge on this
+area.
+
+But because EVMS just looks much less like a construction site than
+dm2/LVM2 does.
+
+If there was something about integrating dm2, I'd not be surprised if
+EVMS used it or wrapped it up or something. It also usurps LVM1.
+
+Just my two Euro cents.

@@ -1,32 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261454AbSJUQu1>; Mon, 21 Oct 2002 12:50:27 -0400
+	id <S261525AbSJURDz>; Mon, 21 Oct 2002 13:03:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261518AbSJUQu1>; Mon, 21 Oct 2002 12:50:27 -0400
-Received: from rth.ninka.net ([216.101.162.244]:40844 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id <S261454AbSJUQu1>;
-	Mon, 21 Oct 2002 12:50:27 -0400
-Subject: Re: rtnetlink interface state monitoring problems.
-From: "David S. Miller" <davem@rth.ninka.net>
-To: James Morris <jmorris@intercode.com.au>
-Cc: David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com
-In-Reply-To: <Mutt.LNX.4.44.0210212346480.29169-100000@blackbird.intercode.com.au>
-References: <Mutt.LNX.4.44.0210212346480.29169-100000@blackbird.intercode.com.au>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 21 Oct 2002 10:01:14 -0700
-Message-Id: <1035219674.4817.5.camel@rth.ninka.net>
-Mime-Version: 1.0
+	id <S261531AbSJURDz>; Mon, 21 Oct 2002 13:03:55 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:47744 "EHLO cherise.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S261525AbSJURDy>;
+	Mon, 21 Oct 2002 13:03:54 -0400
+Date: Mon, 21 Oct 2002 10:13:12 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise.pdx.osdl.net
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+cc: "Adam J. Richter" <adam@yggdrasil.com>, <linux-kernel@vger.kernel.org>,
+       <eblade@blackmagik.dynup.net>, Russell King <rmk@arm.linux.org.uk>
+Subject: Re: Patch: linux-2.5.42/kernel/sys.c - warm reboot should not suspend
+ devices
+In-Reply-To: <m18z0swtnr.fsf@frodo.biederman.org>
+Message-ID: <Pine.LNX.4.44.0210211011060.963-100000@cherise.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-10-21 at 06:48, James Morris wrote:
-> Forgot to add that it might be possible to get Andi's solution into 2.6.
 
-Send me the patch for 2.5.x
+> Question, is there a method from the class shutdown code that we
+> can/should call, during reboot.  I just have this memory that for
+> network interfaces simply downing the interface tends to put it in
+> a quiescent state.  And I am wondering if that might be a general
+> thing we can take advantage of.  Though if the class remove methods
+> modify the data structures I guess that is out.
 
-It not being there is by accident, usually when I make a 2.4.x
-patch I do 2.5.x in parallel.
+No. Bringing down the network interface, at least, can be done from
+userspace.
+
+	-pat
 

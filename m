@@ -1,62 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261806AbTJGHj7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Oct 2003 03:39:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261873AbTJGHj6
+	id S261868AbTJGHuo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Oct 2003 03:50:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261875AbTJGHuo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Oct 2003 03:39:58 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:48571 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261806AbTJGHj5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Oct 2003 03:39:57 -0400
-Date: Tue, 7 Oct 2003 12:47:28 +0530
-From: Maneesh Soni <maneesh@in.ibm.com>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: Patrick Mochel <mochel@osdl.org>, Dipankar Sarma <dipankar@in.ibm.com>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Greg KH <gregkh@us.ibm.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC 0/6] Backing Store for sysfs
-Message-ID: <20031007071728.GD9036@in.ibm.com>
-Reply-To: maneesh@in.ibm.com
-References: <20031006202656.GB9908@in.ibm.com> <Pine.LNX.4.44.0310061321440.985-100000@localhost.localdomain> <20031007043157.GA9036@in.ibm.com> <3F824E66.7020006@cyberone.com.au>
+	Tue, 7 Oct 2003 03:50:44 -0400
+Received: from smtpout.mac.com ([17.250.248.86]:9429 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S261868AbTJGHuj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Oct 2003 03:50:39 -0400
+Message-ID: <1448383.1065513016965.JavaMail.pwaechtler@mac.com>
+Date: Tue, 07 Oct 2003 09:50:16 +0200
+From: Peter Waechtler <pwaechtler@mac.com>
+To: Jakub Jelinek <jakub@redhat.com>
+Subject: Re: POSIX message queues
+Cc: Jamie Lokier <jamie@shareable.org>, Ulrich Drepper <drepper@redhat.com>,
+       Krzysztof Benedyczak <golbi@mat.uni.torun.pl>,
+       linux-kernel@vger.kernel.org, Manfred Spraul <manfred@colorfullife.com>,
+       Michal Wronski <wrona@mat.uni.torun.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F824E66.7020006@cyberone.com.au>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 07, 2003 at 03:25:58PM +1000, Nick Piggin wrote:
-> 
-> 
-> >
-> >Having backing store just for leaf dentries should be fine. But there is 
-> >_no_ easy access for attributes. For this also I see some data change 
-> >required as of now. The reasons are 
-> >- not all kobjects belong to a kset. For example, /sys/block/hda/queue
-> >- not all ksets have attribute groups
-> > 
-> >
-> 
-> queue and iosched might not be good examples as they are somewhat broken
-> wrt the block device scheme. Possibly they will be put in their own kset,
-> with /sys/block/hda/queue symlinked to them.
-> 
+ 
+On Sunday, October 05, 2003, at 08:32PM, Jakub Jelinek <jakub@redhat.com> wrote:
 
-Well here is more crap then...
-
-kobjects corresponding to /sys/class/tty/* and /sys/class/net/* have the
-same kset (i.e class_obj) but totally different attributes. There is no
-way to find the attributes given a kobject belonging to lets say 
-/sys/class/net/eth0 except through the hierarchy maintained in pinned sysfs 
-dentries.
+>> Speaking of librt - I should not have to link in pthreads and the
+>> run-time overhead associated with it (locking stdio etc.) just so I
+>> can use shm_open().  Any chance of fixing this?
+>
+>That overhead is mostly gone in current glibcs (when using NPTL):
+>a) e.g. locking is done unconditionally even when libpthread is not present
+>   (it is just lock cmpxchgl, inlined)
 
 
--- 
-Maneesh Soni
-Linux Technology Center, 
-IBM Software Lab, Bangalore, India
-email: maneesh@in.ibm.com
-Phone: 91-80-5044999 Fax: 91-80-5268553
-T/L : 9243696
+a "lock cmpxchg" is > 100 cycles (according to a recent Linux Journal article
+from Paul McKenney: 107ns on 700MHz PentiumIII)
+
+But I think you will have benchmarked the alternatives?
+BTW, what are they?
+
+you suggested naming the syscall number symbols NR_mq_open instead of
+NR_sys_mq_open. In the stub I want to overload some syscalls (e.g. mq_open)
+but others not (e.g. mq_timedsend).
+
+How to deal with that?
+

@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261844AbSJDOhb>; Fri, 4 Oct 2002 10:37:31 -0400
+	id <S261980AbSJDPKI>; Fri, 4 Oct 2002 11:10:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261860AbSJDOhb>; Fri, 4 Oct 2002 10:37:31 -0400
-Received: from d06lmsgate-5.uk.ibm.com ([195.212.29.5]:21938 "EHLO
-	d06lmsgate-5.uk.ibm.com") by vger.kernel.org with ESMTP
-	id <S261844AbSJDOhW> convert rfc822-to-8bit; Fri, 4 Oct 2002 10:37:22 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Organization: IBM Deutschland GmbH
-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: [PATCH] 2.5.40 s390 (25/27): init call.
-Date: Fri, 4 Oct 2002 16:35:51 +0200
-X-Mailer: KMail [version 1.4]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200210041635.51886.schwidefsky@de.ibm.com>
+	id <S261977AbSJDPJ4>; Fri, 4 Oct 2002 11:09:56 -0400
+Received: from fw.openss7.com ([142.179.197.31]:31503 "EHLO gw.openss7.com")
+	by vger.kernel.org with ESMTP id <S261971AbSJDPJq>;
+	Fri, 4 Oct 2002 11:09:46 -0400
+Date: Fri, 4 Oct 2002 09:15:17 -0600
+From: "Brian F. G. Bidulock" <bidulock@openss7.org>
+To: Christoph Hellwig <hch@infradead.org>,
+       kernel <linux-kernel@vger.kernel.org>
+Subject: Re: export of sys_call_table
+Message-ID: <20021004091517.H18191@openss7.org>
+Reply-To: bidulock@openss7.org
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	kernel <linux-kernel@vger.kernel.org>
+References: <20021003153943.E22418@openss7.org> <20021004145845.A30064@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021004145845.A30064@infradead.org>; from hch@infradead.org on Fri, Oct 04, 2002 at 02:58:45PM +0100
+Organization: http://www.openss7.org/
+Dsn-Notification-To: <bidulock@openss7.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove call to s390_init_machine_check in init/main.c, the new boot code
-on s390 calls it via arch_initcall.
+Christoph,
 
-diff -urN linux-2.5.40/init/main.c linux-2.5.40-s390/init/main.c
---- linux-2.5.40/init/main.c	Tue Oct  1 09:06:20 2002
-+++ linux-2.5.40-s390/init/main.c	Fri Oct  4 16:16:50 2002
-@@ -493,13 +493,6 @@
- 	sysctl_init();
- #endif
- 
--	/*
--	 * Ok, at this point all CPU's should be initialized, so
--	 * we can start looking into devices..
--	 */
--#if defined(CONFIG_ARCH_S390)
--	s390_init_machine_check();
--#endif
- 	/* Networking initialization needs a process context */ 
- 	sock_init();
- 
+On Fri, 04 Oct 2002, Christoph Hellwig wrote:
+> 
+> There is no such thing as iBCS for 2.4+.  iBCS/Linux-ABI are for foreign
+> personalities only anyway and don't need to touch sys_call_table.
+> 
 
+iBCS is right there in arch/sparc64/solaris/socksys.c, timod.c, systbl.S
+
+--brian

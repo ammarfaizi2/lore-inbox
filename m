@@ -1,74 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318357AbSG3REd>; Tue, 30 Jul 2002 13:04:33 -0400
+	id <S318350AbSG3Q40>; Tue, 30 Jul 2002 12:56:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318356AbSG3REd>; Tue, 30 Jul 2002 13:04:33 -0400
-Received: from exchange.macrolink.com ([64.173.88.99]:4104 "EHLO
-	exchange.macrolink.com") by vger.kernel.org with ESMTP
-	id <S318352AbSG3REa>; Tue, 30 Jul 2002 13:04:30 -0400
-Message-ID: <11E89240C407D311958800A0C9ACF7D13A7915@EXCHANGE>
-From: Ed Vance <EdV@macrolink.com>
-To: rwhite@pobox.com, "'Stevie O'" <stevie@qrpff.net>
-Cc: Russell King <rmk@arm.linux.org.uk>, Ed Vance <EdV@macrolink.com>,
-       "'Theodore Tso'" <tytso@mit.edu>, linux-kernel@vger.kernel.org,
-       linux-serial@vger.kernel.org
-Subject: RE: n_tty.c driver patch (semantic and performance correction) (a
-	 ll recent versions)
-Date: Tue, 30 Jul 2002 10:07:51 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S318351AbSG3Q40>; Tue, 30 Jul 2002 12:56:26 -0400
+Received: from to-velocet.redhat.com ([216.138.202.10]:5874 "EHLO
+	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
+	id <S318350AbSG3Q4Y>; Tue, 30 Jul 2002 12:56:24 -0400
+Date: Tue, 30 Jul 2002 12:59:43 -0400
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+       linux-aio@kvack.org
+Subject: Re: async-io API registration for 2.5.29
+Message-ID: <20020730125943.B10315@redhat.com>
+References: <20020730054111.GA1159@dualathlon.random> <20020730091140.A6726@infradead.org> <20020730164320.GH1181@dualathlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020730164320.GH1181@dualathlon.random>; from andrea@suse.de on Tue, Jul 30, 2002 at 06:43:20PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, July 27, 2002 at 8:02 PM, stevie@qrpff.net wrote:
+On Tue, Jul 30, 2002 at 06:43:20PM +0200, Andrea Arcangeli wrote:
+> > 
+> > Please don't.  First Ben has indicated on kernel summit that the abi might
+> > change and I think it's a bad idea to lock him into the old ABI just because
 > 
-> But... but... the standard says...
-> 
->    A pending read shall not be satisfied until MIN bytes are 
->    received (that is, the pending read shall block until MIN 
->    bytes are received), or a signal is received.
-> 
-> And because I'm too dead-set on doing it that way solely because 
-> that's how it's always been done, I won't ever consider changing it.  
-> I'll blindly ignore how much xmodem transfers suck, and the fact 
-> that I can come up with no practical purpose at all for this feature, 
-> and just repeat what the standard says.  Why should we obey what 
-> Linux man pages say? What do the Linux man pages have to do with 
-> Linux?
-> 
-> Remember: Computers and their programs aren't here to make our lives 
-> easier, or to make tasks simpler. They are here to follow standards.
+> What I heard and that I remeber crystal clear is that Ben indicated that
+> the API isn't changing for a long time, and that's been stable so far,
+> I could imagine why.
 
-Hi Rob, 
+I suspect what Christoph is remember is that the in-kernel API was still 
+in flux and up for discussion.
 
-Stevie O gets to the central issue here. Why _not_ change long-existing,
-widely used interfaces in subtle ways because the old way makes no sense to
-us and the new way does? Is standards-based programming a lemming behavior? 
+> I'm trying to do my best to avoid having to merge the code I quoted
+> above, that's disgusting and since the api isn't gonna change anwyays
+> like Ben said I'm trying to do the right thing to avoid clashes with
+> syscall 250 as well.
 
-My answer is that but-I-think-it-would-be-better, alone, is not a sufficient
-reason to risk exposure of old application bugs (if you don't actually have
-to) and to bring down apps that ran just fine with the bugs for years. In
-this case, the proposed new functionality is triggered by use of interface
-space that already had a specified behavior. 
+syscall 250 isn't used in anything Red Hat shipped, that was a matter 
+of experimentation I was doing in recent aio development trees (which 
+is what the 2.4.18 patches are, as they still cause that VM to OOM under 
+rather trivial io patterns).
 
-When new functionality is added, at a minimum, its interface should be
-outside of the previous valid use set. If one simply must attach the
-tendrils of cleverness to the vines of an existing interface, the new
-functionality should only appear upon app behaviors that would previously
-have been invalid enough to reject the request and burp up an error code. 
+> Really last thing: one of the major reasons I don't like the above code
+> besides the overhead and complexity it introduces is that it doesn't
+> guarantee 100% that it will be forward compatible with 2.5 applications
+> (the syscall 250 looks not to check even for the payload, I guess they
+> changed it because it was too slow to be forward compatible in most
+> cases), the /dev/urandom payload may match the user arguments if you're
+> unlucky and since we can guarantee correct operations by doing a syscall
+> registration, I don't see why we should make it work by luck.
 
-As I said before, innovation is fine. Just don't pollute the existing
-interfaces. If even one real customer running real work has bad day because
-of exposure of an old app bug or an unanticipated consequence of the change,
-then it wasn't worth ignoring safer implementation practices. One can't
-attain 100% safety, but one _can_ minimize the risk. 
+You haven't looked at the code very closely then.  It checks that the 
+payload matches, and that the caller is coming from the vsyscall pages.  
+Yes, the dynamic syscall thing is a horrific kludge that shouldn't be 
+used, but the vsyscall technique is rather useful.  This is something 
+that x86-64 gets wrong by not requiring the vsyscall page to need an 
+mmap into the user's address space: UML cannot emulate vsyscalls by 
+faking the mmap.
 
-Best regards,
-Ed 
-
----------------------------------------------------------------- 
-Ed Vance              edv@macrolink.com
-Macrolink, Inc.       1500 N. Kellogg Dr  Anaheim, CA  92807
-----------------------------------------------------------------
+		-ben
+-- 
+"You will be reincarnated as a toad; and you will be much happier."

@@ -1,36 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267524AbTA3PlL>; Thu, 30 Jan 2003 10:41:11 -0500
+	id <S267542AbTA3QAf>; Thu, 30 Jan 2003 11:00:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267525AbTA3PlL>; Thu, 30 Jan 2003 10:41:11 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:7560
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267524AbTA3PlL>; Thu, 30 Jan 2003 10:41:11 -0500
-Subject: Re: timer interrupts on HP machines
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: praveen.ray@crcnet1.com
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200301300934.54201.praveen.ray@crcnet1.com>
-References: <200301300934.54201.praveen.ray@crcnet1.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1043945075.31674.0.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
-Date: 30 Jan 2003 16:44:36 +0000
+	id <S267541AbTA3QAf>; Thu, 30 Jan 2003 11:00:35 -0500
+Received: from mailout11.sul.t-online.com ([194.25.134.85]:61143 "EHLO
+	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S267539AbTA3QAe> convert rfc822-to-8bit; Thu, 30 Jan 2003 11:00:34 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] rmap 15c
+Date: Thu, 30 Jan 2003 17:09:09 +0100
+User-Agent: KMail/1.4.3
+Cc: Rik van Riel <riel@conectiva.com.br>, linux-mm@kvack.org
+References: <Pine.LNX.4.50L.0301301131220.27926-100000@imladris.surriel.com>
+In-Reply-To: <Pine.LNX.4.50L.0301301131220.27926-100000@imladris.surriel.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200301301709.09692.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-01-30 at 14:34, Praveen Ray wrote:
-> We have few HP (LPR NetServers and LT6000) which run 2.4.18  (from RedHat 8.0) 
-> . The problem is that sometimes the time interrupts stop coming - i.e. the 
-> (time) counts in /proc/interrupts stop getting incremented! When this 
-> happens, the date on the system falls behind, 'sleep' calls stop working and 
-> basically machine becomes unusable.Has anyone else encountered this problem? 
-> Is it an HP issue?
+On Thursday 30 January 2003 14:32, Rik van Riel wrote:
 
-That I don't know ut my first question other than the usual "Have you applied
-the errata kernels" is probably whether its hitting some of the APIC funnies
-older hw occasionally has. Are they stable running "noapic" ?
+Hi Rik,
 
+> rmap 15c:
+>   - backport and audit akpm's reliable pte_chain alloc
+>     code from 2.5                                         (me)
+>   - reintroduce cache size tuning knobs in /proc          (me)
+>     | on very, very popular request
+
+GREAT to see this. Already merged for wolk4.0s-pre10 :)
+
+ciao, Marc

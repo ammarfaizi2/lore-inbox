@@ -1,55 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289655AbSBJPCD>; Sun, 10 Feb 2002 10:02:03 -0500
+	id <S289670AbSBJPGd>; Sun, 10 Feb 2002 10:06:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289659AbSBJPBy>; Sun, 10 Feb 2002 10:01:54 -0500
-Received: from ua0d5hel.dial.kolumbus.fi ([62.248.132.0]:14362 "EHLO
-	porkkala.uworld.dyndns.org") by vger.kernel.org with ESMTP
-	id <S289657AbSBJPBs>; Sun, 10 Feb 2002 10:01:48 -0500
-Message-ID: <3C668B24.1A22F53@kolumbus.fi>
-Date: Sun, 10 Feb 2002 17:00:52 +0200
-From: Jussi Laako <jussi.laako@kolumbus.fi>
-X-Mailer: Mozilla 4.79 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
+	id <S289671AbSBJPGX>; Sun, 10 Feb 2002 10:06:23 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:55570 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S289670AbSBJPGM>; Sun, 10 Feb 2002 10:06:12 -0500
+Subject: Re: 2.5.4-pre5 fails to build (sounddrivers.o/pcmcia_net.o)
+To: pierre.rousselet@wanadoo.fr (Pierre Rousselet)
+Date: Sun, 10 Feb 2002 15:19:29 +0000 (GMT)
+Cc: jgarzik@mandrakesoft.com (Jeff Garzik),
+        alessandro.suardi@oracle.com (Alessandro Suardi),
+        linux-kernel@vger.kernel.org, zab@zabbo.net
+In-Reply-To: <3C65E916.9000306@wanadoo.fr> from "Pierre Rousselet" at Feb 10, 2002 04:29:26 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: mingo@elte.hu
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] improving O(1)-J9 in heavily threaded situations
-In-Reply-To: <Pine.LNX.4.33.0202072326410.4773-100000@localhost.localdomain>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E16ZvlJ-0003md-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
+> es1370.c is using pci_alloc_consistent. However insmod es1370 gives this 
+> message :
+> /lib/modules/2.5.4-pre5/kernel/drivers/sound/es1370.o: unresolved symbol 
+> virt_to_bus_not_defined_use_pci_map_R2278fef8
 > 
-> there is one more thing in the -K2 patch that could cause your problems.
-> In kernel/softirq.c, you'll find this line:
-> //__initcall(spawn_ksoftirqd);
-> please uncomment it - this was just a debugging thing that was left in 
-> the patch accidentally. I've made a -K3 patch that has this fixed. Do you
-> still see the audio problems?
+> It comes from a workaround for the "phantom write" bug. A workaround for 
+> the workaround might be in this case isa_virt_to_bus
 
-I did this and also tried -K3. It didn't fix the problem.
-
-I addded lost block count printing to the SCHED_FIFO server processes. Most
-of the loss (about 75%) happens at lowest level soundcard server and rest in
-distributor process. Usually it looses 1 block at time but occasionally
-there is peak of about 18 lost blocks.
-
-If I make the client process read larger blocks (> 4kB) from the distributor
-process number of lost blocks at soundcard server raises significantly. I
-can make it a bit smaller without increased loss, but of course it means
-larger overhead and eventually more lost blocks if made something like 512
-bytes. 4 kB is optimal block size as it's also internal block size used by
-soundcard and distributor servers.
-
-4 kB block size means 2.9 ms in time in this case.
-
-
- - Jussi Laako
-
--- 
-PGP key fingerprint: 161D 6FED 6A92 39E2 EB5B  39DD A4DE 63EB C216 1E4B
-Available at PGP keyservers
-
+Thats actually a real bug (2.4 included) the bugbuf should be allocated
+as part of the pci_alloc_consistent space. 2.4 also wants fixing for this
+problem since if es1370 is modular bugbuf is vmalloc and virt_to_bus won't
+do the right thing

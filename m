@@ -1,39 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263740AbUDQIWR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Apr 2004 04:22:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263735AbUDQIWR
+	id S263719AbUDQIuk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Apr 2004 04:50:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263735AbUDQIuk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Apr 2004 04:22:17 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:11940 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263743AbUDQIWH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Apr 2004 04:22:07 -0400
-Date: Sat, 17 Apr 2004 09:22:06 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Jeff Garzik <jgarzik@pobox.com>, Greg KH <greg@kroah.com>,
-       Maneesh Soni <maneesh@in.ibm.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] fix sysfs symlinks
-Message-ID: <20040417082206.GM24997@parcelfarce.linux.theplanet.co.uk>
-References: <20040413124037.GA21637@in.ibm.com> <20040413133615.GZ31500@parcelfarce.linux.theplanet.co.uk> <20040415220232.GC23039@kroah.com> <20040416152448.GF24997@parcelfarce.linux.theplanet.co.uk> <20040416223732.GC21701@kroah.com> <20040416234601.GL24997@parcelfarce.linux.theplanet.co.uk> <40807466.1020701@pobox.com> <20040417090712.B11481@flint.arm.linux.org.uk>
+	Sat, 17 Apr 2004 04:50:40 -0400
+Received: from cimice4.lam.cz ([212.71.168.94]:56226 "EHLO beton.cybernet.src")
+	by vger.kernel.org with ESMTP id S263719AbUDQIuj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Apr 2004 04:50:39 -0400
+Date: Sat, 17 Apr 2004 08:50:37 +0000
+From: =?iso-8859-2?Q?Karel_Kulhav=FD?= <clock@twibright.com>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: parallel port i2c adapter schematics
+Message-ID: <20040417085037.B7667@beton.cybernet.src>
+References: <20040416163434.GA9704@atrey.karlin.mff.cuni.cz> <20040416121816.6f958b29.rddunlap@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040417090712.B11481@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040416121816.6f958b29.rddunlap@osdl.org>; from rddunlap@osdl.org on Fri, Apr 16, 2004 at 12:18:16PM -0700
+X-Orientation: Gay
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 17, 2004 at 09:07:12AM +0100, Russell King wrote:
-> What about other bus types?  Do I really need to teach userspace about
-> the relationships between all the various bus types we have on ARM and
-> how to work out what these relationships are by guessing?
+On Fri, Apr 16, 2004 at 12:18:16PM -0700, Randy.Dunlap wrote:
+> On Fri, 16 Apr 2004 18:34:34 +0200 Karel Kulhavy wrote:
 > 
-> Please.  The symlinks are necessary and they are the sole source of
-> the relationship information.
+> | Hello
+> | 
+> | There are 3 various parallel port i2c adapters in 2.6.3 kernel and only
+> | one *.txt in Documentation/. Where can I get the schematics for these
+> | adapters? In make menuconfig < Help > there is also nothing.
+> 
+> Do you mean 'schematic' as in:
+> "noun:  diagram of an electrical or mechanical system"
+> ?  or something else?
 
-In which case you want them to be associated with target, not the current
-pathname of target.  And no, I don't buy the "so far all renames happen *here*
-and all symlinks are pointing *there*, so we don't care" - that won't last.
+Yes how to hook up the transistors or what between SDA/SCL and parport.
 
-When do we have a legitimate reason for dangling symlinks in sysfs, anyway?
+Or just the information which pin which signal goes and which polarity.
+I can design the rest myself, no problem.
+
+For example: SDA goes to SLCTIN wich such polarity...
+
+Cl<
+

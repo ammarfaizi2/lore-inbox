@@ -1,40 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263733AbUHGQud@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263735AbUHGRBn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263733AbUHGQud (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Aug 2004 12:50:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263740AbUHGQud
+	id S263735AbUHGRBn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Aug 2004 13:01:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263626AbUHGRBn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Aug 2004 12:50:33 -0400
-Received: from wl-193.226.227-253-szolnok.dunaweb.hu ([193.226.227.253]:993
-	"EHLO szolnok.dunaweb.hu") by vger.kernel.org with ESMTP
-	id S263733AbUHGQuc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Aug 2004 12:50:32 -0400
-Message-ID: <41150848.6050601@freemail.hu>
-Date: Sat, 07 Aug 2004 18:50:16 +0200
-From: Zoltan Boszormenyi <zboszor@freemail.hu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; hu-HU; rv:1.4.1) Gecko/20031114
-X-Accept-Language: hu, en-US
-MIME-Version: 1.0
-To: For users of Fedora Core releases <fedora-list@redhat.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Different . and .. directories on ext3 made with x86-64 mke2fs?
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8bit
+	Sat, 7 Aug 2004 13:01:43 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:8185 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S263725AbUHGRB3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Aug 2004 13:01:29 -0400
+Date: Sat, 7 Aug 2004 19:01:22 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: wli@holomorphy.com, davem@redhat.com, geert@linux-m68k.org,
+       schwidefsky@de.ibm.com
+Cc: linux390@de.ibm.com, sparclinux@vger.kernel.org,
+       linux-m68k@lists.linux-m68k.org, linux-kernel@vger.kernel.org
+Subject: architectures with their own "config PCMCIA"
+Message-ID: <20040807170122.GM17708@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a dual-boot machine with FC1/i386 and FC2/x86-64 installed.
-They share /home and /tmp but have different / , /boot , /var , /usr
-partitions. Recently I almost filled up my /home but I needed still more
-space and mounted my x86-64 partitions under i386 FC1.
+The following architetures have their own "config PCMCIA" instead of 
+including drivers/pcmcia/Kconfig (in 2.6.8-rc3-mm1):
+- m68k
+- s390
+- sparc
+- sparc64
 
-This message bothers me when I start mkisofs in a directory that is on
-a partition that was mke2fs'd under x86-64 FC2:
+Is there any good reason for this, or would a patch to change these 
+architectures to include drivers/pcmcia/Kconfig be OK?
 
-Unknown file type (unallocated) ./.. - ignoring and continuing.
+cu
+Adrian
 
-The burned ISOs are OK, but what's with this "./.." file?
+-- 
 
-Best regards,
-Zoltán Böszörményi
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

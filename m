@@ -1,73 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292979AbSB0WRY>; Wed, 27 Feb 2002 17:17:24 -0500
+	id <S292930AbSB0WUy>; Wed, 27 Feb 2002 17:20:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293017AbSB0WQl>; Wed, 27 Feb 2002 17:16:41 -0500
-Received: from mailout6-0.nyroc.rr.com ([24.92.226.125]:45480 "EHLO
-	mailout6.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id <S292507AbSB0WQZ>; Wed, 27 Feb 2002 17:16:25 -0500
-Subject: Re: ext3 and undeletion
-From: James D Strandboge <jstrand1@rochester.rr.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <E16gBoU-0005wL-00@the-village.bc.nu>
-In-Reply-To: <E16gBoU-0005wL-00@the-village.bc.nu>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-tIYW89iu//UDsvFYWcYn"
-X-Mailer: Evolution/1.0.2 
-Date: 27 Feb 2002 17:16:10 -0500
-Message-Id: <1014848170.18953.57.camel@hedwig.strandboge.cxm>
-Mime-Version: 1.0
+	id <S292994AbSB0WU2>; Wed, 27 Feb 2002 17:20:28 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:61326 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S292993AbSB0WUQ>; Wed, 27 Feb 2002 17:20:16 -0500
+Date: Wed, 27 Feb 2002 17:23:41 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Allo! Allo! <lachinois@hotmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel module ethics.
+In-Reply-To: <F82zxvoEaZWNaBJjvmZ00001183@hotmail.com>
+Message-ID: <Pine.LNX.3.95.1020227164752.16918A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 27 Feb 2002, Allo! Allo! wrote:
 
---=-tIYW89iu//UDsvFYWcYn
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> Hi,
+> 
+> The company for whom I work wants to make a linux driver for some of its 
+> hardware. On my side I would like the driver to be completely open sourced, 
+> and from a customer point of view, its a big plus (a real PITA to maintain 
+> closed sourced drivers). On the other hand, the company wants a clear way to 
+> make "profit" from the work while still catering to it's customers whish to 
+> recompile the driver for just about any kernel version.
 
-On Wed, 2002-02-27 at 16:40, Alan Cox wrote:
-> > Rather than modifying all the different filesystems, or libc, we could
-> > modify the VFS unlink function in the kernel.  It would therefore work
->=20
-> What about every data loss caused by truncate, overwriting etc..
->
-This is a good point.  The easiest answer is 'that is what backups are
-for'.  :-)=20
+[SNIPPED...]
 
-More seriously, truncate could be implemented in the truncate calls in
-VFS as well, but this would have to be a copy to .undelete rather than a
-simple link change.  I am not sure implementing truncate in undelete
-would be that great of an idea though.  Many apps will truncate files
-only to update them again, which would result in the .undelete directory
-filling the disk.  This could be implemented with an optional mount
-option and having the default be to not copy truncated files to
-.undelete.
+I've thought about this and think that "Open Source" is not "Free
+Software". If I purchase some sheet music it has a copyright notice
+that basically implies that I can play this all I want. I can even
+make money playing this at a bar. What I can't do is claim that
+it's my own composition. I can't copy it and put my own name on the
+chart as the author. However, I can certainly play or even write
+my own "Variations on the Theme of ..." and claim that the variations
+are my own.
 
-Unless I am missing something, overwrite should be handled by the change
-to VFS sys_unlink transparently.  If a file is overwritten (eg 'cp
-/root/.bashrc /etc/fstab'), wouldn't 'cp' (or most any other app) first
-unlink the first file (/etc/fstab), then create and write the new one?
+The same should be true of any software (sheet music is software for
+machines called instruments). I should be able to write a module
+under GPL and, in a separate file, provide the source code with its
+proprietary notice and proprietary copyright notice.
 
-Jamie Strandboge
+But what happens then is, since its published, it's no longer "trade
+secret". You can't keep something secret by publishing it. So your
+company loses its claim to the software as trade secret, but not its
+claim against somebody copying it and calling it their own.
 
---=20
-Email:        jstrand1@rochester.rr.com
-GPG/PGP ID:   26384A3A
-Fingerprint:  D9FF DF4A 2D46 A353 A289  E8F5 AA75 DCBE 2638 4A3A
+Unfortunately, the whole reason for software copyright is to maintain
+trade secrets. The company pays you and others, what it thinks is
+an enormous amount of money, and they don't expect you to give away
+all that expense, especially to competitors.
 
---=-tIYW89iu//UDsvFYWcYn
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+In fact, hardware designs that took several million dollars of NRE to
+develop, can be compromised if the source code necessary to manipulate
+it becomes available to competitors. A competitor doesn't have to spend
+a million dollars. Instead, they just buy the product like any other
+customer. The PWB shows how to build it, and the software shows how to
+run it. For a few thousand dollars, they could be selling your product
+to your potential customers, and you lose your job.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+So, enter the compromise. Make your proprietary stuff in separate file(s)
+known only to your company. This keeps them trade secret. Compile them
+into a library. Provide that library with your module. The functions
+contained within that library should be documented as well as the
+calling parameters (a header file). This helps GPL maintainers
+determine if your library is broken.
 
-iEYEABECAAYFAjx9WqkACgkQqnXcviY4SjpXOQCeMYxyaj8U8Pw8c95f21aCaSlf
-nnoAn0wOaMcR356DTlB/oZqfM0o3CobH
-=GGCM
------END PGP SIGNATURE-----
+The main module code is GPL and it is linked with your proprietary
+library. If you have a customer that requires access to the trade-secret
+source-code, you have them sign a standard NDA so the lawyers can kill
+them if necessary, in the courts of course!
 
---=-tIYW89iu//UDsvFYWcYn--
+That said, there may be responses from others who say; "No you can't
+do that!" The FSF makes free software, etc. I won't be responding
+to those because I understand that nothing I do at work is free.
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
+
+        111,111,111 * 111,111,111 = 12,345,678,987,654,321
 

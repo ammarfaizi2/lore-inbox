@@ -1,68 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265044AbUGNQya@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267460AbUGNQ5d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265044AbUGNQya (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 12:54:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267458AbUGNQya
+	id S267460AbUGNQ5d (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 12:57:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267458AbUGNQ5d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 12:54:30 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:27584 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S265044AbUGNQy0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 12:54:26 -0400
-Date: Wed, 14 Jul 2004 18:54:19 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Mikael Pettersson <mikpe@csd.uu.se>, akpm@osdl.org, dgilbert@interlog.com,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [PATCH][2.6.8-rc1-mm1] drivers/scsi/sg.c gcc341 inlining fix
-Message-ID: <20040714165419.GF7308@fs.tum.de>
-References: <200407141216.i6ECGHxg008332@harpo.it.uu.se> <40F556CE.9000707@pobox.com> <20040714164253.GE7308@fs.tum.de> <40F562FC.50806@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40F562FC.50806@pobox.com>
-User-Agent: Mutt/1.5.6i
+	Wed, 14 Jul 2004 12:57:33 -0400
+Received: from eis-msg-012.jpl.nasa.gov ([137.78.160.40]:9433 "EHLO
+	eis-msg-012.jpl.nasa.gov") by vger.kernel.org with ESMTP
+	id S267460AbUGNQ5b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jul 2004 12:57:31 -0400
+Message-ID: <40F565F3.3080103@jpl.nasa.gov>
+Date: Wed, 14 Jul 2004 09:57:23 -0700
+From: Roy Butler <roy.butler@jpl.nasa.gov>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.6) Gecko/20040114
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: Chris Wedgwood <cw@f00f.org>
+Subject: Re: kconfig's file handling
+References: <40F4D266.4050006@jpl.nasa.gov> <20040714064400.GA9721@taniwha.stupidest.org>
+In-Reply-To: <20040714064400.GA9721@taniwha.stupidest.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 14, 2004 at 12:44:44PM -0400, Jeff Garzik wrote:
-> Adrian Bunk wrote:
-> >On Wed, Jul 14, 2004 at 11:52:46AM -0400, Jeff Garzik wrote:
-> >
-> >>...
-> >>If gcc is insisting that prototypes for inlines no longer work, we have 
-> >>a lot of code churn on our hands ;-(  Grumble.
-> >
-> >
-> >I've counted at about 30 files with such problems in a full i386 
-> >2.6.7-mm7 compile.
-> >
-> >I've already sent patches for some of them (e.g. the dmascc.c one), and 
-> >they are usually pretty straightforward.
+Chris,
+
+Chris Wedgwood wrote:
+> On Tue, Jul 13, 2004 at 11:27:50PM -0700, Roy Butler wrote:
 > 
-> This is not a problem with the kernel.
 > 
-> All these files have been functioning just fine for years, with properly 
-> prototyped static inline functions.
+>>By example, if you create a file, write to it, and then delete it
+>>fast enough, it will never hit the disk under XFS.
+> 
+> 
+> Nor will it under some other filesystems...  and in the above scenario
+> I'm not sure that matters, why must a temporary file hit the disk at
+> all?
+> 
+> 
+>    --cw
+> 
 
-Add -Winline to the compile flags, and name one gcc version that is able 
-to inline them all in sg.c ...
+Suppose you want to do something with the file's contents before you 
+delete it, but the system goes down before you have the chance.  Wasn't 
+that the impetus for this thread?  With XFS, the potential for data loss 
+is greater; that was my point.  I believe that everyone who pays extra 
+for batter-backed I/O caches would agree. :)  Sure, different 
+filesystems have their options, but this liability is ingrained in XFS.
 
-> Though there is a the claim that '#define inline always_inline' is 
-> leading to all this breakage.
 
-gcc 3.4 is just complaining louder that it can't inline something it was 
-told to inline.
-
-> 	Jeff
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Roy

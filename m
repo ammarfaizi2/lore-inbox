@@ -1,100 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262925AbUKRTvM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262956AbUKRTxf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262925AbUKRTvM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 14:51:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262938AbUKRTtO
+	id S262956AbUKRTxf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 14:53:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262926AbUKRTwI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 14:49:14 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:59056 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262926AbUKRTsL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 14:48:11 -0500
-Date: Thu, 18 Nov 2004 14:47:27 -0500
-From: Jakub Jelinek <jakub@redhat.com>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>, mingo@elte.hu,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       rusty@rustcorp.com.au, ahu@ds9a.nl, Ulrich Drepper <drepper@redhat.com>,
-       Roland McGrath <roland@redhat.com>
-Subject: Re: Futex queue_me/get_user ordering
-Message-ID: <20041118194726.GX10340@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-References: <20041113164048.2f31a8dd.akpm@osdl.org> <20041114090023.GA478@mail.shareable.org> <20041114010943.3d56985a.akpm@osdl.org> <20041114092308.GA4389@mail.shareable.org> <4197FF42.9070706@jp.fujitsu.com> <20041115020148.GA17979@mail.shareable.org> <41981D4D.9030505@jp.fujitsu.com> <20041115132218.GB25502@mail.shareable.org> <20041117084703.GL10340@devserv.devel.redhat.com> <20041118072058.GA19965@mail.shareable.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041118072058.GA19965@mail.shareable.org>
-User-Agent: Mutt/1.4.1i
+	Thu, 18 Nov 2004 14:52:08 -0500
+Received: from postfix4-2.free.fr ([213.228.0.176]:52628 "EHLO
+	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S262948AbUKRTtx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 14:49:53 -0500
+Message-ID: <419CFCDE.6090400@free.fr>
+Date: Thu, 18 Nov 2004 20:49:50 +0100
+From: matthieu castet <castet.matthieu@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
+X-Accept-Language: fr-fr, en, en-us
+MIME-Version: 1.0
+To: jt@hpl.hp.com
+Cc: linux-kernel@vger.kernel.org, syrjala@sci.fi,
+       Adam Belay <ambx1@neo.rr.com>
+Subject: Re: [PATCH] smsc-ircc2: Add PnP support.
+References: <419CECFF.2090608@free.fr> <20041118185503.GA5584@bougret.hpl.hp.com>
+In-Reply-To: <20041118185503.GA5584@bougret.hpl.hp.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 18, 2004 at 07:20:58AM +0000, Jamie Lokier wrote:
-> Do you have an answer for whether the behaviour of (a) is a bug or
-> not?  I don't know if it's a bug, or if that part of NPTL behaviour is
-> acceptable under POSIX.  Even if it's acceptable, you might decide
-> it's not acceptable quality to do that.
+Jean Tourrilhes wrote:
+> On Thu, Nov 18, 2004 at 07:42:07PM +0100, matthieu castet wrote:
+> 
+>>Hi,
+>>
+>>I had also done a pnp patch for the smsc-ircc2 and irport 3 months ago.
+>>Unfortunaly I don't remember where I put the patches, certainly on the 
+>>laptop that it is in my parent home.
+> 
+> 
+> 	I've never seen you patches on the irda mailing list...
+> 
+> 
+When I wanted to send them, I didn't find them, and after that I forgot 
+them...
 
-Not sure what you mean by (a) there, so assuming you meant 1.
-If pthread_cond_{signal,broadcast} is called with the condvar's associated
-mutex held, then the standard is pretty clear when a thread is considered
-blocked in pthread_cond_*wait on the condvar, as releasing the mutex and
-getting blocked on the condvar in pthread_cond_*wait shall be observed as
-atomic by other threads.  If pthread_cond_{signal,broadcast} is called
-without the mutex held, it is not that clear.
-Anyway, pthread_cond_signal is supposed to wake at least one thread
-blocked in pthread_cond_*wait (if there are any).
+if you are still interested for the irport, I could try to ask someone 
+to send it to me.
+>>>I have a machine with nsc-ircc here so I think I'll try that too.
+>>>
+>>>
+>>>>OnThe issue there is that if a smsc chipset has a valid PnP ID
+>>>>but somehow the pnp_probe fails to set it up, then the regular probe
+>>>>won't be able to configure it. This makes me nervous.
+>>>>
+>>
+>>Yes that's the problem this pnp, if the probe failed it disable the 
+>>device resource.
+>>When I do my patch I encounter the problem : I called pnp driver after 
+>>smsc_ircc_look_for_chips, so all the resources where already reserved, 
+>>and the pnp probe failed and it disable the resource, and the device 
+>>found with the traditional smsc_ircc_look_for_chips doesn't work.
+>>
+>>So in my patch if I register pnp devices, I don't run 
+>>smsc_ircc_look_for_chips like it is done for (ircc_fir>0)&&(ircc_sir>0) 
+>>case.
+> 
+> 
+> 	smsc_ircc_look_for_chips won't re-register the devices
+> configured via PnP, as smsc_ircc_present won't be able to request the
+> region. So, I don't see the problem. And you could imagine having
+> multiple SMSC in the box, some PnP, some not.
+Yes, it was just because it produce some warning message.
+> 	Note that we could put the region check earlier, but I like
+> the fact that the driver is still able to probe completely the chip
+> even if the serial driver has grabbed the regions. Maybe we could
+> split the difference and request the FIR region early on (so to fail
+> on SMC devices already registered) and request the other ressources
+> late (so as to completely probe even when serial is loaded).
+> 
+> 
+>>>>On3) If the ressources are markes as disabled, you just quit
+>>>>with an error. Compouded with (2), this makes me doubly
+>>>>nervous. Wouldn't it be possible to forcefully enable those 
+>>
+>>ressources ?
+>>pnp should call automatiquely pnp_activate_dev() before probing the 
+>>driver, so the resource should be activated. Have you got an example 
+>>where the resource wheren't activated ?
+> 
+> 
+> 	No, it was more that I don't understand what PnP does for
+> us. I don't have a SMS chipset to test on. Also, I would like to know
+> if it remove the need of smcinit.
+> 
+PnP is easy to understand ;)
+When you probe a device, it will activate a device with the best 
+configuration available.
+When removing a device it will disable the resource of the device.
+A driver could play a little with the resources configuration : try 
+another configuration, but it is not really need.
 
-The scenario described in futex_wait-fix.patch IMHO can happen even
-if all calls to pthread_cond_signal are done with mutex held around it, i.e.
-A		B		X		Y
-pthread_mutex_lock (&mtx);
-pthread_cond_wait (&cv, &mtx);
-  - mtx release *)
-  total++ [1/0/0] (0) {}
-				pthread_mutex_lock (&mtx);
-				pthread_cond_signal (&cv);
-				  - wake++ [1/1/0] (1) {}
-				  FUTEX_WAKE, 1 (returns, nothing is queued)
-				pthread_mutex_unlock (&mtx);
-		pthread_mutex_lock (&mtx);
-		pthread_cond_wait (&cv, &mtx);
-		  - mtx release *)
-		  total++ [2/1/0] (1) {}
-  FUTEX_WAIT, 0
-  queue_me [2/1/0] (1) {A}
-  0 != 1
-		FUTEX_WAIT, 1
-		queue_me [2/1/0] (1) {A,B}
-		1 == 1
-						pthread_mutex_lock (&mtx);
-						pthread_cond_signal (&cv);
-						  - wake++ [2/2/0] (2) {A,B}
-						  FUTEX_WAKE, 1 (unqueues incorrectly A)
-						  [2/2/0] (2) {B}
-						pthread_mutex_unlock (&mtx);
-  try to dequeue but already dequeued
-  would normally return EWOULDBLOCK here
-  but as unqueue_me failed, returns 0
-  woken++ [2/2/1] (2) {B}
-		schedule_timeout (forever)
-  - mtx reacquire
-  pthread_cond_wait returns
-pthread_mutex_unlock (&mtx);
+Also PnP can provide several id for a device : for example for my smsc 
+device, I have SMCf010 and PNP0510 or PNP0511. So in this case we should 
+load the smsc driver first, otherwise for example a pnp version of 
+irport could register the device and it is not available for smsc (PnP 
+will see that there is a driver attached, and not give it to the smsc 
+probe).
 
-		-------------------
-		the code would like to say pthread_mutex_unlock (&mtx);
-		and pthread_exit here, but never reaches there.
 
-Now, if at this point say A pthread_join's B, Y pthread_join's A and
-X pthread_join's Y, the program should eventually finish, as B must have
-been woken up according to the standard.  Whether signal in X means
-pthread_cond_wait in A returning first or pthread_cond_wait in B returning
-first is I believe not defined unless special scheduling policy is used,
-as both A and B are supposed to contend for mtx lock.
-But I believe both A and B must be awaken, assuming no other thread attempts
-to acquire mtx afterwards.
+> 	Thanks, have fun...
+> 
+> 	Jean
+> 
+> 
 
-*) therefore other threads that acquire mtx can now consider A blocked on
-   the condvar
-
-	Jakub
+Matthieu

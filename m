@@ -1,55 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311453AbSCNA2s>; Wed, 13 Mar 2002 19:28:48 -0500
+	id <S311448AbSCNA2s>; Wed, 13 Mar 2002 19:28:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311455AbSCNA1y>; Wed, 13 Mar 2002 19:27:54 -0500
-Received: from 64-60-75-69-cust.telepacific.net ([64.60.75.69]:41489 "EHLO
-	racerx.ixiacom.com") by vger.kernel.org with ESMTP
-	id <S311457AbSCNA1G>; Wed, 13 Mar 2002 19:27:06 -0500
-Message-ID: <3C8FEC76.F1411739@ixiacom.com>
-Date: Wed, 13 Mar 2002 16:19:02 -0800
-From: Dan Kegel <dkegel@ixiacom.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10-dan i686)
-X-Accept-Language: en
+	id <S311458AbSCNA1u>; Wed, 13 Mar 2002 19:27:50 -0500
+Received: from ns1.cypress.com ([157.95.67.4]:17882 "EHLO ns1.cypress.com")
+	by vger.kernel.org with ESMTP id <S311455AbSCNA0g>;
+	Wed, 13 Mar 2002 19:26:36 -0500
+Message-ID: <3C8FEE2A.8030905@cypress.com>
+Date: Wed, 13 Mar 2002 18:26:18 -0600
+From: Thomas Dodd <ted@cypress.com>
+Organization: Cypress Semiconductor
+User-Agent: Mozilla/5.0 (X11; U; SunOS sun4u; en-US; rv:0.9.9) Gecko/20020311
+X-Accept-Language: en-US, en-GB, en, de-DE, de-AT, 
 MIME-Version: 1.0
-To: Ulrich Drepper <drepper@redhat.com>
-CC: darkeye@tyrell.hu, libc-gnats@gnu.org, gnats-admin@cygnus.com, sam@zoy.org,
-        Xavier Leroy <Xavier.Leroy@inria.fr>, linux-kernel@vger.kernel.org,
-        babt@us.ibm.com
-Subject: Re: libc/1427: gprof does not profile threads <synopsis of the problem  
- (one li\ne)>
-In-Reply-To: <1016062486.16743.1091.camel@myware.mynet>
+To: Adam Schrotenboer <adam@tabris.net>
+CC: linux-kernel@vger.kernel.org, jgarzik@mandrakesoft.com
+Subject: Re: [Repost] Tulip Bug ?
+In-Reply-To: <20020313203530.8FDABFB911@tabriel.tabris.net>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-MailScanner: Scanned but not guaranteed against viruses
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ulrich Drepper wrote:
+
+
+Adam Schrotenboer wrote:
+> (I can't tell if it made its way to the list......)
+
+It made it both times :)
+
+> I also have some more information. This ethdev is connected to a 
+> Efficient Networks Speedstream 5260, which may be the cause of the 
+> problems (the modem came w/ a D-Link RTL8139C ethdev, but I replaced 
+> both of my ethdevs w/ tulips.) Maybe I need to find out how to program 
+> the EEPROM for 10Mbps half duplex ?????
 > 
-> On Wed, 2002-03-13 at 15:17, Dan Kegel wrote:
-> 
-> > So let's break the logjam and fix glibc's linuxthreads' pthread_create
-> > to [support profiling multithreaded programs]
-> 
-> I will add nothing like this.  The implementation is broken enough and
-> any addition just makes it worse.  If you patch your own code you'll get
-> what you want at your own risk.
+> I am currently running 2.4.18-pre9-mjc2, but this also happens w/ 
+> 2.4.18-pre9 (and 2.4.18-pre7-mjc, maybe others)
 
-OK.  What's the right way to fix this, then?
+I see it a lot on a Netgear FA310TX
+( detected as Lite-On 82c168 PNIC rev 33)
+With both v 1.1.8(June 16,2001) and
+v 0.9.15-pre9(Nov 6, 2001)
+kernel is 2.4.19-pre2-ac2 but it's been a problem for
+months.
 
-Here are a few alternate ideas off the top of my head:
+> I am getting NETDEV Watchdog timeouts
 
-* Rip out Linuxthreads, replace it with NGPT, and
-start fixing from there?  (Or does NGPT already fix this?)
+I only get the NETDEV messages.
 
-* Rewrite Linux's setitimer(ITIMER_PROF,...) to set up an 
-interval timer for all threads of the thread group.
+> I have been getting this at largely unpredictable intervals. The 
+> solutions seems to be to ifdown the ethdevs, and rmmod the driver. then 
+> ifup the ethdevs (which also means I have to stop my PPPoE-DSL 
+> connection).
 
-* Implement the profil() system call from Solaris
-( http://ua1vm.ua.edu/cgi-bin/man-cgi?profil+2 )
+Using xfs top serve fonts to a Solaris8 box was impossible.
+too many timeouts. Same for NFS mounted $HOME (from Solaris)
+making it impossible to use the box.
 
-What's your favorite idea for getting profiling of
-multithreaded programs working on Linux?
+	-Thomas
 
-Thanks,
-Dan

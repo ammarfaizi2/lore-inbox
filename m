@@ -1,54 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272561AbTHPCWs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 22:22:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272576AbTHPCWs
+	id S272563AbTHPCZh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 22:25:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272578AbTHPCZg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 22:22:48 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:17098
+	Fri, 15 Aug 2003 22:25:36 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:19402
 	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S272561AbTHPCWr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 22:22:47 -0400
+	id S272563AbTHPCZf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Aug 2003 22:25:35 -0400
 From: Con Kolivas <kernel@kolivas.org>
-To: Timothy Miller <tim@techsource.com>
-Subject: Re: [PATCH] O12.2int for interactivity
-Date: Sat, 16 Aug 2003 12:29:03 +1000
+To: Timothy Miller <miller@techsource.com>
+Subject: Re: [PATCH] O16int for interactivity
+Date: Sat, 16 Aug 2003 12:31:50 +1000
 User-Agent: KMail/1.5.3
-Cc: Timothy Miller <miller@techsource.com>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       linux-kernel@vger.kernel.org
-References: <20030804195058.GA8267@cray.fish.zetnet.co.uk> <200308160235.05105.kernel@kolivas.org> <3F3D23BD.6050608@techsource.com>
-In-Reply-To: <3F3D23BD.6050608@techsource.com>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       gaxt <gaxt@rogers.com>, Mike Galbraith <efault@gmx.de>
+References: <200308160149.29834.kernel@kolivas.org> <3F3D25D0.7010701@techsource.com>
+In-Reply-To: <3F3D25D0.7010701@techsource.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200308161229.03334.kernel@kolivas.org>
+Message-Id: <200308161231.50661.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 16 Aug 2003 04:17, Timothy Miller wrote:
-> >All "nice" 0 tasks get the same size timeslice. If their dynamic priority
-> > is different (the PRI column in top) they still get the same timeslice.
+On Sat, 16 Aug 2003 04:26, Timothy Miller wrote:
+> Con Kolivas wrote:
+> > Preemption of tasks at the same level with twice as much timeslice has
+> > been dropped as this is not necessary with timeslice granularity (may
+> > improve performance of cpu intensive tasks).
 >
-> Why isn't dynamic priority just an extension of static priority?  Why do
-> you modify only the ordering while leaving the timeslice alone?
+> Does this situation happen where two tasks at different nice levels have
+> dynamic priority adjustments which make them effectively have the same
+> priority?
 
-Because master engineer Molnar has determined that's the correct way.
+Yes it does. Preemption and order of scheduling is determined entirely by the 
+dynamic priority.
 
-> So, tell me if I infer this correctly:  If you have a nice 5 and a nice
-> 7, but the nice 5 is a cpu hog, while the nice 7 is interactive, then
-> the interactivity scheduler can modify their dynamic priorities so that
-> the nice 7 is being run before the nice 5.  However, despite that, the
-> nice 7 still gets a shorter timeslice than tha nice 5.
+> > Preemption of user tasks is limited to those in the interactive range;
+> > cpu intensive non interactive tasks can run out their full timeslice (may
+> > also improve cpu intensive performance)
 >
-> Have you tried altering this?
+> What can cause preemption of a task that has not used up its timeslice?
 
-Yes, not good with fluctuating timeslices all over the place makes for more 
-bounce in the algorithm, and the big problem - the cpu intensive applications 
-get demoted to smaller timeslices and they are the tasks that benefit the 
-most from larger timeslices (for effective cpu cache usage).
+Any task of better (dynamic) priority will preempt it.
+
+>   I assume a device interrupt could do this, but... there's a question I
+> asked earlier which I haven't read the answer to yet, so I'm going to
+> guess:
+>
+> A hardware timer interrupt happens at timeslice granularity.  If the
+> interrupt occurs, but the timeslice is not expired, then NORMALLY, the
+> ISR would just return right back to the running task, but sometimes, it
+> might decided to end the timeslice early and run some other task.
+>
+> Right?
+
+No, the timeslice granularity is a hard cut off where a task gets rescheduled 
+and put at the back of the queue again. If there is no other task of equal or 
+better priority it will just start again.
+
+> So, what might cause the scheduler to decide to preempt a task which has
+> not used up its timeslice?
+
+Better dynamic priority.
 
 Con
 

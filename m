@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289062AbSANV1m>; Mon, 14 Jan 2002 16:27:42 -0500
+	id <S289074AbSANV3W>; Mon, 14 Jan 2002 16:29:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289067AbSANV1c>; Mon, 14 Jan 2002 16:27:32 -0500
-Received: from chello212186127068.14.vie.surfer.at ([212.186.127.68]:50848
-	"EHLO server.home.at") by vger.kernel.org with ESMTP
-	id <S289062AbSANV1T>; Mon, 14 Jan 2002 16:27:19 -0500
-Subject: Re: floating point exception
-From: Christian Thalinger <e9625286@student.tuwien.ac.at>
-To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0201141256300.28735-100000@netfinity.realnet.co.sz>
-In-Reply-To: <Pine.LNX.4.33.0201141256300.28735-100000@netfinity.realnet.co.sz>
-Content-Type: text/plain
+	id <S289072AbSANV3N>; Mon, 14 Jan 2002 16:29:13 -0500
+Received: from freeside.toyota.com ([63.87.74.7]:4880 "EHLO
+	freeside.toyota.com") by vger.kernel.org with ESMTP
+	id <S289067AbSANV3D>; Mon, 14 Jan 2002 16:29:03 -0500
+Message-ID: <3C434D95.3060106@lexus.com>
+Date: Mon, 14 Jan 2002 13:28:53 -0800
+From: J Sloan <jjs@lexus.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011221
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Daniel Phillips <phillips@bonn-fries.net>,
+        Bill Davidsen <davidsen@tmr.com>, Andrea Arcangeli <andrea@suse.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+In-Reply-To: <E16QB7T-0002JS-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 14 Jan 2002 22:26:26 +0100
-Message-Id: <1011043588.645.0.camel@sector17.home.at>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-01-14 at 11:56, Zwane Mwaikambo wrote:
-> >Right after that my window manager segfaults. Ok, switch to console,
-> >restart it and go. No! Can't start any programs anymore, no login. All
-> >tasks die one after the other, up to the complete lock of the machine.
-> >Even alt-sysrq doesn't work.
-> 
-> Can you reproduce the problem with some degree of success? (2/5 is fine)
-> 
-> Regards,
-> 	Zwane Mwaikambo
-> 
+Alan Cox wrote:
 
-After a little bit of testing i would say yes. 2-3 out of 5 with kernel
-2.4.17 and 2.4.18-pre3. Mainly with X, got some without X.
+>>>stays on.  That's another problem, and I did play with some patches this
+>>>weekend without making myself really happy :-( Another topic,
+>>>unfortunately.
+>>>
+>>Patience, the problem is understood and there will be a fix in the 2.5 
+>>timeframe.
+>>
+>
+>Without a fix in the 2.4 timeframe everyone has to run 2.2. That strikes
+>me as decidedly non optimal. If you are having VM problems try both the
+>Andrea -aa and the Rik rmap-11b patches (*not together*) and report back
+>
+Easiest is to grab 2.4.17 and apply 2.4.18pre2 and 2.4.18pre2-aa2 -
 
-It seems the floating point exception is only raised with a new data
-package. Is there a simple way to raise such a exception?
+pre2-aa2 has all the fixes and tweaks I had been doing by hand.
+
+cu
+
+jjs
+
+>
+
 

@@ -1,63 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261431AbULLCyE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261186AbULLDbu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261431AbULLCyE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Dec 2004 21:54:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261541AbULLCyD
+	id S261186AbULLDbu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Dec 2004 22:31:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261541AbULLDbu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Dec 2004 21:54:03 -0500
-Received: from fsmlabs.com ([168.103.115.128]:52702 "EHLO fsmlabs.com")
-	by vger.kernel.org with ESMTP id S261431AbULLCxs (ORCPT
+	Sat, 11 Dec 2004 22:31:50 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:20143 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261186AbULLDbs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Dec 2004 21:53:48 -0500
-Date: Sat, 11 Dec 2004 19:53:19 -0700 (MST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: George Anzinger <george@mvista.com>
-cc: Manfred Spraul <manfred@colorfullife.com>,
-       Lee Revell <rlrevell@joe-job.com>, dipankar@in.ibm.com,
-       ganzinger@mvista.com, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: RCU question
-In-Reply-To: <41BB25B2.90303@mvista.com>
-Message-ID: <Pine.LNX.4.61.0412111947280.7847@montezuma.fsmlabs.com>
-References: <41B8E6F1.4070007@mvista.com> <20041210043102.GC4161@in.ibm.com>
-  <41B9FC3F.50601@mvista.com>  <20041210204003.GC4073@in.ibm.com>
- <1102711532.29919.35.camel@krustophenia.net> <41BA0ECF.1060203@mvista.com>
- <Pine.LNX.4.61.0412101558240.24986@montezuma.fsmlabs.com> <41BA59F6.5010309@mvista.com>
- <Pine.LNX.4.61.0412101943260.1101@montezuma.fsmlabs.com> <41BA698E.8000603@mvista.com>
- <Pine.LNX.4.61.0412110751020.5214@montezuma.fsmlabs.com> <41BB2108.70606@colorfullife.com>
- <41BB25B2.90303@mvista.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 11 Dec 2004 22:31:48 -0500
+Date: Sat, 11 Dec 2004 22:31:19 -0500
+From: Dave Jones <davej@redhat.com>
+To: "Camilo A. Reyes" <camilo@leamonde.no-ip.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: modprobe: QM_MODULES: Funtion not implemented on kernel 2.6.9
+Message-ID: <20041212033119.GC1921@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	"Camilo A. Reyes" <camilo@leamonde.no-ip.org>,
+	linux-kernel@vger.kernel.org
+References: <20041211195133.GA2210@leamonde.no-ip.org> <41BBA98F.9080002@g-house.de> <20041212025217.GA16761@leamonde.no-ip.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041212025217.GA16761@leamonde.no-ip.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 11 Dec 2004, George Anzinger wrote:
+On Sat, Dec 11, 2004 at 08:52:17PM -0600, Camilo A. Reyes wrote:
 
-> Manfred Spraul wrote:
-> > >  
-> > The trick is the sti instruction: It enables interrupt processing after the
-> > following instruction.
-> > 
-> > Thus
-> >    sti
-> >    hlt
-> > 
-> > cannot race - it atomically enables interrupts and waits.
-> 
-> Exactly :)
+ > > this (and other interesting things) is described here:
+ > > http://www.linux.org.uk/~davej/docs/post-halloween-2.6.txt
+ > Wow! Now, thats the stuff! How come that's not included in the
+ > kernel distro documentation, I'm sure lots of people that are new
+ > to the kernel will have the same problem. Anyway thanks alot...
 
-Ok i wasn't aware that it was safe_halt() that he was referring too, my 
-poor assumption. But regardless, this seems highly fragile and relying on 
-behaviour which may change across processor models/vendors. I also found 
-the following excerpt from (http://sandpile.org/ia32/inter.htm) which you 
-may find interesting;
+I've had a few people asking me to submit it, but I'm not
+convinced it would be worthwhile.  Would people read it if
+they had problems ?
 
-"Intel processors don't suppress SMI or NMI after an STI instruction. 
-Since the INTR suppresion is not preserved across an SMI or NMI handler, 
-this may result in an INTR being serviced after the STI, which constitutes 
-a violation of the INTR suppresion. Therefore, ideally the STI instruction 
-also suppresses SMI and NMI."
+make modules_install prints out a warning pointing them at it,
+yet as this thread indicates, not everyone bothers to go there
+and read it.  Maybe if it was in-tree things would be different,
+but I'm not convinced. People want things to 'just work'
+rather than have to read about how to make them work.
 
-George thanks for persisting and explaining your point, i can be very slow 
-=)
+That said, if it was in-tree it would be easier for people
+other than myself to update it as things change.
+The current doc is a little out of date (last changed
+about 6 months ago), so probably needs a little work
+before its ready for submission.
 
-	Zwane
+Is there enough interest in this from people to justify
+me putting any effort into it ?  If theres any value in
+having this in tree, I'll submit the current version
+to Andrew for -mm, and see if anyone dives in and starts
+chopping/changing things.
+
+If this does happen, it'd probably be worth eventually
+replacing Documentation/Changes with it.
+
+		Dave
+

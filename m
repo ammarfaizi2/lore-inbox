@@ -1,72 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316835AbSF0NKa>; Thu, 27 Jun 2002 09:10:30 -0400
+	id <S316843AbSF0NSA>; Thu, 27 Jun 2002 09:18:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316843AbSF0NK3>; Thu, 27 Jun 2002 09:10:29 -0400
-Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:16916 "EHLO
-	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S316835AbSF0NK2>; Thu, 27 Jun 2002 09:10:28 -0400
-Date: Thu, 27 Jun 2002 08:10:30 -0500 (CDT)
-From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Message-Id: <200206271310.IAA61740@tomcat.admin.navo.hpc.mil>
-To: Gregoryg@ParadigmGeo.com,
-       "Linux Kernel (E-mail)" <linux-kernel@vger.kernel.org>
-Subject: RE: Multiple profiles
-X-Mailer: [XMailTool v3.1.2b]
+	id <S316845AbSF0NR7>; Thu, 27 Jun 2002 09:17:59 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:59397 "EHLO
+	imladris.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S316843AbSF0NR7>; Thu, 27 Jun 2002 09:17:59 -0400
+Date: Thu, 27 Jun 2002 14:17:42 +0100 (BST)
+From: David Woodhouse <dwmw2@infradead.org>
+X-X-Sender: dwmw2@imladris.demon.co.uk
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+cc: Nicolas Bougues <nbougues-listes@axialys.net>,
+       Andries Brouwer <aebr@win.tue.nl>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.3.95.1020627073831.4174A-101000@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.44.0206271415260.20792-100000@imladris.demon.co.uk>
+MIME-Version: 1.0
+Subject: Re: Problems with wait queues 
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
----------  Received message begins Here  ---------
+On Thu, 27 Jun 2002, Richard B. Johnson wrote:
 
-> 
-> >I wonder if somebody is familiar with the way to create 
-> >multiple hardware configurations (profiles) on Linux? 
-> 
-> Sorry for not being clear enough. I got several replies saying that this is
-> not a kernel list question, I suppose because of the example with the
-> network. In reality, this problem is much broader...
-> 
-> One might think of external devices (tapes, scaners, disks, etc.) constanly
-> being moved from machine to machine. I understand I can twist /etc/init.d/*
-> to support all the configurations. However, I don't see a reason why it
-> cannot be the responsibility of Linux kernel to "see" different hardware
-> configurations on boot.
+> Attached is a file showing about 485 usages of 'sleep_on' in the
+> kernel drivers. If this usage is, as you say, buggy then will you
+> please inform us unwashed hordes what we should use to replace these?
 
-Now you got specific.
+Anything you like -- as long as it doesn't have gaping races which are 
+obvious to anyone with half a clue who actually _thinks_ about the code 
+rather than assuming that _driver_ authors all got it right :)
 
-Most tapes/scanners/disks that are removable/detachable are using the USB.
+We _really_ need to kill sleep_on() in 2.5. 
 
-If that is the case, then yes - they can be handled automatically.
-
-You do have to setup the USB daemon and drivers. Once configured they should
-be connected automatically. Depending on the type of disk (hard disk,
-filesystem type, access authorizations) you run into additional complications.
-
-Not everything SHOULD be automatically done. For instance - overriding
-authorizations on a disk drive can allow a workstation user to violate the
-security policy established for the disk drive. The same can be said for
-a tape or floppy. Such policies are NOT implementable inside the kernel
-(at least not portably).
-
-This is one reason an automatic mount is not necessarily valid. That policy
-cannot be supported (or even identified) by the kernel.
-
-Scanners and printers however, are more policy neutral - they don't inherently
-store data that is policy controlled. At least not in the US. These devices
-are usually immediately available after connection. (Though I'm still working
-on getting my HP G55 scanner/printer working - it is recognized by the USB
-subsystem as soon as it is attached).
-
-I believe in other countries scanners are required to be able to label the data
-being scanned and/or printed to identify the source of the data (doesn't prevent
-tampering, but it is still a policy).
-
-> >From the replies I got, I understand that Linux kernel doesn't provide such
-> functionality. That's all I wanted to know.
+-- 
+dwmw2
 
 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
-
-Any opinions expressed are solely my own.

@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315252AbSDWQEK>; Tue, 23 Apr 2002 12:04:10 -0400
+	id <S315251AbSDWQGf>; Tue, 23 Apr 2002 12:06:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315253AbSDWQEJ>; Tue, 23 Apr 2002 12:04:09 -0400
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:19465 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S315252AbSDWQEJ>; Tue, 23 Apr 2002 12:04:09 -0400
-Date: Tue, 23 Apr 2002 18:04:05 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-To: Larry McVoy <lm@bitmover.com>
-cc: Jeff Garzik <garzik@havoc.gtf.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
-In-Reply-To: <20020423083739.D26364@work.bitmover.com>
-Message-ID: <Pine.LNX.4.21.0204231801080.22075-100000@serv>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315256AbSDWQGe>; Tue, 23 Apr 2002 12:06:34 -0400
+Received: from imladris.infradead.org ([194.205.184.45]:14345 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S315251AbSDWQGd>; Tue, 23 Apr 2002 12:06:33 -0400
+Date: Tue, 23 Apr 2002 17:06:06 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Larry McVoy <lm@work.bitmover.com>, Jes Sorensen <jes@wildopensource.com>,
+        Larry McVoy <lm@bitmover.com>, Jeff Garzik <garzik@havoc.gtf.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Suggestion re: [PATCH] Remove Bitkeeper documentation from Linux tree
+Message-ID: <20020423170606.A2202@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Larry McVoy <lm@work.bitmover.com>,
+	Jes Sorensen <jes@wildopensource.com>,
+	Larry McVoy <lm@bitmover.com>, Jeff Garzik <garzik@havoc.gtf.org>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0204201039130.19512-100000@home.transmeta.com> <E16yfW9-0000aZ-00@starship> <20020421171629.GK4640@zip.com.au> <20020421104046.J10525@work.bitmover.com> <20020421134851.B7828@havoc.gtf.org> <20020421105437.L10525@work.bitmover.com> <m3elh6obt7.fsf@trained-monkey.org> <20020423080216.E25771@work.bitmover.com> <m38z7eo3m7.fsf@trained-monkey.org> <20020423081239.F25771@work.bitmover.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, Apr 23, 2002 at 08:12:39AM -0700, Larry McVoy wrote:
+> If you're willing to use BK just as a transport, it's a far more efficient
+> transport.  Ask people who have run rsync/ftp/bk all on the same system,
+> the BK way gets the same information across in less bits.
 
-On Tue, 23 Apr 2002, Larry McVoy wrote:
-
-> > > You're missing the point.  Most of the people here do exactly what I do,
-> > > they work on something else in order to be able to contribute to Linux.
-> > 
-> > Then you should ask yourself, why you are doing it.
-> 
-> Just out of curiousity, how do you make a living Roman?
-
-How is that important? Am I to be judged now?
-
-bye, Roman
-
-PS: If you would be just curious, you could have also asked privately and
-then I would have told you.
+If it gets the information across.  So far I haven't found any feature
+in BK to allow restarting a pull or clone once it is interrupted.
+For that reason I use rsync to get a large BK repo to my home machines,
+which often is temporarily disconnected from the ISP.
 

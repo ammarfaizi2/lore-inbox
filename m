@@ -1,38 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135710AbRDXSeJ>; Tue, 24 Apr 2001 14:34:09 -0400
+	id <S135711AbRDXSgU>; Tue, 24 Apr 2001 14:36:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135709AbRDXSeA>; Tue, 24 Apr 2001 14:34:00 -0400
-Received: from ausmtp02.au.ibm.COM ([202.135.136.105]:16648 "EHLO
-	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP
-	id <S135707AbRDXSdt>; Tue, 24 Apr 2001 14:33:49 -0400
-From: mshiju@in.ibm.com
-X-Lotus-FromDomain: IBMIN@IBMAU
-To: linux-kernel@vger.kernel.org
-Message-ID: <CA256A38.0065E0A2.00@d73mta05.au.ibm.com>
-Date: Tue, 24 Apr 2001 20:44:22 +0530
-Subject: Problem with DHCP when using tokenring on 2.4.x
-Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S135707AbRDXSgK>; Tue, 24 Apr 2001 14:36:10 -0400
+Received: from d141-221-152.home.cgocable.net ([24.141.221.152]:32144 "HELO
+	localhost.localdomain") by vger.kernel.org with SMTP
+	id <S135709AbRDXSf7>; Tue, 24 Apr 2001 14:35:59 -0400
+Date: Tue, 24 Apr 2001 14:37:07 -0400 (EDT)
+From: Garett Spencley <gspen@home.com>
+To: <imel96@trustix.co.id>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Single user linux
+In-Reply-To: <Pine.LNX.4.33.0104241917540.16169-100000@tessy.trustix.co.id>
+Message-ID: <Pine.LNX.4.30.0104241427570.14742-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+> that also explain why win95 user doesn't want to use NT. not
+> because they can't afford it (belive me, here NT costs only
+> us$2), but additional headache isn't acceptable.
 
-Hello,
-           I have a problem with DHCP when using tokenring card on 2.4.x
-kernel . When I am using IBM tokenring adapter( all) and trying to hook on
-to the lan n/w using DHCP ,I get an error message "operation failed " from
-the dhcp client . The dhcp server is getting the broadcast message when the
-dhcp client  is run. I am using pump that comes with 6.2 redhat
-distribution .  There is no problem when using static IP.  I could
-experience this problem only  on 2.4.x . I am able to get a valid IP
-address on  2.2.x kernel when using tokenring adapter. And also there is no
-problem when using ethernet adapter on 2.4.x . . Has anyone experienced
-this problem on 2.4.x . Can any one help me to resolve this problem.
+I'm going to speak from experience:
 
-Thanks & Regards
-Shiju
+My mother, who is the biggest windoze fan on the face of the universe, got
+fed up with win98 and decided to move to win2k. The hole "multi-user" thing
+doesn't bother her in the slightest. She has a non-admin account for
+herself "karen".
 
+You want a better example?
+
+My little cousin is not much into computers but he uses one enough to check
+mail, surf the web etc... Like many win98 users he was re-installing it
+about once a month. He finally got so fed up he asked me to install Linux
+for him!
+
+He is now very happy. He doesn't care about the fact that he has to type
+in his user name. He even doesn't know any shell commands. He would
+probably actually get concerned if he had to use root always because that
+would reveal the same problems that he was having with win98.
+
+There's a lot of things you can do to make Linux easier for newbies. None
+of them involve hacking the kernel. Have you tried Linux-Mandrake 8.0 yet?
+
+-- 
+Garett Spencley
 

@@ -1,45 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129260AbQLWUEJ>; Sat, 23 Dec 2000 15:04:09 -0500
+	id <S129410AbQLWUG3>; Sat, 23 Dec 2000 15:06:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129410AbQLWUD7>; Sat, 23 Dec 2000 15:03:59 -0500
-Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:60805 "EHLO
-	mirai.cx") by vger.kernel.org with ESMTP id <S129260AbQLWUDl>;
-	Sat, 23 Dec 2000 15:03:41 -0500
-Message-ID: <3A44FDF9.B7EBC91E@pobox.com>
-Date: Sat, 23 Dec 2000 11:33:13 -0800
-From: J Sloan <jjs@pobox.com>
-Organization: Mirai Consulting Group
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test10-ll i586)
-X-Accept-Language: en
+	id <S129737AbQLWUGT>; Sat, 23 Dec 2000 15:06:19 -0500
+Received: from magician.bunzy.net ([206.245.168.220]:3857 "HELO
+	magician.bunzy.net") by vger.kernel.org with SMTP
+	id <S129410AbQLWUGN>; Sat, 23 Dec 2000 15:06:13 -0500
+Date: Sat, 23 Dec 2000 14:35:47 -0500 (EST)
+From: tc lewis <tcl@bunzy.net>
+To: Alex Buell <alex.buell@tahallah.clara.co.uk>
+cc: Marcus Meissner <Marcus.Meissner@caldera.de>,
+        "Mohammad A. Haque" <mhaque@haque.net>, linux-kernel@vger.kernel.org
+Subject: Re: Netgear FA311
+In-Reply-To: <Pine.LNX.4.30.0012231927200.4671-100000@tahallah.clara.co.uk>
+Message-ID: <Pine.LNX.4.10.10012231431470.11359-100000@magician.bunzy.net>
 MIME-Version: 1.0
-To: "Hayden A. James" <hjames@quantumcode.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Problem with tdfx drm module
-In-Reply-To: <20001223191906.F317682C@photon.quantumcode.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Hayden A. James" wrote:
 
-> [root@neutron /root]# modprobe tdfx
-> /lib/modules/2.4.0-test13pre4-ac2/kernel/drivers/char/drm/tdfx.o:
-> unresolved symbol remap_page_range
-> /lib/modules/2.4.0-test13pre4-ac2/kernel/drivers/char/drm/tdfx.o:
-> unresolved symbol __wake_up
-> /lib/modules/2.4.0-test13pre4-ac2/kernel/drivers/char/drm/tdfx.o:
 
-<snip>
+On Sat, 23 Dec 2000, Alex Buell wrote:
 
-Same problem here - last good kernel for drm was -test12
+> On Sat, 23 Dec 2000, Marcus Meissner wrote:
+> 
+> > > Is this where you got the sources?
+> > > http://www.scyld.com/network/natsemi.html (Thanks Steve)
+> >
+> > The linux driver is actually on the accompanying floppy disk. Without license
+> > statement unfortunately.
+> 
+> I got a floppy disk with the netgear fa311, but the only linux sources on
+> it was for 2.0.36!
 
-My olympic.o token ring driver at work is similarly affected
+yeah i believe that natsemi driver is supposed to work with that 311 card,
+although i have heard of issues with that now and then.  to be honest i
+haven't followed very closely, as i don't use those cards/chips.  that
+scyld.com page should have all the info you need, as well as info on an
+accompianing mailing list for further help.
 
-It just needs sorting out the makefile changes, hopefully soon.
+if whatever distro/kernel you're using already has a compiled natsemi
+driver you can just try it out by messing with /etc/conf.modules or
+/etc/modules.conf or whatever proper files your distribution uses.
 
-jjs
+-tcl.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

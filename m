@@ -1,63 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266234AbUG0Djl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266250AbUG0EU3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266234AbUG0Djl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jul 2004 23:39:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266236AbUG0Djl
+	id S266250AbUG0EU3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 00:20:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266249AbUG0EU3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jul 2004 23:39:41 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:46015 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S266234AbUG0Djj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jul 2004 23:39:39 -0400
-From: Jesse Barnes <jbarnes@sgi.com>
-To: colpatch@us.ibm.com
-Subject: Re: [RFC][PATCH] Change pcibus_to_cpumask() to pcibus_to_node()
-Date: Mon, 26 Jul 2004 23:38:29 -0400
-User-Agent: KMail/1.6.2
-Cc: Andi Kleen <ak@suse.de>, LKML <linux-kernel@vger.kernel.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       LSE Tech <lse-tech@lists.sourceforge.net>
-References: <1090887007.16676.18.camel@arrakis>
-In-Reply-To: <1090887007.16676.18.camel@arrakis>
+	Tue, 27 Jul 2004 00:20:29 -0400
+Received: from smtp105.mail.sc5.yahoo.com ([66.163.169.225]:51087 "HELO
+	smtp105.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S266250AbUG0ET7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jul 2004 00:19:59 -0400
+Message-ID: <4105D7ED.5040206@yahoo.com.au>
+Date: Tue, 27 Jul 2004 14:19:57 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Ed Sweetman <safemode@comcast.net>
+CC: Jan-Frode Myklebust <janfrode@parallab.uib.no>,
+       linux-kernel@vger.kernel.org
+Subject: Re: OOM-killer going crazy.
+References: <20040725094605.GA18324@zombie.inka.de> <41045EBE.8080708@comcast.net> <20040726091004.GA32403@ii.uib.no> <410500FD.8070206@comcast.net>
+In-Reply-To: <410500FD.8070206@comcast.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200407262338.29995.jbarnes@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, July 26, 2004 8:10 pm, Matthew Dobson wrote:
-> So in discussions with Jesse at OLS, we decided that pcibus_to_node() is
-> a more generally useful function than pcibus_to_cpumask().  If anyone
-> disagrees with that, now would be a good time to let us know.
+Ed Sweetman wrote:
 
-Thanks for putting the fact that I was an idiot so kindly... :)
-
-> 1) Replace instances of pcibus_to_cpumask(bus) with
-> node_to_cpumask(pcibus_to_node(bus)).  There are currently only 2 uses
-> of pcibus_to_cpumask(): flush_gart() in arch/x86_64/kernel/pci-gart.c
-> and pci_bus_show_cpuaffinity() in drivers/pci/probe.c.
-> 2) Define the asm-generic version of pcibus_to_node() to always return
-> node 0, as this is the sensible non-NUMA behavior.
-> 3) Drop the mips/mach-ip27 and ppc64 versions of pcibus_to_cpumask()
-> entirely, since they were simply defined to be identical to the
-> asm-generic version.
-> 4) Define the i386 version of pcibus_to_node().
-
-Looks good to me.
-
-> Future work:
+> This is not the same problem as I and other are describing.  There is 
+> no free memory when the OOM killer activates in our situation.  The 
+> kernel has allocated all available ram and as such, the OOM killer 
+> can't kill the memory hog because it's the kernel, itself.  So the OOM 
+> killer kills all the big apps running ...but it's to no use because 
+> the kernel just keeps trying to use more until the cd is completed.   
+> After which the memory is still never released.
+> Your thread has nothing to do with mine.
 >
-> 1) Correctly map PCI buses to nodes for x86_64.
-> 2) IA64 implementation?
 
-I'll put this together, though the implementation will probably change as we 
-add PROM support in the SLIT and SRAT tables for our host to PCI bridges.
+I believe it could be the same problem. Jan-Frode's system has all 
+ZONE_NORMAL
+memory used up. The free memory would be highmem which would be unsuable for
+those allocations that are causing OOM.
 
-Platforms that support it should probably also use pcibus_to_node in their 
-pci_alloc_consistent and dma_alloc_coherent APIs if possible.
+The vfs_cache_pressure change could possibly be responsible for the 
+problem...
+I don't have the code in front of me, but I think it divides by 100 
+first, then
+multiplies by vfs_cache_pressure. I wouldn't have thought this would 
+have such
+a large impact though.
 
-Thanks,
-Jesse
+

@@ -1,66 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265270AbSKFB0n>; Tue, 5 Nov 2002 20:26:43 -0500
+	id <S265302AbSKFBbT>; Tue, 5 Nov 2002 20:31:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265272AbSKFB0n>; Tue, 5 Nov 2002 20:26:43 -0500
-Received: from sccrmhc03.attbi.com ([204.127.202.63]:9969 "EHLO
-	sccrmhc03.attbi.com") by vger.kernel.org with ESMTP
-	id <S265270AbSKFB0m>; Tue, 5 Nov 2002 20:26:42 -0500
-Message-ID: <3DC87154.1030601@namesys.com>
-Date: Tue, 05 Nov 2002 17:33:08 -0800
-From: reiser <reiser@namesys.com>
-Reply-To: reiser@namesys.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021016
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Peter Chubb <peter@chubb.wattle.id.au>
-CC: Andreas Dilger <adilger@clusterfs.com>,
-       Nikita Danilov <Nikita@namesys.com>,
-       Tomas Szepe <szepe@pinerecords.com>,
-       Alexander Zarochentcev <zam@namesys.com>,
-       lkml <linux-kernel@vger.kernel.org>, Oleg Drokin <green@namesys.com>,
-       umka <umka@namesys.com>
-Subject: Re: [BK][PATCH] Reiser4, will double Linux FS performance, pleaseapply
-References: <15816.20406.532821.177470@wombat.chubb.wattle.id.au>
-In-Reply-To: <15816.20406.532821.177470@wombat.chubb.wattle.id.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	id <S265303AbSKFBbT>; Tue, 5 Nov 2002 20:31:19 -0500
+Received: from [212.18.235.100] ([212.18.235.100]:43017 "EHLO
+	tench.street-vision.com") by vger.kernel.org with ESMTP
+	id <S265302AbSKFBbR>; Tue, 5 Nov 2002 20:31:17 -0500
+Subject: Re: promise ide problem: missing disks
+From: Justin Cormack <justin@street-vision.com>
+To: Justin Cormack <justin@street-vision.com>
+Cc: Brian Jackson <brian-kernel-list@mdrx.com>,
+       Kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <1036545436.2291.61.camel@lotte>
+References: <1036525756.2291.45.camel@lotte>
+	<1036539902.2291.48.camel@lotte> 
+	<20021106000052.21645.qmail@escalade.vistahp.com> 
+	<1036543602.2292.54.camel@lotte>  <1036545436.2291.61.camel@lotte>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 06 Nov 2002 01:37:47 +0000
+Message-Id: <1036546672.2291.64.camel@lotte>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Chubb wrote:
+On Wed, 2002-11-06 at 01:17, Justin Cormack wrote:
+> On Wed, 2002-11-06 at 00:46, Justin Cormack wrote:
+> > On Wed, 2002-11-06 at 00:00, Brian Jackson wrote:
+> > > I may be able to help you narrow it down a bit. I have used 2.4.19-vanilla 
+> > > and it worked fine(all drives showed up). When I tried 
+> > > fnk10(www.cipherfunk.org) the drive on the secondary channel doesn't show 
+> > > up. I don't know exactly what changes fnk10 has with regards to ide, but I 
+> > > know he has put a bunch of stuff from the 20-pre series in fnk10. Hope this 
+> > > helps. 
+> > 
+> > Actually my previous mail wasnt accurate - it was the RH 7.3 kernel that
+> > works not 8.0 - I forgot which distro I had on it. I think it is the
+> > changes between 2.4.19 to 2.4.20-pre as you suggest (I have to change my
+> > ethernet card to check this). Its the big ide change from -ac perhaps.
+> > The diff is very big, so it is hard to narrow down quickly.
+> > 
+> > Andre, Alan any idea? does your second channel work?
+> 
+> hmm, well 2.4.19 vanilla doesnt work for me, but RH 7.3 and 8.0 do.
+> Guess lots of regression tests needed...
 
->
->Some benchmarking done at Berkeley showed that for development loads,
->30seconds was too short to avoid excessive writes.
->
->See Roselli, Lorch and Anderson, `A Comparison of File System
->Workloads' in Usenix 2000.
->
->http://research.microsoft.com/~lorch/papers/fs-workloads/fs-workloads.html
->
->Their observations (summarised) were that most blocks die because of
->overwriting, not because of file deletes.  Their workloads show that
->for NT, the write timeout to avoid commits blocks that will soon
->become dead needs to be around a day; for typical Unix loads (web
->serving, research, software development), an hour is enough.  To catch
->75%, a timeout of around 11 minutes is needed.  30seconds worked only
->for webserving and undergraduate teaching workloads, and caught around
->40% for those workloads; for a research workload and NT fileserving,
->30seconds catches only 10-20% of the rewrites.
->
->See especially figure 3 in that paper.
->
->  
->
-There is also a longer PhD thesis by her.  10 minutes is about as much 
-work as I personally am willing to lose and try to remember.  Avoiding 
-75% of writes instead of 20% is a substantial performance gain worth 
-paying a cost for.  Unfortunately it is not easy to say if it is worth 
-that much cost, but I suspect it is.  An approach we are exploring is 
-for blocks to reach disk earlier than that if the device is not 
-congested, on the grounds that if not much IO is occuring, then 
-performance is not important.
+2.5.40 is ok too.
 
-Hans
 

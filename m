@@ -1,46 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263302AbTJVMkr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Oct 2003 08:40:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263311AbTJVMkr
+	id S263448AbTJVMbk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Oct 2003 08:31:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263527AbTJVMbk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Oct 2003 08:40:47 -0400
-Received: from pentafluge.infradead.org ([213.86.99.235]:688 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S263302AbTJVMkq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Oct 2003 08:40:46 -0400
-Subject: Re: cset #'s stable?
-From: David Woodhouse <dwmw2@infradead.org>
-To: Chris Wright <chrisw@osdl.org>
-Cc: Frank Cusack <fcusack@fcusack.com>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20031021095209.A32703@osdlab.pdx.osdl.net>
-References: <20031021091347.A7526@google.com>
-	 <20031021095209.A32703@osdlab.pdx.osdl.net>
+	Wed, 22 Oct 2003 08:31:40 -0400
+Received: from mailgate.imerge.co.uk ([195.217.208.100]:8464 "EHLO
+	imgserv04.imerge-bh.co.uk") by vger.kernel.org with ESMTP
+	id S263448AbTJVMbj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Oct 2003 08:31:39 -0400
+Message-ID: <C0D45ABB3F45D5118BBC00508BC292DB016038FE@imgserv04>
+From: James Finnie <jf1@IMERGE.co.uk>
+To: "'James Courtier-Dutton'" <James@superbug.demon.co.uk>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: VIA IDE performance under 2.6.0-test7/8?
+Date: Wed, 22 Oct 2003 13:31:49 +0100
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
 Content-Type: text/plain
-Message-Id: <1066826441.29915.359.camel@hades.cambridge.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-2.dwmw2.3) 
-Date: Wed, 22 Oct 2003 13:40:43 +0100
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Mail-From: dwmw2@infradead.org
-X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
-X-Pentafluge-Mail-From: <dwmw2@infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-10-21 at 09:52 -0700, Chris Wright wrote:
-> * Frank Cusack (fcusack@fcusack.com) wrote:
-> > Are changeset #'s stable?
-> > 
-> > I'm specifically looking at linux-2.5/net/sunrpc/clnt.c,
-> > "rev 1.1153.63.[123]" which I recorded earlier as 1.1153.48.[123].
-> 
-> No, they are not.  The key, however, is stable (bk changes -k -r<rev>,
-> for example).
+> Just turn on SMB support in the "make menuconf", and it should enable 
+> IO-APIC.
 
-This is in the X-BK-ChangeSetKey: header of the mails sent to the
-mailing lists.
+As I thought, on these VIA EPIA-M boards there is no IO-APIC, so enabling
+the option in the kernel config makes no difference.  Cheers for the idea
+tho.
 
--- 
-dwmw2
+James.
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+Imerge Limited                          Tel :- +44 (0)1954 783600 
+Unit 6 Bar Hill Business Park           Fax :- +44 (0)1954 783601 
+Saxon Way                               Web :- http://www.imerge.co.uk 
+Bar Hill 
+Cambridge 
+CB3 8SL 
+United Kingdom 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+
 

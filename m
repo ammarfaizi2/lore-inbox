@@ -1,57 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262722AbULQCXZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262721AbULQC2Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262722AbULQCXZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 21:23:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262725AbULQCXY
+	id S262721AbULQC2Q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 21:28:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262724AbULQC2Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 21:23:24 -0500
-Received: from gort.metaparadigm.com ([203.117.131.12]:6022 "EHLO
-	gort.metaparadigm.com") by vger.kernel.org with ESMTP
-	id S262723AbULQCXN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 21:23:13 -0500
-Message-ID: <41C2433E.4040402@metaparadigm.com>
-Date: Fri, 17 Dec 2004 10:23:58 +0800
-From: Michael Clark <michael@metaparadigm.com>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Steve French <smfrench@austin.rr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: automated filesystem testing for multiple Linux fs
-References: <41BDC9CD.60504@austin.rr.com> <20041213092057.5bf773fb.cliffw@osdl.org> <41BDE0B4.6020003@austin.rr.com> <41BDE2CF.9060402@austin.rr.com> <20041216121151.GH8246@logos.cnet> <1103215183.12201.39.camel@smfhome.smfdom> <41C2280C.1030009@metaparadigm.com> <41C22D93.3030101@austin.rr.com>
-In-Reply-To: <41C22D93.3030101@austin.rr.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 16 Dec 2004 21:28:16 -0500
+Received: from rproxy.gmail.com ([64.233.170.199]:13460 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262721AbULQC1o (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 21:27:44 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=TebL76RdKD/sUWW6G0N1OSJkUMiIQUWJ28qP2bYE3lGxr8BMO4NDHe5/YPlyLTKu7PyKmq0T9lKtyg0kOR+oMNVUw9DKyHxCLIiJWAMsbjnBK3QcexhjyQ2828sjRG4Yj7uuQSWMGeWWGvhJUVfeYM8NAPfMhfaoKUPx81q0Eq8=
+Message-ID: <cce9e37e04121618275ad611bc@mail.gmail.com>
+Date: Fri, 17 Dec 2004 02:27:44 +0000
+From: Phil Lougher <phil.lougher@gmail.com>
+Reply-To: Phil Lougher <phil.lougher@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: debugfs in the namespace
+In-Reply-To: <E1Cf4wA-0008U5-00@calista.eckenfels.6bone.ka-ip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <20041216144531.3a8d988c@lembas.zaitcev.lan>
+	 <E1Cf4wA-0008U5-00@calista.eckenfels.6bone.ka-ip.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steve French wrote:
-
-> Michael Clark wrote:
+On Fri, 17 Dec 2004 00:21:34 +0100, Bernd Eckenfels
+<ecki-news2004-05@lina.inka.de> wrote:
+> In article <20041216144531.3a8d988c@lembas.zaitcev.lan> you wrote:
+> > Otherwise, /dbg sounds good.
 >
->> Steve French wrote:
->>
->>> ...  Since
->>> at present only XFS and JFS have the full combination of server
->>> features: better quotas, DMAPI, xattr support, ACL support and
->>> nanosecond file timestamps on disk
->>>
->>
->> Does JFS have quota support now?
->>
->> Last I looked it was still on the To Do list.
->>
->> ~mc
->>
-> I remember them adding it four months ago or so.  Looking at 
-> http://linux.bkbits.net/linux-2.5
-> it seems to be mostly in changeset 1.1803.133.1
+> I dont think that a root level directory, especially with an unreadable name
+> is a good idea. Why dont we at least try to keep the  namespace clean?
 
+Are you suggesting we should rename "etc", "mnt" etc? :-)  I like
+"/dbg" it follows the gdb, kgdb naming convention and it was the Unix
+way to name things like this.  Though perhaps debugfs should have been
+named dbgfs in this case...
 
-Oh, that's good news. This was one reason you couldn't really consider 
-using JFS on a /home fileserver (which sort of implies quotas). It 
-perhaps it needs a lot of testing as it's quite new. Any experiences? 
-(ie. survives a highly parallel load from a lot of threads with 
-different uids).
+I don't like "/.debug", hiding it in way this implies that you don't
+think it should be there (and so you've hidden it).  A properly
+decided upon mount point shouldn't have these connotations?  If you're
+using debugfs I think you should want to have the mount point visible.
 
-~mc
+Phillip

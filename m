@@ -1,179 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269993AbUJHOlI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269998AbUJHOqo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269993AbUJHOlI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 10:41:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269996AbUJHOlH
+	id S269998AbUJHOqo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 10:46:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269997AbUJHOqn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 10:41:07 -0400
-Received: from host157-148.pool8289.interbusiness.it ([82.89.148.157]:16008
-	"EHLO zion.localdomain") by vger.kernel.org with ESMTP
-	id S269993AbUJHOkd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 10:40:33 -0400
-Subject: [patch 1/1] dm: fix printk warnings about whether %lu/%Lu is right for sector_t
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, blaisorblade_spam@yahoo.it
-From: blaisorblade_spam@yahoo.it
-Date: Fri, 08 Oct 2004 16:40:33 +0200
-Message-Id: <20041008144034.EB891B557@zion.localdomain>
+	Fri, 8 Oct 2004 10:46:43 -0400
+Received: from mail2.nexpoint.net ([128.121.4.6]:7690 "HELO mail2.nexpoint.net")
+	by vger.kernel.org with SMTP id S270000AbUJHOqU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 10:46:20 -0400
+Message-ID: <4166A837.9050203@hacman.nu>
+Date: Fri, 08 Oct 2004 08:46:15 -0600
+From: noir@hacman.nu
+User-Agent: Mozilla Thunderbird 0.7.2 (Windows/20040707)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.26 kernel BUG at dcache.c:653!
+References: <4166655F.3090506@hacman.nu> <20041008103801.GE16028@logos.cnet>
+In-Reply-To: <20041008103801.GE16028@logos.cnet>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+That is correct.
 
-The Device Manager code barfs when sector_t is 64bit wide (i.e. an u64);
-this can happen with CONFIG_LBD on i386, too, but sector_t is usually a long.
-And region_t, chunk_t are typedefs for sector_t.
-
-The problem is this code in drivers/md/dm.h (wouldn't we better fix the
-FIXME?):
-
-/*
- * FIXME: I think this should be with the definition of sector_t
- * in types.h.
- */
-#ifdef CONFIG_LBD
-#define SECTOR_FORMAT "%Lu"
-#else
-#define SECTOR_FORMAT "%lu"
-#endif
-
-Btw, x86_64 does not need to define sector_t on its own.
-If there is any _good_ reason for that, the fix becomes adding a 
-#define SECTOR_FORMAT "%Lu"
-in fact, gcc tries to be smart for warnings to ensure portability; so, even
-when sizeof(long) == sizeof(long long), "%ld" and "%Ld" are different, for the
-warnings).
-
-Sample warnings (from both 2.6.8.1 and 2.6.9-rc2):
-drivers/md/dm-raid1.c: In function `get_mirror':
-drivers/md/dm-raid1.c:930: warning: long unsigned int format, sector_t arg (arg 3)
-drivers/md/dm-raid1.c: In function `mirror_status':
-drivers/md/dm-raid1.c:1200: warning: long unsigned int format, region_t arg (arg 4)
-drivers/md/dm-raid1.c:1200: warning: long unsigned int format, region_t arg (arg 5)
-drivers/md/dm-raid1.c:1206: warning: long unsigned int format, sector_t arg (arg 5)
-drivers/md/dm-raid1.c:1212: warning: long unsigned int format, sector_t arg (arg 5)
-
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
----
-
- linux-2.6.9-current-paolo/drivers/md/dm.h            |   10 ----------
- linux-2.6.9-current-paolo/include/asm-h8300/types.h  |    1 +
- linux-2.6.9-current-paolo/include/asm-i386/types.h   |    1 +
- linux-2.6.9-current-paolo/include/asm-mips/types.h   |    1 +
- linux-2.6.9-current-paolo/include/asm-ppc/types.h    |    1 +
- linux-2.6.9-current-paolo/include/asm-s390/types.h   |    1 +
- linux-2.6.9-current-paolo/include/asm-sh/types.h     |    1 +
- linux-2.6.9-current-paolo/include/asm-x86_64/types.h |    3 ---
- linux-2.6.9-current-paolo/include/linux/types.h      |    1 +
- 9 files changed, 7 insertions(+), 13 deletions(-)
-
-diff -puN drivers/md/dm.h~fix-dm-warnings drivers/md/dm.h
---- linux-2.6.9-current/drivers/md/dm.h~fix-dm-warnings	2004-10-08 16:39:05.888125592 +0200
-+++ linux-2.6.9-current-paolo/drivers/md/dm.h	2004-10-08 16:39:05.942117384 +0200
-@@ -22,16 +22,6 @@
- #define DMEMIT(x...) sz += ((sz >= maxlen) ? \
- 			  0 : scnprintf(result + sz, maxlen - sz, x))
- 
--/*
-- * FIXME: I think this should be with the definition of sector_t
-- * in types.h.
-- */
--#ifdef CONFIG_LBD
--#define SECTOR_FORMAT "%Lu"
--#else
--#define SECTOR_FORMAT "%lu"
--#endif
--
- #define SECTOR_SHIFT 9
- 
- /*
-diff -puN include/asm-h8300/types.h~fix-dm-warnings include/asm-h8300/types.h
---- linux-2.6.9-current/include/asm-h8300/types.h~fix-dm-warnings	2004-10-08 16:39:05.902123464 +0200
-+++ linux-2.6.9-current-paolo/include/asm-h8300/types.h	2004-10-08 16:39:05.959114800 +0200
-@@ -56,6 +56,7 @@ typedef unsigned long long u64;
- typedef u32 dma_addr_t;
- 
- #define HAVE_SECTOR_T
-+#define SECTOR_FORMAT "%Lu"
- typedef u64 sector_t;
- 
- typedef unsigned int kmem_bufctl_t;
-diff -puN include/asm-i386/types.h~fix-dm-warnings include/asm-i386/types.h
---- linux-2.6.9-current/include/asm-i386/types.h~fix-dm-warnings	2004-10-08 16:39:05.914121640 +0200
-+++ linux-2.6.9-current-paolo/include/asm-i386/types.h	2004-10-08 16:39:05.959114800 +0200
-@@ -60,6 +60,7 @@ typedef u64 dma64_addr_t;
- 
- #ifdef CONFIG_LBD
- typedef u64 sector_t;
-+#define SECTOR_FORMAT "%Lu"
- #define HAVE_SECTOR_T
- #endif
- 
-diff -puN include/asm-mips/types.h~fix-dm-warnings include/asm-mips/types.h
---- linux-2.6.9-current/include/asm-mips/types.h~fix-dm-warnings	2004-10-08 16:39:05.915121488 +0200
-+++ linux-2.6.9-current-paolo/include/asm-mips/types.h	2004-10-08 16:39:05.980111608 +0200
-@@ -96,6 +96,7 @@ typedef unsigned long phys_t;
- 
- #ifdef CONFIG_LBD
- typedef u64 sector_t;
-+#define SECTOR_FORMAT "%Lu"
- #define HAVE_SECTOR_T
- #endif
- 
-diff -puN include/asm-ppc/types.h~fix-dm-warnings include/asm-ppc/types.h
---- linux-2.6.9-current/include/asm-ppc/types.h~fix-dm-warnings	2004-10-08 16:39:05.916121336 +0200
-+++ linux-2.6.9-current-paolo/include/asm-ppc/types.h	2004-10-08 16:39:05.980111608 +0200
-@@ -59,6 +59,7 @@ typedef u64 dma64_addr_t;
- 
- #ifdef CONFIG_LBD
- typedef u64 sector_t;
-+#define SECTOR_FORMAT "%Lu"
- #define HAVE_SECTOR_T
- #endif
- 
-diff -puN include/asm-s390/types.h~fix-dm-warnings include/asm-s390/types.h
---- linux-2.6.9-current/include/asm-s390/types.h~fix-dm-warnings	2004-10-08 16:39:05.917121184 +0200
-+++ linux-2.6.9-current-paolo/include/asm-s390/types.h	2004-10-08 16:39:05.981111456 +0200
-@@ -92,6 +92,7 @@ typedef union {
- 
- #ifdef CONFIG_LBD
- typedef u64 sector_t;
-+#define SECTOR_FORMAT "%Lu"
- #define HAVE_SECTOR_T
- #endif
- 
-diff -puN include/asm-sh/types.h~fix-dm-warnings include/asm-sh/types.h
---- linux-2.6.9-current/include/asm-sh/types.h~fix-dm-warnings	2004-10-08 16:39:05.920120728 +0200
-+++ linux-2.6.9-current-paolo/include/asm-sh/types.h	2004-10-08 16:39:05.981111456 +0200
-@@ -55,6 +55,7 @@ typedef u32 dma_addr_t;
- 
- #ifdef CONFIG_LBD
- typedef u64 sector_t;
-+#define SECTOR_FORMAT "%Lu"
- #define HAVE_SECTOR_T
- #endif
- 
-diff -puN include/asm-x86_64/types.h~fix-dm-warnings include/asm-x86_64/types.h
---- linux-2.6.9-current/include/asm-x86_64/types.h~fix-dm-warnings	2004-10-08 16:39:05.921120576 +0200
-+++ linux-2.6.9-current-paolo/include/asm-x86_64/types.h	2004-10-08 16:39:05.981111456 +0200
-@@ -48,9 +48,6 @@ typedef unsigned long long u64;
- typedef u64 dma64_addr_t;
- typedef u64 dma_addr_t;
- 
--typedef u64 sector_t;
--#define HAVE_SECTOR_T
--
- typedef unsigned short kmem_bufctl_t;
- 
- #endif /* __ASSEMBLY__ */
-diff -puN include/linux/types.h~fix-dm-warnings include/linux/types.h
---- linux-2.6.9-current/include/linux/types.h~fix-dm-warnings	2004-10-08 16:39:05.939117840 +0200
-+++ linux-2.6.9-current-paolo/include/linux/types.h	2004-10-08 16:39:05.959114800 +0200
-@@ -130,6 +130,7 @@ typedef		__s64		int64_t;
-  */
- #ifndef HAVE_SECTOR_T
- typedef unsigned long sector_t;
-+#define SECTOR_FORMAT "%lu"
- #endif
- 
- /*
-_
+> 
+>>This is my first post ever to a mailing list, so I hope I do alright.
+>>The system was idling when it just hung. After a reboot, I get the 
+>>following error with seemingly no way to get into my system.
+> 
+> 
+> So you can't log into the box because it always results in the 
+> oops below?
+> 
+> 
+>>kernel BUG at dcache.c:653!
+>>invalid operand: 0000
+>>CPU:    0
+>>EIP:    0010:[<c014a122>]    Not tainted
+>>EFLAGS: 00010207
+>>eax: 00000000    ebx: 00000000    ecx: d7fbd7e0    edx: 00000000
+>>esi: d7fbd7b0    edi: d7fbd7b0    ebp: d7fbd7b0    esp: d7fe5eb4
+>>ds: 0018    es: 0018    ss: 0018
+>>Process swapper (pid: 1, stackpage=d7fe50000)
+>>Stack: d7c2e060 d7fbd7b0 c0173374 d7fbd7b0 00000000 fffffff4 d7c2e0cc 
+>>d7c2e060
+>>       c014148a d7c2e060 d7fbd7b0 00000000 d7c4100c d7fbd740 d7fe5f74 
+>>c0141ae6
+>>       d7fbd740 d7fe5f0c 00000000 00000001 d7c2e060 00000000 d7c41005 
+>>00000007
+>>Call Trace:    [<c0173374>] [<c014148a>] [<c0141ae6>] [<c0141db9>] 
+>>[<c0105000>]
+>>  [<c01421c4>] [<c01d8463>] [<c01d781d>] [<c0105000>] [<c01369ae>] 
+>>[<c0136d5b>]
+>>  [<c0108d73>] [<c0105000>] [<c01050ad>] [<c0107343>] [<c0105060>]
+>>
+>>Code: 0f 0b 8d 02 ba d4 2d c0 85 db 74 12 8b 43 10 8d 53 10 89 48
+>> <0>Kernel panic: Attempted to kill init!
+>>
+>>If there is any needed information that I have excluded, please let me 
+>>know and I will put it up as soon as possible.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 

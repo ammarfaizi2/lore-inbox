@@ -1,50 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265269AbUAPFpR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 00:45:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265274AbUAPFpR
+	id S265276AbUAPFwk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 00:52:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265278AbUAPFwk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 00:45:17 -0500
-Received: from mta7.pltn13.pbi.net ([64.164.98.8]:36842 "EHLO
-	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S265269AbUAPFpO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 00:45:14 -0500
-Date: Thu, 15 Jan 2004 21:44:49 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Bill Davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0 NFS-server low to 0 performance
-Message-ID: <20040116054449.GH1748@srv-lnx2600.matchmail.com>
-Mail-Followup-To: Trond Myklebust <trond.myklebust@fys.uio.no>,
-	Bill Davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0401101143280.2363-100000@poirot.grange> <1073745028.1146.13.camel@nidelv.trondhjem.org> <btt971$3p8$1@gatekeeper.tmr.com> <1073917652.1639.21.camel@nidelv.trondhjem.org> <1073920323.1639.28.camel@nidelv.trondhjem.org>
+	Fri, 16 Jan 2004 00:52:40 -0500
+Received: from holomorphy.com ([199.26.172.102]:44966 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S265276AbUAPFwi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jan 2004 00:52:38 -0500
+Date: Thu, 15 Jan 2004 21:52:30 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Paul Jackson <pj@sgi.com>, joe.korty@ccur.com, paulus@samba.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: seperator error in __mask_snprintf_len
+Message-ID: <20040116055230.GA9645@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@osdl.org>, Paul Jackson <pj@sgi.com>,
+	joe.korty@ccur.com, paulus@samba.org, linux-kernel@vger.kernel.org
+References: <16381.57040.576175.977969@cargo.ozlabs.ibm.com> <20040108225929.GA24089@tsunami.ccur.com> <16381.61618.275775.487768@cargo.ozlabs.ibm.com> <20040114150331.02220d4d.pj@sgi.com> <20040115002703.GA20971@tsunami.ccur.com> <20040114204009.3dc4c225.pj@sgi.com> <20040115081533.63c61d7f.akpm@osdl.org> <20040115181525.GA31086@tsunami.ccur.com> <20040115211402.04c5c2c4.pj@sgi.com> <20040115212613.3e345518.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1073920323.1639.28.camel@nidelv.trondhjem.org>
+In-Reply-To: <20040115212613.3e345518.akpm@osdl.org>
+Organization: The Domain of Holomorphy
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 12, 2004 at 10:12:03AM -0500, Trond Myklebust wrote:
-> 
-> > The 8k limit that you find in RFC1094 was an ad-hoc "limit" based purely
-> > on testing using pre-1989 hardware. AFAIK most if not all of the
-> > commercial vendors (Solaris, AIX, Windows/Hummingbird, EMC and Netapp)
-> > are all currently setting the defaults to 32k block sizes for both TCP
-> > and UDP.
-> > Most of them want to bump that to a couple of Mbyte in the very near
-> > future.
-> 
-> Note: the future Mbyte sizes can, of course, only be supported on TCP
-> since UDP has an inherent limit at 64k. The de-facto limit on UDP is
-> therefore likely to remain at 32k (although I think at least one vendor
-> has already tried pushing it to 48k).
+Paul Jackson <pj@sgi.com> wrote:
+>>   Should any of the other inline routines in include/bitmap.h
+>>    be moved to your new file lib/bitmap.c?
 
-Does the RPC max size limit change with memory or filesystem?
+On Thu, Jan 15, 2004 at 09:26:13PM -0800, Andrew Morton wrote:
+> Yup.   The below patch will be in 2.6.1-mm4:
+> uninline bitmap functions
+> - A couple of them are using alloca (via DECLARE_BITMAP) and this generates
+>   a cannot-inline warning with -Winline.
+> - These functions are too big to inline anwyay.
 
-I have one system (K7 2200, 1.5GB, ext3) where it uses 32K RPCs, and another
-(P2 300, 168MB, reiserfs3) and it uses 8k RPCs, even if I request larger max
-sizes, and they're both running 2.6.1-bk2.
+Uninlining is good (I originally wanted to avoid controversy by not
+having them compiled in unless they were called), but it's also possible
+to remove the stack allocations entirely with more sophisticated
+implementations. These are actually quite dumb as implementations of the
+bitmap operations, and meant to look simple as opposed to performing well
+or being well-behaved with respect to stackspace.
 
-Strange...
+
+-- wli

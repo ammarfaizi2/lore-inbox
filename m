@@ -1,101 +1,138 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262518AbTHUIcd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Aug 2003 04:32:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262522AbTHUIcd
+	id S262522AbTHUIn4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Aug 2003 04:43:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262524AbTHUIn4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Aug 2003 04:32:33 -0400
-Received: from 13.2-host.augustakom.net ([80.81.2.13]:27520 "EHLO phoebee")
-	by vger.kernel.org with ESMTP id S262518AbTHUIc3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Aug 2003 04:32:29 -0400
-Date: Thu, 21 Aug 2003 10:32:27 +0200
-From: Martin Zwickel <martin.zwickel@technotrend.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-t3: vfs/ext3 do_lookup bug?!
-Message-Id: <20030821103227.7d8fe531.martin.zwickel@technotrend.de>
-In-Reply-To: <20030821004018.1fb79bbb.akpm@osdl.org>
-References: <20030820171431.0211930e.martin.zwickel@technotrend.de>
-	<20030820113625.6a75d699.akpm@osdl.org>
-	<bi0grq$49r$1@build.pdx.osdl.net>
-	<20030821083337.6fc701b9.martin.zwickel@technotrend.de>
-	<20030820234119.33362f7a.akpm@osdl.org>
-	<20030821092534.0eb08a89.martin.zwickel@technotrend.de>
-	<20030821004018.1fb79bbb.akpm@osdl.org>
-Organization: TechnoTrend AG
-X-Mailer: Sylpheed version 0.9.3claws36 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Operating-System: Linux Phoebee 2.4.21-rc4 i686 Intel(R) Pentium(R) 4 CPU
- 2.40GHz
-X-Face: $rTNP}#i,cVI9h"0NVvD.}[fsnGqI%3=N'~,}hzs<FnWK/T]rvIb6hyiSGL[L8S,Fj`u1t.
- ?J0GVZ4&
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary="sE96j45C.p=.?B),"
+	Thu, 21 Aug 2003 04:43:56 -0400
+Received: from rumms.uni-mannheim.de ([134.155.50.52]:12684 "EHLO
+	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
+	id S262522AbTHUInx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Aug 2003 04:43:53 -0400
+From: Thomas Schlichter <schlicht@uni-mannheim.de>
+To: Greg KH <greg@kroah.com>, Jeff Garzik <jgarzik@pobox.com>
+Subject: [PATCH][2.5] fix 'pci=noacpi'  was: Re: [patch] remove mount_root_failed_msg()
+Date: Thu, 21 Aug 2003 10:43:41 +0200
+User-Agent: KMail/1.5.9
+Cc: linux-kernel@vger.kernel.org, andrew.grover@intel.com, len.brown@intel.com
+References: <20030820232045.GA25921@gtf.org> <20030820234114.GA5518@kroah.com>
+In-Reply-To: <20030820234114.GA5518@kroah.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_/YIR/dbOJc7YJa7"
+Message-Id: <200308211043.43566.schlicht@uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---sE96j45C.p=.?B),
-Content-Type: text/plain; charset=US-ASCII
+
+--Boundary-00=_/YIR/dbOJc7YJa7
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-On Thu, 21 Aug 2003 00:40:18 -0700
-Andrew Morton <akpm@osdl.org> bubbled:
+On Thursday 21 August 2003 01:41, Greg KH wrote:
+> On Wed, Aug 20, 2003 at 07:20:45PM -0400, Jeff Garzik wrote:
+> > * overall, I disagree with adding messages like this.  The number one
+> >   bug report, by far, for networking drivers is ACPI-related (no
+> >   interrupts delivered).  You don't see me adding "boot with acpi=off"
+> >   messages to the net subsystem.
+>
+> It's the number one bug report for USB drivers too :(
+>
+> It has gotten smaller, and I would hope that is due to advances in the
+> ACPI code, but they still do crop up quite frequently.
 
-> Sigh.  Well the filesystem obviously shat itself, so the fsck errors aren't
-> that surprising.
-> 
-> My guess would be that something oopsed while holding a directory semaphore
-> and you missed the oops.  Maybe you were in X at the time?
+Well, I've got a board with these problems, too... (Epox 8K9A)
+It seems the ACPI IRQ override tables are buggy, so it cannot work... :-(
+But with 'pci=noacpi' it should work as the Documentation states:
 
-yes, but I cant find an oops in my /var/log/messages and .?.gz. the last oops
-is a month ago.
-well, something really strange happened and if it happens again, i'll try to
-figure it out what went wrong.
+       noacpi                  [IA-32] Do not use ACPI for IRQ routing.
 
-> 
-> If it happens again, please remember that dmesg needs the `-s 1000000'
-> option to prevent it from truncating output.
+Unfortunately the ACPI IO-APIC setup is not overridden and without the 
+attached patch, which corrects this issue, I had to use 'acpi=off'...
 
-yep, will do that next time.
+I think this will help people easily working around their APCI interrupt 
+routing problems, as I think most of these are due to buggy ACPI IRQ override 
+tables. Windows seems not to use them and so they are often badly 
+tested... :-(
 
-> 
-> > ps.: 2.6.0-t3 scheduler performance is not that good...
-> 
-> It's pretty bad.  I'm running 2.6.0-test3-mm1 here which has Ingo/Con
-> goodies and it is significantly improved.
-> 
-> Once that code is working sufficiently well for everyone and there is
-> consensus that the general direction is correct and the possible
-> regressions with mixed database workloads are sorted out, we'll fix it up. 
-> So don't panic yet.
+Best regards
+   Thomas Schlichter
 
-I tried many patches for test2. and some worked not that bad.
-ok, i'll give -mm1 a try.
+BTW: Hunk 3 of this patch is only a simplification, because(acpi_lapic && 
+acpi_ioapic) is always true here when that code is reached...
 
-and thx for the help.
+--Boundary-00=_/YIR/dbOJc7YJa7
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="fix_noacpi.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+	filename="fix_noacpi.diff"
 
-Regards,
-Martin
+--- linux-2.6.0-test3-mm3/arch/i386/kernel/acpi/boot.c.orig	Wed Aug 20 03:42:13 2003
++++ linux-2.6.0-test3-mm3/arch/i386/kernel/acpi/boot.c	Wed Aug 20 04:03:56 2003
+@@ -39,6 +39,7 @@
+ #define PREFIX			"ACPI: "
+ 
+ extern int acpi_disabled;
++extern int acpi_irq;
+ extern int acpi_ht;
+ 
+ /* --------------------------------------------------------------------------
+@@ -416,7 +417,7 @@
+ 	 * If MPS is present, it will handle them,
+ 	 * otherwise the system will stay in PIC mode
+ 	 */
+-	if (acpi_disabled) {
++	if (acpi_disabled || !acpi_irq) {
+ 		return 1;
+         }
+ 
+@@ -451,15 +452,13 @@
+ 
+ 	acpi_ioapic = 1;
+ 
++#ifdef CONFIG_X86_LOCAL_APIC
++	smp_found_config = 1;
++	clustered_apic_check();
++#endif
++
+ #endif /*CONFIG_ACPI*/
+ #endif /*CONFIG_X86_IO_APIC*/
+-
+-#ifdef CONFIG_X86_LOCAL_APIC
+-	if (acpi_lapic && acpi_ioapic) {
+-		smp_found_config = 1;
+-		clustered_apic_check();
+-	}
+-#endif
+ 
+ 	return 0;
+ }
+--- linux-2.6.0-test3-mm3/arch/i386/kernel/setup.c.orig	Wed Aug 20 03:41:56 2003
++++ linux-2.6.0-test3-mm3/arch/i386/kernel/setup.c	Wed Aug 20 04:03:03 2003
+@@ -70,6 +70,7 @@
+ EXPORT_SYMBOL(acpi_disabled);
+ 
+ #ifdef	CONFIG_ACPI_BOOT
++	int acpi_irq __initdata = 1;	/* enable IRQ */
+ 	int acpi_ht __initdata = 1;	/* enable HT */
+ #endif
+ 
+@@ -541,6 +542,11 @@
+ 		else if (!memcmp(from, "acpi=ht", 7)) {
+ 			acpi_ht = 1;
+ 			if (!acpi_force) acpi_disabled = 1;
++		}
++
++		/* "pci=noacpi" disables ACPI interrupt routing */
++		else if (!memcmp(from, "pci=noacpi", 10)) {
++			acpi_irq = 0;
+ 		}
+ #endif
+ 
 
--- 
-MyExcuse:
-temporary routing anomaly
-
-Martin Zwickel <martin.zwickel@technotrend.de>
-Research & Development
-
-TechnoTrend AG <http://www.technotrend.de>
-
---sE96j45C.p=.?B),
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/RIObmjLYGS7fcG0RArOHAJ9jt1FZe/tc9hErAPrx5xbFWlYzCwCfU4p4
-JzY0jBdL+jhFTZoWFlLHN6A=
-=NDsp
------END PGP SIGNATURE-----
-
---sE96j45C.p=.?B),--
+--Boundary-00=_/YIR/dbOJc7YJa7--

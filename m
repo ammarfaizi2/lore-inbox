@@ -1,575 +1,270 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261503AbVAXL5u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261504AbVAXL7R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261503AbVAXL5u (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 06:57:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261506AbVAXL5t
+	id S261504AbVAXL7R (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 06:59:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261507AbVAXL7R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 06:57:49 -0500
-Received: from irulan.endorphin.org ([80.68.90.107]:4617 "EHLO
-	irulan.endorphin.org") by vger.kernel.org with ESMTP
-	id S261503AbVAXL4i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 06:56:38 -0500
-Date: Mon, 24 Jan 2005 12:56:32 +0100
-To: akpm@osdl.org, jmorris@redhat.com, linux-kernel@vger.kernel.org
-Subject: [PATCH 02/04] Adding a generic scatterlist eater: generic scatterwalk
-Message-ID: <20050124115632.GA21602@ghanima.endorphin.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
-From: Fruhwirth Clemens <clemens-dated-1107431793.2b98@endorphin.org>
-X-Delivery-Agent: TMDA/0.92 (Kauai King)
+	Mon, 24 Jan 2005 06:59:17 -0500
+Received: from bernache.ens-lyon.fr ([140.77.167.10]:41126 "EHLO
+	bernache.ens-lyon.fr") by vger.kernel.org with ESMTP
+	id S261504AbVAXL5D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 06:57:03 -0500
+Message-ID: <41F4E28A.3090305@ens-lyon.fr>
+Date: Mon, 24 Jan 2005 12:56:58 +0100
+From: Brice Goglin <Brice.Goglin@ens-lyon.fr>
+Reply-To: Brice.Goglin@ens-lyon.org
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc2-mm1
+References: <20050124021516.5d1ee686.akpm@osdl.org>
+In-Reply-To: <20050124021516.5d1ee686.akpm@osdl.org>
+X-Enigmail-Version: 0.89.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/mixed;
+ boundary="------------000307040707000005010102"
+X-Spam-Report: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This generic scatterwalker is an abstraction of the crypt(..) function. It
-allows data to be processed by a processing function from an arbitrary
-number of scatterlist which constitute the arguments to the function.
+This is a multi-part message in MIME format.
+--------------000307040707000005010102
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 
-I felt the need to add a large comment explaining the use of this function.
-This function is surely useful not only for the cryptoapi subsystem. Maybe
-we should put it into a more common place. Of course, I replace the former
-crypt clients with code for scatterwalk_walker_generic. While doing this,
-I replaced the CBC logic for a short initial vector ring-buffer. This
-reduces the number of IV memcpy's to 1 at most.
+Andrew Morton a écrit :
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11-rc1/2.6.11-rc1-mm1/
+> 
+> 
+> - Lots of updates and fixes all over the place.
 
-This patch is the one responsible for the performance increase
-mentioned in http://lkml.org/lkml/2005/1/19/191
+Hi Andrew,
 
-Signed-off-by: Fruhwirth Clemens <clemens@endorphin.org>
+X does not work anymore when using DRI on my Compaq Evo N600c (Radeon Mobility M6 LY).
+My XFree 4.3 (from Debian testing) with DRI uses drm and radeon kernel modules.
 
---- 1/crypto/cipher.c	2005-01-20 10:15:40.000000000 +0100
-+++ 2/crypto/cipher.c	2005-01-22 16:53:33.000000000 +0100
-@@ -39,91 +39,49 @@
- }
- 
- 
--/* 
-- * Generic encrypt/decrypt wrapper for ciphers, handles operations across
-- * multiple page boundaries by using temporary blocks.  In user context,
-- * the kernel is given a chance to schedule us once per block.
-- */
--static int crypt(struct crypto_tfm *tfm,
--		 struct scatterlist *dst,
--		 struct scatterlist *src,
--                 unsigned int nbytes, cryptfn_t crfn,
--                 procfn_t prfn, int enc, void *info)
--{
--	struct scatter_walk walk_in, walk_out;
--	const unsigned int bsize = crypto_tfm_alg_blocksize(tfm);
--	u8 tmp_src[bsize];
--	u8 tmp_dst[bsize];
--
--	if (!nbytes)
--		return 0;
--
--	if (nbytes % bsize) {
--		tfm->crt_flags |= CRYPTO_TFM_RES_BAD_BLOCK_LEN;
--		return -EINVAL;
--	}
--
--	scatterwalk_start(&walk_in, src);
--	scatterwalk_start(&walk_out, dst);
--
--	for(;;) {
--		u8 *src_p, *dst_p;
--		int in_place;
--
--		scatterwalk_map(&walk_in, 0);
--		scatterwalk_map(&walk_out, 1);
--		src_p = scatterwalk_whichbuf(&walk_in, bsize, tmp_src);
--		dst_p = scatterwalk_whichbuf(&walk_out, bsize, tmp_dst);
--		in_place = scatterwalk_samebuf(&walk_in, &walk_out,
--					       src_p, dst_p);
--
--		nbytes -= bsize;
--
--		scatterwalk_copychunks(src_p, &walk_in, bsize, 0);
--
--		prfn(tfm, dst_p, src_p, crfn, enc, info, in_place);
--
--		scatterwalk_done(&walk_in, 0, nbytes);
--
--		scatterwalk_copychunks(dst_p, &walk_out, bsize, 1);
--		scatterwalk_done(&walk_out, 1, nbytes);
--
--		if (!nbytes)
--			return 0;
--
--		crypto_yield(tfm);
--	}
--}
--
--static void cbc_process(struct crypto_tfm *tfm, u8 *dst, u8 *src,
--			cryptfn_t fn, int enc, void *info, int in_place)
--{
--	u8 *iv = info;
-+struct cbc_process_priv {
-+	struct crypto_tfm *tfm;
-+	int enc;
-+	cryptfn_t *crfn;
-+	u8 *curIV;
-+	u8 *nextIV;
-+};
-+
-+static void cbc_process_gw(void *_priv, int nsg, void **buf) 
-+{
-+	struct cbc_process_priv *priv = (struct cbc_process_priv *)_priv;
-+	u8 *iv = priv->curIV;
-+	struct crypto_tfm *tfm = priv->tfm;
-+	int bsize = crypto_tfm_alg_blocksize(tfm);
-+	u8 *dst = buf[0];
-+	u8 *src = buf[1];
- 	
- 	/* Null encryption */
- 	if (!iv)
- 		return;
--		
--	if (enc) {
-+
-+	if (priv->enc) {
- 		tfm->crt_u.cipher.cit_xor_block(iv, src);
--		fn(crypto_tfm_ctx(tfm), dst, iv);
--		memcpy(iv, dst, crypto_tfm_alg_blocksize(tfm));
-+		priv->crfn(crypto_tfm_ctx(tfm), dst, iv);
-+		memcpy(iv, dst, bsize);
- 	} else {
--		u8 stack[in_place ? crypto_tfm_alg_blocksize(tfm) : 0];
--		u8 *buf = in_place ? stack : dst;
--
--		fn(crypto_tfm_ctx(tfm), buf, src);
--		tfm->crt_u.cipher.cit_xor_block(buf, iv);
--		memcpy(iv, src, crypto_tfm_alg_blocksize(tfm));
--		if (buf != dst)
--			memcpy(dst, buf, crypto_tfm_alg_blocksize(tfm));
-+		memcpy(priv->nextIV,src,bsize);
-+		priv->crfn(crypto_tfm_ctx(tfm), dst, src);
-+		tfm->crt_u.cipher.cit_xor_block(dst, iv);
-+		priv->curIV = priv->nextIV;
-+		priv->nextIV = iv;
- 	}
- }
- 
--static void ecb_process(struct crypto_tfm *tfm, u8 *dst, u8 *src,
--			cryptfn_t fn, int enc, void *info, int in_place)
-+struct ecb_process_priv {
-+	struct crypto_tfm	*tfm;
-+	cryptfn_t		*crfn;
-+};
-+
-+static void ecb_process_gw(void *_priv, int nsg, void **buf) 
- {
--	fn(crypto_tfm_ctx(tfm), dst, src);
-+	struct ecb_process_priv *priv = (struct ecb_process_priv *)_priv;
-+	priv->crfn(crypto_tfm_ctx(priv->tfm), buf[0], buf[1]);
- }
- 
- static int setkey(struct crypto_tfm *tfm, const u8 *key, unsigned int keylen)
-@@ -142,9 +100,25 @@
- 		       struct scatterlist *dst,
-                        struct scatterlist *src, unsigned int nbytes)
- {
--	return crypt(tfm, dst, src, nbytes,
--	             tfm->__crt_alg->cra_cipher.cia_encrypt,
--	             ecb_process, 1, NULL);
-+	int bsize = crypto_tfm_alg_blocksize(tfm);
-+
-+	struct walk_info ecb_info[2] = { 
-+		[0].sg = dst,
-+		[0].stepsize = bsize,
-+		[0].ioflag = 1,
-+		[0].buf = (char[bsize]){},
-+		[1].sg = src,
-+		[1].stepsize = bsize,
-+		[1].ioflag = 0,
-+		[1].buf = (char[bsize]){},
-+	};
-+		
-+	struct ecb_process_priv priv = { 
-+		.tfm = tfm,
-+		.crfn = tfm->__crt_alg->cra_cipher.cia_encrypt,
-+	};
-+      
-+	return scatterwalk_walker_generic(ecb_process_gw, &priv, nbytes/bsize, 2, ecb_info);
- }
- 
- static int ecb_decrypt(struct crypto_tfm *tfm,
-@@ -152,29 +126,79 @@
-                        struct scatterlist *src,
- 		       unsigned int nbytes)
- {
--	return crypt(tfm, dst, src, nbytes,
--	             tfm->__crt_alg->cra_cipher.cia_decrypt,
--	             ecb_process, 1, NULL);
-+	int bsize = crypto_tfm_alg_blocksize(tfm);
-+
-+	struct walk_info ecb_info[2] = { 
-+		[0].sg = dst,
-+		[0].stepsize = bsize,
-+		[0].ioflag = 1,
-+		[0].buf = (char[bsize]){},
-+		[1].sg = src,
-+		[1].stepsize = bsize,
-+		[1].ioflag = 0,
-+		[1].buf = (char[bsize]){},
-+	};
-+	struct ecb_process_priv priv = { 
-+		.tfm = tfm,
-+		.crfn = tfm->__crt_alg->cra_cipher.cia_decrypt,
-+	};
-+
-+	return scatterwalk_walker_generic(ecb_process_gw, &priv, nbytes/bsize, 2, ecb_info);
- }
- 
--static int cbc_encrypt(struct crypto_tfm *tfm,
--                       struct scatterlist *dst,
--                       struct scatterlist *src,
--		       unsigned int nbytes)
-+static int cbc_encrypt_iv(struct crypto_tfm *tfm,
-+                          struct scatterlist *dst,
-+                          struct scatterlist *src,
-+                          unsigned int nbytes, u8 *iv)
- {
--	return crypt(tfm, dst, src, nbytes,
--	             tfm->__crt_alg->cra_cipher.cia_encrypt,
--	             cbc_process, 1, tfm->crt_cipher.cit_iv);
-+	int bsize = crypto_tfm_alg_blocksize(tfm);
-+	struct walk_info cbc_walk_info[2] = { 
-+		[0].sg = dst,
-+		[0].stepsize = bsize,
-+		[0].ioflag = 1,
-+		[0].buf = (char[bsize]){},
-+		[1].sg = src,
-+		[1].stepsize = bsize,
-+		[1].ioflag = 0,
-+		[1].buf = (char[bsize]){},
-+	};
-+	struct cbc_process_priv priv = {
-+		.tfm = tfm,
-+		.enc = 1,
-+		.curIV = iv,
-+		.crfn = tfm->__crt_alg->cra_cipher.cia_encrypt,
-+	};
-+	return scatterwalk_walker_generic(cbc_process_gw, &priv, nbytes/bsize, 2, cbc_walk_info);
- }
- 
--static int cbc_encrypt_iv(struct crypto_tfm *tfm,
-+static int cbc_decrypt_iv(struct crypto_tfm *tfm,
-                           struct scatterlist *dst,
-                           struct scatterlist *src,
-                           unsigned int nbytes, u8 *iv)
- {
--	return crypt(tfm, dst, src, nbytes,
--	             tfm->__crt_alg->cra_cipher.cia_encrypt,
--	             cbc_process, 1, iv);
-+	int bsize = crypto_tfm_alg_blocksize(tfm);
-+	struct walk_info cbc_walk_info[2] = { 
-+		[0].sg = dst,
-+		[0].stepsize = bsize,
-+		[0].ioflag = 1,
-+		[0].buf = (char[bsize]){},
-+		[1].sg = src,
-+		[1].stepsize = bsize,
-+		[1].ioflag = 0,
-+		[1].buf = (char[bsize]){},
-+	};
-+	int r;
-+	struct cbc_process_priv priv = {
-+		.tfm = tfm,
-+		.enc = 0,
-+		.curIV = iv,
-+		.nextIV = (char[bsize]){},
-+		.crfn = tfm->__crt_alg->cra_cipher.cia_decrypt,
-+	};
-+	r = scatterwalk_walker_generic(cbc_process_gw, &priv, nbytes/bsize, 2, cbc_walk_info);
-+	if(priv.curIV != iv) 
-+		memcpy(iv,priv.curIV,bsize);
-+	return r;
- }
- 
- static int cbc_decrypt(struct crypto_tfm *tfm,
-@@ -182,19 +206,15 @@
-                        struct scatterlist *src,
- 		       unsigned int nbytes)
- {
--	return crypt(tfm, dst, src, nbytes,
--	             tfm->__crt_alg->cra_cipher.cia_decrypt,
--	             cbc_process, 0, tfm->crt_cipher.cit_iv);
-+	return cbc_decrypt_iv(tfm, dst, src, nbytes, tfm->crt_cipher.cit_iv);
- }
- 
--static int cbc_decrypt_iv(struct crypto_tfm *tfm,
--                          struct scatterlist *dst,
--                          struct scatterlist *src,
--                          unsigned int nbytes, u8 *iv)
-+static int cbc_encrypt(struct crypto_tfm *tfm,
-+                       struct scatterlist *dst,
-+                       struct scatterlist *src,
-+		       unsigned int nbytes)
- {
--	return crypt(tfm, dst, src, nbytes,
--	             tfm->__crt_alg->cra_cipher.cia_decrypt,
--	             cbc_process, 0, iv);
-+	return cbc_encrypt_iv(tfm, dst, src, nbytes, tfm->crt_cipher.cit_iv);
- }
- 
- static int nocrypt(struct crypto_tfm *tfm,
---- 1/crypto/api.c	2005-01-20 10:15:40.000000000 +0100
-+++ 2/crypto/api.c	2005-01-20 10:16:06.000000000 +0100
-@@ -131,7 +131,7 @@
- 	struct crypto_tfm *tfm = NULL;
- 	struct crypto_alg *alg;
- 	int tfm_size;
--
-+	
- 	alg = crypto_alg_mod_lookup(name);
- 	if (alg == NULL)
- 		goto out;
---- 1/crypto/scatterwalk.h	2005-01-20 10:15:40.000000000 +0100
-+++ 2/crypto/scatterwalk.h	2005-01-22 17:17:38.000000000 +0100
-@@ -16,6 +16,7 @@
- #define _CRYPTO_SCATTERWALK_H
- #include <linux/mm.h>
- #include <asm/scatterlist.h>
-+#include <linux/pagemap.h>
- 
- struct scatter_walk {
- 	struct scatterlist	*sg;
-@@ -26,6 +27,26 @@
- 	unsigned int		offset;
- };
- 
-+struct walk_info {
-+	struct scatterlist    *sg;
-+	int                   stepsize;
-+	int                   ioflag;
-+	char                  *buf;
-+	struct scatter_walk   sw;
-+	int                   freebuf;
-+	
-+};
-+
-+
-+#define scatterwalk_needscratch(walk, nbytes) 						\
-+	((nbytes) <= (walk)->len_this_page &&						\
-+	    (((unsigned long)(walk)->data) & (PAGE_CACHE_SIZE - 1)) + (nbytes) <=	\
-+	    PAGE_CACHE_SIZE)								\
-+
-+
-+#define scatterwalk_whichbuf(walk,nbytes,scratch) \
-+	    (scatterwalk_needscratch(walk,nbytes)?(walk)->data:(scratch))
-+
- /* Define sg_next is an inline routine now in case we want to change
-    scatterlist to a linked list later. */
- static inline struct scatterlist *sg_next(struct scatterlist *sg)
-@@ -42,10 +63,8 @@
- 	       walk_in->data == src_p && walk_out->data == dst_p;
- }
- 
--void *scatterwalk_whichbuf(struct scatter_walk *walk, unsigned int nbytes, void *scratch);
--void scatterwalk_start(struct scatter_walk *walk, struct scatterlist *sg);
--int scatterwalk_copychunks(void *buf, struct scatter_walk *walk, size_t nbytes, int out);
--void scatterwalk_map(struct scatter_walk *walk, int out);
--void scatterwalk_done(struct scatter_walk *walk, int out, int more);
-+typedef void (*sw_proc_func_t)(void *priv, int length, void **buflist);
-+
-+int scatterwalk_walker_generic(sw_proc_func_t function, void *priv, int steps, int nsl, struct walk_info *walk_info_l);
- 
- #endif  /* _CRYPTO_SCATTERWALK_H */
---- 1/crypto/scatterwalk.c	2005-01-20 10:15:40.000000000 +0100
-+++ 2/crypto/scatterwalk.c	2005-01-24 11:21:28.192699000 +0100
-@@ -6,6 +6,7 @@
-  * Copyright (c) 2002 James Morris <jmorris@intercode.com.au>
-  *               2002 Adam J. Richter <adam@yggdrasil.com>
-  *               2004 Jean-Luc Cooke <jlcooke@certainkey.com>
-+ *               2005 Clemens Fruhwirth <clemens@endorphin.org>
-  *
-  * This program is free software; you can redistribute it and/or modify it
-  * under the terms of the GNU General Public License as published by the Free
-@@ -28,17 +29,7 @@
- 	KM_SOFTIRQ1,
- };
- 
--void *scatterwalk_whichbuf(struct scatter_walk *walk, unsigned int nbytes, void *scratch)
--{
--	if (nbytes <= walk->len_this_page &&
--	    (((unsigned long)walk->data) & (PAGE_CACHE_SIZE - 1)) + nbytes <=
--	    PAGE_CACHE_SIZE)
--		return walk->data;
--	else
--		return scratch;
--}
--
--static void memcpy_dir(void *buf, void *sgdata, size_t nbytes, int out)
-+static inline void memcpy_dir(void *buf, void *sgdata, size_t nbytes, int out)
- {
- 	if (out)
- 		memcpy(sgdata, buf, nbytes);
-@@ -46,7 +37,7 @@
- 		memcpy(buf, sgdata, nbytes);
- }
- 
--void scatterwalk_start(struct scatter_walk *walk, struct scatterlist *sg)
-+static inline void scatterwalk_start(struct scatter_walk *walk, struct scatterlist *sg)
- {
- 	unsigned int rest_of_page;
- 
-@@ -60,10 +51,8 @@
- 	walk->offset = sg->offset;
- }
- 
--void scatterwalk_map(struct scatter_walk *walk, int out)
--{
--	walk->data = crypto_kmap(walk->page, out) + walk->offset;
--}
-+#define scatterwalk_map(walk,out) \
-+	(walk)->data = crypto_kmap((walk)->page, (out)) + (walk)->offset; 
- 
- static void scatterwalk_pagedone(struct scatter_walk *walk, int out,
- 				 unsigned int more)
-@@ -89,36 +78,118 @@
- 	}
- }
- 
--void scatterwalk_done(struct scatter_walk *walk, int out, int more)
--{
--	crypto_kunmap(walk->data, out);
--	if (walk->len_this_page == 0 || !more)
--		scatterwalk_pagedone(walk, out, more);
--}
--
--/*
-- * Do not call this unless the total length of all of the fragments
-- * has been verified as multiple of the block size.
-+#define scatterwalk_copychunks(xbuf, walk, xnbytes, out) do {			\
-+	int nbytes = (xnbytes);							\
-+	char *buf = (xbuf);							\
-+	if (buf != (walk)->data) {						\
-+		while (nbytes > (walk)->len_this_page) {			\
-+			memcpy_dir(buf, (walk)->data, (walk)->len_this_page, (out));	\
-+			buf += (walk)->len_this_page;				\
-+			nbytes -= (walk)->len_this_page;			\
-+										\
-+			crypto_kunmap((walk)->data, (out));			\
-+			scatterwalk_pagedone((walk), (out), 1);			\
-+			scatterwalk_map((walk), (out));				\
-+		}								\
-+		memcpy_dir(buf, (walk)->data, nbytes, (out));			\
-+	}									\
-+										\
-+	(walk)->offset += nbytes;						\
-+	(walk)->len_this_page -= nbytes;					\
-+	(walk)->len_this_segment -= nbytes;					\
-+} while(0);
-+
-+/*  
-+ * The generic scatterwalker can manipulate data associated with one
-+ * or more scatterlist with a processing function, pf. It's purpose is
-+ * to hide the mapping, unalignment and page switching logic.
-+ * 
-+ * The generic scatterwalker applies a certain function, pf, utilising
-+ * an arbitrary number of scatterlist data as it's arguments. These
-+ * arguments are supplied as an array of pointers to buffers. These
-+ * buffers are prepared and processed block-wise by the function
-+ * (stepsize) and might be input or output buffers.
-+ *
-+ * All this informations and the underlaying scatterlist is handed to
-+ * the generic walker as an array of descriptors of type
-+ * walk_info. The sg, stepsize, ioflag and buf field of this struct
-+ * must be initialised.
-+ *
-+ * The sg field points to the scatterlist the function should work on,
-+ * the stepsize is the number of successive bytes that should be
-+ * handed to the function, ioflag denotes input or output scatterlist
-+ * and the buf field is either null, or points to a stepsize-width
-+ * byte block, which can be used as copy buffer, when the stepsize
-+ * does not align with page or scatterlist boundaries.
-+ *
-+ * A list of buffers are compiled and handed to the function, as char
-+ * **buf, with buf[0] corresponds to the first walk_info descriptor,
-+ * buf[1] to the second, and so on. The function is also handed a priv
-+ * object, which does not change. Think of it as a "this" object, to
-+ * collect/store processing information.
-  */
--int scatterwalk_copychunks(void *buf, struct scatter_walk *walk,
--			   size_t nbytes, int out)
-+
-+int scatterwalk_walker_generic(sw_proc_func_t pf, void *priv, int steps,
-+			       int nsl, struct walk_info *walk_infos) 
- {
--	if (buf != walk->data) {
--		while (nbytes > walk->len_this_page) {
--			memcpy_dir(buf, walk->data, walk->len_this_page, out);
--			buf += walk->len_this_page;
--			nbytes -= walk->len_this_page;
--
--			crypto_kunmap(walk->data, out);
--			scatterwalk_pagedone(walk, out, 1);
--			scatterwalk_map(walk, out);
--		}
-+	int r = -EINVAL;
-+	
-+	int i;
- 
--		memcpy_dir(buf, walk->data, nbytes, out);
-+	struct walk_info *csg;
-+
-+	void *dispatch_list[nsl];
-+	void **cbuf;
-+
-+        for(csg = walk_infos, i = nsl; i; csg++, i--) {
-+		scatterwalk_start(&csg->sw,csg->sg);
-+		scatterwalk_map(&csg->sw, csg->ioflag);
- 	}
- 
--	walk->offset += nbytes;
--	walk->len_this_page -= nbytes;
--	walk->len_this_segment -= nbytes;
--	return 0;
-+	while(steps--) {
-+		for(csg = walk_infos, cbuf = dispatch_list, i = nsl; i; i--, csg++, cbuf++) {
-+			/* If a scratch is needed, do a lazy kmallocation */
-+			*cbuf =	scatterwalk_needscratch(&csg->sw,csg->stepsize)?
-+				csg->sw.data:(
-+				csg->buf == NULL?
-+				({
-+					csg->buf = kmalloc(csg->stepsize,GFP_KERNEL);
-+					if(csg->buf == NULL) {
-+						r = -ENOMEM;
-+						goto out_buffers;
-+					}
-+					csg->freebuf = 1;
-+					csg->buf; 
-+				}):csg->buf);
-+
-+			if(csg->ioflag == 0) 
-+				scatterwalk_copychunks(*cbuf,&csg->sw,csg->stepsize,0);
-+		}
-+		
-+		pf(priv, nsl, dispatch_list);
-+		
-+		for(csg = walk_infos, cbuf = dispatch_list, i = nsl; i; i--, csg++, cbuf++) {	
-+			if(csg->ioflag == 1) 
-+				scatterwalk_copychunks(*cbuf,&csg->sw,csg->stepsize,1);
-+
-+			/* Is page switch needed? Omit switch if this is the last step */
-+			if (csg->sw.len_this_page == 0 && steps) {
-+				crypto_kunmap(csg->sw.data, csg->ioflag);
-+				scatterwalk_pagedone(&csg->sw, csg->ioflag, steps);
-+				scatterwalk_map(&csg->sw,csg->ioflag);
-+			} else {
-+				csg->sw.data += csg->stepsize;
-+			}
-+		}
-+	}
-+
-+	r = 0;
-+out_buffers:
-+	for(csg = walk_infos, i = nsl; i; i--, csg++) {
-+		crypto_kunmap(csg->sw.data, csg->ioflag);
-+		scatterwalk_pagedone(&csg->sw, csg->ioflag, 0);
-+		if(csg->freebuf)
-+			kfree(csg->buf);
-+	}
-+	return r;
- }
+Instead of the usual gdm window, I get a black or noisy screen (remaining image parts of
+last working session). The mouse pointer works. Sysrq works. But Caps-lock doesn't work.
+The machine pings but I can't ssh.
+
+I don't know exactly what's happening. I don't see anything interesting in dmesg.
+Removing DRI from Xfree config (even if drm/radeon modules are loaded) makes X work again.
+Linus' 2.6.11-rc2 works fine.
+
+.config and lspci attached.
+
+Regards,
+Brice
+
+--------------000307040707000005010102
+Content-Type: application/x-gunzip;
+ name="config.gz"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="config.gz"
+
+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
+--------------000307040707000005010102
+Content-Type: application/x-gunzip;
+ name="lspci.gz"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="lspci.gz"
+
+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
+--------------000307040707000005010102--

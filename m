@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314686AbSEUPFs>; Tue, 21 May 2002 11:05:48 -0400
+	id <S314727AbSEUPYB>; Tue, 21 May 2002 11:24:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314694AbSEUPFr>; Tue, 21 May 2002 11:05:47 -0400
-Received: from mail3.aracnet.com ([216.99.193.38]:20204 "EHLO
-	mail3.aracnet.com") by vger.kernel.org with ESMTP
-	id <S314686AbSEUPFq>; Tue, 21 May 2002 11:05:46 -0400
-Date: Tue, 21 May 2002 08:05:19 -0700
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Brian Gerst <bgerst@didntduck.org>,
-        Linus Torvalds <torvalds@transmeta.com>
-cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] cpu_has_tsc
-Message-ID: <1314666991.1021968318@[10.10.2.3]>
-In-Reply-To: <3CE9AC93.5050107@didntduck.org>
-X-Mailer: Mulberry/2.1.2 (Win32)
+	id <S314735AbSEUPYA>; Tue, 21 May 2002 11:24:00 -0400
+Received: from anchor-post-36.mail.demon.net ([194.217.242.94]:18181 "EHLO
+	anchor-post-36.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S314727AbSEUPX7> convert rfc822-to-8bit; Tue, 21 May 2002 11:23:59 -0400
+Subject: RE: DCOM coming?
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Date: Tue, 21 May 2002 16:22:27 +0100
+Message-ID: <541025071C7AC24C84E9F82296BB9B95080591@OPTEX1.optex.local>
+X-MIMEOLE: Produced By Microsoft Exchange V6.0.4417.0
+content-class: urn:content-classes:message
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: DCOM coming?
+Thread-Index: AcIA2oHhFnDDGyOmRpq8xIfliufRdQAAIxXA
+From: "John Hall" <John.Hall@optionexist.co.uk>
+To: "Wessler, Siegfried" <Siegfried.Wessler@de.hbm.com>
+Cc: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Excellent - thanks for doing this. This is obviously broken
-at the moment, and I have to disable TSCs ;-)
+On 21 May 2002 16:06 Wessler, Siegfried <Siegfried.Wessler@de.hbm.com>
+wrote:
 
---On Monday, May 20, 2002 10:10 PM -0400 Brian Gerst <bgerst@didntduck.org> wrote:
+> If DCOM were wraped into the kernel, everyone could use it, as it
+> would be a part of the os itself.
 
-> This patch converts drivers/char/random.c and drivers/input/joystick/analog.c to use the cpu_has_tsc macro.
-> 
-> --
-> 
-> 						Brian Gerst
+Something like DCOM does not belong in the kernel - it should be
+implemented as a userspace library. The support in Microsoft Windows
+AFAIK is implemented purely in userspace; Windows includes far more than
+just a kernel.
 
-
+Regards,
+John

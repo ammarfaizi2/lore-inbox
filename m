@@ -1,55 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S137183AbREKRVy>; Fri, 11 May 2001 13:21:54 -0400
+	id <S137187AbREKR2O>; Fri, 11 May 2001 13:28:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S137185AbREKRVo>; Fri, 11 May 2001 13:21:44 -0400
-Received: from idiom.com ([216.240.32.1]:5139 "EHLO idiom.com")
-	by vger.kernel.org with ESMTP id <S137183AbREKRVe>;
-	Fri, 11 May 2001 13:21:34 -0400
-Message-ID: <3AFBBD16.7AC1019C@namesys.com>
-Date: Fri, 11 May 2001 03:21:10 -0700
-From: Hans Reiser <reiser@namesys.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-14cl i686)
-X-Accept-Language: en
+	id <S137192AbREKR2E>; Fri, 11 May 2001 13:28:04 -0400
+Received: from www.teaparty.net ([216.235.253.180]:34056 "EHLO
+	www.teaparty.net") by vger.kernel.org with ESMTP id <S137190AbREKR1w>;
+	Fri, 11 May 2001 13:27:52 -0400
+Date: Fri, 11 May 2001 18:27:49 +0100 (BST)
+From: Vivek Dasmohapatra <vivek@etla.org>
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [OT] Re: test -please disregard
+In-Reply-To: <20010511201056.J5947@mea-ext.zmailer.org>
+Message-ID: <Pine.LNX.4.10.10105111823060.10984-100000@www.teaparty.net>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: hps@intermeta.de, linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
-Subject: Re: reiserfs, xfs, ext2, ext3
-In-Reply-To: <E14yFOk-0001GQ-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+On Fri, 11 May 2001, Matti Aarnio wrote:
 
-> > I think with the growing acceptance of ReiserFS in the Linux
-> > community, it is tiresome to have to apply a patch again and again
-> > just to get working NFS. 2.2 NFS horrors all over again.
->
-> The zero copy patches were basically self contained and tested for 6 months.
-> The reiserfs NFS hacks are ugly as hell and dont belong in the base kernel.
-> There is a difference.
->
-> Alan
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> > I have not recived mail from the list for more than a day just a test
+> > .....
+> 
+>   I find the logic of these "test - please disregard" emails weird..
+>   You definitely want list-owners attention, perhaps Postmasters...
 
-Are you referring to Neil Brown's nfs operations patch as being as ugly as
-hell, or something else?  Just want to understand what you are saying before
-arguing.....
+I believe the point is to establish whether or not you are receiving mail
+from the list, plus maybe get an idea of the post/receive turnaround time.
 
-NFS is ugly as hell, and we just try to conform to whatever is the latest trend
-expected to be accepted since I really don't care so long as it works and
-doesn't uglify ReiserFS more than necessary.  If you have another approach, one
-that is less ugly, please let us know.  This is the first I have heard someone
-complain, I thought his patch was liked by Linus architecturally and that it
-would be going in sometime real soon now (which is why we coded for it).  Can
-you articulate why you dislike it in more detail?
+If you fail to receive your own message after an acceptable [to you]
+period of time, _then_ you escalate the situation by hassling the relevant
+admins, or sacrificing the appropriate chickens, or whatever.
 
-Hans
+-- 
+"Aren't you ashamed of yourself?"
+"No, I have people to do that for me."
 

@@ -1,50 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129477AbRAEBAM>; Thu, 4 Jan 2001 20:00:12 -0500
+	id <S129387AbRAEBDC>; Thu, 4 Jan 2001 20:03:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131167AbRAEBAC>; Thu, 4 Jan 2001 20:00:02 -0500
-Received: from hermes.mixx.net ([212.84.196.2]:6151 "HELO hermes.mixx.net")
-	by vger.kernel.org with SMTP id <S129518AbRAEA7q>;
-	Thu, 4 Jan 2001 19:59:46 -0500
-Message-ID: <3A551BD7.E8708B6F@innominate.de>
-Date: Fri, 05 Jan 2001 01:56:55 +0100
-From: Daniel Phillips <phillips@innominate.de>
-Organization: innominate
-X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-prerelease i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: ludovic fernandez <ludovic.fernandez@sun.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4.0-prerelease: preemptive kernel.
-In-Reply-To: <Pine.LNX.4.05.10101041157540.4778-100000@cosmic.nrg.org> <3A54DEBF.794C2E6A@sun.com>
+	id <S129460AbRAEBCw>; Thu, 4 Jan 2001 20:02:52 -0500
+Received: from c-025.static.AT.KPNQwest.net ([193.154.188.25]:48118 "EHLO
+	stefan.sime.com") by vger.kernel.org with ESMTP id <S129387AbRAEBCs>;
+	Thu, 4 Jan 2001 20:02:48 -0500
+Date: Fri, 5 Jan 2001 02:01:37 +0100
+From: Stefan Traby <stefan@hello-penguin.com>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: Stefan Traby <stefan@hello-penguin.com>,
+        Daniel Phillips <phillips@innominate.de>,
+        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: Journaling: Surviving or allowing unclean shutdown?
+Message-ID: <20010105020137.A1396@stefan.sime.com>
+Reply-To: Stefan Traby <stefan@hello-penguin.com>
+In-Reply-To: <Pine.LNX.4.30.0101031253130.6567-100000@springhead.px.uk.com> <Pine.LNX.4.21.0101031325270.1403-100000@duckman.distro.conectiva> <3A5352ED.A263672D@innominate.de> <20010104192104.C2034@redhat.com> <20010104220821.B775@stefan.sime.com> <20010104224946.C1290@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010104224946.C1290@redhat.com>; from sct@redhat.com on Thu, Jan 04, 2001 at 10:49:46PM +0000
+Organization: Stefan Traby Services && Consulting
+X-Operating-System: Linux 2.4.0-prerelease-fijiji2 (i686)
+X-APM: 100% 200 min
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ludovic fernandez wrote:
-> Right now I will be interested to run some benchmarks (latency but
-> also performance) to see how the system is disturbed by beeing
-> preemptable. I'm little bit lost on this and I don't know where to start.
-> Do you have any pointers on benchmark suites I could run ?
-> Also, maybe it's a off topic subject now....
+On Thu, Jan 04, 2001 at 10:49:46PM +0000, Stephen C. Tweedie wrote:
+> > I think any other action (only replaying on rw mount and presenting
+> > a broken filesystem on ro) is quite fatal, at least if I think of
+> > a replay on -remount,rw :)
+> 
+> Correct.
+> 
+> > Also, an unconditional hidden replay even if "ro" is specified is not nice.
+> 
+> > This is especially critical on root filesystem
+> 
+> In what way?  A root fs readonly mount is usually designed to prevent
+> fsck can run without the filesystem being volatile.  That's the only
 
-No!  Not off topic.  And I hope you don't throw away that simple patch,
-it will always be useful for doing reality checks on the performance of
-the fancy system, and who knows, maybe it's useful in its own right.
+There are people out that say that readonly mount was
+initially designed to behave as physically read only.
+fsck was a wanted side-effect...
+And trust me, most people think so before dialing
+with a journaled filesystem. This was discussed
+to death on the reiserFS list.
 
-The current fashion is to use dbench:
+Clearly the definition of "ro" is weak, does it mean media or
+filesystem view ? It's even weak on lower levels: There are
+also disks out there that write even if physical write-protection
+is enabled (for example auto-remapping after an ECC-recovery read).
 
-  ftp://samba.org/pub/tridge/dbench
+Anyway, it is "especially" critical on the root filesystem because the
+authors of filesystems can't support two ro states on boot.
 
-I think this is good for your patch because it's inherently parallel. 
-Interesting numbers of tasks are, e.g., 1, 2, 10, 50.   Of course dbench
-is not the last word in benchmarks but it's been pretty useful so far. 
-You probably want something entirely cpu-bound too.  How about dbench
-with ramfs?
+Reiserfs allowed  -oro,noreplay.
 
---
-Daniel
+Please tell me how to specify "noreplay" for the initial "/" mount
+:)
+
+Yes, I think that the journal is an integral part of the filesystem.
+But this has nothing to do with forcing a write on "ro" mounts, which
+I interpret as design bug. (ro,noreplay is also a kind of design bug,
+everything except a virtual replay under physical ro conditions looks
+like a design bug to me because it breaks user expectations either
+by writing on "ro" or by giving an invalid view by "noreplay")
+
+-- 
+
+  ciao - 
+    Stefan
+
+"     ( cd /lib ; ln -s libBrokenLocale-2.2.so libNiedersachsen.so )     "
+    
+Stefan Traby                Linux/ia32               fax:  +43-3133-6107-9
+Mitterlasznitzstr. 13       Linux/alpha            phone:  +43-3133-6107-2
+8302 Nestelbach             Linux/sparc       http://www.hello-penguin.com
+Austria                                    mailto://st.traby@opengroup.org
+Europe                                   mailto://stefan@hello-penguin.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

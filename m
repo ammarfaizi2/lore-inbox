@@ -1,66 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261563AbULIQzI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261549AbULIQ40@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261563AbULIQzI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 11:55:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261560AbULIQzI
+	id S261549AbULIQ40 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 11:56:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261560AbULIQzh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 11:55:08 -0500
-Received: from fire.osdl.org ([65.172.181.4]:20203 "EHLO fire-1.osdl.org")
-	by vger.kernel.org with ESMTP id S261555AbULIQyZ (ORCPT
+	Thu, 9 Dec 2004 11:55:37 -0500
+Received: from Mail.MNSU.EDU ([134.29.1.12]:59372 "EHLO mail.mnsu.edu")
+	by vger.kernel.org with ESMTP id S261551AbULIQxq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 11:54:25 -0500
-Message-ID: <41B877E6.1050007@osdl.org>
-Date: Thu, 09 Dec 2004 08:05:58 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-Organization: OSDL
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+	Thu, 9 Dec 2004 11:53:46 -0500
+Message-ID: <41B88319.9070207@mnsu.edu>
+Date: Thu, 09 Dec 2004 10:53:45 -0600
+From: "Jeffrey E. Hundstad" <jeffrey.hundstad@mnsu.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a5) Gecko/20041121
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Zoltan NAGY <nagyz@nefty.hu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10-rc3-bk4 does not compile
-References: <41B87A67.30803@nefty.hu>
-In-Reply-To: <41B87A67.30803@nefty.hu>
+To: Robin Holt <holt@sgi.com>
+CC: Limin Gu <limin@dbear.engr.sgi.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] jobfs - new virtual filesystem for job kernel/user
+ interface
+References: <200412082203.iB8M3Lk22375@dbear.engr.sgi.com> <20041209140504.GD5187@lnx-holt.americas.sgi.com>
+In-Reply-To: <20041209140504.GD5187@lnx-holt.americas.sgi.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zoltan NAGY wrote:
-> It fails with the following error messages:
-> 
->  CC      drivers/block/rd.o
-> drivers/block/rd.c:67: error: `CONFIG_BLK_DEV_RAM_COUNT' undeclared here 
-> (not in a function)
-> drivers/block/rd.c:68: error: `CONFIG_BLK_DEV_RAM_COUNT' undeclared here 
-> (not in a function)
-> drivers/block/rd.c:69: error: `CONFIG_BLK_DEV_RAM_COUNT' undeclared here 
-> (not in a function)
-> drivers/block/rd.c: In function `rd_cleanup':
-> drivers/block/rd.c:403: error: `CONFIG_BLK_DEV_RAM_COUNT' undeclared 
-> (first use in this function)
-> drivers/block/rd.c:403: error: (Each undeclared identifier is reported 
-> only once
-> drivers/block/rd.c:403: error: for each function it appears in.)
-> drivers/block/rd.c: In function `rd_init':
-> drivers/block/rd.c:433: error: `CONFIG_BLK_DEV_RAM_COUNT' undeclared 
-> (first use in this function)
-> drivers/block/rd.c: At top level:
-> drivers/block/rd.c:67: error: storage size of `rd_disks' isn't known
-> drivers/block/rd.c:68: error: storage size of `rd_bdev' isn't known
-> drivers/block/rd.c:69: error: storage size of `rd_queue' isn't known
-> drivers/block/rd.c:67: warning: `rd_disks' defined but not used
-> drivers/block/rd.c:68: warning: `rd_bdev' defined but not used
-> drivers/block/rd.c:69: warning: `rd_queue' defined but not used
-> make[2]: *** [drivers/block/rd.o] Error 1
-> make[1]: *** [drivers/block] Error 2
-> make: *** [drivers] Error 2
-
-That's weird.  rd.c #includes <config.h>, so CONFIG_BLK_DEV_RAM_COUNT
-should be there.  and it builds OK for me, as module or in-kernel.
-
-Please check that you have rc3-bk4 applied (patched) correctly
-and then send your .config file.
+I'd have to second Robin's sentiments.  IMHO there should be a very 
+strong reason to have this type of information in a new filesystem as 
+this type of proliferation is counterproductive.
 
 -- 
-~Randy
+jeffrey hundstad
+
+Robin Holt wrote:
+
+>On Wed, Dec 08, 2004 at 02:03:21PM -0800, Limin Gu wrote:
+>  
+>
+>>Hello,
+>>
+>>I am looking for your comments on the attached draft, it is the job patch 
+>>for 2.6.9. I have posted job patch for older kernel before, but in this patch
+>>I have replaced the /proc/job binary ioctl calls with a new small virtual 
+>>filesystem (jobfs).
+>>
+>>Job uses the hook provided by PAGG (Process Aggregates). A job is a group
+>>related processes all descended from a point of entry process and identified
+>>by a unique job identifier (jid). You can find the general information
+>>about PAGG and Job at http://oss.sgi.com/projects/pagg/
+>>
+>>I will very much appreciate your comments, suggestions and criticisms
+>>on this new filesystem design and implementation as the job kernel/user
+>>communication interface. The patch is still a draft.
+>>
+>>Thank you!
+>>    
+>>
+>
+>I maintain my position that this belongs in /proc.
+>
+>Why not have a structure something like:
+>
+>/proc/<pid>/job -> ../jobs/<jid>
+>/proc/jobs/<jid>/<pid> -> ../../<pid>
+>
+>What other information is really necessary from userland?
+>
+>  
+>

@@ -1,39 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135925AbRDTONL>; Fri, 20 Apr 2001 10:13:11 -0400
+	id <S135931AbRDTOUD>; Fri, 20 Apr 2001 10:20:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135924AbRDTOM7>; Fri, 20 Apr 2001 10:12:59 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:26885 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S135934AbRDTOMu>; Fri, 20 Apr 2001 10:12:50 -0400
-Date: Fri, 20 Apr 2001 05:14:52 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: stefan@jaschke-net.de
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org,
-        epic@skyld.com
-Subject: Re: epic100 error
-Message-ID: <20010420051452.B2628@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	stefan@jaschke-net.de, Jeff Garzik <jgarzik@mandrakesoft.com>,
-	linux-kernel@vger.kernel.org, epic@skyld.com
-In-Reply-To: <20010417184552.A6727@core.devicen.de> <01042013091501.07156@antares> <3AE01E97.E41399F7@mandrakesoft.com> <01042014071100.01203@antares>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <01042014071100.01203@antares>; from s-jaschke@t-online.de on Fri, Apr 20, 2001 at 02:07:11PM +0200
-X-Url: http://advogato.org/person/acme
+	id <S135928AbRDTOTw>; Fri, 20 Apr 2001 10:19:52 -0400
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:63877 "EHLO
+	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S135934AbRDTOTi>; Fri, 20 Apr 2001 10:19:38 -0400
+Date: Fri, 20 Apr 2001 09:19:37 -0500 (CDT)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200104201419.JAA50024@tomcat.admin.navo.hpc.mil>
+To: olaf@bigred.inka.de, linux-kernel@vger.kernel.org
+Subject: Re: light weight user level semaphores
+In-Reply-To: <E14qXEU-0005xo-00@g212.hadiko.de>
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Fri, Apr 20, 2001 at 02:07:11PM +0200, Stefan Jaschke escreveu:
-> <offtopic>
-> 'A message that you sent could not be delivered to one or more of its
-> recipients. This is a permanent error. The following address(es) failed:
->   epic@skyld.com:
->     unrouteable mail domain "skyld.com"'
-> </offtopic>
+Olaf Titz <olaf@bigred.inka.de>:
+> > Ehh.. I will bet you $10 USD that if libc allocates the next file
+> > descriptor on the first "malloc()" in user space (in order to use the
+> > semaphores for mm protection), programs _will_ break.
+> 
+> Of course, but this is a result from sloppy coding. In general, open()
+> can just return anything and about the only case where you can even
+> think of ignoring its result is this:
+>  close(0); close(1); close(2);
+>  open("/dev/null", O_RDWR); dup(0); dup(0);
+> (which is even not clean for other reasons).
+> 
+> I can't imagine depending on the "fact" that the first fd I open is 3,
+> the next is 4, etc. And what if the routine in question is not
+> malloc() but e.g. getpwuid()? Both are just arbitrary library
+> functions, and one of them clearly does open file descriptors,
+> depending on their implementation.
+> 
+> What would the reason[1] be for wanting contiguous fd space anyway?
+> 
+> Olaf
+> 
+> [1] apart from not having understood how poll() works of course.
 
-s/skyld/scyld/g
+Optimization use in select: If all "interesting" file id's are known
+to be below "n", then only the first "n" bits in a FD_ISSET need to
+be examined. As soon as the bits are scattered, it takes MUCH longer
+to check for activity....
 
-- Arnaldo
+It may not be the "best" way, but what I tend to do is:
+
+ Umm - this is snipped from a multiplexed logger using FIFOs for
+ and indeterminate amount of data from differet utilities sending
+ text buffers (normally one line at a time but could be more).
+
+static void fd_init(argc,argv)
+    int         argc;                   /* number of parameters         */
+    char        **argv;                 /* parameter list               */
+{
+    int         i,j;            /* scratch counters                     */
+    static char str[50];
+
+    pnames = argv;
+    FD_ZERO(&in_files);         /* init all file descriptor sets        */
+
+    for (i = 0; i <= MAX_LOG && i < argc; i++) {
+        sprintf(str,"/tmp/%s",pnames[i]);
+        mkfifo(str,0600);       /* assume it exists */
+        inlogfd[i] = open(str,O_RDONLY | O_NDELAY);
+        FD_SET(inlogfd[i],&in_files);
+    }
+    used = i;
+}
+
+
+Then I can scan for any activity by:
+
+    do {
+        while (select(MAX_LOG,&active,NULL,NULL,NULL) >= 0) {
+            for(i = 0; i <= used; i++) {
+                if (FD_ISSET(inlogfd[i],&active)) {
+                    r=ioctl(inlogfd[i],FIONREAD,&n);
+                    while (n > 0) {
+                        r = (n > BUF_MAX - 1) ? BUF_MAX - 1: n;
+                        read(inlogfd[i],buf,r);
+                        printbuf(pnames[i],r);
+                        n -= r;
+                    }
+                }
+            }
+            active = in_files;
+        }
+    } while (errno == EINTR);
+
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
+
+Any opinions expressed are solely my own.

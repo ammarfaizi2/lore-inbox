@@ -1,49 +1,103 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135697AbRDXRzg>; Tue, 24 Apr 2001 13:55:36 -0400
+	id <S135595AbRDXRzQ>; Tue, 24 Apr 2001 13:55:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135701AbRDXRz0>; Tue, 24 Apr 2001 13:55:26 -0400
-Received: from armitage.toyota.com ([63.87.74.3]:25098 "EHLO
-	armitage.toyota.com") by vger.kernel.org with ESMTP
-	id <S135697AbRDXRzV>; Tue, 24 Apr 2001 13:55:21 -0400
-Message-ID: <3AE5BE02.B347F1AD@lexus.com>
-Date: Tue, 24 Apr 2001 10:55:14 -0700
-From: J Sloan <jjs@toyota.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-pre6 i686)
-X-Accept-Language: en
+	id <S135697AbRDXRzH>; Tue, 24 Apr 2001 13:55:07 -0400
+Received: from cs.utexas.edu ([128.83.139.9]:44431 "EHLO cs.utexas.edu")
+	by vger.kernel.org with ESMTP id <S135595AbRDXRyt>;
+	Tue, 24 Apr 2001 13:54:49 -0400
+Date: Tue, 24 Apr 2001 12:54:42 -0500 (CDT)
+From: Chin-Tser Huang <chuang@cs.utexas.edu>
+To: <alad@hss.hns.com>
+cc: <JColgan@safestory.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Greetings!
+In-Reply-To: <65256A38.00545705.00@sandesh.hss.hns.com>
+Message-ID: <Pine.GSO.4.33.0104241253470.178-100000@fugue.cs.utexas.edu>
 MIME-Version: 1.0
-To: imel96@trustix.co.id
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Single user linux
-In-Reply-To: <Pine.LNX.4.33.0104241830020.11899-100000@tessy.trustix.co.id>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-imel96@trustix.co.id wrote:
+Because there was a mail whose subject is "Children first in fork".
 
-> hi,
->
-> a friend of my asked me on how to make linux easier to use
-> for personal/casual win user.
+On Tue, 24 Apr 2001 alad@hss.hns.com wrote:
+
 >
 >
-> from that, i also found out that it is very awkward to type
-> username and password every time i use my computer.
-> so here's a patch.
-
-Neet hack, but maybe the kernel isn't the best
-place to do this -
-
-For instance, you can simply use the KDE 2.1.1 login
-manager, with the current kernel intact, to automatically
-log in and start the X session of a specific user, upon
-entering runlevel 5 -
-
-Might this not be a better direction?
-
-cu
-
-jjs
+> well... the book sounds good...
+> but... I am still thinking... what it has to do with linux kernel ??
+>
+>
+>
+>
+> JColgan@safestory.com on 04/24/2001 04:27:56 PM
+>
+> To:   linux-kernel@vger.kernel.org
+> cc:    (bcc: Amol Lad/HSS)
+>
+> Subject:  Greetings!
+>
+>
+>
+>
+>
+> 1 in 6 children are victimized before the age of 16.
+>
+> Hello, my name is Jason Colgan and I am writing to you about my father's unique
+> book on child safety.
+>
+> I hope you don't mind me emailing you, but I found your email address on a
+> website that was related to children, so I figured you would definitely be
+> interested in this.
+>
+> My father, a retired police Captain, authored a children's book using his unique
+> experience with child safety.  My father has investigated, arrested and taken
+> confessions from child molesters, kidnappers, murderers and some of the most
+> dangerous people in the world.  He often spoke and interacted with them before
+> they had the chance to speak with lawyers or others, so he was able to gain an
+> honest understanding of the way they think and the manner in which they
+> victimize children.
+>
+> My father put his 23 years of experience to work for a good cause and developed
+> a children's book, written in a storybook fashion starring a small family of
+> bunnies.  The book has already caused quite a stir and has been featured in
+> local newspapers and even the news.  Even more important, the people who have
+> purchased the book love it and so do their children.  It truly presents a
+> simplified way to educate your child on matters that are difficult for parents,
+> grandparents, or guardians to discuss.
+>
+> I would like you to learn more about my father's book by visiting
+> www.SafeStory.com
+>
+> If you are curious to see what others think, there is a link on that web site
+> which has some customer opinions and even shows you the write-ups the book has
+> received on Amazon.com.
+>
+> Thank you so much for your time and if you have any questions at all, please
+> email me or call and I would love to answer them!
+>
+> My sincerest thanks,
+> Jason
+>
+>
+> http://www.SafeStory.com
+>
+>
+> P.S. Please email me at jason@jmc1.com or call me anytime. My home phone number
+> is 401-463-2856.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

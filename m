@@ -1,53 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281129AbRKYWAk>; Sun, 25 Nov 2001 17:00:40 -0500
+	id <S281147AbRKYWFU>; Sun, 25 Nov 2001 17:05:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281142AbRKYWAa>; Sun, 25 Nov 2001 17:00:30 -0500
-Received: from grip.panax.com ([63.163.40.2]:56328 "EHLO panax.com")
-	by vger.kernel.org with ESMTP id <S281140AbRKYWAX>;
-	Sun, 25 Nov 2001 17:00:23 -0500
-Date: Sun, 25 Nov 2001 16:58:19 -0500
-From: Patrick McFarland <unknown@panax.com>
-To: J Sloan <jjs@pobox.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.16-pre1
-Message-ID: <20011125165819.G238@localhost>
-Mail-Followup-To: J Sloan <jjs@pobox.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0111241744250.12119-100000@freak.distro.conectiva> <Pine.LNX.4.33.0111241311040.2591-100000@penguin.transmeta.com> <20011124205632.C241@localhost> <20011124211204.D241@localhost> <3C0058CF.D97D0E2B@starband.net> <20011124214114.E241@localhost> <3C006F44.201DC73F@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C006F44.201DC73F@pobox.com>
-User-Agent: Mutt/1.3.23i
-X-Operating-System: Linux 2.4.14 i686
-X-Distributed: Join the Effort!  http://www.distributed.net/
+	id <S281146AbRKYWFL>; Sun, 25 Nov 2001 17:05:11 -0500
+Received: from mail.libertysurf.net ([213.36.80.91]:17967 "EHLO
+	mail.libertysurf.net") by vger.kernel.org with ESMTP
+	id <S281144AbRKYWE4>; Sun, 25 Nov 2001 17:04:56 -0500
+Message-ID: <3C016B85.7040207@paulbristow.net>
+Date: Sun, 25 Nov 2001 23:07:01 +0100
+From: Paul Bristow <paul@paulbristow.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010914
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Jack Howarth <howarth@nitro.med.uc.edu>
+CC: linux-kernel@vger.kernel.org, Richard Gooch <rgooch@ras.ucalgary.ca>
+Subject: Re: ide-floppy.c vs devfs
+In-Reply-To: <200111110439.XAA53352@nitro.msbb.uc.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-So your saying I should actually trust my distro to build a kernel right? I build my own kernels, I have since day one. But, heres a semi-key point, what happens to vendor patches? Do they ever get folded back into the main tree? mdk and rh I know do alot of patching.  Its a waste of effort if the patches arnt looked at. And also, I was using that as a rant example. Ive never had a kernel break for me except for the parport and loopback problems. And then, I just built parport without ieee, and Im not using loopback rightnow anyhow, so its not a big loss.
+Hi Jack,
 
-On 24-Nov-2001, J Sloan wrote:
-> Patrick McFarland wrote:
+Try the devfs test version that I just uploaded to
+
+http://paulbristow.net/linux/idefloppy.html
+
+This is early days, and I'm not sure what the best approach is...
+
+Feedback is greatly appreaciated.
+
+Jack Howarth wrote:
+
+> Paul,
+>    Is ide-floppy supposed to be devfs friendly? I ask
+> because on Linux 2.4.15-pre2 (and previous kernels)
+> on the Powermac (Debian ppc sid) I find that the
+> ide-floppy driver only creates device for my ide 
+> zip if a zip disk is inserted at boot time. Otherwise
+> the /dev/ide/host1/bus0/target1/lun0 directory doesn't
+> contain a device node for the zip whereas the ide-cdrom
+> driver creates a /dev/ide/host1/bus0/target0/lun0/cd
+> fine without a cdrom disk inserted at boot time. I find
+> that the only way I can get the zip device created at
+> boot time without media inserted is to use ide-scsi 
+> emulation and turn off ide-floppy when I configure the
+> kernel. Is this issue a known problem and does it
+> exist for other arches than powerpc (Powermac)? Thanks
+> in advance for any advice.
+>                       Jack
+> ------------------------------------------------------------------------------
+> Jack W. Howarth, Ph.D.                                    231 Albert Sabin Way
+> NMR Facility Director                              Cincinnati, Ohio 45267-0524
+> Dept. of Molecular Genetics                              phone: (513) 558-4420
+> Univ. of Cincinnati College of Medicine                    fax: (513) 558-8474
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 > 
-> > What If I get up one day, and I cant print? Or build isos?
-> 
-> Who would switch kernels on you while you sleep?
-> 
-> >  The Kernel needs Quality Assurance.
-> 
-> Yep, and that's what the vendors do for you.
-> 
-> Stick with the tested, QA'd, vendor-supplied
-> kernel unless you're a developer or a skilled,
-> adventurous sys admin who reads lkml!
-> 
-> kernel tarballs are NOT for mom -
-> 
-> cu
-> 
-> jjs
-> 
-> 
+
 
 -- 
-Patrick "Diablo-D3" McFarland || unknown@panax.com
+
+Paul
+
+Email: 
+paul@paulbristow.net
+Web: 
+http://paulbristow.net
+ICQ: 
+11965223
+

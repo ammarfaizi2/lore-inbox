@@ -1,161 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263408AbTKFH6i (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Nov 2003 02:58:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263412AbTKFH6h
+	id S263345AbTKFH6P (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Nov 2003 02:58:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263408AbTKFH6P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Nov 2003 02:58:37 -0500
-Received: from dhcp065-024-082-073.columbus.rr.com ([65.24.82.73]:41736 "EHLO
-	www.cencula.com") by vger.kernel.org with ESMTP id S263408AbTKFH6a
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Nov 2003 02:58:30 -0500
-From: "Michael D. Cencula" <junk3@cencula.com>
-To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: mounting UDF CDs (from Sony Mavica Camera)
-Date: Thu, 6 Nov 2003 02:58:23 -0500
-User-Agent: KMail/1.5
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200311060258.23652.junk3@cencula.com>
+	Thu, 6 Nov 2003 02:58:15 -0500
+Received: from tarantel.rz.fh-muenchen.de ([129.187.244.239]:38114 "HELO
+	mailserv.rz.fh-muenchen.de") by vger.kernel.org with SMTP
+	id S263345AbTKFH6N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Nov 2003 02:58:13 -0500
+Date: Thu, 6 Nov 2003 09:01:32 +0100
+From: Daniel Egger <degger@tarantel.rz.fh-muenchen.de>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Daniel Egger <degger@fhm.edu>, Dustin Lang <dalang@cs.ubc.ca>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Re:No backlight control on PowerBook G4
+Message-ID: <20031106090132.B18367@tarantel.rz.fh-muenchen.de>
+References: <Pine.GSO.4.53.0311021038450.3818@columbia.cs.ubc.ca> <1067820334.692.38.camel@gaston> <1067878624.7695.15.camel@sonja> <1067896476.692.36.camel@gaston> <1067976347.945.4.camel@sonja> <1068078504.692.175.camel@gaston>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0pre2us
+In-Reply-To: <1068078504.692.175.camel@gaston>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings,
+On Thu, Nov 06, 2003 at 11:28:25AM +1100, Benjamin Herrenschmidt wrote:
 
-Basically, the problem is that mounting these udf CDs only works after a 
-failed vfat (or msdos) mount attempt.  Following a successful udf mount 
-attempt, the CD can be umounted and re-mounted without problem until it is 
-ejected and reinserted.  Then it's necessary to try a vfat mount again before 
-the udf mount succeeds.
+> > Just checked. It doesn't work with the  latest (Linus) 2.6-test and
+> > radeonfb. Do you have any special patches in your tree for radeonfb?
+ 
+> No, I told you to use _my_ 2.6 tree which contains a new radeonfb
+> that have not yet been merged upstream.
 
-This workaround of trying vfat then udf only seems to work in a CDRW drive.  
-Normal CDROM drives give a "mount: No medium found" error.  However, if I 
-finalize the disc, it becomes an iso9660 filesystem, and I can mount it just 
-fine regardless of whether I'm using a CDRW or plain old CDROM drive.
+I noticed that, however I do not have the bandwitdh to track several trees
+simultaneously. Will do that on a high bandwidth machine and create a diff.
 
-Using RH9.0 with a (nearly) stock .config used to compile 2.4.22 for an Athlon 
-T-bird 1Ghz on a Gigabyte GA-7ZXR v.2.2 motherboard with 512MB PC133.
+> bk://ppc.bkbits.net/linuxppc-2.5-benh or rsync from
+> source.mvista.com::linuxppc-2.5-benh
+ 
+> Yaboot normally loads a plain vmlinux, though if you are using tftp, you
+> need to modify yaboot to be able to d/l more than 4Mb (edit fs_of.c and
+> change the allocated size). 
 
-Here's an example of the problem:
+This is probably it. The raw image is just a bit over 4 megs. Is there a
+chance that this will change upstream? Also a warning would be nice while
+creating the kernel as I'm probably not the only one experiencing this.
 
-[root@mike root]# mount -t udf /dev/scd0 /mnt/cdrom
-mount: block device /dev/scd0 is write-protected, mounting read-only
-mount: wrong fs type, bad option, bad superblock on /dev/scd0,
-       or too many mounted file systems
-[root@mike root]# mount -t vfat /dev/scd0 /mnt/cdrom
-mount: block device /dev/scd0 is write-protected, mounting read-only
-mount: wrong fs type, bad option, bad superblock on /dev/scd0,
-       or too many mounted file systems
-[root@mike root]# mount -t udf /dev/scd0 /mnt/cdrom
-mount: block device /dev/scd0 is write-protected, mounting read-only
-[root@mike root]#
+> The ELF image should work, at least the
+> one produced by my tree does, it's possible that there's a similar size
+> problem with the one in Linus tree, a few of those recent changes haven't
+> yet made it to Linus.
 
+Size problem? At least it's not triggered by the yaboot limitation because
+the image is similar in size to zImage.chrp which would be around 1.8 megs.
 
-Output from /var/log/messages shows a bunch of error lines for the initial udf 
-mount attempt, two error lines for the failed vfat mount attempt, and finally 
-the successful udf mount attempt:
-
-Nov  6 00:35:09 mike kernel: attempt to access beyond end of device
-Nov  6 00:35:09 mike kernel: 0b:00: rw=0, want=34, limit=2
-Nov  6 00:35:09 mike kernel: attempt to access beyond end of device
-Nov  6 00:35:09 mike kernel: 0b:00: rw=0, want=1100, limit=2
-Nov  6 00:35:09 mike kernel: attempt to access beyond end of device
-Nov  6 00:35:09 mike kernel: 0b:00: rw=0, want=588, limit=2
-Nov  6 00:35:09 mike kernel: attempt to access beyond end of device
-Nov  6 00:35:09 mike kernel: 0b:00: rw=0, want=476, limit=2
-Nov  6 00:35:09 mike kernel: attempt to access beyond end of device
-Nov  6 00:35:09 mike kernel: 0b:00: rw=0, want=1096, limit=2
-Nov  6 00:35:09 mike kernel: attempt to access beyond end of device
-Nov  6 00:35:09 mike kernel: 0b:00: rw=0, want=584, limit=2
-Nov  6 00:35:09 mike kernel: attempt to access beyond end of device
-Nov  6 00:35:09 mike kernel: 0b:00: rw=0, want=472, limit=2
-Nov  6 00:35:09 mike kernel: attempt to access beyond end of device
-Nov  6 00:35:09 mike kernel: 0b:00: rw=0, want=800, limit=2
-Nov  6 00:35:09 mike kernel: attempt to access beyond end of device
-Nov  6 00:35:09 mike kernel: 0b:00: rw=0, want=288, limit=2
-Nov  6 00:35:09 mike kernel: attempt to access beyond end of device
-Nov  6 00:35:09 mike kernel: 0b:00: rw=0, want=176, limit=2
-Nov  6 00:35:09 mike kernel: attempt to access beyond end of device
-Nov  6 00:35:09 mike kernel: 0b:00: rw=0, want=796, limit=2
-Nov  6 00:35:09 mike kernel: attempt to access beyond end of device
-Nov  6 00:35:09 mike kernel: 0b:00: rw=0, want=284, limit=2
-Nov  6 00:35:09 mike kernel: attempt to access beyond end of device
-Nov  6 00:35:09 mike kernel: 0b:00: rw=0, want=172, limit=2
-Nov  6 00:35:09 mike kernel: attempt to access beyond end of device
-Nov  6 00:35:09 mike kernel: 0b:00: rw=0, want=904, limit=2
-Nov  6 00:35:09 mike kernel: attempt to access beyond end of device
-Nov  6 00:35:09 mike kernel: 0b:00: rw=0, want=392, limit=2
-Nov  6 00:35:09 mike kernel: attempt to access beyond end of device
-Nov  6 00:35:09 mike kernel: 0b:00: rw=0, want=280, limit=2
-Nov  6 00:35:09 mike kernel: attempt to access beyond end of device
-Nov  6 00:35:09 mike kernel: 0b:00: rw=0, want=900, limit=2
-Nov  6 00:35:09 mike kernel: attempt to access beyond end of device
-Nov  6 00:35:09 mike kernel: 0b:00: rw=0, want=388, limit=2
-Nov  6 00:35:09 mike kernel: attempt to access beyond end of device
-Nov  6 00:35:09 mike kernel: 0b:00: rw=0, want=276, limit=2
-Nov  6 00:35:09 mike kernel: attempt to access beyond end of device
-Nov  6 00:35:09 mike kernel: 0b:00: rw=0, want=604, limit=2
-Nov  6 00:35:09 mike kernel: attempt to access beyond end of device
-Nov  6 00:35:09 mike kernel: 0b:00: rw=0, want=92, limit=2
-Nov  6 00:35:09 mike kernel: attempt to access beyond end of device
-Nov  6 00:35:09 mike kernel: 0b:00: rw=0, want=600, limit=2
-Nov  6 00:35:09 mike kernel: attempt to access beyond end of device
-Nov  6 00:35:09 mike kernel: 0b:00: rw=0, want=88, limit=2
-Nov  6 00:35:09 mike kernel: attempt to access beyond end of device
-Nov  6 00:35:09 mike kernel: 0b:00: rw=0, want=626, limit=2
-Nov  6 00:35:09 mike kernel: attempt to access beyond end of device
-Nov  6 00:35:09 mike kernel: 0b:00: rw=0, want=514, limit=2
-Nov  6 00:35:09 mike kernel: UDF-fs: No partition found (1)
-Nov  6 00:35:12 mike kernel:  I/O error: dev 0b:00, sector 0
-Nov  6 00:35:12 mike kernel: FAT: unable to read boot sector
-Nov  6 00:35:18 mike kernel:  I/O error: dev 0b:00, sector 64
-Nov  6 00:35:18 mike kernel: UDF-fs INFO UDF 0.9.6-rw (2002/03/11) Mounting 
-volume 'MV_20031015', timestamp 2003/10/15 18:23 (1ed4)
-
-Here's output from the ver_linux script:
-
-[root@mike root]# . /usr/src/linux-2.4/scripts/ver_linux
-If some fields are empty or look unusual you may have an old version.
-Compare to the current minimal requirements in Documentation/Changes.
-
-Linux mike 2.4.22 #4 Wed Oct 8 00:22:39 EDT 2003 i686 athlon i386 GNU/Linux
-
-Gnu C                  3.2.2
-Gnu make               3.80
-util-linux             2.11y
-mount                  2.11y
-modutils               2.4.22
-e2fsprogs              1.32
-jfsutils               1.0.17
-reiserfsprogs          3.6.4
-pcmcia-cs              3.1.31
-quota-tools            3.06.
-PPP                    2.4.1
-isdn4k-utils           3.1pre4
-Linux C Library        2.3.2
-Dynamic linker (ldd)   2.3.2
-Procps                 2.0.11
-Net-tools              1.60
-Kbd                    1.08
-Sh-utils               4.5.3
-Modules Loaded         vfat fat udf lp nfs lockd sunrpc tuner tvaudio bttv 
-btaudio i2c-algo-bit videodev i2c-core snd-pcm-oss snd-mixer-oss snd-ens1371 
-snd-pcm snd-page-alloc snd-timer snd-rawmidi snd-seq-device gameport 
-snd-ac97-codec snd soundcore autofs parport_pc plip parport iptable_filter 
-ip_tables 3c59x sg sr_mod ide-scsi scsi_mod ide-cd cdrom loop lvm-mod keybdev 
-mousedev input hid uhci usbcore reiserfs
-
-
-Please let me know if more information is necessary.  Also, please cc: me with 
-any responses as I'm not a LKML subscriber.
-
-Thanks for your attention,
-
-Mike
-
-P.S. I'd be happy to mail a CD to anyone that's interested in reproducing the 
-problem.  I tried using dd to create an image that could be downloaded, but dd 
-wouldn't copy the image.
+--
+Servus,
+       Daniel

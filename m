@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292631AbSB0QVL>; Wed, 27 Feb 2002 11:21:11 -0500
+	id <S292539AbSB0QSd>; Wed, 27 Feb 2002 11:18:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292776AbSB0QUt>; Wed, 27 Feb 2002 11:20:49 -0500
-Received: from ns.suse.de ([213.95.15.193]:53010 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S292690AbSB0QUc>;
-	Wed, 27 Feb 2002 11:20:32 -0500
-Date: Wed, 27 Feb 2002 17:20:30 +0100
-From: Dave Jones <davej@suse.de>
-To: Ben Clifford <benc@hawaga.org.uk>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.5-dj2 oops
-Message-ID: <20020227172030.F16565@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Ben Clifford <benc@hawaga.org.uk>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020226223406.A26905@suse.de> <Pine.LNX.4.33.0202270746090.2059-100000@barbarella.hawaga.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0202270746090.2059-100000@barbarella.hawaga.org.uk>; from benc@hawaga.org.uk on Wed, Feb 27, 2002 at 08:13:49AM -0800
+	id <S292634AbSB0QSN>; Wed, 27 Feb 2002 11:18:13 -0500
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:42762 "EHLO
+	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id <S292605AbSB0QSD>; Wed, 27 Feb 2002 11:18:03 -0500
+Message-Id: <200202271617.g1RGHwWV012521@pincoya.inf.utfsm.cl>
+To: Raphael_Manfredi@pobox.com (Raphael Manfredi)
+cc: linux-kernel@vger.kernel.org
+Subject: Re: setsockopt(SOL_SOCKET, SO_SNDBUF) broken on 2.4.18? 
+In-Reply-To: Message from Raphael_Manfredi@pobox.com (Raphael Manfredi) 
+   of "26 Feb 2002 07:46:42 GMT." <a5feh2$bvs$1@lyon.ram.loc> 
+Date: Wed, 27 Feb 2002 13:17:58 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 27, 2002 at 08:13:49AM -0800, Ben Clifford wrote:
- > >>EIP; c01883c4 <vc_allocate+e4/f0>   <=====
- > Trace; c0189059 <con_open+19/70>
- > Trace; c017f726 <tty_open+216/3c0>
+Raphael_Manfredi@pobox.com (Raphael Manfredi) said:
+> Quoting Alan Cox <alan@lxorguk.ukuu.org.uk> from ml.linux.kernel:
+> :Neither. You asked for 8K the kernel allows a bit more for BSD compatibility
+> :and other things. You query and it gives back the size it chose
 
- Yup, something not quite right with the last set of James' console
- changes by the looks. I already bounced him a copy of a similar oops.
+> I understand the kernel can choose to allocate more than requested.
+> Even double the size.  But it should be consistent, i.e. if when I request
+> x it allocates 2x, then when I ask the size, I want to know x, not 2x.
+> Otherwise, how can the application behave sanely if it want to vary the
+> size?
 
- For now, you could try backing out the console-preempt.diff patch
- from http://www.codemonkey.org.uk/patches/merged/2.5.5/dj2/
-
+By keeping track of the number, if needed?
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

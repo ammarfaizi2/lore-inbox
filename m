@@ -1,47 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267999AbUHUXOk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268003AbUHUXWL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267999AbUHUXOk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Aug 2004 19:14:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268003AbUHUXOk
+	id S268003AbUHUXWL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Aug 2004 19:22:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268008AbUHUXWK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Aug 2004 19:14:40 -0400
-Received: from probity.mcc.ac.uk ([130.88.200.94]:36365 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP id S267999AbUHUXOj
+	Sat, 21 Aug 2004 19:22:10 -0400
+Received: from probity.mcc.ac.uk ([130.88.200.94]:29194 "EHLO
+	probity.mcc.ac.uk") by vger.kernel.org with ESMTP id S268003AbUHUXWH
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Aug 2004 19:14:39 -0400
-Date: Sun, 22 Aug 2004 00:14:38 +0100
+	Sat, 21 Aug 2004 19:22:07 -0400
+Date: Sun, 22 Aug 2004 00:22:06 +0100
 From: John Levon <levon@movementarian.org>
-To: Jesse Barnes <jbarnes@sgi.com>
-Cc: Andrew Morton <akpm@osdl.org>, oprofile-list@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, anton@samba.org, phil.el@wanadoo.fr
+To: Andrew Morton <akpm@osdl.org>
+Cc: oprofile-list@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       jbarnes@sgi.com, anton@samba.org, phil.el@wanadoo.fr
 Subject: Re: [PATCH] improve OProfile on many-way systems
-Message-ID: <20040821231437.GB20175@compsoc.man.ac.uk>
-References: <20040821192630.GA9501@compsoc.man.ac.uk> <20040821135833.6b1774a8.akpm@osdl.org> <200408211806.32566.jbarnes@sgi.com>
+Message-ID: <20040821232206.GC20175@compsoc.man.ac.uk>
+References: <20040821192630.GA9501@compsoc.man.ac.uk> <20040821135833.6b1774a8.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200408211806.32566.jbarnes@sgi.com>
+In-Reply-To: <20040821135833.6b1774a8.akpm@osdl.org>
 User-Agent: Mutt/1.3.25i
 X-Url: http://www.movementarian.org/
 X-Record: King of Woolworths - L'Illustration Musicale
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1Byf4I-000D9w-BF*whxAdZ7XMw.*
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1ByfBW-000E7d-VD*3DXmab6pYHw*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 21, 2004 at 06:06:31PM -0400, Jesse Barnes wrote:
+On Sat, Aug 21, 2004 at 01:58:33PM -0700, Andrew Morton wrote:
 
-> I'll give it a go on Monday, when I have some more time reserved on the 512p 
-> system.  Last time I tried enabling oprofile, the system wouldn't boot or at 
-> least got so slow that I didn't want to wait for it (i.e. init started, but 
-> the system pretty much hung part way through the init scripts).
+> > Anton prompted me to get this patch merged.  It changes the core buffer
+> >  sync algorithm of OProfile to avoid global locks wherever possible.
+> >  Anton tested an earlier version of this patch with some success. I've
+> >  lightly tested this applied against 2.6.8.1-mm3 on my two-way machine.
+> 
+> OK.  Oprofile isn't the most commonly tested part of the kernel.  Given
+> that you've "lightly tested" it,
 
-That must be profile_rwsem in kernel/profile.c since the rest of the
-code won't be doing anything. I imagine it needs RCUing.
+I hammered the patch with earlier kernel versions for some time a while
+ago. But that was on a 2-way, which hardly counts as proper testing.
 
-> If it boots, I'll try collecting some info.  John, will the oprofile tools in 
-> RHEL3 work with 2.6.8.1-mm3 + these patches?
+> how do we know when it has had sufficient testing for its swim upstream?
 
-No idea, I don't have time to track what Red Hat do or don't use. I
-recommend oprofile CVS or the last release.
+I thought one of the points of the mm tree was to give things some
+testing first.
 
+> Does Philippe have some test suite, perhaps?
+
+He doesn't have access to any SMP machines at all, last I heard.
+
+regards
 john

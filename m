@@ -1,65 +1,120 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289198AbSAVIFC>; Tue, 22 Jan 2002 03:05:02 -0500
+	id <S289196AbSAVIMe>; Tue, 22 Jan 2002 03:12:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289196AbSAVIEw>; Tue, 22 Jan 2002 03:04:52 -0500
-Received: from [216.223.235.2] ([216.223.235.2]:32386 "HELO
-	inventor.gentoo.org") by vger.kernel.org with SMTP
-	id <S289198AbSAVIEf>; Tue, 22 Jan 2002 03:04:35 -0500
-Subject: Re: Athlon PSE/AGP Bug
-From: Daniel Robbins <drobbins@gentoo.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: andrea@suse.de, alan@redhat.com, linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@zip.com.au>,
-        Terrence Ripperda <ripperda@nvidia.com>, drobbins@gentoo.org
-In-Reply-To: <20020121.230856.71191773.davem@redhat.com>
-In-Reply-To: <20020122013909.N8292@athlon.random>
-	<20020121.170822.32749723.davem@redhat.com>
-	<20020122070517.GK135220@niksula.cs.hut.fi> 
-	<20020121.230856.71191773.davem@redhat.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1 
-Date: 22 Jan 2002 01:05:49 -0700
-Message-Id: <1011686749.7126.60.camel@inventor.gentoo.org>
-Mime-Version: 1.0
+	id <S289200AbSAVIMY>; Tue, 22 Jan 2002 03:12:24 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:20241
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S289196AbSAVIMK>; Tue, 22 Jan 2002 03:12:10 -0500
+Date: Mon, 21 Jan 2002 23:52:41 -0800 (PST)
+From: Andre Hedrick <andre@linuxdiskcert.org>
+To: Vojtech Pavlik <vojtech@suse.cz>
+cc: Jens Axboe <axboe@suse.de>, Davide Libenzi <davidel@xmailserver.org>,
+        Anton Altaparmakov <aia21@cam.ac.uk>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.3-pre1-aia1
+In-Reply-To: <20020122082030.A12720@suse.cz>
+Message-ID: <Pine.LNX.4.10.10201212333540.16815-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-01-22 at 00:08, David S. Miller wrote:
-> Yes, Gareth Hughes @ NVIDIA understands very well that this can still
-> be just a heisenbug.
+On Tue, 22 Jan 2002, Vojtech Pavlik wrote:
+
+> On Mon, Jan 21, 2002 at 03:53:20PM -0800, Andre Hedrick wrote:
+> > On Mon, 21 Jan 2002, Vojtech Pavlik wrote:
+> > Okay if the execution of the command block is ATOMIC, and we want to stop
+> > an ATOMIC operation to go alter buffers? 
 > 
-> There is still no hard proof that not using 4M pages really fixes
-> anything AMD states is wrong with their chips.
+> YES! I think you got it! Because atomic here doesn't mean 'do it all as
+> soon as possible with no delay', but 'do nothing else on the ATA bus
+> inbetween'.
 
-Well, it's clear that either NVIDIA, AMD or the general opinion held by
-the majority Linux kernel guys is wrong.  I'm eager to find out the
-truth behind the matter so that the parties involved can work towards a
-solution, whatever that may be.  
+In order to do this you can not issue a sector request larger than an
+addressable buffer, since the request walking of the rq->buffer is not
+allowed.
 
-It'd be a bummer if I find that the explanation that NVIDIA gave me
-turns out to be false.  But it seems that there may be a real issue
-here.  I have received quite a few reports (and read in quite a few
-comments posted on sites) that mem=nopentium solved a variety of strange
-stability-related issues related to PCI/AGP devices.  It may turn out
-that the Athlon does have a problem with ends of DMA push buffers
-aligned to 4Mb page boundaries.  mem=nopentium seems to have fixed audio
-and other types of lock-ups as well.  Note that AMD told me on the phone
-this morning that the issue Terrence found (and the AMD Windows 2000
-patch was created to solve) did *not* corellate with the published AMD
-errata that everyone on LKML is talking about, but was in fact another
-issue.  
+> > But that is not the real question.  The real question is do we stop
+> > and ATOMIC process to return data of a partial completeion, and then
+> > return to a HALTED ATOMIC and hope it will still go?
+> 
+> Yes, and we can do this, and there is no reason why this should not
+> work.
 
-Thankfully, the guessing will (hopefully) soon be over. AMD will be
-calling me tomorrow at 3PM MST. They've reached a conclusion as to
-what's going on, and I'll post the AMD's official word on gentoo.org as
-soon as I get it.
+PONDERING ....
 
-Best Regards,
+> > DEAD Method:
+> > issue atomic write 255 sectors
+> > 	write 8 sector or 4k or 1 page of memory
+> > 
+> > 	interrupt_issued
+> > 		exit atomic write
+> > 			update top layer buffers
+> > 			return;
+> > 	continue write_loop;
+> > 	exit on completion and update remainder.
+> > 
+> > BASTARDIZED Method:
+> > issue write 255 sectors
+> > 	truncate to max of 8 sectors
+> > 	issue atomic write 8 sectors
+> > 		interrupt_issued
+> > 		end request and notify 4k page complete
+> > 	make new request and merge and repeat.
+> > 	note there is a new memcpy fo new request. (max 16 to completion)
+> > 
+> > 
+> > OLD Method, with Request Page Walking:
+> > issue atomic write 255 sectors
+> >         write sectors
+> >         interrupt_issued
+> > 		walk copy of request
+> > 	continue write_loop;
+> > 	exit on completion and request and free local buffer.
+> > 
+> > CORRECT Method:
+> > collect contigious physical buffer of 255 sectors
+> > memcpy_to_local (one memcpy)
+> > issue atomic write 255 sectors
+> > 	write sectors
+> > 	interrupt_issued
+> > 		update pointer
+> > 	continue write_loop;
+> > 	exit on completion and request and free local buffer.
+> > 
+> > The price of the overhead and the direct flakyness of the driver we are
+> > running from is returning, so the alternative is to disable MULTI-Sector
+> > Operations.
+> 
+> That's pretty much nonsense, beg my pardon. The real correct way would
+> be:
 
--- 
-Daniel Robbins                                  <drobbins@gentoo.org>
-Chief Architect/President                       http://www.gentoo.org 
-Gentoo Technologies, Inc.
+We agreed upon error is the "memcpy_to_local" and "free local buffer".
+
+If a low-memory contigious physical buffers was allocated and all the
+bounce_memory locations were copied there before submition to the lower
+levels, the drives could run down the buffer and be done, preserve the
+entire request for error handling when a write to media fails.
+
+> issue read of 255 sectors using READ_MULTI, max_mult = 16
+> receive interrupt
+> 	inw() first 4k to buffer A
+> 	inw() second 4k to buffer B
+> don't do anything else until the next interrupt
+
+The second buffer has been taken away, so this is not possible.
+
+> There is absolutely no need for an intermediate scratch buffer, you can
+> put the inw()ed data anywhere you like, and if you need any post
+> processing, you can do it as well, at any time.
+
+Explain where buffer B come from, because I am totally lost on the above.
+
+I am totally worn out and do not care about the issue anymore for now.
+
+Regards
+
+--a
 

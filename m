@@ -1,54 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317651AbSFRWjE>; Tue, 18 Jun 2002 18:39:04 -0400
+	id <S317653AbSFRWn4>; Tue, 18 Jun 2002 18:43:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317652AbSFRWjD>; Tue, 18 Jun 2002 18:39:03 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:41693 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S317651AbSFRWjD>;
-	Tue, 18 Jun 2002 18:39:03 -0400
-Date: Wed, 19 Jun 2002 00:36:57 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: mgix@mgix.com
-Cc: Rusty Russell <rusty@rustcorp.com.au>,
-       David Schwartz <davids@webmaster.com>, <linux-kernel@vger.kernel.org>,
-       <mingo@redhat.com>
-Subject: RE: Question about sched_yield() 
-In-Reply-To: <AMEKICHCJFIFEDIBLGOBEEELCBAA.mgix@mgix.com>
-Message-ID: <Pine.LNX.4.44.0206190031150.23460-100000@e2>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317657AbSFRWnz>; Tue, 18 Jun 2002 18:43:55 -0400
+Received: from pcp809261pcs.nrockv01.md.comcast.net ([68.49.81.201]:4586 "EHLO
+	zalem.puupuu.org") by vger.kernel.org with ESMTP id <S317653AbSFRWny>;
+	Tue, 18 Jun 2002 18:43:54 -0400
+Date: Tue, 18 Jun 2002 18:43:56 -0400
+From: Olivier Galibert <galibert@pobox.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Question about sched_yield()
+Message-ID: <20020618184356.A24581@zalem.puupuu.org>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	linux-kernel@vger.kernel.org
+References: <AMEKICHCJFIFEDIBLGOBEEEHCBAA.mgix@mgix.com> <20020618180154.AAA21943@shell.webmaster.com@whenever>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020618180154.AAA21943@shell.webmaster.com@whenever>; from davids@webmaster.com on Tue, Jun 18, 2002 at 11:01:53AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jun 18, 2002 at 11:01:53AM -0700, David Schwartz wrote:
+> 	Your assumptions are just plain wrong. The yielder is being nice, so it 
+> should get preferential treatment, not worse treatment.
 
-On Tue, 18 Jun 2002 mgix@mgix.com wrote:
+Heh?  Yielding is not about being nice, if you want to be nice you
+lower your priority.  Yielding is telling the scheduler "I am
+temporarily out of things to do, maybe for a while, but a least until
+all the others running threads got a chance to run too".  Any
+scheduler that runs you immediatly again without running the others
+threads is _broken_.
 
-> However, I am not aware of any alternative to communicate what I really
-> want to the scheduler, and here's why. If anyone has ideas on how to do
-> this better, please, I'm all ears.
-> 
-> It's basically about spinlocks and the cost of task switching.
-> 
-> I'm trying to implement "smart" spinlocks.
-
-the right solution for you are the new ultra-fast kernel-helped,
-user-space semaphores. Those are kernel objects where the semaphore data
-structure is accessible to user-space as well. Acquiring the semaphore in
-the no-contention case is very cheap, it's basically a single assembly
-instruction. In the contention case you'll enter the kernel and schedule
-away.
-
-(in the sched_yield() case you schedule away just as much in the
-contention case, so there isnt any difference.)
-
-for shortlived but contended locks this mechanism can be improved a bit by
-looping 'some more' on the lock before entering the kernel and blocking -
-but it could also be a loss if the amount of additional looping is too
-long or too short. Since the O(1) scheduler context-switches in under 1
-microsecond on a 1 GHz box, and has no SMP interlocking and cache-trashing
-problems, you'll still get 1 million context switches per second, per CPU.  
-And this is the 'slow' case.
-
-	Ingo
-
+  OG.

@@ -1,55 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129075AbRBOM2t>; Thu, 15 Feb 2001 07:28:49 -0500
+	id <S129080AbRBOM17>; Thu, 15 Feb 2001 07:27:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129276AbRBOM2j>; Thu, 15 Feb 2001 07:28:39 -0500
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:50183 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S129075AbRBOM2S>; Thu, 15 Feb 2001 07:28:18 -0500
-Date: Thu, 15 Feb 2001 12:28:10 +0000
-From: Tim Waugh <twaugh@redhat.com>
-To: Igmar Palsenberg <i.palsenberg@jdimedia.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Netmos PCI parallel card
-Message-ID: <20010215122810.W9459@redhat.com>
-In-Reply-To: <Pine.LNX.4.30.0102151149240.30393-300000@jdi.jdimedia.nl>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="Vmb+IyT2VBRvgrJP"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.30.0102151149240.30393-300000@jdi.jdimedia.nl>; from i.palsenberg@jdimedia.nl on Thu, Feb 15, 2001 at 11:52:46AM +0100
+	id <S129075AbRBOM1t>; Thu, 15 Feb 2001 07:27:49 -0500
+Received: from saraksh.alkar.net ([195.248.191.65]:31243 "EHLO smtp3.alkar.net")
+	by vger.kernel.org with ESMTP id <S129080AbRBOM1h>;
+	Thu, 15 Feb 2001 07:27:37 -0500
+Message-ID: <3A8BCA93.A578E20@namesys.botik.ru>
+Date: Thu, 15 Feb 2001 15:24:51 +0300
+From: "Vladimir V. Saveliev" <vs@namesys.botik.ru>
+X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.16 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: torvalds@transmeta.com
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: typo in 2.4.1/fs/dquot.c
+Content-Type: multipart/mixed;
+ boundary="------------E658EBB7E1C22F070581AF97"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------E658EBB7E1C22F070581AF97
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 
---Vmb+IyT2VBRvgrJP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Hi
 
-On Thu, Feb 15, 2001 at 11:52:46AM +0100, Igmar Palsenberg wrote:
+The attached is a fix for typo in 2.4.1/fs/dquot.c. It is not fixed yet
+in 2.4.2pre3.
+This typo causes quotactl (Q_GETQUOTA & GRPQUOTA, ..) to return EPERM.
 
-> Attached is a patch to make a Netmos PCI parallal port card working.
+Jan Kara (jack@suse.cz) confirmed that this is really a typo and that
+the fix is a right one.
 
-Please try the following patch instead.  That card _should_ have a
-working ECR.
+Thanks,
+vs
 
-<URL:ftp://people.redhat.com/twaugh/patches/linux24/linux-netmos.patch>
 
-Tim.
-*/
+--------------E658EBB7E1C22F070581AF97
+Content-Type: text/plain; charset=koi8-r;
+ name="dquot.c.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="dquot.c.patch"
 
---Vmb+IyT2VBRvgrJP
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+--- dquot.c.orig	Wed Feb 14 04:08:26 2001
++++ dquot.c	Wed Feb 14 04:09:00 2001
+@@ -1536,7 +1536,7 @@
+ 			break;
+ 		case Q_GETQUOTA:
+ 			if (((type == USRQUOTA && current->euid != id) ||
+-			     (type == GRPQUOTA && in_egroup_p(id))) &&
++			     (type == GRPQUOTA && !in_egroup_p(id))) &&
+ 			    !capable(CAP_SYS_RESOURCE))
+ 				goto out;
+ 			break;
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+--------------E658EBB7E1C22F070581AF97--
 
-iD8DBQE6i8tYONXnILZ4yVIRAshRAJ48magS7k2tH8PDX2uWVPqN6EXx2gCfdoQI
-X1wt+cTqSjc/nVS0A8Ilk9E=
-=qugK
------END PGP SIGNATURE-----
-
---Vmb+IyT2VBRvgrJP--

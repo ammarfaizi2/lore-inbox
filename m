@@ -1,56 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266185AbUALOO0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 09:14:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266186AbUALOOS
+	id S266314AbUALO1i (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 09:27:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266326AbUALO1h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 09:14:18 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:54476 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S266185AbUALOOH (ORCPT
+	Mon, 12 Jan 2004 09:27:37 -0500
+Received: from pcp05127596pcs.sanarb01.mi.comcast.net ([68.42.103.198]:7555
+	"EHLO nidelv.trondhjem.org") by vger.kernel.org with ESMTP
+	id S266314AbUALO1g convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 09:14:07 -0500
-Date: Mon, 12 Jan 2004 15:13:30 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Martin Peschke3 <MPESCHKE@de.ibm.com>
-Cc: Doug Ledford <dledford@redhat.com>, Arjan Van de Ven <arjanv@redhat.com>,
-       Peter Yao <peter@exavio.com.cn>, linux-kernel@vger.kernel.org,
-       linux-scsi mailing list <linux-scsi@vger.kernel.org>
-Subject: Re: smp dead lock of io_request_lock/queue_lock patch
-Message-ID: <20040112141330.GH24638@suse.de>
-References: <OF2581AA2D.BFD408D2-ONC1256E19.004BE052-C1256E19.004E1561@de.ibm.com>
+	Mon, 12 Jan 2004 09:27:36 -0500
+Subject: Re: 2.6.0 NFS-server low to 0 performance
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <btt971$3p8$1@gatekeeper.tmr.com>
+References: <Pine.LNX.4.44.0401101143280.2363-100000@poirot.grange>
+	 <1073745028.1146.13.camel@nidelv.trondhjem.org>
+	 <btt971$3p8$1@gatekeeper.tmr.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1073917652.1639.21.camel@nidelv.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <OF2581AA2D.BFD408D2-ONC1256E19.004BE052-C1256E19.004E1561@de.ibm.com>
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 12 Jan 2004 09:27:32 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 12 2004, Martin Peschke3 wrote:
-> Hi,
-> 
-> is there a way to merge all (or at least the common denominator) of
-> Redhat's and SuSE's changes into the vanilla 2.4 SCSI stack?
-> The SCSI part of Marcelo's kernel seems to be rather backlevel,
-> considering all those fixes and enhancements added by the mentioned
-> distributors and their SCSI experts. As this discussion underlines,
-> there are a lot of common problems and sometimes even common
-> approaches.  I am convinced that a number of patches ought to be
-> incorporated into the mainline kernel. Though, I must admit
-> that I am at a loss with how this could be achieved given the
-> unresolved question of 2.4 SCSI maintenance
-> (which has certainly played a part in building up those piles
-> of SCSI patches).
+På må , 12/01/2004 klokka 00:06, skreiv Bill Davidsen:
+> Why do so many Linux people have the idea that because a standard says 
+> they CAN do something, it's fine to do it in a way which doesn't conform 
+> to common practice. And Linux 2.4 practice should count even if you 
+> pretend that Solaris, AIX, Windows and BSD don't count...
 
-I have mixed feelings about that. One on side, I'd love to merge the
-scalability patches in mainline. We've had a significant number of bugs
-in this area in the past, and it seems a shame that we all have to fix
-them independently because we deviate from mainline. On the other hand,
-2.4 is pretty much closed. There wont be a big number of new distro 2.4
-kernels.
+Wake up and smell the new millennium. Networking has all grown up while
+you were asleep. We have these new cool things called "switches", NICs
+with bigger buffers,...
 
-Had you asked me 6 months ago I probably would have advocated merging
-them, but right now I think it's a waste of time.
 
--- 
-Jens Axboe
+The 8k limit that you find in RFC1094 was an ad-hoc "limit" based purely
+on testing using pre-1989 hardware. AFAIK most if not all of the
+commercial vendors (Solaris, AIX, Windows/Hummingbird, EMC and Netapp)
+are all currently setting the defaults to 32k block sizes for both TCP
+and UDP.
+Most of them want to bump that to a couple of Mbyte in the very near
+future.
 
+Linux 2.4 didn't have support for anything beyond 8k. BSD sets 32k for
+TCP, and 8k for UDP for some reason.
+
+Trond

@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264563AbUBOOvl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Feb 2004 09:51:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264933AbUBOOvl
+	id S264929AbUBOO7y (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Feb 2004 09:59:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264933AbUBOO7y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Feb 2004 09:51:41 -0500
-Received: from jolt.tiscali.fi ([213.173.154.10]:14761 "EHLO jolt.tiscali.fi")
-	by vger.kernel.org with ESMTP id S264563AbUBOOvk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Feb 2004 09:51:40 -0500
-Message-ID: <402F877C.C9B693C1@users.sourceforge.net>
-Date: Sun, 15 Feb 2004 16:51:40 +0200
-From: Jari Ruusu <jariruusu@users.sourceforge.net>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.22aa1 i686)
-X-Accept-Language: en
+	Sun, 15 Feb 2004 09:59:54 -0500
+Received: from smtp801.mail.sc5.yahoo.com ([66.163.168.180]:61312 "HELO
+	smtp801.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S264929AbUBOO7x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Feb 2004 09:59:53 -0500
+Message-ID: <402F8967.1050405@uchicago.edu>
+Date: Sun, 15 Feb 2004 08:59:51 -0600
+From: Ryan Reich <ryanr@uchicago.edu>
+User-Agent: Mozilla Thunderbird 0.5+ (X11/20040211)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Jan Rychter <jan@rychter.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Oopsing cryptoapi (or loop device?) on 2.6.*
-References: <402A4B52.1080800@centrum.cz> <402A7765.FD5A7F9E@users.sourceforge.net> <m265e9oyrs.fsf@tnuctip.rychter.com>
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: Re: is nForce2 good choice under Linux?
+References: <1oRXf-7zC-13@gated-at.bofh.it> <1oSgx-7QJ-11@gated-at.bofh.it> <1oSJA-8nw-17@gated-at.bofh.it> <1oTPp-YO-25@gated-at.bofh.it> <1pt6s-686-9@gated-at.bofh.it>
+In-Reply-To: <1pt6s-686-9@gated-at.bofh.it>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Rychter wrote:
-> FWIW, I've just tried loop-AES with 2.4.24, after using cryptoapi for a
-> number of years. My machine froze dead in the midst of copying 2.8GB of
-> data onto my file-backed reiserfs encrypted loopback mount.
+Sander wrote:
+> Jesse Allen wrote (ao):
 > 
-> Since the system didn't ever freeze on me before and since I've had zero
-> problems with cryptoapi, I attribute the freeze to loop-AES.
+>> On Fri, Feb 13, 2004 at 11:01:45PM +0200, aviv bergman wrote:
+>>> i had very frequent lockups after upgrading to 2.6.0, flashed to the
+>>>  latest bios, and the system is rock stable since (2.6.1 w/apic)
+>> 
+>> Wow, another fixed shuttle board? Looks like shuttle knows what the
+>> bug is then.
 > 
-> Yes, I know this isn't a good bugreport...
+> 
+> I've never read the Shuttle boards where unstable. I thought people had
+> problems with the normal size boards from Asus and others.
 
-Is there any particular reason why you insist on using file backed loops?
-
-File backed loops have hard to fix re-entry problem: GFP_NOFS memory
-allocations that cause dirty pages to written out to file backed loop, will
-have to re-enter the file system anyway to complete the write. This causes
-deadlocks. Same deadlocks are there in mainline loop+cryptoloop combo.
-
-This is one of the reasons why this is in loop-AES README: "If you can
-choose between device backed and file backed, choose device backed even if
-it means that you have to re-partition your disks."
+I have a Shuttle AN35N-Ultra with an Athlon 2600+ on it which had the
+infamous lockups under 2.4 until I figured out that it was the APIC and
+turned that off.  I just flashed the BIOS with the latest on Shuttle's site
+and they seem to have gone, at least for now.  Someone claims that he got
+one after five days uptime, but I'm a wimp and turn my computer off every
+night so I'll never see that.
 
 -- 
-Jari Ruusu  1024R/3A220F51 5B 4B F9 BB D3 3F 52 E9  DB 1D EB E3 24 0E A9 DD
+Ryan Reich
+ryanr@uchicago.edu

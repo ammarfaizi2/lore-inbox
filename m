@@ -1,52 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312590AbSDAVCB>; Mon, 1 Apr 2002 16:02:01 -0500
+	id <S312603AbSDAVQE>; Mon, 1 Apr 2002 16:16:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312587AbSDAVBv>; Mon, 1 Apr 2002 16:01:51 -0500
-Received: from h108-129-61.datawire.net ([207.61.129.108]:43026 "HELO
-	mail.datawire.net") by vger.kernel.org with SMTP id <S312417AbSDAVBo>;
-	Mon, 1 Apr 2002 16:01:44 -0500
-Subject: Re: Upcoming rewrite of kernel
-From: Shawn Starr <shawn.starr@datawire.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020401203512Z312586-616+4291@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.2.99 Preview Release
-Date: 01 Apr 2002 16:09:56 -0500
-Message-Id: <1017695396.16746.11.camel@unaropia>
+	id <S312588AbSDAVPy>; Mon, 1 Apr 2002 16:15:54 -0500
+Received: from charger.oldcity.dca.net ([207.245.82.76]:49876 "EHLO
+	charger.oldcity.dca.net") by vger.kernel.org with ESMTP
+	id <S312587AbSDAVPl>; Mon, 1 Apr 2002 16:15:41 -0500
+Date: Mon, 1 Apr 2002 16:15:34 -0500
+From: christophe =?iso-8859-15?Q?barb=E9?= 
+	<christophe.barbe.ml@online.fr>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Packet writing on CD-RW
+Message-ID: <20020401211534.GI15899@localhost>
+Mail-Followup-To: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020325194927.GA5211@bk.ru>
 Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="BXr400anF0jyguTS"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Operating-System: debian SID Gnu/Linux 2.4.19-pre4 on i586
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please no more
 
-This is becoming horrible ;-)
+--BXr400anF0jyguTS
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+On Mon, Mar 25, 2002 at 07:49:27PM +0000, Max wrote:
+> Such programs, like Adaptec CD Creator, create a big map on a CD-RW,
+> because one place on CD-RW can be rewritten not more than about 15 times.
+> If this feature will be inserted in to kernel, the code, that handles that
+> map should be written. But isn't format of this map and algorithm of
+> working with it proprietary, closed standart? So, will developers have any
+> law problems with it?
 
-On Mon, 2002-04-01 at 15:35, Linus Torvalds wrote:
-> Hi folks,
-> 
-> I have been dealing with maintaining Linux in a mixture of C and Assembler for over twelve years now.  While it has been a lot of fun, every day dealing with these essentially dead languages has become harder and harder for me, and other programers seem to agree.
-> 
-> Thus, starting with Linux 3.0 (to be released hopefully by next summer), the kernel will be completely rewritten in the easy-to-use Visual Basic language.  This will eliminate all issues involving buffer overruns, as well as streamlining porting of Windows programs to Linux, since Microsoft (who will now assume ownership of Linux) assure me that Windows is written entirely in VB as well.
-> 
-> Microsoft has also stated that they intend to incorporate Windows features, such as the RRS (Rapid Random Shutdown) in Windows 95, into Linux 3.0.
-> 
-> Linus
-> 
+AFAIK, there is no patent problem here and the code has already been
+written and is planed for integration in linux 2.5.
+
+Christophe
+
+>=20
+>=20
+> Best regards.
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > Please read the FAQ at  http://www.tux.org/lkml/
-> 
 
--- 
-Shawn Starr
-Developer Support Engineer
-Datawire Communication Networks Inc.
-10 Carlson Court, Suite 300
-Toronto, ON, M9W 6L2
-T: 416-213-2001 ext 179  F: 416-213-2008
+--=20
+Christophe Barb=E9 <christophe.barbe@ufies.org>
+GnuPG FingerPrint: E0F6 FADF 2A5C F072 6AF8  F67A 8F45 2F1E D72C B41E
 
+L'experience, c'est une connerie par jour mais jamais la m=EAme.
+
+--BXr400anF0jyguTS
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: Pour information voir http://www.gnupg.org
+
+iD8DBQE8qM31j0UvHtcstB4RAmzqAJ96rqv36lZB/1haxdM49pvjcdl+YgCeM+wU
+RxVx9YTd11RrMgIRD4pV4IE=
+=SU+Z
+-----END PGP SIGNATURE-----
+
+--BXr400anF0jyguTS--

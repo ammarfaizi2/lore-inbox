@@ -1,37 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276707AbRJ0TQ1>; Sat, 27 Oct 2001 15:16:27 -0400
+	id <S276708AbRJ0TRH>; Sat, 27 Oct 2001 15:17:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276695AbRJ0TQR>; Sat, 27 Oct 2001 15:16:17 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:15513 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S276708AbRJ0TQH>;
-	Sat, 27 Oct 2001 15:16:07 -0400
-Date: Sat, 27 Oct 2001 15:16:39 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
+	id <S276695AbRJ0TQ5>; Sat, 27 Oct 2001 15:16:57 -0400
+Received: from mail114.mail.bellsouth.net ([205.152.58.54]:413 "EHLO
+	imf14bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S276729AbRJ0TQs>; Sat, 27 Oct 2001 15:16:48 -0400
+Subject: Radeon Frame Buffer
+From: Louis Garcia <louisg00@bellsouth.net>
 To: linux-kernel@vger.kernel.org
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Richard Gooch <rgooch@ras.ucalgary.ca>
-Subject: Re: more devfs fun
-In-Reply-To: <Pine.GSO.4.21.0110271458300.21545-100000@weyl.math.psu.edu>
-Message-ID: <Pine.GSO.4.21.0110271513580.21545-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: linux-fbdev-devel@lists.sourceforge.net
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.16 (Preview Release)
+Date: 27 Oct 2001 15:18:57 -0400
+Message-Id: <1004210340.4537.20.camel@tiger>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	It just gets better and better...
 
-in get_removable_partition()
-        if (strcmp (de->name, "disc") == 0) return check_disc_changed (de);
+Anyone know who is the maintainer of the Radeonfb?? Can 
+you point me to a download site.
 
-with 
-    if ( name && (namelen < 1) ) namelen = strlen (name);
-    if ( ( new = kmalloc (sizeof *new + namelen, GFP_KERNEL) ) == NULL )
-        return NULL;
-...
-    if (name) memcpy (new->name, name, namelen);
+I'm having a weird problem with the version that comes with the latest
+-ac kernels. Once the driver read the bios it stops scrolling during
+boot.
 
-in create_entry().
+Louis
 
-IOW, ->name is not NUL-terminated.
 

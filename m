@@ -1,55 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130126AbRBZDLE>; Sun, 25 Feb 2001 22:11:04 -0500
+	id <S130129AbRBZDMX>; Sun, 25 Feb 2001 22:12:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130129AbRBZDKy>; Sun, 25 Feb 2001 22:10:54 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:40197
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S130126AbRBZDKk>; Sun, 25 Feb 2001 22:10:40 -0500
-Date: Sun, 25 Feb 2001 19:09:42 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Jeremy Jackson <jerj@coplanar.net>
-cc: Derrik Pates <dpates@andromeda.dsdk12.net>, linux-kernel@vger.kernel.org
-Subject: Re: IDE floppy drives and devfs - no device nodes if no disk loaded
-  atboot
-In-Reply-To: <3A99C060.D56ADF28@coplanar.net>
-Message-ID: <Pine.LNX.4.10.10102251908450.27669-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S130131AbRBZDMN>; Sun, 25 Feb 2001 22:12:13 -0500
+Received: from kweetal.tue.nl ([131.155.2.7]:26230 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id <S130129AbRBZDL6>;
+	Sun, 25 Feb 2001 22:11:58 -0500
+Message-ID: <20010226041156.A16707@win.tue.nl>
+Date: Mon, 26 Feb 2001 04:11:56 +0100
+From: Guest section DW <dwguest@win.tue.nl>
+To: "Jeff V. Merkey" <jmerkey@timpanogas.org>,
+        "Andreas Jellinghaus" <aj@dungeon.inka.de>,
+        <linux-kernel@vger.kernel.org>
+Cc: aeb@cwi.nl
+Subject: Re: partition table: chs question
+In-Reply-To: <20010225163534.A12566@dungeon.inka.de> <20010225224729.A16353@win.tue.nl> <002201c09f87$5ce75640$f6976dcf@nwfs>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
+In-Reply-To: <002201c09f87$5ce75640$f6976dcf@nwfs>; from Jeff V. Merkey on Sun, Feb 25, 2001 at 05:02:09PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Feb 25, 2001 at 05:02:09PM -0700, Jeff V. Merkey wrote:
 
-I have HOTSWAP ATA completed, but will release after IDF.
-It will be used to blow MircoSoft out of the water at IDF.
+> Please also check vger.timpanogas.org/nwfs/nwfs.tar.gz:disk.c for NetWare
+> specific calculations of the CHS values, a different method is used for
+> NetWare partitions vs. everything else (Novell just had to be different).
 
-On Sun, 25 Feb 2001, Jeremy Jackson wrote:
+> > On Sun, Feb 25, 2001 at 04:35:34PM +0100, Andreas Jellinghaus wrote:
+> >
+> > > for partitions not in the first 8gb of a harddisk, what
+> > > should the c/h/s start and end value be ?
+> > >
+> > > most fdisks seem to set start and end to 255/63/1023.
+> > > but partition magic creates partitions with start set to
+> > > 0/1/1023 and end set to 255/63/1023, and detects a problem
+> > > if start is set to 255/63/1023.
 
-> Derrik Pates wrote:
-> 
-> > Subject says about all there is to say. I have figured out that IDE drives
-> > are enumerated as part of the boot-time partition check in
-> > fs/partitions/check.c, but if I don't have something loaded at boot time
-> > (IDE SuperDisk in PC at home, IDE Zip 100 in G3 tower at work), I never
-> > get device nodes at all with devfs. Something really needs to be done
-> > about this, IMHO.
-> 
-> hdparm's got a cmd line switch to unregiser/register and ide interface.
-> It tried it *once* and it just complained about cmd line args being wrong...
-> i'll have to look into it more.  when working it should help your situation.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Good. I added this to
+http://www.win.tue.nl/~aeb/partitions/partition_types-2.html#above1024chs
 
-Andre Hedrick
-Linux ATA Development
-ASL Kernel Development
------------------------------------------------------------------------------
-ASL, Inc.                                     Toll free: 1-877-ASL-3535
-1757 Houret Court                             Fax: 1-408-941-2071
-Milpitas, CA 95035                            Web: www.aslab.com
+Now that I looked at this disk.c anyway: it has a table of
+partition types, and it seems I collect these.
+(See http://www.win.tue.nl/~aeb/partitions/partition_types-1.html )
+Are types 57 and 77, labeled "VNDI Partition", actually in use?
 
+Andries

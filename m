@@ -1,41 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262835AbVBDWza@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264015AbVBDXAz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262835AbVBDWza (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 17:55:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264548AbVBDWyS
+	id S264015AbVBDXAz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 18:00:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266357AbVBDW7v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 17:54:18 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:148 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S264502AbVBDWNV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 17:13:21 -0500
-Date: Fri, 4 Feb 2005 22:13:10 +0000 (GMT)
-From: James Simmons <jsimmons@www.infradead.org>
-X-X-Sender: jsimmons@pentafluge.infradead.org
-To: Jon Smirl <jonsmirl@gmail.com>
-cc: Jesse Barnes <jbarnes@engr.sgi.com>, Pavel Machek <pavel@ucw.cz>,
-       Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>,
-       ncunningham@linuxmail.org, ACPI List <acpi-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Matthew Garrett <mjg59@srcf.ucam.org>
-Subject: Re: [RFC] Reliable video POSTing on resume
-In-Reply-To: <9e473391050204122942da8aa7@mail.gmail.com>
-Message-ID: <Pine.LNX.4.56.0502042211440.26459@pentafluge.infradead.org>
-References: <20050122134205.GA9354@wsc-gmbh.de>  <20050204163019.GC1290@elf.ucw.cz>
-  <9e4733910502040931955f5a6@mail.gmail.com>  <200502041010.13220.jbarnes@engr.sgi.com>
- <9e473391050204122942da8aa7@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: 0.0 (/)
+	Fri, 4 Feb 2005 17:59:51 -0500
+Received: from smtp-105-friday.nerim.net ([62.4.16.105]:62727 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S266138AbVBDWnx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 17:43:53 -0500
+Date: Fri, 4 Feb 2005 23:44:22 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       Prarit Bhargava <prarit@sgi.com>
+Subject: 2.6.11-rc3-bk1: ide1: failed to initialize IDE interface
+Message-Id: <20050204234422.4a9c6fd0.khali@linux-fr.org>
+X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
 
-> I would prefer to use hotplug for the user space call out but when I
-> do I run into the framebuffer and DRM drivers. This having multiple
-> drivers for the same piece of hardware is a pain. So hotplug on the
-> standard device is not an option.
+I just gave a quick try to 2.6.11-rc3-bk1, and noticed the following
+new message in dmesg:
+ide1: failed to initialize IDE interface
 
-I know. It could be merged. The secert is a gradual move to /sys/graphics/
-for both interfaces :-)
+This seems to be new in 2.6.11-rc3-bk1. I could find the relevant
+changeset in bk:
+http://linux.bkbits.net:8080/linux-2.5/cset@1.1992.9.16
 
+My (admittedly quick) analysis of the code (drivers/ide/ide-probe.c) is
+that init_hwif() can return 0 in two cases: either because the IDE
+interface is somehow not really there (!hwif->present) or because
+something wrong happened while initializing the IDE interface. My
+system's ide1 happens to be enabled (BIOS settings) but no IDE device is
+connected to it. I traced the code and it unsurprisingly happens that I
+am in the first "error" case - init_hwif() exits immediately because
+!hwif->present.
+
+I would tend to think that this is *not* an error, so we shouldn't
+display an error message in this case. Maybe init_hwif() should return 1
+instead of 0 in this case. Or maybe it should return -1, 0 and 1 for
+error, no interface and success, respectively. I'm not certain I
+understand the semantics behind the returned value, does it mean
+error/success or interface absent/present (or a bit of each)? Or maybe
+we could move the error message into init_hwif() itself, but that would
+require some error path changes.
+
+I do not propose a patch because I'm not exactly sure what has to be
+done, but I still believe something has to be done. Insight anyone?
+
+Thanks,
+-- 
+Jean Delvare

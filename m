@@ -1,41 +1,66 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314446AbSDVS4l>; Mon, 22 Apr 2002 14:56:41 -0400
+	id <S314451AbSDVS6y>; Mon, 22 Apr 2002 14:58:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314447AbSDVS4k>; Mon, 22 Apr 2002 14:56:40 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:7078 "EHLO e21.nc.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S314446AbSDVS4j>;
-	Mon, 22 Apr 2002 14:56:39 -0400
-Date: Mon, 22 Apr 2002 11:58:39 -0700
-From: Hanna Linder <hannal@us.ibm.com>
-To: Alexander Viro <viro@math.psu.edu>
-cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com, hannal@us.ibm.com
-Subject: Re: [CFT][PATCH] (1/5) sane procfs/dcache interaction
-Message-ID: <13910000.1019501919@w-hlinder.des>
-In-Reply-To: <Pine.GSO.4.21.0204201304150.25383-100000@weyl.math.psu.edu>
-X-Mailer: Mulberry/2.1.0 (Linux/x86)
-MIME-Version: 1.0
+	id <S314452AbSDVS6x>; Mon, 22 Apr 2002 14:58:53 -0400
+Received: from panic.tn.gatech.edu ([130.207.137.62]:715 "HELO gtf.org")
+	by vger.kernel.org with SMTP id <S314451AbSDVS6w>;
+	Mon, 22 Apr 2002 14:58:52 -0400
+Date: Mon, 22 Apr 2002 14:58:50 -0400
+From: Jeff Garzik <garzik@havoc.gtf.org>
+To: "Jonathan A. George" <JGeorge@greshamstorage.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
+Message-ID: <20020422145850.F11216@havoc.gtf.org>
+In-Reply-To: <3CC4585F.4060005@greshamstorage.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---On Saturday, April 20, 2002 13:56:35 -0400 Alexander Viro <viro@math.psu.edu> wrote:
+On Mon, Apr 22, 2002 at 01:37:19PM -0500, Jonathan A. George wrote:
+> The BK documentation constitutes an implicit advertisement and 
+> endorsement of a product with a license which to many developers 
+> violates the spirit of open source software.
 
-> Patchset eliminates a _lot_ of allocation/freeing/guaranteed negative dcache
-> lookups for procfs.  It seems to be working here, but I would really appreciate
-> help with testing/review.
-> 
-> First chunk follows, the rest will go in separate mails.
-> 
-> diff -urN C8-0/include/linux/sched.h C8-unhash_process/include/linux/sched.h
-> --- C8-0/include/linux/sched.h	Sun Apr 14 17:53:12 2002
-> +++ C8-unhash_process/include/linux/sched.h	Fri Apr 19 01:16:35 2002
+Agreed.  
 
-Patch 1 of 5 failed to apply to 2.5.8.
-Which version are these built against?
+And the simple fact of Linus using BitKeeper does the
+_exact_ _same_ _thing_.
 
-Hanna
-hannal@us.ibm.com
+Talk Linus out of using BitKeeper, and sure, I'll remove the doc.
 
+
+> This is not to say that BK 
+> is not an effective product, nor that the document in question is useful 
+> for people who choose the tool, but to me it seems comparable to 
+> including a closed source binary module in the kernel distribution. 
+
+No, it is not comparable at all with that.  There are no license
+problems with the document -- it is GPL'd.
+
+It describes the same thing as Documentation/SubmittingPatches does, and
+is very relevant to kernel development.
+
+
+>  Moving the document to the BK website would be nicer, and would 
+> certainly assauge bad feelings regarding such an integral implicit 
+> endorsement of a tool.
+
+Removing the doc from the kernel sources would be a token gesture only.
+
+Some developers disagree violently with the use of non-open-source tools
+at all, and that is a fundamental disagreement.
+
+The majority of the "silently seething" developers, I imagine, are only
+gonna be satisfied when (a) BitKeeper is GPL'd or (b) Linus stops using
+BitKeeper.  Both of these seem very remote possibilities at present.
+
+	Jeff
+
+
+P.S.  The doc is _not_ going on the BK website by my hand.  (though I
+have given BitMover permission to post the doc whereever they wish)
+I can maintain my own docs much better than Larry can :)

@@ -1,91 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287149AbSA2CNQ>; Mon, 28 Jan 2002 21:13:16 -0500
+	id <S288047AbSA2C3U>; Mon, 28 Jan 2002 21:29:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288411AbSA2CNG>; Mon, 28 Jan 2002 21:13:06 -0500
-Received: from h225-81.adirondack.albany.edu ([169.226.225.80]:7606 "EHLO
-	bouncybouncy.net") by vger.kernel.org with ESMTP id <S287149AbSA2CNB>;
-	Mon, 28 Jan 2002 21:13:01 -0500
-Subject: Re: via-rhine timeouts
-From: Justin A <justin@bouncybouncy.net>
-To: linux-kernel@vger.kernel.org
-Cc: Urban Widmark <urban@teststation.com>
-In-Reply-To: <Pine.LNX.4.33.0201261559580.4687-200000@cola.teststation.com>
-In-Reply-To: <Pine.LNX.4.33.0201261559580.4687-200000@cola.teststation.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 28 Jan 2002 21:13:27 -0500
-Message-Id: <1012270407.22269.0.camel@bouncybouncy.net>
-Mime-Version: 1.0
+	id <S288411AbSA2C3B>; Mon, 28 Jan 2002 21:29:01 -0500
+Received: from gw.lowendale.com.au ([203.26.242.120]:33568 "EHLO
+	marina.lowendale.com.au") by vger.kernel.org with ESMTP
+	id <S288047AbSA2C2z>; Mon, 28 Jan 2002 21:28:55 -0500
+Date: Tue, 29 Jan 2002 13:55:18 +1100 (EST)
+From: Neale Banks <neale@lowendale.com.au>
+To: Doug Ledford <dledford@redhat.com>
+cc: linux-kernel@vger.kernel.org, Alan Cox <alan@redhat.com>
+Subject: Re: [PATCH] i810 driver update.
+In-Reply-To: <3C5603D9.3070608@redhat.com>
+Message-ID: <Pine.LNX.4.05.10201291348590.1513-100000@marina.lowendale.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I re-addressed the email...the CC's got out of hand...
+On Mon, 28 Jan 2002, Doug Ledford wrote:
 
-On Sat, 2002-01-26 at 10:21, Urban Widmark wrote:
+[...]
+> > Are the fixes in this going to be applicable to 2.2 also (FWIW, 2.2's
+> > i810_audio #defines ``DRIVER_VERSION "0.17"'')?
 > 
-> Hello, troubled via-rhine users ...
 > 
-> The attached patch vs 2.4.17 is a merge of bits from various sources. It
-> contains useful stuff such as turning on bit2 in the cards PCI
-> configuration register 0x53 (undocumented).
-> 
-> Please test this and see if the problems go away. Note that this version
-> reports a little more information, so send 'dmesg' output even of you 
-> sent it before.
-> 
+> I'm sure the fixes are relevant.  How well they may integrate into 2.2 is 
+> another question :-/
 
-Ok, it was working for a while, even after a reboot...
-but now
- 21:04:33 up 2 days, 20 min, 10 users,  load average: 0.12, 0.47, 0.38
+Indeed ;-)  Alan?
+[...]
+> The best I can do it to make a diff between the 0.17 driver version I have 
+> here and the 0.21 driver version.  Maybe that incremental diff will apply to 
+> the 2.2 kernel's i810_audio.c and bring it up to date without any specific 
+> back port needed.  It's attached.
 
-Jan 28 01:39:10 bouncybouncy kernel: eth0: Transmitter underflow?,
-status 2008.
-Jan 28 01:39:20 bouncybouncy kernel: NETDEV WATCHDOG: eth0: transmit
-timed out
-Jan 28 01:39:20 bouncybouncy kernel: eth0: Transmit timed out, status
-0000, PHY status 782d, resetting...
-Jan 28 01:39:20 bouncybouncy kernel: eth0: reset finished after 5
-microseconds.
-Jan 28 02:23:22 bouncybouncy kernel: eth0: Transmitter underflow?,
-status 2008.
-Jan 28 02:23:26 bouncybouncy kernel: NETDEV WATCHDOG: eth0: transmit
-timed out
-Jan 28 02:23:26 bouncybouncy kernel: eth0: Transmit timed out, status
-0000, PHY status 782d, resetting...
-Jan 28 02:23:26 bouncybouncy kernel: eth0: reset finished after 5
-microseconds.
+Thanks anyway, but it doesn't look too hopeful (patch complaints
+appended).  I suspect your "0.17" and 2.2's "0.17" may not be the same
+thing (in 2.2.21pre2 i810_audio.c is 51877 bytes and "sum (GNU textutils)  
+2.0" reports "44467 51"
 
-This went unnoticed earlier.... until it happened again:
+Regards,
+Neale.
 
-Jan 28 20:26:03 bouncybouncy kernel: eth0: Transmitter underflow?,
-status 2008.
-Jan 28 20:26:06 bouncybouncy kernel: NETDEV WATCHDOG: eth0: transmit
-timed out
-Jan 28 20:26:06 bouncybouncy kernel: eth0: Transmit timed out, status
-0000, PHY status 782d, resetting...
-Jan 28 20:26:06 bouncybouncy kernel: eth0: reset finished after 10005
-microseconds.
+$ patch --dry-run < 2.2-i810.patch 
+patching file `i810_audio.c.17'
+Hunk #1 succeeded at 181 (offset -25 lines).
+Hunk #2 FAILED at 576.
+Hunk #3 FAILED at 653.
+Hunk #4 FAILED at 1107.
+Hunk #5 FAILED at 1117.
+Hunk #6 FAILED at 1138.
+Hunk #7 FAILED at 1169.
+Hunk #8 succeeded at 1127 with fuzz 1 (offset -248 lines).
+Hunk #9 FAILED at 1278.
+Hunk #10 FAILED at 1492.
+Hunk #11 FAILED at 2175.
+Hunk #12 FAILED at 2877.
+10 out of 12 hunks FAILED -- saving rejects to i810_audio.c.17.rej
 
-That repeated over and over again(every 30 seconds or so) until I got
-back:
-
-grep "Jan 28.*eth0" /var/log/messages|wc -l
-    328
-After reloading the driver it started working again:
-
-linuxfet.c : v3.23 05/15/2001
-  The PCI BIOS has not enabled the device at 0/144!  Updating PCI
-command 0003->0007.
-eth0: VIA PCI 10/100Mb Fast Ethernet Adapter                      
-eth0: IO Address = 0xe800, MAC Address = 00:50:2c:01:64:a9, IRQ = 11.
-eth0: MII PHY found at address 1, status 0x782d advertising 01e1 Link
-0021.
-eth0: netdev_open() irq 11.
-eth0: Done netdev_open(), status 881a MII status: 782d.
-
-I think that last message might be a clue on why this is happening...
-
--- 
--Justin

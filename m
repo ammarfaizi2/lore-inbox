@@ -1,56 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261479AbVCNFov@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261156AbVCNFxH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261479AbVCNFov (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 00:44:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261771AbVCNFov
+	id S261156AbVCNFxH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 00:53:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261771AbVCNFxH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 00:44:51 -0500
-Received: from pacific.moreton.com.au ([203.143.235.130]:37129 "EHLO
-	bne.snapgear.com") by vger.kernel.org with ESMTP id S261479AbVCNFos
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 00:44:48 -0500
-Message-ID: <423524C1.808@snapgear.com>
-Date: Mon, 14 Mar 2005 15:44:33 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-Organization: SnapGear
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH]: linux-2.6.11-uc0 (MMU-less fixups)
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 14 Mar 2005 00:53:07 -0500
+Received: from rproxy.gmail.com ([64.233.170.206]:19772 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261156AbVCNFxE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 00:53:04 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=QhRHEPHCK7eQdzrS94/rt816LBJDXIfuO6QBZiXS7cPjzUW5dePT68mzXRyNkEiV1Hn5s0Hkpez3p825sVTeHVtpiqwLPncZgvRT+lMqJqr3pI//eVG7j5kqudJEsxjfP0tQFyBPN9qHbh/CCj3OLlwD+7PveS7VLR2MF7d7tJQ=
+Message-ID: <9e473391050313175229f1a3d0@mail.gmail.com>
+Date: Sun, 13 Mar 2005 20:52:54 -0500
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Peter Chubb <peterc@gelato.unsw.edu.au>
+Subject: Re: User mode drivers: part 1, interrupt handling (patch for 2.6.11)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <16948.60419.257853.470644@wombat.chubb.wattle.id.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <16945.4650.250558.707666@berry.gelato.unsw.EDU.AU>
+	 <9e473391050312075548fb0f29@mail.gmail.com>
+	 <16948.56475.116221.135256@wombat.chubb.wattle.id.au>
+	 <9e47339105031317193c28cbcf@mail.gmail.com>
+	 <16948.60419.257853.470644@wombat.chubb.wattle.id.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+On Mon, 14 Mar 2005 12:42:27 +1100, Peter Chubb
+<peterc@gelato.unsw.edu.au> wrote:
+> >>>>> "Jon" == Jon Smirl <jonsmirl@gmail.com> writes:
+> 
+> >>  The scenario I'm thinking about with these patches are things like
+> >> low-latency user-level networking between nodes in a cluster, where
+> >> for good performance even with a kernel driver you don't want to
+> >> share your interrupt line with anything else.
 
-An update of the uClinux (MMU-less) fixups against 2.6.11.
+Instead of making up a new API what about making a library of calls
+that emulates the common entry points used by device drivers. The
+version I did for UML could take the same driver and run it in user
+space or the kernel without changing source code. I found this very
+useful.
 
-Most new changes center around the recent nommu changes to keep
-the mm list as a vma list. Still a bunch of old changes I need
-to push up stream in this patch too.
-
-http://www.uclinux.org/pub/uClinux/uClinux-2.6.x/linux-2.6.11-uc0.patch.gz
-
-
-Change log:
-
-. import of linux-2.6.11                       <gerg@snapgear.com>
-. change vma list setup for nommu              <gerg@snapgear.com>
-. fix MAGIC_ROMPTR nommu support               <gerg@snapgear.com>
-. remove unused semp3.h                        <domen@coderock.org>
-
-
-Regards
-Greg
-
-
-
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Dude       EMAIL:     gerg@snapgear.com
-SnapGear -- a CyberGuard Company            PHONE:       +61 7 3435 2888
-825 Stanley St,                             FAX:         +61 7 3891 3630
-Woolloongabba, QLD, 4102, Australia         WEB: http://www.SnapGear.com
-
-
+-- 
+Jon Smirl
+jonsmirl@gmail.com

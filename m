@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263178AbTJKAg4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 20:36:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263188AbTJKAg4
+	id S263172AbTJKAes (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 20:34:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263178AbTJKAes
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 20:36:56 -0400
-Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:19374 "EHLO
-	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
-	id S263178AbTJKAgz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 20:36:55 -0400
-Message-ID: <3F87523A.1030100@pacbell.net>
-Date: Fri, 10 Oct 2003 17:43:38 -0700
-From: David Brownell <david-b@pacbell.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en, fr
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: torvalds@osdl.org, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] [BK PATCH] USB fixes for 2.6.0-test7
-References: <20031010231820.GA18566@kroah.com>
-In-Reply-To: <20031010231820.GA18566@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 10 Oct 2003 20:34:48 -0400
+Received: from mail.kroah.org ([65.200.24.183]:2692 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263172AbTJKAer (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Oct 2003 20:34:47 -0400
+Date: Fri, 10 Oct 2003 16:56:13 -0700
+From: Greg KH <greg@kroah.com>
+To: Matt_Domsch@Dell.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: IBM Thinkpad A21 BIOS - EDD information wrong
+Message-ID: <20031010235613.GI19046@kroah.com>
+References: <1065735556.794.9.camel@iguana.domsch.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1065735556.794.9.camel@iguana.domsch.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> ...  Oh, and suspend now works for USB devices, thanks to Paul :)
+On Thu, Oct 09, 2003 at 04:39:11PM -0500, Matt_Domsch@Dell.com wrote:
+> 
+> /sys/firmware/edd/int13_dev80/raw_data
+> int13 fn48 returned data:
+> 
+> 4a 00 01 00 ff 3f 00 00 10 00 00 00 3f 00 00 00         J...ÿ?......?...
+> 00 53 a8 04 00 00 00 00 00 02 c6 00 40 00 dd be         .Sš.......Æ.@.ÝŸ
+> 2c 00 00 00 50 43 49 20 41 54 41 20 20 20 20 20         ,...PCI ATA     
+> 00 1f 07 00 00 00 00 00 00 00 00 00 00 00 00 00         ................
+> 00 00 00 00 00 00 00 00 00 a1                           .........¡      
 
-And on some systems, the resume path even works ... :)
+Hm, I thought you were going to use the sysfs binary file interface for
+this file, instead of outputing a hex dump.  Any reason for keeping it
+this way?
 
-The D3cold resume path -- which should behave very much
-like resuming from software suspend -- can be made to
-self-deadlock in some cases:  dpm_sem is held while the
-resume callbacks are made, so they deadlock when calls to
-device_del (for getting rid of the old device tree) try
-to grab the same lock.
+thanks,
 
-So don't get your hopes up too far yet -- but yes,
-that usbcore patch does help some configs a bunch.
-
-- Dave
-
-
-
+greg k-h

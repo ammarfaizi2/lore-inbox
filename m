@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265076AbTFUEqw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jun 2003 00:46:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265082AbTFUEqv
+	id S265079AbTFUFD0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jun 2003 01:03:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265082AbTFUFD0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jun 2003 00:46:51 -0400
-Received: from beta.galatali.com ([216.40.241.205]:10644 "EHLO
-	beta.galatali.com") by vger.kernel.org with ESMTP id S265076AbTFUEqv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jun 2003 00:46:51 -0400
-Subject: 2.5.72 + ACPI 20030619 still won't boot (was Re: 2.5.71 won't
-	boot, ACPI related)
-From: Tugrul Galatali <tugrul@galatali.com>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <1055704641.564.8.camel@duality.galatali.com>
-References: <1055704641.564.8.camel@duality.galatali.com>
-Content-Type: text/plain
-Message-Id: <1056171651.349.2.camel@duality.galatali.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 21 Jun 2003 01:00:51 -0400
-Content-Transfer-Encoding: 7bit
+	Sat, 21 Jun 2003 01:03:26 -0400
+Received: from p68.rivermarket.wintek.com ([208.13.56.68]:22491 "EHLO
+	dust.p68.rivermarket.wintek.com") by vger.kernel.org with ESMTP
+	id S265079AbTFUFDZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jun 2003 01:03:25 -0400
+Date: Sat, 21 Jun 2003 00:20:16 -0500 (EST)
+From: Alex Goddard <agoddard@purdue.edu>
+To: Tim Schmielau <tim@physik3.uni-rostock.de>
+Cc: lkml <linux-kernel@vger.kernel.org>, george anzinger <george@mvista.com>,
+       Christian Kujau <evil@g-house.de>,
+       Daniel Whitener <dwhitener@defeet.com>, johnstul@us.ibm.com,
+       Clemens Schwaighofer <cs@tequila.co.jp>
+Subject: Re: [patch] fix wrong uptime on non-i386 platforms
+In-Reply-To: <Pine.LNX.4.33.0306202341050.7684-100000@gans.physik3.uni-rostock.de>
+Message-ID: <Pine.LNX.4.56.0306201754160.1455@dust>
+References: <Pine.LNX.4.33.0306202341050.7684-100000@gans.physik3.uni-rostock.de>
+X-GPG-PUBLIC_KEY: N/a
+X-GPG-FINGERPRINT: BCBC 0868 DB78 22F3 A657 785D 6E3B 7ACB 584E B835
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	.72 and .72 + ACPI 20030619 patch both still fail with what appears to
-be the same error.
+On Fri, 20 Jun 2003, Tim Schmielau wrote:
 
-	Tugrul Galatali
+> Here are most of the missing wall_to_monotonic initializations that the
+> non-i386 architectures still need to pick up.
+> This should fix the reported uptime inconsistencies.
+> 
+> Disclaimer: completely untested, since I don't have (most of) the hardware.
 
-On Sun, 2003-06-15 at 15:17, Tugrul Galatali wrote:
-> 	Both .70 and .71, with the new ACPI rev, stop booting after spitting
-> out the following lines (transcribed by hand):
-> 
-> ACPI: Subsystem revision 20030522
->     ACPI-0183: *** Error: Looking up [\_SB_.PCI0.LPC_.ECP0] in namespace, AE_NOT_FOUND
->     ACPI-1121: *** Error: , AE_NOT_FOUND
-> 
-> 	dmesg from 2.5.69, lspci and .config available at:
-> 
-> 	http://acm.cs.nyu.edu/~tugrul/acpi/
-> 
-> 	Otherwise, 2.5.69 is a fine release on my Compaq W8000.
-> 
-> 	Tugrul Galatali
+Incidently, I haven't had the absurdly high uptime bug strike again since 
+the first time it happened.  I'll try out your patch as soon as I get a 
+chance.
 
-
+-- 
+Alex Goddard
+agoddard@purdue.edu

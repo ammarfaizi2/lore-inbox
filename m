@@ -1,55 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277608AbRJHXaW>; Mon, 8 Oct 2001 19:30:22 -0400
+	id <S277612AbRJHXcM>; Mon, 8 Oct 2001 19:32:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277607AbRJHXaN>; Mon, 8 Oct 2001 19:30:13 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:12167 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S277608AbRJHX3x>;
-	Mon, 8 Oct 2001 19:29:53 -0400
-Date: Mon, 08 Oct 2001 16:29:35 -0700 (PDT)
-Message-Id: <20011008.162935.21930065.davem@redhat.com>
-To: pmanolov@Lnxw.COM
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: discontig physical memory
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3BC23441.1EF944A2@lnxw.com>
-In-Reply-To: <3BC22EA6.696604E7@lnxw.com>
-	<20011008.160528.85686937.davem@redhat.com>
-	<3BC23441.1EF944A2@lnxw.com>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S277611AbRJHXcD>; Mon, 8 Oct 2001 19:32:03 -0400
+Received: from spog.gaertner.de ([194.45.135.2]:40976 "EHLO spog.gaertner.de")
+	by vger.kernel.org with ESMTP id <S277605AbRJHXbr>;
+	Mon, 8 Oct 2001 19:31:47 -0400
+From: Joerg Schumacher <schuma@gaertner.de>
+Message-Id: <200110082332.BAA16370@aunt.gaertner.de>
+Subject: PF_PACKET: packets out of order 
+To: linux-kernel@vger.kernel.org
+Date: Tue, 9 Oct 2001 01:32:16 +0200 (MET DST)
+X-NCC-RegID: de.gaertner
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Petko Manolov <pmanolov@Lnxw.COM>
-   Date: Mon, 08 Oct 2001 16:18:25 -0700
+Hi!
 
-   I already did that. I fixed MAX_DMA_ADDRESS and the
-   kernel now reports:
-   
-   zone(0): 1024 pages
-   zone(1): 7168 pages	/* this should be 4096 */
-   ...
-   
-   Which is not true as we have a gap between 4 - 16MB
-   phys memory. I also played with add_memory_region(),
-   but the kernel still think we have 32MB ram instead
-   of 20MB as is the case.
-   
-You need to setup bootmem correctly, earlier on, such that
-you do not tell the kernel that there are any pages in this
-4 - 16MB region.
+NeTraMet v44b10 uses pcap(3) and complains about timestamps jumping 
+backwards.  Looks like a PF_PACKET socket doesn't receive the packets 
+in the correct order.  Some timestamps from a "tcpdump -tt":
 
-Do something like this instead of whatever your bootmem
-calls are doing now:
+   RX:  1001465480.175100 [...] 
+   TX:  1001465480.179111 [...] 
+   RX:  1001465480.177315 [...] 
+                   ^^^^^^
+   TX:  1001465480.180514 [...]
+   RX:  1001465480.179706 [...]
+	   
+Some more figures (obtained with a quick hack using libpcap-2001.09.25 
+on two different machines):
 
-	bootmap_size = init_bootmem(0, (32 * 1024 * 1024));
-	free_bootmem((4 * 1024 * 1024),
-		     ((16 - 4) * 1024 * 1024));
+   2.2.19:
+        stats:    100000 packets received
+                       0 packets dropped
+        good:      90222 packets
+        bad:        9778 packets
+        max delta: 15850 usec
 
-Franks a lot,
-David S. Miller
-davem@redhat.com
+   2.4.1:
+        stats:    100000 packets received
+                       0 packets dropped
+        good:      99538 packets
+        bad:         462 packets
+        max delta:   471 usec
+    
+Any plans to fix this in the kernel?  
 
+
+Regards,
+Joerg 
+
+-- 
+ Gaertner Datensysteme                         38114 Braunschweig 
+ Joerg Schumacher                              Hamburger Str. 273a
+ Tel: 0531-2335555                             Fax: 0531-2335556

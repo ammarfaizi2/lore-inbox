@@ -1,41 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267714AbTBUVdW>; Fri, 21 Feb 2003 16:33:22 -0500
+	id <S267719AbTBUVrU>; Fri, 21 Feb 2003 16:47:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267719AbTBUVdW>; Fri, 21 Feb 2003 16:33:22 -0500
-Received: from cs78149057.pp.htv.fi ([62.78.149.57]:43441 "EHLO
-	devil.pp.htv.fi") by vger.kernel.org with ESMTP id <S267714AbTBUVdU>;
-	Fri, 21 Feb 2003 16:33:20 -0500
-Subject: Re: RFC3168, section 6.1.1.1 - ECN and retransmit of SYN
-From: Mika Liljeberg <mika.liljeberg@welho.com>
-To: John Bradford <john@grabjohn.com>
-Cc: Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
-In-Reply-To: <200302212040.h1LKejY3001679@81-2-122-30.bradfords.org.uk>
-References: <200302212040.h1LKejY3001679@81-2-122-30.bradfords.org.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1045863838.22625.121.camel@devil>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 21 Feb 2003 23:43:58 +0200
+	id <S267720AbTBUVrU>; Fri, 21 Feb 2003 16:47:20 -0500
+Received: from web8007.mail.in.yahoo.com ([203.199.70.94]:49669 "HELO
+	web8007.mail.in.yahoo.com") by vger.kernel.org with SMTP
+	id <S267719AbTBUVrT>; Fri, 21 Feb 2003 16:47:19 -0500
+Message-ID: <20030221215721.71135.qmail@web8007.mail.in.yahoo.com>
+Date: Fri, 21 Feb 2003 21:57:21 +0000 (GMT)
+From: =?iso-8859-1?q?Yours=20Lovingly?= <ylovingly@yahoo.co.in>
+Subject: strange but consistent feature of linux nfs client
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-02-21 at 22:40, John Bradford wrote:
-> > Supporting this would make using ECN a lot less painful - currently, if
-> > I want to use ECN by default, I get to turn it off anytime I find an
-> > ECN-hostile site that I'd like to communicate with.
-> 
-> Linux shouldn't encourage the use of equipment that violates RFCs, in
-> this case, RFC 739.
-> 
-> The correct way to deal with it, is to contact the maintainers of the
-> site, and ask them to fix the non conforming equipment.
+Hi,
+The linux nfs client (at least the one in 2.4.19)
+shows one characteristic :
+Consider a client side benchmark that creates a file
+across nfs, writes some data into it, reads this data
+back, modifies it and writes it back, finally reading
+it again and closing. (Assume that there isn't any
+other client operating on this nfs mounted filesystem
+that could pose a threat to the cached data validity
+on our client)
+Thus the order is like :
+write-read-write-read
 
-That's right. Unfortunately, the way most people *will* deal with it is
-by turning ECN off permanently and forgetting about it. That won't help
-ECN become widely adopted.
+I observed without exception in all test runs that the
+second write-read combination had the read succeeding
+to find the data in the local cache(after suitable
+revalidation etc) while the first read operation in
+each individual test run never found the data in the
+local cache(although the first write too like the
+second write was done through the pagecache) or
+whatever but invariably made an on the wire read -
+always.
 
-	MikaL
+So what is special - first time reads/first time
+writes and why,
+and how is this speciality affected in the kernel.
 
+thanks a lot
+Abhishek
+
+________________________________________________________________________
+Missed your favourite TV serial last night? Try the new, Yahoo! TV.
+       visit http://in.tv.yahoo.com

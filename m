@@ -1,48 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269313AbUI3QOS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269324AbUI3QQk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269313AbUI3QOS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 12:14:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269319AbUI3QOS
+	id S269324AbUI3QQk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 12:16:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269327AbUI3QQk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 12:14:18 -0400
-Received: from atlrel8.hp.com ([156.153.255.206]:48550 "EHLO atlrel8.hp.com")
-	by vger.kernel.org with ESMTP id S269313AbUI3QOJ (ORCPT
+	Thu, 30 Sep 2004 12:16:40 -0400
+Received: from [80.227.59.61] ([80.227.59.61]:3970 "EHLO HasBox.COM")
+	by vger.kernel.org with ESMTP id S269324AbUI3QQf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 12:14:09 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [RFC][PATCH] Way for platforms to alter built-in serial ports
-Date: Thu, 30 Sep 2004 10:14:00 -0600
-User-Agent: KMail/1.7
-Cc: linux-kernel@vger.kernel.org
+	Thu, 30 Sep 2004 12:16:35 -0400
+Message-ID: <415C322A.6070405@0Bits.COM>
+Date: Thu, 30 Sep 2004 20:19:54 +0400
+From: Mitch <Mitch@0Bits.COM>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a4) Gecko/20040928
+X-Accept-Language: en-us, en, ar
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200409301014.00725.bjorn.helgaas@hp.com>
-Content-Type: text/plain;
-  charset="us-ascii"
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc3 software suspend (pmdisk) stopped working
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> What I propose is a way for the arch to provide it's own table along
-> with the size of it via a function call. It's optional, based on a
-> #ifdef defined by the arch in it's asm/serial.h. The only remaining
-> tricky point is the fact that you used to size your static array of
-> UART's based on the size of the table. So with my path, an arch
-> that defines ARCH_HAS_GET_LEGACY_SERIAL_PORTS is supposed to provide
-> both the new get_legacy_serial_ports() function, but also to define
-> UART_NR to something sensible. I hope one day, we'll be able to
-> convert 8250 to more dynamic allocation though.
 
-This looks like a reasonable short-term fix, but I think the whole
-serial8250_isa_init_ports() should go away.  I like dwmw2's suggestion
-of an 8250_platform.c that could use register_serial() for each port
-in some platform-supplied old_serial_port[] table, which is probably
-what you mean by moving to a more dynamic allocation.
+Kevin Fenzi <kevin-linux-kernel () scrye ! com> wrote:
+ >
+ > What do you get from:
+ >
+ > cat /sys/power/disk
+ > ?
 
-AFAICS, the only reason for doing serial8250_isa_init_ports() early
-is for early serial consoles, and I think those should be done along
-the lines of this:
- http://www.ussg.iu.edu/hypermail/linux/kernel/0409.1/1034.html
-where the platform can specify a device by its MMIO or IO port address,
-and we automatically switch to the corresponding ttyS device later.
+Do you mean /sys/power/state ? /sys/power/disk is for powering off the
+disk ? Anyhow here are both of them
+
+	~% cat /sys/power/disk
+	shutdown
+	~% cat /sys/power/state
+	standby mem disk
+
+Remember this worked fine in -rc2.
+
+ > If it says "platform" you might try:
+ >
+ > echo "shutdown" > /sys/power/disk
+ >
+ > I wonder how many of Pavel's speed improvment patches went in with the
+ > pmdisk/swsusp merge in rc3? I guess I can try it and see. :)
+
+The speed improvement that made it stop working surely went in ;-)
+
+Cheers
+Mitch

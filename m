@@ -1,49 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262746AbTJaBoY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Oct 2003 20:44:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262772AbTJaBoY
+	id S262572AbTJaBrY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Oct 2003 20:47:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262736AbTJaBrY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Oct 2003 20:44:24 -0500
-Received: from web41309.mail.yahoo.com ([66.218.93.58]:2424 "HELO
-	web41309.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262746AbTJaBoT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Oct 2003 20:44:19 -0500
-Message-ID: <20031031014418.66576.qmail@web41309.mail.yahoo.com>
-Date: Thu, 30 Oct 2003 17:44:18 -0800 (PST)
-From: LinuxGuy <minnano2003@yahoo.com>
-Subject: How to configure Multiport serial ISA card on linux
-To: linux-kernel@vger.kernel.org
+	Thu, 30 Oct 2003 20:47:24 -0500
+Received: from gemini.smart.net ([205.197.48.109]:28933 "EHLO gemini.smart.net")
+	by vger.kernel.org with ESMTP id S262572AbTJaBrX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Oct 2003 20:47:23 -0500
+Message-ID: <3FA1BF06.ED00123C@smart.net>
+Date: Thu, 30 Oct 2003 20:46:46 -0500
+From: "Daniel B." <dsb@smart.net>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.22+dsb1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Things that Longhorn seems to be doing right
+References: <LUlv.31e.5@gated-at.bofh.it> <M7iG.41B.7@gated-at.bofh.it>
+	 <MagC.82U.7@gated-at.bofh.it> <Maqe.8l3.9@gated-at.bofh.it>
+	 <3FA0F1B7.7000409@softhome.net> <Pine.LNX.4.58.0310301007340.11170@sm1420.belits.com>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-I am not presently subscribed in this group.
-But,i like to get some advise on how to proceed on my
-problem.
-It is,currently i have a ISA card(Multiport with uarts
-PC16550,uPD71501) and its driver in LynxOS.
+Alex Belits wrote:
+> 
+> On Thu, 30 Oct 2003, Ihar 'Philips' Filipau wrote:
+> 
+...
+> 
+> 3. Pluggable directory generator -- a userspace process can tell the
+> system to make an object that looks exactly like a directory, except that
+> its contents are provided by the process, that is being queried when the
+> directory is accessed.
 
-But now i want to build the driver for it on Redhat
-linux 9 kernel.
-I like to know
-1. Is it possible to add the support for this card by
-doing some modifications in serial.c?
-2. If so,any documents/links on which all functions i
-should need modifications?
-3. what about porting the LynxOS driver to Redhat
-linux? 
+That sounds like ClearCase's dynamically generated views of directories
+and files.
 
-Experts,kindly suggest  an apt method.
-
-Please CC reply to minnano2003@yahoo.com
-
-Regards,
-Manoj 
-
-__________________________________
-Do you Yahoo!?
-Exclusive Video Premiere - Britney Spears
-http://launch.yahoo.com/promos/britneyspears/
+Daniel
+-- 
+Daniel Barclay
+dsb@smart.net

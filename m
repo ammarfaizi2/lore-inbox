@@ -1,50 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271449AbVBFFMT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265319AbVBFFSY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271449AbVBFFMT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 00:12:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271531AbVBFFMS
+	id S265319AbVBFFSY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 00:18:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265223AbVBFFSY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 00:12:18 -0500
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:53171
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S263815AbVBFFMI convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Feb 2005 00:12:08 -0500
-Date: Sat, 5 Feb 2005 21:04:11 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: yoshfuji@linux-ipv6.org
-Cc: herbert@gondor.apana.org.au, mirko.parthey@informatik.tu-chemnitz.de,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com, shemminger@osdl.org,
-       yoshfuji@linux-ipv6.org
-Subject: Re: PROBLEM: 2.6.11-rc2 hangs on bridge shutdown (br0)
-Message-Id: <20050205210411.7e18b8e6.davem@davemloft.net>
-In-Reply-To: <20050206.133723.124822665.yoshfuji@linux-ipv6.org>
-References: <20050204221344.247548cb.davem@davemloft.net>
-	<20050205064643.GA29758@gondor.apana.org.au>
-	<20050205201044.1b95f4e8.davem@davemloft.net>
-	<20050206.133723.124822665.yoshfuji@linux-ipv6.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Sun, 6 Feb 2005 00:18:24 -0500
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:26785 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S272799AbVBFFRs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Feb 2005 00:17:48 -0500
+Subject: 2.6: USB Storage hangs machine on bootup for ~2 minutes
+From: Parag Warudkar <kernel-stuff@comcast.net>
+To: USB development list <linux-usb-devel@lists.sourceforge.net>
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44L0.0502041539350.674-100000@ida.rowland.org>
+References: <Pine.LNX.4.44L0.0502041539350.674-100000@ida.rowland.org>
+Content-Type: text/plain
+Date: Sun, 06 Feb 2005 00:18:00 -0500
+Message-Id: <1107667080.4089.7.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 06 Feb 2005 13:37:23 +0900 (JST)
-YOSHIFUJI Hideaki / 吉藤英明 <yoshfuji@linux-ipv6.org> wrote:
+I am running FC3 on a AMD64 laptop. The laptop has 3 USB ports. If I
+attach any usb-storage device (Sandisk Cruiser usb drive, iPod, Maxtor
+external drive etc.) the kernel hangs while booting. The hang occurs
+shortly after the usb-storage module is loaded. The machine does not
+respond to anything other than the power button. This hang lasts for
+about 2 minutes after which boot resumes and goes on fine. 
 
-> How about making dst->ops->dev_check() like this:
-> 
-> static int inline dst_dev_check(struct dst_entry *dst, struct net_device *dev)
-> {
-> 	if (dst->ops->dev_check)
-> 		return dst->ops->dev_check(dst, dev)
-> 	else
-> 		return dst->dev == dev;
-> }
+When it is hung, the usb storage devices are not being accessed - the
+iPOD for e.g does not show the Do not Disconnect sign when it is hung -
+it shows that after the boot resumes. Might have something to do with
+the recent "Waiting for device to settle" change in usb-storage?
 
-Oh I see.  That would work, and it seems the simplest, and
-lowest risk fix for this problem.
 
-Herbert, what do you think?
+A 
+
+The boot goes on without a hang if there are no usb-storage devices
+attached to the system. (USB mouse is fine for example, so the hang
+happens only in case of usb-storage devices.)
+
+PS - This bug was also reported to Redhat Bugzilla some time ago - I
+haven't got any feedback so far.
+
+Parag
+
+
+

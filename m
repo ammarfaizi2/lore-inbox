@@ -1,51 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261457AbSJDFV2>; Fri, 4 Oct 2002 01:21:28 -0400
+	id <S261312AbSJDF0x>; Fri, 4 Oct 2002 01:26:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261478AbSJDFV2>; Fri, 4 Oct 2002 01:21:28 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:43907 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S261457AbSJDFV1>;
-	Fri, 4 Oct 2002 01:21:27 -0400
-Date: Thu, 3 Oct 2002 22:26:21 -0700 (PDT)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Scott Bronson <bronson@rinspin.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: FAT/VFAT and the sync flag
-In-Reply-To: <1033707085.6359.113.camel@emma>
-Message-ID: <Pine.LNX.4.33L2.0210032215020.18964-100000@dragon.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261464AbSJDF0x>; Fri, 4 Oct 2002 01:26:53 -0400
+Received: from gw.openss7.com ([142.179.199.224]:14605 "EHLO gw.openss7.com")
+	by vger.kernel.org with ESMTP id <S261312AbSJDF0u>;
+	Fri, 4 Oct 2002 01:26:50 -0400
+Date: Thu, 3 Oct 2002 23:32:21 -0600
+From: "Brian F. G. Bidulock" <bidulock@openss7.org>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: export of sys_call_table
+Message-ID: <20021003233221.C31444@openss7.org>
+Reply-To: bidulock@openss7.org
+Mail-Followup-To: Pete Zaitcev <zaitcev@redhat.com>,
+	linux-kernel@vger.kernel.org
+References: <20021003153943.E22418@openss7.org> <20021003221525.GA2221@kroah.com> <20021003222716.GB14919@suse.de> <1033684027.1247.43.camel@phantasy> <20021003233504.GA20570@suse.de> <20021003235022.GA82187@compsoc.man.ac.uk> <mailman.1033691043.6446.linux-kernel2news@redhat.com> <200210040403.g9443Vu03329@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200210040403.g9443Vu03329@devserv.devel.redhat.com>; from zaitcev@redhat.com on Fri, Oct 04, 2002 at 12:03:31AM -0400
+Organization: http://www.openss7.org/
+Dsn-Notification-To: <bidulock@openss7.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3 Oct 2002, Scott Bronson wrote:
+Pete,
 
-| Can anyone tell me if the VFAT filesystem actually recognizes the sync
-| flag?  Early in 2.4, it appeared that it was ignoring it.
-|
-| However, now that a lot of USB devices are VFAT, this gets pretty
-| important.
-| -
+On Fri, 04 Oct 2002, Pete Zaitcev wrote:
+> 
+> Also, if you are a provider of a binary-only crapware which wants
+> to override syscalls, there's one very important document for
+> you to see: it's called Fig.1.
+> 
+> GPLed code has no problem linking with sys_call_table.
+> 
 
-USB devices (mostly) don't care what filesystem is on them.
-I have used ext2 on USB floppies and USB Zip.
-You should be able to put any supported filesystem on them.
-The only case I know of that matters is MP3 players, which
-do expect/require a VFAT filesystem (it's usually all they know),
-so media that is used in MP3 players should be VFAT probably. :)
+The code in question (LiS) is LGPL and open source.  The iBCS
+packge is GPL and open source.
 
-Now, for you first question, I hope that Ogawa or Al or Christoph
-et al can answer it, but my guess is, No, VFAT doesn't
-recognize the sync flag.  I base that on grepping for
-s_sync and for MS_SYNCHRONOUS in linux/fs/{fat,vfat,msdos}
-and finding s_sync a few times, but not finding MS_SYNCHRONOUS
-at all.
+You do know that there *is* open source code which is not
+contained in the Linux kernel ;)
 
-'man mount' says that the sync flag is only honored by
-ext2, ext3, and ufs.
-I see it checked/used in ext2, ufs, and ntfs.
+So, in this case, GPL and LGPL modules do have a problem linking
+with the sys_call_table (on RH 8.0 and I suppose some
+development kernels only), because the symbol is no longer
+exported and no registration procedure was provided for
+registering otherwise non-implemented system calls (in
+particular the UNIX98 and iBCS/ABI standard putmsg/getmsg
+calls).
+
+And what about AFS?  I see that it uses a sys_ni_syscall slot as
+well...
+
+In fact all these components are opensource.
+
+--brian
 
 -- 
-~Randy
-
+Brian F. G. Bidulock    ¦ The reasonable man adapts himself to the ¦
+bidulock@openss7.org    ¦ world; the unreasonable one persists in  ¦
+http://www.openss7.org/ ¦ trying  to adapt the  world  to himself. ¦
+                        ¦ Therefore  all  progress  depends on the ¦
+                        ¦ unreasonable man. -- George Bernard Shaw ¦

@@ -1,51 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269346AbUJKXMM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269351AbUJKXLv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269346AbUJKXMM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 19:12:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269357AbUJKXML
+	id S269351AbUJKXLv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 19:11:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269352AbUJKXLu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 19:12:11 -0400
-Received: from gate.crashing.org ([63.228.1.57]:18627 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S269346AbUJKXJc (ORCPT
+	Mon, 11 Oct 2004 19:11:50 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:20668 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S269351AbUJKXKD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 19:09:32 -0400
-Subject: Re: Totally broken PCI PM calls
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       David Brownell <david-b@pacbell.net>, Paul Mackerras <paulus@samba.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Pavel Machek <pavel@ucw.cz>
-In-Reply-To: <200410111758.48441.dtor_core@ameritech.net>
-References: <1097455528.25489.9.camel@gaston>
-	 <200410110947.38730.david-b@pacbell.net> <1097533687.13642.30.camel@gaston>
-	 <200410111758.48441.dtor_core@ameritech.net>
-Content-Type: text/plain
-Message-Id: <1097536131.13795.40.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 12 Oct 2004 09:08:51 +1000
+	Mon, 11 Oct 2004 19:10:03 -0400
+Date: Mon, 11 Oct 2004 16:09:47 -0700
+Message-Id: <200410112309.i9BN9lXO031634@magilla.sf.frob.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+From: Roland McGrath <roland@redhat.com>
+To: joshk@triplehelix.org (Joshua Kwan)
+X-Fcc: ~/Mail/linus
+Cc: Andrew Morton <akpm@osdl.org>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Weirdness with suspending jobs in 2.6.9-rc3
+In-Reply-To: Joshua Kwan's message of  Monday, 11 October 2004 14:16:05 -0700 <20041011211605.GD3316@triplehelix.org>
+X-Windows: the problem for your problem.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-10-12 at 08:58, Dmitry Torokhov wrote:
+> All I know is that this doesn't happen in kernels where the waitid patch
+> was not applied. It has *NEVER* happened until now.
 
-> Yes, I think that devices that failed to resume (and all their children)
-> have to be moved by the core resume function into a separate list and
-> then destroyed (again by the driver core). For that we might need to add
-> bus_type->remove_device() handler as it seems that all buses do alot
-> of work outside of driver->remove handlers. The remove_device should
-> accept additional argument - something like dead_device that would
-> suggest that driver should not be alarmed by any errors during unbind/
-> removal process as the device (or rather usually its parent) is simply
-> not there anynore.
+That's obviously suggestive, but it's real hard to know whether it's just a
+coincidental perturbation of the timing or who-knows-what triggering a bug
+elsewhere, or a new kernel bug, without more concrete information about
+what goes wrong.
 
-They already do... think USB...
+If you can work more on providing a way for people like me and Andrew to
+get this to reproduce for us, then we will be able to make quick progress
+from there.  Right now, all we can really do is make suggestions to you for
+how to proceed with debugging and you'll have to be the one to dig up more.
 
-It's really only a locking problem within the PM core, that's getting
-OT at the moment. I'll see if I can come up with something later.
+> Possibly it was strace catching the wrong end of whatever make was doing
+> when it started ptracing it.
 
-Ben.
+I don't know any sane scenario that would result in the value you showed in
+that wait4 call from strace.  We really need to learn more about how that
+happens.  
 
+> Could it be glibc's problem.
+
+This seems unlikely unless you changed your glibc very recently, but
+anything is possible.  I think you should continue to work with tools like
+strace and/or gdb to figure out where this bogus value comes from.  
+
+If you have trouble catching make losing in gdb, you could also do
+something funky like hack your kernel to do something like:
+
+	if (pid != -1 && (pid & 0xff000000)) 
+		force_sig_specific(SIGSEGV, current);
+
+in do_waitid.  This should cause make to dump core at the bogus system
+call, and then you could examine the core file with gdb to learn more about
+how it wound up passing that bogus value.
+
+
+Thanks,
+Roland
 

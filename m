@@ -1,57 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262005AbREPQ4p>; Wed, 16 May 2001 12:56:45 -0400
+	id <S262008AbREPQ6P>; Wed, 16 May 2001 12:58:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262006AbREPQ4f>; Wed, 16 May 2001 12:56:35 -0400
-Received: from [206.14.214.140] ([206.14.214.140]:60683 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S262005AbREPQ40>; Wed, 16 May 2001 12:56:26 -0400
-Date: Wed, 16 May 2001 09:55:59 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Miles Lane <miles@megapathdsl.net>
-cc: Tim Jansen <tim@tjansen.de>, David Brownell <david-b@pacbell.net>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: LANANA: To Pending Device Number Registrants
-In-Reply-To: <989973690.925.7.camel@agate>
-Message-ID: <Pine.LNX.4.10.10105160936570.17255-100000@www.transvirtual.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262006AbREPQ6F>; Wed, 16 May 2001 12:58:05 -0400
+Received: from moe.unleashed.org ([216.86.199.34]:23559 "HELO
+	mail.unleashed.org") by vger.kernel.org with SMTP
+	id <S262012AbREPQ5w>; Wed, 16 May 2001 12:57:52 -0400
+Date: Wed, 16 May 2001 09:57:50 -0700
+From: Leah Cunningham <leah@unleashed.org>
+To: ps <ps@rzeczpospolita.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: RH 7.1 on IBM xSeries 240
+Message-ID: <20010516095750.A40686@unleashed.org>
+In-Reply-To: <3B02504E.8F8926AB@rzeczpospolita.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <3B02504E.8F8926AB@rzeczpospolita.pl>; from ps@rzeczpospolita.pl on Wed, May 16, 2001 at 12:02:54PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This may be way off, but have you flashed the BIOS to the most
+current revision? This machine should work properly.  How many
+processors and what SR card are you using?
 
-> > At this point of the discussion I would like to point to the Device Registry 
-> > patch (http://www.tjansen.de/devreg) that already solves these problems and 
-> > offers stable device ids for the identification of devices and finding their 
-> > /dev nodes.
-> 
-> Does your approach solve the problem of USB devices, like mice, that
-> don't have device ID's of any sort, where topology is the only way to 
-> distinguish them?  IIRC, the USB development team was planning to use
-> topology to provide a limited ability to associate a mouse on a given
-> port with a display, when XFree86 supports per-Xinerama-display input
-> device associations.
-> They new VT console work would benefit from this, too.
+ps (ps@rzeczpospolita.pl) [010516 03:07]:
+- > I'm trying to run Linux RH 7.1 on the rack-mounted 
+- > IBM xSeries 240 with ServeRAID but without success.
+- > I've tried some kernels from 2.2.19-7.0.1smp up to
+- > 2.4.3-2.14.14.i686 and 2.4.4.
+- > 
+- > During boot all kernels reported errors (attached at the end).
+- > When I try to write to disk (untar 100MB) machine almost hangs -
+- > I must wait MINUTES for any simple "ll" or "who".
+- > 
+- > Thanks in advance for any help.
+- > 
+- >  - Piotr Szymanek
+- > 
+- > =================================================
+- >    ...
+- > 
+- > found SMP MP-table at 0009e140
+- > hm, page 0009e000 reserved twice.
+- > hm, page 0009f000 reserved twice.
+- > hm, page 000a0000 reserved twice.
+- > hm, page 0009e000 reserved twice.
+- > hm, page 0009f000 reserved twice.
+- > hm, page 000a0000 reserved twice.
+- > WARNING: MP table in the EBDA can be UNSAFE
+- > 
+- >    ...
+- > 
+- > ENABLING IO-APIC IRQs
+- > ...changing IO-APIC physical APIC ID to 14 ... ok.
+- > BIOS bug, IO-APIC#1 ID is 15 in the MPC table!...
+- > ... fixing up to 15. (tell your hw vendor)
+- > ...changing IO-APIC physical APIC ID to 15 ... ok.
+- > Synchronizing Arb IDs.
+- > init IO_APIC IRQs
+- >  IO-APIC (apicid-pin) 14-0, 14-5, 15-0, 15-1, 15-2, 15-3, 15-14, 15-15
+- > not connected.
+- > ..TIMER: vector=49 pin1=2 pin2=0
+- > ..MP-BIOS bug: 8254 timer not connected to IO-APIC
+- > ...trying to set up timer (IRQ0) through the 8259A ... 
+- > ..... (found pin 0) ...works.
+- > number of MP IRQ sources: 31.
+- > number of IO-APIC #14 registers: 16.
+- > number of IO-APIC #15 registers: 16.
+- > testing the IO APIC.......................
+- > 
+- >    ...
+- > 
+- > CPU1<T0:1332736,T1:444240,D:6,S:444245,C:1332737>
+- > checking TSC synchronization across CPUs: passed.
+- > Setting commenced=1, go go go
+- > mtrr: your CPUs had inconsistent fixed MTRR settings
+- > mtrr: probably your BIOS does not setup all CPUs
+- > PCI: PCI BIOS revision 2.10 entry at 0xfd34c, last bus=4
+- > -
+- > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+- > the body of a message to majordomo@vger.kernel.org
+- > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+- > Please read the FAQ at  http://www.tux.org/lkml/
 
-    I have been thinking about this. If you think about it multi-desktop
-systems are very similar to clustering. The idea is something can only be
-seen by certain things in the system. With clustering you might want
-a shared memeory segment (/dev/shm) visble to certain NUMA nodes. With
-multi-desktop systems you have several users using the same box. Now you
-don't want to user 3 being able to draw something to users 2 screen. 
-    So how do you handle this? Since we are treating the device as a
-filesystem we can control the permissons on all the files in the
-filesystem. This gives the extra bonus of the ability to make certain
-device features global to certain groups. The best way I can see it is 
-to setup workstation groups. This is pretty easy to do with most systems
-since most have a group per user. So for desktop one you have it belong to
-user joe. So when he want to some device on his machine he mounts the
-filesystem and all the files and directories belong to joe. No one else
-can use that device. Now what if you want several people to be able to use
-the same desktop. The sys admin could create a desktop1 group and then
-ensure the device is mounted with the desktop1 group. Then anyone
-belonging to the desktop group can access this hardware. The extra bonus
-is the ability to allow certain feature of a device to be exposed to same
-someone in your group. This could be a really powerful feature.
-Unfortunely I can't think of a example off the top of my head.
-
+             I can't believe it's not UNIX!!!
+------------------------------------------------------------
+Leah Cunningham             |  SuSE Expert, NOS Engineer, 
+Undisclosed Address         |  QA & Linux geek, et al.        

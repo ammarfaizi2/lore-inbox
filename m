@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272423AbRIFSM2>; Thu, 6 Sep 2001 14:12:28 -0400
+	id <S272452AbRIFSUS>; Thu, 6 Sep 2001 14:20:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272261AbRIFSMS>; Thu, 6 Sep 2001 14:12:18 -0400
-Received: from clavin.efn.org ([206.163.176.10]:32961 "EHLO clavin.efn.org")
-	by vger.kernel.org with ESMTP id <S272424AbRIFSME>;
-	Thu, 6 Sep 2001 14:12:04 -0400
-From: Steve VanDevender <stevev@efn.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15255.48233.706962.451093@tzadkiel.efn.org>
-Date: Thu, 6 Sep 2001 11:11:53 -0700
-To: wietse@porcupine.org (Wietse Venema)
-Cc: linux-kernel@vger.kernel.org
+	id <S272445AbRIFSUK>; Thu, 6 Sep 2001 14:20:10 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:27154 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S272452AbRIFSTz>; Thu, 6 Sep 2001 14:19:55 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
 Subject: Re: notion of a local address [was: Re: ioctl SIOCGIFNETMASK: ip alias
-In-Reply-To: <20010906172316.E0B74BC06C@spike.porcupine.org>
-In-Reply-To: <E15f2WT-0008Tp-00@the-village.bc.nu>
-	<20010906172316.E0B74BC06C@spike.porcupine.org>
-X-Mailer: VM 6.95 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+ bug 2.4.9 and 2.2.19]
+Date: 6 Sep 2001 11:20:06 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9n8eom$qab$1@cesium.transmeta.com>
+In-Reply-To: <20010906193750.B22187@castle.nmd.msu.ru> <20010906155811.BC78DBC06C@spike.porcupine.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wietse Venema writes:
- > If an MTA receives a mail relaying request for user@domain.name
- > then it would be very useful if Linux could provide the MTA with
- > the necessary information to distinguish between local subnetworks
- > and the rest of the world. Requiring the local sysadmin to enumerate
- > all local subnetwork blocks by hand is not practical.
+Followup to:  <20010906155811.BC78DBC06C@spike.porcupine.org>
+By author:    wietse@porcupine.org (Wietse Venema)
+In newsgroup: linux.dev.kernel
+>
+> Andrey Savochkin:
+> > Of course, SIOCGIFCONF isn't even close to provide the list of local
+> > addresses.
+> > Obvious example: it doesn't enlist all addresses 127.0.0.1, 127.0.0.2 etc.
+> > on common systems.  If you handle 127.0.0.2 as local, you apply side
+> 
+> 127.0.0.2 is not local on any of my systems. The only exceptions
+> are some Linux boxen that I did not ask to do so.
+> 
 
-I think you're making a couple of unjustified assumptions here:
+The RFCs declare that 127.0.0.0/8 is all local.  If what you write is
+true, all your systems are noncompliant.
 
-First, you shouldn't assume that all the other hosts on a local subnet
-are under the same administrative control as the host with the MTA in
-question (think of a host in a colocation facility), and therefore you
-also shouldn't assume that you should allow mail relaying to or from
-other hosts on the same subnet by default.
-
-Second, you can't assume that an administrator can or will put all hosts
-he wants to allow relaying to or from on the same subnet as the MTA.
-
-It's not only practical to require the sysadmin to enumerate which hosts
-or networks he wants to permit relaying from, it's the only solution
-that gives the sysadmin the required level of control over relaying
-based on client IP addresses.
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

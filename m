@@ -1,40 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135621AbRAHK6x>; Mon, 8 Jan 2001 05:58:53 -0500
+	id <S131545AbRAHLAd>; Mon, 8 Jan 2001 06:00:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136395AbRAHK6o>; Mon, 8 Jan 2001 05:58:44 -0500
-Received: from mailhub2.shef.ac.uk ([143.167.2.154]:15345 "EHLO
-	mailhub2.shef.ac.uk") by vger.kernel.org with ESMTP
-	id <S135621AbRAHK6h>; Mon, 8 Jan 2001 05:58:37 -0500
-Date: Mon, 8 Jan 2001 10:57:32 +0000 (GMT)
-From: Guennadi Liakhovetski <g.liakhovetski@ragingbull.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Kdb for modules
-Message-ID: <Pine.GSO.4.21.0101081053210.25031-100000@acms23>
+	id <S135562AbRAHLAX>; Mon, 8 Jan 2001 06:00:23 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:6163 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131753AbRAHLAL>; Mon, 8 Jan 2001 06:00:11 -0500
+Subject: Re: setfsuid on ext2 weirdness (2.4)
+To: bjorn@sparta.lu.se (Bjorn Wesen)
+Date: Mon, 8 Jan 2001 11:02:09 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.3.96.1010108025520.14610B-100000@medusa.sparta.lu.se> from "Bjorn Wesen" at Jan 08, 2001 02:55:30 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14Fa43-0004IU-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> kdb v0.6 is out of date and no longer supported. kdb v1.5 against 
-> 2.2.18 is in ftp://oss.sgi.com/projects/kdb/download/ix86/, it supports 
-> modules correctly. This patch is only there as a courtesy, SGI do not 
-> support kdb on 2.2 kernels, all our debugging work is on 2.4 kernels. 
-> If you want to use kdb on 2.2 kernels, you are pretty much on your own. 
+> Ok.. I'm going bananas. It could be a 4am braindeath or a rh7.0 bungholio
+> but this is annoying:
 
-Ok, this is fine, but just one question, please: is    
-kdb-v1.5-2.2.18-pre15.gz going (or at least supposed to) work with 2.2.18
-(final)?
+There are lots of corner cases in the kernel that are probably a bit off
 
-Thanks
-Guennadi
-___
+> main(int argc, char **argv)
+> {
+> 	int fd;
+> 	setfsuid(atoi(argv[1]));
+> 	fd = open("/etc/passwd", O_RDONLY);
+> 	printf("got fd %d\n", fd);
+> }
+> 
+> [root@wizball /root]# ./setfstest 0 
+> got fd 3
 
-Dr. Guennadi V. Liakhovetski
-Department of Applied Mathematics
-University of Sheffield, U.K.
-email: G.Liakhovetski@sheffield.ac.uk
+(root)
 
+> [root@wizball /root]# ./setfstest 500
+> got fd 3
+
+(fsuid==euid)
+
+> [root@wizball /root]# ./setfstest 501
+> got fd -1
+
+(other)
+
+perchance. If so does being uid 501 flip the behaviour around ?
+
+> 
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,58 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275364AbTHGOx4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 10:53:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275381AbTHGOxe
+	id S275369AbTHGO5L (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 10:57:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275368AbTHGO5F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 10:53:34 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:43423 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S275364AbTHGOub (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 10:50:31 -0400
-Date: Thu, 7 Aug 2003 16:50:27 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Proper block queue reference counting
-Message-ID: <20030807145027.GI2886@suse.de>
-References: <200308070909.h7799QHg022029@hera.kernel.org> <3F3263FC.5030100@pobox.com>
+	Thu, 7 Aug 2003 10:57:05 -0400
+Received: from dhcp75.ists.dartmouth.edu ([129.170.249.155]:49792 "EHLO
+	uml.karaya.com") by vger.kernel.org with ESMTP id S275387AbTHGOzI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 10:55:08 -0400
+Message-Id: <200308071459.h77ExCVt001984@uml.karaya.com>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: torvalds@odsl.com
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] UML build updates 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F3263FC.5030100@pobox.com>
+Date: Thu, 07 Aug 2003 10:59:12 -0400
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 07 2003, Jeff Garzik wrote:
-> I like the patch, but see two problems:
-> 
-> 1) You convert drivers to dynamically allocated queues... who is freeing 
-> the queues?  unregister_blkdev?  It's a bit non-obvious to say the 
-> least, since you patches (for example, the first one, to stram.c) 
-> obviously switch blk_init_queue to dynamically allocate a queue...  but 
-> you do not add code to remove the final reference in modprobe.  The 
-> standard driver-facing API dictates that the driver calls foo_put 
-> itself, in the driver, rather than have it done implicitly.
+Please pull
+	http://jdike.stearns.org:5000/build-2.5
 
-blk_cleanup_queue() still does that, as does blk_put_queue() (same deal,
-each drop a reference, last reference frees the queue).
+This update brings the UML build up to 2.6.0-test2.
 
-This first patch is just the frame work, the only thing that's
-referenced counted right now is that the returned object has one
-reference and when the driver cleans the queue it drops the reference
-causing it to be freed. Next step is making sure others that hold a
-reference to the queue also grab a reference to it, using
-blk_get_queue(). That's stuff like bdev_get_queue(), for instance.
+				Jeff
 
-> 2) the blk_init_queue really should change names, IMO.  The other 
-> subsystems in the kernel tend to use a "foo_alloc" or "alloc_foo" 
-> pattern when creating new objects.  blk_alloc_queue, or simply blk_alloc?
+ arch/um/Kconfig                 |   28 ++++++++++++++++
+ arch/um/Kconfig_net             |   70 ----------------------------------------
+ arch/um/Makefile                |   39 ++++++++++++++--------
+ arch/um/Makefile-i386           |   20 +++++++----
+ arch/um/Makefile-skas           |    6 +--
+ arch/um/config.release          |    1 
+ arch/um/defconfig               |    1 
+ arch/um/drivers/Makefile        |    2 -
+ arch/um/dyn.lds.S               |    8 +++-
+ arch/um/kernel/Makefile         |    8 +---
+ arch/um/kernel/config.c.in      |    4 --
+ arch/um/kernel/skas/Makefile    |   22 +++++++-----
+ arch/um/sys-i386/Makefile       |   10 +++--
+ arch/um/uml.lds.S               |    8 +++-
+ include/asm-um/common.lds.S     |   34 ++++++++++++++++++-
+ include/asm-um/module-generic.h |    6 +++
+ include/asm-um/module-i386.h    |   13 +++++++
+ 17 files changed, 158 insertions(+), 122 deletions(-)
 
-blk_alloc_queue() would be fine. However, it's hard to screw the usage
-up since it returns a queue, so... And people with out-of-tree drivers
-that need to be converted need only look at the blk_init_queue()
-changes, easy to grep for.
+ChangeSet@1.1455.16.1, 2003-07-25 09:30:48-04:00, jdike@uml.karaya.com
+  Fixed the clash in Kconfig with the binfmt options being moved to
+  fs/Kconfig.binfmt.
 
--- 
-Jens Axboe
+ChangeSet@1.1215.148.2, 2003-07-17 15:05:33-04:00, jdike@uml.karaya.com
+  Added BINFMT_ELF until I catch up to whenever fs/Kconfig.binfmt
+  appears.
+
+ChangeSet@1.1215.148.1, 2003-07-17 10:06:21-04:00, jdike@uml.karaya.com
+  Untangling my repositories.  Added back the build and config changes.
 

@@ -1,52 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264261AbUISVnv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264265AbUISVpY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264261AbUISVnv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Sep 2004 17:43:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264265AbUISVnu
+	id S264265AbUISVpY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Sep 2004 17:45:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264286AbUISVpX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Sep 2004 17:43:50 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:63924 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S264261AbUISVnt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Sep 2004 17:43:49 -0400
-Date: Sun, 19 Sep 2004 23:39:52 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Andy Lutomirski <luto@myrealbox.com>
-Cc: Hans-Frieder Vogt <hfvogt@arcor.de>, linux-kernel@vger.kernel.org,
-       jgarzik@pobox.com, netdev@oss.sgi.com
-Subject: Re: 2.6.9-rc1-bk11+ and 2.6.9-rc1-mm3,4 r8169: freeze during boot (FIX included)
-Message-ID: <20040919213952.GA32570@electric-eye.fr.zoreil.com>
-References: <200409130035.50823.hfvogt@arcor.de> <20040916070211.GA32592@electric-eye.fr.zoreil.com> <200409161320.16526.jdmason@us.ltcfwd.linux.ibm.com> <200409171043.21772.jdmason@us.ltcfwd.linux.ibm.com> <20040917160151.GA29337@electric-eye.fr.zoreil.com> <414DF773.7060402@myrealbox.com>
+	Sun, 19 Sep 2004 17:45:23 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:61351 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S264265AbUISVpN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Sep 2004 17:45:13 -0400
+Date: Sun, 19 Sep 2004 23:46:49 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Karsten Wiese <annabellesgarden@yahoo.de>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc2-mm1-S1
+Message-ID: <20040919214649.GA8443@elte.hu>
+References: <200409192232.20139.annabellesgarden@yahoo.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <414DF773.7060402@myrealbox.com>
+In-Reply-To: <200409192232.20139.annabellesgarden@yahoo.de>
 User-Agent: Mutt/1.4.1i
-X-Organisation: Land of Sunshine Inc.
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andy Lutomirski <luto@myrealbox.com> :
-[...]
-> FWIW, it looks like init_board is setting PCIDAC in tp->cp_cmd but that 
-> isn't updated to the card until after the rx ring is filled in 
-> r8169_open.  This seems suspicious, since DMA memory is being allocated 
-> possibly in >32-bit addresses but the card hasn't been told to support 
-> that.  Fixing this doesn't seem to help, though...
 
-rtl8169_hw_start() writes the CPlusCmd register before the ring descriptor
-adresses are set. Can you elaborate why it would not be enough ?
+* Karsten Wiese <annabellesgarden@yahoo.de> wrote:
 
-Btw the r8169 driver in 2.6.9-rcX does not advertise NETIF_F_HIGHDMA: where
-would a >32 bit address come from ?
+> Hi Ingo,
+> 
+> things improved here after having applied
+> swapspace-layout-improvements-2.6.9-rc1-bk12-A1. I'm happily running
+> jackd and clients realtime now without any dropouts even under heavy
+> swapping pressure. (Machine is a PIII@600MHz with 256MB RAM) Could you
+> please include the swapspace-layout-improvements in the
+> voluntary-preempt patches?
 
-> Turning off high DMA fixes it.  Maybe it just needs to be disabled until 
-> someone figures out what's going on.
+only if Andrew agrees that the patch has a chance for -mm inclusion and
+possible upstream merging.
 
-I am cooking a patch for it (+ check for PCI error).
-
-As a side note, the r8169 chipset does not like DAC to be enabled on a
-32bit system. I got the usual PCI error reported while trying it.
-
---
-Ueimor
+	Ingo

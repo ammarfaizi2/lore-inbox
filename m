@@ -1,59 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261245AbVDDOWe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261244AbVDDOWx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261245AbVDDOWe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 10:22:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261233AbVDDOWe
+	id S261244AbVDDOWx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 10:22:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261246AbVDDOWx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 10:22:34 -0400
-Received: from fire.osdl.org ([65.172.181.4]:10147 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261244AbVDDOWY (ORCPT
+	Mon, 4 Apr 2005 10:22:53 -0400
+Received: from mummy.ncsc.mil ([144.51.88.129]:32649 "EHLO jazzhorn.ncsc.mil")
+	by vger.kernel.org with ESMTP id S261244AbVDDOWp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 10:22:24 -0400
-Message-ID: <42514D9C.2070003@osdl.org>
-Date: Mon, 04 Apr 2005 07:22:20 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-Organization: OSDL
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: James Bottomley <James.Bottomley@SteelEye.com>
-CC: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       "David S. Miller" <davem@davemloft.net>, matthew@wil.cx,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: iomapping a big endian area
-References: <1112475134.5786.29.camel@mulgrave>	 <20050403013757.GB24234@parcelfarce.linux.theplanet.co.uk>	 <20050402183805.20a0cf49.davem@davemloft.net>	 <20050403031000.GC24234@parcelfarce.linux.theplanet.co.uk>	 <1112499639.5786.34.camel@mulgrave>	 <20050402200858.37347bec.davem@davemloft.net>	 <1112502477.5786.38.camel@mulgrave>  <1112601039.26086.49.camel@gaston> <1112623143.5813.5.camel@mulgrave>
-In-Reply-To: <1112623143.5813.5.camel@mulgrave>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 4 Apr 2005 10:22:45 -0400
+Subject: Re: [PATCH] Fix SELinux for removal of i_sock
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: jmorris@redhat.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+       matthew@wil.cx
+In-Reply-To: <20050401123520.7532528b.davem@davemloft.net>
+References: <1112385997.14481.192.camel@moss-spartans.epoch.ncsc.mil>
+	 <20050401123520.7532528b.davem@davemloft.net>
+Content-Type: text/plain
+Organization: National Security Agency
+Date: Mon, 04 Apr 2005 10:13:53 -0400
+Message-Id: <1112624033.7629.61.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-14) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley wrote:
-> On Mon, 2005-04-04 at 17:50 +1000, Benjamin Herrenschmidt wrote:
+On Fri, 2005-04-01 at 12:35 -0800, David S. Miller wrote:
+> On Fri, 01 Apr 2005 15:06:37 -0500
+> Stephen Smalley <sds@tycho.nsa.gov> wrote:
 > 
->>I disagree. The driver will never "know" ...
+> > This patch against -bk eliminates the use of i_sock by SELinux as it
+> > appears to have been removed recently, breaking the build of SELinux in
+> > -bk.  Simply replacing the i_sock test with an S_ISSOCK test would be
+> > unsafe in the SELinux code, as the latter will also return true for the
+> > inodes of socket files in the filesystem, not just the actual socket
+> > objects IIUC.  Hence this patch reworks the SELinux code to avoid the
+> > need to apply such a test in the first place, part of which was
+> > obsoleted anyway by earlier changes to SELinux.  Please apply.
+> > 
+> > Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
+> > Signed-off-by:  James Morris <jmorris@redhat.com>
 > 
-> 
-> ? the driver has to know.  Look at the 53c700 to see exactly how awful
-> it is.  This beast has byte and word registers.  When used BE, all the
-> byte registers alter their position (to both inb and readb).
-> 
-> 
->>I don't think it's sane. You know that your device is BE or LE and use
->>the appropriate interface. "native" doesn't make sense to me in this
->>context.
-> 
-> 
-> Well ... it's like this. Native means "pass through without swapping"
-> and has an easy implementation on both BE and LE platforms.  Logically
-> io{read,write}{16,32}be would have to do byte swaps on LE platforms.
-> Being lazy, I'm opposed to doing the work if there's no actual use for
-> it, so can you provide an example of a BE bus (or device) used on a LE
-> platform that would actually benefit from this abstraction?
+> Applied, thanks Stephen.
 
-I would probably spell "native" as "noswap".
-"native" just doesn't convey enough specific meaning...
-
+So, just for clarification, since a S_ISSOCK test is not necessarily
+equivalent to an i_sock test (in the case of inodes of socket files in
+the filesystem), was removing i_sock truly the right choice?  It may not
+be an issue for typical users of i_sock since you can't open a
+descriptor to such a socket file, so any code that was acting on an open
+file shouldn't have to deal with this ambiguity, but could possibly lead
+to an erroneous use of SOCKET_I on the inode of a socket file in other
+code (which is what would have happened in SELinux if we had just
+changed the i_sock test to an ISSOCK test).  Thanks, just trying to
+avoid confusion in the kernel in the future...
+  
 -- 
-~Randy
+Stephen Smalley <sds@tycho.nsa.gov>
+National Security Agency
+

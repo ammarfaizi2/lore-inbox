@@ -1,68 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267139AbSLKNY3>; Wed, 11 Dec 2002 08:24:29 -0500
+	id <S267141AbSLKN1d>; Wed, 11 Dec 2002 08:27:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267141AbSLKNY3>; Wed, 11 Dec 2002 08:24:29 -0500
-Received: from [66.70.28.20] ([66.70.28.20]:5387 "EHLO
-	maggie.piensasolutions.com") by vger.kernel.org with ESMTP
-	id <S267139AbSLKNXg>; Wed, 11 Dec 2002 08:23:36 -0500
-Date: Wed, 11 Dec 2002 14:16:44 +0100
-From: DervishD <raul@pleyades.net>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Linux-kernel <linux-kernel@vger.kernel.org>,
-       "David S. Miller" <davem@redhat.com>
-Subject: [PATCH] mmap.c corner case fix, per David S. Miller
-Message-ID: <20021211131644.GC48@DervishD>
+	id <S267142AbSLKN1d>; Wed, 11 Dec 2002 08:27:33 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:16394 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S267141AbSLKN1c>; Wed, 11 Dec 2002 08:27:32 -0500
+Date: Wed, 11 Dec 2002 14:35:12 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: IBM spamms me with error messages
+Message-ID: <20021211133509.GC3575@atrey.karlin.mff.cuni.cz>
+References: <20021210205611.GH20049@atrey.karlin.mff.cuni.cz> <20021210224325.GE32122@mea-ext.zmailer.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="tThc/1wpZn/ma/RB"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4i
-Organization: Pleyades
-User-Agent: Mutt/1.4i <http://www.mutt.org>
+In-Reply-To: <20021210224325.GE32122@mea-ext.zmailer.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
---tThc/1wpZn/ma/RB
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+> > I replied to some mail on l-k and IBM spammed me with 20+ error
+> > messages. Now it is apparently going to do that again.
+> 
+>    Still/again ?
 
-    Hi Marcelo :)
+It seems to happen after I group-reply to message on the list. Being
+subscribed and quiet does not seem to trigger it. When I do
+group-reply, I do get pair of error messages, then another pair of
+same error messages, and it continues like that.
 
-    This patch fixes the same corner case, but does something useful
-even or architectures where TASK_SIZE is greater than SIZE_MAX-PAGE_SIZE
+This time it "only" sent two pairs of error messages...
 
-    The patch is from David S. Miller, not me. My patch was
-incomplete and did nothing on 'big TASK_SIZE' architectures, as
-sparc64.
-
-    The patch is against both 2.4.20 and 2.4.21-pre1, is just the same.
-
-    Raúl
-
---tThc/1wpZn/ma/RB
-Content-Type: text/plain; charset=iso-8859-1
-Content-Description: mmap.c.diff
-Content-Disposition: attachment; filename="mmap.c.2.4.20.diff"
-
---- linux/mm/mmap.c.orig	2002-12-11 13:59:37.000000000 +0100
-+++ linux/mm/mmap.c	2002-12-11 14:01:16.000000000 +0100
-@@ -403,10 +403,12 @@
- 	if (file && (!file->f_op || !file->f_op->mmap))
- 		return -ENODEV;
- 
--	if ((len = PAGE_ALIGN(len)) == 0)
-+	if (!len)
- 		return addr;
- 
--	if (len > TASK_SIZE)
-+	len = PAGE_ALIGN(len);
-+
-+	if (len > TASK_SIZE || len == 0)
- 		return -EINVAL;
- 
- 	/* offset overflow? */
-
---tThc/1wpZn/ma/RB--
+							Pavel
+-- 
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130051AbRBKU0c>; Sun, 11 Feb 2001 15:26:32 -0500
+	id <S129633AbRBKUad>; Sun, 11 Feb 2001 15:30:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130078AbRBKU0M>; Sun, 11 Feb 2001 15:26:12 -0500
-Received: from colorfullife.com ([216.156.138.34]:16647 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S130051AbRBKU0E>;
-	Sun, 11 Feb 2001 15:26:04 -0500
-Message-ID: <3A86F556.8A5BAB7B@colorfullife.com>
-Date: Sun, 11 Feb 2001 21:25:58 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.1 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-CC: David Weinehall <tao@acc.umu.se>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Nick Urbanik <nicku@vtc.edu.hk>,
-        Kernel list <linux-kernel@vger.kernel.org>
+	id <S130148AbRBKUaW>; Sun, 11 Feb 2001 15:30:22 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:15374 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129633AbRBKUaG>; Sun, 11 Feb 2001 15:30:06 -0500
 Subject: Re: 2.4.2-pre3 compile error in 6pack.c
-In-Reply-To: <E14S04y-0004Tb-00@the-village.bc.nu> <3A86EF11.20C17FD8@mandrakesoft.com> <20010211210826.D20267@khan.acc.umu.se> <3A86F2BA.1B50360C@mandrakesoft.com>
+To: tao@acc.umu.se (David Weinehall)
+Date: Sun, 11 Feb 2001 20:30:30 +0000 (GMT)
+Cc: jgarzik@mandrakesoft.com (Jeff Garzik),
+        alan@lxorguk.ukuu.org.uk (Alan Cox), nicku@vtc.edu.hk (Nick Urbanik),
+        linux-kernel@vger.kernel.org (Kernel list)
+In-Reply-To: <20010211210826.D20267@khan.acc.umu.se> from "David Weinehall" at Feb 11, 2001 09:08:26 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E14S38k-0004wM-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
+> > Would it be costly/reasonable to have kmalloc -not- panic if given a
+> > too-large size?  Principle of Least Surprises says it should return NULL
+> > at the very least.
 > 
-> 
-> printk a message and fail the call.  Don't panic.
-> 
+> It's on purpose; to find the erroneous drivers.
 
-Perhaps add a compile time warning, similar to __bad_udelay();
+Unfortunately Linus forgot to provide a way to check if a kmalloc is too
+large so the drivers cannot work around it. Dave put an incredibly ugly
+constant assumption in af_unix for this and no doubt more will follow.
 
-The BUG is a bad idea.
+So -ac added the constant
 
---
-	Manfred
+Alan
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

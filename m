@@ -1,51 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136540AbRAIAS0>; Mon, 8 Jan 2001 19:18:26 -0500
+	id <S129387AbRAIAVQ>; Mon, 8 Jan 2001 19:21:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136421AbRAIASG>; Mon, 8 Jan 2001 19:18:06 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:43517 "HELO
-	brinquedo.distro.conectiva") by vger.kernel.org with SMTP
-	id <S129387AbRAIAR4>; Mon, 8 Jan 2001 19:17:56 -0500
-Date: Mon, 8 Jan 2001 20:30:02 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Drew Eckhardt <drew@PoohSticks.ORG>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH] tidy 53c7,8xx.c was Re: [PATCH] de620.c: nitpicking
-Message-ID: <20010108203002.H17087@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Drew Eckhardt <drew@PoohSticks.ORG>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-In-Reply-To: <20010108201103.E17087@conectiva.com.br> <20010108202533.F17087@conectiva.com.br>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010108202533.F17087@conectiva.com.br>; from acme@conectiva.com.br on Mon, Jan 08, 2001 at 08:25:33PM -0200
-X-Url: http://advogato.org/person/acme
+	id <S131829AbRAIAVG>; Mon, 8 Jan 2001 19:21:06 -0500
+Received: from ferret.lmh.ox.ac.uk ([163.1.138.204]:36872 "HELO
+	ferret.lmh.ox.ac.uk") by vger.kernel.org with SMTP
+	id <S129387AbRAIAUy>; Mon, 8 Jan 2001 19:20:54 -0500
+Date: Tue, 9 Jan 2001 00:20:52 +0000 (GMT)
+From: Chris Evans <chris@scary.beasts.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.2 vs. 2.4 benchmarks
+Message-ID: <Pine.LNX.4.30.0101090000110.9761-100000@ferret.lmh.ox.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ouch, sorry for the misleading subject, cut and paste sometimes doesn't work ;(
 
-Em Mon, Jan 08, 2001 at 08:25:33PM -0200, Arnaldo Carvalho de Melo escreveu:
-> Hi,
-> 
-> 	Please consider applying, no need to restore_flags here, as it is
-> restored in the beginning of this if block.
-> 
-> - Arnaldo
-> 
-> 
-> --- linux-2.4.0-ac3/drivers/scsi/53c7,8xx.c	Fri Oct 13 18:40:51 2000
-> +++ linux-2.4.0-ac3.acme/drivers/scsi/53c7,8xx.c	Mon Jan  8 20:24:35 2001
-> @@ -1899,7 +1899,6 @@
->  		hostdata->script, start);
->  	    printk ("scsi%d : DSPS = 0x%x\n", host->host_no,
->  		NCR53c7x0_read32(DSPS_REG));
-> -	    restore_flags(flags);
->  	    return -1;
->  	}
->      	hostdata->test_running = 0;
+Hi,
+
+I ran some 2.2 vs. 2.4 benchmarks, particularly in the area of file i/o,
+using bonnie++.
+
+The machine is a SMP 128Mb PII-350 with a udma2 drive capable of some
+20Mb/sec+. Kernels involved are 2.4.0, and the default RH7.0 kernel
+(2.2.16 plus more patches than you can shake a stick at).
+
+Not going too much into the gory details, here are the differences exposed
+between 2,2 and 2.4:
+
+1) Amazing 2.4 increase in streaming write performance; 13Mb/sec ->
+20Mb/sec. I suspect this is the result of the "last minute" 2.4.0 dirty
+buffer/sync waiting handling changes.
+
+2) Slight 2.4 increase in streaming read performance; 16Mb/sec ->
+17Mb/sec. This leaves 2.4.0 writing faster than reading, I find that
+surprising.
+
+3) Some 10% drop in rewrite performance from 2.2 -> 2.4 (possibly because
+page aging, like LRU, isn't too hot for the 2nd+ linear scan over data)
+
+4) File creation 30% faster in 2.4; random deletes 30% faster; sequential
+deletes 10% slower.
+
+
+I did one other quick test, with disappointing results for 2.4.0. I did a
+kernel build with 32Mb.
+
+2.4.0 was taking about 10 mins to do the build. 2.2.x was 1min30 quicker
+:( I was hoping/expecting the 2.4.0 page aging to do better, due to
+keeping the more useful pages in RAM better. I have no explanation.
+
+Cheers
+Chris
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

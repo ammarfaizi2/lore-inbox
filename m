@@ -1,58 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270932AbRHNXPH>; Tue, 14 Aug 2001 19:15:07 -0400
+	id <S270933AbRHNXRH>; Tue, 14 Aug 2001 19:17:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270931AbRHNXO6>; Tue, 14 Aug 2001 19:14:58 -0400
-Received: from [207.21.185.24] ([207.21.185.24]:25860 "EHLO
-	smtp.lynuxworks.com") by vger.kernel.org with ESMTP
-	id <S270921AbRHNXOo>; Tue, 14 Aug 2001 19:14:44 -0400
-Message-ID: <3B79B0F9.825E02A9@lnxw.com>
-Date: Tue, 14 Aug 2001 16:15:05 -0700
-From: Petko Manolov <pmanolov@Lnxw.COM>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.8 i686)
-X-Accept-Language: en, bg
-MIME-Version: 1.0
-To: cwidmer@iiic.ethz.ch
-CC: linux-kernel@vger.kernel.org
-Subject: Re: checksumming on a DP83820
-In-Reply-To: <01081417581000.04104@asterix>
-Content-Type: text/plain; charset=us-ascii
+	id <S270931AbRHNXQ5>; Tue, 14 Aug 2001 19:16:57 -0400
+Received: from anchor-post-32.mail.demon.net ([194.217.242.90]:4626 "EHLO
+	anchor-post-32.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S270934AbRHNXQk>; Tue, 14 Aug 2001 19:16:40 -0400
+Subject: Re: Report: Sony Handycam USB and Linux 2.4.9-pre2
+From: Richard Russon <ldm@flatcap.org>
+To: linux-usb-users@lists.sourceforge.net,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Klaus Mueller <klmuell@web.de>
+In-Reply-To: <200108142242.AAA22621@mailb.telia.com>
+In-Reply-To: <200108141108.f7EB8v612177@mailgate3.cinetic.de> 
+	<200108142242.AAA22621@mailb.telia.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.12.99 (Preview Release)
+Date: 15 Aug 2001 00:16:49 +0100
+Message-Id: <997831010.26092.81.camel@home.flatcap.org>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The driver i have in my hands says UDP checksumming might
-be broken. It is pretty crappy driver which most likely
-will not work on anything else than x86. It is written
-with only 2.2 kernels in mind. The manual i have is from
-feb/2001 and is preliminary :-)
+Hi Roger,
 
-I think it is 1) - yes, 2) - no
+> 2.4.9-pre2
+>  identifies the device correctly - no patch needed
+>  (similar patch in unusual-devices)
+>  but is not able to open it "unknown partition table" reported from
+>  enabled LDM ... (I enabled it in an attempt to enable everything)
+
+Afraid I can't help you, but I can probably rule out the LDM.
+It's failing when it tries to read a 1KB block from the very
+beginning of the device: "Unable to read partition table."
+
+LDM complains because it's the first in line for checking
+partitions.  If you were to disable it, then msdos would complain
+(and give up), instead.
+
+FlatCap (Rich)
+ldm@flatcap.org
 
 
 
-later,
-Petko
-
-Christian Widmer wrote:
-> 
-> does anybody know the DP83820 which is used on the GigaNix NIC and
-> can awnser me the folloing question or knows where to ask.
-> 
-> the DP83820 supports IP/UDP/TCP checksumming. the chip docu say you
-> can mark the transmit descriptior when it contains a IP, UDP, TCP header.
-> 1) is it possible for udp to spread multiple descriptios and the checksum
->    will be calculated?
-> 2) if so can it be bigger than a jumboframe?
-> 
-> i don't find any awnsers in the chip docu from national. i think 1) could be
-> possible but 2) not. am i right?
-> 
-> thanks
-> chris
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/

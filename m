@@ -1,77 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263771AbTFDSAz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 14:00:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263775AbTFDSAz
+	id S263720AbTFDSGF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 14:06:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263763AbTFDSGF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 14:00:55 -0400
-Received: from coruscant.franken.de ([193.174.159.226]:30379 "EHLO
-	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
-	id S263771AbTFDSAx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 14:00:53 -0400
-Date: Wed, 4 Jun 2003 20:07:26 +0200
-From: Harald Welte <laforge@netfilter.org>
-To: Shawn <core@enodev.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: iptables & 2.5 problem
-Message-ID: <20030604180726.GG29818@sunbeam.de.gnumonks.org>
-References: <1054747598.12295.5.camel@localhost>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="cYtjc4pxslFTELvY"
-Content-Disposition: inline
-In-Reply-To: <1054747598.12295.5.camel@localhost>
-X-Operating-System: Linux sunbeam 2.4.20-nfpom
-X-Date: Today is Setting Orange, the 9th day of Confusion in the YOLD 3169
-User-Agent: Mutt/1.5.4i
+	Wed, 4 Jun 2003 14:06:05 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:52188 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S263720AbTFDSGB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jun 2003 14:06:01 -0400
+Date: Wed, 4 Jun 2003 15:17:11 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: Krzysiek Taraszka <dzimi@pld.org.pl>
+Cc: Georg Nikodym <georgn@somanetworks.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: -rc7   Re: Linux 2.4.21-rc6
+In-Reply-To: <200305292218.38127.dzimi@pld.org.pl>
+Message-ID: <Pine.LNX.4.55L.0306041515050.11972@freak.distro.conectiva>
+References: <Pine.LNX.4.55L.0305282019160.321@freak.distro.conectiva>
+ <Pine.LNX.4.55L.0305291609580.14835@freak.distro.conectiva>
+ <200305292156.51618.dzimi@pld.org.pl> <200305292218.38127.dzimi@pld.org.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---cYtjc4pxslFTELvY
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jun 04, 2003 at 12:26:38PM -0500, Shawn wrote:
-> I really don't know how to track this problem to its source, so I was
-> hoping someone could enlighten me.
+On Thu, 29 May 2003, Krzysiek Taraszka wrote:
 
-Since this seems to be an iptables usage problem, please direct further
-questions to netfilter@lists.netfilter.org (see=20
-http://www.netfilter.org/contact.html for more info)
+> Dnia czw 29. maja 2003 21:56, Krzysiek Taraszka napisa?:
+> > Dnia czw 29. maja 2003 21:11, Marcelo Tosatti napisa?:
+> > > On Thu, 29 May 2003, Georg Nikodym wrote:
+> > > > On Wed, 28 May 2003 21:55:39 -0300 (BRT)
+> > > >
+> > > > Marcelo Tosatti <marcelo@conectiva.com.br> wrote:
+> > > > > Here goes -rc6. I've decided to delay 2.4.21 a bit and try Andrew's
+> > > > > fix for the IO stalls/deadlocks.
+> > > >
+> > > > While others may be dubious about the efficacy of this patch, I've been
+> > > > running -rc6 on my laptop now since sometime last night and have seen
+> > > > nothing odd.
+> > > >
+> > > > In case anybody cares, I'm using both ide and a ieee1394 (for a large
+> > > > external drive [which implies scsi]) and I do a _lot_ of big work with
+> > > > BK so I was seeing the problem within hours previously.
+> > >
+> > > Great!
+> > >
+> > > -rc7 will have to be released due to some problems :(
+> >
+> > hmm, seems to ide modules and others are broken. Im looking for reason why
+>
+> hmm, for IDE subsystem the ide-proc.o was't made for CONFIG_BLK_DEV_IDE=m ...
+> anyone goes to fix it ? or shall I prepare and send here my own patch ?
 
-> The problem illustrated here:
-> # iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
-> iptables: Invalid argument
->=20
-> This box is a gentoo running iptables-1.2.8-r1 and linux-2.5.70-mm3.
-> Config attached.
-
-This sounds like your iptables userspace command was compiled for a
-kernel with different headers.  Please rebuild iptables and make sure it
-actually uses the headers of your 2.5.70-mm3 kernel.
-
---=20
-- Harald Welte <laforge@netfilter.org>             http://www.netfilter.org/
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-  "Fragmentation is like classful addressing -- an interesting early
-   architectural error that shows how much experimentation was going
-   on while IP was being designed."                    -- Paul Vixie
-
---cYtjc4pxslFTELvY
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+3jVeXaXGVTD0i/8RAgIVAKCZ6hpPCwHZ58b6uHrUp5MYpKz6fQCbBhQb
-PuYNxuiF8ZzbGCxTBeLEj4Q=
-=L+2/
------END PGP SIGNATURE-----
-
---cYtjc4pxslFTELvY--
+Feel free to send your own patch, please :)

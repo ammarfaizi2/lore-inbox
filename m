@@ -1,57 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271174AbTGWIxr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 04:53:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271175AbTGWIxr
+	id S271177AbTGWJDf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 05:03:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271178AbTGWJDf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 04:53:47 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:51682 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S271174AbTGWIxq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 04:53:46 -0400
-Date: Wed, 23 Jul 2003 11:08:48 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: "Adam J. Richter" <adam@yggdrasil.com>, andersen@codepoet.org,
-       jgarzik@pobox.com, linux-kernel@vger.kernel.org
-Subject: Re: Promise SATA driver GPL'd
-Message-ID: <20030723090847.GZ26422@fs.tum.de>
-References: <200307230512.h6N5CXQ10468@adam.yggdrasil.com> <Pine.LNX.4.10.10307222219300.10927-100000@master.linux-ide.org>
+	Wed, 23 Jul 2003 05:03:35 -0400
+Received: from 69.Red-217-126-207.pooles.rima-tde.net ([217.126.207.69]:16398
+	"EHLO server01.nullzone.prv") by vger.kernel.org with ESMTP
+	id S271177AbTGWJDe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 05:03:34 -0400
+Message-Id: <5.2.1.1.2.20030723111733.00c40870@192.168.2.130>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
+Date: Wed, 23 Jul 2003 11:18:45 +0200
+To: David Zaffiro <davzaffiro@netscape.net>
+From: system_lists@nullzone.org
+Subject: Re: Problems with IDE - Ultra-ATA devices on a SiI chipset IDE
+  controler
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3F1D232B.2050200@netscape.net>
+References: <5.2.1.1.2.20030721173557.00d56450@192.168.2.130>
+ <5.2.1.1.2.20030721173557.00d56450@192.168.2.130>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.10.10307222219300.10927-100000@master.linux-ide.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 22, 2003 at 10:28:26PM -0700, Andre Hedrick wrote:
->...
-> A vote for continuing GPL in the kernel is a promote and enable the
-> thieves on the world.  Narrow vision of a utopian stupidity without a
-> means to kick arse to defend the broader issues is ...
->...
+Hello David,
 
-For the FSF it's easy to change the copyright in their software since 
-they have copyright assignments for all software contributed.
+     thanks for the reply!
 
-There are _many_ people that have a copyright on parts of the Linux
-kernel (the exact number might be different in different countries due
-to different copyright laws). To change the copyright to anything other
-than GPL v2 is practically impossible (even if a new version of the GPL
-might fix the deficits you mentioned).
+     As its a production server im not using any power management as you said.
 
-> Cheers
-> 
-> Andre Hedrick
+Thanks again.
 
-cu
-Adrian
+Regards
 
--- 
+At 13:42 22/07/2003 +0200, David Zaffiro wrote:
+>>    I have a production server with a SiI680 pci device being used as a 
+>> IDE controller.
+>>    Connected to the external IDE controller I have 4 120GB IDE disks 
+>> just in raid5 Linux-software mode.
+>>Well, I have detected some problems that i cannot understand (I am not a 
+>>expert so ... :-( ) ...
+>>( I was using a HighPoint some time ago which gave me the same problems.
+>
+>Some time ago, I've had the same problem booting gentoo-1.4-rc2 with my 
+>Promise PDC20276, I had to append "acpi=off", otherwise the kernel-image 
+>of the cdrom suffered from the same problems... Maybe that'll help to get 
+>your production-server back online?
+>However, I couldn't determine whether you are using ACPI, perhaps not. 
+>Personally, I wouldn't choose to use power-management (neither apm nor 
+>acpi) on a server in the first place, but that's just me...
+>
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+
+
 

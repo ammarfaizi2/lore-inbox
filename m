@@ -1,52 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265928AbUHANKN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265931AbUHANNq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265928AbUHANKN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Aug 2004 09:10:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265931AbUHANKN
+	id S265931AbUHANNq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Aug 2004 09:13:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265932AbUHANNp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Aug 2004 09:10:13 -0400
-Received: from holomorphy.com ([207.189.100.168]:9382 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S265928AbUHANKJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Aug 2004 09:10:09 -0400
-Date: Sun, 1 Aug 2004 06:10:04 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: zwane@linuxpower.ca, linux-kernel@vger.kernel.org, akpm@osdl.org,
-       Matthew Dobson <colpatch@us.ibm.com>
-Subject: Re: [PATCH][2.6] first/next_cpu returns values > NR_CPUS
-Message-ID: <20040801131004.GT2334@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Paul Jackson <pj@sgi.com>, zwane@linuxpower.ca,
-	linux-kernel@vger.kernel.org, akpm@osdl.org,
-	Matthew Dobson <colpatch@us.ibm.com>
-References: <Pine.LNX.4.58.0407311347270.4094@montezuma.fsmlabs.com> <20040731232126.1901760b.pj@sgi.com> <Pine.LNX.4.58.0408010316590.4095@montezuma.fsmlabs.com> <20040801124053.GS2334@holomorphy.com> <20040801060529.4bc51b98.pj@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040801060529.4bc51b98.pj@sgi.com>
-User-Agent: Mutt/1.5.6+20040523i
+	Sun, 1 Aug 2004 09:13:45 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:58757 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S265931AbUHANNn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Aug 2004 09:13:43 -0400
+Date: Sun, 1 Aug 2004 09:10:23 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: "Thomas S. Iversen" <zensonic@zensonic.dk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: How to do IO across hardsector boundries
+In-Reply-To: <410C37B7.3010504@zensonic.dk>
+Message-ID: <Pine.LNX.4.53.0408010903020.16215@chaos>
+References: <410C37B7.3010504@zensonic.dk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 01, 2004 at 06:05:29AM -0700, Paul Jackson wrote:
-> Either way - we need consistency.  Either find_next_bit(.., size, ...)
-> returns exactly size if no more bits, or all its callers tolerate any
-> return >= size.
-> I probably prefer the former, because I expect slightly tighter kernel
-> code now (see my previous post on text size), and fewer bugs in the
-> future (more clients of find_next_bit will be coded than new
-> implementations of it), if we go this way.  William's comments suggest
-> to me he prefers the later.
-> Either (or both) seems better than what we have.
-> William - can you read the find_next_bit() implementations in some other
-> arch's well enough to understand if they are anal about returning
-> exactly 'size', or content to return something >= size, when they run
-> out of bits?  That code was a bit denser than I could deal with easily.
-> If a strong majority of the arch's find_next_bit() are anal, or on the
-> other hand, are not, then I'd suggest we follow their lead.
+On Sun, 1 Aug 2004, Thomas S. Iversen wrote:
 
-A strong majority return BITS_PER_LONG-aligned results in this case.
+> Hi There
+>
+> As part of an assignment I am trying to port a piece of software from
+> FreeBSD to linux. Essentially this software (crypto) makes a virtual
+> blockdevice with "virtual" sectors on top. Under FreeBSD these virtual
+> sectors are just read/written using a simple command:
+>
+> buf=g_read(dev, offset, len)
+> error=g_write(dev,offset,buf,len)
+>
+> In linux however I have only seen the BIO layer which operates on IO on
+> hardsector boundaries.
+>
+> So my question really is, how do I go about updating for instance the
+> 512 bytes located for at byte 64 to 64+511 on the actual media without
+> getting in trouble regarding the data from offset 0-63 and 64+512->1023?
+>
+> Regards Thomas
+
+There are no hard-sector boundaries in Linux. The geometry of a drive
+is really ignored. It's just used to determine the size of a disk
+partition, etc. The stated Heads/cylinders/sectors is a throw-back
+to the old int 0x13, DOS days where stuff had to fit into registers
+for access.
+
+If your driver expects to write physical sectors, it's broken.
+Even physical sectors (on the media) don't really exist anymore.
+They are now "logical" sectors and they are never really accessed
+as a single unit (except in floppies). They are "extracted" from a
+sector-buffer that could contain nearly a whole track.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
 
--- wli

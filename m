@@ -1,33 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263504AbSJGWHE>; Mon, 7 Oct 2002 18:07:04 -0400
+	id <S263539AbSJGWXD>; Mon, 7 Oct 2002 18:23:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263505AbSJGWHE>; Mon, 7 Oct 2002 18:07:04 -0400
-Received: from u195-95-41-235.adsl.pi.be ([195.95.41.235]:38661 "EHLO
-	jebril.pi.be") by vger.kernel.org with ESMTP id <S263475AbSJGWHA>;
-	Mon, 7 Oct 2002 18:07:00 -0400
-Message-Id: <200210072211.g97MBGVj030921@jebril.pi.be>
-X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.5.41 missing #include in aha152x.c
-Date: Tue, 08 Oct 2002 00:11:15 +0200
-From: "Michel Eyckmans (MCE)" <mce@pi.be>
+	id <S263540AbSJGWXD>; Mon, 7 Oct 2002 18:23:03 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:18948
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S263539AbSJGWXC>; Mon, 7 Oct 2002 18:23:02 -0400
+Date: Mon, 7 Oct 2002 15:25:55 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Aaron Lehmann <aaronl@vitelus.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: The end of embedded Linux?
+In-Reply-To: <20021006222433.GB9785@vitelus.com>
+Message-ID: <Pine.LNX.4.10.10210071522270.31069-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-aha152x.c in 2.5.41 needs this to compile:
+Aaron,
 
-diff -ru linux.orig/drivers/scsi/aha152x.c linux.mce/drivers/scsi/aha152x.c
---- linux.orig/drivers/scsi/aha152x.c   Tue Oct  8 00:08:45 2002
-+++ linux.mce/drivers/scsi/aha152x.c    Tue Oct  8 00:06:13 2002
-@@ -250,6 +250,7 @@
- 
- #include "aha152x.h"
- #include <linux/stat.h>
-+#include <linux/workqueue.h>
- 
- #include <scsi/scsicam.h>
- 
+Erik A (code-poet) just informed me that I misread the to/from line and so
+I mistakenly replyed to you with the "sarcasim and humor".  I apologize
+for my dyslexia and for shooting off the hip to quick thinking it was
+"Gigi Duru" making the comments.  Again, apology for not maintaining
+site-lock on humor-cannon.
 
-MCE
+Cheers,
+
+Andre Hedrick
+LAD Storage Consulting Group
+
+

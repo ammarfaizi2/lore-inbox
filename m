@@ -1,69 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263671AbTDXNxB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 09:53:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263672AbTDXNxB
+	id S263686AbTDXN7n (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 09:59:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263696AbTDXN7n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 09:53:01 -0400
-Received: from siaab2ab.compuserve.com ([149.174.40.130]:53799 "EHLO
-	siaab2ab.compuserve.com") by vger.kernel.org with ESMTP
-	id S263671AbTDXNw7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 09:52:59 -0400
-Date: Thu, 24 Apr 2003 09:59:58 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [ANNOUNCE] desc.c -- dump the i386 descriptor tables
-To: Gabriel Paubert <paubert@iram.es>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200304241004_MC3-1-35CA-8D5B@compuserve.com>
+	Thu, 24 Apr 2003 09:59:43 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:9208 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id S263686AbTDXN7m (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 09:59:42 -0400
+Date: Thu, 24 Apr 2003 16:11:31 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Richard Zidlicky <rz@linux-m68k.org>
+cc: John Bradford <john@grabjohn.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Paul Mackerras <paulus@samba.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] M68k IDE updates
+In-Reply-To: <20030424131446.GB3073@linux-m68k.org>
+Message-ID: <Pine.GSO.4.21.0304241610440.12020-100000@vervain.sonytel.be>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gabriel Paubert wrote:
-
-
-> > #31: base=c0355600 limit=00eb flags=0089 <G=0 P=1 S=0 DPL=0 Available TSS>
->
-> Nice but the limit field is 20 bits (shifted left by 12 bits if G=1).
-
-
-  Huh.  The diagram I used was blank where the upper four limit bits belong
-so I assumed it was unused... and for some reason I was thinking you
-shifted
-left by 16 bits when G=1, so I never noticed the missing four bits. Thanks.
-
-
-
-> Other suggestions left as an exercise to the reader:
+On Thu, 24 Apr 2003, Richard Zidlicky wrote:
+> On Thu, Apr 24, 2003 at 01:26:12PM +0200, Geert Uytterhoeven wrote:
+> > Since both Atari and Q40/Q60 use PIO only, this affects ata_{in,out}put_data()
+> > only. It's quite easy to add a swap flag to ide_drive_t (configurable through
+> > hdX=swapdata), that is checked in ata_{in,out}put_data().  To improve
+> > performance, we wouldn't swap twice, but just call the new routines
+> > hwif->{IN,OUT}S[WL]_NOSWAP.
 > 
-> a) distinguish 16 bit code from 32 bit code (GDT entry #19 is 16 bit code),
+> contradicts previous paragraph? Still wrong smartdata etc unless
+> you mean to set the flag per request depending on the type of command
+> - which would be quite easy afaics. 
 
+Oops, you're right.
 
- BIOS?
+Gr{oetje,eeting}s,
 
+						Geert
 
-> b) distinguish read/write from read-only and execute/read from
-> execute-only (are there any read-only or execute-only segments in the GDT?)
-> 
-> c) distinguish 16 and 32 bit expand down data (changes the upper
-> limit of the valid addresses, but it's never used in the GDT, so like
-> the conformant code it's not that important)
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 
-  I now have it dumping LDTs, and should probably do at least cs:eip and
-eflags
-for each task.
- 
-
-> d) extend this for x86-64 :-)
-
-
-  Itanium. 8)
-
-
-------
- Chuck

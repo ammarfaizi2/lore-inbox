@@ -1,51 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267715AbTAaHE3>; Fri, 31 Jan 2003 02:04:29 -0500
+	id <S267708AbTAaHCN>; Fri, 31 Jan 2003 02:02:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267716AbTAaHE3>; Fri, 31 Jan 2003 02:04:29 -0500
-Received: from 205-158-62-139.outblaze.com ([205.158.62.139]:14508 "HELO
-	spf1.us.outblaze.com") by vger.kernel.org with SMTP
-	id <S267715AbTAaHE2>; Fri, 31 Jan 2003 02:04:28 -0500
-Message-ID: <20030131071308.30079.qmail@email.com>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+	id <S267714AbTAaHCN>; Fri, 31 Jan 2003 02:02:13 -0500
+Received: from webhosting.rdsbv.ro ([213.157.185.164]:44771 "EHLO
+	hosting.rdsbv.ro") by vger.kernel.org with ESMTP id <S267708AbTAaHCM>;
+	Fri, 31 Jan 2003 02:02:12 -0500
+Date: Fri, 31 Jan 2003 09:11:27 +0200 (EET)
+From: Catalin BOIE <util@ns2.deuroconsult.ro>
+X-X-Sender: <util@hosting.rdsbv.ro>
+To: Bruce Harada <bharada@coral.ocn.ne.jp>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Problem - See attached dmesg dump
+In-Reply-To: <20030131025550.1c2cf71a.bharada@coral.ocn.ne.jp>
+Message-ID: <Pine.LNX.4.33.0301310909290.16563-100000@hosting.rdsbv.ro>
 MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "dan carpenter" <error27@email.com>
-To: linux-kernel@vger.kernel.org
-Cc: smatch-discuss@lists.sf.net
-Date: Fri, 31 Jan 2003 02:13:08 -0500
-Subject: [Announce]  Smatch checker / bug database
-X-Originating-Ip: 66.127.101.73
-X-Originating-Server: ws3-1.us4.outblaze.com
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have been working on an error checker called Smatch that was 
-inspired by the Stanford Checker.  The project page is at
-http://smatch.sf.net
+On Fri, 31 Jan 2003, Bruce Harada wrote:
 
-Smatch is useable but still in pre-Alpha stage.  Email me or 
-smatch-dicuss@lists.sf.net if you have any problems.  So far, 
-I've been really good at replying promptly.
+> On Wed, 29 Jan 2003 10:57:09 +0200 (EET)
+> Catalin BOIE <util@ns2.deuroconsult.ro> wrote:
+>
+> > I checked the memory and it's ok.
+>
+> How did you check it? Hint: Get memtest86 and run it continuously for as long
+> as you can stand it.
+The machine has 512MB RAM and I let the test (memtest86) run for 8 hours
+or more.
 
-On the smatch.sf.net page there is a link to the database of 
-bugs Smatch scripts have found.  A lot of the bugs turn out 
-to be false positives so the web page has a feature where you 
-can create a login and mark a bug as a false positive. 
+> Linux version: http://public.planetmirror.com/pub/memtest86/memtest86-3.0.tar.gz
+> Windows version: http://public.planetmirror.com/pub/memtest86/memt30.zip
+>
+> > The computer is new.
+>
+> Worst kind - they break more than any other type.
+:)
 
-Hopefully you will find Smatch useful.
+> > The only thing that looks strange is the CPU temperature (68 Celsius).
+> > CPU is Athlon XP 1700+
+>
+> 68C is rather high, especially if that's under no load...
+68 in BIOS when it's no load... :(
 
-Thanks,
-Dan Carpenter
+>
+> > It has a big fan that spins at ~5000 rpm.
+>
+> Well, that's nice to know anyway. I suggest checking to see if that big fan is
+> correctly attached.
 
+Probably you are right. I will check.
 
--- 
-_______________________________________________
-Sign-up for your own FREE Personalized E-mail at Mail.com
-http://www.mail.com/?sr=signup
+Thanks!
 
-Meet Singles
-http://corp.mail.com/lavalife
+---
+Catalin(ux) BOIE
+catab@deuroconsult.ro
 

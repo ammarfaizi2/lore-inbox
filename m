@@ -1,37 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268217AbUHFRGS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266013AbUHFRGT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268217AbUHFRGS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 13:06:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266013AbUHFRCl
+	id S266013AbUHFRGT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 13:06:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266561AbUHFRC7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 13:02:41 -0400
-Received: from anchor-post-30.mail.demon.net ([194.217.242.88]:24075 "EHLO
-	anchor-post-30.mail.demon.net") by vger.kernel.org with ESMTP
-	id S268207AbUHFQ7H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 12:59:07 -0400
-Message-ID: <4113B8A2.4050609@lougher.demon.co.uk>
-Date: Fri, 06 Aug 2004 17:58:10 +0100
-From: Phillip Lougher <phillip@lougher.demon.co.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux ppc; en-GB; rv:1.2.1) Gecko/20030228
-X-Accept-Language: en, en-us
-MIME-Version: 1.0
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       viro@parcelfarce.linux.theplanet.co.uk
-Subject: Re: [PATCH] VFS readahead bug in 2.6.8-rc[1-3]
-References: <41127371.1000603@lougher.demon.co.uk> <4112D6FD.4030707@yahoo.com.au> <4112EAAB.8040005@yahoo.com.au>
-In-Reply-To: <4112EAAB.8040005@yahoo.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 6 Aug 2004 13:02:59 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:65479 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S268198AbUHFQ4M (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Aug 2004 12:56:12 -0400
+Subject: Re: [RFC] initialize all arches mem_map in one place
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: linux-mm <linux-mm@kvack.org>, Anton Blanchard <anton@samba.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200408060857.18641.jbarnes@engr.sgi.com>
+References: <1091779673.6496.1021.camel@nighthawk>
+	 <200408060857.18641.jbarnes@engr.sgi.com>
+Content-Type: text/plain
+Message-Id: <1091811353.6496.2608.camel@nighthawk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 06 Aug 2004 09:55:53 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
+On Fri, 2004-08-06 at 08:57, Jesse Barnes wrote:
+> On Friday, August 6, 2004 1:07 am, Dave Hansen wrote:
+> > The following patch does what my first one did (don't pass mem_map into
+> > the init functions), incorporates Jesse Barnes' ia64 fixes on top of
+> > that, and gets rid of all but one of the global mem_map initializations
+> > (parisc is weird).  It also magically removes more code than it adds.
+> > It could be smaller, but I shamelessly added some comments.
+> 
+> Doesn't apply cleanly to the latest BK tree, which patch am I missing?
 
-> On second thought, maybe not. I think your filesystem is at fault.
+It should only be against the latest mm: 2.6.8-rc3-mm1
 
-No I'm not wrong here. With a read-only filesystem i_size can
-never change, there are no possible race conditions.  If a too
-large index is passed it is a VFS bug.  Are you suggesting I should
-start to code assuming the VFS is broken?
+-- Dave
 

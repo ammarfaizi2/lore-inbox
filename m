@@ -1,59 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264039AbRFKJ2T>; Mon, 11 Jun 2001 05:28:19 -0400
+	id <S264044AbRFKJpF>; Mon, 11 Jun 2001 05:45:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264041AbRFKJ16>; Mon, 11 Jun 2001 05:27:58 -0400
-Received: from shiva.jussieu.fr ([134.157.0.129]:8204 "EHLO shiva.jussieu.fr")
-	by vger.kernel.org with ESMTP id <S264039AbRFKJ1y>;
-	Mon, 11 Jun 2001 05:27:54 -0400
-Date: Mon, 11 Jun 2001 11:29:05 +0200
-From: Roberto.Di-Cosmo@pps.jussieu.fr (Roberto Di Cosmo)
-Message-Id: <200106110929.f5B9T5Q27584@foobar.pps.jussieu.fr>
-To: linux-kernel@vger.kernel.org
-Subject: [isocompr PATCH]: announcing stable port to kernel 2.2.18
-Cc: demolinux@demolinux.org, dicosmo@pps.jussieu.fr
+	id <S264047AbRFKJo4>; Mon, 11 Jun 2001 05:44:56 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:64517 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S264044AbRFKJou>; Mon, 11 Jun 2001 05:44:50 -0400
+Message-ID: <3B2492AD.C2878479@idb.hist.no>
+Date: Mon, 11 Jun 2001 11:43:09 +0200
+From: Helge Hafting <helgehaf@idb.hist.no>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.6-pre1 i686)
+X-Accept-Language: no, en
+MIME-Version: 1.0
+To: hps@intermeta.de
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] sockreg2.4.5-05 inet[6]_create() register/unregister table
+In-Reply-To: <9fq2ce$gkb$1@forge.intermeta.de> <200106082254.f58MsWE487361@saturn.cs.uml.edu> <9g20fn$on4$1@forge.intermeta.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear mailing list members,
-        you will find at http://www.pps.jussieu.fr/~dicosmo/FreeSoftware
-the first public release of my updates (for 2.2.18) of an old patch
-(due to Eric Youngdale and  Adam J. Richter) to allow the use
-of transparent compression of files on iso9660 images.
+"Henning P. Schmiedehausen" wrote:
 
-This means you can  pack over 1Gb of data on a usual CD. Also, since
- reading off the CD is actually slower than decompressing data, an overall
-speed improvement comes as a bonus.
+> I had an interesting discussion with my brother-in-law at this
+> weekend: What is source code?
 
-The current version of the patch for 2.2.18 is very stable (we use it
-for DemoLinux [see www.demolinux.org] heavily), and I wonder if it could
-not be a good idea to see if this code can be folded into the official releases
-sometime in the future (I have been looking at 2.4.x code, but the new page
-cache means some changes might be needed: I will try to post a first version
-for 2.4.x soon).
+The GPL covers this, if you're using it:
 
-Please feel free to use this code (at your own risk), test it and report bugs
-to dicosmo@pps.jussieu.fr
+"The source code for a work means the preferred form of the work for
+making modifications to it.  For an executable work, complete source
+code means all the source code for all modules it contains, plus any
+associated interface definition files, plus the scripts used to
+control compilation and installation of the executable.  However, as a
+special exception, the source code distributed need not include
+anything that is normally distributed (in either source or binary
+form) with the major components (compiler, kernel, and so on) of the
+operating system on which the executable runs, unless that component
+itself accompanies the executable."
 
-Since I am not currently subscribed to the kernel mailing list, please
-contact me directly by e-mail, for any comments.
+> What if there is really a warbled indivdual that can write a driver in
+> object code? Or at least in x86 assembler and then performs the magic
+> necessary to link it into the kernel?
+
+You may of course write a driver/program by "cat > file.o" and end up
+with a program with no source.  The gpl says source is 
+"the preferred form of the work for making modifications to it."
+So this object file does not work with the gpl because object files
+is not a preferred form for making modifications.  This could change
+if programmers in general change to *prefer* editing .o files  *instead* 
+of working with source and compilers.  Winning the lottery every time
+is more probable though...
  
-Sincerely yours
- 
---Roberto Di Cosmo
- 
-------------------------------------------------------------------
-Professeur
-PPS                      E-mail: dicosmo@pps.jussieu.fr
-Universite Paris VII     WWW  : http://www.pps.jussieu.fr/~dicosmo
-Case 7014                Tel  : ++33-(1)-44 27 86 55
-2, place Jussieu         Fax  : ++33-(1)-44 27 68 49
-F-75251 Paris Cedex 05
-FRANCE.                  MIME/NextMail accepted
-------------------------------------------------------------------
-Office location:
- 
-Bureau 6C14 (6th floor)
-175, rue du Chevaleret, XIII
-Metro Chevaleret, ligne 6
-------------------------------------------------------------------                                 
+Source in any language, even assembly, qualify.  But note the
+"preferred form", merely disassembling the object file is
+dubious.  So is deliberately obfuscated source.
+
+> Is this a "binary only" driver or just a driver on par with the NVidia
+> that is just "GPL'ed but unreadable"?
+
+It is definitely binary only, as there is no source.  That don't
+nullify your obligation to provide source though, so you can't
+distribute it under the GPL.
+
+Try reading /usr/share/common-licenses/GPL , it isn't that long and
+have many answers to such questions.
+
+Helge Hafting

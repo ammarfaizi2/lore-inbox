@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268733AbUIXWfk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268686AbUIXWiQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268733AbUIXWfk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 18:35:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269023AbUIXWfk
+	id S268686AbUIXWiQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 18:38:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269023AbUIXWiQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 18:35:40 -0400
-Received: from smtp08.auna.com ([62.81.186.18]:58538 "EHLO smtp08.retemail.es")
-	by vger.kernel.org with ESMTP id S268733AbUIXWfh convert rfc822-to-8bit
+	Fri, 24 Sep 2004 18:38:16 -0400
+Received: from smtp06.auna.com ([62.81.186.16]:30661 "EHLO smtp06.retemail.es")
+	by vger.kernel.org with ESMTP id S268686AbUIXWiK convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 18:35:37 -0400
-Date: Fri, 24 Sep 2004 22:35:36 +0000
+	Fri, 24 Sep 2004 18:38:10 -0400
+Date: Fri, 24 Sep 2004 22:38:08 +0000
 From: "J.A. Magallon" <jamagallon@able.es>
-Subject: Re: 2.6.9-rc2-mm3, e100 oops
+Subject: Re: 2.6.9-rc2-mm3, irq 11: nobody cared!, Disabling IRQ #11
 To: linux-kernel@vger.kernel.org
 References: <20040924014643.484470b1.akpm@osdl.org>
 In-Reply-To: <20040924014643.484470b1.akpm@osdl.org> (from akpm@osdl.org on
 	Fri Sep 24 10:46:43 2004)
 X-Mailer: Balsa 2.2.4
-Message-Id: <1096065336l.13335l.0l@werewolf.able.es>
+Message-Id: <1096065488l.13335l.1l@werewolf.able.es>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII;
 	Format=Flowed
@@ -31,44 +31,56 @@ On 2004.09.24, Andrew Morton wrote:
 > 
 > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc2/2.6.9-rc2-mm3/
 > 
-> - This is a quick not-very-well-tested release - it can't be worse than
->   2.6.9-rc2-mm2, which had a few networking problems.
-> 
 
-I get this on boot:
+I got this oops also, some time after normal boot:
 
-Sep 24 12:41:41 nada kernel: e100: Intel(R) PRO/100 Network Driver, 3.1.4-NAPI
-Sep 24 12:41:41 nada kernel: e100: Copyright(c) 1999-2004 Intel Corporation
-Sep 24 12:41:41 nada kernel: ACPI: PCI interrupt 0000:00:0d.0[A] -> GSI 19 (level, low) -> IRQ 185
-Sep 24 12:41:41 nada kernel: e100: eth0: e100_probe: addr 0xf7161000, irq 185, MAC addr 00:30:48:41:22:9F
-Sep 24 12:41:41 nada kernel: ip_tables: (C) 2000-2002 Netfilter core team Sep 24 12:41:41 nada kernel: ip_conntrack version 2.1 (8191 buckets, 65528 max) - 336 bytes per conntrack
-Sep 24 12:41:41 nada kernel: enable_irq(185) unbalanced from f89b3e25
-Sep 24 12:41:41 nada kernel:  [enable_irq+163/240] enable_irq+0xa3/0xf0
-Sep 24 12:41:41 nada kernel:  [<c0108a13>] enable_irq+0xa3/0xf0
-Sep 24 12:41:41 nada kernel:  [pg0+943935013/1067971584] e100_up+0xd5/0x1e0 [e100]
-Sep 24 12:41:41 nada kernel:  [<f89b3e25>] e100_up+0xd5/0x1e0 [e100]
-Sep 24 12:41:41 nada kernel:  [pg0+943935013/1067971584] e100_up+0xd5/0x1e0 [e100]
-Sep 24 12:41:41 nada kernel:  [<f89b3e25>] e100_up+0xd5/0x1e0 [e100]
-Sep 24 12:41:41 nada kernel:  [pg0+943939226/1067971584] e100_open+0x2a/0x90 [e100]
-Sep 24 12:41:41 nada kernel:  [<f89b4e9a>] e100_open+0x2a/0x90 [e100]
-Sep 24 12:41:41 nada kernel:  [dev_open+116/144] dev_open+0x74/0x90
-Sep 24 12:41:41 nada kernel:  [<c036b864>] dev_open+0x74/0x90
-Sep 24 12:41:41 nada kernel:  [dev_change_flags+86/304] dev_change_flags+0x56/0x130
-Sep 24 12:41:41 nada kernel:  [<c036cda6>] dev_change_flags+0x56/0x130
-Sep 24 12:41:41 nada kernel:  [devinet_ioctl+1522/1696] devinet_ioctl+0x5f2/0x6a0
-Sep 24 12:41:41 nada kernel:  [<c03a5d72>] devinet_ioctl+0x5f2/0x6a0
-Sep 24 12:41:41 nada kernel:  [inet_ioctl+223/256] inet_ioctl+0xdf/0x100
-Sep 24 12:41:41 nada kernel:  [<c03a7c8f>] inet_ioctl+0xdf/0x100
-Sep 24 12:41:41 nada kernel:  [sock_ioctl+478/672] sock_ioctl+0x1de/0x2a0
-Sep 24 12:41:41 nada kernel:  [<c036338e>] sock_ioctl+0x1de/0x2a0
-Sep 24 12:41:41 nada kernel:  [fget+73/96] fget+0x49/0x60
-Sep 24 12:41:41 nada kernel:  [<c015aa69>] fget+0x49/0x60
-Sep 24 12:41:41 nada kernel:  [sys_ioctl+366/672] sys_ioctl+0x16e/0x2a0
-Sep 24 12:41:41 nada kernel:  [<c016be2e>] sys_ioctl+0x16e/0x2a0
-Sep 24 12:41:41 nada kernel:  [sysenter_past_esp+82/113] sysenter_past_esp+0x52/0x71
-Sep 24 12:41:41 nada kernel:  [<c0105bad>] sysenter_past_esp+0x52/0x71
-Sep 24 12:41:41 nada kernel: e100: eth0: e100_watchdog: link up, 100Mbps, full-duplex
+Sep 24 12:58:38 nada kernel: irq 11: nobody cared!
+Sep 24 12:58:38 nada kernel:  [__report_bad_irq+36/144] __report_bad_irq+0x24/0x90
+Sep 24 12:58:38 nada kernel:  [<c0108514>] __report_bad_irq+0x24/0x90
+Sep 24 12:58:38 nada kernel:  [note_interrupt+146/352] note_interrupt+0x92/0x160
+Sep 24 12:58:38 nada kernel:  [<c0108782>] note_interrupt+0x92/0x160
+Sep 24 12:58:38 nada kernel:  [finish_task_switch+61/144] finish_task_switch+0x3d/0x90
+Sep 24 12:58:38 nada kernel:  [<c011983d>] finish_task_switch+0x3d/0x90
+Sep 24 12:58:38 nada kernel:  [do_IRQ+354/416] do_IRQ+0x162/0x1a0
+Sep 24 12:58:38 nada kernel:  [<c0108bc2>] do_IRQ+0x162/0x1a0
+Sep 24 12:58:38 nada kernel:  [common_interrupt+24/32] common_interrupt+0x18/0x20
+Sep 24 12:58:38 nada kernel:  [<c01065dc>] common_interrupt+0x18/0x20
+Sep 24 12:58:38 nada kernel:  [default_idle+0/64] default_idle+0x0/0x40
+Sep 24 12:58:38 nada kernel:  [<c0103b40>] default_idle+0x0/0x40
+Sep 24 12:58:38 nada kernel:  [default_idle+44/64] default_idle+0x2c/0x40
+Sep 24 12:58:38 nada kernel:  [<c0103b6c>] default_idle+0x2c/0x40
+Sep 24 12:58:38 nada kernel:  [cpu_idle+52/80] cpu_idle+0x34/0x50
+Sep 24 12:58:38 nada kernel:  [<c0103bf4>] cpu_idle+0x34/0x50
+Sep 24 12:58:38 nada kernel: handlers:
+Sep 24 12:58:38 nada kernel: [usb_hcd_irq+0/112] (usb_hcd_irq+0x0/0x70)
+Sep 24 12:58:38 nada kernel: [<c0335680>] (usb_hcd_irq+0x0/0x70)
+Sep 24 12:58:38 nada kernel: [usb_hcd_irq+0/112] (usb_hcd_irq+0x0/0x70)
+Sep 24 12:58:38 nada kernel: [<c0335680>] (usb_hcd_irq+0x0/0x70)
+Sep 24 12:58:38 nada kernel: [usb_hcd_irq+0/112] (usb_hcd_irq+0x0/0x70)
+Sep 24 12:58:38 nada kernel: [<c0335680>] (usb_hcd_irq+0x0/0x70)
+Sep 24 12:58:38 nada kernel: Disabling IRQ #11
 
+System:
+
+nada:~# lspci
+00:00.0 Host bridge: VIA Technologies, Inc. VT8633 [Apollo Pro266] (rev 01)
+00:01.0 PCI bridge: VIA Technologies, Inc. VT8633 [Apollo Pro266 AGP]
+00:07.0 RAID bus controller: Promise Technology, Inc. PDC20319 (FastTrak S150 TX4) (rev 02)
+00:08.0 RAID bus controller: Promise Technology, Inc. PDC20319 (FastTrak S150 TX4) (rev 02)
+00:0b.0 Multimedia audio controller: Ensoniq 5880 AudioPCI (rev 02)
+00:0c.0 RAID bus controller: Promise Technology, Inc. PDC20267 (FastTrak100/Ultra100) (rev 02)
+00:0d.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 08)
+00:11.0 ISA bridge: VIA Technologies, Inc. VT8233 PCI to ISA Bridge
+00:11.1 IDE interface: VIA Technologies, Inc. VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06)
+00:11.2 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 1b)
+00:11.3 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 1b)
+00:11.4 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 1b)
+00:12.0 Ethernet controller: VIA Technologies, Inc. VT6102 [Rhine-II] (rev 62)
+01:00.0 VGA compatible controller: nVidia Corporation NV11 [GeForce2 MX/MX 400] (rev b2)
+
+If any more info is needed, just ask for it.
+
+TIA
 
 --
 J.A. Magallon <jamagallon()able!es>     \               Software is like sex:

@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312379AbSDUPqY>; Sun, 21 Apr 2002 11:46:24 -0400
+	id <S313415AbSDUPv5>; Sun, 21 Apr 2002 11:51:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312414AbSDUPqX>; Sun, 21 Apr 2002 11:46:23 -0400
-Received: from dsl-213-023-040-105.arcor-ip.net ([213.23.40.105]:53138 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S312379AbSDUPqW>;
-	Sun, 21 Apr 2002 11:46:22 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Jeff Garzik <garzik@havoc.gtf.org>, Ian Molton <spyro@armlinux.org>
+	id <S313422AbSDUPv4>; Sun, 21 Apr 2002 11:51:56 -0400
+Received: from panic.tn.gatech.edu ([130.207.137.62]:9887 "HELO gtf.org")
+	by vger.kernel.org with SMTP id <S313415AbSDUPv4>;
+	Sun, 21 Apr 2002 11:51:56 -0400
+Date: Sun, 21 Apr 2002 11:51:54 -0400
+From: Jeff Garzik <garzik@havoc.gtf.org>
+To: Rob Landley <landley@trommello.org>
+Cc: Daniel Phillips <phillips@bonn-fries.net>,
+        Rik van Riel <riel@conectiva.com.br>,
+        Anton Altaparmakov <aia21@cantab.net>, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
-Date: Sat, 20 Apr 2002 17:46:57 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: zippel@linux-m68k.org, linux-kernel@vger.kernel.org
-In-Reply-To: <E16ya3u-0000RG-00@starship> <20020421033038.4bd1b9ec.spyro@armlinux.org> <20020421113312.C2301@havoc.gtf.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16yx4j-0000ja-00@starship>
+Message-ID: <20020421115154.F2301@havoc.gtf.org>
+In-Reply-To: <Pine.LNX.4.44L.0204201513170.1960-100000@imladris.surriel.com> <E16yeIP-0000aD-00@starship> <20020421080544.4AF3747B@merlin.webofficenow.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 21 April 2002 17:33, Jeff Garzik wrote:
-> On Sun, Apr 21, 2002 at 03:30:38AM +0100, Ian Molton wrote:
-> > Jeff Garzik Awoke this dragon, who will now respond:
-> > 
-> > > > Maybe I was to subtle, but your censorship argument is simply bullshit.
-> > > > A link to the information is completely sufficient.
-> > > 
-> > > What was Daniel's action?  Remove the text.  Nothing else.  Sure, he
-> > > suggested other options, but he did attempt to implement them?  No.
-> > 
-> > Be realistic - how is he supposed to do that?
-> 
-> It's really trivial to put a document up on a Web site, before
-> submitting a patch to remove said document.  Or to contact someone, and
-> get them to post the doc.
-> 
-> Did he even attempt to do that?  No.
+On Sat, Apr 20, 2002 at 09:46:43PM -0400, Rob Landley wrote:
+> is there a license on the distribution of the documentation in question that 
+> presents a legal problem for it to be distributed together with GPL kernel 
+> code?
 
-You're wrong.  I suggested posting the documents on the bitkeeper site among
-other things and Larry agreed to do that.  What do you think I should have done,
-demanded that Larry do that?
+No.  The docs in question are covered by the GPL.
 
--- 
-Daniel
+This is part of where I get the censorship jag.  The doc _license_ is
+GPL, so they are clearly complaining about my GPL'd speech describing
+proprietary software.  Fsck them, I will talk about proprietary software
+as much as I like.  And GPL that speech, as much as I like.
+
+Implying (or flat out saying) that _talking_ about something proprietary
+makes that speech proprietary is silly.
+
+Daniel was trying to dictate what we can and cannot talk about, in the
+kernel sources.  That's offensive.
+
+	Jeff
+
+
+

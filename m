@@ -1,145 +1,300 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270616AbRHIXea>; Thu, 9 Aug 2001 19:34:30 -0400
+	id <S270610AbRHIXdL>; Thu, 9 Aug 2001 19:33:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270612AbRHIXdR>; Thu, 9 Aug 2001 19:33:17 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:35242 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S270606AbRHIXcy>;
-	Thu, 9 Aug 2001 19:32:54 -0400
-Date: Thu, 9 Aug 2001 19:33:05 -0400 (EDT)
+	id <S269875AbRHIXcs>; Thu, 9 Aug 2001 19:32:48 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:51113 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S270606AbRHIXcb>;
+	Thu, 9 Aug 2001 19:32:31 -0400
+Date: Thu, 9 Aug 2001 19:32:42 -0400 (EDT)
 From: Alexander Viro <viro@math.psu.edu>
 To: Linus Torvalds <torvalds@transmeta.com>
 cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] fs/super.c fixes (7/8)
-In-Reply-To: <Pine.GSO.4.21.0108091932300.25945-100000@weyl.math.psu.edu>
-Message-ID: <Pine.GSO.4.21.0108091932500.25945-100000@weyl.math.psu.edu>
+Subject: [PATCH] fs/super.c fixes (6/8)
+In-Reply-To: <Pine.GSO.4.21.0108091932080.25945-100000@weyl.math.psu.edu>
+Message-ID: <Pine.GSO.4.21.0108091932300.25945-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Part 7/8:
+Part 6/8:
 
-_Now_ we can drop the "reuse" branch in get_empty_super(). Done, remaining
-thing renamed into alloc_super(). Insertion of the allocated superblock into
-the super_blocks is moved into the caller (read_super()).
+OK, that's the first big one.
+	* we are freeing superblocks when s_count hits zero.
+	* we are removing superblock from the list when s_active hits zero (at
+that point superblock is already doomed).
+	* functions that used to traverse the list need to restart after
+blocking actions. Done.
+	* sync_inodes_sb() is slightly changed - now it repeats the whole
+thing if some of the locked inodes had been dirtied while we were waiting.
+As the result, wait_on_dirty() is gone - it's not needed anymore.
+	* sync_supers() gets shared lock on ->s_umount for the duration of
+->write_super(). Since we are already grabbing ->s_lock here it doesn't
+add any deadlocks.
 
-diff -urN S8-pre7-freeing/fs/super.c S8-pre7-alloc_super/fs/super.c
---- S8-pre7-freeing/fs/super.c	Thu Aug  9 19:07:32 2001
-+++ S8-pre7-alloc_super/fs/super.c	Thu Aug  9 19:07:32 2001
-@@ -59,8 +59,6 @@
- /* this is initialized in init/main.c */
- kdev_t ROOT_DEV;
+diff -urN S8-pre7-s_count/fs/inode.c S8-pre7-freeing/fs/inode.c
+--- S8-pre7-s_count/fs/inode.c	Thu Aug  9 19:07:32 2001
++++ S8-pre7-freeing/fs/inode.c	Thu Aug  9 19:07:32 2001
+@@ -258,23 +258,6 @@
+ 		__sync_one(list_entry(tmp, struct inode, i_list), 0);
+ }
  
--int nr_super_blocks;
--int max_super_blocks = NR_SUPER;
- LIST_HEAD(super_blocks);
- spinlock_t sb_lock = SPIN_LOCK_UNLOCKED;
- 
-@@ -775,43 +773,23 @@
-  *	the request.
-  */
-  
--static struct super_block *get_empty_super(void)
-+static struct super_block *alloc_super(void)
- {
--	struct super_block *s;
--
--	spin_lock(&sb_lock);
--	for (s  = sb_entry(super_blocks.next);
--	     s != sb_entry(&super_blocks); 
--	     s  = sb_entry(s->s_list.next)) {
--		if (s->s_dev)
+-static inline int wait_on_dirty(struct list_head *head)
+-{
+-	struct list_head * tmp;
+-	list_for_each(tmp, head) {
+-		struct inode *inode = list_entry(tmp, struct inode, i_list);
+-		if (!inode->i_state & I_DIRTY)
 -			continue;
--		s->s_count++;
--		atomic_inc(&s->s_active);
--		spin_unlock(&sb_lock);
--		return s;
+-		__iget(inode);
+-		spin_unlock(&inode_lock);
+-		__wait_on_inode(inode);
+-		iput(inode);
+-		spin_lock(&inode_lock);
+-		return 1;
 -	}
--	spin_unlock(&sb_lock);
--	/* Need a new one... */
--	if (nr_super_blocks >= max_super_blocks)
--		return NULL;
--	s = kmalloc(sizeof(struct super_block),  GFP_USER);
-+	struct super_block *s = kmalloc(sizeof(struct super_block),  GFP_USER);
- 	if (s) {
--		nr_super_blocks++;
- 		memset(s, 0, sizeof(struct super_block));
--		spin_lock(&sb_lock);
- 		INIT_LIST_HEAD(&s->s_dirty);
- 		INIT_LIST_HEAD(&s->s_locked_inodes);
--		list_add (&s->s_list, super_blocks.prev);
- 		INIT_LIST_HEAD(&s->s_files);
- 		init_rwsem(&s->s_umount);
- 		sema_init(&s->s_lock, 1);
--		atomic_set(&s->s_active, 1);
- 		s->s_count = 1;
-+		atomic_set(&s->s_active, 1);
- 		sema_init(&s->s_vfs_rename_sem,1);
- 		sema_init(&s->s_nfsd_free_path_sem,1);
- 		sema_init(&s->s_dquot.dqio_sem, 1);
- 		sema_init(&s->s_dquot.dqoff_sem, 1);
--		spin_unlock(&sb_lock);
-+		s->s_maxbytes = MAX_NON_LFS;
- 	}
- 	return s;
- }
-@@ -821,16 +799,16 @@
- 				       void *data, int silent)
+-	return 0;
+-}
+-
+ static inline void wait_on_locked(struct list_head *head)
  {
- 	struct super_block * s;
--	s = get_empty_super();
-+	s = alloc_super();
- 	if (!s)
- 		goto out;
- 	s->s_dev = dev;
- 	s->s_bdev = bdev;
- 	s->s_flags = flags;
--	s->s_dirt = 0;
- 	s->s_type = type;
--	s->s_dquot.flags = 0;
--	s->s_maxbytes = MAX_NON_LFS;
-+	spin_lock(&sb_lock);
-+	list_add (&s->s_list, super_blocks.prev);
-+	spin_unlock(&sb_lock);
- 	lock_super(s);
- 	if (!type->read_super(s, data, silent))
- 		goto out_fail;
-@@ -994,8 +972,8 @@
- 	sb = fs_type->kern_mnt->mnt_sb;
- 	if (!sb)
- 		BUG();
--	do_remount_sb(sb, flags, data);
- 	atomic_inc(&sb->s_active);
-+	do_remount_sb(sb, flags, data);
- 	return sb;
+ 	struct list_head * tmp;
+@@ -319,23 +302,13 @@
+ 	return 1;
  }
  
-diff -urN S8-pre7-freeing/include/linux/fs.h S8-pre7-alloc_super/include/linux/fs.h
---- S8-pre7-freeing/include/linux/fs.h	Thu Aug  9 19:07:32 2001
-+++ S8-pre7-alloc_super/include/linux/fs.h	Thu Aug  9 19:07:32 2001
-@@ -61,7 +61,6 @@
- };
- extern struct inodes_stat_t inodes_stat;
+-/**
+- *	sync_inodes
+- *	@dev: device to sync the inodes from.
+- *
+- *	sync_inodes goes through the super block's dirty list, 
+- *	writes them out, and puts them back on the normal list.
+- */
+-
+-/*
+- * caller holds exclusive lock on sb->s_umount
+- */
+- 
+ void sync_inodes_sb(struct super_block *sb)
+ {
+ 	spin_lock(&inode_lock);
+-	sync_list(&sb->s_dirty);
+-	wait_on_locked(&sb->s_locked_inodes);
++	while (!list_empty(&sb->s_dirty)||!list_empty(&sb->s_locked_inodes)) {
++		sync_list(&sb->s_dirty);
++		wait_on_locked(&sb->s_locked_inodes);
++	}
+ 	spin_unlock(&inode_lock);
+ }
  
--extern int max_super_blocks, nr_super_blocks;
- extern int leases_enable, dir_notify_enable, lease_break_time;
+@@ -365,37 +338,75 @@
+ 	spin_unlock(&inode_lock);
+ }
  
- #define NR_FILE  8192	/* this can well be larger on a larger system */
-diff -urN S8-pre7-freeing/kernel/sysctl.c S8-pre7-alloc_super/kernel/sysctl.c
---- S8-pre7-freeing/kernel/sysctl.c	Sat Apr 14 21:41:29 2001
-+++ S8-pre7-alloc_super/kernel/sysctl.c	Thu Aug  9 19:07:32 2001
-@@ -286,10 +286,6 @@
- 	 0444, NULL, &proc_dointvec},
- 	{FS_MAXFILE, "file-max", &files_stat.max_files, sizeof(int),
- 	 0644, NULL, &proc_dointvec},
--	{FS_NRSUPER, "super-nr", &nr_super_blocks, sizeof(int),
--	 0444, NULL, &proc_dointvec},
--	{FS_MAXSUPER, "super-max", &max_super_blocks, sizeof(int),
--	 0644, NULL, &proc_dointvec},
- 	{FS_NRDQUOT, "dquot-nr", &nr_dquots, 2*sizeof(int),
- 	 0444, NULL, &proc_dointvec},
- 	{FS_MAXDQUOT, "dquot-max", &max_dquots, sizeof(int),
++/*
++ * Find a superblock with inodes that need to be synced
++ */
++
++static struct super_block *get_super_to_sync(void)
++{
++	struct list_head *p;
++restart:
++	spin_lock(&inode_lock);
++	spin_lock(&sb_lock);
++	list_for_each(p, &super_blocks) {
++		struct super_block *s = list_entry(p,struct super_block,s_list);
++		if (list_empty(&s->s_dirty) && list_empty(&s->s_locked_inodes))
++			continue;
++		s->s_count++;
++		spin_unlock(&sb_lock);
++		spin_unlock(&inode_lock);
++		down_read(&s->s_umount);
++		if (!s->s_root) {
++			up_read(&s->s_umount);
++			spin_lock(&sb_lock);
++			if (!--s->s_count)
++				kfree(s);
++			spin_unlock(&sb_lock);
++			goto restart;
++		}
++		return s;
++	}
++	spin_unlock(&sb_lock);
++	spin_unlock(&inode_lock);
++	return NULL;
++}
++
++/**
++ *	sync_inodes
++ *	@dev: device to sync the inodes from.
++ *
++ *	sync_inodes goes through the super block's dirty list, 
++ *	writes them out, and puts them back on the normal list.
++ */
++
+ void sync_inodes(kdev_t dev)
+ {
+-	struct super_block * sb;
++	struct super_block * s;
+ 
+ 	/*
+ 	 * Search the super_blocks array for the device(s) to sync.
+ 	 */
+-	spin_lock(&sb_lock);
+-	sb = sb_entry(super_blocks.next);
+-	for (; sb != sb_entry(&super_blocks); sb = sb_entry(sb->s_list.next)) {
+-		if (!sb->s_dev)
+-			continue;
+-		if (dev && sb->s_dev != dev)
+-			continue;
+-		sb->s_count++;
+-		spin_unlock(&sb_lock);
+-		down_read(&sb->s_umount);
+-		if (sb->s_dev && (sb->s_dev == dev || !dev)) {
+-			spin_lock(&inode_lock);
+-			do {
+-				sync_list(&sb->s_dirty);
+-			} while (wait_on_dirty(&sb->s_locked_inodes));
+-			spin_unlock(&inode_lock);
++	if (dev) {
++		if ((s = get_super(dev)) != NULL) {
++			down_read(&s->s_umount);
++			if (s->s_root)
++				sync_inodes_sb(s);
++			up_read(&s->s_umount);
++			spin_lock(&sb_lock);
++			if (!--s->s_count)
++				kfree(s);
++			spin_unlock(&sb_lock);
++		}
++	} else {
++		while ((s = get_super_to_sync()) != NULL) {
++			sync_inodes_sb(s);
++			up_read(&s->s_umount);
++			spin_lock(&sb_lock);
++			if (!--s->s_count)
++				kfree(s);
++			spin_unlock(&sb_lock);
+ 		}
+-		up_read(&sb->s_umount);
+-		spin_lock(&sb_lock);
+-		sb->s_count--;
+-		if (dev)
+-			break;
+ 	}
+-	spin_unlock(&sb_lock);
+ }
+ 
+ /*
+diff -urN S8-pre7-s_count/fs/super.c S8-pre7-freeing/fs/super.c
+--- S8-pre7-s_count/fs/super.c	Thu Aug  9 19:07:32 2001
++++ S8-pre7-freeing/fs/super.c	Thu Aug  9 19:07:32 2001
+@@ -644,7 +644,8 @@
+ static inline void __put_super(struct super_block *sb)
+ {
+ 	spin_lock(&sb_lock);
+-	sb->s_count--;
++	if (!--sb->s_count)
++		kfree(sb);
+ 	spin_unlock(&sb_lock);
+ }
+ 
+@@ -652,6 +653,21 @@
+ {
+ 	__put_super(sb);
+ }
++
++static void put_super(struct super_block *sb)
++{
++	up_write(&sb->s_umount);
++	__put_super(sb);
++}
++
++static inline void write_super(struct super_block *sb)
++{
++	lock_super(sb);
++	if (sb->s_root && sb->s_dirt)
++		if (sb->s_op && sb->s_op->write_super)
++			sb->s_op->write_super(sb);
++	unlock_super(sb);
++}
+  
+ /*
+  * Note: check the dirty flag before waiting, so we don't
+@@ -662,26 +678,30 @@
+ {
+ 	struct super_block * sb;
+ 
+-	spin_lock(&sb_lock);
+-	for (sb = sb_entry(super_blocks.next);
+-	     sb != sb_entry(&super_blocks); 
+-	     sb = sb_entry(sb->s_list.next)) {
+-		if (!sb->s_dev)
+-			continue;
+-		if (dev && sb->s_dev != dev)
+-			continue;
+-		if (!sb->s_dirt)
+-			continue;
+-		sb->s_count++;
+-		spin_unlock(&sb_lock);
+-		lock_super(sb);
+-		if (sb->s_dev && sb->s_dirt && (!dev || dev == sb->s_dev))
+-			if (sb->s_op && sb->s_op->write_super)
+-				sb->s_op->write_super(sb);
+-		unlock_super(sb);
+-		spin_lock(&sb_lock);
+-		sb->s_count--;
++	if (dev) {
++		sb = get_super(dev);
++		if (sb) {
++			if (sb->s_dirt)
++				write_super(sb);
++			up_read(&sb->s_umount);
++			__put_super(sb);
++		}
++		return;
+ 	}
++restart:
++	spin_lock(&sb_lock);
++	sb = sb_entry(super_blocks.next);
++	while (sb != sb_entry(&super_blocks))
++		if (sb->s_dirt) {
++			sb->s_count++;
++			spin_unlock(&sb_lock);
++			down_read(&sb->s_umount);
++			write_super(sb);
++			up_read(&sb->s_umount);
++			__put_super(sb);
++			goto restart;
++		} else
++			sb = sb_entry(sb->s_list.next);
+ 	spin_unlock(&sb_lock);
+ }
+ 
+@@ -827,6 +847,9 @@
+ 	s->s_type = NULL;
+ 	unlock_super(s);
+ 	atomic_dec(&s->s_active);
++	spin_lock(&sb_lock);
++	list_del(&s->s_list);
++	spin_unlock(&sb_lock);
+ 	__put_super(s);
+ 	return NULL;
+ }
+@@ -1022,8 +1045,10 @@
+ 		bdput(bdev);
+ 	} else
+ 		put_unnamed_dev(dev);
+-	up_write(&sb->s_umount);
+-	__put_super(sb);
++	spin_lock(&sb_lock);
++	list_del(&sb->s_list);
++	spin_unlock(&sb_lock);
++	put_super(sb);
+ }
+ 
+ /*
 
 

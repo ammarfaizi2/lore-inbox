@@ -1,34 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264218AbTCXPfQ>; Mon, 24 Mar 2003 10:35:16 -0500
+	id <S264247AbTCXPhp>; Mon, 24 Mar 2003 10:37:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264245AbTCXPfQ>; Mon, 24 Mar 2003 10:35:16 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:2730
+	id <S264251AbTCXPho>; Mon, 24 Mar 2003 10:37:44 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:3498
 	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S264218AbTCXPfP>; Mon, 24 Mar 2003 10:35:15 -0500
-Subject: Re: PixelView video4linux driver
+	id <S264247AbTCXPho>; Mon, 24 Mar 2003 10:37:44 -0500
+Subject: Re: Testing: What do you want?
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Alex Damian <ddalex_krn@easynet.ro>
+To: Scott Robert Ladd <coyote@coyotegulch.com>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3E7F1B6A.2000103@easynet.ro>
-References: <Pine.LNX.4.53.0303211420170.13876@chaos>
-	 <1048324118.3306.3.camel@LNX.iNES.RO>  <3E7F1B6A.2000103@easynet.ro>
+In-Reply-To: <3E7F1A2D.4050306@coyotegulch.com>
+References: <3E7F1A2D.4050306@coyotegulch.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Organization: 
-Message-Id: <1048525157.25655.1.camel@irongate.swansea.linux.org.uk>
+Message-Id: <1048525274.25652.3.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 24 Mar 2003 16:59:18 +0000
+Date: 24 Mar 2003 17:01:15 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-03-24 at 14:51, Alex Damian wrote:
->  I wrote a PixelView kernel video4linux module for CLGD5465-based tuner.
-> Who is the maintainer of video4linux? . To whom should I submit the 
-> driver for double-checking/ inclusion
-> in the kernel ?
+On Mon, 2003-03-24 at 14:46, Scott Robert Ladd wrote:
+> question is: What do the kernel developers want from testers? What sort 
+> of reports are helpful? Is there anything in particular that needs 
+> extensive testing?
 
-Gerd I guess. How are you handling the interlocking between the X server
-and the tuner for registers ?
+One of the best things people can do is just use it. OSDL and others run
+stress tests but often its users configurations that find bugs not
+stress and coverage runs.
 

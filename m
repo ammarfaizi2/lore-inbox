@@ -1,75 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261654AbULFVLG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261650AbULFVOq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261654AbULFVLG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 16:11:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261650AbULFVLF
+	id S261650AbULFVOq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 16:14:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261655AbULFVOq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 16:11:05 -0500
-Received: from smtpq2.home.nl ([213.51.128.197]:57020 "EHLO smtpq2.home.nl")
-	by vger.kernel.org with ESMTP id S261656AbULFVEj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 16:04:39 -0500
-Message-ID: <41B4C95D.7030507@keyaccess.nl>
-Date: Mon, 06 Dec 2004 22:04:29 +0100
-From: Rene Herman <rene.herman@keyaccess.nl>
-User-Agent: Mozilla Thunderbird 1.0RC1 (X11/20041201)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Adam Belay <ambx1@neo.rr.com>
-CC: Matthieu Castet <castet.matthieu@free.fr>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6.9+] PnPBIOS: Missing SMALL_TAG_ENDDEP tag
-References: <41B3A963.4090003@keyaccess.nl> <20041206024218.GD3103@neo.rr.com> <41B3CCA6.1060507@keyaccess.nl> <20041206165929.GE3103@neo.rr.com>
-In-Reply-To: <20041206165929.GE3103@neo.rr.com>
-Content-Type: multipart/mixed;
- boundary="------------070906050703070709000707"
-X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
-X-AtHome-MailScanner: Found to be clean
+	Mon, 6 Dec 2004 16:14:46 -0500
+Received: from 209-128-68-125.bayarea.net ([209.128.68.125]:37779 "EHLO
+	hera.kernel.org") by vger.kernel.org with ESMTP id S261650AbULFVOo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Dec 2004 16:14:44 -0500
+To: linux-kernel@vger.kernel.org
+From: hpa@zytor.com (H. Peter Anvin)
+Subject: Re: [RFC] dynamic syscalls revisited
+Date: Mon, 6 Dec 2004 21:14:25 +0000 (UTC)
+Organization: Mostly alphabetical, except Q, which We do not fancy
+Message-ID: <cp2i3h$hs0$1@terminus.zytor.com>
+References: <1101741118.25841.40.camel@localhost.localdomain> <20041129151741.GA5514@infradead.org> <Pine.LNX.4.53.0411291740390.30846@yvahk01.tjqt.qr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1102367665 18305 127.0.0.1 (6 Dec 2004 21:14:25 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Mon, 6 Dec 2004 21:14:25 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070906050703070709000707
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Followup to:  <Pine.LNX.4.53.0411291740390.30846@yvahk01.tjqt.qr>
+By author:    Jan Engelhardt <jengelh@linux01.gwdg.de>
+In newsgroup: linux.dev.kernel
+> 
+> I do not see how dsyscalls could be better than static ones, so they are
+> one-on-one. Maybe someone could elaborate why they are "a really bad idea"?
+> 
 
-Adam Belay wrote:
+Because we already have a name resolution mechanism in the kernel,
+called the filesystem?  We also have a mechanism for ad hoc system
+calls, it's called ioctl().
 
-> I appreciate the additional information.  I looked through the binary files
-> manually and confirmed that they are missing an end-dep tag.  It should be
-> harmless however.  I think the error message needs to be debug or it could 
-> be removed.
+And before you go "but ioctl() sucks": dynamic syscalls suck for
+*exactly* the same reasons.
 
-As far as I'm concerned, making it debug is not too useful. I normally 
-have pnp debug enabled but not to debug my BIOS.
-
-Hence attachment. Could you push it on yourself if you agree? Thanks...
-
-Rene.
-
-
-
---------------070906050703070709000707
-Content-Type: text/x-patch;
- name="linux-2.6.10-rc3_rsparser2.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="linux-2.6.10-rc3_rsparser2.diff"
-
---- linux-2.6.10-rc3.orig/drivers/pnp/pnpbios/rsparser.c	2004-12-04 03:10:03.000000000 +0100
-+++ linux-2.6.10-rc3/drivers/pnp/pnpbios/rsparser.c	2004-12-06 01:59:44.000000000 +0100
-@@ -439,11 +439,7 @@
- 			break;
- 
- 		case SMALL_TAG_END:
--			if (option_independent != option)
--				printk(KERN_WARNING "PnPBIOS: Missing SMALL_TAG_ENDDEP tag\n");
--			p = p + 2;
--        		return (unsigned char *)p;
--			break;
-+        		return p + 2;
- 
- 		default: /* an unkown tag */
- 			len_err:
-
---------------070906050703070709000707--
+	-hpa

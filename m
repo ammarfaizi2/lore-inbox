@@ -1,54 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270328AbRHMRq4>; Mon, 13 Aug 2001 13:46:56 -0400
+	id <S270344AbRHMRyj>; Mon, 13 Aug 2001 13:54:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270331AbRHMRqq>; Mon, 13 Aug 2001 13:46:46 -0400
-Received: from [193.120.224.170] ([193.120.224.170]:44929 "EHLO
-	florence.itg.ie") by vger.kernel.org with ESMTP id <S270328AbRHMRq3>;
-	Mon, 13 Aug 2001 13:46:29 -0400
-Date: Mon, 13 Aug 2001 18:46:38 +0100 (IST)
-From: Paul Jakma <paulj@alphyra.ie>
-To: Nicholas Knight <tegeran@home.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: via82cxxx_audio driver bug?
-In-Reply-To: <01081307194201.00276@c779218-a>
-Message-ID: <Pine.LNX.4.33.0108131833300.21710-100000@dunlop.itg.ie>
+	id <S270343AbRHMRy2>; Mon, 13 Aug 2001 13:54:28 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:56071 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S270344AbRHMRyP>; Mon, 13 Aug 2001 13:54:15 -0400
+Subject: Re: 2.4.8-ac2 USB keyboard capslock hang
+To: johannes@erdfelt.com (Johannes Erdfelt)
+Date: Mon, 13 Aug 2001 18:56:48 +0100 (BST)
+Cc: braam@clusterfilesystem.com (Peter J. Braam), linux-kernel@vger.kernel.org
+In-Reply-To: <20010813131143.G3126@sventech.com> from "Johannes Erdfelt" at Aug 13, 2001 01:11:43 PM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15WLxI-0007tC-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Aug 2001, Nicholas Knight wrote:
+> On Mon, Aug 13, 2001, Peter J. Braam <braam@clusterfs.com> wrote:
+> > I have a Logitech Internet USB keyboard, attached to an IBM TP T20. 
+> > 
+> > In the above system pressing Caps lock twice (i.e. switching capslock
+> > off) freezes the system completely. 
+> > 
+> > The last system that didn't do so for me was Rosswell's kernel. 
+> > Does anyone know about this?  Thanks a lot!
+> 
+> Rosswell?
 
-> and if they've seen XMMS or other audio applications with access to
-> /dev/mixer have strange, temporarily lockups when not in root/realtime
-> priority. I've yet to be able to test this with other audio applications
-> besides XMMS.
-
-yes.. i see this too with the via82cxxx_audio driver on my Tyan
-AMD751+Via southbridge board.
-
-/anything/ that accesses /dev/mixer or /dev/dsp while sound is being
-played is locked. Eg, play an mp3 with xmms. while playing, xmms and
-things like the gnome and WM mixer applets are all unresponsive. they
-respond to UI interaction maybe only every 30 seconds or longer.
-
-xmms with real-time priority does not suffer from this
-unresponsiveness.
-
-from the haze of my memory i think this behaviour started with the
-mmap support that Jeff brought in 1.1.13 or 1.1.14. but i can't be
-sure.
-
-I've tried playing with the size of the buffers
-(VIA_MAX_BUFFER_DMA_PAGES) and the _TIME and FRAG_ defines. best
-result was that perioid of the unresponsiveness was reduced slightly,
-but not eliminated (by reducing the buffering times and number of
-fragments).
-
-> Thanks.
-
-regards,
-
---paulj
-
+Roswell is the Red Hat 7.2 beta, so its probably another bug that was fixed
+in the USB and input updates in -ac

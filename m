@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275126AbRJUBuS>; Sat, 20 Oct 2001 21:50:18 -0400
+	id <S275098AbRJUBuS>; Sat, 20 Oct 2001 21:50:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275110AbRJUBuI>; Sat, 20 Oct 2001 21:50:08 -0400
-Received: from isis.its.uow.edu.au ([130.130.68.21]:35200 "EHLO
-	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S275098AbRJUBt4>; Sat, 20 Oct 2001 21:49:56 -0400
-Message-Id: <200110210150.LAA14611@isis.its.uow.edu.au>
-Date: Sun, 21 Oct 2001 11:50:22 +1000
-User-Agent: IMHO/0.97.1 (Webmail for Roxen)
-Content-Transfer-Encoding: 7BIT
-X-Originating-IP: [198.142.194.161]
-From: Sean Van Buggenum <sv24@uow.edu.au>
-Content-Type: text/plain; charset=US-ASCII
+	id <S275126AbRJUBuI>; Sat, 20 Oct 2001 21:50:08 -0400
+Received: from mail010.mail.bellsouth.net ([205.152.58.30]:65325 "EHLO
+	imf10bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S275110AbRJUBuD>; Sat, 20 Oct 2001 21:50:03 -0400
+Message-ID: <3BD229FC.7A33A7A9@mandrakesoft.com>
+Date: Sat, 20 Oct 2001 21:50:52 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.13-pre5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Subject: kernel or std c++ libraries
-To: linux-kernel@vger.kernel.org
+To: Ben Greear <greearb@candelatech.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Compile error with -pre5 (i2o & pdev)
+In-Reply-To: <3BD211A7.DFD4AD9C@candelatech.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi ,                                                                  
-I think there's a bug with .. i guess the linux kernel... or standard 
-c++ libraries included with recent installations of mandrake and      
-redhat.                                                               
-I've come to this conclusion because something i've written in c++,   
-very basic stuff... ( using the function seekg() from the fstream     
-library ) works fine on unix installations that i've used, but not on 
-any of the linux installations i've tried on My computer. All the code
-                                                                      
-does is open a binary file with the file pointer set for however many 
-positions from the END of the file (it works when i use the start of  
-the file ) .. and try to read from there.                             
-i've used kernel 2.2.16.... and it didn't work then.. i've recently   
-installed mandrake 8.1 and thought that with the newer kernel         
-included (hoped) it was just a bug in the redhat installation that i  
-had previously. But it still doesn't work.                            
-Is it a bug in the software ? or something to do with my hardware..is 
-what i'd like to know.. i'm using a intel celeron 600 processor.. if  
-that'd be important.                                                  
-                                                                      
-sean van buggenum                                                     
-sv24@uow.edu.au                                                       
-                                                                      
+Ben Greear wrote:
+> gcc -D__KERNEL__ -I/home/greear/kernel/2.4/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe
+> -mpreferred-stack-boundary=2 -march=i686 -DMODULE -DMODVERSIONS -include /home/greear/kernel/2.4/linux/include/linux/modversions.h   -DEXPORT_SYMTAB -c i2o_pci.c
+> i2o_pci.c: In function `i2o_pci_install':
+> i2o_pci.c:165: structure has no member named `pdev'
+
+Re-post :)
+
+ftp://ftp.kernel.org/pub/linux/kernel/people/jgarzik/patches/2.4.13/i2o-build-2.4.13.5.patch.gz
+
+-- 
+Jeff Garzik      | Only so many songs can be sung
+Building 1024    | with two lips, two lungs, and one tongue.
+MandrakeSoft     |         - nomeansno
+

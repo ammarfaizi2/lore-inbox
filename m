@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132162AbRCVT05>; Thu, 22 Mar 2001 14:26:57 -0500
+	id <S132165AbRCVTdh>; Thu, 22 Mar 2001 14:33:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132166AbRCVT0r>; Thu, 22 Mar 2001 14:26:47 -0500
-Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:27696 "EHLO
-	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id <S132162AbRCVT03>; Thu, 22 Mar 2001 14:26:29 -0500
-Date: Thu, 22 Mar 2001 13:24:14 -0600
-From: Philipp Rumpf <prumpf@mandrakesoft.com>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: "Patrick O'Rourke" <orourke@missioncriticallinux.com>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Prevent OOM from killing init
-Message-ID: <20010322132414.A23177@mandrakesoft.mandrakesoft.com>
-In-Reply-To: <3AB9313C.1020909@missioncriticallinux.com> <Pine.LNX.4.21.0103212047590.19934-100000@imladris.rielhome.conectiva>
+	id <S132167AbRCVTd1>; Thu, 22 Mar 2001 14:33:27 -0500
+Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:20105 "EHLO
+	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
+	id <S132165AbRCVTdT>; Thu, 22 Mar 2001 14:33:19 -0500
+Date: Thu, 22 Mar 2001 14:32:35 -0500
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com,
+        alan@lxorguk.ukuu.org.uk, Alexander Viro <viro@math.psu.edu>
+Subject: Re: 2.4.2 fs/inode.c
+Message-ID: <20010322143234.A25603@cs.cmu.edu>
+Mail-Followup-To: "Stephen C. Tweedie" <sct@redhat.com>,
+	linux-kernel@vger.kernel.org, torvalds@transmeta.com,
+	alan@lxorguk.ukuu.org.uk, Alexander Viro <viro@math.psu.edu>
+In-Reply-To: <20010322134215.A25508@cs.cmu.edu> <20010322190452.C7756@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.4us
-In-Reply-To: <Pine.LNX.4.21.0103212047590.19934-100000@imladris.rielhome.conectiva>; from Rik van Riel on Wed, Mar 21, 2001 at 08:48:54PM -0300
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <20010322190452.C7756@redhat.com>; from sct@redhat.com on Thu, Mar 22, 2001 at 07:04:52PM +0000
+From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 21, 2001 at 08:48:54PM -0300, Rik van Riel wrote:
-> On Wed, 21 Mar 2001, Patrick O'Rourke wrote:
+On Thu, Mar 22, 2001 at 07:04:52PM +0000, Stephen C. Tweedie wrote:
+> Hi,
 > 
-> > Since the system will panic if the init process is chosen by
-> > the OOM killer, the following patch prevents select_bad_process()
-> > from picking init.
-> 
-> One question ... has the OOM killer ever selected init on
-> anybody's system ?
+> On Thu, Mar 22, 2001 at 01:42:15PM -0500, Jan Harkes wrote:
+> > 
+> > I found some code that seems wrong and didn't even match it's comment.
+> > Patch is against 2.4.2, but should go cleanly against 2.4.3-pre6 as well.
+>  
+> Patch looks fine to me.  Have you tested it?  If this goes wrong,
+> things break badly...
 
-Yes, I managed to reproduce this a while ago.  (init was the only
-process around though).
+I've been running it for about a night and a morning now, nothing bad
+has happened, my ext2 filesystem shows up clean when forcing a fsck.
 
-We don't ever kill init, fwiw;  we panic(), which is the right thing
-to do if init can't keep running.
+If things actually break badly, it is a very serious bug in the
+underlying FS. The FS should not 'happen to work' just because the VFS
+inadvertedly marked unmodified inodes as being dirty.
 
-> I think that the scoring algorithm should make sure that
-> we never pick init, unless the system is screwed so badly
-> that init is broken or the only process left ;)
+Jan
 
-I can't think of a situation where the OOM killer does the wrong thing.

@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264125AbTH1SPS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Aug 2003 14:15:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264116AbTH1SPS
+	id S264140AbTH1SKW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Aug 2003 14:10:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264143AbTH1SKW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Aug 2003 14:15:18 -0400
-Received: from mauve.demon.co.uk ([158.152.209.66]:26320 "EHLO
-	mauve.demon.co.uk") by vger.kernel.org with ESMTP id S264125AbTH1SPJ
+	Thu, 28 Aug 2003 14:10:22 -0400
+Received: from greendale.ukc.ac.uk ([129.12.21.13]:18821 "EHLO
+	greendale.ukc.ac.uk") by vger.kernel.org with ESMTP id S264140AbTH1SKS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Aug 2003 14:15:09 -0400
-From: root@mauve.demon.co.uk
-Message-Id: <200308281810.TAA24356@mauve.demon.co.uk>
-Subject: Re: Lockless file reading
-To: jamie@shareable.org (Jamie Lokier)
-Date: Thu, 28 Aug 2003 19:10:05 +0100 (BST)
-Cc: root@mauve.demon.co.uk, ragnar@linalco.com (Ragnar Hojland Espinosa),
-       davids@webmaster.com (David Schwartz), tss@iki.fi (Timo Sirainen),
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20030828173522.GA8581@mail.jlokier.co.uk> from "Jamie Lokier" at Aug 28, 2003 06:35:22 PM
-X-Mailer: ELM [version 2.5 PL1]
+	Thu, 28 Aug 2003 14:10:18 -0400
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: Spam? was: Linux 2.4.23-pre1
+References: <Pine.LNX.4.55L.0308271449170.23236@freak.distro.conectiva>
+	<20030828174247.GD21352@matchmail.com>
+From: Adam Sampson <azz@us-lot.org>
+Organization: Don't wake me, 'cos I'm dreaming, and I might just stay inside
+ again today.
+Date: Thu, 28 Aug 2003 19:10:08 +0100
+In-Reply-To: <20030828174247.GD21352@matchmail.com> (Mike Fedyk's message of
+ "Thu, 28 Aug 2003 10:42:47 -0700")
+Message-ID: <y2aptip64cf.fsf@cartman.at.fivegeeks.net>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-UKC-Mail-System: No virus detected
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> root@mauve.demon.co.uk wrote:
-> > > Probability on the order of 2^-32 with MD5 any-pairs collision.
-> > MD5 is 128 bit output, so that's around 2^64 pairs before you have a birthday.
-> 
-> Right.  Dozy me :)
-> 
-> > > Do you still have the GIFs?
-> > 
-> > There arn't that many GIFs in the world.
-> > I'd be really surprised if there were that many pictures in the world.
-> 
-> I'd be really surprised if what you saw wasn't a software error,
-> misreporting or miscalculating the MD5.
+Mike Fedyk <mfedyk@matchmail.com> writes:
 
-Or perhaps more likely, truncating the hash to 32 bits, in which case for most
-people there won't be a problem, as a collision isn't likely until you get
-to tens of thousands of images.
+>> RCVD_IN_OSIRUSOFT_COM (0.6 points) RBL: Received via a relay in
+>> relays.osirusoft.com
+> This was marked as spam from spamassassin.
 
+relays.osirusoft.com have closed down, and are now apparently
+reporting all addresses as blacklisted (which strikes me as not
+exactly the most user-friendly way to shut down a blacklist, but I
+guess they've got their reasons...).
+
+-- 
+Adam Sampson <azz@us-lot.org>                        <http://offog.org/>

@@ -1,31 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271764AbRIHRTI>; Sat, 8 Sep 2001 13:19:08 -0400
+	id <S271706AbRIHR0a>; Sat, 8 Sep 2001 13:26:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271761AbRIHRS7>; Sat, 8 Sep 2001 13:18:59 -0400
-Received: from fenrus.demon.co.uk ([158.152.228.152]:30178 "EHLO
-	amadeus.home.nl") by vger.kernel.org with ESMTP id <S271697AbRIHRSl>;
-	Sat, 8 Sep 2001 13:18:41 -0400
-Message-Id: <m15flku-000QFYC@amadeus.home.nl>
-Date: Sat, 8 Sep 2001 18:18:56 +0100 (BST)
-From: arjan@fenrus.demon.nl
-To: Eric.Brunet@physics.unige.ch (Brunet Eric)
-Subject: Re: Two bugs: PCMCIA doesn't work and bad DMA/APM interaction
-cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010908190133.B5716@serifos.unige.ch>
-X-Newsgroups: fenrus.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.3-6.0.1 (i586))
+	id <S271761AbRIHR0U>; Sat, 8 Sep 2001 13:26:20 -0400
+Received: from mclean.mail.mindspring.net ([207.69.200.57]:12084 "EHLO
+	mclean.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S271706AbRIHR0K>; Sat, 8 Sep 2001 13:26:10 -0400
+Subject: Re: Linux 2.4.9-ac10
+From: Robert Love <rml@tech9.net>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: linux-kernel@vger.kernel.org, Alan Cox <laughing@shared-source.org>
+In-Reply-To: <20010907175943.V29607@mikef-linux.matchmail.com>
+In-Reply-To: <20010908005500.A11127@lightning.swansea.linux.org.uk> 
+	<20010907175943.V29607@mikef-linux.matchmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.13.99+cvs.2001.09.05.07.08 (Preview Release)
+Date: 08 Sep 2001 13:26:40 -0400
+Message-Id: <999970007.840.11.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20010908190133.B5716@serifos.unige.ch> you wrote:
-> Hello all,
+On Fri, 2001-09-07 at 20:59, Mike Fedyk wrote:
+> Alan,
+> 
+> Do you have any plans to merge the entropy from Network patch?
 
-> (insmod's output is:
-> /lib/modules/2.4.10-pre4/kernel/drivers/pcmcia/i82365.o: init_module: No such device
-> Hint: insmod errors can be caused by incorrect module parameters,
-> including invalid IO or IRQ parameters
-> )
+While I would love to see the network entropy patch merged into 2.4 (its
+an option -- plus, since it standardizes the handfull of drivers that
+currently _do_ contribute to the entropy pool, its a nice cleanup) I am
+aiming for 2.5.
 
+I keep the patch up to date with both Linus's and Alan's tree.  Patches
+against the current kernel can be found at http://tech9.net/rml/linux/ -
+2.4.9-ac10 patches are up.
 
-that's because you need the "yenta_socket.o" module for cardbus!
+-- 
+Robert M. Love
+rml at ufl.edu
+rml at tech9.net
+

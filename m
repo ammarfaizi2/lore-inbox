@@ -1,55 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262095AbUKPTIV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262101AbUKPTJp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262095AbUKPTIV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 14:08:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262097AbUKPTIV
+	id S262101AbUKPTJp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 14:09:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262100AbUKPTJh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 14:08:21 -0500
-Received: from outbound01.telus.net ([199.185.220.220]:62684 "EHLO
-	priv-edtnes57.telusplanet.net") by vger.kernel.org with ESMTP
-	id S262095AbUKPTIT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 14:08:19 -0500
-Subject: Boot failure, 2.6.10-rc2
-From: Bob Gill <gillb4@telusplanet.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Tue, 16 Nov 2004 12:08:36 -0700
-Message-Id: <1100632116.4388.9.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
+	Tue, 16 Nov 2004 14:09:37 -0500
+Received: from mail.euroweb.hu ([193.226.220.4]:46303 "HELO mail.euroweb.hu")
+	by vger.kernel.org with SMTP id S262097AbUKPTJW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 14:09:22 -0500
+To: greg@kroah.com
+CC: rcpt-linux-fsdevel.AT.vger.kernel.org@jankratochvil.net,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-reply-to: <20041116175857.GA9213@kroah.com> (message from Greg KH on Tue,
+	16 Nov 2004 09:58:57 -0800)
+Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
+References: <Pine.LNX.4.58.0411151423390.2222@ppc970.osdl.org> <E1CTzKY-0000ZJ-00@dorka.pomaz.szeredi.hu> <84144f0204111602136a9bbded@mail.gmail.com> <E1CU0Ri-0000f9-00@dorka.pomaz.szeredi.hu> <20041116120226.A27354@pauline.vellum.cz> <E1CU3tO-0000rV-00@dorka.pomaz.szeredi.hu> <20041116163314.GA6264@kroah.com> <E1CU6SL-0007FP-00@dorka.pomaz.szeredi.hu> <20041116170339.GD6264@kroah.com> <E1CU7Tg-0007O8-00@dorka.pomaz.szeredi.hu> <20041116175857.GA9213@kroah.com>
+Message-Id: <E1CU8hS-0007U5-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Tue, 16 Nov 2004 20:09:10 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.  When booting 2.6.10-rc2, I get 
-Warning: unable to open an initial console
-(and the boot process then stalls).
 
-My system has the following already configured:
-crw-------  1 bob root 5, 1 Nov 16 10:10 /dev/console
+> > So if I only need a single device number should I register a "misc"
+> > device?  misc_register() seems to create the relevant sysfs entry.
+> 
+> Yes, that is a good way to get a device, without having to reserve a
+> number.
 
-/etc/fstab shows:
-none                    /dev/pts                devpts  gid=5,mode=620
-0 0
+No, I think reserving a number is still necessary: there seems to be
+only a very small space for dynamically registered misc devices (max
+15), so that's not any better than reserving a static one.
 
-My kernel configuration includes the following:
-CONFIG_UNIX98_PTYS=y
-CONFIG_LEGACY_PTYS=y
-CONFIG_LEGACY_PTY_COUNT=256
+I just don't yet see the big picture WRT device number allocation.
 
-I have appended console=/sbin/bash to the kernel boot line (which does
-not meet with success).
+So what I'm interested in, is if I get a reserved minor number for the
+misc (major=10) device, will I be kicked in the butt (by Linus or
+anybody else) like for the /proc approach?
 
-If it makes any difference, my system is FC3.  Is there anything special
-I have to do to udev (or a particular version I have to get in order to
-start a console after the kernel is loaded (and the memory is freed
-after it's shuffled from himem to lomem)?
-
-Please reply to me directly as I'm not on the list.
-
-TIA,
-
-Bob  
--- 
-Bob Gill <gillb4@telusplanet.net>
-
+Thanks
+Miklos

@@ -1,74 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314520AbSDSCjD>; Thu, 18 Apr 2002 22:39:03 -0400
+	id <S314516AbSDSDWk>; Thu, 18 Apr 2002 23:22:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314516AbSDSCiD>; Thu, 18 Apr 2002 22:38:03 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:24807 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S314520AbSDSChu>;
-	Thu, 18 Apr 2002 22:37:50 -0400
-Date: Thu, 18 Apr 2002 19:37:48 -0700
-To: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.5] : Minor fix to Wireless Handlers (essid)
-Message-ID: <20020418193748.I988@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
+	id <S314524AbSDSDWj>; Thu, 18 Apr 2002 23:22:39 -0400
+Received: from sv1.valinux.co.jp ([202.221.173.100]:51463 "HELO
+	sv1.valinux.co.jp") by vger.kernel.org with SMTP id <S314516AbSDSDWi>;
+	Thu, 18 Apr 2002 23:22:38 -0400
+Date: Fri, 19 Apr 2002 12:21:42 +0900 (JST)
+Message-Id: <20020419.122142.85422229.taka@valinux.co.jp>
+To: trond.myklebust@fys.uio.no
+Cc: jakob@unthought.net, davem@redhat.com, ak@suse.de,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] zerocopy NFS updated
+From: Hirokazu Takahashi <taka@valinux.co.jp>
+In-Reply-To: <shspu0x2xro.fsf@charged.uio.no>
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi Jeff,
+Hi,
 
-	This is *not* an IrDA patch, but would you mind to push that
-to Linus ?
-	It fixes a bug that could cause a wireless driver to crash
-badly when getting/setting ESSID. Thanks to Bas Vermeulen (no wire
-needed wireless driver) for finding this one ;-).
-	Thanks in advance...
+>      > Hi, I've been thinking about your comment, and I realized it
+>      > was a good suggestion.  There are no problem with the zerocopy
+>      > NFS, but If you want to use UDP sendfile for streaming or
+>      > something like that, you wouldn't get good performance.
+> 
+> Surely one can work around this in userland without inventing a load
+> of ad-hoc schemes in the kernel socket layer?
+> 
+> If one doesn't want to create a pool of sockets in order to service
+> the different threads, one can use generic methods such as
+> sys_readahead() in order to ensure that the relevant data gets paged
+> in prior to hogging the socket.
 
-	Jean
+That makes sense.
+It would work good enough in many cases, though it would be hard to
+make sure that it really exists in core before sendfile().
 
------------------------------------------
+> There is no difference between UDP and TCP sendfile() in this respect.
 
-diff -u -p linux/net/core/wireless.v3.c linux/net/core/wireless.c
---- linux/net/core/wireless.v3.c	Thu Apr 18 16:55:54 2002
-+++ linux/net/core/wireless.c	Thu Apr 18 16:58:21 2002
-@@ -28,11 +28,13 @@
-  *
-  * v3 - 19.12.01 - Jean II
-  *	o Make sure we don't go out of standard_ioctl[] in ioctl_standard_call
-- *	o Fix /proc/net/wireless to handle __u8 to __s8 change in iwqual
-  *	o Add event dispatcher function
-  *	o Add event description
-  *	o Propagate events as rtnetlink IFLA_WIRELESS option
-  *	o Generate event on selected SET requests
-+ *
-+ * v4 - 18.04.01 - Jean II
-+ *	o Fix stupid off by one in iw_ioctl_description : IW_ESSID_MAX_SIZE + 1
-  */
- 
- /***************************** INCLUDES *****************************/
-@@ -122,13 +124,13 @@ static const struct iw_ioctl_description
- 	/* SIOCGIWSCAN */
- 	{ IW_HEADER_TYPE_POINT, 0, 1, 0, IW_SCAN_MAX_DATA, 0},
- 	/* SIOCSIWESSID */
--	{ IW_HEADER_TYPE_POINT, 0, 1, 0, IW_ESSID_MAX_SIZE, IW_DESCR_FLAG_EVENT},
-+	{ IW_HEADER_TYPE_POINT, 0, 1, 0, IW_ESSID_MAX_SIZE + 1, IW_DESCR_FLAG_EVENT},
- 	/* SIOCGIWESSID */
--	{ IW_HEADER_TYPE_POINT, 0, 1, 0, IW_ESSID_MAX_SIZE, IW_DESCR_FLAG_DUMP},
-+	{ IW_HEADER_TYPE_POINT, 0, 1, 0, IW_ESSID_MAX_SIZE + 1, IW_DESCR_FLAG_DUMP},
- 	/* SIOCSIWNICKN */
--	{ IW_HEADER_TYPE_POINT, 0, 1, 0, IW_ESSID_MAX_SIZE, 0},
-+	{ IW_HEADER_TYPE_POINT, 0, 1, 0, IW_ESSID_MAX_SIZE + 1, 0},
- 	/* SIOCGIWNICKN */
--	{ IW_HEADER_TYPE_POINT, 0, 1, 0, IW_ESSID_MAX_SIZE, 0},
-+	{ IW_HEADER_TYPE_POINT, 0, 1, 0, IW_ESSID_MAX_SIZE + 1, 0},
- 	/* -- hole -- */
- 	{ IW_HEADER_TYPE_NULL, 0, 0, 0, 0, 0},
- 	/* -- hole -- */
+Yes.
+And it seems to be more important on UDP sendfile().
+processes or threads sharing the same UDP socket would affect each other,
+while processes or threads on TCP sockets don't care about it as TCP
+connection is peer to peer.
+
+Thank you,
+Hirokazu Takahashi.

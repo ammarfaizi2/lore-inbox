@@ -1,46 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262366AbTENOpt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 10:45:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262369AbTENOpt
+	id S262371AbTENOth (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 10:49:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262373AbTENOth
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 10:45:49 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:732 "EHLO smtp.bitmover.com")
-	by vger.kernel.org with ESMTP id S262366AbTENOps (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 10:45:48 -0400
-Date: Wed, 14 May 2003 07:58:11 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Dean McEwan <dean_mcewan@linuxmail.org>, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: Digital Rights Management - An idea (limited lease, renting, expiration, verification) NON HARWARE BASED.
-Message-ID: <20030514145811.GA14439@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	"Richard B. Johnson" <root@chaos.analogic.com>,
-	Dean McEwan <dean_mcewan@linuxmail.org>, alan@lxorguk.ukuu.org.uk,
-	linux-kernel@vger.kernel.org
-References: <20030514135256.26073.qmail@linuxmail.org> <Pine.LNX.4.53.0305141030130.8270@chaos>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 14 May 2003 10:49:37 -0400
+Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:43208 "EHLO
+	mail.kolivas.org") by vger.kernel.org with ESMTP id S262371AbTENOtg convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 10:49:36 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: "ismail donmez" <kde@smtp-send.myrealbox.com>, gutko@poczta.onet.pl
+Subject: Re: supermount
+Date: Thu, 15 May 2003 01:04:23 +1000
+User-Agent: KMail/1.5.1
+Cc: linux-kernel@vger.kernel.org
+References: <1052919631.273b9220kde@smtp-send.myrealbox.com>
+In-Reply-To: <1052919631.273b9220kde@smtp-send.myrealbox.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-9"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0305141030130.8270@chaos>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=0.5, required 4.5,
-	DATE_IN_PAST_06_12)
+Message-Id: <200305150104.23616.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 14, 2003 at 10:36:43AM -0400, Richard B. Johnson wrote:
-> Basically, in many states in the USA, you can't sell or
-> lease something that will become worthless or unusable if
-> the seller or leasor no longer exists. 
+On Wed, 14 May 2003 23:40, ismail donmez wrote:
+> Yeah I wonder the same for some time . Is there a good reason not to
+> include supermount in kernel?
+>
+> -----Original Message-----
+> From: Maciej Górnicki <gutko@poczta.onet.pl>
+> To: linux-kernel@vger.kernel.org
+> Date: Tue, 13 May 2003 18:30:02 +0200
+> Subject: supermount
+>
+> Hello,
+> Why supermount code is not included in kernel?
+> It's maintained by Juan Jose Quintela from Mandrake...
 
-CAD software is mostly leased these days.  That would seem to contradict
-your position.  Can you quote some laws which say that leasing software
-is illegal?
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+Watch this space. There's some work happening with 2.4 bug testing with some 
+supermount development work and then 2.5 will follow soon enough. The current 
+version (call it a fork?) of 1.2.5 has a problem with filesystems that can 
+write the same file with different case (eg vfat writing file.c and File.c) 
+but can be found at the new sourceforge home:
+http://supermount-ng.sf.net
+A bugfix for that known bug should be available soon and then it will need 
+lots more testing...
+Con

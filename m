@@ -1,33 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261707AbSJAQDL>; Tue, 1 Oct 2002 12:03:11 -0400
+	id <S261646AbSJAQAy>; Tue, 1 Oct 2002 12:00:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261699AbSJAQBs>; Tue, 1 Oct 2002 12:01:48 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:57256 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S261694AbSJAQBT>;
-	Tue, 1 Oct 2002 12:01:19 -0400
-Date: Tue, 1 Oct 2002 18:06:08 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Dave Jones <davej@codemonkey.org.uk>, venom@sns.it,
-       Alexander Viro <viro@math.psu.edu>,
-       Joe Thornber <joe@fib011235813.fsnet.co.uk>,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] Remove LVM from 2.5 (resend)
-Message-ID: <20021001160608.GX3867@suse.de>
-References: <Pine.GSO.4.21.0210011010380.4135-100000@weyl.math.psu.edu> <Pine.LNX.4.43.0210011650490.12465-100000@cibs9.sns.it> <20021001154808.GD126@suse.de>
+	id <S262124AbSJAQAE>; Tue, 1 Oct 2002 12:00:04 -0400
+Received: from louise.pinerecords.com ([212.71.160.16]:42506 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S261646AbSJAP76>; Tue, 1 Oct 2002 11:59:58 -0400
+Date: Tue, 1 Oct 2002 18:05:13 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Mike Dresser <mdresser_l@windsormachine.com>
+Cc: Kurt Johnson <gorydetailz@yahoo.co.uk>, linux-kernel@vger.kernel.org
+Subject: Re: kernel.org is down?
+Message-ID: <20021001160513.GC4337@louise.pinerecords.com>
+References: <20021001151857.56361.qmail@web13202.mail.yahoo.com> <Pine.LNX.4.33.0210011131110.13726-100000@router.windsormachine.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021001154808.GD126@suse.de>
+In-Reply-To: <Pine.LNX.4.33.0210011131110.13726-100000@router.windsormachine.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 01 2002, Dave Jones wrote:
-> Consider it patch 1/2 of the device mapper merge 8-)
+> > Hi folks,
+> >
+> > Is it just me, or {www,ftp}.kernel.org is down? It
+> > seems so, from this side of the atlantic. And I cant
+> 
+> Verified at 11:28am EST, from the other side of the pond.
 
-Indeed, the patches are also arriving out of order though, LVM remove
-patch should be 2/2 not 1/2. IMO.
+In the meantime, can somebody who's been on time to d/l
+patch-2.5.40.gz put it up somewhere and post the URL?
 
--- 
-Jens Axboe
-
+T.

@@ -1,36 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269594AbUISErP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269687AbUISGms@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269594AbUISErP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Sep 2004 00:47:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269626AbUISErP
+	id S269687AbUISGms (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Sep 2004 02:42:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269713AbUISGms
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Sep 2004 00:47:15 -0400
-Received: from dialup-4.246.81.241.Dial1.SanJose1.Level3.net ([4.246.81.241]:51585
-	"EHLO nofear.bounceme.net") by vger.kernel.org with ESMTP
-	id S269594AbUISErM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Sep 2004 00:47:12 -0400
-Reply-To: <syphir@syphir.sytes.net>
-From: "C.Y.M." <syphir@syphir.sytes.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: RE: 2.6.9-rc2-bk4 Unknown symbol __VMALLOC_RESERVE
-Date: Sat, 18 Sep 2004 21:46:05 -0700
-Organization: CooLNeT
-Message-ID: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA9mKu6AlYok2efOpJ3sb3O+KAAAAQAAAALYl2Tt5f4kWJimDJeBwyngEAAAAA@syphir.sytes.net>
+	Sun, 19 Sep 2004 02:42:48 -0400
+Received: from smtp-out1.blueyonder.co.uk ([195.188.213.4]:16850 "EHLO
+	smtp-out1.blueyonder.co.uk") by vger.kernel.org with ESMTP
+	id S269687AbUISGmq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Sep 2004 02:42:46 -0400
+Message-ID: <414D2A65.4080605@blueyonder.co.uk>
+Date: Sun, 19 Sep 2004 07:42:45 +0100
+From: Sid Boyce <sboyce@blueyonder.co.uk>
+Reply-To: sboyce@blueyonder.co.uk
+Organization: blueyonder.co.uk
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040914)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: linux-kernel@vger.kernel.org
+Subject: RE: 2.6.9-rc2-bk4 Unknown symbol __VMALLOC_RESERVE
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-In-Reply-To: <414D05A8.3080208@undl.org.br>
-Thread-Index: AcSd/oFQHvASMnQRTBmWKC6EdamALwABNf2A
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+X-OriginalArrivalTime: 19 Sep 2004 06:43:11.0022 (UTC) FILETIME=[EE2584E0:01C49E13]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+C.Y.M wrote:
+ > Hello,
+ >
+ > After testing 2.6.9-rc2-bk4 today, I am getting the following error 
+when I
+ > attempt to load my Nvidia module:
+ >
+ > Sep 18 15:31:36 poseidon kernel: nvidia: module license 'NVIDIA' taints
+ > kernel.
+ > Sep 18 15:31:36 poseidon kernel: nvidia: Unknown symbol __VMALLOC_RESERVE
 
-> 
-> I've had this problem too. Try to use bk3. It is working for me. :)
-> 
+There is a recent post with details of what's needed for the nvidia 
+driver to compile and work. Links to patched are included. For that one, 
+put as the first line in nv.c
+unsigned int __VMALLOC_RESERVE;
 
- Thanks for confirming. BK3 works fine for me as well.
-
+There is also the need to add "PM_SAVE_STATE, /* save device's state */" 
+to included/linux/pm.h after PM_RESUME line and a previous patch to nv.c 
+that's been around a few weeks now.
+Regards
+Sid.
+-- 
+Sid Boyce .... Hamradio G3VBV and keen Flyer
+=====LINUX ONLY USED HERE=====

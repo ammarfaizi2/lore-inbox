@@ -1,80 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261151AbTD1OSM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Apr 2003 10:18:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261152AbTD1OSM
+	id S261157AbTD1OTy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Apr 2003 10:19:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261158AbTD1OTy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Apr 2003 10:18:12 -0400
-Received: from fluent2.pyramid.net ([206.100.220.213]:3746 "EHLO
-	fluent2.pyramid.net") by vger.kernel.org with ESMTP id S261151AbTD1OSK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Apr 2003 10:18:10 -0400
-X-Not-Legal-Opinion: IANAL I am not a lawyer
-X-For-Entertainment-Purposes-Only: True
-Message-Id: <5.2.0.9.0.20030428070633.01d630a0@fluent2.pyramid.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
-Date: Mon, 28 Apr 2003 07:30:15 -0700
-To: Matti Aarnio <matti.aarnio@zmailer.org>, Oliver Feiler <kiza@gmx.net>
-From: Stephen Satchell <list@fluent2.pyramid.net>
-Subject: [OT] Re: Mailinglist problems?
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030428112434.GH24892@mea-ext.zmailer.org>
-References: <200304281223.53020.kiza@gmx.net>
- <200304281223.53020.kiza@gmx.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	Mon, 28 Apr 2003 10:19:54 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:26758 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id S261157AbTD1OTw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Apr 2003 10:19:52 -0400
+Date: Mon, 28 Apr 2003 16:30:10 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Zack Gilburd <zack@tehunlose.com>
+cc: Andre Hedrick <andre@linux-ide.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: Flame Linus to a crisp!
+In-Reply-To: <20030428070128.566ede0a.zack@tehunlose.com>
+Message-ID: <Pine.GSO.4.21.0304281629330.11373-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 02:24 PM 4/28/03 +0300, Matti Aarnio wrote:
->   Then come various weird things, like overzealous reg-expr message
->   content filters, broken MTA configurations  (don't people ever
->   test that their changes do work ?),  etc...
+On Mon, 28 Apr 2003, Zack Gilburd wrote:
+> On Mon, 28 Apr 2003 03:35:10 -0700 (PDT)
+> Andre Hedrick <andre@linux-ide.org> wrote:
+> 
+> > There is one fundamental problem, and nobody has addressed.
+> > 
+> > Who will enforce the GPL over DRM violations?
+> > Since it is a blanket over the entire kernel, and you have formally
+> > (for the most part) have authorized DRM, thus one assumes you are the only
+> > one who can pursue in a court of law.
+> 
+> Unless I am missing something, I was hoping for more of a sparse DRM implementation; not a blanket.
+> 
+> I was hoping to be able to `modprobe drm` for when I needed to use DRM and likewise `rmmod drm` for when I didn't want it.  Maybe I am a little late in this disucssion, but that's just my hopes and whishes.
 
-Smaller operators and a number of company Intranets have SysAdmins who 
-don't have a clue how to test changes in their configuration.  They don't 
-have "outside" accounts, not even ones a Yahoo or other web-mail places, so 
-they can't evaluate their changes.  They also run exactly one mail server 
-suite, the production servers, and make changes willy-nilly to the live 
-system without fear of consequences.  (Smart mail admins have a test server 
-and a way of exercising it -- Mail Admin 101.)
+Unfortunately that's not going to work, since your DRM module cannot trust the
+kernel it's loaded by.
 
-So many clueless Mail Admins I've seen have strange letters, like MCSE, 
-after their name.  Also RHCE, I'm sorry to say.  (It's amazing how many 
-people put stock in certification, only to learn that it's no bar to true 
-twits.  Any sorry tech who knows how to take exams can get most of the 
-first- and second-level certifications with ease.  Still sorry admins, but 
-sorry admins with paper.)
+Gr{oetje,eeting}s,
 
-Developers haven't helped much.  For example, one feature I loved in 
-IPCHAINS was the ability to run packets through the software in a testing 
-mode and see what happened to them.  I haven't found a similar function in 
-IPTABLES yet.  From this comment in the IPTABLES man page, it isn't there yet:
-
->BUGS
->        Check is not implemented (yet).
-
-(And some joker removed this from later versions of IPTABLES, but there is 
-still no "check" option!)
-
-Now, how many MTAs have you encountered that let you "play" mail through 
-them to see what happens?  I've used fetchmail to do the job (inject a 
-mailstream) on a test system, and that helps quite a bit, but then again I 
-know about fetchmail because I once had to deal with ConcentricNet (XO) and 
-wanting to run mail sent to my account there through my spam filters, and I 
-have quite a corpus of spam mail I have saved just for the purpose.
-
-Getting back to our mutton, until the marketplace requires a certain amount 
-of USEFUL knowledge in its administrators (something like the NSFnet days) 
-the things you are talking about will continue to be there.
-
-OK, I'll shut up now.
-
-Satch
-
-
+						Geert
 
 --
-X -> unknown; Spurt -> drip of water under pressure
-Expert -> X-Spurt -> Unknown drip under pressure.
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

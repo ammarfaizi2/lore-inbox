@@ -1,47 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262596AbTCMV4r>; Thu, 13 Mar 2003 16:56:47 -0500
+	id <S262701AbTCMV60>; Thu, 13 Mar 2003 16:58:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262603AbTCMV4r>; Thu, 13 Mar 2003 16:56:47 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:38062 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id <S262596AbTCMVzj>;
-	Thu, 13 Mar 2003 16:55:39 -0500
-Message-Id: <200303132104.h2DL4TKf005825@eeyore.valparaiso.cl>
-To: Szakacsits Szabolcs <szaka@sienet.hu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.63 accesses below %esp (was: Re: ntfs OOPS (2.5.63)) 
-In-Reply-To: Your message of "Wed, 12 Mar 2003 23:03:20 +0100."
-             <Pine.LNX.4.30.0303122255270.18833-100000@divine.city.tvnet.hu> 
-Date: Thu, 13 Mar 2003 17:04:29 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	id <S262736AbTCMV60>; Thu, 13 Mar 2003 16:58:26 -0500
+Received: from mail.zmailer.org ([62.240.94.4]:14827 "EHLO mail.zmailer.org")
+	by vger.kernel.org with ESMTP id <S262701AbTCMV6V>;
+	Thu, 13 Mar 2003 16:58:21 -0500
+Date: Fri, 14 Mar 2003 00:09:05 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Rob Ekl <lkhelp@rekl.yi.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Sendfile, loopback, and TCP header checksum
+Message-ID: <20030313220905.GK29167@mea-ext.zmailer.org>
+References: <Pine.LNX.4.53.0303131510060.10653@rekl.yi.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.53.0303131510060.10653@rekl.yi.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Szakacsits Szabolcs <szaka@sienet.hu> said:
-> On Wed, 12 Mar 2003, Horst von Brand wrote:
-> > It is _hard_ to do with variable length instructions (CISC, remember?), the
-> > code is designed to be easily decoded forward, noone executes code going
-> > backwards.
+On Thu, Mar 13, 2003 at 03:32:58PM -0600, Rob Ekl wrote:
+> Hi.  I'm working on a program that uses sendfile() to copy a file to a TCP
+> socket.  I did some testing where the server and client processes were on
+> the same machine.  While watching ethereal's packet dumps, I noticed the
+> packets that sendfile() creates are reported to have incorrect checksums.  
+> Other packets from the same program (ie created by write() or writev() )
+> have the correct checksum.
 
-> Of course, it's a bad approach. You start earlier and stop at EIP.
-> Repeat this for max(instruction length) different offsets and you will
-> have the winner. Figure it out from the context after EIP.
+  copy(-and-checksum) is needed for write*(), and during copying,
+  the checksumming can be thrown in essentially for free.
 
-By hand, OK. Automatically, no.
+  For sendfile(), the system does not need to do such copying,
+  and these days devices can be reported as capable to handle
+  e.g. tcp checksumming built in.
 
-> > When I needed to look at the code in an Oops I'd either objdump(1)ed it or
-> > compiled the offending stuff to assembler (possibly with custom CFLAGS to
-> > get info on line numbers and such in the output).
+  Loopback device does not bother with checksums -- it is coming
+  from within the box, no point in checking such things.
+  ( see:  drivers/net/loopback.c   -- there are most curious set
+    of initialized   dev->features  flags. )
 
-> I was talking about cases when you can't do these.
+...
+> This leads me to the conclusion that using sendfile() on a loopback
+> interface over a TCP connection generates packets with incorrect checksums
+> in the TCP headers.
+> 
+> I do not know if ethereal is falsely reporting that the checksums are 
+> incorrect, but it's a very limited scope of the source of packets with 
+> incorrect checksums (only sendfile-generated to loopback).
 
-I did this to find out where in the source it went south, and then look
-around to find out why. A copy of that kernel's source is required anyway.
+  It may well be correct report, but to calculate those would be
+  wasted effort.
 
-If you can divine the breakage just from the asm, more power to you. For us
-mere mortals it isn't enough.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+> Is this something that even needs to be addressed, since the receiver
+> would discard the packet if the checksum is incorrect, but since it's over
+> loopback, there's no chance of receiving data corrupted by the transport
+> medium and loopback ignores the checksum?
+
+  Quite so.
+
+> System information:  2.4.20 on both machines, ia32 CPUs, ethereal 0.9.10 
+> with libpcap 0.7.
+
+/Matti Aarnio

@@ -1,86 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261551AbUCGDeh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Mar 2004 22:34:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261618AbUCGDeh
+	id S261618AbUCGDzR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Mar 2004 22:55:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261741AbUCGDzR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Mar 2004 22:34:37 -0500
-Received: from mtaw6.prodigy.net ([64.164.98.56]:61589 "EHLO mtaw6.prodigy.net")
-	by vger.kernel.org with ESMTP id S261551AbUCGDef (ORCPT
+	Sat, 6 Mar 2004 22:55:17 -0500
+Received: from mtaw4.prodigy.net ([64.164.98.52]:55528 "EHLO mtaw4.prodigy.net")
+	by vger.kernel.org with ESMTP id S261618AbUCGDzN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Mar 2004 22:34:35 -0500
-Message-ID: <404A9835.4020602@matchmail.com>
-Date: Sat, 06 Mar 2004 19:34:13 -0800
+	Sat, 6 Mar 2004 22:55:13 -0500
+Message-ID: <404A9D14.5030107@matchmail.com>
+Date: Sat, 06 Mar 2004 19:55:00 -0800
 From: Mike Fedyk <mfedyk@matchmail.com>
 User-Agent: Mozilla Thunderbird 0.5 (X11/20040209)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "Ramy M. Hassan" <ramy@gawab.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Advanced storage management ( suggestion )
-References: <003801c402ea$44437190$ba10a8c0@ramy>
-In-Reply-To: <003801c402ea$44437190$ba10a8c0@ramy>
+To: Rumi Szabolcs <rumi_ml@rtfm.hu>
+CC: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Subject: Re: Marvell PATA-SATA bridge meets 2.4.x
+References: <20040305231642.708841dd.rumi_ml@rtfm.hu>
+In-Reply-To: <20040305231642.708841dd.rumi_ml@rtfm.hu>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ramy M. Hassan wrote:
-> 1- Very fast block allocation ( Using balanced trees for tracking free
-> blocks comes into my mind now, but I still it is early to decide the
-> design ).
+Rumi Szabolcs wrote:
+> Hello!
+> 
+> A while ago I reported a problem with the 2.4.22 kernel and the
+> tiny Marvell PATA to SATA bridge chip that is used on many of
+> the now-not-so-recent motherboards which don't have native
+> SATA ports in their southbridges.
+> 
+> As it can be seen below, a native SATA150 drive is connected
+> to a SATA port implemented using that Marvell chip hooked up
+> to the ICH4's parallel ATA133 port and this way the drive is
+> only recognized (and used) as UDMA33:
+> 
+> ICH4: IDE controller at PCI slot 00:1f.1
+> ICH4: chipset revision 2
+> ICH4: not 100% native mode: will probe irqs later
+>     ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:pio, hdb:pio
+>     ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:DMA, hdd:pio
+> hdc: ST3160023AS, ATA DISK drive
+> blk: queue c04a1ff4, I/O limit 4095Mb (mask 0xffffffff)
+> ide1 at 0x170-0x177,0x376 on irq 15
+> hdc: attached ide-disk driver.
+> hdc: host protected area => 1
+> hdc: 312581808 sectors (160042 MB) w/8192KiB Cache, CHS=19457/255/63, UDMA(33)
+> 
+> As far as I can remember someone (Jeff Garzik?) suspected the
+> SATA cable not being recognized as a 80-conductor thus >=UDMA66
+> capable cable. Then it was told that there is a fix underway that
+> will be included in the 2.4.23 kernel. The above snippet shows
+> that the 2.4.25 kernel still has this problem. Any comments?
 
-You most likely want to use extents in addition to whatever else you use 
-(ie, trees/etc.).
-
-> 2- Support for multi-disk/multi-host storage pool.
-
-You're mixing layers here.  MD and DM already work in this area.
-
-> 3- Meta data storage and block storage can be isolated for better
-> performance.
-
-There is support for journal on a different device in the generic JBD 
-code that ext3 uses, and reiserfs (possibly others also).  That may be a 
-good place to work from.
-
-Are there any examples of this in other OSes?  If you put the meta-data 
-on a separate drive, it would be an inherently seeky load.  How does 
-this compare to putting raid below the mixed data and meta-data block 
-device?
-
-> 4- Meta data and block replication options.
-
-Coda and Intermezzo do this in a filesystem independent way already. 
-This can add flexibility.
-
-> 5- Transactional options for journaling filesystems or transactional
-> databases.
-
-Isn't journaling inherently transaction based already?
-
-> 6- Supports clustering through lock managers where multiple hosts can
-> read/write to same storage devices concurrently ( suitable for SANs )
-
-This is going to be a very heavy layer, and few people will use it if it 
-isn't very light (or can be configured that way)
-
-> 7- Transparent recovery from corruption or hardware failure.
-
-Journaling in ext3 is block based, and the rest are virtual 
-(descriptions of the actions are in the journal, not the entire block of 
-meta-data -- when you're not running in data journaling mode).
-
-How do you plan on integrating your proposed layer with these two very 
-different approaches to filesystem journaling?
-
-> 8- Direct access from userland ( for DBMS, LDAP, and other userland
-> applications ). 
-
-You have a separate userspace, and kernel implementation right?
-
-> 9- Plugins support ( like those of reiserfs 4).
-
-This can be good or bad.  Make sure it doesn't bloat your layer.
-
-Mike
+You want to use a 2.6 kernel and talk to Bart, and Jeff about this...

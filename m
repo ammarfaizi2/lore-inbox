@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129909AbRBVEfR>; Wed, 21 Feb 2001 23:35:17 -0500
+	id <S130765AbRBVEs7>; Wed, 21 Feb 2001 23:48:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130178AbRBVEfH>; Wed, 21 Feb 2001 23:35:07 -0500
-Received: from [200.222.195.191] ([200.222.195.191]:16307 "EHLO
-	pervalidus.dyndns.org") by vger.kernel.org with ESMTP
-	id <S129909AbRBVEet>; Wed, 21 Feb 2001 23:34:49 -0500
-Date: Thu, 22 Feb 2001 01:33:08 -0300
-From: Frédéric L. W. Meunier <0@pervalidus.net>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.4.2
-Message-ID: <20010222013308.Y21068@pervalidus>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.14i
-X-Mailer: Mutt/1.3.14i - Linux 2.4.1
-X-URL: http://www.pervalidus.net/
+	id <S130892AbRBVEst>; Wed, 21 Feb 2001 23:48:49 -0500
+Received: from www.wen-online.de ([212.223.88.39]:30218 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S130765AbRBVEsf>;
+	Wed, 21 Feb 2001 23:48:35 -0500
+Date: Thu, 22 Feb 2001 05:48:31 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Adam Schrotenboer <ajschrotenboer@lycosmail.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: linux ac20 patch got error:
+In-Reply-To: <3A940B40.3020009@lycosmail.com>
+Message-ID: <Pine.LNX.4.33.0102220543240.1500-100000@mikeg.weiden.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eloy A. Paris wrote:
+On Wed, 21 Feb 2001, Adam Schrotenboer wrote:
 
-> I solved the problem by changing all calls to ld in
-> /usr/src/linux/arch/i386/boot/Makefile from "ld ... -oformat
-> ..." to "ld ... --oformat ..."
+> A rather incomprehensible message, so let's flesh this out a bit.
+>
+> Basically the problem occurs when patching linux/fs/reiserfs/namei.c It
+> can't find it, presumably due to an error in 2.4.1, where it appears to
+> me that reiserfs/ is located off of linux/ not linux/fs/. Simple to fix,
+> I guess, though this would appear to mean that Linus made a mistake w/
+> 2.4.1 (plz correct me if I'm wrong), though it could also be said that
+> this means that Alan diff'd the wrong tree (basically a fixed tree in re
+> reiserfs/)
 
-Right. This is a change on binutils 2.10.1.0.7 and up (now at
-2.10.91.0.2). A few people sent a patch to the list (Andreas
-Jaeger was the first), but it wasn't added to 2.4.2...
+A third possibility: an elf/gremlin munged your tree for grins ;-)
 
-Jaeger's message:
+ac20 went in clean here.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=98180656028765&w=2
+	-Mike
 
-More at the Changelog:
-
-http://ftp.valinux.com/pub/support/hjl/binutils/release.binutils-2.10.91.0.2
-
--- 
-0@pervalidus.{net, {dyndns.}org} Tel: 55-21-717-2399 (Niterói-RJ BR)

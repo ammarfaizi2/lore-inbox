@@ -1,57 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289048AbSAIWaZ>; Wed, 9 Jan 2002 17:30:25 -0500
+	id <S289055AbSAIWdV>; Wed, 9 Jan 2002 17:33:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289055AbSAIWaM>; Wed, 9 Jan 2002 17:30:12 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:16639 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S289048AbSAIW3y>;
-	Wed, 9 Jan 2002 17:29:54 -0500
-Date: Wed, 9 Jan 2002 14:29:51 -0800
-To: Linus Torvalds <torvalds@transmeta.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-        Steven Walter <srwalter@yahoo.com>
-Subject: Re: [PATCH] wavelan: check request_region return value
-Message-ID: <20020109142951.A10219@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-In-Reply-To: <20011230172229.M24320@hapablap.dyn.dhs.org>
+	id <S289057AbSAIWdB>; Wed, 9 Jan 2002 17:33:01 -0500
+Received: from bitmover.com ([192.132.92.2]:34195 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S289055AbSAIWcz>;
+	Wed, 9 Jan 2002 17:32:55 -0500
+Date: Wed, 9 Jan 2002 14:32:54 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Greg KH <greg@kroah.com>
+Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] dietHotplug 0.4 release
+Message-ID: <20020109143254.I23086@work.bitmover.com>
+Mail-Followup-To: Greg KH <greg@kroah.com>,
+	linux-hotplug-devel@lists.sourceforge.net,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020109221721.GA22938@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011230172229.M24320@hapablap.dyn.dhs.org>; from srwalter@yahoo.com on Sun, Dec 30, 2001 at 05:22:29PM -0600
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20020109221721.GA22938@kroah.com>; from greg@kroah.com on Wed, Jan 09, 2002 at 02:17:21PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 30, 2001 at 05:22:29PM -0600, Steven Walter wrote:
-> I recently changed several drivers in drivers/net of the Linux kernel to
-> correctly check the return value of request_region.  Since you appear
-> to be the maintainer of this driver, I'm forwarding the patch to you.
-> 
-> Thanks
-> -- 
-> -Steven
+On Wed, Jan 09, 2002 at 02:17:21PM -0800, Greg KH wrote:
+> The project is now being hosted at:
+> 	http://linuxusb.bitkeeper.com:8088/dietHotplug
+> instead of the previous cvs tree at sf.net in the linux-hotplug
+> directory.
 
-	For some reason, the tab got mangled, so I redid the
-patch. Ready to go in kernel 2.4.X and 2.5.X.
+A shorter name for this, which is preferred (i.e., will always work) is
 
-	Jean
+	http://linuxusb.bkbits.net:8088/dietHotplug
 
-diff -u -p linux/drivers/net/wavelan.j1.c linux/drivers/net/wavelan.c
---- linux/drivers/net/wavelan.j1.c	Wed Jan  9 14:23:19 2002
-+++ linux/drivers/net/wavelan.c	Wed Jan  9 14:25:04 2002
-@@ -4019,7 +4019,8 @@ static int __init wavelan_config(device 
- 
- 	dev->irq = irq;
- 
--	request_region(ioaddr, sizeof(ha_t), "wavelan");
-+	if (!request_region(ioaddr, sizeof(ha_t), "wavelan"))
-+		return -EBUSY;
- 
- 	dev->mem_start = 0x0000;
- 	dev->mem_end = 0x0000;
+To clone the tree
+
+	bk clone http://linuxusb.bkbits.net/dietHotplug
+
+should work fine.  I'm trying to talk the owner of bk.net out of the 
+domain name, if I get it, we'll use that to save on the tired fingers.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

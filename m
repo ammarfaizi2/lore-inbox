@@ -1,45 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129846AbRAaP0b>; Wed, 31 Jan 2001 10:26:31 -0500
+	id <S129774AbRAaP1b>; Wed, 31 Jan 2001 10:27:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129774AbRAaP0V>; Wed, 31 Jan 2001 10:26:21 -0500
-Received: from chmls05.mediaone.net ([24.147.1.143]:37872 "EHLO
-	chmls05.mediaone.net") by vger.kernel.org with ESMTP
-	id <S129846AbRAaP0N>; Wed, 31 Jan 2001 10:26:13 -0500
-Date: Wed, 31 Jan 2001 10:26:06 -0500
-Message-Id: <200101311526.f0VFQ6430271@mojo.chezrutt.com>
-From: John Ruttenberg <rutt@chezrutt.com>
-To: jgarzik@mandrakesoft.com, becker@scyld.com
-cc: linux-kernel@vger.kernel.org
-Subject: Problems with tulip driver with lite-on -- transmit timed out
-Reply-to: rutt@chezrutt.com
+	id <S129805AbRAaP1V>; Wed, 31 Jan 2001 10:27:21 -0500
+Received: from oxmail2.ox.ac.uk ([163.1.2.1]:28874 "EHLO oxmail.ox.ac.uk")
+	by vger.kernel.org with ESMTP id <S129774AbRAaP1L>;
+	Wed, 31 Jan 2001 10:27:11 -0500
+Date: Wed, 31 Jan 2001 15:26:54 +0000
+From: Malcolm Beattie <mbeattie@sable.ox.ac.uk>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [UPDATE] Fresh zerocopy patch on kernel.org
+Message-ID: <20010131152653.C13345@sable.ox.ac.uk>
+In-Reply-To: <14966.35438.429963.405587@pizda.ninka.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <14966.35438.429963.405587@pizda.ninka.net>; from davem@redhat.com on Tue, Jan 30, 2001 at 01:33:34AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm not sure exactly when this problem was introduced, but I'm pretty sure it
-didn't exist in the 2.2.x kernels.  It does exist in the 2.4.0-test12, 2.4.0,
-and 2.4.1 kernels.
+David S. Miller writes:
+> 
+> At the usual place:
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/davem/zerocopy-2.4.1-1.diff.gz
 
-Any high bandwidth sustained inward transfer seems to hang up the card after a
-little while (< 1 minute with ftp, longer with nfs).  Once the card hangs,
-the syslog has entries:
+Hmm, disappointing results here; maybe I've missed something.
 
-    NETDEV WATCHDOG: eth0: transmit timed out
+Setup is a Pentium II 350MHz (tusk) connected to a Pentium III
+733MHz (heffalump) (both 512MB RAM) with SX fibre, each with a
+3Com 3C985 NIC. Kernels compared are 2.4.1 and 2.4.1+zc
+(the 2.4.1-1 diff above) using acenic driver with MTU set to 9000.
+Sysctls set are
+    # Raise socket buffer limits
+    net.core.rmem_max = 262144
+    net.core.wmem_max = 262144
+    # Increase TCP write memory
+    net.ipv4.tcp_wmem = 100000 100000 100000
+on both sides.
 
-cancelling the inward ftp and restarting the network unwedges the problem.
+Comparison tests done were
+    gensink4: 10485760 (10MB) buffer size, 262144 (256K) socket buffer
+    ftp: server does sendfile() from a 300MB file in page cache,
+         client does read from socket/write to /dev/null in 4K chunks.
 
-Here is what's in my /proc/pci for the nic:
+                       2.4.1                    2.4.1+zc
+                     KByte/s tusk%CPU heff%CPU  KByte/s tusk%CPU heff%CPU
+gensink4
+  tusk->heffalump    94000   58-100   93        54000   98-102   11-45
+  heffalump->tusk    72000   86-100   46-59     70000   71-93    53-71
 
-    Bus  0, device  12, function  0:
-       Ethernet controller: Lite-On Communications Inc LNE100TX (rev 32).
-         IRQ 11.
+                      2.4.1                     2.4.1+zc         
+                      KByte/s                   KByte/s
+ftp heffalump->tusk   86000                     62000
 
-There seems to have been some relevant LKML traffic on the topic, but I
-couldn't decipher it in terms of what it means to me.
 
-I'm not subscribed to lkml, so please cc me in replies.
+I was impressed with the raw 2.4.1 figures and hoped to be even more
+impressed with the 2.4.1+zc numbers. Is there something I'm missing or
+can change or do to help to improve matters or track down potential
+problems?
 
-Thanks in advance for any help.
+--Malcolm
+
+-- 
+Malcolm Beattie <mbeattie@sable.ox.ac.uk>
+Unix Systems Programmer
+Oxford University Computing Services
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

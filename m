@@ -1,34 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262418AbSJERcf>; Sat, 5 Oct 2002 13:32:35 -0400
+	id <S262420AbSJERml>; Sat, 5 Oct 2002 13:42:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262419AbSJERcf>; Sat, 5 Oct 2002 13:32:35 -0400
-Received: from ip68-13-110-204.om.om.cox.net ([68.13.110.204]:20363 "EHLO
-	dad.molina") by vger.kernel.org with ESMTP id <S262418AbSJERcf>;
-	Sat, 5 Oct 2002 13:32:35 -0400
-Date: Sat, 5 Oct 2002 12:38:05 -0500 (CDT)
-From: Thomas Molina <tmolina@cox.net>
-X-X-Sender: tmolina@dad.molina
-To: "Bjoern A. Zeeb" <bzeeb-lists@lists.zabbadoz.net>
-cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5 Problem Report Status
-In-Reply-To: <Pine.BSF.4.44.0210051717450.39858-100000@e0-0.zab2.int.zabbadoz.net>
-Message-ID: <Pine.LNX.4.44.0210051236490.10630-100000@dad.molina>
+	id <S262422AbSJERml>; Sat, 5 Oct 2002 13:42:41 -0400
+Received: from 62-190-219-1.pdu.pipex.net ([62.190.219.1]:36357 "EHLO
+	darkstar.example.net") by vger.kernel.org with ESMTP
+	id <S262420AbSJERml>; Sat, 5 Oct 2002 13:42:41 -0400
+From: jbradford@dial.pipex.com
+Message-Id: <200210051756.g95HuuqR000969@darkstar.example.net>
+Subject: Re: USB problems with 2.4
+To: lenar@vision.ee (Lenar =?iso-8859-1?q?L=F5hmus?=)
+Date: Sat, 5 Oct 2002 18:56:55 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200210051914.35873.lenar@vision.ee> from "Lenar =?iso-8859-1?q?L=F5hmus?=" at Oct 05, 2002 07:14:32 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 5 Oct 2002, Bjoern A. Zeeb wrote:
-
-> On Sat, 5 Oct 2002, Thomas Molina wrote:
+> Couple of days ago I bought Compaq USB keyboard. Although I find the
+> keyboard quite good (buttons feel awesome) I must say the idea of buying
+> it was not so good after all.
 > 
-> > -------------------------------------------------------------------------
-> >    open                   04 Oct 2002 SCSI st tape wrong minor
-> >   40. http://marc.theaimsgroup.com/?l=linux-kernel&m=103382033204377&w=2
+> That's becase I can't get it going under linux correctly. The only way I
+> get it working is in Boot Protocol Mode, but anyway - don't like this mode,
+> becase I can't use those extra buttons:(
 > 
-> FIXED. Kai Makisara pushed a patch to Linus.
+> Now, I tried it with usb-uhci.o as well as uhci.o. The net result is the
+> same. No working keyboard.
 
-Thanks.  I saw the message from Kai about 10 minutes after I submitted the 
-status report.  It is now listed as fix available on my web page.  
+Have you tried 2.5.x?
 
+John.

@@ -1,52 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262070AbUCVQCc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 11:02:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262076AbUCVQCc
+	id S262076AbUCVQLf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 11:11:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262078AbUCVQLf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 11:02:32 -0500
-Received: from x35.xmailserver.org ([69.30.125.51]:12169 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S262070AbUCVQC0
+	Mon, 22 Mar 2004 11:11:35 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:44674 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262076AbUCVQLc
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 11:02:26 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Mon, 22 Mar 2004 08:02:23 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mdolabs.com
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] cowlinks v2
-In-Reply-To: <m1ekrldt6o.fsf@ebiederm.dsl.xmission.com>
-Message-ID: <Pine.LNX.4.44.0403220744150.1788-100000@bigblue.dev.mdolabs.com>
+	Mon, 22 Mar 2004 11:11:32 -0500
+Date: Mon, 22 Mar 2004 11:13:18 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Timothy Miller <miller@techsource.com>
+cc: Tigran Aivazian <tigran@veritas.com>,
+       David Schwartz <davids@webmaster.com>,
+       Justin Piszcz <jpiszcz@hotmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux Kernel Microcode Question
+In-Reply-To: <405F0B8D.8040408@techsource.com>
+Message-ID: <Pine.LNX.4.53.0403221057400.17797@chaos>
+References: <Pine.LNX.4.44.0403191721110.3892-100000@einstein.homenet>
+ <405F0B8D.8040408@techsource.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 22 Mar 2004, Eric W. Biederman wrote:
+On Mon, 22 Mar 2004, Timothy Miller wrote:
 
-> Davide Libenzi <davidel@xmailserver.org> writes:
-> 
-> > There has been a misunderstanding. I thought you were talking about a 
-> > userspace solution ala fl-cow. Of course if you are inside the kernel you 
-> > can catch both explicit writes and page syncs.
-> 
-> Right.  Although there is nothing prevent the copy to be in user space
-> even with the trigger hooks down in the write path.
+>
+>
+> Tigran Aivazian wrote:
+> > On Thu, 18 Mar 2004, David Schwartz wrote:
+> >
+> >>	It is at least theoeretically possible that a microcode update might cause
+> >>an operation that's normally done very quickly (in dedicated hardware) to be
+> >>done by a slower path (microcode operations) to fix a bug in the dedicated
+> >>hardware
+> >
+> >
+> > Did you dream that up or did you read it somewhere? If the latter, where?
+> >
+> > All operations are done by "dedicated hardware" and microcode DOES modify
+> > that hardware, or rather the way instructions are "digested". So, applying
+> > microcode doesn't make anything slower per se, it's just replacing one
+> > code sequence with another code sequence. If a new code happens to be
+> > slower than the old one then of course the result will be slower, but the
+> > reverse is also true. When you fix a bug in a particular software why
+> > should a bugfix be apriori slower than the original code? Think about it.
+> >
+> > So please do not spread misinformation that applying microcode makes
+> > something slower. If anything, it should make things faster, as long as
+> > the guys at Intel are writing the correct (micro)code.
+>
+> I don't see anything wrong with what he said.  As I understand it,
+> Pentium 4 CPUs don't use microcode for much of anything.  If an
+> instruction which was done entirely in dedicated hardware was buggy, and
+> it's replaced by microcode, then it will most certainly be slower.
 
-How do you insert yourself before the first page fault to do the COW, from 
-userspace (open+mmap)? You can obviously hook mmap(2) and if a PROT_WRITE 
-is requested, you COW from there. But then you have an whole bunch of new 
-problems (again, when done from userspace) because, just to begin with, 
-you need a stateful interception layer (while fl-cow for example is stateless).
-In my modest usage scenario for my fl-cow shell (emacs+patch+diff+gcc) 
-I've found that when something opens in RDWR, it really writes the file at 
-some point during the opened session. So moving the COW down in the write 
-path helps little or nothing. There may be as well other use cases where 
-applications do frequently open in RDWR even w/out ever touching the file.
+ALL instructions are performed by the microcode. If the microcode
+that is loaded into the control-store upon reset is replaced by
+microcode that is loaded later, why should it be slower? It is
+possible that some control-sequence may be replaced with one that
+takes fewer clocks, takes more clocks, or takes the same number of
+clocks. If it takes the same number of clocks, there is no change.
+If fewer, faster. If greater, slower. FYI, the WCS (Writable control-
+store) goes back to Digital PDP-days (and VAXen). The CPU was a
+board, not a chip. It was damn dumb upon power-up. A monitor program
+in an 8085, loaded the microcode from a tape called the "console".
 
+The WCS allows CPUs to be fixed permanently, if something is wrong,
+with absolutely no negative trade-offs whatsoever.
 
+>
+> You seem to have missed where David used terms like "theoretically
+> possible" and "an operation".
 
-- Davide
+It is theoretically possible for me to win the Lottery tomorrow.
+Since I haven't yet purchased a chance, it is unlikely.........
+But chaos theory shows the probability is non-zero, even if I
+don't purchase the chance. So, "theoretically" is one of those
+words that can't be used to substantiate an argument.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
 

@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293502AbSBZEG4>; Mon, 25 Feb 2002 23:06:56 -0500
+	id <S293505AbSBZEPu>; Mon, 25 Feb 2002 23:15:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293505AbSBZEGq>; Mon, 25 Feb 2002 23:06:46 -0500
-Received: from dsl-213-023-039-132.arcor-ip.net ([213.23.39.132]:64389 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S293502AbSBZEG3>;
-	Mon, 25 Feb 2002 23:06:29 -0500
+	id <S293506AbSBZEPk>; Mon, 25 Feb 2002 23:15:40 -0500
+Received: from dsl-213-023-039-132.arcor-ip.net ([213.23.39.132]:6790 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S293505AbSBZEPa>;
+	Mon, 25 Feb 2002 23:15:30 -0500
 Content-Type: text/plain; charset=US-ASCII
 From: Daniel Phillips <phillips@bonn-fries.net>
-To: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] Lightweight userspace semaphores...
-Date: Sun, 24 Feb 2002 05:57:39 +0100
+To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
+Subject: Re: Linux 2.4.18
+Date: Sun, 24 Feb 2002 06:08:49 +0100
 X-Mailer: KMail [version 1.3.2]
-Cc: Rusty Russell <rusty@rustcorp.com.au>, <mingo@elte.hu>,
-        Matthew Kirkwood <matthew@hairy.beasts.org>,
-        Benjamin LaHaise <bcrl@redhat.com>, David Axmark <david@mysql.com>,
-        William Lee Irwin III <wli@holomorphy.com>,
-        <linux-kernel@vger.kernel.org>, Larry McVoy <lm@bitmover.com>
-In-Reply-To: <Pine.LNX.4.33.0202251129480.8991-100000@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.33.0202251129480.8991-100000@penguin.transmeta.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.21.0202251613300.31438-100000@freak.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.21.0202251613300.31438-100000@freak.distro.conectiva>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <E16eqjD-0001QM-00@starship.berlin>
+Message-Id: <E16equ1-0001QS-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On February 25, 2002 08:31 pm, Linus Torvalds wrote:
-> On Mon, 25 Feb 2002, Alan Cox wrote:
-> > Ok I see where you are coming from now -- that makes sense for a few 
-> > cases.
+On February 25, 2002 08:18 pm, Marcelo Tosatti wrote:
+> On Mon, 25 Feb 2002, Holzrichter, Bruce wrote:
+> > > Ok, DAMN. I missed the -rc4 patch in 2.4.18. Real sorry about that.
+> > > 
+> > > 2.4.19-pre1 will contain it. 
+> > 
+> > Should 2.4.18 final get a -dontuse tag or something?  
 > 
-> Note that the "few cases" in question imply _all_ of the current broken 
-> library spinlocks, for example. 
-> 
-> Don't think "POSIX semaphores", but think "fast locking" in the general
-> case. I will bet you $1 in small change that most normal locking by far is
-> for the kind of thread-safe stuff libc does right now.
+> No. A "-dontuse" tag should be only used when the kernel can cause damage
+> in some way.
 
-This looks like another piece of the equation needed to make Larry's smp 
-cluster concept come true.  So...
+That reminds me, why did 2.4.15 never get a -dontuse?  Did the iput bugfix
+get quietly added, or is it still an accident waiting to happen?
+
+I think there'a a limit to how strict one should be about the 'don't change
+it after posting rule'.
 
 -- 
 Daniel

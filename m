@@ -1,60 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263247AbTCYS3Y>; Tue, 25 Mar 2003 13:29:24 -0500
+	id <S263236AbTCYSZ6>; Tue, 25 Mar 2003 13:25:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263245AbTCYS2Q>; Tue, 25 Mar 2003 13:28:16 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:33967 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S263201AbTCYS1v>;
-	Tue, 25 Mar 2003 13:27:51 -0500
-Date: Tue, 25 Mar 2003 19:20:43 +0100
-From: Jens Axboe <axboe@suse.de>
+	id <S263239AbTCYSZ6>; Tue, 25 Mar 2003 13:25:58 -0500
+Received: from AMarseille-201-1-1-200.abo.wanadoo.fr ([193.252.38.200]:22823
+	"EHLO zion.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S263230AbTCYSZv>; Tue, 25 Mar 2003 13:25:51 -0500
+Subject: Re: [BK FBDEV] A few more updates.
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 To: James Simmons <jsimmons@infradead.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+Cc: Linus Torvalds <torvalds@transmeta.com>,
        Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: Framebuffer updates.
-Message-ID: <20030325182043.GH30908@suse.de>
-References: <Pine.LNX.4.33.0303251032320.4272-100000@maxwell.earthlink.net>
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1048616901.10476.3.camel@zion.wanadoo.fr>
+References: <Pine.LNX.4.33.0303251031180.4272-100000@maxwell.earthlink.net>
+	 <1048616901.10476.3.camel@zion.wanadoo.fr>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1048617354.10476.6.camel@zion.wanadoo.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0303251032320.4272-100000@maxwell.earthlink.net>
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 25 Mar 2003 19:35:54 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 25 2003, James Simmons wrote:
+On Tue, 2003-03-25 at 19:28, Benjamin Herrenschmidt wrote:
+
+> You "fixed" it by using GFP_ATOMIC but didn't test the result of
+> kmalloc. That is very bad. GFP_ATOMIC can fail (return NULL), thus
+> you will crash the kernel under high memory pressure.
 > 
-> As usually I have a patch avalaible at 
-> 
-> http://phoenix.infradead.org/~jsimmons/fbdev.diff.gz
-> 
->  drivers/video/aty/aty128fb.c  |   16 +++++++---------
->  drivers/video/console/fbcon.c |    4 ++--
->  drivers/video/controlfb.c     |   18 +++---------------
->  drivers/video/platinumfb.c    |   28 ++++++++--------------------
->  drivers/video/radeonfb.c      |   10 ++++++++++
->  drivers/video/softcursor.c    |    2 +-
->  6 files changed, 31 insertions(+), 47 deletions(-)
-> 
-> The patch has updates for the ATI Rage 128, Control, and Platnium 
-> framebuffer driver. The Radeon patch adds PLL times for the R* series of
-> cards. Memory is now safe to allocate for the software cursor and inside 
-> fbcon. There still are issues with syncing which cause the cursor on some 
-> systems to become corrupt sometimes. 
+> I think the proper fix is, as you asked me, using a workqueue,
+> that way, you can both use GFP_KERNEL allocations, and avoid
+> the spinlock you added to fbmem.c, thus letting the fb_sync()
+> ops on fbdev's be able to block.
 
--       data = kmalloc(size, GFP_KERNEL);
--       mask = kmalloc(size, GFP_KERNEL);
-+       data = kmalloc(size, GFP_ATOMIC);
-+       mask = kmalloc(size, GFP_ATOMIC);
+Well, actually, creating a workqueue would be overhead since
+it involves one kernel thread per CPU. After more thinking &
+discussion, I beleive you shall rather use keventd existing
+workqueue (schedule_work() will do that)
 
-        if (cursor->set & FB_CUR_SETSIZE) {
-                memset(data, 0xff, size);
-
-
-irk, you replaced GFP_KERNEL with GFP_ATOMIC, and even unconditionally
-memset the return without even bothering to check if it succeeded or
-not.
-
--- 
-Jens Axboe
+Ben.
 

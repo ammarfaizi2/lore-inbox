@@ -1,52 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286620AbSABBaO>; Tue, 1 Jan 2002 20:30:14 -0500
+	id <S286554AbSABBbl>; Tue, 1 Jan 2002 20:31:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286502AbSABBaF>; Tue, 1 Jan 2002 20:30:05 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:10934 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S286528AbSABB34>;
-	Tue, 1 Jan 2002 20:29:56 -0500
-Date: Tue, 1 Jan 2002 20:29:53 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: "H. Peter Anvin" <hpa@zytor.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: a great C++ book?
-In-Reply-To: <a0tmmt$ear$1@cesium.transmeta.com>
-Message-ID: <Pine.GSO.4.21.0201012015430.16467-100000@weyl.math.psu.edu>
+	id <S286502AbSABBbc>; Tue, 1 Jan 2002 20:31:32 -0500
+Received: from mail3.aracnet.com ([216.99.193.38]:1541 "EHLO mail3.aracnet.com")
+	by vger.kernel.org with ESMTP id <S286491AbSABBbP>;
+	Tue, 1 Jan 2002 20:31:15 -0500
+From: "M. Edward Borasky" <znmeb@aracnet.com>
+To: "Steinar Hauan" <hauan@cmu.edu>, <linux-kernel@vger.kernel.org>
+Subject: RE: smp cputime issues
+Date: Tue, 1 Jan 2002 17:31:23 -0800
+Message-ID: <HBEHIIBBKKNOBLMPKCBBOEBAEFAA.znmeb@aracnet.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <Pine.GSO.4.33L-022.0201011959360.7513-300000@unix13.andrew.cmu.edu>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The obvious question is: how do the printed *elapsed* (wall clock) times
+compare with a stopwatch timing of the same run??
 
+--
+M. Edward Borasky
 
-On 1 Jan 2002, H. Peter Anvin wrote:
-
-> Personally I have found that it's quite clean and easy to program in 
-> "C+" by simply using a C++ compiler and just not going wild with all
-> the features that you *could* use.  You don't *have* to use all of it,
-> you know.  In that way, your "M" language really becomes a particular
-> *style* of C++ rather than a full-blown programming language in its
-> own right.  This is actually a Good Thing[TM], since it means you can
-> leverage existing compilers and so forth.
-
-You've just described the reasons why Algol 68 is a Bad Thing(tm).  Everyone
-has his own subset and almost nobody understands what exactly happens in
-others' code.
- 
-> Way back in the 0.99.x days we actually tried doing the Linux kernel
-> using the g++ compiler, the main motivation for that was to get
-> type-safe linkage.  At that time, as everyone knows, g++ wasn't up to
-> snuff; that has probably changed now.  The LKML FAQ claims that "there
-> would be no point" unless we started using C++ features left and
-> right; personally I think type-safe linkage is plenty of reason
-> enough.
-
-We can't get people to follow common style and you expect adherence to
-some subset of the language smaller than "compiler doesn't spit errors
-on that"?  Dream on.
-
-And then there is "six month ago I cud not spel injuneer and now I r won"
-crowd - and quite a few of them seem to be afraid of C.  FWIC it is a
-damn good reason to stay with C...
+znmeb@borasky-research.net
+http://www.borasky-research.net
 

@@ -1,42 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262503AbUEFPX6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262574AbUEFPV6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262503AbUEFPX6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 May 2004 11:23:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262585AbUEFPX6
+	id S262574AbUEFPV6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 May 2004 11:21:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262585AbUEFPV6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 May 2004 11:23:58 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:54941 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S262503AbUEFPX4 (ORCPT
+	Thu, 6 May 2004 11:21:58 -0400
+Received: from fw.osdl.org ([65.172.181.6]:11747 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262574AbUEFPV5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 May 2004 11:23:56 -0400
-Date: Thu, 6 May 2004 17:23:50 +0200
-From: Andries Brouwer <Andries.Brouwer@cwi.nl>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Andries Brouwer <Andries.Brouwer@cwi.nl>, akpm@osdl.org, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] report size of printk buffer
-Message-ID: <20040506152350.GD14714@apps.cwi.nl>
-References: <20040506133639.GB14714@apps.cwi.nl> <Pine.LNX.4.44.0405061708170.765-100000@serv.local>
+	Thu, 6 May 2004 11:21:57 -0400
+Date: Thu, 6 May 2004 08:21:32 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Zephaniah E. Hull" <warp@mercury.d2dc.net>
+Cc: eric.valette@free.fr, linux-kernel@vger.kernel.org
+Subject: Re: RE : 2.6.6-rc3-mm2 : REGPARAM forced => no external module with
+ some object code only
+Message-Id: <20040506082132.05686482.akpm@osdl.org>
+In-Reply-To: <20040506124454.GA12921@babylon.d2dc.net>
+References: <4098D65D.9010107@free.fr>
+	<20040505131809.10bdcae6.akpm@osdl.org>
+	<20040506124454.GA12921@babylon.d2dc.net>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0405061708170.765-100000@serv.local>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 06, 2004 at 05:11:26PM +0200, Roman Zippel wrote:
-
-> > If one asks for count bytes, one gets the last count bytes of output,
-> > not the first.
+"Zephaniah E. Hull" <warp@mercury.d2dc.net> wrote:
+>
+> On Wed, May 05, 2004 at 01:18:09PM -0700, Andrew Morton wrote:
+> > Eric Valette <eric.valette@free.fr> wrote:
+> > >
+> > > The Changelog says nothing really important but forcing REGPARAM is 
+> > >  rather important : it breaks any external module using object only code 
+> > >  that calls a kernel function.
+> > 
+> > This is why we should remove the option - to reduce the number of ways in
+> > which the kernel might have been built.  Yes, there will be a bit of
+> > transition pain while these people catch up.
 > 
-> That doesn't answer the question, why don't you just clear the data that
-> was read?
+> Any guess on when REGPARAM and 4KSTACKS will end up in Linus' tree?
 
-Think about it.
-The buffer is 131072 bytes. We read the final 16384 bytes.
-Now what?
+Tomorrow?  Linus will probably have some opinions on that, but if we're
+going to do this thing we need to do it early in the cycle.
 
-
-[There are other problems as well, but I do not want to start a complicated
-conversation for a triviality.]

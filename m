@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265787AbTAFC0K>; Sun, 5 Jan 2003 21:26:10 -0500
+	id <S265773AbTAFCZJ>; Sun, 5 Jan 2003 21:25:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265819AbTAFC0K>; Sun, 5 Jan 2003 21:26:10 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:40395 "EHLO
+	id <S265787AbTAFCZJ>; Sun, 5 Jan 2003 21:25:09 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:15051 "EHLO
 	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S265787AbTAFCZx>; Sun, 5 Jan 2003 21:25:53 -0500
-Date: Sun, 05 Jan 2003 18:34:16 -0800
+	id <S265773AbTAFCZB>; Sun, 5 Jan 2003 21:25:01 -0500
+Date: Sun, 05 Jan 2003 18:33:25 -0800
 From: "Martin J. Bligh" <mbligh@aracnet.com>
 To: Andrew Morton <akpm@digeo.com>
 cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Timer interrupt cleanups [2/3] - local timer
-Message-ID: <198230000.1041820456@titus>
+Subject: [PATCH] Timer interrupt cleanups [1/3] - global timer
+Message-ID: <196440000.1041820405@titus>
 X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
@@ -22,9 +22,10 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 This patch renames:
 
-apic_timer_interrupt -> local_apic_timer_interrupt
-smp_apic_timer_interrupt ->  do_local_apic_timer_interrupt
-smp_local_timer_interrupt -> do_local_timer
+do_timer                  -> do_global_timer
+do_timer_interrupt_hook   -> do_global_timer_interrupt_hook
+do_timer_interrupt        -> do_global_timer_interrupt
+timer_interrupt           -> global_timer_interrupt
 
 --------------------
 
@@ -39,10 +40,10 @@ global_timer_interrupt
 				update_times
 		{update CMOS clock}    (In the interrupt still ??!!)
 
-local_apic_timer_interrupt
-	do_local_apic_timer_interrupt
+apic_timer_interrupt
+	smp_apic_timer_interrupt
 		{ack the interrupt}
-		do_local_timer
+		smp_local_timer_interrupt
 			x86_do_profile
 			update_process_times
 
@@ -60,16 +61,16 @@ global_timer_interrupt
 				update_times
 		{update CMOS clock}    (In the interrupt still ??!!)
 
-local_apic_timer_interrupt
-	do_local_apic_timer_interrupt
+apic_timer_interrupt
+	smp_apic_timer_interrupt
 		{ack the interrupt}
-		do_local_timer
+		smp_local_timer_interrupt
 			x86_do_profile
 
 --------------------
 
 On a UP 386 with stale crusty breadcrumbs, and no local timer:
-	
+
 global_timer_interrupt
 	do_global_timer_interrupt
 		{ack the interrupt}
@@ -84,237 +85,245 @@ global_timer_interrupt
 --------------------
 
 diff -urpN -X /home/fletch/.diff.exclude 
-01-rename_global_timer/arch/i386/kernel/apic.c 
-02-rename_local_timer/arch/i386/kernel/apic.c
---- 01-rename_global_timer/arch/i386/kernel/apic.c	Thu Jan  2 22:04:58 2003
-+++ 02-rename_local_timer/arch/i386/kernel/apic.c	Sun Jan  5 10:53:14 2003
-@@ -40,14 +40,14 @@ void __init apic_intr_init(void)
- 	smp_intr_init();
- #endif
- 	/* self generated IPI for local APIC timer */
--	set_intr_gate(LOCAL_TIMER_VECTOR, apic_timer_interrupt);
-+	set_intr_gate(LOCAL_TIMER_VECTOR, local_apic_timer_interrupt);
-
- 	/* IPI vectors for APIC spurious and error interrupts */
- 	set_intr_gate(SPURIOUS_APIC_VECTOR, spurious_interrupt);
- 	set_intr_gate(ERROR_APIC_VECTOR, error_interrupt);
- }
-
--/* Using APIC to generate smp_local_timer_interrupt? */
-+/* Using local APIC interrupt to fire do_local_timer? */
- int using_apic_timer = 0;
-
- int prof_multiplier[NR_CPUS] = { 1, };
-@@ -991,7 +991,7 @@ int setup_profiling_timer(unsigned int m
-  * value into /proc/profile.
-  */
-
--inline void smp_local_timer_interrupt(struct pt_regs * regs)
-+inline void do_local_timer(struct pt_regs * regs)
- {
- 	int cpu = smp_processor_id();
-
-@@ -1038,7 +1038,7 @@ inline void smp_local_timer_interrupt(st
-  *   interrupt as well. Thus we cannot inline the local irq ... ]
-  */
-
--void smp_apic_timer_interrupt(struct pt_regs regs)
-+void do_local_apic_timer_interrupt(struct pt_regs regs)
- {
- 	int cpu = smp_processor_id();
-
-@@ -1058,7 +1058,7 @@ void smp_apic_timer_interrupt(struct pt_
- 	 * interrupt lock, which is the WrongThing (tm) to do.
- 	 */
- 	irq_enter();
--	smp_local_timer_interrupt(&regs);
-+	do_local_timer(&regs);
- 	irq_exit();
- }
-
-diff -urpN -X /home/fletch/.diff.exclude 
-01-rename_global_timer/arch/i386/kernel/entry.S 
-02-rename_local_timer/arch/i386/kernel/entry.S
---- 01-rename_global_timer/arch/i386/kernel/entry.S	Thu Jan  2 22:04:58 2003
-+++ 02-rename_local_timer/arch/i386/kernel/entry.S	Sun Jan  5 10:51:02 2003
-@@ -397,12 +397,14 @@ common_interrupt:
- 	call do_IRQ
- 	jmp ret_from_intr
-
--#define BUILD_INTERRUPT(name, nr)	\
-+#define __BUILD_INTERRUPT(name, callfn, nr)	\
- ENTRY(name)				\
- 	pushl $nr-256;			\
- 	SAVE_ALL			\
--	call smp_/**/name;	\
-+	call callfn;	\
- 	jmp ret_from_intr;
-+
-+#define BUILD_INTERRUPT(name, nr) __BUILD_INTERRUPT(name, smp_/**/name, nr)
-
- /* The include is where all of the SMP etc. interrupts come from */
- #include "entry_arch.h"
-diff -urpN -X /home/fletch/.diff.exclude 
-01-rename_global_timer/arch/i386/mach-voyager/voyager_smp.c 
-02-rename_local_timer/arch/i386/mach-voyager/voyager_smp.c
---- 01-rename_global_timer/arch/i386/mach-voyager/voyager_smp.c	Thu Jan  2 
-22:04:58 2003
-+++ 02-rename_local_timer/arch/i386/mach-voyager/voyager_smp.c	Sun Jan  5 
-10:55:56 2003
-@@ -234,7 +234,7 @@ static int cpucount = 0;
-  * space */
- static __u32 trampoline_base;
-
--/* The per cpu profile stuff - used in smp_local_timer_interrupt */
-+/* The per cpu profile stuff - used in do_local_timer */
- static unsigned int prof_multiplier[NR_CPUS] __cacheline_aligned = { 1, };
- static unsigned int prof_old_multiplier[NR_CPUS] __cacheline_aligned = { 
-1, };
- static unsigned int prof_counter[NR_CPUS] __cacheline_aligned = { 1, };
-@@ -1150,7 +1150,7 @@ smp_call_function (void (*func) (void *i
-  *
-  * This function is currently a placeholder and is unused in the code */
- asmlinkage void
--smp_apic_timer_interrupt(struct pt_regs regs)
-+do_local_apic_timer_interrupt(struct pt_regs regs)
- {
- 	wrapper_smp_local_timer_interrupt(&regs);
- }
-@@ -1286,14 +1286,14 @@ void
- smp_vic_timer_interrupt(struct pt_regs *regs)
- {
- 	send_CPI_allbutself(VIC_TIMER_CPI);
--	smp_local_timer_interrupt(regs);
-+	do_local_timer(regs);
- }
-
- static inline void
- wrapper_smp_local_timer_interrupt(struct pt_regs *regs)
- {
- 	irq_enter();
--	smp_local_timer_interrupt(regs);
-+	do_local_timer(regs);
- 	irq_exit();
- }
-
-@@ -1306,7 +1306,7 @@ wrapper_smp_local_timer_interrupt(struct
-  * value into /proc/profile.
-  */
- void
--smp_local_timer_interrupt(struct pt_regs * regs)
-+do_local_timer(struct pt_regs * regs)
- {
- 	int cpu = smp_processor_id();
- 	long weight;
-diff -urpN -X /home/fletch/.diff.exclude 
-01-rename_global_timer/include/asm-i386/apic.h 
-02-rename_local_timer/include/asm-i386/apic.h
---- 01-rename_global_timer/include/asm-i386/apic.h	Sun Nov 17 20:29:57 2002
-+++ 02-rename_local_timer/include/asm-i386/apic.h	Sun Jan  5 10:51:02 2003
-@@ -75,7 +75,7 @@ extern void sync_Arb_IDs (void);
- extern void init_bsp_APIC (void);
- extern void setup_local_APIC (void);
- extern void init_apic_mappings (void);
--extern void smp_local_timer_interrupt (struct pt_regs * regs);
-+extern void do_local_timer (struct pt_regs * regs);
- extern void setup_boot_APIC_clock (void);
- extern void setup_secondary_APIC_clock (void);
- extern void setup_apic_nmi_watchdog (void);
-diff -urpN -X /home/fletch/.diff.exclude 
-01-rename_global_timer/include/asm-i386/hw_irq.h 
-02-rename_local_timer/include/asm-i386/hw_irq.h
---- 01-rename_global_timer/include/asm-i386/hw_irq.h	Thu Jan  2 22:05:15 
+00-virgin/arch/i386/kernel/io_apic.c 
+01-rename_global_timer/arch/i386/kernel/io_apic.c
+--- 00-virgin/arch/i386/kernel/io_apic.c	Mon Dec 23 23:01:44 2002
++++ 01-rename_global_timer/arch/i386/kernel/io_apic.c	Sun Jan  5 10:47:59 
 2003
-+++ 02-rename_local_timer/include/asm-i386/hw_irq.h	Sun Jan  5 10:51:02 2003
-@@ -36,7 +36,7 @@ extern asmlinkage void call_function_int
+@@ -1612,7 +1612,7 @@ static inline void check_timer(void)
+ 	set_intr_gate(vector, interrupt[0]);
+
+ 	/*
+-	 * Subtle, code in do_timer_interrupt() expects an AEOI
++	 * Subtle, code in do_global_timer_interrupt() expects an AEOI
+ 	 * mode for the 8259A whenever interrupts are routed
+ 	 * through I/O APICs.  Also IRQ0 has to be enabled in
+ 	 * the 8259A which implies the virtual wire has to be
+diff -urpN -X /home/fletch/.diff.exclude 00-virgin/arch/i386/kernel/time.c 
+01-rename_global_timer/arch/i386/kernel/time.c
+--- 00-virgin/arch/i386/kernel/time.c	Thu Jan  2 22:04:58 2003
++++ 01-rename_global_timer/arch/i386/kernel/time.c	Sat Jan  4 20:04:20 2003
+@@ -209,10 +209,10 @@ static long last_rtc_update;
+ int timer_ack;
+
+ /*
+- * timer_interrupt() needs to keep up the real-time clock,
+- * as well as call the "do_timer()" routine every clocktick
++ * global_timer_interrupt() needs to keep up the real-time clock,
++ * as well as call the "do_global_timer()" routine every clocktick
+  */
+-static inline void do_timer_interrupt(int irq, void *dev_id, struct 
+pt_regs *regs)
++static inline void do_global_timer_interrupt(int irq, void *dev_id, struct 
+pt_regs *regs)
+ {
+ #ifdef CONFIG_X86_IO_APIC
+ 	if (timer_ack) {
+@@ -230,7 +230,7 @@ static inline void do_timer_interrupt(in
+ 	}
  #endif
 
- #ifdef CONFIG_X86_LOCAL_APIC
--extern asmlinkage void apic_timer_interrupt(void);
-+extern asmlinkage void local_apic_timer_interrupt(void);
- extern asmlinkage void error_interrupt(void);
- extern asmlinkage void spurious_interrupt(void);
- extern asmlinkage void thermal_interrupt(struct pt_regs);
+-	do_timer_interrupt_hook(regs);
++	do_global_timer_interrupt_hook(regs);
+
+ 	/*
+ 	 * If we have an externally synchronized Linux clock, then update
+@@ -269,7 +269,7 @@ static inline void do_timer_interrupt(in
+  * Time Stamp Counter value at the time of the timer interrupt, so that
+  * we later on can estimate the time of day more exactly.
+  */
+-void timer_interrupt(int irq, void *dev_id, struct pt_regs *regs)
++void global_timer_interrupt(int irq, void *dev_id, struct pt_regs *regs)
+ {
+ 	/*
+ 	 * Here we are in the timer irq handler. We just have irqs locally
+@@ -282,7 +282,7 @@ void timer_interrupt(int irq, void *dev_
+
+ 	timer->mark_offset();
+
+-	do_timer_interrupt(irq, NULL, regs);
++	do_global_timer_interrupt(irq, NULL, regs);
+
+ 	write_unlock(&xtime_lock);
+
 diff -urpN -X /home/fletch/.diff.exclude 
-01-rename_global_timer/include/asm-i386/mach-default/do_timer.h 
-02-rename_local_timer/include/asm-i386/mach-default/do_timer.h
---- 01-rename_global_timer/include/asm-i386/mach-default/do_timer.h	Sun Jan 
+00-virgin/arch/i386/mach-default/setup.c 
+01-rename_global_timer/arch/i386/mach-default/setup.c
+--- 00-virgin/arch/i386/mach-default/setup.c	Mon Dec 23 23:01:45 2002
++++ 01-rename_global_timer/arch/i386/mach-default/setup.c	Sat Jan  4 
+18:46:16 2003
+@@ -69,7 +69,7 @@ void __init trap_init_hook(void)
+ {
+ }
+
+-static struct irqaction irq0  = { timer_interrupt, SA_INTERRUPT, 0, 
+"timer", NULL, NULL};
++static struct irqaction irq0  = { global_timer_interrupt, SA_INTERRUPT, 0, 
+"timer", NULL, NULL};
+
+ /**
+  * time_init_hook - do any specific initialisations for the system timer.
+diff -urpN -X /home/fletch/.diff.exclude 
+00-virgin/arch/i386/mach-visws/setup.c 
+01-rename_global_timer/arch/i386/mach-visws/setup.c
+--- 00-virgin/arch/i386/mach-visws/setup.c	Sun Nov 17 20:29:25 2002
++++ 01-rename_global_timer/arch/i386/mach-visws/setup.c	Sat Jan  4 18:46:16 
+2003
+@@ -150,7 +150,7 @@ void __init pre_setup_arch_hook()
+ {
+ 	visws_get_board_type_and_rev();
+ }
+-static struct irqaction irq0  = { timer_interrupt, SA_INTERRUPT, 0, 
+"timer", NULL, NULL};
++static struct irqaction irq0  = { global_timer_interrupt, SA_INTERRUPT, 0, 
+"timer", NULL, NULL};
+
+ void __init time_init_hook(void)
+ {
+diff -urpN -X /home/fletch/.diff.exclude 
+00-virgin/arch/i386/mach-voyager/setup.c 
+01-rename_global_timer/arch/i386/mach-voyager/setup.c
+--- 00-virgin/arch/i386/mach-voyager/setup.c	Thu Jan  2 22:04:58 2003
++++ 01-rename_global_timer/arch/i386/mach-voyager/setup.c	Sat Jan  4 
+18:46:16 2003
+@@ -38,7 +38,7 @@ void __init trap_init_hook(void)
+ {
+ }
+
+-static struct irqaction irq0  = { timer_interrupt, SA_INTERRUPT, 0, 
+"timer", NULL, NULL};
++static struct irqaction irq0  = { global_timer_interrupt, SA_INTERRUPT, 0, 
+"timer", NULL, NULL};
+
+ void __init time_init_hook(void)
+ {
+diff -urpN -X /home/fletch/.diff.exclude 
+00-virgin/include/asm-i386/arch_hooks.h 
+01-rename_global_timer/include/asm-i386/arch_hooks.h
+--- 00-virgin/include/asm-i386/arch_hooks.h	Sun Nov 17 20:29:48 2002
++++ 01-rename_global_timer/include/asm-i386/arch_hooks.h	Sat Jan  4 
+18:46:16 2003
+@@ -12,7 +12,7 @@
+ extern void init_ISA_irqs(void);
+ extern void apic_intr_init(void);
+ extern void smp_intr_init(void);
+-extern void timer_interrupt(int irq, void *dev_id, struct pt_regs *regs);
++extern void global_timer_interrupt(int irq, void *dev_id, struct pt_regs 
+*regs);
+
+ /* these are the defined hooks */
+ extern void intr_init_hook(void);
+diff -urpN -X /home/fletch/.diff.exclude 
+00-virgin/include/asm-i386/mach-default/do_timer.h 
+01-rename_global_timer/include/asm-i386/mach-default/do_timer.h
+--- 00-virgin/include/asm-i386/mach-default/do_timer.h	Mon Dec 23 23:01:56 
+2002
++++ 01-rename_global_timer/include/asm-i386/mach-default/do_timer.h	Sun Jan 
 5 10:48:34 2003
-+++ 02-rename_local_timer/include/asm-i386/mach-default/do_timer.h	Sun Jan 
-5 10:51:02 2003
-@@ -25,7 +25,7 @@ static inline void do_global_timer_inter
- 	x86_do_profile(regs);
- #else
- 	if (!using_apic_timer)
--		smp_local_timer_interrupt(regs);
-+		do_local_timer(regs);
- #endif
- }
+@@ -3,7 +3,7 @@
+ #include <asm/apic.h>
 
-diff -urpN -X /home/fletch/.diff.exclude 
-01-rename_global_timer/include/asm-i386/mach-default/entry_arch.h 
-02-rename_local_timer/include/asm-i386/mach-default/entry_arch.h
---- 01-rename_global_timer/include/asm-i386/mach-default/entry_arch.h	Mon 
-Dec 23 23:01:56 2002
-+++ 02-rename_local_timer/include/asm-i386/mach-default/entry_arch.h	Sun 
-Jan  5 10:51:02 2003
-@@ -23,7 +23,7 @@ BUILD_INTERRUPT(call_function_interrupt,
-  * a much simpler SMP time architecture:
-  */
- #ifdef CONFIG_X86_LOCAL_APIC
--BUILD_INTERRUPT(apic_timer_interrupt,LOCAL_TIMER_VECTOR)
-+__BUILD_INTERRUPT(local_apic_timer_interrupt, 
-do_local_apic_timer_interrupt, LOCAL_TIMER_VECTOR)
- BUILD_INTERRUPT(error_interrupt,ERROR_APIC_VECTOR)
- BUILD_INTERRUPT(spurious_interrupt,SPURIOUS_APIC_VECTOR)
+ /**
+- * do_timer_interrupt_hook - hook into timer tick
++ * do_global_timer_interrupt_hook - hook into timer tick
+  * @regs:	standard registers from interrupt
+  *
+  * Description:
+@@ -13,9 +13,9 @@
+  *	timer interrupt as a means of triggering reschedules etc.
+  **/
 
+-static inline void do_timer_interrupt_hook(struct pt_regs *regs)
++static inline void do_global_timer_interrupt_hook(struct pt_regs *regs)
+ {
+-	do_timer(regs);
++	do_global_timer(regs);
+ /*
+  * In the SMP case we use the local APIC timer interrupt to do the
+  * profiling, except when we simulate SMP mode on a uniprocessor
+@@ -50,7 +50,7 @@ static inline int do_timer_overflow(int
+ 	spin_lock(&i8259A_lock);
+ 	/*
+ 	 * This is tricky when I/O APICs are used;
+-	 * see do_timer_interrupt().
++	 * see do_global_timer_interrupt().
+ 	 */
+ 	i = inb(0x20);
+ 	spin_unlock(&i8259A_lock);
 diff -urpN -X /home/fletch/.diff.exclude 
-01-rename_global_timer/include/asm-i386/mach-visws/do_timer.h 
-02-rename_local_timer/include/asm-i386/mach-visws/do_timer.h
---- 01-rename_global_timer/include/asm-i386/mach-visws/do_timer.h	Sun Jan 
+00-virgin/include/asm-i386/mach-visws/do_timer.h 
+01-rename_global_timer/include/asm-i386/mach-visws/do_timer.h
+--- 00-virgin/include/asm-i386/mach-visws/do_timer.h	Mon Dec 23 23:01:56 
+2002
++++ 01-rename_global_timer/include/asm-i386/mach-visws/do_timer.h	Sun Jan 
 5 10:48:57 2003
-+++ 02-rename_local_timer/include/asm-i386/mach-visws/do_timer.h	Sun Jan  5 
-10:51:02 2003
-@@ -18,7 +18,7 @@ static inline void do_global_timer_inter
- 	x86_do_profile(regs);
- #else
- 	if (!using_apic_timer)
--		smp_local_timer_interrupt(regs);
-+		do_local_timer(regs);
- #endif
- }
+@@ -3,12 +3,12 @@
+ #include <asm/fixmap.h>
+ #include <asm/cobalt.h>
 
+-static inline void do_timer_interrupt_hook(struct pt_regs *regs)
++static inline void do_global_timer_interrupt_hook(struct pt_regs *regs)
+ {
+ 	/* Clear the interrupt */
+ 	co_cpu_write(CO_CPU_STAT,co_cpu_read(CO_CPU_STAT) & ~CO_STAT_TIMEINTR);
+
+-	do_timer(regs);
++	do_global_timer(regs);
+ /*
+  * In the SMP case we use the local APIC timer interrupt to do the
+  * profiling, except when we simulate SMP mode on a uniprocessor
+@@ -29,7 +29,7 @@ static inline int do_timer_overflow(int
+ 	spin_lock(&i8259A_lock);
+ 	/*
+ 	 * This is tricky when I/O APICs are used;
+-	 * see do_timer_interrupt().
++	 * see do_global_timer_interrupt().
+ 	 */
+ 	i = inb(0x20);
+ 	spin_unlock(&i8259A_lock);
 diff -urpN -X /home/fletch/.diff.exclude 
-01-rename_global_timer/include/asm-i386/mach-visws/entry_arch.h 
-02-rename_local_timer/include/asm-i386/mach-visws/entry_arch.h
---- 01-rename_global_timer/include/asm-i386/mach-visws/entry_arch.h	Mon Dec 
-23 23:01:56 2002
-+++ 02-rename_local_timer/include/asm-i386/mach-visws/entry_arch.h	Sun Jan 
-5 10:51:02 2003
-@@ -17,7 +17,7 @@ BUILD_INTERRUPT(call_function_interrupt,
-  * a much simpler SMP time architecture:
+00-virgin/include/asm-i386/mach-voyager/do_timer.h 
+01-rename_global_timer/include/asm-i386/mach-voyager/do_timer.h
+--- 00-virgin/include/asm-i386/mach-voyager/do_timer.h	Mon Dec 23 23:01:56 
+2002
++++ 01-rename_global_timer/include/asm-i386/mach-voyager/do_timer.h	Sat Jan 
+4 18:46:16 2003
+@@ -1,9 +1,9 @@
+ /* defines for inline arch setup functions */
+ #include <asm/voyager.h>
+
+-static inline void do_timer_interrupt_hook(struct pt_regs *regs)
++static inline void do_global_timer_interrupt_hook(struct pt_regs *regs)
+ {
+-	do_timer(regs);
++	do_global_timer(regs);
+
+ 	voyager_timer_interrupt(regs);
+ }
+diff -urpN -X /home/fletch/.diff.exclude 00-virgin/include/linux/sched.h 
+01-rename_global_timer/include/linux/sched.h
+--- 00-virgin/include/linux/sched.h	Thu Jan  2 22:05:17 2003
++++ 01-rename_global_timer/include/linux/sched.h	Sat Jan  4 20:06:32 2003
+@@ -481,7 +481,7 @@ extern void free_uid(struct user_struct
+
+ extern unsigned long itimer_ticks;
+ extern unsigned long itimer_next;
+-extern void do_timer(struct pt_regs *);
++extern void do_global_timer(struct pt_regs *);
+
+ extern int FASTCALL(wake_up_process(struct task_struct * tsk));
+ extern void FASTCALL(wake_up_forked_process(struct task_struct * tsk));
+diff -urpN -X /home/fletch/.diff.exclude 00-virgin/kernel/timer.c 
+01-rename_global_timer/kernel/timer.c
+--- 00-virgin/kernel/timer.c	Mon Dec 16 21:50:51 2002
++++ 01-rename_global_timer/kernel/timer.c	Sat Jan  4 20:08:46 2003
+@@ -803,7 +803,7 @@ static inline void update_times(void)
+  * jiffies is defined in the linker script...
   */
- #ifdef CONFIG_X86_LOCAL_APIC
--BUILD_INTERRUPT(apic_timer_interrupt,LOCAL_TIMER_VECTOR)
-+__BUILD_INTERRUPT(local_apic_timer_interrupt, 
-do_local_apic_timer_interrupt, LOCAL_TIMER_VECTOR)
- BUILD_INTERRUPT(error_interrupt,ERROR_APIC_VECTOR)
- BUILD_INTERRUPT(spurious_interrupt,SPURIOUS_APIC_VECTOR)
- #endif
-diff -urpN -X /home/fletch/.diff.exclude 
-01-rename_global_timer/include/asm-i386/voyager.h 
-02-rename_local_timer/include/asm-i386/voyager.h
---- 01-rename_global_timer/include/asm-i386/voyager.h	Thu Jan  2 22:05:15 
-2003
-+++ 02-rename_local_timer/include/asm-i386/voyager.h	Sun Jan  5 10:54:21 
-2003
-@@ -506,7 +506,7 @@ extern void voyager_smp_intr_init(void);
- extern __u8 voyager_extended_cmos_read(__u16 cmos_address);
- extern void voyager_smp_dump(void);
- extern void voyager_timer_interrupt(struct pt_regs *regs);
--extern void smp_local_timer_interrupt(struct pt_regs * regs);
-+extern void do_local_timer(struct pt_regs * regs);
- extern void voyager_power_off(void);
- extern void smp_voyager_power_off(void *dummy);
- extern void voyager_restart(void);
+
+-void do_timer(struct pt_regs *regs)
++void do_global_timer(struct pt_regs *regs)
+ {
+ 	jiffies_64++;
+ #ifndef CONFIG_SMP
 

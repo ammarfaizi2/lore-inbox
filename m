@@ -1,42 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131203AbQLJAUD>; Sat, 9 Dec 2000 19:20:03 -0500
+	id <S131760AbQLJAVz>; Sat, 9 Dec 2000 19:21:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131760AbQLJATx>; Sat, 9 Dec 2000 19:19:53 -0500
-Received: from durham-ar1-228-164.dsl.gte.net ([4.35.228.164]:40716 "EHLO
-	smtp.gte.net") by vger.kernel.org with ESMTP id <S131203AbQLJATo>;
-	Sat, 9 Dec 2000 19:19:44 -0500
-From: "Victor J. Orlikowski" <v.j.orlikowski@gte.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14898.50377.593756.7641@critterling.garfield.home>
-Date: Sat, 9 Dec 2000 18:48:25 -0500
-To: Julian Anastasov <ja@ssi.bg>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.2.18pre25, S3, AMD K6-2, and MTRR....
-In-Reply-To: <Pine.LNX.4.21.0012092218280.877-100000@u>
-In-Reply-To: <Pine.LNX.4.21.0012092218280.877-100000@u>
-X-Mailer: VM 6.87 under Emacs 20.7.1
-Reply-To: v.j.orlikowski@gte.net
+	id <S132132AbQLJAVf>; Sat, 9 Dec 2000 19:21:35 -0500
+Received: from d06lmsgate-3.uk.ibm.com ([195.212.29.3]:30605 "EHLO
+	d06lmsgate-3.uk.ibm.com") by vger.kernel.org with ESMTP
+	id <S131760AbQLJAV1>; Sat, 9 Dec 2000 19:21:27 -0500
+From: richardj_moore@uk.ibm.com
+X-Lotus-FromDomain: IBMGB
+To: Keith Owens <kaos@ocs.com.au>
+cc: root@chaos.analogic.com, Brian Gerst <bgerst@didntduck.org>,
+        Andi Kleen <ak@suse.de>, "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
+        linux-kernel@vger.kernel.org
+Message-ID: <802569B0.0082FA4C.00@d06mta06.portsmouth.uk.ibm.com>
+Date: Sat, 9 Dec 2000 23:46:34 +0000
+Subject: Re: Why is double_fault serviced by a trap gate?
+Mime-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After doing some googling....
-It would appear that, in Family 5, Model 8, Stepping 12 of the K6-2,
-AMD used a different CPU core, that was more similar to the K6-3, and
-that there is a slightly odd way of doing write-combining.
 
-Perhaps this is the problem?
-Anyone with more knowledge on the AMD cores care to comment?
 
-Victor
--- 
-Victor J. Orlikowski
-======================
-v.j.orlikowski@gte.net
-vjo@raleigh.ibm.com
-vjo@us.ibm.com
+I agree, I've changed my mind about the use of a task gate for NMI - Intel
+recommend an interrupt gate for a very good reason - NMI's are queued until
+the IRET so using an interrup gate for NMI (and keeping interrupts
+disabled) will guarantee that NMIs are handled serially.
+
+I think our use of a trap gate for NMI in OS/2 was probably not the best
+idea.
+
+
+Richard Moore -  RAS Project Lead - Linux Technology Centre (PISC).
+
+http://oss.software.ibm.com/developerworks/opensource/linux
+Office: (+44) (0)1962-817072, Mobile: (+44) (0)7768-298183
+IBM UK Ltd,  MP135 Galileo Centre, Hursley Park, Winchester, SO21 2JN, UK
+
+
+Keith Owens <kaos@ocs.com.au> on 08/12/2000 22:34:49
+
+Please respond to Keith Owens <kaos@ocs.com.au>
+
+To:   root@chaos.analogic.com
+cc:   Richard J Moore/UK/IBM@IBMGB, Brian Gerst <bgerst@didntduck.org>,
+      Andi Kleen <ak@suse.de>, "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
+      linux-kernel@vger.kernel.org
+Subject:  Re: Why is double_fault serviced by a trap gate?
+
+
+
+
+On Fri, 8 Dec 2000 07:58:06 -0500 (EST),
+"Richard B. Johnson" <root@chaos.analogic.com> wrote:
+>Too many people just want to argue without even reading what they
+>are arguing against. Again, I implied nothing. I said;
+>
+> (1) User traps, CPL3, stack for trap is in CPL0.
+> (2) CPL0 has stack-fault (bad ring zero code, bad memory).
+> (3) CPL0 traps, using faulted stack, double fault.
+> (4) There is no stack-trick, including a call-gate  to another
+>  "environment" (complete with its previously-reserved stack),
+>  that will ever get you back to (2), much less to (1).
+
+Nobody thinks that a stack overflow is recoverable - for that process.
+By the time you overflow, the struct task at the bottom of the kernel
+stack has been overwritten so the process is dead, gone to make its
+maker, it is pushing up daisies.  The rest of the system may or may not
+recover, depending on the resources that the dead process is still
+holding and the links between processes.
+
+Changing the stack overflow to a trap gate will give us diagnostics on
+the failing task instead of an immediate triple fault and reboot.
+Diagnostics are useful.  If the system can recover afterwards then that
+is a bonus but it is not guaranteed.  The process is always unrecoverable.
+
+I am not convinced that using a trap gate for NMI is a good idea, the
+NMI watchdog kicks in too often for my liking.  Using a trap gate for a
+debugger would be worthwhile, I have always been worried about the
+amount of stack that kdb uses.
+
+
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,98 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272980AbTHFBDr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 21:03:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272983AbTHFBDr
+	id S272983AbTHFBMs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 21:12:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273004AbTHFBMr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 21:03:47 -0400
-Received: from tomts16-srv.bellnexxia.net ([209.226.175.4]:46545 "EHLO
-	tomts16-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S272980AbTHFBDo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 21:03:44 -0400
-Message-ID: <3F3053F2.7050803@linuxfreak.ca>
-Date: Tue, 05 Aug 2003 21:03:46 -0400
-From: Patrick McLean <pmclean@linuxfreak.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030731
-X-Accept-Language: en-us, en
+	Tue, 5 Aug 2003 21:12:47 -0400
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:36840 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id S272983AbTHFBMq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 21:12:46 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Date: Wed, 6 Aug 2003 11:12:38 +1000
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [2.6] Perl weirdness with ext3 and HTREE
-References: <1059856625.14962.19.camel@nosferatu.lan> <20030805182847.GA20850@vmware.com>
-In-Reply-To: <20030805182847.GA20850@vmware.com>
-X-Enigmail-Version: 0.76.4.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16176.22022.382294.55110@gargle.gargle.HOWL>
+Cc: muizelaar@rogers.com, linux-kernel@vger.kernel.org,
+       mru@users.sourceforge.net
+Subject: Re: FS: hardlinks on directories
+In-Reply-To: message from Stephan von Krawczynski on Tuesday August 5
+References: <20030804141548.5060b9db.skraw@ithnet.com>
+	<yw1xsmohioah.fsf@users.sourceforge.net>
+	<20030804152226.60204b61.skraw@ithnet.com>
+	<3F2E7C63.2000203@rogers.com>
+	<20030804181500.074aec51.skraw@ithnet.com>
+	<16175.6729.962817.135747@gargle.gargle.HOWL>
+	<20030805114125.30a12916.skraw@ithnet.com>
+X-Mailer: VM 7.17 under Emacs 21.3.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It is possible to install gentoo in a subdir of your main box, just 
-unzip the tarball
-into that directory, then chroot to it and follow the rest of the steps 
-for installation
-(skipping kernel, bootloader, syslog, etc of course), then you can test 
-stuff out by just chrooting to the gentoo dir, and doing "env-update ; 
-source /etc/profile".
+On Tuesday August 5, skraw@ithnet.com wrote:
+> > > Hm, and I just found out that re-exporting "mount --bind" volumes does not
+> > > work over nfs...
+> > > 
+> > > Is this correct, Neil?
+> > 
+> > Yes, though there is a reasonable chance that it can be made to work
+> > with linux-2.6.0 and nfs-utils-1.1.0 (neither of which have been
+> > released yet:-)
+> 
+> Is this a complex issue? Can you imagine a not-too-big sized patch can make it
+> work in 2.4? What is the basic reason it does in fact not work?
 
-Christopher Li wrote:
+On reflection, it could probably work in 2.4 and current nfs-utils,
+but admin might be a bit clumsy.
 
->I can take a look at it.
->
->Is there any way to reproduce this bug without installing the
->whole gentoo? It would be nice if I can just download some
->package to make it happen.
->
->Thanks,
->
->Chris
->
->
->On Sat, Aug 02, 2003 at 10:37:05PM +0200, Martin Schlemmer wrote:
->  
->
->>Hi
->>
->>I have mailed about this previously, but back then it was not
->>really confirmed, so I have let it be at that.
->>
->>Anyhow, problem is that for some reason 2.5/2.6 ext3 with HTREE
->>support do not like what perl-5.8.0 does during installation.
->>It *seems* like one of the temporary files created during manpage
->>installation do not get unlinked properly, or gets into the
->>hash (this possible?) and cause issues.
->>
->>It seems to work flawless on 2.4 still.
->>
->>Also, to be honest, I do not have that much free time these days,
->>so if an interest in helping me/us debug this, it will be appreciated
->>if some direction in what is needed/suggestions can be given as to what
->>is required.  There are a few users that experience this issue, and
->>I am sure that we can get whatever info needed.
->>
->>A bug on our tracker is here with more (hopefully) complete info:
->>
->>  http://bugs.gentoo.org/show_bug.cgi?id=24991
->>
->>
->>Thanks,
->>
->>-- 
->>
->>Martin Schlemmer
->>
->>
->>
->>    
->>
->
->
->
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->  
->
+To allow knfsd to see a mountpoint, you have to export the mounted
+directory with the "nohide" option.  Currently "nohide" only works
+properly for exports to specific hosts, not to wildcarded hosts or
+netgroups.
+So if your /etc/export contains:
 
+  /path/to/some/--bind/mountpoint servername(nohide,....)
+
+for every mountpoint and every server, then it should work.
+
+In 2.6, you can (will be able to) just export the top level mount
+point with "crossmnt" and it should all work for you.
+
+Getting that functionality into 2.4 would be a very big job.
+
+NeilBrown

@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316854AbSE1RNg>; Tue, 28 May 2002 13:13:36 -0400
+	id <S316845AbSE1RV2>; Tue, 28 May 2002 13:21:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316855AbSE1RNf>; Tue, 28 May 2002 13:13:35 -0400
-Received: from h-64-105-136-78.SNVACAID.covad.net ([64.105.136.78]:38817 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S316854AbSE1RNe>; Tue, 28 May 2002 13:13:34 -0400
-Date: Tue, 28 May 2002 10:13:11 -0700
-From: "Adam J. Richter" <adam@freya.yggdrasil.com>
-Message-Id: <200205281713.KAA22774@freya.yggdrasil.com>
-To: alan@lxorguk.ukuu.org.uk
+	id <S316847AbSE1RV1>; Tue, 28 May 2002 13:21:27 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:48636 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S316845AbSE1RV1>; Tue, 28 May 2002 13:21:27 -0400
 Subject: Re: business models [was patent stuff]
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Adam J. Richter" <adam@freya.yggdrasil.com>
 Cc: gilad@benyossef.com, linux-kernel@vger.kernel.org, lm@bitmover.com,
         phillips@bonn-fries.net
+In-Reply-To: <200205281713.KAA22774@freya.yggdrasil.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 28 May 2002 19:22:16 +0100
+Message-Id: <1022610136.4124.131.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox responds to Gilad Ben-Yossef about licensing of Linux-based patents:
->I don't think you can realistically expect all open source licenses like
->the BSD one to be accomodated. Otherwise people would ship binary apps
->linked with a BSD licensed libpatent.o/c that was useless to anyone. The
->GPL restrictions happen to work very nicely in terms of making a patent
->available for free software (or one definition thereof), the BSD license
->alas doesn't.
+On Tue, 2002-05-28 at 18:13, Adam J. Richter wrote:
+> 	You could license all programs that consist entirely of
+> free software.  That way, BSD, LGPL, and MPL software that did
+> not link in proprietary software would be allowed too, but your
+> example of a proprietary program that linked in the BSD'ed
+> libpatent.o/c would not be covered by this permission.
 
-	You could license all programs that consist entirely of
-free software.  That way, BSD, LGPL, and MPL software that did
-not link in proprietary software would be allowed too, but your
-example of a proprietary program that linked in the BSD'ed
-libpatent.o/c would not be covered by this permission.
+Define "free software" using only legally defined phrases which have
+precedent. In fact put four people in a room and get them to define free
+software.
 
-	Licensing all programs that consist entirely of free
-software would address issues like GPL'ed software that contains
-content that is GPL compatible but not GPL'ed, future versions of
-the GPL, what happens if a court ruling opens a loophole in the
-GPL, and practicing the patent with free software in other free
-operating systems.
+> software would address issues like GPL'ed software that contains
+> content that is GPL compatible but not GPL'ed, future versions of
 
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+If its linked then it is GPL in the linked form, otherwise you wouldn't
+be allowed to link it
+
+Alan
+

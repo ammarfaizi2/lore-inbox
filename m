@@ -1,51 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262796AbUKRRo2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262793AbUKRRo1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262796AbUKRRo2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 12:44:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262804AbUKRRnk
+	id S262793AbUKRRo1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 12:44:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262806AbUKRRnf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 12:43:40 -0500
-Received: from mta1.cl.cam.ac.uk ([128.232.0.15]:60308 "EHLO mta1.cl.cam.ac.uk")
-	by vger.kernel.org with ESMTP id S262808AbUKRRig (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 12:38:36 -0500
-To: Roland Dreier <roland@topspin.com>
-cc: Andi Kleen <ak@suse.de>, Ian Pratt <Ian.Pratt@cl.cam.ac.uk>,
-       linux-kernel@vger.kernel.org, Ian.Pratt@cl.cam.ac.uk
-Subject: Re: Xen 2.0 VMM patches 
-In-reply-to: Your message of "Thu, 18 Nov 2004 09:26:00 PST."
-             <52vfc3kr13.fsf@topspin.com> 
-Date: Thu, 18 Nov 2004 17:38:21 +0000
-From: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
-Message-Id: <E1CUqEg-0004K3-00@mta1.cl.cam.ac.uk>
+	Thu, 18 Nov 2004 12:43:35 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:33981 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S262804AbUKRRkV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 12:40:21 -0500
+Date: Thu, 18 Nov 2004 17:39:59 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Chris Wright <chrisw@osdl.org>
+cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Tony Luck <tony.luck@intel.com>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>, Andi Kleen <ak@suse.de>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/2] setup_arg_pages can insert overlapping vma
+In-Reply-To: <20041116151937.E2357@build.pdx.osdl.net>
+Message-ID: <Pine.LNX.4.44.0411181720550.2971-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->     Andi> Overall I think it's a bad idea to have four different x86
->     Andi> like architectures in the tree. Especially since there will
->     Andi> be likely more hypervisors over time.  i386 and x86-64 make
->     Andi> some sense because 64bit is a natural boundary, but
->     Andi> extending it elsewhere doesn't scale very well.
-> 
-> Is there any possibility of Xen someday being ported to some non-x86
-> architecture (eg ppc64 or ia64)?
+On Tue, 16 Nov 2004, Chris Wright wrote:
+> Florian Heinz built an a.out binary that could map bss from 0x0 to
+> 0xc0000000, and setup_arg_pages() would BUG() in insert_vma_struct
+> because the arg pages overlapped.  This just checks before inserting,
+> and bails out if it would overlap.
 
-Non x86 architectures are generally much easier to virtualise, so
-its possible to do it within the existing architecture port.
+Chris, shouldn't your patch also cover the setup_arg_pages clones for
+32-bit support on 64-bit architectures, with something - uncompiled,
+untested - like the below?  I'm not sure how necessary the additional
+vma->vm_start < mpnt->vm_end test is, but suspect ia64 might need it.
 
-As a case in point, the soon-to-be-released IA64 port of Linux
-just requires just a few patches to the standard architecture. I
-expect PPC will be fairly similar.
+Signed-off-by: Hugh Dickins <hugh@veritas.com>
 
-x86 and x86_64 are a real pain, hence the separate architecture
-approach. 
-
-Over time, I hope we can merge the i386 xen port in with the
-native architecture, but its going to require significant
-restructuring of the native architecture to do it cleanly.  In
-the meantime, I think we just have to bite the bullet and
-maintain a separate architecture. I believe we have resources to
-do this.
-
-Ian
+--- 2.6.10-rc2-bk2/arch/ia64/ia32/binfmt_elf32.c	2004-10-18 22:57:03.000000000 +0100
++++ linux/arch/ia64/ia32/binfmt_elf32.c	2004-11-18 17:17:57.000000000 +0000
+@@ -214,6 +214,8 @@ ia32_setup_arg_pages (struct linux_binpr
+ 
+ 	down_write(&current->mm->mmap_sem);
+ 	{
++		struct vm_area_struct *vma;
++
+ 		mpnt->vm_mm = current->mm;
+ 		mpnt->vm_start = PAGE_MASK & (unsigned long) bprm->p;
+ 		mpnt->vm_end = IA32_STACK_TOP;
+@@ -225,6 +227,12 @@ ia32_setup_arg_pages (struct linux_binpr
+ 			mpnt->vm_flags = VM_STACK_FLAGS;
+ 		mpnt->vm_page_prot = (mpnt->vm_flags & VM_EXEC)?
+ 					PAGE_COPY_EXEC: PAGE_COPY;
++		vma = find_vma(current->mm, mpnt->vm_start);
++		if (vma && vma->vm_start < mpnt->vm_end) {
++			up_write(&current->mm->mmap_sem);
++			kmem_cache_free(vm_area_cachep, mpnt);
++			return -ENOMEM;
++		}
+ 		insert_vm_struct(current->mm, mpnt);
+ 		current->mm->stack_vm = current->mm->total_vm = vma_pages(mpnt);
+ 	}
+--- 2.6.10-rc2-bk2/arch/s390/kernel/compat_exec.c	2004-10-18 22:56:50.000000000 +0100
++++ linux/arch/s390/kernel/compat_exec.c	2004-11-18 17:17:57.000000000 +0000
+@@ -62,12 +62,20 @@ int setup_arg_pages32(struct linux_binpr
+ 
+ 	down_write(&mm->mmap_sem);
+ 	{
++		struct vm_area_struct *vma;
++
+ 		mpnt->vm_mm = mm;
+ 		mpnt->vm_start = PAGE_MASK & (unsigned long) bprm->p;
+ 		mpnt->vm_end = STACK_TOP;
+ 		/* executable stack setting would be applied here */
+ 		mpnt->vm_page_prot = PAGE_COPY;
+ 		mpnt->vm_flags = VM_STACK_FLAGS;
++		vma = find_vma(mm, mpnt->vm_start);
++		if (vma && vma->vm_start < mpnt->vm_end) {
++			up_write(&mm->mmap_sem);
++			kmem_cache_free(vm_area_cachep, mpnt);
++			return -ENOMEM;
++		}
+ 		insert_vm_struct(mm, mpnt);
+ 		mm->stack_vm = mm->total_vm = vma_pages(mpnt);
+ 	} 
+--- 2.6.10-rc2-bk2/arch/x86_64/ia32/ia32_binfmt.c	2004-11-15 16:20:34.000000000 +0000
++++ linux/arch/x86_64/ia32/ia32_binfmt.c	2004-11-18 17:17:57.000000000 +0000
+@@ -357,6 +357,8 @@ int setup_arg_pages(struct linux_binprm 
+ 
+ 	down_write(&mm->mmap_sem);
+ 	{
++		struct vm_area_struct *vma;
++
+ 		mpnt->vm_mm = mm;
+ 		mpnt->vm_start = PAGE_MASK & (unsigned long) bprm->p;
+ 		mpnt->vm_end = IA32_STACK_TOP;
+@@ -368,6 +370,12 @@ int setup_arg_pages(struct linux_binprm 
+ 			mpnt->vm_flags = VM_STACK_FLAGS;
+  		mpnt->vm_page_prot = (mpnt->vm_flags & VM_EXEC) ? 
+  			PAGE_COPY_EXEC : PAGE_COPY;
++		vma = find_vma(mm, mpnt->vm_start);
++		if (vma && vma->vm_start < mpnt->vm_end) {
++			up_write(&mm->mmap_sem);
++			kmem_cache_free(vm_area_cachep, mpnt);
++			return -ENOMEM;
++		}
+ 		insert_vm_struct(mm, mpnt);
+ 		mm->stack_vm = mm->total_vm = vma_pages(mpnt);
+ 	} 
 

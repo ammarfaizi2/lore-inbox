@@ -1,141 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316674AbSHOJxx>; Thu, 15 Aug 2002 05:53:53 -0400
+	id <S316667AbSHOJuq>; Thu, 15 Aug 2002 05:50:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316675AbSHOJxx>; Thu, 15 Aug 2002 05:53:53 -0400
-Received: from mail.ces.ch ([212.147.83.3]:64462 "EHLO lancy.ces.ch")
-	by vger.kernel.org with ESMTP id <S316674AbSHOJxv>;
-	Thu, 15 Aug 2002 05:53:51 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Rupert Eibauer <Rupert@ces.ch>
-Organization: Creative Electronic Systems
-To: linux-kernel@vger.kernel.org
-Subject: [RFC] Fwd: Re: Fwd: Linux Kernel: down_timeout
-Date: Thu, 15 Aug 2002 11:57:17 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: rusty@rustcorp.com.au
+	id <S316672AbSHOJup>; Thu, 15 Aug 2002 05:50:45 -0400
+Received: from 212.Red-80-35-44.pooles.rima-tde.net ([80.35.44.212]:1152 "EHLO
+	DervishD.pleyades.net") by vger.kernel.org with ESMTP
+	id <S316667AbSHOJup>; Thu, 15 Aug 2002 05:50:45 -0400
+Date: Thu, 15 Aug 2002 12:02:41 +0200
+Organization: Pleyades
+To: mblack@csihq.com, linux-kernel@vger.kernel.org
+Subject: Re: mmap'ing a large file
+Message-ID: <3D5B7C41.mail12L21FEQ4@viadomus.com>
+References: <050a01c243a9$2afa3590$f6de11cc@black>
+In-Reply-To: <050a01c243a9$2afa3590$f6de11cc@black>
+User-Agent: nail 9.31 6/18/02
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200208151157327.SM00152@there>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+From: DervishD <raul@pleyades.net>
+Reply-To: DervishD <raul@pleyades.net>
+X-Mailer: DervishD TWiSTiNG Mailer
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please reply to me directly, I am not
-subscribed to the lkml.
+    Hi Mike :)
 
-----------  Forwarded Message  ----------
+>Is there a logical reason why a process can't mmap more than a 2G file?
 
-Subject: Re: Fwd: Linux Kernel: down_timeout
-Date: Thu, 15 Aug 2002 10:44:55 +0100 (BST)
-From: Matthew Kirkwood <matthew@hairy.beasts.org>
-To: Rupert Eibauer <Rupert@ces.ch>
+    Seems to be the value of TASK_MAX if you don't have HIGHMEM.
 
-On Thu, 15 Aug 2002, Rupert Eibauer wrote:
-> I found your thread
-> [PATCH][RFC] Lightweight user-level semaphores
-> (jan 2002)
-> later, so please read on..
+    Moreover, if you try to mmap a size between TASK_MAX and
+ULONG_MAX, you hit a corner case that I fixed in the -ac series, the
+2.5.x series and other trees, *except* the 2.4.x 'official', because
+Marcelo doesn't apply the patch (three lines... trivial I think).
 
-I'm no kernel guru, but this looks really useful.  You
-should probably send it to the linux-kernel list and to
-Rusty Russel -- it would be a particularly useful extra
-feature for his futexes.
-
-Cheers,
-Matthew.
-
-> ----------  Forwarded Message  ----------
->
-> Subject: Linux Kernel: down_timeout
-> Date: Thu, 15 Aug 2002 11:14:24 +0200
-> From: Rupert Eibauer <Rupert@ces.ch>
-> To: andrew.grover@intel.com, ingo.oeser@informatik.tu-chemnitz.de,
-> robert.moore@intel.com
->
-> Hi,
->
-> I found your thread (Apr 2001) about down_timeout on the lkml.
-> down_timeout is needed more often then you might think.
->
-> Does anybody of you know why it hasnt been implemented in
-> the kernel until now?
->
-> My version of down_timeout is attached below.
->
->
-> waiting for your answer,
->
-> Rupert
->
->
-
-----------  End of Forwarded Message  ----------
-
-
-Here is the header snippet:
--8<--------------------------------------------------------------------------
-extern int __down_timeout(struct semaphore * sem, int timeout);
-
-extern inline int down_timeout(struct semaphore * sem, int timeout)
-{
-        int ret = 0;
-        if (atomic_dec_if_positive(&sem->count) < 0)
-                ret = __down_timeout(sem, timeout);
-        smp_wmb();
-        return ret;
-}
--8<--------------------------------------------------------------------------
-
-
-
-This is for the .c file:
--8<--------------------------------------------------------------------------
-static void process_sema_timeout(unsigned long data) {
-  struct task_struct *p = (struct task_struct *)data;
-
-   wake_up_process(p);
-}
-
-extern int __down_timeout(struct semaphore * sem, int timeout)
-{
-        int ret = 0;
-        unsigned long expire;
-        struct timer_list timer;
-
-        if (timeout > 0) {
-
-                expire = jiffies + timeout;
-                init_timer(&timer);
-                timer.expires = expire;
-                timer.data    = (unsigned long) current;
-                timer.function = process_sema_timeout;
-                add_timer(&timer);
-
-                if (ret = __down_interruptible(sema)) {
-                        /* check whether the timeout woke us up */
-                        if (jiffies > expire)
-                                ret = -ETIME;
-                        else
-                                del_timer_sync(&timer);
-                } else
-                        del_timer_sync(&timer);
-
-        } else if (timeout == 0) { // timeout=0 means now
-                /* our caller (inline int down_timeout) already tried to
-                get the semaphore _now_ and it failed ! */
-                ret = !0;
-        } else { // timeout<0 means wait forever
-                ret = __down_interruptible(sema)
-        }
-        return ret;
-}
--8<--------------------------------------------------------------------------
-
--- 
-+-----------------------------------------------------------------------------+
-| CCCC EEEE SSSS  Creative Electronic Systems | Rupert Eibauer                |
-| C    E    S     38 av. Eugene Lance         | Linux Kernel Hacker           |
-| C    EEE  SSSS  PO Box 584                  |                               |
-| C    E       S  CH-1212 Grand-Lancy 1       |                               |
-| CCCC EEEE SSSS  Switzerland                 | email: rupert@ces.ch          |
-+-----------------------------------------------------------------------------+
+    Raúl

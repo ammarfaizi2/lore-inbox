@@ -1,58 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262376AbSJLISN>; Sat, 12 Oct 2002 04:18:13 -0400
+	id <S262269AbSJLIds>; Sat, 12 Oct 2002 04:33:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262386AbSJLISN>; Sat, 12 Oct 2002 04:18:13 -0400
-Received: from chunk.voxel.net ([207.99.115.133]:3508 "EHLO chunk.voxel.net")
-	by vger.kernel.org with ESMTP id <S262376AbSJLISM>;
-	Sat, 12 Oct 2002 04:18:12 -0400
-Date: Sat, 12 Oct 2002 04:24:05 -0400
-From: Andres Salomon <dilinger@mp3revolution.net>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org, davem@redhat.com, alan@lxorguk.ukuu.org.uk
-Subject: [PATCH] sparc64 makefile dep fix for uart_console_init
-Message-ID: <20021012082405.GB10000@chunk.voxel.net>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="mxv5cy4qt+RJ9ypb"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Operating-System: Linux chunk 2.4.18-ac3 
+	id <S262393AbSJLIds>; Sat, 12 Oct 2002 04:33:48 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:23437 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S262269AbSJLIdr>;
+	Sat, 12 Oct 2002 04:33:47 -0400
+Importance: Normal
+Sensitivity: 
+Subject: Re: "duplicate const" compile warning in 2.5.42
+To: Reuben Farrelly <reuben-linux@reub.net>
+Cc: linux-kernel@vger.kernel.org, anton@samba.org
+X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
+Message-ID: <OF38E5DBB6.1DFD70C1-ON87256C50.002E73F2@boulder.ibm.com>
+From: "Steven French" <sfrench@us.ibm.com>
+Date: Sat, 12 Oct 2002 03:38:52 -0500
+X-MIMETrack: Serialize by Router on D03NM123/03/M/IBM(Release 5.0.10 |March 22, 2002) at
+ 10/12/2002 02:38:55 AM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---mxv5cy4qt+RJ9ypb
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Reuben,
+The "duplicate const" compile warning you mention seems to be a minor
+problem with the min/max macros.
 
-drivers/serial/Config.in defines the following:
-if [ "$CONFIG_SPARC32" = "y" -o "$CONFIG_SPARC64" = "y" ]; then
-	define_bool CONFIG_SERIAL_SUNCORE y
-	define_bool CONFIG_SERIAL_CORE_CONSOLE y
+The fix for the 64 bit warnings for the cifs vfs are not going to affect
+the duplicate const minor warning caused by the min/max macro.  This
+warning does not show up on my i386 2.5.41 builds.
 
-There are no deps for CONFIG_SERIAL_CORE_CONSOLE in
-drivers/serial/Makefile, so core.o isn't built on sparc32/64, and
-linking gives an undefined reference to uart_console_init() error.  Not
-sure if this is the desired way to deal w/ such deps, but it gets the
-job done.
 
--- 
-It's not denial.  I'm just selective about the reality I accept.
-	-- Bill Watterson
 
---mxv5cy4qt+RJ9ypb
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="serialmake.diff"
+Steve French
+Senior Software Engineer
+Linux Technology Center - IBM Austin
+phone: 512-838-2294
+email: sfrench@us.ibm.com
 
---- drivers/serial/Makefile.orig	2002-10-12 04:01:19.000000000 -0400
-+++ drivers/serial/Makefile	2002-10-12 04:02:29.000000000 -0400
-@@ -10,6 +10,7 @@
- serial-8250-$(CONFIG_PCI) += 8250_pci.o
- serial-8250-$(CONFIG_ISAPNP) += 8250_pnp.o
- obj-$(CONFIG_SERIAL_CORE) += core.o
-+obj-$(CONFIG_SERIAL_CORE_CONSOLE) += core.o
- obj-$(CONFIG_SERIAL_21285) += 21285.o
- obj-$(CONFIG_SERIAL_8250) += 8250.o $(serial-8250-y)
- obj-$(CONFIG_SERIAL_8250_CS) += 8250_cs.o
 
---mxv5cy4qt+RJ9ypb--

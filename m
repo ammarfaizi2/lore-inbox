@@ -1,45 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264899AbSJaFGq>; Thu, 31 Oct 2002 00:06:46 -0500
+	id <S264733AbSJaFLo>; Thu, 31 Oct 2002 00:11:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264943AbSJaFGq>; Thu, 31 Oct 2002 00:06:46 -0500
-Received: from mail.gurulabs.com ([208.177.141.7]:27557 "EHLO
-	mail.gurulabs.com") by vger.kernel.org with ESMTP
-	id <S264899AbSJaFGq>; Thu, 31 Oct 2002 00:06:46 -0500
-Subject: Re: What's left over.
-From: Dax Kelson <dax@gurulabs.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0210301823120.1396-100000@home.transmeta.com>
-References: <Pine.LNX.4.44.0210301823120.1396-100000@home.transmeta.com>
-Content-Type: text/plain
+	id <S264895AbSJaFLo>; Thu, 31 Oct 2002 00:11:44 -0500
+Received: from anchor-post-39.mail.demon.net ([194.217.242.80]:5549 "EHLO
+	anchor-post-39.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S264733AbSJaFLo>; Thu, 31 Oct 2002 00:11:44 -0500
+Message-ID: <3DC0BBC8.4080104@lougher.demon.co.uk>
+Date: Thu, 31 Oct 2002 05:12:40 +0000
+From: Phillip Lougher <phillip@lougher.demon.co.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux ppc; en-US; rv:0.9.9) Gecko/20020604
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: willy@debian.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: ANNOUNCEMENT:  Squashfs released (a highly compressed filesystem)
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 30 Oct 2002 22:13:14 -0700
-Message-Id: <1036041194.1521.19.camel@mentor>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-10-30 at 19:31, Linus Torvalds wrote:
-> 
-> > ext2/ext3 ACLs and Extended Attributes
-> 
-> I don't know why people still want ACL's. There were noises about them for 
-> samba, but I'v enot heard anything since. Are vendors using this?
-> 
+Matthew Wilcox wrote:
+ >Larry McVoy wrote:
+ >> > A r/w compressed filesystem would be darned useful too :)
+ >> > mmap(2) is, err, hard. Not impossible, it means the file system 
+has >to
+ >> support both compressed and uncompressed files, but it's interesting.
+ >
+ >Easier than you think, perhaps.  Depends how much compression you're
+ >after, of course, but here's how Acorn did it in RISCiX (a 4.3BSD
+ >derivative):
+ >
 
-I teach Linux classes to corporate IT guys (~300 or so this year) and
-many of them are migrating from Solaris or deploying Linux along side
-Solaris.
+Strange you should mention this... I used to work at Acorn with
+the guy who did this (Mark Taunton). RISCiX was too early to be 4.3, I
+think it was 4.1, but may have been 4.2, certainly no later, this was
+1989.
 
-Solaris has had ACLs since 2.5.1 (1996), and EAs since 2.9 (May 2002).
+ >Pages were 32k (an interesting feature of the MMU...), and the 
+ >underlying filesystem was a fairly vanilla BSD FFS (probably 4k blocks
+ >with 1k fragments; discs were around 50MB).  Each page was written at 
+a >32k boundary, but compressed.  So there were holes in the file where 
+ >other files could store their data.  Naturally you waste on average 
+512 >bytes per 32k page, but I think they managed to get 80MB of unix 
+distro >onto a 50MB disc this way, so it's nothing to be sneezed at.
 
-Having ACL in Linux is a VERY COMMON REQUEST that I hear from the
-students.
+They only needed to compress the fs on the R140 (an ARM 2 based
+machine).  The better R260 had a bigger disk, and so didn't need the
+compression. Interestingly, because of the slow disk I/O, compression
+made the filesystem access faster.
 
-FWIW.
+I had an R140, and space was so tight in the filesystem, you had
+to delete part of the distribution before you could even compile
+a program!
 
-Dax Kelson
-Guru Labs
+Phillip
 

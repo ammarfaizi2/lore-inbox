@@ -1,54 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129504AbRBEK6d>; Mon, 5 Feb 2001 05:58:33 -0500
+	id <S129794AbRBELH3>; Mon, 5 Feb 2001 06:07:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130633AbRBEK6Y>; Mon, 5 Feb 2001 05:58:24 -0500
-Received: from colorfullife.com ([216.156.138.34]:19717 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S129504AbRBEK6K>;
-	Mon, 5 Feb 2001 05:58:10 -0500
-Message-ID: <3A7E873E.54E3ECC2@colorfullife.com>
-Date: Mon, 05 Feb 2001 11:58:06 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Thomas Stewart <T.Stewart@student.umist.ac.uk>
-CC: Urban Widmark <urban@teststation.com>,
-        Jonathan Morton <chromi@cyberspace.org>, linux-kernel@vger.kernel.org,
-        ksa1 <ksa1@gmx.de>
-Subject: Re: d-link dfe-530 tx (bug-report)
-In-Reply-To: <3A7D77B5.ABF5A850@colorfullife.com> <3A7DEEB2.20915.276D09D@localhost>
+	id <S130050AbRBELHU>; Mon, 5 Feb 2001 06:07:20 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:39115 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S129794AbRBELHF>;
+	Mon, 5 Feb 2001 06:07:05 -0500
+Date: Mon, 5 Feb 2001 11:03:36 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>, Christoph Hellwig <hch@caldera.de>,
+        Steve Lord <lord@sgi.com>, linux-kernel@vger.kernel.org,
+        kiobuf-io-devel@lists.sourceforge.net,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait /notify + callback chains
+Message-ID: <20010205110336.A1167@redhat.com>
+In-Reply-To: <20010201220744.K11607@redhat.com> <Pine.LNX.4.10.10102031224210.8867-100000@penguin.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.LNX.4.10.10102031224210.8867-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Sat, Feb 03, 2001 at 12:28:47PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Stewart wrote:
+Hi,
+
+On Sat, Feb 03, 2001 at 12:28:47PM -0800, Linus Torvalds wrote:
 > 
-> Right, i patched the via-diag and its showing more regs.
-> 
-> I applyed Manfred's patch but that changed nothing.
-> Then I applyed your patch and still changed nothing as you suspected.
-> But there are regs that are different.
-> 
-Several regs are just the wakeup frames, but some look suspicious.
+> On Thu, 1 Feb 2001, Stephen C. Tweedie wrote:
+> > 
+> Neither the read nor the write are page-aligned. I don't know where you
+> got that idea. It's obviously not true even in the common case: it depends
+> _entirely_ on what the file offsets are, and expecting the offset to be
+> zero is just being stupid. It's often _not_ zero. With networking it is in
+> fact seldom zero, because the network packets are seldom aligned either in
+> size or in location.
 
-Could you try Urban's patch, but add
+The underlying buffer is.  The VFS (and the current kiobuf code) is
+already happy about IO happening at odd offsets within a page.
+However, the more general case --- doing zero-copy IO on arbitrary
+unaligned buffers --- simply won't work if you expect to be able to
+push those buffers to disk without a copy.  
 
-<<<<<<<<
-	writeb(0x00, ioaddr + 0x83);
-	writel(0x01010000, ioaddr + 0xa0);
-	writel(0x01010000, ioaddr + 0xa4)
-	writew(0xffff, ioaddr + 0x72);
-	writeb(0x08, ioaddr + 0x96);
->>>>>>>>>
-
-just before
-+      writeb(0x40, ioaddr + 0x81);    /* Force software reset */
-(around line 540)
-
---
-	Manfred
+The splice case you talked about is fine because it's doing the normal
+prepare/commit logic where the underlying buffer is page aligned, even
+if the splice IO is not to a page aligned location.  That's _exactly_
+what kiobufs were intended to support.  The prepare_read/prepare_write/
+pull/push cycle lets the caller tell the pull() function where to
+store its data, becausse there are alignment constraints which just
+can't be ignored: you simply cannot do physical disk IO on
+non-sector-aligned memory or in chunks which aren't a multiple of
+sector size.  (The buffer address alignment can sometimes be relaxed
+--- obviously if you're doing PIO then it doesn't matter --- but the
+length granularity is rigidly enforced.)
+ 
+Cheers,
+ Stephen
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

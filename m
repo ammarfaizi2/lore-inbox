@@ -1,98 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289015AbSBMW1w>; Wed, 13 Feb 2002 17:27:52 -0500
+	id <S289017AbSBMWaD>; Wed, 13 Feb 2002 17:30:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289017AbSBMW1n>; Wed, 13 Feb 2002 17:27:43 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:53767 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S289015AbSBMW12>; Wed, 13 Feb 2002 17:27:28 -0500
-Date: Wed, 13 Feb 2002 17:24:38 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Daniel Phillips <phillips@bonn-fries.net>
-cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@zip.com.au>,
-        lkml <linux-kernel@vger.kernel.org>, viro@math.psu.edu
-Subject: Re: [patch] sys_sync livelock fix
-In-Reply-To: <E16b14Z-0001oR-00@starship.berlin>
-Message-ID: <Pine.LNX.3.96.1020213170030.12448F-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289018AbSBMW3y>; Wed, 13 Feb 2002 17:29:54 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:15100
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S289017AbSBMW3k>; Wed, 13 Feb 2002 17:29:40 -0500
+Date: Wed, 13 Feb 2002 14:29:42 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Eugene Chupkin <ace@credit.com>
+Cc: Andreas Dilger <adilger@turbolabs.com>, linux-kernel@vger.kernel.org,
+        tmeagher@credit.com, Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Andrea Arcangeli <andrea@suse.de>
+Subject: Re: 2.4.x ram issues?
+Message-ID: <20020213222942.GB335@matchmail.com>
+Mail-Followup-To: Eugene Chupkin <ace@credit.com>,
+	Andreas Dilger <adilger@turbolabs.com>,
+	linux-kernel@vger.kernel.org, tmeagher@credit.com,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	Andrea Arcangeli <andrea@suse.de>
+In-Reply-To: <20020213122159.A16078@lynx.turbolabs.com> <Pine.LNX.4.10.10202131229480.683-100000@mail.credit.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.10.10202131229480.683-100000@mail.credit.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Feb 2002, Daniel Phillips wrote:
-
-> On February 13, 2002 04:46 am, Jeff Garzik wrote:
-
-> > Yow, your message inspired me to re-read SuSv2 and indeed confirm,
-> > sync(2) schedules I/O but can return before completion,
+> On Wed, 13 Feb 2002, Andreas Dilger wrote:
+> > You may need to use a whole bunch of -aa patches to get it to apply.  In
+> > general, the -aa tree is tuned for large machines such as yours, so you
+> > are probably better off getting the whole thing.
+> > 
 > 
-> I think that's just stupid and we have a duty to fix it, it's an anachronism.
-> The _natural_ expectation for the user is that sync means 'don't come back
-> until data is on disk' and any other interpretation is just apologizing for
-> halfway implementations.
 
-Feel free to join a standards committee. In the mean time, I agree we have
-a duty to fix it, since the current implementation can hang forever
-without improving the securty of the data one bit, therefore sync(2)
-should return after all data generated before the sync has been written
-and not wait for all data written by all processes in the system to
-complete.
-
-BTW: I think users would expect the system call to work as the standard
-specifies, not some better way which would break on non-Linux systems. Of
-course now working programs which conform to the standard DO break on
-Linux.
- 
-> Sync should mean: come back after all filesystem transactions submitted before
-> the sync are recorded, such that if the contents of RAM vanishes the data can
-> still be retrieved.
-
-We agree on that, and it doesn't violate the standard. What we do now
-doesn't.
- 
-> For dumb filesystems, this can degenerate to 'just try to write all the dirty
-> blocks', the traditional Linux interpretation, but for journalling filesystems
-> we can do the job properly.
-
-It doesn't matter, if you write the existing dirty buffers the filesystem
-type is irrelevant. And if you have cache in your controller and/or drives
-the data might be there and not on the disk. If you have those IBM drives
-discussed a few months ago and a bad sector, the drive may drop the data.
-The point I'm making is that doing it really right is harder than it
-seems.
-
-Also, there are applications which don't like journals because they create
-and delete lots of little files, or update the file information
-frequently, resulting in a write to the journal. Sendmail, web servers,
-and usenet news do this in many cases. That's why the noatime option was
-added.
- 
-> > while fsync(2) schedules I/O and waits for completion.
+On Wed, Feb 13, 2002 at 12:33:37PM -0800, Eugene Chupkin wrote:
+> Whola!!! This fixed my problem. CONFIG_HIGHIO did it. So my kernel is lets
+> see here... 2.4.18pre2aa2+pte-highmem-5. I hope this will be included in
+> the 2.4.18 final. Thanks for all your help.
 > 
-> Yes, right.
-> 
-> > So we need to implement system call checkpoint(2) ?  schedule I/O,
-> > introduce an I/O barrier, then sleep until that I/O barrier and all I/O
-> > scheduled before it occurs.
-> 
-> How about adding: sync --old-broken-way
 
-The problem is that the system call should work in a way which doesn't
-violate the standard. I think waiting for all existing dirty buffers is
-conforming, waiting until hell freezes over isn't, nor does it have any
-benefit to the user, since the sync is either an end of the execution
-safety net or a checkpoint. In either case the user doesn't expect to have
-the program hang after *his/her* data is safe.
- 
-> On this topic, it would make a lot of sense from the user's point of view to
-> have a way of syncing a single volume, how would we express that?
+I don't think that will happen.  pte-highmem is relatively new code, and
+needs more testing before it goes into 2.4.  Hugh, and Andrea fixed some
+potential problems with it recently, so hopefully most of it is ironed out
+now.
 
-I have an idea, I'll put it in another message, since only two of us are
-likely to be reading at this point.
+Also, Andrea and Marcelo (CCed) need to take some time to merge some of -aa into
+2.4-pre.  Any comments guys?  We're all watching and waiting to see more
+merging in this area...
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+Mike

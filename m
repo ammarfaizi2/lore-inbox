@@ -1,39 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268964AbTBWWBW>; Sun, 23 Feb 2003 17:01:22 -0500
+	id <S268969AbTBWWCO>; Sun, 23 Feb 2003 17:02:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268982AbTBWWBW>; Sun, 23 Feb 2003 17:01:22 -0500
-Received: from holomorphy.com ([66.224.33.161]:60589 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S268964AbTBWWBV>;
-	Sun, 23 Feb 2003 17:01:21 -0500
-Date: Sun, 23 Feb 2003 14:10:30 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: pte-highmem vs UKVA (was: object-based rmap and pte-highmem)
-Message-ID: <20030223221030.GK10411@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0302231335090.1534-100000@home.transmeta.com> <22420000.1046038049@[10.10.2.4]>
-Mime-Version: 1.0
+	id <S268965AbTBWWCO>; Sun, 23 Feb 2003 17:02:14 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:46039 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S268969AbTBWWCM>; Sun, 23 Feb 2003 17:02:12 -0500
+Date: Sun, 23 Feb 2003 14:12:14 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: davidm@hpl.hp.com
+cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: Minutes from Feb 21 LSE Call
+Message-ID: <28370000.1046038333@[10.10.2.4]>
+In-Reply-To: <15961.17579.89978.78291@napali.hpl.hp.com>
+References: <E18moa2-0005cP-00@w-gerrit2>
+ <Pine.LNX.4.44.0302222354310.8609-100000@dlang.diginsite.com>
+ <20030223082036.GI10411@holomorphy.com><b3b6oa$bsj$1@penguin.transmeta.com>
+ <15961.8482.577861.679601@napali.hpl.hp.com><9280000.1046031179@[10.10.2.4]>
+ <15961.17579.89978.78291@napali.hpl.hp.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <22420000.1046038049@[10.10.2.4]>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 23, 2003 at 02:07:42PM -0800, Martin J. Bligh wrote:
-> Using UKVA for PTEs seems to be a better way to implement pte-highmem to me.
-> If you're walking another processes' pagetables, you just kmap them as now,
-> but I think this will avoid most of the kmap'ing (if we have space for two
-> sets of pagetables so we can do a little bit of trickery at fork time).
+>   >>  But does x86 reall work so well?  Itanium 2 on 0.13um performs a
+>   >> lot better than P4 on 0.13um.  As far as I can guess, the only
+>   >> reason P4 comes out on 0.13um (and 0.09um) before anything else
+>   >> is due to the latter part you mention: it's where the volume is
+>   >> today.
+> 
+>   Martin> Care to share those impressive benchmark numbers (for
+>   Martin> macro-benchmarks)?  Would be interesting to see the
+>   Martin> difference, and where it wins.
+> 
+> You can do it two ways: you can look at the numbers Intel is publicly
+> projected for Madison, or you can compare McKinley with 0.18um Pentium 4.
 
-Another term for "UKVA for pagetables only" is "recursive pagetables",
-if this helps clarify anything.
+Ummm ... I'm not exactly happy working with Intel's own projections on the
+performance of their Itanium chips ... seems a little unscientific ;-)
 
+Presumably when you said "Itanium 2 on 0.13um performs a lot better than P4
+on 0.13um." you were referring to some benchmarks you have the results of? 
 
--- wli
+If you can't publish them, fair enough. But if you can, I'd love to see how
+it compares ... Itanium seems to be "more interesting" nowadays, though I
+can't say I'm happy about the complexity of it.
+
+M.
+

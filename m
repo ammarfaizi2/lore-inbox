@@ -1,80 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130745AbQKLPhg>; Sun, 12 Nov 2000 10:37:36 -0500
+	id <S130159AbQKLPuv>; Sun, 12 Nov 2000 10:50:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130548AbQKLPh1>; Sun, 12 Nov 2000 10:37:27 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:31600 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S130745AbQKLPhM>; Sun, 12 Nov 2000 10:37:12 -0500
-Date: Sun, 12 Nov 2000 16:37:05 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>,
-        Tigran Aivazian <tigran@veritas.com>,
-        "H. Peter Anvin" <hpa@transmeta.com>, Max Inux <maxinux@bigfoot.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: bzImage ~ 900K with i386 test11-pre2
-Message-ID: <20001112163705.A4933@athlon.random>
-In-Reply-To: <Pine.LNX.4.21.0011111644110.1036-100000@saturn.homenet> <m1ofzmcne5.fsf@frodo.biederman.org> <20001112122910.A2366@athlon.random> <m1k8a9badf.fsf@frodo.biederman.org>
+	id <S129987AbQKLPub>; Sun, 12 Nov 2000 10:50:31 -0500
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:57427
+	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
+	id <S129234AbQKLPuY>; Sun, 12 Nov 2000 10:50:24 -0500
+Date: Sun, 12 Nov 2000 16:42:36 +0100
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: dagb@cs.uit.no
+Cc: linux-irda@pasta.cs.uit.no, linux-kernel@vger.kernel.org
+Subject: Compile and link errors in irda in test11-pre3
+Message-ID: <20001112164236.J637@jaquet.dk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <m1k8a9badf.fsf@frodo.biederman.org>; from ebiederm@xmission.com on Sun, Nov 12, 2000 at 06:14:36AM -0700
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.2.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 12, 2000 at 06:14:36AM -0700, Eric W. Biederman wrote:
-> x86-64 doesn't load the segment registers at all before use.
+Hi.
 
-Yes, before switching to 64bit long mode we never do any data access. We do a
-stack access to clear eflags only while we still run in legacy mode with paging
-disabled and so we only rely on ss to be valid when the bootloader jumps at
-0x100000 for executing the head.S code (and not anymore on the gdt_48 layout).
+When I try to compile 2.4.0-test11-pre3 I get the following in
+the link phase:
 
-> I can tell you don't have real hardware.  The non obviousness
+drivers/net/irda/irda.o: In function `nsc_ircc_hard_xmit_fir':
+drivers/net/irda/irda.o(.text+0x346e): undefined reference to `nsc_ircc_change_speed_complete'
+drivers/net/irda/irda.o: In function `toshoboe_hard_xmit':
+drivers/net/irda/irda.o(.text+0x632e): undefined reference to `toshoboe_change_speed'
+drivers/net/irda/irda.o: In function `ircc_hard_xmit':
+drivers/net/irda/irda.o(.text+0x79c3): undefined reference to `smc_ircc_change_speed'
+net/network.o: In function `irda_proto_init':
+net/network.o(.text.init+0x41b3): undefined reference to `irda_init'
+make: *** [vmlinux] Error 1
 
-Current code definitely works fine on the simnow simulator so if current code
-shouldn't work because it's buggy then at least the simulator is sure buggy as
-well (and that isn't going to be the case as its behaviour is in full sync with
-the specs as far I can see).
 
-> So while you load the gdt before you set a segment register later,
-> which is good the more important part was still missed.
+The patch below fixes this. I'm not familiar with the irda code, so
+this might be all wrong (thus Linus is not cc'ed).
 
-Sorry but I don't see the missing part. Are you sure you're not missing this
-part of the x86-64 specs?
 
-	Data and Stack Segments:
+--- linux-240-t11-pre3-clean/net/irda/irsyms.c	Sun Nov 12 09:46:15 2000
++++ linux/net/irda/irsyms.c	Sun Nov 12 16:32:10 2000
+@@ -182,7 +182,7 @@
+ EXPORT_SYMBOL(irtty_set_packet_mode);
+ #endif
+ 
+-static int __init irda_init(void)
++int __init irda_init(void)
+ {
+ 	IRDA_DEBUG(0, __FUNCTION__ "()\n");
+ 
+--- linux-240-t11-pre3-clean/drivers/net/irda/nsc-ircc.c	Sun Nov 12 09:46:13 2000
++++ linux/drivers/net/irda/nsc-ircc.c	Sun Nov 12 16:05:17 2000
+@@ -1129,7 +1129,7 @@
+ 	if ((speed = irda_get_speed(skb)) != self->io.speed) {
+ 		/* Check for empty frame */
+ 		if (!skb->len) {
+-			nsc_ircc_change_speed_complete(self, speed); 
++			nsc_ircc_change_speed(self, speed); 
+ 			return 0;
+ 		} else
+ 			self->new_speed = speed;
+--- linux-240-t11-pre3-clean/drivers/net/irda/smc-ircc.c	Sun Nov 12 09:46:13 2000
++++ linux/drivers/net/irda/smc-ircc.c	Sun Nov 12 16:23:48 2000
+@@ -620,7 +620,7 @@
+ 	if ((speed = irda_get_speed(skb)) != self->io.speed) {
+ 		/* Check for empty frame */
+ 		if (!skb->len) {
+-			smc_ircc_change_speed(self, speed); 
++			self->new_speed = speed; 
+ 			return 0;
+ 		} else
+ 			self->new_speed = speed;
+--- linux-240-t11-pre3-clean/drivers/net/irda/toshoboe.c	Sun Nov 12 09:46:13 2000
++++ linux/drivers/net/irda/toshoboe.c	Sun Nov 12 16:20:17 2000
+@@ -275,7 +275,7 @@
+   if ((speed = irda_get_speed(skb)) != self->io.speed) {
+ 	/* Check for empty frame */
+ 	if (!skb->len) {
+-	    toshoboe_change_speed(self, speed); 
++	    self->new_speed = speed; 
+ 	    return 0;
+ 	} else
+ 	    self->new_speed = speed;
 
-	In 64-bit mode, the contents of the ES, DS, and SS segment registers
-	are ignored. All fields (base, limit, and attribute) in the
-	corresponding segment descriptor registers (hidden part) are also
-	ignored.
+-- 
+Regards,
+        Rasmus(rasmus@jaquet.dk)
 
-	Address calculations in 64-bit mode that reference the ES, DS, or SS
-	segments, are treated as if the segment base is zero.  Rather than
-	perform limit checks, the processor instead checks that all
-	virtual-address references are in canonical form.
-
-You'll find the above at the top of page 42 of the specs.
-
-Basically in 64bit long mode only CS matters and basically only to specify
-CS.L=1 and CS.D=0.
-
-The only subtle case is during iret where we need a valid data segment for some
-subtle reason (but that's unrelated to head.S that instead only needs to
-switch to 64bit mode and jump into head64.c where we do the rest of the work
-like clearing bss in C). Infact we need only 1 32bit compatibility mode data
-segment in the gdt.
-
-> O.k. on monday I'll dig up my patch and that clears this up.
-
-Sure, go ahead if you weren't missing that basic part of the long mode specs.
-Thanks.
-
-Andrea
+"God prevent we should ever be twenty years without a revolution." 
+  -- Thomas Jefferson
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

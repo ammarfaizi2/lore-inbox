@@ -1,43 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265852AbUBJMVF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 07:21:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265849AbUBJMVF
+	id S265849AbUBJMgh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 07:36:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265851AbUBJMgh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 07:21:05 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:44006 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265772AbUBJMVC
+	Tue, 10 Feb 2004 07:36:37 -0500
+Received: from atlantis.knm.org.pl ([62.233.209.66]:49579 "EHLO
+	atlantis.knm.org.pl") by vger.kernel.org with ESMTP id S265849AbUBJMgf
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 07:21:02 -0500
-Date: Tue, 10 Feb 2004 12:21:01 +0000
-From: Matthew Wilcox <willy@debian.org>
-To: veeresh <vanami@india.hp.com>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: Kernel panic on Redhat Linux AS2.1 with QLogic 2342 HBA
-Message-ID: <20040210122101.GC13351@parcelfarce.linux.theplanet.co.uk>
-References: <005601c3ef94$f8c9d140$3bda4c0f@nt21859>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <005601c3ef94$f8c9d140$3bda4c0f@nt21859>
-User-Agent: Mutt/1.4.1i
+	Tue, 10 Feb 2004 07:36:35 -0500
+Date: Tue, 10 Feb 2004 13:36:32 +0100 (CET)
+From: Dawid Kuroczko <qnex@atlantis.knm.org.pl>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6: QoS scheduling not working with IP-over-IP
+Message-ID: <Pine.LNX.4.44.0402101324350.810-100000@atlantis.knm.org.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 10, 2004 at 10:45:59AM +0530, veeresh wrote:
-> Hi,
-> 
-> I am getting kernel panic under following configuration:
-> Machine: DL580 multiprocessor Intel Xeon 2GHZ processors(2); 32-bit
-> OS: Redhat Linux Advanced Server 2.1
-> Kernel Version:2.4.9-e25smp
+Hello.
 
-You need to contact Red Hat for problems with RH AS.
+There seems to be a bug in QoS scheduling code related to IP-over-IP
+tunnels (ipip.ko).  My setup is a bit unusual -- my default route
+goes through tunl1, so I want it shaped.  It worked fine with 2.4,
+but it doesn't with 2.6 (2.6.1 and 2.6.2, I made a transition quite
+recently).
 
--- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+The simplest example is:
+
+tc qdisc add dev tunl1 root prio
+
+...executing this line will effect in no packet entering or leaving
+device (as if device was down).  Just as soon as I do
+
+tc qdisc del dev tunl1 root
+
+...everything returns to normal.  And same problem applies to
+HTB scheduler, though adding a qdisc doesn't result in such
+packet freeze.  But as soon as some class is added, all packets
+matching that class "freeze".  A simple example would be:
+
+# everything is OK here
+tc qdisc add dev tunl1 handle 1:  root htb default 9 r2q 1
+# ...and so is here...
+tc class add dev tunl1 parent 1:1 classid 1:9 htb rate 2mbit ceil 2mbit
+# ...oops, packets are blocked, until you remove this class or qdisc.
+
+If that is of any help, I set up the tunnel like this:
+
+ip tunnel add tunl1 mode ipip local 192.168.4.55 remote 192.168.1.1
+ip addr add 11.22.33.44/32 dev tunl1
+ip link set tunl1 up
+ip route add default src 11.22.33.44 dev tunl1
+
+Also, SFQ and RED appear immune to this problem.
+
+  Regards,
+   Dawid
+
+PS: 2.6.2 kernel on 2 x Pentium-III SMP system, unpatched, QoS
+(prio, sfq, red) compiled as modules.
+

@@ -1,53 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130406AbQK2KO7>; Wed, 29 Nov 2000 05:14:59 -0500
+        id <S130606AbQK2KRT>; Wed, 29 Nov 2000 05:17:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130866AbQK2KOt>; Wed, 29 Nov 2000 05:14:49 -0500
-Received: from office.mandrakesoft.com ([195.68.114.34]:20210 "HELO
-        havane.mandrakesoft.com") by vger.kernel.org with SMTP
-        id <S130406AbQK2KOe>; Wed, 29 Nov 2000 05:14:34 -0500
-To: Kiril Vidimce <vkire@pixar.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Dan Hollis <goemon@anime.net>,
-        Petter Sundlöf <odd@findus.dhs.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: XFree 4.0.1/NVIDIA 0.9-5/2.4.0-testX/11 woes [solved]
-In-Reply-To: <Pine.LNX.4.21.0011281843100.1353-100000@nevena.pixar.com>
-From: Yoann Vandoorselaere <yoann@mandrakesoft.com>
-Date: 29 Nov 2000 10:37:45 +0100
-In-Reply-To: Kiril Vidimce's message of "Tue, 28 Nov 2000 18:48:36 -0800 (PST)"
-Message-ID: <m31yvv2k5y.fsf@havane.mandrakesoft.com>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.6
+        id <S130866AbQK2KRJ>; Wed, 29 Nov 2000 05:17:09 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:53514 "EHLO
+        www.linux.org.uk") by vger.kernel.org with ESMTP id <S130606AbQK2KQz>;
+        Wed, 29 Nov 2000 05:16:55 -0500
+From: Russell King <rmk@arm.linux.org.uk>
+Message-Id: <200011290725.eAT7PpC03867@flint.arm.linux.org.uk>
+Subject: Re: [PATCH] removal of "static foo = 0"
+To: acahalan@cs.uml.edu (Albert D. Cahalan)
+Date: Wed, 29 Nov 2000 07:25:51 +0000 (GMT)
+Cc: aeb@veritas.com (Andries Brouwer), linux-kernel@vger.kernel.org
+In-Reply-To: <200011290146.eAT1khL116131@saturn.cs.uml.edu> from "Albert D. Cahalan" at Nov 28, 2000 08:46:43 PM
+X-Location: london.england.earth.mulky-way.universe
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kiril Vidimce <vkire@pixar.com> writes:
-
-> On Wed, 29 Nov 2000, Alan Cox wrote:
-> > > I've never seen such thing as code without bugs. In my experience,
-> > > the NVIDIA drivers are by far the most complete and solid 3D drivers 
-> > > under Linux.
-> > 
-> > You are welcome to your opinion. I've got this great bridge to sell you too
+Albert D. Cahalan writes:
+> Oh, bullshit. We break the C standard left and right already.
+> This is the kernel, and the kernel can initialize BSS any damn
+> way it feels like initializing it. The kernel isn't ever going
+> to be standard C.
 > 
-> I don't see the need for sarcasm. If you feel that you can demonstrate
-> that the above is untrue, by all means do so. I am sure there is more
-> than one person that would want to know what's currently the best 3D 
-> Linux configuration out there.
+> Choosing an initializer that tends to catch unintended reliance
+> on zeroed data would be good. Too bad it is too late to fix.
 
-It was already discussed too much time...
-A good argument against what they do is that they don't even respect
-existing standard (see DRI). Also, from what I seen, the Radeon card
-have almost the same performance as the nvidia one... and we have an
-open source driver... at least.
+Its not me talking bullshit here, its you.  It is totally reasonable
+to rely on:
 
-Ps : and this is going offtopic...
+  static int foo;
 
--- 
-		-- Yoann http://www.mandrakesoft.com/~yoann/
-Murphy's law : If anything can go wrong, it will.
-O'Tool's commentary : Murphy was an optimist.
+to be zero.  If it is not, that is a bug in the C startup code.  No
+two ways about it.  If someone then says "I want to initialise the
+BSS to some magic value to catch this reliance" then we are breaking
+a lot of peoples expectations.  (Least Surprise theory)
+
+To say again, relying on foo to be zero is not a bug.
+
+If you set the BSS to something non-zero, we already know that a lot
+will break.  But it will break because someone has broken the BSS
+initialisation code, not because it is relying on something that is
+expected to be standard.  By setting the BSS to something non-zero,
+you're not telling anyone anything new.  About the only response
+will be "fix the BSS initialisation".
+
+If you want to try this, then that is up to you.  Don't let us
+stop you.  However, don't expect people to accept patches to
+"fix" your self-created problem.
+
+I look forward to your complaints about the disk subsystems,
+keyboard, console, and so forth apparantly being broken.
+   _____
+  |_____| ------------------------------------------------- ---+---+-
+  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
+  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
+  | +-+-+                                                     --- -+-
+  /   |               THE developer of ARM Linux              |+| /|\
+ /  | | |                                                     ---  |
+    +-+-+ -------------------------------------------------  /\\\  |
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

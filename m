@@ -1,70 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264617AbSKMWuB>; Wed, 13 Nov 2002 17:50:01 -0500
+	id <S263977AbSKMWzd>; Wed, 13 Nov 2002 17:55:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264622AbSKMWuB>; Wed, 13 Nov 2002 17:50:01 -0500
-Received: from mta5.snfc21.pbi.net ([206.13.28.241]:65220 "EHLO
-	mta5.snfc21.pbi.net") by vger.kernel.org with ESMTP
-	id <S264617AbSKMWuA>; Wed, 13 Nov 2002 17:50:00 -0500
-Date: Wed, 13 Nov 2002 15:00:05 -0800
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: 2.5.47bk2 + current modutils == broken hotplug
-To: Jeff Garzik <jgarzik@pobox.com>, Greg KH <greg@kroah.com>
-Cc: rusty@rustcorp.com.au, kaos <kaos@ocs.com.au>,
-       linux-kernel@vger.kernel.org
-Message-id: <3DD2D975.6020302@pacbell.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en, fr
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
-References: <3DD2B1D5.7020903@pacbell.net> <20021113201710.GB7238@kroah.com>
- <3DD2B8D3.6060106@pacbell.net> <3DD2BD4C.7060502@pobox.com>
- <20021113210711.GA7810@kroah.com> <3DD2C30B.9000404@pobox.com>
+	id <S264004AbSKMWzd>; Wed, 13 Nov 2002 17:55:33 -0500
+Received: from zmamail05.zma.compaq.com ([161.114.64.105]:45330 "EHLO
+	zmamail05.zma.compaq.com") by vger.kernel.org with ESMTP
+	id <S263977AbSKMWz3>; Wed, 13 Nov 2002 17:55:29 -0500
+Message-ID: <3DD2D933.9C3BE8F5@hp.com>
+Date: Wed, 13 Nov 2002 14:58:59 -0800
+From: "Brian J. Watson" <Brian.J.Watson@hp.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.16 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Prasad <prasad_s@gdit.iiit.net>
+Cc: Bruce Walker <bruce@kahuna.lax.cpqcorp.net>,
+       "Aneesh Kumar K.V" <aneesh.kumar@digital.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       ssic-linux-devel <ssic-linux-devel@lists.sourceforge.net>
+Subject: Re: [SSI] Re: Distributed Linux
+References: <Pine.LNX.4.44.0211140023310.6182-100000@students.iiit.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> Greg KH wrote:
-> 
->> On Wed, Nov 13, 2002 at 03:59:56PM -0500, Jeff Garzik wrote:
->>
->> >(tangent warning!)
->> >Another long term idea I would eventually like to realize is the removal
->> >of device ids from the C source code.  ...
+> Yeah, openSSI approach has some advantages, but how about the other side,
+> how are the devices and files being handled?
 
-Hmm, maybe Linux should use Microsoft's ".inf" file syntax?  %-)
+The file systems are shared across the cluster. A mount done on one node
+is done on all nodes, and every node has coherent read/write access to
+that file system. This can be done in one of three ways: CFS, GFS, and
+Lustre. CFS is a stateful NFS with tight coherency guarantees that
+allows the internal disk of one node to be shared with all nodes. GFS is
+a parallel physical file system that allows virtually simultaneous
+access to a shared disk that is connected to all nodes. I don't know
+much about Lustre, so someone else can fill you in on this. Only CFS and
+GFS can be used for the root file system.
 
-That's one thing that it achieves, at the cost of serious chaos
-when the files with the device IDs get out of sync with the
-drivers they supposedly work with.
+Devices are handled by function shipping the file ops. When a process
+migrates onto a new node, it "reopens" all of its file descriptors. For
+regular files, it essentially opens the files again on the new node
+(leveraging the shared file systems described above). For all other
+files (devices, sockets, pipes, etc.), it sets up a dummy file structure
+with special ops that function ship reads, writes, ioctls, polls, etc.
+to the node where a particular object lives.
 
+> isn't it wrong to run
+> someone elses process when the data that he is supposed to provide is
+> missing?
 
->> True, this would be nice, but how would the driver know to bind to a new
->> device, if it isn't rebuilt, and doesn't know about the new id that was
->> just added?  In the current scheme of driver matching to devices, I
->> don't see how this could be done.
+As I described above, the data is available anywhere in the cluster.
 
-It'd be good if we had ways that user mode tools can request drivers be
-bound and un-bound.  "usbfs" has some support for that, not exactly
-packaged in the way I'd most like (and "usbfs" is problematic too).
+> One of my major constraints is
+> that the system should be binary compatible with the kernel that does not
+> support my model.
 
+That's a constraint of our clustering technology, as well. Our stuff is
+installed by replacing the kernel and a few key commands that have been
+made cluster aware: init, mkinitrd, lilo, mount, swapon, fsck, and maybe
+one or two others I can't remember. Everything else in the OS is
+blissfully unaware of the modified kernel underneath. A process running
+an unmodified program can be migrated around the cluster without any
+problems (apart from potential performance issues if it's doing a lot of
+work with remote objects).
 
-> I think that truly seamless rebinding is doable but would require too 
-> much additional complexity in the kernel.  Rebinding to a new id table 
-> between unregister() ... register() pairs, or between mod unload and mod 
-> load, should be enough to be useable for 98% of the cases.
+-- 
+Brian Watson                | "Now I don't know, but I been told it's
+Software Developer          |  hard to run with the weight of gold,
+Open SSI Clustering Project |  Other hand I heard it said, it's
+Hewlett-Packard Company     |  just as hard with the weight of lead."
+                            |     -Robert Hunter, 1970
 
-I'd rather not try swapping ID tables ... likely better to keep some
-of that information compiled in to the drivers, but also ADD ways that
-user mode tools can modify the bindings that the kernel does (or doesn't)
-establish.  Unless someone wants to get radical and insist that ONLY the
-user mode tools can define such policies (after bootstrapping is done).
-
-Of course Greg's example of a Palm could be addressed using current
-infrastructure and module parameters, with "wildcard" binding (to
-make sure the driver can see if the device matches the parameters).
-
-- Dave
-
-
+mailto:Brian.J.Watson@hp.com
+http://opensource.compaq.com/

@@ -1,48 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289657AbSAOUbu>; Tue, 15 Jan 2002 15:31:50 -0500
+	id <S290276AbSAOUiA>; Tue, 15 Jan 2002 15:38:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289646AbSAOUbl>; Tue, 15 Jan 2002 15:31:41 -0500
-Received: from ua18d4hel.dial.kolumbus.fi ([62.248.131.18]:8274 "EHLO
-	porkkala.jlaako.pp.fi") by vger.kernel.org with ESMTP
-	id <S290270AbSAOUbZ>; Tue, 15 Jan 2002 15:31:25 -0500
-Message-ID: <3C449140.889FC8A0@kolumbus.fi>
-Date: Tue, 15 Jan 2002 22:29:52 +0200
-From: Jussi Laako <jussi.laako@kolumbus.fi>
-X-Mailer: Mozilla 4.79 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Stephan von Krawczynski <skraw@ithnet.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-In-Reply-To: <200201150143.CAA24288@webserver.ithnet.com>
+	id <S290270AbSAOUhu>; Tue, 15 Jan 2002 15:37:50 -0500
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:46062 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S290278AbSAOUhk>; Tue, 15 Jan 2002 15:37:40 -0500
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20020115205332.B824@nightmaster.csn.tu-chemnitz.de> 
+In-Reply-To: <20020115205332.B824@nightmaster.csn.tu-chemnitz.de>  <20020114165909.A20808@thyrsus.com> <8381.1011101338@redhat.com> 
+To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+Cc: esr@thyrsus.com, linux-kernel@vger.kernel.org
+Subject: Re: Penelope builds a kernel 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Tue, 15 Jan 2002 20:37:06 +0000
+Message-ID: <23620.1011127026@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephan von Krawczynski wrote:
-> 
-> Time to take out these big hats and rename ourself to Gandalf or the
-> like. What do you expect your server to do, having no problem "most of
-> the time"? Please read Albert E. Time can be pretty relative to your
-> personal point of view...
 
-Is this flaming really necessary?
+ingo.oeser@informatik.tu-chemnitz.de said:
+> 	make -C /lib/modules/`uname -r`/kernel SUBDIRS=`pwd` modules
+> Which works quite pretty with 2.2.x Makefiles and Rules.make, but does
+> not work with 2.4.x. I don't know if this is intentional or just
+> oversight.
 
-So we don't have care about how long some driver spends in it internal
-loops? So we could as well start writing drivers like 
+> If someone has a working makefile using this saner approach and even
+> support subdirs I would apreciate it[1]. 
 
-	while (!frame_received()) udelay(1000000);
+It works for me with 2.4, and I use it all the time. See the GNUmakefiles in
+MTD CVS which do it automatically for you if you're not already running as
+part of a kernel build.
 
-Because one day we will have powershortage anyway and that will anyway cause
-few hours latencypeak? And if the user pulls the ethernet plug we don't have
-to do anything else?
+--
+dwmw2
 
-
- - Jussi Laako
-
--- 
-PGP key fingerprint: 161D 6FED 6A92 39E2 EB5B  39DD A4DE 63EB C216 1E4B
-Available at PGP keyservers
 

@@ -1,30 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129324AbRB0Nn3>; Tue, 27 Feb 2001 08:43:29 -0500
+	id <S129359AbRB0Npj>; Tue, 27 Feb 2001 08:45:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129346AbRB0NnT>; Tue, 27 Feb 2001 08:43:19 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:59917 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129324AbRB0NnG>; Tue, 27 Feb 2001 08:43:06 -0500
-Subject: Re: binfmt_script and ^M
-To: irt@cistron.nl (Ivo Timmermans)
-Date: Tue, 27 Feb 2001 13:44:08 +0000 (GMT)
+	id <S129363AbRB0Np3>; Tue, 27 Feb 2001 08:45:29 -0500
+Received: from [212.115.175.146] ([212.115.175.146]:11261 "EHLO
+	ftrs1.intranet.FTR.NL") by vger.kernel.org with ESMTP
+	id <S129359AbRB0NpQ>; Tue, 27 Feb 2001 08:45:16 -0500
+Message-ID: <27525795B28BD311B28D00500481B7601F0F2E@ftrs1.intranet.ftr.nl>
+From: "Heusden, Folkert van" <f.v.heusden@ftr.nl>
+To: Ivo Timmermans <irt@cistron.nl>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010227140333.C20415@cistron.nl> from "Ivo Timmermans" at Feb 27, 2001 02:03:33 PM
-X-Mailer: ELM [version 2.5 PL1]
+Subject: RE: binfmt_script and ^M
+Date: Tue, 27 Feb 2001 14:53:48 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14XkQG-0003R7-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> When running a script (perl in this case) that has DOS-style newlines
-> (\r\n), Linux 2.4.2 can't find an interpreter because it doesn't
-> recognize the \r.  The following patch should fix this (untested).
+> > When running a script (perl in this case) that has DOS-style newlines
+> > (\r\n), Linux 2.4.2 can't find an interpreter because it doesn't
+> > recognize the \r.  The following patch should fix this (untested).
+> _should_ it work with the \r in it?
+IV> IMHO, yes.  This set of files were created on Windows, then zipped and
+IV> uploaded to a Linux server, unpacked.  This does not change the \r.
 
-Fix the script. The kernel expects a specific format
+But; it's not that much of hassle to run it trough some awk/sed/whatsoever
+script, would it? Imho there should be as less as possible code in the
+kernel which could've also been done in user-space.
 
-Alan
+> +	if (cp - 1 == '\r')				<------- *)
+> There might be a problem with your patch: at the '*)': if the '\n' is the
+> first character on the line, the cp-1 (which should be *(cp-1) I think)
+IV> You're right there.
 
+Phew, then I have at least 1 thing right in my message since I was wrong
+with:
+
+> would point before the buffer which can be un-allocated memory.
+
+If only I had read the code myself :o)
+
+IV> No, the first two characters are always `#!'.
+
+Yes, absolutely right.

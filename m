@@ -1,44 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280233AbRKIWYd>; Fri, 9 Nov 2001 17:24:33 -0500
+	id <S280254AbRKIW1M>; Fri, 9 Nov 2001 17:27:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280238AbRKIWYW>; Fri, 9 Nov 2001 17:24:22 -0500
-Received: from h55p103-2.delphi.afb.lu.se ([130.235.187.175]:62901 "EHLO gin")
-	by vger.kernel.org with ESMTP id <S280233AbRKIWYL>;
-	Fri, 9 Nov 2001 17:24:11 -0500
-Date: Fri, 9 Nov 2001 23:23:43 +0100
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Mike Fedyk <mfedyk@matchmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Modutils can't handle long kernel names
-Message-ID: <20011109232343.B32090@h55p111.delphi.afb.lu.se>
-In-Reply-To: <20011108204210.A514@mikef-linux.matchmail.com> <7712.1005284040@kao2.melbourne.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <7712.1005284040@kao2.melbourne.sgi.com>
-User-Agent: Mutt/1.3.23i
-From: andersg@0x63.nu
+	id <S280238AbRKIW1C>; Fri, 9 Nov 2001 17:27:02 -0500
+Received: from smtp-ham-2.netsurf.de ([194.195.64.98]:37787 "EHLO
+	smtp-ham-2.netsurf.de") by vger.kernel.org with ESMTP
+	id <S280251AbRKIW0v>; Fri, 9 Nov 2001 17:26:51 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Martin Fischer <martin.fischer@netsurf.de>
+To: linux-kernel@vger.kernel.org
+Subject: outcommand error 2
+Date: Fri, 9 Nov 2001 23:23:44 +0100
+X-Mailer: KMail [version 1.3.1]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011109222654Z280251-17408+12782@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 09, 2001 at 04:34:00PM +1100, Keith Owens wrote:
-> It is not a modutils problem, it is a fixed restriction on the size of
-> the uname() fields, modutils just uses what uname -r gives it.
+Could someone please help me to understand
+the following error messages. They messages 
+appeared after upgrading from 256 to 512 MB RAM.
 
-this patch would catch it at compiletime, wouldn't it?
+The first boot with the new RAM modules failed.
+the system stopped completely, only the "shift lock" 
+and "scroll lock" LED where blinking. 
 
--- 
+A second boot was fine. I tried a kernel compile
+for memory testing :-) and everything seems to
+be ok.
 
-//anders/g
+But now I get the following messages:
 
---- Makefile.orig	Fri Nov  9 23:17:36 2001
-+++ Makefile	Fri Nov  9 23:18:25 2001
-@@ -338,7 +338,7 @@
- 	@mv -f .ver $@
- 
- init/version.o: init/version.c include/linux/compile.h include/config/MARKER
--	$(CC) $(CFLAGS) $(CFLAGS_KERNEL) -DUTS_MACHINE='"$(ARCH)"' -c -o init/version.o init/version.c
-+	$(CC) $(CFLAGS) -Werror $(CFLAGS_KERNEL) -DUTS_MACHINE='"$(ARCH)"' -c -o init/version.o init/version.c
- 
- init/main.o: init/main.c include/config/MARKER
- 	$(CC) $(CFLAGS) $(CFLAGS_KERNEL) $(PROFILING) -c -o $*.o $<
+Nov  9 22:47:59 linux kernel: outcommand error 2
+Nov  9 22:47:59 linux kernel: commandrequest error
+Nov  9 22:47:59 linux kernel: dvb0: ARM crashed!
+Nov  9 22:47:59 linux kernel: outcommand error 2
+Nov  9 22:47:59 linux kernel: commandrequest error
+Nov  9 23:03:49 linux kernel: dvb: 1 dvb(s) released.
+Nov  9 23:03:49 linux kernel: free irqs
+
+I looked into the kernel sources but I could 
+not even find the word "commandrequest". The
+errors happened while loading DVB drivers. 
+
+I'm running a 2.4.10-ac12 kernel on a pentium III
+with 512MB RAM.
+
+Some ideas?
+
+thanks, Martin

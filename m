@@ -1,68 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263374AbUCNPLI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Mar 2004 10:11:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263375AbUCNPLI
+	id S263375AbUCNPVV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Mar 2004 10:21:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263376AbUCNPVV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Mar 2004 10:11:08 -0500
-Received: from mailgate.uni-paderborn.de ([131.234.22.32]:23681 "EHLO
-	mailgate.uni-paderborn.de") by vger.kernel.org with ESMTP
-	id S263374AbUCNPLF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Mar 2004 10:11:05 -0500
-Message-ID: <40547604.7020504@uni-paderborn.de>
-Date: Sun, 14 Mar 2004 16:11:00 +0100
-From: Bjoern Schmidt <lucky21@uni-paderborn.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Len Brown <len.brown@intel.com>
-CC: linux-kernel@vger.kernel.org, Bjoern Schmidt <lucky21@uni-paderborn.de>
-Subject: [BUG] Re: fsb of older cpu
-References: <A6974D8E5F98D511BB910002A50A6647615F47CB@hdsmsx402.hd.intel.com>	 <1078815523.2342.535.camel@dhcppc4>  <404DA7A8.4090109@uni-paderborn.de> <1078892273.2347.551.camel@dhcppc4>
-In-Reply-To: <1078892273.2347.551.camel@dhcppc4>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sun, 14 Mar 2004 10:21:21 -0500
+Received: from ns.suse.de ([195.135.220.2]:44699 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S263375AbUCNPVR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Mar 2004 10:21:17 -0500
+Subject: Re: [PATCH] lockfs patch for 2.6
+From: Chris Mason <mason@suse.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
+In-Reply-To: <20040314140032.A8901@infradead.org>
+References: <1078867885.25075.1458.camel@watt.suse.com>
+	 <20040313131447.A25900@infradead.org>
+	 <1079191213.4187.243.camel@watt.suse.com>
+	 <20040313163346.A27004@infradead.org>  <20040314140032.A8901@infradead.org>
+Content-Type: text/plain
+Message-Id: <1079277810.4183.249.camel@watt.suse.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sun, 14 Mar 2004 10:23:31 -0500
 Content-Transfer-Encoding: 7bit
-X-UNI-PB_FAK-EIM-MailScanner-Information: Please see http://imap.uni-paderborn.de for details
-X-UNI-PB_FAK-EIM-MailScanner: Found to be clean
-X-UNI-PB_FAK-EIM-MailScanner-SpamCheck: not spam, SpamAssassin (score=1.594,
-	required 4, FROM_ENDS_IN_NUMS 0.87, RCVD_IN_NJABL 0.10,
-	RCVD_IN_NJABL_DIALUP 0.53, RCVD_IN_SORBS 0.10)
-X-UNI-PB_FAK-EIM-MailScanner-SpamScore: s
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Len,
+On Sun, 2004-03-14 at 09:00, Christoph Hellwig wrote:
+> On Sat, Mar 13, 2004 at 04:33:46PM +0000, Christoph Hellwig wrote:
+> > Here's the reworked patch I have, ignoring dm but converting the xfs-internal
+> > interfaces that do freezing.  But without an interface change we still need
+> > to do all the flushing a second time inside XFS which I absoutely dislike.
+> > 
+> > Let me think about how to do this nicer.
+> 
+> Okay, here's a new patch that basically moves all the XFS freezing
+> infrastructure to the VFS, leavin only writing of the log record and some
+> transaction count handing inside XFS.
+> 
+> I've given it some heavy testing with xfs_freeze, dm is still not updated.
+> 
+> P.S. this patch now kills 16 lines of kernel code summarized :)
+> 
 
-i think that the fadt of my laptop is buggy, but i am not
-sure. The fadt tells a C2 latency of 100 and a C3 latency
-of 300. C3 is disabled in drivers/acpi/processor.c because
-type-f DMA is set.
+It looks good, I'll give it a try.
 
-C2 is enabled and seems to be used, but has no effects on pm.
-Thottling seems to have no effects too. The temperature of
-the cpu rises fast until one of the active or S-state
-trip-points is reached, in the worst case the systems
-goes to S5.
-
-Now i have set the C2 valid flag statically to "0" in the
-sources (driver/acpi/processor.c).
-cat /proc/acpi/processor/.../info tells that pm is not supported
-anymore, and throttling seems to work now. The temperature
-of the cpu settled down to the aimed trip-point of 58 dC.
-
-Can you comfirm that this behaviour is a result of a buggy
-fadt, or could it be that there is a bug in the kernels acpi?
-
-Do you know if a PII Deschutes is C2 capable? In the acpi
-specification i can see that the programming model for c2
-state is "Fixed Hardware Control Logic" which is integrated
-into the external chipset. Is the chipset the only
-dependency for c2-state, or is the processor a dependency too?
-I think so, of course, but its not clearly enough for me...
-
-
-Greetings
-Bjoern Schmidt
-
+-chris
 
 

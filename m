@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263084AbRFJLHT>; Sun, 10 Jun 2001 07:07:19 -0400
+	id <S264521AbRFJLwg>; Sun, 10 Jun 2001 07:52:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264517AbRFJLHJ>; Sun, 10 Jun 2001 07:07:09 -0400
-Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:4356 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S263084AbRFJLGy>;
-	Sun, 10 Jun 2001 07:06:54 -0400
-Message-ID: <20010609102936.A660@bug.ucw.cz>
-Date: Sat, 9 Jun 2001 10:29:36 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Jan Kasprzak <kas@informatics.muni.cz>, linux-kernel@vger.kernel.org,
-        xgajda@fi.muni.cz, kron@fi.muni.cz
-Subject: Re: CacheFS
-In-Reply-To: <20010607133750.I1193@informatics.muni.cz> <20010607114419.A23962@cs.cmu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <20010607114419.A23962@cs.cmu.edu>; from Jan Harkes on Thu, Jun 07, 2001 at 11:44:19AM -0400
+	id <S264520AbRFJLw1>; Sun, 10 Jun 2001 07:52:27 -0400
+Received: from juicer13.bigpond.com ([139.134.6.21]:40947 "EHLO
+	mailin1.bigpond.com") by vger.kernel.org with ESMTP
+	id <S264519AbRFJLwR>; Sun, 10 Jun 2001 07:52:17 -0400
+Message-Id: <m1592do-001RQAC@mozart>
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: mingo@elte.hu
+To: linux-kernel@vger.kernel.org
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "David S. Miller" <davem@redhat.com>,
+        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+Subject: Re: [patch] severe softirq handling performance bug, fix, 2.4.5 
+In-Reply-To: Your message of "Sat, 26 May 2001 19:59:28 +0200."
+             <Pine.LNX.4.33.0105261920030.3336-200000@localhost.localdomain> 
+Date: Sun, 10 Jun 2001 20:40:20 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+In message <Pine.LNX.4.33.0105261920030.3336-200000@localhost.localdomain> you 
+write:
+> i've been seeing really bad average TCP latencies on certain gigabit cards
+> (~300-400 microseconds instead of the expected 100-200 microseconds), ever
+> since softnet went into the main kernel, and never found a real
+> explanation for it, until today.
 
-> > * Can the kernel part of CODA can be used for this?
-> 
-> Not if you want to intercept and redirect every single read and write
-> call. That's a whole other can of worms, and I'd advise you to let the
-> userspace cachemanager to act as an NFS daemon. In my opinion, the Coda
-> kernel module fills a specific niche, and should not become yet another
-> kernel NFS client implementation that happens to bounce requests to
-> userspace using read/write on a character device instead of RPC/UDP
-> packets to a socket.
+The S/390 guys hit similar issues with the hotplug CPU patch, with
+softirqs still pending on the downed CPU.
 
-Forget NFS if you want it to be read/write. There are nasty deadlocks
-out there.
+There are two cases when this happens:
 
-> AVFS,
->     Another userfs implementation that when from a shared library hack
->     to using the Coda kernel module,
-> 
->     http://sourceforge.net/projects/avfs
+(1) softirq's disabled when the interrupt came in.
 
-avfs moved to sourceforge? Wow!
-								Pavel
--- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+(2) softirq scheduled within softirq, such as when networking is
+    overloaded (net/core/dev.c's net_rx_action()).
+
+Solving (2) is hard: the choices are to risk livelock (by resetting
+the mask inside the softirq loop), or accept that bursty traffic may
+have latencies of up to one timer tick.
+
+Either way, we should solve (1) by checking in local_bh_enable() is
+fine (despite Dave's reservations, and Alexey's "don't do that unless
+you are about to schedule()" is obviously crap).  Then we can drop the
+hackish checks inside schedule(), system calls returns and idle loops,
+all of which were simply masking this problem.
+
+Rusty.
+--
+Premature optmztion is rt of all evl. --DK

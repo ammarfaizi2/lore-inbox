@@ -1,57 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286962AbSABL4g>; Wed, 2 Jan 2002 06:56:36 -0500
+	id <S286966AbSABMET>; Wed, 2 Jan 2002 07:04:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286841AbSABL40>; Wed, 2 Jan 2002 06:56:26 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:46857 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S286930AbSABL4T>; Wed, 2 Jan 2002 06:56:19 -0500
-Subject: Linux 2.2.21pre2
+	id <S286978AbSABMEI>; Wed, 2 Jan 2002 07:04:08 -0500
+Received: from smtp.mailbox.net.uk ([195.82.125.32]:39318 "EHLO
+	smtp.mailbox.net.uk") by vger.kernel.org with ESMTP
+	id <S286968AbSABMD5>; Wed, 2 Jan 2002 07:03:57 -0500
+Date: Wed, 2 Jan 2002 12:03:26 +0000 (GMT)
+From: Jon Masters <jonathan@jonmasters.org>
 To: linux-kernel@vger.kernel.org
-Date: Wed, 2 Jan 2002 12:07:14 +0000 (GMT)
-X-Mailer: ELM [version 2.5 PL6]
+cc: admin@intelligentspace.com
+Subject: Panics, kernel 2.4
+Message-ID: <Pine.LNX.4.10.10201021136110.14437-100000@router>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16LkAs-0003tY-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-2.2.21pre2
-o	Fix non blocking midi close on es1370, es1371	(me)
-	sonicvibes
-o	Update osst driver				(Willem Riede)
-o	Update machine check support in 2.2 to match 2.4(Dave Jones)
-o	Additional P4, Rise, Winchip handling for setup	(Dave Jones)
-o	Fix extended MMX initialisation on Cyrix MII	(me)
-o	Backport a lot of x86 setup (cache size etc)	(Dave Jones)
-o	ISDN cleanups					(Kai Germaschewski)
-o	Backport eicon driver fixes			(Kai Germaschewski)
-o	ISDN ppp fixes					(Andre Beck)
-o	Fix timeout handling in eicon driver		(Kai Germaschewski)
-o	Fix null pointer bug in isdnloop		(Kai Germaschewski)
-o	Menuconfig refresh fixup			(Willy Tarreau)
-o	Modular ati frame buffer build fix		(Krzysztof Taraszka)
-o	Backport VIA chipset fixes to 2.2		(me)
-o	Make DCD high->low work on SX16 with CLOCAL set	(Ado Arnolds)
+One of the fileservers at work is running 2.4.14. It is a 900MHz Duron
+with 1.5GB physical RAM, 3c905, etc. and it handles three software RAID
+arrays based on ATA100 PCI IDE, which contain reiserfs filesystems. It can
+get quite loaded at times and we use most of the available memory for
+about 300 processes or so on average.
 
-2.2.21pre1
-o	Fix potential corruption with vmalloc on	(Ralf Baechle)
-	virtually cached boxes
-o	Small PPC build fixups				(Tom Rini)
-o	zImage booting fix				(Kalev Soikonen)
-o	EIO on NFS read fixup				(Trond Myklebust)
-o	Update 3ware raid driver			(Adam Radford)
-o	page_alloc race fix				(Andrea Arcangeli)
-o	Update USB maintainers				(Greg Kroah-Hartmann)
-o	bttv clipcount=0 fix				(Solar Designer)
-o	Fix multiple eepro driver bugs			(Aris)
-o	Sym53c8xx queue handling fix			(Gerard Roudier)
-o	Update SubmittingDrivers document		(Michal Svec)
-o	8139too performance tune			(Jens David)
-o	procfs follow link return fix			(Solar Designer)
-o	Backport SEM_UNDO overflow fix from 2.4		(Leonid Igolnik)
-o	VM86 fixes					(Manfred Spraul)
-o	Fix alpha build					(Kim Heino)
+A few months ago, we started to notice problems under certain load
+conditions - particularly when running a distributed Java processing
+application we have in house which tries to allocate several GB of memory
+for handling matrix calculations. I ran many burnk7 processes,
+distributed.net, john, etc. etc. and got the load average beyond 300
+without trouble for several hours. I've run a full memtest86 on it and
+also written a couple of small programs to malloc very large chunks of
+memory and perform some simple manipulations with them, that works fine
+too. The environmental conditions are reasonable and the cooling is
+functioning normally (I've even installed additional fans to be sure).
+
+Still, these problems persisted until we decided to no longer use
+overnight idle processing power on that machine and moved the java server
+to another box. I put it down to having perhaps found a new vm bug in 2.4
+or something (or somehow having very very strange hardware issues).
+
+Today the problem is back, symptoms they have reported to me (I work part
+so it's quite difficult to deal with these types of problem sometimes) are
+that their samba shares dissappeared and there "might be a network problem
+of some kind". I attempted to login immediately and the machine was still
+semi up since I was able to get part way through an ssh authentication
+before the box went dead (it probably started killing stuff or something).
+
+I think it's paniced again however the serial console is
+unavailable (will install one today) and as they need that box I have
+asked them to power cycle it (as I write this it's been 30 minutes and
+it's just started to respond). This clearly is not ideal and I would like
+some recommendations for debugging this problem without hurting the fact
+that it's a production server that should continue running. The logs never
+show anything useful obviously but I will install a serial console to
+watch it today and report logs from future kernel panics. I have observed
+a panic myself recently however do not have the output to report here.
+
+Tonight I shall be upgrading to 2.4.17 and will run a bunch more tests
+(additional suggestions for tests welcome).
+
+I apologise for not having a full bug report, this is kinda weird. I
+would just appreciate any advice or suggestions really.
+
+Happy new year to all,
+
+--jcm
+

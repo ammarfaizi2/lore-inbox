@@ -1,42 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277893AbRJWQSZ>; Tue, 23 Oct 2001 12:18:25 -0400
+	id <S277894AbRJWQRZ>; Tue, 23 Oct 2001 12:17:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277905AbRJWQSQ>; Tue, 23 Oct 2001 12:18:16 -0400
-Received: from [194.46.8.33] ([194.46.8.33]:42246 "EHLO angusbay.vnl.com")
-	by vger.kernel.org with ESMTP id <S277893AbRJWQSE>;
-	Tue, 23 Oct 2001 12:18:04 -0400
-Date: Tue, 23 Oct 2001 17:21:38 +0100
-From: Dale Amon <amon@vnl.com>
-To: Matthew Jacob <mjacob@feral.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ALERT!!!! Attempt to outlaw open source Operating systems
-Message-ID: <20011023172138.L17078@vnl.com>
-Mail-Followup-To: Dale Amon <amon@vnl.com>,
-	Matthew Jacob <mjacob@feral.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20011023164924.K17078@vnl.com> <20011023085528.X8388-100000@wonky.feral.com>
-Mime-Version: 1.0
+	id <S277893AbRJWQRP>; Tue, 23 Oct 2001 12:17:15 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:39430 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S277894AbRJWQQ7>; Tue, 23 Oct 2001 12:16:59 -0400
+Subject: Re: [Lse-tech] Re: Preliminary results of using multiblock raw I/O
+To: axboe@suse.de (Jens Axboe)
+Date: Tue, 23 Oct 2001 17:23:27 +0100 (BST)
+Cc: nagar@us.ibm.com (Shailabh Nagar), baettig@scs.ch (Reto Baettig),
+        lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: <20011023084238.C638@suse.de> from "Jens Axboe" at Oct 23, 2001 08:42:38 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011023085528.X8388-100000@wonky.feral.com>
-User-Agent: Mutt/1.3.23i
-X-Operating-System: Linux, the choice of a GNU generation
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15w4Kt-0006RM-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 23, 2001 at 08:55:45AM -0700, Matthew Jacob wrote:
-> 
-> how about a bill # so we can actually go to http://thomas.loc.gov and read it?
+> request the lower level driver can handle. This is typically 127kB, for
+> SCSI it can be as much as 512kB currently and depending on the SCSI
 
-That is the problem: you can see from the article that
-no one has been allowed to see it yet. The whole thing
-looks pretty shady to me. Presumably they have to publish
-it there before it goes to a vote. But it's best to get
-at these things in committee.
+We really btw should make scsi default to 128K - otherwise all the raid
+stuff tends to go 127K, 1K, 127K, 1K and have to handle partial stripe
+read/writes
 
--- 
-------------------------------------------------------
-Use Linux: A computer        Dale Amon, CEO/MD
-is a terrible thing          Village Networking Ltd
-to waste.                    Belfast, Northern Ireland
-------------------------------------------------------

@@ -1,61 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261620AbREOWCI>; Tue, 15 May 2001 18:02:08 -0400
+	id <S261597AbREOV5i>; Tue, 15 May 2001 17:57:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261623AbREOWB7>; Tue, 15 May 2001 18:01:59 -0400
-Received: from nat-hdqt.valinux.com ([198.186.202.17]:59640 "EHLO tytlal")
-	by vger.kernel.org with ESMTP id <S261619AbREOWAX>;
-	Tue, 15 May 2001 18:00:23 -0400
-Date: Tue, 15 May 2001 14:58:29 -0700
-From: Chip Salzenberg <chip@valinux.com>
-To: Johannes Erdfelt <johannes@erdfelt.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        James Simmons <jsimmons@transvirtual.com>,
-        Alexander Viro <viro@math.psu.edu>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Neil Brown <neilb@cse.unsw.edu.au>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        "H. Peter Anvin" <hpa@transmeta.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: LANANA: To Pending Device Number Registrants
-Message-ID: <20010515145829.K3098@valinux.com>
-In-Reply-To: <20010515145830.Y5599@sventech.com> <Pine.LNX.4.21.0105151208540.2339-100000@penguin.transmeta.com> <20010515154325.Z5599@sventech.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <20010515154325.Z5599@sventech.com>; from johannes@erdfelt.com on Tue, May 15, 2001 at 03:43:26PM -0400
+	id <S261615AbREOV52>; Tue, 15 May 2001 17:57:28 -0400
+Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:4349 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S261597AbREOV5Z>; Tue, 15 May 2001 17:57:25 -0400
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200105152157.f4FLvAw9021664@webber.adilger.int>
+Subject: Re: Exporting symbols from a module.
+In-Reply-To: <3B0172E6.2010808@fugmann.dhs.org> "from Anders Peter Fugmann at
+ May 15, 2001 08:18:14 pm"
+To: Anders Peter Fugmann <afu@fugmann.dhs.org>
+Date: Tue, 15 May 2001 15:57:09 -0600 (MDT)
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+X-Mailer: ELM [version 2.4ME+ PL87 (25)]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-According to Johannes Erdfelt:
-> I had always made the assumption that sockets were created because you
-> couldn't easily map IPv4 semantics onto filesystems. It's unreasonable
-> to have a file for every possible IP address/port you can communicate
-> with.
+Anders Fugmann writes:
+> I've got a simple question - how export symbols from one module, and use 
+> them in another.
+> 
+> I have two modules - 'kvaser' and 'can_master'.
+> 'kvaser' exports some functions, and 'can_master' needs to use call 
+> these functions.
+> 
+> I used EXPORT_SYMBOL, and declared the function extern,
+> but i still get unresolved symbols.
+> 
+>  > insmod kvaser.o
+>  > insmod can_master.o
+> can_master.o: unresolved symbol can_hw_no_messages
+> can_master.o: unresolved symbol can_hw_register
+> can_master.o: unresolved symbol can_hw_get_message
+> can_master.o: unresolved symbol can_hw_unregister
+> can_master.o: unresolved symbol can_hw_listen
+> can_master.o: unresolved symbol can_hw_block
+> can_master.o: unresolved symbol can_hw_send_message
+> 
+> 
+> Looking in /proc/ksyms, i can find the exported symbols from the kvaser 
+> driver, but it they are in a different format than all the others.
+> 
+> d3d27070 can_hw_register_R__ver_can_hw_register [kvaser]
+> d3d27090 can_hw_unregister_R__ver_can_hw_unregister     [kvaser]
+> d3d270b0 can_hw_listen_R__ver_can_hw_listen     [kvaser]
+> d3d270c4 can_hw_block_R__ver_can_hw_block       [kvaser]
+> d3d270e8 can_hw_send_message_R__ver_can_hw_send_message [kvaser]
+> d3d270f8 can_hw_get_message_R__ver_can_hw_get_message   [kvaser]
+> d3d27108 can_hw_no_messages_R__ver_can_hw_no_messages   [kvaser]
+> d3d27000 
+> __insmod_kvaser_O/home/afu/cvs/dtu/49422/canbus/src/kvaser.o_M3B01709C_V132100 
+I just recently had this problem, and your Makefile is missing:
 
-I think you're right on both counts, but I'm sure you'll agree that
-just because some undergrad at Berkeley did something a certain way 20
-years ago doesn't mean we have to follow it blindly. :-)
+export-objs := <file name>.o
 
-IIRC, Plan 9 allocate TCP connections rather like Linux allocates
-ptys.  When we allocate a pty we don't have to say what program we're
-going to connect to; we allocate it and then use it as we like.
-Similarly, in Plan 9 you allocate a TCP connection without having to
-say who you're going to connect to.  The main differences between the
-Plan 9 approach and the socket approach are:
+where <file name>.o is the compiled object file from <file name>.c, and
+not the module name (if it is different).
 
-  1. Plan 9 connections are filesystem entities (like our ptys)
-  2. Control is done via read/write on a separate control channel,
-     which is *also* a filesystem entity.
-
-USB could use a similar approach.  And since each client would
-allocate a new connection entity for its own use -- even if it's going
-to connect to a device that someone else is already connected to --
-permissions becomes quite simple to manage.
-
-Come to think of it, the mechanism I'm describing could address all
-hotpluggable devices....
+Cheers, Andreas
 -- 
-Chip Salzenberg              - a.k.a. -             <chip@valinux.com>
- "We have no fuel on board, plus or minus 8 kilograms."  -- NEAR tech
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

@@ -1,45 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313926AbSDQU4s>; Wed, 17 Apr 2002 16:56:48 -0400
+	id <S314085AbSDQVEl>; Wed, 17 Apr 2002 17:04:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314085AbSDQU4r>; Wed, 17 Apr 2002 16:56:47 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:34549
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S313926AbSDQU4r>; Wed, 17 Apr 2002 16:56:47 -0400
-Date: Wed, 17 Apr 2002 13:58:49 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        "David S. Miller" <davem@redhat.com>, david.lang@digitalinsight.com,
-        vojtech@suse.cz, rgooch@ras.ucalgary.ca, torvalds@transmeta.com,
+	id <S314106AbSDQVEk>; Wed, 17 Apr 2002 17:04:40 -0400
+Received: from vger.timpanogas.org ([216.250.140.154]:36750 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S314085AbSDQVEk>; Wed, 17 Apr 2002 17:04:40 -0400
+Date: Wed, 17 Apr 2002 14:24:38 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: Robert Love <rml@tech9.net>
+Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+        James Bourne <jbourne@MtRoyal.AB.CA>, Ingo Molnar <mingo@elte.hu>,
         linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.8 IDE 36
-Message-ID: <20020417205849.GA574@matchmail.com>
-Mail-Followup-To: Martin Dalecki <dalecki@evision-ventures.com>,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	"David S. Miller" <davem@redhat.com>, david.lang@digitalinsight.com,
-	vojtech@suse.cz, rgooch@ras.ucalgary.ca, torvalds@transmeta.com,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020416.100610.115916272.davem@redhat.com> <20020416174022.25545@smtp.wanadoo.fr> <3CBD2847.6010003@evision-ventures.com>
+Subject: Re: Hyperthreading
+Message-ID: <20020417142438.A27778@vger.timpanogas.org>
+In-Reply-To: <Pine.LNX.4.44.0204171358380.21779-100000@skuld.mtroyal.ab.ca> <1833210000.1019077852@flay> <1019074547.1670.98.camel@phantasy>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 17, 2002 at 09:46:15AM +0200, Martin Dalecki wrote:
-> Benjamin Herrenschmidt wrote:
-> >something scary. I beleive the sanest solution that won't please
-> >affected people is to _not_ support DMA on these broken HW ;)
+
+
+Beware!  I have seen lockups and driver sickness with hyperthreading 
+enabled on some motherboards.  Most notably, Tyan with 2.4.19 and
+2.5.6.  
+
+
+Jeff
+
+On Wed, Apr 17, 2002 at 04:15:42PM -0400, Robert Love wrote:
+> On Wed, 2002-04-17 at 17:10, Martin J. Bligh wrote:
+> > > Total of 4 processors activated (14299.95 BogoMIPS).
+> > 
+> > Before you get too excited about that, how much performance boost do 
+> > you actually get by turning on Hyperthreading? ;-)
 > 
-> No: the sane sollution would be to not support swapping disks between
-> those systems and other systems.
-
-Martin,
-
-Go ahead and remove the byte swaping code for now, since it is a development
-kernel after all...
-
-*But*, make sure you put that on your to do list to add it back in a "sane"
-way.
+> Certainly not the mips*4 that bogomips is showing :)
+> 
+> I guess that is a "bug" ?
+> 
+> 	Robert Love
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

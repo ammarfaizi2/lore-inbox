@@ -1,20 +1,21 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262366AbREUUig>; Mon, 21 May 2001 16:38:36 -0400
+	id <S262374AbREUUmR>; Mon, 21 May 2001 16:42:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262362AbREUUi0>; Mon, 21 May 2001 16:38:26 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:6127 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S262355AbREUUiL>;
-	Mon, 21 May 2001 16:38:11 -0400
-Date: Mon, 21 May 2001 16:38:09 -0400 (EDT)
+	id <S262375AbREUUmJ>; Mon, 21 May 2001 16:42:09 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:29428 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S262356AbREUUlu>;
+	Mon, 21 May 2001 16:41:50 -0400
+Date: Mon, 21 May 2001 16:41:48 -0400 (EDT)
 From: Alexander Viro <viro@math.psu.edu>
-To: Pavel Machek <pavel@suse.cz>
-cc: Ben LaHaise <bcrl@redhat.com>, torvalds@transmeta.com,
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Pavel Machek <pavel@suse.cz>, Richard Gooch <rgooch@ras.ucalgary.ca>,
+        Matthew Wilcox <matthew@wil.cx>, Andrew Clausen <clausen@gnu.org>,
+        Ben LaHaise <bcrl@redhat.com>, torvalds@transmeta.com,
         linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: Why side-effects on open(2) are evil. (was Re: [RFD w/info-PATCH]
- device arguments from lookup)
-In-Reply-To: <20010520222320.B2647@bug.ucw.cz>
-Message-ID: <Pine.GSO.4.21.0105211620280.12245-100000@weyl.math.psu.edu>
+Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code
+In-Reply-To: <E151wAN-0000pE-00@the-village.bc.nu>
+Message-ID: <Pine.GSO.4.21.0105211639250.12245-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -22,43 +23,19 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Sun, 20 May 2001, Pavel Machek wrote:
+On Mon, 21 May 2001, Alan Cox wrote:
 
-> Hi!
+> > > I don't need to read it. Don't be insulting. Sure, you *can* use a
+> > > write(2)/read(2) cycle. But that's two syscalls compared to one with
+> > > ioctl(2) or transaction(2). That can matter to some applications.
+> > 
+> > I just don't think so. Where did you see performance-critical use of
+> > ioctl()?
 > 
-> > A lot of stuff relies on the fact that close(open(foo, O_RDONLY)) is a
-> > no-op. Breaking that assumption is a Bad Thing(tm).
-> 
-> Then we have a problem. Just opening /dev/ttyS0 currently *has* side
-> effects (it is visible on modem lines from serial port; it can block
-> you forever). 
-> 
-> If this assumption is somewhere, we should fix that place... Or fix
-> serial ports.
+> AGP, video4linux,...
 
-There is no way to fix it. If process A has ability to create and remove
-files in directory foo, then process B has no way to know what file it
-will actually open upon the attempt to open file in foo.
-
-	Example: you want to open /home/luser/barf and /home in on root
-filesystem (too many systems have such setup, and braindead as it is
-it _is_ valid). Luser creates a link to his tty (currently owned by
-luser, so no bullshit about "let's restrict link(2) to the case when
-target is owned by caller", please). After that he renames that link
-to barf.
-
-	If you've just decided to open it and rename() comes when you
-enter open(3) (in libc, still in userland), you _will_ end up opening
-luser's tty.
-
-	OTOH, behaviour of serial ports is required by standards.
-
-All we can do is to open it in non-blocking mode and then checking whether
-we've got what we wanted. You _must_ call fstat(2) after opening a file
-that could be replaced under you. If you are not doing that (and open
-file in directory controled by somebody else) - you have an exploitable
-race. However, fstat() is too late to avoid side-effects of open() itself.
-
-For serial ports O_NDELAY is enough to avoid that side effect. For something
-where it's not enough - well, too bad. Don't do it.
+Which, BTW, is a wonderful reason for having multiple channels. Instead
+of write(fd, "critical_command", 8); read(fd,....); you read from the right fd.
+Opened before you enter the hotspot. Less overhead than ioctl() would
+have...
 

@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274286AbRIYAey>; Mon, 24 Sep 2001 20:34:54 -0400
+	id <S274289AbRIYAlP>; Mon, 24 Sep 2001 20:41:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274288AbRIYAeo>; Mon, 24 Sep 2001 20:34:44 -0400
-Received: from rdu26-57-156.nc.rr.com ([66.26.57.156]:51384 "EHLO
-	gateway.house") by vger.kernel.org with ESMTP id <S274286AbRIYAea>;
-	Mon, 24 Sep 2001 20:34:30 -0400
-Subject: Re: [OT] New Anti-Terrorism Law makes "hacking" punishable by life
-	in prison
-From: Michael Rothwell <rothwell@holly-springs.nc.us>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <E15lfGM-00046c-00@the-village.bc.nu>
-In-Reply-To: <E15lfGM-00046c-00@the-village.bc.nu>
-Content-Type: text/plain
+	id <S274292AbRIYAlH>; Mon, 24 Sep 2001 20:41:07 -0400
+Received: from ns.marxmeier.com ([194.64.71.4]:38670 "EHLO e35.marxmeier.com")
+	by vger.kernel.org with ESMTP id <S274289AbRIYAk4>;
+	Mon, 24 Sep 2001 20:40:56 -0400
+Message-ID: <3BAFD2B0.CD8193DB@marxmeier.com>
+Date: Tue, 25 Sep 2001 02:41:20 +0200
+From: Michael Marxmeier <mike@marxmeier.com>
+Organization: Marxmeier Software AG
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.14 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: lkml <linux-kernel@vger.kernel.org>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [PATCH] cpia.c (2.4.9-ac)
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.12.99 (Preview Release)
-Date: 24 Sep 2001 20:34:56 -0400
-Message-Id: <1001378096.1430.13.camel@gromit.house>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 25 Sep 2001 00:35:46 +0100, Alan Cox wrote:
+My CPIA based camera ceased working with 2.4.9-ac9. The patch 
+below corrects a small thinko (still present with ac15).
 
-> Cuba is within small boat distance. I thought it was going to be twenty
-> years before the direction changed, now Im not so sure
-
-My economics prefessor liked to say that the best test of a
-socioeconomic system (vs. otehr systems) was the "Gates Test" -- open
-the gates and see which way people run.
-
-It will be interesting to see how the "land of the free" will treat its
-own citizens in the next year or so.
-
-Alan, how are things in the U.K. shaping up because of the WTC/Pentagon
-events?
-
-I wonder if I could be put in jail next week because of all that stupid
-cuecat stuff I was involved in? 
+--- cpia.c.orig	Tue Sep 25 01:52:08 2001
++++ cpia.c	Tue Sep 25 01:52:33 2001
+@@ -2871,7 +2871,7 @@
+ 
+ 		/* set video size */
+ 		video_size = match_videosize(vm.width, vm.height);
+-		if (cam->video_size < 0) {
++		if (video_size < 0) {
+ 			retval = -EINVAL;
+ 			break;
+ 		}
 
 
+Michael
 
-
+-- 
+Michael Marxmeier           Marxmeier Software AG
+E-Mail: mike@marxmeier.com  Besenbruchstrasse 9
+Phone : +49 202 2431440     42285 Wuppertal, Germany
+Fax   : +49 202 2431420     http://www.marxmeier.com/

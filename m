@@ -1,84 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265631AbUBPPFQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 10:05:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265641AbUBPPFQ
+	id S265572AbUBPPEw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 10:04:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265631AbUBPPEw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 10:05:16 -0500
-Received: from mail.shareable.org ([81.29.64.88]:11140 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S265631AbUBPPFF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 10:05:05 -0500
-Date: Mon, 16 Feb 2004 15:05:01 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: stty utf8
-Message-ID: <20040216150501.GC16658@mail.shareable.org>
-References: <04Feb13.163954est.41760@gpu.utcc.utoronto.ca> <200402150006.23177.robin.rosenberg.lists@dewire.com> <20040214232935.GK8858@parcelfarce.linux.theplanet.co.uk> <200402150107.26277.robin.rosenberg.lists@dewire.com> <Pine.LNX.4.58.0402141827200.14025@home.osdl.org>
+	Mon, 16 Feb 2004 10:04:52 -0500
+Received: from ns.suse.de ([195.135.220.2]:45274 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S265572AbUBPPEu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Feb 2004 10:04:50 -0500
+Date: Mon, 16 Feb 2004 18:00:28 +0100
+From: Andi Kleen <ak@suse.de>
+To: linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu
+Subject: [PATCH] Disable useless bootmem warning
+Message-Id: <20040216180028.06402e70.ak@suse.de>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.58.0402141827200.14025@home.osdl.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> People understand the problem. And UTF-8 is the solution.
-
-Linus, I agree 100%.
-My own filesystems have UTF-8 file names, of course.
-
-There are still practical problems, two of which stand out:
-
-1. Just because you hope a filesystem is UTF-8, does not preclude
-   readdir() from returning non-UTF-8 names.  (These are far too
-   easy to create by accident).
-
-   Because of that, programs which interpret the result of
-   readdir() as text, yet are expected to handle any name without
-   silently rejecting them or aborting, are forced into strange
-   compromises which break basic expectations.
-
-   Spot the bug in this perl script:
-
-     perl -e 'for (glob "*") { rename $_, "ņi-".$_ or die "rename: $!\n"; }'
-
-   (NB: The prefix string is N WITH CEDILLA followed by "i-").
-
-   (Hint: it mangles perfectly fine non-ASCII file names).
-
-   Perl has no perfect behaviour to offer, because what should that
-   behaviour be if readdir() might return a non-UTF-8 byte sequence
-   as a name?
 
 
-2. Terminals are not all UTF-8, and some never will be.
+This bootmem warning has been annoying me forever:
 
-   So when someone types something like this on a non-UTF-8
-   terminal, they get non-UTF-8 filename:
+hm, page 000f5000 reserved twice.
+hm, page 000f6000 reserved twice.
+hm, page 000f1000 reserved twice.
+hm, page 000f2000 reserved twice.
 
-       vi el-niño.txt
+It happens because the i386/x86-64 boot code prereserves the mptable and then later bootmem
+tries to reserve it again because it's marked reserved in the e820 map.
 
-   It isn't just a problem of display.  Now you have created a
-   filename which isn't valid UTF-8, and GUI programs may complain,
-   perhaps refusing to let you select the file.
+I've never seen a bug uncovered by this warning too. I considered to disable it 
+by passing a special array of "ok to reserve twice" regions, but on second thought 
+it is just best to remove it completely. Reserving things twice is not usually
+an error.
 
-   Furthermore, how exactly do you expect a user to use UTF-8 on
-   the filesystem when their terminal is not (or sometimes is not)
-   using UTF-8?
+This patch does this.
 
+-Andi
 
-==> This problem would be very nicely solved with an additional
-    terminal flag.  We have "stty ocrnl", "onlcr", "igncr" etc. to
-    translate between terminal line endings and the unix convention of
-    LF at the end of each line.  Why not create "stty utf8" so that
-    non-UTF-8 terminals and UTF-8 terminals alike can work with a
-    Linux convention that all programs enter and display UTF-8?  It
-    would simplify a lot of things.
-
-
--- Jamie
-
+--- linux-2.6.3rc2-amd64/mm/bootmem.c-o	2004-02-11 22:06:58.000000000 +0100
++++ linux-2.6.3rc2-amd64/mm/bootmem.c	2004-02-16 17:52:05.000000000 +0100
+@@ -91,8 +91,7 @@
+ 	if (end > bdata->node_low_pfn)
+ 		BUG();
+ 	for (i = sidx; i < eidx; i++)
+-		if (test_and_set_bit(i, bdata->node_bootmem_map))
+-			printk("hm, page %08lx reserved twice.\n", i*PAGE_SIZE);
++		set_bit(i, bdata->node_bootmem_map);
+ }
+ 
+ static void __init free_bootmem_core(bootmem_data_t *bdata, unsigned long addr, unsigned long size)

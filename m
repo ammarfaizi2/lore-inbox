@@ -1,77 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318472AbSGZUhf>; Fri, 26 Jul 2002 16:37:35 -0400
+	id <S318460AbSGZUnu>; Fri, 26 Jul 2002 16:43:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318474AbSGZUhf>; Fri, 26 Jul 2002 16:37:35 -0400
-Received: from hq.fsmlabs.com ([209.155.42.197]:36497 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S318472AbSGZUhe>;
-	Fri, 26 Jul 2002 16:37:34 -0400
-From: Cort Dougan <cort@fsmlabs.com>
-Date: Fri, 26 Jul 2002 14:33:45 -0600
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] fix APM notify of apmd for on-AC/on-battery transitions
-Message-ID: <20020726143345.E13656@host110.fsmlabs.com>
+	id <S318470AbSGZUnu>; Fri, 26 Jul 2002 16:43:50 -0400
+Received: from dns1.arrancar.com ([209.92.187.33]:34451 "EHLO
+	core.arrancar.com") by vger.kernel.org with ESMTP
+	id <S318460AbSGZUnt>; Fri, 26 Jul 2002 16:43:49 -0400
+Subject: Re: Funding GPL projects or funding the GPL?
+From: Federico Ferreres <fferreres@ojf.com>
+To: Jon Portnoy <portnoy@tellink.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0207261622310.21067-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0207261622310.21067-100000@localhost.localdomain>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 26 Jul 2002 17:43:14 -0300
+Message-Id: <1027716201.1297.14.camel@fede>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes a problem with Sony Vaio laptops where they don't notify
-the kernel of power source change events.  That means apmd is never told
-and many of the apmd features can't be used.
+On Fri, 2002-07-26 at 17:29, Jon Portnoy wrote:
+> If you want to donate money to a project(s), I'm sure that a simple email 
+> to the maintainer(s) of that project would get you an address to send such 
+> a donation to. 
 
-The Sony Vaio that I have doesn't send APM events to the kernel telling it
-about 'going on battery' or 'going on AC power' events.  It will register
-them correctly if they're queried but it won't asynchronously send an event
-so the kernel never tells apmd about it.
+Some people don't want to be only ones donating, some others just will
+just wait & see if somebody elses money saves the project. Also, your
+money may not be enough to fund that project and you are left with no
+improvements. Or you could be overfunding the project (never seen this
+happen though). You have no warranties where and how the money would be
+usued. 
 
-This patch fixes the situation by checking against the last known power
-state (and power source) in the check_status() call.
+> Myself, I feel that donation should be optional, besides 
+> the obvious practical difficulties with something like this (e.g., the 
+> task of keeping track of who has paid
 
-This was tested on a Sony Vaio z505js, model PCG-5201 and it works
-beautifully.  I'm told other Vaio notebooks have this same problem.  Now,
-Vaio users can setup apmd to aggressively try to save power when on battery
-or perform other crazy tasks.
+A fundation focusing on this issue alone would be the best solution for
+solving this "fragmentation" problem.
 
-This patch is against v2.4.16 but applies to newer kernels as well.
+> not to mention the necessary 
+> restrictions on downloading at various sites, not to mention the fact that 
+> people will end up just getting source and posting it for everyone, not to 
+> mention...)
 
-diff -Nru a/arch/i386/kernel/apm.c b/arch/i386/kernel/apm.c
---- a/arch/i386/kernel/apm.c	Fri Jul 26 14:29:55 2002
-+++ b/arch/i386/kernel/apm.c	Fri Jul 26 14:29:55 2002
-@@ -1313,6 +1313,34 @@
- 			break;
- 		}
- 	}
-+
-+	/*
-+	 * The Sony Vaio doesn't seem to want to send us a notify
-+	 * about AC line power status changes.  So, we have to keep track
-+	 * of it by hand and emulate it here.
-+	 *   -- Cort <cort@fsmlabs.com>
-+	 */
-+	if ( is_sony_vaio_laptop ) {
-+		static int last_status = 0;
-+		u_short status, bat, life;
-+
-+		/* get the current power state */
-+		if ( apm_get_power_status(&status, &bat, &life) !=
-+		     APM_SUCCESS ) {
-+			printk("%s:%s error checking power status\n",
-+			       __FILE__,__FUNCTION__);
-+		}
-+		
-+		/* has the status changed since we were last here? */
-+		if (((status >> 8) & 0xff) != last_status) {
-+			last_status = (status >> 8) & 0xff;
-+			
-+			/* fake a APM_POWER_STATUS_CHANGE event */
-+			send_event(APM_POWER_STATUS_CHANGE);
-+			queue_event(APM_POWER_STATUS_CHANGE, NULL);
-+		}
-+		
-+	}
- }
- 
- static void apm_event_handler(void)
+No problem here really. No restricted downloads, not anti-piracy code.
+No added burdens. No BSA. Just the legal obligation to pay $10 a year.
+If you don't pay, nobody will come looking for you, but at least you'll
+know you owe somebody real money.
+
+Federico
+
+> On 26 Jul 2002, Federico Ferreres wrote:
+> 
+> > On Fri, 2002-07-26 at 14:01, Alexander Viro wrote:
+> > > Larry, what the hell are you smoking?  It's a repost from tabloid, for
+> > > fsck sake - clearly says so in the beginning.  Thinking is, indeed, hard
+> > > for these guys, but what's encouraging about that?
+> > 
+> > Would it have made any difference if I posted it here first? Or if I was
+> > a respected developer? Shame on me, I happened to have studied
+> > economics.
+> > 
+> > Anyway, the OSS model is just fine, so you shouldn't care. If at any
+> > point you change your mind and want/need my $20 bucks, I will be ready
+> > to support you (as well as the hundred millions x $20 waiting out there
+> > arround the globe).
+> > 
+> > Federico
+> > 
+> > 
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> > 
+> > 
+> 
+
+

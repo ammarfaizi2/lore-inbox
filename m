@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265410AbTFWWae (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 18:30:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265422AbTFWWae
+	id S265444AbTFWWdd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 18:33:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265474AbTFWWdd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 18:30:34 -0400
-Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:58126 "EHLO
-	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
-	id S265410AbTFWWac (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 18:30:32 -0400
-From: Lesley van Zijl <zyl@xs4all.nl>
-To: Greg KH <greg@kroah.com>
-Subject: Re: usb memory pen broken since 2.5.72?
-Date: Tue, 24 Jun 2003 00:43:21 +0000
-User-Agent: KMail/1.5.2
-References: <200306231803.42338.zyl@xs4all.nl> <200306232353.57539.zyl@xs4all.nl> <20030623215828.GB11038@kroah.com>
-In-Reply-To: <20030623215828.GB11038@kroah.com>
-Cc: linux-kernel@vger.kernel.org
+	Mon, 23 Jun 2003 18:33:33 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:62350 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S265444AbTFWWd3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jun 2003 18:33:29 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Mon, 23 Jun 2003 15:45:59 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mcafeelabs.com
+To: Mikael Pettersson <mikpe@csd.uu.se>
+cc: Linus Torvalds <torvalds@transmeta.com>, kaos@ocs.com.au,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2.5.73] enable local APIC on P4
+In-Reply-To: <200306232229.h5NMTaJU013801@harpo.it.uu.se>
+Message-ID: <Pine.LNX.4.55.0306231545200.3730@bigblue.dev.mcafeelabs.com>
+References: <200306232229.h5NMTaJU013801@harpo.it.uu.se>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200306240043.21164.zyl@xs4all.nl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=847
+On Tue, 24 Jun 2003, Mikael Pettersson wrote:
 
-On Monday 23 June 2003 21:58, Greg KH wrote:
-> On Mon, Jun 23, 2003 at 11:53:57PM +0000, Lesley van Zijl wrote:
-> > I just tried the bk1 patch. and it gave me the exact same output
+> The current local APIC code refuses to enable the local APIC
+> on a P4 if the BIOS booted us with the local APIC disabled.
+> This patch removes this unnecessary restriction. Please apply.
 >
-> Bleah :(
+> Most P4 machines do boot with the local APIC enabled, but
+> Keith Owens reported that the P4 based Compaq Evo N800v
+> disables the local APIC, even though the machine actually
+> works if Linux enables it.
 >
-> Ok, can you file a bugzilla.kernel.org bug then?  I'll route it to the
-> proper people.
->
-> thanks,
->
-> greg k-h
+> It is possible that some P4 machines with broken BIOSen
+> were saved by our refusal to enable the local APIC. We
+> can handle them via the DMI blacklist rules instead.
+
+I did the same thing on my Presario. BIOS disable it by default.
+
+
+
+- Davide
 

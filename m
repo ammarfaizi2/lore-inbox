@@ -1,76 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316794AbSGBPM4>; Tue, 2 Jul 2002 11:12:56 -0400
+	id <S316795AbSGBPP3>; Tue, 2 Jul 2002 11:15:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316795AbSGBPMz>; Tue, 2 Jul 2002 11:12:55 -0400
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:55211
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S316794AbSGBPMy>; Tue, 2 Jul 2002 11:12:54 -0400
-Date: Tue, 2 Jul 2002 08:12:06 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [OKS] O(1) scheduler in 2.4
-Message-ID: <20020702151206.GK20920@opus.bloom.county>
-References: <20020701181228.GF20920@opus.bloom.county> <Pine.LNX.3.96.1020702103924.27954A-100000@gatekeeper.tmr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.96.1020702103924.27954A-100000@gatekeeper.tmr.com>
-User-Agent: Mutt/1.4i
+	id <S316797AbSGBPP2>; Tue, 2 Jul 2002 11:15:28 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:15888 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S316795AbSGBPP2>; Tue, 2 Jul 2002 11:15:28 -0400
+Date: Tue, 2 Jul 2002 11:13:01 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Adrian Bunk <bunk@fs.tum.de>
+cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [OKS] Kernel release management
+In-Reply-To: <Pine.NEB.4.44.0207012045110.24810-100000@mimas.fachschaften.tu-muenchen.de>
+Message-ID: <Pine.LNX.3.96.1020702110848.27954D-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 02, 2002 at 10:46:56AM -0400, Bill Davidsen wrote:
-> On Mon, 1 Jul 2002, Tom Rini wrote:
-> 
-> > On Mon, Jul 01, 2002 at 01:52:54PM -0400, Bill Davidsen wrote:
-> > 
-> > > What's the issue?
-> > 
-> > a) We're at 2.4.19-rc1 right now.  It would be horribly
-> > counterproductive to put O(1) in right now.
-> > b) 2.4 is the _stable_ tree.  If every big change in 2.5 got back ported
-> > to 2.4, it'd be just like 2.5 :)
-> > c) I also suspect that it hasn't been as widley tested on !x86 as the
-> > stuff currently in 2.4.  And again, 2.4 is the stable tree.
-> 
-> Since 2.5 feature freeze isn't planned until fall, I think you can assume
-> there will be releases after 2.4.19...
+On Mon, 1 Jul 2002, Adrian Bunk wrote:
 
-I sure hope so, I've got a whole bunch of PPC stuff that's been around
-for ages now that just might make it into 2.4.20 :)
+> This is IMHO a very bad idea:
+> - A stable base to start new development upon is a very good thing
+>   (and I don't believe in the stability of 2.6.0).
+> - Something I'd call the "Debian syndrome" will appear:
+>     There are only very few developers who run Debian stable because even
+>     during the release cycle there's always an unstable tree. One of the
+>     results is that many of the Debian developers aren't that much
+>     focussed on working on the next stable release (the current stable
+>     release of Debian is nearly two years old and doesn't support kernel
+>     2.4...).
+>   If 2.7 doesn't start before 2.6 is _really_ stable everyone who wants
+>   to have a new development tree is more interested in making 2.6 a really
+>   good kernel instead of focussing immediately on 2.7 .
 
-> Since it has been as heavily tested
-> as any feature not in a stable release kernel can be, there seems little
-> reason to put it off for a year, assuming 2.6 releases within six months
-> of feature freeze.
+Seems the reason this is being suggested is that lots of new stuff got
+shoved into 2.2 and 2.4 in the early stages, and they were NOT stable.
+Since far more influential people than I are suggesting this, obviously at
+least some of the folks feel it's worth trying something different.
 
-Sure there is.  It's called stopping feature creep.  O(1) is a nice
-feature, but so is the bio stuff, the initcall levels, and other things
-in 2.5 as well.  But should we back port all of these to 2.4 as well?
-
-> Stable doesn't mean moribund, we are working Andrea's VM stuff in, and
-> that's a LOT more likely to behave differently on hardware with other word
-> length.
-
-Being someone who actually works on !x86 hardware all of the time, I'm
-slightly warry of Andrea's VM work as well.  But it's also something
-which has been split into numerous small chunks, so hopefully problems
-will be spotted.
-
-> Keeping inferior performance for another year and then trying to
-> separate 2.5 other unintended features from any possible scheduler issues
-> seems like a reduction in stability for 2.6.
-
-It's no more of a reduction in stability than not back porting
-everything else.  And making things stable is why eventually Linus says
-'enough' and kicks out 2.stable.0-test1.  Anyhow, since this isn't a
-subsystem backport, but part of the core kernel, I would think that you
-could only get limited use out of the testing (I remember reading some
-of the O(1) announcments for 2.4.then-current and reading about small
-bugs that weren't in the 2.5 version).
+The maintainer can alway push really new stuff into 2.7, and Linus can
+always refuse to take a feature into 2.7 until something else is fixed in
+2.6. Looking at how hard people are working to backport things from 2.5 to
+2.4 I have faith that extra effort will be taken.
 
 -- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136411AbREGR2U>; Mon, 7 May 2001 13:28:20 -0400
+	id <S136412AbREGR3l>; Mon, 7 May 2001 13:29:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136426AbREGR2K>; Mon, 7 May 2001 13:28:10 -0400
-Received: from t2.redhat.com ([199.183.24.243]:46586 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S136411AbREGR2D>; Mon, 7 May 2001 13:28:03 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <Pine.LNX.4.21.0105071003330.12733-100000@penguin.transmeta.com> 
-In-Reply-To: <Pine.LNX.4.21.0105071003330.12733-100000@penguin.transmeta.com> 
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Brian Gerst <bgerst@didntduck.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] x86 page fault handler not interrupt safe 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 07 May 2001 18:27:35 +0100
-Message-ID: <12402.989256455@redhat.com>
+	id <S136437AbREGR3d>; Mon, 7 May 2001 13:29:33 -0400
+Received: from fencepost.gnu.org ([199.232.76.164]:61200 "EHLO
+	fencepost.gnu.org") by vger.kernel.org with ESMTP
+	id <S136426AbREGR3P>; Mon, 7 May 2001 13:29:15 -0400
+Date: Mon, 7 May 2001 13:29:16 -0400 (EDT)
+From: Pavel Roskin <proski@gnu.org>
+X-X-Sender: <proski@fonzie.nine.com>
+To: Keith Owens <kaos@ocs3.ocs-net.redhat.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] 2.4 add suffix for uname -r
+In-Reply-To: <3024.989133345@ocs3.ocs-net>
+Message-ID: <Pine.LNX.4.33.0105071132050.2244-100000@fonzie.nine.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi, Keith!
 
-torvalds@transmeta.com said:
->  If anybody has such a beast, please try this kernel patch _and_
-> running the F0 0F bug-producing program (search for it on the 'net -
-> it must be out there somewhere) to verify that the code still
-> correctly handles that case. 
+> A frequent requirement is to rename vmlinuz-2.x.y to 2.x.y-old or
+> 2.x.y.save to preserve a working kernel.  But renaming the image does
+> not change the value of uname -r so it still tries to use modules
+> 2.x.y, which defeats the purpose of saving an working kernel.
 
-Something along the lines of:
+Thank you for the patch and for taking care of the problem! I've tested it
+and it works for me. I'm using kernel modules and ALSA.
 
-echo "unsigned long main=0xf00fc7c8;" > f00fbug.c ; make f00fbug
+> Objects that "know" the value of uname -r that they were compiled with
+> will not work with unamersfx.  Are there any?
 
---
-dwmw2
+"floppy" hardcodes the version but doesn't protest.
 
+inserting floppy driver for 2.4.4-ac5
+Floppy drive(s): fd0 is 1.44M
+FDC 0 is a post-1991 82077
+# uname -a
+Linux fonzie 2.4.4-ac5-new #3 Mon May 7 12:06:39 EDT 2001 i686 unknown
+
+-- 
+Regards,
+Pavel Roskin
 

@@ -1,91 +1,139 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261718AbUKCQs2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261710AbUKCQxJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261718AbUKCQs2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 11:48:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261710AbUKCQs1
+	id S261710AbUKCQxJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 11:53:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbUKCQxJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 11:48:27 -0500
-Received: from alog0495.analogic.com ([208.224.223.32]:8576 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261718AbUKCQqv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 11:46:51 -0500
-Date: Wed, 3 Nov 2004 11:46:15 -0500 (EST)
-From: linux-os <linux-os@chaos.analogic.com>
-Reply-To: linux-os@analogic.com
-To: Gene Heskett <gene.heskett@verizon.net>
-cc: linux-kernel@vger.kernel.org, bert hubert <ahu@ds9a.nl>
-Subject: Re: is killing zombies possible w/o a reboot?
-In-Reply-To: <200411031124.19179.gene.heskett@verizon.net>
-Message-ID: <Pine.LNX.4.61.0411031133590.14117@chaos.analogic.com>
-References: <200411030751.39578.gene.heskett@verizon.net>
- <20041103143348.GA24596@outpost.ds9a.nl> <200411031124.19179.gene.heskett@verizon.net>
+	Wed, 3 Nov 2004 11:53:09 -0500
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:13456 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S261725AbUKCQto (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 11:49:44 -0500
+Message-ID: <41890C0F.6080702@nortelnetworks.com>
+Date: Wed, 03 Nov 2004 10:49:19 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Jesper Juhl <juhl-lkml@dif.dk>
+CC: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Oliver Neukum <oliver@neukum.org>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: question on common error-handling idiom
+References: <4187E920.1070302@nortelnetworks.com> <Pine.LNX.4.61.0411022208390.3285@dragon.hygekrogen.localhost> <Pine.LNX.4.53.0411022229070.6104@yvahk01.tjqt.qr> <Pine.LNX.4.61.0411022241160.3285@dragon.hygekrogen.localhost>
+In-Reply-To: <Pine.LNX.4.61.0411022241160.3285@dragon.hygekrogen.localhost>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Nov 2004, Gene Heskett wrote:
+Jesper Juhl wrote:
 
-> On Wednesday 03 November 2004 09:33, bert hubert wrote:
->> On Wed, Nov 03, 2004 at 07:51:39AM -0500, Gene Heskett wrote:
->>> But I'd tried to run gnomeradio earlier to listen to the
->>> elections,
->>
->> Depressing enough.
->>
->>> I'd tried to kill the zombie earlier but couldn't.
->>> Isn't there some way to clean up a &^$#^#@)_ zombie?
->>
->> Kill the parent, is the only (portable) way.
->
-> The parent would have been the icon.  It opened its usual sized small
-> window, but never did anything to it. I clicked on closing the
-> window, but 10 seconds later the system asked me if I wanted to kill
-> it as it wasn't responding. I said yes, the window disappeared, but
-> kpm said gomeradio was still present as process 8162, and that wasn't
-> killable.  Funny thing is, on the reboot, it automaticly self
-> restored and ran just fine.
->
-> I consider this as one of linux's achilles heels.  Such a hung and
-> dead process can be properly disposed of by a primitive os called os9
-> because it keeps track of all resources in tables in the kernel
-> memory space.  Issueing a kill procnumber removes the process from
-> the exec queue, reclaims all its memory to the system free memory
-> pool, and removes it from the IRQ service tables if an entry exists
-> there.  Near instant, total cleanup, nothing left, in about 250
-> microseconds max. 1.79 mhz cpu's aren't quite instant :)
->
-> Lets just say that I think having to reboot because of a zombie that
-> has resources locked up, and have the reboot fubared by it too,
-> aren't exactly friendly actions.
+> Has anyone taken a look at what recent gcc's actually do with different 
+> variations of the constructs mentioned in this thread?
 
-[SNIPPED....]
+I did, out of curiosity:
 
-There is no problem killing a task and freeing its resources.
-The problem is that Linux and other Unix variations need to
-do this in a specific manner. That manner being that some
-parent (or ultimately init) needs to receive the terminating
-status. A task that has been otherwise killed, but is awaiting
-its status to be obtained is in the 'Z' or zombie state. If
-the code for either the child task or its parent was improperly
-written, the death of a parent could allow a child to wait
-forever (zombie).
+I used the following (admittedly simplistic) code, compiled with -O2.
 
-The fix is to fix the code. Your temporary fix is to use
-Ctrl-Alt-backspace to kill the X11 server (the parent).
-If it doesn't restart (it's not a kernel problem, it's
-a distribution problem), you can log in as root and
-execute:
+int bbbb(int a)
+{
+	int err = -5;
+	if (a == 1)
+		goto out;
+	err=0;
+out:
+	return err;
+}
 
- 	/etc/X11/prefdm &
-
-All these little windows and icons are the 'children' of
-the X server. The above is a temporary work-around for
-a non-kernel problem.
+int cccc(int a)
+{
+	int err=0;
+	if (a == 1) {
+		err = -5;
+		goto out;
+	}
+out:
+	return err;
+}
 
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.9 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by John Ashcroft.
-                  98.36% of all statistics are fiction.
+With gcc 3.2.2 for x86, both constructs generated the same code:
+
+        pushl   %ebp
+         movl    %esp, %ebp
+         xorl    %eax, %eax
+         cmpl    $1, 8(%ebp)
+         setne   %al
+         leal    -5(%eax,%eax,4), %eax
+         leave
+         ret
+
+With gcc 2.96 (Mandrake) however, the standard construct generated this:
+
+
+	pushl	%ebp
+	movl	%esp, %ebp
+	subl	$4, %esp
+	movl	$-5, -4(%ebp)
+	cmpl	$1, 8(%ebp)
+	jne	.L3
+	jmp	.L4
+	.p2align 4,,7
+.L3:
+	movl	$0, -4(%ebp)
+.L4:
+	movl	-4(%ebp), %eax
+	movl	%eax, %eax
+	movl	%ebp, %esp
+	popl	%ebp
+	ret
+
+
+
+While moving the err setting into the conditional generates the following:
+
+	pushl	%ebp
+	movl	%esp, %ebp
+	subl	$4, %esp
+	movl	$0, -4(%ebp)
+	cmpl	$1, 8(%ebp)
+	jne	.L6
+	movl	$-5, -4(%ebp)
+	jmp	.L7
+	.p2align 4,,7
+.L6:
+	nop
+.L7:
+	movl	-4(%ebp), %eax
+	movl	%eax, %eax
+	movl	%ebp, %esp
+	popl	%ebp
+	ret
+
+
+For PPC, gcc 3.3.3, the standard construct gave:
+
+         xori 3,3,1
+         addic 3,3,-1
+         subfe 3,3,3
+         rlwinm 3,3,0,30,28
+         blr
+
+While moving the err setting into the conditional generates the following:
+
+         xori 3,3,1
+         srawi 0,3,31
+         xor 3,0,3
+         subf 3,3,0
+         srawi 3,3,31
+         andi. 3,3,5
+         addi 3,3,-5
+         blr
+
+
+So, it looks like the standard construct can actually generate better code in 
+some cases, its almost never worse, and it's certainly nicer to read.
+
+Chris

@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130921AbRBCC2R>; Fri, 2 Feb 2001 21:28:17 -0500
+	id <S129356AbRBCCdB>; Fri, 2 Feb 2001 21:33:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130939AbRBCC2H>; Fri, 2 Feb 2001 21:28:07 -0500
-Received: from orange.csi.cam.ac.uk ([131.111.8.77]:59829 "EHLO
-	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S130938AbRBCC1w>; Fri, 2 Feb 2001 21:27:52 -0500
-Date: Sat, 3 Feb 2001 02:27:37 +0000 (GMT)
-From: James Sutherland <jas88@cam.ac.uk>
-To: David Lang <dlang@diginsite.com>
-cc: "David S. Miller" <davem@redhat.com>, Andrew Morton <andrewm@uow.edu.au>,
-        lkml <linux-kernel@vger.kernel.org>,
-        "netdev@oss.sgi.com" <netdev@oss.sgi.com>
-Subject: Re: sendfile+zerocopy: fairly sexy (nothing to do with ECN)
-In-Reply-To: <Pine.LNX.4.31.0102021456000.1221-100000@dlang.diginsite.com>
-Message-ID: <Pine.SOL.4.21.0102030225540.12570-100000@orange.csi.cam.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129529AbRBCCcv>; Fri, 2 Feb 2001 21:32:51 -0500
+Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:785 "EHLO
+	ani.animx.eu.org") by vger.kernel.org with ESMTP id <S129356AbRBCCck>;
+	Fri, 2 Feb 2001 21:32:40 -0500
+Date: Fri, 2 Feb 2001 21:41:28 -0500
+From: Wakko Warner <wakko@animx.eu.org>
+To: "Miller, Brendan" <Brendan.Miller@Dialogic.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: bidirectional named pipe?
+Message-ID: <20010202214128.C21497@animx.eu.org>
+In-Reply-To: <EFC879D09684D211B9C20060972035B1D4684F@exchange2ca.sv.dialogic.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.95.3i
+In-Reply-To: <EFC879D09684D211B9C20060972035B1D4684F@exchange2ca.sv.dialogic.com>; from Miller, Brendan on Fri, Feb 02, 2001 at 07:33:09PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2 Feb 2001, David Lang wrote:
+> I've countless web searches and linux-kernel archives, but I haven't yet
+> found the answer to my question.
+> 
+> I'm porting some software to Linux that requires use of a bidirectional,
+> named pipe.  The architecture is as follows:  A server creates a named pipe
+> in the /tmp directory.  Any client can then open("/tmp/pipename",
+> O_RDWR|O_NDELAY) and gain access to the server.  The pipe is bidirectional,
+> so the client and server communicate on the same pipe.  I support a number
+> of clients on the single pipe using file-locking to prohibit from two
+> clients from writing/reading at once.
+> 
+> How can I do this under Linux?  In SVR4 Unices, I just use pipe() as it's
+> pipes are bidirectional, and I can attach a name with fattach().  In SVR3
+> Unices, I go through a bunch of hacking using the "stream clone device --
+> /dev/spx".  I experiemented with socket-based pipes under Linux, but I
+> couldn't gain access to them by open()ing the name.  Is there help?  I
+> really don't want to use LiS (the Linux Streams) package, as I'd rather do
+> something native and not be dependent on another module.  Plus, I read
+> somewhere that this was a poor way to do things.
 
-> Thanks, that info on sendfile makes sense for the fileserver situation.
-> for webservers we will have to see (many/most CGI's look at stuff from the
-> client so I still have doubts as to how much use cacheing will be)
+How about use a unix socket instead of a named pipe.
 
-CGI performance isn't directly affected by this - the whole point is to
-reduce the "cost" of handling static requests to zero (at least, as close
-as possible) leaving as much CPU as possible for the CGI to use.
-
-So sendfile won't help your CGI directly - it will just give your CGI more
-resources to work with.
-
-
-James.
-
+-- 
+ Lab tests show that use of micro$oft causes cancer in lab animals
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

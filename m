@@ -1,45 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265843AbSKVGoA>; Fri, 22 Nov 2002 01:44:00 -0500
+	id <S265998AbSKVGuT>; Fri, 22 Nov 2002 01:50:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265939AbSKVGoA>; Fri, 22 Nov 2002 01:44:00 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:30694 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S265843AbSKVGn7>;
-	Fri, 22 Nov 2002 01:43:59 -0500
-Date: Thu, 21 Nov 2002 22:49:23 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Roland Dreier <roland@digitalvampire.org>
-cc: dan carpenter <error27@email.com>, <linux-kernel@vger.kernel.org>,
-       <smatch-kbugs@lists.sourceforge.net>,
-       <kernel-janitor-discuss@lists.sourceforge.net>
-Subject: Re: [LIST] large local declarations
-In-Reply-To: <87vg2q15q5.fsf@love-shack.home.digitalvampire.org>
-Message-ID: <Pine.LNX.4.33L2.0211212248250.4812-100000@dragon.pdx.osdl.net>
+	id <S266093AbSKVGuT>; Fri, 22 Nov 2002 01:50:19 -0500
+Received: from modemcable017.51-203-24.mtl.mc.videotron.ca ([24.203.51.17]:57843
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S265998AbSKVGuS>; Fri, 22 Nov 2002 01:50:18 -0500
+Date: Fri, 22 Nov 2002 01:51:01 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Roland Schwarz <webmaster@rolandschwarz.net>
+cc: akpm@digeo.com, <linux-kernel@vger.kernel.org>
+Subject: Re: AW: Interrupts problem with 3com network cards on dual-cpu
+ systems ?
+In-Reply-To: <NNEIJAEFFFIEBKPOMOJFAELFDLAA.webmaster@rolandschwarz.net>
+Message-ID: <Pine.LNX.4.44.0211220149440.1639-100000@montezuma.mastecende.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 21 Nov 2002, Roland Dreier wrote:
+On Fri, 22 Nov 2002, Roland Schwarz wrote:
 
-| >>>>> "dan" == dan carpenter <error27@email.com> writes:
-|
-|     dan> I have a smatch script (smatch.sf.net) that finds the the
-|     dan> size of local variables.  I created an allyesconfig with
-|     dan> 2.5.48 and tested it.  These were the functions that declared
-|     dan> local datas with size of 5 digits or more (in bits).
-|
-| This is a minor complaint, but... why do you report the data sizes in
-| bits?  I find myself forced to mentally divide every size by 8.  Every
-| variable (obviously) has a size that's a whole number of bytes.  Why
-| not just report bytes?
+> I've already tried this.
+> noapic
+> disableapic 
 
-I second that.
-It's not just Roland...
+Have you tried different PCI slots too?
 
-But thanks for doing it anyway.
+btw i'd hate to drive your superstition, but works on the dual 400/512M 
+box here too ;)
 
 -- 
-~Randy
+function.linuxpower.ca
 

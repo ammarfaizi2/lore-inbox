@@ -1,86 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266512AbUG0SRO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266534AbUG0STv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266512AbUG0SRO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 14:17:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266533AbUG0SRN
+	id S266534AbUG0STv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 14:19:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266533AbUG0STu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 14:17:13 -0400
-Received: from brmea-mail-3.Sun.COM ([192.18.98.34]:36998 "EHLO
-	brmea-mail-3.sun.com") by vger.kernel.org with ESMTP
-	id S266512AbUG0SRI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 14:17:08 -0400
-Date: Tue, 27 Jul 2004 14:15:20 -0400
-From: Mike Waychison <Michael.Waychison@Sun.COM>
-Subject: Re: [patch] kernel events layer
-In-reply-to: <20040726204457.GA10970@hockin.org>
-To: Tim Hockin <thockin@hockin.org>
-Cc: Greg KH <greg@kroah.com>, Oliver Neukum <oliver@neukum.org>,
-       Robert Love <rml@ximian.com>,
-       "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>,
-       Andrew Morton <akpm@osdl.org>, cw@f00f.org,
+	Tue, 27 Jul 2004 14:19:50 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:19685 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266534AbUG0STr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jul 2004 14:19:47 -0400
+Date: Tue, 27 Jul 2004 11:19:42 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: <marcelo.tosatti@cyclades.com>, zaitcev@redhat.com,
        linux-kernel@vger.kernel.org
-Message-id: <41069BB8.1030405@sun.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-X-Accept-Language: en-us, en
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
-X-Enigmail-Version: 0.83.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-References: <F989B1573A3A644BAB3920FBECA4D25A6EBFB5@orsmsx407>
- <1090853403.1973.11.camel@localhost> <20040726161221.GC17449@kroah.com>
- <200407262013.33454.oliver@neukum.org> <20040726190305.GA19498@kroah.com>
- <20040726204457.GA10970@hockin.org>
+Subject: USB: missing rcomplete=0 in printer.c (David Woodhouse)
+Message-Id: <20040727111942.38193702@lembas.zaitcev.lan>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Synopsys: CUPS refuses to work with HP 1200, kernel produces silly messages.
 
-Tim Hockin wrote:
-> On Mon, Jul 26, 2004 at 03:03:05PM -0400, Greg KH wrote:
->
->>>On a related note, is this supposed to supersede the current hotplug
->>>mechanism?
->>
->>No, it will not.  At the most, it will report the same information to
->>make it easier for userspace programs who want to get the other
->>event information, also get the hotplug stuff through the same
->>interface, reducing their complexity.
->>
->>So the existing hotplug interface is not going away at all.  Do not even
->>begin to think that :)
->
->
-> What about flipping it around and using either hotplug or a hotplug-like
-> mechanism for these events?
->
-> It solves the issue of events being dropped when there is no listening
-> daemon...
->
-> These are not going to be high-traffic messages, right, so the overhead is
-> negligible...
->
+I do not remember if David Woodhouse actually wrote it, but he certainly
+reported the problem.
 
-The problem with this is that you'd lose the ability to send the
-messages broadcast, whereby you may have multiple dbus's listening for
-events.
+-- Pete
 
-- --
-Mike Waychison
-Sun Microsystems, Inc.
-1 (650) 352-5299 voice
-1 (416) 202-8336 voice
-http://www.sun.com
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-NOTICE:  The opinions expressed in this email are held by me,
-and may not represent the views of Sun Microsystems, Inc.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFBBpu3dQs4kOxk3/MRAthIAJ41mD9SV3tfZosw2H26Vt4xayKP5ACbB4Eb
-QQImIFvK2NXCt0B5dHPj5ps=
-=1TDt
------END PGP SIGNATURE-----
+--- linux-2.4.27-rc3/drivers/usb/printer.c	2004-07-25 23:00:17.000000000 -0700
++++ linux-2.4.27-rc3-usbx/drivers/usb/printer.c	2004-07-27 10:28:53.000000000 -0700
+@@ -747,6 +757,7 @@ static ssize_t usblp_read(struct file *f
+ 			usblp->minor, usblp->readurb->status);
+ 		usblp->readurb->dev = usblp->dev;
+  		usblp->readcount = 0;
++		usblp->rcomplete = 0;
+ 		if (usb_submit_urb(usblp->readurb) < 0)
+ 			dbg("error submitting urb");
+ 		count = -EIO;

@@ -1,46 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264797AbTCCM0t>; Mon, 3 Mar 2003 07:26:49 -0500
+	id <S264811AbTCCM1X>; Mon, 3 Mar 2003 07:27:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264811AbTCCM0t>; Mon, 3 Mar 2003 07:26:49 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:28826
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S264797AbTCCM0s>; Mon, 3 Mar 2003 07:26:48 -0500
-Subject: Re: Problem with aacraid driver in 2.5.63-bk-latest
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Christoffer Hall-Frederiksen <hall@jiffies.dk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030303100515.GA2697@jiffies.dk>
-References: <20030303100515.GA2697@jiffies.dk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1046698844.5890.2.camel@irongate.swansea.linux.org.uk>
+	id <S264813AbTCCM1X>; Mon, 3 Mar 2003 07:27:23 -0500
+Received: from mail4.bluewin.ch ([195.186.4.74]:13285 "EHLO mail4.bluewin.ch")
+	by vger.kernel.org with ESMTP id <S264811AbTCCM1U>;
+	Mon, 3 Mar 2003 07:27:20 -0500
+Date: Mon, 3 Mar 2003 13:37:29 +0100
+From: Roger Luethi <rl@hellgate.ch>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: bert hubert <ahu@ds9a.nl>, Nigel Cunningham <ncunningham@clear.net.nz>,
+       Andrew Grover <andrew.grover@intel.com>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [ACPI] Re: S4bios support for 2.5.63
+Message-ID: <20030303123729.GB4048@k3.hellgate.ch>
+Mail-Followup-To: Pavel Machek <pavel@ucw.cz>,
+	bert hubert <ahu@ds9a.nl>,
+	Nigel Cunningham <ncunningham@clear.net.nz>,
+	Andrew Grover <andrew.grover@intel.com>,
+	ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030226211347.GA14903@elf.ucw.cz> <20030302133138.GA27031@outpost.ds9a.nl> <1046630641.3610.13.camel@laptop-linux.cunninghams> <20030302202118.GA2201@outpost.ds9a.nl> <20030303003940.GA13036@k3.hellgate.ch> <1046657290.8668.33.camel@laptop-linux.cunninghams> <20030303113153.GA18563@outpost.ds9a.nl> <20030303122325.GA20929@atrey.karlin.mff.cuni.cz>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 03 Mar 2003 13:40:44 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030303122325.GA20929@atrey.karlin.mff.cuni.cz>
+User-Agent: Mutt/1.3.27i
+X-Operating-System: Linux 2.5.63 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-03-03 at 10:05, Christoffer Hall-Frederiksen wrote:
-> I've tried this one on linux-scsi but to no avail, here is a resend to
-> lkml.
-> 
-> I have a dell poweredge 1650 with a perc3/DI raid controller. When the
-> AACRAID driver loads it prints the following lines:
-> 
-> AAC0: kernel 2.7.4 build 3170
-> AAC0: monitor 2.7.4 build 3170
-> AAC0: bios 2.7.0 build 3170
-> AAC0: serial 0b9c810d3
-> scsi0 : percraid
+On Mon, 03 Mar 2003 13:23:25 +0100, Pavel Machek wrote:
+> Well, it does not happen on my machines, but I've already seen it
+> happen on computer with two harddrives.
 
-Its freezing after setup somewhere. There have been a lot of scsi changes
-and not all of them are ones I've checked with aacraid. The osdl guys have
-actually done pretty much all the work so far.
+That was my initial suspicion, since I have two of them and typical swsusp
+(Laptop) users tend not to have more than one. But I gave up on that theory
+when Bert's log showed only one disk:
 
-First things to try
+#        syncing disks
+#        suspending devices
+#        suspending c0418bcc
+#        suspending devices
+#        suspending c0418bcc
+#        suspending: hda ------------------[ cut here
 
-Does it hang with SMP/Pre-empt off
-Where does the nmi lockbreaker show it hanging 
+If he had two disks, his trace should look more like mine:
 
+# Syncing disks before copy
+# Suspending devices
+# Suspending device c0390e4c
+# Suspending device c03911a4
+# Suspending devices
+# Suspending device c0390e4c
+# suspending: had ------------[ cut here ]------------
+# kernel BUG at drivers/ide/ide-disk.c:1557!
+
+Roger

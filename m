@@ -1,61 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261977AbUL0UD7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261961AbUL0UIa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261977AbUL0UD7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Dec 2004 15:03:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261961AbUL0UD7
+	id S261961AbUL0UIa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Dec 2004 15:08:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261958AbUL0UI2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Dec 2004 15:03:59 -0500
-Received: from 181.Red-80-24-145.pooles.rima-tde.net ([80.24.145.181]:18573
-	"EHLO minibar") by vger.kernel.org with ESMTP id S261971AbUL0UB7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Dec 2004 15:01:59 -0500
-From: David Martin <tasio@tasio.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] pid randomness
-User-Agent: KMail/1.7.1
-References: <41D064D5.1030900@rnl.ist.utl.pt>
-In-Reply-To: <41D064D5.1030900@rnl.ist.utl.pt>
-MIME-Version: 1.0
+	Mon, 27 Dec 2004 15:08:28 -0500
+Received: from stingr.net ([212.193.32.15]:21175 "EHLO stingr.net")
+	by vger.kernel.org with ESMTP id S261961AbUL0UFO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Dec 2004 15:05:14 -0500
+Date: Mon, 27 Dec 2004 23:05:09 +0300
+From: Paul P Komkoff Jr <i@stingr.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       davidel@xmailserver.org
+Subject: How to implement multithreaded event loop ?
+Message-ID: <20041227200509.GD1035@stingr.sgu.ru>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	davidel@xmailserver.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-Date: Mon, 27 Dec 2004 21:01:54 +0100
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200412272101.54370.tasio@tasio.net>
+User-Agent: Agent Darien Fawkes
+X-Mailer: Intel Ultra ATA Storage Driver
+X-RealName: Stingray Greatest Jr
+Organization: Department of Fish & Wildlife
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi!
 
-You have an implementation of this and other stuff on grsecurity 
-(www.grsecurity.net) patch for both 2.4 and 2.6 kernel. It is intented for 
-servers, critical machines, or just paranoic users :)
+I am trying to implement a multithreaded event loop using epoll. So, I
+have 2 kind of events. First, there are conditions on fds I have
+(listener sockets, client connections, my connections to other
+clients). Second, I need to have some kind of priority queue into
+which I can push forthcoming timed events.
 
-cheers,
-david.
+In case of single-threaded server, this is fairly trivial. I just need
+to make heap queue and add its 1st (i.e. minimal) element as timeout
+to each next epoll_wait call. When some condition breaks the wait, I
+can always do find_min and wait again with new timeout.
 
-On Monday 27 December 2004 20:39, you wrote:
-> hi everyone,
->
-> I don't know if this has been discussed before... but I'd like to ask
-> why isn't the pids randomized by default?
->
-> I mean, of course it's not required for normal functioning but it'd be
-> nice to have a Kconfig option to make it happen.
->
-> The (newbie) way I see it, it'd not be hard to do... generate pid, check
-> if it's unique, give pid to process. It could bring some minor security
-> enhancements while taking a slight performance hit (seek & compare
-> algorithm for used pids).
->
-> What are the pros and cons of this? What are your oppinions on this subjet?
->
-> regards,
-> pedro venda.
+Things become complicated when I need to scale. So, without this
+timeout cruft, I can just add proper locking around my data structures
+but main epoll_wait loop is multithread-aware, e.g. it will retrieve
+different events for different waiting threads (to be absolutely fair
+with you, I did not implemented this part yet, but I assume that some
+combination of edge triggered + one shot epoll will do the trick).
+But, if using heap priority queue to manage timed events, I need to
+wake up each waiting thread when any event was added to the heap
+before one that was minimal.
+
+>From all I've read about it, waking up all waiting thread isn't
+trivial.
+
+Another solution proposed by my poor brain is - to have alive thread
+which will handle this priority queue, and have one fifo fd in my
+epoll set dedicated to this purpose. Priority queue management thread
+will write single char to that fd when some timed event needs to be
+processed.
+
+Doing some google search, I've found this message:
+http://www.uwsg.iu.edu/hypermail/linux/kernel/0210.3/2416.html
+Things can be much easier if there was timer kernel object (or its
+equivalent). Can anyone give me some advice - how I should solve this
+problem?
+
+Thanks in advance.
 
 -- 
-This device complies with part 15 of the FCC rules. Operation is
-subject to the following two conditions:
-(1) This device may not cause harmful interference,
-(2) This device must accept any interference received, including 
-    interference that may cause undesired operation.
+Paul P 'Stingray' Komkoff Jr // http://stingr.net/key <- my pgp key
+ This message represents the official view of the voices in my head

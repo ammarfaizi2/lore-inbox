@@ -1,50 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268886AbUHLXZQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268889AbUHLXWh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268886AbUHLXZQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 19:25:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268880AbUHLXZP
+	id S268889AbUHLXWh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 19:22:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268868AbUHLXWg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 19:25:15 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:23684 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S268875AbUHLXXm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 19:23:42 -0400
-Message-ID: <411BFCD3.1070703@tmr.com>
-Date: Thu, 12 Aug 2004 19:27:15 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
+	Thu, 12 Aug 2004 19:22:36 -0400
+Received: from atlrel9.hp.com ([156.153.255.214]:11965 "EHLO atlrel9.hp.com")
+	by vger.kernel.org with ESMTP id S268888AbUHLXV7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 19:21:59 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Paul Blazejowski <diffie@gmail.com>
+Subject: Re: 2.6.8-rc4-mm1
+Date: Thu, 12 Aug 2004 17:21:46 -0600
+User-Agent: KMail/1.6.2
+Cc: Andrew Morton <akpm@osdl.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+References: <9dda3492040812114929cf8dcc@mail.gmail.com>
+In-Reply-To: <9dda3492040812114929cf8dcc@mail.gmail.com>
 MIME-Version: 1.0
-Newsgroups: mail.linux-kernel
-To: Florian Schirmer <jolt@tuxbox.org>
-CC: Matthias Andree <matthias.andree@gmx.de>,
-       Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-References: <20040811002455.GA7537@merlin.emma.line.org><20040811002455.GA7537@merlin.emma.line.org> <4119EF1D.2040102@tuxbox.org>
-In-Reply-To: <4119EF1D.2040102@tuxbox.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200408121721.46807.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Florian Schirmer wrote:
+On Thursday 12 August 2004 12:49 pm, Paul Blazejowski wrote:
+> I managed to caputre the serial console output of the boot process
+> with the error. Below is the full log.
 
-> With burn-proof on you get a disc which is still usable but with some 
-> pits/lands missing/misplaced. With burnproof off you get a completely 
-> unusable disc. So whats the _real_ point behind disabling burn proof?
+Thank you very much for the pictures and the transcript.  I found a
+couple bugs in the iteraid driver.  Could you please try the attached
+patch?
 
-There are some people who would rather not have a CD at all if it is 
-even slightly defective. Jorg is one of those, and I am for backups. I 
-also verify backup CDs with his c2scan option to see just how clean the 
-burn is.
-
-There's an option, you can use it or not. Maybe a burnfree CD will be 
-just as good in 3-4 years, but CDs are cheap, I'll burn another if need 
-be. I don't know how much this helps, but I understand terms like "good 
-faith effort" and "best practices." I have no problem with making the 
-user specify that option.
-
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+--- 2.6.8-rc4-mm1/drivers/scsi/iteraid.h.orig	2004-08-12 16:50:38.483419878 -0600
++++ 2.6.8-rc4-mm1/drivers/scsi/iteraid.h	2004-08-12 17:16:08.569338635 -0600
+@@ -1203,8 +1203,8 @@
+ typedef struct _Adapter {
+ 	char *name;		/* Adapter's name               */
+ 	u8 num_channels;	/* How many channels support    */
+-	u8 irq;			/* irq number                   */
+-	u8 irqOwned;		/* If any irq is use            */
++	unsigned int irq;	/* irq number                   */
++	unsigned int irqOwned;	/* If any irq is use            */
+ 	u8 pci_bus;		/* PCI bus number               */
+ 	u8 devfn;		/* Device and function number   */
+ 	u8 offline;		/* On line or off line          */
+--- 2.6.8-rc4-mm1/drivers/scsi/iteraid.c.orig	2004-08-12 16:43:38.700221895 -0600
++++ 2.6.8-rc4-mm1/drivers/scsi/iteraid.c	2004-08-12 17:18:19.419922969 -0600
+@@ -4798,6 +4798,7 @@
+ 			       pAdap->name);
+ 			return -1;
+ 		}
++		printk("%s: IRQ %d for device at %s\n", __FUNCTION__, pAdap->irq, pci_name(pPciDev));
+ 		pAdap->irqOwned = pAdap->irq;
+ 	}
+ 
+@@ -4901,12 +4902,17 @@
+ 		if (PCI_FUNC(pPciDev->devfn))
+ 			continue;
+ 
++		if (pci_enable_device(pPciDev))
++			continue;
++
++		printk("%s: device at %s\n", __FUNCTION__, pci_name(pPciDev));
+ 		/*
+ 		 * Allocate memory for Adapter.
+ 		 */
+ 		pAdap = (PITE_ADAPTER) kmalloc(sizeof(ITE_ADAPTER), GFP_ATOMIC);
+ 		if (pAdap == NULL) {
+ 			printk("iteraid_detect: pAdap allocate failed.\n");
++			pci_disable_device(pPciDev);
+ 			continue;
+ 		}
+ 		memset(pAdap, 0, sizeof(ITE_ADAPTER));
+@@ -5016,6 +5022,7 @@
+ 		if (pAdap->IDEChannel != NULL) {
+ 			kfree(pAdap->IDEChannel);
+ 		}
++		pci_disable_device(pAdap->pci_dev);
+ 		if (pAdap != NULL) {
+ 			kfree(pAdap);
+ 		}

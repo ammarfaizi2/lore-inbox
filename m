@@ -1,67 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262057AbTJ3JJu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Oct 2003 04:09:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262176AbTJ3JJu
+	id S262176AbTJ3JO3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Oct 2003 04:14:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262280AbTJ3JO3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Oct 2003 04:09:50 -0500
-Received: from gprs197-81.eurotel.cz ([160.218.197.81]:56704 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262057AbTJ3JJs (ORCPT
+	Thu, 30 Oct 2003 04:14:29 -0500
+Received: from denise.shiny.it ([194.20.232.1]:28087 "EHLO denise.shiny.it")
+	by vger.kernel.org with ESMTP id S262176AbTJ3JO1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Oct 2003 04:09:48 -0500
-Date: Thu, 30 Oct 2003 10:09:34 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: James Simmons <jsimmons@infradead.org>
-Cc: kernel list <linux-kernel@vger.kernel.org>, geert@linux-m68k.org,
-       linux-fbdev-devel@lists.sourceforge.net
-Subject: Re: Cursor problems still in test9
-Message-ID: <20031030090934.GC295@elf.ucw.cz>
-References: <20031028094907.GA1319@elf.ucw.cz> <Pine.LNX.4.44.0310300436440.28721-100000@phoenix.infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0310300436440.28721-100000@phoenix.infradead.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Thu, 30 Oct 2003 04:14:27 -0500
+Date: Thu, 30 Oct 2003 10:14:23 +0100 (CET)
+From: Giuliano Pochini <pochini@denise.shiny.it>
+To: Hans Reiser <reiser@namesys.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Things that Longhorn seems to be doing right
+In-Reply-To: <3FA0C631.6030905@namesys.com>
+Message-ID: <Pine.LNX.4.58.0310300943430.14300@denise.shiny.it>
+References: <3F9F7F66.9060008@namesys.com> <20031029224230.GA32463@codepoet.org>
+ <20031030015212.GD8689@thunk.org> <3FA0C631.6030905@namesys.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > [And they get worse in fbcon-test patches I tried].
-> > 
-> > Try this on 2.4 (with vesafb).
-> > 
-> > echo -e "\33[10;5000]\33[11;50]\33[?18;0;136c\33[?102m"
-> > 
-> > ...then try it on 2.6, type foo in bash then delete it using
-> > backspace; ghost cursors stay there. Run emacs and quit it (it sets
-> > cursor to very visible). Boom, special cursor settings are gone.
-> 
-> I experimented with the above. I tried it out on vgacon, fbcon 2.4.X and 
-> fbcon 2.6.X. All give different results. What are suppose to see? 
 
-Well, we certainly do not want to see artifacts leaved behind cursor,
-which is what 2.6 currently does. (Type something in bash, backspace
-over it).
+On Thu, 30 Oct 2003, Hans Reiser wrote:
 
-Making it behave like it does now with 2.6, but with cursor properly
-deleted after after backspace, it would be okay.
+> >We can do this simply by associating UUID's to files, and storing the
+> >the file metadata in a MySQL database which can be searched via
+> >appropriate userspace libraries which we provide.
+> >
+> What a performance nightmare.  Updating a user space database every time
+> a file changes --- let's move to a micro-kernel architecture for all of
+> the kernel the same day.....;-)
 
-[It should behave the same way on 2.4 vgacon and fbcon... with
-possible difference that "bright background" might cause characters to
-blink on vgacon. That depends on vga card setting and is not really
-important.]
+If applications do not cooperate explicitly, there is no other way than
+scanning the files after they have been modified. Sure, it's slow, but
+there is no need to do the work immediately. Take into account the MS's
+goal is to make the system seem fast to the normal (desktop) user. I
+guess that system is aimed to speedup searches in word and text files,
+not in the whole filesystem. And the normal desktop user do write files
+only sometimes, so performance isn't a problem (unless you're copying a
+whole CD of word files into the HD). I think that intercepting
+open,write,close is enough to provide the same functionality in Linux.
 
-> > And now, use gpm on text console to select some text. Hold down left
-> > button, move mouse a bit. Sometimes cursor gets corrupted and stays
-> > there.
-> 
-> Will try.
 
-Were you able to reproduce it?
-								Pavel
-
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+--
+Giuliano.

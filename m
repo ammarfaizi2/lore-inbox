@@ -1,42 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312608AbSDAVXD>; Mon, 1 Apr 2002 16:23:03 -0500
+	id <S312619AbSDAVqQ>; Mon, 1 Apr 2002 16:46:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312634AbSDAVWn>; Mon, 1 Apr 2002 16:22:43 -0500
-Received: from antares.in.starshine.org ([216.240.40.177]:60021 "HELO
-	antares.in.starshine.org") by vger.kernel.org with SMTP
-	id <S312644AbSDAVWk>; Mon, 1 Apr 2002 16:22:40 -0500
-To: linux-kernel@vger.kernel.org
-Cc: letters@lwn.net, editors@linuxtoday.com
-Subject: Nominations:
-Message-Id: <20020401212228.416969848@antares.in.starshine.org>
-Date: Mon,  1 Apr 2002 13:22:28 -0800 (PST)
-From: jimd@starshine.org (Jim Dennis)
+	id <S312634AbSDAVqG>; Mon, 1 Apr 2002 16:46:06 -0500
+Received: from zero.tech9.net ([209.61.188.187]:7954 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S312619AbSDAVp4>;
+	Mon, 1 Apr 2002 16:45:56 -0500
+Subject: Re: 2.4.18-xfs and the preemptive patch
+From: Robert Love <rml@tech9.net>
+To: niklas <niklas@bumby.net>
+Cc: linux-kernel@vger.kernel.org, sandeen@sgi.com
+In-Reply-To: <20020401014743.42630286.niklas@bumby.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 01 Apr 2002 16:45:48 -0500
+Message-Id: <1017697549.2940.462.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- Hi Linus,
+On Sun, 2002-03-31 at 18:47, niklas wrote:
+> I just installed the preemptive ( http://www.tech9.net/rml/linux/ ----
+> preempt-kernel-rml-2.4.18-4 )  patch on my 2.4.18-xfs tree and when i
+> run this kernel, every process ends with "exited with preempt_count 1
+> " ( for example "rc.2[35] exited with preempt_count 1" )
+> The number varies from 1 to 41 so far.
+> Is this a known issue that there is a fix to, or is it just a
+> misconfigurd syslog?
 
- I must commend you on the timing of your decision to step down
- as "Benevolent Dictator(TM)."  However I'm extremely disappointed
- by your nominations for your successor.  I think the time for 
- *benevolence* is over.  If we are to usher in a new era of Linux
- kernel development we must consider a broader, darker range of
- candidates.
+That message is caused by tasks exiting with a nonzero preempt_count. 
+The preempt_count is basically a count of the number of spinlocks held,
+so it should always be zero when a task exits.  Since it is positive,
+you don't have anything to worry about wrt "stability" but the system
+may not be preempting at all, which would make the preempt-kernel patch
+worthless.
 
- I'd like to nominate Senator Hollings!  He's the obvious choice
- since he clearly intends to usurp the role of Grand Software 
- Source Code Dictator for *all* software and firmware (open or closed).
- Indeed, regardless of whether you select him and even if he declines
- the title I think that we should all immediately add him to our MUAs 
- for automatic copies of all source code submissions, patches and 
- related discussions (for his legislative approval, of course).  
- (Of course we should also appoint a special "technical advisor" to 
- assist the Respected Mr. Hollings, William Gates III should be 
- considered; surely chairman Bill could see "the way out" of any
- conundrum offered by the development community).
- 
---
-Sincerly,
-Jim Dennis, "The Linux Gazette Answer Jester"
+I talked to Steve Lord and Eric Sandeen at SGI and they believe they
+know the cause of the problem.  Basically, XFS destroys some data
+structures and doesn't unlock the associated lock, but just forgets
+about it.  This is not good for kernel preemption.
+
+They think the newest XFS in CVS does not do this anymore, but it still
+may in some places.  Can you give it a try and let me know if you still
+see the messages?  Especially with the same regularity and value.
+
+	http://oss.sgi.com/projects/xfs/cvs_download.html
+
+Thanks,
+
+	Robert Love
 

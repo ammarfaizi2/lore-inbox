@@ -1,139 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262119AbTEPWJO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 May 2003 18:09:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262148AbTEPWJO
+	id S262676AbTEPWLv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 May 2003 18:11:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262703AbTEPWLv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 May 2003 18:09:14 -0400
-Received: from Mail1.KONTENT.De ([81.88.34.36]:11500 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S262119AbTEPWJM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 May 2003 18:09:12 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: ranty@debian.org
-Subject: Re: request_firmware() hotplug interface, third round.
-Date: Sat, 17 May 2003 00:22:29 +0200
-User-Agent: KMail/1.5.1
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       Simon Kelley <simon@thekelleys.org.uk>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "Downing, Thomas" <Thomas.Downing@ipc.com>, Greg KH <greg@kroah.com>,
-       jt@hpl.hp.com, Pavel Roskin <proski@gnu.org>
-References: <20030515200324.GB12949@ranty.ddts.net> <200305161753.17198.oliver@neukum.org> <20030516183152.GB18732@ranty.ddts.net>
-In-Reply-To: <20030516183152.GB18732@ranty.ddts.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 16 May 2003 18:11:51 -0400
+Received: from h24-87-160-169.vn.shawcable.net ([24.87.160.169]:23435 "EHLO
+	oof.localnet") by vger.kernel.org with ESMTP id S262676AbTEPWLr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 May 2003 18:11:47 -0400
+Date: Fri, 16 May 2003 15:24:36 -0700
+From: Simon Kirby <sim@netnation.org>
+To: Florian Weimer <fw@deneb.enyo.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Route cache performance under stress
+Message-ID: <20030516222436.GA6620@netnation.com>
+References: <8765pshpd4.fsf@deneb.enyo.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200305170022.29824.oliver@neukum.org>
+In-Reply-To: <8765pshpd4.fsf@deneb.enyo.de>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Apr 05, 2003 at 06:37:43PM +0200, Florian Weimer wrote:
 
-> > How and what is the benefit? If you go low on battery you have to
-> > suspend, there's no choice. This means that you have to have it in RAM
-> > always.
->
->  If the device losses the firmware upon suspend, the driver will have to
->  reinitialize it as if it just got plugged, which somehow makes all
->  devices hotplugable.
+> Please read the following paper:
+> 
+> <http://www.cs.rice.edu/~scrosby/tr/HashAttack.pdf>
+> 
+> Then look at the 2.4 route cache implementation.
+> 
+> Short summary: It is possible to freeze machines with 1 GB of RAM and
+> more with a stream of 400 packets per second with carefully chosen
+> source addresses.  Not good.
 
-So all firmware has to be permanently in RAM anyway?
+Finally, somebody else has noticed this problem!  Unfortunately, I didn't
+see this message until now.
 
->  If the driver uses request_firmware(), it doesn't need to handle any
->  special case, just initialize as usual and it will get the firmware
->  when it needs it.
+I have been seeing this problem for over a year, and have had the same
+problems you have with DoS attacks saturating the CPUs on our routers.
 
-How or precisely, how do you know that it gets it when it needs
-it? Are you planning to have a gray area where the kernel generates
-a special user space before everything else gets woken?
+We have two Athlon 1800MP boxes doing routing on our network, and the CPU
+saturates under embarrassingly low traffic rates with random source IPs.
+We've noticed this a few times with DoS attacks generated internally and
+with remote DoS attacks.  I too have had to abuse the PREROUTING chain
+(in the mangle table to avoid loading the nat table which would bring in
+connection tracking -- grr...I hate the way this works in iptables),
+particularly with the MSSQL worm that burst out to the 'net that one
+Friday night several few months ago.  Adding a single match udp port,
+DROP rule to PREROUTING chain made the load go back down to normal
+levels.  The same rule in the INPUT/FORWARD chain had no affect on the
+CPU utilization (still saturated).
 
->  If the device is needed to access the filesystem, some kind of
->  persistence will be needed, so the required firmware is already in
->  kernel space. But the driver doesn't need to care, it will just ask for
->  the firmware as usual.
->
->  Which brings me to another issue, the same device can be required to
->  access the filesystem or not:
-> 	- In a diskless client, it is the network card
-> 	- In a live-cd it is the cdrom drive
-> 	- In a multi disk system just one of them will be holding
-> 	  required firmware.
->  So you can not decide at coding time, the latest at compile time, and
->  ideally at runtime (which is what I am trying to do).
+> The route cache is a DoS bottleneck in general (that's why I started
+> looking at it).  You have to apply rate-limits in the PREROUTING
+> chain, otherwise a modest packet flood will push the machine off the
+> network (even with truly random source addresses, not triggering hash
+> collisions).  The route cache partially defeats the purpose of SYN
+> cookies, too, because the kernel keeps (transient) state for spoofed
+> connection attempts in the route cache.
 
-How? You cannot page out memory during resumption.
-You must not cause any access to disk during resumption.
+The idea, I believe, was that the route cache was supposed to stay as a
+mostly O(1) overhead and not fall over in any specific cases.  As you
+say, however, we also have problems with truly random IPs killing large
+boxes.  This same box is capable of routing more than one gigabit of tiny
+(64 byte) packets when the source IP is not random (using Tigon3 cards).
 
-> > >  At least usb's probe() can sleep, but that is a good point. How about:
-> > >
-> > >  int request_firmware_nowait (
-> > > 		const char *name, const char *device, void *context,
-> > > 		void (*cont)(const struct firmware *fw, void context)
-> > >  );
-> > >
-> > >  Then you can call request_firmware_nowait providing an appropriate
-> > >  'cont' callback and 'context' pointer. Then when your callback gets
-> > >  called with the firmware you finish device setup.
-> >
-> > In this form unworkable. Removing a module could kill the machine.
-> > That scheme requires that drivers formally register and unregister
-> > with fwfs and provide module pointers.
-> > An awful lot of overhead.
->
->  OK, how about:
->
->   int request_firmware_nowait (
->   		struct module *module,
->  		const char *name, const char *device, void *context,
->  		void (*cont)(const struct firmware *fw, void context)
->   );
->
->   request_firmware code will try_module_get/module_put as needed.
->
->   Would that fix the issue?
+Under normal operation, it looks like most load we are seeing is in fact
+normal route lookups.  We run BGP peering, and so there is a lot of
+routes in the table.  Alexey suggested adding another level of hashing to
+the fn_hash_lookup function, but that didn't seem to help very much.  The
+last time I was looking at this, I enabled profiling on one router to see
+what functions were using the most CPU.  Here are the results (71 days
+uptime):
 
-No, still no good. It means that you get a memory leak if you unload
-a driver before firmware is provided. You need the ability to explicitely
-cancel a request for firmware.
+	http://blue.netnation.com/sim/ref/readprofile.r1
+	http://blue.netnation.com/sim/ref/readprofile.r1.call_sorted
+	http://blue.netnation.com/sim/ref/readprofile.r1.time_sorted
 
-> > > > You cannot kill a part of the kernel if a script fails to perform
-> > > > correctly for some reason.
-> > >
-> > >  Good point. Since it is easily solvable by hand:
-> > >
-> > >  echo 1 > /sysfs/class/firmware/dev_name/loading
-> > >  echo 0 > /sysfs/class/firmware/dev_name/loading
-> > >
-> > >  I thought that it was OK. (I'll do the timeout)
-> >
-> > No, it isn't. These writes must require CAP_HARDWARE, thus
-> > is no good.
->
->  I'll do the timeout anyway, and make it configurable just in case.
->
-> > > > Even worse, you cannot detect the script terminating abnormally in
-> > > > that design.
-> > >
-> > >  Well, the device model doesn't provide that information :(
-> > >
-> > >  It would be great if it did.
-> > >
-> > >  Would a patch to wait for hotplug termination and provide termination
-> > >  status be accepted?
-> >
-> > No, you must not wait for user space.
->
->  And to get notified when userspace is done?
+The results of this profile are from mostly normal operation.
 
-Not with that interface.
-You'd need drivers to register both with their subsystem and
-a firmware subsystem. But you cannot make device discovery
-wait for user space.
-You'd have to rewrite the probe method of all drivers that need
-firmware.
+I will try playing more with this code and look at your patch and paper.
 
-	Regards
-		Oliver
+Thanks,
 
+Simon-

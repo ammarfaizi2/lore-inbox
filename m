@@ -1,79 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265810AbUBGH0D (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Feb 2004 02:26:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266498AbUBGH0D
+	id S266498AbUBGHbh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Feb 2004 02:31:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266663AbUBGHbh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Feb 2004 02:26:03 -0500
-Received: from fmr04.intel.com ([143.183.121.6]:55940 "EHLO
-	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
-	id S265810AbUBGH0A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Feb 2004 02:26:00 -0500
-Subject: Re: swusp acpi
-From: Len Brown <len.brown@intel.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Nigel Cunningham <ncunningham@users.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Michael Frank <mhf@linuxmail.org>
-In-Reply-To: <BF1FE1855350A0479097B3A0D2A80EE0023E83B3@hdsmsx402.hd.intel.com>
-References: <BF1FE1855350A0479097B3A0D2A80EE0023E83B3@hdsmsx402.hd.intel.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1076138717.2562.1801.camel@dhcppc4>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 07 Feb 2004 02:25:17 -0500
+	Sat, 7 Feb 2004 02:31:37 -0500
+Received: from citrine.spiritone.com ([216.99.193.133]:36305 "EHLO
+	citrine.spiritone.com") by vger.kernel.org with ESMTP
+	id S266498AbUBGHbc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Feb 2004 02:31:32 -0500
+Date: Fri, 06 Feb 2004 23:31:22 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Nick Piggin <piggin@cyberone.com.au>
+cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [Bugme-new] [Bug 2019] New: Bug from the mm subsystem involving X  (fwd)
+Message-ID: <33170000.1076139081@[10.10.2.4]>
+In-Reply-To: <402487A5.4030806@cyberone.com.au>
+References: <51080000.1075936626@flay.suse.lists.linux.kernel><64260000.1075941399@flay.suse.lists.linux.kernel><Pine.LNX.4.58.0402041639420.2086@home.osdl.org.suse.lists.linux.kernel><20040204165620.3d608798.akpm@osdl.org.suse.lists.linux.kernel><Pine.LNX.4.58.0402041719300.2086@home.osdl.org.suse.lists.linux.kernel><1075946211.13163.18962.camel@dyn318004bld.beaverton.ibm.com.suse.lists.linux.kernel><Pine.LNX.4.58.0402041800320.2086@home.osdl.org.suse.lists.linux.kernel><98220000.1076051821@[10.10.2.4].suse.lists.linux.kernel><1076061476.27855.1144.camel@nighthawk.suse.lists.linux.kernel>
+ <5450000.1076082574@[10.10.2.4].suse.lists.linux.kernel><1076088169.29478.2928.camel@nighthawk.suse.lists.linux.kernel><218650000.1076097590@flay.suse.lists.linux.kernel><Pine.LNX.4.58.0402061215030.30672@home.osdl.org.suse.lists.linux.kernel><220850000.1076102320@flay.suse.lists.linux.kernel> <p738yjflf38.fsf@verdi.suse.de> <14230000.1076129379@[10.10.2.4]> <402487A5.4030806@cyberone.com.au>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael,
-my serial console is toast on 2.6 after resume.  Can you point me to
-said patch?
+>> 1 --- 2
+>>|     | 
+>>|     | 
+>>|     | 
+>> 3 --- 4
+>> 
+>> then domains of (1,2,3) (2,3,4) (1,3,4) (1 2 4), with a view to restricting
+>> the "double hop" traffic as much as possible. But I'm not sure the domains
+>> code copes with multiple overlapping domains - Nick?
+>> 
+>> 
+> 
+> Yes it can do ring topologies like this. I'm pretty sure it can do
+> just about any sort of topology although this is one that I sat
+> down and drew when designing it.
+> 
+> You can technically restrict a double hop, but after you move, say,
+> clockwise once, you might just as easily be moved clockwise again.
+> The only way to restrict this is with some kind of home domain thing.
 
-thanks,
--Len
+Well, this doesn't ban it, but requiring the double migrate will curtail
+it somewhat, which is better than nothing.
 
-On Thu, 2004-01-22 at 15:43, Pavel Machek wrote:
-> Hi!
-> 
-> > Michael Frank has done a patch giving 2.4 PM support for serial
-> ports
-> > (my serial console now works flawlessly). Perhaps it could be ported
-> to
-> > 2.6 and the driver model...
-> 
-> That would certainly be good thing (tm).
-> 
-> >
-> > Nigel
-> >
-> > On Thu, 2004-01-22 at 23:26, Pavel Machek wrote:
-> > > Hi!
-> > >
-> > > > > Not only serial console... Noone wrote serial port support.
-> > > >
-> > > > Incorrect.  I never merged the changes because it's rather too
-> hacky.
-> > >
-> > > Who wrote them? Do you have that patch somewhere?
-> > >                                                             Pavel
-> > --
-> > My work on Software Suspend is graciously brought to you by
-> > LinuxFund.org.
-> 
-> 
-> 
-> --
-> 64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1
-> ms        
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
+M.
 

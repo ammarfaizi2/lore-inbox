@@ -1,49 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268803AbUJPTte@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268812AbUJPTxX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268803AbUJPTte (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Oct 2004 15:49:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268828AbUJPTtF
+	id S268812AbUJPTxX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Oct 2004 15:53:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268828AbUJPTtq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Oct 2004 15:49:05 -0400
-Received: from fw.osdl.org ([65.172.181.6]:64689 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268802AbUJPTru (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Oct 2004 15:47:50 -0400
-Date: Sat, 16 Oct 2004 12:45:19 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-Cc: roland@redhat.com, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [BUG] JVM crashes with 2.6.9-rc2
-Message-Id: <20041016124519.627456de.akpm@osdl.org>
-In-Reply-To: <1097928466.13431.8.camel@localhost>
-References: <1097928466.13431.8.camel@localhost>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 16 Oct 2004 15:49:46 -0400
+Received: from lennier.cc.vt.edu ([198.82.162.213]:61714 "EHLO
+	lennier.cc.vt.edu") by vger.kernel.org with ESMTP id S268819AbUJPTpQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Oct 2004 15:45:16 -0400
+Message-ID: <417188EA.4090205@vt.edu>
+Date: Sat, 16 Oct 2004 15:47:38 -0500
+From: William Wolf <wwolf@vt.edu>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040919)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: kernel list <linux-kernel@vger.kernel.org>
+Subject: AMD64 Swsusp on 2.6.9-rc4-mm1
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pekka Enberg <penberg@cs.helsinki.fi> wrote:
->
-> Hi,
-> 
-> Sun JVM 1.4.2_06 crashes with Linux 2.6.9-rc2 and later on i386 when I
-> start Eclipse. The JVM dies a horrible death claiming internal error.  I
-> noticed similar problem with Blackdown JDK 1.4.2_rc1 as well.  I have
-> put a full strace of the run here [1].
-
-Could you test
-ftp://ftp.kernel.org/pub/linux/kernel/v2.6/snapshots/old/patch-2.6.9-rc4-bk3.gz?
+Hey, Im running 2.6.9-rc4-mm1, and when i run either a echo 4 > 
+/proc/acpi/sleep or echo disk > /sys/power/state  I get the following 
+messages:
 
 
-> I also tested 2.6.7, 2.6.8.1, and 2.6.9-rc1 and they all work fine.
-> Reverting Roland's i386 syscall tracing patch [2] from 2.6.9-rc2 makes
-> the problem go away for me.
+Stopping tasks: =================|
+Freeing memory... done (0 pages freed)
+PM: Attempting to suspend to disk.
+PM: snapshotting memory.
+ACPI: PCI interrupt 0000:00:02.7[C] -> GSI 18 (level, low) -> IRQ 18
+Restarting tasks... done
 
-That's peculiar.  Are you sure about that?
 
-> 
->   1. http://www.cs.helsinki.fi/u/penberg/linux/eclipse-strace
->   2. http://linus.bkbits.net:8080/linux-2.5/cset@1.1832.54.195
 
+It basically just stops everything, then starts it all back up again 
+immediately.  Any idea whats going on here?  This was done right after 
+booting and just logging in with no X running.

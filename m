@@ -1,96 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262052AbSI3NKj>; Mon, 30 Sep 2002 09:10:39 -0400
+	id <S262054AbSI3NNz>; Mon, 30 Sep 2002 09:13:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262053AbSI3NKj>; Mon, 30 Sep 2002 09:10:39 -0400
-Received: from theorie3.physik.uni-erlangen.de ([131.188.166.130]:13317 "EHLO
-	theorie3.physik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id <S262052AbSI3NKd>; Mon, 30 Sep 2002 09:10:33 -0400
-Date: Mon, 30 Sep 2002 15:15:23 +0200
-From: Norbert Nemec <nobbi@theorie3.physik.uni-erlangen.de>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Serious Problems with PCI and SMP
-Message-ID: <20020930131523.GA504@cognac.physik.uni-erlangen.de>
-Reply-To: Norbert Nemec <nobbi@theorie3.physik.uni-erlangen.de>
-References: <20020923155355.GA565@cognac.physik.uni-erlangen.de> <200209240828.g8O8Stp24897@Port.imtp.ilyichevsk.odessa.ua> <20020926090754.GA22448@cognac.physik.uni-erlangen.de> <200209261204.g8QC4vp04049@Port.imtp.ilyichevsk.odessa.ua>
+	id <S262057AbSI3NNy>; Mon, 30 Sep 2002 09:13:54 -0400
+Received: from 64-238-252-21.arpa.kmcmail.net ([64.238.252.21]:15006 "EHLO
+	kermit.unets.com") by vger.kernel.org with ESMTP id <S262054AbSI3NNx>;
+	Mon, 30 Sep 2002 09:13:53 -0400
+Subject: 2.5.39 XConfig Processor Detection
+From: Adam Voigt <adam@cryptocomm.com>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <1033391751.16468.51.camel@irongate.swansea.linux.org.uk>
+References: <Pine.NEB.4.44.0209301257210.12605-100000@mimas.fachschaften.tu-muenchen.de>
+	 <1033389340.16337.14.camel@irongate.swansea.linux.org.uk> 
+	<20020930.052555.123500588.davem@redhat.com> 
+	<1033391751.16468.51.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 30 Sep 2002 09:20:21 -0400
+Message-Id: <1033392021.1491.6.camel@beowulf.internetstore.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200209261204.g8QC4vp04049@Port.imtp.ilyichevsk.odessa.ua>
-User-Agent: Mutt/1.3.28i
+X-OriginalArrivalTime: 30 Sep 2002 13:19:19.0159 (UTC) FILETIME=[FBA36870:01C26883]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 26, 2002 at 02:59:14PM -0200, Denis Vlasenko wrote:
-> Can you try to boot 486-optimized kernel?
+Apologies if this has already been noted or if I'm posting
+this to the wrong place/annoying you very busy people needlessly,
+but when I run XConfig, in the "Processor Type and Features" tab
+it autodetects my processor as a Pentium-4 when in fact it is a
+P3 700MHZ. The last time I installed a kernel (2.4.x) by hand, it did
+autodetect the processor on that machine (Athlon), so I assume that
+feature is still active. Anyways, here's the output from my cpuinfo:
 
-Doesn't make any difference at all. :-(
 
-> Can you remove one CPU and run SMP kernel on UP configuration?
+processor	: 0
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 8
+model name	: Pentium III (Coppermine)
+stepping	: 3
+cpu MHz		: 701.606
+cache size	: 256 KB
+fdiv_bug	: no
+hlt_bug		: no
+f00f_bug	: no
+coma_bug	: no
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 2
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov
+pat pse36 mmx fxsr sse
+bogomips	: 1399.19
 
-Tried it, but the kernel immediately goes into an endless loop complaining about
-an "apic error at cpu0" (no matter which CPU I remove), even before I get to
-see anything interesting.
 
-I'm really desperate: the only suggestion I did not try yet, was to test a 
-2.5 kernel. Anyhow, even if I tried that (right now I'm still dreading the idea)
-and even if it should work, I still wouldn't have any idea which detail of the
-2.5 line should be backported to fix the bug. :-(
+Thanks,
 
-Maybe I should try the 2.2 line? I know that 2.2.13 is working (but I don't have
-the .config files for those old, working kernels) and I know that 2.2.19 is broken.
-Therefore I would need at least 2-3 compiles to know where the bug was introduced
-and then I still wouldn't know what to do with that information.
+Adam Voigt
+adam.voigt@cryptocomm.com
 
-Perhaps, I'll just wait for 2.6 to be published or for the 6 machines to get thrown
-out some day. :-(
-
-Ciao,
-Nobbi
-
-> On 26 September 2002 07:07, Norbert Nemec wrote:
-> 
-> BTW, for lkml readers: this was in original post:
-> =================================================
-> We have a number of machines with identical dual PPro 200 mainboards. They all
-> run fine on 2.2.13 kernels. Trying 2.4.18,2.4.19,2.4.20-pre7 and even 2.2.19, 
-> the same problem shows up:
-> With SMP activated in the kernel, I get the boot-messages
-> ---------
-> PCI: PCI BIOS revision 2.10 entry at 0xfb0a0, last bus=0
-> PCI: Using configuration type 1
-> PCI: Probing PCI hardware
-> PCI BIOS passed nonexistent PCI bus 0!
-> PCI BIOS passed nonexistent PCI bus 0!
-> Limiting direct PCI/PCI transfers.
-> ---------
-> Afterwards, everything runs fine, except that PCI seems to be only half-way
-> functional: network-cards don't give any error messages but behave just
-> as if the cable was disconnected scsi-cards give strange errors (don't recall
-> what exactly)
-> With SMP disabled in the kernel, everything works just fine.
-> ================================
-> > > Post your .config and dmesg
-> >
-> > Here they are. In this version, CONFIG_PCI_GOBIOS=y is set. Switching to
-> > CONFIG_PCI_GODIRECT=y or CONFIG_PCI_GOANY=y only adds the line
-> > ----
-> >  PCI: PCI BIOS revision 2.10 entry at 0xfb0a0, last bus=0
-> > +PCI: Using configuration type 1
-> >  PCI: Probing PCI hardware
-> > ----
-> > without any further difference.
-> 
-> > .config:
-> > ---------------------------
-> > #
-> > # Processor type and features
-> > #
-> > CONFIG_M686=y
- 
-
--- 
--- _____________________________________Norbert "Nobbi" Nemec
--- Hindenburgstr. 44   ...   D-91054 Erlangen   ...   Germany
--- eMail: <Norbert@Nemec-online.de>  Tel: +49-(0)-9131-204180

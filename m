@@ -1,29 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265675AbSKOL4x>; Fri, 15 Nov 2002 06:56:53 -0500
+	id <S266199AbSKOLyP>; Fri, 15 Nov 2002 06:54:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266078AbSKOL4x>; Fri, 15 Nov 2002 06:56:53 -0500
-Received: from [203.197.168.150] ([203.197.168.150]:11282 "HELO
-	mailscanout256k.tataelxsi.co.in") by vger.kernel.org with SMTP
-	id <S265675AbSKOL4w>; Fri, 15 Nov 2002 06:56:52 -0500
-Message-ID: <3DD4E37A.D93F3C72@tataelxsi.co.in>
-Date: Fri, 15 Nov 2002 17:37:22 +0530
-From: "Dilli Babu Kodamala" <dillibabuk@tataelxsi.co.in>
+	id <S266203AbSKOLyO>; Fri, 15 Nov 2002 06:54:14 -0500
+Received: from [192.109.29.2] ([192.109.29.2]:14341 "EHLO
+	fdgex1.intern.fujitsu.de") by vger.kernel.org with ESMTP
+	id <S266199AbSKOLyO>; Fri, 15 Nov 2002 06:54:14 -0500
+Message-ID: <F8108EB579C2D611BB97005004E8A89325BA8B@fdgex1.intern.fujitsu.de>
+From: "Kammerloher, Josef" <Josef.Kammerloher@est.fujitsu.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Every semaphore call results in "uninterruptable sleep"
+Date: Fri, 15 Nov 2002 13:01:21 +0100
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: how can I configure ipv6 address from command promt in Linux
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I use SuSE 8.1 ( kernel 2.4.19-4GB) and a program with semaphores.
+It runs okay on many PCs and laptops except one laptop (with Pentium
+Mobile).
 
-Hi,
+Every semaphore function (semget(),..) ,  "ipcs -s" ... results in
+"uninterruptable sleep".
+The processes cannot be killed by kill -9.
 
-How can I configure IPv6 address to linux machine at run time.
+cat /proc/sys/kernel/sem returns   250  256000  32 1024 
 
-I would be happy if I get any command in Linux.
+I always use the default kernel without special configurations.
 
-regards
-Dilli Babu
+What can I do ??
+Thanks for your help,
+Josef
 

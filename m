@@ -1,64 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262299AbVBXMTE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262330AbVBXMUT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262299AbVBXMTE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 07:19:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262330AbVBXMTD
+	id S262330AbVBXMUT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 07:20:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262311AbVBXMUS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 07:19:03 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:40077 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262299AbVBXMQb (ORCPT
+	Thu, 24 Feb 2005 07:20:18 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:47289 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262312AbVBXMRF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 07:16:31 -0500
-Date: Thu, 24 Feb 2005 17:46:49 +0530
-From: Maneesh Soni <maneesh@in.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Vivek Goyal <vgoyal@in.ibm.com>, haveblue@us.ibm.com,
-       fastboot@lists.osdl.org, linux-kernel@vger.kernel.org,
-       ebiederm@xmission.com
-Subject: Re: [Fastboot] Re: [PATCH] Fix for broken kexec on panic
-Message-ID: <20050224121649.GB5781@in.ibm.com>
-Reply-To: maneesh@in.ibm.com
-References: <1109236432.5148.192.camel@terminator.in.ibm.com> <20050224011312.29668947.akpm@osdl.org>
+	Thu, 24 Feb 2005 07:17:05 -0500
+Date: Thu, 24 Feb 2005 13:16:57 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 10/13] remove aggressive idle balancing
+Message-ID: <20050224121657.GA16183@elte.hu>
+References: <1109229491.5177.71.camel@npiggin-nld.site> <1109229542.5177.73.camel@npiggin-nld.site> <1109229650.5177.78.camel@npiggin-nld.site> <1109229700.5177.79.camel@npiggin-nld.site> <1109229760.5177.81.camel@npiggin-nld.site> <1109229867.5177.84.camel@npiggin-nld.site> <1109229935.5177.85.camel@npiggin-nld.site> <1109230031.5177.87.camel@npiggin-nld.site> <20050224084118.GB10023@elte.hu> <421DC4DA.7000102@yahoo.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050224011312.29668947.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <421DC4DA.7000102@yahoo.com.au>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 24, 2005 at 01:13:12AM -0800, Andrew Morton wrote:
-> Vivek Goyal <vgoyal@in.ibm.com> wrote:
+
+* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+
+> Ingo Molnar wrote:
+> >* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 > >
-> > Kexec on panic is broken on i386 in 2.6.11-rc3-mm2 because of
-> >  re-organization of boot memory allocator initialization code.
+> >
+> >>[PATCH 6/13] no aggressive idle balancing
+> >>
+> >>[PATCH 8/13] generalised CPU load averaging
+> >>[PATCH 9/13] less affine wakups
+> >>[PATCH 10/13] remove aggressive idle balancing
+> >
+> >
+> >they look fine, but these are the really scary ones :-) Maybe we could
+> >do #8 and #9 first, then #6+#10. But it's probably pointless to look at
+> >these in isolation.
+> >
 > 
-> OK...
+> Oh yes, they are very scary and I guarantee they'll cause
+> problems :P
+
+:-|
+
+> I didn't have any plans to get these in for 2.6.12 (2.6.13 at the very
+> earliest). But it will be nice if Andrew can pick these up early so we
+> try to get as much regression testing as possible.
 > 
-> Where are we up to with these patches, btw?  Do you consider them
-> close-to-complete?  Do you have a feel for what proportion of machines will
-> work correctly?
+> I pretty much agree with your ealier breakdown of the patches (ie.
+> some are fixes, others fairly straightfoward improvements that may get
+> into 2.6.12, of course). Thanks very much for the review.
+> 
+> I expect to rework the patches, and things will get tuned and changed
+> around a bit... Any problem with you taking these now though Andrew?
 
-After the rework of kexec patches, there is very minimal kernel code needed
-for kdump and most of the code is in user space kexec-tools. The changes
-needed in kexec-tools to load the crashdump kernel and generate ELF headers,
-for x86 architecture are done and will be posted for comments today by Vivek. 
+sure, fine with me.
 
-Currently the work remaining is to capture the old-kernel memory during second 
-kernel boot up. There is some lack of consensus whether this functionality 
-should go in kernel-space (/proc/vmcore) or user-space (a separate utility
-which can be run from initrd). Before the last kexec rework, kdump has the 
-facility to do /proc/vmcore and now it has to be re-done accordingly. There is 
-some code already done by Eric to do it in user-space. We are evaluating both
-the approaches and should arrive at the conclusion asap.
-
-Thanks
-Maneesh
-
--- 
-Maneesh Soni
-Linux Technology Center, 
-IBM India Software Labs,
-Bangalore, India
-email: maneesh@in.ibm.com
-Phone: 91-80-25044990
+	Ingo

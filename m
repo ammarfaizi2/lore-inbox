@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267309AbTAGGYH>; Tue, 7 Jan 2003 01:24:07 -0500
+	id <S267311AbTAGGYI>; Tue, 7 Jan 2003 01:24:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267312AbTAGGYH>; Tue, 7 Jan 2003 01:24:07 -0500
-Received: from TYO202.gate.nec.co.jp ([202.32.8.202]:27017 "EHLO
-	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id <S267309AbTAGGYG>; Tue, 7 Jan 2003 01:24:06 -0500
+	id <S267312AbTAGGYI>; Tue, 7 Jan 2003 01:24:08 -0500
+Received: from TYO201.gate.nec.co.jp ([210.143.35.51]:8897 "EHLO
+	TYO201.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id <S267311AbTAGGYH>; Tue, 7 Jan 2003 01:24:07 -0500
 To: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH]  Quiet warnings for def of {_,}_MOD_INC_USE_COUNT when CONFIG_MODULE=n
+Subject: [PATCH]  Make `obsolete params' work correctly if MODULE_SYMBOL_PREFIX is non-empty
 Cc: linux-kernel@vger.kernel.org
 Reply-To: Miles Bader <miles@gnu.org>
-Message-Id: <20030107063239.27428374A@mcspd15.ucom.lsi.nec.co.jp>
+Message-Id: <20030107063239.F1ED73745@mcspd15.ucom.lsi.nec.co.jp>
 Date: Tue,  7 Jan 2003 15:32:39 +0900 (JST)
 From: miles@lsi.nec.co.jp (Miles Bader)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Since `try_module_get(module)' is really just `1' when modules are
-disabled, the compiler bitches.  As these definitions are inlines in a
-header file, this results in a warning for every file that includes
-modules.h.
+Since these are just symbols in the module object, they need symbol name
+munging to find the symbol from the parameter name.
 
-diff -ruN -X../cludes linux-2.5.54-moo.orig/include/linux/module.h linux-2.5.54-moo/include/linux/module.h
---- linux-2.5.54-moo.orig/include/linux/module.h	2003-01-06 10:51:19.000000000 +0900
-+++ linux-2.5.54-moo/include/linux/module.h	2003-01-06 16:30:28.000000000 +0900
-@@ -314,7 +314,7 @@
- 	/*
- 	 * Yes, we ignore the retval here, that's why it's deprecated.
- 	 */
--	try_module_get(module);
-+	(void)try_module_get(module);
- }
+[I guess using the stack is bad in general, but parameter names should be
+very short, and hey if they're obsolete, it seems pointless to spend
+much effort.]
+
+diff -ruN -X../cludes linux-2.5.54-moo.orig/kernel/module.c linux-2.5.54-moo/kernel/module.c
+--- linux-2.5.54-moo.orig/kernel/module.c	2003-01-06 10:51:20.000000000 +0900
++++ linux-2.5.54-moo/kernel/module.c	2003-01-07 14:31:53.000000000 +0900
+@@ -666,13 +666,18 @@
+ 		       num, obsparm[i].name, obsparm[i].type);
  
- static inline void __deprecated __MOD_DEC_USE_COUNT(struct module *module)
-@@ -350,7 +350,7 @@
- 	local_inc(&module->ref[get_cpu()].count);
- 	put_cpu();
- #else
--	try_module_get(module);
-+	(void)try_module_get(module);
- #endif
- }
- #define MOD_INC_USE_COUNT \
+ 	for (i = 0; i < num; i++) {
++		char sym_name[strlen (obsparm[i].name) + 2];
++
++		strcpy (sym_name, MODULE_SYMBOL_PREFIX);
++		strcat (sym_name, obsparm[i].name);
++
+ 		kp[i].name = obsparm[i].name;
+ 		kp[i].perm = 000;
+ 		kp[i].set = set_obsolete;
+ 		kp[i].get = NULL;
+ 		obsparm[i].addr
+ 			= (void *)find_local_symbol(sechdrs, symindex, strtab,
+-						    obsparm[i].name);
++						    sym_name);
+ 		if (!obsparm[i].addr) {
+ 			printk("%s: falsely claims to have parameter %s\n",
+ 			       name, obsparm[i].name);

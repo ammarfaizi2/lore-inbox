@@ -1,51 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284601AbRLETHJ>; Wed, 5 Dec 2001 14:07:09 -0500
+	id <S284584AbRLETHJ>; Wed, 5 Dec 2001 14:07:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284599AbRLETG6>; Wed, 5 Dec 2001 14:06:58 -0500
-Received: from alageremail1.agere.com ([192.19.192.106]:22728 "EHLO
-	alageremail1.agere.com") by vger.kernel.org with ESMTP
-	id <S284587AbRLETFc>; Wed, 5 Dec 2001 14:05:32 -0500
-Message-ID: <C093F2B9DDFD544283D02A8BB12588430445344F@pai820excuag02.ags.agere.com>
-From: "Zimmermann, Christopher (Chris)" <cbzimmermann@agere.com>
-To: linux-kernel@vger.kernel.org
-Subject: System Freeze in 2.4.2-2 (RedHat 7.1)
-Date: Wed, 5 Dec 2001 14:05:24 -0500 
+	id <S284601AbRLETHA>; Wed, 5 Dec 2001 14:07:00 -0500
+Received: from air-1.osdl.org ([65.201.151.5]:6406 "EHLO osdlab.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S284579AbRLETEy>;
+	Wed, 5 Dec 2001 14:04:54 -0500
+Date: Wed, 5 Dec 2001 11:01:02 -0800 (PST)
+From: <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Michael Smith <smithmg@agere.com>
+cc: "'John Levon'" <movement@marcelothewonderpenguin.com>,
+        <linux-kernel@vger.kernel.org>, <kernelnewbies@nl.linux.org>
+Subject: RE: Unresolved symbol memset
+In-Reply-To: <00a601c17dbe$e6b6ea50$4d129c87@agere.com>
+Message-ID: <Pine.LNX.4.33L2.0112051059530.22241-100000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm experiencing a system freeze (no oops message) in RedHat Linux 7.1 when
-calling the function devinet_ioctl() with the SIOCSIFADDR command from
-within a kernel module.  The function is called within the scope of
-userspace addressing in the following manner.
+On Wed, 5 Dec 2001, Michael Smith wrote:
 
-int devinet_ioctl_wrapper(unsigned int cmd, struct ifreq *arg)
-{
-	int res;
-	
-	mm_segment_t oldfs = get_fs();
-	set_fs(get_ds());
-	res = devinet_ioctl(cmd,arg);
-	set_fs(oldfs);
-	
-	return res;
-}
+| I have optimization turned.  Using -02 in the makefile.
 
-This is how ipconfig.c illustrates how to use this function from within a
-kernel module, see ic_dev_ioctl() function in the source file.
+That's a capital (upper case) 'O', not a zero (0).
 
-When running in the scope of a kgdb patched kernel, an assertion is flagged
-the first (and only first) time this function is called from within my
-kernel module for skb_alloc being called non-atomically with interrupts
-enabled.  But, allowing the kernel to continue from this point, there is no
-system freeze and everything appears to operate according to design.
+And you should be #include-ing <linux/string.h>, _not_ <string.h>.
 
-Is there anything I am supposed to do before calling this function?  
+~Randy
 
+| I am new to the linux kernel but not kernel development.  If you still
+| think this is the wrong list, I will post on the other one.  Sorry if it
+| is the wrong list
+|
+|
+| -----Original Message-----
+| From: linux-kernel-owner@vger.kernel.org
+| [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of John Levon
+| Sent: Wednesday, December 05, 2001 1:40 PM
+| To: linux-kernel@vger.kernel.org
+| Cc: smithmg@agere.com; kernelnewbies@nl.linux.org
+| Subject: Re: Unresolved symbol memset
+|
+| On Wed, Dec 05, 2001 at 01:18:37PM -0500, Michael Smith wrote:
+|
+| > Hello all,
+| >      I am new the Linux world and have a problem which is somewhat
+| > confusing.  I am using the system call memset() in kernel code written
+| > for Red Hat 7.1(kernel 2.4).  I needed to make this code compatible
+| with
+| > Red Hat 6.2(kernel 2.2) and seem to be getting a unresolved symbol.
+| > This is only happening in one place of the code in one file.  I am
+| using
+| > memset() in other areas of the code which does not lead to the
+| problem.
 
-Thanks,
-Chris

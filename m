@@ -1,47 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269276AbUIYIFy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269281AbUIYIIx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269276AbUIYIFy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Sep 2004 04:05:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269281AbUIYIFy
+	id S269281AbUIYIIx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Sep 2004 04:08:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269283AbUIYIIx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Sep 2004 04:05:54 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:28173 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S269276AbUIYIFt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Sep 2004 04:05:49 -0400
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Subject: Re: [RFC] put symbolic links between drivers and modules in the sysfs tree
-Cc: James.Bottomley@steeleye.com, greg@kroah.com, rusty@rustcorp.com.au,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Organization: Core
-In-Reply-To: <20040925073819.GT23987@parcelfarce.linux.theplanet.co.uk>
-X-Newsgroups: apana.lists.os.linux.kernel,apana.lists.os.linux.scsi
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
-Message-Id: <E1CB7YE-0004cA-00@gondolin.me.apana.org.au>
-Date: Sat, 25 Sep 2004 18:05:03 +1000
+	Sat, 25 Sep 2004 04:08:53 -0400
+Received: from ltgp.iram.es ([150.214.224.138]:55427 "EHLO ltgp.iram.es")
+	by vger.kernel.org with ESMTP id S269281AbUIYIIr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Sep 2004 04:08:47 -0400
+From: Gabriel Paubert <paubert@iram.es>
+Date: Sat, 25 Sep 2004 10:04:27 +0200
+To: Petr Vandrovec <vandrove@vc.cvut.cz>
+Cc: Stas Sergeev <stsp@aknet.ru>, linux-kernel@vger.kernel.org
+Subject: Re: ESP corruption bug - what CPUs are affected?
+Message-ID: <20040925080426.GB12901@iram.es>
+References: <414C662D.5090607@aknet.ru> <20040918165932.GA15570@vana.vc.cvut.cz> <414C8924.1070701@aknet.ru> <20040918203529.GA4447@vana.vc.cvut.cz> <4151C949.1080807@aknet.ru> <20040922200228.GB11017@vana.vc.cvut.cz> <41530326.2050900@aknet.ru> <20040923180607.GA20678@vana.vc.cvut.cz> <4154853F.6070105@aknet.ru> <20040924214330.GD8151@vana.vc.cvut.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040924214330.GD8151@vana.vc.cvut.cz>
+User-Agent: Mutt/1.5.6+20040818i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-viro@parcelfarce.linux.theplanet.co.uk wrote:
-> On Mon, Sep 20, 2004 at 01:29:44PM -0400, James Bottomley wrote:
->> This functionality is essential for us to work out which drivers are
->> supplied by which modules.  We use this in turn to work out which
->> modules are necessary to find the root device (and hence what
->> initrd/initramfs needs to insert).
+On Fri, Sep 24, 2004 at 11:43:30PM +0200, Petr Vandrovec wrote:
+> On Sat, Sep 25, 2004 at 12:36:15AM +0400, Stas Sergeev wrote:
+> > Hi,
+> > 
+> > Petr Vandrovec wrote:
+> > >In that new patch I set the const to 0xe00, which
+> > >is 3,5K. Is it still the limitation? I can probably
+> > >For 4KB stacks 2KB looks better
+> > OK, done that. Wondering though, for what?
+> > I don't need 2K myself, I need 24 bytes only.
+> > So what prevents me to raise the gap to 3.5K
+> > or somesuch? Why 2K looks better?
 > 
-> So what will your userland code do when you run it on a system with
-> non-modular kernel currently running?
+> You run with ESP decreased by 2KB for some time during
+> CPL1 stack setup.  As you run in this part at CPL0
+> with same setup as on CPL1, I think that you should
+> offer same stack for setup code, and for CPL1 code,
+> and so each should get 2KB.
 
-Totally agreed.  If we didn't care about built-in drivers, then we might
-as well do cat /proc/modules.
+Maybe I miss something, but it seems that lret (or retl)
+is not affected by this bug. What prevents you from reordering
+the stack (doing the inverse operation of what the lcall7 entry
+point does) and then doing:
 
-BTW, I'm very glad that this is being worked on and that table in Debian's
-mkinitrd can finally die.
+	popfl
+	lret
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Yes, I see issues with debugging (trap flag mostly) but I believe
+that they are solvable.
+
+	Regards,
+	Gabriel
+

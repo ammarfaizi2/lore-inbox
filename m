@@ -1,100 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267360AbUJRVCr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267380AbUJRVG3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267360AbUJRVCr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 17:02:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267374AbUJRVCr
+	id S267380AbUJRVG3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 17:06:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267374AbUJRVG3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 17:02:47 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:61833 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S267360AbUJRVCT (ORCPT
+	Mon, 18 Oct 2004 17:06:29 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:43158 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S267380AbUJRVFX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 17:02:19 -0400
-From: Hollis Blanchard <hollisb@us.ibm.com>
-To: Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: using cc-option in arch/ppc64/boot/Makefile
-Date: Mon, 18 Oct 2004 15:58:38 +0000
-User-Agent: KMail/1.7
+	Mon, 18 Oct 2004 17:05:23 -0400
+Date: Mon, 18 Oct 2004 23:06:44 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Adam Heath <doogie@debian.org>
 Cc: linux-kernel@vger.kernel.org
-References: <200410141611.32198.hollisb@us.ibm.com> <200410181347.55746.hollisb@us.ibm.com> <20041018210128.GA16283@mars.ravnborg.org>
-In-Reply-To: <20041018210128.GA16283@mars.ravnborg.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U5
+Message-ID: <20041018210644.GA14072@elte.hu>
+References: <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu> <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu> <Pine.LNX.4.58.0410181249150.1218@gradall.private.brainfood.com> <20041018181826.GC2899@elte.hu> <Pine.LNX.4.58.0410181557190.1218@gradall.private.brainfood.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200410181558.38286.hollisb@us.ibm.com>
+In-Reply-To: <Pine.LNX.4.58.0410181557190.1218@gradall.private.brainfood.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 18 October 2004 21:01, Sam Ravnborg wrote:
-> Skip the include of Mafilefile.lib and try again. If you still has troubles
-> try posting a complete diff.
 
-Complete diff:
+* Adam Heath <doogie@debian.org> wrote:
 
-===== arch/ppc64/boot/Makefile 1.25 vs edited =====
---- 1.25/arch/ppc64/boot/Makefile       Sun Oct  3 12:23:50 2004
-+++ edited/arch/ppc64/boot/Makefile     Mon Oct 18 14:24:50 2004
-@@ -72,7 +72,12 @@
- quiet_cmd_stripvm = STRIP $@
-       cmd_stripvm = $(STRIP) -s $< -o $@
+> On Mon, 18 Oct 2004, Ingo Molnar wrote:
+> 
+> > > However, after I reset the threshold to 50(and got a few small traces), I got
+> > > this whopper.
+> > >
+> > > (XFree86/1129/CPU#0): new 4692 us maximum-latency critical section.
+> > >  => started at timestamp 358506933: <call_console_drivers+0x76/0x140>
+> > >  =>   ended at timestamp 358511625: <finish_task_switch+0x43/0xa0>
+> > >  [<c0132480>] sub_preempt_count+0x60/0x90
+> >
+> > interesting - this could be a printk (trace) done in a critical section
+> > though. What does /proc/latency_trace tell, is it full of console code
+> > functions?
+> 
+> Too late, it's gone.  It'd be nice if there was some way to have
+> history on that file.
 
-+HAS_BIARCH      := $(call cc-option-yn, -lalala)
-+
- vmlinux.strip: vmlinux FORCE
-+       echo $(cc-option-yn)
-+       echo $(HAS_BIARCH)
-+       $(call cc-option-yn, -m64)
-        $(call if_changed,stripvm)
- $(obj)/vmlinux.initrd: vmlinux.strip $(obj)/addRamDisk 
-$(obj)/ramdisk.image.gz FORCE
-        $(call if_changed,ramdisk)
-===== scripts/Makefile.lib 1.26 vs edited =====
---- 1.26/scripts/Makefile.lib   Sun Aug 15 05:17:51 2004
-+++ edited/scripts/Makefile.lib Wed Oct 13 14:13:38 2004
-@@ -232,3 +232,28 @@
- # Usage:
- # $(Q)$(MAKE) $(build)=dir
- build := -f $(if $(KBUILD_SRC),$(srctree)/)scripts/Makefile.build obj
-+
-+######
-+# cc support functions to be used (only) in arch/$(ARCH)/Makefile
-+# See documentation in Documentation/kbuild/makefiles.txt
-+
-+# cc-option
-+# Usage: cflags-y += $(call gcc-option, -march=winchip-c6, -march=i586)
-+
-+cc-option = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
-+             > /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi ;)
-+
-+# For backward compatibility
-+check_gcc = $(warning check_gcc is deprecated - use cc-option) \
-+            $(call cc-option, $(1),$(2))
-+
-+# cc-option-yn
-+# Usage: flag := $(call gcc-option-yn, -march=winchip-c6)
-+cc-option-yn = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null 
-\
-+                > /dev/null 2>&1; then echo "y"; else echo "n"; fi;)
-+
-+# cc-version
-+# Usage gcc-ver := $(call cc-version $(CC))
-+cc-version = $(shell $(CONFIG_SHELL) $(srctree)/scripts/gcc-version.sh \
-+              $(if $(1), $(1), $(CC)))
-+
+well - if it's gone it's always replaced by a larger latency (if you use
+the preempt_max_latency method), which in most cases is more interesting
+than the one you wanted to save.
 
-
-Output:
-...
-make -f scripts/Makefile.build obj=arch/ppc64/boot arch/ppc64/boot/zImage
-echo y
-y
-echo
-
-y
-make[1]: y: Command not found
-
-
--- 
-Hollis Blanchard
-IBM Linux Technology Center
+	Ingo

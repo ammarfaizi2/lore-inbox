@@ -1,65 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261442AbSIWXIu>; Mon, 23 Sep 2002 19:08:50 -0400
+	id <S261457AbSIWXRj>; Mon, 23 Sep 2002 19:17:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261443AbSIWXIu>; Mon, 23 Sep 2002 19:08:50 -0400
-Received: from packet.digeo.com ([12.110.80.53]:31635 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261442AbSIWXIr>;
-	Mon, 23 Sep 2002 19:08:47 -0400
-Message-ID: <3D8FA032.32193956@digeo.com>
-Date: Mon, 23 Sep 2002 16:13:54 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.38bk2 i686)
-X-Accept-Language: en
+	id <S261459AbSIWXRj>; Mon, 23 Sep 2002 19:17:39 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4869 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261457AbSIWXRh>;
+	Mon, 23 Sep 2002 19:17:37 -0400
+Message-ID: <3D8FA22A.6050104@pobox.com>
+Date: Mon, 23 Sep 2002 19:22:18 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: MandrakeSoft
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Badari Pulavarty <pbadari@us.ibm.com>
-CC: Paul Larson <plars@linuxtestproject.org>,
-       lkml <linux-kernel@vger.kernel.org>, lse-tech@lists.sourceforge.net
-Subject: Re: Bug in last night's bk test
-References: <3D8F9047.B464ABD4@digeo.com> from "Andrew Morton" at Sep 23, 2002 02:05:59 PM PST <200209232252.g8NMqN110401@eng2.beaverton.ibm.com>
-Content-Type: text/plain; charset=us-ascii
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+CC: Konstantin Kletschke <konsti@ludenkalle.de>, linux-kernel@vger.kernel.org
+Subject: Re: Quick aic7xxx bug hunt...
+References: <20020923180017.GA16270@sexmachine.doom> <2539730816.1032808544@aslan.btc.adaptec.com> <3D8F874B.3070301@mandrakesoft.com> <2640410816.1032818062@aslan.btc.adaptec.com> <3D8F934F.7000606@mandrakesoft.com> <2678680816.1032821098@aslan.btc.adaptec.com> <3D8F9AB9.1040505@mandrakesoft.com> <2687750816.1032821710@aslan.btc.adaptec.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 23 Sep 2002 23:13:54.0082 (UTC) FILETIME=[E2A86820:01C26356]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Badari Pulavarty wrote:
+Justin T. Gibbs wrote:
+>>>For all of these delays, I'd be more than happy to make them all into
+>>>sleeps if I can tell, from inside ahc_delay() if I'm in a context where
+>>>it is safe to sleep.  On the other platforms that this core code runs on
+>>>I'm usually not in a context where it is safe to sleep, so I don't want
+>>>to switch to using a different driver primitive.
+>>
+>>For Linux it's unconditionally safe, and other platforms is sounds like
+>>it's unconditionally not.  So, s/ahc_delay/ahc_sleep/ for the places I
+>>pointed out, and just make ahc_delay==ahc_sleep on non-Linux platforms
+>>(or any similarly-functioning solution)
 > 
-> >
-> > ...
-> > Until that's done you'll need to set BIO_MAX_PAGES to 16 in
-> > include/linux/bio.h
-> >
 > 
-> I am little confused here. I thought IPS driver can handle 64K IO.
-> Infact, IPS_MAX_SG is set to 17. So it should be able to handle 68K.
-> I have been told that it can handle more than that.. but for some
-> reason it was set to 17.
-> 
-> Paul, what kernel are u running ? 2.5.38 ?
-> 
-
-Current bitkeeper has 
-
-#define BIO_MAX_PAGES           (256)
-
-That's a megabyte.  It works fine with mpage.c.  But direct-io.c
-is still using BIO_MAX_PAGES.  It really is building 1 megabyte
-BIOs, which will break just about every device out there.
-
-I think we just ask Linus to do the below until we get it fixed up?
+> So you can sleep while in an interrupt context?  I didn't know that
+> 2.5 had switched to using interrupt threads or some similar construct.
 
 
---- 2.5.38-bk2/fs/direct-io.c~direct-io-size	Mon Sep 23 16:12:25 2002
-+++ 2.5.38-bk2-akpm/fs/direct-io.c	Mon Sep 23 16:12:47 2002
-@@ -26,7 +26,7 @@
-  * The largest-sized BIO which this code will assemble, in bytes.  Set this
-  * to PAGE_SIZE if your drivers are broken.
-  */
--#define DIO_BIO_MAX_SIZE BIO_MAX_SIZE
-+#define DIO_BIO_MAX_SIZE (16*1024)
- 
- /*
-  * How many user pages to map in one call to get_user_pages().  This determines
+Of course not :)
 
-.
+ahc_reset
+	aic7770_config -> can sleep
+	ahc_pci_config -> can sleep
+	ahc_shutdown -> can't sleep, whoops
+	ahc_resume -> dead code
+ahc_init
+	aic7770_config -> can sleep
+	ahc_pci_config -> can sleep
+ahc_acquire_seeprom
+	check_extport -> can sleep
+	ahc_proc_write_seeprom -> can sleep
+
+so, ahc_init and ahc_acquire_seeprom can s/ahc_delay/ahc_sleep/ safely.
+
+Oh, and I found another bug:  never use check_region, it's inherently 
+racy.  Use request_region and check its return value.	
+
+Note I agree with a comment in the code, that wrapping SHT->detect() in 
+io_request_lock is silly...  the comment describing the rationale in 
+drivers/scsi/scsi.c is not really accurate...
+
+	Jeff
+
+
+

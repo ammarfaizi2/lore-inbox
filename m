@@ -1,70 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261323AbTDKSA1 (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 14:00:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261335AbTDKSA1 (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 14:00:27 -0400
-Received: from Mail1.KONTENT.De ([81.88.34.36]:60908 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S261323AbTDKSAZ (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Apr 2003 14:00:25 -0400
-From: Oliver Neukum <oliver@neukum.org>
-Reply-To: oliver@neukum.name
-To: Greg KH <greg@kroah.com>
+	id S261378AbTDKSCf (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 14:02:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261364AbTDKSCA (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 14:02:00 -0400
+Received: from 217-125-129-224.uc.nombres.ttd.es ([217.125.129.224]:28401 "HELO
+	cocodriloo.com") by vger.kernel.org with SMTP id S261346AbTDKSBg (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Apr 2003 14:01:36 -0400
+Date: Fri, 11 Apr 2003 20:23:13 +0200
+From: Antonio Vargas <wind@cocodriloo.com>
+To: John Bradford <john@grabjohn.com>
+Cc: Greg KH <greg@kroah.com>, oliver@neukum.name, linux-kernel@vger.kernel.org,
+       linux-hotplug-devel@lists.sourceforge.net, message-bus-list@redhat.com,
+       Daniel Stekloff <dsteklof@us.ibm.com>
 Subject: Re: [ANNOUNCE] udev 0.1 release
-Date: Fri, 11 Apr 2003 20:12:05 +0200
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org, linux-hotplug-devel@lists.sourceforge.net,
-       message-bus-list@redhat.com, Daniel Stekloff <dsteklof@us.ibm.com>
-References: <20030411032424.GA3688@kroah.com> <200304110837.37545.oliver@neukum.org> <20030411172011.GA1821@kroah.com>
-In-Reply-To: <20030411172011.GA1821@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Message-ID: <20030411182313.GG25862@wind.cocodriloo.com>
+References: <20030411172011.GA1821@kroah.com> <200304111746.h3BHk9hd001736@81-2-122-30.bradfords.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200304112012.05054.oliver@neukum.org>
+In-Reply-To: <200304111746.h3BHk9hd001736@81-2-122-30.bradfords.org.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Apr 11, 2003 at 06:46:09PM +0100, John Bradford wrote:
+> > > - Performance. What happens if you plug in 4000 disks at once?
+> > 
+> > You crash your power supply :)
+> 
+> [Puzzle]
+> 
+> Say the power supply had five 5.25" drive power connecters, how many 1
+> into 3 power cable splitters would you need to connect all 4000 disks?
+> 
+> :-)
+> 
+> John.
 
-> > - There's a race with replugging, which you can do little about
->
-> True, but this can get smaller.
+Also, assuming 1 second spinup, you would need
+4000 seconds == 66.66... minutes == 1.11... hours
+for a sequential spinup (which _may_ not crash
+the power supply)
 
-There isn't such a thing as a small race. Either there is a race or there
-is no race. 'Should usually work' is not enough, especially when security
-is concerned.
-
-> > - Error handling. What do you do if the invocation ends in EIO ?
->
-> Which invocation?  From /sbin/hotplug?
-
-Yes.
-This is a serious problem. Your scheme has very nasty failure modes.
-By implementing this in user space you are introducing additional
-failure modes.
-- You need disk access -> EIO
-- You have no control over memory allocation -> ENOMEM, EIO in swap space
-Usually I'd not care about EIO, but here security is threatened. EIO crashing
-the system under some circumstances is inevitable, EIO opening a security
-hole is not acceptable however.
-
-> > - Performance. What happens if you plug in 4000 disks at once?
->
-> You crash your power supply :)
->
-> Seriously, the kernel spawns 4000 instances of /sbin/hotplug just like
-> it always does.  I'm working on keeping udev from spawning anything else
-> to keep the process cound down (right now it fork/execs for mknod, but
-> that was just me being lazy.)
-
-4000 spawnings is 32MB for kernel stacks alone.
-You cannot assume that resources will be sufficient for that.
-
-That again is a serious problem, because you cannot resync.
-If you lose a 'remove' event you're screwed.
-
-And of course, what do you do if the driver is not yet loaded?
-
-	Regards
-		Oliver
+Antonio.
 

@@ -1,40 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281779AbRLAWDp>; Sat, 1 Dec 2001 17:03:45 -0500
+	id <S281773AbRLAWHZ>; Sat, 1 Dec 2001 17:07:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281773AbRLAWDf>; Sat, 1 Dec 2001 17:03:35 -0500
-Received: from druid.if.uj.edu.pl ([149.156.64.221]:15620 "HELO
-	druid.if.uj.edu.pl") by vger.kernel.org with SMTP
-	id <S281772AbRLAWDW>; Sat, 1 Dec 2001 17:03:22 -0500
-Date: Sat, 1 Dec 2001 23:03:11 +0100 (CET)
-From: Maciej Zenczykowski <maze@druid.if.uj.edu.pl>
-To: <linux-kernel@vger.kernel.org>
-Subject: [OT] Wrapping memory.
-Message-ID: <Pine.LNX.4.33.0112012249440.15977-100000@druid.if.uj.edu.pl>
+	id <S281893AbRLAWHQ>; Sat, 1 Dec 2001 17:07:16 -0500
+Received: from adsl-63-193-243-214.dsl.snfc21.pacbell.net ([63.193.243.214]:55936
+	"EHLO dmz.ruault.com") by vger.kernel.org with ESMTP
+	id <S281773AbRLAWHE>; Sat, 1 Dec 2001 17:07:04 -0500
+Message-ID: <3C0954D5.6AA3532B@ruault.com>
+Date: Sat, 01 Dec 2001 14:08:21 -0800
+From: Charles-Edouard Ruault <ce@ruault.com>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: File system Corruption with 2.4.16
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+Hi there,
 
-I have a pseudo-on-topic question:
+i've experienced very weird behaviour with kernel 2.4.16 ( on at least 2
+different machines with different motherboards & CPUs ).
+I'm having ext2 filesystem problems on both machines now, one is totally
+unusable i need to reinstall it from scratch.
+I've noticed the problem on different points :
+- first lots of problems with symlinks ....
+ unable to compile the kernel for example it bails out with "too many
+symlinks levels" ,
 
-I would like to have a 64 KBarray (of char), that's trivial, however what
-I would like is for the last 4 KB [yes thankfully this is exactly one
-page... (assume i386)] to reference the same physical memory as the first
-four.
+/usr/include/asm/pgtable.h:109:33:
+/usr/src/linux/include/asm/pgtable-2level.h: Too many levels of symbolic
+links
+In file included from /usr/src/linux/include/linux/pagemap.h:16,
+                 from /usr/src/linux/include/linux/locks.h:8,
+                 from /usr/src/linux/include/linux/devfs_fs_kernel.h:6,
+                 from init/main.c:16:
 
-I.e. 16 4KB pages referencing physical 4 KB pages number 0..14, 0.
+and then looking in /usr/src/linux i saw this :
+/usr/src/linux/include/asm -> asm
 
-Is this at all possible? If so, how would I do this in user space (and
-could it be done without root priv?)?
+i tried to recreate the link :
 
-Thanks a lot,
+ ln -s asm-i386 asm
+ ls -l asm
+lrwxrwxrwx    1 root     root            3 Dec  1 10:54 asm -> asm
 
-Maciej Zenczykowski.
+which is really weird .....
+then i did rm -f asm
+strace  ln -s asm-i386 asm
+and then ends shows :
+stat64("asm", 0xbffff950)               = -1 ENOENT (No such file or
+directory)
+lstat64("asm", 0xbffff8e0)              = -1 ENOENT (No such file or
+directory)
+lstat64("asm", 0xbffff8e0)              = -1 ENOENT (No such file or
+directory)
+symlink("asm-i386", "asm")              = 0
+_exit(0)                                = ?
 
-P.S. Yes, this is necessary, otherwise I have to give up on 32-bit access
-(switch to 8-bit) and include mod 60KB in every memory access (very random
-and I don't think I could predict when no to do this...]
+but ls -l asm shows again :
+lrwxrwxrwx    1 root     root            3 Dec  1 10:55 asm -> asm
+
+
+- second : i had my mailserver running on one of the boxes and i stoped
+receiving mails about 2 days ago, looking a the logs i found this on all
+the incoming messages :
+fB1IY3801640: SYSERR(root): cannot rename(./tffB1IY3801640,
+./qffB1IY3801640), uid=0: No such file or directory
+in my mailqueue dir all the tXX files where there, i renamed them to
+qXXX and sendmail was able to process them.
+
+
+I backtracked to kernel 2.4.14 and now after doing an fsck on all my
+partitions ( only one problem reported on /home ) , everything is back
+to normal.
+
+I've read that there was a filesystem problem in 2.4.15 that is supposed
+to be fixed in 2.4.16.
+These 2 machines did run 2.4.15 from it's birtday until 2.4.16 was born
+so maybe the problem was created in 2.4.15 but showed up in 2.4.16 ...
+If someone has an explanation to this behaviour, i would be really happy
+....
+
+Charles-Edouard Ruault
+
 

@@ -1,71 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264383AbUA0Rlk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 12:41:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264874AbUA0Rlk
+	id S261877AbUA0R61 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 12:58:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262015AbUA0R61
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 12:41:40 -0500
-Received: from tench.street-vision.com ([212.18.235.100]:47265 "EHLO
-	tench.street-vision.com") by vger.kernel.org with ESMTP
-	id S264383AbUA0Rli (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 12:41:38 -0500
-Subject: Re: 2.6.1 dual xeon
-From: Justin Cormack <justin@street-vision.com>
-To: Alexander Nyberg <alexn@telia.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1075223587.1173.5.camel@llhosts>
-References: <20040124203646.A8709@animx.eu.org>
-	<1074995006.5246.1.camel@localhost> <20040125083712.A9318@animx.eu.org>
-	<20040127073801.GB9708@favonius>  <1075223587.1173.5.camel@llhosts>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-11) 
-Date: 27 Jan 2004 17:41:35 +0000
-Message-Id: <1075225295.32504.19.camel@lotte.street-vision.com>
-Mime-Version: 1.0
+	Tue, 27 Jan 2004 12:58:27 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:58386 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S261877AbUA0R60 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jan 2004 12:58:26 -0500
+Date: Tue, 27 Jan 2004 17:58:24 +0000 (GMT)
+From: James Simmons <jsimmons@infradead.org>
+To: Wakko Warner <wakko@animx.eu.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [OT] Sco
+In-Reply-To: <20040127081506.C4346@animx.eu.org>
+Message-ID: <Pine.LNX.4.44.0401271752001.16757-100000@phoenix.infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You can run irqbalance in one shot mode not continously. Check the
-options.
 
-On Tue, 2004-01-27 at 17:13, Alexander Nyberg wrote:
-> On Tue, 2004-01-27 at 08:38, Sander wrote:
-> > Wakko Warner wrote (ao):
-> > > > > I recently aquired a dual xeon system. HT is enabled which shows
-> > > > > up as 4 cpus. I noticed that all interrupts are on CPU0. Can
-> > > > > anyone tell me why this is?
-> > > > 
-> > > > The APIC needs to be programmed to deliver interrupts to certain
-> > > > processors.
-> > > > 
-> > > > In 2.6, this is done in user-space via a program called irqbalance:
-> > > 
-> > > Thanks, working great. (Debian by the way)
-> > 
-> > Ehm, IIRC the "all interrupts are on CPU0" is how it is supposed to work
-> > with a 2.6 kernel? The interrupts should spread if you have _a_lot_ of
-> > them. This gives better performance than spreading the interrupts. Did I
-> > read this on the list, or am I completely wrong here?
-> 
-> Apparently it was way especially better performance wise to have
-> interrupts that hit often (ethernet cards ie.) on the same cpu.
-> 
-> But I can't see a reason for not dividing the different interrupt on
-> different cpu's and letting them stay put. Maybe if you keep all
-> interrupts on the same cpu the cache on the other ones will not have to
-> be flushed often, which would be a good thing.
-> 
-> How would it be to maybe remove all interrupts from a cpu (except
-> between cpu's) and have a few cpu's merely working with data and one "in
-> control". Bad idea I guess as I haven't seen any such work.
-> 
-> Alex
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> There's a new virus out called W32/MyDoom.A that between feb 1st and 12th it
+> will DoS www.sco.com.  I didn't see anything on the list about it this
+> morning so I thought I'd share.
+
+I seen the article on CNN's web site this morning. I also looked at other 
+news sites. I found the CNN article very smearing of the linux community. 
+There is no evidence that it is from the linux community but yet CNN 
+blames us. I find it very insulting. I recommend that everyone write a 
+letter or call CNN about this. We need to stop the FUD.
 
 

@@ -1,36 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130374AbRAWXGs>; Tue, 23 Jan 2001 18:06:48 -0500
+	id <S131951AbRAWXH6>; Tue, 23 Jan 2001 18:07:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131781AbRAWXGi>; Tue, 23 Jan 2001 18:06:38 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:42502 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S130374AbRAWXGd>;
-	Tue, 23 Jan 2001 18:06:33 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: "MEHTA,HIREN (A-SanJose,ex1)" <hiren_mehta@agilent.com>
-cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: stripping symbols from modules 
-In-Reply-To: Your message of "Tue, 23 Jan 2001 17:34:15 CDT."
-             <FEEBE78C8360D411ACFD00D0B747797188095C@xsj02.sjs.agilent.com> 
-Mime-Version: 1.0
+	id <S131954AbRAWXHs>; Tue, 23 Jan 2001 18:07:48 -0500
+Received: from mail.rd.ilan.net ([216.27.80.130]:57360 "EHLO mail.rd.ilan.net")
+	by vger.kernel.org with ESMTP id <S131951AbRAWXHi>;
+	Tue, 23 Jan 2001 18:07:38 -0500
+Message-ID: <3A6E0EB1.29433C68@holly-springs.nc.us>
+Date: Tue, 23 Jan 2001 18:07:29 -0500
+From: Michael Rothwell <rothwell@holly-springs.nc.us>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: unmapping inode?
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 24 Jan 2001 10:06:23 +1100
-Message-ID: <27955.980291183@ocs3.ocs-net>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 23 Jan 2001 17:34:15 -0500, 
-"MEHTA,HIREN (A-SanJose,ex1)" <hiren_mehta@agilent.com> wrote:
->Is there any way to strip symbols from modules .o files ?
+>From within a filesystem driver, how would I completely remove a page
+cache mapping for an inode in 2.2.18?
 
-Not safely.  Some symbols must be kept to assist insmod and hot
-plugging, strip does not know about these special symbols.
-
-Why do you need to strip modules anyway?  I don't see the point unless
-you are critically low on disk space.  Stripping the symbols makes it
-much harder to debug oops in modules, ksymoops needs all the symbols.
-
+-M
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,47 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135682AbRDXPro>; Tue, 24 Apr 2001 11:47:44 -0400
+	id <S135691AbRDXPuY>; Tue, 24 Apr 2001 11:50:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135687AbRDXPre>; Tue, 24 Apr 2001 11:47:34 -0400
-Received: from monza.monza.org ([209.102.105.34]:8966 "EHLO monza.monza.org")
-	by vger.kernel.org with ESMTP id <S135681AbRDXPrT>;
-	Tue, 24 Apr 2001 11:47:19 -0400
-Date: Tue, 24 Apr 2001 08:47:07 -0700
-From: Tim Wright <timw@splhi.com>
-To: Doug Ledford <dledford@redhat.com>
-Cc: Eugene Kuznetsov <divx@euro.ru>, linux-kernel@vger.kernel.org
-Subject: Re: Problem with i810_audio driver
-Message-ID: <20010424084707.B1846@kochanski>
-Reply-To: timw@splhi.com
-Mail-Followup-To: Doug Ledford <dledford@redhat.com>,
-	Eugene Kuznetsov <divx@euro.ru>, linux-kernel@vger.kernel.org
-In-Reply-To: <921508308.20010421012021@euro.ru> <3AE4EAEB.254B2A48@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <3AE4EAEB.254B2A48@redhat.com>; from dledford@redhat.com on Mon, Apr 23, 2001 at 10:54:35PM -0400
+	id <S135688AbRDXPuO>; Tue, 24 Apr 2001 11:50:14 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:53520 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S135684AbRDXPt5>; Tue, 24 Apr 2001 11:49:57 -0400
+Date: Tue, 24 Apr 2001 08:49:39 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: David Howells <dhowells@warthog.cambridge.redhat.com>,
+        David Howells <dhowells@cambridge.redhat.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: rwsem benchmark [was Re: [PATCH] rw_semaphores, optimisations
+ try #3]
+In-Reply-To: <20010424124450.C1682@athlon.random>
+Message-ID: <Pine.LNX.4.21.0104240844380.15642-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 23, 2001 at 10:54:35PM -0400, Doug Ledford wrote:
-[...]
+
+On Tue, 24 Apr 2001, Andrea Arcangeli wrote:
 > 
-> Both B and C are cases of the whole chip acting flat busted.  I would suspect
-> that possibly Win2k drivers set this thing up some way that we don't recover
-> from.
+> > > Again it's not a performance issue, the "+a" (sem) is a correctness issue
+> > > because the slow path will clobber it.
+> > 
+> > There must be a performance issue too, otherwise our read up/down fastpaths
+> > are the same. Which clearly they're not.
+> 
+> I guess I'm faster because I avoid the pipeline stall using "+m" (sem->count)
+> that is written as a constant, that was definitely intentional idea.
 
-Hmmmm...
-quite possible. It's certainly true that a soft reboot from win2k leaves the
-cs42xx stuff screwed on my Thinkpad T20 so it wouldn't be surprising to hear
-of issues with other sound chips. I need to get around to dumping the
-registers in the good and bad case to determine what on earth it futzed with
-and undo it.
+Guys.
 
-Tim
+You're arguing over stalls that are (a) compiler-dependent and (b) in code
+that doesn't hapeen _anywhere_ except in the specific benchmark you're
+using.
 
--- 
-Tim Wright - timw@splhi.com or timw@aracnet.com or twright@us.ibm.com
-IBM Linux Technology Center, Beaverton, Oregon
-Interested in Linux scalability ? Look at http://lse.sourceforge.net/
-"Nobody ever said I was charming, they said "Rimmer, you're a git!"" RD VI
+Get over it.
+
+ - The benchmark may use constant addresses. None of the kernel does. The
+   benchmark is fairly meaningless in this regard.
+
+ - the stalls will almost certainly depend on the code around the thing,
+   and will also depend on the compiler version. If you're down to
+   haggling about issues like that, then there is no real difference
+   between the code.
+
+So calm down guys. And improving the benchmark might not be a bad idea.
+
+		Linus
+

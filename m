@@ -1,63 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262355AbVAOXKI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262361AbVAOXZt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262355AbVAOXKI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jan 2005 18:10:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262356AbVAOXKI
+	id S262361AbVAOXZt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jan 2005 18:25:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262362AbVAOXZt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jan 2005 18:10:08 -0500
-Received: from mail.joq.us ([67.65.12.105]:46978 "EHLO sulphur.joq.us")
-	by vger.kernel.org with ESMTP id S262355AbVAOXKC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jan 2005 18:10:02 -0500
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Chris Wright <chrisw@osdl.org>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
-       paul@linuxaudiosystems.com, arjanv@redhat.com, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-References: <200501071620.j07GKrIa018718@localhost.localdomain>
-	<1105132348.20278.88.camel@krustophenia.net>
-	<20050107134941.11cecbfc.akpm@osdl.org>
-	<20050107221059.GA17392@infradead.org>
-	<20050107142920.K2357@build.pdx.osdl.net>
-	<87mzvkxxck.fsf@sulphur.joq.us> <20050111212139.GA22817@elte.hu>
-	<87ekgnwaqx.fsf@sulphur.joq.us> <20050115144302.GG10114@elte.hu>
-From: "Jack O'Quin" <joq@io.com>
-Date: Sat, 15 Jan 2005 17:10:57 -0600
-In-Reply-To: <20050115144302.GG10114@elte.hu> (Ingo Molnar's message of
- "Sat, 15 Jan 2005 15:43:02 +0100")
-Message-ID: <87r7kmuw3i.fsf@sulphur.joq.us>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
+	Sat, 15 Jan 2005 18:25:49 -0500
+Received: from av9-1-sn3.vrr.skanova.net ([81.228.9.185]:25270 "EHLO
+	av9-1-sn3.vrr.skanova.net") by vger.kernel.org with ESMTP
+	id S262361AbVAOXZi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jan 2005 18:25:38 -0500
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16873.42607.937915.146208@antilipe.corelatus.se>
+Date: Sun, 16 Jan 2005 00:25:35 +0100
+From: Matthias Lang <matthias@corelatus.se>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Chris Wedgwood <cw@f00f.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: patch to fix set_itimer() behaviour in boundary cases
+In-Reply-To: <1105820460.6300.86.camel@laptopd505.fenrus.org>
+References: <16872.55357.771948.196757@antilipe.corelatus.se>
+	<20050115013013.1b3af366.akpm@osdl.org>
+	<20050115093657.GI3474@holomorphy.com>
+	<1105783125.6300.32.camel@laptopd505.fenrus.org>
+	<20050115195504.GA10754@taniwha.stupidest.org>
+	<1105820460.6300.86.camel@laptopd505.fenrus.org>
+X-Mailer: VM 7.17 under 21.4 (patch 16) "Corporate Culture" XEmacs Lucid
+Reply-To: matthias@corelatus.se
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> * Jack O'Quin <joq@io.com> wrote:
->
->> --- kernel/sched.c~	Fri Dec 24 15:35:24 2004
->> +++ kernel/sched.c	Wed Jan 12 23:48:49 2005
->> @@ -95,7 +95,7 @@
->>  #define MAX_BONUS		(MAX_USER_PRIO * PRIO_BONUS_RATIO / 100)
->>  #define INTERACTIVE_DELTA	  2
->>  #define MAX_SLEEP_AVG		(DEF_TIMESLICE * MAX_BONUS)
->> -#define STARVATION_LIMIT	(MAX_SLEEP_AVG)
->> +#define STARVATION_LIMIT	0
->>  #define NS_MAX_SLEEP_AVG	(JIFFIES_TO_NS(MAX_SLEEP_AVG))
->>  #define CREDIT_LIMIT		100
+Chris Wedgewood suggested handling this with a printk, to which Arjan
+van de Ven asked 
 
-Ingo Molnar <mingo@elte.hu> writes:
-> could you try the patch below? The above patch wasnt enough. With the
-> patch below we turn off the starvation limits for nice --20 tasks only. 
-> This is still a hack only. If we cannot make nice --20 perform like
-> RT-prio-1 then there's some problem with SCHED_OTHER scheduling.
+ > but why????
+ > 
+ > if someone wants the stuff rejected in a posix confirm way, he can do
+ > these tests easily in the syscall wrapper he needs anyway for this
+ > function.
 
-I am building again with your new patch and with STARVATION_LIMIT
-defined as (MAX_SLEEP_AVG) again.  I'll run that with a modified JACK
-to reduce the interference of all those other non-realtime threads.
+For negative times and oversized usec values, that's easy. But the
+third problem was that setitimer() may silently truncate the time
+value. To deal with that, a wrapper would need to
 
-Will let you know what happens.
--- 
-  joq
+  a) know that this silent truncation happens in the first place. 
+     The only way I know of finding that out is to read the kernel
+     source. (the man page doesn't say anything, and POSIX doesn't
+     mention any silent truncation either)
+
+and
+
+  b) Know that the particular value the truncation happens at is
+     dependent on HZ (and, presumably, know what HZ is on that
+     particular machine)
+ 
+I found it surprising that the timer set by setitimer() could expire
+before the time passed to it---the manpage explicitly promises that
+will never happen. 
+
+On many (most?) machines, the obvious symptoms of this truncation
+don't start appearing until after 248 days of uptime, so it's not the
+sort of problem which jumps out in testing. A printk() warning would
+have helped me. As would a warning in the manpage, e.g.:
+
+   | BUGS
+   |
+   | Under Linux, timers will expire before the requested time if the
+   | requested time is larger than MAX_SEC_IN_JIFFIES, which is
+   | defined in include/linux/jiffies.h.
+
+Where can I send manpage improvements?
+
+Matthias

@@ -1,43 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261964AbTCLVfC>; Wed, 12 Mar 2003 16:35:02 -0500
+	id <S261807AbTCLVdg>; Wed, 12 Mar 2003 16:33:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262065AbTCLVfC>; Wed, 12 Mar 2003 16:35:02 -0500
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:46762 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S261964AbTCLVe4>; Wed, 12 Mar 2003 16:34:56 -0500
-Date: Wed, 12 Mar 2003 15:45:39 -0600 (CST)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Larry McVoy <lm@bitmover.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] BK->CVS (real time mirror)
-In-Reply-To: <20030312211832.GA6587@work.bitmover.com>
-Message-ID: <Pine.LNX.4.44.0303121541190.19251-100000@chaos.physics.uiowa.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261876AbTCLVdg>; Wed, 12 Mar 2003 16:33:36 -0500
+Received: from willow.seitz.com ([146.145.147.180]:16144 "EHLO
+	willow.seitz.com") by vger.kernel.org with ESMTP id <S261807AbTCLVdf>;
+	Wed, 12 Mar 2003 16:33:35 -0500
+From: Ross Vandegrift <ross@willow.seitz.com>
+Date: Wed, 12 Mar 2003 16:44:21 -0500
+To: linux-kernel@vger.kernel.org
+Subject: assertion (newsk->state != TCP_SYN_RECV)
+Message-ID: <20030312214421.GB20408@willow.seitz.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 12 Mar 2003, Larry McVoy wrote:
+I've recently noticed these messages bouncing up in my logs every now
+and again.  It's always with a particular machine, one that runs 2.4.20.
 
-> > Larry, this brings up something I was meaning to ask you before this
-> > thread exploded.  What happens to those "logical change" numbers over
-> > time?
-> 
-> They are stable in the CVS tree because the CVS tree isn't distributed.
-> So "Logical change 1.900" in the context of the exported CVS tree is 
-> always the same thing.  That's one advantage centralized has, things
-> don't shift around on you.
+Google turns up one other post, made on Mon Jan 13
+(http://hypermail.idiosynkrasia.net/linux-kernel/archived/2003/week02/0308.html)
+but no responses or explanations followed.
 
-Isn't there a more general problem, though? (I hope I'm wrong)
+Any word on what this means or if it's a problem?
 
-You want to update the CVS tree near-realtime. However, the longest-path
-through your graph may change with new merges, but CVS of course cannot
-cope with already committed data changing (already committed csets may 
-all of a sudden not be in the longest path anymore)? This is a CVS 
-limitation, of course, but still a problem AFAICS.
+Mar 11 12:56:51 ash kernel: KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229) 
+Mar 11 12:56:51 ash kernel: KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689) 
+Mar 11 12:56:51 ash kernel: KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229) 
+Mar 11 12:56:51 ash kernel: KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689) 
+Mar 11 12:56:51 ash kernel: KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229) 
+Mar 11 12:56:51 ash kernel: KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689) 
+Mar 11 12:57:01 ash kernel: KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229) 
+Mar 11 12:57:01 ash kernel: KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689) 
+Mar 11 12:57:01 ash kernel: KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229) 
+Mar 11 12:57:01 ash kernel: KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689) 
+Mar 11 12:57:01 ash kernel: KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229) 
+Mar 11 12:57:01 ash kernel: KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689) 
 
---Kai
+-- 
+Ross Vandegrift
+ross@willow.seitz.com
 
-
+A Pope has a Water Cannon.                               It is a Water Cannon.
+He fires Holy-Water from it.                        It is a Holy-Water Cannon.
+He Blesses it.                                 It is a Holy Holy-Water Cannon.
+He Blesses the Hell out of it.          It is a Wholly Holy Holy-Water Cannon.
+He has it pierced.                It is a Holey Wholly Holy Holy-Water Cannon.
+He makes it official.       It is a Canon Holey Wholly Holy Holy-Water Cannon.
+Batman and Robin arrive.                                       He shoots them.

@@ -1,43 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262011AbTGAKkd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 06:40:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262013AbTGAKkd
+	id S262013AbTGAKks (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 06:40:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262030AbTGAKks
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 06:40:33 -0400
-Received: from [62.151.11.132] ([62.151.11.132]:44468 "EHLO smtp2.yaonline.es")
-	by vger.kernel.org with ESMTP id S262011AbTGAKkc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 06:40:32 -0400
-Date: Tue, 1 Jul 2003 12:56:12 +0200
-From: Luis Miguel Garcia <ktech@wanadoo.es>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: Johoho <johoho@hojo-net.de>
-Subject: Re: [PATCH] O1int 0307010922 for 2.5.73 interactivity
-Message-Id: <20030701125612.28ea5be0.ktech@wanadoo.es>
-In-Reply-To: <20030701105157.GB689@gmx.de>
-References: <20030701133241.58d17db0.ktech@wanadoo.es>
-	<20030701105157.GB689@gmx.de>
-X-Mailer: Sylpheed version 0.9.0claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 1 Jul 2003 06:40:48 -0400
+Received: from westhill.hyglo.com ([62.119.43.37]:25793 "EHLO
+	westhill.hyglo.com") by vger.kernel.org with ESMTP id S262013AbTGAKkq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jul 2003 06:40:46 -0400
+Message-ID: <3F016888.2080306@hyglo.com>
+Date: Tue, 01 Jul 2003 12:55:04 +0200
+From: Peter Enderborg <pme@hyglo.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030507
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: "Theodore Ts'o" <tytso@mit.edu>, Linus Torvalds <torvalds@osdl.org>
+Subject: Procfs open hook bug.
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 01 Jul 2003 10:55:07.0346 (UTC) FILETIME=[3BF10320:01C33FBF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 Jul 2003 12:51:57 +0200
-Wiktor Wodecki <wodecki@gmx.de> wrote:
+I have done this little patch for the procfs_example.c
 
-> On Tue, Jul 01, 2003 at 01:32:41PM +0200, Luis Miguel Garcia wrote:
-> > With the first one, only throughput is important and in the second one, we can take in all the stuff to improve the interactivity (preempt, 01int, granularity) so we can give more agresive interactivity to the Desktop Kernel.
-> > 
-> > Is this a sillyness?
-> 
-> placing this in /proc would be a better idea. The more I watch the whole
-> interactivity debate I think that there is no golden way for server and desktop machines.
+diff procfs_example.c 
+kernels/linux-2.4.20/Documentation/DocBook/procfs_example.c
+87,91d86
+< static int open_qp(struct inode * inode, struct file * file)
+< {
+<   printk("Open my node %p %p \n",inode,file);
+<   return -EINVAL;
+< }
+180c175
+<       foo_file->proc_fops->open=open_qp;
+---
+ >
 
-This is for what I have said that. Sometimes the people says. "This is good for Desktop, but drops the performance / throughput 20%". Perhaps some people prefer having a true multimedia desktop without skips in the music and video, and less throughput (like i prefer).
+And when loading this module. The procfs gets broken. I get EINVAL for 
+open on
+/proc/meminfo and all other procfs info. Why? Should procfs inodes don't 
+have full
+filesematics? And it don't help to unload the module.
 
-But let Con do it's best. I think he knows what is doing  ;)
+Strange. And a look in generic.c in fs/proc/
 
-Thanks Con and others!
+static struct file_operations proc_file_operations = {
+    llseek:        proc_file_lseek,
+    read:        proc_file_read,
+    write:        proc_file_write,
+};
+
+Is this saying that we can not have the other fops on procfs inodes? No 
+ioctl,open ?
+

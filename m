@@ -1,98 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131183AbRCKB00>; Sat, 10 Mar 2001 20:26:26 -0500
+	id <S131184AbRCKBiH>; Sat, 10 Mar 2001 20:38:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131184AbRCKB0Q>; Sat, 10 Mar 2001 20:26:16 -0500
-Received: from d146.as5200.mesatop.com ([208.164.122.146]:61834 "HELO
-	localhost.localdomain") by vger.kernel.org with SMTP
-	id <S131183AbRCKB0C>; Sat, 10 Mar 2001 20:26:02 -0500
-From: Steven Cole <elenstev@mesatop.com>
-Reply-To: elenstev@mesatop.com
-Date: Sat, 10 Mar 2001 18:29:10 -0700
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-Cc: alan@lxorguk.ukuu.org.uk
-Subject: [PATCH] remove duplicate Configure.help entries in 2.4.2-ac18
+	id <S131187AbRCKBh6>; Sat, 10 Mar 2001 20:37:58 -0500
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:52239 "EHLO
+	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S131184AbRCKBhr>; Sat, 10 Mar 2001 20:37:47 -0500
+Message-ID: <3AAAD694.B0482AE8@leo.org>
+Date: Sun, 11 Mar 2001 02:36:20 +0100
+From: Joachim Herb <herb@leo.org>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1 i686)
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Message-Id: <01031018291003.08110@localhost.localdomain>
-Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org
+Subject: compilation error in 2.4.3-pre3
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As of 2.4.2-ac18, there are two CONFIG options which have two entries
-in Documentation/Configure.help.
+Hello,
 
-These are CONFIG_IP_NF_TARGET_TCPMSS and CONFIG_DEBUG_IOVIRT.
+I get the following compilation error:
+gcc -D__KERNEL__ -I/tmp2/src/linux-2.4.3.jh/include -Wall
+-Wstrict-prototypes -O
+2 -fomit-frame-pointer -fno-strict-aliasing -pipe
+-mpreferred-stack-boundary=2 -
+march=i686 -malign-functions=4     -c -o proc_misc.o proc_misc.c
+proc_misc.c: In function `read_profile':
+proc_misc.c:452: `prof_shift' undeclared (first use in this function)
+proc_misc.c:452: (Each undeclared identifier is reported only once
+proc_misc.c:452: for each function it appears in.)
+proc_misc.c:454: `prof_len' undeclared (first use in this function)
+proc_misc.c:464: `prof_buffer' undeclared (first use in this function)
+proc_misc.c: In function `write_profile':
+proc_misc.c:494: `prof_len' undeclared (first use in this function)
+proc_misc.c:494: `prof_buffer' undeclared (first use in this function)
+proc_misc.c: In function `proc_misc_init':
+proc_misc.c:563: `prof_shift' undeclared (first use in this function)
+proc_misc.c:567: `prof_len' undeclared (first use in this function)
+make[3]: *** [proc_misc.o] Error 1
+make[3]: Leaving directory `/tmp2/src/linux-2.4.3.jh/fs/proc'
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory `/tmp2/src/linux-2.4.3.jh/fs/proc'
+make[1]: *** [_subdir_proc] Error 2
+make[1]: Leaving directory `/tmp2/src/linux-2.4.3.jh/fs'
+make: *** [_dir_fs] Error 2
 
-The first of these has two identical entries, so this patch deletes the duplicate
-entry.
+I use:
+# gcc --version
+2.95.3
+(Mandrake 7.2)
 
-The second, CONFIG_DEBUG_IOVIRT, has a second but different entry in
-Configure.help.  I've merged one perhaps useful line from that second (and
-therefore ignored) entry into the first one.  The new line (updated) is:
-"This can be very useful for porting drivers from 2.2 to 2.4."
-You can see the original comment near the end of the patch, where the
-second entry is deleted.
+This variables were defined in asm/string.h but now I can only find them
+in asm/hw_irq.h. I have included asm/hw_irq.h and it compiles but I get
+a warning:
+make[3]: Entering directory `/tmp2/src/linux-2.4.3.jh/fs/proc'
+gcc -D__KERNEL__ -I/tmp2/src/linux-2.4.3.jh/include -Wall
+-Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe
+-mpreferred-stack-boundary=2 -march=i686 -malign-functions=4     -c -o
+proc_misc.o proc_misc.c
+In file included from proc_misc.c:42:
+/tmp2/src/linux-2.4.3.jh/include/asm/hw_irq.h:219: warning: `struct
+hw_interrupt_type' declared inside parameter list
+/tmp2/src/linux-2.4.3.jh/include/asm/hw_irq.h:219: warning: its scope is
+only this definition or declaration, which is probably not what you
+want.
+rm -f proc.o
 
-This patch is against 2.4.2-ac18.
+Bye,
+Joachim
 
-Steven
-
---- linux/Documentation/Configure.help.orig     Sat Mar 10 17:50:58 2001
-+++ linux/Documentation/Configure.help  Sat Mar 10 18:05:57 2001
-@@ -2045,31 +2045,6 @@
-   If you want to compile it as a module, say M here and read
-   Documentation/modules.txt.  If unsure, say `N'.
- 
--TCPMSS target support
--CONFIG_IP_NF_TARGET_TCPMSS
--  This option adds a `TCPMSS' target, which allows you to alter the
--  MSS value of TCP SYN packets, to control the maximum size for that
--  connection (usually limiting it to your outgoing interface's MTU
--  minus 40).
--
--  This is used to overcome criminally braindead ISPs or servers which
--  block ICMP Fragmentation Needed packets.  The symptoms of this
--  problem are that everything works fine from your Linux
--  firewall/router, but machines behind it can never exchange large
--  packets:
--       1) Web browsers connect, then hang with no data received.
--       2) Small mail works fine, but large emails hang.
--       3) ssh works fine, but scp hangs after initial handshaking.
--
--  Workaround: activate this option and add a rule to your firewall
--  configuration like:
--
--        iptables -A FORWARD -p tcp --tcp-flags SYN,RST SYN \
--                -j TCPMSS --clamp-mss-to-pmtu
--
--  If you want to compile it as a module, say M here and read
--  Documentation/modules.txt.  If unsure, say `N'.
--
- LOG target support
- CONFIG_IP_NF_TARGET_LOG
-   This option adds a `LOG' target, which allows you to create rules in
-@@ -15225,6 +15200,9 @@
-   If you say Y here, all the memory mapped input and output on
-   devices will go through a check to catch access to unmapped
-   ISA addresses, that can still be used by old drivers.
-+
-+  This can be very useful for porting drivers from 2.2 to 2.4.
-+
-   If you say N, I/O will be faster and kernel will be a bit smaller,
-   but no check will be done.
- 
-@@ -17885,12 +17863,6 @@
-   Say Y here to have the kernel do limited verification on memory 
-   allocation as well as poisoning memory on free to catch use of freed 
-   memory.
--
--Memory mapped I/O debugging
--CONFIG_DEBUG_IOVIRT
--  Say Y here to get warned whenever an attempt is made to do I/O on 
--  obviously invalid addresses such as those generated when ioremap()
--  calls are forgotten. Very useful for porting drivers from 2.0/2.2
- 
- Spinlock debugging
- CONFIG_DEBUG_SPINLOCK
+P.S. Please send also an email to my private address as I am not
+subscribed to the list.
+-- 
+Joachim Herb
+mailto:herb@leo.org

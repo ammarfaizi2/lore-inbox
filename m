@@ -1,69 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262322AbUFWXVJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262328AbUFWXcR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262322AbUFWXVJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 19:21:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262213AbUFWXVI
+	id S262328AbUFWXcR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 19:32:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262361AbUFWXcR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 19:21:08 -0400
-Received: from palrel11.hp.com ([156.153.255.246]:55436 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S262328AbUFWXUl (ORCPT
+	Wed, 23 Jun 2004 19:32:17 -0400
+Received: from box.punkt.pl ([217.8.180.66]:40201 "HELO box.punkt.pl")
+	by vger.kernel.org with SMTP id S262328AbUFWXcQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 19:20:41 -0400
-Date: Wed, 23 Jun 2004 16:20:39 -0700
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       linux-ide@vger.kernel.org, B.Zolnierkiewicz@elka.pw.edu.pl
-Subject: Re: [BUG 2.6.7] : Partition table display bogus...
-Message-ID: <20040623232039.GA27989@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <20040623220557.GA26199@bougret.hpl.hp.com> <20040623225640.GE3072@pclin040.win.tue.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 23 Jun 2004 19:32:16 -0400
+From: Mariusz Mazur <mmazur@kernel.pl>
+To: Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [ANNOUNCE] linux-libc-headers 2.6.7.0
+Date: Thu, 24 Jun 2004 01:30:38 +0200
+User-Agent: KMail/1.6.2
+References: <200406240020.39735.mmazur@kernel.pl> <40DA0F7D.60606@pobox.com>
+In-Reply-To: <40DA0F7D.60606@pobox.com>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040623225640.GE3072@pclin040.win.tue.nl>
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200406240130.38858.mmazur@kernel.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 24, 2004 at 12:56:40AM +0200, Andries Brouwer wrote:
-> On Wed, Jun 23, 2004 at 03:05:57PM -0700, Jean Tourrilhes wrote:
-> 
-> > 	Playing with 2.6.7 on my laptop. I realised Lilo did not work
-> > anymore. Look further, and the partition table was all screwed up.
-> 
-> Not so pessimistic.
+On czwartek, 24 czerwca 2004 01:17, Jeff Garzik wrote:
+> HPA suggested include/abi and I don't think anyone objected.
 
-	Sorry, I should have said "the partition table display".
+I'll google around.
 
-> Old situation:
-> >  hda: hda1 hda2 hda3 hda4 < hda5 hda6 >
-> New situation:
-> >  hda: hda1 hda2 hda3 hda4 < hda5 hda6 >
-> 
-> Nothing wrong with that partition table.
+> But that's most likely a 2.7 project :(
 
-	Yep.
+Why? The sooner the better.
 
-> Maybe you get unhappy because of the fdisk output, but that only
-> shows that you have an old fdisk. Also there nothing wrong.
 
-	Ok.
-
-> Ah - so the only wrong thing must be the fact that lilo stopped working.
-> I suppose things will improve if you give it the "linear" (or "lba32") flag.
-
-	None of these helped. I guess I should update LILO as
-well. I'll try to do that.
-
-> What changed is that the kernel no longer attempts at guessing a geometry.
-> If such guessing is required, user space must do so itself.
-> 
-> Andries
-
-	Thanks very much for the quick answer, very helpful !
-
-	Jean
+-- 
+In the year eighty five ten
+God is gonna shake his mighty head
+He'll either say,
+"I'm pleased where man has been"
+Or tear it down, and start again

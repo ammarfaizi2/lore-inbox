@@ -1,54 +1,120 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311960AbSDKQni>; Thu, 11 Apr 2002 12:43:38 -0400
+	id <S312255AbSDKQtQ>; Thu, 11 Apr 2002 12:49:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312255AbSDKQnh>; Thu, 11 Apr 2002 12:43:37 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:12817 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S311960AbSDKQnh>;
-	Thu, 11 Apr 2002 12:43:37 -0400
-Date: Thu, 11 Apr 2002 17:43:31 +0100
-From: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
+	id <S312256AbSDKQtP>; Thu, 11 Apr 2002 12:49:15 -0400
+Received: from granger.mail.mindspring.net ([207.69.200.148]:55340 "EHLO
+	granger.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S312255AbSDKQtP>; Thu, 11 Apr 2002 12:49:15 -0400
+From: Frank Krauss <fmfkrauss@mindspring.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: linux as a minicomputer ?
-Message-ID: <20020411164331.GR612@gallifrey>
-In-Reply-To: <20020411154601.GY17962@antefacto.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Chocolate: 70 percent or better cocoa solids preferably
-X-Operating-System: Linux/2.4.18 (i686)
-X-Uptime: 17:41:10 up 5 days, 21:17,  5 users,  load average: 1.74, 1.94, 1.98
+Subject: Possible EXT2 File System Corruption in Kernel 2.4
+Date: Thu, 11 Apr 2002 12:40:15 -0400
+X-Mailer: KMail [version 1.0.21]
+Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <E16vKwg-00056q-00@barry.mail.mindspring.net>
+MIME-Version: 1.0
+Message-Id: <02041112492500.01786@sevencardstud.cable.nu>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* John P. Looney (john@antefacto.com) wrote:
->  Sorry if this isn't the place for this question, but it's something that
-> came up in general office talk today.
+Good day,
+
+I have a problem in the area of EXT2 File System Corruption.
+
+I attempted originally to send this information to Remy Card as per the
+MAINTAINERS file at RemyCard@linux.org but I got the message about
+him being an unknown user.
+
+Since my System is fairly up-to-date, both Hardware and Software wise,
+I thought that perhaps someone would be able to solve this problem of mine. 
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 
+> Hello Remy,
 > 
->  Many many moons ago, the GGI project promised us the ability to buy a
-> four-processor box, four PCI video cards, four USB mice & keyboards, and
-> let four people use that machine at once, with benefits all around.
-
-<snip>
-
->  Are there any plans to bring this sort of functionality to Linux 2.6 ? As
-> I remember, some of the problems were that the GGI code was never going to
-> get into Linux proper, and enumeration of multiple keyboards and mice, but
-> I would have thought that was there a need, these problems would have been
-> fixed by now.
-
-I'm not sure, but I don't think any code is needed if you run X.  Bung
-four USB mice, four USB keyboards in and four video cards.  Write a
-separate X config for each one specifying which PCI card should be used
-and which mouse/keyboard device should be used.  Now start an X server
-for each one.
-
-(Fun should form in the efforts to figure out which mouse is associated
-with which keyboard and with which video output).
-
-Dave
- ---------------- Have a happy GNU millennium! ----------------------   
-/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
-\ gro.gilbert @ treblig.org | MIPS,x86,ARM, SPARC and HP-PA | In Hex /
- \ _________________________|_____ http://www.treblig.org   |_______/
+> I have a problem which appears to be in your area of responsibility and expertise.
+> 
+> Hardware Information
+> 
+> 1.  I have a Pentium 4 P.C.
+> 2.  The Motherboard is a D850MV.
+> 3.  The Chipset is an Intel 850.
+> 4.  The System has 256 Mb of Ram.
+> 5.  My Hard-drive is a Maxtor 5T030H3 (30 gigibytes)
+> 6.  It is on ide1 as /dev/hdc.
+> 7.  The disk is Partitioned in the following manner:
+>                                 C y l s      Usage              1K Blks
+>     A.  /dev/hdc1        1 -   85      Root                660890
+>     B.  /dev/hdc2      86 -  150      Swap
+>     C.  /dev/hdc3   151 - 3671      /Products      27015180
+>     D.  /dev/hdc4 3672 - 3736      /Source            505471
+> 
+> Software Information
+> 
+> 1.  My Linux Distribution is Caldera 2.3
+> 2.  I have upgraded the Kernel to 2.4.18
+> 
+> My problem came up yesterday in the following manner:
+> My Root Partition, /dev/hdc1 went 100% full.
+> Even though I erased various files from it which should have brought
+> it down to 97% usage, it remained at the 100% level.
+> I believe that this is another, known, separate problem from mine.
+> 
+> I finally decided to move the /usr/X11R6 directory, which was approx. 134 Mb,
+> from the /root partition to a completly empty partition that I had just
+> defined as /Products on /dev/hdc3. 
+> 
+> The Copy worked but I got the following 10 Error Messages:
+> 
+> Apr  9 17:12:51 kernel: EXT2-fs error (device ide1(22,3)): ext2_new_block: Allocating block in system zone - block = 835885 
+> Apr  9 17:12:51 kernel: EXT2-fs error (device ide1(22,3)): ext2_new_block: Allocating block in system zone - block = 835886 
+> Apr  9 17:12:51 kernel: EXT2-fs error (device ide1(22,3)): ext2_new_block: Allocating block in system zone - block = 835894 
+> Apr  9 17:12:51 kernel: EXT2-fs error (device ide1(22,3)): ext2_new_block: Allocating block in system zone - block = 835902 
+> Apr  9 17:12:51 kernel: EXT2-fs error (device ide1(22,3)): ext2_new_block: Allocating block in system zone - block = 835910 
+> Apr  9 17:12:51 kernel: EXT2-fs error (device ide1(22,3)): ext2_new_block: Allocating block in system zone - block = 835918 
+> Apr  9 17:12:51 kernel: EXT2-fs error (device ide1(22,3)): ext2_new_block: Allocating block in system zone - block = 835926 
+> Apr  9 17:12:51 kernel: EXT2-fs error (device ide1(22,3)): ext2_new_block: Allocating block in system zone - block = 835934 
+> Apr  9 17:12:51 kernel: EXT2-fs error (device ide1(22,3)): ext2_new_block: Allocating block in system zone - block = 835942 
+> Apr  9 17:12:51 kernel: EXT2-fs error (device ide1(22,3)): ext2_new_block: Allocating block in system zone - block = 835950 
+> 
+> Since I did a DU of both the Old and New directories and they were the same,
+> I assumed that everything was O.K.
+> 
+> Unfortunately, after I shutdown the System and re-booted, I got a huge number 
+> of INODE error messages that took FSCK about an Hour to fix.
+> I did not write any of the Inode information down.
+> 
+> I see mention on the Net that up to 2.4.17 there are still problems outstanding
+> in this area of the Kernel.
+> 
+> Would you be kind enough to tell me if there is any fix I can put on my
+> System to keep this problem from reoccuring again?
+> 
+> As my System is currently a Testing/Development System, I would be quit happy
+> to help you debug this problem with any reasonable testing that you would like
+> me to do.
+> 
+> Alan Cox mentioned, in a response to someone who had a similar problem as
+> mine, that a VIA Chipset along with a Sound Blaster Live card, could somehow
+> cause this problem.
+> 1.   I do NOT have the VIA Chipset on my System.
+> 2.   I DO have the Sound Blaster Live card on my System.
+> 
+> I didn't have this problem using Kernel 2.2.17 on my 486 Computer.
+> 
+> I would like to get this problem resolved before my System becomes Production
+> since I value Reliability and Stability of an Operating System most importantly
+> of all.
+> 
+> I will be glad to provide you any additional information about my System that
+> would assist you in solving this problem.
+> 
+> I would like to thank you in advance for your effort in clearing up this 
+> problem effecting the reliability of the New Production Linux Kernel.
+> 
+> Yours truly,
+> 
+> Frank Krauss
+               

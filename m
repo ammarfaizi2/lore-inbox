@@ -1,56 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316237AbSEKSbN>; Sat, 11 May 2002 14:31:13 -0400
+	id <S316243AbSEKSfy>; Sat, 11 May 2002 14:35:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316243AbSEKSbM>; Sat, 11 May 2002 14:31:12 -0400
-Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:35333 "EHLO
-	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id <S316237AbSEKSbL>; Sat, 11 May 2002 14:31:11 -0400
-Date: Sat, 11 May 2002 20:30:59 +0200 (CEST)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 1/6: 64 bit jiffies
-In-Reply-To: <200205111815.g4BIF0Y02586@Port.imtp.ilyichevsk.odessa.ua>
-Message-ID: <Pine.LNX.4.33.0205112022030.29302-100000@gans.physik3.uni-rostock.de>
+	id <S316247AbSEKSfx>; Sat, 11 May 2002 14:35:53 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:43531 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S316243AbSEKSfx>; Sat, 11 May 2002 14:35:53 -0400
+Date: Sat, 11 May 2002 11:35:21 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Larry McVoy <lm@bitmover.com>
+cc: Gerrit Huizenga <gh@us.ibm.com>, Lincoln Dale <ltd@cisco.com>,
+        Andrew Morton <akpm@zip.com.au>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Martin Dalecki <dalecki@evision-ventures.com>,
+        Padraig Brady <padraig@antefacto.com>,
+        Anton Altaparmakov <aia21@cantab.net>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: O_DIRECT performance impact on 2.4.18 (was: Re: [PATCH] 2.5.14
+ IDE 56)
+In-Reply-To: <20020511111935.B30126@work.bitmover.com>
+Message-ID: <Pine.LNX.4.44.0205111130080.879-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 11 May 2002, Denis Vlasenko wrote:
 
-> On 11 May 2002 08:25, Tim Schmielau wrote:
-> > +static inline void init_jiffieswrap_timer(void)
-> > +{
-> > +	init_timer(&jiffieswrap_timer);
-> > +	jiffieswrap_timer.expires = jiffies + CHECK_JIFFIESWRAP_INTERVAL;
-> > +	jiffieswrap_timer.function = check_jiffieswrap;
-> > +	add_timer(&jiffieswrap_timer);
-> > +}
-> 
-> I'm ignorant on the issue... does active timer mandate check for
-> expiration at every timer tick? 
 
-No, timers are implemented in a highly efficient manner. The above
-timer will just add O(1) cost to 4 table refills, meaning some 100 cycles 
-per quarter of a year.
+On Sat, 11 May 2002, Larry McVoy wrote:
+>
+> You're only halfway right.  You want to avoid the mmap altogether.
 
-> If yes, it is somewhat silly to use timer:
-> such check would be more costly than
-> 	
-> 	if(!++jiffies) jiffies_hi++;
-> 
-> (or similar) construct in timer int.
-> 
-> BTW, I always liked above thing more that any other 64 jiffy solution.
-> What's wrong with it?
+See my details on doing the perfect zero-copy copy thing.
 
-It's slower than
+The mmap doesn't actually touch the page tables - it ends up being nothing
+but a "placeholder".
 
-	jiffies_64++;
+So if you do
 
-which went into Linus' tree yesterday :-)
+        addr = mmap( ..  MAP_UNCACHED ..  src .. )
+        mwrite(dst, addr, len);
 
-Tim
+then you can think of the mmap as just a "cookie" or the "hose" between
+the source and the destination.
+
+Does it have to be an mmap? No. But the advantage of the mmap is that you
+can use the mmap to modify the stream if you want to, quite transparently.
+And it gives the whole thing a whole lot more flexibility, in that if you
+generate the data yourself, you'd just do the mwrite() - again with zero
+copy overhead.
+
+And I personally believe that "generate the data yourself" is actually a
+very common case. A pure pipe between two places is not what a computer is
+good at, or what a computer should be used for.
+
+		Linus
 

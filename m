@@ -1,41 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262208AbULQAAA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262211AbULQADv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262208AbULQAAA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 19:00:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262210AbULPX77
+	id S262211AbULQADv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 19:03:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262196AbULQADu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 18:59:59 -0500
-Received: from mail.kroah.org ([69.55.234.183]:48349 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262208AbULPX7u (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 18:59:50 -0500
-Date: Thu, 16 Dec 2004 15:56:34 -0800
-From: Greg KH <greg@kroah.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: scottm@somanetworks.com, pcihpd-discuss@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] drivers/pci/hotplug/ : simply use MODULE
-Message-ID: <20041216235634.GC11424@kroah.com>
-References: <20041211165459.GV22324@stusta.de>
+	Thu, 16 Dec 2004 19:03:50 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:35815 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S262203AbULQACu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 19:02:50 -0500
+Subject: Re: [PATCH] moxa: Update status of Moxa Smartio driver
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: james4765@verizon.net
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org
+In-Reply-To: <20041212130113.10564.41012.78969@localhost.localdomain>
+References: <20041212130113.10564.41012.78969@localhost.localdomain>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1103237818.21920.38.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041211165459.GV22324@stusta.de>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 16 Dec 2004 22:57:03 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 11, 2004 at 05:54:59PM +0100, Adrian Bunk wrote:
-> The patch below lets five files under drivers/pci/hotplug/ simply use 
-> MODULE to check whether they are compiled as part of a module.
-> 
-> MODULE is the common idiom for checking whether a file is built as part 
-> of a module.
-> 
-> In theory, my patch shouldn't have made any difference, but if you look 
-> closely, the previous #if's in cpcihp_generic.c and cpci_hotplug_pci.c 
-> weren't correct.
+On Sul, 2004-12-12 at 13:00, james4765@verizon.net wrote:
+> After contacting Moxa, I found out that they no longer maintain the in-kernel
+> driver, and instead maintain an updated driver as an external patch.
 
-Applied, thanks.
+> +http://www.moxa.com
+> +
+> +that works with 2.6 kernels.  Currently, Moxa has no plans to have their updated
+> +driver merged into the kernel.
 
-greg k-h
+Works with 2.6 kernels up to 2.6.8 and providing its a 32bit machine and
+you don't use some try and send a break.
+
+Actually if you filter all the 2.2/2.4 ifdefs out of it and clean up the
+formatting a bit its not a badly written driver and its GPL. I've
+forward ported/fixed a cleaned up 2.6.9 version and dropped it into -ac
+(on the grounds the existing one doesn't work at all so this is
+progress).
+
+Someone with some PCI moxa cards as opposed to ISA needs to add hotplug
+support to it so that it uses pci_register foo rather than scanning the
+bus old style.
+
+Once we have something stable I can test with I'll tweak it for the
+2.6.10 changes and submit it to the main tree.
+
+Alan
+

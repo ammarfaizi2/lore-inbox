@@ -1,49 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130667AbRAWUzW>; Tue, 23 Jan 2001 15:55:22 -0500
+	id <S131649AbRAWU4n>; Tue, 23 Jan 2001 15:56:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131455AbRAWUzM>; Tue, 23 Jan 2001 15:55:12 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:46864 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S130667AbRAWUzE>;
-	Tue, 23 Jan 2001 15:55:04 -0500
-Date: Tue, 23 Jan 2001 21:54:19 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Steven Cole <scole@lanl.gov>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.1pre8 slowdown on dbench tests
-Message-ID: <20010123215419.A7435@suse.de>
-In-Reply-To: <01012208583400.01639@spc.esa.lanl.gov> <Pine.LNX.4.21.0101221823070.8054-100000@freak.distro.conectiva> <20010123001155.B8225@suse.de> <01012313294400.01045@spc.esa.lanl.gov>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <01012313294400.01045@spc.esa.lanl.gov>; from scole@lanl.gov on Tue, Jan 23, 2001 at 01:29:44PM -0700
+	id <S131692AbRAWU4d>; Tue, 23 Jan 2001 15:56:33 -0500
+Received: from dsl.75.131.networkiowa.com ([209.234.75.131]:23561 "EHLO
+	www.sjdjweis.com") by vger.kernel.org with ESMTP id <S131649AbRAWU4V>;
+	Tue, 23 Jan 2001 15:56:21 -0500
+Date: Tue, 23 Jan 2001 19:37:38 -0600 (CST)
+From: David Weis <djweis@sjdjweis.com>
+To: linux-kernel@vger.kernel.org
+Subject: changing mac address of eth alias
+Message-ID: <Pine.LNX.4.21.0101231927060.23337-100000@www.sjdjweis.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 23 2001, Steven Cole wrote:
-> In the following table, 2.4.1-pre8x refers to -pre8 with
-> linux/include/linux/blkdev.h modified as suggested.
-> A diff to show the changes made is included at the end.
-> 
-> Here is a summary of the data, followed by the data
-> for the individual runs.  Each of the four runs were performed
-> in rapid succession, with no boots in between. 
 
-Thanks! Could I talk you into doing one last run? pre8 with
-include/linux/elevator.h having these values set for
-ELEVATOR_LINUS:
+what would be required to make the mac address of aliases changable,
+specifically for something like vrrp that shares a mac address among
+machines. 
 
-#define ELEVATOR_LINUS                                                  \
-((elevator_t) {                                                         \
-	1000000,		/* read passovers */
-	2000000,		/* write passovers */
-
-Just do this mod on top of your x tree.
+dave
 
 -- 
-* Jens Axboe <axboe@suse.de>
-* SuSE Labs
+Dave Weis             "I believe there are more instances of the abridgement
+djweis@sjdjweis.com   of the freedom of the people by gradual and silent
+                      encroachments of those in power than by violent 
+                      and sudden usurpations."- James Madison
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

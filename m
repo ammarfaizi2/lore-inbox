@@ -1,75 +1,36 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317463AbSFDJTZ>; Tue, 4 Jun 2002 05:19:25 -0400
+	id <S317467AbSFDJoK>; Tue, 4 Jun 2002 05:44:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317464AbSFDJTY>; Tue, 4 Jun 2002 05:19:24 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:24537 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S317463AbSFDJTX>; Tue, 4 Jun 2002 05:19:23 -0400
-Date: Tue, 4 Jun 2002 11:19:19 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Marcelo Tosatti <marcelo@conectiva.com.br>, <bcollins@debian.org>,
-        <andreas.bombe@munich.netsurf.de>,
-        <linux1394-devel@lists.sourceforge.net>
-cc: linux-kernel@vger.kernel.org
-Subject: [patch] disable CONFIG_IEEE1394_PCILYNX_PORTS config option
-Message-ID: <Pine.NEB.4.44.0206041108400.8847-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S317468AbSFDJoJ>; Tue, 4 Jun 2002 05:44:09 -0400
+Received: from zikova.cvut.cz ([147.32.235.100]:34312 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S317467AbSFDJoJ>;
+	Tue, 4 Jun 2002 05:44:09 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: "Brian C. Huffman" <huffman@graze.net>
+Date: Tue, 4 Jun 2002 11:43:48 +0200
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: kernel routing of IPSec / VMWare
+CC: linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.50
+Message-ID: <71CBDC94409@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
+On  4 Jun 02 at 1:19, Brian C. Huffman wrote:
+> 
+> The way that we have checkpoint setup it is doing UDP encapsulation of
+> the IPSec (otherwise it would not be possible to do this w/ NAT).  This
+> is with all the latest 2.4 kernels (haven't tried 2.4.19, though). 
 
-IMHO it gives a bad picture of the quality of Linux if a stable kernel
-contains options that doesn't compile. CONFIG_IEEE1394_PCILYNX_PORTS
-doesn't compile (the error message is at the end of the mail) and Andreas
-Bombe stated in a private mail to me four months ago that it shouldn't
-have been a public option.
+Can't you push packets over your eth0 MTU with this encapsulation?
+It would be useful if you could do 'tcpdump -i vmnet8 & tcpdump -i eth0'
+or 'tcpdump -i any' to find what's going on.
+                                                    Petr Vandrovec
+                                                    vandrove@vc.cvut.cz
 
-My patch doesn't do any harm because currently the kernel doesn't compile
-when this option is enabled and if someone fixes pcilynx.c it's pretty
-trivial to revert this patch.
-
-
-
---- drivers/ieee1394/Config.in.old	Fri May  3 11:11:06 2002
-+++ drivers/ieee1394/Config.in	Fri May  3 11:12:18 2002
-@@ -12,7 +12,7 @@
- 	dep_tristate '  Texas Instruments PCILynx support' CONFIG_IEEE1394_PCILYNX $CONFIG_IEEE1394
- 	if [ "$CONFIG_IEEE1394_PCILYNX" != "n" ]; then
- 	    bool '    Use PCILynx local RAM' CONFIG_IEEE1394_PCILYNX_LOCALRAM
--	    bool '    Support for non-IEEE1394 local ports' CONFIG_IEEE1394_PCILYNX_PORTS
-+#	    bool '    Support for non-IEEE1394 local ports' CONFIG_IEEE1394_PCILYNX_PORTS
- 	fi
- 	dep_tristate '  OHCI-1394 support' CONFIG_IEEE1394_OHCI1394 $CONFIG_IEEE1394
-
-
-
-
-
-TIA
-Adrian
-
-
-
-<--  snip  -->
-
-gcc -D__KERNEL__ -I/home/bunk/linux/kernel-2.4/linux-full/include -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe
--mpreferred-stack-boundary=2 -march=k6   -nostdinc -I
-/usr/lib/gcc-lib/i386-linux/2.95.4/include -DKBUILD_BASENAME=pcilynx  -c -o pcilynx.o pcilynx.c
-pcilynx.c: In function `mem_open':
-pcilynx.c:647: `num_of_cards' undeclared (first use in this function)
-pcilynx.c:647: (Each undeclared identifier is reported only once
-pcilynx.c:647: for each function it appears in.)
-pcilynx.c:647: `cards' undeclared (first use in this function)
-pcilynx.c: In function `aux_poll':
-pcilynx.c:706: `cards' undeclared (first use in this function)
-make[3]: *** [pcilynx.o] Error 1
-make[3]: Leaving directory
-`/home/bunk/linux/kernel-2.4/linux-full/drivers/ieee1394'
-
-<--  snip  -->
-
+P.S.: Did you tried to ask in VMware newsgroups?
+                                                    

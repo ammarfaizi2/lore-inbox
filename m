@@ -1,81 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135348AbRAVXDQ>; Mon, 22 Jan 2001 18:03:16 -0500
+	id <S131174AbRAVXMj>; Mon, 22 Jan 2001 18:12:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135350AbRAVXDG>; Mon, 22 Jan 2001 18:03:06 -0500
-Received: from ha1.rdc2.nsw.optushome.com.au ([203.164.2.50]:29419 "EHLO
-	mss.rdc2.nsw.optushome.com.au") by vger.kernel.org with ESMTP
-	id <S135348AbRAVXCw>; Mon, 22 Jan 2001 18:02:52 -0500
-Message-ID: <3A6CB151.875467B2@optushome.com.au>
-Date: Tue, 23 Jan 2001 09:16:49 +1100
-From: Glenn McGrath <bug1@optushome.com.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrew Clausen <clausen@conectiva.com.br>
-CC: linux-fsdevel@vger.kernel.org, bug-parted@gnu.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: Partition IDs in the New World TM
-In-Reply-To: <3A6C5D12.99704689@conectiva.com.br>
+	id <S131090AbRAVXMS>; Mon, 22 Jan 2001 18:12:18 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:48135 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S131022AbRAVXMP>;
+	Mon, 22 Jan 2001 18:12:15 -0500
+Date: Tue, 23 Jan 2001 00:11:55 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Steven Cole <scole@lanl.gov>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.1pre8 slowdown on dbench tests
+Message-ID: <20010123001155.B8225@suse.de>
+In-Reply-To: <01012208583400.01639@spc.esa.lanl.gov> <Pine.LNX.4.21.0101221823070.8054-100000@freak.distro.conectiva>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.21.0101221823070.8054-100000@freak.distro.conectiva>; from marcelo@conectiva.com.br on Mon, Jan 22, 2001 at 06:30:03PM -0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Clausen wrote:
+On Mon, Jan 22 2001, Marcelo Tosatti wrote:
 > 
-> Hi all,
+> Jens, 
 > 
-> We have roughly 10 different types of partition tables.  We hate
-> them, but it looks like they won't be going away for a long time.
+> Steven is a seeing a slowdown in his results, too. 
 > 
-> Partition IDs seem to create a lot of confusion.  For example,
-> most people use 0x83 for both ext2 and reiserfs, on msdos
-> partition tables.  People use "Apple_UNIX_SVR2" for ext2 on
-> Mac, etc.
 > 
-> Linux doesn't really use partition IDs.  Well, not entirely
-> true... it's used on Mac's as a heuristic, for finding swap
-> devices, etc. - but I think this unnecessary.
+> On Mon, 22 Jan 2001, Steven Cole wrote:
 > 
-> LVM also uses it, but I also think it's unnecessary.
-> 
-> So, can anyone remember why we have partition IDs?  (as opposed
-> to just probing for signatures on the fs)  If new partition table
-> types come out (which is happening, believe it or not...), how
-> should Linux/fdisk/parted handle IDs?  Should we have one Linux
-> type, that we use for everything?  Should we have one type for each
-> TYPE of data (file system, swap, logical volume physical device, etc.)?
-> 
-> Tchau,
-> Andrew Clausen
-> 
+> > On Thursday 18 January 2001 14:49, Marcelo Tosatti wrote:
+> > 
+> > > Steven,
+> > >
+> > > The issue is the difference between pre4 and pre8.
+> > >
+> > > Could you please try pre4 and report results ?
+> > >
+> > > Thanks
+> > 
+> > Ok, here are the results for 2.4.1-pre4, along with the original -pre8 
+> > results.  There does appear to be a slowdown.
+> > 
+> > 2.4.1-pre4
+> > average:   9.77876 MB/sec
+> > 
+> > Throughput 10.3677 MB/sec (NB=12.9597 MB/sec  103.677 MBit/sec)
+> > Throughput 9.61291 MB/sec (NB=12.0161 MB/sec  96.1291 MBit/sec)
+> > Throughput 9.92944 MB/sec (NB=12.4118 MB/sec  99.2944 MBit/sec)
+> > Throughput 9.20502 MB/sec (NB=11.5063 MB/sec  92.0502 MBit/sec)
+> > 
+> > 2.4.1-pre8:
+> > Average    9.25707 MB/sec
+> > 
+> > Throughput 8.93444 MB/sec (NB=11.1681 MB/sec  89.3444 MBit/sec)
+> > Throughput 9.43609 MB/sec (NB=11.7951 MB/sec  94.3609 MBit/sec)
+> > Throughput 9.5075 MB/sec (NB=11.8844 MB/sec  95.075 MBit/sec)
+> > Throughput 9.15026 MB/sec (NB=11.4378 MB/sec  91.5026 MBit/sec)
+> > 
+> > This was done on a dual P-III, 256MB machine.
 
-As far as i know partition ID's are only supposed to say what type of
-filesystems is on a partition, which is a totally stupid and crappy idea
-that makes no sense whatsoever (i feel strongly about this).
+Stephen,
 
-Linux filesystems have a filesystem type field in the filesystems
-superblock, which is what mount -a tries to use to guess the filesystem,
-the problem is that this flag isnt in the same place, so its not as
-valuable as it should be.
+To rule out other factors, could you try 2.4.1-pre8 with
+blk_started_io() and blk_finished_io() defined to nothing
+in include/linux/blkdev.h? This will disable the max-locked-buffers
+heuristic.
 
-Have a partition marker to indicate the filesystem is stupid because the
-two are totally independent, of course i can format a filesystem of type
-0x82 with whatever filesystem i want, and then there is also sorts of
-confusion when the partition table says the wrong thing.
+Also, are the numbers above consistent for repeated runs (with
+boots in between)?
 
-In an ideal world the filesystem superblock flag for any filesystem type
-would be easy to get to, and then would also be a partition_table flag
-magic bit that indicates the type of partition table (i.e. pc_bios,
-solaris, bsd, atari/amiga, LVM) with the absence of the partition_type
-flag you could assume it was a whole disk and check my reading the
-superblock filesystem.
-
-But of course you could never have an idealistic thing such as this
-becuase different people would have to agree on one place for the flags.
-
-Glenn
+-- 
+* Jens Axboe <axboe@suse.de>
+* SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

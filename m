@@ -1,87 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266678AbUBLXVO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 18:21:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266681AbUBLXVO
+	id S266672AbUBLXZy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 18:25:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266679AbUBLXZy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 18:21:14 -0500
-Received: from smtp101.mail.sc5.yahoo.com ([216.136.174.139]:24195 "HELO
-	smtp101.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S266678AbUBLXVJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 18:21:09 -0500
-Message-ID: <402C0A4D.60102@yahoo.es>
-Date: Thu, 12 Feb 2004 18:20:45 -0500
-From: Roberto Sanchez <rcsanchez97@yahoo.es>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040209)
-X-Accept-Language: en-us, en
+	Thu, 12 Feb 2004 18:25:54 -0500
+Received: from kinesis.swishmail.com ([209.10.110.86]:62474 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S266672AbUBLXZw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Feb 2004 18:25:52 -0500
+Message-ID: <402C0D0F.6090203@techsource.com>
+Date: Thu, 12 Feb 2004 18:32:31 -0500
+From: Timothy Miller <miller@techsource.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6, 2.4, Nforce2, Experimental idle halt workaround
- instead of apic ack delay.
-References: <200402120122.06362.ross@datscreative.com.au> <Pine.LNX.4.58.0402121118490.515@gonopodium.signalmarketing.com> <20040212214407.GA865@tesore.local> <Pine.LNX.4.58.0402121544470.962@gonopodium.signalmarketing.com> <1076623565.16585.11.camel@athlonxp.bradney.info> <20040212230456.GA911@tesore.local>
-In-Reply-To: <20040212230456.GA911@tesore.local>
-X-Enigmail-Version: 0.83.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig14D49DB449D527A1DED68AFF"
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: File system performance, hardware performance, ext3, 3ware RAID1,
+ etc.
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig14D49DB449D527A1DED68AFF
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+I'm attempting to get some idea of how much overhead ext3 causes me on 
+my workstation at home.  Furthermore, I'm trying to determine what sort 
+of advantage I'm really getting from my 3ware RAID controller (model 
+7000-2, configured for RAID1) over single disks.
 
-Jesse Allen wrote:
-> On Thu, Feb 12, 2004 at 11:06:05PM +0100, Craig Bradney wrote:
-> 
-> 
->>so what does "My
->>Shuttle AN35N nforce2 board can run vanilla kernels with the 12-5-2003
->>dated bios version and not lock up." mean?
->>
-> 
-> 
-> vanilla kernels = 2.6.0-test11 through 2.6.3-rc2 and no patches.  APIC is on.
-> 
-> 12-5-2003 BIOS:
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=107124823504332&w=2
-> 
-> not lock up:
-> I could reproduce the lockup consistantly.  With the 12-5-2003 bios, I cannot.  Two months have passed since the original report.
-> 
-> 
->>Whenthis thread first(?) started way back when in Nov or Dec last year I
->>was pretty happy.. no lockups until the 5th day.
-> 
-> 
-> The different nforce boards react differently because of different hardware an 
-> manufacterers.  But they all do have a common symptom.  
-> 
-> I don't know how to identify a fix from my bioses.  If someone has any clue, I 
-> will help out.
-> 
+Using iozone, I'm finding an upper bound for disk reads at about 40 
+megs/sec, which is okay, but no better than single disk.  That's 
+probably expected, since sequential reads can't come off the disk any 
+faster than the disk spins.  RAID1 would show its greatest benefit with 
+RANDOM reads.
 
-FWIW, my Biostar M7NCDPro with the latest (12-08-2003) BIOS locks up
-consistently unless I disable APIC (either in the kernel or the BIOS)
-or apply some sort of patch (like the APIC and disconnect-quirk patches
-that briefly made the rounds in the -mm tree).
+To determine the highest upper bound for sequential read throughput, I 
+timed a dd of the first gigabyte from /dev/sga (the raw device) to 
+/dev/null.  This showed a throughput of 47meg/sec.  This shows that ext3 
+  isn't hurting reads.
 
--Roberto Sanchez
+For writes, iozone found an upper bound of about 10megs/sec, which is 
+abysmal.  Typically, I'd expect writes to be faster (on a single drive) 
+than reads, because once the write is sent, you can forget about it. 
+You don't have to wait around for something to come back, and that 
+latency for reads can hurt performance.  The OS can also buffer writes 
+and reorder them in order to improve efficiency.
 
---------------enig14D49DB449D527A1DED68AFF
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+The 3ware has this write cache that you can turn on or off.  With it 
+off, it ensures that writes make it to the disks in order.  With it on, 
+it will reorder writes more efficiently.  However, I noticed that the 
+performance only went up to about 16meg/sec with the cache ON.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+For comparison, I would like to estimate the maximum WRITE throughout 
+for the raw device.  But I'm not ready to dump zeros to my working 
+partitions.  I was thinking that I could do this with the SWAP 
+partition.  I could turn off swap and then dd TO the swap partition. 
+Being on the inner tracks, it won't perform as well as the max for the 
+drive, but it'll give me a lower bound for raw write throughput to 
+compare against.
 
-iD8DBQFALApNTfhoonTOp2oRAjlgAJ9kVECSjnkMKDdhU+vcmclLEjLnUgCffgj5
-Okhat6ONj9E8prBGYUGHOMk=
-=W6Ak
------END PGP SIGNATURE-----
+IMPORTANT QUESTION:  Is there any metadata anywhere in the swap 
+partition (when it's not in use) that I need to save before I fill it 
+with zeros?
 
---------------enig14D49DB449D527A1DED68AFF--
+Also, what do I use as a source for zeros when writing with dd? 
+"/dev/zero"?
+
+What's the command?  How about this:
+     time dd if=/dev/zero of=/dev/sga3 bs=1024 count=1024
+
+Will that do it?  Should I use an offset to avoid any kind of header or 
+metadata?
+
+If anyone has numbers for what they get with WD1200JB drives, I'd love 
+to compare.
+
+Thanks!
+

@@ -1,62 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136143AbRAGRg7>; Sun, 7 Jan 2001 12:36:59 -0500
+	id <S131778AbRAGRj3>; Sun, 7 Jan 2001 12:39:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131778AbRAGRgt>; Sun, 7 Jan 2001 12:36:49 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:14834 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S136192AbRAGRgf>; Sun, 7 Jan 2001 12:36:35 -0500
-Date: Sun, 7 Jan 2001 15:35:36 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: [PATCH *] 2.4.0 VM improvements
-Message-ID: <Pine.LNX.4.21.0101071529070.21675-100000@duckman.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S136127AbRAGRjT>; Sun, 7 Jan 2001 12:39:19 -0500
+Received: from gleb.nbase.co.il ([194.90.136.56]:266 "EHLO gleb.nbase.co.il")
+	by vger.kernel.org with ESMTP id <S131778AbRAGRjK>;
+	Sun, 7 Jan 2001 12:39:10 -0500
+From: Gleb Natapov <gleb@nbase.co.il>
+Date: Sun, 7 Jan 2001 19:37:57 +0200
+To: jamal <hadi@cyberus.ca>
+Cc: Chris Wedgwood <cw@f00f.org>, Ben Greear <greearb@candelatech.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        "netdev@oss.sgi.com" <netdev@oss.sgi.com>
+Subject: Re: [PATCH] hashed device lookup (Does NOT meet Linus' sumission policy!)
+Message-ID: <20010107193757.F28257@nbase.co.il>
+In-Reply-To: <20010107162905.B1804@metastasis.f00f.org> <Pine.GSO.4.30.0101071144530.18916-100000@shell.cyberus.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.30.0101071144530.18916-100000@shell.cyberus.ca>; from hadi@cyberus.ca on Sun, Jan 07, 2001 at 11:56:26AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, Jan 07, 2001 at 11:56:26AM -0500, jamal wrote:
+> 
+> 
+> On Sun, 7 Jan 2001, Chris Wedgwood wrote:
+> 
+> > That said, if this was done -- how would things like routing daemons
+> > and bind cope?
+> 
+> I dont know of any routing daemons that are taking advantage of the
+> alias interfaces today. This being said, i think that the fact that a
+> lot of protocols that need IP-ization are coming up eg VLANs; you should
+> see a good use for this. Out of curiosity for the VLAN people, how do you
+> work with something like Zebra?
 
-I posted a patch for the 2.4.0 VM subsystem today which
-includes the following things:
+Without any problems. Zebra sees different VLAN interfaces as different networks
+and happily route between them.
 
-- implement RSS ulimit enforcement
-- make the page aging strategy sysctl tunable
-	(no aging, exponential decay, linear decay)
-- don't use the page age in try_to_swap_out(), since that
-  function doesn't do much anyway and it saves CPU time
-	(saves kswapd CPU use, but uses more swap space)
-- update Documentation/sysctl/vm.txt
-- simplify do_try_to_free_pages() a bit
-	(no behavioural changes in the system seen)
+> One could have the route daemon take charge of management of these
+> devices, a master device like "eth0" and a attached device like "vlan0".
+> They both share the same ifindex but different have labels.
+> Basically, i dont think there would be a problem.
+>
 
+Theoretically it seems to be possible but it's much harder to do in Zebra than 
+in kernel. And "eth0" shouldn't share ifindex with "vlan0" I don't think SNMP
+will be happy about that.
 
-I guess at least the documentation updates should make it into
-2.4.1, the rest is rather simple and is working stable but is
-not _that_ important, IMHO (so lets wait until Linus' bugfix-only
-version is over and 2.4 is stable _and_ tested).
-
-Since I'll be travelling to Australia on tuesday morning, I'll
-not split this out into other things but will be porting the fair
-scheduler tomorrow ... that patch will also be available on my
-site.
-
-The patch is available at this URL:
-
-	http://www.surriel.com/patches/2.4/2.4.0-tunevm+rss
-
-regards,
-
-Rik
 --
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to loose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
-
+			Gleb.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

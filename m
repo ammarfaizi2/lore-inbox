@@ -1,74 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266688AbTAOQYi>; Wed, 15 Jan 2003 11:24:38 -0500
+	id <S266728AbTAOQ0M>; Wed, 15 Jan 2003 11:26:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266720AbTAOQYi>; Wed, 15 Jan 2003 11:24:38 -0500
-Received: from in02-fes1.whowhere.com ([209.202.220.218]:38067 "HELO
-	whowhere.com") by vger.kernel.org with SMTP id <S266688AbTAOQYf>;
-	Wed, 15 Jan 2003 11:24:35 -0500
-To: "Dean McEwan" <dean.mcewan@eudoramail.com>,
-       "Andre Hedrick" <andre@linux-ide.org>
-Date: Wed, 15 Jan 2003 16:33:08  0000
-From: "Dean McEwan" <dean.mcewan@eudoramail.com>
-Message-ID: <GDNLPJPKKDOJKAAA@whowhere.com>
-Mime-Version: 1.0
-Cc: linux-kernel@vger.kernel.org, abramo.bagnara@libero.it,
-       "Richard Stallman" <rms@gnu.org>
-X-Sent-Mail: off
-Reply-To: dean.mcewan@eudoramail.com
-X-Mailer: MailCity Service
-X-Priority: 3
-Subject: Re: [WAY OFFTOPIC] RMS and reactions to him (best viewed in times new roman)
-X-Sender-Ip: 213.120.56.45
-Organization: Lycos Mail  (http://www.mail.eudoramail.com)
+	id <S266731AbTAOQ0M>; Wed, 15 Jan 2003 11:26:12 -0500
+Received: from pc2-oxfd3-6-cust118.oxfd.cable.ntl.com ([81.103.195.118]:1806
+	"EHLO noetbook.telent.net") by vger.kernel.org with ESMTP
+	id <S266728AbTAOQ0F>; Wed, 15 Jan 2003 11:26:05 -0500
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.x, can't ptrace a task created with clone() ?
+From: Daniel Barlow <dan@telent.net>
+Date: Wed, 15 Jan 2003 16:34:58 +0000
+Message-ID: <87r8bebcct.fsf@noetbook.telent.net>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Language: en
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-One fateful day, Mr Stallman was walking along and suddenly decided "hey wouldn't it be
-fun if I took apart that printer?", after finding out he was too "different" to figure out how 
-a high tech water pistol worked, he vowed to "never allow Lexmark to overwhelm me again"...
 
-Thus the FSF was created, a breed of men, women and followers like Hell.Surfers (me) who,
-wanted to see the source code for everything...
+Tested with 4.2.20 and 2.4.21-pre3, after PTRACE_ATTACHing to a
+process I created with clone(), wait() returns ECHILD .  strace
+of the parent shows
 
-This was a good idea until a company (NVidia) decided they would use code they shouldn't use, 
-because the executive said "Hey who cares, anyway?" except Hell.Surfers did, he had just walked 
-out in front of a car marked "Bad Idea", and thought somebody would care...
- 
-Except everybody in the community was now receiving cheques for users using NVidia cards who 
-wouldn't otherwise be using this stuff they had written, Hell.Surfers was mighty pissed, until 
-he realised, "hang on, nobody cares", and thus he descretly offered a 
-retraction. 
+clone(child_stack=0x80599a8, flags=CLONE_VM) = 1292
+rt_sigprocmask(SIG_BLOCK, [CHLD], [], 8) = 0
+rt_sigaction(SIGCHLD, NULL, {SIG_DFL}, 8) = 0
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+nanosleep({5, 0}, {5, 0})               = 0
+ptrace(PTRACE_ATTACH, 1292, 0, 0)       = 0
+--- SIGCHLD (Child exited) ---
+wait4(-1, 0xbffffbf0, 0, NULL)          = -1 ECHILD (No child processes)
+write(2, "waitpid: No child processes\n", 28) = 28
 
-Then he thought hang on, "what was Mr. Stallman doing whilst this was happening?" "Zit" came
-the words of St. Ignutious, "I was blabbering on about how I made some of it too", "nobody
-cares" screamed the choir of followers, suddenly realising "Hey the Sun Microsystems licence 
-ain't that bad", as Mr. Stallman/St. Ignutious/ sat around
-doing a odd jig, people began to say hey "he's a bit 'different' really"...
+If I replace the clone in my test program with a fork, everything
+works as I expected.  Is this a bug, or are my expectations at fault?
+if the latter, how _do_ I attach to one of my cloned children?
 
-Mr. Surfers (who's not anonymous, just likes riding strong currents of opposition), began to
-slowly realise that the nice people at NVidia were not however doing a favour and had something to gain 
-(more users) and shouldn't be begged, nay, prayed for forgiveness, they were after all
-a bunch of people who kept breaking the kernel, Mr. Surfers also realised, their code wasnt
-worth GPL'ing, it was after all, one of the only modules to make the kernel crash occasionally... 
+Here's the test program I've been using:
 
-Then Hell realised "Would Mr. Stallman know a graphics card if he was electrocuted from pissing 
-on it?", the answer Ignutious gave was "NO, IM NOT A PROGRAMMER, IM JUST A VOICE",
-as the rest of the FSF put him back in his cage, Hell began to think, wow thats why you shouldn't 
-rattle it. "Hes, erm, 'different'".
-
-"NUTS, back to the drawing board" Mr. Surfers said, as he wandered 
-off into dodgy KGI code.
----
-Deano. LMAO.
-
-FEEL FREE TO USE ANY OF THAT IN A SIGNATURE, ESPECIALLY TYKETTO, WHO SAYS HE IS REWRITING THE KERNEL 
-IN SGML/HTML/APPLE/M$ VISUAL C++/DOG FAECIES/AND ANY THING ELSE HE HANDLES ON A DAY TO DAY BASIS.
+#include <sched.h>
+#include <sys/ptrace.h>
+#include <linux/user.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 
-Need a new email address that people can remember
-Check out the new EudoraMail at
-http://www.eudoramail.com
+void child(void *d) 
+{
+    int foo;
+    fprintf(stderr,"child stack is somewhere around 0x%x\n",&foo);
+    while(1){
+	fprintf(stderr, "still here\n");
+	sleep(3);
+    }
+}
+
+main() 
+{
+    pid_t kid;
+    int waitr;
+    struct user_regs_struct regs;
+
+    kid=clone(child,SIGSTKSZ*8+malloc(SIGSTKSZ*8), CLONE_VM ,0);  
+    /* kid=fork(); */
+    if(kid<0) perror("clone");
+    if(kid==0) child(0);
+    sleep(5);
+    if(kid>0) {
+	if(ptrace(PTRACE_ATTACH,kid,0,0)) perror("PTRACE_ATTACH");
+	if(wait(&waitr)==-1) {
+	    perror("waitpid");
+	    exit(1);
+	}
+	if(ptrace(PTRACE_GETREGS,kid,0,&regs)) perror("PTRACE_GETREGS");
+	fprintf(stderr,"child stack pointer is 0x%x\n",regs.esp);
+	if(ptrace(PTRACE_DETACH,kid,0,0)) perror("PTRACE_DETACH");
+	kill(kid,15);
+   }
+}
+
+libc 2.3.1, in case that makes a difference.  Let me know if there's
+anything else you wanted to ask
+
+
+-dan
+
+-- 
+
+   http://www.cliki.net/ - Link farm for free CL-on-Unix resources 

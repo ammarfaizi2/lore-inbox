@@ -1,30 +1,64 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315955AbSEGTav>; Tue, 7 May 2002 15:30:51 -0400
+	id <S315956AbSEGTtc>; Tue, 7 May 2002 15:49:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315956AbSEGTau>; Tue, 7 May 2002 15:30:50 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:27141 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S315955AbSEGTat>; Tue, 7 May 2002 15:30:49 -0400
-Subject: Re: Memory Barrier Definitions
-To: engebret@vnet.ibm.com (Dave Engebretsen)
-Date: Tue, 7 May 2002 20:49:58 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3CD825E4.6950ED92@vnet.ibm.com> from "Dave Engebretsen" at May 07, 2002 02:07:16 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S315957AbSEGTtb>; Tue, 7 May 2002 15:49:31 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:46074 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S315956AbSEGTtb>; Tue, 7 May 2002 15:49:31 -0400
+Date: Tue, 7 May 2002 21:44:41 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Dave Jones <davej@suse.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.14-dj1: misc.o: undefined reference to `__io_virt_debug'
+In-Reply-To: <20020507205523.D12134@suse.de>
+Message-ID: <Pine.NEB.4.44.0205072137260.9347-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E175AyE-0008NR-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> A solution was pointed out by Rusty Russell that we should probabily be
-> using smp_*mb() for system memory ordering and reserve the *mb() calls
+On Tue, 7 May 2002, Dave Jones wrote:
 
-For pure compiler level ordering we have barrier()
+> On Tue, May 07, 2002 at 08:36:09PM +0200, Adrian Bunk wrote:
+>
+>  > misc.o: In function `puts':
+>  > misc.o(.text+0x1c46): undefined reference to `__io_virt_debug'
+>  > misc.o(.text+0x1c7c): undefined reference to `__io_virt_debug'
+>  > misc.o(.text+0x1ca9): undefined reference to `__io_virt_debug'
+>  > misc.o(.text+0x1cde): undefined reference to `__io_virt_debug'
+>
+> Odd. Repeatable after a make distclean ?
 
-Alan
- 
+Yes, it's repeatable with a clean kernel source.
+
+> I always build my test kernels with CONFIG_DEBUG_IOVIRT=y, and I
+> haven't seen this happen.
+
+But you build without CONFIG_MULTIQUAD?
+
+Compiling misc.c with -O0 gives a better error message:
+
+<--  snip  -->
+
+...
+ld -m elf_i386 -Ttext 0x100000 -e startup_32 -o bvmlinux head.o misc.o
+piggy.o
+misc.o: In function `outb_quad':
+misc.o(.text+0x289c): undefined reference to `__io_virt_debug'
+make[2]: *** [bvmlinux] Error 1
+make[2]: Leaving directory
+`/home/bunk/linux/kernel-2.5/linux-2.5.14-modular/arch/i386/boot/compressed'
+
+<--  snip  -->
+
+cu
+Adrian
+
+-- 
+
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
 

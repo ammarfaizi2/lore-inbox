@@ -1,57 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266477AbUJIBHT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266221AbUJIBMu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266477AbUJIBHT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 21:07:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266474AbUJIBHS
+	id S266221AbUJIBMu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 21:12:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266362AbUJIBMu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 21:07:18 -0400
-Received: from gate.crashing.org ([63.228.1.57]:36269 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S266459AbUJIBGx (ORCPT
+	Fri, 8 Oct 2004 21:12:50 -0400
+Received: from gate.crashing.org ([63.228.1.57]:42413 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S266221AbUJIBMm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 21:06:53 -0400
-Subject: Re: [PATCH] amd8111e endian & barrier fixes
+	Fri, 8 Oct 2004 21:12:42 -0400
+Subject: Re: Power parents
 From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andi Kleen <ak@muc.de>
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       khawar.chaudhry@amd.com, reeja.john@amd.com
-In-Reply-To: <m3u0t5a0u1.fsf@averell.firstfloor.org>
-References: <2MWTy-5mO-5@gated-at.bofh.it>
-	 <m3u0t5a0u1.fsf@averell.firstfloor.org>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Kernel development list <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44L0.0410081004540.1005-100000@ida.rowland.org>
+References: <Pine.LNX.4.44L0.0410081004540.1005-100000@ida.rowland.org>
 Content-Type: text/plain
-Message-Id: <1097283973.3605.11.camel@gaston>
+Message-Id: <1097284332.3647.14.camel@gaston>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 09 Oct 2004 11:06:13 +1000
+Date: Sat, 09 Oct 2004 11:12:12 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-10-08 at 21:47, Andi Kleen wrote:
+On Sat, 2004-10-09 at 00:07, Alan Stern wrote:
 
-> It's basically impossible to review the patch properly because
-> of that change. Can you please separate the arbitary white space
-> change into a different patch? 
+> My reason for asking is because having special parent pointers like that,
+> without corresponding children pointers, makes it impossible to guarantee
+> that parents aren't suspended until after their children when doing a
+> selective suspend.
 
-Hrm... I think you are doing too much here ;) The change concerns only a
-single function and is still quite readable :) But anyways, I'll
-eventually do that next week.
+Oh, I also remember at one point toying with moving some devices to
+different parents based on weird mobo design, but I dropped the idea.
 
-> Also I would suggest you send the patch to the driver 
-> maintainers for review first (cc'ed) 
+> What sort of special nodes are you thinking of inserting, and how would 
+> they affect selective suspend?
 
-Well, I would have done if any maintainer email was in the source code,
-which isn't the case, but thanks for providing them :)
+Oh, I'm thinking about inserting a "platform" entry between some USB
+controllers and the PCI parent. On PowerMac, some of these USB controllers
+are power managed via special stuffs in Apple ASICs that aren't directly
+related to the PCI bus they sit on. Right now, I have hacks in the USB
+HCD drivers themselves for that, but it would be cleaner just to "insert"
+an entry in the power tree to do the job.
 
-> >From a quick look the change to clear the ring rx flags completely
-> instead of clearing the bit looks bogus. Why did you not just add a
-> endian conversion there?
+Ben.
 
-Because the bits mask was ... 0 :)
-
-> I can test it when it's properly reviewd.
-
-Sure. No hurry.
-
-Ben
 

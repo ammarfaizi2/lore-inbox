@@ -1,75 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269076AbRHGHBe>; Tue, 7 Aug 2001 03:01:34 -0400
+	id <S270113AbRHGHFY>; Tue, 7 Aug 2001 03:05:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269188AbRHGHBY>; Tue, 7 Aug 2001 03:01:24 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:13 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S269076AbRHGHBO>; Tue, 7 Aug 2001 03:01:14 -0400
-Date: Tue, 7 Aug 2001 02:32:03 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Eric Taylor <et@rocketship1.com>
-Cc: linux-kernel@vger.kernel.org, eric.a.tailor@jpl.nasa.gov
-Subject: Re: "[KSWAPD] linux-2.4.8-pre4, <kswapd profile test results>
-In-Reply-To: <5.1.0.14.2.20010806230342.00ac2850@pop.we.mediaone.net>
-Message-ID: <Pine.LNX.4.21.0108070217590.11588-100000@freak.distro.conectiva>
+	id <S270112AbRHGHFO>; Tue, 7 Aug 2001 03:05:14 -0400
+Received: from imladris.infradead.org ([194.205.184.45]:54033 "EHLO
+	infradead.org") by vger.kernel.org with ESMTP id <S270111AbRHGHFI>;
+	Tue, 7 Aug 2001 03:05:08 -0400
+Date: Tue, 7 Aug 2001 08:04:58 +0100 (BST)
+From: Riley Williams <rhw@MemAlpha.CX>
+X-X-Sender: <rhw@infradead.org>
+To: Andrzej Krzysztofowicz <kufel!ankry@green.mif.pg.gda.pl>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: How does "alias ethX drivername" in modules.conf work?
+In-Reply-To: <200108062346.BAA09011@kufel.dom>
+Message-ID: <Pine.LNX.4.33.0108070757460.11974-100000@infradead.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Andrzej.
 
+First, what's with the crazy addresses for Linux-Kernel mailing list
+and the various correspondants?
 
-On Mon, 6 Aug 2001, Eric Taylor wrote:
+ >>>> One of my systems has SIX ethernet cards, these being three ISA
+ >>>> and two PCI NE2000 clones and a DEC Tulip. Here's the relevant
+ >>>> section of modules.conf on the system in question:
 
-> Kswapd has been seen to get busy for minutes. I used the kernel
-> profiler with a minor mod, to analyse what kswapd is doing during this
-> time. I think that everyone agrees that it is probably running too
-> often, but I wanted to see what it was doing when my system froze.
-> 
-> Eric
-> please cc at et@rocketship1.com
-> 
-> 
-> 
-> 
-> 
-> My test case is simple, esentially the below loop: 
-> 
-> =================================================
-> 32-bit int array = malloc(1.2 gigs of mem);
-> for(I=0; I < 1.2gig/4 ; I++){
->    array[I] = I;
-> }
-> =================================================
-> 
-> 
-> 
-> =================================================
-> Findings (with approximate numbers):
-> =================================================
-> 
-> The time spent in kswapd is almost entirely in scan_swap_map (normally inlined in swapfile.c).
-> Note that it is called like this:
-> 
->                         swap_device_lock(p);
->                         offset = scan_swap_map(p, count);
->                         swap_device_unlock(p);
-> 
-> What does swap_device_lock lock, could it explain why nothing else runs while kswapd is scanning?
+ >>>>  Q> alias eth0 ne
+ >>>>  Q> options eth0 io=0x340
+ >>>>  Q> alias eth1 ne
+ >>>>  Q> options eth1 io=0x320
+ >>>>  Q> alias eth2 ne
+ >>>>  Q> options eth2 io=0x2c0
+ >>>>  Q> alias eth3 ne2k-pci
+ >>>>  Q> alias eth4 ne2k-pci
+ >>>>  Q> alias eth5 tulip
 
-We hold the pagetable lock for the mm when scanning it.
+ >> However, if the cards are controlled by different drivers, you can
+ >> influence the order they are detected in by your choice of entries in
+ >> modules.conf - in the example above, the ISA cards are always eth0,
+ >                                                         ^^^^^^
 
-> Over a typical run, scan_swap_map was called 461k (461,000) times.
-> Only .6k times did it find a completely empty cluster (approx 1 /
-> 1000). 175k times it found a free page, 286k times it did not find a
-> free page. In this test, the clustering code is not finding many
-> clusters, but seems to be doing a lot of work. The swapfile cluster
-> value is 256 (perhaps this should become a tuning variable).
+ >> eth1 and eth2, the NE2k-pci cards are always eth3 and eth4, and the
+ >> tulip card is always eth5, simply because that's what the said file
+ >> says.
 
-That code was written a long time ago.
+ > Not always. You are wrong here, I'm afraid:
 
-I started to write a new clustering scheme for swapping 4h ago.  
+ > Lets assume that eth0-eth3 are not initialized at boot time and
+ > your init scripts attempt to initialize eth4 ...
 
-I'll post code as soon as I get it stable. 
+Then I get an entry for eth4 in the `ifconfig` output, with NO entries
+for `eth0` through `eth3`, exactly as expected.
+
+Note that the `ifconfig` command refers to the interfaces by name, and
+it's the settings in modules.conf that decide what type of interface
+that name refers to. That mapping can't be changed by any interface
+configuration or initialisation command, and the names used are those
+as given.
+
+ > To avoid such problems one probably should add a lot of
+ > pre-install parameters in modules.conf.
+
+What problems?
+
+Best wishes from Riley.
 

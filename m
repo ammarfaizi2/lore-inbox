@@ -1,52 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269210AbRHLOBH>; Sun, 12 Aug 2001 10:01:07 -0400
+	id <S269212AbRHLOIh>; Sun, 12 Aug 2001 10:08:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269211AbRHLOA6>; Sun, 12 Aug 2001 10:00:58 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:44042 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S269210AbRHLOAu>;
-	Sun, 12 Aug 2001 10:00:50 -0400
-Date: Sun, 12 Aug 2001 11:00:31 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Mike Galbraith <mikeg@wen-online.de>, Steve Kieu <haiquy@yahoo.com>,
-        kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Performance 2.4.8 is worse than 2.4.x<8
-In-Reply-To: <E15VtnT-0005bM-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33L.0108121053430.6118-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S269236AbRHLOIR>; Sun, 12 Aug 2001 10:08:17 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:34573 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S269222AbRHLOIL>; Sun, 12 Aug 2001 10:08:11 -0400
+Subject: Re: Reg:flow of system call in linux
+To: sathish.j@tatainfotech.com (SATHISH.J)
+Date: Sun, 12 Aug 2001 15:10:38 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.10.10108121903130.26368-100000@blrmail> from "SATHISH.J" at Aug 12, 2001 07:05:35 PM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15Vvwt-0005m5-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 12 Aug 2001, Alan Cox wrote:
+> Can someone tell me about the flow of system call for eg. from open
+> wrapper routine to sys_open() function or atleast please suggest me a
+> book/website
+> where I can get this info.
 
-> > Here, disk write throughput seems to want some tweaking, and Bonnie
-> > doing it's rewrite test triggers a very large and persistant inactive
-> > shortage which shouldn't be there (imho).
->
-> This is one of the reasons I kept the 2.4.7 vm. The 2.4.8 vm is better
-> than 2.4.8pre but not actually better than the older VM by feel or
-> measurement on my test boxes
+Userspace open() calls into glibc code
+glibc does architecture dependant magic to make a syscall
+The kernel syscall code does architecture dependant magic 
+The kernel calls sys_open
 
-There are some open-ended questions wrt. the use-once idea,
-its implementation and the way the thing has been integrated
-with the rest of the kernel.
 
-Some suspect interactions and some things which just aren't
-clear yet don't make it seem the best idea to start integrating
-the use-once idea in mainli^W-ac yet...
+In the x86 case the magic is basically
 
-regards,
+Load arguments into the right registers
+int 0x80
 
-Rik
---
-IA64: a worthy successor to i860.
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+then the kernel code in arch/i386/kernel/entry.S
 

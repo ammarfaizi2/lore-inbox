@@ -1,59 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261865AbVAYHyv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261873AbVAYH6w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261865AbVAYHyv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 02:54:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261864AbVAYHwF
+	id S261873AbVAYH6w (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 02:58:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261869AbVAYH4b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 02:52:05 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:18183 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261861AbVAYHtJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 02:49:09 -0500
-Date: Tue, 25 Jan 2005 08:49:06 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, axboe@suse.de, jeffpc@optonline.net
-Subject: [2.6 patch] *-iosched.c: Use proper documentation path
-Message-ID: <20050125074906.GE3515@stusta.de>
+	Tue, 25 Jan 2005 02:56:31 -0500
+Received: from h80ad25f5.async.vt.edu ([128.173.37.245]:29188 "EHLO
+	h80ad25f5.async.vt.edu") by vger.kernel.org with ESMTP
+	id S261870AbVAYHzT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 02:55:19 -0500
+Message-Id: <200501250755.j0P7tA7C029953@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: John Richard Moser <nigelenki@comcast.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Complex logging in the kernel 
+In-Reply-To: Your message of "Tue, 25 Jan 2005 01:26:14 EST."
+             <41F5E686.1080205@comcast.net> 
+From: Valdis.Kletnieks@vt.edu
+References: <41F5E686.1080205@comcast.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: multipart/signed; boundary="==_Exmh_1106639710_11132P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 25 Jan 2005 02:55:10 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch by Josef "Jeff" Sipek <jeffpc@optonline.net> fixes two 
-documentationn paths.
+--==_Exmh_1106639710_11132P
+Content-Type: text/plain; charset="us-ascii"
+Content-Id: <1859.1106639710.1@turing-police.cc.vt.edu>
 
-Signed-off-by: Josef "Jeff" Sipek <jeffpc@optonline.net>
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+On Tue, 25 Jan 2005 01:26:14 EST, John Richard Moser said:
 
-diff -Nru a/drivers/block/as-iosched.c b/drivers/block/as-iosched.c
---- a/drivers/block/as-iosched.c	2004-12-02 19:45:45 -05:00
-+++ b/drivers/block/as-iosched.c	2004-12-02 19:45:45 -05:00
-@@ -25,7 +25,7 @@
- #define REQ_ASYNC	0
- 
- /*
-- * See Documentation/as-iosched.txt
-+ * See Documentation/block/as-iosched.txt
-  */
- 
- /*
-diff -Nru a/drivers/block/deadline-iosched.c b/drivers/block/deadline-iosched.c
---- a/drivers/block/deadline-iosched.c	2004-12-02 19:45:45 -05:00
-+++ b/drivers/block/deadline-iosched.c	2004-12-02 19:45:45 -05:00
-@@ -19,7 +19,7 @@
- #include <linux/rbtree.h>
- 
- /*
-- * See Documentation/deadline-iosched.txt
-+ * See Documentation/block/deadline-iosched.txt
-  */
- static int read_expire = HZ / 2;  /* max time before a read is submitted. */
- static int write_expire = 5 * HZ; /* ditto for writes, these limits are SOFT! */
+> For example, let's say I wanted to register my specific code (i.e. a
+> security module) to log, and adjust to log level N.  I also want another
+> module to log at log level L, which is lower than N.  I want to print
+> logs at log level N..+2 and below to the console, but silently log all
+> log messages >N+2 to the syslog.
+> 
+> Anything?
 
+from include/linux/kern.h:
 
+#define KERN_EMERG      "<0>"   /* system is unusable                   */
+#define KERN_ALERT      "<1>"   /* action must be taken immediately     */
+#define KERN_CRIT       "<2>"   /* critical conditions                  */
+#define KERN_ERR        "<3>"   /* error conditions                     */
+#define KERN_WARNING    "<4>"   /* warning conditions                   */
+#define KERN_NOTICE     "<5>"   /* normal but significant condition     */
+#define KERN_INFO       "<6>"   /* informational                        */
+#define KERN_DEBUG      "<7>"   /* debug-level messages                 */
 
+Do all your printk in one module at KERN_NOTICE, and the other at KERN_INFO,
+and then use klogd and syslogd to route them as you want.
 
+Or use something like syslog-ng to route based on a regexp match, and then
+just make sure your printk's include the module name, log everything at one
+level, and route matches for 'modulea:' to one place and 'moduleb:' to
+another.
 
+Alternatively, use the 'audit' subsystem - but there you'll probably have to
+modify the userspace auditd to recognize messages from the various modules and
+route them appropriately.
+
+If you're looking for a learning experience rather than getting code
+completed, you can probably find a way to use netlink to do it too....
+
+--==_Exmh_1106639710_11132P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFB9ftecC3lWbTT17ARArRpAKD19L10ehxuVmiuNbHjJxQq4ckWgwCeNFOK
+P3HJyvgqIqSMqNL562AwaXw=
+=dMnq
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1106639710_11132P--

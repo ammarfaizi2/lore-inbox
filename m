@@ -1,64 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261575AbTIXXur (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Sep 2003 19:50:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261602AbTIXXur
+	id S261582AbTIXX6c (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Sep 2003 19:58:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261602AbTIXX6c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Sep 2003 19:50:47 -0400
-Received: from kweetal.tue.nl ([131.155.3.6]:24072 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S261575AbTIXXuo (ORCPT
+	Wed, 24 Sep 2003 19:58:32 -0400
+Received: from [212.97.163.22] ([212.97.163.22]:171 "EHLO aneto.able.es")
+	by vger.kernel.org with ESMTP id S261582AbTIXX6b (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Sep 2003 19:50:44 -0400
-Date: Thu, 25 Sep 2003 01:50:41 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: rfc: test whether a device has a partition table
-Message-ID: <20030924235041.GA21416@win.tue.nl>
-References: <UTC200309242029.h8OKTo008219.aeb@smtp.cwi.nl> <bkt3qe$imh$1@build.pdx.osdl.net>
+	Wed, 24 Sep 2003 19:58:31 -0400
+Date: Thu, 25 Sep 2003 01:58:19 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: POP3 checker [was Re: ATTACK TO MY SYSTEM]
+Message-ID: <20030924235819.GA3892@werewolf.able.es>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
-In-Reply-To: <bkt3qe$imh$1@build.pdx.osdl.net>
-User-Agent: Mutt/1.3.25i
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 2.0.14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 24, 2003 at 02:54:21PM -0700, Linus Torvalds wrote:
-
-> Repeat after me: make the defaults so sane that most people don't even
-> have to think about it.
+On 09.23, Mike Galbraith wrote:
+> At 03:40 PM 9/23/2003 +0200, you wrote:
 > 
-> In short, I think your first sentence (upon which the rest of the argument
-> depends) is just quite _fundamentally_ flawed.
+> >Some pointer to that pop previewer ?
+> 
+> I'm using freeware from webattack.com (this box is XP).  If you find 
+> something for linux, please drop me a line.
+> 
 
-Ha, Linus - didn't you know I am always right?
+I know this had got very off-topic, but as so many people had this problem...
+Finally I found something. Look at 'popchecker':
 
-But being right in theory - like you say, I have repeated these
-things for many years - is not enough to submit a kernel patch.
-The post of today was prompted by a mail about
-certain USB devices:
+http://www.ludd.luth.se/~staham/linux/programs.html
+ 
+It works very nicely.
+I think is would be easy to tweak it to automagically delete messages
+bigger than a given size. Perhaps when I have some spare time...
+or I found something that already does this.
+Even with popchecker and some grep+sort+sed etc...
 
-> On closer examination it seems to be the partition table
-> which is read ok (as one partition) on W2K and XP
-> but Linux (both 2.4 and 2.6) gets really confused and
-> thinks there are 4 malformed partitions.
+This can become a mandatory applet nowadays.
+Hope this helps ;).
 
-and
-
-> Linux probably needs to handle this situation more
-> gracefully. A local police force bought a bunch of
-> these devices for Linux based forensic work. They
-> are a bit disappointed at the moment.
-
-So, now not only theory but also practice is involved, and
-we must do something.
-
-My post implicitly suggested the minimal thing to do.
-It will not be enough - heuristics are never enough -
-but it probably helps in most cases.
-
-I wait a little for reactions, and hope to send you a patch later.
-
-Andries
-
+-- 
+J.A. Magallon <jamagallon()able!es>     \                 Software is like sex:
+werewolf!able!es                         \           It's better when it's free
+Mandrake Linux release 9.2 (Cooker) for i586
+Linux 2.4.23-pre5-jam1 (gcc 3.3.1 (Mandrake Linux 9.2 3.3.1-2mdk))

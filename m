@@ -1,46 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286172AbRLJH1D>; Mon, 10 Dec 2001 02:27:03 -0500
+	id <S285925AbRLJHYn>; Mon, 10 Dec 2001 02:24:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286174AbRLJH0x>; Mon, 10 Dec 2001 02:26:53 -0500
-Received: from zero.tech9.net ([209.61.188.187]:42502 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S286172AbRLJH0o>;
-	Mon, 10 Dec 2001 02:26:44 -0500
-Subject: Re: "Colo[u]rs"
-From: Robert Love <rml@tech9.net>
-To: Stevie O <stevie@qrpff.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <5.1.0.14.2.20011210020236.01cca428@whisper.qrpff.net>
-In-Reply-To: <5.1.0.14.2.20011210020236.01cca428@whisper.qrpff.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.0.99+cvs.2001.12.06.08.57 (Preview Release)
-Date: 10 Dec 2001 02:26:47 -0500
-Message-Id: <1007969208.1237.32.camel@phantasy>
+	id <S286172AbRLJHYe>; Mon, 10 Dec 2001 02:24:34 -0500
+Received: from asooo.flowerfire.com ([63.254.226.247]:12307 "EHLO
+	asooo.flowerfire.com") by vger.kernel.org with ESMTP
+	id <S285925AbRLJHYS>; Mon, 10 Dec 2001 02:24:18 -0500
+Date: Mon, 10 Dec 2001 01:24:08 -0600
+From: Ken Brownfield <brownfld@irridia.com>
+To: Mike Galbraith <mikeg@wen-online.de>
+Cc: Leigh Orf <orf@mailbag.com>, "M.H.VanLeeuwen" <vanl@megsinet.net>,
+        Mark Hahn <hahn@physics.mcmaster.ca>, Andrew Morton <akpm@zip.com.au>,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.4.16 memory badness (fixed?)
+Message-ID: <20011210012408.B11697@asooo.flowerfire.com>
+In-Reply-To: <200112091607.fB9G7mj01944@orp.orf.cx> <Pine.LNX.4.33.0112091758180.411-100000@mikeg.weiden.de>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <Pine.LNX.4.33.0112091758180.411-100000@mikeg.weiden.de>; from mikeg@wen-online.de on Sun, Dec 09, 2001 at 06:17:11PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2001-12-10 at 02:07, Stevie O wrote:
-> After a few failed web searches (combos like 'linux cache color' just gave 
-> me a bunch of references to video), I am resorting to this list for this 
-> question.
-> 
-> What exactly do y'all mean by these "colors"? Task colors, cache colors, 
-> and probably a few other colors i've missed/forgotten about. What do these 
-> colors represent? How are they used to group tasks/cache entries? Is what 
-> they're actually 
+What about moving the calls to shrink_[di]cache_memory() after the
+nr_pages check after the call to kmem_cache_reap?  Or perhaps keep it at
+the beginning, but only call it after priority has gone a number of
+notches down from DEF_PRIORITY?
 
-Cache color is how many indexes there are into a cache.  Caches
-typically aren't direct mapped: they are indexed into cache lines by a
-hash.  This means that certain memory values (of the 2^32 on your PC)
-will map to the same cache line.  This means only one can be there at
-the same time, and the newer one throws the old one out.
+Something like that seems like the only obvious way to balance how soon
+these caches are flushed without over- or under-kill.
 
-Coloring of data structures is down to give random offsets to data such
-that they are not are multiples of the some value and thus don't map to
-the same cache line.  This is what Linux's slab allocator is meant to
-do.
+Also, shouldn't shrink_dqcache_memory use priority rather than
+DEF_PRIORITY?  I'm also not sure what the reasoning is behind the
+nr_pages=chunk_size reset.
 
-	Robert Love
+In the case that Leigh and I are seeing (and my readprofile runs) it
+sounds like shrink_cache is getting called a ton, while the bloated d/i
+caches are flushed too little, too late.
 
+Just $0.02 from a newby. ;)
+
+Thanks for the tip, Mike,
+-- 
+Ken.
+brownfld@irridia.com
+
+
+On Sun, Dec 09, 2001 at 06:17:11PM +0100, Mike Galbraith wrote:
+| On Sun, 9 Dec 2001, Leigh Orf wrote:
+| 
+| > In a personal email, Mike Galbraith wrote to me:
+| >
+| > |   On Sat, 8 Dec 2001, Leigh Orf wrote:
+| > |
+| > |   > inode_cache       439584 439586    512 62798 62798    1
+| > |   > dentry_cache      454136 454200    128 15140 15140    1
+| > |
+| > |   I'd try moving shrink_[id]cache_memory to the very top of vmscan.c::shrink_caches.
+| > |
+| > |   	-Mike
+| >
+| > Mike,
+| >
+| > I tried what you suggested starting with a stock 2.4.16 kernel, and it
+| > did fix the problem with 2.4.16 ENOMEM being returned.
+| >
+| > Now with that change and after updatedb runs, here's what the memory
+| > situation looks like. Note inode_cache and dentry_cache are almost
+| > nothing. Dunno if that's a good thing or not, but I'd definitely
+| 
+| Almost nothing isn't particularly good after updatedb ;-)
+| 
+| > consider this for a patch.
+| 
+| No, but those do need faster pruning imho.  The growth rate can be
+| really really fast at times.
+| 
+| 	-Mike

@@ -1,57 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267847AbRG0JCH>; Fri, 27 Jul 2001 05:02:07 -0400
+	id <S267873AbRG0JNT>; Fri, 27 Jul 2001 05:13:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267852AbRG0JB5>; Fri, 27 Jul 2001 05:01:57 -0400
-Received: from cx570538-a.elcjn1.sdca.home.com ([24.5.14.144]:897 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S267847AbRG0JBn>; Fri, 27 Jul 2001 05:01:43 -0400
-Message-ID: <3B612D26.BA131CEC@randomlogic.com>
-Date: Fri, 27 Jul 2001 01:58:14 -0700
-From: "Paul G. Allen" <pgallen@randomlogic.com>
-Organization: Akamai Technologies, Inc.
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2-2 i686)
+	id <S267880AbRG0JNI>; Fri, 27 Jul 2001 05:13:08 -0400
+Received: from zeus.kernel.org ([209.10.41.242]:24236 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S267873AbRG0JMy>;
+	Fri, 27 Jul 2001 05:12:54 -0400
+Message-ID: <3B613041.C1330757@amiga.com.pl>
+Date: Fri, 27 Jul 2001 11:11:29 +0200
+From: Miloslaw Smyk <thorgal@amiga.com.pl>
+Organization: W.F.M.H.
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: "Linux kernel developer's mailing list" 
-	<linux-kernel@vger.kernel.org>,
-        "kplug-list@kernel-panic.org" <kplug-list@kernel-panic.org>,
-        "kplug-lpsg@kernel-panic.org" <kplug-lpsg@kernel-panic.org>
-Subject: Linx Kernel Source tree and metrics
+To: "Mike A. Harris" <mharris@opensourceadvocate.org>
+CC: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Hard disk problem:
+In-Reply-To: <Pine.LNX.4.33.0107270005210.25463-100000@asdf.capslock.lan>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-For those interested, I have run the kernel (2.4.2-2) through a program
-and generated extensive HTML reports including call trees, function and
-data declarations, source code, and metrics. I plan to upgrade this to
-the latest kernel and keep it up to date (as much as possible :), but I
-am a) working with a kernel that I know currently runs on my dual
-Athlon, and b) wanted to test this out and run it by the two lists
-first.
+"Mike A. Harris" wrote:
+> 
+> Is this a hardware or software problem, or could it be either?
+> 
+> Jul 26 23:51:59 asdf kernel: hda: dma_intr: status=0x51
+> { DriveReady SeekComplete Error }
+> Jul 26 23:51:59 asdf kernel: hda: dma_intr: error=0x40
+> { UncorrectableError }, LBAsect=8545004, sector=62608
+> Jul 26 23:51:59 asdf kernel: end_request: I/O error, dev 03:05
+> (hda), sector 62608
+> 
+> Just got it opening up a mail folder.  Drive made a bit of noise
+> and then PINE had to be killed.
+> 
+> 2 root@asdf:~# hdparm -i /dev/hda
+> 
+> /dev/hda:
+> 
+>  Model=IBM-DTLA-307030, FwRev=TX4OA50C, SerialNo=YKDYKGF1437
 
-My bandwisth is currently limited (cable modem), but if it's decided
-that I'll keep this available, I will upload it to a web server with a
-couple T1's avalable (or maybe I will use one of our companies servers
-on a DS3 or greater).
+Ah, one of these excellent Hungarian DTLA drives? :) AFAIK, the entire batch
+was broken, although there are people who insist that there was no single
+working hard drive leaving that factory! I personally have seen 7 out of 7
+failing...
 
-The URL is:
+Take it back to where you bought it and demand a replacement for something
+NOT bearing "MADE IN HUNGARY" sign.
 
-http://24.5.14.144:3000/linux-kernel
-
-If you have any connection problems (and there may be, since it's
-currently running on the same machine I'm using to develop with - the
-dual Athlon), suggestions (even if it's "hey, dork, it's already
-available at http://xxx.yyy"), or whatever, please let me know.
-
-
-PGA
-
+cheers,
+Milek
 -- 
-Paul G. Allen
-UNIX Admin II/Programmer
-Network Security
-Akamai Technologies, Inc.
-www.akamai.com
+mailto:thorgal@amiga.com.pl   |  "Man in the Moon and other weird things" -
+http://wfmh.org.pl/~thorgal/  |  see it at http://wfmh.org.pl/~thorgal/Moon/
+         Fight for the good cause: http://www.laubzega.com/dvd/

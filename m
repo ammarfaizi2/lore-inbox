@@ -1,37 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313926AbSDJX0H>; Wed, 10 Apr 2002 19:26:07 -0400
+	id <S313927AbSDJX2D>; Wed, 10 Apr 2002 19:28:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313927AbSDJX0G>; Wed, 10 Apr 2002 19:26:06 -0400
-Received: from cerebus.wirex.com ([65.102.14.138]:8697 "EHLO
-	figure1.int.wirex.com") by vger.kernel.org with ESMTP
-	id <S313926AbSDJX0F>; Wed, 10 Apr 2002 19:26:05 -0400
-Date: Wed, 10 Apr 2002 16:26:04 -0700
-From: Chris Wright <chris@wirex.com>
-To: Niki Rahimi <narahimi@us.ibm.com>
+	id <S313930AbSDJX2C>; Wed, 10 Apr 2002 19:28:02 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:13838 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S313927AbSDJX2C>;
+	Wed, 10 Apr 2002 19:28:02 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Getting file attributes
-Message-ID: <20020410162604.B1550@figure1.int.wirex.com>
-Mail-Followup-To: Niki Rahimi <narahimi@us.ibm.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <OF201A5533.4F892774-ON85256B97.007A3CEE@raleigh.ibm.com>
+Subject: Re: 2.5.7 and runaway modprobe loop? 
+In-Reply-To: Your message of "Wed, 10 Apr 2002 11:00:49 MST."
+             <Pine.LNX.4.33L2.0204101059130.25409-100000@dragon.pdx.osdl.net> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Date: Thu, 11 Apr 2002 09:27:51 +1000
+Message-ID: <9964.1018481271@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Niki Rahimi (narahimi@us.ibm.com) wrote:
-> Hi All,
->       I have been working on finding a system call that will retrieve the
-> current file's attributes, especially the file owner and permissions. have
-> seen VOP_GETATTR()  in OpenBSD, which returns such information in a
-> structure. Is there anything equivalent to this on the Linux kernel?
->        I've been searching through the kernel code for something equivalent
-> but my paths have lead me nowhere.
+On Wed, 10 Apr 2002 11:00:49 -0700 (PDT), 
+"Randy.Dunlap" <rddunlap@osdl.org> wrote:
+>| On Tue, 9 Apr 2002 09:17:08 -0700 (PDT),
+>| "Randy.Dunlap" <rddunlap@osdl.org> wrote:
+>| >If I build/boot 2.5.7 with 64 GB support (with or without
+>| >high_pte), I get:
+>| >
+>| >Freeing unused kernel memory: 448k freed
+>| >INIT: version 2.78 booting
+>| >kmod: runaway modprobe loop assumed and stopped
+>| >
+>| >If I build/boot it with 4 GB support, it boots fine.
+>
+>I added module_name to the runaway message (OK ?) and its
+>answer is binfmt-0000.
+>
+>I also moved from 2.5.7 to 2.5.8-pre2 and don't have this
+>problem.
 
-does stat(2) have what you're lookig for??
+Interesting.  The binfmt-0000 implies that search_binary_handler() is
+reading garbage for the executable.  It tries to load a handler for
+binfmt-0000 which tries to execute modprobe which hits the same bug.
+At a guess, the executable binary is not being mapped correctly with
+64GB support.
 
-cheers,
--chris

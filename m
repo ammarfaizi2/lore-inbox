@@ -1,63 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262871AbSKNT3s>; Thu, 14 Nov 2002 14:29:48 -0500
+	id <S264972AbSKNTlL>; Thu, 14 Nov 2002 14:41:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263188AbSKNT3s>; Thu, 14 Nov 2002 14:29:48 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:26118 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262871AbSKNT3r>;
-	Thu, 14 Nov 2002 14:29:47 -0500
-Message-ID: <3DD3FB29.6020504@pobox.com>
-Date: Thu, 14 Nov 2002 14:36:09 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021018
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pete Zaitcev <zaitcev@redhat.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Bugzilla bug tracking database for 2.5 now available.
-References: <225710000.1037241209@flay> <mailman.1037294313.19087.linux-kernel2news@redhat.com> <200211141912.gAEJCwH01539@devserv.devel.redhat.com>
-In-Reply-To: <225710000.1037241209@flay>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S264990AbSKNTlL>; Thu, 14 Nov 2002 14:41:11 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:45484 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S264972AbSKNTlK>; Thu, 14 Nov 2002 14:41:10 -0500
+Subject: Re: [patch] remove hugetlb syscalls
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: David.Mosberger@acm.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1037303532.15996.59.camel@irongate.swansea.linux.org.uk>
+References: <Pine.LNX.4.44L.0211132239370.3817-100000@imladris.surriel.com>
+	<08a601c28bbb$2f6182a0$760010ac@edumazet>
+	<20021114141310.A25747@infradead.org> <ugel9oavk4.fsf@panda.mostang.com>
+	<1037298675.16000.47.camel@irongate.swansea.linux.org.uk> 
+	<15827.61722.800066.756875@panda.mostang.com> 
+	<1037303532.15996.59.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 14 Nov 2002 20:14:04 +0000
+Message-Id: <1037304844.16003.63.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pete Zaitcev wrote:
+On Thu, 2002-11-14 at 19:52, Alan Cox wrote:
+> On Thu, 2002-11-14 at 18:53, David Mosberger-Tang wrote:
+> > But that's excactly the point.  The hugepage interface returns a
+> > different kind of virtual memory.  There are tons of programs out
+> > there using mmap().  If such a program gets fed a path to the
+> > hugepagefs, it might end up with huge pages without knowing anything
+> > about huge pages.  For the most part, that might work fine, but it
+> > could lead to subtle failures.
+> 
+> Your argument makes sense. You are arguing
 
-> >>The bugzilla database we proposed earlier is now available for
-> >>use, hosted by OSDL.
-> >>
-> >>http://bugme.osdl.org
-> >
-> >I forgot to mention, it would IMO speed acceptance and increase usage if
-> >this was a vendor-neutral URL, like 'bugzilla.kernel.org'...
->
->
-> OSDL is vendor neutral, by definition. Besides, we all know
-> that Transmeta hosts ftp.kernel.org and Red Hat hosts vger
-> (for varying definitions of "hosts", but you know what I mean).
-> I do not see acceptance suffer, because we do not observe
-> Transmeta or Red Hat pushing their agendas. Same with OSDL.
-
-
-Sure, but vger and ftp are both suffixed with "kernel.org"   If 
-Transmeta or Red Hat ever flake out, it's easier to redirect the domain 
-to some other machine.
-
-If nothing else it's consistent naming that keeps with the Principle of 
-Least Surprise :)
-
-> I'm more interested in contacting the admin to be a component
-> owner for sparc, for instance. Someone is going to have a significant
-> admin load, because Bugzilla is not going to be self-running.
-> Who is that person?
-
-
-Check out Martin's original announcement, as well as his recent one. 
-I'm pretty pleased:  they have staff that will help triage bugs and keep 
-the garbage level low.  Hopefully leaving the kernel hackers to do 
-nothing more than fix bugs :)
-
-	Jeff
+Makes no sense rather 8)
 
 

@@ -1,77 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261245AbTJVXyB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Oct 2003 19:54:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261294AbTJVXyB
+	id S261294AbTJVXzV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Oct 2003 19:55:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261298AbTJVXzV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Oct 2003 19:54:01 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:65497 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261245AbTJVXx7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Oct 2003 19:53:59 -0400
-Subject: Re: [pm] fix time after suspend-to-*
-From: john stultz <johnstul@us.ibm.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Patrick Mochel <mochel@osdl.org>,
-       kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20031022233306.GA6461@elf.ucw.cz>
-References: <20031022233306.GA6461@elf.ucw.cz>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1066866741.1114.71.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 22 Oct 2003 16:52:21 -0700
+	Wed, 22 Oct 2003 19:55:21 -0400
+Received: from ssa8.serverconfig.com ([209.51.129.179]:17831 "EHLO
+	ssa8.serverconfig.com") by vger.kernel.org with ESMTP
+	id S261294AbTJVXzR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Oct 2003 19:55:17 -0400
+From: "Joseph D. Wagner" <theman@josephdwagner.info>
+To: linux-kernel@vger.kernel.org
+Subject: FEATURE REQUEST: Specific Processor Optimizations on x86 Architecture
+Date: Wed, 22 Oct 2003 18:55:15 +0600
+User-Agent: KMail/1.5
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200310221855.15925.theman@josephdwagner.info>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - ssa8.serverconfig.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - josephdwagner.info
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-10-22 at 16:33, Pavel Machek wrote:
-> Hi!
-> 
-> This adds suspend/resume methods for time, so that real time is
-> refreshed from cmos when suspend is finished. Please apply,
-> 
+Yes, I know you can select Pentium III, Pentium 4, Athlon, etc, under 
+processor type when doing a 'make xconfig', but those selections do not 
+translate into the appropriate -mcpu and -march flags.
 
-[snip]
+While the kernel on x86 architecture can be optimized in terms of generic 
+processor specifications (i.e. i386, i486, i586, i686), the kernel can't be 
+optimized beyond a i686.
 
->  
-> +static long clock_cmos_diff;
-> +static int got_clock_diff;
-> +
-> +static int pit_suspend(struct sys_device *dev, u32 state)
-> +{
-> +	/*
-> +	 * Estimate time zone so that set_time can update the clock
-> +	 */
-> +	clock_cmos_diff = -get_cmos_time();
-> +	clock_cmos_diff += get_seconds();
-> +	got_clock_diff = 1;
-> +	return 0;
-> +}
-> +
-> +static int pit_resume(struct sys_device *dev)
-> +{
-> +	if (got_clock_diff) {	/* Must know time zone in order to set clock */
-> +		xtime.tv_sec = get_cmos_time() + clock_cmos_diff;
-> +		xtime.tv_nsec = 0; 
-> +	} 
-> +	return 0;
-> +}
-> +
->  static struct sysdev_class pit_sysclass = {
->  	set_kset_name("pit"),
-> +	.resume = pit_resume,
-> +	.suspend = pit_suspend,
->  };
+If you select Pentium III, the -march flag is set to i686.
+If you select Pentium 4, the -march flag is set to i686.
+If you select Athlon 4, the -march flag is set to i686.
+If you select Athlon XP, the -march flag is set to i686.
 
-Forgive me, I'm not totally familiar w/ the sysfs/pm stuff, but normally
-you need to have the xtime_lock to safely manipulate xtime. Also,
-couldn't you just call settimeofday() instead?  The bit about manually
-setting the timezone also confuses me, as we don't normally do this at
-bootup in the kernel.  
+It should be that...
 
-thanks
--john
+If you select Pentium III, the -march flag is set to pentium3.
+If you select Pentium 4, the -march flag is set to pentium4.
+If you select Athlon 4, the -march flag is set to athlon-4.
+If you select Athlon XP, the -march flag is set to athlon-xp.
 
+I don't want to have to hand edit the makefiles just to optimize my kernel.  
+I think this change is simple enough to do, and would allow kernel 
+developers the option of processor-specific optimizations in the future.
 
+TIA.
+
+Joseph D. Wagner

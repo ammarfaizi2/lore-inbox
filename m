@@ -1,29 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136688AbREGV7j>; Mon, 7 May 2001 17:59:39 -0400
+	id <S136694AbREGWLV>; Mon, 7 May 2001 18:11:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136687AbREGV7d>; Mon, 7 May 2001 17:59:33 -0400
-Received: from iris.services.ou.edu ([129.15.2.125]:57540 "EHLO
-	iris.services.ou.edu") by vger.kernel.org with ESMTP
-	id <S136689AbREGV6n>; Mon, 7 May 2001 17:58:43 -0400
-Date: Mon, 07 May 2001 17:01:03 -0500
-From: Sean Jones <sjones@ossm.edu>
-Subject: SPARC include problem
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-id: <3AF71B1F.56FFCA16@ossm.edu>
-MIME-version: 1.0
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-ac9 i586)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
+	id <S136695AbREGWLL>; Mon, 7 May 2001 18:11:11 -0400
+Received: from [64.64.109.142] ([64.64.109.142]:62732 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP
+	id <S136694AbREGWLB>; Mon, 7 May 2001 18:11:01 -0400
+Message-ID: <3AF71D3B.E4D0AFFB@didntduck.org>
+Date: Mon, 07 May 2001 18:10:03 -0400
+From: Brian Gerst <bgerst@didntduck.org>
+X-Mailer: Mozilla 4.76 [en] (WinNT; U)
 X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: nigel@nrg.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] x86 page fault handler not interrupt safe
+In-Reply-To: <Pine.LNX.4.31.0105071443080.1195-100000@penguin.transmeta.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In compiling 2.4.4-ac5 for my SPARCStation 20, I had an error in the
-compile resulting from the inability to find a hw_irq.h in the
-include/asm directory. Do you know where I may be able to find such a
-file?
+Linus Torvalds wrote:
+> 
+> On Mon, 7 May 2001, Brian Gerst wrote:
+> >
+> > Keep in mind that regs->eflags could be from user space, and could have
+> > some undesirable flags set.  That's why I did a test/sti instead of
+> > reloading eflags.  Plus my patch leaves interrupts disabled for the
+> > minimum time possible.
+> 
+> The plain "popf" should be ok: the way intel works, you cannot actually
+> use popf to set any of the strange flags (if vm86 mode etc).
 
-Thank you
+TF (trap flag) would be one that I wouldn't want to get reset.  You
+could use
+	local_irq_restore(regs->eflags & ~(TF|RF|VM|NT))
+which are all the flags cleared by an interrupt/trap gate.  Or
+	if (regs->eflags & IF) sti();
+Take your pick.
 
-Sean Jones
+--
+
+				Brian Gerst

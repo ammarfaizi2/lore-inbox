@@ -1,41 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291718AbSBALln>; Fri, 1 Feb 2002 06:41:43 -0500
+	id <S291720AbSBALpN>; Fri, 1 Feb 2002 06:45:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291722AbSBALld>; Fri, 1 Feb 2002 06:41:33 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:16539 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S291719AbSBALl2>;
-	Fri, 1 Feb 2002 06:41:28 -0500
-Date: Fri, 1 Feb 2002 14:38:13 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Jens Axboe <axboe@suse.de>
-Subject: Re: A modest proposal -- We need a patch penguin
-In-Reply-To: <3C56A03C.9070107@evision-ventures.com>
-Message-ID: <Pine.LNX.4.33.0202011437270.8190-100000@localhost.localdomain>
+	id <S291719AbSBALpD>; Fri, 1 Feb 2002 06:45:03 -0500
+Received: from [210.0.172.57] ([210.0.172.57]:9744 "EHLO dog.ima.net")
+	by vger.kernel.org with ESMTP id <S291717AbSBALoy>;
+	Fri, 1 Feb 2002 06:44:54 -0500
+Date: Fri, 1 Feb 2002 19:42:12 +0800 (HKT)
+From: Joe Wong <joewong@tkodog.no-ip.com>
+cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: 2.4.16 cannot connect to www.sun.com
+In-Reply-To: <Pine.LNX.4.33L.0202010926080.17106-100000@imladris.surriel.com>
+Message-ID: <Pine.LNX.4.21.0202011939150.30567-100000@dog.ima.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Tue, 29 Jan 2002, Martin Dalecki wrote:
+Hello all,
 
-> >tell Jens. He goes about fixing it all, not just the most visible pieces
-> >that showed how much the Linux block IO code sucked. And guess what? His
-> >patches are being accepted, and the Linux 2.5 block IO code is evolving
-> >rapidly. Sometimes keeping broken code around as an incentive to fix it
-> >*for real* is better than trying to massage the broken code somewhat.
-> >
+  For some reason after I upgraded to 2.4.16, I cannot connect to
+www.sun.com anymore. It also happens on some other sites. Anyone know what
+might be the problem? I have no problem using 2.4.7.
 
-> There is nothing easier to fix then this. You just have to grep for
-> it, or just remove the declaration and wait to be hit by this during
-> the compilation. [...]
+TIA.
 
-you have completely and totally ignored my argument.
-
-	Ingo
+- Joe
 

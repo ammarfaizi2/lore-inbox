@@ -1,39 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266959AbTBTVXJ>; Thu, 20 Feb 2003 16:23:09 -0500
+	id <S266952AbTBTVUd>; Thu, 20 Feb 2003 16:20:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266989AbTBTVXJ>; Thu, 20 Feb 2003 16:23:09 -0500
-Received: from mailout07.sul.t-online.com ([194.25.134.83]:8849 "EHLO
-	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S266959AbTBTVXI> convert rfc822-to-8bit; Thu, 20 Feb 2003 16:23:08 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: Andrew Morton <akpm@digeo.com>
-Subject: Re: filesystem access slowing system to a crawl
-Date: Thu, 20 Feb 2003 22:32:44 +0100
-User-Agent: KMail/1.4.3
-Cc: andrea@suse.de, t.baetzler@bringe.com, linux-kernel@vger.kernel.org,
-       marcelo@conectiva.com.br
-References: <A1FE021ABD24D411BE2D0050DA450B925EEA6C@MERKUR> <200302201629.51374.m.c.p@wolk-project.de> <20030220103543.7c2d250c.akpm@digeo.com>
-In-Reply-To: <20030220103543.7c2d250c.akpm@digeo.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200302202232.27433.m.c.p@wolk-project.de>
+	id <S266959AbTBTVUd>; Thu, 20 Feb 2003 16:20:33 -0500
+Received: from smtp.rhein-zeitung.DE ([212.7.160.14]:5792 "EHLO
+	smtp.rhein-zeitung.DE") by vger.kernel.org with ESMTP
+	id <S266952AbTBTVUc>; Thu, 20 Feb 2003 16:20:32 -0500
+Date: Thu, 20 Feb 2003 22:30:37 +0100
+From: Oliver Graf <ograf@rz-online.net>
+To: linux-kernel@vger.kernel.org
+Subject: usb-storage fails to detect all luns after 2.4.19
+Message-ID: <20030220213037.GA5435@rz-online.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+X-PGP-Key: http://wwwkeys.de.pgp.net:11371/pks/lookup?op=get&search=0x0B17417A
+X-RIPE-Key-Cert: PGPKEY-0B17417A
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 20 February 2003 19:35, Andrew Morton wrote:
+Hi!
 
-Hi Andrew,
+I've already mentioned this some time ago.
 
-> Andrea's VM patches, against 2.4.21-pre4 are at
-> 	http://www.zip.com.au/~akpm/linux/patches/2.4/2.4.21-pre4/
-> The applying order is in the series file.
-I am afraid Marcelo will never accept these or some of them.
+The problem: a multi device usb card reader is correctly detected with
+its four subdevices with kernel 2.4.19(-acX). But any patch after this
+fails to detect the subdevices.
 
-Or am I wrong?
+Verbose output with 2.4.19-ac4 shows:
+usb-storage: GetMaxLUN command result is 1, data is 3
 
-ciao, Marc
+2.4.21-pre4 gives:
+usb-storage: GetMaxLUN command result is -32, data is 128
+usb-storage: clearing endpoint halt for pipe 0x80000880
 
+I tried to find the parts that changed between the version, but it seems
+not to be rooted in usb-storage.
 
+The call to usb_control_msg seems to timeout with the newer kernel
+(just a wild guess!).
+
+Finally I did a desparate modification: I return 3 from
+usb_stor_Bulk_max_lun just before the endpoint is cleared. This got my
+card reader up and running again, but it's very very dirty und certainly
+breaks other usb storage devices (I don't own).
+
+Anyone out there who knows the usb stuff better?
+
+Regards,
+  Oliver.

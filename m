@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262881AbSKDXJa>; Mon, 4 Nov 2002 18:09:30 -0500
+	id <S262875AbSKDXKp>; Mon, 4 Nov 2002 18:10:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262882AbSKDXJa>; Mon, 4 Nov 2002 18:09:30 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27657 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262881AbSKDXJ3>;
-	Mon, 4 Nov 2002 18:09:29 -0500
-Message-ID: <3DC6FF60.2000100@pobox.com>
-Date: Mon, 04 Nov 2002 18:14:40 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
+	id <S262884AbSKDXKo>; Mon, 4 Nov 2002 18:10:44 -0500
+Received: from fmr02.intel.com ([192.55.52.25]:47305 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S262875AbSKDXKd>; Mon, 4 Nov 2002 18:10:33 -0500
+Message-ID: <008901c28458$49ef1930$7fd40a0a@amr.corp.intel.com>
+From: "Geoff Gustafson" <geoff@linux.co.intel.com>
+To: "Larry McVoy" <lm@bitmover.com>, <linux-kernel@vger.kernel.org>
+References: <000a01c28454$56a94b90$7fd40a0a@amr.corp.intel.com> <20021104145831.C18053@work.bitmover.com>
+Subject: Re: [ANNOUNCE] Open POSIX Test Suite
+Date: Mon, 4 Nov 2002 15:17:04 -0800
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: RFC: A POSIX Linux project?
-References: <000a01c28454$56a94b90$7fd40a0a@amr.corp.intel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I wonder if any vendors, or independent groups, would be interested in 
-maintaining a POSIX compliancy patchkit for the Linux kernel?
+Larry McVoy wrote:
+> Great idea.  We can help in the following way: BitKeeper has an extremely
+> simple test harness used for regressions.  It's well thought out in that
+> it is trivial to write simple tests and run them in isolation or to 
+> run the whole suite.  If you want the harness, we'll give it to you 
+> under whatever license you want, I assume GPL, but we don't care.
 
-IMO such a "POSIX Linux" project would be useful for several reasons. 
- Overall, I think there is pressure from several directions to get all 
-sorts of POSIX APIs into the kernel.  On occasion, kernel hackers are 
-confronted with a situation where complete POSIX compliancy may mean a 
-compromise in some area, be it performance, security, API issues, code 
-cleanliness issues, etc.  Or simply that the POSIX-related code just 
-isn't ready to be merged into the mainline kernel yet.
+Yeah, that would be great. GPL would be correct.
 
-The vendors also benefit by this, because the barrier to entry in 
-POSIX-related cases would be lowered, which would in turn satisfy the 
-demands of customers.  Which would in turn give the mainline kernel all 
-the software engineering benefits that come from a more reasoned and 
-gradual review and merge of new features.
+> You can see what the tests look like in BK, if you have it installed, we
+> ship all the tests, they are in `bk bin`/t
 
-Does something like this already exist?  This would need to be an open, 
-vendor-neutral project...
+I haven't used BK yet, but I'll go try to do that.
 
-    Jeff
+Thanks,
 
+-- Geoff Gustafson
 
-
+These are my views and not necessarily those of my employer.
 

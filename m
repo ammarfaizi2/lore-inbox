@@ -1,38 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266964AbTAITHv>; Thu, 9 Jan 2003 14:07:51 -0500
+	id <S266957AbTAITGy>; Thu, 9 Jan 2003 14:06:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266965AbTAITHv>; Thu, 9 Jan 2003 14:07:51 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:59258 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S266964AbTAITHl>; Thu, 9 Jan 2003 14:07:41 -0500
-Date: Thu, 9 Jan 2003 14:16:18 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200301091916.h09JGI228106@devserv.devel.redhat.com>
+	id <S266962AbTAITGy>; Thu, 9 Jan 2003 14:06:54 -0500
+Received: from 12-237-170-171.client.attbi.com ([12.237.170.171]:5971 "EHLO
+	wf-rch.cirr.com") by vger.kernel.org with ESMTP id <S266957AbTAITGy>;
+	Thu, 9 Jan 2003 14:06:54 -0500
+Message-ID: <3E1DCA8D.4040005@acm.org>
+Date: Thu, 09 Jan 2003 13:16:29 -0600
+From: Corey Minyard <minyard@acm.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020523
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: MB without keyboard controller / USB-only keyboard ?
-In-Reply-To: <mailman.1042135501.3903.linux-kernel2news@redhat.com>
-References: <20030109114247.211f7072.skraw@ithnet.com>    <1042134121.27796.20.camel@irongate.swansea.linux.org.uk>    <20030109183952.6be142fe.skraw@ithnet.com> <mailman.1042135501.3903.linux-kernel2news@redhat.com>
+CC: Dave Jones <davej@codemonkey.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] PATCH: IPMI driver
+References: <200301090332.h093WML05981@hera.kernel.org>	 <20030109164407.GA26195@codemonkey.org.uk>	 <1042135594.27796.37.camel@irongate.swansea.linux.org.uk>	 <20030109172229.GA27288@codemonkey.org.uk> <1042135971.27796.44.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > > pc_keyb: controller jammed (0xFF)
->> > 
->> > Does your BIOS do keyboard emulation ?
->> 
->> It is Compaq EVO D510. It has merely nothing of interest in the BIOS (no
->> keyboard emu). As far as I remember it contains an I845 chipset.
-> 
-> Can you use the USB keyboard to configure the BIOS during boot. If so
-> then it almost certainly has USB bios emulation. Another trivial test
-> that would be useful is to stick a freedos boot floppy in the box and
-> see if freedos works
+Alan Cox wrote:
 
-I fail to see the point, Alan. Stephan's BIOS does exactly the
-right thing: it emulates BIOS INTs which allow to read buffered
-keystrokes, but it does not do SMM tricks to emulate port 0x60.
-This is great, now pc_keyb.d must do detection right. It must
-not loop endlessly if 0xff is returned from inb(). It's a bug.
+>On Thu, 2003-01-09 at 17:22, Dave Jones wrote:
+>  
+>
+>>On Thu, Jan 09, 2003 at 06:06:34PM +0000, Alan Cox wrote:
+>>
+>> > Arghhh I was told Linus accepted it, and my tree indexer found "IPMI" so
+>> > decided it was present too. (Only the i2c definitions apparently).
+>>
+>>Shouldn't cause any problems in 2.4 anyways should it ?
+>>After all, its 'just another driver'.
+>>
+>> > Oh well, it should be in 2.5
+>>
+>>Added to the queue of bits from the 2.4 changesets list that I'm
+>>intending to push to Linus soon.
+>>    
+>>
+>
+>Pull the 2.5 port from openipmi.sourceforge.net  saves you doing the port
+>yourself. 
+>
+Definately pull the 2.5 port from there, as there are some differences 
+between the 2.4 and 2.5 versions.
 
--- Pete
+-Corey
+
+

@@ -1,39 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313559AbSDUQff>; Sun, 21 Apr 2002 12:35:35 -0400
+	id <S313560AbSDUQfp>; Sun, 21 Apr 2002 12:35:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313560AbSDUQfe>; Sun, 21 Apr 2002 12:35:34 -0400
-Received: from twinlark.arctic.org ([208.44.199.239]:36063 "EHLO
-	twinlark.arctic.org") by vger.kernel.org with ESMTP
-	id <S313559AbSDUQfc>; Sun, 21 Apr 2002 12:35:32 -0400
-Date: Sun, 21 Apr 2002 09:35:31 -0700 (PDT)
-From: dean gaudet <dean-list-linux-kernel@arctic.org>
-To: Skip Ford <skip.ford@verizon.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: BK, deltas, snapshots and fate of -pre...
-In-Reply-To: <20020421043811.BHIC5495.out020.verizon.net@pool-141-150-235-204.delv.east.verizon.net>
-Message-ID: <Pine.LNX.4.44.0204210932390.30929-100000@twinlark.arctic.org>
-X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S313562AbSDUQfo>; Sun, 21 Apr 2002 12:35:44 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:39695 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S313560AbSDUQfm>; Sun, 21 Apr 2002 12:35:42 -0400
+Date: Sun, 21 Apr 2002 17:35:35 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Jan Niehusmann <jan@gondor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ext3: i_blocks is xx, should be yy
+Message-ID: <20020421173535.C20834@flint.arm.linux.org.uk>
+In-Reply-To: <20020421162915.GA28414@gondor.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Apr 21, 2002 at 06:29:15PM +0200, Jan Niehusmann wrote:
+> On an (otherwise clean, and cleanly unmounted) ext3 partition, I got
+> some ext2fs errors like the following:
+> 
+> Inode 295208, i_blocks is 112, should be 8.  Fix<y>?
 
+Did the filesystem run out of free blocks at any point?
 
-On Sun, 21 Apr 2002, Skip Ford wrote:
+If so, the following could explain it:
 
-> That's only 1 aspect.  The frustrating part is bug reports mailed to the
-> list getting a response of "oh, that's fixed in the latest bk tree."
+http://marc.theaimsgroup.com/?l=linux-kernel&m=101778284030725&w=2
 
-in the pre-bk past i've seen "that's fixed in my tree" with no reference
-to how to get "my tree" -- this repeated by many folks, including linus.
-for those of you with issues against using bk, you should just pretend
-that's what you're reading.  you can even respond with "could you make a
-snapshot available?" like folks used to.  you can even go pick up the new
-daily snapshots.
-
-so your frustration is either not a new thing, or has been solved.
-
--dean
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

@@ -1,68 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132640AbRDBJBy>; Mon, 2 Apr 2001 05:01:54 -0400
+	id <S132642AbRDBJDZ>; Mon, 2 Apr 2001 05:03:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132642AbRDBJBo>; Mon, 2 Apr 2001 05:01:44 -0400
-Received: from [202.77.223.60] ([202.77.223.60]:6 "HELO server.achan.com")
-	by vger.kernel.org with SMTP id <S132640AbRDBJBj>;
-	Mon, 2 Apr 2001 05:01:39 -0400
-Message-ID: <01ba01c0bb53$4e607d80$91b54dca@portal2.com>
-From: "Andrew Chan" <achan@achan.com>
-To: "Andre Hedrick" <andre@linux-ide.org>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.10.10104020024550.12531-100000@master.linux-ide.org>
-Subject: Re: Promise 20267 "working" but no UDMA
-Date: Mon, 2 Apr 2001 17:00:03 +0800
+	id <S132643AbRDBJDP>; Mon, 2 Apr 2001 05:03:15 -0400
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:30981
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S132642AbRDBJC6>; Mon, 2 Apr 2001 05:02:58 -0400
+Date: Mon, 2 Apr 2001 01:01:43 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Steffen Grunewald <steffen@gfz-potsdam.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Cool Road Runner
+In-Reply-To: <20010402102126.D27499@dss19>
+Message-ID: <Pine.LNX.4.10.10104020046540.12531-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre Hedrick says:
+On Mon, 2 Apr 2001, Steffen Grunewald wrote:
 
->> FastTrack config: only 1 drive, configured as a SPAN volume consisting of
-1 drive
+> On Sun 2001-04-01 (23:55), Andre Hedrick wrote:
+> > On Mon, 2 Apr 2001, Steffen Grunewald wrote:
+> > 
+> > > And BTW: Isn't Andre's writing style very lovely ?
+> > 
+> > DGD, and who made you a grammer teacher of english on LKML?
+> 
+> Hey cool down dude.
 
-> No RAIDing allowed in the FTTK Bios.
+I have been and I am actively try, but it is hard when I try to be nice
+and get hammered.
 
-But my motherboard hangs at boot time (while Fasttrack tests for arrays) if
-there is no array defined! There is a message from the Fasttrack bios that
-says something like "no array found, press some key to continue". But I need
-to remotely reboot these servers!
+> That's exactly the attitude I was speaking about. Not your or my grammar.
 
->> The following is from dmesg:
->>
->> PCI: Found IRQ 10 for device 00:03.0
->> PDC20267: chipset revision 2
->> PDC20267: not 100% native mode: will probe irqs later
->> PDC20267: ROM enabled at 0xfeae0000
->> PDC20267: (U)DMA Burst Bit ENABLED Primary MASTER Mode Secondary MASTER
-Mode.
+No you got the attitude line because of the direct personal slide against
+me "And BTW: Isn't Andre's writing style very lovely ?"
 
-> This is a RAID mode BIOS and that is specified to disable under linux
-> unless a 0x55AA valid signature is present
+> And WRT your kernel code - that's no matter of English majors, but of
+> the compiler and the users (which seems to work fine BTW, no pun intended)
 
->> PDC20267: neither IDE port enabled (BIOS)
+Also, several messages earlier I pointed out that I had not documented the
+feature because it was only attempted once, and only with 2 CFA's in a
+bazar ata-bridge.
 
-> And it does!
+I then explained why the detection was failing and pointed where to verify.
 
-Which means? Can the Linux IDE driver be made to not deal with the Fasttrack
-"raid" code and just treat the interface as normal non-raid ATA100
-interfaces?
+After 3-5 attempts and I can not get the point across because the other
+party keeps going off in different directions to do "what about this",
+I finally pointed out facts that distrub people, and gave up on trying to
+show/present/give the answer and offered to then enforce their beliefs of
+reality.
 
-It is a real pity that Promise (the company) somehow doesn't seem to work
-well with the Linux community. It is fast hardware (and I have 25 of them)
-that lies useless for me right now.
+So I state a few facts very pointed to get their attention again and that
+is additude??
 
-Many thanks....
+> > Never claimed to be an "English Major" soooooo WTF is the price of eggs in
+> > Germany today?
+> 
+> I think 1,39 for 10 would be a bargain. But who cares?
 
-Andrew Chan
+Exactly, however....
 
+In the greater context of the your first message, what was your point, but
+to inflame me with "And BTW: Isn't Andre's writing style very lovely ?".
+If you and never made that comment, you would not have pissed me off.
+Personal commentary is not desired.
 
+Everyone know that I am not good at "documentation", and to slap/slam me
+with mockery makes it all the less likely I'll consider trying again.
+
+Regards,
+
+Andre Hedrick
+Linux ATA Development
 

@@ -1,72 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265130AbUDUHFq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265170AbUDUHKM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265130AbUDUHFq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Apr 2004 03:05:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265125AbUDUHFq
+	id S265170AbUDUHKM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Apr 2004 03:10:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265172AbUDUHKM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Apr 2004 03:05:46 -0400
-Received: from fmr11.intel.com ([192.55.52.31]:53142 "EHLO
-	fmsfmr004.fm.intel.com") by vger.kernel.org with ESMTP
-	id S265124AbUDUHFm convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Apr 2004 03:05:42 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-content-class: urn:content-classes:message
+	Wed, 21 Apr 2004 03:10:12 -0400
+Received: from smtp805.mail.sc5.yahoo.com ([66.163.168.184]:62593 "HELO
+	smtp805.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S265170AbUDUHKI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Apr 2004 03:10:08 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] psmouse fixes for 2.6.5
+Date: Wed, 21 Apr 2004 02:10:06 -0500
+User-Agent: KMail/1.6.1
+References: <200404201038.46644.kim@holviala.com> <200404202117.37104.dtor_core@ameritech.net> <200404210948.29095.kim@holviala.com>
+In-Reply-To: <200404210948.29095.kim@holviala.com>
 MIME-Version: 1.0
+Content-Disposition: inline
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH] add some EFI device smarts
-Date: Wed, 21 Apr 2004 00:05:33 -0700
-Message-ID: <D36CE1FCEFD3524B81CA12C6FE5BCAB002FFEA99@fmsmsx406.fm.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] add some EFI device smarts
-Thread-Index: AcQnMol3pheYFlLSSfOiU/pUuMD94QAOmrgw
-From: "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>
-To: "Matt Domsch" <Matt_Domsch@dell.com>,
-       "Bjorn Helgaas" <bjorn.helgaas@hp.com>
-Cc: <linux-ia64@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 21 Apr 2004 07:05:34.0044 (UTC) FILETIME=[0A4629C0:01C4276F]
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200404210210.06187.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Tue, Apr 20, 2004 at 04:00:26PM -0600, Bjorn Helgaas wrote:
-> > (Like much of the EFI stuff, this really isn't ia64-specific.  Maybe
-> > it's time to move some of it under drivers/efi?  If there's 
-> interest,
-> > I can look at doing that.)
-> 
-> Matt T. had done the work to move it under drivers/efi, though now
-> that there's a drivers/firmware, that's more appropraite.  It also
-> converted it to use sysfs instead of proc.  There was a bug in
-> efivars_exit() where it was removing stuff (which could sleep) while
-> holding a spinlock which wasn't good, but that was about the only
-> issue anyone had with it.
+Taking it off list for now...
 
-Indeed.  I fixed that and one other small issue Greg pointed out
-a while ago.  I'll resend updated efivars driver patches in a separate
-mail shortly.   
-
-> +int
-> +efi_get_variable(char *name, efi_variable_t *guid, unsigned 
-> char *data, unsigned long *size)
+On Wednesday 21 April 2004 01:48 am, Kim Holviala wrote:
+> On Wednesday 21 April 2004 05:17, Dmitry Torokhov wrote:
 > 
-> and do a guidcmp() on them as well as the strcmp() on the name.
+> > > > > - support for Targus Scroller mice (from my last weeks patch)
+> > > >
+> > > > Why do you have Tragus as a config option - just set the protocol mask
+> > > > correctly by default...
 > 
-> > +int __init
-> > +efi_uart_console_only(void)
-> 
-> So to be useful, efivars can't be build modular anymore, right?  Then
-> Kconfig needs to change as well.  It's module_init(), is that early
-> enough to be used?  Where is efi_uart_console_only() called from?
-> It's not in this patch.
+> It's not a config option, I just have a little note on the Kconfig file for 
+> those that read the help pages.
 
-This part isn't clear to me.  It looks like you are including a 
-duplicate efi_get_variable function in efi.c in order to have 
-access to EFI variable services (and perform the checks) very early 
-before console initialization and/or efivars is available ... is 
-that correct?    
+You right, sorry... I just glanced over it in the morning, saw Kconfig being
+changed and jumped to a conclusion. The only excuse: -ENOCOFFEE :)
 
-thanks,
-matt
+I would recommend splitting your patch in 3 pieces - one for reset, one for
+targus and one for protocol selection. This way its easuier for Vojtech to
+apply them.
+
+Question - why did you kill the protocol names array?
+
+Btw, I am also trying to work in that area, might be beneficial if we combine
+our efforts. I just posted bunch of changes on the list, you may also grab
+them with
+
+bk pull bk://dtor.bkbits.net/input
+
+-- 
+Dmitry

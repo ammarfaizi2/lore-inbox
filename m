@@ -1,58 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263259AbTIGNPJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Sep 2003 09:15:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263262AbTIGNPJ
+	id S263243AbTIGNUn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Sep 2003 09:20:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263250AbTIGNUn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Sep 2003 09:15:09 -0400
-Received: from amalthea.dnx.de ([193.108.181.146]:40850 "EHLO amalthea.dnx.de")
-	by vger.kernel.org with ESMTP id S263259AbTIGNPF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Sep 2003 09:15:05 -0400
-Date: Sun, 7 Sep 2003 15:14:43 +0200
-From: Robert Schwebel <robert@schwebel.de>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Robert Schwebel <robert@schwebel.de>, linux-kernel@vger.kernel.org,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Russell King <rmk@arm.linux.org.uk>
-Subject: Re: RFC: [2.6 patch] better i386 CPU selection
-Message-ID: <20030907131443.GD5460@pengutronix.de>
-References: <20030907112813.GQ14436@fs.tum.de> <20030907124251.GC5460@pengutronix.de> <20030907130034.GT14436@fs.tum.de>
+	Sun, 7 Sep 2003 09:20:43 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:44686 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S263243AbTIGNU1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Sep 2003 09:20:27 -0400
+Date: Sun, 7 Sep 2003 14:20:10 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] Alternate futex non-page-pinning and COW fix
+Message-ID: <20030907132010.GB19977@mail.jlokier.co.uk>
+References: <20030905205418.GA6019@mail.jlokier.co.uk> <20030907072034.435C62C308@lists.samba.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030907130034.GT14436@fs.tum.de>
-User-Agent: Mutt/1.4i
-X-Spam-Score: -5.0 (----)
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19vzN9-0000eI-00*MopXrBUxyG6*
+In-Reply-To: <20030907072034.435C62C308@lists.samba.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 07, 2003 at 03:00:34PM +0200, Adrian Bunk wrote:
-> I didn't look at the ARM Makefile. Thanks for the note, I'll have a
-> look at it before I'll do the revision of this patch.
-
-You should definitely discuss this with rmk. How do the PPC folks handle
-CPU selection? 
-
-> > Ack. Same with for example Geode. And the subarchs might have different
+Rusty Russell wrote:
+> In message <20030905205418.GA6019@mail.jlokier.co.uk> you write:
+> > Rusty Russell wrote:
+> > > Now, if mremap doesn't move the memory, futexes aren't broken, even
+> > > without your patch, right?  If it does move, you've got a futex
+> > > sitting in invalid memory, no surprise if it doesn't work.
+> > 
+> > If the mremap doesn't move the memory it's fine.  No surprise :)
+> > 
+> > If it's moved, then the program isn't broken - it knows it just did an
+> > mremap, and it sends the wakeup to the new address.
+> > 
+> > This makes sense if async futexes are used on an in-memory private
+> > database.  But such programs can just use MAP_ANON|MAP_SHARED if they
+> > want mremap to work.
 > 
-> It seems the Geode support isn't fully merged in 2.6?
+> The only real case (ignoring the "one thread FUTEX_WAIT while the
+> other mremaps underneath" which is gonna break anyway), is FUTEX_FD,
 
-That's also my impression, although I didn't have much time to look at
-the state. As far as I remember Christer Weinigel has recently done some
-work in this direction. 
+By "async futex" I mean FUTEX_FD; sorry if that wasn't clear.
+By "sync futex" I mean FUTEX_WAIT.
 
-> It should be no problem to add a "Processor support" menu for the Elan
-> that allows you to specify which Elan CPUs you plan to support.
+> I don't see a problem with having to manually move your futex fds in
+> this case when the memory underneath them has been remapped.  In
+> fact, it'd be surprising if you didn't have to.
 
-Great. 
+I don't see a problem, as long as it is documented.  Anybody grokking
+the old futex code would expect futexes to move with mappings.
 
-Robert 
--- 
- Dipl.-Ing. Robert Schwebel | http://www.pengutronix.de
- Pengutronix - Linux Solutions for Science and Industry
-   Handelsregister:  Amtsgericht Hildesheim, HRA 2686
-     Hornemannstraße 12,  31137 Hildesheim, Germany
-    Phone: +49-5121-28619-0 |  Fax: +49-5121-28619-4
+It's a mild surprise whatever behaviour, because:
+
+   - if it's a MAP_SHARED, then the program doesn't have to move futexes,
+     and this is a good thing (think locks in a remap_file_pages
+     database mapping).
+
+   - the old (page pinning) version moves FUTEX_FD futexes "automatically",
+     in the sense that they're attached to the page which moves.
+
+> Yes.  Invalidate is nice because it catches a programmer mistake.  But
+> why not solve the problem by just holding an mm reference, too?
+
+That would work.  An mm isn't that huge once everything's been
+unmapped by exit.  Alternatively, mm-private futexes can be woken when
+the mm is destroyed.
+
+I just implemented the latter, but come to think of it a reference to
+a dead mm is light enough not to bother with a list of "futexes
+attached to mm to destroy on exit".
+
+So I'll throw that away and provide a patch which just takes a reference.
+(Also, takes inode references).
+
+-- Jamie

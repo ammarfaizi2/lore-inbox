@@ -1,58 +1,44 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S154838AbPIARPl>; Wed, 1 Sep 1999 13:15:41 -0400
-Received: by vger.rutgers.edu id <S154811AbPIAROX>; Wed, 1 Sep 1999 13:14:23 -0400
-Received: from mailext12.compaq.com ([207.18.199.188]:47679 "HELO mailext12.compaq.com") by vger.rutgers.edu with SMTP id <S154533AbPIARN5>; Wed, 1 Sep 1999 13:13:57 -0400
-Message-ID: <XFMail.990901103912.brianw.hall@compaq.com>
-X-Mailer: XFMail 1.3 [p0] on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
-MIME-Version: 1.0
-Date: Wed, 01 Sep 1999 10:39:12 -0600 (MDT)
-Reply-To: Brian Hall <brianw.hall@compaq.com>
-Organization: Compaq
-From: Brian Hall <brianw.hall@compaq.com>
-To: willy@meta-x.org, x-linux-kernel@vger.rutgers.edu
-Subject: kmsgdump-0.3.1 and kernel 2.2.12
+Received: by vger.rutgers.edu via listexpand id <S154901AbPIAUVr>; Wed, 1 Sep 1999 16:21:47 -0400
+Received: by vger.rutgers.edu id <S154530AbPIAUU6>; Wed, 1 Sep 1999 16:20:58 -0400
+Received: from TSX-PRIME.MIT.EDU ([18.86.0.76]:39056 "HELO tsx-prime.MIT.EDU") by vger.rutgers.edu with SMTP id <S154763AbPIAURK>; Wed, 1 Sep 1999 16:17:10 -0400
+Date: Wed, 1 Sep 1999 16:17:07 -0400
+Message-Id: <199909012017.QAA18692@tsx-prime.MIT.EDU>
+From: "Theodore Y. Ts'o" <tytso@mit.edu>
+To: torvalds@transmeta.com
+cc: linux-kernel@vger.rutgers.edu
+Subject: set_current_state
+Address: 1 Amherst St., Cambridge, MA 02139
+Phone: (617) 253-8091
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-I am currently working on a crash dump processing tool, so I have been very
-interested in your kmsgdump patch. I have applied it against the 2.2.12 kernel,
-and it works fine if invoked manually. Since my main interest was the automatic
-mode, I tried that. Basically the automatic mode doesn't work for me. System is
-RedHat 6/Intel.
 
-I have created two kernel modules, one to cause a recoverable oops, and one to
-force a panic. Invoking those two in sequence causes the automatic dump
-sequence to trigger, but only garbage is written(?) to the floppy (drive light
-never comes on like it does when I invoke the dump manually). I am using the FAT
-format and automatic reboot options. Also, I get an error written to the console
-exactly when I think it should start writing to the floppy: 
+Hi Linus,
 
-Unable to handle kernel paging request at virtual address 3cc01987 
+When I checked the serial driver integration into 2.3.16, I noticed that
+one of the changes was to change 
 
-of course the address varies. Doesn't seem to cause an oops (only oopses in
-the log are from insmod'ding my modules). I'm not sure if this is a problem with
-kmsgdump or the way I am trying to trigger it. Do you have a good method of
-triggering automatic operation?
+	current->state = TASK_INTERRUPTIBLE;
+to
+	set_current_state(TASK_INTERRUPTIBLE);
 
-I set the delay to 30 seconds, and did my method for trigging the autodump.
-Before the timer reached 30 seconds, I did a manual dump. This did not give the
-error message, and appeared to work (drive light came on), but there was only
-garbage in the messages.txt file.
+Looking at the sched.h header file, it's pretty clear that this is there
+to protect against race conditions on SMP kernels.  Which makes me
+wonder why you only changed that one line, but not all of the other
+lines in the driver which set current->state.  Doing a quick grep over
+drivers/char/*.c, I see a lot of drivers which still use "current->state
+= ... " and some that use "set_current_state(...)"
 
-One other comment I have is about the floppy format. Years ago when I used
-OS/2, there was a floppy formatting program that formatted the floppy with a
-standard FAT filesystem, but modified the boot block in such a way that if the
-system tried to boot from the floppy, control would be transferred to the hard
-drive. This worked very well for accidentally leaving a floppy in the drive on
-a reboot. I would suggest doing this to the kmsgdump floppies, so that the disk
-can be left in the drive all the time, and any data written to it could be
-processed automatically, i.e. by the tool I'm working on ;-) .
+Are there any circumstances where we should keep the old usage?  Or
+should we change them all to use set_current_state()?  And if it's the
+latter, would you like a patch which does a global replace of
+"current->state = ..." to "set_current_state(...)", either in the serial
+driver or in all files in drivers/char/*.c (where most of the old usage
+seems to be concentrated).
 
---
-Brian Hall <brianw.hall@compaq.com>
-Linux Consultant
+Thanks!
+
+						- Ted
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

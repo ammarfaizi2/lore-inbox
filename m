@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278722AbRKMNr2>; Tue, 13 Nov 2001 08:47:28 -0500
+	id <S279113AbRKMNvJ>; Tue, 13 Nov 2001 08:51:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279103AbRKMNrS>; Tue, 13 Nov 2001 08:47:18 -0500
-Received: from ns.suse.de ([213.95.15.193]:9736 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S278722AbRKMNrM>;
-	Tue, 13 Nov 2001 08:47:12 -0500
-Date: Tue, 13 Nov 2001 14:47:11 +0100 (CET)
-From: Dave Jones <davej@suse.de>
+	id <S279180AbRKMNvA>; Tue, 13 Nov 2001 08:51:00 -0500
+Received: from as2-1-8.va.g.bonet.se ([194.236.117.122]:2052 "EHLO
+	boris.prodako.se") by vger.kernel.org with ESMTP id <S279113AbRKMNuq>;
+	Tue, 13 Nov 2001 08:50:46 -0500
+Date: Tue, 13 Nov 2001 14:50:38 +0100 (CET)
+From: Tobias Ringstrom <tori@ringstrom.mine.nu>
+X-X-Sender: <tori@boris.prodako.se>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Richard Gooch <rgooch@ras.ucalgary.ca>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: GPLONLY kernel symbols???
-In-Reply-To: <E163aNp-0000cm-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.30.0111131439420.4157-100000@Appserv.suse.de>
+cc: Marcelo Borges Ribeiro <marcelo@datacom-telematica.com.br>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: via82cxxx_audio problems
+In-Reply-To: <E163cqd-00012s-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0111131441100.1452-100000@boris.prodako.se>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -22,26 +22,18 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Tue, 13 Nov 2001, Alan Cox wrote:
 
-> I wasnt aware mtrr.c had an active maintainer.
+> > in dmesg) and cannot play in any other rate. With mplayer you can see
+> > messages such as requested 16000Hz got (480000) that explains why it so=
+> > unds
+> > like chip'n'dale ;-). P.s. I don=B4t know why it works with xmms  but w=
+> > ith
+> > mpg123 it refuses to play at all becouse these sound rates.
+> 
+> XMMS does the right thing. It understands how to do rate adaption. 
 
-Well, hpa and myself are the only ones really maintaining it
-in the last two years judging from the changelog. Some others
-probably also contributed small changes not worthy of an entry.
+Only if you use the OSS module for output.  Using esound (which is the
+default in RH 7.2) it sounds terrible.  That might be esound's fault 
+though.
 
-> > "He who writes the code gets to choose".
-> How about he who has to decipher the whole mess to add things...
-
-It's grown to something of a monster imo. A complete rewrite for
-2.5 would likely be the best thing to happen it in the last 5 years
-
-I got the idea a while ago that splitting the various implementations
-(Cyrix/K6/etc) out to seperate files would be a good start.
-After I ripped it apart for an x86-64 version (not-yet-tested/merged),
-I realised it still needs more work.
-
-Dave.
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+/Tobias
 

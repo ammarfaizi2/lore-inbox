@@ -1,33 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279768AbRKRPBO>; Sun, 18 Nov 2001 10:01:14 -0500
+	id <S279805AbRKRPDE>; Sun, 18 Nov 2001 10:03:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279814AbRKRPBE>; Sun, 18 Nov 2001 10:01:04 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:6149 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S279798AbRKRPAt>; Sun, 18 Nov 2001 10:00:49 -0500
-Subject: Re: [PATCH] moving F0 0F bug check to bugs.h
-To: davej@suse.de (Dave Jones)
-Date: Sun, 18 Nov 2001 15:07:56 +0000 (GMT)
-Cc: zwane@linux.realnet.co.sz (Zwane Mwaikambo),
-        linux-kernel@vger.kernel.org (Linux Kernel)
-In-Reply-To: <Pine.LNX.4.30.0111181512230.29315-100000@Appserv.suse.de> from "Dave Jones" at Nov 18, 2001 03:18:18 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S279798AbRKRPCz>; Sun, 18 Nov 2001 10:02:55 -0500
+Received: from realityfailure.org ([209.150.103.212]:64138 "EHLO
+	mail.realityfailure.org") by vger.kernel.org with ESMTP
+	id <S279783AbRKRPCh>; Sun, 18 Nov 2001 10:02:37 -0500
+Date: Sun, 18 Nov 2001 10:02:38 -0500 (EST)
+From: John Jasen <jjasen@realityfailure.org>
+To: <afu@fugmann.dhs.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: SiS630 chipsets && linux 2.4.x kernel == snails pace?
+Message-ID: <Pine.LNX.4.33.0111180957020.10229-100000@geisha.realityfailure.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E165TY4-0003Ui-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > We only check for the bug once so we might as well move it to check
-> > the boot cpu only in bugs.h.
-> 
-> Whilst not an ideal solution, some people do silly things like
-> putting a P150 and a P166 clocked to 150 into SMP boxes.
-> It could be possible for 1 CPU to have the bug whilst another doesn't.
+On Sun, 18 Nov 2001, Anders Peter Fugmann wrote:
 
-Perhaps we should add the bugs as bit flags to the capability masks - but
-inverted (ie "no foof bug" etc) that way they'll come out with the rest of
-the SMP bug handling logic
+> dmesg for the "failing" 2.4.X kernel would be nice.
+> (the ones on the site is from version 2.2.19)
+> Also output from 'hdparm /dev/hda' is needed in order to sort out the
+> problem.
+  
+dmesg, /proc/interrupts, /proc/pci added to
+http://www.realityfailure.org/~jjasen/SiS630/2.4.12/
+ 
+There is also a hdparm.info, from hdparm -I /dev/hda; and hdparm.stat from 
+hdparm -t -T /dev/hda (3 runs).
+
+I've also added, in http://www.realityfailure.org/~jjasen/SiS630/, 
+hdparm.info and hdparm.stat from the RH 2.2.19 kernel.
+
+What seems really interesting is that while the buffered disk reads from 
+2.2.19 are 4.5x slower, 2.2.19 is able to get work done (ie compiling) 
+_much_ faster. (subjectively, a 2.4.x kernel compile (make clean && make 
+dep && make && make modules) might take 20 minutes or so on 2.2.19, 
+whereas it takes 4-5 hours on a 2.4.x kernel.
+
+-- 
+-- John E. Jasen (jjasen@realityfailure.org)
+-- If things worked according to specs, there'd be a lot less work.
+
+

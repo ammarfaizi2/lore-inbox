@@ -1,49 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261965AbTEBUzf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 May 2003 16:55:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262405AbTEBUze
+	id S263086AbTEBSoL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 May 2003 14:44:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263091AbTEBSoL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 May 2003 16:55:34 -0400
-Received: from ns.suse.de ([213.95.15.193]:26630 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261965AbTEBUzd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 May 2003 16:55:33 -0400
-Date: Fri, 2 May 2003 23:07:58 +0200
-From: Andi Kleen <ak@suse.de>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [Announcement] "Exec Shield", new Linux security feature
-Message-ID: <20030502210758.GB21239@oldwotan.suse.de>
-References: <Pine.LNX.4.44.0305021325130.6565-100000@devserv.devel.redhat.com.suse.lists.linux.kernel> <200305021829.h42ITclA000178@81-2-122-30.bradfords.org.uk.suse.lists.linux.kernel> <b8udjm$cgq$1@cesium.transmeta.com.suse.lists.linux.kernel> <p73n0i5138g.fsf@oldwotan.suse.de> <3EB2DB8C.70600@zytor.com>
+	Fri, 2 May 2003 14:44:11 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:64760 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S263086AbTEBSoJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 May 2003 14:44:09 -0400
+Date: Fri, 2 May 2003 11:54:08 -0700
+From: Greg KH <greg@kroah.com>
+To: marcelo@conectiva.com.br
+Cc: linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net
+Subject: [BK PATCH] PCI Hotplug fixes for 2.4.21-rc1
+Message-ID: <20030502185406.GA14728@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3EB2DB8C.70600@zytor.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 02, 2003 at 01:56:44PM -0700, H. Peter Anvin wrote:
-> Andi Kleen wrote:
-> >>
-> >>x86-64 definitely does, and it's the default on Linux/x86-64.
-> > 
-> > No we had to turn it off and now it's too late to turn it back on again.
-> > There is also one bug left that prevents it.
-> > 
-> 
-> Why is that?  And, in particular, why is it "too late to turn it back
+Hi,
 
-mprotect() didn't (and probably still does not) work when you change
-PROT_EXEC.
+Here are three PCI Hotplug fixes for 2.4.21-rc1.  Two of them are for
+the IBM PCI Hotplug driver, fixing a bug that Arjan van de Ven pointed
+out in the last fix for this driver that was accepted, and another fix
+for some memory leaks that happen on the error paths.  Both of these
+patches have been in the 2.5 tree for some time.
 
-> on"?  It seems as long as it's clearly defined as the ABI that change
-> can be made later, effectively as a bug fix.
+The other patch fixes the Compaq PCI Hotplug driver to work properly on
+machines with faster PCI busses (PCI-X).
 
-The ABI leaves it undefined. But it does break binaries.
+Please pull from:  bk://kernel.bkbits.net/gregkh/linux/marcelo-2.4
 
-Also gcc needs to be fixed for trampolines (I had some code that enabled 
-the stack exec in there, but it didn't work because of the mprotect
-issues)
+The raw patches will follow.
 
--Andi
+thanks,
+
+greg k-h
+
+
+ drivers/hotplug/cpqphp.h      |  194 +++++++++++++++++++++++++++++++++++
+ drivers/hotplug/cpqphp_core.c |   59 +++++++++-
+ drivers/hotplug/cpqphp_ctrl.c |  147 ++++++++++++++-------------
+ drivers/hotplug/ibmphp_ebda.c |  228 +++++++++++++-----------------------------
+ 4 files changed, 394 insertions(+), 234 deletions(-)
+-----
+
+ChangeSet@1.1144, 2003-05-02 11:35:50-07:00, greg@kroah.com
+  [PATCH] IBM PCI Hotplug: fix up a number of memory leaks on the error path
+
+ drivers/hotplug/ibmphp_ebda.c |  144 ++++++++++++++++++------------------------
+ 1 files changed, 65 insertions(+), 79 deletions(-)
+------
+
+ChangeSet@1.1143, 2003-05-02 11:35:34-07:00, greg@kroah.com
+  [PATCH] IBM PCI Hotplug: fix up a lot of memory allocations and leaks just to figure out a slot name.
+
+ drivers/hotplug/ibmphp_ebda.c |   84 +++---------------------------------------
+ 1 files changed, 6 insertions(+), 78 deletions(-)
+------
+
+ChangeSet@1.1142, 2003-05-02 11:35:06-07:00, torben.mathiasen@hp.com
+  [PATCH] PCI Hotplug: cpqphp 66/100/133MHz PCI-X support
+
+Push file://home/greg/linux/BK/gregkh-2.4 -> file://home/greg/linux/BK/bleed-2.4
+ drivers/hotplug/cpqphp.h      |  194 +++++++++++++++++++++++++++++++++++++++++-
+ drivers/hotplug/cpqphp_core.c |   59 +++++++++++-
+ drivers/hotplug/cpqphp_ctrl.c |  147 +++++++++++++++++--------------
+ 3 files changed, 323 insertions(+), 77 deletions(-)
+------
+

@@ -1,86 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261814AbUKPVRh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261820AbUKPVUW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261814AbUKPVRh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 16:17:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261820AbUKPVRg
+	id S261820AbUKPVUW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 16:20:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261822AbUKPVUV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 16:17:36 -0500
-Received: from rproxy.gmail.com ([64.233.170.192]:31076 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261814AbUKPVQL (ORCPT
+	Tue, 16 Nov 2004 16:20:21 -0500
+Received: from imap.gmx.net ([213.165.64.20]:10934 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261820AbUKPVT5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 16:16:11 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=CseuZp3yUUf208yQpRmt3ki41i138rjTwB426yQKqxf2R4p5Vq3DtTbm+JNXJD80G5YgFsbu1Ai0No6prfXPrx+609cRv5kfIetXcbsz/5a3SJCaAcZm+ya5kxPlSP+57KSdLFcJcBMcV2ysduo7qg8NJkt+sfalkLq1QxWCdwM=
-Message-ID: <d120d5000411161309100a0d4e@mail.gmail.com>
-Date: Tue, 16 Nov 2004 16:09:31 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: ambx1@neo.rr.com, Dmitry Torokhov <dtor_core@ameritech.net>,
-       linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>,
-       Tejun Heo <tj@home-tj.org>, Patrick Mochel <mochel@digitalimplant.org>
-Subject: Re: [RFC] [PATCH] driver core: allow userspace to unbind drivers from devices.
-In-Reply-To: <20041116070413.GJ29574@neo.rr.com>
+	Tue, 16 Nov 2004 16:19:57 -0500
+X-Authenticated: #4399952
+Date: Tue, 16 Nov 2004 22:20:39 +0100
+From: Florian Schmidt <mista.tapas@gmx.net>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: "K.R. Foley" <kr@cybsft.com>, Mark_H_Johnson@raytheon.com,
+       linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
+       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
+       Stefan Schweizer <sschweizer@gmail.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm1-V0.7.27-3
+Message-ID: <20041116222039.662f41ac@mango.fruits.de>
+In-Reply-To: <20041116212401.GA16845@elte.hu>
+References: <OFE5FC77BB.DA8F1FAE-ON86256F4E.0058C5CF-86256F4E.0058C604@raytheon.com>
+	<20041116184315.GA5492@elte.hu>
+	<419A5A53.6050100@cybsft.com>
+	<20041116212401.GA16845@elte.hu>
+X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-References: <20041109223729.GB7416@kroah.com>
-	 <200411092249.44561.dtor_core@ameritech.net>
-	 <20041116061315.GG29574@neo.rr.com>
-	 <200411160137.57402.dtor_core@ameritech.net>
-	 <20041116070413.GJ29574@neo.rr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Nov 2004 02:04:13 -0500, Adam Belay <ambx1@neo.rr.com> wrote:
-> 
-> "*stop"
-> - safely stop the upper class layer
-> - free resources, and reset device specific data
-> 
-> And we're ready for the next step. (which may even include another *start)
-> 
-> This would easily allow for things like "reconnect", which would simply be a
-> "*stop" follow by a "*start".
-> 
-> Comments?
+On Tue, 16 Nov 2004 22:24:01 +0100
+Ingo Molnar <mingo@elte.hu> wrote:
+
+> great. The current release is meanwhile at -V0.7.27-10, which includes
+> other minor updates:
 > 
 
-Sounds interesting, although I do not think that freeing resources should be
-done at stop time, it is task for remove() IMHO. Do you have an idea how
-setting up process (between probe and start) will work? Will start called
-automatically or by request from userspace?
+Ok, this one boots fine again for me (didn't test the ones betwen my last
+report and this one).
 
-> 
-> > My bind mode patch is somewhat independent of "drvctl" as it just adds a new
-> > attribute - "bind_mode" to all devices and drivers. It can be either "auto"
-> > or "manual" and device/drivers that are set as manual mode will be ignored
-> > by driver core and will only be bound when user explicitely asks to do that.
-> > This is useful when you want "penalize" one driver over another, like
-> > psmouse/serio_raw.
-> 
-> That's actually a really interesting idea.  In some cases we may not want the
-> kernel automatically binding drivers.  A question would be should this feature
-> be disabled on a per device basis or globally?  If it's globally then should
-> it occur after init is done.  And if that's the case, couldn't we free the
-> device ID tables and handle everything from userspace.  I'm sure there are
-> some problems with this but I figured I'd mention it as well.
-> 
+I have not yet tried to get this kernel to lock up yet, but i made another
+interesting observation:
 
-Well, it sure needs to be available on per-device/per-driver basis as while
-I am generally enjoying automatic binding without userspace involvement.
-For example I sometimes want to be able to disable my touchpad and not
-let it spring back to life (normally serio core will try to find
-proper driver for
-an unbound port whenever there is a data coming from it).
+irq 8 at prio 98 (only irq 1 with higher prio 99). running rtc_wakeup in the
+console (it runs SCHED_FIFO allright). Switching consoles (different text
+consoles - not swithcing to X, though this basically produces similar
+results) produces large jitters (around 1 ms) and occasional missed irq's
+and piggy messages. This is completely reproducable here. The rtc histogram
+doesn't show any large wakeup latencies.
 
-Whether it should also be controlled on per bus/per system basis is
-another question. I am not quite ready to drop all device tables and rely
-solely on userspace handling, altthough if all tables are marked as __init
-and and the end of the boot process we walk all buses and set their
-->match() methods to NULL we effectively switch to manual binding
-mode and can discard ID tables.
+/proc/latency_trace doesn't show that high latencies either on console
+switch:
 
--- 
-Dmitry
+preemption latency trace v1.0.7 on 2.6.10-rc2-mm1-RT-V0.7.27-10
+-------------------------------------------------------
+ latency: 63 us, entries: 22 (22)   |   [VP:0 KP:1 SP:1 HP:1 #CPUS:1]
+    -----------------
+    | task: IRQ 8/13, uid:0 nice:-5 policy:1 rt_prio:98
+    -----------------
+ => started at: try_to_wake_up+0x51/0x170 <c010f3a1>
+ => ended at:   finish_task_switch+0x51/0xb0 <c010f911>
+=======>
+    5 80010004 0.000ms (+0.000ms): trace_start_sched_wakeup (try_to_wake_up)
+    5 80010003 0.000ms (+0.000ms): (1) ((98))
+    5 80010003 0.000ms (+0.000ms): (13) ((5))
+    5 80010003 0.000ms (+0.000ms): try_to_wake_up (wake_up_process)
+    5 80010003 0.000ms (+0.000ms): (0) ((1))
+    5 80010002 0.000ms (+0.000ms): preempt_schedule (try_to_wake_up)
+    5 80010002 0.000ms (+0.000ms): wake_up_process (redirect_hardirq)
+    5 80010001 0.000ms (+0.000ms): preempt_schedule (__do_IRQ)
+    5 80010001 0.000ms (+0.000ms): irq_exit (do_IRQ)
+    5 80000002 0.000ms (+0.000ms): do_softirq (irq_exit)
+    5 80000002 0.001ms (+0.061ms): __do_softirq (do_softirq)
+    5 00000000 0.062ms (+0.000ms): preempt_schedule (_mmx_memcpy)
+    5 90000000 0.062ms (+0.000ms): __schedule (preempt_schedule)
+    5 90000000 0.062ms (+0.000ms): profile_hit (__schedule)
+    5 90000001 0.062ms (+0.000ms): sched_clock (__schedule)
+   13 80000002 0.062ms (+0.000ms): __switch_to (__schedule)
+   13 80000002 0.062ms (+0.000ms): (5) ((13))
+   13 80000002 0.062ms (+0.000ms): (98) ((1))
+   13 80000002 0.062ms (+0.000ms): finish_task_switch (__schedule)
+   13 80000001 0.062ms (+0.000ms): trace_stop_sched_switched (finish_task_switch)
+   13 80000001 0.063ms (+0.003ms): (13) ((1))
+   13 80000001 0.066ms (+0.000ms): trace_stop_sched_switched (finish_task_switch)
+
+I sometimes do get large values in /proc/latency_trace, but they seem to be
+unrelated to the console switching.
+
+flo

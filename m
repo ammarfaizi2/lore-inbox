@@ -1,53 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316682AbSFFCrE>; Wed, 5 Jun 2002 22:47:04 -0400
+	id <S316766AbSFFCzO>; Wed, 5 Jun 2002 22:55:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316746AbSFFCrD>; Wed, 5 Jun 2002 22:47:03 -0400
-Received: from ausmtp01.au.ibm.COM ([202.135.136.97]:55987 "EHLO
-	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP
-	id <S316682AbSFFCrD>; Wed, 5 Jun 2002 22:47:03 -0400
-Date: Wed, 5 Jun 2002 23:18:50 +1000
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Guest section DW <dwguest@win.tue.nl>
-Cc: rbt@mtlb.co.uk, linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
-Subject: Re: [PATCH] Trivial, IDE geometry fix / defconfig changes
-Message-Id: <20020605231850.68f44678.rusty@rustcorp.com.au>
-In-Reply-To: <20020604234146.GA7255@win.tue.nl>
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
+	id <S316768AbSFFCzN>; Wed, 5 Jun 2002 22:55:13 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:35345
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S316766AbSFFCzM>; Wed, 5 Jun 2002 22:55:12 -0400
+Date: Wed, 5 Jun 2002 19:55:02 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Thomas Zimmerman <thomas@zimres.net>, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] atapci 0.51
+Message-ID: <20020606025502.GE448@matchmail.com>
+Mail-Followup-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+	Thomas Zimmerman <thomas@zimres.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020601025555.GA291@zimres.net> <Pine.SOL.4.30.0206051820380.16024-100000@mion.elka.pw.edu.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 Jun 2002 01:41:46 +0200
-Guest section DW <dwguest@win.tue.nl> wrote:
-
-> On Tue, Jun 04, 2002 at 09:56:17PM +0100, Robert Cardell wrote:
+On Wed, Jun 05, 2002 at 06:21:47PM +0200, Bartlomiej Zolnierkiewicz wrote:
 > 
-> > --- ide-disk.c.old	Tue Jun  4 21:09:10 2002
-> > +++ ide-disk.c	Tue Jun  4 21:09:44 2002
-> > @@ -929,9 +929,9 @@
-> >  
-> >  	if (id->cfs_enable_2 & 0x0400) {
-> >  		capacity_2 = id->lba_capacity_2;
-> > -		drive->cyl = (unsigned int) capacity_2 / (drive->head * drive->sect);
-> >  		drive->head		= drive->bios_head = 255;
-> >  		drive->sect		= drive->bios_sect = 63;
-> > +		drive->cyl = (unsigned int) capacity_2 / (drive->head * drive->sect);
-> >  		drive->select.b.lba	= 1;
-> >  		set_max_ext = idedisk_read_native_max_address_ext(drive);
-> >  		if (set_max_ext > capacity_2) {
-> > 
+> On Fri, 31 May 2002, Thomas Zimmerman wrote:
 > 
-> Yes, let me confirm: this patch is required.
-> I sent it to the list on 10 Feb 2002 ("[PATCH] tiny IDE fixes"); apparently
-> nobody picked it up, or at least it didnt reach 2.4.19-pre9 yet.
-> That patch also removed some dead code.
+> > On 31-May 02:35, Bartlomiej Zolnierkiewicz wrote:
+> > [snip]
+> > > So 0.51 version is here:
+> > > http://home.elka.pw.edu.pl/~bzolnier/atapci/atapci-0.51.tar.bz2
+> > >
+> > > changelog:
+> > > - make it kernel version independent
+> > > - add '-s' strip flag to CFLAGS
+> > > - minor cosmetics by Roberto Nibali
+> > >
+> > > --
+> > > bkz
+> >
+> > Just a nit, but wouldn't the name "lsata" fit in better with "lspci" and
+> > "lsisa"?
+> >
+> > Thomas
+> >
+> 
+> No, it is only for PCI chipsets.
 
-If you'd sent it to the trivial patch maintainer... <plug plug>
-
-Rusty.
--- 
-   there are those who do and those who hang on and you don't see too
-   many doers quoting their contemporaries.  -- Larry McVoy
+I think he meant to follow the naming convention set by lspci and lsisa.
+What do you think now?

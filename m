@@ -1,76 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262444AbUJ0Nyk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262442AbUJ0NzA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262444AbUJ0Nyk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 09:54:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262446AbUJ0Nyj
+	id S262442AbUJ0NzA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 09:55:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262448AbUJ0Ny7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 09:54:39 -0400
-Received: from mailgate.urz.uni-halle.de ([141.48.3.51]:9100 "EHLO
-	mailgate.uni-halle.de") by vger.kernel.org with ESMTP
-	id S262444AbUJ0Nwb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 09:52:31 -0400
-Date: Wed, 27 Oct 2004 15:52:14 +0200 (METDST)
-From: Clemens Ladisch <clemens@ladisch.de>
-To: Christoph Hellwig <hch@lst.de>
-cc: <perex@suse.cz>, <linux-kernel@vger.kernel.org>,
-       <alsa-devel@alsa-project.org>
-Subject: Re: [Alsa-devel] [PATCH, RFC] remove dead code an exports from alsa
-In-Reply-To: <20041024133813.GA20174@lst.de>
-Message-ID: <Pine.HPX.4.33n.0410270953290.8684-100000@studcom.urz.uni-halle.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Scan-Signature: 3a649d4e1fa61e44c5cb5c4b22c5527a
+	Wed, 27 Oct 2004 09:54:59 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:38029 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262442AbUJ0Nvz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 09:51:55 -0400
+Date: Wed, 27 Oct 2004 15:53:09 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Rui Nuno Capela <rncbc@rncbc.org>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Karsten Wiese <annabellesgarden@yahoo.de>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.3
+Message-ID: <20041027135309.GA8090@elte.hu>
+References: <20041019124605.GA28896@elte.hu> <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu> <20041021132717.GA29153@elte.hu> <20041022133551.GA6954@elte.hu> <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu> <20041025104023.GA1960@elte.hu> <20041027001542.GA29295@elte.hu> <5225.195.245.190.94.1098880980.squirrel@195.245.190.94>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5225.195.245.190.94.1098880980.squirrel@195.245.190.94>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> Alsa currently has tons of dead exports, often with totally unused
-> functions behind them.  Care to look over the huge patch below and
-> see what makes sense?
 
-Exported for historical reasons (and no longer necessary):
+* Rui Nuno Capela <rncbc@rncbc.org> wrote:
 
-> ===== include/sound/ad1848.h 1.7 vs edited =====
-> -void snd_ad1848_dout(ad1848_t *chip, unsigned char reg, unsigned char value);
-> -unsigned char snd_ad1848_in(ad1848_t *chip, unsigned char reg);
-> -void snd_ad1848_mce_up(ad1848_t *chip);
-> -void snd_ad1848_mce_down(ad1848_t *chip);
-> -irqreturn_t snd_ad1848_interrupt(int irq, void *dev_id, struct pt_regs *regs);
-> ===== include/sound/es1688.h 1.4 vs edited =====
-> -irqreturn_t snd_es1688_interrupt(int irq, void *dev_id, struct pt_regs *regs);
+> OK. Currently with RT-V0.3.2.
+> 
+> So it seems that the jackd -R is no more an issue here.
 
-Not really used:
+great.
 
-> ===== include/sound/ainstr_fm.h 1.1 vs edited =====
-> -extern char *snd_seq_fm_id;
-> ===== include/sound/ainstr_gf1.h 1.2 vs edited =====
-> -extern char *snd_seq_gf1_id;
-> ===== include/sound/ainstr_iw.h 1.2 vs edited =====
-> -extern char *snd_seq_iwffff_id;
-> ===== include/sound/core.h 1.37 vs edited =====
-> -extern int snd_cards_count;
+> However (oh no!:) those jackd -R xruns are still frequent, much
+> frequent than RT-U3, which is my stable RT kernel atm.
 
-I removed all exports above from the ALSA CVS.
+-V0.4.1 could help with this problem. There were a number of places
+where the PREEMPT_REALTIME kernel missed reschedules so it could easily
+happen that jackd would sit in the runqueue waiting to be executed and
+the kernel got quickly out of a critical section but then the kernel
+'forgot' to reschedule for many milliseconds!
 
-
-The following headers are the driver API, so the unused symbols might
-be used by future drivers:
-
-> ===== include/sound/info.h 1.15 vs edited =====
-> ===== include/sound/pcm.h 1.30 vs edited =====
-> ===== include/sound/rawmidi.h 1.5 vs edited =====
-> ===== include/sound/seq_midi_emul.h 1.1 vs edited =====
-> ===== include/sound/seq_midi_event.h 1.3 vs edited =====
-> ===== include/sound/seq_virmidi.h 1.2 vs edited =====
-> ===== include/sound/timer.h 1.7 vs edited =====
-
-However, I think some of these functions should not be part of the
-API; I'll remove them, too.
-
-
-The functions in the snd-trident-synth module might be used when^Wif
-MIDI support for it will be written.
-
-
-Clemens
-
+	Ingo

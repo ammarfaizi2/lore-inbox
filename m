@@ -1,85 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262123AbTKQXyU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Nov 2003 18:54:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262130AbTKQXyU
+	id S262221AbTKRAAa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Nov 2003 19:00:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262198AbTKRAA3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Nov 2003 18:54:20 -0500
-Received: from 64-52-142-65.client.cypresscom.net ([64.52.142.65]:51343 "EHLO
-	scsoftware.sc-software.com") by vger.kernel.org with ESMTP
-	id S262123AbTKQXyS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Nov 2003 18:54:18 -0500
-Date: Mon, 17 Nov 2003 15:53:19 -0800 (PST)
-From: John Heil <kerndev@sc-software.com>
-To: <linux-kernel@vger.kernel.org>, <torvalds@osdl.org>
-cc: John Heil <johnhscs@scsoftware.sc-software.com>
-Subject: [PATCH] [USB2] 2.6.0-test9-mm2 HiSpd Isoc 1024KB submits: -EMSGSIZE
-Message-ID: <Pine.LNX.4.33.0311171529030.5878-100000@scsoftware.sc-software.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 17 Nov 2003 19:00:29 -0500
+Received: from holomorphy.com ([199.26.172.102]:26533 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S262221AbTKRAAZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Nov 2003 19:00:25 -0500
+Date: Mon, 17 Nov 2003 16:00:21 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "Luck, Tony" <tony.luck@intel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: format_cpumask()
+Message-ID: <20031118000021.GF22764@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"Luck, Tony" <tony.luck@intel.com>, linux-kernel@vger.kernel.org
+References: <B8E391BBE9FE384DAA4C5C003888BE6F0F37B8@scsmsx401.sc.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F0F37B8@scsmsx401.sc.intel.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At some point in the past, I wrote:
+>> I was trying to make it a NR_CPUS -bit integer with the 
+>> highest nybbles
+>> printed first. What's your favorite alternative?
 
-High speed isochronous URB submits fail w -EMSGSIZE when packet
-size is 1024KB (which is permitted by the USB 2.0 Std).
+On Mon, Nov 17, 2003 at 03:56:34PM -0800, Luck, Tony wrote:
+> The prettiest output format I can think of would be
+> to pretend that we had enough bits for NR_CPUS.  I.e.
+> on a 128 cpu system, cpu0 looks like:
+>  00000000000000000000000000000001
+> and cpu 127 is:
+>  80000000000000000000000000000000
+> This is probably the messiest to implement :-(
+> -Tony
 
-Max Packet Size is conveyed to the host controller via the iTD's
-Buffer Pointer Page 1 field, @ offset +0x28[10:0].
+This is actually what I was trying to do. It's why I started the
+loop of printing out the hexadecimal unsigned long components with
+for (k = sizeof(cpumask_t)/sizeof(long) - 1; k >= 0; --k);
 
-drivers/usb/core/urb.c: usb_submit_urb incorrectly scales this
-value w an AND mask of 0x03ff while determining the count of
-packets. usb/host/ehci-sched.c repeats the error.
-
-This fix corrects the AND mask allowing 1024K packets to flow.
-
-
-[root@localhost src]# less usb2-isoc-1024.patch
-diff -Nru 2.6.0-t9-mm2.orig/drivers/usb/core/urb.c
-2.6.0-t9-mm2/drivers/usb/core/urb.c
---- 2.6.0-t9-mm2.orig/drivers/usb/core/urb.c    2003-10-25
-14:43:54.000000000 -0400
-+++ 2.6.0-t9-mm2/drivers/usb/core/urb.c 2003-11-17 13:25:32.000000000
--0500
-@@ -268,7 +268,7 @@
-                /* "high bandwidth" mode, 1-3 packets/uframe? */
-                if (dev->speed == USB_SPEED_HIGH) {
-                        int     mult = 1 + ((max >> 11) & 0x03);
--                       max &= 0x03ff;
-+                       max &= 0x07ff;
-                        max *= mult;
-                }
-
-diff -Nru 2.6.0-t9-mm2.orig/drivers/usb/host/ehci-sched.c
-2.6.0-t9-mm2/drivers/usb/host/ehci-sched.c
---- 2.6.0-t9-mm2.orig/drivers/usb/host/ehci-sched.c     2003-10-25
-14:43:19.000000000 -0400
-+++ 2.6.0-t9-mm2/drivers/usb/host/ehci-sched.c  2003-11-17
-13:27:08.000000000 -0500
-@@ -580,10 +580,10 @@
-                maxp = urb->dev->epmaxpacketout [epnum];
-                buf1 = 0;
-        }
--       buf1 |= (maxp & 0x03ff);
-+       buf1 |= (maxp & 0x07ff);
-        multi = 1;
-        multi += (maxp >> 11) & 0x03;
--       maxp &= 0x03ff;
-+       maxp &= 0x07ff;
-        maxp *= multi;
-
-        /* transfer can't fit in any uframe? */
+except I posted ++k. Amended patch coming very shortly.
 
 
-
--
------------------------------------------------------------------
-John Heil
-South Coast Software
-Custom systems software for UNIX and IBM MVS mainframes
-1-714-774-6952
-johnhscs@sc-software.com
-http://www.sc-software.com
------------------------------------------------------------------
-
-
+-- wli

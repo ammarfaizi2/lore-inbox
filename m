@@ -1,35 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319640AbSH2Xl1>; Thu, 29 Aug 2002 19:41:27 -0400
+	id <S319637AbSH2Xjp>; Thu, 29 Aug 2002 19:39:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319641AbSH2Xl1>; Thu, 29 Aug 2002 19:41:27 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:9914 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S319640AbSH2Xl0>;
-	Thu, 29 Aug 2002 19:41:26 -0400
-Date: Thu, 29 Aug 2002 19:45:49 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Benjamin LaHaise <bcrl@redhat.com>
-cc: Linus Torvalds <torvalds@transmeta.com>, linux-mm@kvack.org,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: weirdness with ->mm vs ->active_mm handling
-In-Reply-To: <20020829193413.H17288@redhat.com>
-Message-ID: <Pine.GSO.4.21.0208291940350.15425-100000@weyl.math.psu.edu>
+	id <S319640AbSH2Xjp>; Thu, 29 Aug 2002 19:39:45 -0400
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:29968 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S319637AbSH2Xjn>; Thu, 29 Aug 2002 19:39:43 -0400
+Date: Fri, 30 Aug 2002 01:43:39 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Andre Hedrick <andre@linux-ide.org>, <linux-kernel@vger.kernel.org>,
+       <linux-ide@vger.kernel.org>
+Subject: Re: ide-2.4.20-pre4-ac2.patch
+In-Reply-To: <1030663264.1327.22.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0208300141070.8911-100000@serv>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+On 30 Aug 2002, Alan Cox wrote:
 
-On Thu, 29 Aug 2002, Benjamin LaHaise wrote:
+> > > Gayle I think should be m68k
+> > > not ppc (actually Im pretty sure),
+> >
+> > It's for m68k and ppc Amigas, but I don't think two separate drivers are
+> > needed.
+>
+> So its actually a false divide and dumping them in "legacy" is probably
+> a lot simpler ?
 
-> Hello,
-> 
-> In trying to track down a bug, I found routines like generic_file_read 
-> getting called with current->mm == NULL.  This seems to be a valid state 
-> for lazy tlb tasks, but the code throughout the kernel doesn't seem to 
-> assume that.
+Hmm, somehow I more like "m68k". :)
 
-Lazy-TLB == "promise not to use a lot of stuff in the kernel".  In particular,
-any page fault in that state is a bug.
+bye, Roman
 

@@ -1,31 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277282AbRKFFi7>; Tue, 6 Nov 2001 00:38:59 -0500
+	id <S276591AbRKFFgj>; Tue, 6 Nov 2001 00:36:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277094AbRKFFit>; Tue, 6 Nov 2001 00:38:49 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:54288 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S277012AbRKFFih>;
-	Tue, 6 Nov 2001 00:38:37 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.13-ac8 current() changes
-Mime-Version: 1.0
+	id <S277012AbRKFFga>; Tue, 6 Nov 2001 00:36:30 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:27408 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S276591AbRKFFgX>; Tue, 6 Nov 2001 00:36:23 -0500
+Message-ID: <3BE77599.9CFB5CA9@zip.com.au>
+Date: Mon, 05 Nov 2001 21:31:05 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+Subject: Re: [Ext2-devel] disk throughput
+In-Reply-To: <Pine.GSO.4.21.0111052306150.27713-100000@weyl.math.psu.edu> <Pine.LNX.4.33.0111052037240.1061-100000@penguin.transmeta.com>
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 06 Nov 2001 16:38:24 +1100
-Message-ID: <17745.1005025104@ocs3.intra.ocs.com.au>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.4.13-ac8 changed get_current() to use cr2 instead of esp and
-introduced hard_get_current() which uses esp.  The comment on
-hard_get_current() in include/asm-i386/smp.h says "for within NMI,
-do_page_fault, cpu_init".  But NMI, do_page_fault and cpu_init can
-execute other code, any references to current() in that other code will
-use get_current() instead of hard_get_current().
+Linus Torvalds wrote:
+> 
+> I do believe that there are probably more "high-level" heuristics that can
+> be useful, though. Looking at man common big trees, the ownership issue is
+> one obvious clue. Sadly the trees obviously end up being _created_ without
+> owner information, and the chown/chgrp happens later, but it might still
+> be useable for some clues.
+> 
 
-How is generic code called from NMI etc. meant to know which version of
-current() to use?  Usage of current() is hidden inside a lot of other
-macros, this change looks like a data mismatch just waiting to bite us.
+I didn't understand your objection to the heuristic "was the
+parent directory created within the past 30 seconds?". If the
+parent and child were created at the same time, chances are that
+they'll be accessed at the same time?
 
+And there's always the `chattr' cop-out, to alter the allocation
+policy at a chosen point in the tree by administrative act.
 
+Any change in ext2 allocation policy at this point in time really,
+really worries me.  If it screws up we'll have 10,000,000 linux
+boxes running like dead dogs in a year. So if we _do_ make a change, I'd
+suggest that it be opt-in.  Call me a wimp.
+
+-

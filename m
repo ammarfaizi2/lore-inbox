@@ -1,75 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264610AbSLaR3B>; Tue, 31 Dec 2002 12:29:01 -0500
+	id <S264639AbSLaRiJ>; Tue, 31 Dec 2002 12:38:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264614AbSLaR3B>; Tue, 31 Dec 2002 12:29:01 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:19381 "EHLO
-	mtvmime03.VERITAS.COM") by vger.kernel.org with ESMTP
-	id <S264610AbSLaR3A>; Tue, 31 Dec 2002 12:29:00 -0500
-Date: Tue, 31 Dec 2002 17:38:45 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Amar Lior <lior@cs.huji.ac.il>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Problem
-In-Reply-To: <Pine.LNX.4.20_heb2.08.0212311818280.29471-100000@mos214.cs.huji.ac.il>
-Message-ID: <Pine.LNX.4.44.0212311717400.1688-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S264649AbSLaRiJ>; Tue, 31 Dec 2002 12:38:09 -0500
+Received: from hauptpostamt.charite.de ([193.175.66.220]:22245 "EHLO
+	hauptpostamt.charite.de") by vger.kernel.org with ESMTP
+	id <S264639AbSLaRiI>; Tue, 31 Dec 2002 12:38:08 -0500
+Date: Tue, 31 Dec 2002 18:46:31 +0100
+From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+Message-ID: <20021231174631.GG32609@charite.de>
+Mail-Followup-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+References: <200212311210.AA54722848@mail.sportvision.com> <3E11D759.2000503@shortcircuit.dyndns.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3E11D759.2000503@shortcircuit.dyndns.org>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 31 Dec 2002, Amar Lior wrote:
-> 
-> I found a bug that cause the kernel to lockup.
+* Dan Egli <dan@shortcircuit.dyndns.org>:
 
-In 2.4, yes.  Coincidentally, Mikael Starvik reported this just a
-couple of weeks ago, though it has been lurking there for a long time.
-In 2.5 it was fixed (in ignorance of the problem) a little while ago,
-and Marcelo already has fix below in his BK tree towards 2.4.20-pre3.
+Thanks for the fullquote
 
-Anyway, thanks a lot for making sure we know about it.  (The code was
-_nearly_ right, the loop should have terminated when nr returned from
-file_read_actor becomes 0: but there were _two_ declarations of nr,
-and the nr tested to terminate the loop remained 1 throughout).
+> I don't think there is a person on this listt that would not prefer to 
+> have the source to the nVidia drivers. I know I would. However, I also 
+> know that releasing the complete spec to their GPU would be suicide 
+> because, as has been pointed out earlier, ATI could get ahold of the 
+> information and use it to exploit any weakness in nVidia's GPU.  Plus 
+> they could start to incorporate nVidia's instructions into THEIR GPUs 
+> and boom. ATI releases a card that has all of their features, plus does 
+> 99.5% of what an nVidia card does also. Responce from the computer 
 
-Hugh
+If ATI's so keen on having that data, they would be reverse
+engineering nvidia's drivers.
 
-diff -Nru a/mm/shmem.c b/mm/shmem.c
---- a/mm/shmem.c	Thu Dec 26 22:32:38 2002
-+++ b/mm/shmem.c	Thu Dec 26 22:32:38 2002
-@@ -919,14 +919,13 @@
- 	struct inode *inode = filp->f_dentry->d_inode;
- 	struct address_space *mapping = inode->i_mapping;
- 	unsigned long index, offset;
--	int nr = 1;
- 
- 	index = *ppos >> PAGE_CACHE_SHIFT;
- 	offset = *ppos & ~PAGE_CACHE_MASK;
- 
--	while (nr && desc->count) {
-+	for (;;) {
- 		struct page *page;
--		unsigned long end_index, nr;
-+		unsigned long end_index, nr, ret;
- 
- 		end_index = inode->i_size >> PAGE_CACHE_SHIFT;
- 		if (index > end_index)
-@@ -956,12 +955,14 @@
- 		 * "pos" here (the actor routine has to update the user buffer
- 		 * pointers and the remaining count).
- 		 */
--		nr = file_read_actor(desc, page, offset, nr);
--		offset += nr;
-+		ret = file_read_actor(desc, page, offset, nr);
-+		offset += ret;
- 		index += offset >> PAGE_CACHE_SHIFT;
- 		offset &= ~PAGE_CACHE_MASK;
- 	
- 		page_cache_release(page);
-+		if (ret != nr || !desc->count)
-+			break;
- 	}
- 
- 	*ppos = ((loff_t) index << PAGE_CACHE_SHIFT) + offset;
+-- 
+Ralf Hildebrandt (Im Auftrag des Referat V a)   Ralf.Hildebrandt@charite.de
+Charite Campus Mitte                            Tel.  +49 (0)30-450 570-155
+Referat V a - Kommunikationsnetze -             Fax.  +49 (0)30-450 570-916
+Why you can't find your system administrators:
+(S)he's off round the building trying to find who has tured off which router, or have they just unplugged our link to the outside world. --Ian (God they both happened in one week) Dobbie ian@muscle.kcl.ac.uk
 

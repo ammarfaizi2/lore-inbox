@@ -1,56 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261348AbUJZRVq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261355AbUJZRZc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261348AbUJZRVq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 13:21:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261354AbUJZRVq
+	id S261355AbUJZRZc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 13:25:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261357AbUJZRZc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 13:21:46 -0400
-Received: from tron.kn.vutbr.cz ([147.229.191.152]:25105 "EHLO
-	tron.kn.vutbr.cz") by vger.kernel.org with ESMTP id S261348AbUJZRVn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 13:21:43 -0400
-Message-ID: <417E8794.9040102@stud.feec.vutbr.cz>
-Date: Tue, 26 Oct 2004 19:21:24 +0200
-From: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20041005)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Florian Schmidt <mista.tapas@gmx.net>, Michael Geithe <warpy@gmx.de>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.10-rc1-bk4 and kernel/futex.c:542
-References: <200410261135.51035.warpy@gmx.de> <20041026133126.1b44fb38@mango.fruits.de> <20041026112415.GA21015@elte.hu>
-In-Reply-To: <20041026112415.GA21015@elte.hu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 26 Oct 2004 13:25:32 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:3016 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261355AbUJZRZQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 13:25:16 -0400
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0
+From: Lee Revell <rlrevell@joe-job.com>
+To: Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+Cc: Rui Nuno Capela <rncbc@rncbc.org>, Ingo Molnar <mingo@elte.hu>,
+       Florian Schmidt <mista.tapas@gmx.net>, "K.R. Foley" <kr@cybsft.com>,
+       linux-kernel@vger.kernel.org, mark_h_johnson@raytheon.com,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Alexander Batyrshin <abatyrshin@ru.mvista.com>
+In-Reply-To: <1098767513.2926.3.camel@cmn37.stanford.edu>
+References: <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu>
+	 <20041025104023.GA1960@elte.hu> <417CDE90.6040201@cybsft.com>
+	 <20041025111046.GA3630@elte.hu> <20041025121210.GA6555@elte.hu>
+	 <20041025152458.3e62120a@mango.fruits.de> <20041025132605.GA9516@elte.hu>
+	 <20041025160330.394e9071@mango.fruits.de> <20041025141008.GA13512@elte.hu>
+	 <20041025141628.GA14282@elte.hu>
+	 <33313.192.168.1.5.1098733224.squirrel@192.168.1.5>
+	 <1098759671.9166.10.camel@krustophenia.net>
+	 <1098767513.2926.3.camel@cmn37.stanford.edu>
+Content-Type: text/plain
+Date: Tue, 26 Oct 2004 13:25:14 -0400
+Message-Id: <1098811515.10048.5.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
 Content-Transfer-Encoding: 7bit
-X-Spam-Flag: NO
-X-Spam-Report: Spam detection software, running on the system "tron.kn.vutbr.cz", has
-  identified this incoming email as possible spam.  The original message
-  has been attached to this so you can view it (if it isn't spam) or block
-  similar future email.  If you have any questions, see
-  the administrator of that system for details.
-  ____
-  Content analysis details:   (-4.2 points, 6.0 required)
-  ____
-   pts rule name              description
-  ---- ---------------------- --------------------------------------------
-   0.7 FROM_ENDS_IN_NUMS      From: ends in numbers
-  -4.9 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-                              [score: 0.0000]
-  ____
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> yeah, it definitely looks like there is some futex race that the
-> PREEMPT_REALTIME kernel triggers in no time. (this is because the
-> locking in the PREEMPT_REALTIME kernel is equivalent to an SMP system
-> with an infinite number of CPUs and will trigger the same races.)
+On Mon, 2004-10-25 at 22:11 -0700, Fernando Pablo Lopez-Lezcano wrote:
+> On Mon, 2004-10-25 at 20:01, Lee Revell wrote: 
+> > On Mon, 2004-10-25 at 20:40 +0100, Rui Nuno Capela wrote:
+> > > OTOH, jackd -R xruns are awfully back, even thought I (re)prioritize the
+> > > relevant IRQ thread handlers to be always higher than jackd's.
+> > 
+> > Actually they should be lower, except the soundcard.  I was only able to
+> > get the xrun free behavior of T3 by setting all IRQ threads except the
+> > soundcard to SCHED_OTHER.  Especially important was setting ksoftirqd to
+> > SCHED_OTHER, this actually may have been the only one necessary.
+> > 
+> > The relative priorities of jackd and the soundcard irq do not matter as
+> > these two should never contend (aka they are never both runnable at the
+> > same time).
 > 
-> 	Ingo
+> What happens when one is blessed with a laptop where everything is
+> sharing an interrupt?
+> 
+> $ cat /proc/interrupts
+>            CPU0
+>   0:    2372239          XT-PIC  timer  0/72239
+>   1:       5362          XT-PIC  i8042  0/5362
+>   2:          0          XT-PIC  cascade  0/0
+>   8:          1          XT-PIC  rtc  0/1
+>   9:     616176          XT-PIC  acpi, uhci_hcd, uhci_hcd, uhci_hcd,
+> eth0, yenta, yenta, Intel 82801CA-ICH3, radeon@PCI:1:0:0  0/16176
+> 11:         37          XT-PIC  sonypi  0/35
+> 12:      28392          XT-PIC  i8042  0/28392
+> 14:      21078          XT-PIC  ide0  0/21078
+> 15:        472          XT-PIC  ide1  0/472
 
-That's an interesting claim. I don't understand why it is equivalent. 
-Could you please explain it?
+Ugh, why would _anyone_ design a laptop like that?  You have 4
+perfectly good interrupts that you are not using at all.  Is it really
+cheaper to put everything on the same irq?  Does this work better under
+Windows or something?
 
-Michal
+AFAIK there is nothing you can do - any other irq that fires on 9 will
+mask out all the others until it completes.
+
+I am increasingly convinced that the vast majority of laptops are
+horribly broken and completely unsuitable for low latency audio work.
+
+Lee
+

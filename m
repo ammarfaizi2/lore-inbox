@@ -1,76 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263441AbTC2RcZ>; Sat, 29 Mar 2003 12:32:25 -0500
+	id <S263443AbTC2RjZ>; Sat, 29 Mar 2003 12:39:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263443AbTC2RcZ>; Sat, 29 Mar 2003 12:32:25 -0500
-Received: from natsmtp01.webmailer.de ([192.67.198.81]:35249 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S263441AbTC2RcY>; Sat, 29 Mar 2003 12:32:24 -0500
-Date: Sat, 29 Mar 2003 18:43:28 +0100
-From: Dominik Brodowski <linux@brodo.de>
-To: rmk@arm.linux.org.uk
+	id <S263444AbTC2RjZ>; Sat, 29 Mar 2003 12:39:25 -0500
+Received: from ns.suse.de ([213.95.15.193]:11783 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S263443AbTC2RjY>;
+	Sat, 29 Mar 2003 12:39:24 -0500
+To: Wichert Akkerman <wichert@wiggy.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.5] pcmcia: fill device directory in sysfs with files
-Message-ID: <20030329174328.GA25268@brodo.de>
-Mime-Version: 1.0
+Subject: Re: NIC renaming does not rename /proc/sys/net/ipv4 Was: Re: NICs trading places ?
+References: <20030328221037.GB25846@suse.de.suse.lists.linux.kernel.suse.lists.linux.kernel>
+	<p73isu2zsmi.fsf@oldwotan.suse.de.suse.lists.linux.kernel>
+	<20030329121755.GA17169@outpost.ds9a.nl.suse.lists.linux.kernel>
+	<1048940960.2176.86.camel@averell.suse.lists.linux.kernel>
+	<20030329142519.GG2078@wiggy.net.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 29 Mar 2003 18:50:41 +0100
+In-Reply-To: <20030329142519.GG2078@wiggy.net.suse.lists.linux.kernel>
+Message-ID: <p73adfeyscu.fsf@oldwotan.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds three files (manf_id, card_id, func_id) for any pcmcia
-device registered with the sysfs core.
+Wichert Akkerman <wichert@wiggy.net> writes:
 
-sysfs_output-1
- ds.c |   24 ++++++++++++++++++++++++
- 1 files changed, 24 insertions(+)
+> > Just rename at early boot before IP is set up.  That is what i usually
+> > do - set up /etc/mactab and run it very early at boot.
+> 
+> How does that solve the problem of /proc/sys/net/*/conf/* not being
+> renamed?
 
-diff -ruN linux-original/drivers/pcmcia/ds.c linux/drivers/pcmcia/ds.c
---- linux-original/drivers/pcmcia/ds.c	2003-03-29 18:00:43.000000000 +0100
-+++ linux/drivers/pcmcia/ds.c	2003-03-29 18:34:10.000000000 +0100
-@@ -267,6 +267,20 @@
- 
- /*====================================================================*/
- 
-+#define show_one(file_name, object, test)	 			\
-+static ssize_t show_##file_name 					\
-+(struct device *dev, char *buf)						\
-+{									\
-+	struct pcmcia_device *p_dev = to_pcmcia_dev(dev);		\
-+	return p_dev->test ? sprintf (buf, "%x\n", p_dev->object) : 	\
-+			sprintf(buf, "unknown\n");			\
-+}	 								\
-+DEVICE_ATTR(file_name, 0444, show_##file_name, NULL);
-+
-+show_one(func_id, funcid.func, has_funcid);
-+show_one(manf_id, manfid.manf, has_manfid);
-+show_one(card_id, manfid.card, has_manfid);
-+
- static int pcmcia_add_card(struct pcmcia_bus_socket *s)
- {
- 	struct pcmcia_device *p_dev;
-@@ -368,6 +382,11 @@
- 	}
- 	list_add(&p_dev->socket_device_list, &s->devices_list);
- 
-+	/* add sysfs files */
-+	device_create_file(&p_dev->dev, &dev_attr_func_id);
-+	device_create_file(&p_dev->dev, &dev_attr_manf_id);
-+	device_create_file(&p_dev->dev, &dev_attr_card_id);
-+
- 	/* if we got a multifunction device, we need to register more devices,
- 	 * so go back up */
- 	func++;
-@@ -387,6 +406,11 @@
- 	down(&s->devices_list_sem);
- 	list_for_each_safe(p1, p2, &s->devices_list) {
- 		struct pcmcia_device *p_dev = container_of(p1, struct pcmcia_device, socket_device_list);
-+
-+		device_remove_file(&p_dev->dev, &dev_attr_func_id);
-+		device_remove_file(&p_dev->dev, &dev_attr_manf_id);
-+		device_remove_file(&p_dev->dev, &dev_attr_card_id);
-+
- 		device_unregister(&p_dev->dev);
- 		list_del(&p_dev->socket_device_list);
- 		kfree(p_dev);
+They are only set up when the inet device structure is created.
+That happens at the first ifconfig/ip, not on driver init.
+
+As for non ethernet devices - if you find a reliably way to identify/number
+them then the same principle can be used for them too.
+
+-Andi

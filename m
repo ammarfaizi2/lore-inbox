@@ -1,77 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264392AbTLaAK3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 19:10:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265875AbTLaAK3
+	id S265875AbTLaAUt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 19:20:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265877AbTLaAUt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 19:10:29 -0500
-Received: from 81-5-136-19.dsl.eclipse.net.uk ([81.5.136.19]:6048 "EHLO
-	vlad.carfax.org.uk") by vger.kernel.org with ESMTP id S264392AbTLaAK1
+	Tue, 30 Dec 2003 19:20:49 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:14012 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265875AbTLaAUp
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 19:10:27 -0500
-Date: Wed, 31 Dec 2003 00:10:20 +0000
-From: Hugo Mills <hugo-lkml@carfax.org.uk>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Mickael Marchand <marchand@kde.org>, linux-kernel@vger.kernel.org
+	Tue, 30 Dec 2003 19:20:45 -0500
+Message-ID: <3FF21648.8030604@pobox.com>
+Date: Tue, 30 Dec 2003 19:20:24 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Mickael Marchand <marchand@kde.org>
+CC: linux-kernel@vger.kernel.org,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       "Justin T. Gibbs" <gibbs@scsiguy.com>,
+       Hugo Mills <hugo-lkml@carfax.org.uk>
 Subject: Re: [PATCH] adaptec 1210sa
-Message-ID: <20031231001020.GC19895@carfax.org.uk>
-Mail-Followup-To: Hugo Mills <hugo-lkml@carfax.org.uk>,
-	Jeff Garzik <jgarzik@pobox.com>,
-	Mickael Marchand <marchand@kde.org>, linux-kernel@vger.kernel.org
-References: <200312220305.29955.marchand@kde.org> <3FF20B7A.1090108@pobox.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="jousvV0MzM2p6OtC"
-Content-Disposition: inline
-In-Reply-To: <3FF20B7A.1090108@pobox.com>
-X-GPG-Fingerprint: B997 A9F1 782D D1FD 9F87  5542 B2C2 7BC2 1C33 5860
-X-GPG-Key: 1C335860
-X-Parrot: It is no more. It has joined the choir invisible.
-X-IRC-Nicks: hugo darksatanic
-User-Agent: Mutt/1.5.4i
+References: <200312220305.29955.marchand@kde.org>
+In-Reply-To: <200312220305.29955.marchand@kde.org>
+Content-Type: multipart/mixed;
+ boundary="------------030700020005090506000107"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------030700020005090506000107
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
---jousvV0MzM2p6OtC
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Tue, Dec 30, 2003 at 06:34:18PM -0500, Jeff Garzik wrote:
-> Mickael Marchand wrote:
-> >it needs  some redesign to only apply to aar1210 (as standard sil3112 does 
-> >not need it) and I guess some testing before inclusion.
-> >
-> >the idea suggested by Justin was to clear bits 6 and 7 at 0x8a of pci 
-> >configuration space. (which I hope did fine :)
+Mickael Marchand wrote:
+> reading linux-scsi I found a suggestion by Justin to make adaptec's 1210 sa 
+> working. I made the corresponding patch for libata, and it actually works :)
 > 
-> Does the aar1210 have a different PCI id?  That would make it easy to 
-> distinguish, and thus easy to selectively apply your patch only to 
-> Adaptec chipsets that need it.
+> it needs  some redesign to only apply to aar1210 (as standard sil3112 does not 
+> need it) and I guess some testing before inclusion.
 
-   It's not directly relevant, given the rest of this thread, but the
-AAR-1210SA does have a different PCI ID to the standard SiI3112.
 
-   Hugo.
+Here is the patch I'm applying.  Please test and let me know how it goes.
 
--- 
-=== Hugo Mills: hugo@... carfax.org.uk | darksatanic.net | lug.org.uk ===
-  PGP key: 1C335860 from wwwkeys.eu.pgp.net or http://www.carfax.org.uk
-   --- Anyone who claims their cryptographic protocol is secure is ---   
-         either a genius or a fool.  Given the genius/fool ratio         
-                 for our species,  the odds aren't good.                 
+Also, someone please send me a patch for the PCI ids :)
 
---jousvV0MzM2p6OtC
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+	Jeff
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
 
-iD8DBQE/8hPsssJ7whwzWGARAn02AJwJVAH0O6r0b8dmI+2vz6CXl4EDzACeNm9u
-xnYjxUETLbhTQOqkLsMQ3+U=
-=t2uT
------END PGP SIGNATURE-----
 
---jousvV0MzM2p6OtC--
+--------------030700020005090506000107
+Content-Type: text/plain;
+ name="patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch"
+
+===== drivers/scsi/sata_sil.c 1.3 vs edited =====
+--- 1.3/drivers/scsi/sata_sil.c	Tue Dec 16 19:16:55 2003
++++ edited/drivers/scsi/sata_sil.c	Tue Dec 30 19:11:02 2003
+@@ -40,6 +40,10 @@
+ enum {
+ 	sil_3112		= 0,
+ 
++	SIL_SYSCFG		= 0x48,
++	SIL_MASK_IDE0_INT	= (1 << 22),
++	SIL_MASK_IDE1_INT	= (1 << 23),
++
+ 	SIL_IDE0_TF		= 0x80,
+ 	SIL_IDE0_CTL		= 0x8A,
+ 	SIL_IDE0_BMDMA		= 0x00,
+@@ -236,6 +240,7 @@
+ 	unsigned long base;
+ 	void *mmio_base;
+ 	int rc;
++	u32 tmp;
+ 
+ 	if (!printed_version++)
+ 		printk(KERN_DEBUG DRV_NAME " version " DRV_VERSION "\n");
+@@ -295,6 +300,14 @@
+ 	probe_ent->port[1].bmdma_addr = base + SIL_IDE1_BMDMA;
+ 	probe_ent->port[1].scr_addr = base + SIL_IDE1_SCR;
+ 	ata_std_ports(&probe_ent->port[1]);
++
++	/* make sure IDE0/1 interrupts are not masked */
++	tmp = readl(mmio_base + SIL_SYSCFG);
++	if (tmp & (SIL_MASK_IDE0_INT | SIL_MASK_IDE1_INT)) {
++		tmp &= ~(SIL_MASK_IDE0_INT | SIL_MASK_IDE1_INT);
++		writel(tmp, mmio_base + SIL_SYSCFG);
++		readl(mmio_base + SIL_SYSCFG);	/* flush */
++	}
+ 
+ 	pci_set_master(pdev);
+ 
+
+--------------030700020005090506000107--
+

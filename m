@@ -1,41 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261668AbTCQAD0>; Sun, 16 Mar 2003 19:03:26 -0500
+	id <S261699AbTCQAYF>; Sun, 16 Mar 2003 19:24:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261672AbTCQAD0>; Sun, 16 Mar 2003 19:03:26 -0500
-Received: from avscan1.sentex.ca ([199.212.134.11]:3853 "EHLO
-	avscan1.sentex.ca") by vger.kernel.org with ESMTP
-	id <S261668AbTCQADZ>; Sun, 16 Mar 2003 19:03:25 -0500
-Message-ID: <078701c2ec1a$6e98aec0$294b82ce@connecttech.com>
-From: "Stuart MacDonald" <stuartm@connecttech.com>
-To: "Mark Mielke" <mark@mark.mielke.cc>,
-       "Vlad@geekizoid.com" <vlad@geekizoid.com>
-Cc: "'Pavel Machek'" <pavel@suse.cz>,
-       "'kernel list'" <linux-kernel@vger.kernel.org>, <vojtech@suse.cz>,
-       <lm@bitmover.com>
-References: <20030314105132.GB14270@atrey.karlin.mff.cuni.cz> <006401c2ea36$b4ac27b0$0200a8c0@wsl3> <20030314161309.GC1671@mark.mielke.cc>
-Subject: Re: Never ever send Pavel private mail unless you want him to publish it.
-Date: Sun, 16 Mar 2003 19:16:02 -0500
-Organization: Connect Tech Inc.
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4920.2300
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4920.2300
+	id <S261709AbTCQAYE>; Sun, 16 Mar 2003 19:24:04 -0500
+Received: from packet.digeo.com ([12.110.80.53]:5791 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S261699AbTCQAYD>;
+	Sun, 16 Mar 2003 19:24:03 -0500
+Date: Sun, 16 Mar 2003 16:34:44 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Brian Davids <dlister@yossman.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.64-bk multiple oops on boot
+Message-Id: <20030316163444.4d495d59.akpm@digeo.com>
+In-Reply-To: <3E75138C.7030607@yossman.net>
+References: <3E75138C.7030607@yossman.net>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 17 Mar 2003 00:34:38.0015 (UTC) FILETIME=[FDBE6CF0:01C2EC1C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Mark Mielke" <mark@mark.mielke.cc>
->                                                Also, the last time I
-> tried to defend maintaining the privacy of an email, I lost. There are
-> simply no rules about any of it. The closest would be copyright law,
-> and even then, as long as the email is attributed, it is a hard stance
-> to make.
+Brian Davids <dlister@yossman.net> wrote:
+>
+> I get the following oopsen during booting with 2.5.64-bk pulled at 
+> around 10 AM EST today...  system is running RedHat Phoebe 8.0.94 beta, 
+> gcc 3.2.1
+> 
+> Unable to handle kernel NULL pointer dereference at virtual address 00000000
+>   printing eip:
+> c01a4c9b
+> *pde = 00000000
+> Oops: 0000
+> CPU:    0
+> EIP:    0060:[<c01a4c9b>]    Not tainted
+> EFLAGS: 00010283
+> EIP is at devfs_get_ops+0xb/0x40
 
-I'm under the impression that postcards do not carry an expectation of
-privacy due to their readability during transmission. I'd expect that
-email would be found to have the similar lack of expectation were it
-to be tested in court.
+Does this help?
 
-..Stu
+diff -puN fs/devfs/base.c~devfs-oops-fix fs/devfs/base.c
+--- 25/fs/devfs/base.c~devfs-oops-fix	2003-03-16 16:33:16.000000000 -0800
++++ 25-akpm/fs/devfs/base.c	2003-03-16 16:33:49.000000000 -0800
+@@ -1802,8 +1802,11 @@ int devfs_generate_path (devfs_handle_t 
+ static struct file_operations *devfs_get_ops (devfs_handle_t de)
+ {
+     struct file_operations *ops = de->u.cdev.ops;
+-    struct module *owner = ops->owner;
++    struct module *owner;
+ 
++    if (!ops)
++	return NULL;
++    owner = ops->owner;
+     read_lock (&de->parent->u.dir.lock);  /*  Prevent module from unloading  */
+     if ( (de->next == de) || !try_module_get (owner) )
+     {   /*  Entry is already unhooked or module is unloading  */
 
+_
 

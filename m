@@ -1,45 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131720AbQK2UZ3>; Wed, 29 Nov 2000 15:25:29 -0500
+        id <S131905AbQK2UZ7>; Wed, 29 Nov 2000 15:25:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131905AbQK2UZS>; Wed, 29 Nov 2000 15:25:18 -0500
-Received: from eax.student.umd.edu ([129.2.228.67]:16388 "EHLO
-        eax.student.umd.edu") by vger.kernel.org with ESMTP
-        id <S131720AbQK2UZK>; Wed, 29 Nov 2000 15:25:10 -0500
-Date: Wed, 29 Nov 2000 15:55:42 -0500 (EST)
-From: Adam <adam@eax.com>
-To: Tigran Aivazian <tigran@veritas.com>
+        id <S132074AbQK2UZx>; Wed, 29 Nov 2000 15:25:53 -0500
+Received: from blackhole.compendium-tech.com ([206.55.153.26]:36849 "EHLO
+        sol.compendium-tech.com") by vger.kernel.org with ESMTP
+        id <S131905AbQK2UZj>; Wed, 29 Nov 2000 15:25:39 -0500
+Date: Wed, 29 Nov 2000 11:53:59 -0800 (PST)
+From: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
+To: "Henning P. Schmiedehausen" <hps@tanstaafl.de>
 cc: linux-kernel@vger.kernel.org
-Subject: Re: 'holey files' not holey enough.
-In-Reply-To: <Pine.LNX.4.21.0011291306260.883-100000@penguin.homenet>
-Message-ID: <Pine.LNX.4.21.0011291554110.1152-100000@eax.student.umd.edu>
+Subject: Re: Fasttrak100 questions...
+In-Reply-To: <8voa7g$d1r$1@forge.tanstaafl.de>
+Message-ID: <Pine.LNX.4.21.0011291152500.5109-100000@sol.compendium-tech.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Nov 2000, Tigran Aivazian wrote:
+On Sat, 25 Nov 2000, Henning P. Schmiedehausen wrote:
 
-> > 	[adam@pepsi /tmp]$  dd if=/dev/zero of=holed.file bs=1000 seek=5000 count=1000
-> > 	[adam@pepsi /tmp]$ ls -l holed.file 
-> > 	-rw-rw-r--    1 adam     adam      6000000 Nov 29 08:52 holed.file
-> > 	[adam@pepsi /tmp]$ du -sh holed.file 
-> > 	1.9M    holed.file
-> 
-> what filesystem type? on ext2 filesystem on 2.4.0-test12-pre3 I get
-> expected result:
+> No, it does not. Distributing does. You will never get this right. You
+> can compile into your kernel anything you like as long as you don't
+> give it away.
 
-More datapoints. I have asked around, and I have two users of
-2.4.0-test10. One is getting expected 1mb, other is getting (just like me)
-1.9mb.
+You are wrong: If you modify the kernel you have to make it available for
+anyone who wishes to use it; that's also in the GPL. You can't add stuff
+to it and then not distribute it, that's in violation.
 
-So far I don't see pattern, here. It does not seems to depend on block
-size, nor packet writing patches.
-
--- 
-Adam
-http://www.eax.com      The Supreme Headquarters of the 32 bit registers
-
+ Kelsey Hudson                                           khudson@ctica.com 
+ Software Engineer
+ Compendium Technologies, Inc                               (619) 725-0771
+---------------------------------------------------------------------------     
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

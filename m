@@ -1,89 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262604AbSJVXZs>; Tue, 22 Oct 2002 19:25:48 -0400
+	id <S262641AbSJVX1K>; Tue, 22 Oct 2002 19:27:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262631AbSJVXZs>; Tue, 22 Oct 2002 19:25:48 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:8372 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S262604AbSJVXZq>;
-	Tue, 22 Oct 2002 19:25:46 -0400
-Subject: Re: [Fastboot] [CFT] kexec syscall for 2.5.43 (linux booting linux)
-From: Andy Pfiffer <andyp@osdl.org>
-To: Andy Pfiffer <andyp@osdl.org>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Suparna Bhattacharya <suparna@in.ibm.com>,
-       Petr Vandrovec <VANDROVE@vc.cvut.cz>, fastboot@osdl.org,
-       Werner Almesberger <wa@almesberger.net>
-In-Reply-To: <1035329239.24994.58.camel@andyp>
-References: <m1k7kfzffk.fsf@frodo.biederman.org>
-	<1035241872.24994.21.camel@andyp> <m13cqzumx3.fsf@frodo.biederman.org>
-	<m1ptu3t3ec.fsf@frodo.biederman.org>  <m1fzuyub3z.fsf@frodo.biederman.org> 
-	<1035329239.24994.58.camel@andyp>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 22 Oct 2002 16:32:22 -0700
-Message-Id: <1035329542.29319.60.camel@andyp>
-Mime-Version: 1.0
+	id <S262664AbSJVX1K>; Tue, 22 Oct 2002 19:27:10 -0400
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:7304 "EHLO
+	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S262641AbSJVX1I>; Tue, 22 Oct 2002 19:27:08 -0400
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.44: How to decode call trace
+From: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
+Date: Wed, 23 Oct 2002 01:33:04 +0200
+Message-ID: <87elai82xb.fsf@goat.bogus.local>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Honest Recruiter,
+ i386-debian-linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-10-22 at 16:27, Andy Pfiffer wrote:
-> On Tue, 2002-10-22 at 01:33, Eric W. Biederman wrote:
-> > Ok as promised kexec-tools-1.3.tar.gz is released.
-> > 
-> > The new test case it provides is
-> > kexec -debug bzImage
-> > 
-> > The serial console must be initialized before using this.
-> > 
-> > [root@p4dp8-0 root]# kexec -debug bzImage-2.4.17.eb-amd768-eepro100-kexec-apic-lb-mtd2 ip=dhcp root=/dev/nfs console=tty0 console=ttyS0,9600 reboot=hard panic=5 ide0=ata66 verbose
-> > setup16_end: 00091ac4
-> > Shutting down devices
-> > kexecing image
-> > a
-> > b
-> > c
-> > d
-> > e
-> > f
-> > g
-> > h
-> > < All above are various points in x86-setup-16.S >
-> > i < Printed from the first callback in setup.S, before protected mode is entered >
-> > j < Printed from the second callback in setup.S, just before the kernel decompresser is run >
-> 
-> 
-> joe:/boot # ./kexec-1.3 -debug linux-2.5 console=ttyS0,9600 reboot=hard
-> verbose
-> setup16_end: 00091a94
-> kexecing image
-> a
-> b
-> c
-> d
-> e
-> f
-> g
-> h
-> 
-> Wedged.
+I have the following call tree:
 
-Same results for the 2.4.18-based kernel:
-joe:/boot # ./kexec-1.3 -debug linux-cgle console=ttyS0,9600 reboot=hard
-setup16_end: 00091084
-kexecing image
-a
-b
-c
-d
-e
-f
-g
-h
+Oct 22 22:35:36 goat kernel: rm            D 00000246     0   615    387                     (NOTLB)
+Oct 22 22:35:36 goat kernel: Call Trace:
+Oct 22 22:35:36 goat kernel:  [<c0105ebf>] __down+0x67/0xb8
+Oct 22 22:35:36 goat kernel:  [<c0112a5c>] default_wake_function+0x0/0x34
+Oct 22 22:35:36 goat kernel:  [<c0106034>] __down_failed+0x8/0xc
+Oct 22 22:35:36 goat kernel:  [<c0143601>] .text.lock.namei+0x5/0x174
+Oct 22 22:35:36 goat kernel:  [<c0140768>] do_lookup+0x9c/0x1bc
+Oct 22 22:35:36 goat kernel:  [<c0140dde>] link_path_walk+0x556/0x868
+Oct 22 22:35:36 goat kernel:  [<c015bedc>] ext2_commit_chunk+0x38/0x6c
+Oct 22 22:35:36 goat kernel:  [<e08696a9>] name.810+0xd/0x10 [fscaps]
+Oct 22 22:35:36 goat kernel:  [<c015bf09>] ext2_commit_chunk+0x65/0x6c
+Oct 22 22:35:36 goat kernel:  [<e086969c>] name.810+0x0/0x10 [fscaps]
+Oct 22 22:35:36 goat kernel:  [<c0141117>] path_walk+0x27/0x28
+Oct 22 22:35:36 goat kernel:  [<e086909f>] __fscap_lookup+0x3f/0x40 [fscaps]
+Oct 22 22:35:36 goat kernel:  [<e0869266>] fscap_drop_op+0x1a/0x5c [fscaps]
+Oct 22 22:35:36 goat kernel:  [<c01424de>] vfs_unlink+0x14e/0x178
+Oct 22 22:35:36 goat kernel:  [<c01425b2>] sys_unlink+0xaa/0x120
+Oct 22 22:35:36 goat kernel:  [<c0106d93>] syscall_call+0x7/0xb
 
-Wedged.
+and this is the code:
+static int __fscap_lookup(struct vfsmount *mnt, struct nameidata *nd)
+{
+	static char name[] = ".capabilities";
+	nd->mnt = mntget(mnt);
+	nd->dentry = dget(mnt->mnt_sb->s_root);
+	nd->flags = 0;
+	return path_walk(name, nd);
+}
 
-Andy
+What does .text.lock.namei and name.810 mean?
+Is there a way to get the line number out of these hex values?
 
-
+TIA
+Regards, Olaf.

@@ -1,104 +1,319 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264154AbTDWR1M (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 13:27:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264150AbTDWRZv
+	id S264167AbTDWRbu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 13:31:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264161AbTDWRaW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 13:25:51 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:30928 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264145AbTDWRZ0
+	Wed, 23 Apr 2003 13:30:22 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:13777 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264150AbTDWR20
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 13:25:26 -0400
-Date: Wed, 23 Apr 2003 19:37:19 +0200 (MET DST)
+	Wed, 23 Apr 2003 13:28:26 -0400
+Date: Wed, 23 Apr 2003 19:40:10 +0200 (MET DST)
 From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 cc: Andre Hedrick <andre@linux-ide.org>, Jens Axboe <axboe@suse.de>,
        <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.5.67-ac2 direct-IO for IDE taskfile ioctl (0/4)
-Message-ID: <Pine.SOL.4.30.0304231933360.10502-100000@mion.elka.pw.edu.pl>
+Subject: [PATCH] 2.5.67-ac2 direct-IO for IDE taskfile ioctl (4/4)
+In-Reply-To: <Pine.SOL.4.30.0304231933360.10502-100000@mion.elka.pw.edu.pl>
+Message-ID: <Pine.SOL.4.30.0304231939410.10502-100000@mion.elka.pw.edu.pl>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hey,
+# Use direct-IO in ide_taskfile_ioctl() and in ide_cmd_ioctl().
+#
+# Detailed changelog:
+# - add ide_bio_taskfile() which is equivalent to ide_diag_taskfile()
+#   for non-fs rq->bio based requests
+# - use direct-IO to user memory if possible in ide_taskfile_ioctl()
+#   and in taskfile version of ide_cmd_ioctl()
+#
+# NOTE: user memory out/in buffers have to be hardsector (=512) aligned
+#	to take advantage of direct-IO
+#
+# Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
 
-Another bunch of patches:
+diff -uNr linux-2.5.67-ac2-dtf3/drivers/ide/ide-taskfile.c linux/drivers/ide/ide-taskfile.c
+--- linux-2.5.67-ac2-dtf3/drivers/ide/ide-taskfile.c	Wed Apr 23 15:44:36 2003
++++ linux/drivers/ide/ide-taskfile.c	Wed Apr 23 16:22:12 2003
+@@ -1054,6 +1054,25 @@
 
-(1) Enhance bio_(un)map_user() and add blk_rq_bio_prep().
-(2) Pass bdev to IDE ioctl handlers.
-(3) Add support for rq->bio based taskfile.
-(4) Use direct-IO in ide_taskfile_ioctl() and in ide_cmd_ioctl().
+ EXPORT_SYMBOL(ide_raw_taskfile);
 
-[ more detailed changelogs inside patches ]
++/*
++ * Comments to ide_diag_taskfile() apply here as well.
++ */
++static int ide_bio_taskfile (ide_drive_t *drive, ide_task_t *args,
++			     request_queue_t *q, struct bio *bio)
++{
++	struct request rq;
++
++	ide_init_drive_taskfile(&rq);
++	blk_rq_bio_prep(q, &rq, bio);
++
++	if (args->tf_out_flags.all == 0)
++		args->posthandler = ide_post_handler_parser(
++				(struct hd_drive_task_hdr *) args->tfRegister,
++				(struct hd_drive_hob_hdr *) args->hobRegister);
++	rq.special = args;
++	return ide_do_drive_cmd(drive, &rq, ide_wait);
++}
++
+ #ifdef CONFIG_IDE_TASK_IOCTL_DEBUG
+ char * ide_ioctl_verbose (unsigned int cmd)
+ {
+@@ -1081,10 +1100,19 @@
+ 	int tasksize		= sizeof(struct ide_task_request_s);
+ 	int taskin		= 0;
+ 	int taskout		= 0;
++
++	unsigned long outaddr, inaddr;
++	request_queue_t *q;
++	struct bio *outbio = NULL, *inbio = NULL;
++
+ 	u8 io_32bit		= drive->io_32bit;
 
-They are incremental to 2.5.67-ac1/2 and previously posted tf-ioctls patches,
-you can find all patches at:
-	http://home.elka.pw.edu.pl/~bzolnier/patches/2.5.67-ac2/
+ //	printk("IDE Taskfile ...\n");
 
++	q = bdev_get_queue(bdev);
++	if (!q)
++		return -ENXIO;
++
+ 	req_task = kmalloc(tasksize, GFP_KERNEL);
+ 	if (req_task == NULL) return -ENOMEM;
+ 	memset(req_task, 0, tasksize);
+@@ -1097,7 +1125,21 @@
+ 	taskin  = (int) req_task->in_size;
 
-Now HDIO_DRIVE_TASKFILE and HDIO_DRIVE_CMD (taskfile version) ioctls
-use direct-IO to user memory if it is possible (user memory buffer address
-and transfer length must be both aligned to hardsector size = 512).
+ 	if (taskout) {
++		outaddr = arg + tasksize;
++		/* writing to device -> reading from vm */
++		if (!access_ok(VERIFY_READ, (void *)outaddr, taskout)) {
++			kfree(req_task);
++			return -EFAULT;
++		}
++		outbio = bio_map_user(bdev, outaddr, taskout, 0);
++		if (outbio)
++			outbio->bi_rw |= (1 << BIO_RW);
++	}
++
++	if (taskout && !outbio) {
+ 		int outtotal = tasksize;
++		printk(KERN_INFO "%s: %s: taking OUT slow-path\n",
++				 drive->name, __FUNCTION__);
+ 		outbuf = kmalloc(taskout, GFP_KERNEL);
+ 		if (outbuf == NULL) {
+ 			err = -ENOMEM;
+@@ -1111,7 +1153,19 @@
+ 	}
 
-As a result ioctl generated IO request with aligned user buffer use
-the same code path as fs generated IO request, which gives possibility
-of testing IDE code used for fs-requests from user space.
+ 	if (taskin) {
++		inaddr = arg + tasksize + taskout;
++		/* reading from device -> writing to vm */
++		if (!access_ok(VERIFY_WRITE, (void *)inaddr, taskin)) {
++			kfree(req_task);
++			return -EFAULT;
++		}
++		inbio = bio_map_user(bdev, inaddr, taskin, 1);
++	}
++
++	if (taskin && !inbio) {
+ 		int intotal = tasksize + taskout;
++		printk(KERN_INFO "%s: %s: taking IN slow-path\n",
++				 drive->name, __FUNCTION__);
+ 		inbuf = kmalloc(taskin, GFP_KERNEL);
+ 		if (inbuf == NULL) {
+ 			err = -ENOMEM;
+@@ -1144,22 +1198,34 @@
+ 	switch(req_task->data_phase) {
+ 		case TASKFILE_OUT_DMAQ:
+ 		case TASKFILE_OUT_DMA:
+-			err = ide_diag_taskfile(drive, &args, taskout, outbuf);
++			if (outbio)
++				err = ide_bio_taskfile(drive, &args, q, outbio);
++			else
++				err = ide_diag_taskfile(drive, &args, taskout, outbuf);
+ 			break;
+ 		case TASKFILE_IN_DMAQ:
+ 		case TASKFILE_IN_DMA:
+-			err = ide_diag_taskfile(drive, &args, taskin, inbuf);
++			if (inbio)
++				err = ide_bio_taskfile(drive, &args, q, inbio);
++			else
++				err = ide_diag_taskfile(drive, &args, taskin, inbuf);
+ 			break;
+ 		case TASKFILE_IN_OUT:
+ #if 0
+ 			args.prehandler = &pre_task_out_intr;
+ 			args.handler = &task_out_intr;
+ 			args.posthandler = NULL;
+-			err = ide_diag_taskfile(drive, &args, taskout, outbuf);
++			if (outbio)
++				err = ide_bio_taskfile(drive, &args, q, outbio);
++			else
++				err = ide_diag_taskfile(drive, &args, taskout, outbuf);
+ 			args.prehandler = NULL;
+ 			args.handler = &task_in_intr;
+ 			args.posthandler = NULL;
+-			err = ide_diag_taskfile(drive, &args, taskin, inbuf);
++			if (inbio)
++				err = ide_bio_taskfile(drive, &args, q, inbio);
++			else
++				err = ide_diag_taskfile(drive, &args, taskin, inbuf);
+ 			break;
+ #else
+ 			err = -EFAULT;
+@@ -1176,12 +1242,18 @@
+ 			}
+ 			args.prehandler = &pre_task_mulout_intr;
+ 			args.handler = &task_mulout_intr;
+-			err = ide_diag_taskfile(drive, &args, taskout, outbuf);
++			if (outbio)
++				err = ide_bio_taskfile(drive, &args, q, outbio);
++			else
++				err = ide_diag_taskfile(drive, &args, taskout, outbuf);
+ 			break;
+ 		case TASKFILE_OUT:
+ 			args.prehandler = &pre_task_out_intr;
+ 			args.handler = &task_out_intr;
+-			err = ide_diag_taskfile(drive, &args, taskout, outbuf);
++			if (outbio)
++				err = ide_bio_taskfile(drive, &args, q, outbio);
++			else
++				err = ide_diag_taskfile(drive, &args, taskout, outbuf);
+ 			break;
+ 		case TASKFILE_MULTI_IN:
+ 			if (!drive->mult_count) {
+@@ -1193,11 +1265,17 @@
+ 				goto abort;
+ 			}
+ 			args.handler = &task_mulin_intr;
+-			err = ide_diag_taskfile(drive, &args, taskin, inbuf);
++			if (inbio)
++				err = ide_bio_taskfile(drive, &args, q, inbio);
++			else
++				err = ide_diag_taskfile(drive, &args, taskin, inbuf);
+ 			break;
+ 		case TASKFILE_IN:
+ 			args.handler = &task_in_intr;
+-			err = ide_diag_taskfile(drive, &args, taskin, inbuf);
++			if (inbio)
++				err = ide_bio_taskfile(drive, &args, q, inbio);
++			else
++				err = ide_diag_taskfile(drive, &args, taskin, inbuf);
+ 			break;
+ 		case TASKFILE_NO_DATA:
+ 			args.handler = &task_no_data_intr;
+@@ -1208,6 +1286,11 @@
+ 			goto abort;
+ 	}
 
-These patches also make possible to use taskfile ioctl for up to 32 MB big
-lba48 requests, since now we don't need to allocate kernel buffer for them.
-[ There may be still some small glitches to fix. ]
++	if (outbio)
++		bio_unmap_user(outbio, 0);
++	if (inbio)
++		bio_unmap_user(inbio, 1);
++
+ 	memcpy(req_task->io_ports, &(args.tfRegister), HDIO_DRIVE_TASK_HDR_SIZE);
+ 	memcpy(req_task->hob_ports, &(args.hobRegister), HDIO_DRIVE_HOB_HDR_SIZE);
+ 	req_task->in_flags  = args.tf_in_flags;
+@@ -1217,14 +1300,14 @@
+ 		err = -EFAULT;
+ 		goto abort;
+ 	}
+-	if (taskout) {
++	if (outbuf) {
+ 		int outtotal = tasksize;
+ 		if (copy_to_user((void *)arg+outtotal, outbuf, taskout)) {
+ 			err = -EFAULT;
+ 			goto abort;
+ 		}
+ 	}
+-	if (taskin) {
++	if (inbuf) {
+ 		int intotal = tasksize + taskout;
+ 		if (copy_to_user((void *)arg+intotal, inbuf, taskin)) {
+ 			err = -EFAULT;
+@@ -1331,6 +1414,9 @@
+ 	u8 xfer_rate = 0;
+ 	int argsize = 0;
+ 	ide_task_t tfargs;
++	int reading = 0, writing = 0;
++	request_queue_t *q;
++	struct bio *bio = NULL;
 
-Alignment of user buffer address is a limitation to removing code using
-kernel buffer approach. If user buffer is not aligned it can can happen
-that one hardware sector is mapped to diffirent bio-s.
-[ However I have an idea how to deal with this issue. :-) ]
+ 	if (NULL == (void *) arg) {
+ 		struct request rq;
+@@ -1338,6 +1424,10 @@
+ 		return ide_do_drive_cmd(drive, &rq, ide_wait);
+ 	}
 
++	q = bdev_get_queue(bdev);
++	if (!q)
++		return -ENXIO;
++
+ 	if (copy_from_user(args, (void *)arg, 4))
+ 		return -EFAULT;
 
-I have tested HDIO_DRIVE_TASKFILE ioctl after changes and both direct-IO
-and normal transfers are working fine, here are results from DiskPerf:
+@@ -1357,21 +1447,51 @@
+ 	if (drive->media != ide_disk && args[0] == WIN_IDENTIFY)
+ 		tfargs.tfRegister[IDE_COMMAND_OFFSET] = WIN_PIDENTIFY;
 
-# with direct-IO
-./DiskPerf /dev/hda
++	if (set_transfer(drive, &tfargs)) {
++		xfer_rate = args[1];
++		if (ide_ata66_check(drive, &tfargs))
++			goto abort;
++	}
++
++	tfargs.command_type = ide_cmd_type_parser(&tfargs);
++
+ 	if (args[3]) {
+ 		argsize = (SECTOR_WORDS * 4 * args[3]);
++
++		if (tfargs.command_type == IDE_DRIVE_TASK_OUT ||
++		    tfargs.command_type == IDE_DRIVE_TASK_RAW_WRITE)
++			writing = 1;
++		else if (tfargs.command_type == IDE_DRIVE_TASK_IN)
++			reading = 1;
++		else
++			return -EPERM;
++
++		if (writing && !access_ok(VERIFY_READ, arg+4, argsize))
++			return -EFAULT;
++		else if (reading && !access_ok(VERIFY_WRITE, arg+4, argsize))
++			return -EFAULT;
++
++		bio = bio_map_user(bdev, arg+4, argsize, reading);
++		if (bio && writing)
++			bio->bi_rw |= (1 << BIO_RW);
++	}
++
++	if (args[3] && !bio) {
++		printk(KERN_INFO "%s: %s: taking slow-path\n",
++				 drive->name, __FUNCTION__);
++		argsize = (SECTOR_WORDS * 4 * args[3]);
+ 		argbuf = kmalloc(argsize, GFP_KERNEL);
+ 		if (argbuf == NULL)
+ 			return -ENOMEM;
+ 	}
 
-Device: WDC WD800JB-00CRA1 Serial Number: WD-WMAxxxxxxxxx
-LBA 0 DMA Read Test                      = 78.34 MB/Sec (3.19 Seconds)
-Outer Diameter Sequential DMA Read Test  = 45.52 MB/Sec (5.49 Seconds)
-Inner Diameter Sequential DMA Read Test  = 25.91 MB/Sec (9.65 Seconds)
+-	if (set_transfer(drive, &tfargs)) {
+-		xfer_rate = args[1];
+-		if (ide_ata66_check(drive, &tfargs))
+-			goto abort;
+-	}
++	if (bio)
++		err = ide_bio_taskfile(drive, &tfargs, q, bio);
++	else
++		err = ide_raw_taskfile(drive, &tfargs, argbuf);
 
-# with kernel buffer
-./DiskPerf /dev/hda
+-	tfargs.command_type = ide_cmd_type_parser(&tfargs);
+-	err = ide_raw_taskfile(drive, &tfargs, argbuf);
++	if (bio)
++		bio_unmap_user(bio, reading);
 
-Device: WDC WD800JB-00CRA1 Serial Number: WD-WMAxxxxxxxxx
-LBA 0 DMA Read Test                      = 69.81 MB/Sec (3.58 Seconds)
-Outer Diameter Sequential DMA Read Test  = 44.83 MB/Sec (5.58 Seconds)
-Inner Diameter Sequential DMA Read Test  = 25.94 MB/Sec (9.64 Seconds)
-
-
-Example how to align user buffer for HDIO_DRIVE_TASKFILE and direct-IO:
-
-with kernel buffer:
-	ide_task_request_t reqtask;
-	unsigned char task[sizeof(reqtask)+reqtask.out_size+reqtask.in_size];
-
-	and &task were used as ioctl argument
-direct-IO:
-	#define HARDSECTOR_SIZE	512
-	#define ALIGN(x,a)	(((x)+(a)-1)&~((a)-1))
-	#define TASK_ALIGN(x)	(ALIGN((unsigned long)(x), HARDSECTOR_SIZE) \
-				 +HARDSECTOR_SIZE-sizeof(ide_task_request_t))
-
-	ide_task_request_t reqtask;
-	unsigned char task[sizeof(reqtask)+reqtask.out_size+reqtask.in_size
-			   +2*HARDSECTOR_SIZE];
-	unsigned char *taskptr = (unsigned char *)TASK_ALIGN(task);
-
-	and use taskptr as ioctl argument
-
-	[ Yes, I know it is ugly ]
-
---
-Bartlomiej Zolnierkiewicz
-
+ 	if (!err && xfer_rate) {
+ 		/* active-retuning-calls future */
 

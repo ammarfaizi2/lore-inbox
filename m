@@ -1,77 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267079AbSKSTDz>; Tue, 19 Nov 2002 14:03:55 -0500
+	id <S267057AbSKSS7c>; Tue, 19 Nov 2002 13:59:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267080AbSKSTDy>; Tue, 19 Nov 2002 14:03:54 -0500
-Received: from inet-mail4.oracle.com ([148.87.2.204]:31484 "EHLO
-	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
-	id <S267079AbSKSTDx>; Tue, 19 Nov 2002 14:03:53 -0500
-Message-ID: <3DDA8C18.1000903@oracle.com>
-Date: Tue, 19 Nov 2002 20:08:08 +0100
-From: Alessandro Suardi <alessandro.suardi@oracle.com>
-Organization: Oracle Consulting Premium Services
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@digeo.com>
-CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: Oracle 9.2 OOMs again at startup in 2.5.4[78]
-References: <3DDA4921.30403@oracle.com> <3DDA88F9.41F41CB9@digeo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S267079AbSKSS7b>; Tue, 19 Nov 2002 13:59:31 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:50104 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267057AbSKSS7a>; Tue, 19 Nov 2002 13:59:30 -0500
+Subject: Re: Why can't Johnny compile?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: dave@AFRInc.com
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0211191257270.4170-100000@puppy.afrinc.com>
+References: <Pine.LNX.4.44.0211191257270.4170-100000@puppy.afrinc.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 19 Nov 2002 19:34:41 +0000
+Message-Id: <1037734481.12413.28.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Alessandro Suardi wrote:
+On Tue, 2002-11-19 at 18:01, David G Hamblen wrote:
+> On 19 Nov 2002, Alan Cox wrote:
 > 
->>...just like it did a few kernels ago (the current->mm issue in 2.5.19
->>  that eventually got fixed in 2.5.30 or thereabouts, introduced for the
->>  bk-enabled by cset 1.373.221.1).
+> > > things. Or the aha152x driver which I still can't get going in 2.5 :-(
+> >
+> > 152x seems to work
+> > -
 > 
-> 
-> According to the web interface, 1.373.221.1 is 
-> 
-> "This patch lets more devices hook up to USB 2.0 hubs, stuff
-> like keyboards, mice, hubs that hasn't worked yet"
-> 
-> so, errr.
+> I'm running 2.5.47-ac4, and it compiles with aha152x, but pcmcia doesn't
+> work:
 
-The web interface seems to be at fault (or is it your fingers ;)
-  from my saved mail with Linus and yourself I have...
-
---------------------------------------------------------------------------
-The patch you actually include seems to be a combination of
-
-     ChangeSet 1.373.204.73 2002/05/28 22:01:57 torvalds@home.transmeta.com
-       Remove re-use of "struct mm_struct" at execve() time.
-
-       This will eventually allow us to copy argc/argv without
-       any intermediate storage (removing current argument size
-       limitations).
-
-and
-
-     ChangeSet 1.373.221.1 2002/05/28 22:55:46 torvalds@home.transmeta.com
-       Allocate new mm_struct for execve() early, so that we have
-       access to it by the time we start copying arguments.
--------------------------------------------------------------------------
-
-> 
->>I'll go building a 2.5.44 kernel (think it's the only one I didn't have
->>  too much trouble building / booting in the 2.5.4x series before .47)
->>  and see whether it works or not.
-> 
-> 
-> An `strace -f' of the startup process might reveal something.
-
-will also try that - tomorrow, now time's over @ office :)
-
-
-Thanks,
-
---alessandro
-
-  "Seems that you can't get any more than half free"
-        (Bruce Springsteen, "Straight Time")
+Fixed in -ac6
 

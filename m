@@ -1,36 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270751AbUJURXl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270385AbUJUQ4a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270751AbUJURXl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 13:23:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270735AbUJURXe
+	id S270385AbUJUQ4a (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 12:56:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270718AbUJUQwF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 13:23:34 -0400
-Received: from math.ut.ee ([193.40.5.125]:42465 "EHLO math.ut.ee")
-	by vger.kernel.org with ESMTP id S270759AbUJURQr (ORCPT
+	Thu, 21 Oct 2004 12:52:05 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:24034 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S268702AbUJUQsV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 13:16:47 -0400
-Date: Thu, 21 Oct 2004 20:16:40 +0300 (EEST)
-From: Meelis Roos <mroos@linux.ee>
-To: Jens Axboe <axboe@suse.de>
-cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: readcd hangs in blk_execute_rq
-In-Reply-To: <20041021161100.GA14154@suse.de>
-Message-ID: <Pine.GSO.4.44.0410212014540.21865-100000@math.ut.ee>
+	Thu, 21 Oct 2004 12:48:21 -0400
+To: "Aleksey Gorelov" <Aleksey_Gorelov@Phoenix.com>
+Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>, "Greg KH" <greg@kroah.com>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       "Vojtech Pavlik" <vojtech@suse.cz>,
+       "Dmitry Torokhov" <dtor_core@ameritech.net>
+Subject: Re: forcing PS/2 USB emulation off
+References: <5F106036E3D97448B673ED7AA8B2B6B3017FC327@scl-exch2k.phoenix.com>
+From: Alexandre Oliva <aoliva@redhat.com>
+Organization: Red Hat Global Engineering Services Compiler Team
+Date: 21 Oct 2004 13:48:01 -0300
+In-Reply-To: <5F106036E3D97448B673ED7AA8B2B6B3017FC327@scl-exch2k.phoenix.com>
+Message-ID: <orhdoo5872.fsf@livre.redhat.lsd.ic.unicamp.br>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Does 2.6.9 work if you turn off
-> dma first?
+On Oct 20, 2004, "Aleksey Gorelov" <Aleksey_Gorelov@Phoenix.com> wrote:
 
-Turned DMA off with hdparm -d 0 /dev/hdc, still the same.
-Turned ATAPI DMA support off completely (activated "Use DMA only for
-disks" compile option), still the same half-hang.
+>> It would be ok if someone bothered to copy the USB core code (or better
+>> yet call into it) but the patch in the -mm tree doesn't know about the
+>> zillion OHCI controller bugs, and doesn't know about the suprise
+>> interrupt on switch from BIOS->host you sometimes see.
 
-BTW, the hang sector is different all the time - it varies from 980 to
-3200 so far.
+> Isn't this interrupt disabled at that point, and status are cleared
+> right after handoff?
+
+I've no idea, but as soon as I started using the USB handoff patch,
+I've consistently got the K8 Errata #93 message as the first message
+(or maybe one of the first few) I get on boot.
 
 -- 
-Meelis Roos (mroos@linux.ee)
-
+Alexandre Oliva             http://www.ic.unicamp.br/~oliva/
+Red Hat Compiler Engineer   aoliva@{redhat.com, gcc.gnu.org}
+Free Software Evangelist  oliva@{lsd.ic.unicamp.br, gnu.org}

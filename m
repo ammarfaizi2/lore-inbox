@@ -1,58 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271183AbTHLVyR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 17:54:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271185AbTHLVyR
+	id S271187AbTHLWJT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 18:09:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271188AbTHLWJT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 17:54:17 -0400
-Received: from gate.firmix.at ([80.109.18.208]:19921 "EHLO buffy.firmix.at")
-	by vger.kernel.org with ESMTP id S271183AbTHLVyQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 17:54:16 -0400
-Subject: Re: generic strncpy - off-by-one error
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: Anthony Truong <Anthony.Truong@mascorp.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1060708460.12532.59.camel@dhcp22.swansea.linux.org.uk>
-References: <1060653362.5294.58.camel@huykhoi> 
-	<1060708460.12532.59.camel@dhcp22.swansea.linux.org.uk>
-Content-Type: text/plain
+	Tue, 12 Aug 2003 18:09:19 -0400
+Received: from smtp-node1.eclipse.net.uk ([212.104.129.76]:50961 "EHLO
+	smtp1.ex.eclipse.net.uk") by vger.kernel.org with ESMTP
+	id S271187AbTHLWJS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 18:09:18 -0400
+From: Ian Hastie <ianh@iahastie.clara.net>
+To: Matthew Wilcox <willy@debian.org>, Dave Jones <davej@redhat.com>,
+       Robert Love <rml@tech9.net>, CaT <cat@zip.com.au>,
+       linux-kernel@vger.kernel.org,
+       kernel-janitor-discuss@lists.sourceforge.net
+Subject: Re: C99 Initialisers
+Date: Tue, 12 Aug 2003 23:06:45 +0100
+User-Agent: KMail/1.5.3
+References: <20030812020226.GA4688@zip.com.au> <20030812173707.GB6919@redhat.com> <20030812174810.GD10015@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20030812174810.GD10015@parcelfarce.linux.theplanet.co.uk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8.99 
-Date: 12 Aug 2003 23:53:58 +0200
-Message-Id: <1060725239.1500.22.camel@gimli.at.home>
-Mime-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200308122306.48206.ianh@iahastie.local.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-08-12 at 19:14, Alan Cox wrote:
-> On Maw, 2003-08-12 at 02:56, Anthony Truong wrote:
-> > Thanks for pointing that out to me.  However, I don't think the kernel
-> > strncpy implementation is exactly the same as that of Standard C lib
-> 
-> It is true it doesnt need to be
+On Tuesday 12 Aug 2003 18:48, Matthew Wilcox wrote:
+> On Tue, Aug 12, 2003 at 06:37:07PM +0100, Dave Jones wrote:
+> > Depends. If it's a huuuge struct (see the device ID struct in 2.4's
+> > agpgart for eg) it becomes much more readable. Whitespace good, clutter
+> > bad.
+>
+> Yup, absolutely.  My point is that struct pci_device_id is really really
+> common.  If you've ever looked at a Linux PCI driver, you've seen it.
 
-Nevertheless it is defined the inefficient way by the C-Standard and
-lots of people actually really know this.
-So IMHO (re)implementing a function called "strncpy" differently doesn't
-make much sense.
+That could be used as an argument for just as much as against.  The very fact 
+of it's ubiquity makes it all the more important to minimise the possibility 
+of confusion.  C99 initialisers will help a lot with this.
 
-> > implementation.  Iwas just looking at it from the kernel code context. 
+> The agp_bridge_info example is specific to this one driver, so it's new
+> every time you look at it.
 
-The kernel is implemented in C. And the function strncpy() _is_ already
-defined by C. So please use at least another name. Given the existence
-of strlcpy() -  http://www.courtesan.com/todd/papers/strlcpy.html- this
-problem already has been solved.
+That really doesn't make sense to me.
 
-> > There's a point in doing it the "kernel" way, to save precious CPU
-> > cycles from being wasted otherwise.
-> 
-> CPU cycles, got lots of those 8). If its going to do anything it might
-> be to reference an extra cache line. For people who dont need padding
-> 2.6 has strlcpy. Lots of drivers assume strncpy fills the entire block
-
-ACK. To use strlcpy() is correct solution (if padding is not required).
-
-	Bernd
+-- 
+Ian.
 

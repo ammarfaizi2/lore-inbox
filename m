@@ -1,58 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262980AbUKTPhy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262984AbUKTPnu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262980AbUKTPhy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 10:37:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262983AbUKTPhy
+	id S262984AbUKTPnu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 10:43:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262983AbUKTPnu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 10:37:54 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:40932 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262980AbUKTPhq (ORCPT
+	Sat, 20 Nov 2004 10:43:50 -0500
+Received: from ozlabs.org ([203.10.76.45]:50838 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S262984AbUKTPns (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 10:37:46 -0500
-Date: Sat, 20 Nov 2004 17:40:11 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Domen Puncer <domen@coderock.org>
-Cc: janitor@sternwelten.at, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: kernel/sched.c: fix subtle TASK_RUNNING compare
-Message-ID: <20041120164011.GA13360@elte.hu>
-References: <E1CVL0H-0000SH-EN@sputnik> <20041120125355.GB8091@elte.hu> <20041120120722.GA3826@masina.coderock.org>
+	Sat, 20 Nov 2004 10:43:48 -0500
+Date: Sun, 21 Nov 2004 02:38:49 +1100
+From: Anton Blanchard <anton@samba.org>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: David Gibson <david@gibson.dropbear.id.au>, linux-kernel@vger.kernel.org,
+       linuxppc64-dev@ozlabs.org, Adam Litke <agl@us.ibm.com>,
+       Andy Whitworth <apw@shadowen.org>
+Subject: Re: [RFC] Consolidate lots of hugepage code
+Message-ID: <20041120153849.GB11932@krispykreme.ozlabs.ibm.com>
+References: <20041029033708.GF12247@zax> <20041029034817.GY12934@holomorphy.com> <20041107172030.GA16976@krispykreme.ozlabs.ibm.com> <20041107192024.GM2890@holomorphy.com> <20041107193007.GC16976@krispykreme.ozlabs.ibm.com> <20041107210943.GN2890@holomorphy.com> <20041107212212.GD16976@krispykreme.ozlabs.ibm.com> <20041107224948.GO2890@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041120120722.GA3826@masina.coderock.org>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <20041107224948.GO2890@holomorphy.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ 
+Hi wli,
 
-* Domen Puncer <domen@coderock.org> wrote:
+Any progress on this? If not Id like to suggest we get Davids patch into
+-mm.
 
-> On 20/11/04 13:53 +0100, Ingo Molnar wrote:
-> > 
-> > * janitor@sternwelten.at <janitor@sternwelten.at> wrote:
-> > 
-> > >  	switch_count = &prev->nivcsw;
-> > > -	if (prev->state && !(preempt_count() & PREEMPT_ACTIVE)) {
-> > > +	if (prev->state != TASK_RUNNING &&
-> > > +			!(preempt_count() & PREEMPT_ACTIVE)) {
-> > >  		switch_count = &prev->nvcsw;
-> > 
-> > nack. We inherently rely on the process state mask being a bitmask and
-> > TASK_RUNNING thus being zero.
+Anton
+
+> Sorry, I don't get complete bugreports myself. If you care to try to
+> actually fix something (it's doubtful you yourself are the culprit) I'm
+> still trying to reproduce it myself with long-running database tests.
+> It's reliably reproducible on the reporters' machines.
 > 
-> Hmm... but other compares in sched.c are ok? ;-)
-> 1211:   BUG_ON(p->state != TASK_RUNNING);
-> 2550:   if (unlikely(current == rq->idle) && current->state != TASK_RUNNING) {
-> 3609:   if (state == TASK_RUNNING)
-> 3640:   if (state != TASK_RUNNING)
-
-hm ... ok.
-
-	Ingo
+> The particular bug is only one piece of evidence. Just asking basic
+> questions about what was done for architecture code reveals that
+> all this "development" is not paying proper attention to architecture
+> code. I merely insist that development toward the end of stabilization
+> occur prior to that for large feature work.
+> 
+> And frankly, I'm rather unimpressed with the gravity of the proposed
+> featurework, particularly in comparison to the stability requirements
+> of users on typical production systems.
+> 
+> Nor am I impressed with the quality. The patch presentations have been
+> messy, the audits (as mentioned above) incomplete, the benefits not
+> clearly demonstrated, and the code itself not so pretty. Just
+> respinning the patches so they're properly incremental and the code
+> somewhat cleaner (e.g. some recent one nested tabs 5 deep or so)
+> would already remedy a large number of the issues with the featurework.
+> Once arranged that way the audits' incompleteness can be dealt with by
+> those with the fortitude to thoroughly audit and/or prior architecture
+> knowledge to correct the patches for arches they don't deal with properly.
+> 
+> 
+> -- wli

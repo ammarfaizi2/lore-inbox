@@ -1,152 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261460AbVCXNUZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262456AbVCXNYK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261460AbVCXNUZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 08:20:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262449AbVCXNUY
+	id S262456AbVCXNYK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 08:24:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262452AbVCXNYK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 08:20:24 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:27402 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261460AbVCXNUD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 08:20:03 -0500
-Date: Thu, 24 Mar 2005 13:19:57 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: jongk@linux-m68k.org, geert@linux-m68k.org
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: 8250_hp300: unuse register_serial/unregister_serial
-Message-ID: <20050324131956.B4189@flint.arm.linux.org.uk>
-Mail-Followup-To: jongk@linux-m68k.org, geert@linux-m68k.org,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
+	Thu, 24 Mar 2005 08:24:10 -0500
+Received: from pacific.moreton.com.au ([203.143.235.130]:19342 "EHLO
+	moreton.com.au") by vger.kernel.org with ESMTP id S262449AbVCXNYA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 08:24:00 -0500
+Date: Thu, 24 Mar 2005 23:23:42 +1000
+From: David McCullough <davidm@snapgear.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: johnpol@2ka.mipt.ru, cryptoapi@lists.logix.cz,
+       linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
+       Herbert Xu <herbert@gondor.apana.org.au>
+Subject: Re: [PATCH] API for true Random Number Generators to add entropy (2.6.11)
+Message-ID: <20050324132342.GD7115@beast>
+References: <20050315133644.GA25903@beast> <20050324042708.GA2806@beast> <1111665551.23532.90.camel@uganda> <4242B712.50004@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <4242B712.50004@pobox.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kars, Geert,
 
-Here's a patch which converts 8250_hp300 to use serial8250_register_port
-and serial8250_unregister_port, rather than register_serial/
-unregister_serial.
+Jivin Jeff Garzik lays it down ...
+> Evgeniy Polyakov wrote:
+> >On Thu, 2005-03-24 at 14:27 +1000, David McCullough wrote:
+> >
+> >>Hi all,
+> >>
+> >>Here is a small patch for 2.6.11 that adds a routine:
+> >>
+> >>	add_true_randomness(__u32 *buf, int nwords);
+> >>
+> >>so that true random number generator device drivers can add a entropy
+> >>to the system.  Drivers that use this can be found in the latest release
+> >>of ocf-linux,  an asynchronous crypto implementation for linux based on
+> >>the *BSD Cryptographic Framework.
+> >>
+> >>	http://ocf-linux.sourceforge.net/
+> >>
+> >>Adding this can dramatically improve the performance of /dev/random on
+> >>small embedded systems which do not generate much entropy.
+> >
+> >
+> >People will not apply any kind of such changes.
+> >Both OCF and acrypto already handle all RNG cases - no need for any kind
+> >of userspace daemon or entropy (re)injection mechanism.
+> >Anyone who want to use HW randomness may use OCF/acrypto mechanism.
+> >For example here is patch to enable acrypto support for hw_random.c
+> >It is very simple and support only upto 4 bytes request, of course it
+> >is 
+> >not interested for anyone, but it is only 2-minutes example:
+> 
+> If you want to add entropy to the kernel entropy pool from hardware RNG, 
+> you should use the userland daemon, which detects non-random (broken) 
+> hardware and provides throttling, so that RNG data collection does not 
+> consume 100% CPU.
+> 
+> If you want to use the hardware RNG directly, it's simple:  just open 
+> /dev/hw_random.
+> 
+> Hardware RNG should not go kernel->kernel without adding FIPS tests and 
+> such.
 
-The 8250-variants allow you to associate the struct device with the port,
-allowing sysfs to indicate which device owns which serial port.  Plus, we
-stop using a potentially obsolete (and functionally inferior) function.
+For reference,  the RNG on the Safenet I am using this with is
+FIPS140 certified.  I believe the HIFN part  is also but I place the doc that
+says so.
 
-This patch is untested; please test, and send bug fixes.
-
-Note: if you need power management, that should come via your device
-driver, calling serial8250_suspend_port() / serial8250_resume_port()
-as appropriate.
-
-Thanks.
-
-diff -up -x BitKeeper -x ChangeSet -x SCCS -x _xlk -x *.orig -x *.rej orig/drivers/serial/8250_hp300.c linux/drivers/serial/8250_hp300.c
---- orig/drivers/serial/8250_hp300.c	Thu Mar 24 12:26:42 2005
-+++ linux/drivers/serial/8250_hp300.c	Thu Mar 24 13:12:33 2005
-@@ -163,7 +163,7 @@ int __init hp300_setup_serial_console(vo
- static int __devinit hpdca_init_one(struct dio_dev *d,
-                                 const struct dio_device_id *ent)
- {
--	struct serial_struct serial_req;
-+	struct uart_port port;
- 	int line;
- 
- #ifdef CONFIG_SERIAL_8250_CONSOLE
-@@ -172,17 +172,18 @@ static int __devinit hpdca_init_one(stru
- 		return 0;
- 	}
- #endif
--	memset(&serial_req, 0, sizeof(struct serial_struct));
-+	memset(&port, 0, sizeof(struct uart_port));
- 
- 	/* Memory mapped I/O */
--	serial_req.io_type = SERIAL_IO_MEM;
--	serial_req.flags = UPF_SKIP_TEST | UPF_SHARE_IRQ | UPF_BOOT_AUTOCONF;
--	serial_req.irq = d->ipl;
--	serial_req.baud_base = HPDCA_BAUD_BASE;
--	serial_req.iomap_base = (d->resource.start + UART_OFFSET);
--	serial_req.iomem_base = (char *)(serial_req.iomap_base + DIO_VIRADDRBASE);
--	serial_req.iomem_reg_shift = 1;
--	line = register_serial(&serial_req);
-+	port.iotype = UPIO_MEM;
-+	port.flags = UPF_SKIP_TEST | UPF_SHARE_IRQ | UPF_BOOT_AUTOCONF;
-+	port.irq = d->ipl;
-+	port.uartclk = HPDCA_BAUD_BASE * 16;
-+	port.mapbase = (d->resource.start + UART_OFFSET);
-+	port.membase = (char *)(serial_req.iomap_base + DIO_VIRADDRBASE);
-+	port.regshift = 1;
-+	port.dev = &d->dev;
-+	line = serial8250_register_port(&port);
- 
- 	if (line < 0) {
- 		printk(KERN_NOTICE "8250_hp300: register_serial() DCA scode %d"
-@@ -209,7 +210,7 @@ static int __init hp300_8250_init(void)
- #ifdef CONFIG_HPAPCI
- 	int line;
- 	unsigned long base;
--	struct serial_struct serial_req;
-+	struct uart_port uport;
- 	struct hp300_port *port;
- 	int i;
- #endif
-@@ -251,25 +252,25 @@ static int __init hp300_8250_init(void)
- 		if (!port)
- 			return -ENOMEM;
- 
--		memset(&serial_req, 0, sizeof(struct serial_struct));
-+		memset(&uport, 0, sizeof(struct uart_port));
- 
- 		base = (FRODO_BASE + FRODO_APCI_OFFSET(i));
- 
- 		/* Memory mapped I/O */
--		serial_req.io_type = SERIAL_IO_MEM;
--		serial_req.flags = UPF_SKIP_TEST | UPF_SHARE_IRQ | UPF_BOOT_AUTOCONF;
-+		uport.iotype = UPIO_MEM;
-+		uport.flags = UPF_SKIP_TEST | UPF_SHARE_IRQ | UPF_BOOT_AUTOCONF;
- 		/* XXX - no interrupt support yet */
--		serial_req.irq = 0;
--		serial_req.baud_base = HPAPCI_BAUD_BASE;
--		serial_req.iomap_base = base;
--		serial_req.iomem_base = (char *)(serial_req.iomap_base + DIO_VIRADDRBASE);
--		serial_req.iomem_reg_shift = 2;
-+		uport.irq = 0;
-+		uport.baud_base = HPAPCI_BAUD_BASE * 16;
-+		uport.mapbase = base;
-+		uport.membase = (char *)(base + DIO_VIRADDRBASE);
-+		uport.regshift = 2;
- 
--		line = register_serial(&serial_req);
-+		line = serial8250_register_port(&uport);
- 
- 		if (line < 0) {
- 			printk(KERN_NOTICE "8250_hp300: register_serial() APCI %d"
--			       " irq %d failed\n", i, serial_req.irq);
-+			       " irq %d failed\n", i, uport.irq);
- 			kfree(port);
- 			continue;
- 		}
-@@ -299,7 +300,7 @@ static void __devexit hpdca_remove_one(s
- 		/* Disable board-interrupts */
- 		out_8(d->resource.start + DIO_VIRADDRBASE + DCA_IC, 0);
- 	}
--	unregister_serial(line);
-+	serial8250_unregister_port(line);
- }
- #endif
- 
-@@ -309,7 +310,7 @@ static void __exit hp300_8250_exit(void)
- 	struct hp300_port *port, *to_free;
- 
- 	for (port = hp300_ports; port; ) {
--		unregister_serial(port->line);
-+		serial8250_unregister_port(port->line);
- 		to_free = port;
- 		port = port->next;
- 		kfree(to_free);
+Cheers,
+Davidm
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+David McCullough, davidm@snapgear.com  Ph:+61 7 34352815 http://www.SnapGear.com
+Custom Embedded Solutions + Security   Fx:+61 7 38913630 http://www.uCdot.org

@@ -1,68 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261290AbTBJRUK>; Mon, 10 Feb 2003 12:20:10 -0500
+	id <S261330AbTBJRVn>; Mon, 10 Feb 2003 12:21:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261330AbTBJRUK>; Mon, 10 Feb 2003 12:20:10 -0500
-Received: from zok.sgi.com ([204.94.215.101]:32182 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S261290AbTBJRUJ>;
-	Mon, 10 Feb 2003 12:20:09 -0500
-Message-ID: <3E47E170.FD3BC5BC@sgi.com>
-Date: Mon, 10 Feb 2003 09:29:20 -0800
-From: Casey Schaufler <casey@sgi.com>
-Organization: Silicon Graphics
-X-Mailer: Mozilla 4.8 [en] (X11; U; IRIX 6.5 IP32)
-X-Accept-Language: en
+	id <S261799AbTBJRVn>; Mon, 10 Feb 2003 12:21:43 -0500
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:40530 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id <S261330AbTBJRVm>; Mon, 10 Feb 2003 12:21:42 -0500
+Message-ID: <3E47E257.3000904@hotmail.com>
+Date: Mon, 10 Feb 2003 09:33:11 -0800
+From: walt <wa1ter@hotmail.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030203
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-security-module@wirex.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] LSM changes for 2.5.59
-References: <001001c2d0b0$cf49b190$1403a8c0@sc.tlinx.org> <3E471F21.4010803@wirex.com>
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.21-pre4-ac3 hangs at reboot
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Crispin Cowan wrote:
-> 
-> LA Walsh wrote:
-> 
-> >>From: Crispin Cowan
-> >>
-> >>LSM does have a careful design.... meeting a
-> >>goal stated by Linus nearly two years ago.
-> >>
-> >>
-> >       A security model that mediates access to security objects by
-> >logging all access and blocking access if logging cannot continue is
-> >unsupportable in any straight forward, efficient and/or non-kludgy, ugly
-> >way.
-> >
-> Because Linus asked for access control support, not audit logging
-> support, it is not surprising that logging models don't fit so well.
-> 
-> >  Some security people were banned from the kernel
-> >devel. summit because their thoughts were deemed 'dangerous': fear was they
-> >were too persuasive about ideas that were deemed 'ignorant' and would
-> >fool those poor kernel lambs at the summit.
-> >
-> Internal SGI politics.
+Hi Alan,
 
-Just a gentle reminder that Ms. Walsh is not an SGI employee
-and that any opinions she may express regarding the Linux
-development process are her own, and may not reflect the
-views or understandings of SGI or any other individuals
-involved.
+Actually this problem started with ac2.  All seems to work well until I
+reboot the machine with 'shutdown' or 'reboot' or 'ctl-alt-del'.
 
-In particular, dragging SGI into this discussion is
-inappropriate and unnecessary. SGI is currently not
-active in this effort, and makes no claims regarding
-it's appropriateness to any particular purpose.
+The machine shuts down properly to the point where all filesystems
+are remounted readonly, which is the point where I normally see an
+immediate reboot.  Starting with pre4-ac2 I just get an indefinite
+hang instead of the reboot.
 
-Please leave SGI, in spirit and name, out of
-this discussion.
+The terminal driver still seems to work because I can use the
+ctl-alt-Fx keys to switch to other pseudo-terminals but the login
+process is already gone so I can't actually do anything at the
+login prompts.  It takes a hard reset to complete the reboot,
+after which the machine comes up normally with clean filesystems.
 
--- 
+I see this on three different machines with different motherboards
+and CPU's [K6-2, athlon, athlon-xp], two VIA chipsets and one SiS.
 
-Casey Schaufler				Manager, Trust Technology, SGI
-casey@sgi.com				voice: 650.933.1634
-casey_p@pager.sgi.com			Pager: 877.557.3184
+No error messages print anywhere, so I'm not sure how to debug.
+Do you need a kernel config file or dmesg output?
+
+

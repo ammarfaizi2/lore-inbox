@@ -1,47 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317110AbSHJR7M>; Sat, 10 Aug 2002 13:59:12 -0400
+	id <S317117AbSHJSAX>; Sat, 10 Aug 2002 14:00:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317112AbSHJR7M>; Sat, 10 Aug 2002 13:59:12 -0400
-Received: from aba.krakow.pl ([62.233.163.30]:56741 "HELO two.aba.krakow.pl")
-	by vger.kernel.org with SMTP id <S317110AbSHJR7L>;
-	Sat, 10 Aug 2002 13:59:11 -0400
-Date: Sat, 10 Aug 2002 20:02:56 +0200
-From: =?iso-8859-2?Q?Pawe=B3?= Krawczyk <kravietz@aba.krakow.pl>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-Cc: zhengchuanbo <zhengcb@netpower.com.cn>,
-       "linux-kernel @ vger. kernel. org" <linux-kernel@vger.kernel.org>
-Subject: Re: about the tuning of eepro100
-Message-ID: <20020810180256.GD25611@aba.krakow.pl>
-References: <200208101742654.SM00824@zhengcb> <20020810095126.GF21239@aba.krakow.pl> <20020810185558.C306@kushida.apsleyroad.org>
+	id <S317140AbSHJSAX>; Sat, 10 Aug 2002 14:00:23 -0400
+Received: from dsl-64-129-199-125.telocity.com ([64.129.199.125]:22238 "HELO
+	descola.net") by vger.kernel.org with SMTP id <S317117AbSHJSAV>;
+	Sat, 10 Aug 2002 14:00:21 -0400
+Date: Sat, 10 Aug 2002 11:04:05 -0700
+From: "Darrell A. Escola" <darrell-kernel@descola.net>
+To: Nilanjan Bhowmik <nilu@iomachine.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.4.19: Tulip network card does not sync with Dumb 10/100 Linksys 8 port Etherfast switch
+Message-ID: <20020810180405.GA31193@descola.net>
+Mail-Followup-To: "Darrell A. Escola" <darrell-kernel@descola.net>,
+	Nilanjan Bhowmik <nilu@iomachine.com>, linux-kernel@vger.kernel.org
+References: <000b01c24092$d0d0c160$63c8a8c0@arunachal>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20020810185558.C306@kushida.apsleyroad.org>
+In-Reply-To: <000b01c24092$d0d0c160$63c8a8c0@arunachal>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 10, 2002 at 06:55:58PM +0100, Jamie Lokier wrote:
+Data point:
 
-> I don't think you will get better than 90% performance, but if you do
-> please let me know!  I have written another e100 driver, in an attempt
-> to transmit and receive small packets at the maximum possible rate.
-> In tests, it would not even transmit at 100% small packets on our 82558.
-> (I didn't do that test on our 82559).
+I have a server and firewall using 2.4.19-pre2-ac4 with Linksys LNE100TX nic's
 
-Maybe we were looking for separate things - I had a firewall box with
-100base-TX interfaces and when flooding it at full rate with small
-(40 bytes, i.e. empty IP headers) packets the system was unusable
-because of the interrupt rate. After I turned the bundling on, there
-was no signs of overload. Of course, I tested throughput of the
-card as well but on the IP level there was no difference I could
-worry about. But as I said, this was a firewall box and I was looking
-for a way to stop possible DOS, not for tiny packet delivery time
-slowdown, which may be important in other applications.
+firewall is 6x86 on Intel 430VX uptime 146 days
+server is PII on Intel 440BX uptime 83 days
 
--- 
-Pawe³ Krawczyk, Kraków, Poland  http://echelon.pl/kravietz/
-crypto: http://ipsec.pl/
-horses: http://kabardians.com/
+both report the nic as:
+Linksys Network Everywhere Fast Ethernet 10/100 model NC100 (rev 11)
+
+both autonegotiate 100 full duplex with a Seimens 5 port 10/100 switch
+
+Maybe Linksys used different chipsets in their LNE100TX, or some change
+since 2.4.19-pre2-ac4 is a problem
+
+
+On Sat, Aug 10, 2002 at 01:24:42PM -0400, Nilanjan Bhowmik wrote:
+> This happend on a working machine. After I have upgraded to 2.4.19, tulip
+> driver
+> will not work.  Only way to sync it is loading the driver couple of times
+> and that too
+> it will sync at 10/half.
+> 
+> This is working fine with the 2.4.7-10 stock redhat kernel.
+> 
+...
+> 00:10.0 Ethernet controller: Lite-On Communications Inc LNE100TX [Linksys
+> EtherFast 10/100] (rev 25)
+> 
+> nilu@calculator.nilu.net-5->cat /proc/ioports
+...
+> 1400-14ff : Lite-On Communications Inc LNE100TX [Linksys EtherFast 10/100]
+>   1400-14ff : tulip
+...
+This matches my /proc/ioports entry for tulip
+
+If you want any more info, just ask...
+
+Darrell

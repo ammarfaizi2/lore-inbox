@@ -1,47 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271173AbTGPWRM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 18:17:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271167AbTGPWO4
+	id S271168AbTGPWU3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 18:20:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271161AbTGPWU1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 18:14:56 -0400
-Received: from fw.osdl.org ([65.172.181.6]:16554 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S271163AbTGPWON (ORCPT
+	Wed, 16 Jul 2003 18:20:27 -0400
+Received: from adsl-67-114-19-186.dsl.pltn13.pacbell.net ([67.114.19.186]:50333
+	"HELO adsl-63-202-77-221.dsl.snfc21.pacbell.net") by vger.kernel.org
+	with SMTP id S271176AbTGPWSp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 18:14:13 -0400
-Date: Wed, 16 Jul 2003 15:21:43 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: greg@kroah.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] print_dev_t for 2.6.0-test1-mm
-Message-Id: <20030716152143.6ab7d7d3.akpm@osdl.org>
-In-Reply-To: <20030716222015.GB1964@win.tue.nl>
-References: <20030716184609.GA1913@kroah.com>
-	<20030716130915.035a13ca.akpm@osdl.org>
-	<20030716210253.GD2279@kroah.com>
-	<20030716141320.5bd2a8b3.akpm@osdl.org>
-	<20030716213451.GA1964@win.tue.nl>
-	<20030716143902.4b26be70.akpm@osdl.org>
-	<20030716222015.GB1964@win.tue.nl>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 16 Jul 2003 18:18:45 -0400
+Message-ID: <3F15D2C0.2020804@tupshin.com>
+Date: Wed, 16 Jul 2003 15:33:36 -0700
+From: Tupshin Harper <tupshin@tupshin.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5a) Gecko/20030710
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Matthias Andree <matthias.andree@gmx.de>
+CC: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: LVM2 user space, device mapper, Linux 2.4/2.6 dual boot no-go.
+References: <20030716095321.GF27177@merlin.emma.line.org>
+In-Reply-To: <20030716095321.GF27177@merlin.emma.line.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries Brouwer <aebr@win.tue.nl> wrote:
->
-> 
-> > Why do we need the 16:16 option?
-> 
-> It is not very important, but major 0 is reserved, so if userspace
-> (or a filesystem) hands us a 32-bit device number, we have to
-> split that in some way, not 0+32. Life is easiest with 16+16.
-> (Now the major is nonzero, otherwise we had 8+8.)
-> Other choices lead to slightly more complicated code.
-> 
+Matthias Andree wrote:
 
-Why would anyone hand the kernel a 32-bit device number?  They're either 16
-or 64, are they not?
+>Ok,
+>
+>here's the situation:
+>
+>I want to test drive 2.6, have 2.4.22-pre3-ac1 with LVM1, Device Mapper
+>and XFS. I tried LVM2 user space on 2.4.22, it complained about ioctl
+>mismatch (wants 4.x.y, gets 1.m.n). Do I need to disable LVM1?
+>
+>On 2.6, lvm lvmdiskscan works, but lvm vgscan stuffs my screen with
+>"modprobe junk.", so I reverted to 2.4-with-LVM1-user-space for now.
+>
+>Has anyone had success with running the same user-space LVM2 stuff on
+>2.4 and 2.6? Which versions of device-mapper and LVM2 do you use for
+>that purpose? What are the magic switches in Linux-2.4.22-preX-acY?
+>
+>Help appreciated.
+>
+>  
+>
+I'm running LVM2 on 2.4.21-ac4, and that works just fine for me (debian 
+sid, with the lvm2 package from the distribution). While 2.5/6 is still 
+too unstable for me to use for long (for unrelated reasons) , it does 
+boot up correctly and function with 25 lvm2 partitions on four different 
+lvm groups. I would get it working correctly on your 2.4 kernel first. 
+There were not magic incantations for me...what distribution are you 
+using, and where are you getting LVM2 from?
+
+-Tupshin
 

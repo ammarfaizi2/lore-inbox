@@ -1,59 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264498AbSIQSpC>; Tue, 17 Sep 2002 14:45:02 -0400
+	id <S264504AbSIQSpc>; Tue, 17 Sep 2002 14:45:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264500AbSIQSpC>; Tue, 17 Sep 2002 14:45:02 -0400
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:20894
-	"EHLO Bill-The-Cat.bloom.county") by vger.kernel.org with ESMTP
-	id <S264498AbSIQSo7>; Tue, 17 Sep 2002 14:44:59 -0400
-Date: Tue, 17 Sep 2002 11:49:49 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][RESEND] Cleanup (BIN|BCD)_TO_(BCD|BIN) usage/macros
-Message-ID: <20020917184949.GB726@opus.bloom.county>
-References: <20020917182950.GA726@opus.bloom.county> <3D8776FF.3050504@mandrakesoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D8776FF.3050504@mandrakesoft.com>
-User-Agent: Mutt/1.4i
+	id <S264506AbSIQSpc>; Tue, 17 Sep 2002 14:45:32 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:9091 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S264504AbSIQSp2>;
+	Tue, 17 Sep 2002 14:45:28 -0400
+Date: Tue, 17 Sep 2002 20:57:31 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Robert Love <rml@tech9.net>
+Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] BUG(): sched.c: Line 944
+In-Reply-To: <1032288442.5149.98.camel@phantasy>
+Message-ID: <Pine.LNX.4.44.0209172055550.13829-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 17, 2002 at 02:39:59PM -0400, Jeff Garzik wrote:
-> Tom Rini wrote:
-> >Right now there's a bit of a mess with all of the BIN_TO_BCD/BCD_TO_BIN
-> >macros in the kernel.  It's defined in a half dozen places, and worse
-> >yet, not all places use them the same way.  Most users do something
-> >like:
-> >if ( ... )
-> >   BIN_TO_BCD(x);
-> >
-> >But in a few places, it's used as:
-> >if ( ... )
-> >   y = BIN_TO_BCD(x);
-> >
-> >The following creates include/linux/bcd.h which has the 'normal'
-> >BIN_TO_BCD macros, as well as CONVERT_{BIN,BCD}_TO_{BCD,BIN},
-> >which are for the second case.
-> 
-> hmmm... removing all the private definitions certainly makes good sense, 
-> but having both CONVERT_foo and foo seems a bit wonky...
-> 
-> IMO it would be better to have BIN_TO_BCD which returns a value, and 
-> __BIN_TO_BCD which has side effects but returns no value...
 
-Well, this was done in part to minimize change.  The version which
-returns no value is far more common than the one which does, and would
-require changing a lot more files (and would also make getting this into
-2.4 harder too, which I would like to do someday if this gets into 2.5). 
-The other reason is that CONVERT_foo makes it quite obvious what is being
-done, where as __xxx at least in my mind has namespace imlpications
-(like how it's used in libc, etc.  But kernel namespace isn't like the
-rest I know..).
+On 17 Sep 2002, Robert Love wrote:
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+> OK so do we want to do (a):
+> 
+> (moved down to after the preempt_disable() and release_kernel_lock())
+> 
+> if (likely(current->state != TASK_ZOMBIE)
+> 	if (unlikely((preempt_count() & ~PREEMPT_ACTIVE) != 1))
+> 		...
+> 
+> or go with (b) where we split schedule() into schedule(),
+> exit_schedule(), and do_schedule().
+
+i'd do (a). current->state is to be used anyway, and the default-untaken
+first branch should be cheap. Plus by moving things down the splitup of
+the function would create more code duplication than necessery i think.
+
+	Ingo
+

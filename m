@@ -1,91 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261269AbVAXOfi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261292AbVAXOlj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261269AbVAXOfi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 09:35:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261292AbVAXOfi
+	id S261292AbVAXOlj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 09:41:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261322AbVAXOlj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 09:35:38 -0500
-Received: from mailout08.sul.t-online.com ([194.25.134.20]:24214 "EHLO
-	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S261269AbVAXOf1 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 09:35:27 -0500
-Date: Mon, 24 Jan 2005 15:35:29 +0100
-From: Florian.Bohrer@t-online.de (Florian Bohrer)
+	Mon, 24 Jan 2005 09:41:39 -0500
+Received: from smtp1.poczta.onet.pl ([213.180.130.31]:40096 "EHLO
+	smtp1.poczta.onet.pl") by vger.kernel.org with ESMTP
+	id S261292AbVAXOlh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 09:41:37 -0500
+From: Sebastian Piechocki <sebekpi@poczta.onet.pl>
+Reply-To: sebekpi@poczta.onet.pl
 To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc2-mm1
-Message-Id: <20050124153529.3926d43d.Florian.Bohrer@t-online.de>
-In-Reply-To: <41F4FB1D.4090302@ens-lyon.fr>
-References: <20050124021516.5d1ee686.akpm@osdl.org>
-	<41F4E28A.3090305@ens-lyon.fr>
-	<41F4FB1D.4090302@ens-lyon.fr>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; x86_64-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
-X-ID: bdmBSZZ68eH7H7JshmRvjAzfDW1XMLViemiwp9PPiQIc1nQa4bG+wR
-X-TOI-MSGID: ee9425b7-1534-4ed6-b82c-af5466ed5300
+Subject: i8042 and AUX not detected with acpi=on.
+Date: Mon, 24 Jan 2005 15:41:27 +0100
+User-Agent: KMail/1.6.1
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200501241541.27325.sebekpi@poczta.onet.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Jan 2005 14:41:49 +0100
-Brice Goglin <Brice.Goglin@ens-lyon.fr> wrote:
+Hello,
+i'm owner of P10-824 (its the same as yours 792, difference is that 824 
+is some kind of German version). I had problem with touchpad, 
+tried many kernel versions with no positive result. The computer is ATI 
+RS300 based with ATI IXP and Mobility Radeon 9700.
+The problem lies in the i8042.c driver in kernel. It is very strange, 
+because with kernel option acpi=off touchpad is detected, sorry, ps/2 
+port AUX is detected and touchpad too. But if acpi=on only keyboard is 
+detected by i8042 driver no AUX. I resolved this problem by debuging 
+driver and change the code.
+I found that driver is checking AUX existence sending loop command to 
+controller. Unfortunately this ends with timeout, no response was send. 
+The driver know about such problems with loop command and retries 
+detecting by another command that with toshiba mouse controller fails.
+The details:
+In method:
+  i8042_check_aux
 
-> Brice Goglin a écrit :
-> > Andrew Morton a écrit :
-> > 
-> >> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11-rc1/2.6.11-rc1-mm1/ 
-> >>
-> >>
-> >>
-> >> - Lots of updates and fixes all over the place.
-> > 
-> > 
-> > Hi Andrew,
-> > 
-> > X does not work anymore when using DRI on my Compaq Evo N600c (Radeon 
-> > Mobility M6 LY).
-> > My XFree 4.3 (from Debian testing) with DRI uses drm and radeon kernel 
-> > modules.
-> > 
-> > Instead of the usual gdm window, I get a black or noisy screen 
-> > (remaining image parts of
-> > last working session). The mouse pointer works. Sysrq works. But 
-> > Caps-lock doesn't work.
-> > The machine pings but I can't ssh.
-> > 
-> > I don't know exactly what's happening. I don't see anything interesting 
-> > in dmesg.
-> 
-> Thanks to Benoit who found this at the end of dmesg:
-> agpgart: Found an AGP 2.0 compliant device at 0000:00:00.0.
-> agpgart: Couldn't find an AGP VGA controller.
-> 
-> while Linus' 2.6.11-rc2 says:
-> agpgart: Found an AGP 2.0 compliant device at 0000:00:00.0.
-> agpgart: Putting AGP V2 device at 0000:00:00.0 into 4x mode
-> agpgart: Putting AGP V2 device at 0000:01:00.0 into 4x mode
-> 
-> Regards,
-> Brice
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+There is:
+param = 0x5a;
+        if (i8042_command(&param, I8042_CMD_AUX_LOOP) || param != 0xa5) 
+{
 
-the same problem here.... with the nvidia-driver .....seems that AGP is totally brocken.
+/*
+ * External connection test - filters out AT-soldered PS/2 i8042's
+ * 0x00 - no error, 0x01-0x03 - clock/data stuck, 0xff - general error
+ * 0xfa - no error on some notebooks which ignore the spec
+ * Because it's common for chipsets to return error on perfectly 
+functioning
+ * AUX ports, we test for this only when the LOOP command failed.
+ */
 
-Jan 24 13:50:09 hal9000 agpgart: Found an AGP 3.0 compliant device at 0000:00:00.0.
-Jan 24 13:50:09 hal9000 agpgart: Couldn't find an AGP VGA controller.
+                if (i8042_command(&param, I8042_CMD_AUX_TEST)
+                        || (param && param != 0xfa && param != 0xff))
+                                return -1;
+        }
+
+I have commented the line with return -1.
+I know that this solution is very stupid, but works fine.
+I use 2.6.11-rc1-mm1 kernel, and my touchpad is detected as ALPS.
+
+I think this is some special situation, that need extra detection 
+possibility? Am I right?
 -- 
-
-
------------------------------------------------------------------------------
-"Real Programmers consider "what you see is what you get" to 
-be just as bad a concept in Text Editors as it is in women. 
-No, the Real Programmer wants a "you asked for it, you got 
-it" text editor -- complicated, cryptic, powerful, 
-unforgiving, dangerous."
------------------------------------------------------------------------------
-
+Sebastian Piechocki
+sebekpi@poczta.onet.pl

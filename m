@@ -1,38 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275798AbRJJOBi>; Wed, 10 Oct 2001 10:01:38 -0400
+	id <S275806AbRJJOC6>; Wed, 10 Oct 2001 10:02:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275813AbRJJOB2>; Wed, 10 Oct 2001 10:01:28 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:61713 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S275806AbRJJOBX>;
-	Wed, 10 Oct 2001 10:01:23 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Tainted Modules Help Notices 
-In-Reply-To: Your message of "Wed, 10 Oct 2001 09:59:01 -0400."
-             <Pine.GSO.4.21.0110100956420.17790-100000@weyl.math.psu.edu> 
-Mime-Version: 1.0
+	id <S275813AbRJJOCs>; Wed, 10 Oct 2001 10:02:48 -0400
+Received: from office.mandrakesoft.com ([195.68.114.34]:26098 "HELO
+	giants.mandrakesoft.com") by vger.kernel.org with SMTP
+	id <S275806AbRJJOCj>; Wed, 10 Oct 2001 10:02:39 -0400
+To: Juan Quintela <quintela@mandrakesoft.com>
+Cc: Robert Szentmihalyi <robert.szentmihalyi@entracom.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: APM on a HP Omnibook XE3
+In-Reply-To: <200108301443355.SM00167@there> <m2elobn7a3.fsf@anano.mitica>
+From: Chmouel Boudjnah <chmouel@mandrakesoft.com>
+Date: 10 Oct 2001 16:02:23 +0200
+In-Reply-To: <m2elobn7a3.fsf@anano.mitica> (Juan Quintela's message of "10 Oct 2001 12:01:08 +0200")
+Message-ID: <m3sncrh9u8.fsf@giants.mandrakesoft.com>
+User-Agent: Gnus/5.090003 (Oort Gnus v0.03) Emacs/21.0.104
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 11 Oct 2001 00:01:42 +1000
-Message-ID: <13611.1002722502@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Oct 2001 09:59:01 -0400 (EDT), 
-Alexander Viro <viro@math.psu.edu> wrote:
->On Wed, 10 Oct 2001, Keith Owens wrote:
->> Any license not listed in include/linux/module.h is not GPL compatible.
->> That list is currently (2.4.11)
->> 
->> "GPL"                           [GNU Public License v2 or later]
->> "GPL and additional rights"     [GNU Public License v2 rights and more]
->> "Dual BSD/GPL"                  [GNU Public License v2 or BSD license choice]
->> "Dual MPL/GPL"                  [GNU Public License v2 or Mozilla license choice]
->
->What the hell?  BSD without advertisement clause had always been
->GPL-compatible.
+Juan Quintela <quintela@mandrakesoft.com> writes:
 
-Take it up with AC, modutils is just following his list in module.h.
+> >>>>> "robert" == Robert Szentmihalyi <robert.szentmihalyi@entracom.de> writes:
+> 
+> robert> Hi!
+> robert> Sorry if this is OT.
+> robert> I'm not sure if this is a kernel issue, but I'm running out of 
+> robert> ideas on this....
+> 
+> robert> I have a HP Omnibook XE3 with SuSE Linux 7.2 installed.
+> robert> Everything works fine except suspend-to-disk.
+> robert> (I have created the partition. It works under Winblows...)
+> robert> I have tried Kernels 2.4.4 and 2.4.7 (with SuSE patches) as well as 
+> robert> 2.4.9 vanilla, but I keep getting the same messages:
+> robert> When I do
+> robert> apm -s
+> robert> I get 
+> robert> apm: Input/output error
+> robert> and the Kernel log says:
+> robert> apm: suspend: Unable to enter requested state
+> 
+> 
+> robert> Any ideas what I could do?
+> 
+> For me Fn+F12 works.
+> apm -s & apm -S fails.
 
+works only if you have a suspend-on-disk partition.

@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263901AbUDPWTb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 18:19:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263887AbUDPWTT
+	id S263925AbUDPWZJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 18:25:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263887AbUDPWWh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 18:19:19 -0400
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:24536
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id S263901AbUDPWR6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 18:17:58 -0400
-Message-ID: <40805B80.30105@redhat.com>
-Date: Fri, 16 Apr 2004 15:17:36 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7b) Gecko/20040411
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alex Riesen <fork0@users.sourceforge.net>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
+	Fri, 16 Apr 2004 18:22:37 -0400
+Received: from fw.osdl.org ([65.172.181.6]:51139 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263927AbUDPWWU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Apr 2004 18:22:20 -0400
+Date: Fri, 16 Apr 2004 15:22:17 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Alex Riesen <fork0@users.sourceforge.net>,
+       Ulrich Drepper <drepper@redhat.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
 Subject: Re: POSIX message queues, libmqueue: mq_open, mq_unlink
-References: <20040416213851.GA1784@steel.home>
-In-Reply-To: <20040416213851.GA1784@steel.home>
-X-Enigmail-Version: 0.83.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Message-ID: <20040416152217.C22989@build.pdx.osdl.net>
+References: <4080060F.7030604@redhat.com> <20040416213851.GA1784@steel.home>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20040416213851.GA1784@steel.home>; from fork0@users.sourceforge.net on Fri, Apr 16, 2004 at 11:38:51PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Riesen wrote:
-
+* Alex Riesen (fork0@users.sourceforge.net) wrote:
+> My concern is that the tests are rather pointing that something in
+> kernel is not implemented correctly. _The_ checks in particular.
+> Because if they _are_ implemented correctly, you don't need to patch the
+> functionality in the user space.
+>
 > And if the kernel code does check the incoming arguments correctly,
 > what is the point to check them again? Just to make the point, that
 > passing in not an absolute path is not portable?
 
-Forget what the kernel does.  This is enforcement of the API the runtime
-provides.  If must be stable regardless of what the kernel does.
-Including kernel changes which allow special names which do funky,
-non-standard things.
+The kernel interface is simple and clean.  And in fact, requires no
+slashes else you'll get -EACCES.  It's not POSIX, but the library
+interface is.
 
+We just discussed this yesterday:
+
+http://marc.theaimsgroup.com/?t=108205593100003&r=1&w=2
+
+thanks,
+-chris
 -- 
-➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

@@ -1,57 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262038AbTKGWZx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Nov 2003 17:25:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261940AbTKGWZY
+	id S262050AbTKGWZw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Nov 2003 17:25:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262048AbTKGWZu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Nov 2003 17:25:24 -0500
-Received: from [212.86.245.254] ([212.86.245.254]:27266 "EHLO umka.bear.com.ua")
-	by vger.kernel.org with ESMTP id S264377AbTKGPBB (ORCPT
+	Fri, 7 Nov 2003 17:25:50 -0500
+Received: from mail.gmx.de ([213.165.64.20]:29896 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S264424AbTKGPqS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Nov 2003 10:01:01 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Alex Lyashkov <shadow@itt.net.ru>
-Organization: Home
-To: Jan Kara <jack@suse.cz>
-Subject: Re: [BUG] ext3 + diskquta + sync = deadlock
-Date: Fri, 7 Nov 2003 17:01:36 +0200
-User-Agent: KMail/1.4.1
-References: <200311060744.23189.shadow@itt.net.ru> <20031106155936.GB25830@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20031106155936.GB25830@atrey.karlin.mff.cuni.cz>
-Cc: linux-kernel@vger.kernel.org, Herbert Poetzl <herbert@13thfloor.at>
+	Fri, 7 Nov 2003 10:46:18 -0500
+X-Authenticated: #4512188
+Message-ID: <3FABBEC7.4010702@gmx.de>
+Date: Fri, 07 Nov 2003 16:48:23 +0100
+From: "Prakash K. Cheemplavam" <prakashpublic@gmx.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031102
+X-Accept-Language: de-de, de, en-us, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200311071701.40557.shadow@itt.net.ru>
+To: Nick Piggin <piggin@cyberone.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
+References: <20031106130030.GC1145@suse.de> <3FAA4737.3060906@cyberone.com.au> <20031106130553.GD1145@suse.de> <3FAA4880.8090600@cyberone.com.au> <20031106131141.GE1145@suse.de> <3FAA4D48.6040709@gmx.de> <20031106133136.GA477@suse.de> <3FAA5043.8060907@gmx.de> <20031106134713.GA798@suse.de> <3FAA5397.6010702@gmx.de> <20031106135134.GA1194@suse.de> <3FAA5CCB.5030902@gmx.de> <3FAB0754.2040209@cyberone.com.au> <3FAB7F94.7050504@gmx.de> <3FAB82A2.4070907@cyberone.com.au> <3FAB8428.7090307@gmx.de> <3FAB870D.1050003@cyberone.com.au> <3FAB95B9.3020601@gmx.de> <3FAB9817.5020502@cyberone.com.au> <3FAB9C2B.2040907@gmx.de> <3FAB9F97.6050706@cyberone.com.au> <3FABA364.9000404@gmx.de> <3FABA5A7.904@cyberone.com.au> <3FABA6EF.90207@gmx.de> <3FABA788.1080000@cyberone.com.au> <3FABAB5B.5090105@gmx.de> <3FABAE0B.6020601@cyberone.com.au> <3FABB08B.3080006@gmx.de> <3FABB571.6070804@cyberone.com.au>
+In-Reply-To: <3FABB571.6070804@cyberone.com.au>
+X-Enigmail-Version: 0.76.7.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 06 November 2003 17:59, you wrote:
->   Hi,
->
-> > I tred to test stabilyty of ext3 filesystem with high load.
-> >
-> > at one console do start/stop some programs.
-> > at second console start script
-> > ===
-> > while [ 1 ]; do
-> > mount -o remount,usrquota,grpquota /
-> > sleep 5
-> > done;
-> > ===
-> > for test how work fs sync.
-> > After small time (less 10 min) i tred logon on third console and system
-> > been locked.
-> > I use RH kernel 2.4.18-27.x on RH 7.3 box.
-> > logs tasks states in deadlock attached in mail.
->
->   Hmm... We had some deadlock in 2.4.18 (and still have one nasty in
-> 2.4.23) but from the traces this looks different. I'll try to reproduce it.
->
-today i try to compile kernel with enabled JDB debug and set debug level to 
-100.
-logs be avabled at http://freevps.com/download/ext3_bug/
-If need other info or help for fixing it bug - i ready for it.
 
--- 
-With best regards,
-Alex
+> Oh ok. Well whenever you get a chance to... Sorry that last patch
+> I sent was empty. Here is the correct one for when you get time.
+
+Yeah, runs nicely. (dmesg is quiet, as well.) Seems like it was only a 
+minor issue in mm2, lloking at the patch...Very well.
+
+Prakash
+

@@ -1,85 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263459AbTEGOmA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 10:42:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263489AbTEGOmA
+	id S263228AbTEGO2h (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 10:28:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263229AbTEGO2h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 10:42:00 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:25504 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263459AbTEGOl6 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 10:41:58 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: James Cleverdon <jamesclv@us.ibm.com>
-Reply-To: jamesclv@us.ibm.com
-Organization: IBM xSeries Linux Solutions
-To: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH] linux-2.5.69_clear-smi-fix_A0
-Date: Wed, 7 May 2003 07:54:08 -0700
-User-Agent: KMail/1.4.3
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
-       Andrew Grover <andrew.grover@intel.com>
-References: <1052258319.4503.7.camel@w-jstultz2.beaverton.ibm.com>
-In-Reply-To: <1052258319.4503.7.camel@w-jstultz2.beaverton.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200305070754.08881.jamesclv@us.ibm.com>
+	Wed, 7 May 2003 10:28:37 -0400
+Received: from holomorphy.com ([66.224.33.161]:40847 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S263228AbTEGO2f (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 10:28:35 -0400
+Date: Wed, 7 May 2003 07:41:00 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: helgehaf@aitel.hist.no, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       akpm@digeo.com
+Subject: Re: 2.5.69-mm2 Kernel panic, possibly network related
+Message-ID: <20030507144100.GD8978@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"David S. Miller" <davem@redhat.com>, helgehaf@aitel.hist.no,
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org, akpm@digeo.com
+References: <3EB8DBA0.7020305@aitel.hist.no> <1052304024.9817.3.camel@rth.ninka.net> <3EB8E4CC.8010409@aitel.hist.no> <20030507.025626.10317747.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030507.025626.10317747.davem@redhat.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John,
+From: Helge Hafting <helgehaf@aitel.hist.no>
+Date: Wed, 07 May 2003 12:49:48 +0200
+>    No, I compile everything into a monolithic kernel.
+>    I don't even enable module support.
 
-That looks reasonable to me.  The one possible catch would be for systems so 
-old they don't do SMI -- 386s and 486s, I imagine.  If this code doesn't barf 
-on them when CONFIG_IO_APIC is turned on, then it should be fine (minus the 
-printk).
+On Wed, May 07, 2003 at 02:56:26AM -0700, David S. Miller wrote:
+> Andrew, color me stumped.  mm2/linux.patch doesn't have anything
+> really interesting in the networking.  Maybe it's something in
+> the SLAB and/or pgd/pmg re-slabification changes?
 
-(I believe there was at least one such system, the Intel Xpress box.  It 
-contained a 486 and seperate APIC chips.)
+The i810 bits would be a failure case of the original slabification.
+At first glance the re-slabification doesn't seem to conflict with the
+unmapping-based slab poisoning.
 
-		James
+In another thread, you mentioned that a certain netfilter cset had
+issues; I think it might be good to add that as a second possible cause.
 
-On Tuesday 06 May 2003 02:58 pm, john stultz wrote:
-> All,
-> 	I've been having problems with ACPI on a box here in our lab, it ends
-> up that when we clear_IO_APIC() at boot time, we clear the SMI pin that
-> is setup by the BIOS. This basically clobbers the SMI and we can then
-> never make the transition into ACPI mode.
->
-> I'm not sure if this is the right solution, but I figured I'd post it
-> and take the flamage if I'm just being dumb. Basically in
-> clear_IO_APIC_pin, I read the apic entry to make sure the delivery_mode
-> isn't dest_SMI. If it is, we leave the apic entry alone and return.
->
-> With this patch, the box boots and SMIs appear to function properly.
->
-> Let me know if you have any thoughts or suggestions.
->
-> thanks
-> -john
->
->
-> diff -Nru a/arch/i386/kernel/io_apic.c b/arch/i386/kernel/io_apic.c
-> --- a/arch/i386/kernel/io_apic.c	Tue May  6 14:46:58 2003
-> +++ b/arch/i386/kernel/io_apic.c	Tue May  6 14:46:58 2003
-> @@ -219,6 +219,14 @@
->  {
->  	struct IO_APIC_route_entry entry;
->  	unsigned long flags;
-> +
-> +	/* Check delivery_mode to be sure we're not clearing an SMI pin */
-> +	*(((int*)&entry) + 0) = io_apic_read(apic, 0x10 + 2 * pin);
-> +	*(((int*)&entry) + 1) = io_apic_read(apic, 0x11 + 2 * pin);
-> +	if (entry.delivery_mode == dest_SMI){
-> +		printk(KERN_INFO "apic %i pin %i is an SMI pin!\n", apic, pin);
-> +		return;
-> +	}
->
->  	/*
->  	 * Disable it in the IO-APIC irq-routing table:
+I'm trying to track down testers with i810's to reproduce the issue,
+but the usual suspects and helpers aren't awake yet (most/all of my
+target systems are headless, though I regularly abuse my laptop, which
+appears to S3/Savage -based and so isn't useful for this).
 
--- 
-James Cleverdon
-IBM xSeries Linux Solutions
-{jamesclv(Unix, preferred), cleverdj(Notes)} at us dot ibm dot com
-
+-- wli

@@ -1,60 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261742AbSLWAVO>; Sun, 22 Dec 2002 19:21:14 -0500
+	id <S264739AbSLWAjS>; Sun, 22 Dec 2002 19:39:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262208AbSLWAVO>; Sun, 22 Dec 2002 19:21:14 -0500
-Received: from dp.samba.org ([66.70.73.150]:28827 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S261742AbSLWAVN>;
-	Sun, 22 Dec 2002 19:21:13 -0500
-From: Paul Mackerras <paulus@samba.org>
+	id <S264743AbSLWAjR>; Sun, 22 Dec 2002 19:39:17 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:60093 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S264739AbSLWAjQ>;
+	Sun, 22 Dec 2002 19:39:16 -0500
+Date: Sun, 22 Dec 2002 16:46:00 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] dev_printk macro
+In-Reply-To: <200212222104.gBML4vI15305@hera.kernel.org>
+Message-ID: <Pine.LNX.4.33L2.0212221634210.16753-100000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15878.22747.913279.67149@argo.ozlabs.ibm.com>
-Date: Mon, 23 Dec 2002 11:29:15 +1100
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>, davidm@hpl.hp.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: PATCH 2.5.x disable BAR when sizing
-In-Reply-To: <20021222222106.B30070@localhost.park.msu.ru>
-References: <m17ke3m3gl.fsf@frodo.biederman.org>
-	<Pine.LNX.4.44.0212211423390.1604-100000@home.transmeta.com>
-	<15877.26255.524564.576439@argo.ozlabs.ibm.com>
-	<1040569382.1966.11.camel@zion>
-	<20021222222106.B30070@localhost.park.msu.ru>
-X-Mailer: VM 7.07 under Emacs 20.7.2
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ivan Kokshaysky writes:
 
-> Just out of curiosity, formerly you mentioned that said ASIC cannot
-> be relocated in the PCI address space, why? Firmware issues or anything
-> else?
+Hi LKML,
 
-It's mainly the fact that we have already ioremapped parts of the
-address space of the ASIC.  For example we would have ioremapped the
-interrupt controller's registers in init_IRQ(), which happens much
-earlier than PCI probing.  If we are using a serial console via one of
-the serial ports in the ASIC, we would have ioremapped the serial
-ports by this time.  And so on.
+I'm glad to see this patch available, as Greg was.
+Now I have some questions about it.
 
-We could relocate the ASIC if we could find the ioremaps and fix them
-up, or if we could get to all the drivers and have them re-do their
-ioremaps.  There is no way to do that at the moment, though.
-Typically the ASIC will have a couple of IDE interfaces, audio,
-serial, i2c, interrupt controller, wireless ethernet, timer, and PMU
-(power management unit) interfaces in it, so there are several drivers
-involved.
+a.  Is it only for drivers?  If so, why?
+    Filesystems and other subsystems that are not drivers could use
+    something like this also.
 
-In fact we don't really need to probe the BARs of the ASIC at all,
-because the device tree that we get from Open Firmware tells us the
-size and location of the resources it is using (along with all the
-other PCI devices in the system).  If we could have a
-platform-specific hook so that we could provide an alternative method
-for probing the BARs of certain PCI devices, that would let us avoid
-the whole problem.
+b.  Is it only for drivers that have a device?
+    What does a driver use for dev_printk() if it doesn't have a <dev>?
+    However, these do cover the large majority of cases, so that's good.
 
-Paul.
+c.  Maybe I'm too cautious (I don't like panics or oopsen :), but I would
+    have checked <dev> for NULL in those macros.
+
+d.  and I know that <sev> is severity, but spelling it as severity
+    or level would have been better.  :)
+
+IOW, this is a good start, no doubt.  However, it appears to be limited
+in scope to drivers.  That's still a good start, but there's more to do.
+
+-- 
+~Randy
+
+PS:  Yes, I know Greg's 2 favorite words:  Patches accepted.
+Maybe early next year.  ;)
+
+
+On Sun, 22 Dec 2002, Linux Kernel Mailing List wrote:
+
+| ChangeSet 1.865.28.18, 2002/12/21 23:54:35-08:00, jkenisto@us.ibm.com
+|
+| 	[PATCH] dev_printk macro
+|
+| #	include/linux/device.h	1.69    -> 1.70
+|
+| diff -Nru a/include/linux/device.h b/include/linux/device.h
+| --- a/include/linux/device.h	Sun Dec 22 13:04:59 2002
+| +++ b/include/linux/device.h	Sun Dec 22 13:04:59 2002
+| @@ -396,22 +396,21 @@
+|  extern void firmware_unregister(struct subsystem *);
+|
+|  /* debugging and troubleshooting/diagnostic helpers. */
+| +#define dev_printk(sev, dev, format, arg...)	\
+| +	printk(sev "%s %s: " format , (dev).driver->name , (dev).bus_id , ## arg)
+| +
+|  #ifdef DEBUG
+|  #define dev_dbg(dev, format, arg...)		\
+| -	printk (KERN_DEBUG "%s %s: " format ,	\
+| -		(dev).driver->name , (dev).bus_id , ## arg)
+| +	dev_printk(KERN_DEBUG , (dev) , format , ## arg)
+|  #else
+|  #define dev_dbg(dev, format, arg...) do {} while (0)
+|  #endif
+|
+|  #define dev_err(dev, format, arg...)		\
+| -	printk (KERN_ERR "%s %s: " format ,	\
+| -		(dev).driver->name , (dev).bus_id , ## arg)
+| +	dev_printk(KERN_ERR , (dev) , format , ## arg)
+|  #define dev_info(dev, format, arg...)		\
+| -	printk (KERN_INFO "%s %s: " format ,	\
+| -		(dev).driver->name , (dev).bus_id , ## arg)
+| +	dev_printk(KERN_INFO , (dev) , format , ## arg)
+|  #define dev_warn(dev, format, arg...)		\
+| -	printk (KERN_WARNING "%s %s: " format ,	\
+| -		(dev).driver->name , (dev).bus_id , ## arg)
+| +	dev_printk(KERN_WARNING , (dev) , format , ## arg)
+|
+|  #endif /* _DEVICE_H_ */
+

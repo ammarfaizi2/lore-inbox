@@ -1,130 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129476AbQLDOhY>; Mon, 4 Dec 2000 09:37:24 -0500
+	id <S129410AbQLDPIY>; Mon, 4 Dec 2000 10:08:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129426AbQLDOhP>; Mon, 4 Dec 2000 09:37:15 -0500
-Received: from clever.visp-europe.psi.com ([212.222.105.4]:5445 "EHLO
-	clever.visp-europe.psi.com") by vger.kernel.org with ESMTP
-	id <S129351AbQLDOhA>; Mon, 4 Dec 2000 09:37:00 -0500
-From: "Nico. G." <nicog@snafu.de>
-Date: Mon, 4 Dec 2000 15:05:00 +0100
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain; charset=US-ASCII
-To: torvalds@transmeta.com
-X-Chameleon-Return-To: Nico. G. <nicog@snafu.de>
+	id <S129437AbQLDPIO>; Mon, 4 Dec 2000 10:08:14 -0500
+Received: from windsormachine.com ([206.48.122.28]:63236 "EHLO
+	router.windsormachine.com") by vger.kernel.org with ESMTP
+	id <S129410AbQLDPII>; Mon, 4 Dec 2000 10:08:08 -0500
+Message-ID: <3A2BABC7.98725631@windsormachine.com>
+Date: Mon, 04 Dec 2000 09:35:51 -0500
+From: Mike Dresser <mdresser@windsormachine.com>
+Organization: Windsor Machine & Stamping
+X-Mailer: Mozilla 4.75 [en] (Win98; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <00120414390200.00867@newton>
-Content-Transfer-Encoding: 7BIT
-Subject: [BUG] [PATCH] VFAT creates wrongly files with short names
-Cc: linux-kernel@vger.kernel.org, chaffee@cs.berkeley.edu
+To: Guennadi Liakhovetski <gvlyakh@mail.ru>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: DMA !NOT ONLY! for triton again...
+In-Reply-To: <E142Wt2-00031c-00@f5.mail.ru>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Linus, please apply!
+Now, the question is, can we trust a hard drive manufacturer support tech to know what they're talking about, with evidence to the contrary? :)
 
-I have sent a similar message to the maintainer Gordon Chaffee
-<chaffee@cs.berkeley.edu> more than a week ago but I have not got any
-reaction, even after I have sent another message.
+Somewhat like the 6 days i spent with a Cisco 802 and an 804, trying to get a link up.  Set it to National ISDN-1, dial 9 before dialing outbound number.  Connection comes up, but receive light is on, almost solid.  I figure I got the wrong switch type, so i give AT&T a call.  Bell tech comes out, finds out the line wasn't physically punched down into the block properly.
 
-As this patch is only a simple bug fix, I have chosen to send it directly to
-you.
+AT&T tells me it's a Northern DMS-100, and don't dial 9.  I set it up, can't get the connection to come up.  Invalid bear-caps.  I put the 9 back in, AT&T gives me a call, tells me to stop dialing 9.
 
-The patch still works with Linux 2.4.0-test12-pre4.
+Bell gets a call.  Turns out, it IS a National ISDN-1, and you're supposed to dial 9.  Seems that if you don't dial 9, it goes through AT&T's VOICE system.  For an ISDN call.  As you can tell, this doens't work.  :P  So after 6 days of learning more about cisco than I really wanted to, I get the link up.
 
+Moral of the story?
 
-Original message (corrected):
+Never trust a manufacturer. :)  That, and don't listen to your boss, when he keeps saying my Cisco Config must be bad, or the router is DOA.  Trust your instincts.
 
-Dear Maintainer,
+Guennadi Liakhovetski wrote:
 
-I have found a bug in the VFAT code and I send you also a patch against it.
-I hope you will find it worth to be applied.
+> -----Original Message-----An interesting addition:
+> I've just got a reply from WD - they say my disk only supports PIO4 and not DMA...
+> > I'm taking the case off the machine right now, i can guarantee you its not UDMA compatible, simply because this thing was made in early1997. :)
+> >
+> > Here we go:
+> >
+> > MDL WDAC21600-00H
+> > P/N 99-004199-000
+> > CCC F3 20 FEB 97
+> > DCM: BHBBKLP
+> >
+> > I've got various of these hard drives in service, for the last 4 years.  Many run in windows pc's, and DMA mode in osr2 and newer, works, and is noticeablely faster.
+> >
+> > Guennadi Liakhovetski wrote:
+> >
+> > > Glad all this discussion helped at least one of us:-))
+> > >
+> > > As for me, as I already mentioned in my last posting - I don't know why BIOS makes the difference (as in your case) if ide.txt says it shouldn't?! Ok, chipset, perhaps, is fine. But what about the hard drive? You told you had WDC AC21600H. Can you PLEASE check waht CCC is marked on its label? PLEASE! I am trying to get an answer from WD on this, but not yet alas...
+> > >
+> > > And - COME ON, GUYS! - somebody MUST know the answer - how to spot the guilty one - kernel configuration / BIOS / chipset / disk???
+> > >
+> > > Guennadi
+> > >
+> > > > back in, started playing in the bios.  Finally fixed it.  I was getting > the same operation not permitted, that you
+> > > > were,until i got that bios setting. But it's making me
+> > > > wonder if it's something similar in your bios!
+> > > > I know it wasn't the actual UDMA setting in the bios, i'm
+> > > > wondering what it was though.  I'll put a keyboard on it,
+> > > > and poke around tonight or this weekend.
+> >
+> >
 
-*OS*
-Linux 2.4.0-test11 (final, unpatched)
-
-*Bug*
-When VFAT creates files with short names (maximal 14 characters including the
-dot), VFAT considers wrongly that the file name is a valid short name (in the
-MSDOS sence). There are exceptions from this behaviour, but for most of these
-file names it happen so.
-
-*How To Trigger*
-The bug can easily be triggered by touch(1) on any VFAT file system:
-         touch bzImage.bz2
-And with ls(1), you will be surprised to find:
-         bzimage.bz2
-The upper/lower case information is lost!
-
-Note: Also other file names than "bzImage.bz2" can trigger this behaviour but
-it is with this filename that I have found the bug.
-
-One counter-example is any file name starting with an upper case character:
-         touch TeSt
-And ls(1) will give you as expected:
-         TeSt
-
-*Technical Description*
-The bug is triggered by one bug in the function "vfat_valid_shortname" in the
-file "fs/vfat/namei.c".
-
-The problem is that in the first loop of this function the pointer "walk" is
-never incremented, so only the first chacater is tested.
-Therefore we do not test the other characters (at least the seven ones 
-following the first) and if the dot is not the ninth character, it is not
-recognised and so the second part of the function is not processed the way it
-should.
-
-While chasing this bug, I have seen another problem in the same function and
-the patch fixes it also.
-
-In the part treating the extension, the code tests if the result of the
-function "vfat_uni2short" is negative. However by how the function
-"vfat_uni2short" is implemented, it can never be negative, as this function
-replaces negative values by zero! Therefore a character not mappable in the
-current NLS is skipped, instead of triggering a return with -EINVAL .
-
-*Comment On The Patch*
-As the two changes made by the patch are similar, I have chosen to code them
-in the same way to show the similarity of the code in both places. 
-
-Therefore in the first part, I have put the assignement out of the "if"
-statement, as it is coded so in most places of this file.
-
-In the second part, I have chosen not to use the function "vfat_uni2short",
-as in the worst case it would mean to test if a value is negative, change it
-to zero and then testing if it is zero.
-
-*Further Possible Enhancements*
-The definition of the function "vfat_uni2short" (lines 197 to 206) can be
-deleted, as it is not used anywhere else. This deletition is not included in
-the following patch.
-
-*Patch*
-
---- fs/vfat/namei.c.orig	Wed Nov  1 10:57:55 2000
-+++ fs/vfat/namei.c	Tue Nov 21 15:35:25 2000
-@@ -442,10 +442,9 @@
- 	space = 1; /* disallow names starting with a dot */
- 	for (walk = name; len && walk-name < 8;) {
- 		len--;
--		if ( (chl = nls->uni2char(*walk, charbuf, NLS_MAX_CHARSET_SIZE)) < 0) {
--			walk++;
-+		chl = nls->uni2char(*walk++, charbuf, NLS_MAX_CHARSET_SIZE);
-+		if (chl < 0)
- 			return -EINVAL;
--		}
- 
- 		for (chi = 0; chi < chl; chi++) {
- 			c = vfat_getupper(nls, charbuf[chi]);
-@@ -471,7 +470,7 @@
- 		if (len >= 4) return -EINVAL;
- 		while (len > 0) {
- 			len--;
--			chl = vfat_uni2short(nls, *walk++, charbuf, NLS_MAX_CHARSET_SIZE);
-+			chl = nls->uni2char(*walk++, charbuf, NLS_MAX_CHARSET_SIZE);
- 			if (chl < 0)
- 				return -EINVAL;
- 			for (chi = 0; chi < chl; chi++) {
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263216AbUB1AJw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 19:09:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263220AbUB1AJw
+	id S263210AbUB1AJp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 19:09:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263217AbUB1AJo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 19:09:52 -0500
-Received: from mail.kroah.org ([65.200.24.183]:48293 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263216AbUB1AJo convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 27 Feb 2004 19:09:44 -0500
-Subject: Re: [PATCH] PCI fixes for 2.6.4-rc1
-In-Reply-To: <10779269834095@kroah.com>
+Received: from mail.kroah.org ([65.200.24.183]:47013 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263210AbUB1AJl convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 19:09:41 -0500
+Subject: [PATCH] PCI fixes for 2.6.4-rc1
+In-Reply-To: <20040228000725.GB13346@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Fri, 27 Feb 2004 16:09:43 -0800
-Message-Id: <1077926983983@kroah.com>
+Date: Fri, 27 Feb 2004 16:09:42 -0800
+Message-Id: <10779269823390@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org
@@ -22,52 +22,39 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1618, 2004/02/24 14:02:08-08:00, greg@kroah.com
+ChangeSet 1.1613, 2004/02/24 11:07:29-08:00, rmk-pci@arm.linux.org.uk
 
-PCI Hotplug: remove unneeded ACPI Makefile rules.
+[PATCH] PCI: Report meaningful error for failed resource allocation
+
+pci_assign_resource reports odd messages when resource allocation fails.
+This is because res->end and res->start are modified by allocate_resource.
+For example:
+
+PCI: Failed to allocate resource 1(0-ffffffff) for 0000:00:01.0
+
+The following patch reports whether it's an IO or memory resource, and
+includes the correct size.  For consistency, we report it in a similar
+way to the failure message in pci_request_region(), even though
+res->start is unlikely to be useful.
 
 
- drivers/pci/hotplug/Makefile |   19 +++++--------------
- 1 files changed, 5 insertions(+), 14 deletions(-)
+ drivers/pci/setup-res.c |    5 +++--
+ 1 files changed, 3 insertions(+), 2 deletions(-)
 
 
-diff -Nru a/drivers/pci/hotplug/Makefile b/drivers/pci/hotplug/Makefile
---- a/drivers/pci/hotplug/Makefile	Fri Feb 27 15:57:13 2004
-+++ b/drivers/pci/hotplug/Makefile	Fri Feb 27 15:57:13 2004
-@@ -55,13 +55,6 @@
- 				shpchp_sysfs.o	\
- 				shpchp_hpc.o
+diff -Nru a/drivers/pci/setup-res.c b/drivers/pci/setup-res.c
+--- a/drivers/pci/setup-res.c	Fri Feb 27 15:57:35 2004
++++ b/drivers/pci/setup-res.c	Fri Feb 27 15:57:35 2004
+@@ -143,8 +143,9 @@
+ 	}
  
--ifdef CONFIG_HOTPLUG_PCI_ACPI
--  EXTRA_CFLAGS  += -D_LINUX -I$(TOPDIR)/drivers/acpi
--  ifdef CONFIG_ACPI_DEBUG
--    EXTRA_CFLAGS += -DACPI_DEBUG_OUTPUT
--  endif
--endif
--
- ifeq ($(CONFIG_HOTPLUG_PCI_COMPAQ_NVRAM),y)
- 	cpqphp-objs += cpqphp_nvram.o
- endif
-@@ -70,16 +63,14 @@
-   pciehp-objs += pciehprm_nonacpi.o
- else
-   pciehp-objs += pciehprm_acpi.o
--  EXTRA_CFLAGS  += -D_LINUX -I$(TOPDIR)/drivers/acpi -I$(TOPDIR)/drivers/acpi/include 
- endif
- 
- ifeq ($(CONFIG_HOTPLUG_PCI_SHPC_PHPRM_LEGACY),y)
-   shpchp-objs += shpchprm_legacy.o
- else
--   ifeq ($(CONFIG_HOTPLUG_PCI_SHPC_PHPRM_NONACPI),y)
--     shpchp-objs += shpchprm_nonacpi.o
--   else
--      shpchp-objs += shpchprm_acpi.o
--      EXTRA_CFLAGS  += -D_LINUX -I$(TOPDIR)/drivers/acpi 
--   endif
-+  ifeq ($(CONFIG_HOTPLUG_PCI_SHPC_PHPRM_NONACPI),y)
-+    shpchp-objs += shpchprm_nonacpi.o
-+  else
-+    shpchp-objs += shpchprm_acpi.o
-+  endif
- endif
+ 	if (ret) {
+-		printk(KERN_ERR "PCI: Failed to allocate resource %d(%lx-%lx) for %s\n",
+-		       resno, res->start, res->end, pci_name(dev));
++		printk(KERN_ERR "PCI: Failed to allocate %s resource #%d:%lx@%lx for %s\n",
++		       res->flags & IORESOURCE_IO ? "I/O" : "mem",
++		       resno, size, res->start, pci_name(dev));
+ 	} else if (resno < PCI_BRIDGE_RESOURCES) {
+ 		pci_update_resource(dev, res, resno);
+ 	}
 

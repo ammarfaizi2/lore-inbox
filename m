@@ -1,52 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319424AbSILDhs>; Wed, 11 Sep 2002 23:37:48 -0400
+	id <S319425AbSILDlf>; Wed, 11 Sep 2002 23:41:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319425AbSILDhs>; Wed, 11 Sep 2002 23:37:48 -0400
-Received: from avocet.mail.pas.earthlink.net ([207.217.120.50]:55533 "EHLO
-	avocet.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S319424AbSILDhs>; Wed, 11 Sep 2002 23:37:48 -0400
-Date: Wed, 11 Sep 2002 23:45:21 -0400
-To: reiser@namesys.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Performance differences in recent kernels
-Message-ID: <20020912034521.GA5984@rushmore>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-From: rwhron@earthlink.net
+	id <S319426AbSILDlf>; Wed, 11 Sep 2002 23:41:35 -0400
+Received: from dsl-213-023-021-043.arcor-ip.net ([213.23.21.43]:47491 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S319425AbSILDle>;
+	Wed, 11 Sep 2002 23:41:34 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Rusty Russell <rusty@rustcorp.com.au>,
+       Jamie Lokier <lk@tantalophile.demon.co.uk>
+Subject: Re: [RFC] Raceless module interface
+Date: Thu, 12 Sep 2002 05:47:57 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Oliver Neukum <oliver@neukum.name>, Roman Zippel <zippel@linux-m68k.org>,
+       Alexander Viro <viro@math.psu.edu>, kaos@ocs.com.au,
+       linux-kernel@vger.kernel.org
+References: <20020912031345.760A32C061@lists.samba.org>
+In-Reply-To: <20020912031345.760A32C061@lists.samba.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17pKxR-0007by-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Can you test on equal partitions too?
+On Thursday 12 September 2002 05:13, Rusty Russell wrote:
+> B) We do not handle the "half init problem" where a module fails to load, eg.
+> 	a = register_xxx();
+> 	b = register_yyy();
+> 	if (!b) {
+> 		unregister_xxx(a);
+> 		return -EBARF;
+> 	}
+>   Someone can start using "a", and we are in trouble when we remove
+>   the failed module.
 
-Tonight I updated the scripts so all filesystem types 
-will use the same partition.
-
-> We need to get Chris's patches into the tree
-
-> Can we ask you to test again with these patches applied?
-
-> ftp://ftp.suse.com/pub/people/mason/patches/data-logging
-
-If you have patches against a current tree, I can apply
-them before testing a kernel.  I'll start paying more
-attention to reiserfs-list.  It's probably best to test
-patches when the -rc series starts.  
-
-> AIM is a proprietary benchmark, yes?
-
-It's gpl.  i only running aim7 on ext2 atm.
-
-> If we send you a copy of reiser4
-> next month, would you be willing to give it a run?
-
-Will there be a choice of mounting reiserfs
-or reiser4?  (like ext2 or ext3), or will there
-be a complete departure?  
+No we are not.  The module remains in the 'stopped' state
+throughout the entire initialization process, as it should and
+does, in my model.
 
 -- 
-Randy Hron
-http://home.earthlink.net/~rwhron/kernel/bigbox.html
-
+Daniel

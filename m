@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310533AbSCLJrO>; Tue, 12 Mar 2002 04:47:14 -0500
+	id <S310534AbSCLJtZ>; Tue, 12 Mar 2002 04:49:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310534AbSCLJqz>; Tue, 12 Mar 2002 04:46:55 -0500
-Received: from twilight.cs.hut.fi ([130.233.40.5]:41705 "EHLO
+	id <S310536AbSCLJtP>; Tue, 12 Mar 2002 04:49:15 -0500
+Received: from twilight.cs.hut.fi ([130.233.40.5]:53993 "EHLO
 	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S310533AbSCLJqy>; Tue, 12 Mar 2002 04:46:54 -0500
-Date: Tue, 12 Mar 2002 11:46:42 +0200
+	id <S310534AbSCLJtF>; Tue, 12 Mar 2002 04:49:05 -0500
+Date: Tue, 12 Mar 2002 11:48:45 +0200
 From: Ville Herva <vherva@niksula.hut.fi>
-To: David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org
+To: Keith Owens <kaos@ocs.com.au>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: zlib vulnerability and modutils
-Message-ID: <20020312094642.GD128921@niksula.cs.hut.fi>
+Message-ID: <20020312094845.GE128921@niksula.cs.hut.fi>
 Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
-	David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020311234516.GC128921@niksula.cs.hut.fi> <4394.1015887380@kao2.melbourne.sgi.com> <14719.1015891493@redhat.com> <20020312000828.GB132950@niksula.cs.hut.fi>
+	Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
+In-Reply-To: <4394.1015887380@kao2.melbourne.sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020312000828.GB132950@niksula.cs.hut.fi>
+In-Reply-To: <4394.1015887380@kao2.melbourne.sgi.com>
 User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 12, 2002 at 02:08:28AM +0200, you [Ville Herva] wrote:
-> >
-> > It may be a little more intrusive than you wanted though.
+On Tue, Mar 12, 2002 at 09:56:20AM +1100, you [Keith Owens] wrote:
+> Content-Type: text/plain; charset=us-ascii
 > 
-> Quite possibly -- at least considering that some of the kernels I run are
-> still 2.2.x and even 2.0.x...
+> A double free vulnerability has been found in zlib which can be used in
+> a DoS or possibly in an exploit.  Distributions are now shipping
+> upgraded versions of zlib, installing the new version of zlib will fix
+> programs that use the shared library.
+> 
+> modutils has an option --enable-zlib which lets modprobe and insmod
+> read modules that have been compressed with gzip.  If you built your
+> modutils with --enable-zlib and are using insmod.static then you must
+> rebuild modutils after first upgrading zlib.  This only applies if
+> modutils was built with --enable-zlib (the default is not to use zlib)
+> and you also use static versions of modutils.
 
-I suppose this patch
+I'm propably missing something, but if you load untrusted kernel modules
+(compressed or not), isn't the zlib vulnerability least of your concerns?
 
-http://cvs.samba.org/cgi-bin/cvsweb/rsync/zlib/infblock.c.diff?r1=text&tr1=1.2&r2=text&tr2=1.6&f=u
-
-i closer to what I need. It seems most vendors have only patched ppp's zlib
-implementation (drivers/net/zlib.c). I couldn't find that particular patch
-in redhat update kernel .src.rpm, tough. I guess I'll have to apply the zlib
-diff by hand.
 
 
 -- v --

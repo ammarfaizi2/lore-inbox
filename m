@@ -1,54 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261540AbUJZTcP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261550AbUJZTez@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261540AbUJZTcP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 15:32:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261549AbUJZTcP
+	id S261550AbUJZTez (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 15:34:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261549AbUJZTey
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 15:32:15 -0400
-Received: from mail.dif.dk ([193.138.115.101]:49064 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S261540AbUJZTcH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 15:32:07 -0400
-Date: Tue, 26 Oct 2004 21:40:27 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: linux-usb-devel <linux-usb-devel@lists.sourceforge.net>,
-       Linux Kernel Trivial Patch Monkey <trivial@rustcorp.com.au>
-Subject: [PATCH][Doc][Trivial] Small fixups to the EHCI Kconfig help text
-Message-ID: <Pine.LNX.4.61.0410262137060.3277@dragon.hygekrogen.localhost>
+	Tue, 26 Oct 2004 15:34:54 -0400
+Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:64574 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S261555AbUJZTeo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 15:34:44 -0400
+Message-ID: <417EA679.1010207@microgate.com>
+Date: Tue, 26 Oct 2004 14:33:13 -0500
+From: Paul Fulghum <paulkf@microgate.com>
+User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Diego Calleja <diegocg@teleline.es>
+CC: hzhong@cisco.com, nigelenki@comcast.net, espenfjo@gmail.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: My thoughts on the "new development model"
+References: <417E7EE6.50900@comcast.net>	<014d01c4bb7d$0baba180$ca41cb3f@amer.cisco.com> <20041026205348.70b8a88f.diegocg@teleline.es>
+In-Reply-To: <20041026205348.70b8a88f.diegocg@teleline.es>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Diego Calleja wrote:
+> El Tue, 26 Oct 2004 09:58:41 -0700 "Hua Zhong" <hzhong@cisco.com> escribió:
+>>The fact is, these days nobody wants to be a stable-release maintainer
+>>anymore. It's boring.
+> 
+> I doubt it. People like Alan Cox or Marcello have done it in the past,
 
-Here's a small patch with a few tiny fixups for the EHCI Kconfig help 
-text. Please consider applying.
+...and probably suffer emotional scars from the process.
+Taming the patch stream must be like drinking from a fire hose
+while herding angry, computer literate cats.
+Wearing, but not boring.
 
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+In the words of Flipper: *squeeee* eh eh eh eh *squeeeee*
 
-diff -u linux-2.6.10-rc1-bk5-orig/drivers/usb/host/Kconfig linux-2.6.10-rc1-bk5/drivers/usb/host/Kconfig
---- linux-2.6.10-rc1-bk5-orig/drivers/usb/host/Kconfig	2004-10-26 20:02:04.000000000 +0200
-+++ linux-2.6.10-rc1-bk5/drivers/usb/host/Kconfig	2004-10-26 21:27:00.000000000 +0200
-@@ -29,14 +29,14 @@
- 	  The Enhanced Host Controller Interface (EHCI) is standard for USB 2.0
- 	  "high speed" (480 Mbit/sec, 60 Mbyte/sec) host controller hardware.
- 	  If your USB host controller supports USB 2.0, you will likely want to
--	  configure this Host Controller Driver.  At this writing, the primary
--	  implementation of EHCI is a chip from NEC, widely available in add-on
--	  PCI cards, but implementations are in the works from other vendors
--	  including Intel and Philips.  Motherboard support is appearing.
-+	  configure this Host Controller Driver.  At the time of this writing, 
-+	  the primary implementation of EHCI is a chip from NEC, widely available
-+	  in add-on PCI cards, but implementations are in the works from other 
-+	  vendors including Intel and Philips.  Motherboard support is appearing.
- 
- 	  EHCI controllers are packaged with "companion" host controllers (OHCI
- 	  or UHCI) to handle USB 1.1 devices connected to root hub ports.  Ports
--	  will connect to EHCI if it the device is high speed, otherwise they
-+	  will connect to EHCI if the device is high speed, otherwise they
- 	  connect to a companion controller.  If you configure EHCI, you should
- 	  probably configure the OHCI (for NEC and some other vendors) USB Host
- 	  Controller Driver or UHCI (for Via motherboards) Host Controller
+Translation:
+"Maintaining a kernel source tree is more vexatious than a tuna net."
 
-
+-- 
+Paul Fulghum
+paulkf@microgate.com

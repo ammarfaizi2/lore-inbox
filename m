@@ -1,30 +1,28 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262364AbTHUDGt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 23:06:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262376AbTHUDGt
+	id S262382AbTHUDJd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 23:09:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262388AbTHUDJd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 23:06:49 -0400
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:51179
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id S262364AbTHUDGs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 23:06:48 -0400
-Message-ID: <3F443708.1060800@redhat.com>
-Date: Wed, 20 Aug 2003 20:05:44 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030731 Thunderbird/0.2a
+	Wed, 20 Aug 2003 23:09:33 -0400
+Received: from 202-47-55-78.adsl.gil.com.au ([202.47.55.78]:23426 "HELO
+	longlandclan.hopto.org") by vger.kernel.org with SMTP
+	id S262382AbTHUDJb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Aug 2003 23:09:31 -0400
+Message-ID: <3F4437E7.2090307@longlandclan.hopto.org>
+Date: Thu, 21 Aug 2003 13:09:27 +1000
+From: Stuart Longland <stuartl@longlandclan.hopto.org>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4b) Gecko/20030507
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andries Brouwer <aebr@win.tue.nl>
-CC: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: NFS regression in 2.6
-References: <3F4268C1.9040608@redhat.com> <shszni499e9.fsf@charged.uio.no> <20030820192409.A2868@pclin040.win.tue.nl> <16195.49464.935754.526386@charged.uio.no> <20030820215246.B3065@pclin040.win.tue.nl>
-In-Reply-To: <20030820215246.B3065@pclin040.win.tue.nl>
-X-Enigmail-Version: 0.81.0.0
+To: Valdis.Kletnieks@vt.edu
+CC: bill davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
+Subject: Re: SCO's "proof"
+References: <3F422809.7080806@yahoo.com> <20030819145213.GC5582@gallifrey> <20030819150137.GA22521@gevaerts.be> <lt4r0du0t3.fsf@colina.demon.co.uk>            <bi0eij$f13$1@gatekeeper.tmr.com> <200308201846.h7KIk6uu013871@turing-police.cc.vt.edu>
+In-Reply-To: <200308201846.h7KIk6uu013871@turing-police.cc.vt.edu>
+X-Enigmail-Version: 0.75.0.0
 X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -32,23 +30,44 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-Andries Brouwer wrote:
+Valdis.Kletnieks@vt.edu wrote:
 
-> It should be. But it isnt. I propose the following patch
-> (with whitespace damage):
-> [...]
+| On Wed, 20 Aug 2003 18:27:31 -0000, davidsen@tmr.com (bill davidsen)
+said:
+|
+|>Colin Paul Adams  <colin@colina.demon.co.uk> wrote:
+|>| But Caldera are SCO now, aren't they? Are they going to sue themselves!?
+|>
+|>Thay should! Oh wait, you said sue, not shoot... nevermind.
+|
+|
+| Only in the foot.. only in the foot.. unfortunately.
 
-This indeed fixes the problem.  Thanks,
+This case is getting more rediculous with each day...lfmao
 
-- -- 
-- --------------.                        ,-.            444 Castro Street
-Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
-Red Hat         `--' drepper at redhat.com `---------------------------
+Oh dear, it seems that our /comments/ are alike.  Hrmm.  Pity the
+compiller doesn't take any notice of them, and therefore, I don't see
+the evidence that the /code/ has been stolen.  Also, as others have
+quite rightfully pointed out, it doesn't even compile -- syntax errors
+galore.
+
+Lets hope some people in the legal profession have some C knowledge --
+or at least have the sense to go directly to the kernel source on
+kernel.org rather than relying on what SCO provides.
+
+- --
++-------------------------------------------------------------+
+| Stuart Longland           stuartl at longlandclan.hopto.org |
+| Brisbane Mesh Node: 719             http://stuartl.cjb.net/ |
+| I haven't lost my mind - it's backed up on a tape somewhere |
+| Griffith Student No:           Course: Bachelor/IT (Nathan) |
++-------------------------------------------------------------+
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+Version: GnuPG v1.2.2 (MingW32)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
-iD8DBQE/RDcI2ijCOnn/RHQRAtBPAJ4j1oPL2DkdNwXQlH4+j2VxNppEowCgpKWM
-4tezLlkNQJzwvzsuwb3U0uY=
-=I0bD
+iD8DBQE/RDfnIGJk7gLSDPcRAraOAJ9IEfQg1EsVTPXXg83ffjounKBheQCdH6D3
+emz7olLrHtyrkSzR+kSS3Vk=
+=h6EB
 -----END PGP SIGNATURE-----
 

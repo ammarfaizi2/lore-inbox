@@ -1,49 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312003AbSCQKAc>; Sun, 17 Mar 2002 05:00:32 -0500
+	id <S288801AbSCQKaK>; Sun, 17 Mar 2002 05:30:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312002AbSCQKAW>; Sun, 17 Mar 2002 05:00:22 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:10732 "HELO
-	outpost.powerdns.com") by vger.kernel.org with SMTP
-	id <S312001AbSCQKAJ>; Sun, 17 Mar 2002 05:00:09 -0500
-Date: Sun, 17 Mar 2002 11:00:08 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: RFC2385 (MD5 signature in TCP packets) support
-Message-ID: <20020317110008.A21369@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020315223649.AAA27488@shell.webmaster.com@whenever> <20020315.145306.15914579.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020315.145306.15914579.davem@redhat.com>; from davem@redhat.com on Fri, Mar 15, 2002 at 10:57:11PM +0000
+	id <S288800AbSCQKaB>; Sun, 17 Mar 2002 05:30:01 -0500
+Received: from m1000.netcologne.de ([194.8.194.104]:14633 "EHLO
+	m1000.netcologne.de") by vger.kernel.org with ESMTP
+	id <S288921AbSCQK3t>; Sun, 17 Mar 2002 05:29:49 -0500
+Message-Id: <200203171028.ALV49936@m1000.netcologne.de>
+From: =?iso-8859-15?q?J=F6rg=20Prante?= <joergprante@gmx.de>
+Reply-To: joergprante@gmx.de
+Organization: Linux jungle 2.4.19-pre2-jp7 #1 Fre =?iso8859-15?q?M=E4r=208=2021=3A37=3A18=20CET=202002=20i686?= unknown
+To: mdharm-usb@one-eyed-alien.net
+Subject: [PATCH] LaCie USB CDRW
+Date: Sun, 17 Mar 2002 11:28:14 +0100
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+        linuxppc-user@lists.linuxppc.org
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_23546F8VOSQCVWI4XAB1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 15, 2002 at 10:57:11PM +0000, David S. Miller wrote:
-> 
-> There is no reason to not be doing this MD5 garbage in
-> userspace.  Whoever thought to do this in the protocol
-> itself was smoking something.
 
-I did a lot of this using an iptables module. Iptables lends itself very
-well to these kind of things. Toy code at http://ds9a.nl/sps/
+--------------Boundary-00=_23546F8VOSQCVWI4XAB1
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 8bit
 
-> Maybe I'm missing something, but I see no reason this MD5
-> stuff belongs in the protocol and not in the APP.
+Hi,
 
-Some of the idea is cool. You can give a host a 'key' and tell your packet
-filter to have it pass packets signed with that key. This way you can grant
-or disable access on a very low level without depending on IP addresses,
-which can be spoofed.
+here is a Linux Kernel USB definition of the LaCie USB CDRW burner. This 
+was missing from linux/drivers/usb/storage/unusual_devs.h, so the drive was 
+recognized by USB, but not properly installed by the USB SCSI emulation.
 
-Regards,
+I tested only reading yet, but I think writing works, too. Will be tested 
+soon. I have an old model of 1999 with USB 1, 2x/2x/4x, and no FireWire 
+Combo. The USB one is mainly used by Apple folks for CD burning, and will 
+make those people happy. Current model can be found at
 
-bert
+http://www.lacie.com/products/product.cfm?id=4A866A34-54C8-11D5-97C60090278D3ED0
 
--- 
-http://www.PowerDNS.com          Versatile DNS Software & Services
-http://www.tk                              the dot in .tk
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+This should be a fix to the LaCie USB burner trouble that has been reported 
+in September 2002 to linuxppc-user.
+
+http://www.geocrawler.com/mail/thread.php3?subject=Lacie+USB+Burner&list=2
+
+Cheers,
+
+Jörg
+ 
+--------------Boundary-00=_23546F8VOSQCVWI4XAB1
+Content-Type: text/x-diff;
+  charset="iso-8859-15";
+  name="usb-lacie-usb-cdrw.diff"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="usb-lacie-usb-cdrw.diff"
+
+LS0tIGxpbnV4L2RyaXZlcnMvdXNiL3N0b3JhZ2UvdW51c3VhbF9kZXZzLmgJTW9uIE1hciAxMSAx
+NToxNzozOCAyMDAyCisrKyBsaW51eC1sYWNpZS9kcml2ZXJzL3VzYi9zdG9yYWdlL3VudXN1YWxf
+ZGV2cy5oCVN1biBNYXIgMTcgMTA6NTY6MzcgMjAwMgpAQCAtMjUyLDYgKzI1MiwxMiBAQAogCQki
+VVNCIEhhcmQgRGlzayIsCiAJCVVTX1NDX1JCQywgVVNfUFJfQ0IsIE5VTEwsIDAgKSwgCiAKKy8q
+IFN1Ym1pdHRlZCBieSBK9nJnIFByYW50ZSA8am9lcmdAaW5mb2xpbnV4LmRlPiAqLworVU5VU1VB
+TF9ERVYoICAweDA1OWYsIDB4YTYwMiwgMHgwMjAwLCAweDAyMDAsIAorCQkiTGFDaWUiLAorCQki
+VVNCIE1hc3MgU1RPUkFHRSIsCisJCVVTX1NDX1NDU0ksIFVTX1BSX0NCLCBOVUxMLCAwICksIAor
+CiAjaWZkZWYgQ09ORklHX1VTQl9TVE9SQUdFX0lTRDIwMAogVU5VU1VBTF9ERVYoICAweDA1YWIs
+IDB4MDAzMSwgMHgwMTAwLCAweDAxMTAsCiAgICAgICAgICAgICAgICAgIkluLVN5c3RlbSIsCg==
+
+--------------Boundary-00=_23546F8VOSQCVWI4XAB1--

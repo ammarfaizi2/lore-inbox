@@ -1,57 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132737AbRDXDlw>; Mon, 23 Apr 2001 23:41:52 -0400
+	id <S132738AbRDXD57>; Mon, 23 Apr 2001 23:57:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132738AbRDXDlm>; Mon, 23 Apr 2001 23:41:42 -0400
-Received: from gear.torque.net ([204.138.244.1]:58378 "EHLO gear.torque.net")
-	by vger.kernel.org with ESMTP id <S132737AbRDXDld>;
-	Mon, 23 Apr 2001 23:41:33 -0400
-Message-ID: <3AE4F3D2.6ACA810D@torque.net>
-Date: Mon, 23 Apr 2001 23:32:34 -0400
-From: Douglas Gilbert <dougg@torque.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-ac11 i586)
-X-Accept-Language: en
+	id <S132811AbRDXD5u>; Mon, 23 Apr 2001 23:57:50 -0400
+Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:43250 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S132738AbRDXD5i>; Mon, 23 Apr 2001 23:57:38 -0400
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200104240356.f3O3ujbI002673@webber.adilger.int>
+Subject: Re: hundreds of mount --bind mountpoints?
+In-Reply-To: <01042320160100.01338@oscar> "from Ed Tomlinson at Apr 23, 2001
+ 08:16:01 pm"
+To: Ed Tomlinson <tomlins@cam.org>
+Date: Mon, 23 Apr 2001 21:56:45 -0600 (MDT)
+CC: linux-kernel@vger.kernel.org, Andreas Dilger <adilger@turbolinux.com>
+X-Mailer: ELM [version 2.4ME+ PL87 (25)]
 MIME-Version: 1.0
-To: Matt_Domsch@Dell.com
-CC: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk, jlundell@pobox.com
-Subject: Re: [RFC][PATCH] adding PCI bus information to SCSI layer
-In-Reply-To: <CDF99E351003D311A8B0009027457F140810E265@ausxmrr501.us.dell.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt_Domsch@Dell.com wrote:
+Ed Tomlinson writes:
+> > Consider, when I was doing some fs benchmark, my inode slab cache was
+> > over 120k items on a 128MB machine.  At 480 butes per inode, this is
+> > almost 58 MB, close to half of RAM.  Reducing this to exactly ext2
+> > sized inodes would save (50 - 27) * 4 * 120k = 11MB of memory (on 32-bit
+> > systems)!!! (This assumes nfs_inode_info is the largest).
 > 
-> [snip]
-> 
-> Doug suggested looking at extending scsimon.  This is a fine idea, and I've
-> made proposed changes available at http://domsch.com/linux/scsi/.  (Doug may
-> want to clean this up).  However, this, like my earlier changes to
-> /proc/scsi/scsi, doesn't actually show the relationship between /dev/sda and
-> a particular PCI controller and SCSI channel,bus,lun tuple.
+> Was this with a recient kernel (post Alexander Viro's dcache pressure fix)?  
+> If not I suggest rerunning the benchmark.  I had/have a patch to apply
+> pressure to the dcache and icache from kswapd but its not been needed here
+> since the above fix.
 
-Changes look ok. One suggestion: if a #define SCSI_PCI_INFO
-(or some such) is defined in driver/scsi/scsi.h as part of
-the patch then code like Matt is suggesting can be safely 
-added, protected by "#ifdef SCSI_PCI_INFO ... #endif" blocks. 
-I have used this technique in sg to support the scsi 
-"reset+reservation" patch which still hasn't made it into 
-the mid level (but is available in many distros).
+Actually, it had the dcache patch but I'm not aware of a patch from Al to
+change icache behaviour.  In any case, changing the icache behaviour is
+not what I'm getting at here - having the union of all private inode
+structs in the generic inode is a huge waste of RAM.  Even for filesystems
+that are heavy NFS users, they will likely still have a considerable amount
+of local filesystem space (excluding NFS root systems, which are very few).
 
-The scsimon driver is just a window through to the information
-held in the mid level structures. The information printed by
-'cat /proc/scsi/scsi' also comes from the mid level. The scsi 
-minor device numbers (e.g. /dev/sda) are allocated by each upper 
-level driver  (e.g. sd_attach() in the case of sd) and are held 
-in upper level driver data structures. Hence they are not 
-visible to the mid-level or to other upper level drivers.
+Al posted a patch to the NFS code which removes nfs_inode_info from the
+inode union.  Since it is (AFAIK) the largest member of the union, we
+have just saved 24 bytes per inode (hfs_inode_info is also rather large).
+If we removed hfs_inode_info as well, we would save 108 bytes per inode,
+about 22% ({ext2,affs,ufs}_inode_info are all about the same size).
 
-As an example of the latter point, using st and sg on the same 
-tape device at the same time will most likely confuse st 
-(since it maintains a state machine). However there is no 
-simple way for the sg or st drivers to detect (or supply
-information flagging) this conflict.
+No point in punishing all users for filesystems they don't necessarily use.
+Even for people that DO use NFS and/or HFS, they are probably still wasting
+10k inodes * 108 bytes = 1MB of RAM for no good reason (because most of
+their inodes are probably not NFS and/or HFS).
 
-Doug Gilbert
-
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

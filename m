@@ -1,181 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318761AbSG0ODC>; Sat, 27 Jul 2002 10:03:02 -0400
+	id <S318765AbSG0OUV>; Sat, 27 Jul 2002 10:20:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318762AbSG0ODC>; Sat, 27 Jul 2002 10:03:02 -0400
-Received: from post-20.mail.nl.demon.net ([194.159.73.1]:51436 "EHLO
-	post-20.mail.nl.demon.net") by vger.kernel.org with ESMTP
-	id <S318761AbSG0ODA>; Sat, 27 Jul 2002 10:03:00 -0400
-Subject: kfree causes oops
-From: Ronald Bultje <rbultje@ronald.bitfreak.net>
+	id <S318766AbSG0OUV>; Sat, 27 Jul 2002 10:20:21 -0400
+Received: from holomorphy.com ([66.224.33.161]:7331 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S318765AbSG0OUU>;
+	Sat, 27 Jul 2002 10:20:20 -0400
+Date: Sat, 27 Jul 2002 07:23:29 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
 To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 27 Jul 2002 16:08:10 +0200
-Message-Id: <1027778913.3265.56.camel@bultje.demon.nl>
+Subject: [BUG] 2.5.29 serial oops
+Message-ID: <20020727142329.GF2907@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-I'm trying to make some small changes to a driver and am currently
-facing a small problem. The driver used to allocate memory when the
-module is loaded and deallocate it when the driver is unloaded. I'm
-trying to make it only allocate the memory now when it actually needs
-it.
-
-For this, I use kmalloc() because it needs contiguous (physically)
-memory. This works for the first try, but it always causes an oops on
-the second try. dmesg log for the second try looks like this:
-
-DC10plus[0]: ioctl VIDIOCGCAP
-DC10plus[0]: ioctl VIDIOCGWIN
-DC10plus[0]: ioctl VIDIOCGMBUF
-DC10plus[0]: V4L frame 0 mem 0xc1780000 (bus: 0x1780000)
-DC10plus[0]: V4L frame 1 mem 0xc17a0000 (bus: 0x17a0000)
-DC10plus[0]: mmap(V4L) of 404c6000-40506000 (size=262144)
-DC10plus[0]: ioctl VIDIOCMCAPTURE frame=0 geom=160x120 fmt=7
-DC10plus[0]: width = 160, height = 120
-DC10plus[0]: ioctl VIDIOCMCAPTURE frame=1 geom=160x120 fmt=7
-DC10plus[0]: ioctl VIDIOCSYNC 0
-DC10plus[0]: ioctl VIDIOCMCAPTURE frame=0 geom=160x120 fmt=7
-DC10plus[0]: ioctl VIDIOCSYNC 1
-[.. it does this a lot of times - queue and sync on buffer ..]
-DC10plus[0]: ioctl VIDIOCSYNC 0
-DC10plus[0]: munmap(V4L)
-DC10plus[0]: kfree v4l-buffer 0xc1780000
-divide error: 0000
-CPU:    0
-EIP:    0010:[<c012a567>]    Not tainted
-EFLAGS: 00210002
-eax: 00626680   ebx: 00626680   ecx: c027fb20   edx: 00000000
-esi: c1292140   edi: 00200286   ebp: 00000000   esp: cea75e6c
-ds: 0018   es: 0018   ss: 0018
-Process lt-gst-launch (pid: 7893, stackpage=cea75000)
-Stack: 00000000 ca52c000 0000000e 00000030 d38dd3d9 c1780000 d38e4160
-d38e721e 
-       c1780000 d38e7120 c56015c0 00040000 ce196be0 404c6000 c012436f
-cef57320 
-       c5601380 000001ff 00000000 c01057f0 cd034000 ce196be0 cea74000
-00000002 
-Call Trace: [<d38dd3d9>] [<d38e4160>] [<d38e721e>] [<d38e7120>]
-[<c012436f>] 
-   [<c01057f0>] [<c0114a79>] [<c01189e4>] [<c011d653>] [<c011d70d>]
-[<c0106ba4>] 
-   [<c013ead2>] [<c0106d30>] 
-
-Code: f7 76 18 89 c3 8b 41 14 89 44 99 18 89 59 14 8b 51 10 8d 42 
-
-ksymoops gives the following trace:
+This appears to be nondeterministic in nature:
 
 Reading Oops report from the terminal
-CPU:    0
-EIP:    0010:[<c012a567>]    Not tainted
+Unable to handle kernel paging request at virtual address ffffff8a
+c01a0f4a      
+*pde = 00000000
+Oops: 0000     
+CPU:    3 
+EIP:    0010:[<c01a0f4a>]    Not tainted
 Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00210002
-eax: 00626680   ebx: 00626680   ecx: c027fb20   edx: 00000000
-esi: c1292140   edi: 00200286   ebp: 00000000   esp: cea75e6c
-ds: 0018   es: 0018   ss: 0018
-Process lt-gst-launch (pid: 7893, stackpage=cea75000)
-Stack: 00000000 ca52c000 0000000e 00000030 d38dd3d9 c1780000 d38e4160
-d38e721e 
-       c1780000 d38e7120 c56015c0 00040000 ce196be0 404c6000 c012436f
-cef57320 
-       c5601380 000001ff 00000000 c01057f0 cd034000 ce196be0 cea74000
-00000002 
-Call Trace: [<d38dd3d9>] [<d38e4160>] [<d38e721e>] [<d38e7120>]
-[<c012436f>] 
-   [<c01057f0>] [<c0114a79>] [<c01189e4>] [<c011d653>] [<c011d70d>]
-[<c0106ba4>] 
-   [<c013ead2>] [<c0106d30>] 
-Code: f7 76 18 89 c3 8b 41 14 89 44 99 18 89 59 14 8b 51 10 8d 42
+EFLAGS: 00010246                        
+eax: c039a6f0   ebx: ffffff70   ecx: 00000003   edx: 00000002
+esi: 00000000   edi: 00000000   ebp: c039a6f0   esp: cc0e1f04
+ds: 0018   es: 0018   ss: 0018                               
+Stack: ffffff70 00000000 c01a1e46 ffffff70 00000002 f79873c0 00000001 00000004 
+       cc0e1f80 00000000 c039a6f0 00000018 c0109155 00000004 c039a6f0 cc0e1f80 
+       c0323880 c0323890 c0323890 cc0e1f78 c01093df 00000004 cc0e1f80 f79873c0 
+Call Trace: [<c01a1e46>] [<c0109155>] [<c01093df>] [<c0105360>] [<c0107cf0>]   
+   [<c0105360>] [<c0105389>] [<c0105413>] [<c011829b>] [<c0118119>]          
+Code: 0f b6 4b 1a d3 e2 0f b6 43 1b 83 f8 01 74 07 83 f8 02 74 39 
 
->>EIP; c012a567 <kfree+37/a0>   <=====
-Trace; d38dd3d9 <[zoran]v4l_fbuffer_free+a9/e0>
-Trace; d38e4160 <[zoran]ZORAN_FORMATS+1a8/2788>
-Trace; d38e721e <[zoran]__module_author+e/19>
-Trace; d38e7120 <[zoran]zoran+0/c>
-Trace; c012436f <exit_mmap+6f/120>
-Trace; c01057f0 <__switch_to+20/e0>
-Trace; c0114a79 <mmput+39/60>
-Trace; c01189e4 <do_exit+84/1b0>
-Trace; c011d653 <collect_signal+93/e0>
-Trace; c011d70d <dequeue_signal+6d/b0>
-Trace; c0106ba4 <do_signal+234/29c>
-Trace; c013ead2 <sys_select+472/480>
-Trace; c0106d30 <signal_return+14/18>
-Code;  c012a567 <kfree+37/a0>
+
+>>EIP; c01a0f4a <serial_in+a/84>   <=====
+
+>>eax; c039a6f0 <irq_lists+30/a80>
+>>ebx; ffffff70 <END_OF_CODE+3fc3aaec/????>
+>>ebp; c039a6f0 <irq_lists+30/a80>
+>>esp; cc0e1f04 <END_OF_CODE+bd1ca80/????>
+
+Trace; c01a1e46 <serial8250_interrupt+5a/15c>
+Trace; c0109155 <handle_IRQ_event+29/4c>
+Trace; c01093df <do_IRQ+df/190>
+Trace; c0105360 <default_idle+0/34>
+Trace; c0107cf0 <common_interrupt+18/20>
+Trace; c0105360 <default_idle+0/34>
+Trace; c0105389 <default_idle+29/34>
+Trace; c0105413 <cpu_idle+37/48>
+Trace; c011829b <release_console_sem+10b/118>
+Trace; c0118119 <printk+185/1c4>
+
+Code;  c01a0f4a <serial_in+a/84>
 00000000 <_EIP>:
-Code;  c012a567 <kfree+37/a0>   <=====
-   0:   f7 76 18                  div    0x18(%esi),%eax   <=====
-Code;  c012a56a <kfree+3a/a0>
-   3:   89 c3                     mov    %eax,%ebx
-Code;  c012a56c <kfree+3c/a0>
-   5:   8b 41 14                  mov    0x14(%ecx),%eax
-Code;  c012a56f <kfree+3f/a0>
-   8:   89 44 99 18               mov    %eax,0x18(%ecx,%ebx,4)
-Code;  c012a573 <kfree+43/a0>
-   c:   89 59 14                  mov    %ebx,0x14(%ecx)
-Code;  c012a576 <kfree+46/a0>
-   f:   8b 51 10                  mov    0x10(%ecx),%edx
-Code;  c012a579 <kfree+49/a0>
-  12:   8d 42 00                  lea    0x0(%edx),%eax
+Code;  c01a0f4a <serial_in+a/84>   <=====
+   0:   0f b6 4b 1a               movzbl 0x1a(%ebx),%ecx   <=====
+Code;  c01a0f4e <serial_in+e/84>
+   4:   d3 e2                     shl    %cl,%edx
+Code;  c01a0f50 <serial_in+10/84>
+   6:   0f b6 43 1b               movzbl 0x1b(%ebx),%eax
+Code;  c01a0f54 <serial_in+14/84>
+   a:   83 f8 01                  cmp    $0x1,%eax
+Code;  c01a0f57 <serial_in+17/84>
+   d:   74 07                     je     16 <_EIP+0x16> c01a0f60 <serial_in+20/84>
+Code;  c01a0f59 <serial_in+19/84>
+   f:   83 f8 02                  cmp    $0x2,%eax
+Code;  c01a0f5c <serial_in+1c/84>
+  12:   74 39                     je     4d <_EIP+0x4d> c01a0f97 <serial_in+57/84>
 
-So it seems to oops somewhere inside kfree(), which doesn't seem good to
-me. ;-). The weird thing is that it only oopses on the second try, never
-on the first. So the first time, I kmalloc() some memory, I get it
-(addresses are 0xc1780000 and 0xc17a0000), use it (meaning that the
-user-application mmap()'s it, the driver uses remap_page_range() for
-this, and then the card uses this memory for grabbing video frames, then
-the memory is munmap()'ed), kfree() it, then kmalloc() the same amount
-of memory (same addresses, again 0xc1780000 and 0x17a0000), use it,
-kfree() it -> oops.
-
-Relevant code bits of the driver are here:
-
-memory allocation (v4l_fbuffer_alloc()):
-[..]
-unsigned char *mem;
-mem = (unsigned char *) kmalloc(fh->v4l_buffers.buffer_size,
-GFP_KERNEL);
-if (mem == 0) {
-	printk(KERN_ERR "%s: kmalloc for V4L bufs failed\n", zr->name);
-	v4l_fbuffer_free(file);
-	return -ENOBUFS;
-}
-fh->v4l_buffers.buffer[i].fbuffer = mem;
-fh->v4l_buffers.buffer[i].fbuffer_phys = virt_to_phys(mem);
-fh->v4l_buffers.buffer[i].fbuffer_bus = virt_to_bus(mem);
-for (off = 0; off < fh->v4l_buffers.buffer_size; off += PAGE_SIZE)
-	mem_map_reserve(MAP_NR(mem + off));
-DEBUG1(printk(KERN_INFO "%s: V4L frame %d mem 0x%lx (bus: 0x%lx)\n",
-	zr->name, i, (unsigned long) mem, virt_to_bus(mem)));
-[..]
-
-memory deallocation (v4l_fbuffer_free()):
-[..]
-if (!fh->v4l_buffers.buffer[i].fbuffer)
-	continue;
-if (fh->v4l_buffers.buffer_size <= MAX_KMALLOC_MEM) {
-	mem = fh->v4l_buffers.buffer[i].fbuffer;
-	for (off = 0; off < fh->v4l_buffers.buffer_size; off += PAGE_SIZE)
-		mem_map_unreserve(MAP_NR(mem + off));
-	DEBUG1(printk(KERN_INFO "%s: kfree v4l-buffer 0x%lx\n",
-		zr->name, (unsigned long) fh->v4l_buffers.buffer[i].fbuffer));
-	kfree((void *) fh->v4l_buffers.buffer[i].fbuffer);
-}
-fh->v4l_buffers.buffer[i].fbuffer = NULL;
-[..]
-
-I'm using kernel 2.4.18 with SGI's XFS patch and some of Gerd Knorr's
-patches for the new videodev subsystem and video4linux2 support
-(http://bytesex.org/patches/). System is RedHat-7.0, with gcc-2.96-85
-and glibc-2.2-12 (update RPMs from redhat.com).
-
-Does anyone have a clue what I might be doing wrong here? Thanks for any
-input (please CC any reply to me, I'm not subscribed),
-
-Ronald
-
+ <0>Kernel panic: Aiee, killing interrupt handler!                

@@ -1,36 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317935AbSHCWsT>; Sat, 3 Aug 2002 18:48:19 -0400
+	id <S318017AbSHCWuM>; Sat, 3 Aug 2002 18:50:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318024AbSHCWsT>; Sat, 3 Aug 2002 18:48:19 -0400
-Received: from pop015pub.verizon.net ([206.46.170.172]:32967 "EHLO
-	pop015.verizon.net") by vger.kernel.org with ESMTP
-	id <S317935AbSHCWsS>; Sat, 3 Aug 2002 18:48:18 -0400
-Message-Id: <200208032300.g73N0Pix000183@pool-141-150-241-241.delv.east.verizon.net>
-Date: Sat, 3 Aug 2002 19:00:21 -0400
-From: Skip Ford <skip.ford@verizon.net>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.30 LILO FreeBSD partition problems
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S318034AbSHCWuM>; Sat, 3 Aug 2002 18:50:12 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:8438 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id <S318017AbSHCWuL>; Sat, 3 Aug 2002 18:50:11 -0400
+Date: Sun, 4 Aug 2002 00:53:33 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Pawel Kot <pkot@linuxnews.pl>, Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Andre Hedrick <andre@linux-ide.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: No Subject
+In-Reply-To: <1028417880.1760.52.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.SOL.4.30.0208040049140.696-100000@mion.elka.pw.edu.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While running 2.5.30 I receive this error when running LILO with a
-FreeBSD partition in lilo.conf
 
-  Device 0x0300: Invalid partition table, 3rd entry
-    3D address:     1/0/530 (534240)
-    Linear address: 1/14/8446 (8514450)
+On 4 Aug 2002, Alan Cox wrote:
 
-I removed the fbsd entry and LILO had no problems.  I then booted
-to 2.4 and readded the fbsd partition and it installed fine.
+> On Sat, 2002-08-03 at 23:16, Bartlomiej Zolnierkiewicz wrote:
+> > Just rethough it. What if chipset is in compatibility mode?
+> > Like VIA with base addresses set to 0?
+>
+> If we found a register that was marked as unassigned with a size then we
+> would map it to a PCI address. That would go for BAR0-3 on any PCI IDE
+> device attached to the south bridge.
+>
+> What problems does that cause for the VIA stuff ?
 
-The problem seems similar to what Ingo reported for 2.5.29 however on my
-system the only problem is the freebsd partition.  Also, 2.5.29 worked
-fine for me.
+In compatibility mode IDE chipsets have IO at legacy ISA ports and
+PCI_BASE_ADDRESS0-3 are set to them or to zero (at least on VIA).
+And they can't be programmed to any other ports (unless native mode).
 
--- 
-Skip
+I am just asking if it can cause some problems.
+
+--
+Bartlomiej
+

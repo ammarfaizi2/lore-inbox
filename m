@@ -1,60 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261619AbVCWPQz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262681AbVCWPSw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261619AbVCWPQz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 10:16:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262621AbVCWPQy
+	id S262681AbVCWPSw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 10:18:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261624AbVCWPSw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 10:16:54 -0500
-Received: from stat16.steeleye.com ([209.192.50.48]:50816 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261619AbVCWPQu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 10:16:50 -0500
-Subject: Re: [PATCH scsi-misc-2.6 04/08] scsi: remove meaningless volatile
-	qualifiers from structure definitions
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Tejun Heo <htejun@gmail.com>, Jens Axboe <axboe@suse.de>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <4240EEFF.8030703@pobox.com>
-References: <20050323021335.960F95F8@htj.dyndns.org>
-	 <20050323021335.2655518E@htj.dyndns.org>
-	 <1111551327.5520.99.camel@mulgrave>  <4240EEFF.8030703@pobox.com>
+	Wed, 23 Mar 2005 10:18:52 -0500
+Received: from smtp-out.tiscali.no ([213.142.64.144]:54790 "EHLO
+	smtp-out.tiscali.no") by vger.kernel.org with ESMTP id S262683AbVCWPSt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 10:18:49 -0500
+Subject: Re: forkbombing Linux distributions
+From: Natanael Copa <mlists@tanael.org>
+To: Max Kellermann <max@duempel.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050323145204.GA23661@roonstrasse.net>
+References: <e0716e9f05032019064c7b1cec@mail.gmail.com>
+	 <20050322112628.GA18256@roll>
+	 <Pine.LNX.4.61.0503221247450.5858@yvahk01.tjqt.qr>
+	 <20050323135317.GA22959@roonstrasse.net> <1111587814.27969.86.camel@nc>
+	 <20050323142753.GA23454@roonstrasse.net> <1111589098.27969.100.camel@nc>
+	 <20050323145204.GA23661@roonstrasse.net>
 Content-Type: text/plain
-Date: Wed, 23 Mar 2005 09:16:40 -0600
-Message-Id: <1111591000.5441.14.camel@mulgrave>
+Date: Wed, 23 Mar 2005 16:18:47 +0100
+Message-Id: <1111591127.27969.121.camel@nc>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-1) 
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-03-22 at 23:22 -0500, Jeff Garzik wrote:
-> volatile is almost always (a) buggy, or (b) hiding bugs.  At the very 
-> least, barriers are usually needed.
+On Wed, 2005-03-23 at 15:52 +0100, Max Kellermann wrote:
 
-The choice is either barrier or volatile usually.  volatile is nasty
-primarily because it causes compiler pessimism in variable reloading.
+> You see, RLIMIT_CPU is worthless in its current implementation.
 
-> Almost every case really wants to be inside a spinlock, or atomic_t, or 
-> similarly protected.
+You are right. Limiting CPU is probably not a good solution anyway.
 
-I know that's what I'm asking if an audit has been conducted for...to
-replace the volatile, accesses have to be barrier protected.
+http://marc.theaimsgroup.com/?l=linux-kernel&m=105808941823955&w=2
 
-> Specifically for SATA, I am making the presumption that SCSI is smart 
-> enough not to mess with host_failed until my error handler completes.
-
-Yes, that's a valid assumption ... and by the single threaded nature of
-the error handler, always true.  However, the proposed patch wanted to
-add a spinlock around the access in the scsi eh thread (the comment
-stating for clarity).  Thus, the same change should be made in SATA for
-consistency.
-
-Since that change isn't in the patch, I was asking if all the users of
-these variables had been audited for barriers instead ... since the
-answer looks to be "no" to me.
-
-James
+--
+Natanael Copa
 
 

@@ -1,36 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289049AbSAZKNu>; Sat, 26 Jan 2002 05:13:50 -0500
+	id <S289050AbSAZKYV>; Sat, 26 Jan 2002 05:24:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289050AbSAZKNk>; Sat, 26 Jan 2002 05:13:40 -0500
-Received: from smtp3.libero.it ([193.70.192.53]:16809 "EHLO smtp3.libero.it")
-	by vger.kernel.org with ESMTP id <S289049AbSAZKNe>;
-	Sat, 26 Jan 2002 05:13:34 -0500
-From: Andrea Ferraris <andrea_ferraris@libero.it>
-Reply-To: andrea_ferraris@libero.it
-Date: Sat, 26 Jan 2002 11:11:50 +0100
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain;
-  charset="us-ascii"
+	id <S274862AbSAZKYK>; Sat, 26 Jan 2002 05:24:10 -0500
+Received: from tapu.cryptoapps.com ([63.108.153.39]:44985 "EHLO tapu.f00f.org")
+	by vger.kernel.org with ESMTP id <S289050AbSAZKX5>;
+	Sat, 26 Jan 2002 05:23:57 -0500
+Date: Sat, 26 Jan 2002 02:22:53 -0800
+From: Chris Wedgwood <cw@f00f.org>
+To: "H. Peter Anvin" <hpa@zytor.com>
 Cc: linux-kernel@vger.kernel.org
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-In-Reply-To: <20020125180149.GB45738@compsoc.man.ac.uk> <0201252332430B.01074@af> <3C51E36B.6296299D@mandrakesoft.com>
-In-Reply-To: <3C51E36B.6296299D@mandrakesoft.com>
-Subject: Re: eth0: NULL pointer encountered in RX ring, skipping
-MIME-Version: 1.0
-Message-Id: <0201261111500C.01074@af>
-Content-Transfer-Encoding: 8bit
+Subject: Re: RFC: booleans and the kernel
+Message-ID: <20020126102253.GD4276@tapu.f00f.org>
+In-Reply-To: <3C5047A2.1AB65595@mandrakesoft.com> <20020124223325.GA886@tapu.f00f.org> <a2q2oj$jk$1@cesium.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <a2q2oj$jk$1@cesium.transmeta.com>
+User-Agent: Mutt/1.3.26i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Friday 25 January 2002 23:59, Jeff Garzik scrisse:
-> Well, the code says "this should never happen" ;-)
->
-> But anyway, it is probably a temporary memory allocation failure.  The
-> code handles this case.
+On Thu, Jan 24, 2002 at 02:44:35PM -0800, H. Peter Anvin wrote:
 
-Yes, but I think that isn't normal to have to do a cold reboot to have the 
-machine again working on the network. It is, maybe that the code doesn't 
-handle so well this case. Do you suggest a kernel upgrade?
+    Try inserting a compilation unit or other hard optimization
+    boundary.
 
-Andrea
+Can you provide and example please?
+
+My trivial test comparing "int i, if (i)" verses "bool t, if (t)"
+shows the exact same code is produced --- what should I be looking at
+here?
+
+
+
+
+  --cw
+

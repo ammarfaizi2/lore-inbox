@@ -1,49 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266871AbUIORGl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266864AbUIORIp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266871AbUIORGl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 13:06:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266674AbUIOREi
+	id S266864AbUIORIp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 13:08:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266626AbUIORIp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 13:04:38 -0400
-Received: from convulsion.choralone.org ([212.13.208.157]:39178 "EHLO
-	convulsion.choralone.org") by vger.kernel.org with ESMTP
-	id S266646AbUIORAT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 13:00:19 -0400
-Date: Wed, 15 Sep 2004 17:59:33 +0100
-From: Dave Jones <davej@redhat.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Ricky Beam <jfbeam@bluetronic.net>,
-       Zilvinas Valinskas <zilvinas@gemtek.lt>,
+	Wed, 15 Sep 2004 13:08:45 -0400
+Received: from sweetums.bluetronic.net ([24.199.150.42]:29899 "EHLO
+	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
+	id S266845AbUIORBr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 13:01:47 -0400
+Date: Wed, 15 Sep 2004 12:58:57 -0400 (EDT)
+From: Ricky Beam <jfbeam@bluetronic.net>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: Lee Revell <rlrevell@joe-job.com>, Zilvinas Valinskas <zilvinas@gemtek.lt>,
        Erik Tews <erik@debian.franken.de>,
        linux-kernel mailing list <linux-kernel@vger.kernel.org>
 Subject: Re: 2.6.9 rc2 freezing
-Message-ID: <20040915165933.GD24892@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Lee Revell <rlrevell@joe-job.com>, Jeff Garzik <jgarzik@pobox.com>,
-	Ricky Beam <jfbeam@bluetronic.net>,
-	Zilvinas Valinskas <zilvinas@gemtek.lt>,
-	Erik Tews <erik@debian.franken.de>,
-	linux-kernel mailing list <linux-kernel@vger.kernel.org>
-References: <Pine.GSO.4.33.0409151047560.10693-100000@sweetums.bluetronic.net> <1095263296.2406.141.camel@krustophenia.net> <41486691.3080202@pobox.com> <1095264408.2406.148.camel@krustophenia.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1095264408.2406.148.camel@krustophenia.net>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <414869AB.5070307@pobox.com>
+Message-ID: <Pine.GSO.4.33.0409151255240.10693-100000@sweetums.bluetronic.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 15, 2004 at 12:06:48PM -0400, Lee Revell wrote:
+On Wed, 15 Sep 2004, Jeff Garzik wrote:
+>Lee Revell wrote:
+>> Anyway, if you are running anything on your server that breaks under
+>> PREEMPT, it will break anyway as soon as you add another processor.
+>
+>Incorrect.  The spinlock behavior is very different.
 
- > Anyway, if you are running anything on your server that breaks under
- > PREEMPT, it will break anyway as soon as you add another processor.
+Indeed.  Enable PREEMPT (my default for some time now) and the machine
+will lockup after spewing pages of scheduling while atomic's.  Disable
+PREEMPT and the machine is stable again:
 
-Wrong. Code can be SMP safe but not preempt safe.
-This is why we have get_cpu()/put_cpu(), and
-preempt_disable()/preempt_enable() pairs around certain parts of code.
+[jfbeam:pts/2{2}]gir:~/[12:55pm]:uname -a
+Linux gir 2.6.9-SMP-rc2+BK@1.1455 #71 SMP BK[20040914173940] Tue Sep 14 16:14:33 EDT 2004 i686 athlon i386 GNU/Linux
+[jfbeam:pts/2{2}]gir:~/[12:55pm]:uptime
+ 12:55pm  up 19:54,  2 users,  load average: 0.01, 0.02, 0.00
+[jfbeam:pts/2{2}]gir:~/[12:55pm]:grep ^proc /proc/cpuinfo
+processor       : 0
+processor       : 1
 
-Anything using per-CPU data like MSRs for example needs explicit
-protection against preemption.
+--Ricky
 
-		Dave
 

@@ -1,72 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261733AbUANKYu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 05:24:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265113AbUANKYu
+	id S265558AbUANK2M (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 05:28:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265461AbUANK2M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 05:24:50 -0500
-Received: from natsmtp00.rzone.de ([81.169.145.165]:52885 "EHLO
-	natsmtp00.webmailer.de") by vger.kernel.org with ESMTP
-	id S261733AbUANKYt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 05:24:49 -0500
-Date: Wed, 14 Jan 2004 11:24:25 +0100
-From: Dominik Brodowski <linux@dominikbrodowski.de>
-To: paul.devriendt@amd.com
-Cc: pavel@ucw.cz, davej@redhat.com, mark.langsdorf@amd.com,
-       cpufreq@www.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: Cleanups for powernow-k8
-Message-ID: <20040114102425.GA16995@dominikbrodowski.de>
-Mail-Followup-To: paul.devriendt@amd.com, pavel@ucw.cz,
-	davej@redhat.com, mark.langsdorf@amd.com, cpufreq@www.linux.org.uk,
-	linux-kernel@vger.kernel.org
-References: <99F2150714F93F448942F9A9F112634C080EF398@txexmtae.amd.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="bg08WKrSYDhXBjb5"
-Content-Disposition: inline
-In-Reply-To: <99F2150714F93F448942F9A9F112634C080EF398@txexmtae.amd.com>
-User-Agent: Mutt/1.5.5.1i
+	Wed, 14 Jan 2004 05:28:12 -0500
+Received: from denise.shiny.it ([194.20.232.1]:37031 "EHLO denise.shiny.it")
+	by vger.kernel.org with ESMTP id S265439AbUANK1y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jan 2004 05:27:54 -0500
+Date: Wed, 14 Jan 2004 11:27:51 +0100 (CET)
+From: Giuliano Pochini <pochini@denise.shiny.it>
+To: Haakon Riiser <hakonrk@ulrik.uio.no>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Busy-wait delay in qmail 1.03 after upgrading to Linux 2.6
+In-Reply-To: <20040113234611.GA558@s.chello.no>
+Message-ID: <Pine.LNX.4.58.0401141123460.25000@denise.shiny.it>
+References: <20040113210923.GA955@s.chello.no> <20040113135152.3ed26b85.akpm@osdl.org>
+ <20040113232624.GA302@s.chello.no> <20040113234611.GA558@s.chello.no>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---bg08WKrSYDhXBjb5
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jan 13, 2004 at 08:49:28PM -0600, paul.devriendt@amd.com wrote:
-> hardware. Dominik sent me some great patches to use the cpufreq table sup=
-port=20
-> and remove some redundant code - let me know if you do not have them and
-> want me to forward them. They work great.
+On Wed, 14 Jan 2004, Haakon Riiser wrote:
+> For example, another problem I encountered while
+> upgrading to 2.6 was that disk intensive jobs, such as updating
+> the slocate database, made ascpu report 100% CPU usage.  I just
+> ran top (procps 2.0.16) beside it, and it reported approximately
+> 10% CPU usage, which is no more than 2.4 used.
 
-I've rediffed them for 2.6.1 and put them here:
+It makes sense, since HZ is 10 times higher in 2.6. Did you
+recompile ascpu ? Check if ascpu assumes HZ is 100. In that
+case it may overstimate the cpu time by a factor 10.
 
-http://www.brodo.de/patches/2004_01_14/powernow-k8-2.6.1-freq_table_1
 
-http://www.brodo.de/patches/2004_01_14/powernow-k8-2.6.1-freq_table_2
-
-http://www.brodo.de/patches/2004_01_14/powernow-k8-2.6.1-freq_table_3
-
-http://www.brodo.de/patches/2004_01_14/powernow-k8-2.6.1-freq_table_4
-
-http://www.brodo.de/patches/2004_01_14/powernow-k8-2.6.1-freq_table_5
-
-Paul: do you agree to them being merged?
-
-	Dominik
-
---bg08WKrSYDhXBjb5
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFABRjZZ8MDCHJbN8YRAlCVAJwJJtiwUUfmOOuSBQ8r5s1PoJbL+ACfdwBg
-dZqq11MubwrApJlGeUzHicY=
-=oyRE
------END PGP SIGNATURE-----
-
---bg08WKrSYDhXBjb5--
+--
+Giuliano.

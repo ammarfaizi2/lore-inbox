@@ -1,51 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265227AbSJRQJu>; Fri, 18 Oct 2002 12:09:50 -0400
+	id <S265232AbSJRQKZ>; Fri, 18 Oct 2002 12:10:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265211AbSJRQIm>; Fri, 18 Oct 2002 12:08:42 -0400
-Received: from nameservices.net ([208.234.25.16]:57867 "EHLO opersys.com")
-	by vger.kernel.org with ESMTP id <S265221AbSJRQIh>;
-	Fri, 18 Oct 2002 12:08:37 -0400
-Message-ID: <3DB034A7.D7E9BA78@opersys.com>
-Date: Fri, 18 Oct 2002 12:19:51 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19 i686)
-X-Accept-Language: en
+	id <S265226AbSJRQJz>; Fri, 18 Oct 2002 12:09:55 -0400
+Received: from momus.sc.intel.com ([143.183.152.8]:33748 "EHLO
+	momus.sc.intel.com") by vger.kernel.org with ESMTP
+	id <S265221AbSJRQJE>; Fri, 18 Oct 2002 12:09:04 -0400
+Message-ID: <D1C0BF20D4AFD411AB98009027AE99881167C7C8@fmsmsx40.fm.intel.com>
+From: "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>
+To: "'Dave Jones'" <davej@codemonkey.org.uk>, Greg KH <greg@kroah.com>
+Cc: "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "Patterson, David H" <david.h.patterson@intel.com>,
+       "Carbonari, Steven" <steven.carbonari@intel.com>,
+       "Abel, Michael J" <michael.j.abel@intel.com>,
+       "Tarabini, Anthony" <anthony.tarabini@intel.com>,
+       "'andreasW@ati.com'" <andreasW@ati.com>,
+       "Abdul-Khaliq, Rushdan" <rushdan.abdul-khaliq@intel.com>
+Subject: RE: [PATCH] GART driver support for generic AGP 3.0 device detect
+	ion/ enabling & Intel 7505 chipset support
+Date: Fri, 18 Oct 2002 09:14:00 -0700
 MIME-Version: 1.0
-To: Takeharu Kato <tk1219@alles.or.jp>
-CC: linux-kernel <linux-kernel@vger.kernel.org>, LTT-Dev <ltt-dev@shafik.org>
-Subject: Re: [ltt-dev] [ANNOUNCE] LTT 0.9.6pre2: Per-CPU buffers, TSC timestamps, 
- etc.
-References: <3DAF850D.D104A6D@opersys.com> <3DB03026.63AF250F@alles.or.jp>
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Takeharu Kato wrote:
-> Karim Yaghmour wrote:
-> >
-> > A new development version of LTT is now available, 0.9.6pre2.
-> > Here's what's new:
-> > - Per-CPU buffering
-> > - TSC timestamping
-> > - Use of syscall interface instead of char dev abstraction
-> >
-> As long as I think, 0.9.6pre2 has called CHAR DEV in LibUserTrace.
-> Should I apply the patch which you send before?
+> The AMD 8151 is AGP 3.0 compliant too, but the current driver is just
+> the page remapping support.  It's possible that some functionality
+> implemented both there and in agp3.c can be propagated both ways.
 
-0.9.6pre2 is a development version, it's expected to have rough
-spots. If you need a stable version use 0.9.5a. That said, yes
-LibUserTrace hasn't been modified yet for the syscall interface,
-but this is really a minor issue which will be fixed.
+Greg, Dave, Please let me know if/how I can assist in this regard.  The idea
+was to 
+free specific chipset implemenations from having to duplicate this generic
+code w/o further bloating agp.c.  
 
-Karim
 
-===================================================
-                 Karim Yaghmour
-               karim@opersys.com
-      Embedded and Real-Time Linux Expert
-===================================================
+> Despite it being support for a major protocol version bump, it's
+> still just another driver, which means it could go in after the
+> freeze if needbe.
+> 
+> Looks fine for merging afaics though.
+> 
+
+Great!  Thanks...
+
+matt

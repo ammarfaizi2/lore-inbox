@@ -1,32 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281343AbRKTUfi>; Tue, 20 Nov 2001 15:35:38 -0500
+	id <S281358AbRKTUgI>; Tue, 20 Nov 2001 15:36:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281358AbRKTUf2>; Tue, 20 Nov 2001 15:35:28 -0500
-Received: from web14302.mail.yahoo.com ([216.136.173.78]:48206 "HELO
-	web14302.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S281343AbRKTUfU>; Tue, 20 Nov 2001 15:35:20 -0500
-Message-ID: <20011120203519.66550.qmail@web14302.mail.yahoo.com>
-Date: Tue, 20 Nov 2001 12:35:19 -0800 (PST)
-From: Lee Chin <leechinus@yahoo.com>
-Subject: kernel modules
+	id <S281360AbRKTUf7>; Tue, 20 Nov 2001 15:35:59 -0500
+Received: from quechua.inka.de ([212.227.14.2]:13588 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S281358AbRKTUft>;
+	Tue, 20 Nov 2001 15:35:49 -0500
+From: Bernd Eckenfels <ecki@lina.inka.de>
 To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: VM tuning for Linux routers
+In-Reply-To: <20011118145400.A23181@se1.cogenit.fr>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.11-xfs (i686))
+Message-Id: <E166HcS-0001lw-00@calista.inka.de>
+Date: Tue, 20 Nov 2001 21:35:48 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I know that if you write a kernel module, and dont
-modify any kernel source to get the module written,
-then you dont have to open the source for your
-module... but what if you include header files with in
-line functions?
+In article <20011118145400.A23181@se1.cogenit.fr> you wrote:
+> Think about forwarding between GigaE and FastE. Think about overflow and
+> bad irq latency. I wouldn't cut buffering at l2 as it averages the peaks. 
+> Different trade-offs make sense of course.
 
-Thanks
-Lee
+I think in that case increasing the buffers is important:
 
-__________________________________________________
-Do You Yahoo!?
-Yahoo! GeoCities - quick and easy web site hosting, just $8.95/month.
-http://geocities.yahoo.com/ps/info1
+net.core.rmem_max=262144
+net.core.wmem_max=262144
+
+default:
+
+optmem_max:10240
+rmem_default:65535
+rmem_max:65535
+wmem_default:65535
+wmem_max:65535
+
+Greetings
+Bernd

@@ -1,45 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263524AbSIQC7T>; Mon, 16 Sep 2002 22:59:19 -0400
+	id <S263531AbSIQDEe>; Mon, 16 Sep 2002 23:04:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263530AbSIQC7T>; Mon, 16 Sep 2002 22:59:19 -0400
-Received: from dp.samba.org ([66.70.73.150]:908 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S263524AbSIQC7S>;
-	Mon, 16 Sep 2002 22:59:18 -0400
-Date: Tue, 17 Sep 2002 12:59:08 +1000
-From: Anton Blanchard <anton@samba.org>
-To: Lev Makhlis <mlev@despammed.com>
-Cc: linux-kernel@vger.kernel.org, akpm@zip.com.au, riel@conectiva.com.br
+	id <S263546AbSIQDEd>; Mon, 16 Sep 2002 23:04:33 -0400
+Received: from 2-028.ctame701-1.telepar.net.br ([200.193.160.28]:29571 "EHLO
+	2-028.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S263531AbSIQDEc>; Mon, 16 Sep 2002 23:04:32 -0400
+Date: Tue, 17 Sep 2002 00:08:48 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Anton Blanchard <anton@samba.org>
+cc: Lev Makhlis <mlev@despammed.com>, <linux-kernel@vger.kernel.org>,
+       <akpm@zip.com.au>
 Subject: Re: [RFC] [PATCH] [2.5.35] Run Queue Statistics
-Message-ID: <20020917025907.GB15189@krispykreme>
-References: <200209161820.44702.mlev@despammed.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200209161820.44702.mlev@despammed.com>
-User-Agent: Mutt/1.4i
+In-Reply-To: <20020917025907.GB15189@krispykreme>
+Message-ID: <Pine.LNX.4.44L.0209170007110.1857-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 17 Sep 2002, Anton Blanchard wrote:
 
-Hi,
+> On a semi related note, vmstat wants to know the number of running,
+> blocked and swapped processes. strace vmstat one day and you will see it
+> currently opens /proc/*/stat (ie one open for each process) just to get
+> these stats.  Yet another place where the monitoring utilities disturb
+> the system way too much.
+>
+> Can we get some things in /proc/stat to give us these numbers? Does
+> "swapped" make any sense on Linux?
 
-> This patch adds two counters, runque and runocc, similar to those
-> in traditional UNIX systems, to measure the run queue occupancy.
-> Every second, 'runque' is incremented by the run queue size, and
-> 'runocc' is incremented by one if the run queue is not empty.
-> 
-> I am not comfortable about putting the calculation in the same function
-> as the load average calculation, but I didn't want to call
-> count_active_tasks() twice. Comments are welcome.
+Runnable can be done currently, blocked on IO is trivial once
+Andrew has pushed the iowait stats to Linus.
 
-On a semi related note, vmstat wants to know the number of running,
-blocked and swapped processes. strace vmstat one day and you will see it
-currently opens /proc/*/stat (ie one open for each process) just to get
-these stats.  Yet another place where the monitoring utilities disturb
-the system way too much.
+Swapped doesn't make any sense at the moment, but it should.
+A system without load control is just too vulnerable to sudden
+load spikes. If Andrew has interest I'll pick up the work I
+did in that area ...
 
-Can we get some things in /proc/stat to give us these numbers? Does
-"swapped" make any sense on Linux?
+I'll also update vmstat to just use /proc/stat instead of
+looking at all /proc/*/stat files.
 
-Anton
+cheers,
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Spamtraps of the month:  september@surriel.com trac@trac.org
+

@@ -1,51 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275448AbRJATmM>; Mon, 1 Oct 2001 15:42:12 -0400
+	id <S275449AbRJATpM>; Mon, 1 Oct 2001 15:45:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275449AbRJATmC>; Mon, 1 Oct 2001 15:42:02 -0400
-Received: from ns.caldera.de ([212.34.180.1]:17863 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S275448AbRJATln>;
-	Mon, 1 Oct 2001 15:41:43 -0400
-Date: Mon, 1 Oct 2001 21:42:00 +0200
-From: Christoph Hellwig <hch@ns.caldera.de>
-To: Maurice Volaski <mvolaski@aecom.yu.edu>
-Cc: linux-kernel@vger.kernel.org, hch@ns.caldera.de
-Subject: Re: [HANG] Checking root filesystem and then...
-Message-ID: <20011001214200.A23514@caldera.de>
-Mail-Followup-To: Christoph Hellwig <hch>,
-	Maurice Volaski <mvolaski@aecom.yu.edu>,
-	linux-kernel@vger.kernel.org, hch@ns.caldera.de
-In-Reply-To: <a05100310b7de4e632992@[129.98.91.150]>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <a05100310b7de4e632992@[129.98.91.150]>; from mvolaski@aecom.yu.edu on Mon, Oct 01, 2001 at 03:39:36PM -0400
+	id <S275455AbRJATpC>; Mon, 1 Oct 2001 15:45:02 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:30725 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S275449AbRJATos>;
+	Mon, 1 Oct 2001 15:44:48 -0400
+Date: Mon, 1 Oct 2001 16:44:52 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Lorenzo Allegrucci <lenstra@tiscalinet.it>, <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: VM: 2.4.10 vs. 2.4.10-ac2 and qsort()
+In-Reply-To: <E15o8xP-0002H3-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33L.0110011643270.4835-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 01, 2001 at 03:39:36PM -0400, Maurice Volaski wrote:
-> Running on a Netfinity x340 box (single PIII, ServRAID card and 
-> Adaptec 29160LP card, boot disk is ext2 and is attached to the 
-> ServRAID card), a stock 2.4.10 kernel gets to the point of "Checking 
-> root filesystem" and the system simply stops dead in its tracks.
-> 
-> It stops at the line initlog -c "fsck -T -a $fsckoptions /" If I 
-> remove the "initlog", it still stops. If I remove the "fsck", it 
-> stops at the next line (mount -n -o remount, rw /)!
-> 
-> I have systematically tried a number of different kernels and have 
-> discovered that
-> 
-> 2.4.10-pre5 works
-> 2.4.10-pre6 hangs
-> 
-> 2.4.9-ac7 works
-> 2.4.9-ac8 hangs
+On Mon, 1 Oct 2001, Alan Cox wrote:
 
-2.4.9-ac17+ should work again, could you test it please?
+> > I'm not sure either, since qsort doesn't really have much
+> > locality of reference but just walks all over the place.
+>
+> qsort can be made to perform reasonably well providing you try to cache
+> colour the objects you sort and try to use prefetches a bit.
 
-	Christoph
+That won't quite work when the qsort in question is 150%
+the size of your RAM ;)
 
+> > One thing which could make 2.4.10 faster for this single case
+> > is the fact that it doesn't keep any page aging info, so IO
+> > clustering won't be confused by the process accessing its
+> > pages ;)
+>
+> I don't think that is too unusual a case. If the smarter vm is making
+> poorer I/O clustering decisions it wants investigating
+
+Absolutely, this is something we really want to know ...
+
+I guess I'll play with Lorenzo's program a bit to see how
+the system behaves and how it can be improved.
+
+regards,
+
+Rik
 -- 
-Of course it doesn't work. We've performed a software upgrade.
+IA64: a worthy successor to i860.
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+

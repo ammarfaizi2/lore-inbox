@@ -1,38 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273997AbRIURZ4>; Fri, 21 Sep 2001 13:25:56 -0400
+	id <S273990AbRIURYq>; Fri, 21 Sep 2001 13:24:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274153AbRIURZk>; Fri, 21 Sep 2001 13:25:40 -0400
-Received: from hermes.domdv.de ([193.102.202.1]:60165 "EHLO zeus.domdv.de")
-	by vger.kernel.org with ESMTP id <S273997AbRIURZ1>;
-	Fri, 21 Sep 2001 13:25:27 -0400
-Message-ID: <XFMail.20010921192411.ast@domdv.de>
-X-Mailer: XFMail 1.4.6-3 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
+	id <S274266AbRIURYa>; Fri, 21 Sep 2001 13:24:30 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:60933 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S273990AbRIURXW>; Fri, 21 Sep 2001 13:23:22 -0400
+Subject: Re: spurious interrupt with ac kernel but not with vanilla 2.4.9
+To: kernel@Expansa.sns.it (Luigi Genoni)
+Date: Fri, 21 Sep 2001 18:28:42 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        linux-kernel@vger.kernel.org (Linux Kernel)
+In-Reply-To: <Pine.LNX.4.33.0109211905530.31425-100000@Expansa.sns.it> from "Luigi Genoni" at Sep 21, 2001 07:14:58 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-In-Reply-To: <41B7E064ABA@vcnet.vc.cvut.cz>
-Date: Fri, 21 Sep 2001 19:24:11 +0200 (CEST)
-Organization: D.O.M. Datenverarbeitung GmbH
-From: Andreas Steinmetz <ast@domdv.de>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-Subject: Re: spurious interrupt with ac kernel but not with vanilla
-Cc: alan@lxorguk.ukuu.org.uk, Linux Kernel <linux-kernel@vger.kernel.org>,
-        Luigi Genoni <kernel@Expansa.sns.it>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15kU6U-0000cK-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This happens to me too (Asus A7V, KT133). It happens since I remember -
-> at least since Christmas, and for me it happens after unspecified time
-> after boot - varying from few seconds (during initscripts) to few
-> minutes. After it happens once, everything is apparently satisified
-> and no more spurious interrupts occurs (until next reboot).
+> > The APIC only applies to multiprocessor boxes unless you are building with
+> > uniprocessor apic support. Build a non SMP kernel without apic support
+> > and let me know what that does
+> 
+> yes, i was using a non SMP kernel with both apic and io_apic support
+> enabled.
 
-Same behaviour on a bunch of EpoX 8KTA+, KT133. Didn't care about it. Doesn't
-happen on a variety of PIII boards (Intel clones and Asus) so it looks like a
-KT133 issue. Kernel config is UP with APIC support on all systems.
+Ok.
 
+> actally:
+> 
+> with APIC support
+> and
+> without IO_APIC support
+> 
+> I do not get this message again, but I am so sorry, because my processor
+> has integrated APIC support.
 
-Andreas Steinmetz
-D.O.M. Datenverarbeitung GmbH
+Oh your configuration options should have worked. Its more a case of working
+out now why the didnt. Knowing that it is uniprocessor apic triggered is a
+help there

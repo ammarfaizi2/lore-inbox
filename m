@@ -1,45 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266253AbUFPL4Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266256AbUFPMBZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266253AbUFPL4Z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 07:56:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266255AbUFPL4Z
+	id S266256AbUFPMBZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 08:01:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266257AbUFPMBZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 07:56:25 -0400
-Received: from smtp814.mail.sc5.yahoo.com ([66.163.170.84]:3446 "HELO
-	smtp814.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S266253AbUFPL4Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 07:56:24 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 'uinput' Oops upon select() or poll() on 2.6.7
-Date: Wed, 16 Jun 2004 06:56:21 -0500
+	Wed, 16 Jun 2004 08:01:25 -0400
+Received: from turkey.mail.pas.earthlink.net ([207.217.120.126]:63415 "EHLO
+	turkey.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id S266256AbUFPMBW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jun 2004 08:01:22 -0400
+From: Eric <eric@cisu.net>
+Reply-To: eric@cisu.net
+To: gmishkin@bu.edu
+Subject: Re: ld segfault at end of 2.6.6 compile
+Date: Wed, 16 Jun 2004 07:01:15 -0500
 User-Agent: KMail/1.6.2
-Cc: Sau Dan Lee <danlee@informatik.uni-freiburg.de>,
-       Vojtech Pavlik <vojtech@suse.cz>
-References: <xb7ekp4cw4o.fsf@savona.informatik.uni-freiburg.de> <xb7wu27spm8.fsf@savona.informatik.uni-freiburg.de>
-In-Reply-To: <xb7wu27spm8.fsf@savona.informatik.uni-freiburg.de>
+References: <1087352698.8671.23.camel@amsa> <40CFE50D.10308@t-online.de> <1087382494.8675.32.camel@amsa>
+In-Reply-To: <1087382494.8675.32.camel@amsa>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
 Content-Disposition: inline
 Content-Type: text/plain;
-  charset="big5"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200406160656.21866.dtor_core@ameritech.net>
+Message-Id: <200406160701.15857.eric@cisu.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 16 June 2004 06:34 am, Sau Dan Lee wrote:
-> 
-> But the bug is STILL in 2.6.7.  I don't understand.  What are the -rc*
-> supposed for, if bugs do not get fixed?
-> 
+On Wednesday 16 June 2004 05:41 am, Geoff Mishkin wrote:
+> I couldn't find exactly what I was looking for in the BIOS utility (IBM
+> ThinkPad T42), but I turned on Diagnostics mode and the RAM check, so at
+> boot it checked the RAM, which all turned out okay.
 
-Hi,
+The bios does very wimpy checking of ram. If it is indeed a RAM problem, you 
+should use a tool like memtest86 in linux (you boot to it, its not a linux 
+tool per se) or prime95(is that the name?) in windows. 
 
-Given the fact that it affects exactly one person and you can avoid it by
-fixing your program which is broken in this regard anyway (why would you
-poll device before you create it?) I don't think it is that urgent...
+> Still having the problem, though.
+>
+> 			--Geoff Mishkin <gmishkin@bu.edu>
+>
 
-I believe it will be merged when Linus does next pull. 
-
--- 
-Dmitry
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

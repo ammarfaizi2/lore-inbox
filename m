@@ -1,48 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261227AbULRUi1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261151AbULRUsB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261227AbULRUi1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Dec 2004 15:38:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbULRUiY
+	id S261151AbULRUsB (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Dec 2004 15:48:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261155AbULRUsB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Dec 2004 15:38:24 -0500
-Received: from main.gmane.org ([80.91.229.2]:25507 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261227AbULRUiP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Dec 2004 15:38:15 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: "Joseph Seigh" <jseigh_02@xemaps.com>
+	Sat, 18 Dec 2004 15:48:01 -0500
+Received: from quark.didntduck.org ([69.55.226.66]:48046 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP id S261151AbULRUr7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Dec 2004 15:47:59 -0500
+Message-ID: <41C4977C.2070906@didntduck.org>
+Date: Sat, 18 Dec 2004 15:47:56 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041027
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Joseph Seigh <jseigh_02@xemaps.com>
+CC: linux-kernel@vger.kernel.org
 Subject: Re: What does atomic_read actually do?
-Date: Sat, 18 Dec 2004 15:43:52 -0500
-Message-ID: <opsi707edhs29e3l@grunion>
-References: <opsi7o5nqfs29e3l@grunion>  <1103394867.4127.18.camel@laptopd505.fenrus.org> <opsi7xcuizs29e3l@grunion> <1103399680.4127.20.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed	delsp=yes
-Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: stenquists.ne.client2.attbi.com
-User-Agent: Opera M2/7.54 (Win32, build 3865)
+References: <opsi7o5nqfs29e3l@grunion>
+In-Reply-To: <opsi7o5nqfs29e3l@grunion>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 18 Dec 2004 20:54:40 +0100, Arjan van de Ven <arjan@infradead.org>  
-wrote:
+Joseph Seigh wrote:
+> It doesn't do anything that would actually guarantee that the fetch from
+> memory would be atomic as far as I can see, at least in the x86 version.
+> The C standard has nothing to say about atomicity w.r.t. multithreading or
+> multiprocessing.  Is this a gcc compiler thing?  If so, does gcc guarantee
+> that it will fetch aligned ints with a single instruction on all platforms
+> or just x86?   And what's with volatile since if the C standard implies
+> nothing about multithreading then it follows that volatile has no meaning
+> with respect to multithreading either?  Also a gcc thing?  Are volatile
+> semantics well defined enough that you can use it to make the compiler
+> synchronize memory state as far as it is concerned?
+> 
+> Joe Seigh
 
-> On Sat, 2004-12-18 at 14:20 -0500, Joseph Seigh wrote:
->> I mean atomic in the either old or new sense.  I'm wondering what
->> guarantees
->> the atomicity.  Not the C standard.  I can see the gcc compiler uses a  
->> MOV
->> instruction to load the atomic_t from memory which is guaranteed atomic  
->> by
->> the architecture if aligned properly.  But gcc does that for any old int
->> as far as I can see, so why use atomic_read?
->
-> it does so on *x86
+For x86, the processor guarantees atomicity for simple aligned reads or 
+writes.  Read-modify-write instructions need a lock prefix in order to 
+become atomic.  The volatile is there so gcc doesn't miss the value 
+changing from within an interrupt.
 
-Is this documented for gcc anywhere?  Just because it does so doesn't
-mean it's guaranteed.
-
-Joe Seigh
-
+--
+				Brian Gerst

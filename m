@@ -1,64 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317946AbSHGPw2>; Wed, 7 Aug 2002 11:52:28 -0400
+	id <S318704AbSHGQiz>; Wed, 7 Aug 2002 12:38:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318099AbSHGPw2>; Wed, 7 Aug 2002 11:52:28 -0400
-Received: from mail.zmailer.org ([62.240.94.4]:23688 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id <S317946AbSHGPw1>;
-	Wed, 7 Aug 2002 11:52:27 -0400
-Date: Wed, 7 Aug 2002 18:56:06 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Jan Hudec <bulb@ucw.cz>, linux-kernel@vger.kernel.org
-Subject: Re: UNIX domain socket hanging around when not closed
-Message-ID: <20020807155606.GH32427@mea-ext.zmailer.org>
-References: <20020807153251.GD27745@vagabond>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020807153251.GD27745@vagabond>
+	id <S318729AbSHGQiz>; Wed, 7 Aug 2002 12:38:55 -0400
+Received: from [211.20.30.100] ([211.20.30.100]:40099 "EHLO rinse.wov.idv.tw")
+	by vger.kernel.org with ESMTP id <S318704AbSHGQiy>;
+	Wed, 7 Aug 2002 12:38:54 -0400
+Date: Thu, 08 Aug 2002 00:42:17 +0800
+From: =?BIG5?B?qMy6v7/f?= <imacat@mail.imacat.idv.tw>
+To: linux-kernel@vger.kernel.org
+Subject: PROBLEM: conflicting types for `xquad_portio' with CONFIG_MULTIQUAD
+Message-Id: <20020808004206.EED0.IMACAT@mail.imacat.idv.tw>
+MIME-Version: 1.0
+Content-Type: multipart/signed; boundary="===[PGP/MIME_RFC2015]===3D514DDE.7F3A==="; protocol="application/pgp-signature"; micalg="pgp-sha1"
+Content-Transfer-Encoding: 8bit
+X-Mailer: Becky! ver. 2.05.03
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 07, 2002 at 05:32:51PM +0200, Jan Hudec wrote:
-> Hello,
-> 
-> I have a (possibly stupid) question. Is it OK, that dentries created by
-> binding unix-domain sockets remain in filesystem?
+--===[PGP/MIME_RFC2015]===3D514DDE.7F3A===
+Content-Type: text/plain; charset="BIG5"
+Content-Transfer-Encoding: 8bit
 
-   That is the classical behaviour, possibly because of tradition
-   where they relate to named pipes created with mknod(1) command.
+[1.] conflicting types for `xquad_portio' with CONFIG_MULTIQUAD
+[2.] I tried to compile with CONFIG_MULTIQUAD, but it kept saying:
 
-     http://www.ecst.csuchico.edu/~beej/guide/ipc/usock.html
+imacat@cotton /tmp/linux-2.4.19 % make install
+bsetup.s: Assembler messages:
+bsetup.s:1431: Warning: indirect lcall without `*'
+misc.c:128: conflicting types for `xquad_portio'
+/tmp/linux-2.4.19/include/asm/io.h:324: previous declaration of `xquad_portio'
+make[2]: *** [misc.o] Error 1
+make[1]: *** [compressed/bvmlinux] Error 2
+make: *** [install] Error 2
+imacat@cotton /tmp/linux-2.4.19 %
 
-> What I do is create a unix socket in /tmp and wait for clients to
-> connect in. The program removes the socket dentry when it shuts down,
-> but it sometimes crashes and the socket remains there.
-> 
-> Is there some reason the socket should remain unless explicitely
-> removed?
+    I have examined the misc.c and io.h.  There are indeed 2 conflict
+settings on xquad_portio at the specified lines when compiled with
+CONFIG_MULTIQUAD, and misc.c includes io.h.  It should not be working at
+all.  I wonder how other people could compile with CONFIG_MULTIQUAD.
 
-   Traditional is also to   unlink() the socket name just prior
-   to bind(3):ing it just in case there is a left-over entity
-   with that name.
+    I was compiling by the clean default options in "make menuconfig",
+with only the CONFIG_MULTIQUAD turned on.
+
+[3.] CONFIG_MULTIQUAD, xquad_portio, misc.c, io.h
+[4.] 2.4.19
+[5.] 
+
+imacat@cotton /tmp/linux-2.4.19 % make install
+bsetup.s: Assembler messages:
+bsetup.s:1431: Warning: indirect lcall without `*'
+misc.c:128: conflicting types for `xquad_portio'
+/tmp/linux-2.4.19/include/asm/io.h:324: previous declaration of `xquad_portio'
+make[2]: *** [misc.o] Error 1
+make[1]: *** [compressed/bvmlinux] Error 2
+make: *** [install] Error 2
+imacat@cotton /tmp/linux-2.4.19 %
+
+[6.] N/A
+[7.] Environment
+[7.1.] Red Hat 7.3, gcc 3.1, glibc 2.2.5
+[7.2.] AMD 1800+
+[7.3.] none
+[X.] none
 
 
-   The object name (it is NAMED entity, after all) space is
-   filesystem name space.   I don't see any reason why not:
+--
+Best regards,
+imacat ^_*'
+imacat@mail.imacat.idv.tw
+PGP Key: http://www.imacat.idv.tw/me/pgpkey.txt
 
-      - There could pre-exist the named socket (at a R/O
-        filesystem), and no new name needs to be allocated
-        in the filesystem for it.
+<<Woman's Voice>> News: http://www.wov.idv.tw/
+Tavern IMACAT's: http://www.imacat.idv.tw/
+TLUG List Manager: http://www.linux.org.tw/mailman/listinfo/tlug
 
-      - The entire named entity would not be allowed to
-        exist purely in VFS space, that is: creation wise
-        the permission verification could ignore location
-        directory being on a read/only file system, and
-        just use directory permissions.  (Questions about
-        memory expenditure, etc.  all kinds of trade-offs.)
+--===[PGP/MIME_RFC2015]===3D514DDE.7F3A===
+Content-Type: application/pgp-signature
+Content-Transfer-Encoding: 7bit
 
-  What the new POSIX writes about the issue, that I haven't
-  yet looked into.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6-2 (MingW32)
+Comment: For info see http://www.gnupg.org
 
-> 			 Jan 'Bulb' Hudec <bulb@ucw.cz>
+iD8DBQA9UU3di9gubzC5S1wRAg68AKCsHbMXotPilGEtajQfcTr8BTzemwCeJOXk
+tq+P4rY8jukeR/0CFgjCvVc=
+=79lv
+-----END PGP SIGNATURE-----
 
-/Matti Aarnio
+--===[PGP/MIME_RFC2015]===3D514DDE.7F3A===--
+

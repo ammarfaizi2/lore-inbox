@@ -1,46 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315287AbSGSO0c>; Fri, 19 Jul 2002 10:26:32 -0400
+	id <S318518AbSGSOlg>; Fri, 19 Jul 2002 10:41:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316456AbSGSO0c>; Fri, 19 Jul 2002 10:26:32 -0400
-Received: from ns.censoft.com ([208.219.23.2]:58525 "EHLO ns.censoft.com")
-	by vger.kernel.org with ESMTP id <S315287AbSGSO0b>;
-	Fri, 19 Jul 2002 10:26:31 -0400
-Subject: ide-scsi and VIA report
-From: Jordan Crouse <jordanc@censoft.com>
-To: linux-kernel@vger.kernel.org
-Cc: andre@linux-ide.org
-In-Reply-To: <20020719131427.GA23103@shaftnet.org>
-References: <20020719131427.GA23103@shaftnet.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 19 Jul 2002 08:26:56 -0600
-Message-Id: <1027088816.31363.48.camel@cosmic>
-Mime-Version: 1.0
+	id <S318521AbSGSOlg>; Fri, 19 Jul 2002 10:41:36 -0400
+Received: from ns1.alcove-solutions.com ([212.155.209.139]:33419 "EHLO
+	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
+	id <S318518AbSGSOlg>; Fri, 19 Jul 2002 10:41:36 -0400
+To: alan@redhat.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.19-rc2-ac2
+In-Reply-To: <200207181935.g6IJZrZ06774@devserv.devel.redhat.com>
+References: <200207181935.g6IJZrZ06774@devserv.devel.redhat.com>
+Message-Id: <E17VYzf-0001wE-00@tahoe.alcove-fr>
+From: Stelian Pop <stelian@fr.alcove.com>
+Date: Fri, 19 Jul 2002 16:44:31 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an official "me too" report - Previous problems with the VIA
-chipset and CD-ROMs were reported here:
+In alcove.lists.linux.kernel, you wrote:
+> o	Vaio C1VE/N frame buffer console mode		(Marcel Wijlaars)
 
-http://www.uwsg.iu.edu/hypermail/linux/kernel/0205.1/0207.html
+Last time I've tried this patch (back in the old 2.4.5-ac series), 
+it was breaking the external CRT video output (the monitor's image
+was fuzzy). Maybe this was solved since then, maybe not, I shall
+try it again one of these days...
 
-The same problems also happen with the VT8233A chipset on my new
-motherboard.  Same symptoms as the previous post, same results with
-2.4.19-pre2 and 2.4.19-pre2-ac2.
+Just FYI...
 
-I haven't tried out 2.5.X yet, I suppose I will try it out just to see
-if I get lucky.
-
-Anyway, if Andre and others are working other problems, I would be more
-than willing to help with this issue (or at least port it back to the
-2.4 tree if a fix exists in the 2.5 branch).
-
-All I need is a little direction on where to start looking.
-
-Thanks,
-Jordan 
-
-
-
+Stelian.
+-- 
+Stelian Pop <stelian.pop@fr.alcove.com>
+Alcove - http://www.alcove.com

@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315893AbSFJTcH>; Mon, 10 Jun 2002 15:32:07 -0400
+	id <S315921AbSFJTln>; Mon, 10 Jun 2002 15:41:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315910AbSFJTcG>; Mon, 10 Jun 2002 15:32:06 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:57612 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315893AbSFJTcF>;
-	Mon, 10 Jun 2002 15:32:05 -0400
-Message-ID: <3D04FE64.B92706E8@zip.com.au>
-Date: Mon, 10 Jun 2002 12:30:44 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
-X-Accept-Language: en
+	id <S315923AbSFJTlm>; Mon, 10 Jun 2002 15:41:42 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:4882 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S315921AbSFJTlm>;
+	Mon, 10 Jun 2002 15:41:42 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200206101940.g5AJeOk53653@saturn.cs.uml.edu>
+Subject: Re: 2.5.21: fixdep starts spitting out 'unaligned traps'
+To: kai@tp1.ruhr-uni-bochum.de (Kai Germaschewski)
+Date: Mon, 10 Jun 2002 15:40:24 -0400 (EDT)
+Cc: thunder7@xs4all.nl (Jurriaan on Alpha), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0206100918380.20438-100000@chaos.physics.uiowa.edu> from "Kai Germaschewski" at Jun 10, 2002 09:25:04 AM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.21 kill warnings 4/19
-In-Reply-To: <5.1.0.14.2.20020610114308.09306358@mail1.qualcomm.com> <Pine.GSO.4.05.10206102055280.17299-100000@mausmaki.cosy.sbg.ac.at> <20020610191959.GJ14252@opus.bloom.county>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tom Rini wrote:
+> Yeah, makes sense, that's a bug trap to test if we guessed endianness 
+> right. Could you try to just comment out the call to traps() in main()?
 > 
-> On Mon, Jun 10, 2002 at 08:57:02PM +0200, Thomas 'Dent' Mirlacher wrote:
-> > On Mon, 10 Jun 2002, Maksim (Max) Krasnyanskiy wrote:
-> >
-> > > Hi Martin,
-> > >
-> > > How about replacing __FUNCTION__ with __func__ ?
-> > > GCC 3.x warns that __FUNCTION__ is obsolete and will be removed.
-> >
-> > is __func__ already supported for gcc 2.96?
+> The rest of the code should be safe. If commenting out fixes the problem, 
+> could you try to replace
 > 
-> Well it works with 2.95.3, which is the important part...
+> -	char *test = "CONF";
+> +	static char __attribute__((aligned(8))) test[] = "CONF";
 
-The 2.5 kernel must be buildable on gcc-2.91.66, aka egcs-1.1.2.
+This works:
 
-The 2.95.x requirement was reverted because sparc (or sparc64?)
-needs egcs-1.1.2.
+#include <netinet/in.h>
 
-__func__ does *not* work on egcs-1.1.2 and so cannot be used in Linux.
+if(htonl(999UL)==999UL){
+  // brain-dead byte order
+}else{
+  // correct byte order
+}
 
-`struct blah = { .open = driver_open };' *does* work in egcs-1.1.2
-and is OK to use.
-
--

@@ -1,181 +1,178 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261448AbVCAIbz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261801AbVCAImx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261448AbVCAIbz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 03:31:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261600AbVCAIbz
+	id S261801AbVCAImx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 03:42:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261833AbVCAImo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 03:31:55 -0500
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:18153 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S261448AbVCAIbi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 03:31:38 -0500
-Message-ID: <422428EC.3090905@jp.fujitsu.com>
-Date: Tue, 01 Mar 2005 17:33:48 +0900
-From: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-ia64@vger.kernel.org
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linas Vepstas <linas@austin.ibm.com>,
-       "Luck, Tony" <tony.luck@intel.com>
-Subject: [PATCH/RFC] I/O-check interface for driver's error handling
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 1 Mar 2005 03:42:44 -0500
+Received: from wproxy.gmail.com ([64.233.184.203]:863 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261767AbVCAImT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Mar 2005 03:42:19 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=UztMHQOOPsIGZu20OG3h0eQNc1cSN+oBL85kDxyqJJNut3EzrcDI6EodoQF3Y5CyO809dCYMVpUbvY9TOW0oMAqAvdjgsBEIF5HrMHaBhcOid9gQf8QysSKOkIDZLNAFXP22SERu1C+2UjotAPLkQUqTC3jGGHynlI9m3rcxYYI=
+Message-ID: <58cb370e05030100424d98c85c@mail.gmail.com>
+Date: Tue, 1 Mar 2005 09:42:18 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Tejun Heo <htejun@gmail.com>
+Subject: Re: [patch ide-dev 8/9] make ide_task_ioctl() use REQ_DRIVE_TASKFILE
+Cc: Jeff Garzik <jgarzik@pobox.com>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050301042116.GA9001@htj.dyndns.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <Pine.GSO.4.58.0502241547400.13534@mion.elka.pw.edu.pl>
+	 <200502271731.29448.bzolnier@elka.pw.edu.pl>
+	 <422337A1.4060806@gmail.com>
+	 <200502281714.55960.bzolnier@elka.pw.edu.pl>
+	 <20050301042116.GA9001@htj.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, long time no see :-)
+Hello,
 
-Currently, I/O error is not a leading cause of system failure.
-However, since Linux nowadays is making great progress on its
-scalability, and ever larger number of PCI devices are being
-connected to a single high-performance server, the risk of the
-I/O error is increasing day by day.
+On Tue, 1 Mar 2005 13:21:16 +0900, Tejun Heo <htejun@gmail.com> wrote:
+> Hello, Bartlomiej.
+> Hello, Jeff.
+> 
+> On Mon, Feb 28, 2005 at 05:14:55PM +0100, Bartlomiej Zolnierkiewicz wrote:
+> > On Monday 28 February 2005 16:24, Tejun Heo wrote:
+> > > Bartlomiej Zolnierkiewicz wrote:
+> > > >
+> > > > Nope, it works just fine because REQ_DRIVE_TASK used only
+> > > > no-data protocol, please check task_no_data_intr().
+> > > >
+> > >
+> > >   Sorry, I missed that.  IDE really has a lot of ways to finish a
+> > > command, doesn't it?  hdio.txt is gonna look ugly. :-)
+> >
+> > Yep but it was a lot more "fun" when there were three PIO codepaths. ;-)
+> >
+> > hdio.txt doesn't need to know about driver internals so no problem here.
+> >
+> 
+>  I was talking about the TASKFILE ioctl IN register result.
+> 
+> > > >
+> > > >> IMHO, this flag-to-get-result-registers thing is way too subtle.  How
+> > > >>about keeping old behavior by just not copying out register outputs in
+> > > >>ide_taskfile_ioctl() in applicable cases instead of not reading
+> > > >>registers when ending commands?  That is, unless there's some
+> > > >>noticeable performance impacts I'm not aware of.
+> > > >
+> > > >
+> > > > This would miss whole point of not _reading_ these registers (IO is slow).
+> > > > IMHO new flags denoting {in,out} registers should be added (to <linux/ata.h>
+> > > > to share them with libata) so new code can be sane and old flags would map
+> > > > on new flags when needed.
+> > >
+> > >   Please do it.
+> > >
+> > >   Or, let me know what you have in mind (added fields, flag names,
+> > > etc...); then, I'll do it.  I think we also need to hear Jeff's opinion
+> > > as things need to be added to ata.h.
+> >
+> > I was thinking about:
+> >
+> > * adding ATA_TFLAG_{IN,OUT}_xxx flags (there is enough free
+> >   place for all flags in ->flags field of struct ata_taskfile)
+> > * teaching flagged_taskfile() about these flags and mapping ->tf_out_flags
+> >   onto ATA_TFLAG_OUT_xxx (simple mapping no need to move ->tf_out_flags
+> >   to ide_taskfile_ioctl() etc. - no risk of breaking something)
+> > * moving flagged taskfile writing to ide_tf_load_discrete() helper
+> > * adding ide_tf_read_discrete() helper for use by ide_end_drive_cmd()
+> >   and mapping ->tf_in_flags onto ATA_TFLAG_IN_xxx (ditto)
+> >
+> > If you like this plan feel free to implement it.
+> > I'm also open for better ideas, comments etc.
+> 
+>  So, how do you like the following set of TFLAG's?
+> 
+> /* struct ata_taskfile flags */
+> 
+> /* The following six flags are used by IDE driver to control register IO. */
+> ATA_TFLAG_OUT_LBA48             = (1 <<  0), /* enable 48-bit LBA and HOB out */
 
-For example, PCI parity error is one of the most common errors
-in the hardware world. However, the major cause of parity error
-is not hardware's error but software's - low voltage, humidity,
-natural radiation... etc. Even though, some platforms are nervous
-to parity error enough to shutdown the system immediately on such
-error. So if device drivers can retry its transaction once results
-as an error, we can reduce the risk of I/O errors.
+aggregate ATA_TFLAG_OUT_HOB_LBA{L,M,H}?
 
-So I'd like to suggest new interfaces that enable drivers to
-check - detect error and retry their I/O transaction easily.
+> ATA_TFLAG_OUT_ADDR              = (1 <<  1), /* enable out to nsect/lba regs */
 
-Previously I had post two prototypes to LKML:
-1) readX_check() interface
-    Added new kin of basic readX(), which returns its result of
-    I/O. But, it would not make sense that device driver have to
-    check and react after each of I/Os.
-2) clear/read_pci_errors() interface
-    Added new pair-interface to sandwich I/Os. It makes sense that
-    device driver can adjust the number of checking I/Os and can
-    react all of them at once. However, this was not generalized,
-    so I thought that more expandable design would be required.
+not needed currently, add it {when,if} it is needed
 
-Today's patch is 3rd one - iochk_clear/read() interface.
-- This also adds pair-interface, but not to sandwich only readX().
-   Depends on platform, starting with ioreadX(), inX(), writeX()
-   if possible... and so on could be target of error checking.
-- Additionally adds special token - abstract "iocookie" structure
-   to control/identifies/manage I/Os, by passing it to OS.
-   Actual type of "iocookie" could be arch-specific. Device drivers
-   could use the iocookie structure without knowing its detail.
+> ATA_TFLAG_OUT_DEVICE            = (1 <<  2), /* enable out to device reg */
+> ATA_TFLAG_IN_LBA48              = (1 <<  3), /* enable 48-bit LBA and HOB in */
 
-Expected usage(sample) is:
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#include <linux/pci.h>
-#include <asm/io.h>
+aggregate ATA_TFLAG_IN_HOB_LBA_{L,M,H}?
 
-int sample_read_with_iochk(struct pci_dev *dev, u32 *buf, int words)
-{
-	unsigned long ofs = pci_resource_start(dev, 0) + DATA_OFFSET;
-	int i;
+> ATA_TFLAG_IN_ADDR               = (1 <<  4), /* enable in from nsect/lba regs */
 
-	/* Create magical cookie on the stack */
-	iocookie cookie;
+not needed currently, add it {when,if} it is needed
 
-	/* Critical section start */
-	iochk_clear(&dev, &cookie);
-	{
-		/* Get the whole packet of data */
-		for (i = 0; i < words; i++)
-			*buf++ = ioread32(dev, ofs);
-	}
-	/* Critical section end. Did we have any trouble? */
-	if ( iochk_read(&cookie) ) return -1;
+> ATA_TFLAG_IN_DEVICE             = (1 <<  5), /* enable in from device reg */
+> 
+> /* These three aggregate flags are used by libata, as it doesn't
+>    really need to optimize register INs */
+> ATA_TFLAG_LBA48                 = (ATA_TFLAG_OUT_LBA48  | ATA_TFLAG_IN_LBA48),
+> ATA_TFLAG_ISADDR                = (ATA_TFLAG_OUT_ADDR   | ATA_TFLAG_IN_ADDR),
+> ATA_TFLAG_DEVICE                = (ATA_TFLAG_OUT_DEVICE | ATA_TFLAG_IN_DEVICE),
+> 
+> ATA_TFLAG_WRITE                 = (1 <<  6), /* data dir */
+> 
+> /* The rest of TFLAGs are only for implementing ioctl direct drive
+>    commands in the IDE driver.  DO NOT use in other places. */
+> ATA_TFLAG_IO_16BIT              = (1 << 11),
+> 
+> ATA_TFLAG_OUT_FEATURE           = (1 << 12),
+> ATA_TFLAG_OUT_NSECT             = (1 << 13),
+> ATA_TFLAG_OUT_LBAL              = (1 << 14),
+> ATA_TFLAG_OUT_LBAM              = (1 << 15),
+> ATA_TFLAG_OUT_LBAH              = (1 << 16),
+> ATA_TFLAG_OUT_HOB_FEATURE       = (1 << 17),
+> ATA_TFLAG_OUT_HOB_NSECT         = (1 << 18),
+> ATA_TFLAG_OUT_HOB_LBAL          = (1 << 19),
+> ATA_TFLAG_OUT_HOB_LBAM          = (1 << 20),
+> ATA_TFLAG_OUT_HOB_LBAH          = (1 << 21),
+> 
+> ATA_TFLAG_IN_FEATURE            = (1 << 22),
+> ATA_TFLAG_IN_NSECT              = (1 << 23),
+> ATA_TFLAG_IN_LBAL               = (1 << 24),
+> ATA_TFLAG_IN_LBAM               = (1 << 25),
+> ATA_TFLAG_IN_LBAH               = (1 << 26),
+> ATA_TFLAG_IN_HOB_FEATURE        = (1 << 27),
+> ATA_TFLAG_IN_HOB_NSECT          = (1 << 28),
+> ATA_TFLAG_IN_HOB_LBAL           = (1 << 29),
+> ATA_TFLAG_IN_HOB_LBAM           = (1 << 30),
+> ATA_TFLAG_IN_HOB_LBAH           = (1 << 31),
 
-	/* OK, all system go. */
-	return 0;
-}
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+proposed changes will get rid of 4 bits
 
-If arch doesn't(or cannot) have its io-checking strategy, these
-interfaces could be used as a replacement of local_irq_save/restore
-pair. Therefore, driver maintainer can write their driver code with
-these interfaces for all arch, even where checking is not implemented.
+> ATA_TFLAG_OUT_MASK              = 0x007ff000,
+> ATA_TFLAG_IN_MASK               = 0xffc00000,
+> ATA_TFLAG_OUT_IN_MASK           = (ATA_TFLAG_OUT_MASK | ATA_TFLAG_IN_MASK),
+> 
+>  ATA_TFLAG_{OUT|IN}_{LBA48|ADDR|DEVICE} should provide enough
+> granuality for fs/internal requests without much hassle, and
+> individual IO/OUT flags will only be used to implement ioctls in
+> separate IN/OUT functions, something like ide_{load|read}_ioctl_task().
 
-Followings are "generic" part. Definition of default for all arch
-are included. I have another part - "ia64 specific" part, which
-against poisoned data read on PCI parity error. I'll post it later.
+They would be later used by IDE driver itself so names
+like ide_discrete_tf_{load,read}() suits it better IMHO.
 
-First, comments about this "generic" part are welcome.
+>  Would using more specific prefix for ioctl flags - like
+> ATA_TFLAG_IOC_{IN|OUT}_* - be better?
+
+Nope, they are not limited to ioctls by design.
+ 
+>  libata will work as it works currently, but if optimizing out
+> register INs can help, converting to use IN/OUT flags should be easy.
+> 
+>  Please let me know what you guys think.
+
+It is fine with me.
 
 Thanks,
-H.Seto
-
------
-
-diff -Nur linux-2.6.10-iomap-0/drivers/pci/pci.c linux-2.6.10-iomap-1/drivers/pci/pci.c
---- linux-2.6.10-iomap-0/drivers/pci/pci.c      2005-02-15 15:27:28.000000000 +0900
-+++ linux-2.6.10-iomap-1/drivers/pci/pci.c      2005-02-24 16:55:11.000000000 +0900
-@@ -747,6 +747,8 @@
-         while ((dev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
-                 pci_fixup_device(pci_fixup_final, dev);
-         }
-+
-+       iochk_init();
-         return 0;
-  }
-
-diff -Nur linux-2.6.10-iomap-0/include/asm-generic/iomap.h linux-2.6.10-iomap-1/include/asm-generic/iomap.h
---- linux-2.6.10-iomap-0/include/asm-generic/iomap.h    2005-02-15 15:27:27.000000000 +0900
-+++ linux-2.6.10-iomap-1/include/asm-generic/iomap.h    2005-02-21 14:40:45.000000000 +0900
-@@ -60,4 +60,20 @@
-  extern void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long max);
-  extern void pci_iounmap(struct pci_dev *dev, void __iomem *);
-
-+/*
-+ * IOMAP_CHECK provides additional interfaces for drivers to detect
-+ * some IO errors, supports drivers having ability to recover errors.
-+ *
-+ * All works around iomap-check depends on the design of "iocookie"
-+ * structure. Every architecture owning its iomap-check is free to
-+ * define the actual design of iocookie to fit its special style.
-+ */
-+#ifndef HAVE_ARCH_IOMAP_CHECK
-+typedef unsigned long iocookie;
-+#endif
-+
-+extern void    iochk_init(void);
-+extern void    iochk_clear(iocookie *cookie, struct pci_dev *dev);
-+extern int     iochk_read(iocookie *cookie);
-+
-  #endif
-diff -Nur linux-2.6.10-iomap-0/lib/iomap.c linux-2.6.10-iomap-1/lib/iomap.c
---- linux-2.6.10-iomap-0/lib/iomap.c    2005-02-15 15:27:27.000000000 +0900
-+++ linux-2.6.10-iomap-1/lib/iomap.c    2005-02-21 14:38:17.000000000 +0900
-@@ -210,3 +210,28 @@
-  }
-  EXPORT_SYMBOL(pci_iomap);
-  EXPORT_SYMBOL(pci_iounmap);
-+
-+/*
-+ * Note that default iochk_clear-read pair interfaces could be used
-+ * just as a replacement of traditional local_irq_save-restore pair.
-+ * Originally they don't have any effective error check, but some
-+ * high-reliable platforms would provide useful information to you.
-+ */
-+#ifndef HAVE_ARCH_IOMAP_CHECK
-+#include <asm/system.h>
-+void iochk_init(void) { ; }
-+
-+void iochk_clear(iocookie *cookie, struct pci_dev *dev)
-+{
-+       local_irq_save(*cookie);
-+}
-+
-+int iochk_read(iocookie *cookie)
-+{
-+       local_irq_restore(*cookie);
-+       return 0;
-+}
-+EXPORT_SYMBOL(iochk_init);
-+EXPORT_SYMBOL(iochk_clear);
-+EXPORT_SYMBOL(iochk_read);
-+#endif /* HAVE_ARCH_IOMAP_CHECK */
-
+Bartlomiej

@@ -1,59 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130139AbQLFBlY>; Tue, 5 Dec 2000 20:41:24 -0500
+	id <S131044AbQLFBme>; Tue, 5 Dec 2000 20:42:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131044AbQLFBlP>; Tue, 5 Dec 2000 20:41:15 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:24587 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130139AbQLFBlH>; Tue, 5 Dec 2000 20:41:07 -0500
-Message-ID: <3A2D91F0.D8FE8BBC@transmeta.com>
-Date: Tue, 05 Dec 2000 17:10:08 -0800
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test11-pre5 i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
+	id <S131185AbQLFBmP>; Tue, 5 Dec 2000 20:42:15 -0500
+Received: from mx1.eskimo.com ([204.122.16.48]:778 "EHLO mx1.eskimo.com")
+	by vger.kernel.org with ESMTP id <S131179AbQLFBly>;
+	Tue, 5 Dec 2000 20:41:54 -0500
+Date: Tue, 5 Dec 2000 17:11:19 -0800 (PST)
+From: Clayton Weaver <cgweav@eskimo.com>
+To: linux-kernel@vger.kernel.org
+Subject: tulip-ethernet 2.2.17-2.2.18preN http nethangs fixed
+Message-ID: <Pine.SUN.3.96.1001205163816.8029A-100000@eskimo.com>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Kai Germaschewski <kai@thphy.uni-duesseldorf.de>,
-        Alan Cox <alan@redhat.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: That horrible hack from hell called A20
-In-Reply-To: <Pine.LNX.4.10.10012051703080.811-100000@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> Actually, I bet I know what's up.
-> 
-> Want to bet $5 USD that suspend/resume saves the keyboard A20 state, but
-> does NOT save the fast-A20 gate information?
-> 
-> So anything that enables A20 with only the fast A20 gate will find that
-> A20 is disabled again on resume.
-> 
-> Which would make Linux _really_ unhappy, needless to say. Instant death in
-> the form of a triple fault (all of the Linux kernel code is in the 1-2MB
-> area, which would be invisible), resulting in an instant reboot.
-> 
-> Peter, we definitely need to do the keyboard A20, even if fast-A20 works
-> fine.
-> 
+This problem is solved.
 
-Yup.  It's a BIOS bug, oh what a shocker... (that never happens, right)?
+Regards,
 
-I might hack on using INT 15h to do the jump to protected mode, as ugly
-as it is, but I won't have time before my trip.  It would require quite a
-bit of restructuring in setup.S, and would probably break LOADLIN.
+Clayton Weaver
+<mailto:cgweav@eskimo.com>
+(Seattle)
 
-	-hpa
+"Everybody's ignorant, just in different subjects."  Will Rogers
 
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+
+
+
+
+
+
+(just kidding)
+It was the cache alignment setting in tulip.c (saved me sifting through
+the bowels of the pci code to find it).
+
+I choose "486" for the cpu in "make config" for the kernel for a Cyrix
+5x86 running on an Asus sp3 with sis496 pci 2.0 bus (it has been
+wonderfully stable for 5 years this way, why rock the boat).
+
+The .90 driver in 2.0.38 detects the "486" and sets the cache alignment to
+0x01a0480. The .91g-ppc driver in 2.2.15+ doesn't check to see if we're
+running a 486 or lower, it simply sets CSR0 to 0x01A08000 if __i386__
+is defined. Using "static int csr0 = 0x01A00000 | 0x4800;" and
+recompiling fixed the http-induced kernel deadlocks that I was seeing.
+
+I could send a patch, but I don't know if the variable that the code
+in .90 was using is defined in 2.2.1x, etc, whether it is deprecated,
+various stuff that anyone maintaining 2.2.x pci ethernet drivers probably
+already knows.
+
+But that fixed it.
+
+--
+
+make config for 5x86 note:
+
+Both the AMD and Cyrix, different as they are, should be 486 IIRC. The
+AMD certainly does not implement the p5 instruction set. The Cyrix might
+benefit from 586 instruction scheduling, but I'd have to see it to believe
+it, and it certainly won't help the AMD5x86, which is merely a fast 486dx
+with a bigger cache. If your gcc specs file considers "-m586" to mean both
+-mcpu=i586 and -march=i586, you are doomed if you compile with that flag
+for sure for the AMD, and maybe for the Cyrix 5x86 too. Who knows whether
+the p5 instructions all worked in the m1sc, even if that logic was on the
+chip before they hacked the m1sc to use the narrow 486 memory bus? IIRC
+Cyrix never claimed that you could run p5 binaries on it.
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

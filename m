@@ -1,25 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287478AbSAURQt>; Mon, 21 Jan 2002 12:16:49 -0500
+	id <S287518AbSAURTe>; Mon, 21 Jan 2002 12:19:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287500AbSAURQe>; Mon, 21 Jan 2002 12:16:34 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:30985 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S287478AbSAURQY>; Mon, 21 Jan 2002 12:16:24 -0500
-Message-ID: <3C4C70A8.86BA02A4@namesys.com>
-Date: Mon, 21 Jan 2002 19:48:56 +0000
-From: Edward Shushkin <edward@namesys.com>
-Organization: Namesys
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.5.2-pre1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: scsi ncr53c8XX again
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+	id <S287552AbSAURTP>; Mon, 21 Jan 2002 12:19:15 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:33557 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S287518AbSAURTI>; Mon, 21 Jan 2002 12:19:08 -0500
+Date: Mon, 21 Jan 2002 18:19:46 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: o_direct-leftovers
+Message-ID: <20020121181946.J8292@athlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anybody has a patch against 2.5.2 to make it compile and work?
-Thank you in advance.
-Edward.
+this sec patch is missing from 2.4.18pre, please include (it's on the
+same lines of the truncate-garbage patch):
+
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.18pre2aa2/00_o_direct-leftovers-2
+
+Andrea

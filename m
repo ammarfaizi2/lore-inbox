@@ -1,54 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315946AbSHFWUc>; Tue, 6 Aug 2002 18:20:32 -0400
+	id <S315928AbSHFWSg>; Tue, 6 Aug 2002 18:18:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315988AbSHFWUc>; Tue, 6 Aug 2002 18:20:32 -0400
-Received: from cerebus.wirex.com ([65.102.14.138]:13302 "EHLO
-	figure1.int.wirex.com") by vger.kernel.org with ESMTP
-	id <S315946AbSHFWUa>; Tue, 6 Aug 2002 18:20:30 -0400
-Date: Tue, 6 Aug 2002 15:22:19 -0700
-From: Chris Wright <chris@wirex.com>
-To: linux-security-module@wirex.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] 2.4.19-lsm1
-Message-ID: <20020806152219.A29159@figure1.int.wirex.com>
-Mail-Followup-To: linux-security-module@wirex.com,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S315942AbSHFWSg>; Tue, 6 Aug 2002 18:18:36 -0400
+Received: from daimi.au.dk ([130.225.16.1]:31411 "EHLO daimi.au.dk")
+	by vger.kernel.org with ESMTP id <S315928AbSHFWSf>;
+	Tue, 6 Aug 2002 18:18:35 -0400
+Message-ID: <3D504C10.7975CCD8@daimi.au.dk>
+Date: Wed, 07 Aug 2002 00:22:08 +0200
+From: Kasper Dupont <kasperd@daimi.au.dk>
+Organization: daimi.au.dk
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9-31smp i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@redhat.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.19-ac1
+References: <200208031859.g73IxiA09952@devserv.devel.redhat.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Linux Security Modules project provides a lightweight, general
-purpose framework for access control.  The LSM interface enables
-security policies to be developed as loadable kernel modules.
-See http://lsm.immunix.org for more information.
+I'm using 2.4.19-ac1 with patch-int-2.4.18.2. The system
+was running and heavily used for 2 days and 22 hours
+without a single glitch, but at shutdown I got an Oops
+from S01halt. I had no way to save the output, so I just
+wrote down the IP and calltrace, here is the output from
+ksymoops with that input:
 
-2.4.19 lsm patch released.  This is includes bugfixes and merging up to
-the current stable 2.4 Linux tree.
+Trace; c012c077 <kmem_cache_free+37/a0>
+Trace; c011df6c <free_uid+2c/30>
+Trace; c01188cc <release_task+2c/120>
+Trace; c0119746 <sys_wait4+2f6/380>
+Trace; c01089f3 <system_call+33/40>
 
-Full lsm-2.4 patch (LSM + all modules) is available at:
-	http://lsm.immunix.org/patches/2.4/2.4.19/patch-2.4.19-lsm1.gz
+I don't think it is related to the patch, which have
+been working flawlessly since 2.4.18. I don't know yet
+if the problem can be reproduced.
 
-The whole ChangeLog for this release is at:
-	http://lsm.immunix.org/patches/2.4/2.4.19/ChangeLog-2.4.19-lsm1
-
-The LSM 2.4 stable BK tree can be pulled from:
-        bk://lsm.bkbits.net/lsm-2.4
-
-2.4.19-lsm1
- - merge through 2.4.19-rc5				(me)
- - merge with 2.4.19 final				(James Morris)
- - SELinux: Bug fixes for the PSID mapping code.	(Stephen Smalley)
- - Fix memory leaks in IPC LSM hooking.			(Stephen Smalley)
- - Fix file_lock hooks.					(Matthew Wilcox)
- - update modules according to file_lock hook change	(me)
- - add settime() hook					(Robb Romans)
- - remove __exit attribute from selinux_nf_ip_exit	(me)
-
-thanks,
--chris
 -- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Kasper Dupont -- der bruger for meget tid på usenet.
+For sending spam use mailto:razrep@daimi.au.dk
+or mailto:mcxumhvenwblvtl@skrammel.yaboo.dk

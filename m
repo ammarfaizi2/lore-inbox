@@ -1,128 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262282AbTJTFbq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 01:31:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262286AbTJTFbq
+	id S262297AbTJTFcd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 01:32:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262291AbTJTFcd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 01:31:46 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:38889
-	"EHLO velociraptor.random") by vger.kernel.org with ESMTP
-	id S262282AbTJTFbn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 01:31:43 -0400
-Date: Mon, 20 Oct 2003 07:32:29 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Shantanu Goel <sgoel01@yahoo.com>, linux-kernel@vger.kernel.org,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: [PATCH] 2.4.23-pre7 vmscan.c typo
-Message-ID: <20031020053229.GC1906@velociraptor.random>
-References: <20031020014025.42111.qmail@web12812.mail.yahoo.com> <20031019220005.129e5358.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031019220005.129e5358.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+	Mon, 20 Oct 2003 01:32:33 -0400
+Received: from SteeleMR-loadb-NAT-49.caltech.edu ([131.215.49.69]:13751 "EHLO
+	earth-ox.its.caltech.edu") by vger.kernel.org with ESMTP
+	id S262286AbTJTFc1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Oct 2003 01:32:27 -0400
+Date: Sun, 19 Oct 2003 22:32:23 -0700 (PDT)
+From: "Noah J. Misch" <noah@caltech.edu>
+X-X-Sender: noah@clyde
+To: B.Zolnierkiewicz@elka.pw.edu.pl
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org, rddunlap@osdl.org
+Subject: [PATCH] Fix drivers/ide/pci/siimage.c for PROC_FS=n
+Message-ID: <Pine.GSO.4.58.0310171451240.13905@blinky>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 19, 2003 at 10:00:05PM -0700, Andrew Morton wrote:
-> Shantanu Goel <sgoel01@yahoo.com> wrote:
-> >
-> > The following appears to be a typo in mm/vmscan.c
-> > 
-> 
-> It sure is.  Scary.
+Greetings Bartlomiej,
 
-indeed, great spotting.
+I'm sending this patch to you as the IDE maintainer; please let me know if one
+of the authors of the driver in question should take it instead.
 
-> 
-> --- a/mm/vmscan.c	2003-10-19 21:36:26.000000000 -0400
-> +++ a/mm/vmscan.c	2003-10-19 21:37:17.000000000 -0400
-> @@ -596,7 +596,7 @@
->  			continue;
->  		}
->  
-> -		nr_pages--;
-> +		ratio--;
->  
->  		del_page_from_active_list(page);
->  		add_page_to_inactive_list(page);
-> 
-> 
-> 
-> I note that `ratio' here is the number of pages which we try to deactivate
-> rather than the number of pages which we scan.  Is this intentional?
+The Silicon Image SATA driver is not building properly when CONFIG_PROC_FS is
+unset.  This patch corrects that problem.  It appears as though several utility
+functions at the top of drivers/ide/pci/siimage.c that the driver always needs
+accidentally fell within an #ifdef CONFIG_PROC_FS.  I also removed an excess
+include while I noticed it.
 
-yes, it's intentional, this ensures we refile a number of pages and that
-we don't only roll the list, it won't loop forever since at the second
-pass the referenced bit will be clear.
+The patch applies to linux-2.5 BK as of 0400 UTC 10/20/2003.  I successfully
+compiled the driver without PROC_FS and also did a successful allyesconfig build
+on i386 with this change applied.  Since I do not have this hardware, I could
+not test the driver in operation, but I think the change is straightforward.
 
-BTW, the above obviously correct patch was apparently due an half merge
-error too, this is what my 2.4.22aa1 or alternatively 2.4.23pre6aa3
-looks like in this area. This gets right the highmem case too, so that
-we ensure to refile normal zone if the user is GFP_KERNEL and we don't
-deactivate highmem unless it's worthwhile, and it has the bh-related
-knwoledge, so over time it'd be better to merge these bits too.
+Thanks,
+Noah
 
-thanks,
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.1346  -> 1.1347
+#	drivers/ide/pci/siimage.c	1.16    -> 1.17
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 03/10/16	noah@caltech.edu	1.1347
+# Make several functions in drivers/ide/pci/siimage.c compile regardless
+# of CONFIG_PROC_FS.  They are generally applicable, and leaving them out
+# prevents building the driver without CONFIG_PROC_FS.
+# --------------------------------------------
+#
+diff -Nru a/drivers/ide/pci/siimage.c b/drivers/ide/pci/siimage.c
+--- a/drivers/ide/pci/siimage.c	Thu Oct 16 19:44:07 2003
++++ b/drivers/ide/pci/siimage.c	Thu Oct 16 19:44:07 2003
+@@ -35,13 +35,13 @@
+ #include "siimage.h"
 
-static void refill_inactive(int nr_pages, zone_t * classzone)
-{
-	struct list_head * entry;
-	unsigned long ratio;
+ #if defined(DISPLAY_SIIMAGE_TIMINGS) && defined(CONFIG_PROC_FS)
+-#include <linux/stat.h>
+ #include <linux/proc_fs.h>
 
-	ratio = (unsigned long) nr_pages * classzone->nr_active_pages / (((unsigned long) classzone->nr_inactive_pages * vm_lru_balance_ratio) + 1);
+ static u8 siimage_proc = 0;
+ #define SIIMAGE_MAX_DEVS		16
+ static struct pci_dev *siimage_devs[SIIMAGE_MAX_DEVS];
+ static int n_siimage_devs;
++#endif /* defined(DISPLAY_SIIMAGE_TIMINGS) && defined(CONFIG_PROC_FS) */
 
-	entry = active_list.prev;
-	while (ratio && entry != &active_list) {
-		struct page * page;
-		int related_metadata = 0;
+ /**
+  *	pdev_is_sata		-	check if device is SATA
+@@ -120,6 +120,8 @@
+ 	base |= drive->select.b.unit << drive->select.b.unit;
+ 	return base;
+ }
++
++#if defined(DISPLAY_SIIMAGE_TIMINGS) && defined(CONFIG_PROC_FS)
 
-		page = list_entry(entry, struct page, lru);
-		entry = entry->prev;
+ /**
+  *	print_siimage_get_info	-	print minimal proc information
 
-		if (!memclass(page_zone(page), classzone)) {
-			/*
-			 * Hack to address an issue found by Rik. The problem is that
-			 * highmem pages can hold buffer headers allocated
-			 * from the slab on lowmem, and so if we are working
-			 * on the NORMAL classzone here, it is correct not to
-			 * try to free the highmem pages themself (that would be useless)
-			 * but we must make sure to drop any lowmem metadata related to those
-			 * highmem pages.
-			 */
-			if (page->buffers && page->mapping) { /* fast path racy check */
-				if (unlikely(TryLockPage(page)))
-					continue;
-				if (page->buffers && page->mapping && memclass_related_bhs(page, classzone)) /* non racy check */
-					related_metadata = 1;
-				UnlockPage(page);
-			}
-			if (!related_metadata)
-				continue;
-		}
-
-		if (PageTestandClearReferenced(page)) {
-			list_del(&page->lru);
-			list_add(&page->lru, &active_list);
-			continue;
-		}
-
-		if (!related_metadata)
-			ratio--;
-
-		del_page_from_active_list(page);
-		add_page_to_inactive_list(page);
-		SetPageReferenced(page);
-	}
-	if (entry != &active_list) {
-		list_del(&active_list);
-		list_add(&active_list, entry);
-	}
-}
-
-Andrea - If you prefer relying on open source software, check these links:
-	    rsync.kernel.org::pub/scm/linux/kernel/bkcvs/linux-2.[45]/
-	    http://www.cobite.com/cvsps/

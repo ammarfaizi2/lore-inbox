@@ -1,52 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261276AbUBTTnU (ORCPT <rfc822;willy@w.ods.org>);
+	id S261397AbUBTTnU (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 20 Feb 2004 14:43:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261368AbUBTTmo
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261399AbUBTTmZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 14:42:44 -0500
-Received: from fmr06.intel.com ([134.134.136.7]:24529 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261392AbUBTTiO convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 14:38:14 -0500
-Content-Class: urn:content-classes:message
-MIME-Version: 1.0
+	Fri, 20 Feb 2004 14:42:25 -0500
+Received: from fw.osdl.org ([65.172.181.6]:2225 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261378AbUBTTej convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Feb 2004 14:34:39 -0500
+Date: Fri, 20 Feb 2004 11:34:27 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Andrew Walrond <andrew@walrond.org>
+Cc: YOSHIFUJI Hideaki / =?ISO-8859-1?B?X19fX19fX19fX19f?= 
+	<yoshfuji@linux-ipv6.org>,
+       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: Linux-2.6.3 : [eth0: Too much work at interrupt,
+ status=0x00000001.]
+Message-Id: <20040220113427.0a088fb9@dell_ss3.pdx.osdl.net>
+In-Reply-To: <200402201915.09342.andrew@walrond.org>
+References: <200402201803.12146.andrew@walrond.org>
+	<20040221.032006.68375681.yoshfuji@linux-ipv6.org>
+	<200402201915.09342.andrew@walrond.org>
+Organization: Open Source Development Lab
+X-Mailer: Sylpheed version 0.9.9claws (GTK+ 1.2.10; i386-redhat-linux-gnu)
+X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
+ /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: [PATCH]2.6.3-rc2 MSI Support for IA64
-Date: Fri, 20 Feb 2004 11:38:05 -0800
-Message-ID: <C7AB9DA4D0B1F344BF2489FA165E5024040580FF@orsmsx404.jf.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH]2.6.3-rc2 MSI Support for IA64
-Thread-Index: AcP35IX7O7bY627mQam4akDjx5KbzgAA7vXg
-From: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
-To: <davidm@hpl.hp.com>
-Cc: "Andreas Schwab" <schwab@suse.de>, <greg@kroah.com>,
-       <linux-kernel@vger.kernel.org>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>,
-       "Luck, Tony" <tony.luck@intel.com>
-X-OriginalArrivalTime: 20 Feb 2004 19:38:06.0248 (UTC) FILETIME=[0FE2FA80:01C3F7E9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Friday, Feb. 20, 2004 11:05 AM, David Mosberger wrote:
+On Fri, 20 Feb 2004 19:15:09 +0000
+Andrew Walrond <andrew@walrond.org> wrote:
 
->  Tom> To avoid some #ifdef statements as possible, "ia64_platform" 
->  Tom> defined in the header file "msi.h" is set to TRUE only if 
->  Tom> setting CONFIG_IA64 to 'Y'. The setting of ia64_platform
->  Tom> to TRUE will execute function ia64_alloc_vector.
+> On Friday 20 Feb 2004 6:20 pm, YOSHIFUJI Hideaki / ____________ wrote:
+> > In article <200402201803.12146.andrew@walrond.org> (at Fri, 20 Feb 2004 
+> 18:03:11 +0000), Andrew Walrond <andrew@walrond.org> says:
+> >
+> > I've got this several times, randomly, and
+> > I had to go to the console to reboot the machine.
+> >
+> 
+> Well the machine and network (at least with just ssh access) is working fine
+> 
+> I left the machine (which is a remote rack-mounted server) for an hour and now 
+> there is perhaps 120 of these warnings. Net is still working though.
+> 
+> Unless anyone has any ideas, I'll move back to 2.4 on this machine
+> 
+> Andrew
 
->  Tom> This API is only used in assign_msi_vector()in msi.c:
+The driver needs to be converted to NAPI to sustain high network loads.
+The existing driver allocates and copies each receive packet in the interrupt routine.
 
->  Tom> vector = (ia64_platform ? ia64_alloc_vector() : assign_irq_vector(MSI_AUTO));
-
-> Surely this can be abstracted properly?
-
-This patch was tested on both IA64 (Intel and HP) machines and I386 machine
-in our lab.
-
-Thanks,
-Long
+See the recent revision of 8139too to see what that entails.

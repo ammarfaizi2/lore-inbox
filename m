@@ -1,85 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263612AbTKFN6s (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Nov 2003 08:58:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263583AbTKFN6s
+	id S263662AbTKFONq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Nov 2003 09:13:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263666AbTKFONq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Nov 2003 08:58:48 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:50048 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S263614AbTKFN6B
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Nov 2003 08:58:01 -0500
-Date: Thu, 6 Nov 2003 08:59:22 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Scott Robert Ladd <coyote@coyotegulch.com>
-cc: Andrew Walrond <andrew@walrond.org>, linux-kernel@vger.kernel.org
-Subject: Re: BK2CVS problem
-In-Reply-To: <3FAA4C26.9080900@coyotegulch.com>
-Message-ID: <Pine.LNX.4.53.0311060838180.3117@chaos>
-References: <20031105204522.GA11431@work.bitmover.com> <20031105225134.GA14149@win.tue.nl>
- <20031106070721.GA18028@mcgroarty.net> <200311061141.00595.andrew@walrond.org>
- <3FAA4C26.9080900@coyotegulch.com>
+	Thu, 6 Nov 2003 09:13:46 -0500
+Received: from tisch.mail.mindspring.net ([207.69.200.157]:13844 "EHLO
+	tisch.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id S263662AbTKFONn convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Nov 2003 09:13:43 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Oliver Dain <omd1@cornell.edu>
+To: Gianni Tedesco <gianni@scaramanga.co.uk>, odain2@mindspring.com
+Subject: Re: CONFIG_PACKET_MMAP revisited
+Date: Thu, 6 Nov 2003 09:13:41 -0500
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org
+References: <176730-2200310329491330@M2W026.mail2web.com> <1068116914.6144.1410.camel@lemsip>
+In-Reply-To: <1068116914.6144.1410.camel@lemsip>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200311060913.41719.omd1@cornell.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Nov 2003, Scott Robert Ladd wrote:
-
-> Andrew Walrond wrote:
-> > Somebody getting access to and inserting exploits directly into the linux
-> > source is not something we should take lightly. Whilst we understand the
-> > limits of the problem, the fact that it happened at all could get /.'d out of
-> > all proportion and be used to seriously undermine linux's reputation
+On Thursday November 6 2003 6:08 am, Gianni Tedesco wrote:
+> On Wed, 2003-10-29 at 05:09, odain2@mindspring.com wrote:
+> > I believe that in normal operation each packet
+> > (or with NICs that do interrupt coalescing, every n packets) causes an
+> > interrupt which causes a context switch, the kernel then copies the data
+> > from the DMA buffer to the shared buffer and does a RETI.  That's fairly
+> > expensive.
 >
-> Well, it's hit /. and OSNews already this morning.
+> The cost of handling that interrupt and doing an iret is unavoidable
+> (ignoring NAPI). The main point you are missing with the ring buffer is
+> that if packets come in at a fast enough rate, the usermode task never
+> context switches, because there is always data in the ring buffer, so it
+> loops in usermode forever.
+
+It seems to me that it can't loop in user mode forever.  There is no way to 
+get data into user mode (the ring buffer) witout going through the kernel.  
+My understanding is that the NIC doesn't transfer directly to the user mode 
+ring buffer, but rather to a different DMA buffer.  The kernel must copy it 
+from the DMA buffer to the ring buffer. Thus once the user mode app has 
+processed all the data in the ring buffer the kenel _must_ get involved to 
+get more data to user space.  Currently the data gets there because the NIC 
+produces an interrupt for each packet (or for every few packets) and when the 
+kernel handles these the data is copied to user space.  Then, as you point 
+out, the cost of the RETI can't be avoided.  
+
+NAPI tries to solve this problem.  I don't know much about NAPI, but as I 
+understand it, the idea is this: The cost of the RETI's and context switches 
+(which occur on each interrupt) can be reduced if the NIC doesn't produce an 
+interrupt for every packet but instead does interrupt coalescing, but this 
+only goes so far.  If too many packets are coalesced the data copied by the 
+kernel will no longer fit in the L1 cache and we'll pay the price of moving 
+it there twice (once when the kernel copies the data from main memory to the 
+ring buffer and once when the user mode application reads it out of the 
+ring), the latency may become a problem, we've still got a context switch 
+every time the user mode application has processed everything in the ring 
+buffer (and perhaps more often), and we're still paying the price of copying 
+data from the DMA buffer to the ring.
+
+However, if the NIC could transfer the data directly to user space it wouldn't 
+need to cause an interrupt and the cost of the RETI and the context switch is 
+avoided.  The user mode app really could process forever without sleeping at 
+that point.
+
+> The problem could be the packets are coming in just too slow to allow
+> the ring buffer to work properly and causing the application to sleep on
+> poll(2) every time. This would kill performance at pathelogical packet
+> rates I guess.
 >
-> Mainstream media is now aware of Linux; for better or worse, someday, an
-> issue like this is going to leak beyond Slashdot onto the pages of the
-> Wall Street Journal and ZDNet. Maybe not this time -- but eventually.
->
-> Open development is the ultimate in honesty -- and honesty leaves us
-> vulnerable to being bitten by the ignorati and anti-freedom forces.
->
-> --
-> Scott Robert Ladd
-> Coyote Gulch Productions (http://www.coyotegulch.com)
-> Software Invention for High-Performance Computing
-
-This may not really be the problem. It is well known that
-anybody who has the capabilities of inserting a module into
-the most secure kernel in the universe, could have designed
-the module to give the current caller root privs when some
-module function is executed.
-
-$ whoami
-cracker
-$ od /dev/TROJAN
-$ whoami
-root
-$
-
-The kernel sources can be inspected using automation, looking
-for accesses to 'current'. The expected patterns can be ignored.
-Accesses to current->XXX,current->YYY,current->YYY, etc., could be
-reviewed. However, this doesn't stop the clever programmer who
-creates a pointer that, using a difficult-to-follow path, has
-access to these structure members.
-
-So, basically, any open-source kernel is vulnerable. Also any
-closed-source kernel is also vulnerable. We already know that
-M$ had hundreds of bugs, perhaps more, that allowed a hacker
-complete unrestricted access to a machine on the network. We
-also know that there are deliberate back-doors inserted to
-allow governments to inspect the contents of these computers
-(search on magic lantern and carnivor).
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
+> You could work around this by spinning for a few thousand spins before
+> calling poll(2) (or even indefinately for that matter, and allow the
+> kernel to preempt you if need be).
 
 

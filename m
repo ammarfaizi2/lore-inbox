@@ -1,61 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261176AbVDDImX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261177AbVDDIoz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261176AbVDDImX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 04:42:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261177AbVDDImX
+	id S261177AbVDDIoz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 04:44:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261180AbVDDIoz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 04:42:23 -0400
-Received: from mail.hosted.servetheworld.net ([62.70.14.38]:35526 "HELO
-	mail.hosted.servetheworld.net") by vger.kernel.org with SMTP
-	id S261176AbVDDImP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 04:42:15 -0400
-Message-ID: <4250FDE4.6090107@osvik.no>
-Date: Mon, 04 Apr 2005 10:42:12 +0200
-From: Dag Arne Osvik <da@osvik.no>
-User-Agent: Mozilla Thunderbird 1.0.2-1.3.2 (X11/20050324)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Herbert Xu <herbert@gondor.apana.org.au>
-CC: viro@parcelfarce.linux.theplanet.co.uk, sfr@canb.auug.org.au,
-       linux-kernel@vger.kernel.org
-Subject: Re: Use of C99 int types
-References: <E1DIHww-0004bU-00@gondolin.me.apana.org.au>
-In-Reply-To: <E1DIHww-0004bU-00@gondolin.me.apana.org.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 4 Apr 2005 04:44:55 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:52102 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261177AbVDDIox (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 04:44:53 -0400
+Date: Mon, 4 Apr 2005 10:44:28 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Li Shaohua <shaohua.li@intel.com>, linux-kernel@vger.kernel.org,
+       acpi-devel@lists.sourceforge.net, zwane@linuxpower.ca,
+       len.brown@intel.com
+Subject: Re: [RFC 0/6] S3 SMP support with physcial CPU hotplug
+Message-ID: <20050404084428.GA14642@elf.ucw.cz>
+References: <1112580342.4194.329.camel@sli10-desk.sh.intel.com> <20050403193750.40cdabb2.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050403193750.40cdabb2.akpm@osdl.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Herbert Xu wrote:
+Hi!
 
->Dag Arne Osvik <da@osvik.no> wrote:
->  
->
->>>... and with such name 99% will assume (at least at the first reading)
->>>that it _is_ 32bits.  We have more than enough portability bugs as it
->>>is, no need to invite more by bad names.
->>>      
->>>
->>Agreed.  The way I see it there are two reasonable options.  One is to 
->>just use u32, which is always correct but sacrifices speed (at least 
->>with the current gcc).  The other is to introduce C99 types, which Linus 
->>doesn't seem to object to when they are kept away from interfaces 
->>(http://infocenter.guardiandigital.com/archive/linux-kernel/2004/Dec/0117.html).
->>    
->>
->
->There is a third option which has already been pointed out before:
->
->Use unsigned long.
->  
->
+> >
+> > The patches are against 2.6.11-rc1 with Zwane's CPU hotplug patch in -mm
+> >  tree.
+> 
+> Should I merge that thing into mainline?  It seems that a few people are
+> needing it.
 
-Yes, as Kulewski pointed out, unsigned long is at least 32 bits wide and 
-therefore correct.  Whether it's also fastest is less of a concern, but 
-it is so for at least the x86* architectures.  So, sure, I'll use it.
-
-Cheers all,
+Yes, it would be great. I have patch that cleans up smp/swsusp to
+depend on Zwane's patch, too. Its ready AFAIK, but I'd prefer to wait
+after 2.6.12 with its merge.
+								Pavel
 
 -- 
-  Dag Arne
-
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

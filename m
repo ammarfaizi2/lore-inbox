@@ -1,68 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135589AbREEXSK>; Sat, 5 May 2001 19:18:10 -0400
+	id <S133056AbREEX1W>; Sat, 5 May 2001 19:27:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135590AbREEXSB>; Sat, 5 May 2001 19:18:01 -0400
-Received: from thepigsty.demon.co.uk ([158.152.99.38]:56269 "EHLO
-	mad.pigsty.org.uk") by vger.kernel.org with ESMTP
-	id <S135589AbREEXR5>; Sat, 5 May 2001 19:17:57 -0400
-To: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>
-Subject: ipv6 activity causing system hang in kernel 2.4.4
-From: Tim Haynes <kernel@stirfried.vegetable.org.uk>
-Reply-To: kernel@stirfried.vegetable.org.uk (Tim Haynes)
-Date: 06 May 2001 00:17:47 +0100
-Message-ID: <871yq3mllw.fsf@straw.pigsty.org.uk>
-User-Agent: Gnus/5.090003 (Oort Gnus v0.03) XEmacs/21.1 (Cuyahoga Valley)
-MIME-Version: 1.0
+	id <S135590AbREEX1M>; Sat, 5 May 2001 19:27:12 -0400
+Received: from snark.tuxedo.org ([207.106.50.26]:22023 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S133056AbREEX07>;
+	Sat, 5 May 2001 19:26:59 -0400
+Date: Sat, 5 May 2001 19:27:31 -0400
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net
+Subject: CML2 design philosophy heads-up
+Message-ID: <20010505192731.A2374@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	CML2 <linux-kernel@vger.kernel.org>,
+	kbuild-devel@lists.sourceforge.net
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    [I can't see evidence of this being reported before; apols if I'm
-     wrong. Please also Cc: me as I only read l-k intermittently but would
-     like to help out more.]
+I've said before on these lists that one of the purposes of CML2's single-apex
+tree design is to move the configuration dialog away from low-level platform-
+specific questions towards higher-level questions about policy or intentions.
 
-Hi,
+Or to put another way: away from hardware, towards capabilities.
 
-I've been making very tentative forays into IPv6. However, in my simple
-experiments thus far I appear to have located a bug:
+As a concrete example, the CML2 rulesfile master for the m68k port
+tree now has a section that looks like this:
 
-1/ configure 2 machines with site-local IP#s - I'm using 
-        ifconfig eth0 inet6 add fec0:1234:5:6::n 
-2/ flood-ping from one to the other
-3/ after about 15s, watch one box hang, needing magic-sysreq or hard reset
+# These were separate questions in CML1.  They enable on-board peripheral
+# controllers in single-board computers.
+derive MVME147_NET from MVME147 & NET_ETHERNET
+derive MVME147_SCC from MVME147 & SERIAL
+derive MVME147_SCSI from MVME147 & SCSI
+derive MVME16x_NET from MVME16x & NET_ETHERNET
+derive MVME16x_SCC from MVME16x & SERIAL
+derive MVME16x_SCSI from MVME16x & SCSI
+derive BVME6000_NET from BVME6000 & NET_ETHERNET
+derive BVME6000_SCC from BVME6000 & SERIAL
+derive BVME6000_SCSI from BVME6000 & SCSI
 
-This is only with kernel 2.4.4; 2.4.2, 2.4.3 and NetBSD boxes are not
-affected. It is independent of platform; I've reproduced it at will on a
-lowly p75, an athlon, a p3-800 and on a powerbook/PPC.
+# These were separate questions in CML1
+derive MAC_SCC from MAC & SERIAL
+derive MAC_SCSI from MAC & SCSI
+derive SUN3_SCSI from (SUN3 | SUN3X) & SCSI
 
-All kernels are compiled to have ipv6 modular, netfilter modular...
-everything with which I'm playing, modular.
+If it isn't obvious, the intent is that if you specify (say) both 
+MVME147 (a machine type) and SERIAL (a capability) you automatically 
+get the specific driver support under MVME147_SCC.
 
-Compiler versions:
-| zsh, 12:06AM % gcc -v
-| Reading specs from /usr/lib/gcc-lib/powerpc-linux/2.95.4/specs
-| gcc version 2.95.4 20010319 (Debian prerelease)
-| zsh, 12:06AM % gcc -v
-| Reading specs from /usr/lib/gcc-lib/i386-linux/2.95.4/specs
-| gcc version 2.95.4 20010319 (Debian prerelease)
-(I'm tracking Debian/Unstable here.)
+This is different from the CML1 approach, which generally involved
+explicitly specifying each driver with mutual dependencies described 
+(if at all) in Configure.help.
 
-I have tcpdump logs (<http://spodzone.org.uk/~tim/ipv6/> - they're 570K
-apiece); the `victim' machine receives nothing but ping-requests and sends
-nothing but ping-replies until the file is truncated; the surviving box
-sends nothing but requests and receives nothing but replies until it
-becomes requests-only. (IOW there is no evidence of ARP, fragmentation
-traffic, only the pings.)
+I've created a number of derivations of this kind recently.  I'm not
+going out of my way to do this, but what I am trying to do is reduce
+the number of symbols undocumented in Configure.help to zero (I've got
+it down to 243 from 547 when I started).  When I can eliminate the
+need for a configuration question and associated help by writing this
+kind of formula, I'm doing so.
 
-The Changelog lists an `IPv6 packet re-assembly fix' in -pre2; my
-suspicions lie in this area or with my compiler.
-
-If there's anything else I can provide by way of diagnostics, please let me
-know.
-
-Cheers,
-
-~Tim
+This note is a heads-up.  If others with a stake in the configuration
+system (port managers, etc.) have objections to moving further in this
+direction, I need to hear about it, and about what you think we should
+be doing instead.
 -- 
-<http://spodzone.org.uk/>
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+
+Never could an increase of comfort or security be a sufficient good to be
+bought at the price of liberty.
+	-- Hillaire Belloc

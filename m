@@ -1,68 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317887AbSGKUEP>; Thu, 11 Jul 2002 16:04:15 -0400
+	id <S317888AbSGKUFN>; Thu, 11 Jul 2002 16:05:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317888AbSGKUEO>; Thu, 11 Jul 2002 16:04:14 -0400
-Received: from mail7.svr.pol.co.uk ([195.92.193.21]:46152 "EHLO
-	mail7.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S317887AbSGKUEN>; Thu, 11 Jul 2002 16:04:13 -0400
-Posted-Date: Thu, 11 Jul 2002 20:06:51 GMT
-Date: Thu, 11 Jul 2002 21:06:50 +0100 (BST)
-From: Riley Williams <rhw@InfraDead.Org>
-Reply-To: Riley Williams <rhw@InfraDead.Org>
-To: Tom Rini <trini@kernel.crashing.org>
-cc: Justin Hibbits <jrh29@po.cwru.edu>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Michael Elizabeth Chastain <mec@shout.net>
-Subject: Re: Patch for Menuconfig script
-In-Reply-To: <20020708181838.GL695@opus.bloom.county>
-Message-ID: <Pine.LNX.4.21.0207112100010.9595-100000@Consulate.UFP.CX>
+	id <S317892AbSGKUFM>; Thu, 11 Jul 2002 16:05:12 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:16845 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S317888AbSGKUFK> convert rfc822-to-8bit; Thu, 11 Jul 2002 16:05:10 -0400
+Date: Thu, 11 Jul 2002 22:07:50 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: =?iso-8859-1?Q?Micha=B3_Adamczak?= <pokryfka@druid.if.uj.edu.pl>
+cc: linux-kernel@vger.kernel.org, Thunder from the hill <thunder@ngforever.de>
+Subject: Re: compilation of floppy as module failure
+In-Reply-To: <20020711192357.GA3722@localhost>
+Message-ID: <Pine.NEB.4.44.0207112206280.24665-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Tom.
+On Thu, 11 Jul 2002, Micha³ Adamczak wrote:
 
->>>>> This is just a patch to the Menuconfig script (can be easily adapted
->>>>> to the other ones) that allows you to configure the kernel without
->>>>> the requirement of bash (I tested it with ksh, in POSIX-only mode).  
->>>>> Feel free to flame me :P
->>>>
->>>> Does it also work in the case where the current shell is csh or tcsh
->>>> (for example)?
->>>
->>> Er.. why wouldn't it?
->>> $ head -1 scripts/Menuconfig 
->>> #! /bin/sh
->>>
->>> So this removes the /bin/sh is not bash test, yes?
->>
->>  Q> # ls -l /bin/sh | tr -s '\t' ' '
->>  Q> lrwxrwxrwx 1 root root 4 May 7 1999 /bin/sh -> tcsh
->>  Q> #
->>
->> You tell me - the above is from one of the systems I regularly use,
->> which does not even have bash installed...
-> 
-> So does tcsh work as a POSIX-sh when invoked as /bin/sh ?
+> just wanted to report that in 2.4.19-rc1
+> the kernel image does not compile if floppy (CONFIG_BLK_DEV_FD) is
+> to be compiled as a module.
+>
+> the problem does not exist when the floppy is built in.
+>...
 
-You tell me - what exactly defines "a POSIX-sh" ???
+This is a known problem. The following patch that is already in Marcelos'
+BK repository fixes it:
 
-All I know is, the system in question does the job it's intended to, and
-that's about all the operators care about.
 
-Probably of more interest is this: Prior to your tweaks, the Menuconfig
-script just reported that one was trying to run it under the wrong
-shell. What happens when one tries to run your modified version under
-those conditions? There are only two valid answers:
+diff -Nru a/init/do_mounts.c b/init/do_mounts.c
+--- a/init/do_mounts.c	Mon Jun 24 14:08:10 2002
++++ b/init/do_mounts.c	Mon Jun 24 14:08:10 2002
+@@ -378,7 +378,7 @@
+ 	return sys_symlink(path + n + 5, name);
+ }
 
- 1. It runs successfully.
+-#if defined(CONFIG_BLOCK_DEV_RAM) || defined(CONFIG_BLK_DEV_FD)
++#if defined(CONFIG_BLK_DEV_RAM) || defined(CONFIG_BLK_DEV_FD)
+ static void __init change_floppy(char *fmt, ...)
+ {
+ 	struct termios termios;
 
- 2. It reports that it can't run under that shell.
+cu
+Adrian
 
-You're the one proposing the patch, so you're the one who needs to
-answer that question.
+-- 
 
-Best wishes from Riley.
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
 

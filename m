@@ -1,68 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264775AbTE1PrH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 11:47:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264776AbTE1PrH
+	id S264778AbTE1Pvk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 11:51:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264780AbTE1Pvk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 11:47:07 -0400
-Received: from fencepost.gnu.org ([199.232.76.164]:31455 "EHLO
-	fencepost.gnu.org") by vger.kernel.org with ESMTP id S264775AbTE1PrF
+	Wed, 28 May 2003 11:51:40 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:7428 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S264778AbTE1Pvi
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 11:47:05 -0400
-Date: Wed, 28 May 2003 12:00:20 -0400 (EDT)
-From: Pavel Roskin <proski@gnu.org>
-X-X-Sender: proski@marabou.research.att.com
-To: Christoph Hellwig <hch@infradead.org>
-cc: devfs@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Graceful failure in devfs_remove() in 2.5.x
-In-Reply-To: <20030528104603.A27503@infradead.org>
-Message-ID: <Pine.LNX.4.55.0305281143410.1556@marabou.research.att.com>
-References: <Pine.LNX.4.55.0305271105110.1412@marabou.research.att.com>
- <20030528104603.A27503@infradead.org>
+	Wed, 28 May 2003 11:51:38 -0400
+Date: Wed, 28 May 2003 11:58:49 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Ricky Beam <jfbeam@bluetronic.net>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.70
+In-Reply-To: <Pine.LNX.4.44.0305271024060.6597-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.3.96.1030528115243.19675A-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-869121793-1054137620=:1702"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Tue, 27 May 2003, Linus Torvalds wrote:
 
---8323328-869121793-1054137620=:1702
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+> 
+> On Tue, 27 May 2003, Ricky Beam wrote:
+> > 
+> > Count up the number of drivers that haven't been updated to the current
+> > PCI, hotplug, and modules interfaces.
+> 
+> Tough. If people don't use them, they don't get supported. It's that easy.
 
-On Wed, 28 May 2003, Christoph Hellwig wrote:
+Just the other day you posted strong opposition to breaking existing
+binaries, how does that map with breaking existing hardware?
+> 
+> The thing is, these things won't change before 2.6 (or at least a 
+> pre-2.6). When 2.6.0 comes out, and somebody notices that they haven't 
+> bothered to try the 2.5.x series, _then_ maybe some of those odd-ball 
+> drivers get fixed.
+> 
+> Or not. Some of them may be literally due for retirement, with users just 
+> running an old kernel on old hardware.
+> 
+> Btw, this is nothing new. It has _always_ been the case that a lot of 
+> people didn't use the latest stable kernel until it was released, and then 
+> they complained because the drivers they used weren't up to spec.
+> 
+> 			Linus
 
-> On Tue, May 27, 2003 at 11:29:53AM -0400, Pavel Roskin wrote:
-> > This patch makes devfs_remove() print an error to the kernel log and
-> > continue.  PRINTK is defined in fs/devfs/base.c to report errors in the
-> > cases like this one:
->
-> Patch looks okay _except_ for use of this gross macro.  Just
-> ise plain printk instead.
-
-I always try to follow the existing code style, but if you want me to make
-an exception, here it is.  Fixed patch is attached.
+That's clearly true, but part of the reason is that some drivers just
+don't compile, so people assume it's a work in progress. And when problems
+are reported they sometimes don't get fixed even when there is a
+maintainer listed for a driver. Hopefully vendors will pick up the slack
+for things like that and the power management issues.
 
 -- 
-Regards,
-Pavel Roskin
---8323328-869121793-1054137620=:1702
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="devfs-rm.diff"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.55.0305281200200.1702@marabou.research.att.com>
-Content-Description: 
-Content-Disposition: attachment; filename="devfs-rm.diff"
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 
-LS0tIGxpbnV4Lm9yaWcvZnMvZGV2ZnMvYmFzZS5jDQorKysgbGludXgvZnMv
-ZGV2ZnMvYmFzZS5jDQpAQCAtMTcxMCw2ICsxNzEwLDEyIEBAIHZvaWQgZGV2
-ZnNfcmVtb3ZlKGNvbnN0IGNoYXIgKmZtdCwgLi4uKQ0KIAlpZiAobiA8IDY0
-ICYmIGJ1ZlswXSkgew0KIAkJZGV2ZnNfaGFuZGxlX3QgZGUgPSBfZGV2ZnNf
-ZmluZF9lbnRyeShOVUxMLCBidWYsIDApOw0KIA0KKwkJaWYgKCFkZSkgew0K
-KwkJCXByaW50ayhLRVJOX0VSUiAiJXM6ICVzIG5vdCBmb3VuZCwgY2Fubm90
-IHJlbW92ZVxuIiwNCisJCQkgICAgICAgX19GVU5DVElPTl9fLCBidWYpOw0K
-KwkJCXJldHVybjsNCisJCX0NCisNCiAJCXdyaXRlX2xvY2soJmRlLT5wYXJl
-bnQtPnUuZGlyLmxvY2spOw0KIAkJX2RldmZzX3VucmVnaXN0ZXIoZGUtPnBh
-cmVudCwgZGUpOw0KIAkJZGV2ZnNfcHV0KGRlKTsNCg==
-
---8323328-869121793-1054137620=:1702--

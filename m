@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267001AbUBMUoU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 15:44:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267090AbUBMUoU
+	id S267182AbUBMUez (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 15:34:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267199AbUBMUez
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 15:44:20 -0500
-Received: from devil.servak.biz ([209.124.81.2]:40134 "EHLO devil.servak.biz")
-	by vger.kernel.org with ESMTP id S267001AbUBMUoT (ORCPT
+	Fri, 13 Feb 2004 15:34:55 -0500
+Received: from mail.kroah.org ([65.200.24.183]:14507 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S267182AbUBMUev (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 15:44:19 -0500
-Subject: Re: [BKPATCH] Fix for "Badness in kobject_get" (affected ieee1394)
-From: Torrey Hoffman <thoffman@arnor.net>
-To: Ben Collins <bcollins@debian.org>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       greg@kroah.com, Linux-Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040212145706.GB639@phunnypharm.org>
-References: <20040212145706.GB639@phunnypharm.org>
-Content-Type: text/plain
-Message-Id: <1076705441.6645.1.camel@moria.arnor.net>
+	Fri, 13 Feb 2004 15:34:51 -0500
+Date: Fri, 13 Feb 2004 12:33:37 -0800
+From: Greg KH <greg@kroah.com>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] sys_device_[un]register() are not syscalls
+Message-ID: <20040213203337.GA14048@kroah.com>
+References: <20040213080753.12af00bd.rddunlap@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Fri, 13 Feb 2004 12:50:41 -0800
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - devil.servak.biz
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - arnor.net
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040213080753.12af00bd.rddunlap@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-02-12 at 06:57, Ben Collins wrote:
-> This seems to have only affected ieee1394 because it uses
-> bus_for_each_dev in a particular (although correct) way.
-[...]
-> ChangeSet@1.1634, 2004-02-12 09:51:06-05:00, bcollins@debian.org
->   [DRV/BASE]: Put checks in bus_for_each_{dev,drv} to make sure we don't go past the end of the list.
+On Fri, Feb 13, 2004 at 08:07:53AM -0800, Randy.Dunlap wrote:
+> 
+> 
+> sys_xyz() names in Linux are all syscalls... except for
+> sys_device_register() and sys_device_unregister().
+> 
+> This patch renames them so that the sys_ namespace is once
+> again used only by syscalls.
+> 
+> Comments?
 
+Ah, that makes sense.  I'll add it to my patches to send off once 2.6.3
+is out.
 
-Thanks, I applied this on top of 2.6.3-rc2-mm1 and it fixed my crash at
-boot problem.  I'll do more extensive testing of the 1394 subsystem
-later today.
+thanks,
 
--- 
-Torrey Hoffman <thoffman@arnor.net>
-
+greg k-h

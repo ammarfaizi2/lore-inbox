@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291878AbSB0EMw>; Tue, 26 Feb 2002 23:12:52 -0500
+	id <S292035AbSB0EPm>; Tue, 26 Feb 2002 23:15:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291989AbSB0EMn>; Tue, 26 Feb 2002 23:12:43 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:46859 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S291878AbSB0EMd>;
-	Tue, 26 Feb 2002 23:12:33 -0500
-Date: Tue, 26 Feb 2002 20:06:06 -0800
-From: Greg KH <greg@kroah.com>
-To: Nathan <wfilardo@fuse.net>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.5-dj2 compile failures
-Message-ID: <20020227040606.GF3353@kroah.com>
-In-Reply-To: <3C7C4BBF.2020505@fuse.net>
+	id <S292005AbSB0EPX>; Tue, 26 Feb 2002 23:15:23 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:14464 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S292017AbSB0EPV>;
+	Tue, 26 Feb 2002 23:15:21 -0500
+Date: Tue, 26 Feb 2002 20:13:21 -0800 (PST)
+Message-Id: <20020226.201321.39157144.davem@redhat.com>
+To: greg@kroah.com
+Cc: linux-kernel@vger.kernel.org, jgarzik@mandrakesoft.com,
+        linux-net@vger.kernel.org
+Subject: Re: [BETA] First test release of Tigon3 driver
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020226172251.GA32073@kroah.com>
+In-Reply-To: <20020225.165914.123908101.davem@redhat.com>
+	<20020226172251.GA32073@kroah.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C7C4BBF.2020505@fuse.net>
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Wed, 30 Jan 2002 01:30:39 -0800
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 26, 2002 at 10:00:15PM -0500, Nathan wrote:
-> First the good news - it built the ALSA modules correctly this time around.
-> 
-> And I suspect these are trivial fixes:
->    USB storage fails by trying to reference "address" member of a 
-> scatterlist, which has a vdma_address (MIPS) or a dma_address (x86) 
-> (didn't check others).
->        USB Mass Storage is modular, all sub drivers selected.
-> 
->        This affects datafab.c and jumpshot.c.
+   From: Greg KH <greg@kroah.com>
+   Date: Tue, 26 Feb 2002 09:22:51 -0800
 
-Known problem, it's in 2.5.5 clean too.  Go bug the usb-storage
-author/maintainer about it if you really need to use the datafab or
-jumpshot portions of the driver.  If not, I'd recommend just turning
-those CONFIG items off for now.
+   Just wanted to say thanks for doing this work, the driver works great
+   for me for this device:
+   
+   01:04.0 Ethernet controller: BROADCOM Corporation NetXtreme BCM5700 Gigabit Ethernet (rev 12)
+           Subsystem: BROADCOM Corporation NetXtreme BCM5700 1000BaseTX
+ ...   
+   But I'm only able to run it at 10Mbit :)
 
-thanks,
-
-greg k-h
+Thanks for the report, but can you also show us the "dmesg" lines
+that the driver printed out when the module was loaded?  That provides
+more detailed probing information for us.

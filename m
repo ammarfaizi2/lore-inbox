@@ -1,32 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268378AbTAMWdk>; Mon, 13 Jan 2003 17:33:40 -0500
+	id <S268390AbTAMWiA>; Mon, 13 Jan 2003 17:38:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268382AbTAMWde>; Mon, 13 Jan 2003 17:33:34 -0500
-Received: from havoc.daloft.com ([64.213.145.173]:8419 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id <S268378AbTAMWbm>;
-	Mon, 13 Jan 2003 17:31:42 -0500
-Date: Mon, 13 Jan 2003 17:40:29 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: linux-kernel@vger.kernel.org, perex@suse.cz
-Subject: Re: 2.5.57 missing isapnp_card_protocol
-Message-ID: <20030113224028.GB13531@gtf.org>
-References: <200301132209.OAA02162@adam.yggdrasil.com>
+	id <S268388AbTAMWf7>; Mon, 13 Jan 2003 17:35:59 -0500
+Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:10113 "EHLO
+	neo.rr.com") by vger.kernel.org with ESMTP id <S268385AbTAMWdj>;
+	Mon, 13 Jan 2003 17:33:39 -0500
+Date: Mon, 13 Jan 2003 17:45:57 +0000
+From: Adam Belay <ambx1@neo.rr.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.5.57
+Message-ID: <20030113174557.GB605@neo.rr.com>
+Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	LKML <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0301131039050.13791-100000@penguin.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200301132209.OAA02162@adam.yggdrasil.com>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <Pine.LNX.4.44.0301131039050.13791-100000@penguin.transmeta.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 13, 2003 at 02:09:49PM -0800, Adam J. Richter wrote:
-> 	Linux-2.5.57 deletes the definition of isapnp_card_protocol
-> and then adds some references to it.  So, the kernel does not link
-> if you have enabled ISA PnP support.  I'm not sure whether
-> isapnp_card_protocol is supposed to be removed or not.
+On Mon, Jan 13, 2003 at 10:44:25AM -0800, Linus Torvalds wrote:
+> Summary of changes from v2.5.56 to v2.5.57
+> ============================================
 
-That's the fault of some random driver that hasn't been updated to the
-new isapnp API yet...
+> Jaroslav Kysela <perex@suse.cz>:
+>   o Linux PnP Support 0.94
+>   o PnP update - drivers
 
+Hi Linus,
+
+I'd like to offer a clarification. The Linux PnP Support 0.94 update was from
+me, not Jaroslav.  I'd appreciate if you would change this in the changelogs.
+
+Thanks,
+Adam

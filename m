@@ -1,93 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262010AbVC3PCZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262012AbVC3PIS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262010AbVC3PCZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 10:02:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262198AbVC3PCX
+	id S262012AbVC3PIS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 10:08:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262198AbVC3PIS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 10:02:23 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:57613 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262010AbVC3PB5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 10:01:57 -0500
-Date: Wed, 30 Mar 2005 16:01:45 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Wen Xiong <wendyx@us.ibm.com>
-Cc: Arjan van de Ven <arjan@infradead.org>, Greg KH <greg@kroah.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ patch 3/5] drivers/serial/jsm: new serial device driver
-Message-ID: <20050330160144.B13781@flint.arm.linux.org.uk>
-Mail-Followup-To: Wen Xiong <wendyx@us.ibm.com>,
-	Arjan van de Ven <arjan@infradead.org>, Greg KH <greg@kroah.com>,
-	linux-kernel@vger.kernel.org
-References: <20050308235807.GA11807@kroah.com> <422F1A8A.4000106@us.ltcfwd.linux.ibm.com> <20050309163518.GC25079@kroah.com> <422F2FDD.4050908@us.ltcfwd.linux.ibm.com> <20050309185800.GA27268@kroah.com> <4231BB5D.8020400@us.ltcfwd.linux.ibm.com> <1110556428.9917.31.camel@laptopd505.fenrus.org> <4231C9B2.5020202@us.ltcfwd.linux.ibm.com> <1110559614.9917.43.camel@laptopd505.fenrus.org> <42321CEA.2000405@us.ltcfwd.linux.ibm.com>
+	Wed, 30 Mar 2005 10:08:18 -0500
+Received: from ns2.suse.de ([195.135.220.15]:31929 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S262012AbVC3PIQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 10:08:16 -0500
+Date: Wed, 30 Mar 2005 17:08:13 +0200
+From: Andi Kleen <ak@suse.de>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Andi Kleen <ak@suse.de>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       akpm@osdl.org, davem@davemloft.net, tony.luck@intel.com,
+       benh@kernel.crashing.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/6] freepgt: free_pgtables use vma list
+Message-ID: <20050330150813.GF28472@wotan.suse.de>
+References: <Pine.LNX.4.61.0503231705560.15274@goblin.wat.veritas.com> <Pine.LNX.4.61.0503231710310.15274@goblin.wat.veritas.com> <20050324122637.GK895@wotan.suse.de> <Pine.LNX.4.61.0503292233080.18131@goblin.wat.veritas.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <42321CEA.2000405@us.ltcfwd.linux.ibm.com>; from wendyx@us.ibm.com on Fri, Mar 11, 2005 at 05:34:18PM -0500
+In-Reply-To: <Pine.LNX.4.61.0503292233080.18131@goblin.wat.veritas.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 11, 2005 at 05:34:18PM -0500, Wen Xiong wrote:
-> diff -Nuar linux-2.6.11.org/drivers/serial/jsm/jsm_neo.c linux-2.6.11.new/drivers/serial/jsm/jsm_neo.c
-> --- linux-2.6.11.org/drivers/serial/jsm/jsm_neo.c	1969-12-31 18:00:00.000000000 -0600
-> +++ linux-2.6.11.new/drivers/serial/jsm/jsm_neo.c	2005-03-11 16:26:47.442988256 -0600
-> +/*
-> + * neo_param()
-> + * Send any/all changes to the line to the UART.
-> + */
-> +static void neo_param(struct jsm_channel *ch)
-> +{
-> +	u8 lcr = 0;
-> +	u8 uart_lcr = 0;
-> +	u8 ier = 0;
-> +	u32 baud = 9600;
-> +	int quot = 0;
-> +	struct jsm_board *bd;
-> +
-> +	bd = ch->ch_bd;
-> +	if (!bd)
-> +		return;
-> +
-> +	/*
-> +	 * If baud rate is zero, flush queues, and set mval to drop DTR.
-> +	 */
+On Tue, Mar 29, 2005 at 11:03:02PM +0100, Hugh Dickins wrote:
+> 
+> > Nice approach....
+> 
+> Thanks.
+> 
+> > It will not work as well
+> > on large sparse mappings as the bit vectors, but that may be tolerable.
+> 
+> Exactly.  It's simply what what we should be doing first, making use of
+> the infrastructure we already have.  If that proves inadequate, add on top.
 
-The modem signal side of this is already handled for you.
+Ok. I will defer the bitvector patch now. 
 
-> +			const u64 bauds[4][16] = {
-> +				{ 
-> +					0,	50,	75,	110,
-> +					134,	150,	200,	300,
-> +					600,	1200,	1800,	2400,
-> +					4800,	9600,	19200,	38400 },
-> +				{ 
-> +					0,	57600,	115200, 230400,
-> +					460800, 150,	200,	921600,
-> +					600,	1200,	1800,	2400,
-> +					4800,	9600,	19200,	38400 },
-> +				{ 
-> +					0,	57600,	76800, 115200,
-> +					131657, 153600, 230400, 460800,
-> +					921600, 1200,	1800,	2400,
-> +					4800,	9600,	19200,	38400 },
-> +				{ 
-> +					0,	57600,	115200, 230400,
-> +					460800, 150,	200,	921600,
-> +					600,	1200,	1800,	2400,
-> +					4800,	9600,	19200,	38400 }
-> +			};
-> +
-> +			baud = C_BAUD(ch->uart_port.info->tty) & 0xff;
-> +
-> +			if (ch->ch_c_cflag & CBAUDEX)
-> +				iindex = 1;
+I had it mostly working with hacks, but than I ran into
+a nasty include ordering problem that scared me off so far.
 
-This is buggy.  You're making invalid assumptions about the
-given baud rate flags in the termios.  Use the helper functions
-provided please.
+> I do.  I'll resend you an earlier mail I wrote about it, I think x86_64
+> is liable to leak pagetables or conversely rip pagetables out from under
+> the vsyscall page - in the 32-bit emulation case, with my patches, if
+> that vsyscall page has been mapped.  That it'll be fine or unnoticed
+> most of the time, but really not right.
+> 
+> I'll also resend you Ben's mail on the subject, what he does on ppc64.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Thanks.
+> 
+> Ah, you do SetPageReserved on that page.  That's good, rmap would have
+> a problem with it, since it doesn't belong to a file, yet is shared
+> between all tasks, so is quite unlike an anonymous page.  I suggest
+> you make the vma VM_RESERVED too, but that doesn't really matter yet.
+
+Ok. I will change it to a VMA.
+
+Only bad thing is that this has to be done at program startup.
+At fault time we cannot upgrade the read lock on mmap sem to a write
+lock that is needed to insert the VMA :/ But I guess that is ok
+because with modern glibc basically all programs will use vsyscsall.
+
+-Andi

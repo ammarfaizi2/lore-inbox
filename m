@@ -1,61 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261300AbUCHWIG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 17:08:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261364AbUCHWIG
+	id S261375AbUCHWLM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 17:11:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261366AbUCHWK4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 17:08:06 -0500
-Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:59029 "EHLO
-	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
-	id S261300AbUCHWIB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 17:08:01 -0500
-Message-ID: <404CEEAF.5020608@matchmail.com>
-Date: Mon, 08 Mar 2004 14:07:43 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040304)
-X-Accept-Language: en-us, en
+	Mon, 8 Mar 2004 17:10:56 -0500
+Received: from palrel11.hp.com ([156.153.255.246]:15034 "EHLO palrel11.hp.com")
+	by vger.kernel.org with ESMTP id S261375AbUCHWKf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Mar 2004 17:10:35 -0500
+From: David Mosberger <davidm@napali.hpl.hp.com>
 MIME-Version: 1.0
-To: Rumi Szabolcs <rumi_ml@rtfm.hu>
-CC: Jeff Garzik <jgarzik@pobox.com>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Marvell PATA-SATA bridge meets 2.4.x
-References: <20040305231642.708841dd.rumi_ml@rtfm.hu>	<404A9D14.5030107@matchmail.com> <20040308172839.17178753.rumi_ml@rtfm.hu>
-In-Reply-To: <20040308172839.17178753.rumi_ml@rtfm.hu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16460.61267.364413.100233@napali.hpl.hp.com>
+Date: Mon, 8 Mar 2004 14:10:27 -0800
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>, davidm@hpl.hp.com,
+       Takayoshi Kochi <t-kochi@bq.jp.nec.com>, benjamin.liu@intel.com,
+       iod00d@hp.com, kaneshige.kenji@jp.fujitsu.com,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix PCI interrupt setting for ia64
+In-Reply-To: <200403081505.21644.bjorn.helgaas@hp.com>
+References: <3ACA40606221794F80A5670F0AF15F8401B1A017@PDSMSX403.ccr.corp.intel.com>
+	<16460.59685.452893.22564@napali.hpl.hp.com>
+	<20040308215448.I21938@flint.arm.linux.org.uk>
+	<200403081505.21644.bjorn.helgaas@hp.com>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rumi Szabolcs wrote:
-> On Sat, 06 Mar 2004 19:55:00 -0800
-> Mike Fedyk <mfedyk@matchmail.com> wrote:
-> 
-> 
->>Rumi Szabolcs wrote:
->>
->>>As it can be seen below, a native SATA150 drive is connected
->>>to a SATA port implemented using that Marvell chip hooked up
->>>to the ICH4's parallel ATA133 port and this way the drive is
->>>only recognized (and used) as UDMA33:
->>>
->>>hdc: 312581808 sectors (160042 MB) w/8192KiB Cache, CHS=19457/255/63, UDMA(33)
->>>
->>>As far as I can remember someone (Jeff Garzik?) suspected the
->>>SATA cable not being recognized as a 80-conductor thus >=UDMA66
->>>capable cable. Then it was told that there is a fix underway that
->>>will be included in the 2.4.23 kernel. The above snippet shows
->>>that the 2.4.25 kernel still has this problem. Any comments?
->>
->>You want to use a 2.6 kernel and talk to Bart, and Jeff about this...
-> 
-> 
-> Well, I don't really want a 2.6 kernel on that machine (yet) because
-> in my opinion it is not stable enough for a production system.
+>>>>> On Mon, 8 Mar 2004 15:05:21 -0700, Bjorn Helgaas <bjorn.helgaas@hp.com> said:
 
-What problems are you having?
+  Bjorn> My inclination is that it's better to help find ACPI bugs,
+  Bjorn> and if broken tables turn out to be a problem, we can add
+  Bjorn> some kind of command-line switch or blacklist to deal with
+  Bjorn> it.  But I guess we should really get David's opinion, since
+  Bjorn> this is a potential issue for 2.6 distributions.
 
-> 
-> Would it be hard to fix that in 2.4?
+I agree with Bjorn's reasoning, but think that the patch should be
+tested first on a Big Sur machine (with the latest official firmware).
+If something breaks with old firmware, we can then at least ask the
+affected people to upgrade their firmware (or come up with a kernel
+workaround).
 
-Dunno.
+	--david

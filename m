@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272410AbTGaGnr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 02:43:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272412AbTGaGnr
+	id S272413AbTGaGqM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 02:46:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272421AbTGaGqM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 02:43:47 -0400
-Received: from dyn-ctb-210-9-243-68.webone.com.au ([210.9.243.68]:531 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id S272410AbTGaGno
+	Thu, 31 Jul 2003 02:46:12 -0400
+Received: from dyn-ctb-210-9-243-68.webone.com.au ([210.9.243.68]:2067 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id S272413AbTGaGqG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 02:43:44 -0400
-Message-ID: <3F28BA92.6090505@cyberone.com.au>
-Date: Thu, 31 Jul 2003 16:43:30 +1000
+	Thu, 31 Jul 2003 02:46:06 -0400
+Message-ID: <3F28BB20.6040707@cyberone.com.au>
+Date: Thu, 31 Jul 2003 16:45:52 +1000
 From: Nick Piggin <piggin@cyberone.com.au>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030618 Debian/1.3.1-3
 X-Accept-Language: en

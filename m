@@ -1,42 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261872AbULOEXA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261865AbULOE1S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261872AbULOEXA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 23:23:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261867AbULOEWl
+	id S261865AbULOE1S (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 23:27:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261867AbULOE1R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 23:22:41 -0500
-Received: from fsmlabs.com ([168.103.115.128]:35024 "EHLO fsmlabs.com")
-	by vger.kernel.org with ESMTP id S261865AbULOEWh (ORCPT
+	Tue, 14 Dec 2004 23:27:17 -0500
+Received: from ns.suse.de ([195.135.220.2]:44216 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261865AbULOE1N (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 23:22:37 -0500
-Date: Tue, 14 Dec 2004 21:22:35 -0700 (MST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Rudolf Usselmann <rudi@asics.ws>
-cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
-Subject: Re: kernel (64bit) 4GB memory support
-In-Reply-To: <1103027130.3650.73.camel@cpu0>
-Message-ID: <Pine.LNX.4.61.0412142121480.25091@montezuma.fsmlabs.com>
-References: <1102752990.17081.160.camel@cpu0>  <41BAC68D.6050303@pobox.com>
-  <1102760002.10824.170.camel@cpu0>  <41BB32A4.2090301@pobox.com> 
- <1102824735.17081.187.camel@cpu0>  <Pine.LNX.4.61.0412112141180.7847@montezuma.fsmlabs.com>
-  <1102828235.17081.189.camel@cpu0>  <Pine.LNX.4.61.0412120131570.7847@montezuma.fsmlabs.com>
-  <1102842902.10322.200.camel@cpu0>  <Pine.LNX.4.61.0412120934160.14734@montezuma.fsmlabs.com>
- <1103027130.3650.73.camel@cpu0>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 14 Dec 2004 23:27:13 -0500
+Date: Wed, 15 Dec 2004 05:27:04 +0100
+From: Andi Kleen <ak@suse.de>
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+Cc: Andi Kleen <ak@suse.de>, Jeremy Fitzhardinge <jeremy@goop.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 32-bit syscalls from 64-bit process on x86-64?
+Message-ID: <20041215042704.GE27225@wotan.suse.de>
+References: <380350F3EC1@vcnet.vc.cvut.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <380350F3EC1@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Dec 2004, Rudolf Usselmann wrote:
-
-> > Thanks for reproducing that, is there any possible chance you could try 
-> > 2.6.10-rc2-mm4?
+On Tue, Dec 14, 2004 at 11:01:12PM +0100, Petr Vandrovec wrote:
+> On 14 Dec 04 at 8:45, Andi Kleen wrote:
+> > > #define TOLM                            \
+> > >                 "pushl %%cs\n"          \
+> > >                 "pushl $91f\n"          \
+> > >                 "ljmpl $0x33,$90f\n"    \
+> > 
+> > It's useless, there is nothing in the kernel code that checks the 
+> > 32bit segment.
 > 
-> Actually I tried "2.6.10-rc3" a few days ago, and had the same
-> results. Do you still want me to try "2.6.10-rc2-mm4" ?
+> ???  Processor checks for 32bit/64bit segment.  It is impossible to load
+> upper 32bit of all registers with non-zero value or call 64bit
+> syscall entry point from 32bit mode.  As x86-64 kernel offers 64bit 
+> interface through syscall only, only way how to issue 64bit system call
+> is using syscall instruction in 64bit code.
 
-No, just the first oops output and your kernel config.
+Ah sorry. I misread the intention of your code. I thought you wanted
+to do it the other way round - 32bit syscall from 64bit code.
+I just wanted to point out that you can do it directly without
+changing the code segment, as long as you use int $0x80.
 
-Thanks,
-	Zwane
+>From 64bit-from-32bit the lcall is needed agreed. However as a 
+warning it will not work for all calls since a few check a bit
+in task_struct that says if the process is 32bit or 64bit
+(rather rare though, most prominent is signal handling) 
 
+> 
+> Or are you trying to say that these samples do not work and you cannot
+> call 64bit entry point from 32bit app, or vice versa?  Then I'm afraid
+> that you are not completely right, as these samples do work...
+
+I haven't ever tried it, but I see no reason it cannot work.
+
+-Andi

@@ -1,107 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269828AbUIDHvv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269829AbUIDHwO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269828AbUIDHvv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Sep 2004 03:51:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269829AbUIDHvv
+	id S269829AbUIDHwO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Sep 2004 03:52:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269830AbUIDHwN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Sep 2004 03:51:51 -0400
-Received: from mail.kroah.org ([69.55.234.183]:31191 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S269828AbUIDHvr (ORCPT
+	Sat, 4 Sep 2004 03:52:13 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:59533 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S269829AbUIDHwB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Sep 2004 03:51:47 -0400
-Date: Sat, 4 Sep 2004 02:54:33 +0200
-From: Greg KH <greg@kroah.com>
-To: Robert Love <rml@ximian.com>
-Cc: akpm@osdl.org, kay.sievers@vrfy.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch] kernel sysfs events layer
-Message-ID: <20040904005433.GA18229@kroah.com>
-References: <1093988576.4815.43.camel@betsy.boston.ximian.com> <20040831145643.08fdf612.akpm@osdl.org> <1093989513.4815.45.camel@betsy.boston.ximian.com> <20040831150645.4aa8fd27.akpm@osdl.org> <1093989924.4815.56.camel@betsy.boston.ximian.com> <20040902083407.GC3191@kroah.com> <1094142321.2284.12.camel@betsy.boston.ximian.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1094142321.2284.12.camel@betsy.boston.ximian.com>
-User-Agent: Mutt/1.5.6i
+	Sat, 4 Sep 2004 03:52:01 -0400
+Date: Sat, 4 Sep 2004 08:52:00 +0100 (IST)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Alex Deucher <alexdeucher@gmail.com>, dri-devel@lists.sf.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: New proposed DRM interface design
+In-Reply-To: <9e47339104090323047b75dbb2@mail.gmail.com>
+Message-ID: <Pine.LNX.4.58.0409040843360.25475@skynet>
+References: <Pine.LNX.4.58.0409040107190.18417@skynet> 
+ <a728f9f904090317547ca21c15@mail.gmail.com>  <Pine.LNX.4.58.0409040158400.25475@skynet>
+  <9e4733910409032051717b28c0@mail.gmail.com>  <Pine.LNX.4.58.0409040548490.25475@skynet>
+ <9e47339104090323047b75dbb2@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry, I'm at a conference, so email access is flaky at times...
 
-On Thu, Sep 02, 2004 at 12:25:21PM -0400, Robert Love wrote:
-> On Thu, 2004-09-02 at 10:34 +0200, Greg KH wrote:
-> 
-> > Why is the kset needed?  We can determine that from the kobject.
-> > 
-> > How about changing this to:
-> > 	int send_kevent(struct kobject *kobj, struct attribute *attr);
-> > which just tells userspace that a specific attribute needs to be read,
-> > as something "important" has changed.
-> > 
-> > Will passing the attribute name be able to successfully handle the 
-> > "enum kevent" and "signal" combinations?
-> 
-> We can drop the kset if you say we never need it.  Why do all the kobj
-> get_path functions take a kset then?  That is what confused me.
+> We're going to have to work out a GPL/BSD solution for the fbdev
+> merge. There are 80,000 lines of code in the fbdev directory. It is
+> impractical to rewrite them. It's probably also impractical to
+> relicense the fbdev code BSD since we would have to locate all of the
+> coders.
 
-Look at kobject_hotplug.  We can determine the kset assigned to a
-kobject with the logic in that function.  Then we use the kset to get
-the path and other good stuff that the hotplug call needs.
+Well I've been thinking we'll need to rob a lot of code from X11, a fair
+bit of code in fbdev is taken from X anyways.. I'm not so sure it
+wouldn't be that hard to move the rest...
 
-> We can also drop the "enum kevent" if we decide we don't want to take
-> advantage of the multicasting of the netlink socket.  The enum defines
-> what multicast group the netlink message is sent out in.  I actually
-> have been talking to Kay about ditching it, and we are trying to figure
-> out if we ever _need_ it.
+>From what I can see we make the core in-kernel and library sections under
+BSD and then the driver can probably choose their license... I just think
+this work is pretty ugly work and I would hate for another OS to have to
+go do it again from scratch just because we decided to use GPL, I would
+also like to make the interface as standard as possible.. (maybe ReactOS
+could port it to Windows :-)
 
-Sounds fine to me.
+> Would this work? drm/shared and drm/bsd directories are BSD licensed.
+> drm/linux is GPL licensed. Any fbdev code I add will go into
+> drm/linux. Then we patch up drm/bsd so that is continues to work given
 
-> So that is 2 for 2.  But ...
-> 
-> I don't dig replacing the signal string with an attribute.  I think it
-> will really limit what we can do - having the signal as a verb
-> describing the event is really important.  We might also not always have
-> an attribute.  Kay's points are all valid.
-> 
-> So what if we had
-> 
-> 	int send_kevent(struct kobject *kobj, const char *signal);
-> 
-> Which was a way of notifying user-space of a change of "signal" on the
-> object "kobj" in sysfs.
+All the current code is X licensed, I think we should try and get code
+from X where we can and if not maybe ask fb people about it ..
 
-Ok, I'll accept that, and I like it, it's simple, and yet powerful for
-pretty much everything we'll need in the future.
+> The code is starting to drift further from BSD anyway. BSD is missing
+> major OS features like hotplug and resource control that Linux DRM is
+> starting to use.
 
-In fact, I like that type of function so much, I wrote it a few years
-ago:
-	void kobject_hotplug(const char *action, struct kobject *kobj)
+But the future isn't set in stone, if BSD gets these features this
+statement is insigificant...
 
-You fell right into my trap :)
+> The only rational way we can fix the multiple drivers for the same
+> video card is to merge fbdev and DRM functions. The other solution is
+> device driver multi-tasking with a 256MB state to be saved on task
+> swap.
 
-So, we're back to the original issue.  Why is this kernel event system
-different from the hotplug system?  I would argue there isn't one,
-becides the transport, as you seem to want everything that we currently
-provide in the current kobject_hotplug() call.
+For the cards the DRM supports, we could just reimplement the fb
+functionality, the only card I'm aware of that really matters is the
+radeon, there is no fbdev for i830/915 (I'm going to do one under the BSD
+license when time permits, Dave Dawes did one half in half, part GPL part
+BS but it was for 2.4 and he's abandoned it now .. the mach64 fb doesn't
+work very well (my mobility chip craps it out..).. maybe the matrox is
+another useful one, we probably should work on a dmacon interface rather
+than fbcon, again this isn't obvious yet what we do...
 
-But transports are important, I agree.
+Dave.
+>
+> On Sat, 4 Sep 2004 05:52:37 +0100 (IST), Dave Airlie <airlied@linux.ie> wrote:
+> > I think we have to remember licensing at all stages of this, the DRM is
+> > X licensed, so I don't think we can just merge the fb code, I'm not sure
+> > what peoples views on this, the main reason I see for using X licensing
+> > is that we can share this stuff with FreeBSD and have an open source
+> > graphics interface standard that the chipset designers can use, against it
+> > is the fact that it allows for properitary drivers, - I personally don't
+> > think we'll ever win that war.. will the prop drivers be derived works of
+> > the DRM rather than the kernel anyone got a spare lawyer?
+> >
+> > Dave.
+> >
+> > On Fri, 3 Sep 2004, Jon Smirl wrote:
+> > > As we work towards the merged DRM/fbdev goal the fbdev libraries are
+> > > going to become part of DRM. The libraries will be used pretty much
+> > > unchanged as it is the driver code that needs to be adjusted. How does
+> > > this play with the new DRM model?
+>
+>
+> -------------------------------------------------------
+> This SF.Net email is sponsored by BEA Weblogic Workshop
+> FREE Java Enterprise J2EE developer tools!
+> Get your free copy of BEA WebLogic Workshop 8.1 today.
+> http://ads.osdn.com/?ad_id=5047&alloc_id=10808&op=click
+> --
+> _______________________________________________
+> Dri-devel mailing list
+> Dri-devel@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/dri-devel
+>
 
-How about you just add the ability to send hotplug calls across netlink?
-Make it so the kobject_hotplug() function does both the exec() call, and
-a netlink call (based on a config option for those people who like to
-configure such stuff.)
+-- 
+David Airlie, Software Engineer
+http://www.skynet.ie/~airlied / airlied at skynet.ie
+pam_smb / Linux DECstation / Linux VAX / ILUG person
 
-That way, programs who want to listen to netlink messages to get hotplug
-events do so, and so does programs who want to do the /etc/hotplug.d/
-type of notification?
-
-Oh, and attributes.  How about we just change kobject_hotplug() to be:
-	int kobject_hotplug(const char *action, struct kobject *kobj, struct attribute *attr);
-and if we set attr to be a valid pointer, we make the DEVPATH paramater
-contain the attribute name at the end of it.
-
-I'd be glad to accept a patch that implements this.
-
-Look acceptable?
-
-thanks,
-
-greg k-h

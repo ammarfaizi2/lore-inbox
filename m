@@ -1,80 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261494AbUKFW7c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261496AbUKFXFO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261494AbUKFW7c (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Nov 2004 17:59:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261495AbUKFW7c
+	id S261496AbUKFXFO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Nov 2004 18:05:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261497AbUKFXFN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Nov 2004 17:59:32 -0500
-Received: from adsl-70-241-70-1.dsl.hstntx.swbell.net ([70.241.70.1]:1408 "EHLO
-	leamonde.no-ip.org") by vger.kernel.org with ESMTP id S261494AbUKFW70
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Nov 2004 17:59:26 -0500
-Date: Sat, 6 Nov 2004 16:59:25 -0600
-From: "Camilo A. Reyes" <camilo@leamonde.no-ip.org>
-To: Jurriaan <thunder7@xs4all.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Console 80x50 SVGA
-Message-ID: <20041106225925.GA773@leamonde.no-ip.org>
-References: <20041105224206.GA16741@leamonde.no-ip.org> <20041106073901.GA783@alpha.home.local> <20041106184112.GC16891@leamonde.no-ip.org> <20041106194343.GA29874@middle.of.nowhere> <20041106211222.GA18108@leamonde.no-ip.org>
+	Sat, 6 Nov 2004 18:05:13 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:39432 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261496AbUKFXFK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Nov 2004 18:05:10 -0500
+Date: Sun, 7 Nov 2004 00:04:36 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] DIGIEPCA does not depend on SERIAL_NONSTANDARD
+Message-ID: <20041106230436.GV1295@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041106211222.GA18108@leamonde.no-ip.org>
-User-Agent: Mutt/1.4.2.1i
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 06, 2004 at 03:12:22PM -0600, Camilo A. Reyes wrote:
-> On Sat, Nov 06, 2004 at 08:43:43PM +0100, Jurriaan wrote:
-> > From: Camilo A. Reyes <camilo@leamonde.no-ip.org>
-> > Date: Sat, Nov 06, 2004 at 12:41:12PM -0600
-> > > 
-> > > If I may ask what vga number are you using to set it to 1024x768.
-> > > I believe I have tried it before with no success, but I'm willing
-> > > to try again.
-> > 
-> > Might I again refer you to google?
-> > 
-> > Searching for 'linux framebuffer 1024x768 vga=' gives me 11.800 hits,
-> > which surely is enough to choose from. Also, this is mentioned in
-> > /usr/src/linux-<whatever version>/Documentation/fb/<somefile, depending
-> > on your framebuffer, which you didn't mention>. Those docs were lovingly
-> > crafted by kernel hackers hoping to answer all the questions users may
-> > have, so it would be a shame not to use them, right?
-> > 
-> > Good luck,
-> > Jurriaan
-> > -- 
-> > A seminar on Time Travel will be held two weeks ago.
-> > Debian (Unstable) GNU/Linux 2.6.9-mm1 2x6078 bogomips load 0.05
-> 
-> Actually I knew what the answer to that question was, its 795 for 1024x768
-> and 32 bpp, I was just asking to check for consistency. :-P Anyhow, that
-> documentation talks about using fbset, I gave that a shot and now my entire
-> tty is dead. :-( It also mentions lots of bugs, hmmm not sure if it's even
-> worth looking deeper into this. But let me set up some kernel parameters
-> and restart my system to see what happens, I always refrain from restarting
-> the system, but oh well.
-> 
-> BTW, my framebuffer its the aty128fb.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+It doesn't make the driver better, but it seems to be correct...
 
-Looks like we have success, I recompiled the kernel with the following options
-turned on:
 
-Video mode selection support: y
-Select compiled-in fonts:
-  VGA 8x16 font: y
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Then I added this line to my grub.conf file:
+--- linux-2.6.10-rc1-mm3-full/drivers/char/Kconfig.old	2004-11-06 23:58:48.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/char/Kconfig	2004-11-06 23:58:57.000000000 +0100
+@@ -138,7 +138,7 @@
+ 
+ config DIGIEPCA
+ 	tristate "Digiboard Intelligent Async Support"
+-	depends on SERIAL_NONSTANDARD && BROKEN_ON_SMP
++	depends on BROKEN_ON_SMP
+ 	---help---
+ 	  This is a driver for Digi International's Xx, Xeve, and Xem series
+ 	  of cards which provide multiple serial ports. You would need
 
-  video=aty128fb:1028x768 vga=792
-
-Not sure if the vga part makes any difference, my educated guess is that it
-doesn't. But this setup will allow for a console that is 129x47 lines. (yay!)
-
-Thanks for the help.

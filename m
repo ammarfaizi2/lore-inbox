@@ -1,130 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261813AbVCRTGN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261826AbVCRTOy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261813AbVCRTGN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 14:06:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261826AbVCRTGN
+	id S261826AbVCRTOy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 14:14:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261863AbVCRTOy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 14:06:13 -0500
-Received: from bay20-f28.bay20.hotmail.com ([64.4.54.117]:44000 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S261813AbVCRTGH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 14:06:07 -0500
-Message-ID: <BAY20-F284EE2A7DE004B2A2FECC7E54A0@phx.gbl>
-X-Originating-IP: [66.146.138.130]
-X-Originating-Email: [le_wen@hotmail.com]
-In-Reply-To: <Pine.LNX.4.61.0503181337240.27860@chaos.analogic.com>
-From: "Le Wen" <le_wen@hotmail.com>
-To: linux-os@analogic.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Questions about request_irq and reading PCI_INTERRUPT_LINE
-Date: Fri, 18 Mar 2005 14:06:05 -0500
+	Fri, 18 Mar 2005 14:14:54 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:30220 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261826AbVCRTOl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Mar 2005 14:14:41 -0500
+Date: Fri, 18 Mar 2005 20:14:39 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: John Kacur <jkacur@rogers.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, Greg Stark <gsstark@mit.edu>,
+       Jean Delvare <khali@linux-fr.org>
+Subject: Re: 2.6.11 breaks modules gratuitously
+Message-ID: <20050318191439.GG3143@stusta.de>
+References: <3JrTO-1C4-41@gated-at.bofh.it> <20050318194915.580c3511.khali@linux-fr.org> <1111172461.5993.10.camel@linux.site>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 18 Mar 2005 19:06:06.0218 (UTC) FILETIME=[8963A6A0:01C52BED]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1111172461.5993.10.camel@linux.site>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Mar 2005, Le Wen wrote:
+On Fri, Mar 18, 2005 at 02:01:02PM -0500, John Kacur wrote:
+> 
+> So perhaps we can introduce a new term to linux kernel development,
+> reexporting a symbol can now be known as debunking?
+>...
+ 
+Are you saying unexporting a symbol was bunk?  ;-)
 
->Hi, there,
->
->I have problem to grab video from my ati all-in-wonder card. The card is in 
->a PII Celeron machine with an on board video card (ATI Technologies Inc 3D 
->Rage IIC AGP). there is no monitor connected with the on board video card. 
->I only hook my AIW card with a monitor.
->
->I use km-0.6 from gatos project. I load this km_drv module, but kernel 
->always complains:
->
->km: IRQ 0 busy
->
->I checked code:
->       km_probe(struct pci_dev *dev, const struct pci_device_id *pci_id)
->
->here dev->irq with a value 0.
->
->When km_probe gets called, it try to request an IRQ0 returns a -EBUSY:
->       kms_irq=dev.irq;
->       result=request_irq(kms->irq, handler, SA_SHIRQ, tag, (void *)kms);
->
->       if(result==-EBUSY){
->               printk(KERN_ERR "km: IRQ %ld busy\n", kms->irq);
->               goto fail;
->       }
->
->
->So I tried to get right IRQ number using:
->       u8 myirq;
->       int rtn=pci_read_config_byte(dev,PCI_INTERRUPT_LINE, &myirq);
->       dev->irq=myirq;
->       kms->irq=dev_irq;
->       result=request_irq(kms->irq, handler, SA_SHIRQ, tag, (void *)kms);
->
->       if(result==-EBUSY){
->               printk(KERN_ERR "km: IRQ %ld busy\n", kms->irq);
->               goto fail;
->       }
->       if(result<0){
->               printk(KERN_ERR "km: could not install irq handler: 
->result=%d\n",result);
->               goto fail;
->       }
->But this time I got:
->
->km: kms->irq=24
->km: could not install irq handler: result=-38
->
->
->My questions are:
->1. I don't know why dev->irq has value of 0?
->
+cu
+Adrian
 
-The PCI interface now needs to be enabled first. The IRQ value
-returned is BAD until after one calls pci_enable_device(). This
-is a BUG, now considered a FEATURE so it's unlikely to be fixed!
-There are lots of people who have encountered this problem
-with modules that are not in the "distribution".
+-- 
 
->2. Is an IRQ number of 24 valid for a Intel PII Celeron?
->
-
-Could be, but it;s probably invalid considering the way you
-got it.
-
->3. What does this result=-38 mean?
->
-
-Probably errno 38, i.e., ENOSYS
-
->
->Wen, Le
->
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
-
-Thank you Dick!
-
-But pci_enable_device(dev) was called sucussful before read 
-pci_read_config_byte():
-
-static int __devinit km_probe(struct pci_dev *dev, const struct 
-pci_device_id *pci_id)
-{
-...
-if (pci_enable_device(dev))
-                return -EIO;
-        printk(KERN_DEBUG "pci_read_config_byte(dev,PCI_INTERRUPT_LINE, 
-&testirq)\n");
-        u8 myirq;//=0;
-        int rtn=pci_read_config_byte(dev,PCI_INTERRUPT_LINE, &myirq);
-        kms->dev=dev;
-        dev->irq=myirq;
-        kms->irq=dev->irq;
-and then call
-       result=request_irq(kms->irq, handler, SA_SHIRQ, tag, (void *)kms);
-
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

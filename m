@@ -1,35 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130699AbRCIVbY>; Fri, 9 Mar 2001 16:31:24 -0500
+	id <S130723AbRCIVey>; Fri, 9 Mar 2001 16:34:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130702AbRCIVbO>; Fri, 9 Mar 2001 16:31:14 -0500
-Received: from mail.surgient.com ([63.118.236.3]:2055 "EHLO
-	bignorse.SURGIENT.COM") by vger.kernel.org with ESMTP
-	id <S130699AbRCIVa5>; Fri, 9 Mar 2001 16:30:57 -0500
-Message-ID: <A490B2C9C629944E85CE1F394138AF957FC400@bignorse.SURGIENT.COM>
-From: "Collins, Tom" <Tom.Collins@Surgient.com>
-To: linux-kernel@vger.kernel.org
-Subject: processor time, process time, idle time, etc
-Date: Fri, 9 Mar 2001 15:30:04 -0600 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-15"
+	id <S130722AbRCIVep>; Fri, 9 Mar 2001 16:34:45 -0500
+Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:17164 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S130704AbRCIVeZ>;
+	Fri, 9 Mar 2001 16:34:25 -0500
+Date: Fri, 9 Mar 2001 13:31:12 -0800
+From: Greg KH <greg@kroah.com>
+To: Erik DeBill <edebill@swbell.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.2ac12 and ac13 breaks usb-visor
+Message-ID: <20010309133112.A17792@kroah.com>
+In-Reply-To: <E14aQA9-0001br-00@the-village.bc.nu> <20010307172056.A8647@austin.rr.com> <20010307173640.A14818@kroah.com> <20010308140103.A17993@austin.rr.com> <20010308160758.A16296@kroah.com> <20010309141332.A29339@austin.rr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010309141332.A29339@austin.rr.com>; from edebill@swbell.net on Fri, Mar 09, 2001 at 02:13:32PM -0600
+X-Operating-System: Linux 2.2.18-immunix (i586)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello...
+On Fri, Mar 09, 2001 at 02:13:32PM -0600, Erik DeBill wrote:
+> Nothing.  I've got the following in /etc/syslog.conf (which I believe
+> SHOULD be correct), but I get absolutely nothing.
+> 
+> *.=debug;\
+> 	auth,authpriv.none;\
+> 	news.none;mail.none	/var/log/debug
 
-I am wondering is there is a way to obtain resource usage 
-from the kernel w/o doing a kernel call from a program
-(can I get this from /proc/??  ?).
+Try adding an entry for kern.* like:
+kern.*        -/var/log/kernel
 
-For example, I am interested in discriminating between
-processor idle time, time spent in processes, etc.
+> Until it's documented this is a landmine.  JE is the default USB
+> driver, so you can bet that a great many people will be using it (even
+> though it's described as "alternate").  Once it's fixed we just pull
+> the warning from Config.help.
 
-Is this possible, or will I have to get this accounting
-information from the kernel via a module/system call?
+No, JE is _NOT_ the default USB UHCI driver, it doesn't say so in the
+menu or anywhere.  It's just another option.
 
-Thanks
+> This is the first time I've ever run across something like this in
+> Linux that wasn't at least labelled "experimental".  Perhaps I've been
+> leading a sheltered life.
 
-Tom 
+Good point, I'll add something like your proposed patch for the visor
+and other drivers that don't work with the JE driver.
+
+> #
+> # USB support
+> #
+> CONFIG_USB=y
+> # CONFIG_USB_DEBUG is not set
+> # CONFIG_USB_DEVICEFS is not set
+> # CONFIG_USB_BANDWIDTH is not set
+> CONFIG_USB_UHCI_ALT=y
+
+This is your problem, DO NOT USE THIS DRIVER WITH THE VISOR!
+set CONFIG_USB_UHCI=y and you should be fine.
+
+Try that and let me know if you still have problems.
+
+thanks,
+
+greg k-h
+
+-- 
+greg@(kroah|wirex).com

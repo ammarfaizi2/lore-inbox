@@ -1,49 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261261AbUJYV7n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261267AbUJYWFL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261261AbUJYV7n (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 17:59:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261973AbUJYV4b
+	id S261267AbUJYWFL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 18:05:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262028AbUJYWEy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 17:56:31 -0400
-Received: from holomorphy.com ([207.189.100.168]:61918 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261847AbUJYVzl (ORCPT
+	Mon, 25 Oct 2004 18:04:54 -0400
+Received: from fw.osdl.org ([65.172.181.6]:16551 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261267AbUJYWBm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 17:55:41 -0400
-Date: Mon, 25 Oct 2004 14:52:19 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: Christoph Lameter <clameter@sgi.com>, linux-kernel@vger.kernel.org
-Subject: Re: Hugepages demand paging V1 [4/4]: Numa patch
-Message-ID: <20041025215219.GY17038@holomorphy.com>
-References: <20041022194040.GC17038@holomorphy.com> <200410252122.i9PLMYq08987@unix-os.sc.intel.com>
+	Mon, 25 Oct 2004 18:01:42 -0400
+Date: Mon, 25 Oct 2004 15:05:06 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: smurf@smurf.noris.de, linux-kernel@vger.kernel.org
+Subject: Re: BK kernel workflow
+Message-Id: <20041025150506.258edc58.akpm@osdl.org>
+In-Reply-To: <417D203B.4030508@pobox.com>
+References: <41752E53.8060103@pobox.com>
+	<20041019153126.GG18939@work.bitmover.com>
+	<41753B99.5090003@pobox.com>
+	<4d8e3fd304101914332979f86a@mail.gmail.com>
+	<20041019213803.GA6994@havoc.gtf.org>
+	<4d8e3fd3041019145469f03527@mail.gmail.com>
+	<20041019232710.GA10841@kroah.com>
+	<pan.2004.10.25.13.01.49.824742@smurf.noris.de>
+	<417D203B.4030508@pobox.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200410252122.i9PLMYq08987@unix-os.sc.intel.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 22, 2004 at 12:37:13PM -0700, Christoph Lameter wrote:
->> How about this variation following __alloc_page:
+Jeff Garzik <jgarzik@pobox.com> wrote:
+>
+> Matthias Urlichs wrote:
+> > Andrew also does things like
+> > 
+> > bk-netdev.patch
+> > e1000-module_param-fix.patch
+> > ne2k-pci-pci-build-fix.patch
+> > r8169-module_param-fix.patch
+> > 
+> > which my mind translates as "there's something stupid, incomplete or
+> > outdated in the bk-netdev tree", or "that tree's maintainer should apply
+> > these patches. Now." (Ideally, of course, my import script should do the
+> > same thing.)
+> 
+> Wrong on all counts.
 
-William Lee Irwin III wrote on Friday, October 22, 2004 12:41 PM
->> Looks reasonable. The bit that struck me as quirky was the mpol_* on
->> the NULL vma. This pretty much eliminates the hidden dispatch, so I'm
->> happy.
+"wrong" became "right".  Those patches need to be applied now.  I'll resend them.
 
-On Mon, Oct 25, 2004 at 02:25:09PM -0700, Chen, Kenneth W wrote:
-> The allocate from next best node is orthogonal to hugetlb demand paging.
-> This should be merged once all the bugs are fixed and later when demand
-> paging goes in, we can add the mpol_* stuff.
+But Matthias has described the algorithm correctly: I try to keep "fixups"
+as close as possible to the patches which they fix.
 
-I'm not too picky about this. It appears to be the 4th of the series,
-so assuming they go in in order that should meet your expectations. I
-am significantly more concerned about the flush_dcache_page() issue in
-general, though. I guess this should light a fire under my backside to
-dredge up the docs describing the proper TLB flushing methods to use
-in conjunction with large page extensions for the affected arches.
+I also try to keep patches in when-to-go-to-linus order, but that's much
+harder to achieve, for various reasons.
 
-
--- wli

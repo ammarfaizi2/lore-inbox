@@ -1,48 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261884AbTCQSyd>; Mon, 17 Mar 2003 13:54:33 -0500
+	id <S261825AbTCQSuS>; Mon, 17 Mar 2003 13:50:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261877AbTCQSyd>; Mon, 17 Mar 2003 13:54:33 -0500
-Received: from 217-125-129-224.uc.nombres.ttd.es ([217.125.129.224]:1261 "HELO
-	cocodriloo.com") by vger.kernel.org with SMTP id <S261884AbTCQSyc>;
-	Mon, 17 Mar 2003 13:54:32 -0500
-Date: Mon, 17 Mar 2003 20:06:36 +0100
-From: wind-lkml@cocodriloo.com
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Cc: wind-lkml@cocodriloo.com, Alex Tomas <bzzz@tmi.comex.ru>, riel@surriel.com,
-       akpm@digeo.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.4 vm, program load, page faulting, ...
-Message-ID: <20030317190636.GD11526@wind.cocodriloo.com>
-References: <20030317151004.GR20188@holomorphy.com> <20030317171246.GB11526@wind.cocodriloo.com> <20030317173851.GC11526@wind.cocodriloo.com> <200303171957.49233.m.c.p@wolk-project.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200303171957.49233.m.c.p@wolk-project.de>
-User-Agent: Mutt/1.3.28i
+	id <S261826AbTCQSuR>; Mon, 17 Mar 2003 13:50:17 -0500
+Received: from yossman.net ([209.162.234.20]:46864 "EHLO yossman.net")
+	by vger.kernel.org with ESMTP id <S261825AbTCQSuQ>;
+	Mon, 17 Mar 2003 13:50:16 -0500
+Message-ID: <3E761B65.20408@yossman.net>
+Date: Mon, 17 Mar 2003 14:00:53 -0500
+From: Brian Davids <dlister@yossman.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030211
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Where did IPX on 2.5 go?
+References: <Pine.LNX.4.51.0303171939220.15852@dns.toxicfilms.tv>
+In-Reply-To: <Pine.LNX.4.51.0303171939220.15852@dns.toxicfilms.tv>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 17, 2003 at 07:57:49PM +0100, Marc-Christian Petersen wrote:
-> On Monday 17 March 2003 18:38, wind-lkml@cocodriloo.com wrote:
+Maciej Soltysiak wrote:
+> Hi,
 > 
-> Hi Wind,
+> i tried to find IPX support in 2.5 via make menuconfig, it is not there.
+> (or where it used to be)
+> There is nothing about IPX also in .config but net/ipx files are there.
 > 
-> > > I wonder if this could be done by walking and faulting
-> > > all pages at fs/binfmt_elf.c::elf_map just after do_mmap...
-> > > will try it just now :)
-> >
-> > OK, this is not tested, since I'm compiling it now... feel free
-> > to correct :)
+> It is 2.5.64-bk12. Was it removed or i am missing something here.
 > 
-> mm/mmap.c:
-> 
-> unsigned long do_mmap_pgoff(struct file * file, unsigned long addr, unsigned 
-> long len,
->         unsigned long prot, unsigned long flags, unsigned long pgoff)
-> {
-> 
-> your "do_mmap_pgoff" calls 7 arguments. Obviously it cannot compile 8-)
-> 
+> Regards,
+> Maciej
 
-My first patch, I'm just becoming intimate with printk ;)
+It's under Networking Support, Networking Options, ANSI/IEEE 802.0 - aka 
+LLC (IPX, Appletalk, Token Ring).  Yeah it's a little more buried than 
+before, but it's still there.
+
+
+Brian Davids
 

@@ -1,64 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129845AbQKBX4G>; Thu, 2 Nov 2000 18:56:06 -0500
+	id <S129436AbQKBX4W>; Thu, 2 Nov 2000 18:56:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129843AbQKBXzy>; Thu, 2 Nov 2000 18:55:54 -0500
-Received: from web5205.mail.yahoo.com ([216.115.106.86]:58120 "HELO
-	web5205.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S129436AbQKBXzp>; Thu, 2 Nov 2000 18:55:45 -0500
-Message-ID: <20001102235538.25699.qmail@web5205.mail.yahoo.com>
-Date: Thu, 2 Nov 2000 15:55:38 -0800 (PST)
-From: Rob Landley <telomerase@yahoo.com>
-Subject: 255.255.255.255 won't broadcast to multiple NICs
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S129843AbQKBX4J>; Thu, 2 Nov 2000 18:56:09 -0500
+Received: from mta6.snfc21.pbi.net ([206.13.28.240]:57594 "EHLO
+	mta6.snfc21.pbi.net") by vger.kernel.org with ESMTP
+	id <S129436AbQKBX4B>; Thu, 2 Nov 2000 18:56:01 -0500
+Date: Thu, 02 Nov 2000 15:51:45 -0800
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: PATCH 2.4.0.10: Update hotplug
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <007401c04527$dc094510$6500000a@brownell.org>
+MIME-version: 1.0
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+Content-type: text/plain; charset="Windows-1252"
+Content-transfer-encoding: 7bit
+X-MSMail-Priority: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+X-Priority: 3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Under 2.2.16, broadcast packets addressed to
-255.255.255.255 do not go out to all interfaces in a
-machine with multiple network cards.  They're getting
-routed out the default gateway's interface instead.
+I'm glad to see the CardBus/PCI and network hotplug
+support start happening!
 
-If I ifconfig eth1 down (which has the gateway behind
-it), I start getting "no route to host", even though
-the other subnet's still up and the default gateway's
-cleaned out of the routing tables.  Under no
-circumstances can I get the broadcast packet to go out
-more than one interface (I hate to say "like it does
-under windows" but in this case, yes).
+Would you motivate two changes I noticed?
 
-The packets aren't actually getting sent to the
-gateway, they're just getting sent out the gateway's
-interface.  They're still broadcast packets.  I.E. in
-a machine with only one NIC, broadcasting
-255.255.255.255 works fine.
+    - Changing /sbin/hotplug invocations ... now it can
+      only support "add" and "del" events.  (USB now
+      uses "add" and "remove", though "remove" doesn't
+      try to do anything yet.)
 
-Is there something I can echo into /proc somewhere to
-make this work, or some magic combination of ifconfig
-and route that will tell it to actually broadcast out
-more than one interface?  Should I mess around with
-the ethernet bridging code?  I don't know if any of
-these will work.  The problem seems to be conceptual:
-when one packet goes into the stack, only one packet
-comes out.  Global broadcast means with multiple NICS,
-multiple packets should come out (one per NIC), and
-apparently there's no support for that.
+      This removes the intended flexibility whereby
+      different subsystems (such as networking) can
+      define their own events.
 
-Ummm...  Help?
+    - "/sbin/hotplug net ..." replaced by "/sbin/network",
+      with two custom event types.
 
-(I have config info and test code if you can't
-reproduce this.  I, unfortunately, have spent the
-entire afternoon trying NOT to reproduce this. 
-Sigh...)
+The original intent of /sbin/hotplug was to centralize all
+the hotplug-related dispatching, addressing both the module
+selection/loading problem and device config/setup aspects
+of device setup.
 
-Rob
+By creating another hotplug command (/sbin/network) you're
+starting down what seems a slippery slope, where there's
+no longer a single dispatch point to enable/disable or
+to debug from.  Why discard the, err, "conceptual unity"
+of one access point for usermode hotplug policy agents?
 
-__________________________________________________
-Do You Yahoo!?
->From homework help to love advice, Yahoo! Experts has your answer.
-http://experts.yahoo.com/
+- Dave
+
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,47 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264946AbSKESKD>; Tue, 5 Nov 2002 13:10:03 -0500
+	id <S265079AbSKESRT>; Tue, 5 Nov 2002 13:17:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264875AbSKESJc>; Tue, 5 Nov 2002 13:09:32 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:43157 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S264946AbSKESJP>; Tue, 5 Nov 2002 13:09:15 -0500
-Subject: Re: [PATCH] Re: time() glitch on 2.4.18: solved
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jim Paris <jim@jtan.com>
-Cc: Willy Tarreau <willy@w.ods.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021105130222.A6245@neurosis.mit.edu>
-References: <20021102013704.A24684@neurosis.mit.edu>
-	<20021103143216.A27147@neurosis.mit.edu>
-	<1036355418.30679.28.camel@irongate.swansea.linux.org.uk>
-	<20021105113020.A5210@neurosis.mit.edu>
-	<20021105171035.GB879@alpha.home.local>
-	<1036520191.5012.109.camel@irongate.swansea.linux.org.uk> 
-	<20021105130222.A6245@neurosis.mit.edu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 05 Nov 2002 18:37:57 +0000
-Message-Id: <1036521477.4827.118.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S265030AbSKESRT>; Tue, 5 Nov 2002 13:17:19 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:10694 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S265079AbSKESRQ>;
+	Tue, 5 Nov 2002 13:17:16 -0500
+Date: Tue, 5 Nov 2002 10:18:56 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: David Brownell <david-b@pacbell.net>
+cc: Manuel Serrano <Manuel.Serrano@sophia.inria.fr>,
+       <linux-kernel@vger.kernel.org>, <weissg@vienna.at>,
+       Pete Zaitcev <zaitcev@redhat.com>
+Subject: Re: Problem with USB-OHCI (2.4.20-pre10-ac2) and Sony Picturebook
+ PCG-C1MHP
+In-Reply-To: <3DC8068A.7020000@pacbell.net>
+Message-ID: <Pine.LNX.4.33L2.0211051018060.21048-100000@dragon.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-11-05 at 18:02, Jim Paris wrote:
-> > > > +		if (count > LATCH) {
-> > > 
-> > > may be (count >= LATCH) would be even better ?
-> > 
-> > Some PIT clones seem to hold the LATCH value momentarily judging by
-> > other things that were triggered wrongly by >=
-> 
-> If so, then that's a separate problem: the later code
-> 
-> 	count = ((LATCH-1) - count) * TICK_SIZE;
-> 	delay_at_last_interrupt = (count + LATCH/2) / LATCH;
-> 
+On Tue, 5 Nov 2002, David Brownell wrote:
 
-It might be interesting to catch that case with a printk too and put
-both in 2.5 and see what comes out in the wash yes
+| Manuel Serrano wrote:
+|
+|  > usb-ohci.c: USB OHCI at membase 0xcf85a000, IRQ 9
+|  > usb-ohci.c: usb-00:0f.0, Acer Laboratories Inc. [ALi] USB 1.1 Controller
+|
+| I think Pete Zaitcev had a patch for this.  Seems like recent
+| incarnations of that silicon need modified init sequences.
+
+See the archived message at
+http://marc.theaimsgroup.com/?l=linux-usb-devel&m=103532223326544&w=2
+
+This was designed for ALi in IBM i1200/i1300 notebooks.
+
+-- 
+~Randy
 

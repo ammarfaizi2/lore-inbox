@@ -1,50 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262838AbTAJGCE>; Fri, 10 Jan 2003 01:02:04 -0500
+	id <S263137AbTAJGIe>; Fri, 10 Jan 2003 01:08:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262871AbTAJGCE>; Fri, 10 Jan 2003 01:02:04 -0500
-Received: from dp.samba.org ([66.70.73.150]:49123 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S262838AbTAJGCD>;
-	Fri, 10 Jan 2003 01:02:03 -0500
-Date: Fri, 10 Jan 2003 17:11:44 +1100
-From: David Gibson <david@gibson.dropbear.id.au>
-To: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Cc: trivial@rustcorp.com.au
-Subject: [TRIVIAL] Squash unused function in fs/nfs/mount_clnt.c
-Message-ID: <20030110061144.GM19829@zax.zax>
-Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+	id <S263204AbTAJGIe>; Fri, 10 Jan 2003 01:08:34 -0500
+Received: from f165.law14.hotmail.com ([64.4.21.165]:30470 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S263137AbTAJGId>;
+	Fri, 10 Jan 2003 01:08:33 -0500
+X-Originating-IP: [200.210.102.74]
+From: "Adriano Carvalho" <ch0wn_@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Ethernet Conexant LANfinity doesnt  send anything
+Date: Fri, 10 Jan 2003 04:12:24 -0200
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Message-ID: <F165ouBZ0Dr8oOeckbF0002a54b@hotmail.com>
+X-OriginalArrivalTime: 10 Jan 2003 06:12:24.0730 (UTC) FILETIME=[3E6237A0:01C2B86F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, please apply.  The xdr_error() function in fs/nfs/mount_clnt.c
-is never used, so this patch removes it.
-
-diff -urN /home/dgibson/kernel/linuxppc-2.5/fs/nfs/mount_clnt.c linux-bluefish/fs/nfs/mount_clnt.c
---- /home/dgibson/kernel/linuxppc-2.5/fs/nfs/mount_clnt.c	2002-12-04 10:58:01.000000000 +1100
-+++ linux-bluefish/fs/nfs/mount_clnt.c	2003-01-10 16:43:03.000000000 +1100
-@@ -93,12 +93,6 @@
-  * XDR encode/decode functions for MOUNT
-  */
- static int
--xdr_error(struct rpc_rqst *req, u32 *p, void *dummy)
--{
--	return -EIO;
--}
--
--static int
- xdr_encode_dirpath(struct rpc_rqst *req, u32 *p, const char *path)
- {
- 	p = xdr_encode_string(p, path);
+--
 
 
--- 
-David Gibson			| For every complex problem there is a
-david@gibson.dropbear.id.au	| solution which is simple, neat and
-				| wrong.
-http://www.ozlabs.org/people/dgibson
+Hi,
+
+   I need some help. I have a Compaq Laptop 1400 14xl244, with Modem HCF
+conexant , and ethernet card Conexant LANfinity. They are COMBO, and they
+use IRQ 11.
+When I startup module (tulip) for my ethernet card, its ok. But when I try
+send or receive anything, I dont get. PCMCIA card uses IRQ 11 too, so I
+get
+it out from kernel, but it doesnt solve. Here is my /proc/interrupts :
+
+11:            20           XT-PIC   hcf, eth0
+this was after a time of try ping, and the number "20" after stays 1691,
+after 2000...
+Donald Becker (tulip developer) told me to send these lines :
+Compaq 12XL125 machine detected. Enabling interrupts during APM calls.
+...
+Local APIC disabled by BIOS -- reenabling.
+Found and enabled local APIC!
+..
+PCI: Using IRQ router VIA [1106/0686] at 00:07.0
+PCI: Found IRQ 11 for device 00:0a.0
+PCI: Sharing IRQ 11 with 00:09.0
+PCI: Sharing IRQ 11 with 00:09.1
+PCI: Disabling Via external APIC routing
+
+anybody can help me ??
+Thanks for all.
+
+Adriano Carvalho.
+PS: Sorry if it wasnt to put anything in Subject.
+
+
+
+_________________________________________________________________
+MSN Messenger: converse com os seus amigos online. 
+http://messenger.msn.com.br
+

@@ -1,30 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263239AbTCYTWP>; Tue, 25 Mar 2003 14:22:15 -0500
+	id <S263251AbTCYTZ0>; Tue, 25 Mar 2003 14:25:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263245AbTCYTWP>; Tue, 25 Mar 2003 14:22:15 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:24338 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S263239AbTCYTWO>;
-	Tue, 25 Mar 2003 14:22:14 -0500
-Date: Tue, 25 Mar 2003 11:32:44 -0800
-From: Greg KH <greg@kroah.com>
-To: Duncan Sands <baldrick@wanadoo.fr>
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] USB speedtouch: trivial cleanups
-Message-ID: <20030325193244.GE16847@kroah.com>
-References: <200303241802.32437.baldrick@wanadoo.fr>
+	id <S263249AbTCYTZ0>; Tue, 25 Mar 2003 14:25:26 -0500
+Received: from inet-mail4.oracle.com ([148.87.2.204]:12000 "EHLO
+	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
+	id <S263265AbTCYTZH>; Tue, 25 Mar 2003 14:25:07 -0500
+Date: Tue, 25 Mar 2003 11:33:33 -0800
+From: Joel Becker <Joel.Becker@oracle.com>
+To: linux-kernel@vger.kernel.org
+Subject: WimMark I report for 2.5.65-mm4
+Message-ID: <20030325193333.GB19670@ca-server1.us.oracle.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200303241802.32437.baldrick@wanadoo.fr>
-User-Agent: Mutt/1.4i
+X-Burt-Line: Trees are cool.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 24, 2003 at 06:02:32PM +0100, Duncan Sands wrote:
-> speedtch.c |  110 ++++++++++++++++++++++++++++---------------------------------
-> 1 files changed, 51 insertions(+), 59 deletions(-)
+WimMark I report for 2.5.65-mm4
 
-Applied, thanks.
+Runs (deadline):  1577.62 1596.15 1613.39
+Runs (antic):  997.99 1404.44 1177.43
 
-greg k-h
+	WimMark I is a rough benchmark we have been running
+here at Oracle against various kernels.  Each run tests an OLTP
+workload on the Oracle database with somewhat restrictive memory
+conditions.  This reduces in-memory buffering of data, allowing for
+more I/O.  The I/O is read and sync write, random and seek-laden.
+	The benchmark is called "WimMark I" because it has no
+official standing and is only a relative benchmark useful for comparing
+kernel changes.  The benchmark is normalized an arbitrary kernel, which
+scores 1000.0.  All other numbers are relative to this.
+	The machine in question is a 4 way 700 MHz Xeon machine with 2GB
+of RAM.  CONFIG_HIGHMEM4GB is selected.  The disk accessed for data is a
+10K RPM U2W SCSI of similar vintage.  The data files are living on an
+ext3 filesystem.  Unless mentioned, all runs are
+on this machine (variation in hardware would indeed change the
+benchmark).
+
+
+-- 
+
+"Sometimes one pays most for the things one gets for nothing."
+        - Albert Einstein
+
+Joel Becker
+Senior Member of Technical Staff
+Oracle Corporation
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

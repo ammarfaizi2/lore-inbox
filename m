@@ -1,88 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130540AbQKQDi5>; Thu, 16 Nov 2000 22:38:57 -0500
+	id <S129145AbQKQDyZ>; Thu, 16 Nov 2000 22:54:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129145AbQKQDis>; Thu, 16 Nov 2000 22:38:48 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:54282 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S129314AbQKQDig>; Thu, 16 Nov 2000 22:38:36 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Pete Clements <clem@clem.digital.net>
-Date: Fri, 17 Nov 2000 14:08:02 +1100 (EST)
+	id <S129314AbQKQDyP>; Thu, 16 Nov 2000 22:54:15 -0500
+Received: from michae7.lnk.telstra.net ([139.130.137.101]:27144 "EHLO
+	ppro.pineview.net") by vger.kernel.org with ESMTP
+	id <S129145AbQKQDyF>; Thu, 16 Nov 2000 22:54:05 -0500
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Linux 2.2.17, Advanced routing & a Masq Link
+Message-ID: <974434633.3a14b1499867c@ppro.pineview.net>
+Date: Fri, 17 Nov 2000 14:47:13 +1000 (CST)
+From: "\"Mike O\\\\'Connor\"" <kernel@pineview.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14868.41234.444045.421346@notabene.cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org (linux-kernel),
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: 2.4.0-test11-pre6 fails compile (dev.c)
-In-Reply-To: message from Pete Clements on Thursday November 16
-In-Reply-To: <200011170256.VAA10669@clem.digital.net>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: IMP/PHP IMAP webmail program 2.2.3
+X-Originating-IP: 203.38.186.33
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday November 16, clem@clem.digital.net wrote:
-> FYI:
-> 
-> gcc -D__KERNEL__ -I/usr/src/linux-2.4.0-test11/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -mpreferred-stack-boundary=2 -march=i686    -c -o dev.o dev.c
-> dev.c: In function `run_sbin_hotplug':
-> dev.c:2736: `hotplug_path' undeclared (first use in this function)
-> dev.c:2736: (Each undeclared identifier is reported only once
-> dev.c:2736: for each function it appears in.)
-> make[3]: *** [dev.o] Error 1
-> make[3]: Leaving directory `/sda3/usr/src/linux-2.4.0-test11/net/core'
-> make[2]: *** [first_rule] Error 2
-> 
-> -- 
-> Pete Clements 
-> clem@clem.digital.net
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+Hi all
 
-The following works for me.... and even looks right.
+I\'ve asked this question on a few other email list with no responce, so as a 
+last resort I\'m posting it here.
 
-NeilBrown
+I\'m trying to get a system going which has two links to the internet. One has 
+class C range routed over it and the other will need to be Masq\'d.
+I want to route traffic like smtp, http, https & ftp via the low cost link (the 
+Masq\'s one)
 
+I\'ve setup Advanced routing based on using 2.2.17 and ipchains & iproute2 (the 
+lastest as part of debian 2.2r1) using Linux 2.4 Advanced Routing HOWTO as an 
+example. (there is not a 2.2 how-to for this even thought it is supposed to be 
+able to do this type of thing) A few of the command did not have a ipchains 
+equivalent, particularly \'mangle\'.
 
---- ./init/main.c	2000/11/17 03:03:23	1.1
-+++ ./init/main.c	2000/11/17 03:03:33
-@@ -712,11 +712,13 @@
- 	init_pcmcia_ds();		/* Do this last */
- #endif
- 
-+#ifdef CONFIG_HOTPLUG	
- 	/* do this after other 'do this last' stuff, because we want
- 	 * to minimize spurious executions of /sbin/hotplug
- 	 * during boot-up
- 	 */
- 	net_notifier_init();
-+#endif
- 
- 	/* Mount the root filesystem.. */
- 	mount_root();
---- ./net/core/dev.c	2000/11/17 03:00:42	1.1
-+++ ./net/core/dev.c	2000/11/17 03:03:53
-@@ -2704,7 +2704,7 @@
- 	return 0;
- }
- 
--
-+#ifdef CONFIG_HOTPLUG
- /* Notify userspace when a netdevice event occurs,
-  * by running '/sbin/hotplug net' with certain
-  * environment variables set.
-@@ -2765,3 +2765,5 @@
- 		printk (KERN_WARNING "unable to register netdev notifier\n"
- 			KERN_WARNING "/sbin/hotplug will not be run.\n");
- }
-+
-+#endif
+Using tcpdump I can see the packet come in from my notebook 203.33.246.2 which 
+hits 203.33.246.1 and is MASQ\'d to the Ipaddress of the isdn link. The 
+requested information is returned to the ISDN interface but nothing is seen on 
+the eth1 link going back to notebook.
+
+I also watched the normal ppp link and there was no traffic on this link in 
+relation to the www connection.
+
+The following is a list of the commands I used:
+
+/sbin/ipchains -A forward -j MASQ -s 203.33.246.0/24 -i ippp+
+/sbin/ipchains -A input -i eth1 -p tcp --dport 80 -m 1
+
+root@ppro:~# ip rule ls
+0:      from all lookup local
+32765:  from all fwmark        1 lookup lowcost.out
+32766:  from all lookup main
+32767:  from all lookup default
+root@ppro:~#
+
+ip route add default dev ippp0 table lowcost.out
+
+Any help would be great :)
+
+Cheers & Thanks
+    Mike O\'Connor
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

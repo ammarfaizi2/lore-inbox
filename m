@@ -1,55 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132665AbRALUr2>; Fri, 12 Jan 2001 15:47:28 -0500
+	id <S132654AbRALUui>; Fri, 12 Jan 2001 15:50:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132444AbRALUrR>; Fri, 12 Jan 2001 15:47:17 -0500
-Received: from e56090.upc-e.chello.nl ([213.93.56.90]:7180 "EHLO unternet.org")
-	by vger.kernel.org with ESMTP id <S132975AbRALUrC>;
-	Fri, 12 Jan 2001 15:47:02 -0500
-Date: Fri, 12 Jan 2001 21:46:42 +0100
-From: Frank de Lange <frank@unternet.org>
+	id <S132559AbRALUu2>; Fri, 12 Jan 2001 15:50:28 -0500
+Received: from imladris.demon.co.uk ([193.237.130.41]:24582 "EHLO
+	imladris.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S132402AbRALUuS>; Fri, 12 Jan 2001 15:50:18 -0500
+Date: Fri, 12 Jan 2001 20:46:09 +0000 (GMT)
+From: David Woodhouse <dwmw2@infradead.org>
 To: Ingo Molnar <mingo@elte.hu>
-Cc: Manfred Spraul <manfred@colorfullife.com>,
-        Linus Torvalds <torvalds@transmeta.com>, dwmw2@infradead.org,
-        linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Frank de Lange <frank@unternet.org>,
+        Manfred Spraul <manfred@colorfullife.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
 Subject: Re: QUESTION: Network hangs with BP6 and 2.4.x kernels, hardwarerelated?
-Message-ID: <20010112214642.A27809@unternet.org>
-In-Reply-To: <20010112213555.F26555@unternet.org> <Pine.LNX.4.30.0101122136180.2772-100000@e2>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.30.0101122136180.2772-100000@e2>; from mingo@elte.hu on Fri, Jan 12, 2001 at 09:37:24PM +0100
+In-Reply-To: <Pine.LNX.4.30.0101122136180.2772-100000@e2>
+Message-ID: <Pine.LNX.4.30.0101122040160.30254-100000@imladris.demon.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 12, 2001 at 09:37:24PM +0100, Ingo Molnar wrote:
+On Fri, 12 Jan 2001, Ingo Molnar wrote:
+
 > okay - i just wanted to hear a definitive word from you that this fixes
 > your problem, because this is what we'll have to do as a final solution.
 > (barring any other solution.)
 
-Now running with this config:
+Patching 8390.c won't fix this for me. The only thing on IRQ19 when I saw
+interrupts die was usb-uhci, and that doesn't appear to use disable_irq.
 
-PATCHED 8390.c (using irq_safe spinlocks instead of disable_irq)
-PATCHED apic.c (focus cpu ENABLED)
-STOCK io_apic.c
-
-No problems under heavy network load.
-
-Gentleman, this (the patch to 8390.c) seems to fix the problem.
-
-Cheers//Frank
+But then again, I've only ever seen this happen once. It's not repeatable.
 
 -- 
-  WWWWW      _______________________
- ## o o\    /     Frank de Lange     \
- }#   \|   /                          \
-  ##---# _/     <Hacker for Hire>      \
-   ####   \      +31-320-252965        /
-           \    frank@unternet.org    /
-            -------------------------
- [ "Omnis enim res, quae dando non deficit, dum habetur
-    et non datur, nondum habetur, quomodo habenda est."  ]
+dwmw2
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

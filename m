@@ -1,56 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317811AbSHHXfu>; Thu, 8 Aug 2002 19:35:50 -0400
+	id <S318078AbSHHXsr>; Thu, 8 Aug 2002 19:48:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318078AbSHHXft>; Thu, 8 Aug 2002 19:35:49 -0400
-Received: from web40005.mail.yahoo.com ([66.218.78.23]:3688 "HELO
-	web40005.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S317811AbSHHXft>; Thu, 8 Aug 2002 19:35:49 -0400
-Message-ID: <20020808233926.14381.qmail@web40005.mail.yahoo.com>
-Date: Thu, 8 Aug 2002 16:39:26 -0700 (PDT)
-From: Brad Chapman <jabiru_croc@yahoo.com>
-Subject: Re: What patches I need for s stable 2.5.x
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Jones <davej@suse.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1028846060.28882.105.camel@irongate.swansea.linux.org.uk>
-MIME-Version: 1.0
+	id <S318079AbSHHXsq>; Thu, 8 Aug 2002 19:48:46 -0400
+Received: from quattro.sventech.com ([205.252.248.110]:27404 "EHLO
+	quattro.sventech.com") by vger.kernel.org with ESMTP
+	id <S318078AbSHHXsq>; Thu, 8 Aug 2002 19:48:46 -0400
+Date: Thu, 8 Aug 2002 19:52:29 -0400
+From: Johannes Erdfelt <johannes@erdfelt.com>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       mjr@znex.org
+Subject: Re: [linux-usb-devel] Re: USBLP_WRITE_TIMEOUT too short for Kyocera FS-1010.
+Message-ID: <20020808195229.C3414@sventech.com>
+References: <200208082333.QAA11560@adam.yggdrasil.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200208082333.QAA11560@adam.yggdrasil.com>; from adam@yggdrasil.com on Thu, Aug 08, 2002 at 04:33:20PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mr. Cox,
-
---- Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> On Thu, 2002-08-08 at 22:02, Brad Chapman wrote:
-> > Everyone,
-> > 
-> >       I have been following some of the threads on linux-kernel and have
-> read
-> > about the IDE problems. I know about Jens' 2.4.x IDE foreport, and I was 
-> > wondering: what other patches should I apply, besides the 2.4.x IDE
-> foreport,
-> > to ensure a stable 2.5.x kernel?
+On Thu, Aug 08, 2002, Adam J. Richter <adam@yggdrasil.com> wrote:
+> Mark J Roberts writes:
+> >Printing complicated postscript documents makes my Kyocera FS-1010
+> >hit that timeout. I increased it to 240 seconds and the problem
+> >seems to have disappeared.
+> >
+> >I guess there ought to be a blacklist or something.
 > 
-> The IDE stuff might get you a usable 2.5, even then the error handling
-> is not correct in all cases so treat it with care. On my test boxes the
-> foreport didnt hang the machine the way 2.5.* did so its an improvement.
-> You might just want to follow the 2.5.*-dj tree though
->
+> 	I saw a similar thing a few weeks ago (under 2.5.27?) with the
+> Hewlett-Packard 656C ink jet printer, which only occurred when I would
+> send a page with images on it, so the printer really would need a long
+> time before it was ready to accept more data.
+> 
+> 	I would hope that the kernel should be able to wait as long
+> as the printer wants before the printer indicates that it is ready for
+> more data.  I don't know if this is a bug in these printers' USB
+> implementations or if it is a real kernel bug.  I just haven't had
+> time to investigate it yet (and I no longer have access to that printer,
+> although 656C's are only $30 at Fry's).
 
-        ACK. Are there any gotchas associated with the 2.5.x-dj tree? I 
-haven't really studied it up to this point.
+I suspect it's a bug in the kernel.
 
-Brad 
+It sounds like the printer is NAKing all of the transfers while it's
+busy flushing out the data sent to it. This is to be expected because it
+can only store so much data and sending data is MUCH faster than it can
+print it.
 
+I think the problem is that the printer driver has a timeout. I don't
+think it should. It just doesn't make sense in this case. I say let the
+device NAK as long as it wants. It's the applications job to decide if
+it's been too long or not.
 
-=====
-Brad Chapman
+JE
 
-Permanent e-mails: kakadu_croc@yahoo.com
-		   jabiru_croc@yahoo.com
-		   tanami_croc@devel.lbsd.net
-
-__________________________________________________
-Do You Yahoo!?
-HotJobs - Search Thousands of New Jobs
-http://www.hotjobs.com

@@ -1,98 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264001AbTJFRyW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 13:54:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264013AbTJFRyW
+	id S262372AbTJFRjn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 13:39:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262395AbTJFRjm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 13:54:22 -0400
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:17337 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S264001AbTJFRyT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 13:54:19 -0400
-Date: Mon, 6 Oct 2003 13:54:16 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: linux-kernel@vger.kernel.org, zaitcev@redhat.com,
-       Florian La Roche <laroche@redhat.com>
-Subject: Re: s390 test6 patches: descriptions.
-Message-ID: <20031006135416.B16665@devserv.devel.redhat.com>
-References: <mailman.1065432601.831.linux-kernel2news@redhat.com>
+	Mon, 6 Oct 2003 13:39:42 -0400
+Received: from mail.kroah.org ([65.200.24.183]:37067 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262372AbTJFRjg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Oct 2003 13:39:36 -0400
+Date: Mon, 6 Oct 2003 10:38:58 -0700
+From: Greg KH <greg@kroah.com>
+To: Dipankar Sarma <dipankar@in.ibm.com>
+Cc: Maneesh Soni <maneesh@in.ibm.com>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Patrick Mochel <mochel@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC 0/6] Backing Store for sysfs
+Message-ID: <20031006173858.GA4403@kroah.com>
+References: <20031006085915.GE4220@in.ibm.com> <20031006160846.GA4125@us.ibm.com> <20031006173111.GA1788@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <mailman.1065432601.831.linux-kernel2news@redhat.com>; from schwidefsky@de.ibm.com on Mon, Oct 06, 2003 at 11:23:52AM +0200
+In-Reply-To: <20031006173111.GA1788@in.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> more patches for s390. 7 this time, one is big and another one is VERY big.
+On Mon, Oct 06, 2003 at 11:01:11PM +0530, Dipankar Sarma wrote:
+> On Mon, Oct 06, 2003 at 09:08:46AM -0700, Greg KH wrote:
+> > On Mon, Oct 06, 2003 at 02:29:15PM +0530, Maneesh Soni wrote:
+> > > 
+> > > 				2.6.0-test6		With patches.
+> > > -----------------
+> > > dentry_cache (active)		2520			2544
+> > > inode_cache (active)		1058			1050
+> > > LowFree			875032 KB		874748 KB
+> > 
+> > So with these patches we actually eat up more LowFree if all sysfs
+> > entries are searched, and make the dentry_cache bigger?  That's not good :(
+> 
+> My guess is that those 24 dentries are just noise. What we should
+> do is verify with a large number of devices if the numbers are all
+> that different after a walk of the sysfs tree.
 
-This is all fine, but the removal of dst_link_failure is missing.
-Why is that? We agreed about it several update cycles before.
-I am not doing because I'm bored, we hit actual oopses (ok, on 2.4).
+Ok, a better test would be with a _lot_ of devices.  Care to test with a
+lot of scsi debug devices?
 
--- Pete
+> > Remember, every kobject that's created will cause a call to
+> > /sbin/hotplug which will cause udev to walk the sysfs tree to get the
+> > information for that kobject.  So I don't see any savings in these
+> > patches, do you?
+> 
+> Assuming that unused files/dirs are aged out of dentry and inode cache,
+> it should benefit. The numbers you should look at are -
+> 
+> --------------------------------------------------------
+> After mounting sysfs
+> -------------------
+> dentry_cache (active)           2350                    1321
+> inode_cache (active)            1058                    31
+> LowFree                         875096 KB               875836 KB
+> --------------------------------------------------------
+> 
+> That saves ~800KB. If you just mount sysfs and use a few files, you
+> aren't eating up dentries and inodes for every file in sysfs. How often 
+> do you expect hotplug events to happen in a system ?
 
-diff -urN -X dontdiff linux-2.6.0-test6/drivers/s390/net/ctcmain.c linux-2.6.0-test6-s390/drivers/s390/net/ctcmain.c
---- linux-2.6.0-test6/drivers/s390/net/ctcmain.c	2003-10-01 15:17:54.000000000 -0700
-+++ linux-2.6.0-test6-s390/drivers/s390/net/ctcmain.c	2003-10-01 15:31:17.000000000 -0700
-@@ -2441,14 +2441,12 @@
- 
- 	/**
- 	 * If channels are not running, try to restart them
--	 * notify anybody about a link failure and throw
--	 * away packet. 
-+	 * and throw away packet. 
- 	 */
- 	if (fsm_getstate(privptr->fsm) != DEV_STATE_RUNNING) {
- 		fsm_event(privptr->fsm, DEV_EVENT_START, dev);
- 		if (privptr->protocol == CTC_PROTO_LINUX_TTY)
- 			return -EBUSY;
--		dst_link_failure(skb);
- 		dev_kfree_skb(skb);
- 		privptr->stats.tx_dropped++;
- 		privptr->stats.tx_errors++;
-diff -urN -X dontdiff linux-2.6.0-test6/drivers/s390/net/netiucv.c linux-2.6.0-test6-s390/drivers/s390/net/netiucv.c
---- linux-2.6.0-test6/drivers/s390/net/netiucv.c	2003-10-01 15:17:54.000000000 -0700
-+++ linux-2.6.0-test6-s390/drivers/s390/net/netiucv.c	2003-10-01 15:31:17.000000000 -0700
-@@ -1177,12 +1177,10 @@
- 
- 	/**
- 	 * If connection is not running, try to restart it
--	 * notify anybody about a link failure and throw
--	 * away packet. 
-+	 * and throw away packet. 
- 	 */
- 	if (fsm_getstate(privptr->fsm) != DEV_STATE_RUNNING) {
- 		fsm_event(privptr->fsm, DEV_EVENT_START, dev);
--		dst_link_failure(skb);
- 		dev_kfree_skb(skb);
- 		privptr->stats.tx_dropped++;
- 		privptr->stats.tx_errors++;
-diff -urN -X dontdiff linux-2.6.0-test6/drivers/s390/net/qeth.c linux-2.6.0-test6-s390/drivers/s390/net/qeth.c
---- linux-2.6.0-test6/drivers/s390/net/qeth.c	2003-10-01 15:17:54.000000000 -0700
-+++ linux-2.6.0-test6-s390/drivers/s390/net/qeth.c	2003-10-01 15:36:16.000000000 -0700
-@@ -1996,7 +1996,6 @@
- 			case ERROR_LINK_FAILURE:
- 			case ERROR_KICK_THAT_PUPPY:
- 				QETH_DBF_TEXT4(0, trace, "endeglnd");
--				dst_link_failure(skb);
- 				atomic_dec(&skb->users);
- 				dev_kfree_skb_irq(skb);
- 				break;
-@@ -2489,7 +2488,6 @@
- 
- 	if (!card) {
- 		QETH_DBF_TEXT2(0, trace, "XMNSNOCD");
--		dst_link_failure(skb);
- 		dev_kfree_skb_irq(skb);
- 		return 0;
- 	}
-@@ -2501,7 +2499,6 @@
- 		card->stats->tx_carrier_errors++;
- 		QETH_DBF_TEXT2(0, trace, "XMNS");
- 		QETH_DBF_TEXT2(0, trace, card->rdev->dev.bus_id);
--		dst_link_failure(skb);
- 		dev_kfree_skb_irq(skb);
- 		return 0;
- 	}
+Every kobject that is created and is associated with a subsystem
+generates a hotplug call.  So that's about every kobject that we care
+about here :)
+
+> Some time after a hotplug event, dentries/inodes will get aged out and
+> then you should see savings. It should greatly benefit in a normal
+> system.
+
+Can you show this happening?
+
+> Now if the additional kobjects cause problems with userland hotplug, then 
+> that needs to be resolved. However that seems to be a different problem 
+> altogether. Could you please elaborate on that ?
+
+No, I don't think the additional ones you have added will cause
+problems, but can you verify this?  Just log all hotplug events
+happening in your system (point /proc/sys/kernel/hotplug to a simple
+logging program).
+
+But again, I don't think the added overhead you have added to a kobject
+is acceptable for not much gain for the normal case (systems without a
+zillion devices.)
+
+thanks,
+
+greg k-h

@@ -1,88 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130324AbRBMFvY>; Tue, 13 Feb 2001 00:51:24 -0500
+	id <S130350AbRBMFxe>; Tue, 13 Feb 2001 00:53:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130350AbRBMFvP>; Tue, 13 Feb 2001 00:51:15 -0500
-Received: from kea.grace.cri.nz ([131.203.4.51]:20753 "EHLO kea.grace.cri.nz")
-	by vger.kernel.org with ESMTP id <S130324AbRBMFvD>;
-	Tue, 13 Feb 2001 00:51:03 -0500
-Date: Tue, 13 Feb 2001 00:50:53 -0500 (EST)
-Message-Id: <200102130550.AAA06620@whio.grace.cri.nz>
-From: roger@kea.grace.cri.nz
-To: ttsig@tuxyturvy.com
-CC: linux-kernel@vger.kernel.org, roger@kea.grace.cri.nz, R.Bain@comnet.co.nz
-In-Reply-To: <982037420.3a88b3ac6fbca@eargle.com> (message from Tom Sightler on Mon, 12 Feb 2001 23:10:20 -0500 (EST))
-Subject: Re: Problem with Netscape/Linux v.2.4.x [repeat] (MTU problem??)
+	id <S130407AbRBMFxY>; Tue, 13 Feb 2001 00:53:24 -0500
+Received: from ns.arraycomm.com ([199.74.167.5]:37781 "HELO
+	bastion.arraycomm.com") by vger.kernel.org with SMTP
+	id <S130350AbRBMFxQ>; Tue, 13 Feb 2001 00:53:16 -0500
+Message-Id: <5.0.2.1.2.20010212212149.024222a0@pop.arraycomm.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
+Date: Mon, 12 Feb 2001 21:51:50 -0800
+To: linux-kernel@vger.kernel.org
+From: Jasmeet Sidhu <jsidhu@arraycomm.com>
+Subject: DMA blues... (Raid5 + Promise ATA/100)
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+I have a software raid setup using the latest kernel, but the system keeps 
+crashing.
 
-Re: Tom's message (below)
+Each drive is connected to the respective ide port via ATA100 capable 
+cables.  Each drive is a master..no slaves.  The configuration is that 
+/dev/hdc is a hot spare and /dev/hd[e,g,i,k,m,o,q,s] are all setup as raid 
+5.  These are all 75GB drives and are recognized as such.
 
+I have searched the linux-kernel archives and saw many posts addressing the 
+problems that I was experiencing, namely the freezing caused by the code in 
+the body of delay_50ms() in drivers/ide/ide.c.  This was fixed in the 
+current patch and as discussed earlier on the linux-kernel mailing list by 
+using mdelay(50).  This fixed the problems to some extent, the system 
+seemed very reliable and I did not get a single "DriveStatusError BadCRC" 
+or a "DriveReady SeekComplete Index Error" for a while.  But after I had 
+copied  a large amount of data to the raid, about 17GB, the system crashed 
+completely and could only be recovered by a cold reboot.  Before using the 
+latest patches, the system would usually crash after about 4-6GB of data 
+had been moved.  Here are the log entries...
 
-Thanks for your comments and description of symptoms. There may well
-be an underlying common cause. Have you looked at the MTU/MSS
-settings? 
- 
+Feb 12 06:41:12 bertha kernel: hdo: dma_intr: status=0x53 { DriveReady 
+SeekComplete Index Error }
+Feb 12 06:41:12 bertha kernel: hdo: dma_intr: error=0x84 { DriveStatusError 
+BadCRC }
+Feb 12 06:45:42 bertha kernel: hdo: timeout waiting for DMA
+Feb 12 06:45:42 bertha kernel: hdo: ide_dma_timeout: Lets do it again!stat 
+= 0x50, dma_stat = 0x20
+Feb 12 06:45:42 bertha kernel: hdo: irq timeout: status=0x50 { DriveReady 
+SeekComplete }
+Feb 12 06:45:42 bertha kernel: hdo: ide_set_handler: handler not null; 
+old=c01d0710, new=c01dac70
+Feb 12 06:45:42 bertha kernel: bug: kernel timer added twice at c01d0585.
+Feb 12 09:13:15 bertha syslogd 1.3-3: restart.
 
->Do you get errors on your ppp0 interface?  Just curious.  Now that I know I'm 
->not just crazy maybe I'll look into it more.
+Let me know If I should post any additional information that might help in 
+troubleshooting.  Is this a possible issue with the kernel code or is this 
+a problem with hardware?  Any help is appreciated...
 
-I get a large number of RX errors (25%) when running telnet in console
-mode (and very poor performance). Again this is confined to the 2.4.x
-kernel. Oddly enough (with 2.4.x) there is little packet loss with telnet
-under X. Similarly during a Netscape session (locked or not) there is
-little packet loss registered....
+- Jasmeet Sidhu
 
+Some other info that might help:
 
-Roger Young.
+[root@bertha /root]# uname -a
+Linux bertha 2.4.1-ac9 #1 Mon Feb 12 02:43:08 PST 2001 i686 unknown
 
-...........................................................................
-Quoting roger@maths.grace.cri.nz:
+Patches Applied to Kernel 2.4.1:
+	1) ide.2.4.1-p8.all.01172001.patch
+	2) patch-2.4.1-ac9
 
-> Symptoms: The browser (Netscape or Lynx) will not download from remote
-> web sites (dynamic ppp connection via external modem).
-> 
-> This looks to be a problem for my PC and the 2.4.x kernel,
+Asus A7V VIA KT133 and Onboard Promise ATA100 Controller (PDC20267)
+1GHz AMD Thunderbird Athalon Processor
+Four Promise PCI ATA100 Controllers (PDC20267)
+Netgear GA620 Gigabit Ethernet Card
 
-It is very interesting that your are having this problem.  I have been having a 
-similar problem with with 2.4.x on my laptop and had been unable to totally put 
-it all together.  Here's my basic symtoms:
+Boot Drive (Root + Swap)
+hda: IBM-DTLA-307020, ATA DISK drive
 
-I can use the web quite normally for quite some time, but certain sites seem to 
-be a trigger.  For example, if I go to IBM site and attempt to download they're 
-JDK I immediately start getting errors on my ppp0 interface.  From that point 
-on I get errors on other sites that previously were working, and the ppp0 
-errors continue to increase throughout the entire duration of the call.  If I 
-hang up and dial back everything goes back to normal again until I attempt to 
-connect to the IBM download site again.
-
-I originally thought this was a problem with my Xircom adapter, but if I fire 
-up VMware I can use Windows 2000 to dial the same link and everything works 
-fine to all the same sites.  This certainly implies that the serial layer is 
-working properly since VMware still simply passes control of /dev/ttyS1 to the 
-VM.
-
-I was unable to reproduce this problem on the same system with kernel 2.2.18, 
-all other things being the same.  I don't think my ISP uses trasparent proxies, 
-but it is possible the remote IBM system uses some transparent web 
-accelerator/load balancer.  Most of the IBM web site works properly, only the 
-software download site seems to trigger the problem.  The problem does exhibit 
-itself on other sites, but the IBM site is where began to realize it was 
-repeatable.
-
-Do you get errors on your ppp0 interface?  Just curious.  Now that I know I'm 
-not just crazy maybe I'll look into it more.
-
-Later,
-Tom
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://vger.kernel.org/lkml/
-
+Raid 5 Drives:
+hdc: IBM-DTLA-307075, ATA DISK drive	*SPARE*
+hde: IBM-DTLA-307075, ATA DISK drive
+hdg: IBM-DTLA-307075, ATA DISK drive
+hdi: IBM-DTLA-307075, ATA DISK drive
+hdk: IBM-DTLA-307075, ATA DISK drive
+hdm: IBM-DTLA-307075, ATA DISK drive
+hdo: IBM-DTLA-307075, ATA DISK drive
+hdq: IBM-DTLA-307075, ATA DISK drive
+hds: IBM-DTLA-307075, ATA DISK drive
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

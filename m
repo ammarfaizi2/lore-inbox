@@ -1,84 +1,96 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292857AbSD1KRj>; Sun, 28 Apr 2002 06:17:39 -0400
+	id <S293076AbSD1L3w>; Sun, 28 Apr 2002 07:29:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293076AbSD1KRi>; Sun, 28 Apr 2002 06:17:38 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:25871 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S292857AbSD1KRi>;
-	Sun, 28 Apr 2002 06:17:38 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: Announce: modutils 2.4.16 is available 
-Date: Sun, 28 Apr 2002 20:17:27 +1000
-Message-ID: <12676.1019989047@ocs3.intra.ocs.com.au>
+	id <S293203AbSD1L3v>; Sun, 28 Apr 2002 07:29:51 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:47348 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S293076AbSD1L3v>; Sun, 28 Apr 2002 07:29:51 -0400
+Date: Sun, 28 Apr 2002 13:25:55 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Phil Blundell <philb@gnu.org>, <linux-i2c@pelican.tk.uni-linz.ac.at>,
+        <kraxel@bytesex.org>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: 2.5.10-dj1: i2c-parport.c:23: linux/i2c-old.h: No such file or
+ directory
+Message-ID: <Pine.NEB.4.44.0204281321560.3103-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi,
 
-Content-Type: text/plain; charset=us-ascii
+while trying to compile kernel 2.5.10-dj1 the compilation of i2c-parport.c
+failed with the following error message:
 
-ftp://ftp.<country>.kernel.org/pub/linux/utils/kernel/modutils/v2.4
+<--  snip  -->
 
-modutils-2.4.16.tar.gz          Source tarball, includes RPM spec file
-modutils-2.4.16-1.src.rpm       As above, in SRPM format
-modutils-2.4.16-1.i386.rpm      Compiled with gcc 2.96 20000731,
-                                glibc 2.2.2.
-modutils-2.4.16-1.ia64.rpm	Compiled with gcc 2.96-ia64-20000731,
-				glibc-2.2.3.
-modutils-2.4.16-1.sparc.rpm	Compiled for combined 32/64 sparc, with gcc
-				2.95.4, glibc-2.2.5.
-patch-modutils-2.4.16.gz        Patch from modutils 2.4.15 to 2.4.16.
+...
+gcc -D__KERNEL__ -I/home/bunk/linux/kernel-2.5/linux-2.5.10/include -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
+-fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=k6
+-nostdinc -I /usr/lib/gcc-lib/i386-linux/2.95.4/include
+-DKBUILD_BASENAME=i2c_parport  -c -o i2c-parport.o i2c-parport.c
+i2c-parport.c:23: linux/i2c-old.h: No such file or directory
+i2c-parport.c:33: field `i2c' has incomplete type
+i2c-parport.c: In function `i2c_setlines':
+i2c-parport.c:45: dereferencing pointer to incomplete type
+i2c-parport.c: In function `i2c_getdataline':
+i2c-parport.c:52: dereferencing pointer to incomplete type
+i2c-parport.c: At top level:
+i2c-parport.c:56: variable `parport_i2c_bus_template' has initializer but
+incomplete type
+i2c-parport.c:58: warning: excess elements in struct initializer
+i2c-parport.c:58: warning: (near initialization for
+`parport_i2c_bus_template')
+i2c-parport.c:59: `I2C_BUSID_PARPORT' undeclared here (not in a function)
+i2c-parport.c:59: warning: excess elements in struct initializer
+i2c-parport.c:59: warning: (near initialization for
+`parport_i2c_bus_template')
+i2c-parport.c:60: warning: excess elements in struct initializer
+i2c-parport.c:60: warning: (near initialization for
+`parport_i2c_bus_template')
+i2c-parport.c:62: warning: excess elements in struct initializer
+i2c-parport.c:62: warning: (near initialization for
+`parport_i2c_bus_template')
+i2c-parport.c:64: warning: excess elements in struct initializer
+i2c-parport.c:64: warning: (near initialization for
+`parport_i2c_bus_template')
+i2c-parport.c:65: warning: excess elements in struct initializer
+i2c-parport.c:65: warning: (near initialization for
+`parport_i2c_bus_template')
+i2c-parport.c:67: warning: excess elements in struct initializer
+i2c-parport.c:67: warning: (near initialization for
+`parport_i2c_bus_template')
+i2c-parport.c:68: warning: excess elements in struct initializer
+i2c-parport.c:68: warning: (near initialization for
+`parport_i2c_bus_template')
+i2c-parport.c:69: warning: excess elements in struct initializer
+i2c-parport.c:69: warning: (near initialization for
+`parport_i2c_bus_template')
+i2c-parport.c:70: warning: excess elements in struct initializer
+i2c-parport.c:70: warning: (near initialization for
+`parport_i2c_bus_template')
+i2c-parport.c: In function `i2c_parport_attach':
+i2c-parport.c:88: warning: implicit declaration of function
+`i2c_register_bus'
+i2c-parport.c: In function `i2c_parport_detach':
+i2c-parport.c:106: warning: implicit declaration of function
+`i2c_unregister_bus'
+make[4]: *** [i2c-parport.o] Error 1
+make[4]: Leaving directory
+`/home/bunk/linux/kernel-2.5/linux-2.5.10/drivers/media/video'
 
-Changelog extract
+<--  snip  -->
 
-	* Print 'Module loaded, with warnings' for people who cannot tell the
-	  difference between warnings and errors.
-	* Tell the user where to find more information about tainted modules.
-	* Add configure option TAINT_URL, default http://www.tux.org/lkml/#s1-18.
-	* Workaround for ppc64 symbols that contain _R in the name.  Guy Streeter.
-	* Add alias char-major-200 vxspec.  Tigran Aivazian.
-	* Add "look in syslog or dmesg output" to hints for failing modules.
-	  Suggested by Georg Acher.
-	* Environment variable UNAME_MACHINE overides the value of uname machine.
+cu
+Adrian
 
+-- 
 
-Note to vendors who supply Linux systems that contain non-GPL modules.
-
-  I _strongly_ suggest that you configure and ship modutils with a URL
-  that points to your support policy, e.g.
-
-    TAINT_URL='http://www.some_vendor.com/linux/support/\#taint' configure
-
-  see the INSTALL file.  Then your users will contact you with
-  questions instead of bothering the linux-kernel list and being told
-  to go away.  Your users will be happier and l-k readers will be
-  happier.
-
-Note to ppc32/64 and hppa32/64 users.
-
-  I have added environment variable UNAME_MACHINE to try to overcome
-  the problems of building 64 bit modules in a 32 bit environment and
-  vice versa.  When set, this variable overrides the value of uname -m
-  in modutils.  In particular, if you are building 64 bit modules on a
-  32 bit version of the same platform, doing
-
-    export UNAME_MACHINE=ppc64 (or hppa64)
-
-  should let modules_install handle the modules.  It has had limited
-  testing, let me know if it does not work.
-
-  UNAME_MACHINE only works for 32/64 bit versions of the build machine,
-  and only when modutils was configured with --enable-combined-XXX.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: Exmh version 2.1.1 10/15/1999
-
-iD8DBQE8y8w2i4UHNye0ZOoRArlLAKDvpnDDpoy1gd8NsR/beG4nmLypCQCgq6dW
-rv1RAihc6iVd9UsCpIwlEYg=
-=u2H9
------END PGP SIGNATURE-----
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
 

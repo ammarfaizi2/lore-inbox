@@ -1,42 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129210AbQKMXfj>; Mon, 13 Nov 2000 18:35:39 -0500
+	id <S129177AbQKMXfj>; Mon, 13 Nov 2000 18:35:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129478AbQKMXf2>; Mon, 13 Nov 2000 18:35:28 -0500
-Received: from mhaaksma-3.dsl.speakeasy.net ([64.81.17.226]:29712 "EHLO
-	mail.neruo.com") by vger.kernel.org with ESMTP id <S129210AbQKMXfR>;
-	Mon, 13 Nov 2000 18:35:17 -0500
-Subject: Re: APM oops with Dell 5000e laptop
-From: Brad Douglas <brad@neruo.com>
-To: Dax Kelson <dax@gurulabs.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.SOL.4.30.0011131537460.27682-100000@ultra1.inconnect.com>
-Content-Type: text/plain
-X-Mailer: Evolution 0.6 (Developer Preview)
-Date: 14 Nov 2000 07:04:55 +0800
-Mime-Version: 1.0
-Message-Id: <20001113233519Z129210-521+38@vger.kernel.org>
+	id <S129210AbQKMXf3>; Mon, 13 Nov 2000 18:35:29 -0500
+Received: from imladris.demon.co.uk ([193.237.130.41]:57349 "EHLO
+	imladris.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S129177AbQKMXfO>; Mon, 13 Nov 2000 18:35:14 -0500
+Date: Mon, 13 Nov 2000 23:04:19 +0000 (GMT)
+From: David Woodhouse <dwmw2@infradead.org>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: David Hinds <dhinds@valinux.com>, <torvalds@transmeta.com>,
+        <tytso@valinux.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] pcmcia event thread. (fwd)
+In-Reply-To: <3A106F81.FB5BE7F1@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.30.0011132254320.29233-100000@imladris.demon.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> I just got a Sceptre 6950 (also known as a Dell 5000e), I just installed
-> Red Hat 7.0 on it, and got an APM related oops at boot.
-> 
-> I found that this was reported on l-k in late September with a couple
-> responses, but no resolution.
-> 
-> Here are a couple detailed bug reports on this same problem, again with no
-> response.
-> 
-> http://linuxcare.com.au/cgi-bin/apm/incoming?id=90
-> http://linuxcare.com.au/cgi-bin/apm/incoming?id=91
+On Mon, 13 Nov 2000, Jeff Garzik wrote:
 
-We have an open ticket with Compal (the manufacturer) about the problem.  The 32-bit Get Power Status (0AH) call is broken.
+> It's purposefully not on Ted's critical list, the official line is "use
+> pcmcia_cs external package" if you need i82365 or tcic instead of yenta
+> AFAIK.  However... fixing things and being able to support all pcmcia
+> and cardbus adapters would be wonderful.
+>
+> drivers/pcmcia/Config.in:
+> > #tristate 'PCMCIA/CardBus support' CONFIG_PCMCIA
+> > #if [ "$CONFIG_PCMCIA" != "n" ]; then
+> > #   if [ "$CONFIG_PCI" != "n" ]; then
+> > #      bool '  CardBus support' CONFIG_CARDBUS
+> > #   fi
+> > #   bool '  i82365 compatible bridge support' CONFIG_I82365
+> > #   bool '  Databook TCIC host bridge support' CONFIG_TCIC
+> > #fi
 
-Brad Douglas
-brad@tuxtops.com
-http://www.tuxtops.com
+Ok, well the patch I've just submitted _ought_ to fix stuff, and certainly
+works with my own socket drivers for an embedded board I'm working on.
+
+I have an i82365 eval board kicking around somewhere. I'll see if I can
+dig it out tomorrow and verify that it now works, and then perhaps we can
+consider re-enabling the config options.
+
+I may add code to handle non-CardBus PCI->PCMCIA i82365 devices again
+while I'm at it - because I disapprove of having to specify
+"i365_base=0xc800 cs_irq=17" for a PCI card.
+
+-- 
+dwmw2
+
 
 
 -

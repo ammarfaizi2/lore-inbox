@@ -1,47 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263695AbTJCKMT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Oct 2003 06:12:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263701AbTJCKMT
+	id S263564AbTJCKLQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Oct 2003 06:11:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263670AbTJCKLP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Oct 2003 06:12:19 -0400
-Received: from fortunaty.net ([217.160.129.175]:33770 "HELO
-	paladin.fortunaty.net") by vger.kernel.org with SMTP
-	id S263695AbTJCKMS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Oct 2003 06:12:18 -0400
-Date: Fri, 3 Oct 2003 12:12:15 +0200
-From: Andreas Hauser <andy-lkml@splashground.de>
-To: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
-Cc: linux-kernel@vger.kernel.org, xen-devel@lists.sourceforge.net
-Subject: Re: [Xen-devel] Re: [ANNOUNCE] Xen high-performance x86 virtualization
-Message-ID: <20031003101215.GW32080@splashground.de>
-References: <20031003015923.GA5080@DUK2.13thfloor.at> <E1A5L3m-0003vr-00@wisbech.cl.cam.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <E1A5L3m-0003vr-00@wisbech.cl.cam.ac.uk>
-X-Addicted: yeah
-X-License: BSD
-User-Agent: Mutt/1.5.4i
+	Fri, 3 Oct 2003 06:11:15 -0400
+Received: from sceptic.lug.net.nz ([203.97.5.60]:384 "EHLO sceptic.lug.net.nz")
+	by vger.kernel.org with ESMTP id S263564AbTJCKLP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Oct 2003 06:11:15 -0400
+Date: Fri, 3 Oct 2003 22:24:11 +1200 (NZST)
+From: Keith Duthie <psycho@albatross.co.nz>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.22 apm suspend problem
+Message-ID: <Pine.LNX.4.53.0310032213180.166@loki.albatross.co.nz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 03, 2003 at 09:13:10AM +0100, Ian Pratt wrote:
-[...]
-> We built Xen for use in the XenoServers project, which aims to
-> create an 'Open Infrastructure for Global Distributed Computing'.
-> We envisage Xenoserver execution platforms scattered across the
-> globe and available for any member of the public to execute code
-> on.  The sponsor of the code will be billed for all the resources
-> used or reserved during the course of execution. You'd be able to
-> create on-demand 'dedicated servers' with tailored amounts of
-> RAM, CPU, net b/w, disk b/w and disk space, and run the OS of
-> your choice. For example, you could buy a slice of a machine to
-> run a counterstrike server for a few minutes while you play a
-> game with a couple of friends. You'd pick the server location
-> such as to minimize the maximum RTT between the server and the
-> players.
+In 2.4.22, after suspending my computer the sound daemon on my system
+(artsd) is stuck in an uninterruptible sleep state.
 
-So does this run over openmosix ?
+This doesn't happen with 2.4.20; I haven't tested 2.4.21.
 
-aha
+I'm using GCC 2.95.3, binutils 2.14.90.0.4, and have the ALSA modules
+v0.9.6 installed.
+-- 
+Just because it isn't nice doesn't make it any less a miracle.
+     http://users.albatross.co.nz/~psycho/     O-   -><-

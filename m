@@ -1,32 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261689AbTA1XAt>; Tue, 28 Jan 2003 18:00:49 -0500
+	id <S261640AbTA1W7W>; Tue, 28 Jan 2003 17:59:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261701AbTA1XAt>; Tue, 28 Jan 2003 18:00:49 -0500
-Received: from phoenix.mvhi.com ([195.224.96.167]:1284 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S261689AbTA1XAs>; Tue, 28 Jan 2003 18:00:48 -0500
-Date: Tue, 28 Jan 2003 23:10:08 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.59-dcl2
-Message-ID: <20030128231008.A17409@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Stephen Hemminger <shemminger@osdl.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <1043794298.10153.241.camel@dell_ss3.pdx.osdl.net>
+	id <S261689AbTA1W7W>; Tue, 28 Jan 2003 17:59:22 -0500
+Received: from mailrelay1.lanl.gov ([128.165.4.101]:51157 "EHLO
+	mailrelay1.lanl.gov") by vger.kernel.org with ESMTP
+	id <S261640AbTA1W7V>; Tue, 28 Jan 2003 17:59:21 -0500
+Subject: [PATCH] 2.5.59 add two help texts to drivers/media/video/Kconfig
+From: Steven Cole <elenstev@mesatop.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: trivial@rustcorp.com.au
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2-5mdk 
+Date: 28 Jan 2003 16:06:21 -0700
+Message-Id: <1043795181.2576.165.camel@spc9.esa.lanl.gov>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1043794298.10153.241.camel@dell_ss3.pdx.osdl.net>; from shemminger@osdl.org on Tue, Jan 28, 2003 at 02:51:38PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 28, 2003 at 02:51:38PM -0800, Stephen Hemminger wrote:
->    Megaraid 2 driver                    (Matt Domsch)
->    DAC960 driver                        (Dave Olien)
+Here are some help texts from 2.4.21-pre3 Configure.help which are
+needed in 2.5.59 drivers/media/video/Kconfig.
 
-Is there a reason these aren't submitted to Linus?
+Steven
+
+--- linux-2.5.59/drivers/media/video/Kconfig.orig	Tue Jan 28 15:39:41 2003
++++ linux-2.5.59/drivers/media/video/Kconfig	Tue Jan 28 15:42:36 2003
+@@ -177,10 +177,16 @@
+ config VIDEO_ZORAN_DC10
+ 	tristate "Miro DC10(+) support"
+ 	depends on VIDEO_ZORAN
++	help
++	  Say Y to support the Pinnacle Systems Studio DC10 plus TV/Video
++	  card.  Vendor page at <http://www.pinnaclesys.com/>.
+ 
+ config VIDEO_ZORAN_LML33
+ 	tristate "Linux Media Labs LML33 support"
+ 	depends on VIDEO_ZORAN
++	help
++	  Say Y here to support the Linux Media Labs LML33 TV/Video card.
++	  Resources page is at <http://www.linuxmedialabs.com/lml33doc.html>.
+ 
+ config VIDEO_ZR36120
+ 	tristate "Zoran ZR36120/36125 Video For Linux"
+
+
+
 

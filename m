@@ -1,134 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265248AbTLZXBW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Dec 2003 18:01:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265250AbTLZXBV
+	id S265250AbTLZXFa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Dec 2003 18:05:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265254AbTLZXFa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Dec 2003 18:01:21 -0500
-Received: from obsidian.spiritone.com ([216.99.193.137]:21980 "EHLO
-	obsidian.spiritone.com") by vger.kernel.org with ESMTP
-	id S265248AbTLZXBK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Dec 2003 18:01:10 -0500
-Date: Fri, 26 Dec 2003 15:00:56 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: azarah@nosferatu.za.org
-cc: Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0 sound output - wierd effects
-Message-ID: <1480000.1072479655@[10.10.2.4]>
-In-Reply-To: <1072479167.21020.59.camel@nosferatu.lan>
-References: <1080000.1072475704@[10.10.2.4]> <1072479167.21020.59.camel@nosferatu.lan>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Fri, 26 Dec 2003 18:05:30 -0500
+Received: from a0.complang.tuwien.ac.at ([128.130.173.25]:30472 "EHLO
+	a0.complang.tuwien.ac.at") by vger.kernel.org with ESMTP
+	id S265250AbTLZXFL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Dec 2003 18:05:11 -0500
+X-mailer: xrn 9.03-beta-14
+To: linux-kernel@vger.kernel.org
+X-Newsgroups: linux.kernel
+In-reply-to: <176UD-6vl-3@gated-at.bofh.it>
+From: anton@mips.complang.tuwien.ac.at (Anton Ertl)
+Subject: Page Colouring (was: 2.6.0 Huge pages not working as expected)
+Date: Fri, 26 Dec 2003 21:48:03 GMT
+Message-ID: <2003Dec26.224803@a0.complang.tuwien.ac.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds <torvalds@osdl.org> writes:
+>And the thing is, using huge pages will mean that the pages are 1:1
+>mapped, and thus get "perfectly" cache-coloured, while the anonymous mmap 
+>will give you random placement.
+>
+>And what you are seeing is likely the fact that random placement is 
+>guaranteed to not have any worst-case behaviour.
 
+You probably just put the "not" in the wrong place, but just in case
+you meant it: Random replacement does not give such a guarantee.  You
+can get the same worst-case behaviour as with page colouring, since
+you can get the same mapping.  It's just unlikely.
 
---Martin Schlemmer <azarah@nosferatu.za.org> wrote (on Saturday, December 27, 2003 00:52:47 +0200):
+>In particular, using a pure power-of-two stride means that you are
+>limiting your cache to a certain subset of the full result with the
+>perfect coloring.
+>
+>This, btw, is why I don't like page coloring: it does give nicely
+>reproducible results, but it does not necessarily improve performance.  
 
-> On Fri, 2003-12-26 at 23:55, Martin J. Bligh wrote:
->> Upgraded my home desktop to 2.6.0. 
->> Somewhere between 2.5.63 and 2.6.0, sound got screwed up - I've confirmed
->> this happens on mainline, as well as -mjb.
->> 
->> If I leave xmms playing (in random shuffle mode) every 2 minutes or so,
->> I'll get some wierd effect for a few seconds, either static, or the track 
->> will mysteriously speed up or slow down. Then all is back to normal for 
->> another couple of minutes.
->> 
->> Anyone else seen this, or got any clues? Else I guess I'm stuck playing
->> bisection search.
->> 
->> Advanced Linux Sound Architecture Driver Version 0.9.7 (Thu Sep 25 19:16:36 2003 UTC).
->> PCI: Found IRQ 11 for device 0000:00:02.7
->> intel8x0: clocking to 48000
->> ALSA device list:
->> # 0: SiS SI7012 at 0xdc00, irq 11
->> 
->> AMD Athlon(tm) XP 2100+, no power management or ACPI compiled in.
->> 
-> 
-> I have had this as well, around there, and started using OSS, which
-> worked fine (ICH5 onboard - also).  Somewhere when I tried again, it
-> worked fine, so this is what I am using now.  What version userland
-> libs/utils ?  OSS emulation?
-> 
-> -- 
-> Martin Schlemmer
+Well, even if, on average, it has no performance impact,
+reproducibility is a good reason to like it.  Is it good enough to
+implement it?  I'll leave that to you.
 
-Dunno - I'm not clued up on sound stuff.
+However, the main question I want to look at here is: Does it improve
+performance, on average?  I think it does, because of spatial
+locality.
 
-$ egrep  '(SOUND|SND|ALSA|OSS)' /boot/config-2.6.0 | egrep -v '^#'
-CONFIG_SOUND_GAMEPORT=y
-CONFIG_SOUND=y
-CONFIG_SND=y
-CONFIG_SND_SEQUENCER=y
-CONFIG_SND_OSSEMUL=y
-CONFIG_SND_MIXER_OSS=y
-CONFIG_SND_PCM_OSS=y
-CONFIG_SND_SEQUENCER_OSS=y
-CONFIG_SND_ENS1371=y
-CONFIG_SND_INTEL8X0=y
+I.e., it is more frequent that you access stuff spatially close to a
+recent access (where page colouring has a 0 chance of conflicting,
+whereas random mapping has a non-zero chance of conflicting), than to
+access stuff that is exactly a multiple of the cache-size away (which
+is the worst case for page colouring).  Fortunately, set-associative
+caches in the machines I use most of the time reduce the impact of the
+missing page colouring in Linux.
 
-Userspace stuff is stock Debian Woody, but not sure which libs you
-want the version of. The following might help, but probably doesn't
+The most frequent case where random mapping gives better performance
+than page colouring is having several sequential passes over a block
+that is larger than the cache; but that's just a case where caches
+perform badly on principle, and cache designs that are usually
+considered better (higher associativity, LRU replacement) perform
+worse in this case.
 
-M.
+OTOH, for cases where the block does barely fits in the cache, page
+colouring performs quite a bit better.  This particular access pattern
+can be more frequent than one might expect from other statistics, due
+to software optimizations like cache blocking.
 
-PS. 2.5.70 seems to work as well.
+One additional mechanism in which page colouring can help performance
+is by providing a predictable and understandable performance model to
+programmers.  Caches are bad enough to analyse, one need not
+complicate the issue with unpredictable effects of random
+virtual-to-physical translation.
 
-$ apt-cache showpkg xmms
-Package: xmms
-Versions: 
-1.2.7-1(/var/lib/apt/lists/ftp.debian.org_debian_dists_stable_main_binary-i386_Packages)(/var/lib/dpkg/status)
-
-Reverse Depends: 
-  eroaster,xmms
-  xmms-liveice,xmms
-  xmmsarts,xmms
-  xmms-wmdiscotux,xmms
-  xmms-volnorm,xmms
-  xmms-synaesthesia,xmms
-  xmms-singit,xmms
-  xmms-sid,xmms 1.2.5
-  xmms-shell,xmms
-  xmms-qbble,xmms
-  xmms-osd-plugin,xmms 1.2.0
-  xmms-msa,xmms
-  xmms-modplug,xmms
-  xmms-lirc,xmms
-  xmms-jess,xmms 1.0
-  xmms-jess,xmms
-  xmms-infopipe,xmms
-  xmms-goodnight,xmms
-  xmms-fmradio,xmms
-  xmms-flac,xmms
-  xmms-dev,xmms 0.9.5.1-4
-  xmms-dev,xmms 1.2.7-1
-  xmms-crossfade,xmms
-  xmms-cdread,xmms 1.2.5
-  xmms-bumpscope,xmms
-  xmms-alarm,xmms 1.2
-  wmxmms-spectrum,xmms 0.9.5
-  wmusic,xmms
-  rep-xmms,xmms 1.2.4
-  normalize,xmms
-  logjam,xmms
-  libxmms-perl,xmms
-  junior-sound,xmms
-  gnomp3,xmms
-  gkrellmms,xmms
-  gdancer,xmms
-  extace,xmms
-  eroaster,xmms
-Dependencies: 
-1.2.7-1 - libc6 (2 2.2.4-4) libglib1.2 (2 1.2.0) libgtk1.2 (2 1.2.10-4) xlibs (4 4.1.0) unzip (0 (null)) gdk-imlib1 (0 (null)) libart2 (2 1.2.13-5) libdb3 (2 3.2.9-1) libgnome32 (2 1.2.13-5) libgnomesupport0 (2 1.2.13-5) libgnomeui32 (2 1.2.13-5) libgnorba27 (2 1.2.13-5) liborbit0 (2 0.5.12) libpanel-applet0 (2 1.4.0.2-3) libwrap0 (0 (null)) libaudiofile0 (0 (null)) libesd0 (18 0.2.23-1) libesd-alsa0 (2 0.2.23-1) libgl1 (0 (null)) libmikmod2 (2 3.1.9) libogg0 (2 1.0rc3-1) libvorbis0 (2 1.0rc3-1) libxml1 (2 1:1.8.14-3) zlib1g (2 1:1.1.3) x11ampg (0 (null)) x11amp (0 (null)) xmms-vorbis (0 (null)) x11ampg (0 (null)) x11amp (0 (null)) xmms-vorbis (0 (null)) 
-Provides: 
-1.2.7-1 - xmms-vorbis x11amp x11ampg mp3-decoder 
-Reverse Provides: 
-
-
-
+- anton
+-- 
+M. Anton Ertl                    Some things have to be seen to be believed
+anton@mips.complang.tuwien.ac.at Most things have to be believed to be seen
+http://www.complang.tuwien.ac.at/anton/home.html

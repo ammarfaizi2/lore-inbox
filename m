@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268391AbUHLADQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268354AbUHKX55@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268391AbUHLADQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 20:03:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268436AbUHLADP
+	id S268354AbUHKX55 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 19:57:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268423AbUHKX5b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 20:03:15 -0400
-Received: from omx1-ext.SGI.COM ([192.48.179.11]:63980 "EHLO
+	Wed, 11 Aug 2004 19:57:31 -0400
+Received: from omx1-ext.SGI.COM ([192.48.179.11]:48107 "EHLO
 	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S268391AbUHKXhj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 19:37:39 -0400
+	id S268387AbUHKXgZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 19:36:25 -0400
 From: Pat Gefre <pfg@sgi.com>
-Message-Id: <200408112336.i7BNaPxI163752@fsgi900.americas.sgi.com>
-Subject: Re: Altix I/O code reorganization - 21 of 21
+Message-Id: <200408112335.i7BNZCJC163712@fsgi900.americas.sgi.com>
+Subject: Re: Altix I/O code reorganization - 18 of 21
 To: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
        hch@infradead.org
-Date: Wed, 11 Aug 2004 18:36:24 -0500 (CDT)
+Date: Wed, 11 Aug 2004 18:35:12 -0500 (CDT)
 X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -26,830 +26,992 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 # This is a BitKeeper generated diff -Nru style patch.
 #
 # ChangeSet
-#   2004/08/11 17:56:43-05:00 pfg@sgi.com 
-#   clean up
-#   new defs for the new I/O code
+#   2004/08/11 17:50:50-05:00 pfg@sgi.com 
+#   code clean up
+#   changes needed for new I/O code
 # 
-# include/asm-ia64/sn/pci/pic.h
-#   2004/08/11 17:56:29-05:00 pfg@sgi.com +462 -263
+# include/asm-ia64/sn/types.h
+#   2004/08/11 17:50:33-05:00 pfg@sgi.com +2 -0
 #    
 # 
-diff -Nru a/include/asm-ia64/sn/pci/pic.h b/include/asm-ia64/sn/pci/pic.h
---- a/include/asm-ia64/sn/pci/pic.h	2004-08-11 17:57:11 -05:00
-+++ b/include/asm-ia64/sn/pci/pic.h	2004-08-11 17:57:11 -05:00
-@@ -55,36 +55,9 @@
-  * ----------|---------------------------------------
+# include/asm-ia64/sn/sndrv.h
+#   2004/08/11 17:50:33-05:00 pfg@sgi.com +1 -0
+#    
+# 
+# include/asm-ia64/sn/sn_sal.h
+#   2004/08/11 17:50:33-05:00 pfg@sgi.com +25 -38
+#    
+# 
+# include/asm-ia64/sn/sn_cpuid.h
+#   2004/08/11 17:50:33-05:00 pfg@sgi.com +8 -0
+#    
+# 
+# include/asm-ia64/sn/sgi.h
+#   2004/08/11 17:50:32-05:00 pfg@sgi.com +6 -17
+#    
+# 
+# include/asm-ia64/sn/router.h
+#   2004/08/11 17:50:32-05:00 pfg@sgi.com +3 -4
+#    
+# 
+# include/asm-ia64/sn/pda.h
+#   2004/08/11 17:50:32-05:00 pfg@sgi.com +2 -1
+#    
+# 
+# include/asm-ia64/sn/nodepda.h
+#   2004/08/11 17:50:32-05:00 pfg@sgi.com +1 -59
+#    
+# 
+# include/asm-ia64/sn/module.h
+#   2004/08/11 17:50:31-05:00 pfg@sgi.com +11 -44
+#    
+# 
+# include/asm-ia64/sn/ksys/l1.h
+#   2004/08/11 17:50:31-05:00 pfg@sgi.com +4 -0
+#    
+# 
+# include/asm-ia64/sn/klconfig.h
+#   2004/08/11 17:50:31-05:00 pfg@sgi.com +8 -26
+#    
+# 
+# include/asm-ia64/sn/iograph.h
+#   2004/08/11 17:50:30-05:00 pfg@sgi.com +8 -18
+#    
+# 
+# include/asm-ia64/sn/io.h
+#   2004/08/11 17:50:30-05:00 pfg@sgi.com +2 -0
+#    
+# 
+# include/asm-ia64/sn/intr.h
+#   2004/08/11 17:50:30-05:00 pfg@sgi.com +0 -2
+#    
+# 
+# include/asm-ia64/sn/hcl.h
+#   2004/08/11 17:50:30-05:00 pfg@sgi.com +1 -51
+#    
+# 
+# include/asm-ia64/sn/geo.h
+#   2004/08/11 17:50:29-05:00 pfg@sgi.com +12 -19
+#    
+# 
+# include/asm-ia64/sn/arch.h
+#   2004/08/11 17:50:29-05:00 pfg@sgi.com +5 -0
+#    
+# 
+# include/asm-ia64/sn/addrs.h
+#   2004/08/11 17:50:29-05:00 pfg@sgi.com +22 -1
+#    
+# 
+diff -Nru a/include/asm-ia64/sn/addrs.h b/include/asm-ia64/sn/addrs.h
+--- a/include/asm-ia64/sn/addrs.h	2004-08-11 17:51:32 -05:00
++++ b/include/asm-ia64/sn/addrs.h	2004-08-11 17:51:32 -05:00
+@@ -28,6 +28,7 @@
+ #define NODE_CAC_BASE(_n)	(CAC_BASE  + NODE_OFFSET(_n))
+ #define NODE_HSPEC_BASE(_n)	(HSPEC_BASE + NODE_OFFSET(_n))
+ #define NODE_IO_BASE(_n)	(IO_BASE    + NODE_OFFSET(_n))
++#define TIO_IO_BASE(_n)		(TIO_BASE    + NODE_OFFSET(_n))
+ #define NODE_MSPEC_BASE(_n)	(MSPEC_BASE + NODE_OFFSET(_n))
+ #define NODE_UNCAC_BASE(_n)	(UNCAC_BASE + NODE_OFFSET(_n))
+ 
+@@ -41,6 +42,9 @@
+ #define RAW_NODE_SWIN_BASE(nasid, widget)				\
+ 	(NODE_IO_BASE(nasid) + ((uint64_t) (widget) << SWIN_SIZE_BITS))
+ 
++#define RAW_TIO_SWIN_BASE(nasid, widget)				\
++	(NODE_IO_BASE(nasid) + ((uint64_t) (widget) << TIO_SWIN_SIZE_BITS))
++
+ #define WIDGETID_GET(addr)	((unsigned char)((addr >> SWIN_SIZE_BITS) & 0xff))
+ 
+ /*
+@@ -54,6 +58,11 @@
+ #define	SWIN_SIZEMASK		(SWIN_SIZE - 1)
+ #define	SWIN_WIDGET_MASK	0xF
+ 
++#define TIO_SWIN_SIZE_BITS	28
++#define TIO_SWIN_SIZE		(1UL << 28)
++#define TIO_SWIN_SIZEMASK	(SWIN_SIZE - 1)
++#define TIO_SWIN_WIDGET_MASK	0x3
++
+ /*
+  * Convert smallwindow address to xtalk address.
+  *
+@@ -62,6 +71,10 @@
+  */
+ #define	SWIN_WIDGETADDR(addr)	((addr) & SWIN_SIZEMASK)
+ #define	SWIN_WIDGETNUM(addr)	(((addr)  >> SWIN_SIZE_BITS) & SWIN_WIDGET_MASK)
++
++#define TIO_SWIN_WIDGETADDR(addr)	((addr) & TIO_SWIN_SIZEMASK)
++#define TIO_SWIN_WIDGETNUM(addr)	(((addr)  >> TIO_SWIN_SIZE_BITS) & TIO_SWIN_WIDGET_MASK)
++
+ /*
+  * Verify if addr belongs to small window address on node with "nasid"
+  *
+@@ -126,12 +139,20 @@
+  *	Otherwise, the recommended approach is to use *_HUB_L() and *_HUB_S().
+  *	They're always safe.
+  */
++/*
++ * LOCAL_HUB_ADDR doesn't need to be changed for TIO, since, by definition,
++ * there are no "local" TIOs.
++ */
+ #define LOCAL_HUB_ADDR(_x)							\
+ 	(((_x) & BWIN_TOP) ? (HUBREG_CAST (LOCAL_MMR_ADDR(_x)))		\
+ 	: (HUBREG_CAST (IALIAS_BASE + (_x))))
+ #define REMOTE_HUB_ADDR(_n, _x)						\
++	((_n & 1) ?							\
++	/* TIO: */							\
++	(HUBREG_CAST (GLOBAL_MMR_ADDR(_n, _x)))				\
++	: /* SHUB: */							\
+ 	(((_x) & BWIN_TOP) ? (HUBREG_CAST (GLOBAL_MMR_ADDR(_n, _x)))	\
+-	: (HUBREG_CAST (NODE_SWIN_BASE(_n, 1) + 0x800000 + (_x))))
++	: (HUBREG_CAST (NODE_SWIN_BASE(_n, 1) + 0x800000 + (_x)))))
+ 
+ #ifndef __ASSEMBLY__
+ 
+diff -Nru a/include/asm-ia64/sn/arch.h b/include/asm-ia64/sn/arch.h
+--- a/include/asm-ia64/sn/arch.h	2004-08-11 17:51:32 -05:00
++++ b/include/asm-ia64/sn/arch.h	2004-08-11 17:51:32 -05:00
+@@ -14,11 +14,16 @@
+ #include <asm/types.h>
+ #include <asm/sn/types.h>
+ #include <asm/sn/sn_cpuid.h>
++#include <asm/sn/sn2/arch.h>
+ 
+ typedef u64	shubreg_t;
+ typedef u64	hubreg_t;
+ typedef u64	mmr_t;
+ typedef u64	nic_t;
++
++#define NASID_TO_COMPACT_NODEID(nasid)  (nasid_to_cnodeid(nasid))
++#define COMPACT_TO_NASID_NODEID(cnode)  (cnodeid_to_nasid(cnode))
++
+ 
+ #define INVALID_NASID		((nasid_t)-1)
+ #define INVALID_CNODEID		((cnodeid_t)-1)
+diff -Nru a/include/asm-ia64/sn/geo.h b/include/asm-ia64/sn/geo.h
+--- a/include/asm-ia64/sn/geo.h	2004-08-11 17:51:32 -05:00
++++ b/include/asm-ia64/sn/geo.h	2004-08-11 17:51:32 -05:00
+@@ -3,7 +3,7 @@
+  * License.  See the file "COPYING" in the main directory of this archive
+  * for more details.
+  *
+- * Copyright (C) 1992 - 1997, 2000-2003 Silicon Graphics, Inc. All rights reserved.
++ * Copyright (C) 1992 - 1997, 2000-2004 Silicon Graphics, Inc. All rights reserved.
   */
  
+ #ifndef _ASM_IA64_SN_GEO_H
+@@ -24,22 +24,15 @@
+ #define GEO_FORMAT_HWGRAPH	1
+ #define GEO_FORMAT_BRIEF	2
+ 
+-/* (the parameter for hwcfg_format_geoid_compt() is defined in the
+- * platform-specific geo.h file) */
+-
+-/* Routines for manipulating geoid_t values */
+-
+-extern moduleid_t geo_module(geoid_t g);
+-extern slabid_t geo_slab(geoid_t g);
+-extern geo_type_t geo_type(geoid_t g);
+-extern int geo_valid(geoid_t g);
+-extern int geo_cmp(geoid_t g0, geoid_t g1);
+-extern geoid_t geo_new(geo_type_t type, ...);
+-
+-extern geoid_t hwcfg_parse_geoid(char *buffer);
+-extern void hwcfg_format_geoid(char *buffer, geoid_t m, int fmt);
+-extern void hwcfg_format_geoid_compt(char *buffer, geoid_t m, int compt);
+-extern geoid_t hwcfg_geo_get_self(geo_type_t type);
+-extern geoid_t hwcfg_geo_get_by_nasid(geo_type_t type, nasid_t nasid);
+-
++static inline moduleid_t geo_module(geoid_t g)
++{
++        return (g.any.type == GEO_TYPE_INVALID) ?
++                INVALID_MODULE : g.any.module;
++}
++
++static inline slabid_t geo_slab(geoid_t g)
++{
++        return (g.any.type == GEO_TYPE_INVALID) ?
++                INVALID_SLAB : g.any.slab;
++}
+ #endif /* _ASM_IA64_SN_GEO_H */
+diff -Nru a/include/asm-ia64/sn/hcl.h b/include/asm-ia64/sn/hcl.h
+--- a/include/asm-ia64/sn/hcl.h	2004-08-11 17:51:32 -05:00
++++ b/include/asm-ia64/sn/hcl.h	2004-08-11 17:51:32 -05:00
+@@ -14,7 +14,7 @@
+ extern vertex_hdl_t hwgraph_root;
+ extern vertex_hdl_t linux_busnum;
+ 
+-void hwgraph_debug(char *, const char *, int, vertex_hdl_t, vertex_hdl_t, char *, ...);
++void hwgraph_debug(char *, const char *, int, hwgfs_handle_t, hwgfs_handle_t, char *, ...);
+ 
+ #if 1
+ #define HWGRAPH_DEBUG(args...) hwgraph_debug(args)
+@@ -53,55 +53,5 @@
+ #define HWGRAPH_EDGELBL_HW 	"hw"
+ #define HWGRAPH_EDGELBL_DOT 	"."
+ #define HWGRAPH_EDGELBL_DOTDOT 	".."
+-
+-#include <asm/sn/labelcl.h>
+-#define hwgraph_fastinfo_set(a,b) labelcl_info_replace_IDX(a, HWGRAPH_FASTINFO, b, NULL)
+-#define hwgraph_connectpt_set labelcl_info_connectpt_set
+-#define hwgraph_generate_path hwgfs_generate_path
+-#define hwgraph_path_to_vertex(a) hwgfs_find_handle(NULL, a, 0, 0, 0, 1)
+-#define hwgraph_vertex_unref(a)
+-
+-/*
+- * External declarations of EXPORTED SYMBOLS in hcl.c
+- */
+-extern vertex_hdl_t hwgraph_register(vertex_hdl_t, const char *,
+-	unsigned int, unsigned int, unsigned int, unsigned int,
+-	umode_t, uid_t, gid_t, struct file_operations *, void *);
+-
+-extern int hwgraph_mk_symlink(vertex_hdl_t, const char *, unsigned int,
+-	unsigned int, const char *, unsigned int, vertex_hdl_t *, void *);
+-
+-extern int hwgraph_vertex_destroy(vertex_hdl_t);
+-
+-extern int hwgraph_edge_add(vertex_hdl_t, vertex_hdl_t, char *);
+-extern int hwgraph_edge_get(vertex_hdl_t, char *, vertex_hdl_t *);
+-
+-extern arbitrary_info_t hwgraph_fastinfo_get(vertex_hdl_t);
+-extern vertex_hdl_t hwgraph_mk_dir(vertex_hdl_t, const char *, unsigned int, void *);
+-
+-extern int hwgraph_connectpt_set(vertex_hdl_t, vertex_hdl_t);
+-extern vertex_hdl_t hwgraph_connectpt_get(vertex_hdl_t);
+-extern int hwgraph_edge_get_next(vertex_hdl_t, char *, vertex_hdl_t *, unsigned int *);
+-
+-extern graph_error_t hwgraph_traverse(vertex_hdl_t, char *, vertex_hdl_t *);
+-
+-extern int hwgraph_vertex_get_next(vertex_hdl_t *, vertex_hdl_t *);
+-extern int hwgraph_path_add(vertex_hdl_t, char *, vertex_hdl_t *);
+-extern vertex_hdl_t hwgraph_path_to_dev(char *);
+-extern vertex_hdl_t hwgraph_block_device_get(vertex_hdl_t);
+-extern vertex_hdl_t hwgraph_char_device_get(vertex_hdl_t);
+-extern graph_error_t hwgraph_char_device_add(vertex_hdl_t, char *, char *, vertex_hdl_t *);
+-extern int hwgraph_path_add(vertex_hdl_t, char *, vertex_hdl_t *);
+-extern int hwgraph_info_add_LBL(vertex_hdl_t, char *, arbitrary_info_t);
+-extern int hwgraph_info_get_LBL(vertex_hdl_t, char *, arbitrary_info_t *);
+-extern int hwgraph_info_replace_LBL(vertex_hdl_t, char *, arbitrary_info_t,
+-				    arbitrary_info_t *);
+-extern int hwgraph_info_get_exported_LBL(vertex_hdl_t, char *, int *, arbitrary_info_t *);
+-extern int hwgraph_info_get_next_LBL(vertex_hdl_t, char *, arbitrary_info_t *,
+-                                labelcl_info_place_t *);
+-extern int hwgraph_info_export_LBL(vertex_hdl_t, char *, int);
+-extern int hwgraph_info_unexport_LBL(vertex_hdl_t, char *);
+-extern int hwgraph_info_remove_LBL(vertex_hdl_t, char *, arbitrary_info_t *);
+-extern char *vertex_to_name(vertex_hdl_t, char *, unsigned int);
+ 
+ #endif /* _ASM_IA64_SN_HCL_H */
+diff -Nru a/include/asm-ia64/sn/intr.h b/include/asm-ia64/sn/intr.h
+--- a/include/asm-ia64/sn/intr.h	2004-08-11 17:51:32 -05:00
++++ b/include/asm-ia64/sn/intr.h	2004-08-11 17:51:32 -05:00
+@@ -8,11 +8,9 @@
+ #ifndef _ASM_IA64_SN_INTR_H
+ #define _ASM_IA64_SN_INTR_H
+ 
+-#include <asm/sn/types.h>
+ #include <asm/sn/sn2/intr.h>
+ 
+ extern void sn_send_IPI_phys(long, int, int);
+-extern void intr_init_vecblk(cnodeid_t node);
+ 
+ #define CPU_VECTOR_TO_IRQ(cpuid,vector) (vector)
+ #define SN_CPU_FROM_IRQ(irq)	(0)
+diff -Nru a/include/asm-ia64/sn/io.h b/include/asm-ia64/sn/io.h
+--- a/include/asm-ia64/sn/io.h	2004-08-11 17:51:32 -05:00
++++ b/include/asm-ia64/sn/io.h	2004-08-11 17:51:32 -05:00
+@@ -11,6 +11,8 @@
+ 
+ #include <asm/sn/addrs.h>
+ 
++extern int numionodes;
++
+ /* Because we only have PCI I/O ports.  */
+ #define IIO_ITTE_BASE	0x400160	/* base of translation table entries */
+ #define IIO_ITTE(bigwin)	(IIO_ITTE_BASE + 8*(bigwin))
+diff -Nru a/include/asm-ia64/sn/iograph.h b/include/asm-ia64/sn/iograph.h
+--- a/include/asm-ia64/sn/iograph.h	2004-08-11 17:51:32 -05:00
++++ b/include/asm-ia64/sn/iograph.h	2004-08-11 17:51:32 -05:00
+@@ -8,8 +8,6 @@
+ #ifndef _ASM_IA64_SN_IOGRAPH_H
+ #define _ASM_IA64_SN_IOGRAPH_H
+ 
+-#include <asm/sn/xtalk/xbow.h>	/* For get MAX_PORT_NUM */
+-
+ /*
+  * During initialization, platform-dependent kernel code establishes some
+  * basic elements of the hardware graph.  This file contains edge and
+@@ -34,6 +32,7 @@
+ #define EDGE_LBL_DISABLED		"disabled"
+ #define EDGE_LBL_DISK			"disk"
+ #define EDGE_LBL_HUB			"hub"		/* For SN0 */
++#define EDGE_LBL_ICE			"ice"		/* For TIO */
+ #define EDGE_LBL_HW			"hw"
+ #define EDGE_LBL_INTERCONNECT		"link"
+ #define EDGE_LBL_IO			"io"
+@@ -73,6 +72,8 @@
+ #define	EDGE_LBL_XIO			"xio"
+ #define EDGE_LBL_XSWITCH		".xswitch"
+ #define EDGE_LBL_XTALK			"xtalk"
++#define EDGE_LBL_CORETALK		"coretalk"
++#define EDGE_LBL_CORELET		"corelet"
+ #define EDGE_LBL_XWIDGET		"xwidget"
+ #define EDGE_LBL_ELSC			"elsc"
+ #define EDGE_LBL_L1			"L1"
+@@ -83,9 +84,14 @@
+ #define	EDGE_LBL_XPLINK_KERNEL		"kernel"	/* XP kernel devs */
+ #define	EDGE_LBL_XPLINK_ADMIN		"admin"	   	/* Partition admin */
+ #define EDGE_LBL_IOBRICK		"iobrick"
++#define EDGE_LBL_PEBRICK		"PEbrick"
+ #define EDGE_LBL_PXBRICK		"PXbrick"
++#define EDGE_LBL_PABRICK		"PAbrick"
+ #define EDGE_LBL_OPUSBRICK		"onboardio"
++#define EDGE_LBL_SABRICK		"SAbrick"	/* TIO BringUp Brick */
++#define EDGE_LBL_GABRICK		"GAbrick"
+ #define EDGE_LBL_IXBRICK		"IXbrick"
++#define EDGE_LBL_IABRICK		"IAbrick"
+ #define EDGE_LBL_CGBRICK		"CGbrick"
+ #define EDGE_LBL_CPUBUS			"cpubus"	/* CPU Interfaces (SysAd) */
+ 
+@@ -117,21 +123,5 @@
+ #define INFO_LBL_XSWITCH_VOL		"_xswitch_volunteer"
+ #define INFO_LBL_XFUNCS			"_xtalk_ops"	/* ops vector for gio providers */
+ #define INFO_LBL_XWIDGET		"_xwidget"
+-
 -
 -#ifdef __KERNEL__
--#include <linux/types.h>
--#include <asm/sn/xtalk/xwidget.h>	/* generic widget header */
--#else
--#include <xtalk/xwidget.h>
+-void init_all_devices(void);
+-#endif /* __KERNEL__ */
+-
+-int io_brick_map_widget(int, int);
+-
+-/*
+- * Map a brick's widget number to a meaningful int
+- */
+-
+-struct io_brick_map_s {
+-    int                 ibm_type;                  /* brick type */
+-    int                 ibm_map_wid[MAX_PORT_NUM]; /* wid to int map */
+-};
+ 
+ #endif /* _ASM_IA64_SN_IOGRAPH_H */
+diff -Nru a/include/asm-ia64/sn/klconfig.h b/include/asm-ia64/sn/klconfig.h
+--- a/include/asm-ia64/sn/klconfig.h	2004-08-11 17:51:32 -05:00
++++ b/include/asm-ia64/sn/klconfig.h	2004-08-11 17:51:32 -05:00
+@@ -29,16 +29,12 @@
+ 
+ #include <linux/types.h>
+ #include <asm/sn/types.h>
+-#include <asm/sn/slotnum.h>
+ #include <asm/sn/router.h>
+ #include <asm/sn/sgi.h>
+ #include <asm/sn/addrs.h>
+ #include <asm/sn/vector.h>
+-#include <asm/sn/xtalk/xbow.h>
+-#include <asm/sn/xtalk/xtalk.h>
+ #include <asm/sn/kldir.h>
+ #include <asm/sn/sn_fru.h>
+-#include <asm/sn/sn2/shub_md.h>
+ #include <asm/sn/geo.h>
+ 
+ #define KLCFGINFO_MAGIC	0xbeedbabe
+@@ -66,8 +62,6 @@
+ #define DUPLICATE_BOARD 	0x04    /* Boards like midplanes/routers which
+                                    	   are discovered twice. Use one of them */
+ #define VISITED_BOARD		0x08	/* Used for compact hub numbering. */
+-#define LOCAL_MASTER_IO6	0x10    /* master io6 for that node */
+-#define KLTYPE_IOBRICK_XBOW	(KLCLASS_MIDPLANE | 0x2)
+ 
+ /* klinfo->flags fields */
+ 
+@@ -124,7 +118,6 @@
+ 	confidence_t	ch_sn0net_belief; /* confidence that sn0net is bad */
+ } kl_config_hdr_t;
+ 
+-
+ #define KL_CONFIG_HDR(_nasid) 	((kl_config_hdr_t *)(KLCONFIG_ADDR(_nasid)))
+ 
+ #define NODE_OFFSET_TO_LBOARD(nasid,off)        (lboard_t*)(NODE_CAC_BASE(nasid) + (off))
+@@ -286,17 +279,24 @@
+ 
+ #define KLTYPE_WEIRDCPU (KLCLASS_CPU | 0x0)
+ #define KLTYPE_SNIA	(KLCLASS_CPU | 0x1)
++#define KLTYPE_TIO	(KLCLASS_CPU | 0x2)
+ 
+ #define KLTYPE_ROUTER     (KLCLASS_ROUTER | 0x1)
+ #define KLTYPE_META_ROUTER (KLCLASS_ROUTER | 0x3)
+ #define KLTYPE_REPEATER_ROUTER (KLCLASS_ROUTER | 0x4)
+ 
++#define KLTYPE_IOBRICK_XBOW	(KLCLASS_MIDPLANE | 0x2)
++
+ #define KLTYPE_IOBRICK		(KLCLASS_IOBRICK | 0x0)
+ #define KLTYPE_NBRICK		(KLCLASS_IOBRICK | 0x4)
+ #define KLTYPE_PXBRICK		(KLCLASS_IOBRICK | 0x6)
+ #define KLTYPE_IXBRICK		(KLCLASS_IOBRICK | 0x7)
+ #define KLTYPE_CGBRICK		(KLCLASS_IOBRICK | 0x8)
+ #define KLTYPE_OPUSBRICK	(KLCLASS_IOBRICK | 0x9)
++#define KLTYPE_SABRICK          (KLCLASS_IOBRICK | 0xa)
++#define KLTYPE_IABRICK		(KLCLASS_IOBRICK | 0xb)
++#define KLTYPE_PABRICK          (KLCLASS_IOBRICK | 0xc)
++#define KLTYPE_GABRICK		(KLCLASS_IOBRICK | 0xd)
+ 
+ 
+ /* The value of type should be more than 8 so that hinv prints
+@@ -346,6 +346,7 @@
+ 	klconf_off_t	brd_next_same;    /* Next BOARD with same nasid */
+ } lboard_t;
+ 
++
+ /*
+  *	Make sure we pass back the calias space address for local boards.
+  *	klconfig board traversal and error structure extraction defines.
+@@ -676,27 +677,8 @@
+ extern lboard_t *find_lboard_nasid(lboard_t *start, nasid_t, unsigned char type);
+ extern klinfo_t *find_component(lboard_t *brd, klinfo_t *kli, unsigned char type);
+ extern klinfo_t *find_first_component(lboard_t *brd, unsigned char type);
+-extern klcpu_t *nasid_slice_to_cpuinfo(nasid_t, int);
+-
+-
+-extern lboard_t *find_gfxpipe(int pipenum);
+ extern lboard_t *find_lboard_class_any(lboard_t *start, unsigned char brd_class);
+ extern lboard_t *find_lboard_class_nasid(lboard_t *start, nasid_t, unsigned char brd_class);
+-extern lboard_t *find_nic_lboard(lboard_t *, nic_t);
+-extern lboard_t *find_nic_type_lboard(nasid_t, unsigned char, nic_t);
+-extern lboard_t *find_lboard_modslot(lboard_t *start, geoid_t geoid);
+-extern int	config_find_nic_router(nasid_t, nic_t, lboard_t **, klrou_t**);
+-extern int	config_find_nic_hub(nasid_t, nic_t, lboard_t **, klhub_t**);
+-extern int	config_find_xbow(nasid_t, lboard_t **, klxbow_t**);
+-extern int 	update_klcfg_cpuinfo(nasid_t, int);
+ extern void 	board_to_path(lboard_t *brd, char *path);
+-extern void 	nic_name_convert(char *old_name, char *new_name);
+-extern int 	module_brds(nasid_t nasid, lboard_t **module_brds, int n);
+-extern lboard_t *brd_from_key(uint64_t key);
+-extern void 	device_component_canonical_name_get(lboard_t *,klinfo_t *,
+-						    char *);
+-extern int	board_serial_number_get(lboard_t *,char *);
+-extern nasid_t	get_actual_nasid(lboard_t *brd) ;
+-extern net_vec_t klcfg_discover_route(lboard_t *, lboard_t *, int);
+ 
+ #endif /* _ASM_IA64_SN_KLCONFIG_H */
+diff -Nru a/include/asm-ia64/sn/ksys/l1.h b/include/asm-ia64/sn/ksys/l1.h
+--- a/include/asm-ia64/sn/ksys/l1.h	2004-08-11 17:51:32 -05:00
++++ b/include/asm-ia64/sn/ksys/l1.h	2004-08-11 17:51:32 -05:00
+@@ -95,6 +95,7 @@
+ #define L1_BRICKTYPE_TWISTER    0x36            /* 6 */ /* IP53 & ROUTER */
+ #define L1_BRICKTYPE_IX         0x3d            /* = */
+ #define L1_BRICKTYPE_IP34       0x61            /* a */
++#define L1_BRICKTYPE_GA		0x62            /* b */
+ #define L1_BRICKTYPE_C          0x63            /* c */
+ #define L1_BRICKTYPE_I          0x69            /* i */
+ #define L1_BRICKTYPE_N          0x6e            /* n */
+@@ -104,6 +105,9 @@
+ #define L1_BRICKTYPE_CHI_CG     0x76            /* v */
+ #define L1_BRICKTYPE_X          0x78            /* x */
+ #define L1_BRICKTYPE_X2         0x79            /* y */
++#define L1_BRICKTYPE_SA		0x5e            /* ^ */ /* TIO bringup brick */
++#define L1_BRICKTYPE_PA		0x6a            /* j */
++#define L1_BRICKTYPE_IA		0x6b            /* k */
+ 
+ /* EEPROM codes (for the "read EEPROM" request) */
+ /* c brick */
+diff -Nru a/include/asm-ia64/sn/module.h b/include/asm-ia64/sn/module.h
+--- a/include/asm-ia64/sn/module.h	2004-08-11 17:51:32 -05:00
++++ b/include/asm-ia64/sn/module.h	2004-08-11 17:51:32 -05:00
+@@ -8,9 +8,6 @@
+ #ifndef _ASM_IA64_SN_MODULE_H
+ #define _ASM_IA64_SN_MODULE_H
+ 
+-#include <asm/sn/klconfig.h>
+-#include <asm/sn/ksys/elsc.h>
+-
+ #define MODULE_MAX			128
+ #define MODULE_MAX_NODES		2
+ #define MODULE_HIST_CNT			16
+@@ -18,7 +15,6 @@
+ 
+ /* Well-known module IDs */
+ #define MODULE_UNKNOWN		(-2) /* initial value of klconfig brd_module */
+-/* #define INVALID_MODULE	(-1) ** generic invalid moduleid_t (arch.h) */
+ #define MODULE_NOT_SET		0    /* module ID not set in sys ctlrs. */
+ 
+ /* parameter for format_module_id() */
+@@ -135,6 +131,10 @@
+ #define MODULE_IXBRICK          10
+ #define MODULE_CGBRICK		11
+ #define MODULE_OPUSBRICK        12
++#define MODULE_SABRICK		13	/* TIO BringUp Brick */
++#define MODULE_IABRICK		14
++#define MODULE_PABRICK		15
++#define MODULE_GABRICK		16
+ 
+ /*
+  * Moduleid_t comparison macros
+@@ -144,51 +144,18 @@
+                                  ((_m2)&(MODULE_RACK_MASK|MODULE_BPOS_MASK)))
+ #define MODULE_MATCH(_m1, _m2)  (MODULE_CMP((_m1),(_m2)) == 0)
+ 
+-typedef struct module_s module_t;
++struct slab_info{
++	struct hubdev_info	hubdev;
++};
+ 
+-struct module_s {
++struct brick{
+     moduleid_t		id;		/* Module ID of this module        */
+-
+-    spinlock_t		lock;		/* Lock for this structure	   */
+-
+-    /* List of nodes in this module */
+-    cnodeid_t		nodes[MAX_SLABS + 1];
+-    geoid_t		geoid[MAX_SLABS + 1];
+-
+-    /* Fields for Module System Controller */
+-    int			mesgpend;	/* Message pending                 */
+-    int			shutdown;	/* Shutdown in progress            */
+-    time_t		intrhist[MODULE_HIST_CNT];
+-    int			histptr;
+-
+-    int			hbt_active;	/* MSC heartbeat monitor active    */
+-    uint64_t		hbt_last;	/* RTC when last heartbeat sent    */
+-
+-    /* Module serial number info */
+-    union {
+-	char		snum_str[MAX_SERIAL_NUM_SIZE];	 /* used by CONFIG_SGI_IP27    */
+-	uint64_t	snum_int;			 /* used by speedo */
+-    } snum;
+-    int			snum_valid;
+-
+-    int			disable_alert;
+-    int			count_down;
+-
+-    /* System serial number info (used by SN1) */
+-    char		sys_snum[MAX_SERIAL_NUM_SIZE];
+-    int			sys_snum_valid;
++    struct slab_info	slab_info[MAX_SLABS + 1];
+ };
+ 
+-/* module.c */
+-extern module_t	       *sn_modules[MODULE_MAX];	/* Indexed by cmoduleid_t   */
++extern struct brick	**bricks;	/* Indexed by cmoduleid_t   */
+ extern int		nummodules;
+-
+-extern module_t	       *module_lookup(moduleid_t id);
++extern struct brick    *module_lookup(moduleid_t id);
+ extern void		format_module_id(char *buffer, moduleid_t m, int fmt);
+-extern int		parse_module_id(char *buffer);
+-
+-#ifdef	__cplusplus
+-}
 -#endif
--
--#include <asm/sn/pci/pciio.h>
--
--
--/*
-- *    bus provider function table
-- *
-- *	Normally, this table is only handed off explicitly
-- *	during provider initialization, and the PCI generic
-- *	layer will stash a pointer to it in the vertex; however,
-- *	exporting it explicitly enables a performance hack in
-- *	the generic PCI provider where if we know at compile
-- *	time that the only possible PCI provider is a
-- *	pcibr, we can go directly to this ops table.
-- */
--
--extern pciio_provider_t pci_pic_provider;
--
--
--/*
-- * misc defines
-- *
-- */
-+/*****************************************************************************
-+ *************************** PIC PART & REV DEFINES **************************
-+ *****************************************************************************/
  
- #define PIC_WIDGET_PART_NUM_BUS0 0xd102
- #define PIC_WIDGET_PART_NUM_BUS1 0xd112
-@@ -93,291 +66,145 @@
- #define PIC_WIDGET_REV_B  0x2
- #define PIC_WIDGET_REV_C  0x3
+ #endif /* _ASM_IA64_SN_MODULE_H */
+diff -Nru a/include/asm-ia64/sn/nodepda.h b/include/asm-ia64/sn/nodepda.h
+--- a/include/asm-ia64/sn/nodepda.h	2004-08-11 17:51:32 -05:00
++++ b/include/asm-ia64/sn/nodepda.h	2004-08-11 17:51:32 -05:00
+@@ -3,7 +3,7 @@
+  * License.  See the file "COPYING" in the main directory of this archive
+  * for more details.
+  *
+- * Copyright (C) 1992 - 1997, 2000-2003 Silicon Graphics, Inc. All rights reserved.
++ * Copyright (C) 1992 - 1997, 2000-2004 Silicon Graphics, Inc. All rights reserved.
+  */
+ #ifndef _ASM_IA64_SN_NODEPDA_H
+ #define _ASM_IA64_SN_NODEPDA_H
+@@ -14,7 +14,6 @@
+ #include <asm/sn/intr.h>
+ #include <asm/sn/router.h>
+ #include <asm/sn/pda.h>
+-#include <asm/sn/module.h>
+ #include <asm/sn/bte.h>
+ #include <asm/sn/sn2/arch.h>
  
--#define PIC_XTALK_ADDR_MASK                     0x0000FFFFFFFFFFFF
--#define PIC_INTERNAL_ATES                       1024
+@@ -32,32 +31,8 @@
+  * This structure provides a convenient way of keeping together 
+  * all per-node data structures. 
+  */
 -
 -
- #define IS_PIC_PART_REV_A(rev) \
- 	((rev == (PIC_WIDGET_PART_NUM_BUS0 << 4 | PIC_WIDGET_REV_A)) || \
- 	(rev == (PIC_WIDGET_PART_NUM_BUS1 << 4 | PIC_WIDGET_REV_A)))
- #define IS_PIC_PART_REV_B(rev) \
--        ((rev == (PIC_WIDGET_PART_NUM_BUS0 << 4 | PIC_WIDGET_REV_B)) || \
--        (rev == (PIC_WIDGET_PART_NUM_BUS1 << 4 | PIC_WIDGET_REV_B)))
-+	((rev == (PIC_WIDGET_PART_NUM_BUS0 << 4 | PIC_WIDGET_REV_B)) || \
-+	(rev == (PIC_WIDGET_PART_NUM_BUS1 << 4 | PIC_WIDGET_REV_B)))
- #define IS_PIC_PART_REV_C(rev) \
--        ((rev == (PIC_WIDGET_PART_NUM_BUS0 << 4 | PIC_WIDGET_REV_C)) || \
--        (rev == (PIC_WIDGET_PART_NUM_BUS1 << 4 | PIC_WIDGET_REV_C)))
+-
+ struct nodepda_s {
+-	vertex_hdl_t 	xbow_vhdl;
+-	nasid_t		xbow_peer;	/* NASID of our peer hub on xbow */
+-	struct semaphore xbow_sema;	/* Sema for xbow synchronization */
+-	slotid_t	slotdesc;
+-	geoid_t		geoid;
+-	module_t	*module;	/* Pointer to containing module */
+-	xwidgetnum_t 	basew_id;
+-	vertex_hdl_t 	basew_xc;
+-	int		hubticks;
+-	int		num_routers;	/* XXX not setup! Total routers in the system */
+-
+-	
+-	char		*hwg_node_name;	/* hwgraph node name */
+-	vertex_hdl_t	node_vertex;	/* Hwgraph vertex for this node */
+-
+ 	void 		*pdinfo;	/* Platform-dependent per-node info */
 -
 -
--/*
-- * misc typedefs
-- *
-- */
--typedef uint64_t picreg_t;
--typedef uint64_t picate_t;
--
--/*
-- * PIC Bridge MMR defines
-- */
--
--/*
-- * PIC STATUS register          offset 0x00000008
-- */
--
--#define PIC_STAT_PCIX_ACTIVE_SHFT       33
--
--/*
-- * PIC CONTROL register         offset 0x00000020
-- */
--
--#define PIC_CTRL_PCI_SPEED_SHFT         4
--#define PIC_CTRL_PCI_SPEED              (0x3 << PIC_CTRL_PCI_SPEED_SHFT)
--#define PIC_CTRL_PAGE_SIZE_SHFT         21
--#define PIC_CTRL_PAGE_SIZE              (0x1 << PIC_CTRL_PAGE_SIZE_SHFT)
+-	nodepda_router_info_t	*npda_rip_first;
+-	nodepda_router_info_t	**npda_rip_last;
 -
 -
--/*
-- * PIC Intr Destination Addr    offset 0x00000038
-- */
--
--#define PIC_INTR_DEST_ADDR              0x0000FFFFFFFFFFFF
--#define PIC_INTR_DEST_TID_SHFT          48
--#define PIC_INTR_DEST_TID               (0xFull << PIC_INTR_DEST_TID_SHFT)
--
--/*
-- * PIC PCI Responce Buffer      offset 0x00000068
-- */
--#define PIC_RSP_BUF_ADDR                0x0000FFFFFFFFFFFF
--#define PIC_RSP_BUF_NUM_SHFT            48
--#define PIC_RSP_BUF_NUM                 (0xFull << PIC_RSP_BUF_NUM_SHFT)
--#define PIC_RSP_BUF_DEV_NUM_SHFT        52
--#define PIC_RSP_BUF_DEV_NUM             (0x3ull << PIC_RSP_BUF_DEV_NUM_SHFT)
--
--/*
-- * PIC PCI DIRECT MAP register  offset 0x00000080
-- */
--#define PIC_DIRMAP_DIROFF_SHFT          0
--#define PIC_DIRMAP_DIROFF               (0x1FFFF << PIC_DIRMAP_DIROFF_SHFT)
--#define PIC_DIRMAP_ADD512_SHFT          17
--#define PIC_DIRMAP_ADD512               (0x1 << PIC_DIRMAP_ADD512_SHFT)
--#define PIC_DIRMAP_WID_SHFT             20
--#define PIC_DIRMAP_WID                  (0xF << PIC_DIRMAP_WID_SHFT)
-+	((rev == (PIC_WIDGET_PART_NUM_BUS0 << 4 | PIC_WIDGET_REV_C)) || \
-+	(rev == (PIC_WIDGET_PART_NUM_BUS1 << 4 | PIC_WIDGET_REV_C)))
+ 	spinlock_t		bist_lock;
  
--#define PIC_DIRMAP_OFF_ADDRSHFT         31
+ 	/*
+@@ -76,17 +51,6 @@
  
--/*
-- * Interrupt Status register            offset 0x00000100
-- */
--#define PIC_ISR_PCIX_SPLIT_MSG_PE     (0x1ull << 45)
--#define PIC_ISR_PCIX_SPLIT_EMSG       (0x1ull << 44)
--#define PIC_ISR_PCIX_SPLIT_TO         (0x1ull << 43)
--#define PIC_ISR_PCIX_UNEX_COMP        (0x1ull << 42)
--#define PIC_ISR_INT_RAM_PERR          (0x1ull << 41)
--#define PIC_ISR_PCIX_ARB_ERR          (0x1ull << 40)
--#define PIC_ISR_PCIX_REQ_TOUT         (0x1ull << 39)
--#define PIC_ISR_PCIX_TABORT           (0x1ull << 38)
--#define PIC_ISR_PCIX_PERR             (0x1ull << 37)
--#define PIC_ISR_PCIX_SERR             (0x1ull << 36)
--#define PIC_ISR_PCIX_MRETRY           (0x1ull << 35)
--#define PIC_ISR_PCIX_MTOUT            (0x1ull << 34)
--#define PIC_ISR_PCIX_DA_PARITY        (0x1ull << 33)
--#define PIC_ISR_PCIX_AD_PARITY        (0x1ull << 32)
--#define PIC_ISR_PMU_PAGE_FAULT        (0x1ull << 30)
--#define PIC_ISR_UNEXP_RESP            (0x1ull << 29)
--#define PIC_ISR_BAD_XRESP_PKT         (0x1ull << 28)
--#define PIC_ISR_BAD_XREQ_PKT          (0x1ull << 27)
--#define PIC_ISR_RESP_XTLK_ERR         (0x1ull << 26)
--#define PIC_ISR_REQ_XTLK_ERR          (0x1ull << 25)
--#define PIC_ISR_INVLD_ADDR            (0x1ull << 24)
--#define PIC_ISR_UNSUPPORTED_XOP       (0x1ull << 23)
--#define PIC_ISR_XREQ_FIFO_OFLOW       (0x1ull << 22)
--#define PIC_ISR_LLP_REC_SNERR         (0x1ull << 21)
--#define PIC_ISR_LLP_REC_CBERR         (0x1ull << 20)
--#define PIC_ISR_LLP_RCTY              (0x1ull << 19)
--#define PIC_ISR_LLP_TX_RETRY          (0x1ull << 18)
--#define PIC_ISR_LLP_TCTY              (0x1ull << 17)
--#define PIC_ISR_PCI_ABORT             (0x1ull << 15)
--#define PIC_ISR_PCI_PARITY            (0x1ull << 14)
--#define PIC_ISR_PCI_SERR              (0x1ull << 13)
--#define PIC_ISR_PCI_PERR              (0x1ull << 12)
--#define PIC_ISR_PCI_MST_TIMEOUT       (0x1ull << 11)
--#define PIC_ISR_PCI_RETRY_CNT         (0x1ull << 10)
--#define PIC_ISR_XREAD_REQ_TIMEOUT     (0x1ull << 9)
--#define PIC_ISR_INT_MSK               (0xffull << 0)
--#define PIC_ISR_INT(x)                (0x1ull << (x))
--
--#define PIC_ISR_LINK_ERROR            \
--                (PIC_ISR_LLP_REC_SNERR|PIC_ISR_LLP_REC_CBERR|       \
--                 PIC_ISR_LLP_RCTY|PIC_ISR_LLP_TX_RETRY|             \
--                 PIC_ISR_LLP_TCTY)
--
--#define PIC_ISR_PCIBUS_PIOERR         \
--                (PIC_ISR_PCI_MST_TIMEOUT|PIC_ISR_PCI_ABORT|         \
--                 PIC_ISR_PCIX_MTOUT|PIC_ISR_PCIX_TABORT)
--
--#define PIC_ISR_PCIBUS_ERROR          \
--                (PIC_ISR_PCIBUS_PIOERR|PIC_ISR_PCI_PERR|            \
--                 PIC_ISR_PCI_SERR|PIC_ISR_PCI_RETRY_CNT|            \
--                 PIC_ISR_PCI_PARITY|PIC_ISR_PCIX_PERR|              \
--                 PIC_ISR_PCIX_SERR|PIC_ISR_PCIX_MRETRY|             \
--                 PIC_ISR_PCIX_AD_PARITY|PIC_ISR_PCIX_DA_PARITY|     \
--                 PIC_ISR_PCIX_REQ_TOUT|PIC_ISR_PCIX_UNEX_COMP|      \
--                 PIC_ISR_PCIX_SPLIT_TO|PIC_ISR_PCIX_SPLIT_EMSG|     \
--                 PIC_ISR_PCIX_SPLIT_MSG_PE)
--
--#define PIC_ISR_XTALK_ERROR           \
--                (PIC_ISR_XREAD_REQ_TIMEOUT|PIC_ISR_XREQ_FIFO_OFLOW| \
--                 PIC_ISR_UNSUPPORTED_XOP|PIC_ISR_INVLD_ADDR|        \
--                 PIC_ISR_REQ_XTLK_ERR|PIC_ISR_RESP_XTLK_ERR|        \
--                 PIC_ISR_BAD_XREQ_PKT|PIC_ISR_BAD_XRESP_PKT|        \
--                 PIC_ISR_UNEXP_RESP)
--
--#define PIC_ISR_ERRORS                \
--                (PIC_ISR_LINK_ERROR|PIC_ISR_PCIBUS_ERROR|           \
--                 PIC_ISR_XTALK_ERROR|                                 \
--                 PIC_ISR_PMU_PAGE_FAULT|PIC_ISR_INT_RAM_PERR)
--
--/*
-- * PIC RESET INTR register      offset 0x00000110
-- */
--
--#define PIC_IRR_ALL_CLR                 0xffffffffffffffff
--
--/*
-- * PIC PCI Host Intr Addr       offset 0x00000130 - 0x00000168
-- */
--#define PIC_HOST_INTR_ADDR              0x0000FFFFFFFFFFFF
--#define PIC_HOST_INTR_FLD_SHFT          48
--#define PIC_HOST_INTR_FLD               (0xFFull << PIC_HOST_INTR_FLD_SHFT)
--
--
--/*
-- * PIC MMR structure mapping
-- */
-+/*****************************************************************************
-+ *********************** PIC MMR structure mapping ***************************
-+ *****************************************************************************/
+ typedef struct nodepda_s nodepda_t;
  
- /* NOTE: PIC WAR. PV#854697.  PIC does not allow writes just to [31:0]
-  * of a 64-bit register.  When writing PIC registers, always write the 
-  * entire 64 bits.
+-struct irqpda_s {
+-	int num_irq_used;
+-	char irq_flags[NR_IRQS];
+-	struct pci_dev *device_dev[NR_IRQS];
+-	char share_count[NR_IRQS];
+-	struct pci_dev *curr;
+-};
+-
+-typedef struct irqpda_s irqpda_t;
+-
+-
+ /*
+  * Access Functions for node PDA.
+  * Since there is one nodepda for each node, we need a convenient mechanism
+@@ -104,32 +68,10 @@
+ #define	nodepda		pda->p_nodepda		/* Ptr to this node's PDA */
+ #define	NODEPDA(cnode)		(nodepda->pernode_pdaindr[cnode])
+ 
+-
+-/*
+- * Macros to access data structures inside nodepda 
+- */
+-#define NODE_MODULEID(cnode)    geo_module((NODEPDA(cnode)->geoid))
+-#define NODE_SLOTID(cnode)	(NODEPDA(cnode)->slotdesc)
+-
+-
+-/*
+- * Quickly convert a compact node ID into a hwgraph vertex
+- */
+-#define cnodeid_to_vertex(cnodeid) (NODEPDA(cnodeid)->node_vertex)
+-
+-
+ /*
+  * Check if given a compact node id the corresponding node has all the
+  * cpus disabled. 
+  */
+ #define is_headless_node(cnode)		(nr_cpus_node(cnode) == 0)
+-
+-/*
+- * Check if given a node vertex handle the corresponding node has all the
+- * cpus disabled. 
+- */
+-#define is_headless_node_vertex(_nodevhdl) \
+-			is_headless_node(nodevertex_to_cnodeid(_nodevhdl))
+-
+ 
+ #endif /* _ASM_IA64_SN_NODEPDA_H */
+diff -Nru a/include/asm-ia64/sn/pda.h b/include/asm-ia64/sn/pda.h
+--- a/include/asm-ia64/sn/pda.h	2004-08-11 17:51:32 -05:00
++++ b/include/asm-ia64/sn/pda.h	2004-08-11 17:51:32 -05:00
+@@ -49,13 +49,14 @@
+ 	volatile unsigned long *pio_shub_war_cam_addr;
+ 	volatile unsigned long *mem_write_status_addr;
+ 
++	struct bteinfo_s *cpu_bte_if[BTES_PER_NODE];	/* cpu interface order */
++
+ 	unsigned long	sn_soft_irr[4];
+ 	unsigned long	sn_in_service_ivecs[4];
+ 	short		cnodeid_to_nasid_table[MAX_NUMNODES];
+ 	int		sn_lb_int_war_ticks;
+ 	int		sn_last_irq;
+ 	int		sn_first_irq;
+-	int		sn_num_irqs;			/* number of irqs targeted for this cpu */
+ } pda_t;
+ 
+ 
+diff -Nru a/include/asm-ia64/sn/router.h b/include/asm-ia64/sn/router.h
+--- a/include/asm-ia64/sn/router.h	2004-08-11 17:51:32 -05:00
++++ b/include/asm-ia64/sn/router.h	2004-08-11 17:51:32 -05:00
+@@ -18,7 +18,6 @@
+ #ifndef __ASSEMBLY__
+ 
+ #include <asm/sn/vector.h>
+-#include <asm/sn/slotnum.h>
+ #include <asm/sn/arch.h>
+ #include <asm/sn/sgi.h>
+ 
+@@ -411,7 +410,7 @@
+ typedef struct router_map_ent_s {
+ 	uint64_t	nic;
+ 	moduleid_t	module;
+-	slotid_t	slot;
++	char		slot;
+ } router_map_ent_t;
+ 
+ struct rr_status_error_fmt {
+@@ -485,7 +484,7 @@
+ 	int64_t	ri_timestamp;	/* Time of last sample		    */
+ 	router_port_info_t ri_port[MAX_ROUTER_PORTS]; /* per port info      */
+ 	moduleid_t	ri_module;	/* Which module are we in?	    */
+-	slotid_t	ri_slotnum;	/* Which slot are we in?	    */
++	char		ri_slotnum;	/* Which slot are we in?	    */
+ 	router_reg_t	ri_glbl_parms[GLBL_PARMS_REGS];
+ 					/* Global parms0&1 register contents*/
+ 	vertex_hdl_t	ri_vertex;	/* hardware graph vertex            */
+@@ -530,7 +529,7 @@
+ 	short		router_port;	/* port thru which we entered       */
+ 	short		router_portmask;
+ 	moduleid_t	router_module;	/* module in which router is there  */
+-	slotid_t	router_slot;	/* router slot			    */
++	char		router_slot;	/* router slot			    */
+ 	unsigned char	router_type;	/* kind of router 		    */
+ 	net_vec_t	router_vector;	/* vector from the guardian node    */
+ 
+diff -Nru a/include/asm-ia64/sn/sgi.h b/include/asm-ia64/sn/sgi.h
+--- a/include/asm-ia64/sn/sgi.h	2004-08-11 17:51:32 -05:00
++++ b/include/asm-ia64/sn/sgi.h	2004-08-11 17:51:32 -05:00
+@@ -6,15 +6,19 @@
+  * Copyright (C) 2000-2003 Silicon Graphics, Inc. All rights reserved.
   */
  
--typedef volatile struct pic_s {
-+struct pic_s {
++/*
++ * This file is a bit of a dumping ground. A lot of things that don't really
++ * have a home, but which make life easier, end up here.
++ */
  
-     /* 0x000000-0x00FFFF -- Local Registers */
+ #ifndef _ASM_IA64_SN_SGI_H
+ #define _ASM_IA64_SN_SGI_H
  
-     /* 0x000000-0x000057 -- Standard Widget Configuration */
--    picreg_t		p_wid_id;			/* 0x000000 */
--    picreg_t		p_wid_stat;			/* 0x000008 */
--    picreg_t		p_wid_err_upper;		/* 0x000010 */
--    picreg_t		p_wid_err_lower;		/* 0x000018 */
-+    uint64_t		p_wid_id;			/* 0x000000 */
-+    uint64_t		p_wid_stat;			/* 0x000008 */
-+    uint64_t		p_wid_err_upper;		/* 0x000010 */
-+    uint64_t		p_wid_err_lower;		/* 0x000018 */
-     #define p_wid_err p_wid_err_lower
--    picreg_t		p_wid_control;			/* 0x000020 */
--    picreg_t		p_wid_req_timeout;		/* 0x000028 */
--    picreg_t		p_wid_int_upper;		/* 0x000030 */
--    picreg_t		p_wid_int_lower;		/* 0x000038 */
-+    uint64_t		p_wid_control;			/* 0x000020 */
-+    uint64_t		p_wid_req_timeout;		/* 0x000028 */
-+    uint64_t		p_wid_int_upper;		/* 0x000030 */
-+    uint64_t		p_wid_int_lower;		/* 0x000038 */
-     #define p_wid_int p_wid_int_lower
--    picreg_t		p_wid_err_cmdword;		/* 0x000040 */
--    picreg_t		p_wid_llp;			/* 0x000048 */
--    picreg_t		p_wid_tflush;			/* 0x000050 */
-+    uint64_t		p_wid_err_cmdword;		/* 0x000040 */
-+    uint64_t		p_wid_llp;			/* 0x000048 */
-+    uint64_t		p_wid_tflush;			/* 0x000050 */
+ #include <linux/config.h>
+-
+ #include <asm/sn/types.h>
++#include <linux/mm.h>
++#include <linux/fs.h>
+ #include <asm/sn/hwgfs.h>
+-
+ typedef hwgfs_handle_t vertex_hdl_t;
  
-     /* 0x000058-0x00007F -- Bridge-specific Widget Configuration */
--    picreg_t		p_wid_aux_err;			/* 0x000058 */
--    picreg_t		p_wid_resp_upper;		/* 0x000060 */
--    picreg_t		p_wid_resp_lower;		/* 0x000068 */
-+    uint64_t		p_wid_aux_err;			/* 0x000058 */
-+    uint64_t		p_wid_resp_upper;		/* 0x000060 */
-+    uint64_t		p_wid_resp_lower;		/* 0x000068 */
-     #define p_wid_resp p_wid_resp_lower
--    picreg_t		p_wid_tst_pin_ctrl;		/* 0x000070 */
--    picreg_t		p_wid_addr_lkerr;		/* 0x000078 */
-+    uint64_t		p_wid_tst_pin_ctrl;		/* 0x000070 */
-+    uint64_t		p_wid_addr_lkerr;		/* 0x000078 */
+ /* Nice general name length that lots of people like to use */
+@@ -41,21 +45,6 @@
+ #define CPU_NONE		(-1)
+ #define GRAPH_VERTEX_NONE ((vertex_hdl_t)-1)
  
-     /* 0x000080-0x00008F -- PMU & MAP */
--    picreg_t		p_dir_map;			/* 0x000080 */
--    picreg_t		_pad_000088;			/* 0x000088 */
-+    uint64_t		p_dir_map;			/* 0x000080 */
-+    uint64_t		_pad_000088;			/* 0x000088 */
+-/*
+- * Defines for individual WARs. Each is a bitmask of applicable
+- * part revision numbers. (1 << 1) == rev A, (1 << 2) == rev B,
+- * (3 << 1) == (rev A or rev B), etc
+- */
+-#define PV854697 (~0)     /* PIC: write 64bit regs as 64bits. permanent */
+-#define PV854827 (~0UL)   /* PIC: fake widget 0xf presence bit. permanent */
+-#define PV855271 (1 << 1) /* PIC: use virt chan iff 64-bit device. */
+-#define PV878674 (~0)     /* PIC: Dont allow 64bit PIOs.  permanent */
+-#define PV855272 (1 << 1) /* PIC: runaway interrupt WAR */
+-#define PV856155 (1 << 1) /* PIC: arbitration WAR */
+-#define PV856864 (1 << 1) /* PIC: lower timeout to free TNUMs quicker */
+-#define PV856866 (1 << 1) /* PIC: avoid rrb's 0/1/8/9. */
+-#define PV862253 (1 << 1) /* PIC: don't enable write req RAM parity checking */
+-#define PV867308 (3 << 1) /* PIC: make LLP error interrupts FATAL for PIC */
  
-     /* 0x000090-0x00009F -- SSRAM */
--    picreg_t		p_map_fault;			/* 0x000090 */
--    picreg_t		_pad_000098;			/* 0x000098 */
-+    uint64_t		p_map_fault;			/* 0x000090 */
-+    uint64_t		_pad_000098;			/* 0x000098 */
+ /*
+  * No code is complete without an Assertion macro
+diff -Nru a/include/asm-ia64/sn/sn_cpuid.h b/include/asm-ia64/sn/sn_cpuid.h
+--- a/include/asm-ia64/sn/sn_cpuid.h	2004-08-11 17:51:32 -05:00
++++ b/include/asm-ia64/sn/sn_cpuid.h	2004-08-11 17:51:32 -05:00
+@@ -84,6 +84,7 @@
+  */
  
-     /* 0x0000A0-0x0000AF -- Arbitration */
--    picreg_t		p_arb;				/* 0x0000A0 */
--    picreg_t		_pad_0000A8;			/* 0x0000A8 */
-+    uint64_t		p_arb;				/* 0x0000A0 */
-+    uint64_t		_pad_0000A8;			/* 0x0000A8 */
+ #ifndef CONFIG_SMP
++#define cpu_logical_id(cpu)				0
+ #define cpu_physical_id(cpuid)			((ia64_getreg(_IA64_REG_CR_LID) >> 16) & 0xffff)
+ #endif
  
-     /* 0x0000B0-0x0000BF -- Number In A Can or ATE Parity Error */
--    picreg_t		p_ate_parity_err;		/* 0x0000B0 */
--    picreg_t		_pad_0000B8;			/* 0x0000B8 */
-+    uint64_t		p_ate_parity_err;		/* 0x0000B0 */
-+    uint64_t		_pad_0000B8;			/* 0x0000B8 */
+@@ -93,6 +94,7 @@
+  */
+ #define cpu_physical_id_to_nasid(cpi)		((cpi) &0xfff)
+ #define cpu_physical_id_to_slice(cpi)		((cpi>>12) & 3)
++#define cpu_physical_id_to_coherence_id(cpi)	(((cpi) & 0x600) >> 9)
+ #define get_nasid()				((ia64_getreg(_IA64_REG_CR_LID) >> 16) & 0xfff)
+ #define get_slice()				((ia64_getreg(_IA64_REG_CR_LID) >> 28) & 0xf)
+ #define get_node_number(addr)			(((unsigned long)(addr)>>38) & 0x7ff)
+@@ -171,6 +173,12 @@
+  
  
-     /* 0x0000C0-0x0000FF -- PCI/GIO */
--    picreg_t		p_bus_timeout;			/* 0x0000C0 */
--    picreg_t		p_pci_cfg;			/* 0x0000C8 */
--    picreg_t		p_pci_err_upper;		/* 0x0000D0 */
--    picreg_t		p_pci_err_lower;		/* 0x0000D8 */
-+    uint64_t		p_bus_timeout;			/* 0x0000C0 */
-+    uint64_t		p_pci_cfg;			/* 0x0000C8 */
-+    uint64_t		p_pci_err_upper;		/* 0x0000D0 */
-+    uint64_t		p_pci_err_lower;		/* 0x0000D8 */
-     #define p_pci_err p_pci_err_lower
--    picreg_t		_pad_0000E0[4];			/* 0x0000{E0..F8} */
-+    uint64_t		_pad_0000E0[4];			/* 0x0000{E0..F8} */
- 
-     /* 0x000100-0x0001FF -- Interrupt */
--    picreg_t		p_int_status;			/* 0x000100 */
--    picreg_t		p_int_enable;			/* 0x000108 */
--    picreg_t		p_int_rst_stat;			/* 0x000110 */
--    picreg_t		p_int_mode;			/* 0x000118 */
--    picreg_t		p_int_device;			/* 0x000120 */
--    picreg_t		p_int_host_err;			/* 0x000128 */
--    picreg_t		p_int_addr[8];			/* 0x0001{30,,,68} */
--    picreg_t		p_err_int_view;			/* 0x000170 */
--    picreg_t		p_mult_int;			/* 0x000178 */
--    picreg_t		p_force_always[8];		/* 0x0001{80,,,B8} */
--    picreg_t		p_force_pin[8];			/* 0x0001{C0,,,F8} */
-+    uint64_t		p_int_status;			/* 0x000100 */
-+    uint64_t		p_int_enable;			/* 0x000108 */
-+    uint64_t		p_int_rst_stat;			/* 0x000110 */
-+    uint64_t		p_int_mode;			/* 0x000118 */
-+    uint64_t		p_int_device;			/* 0x000120 */
-+    uint64_t		p_int_host_err;			/* 0x000128 */
-+    uint64_t		p_int_addr[8];			/* 0x0001{30,,,68} */
-+    uint64_t		p_err_int_view;			/* 0x000170 */
-+    uint64_t		p_mult_int;			/* 0x000178 */
-+    uint64_t		p_force_always[8];		/* 0x0001{80,,,B8} */
-+    uint64_t		p_force_pin[8];			/* 0x0001{C0,,,F8} */
- 
-     /* 0x000200-0x000298 -- Device */
--    picreg_t		p_device[4];			/* 0x0002{00,,,18} */
--    picreg_t		_pad_000220[4];			/* 0x0002{20,,,38} */
--    picreg_t		p_wr_req_buf[4];		/* 0x0002{40,,,58} */
--    picreg_t		_pad_000260[4];			/* 0x0002{60,,,78} */
--    picreg_t		p_rrb_map[2];			/* 0x0002{80,,,88} */
-+    uint64_t		p_device[4];			/* 0x0002{00,,,18} */
-+    uint64_t		_pad_000220[4];			/* 0x0002{20,,,38} */
-+    uint64_t		p_wr_req_buf[4];		/* 0x0002{40,,,58} */
-+    uint64_t		_pad_000260[4];			/* 0x0002{60,,,78} */
-+    uint64_t		p_rrb_map[2];			/* 0x0002{80,,,88} */
-     #define p_even_resp p_rrb_map[0]			/* 0x000280 */
-     #define p_odd_resp  p_rrb_map[1]			/* 0x000288 */
--    picreg_t		p_resp_status;			/* 0x000290 */
--    picreg_t		p_resp_clear;			/* 0x000298 */
-+    uint64_t		p_resp_status;			/* 0x000290 */
-+    uint64_t		p_resp_clear;			/* 0x000298 */
- 
--    picreg_t		_pad_0002A0[12];		/* 0x0002{A0..F8} */
-+    uint64_t		_pad_0002A0[12];		/* 0x0002{A0..F8} */
- 
-     /* 0x000300-0x0003F8 -- Buffer Address Match Registers */
-     struct {
--	picreg_t	upper;				/* 0x0003{00,,,F0} */
--	picreg_t	lower;				/* 0x0003{08,,,F8} */
-+	uint64_t	upper;				/* 0x0003{00,,,F0} */
-+	uint64_t	lower;				/* 0x0003{08,,,F8} */
-     } p_buf_addr_match[16];
- 
-     /* 0x000400-0x0005FF -- Performance Monitor Registers (even only) */
-     struct {
--	picreg_t	flush_w_touch;			/* 0x000{400,,,5C0} */
--	picreg_t	flush_wo_touch;			/* 0x000{408,,,5C8} */
--	picreg_t	inflight;			/* 0x000{410,,,5D0} */
--	picreg_t	prefetch;			/* 0x000{418,,,5D8} */
--	picreg_t	total_pci_retry;		/* 0x000{420,,,5E0} */
--	picreg_t	max_pci_retry;			/* 0x000{428,,,5E8} */
--	picreg_t	max_latency;			/* 0x000{430,,,5F0} */
--	picreg_t	clear_all;			/* 0x000{438,,,5F8} */
-+	uint64_t	flush_w_touch;			/* 0x000{400,,,5C0} */
-+	uint64_t	flush_wo_touch;			/* 0x000{408,,,5C8} */
-+	uint64_t	inflight;			/* 0x000{410,,,5D0} */
-+	uint64_t	prefetch;			/* 0x000{418,,,5D8} */
-+	uint64_t	total_pci_retry;		/* 0x000{420,,,5E0} */
-+	uint64_t	max_pci_retry;			/* 0x000{428,,,5E8} */
-+	uint64_t	max_latency;			/* 0x000{430,,,5F0} */
-+	uint64_t	clear_all;			/* 0x000{438,,,5F8} */
-     } p_buf_count[8];
- 
-     
-     /* 0x000600-0x0009FF -- PCI/X registers */
--    picreg_t		p_pcix_bus_err_addr;		/* 0x000600 */
--    picreg_t		p_pcix_bus_err_attr;		/* 0x000608 */
--    picreg_t		p_pcix_bus_err_data;		/* 0x000610 */
--    picreg_t		p_pcix_pio_split_addr;		/* 0x000618 */
--    picreg_t		p_pcix_pio_split_attr;		/* 0x000620 */
--    picreg_t		p_pcix_dma_req_err_attr;	/* 0x000628 */
--    picreg_t		p_pcix_dma_req_err_addr;	/* 0x000630 */
--    picreg_t		p_pcix_timeout;			/* 0x000638 */
-+    uint64_t		p_pcix_bus_err_addr;		/* 0x000600 */
-+    uint64_t		p_pcix_bus_err_attr;		/* 0x000608 */
-+    uint64_t		p_pcix_bus_err_data;		/* 0x000610 */
-+    uint64_t		p_pcix_pio_split_addr;		/* 0x000618 */
-+    uint64_t		p_pcix_pio_split_attr;		/* 0x000620 */
-+    uint64_t		p_pcix_dma_req_err_attr;	/* 0x000628 */
-+    uint64_t		p_pcix_dma_req_err_addr;	/* 0x000630 */
-+    uint64_t		p_pcix_timeout;			/* 0x000638 */
- 
--    picreg_t		_pad_000640[120];		/* 0x000{640,,,9F8} */
-+    uint64_t		_pad_000640[120];		/* 0x000{640,,,9F8} */
- 
-     /* 0x000A00-0x000BFF -- PCI/X Read&Write Buffer */
-     struct {
--	picreg_t	p_buf_addr;			/* 0x000{A00,,,AF0} */
--	picreg_t	p_buf_attr;			/* 0X000{A08,,,AF8} */
-+	uint64_t	p_buf_addr;			/* 0x000{A00,,,AF0} */
-+	uint64_t	p_buf_attr;			/* 0X000{A08,,,AF8} */
-     } p_pcix_read_buf_64[16];
- 
-     struct {
--	picreg_t	p_buf_addr;			/* 0x000{B00,,,BE0} */
--	picreg_t	p_buf_attr;			/* 0x000{B08,,,BE8} */
--	picreg_t	p_buf_valid;			/* 0x000{B10,,,BF0} */
--	picreg_t	__pad1;				/* 0x000{B18,,,BF8} */
-+	uint64_t	p_buf_addr;			/* 0x000{B00,,,BE0} */
-+	uint64_t	p_buf_attr;			/* 0x000{B08,,,BE8} */
-+	uint64_t	p_buf_valid;			/* 0x000{B10,,,BF0} */
-+	uint64_t	__pad1;				/* 0x000{B18,,,BF8} */
-     } p_pcix_write_buf_64[8];
- 
-     /* End of Local Registers -- Start of Address Map space */
-@@ -385,17 +212,17 @@
-     char		_pad_000c00[0x010000 - 0x000c00];
- 
-     /* 0x010000-0x011fff -- Internal ATE RAM (Auto Parity Generation) */
--    picate_t		p_int_ate_ram[1024];		/* 0x010000-0x011fff */
-+    uint64_t		p_int_ate_ram[1024];		/* 0x010000-0x011fff */
- 
-     /* 0x012000-0x013fff -- Internal ATE RAM (Manual Parity Generation) */
--    picate_t		p_int_ate_ram_mp[1024];		/* 0x012000-0x013fff */
-+    uint64_t		p_int_ate_ram_mp[1024];		/* 0x012000-0x013fff */
- 
-     char		_pad_014000[0x18000 - 0x014000];
- 
-     /* 0x18000-0x197F8 -- PIC Write Request Ram */
--    picreg_t		p_wr_req_lower[256];		/* 0x18000 - 0x187F8 */
--    picreg_t		p_wr_req_upper[256];		/* 0x18800 - 0x18FF8 */
--    picreg_t		p_wr_req_parity[256];		/* 0x19000 - 0x197F8 */
-+    uint64_t		p_wr_req_lower[256];		/* 0x18000 - 0x187F8 */
-+    uint64_t		p_wr_req_upper[256];		/* 0x18800 - 0x18FF8 */
-+    uint64_t		p_wr_req_parity[256];		/* 0x19000 - 0x197F8 */
- 
-     char		_pad_019800[0x20000 - 0x019800];
- 
-@@ -446,6 +273,378 @@
- 	uint32_t	l[8 / 4];
- 	uint64_t	d[8 / 8];
-     } p_pcix_cycle;					/* 0x040000-0x040007 */
--} pic_t;
-+};
-+
-+
-+/*****************************************************************************
-+ *************************** PIC BRIDGE MMR DEFINES **************************
-+ *****************************************************************************/
+ #define smp_physical_node_id()			(cpuid_to_nasid(smp_processor_id()))
 +
 +/*
-+ * PIC STATUS register		offset 0x00000008
++ * cpuid_to_coherence_id - convert a cpuid to the coherence domain id it
++ * resides on
 + */
-+#define PIC_STAT_TX_CREDIT_SHFT		PCIBR_STAT_TX_CREDIT_SHFT
-+#define PIC_STAT_TX_CREDIT		PCIBR_STAT_TX_CREDIT
-+#define PIC_STAT_RX_REQ_CNT_SHFT	PCIBR_STAT_RX_CREDIT_SHFT
-+#define PIC_STAT_RX_REQ_CNT		PCIBR_STAT_RX_CREDIT
-+#define PIC_STAT_LLP_TX_CNT_SHFT	PCIBR_STAT_LLP_TX_CNT_SHFT
-+#define PIC_STAT_LLP_TX_CNT		PCIBR_STAT_LLP_TX_CNT
-+#define PIC_STAT_LLP_RX_CNT_SHFT	PCIBR_STAT_LLP_RX_CNT_SHFT
-+#define PIC_STAT_LLP_RX_CNT		PCIBR_STAT_LLP_RX_CNT
-+#define PIC_STAT_PCIX_ACTIVE_SHFT	PCIBR_STAT_PCIX_ACTIVE_SHFT
-+#define PIC_STAT_PCIX_ACTIVE		PCIBR_STAT_PCIX_ACTIVE
-+#define PIC_STAT_PCIX_SPEED_SHFT	PCIBR_STAT_PCIX_SPEED_SHFT
-+#define PIC_STAT_PCIX_SPEED		PCIBR_STAT_PCIX_SPEED
-+
-+/*
-+ * PIC CONTROL register		offset 0x00000020
-+ */
-+#define PIC_CTRL_WIDGET_ID_SHFT		0
-+#define PIC_CTRL_WIDGET_ID		(0xF << PIC_CTRL_WIDGET_ID_SHFT)
-+#define PIC_CTRL_PCI_SPEED_SHFT		PCIBR_CTRL_PCI_SPEED_SHFT
-+#define PIC_CTRL_PCI_SPEED		PCIBR_CTRL_PCI_SPEED
-+#define PIC_CTRL_SYS_END_SHFT		PCIBR_CTRL_SYS_END_SHFT
-+#define PIC_CTRL_SYS_END		PCIBR_CTRL_SYS_END
-+#define PIC_CTRL_CLR_TLLP_SHFT		PCIBR_CTRL_CLR_TLLP_SHFT
-+#define PIC_CTRL_CLR_TLLP		PCIBR_CTRL_CLR_TLLP
-+#define PIC_CTRL_CLR_RLLP_SHFT		PCIBR_CTRL_CLR_RLLP_SHFT
-+#define PIC_CTRL_CLR_RLLP		PCIBR_CTRL_CLR_RLLP
-+#define PIC_CTRL_LLP_XBOW_CRD_SHFT	PCIBR_CTRL_LLP_XBOW_CRD_SHFT
-+#define PIC_CTRL_CRED_LIM		PCIBR_CTRL_CRED_LIM
-+#define PIC_CTRL_F_BAD_PKT_SHFT		PCIBR_CTRL_F_BAD_PKT_SHFT
-+#define PIC_CTRL_F_BAD_PKT		PCIBR_CTRL_F_BAD_PKT
-+#define PIC_CTRL_PAGE_SIZE_SHFT		PCIBR_CTRL_PAGE_SIZE_SHFT
-+#define PIC_CTRL_PAGE_SIZE		PCIBR_CTRL_PAGE_SIZE
-+#define PIC_CTRL_MEM_SWAP_SHFT		PCIBR_CTRL_MEM_SWAP_SHFT
-+#define PIC_CTRL_MEM_SWAP		PCIBR_CTRL_MEM_SWAP
-+#define PIC_CTRL_RST_SHFT		PCIBR_CTRL_RST_SHFT
-+#define PIC_CTRL_RST_PIN(x)		PCIBR_CTRL_RST_PIN(x)
-+#define PIC_CTRL_RST(n)			PCIBR_CTRL_RST(n)
-+#define PIC_CTRL_RST_MASK		PCIBR_CTRL_RST_MASK
-+#define PIC_CTRL_PAR_EN_REQ_SHFT	PCIBR_CTRL_PAR_EN_REQ_SHFT
-+#define PIC_CTRL_PAR_EN_REQ		PCIBR_CTRL_PAR_EN_REQ
-+#define PIC_CTRL_PAR_EN_RESP_SHFT	PCIBR_CTRL_PAR_EN_RESP_SHFT
-+#define PIC_CTRL_PAR_EN_RESP		PCIBR_CTRL_PAR_EN_RESP
-+#define PIC_CTRL_PAR_EN_ATE_SHFT	PCIBR_CTRL_PAR_EN_ATE_SHFT
-+#define PIC_CTRL_PAR_EN_ATE		PCIBR_CTRL_PAR_EN_ATE
-+#define PIC_CTRL_FUN_NUM_MASK		PCIBR_CTRL_FUN_NUM_MASK
-+#define PIC_CTRL_FUN_NUM(x)		PCIBR_CTRL_FUN_NUM(x)
-+#define PIC_CTRL_DEV_NUM_MASK		PCIBR_CTRL_BUS_NUM_MASK
-+#define PIC_CTRL_DEV_NUM(x)		PCIBR_CTRL_DEV_NUM(x)
-+#define PIC_CTRL_BUS_NUM_MASK		PCIBR_CTRL_BUS_NUM_MASK
-+#define PIC_CTRL_BUS_NUM(x)		PCIBR_CTRL_BUS_NUM(x)
-+#define PIC_CTRL_RELAX_ORDER_SHFT	PCIBR_CTRL_RELAX_ORDER_SHFT
-+#define PIC_CTRL_RELAX_ORDER		PCIBR_CTRL_RELAX_ORDER
-+#define PIC_CTRL_NO_SNOOP_SHFT		PCIBR_CTRL_NO_SNOOP_SHFT
-+#define PIC_CTRL_NO_SNOOP		PCIBR_CTRL_NO_SNOOP
-+
-+/*
-+ * PIC Intr Destination Addr	offset 0x00000038 
-+ */
-+#define PIC_INTR_DEST_ADDR		PIC_XTALK_ADDR_MASK
-+#define PIC_INTR_DEST_TID_SHFT		48
-+#define PIC_INTR_DEST_TID		(0xFull << PIC_INTR_DEST_TID_SHFT)
-+
-+/*
-+ * PIC PCI Responce Buffer	offset 0x00000068
-+ */
-+#define PIC_RSP_BUF_ADDR		PIC_XTALK_ADDR_MASK
-+#define PIC_RSP_BUF_NUM_SHFT		48
-+#define PIC_RSP_BUF_NUM			(0xFull << PIC_RSP_BUF_NUM_SHFT)
-+#define PIC_RSP_BUF_DEV_NUM_SHFT	52
-+#define PIC_RSP_BUF_DEV_NUM		(0x3ull << PIC_RSP_BUF_DEV_NUM_SHFT)
-+
-+/*
-+ * PIC PCI DIRECT MAP register	offset 0x00000080
-+ */
-+#define PIC_DIRMAP_DIROFF_SHFT		PCIBR_DIRMAP_DIROFF_SHFT
-+#define PIC_DIRMAP_DIROFF		PCIBR_DIRMAP_DIROFF
-+#define PIC_DIRMAP_ADD512_SHFT		PCIBR_DIRMAP_ADD512_SHFT
-+#define PIC_DIRMAP_ADD512		PCIBR_DIRMAP_ADD512
-+#define PIC_DIRMAP_WID_SHFT		20
-+#define PIC_DIRMAP_WID			(0xF << PIC_DIRMAP_WID_SHFT)
-+
-+#define PIC_DIRMAP_OFF_ADDRSHFT		PCIBR_DIRMAP_OFF_ADDRSHFT
-+
-+/*
-+ * PCI TIMEOUT			offset 0x000000C0
-+ */
-+#define PIC_TMO_RETRY_CNT_SHFT		PCIBR_TMO_RETRY_CNT_SHFT
-+#define PIC_TMO_RETRY_CNT		PCIBR_TMO_RETRY_CNT
-+#define PIC_TMO_RETRY_CNT_MAX		PCIBR_TMO_RETRY_CNT_MAX
-+#define PIC_TMO_RETRY_HLD_SHFT		PCIBR_TMO_RETRY_HLD_SHFT
-+#define PIC_TMO_RETRY_HLD		PCIBR_TMO_RETRY_HLD
-+
-+/* 
-+ * PIC INTR STATUS register	offset 0x00000100
-+ */
-+#define PIC_ISR_PCIX_SPLIT_MSG_PE	PCIBR_ISR_PCIX_SPLIT_MSG_PE
-+#define PIC_ISR_PCIX_SPLIT_EMSG		PCIBR_ISR_PCIX_SPLIT_EMSG
-+#define PIC_ISR_PCIX_SPLIT_TO		PCIBR_ISR_PCIX_SPLIT_TO
-+#define PIC_ISR_PCIX_UNEX_COMP		PCIBR_ISR_PCIX_UNEX_COMP
-+#define PIC_ISR_INT_RAM_PERR		PCIBR_ISR_INT_RAM_PERR
-+#define PIC_ISR_PCIX_ARB_ERR		PCIBR_ISR_PCIX_ARB_ERR
-+#define PIC_ISR_PCIX_REQ_TOUT		PCIBR_ISR_PCIX_REQ_TOUT
-+#define PIC_ISR_PCIX_TABORT		PCIBR_ISR_PCIX_TABORT
-+#define PIC_ISR_PCIX_PERR		PCIBR_ISR_PCIX_PERR
-+#define PIC_ISR_PCIX_SERR		PCIBR_ISR_PCIX_SERR
-+#define PIC_ISR_PCIX_MRETRY		PCIBR_ISR_PCIX_MRETRY
-+#define PIC_ISR_PCIX_MTOUT		PCIBR_ISR_PCIX_MTOUT
-+#define PIC_ISR_PCIX_DA_PARITY		PCIBR_ISR_PCIX_DA_PARITY
-+#define PIC_ISR_PCIX_AD_PARITY		PCIBR_ISR_PCIX_AD_PARITY
-+#define PIC_ISR_PMU_PAGE_FAULT		PCIBR_ISR_PMU_PAGE_FAULT
-+#define PIC_ISR_UNEXP_RESP		PCIBR_ISR_UNEXP_RESP
-+#define PIC_ISR_BAD_XRESP_PKT		PCIBR_ISR_BAD_XRESP_PKT
-+#define PIC_ISR_BAD_XREQ_PKT		PCIBR_ISR_BAD_XREQ_PKT
-+#define PIC_ISR_RESP_XTLK_ERR		PCIBR_ISR_RESP_XTLK_ERR
-+#define PIC_ISR_REQ_XTLK_ERR		PCIBR_ISR_REQ_XTLK_ERR
-+#define PIC_ISR_INVLD_ADDR		PCIBR_ISR_INVLD_ADDR
-+#define PIC_ISR_UNSUPPORTED_XOP		PCIBR_ISR_UNSUPPORTED_XOP
-+#define PIC_ISR_XREQ_FIFO_OFLOW		PCIBR_ISR_XREQ_FIFO_OFLOW
-+#define PIC_ISR_LLP_REC_SNERR		PCIBR_ISR_LLP_REC_SNERR
-+#define PIC_ISR_LLP_REC_CBERR		PCIBR_ISR_LLP_REC_CBERR
-+#define PIC_ISR_LLP_RCTY		PCIBR_ISR_LLP_RCTY
-+#define PIC_ISR_LLP_TX_RETRY		PCIBR_ISR_LLP_TX_RETRY
-+#define PIC_ISR_LLP_TCTY		PCIBR_ISR_LLP_TCTY
-+#define PIC_ISR_PCI_ABORT		PCIBR_ISR_PCI_ABORT
-+#define PIC_ISR_PCI_PARITY		PCIBR_ISR_PCI_PARITY
-+#define PIC_ISR_PCI_SERR		PCIBR_ISR_PCI_SERR
-+#define PIC_ISR_PCI_PERR		PCIBR_ISR_PCI_PERR
-+#define PIC_ISR_PCI_MST_TIMEOUT		PCIBR_ISR_PCI_MST_TIMEOUT
-+#define PIC_ISR_PCI_RETRY_CNT		PCIBR_ISR_PCI_RETRY_CNT
-+#define PIC_ISR_XREAD_REQ_TIMEOUT	PCIBR_ISR_XREAD_REQ_TIMEOUT
-+#define PIC_ISR_INT_MSK			PCIBR_ISR_INT_MSK
-+#define PIC_ISR_INT(x)			PCIBR_ISR_INT(x)
-+
-+/*
-+ * PIC ENABLE INTR register	offset 0x00000108
-+ */
-+#define PIC_IER_PCIX_SPLIT_MSG_PE	PCIBR_IER_PCIX_SPLIT_MSG_PE
-+#define PIC_IER_PCIX_SPLIT_EMSG		PCIBR_IER_PCIX_SPLIT_EMSG
-+#define PIC_IER_PCIX_SPLIT_TO		PCIBR_IER_PCIX_SPLIT_TO
-+#define PIC_IER_PCIX_UNEX_COMP		PCIBR_IER_PCIX_UNEX_COMP
-+#define PIC_IER_INT_RAM_PERR		PCIBR_IER_INT_RAM_PERR
-+#define PIC_IER_PCIX_ARB_ERR		PCIBR_IER_PCIX_ARB_ERR
-+#define PIC_IER_PCIX_REQ_TOUT		PCIBR_IER_PCIX_REQ_TOUT
-+#define PIC_IER_PCIX_TABORT		PCIBR_IER_PCIX_TABORT
-+#define PIC_IER_PCIX_PERR		PCIBR_IER_PCIX_PERR
-+#define PIC_IER_PCIX_SERR		PCIBR_IER_PCIX_SERR
-+#define PIC_IER_PCIX_MRETRY		PCIBR_IER_PCIX_MRETRY
-+#define PIC_IER_PCIX_MTOUT		PCIBR_IER_PCIX_MTOUT
-+#define PIC_IER_PCIX_DA_PARITY		PCIBR_IER_PCIX_DA_PARITY
-+#define PIC_IER_PCIX_AD_PARITY		PCIBR_IER_PCIX_AD_PARITY
-+#define PIC_IER_PMU_PAGE_FAULT		PCIBR_IER_PMU_PAGE_FAULT
-+#define PIC_IER_UNEXP_RESP		PCIBR_IER_UNEXP_RESP
-+#define PIC_IER_BAD_XRESP_PKT		PCIBR_IER_BAD_XRESP_PKT
-+#define PIC_IER_BAD_XREQ_PKT		PCIBR_IER_BAD_XREQ_PKT
-+#define PIC_IER_RESP_XTLK_ERR		PCIBR_IER_RESP_XTLK_ERR
-+#define PIC_IER_REQ_XTLK_ERR		PCIBR_IER_REQ_XTLK_ERR
-+#define PIC_IER_INVLD_ADDR		PCIBR_IER_INVLD_ADDR
-+#define PIC_IER_UNSUPPORTED_XOP		PCIBR_IER_UNSUPPORTED_XOP
-+#define PIC_IER_XREQ_FIFO_OFLOW		PCIBR_IER_XREQ_FIFO_OFLOW
-+#define PIC_IER_LLP_REC_SNERR		PCIBR_IER_LLP_REC_SNERR
-+#define PIC_IER_LLP_REC_CBERR		PCIBR_IER_LLP_REC_CBERR
-+#define PIC_IER_LLP_RCTY		PCIBR_IER_LLP_RCTY
-+#define PIC_IER_LLP_TX_RETRY		PCIBR_IER_LLP_TX_RETRY
-+#define PIC_IER_LLP_TCTY		PCIBR_IER_LLP_TCTY
-+#define PIC_IER_PCI_ABORT		PCIBR_IER_PCI_ABORT
-+#define PIC_IER_PCI_PARITY		PCIBR_IER_PCI_PARITY
-+#define PIC_IER_PCI_SERR		PCIBR_IER_PCI_SERR
-+#define PIC_IER_PCI_PERR		PCIBR_IER_PCI_PERR
-+#define PIC_IER_PCI_MST_TIMEOUT		PCIBR_IER_PCI_MST_TIMEOUT
-+#define PIC_IER_PCI_RETRY_CNT		PCIBR_IER_PCI_RETRY_CNT
-+#define PIC_IER_XREAD_REQ_TIMEOUT	PCIBR_IER_XREAD_REQ_TIMEOUT
-+#define PIC_IER_INT_MSK			PCIBR_IER_INT_MSK
-+#define PIC_IER_INT(x)			PCIBR_IER_INT(x)
-+
-+/*
-+ * PIC RESET INTR register	offset 0x00000110
-+ */
-+#define PIC_IRR_PCIX_SPLIT_MSG_PE	PCIBR_IRR_PCIX_SPLIT_MSG_PE
-+#define PIC_IRR_PCIX_SPLIT_EMSG		PCIBR_IRR_PCIX_SPLIT_EMSG
-+#define PIC_IRR_PCIX_SPLIT_TO		PCIBR_IRR_PCIX_SPLIT_TO
-+#define PIC_IRR_PCIX_UNEX_COMP		PCIBR_IRR_PCIX_UNEX_COMP
-+#define PIC_IRR_INT_RAM_PERR		PCIBR_IRR_INT_RAM_PERR
-+#define PIC_IRR_PCIX_ARB_ERR		PCIBR_IRR_PCIX_ARB_ERR
-+#define PIC_IRR_PCIX_REQ_TOUT		PCIBR_IRR_PCIX_REQ_TOUT
-+#define PIC_IRR_PCIX_TABORT		PCIBR_IRR_PCIX_TABORT
-+#define PIC_IRR_PCIX_PERR		PCIBR_IRR_PCIX_PERR
-+#define PIC_IRR_PCIX_SERR		PCIBR_IRR_PCIX_SERR
-+#define PIC_IRR_PCIX_MRETRY		PCIBR_IRR_PCIX_MRETRY
-+#define PIC_IRR_PCIX_MTOUT		PCIBR_IRR_PCIX_MTOUT
-+#define PIC_IRR_PCIX_DA_PARITY		PCIBR_IRR_PCIX_DA_PARITY
-+#define PIC_IRR_PCIX_AD_PARITY		PCIBR_IRR_PCIX_AD_PARITY
-+#define PIC_IRR_PMU_PAGE_FAULT		PCIBR_IRR_PMU_PAGE_FAULT
-+#define PIC_IRR_UNEXP_RESP		PCIBR_IRR_UNEXP_RESP
-+#define PIC_IRR_BAD_XRESP_PKT		PCIBR_IRR_BAD_XRESP_PKT
-+#define PIC_IRR_BAD_XREQ_PKT		PCIBR_IRR_BAD_XREQ_PKT
-+#define PIC_IRR_RESP_XTLK_ERR		PCIBR_IRR_RESP_XTLK_ERR
-+#define PIC_IRR_REQ_XTLK_ERR		PCIBR_IRR_REQ_XTLK_ERR
-+#define PIC_IRR_INVLD_ADDR		PCIBR_IRR_INVLD_ADDR
-+#define PIC_IRR_UNSUPPORTED_XOP		PCIBR_IRR_UNSUPPORTED_XOP
-+#define PIC_IRR_XREQ_FIFO_OFLOW		PCIBR_IRR_XREQ_FIFO_OFLOW
-+#define PIC_IRR_LLP_REC_SNERR		PCIBR_IRR_LLP_REC_SNERR
-+#define PIC_IRR_LLP_REC_CBERR		PCIBR_IRR_LLP_REC_CBERR
-+#define PIC_IRR_LLP_RCTY		PCIBR_IRR_LLP_RCTY
-+#define PIC_IRR_LLP_TX_RETRY		PCIBR_IRR_LLP_TX_RETRY
-+#define PIC_IRR_LLP_TCTY		PCIBR_IRR_LLP_TCTY
-+#define PIC_IRR_PCI_ABORT		PCIBR_IRR_PCI_ABORT
-+#define PIC_IRR_PCI_PARITY		PCIBR_IRR_PCI_PARITY
-+#define PIC_IRR_PCI_SERR		PCIBR_IRR_PCI_SERR
-+#define PIC_IRR_PCI_PERR		PCIBR_IRR_PCI_PERR
-+#define PIC_IRR_PCI_MST_TIMEOUT		PCIBR_IRR_PCI_MST_TIMEOUT
-+#define PIC_IRR_PCI_RETRY_CNT		PCIBR_IRR_PCI_RETRY_CNT
-+#define PIC_IRR_XREAD_REQ_TIMEOUT	PCIBR_IRR_XREAD_REQ_TIMEOUT
-+#define PIC_IRR_MULTI_CLR		PCIBR_IRR_MULTI_CLR
-+#define PIC_IRR_CRP_GRP_CLR		PCIBR_IRR_CRP_GRP_CLR
-+#define PIC_IRR_RESP_BUF_GRP_CLR	PCIBR_IRR_RESP_BUF_GRP_CLR
-+#define PIC_IRR_REQ_DSP_GRP_CLR		PCIBR_IRR_REQ_DSP_GRP_CLR
-+#define PIC_IRR_LLP_GRP_CLR		PCIBR_IRR_LLP_GRP_CLR
-+#define PIC_IRR_SSRAM_GRP_CLR		PCIBR_IRR_SSRAM_GRP_CLR
-+#define PIC_IRR_PCI_GRP_CLR		PCIBR_IRR_PCI_GRP_CLR
-+#define PIC_IRR_GIO_GRP_CLR		PCIBR_IRR_GIO_GRP_CLR
-+#define PIC_IRR_ALL_CLR			PCIBR_IRR_ALL_CLR
-+
-+/*
-+ * PIC Intr Dev Select register	offset 0x00000120
-+ */
-+#define PIC_INT_DEV_SHFT(n)		PCIBR_INT_DEV_SHFT(n)
-+#define PIC_INT_DEV_MASK(n)		PCIBR_INT_DEV_MASK(n)
-+
-+/*
-+ * PIC PCI Host Intr Addr	offset 0x00000130 - 0x00000168
-+ */
-+#define PIC_HOST_INTR_ADDR		PIC_XTALK_ADDR_MASK
-+#define PIC_HOST_INTR_FLD_SHFT		48	
-+#define PIC_HOST_INTR_FLD		(0xFFull << PIC_HOST_INTR_FLD_SHFT)
-+
-+/*
-+ * PIC DEVICE(x) register	offset 0x00000200
-+ */
-+#define PIC_DEV_OFF_ADDR_SHFT		PCIBR_DEV_OFF_ADDR_SHFT
-+#define PIC_DEV_OFF_MASK		PCIBR_DEV_OFF_MASK
-+#define PIC_DEV_DEV_IO_MEM		PCIBR_DEV_DEV_IO_MEM
-+#define PIC_DEV_DEV_SWAP		PCIBR_DEV_DEV_SWAP
-+#define PIC_DEV_GBR			PCIBR_DEV_GBR
-+#define PIC_DEV_BARRIER			PCIBR_DEV_BARRIER
-+#define PIC_DEV_COH			PCIBR_DEV_COH
-+#define PIC_DEV_PRECISE			PCIBR_DEV_PRECISE
-+#define PIC_DEV_PREF			PCIBR_DEV_PREF
-+#define PIC_DEV_SWAP_DIR		PCIBR_DEV_SWAP_DIR
-+#define PIC_DEV_RT			PCIBR_DEV_RT
-+#define PIC_DEV_DEV_SIZE		PCIBR_DEV_DEV_SIZE
-+#define PIC_DEV_DIR_WRGA_EN		PCIBR_DEV_DIR_WRGA_EN
-+#define PIC_DEV_VIRTUAL_EN		PCIBR_DEV_VIRTUAL_EN
-+#define PIC_DEV_FORCE_PCI_PAR		PCIBR_DEV_FORCE_PCI_PAR
-+#define PIC_DEV_PAGE_CHK_DIS		PCIBR_DEV_PAGE_CHK_DIS
-+#define PIC_DEV_ERR_LOCK_EN		PCIBR_DEV_ERR_LOCK_EN
-+
-+/*
-+ * PIC Even & Odd RRB registers	offset 0x000000280 & 0x000000288
-+ */
-+/* Individual RRB masks after shifting down */
-+#define PIC_RRB_EN			PCIBR_RRB_EN
-+#define PIC_RRB_DEV			PCIBR_RRB_DEV
-+#define PIC_RRB_VDEV			PCIBR_RRB_VDEV
-+#define PIC_RRB_PDEV			PCIBR_RRB_PDEV
-+
-+/*
-+ * PIC RRB status register 	offset 0x00000290
-+ */
-+#define PIC_RRB_VALID(r)		PCIBR_RRB_VALID(r)
-+#define PIC_RRB_INUSE(r)		PCIBR_RRB_INUSE(r)
-+
-+/*
-+ * PIC RRB clear register 	offset 0x00000298
-+ */
-+#define PIC_RRB_CLEAR(r)		PCIBR_RRB_CLEAR(r)
-+
-+
-+/*****************************************************************************
-+ ****************************** PIC DMA DEFINES ******************************
-+ *****************************************************************************/
-+
-+/*
-+ * PIC - PMU Address Transaltion Entry defines 
-+ */
-+#define PIC_ATE_V			PCIBR_ATE_V
-+#define PIC_ATE_CO			PCIBR_ATE_CO
-+#define PIC_ATE_PREC			PCIBR_ATE_PREC
-+#define PIC_ATE_PREF			PCIBR_ATE_PREF
-+#define PIC_ATE_BAR			PCIBR_ATE_BAR
-+#define PIC_ATE_TARGETID_SHFT		8
-+#define PIC_ATE_TARGETID		(0xF << PIC_ATE_TARGETID_SHFT)
-+#define PIC_ATE_ADDR_SHFT		PCIBR_ATE_ADDR_SHFT
-+#define PIC_ATE_ADDR_MASK		(0xFFFFFFFFF000)
-+
-+/* bit 29 of the pci address is the SWAP bit */
-+#define PIC_ATE_SWAPSHIFT		ATE_SWAPSHIFT
-+#define PIC_SWAP_ON(x)			ATE_SWAP_ON(x)
-+#define PIC_SWAP_OFF(x)			ATE_SWAP_OFF(x)
-+
-+/*  
-+ * Bridge 32bit Bus DMA addresses  
-+ */
-+#define PIC_LOCAL_BASE			PCIBR_LOCAL_BASE
-+#define PIC_DMA_MAPPED_BASE		PCIBR_DMA_MAPPED_BASE
-+#define PIC_DMA_MAPPED_SIZE		PCIBR_DMA_MAPPED_SIZE
-+#define PIC_DMA_DIRECT_BASE		PCIBR_DMA_DIRECT_BASE
-+#define PIC_DMA_DIRECT_SIZE		PCIBR_DMA_DIRECT_SIZE
-+
-+/*
-+ * Bridge 64bit Direct Map Attributes
-+ */
-+#define PIC_PCI64_ATTR_TARG_MASK	0xf000000000000000
-+#define PIC_PCI64_ATTR_TARG_SHFT	60
-+#define PIC_PCI64_ATTR_PREF		PCI64_ATTR_PREF
-+#define PIC_PCI64_ATTR_PREC		PCI64_ATTR_PREC
-+#define PIC_PCI64_ATTR_VIRTUAL		PCI64_ATTR_VIRTUAL
-+#define PIC_PCI64_ATTR_BAR		PCI64_ATTR_BAR
-+#define PIC_PCI64_ATTR_SWAP		PCI64_ATTR_SWAP
-+#define PIC_PCI64_ATTR_VIRTUAL1		PCI64_ATTR_VIRTUAL1
-+
-+
-+/*****************************************************************************
-+ ****************************** PIC PIO DEFINES ******************************
-+ *****************************************************************************/
-+
-+/* NOTE: Bus one offset to PCI Widget Device Space. */
-+#define PIC_BUS1_OFFSET				0x800000 
-+
-+/*
-+ * Macros for Xtalk to Bridge bus (PCI) PIO.  Refer to section 5.2.1 figure
-+ * 4 of the "PCI Interface Chip (PIC) Volume II Programmer's Reference" 
-+ */
-+/* XTALK addresses that map into PIC Bridge Bus addr space */
-+#define PICBRIDGE0_PIO32_XTALK_ALIAS_BASE	0x000040000000L
-+#define PICBRIDGE0_PIO32_XTALK_ALIAS_LIMIT	0x00007FFFFFFFL
-+#define PICBRIDGE0_PIO64_XTALK_ALIAS_BASE	0x000080000000L
-+#define PICBRIDGE0_PIO64_XTALK_ALIAS_LIMIT	0x0000BFFFFFFFL
-+#define PICBRIDGE1_PIO32_XTALK_ALIAS_BASE	0x0000C0000000L
-+#define PICBRIDGE1_PIO32_XTALK_ALIAS_LIMIT	0x0000FFFFFFFFL
-+#define PICBRIDGE1_PIO64_XTALK_ALIAS_BASE	0x000100000000L
-+#define PICBRIDGE1_PIO64_XTALK_ALIAS_LIMIT	0x00013FFFFFFFL
-+
-+/* XTALK addresses that map into PCI addresses */
-+#define PICBRIDGE0_PCI_MEM32_BASE	PICBRIDGE0_PIO32_XTALK_ALIAS_BASE
-+#define PICBRIDGE0_PCI_MEM32_LIMIT	PICBRIDGE0_PIO32_XTALK_ALIAS_LIMIT
-+#define PICBRIDGE0_PCI_MEM64_BASE	PICBRIDGE0_PIO64_XTALK_ALIAS_BASE
-+#define PICBRIDGE0_PCI_MEM64_LIMIT	PICBRIDGE0_PIO64_XTALK_ALIAS_LIMIT
-+#define PICBRIDGE1_PCI_MEM32_BASE	PICBRIDGE1_PIO32_XTALK_ALIAS_BASE
-+#define PICBRIDGE1_PCI_MEM32_LIMIT	PICBRIDGE1_PIO32_XTALK_ALIAS_LIMIT
-+#define PICBRIDGE1_PCI_MEM64_BASE	PICBRIDGE1_PIO64_XTALK_ALIAS_BASE
-+#define PICBRIDGE1_PCI_MEM64_LIMIT	PICBRIDGE1_PIO64_XTALK_ALIAS_LIMIT
-+
-+/*****************************************************************************
-+ ****************************** PIC MISC DEFINES *****************************
-+ *****************************************************************************/
-+
-+#define PIC_XTALK_ADDR_MASK			0x0000FFFFFFFFFFFF
-+
-+#define PIC_INTERNAL_ATES			1024 
-+#define PIC_WR_REQ_BUFSIZE			256
-+
-+/* This should be written to the Xbow's Link(x) Control register */
-+#define PIC_LLP_CREDITS				3
++#define cpuid_to_coherence_id(cpuid)    cpu_physical_id_to_coherence_id(cpu_physical_id(cpuid))
  
- #endif                          /* _ASM_IA64_SN_PCI_PIC_H */
+ 
+ #endif /* _ASM_IA64_SN_SN_CPUID_H */
+diff -Nru a/include/asm-ia64/sn/sn_sal.h b/include/asm-ia64/sn/sn_sal.h
+--- a/include/asm-ia64/sn/sn_sal.h	2004-08-11 17:51:32 -05:00
++++ b/include/asm-ia64/sn/sn_sal.h	2004-08-11 17:51:32 -05:00
+@@ -8,7 +8,7 @@
+  * License.  See the file "COPYING" in the main directory of this archive
+  * for more details.
+  *
+- * Copyright (c) 2000-2003 Silicon Graphics, Inc.  All rights reserved.
++ * Copyright (c) 2000-2004 Silicon Graphics, Inc.  All rights reserved.
+  */
+ 
+ 
+@@ -17,8 +17,6 @@
+ #include <asm/sn/sn_cpuid.h>
+ #include <asm/sn/arch.h>
+ #include <asm/sn/nodepda.h>
+-#include <asm/sn/klconfig.h>
+-        
+ 
+ // SGI Specific Calls
+ #define  SN_SAL_POD_MODE                           0x02000001
+@@ -33,7 +31,6 @@
+ #define  SN_SAL_NO_FAULT_ZONE_VIRTUAL		   0x02000010
+ #define  SN_SAL_NO_FAULT_ZONE_PHYSICAL		   0x02000011
+ #define  SN_SAL_PRINT_ERROR			   0x02000012
+-#define  SN_SAL_SET_ERROR_HANDLING_FEATURES	   0x0200001a	// reentrant
+ #define  SN_SAL_CONSOLE_PUTC                       0x02000021
+ #define  SN_SAL_CONSOLE_GETC                       0x02000022
+ #define  SN_SAL_CONSOLE_PUTS                       0x02000023
+@@ -59,7 +56,13 @@
+ #define  SN_SAL_MEMPROTECT                         0x0200003e
+ #define  SN_SAL_SYSCTL_FRU_CAPTURE		   0x0200003f
+ 
++#define	 SN_SAL_SYSCTL_IOBRICK_SLAB_GET		   0x02000041	// reentrant
+ #define  SN_SAL_SYSCTL_IOBRICK_PCI_OP		   0x02000042	// reentrant
++#define	 SN_SAL_START_IO			   0x02000045	// reentrant ??
++#define	 SN_SAL_GET_IO_MAPS			   0x02000046	// reentrant ??
++
++#define SN_SAL_PCIIO				   0x02000049	// reentrant ??
++#define SN_SAL_XTALK				   0x0200004a
+ 
+ /*
+  * Service-specific constants
+@@ -93,19 +96,6 @@
+ #define SALRET_INVALID_ARG	-2
+ #define SALRET_ERROR		-3
+ 
+-/*
+- * SN_SAL_SET_ERROR_HANDLING_FEATURES bit settings
+- */
+-enum 
+-{
+-	/* if "rz always" is set, have the mca slaves call os_init_slave */
+-	SN_SAL_EHF_MCA_SLV_TO_OS_INIT_SLV=0,
+-	/* do not rz on tlb checks, even if "rz always" is set */
+-	SN_SAL_EHF_NO_RZ_TLBC,
+-	/* do not rz on PIO reads to I/O space, even if "rz always" is set */
+-	SN_SAL_EHF_NO_RZ_IO_READ,
+-};
+-
+ 
+ /**
+  * sn_sal_rev_major - get the major SGI SAL revision number
+@@ -141,8 +131,8 @@
+  * Specify the minimum PROM revsion required for this kernel.
+  * Note that they're stored in hex format...
+  */
+-#define SN_SAL_MIN_MAJOR	0x3  /* SN2 kernels need at least PROM 3.40 */
+-#define SN_SAL_MIN_MINOR	0x40
++#define SN_SAL_MIN_MAJOR	0x1  /* SN2 kernels need at least PROM 1.0 */
++#define SN_SAL_MIN_MINOR	0x0
+ 
+ u64 ia64_sn_probe_io_slot(long paddr, long size, void *data_ptr);
+ 
+@@ -302,7 +292,7 @@
+ 	ret_stuff.v0 = 0;
+ 	ret_stuff.v1 = 0;
+ 	ret_stuff.v2 = 0;
+-	SAL_CALL_REENTRANT(ret_stuff, SN_SAL_PRINT_ERROR, (uint64_t)hook, (uint64_t)rec, 0, 0, 0, 0, 0);
++	SAL_CALL_NOLOCK(ret_stuff, SN_SAL_PRINT_ERROR, (uint64_t)hook, (uint64_t)rec, 0, 0, 0, 0, 0);
+ 
+ 	return ret_stuff.status;
+ }
+@@ -623,12 +613,12 @@
+ 	unsigned long irq_flags;
+ 
+ 	cnodeid = nasid_to_cnodeid(get_node_number(paddr));
+-	spin_lock(&NODEPDA(cnodeid)->bist_lock);
++	// spin_lock(&NODEPDA(cnodeid)->bist_lock);
+ 	local_irq_save(irq_flags);
+ 	SAL_CALL_NOLOCK(ret_stuff, SN_SAL_MEMPROTECT, paddr, len, nasid_array,
+ 		 perms, 0, 0, 0);
+ 	local_irq_restore(irq_flags);
+-	spin_unlock(&NODEPDA(cnodeid)->bist_lock);
++	// spin_unlock(&NODEPDA(cnodeid)->bist_lock);
+ 	return ret_stuff.status;
+ }
+ #define SN_MEMPROT_ACCESS_CLASS_0		0x14a080
+@@ -672,7 +662,7 @@
+  */
+ static inline u64
+ ia64_sn_sysctl_iobrick_pci_op(nasid_t n, u64 connection_type, 
+-			      u64 bus, slotid_t slot, 
++			      u64 bus, char slot, 
+ 			      u64 action)
+ {
+ 	struct ia64_sal_retval rv = {0, 0, 0, 0};
+@@ -684,24 +674,21 @@
+ 	return 0;
+ }
+ 
+-/*
+- * Tell the prom how the OS wants to handle specific error features.
+- * It takes an array of 7 u64.
+- */
+ static inline u64
+-ia64_sn_set_error_handling_features(const u64 *feature_bits)
++ia64_sn_get_map_ptr(u64 *ptr)
+ {
+-	struct ia64_sal_retval rv = {0, 0, 0, 0};
++	struct ia64_sal_retval ret_stuff;
++
++	ret_stuff.status = 0;
++	ret_stuff.v0 = 0;
++	ret_stuff.v1 = 0;
++	ret_stuff.v2 = 0;
++	SAL_CALL_NOLOCK(ret_stuff, SN_SAL_GET_IO_MAPS, 0, 0, 0, 0, 0, 0, 0);
+ 
+-	SAL_CALL_REENTRANT(rv, SN_SAL_SET_ERROR_HANDLING_FEATURES,
+-			feature_bits[0],
+-			feature_bits[1],
+-			feature_bits[2],
+-			feature_bits[3],
+-			feature_bits[4],
+-			feature_bits[5],
+-			feature_bits[6]);
+-	return rv.status;
++	/* ptr is in 'v0' */
++	*ptr = ret_stuff.v0;
++
++	return ret_stuff.status;
+ }
+ 
+ #endif /* _ASM_IA64_SN_SN_SAL_H */
+diff -Nru a/include/asm-ia64/sn/sndrv.h b/include/asm-ia64/sn/sndrv.h
+--- a/include/asm-ia64/sn/sndrv.h	2004-08-11 17:51:32 -05:00
++++ b/include/asm-ia64/sn/sndrv.h	2004-08-11 17:51:32 -05:00
+@@ -46,6 +46,7 @@
+ #define SNDRV_SHUB_GETMMR64_IO         47
+ #define SNDRV_SHUB_PUTMMR64            48
+ #define SNDRV_SHUB_PUTMMR64_IO         49
++#define SNDRV_SHUB_GET_IOCTL_VERSION    50
+ 
+ /* Devices */
+ #define SNDRV_UKNOWN_DEVICE		-1
+diff -Nru a/include/asm-ia64/sn/types.h b/include/asm-ia64/sn/types.h
+--- a/include/asm-ia64/sn/types.h	2004-08-11 17:51:32 -05:00
++++ b/include/asm-ia64/sn/types.h	2004-08-11 17:51:32 -05:00
+@@ -15,9 +15,11 @@
+ typedef unsigned int    moduleid_t;     /* user-visible module number type */
+ typedef unsigned int    cmoduleid_t;    /* kernel compact module id type */
+ typedef signed char     slabid_t;
++typedef unsigned char	clusterid_t;	/* Clusterid of the cell */
+ 
+ typedef unsigned long iopaddr_t;
+ typedef unsigned long paddr_t;
++typedef unsigned long pfn_t;
+ typedef short cnodeid_t;
+ 
+ #endif /* _ASM_IA64_SN_TYPES_H */

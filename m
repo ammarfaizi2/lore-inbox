@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264375AbTEPIXf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 May 2003 04:23:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264376AbTEPIXf
+	id S264379AbTEPI0v (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 May 2003 04:26:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264380AbTEPI0v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 May 2003 04:23:35 -0400
-Received: from pa186.opole.sdi.tpnet.pl ([213.76.204.186]:4087 "EHLO
-	uran.deimos.one.pl") by vger.kernel.org with ESMTP id S264375AbTEPIXf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 May 2003 04:23:35 -0400
-Date: Fri, 16 May 2003 10:36:20 +0200
-From: Damian =?iso-8859-2?Q?Ko=B3kowski?= <deimos@deimos.one.pl>
-To: Elimar Riesebieter <riesebie@lxtec.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: radeonfb and acpi
-Message-ID: <20030516083620.GA1687@deimos.one.pl>
-References: <20030515195025.GB696@gandalf.home.lxtec.de>
+	Fri, 16 May 2003 04:26:51 -0400
+Received: from ns.suse.de ([213.95.15.193]:9480 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264379AbTEPI0u (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 May 2003 04:26:50 -0400
+Date: Fri, 16 May 2003 10:39:41 +0200
+From: Andi Kleen <ak@suse.de>
+To: Roland McGrath <roland@redhat.com>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [x86_64 PATCH] IA32 vsyscall DSO compatibility in IA32_EMULATION
+Message-ID: <20030516083941.GA701@Wotan.suse.de>
+References: <20030516070813.GA11846@Wotan.suse.de> <200305160830.h4G8Ufx01882@magilla.sf.frob.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030515195025.GB696@gandalf.home.lxtec.de>
-User-Agent: Mutt/1.4.1i
-X-Age: 23 (1980.09.27 - libra)
-X-Girl: 1 will be enough!
-X-GG: 88988
-X-ICQ: 59367544
-X-JID: deimos@jabber.gda.pl
-X-Operating-System: Slackware GNU/Linux, kernel 2.4.21-rc2-ac1, up  1:05
+In-Reply-To: <200305160830.h4G8Ufx01882@magilla.sf.frob.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 15, 2003 at 09:50:25PM +0200, Elimar Riesebieter wrote:
-> BTW: Which kernel-params do I need to start radeonfb with
-> video:radeonfb=1280x1024-16@75 ? The FB even starts with 
-> colour frame buffer device 80x30.
+On Fri, May 16, 2003 at 01:30:41AM -0700, Roland McGrath wrote:
+> > On Thu, May 15, 2003 at 03:39:36PM -0700, Roland McGrath wrote:
+> > > Btw, 2.5 ia32 core dumping on x86-64 as is crashes without the patch I just
+> > > posted to lkml.
+> > 
+> > Check out ftp://ftp.x86-64.org/pub/linux/v2.5/x86_64-2.5.69-4.bz2
+> 
+> Too bad such changes don't go into the main 2.5 tree quickly enough for me
+> to see them when I look.
 
-./home/deimos. # cat /etc/lilo.conf | grep radeon
-append="video=radeon:1024x768-32@100 hdb=ide-scsi"
-./home/deimos. #
+I submitted them three times so far, but Linus currently prefers to drop
+patches instead of merging them.
 
-P.S. For 2.5.x Use _radeonfb_
+> 
+> My changes reduce the hard-coding of so many address and offset constants,
+> and reduce the error-prone duplication and maintenance work by using the
+> i386 vsyscall.lds linker script directly.  You might want to incorporate that.
 
--- 
-# Damian *dEiMoS* Ko³kowski # http://deimos.one.pl/ #
+I like my current code, thank you.
+
+-Andi

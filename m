@@ -1,34 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286687AbSASPVK>; Sat, 19 Jan 2002 10:21:10 -0500
+	id <S286692AbSASPVi>; Sat, 19 Jan 2002 10:21:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286672AbSASPU6>; Sat, 19 Jan 2002 10:20:58 -0500
-Received: from pa160.grajewo.sdi.tpnet.pl ([217.96.134.160]:2433 "HELO
-	pa160.grajewo.sdi.tpnet.pl") by vger.kernel.org with SMTP
-	id <S286647AbSASPUw>; Sat, 19 Jan 2002 10:20:52 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Gniazdowski <refuse7@poczta.fm>
-Reply-To: refuse7@poczta.fm
-Organization: none
-To: linux-kernel@vger.kernel.org
-Subject: reiserFS undeletion
-Date: Sat, 19 Jan 2002 13:16:10 +0100
-X-Mailer: KMail [version 1.3.1]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020119121610.DD9D02B5D9@pa160.grajewo.sdi.tpnet.pl>
+	id <S286672AbSASPVS>; Sat, 19 Jan 2002 10:21:18 -0500
+Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:17863 "EHLO
+	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S286647AbSASPVJ>; Sat, 19 Jan 2002 10:21:09 -0500
+Message-Id: <200201191521.g0JFL1sv002752@tigger.cs.uni-dortmund.de>
+To: Miquel van Smoorenburg <miquels@cistron.nl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: rm-ing files with open file descriptors 
+In-Reply-To: Message from Miquel van Smoorenburg <miquels@cistron.nl> 
+   of "Sat, 19 Jan 2002 11:10:06 GMT." <a2bk6e$t2u$1@ncc1701.cistron.net> 
+Date: Sat, 19 Jan 2002 16:21:01 +0100
+From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Miquel van Smoorenburg <miquels@cistron.nl> said:
 
-If reiserfs logs all operations on files, then it should be not difficould to 
-do undeletion of some file ?
+[...]
 
-Today i did:
-mv UnderSusp.txt UnderSusp.avi
+> It results in:
+> 
+> link("/proc/self/fd/3", "flink-test2.txt") = -1 EXDEV (Invalid cross-device lin
+> k)
+> 
+> This is probably because link() doesn't look up the target of the
+> symlink, it links the symlink itself. Linux allows symlinks with
+> a nlink count of 2:
+> 
+> % ln -s a b
+> % ln b c
+> ln: `b': warning: making a hard link to a symbolic link is not portable
+> % ls -l
+> lrwxrwxrwx    2 miquels  staff           1 Jan 19 11:34 b -> a
+> lrwxrwxrwx    2 miquels  staff           1 Jan 19 11:34 c -> a
+> 
+> This could be hacked around ofcourse in fs/namei.c, so I tried
+> it for fun. And indeed, with a minor correction it works:
+> 
+> % perl flink.pl 
+> Success.
+> 
+> I now have a flink-test2.txt file. That is pretty cool ;)
 
-so i ask...
-
-
-Regards Mariusz Gniazdowski
+This is a possible security risk: The unlinking program thinks the file is
+forever inaccessible, but it isn't...
+-- 
+Horst von Brand			     http://counter.li.org # 22616

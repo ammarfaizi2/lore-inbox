@@ -1,94 +1,84 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317758AbSFLSai>; Wed, 12 Jun 2002 14:30:38 -0400
+	id <S317759AbSFLSeO>; Wed, 12 Jun 2002 14:34:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317760AbSFLSag>; Wed, 12 Jun 2002 14:30:36 -0400
-Received: from mg02.austin.ibm.com ([192.35.232.12]:56513 "EHLO
-	mg02.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S317758AbSFLSaS> convert rfc822-to-8bit; Wed, 12 Jun 2002 14:30:18 -0400
-Message-ID: <3D0793B4.EABB4DFE@austin.ibm.com>
-Date: Wed, 12 Jun 2002 13:32:20 -0500
-From: Saurabh Desai <ausdesai@yahoo.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Peter =?iso-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>,
-        Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
-        frankeh@watson.ibm.com
-Subject: Re: [PATCH] Futex Asynchronous Interface
-In-Reply-To: <3D0776EE.4040701@loewe-komp.de> <Pine.LNX.4.44.0206120946100.22189-100000@home.transmeta.com>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S317760AbSFLSeN>; Wed, 12 Jun 2002 14:34:13 -0400
+Received: from mole.bio.cam.ac.uk ([131.111.36.9]:30258 "EHLO
+	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S317759AbSFLSeL>; Wed, 12 Jun 2002 14:34:11 -0400
+Message-Id: <5.1.0.14.2.20020612192802.045b08c0@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Wed, 12 Jun 2002 19:34:39 +0100
+To: Andreas Dilger <adilger@clusterfs.com>
+From: Anton Altaparmakov <aia21@cantab.net>
+Subject: Re: [PATCH] 2.5.21 Nonlinear CPU support
+Cc: vda@port.imtp.ilyichevsk.odessa.ua, Rusty Russell <rusty@rustcorp.com.au>,
+        torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+        k-suganuma@mvj.biglobe.ne.jp, Andrew Morton <akpm@zip.com.au>
+In-Reply-To: <20020612173605.GA573@clusterfs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Wed, 12 Jun 2002, Peter Wächtler wrote:
+At 18:36 12/06/02, Andreas Dilger wrote:
+>On Jun 12, 2002  16:08 +0100, Anton Altaparmakov wrote:
+> > Buffer allocation at use time is NOT an option because the buffers are
+> > allocated using vmalloc() which is extremely expensive and we would 
+> need to
+> > allocate at every single initial ->readpage() call of a compressed file.
 > >
-> > For the uncontended case: their is no blocked process...
-> 
-> Wrong.
-> 
-> The process that holds the lock can die _before_ it gets contended.
-> 
-> When another thread comes in, it now is contended, but the kernel doesn't
-> know about anything.
-> 
-> > One (or more) process is blocked in a waitqueue in the kernel - waiting
-> > for a futex to be released.
+> > >CPU hotswap higlights the fact that per CPU allocation needs to be smarter
+> > >about doing its job (i.e. don't allocate if it won't be used ever,
+> > >defer allocation to CPU hotswap event).
 > >
-> > The lock holder crashes - say with SIGSEGV.
-> 
-> The lock holder may have crashed long before the waiting process even
-> started waiting.
+> > The former is not possible for ntfs as there is no quick way to tell if 
+> use
+> > will use decompression or not. And the latter creates a lot of complexity.
+> > I gave an example using a callback of how it could be done in a previous
+> > post but I don't like introducing complexity for a minority group of users.
+>
+>I think the reasonable solution is as follows:
+>1) Allocate an array of NULL pointers which is NR_CPUs in size (you could do
+>    this all the time, as it would only be a few bytes)
 
-	Is it possible to check whether the holder process exist before
-start waiting? may be in user-space? 
+Yes, that is fine.
 
-> 
-> Besides, the kernel only knows about those processes that see contention.
-> Even if the contention happened _before_ the lock holder crashed, the
-> kernel doesn't know about the lock holder itself - it only knows about the
-> process that caused the contention. The kernel will get to know about the
-> lock holder only when it tris to resolve the contention, and since that
-> one has crashed, that will never happen.
+>2) If you need to do decompression on a cpu you check the array entry
+>    for that CPU and if is NULL you vmalloc() the decompression buffers once
+>    for that CPU.  This avoid vmalloc() overhead for each read.
 
-	Just curious: is there anything to register a cleanup handler
-when a process holds a lock, so when that goes away, run the cleanup and
-wakeup all waiters?
- 
-> 
-> > I know that the kernel can't do anything about the aborted critical section.
-> > But the waiters should be "freed" - and now we can discuss if we kill them
-> > or report an error and let them deal with that.
-> 
-> The waiters should absolutely _not_ be freed. There's nothign they can do
-> about it. The data inside the critical region is no longer valid, and
-> 
-> > Can't be done? I don't think that this would add a performance hit
-> > since it's only done on exit (and especially "abnormal" exit).
-> 
-> But the point is not that it would be a performance hit on "exit()", but
-> that WE DON'T TRACK THE LOCKS in the kernel in the first place.
-> 
-> Right now the kernel does _zero_ work for a lock that isn't contended. It
-> doesn't know _anything_ about the process that got the lock initially.
-> 
-> Any amount of tracking would be _extremely_ expensive. Right now getting
-> an uncontended lock is about 15 CPU cycles in user space.
-> 
-> Tryin to tell the kernel about gettign that lock takes about 1us on a P4
-> (system call overhead), ie we're talking 18000 cycles. 18 THOUSAND cycles
-> minimum. Compared to the current 15 cycles. That's more than three orders
-> of magnitude slower than the current code, and you just lost the whole
-> point of doing this all in user space in the first place.
-> 
->                 Linus
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+The vmalloc() sleeps and by the time you get control back you are executing 
+on a different CPU. Ooops. The only valid way of treating per-cpu data is:
+
+- disable preemption
+- get the cpu number = START OF CRITICAL SECTION: no sleep/schedule allowed
+- do work using the cpu number
+- reenable preemption = END OF CRITICAL SECTION
+
+The only thing that could possibly be used inside the critical region is 
+kmalloc(GFP_ATOMIC) but we are allocating 64kiB so that is not an option. 
+(It would fail very quickly due to memory fragmentation, the order of the 
+allocation is too high.)
+
+>3) Any allocated buffers are freed in the same manner they are now -
+>    when the last compressed volume is unmounted.  There may be some or
+>    all entries that are still NULL.
+>
+>This also avoids allocating buffers when there are no files which are
+>actually compressed.
+
+True it does, but unfortunately it doesn't work. )-:
+
+Best regards,
+
+         Anton
+
+
+-- 
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
+Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+

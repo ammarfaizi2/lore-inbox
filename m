@@ -1,24 +1,24 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266851AbUBRAPk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 19:15:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266850AbUBRAPk
+	id S266824AbUBRASJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 19:18:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266721AbUBRAPz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 19:15:40 -0500
-Received: from dp.samba.org ([66.70.73.150]:2500 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S266826AbUBRAOl (ORCPT
+	Tue, 17 Feb 2004 19:15:55 -0500
+Received: from dp.samba.org ([66.70.73.150]:1988 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S266824AbUBRAOl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 17 Feb 2004 19:14:41 -0500
-Date: Tue, 17 Feb 2004 18:37:49 +1100
+Date: Tue, 17 Feb 2004 18:41:32 +1100
 From: Rusty Russell <rusty@rustcorp.com.au>
-To: Ian Kent <raven@themaw.net>
-Cc: ia6432@inbox.ru, linux-kernel@vger.kernel.org, autofs@linux.kernel.org,
-       nfs@lists.sourceforge.net
-Subject: Re: [NFS] nfs or autofs related hangs
-Message-Id: <20040217183749.490777c5.rusty@rustcorp.com.au>
-In-Reply-To: <Pine.LNX.4.58.0402160910300.28358@wombat.indigo.net.au>
-References: <20040215222107.7E4382C2D8@lists.samba.org>
-	<Pine.LNX.4.58.0402160910300.28358@wombat.indigo.net.au>
+To: Harald Dunkel <harald.dunkel@t-online.de>
+Cc: coywolf@lovecn.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.2: "-" or "_", thats the question
+Message-Id: <20040217184132.541a5a76.rusty@rustcorp.com.au>
+In-Reply-To: <402F42DE.5090308@t-online.de>
+References: <402A887D.7030408@t-online.de>
+	<402EDBA8.4070102@lovecn.org>
+	<402F42DE.5090308@t-online.de>
 X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -26,30 +26,34 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Feb 2004 09:13:55 +0800 (WST)
-Ian Kent <raven@themaw.net> wrote:
+On Sun, 15 Feb 2004 10:58:54 +0100
+Harald Dunkel <harald.dunkel@t-online.de> wrote:
 
-> On Sun, 15 Feb 2004, Rusty Russell wrote:
-> > Is this __cacheline_aligned_in_smp really required?
+> Coywolf Qi Hunt wrote:
+> > Harald Dunkel wrote:
+> > 
+> >>
+> >> What would be the correct way to get the filename of a
+> >> loaded module? The basename would be sufficient.
+> >>
+> >>
+> > The symbole names used in source code, like function names tend to use 
+> > "_", while the file names use "-" IMHO.
+> > 
 > 
-> I must admit I put this together without much thought with a "cut and 
-> paste".
+> Naturally the symbols in the code use '_', cause for C '-'
+> is not allowed within symbol names.
 > 
-> But, please tell me. I'm not entirely clear on what conditions I 
-> should be concerned about blowing the cache.
+> I am interested in the module file names. 'cat /proc/modules'
+> should return the correct module names, but for some modules
+> (like uhci_hcd vs uhci-hcd.ko) '_' and '-' are messed up.
 
-You should usually try to declare the spinlock near the things it protects, in
-the hope that they'll be in the same cacheline.  If we blow 128 bytes for
-every spinlock, things will get slower, not faster.
+We canonicalize them at every point: you can use both.
 
-ie. like any optimization, the default should be not to do it unless there's
-a reason[1]
+Most users don't want to remember that it's ip_conntrack but uhci-hcd.
 
-Cheers,
+Hope that clarifies,
 Rusty.
-[1] An optimization being defined here as something with tradeoffs.
-    Doing the obviously superior thing is not an optimization, it's simply
-    being a decent coder.
 -- 
    there are those who do and those who hang on and you don't see too
    many doers quoting their contemporaries.  -- Larry McVoy

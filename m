@@ -1,53 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269082AbRG3Sve>; Mon, 30 Jul 2001 14:51:34 -0400
+	id <S269052AbRG3Sup>; Mon, 30 Jul 2001 14:50:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269080AbRG3SvQ>; Mon, 30 Jul 2001 14:51:16 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:30727 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S269078AbRG3SvE>; Mon, 30 Jul 2001 14:51:04 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Linux 2.4.7-ac3
-Date: 30 Jul 2001 10:32:11 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9k45mr$mr1$1@cesium.transmeta.com>
-In-Reply-To: <E15RBSL-0003cB-00@the-village.bc.nu> <23546.996493814@ocs3.ocs-net>
+	id <S269079AbRG3Sue>; Mon, 30 Jul 2001 14:50:34 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:27830 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S269078AbRG3Su1>; Mon, 30 Jul 2001 14:50:27 -0400
+Date: Mon, 30 Jul 2001 14:50:21 -0400 (EDT)
+From: Ingo Molnar <mingo@redhat.com>
+X-X-Sender: <mingo@devserv.devel.redhat.com>
+To: <kuznet@ms2.inr.ac.ru>
+cc: Linus Torvalds <torvalds@transmeta.com>, <andrea@suse.de>,
+        <maxk@qualcomm.com>, <linux-kernel@vger.kernel.org>,
+        <davem@redhat.com>
+Subject: Re: [PATCH] [IMPORTANT] Re: 2.4.7 softirq incorrectness.
+In-Reply-To: <200107291752.VAA19495@ms2.inr.ac.ru>
+Message-ID: <Pine.LNX.4.33.0107301444430.28294-100000@devserv.devel.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Followup to:  <23546.996493814@ocs3.ocs-net>
-By author:    Keith Owens <kaos@ocs.com.au>
-In newsgroup: linux.dev.kernel
->
-> On Mon, 30 Jul 2001 12:43:29 +0100 (BST), 
-> Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> >How about we do
-> >spec:	.version 
-> >then ?
-> 
-> Same problem, no rule to create .version.  This should work.
-> 
-> spec:
-> 	[ -e .version ] || echo 1 > .version
-> 	. scripts/mkspec >kernel.spec
-> 
 
-The way .version is currently created is in fact a huge problem... it
-means that if you do "make" as a user and then "make install" as root,
-it will have to rebuild several files and relink the kernel.  My
-opinion is that .version should probably be created as a side effect
-of linking vmlinux.
+> > I think the latency issue was really the fact that we weren't always
+> > running softirqs in a timely fashion after they had been disabled by a
+> > "disable_bh()". That is fixed with the new softirq stuff, regardless of
+> > the other issues.
 
-	-hpa
+nope. i observed latency issues with restart + ksoftirqd as well. [when i
+first saw these latency problems i basically had ksoftirqd implemented
+independently from your patch, and threw the idea away because it was
+insufficient from the latency point of view.] Those latencies are harder
+to observe because they are not 1/HZ anymore but several hundred millisecs
+at most. Plus, like i said previously, pushing IRQ context work into a
+scheduler-level context 'feels' incorrect to me - it only makes the
+latencies less visible. I'll do some measurements.
 
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+	Ingo
+

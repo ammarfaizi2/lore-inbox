@@ -1,38 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315267AbSHVRzB>; Thu, 22 Aug 2002 13:55:01 -0400
+	id <S315198AbSHVRzp>; Thu, 22 Aug 2002 13:55:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315198AbSHVRzB>; Thu, 22 Aug 2002 13:55:01 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:56563 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S315267AbSHVRzA>; Thu, 22 Aug 2002 13:55:00 -0400
-Subject: Re: ServerWorks OSB4 in impossible state
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Tomas Szepe <szepe@pinerecords.com>
-Cc: Martin Wilck <Martin.Wilck@Fujitsu-Siemens.com>,
-       Andre Hedrick <andre@linux-ide.org>,
-       Gonzalo Servat <gonzalo@unixpac.com.au>,
-       Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020822164527.GA11488@louise.pinerecords.com>
-References: <Pine.LNX.4.10.10208220143440.11626-100000@master.linux-ide.org>
-	<1030017756.9866.74.camel@biker.pdb.fsc.net> 
-	<20020822164527.GA11488@louise.pinerecords.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
-Date: 22 Aug 2002 18:59:30 +0100
-Message-Id: <1030039170.3151.29.camel@irongate.swansea.linux.org.uk>
+	id <S315337AbSHVRzo>; Thu, 22 Aug 2002 13:55:44 -0400
+Received: from www.telenet.net ([204.97.152.225]:7942 "EHLO telenet.net")
+	by vger.kernel.org with ESMTP id <S315198AbSHVRzk>;
+	Thu, 22 Aug 2002 13:55:40 -0400
+Date: Thu, 22 Aug 2002 13:59:45 -0400
+From: Rob Speer <rob@twcny.rr.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.20-pre2-ac4 IDE is slow
+Message-ID: <20020822175945.GA743@twcny.rr.com>
+Reply-To: rob@twcny.rr.com
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-Is-It-Not-Nifty: www.sluggy.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-08-22 at 17:45, Tomas Szepe wrote:
-> AFAIK 2.4.18 as well as 2.4.19-preEARLY seemed to work flawlessly w/ OSB4
-> even in DMA modes. How's the code there then? Is it dangerous to use?
+I think I remember someone else bringing up this same issue, in which
+case I'm sorry to have to ask again, but I can't find the message.
 
-Most of them work all the time (most OSB4, all CSB5. all CSB6)
-All of them work all the time with most drives
-Some of them do horrible things in UDMA with some drives (timing
-patterns I guess)
+I'm going from 2.4.19 to 2.4.20-pre2-ac4 and the hard drive is noticably
+slower in the new version. (It doesn't use DMA in either version - I
+wish it did in ac4, but that's a separate problem.)
 
-All of the OSB4 do MWDMA fine.
+What I seem to remember from the other message is that there's some
+parameter that can be changed to bring the speed back up. Could someone
+tell me what it is?
+
+
+If it helps: output of hdparm /dev/hda
+
+/dev/hda:
+ multcount    =  0 (off)
+ IO_support   =  0 (default 16-bit)
+ unmaskirq    =  0 (off)
+ using_dma    =  0 (off)
+ keepsettings =  0 (off)
+ readonly     =  0 (off)
+ readahead    =  8 (on)
+ geometry     = 77557/16/63, sectors = 78177792, start = 0
+
+-- 
+Rob Speer
+

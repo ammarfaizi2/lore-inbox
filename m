@@ -1,77 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261799AbVCOVP6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261837AbVCOVSX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261799AbVCOVP6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 16:15:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261837AbVCOVP6
+	id S261837AbVCOVSX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 16:18:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261842AbVCOVSW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 16:15:58 -0500
-Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:59024 "EHLO
-	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S261799AbVCOVPt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 16:15:49 -0500
-From: David Brownell <david-b@pacbell.net>
-To: dtor_core@ameritech.net
-Subject: Re: [linux-usb-devel] Re: [RFC] Changes to the driver model class code.
-Date: Tue, 15 Mar 2005 13:14:40 -0800
-User-Agent: KMail/1.7.1
-Cc: linux-usb-devel@lists.sourceforge.net, Greg KH <greg@kroah.com>,
-       Dominik Brodowski <linux@dominikbrodowski.net>,
-       linux-kernel@vger.kernel.org, Kay Sievers <kay.sievers@vrfy.org>
-References: <20050315170834.GA25475@kroah.com> <200503151235.02934.david-b@pacbell.net> <d120d50005031512485125db18@mail.gmail.com>
-In-Reply-To: <d120d50005031512485125db18@mail.gmail.com>
+	Tue, 15 Mar 2005 16:18:22 -0500
+Received: from neapel230.server4you.de ([217.172.187.230]:2718 "EHLO
+	neapel230.server4you.de") by vger.kernel.org with ESMTP
+	id S261837AbVCOVST (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 16:18:19 -0500
+Message-ID: <42375119.3000506@lsrfire.ath.cx>
+Date: Tue, 15 Mar 2005 22:18:17 +0100
+From: Rene Scharfe <rene.scharfe@lsrfire.ath.cx>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Albert Cahalan <albert@users.sf.net>
+Cc: Bodo Eggert <7eggert@gmx.de>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton OSDL <akpm@osdl.org>,
+       viro@parcelfarce.linux.theplanet.co.uk, pj@engr.sgi.com
+Subject: Re: [PATCH][RFC] Make /proc/<pid> chmod'able
+References: <1110771251.1967.84.camel@cube>	 <42355C78.1020307@lsrfire.ath.cx> <1110816803.1949.177.camel@cube>	 <Pine.LNX.4.58.0503142333480.6357@be1.lrz> <1110854667.7893.203.camel@cube>
+In-Reply-To: <1110854667.7893.203.camel@cube>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200503151314.40510.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 15 March 2005 12:48 pm, Dmitry Torokhov wrote:
-> On Tue, 15 Mar 2005 12:35:02 -0800, David Brownell <david-b@pacbell.net> wrote:
-> > On Tuesday 15 March 2005 12:14 pm, Dmitry Torokhov wrote:
-> > >
-> > > It looks to me (and I might be wrong) that USB was never really
-> > > integrated into the driver model. It was glued with it but the driver
-> > > model came after most of the domain was defined, and it did not get to
-> > > be "bones" of the subsystem. This is why it is so easy to deatch it.
-> > 
-> > That doesn't seem accurate to me.  Are you thinking maybe about
-> > just how it uses the class device stuff?  ...
-> > 
+Albert Cahalan wrote:
+> This really isn't about security. Privacy may be undesirable.
+
+I agree, privacy is not security.  My patch tries to enhance privacy 
+without giving up security.
+
+You think losing the social pressure that comes with mutual surveillance 
+results in loss of security, I don't.  Now I think Linux should support 
+both ways and those writing security policies should make the decision.
+
+> With privacy comes anti-social behavior. Supposing that the
+> users do get privacy, perhaps because the have paid for it:
 > 
-> David,
+> Xen, UML, VM, VMware, separate computers
 > 
-> I was not criticizing the code, not at all, I was commenting on
-> evolution of the code (at least the way I perceive it). The fact that
-> there is (or was until recently) pre-driver-model binding code shows
-> that merging is still ongoing and this fact makes reversing the
-> process easier.
+> Going with separate computers is best. Don't forget to use
+> network traffic control to keep users from being able to
+> detect the network activity of other users.
 
-You still haven't answered my question.  My observation was that
-only the class code can in any sense be called "new" ... so your
-blanket statement seemed to overlook several essential points!
+That would work, but it requires a *lot* of administrative and computing 
+overhead.  Note that "separate computers" alone is not sufficient 
+because most places with more than a few machines have some kind of 
+single signon and run SSH or similar.
 
-Which parts of the driver model were you thinking of?
+[ps, w, top]
+> They work like they do with a rootkit installed.
+> Traditional behavior has been broken.
 
+That's one way to put it; you could also say those tools now provide 
+enhanced privacy. ;)
 
-That pre-driver model stuff went away in maybe 2.6.5 or so, I
-forget just when.  If you think those changes can easily be
-reversed, I suggest you think again ... they enabled a LOT of
-likewise-overdue cleanups.  And they only affected the case of
-drivers that bound to multiple interfaces, gettng rid of a
-funky "half bound" state and making it look like the primary
-case (drivers binding to one interface at a time), which has
-been working since 2.5.early.
+I also think things have changed in the last few years.  Since the 
+advent of special data processing laws privacy is taken more serious. 
+Privacy certainly was no real concern when UNIX was young.  I also guess 
+it's a cultural thing, its importance being different from country to 
+country.
 
-It's been a long slog to get to a usb core that's a good
-match to the relatively complex requirements of USB.  With a
-few notable exceptions (like PM non-support for wakeup events
-and for selective suspend, and strange locking side effects),
-converting to the driver model has been a win at every step
-of the way.  It's gone both ways; the driver core has changed
-to work better with USB too.
-
-- Dave
-
+It's easily visible in the style of public toilets: in some contries you 
+have one big room with no walls in between where all men or women 
+merrily shit together, in other countries (like mine) every person can 
+lock himself into a private closet.  Both ways work, there's nothing too 
+special about using a toilet, but I'm simply used to the privacy 
+provided by those thin walls.  I assure you, I don't do anything evil in 
+there. :]

@@ -1,53 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261786AbTJ1XDT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Oct 2003 18:03:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261784AbTJ1XDT
+	id S261773AbTJ1W6z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Oct 2003 17:58:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261779AbTJ1W6z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Oct 2003 18:03:19 -0500
-Received: from genericorp.net ([69.56.190.66]:48831 "EHLO
-	narbuckle.genericorp.net") by vger.kernel.org with ESMTP
-	id S261786AbTJ1XDR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Oct 2003 18:03:17 -0500
-Date: Tue, 28 Oct 2003 17:01:00 -0600 (CST)
-From: Dave O <cxreg@pobox.com>
-X-X-Sender: count@narbuckle.genericorp.net
+	Tue, 28 Oct 2003 17:58:55 -0500
+Received: from quechua.inka.de ([193.197.184.2]:26576 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S261773AbTJ1W6x (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Oct 2003 17:58:53 -0500
+From: Andreas Jellinghaus <aj@dungeon.inka.de>
+Subject: Re: ANNOUNCE: User-space System Device Enumeration (uSDE)
+Date: Tue, 28 Oct 2003 23:59:14 +0100
+User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity. (Debian GNU/Linux))
+Message-Id: <pan.2003.10.28.22.59.13.441436@dungeon.inka.de>
+References: <3F9DA5A6.3020008@mvista.com> <Pine.LNX.4.33.0310280901490.7139-100000@osdlab.pdx.osdl.net>
 To: linux-kernel@vger.kernel.org
-Subject: ppp - Badness in local_bh_enable at kernel/softirq.c:113
-Message-ID: <Pine.LNX.4.58.0310281607150.19873@narbuckle.genericorp.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I find it difficult to see your justification for designing a project from
+> scratch instead of contributing your time, effort, and ideas to a pair of
+> already existing, albeit immature, projects that do exactly the same
+> thing.
 
-I reported this almost 3 months ago in test1, and it still happens in
-test9
+Hi Patric,
 
-Simply running the command "/usr/sbin/pppd updetach pty /bin/false" will
-cause a "Badness" message and this trace:
+maybe you can tell me:
+with devfs it is _very_ simple to see what a driver does, and what
+information it passes on devices. it is the major and minor number,
+the device type, a name, and a default permissions (that does not
+require changes in most cases).
 
-Badness in local_bh_enable at kernel/softirq.c:119
+sysfs is very sparse:
+ - no (explicit) device type
+   (/sys/block/ has block devices, the rest is char.)
+ - no default permissions
+   (the driver author often knows well, if a device should be secured
+   or not. why can't he pass that information?)
+ - only plain names like old /dev. I still can't see how any user space
+   tool can find out, that my /sys/block/hda/ is a hard disk, and 
+   /sys/block/hdc/ is a cdrom. how could any tool create /dev/discs/ and
+   /dev/cdrom/ devices without that distinction?
+ - why is a usb printer class usb? I thought that was the bus? shouldn't
+   it be class printer (or "lp" or something like that)? how can any
+   tool create /dev/printers/ devices, if it cannot see how some usb
+   device is a printer or not?
 
-Call Trace:
- [<c011da95>] local_bh_enable+0x85/0x87
- [<e090db34>] ppp_async_push+0x9e/0x180 [ppp_async]
- [<e090d458>] ppp_asynctty_wakeup+0x2d/0x5e [ppp_async]
- [<c0293c07>] pty_unthrottle+0x58/0x5a
- [<c02906c9>] check_unthrottle+0x39/0x3b
- [<c029076b>] n_tty_flush_buffer+0x13/0x55
- [<c0293fc8>] pty_flush_buffer+0x66/0x68
- [<c028cfc5>] do_tty_hangup+0x489/0x4ef
- [<c028e5b7>] release_dev+0x6f8/0x724
- [<c013d701>] unmap_page_range+0x43/0x69
- [<c028e933>] tty_release+0x0/0x66
- [<c028e960>] tty_release+0x2d/0x66
- [<c014cf2f>] __fput+0x110/0x122
- [<c014b615>] filp_close+0x59/0x86
- [<c011b4a9>] put_files_struct+0x84/0xe9
- [<c011c10a>] do_exit+0x165/0x400
- [<c013fc7e>] sys_brk+0xd8/0xfd
- [<c011c42c>] do_group_exit+0x3a/0xac
- [<c0108fd3>] syscall_call+0x7/0xb
+and how would some driver create additional export information for many
+devices? understanding how floppy.c creates devfs devices for all those
+fd0u1440 and friend devices is easy. but how would that driver create
+information on those devices via sysfs?
 
+I don't know exactly what the problem with devfs is, but maybe it is
+because devfs is a filesystem? if so, could devfs be turned into a
+/proc/ file, so we can get all those information currently registered
+by all or most devices via that file, and some small userspace tool
+has a chance to create a devfs like /dev/?
+
+if sysfs doesn't gather and export the same amount of information 
+devfs does, I don't know how any tool based on sysfs can ever 
+seriously replace it. you want people to join current effords
+(i.e, udev+sysfs). with many open questions I don't see how that
+is possible? 
+
+finishing the sysfs documentation and porting some drivers like
+floppy.c and lp.c to sysfs could help. In its current state, I
+don't understand many parts of sysfs, and it looks very natural
+to me, that people rather implement something from scratch if it
+is easy, than try to understand some very complex.
+
+Regards, Andreas
 

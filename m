@@ -1,69 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268399AbRHDGVI>; Sat, 4 Aug 2001 02:21:08 -0400
+	id <S269811AbRHDGkN>; Sat, 4 Aug 2001 02:40:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269811AbRHDGU6>; Sat, 4 Aug 2001 02:20:58 -0400
-Received: from lsmls01.we.mediaone.net ([24.130.1.20]:63463 "EHLO
-	lsmls01.we.mediaone.net") by vger.kernel.org with ESMTP
-	id <S268399AbRHDGUp>; Sat, 4 Aug 2001 02:20:45 -0400
-Message-ID: <3B6B95E5.B49CC888@kegel.com>
-Date: Fri, 03 Aug 2001 23:27:49 -0700
-From: Dan Kegel <dank@kegel.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.14-5.0 i686)
-X-Accept-Language: en
+	id <S269812AbRHDGkE>; Sat, 4 Aug 2001 02:40:04 -0400
+Received: from [63.209.4.196] ([63.209.4.196]:21252 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S269811AbRHDGjz>; Sat, 4 Aug 2001 02:39:55 -0400
+Date: Fri, 3 Aug 2001 23:37:41 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Ben LaHaise <bcrl@redhat.com>
+cc: Daniel Phillips <phillips@bonn-fries.net>,
+        Rik van Riel <riel@conectiva.com.br>, <linux-kernel@vger.kernel.org>,
+        <linux-mm@kvack.org>
+Subject: Re: [RFC][DATA] re "ongoing vm suckage"
+In-Reply-To: <Pine.LNX.4.33.0108040055090.11200-100000@touchme.toronto.redhat.com>
+Message-ID: <Pine.LNX.4.33.0108032330450.1193-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Davide Libenzi <davidel@xmailserver.org>
-CC: Christopher Smith <x@xman.org>, Zach Brown <zab@zabbo.net>
-Subject: Re: Could /dev/epoll deliver aio completion notifications? (was: Re: 
- sigopen() vs. /dev/sigtimedwait)
-In-Reply-To: <3B6B50C4.D9FBF398@kegel.com> <20010803183853.H1080@ppetru.net> <3B6B59AF.9826F928@kegel.com> <3B6B662F.3E83C22F@kegel.com> <20010804011838.W3034@erasmus.off.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zach Brown wrote:
-> 
-> > On the other hand, if /dev/epoll were flexible enough that it could
-> > deliver AIO completion notifications,
-> 
-> As far as I know, Ben LaHaise (bcrl@redhat.com) already has a fine
-> method conceived for receiving batches of async completion, including an
-> "async poll".  It should give the sort of behaviour you want and is also
-> useful for other AIO things, obviously :)
-> 
-> You should really chat with him.
 
-I suppose it shouldn't suprise me that real kernel hackers like Ben
-just work on cool things quietly, and bufoons like me get excited
-at the merest thought, and have to broadcast them on l-k.  Sigh.
+On Sat, 4 Aug 2001, Ben LaHaise wrote:
+>
+> Within reason.  I'm actually heading to bed now, so it'll have to wait
+> until tomorrow, but it is fairly trivial to reproduce by dd'ing to an 8GB
+> non-sparse file.  Also, duplicating a huge file will show similar
+> breakdown under load.
 
-A little digging finds a few references to Ben's aio work:
+Well, I've made a 2.4.8-pre4.
 
-http://uwsg.iu.edu/hypermail/linux/kernel/0102.0/0384.html
-http://www.kvack.org/~blah/aio/v2.4.5-ac9-bcrl4-aio.diff
+This one has marcelo's zone fixes, and my request suggestions. I'm writing
+email right now with the 8GB write in the background, and unpacked and
+patched a kernel. It's certainly not _fast_, but it's not too painful to
+use either.  The 8GB file took 7:25 to write (including the sync), which
+averages out to 18+MB/s. Which is, as far as I can tell, about the best I
+can get on this 5400RPM 80GB drive with the current IDE driver (the
+experimental IDE driver is supposed to do better, but that's not for
+2.4.x)
 
-His patch creates /dev/aio, among other things, and includes
-the wonderful excerpt
+An added advantage of doing the waiting in the request handling was that
+this way it automatically balances reads against writes - writes cannot
+cause reads to fail because they have separate request queue allocations.
 
-diff -urN /md0/kernels/2.4/v2.4.5-ac9/include/asm-i386/errno.h aio-2.4.5-ac9/include/asm-i386/errno.h
---- /md0/kernels/2.4/v2.4.5-ac9/include/asm-i386/errno.h        Mon Feb 26 10:20:14 2001
-+++ aio-2.4.5-ac9/include/asm-i386/errno.h      Wed Jun 13 17:08:50 2001
-@@ -128,5 +128,6 @@
- 
- #define        ENOMEDIUM       123     /* No medium found */
- #define        EMEDIUMTYPE     124     /* Wrong medium type */
-+#define        ENOCLUE         125     /* userland programmer induced race condition */
+Does it work reasonably under your loads?
 
-:-)
+		Linus
 
-Given how occupied Ben is with urgent matters like tracking down the
-VM suckage, I don't expect he has much time for chatting about this stuff.
-
-OK, guess I'll content myself with working through Ben's (and Davide's)
-code and understanding it.  Sorry for all the line noise, folks.
-- Dan
-
--- 
-"I have seen the future, and it licks itself clean." -- Bucky Katt

@@ -1,51 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-thread-index: AcQVpLRSV3TVYnr/QJanN0Ki6UV3Iw==
+thread-index: AcQVpI6yZ4fUInZfTVef1+WfQj8wcw==
 Envelope-to: paul@sumlocktest.fsnet.co.uk
-Delivery-date: Mon, 05 Jan 2004 13:57:35 +0000
-Message-ID: <02f601c415a4$b4527860$d100000a@sbs2003.local>
+Delivery-date: Sun, 04 Jan 2004 22:02:49 +0000
+Message-ID: <024d01c415a4$8eb25c10$d100000a@sbs2003.local>
 Content-Transfer-Encoding: 7bit
 X-Mailer: Microsoft CDO for Exchange 2000
-Date: Mon, 29 Mar 2004 16:44:21 +0100
 Content-Class: urn:content-classes:message
 Importance: normal
+Date: Mon, 29 Mar 2004 16:43:18 +0100
 Priority: normal
 X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.0
-From: "Marcelo Tosatti" <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
+From: "Arjan van de Ven" <arjanv@redhat.com>
 To: <Administrator@smtp.paston.co.uk>
-Cc: "Andrew Morton" <akpm@osdl.org>, <daniel@osdl.org>, <janetmor@us.ibm.com>,
-        <pbadari@us.ibm.com>, <linux-aio@kvack.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH linux-2.6.0-test10-mm1] filemap_fdatawait.patch
-In-Reply-To: <20040102055020.GA3410@in.ibm.com>
-References: <20031231091828.GA4012@in.ibm.com> <20031231013521.79920efd.akpm@osdl.org> <20031231095503.GA4069@in.ibm.com> <20031231015913.34fc0176.akpm@osdl.org> <20031231100949.GA4099@in.ibm.com> <20031231021042.5975de04.akpm@osdl.org> <20031231104801.GB4099@in.ibm.com> <20031231025309.6bc8ca20.akpm@osdl.org> <20031231025410.699a3317.akpm@osdl.org> <20031231031736.0416808f.akpm@osdl.org> <20040102055020.GA3410@in.ibm.com>
+Cc: <linux-kernel@vger.kernel.org>, <akpm@osdl.org>, <davej@redhat.com>
+Subject: Re: 2.6.1-rc1 arch/i386/kernel/setup.c   wrong parameter order to request resources ?
+References: <20040104153928.GB2416@devserv.devel.redhat.com> <Pine.LNX.4.58.0401041305440.2162@home.osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN;
-	charset="US-ASCII"
-X-Cyclades-MailScanner-Information: Please contact the ISP for more information
-X-Cyclades-MailScanner: Found to be clean
+Content-Type: multipart/signed;
+	micalg=pgp-sha1;
+	protocol="application/pgp-signature";
+	boundary="5vNYLRcllDrimb99"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0401041305440.2162@home.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: <linux-kernel-owner@vger.kernel.org>
 X-Mailing-List: linux-kernel@vger.kernel.org
-X-OriginalArrivalTime: 29 Mar 2004 15:44:21.0921 (UTC) FILETIME=[B46F0110:01C415A4]
+X-OriginalArrivalTime: 29 Mar 2004 15:43:20.0093 (UTC) FILETIME=[8F94CCD0:01C415A4]
 
+This is a multi-part message in MIME format.
 
+--5vNYLRcllDrimb99
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Fri, 2 Jan 2004, Suparna Bhattacharya wrote:
+On Sun, Jan 04, 2004 at 01:08:52PM -0800, Linus Torvalds wrote:
+>=20
+>=20
+> On Sun, 4 Jan 2004, Arjan van de Ven wrote:
+> >=20
+> > in setup.c  the kernel tries to reserve ram resources for system ram etc
+> > etc. However it seems it's done with the parameters to request_resource=
+ in
+> > the wrong order (it certainly is opposite order from other neighboring
+> > code). Can someone confirm I'm not overlooking something?
+>=20
+> You've overlooked something.
+>=20
+> The core uses the rigth order: it's literally trying to find _which_ of=
+=20
+> the e820 resources contains the "code" and "data" resource.
+>=20
+> In other words: the code and data resources don't contain anything. They=
+=20
+> are contained _in_ something, but we don't know which one off-hand, so we=
+=20
+> try to register them in all the memory resources we find.=20
 
-> On Wed, Dec 31, 2003 at 03:17:36AM -0800, Andrew Morton wrote:
-> > Andrew Morton <akpm@osdl.org> wrote:
-> > >
-> > > Let me actually think about this a bit.
-> >
-> > Nasty.  The same race is present in 2.4.x...
+> and not used for anything else.
 
-filemap_fdatawait() is always called with i_sem held and
-there is no "!PG_dirty and !PG_writeback" window.
+ok fair enough; maybe deserves more comment but it makes sense.
 
-Where does the race lies in 2.4 ?
+--5vNYLRcllDrimb99
+Content-Transfer-Encoding: 7bit
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Daniel, Would be interesting to know if the direct IO tests also fail on
-2.4.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-> > How's about we start new I/O in filemap_fdatawait() if the page is
-> > dirty?
+iD8DBQE/+IzkxULwo51rQBIRAouSAJ9R/idYX2X+FfBjGi/GRA+vtfXlmACfSlB0
+q6bVKG9rc2IGFa37MUjSJ4Y=
+=zjZH
+-----END PGP SIGNATURE-----
+
+--5vNYLRcllDrimb99--

@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261318AbSJYIkP>; Fri, 25 Oct 2002 04:40:15 -0400
+	id <S261311AbSJYIhN>; Fri, 25 Oct 2002 04:37:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261319AbSJYIkO>; Fri, 25 Oct 2002 04:40:14 -0400
-Received: from smtp-out-4.wanadoo.fr ([193.252.19.23]:38625 "EHLO
+	id <S261312AbSJYIhN>; Fri, 25 Oct 2002 04:37:13 -0400
+Received: from smtp-out-4.wanadoo.fr ([193.252.19.23]:5849 "EHLO
 	mel-rto4.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S261318AbSJYIjt>; Fri, 25 Oct 2002 04:39:49 -0400
+	id <S261311AbSJYIhM>; Fri, 25 Oct 2002 04:37:12 -0400
 From: Duncan Sands <duncan.sands@math.u-psud.fr>
-To: jlnance@unity.ncsu.edu, linux-kernel@vger.kernel.org
-Subject: Re: USB does not work after 2.4.18 to 2.5.44-ac2 upgrade
-Date: Fri, 25 Oct 2002 10:45:57 +0200
+To: Duncan Sands <baldrick@wanadoo.fr>,
+       Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Use of yield() in the kernel
+Date: Fri, 25 Oct 2002 10:43:07 +0200
 User-Agent: KMail/1.4.7
-References: <20021025024906.GA18214@ncsu.edu>
-In-Reply-To: <20021025024906.GA18214@ncsu.edu>
+References: <200210151820.24429.m.c.p@wolk-project.de> <200210151827.45149.baldrick@wanadoo.fr>
+In-Reply-To: <200210151827.45149.baldrick@wanadoo.fr>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200210251045.57009.duncan.sands@math.u-psud.fr>
+Message-Id: <200210251043.07960.duncan.sands@math.u-psud.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 25 October 2002 04:49, jlnance@unity.ncsu.edu wrote:
-> Hello All,
->     I decided to do what Linus asked, and try out a 2.5.X kernel.
-> The machine boots fine with the 2.5.44-ac2 kernel I installed, however
-> I am having some problems with USB.  The usb-uhci module seems to be
-> gone.  I read Documentation/usb/uhci.txt and it appears that the
-> uhci module has been rewritten.  I assume the module named uhci-hcd.o
-> is the replacement, but I could not find that written down anywhere.
-> I did an insmod of this module and I can now see the hub in
-> /proc/bus/usb/devices.  I dont see any of my other USB devices in that
-> file, even after I insmod the drivers.  Does anyone know what I need to
-> do to make this all work, preferably in a way that will let me boot into
-> a 2.4 kernel as well?
+On Tuesday 15 October 2002 18:27, Duncan Sands wrote:
+> > > This already bit ext3 transaction batching, c.f. Andrew Morton's
+> > >
+> > >> [PATCH] remove the sched_yield from the ext3 fsync path
+> >
+> > where did you read this ^^? :)
+> >
+> > ciao, Marc
+>
+> http://linux.bkbits.net:8080/linux-2.5/cset@1.733.7.6?nav=index.html|Change
+>Set@-7d
 
-The latest hotplug scripts know about the new and old names and modprobe
-them appropriately.  Maybe that will help.
+Actually its
+
+http://linux.bkbits.net:8080/linux-2.5/cset@1.781.32.3?nav=index.html|ChangeSet@-3w
+
+Sorry about that.
 
 Duncan.

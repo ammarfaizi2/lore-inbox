@@ -1,46 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264256AbUFUDyf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265282AbUFUEDu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264256AbUFUDyf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 23:54:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266001AbUFUDyf
+	id S265282AbUFUEDu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 00:03:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266001AbUFUEDu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 23:54:35 -0400
-Received: from holomorphy.com ([207.189.100.168]:10134 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S264256AbUFUDyY (ORCPT
+	Mon, 21 Jun 2004 00:03:50 -0400
+Received: from fw.osdl.org ([65.172.181.6]:13457 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265282AbUFUEDs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 23:54:24 -0400
-Date: Sun, 20 Jun 2004 20:54:17 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Greg Ungerer <gerg@snapgear.com>
+	Mon, 21 Jun 2004 00:03:48 -0400
+Date: Sun, 20 Jun 2004 21:02:33 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]: linux-2.6.7-uc0 (MMU-less fixups)
-Message-ID: <20040621035417.GY1863@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Greg Ungerer <gerg@snapgear.com>, linux-kernel@vger.kernel.org
-References: <40D65A88.8080601@snapgear.com>
+Subject: Re: 2.6.7-bk way too fast
+Message-Id: <20040620210233.1e126ddc.akpm@osdl.org>
+In-Reply-To: <40D657B7.8040807@pobox.com>
+References: <40D64DF7.5040601@pobox.com>
+	<40D657B7.8040807@pobox.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40D65A88.8080601@snapgear.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 21, 2004 at 01:48:24PM +1000, Greg Ungerer wrote:
-> An update of the uClinux (MMU-less) fixups against 2.6.7.
-> A few more things merged in 2.6.7, so only a handful of patches
-> for general uClinux and m68knommu.
-> http://www.uclinux.org/pub/uClinux/uClinux-2.6.x/linux-2.6.7-uc0.patch.gz
-> Change log:
-> . merge linux-2.6.7                          me
-> . more Feith hardware support                Werner Feith
-> . stop 5282 pit timer from going backwards   me/Felix Daners
-> . fix PHY race confition in FEC driver       Philippe De Muyter
-> . fix OOM killer for non-MMU configs         Giovanni Casoli
+Jeff Garzik <jgarzik@pobox.com> wrote:
+>
+> Jeff Garzik wrote:
+> > 
+> > Something is definitely screwy with the latest -bk.  I updated from a 
+> > kernel ~1 week ago, and all timer-related stuff is moving at a vastly 
+> > increased rate.  My guess is twice as fast.  Most annoying is the system 
+> > clock advances at twice normal rate, and keyboard repeat is so sensitive 
+> > I am spending quite a bit of time typing this message, what with having 
+> > to delettte (<== example) extra characters.  Double-clicking is also 
+> > broken :(
+> 
+> Looks like disabling CONFIG_ACPI fixes things.  Narrowing down cset now...
+> 
 
-Could you send the OOM killer fix out to mainline?
-
-Thanks.
+Try this.
 
 
--- wli
+--- 25/arch/i386/kernel/mpparse.c~i386-double-clock-speed-fix	2004-06-20 18:04:47.409952912 -0700
++++ 25-akpm/arch/i386/kernel/mpparse.c	2004-06-20 18:05:13.034057456 -0700
+@@ -1017,7 +1017,8 @@ void __init mp_config_acpi_legacy_irqs (
+ 
+ 		for (idx = 0; idx < mp_irq_entries; idx++)
+ 			if (mp_irqs[idx].mpc_srcbus == MP_ISA_BUS &&
+-				(mp_irqs[idx].mpc_dstapic == ioapic) &&
++				(mp_irqs[idx].mpc_dstapic ==
++					mp_ioapics[ioapic].mpc_apicid) &&
+ 				(mp_irqs[idx].mpc_srcbusirq == i ||
+ 				mp_irqs[idx].mpc_dstirq == i))
+ 					break;
+_
+

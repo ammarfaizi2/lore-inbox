@@ -1,62 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314025AbSDQCFL>; Tue, 16 Apr 2002 22:05:11 -0400
+	id <S314026AbSDQCV0>; Tue, 16 Apr 2002 22:21:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314026AbSDQCFK>; Tue, 16 Apr 2002 22:05:10 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:52998
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S314025AbSDQCFK>; Tue, 16 Apr 2002 22:05:10 -0400
-Date: Tue, 16 Apr 2002 19:04:32 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Gerard Beekmans <gerard@linuxfromscratch.org>
-cc: linux-kernel@vger.kernel.org,
-        Martin Dalecki <dalecki@evision-ventures.com>
-Subject: Re: make xconfig fails in 2.5.8 kernel, trivial change to fix it
-In-Reply-To: <20020416224524.GA5651@gwaihir.linuxfromscratch.org>
-Message-ID: <Pine.LNX.4.10.10204161902220.11230-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S314027AbSDQCV0>; Tue, 16 Apr 2002 22:21:26 -0400
+Received: from [202.135.142.194] ([202.135.142.194]:6405 "EHLO
+	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
+	id <S314026AbSDQCVZ>; Tue, 16 Apr 2002 22:21:25 -0400
+Date: Tue, 16 Apr 2002 22:48:56 +1000
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Andries.Brouwer@cwi.nl
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [PATCH] setup_per_cpu_areas in 2.5.8pre3
+Message-Id: <20020416224856.538d3e65.rusty@rustcorp.com.au>
+In-Reply-To: <UTC200204142115.VAA627059.aeb@cwi.nl>
+X-Mailer: Sylpheed version 0.7.2 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 14 Apr 2002 21:15:29 GMT
+Andries.Brouwer@cwi.nl wrote:
 
-Gerard,
+> 
+> Now that I am writing anyway, one of the changes I needed
+> to compile 2.5.8pre3 is the following.
 
-I am sorry I can not answer you questions about 2.5, since there is a new
-maintainer.  I am sure he can resolve your 2.5 issue proper.
+Yeah, better patch below (__GENERIC_PER_CPU implies SMP anyway).
 
-Andre Hedrick
-The Second Linux X-IDE guy
+> Of course the real fix is to remove the #ifdef's,
+> maybe using a weak symbol instead, or some other construction
+> that defines an empty default that can be replaced by an actual
+> routine.
 
+Not unless you make it as readable as the current code.  Having magic
+appearing functions sounds cool, but beware that the cure might be
+worse than the disease.
+
+Yes, I know this patch looks like I'm moving smp_init(), but really
+it's moving the #ifdef __GENERIC_PER_CPU bit past the SMP #endif.
+
+Rusty.
+-- 
+   there are those who do and those who hang on and you don't see too
+   many doers quoting their contemporaries.  -- Larry McVoy
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.8/init/main.c working-2.5.8-percpu/init/main.c
+--- linux-2.5.8/init/main.c	Mon Apr 15 11:47:50 2002
++++ working-2.5.8-percpu/init/main.c	Tue Apr 16 21:11:50 2002
+@@ -274,6 +274,18 @@
  
-On Tue, 16 Apr 2002, Gerard Beekmans wrote:
-
-> Hi,
-> 
-> There is a very trivial problem in line 52 of the drivers/ide/Config.in
-> file. It reads:
-> 	if [ $CONFIG_BLK_DEV_IDE_TCQ_DEFAULT != "n" ]; then
-> 
-> 'make xconfig' fails on this saying that it is a bad if condition:
-> 
-> 	cat header.tk >> ./kconfig.tk
-> 	./tkparse < ../arch/i386/config.in >> kconfig.tk
-> 	drivers/ide/Config.in: 52: bad if condition
-> 
-> It is easily fixed by enclosing $CONFIG_BLK_DEV_IDE_TCQ_DEFAULT in double
-> quotes. There are other if conditions in this same file that do have those
-> quotes and Tk doesn't complain about them.
-> 
-> Does anybody use xconfig these days anyways since nobody apprarently has
-> noticed it before? I saw this broken a few 2.5 releases ago too but never
-> got around looking into it.
-> 
-> 
-> 
-> -- 
-> Gerard Beekmans
-> www.linuxfromscratch.org
-> 
-> -*- If Linux doesn't have the solution, you have the wrong problem -*-
-> 
+ #else
+ 
++/* Called by boot processor to activate the rest. */
++static void __init smp_init(void)
++{
++	/* Get other processors into their bootup holding patterns. */
++	smp_boot_cpus();
++
++	smp_threads_ready=1;
++	smp_commence();
++}
++
++#endif
++
+ #ifdef __GENERIC_PER_CPU
+ unsigned long __per_cpu_offset[NR_CPUS];
+ 
+@@ -301,18 +313,6 @@
+ {
+ }
+ #endif /* !__GENERIC_PER_CPU */
+-
+-/* Called by boot processor to activate the rest. */
+-static void __init smp_init(void)
+-{
+-	/* Get other processors into their bootup holding patterns. */
+-	smp_boot_cpus();
+-
+-	smp_threads_ready=1;
+-	smp_commence();
+-}
+-
+-#endif
+ 
+ /*
+  * We need to finalize in a non-__init function or else race conditions
 

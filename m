@@ -1,62 +1,31 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315750AbSENPFr>; Tue, 14 May 2002 11:05:47 -0400
+	id <S315755AbSENPI1>; Tue, 14 May 2002 11:08:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315755AbSENPFq>; Tue, 14 May 2002 11:05:46 -0400
-Received: from [168.159.40.71] ([168.159.40.71]:36101 "EHLO
-	srexchimc2.lss.emc.com") by vger.kernel.org with ESMTP
-	id <S315750AbSENPFq>; Tue, 14 May 2002 11:05:46 -0400
-Message-ID: <FA2F59D0E55B4B4892EA076FF8704F553D1A51@srgraham.eng.emc.com>
-From: "chen, xiangping" <chen_xiangping@emc.com>
-To: "'Jes Sorensen'" <jes@wildopensource.com>
-Cc: "'Steve Whitehouse'" <Steve@ChyGwyn.com>, linux-kernel@vger.kernel.org
-Subject: RE: Kernel deadlock using nbd over acenic driver.
-Date: Tue, 14 May 2002 11:05:40 -0400
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S315756AbSENPI0>; Tue, 14 May 2002 11:08:26 -0400
+Received: from mta3n.bluewin.ch ([195.186.1.212]:32128 "EHLO mta3n.bluewin.ch")
+	by vger.kernel.org with ESMTP id <S315755AbSENPIZ>;
+	Tue, 14 May 2002 11:08:25 -0400
+Date: Tue, 14 May 2002 17:08:13 +0200
+From: Roger Luethi <rl@hellgate.ch>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] VIA Rhine stalls: TxAbort handling
+Message-ID: <20020514150813.GA29011@k3.hellgate.ch>
+In-Reply-To: <20020514035318.GA20088@k3.hellgate.ch> <3CE11B19.2020403@mandrakesoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+X-Operating-System: Linux 2.4.19-pre8 on i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-But the acenic driver author suggested that sndbuf should be at least
-262144, and the sndbuf can not exceed r/wmem_default. Is that correct?
+On Tue, 14 May 2002 10:11:37 -0400, Jeff Garzik wrote:
+> I'm going to apply the non-controversial parts of this patch...
 
-So for gigabit Ethernet driver, what is the optimal mem configuration
-for performance and reliability?
+Would this be a good place to find out what has made it in?
 
-Thanks,
+http://gkernel.bkbits.net:8080/net-drivers-2.5/hist/drivers/net/via-rhine.c
 
-Xiangping
-
------Original Message-----
-From: Jes Sorensen [mailto:jes@wildopensource.com]
-Sent: Tuesday, May 14, 2002 10:59 AM
-To: chen, xiangping
-Cc: 'Steve Whitehouse'; linux-kernel@vger.kernel.org
-Subject: Re: Kernel deadlock using nbd over acenic driver.
-
-
->>>>> "xiangping" == chen, xiangping <chen_xiangping@emc.com> writes:
-
-xiangping> Hi, When the system stucks, I could not get any response
-xiangping> from the console or terminal.  But basically the only
-xiangping> network connections on both machine are the nbd connection
-xiangping> and a couple of telnet sessions. That is what shows on
-xiangping> "netstat -t".
-
-xiangping> /proc/sys/net/ipv4/tcp_[rw]mem are "4096 262144 4096000",
-xiangping> /proc/sys/net/core/*mem_default are 4096000,
-xiangping> /proc/sys/net/core/*mem_max are 8192000, I did not change
-xiangping> /proc/sys/net/ipv4/tcp_mem.
-
-Don't do this, setting the [rw]mem_default values to that is just
-insane. Do it in the applications that needs it and nowhere else.
-
-xiangping> The system was low in memory, I started up 20 to 40 thread
-xiangping> to do block write simultaneously.
-
-If you have a lot of outstanding connections and active threads, it's
-not unlikely you run out of memory if each socket eats 4MB.
-
-Jes
+Roger

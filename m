@@ -1,49 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261408AbVCGL7G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261410AbVCGMKw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261408AbVCGL7G (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 06:59:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261409AbVCGL7G
+	id S261410AbVCGMKw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 07:10:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261432AbVCGMKw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 06:59:06 -0500
-Received: from mail43-s.fg.online.no ([148.122.161.43]:23458 "EHLO
-	mail43-s.fg.online.no") by vger.kernel.org with ESMTP
-	id S261408AbVCGL7D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 06:59:03 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: Logitech MX1000 Horizontal Scrolling
-References: <873bxfoq7g.fsf@quasar.esben-stien.name>
-	<87zmylaenr.fsf@quasar.esben-stien.name>
-	<20050204195410.GA5279@ucw.cz>
-	<873bvyfsvs.fsf@quasar.esben-stien.name>
-	<87zmxil0g8.fsf@quasar.esben-stien.name>
-	<1110056942.16541.4.camel@localhost>
-From: Esben Stien <b0ef@esben-stien.name>
-X-Home-Page: http://www.esben-stien.name
-Date: Mon, 07 Mar 2005 12:48:05 +0100
-In-Reply-To: <1110056942.16541.4.camel@localhost> (Jeremy Nickurak's message
- of "Sat, 05 Mar 2005 14:09:02 -0700")
-Message-ID: <87sm37vfre.fsf@quasar.esben-stien.name>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3.50 (gnu/linux)
+	Mon, 7 Mar 2005 07:10:52 -0500
+Received: from grendel.digitalservice.pl ([217.67.200.140]:23182 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S261410AbVCGMKo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 07:10:44 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH][3/3] swsusp: use non-contiguous memory
+Date: Mon, 7 Mar 2005 13:13:07 +0100
+User-Agent: KMail/1.7.1
+Cc: hugang@soulinfo.com, linux-kernel@vger.kernel.org, pavel@ucw.cz
+References: <200503042051.54176.rjw@sisk.pl> <200503071232.32141.rjw@sisk.pl> <20050307033905.7efa259e.akpm@osdl.org>
+In-Reply-To: <20050307033905.7efa259e.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200503071313.07679.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeremy Nickurak <atrus@rifetech.com> writes:
+On Monday, 7 of March 2005 12:39, Andrew Morton wrote:
+> "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+> >
+> > On Monday, 7 of March 2005 07:41, hugang@soulinfo.com wrote:
+> > > On Fri, Mar 04, 2005 at 08:51:53PM +0100, Rafael J. Wysocki wrote:
+> > > > From: Hu Gang <hugang@soulinfo.com>
+> > > > 
+> > > > Subject: swsusp: use non-contiguous memory on resume - ppc support
+> > > > 
+> > > > This patch contains the architecture-dependent changes for ppc
+> > > > required for using a linklist instead of an array of page backup entries
+> > > > during resume.
+> > > > 
+> > > > Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+> > >   Signed-off-by: Hu Gang <hugang@soulinfo.com>
+> > 
+> > Yes, the Signed-off-by line was missing from the original patch.  Andrew,
+> > should I resubmit it?
+> > 
+> 
+> I dropped lots of those swsusp patches due to various bit of breakage. 
+> Pavel will be redoing all of them sometime, hopefully.
 
-> this is just a result of our different xmodmap configurations.
+These patches are a "redone version" of the patch that Pavel submitted
+before and Pavel has acked them already.
 
-Yes.
+I did my best not to break them, but if they are broken, could you please tell
+me what's wrong with them so that I can fix it?
 
-> Otherwise we're seeing exactly the same symptoms.
+Rafael
 
-Hmm, I'm getting the same hash for evdev.c between 2.6.10 and
-2.6.11. I hope Vojtech Pavlik got the reports.
-
-Is this reported as a bug?
 
 -- 
-Esben Stien is b0ef@esben-stien.name
-http://www.esben-stien.name
-irc://irc.esben-stien.name/%23contact
-[sip|iax]:b0ef@esben-stien.name
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

@@ -1,60 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263661AbUADVCb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jan 2004 16:02:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263850AbUADVCb
+	id S264389AbUADVH4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jan 2004 16:07:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264392AbUADVH4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jan 2004 16:02:31 -0500
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:6537 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S263661AbUADVC3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jan 2004 16:02:29 -0500
-Message-ID: <3FF87F41.1090007@eglifamily.dnsalias.net>
-Date: Sun, 04 Jan 2004 14:01:53 -0700
-From: Dan Egli <dan@eglifamily.dnsalias.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Armin <Zoup@zoup.org>
-CC: linux-kernel@vger.kernel.org
-References: <200401041241.26368.Zoup@zoup.org>
-In-Reply-To: <200401041241.26368.Zoup@zoup.org>
-X-Enigmail-Version: 0.82.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Subject: Re: Crazy Mouse !
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sun, 4 Jan 2004 16:07:56 -0500
+Received: from fw.osdl.org ([65.172.181.6]:996 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264389AbUADVHz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jan 2004 16:07:55 -0500
+Date: Sun, 4 Jan 2004 13:07:52 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Thomas Molina <tmolina@cablespeed.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: make modules_install problem in 2.6.0-rc1-mm1
+Message-Id: <20040104130752.17be7460.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0401040749180.11783@localhost.localdomain>
+References: <Pine.LNX.4.58.0401040749180.11783@localhost.localdomain>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-SA-Exim-Mail-From: dan@eglifamily.dnsalias.net
-X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Thomas Molina <tmolina@cablespeed.com> wrote:
+>
+> I get the following message when compiling profile suport into 
+>  2.6.0-rc1-mm1:
+> 
+>  WARNING: /lib/modules/2.6.1-rc1-mm1/kernel/arch/i386/oprofile/oprofile.ko needs unknown symbol cpu_possible
 
-Armin wrote:
-| Hi list ,
-| im using 2.6.1-rc1 , i have an ps2 mouse ( in fact , its touch pad !
-but iv
-| got this problem with external mouse too ) , when my box is under
-heavy ( or
-| normal ) load , mouse start to be crazy , dancing all around the
-screen and
-| click every where ... how can i fix it ?
-|
+This should fix it.
 
-Did you try restarting gpm? That happens to me whenever I swap from one
-machine to another on the KVM switch. When I go back my mouse is
-abslultely insane. Does everything EXCEPT what I said to do. 99 of 100
-times killing and restarting gpm fixes it.
+--- 25/drivers/oprofile/oprofile_stats.c~for_each_cpu-oprofile-fix	2004-01-01 11:52:30.000000000 -0800
++++ 25-akpm/drivers/oprofile/oprofile_stats.c	2004-01-01 11:52:30.000000000 -0800
+@@ -8,7 +8,7 @@
+  */
+ 
+ #include <linux/oprofile.h>
+-#include <linux/smp.h>
++#include <linux/cpumask.h>
+ #include <linux/threads.h>
+  
+ #include "oprofile_stats.h"
 
-- --- Dan
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (MingW32)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQE/+H9BtwT22Jak4/4RAuXuAJ9935AmYjUkY/KUj8kgmrPLcbWvyACdG19K
-MKqhSY/YkVEiYwE7ZATRsiU=
-=PI1Q
------END PGP SIGNATURE-----
+_
 

@@ -1,44 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264097AbUE1WAx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264132AbUE1WEl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264097AbUE1WAx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 May 2004 18:00:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264096AbUE1WAk
+	id S264132AbUE1WEl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 May 2004 18:04:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263898AbUE1VlF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 May 2004 18:00:40 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:58098 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S264061AbUE1V74
+	Fri, 28 May 2004 17:41:05 -0400
+Received: from mail.kroah.org ([65.200.24.183]:37043 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263971AbUE1ViF convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 May 2004 17:59:56 -0400
-Message-ID: <40B7B659.9010507@mvista.com>
-Date: Fri, 28 May 2004 14:59:53 -0700
-From: Todd Poynor <tpoynor@mvista.com>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040502)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Zabolotny <zap@homelink.ru>
-CC: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
-Subject: Re: two patches - request for comments
-References: <20040529012030.795ad27e.zap@homelink.ru>
-In-Reply-To: <20040529012030.795ad27e.zap@homelink.ru>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 28 May 2004 17:38:05 -0400
+X-Fake: the user-agent is fake
+Subject: Re: [PATCH] PCI fixes for 2.6.7-rc1
+User-Agent: Mutt/1.5.6i
+In-Reply-To: <10857801151567@kroah.com>
+Date: Fri, 28 May 2004 14:35:15 -0700
+Message-Id: <1085780115273@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, you're adding new interfaces for power management of LCD and 
-backlight devices.  Since there's already LDM/sysfs interfaces for 
-reading and writing power state of generic devices, is it necessary to 
-add ones particular to these devices or device classes?  In other words, 
-is /sys/devices/<bus>/<device>/power/state not suitable for these purposes?
+ChangeSet 1.1717.6.25, 2004/05/19 10:33:24-07:00, greg@kroah.com
 
-And if a PM interface for device classes is needed that ties into the 
-device driver suspend/resume callbacks, perhaps it can be modeled more 
-closely on the existing interfaces?  These new interfaces seem to be 
-intended to define: 0 == power off, 1 ==  power on.  The existing 
-ACPI-inspired interfaces use: 0 == power on/full-power, 1/2/3/4 == 
-low-power/off state.
+Reversed pci.ids changes, as Linus already fixed them in his tree
 
-New files don't have GPL license comments.
 
--- 
-Todd
+ drivers/pci/pci.ids |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
+
+
+diff -Nru a/drivers/pci/pci.ids b/drivers/pci/pci.ids
+--- a/drivers/pci/pci.ids	Fri May 28 14:29:15 2004
++++ b/drivers/pci/pci.ids	Fri May 28 14:29:15 2004
+@@ -2331,7 +2331,7 @@
+ 	c801  PCI-GPIB
+ 	c831  PCI-GPIB bridge
+ 1094  First International Computers [FIC]
+-1095  Silicon Image, Inc.
++1095  Silicon Image, Inc. (formerly CMD Technology Inc)
+ 	0240  Adaptec AAR-1210SA SATA HostRAID Controller
+ 	0640  PCI0640
+ 	0643  PCI0643
+@@ -5155,7 +5155,7 @@
+ 	9132  Ethernet 100/10 MBit
+ 1283  Integrated Technology Express, Inc.
+ 	673a  IT8330G
+-	8212  IT/ITE8212 Dual channel ATA RAID controller
++	8212  IT/ITE8212 Dual channel ATA RAID controller (PCI version seems to be IT8212, embedded seems to be ITE8212)
+ 	8330  IT8330G
+ 	8872  IT8874F PCI Dual Serial Port Controller
+ 	8888  IT8888F PCI to ISA Bridge with SMB
+@@ -6098,7 +6098,7 @@
+ 	0340  PC4800
+ 	0350  PC4800
+ 	4500  PC4500
+-	4800  Cisco Aironet 340 802.11b Wireless LAN Adapter
++	4800  Cisco Aironet 340 802.11b Wireless LAN Adapter/Aironet PC4800
+ 	a504  Cisco Aironet Wireless 802.11b
+ 	a505  Cisco Aironet CB20a 802.11a Wireless LAN Adapter
+ 14ba  INTERNIX Inc.
+@@ -6824,7 +6824,7 @@
+ 1629  Kongsberg Spacetec AS
+ 	1003  Format synchronizer v3.0
+ 	2002  Fast Universal Data Output
+-1638  SMC
++1638  Standard Microsystems Corp [SMC]
+ 	1100  SMC2602W EZConnect / Addtron AWA-100 / Eumitcom PCI WL11000
+ 163c  Smart Link Ltd.
+ 	3052  SmartLink SmartPCI562 56K Modem
+

@@ -1,50 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276343AbRJCPIe>; Wed, 3 Oct 2001 11:08:34 -0400
+	id <S276347AbRJCPMN>; Wed, 3 Oct 2001 11:12:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276349AbRJCPIY>; Wed, 3 Oct 2001 11:08:24 -0400
-Received: from mueller.uncooperative.org ([216.254.102.19]:27397 "EHLO
-	mueller.datastacks.com") by vger.kernel.org with ESMTP
-	id <S276343AbRJCPIQ>; Wed, 3 Oct 2001 11:08:16 -0400
-Date: Wed, 3 Oct 2001 11:08:41 -0400
-From: Crutcher Dunnavant <crutcher@datastacks.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Magic SysRq +# in 2.4.9-ac/2.4.10-pre12
-Message-ID: <20011003110841.A5006@mueller.datastacks.com>
-Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <3BA8C01D.79FBD7C3@osdlab.org> <20010921162949.H8188@mueller.datastacks.com> <20010926223814.A169@bug.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010926223814.A169@bug.ucw.cz>; from pavel@suse.cz on Wed, Sep 26, 2001 at 10:38:14PM +0200
+	id <S276349AbRJCPMD>; Wed, 3 Oct 2001 11:12:03 -0400
+Received: from shell.cyberus.ca ([209.195.95.7]:57015 "EHLO shell.cyberus.ca")
+	by vger.kernel.org with ESMTP id <S276347AbRJCPLv>;
+	Wed, 3 Oct 2001 11:11:51 -0400
+Date: Wed, 3 Oct 2001 11:09:33 -0400 (EDT)
+From: jamal <hadi@cyberus.ca>
+To: Manfred Spraul <manfred@colorfullife.com>
+cc: <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
+        Andreas Dilger <adilger@turbolabs.com>, <linux-netdev@oss.sgi.com>
+Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
+In-Reply-To: <002c01c14c15$f270d6b0$010411ac@local>
+Message-ID: <Pine.GSO.4.30.0110031101460.4833-100000@shell.cyberus.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-++ 26/09/01 22:38 +0200 - Pavel Machek:
-> Hi!
-> 
-> > > 2.  I'd really prefer to see callers use
-> > > register_sysrq_key() and unregister_sysrq_key() so that they
-> > > can get/use return values, and not the lower-level functions
-> > > "__sysrq*" functions that are EXPORTed in sysrq.c.
-> > > I don't see a good reason to EXPORT all of these functions.
-> > 
-> > So would I, however, the lower interface is there so that modules can
-> > restructure the table in more complex ways, allowing for sub-menus.
-> 
-> This is kernel, and sysrq was designed to be debug tool. It turned out
-> to be more successfull than expected...
-> 
-> Just keep in mind its a debug tool. If you need hierarchical submenus,
-> then you are probably not using it as debug tool, right?
-> 								Pavel
 
-Wrong. If I have heirarchal menus, then I can have debug code for many
-parts of the kernel, and _detailed_ debug code for any given part, in
-the sysrq handlers simultaneously.
 
--- 
-Crutcher        <crutcher@datastacks.com>
-GCS d--- s+:>+:- a-- C++++$ UL++++$ L+++$>++++ !E PS+++ PE Y+ PGP+>++++
-    R-(+++) !tv(+++) b+(++++) G+ e>++++ h+>++ r* y+>*$
+On Wed, 3 Oct 2001, Manfred Spraul wrote:
+
+> > On Wed, 3 Oct 2001, jamal wrote:
+> > > On Wed, 3 Oct 2001, Ingo Molnar wrote:
+> > > >
+> > > > but the objectives, judging from the description you gave, are i
+> > > > think largely orthogonal,  with some overlapping in the polling
+> > > > part.
+> > >
+> > > yes. Weve done a lot of thoroughly thought work in that area and i
+> > > think it will be a sin to throw it out.
+> > >
+> >
+> > I hit the send button to fast..
+> > The dynamic irq limiting (it must not be set by a system admin to
+> > conserve the principle of work) could be used as a last resort.
+> > The point is, if you are not generating a lot of interupts to begin
+> > with (as is the case with NAPI), i dont see the irq rate limiting
+> > kicking in at all.
+>
+> A few notes as seen for low-end nics:
+>
+> Forcing an irq limit without asking the driver is bad - it must be the
+> opposite way around.
+> e.g. the winbond nic contains a bug that forces it to 1 interrupt/packet
+> tx, but I can switch to rx polling/mitigation.
+
+Indeed this is a weird case that we have not encountered but it does make
+the point that the driver knows best what to do.
+
+> I'm sure the ne2k-pci users would also complain if a fixed irq limit is
+> added - I bet the majority of the drivers perform worse with a fixed
+> limit, only some perform better, and most perform best if they are given
+> a notice that they should reduce their irq rate. (e.g. disable
+> rx_packet, tx_packet. Leave the error interrupts on, and do the
+> rx_packet, tx_packet work in the poll handler)
+>
+
+agreed. The reaction should be left to the driver's policy.
+
+> But a hint for the driver ("now switch mitigation on/off") seems to be a
+> good idea. And that hint should not be the return value of netif_rx -
+> what if the driver is only sending packets?
+> What if it's not even a network driver?
+
+For 2.4, unfortunately there was no other way to pass that feedback
+without the driver sending a packet up the stack. Our system feedback
+probe is based on sampling the backlog queue.
+
+> NAPI seems to be very promising to fix the total system overload case
+> (so many packets arrive that despite irq mitigation the system is still
+> overloaded).
+>
+> But the implementation of irq mitigation is driver specific, and a 10
+> millisecond stop is far too long.
+>
+
+violent agreement.
+
+cheers,
+jamal
+
+

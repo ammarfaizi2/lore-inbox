@@ -1,56 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264299AbUHVASS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263761AbUHVAZG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264299AbUHVASS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Aug 2004 20:18:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264936AbUHVASS
+	id S263761AbUHVAZG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Aug 2004 20:25:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263962AbUHVAZG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Aug 2004 20:18:18 -0400
-Received: from wingding.demon.nl ([82.161.27.36]:129 "EHLO wingding.demon.nl")
-	by vger.kernel.org with ESMTP id S264299AbUHVASD (ORCPT
+	Sat, 21 Aug 2004 20:25:06 -0400
+Received: from mylinuxtime.de ([217.160.170.124]:32169 "EHLO solar.linuxob.de")
+	by vger.kernel.org with ESMTP id S263761AbUHVAY7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Aug 2004 20:18:03 -0400
-Date: Sun, 22 Aug 2004 02:18:06 +0200
-From: Rutger Nijlunsing <rutger@nospam.com>
-To: Wakko Warner <wakko@animx.eu.org>
-Cc: "David N. Welton" <davidw@dedasys.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux Incompatibility List
-Message-ID: <20040822001806.GA10544@nospam.com>
-Reply-To: linux-kernel@tux.tmfweb.nl
-References: <87r7q0th2n.fsf@dedasys.com> <20040821201632.GA7622@digitasaru.net> <20040821202058.GA9218@animx.eu.org> <87ekm0rxw3.fsf@dedasys.com> <20040821220359.GB9492@animx.eu.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040821220359.GB9492@animx.eu.org>
-Organization: M38c
-User-Agent: Mutt/1.5.6i
+	Sat, 21 Aug 2004 20:24:59 -0400
+From: Christian Hesse <mail@earthworm.de>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Subject: Re: v2.6.8.1 breaks tspc
+Date: Sun, 22 Aug 2004 02:21:34 +0200
+User-Agent: KMail/1.7
+Cc: linux-kernel@vger.kernel.org
+References: <200408212303.05143.mail@earthworm.de> <200408220116.42490.vda@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <200408220116.42490.vda@port.imtp.ilyichevsk.odessa.ua>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1476472.CyV98zaydD";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408220221.39178.mail@earthworm.de>
+X-AntiVirus: checked by AntiVir Milter 1.0.6; AVE 6.27.0.6; VDF 6.27.0.23
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 21, 2004 at 06:03:59PM -0400, Wakko Warner wrote:
-> > > > >Ideas/comments/suggestions are welcome at this stage.
-> > > > 
-> > > > Sounds interesting; is there a vendor blacklist (i.e. vendors that are
-> > > >   either hostile toward or simply don't care about Linux and their products
-> > > >   just won't ever work with Linux?)
-> > > 
-> > > Broadcom's wireless chips come to mind...
-> > 
-> > Sounds good.  I wouldn't know one if it bit me on the leg, though, can
-> > you point to list archives, a web site, or reassure me that if I
-> > google for it I will get the right information?  I'd like models or a
-> > range of models if possible, and why they don't work, and any notes or
-> > additional information about the situation.
-> 
-> The linksys G cards (pci/cardbus) both use broadcom chips.  Not sure the
-> exact model numbers.  I have 2 at work that are broadcom.
+--nextPart1476472.CyV98zaydD
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Most routers with 4 ethernet ports for internal network, 1 ethernet
-port for external network and a wireless output which have a lot of
-functionality run Linux with a closed-source wireless driver:
+On Sunday 22 August 2004 00:16, Denis Vlasenko wrote:
+> On Sunday 22 August 2004 00:02, Christian Hesse wrote:
+> > Hello!
+> >
+> > Kernel version 2.6.8.1 breaks tspc (Freenet6's Tunnel Server Protocol
+> > Client). It tries to connect to the server but waits forever. No proble=
+ms
+> > with 2.6.7, booted the old kernel and it worked perfectly.
+> >
+> > Any ideas?
+>
+> What do you see with tcpdump on both 2.6.7 and 2.6.8.1?
 
-Linksys WRT54g, ASUS WL-500g/b, and probably more...
+In the config file I've changed template from linux to checktunnel. With=20
+kernel 2.6.7 it shows all the options it receives from the server. With=20
+2.6.8.1:
 
--- 
-Rutger Nijlunsing ---------------------------- rutger ed tux tmfweb nl
-never attribute to a conspiracy which can be explained by incompetence
-----------------------------------------------------------------------
+root@noname:~# tspc -f /etc/freenet6/tspc.conf -vvv
+tspc - Tunnel Server Protocol Client
+
+Loading configuration file
+
+Connecting to server
+
+[now waits until Ctrl-c]
+
+A log of strace can be found at
+http://linux.eworm.net/tspc_strace.log
+=2D-=20
+Christian
+
+--nextPart1476472.CyV98zaydD
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQBBJ+cTlZfG2c8gdSURAhNWAKDbR5PWjzzrwJrZpqIW6vU5xIGjbgCdH1WZ
+Z1it52bR1P4yzmwmIoR2uiw=
+=dvHD
+-----END PGP SIGNATURE-----
+
+--nextPart1476472.CyV98zaydD--

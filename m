@@ -1,40 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282260AbRKWW1L>; Fri, 23 Nov 2001 17:27:11 -0500
+	id <S282267AbRKWW0T>; Fri, 23 Nov 2001 17:26:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282266AbRKWW1A>; Fri, 23 Nov 2001 17:27:00 -0500
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:61708 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S282260AbRKWW0t>; Fri, 23 Nov 2001 17:26:49 -0500
-Message-ID: <3BFECCA6.7459DCAB@linux-m68k.org>
-Date: Fri, 23 Nov 2001 23:24:38 +0100
-From: Roman Zippel <zippel@linux-m68k.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14 i686)
-X-Accept-Language: en
+	id <S282266AbRKWW0K>; Fri, 23 Nov 2001 17:26:10 -0500
+Received: from 24-240-35-67.hsacorp.net ([24.240.35.67]:1152 "HELO
+	majere.epithna.com") by vger.kernel.org with SMTP
+	id <S282260AbRKWW0E> convert rfc822-to-8bit; Fri, 23 Nov 2001 17:26:04 -0500
+Date: Fri, 23 Nov 2001 15:21:12 -0500 (EST)
+From: <listmail@majere.epithna.com>
+To: Martin Eriksson <nitrax@giron.wox.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: IDE is still crap.. or something
+In-Reply-To: <014a01c17456$504197d0$0201a8c0@HOMER>
+Message-ID: <Pine.LNX.4.33.0111231520390.224-100000@majere.epithna.com>
 MIME-Version: 1.0
-To: dalecki@evision.ag
-CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: PATCH 2.4.15-pre6 idt compilation and proc_misc cleanup.
-In-Reply-To: <87y9l58pb5.fsf@fadata.bg> <200111171920.fAHJKjJ01550@penguin.transmeta.com> <3BFA6B1A.D91C5703@evision-ventures.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Just as an FYI...I am not seeing this on my ht366...runs nice and
+speedy...
 
-Martin Dalecki wrote:
+On Fri, 23 Nov 2001, Martin Eriksson wrote:
 
-> 2. Killing some code which is dead since ages in proc_misc.c
-> [..]
-> -#ifdef CONFIG_PROC_HARDWARE
-> -               {"hardware",    hardware_read_proc},
-> -#endif
-> -#ifdef CONFIG_STRAM_PROC
-> -               {"stram",       stram_read_proc},
-> -#endif
+> ----- Original Message -----
+> From: "Martin Eriksson" <nitrax@giron.wox.org>
+> To: <linux-kernel@vger.kernel.org>
+> Sent: Friday, November 23, 2001 8:11 PM
+> Subject: IDE is still crap.. or something
+>
+>
+> > Well, just wanted to tell you that 2.4.15 still slows down to a crawl when
+> > copying a 500MB file between two hard drives (running ext3). I have tried
+> > any of the -c -u -m -W settings in hdparm. I even applied the 2.4.14 IDE
+> > patch (after fixing the rejects) but no go.
+> >
+> > Even iptables is affected, because it takes forever to surf the internet
+> > from my behind-linux-firewall windows computer.
+> >
+> > I'm right now trying to apply the preemptive-kernel patch to 2.4.15 but it
+> > had some strange rejects so it will be exciting to see if it works. I get
+> > good response from the -ac kernel series though.
+>
+> I applied the ide patch and the preemptive-kernel patch, and so far so good.
+> Response is up again, but I'm not sure how well I fixed the .rej files.
+> There were some reference to a "still_running" label that I simply
+> ignored... *shrug*
+>
+> Btw, i run my (pretty slow) hard disks on my BP6 HPT366 controller.
+>
+> _____________________________________________________
+> |  Martin Eriksson <nitrax@giron.wox.org>
+> |  MSc CSE student, department of Computing Science
+> |  Umeå University, Sweden
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-Unfortunately I see this only now, but this isn't dead at all, it's just
-not used on i386, please grep more carefully next time.
-
-bye, Roman

@@ -1,49 +1,168 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266056AbRF1Rhf>; Thu, 28 Jun 2001 13:37:35 -0400
+	id <S266065AbRF1Rif>; Thu, 28 Jun 2001 13:38:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266058AbRF1RhZ>; Thu, 28 Jun 2001 13:37:25 -0400
-Received: from t2.redhat.com ([199.183.24.243]:14066 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S266056AbRF1RhN>; Thu, 28 Jun 2001 13:37:13 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <Pine.LNX.4.33.0106281024160.15199-100000@penguin.transmeta.com> 
-In-Reply-To: <Pine.LNX.4.33.0106281024160.15199-100000@penguin.transmeta.com> 
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, chuckw@altaserv.net,
-        Vipin Malik <vipin.malik@daniel.com>,
-        Aaron Lehmann <aaronl@vitelus.com>, jffs-dev@axis.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: Cosmetic JFFS patch. 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 28 Jun 2001 18:35:40 +0100
-Message-ID: <7953.993749740@redhat.com>
+	id <S266063AbRF1RiS>; Thu, 28 Jun 2001 13:38:18 -0400
+Received: from teranet244-12-200.monarch.net ([24.244.12.200]:9969 "HELO
+	lustre.clusterfilesystem.com") by vger.kernel.org with SMTP
+	id <S266058AbRF1Rh6>; Thu, 28 Jun 2001 13:37:58 -0400
+Date: Thu, 28 Jun 2001 11:38:45 -0600 (MDT)
+From: "Peter J. Braam" <braam@clusterfilesystem.com>
+To: <dafs-discussions@yahoogroups.com>, <linux-fsdevel@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: DAFS SDK
+Message-ID: <Pine.LNX.4.33.0106281129010.17056-200000@lustre.clusterfilesystem.com>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1463811584-481746603-993749925=:17056"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-torvalds@transmeta.com said:
-> On Thu, 28 Jun 2001, Alan Cox wrote: 
-> > Managers at places like Cisco see boot messages and it gets into
-> > their brains. They certainly don't all read the source code.
+---1463811584-481746603-993749925=:17056
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-> Quote frankly, I doubt "managers" read the boot messages. 
+Hi,
 
-This is consistent with what Alan said. "read" != "see".
+I have made available RPM packages of the DAFS sdk v 0.8.  You can find
+them at:
 
-I agree the messages can be ugly. But they don't do any harm either, and 
-sometimes they're useful.
+ftp://ftp.clusterfs.com/pub/lustre/RPMS
 
-Furthermore, I believe that if you enforce a policy of removing them, the
-direct result of that will be that GPL'd code is released back into the
-community far slower than it is at the moment.
+I made a few patches, some to compile cleanly and others to provide a
+header file structure that is usable in both user and kernel mode.
 
-It's your choice, though.
+I have attached the patch - could it perhaps go into the main DAFS SDK
+tree?  Would you like to include the spec file as well?
 
---
-dwmw2
+The DAFS stub generator is amazingly well designed and one can use that
+with just the dafs-sdk in user and kernel mode.
 
+To build the dafs library, which provides networking support too, one
+needs a VIA library. I have also built some Linux 2.4.5 kernel RPMS with
+the M-VIA libraries included.  You find these in the same place. (These
+kernels also include also have pcmcia, ext3 0.0.8, InterMezzo, and -ac17
+kernel patches.)
 
+Please read the disclaimers and enjoy!
+
+- Peter J. Braam -
+
+http://www.clusterfilesystems.com
+
+---1463811584-481746603-993749925=:17056
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="dafs-0.8.patch"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.33.0106281138450.17056@lustre.clusterfilesystem.com>
+Content-Description: dafs-sdk-0.8.patch
+Content-Disposition: attachment; filename="dafs-0.8.patch"
+
+ZGlmZiAtdU5yIHNkay9kYWZzZ2VuL3JwY19tYWluLmMgc2RrLW5ldy9kYWZz
+Z2VuL3JwY19tYWluLmMNCi0tLSBzZGsvZGFmc2dlbi9ycGNfbWFpbi5jCU1v
+biBKdW4gMTEgMTQ6NDE6MjUgMjAwMQ0KKysrIHNkay1uZXcvZGFmc2dlbi9y
+cGNfbWFpbi5jCVRodSBKdW4gMjggMTA6Mjk6MzggMjAwMQ0KQEAgLTQyNCw2
+ICs0MjQsNyBAQA0KIAlhZGRfd2FybmluZygpOw0KIA0KIAlmX3ByaW50KGZv
+dXQsICIjaWZuZGVmIERBRlNfS0VSTkVMXG4iKTsJDQorCWZfcHJpbnQoZm91
+dCwgIiNpbmNsdWRlIDxzdHJpbmcuaD5cbiIpOw0KIAlmX3ByaW50KGZvdXQs
+ICIjaW5jbHVkZSA8c3RkZGVmLmg+XG4iKTsNCiAJZl9wcmludChmb3V0LCAi
+I2luY2x1ZGUgPHN0ZGxpYi5oPlxuIik7DQogCWZfcHJpbnQoZm91dCwgIiNl
+bHNlIC8qIERBRlNfS0VSTkVMICovXG4iKTsNCmRpZmYgLXVOciBzZGsvZHRz
+L2R0c19zdXAuYyBzZGstbmV3L2R0cy9kdHNfc3VwLmMNCi0tLSBzZGsvZHRz
+L2R0c19zdXAuYwlNb24gSnVuIDExIDE0OjA3OjM1IDIwMDENCisrKyBzZGst
+bmV3L2R0cy9kdHNfc3VwLmMJVGh1IEp1biAyOCAxMDoyOTozOCAyMDAxDQpA
+QCAtNCw2ICs0LDcgQEANCiAjaW5jbHVkZSA8cHRocmVhZC5oPg0KICNpbmNs
+dWRlIDxzdGRpby5oPg0KICNpbmNsdWRlIDxzdHJpbmcuaD4NCisjaW5jbHVk
+ZSA8c3RkbGliLmg+DQogI2luY2x1ZGUgPHVuaXN0ZC5oPg0KIA0KIHZvaWQg
+KmZfcmVhZCh2b2lkICp0ZW1wKQ0KQEAgLTYzLDcgKzY0LDcgQEANCiANCiBw
+cmludGYoIlxuRW50ZXIgdGhlIG5hbWUgb2YgZmlmbyBmb3IgaS9wIHRvIG1h
+aW4gZHRzPiIpOw0KIGdldHMoaV9saW5lKTsNCi1pZigqaV9saW5lICE9IE5V
+TEwpew0KK2lmKCppX2xpbmUgIT0gMCl7DQogaWYobWtmaWZvKGlfbGluZSwg
+U19JUldYVSB8IFNfSVJXWEcgfCBTX0lSV1hPKSAhPSAwKXsNCiAJcHJpbnRm
+KCJcbkVycm9yIGluIGNyZWF0aW5nIGZpZm8iKTsNCiAJZXhpdCgwKTsNCkBA
+IC03Miw3ICs3Myw3IEBADQogfQ0KIHByaW50ZigiXG5FbnRlciB0aGUgbmFt
+ZSBvZiBmaWZvIGZvciByZWNlaXZpbmcgby9wIGZyb20gbWFpbiBkdHM+Iik7
+DQogZ2V0cyhvX2xpbmUpOw0KLWlmKCpvX2xpbmUgIT0gTlVMTCl7DQoraWYo
+Km9fbGluZSAhPSAwKXsNCiBpZihta2ZpZm8ob19saW5lLCBTX0lSV1hVIHwg
+U19JUldYTyB8IFNfSVJXWEcpICE9IDApew0KICAgICAgICAgcHJpbnRmKCJc
+bkVycm9yIGluIGNyZWF0aW5nIGZpZm8iKTsNCiAgICAgICAgIGV4aXQoMCk7
+DQpkaWZmIC11TnIgc2RrL2xpYi9kYWZzbGliLmMgc2RrLW5ldy9saWIvZGFm
+c2xpYi5jDQotLS0gc2RrL2xpYi9kYWZzbGliLmMJTW9uIEp1biAxMSAxNDow
+NzozOSAyMDAxDQorKysgc2RrLW5ldy9saWIvZGFmc2xpYi5jCVRodSBKdW4g
+MjggMTA6Mjk6MzggMjAwMQ0KQEAgLTMwLDYgKzMwLDcgQEANCiAvKiBkYWZz
+bGliLmMgLSBpbnRlcm5hbCBsaWJyYXJ5IHV0aWxpdHkgcm91dGluZXMsIG1v
+c3RseSB0aGUgcG9vbA0KICAgIGFsbG9jYXRvciBhbmQgbG9ja2luZyBhYnN0
+cmFjdGlvbnMgKi8NCiANCisjaW5jbHVkZSA8c3RyaW5nLmg+DQogI2luY2x1
+ZGUgPHN0ZGlvLmg+DQogI2luY2x1ZGUgPHN0ZGxpYi5oPg0KIA0KZGlmZiAt
+dU5yIHNkay9saWIvdmkuYyBzZGstbmV3L2xpYi92aS5jDQotLS0gc2RrL2xp
+Yi92aS5jCU1vbiBKdW4gMTEgMTQ6MDc6MzkgMjAwMQ0KKysrIHNkay1uZXcv
+bGliL3ZpLmMJVGh1IEp1biAyOCAxMDoyOTozOCAyMDAxDQpAQCAtMjksNiAr
+MjksOSBAQA0KIA0KICNpbmNsdWRlIDxzdGRpby5oPg0KICNpbmNsdWRlIDxz
+dGRsaWIuaD4NCisjaWZkZWYgX19saW51eF9fDQorI2luY2x1ZGUgPHN0cmlu
+Zy5oPg0KKyNlbmRpZg0KICNpZmRlZiBXSU4zMg0KICNkZWZpbmUgc3RyZHVw
+KGZpbGVuYW1lKSBfc3RyZHVwKGZpbGVuYW1lKQ0KICNkZWZpbmUgdXNsZWVw
+KGR1cmF0aW9uKSBTbGVlcChkdXJhdGlvbikNCmRpZmYgLXVOciBzZGsvbWFr
+ZWZpbGUuY29uZmlnIHNkay1uZXcvbWFrZWZpbGUuY29uZmlnDQotLS0gc2Rr
+L21ha2VmaWxlLmNvbmZpZwlNb24gSnVuIDExIDE0OjA3OjAwIDIwMDENCisr
+KyBzZGstbmV3L21ha2VmaWxlLmNvbmZpZwlUaHUgSnVuIDI4IDEwOjI5OjM4
+IDIwMDENCkBAIC05LDcgKzksNyBAQA0KIA0KICMgZWRpdCBhcyBuZWVkZWQN
+CiANCi1QTEFURk9STT0Jc3VuY2MNCitQTEFURk9STT0JbGludXgNCiANCiBW
+SVBMX0lOQ0xVREU9ICR7U0RLX0JBU0V9Ly4uLy4uL3ZpcGwNCiBWSVBMX0xJ
+Qj0gLUwke1NES19CQVNFfS8uLi8uLi92aXBsIC1XbCwtUi9vcHQvVHJvaWth
+L2xpYg0KZGlmZiAtdU5yIHNkay9tay9tYWtlZmlsZS5saW51eCBzZGstbmV3
+L21rL21ha2VmaWxlLmxpbnV4DQotLS0gc2RrL21rL21ha2VmaWxlLmxpbnV4
+CU1vbiBKdW4gMTEgMTQ6MDc6NDAgMjAwMQ0KKysrIHNkay1uZXcvbWsvbWFr
+ZWZpbGUubGludXgJVGh1IEp1biAyOCAxMDoyOTozOCAyMDAxDQpAQCAtMSw3
+ICsxLDcgQEANCiBDQz0JCWdjYw0KIExJTks9CQlnY2MNCiBBUj0JCWFyDQot
+Q0ZMQUdTPQkJLVdhbGwgLVdlcnJvciAtV3BvaW50ZXItYXJpdGggLWcgLURW
+SVBMMDk1DQorQ0ZMQUdTPQkJLVdhbGwgLVdlcnJvciAtV3BvaW50ZXItYXJp
+dGggLWcgLURfUkVFTlRSQU5UDQogTElOS0ZMQUdTPQktZyAtbyAkQCANCiBM
+REZMQUdTPQktTCQoU0RLX0JBU0UpL2xpYiAtbHB0aHJlYWQNCiBBUkZMQUdT
+PQktcnV2ICRADQpkaWZmIC11TnIgc2RrL3BsYXRmb3JtL2xpbnV4L2RhZnNf
+a2VybmVsX3BsYXRmb3JtLmggc2RrLW5ldy9wbGF0Zm9ybS9saW51eC9kYWZz
+X2tlcm5lbF9wbGF0Zm9ybS5oDQotLS0gc2RrL3BsYXRmb3JtL2xpbnV4L2Rh
+ZnNfa2VybmVsX3BsYXRmb3JtLmgJV2VkIERlYyAzMSAxNzowMDowMCAxOTY5
+DQorKysgc2RrLW5ldy9wbGF0Zm9ybS9saW51eC9kYWZzX2tlcm5lbF9wbGF0
+Zm9ybS5oCVRodSBKdW4gMjggMTA6NDg6MTcgMjAwMQ0KQEAgLTAsMCArMSwx
+NCBAQA0KKy8qIGRhZnNfa2VybmVsX3BsYXRmb3JtLmggLSBTT0xBUklTICov
+DQorI2lmbmRlZiBfREFGU19LRVJORUxfUExBVEZPUk1fSA0KKyNkZWZpbmUg
+X0RBRlNfS0VSTkVMX1BMQVRGT1JNX0gNCisNCisjaW5jbHVkZSA8bGludXgv
+bWFsbG9jLmg+DQorI2luY2x1ZGUgPGxpbnV4L2tlcm5lbC5oPg0KKw0KKyNp
+Zm5kZWYgTlVMTA0KKyNkZWZpbmUgTlVMTCAoKHZvaWQgKikgMCkNCisjZW5k
+aWYgLyogTlVMTCAqLw0KKw0KKyNkZWZpbmUgbWFsbG9jKGxlbikga21hbGxv
+YyhsZW4sIEdGUF9LRVJORUwpDQorDQorI2VuZGlmIC8qIF9EQUZTX0tFUk5F
+TF9QTEFURk9STV9IICovDQpkaWZmIC11TnIgc2RrL3BsYXRmb3JtL2xpbnV4
+L2RhZnNfa2VybmVsX3BsYXRmb3JtLmh+IHNkay1uZXcvcGxhdGZvcm0vbGlu
+dXgvZGFmc19rZXJuZWxfcGxhdGZvcm0uaH4NCi0tLSBzZGsvcGxhdGZvcm0v
+bGludXgvZGFmc19rZXJuZWxfcGxhdGZvcm0uaH4JV2VkIERlYyAzMSAxNzow
+MDowMCAxOTY5DQorKysgc2RrLW5ldy9wbGF0Zm9ybS9saW51eC9kYWZzX2tl
+cm5lbF9wbGF0Zm9ybS5ofglUaHUgSnVuIDI4IDEwOjQ1OjQxIDIwMDENCkBA
+IC0wLDAgKzEsMjIgQEANCisvKiBkYWZzX2tlcm5lbF9wbGF0Zm9ybS5oIC0g
+U09MQVJJUyAqLw0KKyNpZm5kZWYgX0RBRlNfS0VSTkVMX1BMQVRGT1JNX0gN
+CisjZGVmaW5lIF9EQUZTX0tFUk5FTF9QTEFURk9STV9IDQorDQorI2lmbmRl
+ZiBOVUxMDQorI2RlZmluZSBOVUxMICgodm9pZCAqKSAwKQ0KKyNlbmRpZiAv
+KiBOVUxMICovDQorDQorLyoNCisqKglTREsgZnVuY3Rpb25zIGNhbGxlZCBm
+cm9tIHRoZSBrZXJuZWwgc2hvdWxkIGFsbG9jYXRlIHNwYWNlDQorKioJZmly
+c3QsIHJhdGhlciB0aGFuIHBhc3NpbmcgaW4gTlVMTCBwb2ludGVycyBhbmQg
+d2FpdGluZyBmb3INCisqKgl0aGUgU0RLIHRvIGRvIGl0IGZvciB0aGVtLiAg
+U2luY2UgdGhlIFNESyBkb2VzIG5vdCBjaGVjayBmb3INCisqKglhbGxvY2F0
+aW9uIGZhaWx1cmUsIHdlIHBhbmljIGhlcmUuICBJdCdzIHVnbHksIGJ1dA0K
+KyoqCXVudGlsIHRoZSBTREsgZWl0aGVyIGNoZWNrcyBmb3IgbWFsbG9jIGVy
+cm9ycyBvciByZWplY3RzDQorKioJcmVxdWVzdHMgdGhhdCByZXF1aXJlIGFs
+bG9jYXRpb24sIHRoaXMgaXMgd2hhdCB3ZSdyZSBkb2luZy4NCisqKglSU0Ig
+MS8zLzAxDQorKi8NCisjZGVmaW5lIG1hbGxvYyhzaXplKSBOVUxMDQorI2Rl
+ZmluZSBtZW1zZXQocywgTkEsIHNpemUpIGJ6ZXJvKHMsIHNpemUpDQorI2Rl
+ZmluZSBtZW1jcHkoczEsIHMyLCBzaXplKSBiY29weShzMiwgczEsIHNpemUp
+DQorDQorI2VuZGlmIC8qIF9EQUZTX0tFUk5FTF9QTEFURk9STV9IICovDQpk
+aWZmIC11TnIgc2RrL3BsYXRmb3JtL2xpbnV4L2RhZnNfcGxhdGZvcm0uaCBz
+ZGstbmV3L3BsYXRmb3JtL2xpbnV4L2RhZnNfcGxhdGZvcm0uaA0KLS0tIHNk
+ay9wbGF0Zm9ybS9saW51eC9kYWZzX3BsYXRmb3JtLmgJTW9uIEp1biAxMSAx
+NDowNzo0MCAyMDAxDQorKysgc2RrLW5ldy9wbGF0Zm9ybS9saW51eC9kYWZz
+X3BsYXRmb3JtLmgJVGh1IEp1biAyOCAxMDozMDo0OSAyMDAxDQpAQCAtMSw2
+ICsxLDEwIEBADQogLyogZGFmc19wbGF0Zm9ybS5oIC0gTElOVVggKi8NCiAN
+CisjaWZuZGVmIF9fS0VSTkVMX18NCiAjaW5jbHVkZSA8aW50dHlwZXMuaD4N
+CisjZWxzZQ0KKyNpbmNsdWRlIDxsaW51eC90eXBlcy5oPg0KKyNlbmRpZg0K
+IA0KIHR5cGVkZWYgaW50OF90IGRhZnNfaW50ODsNCiB0eXBlZGVmIGludDE2
+X3QgZGFmc19pbnQxNjsNCg==
+---1463811584-481746603-993749925=:17056--

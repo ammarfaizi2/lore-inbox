@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263091AbUDATdn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 14:33:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262770AbUDATdj
+	id S262764AbUDATls (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 14:41:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263097AbUDATls
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 14:33:39 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:42961 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263091AbUDATa3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 14:30:29 -0500
-Subject: Re: CONFIG_DEBUG_PAGEALLOC and virt_addr_valid()
-From: Dave Hansen <haveblue@us.ibm.com>
-To: "Sridhar Samudrala [imap]" <sri@us.ibm.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0404011105120.1956@localhost.localdomain>
-References: <Pine.LNX.4.58.0404011105120.1956@localhost.localdomain>
-Content-Type: text/plain
-Message-Id: <1080847824.24060.39.camel@nighthawk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 01 Apr 2004 11:30:24 -0800
+	Thu, 1 Apr 2004 14:41:48 -0500
+Received: from ms-smtp-01-smtplb.ohiordc.rr.com ([65.24.5.135]:53742 "EHLO
+	ms-smtp-01-eri0.ohiordc.rr.com") by vger.kernel.org with ESMTP
+	id S262764AbUDATlO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 14:41:14 -0500
+From: Rob Couto <rpc@cafe4111.org>
+Reply-To: rpc@cafe4111.org
+Organization: Cafe 41:11
+To: linux-kernel@vger.kernel.org
+Subject: Re: Revealed root
+Date: Thu, 1 Apr 2004 14:40:47 -0500
+User-Agent: KMail/1.6.1
+References: <S262882AbUDAMPn/20040401121543Z+1658@vger.kernel.org>
+In-Reply-To: <S262882AbUDAMPn/20040401121543Z+1658@vger.kernel.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200404011440.47464.rpc@cafe4111.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-04-01 at 11:11, Sridhar Samudrala wrote:
-> When CONFIG_DEBUG_PAGEALLOC is enabled, i am noticing that virt_addr_valid()
-> (called from sctp_is_valid_kaddr()) is returning true even for freed objects.
-> Is this a bug or expected behavior?
+> start "using Linux". Sadly I misplaced the first letter, so I wrote "suing
 
-It's expected.  Right now it just makes sure the address translates to a
-valid pfn.  Figuring out whether there are actually pagetables
-underneath that address would require a pagetable walk.  
+that happens to me constantly. always typing 'jsut' and not 'just'. persistent 
+typo problem i have... glad i'm not in charge of anything important
 
-Don't we unmap things when they are free'd with CONFIG_DEBUG_PAGEALLOC? 
-I guess we could add a pagetable walk in the debug case to
-virt_addr_valid(), but it would probably make CONFIG_DEBUG_PAGEALLOC
-even more of a dog than it already is.  
-
--- Dave
-
+-- 
+Rob Couto [rpc@cafe4111.org]
+Rules for computing success:
+1) Attitude is no substitute for competence.
+2) Ease of use is no substitute for power.
+3) Safety matters; use a static-free hammer.
+--

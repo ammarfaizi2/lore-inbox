@@ -1,63 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263304AbTJZQwP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Oct 2003 11:52:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263307AbTJZQwP
+	id S263319AbTJZRA1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Oct 2003 12:00:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263328AbTJZRA1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Oct 2003 11:52:15 -0500
-Received: from m77.net81-65-140.noos.fr ([81.65.140.77]:23721 "EHLO
-	deep-space-9.dsnet") by vger.kernel.org with ESMTP id S263304AbTJZQwK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Oct 2003 11:52:10 -0500
-Date: Sun, 26 Oct 2003 17:51:33 +0100
-From: Stelian Pop <stelian@popies.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH 2.6.0-test9] sonypi driver update
-Message-ID: <20031026165133.GU4013@deep-space-9.dsnet>
-Reply-To: Stelian Pop <stelian@popies.net>
-Mail-Followup-To: Stelian Pop <stelian@popies.net>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Linus Torvalds <torvalds@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Sun, 26 Oct 2003 12:00:27 -0500
+Received: from nameserver1.brainwerkz.net ([209.251.159.130]:39301 "EHLO
+	nameserver1.mcve.com") by vger.kernel.org with ESMTP
+	id S263319AbTJZRAZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Oct 2003 12:00:25 -0500
+Message-ID: <32985.68.105.173.45.1067188279.squirrel@mail.mainstreetsoftworks.com>
+Date: Sun, 26 Oct 2003 12:11:19 -0500 (EST)
+Subject: Realtek 8169 - 8110S driver patch
+From: "Brad House" <brad_mssw@gentoo.org>
+To: <linux-kernel@vger.kernel.org>
+X-Priority: 3
+Importance: Normal
+X-Mailer: SquirrelMail (version 1.2.11)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+The RealTek 8110S chip is distributed on many x86_64 mobos,
+and the current in-kernel version of the r8169 driver does
+not appear to work.  I have adapted this driver from the
+official realtek 2.4 driver at:
+ftp://210.51.181.211/cn/nic/rtl8169rtl8169sbrtl8110sb/linux2.4.x-8169s(160)0915.zip
 
-This small patch corrects the Zoom and Thumbphrase button events.
+The patch for the 2.6 kernel is located here:
+http://dev.gentoo.org/~brad_mssw/kernel_patches/2.6.0/2.6.0-test9-r8169-8110S.patch
 
-Linus, please apply.
+This has been tested extensively on x86_64. The only quirk
+found is that it seems to require ACPI to work, but it seems
+as though x86_64 has this requirement all-around to be
+fully-functional.
 
-Thanks,
+Please CC me on any replies!
 
-Stelian.
+-Brad House
+brad_mssw@gentoo.org
+Gentoo Linux
 
-===== drivers/char/sonypi.h 1.18 vs edited =====
---- 1.18/drivers/char/sonypi.h	Mon Sep  1 12:37:24 2003
-+++ edited/drivers/char/sonypi.h	Fri Oct 24 21:13:49 2003
-@@ -37,7 +37,7 @@
- #ifdef __KERNEL__
- 
- #define SONYPI_DRIVER_MAJORVERSION	 1
--#define SONYPI_DRIVER_MINORVERSION	20
-+#define SONYPI_DRIVER_MINORVERSION	21
- 
- #define SONYPI_DEVICE_MODEL_TYPE1	1
- #define SONYPI_DEVICE_MODEL_TYPE2	2
-@@ -329,8 +329,8 @@
- 	{ SONYPI_DEVICE_MODEL_TYPE2, 0x08, SONYPI_PKEY_MASK, sonypi_pkeyev },
- 	{ SONYPI_DEVICE_MODEL_TYPE2, 0x11, SONYPI_BACK_MASK, sonypi_backev },
- 	{ SONYPI_DEVICE_MODEL_TYPE2, 0x08, SONYPI_HELP_MASK, sonypi_helpev },
--	{ SONYPI_DEVICE_MODEL_TYPE2, 0x08, SONYPI_ZOOM_MASK, sonypi_zoomev },
--	{ SONYPI_DEVICE_MODEL_TYPE2, 0x08, SONYPI_THUMBPHRASE_MASK, sonypi_thumbphraseev },
-+	{ SONYPI_DEVICE_MODEL_TYPE2, 0x21, SONYPI_ZOOM_MASK, sonypi_zoomev },
-+	{ SONYPI_DEVICE_MODEL_TYPE2, 0x20, SONYPI_THUMBPHRASE_MASK, sonypi_thumbphraseev },
- 	{ SONYPI_DEVICE_MODEL_TYPE2, 0x31, SONYPI_MEMORYSTICK_MASK, sonypi_memorystickev },
- 	{ SONYPI_DEVICE_MODEL_TYPE2, 0x41, SONYPI_BATTERY_MASK, sonypi_batteryev },
- 
--- 
-Stelian Pop <stelian@popies.net>
+
+
+

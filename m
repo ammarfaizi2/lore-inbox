@@ -1,59 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265661AbUGDMlp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265660AbUGDMuO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265661AbUGDMlp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jul 2004 08:41:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265682AbUGDMlo
+	id S265660AbUGDMuO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jul 2004 08:50:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265680AbUGDMuO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jul 2004 08:41:44 -0400
-Received: from av5-1-sn3.vrr.skanova.net ([81.228.9.113]:50858 "EHLO
-	av5-1-sn3.vrr.skanova.net") by vger.kernel.org with ESMTP
-	id S265661AbUGDMlW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jul 2004 08:41:22 -0400
-To: Andrew Morton <akpm@osdl.org>
-Cc: greg@kroah.com, viro@parcelfarce.linux.theplanet.co.uk,
-       linux-kernel@vger.kernel.org, axboe@suse.de
-Subject: Re: [PATCH] CDRW packet writing support for 2.6.7-bk13
-References: <m2lli36ec9.fsf@telia.com> <m2u0wqqdpl.fsf@telia.com>
-	<20040702150819.646b6103.akpm@osdl.org>
-	<20040702224720.GA7969@kroah.com>
-	<20040702155945.5c375bd2.akpm@osdl.org> <m27jtm0z7q.fsf@telia.com>
-	<20040702165132.575cba5b.akpm@osdl.org>
-From: Peter Osterlund <petero2@telia.com>
-Date: 04 Jul 2004 13:57:07 +0200
-In-Reply-To: <20040702165132.575cba5b.akpm@osdl.org>
-Message-ID: <m2fz88ugrw.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+	Sun, 4 Jul 2004 08:50:14 -0400
+Received: from kweetal.tue.nl ([131.155.3.6]:24328 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S265660AbUGDMuI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jul 2004 08:50:08 -0400
+Date: Sun, 4 Jul 2004 14:50:03 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       linux-kernel@vger.kernel.org, sebek64@post.cz
+Subject: Re: register dump when press scroll lock
+Message-ID: <20040704125003.GE6456@pclin040.win.tue.nl>
+References: <20040703102516.GA11284@penguin.localdomain> <200407040219.32581.vda@port.imtp.ilyichevsk.odessa.ua> <20040704121740.GA3637@penguin.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040704121740.GA3637@penguin.localdomain>
+User-Agent: Mutt/1.4.1i
+X-Spam-DCC: : kweetal.tue.nl 1074; Body=1 Fuz1=1 Fuz2=1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
+On Sun, Jul 04, 2004 at 02:17:40PM +0200, Marcel Sebek wrote:
 
-> Peter Osterlund <petero2@telia.com> wrote:
-> >
-> > > Oop, sorry, yes.  Peter, are you sure this is where the leak is coming from?
-> > 
-> > I'm sure that the module reference count as reported by lsmod
-> > increases each time I access /proc/driver/pktcdvd/pktcdvd0. I can make
-> > this problem go away either by patching __bdevname() or by deleting
-> > the call to __bdevname() in pktcdvd.c.
+> > > Steps to reproduce:
+> > > Switch keyboard by "Pause/Break" key from English to Czech map (or another
+> > > second keymap, I also tried Slovak). Then press scrolllock. The following
+> > > is printed out and scrlock led state is untouched:
 > 
-> Can't you use bdevname(pd->bdev) in there?
+> I'm using Debian testing.
+> 
+> I looked at keymap definition. For ScrLock there is this:
+> 
+> keycode 70 = Scroll_Lock Show_Memory Show_Registers
+> control keycode 70 = Show_State
+> alt keycode 70 = Scroll_Lock
+> 
+> If I want the same behavior as with english keymap, I should either
+> use Alt-ScrLock or rewrite the keymap.
 
-Not without more changes, because pd->bdev is only non-NULL when the
-device is actually opened by someone. When the device is setup (ie
-mapped to a real device) but not opened, pd->bdev (a struct
-block_device *) is NULL and pd->dev (a dev_t) is the only thing that
-keeps track of the mapping between the packet device and the real
-device.
+The keymap knows about 8 modifiers.
+You can bind keys to simple modifiers, also to locking modifiers.
 
-Maybe that's a bad design though. Perhaps pd->dev can be eliminated
-altogether.
+Your Czech keymap uses the Pause key as ShiftR_Lock.
+(ShiftR is the 6th modifier, see also keymaps(5).)
+Thus, while typing in the English state of the keyboard
+you are using no modifiers unless explicitly pressing Shift/Alt/Ctrl/...
+but when typing in the Czech state of the keyboard you are
+permanently using ShiftR.
 
-But anyway, if __bdevname() leaks a module reference it should get
-fixed, right?
+Now you press ScrollLock in the Czech state of the keyboard.
+What happens is the action bound to ShiftR ScrollLock.
+If no action is bound you may instead get the action bound
+to Plain ScrollLock.
 
--- 
-Peter Osterlund - petero2@telia.com
-http://w1.894.telia.com/~u89404340
+Investigate your keymap. If you understand, all is well.
+If you don't understand, complain, e.g. to aeb@cwi.nl.
+
+I am not aware of any recent changes in this area.
+Your keymap is something of your own choice, not something
+given by the kernel. See also loadkeys and dumpkeys.
+
+Andries

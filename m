@@ -1,326 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261684AbVAGXAa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261688AbVAGW4j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261684AbVAGXAa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 18:00:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261680AbVAGW7n
+	id S261688AbVAGW4j (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 17:56:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261686AbVAGW4W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 17:59:43 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:1247 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261684AbVAGW5b
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 17:57:31 -0500
-Date: Fri, 7 Jan 2005 18:06:42 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Vasil Kolev <vasil@ludost.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Fix for new elf_loader bug?
-Message-ID: <20050107200641.GN29176@logos.cnet>
-References: <41DEAF8F.3030107@bio.ifi.lmu.de> <20050107170514.GJ29176@logos.cnet> <1105136799.1644.1.camel@doom.home.ludost.net>
+	Fri, 7 Jan 2005 17:56:22 -0500
+Received: from fw.osdl.org ([65.172.181.6]:45256 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261688AbVAGWxe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 17:53:34 -0500
+Date: Fri, 7 Jan 2005 14:58:01 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: mingo@elte.hu, viro@parcelfarce.linux.theplanet.co.uk, paulmck@us.ibm.com,
+       arjan@infradead.org, linux-kernel@vger.kernel.org, jtk@us.ibm.com,
+       wtaber@us.ibm.com, pbadari@us.ibm.com, markv@us.ibm.com,
+       greghk@us.ibm.com, torvalds@osdl.org
+Subject: Re: [PATCH] fs: Restore files_lock and set_fs_root exports
+Message-Id: <20050107145801.64d55cd3.akpm@osdl.org>
+In-Reply-To: <20050107221905.GA17567@infradead.org>
+References: <20050106203258.GN26051@parcelfarce.linux.theplanet.co.uk>
+	<20050106210408.GM1292@us.ibm.com>
+	<20050106212417.GQ26051@parcelfarce.linux.theplanet.co.uk>
+	<20050106152621.395f935e.akpm@osdl.org>
+	<20050106234123.GA27869@infradead.org>
+	<20050106162928.650e9d71.akpm@osdl.org>
+	<20050107002624.GA29006@infradead.org>
+	<20050107090014.GA24946@elte.hu>
+	<20050107091542.GA5295@infradead.org>
+	<20050107140034.46aec534.akpm@osdl.org>
+	<20050107221905.GA17567@infradead.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="JP+T4n/bALQSJXh8"
-Content-Disposition: inline
-In-Reply-To: <1105136799.1644.1.camel@doom.home.ludost.net>
-User-Agent: Mutt/1.5.5.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---JP+T4n/bALQSJXh8
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Sat, Jan 08, 2005 at 12:26:39AM +0200, Vasil Kolev wrote:
-> On ????, 2005-01-07 at 15:05 -0200, Marcelo Tosatti wrote:
-> > On Fri, Jan 07, 2005 at 04:49:35PM +0100, Frank Steiner wrote:
-> > > Hi,
-> > > 
-> > > is there already a patch for the new problem with the elf loader, maybe
-> > > in the bitkeeper tree?
-> > > 
-> > > http://www.isec.pl/vulnerabilities/isec-0021-uselib.txt
-> > 
-> > 2.6.10-ac6 contains a fix for the problem - a similar version should hit the BK tree 
-> > RSN.
+Christoph Hellwig <hch@infradead.org> wrote:
+>
+> On Fri, Jan 07, 2005 at 02:00:34PM -0800, Andrew Morton wrote:
+> > No, I'd say that unexports are different.  They can clearly break existing
+> > code and so should only be undertaken with caution, and with lengthy notice
+> > if possible.
 > 
-> Looking at the advisory, it affects 2.4, too, where can a patch for it
-> be found? 
+> As mentioned before we only unexported symbols were we were pretty clear
+> that all users of it are indeep utterly broken.  I got about a dozend
+> replies for this patches, and for more than half of it where the reporter
+> was either the author or the module was opensource I could help them to
+> actually fix their code.  In this case the code is far more broken than
+> the others, but we've even been trying to help them fix their code for
+> more than a year, but IBM folks have been constanly refusing.
 
-http://linux.bkbits.net:8080/linux-2.4/patch@1.1551?nav=index.html|ChangeSet@-1d|cset@1.1551
+They didn't fix their code because it worked - no reason to do so.
 
-Attached.
+Telling people "this is going away in 12 months" gives them reason to fix
+the code.  And a reasonable amount of time to do so and to distribute the
+new version.
 
+> > The cost to us of maintaining those two lines of code for a year is
+> > basically zero.
+> 
+> But as long as IBM people don't fix their %$^%! they'll continue annoying
+> us and the Distibutors about adding more and more hacks for it,
 
---JP+T4n/bALQSJXh8
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="2.4-do-brk-locked.patch"
+Maybe, maybe not.  But is it appropriate for us to be trying to control
+someone else's internal activities via alterations to the kernel?
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1550  -> 1.1551 
-#	      kernel/ksyms.c	1.84    -> 1.85   
-#	  include/linux/mm.h	1.48    -> 1.49   
-#	    fs/binfmt_aout.c	1.9     -> 1.10   
-#	     fs/binfmt_elf.c	1.38    -> 1.39   
-#	arch/sparc64/kernel/binfmt_aout32.c	1.6     -> 1.7    
-#	           mm/mmap.c	1.35    -> 1.36   
-#	arch/mips/kernel/irixelf.c	1.6     -> 1.7    
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 05/01/07	marcelo@logos.cnet	1.1551
-# Paul Starzetz: sys_uselib() race vulnerability  (CAN-2004-1235)
-# 
-# http://isec.pl/vulnerabilities/isec-0021-uselib.txt
-# --------------------------------------------
-#
-diff -Nru a/arch/mips/kernel/irixelf.c b/arch/mips/kernel/irixelf.c
---- a/arch/mips/kernel/irixelf.c	Fri Jan  7 18:04:11 2005
-+++ b/arch/mips/kernel/irixelf.c	Fri Jan  7 18:04:11 2005
-@@ -130,7 +130,7 @@
- 	end = PAGE_ALIGN(end);
- 	if (end <= start)
- 		return;
--	do_brk(start, end - start);
-+	do_brk_locked(start, end - start);
- }
- 
- 
-@@ -379,7 +379,7 @@
- 
- 	/* Map the last of the bss segment */
- 	if (last_bss > len) {
--		do_brk(len, (last_bss - len));
-+		do_brk_locked(len, (last_bss - len));
- 	}
- 	kfree(elf_phdata);
- 
-@@ -567,7 +567,7 @@
- 	unsigned long v;
- 	struct prda *pp;
- 
--	v =  do_brk (PRDA_ADDRESS, PAGE_SIZE);
-+	v =  do_brk_locked (PRDA_ADDRESS, PAGE_SIZE);
- 
- 	if (v < 0)
- 		return;
-@@ -859,7 +859,7 @@
- 	len = (elf_phdata->p_filesz + elf_phdata->p_vaddr+ 0xfff) & 0xfffff000;
- 	bss = elf_phdata->p_memsz + elf_phdata->p_vaddr;
- 	if (bss > len)
--	  do_brk(len, bss-len);
-+	  do_brk_locked(len, bss-len);
- 	kfree(elf_phdata);
- 	return 0;
- }
-diff -Nru a/arch/sparc64/kernel/binfmt_aout32.c b/arch/sparc64/kernel/binfmt_aout32.c
---- a/arch/sparc64/kernel/binfmt_aout32.c	Fri Jan  7 18:04:11 2005
-+++ b/arch/sparc64/kernel/binfmt_aout32.c	Fri Jan  7 18:04:11 2005
-@@ -49,7 +49,7 @@
- 	end = PAGE_ALIGN(end);
- 	if (end <= start)
- 		return;
--	do_brk(start, end - start);
-+	do_brk_locked(start, end - start);
- }
- 
- /*
-@@ -246,10 +246,10 @@
- 	if (N_MAGIC(ex) == NMAGIC) {
- 		loff_t pos = fd_offset;
- 		/* Fuck me plenty... */
--		error = do_brk(N_TXTADDR(ex), ex.a_text);
-+		error = do_brk_locked(N_TXTADDR(ex), ex.a_text);
- 		bprm->file->f_op->read(bprm->file, (char *) N_TXTADDR(ex),
- 			  ex.a_text, &pos);
--		error = do_brk(N_DATADDR(ex), ex.a_data);
-+		error = do_brk_locked(N_DATADDR(ex), ex.a_data);
- 		bprm->file->f_op->read(bprm->file, (char *) N_DATADDR(ex),
- 			  ex.a_data, &pos);
- 		goto beyond_if;
-@@ -257,7 +257,7 @@
- 
- 	if (N_MAGIC(ex) == OMAGIC) {
- 		loff_t pos = fd_offset;
--		do_brk(N_TXTADDR(ex) & PAGE_MASK,
-+		do_brk_locked(N_TXTADDR(ex) & PAGE_MASK,
- 			ex.a_text+ex.a_data + PAGE_SIZE - 1);
- 		bprm->file->f_op->read(bprm->file, (char *) N_TXTADDR(ex),
- 			  ex.a_text+ex.a_data, &pos);
-@@ -272,7 +272,7 @@
- 
- 		if (!bprm->file->f_op->mmap) {
- 			loff_t pos = fd_offset;
--			do_brk(0, ex.a_text+ex.a_data);
-+			do_brk_locked(0, ex.a_text+ex.a_data);
- 			bprm->file->f_op->read(bprm->file,(char *)N_TXTADDR(ex),
- 				  ex.a_text+ex.a_data, &pos);
- 			goto beyond_if;
-@@ -388,7 +388,7 @@
- 	len = PAGE_ALIGN(ex.a_text + ex.a_data);
- 	bss = ex.a_text + ex.a_data + ex.a_bss;
- 	if (bss > len) {
--		error = do_brk(start_addr + len, bss - len);
-+		error = do_brk_locked(start_addr + len, bss - len);
- 		retval = error;
- 		if (error != start_addr + len)
- 			goto out;
-diff -Nru a/fs/binfmt_aout.c b/fs/binfmt_aout.c
---- a/fs/binfmt_aout.c	Fri Jan  7 18:04:11 2005
-+++ b/fs/binfmt_aout.c	Fri Jan  7 18:04:11 2005
-@@ -46,7 +46,7 @@
- 	start = PAGE_ALIGN(start);
- 	end = PAGE_ALIGN(end);
- 	if (end > start) {
--		unsigned long addr = do_brk(start, end - start);
-+		unsigned long addr = do_brk_locked(start, end - start);
- 		if (BAD_ADDR(addr))
- 			return addr;
- 	}
-@@ -317,10 +317,10 @@
- 		loff_t pos = fd_offset;
- 		/* Fuck me plenty... */
- 		/* <AOL></AOL> */
--		error = do_brk(N_TXTADDR(ex), ex.a_text);
-+		error = do_brk_locked(N_TXTADDR(ex), ex.a_text);
- 		bprm->file->f_op->read(bprm->file, (char *) N_TXTADDR(ex),
- 			  ex.a_text, &pos);
--		error = do_brk(N_DATADDR(ex), ex.a_data);
-+		error = do_brk_locked(N_DATADDR(ex), ex.a_data);
- 		bprm->file->f_op->read(bprm->file, (char *) N_DATADDR(ex),
- 			  ex.a_data, &pos);
- 		goto beyond_if;
-@@ -341,7 +341,7 @@
- 		map_size = ex.a_text+ex.a_data;
- #endif
- 
--		error = do_brk(text_addr & PAGE_MASK, map_size);
-+		error = do_brk_locked(text_addr & PAGE_MASK, map_size);
- 		if (error != (text_addr & PAGE_MASK)) {
- 			send_sig(SIGKILL, current, 0);
- 			return error;
-@@ -375,7 +375,7 @@
- 
- 		if (!bprm->file->f_op->mmap||((fd_offset & ~PAGE_MASK) != 0)) {
- 			loff_t pos = fd_offset;
--			do_brk(N_TXTADDR(ex), ex.a_text+ex.a_data);
-+			do_brk_locked(N_TXTADDR(ex), ex.a_text+ex.a_data);
- 			bprm->file->f_op->read(bprm->file,(char *)N_TXTADDR(ex),
- 					ex.a_text+ex.a_data, &pos);
- 			flush_icache_range((unsigned long) N_TXTADDR(ex),
-@@ -476,7 +476,7 @@
- 			error_time = jiffies;
- 		}
- 
--		do_brk(start_addr, ex.a_text + ex.a_data + ex.a_bss);
-+		do_brk_locked(start_addr, ex.a_text + ex.a_data + ex.a_bss);
- 		
- 		file->f_op->read(file, (char *)start_addr,
- 			ex.a_text + ex.a_data, &pos);
-@@ -500,7 +500,7 @@
- 	len = PAGE_ALIGN(ex.a_text + ex.a_data);
- 	bss = ex.a_text + ex.a_data + ex.a_bss;
- 	if (bss > len) {
--		error = do_brk(start_addr + len, bss - len);
-+		error = do_brk_locked(start_addr + len, bss - len);
- 		retval = error;
- 		if (error != start_addr + len)
- 			goto out;
-diff -Nru a/fs/binfmt_elf.c b/fs/binfmt_elf.c
---- a/fs/binfmt_elf.c	Fri Jan  7 18:04:11 2005
-+++ b/fs/binfmt_elf.c	Fri Jan  7 18:04:11 2005
-@@ -84,7 +84,7 @@
- 	start = ELF_PAGEALIGN(start);
- 	end = ELF_PAGEALIGN(end);
- 	if (end > start) {
--		unsigned long addr = do_brk(start, end - start);
-+		unsigned long addr = do_brk_locked(start, end - start);
- 		if (BAD_ADDR(addr))
- 			return addr;
- 	}
-@@ -379,7 +379,7 @@
- 
- 	/* Map the last of the bss segment */
- 	if (last_bss > elf_bss) {
--		error = do_brk(elf_bss, last_bss - elf_bss);
-+		error = do_brk_locked(elf_bss, last_bss - elf_bss);
- 		if (BAD_ADDR(error))
- 			goto out_close;
- 	}
-@@ -425,7 +425,7 @@
- 		goto out;
- 	}
- 
--	do_brk(0, text_data);
-+	do_brk_locked(0, text_data);
- 	if (!interpreter->f_op || !interpreter->f_op->read)
- 		goto out;
- 	if (interpreter->f_op->read(interpreter, addr, text_data, &offset) < 0)
-@@ -433,7 +433,7 @@
- 	flush_icache_range((unsigned long)addr,
- 	                   (unsigned long)addr + text_data);
- 
--	do_brk(ELF_PAGESTART(text_data + ELF_MIN_ALIGN - 1),
-+	do_brk_locked(ELF_PAGESTART(text_data + ELF_MIN_ALIGN - 1),
- 		interp_ex->a_bss);
- 	elf_entry = interp_ex->a_entry;
- 
-@@ -974,7 +974,7 @@
- 	len = ELF_PAGESTART(elf_phdata->p_filesz + elf_phdata->p_vaddr + ELF_MIN_ALIGN - 1);
- 	bss = elf_phdata->p_memsz + elf_phdata->p_vaddr;
- 	if (bss > len)
--		do_brk(len, bss - len);
-+		do_brk_locked(len, bss - len);
- 	error = 0;
- 
- out_free_ph:
-diff -Nru a/include/linux/mm.h b/include/linux/mm.h
---- a/include/linux/mm.h	Fri Jan  7 18:04:11 2005
-+++ b/include/linux/mm.h	Fri Jan  7 18:04:11 2005
-@@ -575,6 +575,7 @@
- extern int do_munmap(struct mm_struct *, unsigned long, size_t);
- 
- extern unsigned long do_brk(unsigned long, unsigned long);
-+extern unsigned long do_brk_locked(unsigned long, unsigned long);
- 
- static inline void __vma_unlink(struct mm_struct * mm, struct vm_area_struct * vma, struct vm_area_struct * prev)
- {
-diff -Nru a/kernel/ksyms.c b/kernel/ksyms.c
---- a/kernel/ksyms.c	Fri Jan  7 18:04:11 2005
-+++ b/kernel/ksyms.c	Fri Jan  7 18:04:11 2005
-@@ -88,6 +88,7 @@
- EXPORT_SYMBOL(do_mmap_pgoff);
- EXPORT_SYMBOL(do_munmap);
- EXPORT_SYMBOL(do_brk);
-+EXPORT_SYMBOL(do_brk_locked);
- EXPORT_SYMBOL(exit_mm);
- EXPORT_SYMBOL(exit_files);
- EXPORT_SYMBOL(exit_fs);
-diff -Nru a/mm/mmap.c b/mm/mmap.c
---- a/mm/mmap.c	Fri Jan  7 18:04:11 2005
-+++ b/mm/mmap.c	Fri Jan  7 18:04:11 2005
-@@ -1116,6 +1116,21 @@
- 	return addr;
- }
- 
-+/* locking version of do_brk. */
-+unsigned long do_brk_locked(unsigned long addr, unsigned long len)
-+{
-+	unsigned long ret;
-+
-+	down_write(&current->mm->mmap_sem);
-+	ret = do_brk(addr, len);
-+	up_write(&current->mm->mmap_sem);
-+
-+	return ret;
-+}
-+
-+
-+
-+
- /* Build the RB tree corresponding to the VMA list. */
- void build_mmap_rb(struct mm_struct * mm)
- {
+> and other
+> people will write similarly crappy code using it again and making the
+> removal even more difficult. 
 
---JP+T4n/bALQSJXh8--
+I doubt if people would be silly enough to use a deprecated export in new
+code after the export has been scheduled for removal.  If they do then yes,
+sorry, we have to draw the line somewhere.
+
+You still have not demonstrated any benefit to any party from not delaying
+the removal of these two exports.

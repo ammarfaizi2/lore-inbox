@@ -1,78 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271291AbTGPX36 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 19:29:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271326AbTGPX35
+	id S271343AbTGPXax (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 19:30:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271336AbTGPXaM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 19:29:57 -0400
-Received: from sponsa.its.UU.SE ([130.238.7.36]:18379 "EHLO sponsa.its.uu.se")
-	by vger.kernel.org with ESMTP id S271307AbTGPX3W (ORCPT
+	Wed, 16 Jul 2003 19:30:12 -0400
+Received: from mailhost.tue.nl ([131.155.2.7]:33808 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S271306AbTGPX3T (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 19:29:22 -0400
-Date: Thu, 17 Jul 2003 01:43:05 +0200 (MEST)
-Message-Id: <200307162343.h6GNh5iu016584@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: vojtech@suse.cz
-Subject: Re: PS2 mouse going nuts during cdparanoia session.
-Cc: alan@lxorguk.ukuu.org.uk, axboe@suse.de, davej@codemonkey.org.uk,
+	Wed, 16 Jul 2003 19:29:19 -0400
+Date: Thu, 17 Jul 2003 01:44:10 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Andries Brouwer <aebr@win.tue.nl>, greg@kroah.com,
        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] print_dev_t for 2.6.0-test1-mm
+Message-ID: <20030717014410.A2026@pclin040.win.tue.nl>
+References: <20030716184609.GA1913@kroah.com> <20030716130915.035a13ca.akpm@osdl.org> <20030716210253.GD2279@kroah.com> <20030716141320.5bd2a8b3.akpm@osdl.org> <20030716213451.GA1964@win.tue.nl> <20030716143902.4b26be70.akpm@osdl.org> <20030716222015.GB1964@win.tue.nl> <20030716152143.6ab7d7d3.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030716152143.6ab7d7d3.akpm@osdl.org>; from akpm@osdl.org on Wed, Jul 16, 2003 at 03:21:43PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Jul 2003 20:56:19 +0200, Vojtech Pavlik wrote:
->This is basically because the check for lost bytes wasn't present in
->2.4. Now that it is there, it works well with real lost bytes, but will
->fire also in case when the mouse interrupt was delayed for more than
->half a second, or if indeed a mouse interrupt gets lost. The 2.5 kernel
->by default programs the mouse to high speed reporting (up to 200 updates
->per second). This may, possibly make the problem show up easier.
+On Wed, Jul 16, 2003 at 03:21:43PM -0700, Andrew Morton wrote:
 
-This was interesting: 2.5 programs the mouse differently than 2.4.
-I've been having ps2 mouse problems with the 2.5 input layer,
-including having to move the mouse much further for a given
-cursor movement, and a general jerky/unstable feeling of the mouse.
+> > > Why do we need the 16:16 option?
+> > 
+> > It is not very important, but major 0 is reserved, so if userspace
+> > (or a filesystem) hands us a 32-bit device number, we have to
+> > split that in some way, not 0+32. Life is easiest with 16+16.
+> > (Now the major is nonzero, otherwise we had 8+8.)
+> > Other choices lead to slightly more complicated code.
+> > 
+> 
+> Why would anyone hand the kernel a 32-bit device number?  They're either 16
+> or 64, are they not?
 
-2.4's pc_keyb.c has (disabled by default) init code which puts the
-mouse in 100 samples/s and 2:1 scaling, whereas 2.5 puts it into
-200 samples/s and 1:1 scaling. So I hacked psmouse-base.c to mimic
-2.4, and VOILA! now my mouse feels A LOT better.
+The kernel has no control over what userspace comes with.
+And here userspace includes filesystems.
+Not all filesystems know how to come with 64 bits.
 
-The crude patch below shows what I did. (I have to set psmouse_noext
-as well, to avoid misidentification, jerkiness/lost syncs, and
-utter mayhem upon resume from suspend.)
+Andries
 
-Would you accept a cleaned up patch which allows the rate and
-scaling to be adjusted, similarly to noext and resolution?
-
-/Mikael
-
---- linux-2.6.0-test1/drivers/input/mouse/psmouse-base.c.~1~	2003-06-23 13:07:37.000000000 +0200
-+++ linux-2.6.0-test1/drivers/input/mouse/psmouse-base.c	2003-07-17 01:23:57.000000000 +0200
-@@ -33,7 +33,7 @@
- 
- #define PSMOUSE_LOGITECH_SMARTSCROLL	1
- 
--static int psmouse_noext;
-+static int psmouse_noext = 1;
- int psmouse_resolution;
- int psmouse_smartscroll = PSMOUSE_LOGITECH_SMARTSCROLL;
- 
-@@ -435,7 +435,7 @@
- 	param[0] = 100;
- 	psmouse_command(psmouse, param, PSMOUSE_CMD_SETRATE);
- 
--	param[0] = 200;
-+	param[0] = 100;
- 	psmouse_command(psmouse, param, PSMOUSE_CMD_SETRATE);
- 
- /*
-@@ -443,7 +443,8 @@
-  */
- 
- 	psmouse_set_resolution(psmouse);
--	psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11);
-+#define PSMOUSE_CMD_SETSCALE21 0x00e7
-+	psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE21);
- 
- /*
-  * We set the mouse into streaming mode.

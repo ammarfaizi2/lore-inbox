@@ -1,35 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278690AbRJ2S3o>; Mon, 29 Oct 2001 13:29:44 -0500
+	id <S279313AbRJ2SfE>; Mon, 29 Oct 2001 13:35:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279059AbRJ2S3e>; Mon, 29 Oct 2001 13:29:34 -0500
-Received: from hamachi.synopsys.com ([204.176.20.26]:3819 "EHLO
-	hamachi.synopsys.com") by vger.kernel.org with ESMTP
-	id <S278905AbRJ2S3V>; Mon, 29 Oct 2001 13:29:21 -0500
-Message-ID: <3BDD9FF4.D54DC0C9@Synopsys.COM>
-Date: Mon, 29 Oct 2001 19:29:08 +0100
-From: Harald Dunkel <harri@synopsys.COM>
-Reply-To: harri@synopsys.COM
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.12-preempt i686)
-X-Accept-Language: en
+	id <S279324AbRJ2Sey>; Mon, 29 Oct 2001 13:34:54 -0500
+Received: from mail.digizip.com ([207.254.39.40]:17168 "HELO mail.digizip.com")
+	by vger.kernel.org with SMTP id <S279313AbRJ2Sen>;
+	Mon, 29 Oct 2001 13:34:43 -0500
+Reply-To: <bob@austinmichaels.com>
+From: "Bob Hebert" <bob@austinmichaels.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Opportunities
+Date: Mon, 29 Oct 2001 11:40:29 -0700
+Message-ID: <NCBBLEKOGKAKNBBPAGPEMEMIDMAA.bob@austinmichaels.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 3c59x:command 0x3002 did not complete! Status=0xffff
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks,
+Linux Developers,
 
-Does anybody know what this message in kern.log means?
+I represent a company in Phoenix, Arizona that is seeking experienced Linux
+"OS" Developers to work with Kernel and Device Driver development.  Top
+wages paid and relocation assistance available.  Anyone interested in more
+information on this subject, please contact me by email, as no further
+contact will be made to this list of subscribers.
 
-	eth0: command 0x3002 did not complete! Status=0xffff
+Thanks for your review.
 
-It comes up when I try to setup a pppoe connection to my provider.
-The interface is a 3c59x.
+Bob Hebert
 
-
-Any help would be highly appreciated
-
-Harri

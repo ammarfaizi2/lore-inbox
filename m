@@ -1,90 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276642AbRJYXK6>; Thu, 25 Oct 2001 19:10:58 -0400
+	id <S276653AbRJYXQs>; Thu, 25 Oct 2001 19:16:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276646AbRJYXKs>; Thu, 25 Oct 2001 19:10:48 -0400
-Received: from mpdr0.detroit.mi.ameritech.net ([206.141.239.206]:44696 "EHLO
-	mailhost.det.ameritech.net") by vger.kernel.org with ESMTP
-	id <S276642AbRJYXKh>; Thu, 25 Oct 2001 19:10:37 -0400
-Date: Thu, 25 Oct 2001 19:14:47 -0400 (EDT)
-From: volodya@mindspring.com
-Reply-To: volodya@mindspring.com
-To: Nate Dannenberg <natedac@kscable.com>
-cc: livid-gatos@linuxvideo.org, video4linux-list@redhat.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: [livid-gatos] [RFC] alternative kernel multimedia API
-In-Reply-To: <Pine.LNX.4.33.0110251534240.31044-100000@daconcepts.dyndns.org>
-Message-ID: <Pine.LNX.4.20.0110251911520.9634-100000@node2.localnet.net>
+	id <S276665AbRJYXQj>; Thu, 25 Oct 2001 19:16:39 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:35065 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S276653AbRJYXQY> convert rfc822-to-8bit; Thu, 25 Oct 2001 19:16:24 -0400
+Message-ID: <3BD89B1E.28E4D7DC@mvista.com>
+Date: Thu, 25 Oct 2001 16:07:10 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Shaya Potter <spotter@cs.columbia.edu>
+CC: =?iso-8859-1?Q?Jos=E9?= Luis Domingo =?iso-8859-1?Q?L=F3pez?= 
+	<jdomingo@internautas.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Linux Scheduler and Compilation
+In-Reply-To: <007501c15d68$94f12c60$8630fdd4@3232424> 
+		<20011025203743.B504@dardhal.mired.net> <1004036810.1770.2.camel@zaphod>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 25 Oct 2001, Nate Dannenberg wrote:
-
-> On Thu, 25 Oct 2001 volodya@mindspring.com wrote:
+Shaya Potter wrote:
 > 
+> On Thu, 2001-10-25 at 16:37, José Luis Domingo López wrote:
+> > On Thursday, 25 October 2001, at 18:20:25 +0300,
+> > Omer Sever wrote:
 > >
-> >  After looking at and working with Xv, v4l and v4l2 I became somewhat
-> > dissatisfied with the current state of affairs. I have attached a
-> > description of the API that would make (at least) me much happier.
-> >
-> >  I would very much appreciate comments from interested people..
+> > >      I have a project on Linux CPU Scheduler to make it Fair Share
+> > > Scheduler.I will make some changes on some files such as sched.c vs...I will
+> > > want to see the effect ot the change but recompilation of the kernel takes
+> > > about half an hour on my machine.How can I minimize this time?Which part
+> > > should I necessarily include in my config file for the kernel to minimize
+> > > it?
+> > >
+> > make is your friend: it will only recompile those files that changed from
+> > the last compilation. If you modify some #includes in the code, I believe
+> > you will have to also run "make dep" before, to get dependencies right.
 > 
-> I'm not a coder for Linux or X, but I figured this would be a good read
-> anyway, as it might provide some ideas for a similar (albeit less complex)
-> issue on another platform I use >:-)
+> Except, as I discovered recently in playing around with the scheduler,
+> if you modify sched.h, you basically have to recompile the entire
+> kernel, as it seems everything depends on it.
 > 
-> Anyways since this is an RFC, here's the only a couple of comments I can
-> think of (the RFC otherwise looks clear to me):
+> On that note, why is add_to_runqueue() in sched.c and
+> del_from_runqueue() in sched.h?  del_from_runqueue being the only func I
+> was modifying in sched.h (really annoying have to recompile an entire
+> kernel multiple times in a vmware vm, albiet thats not a good reason to
+> move it, I'm just wondering why they are split in 2 different files)
 > 
-> 
-> Commands/queries should also include some kind of (arbitrary, decided by the
-> calling program) command serial number, so that an out-of-sequence reply
-> (those prepended with a colon as you describe) can be matched to a previous
-> command/query.  This could allow several commands to be sent and handled by
-> multiple processes/threads/whatever.
+Somewhere back around 2.2.15 (or so) a change was made that has the smp
+cpu start up code removing the start up task from the run list.  I think
+you will find the del_from_runqueue() is only used in this case.  It
+could have been done in init_idle() in sched.c (in fact the code is
+there) but it is also done prior to this call.  Sigh...
 
-out of sequence replies are meant to be volunteered by the driver, not
-requested by the application (thought the application may want to turn
-on/off their generation)  I thought about putting a restriction that
-prohibits the user application from doing this: write one query, write
-another query, read one reply, read another reply and instead require it
-to always: write query, read all replies, repeat if necessary. This will
-conserve the space used by buffers for the control device.
-
-                        Vladimir Dergachev
-
-> 
->  05,HUE=7\n
->  07,some unrelated command
-> +05\n				# The HUE command was successful
-> :07,reply to unrelated command
-> :05,HUE=6\n			# Driver reported the HUE parameter as
-> 				# different from that most recently set.
-> 
-> The program wanted to set HUE to 7, command successful, value later returned
-> was 6 (maybe the device only allows even values), while at the same time some
-> other command was sent and processed.
-> 
-> Also, it might be a nice idea to return the range of one or more parameters if
-> a command given is out of range.  Suppose HUE is only valid for values 0-255:
-> 
->  06,HUE=300\n
-> -06,HUE=INVALID,0,255\n
-> 
-> ..Would tell the calling program that a value given for HUE is only valid for
-> a range of 0 to 255.  This would be useful for a program that wants to attempt
-> to guess the range a device accepts for a given parameter.
-> 
-> -- 
->  _________________________ ___ ___
-> |  natedac@kscable.com    //ZZ]__ |
-> |      C64/C128/SCPU     |'/  |Z/ |
-> | What's *YOUR* Hobby!?  | \__|_\ |
-> |_________________________\___]___|
-> 
-> 
-
+George

@@ -1,72 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264064AbUDBOsn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Apr 2004 09:48:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264066AbUDBOsm
+	id S264061AbUDBOxQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Apr 2004 09:53:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264066AbUDBOxQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Apr 2004 09:48:42 -0500
-Received: from mail.fdk-filmhaus.de ([212.184.83.66]:44780 "EHLO
-	mail.fdk-filmhaus.de") by vger.kernel.org with ESMTP
-	id S264064AbUDBOsi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Apr 2004 09:48:38 -0500
-Subject: powernow-k8: broken PSB
-From: Christoph Terhechte <ct@fdk-berlin.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-GPK6VgxApLmD3F0/Z/ar"
-Message-Id: <1080917249.7252.13.camel@asahi>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 02 Apr 2004 16:47:30 +0200
+	Fri, 2 Apr 2004 09:53:16 -0500
+Received: from math.ut.ee ([193.40.5.125]:25021 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id S264061AbUDBOxO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Apr 2004 09:53:14 -0500
+Date: Fri, 2 Apr 2004 17:53:11 +0300 (EEST)
+From: Meelis Roos <mroos@linux.ee>
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: [2.6 IDE PATCH] SanDisk is flash - like in 2.4
+Message-ID: <Pine.GSO.4.44.0404021750550.17950-100000@math.ut.ee>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Former SunDisk AFA flash disk maker renamed itself to SanDisk and now
+there are flash disks with both names. This is the same patch that went
+into 2.4, only rediffed against current 2.6 BK.
 
---=-GPK6VgxApLmD3F0/Z/ar
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-Hi,
-
-I'm running Gentoo Linux on an Athlon 64 system (board is Asus 8KV SE
-Deluxe). I was getting the "BIOS error - no PSB" message when trying to
-"modprobe powernow-k8", so I upgraded to 2.6.5-rc3-mm4 which includes
-Pavel Machek's new powernow-k8 driver. Theoretically, it should be
-getting tables through ACPI and ignore the legacy PST/PSB tables, but
-I'm still getting the same error as before and inserting powernow-k8
-fails with this message:
-
-FATAL: Error inserting powernow_k8
-(/lib/modules/2.6.5-rc3-mm4/kernel/arch/x86_64/cpufreq/powernow-k8.ko):
-No such device
-
-Is there anything I need to tell the kernel explicitly to inform it not
-to use the legacy method? Any kernel options I might have overlooked?
-
-BIOS support for ACPI 2.0 is activated and APIC APIC Supprt enabled. I'm
-confused about this boot message, though:
-
-PCI bridge 00:01 from 1106 found. Setting "noapic". Overwrite with
-"apic"
-
---=20
-Christoph Terhechte <ct@fdk-berlin.de>
-International Forum of New Cinema
-Potsdamer Strasse 2
-D-10785 Berlin
-Tel: +49-30-269.55.200
-Fax: +49-30-269.55.222
+===== drivers/ide/ide-probe.c 1.71 vs edited =====
+--- 1.71/drivers/ide/ide-probe.c	Wed Mar 17 00:12:28 2004
++++ edited/drivers/ide/ide-probe.c	Fri Apr  2 17:50:06 2004
+@@ -103,7 +103,8 @@
+ 		if (id->config == 0x848a) return 1;	/* CompactFlash */
+ 		if (!strncmp(id->model, "KODAK ATA_FLASH", 15)	/* Kodak */
+ 		 || !strncmp(id->model, "Hitachi CV", 10)	/* Hitachi */
+-		 || !strncmp(id->model, "SunDisk SDCFB", 13)	/* SunDisk */
++		 || !strncmp(id->model, "SunDisk SDCFB", 13)	/* old SanDisk */
++		 || !strncmp(id->model, "SanDisk SDCFB", 13)	/* SanDisk */
+ 		 || !strncmp(id->model, "HAGIWARA HPC", 12)	/* Hagiwara */
+ 		 || !strncmp(id->model, "LEXAR ATA_FLASH", 15)	/* Lexar */
+ 		 || !strncmp(id->model, "ATA_FLASH", 9))	/* Simple Tech */
 
 
---=-GPK6VgxApLmD3F0/Z/ar
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
+-- 
+Meelis Roos (mroos@linux.ee)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQBAbX0BUMN/y69U3RgRAgKHAKCkVhEQjXBl6R7zcj59LTpChTVxOgCdEvi7
-u/udaxJHyhSeLcdXXkRNhX4=
-=hlnE
------END PGP SIGNATURE-----
 
---=-GPK6VgxApLmD3F0/Z/ar--

@@ -1,75 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262331AbTLLWyD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 17:54:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262315AbTLLWyD
+	id S262901AbTLLXHH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 18:07:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262965AbTLLXHH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 17:54:03 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:18892 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S262331AbTLLWx6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 17:53:58 -0500
-Date: Fri, 12 Dec 2003 23:53:43 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>, linux-net@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Rik van Riel <riel@surriel.com>,
-       linux-tr@linuxtr.net, jschlst@samba.org, cgoos@syskonnect.de,
-       mid@auk.cx, jochen@scram.de
-Subject: Re: [PATCH][TRIVIAL] dep_tristate wants 3 arguments (fwd)
-Message-ID: <20031212225343.GI1825@fs.tum.de>
-References: <20031212222655.GH1825@fs.tum.de> <3FDA426B.1060508@pobox.com>
+	Fri, 12 Dec 2003 18:07:07 -0500
+Received: from mail.jlokier.co.uk ([81.29.64.88]:34435 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S262901AbTLLXHE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Dec 2003 18:07:04 -0500
+Date: Fri, 12 Dec 2003 23:06:48 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
+Subject: Re: Linux GPL and binary module exception clause?
+Message-ID: <20031212230648.GC15935@mail.shareable.org>
+References: <20031212194004.GB465@elf.ucw.cz> <Pine.LNX.4.10.10312121404550.3805-100000@master.linux-ide.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3FDA426B.1060508@pobox.com>
+In-Reply-To: <Pine.LNX.4.10.10312121404550.3805-100000@master.linux-ide.org>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 12, 2003 at 05:34:19PM -0500, Jeff Garzik wrote:
->...
-> >--- linux-5110/drivers/net/tokenring/Config.in
-> >+++ linux-10010/drivers/net/tokenring/Config.in
-> >@@ -21,10 +21,10 @@ if [ "$CONFIG_TR" != "n" ]; then
-> >    dep_tristate '  3Com 3C359 Token Link Velocity XL adapter support' 
-> >    CONFIG_3C359 $CONFIG_TR $CONFIG_PCI
-> >    tristate '  Generic TMS380 Token Ring ISA/PCI adapter support' 
-> >    CONFIG_TMS380TR
-> >    if [ "$CONFIG_TMS380TR" != "n" ]; then
-> >-      dep_tristate '    Generic TMS380 PCI support' CONFIG_TMSPCI 
-> >$CONFIG_PCI
-> >-      dep_tristate '    Generic TMS380 ISA support' CONFIG_TMSISA 
-> >$CONFIG_ISA
-> >-      dep_tristate '    Madge Smart 16/4 PCI Mk2 support' CONFIG_ABYSS 
-> >$CONFIG_PCI
-> >-      dep_tristate '    Madge Smart 16/4 Ringnode MicroChannel' 
-> >CONFIG_MADGEMC $CONFIG_MCA
-> >+      dep_tristate '    Generic TMS380 PCI support' CONFIG_TMSPCI 
-> >$CONFIG_PCI $CONFIG_TMS380TR
->...
-> dep_tristate statements with only three arguments (include desc. text) 
-> are just fine.  There is no need for additional arguments.
-> 
-> 	dep_tristate 'blah blah' CONFIG_BLAH dep...
-> 
-> Further, adding CONFIG_TMS380TR dependency is complete nonsense, 
-> considering that the "if [ "$CONFIG_TMS380TR" != "n" ]" check remains.
+Andre Hedrick wrote:
+> You do not get a lawsuit if you have ownership of the code you are
+> submitting.  Why should you worry if ethics of good code and content is
+> never in question.
 
-Consider:
-  CONFIG_TMS380TR=m
+On the Bochs mailing list, someone just asked, paraphrased: "I read an
+idea in the Bochs source code (which is GPL) and implemented the same
+idea in another program.  The other code is not a copy, I wrote it
+myself, but it does have some structural similarity.  Is the code I
+wrote a derived work of Bochs which I read and got the idea, thus
+requiring me to release my code under the GPL?".
 
-E.g. CONFIG_TMSPCI=y shouldn't be allowed in this case.
+My point is that sometimes you write something and you _just don't
+know_ if you "own" the code that you wrote, because you don't know how
+tainted you are by other things that you have read, seen, heard etc. -
+in someone else's opinion.
 
-> 	Jeff
+When it comes to $1bn lawsuits, someone else's opinion counts more
+than your own - and you don't know what it's going to be.
 
-cu
-Adrian
+I do not want to be subject to a potential $1bn lawsuit for something
+I didn't know I was doing.  I may be 99.999% confident I'm doing the
+right thing even by other people's standards, but in an industry where
+suing is the modern way to "innovate", I'd much rather work with
+people whose license and social norms puts the risk where it's most
+appropriate: with whoever is making money selling stuff and offering
+to take on that risk as part of the fee.
 
--- 
+This is one thing the GPL got right.  Restricting development _only_
+to professional programmers with indemnity insurance is not the way to
+build a vibrant free software community.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+-- Jamie

@@ -1,95 +1,142 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286202AbRLJIgg>; Mon, 10 Dec 2001 03:36:36 -0500
+	id <S286206AbRLJIiG>; Mon, 10 Dec 2001 03:38:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286199AbRLJIgS>; Mon, 10 Dec 2001 03:36:18 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:32782
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S286196AbRLJIf5>; Mon, 10 Dec 2001 03:35:57 -0500
-Date: Mon, 10 Dec 2001 00:31:22 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: linux-kernel@vger.kernel.org
-cc: linux-raid@vger.kernel.org
-Subject: Re: IDE-DMA woes
-In-Reply-To: <00fa01c1804e$0428ed40$140ba8c0@mistral>
-Message-ID: <Pine.LNX.4.10.10112091910400.23503-100000@master.linux-ide.org>
+	id <S286200AbRLJIhw>; Mon, 10 Dec 2001 03:37:52 -0500
+Received: from nydalah028.sn.umu.se ([130.239.118.227]:2947 "EHLO
+	x-files.giron.wox.org") by vger.kernel.org with ESMTP
+	id <S286199AbRLJIhl>; Mon, 10 Dec 2001 03:37:41 -0500
+Message-ID: <016b01c18155$fdacad40$0201a8c0@HOMER>
+From: "Martin Eriksson" <nitrax@giron.wox.org>
+To: "Adam C Powell IV" <hazelsct@mit.edu>,
+        "Kernel Developers" <linux-kernel@vger.kernel.org>
+In-Reply-To: <3C13B0BC.4060002@mit.edu>
+Subject: Re: 2.4.14-16: Can't see hdb or hdc on ABIT BP6
+Date: Mon, 10 Dec 2001 09:38:06 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 9 Dec 2001, Simon Turvey wrote:
-
-> 
-> >Like I told you in the other forum.  I have the solutions just my work is
-> >being refused.  Don't know if I have absolutely pissed off the
-> >king-penguin or what but there is no reason to submit when I know it is
-> >not going to be accepted
-> 
-> Andre,
->     Any chance of some further details on this work.  AFAIKT you've been the
-> foremost contributor of cutting-edge IDE updates for quite some time now.  I
-> find it astonishing that Linus would have inexplicably started refusing your
-> code.  At least point us in the right direction so we can try the new stuff
-> out.
-> 
-> Simon
-
-I am working on a final update right now.  This is after fixing the driver
-to perform correct data-transport layers.  This is linux soft-raid 0 w/
-four drives.  The are 4-20GB drives partitioned to make two md devices to
-isolate peformance boundaries.
-
-Writing superblocks and filesystem accounting information: done
-No size specified, using 510 MB
-Size is MB, BlkSz is Bytes, Read, Write, and Seeks are MB/sec
-
-         File   Block  Num  Seq Read    Rand Read   Seq Write  Rand Write
-  Dir    Size   Size   Thr Rate (CPU%) Rate (CPU%) Rate (CPU%) Rate (CPU%)
-------- ------ ------- --- ----------- ----------- ----------- -----------
-   .     510    4096    1  84.75 57.1% 1.081 1.17% 79.80 43.9% 4.285 2.46%
-   .     510    4096    2  78.88 52.8% 1.171 0.97% 73.64 48.8% 4.411 3.67%
-   .     510    4096    4  74.04 51.3% 1.402 1.16% 73.77 51.9% 4.391 3.65%
-   .     510    4096    8  67.93 47.9% 1.623 1.42% 71.43 52.1% 4.360 3.62%
-
-File './Bonnie.943', size: 1073741824, volumes: 1
-Writing with putc()...  done:   9709 kB/s  98.9 %CPU
-Rewriting...            done:  49883 kB/s  41.4 %CPU
-Writing intelligently...done:  99026 kB/s  50.0 %CPU
-Reading with getc()...  done:   9663 kB/s  99.1 %CPU
-Reading intelligently...done:  89632 kB/s  55.0 %CPU
-Seeker 1...Seeker 2...Seeker 3...start 'em...done...done...done...
-              ---Sequential Output (nosync)--- ---Sequential Input-- --Rnd Seek-
-              -Per Char- --Block--- -Rewrite-- -Per Char- --Block--- --04k (03)-
-Machine    MB K/sec %CPU K/sec %CPU K/sec %CPU K/sec %CPU K/sec %CPU   /sec %CPU
-       1*1024  9709 98.9 99026 50.0 49883 41.4  9663 99.1 89632 55.0  344.2  4.0
+----- Original Message -----
+From: "Adam C Powell IV" <hazelsct@mit.edu>
+To: "Kernel Developers" <linux-kernel@vger.kernel.org>
+Sent: Sunday, December 09, 2001 7:43 PM
+Subject: 2.4.14-16: Can't see hdb or hdc on ABIT BP6
 
 
-Wrote 38184 Meg / 78201343 blocks 0 Meg / 0 blocks
-Device length: 40038825984 Bytes / 38184 Meg / 37 Gig
-Total Diameter Sequential Pattern Write Test = 96.10 MB/Sec (397.35 Seconds)
-Read 38183Meg (78198784 blocks)
-Read failed on block number 78200832 at offset 40038825984 ( 0 / 512 )
-  Error: Input/output error
-Could not find block: 78200833 for reading.
-  Error: Invalid argument
-Read 38184Meg (78200833 blocks)
-Device length: 40038825984 Bytes / 38184 Meg / 37 Gig
-Total Diameter Sequential Pattern Read Test  = 75.68 MB/Sec (504.53 Seconds)
-Device passed! Seek OverRun!
+> Greetings,
+>
+> First, please CC me in replies, as I'm not subscribed...
+>
+> I have an ABIT BP6 dual-Celeron system, with six IDE drives, four on the
+> PIIX4 controller and two on the HPT366.  For some reason, Debian
+> kernel-image-2.4.14-686-smp and 2.4.16 can never see anything on hdb or
+> hdc, but have no trouble at all with hda, hdd, hdf or hdg.  It's as if I
+> removed those two drives.  The corresponding Debian 2.4.9 kernel package
+> always works perfectly, as does 2.2.19 and various other 2.2 and 2.4
+> kernels leading up to those.
+>
+> I originally thought it was an ext2 problem because fsck couldn't mount
+> hdb1 or hdc1, and that's where the boot process would stop.  The Debian
+> slink install made hda1 (root) without sparse superblocks, and hdb1
+> (/usr) and hdc1 (/var) with sparse superblocks, making that the
+> suspect.  But then tune2fs wasn't finding the partitions either, and
+> raidstart was finding hda3 and hdd1 but not hdb3 or hdc3 (which are 10
+> GB each making up a 30 GB RAID5 array), and also could find hda2 but not
+> hdb2 or hdc2 (for a RAID0 array).  It was finding hdf1 and hdg1 just
+> fine for another RAID0 array.
+>
+> So it's as if hdb and hdc are not there!
+>
+> For more info on those drives, I've attached the relevant boot log
+> portion from /var/log/messages under 2.4.9.  Since the missing drives
+> are identical to hda, which works just fine, I'm mystified...
+>
+> I would much appreciate any insights/solutions, and am happy to provide
+> additional information toward that end.
 
-The test has an overrun on the last request under lseek, working on fixing.
+Would be interesting with a "hdparm -I /dev/hdX" for every drive attached.
 
-The slower read rate is a direct result of using a pattern buffer check
-and comparison (write/read/verify/compare/contest-errors).  Details later
-but the drive(s) are faster than reported.  These rates are using EXT2 for
-the FS.
+Anyway, I recommend you to patch your kernel with the ATA/ATAPI patches,
+(not?) available at www.linuxdiskcert.org
 
-Regards,
+_____________________________________________________
+|  Martin Eriksson <nitrax@giron.wox.org>
+|  MSc CSE student, department of Computing Science
+|  Umeå University, Sweden
 
-Andre Hedrick
-CEO/President, LAD Storage Consulting Group
-Linux ATA Development
-Linux Disk Certification Project
 
+>
+
+
+----------------------------------------------------------------------------
+----
+
+
+> Dec  7 12:39:24 lyre kernel: VFS: Mounted root (cramfs filesystem).
+> Dec  7 12:39:24 lyre kernel: Uniform Multi-Platform E-IDE driver Revision:
+6.31
+> Dec  7 12:39:24 lyre kernel: ide: Assuming 33MHz system bus speed for PIO
+modes; override with idebus=xx
+> Dec  7 12:39:24 lyre kernel: PIIX4: IDE controller on PCI bus 00 dev 39
+> Dec  7 12:39:24 lyre kernel: PIIX4: chipset revision 1
+> Dec  7 12:39:24 lyre kernel: PIIX4: not 100%% native mode: will probe irqs
+later
+> Dec  7 12:39:24 lyre kernel:     ide0: BM-DMA at 0xf000-0xf007, BIOS
+settings: hda:DMA, hdb:DMA
+> Dec  7 12:39:24 lyre kernel:     ide1: BM-DMA at 0xf008-0xf00f, BIOS
+settings: hdc:DMA, hdd:DMA
+> Dec  7 12:39:24 lyre kernel: HPT366: onboard version of chipset, pin1=1
+pin2=2
+> Dec  7 12:39:24 lyre kernel: HPT366: IDE controller on PCI bus 00 dev 98
+> Dec  7 12:39:24 lyre kernel: PCI: Enabling device 00:13.0 (0005 -> 0007)
+> Dec  7 12:39:24 lyre kernel: HPT366: chipset revision 1
+> Dec  7 12:39:24 lyre kernel: HPT366: not 100%% native mode: will probe
+irqs later
+> Dec  7 12:39:24 lyre kernel:     ide2: BM-DMA at 0xbc00-0xbc07, BIOS
+settings: hde:pio, hdf:DMA
+> Dec  7 12:39:24 lyre kernel: HPT366: IDE controller on PCI bus 00 dev 99
+> Dec  7 12:39:24 lyre kernel: HPT366: chipset revision 1
+> Dec  7 12:39:24 lyre kernel: HPT366: not 100%% native mode: will probe
+irqs later
+> Dec  7 12:39:24 lyre kernel:     ide3: BM-DMA at 0xc800-0xc807, BIOS
+settings: hdg:DMA, hdh:pio
+> Dec  7 12:39:24 lyre kernel: hda: Maxtor 91728D8, ATA DISK drive
+> Dec  7 12:39:24 lyre kernel: hdb: Maxtor 91728D8, ATA DISK drive
+> Dec  7 12:39:24 lyre kernel: hdc: Maxtor 91728D8, ATA DISK drive
+> Dec  7 12:39:24 lyre kernel: hdd: WDC WD102AA, ATA DISK drive
+> Dec  7 12:39:24 lyre kernel: hdf: QUANTUM FIREBALLP AS40, ATA DISK drive
+> Dec  7 12:39:24 lyre kernel: hdg: QUANTUM FIREBALLP AS40, ATA DISK drive
+> Dec  7 12:39:24 lyre kernel: ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+> Dec  7 12:39:24 lyre kernel: ide1 at 0x170-0x177,0x376 on irq 15
+> Dec  7 12:39:24 lyre kernel: ide2 at 0xb400-0xb407,0xb802 on irq 11
+> Dec  7 12:39:24 lyre kernel: ide3 at 0xc000-0xc007,0xc402 on irq 11
+> Dec  7 12:39:24 lyre kernel: hda: 33750864 sectors (17280 MB) w/512KiB
+Cache, CHS=33483/16/63
+> Dec  7 12:39:24 lyre kernel: hdb: 33750864 sectors (17280 MB) w/512KiB
+Cache, CHS=33483/16/63
+> Dec  7 12:39:24 lyre kernel: hdc: 33750864 sectors (17280 MB) w/512KiB
+Cache, CHS=33483/16/63
+> Dec  7 12:39:24 lyre kernel: hdd: 20044080 sectors (10263 MB) w/2048KiB
+Cache, CHS=19885/16/63
+> Dec  7 12:39:24 lyre kernel: hdf: 78198750 sectors (40038 MB) w/1902KiB
+Cache, CHS=77578/16/63, UDMA(33)
+> Dec  7 12:39:24 lyre kernel: hdg: 78198750 sectors (40038 MB) w/1902KiB
+Cache, CHS=77578/16/63, UDMA(33)
+> Dec  7 12:39:24 lyre kernel: Partition check:
+> Dec  7 12:39:24 lyre kernel:  /dev/ide/host0/bus0/target0/lun0: p1 p2 p3
+> Dec  7 12:39:24 lyre kernel:  /dev/ide/host0/bus0/target1/lun0: p1 p2 p3
+> Dec  7 12:39:24 lyre kernel:  /dev/ide/host0/bus1/target0/lun0: p1 p2 p3
+> Dec  7 12:39:24 lyre kernel:  /dev/ide/host0/bus1/target1/lun0: p1
+> Dec  7 12:39:24 lyre kernel:  /dev/ide/host2/bus0/target1/lun0: p1
+> Dec  7 12:39:24 lyre kernel:  /dev/ide/host3/bus0/target0/lun0: p1
+> Dec  7 12:39:24 lyre kernel: VFS: Mounted root (ext2 filesystem) readonly.
+>
 

@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277746AbRJ3UTa>; Tue, 30 Oct 2001 15:19:30 -0500
+	id <S277866AbRJ3UWa>; Tue, 30 Oct 2001 15:22:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277756AbRJ3UTV>; Tue, 30 Oct 2001 15:19:21 -0500
-Received: from firebird.planetinternet.be ([195.95.34.5]:29195 "EHLO
-	firebird.planetinternet.be") by vger.kernel.org with ESMTP
-	id <S277746AbRJ3UTR>; Tue, 30 Oct 2001 15:19:17 -0500
-Date: Tue, 30 Oct 2001 21:19:12 +0100
-From: Kurt Roeckx <Q@ping.be>
-To: =?iso-8859-1?Q?Thomas_Lang=E5s?= <tlan@stud.ntnu.no>
-Cc: Johan <jo_ni@telia.com>, linux-kernel@vger.kernel.org
-Subject: Re: Still having problems with eepro100
-Message-ID: <20011030211912.A192@ping.be>
-In-Reply-To: <20011030123927.74e26501.jo_ni@telia.com> <20011030125720.A469@stud.ntnu.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011030125720.A469@stud.ntnu.no>; from tlan@stud.ntnu.no on Tue, Oct 30, 2001 at 12:57:20PM +0100
+	id <S277823AbRJ3UWU>; Tue, 30 Oct 2001 15:22:20 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:30738 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S277756AbRJ3UWK>;
+	Tue, 30 Oct 2001 15:22:10 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Manik Raina <manik@cisco.com>
+Date: Tue, 30 Oct 2001 21:21:57 MET-1
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: [PATCH] small compile warning fix
+CC: linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.40
+Message-ID: <7C6E1BF47C4@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 30, 2001 at 12:57:20PM +0100, Thomas Langås wrote:
-> I'm experiensing the:
-> eth0: Card reports no resources
+> > You can remove it completely. It should not be '#ifdef LATER', but
+> > '#ifdef OLDVERSION'... ncp_add_mem_fromfs was invoked with lock on
+> > ncp_server structure, but then it directly accessed userspace. It was
+> > possible to use this to cause deadlock, so now ncpfs uses bounce buffers
+> > and double copy instead of this.
+> >
 > 
-> And, then a hang of at least a minute before the network connection is
-> restored. All my connections are 100Mbit full duplex, and the error comes
-> when doing heavy traffic. (Try bonnie++ over NFS, for instance).
+> would you include this in your patches or would you like me to make
+> it #ifdef OLDVERSION ?
 
-I used to have this problem too.  Whenever I downloaded something
-at high speed, I got that error.
+I removed ncp_add_mem_fromfs() from my tree...
 
-This was with an older 2.4 kernel (2.4.5 I think), and the
-previous harddisk which died on me.  Now with 2.4.8 I don't have
-the problem anymore.  I assumed it had to do with the other disk
-being slow, I think it was still doing PIO.  Maybe it's some
-other thing which causes the kernel not being able to react fast
-enough?
+> > I have some ncpfs patches, but I though that I'll leave them for 2.5.x.
+> > Maybe it is time to change this decision.
 
-
-Kurt
-
+... but as diff between my ncpfs and Alan's is about 30KB, I still did not
+decide whether I'll send it for 2.4.x...
+                                                Petr Vandrovec
+                                                vandrove@vc.cvut.cz
+                                                            

@@ -1,52 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289046AbSCKTZS>; Mon, 11 Mar 2002 14:25:18 -0500
+	id <S289114AbSCKT26>; Mon, 11 Mar 2002 14:28:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289226AbSCKTZI>; Mon, 11 Mar 2002 14:25:08 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:26635 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S289114AbSCKTY4>; Mon, 11 Mar 2002 14:24:56 -0500
-Message-ID: <3C8D0447.2030404@evision-ventures.com>
-Date: Mon, 11 Mar 2002 20:23:51 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: Gunther Mayer <gunther.mayer@gmx.net>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.6 IDE 19, return of taskfile
-In-Reply-To: <Pine.LNX.4.10.10203110945480.10583-100000@master.linux-ide.org> <3C8CFF64.1B55CDBB@gmx.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S289556AbSCKT2v>; Mon, 11 Mar 2002 14:28:51 -0500
+Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:57350 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S289114AbSCKT2K>; Mon, 11 Mar 2002 14:28:10 -0500
+Date: Mon, 11 Mar 2002 19:27:58 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: Andre Hedrick <andre@linuxdiskcert.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.6 IDE 19
+Message-ID: <20020311192758.A32309@flint.arm.linux.org.uk>
+In-Reply-To: <Pine.LNX.4.10.10203111054480.10583-100000@master.linux-ide.org> <3C8D019A.4010507@evision-ventures.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C8D019A.4010507@evision-ventures.com>; from dalecki@evision-ventures.com on Mon, Mar 11, 2002 at 08:12:26PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gunther Mayer wrote:
+On Mon, Mar 11, 2002 at 08:12:26PM +0100, Martin Dalecki wrote:
+> I didn't claim too. Your invisible friend was
+> apparently talking to you again. But still my question
+> remains where the heck is Yours?
 
-> Currently your taskfile access is hardcoded in tables in your ide patches and this is
-> 
-> inflexible (e.g. cannot support future commands, unknown at the time of your writing)
+Martin,
 
-And vendor specific commands which they don't wan't the world to know
-about and the list would be complete. Anyway thank you for this
-well done clarification.
+Please calm down.
 
-> Your "case" structures and accompanying code are considered kernel bloat, because
-> it can be done in user code (with a "generic ioctl" and a "generic task file state
-> machine" which surely
-> can be extracted from your patch).
+When you're calm, go to the URL Andre gave, download the document and *read*
+it.  You *will* find his name there, whether he was there, and what vote he
+cast.
 
-The worsest thing about them is that they are translating
-the plain commands to some obscure internal values and vice
-versa. This is making it a bit tedious to remove them directly.
-And it's in esp. error prone.
+How do I know?  I've done just that.
 
-The fortunate thing is that the state machine points can
-be really easly identifyed. The unfortunate thing is
-that there is simple that much plain poor C coding in the
-drivers code that it will just take time until one can get
-at this. Please see the notes inside my patches about
-buffer overruns... methods called twice and modularization as well
-as comments about functions passing timeout pointers, which are
-taken by reusing the IRQ code path and so on...
+So, both of you stop flaming and get back on to technical issues.
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

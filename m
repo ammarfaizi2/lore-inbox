@@ -1,190 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270639AbTG0BEA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jul 2003 21:04:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270642AbTG0BEA
+	id S270643AbTG0B0O (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jul 2003 21:26:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270645AbTG0B0O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 21:04:00 -0400
-Received: from adsl-110-19.38-151.net24.it ([151.38.19.110]:2230 "HELO
-	develer.com") by vger.kernel.org with SMTP id S270639AbTG0BD4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 21:03:56 -0400
-From: Bernardo Innocenti <bernie@develer.com>
-Organization: Develer S.r.l.
-To: torvalds@osdl.org
-Subject: [PATCH] Make I/O schedulers optional
-Date: Sun, 27 Jul 2003 03:19:04 +0200
-User-Agent: KMail/1.5.9
-Cc: linux-kernel@vger.kernel.org
+	Sat, 26 Jul 2003 21:26:14 -0400
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:27841 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S270643AbTG0B0N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jul 2003 21:26:13 -0400
+Date: Sat, 26 Jul 2003 21:41:32 -0400
+From: Chris Heath <chris@heathens.co.nz>
+To: aebr@win.tue.nl
+Subject: Re: i8042 problem
+Cc: zaitcev@redhat.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20030726093619.GA973@win.tue.nl>
+Message-Id: <20030726212513.A0BD.CHRIS@heathens.co.nz>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
+Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200307270319.04168.bernie@develer.com>
+X-Mailer: Becky! ver. 2.06.02
+X-Antirelay: Good relay from local net1 127.0.0.1/32
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Linus,
+> > drivers/input/serio/i8042.c: 00 -> i8042 (kbd-data) [40] 
+> > drivers/input/serio/i8042.c: 60 -> i8042 (command) [50] 
+> > drivers/input/serio/i8042.c: 44 -> i8042 (parameter) [50] 
+> > drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [51] 
+> > serio: i8042 KBD port at 0x60,0x64 irq 1 
+> > <------------- This is it, keyboard is dead. 
+> 
+> 
+> Writing 44 to the command byte disables IRQ1. 
 
-please apply this one. It has been reviewed and approved by
-both Jens Axboe and Andrew Morton.
+It looks like a timeout problem.  The ack (fa) arrived 11 ticks after
+the byte (00) was sent, but it looks like the timeout is only 10 ticks.
 
---------------------------------------------------------------------------
-
-Add kconfig options to allow excluding either or both the I/O schedulers.
-Mostly useful for embedded systems (save ~13KB):
-
-With my desktop PC (i386) kernel:
-
-   text    data     bss     dec     hex filename
-   2210707  475856  150444 2837007  2b4a0f vmlinux_with_ioscheds
-   2197763  473446  150380 2821589  2b0dd5 vmlinux_without_ioscheds
-
-With my uClinux (m68knommu) kernel:
-
-   text    data     bss     dec     hex filename
-   807760   47384   78884  934028   e408c linux_without_ioscheds
-   819276   52460   78896  950632   e8168 linux_with_ioscheds
+Try playing with the timeout in atkbd_sendbyte (line 217 of
+drivers/input/keyboard/atkbd.c).
 
 
-diff -Nru linux-2.6.0-test1.orig/drivers/block/Kconfig.iosched linux-2.6.0-test1-with_elevator_patch/drivers/block/Kconfig.iosched
---- linux-2.6.0-test1.orig/drivers/block/Kconfig.iosched	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.0-test1-with_elevator_patch/drivers/block/Kconfig.iosched	2003-07-26 14:25:44.000000000 +0200
-@@ -0,0 +1,8 @@
-+config IOSCHED_AS
-+	bool "Anticipatory I/O scheduler" if EMBEDDED
-+	default y
-+
-+config IOSCHED_DEADLINE
-+	bool "Deadline I/O scheduler" if EMBEDDED
-+	default y
-+
-diff -Nru linux-2.6.0-test1.orig/drivers/block/Makefile linux-2.6.0-test1-with_elevator_patch/drivers/block/Makefile
---- linux-2.6.0-test1.orig/drivers/block/Makefile	2003-07-14 05:37:16.000000000 +0200
-+++ linux-2.6.0-test1-with_elevator_patch/drivers/block/Makefile	2003-07-25 20:21:50.000000000 +0200
-@@ -13,9 +13,10 @@
- # kblockd threads
- #
- 
--obj-y	:= elevator.o ll_rw_blk.o ioctl.o genhd.o scsi_ioctl.o \
--	deadline-iosched.o as-iosched.o
-+obj-y	:= elevator.o ll_rw_blk.o ioctl.o genhd.o scsi_ioctl.o
- 
-+obj-$(CONFIG_IOSCHED_AS)	+= as-iosched.o
-+obj-$(CONFIG_IOSCHED_DEADLINE)	+= deadline-iosched.o
- obj-$(CONFIG_MAC_FLOPPY)	+= swim3.o
- obj-$(CONFIG_BLK_DEV_FD)	+= floppy.o
- obj-$(CONFIG_BLK_DEV_FD98)	+= floppy98.o
-diff -Nru linux-2.6.0-test1.orig/drivers/block/as-iosched.c linux-2.6.0-test1-with_elevator_patch/drivers/block/as-iosched.c
---- linux-2.6.0-test1.orig/drivers/block/as-iosched.c	2003-07-14 05:28:54.000000000 +0200
-+++ linux-2.6.0-test1-with_elevator_patch/drivers/block/as-iosched.c	2003-07-25 20:19:44.000000000 +0200
-@@ -1832,6 +1832,7 @@
- 	.elevator_exit_fn =		as_exit,
- 
- 	.elevator_ktype =		&as_ktype,
-+	.elevator_name =		"anticipatory scheduling",
- };
- 
- EXPORT_SYMBOL(iosched_as);
-diff -Nru linux-2.6.0-test1.orig/drivers/block/deadline-iosched.c linux-2.6.0-test1-with_elevator_patch/drivers/block/deadline-iosched.c
---- linux-2.6.0-test1.orig/drivers/block/deadline-iosched.c	2003-07-14 05:37:15.000000000 +0200
-+++ linux-2.6.0-test1-with_elevator_patch/drivers/block/deadline-iosched.c	2003-07-25 20:20:53.000000000 +0200
-@@ -941,6 +941,7 @@
- 	.elevator_exit_fn =		deadline_exit,
- 
- 	.elevator_ktype =		&deadline_ktype,
-+	.elevator_name =		"deadline",
- };
- 
- EXPORT_SYMBOL(iosched_deadline);
-diff -Nru linux-2.6.0-test1.orig/drivers/block/elevator.c linux-2.6.0-test1-with_elevator_patch/drivers/block/elevator.c
---- linux-2.6.0-test1.orig/drivers/block/elevator.c	2003-07-14 05:36:48.000000000 +0200
-+++ linux-2.6.0-test1-with_elevator_patch/drivers/block/elevator.c	2003-07-25 19:27:41.000000000 +0200
-@@ -409,6 +409,7 @@
- 	.elevator_merge_req_fn		= elevator_noop_merge_requests,
- 	.elevator_next_req_fn		= elevator_noop_next_request,
- 	.elevator_add_req_fn		= elevator_noop_add_request,
-+	.elevator_name			= "noop",
- };
- 
- module_init(elevator_global_init);
-diff -Nru linux-2.6.0-test1.orig/drivers/block/ll_rw_blk.c linux-2.6.0-test1-with_elevator_patch/drivers/block/ll_rw_blk.c
---- linux-2.6.0-test1.orig/drivers/block/ll_rw_blk.c	2003-07-14 05:30:40.000000000 +0200
-+++ linux-2.6.0-test1-with_elevator_patch/drivers/block/ll_rw_blk.c	2003-07-25 19:27:02.000000000 +0200
-@@ -1205,17 +1205,31 @@
- 
- static int __make_request(request_queue_t *, struct bio *);
- 
--static elevator_t *chosen_elevator = &iosched_as;
-+static elevator_t *chosen_elevator =
-+#if defined(CONFIG_IOSCHED_AS)
-+	&iosched_as;
-+#elif defined(CONFIG_IOSCHED_DEADLINE)
-+	&iosched_deadline;
-+#else
-+	&elevator_noop;
-+#endif
- 
-+#if defined(CONFIG_IOSCHED_AS) || defined(CONFIG_IOSCHED_DEADLINE)
- static int __init elevator_setup(char *str)
- {
-+#ifdef CONFIG_IOSCHED_DEADLINE
- 	if (!strcmp(str, "deadline"))
- 		chosen_elevator = &iosched_deadline;
-+#endif
-+#ifdef CONFIG_IOSCHED_AS
- 	if (!strcmp(str, "as"))
- 		chosen_elevator = &iosched_as;
-+#endif
- 	return 1;
- }
-+
- __setup("elevator=", elevator_setup);
-+#endif /* CONFIG_IOSCHED_AS || CONFIG_IOSCHED_DEADLINE */
- 
- /**
-  * blk_init_queue  - prepare a request queue for use with a block device
-@@ -1255,10 +1269,7 @@
- 
- 	if (!printed) {
- 		printed = 1;
--		if (chosen_elevator == &iosched_deadline)
--			printk("deadline elevator\n");
--		else if (chosen_elevator == &iosched_as)
--			printk("anticipatory scheduling elevator\n");
-+		printk("Using %s elevator\n", chosen_elevator->elevator_name);
- 	}
- 
- 	if ((ret = elevator_init(q, chosen_elevator))) {
-diff -Nru linux-2.6.0-test1.orig/init/Kconfig linux-2.6.0-test1-with_elevator_patch/init/Kconfig
---- linux-2.6.0-test1.orig/init/Kconfig	2003-07-14 05:37:16.000000000 +0200
-+++ linux-2.6.0-test1-with_elevator_patch/init/Kconfig	2003-07-26 14:25:48.000000000 +0200
-@@ -141,6 +141,8 @@
- 	  Disabling this option will cause the kernel to be built without
- 	  support for epoll family of system calls.
- 
-+source "drivers/block/Kconfig.iosched"
-+
- endmenu		# General setup
- 
- 
-diff -Nru linux-2.6.0-test1.orig/include/linux/elevator.h linux-2.6.0-test1/include/linux/elevator.h
---- linux-2.6.0-test1.orig/include/linux/elevator.h	2003-07-14 05:29:27.000000000 +0200
-+++ linux-2.6.0-test1/include/linux/elevator.h	2003-07-25 19:18:39.000000000 +0200
-@@ -52,6 +52,7 @@
- 
- 	struct kobject kobj;
- 	struct kobj_type *elevator_ktype;
-+	const char *elevator_name;
- };
- 
- /*
+> > drivers/input/serio/i8042.c: 41 <- i8042 (interrupt, kbd, 1) [109900] 
+> > drivers/input/serio/i8042.c: 41 <- i8042 (interrupt, kbd, 1) [109921] 
+> > atkbd.c: Unknown key (set 0, scancode 0x2, on isa0060/serio0) pressed. 
+> > input: AT Set 2 keyboard on isa0060/serio0 
+> > <----- Now we are talking! 
+> 
+> 
+> Funny. Looks like the "read scancode set" command got the scancode set 
+> twice, and the second time was seen as unknown key. 
 
--- 
-  // Bernardo Innocenti - Develer S.r.l., R&D dept.
-\X/  http://www.develer.com/
+Both keyboards responded to the command, perhaps???
 
-Please don't send Word attachments - http://www.gnu.org/philosophy/no-word-attachments.html
+I'd suggest that we don't even ask the keyboard what scancode set it is
+using if we are attempting to use set 2.
 
+Chris
 

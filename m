@@ -1,27 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312525AbSCUWCX>; Thu, 21 Mar 2002 17:02:23 -0500
+	id <S312532AbSCUWEW>; Thu, 21 Mar 2002 17:04:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312526AbSCUWCO>; Thu, 21 Mar 2002 17:02:14 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:14352 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S312525AbSCUWB5>; Thu, 21 Mar 2002 17:01:57 -0500
-Subject: Re: [PATCH] zlib double-free bug
-To: trini@kernel.crashing.org (Tom Rini)
-Date: Thu, 21 Mar 2002 22:13:27 +0000 (GMT)
-Cc: hpa@zytor.com (H. Peter Anvin), linux-kernel@vger.kernel.org
-In-Reply-To: <20020321210356.GI25237@opus.bloom.county> from "Tom Rini" at Mar 21, 2002 02:03:56 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S312527AbSCUWEO>; Thu, 21 Mar 2002 17:04:14 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:39900 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S312526AbSCUWD6>;
+	Thu, 21 Mar 2002 17:03:58 -0500
+Date: Thu, 21 Mar 2002 14:00:09 -0800 (PST)
+Message-Id: <20020321.140009.17266939.davem@redhat.com>
+To: linux-kernel@vger.kernel.org
+CC: linux-net@vger.kernel.org, sparclinux@vger.kernel.org
+Subject: [LIST ADMIN] Short downtime tomorrow
+From: "David S. Miller" <davem@redhat.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16oAoJ-0006RH-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It's getting there.  The 'issue' is that the best way to fix it (maybe
-> 2.4.20-pre1 even) is to backport the 2.5 zlib which doesn't have this
 
-2.4.19ac has the shared zlib already. The zlib sharing stuff wasnt a 2.5
-patch backported - its a 2.4 fix that went forward
+The machine running these lists will go down for approximately
+3 hours tomorrow, March 22nd, starting at around 5PM EST.
+
+Please do not contact us about the lists being down during this
+time, we will know it already :-)
+
+We apologize for any inconvenience this downtime may cause.

@@ -1,44 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261568AbSJYTFH>; Fri, 25 Oct 2002 15:05:07 -0400
+	id <S261556AbSJYTCv>; Fri, 25 Oct 2002 15:02:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261569AbSJYTFH>; Fri, 25 Oct 2002 15:05:07 -0400
-Received: from bozo.vmware.com ([65.113.40.131]:30982 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id <S261568AbSJYTFG>; Fri, 25 Oct 2002 15:05:06 -0400
-Date: Fri, 25 Oct 2002 12:12:02 -0700
-From: chrisl@vmware.com
-To: "Nakajima, Jun" <jun.nakajima@intel.com>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org
-Subject: Re: How to get number of physical CPU in linux from user space?
-Message-ID: <20021025191202.GD1397@vmware.com>
-References: <F2DBA543B89AD51184B600508B68D4000EA170E9@fmsmsx103.fm.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S261557AbSJYTCv>; Fri, 25 Oct 2002 15:02:51 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:36102
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S261556AbSJYTCu>; Fri, 25 Oct 2002 15:02:50 -0400
+Subject: [PATCH] How to get number of physical CPU in linux from user space?
+From: Robert Love <rml@tech9.net>
+To: linux-kernel@vger.kernel.org
+Cc: "Nakajima, Jun" <jun.nakajima@intel.com>, chrisl@vmware.com,
+       "Martin J. Bligh" <mbligh@aracnet.com>
 In-Reply-To: <F2DBA543B89AD51184B600508B68D4000EA170E9@fmsmsx103.fm.intel.com>
-User-Agent: Mutt/1.4i
+References: <F2DBA543B89AD51184B600508B68D4000EA170E9@fmsmsx103.fm.intel.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 25 Oct 2002 15:09:09 -0400
+Message-Id: <1035572950.1501.3429.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 25, 2002 at 11:54:53AM -0700, Nakajima, Jun wrote:
-> Recent distributions or the AC tree has additional fields in /proc/cpu,
-> which tell
+On Fri, 2002-10-25 at 14:54, Nakajima, Jun wrote:
+
+> Recent distributions or the AC tree has additional fields in
+> /proc/cpu, which tell
 > - physical package id
 > - number of threads 
-> for each CPU.
 
-That is exactly what I am looking for.
+Attached patch for 2.5 adds the same fields the 2.4-ac tree have.  I
+consider those "standard" enough.
 
-> 
-> Using this info, you should be able to detect it. The problem is that they
-> are not using the same keywords. I'm asking them to make those fields
-> consistent.
+Is this something HT users want?
 
-Cool. Any idea when will those feature come to stander linux kernel?
+	Robert Love
 
-Thanks.
+ proc.c |    5 +++++
+ 1 files changed, 5 insertions(+)
 
-Chris
-
+diff -urN linux-2.5.44/arch/i386/kernel/cpu/proc.c linux/arch/i386/kernel/cpu/proc.c
+--- linux-2.5.44/arch/i386/kernel/cpu/proc.c	2002-10-19 00:02:29.000000000 -0400
++++ linux/arch/i386/kernel/cpu/proc.c	2002-10-25 15:06:23.000000000 -0400
+@@ -17,6 +17,7 @@
+ 	 * applications want to get the raw CPUID data, they should access
+ 	 * /dev/cpu/<cpu_nr>/cpuid instead.
+ 	 */
++	extern int phys_proc_id[NR_CPUS];
+ 	static char *x86_cap_flags[] = {
+ 		/* Intel-defined */
+ 	        "fpu", "vme", "de", "pse", "tsc", "msr", "pae", "mce",
+@@ -74,6 +75,10 @@
+ 	/* Cache size */
+ 	if (c->x86_cache_size >= 0)
+ 		seq_printf(m, "cache size\t: %d KB\n", c->x86_cache_size);
++#ifdef CONFIG_SMP
++	seq_printf(m, "physical processor ID\t: %d\n", phys_proc_id[n]);
++	seq_printf(m, "number of siblings\t: %d\n", smp_num_siblings);
++#endif
+ 	
+ 	/* We use exception 16 if we have hardware math and we've either seen it or the CPU claims it is internal */
+ 	fpu_exception = c->hard_math && (ignore_irq13 || cpu_has_fpu);
 

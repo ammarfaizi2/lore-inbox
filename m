@@ -1,79 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261635AbUCBNCb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 08:02:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261640AbUCBNCa
+	id S261638AbUCBNCE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 08:02:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261635AbUCBNBw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 08:02:30 -0500
-Received: from styx.suse.cz ([82.208.2.94]:49024 "EHLO shadow.ucw.cz")
-	by vger.kernel.org with ESMTP id S261635AbUCBNCL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 08:02:11 -0500
-Date: Tue, 2 Mar 2004 14:02:12 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
+	Tue, 2 Mar 2004 08:01:52 -0500
+Received: from 10fwd.cistron-office.nl ([62.216.29.197]:11980 "EHLO
+	smtp.cistron-office.nl") by vger.kernel.org with ESMTP
+	id S261636AbUCBNBo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Mar 2004 08:01:44 -0500
+Date: Tue, 2 Mar 2004 14:01:39 +0100
+From: Miquel van Smoorenburg <miquels@cistron.nl>
+To: Kevin Corry <kevcorry@us.ibm.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/9] New set of input patches
-Message-ID: <20040302130212.GA1963@ucw.cz>
-References: <200402290153.08798.dtor_core@ameritech.net>
+Subject: Re: 2.6.4-rc1-mm1: queue-congestion-dm-implementation patch
+Message-ID: <20040302130137.GA9941@cistron.nl>
+References: <cistron.200403011400.51008.kevcorry@us.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200402290153.08798.dtor_core@ameritech.net>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <200403011400.51008.kevcorry@us.ibm.com>
+X-NCC-RegID: nl.cistron
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 29, 2004 at 01:53:58AM -0500, Dmitry Torokhov wrote:
+According to Kevin Corry:
+> Article: 452202 of lists.linux.kernel
+> From: Kevin Corry <kevcorry@us.ibm.com>
+> Date:	Mon, 1 Mar 2004 14:00:50 -0600
+> Newsgroups: lists.linux.kernel
+> Approved: news@news.cistron.nl
+> 
+> The queue-congestion-dm-implementation patch in 2.6.4-rc1-mm1 (included below) 
+> allows a DM device to query the lower-level device(s) during the 
+> queue-congestion APIs. However, it must wait on an internal semaphore 
+> (md->lock) before passing the call down to the lower-level devices. The 
+> problem is that the higher-level caller is holding a spinlock at the same 
+> time. Here is one such stack-trace I have been seeing:
+> 
+> Debug: sleeping function called from invalid context at include/linux/
+> rwsem.h:43
+> in_atomic():1, irqs_disabled():0
+> Call Trace:
+>  [<c012456b>] __might_sleep+0xab/0xd0
+>  [<c03a0771>] dm_any_congested+0x21/0x60
 
-> Here is the new set of input patches that I have. You have seen some of
-> them, buit this time they are rediffed against 2.6.4-rc1 and in nice order.
+Is there any way to reproduce this? I turned on spinlock and
+sleep-spinlock debugging and did lots of I/O but I don't see it.
 
-I like them very much. Do you have a bitkeeper tree anywhere where I
-could pull from, so that I don't have to apply these by hand?
+> I'm not sure how to fix this (or how serious a problem it is)...I'm just 
+> throwing this out there for discussion.
 
-> 01-atkbd-whitespace-fixes.patch
-> 	simple whitespace fixes
-> 
-> 02-atkbd-bad-merge.patch
-> 	clean up bad merge in atkbd module (get rid of MODULE_PARMs,
->         atkbd_softrepeat was declared twice)
-> 
-> 03-synaptics-relaxed-proto.patch
-> 	some hardware (PowerBook) require relaxed Synaptics protocol checks,
->         but relaxed checks hurt hardware implementing proper protocol when
->         device looses sync. With the patch synaptics driver analyzes first
->         full data packet and either staus in relaxed mode or switches into
->         strict mode.
-> 
-> 04-psmouse-whitespace-fixes.patch
-> 	simple whitespace fixes
-> 
-> 05-psmouse-workaround-noack.patch
-> 	some mice do not ACK "disable streaming mode" command causing psmouse
->         driver abort initialization without any indication to the user. This
->         is a regression compared to 2.4. Have kernel complain but continue
->         with prbing hardware (after all we got valid responce from GET ID
-> 	command).
-> 
-> 06-module-param-array-named.patch
-> 	introduce module_param_array_named() modeled after module_param_named
-> 	that allows mapping array module option to
-> 
-> 07-joystick-module-param.patch
-> 	complete moving input drivers to the new way of handling module
-> 	parameters using module_param()
-> 
-> 08-obsolete-setup.patch
-> 	introduce __obsolete_setup(). This is a drop-in replacement for
->         __setup() for truly obsolete options. Kernel will complain when sees
->         such an option.
-> 
-> 09-input-obsolete-setup.patch
-> 	document removed or renamed options in input drivers using
-> 	__obsolete_setup() so users will have some clue why old options
->         stopped having any effect.
+Well bdi_write_congested() is racy, ofcourse, so in theory a call
+to make_request() could be made which can block (and for dm, locks
+the same semaphore) - so this can happen anyway. Only the chance of
+it is much lower. I'm not sure how bad it is.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Changing down_read() in dm_any_congested to down_read_trylock() would
+probably fix it for bdi_*_congested(). If you can tell me how to
+reproduce it I can try a few things..
+
+Mike.

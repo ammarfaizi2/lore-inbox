@@ -1,60 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261412AbTDQOUI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Apr 2003 10:20:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261474AbTDQOUI
+	id S261530AbTDQOXV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Apr 2003 10:23:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbTDQOXV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Apr 2003 10:20:08 -0400
-Received: from havoc.daloft.com ([64.213.145.173]:26766 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S261412AbTDQOUH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Apr 2003 10:20:07 -0400
-Date: Thu, 17 Apr 2003 10:32:02 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [BK+PATCH] remove __constant_memcpy
-Message-ID: <20030417143202.GA18749@gtf.org>
-References: <3E9DFC11.50800@pobox.com> <1050585430.31390.32.camel@dhcp22.swansea.linux.org.uk>
+	Thu, 17 Apr 2003 10:23:21 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:40646
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S261530AbTDQOXU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Apr 2003 10:23:20 -0400
+Subject: Re: bio too big device
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Anders Larsson <anders@dio.jll.se>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030416183139.M18348@gw>
+References: <20030416172122.M65357@gw> <20030416181944.M32238@gw>
+	 <20030416183139.M18348@gw>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1050586615.31412.43.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1050585430.31390.32.camel@dhcp22.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 17 Apr 2003 14:36:59 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 17, 2003 at 02:17:16PM +0100, Alan Cox wrote:
-> On Iau, 2003-04-17 at 01:57, Jeff Garzik wrote:
-> > The patch below is the conservative, obvious patch.  It only kicks in 
-> > when __builtin_constant_p() is true, and it only applies to the i386 
-> > arch.  
+On Mer, 2003-04-16 at 19:32, Anders Larsson wrote:
+> Hi got this probb with this 
 > 
-> You are assuming the compiler is smart about stuff - it doesnt know
-> SSE/MMX for page copies etc. For small copies it should alays win, but
+> Apr 16 16:31:23 cab kernel: bio too big device ide3(34,65) (256 > 255)
+> Apr 16 16:38:44 cab kernel: bio too big device ide3(34,1) (256 > 255)
 
-Prior to my patch, __constant_memcpy was -already- only used for small,
-constant-size copies.
-
-Therefore, my patch applied __builtin_memcpy only to small,
-constant-size copies.  The existing kernel custom-memcpy code continued
-to perform as expected.
-
-You and Linus both seem to think MMX/SSE/SSE2 is somehow in the
-equation, but I do not see that at all.  I left those paths alone.
-Clarification/LART requested...
-
-
-> isn't it best if so to use __builtin_memcpy without our existing
-> macros not just trust the compiler ?
-
-hum, I didn't parse this at all:
-Use of __builtin_memcpy implies trusting the compiler :)
-
-Maybe you meant s/without/with/ ?
-
-	Jeff
-
-
+Known bug in raid0 on the 2.5.x kernels still. 
 

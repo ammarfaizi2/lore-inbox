@@ -1,52 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261682AbUKBVwR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261369AbUKBVw4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261682AbUKBVwR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 16:52:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261702AbUKBVwP
+	id S261369AbUKBVw4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 16:52:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261532AbUKBVlb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 16:52:15 -0500
-Received: from dsl093-002-214.det1.dsl.speakeasy.net ([66.93.2.214]:4484 "EHLO
-	pickle.fieldses.org") by vger.kernel.org with ESMTP id S262001AbUKBVvn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 16:51:43 -0500
-Date: Tue, 2 Nov 2004 16:51:26 -0500
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Brad Campbell <brad@wasp.net.au>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: nfs stale filehandle issues with 2.6.10-rc1 in-kernel server
-Message-ID: <20041102215126.GE6694@fieldses.org>
-References: <41877751.502@wasp.net.au> <1099413424.7582.5.camel@lade.trondhjem.org> <4187E4E1.5080304@pobox.com>
+	Tue, 2 Nov 2004 16:41:31 -0500
+Received: from fw.osdl.org ([65.172.181.6]:15589 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261458AbUKBVjl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Nov 2004 16:39:41 -0500
+Date: Tue, 2 Nov 2004 13:43:03 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Williams, Mitch A" <mitch.a.williams@intel.com>
+Cc: bonding-devel@lists.sourceforge.net, fubar@us.ibm.com,
+       ctindel@users.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix for 802.3ad shutdown issue
+Message-Id: <20041102134303.44e715da.akpm@osdl.org>
+In-Reply-To: <F3EE2A9EB4576F40AFE238EC0AC04BC504191A10@orsmsx402.amr.corp.intel.com>
+References: <F3EE2A9EB4576F40AFE238EC0AC04BC504191A10@orsmsx402.amr.corp.intel.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4187E4E1.5080304@pobox.com>
-User-Agent: Mutt/1.5.6+20040907i
-From: "J. Bruce Fields" <bfields@fieldses.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 02, 2004 at 02:49:53PM -0500, Jeff Garzik wrote:
-> >ty den 02.11.2004 Klokka 16:02 (+0400) skreiv Brad Campbell:
-> >
-> >
-> >>/raid 192.168.2.81(rw,async,no_root_squash)
-> >>/raid 192.168.3.80(rw,async,no_root_squash)
-> >>/raid0 192.168.2.81(rw,async,no_root_squash)
-> >>/raid0/tmp 192.168.2.81(rw,async,no_root_squash)
-> >>/raid2 192.168.2.81(rw,async,no_root_squash)
-> >>/raid2 192.168.3.80(rw,async,no_root_squash)
-> >>/nfsroot 192.168.2.81(rw,async,no_root_squash)
-....
-> I'm also seeing stale filehandle problems here in recent kernels.
-> 
-> Setup:  x86 or x86-64, TCP, NFSv4 compiled in to both server and client, 
-> but not specified in mount options.
-> 
-> This is readily reproducible with rsync -- I just boot to an earlier 
-> version of the kernel on the NFS client, and the stale filehandle 
-> problems go away.
+"Williams, Mitch A" <mitch.a.williams@intel.com> wrote:
+>
+> The patch below fixes a problem with shutting down 802.3ad bonds on the
+> 2.6 
+> kernel.
 
-Are any of the people seeing these problems able to reproduce them with
-the no_subtree_check export option set?
+I'll fix this patch up and add it to my tree so that it doesn't get lost.
 
---b.
+Please fix your email client so that future patches are not wordwrapped,
+thanks.

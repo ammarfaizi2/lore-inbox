@@ -1,49 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262057AbUCNXcX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Mar 2004 18:32:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262058AbUCNXcX
+	id S262059AbUCNXjw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Mar 2004 18:39:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262076AbUCNXjw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Mar 2004 18:32:23 -0500
-Received: from ip-213-226-226-138.ji.cz ([213.226.226.138]:34052 "HELO
-	machine.sinus.cz") by vger.kernel.org with SMTP id S262057AbUCNXcU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Mar 2004 18:32:20 -0500
-Date: Sun, 14 Mar 2004 17:25:37 +0100
-From: Petr Baudis <pasky@ucw.cz>
-To: M?ns Rullg?rd <mru@kth.se>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Re: Other bizarre thing... backspaces?
-Message-ID: <20040314162537.GA703@pasky.ji.cz>
-Mail-Followup-To: M?ns Rullg?rd <mru@kth.se>, linux-kernel@vger.kernel.org
-References: <20040304100503.GA13970@havoc.gtf.org> <20040305232425.GA6239@havoc.gtf.org> <20040306133309.GA17397@havoc.gtf.org> <yw1xd67qax70.fsf@kth.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <yw1xd67qax70.fsf@kth.se>
-User-Agent: Mutt/1.4i
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
+	Sun, 14 Mar 2004 18:39:52 -0500
+Received: from smtp806.mail.sc5.yahoo.com ([66.163.168.185]:60777 "HELO
+	smtp806.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262059AbUCNXjv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Mar 2004 18:39:51 -0500
+Date: Sun, 14 Mar 2004 17:39:49 -0600 (CST)
+From: Ryan Reich <ryanr@uchicago.edu>
+Reply-To: Ryan Reich <ryanr@uchicago.edu>
+To: linux-kernel@vger.kernel.org
+Subject: modules.inputmap empty?
+Message-ID: <Pine.LNX.4.58.0403141734410.1800@ryanr.aptchi.homelinux.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear diary, on Sat, Mar 06, 2004 at 03:04:35PM CET, I got a letter,
-where M?ns Rullg?rd <mru@kth.se> told me, that...
-> David Eger <eger@havoc.gtf.org> writes:
-> 
-> > There are five files with embedded backspace octets in them.... ;-)
-> 
-> That's an old way to do underlining and bold face and it seems like at
-> least coda.txt is doing that.  If I could choose I'd probably just
-> remove them.
+Please CC me on reply.
 
-Well, what's the "new way" for ASCII documents? At least less produces a
-desired result.
+For purely aesthetic reasons I decided to try compiling psmouse and pcspkr as
+modules.  I've noticed that the most recent hotplug scripts don't find them and,
+in fact, when I modprobe them manually I get a message about "no driver for
+INPUT device <etc>".  That would be a question for the hotplug people, if it
+were all; however, the reason it doesn't find any drivers is that there is
+nothing in modules.inputmap.  It has the commented-out header and no modules
+listed.  Why do these two modules not count as input drivers for depmod?
 
-Kind regards,
+Kernel 2.6.4, module-init-tools-3.0.
 
 -- 
-				Petr "Pasky" Baudis
-Stuff: http://pasky.or.cz/
-The reasonable man adapts himself to the world; the unreasonable one
-persists in trying to adapt the world to himself. Therefore all
-progress depends on the unreasonable man. -- George Bernard Shaw
+Ryan Reich
+ryanr@uchicago.edu

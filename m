@@ -1,47 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264388AbTEHB2Q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 21:28:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264391AbTEHB2Q
+	id S264391AbTEHB3P (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 21:29:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264392AbTEHB3P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 21:28:16 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:31807 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S264388AbTEHB2O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 21:28:14 -0400
-Date: Wed, 7 May 2003 18:40:54 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: garbled oopsen
-Message-Id: <20030507184054.684e2bd0.akpm@digeo.com>
-In-Reply-To: <20030507180530.23d0e780.rddunlap@osdl.org>
-References: <20030507180530.23d0e780.rddunlap@osdl.org>
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 7 May 2003 21:29:15 -0400
+Received: from dyn-ctb-203-221-73-28.webone.com.au ([203.221.73.28]:44292 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id S264391AbTEHB3O
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 21:29:14 -0400
+Message-ID: <3EB9B5BA.4080607@cyberone.com.au>
+Date: Thu, 08 May 2003 11:41:14 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: markw@osdl.org
+CC: akpm@digeo.com, linux-kernel@vger.kernel.org
+Subject: Re: OSDL DBT-2 AS vs. Deadline 2.5.68-mm2
+References: <200305071633.h47GXWW15850@mail.osdl.org>
+In-Reply-To: <200305071633.h47GXWW15850@mail.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 08 May 2003 01:40:44.0093 (UTC) FILETIME=[D730E6D0:01C31502]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Randy.Dunlap" <rddunlap@osdl.org> wrote:
+markw@osdl.org wrote:
+
+>I've collected some data from STP to see if it's useful or if there's
+>anything else that would be useful to collect. I've got some tests
+>queued up for the newer patches, but I wanted to put out what I had so
+>far.
 >
-> I have several oopses that are garbled.
+Thanks. It looks like AS isn't doing too badly here. Newer mm kernels
+have some more AS changes, and the dynamic struct request patch which
+would be good to test.
 
-Use kgdb.
-
-> Can these be cleaned up in any reasonable way?
-
-It needs some additional spinlock in there.  People have moaned for over a
-year, patches have been floating about but nobody has taken the time to
-finish one off and submit it.
-
-It's never bothered me, because availability of a serial console equates to
-availability of kgdb.
-
-> Any suggestions?
-
-A Greek-to-English dictionary?
-
+Are you using TCQ on your disks?
 

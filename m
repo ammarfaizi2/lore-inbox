@@ -1,81 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262227AbTFJATx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 20:19:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262252AbTFJATx
+	id S262328AbTFJAd7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 20:33:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262336AbTFJAd7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 20:19:53 -0400
-Received: from 216-42-72-151.ppp.netsville.net ([216.42.72.151]:169 "EHLO
-	tiny.suse.com") by vger.kernel.org with ESMTP id S262227AbTFJATw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 20:19:52 -0400
-Subject: Re: [PATCH] io stalls
-From: Chris Mason <mason@suse.com>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: Andrea Arcangeli <andrea@suse.de>,
-       Marc-Christian Petersen <m.c.p@wolk-project.de>,
-       Jens Axboe <axboe@suse.de>, Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Georg Nikodym <georgn@somanetworks.com>,
+	Mon, 9 Jun 2003 20:33:59 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:21669
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S262328AbTFJAd6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jun 2003 20:33:58 -0400
+Subject: RE: 2.4.22 timeline was RE: 2.4.21-rc7 ACPI broken
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: "Grover, Andrew" <andrew.grover@intel.com>,
+       Grzegorz Jaskiewicz <gj@pointblue.com.pl>,
        lkml <linux-kernel@vger.kernel.org>,
-       Matthias Mueller <matthias.mueller@rz.uni-karlsruhe.de>
-In-Reply-To: <3EE51D99.2080604@cyberone.com.au>
-References: <Pine.LNX.4.55L.0305282019160.321@freak.distro.conectiva>
-	 <200306041235.07832.m.c.p@wolk-project.de> <20030604104215.GN4853@suse.de>
-	 <200306041246.21636.m.c.p@wolk-project.de>
-	 <20030604104825.GR3412@x30.school.suse.de>
-	 <3EDDDEBB.4080209@cyberone.com.au>
-	 <1055194762.23130.370.camel@tiny.suse.com>
-	 <3EE51D99.2080604@cyberone.com.au>
+       "Saxena, Sunil" <sunil.saxena@intel.com>,
+       "Brown, Len" <len.brown@intel.com>,
+       "Therien, Guy" <guy.therien@intel.com>
+In-Reply-To: <Pine.LNX.4.55L.0306091901260.27584@freak.distro.conectiva>
+References: <F760B14C9561B941B89469F59BA3A84725A2DF@orsmsx401.jf.intel.com>
+	 <Pine.LNX.4.55L.0306091901260.27584@freak.distro.conectiva>
 Content-Type: text/plain
-Organization: 
-Message-Id: <1055205179.23130.406.camel@tiny.suse.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 09 Jun 2003 20:32:59 -0400
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1055205899.31139.15.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 10 Jun 2003 01:44:59 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-06-09 at 19:51, Nick Piggin wrote:
-
+On Llu, 2003-06-09 at 23:03, Marcelo Tosatti wrote:
+> Yes, I want to, and will merge it. In 2.4.23-pre.
+> 
+> > I am confident it will merge cleanly.
+> > I am confident it will cause no problems when CONFIG_ACPI=off.
+> > I am confident the total number of working machines will go up.
+> > I am willing to bet $500 of MY OWN MONEY on this.
 > >
-> >The latency results are better, with average time spent in
-> >__get_request_wait being around 28 jiffies, and a max of 170 jiffies. 
-> >The cost is throughput, further benchmarking needs to be done but, but I
-> >wanted to get this out for review and testing.  It should at least help
-> >us decide if the request allocation code really is causing our problems.
-> >
+> > Talk to me, man. What would make you happy? A lot is riding on this.
 > 
-> Well the latency numbers are good - is this with dbench 90?
+> Yes, we're fine. 2.4.23-pre.
 > 
+> 2.4.22 will be a fast enough release to not piss you off on this, trust
+> me.
 
-Yes, that number was dbench 90, but dbench 50,90, and 120 gave about the
-same stats with the final patch.
+Its been in 2.4.21-ac for a while. I have exactly zero reports of it
+causing problems in the acpi=n case, and a whole raft of "the first
+Linux that runs on my toshiba/compaq/hp laptop"
 
-> snip
-
-> >+
-> >+static inline int queue_full(request_queue_t *q, int rw)
-> >+{
-> >+	rmb();
-> >+	if (rw == READ)
-> >+		return q->read_full;
-> >+	else
-> >+		return q->write_full;
-> >+}
-> >+
-> >
-> 
-> I don't think you need the barriers here, do you?
-> 
-
-I put the barriers in early on when almost all the calls were done
-outside spin locks, the current flavor of the patch only does one
-clear_queue_full without the io_request_lock held.  It should be enough
-to toss a barrier in just that one spot.  But I wanted to leave them in
-so I could move things around until the final version (if there ever is
-one ;-)
-
--chris
+Works well enough for me to have faith in it now. 
 
 

@@ -1,51 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273863AbSISXhX>; Thu, 19 Sep 2002 19:37:23 -0400
+	id <S273828AbSISXrz>; Thu, 19 Sep 2002 19:47:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273908AbSISXhX>; Thu, 19 Sep 2002 19:37:23 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:54427 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S273863AbSISXhW>;
-	Thu, 19 Sep 2002 19:37:22 -0400
-Date: Thu, 19 Sep 2002 16:45:41 -0700
-From: Hanna Linder <hannal@us.ibm.com>
-To: Andrew Morton <akpm@digeo.com>
-cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org,
-       viro@math.psu.edu, Hanna Linder <hannal@us.ibm.com>
-Subject: Re: 2.5.36-mm1 dbench 512 profiles
-Message-ID: <71640000.1032479141@w-hlinder>
-In-Reply-To: <3D8A5FE6.4C5DE189@digeo.com>
-References: <20020919223007.GP28202@holomorphy.com> <68630000.1032477517@w-hlinder> <3D8A5FE6.4C5DE189@digeo.com>
-X-Mailer: Mulberry/2.1.0 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	id <S273908AbSISXrz>; Thu, 19 Sep 2002 19:47:55 -0400
+Received: from verdi.et.tudelft.nl ([130.161.38.158]:13698 "EHLO
+	verdi.et.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S273828AbSISXry>; Thu, 19 Sep 2002 19:47:54 -0400
+Message-Id: <200209192352.g8JNqqZ06542@verdi.et.tudelft.nl>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+X-Exmh-Isig-CompType: repl
+X-Exmh-Isig-Folder: inbox
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: robn@verdi.et.tudelft.nl, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@digeo.com>
+Subject: Re: ext3 fs: no userspace writes == no disk writes ? 
+In-Reply-To: Your message of "20 Sep 2002 00:25:59 BST."
+             <1032477959.29068.12.camel@irongate.swansea.linux.org.uk> 
+Mime-Version: 1.0
+Content-Type: text/plain
+Date: Fri, 20 Sep 2002 01:52:52 +0200
+From: Rob van Nieuwkerk <robn@verdi.et.tudelft.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---On Thursday, September 19, 2002 16:38:14 -0700 Andrew Morton <akpm@digeo.com> wrote:
+Hi Alan,
 
-> Hanna Linder wrote:
->> 
->> ...
->>         So akpm's removal of lock section directives breaks down the
->> functions holding locks that previously were reported under the
->> .text.lock.filename?
+> On Fri, 2002-09-20 at 00:04, Andrew Morton wrote:
+> > There are frequently written areas of an ext3 filesystem - the
+> > journal, the superblock.  Those would wear out pretty quickly.
 > 
-> Yup.  It makes the profiler report the spinlock cost at the
-> actual callsite.  Patch below.
+> CF is -supposed- to wear level.
 
-	Thanks. We've needed that for quite some time.
-> 
->> Looks like fastwalk might not behave so well
->> on this 32 cpu numa system...
-> 
-> I've rather lost the plot.  Have any of the dcache speedup
-> patches been merged into 2.5?
+Yes I know.
 
-	Yes, starting with 2.5.11. Al Viro made some changes to
-it and it went in. Havent heard anything about it since...
+But I haven't been able to find any specs from any CF manufacturer
+about this mechanism, percentage of spare sectors or number of allowed
+write-cycles in general.  Does it work by writing and than reading it
+back and if it's different remapping the sector from a pool of spare
+sectors ?
 
-Hanna
+My guess is that it will work OK in a typical CF-in-a-camera situation:
+after some thousands of photo's something gets remapped without the
+user noticing.
 
+But if you write every few seconds to the same block(s) (journal and/or
+superblock, which I was/am afraid of happening with ext3 in my original
+question) you'll run out of remap sectors and kill any CF reliably
+within a couple of days.  Suppose there is a write to a certain sector
+every 5 seconds and assume a 100000 allowed writecycles (I read this
+number several times in several flashdocs, but not in any CF docs ..).
+That results in a lifetime of 5.8 days for this particular sector.
+Then it gets remapped.  How long you can get away with this depends on
+how many "hot" sectors like this you have in your fs and how many spares
+are available on your CF.  But in the (not so far away) end you *will* kill
+your CF I think.
+
+Now if there are NO kernel/ext3 "automatic" writes and your application
+has the right behaviour (mine has I think) using ext3 on CF looks like
+a nice, easy & stable solution in which killing your CF takes many years :-)
+
+	greetings,
+	Rob van Nieuwkerk

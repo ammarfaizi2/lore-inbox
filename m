@@ -1,54 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268999AbUI2Uq6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269022AbUI2UvY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268999AbUI2Uq6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 16:46:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269026AbUI2Uqy
+	id S269022AbUI2UvY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 16:51:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269026AbUI2UvY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 16:46:54 -0400
-Received: from moutng.kundenserver.de ([212.227.126.171]:38626 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S268999AbUI2UqA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 16:46:00 -0400
-From: Christian Borntraeger <linux-kernel@borntraeger.net>
-To: Bernd Schubert <bernd-schubert@web.de>
-Subject: Re: 2.6.9-rc2: isofs oops
-Date: Wed, 29 Sep 2004 22:45:58 +0200
-User-Agent: KMail/1.7
-Cc: linux-kernel@vger.kernel.org
-References: <200409292008.17149.bernd-schubert@web.de>
-In-Reply-To: <200409292008.17149.bernd-schubert@web.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 29 Sep 2004 16:51:24 -0400
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:45459
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S269022AbUI2UvW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 16:51:22 -0400
+Date: Wed, 29 Sep 2004 13:50:29 -0700
+From: "David S. Miller" <davem@davemloft.net>
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: gnb@sgi.com, akpm@osdl.org, linux-kernel@vger.kernel.org, jeremy@sgi.com,
+       johnip@sgi.com, netdev@oss.sgi.com
+Subject: Re: [PATCH] I/O space write barrier
+Message-Id: <20040929135029.38444afd.davem@davemloft.net>
+In-Reply-To: <200409291343.55863.jbarnes@engr.sgi.com>
+References: <200409271103.39913.jbarnes@engr.sgi.com>
+	<20040929103646.GA4682@sgi.com>
+	<20040929133500.59d78765.davem@davemloft.net>
+	<200409291343.55863.jbarnes@engr.sgi.com>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200409292245.58857.linux-kernel@borntraeger.net>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:5a8b66f42810086ecd21595c2d6103b9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bernd Schubert wrote:
->
-> ISO 9660 Extensions: RRIP_1991A
-[oops in isofs]
+On Wed, 29 Sep 2004 13:43:55 -0700
+Jesse Barnes <jbarnes@engr.sgi.com> wrote:
 
+> The patch that actually implements mmiowb() already does this, I think Greg 
+> just used his patch for testing.  The proper way to do it of course is to 
+> just use mmiowb() where needed in tg3 after the write barrier patch gets in.
 
-Known and already fixed by Andrew Morton.
+Perfect, please send me a tg3 patch once the mmiowb() bits
+go into the tree.
 
---- a/fs/isofs/rock.c   2004-09-29 13:45:15 -07:00
-+++ b/fs/isofs/rock.c   2004-09-29 13:45:15 -07:00
-@@ -62,7 +62,7 @@
- }                                     
- 
- #define MAYBE_CONTINUE(LABEL,DEV) \
--  {if (buffer) kfree(buffer); \
-+  {if (buffer) { kfree(buffer); buffer = NULL; } \
-   if (cont_extent){ \
-     int block, offset, offset1; \
-     struct buffer_head * pbh; \
-
-
-cheers
-
-Christian
-
+Thanks a lot.

@@ -1,60 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262126AbTD2Sgu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Apr 2003 14:36:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262128AbTD2Sgu
+	id S262128AbTD2Sl7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Apr 2003 14:41:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262131AbTD2Sl7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Apr 2003 14:36:50 -0400
-Received: from watch.techsource.com ([209.208.48.130]:22983 "EHLO
-	techsource.com") by vger.kernel.org with ESMTP id S262126AbTD2Sgt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Apr 2003 14:36:49 -0400
-Message-ID: <3EAEC964.5040007@techsource.com>
-Date: Tue, 29 Apr 2003 14:50:12 -0400
-From: Timothy Miller <miller@techsource.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
+	Tue, 29 Apr 2003 14:41:59 -0400
+Received: from adsl-68-74-104-142.dsl.klmzmi.ameritech.net ([68.74.104.142]:53511
+	"EHLO tabriel.tabris.net") by vger.kernel.org with ESMTP
+	id S262128AbTD2Sl5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Apr 2003 14:41:57 -0400
+From: Tabris <tabris@sbcglobal.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.21-rc1-ac2 Promise IDE DMA won't work
+Date: Tue, 29 Apr 2003 14:48:07 -0400
+User-Agent: KMail/1.5
+Cc: Thomas Backlund <tmb@iki.fi>
+References: <200304282112.47061.tabris@sbcglobal.net>
+In-Reply-To: <200304282112.47061.tabris@sbcglobal.net>
 MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: Mark Grosberg <mark@nolab.conman.org>, linux-kernel@vger.kernel.org
-Subject: Re: [RFD] Combined fork-exec syscall.
-References: <Pine.BSO.4.44.0304272207431.23296-100000@kwalitee.nolab.conman.org> <Pine.LNX.4.53.0304280855240.16444@chaos>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200304291448.07909.tabris@sbcglobal.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> On Monday 28 April 2003 09:58 pm, Andre Hedrick wrote:
+>> NO ATAPI DMA!
+>>
+>> I will not write the driver core to attempt to support the various
+>> combinations.  The ATAPI DMA engine space is used support 48bit.
+>> Use the onboard controller for ATAPI.
+>> Andre Hedrick
+>> LAD Storage Consulting Group
+> 
+> Can I object that it came built onto the board? okok... i'll take that
+> as a no for now...
+> 
+>> Tho i'm still not quite sure how it makes a diff to be honest, unless
+>> you mean that the Promise and HPT will never be supported for DMA?
+>> 
+>> and the only other thing i should say is that altho i'm not exactly a
+>> n00b, the average user WILL expect it to work.
+>> 
+>> can i expect this to be fixed by 2.6? (yeah, i know... 2.4-ac-ide 
+>>code is similar to 2.5-ide code)
+>> --
+>> tabris
 
+>The point is that you should put your ATAPI device (in this case the 
+>cd-rom)
+>on the VIA controllers, and place the hdd's on the promise controller,
+>since dma is supported for hdd's...
 
-Richard B. Johnson wrote:
+>This is also their intended primary functions by the manufacturers...,
+>for example the HPT370 controller with bios version >1.1.x.xxx does
+>not have ATAPI support (atleast officially, I haven't tried it)
+>
+>
+>Thomas
 
->  
->
->To save some processing time, most knowledgeable software
->engineers would use vfork(). This leaves the major time,
->the time necessary to load the new application into the
->new address space and begin its execution. This time could
->be tens of milliseconds or even hundreds if the application
->is on a CD, floppy, a disk that hasn't been accessed yet,
->or the network. In the usuall situation where processing
->must be performed between the fork() and the execve(), you
->can't use vfork().
->
->You can measure the time for a system call by executing
->getpid() or something similar. It is in the noise compared
->to the time necessary to execute a program. Further, we
->get to the situation where one can't even verify a supposed
->speed increase because the system call overhead is in the
->noise. Great, one can claim any improvement they want and
->it can't be verified. What will be verified, though, is
->the increase in size of the kernel.
->
->
->  
->
+So, are you telling me that DMA for both my hard drives, and my CD-R/Ws 
+will work, if i put my HDs on the PDC20265 controller, and my CD-R/W on 
+the VIA?
 
-So, you can't save any time _for_that_particular_process_ by speeding up 
-the fork.  Granted.  But that wasted CPU time could be better spent 
-working on some unrelated process that is not waiting on I/O.
+or will i lose DMA on the hard drives in this way, losing performance?
 
+the second solution, tho one _I_ could probably live with, is still a 
+problem, especially for those of us who want to sell GNU/Linux to our 
+customers as a 'better' solution.
+
+btw, please cc: me in your replies, as I no longer am able to subscribe 
+to the linux-kernel list. this reply i had to hack by hand from 
+marc.theaimsgroup
+
+--
+tabris
+-
+Why don't you fix your little problem... and light this candle?
+		-- Alan Shepherd, the first man into space, Gemini program
 

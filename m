@@ -1,124 +1,140 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317839AbSFMVhe>; Thu, 13 Jun 2002 17:37:34 -0400
+	id <S317843AbSFMVrn>; Thu, 13 Jun 2002 17:47:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317840AbSFMVhd>; Thu, 13 Jun 2002 17:37:33 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:1420 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S317839AbSFMVhc>;
-	Thu, 13 Jun 2002 17:37:32 -0400
-Date: Thu, 13 Jun 2002 23:35:24 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: mingo@elte.hu
-To: "Bhavesh P. Davda" <bhavesh@avaya.com>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] SCHED_FIFO and SCHED_RR scheduler fix, kernel 2.4.18
-In-Reply-To: <3D090B4D.4060104@avaya.com>
-Message-ID: <Pine.LNX.4.44.0206132318010.14637-100000@e2>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317844AbSFMVrm>; Thu, 13 Jun 2002 17:47:42 -0400
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:29817 "EHLO
+	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S317843AbSFMVrk>; Thu, 13 Jun 2002 17:47:40 -0400
+Date: Thu, 13 Jun 2002 16:47:41 -0500 (CDT)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200206132147.QAA20200@tomcat.admin.navo.hpc.mil>
+To: mnw21@bigfoot.com, BugTraq Mailing List <bugtraq@securityfocus.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Very large font size crashing X Font Server and Grounding Server to a Halt (was: remote DoS in Mozilla 1.0)
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Thu, 13 Jun 2002, Bhavesh P. Davda wrote:
-
-> > in terms of 2.4.18, the timer and the setscheduler() change is OK, but i
-> > dont think we want the add_to_runqueue() change. It changes wakeup
-> > characteristics for non-RT tasks, it could affect any many-threads or
-> > many-processes application adversely. And we've been doing FIFO wakeups
+Matthew Wakeling <mnw21@bigfoot.com>:
 > 
-> I would think that the logical place to add any process to the runqueue
-> would be the back of the runqueue. If all processes are ALWAYS added to
-> the back of the runqueue, then every process is GUARANTEED to eventually
-> be scheduled. No process will be starved indefinitely.
+> On Thu, 13 Jun 2002, Federico Sevilla III wrote:
+> 
+> > I was able to log on to the server with enough time to SIGKILL the
+> > xfs-daemon process. Unfortunately this wasn't good enough. The server
+> > started running up various processes stuck in "D" state, the OOM killer
+> > went on panic mode and started killing things left and right, mostly from
+> > what I notice apache and apache-ssl processes with messages like "Out of
+> > Memory: Killed process xxxx (apache)". I was also able to do a `free`
+> > after killing xfs-daemon and noticed that there was a lot of free memory
+> > both physically and on swap.
+> > 
+> > Within less than ten minutes on this relatively lightly-loaded server, I
+> > could not log in to the machine locally, even as root (whose home
+> > directory is not NFS-exported) and load levels shot up to around 25, which
+> > is definitely abnormal. Existing logged-on processes also got stuck in
+> > whatever they were doing (`ps ax`, in particular is what I remember).
+> 
+> It has always puzzled me that a process using lots of memory can bring 
+> down an entire (otherwise relatively idle) server to the extent that one 
+> cannot even get mingetty on a local terminal to respond to keypresses. I 
+> can confirm that the described situation is not just a one-off.
+> 
+> It is my experience that a single process using large amounts of memory 
+> causes the system to start swapping. Once it starts swapping, every 
+> process that does anything (apart from indefinite wait) goes into "I'm 
+> ready to do some processing, but my memory is swapped out" state, and the 
+> whole system collapses.
 
-in the case of the Linux scheduler non-RT processes wont be starved
-indefinitely, because timeslices will expire after some time so even
-'backlogged' processes will get a chance to run. The LIFO wakeup method
-can be argued to improve performance as well: if N equal priority
-processes are to be considered then the one with the most recent activity
-(the most cache-hot) process should be run. Fairness is enforced via the
-timeslice distribution scheme.
+Not necessarily. The condition can also be caused by having a large, well
+behaved process working its' little heart out properly, and a small process
+that grows suddenly (or even slowly - it doesn't take much to push it over
+the limit). As the small process grows, the larger one is paged out. Once
+the swap space is filled just adding one more page could do it. And it doesn't
+matter what process allocates that page. Key: disable oversubscription of
+memory.
 
-for the case of SCHED_FIFO processes there is no timeslice-driven
-fairness. For them it's clearly better to do FIFO wakeups.
+[snip]
 
-> The application that I am dealing with is a communications application
-> with 86 SCHED_FIFO processes, crammed between priority levels 7-23, that
-> depend on priority preemption using System V semaphores. The 2.2 kernel
-> SCHED_FIFO behaviour was correct as far as a preempted SCHED_FIFO
-> process being put in the back of the runqueue is concerned. But the 2.4
-> kernel SCHED_FIFO behaviour was broken because of the add_to_runqueue()  
-> bug. That lead to our application grossly misbehaving under the 2.4.18
-> scheduler.
+> > While I agree with BugTraq posts in response to this that applications
+> > like Mozilla which accept font-sizes from unknown sources should have some
+> > check to prevent such large sizes from crashing X and/or the X Font
+> > Server, I'm alarmed by (1) the way the X font server allows itself to be
+> > crashed like this, and (2) the way the entire Linux kernel seems to have
+> > been unable to handle the situation.
+> 
+> I am in complete agreement with both points, but particularly that the 
+> kernel should be able to cope with the situation gracefully. I know one 
+> can set limits on processes, but the kernel should still be able to cope 
+> if we don't.
 
-okay, you've certainly convinced me.
+It can't decide what causes the problem. There are too may possibilities.
 
-we can do this without affecting SCHED_OTHER behavior - it adds one more
-branch to a hotpath, but correctness comes first. Patch against vanilla
-2.4.18 attached, it does the FIFO wakeup if it's a RT task, otherwise the
-wakeup is still LIFO. Clearly a FIFO wakeup is broken wrt. RT tasks.
+This is NOT a bug. I consider it a problem of a misconfigured server. As long
+as memory oversubscription is permitted, there are a LOT of things that can
+cause a system failure. Examples are:
 
-(any recent merge of the O(1) scheduler to 2.4 should have this behavior
-'automatically'.)
+	DNS cache table fills memory
+	X font server fills memory (the discussed failure)
+	Sendmail recieves large Email (2-8MB)
+	Web server recieves a lot of requests (though this one is harder and
+		needs a lot of static pages to be loaded into memory)
+	Database recieves lots of queries for lots of data
+	All cron jobs kick off at once, with several requiring lots of memory
 
-> As far as performance is concerned, putting the "if" test in
-> update_process_times for SCHED_FIFO actually improved the performance of
-> our application by 15%, as it would for any SCHED_FIFO centric
-> application that relies on priority preemption where the average
-> preemption time is > a timer tick.
+(I've even seen that last one kill solaris)
+	
 
-(strange, calling schedule() every 10 msecs should not cost 1.5 msecs.)
+> > Suggestions on how to work around this on multiple levels would definitely
+> > be appreciated.
+> 
+> My suggestion would be to set a maximum core size for the xfs-daemon 
+> process. Given your setup, something like 400MB seems appropriate - maybe 
+> a little lower. Details for doing this seem to differ from linux to linux. 
+> Having done that, I would make sure xfs respawns when it dies - that way 
+> someone can't just DOS your whole network by asking for a large font.
+> Finally, wait for the xfs developers to put in a font size limit, or patch 
+> the source yourself.
 
-	Ingo
+Also put a maximum limit on the X server.
 
---- linux/kernel/sched.c.orig	Thu Jun 13 20:14:31 2002
-+++ linux/kernel/sched.c	Thu Jun 13 23:33:41 2002
-@@ -324,7 +324,10 @@
-  */
- static inline void add_to_runqueue(struct task_struct * p)
- {
--	list_add(&p->run_list, &runqueue_head);
-+	if (p->policy == SCHED_OTHER)
-+		list_add(&p->run_list, &runqueue_head);
-+	else
-+		list_add_tail(&p->run_list, &runqueue_head);
- 	nr_running++;
- }
- 
-@@ -334,12 +337,6 @@
- 	list_add_tail(&p->run_list, &runqueue_head);
- }
- 
--static inline void move_first_runqueue(struct task_struct * p)
--{
--	list_del(&p->run_list);
--	list_add(&p->run_list, &runqueue_head);
--}
--
- /*
-  * Wake up a process. Put it on the run-queue if it's not
-  * already there.  The "current" process is always on the
-@@ -955,9 +952,6 @@
- 	retval = 0;
- 	p->policy = policy;
- 	p->rt_priority = lp.sched_priority;
--	if (task_on_runqueue(p))
--		move_first_runqueue(p);
--
- 	current->need_resched = 1;
- 
- out_unlock:
---- linux/kernel/timer.c.orig	Thu Jun 13 20:17:04 2002
-+++ linux/kernel/timer.c	Thu Jun 13 20:23:15 2002
-@@ -585,7 +585,8 @@
- 	if (p->pid) {
- 		if (--p->counter <= 0) {
- 			p->counter = 0;
--			p->need_resched = 1;
-+			if (p->policy != SCHED_FIFO)
-+				p->need_resched = 1;
- 		}
- 		if (p->nice > 0)
- 			kstat.per_cpu_nice[cpu] += user_tick;
+> Apart from that, I wouldn't move xfs to a bigger server unless you have 
+> already had people complaining about its performance. Moving it to a 
+> bigger system just changes the constant in the equation - the attacker 
+> would only need to specify a 100000 point font instead of a 50000 point 
+> font to bring the system down.
 
+Even if the font server survives - the X server wouldn't. In both cases,
+only huristics can be applied.
+
+1. Do not generate a font with more than 100 pixels high (around 1 inch
+   on display) by the font server. This would have to be a configuration
+   item, since there will be cases where that size is unreasonable. Also
+   might be a good idea to not cache fonts > X size even if generated.
+2. Do not have more than X active fonts at a time (to cover the case of
+   multiple fonts at the maximum) where X is based on an external
+   configuration (XF86Config parameter limit). Or specify the maximum
+   amount of memory to allocate to fonts, when that space is filled, return
+   a font error (font not available) to the application. Again, deallocate
+   fonts > X size when not in use.
+
+The easiest fix is to disable oversubscription of memory, though that may
+cause some daemons to abort if they don't check for allocation failures
+(which I do consider a bug).
+
+> I doubt any of my kernel suggestions have not already been thought about, 
+> but it was worth a try. Please can this problem be fixed soon?
+> 
+> Matthew
+> 
+> -- 
+> "If I wanted to kill a battleship, I'd use a s?!tload of Harpoons."
+> "NT is a lot cheaper."  -- Paul Tomblin & Petro
+
+Good signature... :)
+
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
+
+Any opinions expressed are solely my own.

@@ -1,77 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261967AbUKHRoF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261988AbUKHRjl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261967AbUKHRoF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 12:44:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261862AbUKHRnb
+	id S261988AbUKHRjl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 12:39:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261920AbUKHRjG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 12:43:31 -0500
-Received: from mail8.spymac.net ([195.225.149.8]:44419 "EHLO mail8")
-	by vger.kernel.org with ESMTP id S261708AbUKHRlg (ORCPT
+	Mon, 8 Nov 2004 12:39:06 -0500
+Received: from petasus.ch.intel.com ([143.182.124.5]:22453 "EHLO
+	petasus.ch.intel.com") by vger.kernel.org with ESMTP
+	id S261983AbUKHRgl convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 12:41:36 -0500
-Message-ID: <418FAFC5.7070000@spymac.com>
-Date: Mon, 08 Nov 2004 18:41:25 +0100
-From: Gunther Persoons <gunther_persoons@spymac.com>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040916)
-X-Accept-Language: en-us, en
+	Mon, 8 Nov 2004 12:36:41 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm3-V0.7.21
-References: <20041020094508.GA29080@elte.hu> <20041021132717.GA29153@elte.hu> <20041022133551.GA6954@elte.hu> <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu> <20041025104023.GA1960@elte.hu> <20041027001542.GA29295@elte.hu> <20041103105840.GA3992@elte.hu> <20041106155720.GA14950@elte.hu> <20041108091619.GA9897@elte.hu> <20041108165718.GA7741@elte.hu>
-In-Reply-To: <20041108165718.GA7741@elte.hu>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: KSTK_EIP and KSTK_ESP
+Date: Mon, 8 Nov 2004 10:36:04 -0700
+Message-ID: <C863B68032DED14E8EBA9F71EB8FE4C20542D290@azsmsx406>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: KSTK_EIP and KSTK_ESP
+Thread-Index: AcTD5w85nlXzze6fT9iSIE07b0boCQByRhLA
+From: "Hanson, Jonathan M" <jonathan.m.hanson@intel.com>
+To: <pageexec@freemail.hu>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 08 Nov 2004 17:36:06.0151 (UTC) FILETIME=[6CFF5170:01C4C5B9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
 
->i have released the -V0.7.21 Real-Time Preemption patch, which can be
->downloaded from the usual place:
+>>  Can someone explain the structure of the memory that these two
+>> macros are accessing? Specifically, where do the 1019 and 1022
+offsets
+>> come from? Also, what other things are stored at other offsets? Where
+is
+>> this stack structure defined?
+
+> if you treat the second (upper) page of the kernel stack as an array
+> of dwords and you realize that the initial kernel (ring-0) stack
+pointer
+> is set at element 1024 then the top elements look like this after a
+ring
+> transition:
 >
->   http://redhat.com/~mingo/realtime-preempt/
+> [1023] ring-3 SS
+> [1022] ring-3 ESP
+> [1021] ring-3 EFLAGS
+> [1020] ring-3 CS
+> [1019] ring-3 EIP
 >
->this release includes fixes and debugging-improvements.
->
->Changes since -V0.7.20:
->
-> - reverted the modlist_lock change - it caused more problems than it 
->   solved.
->
-> - implemented irqs-off critical section timing/tracing, inspired by the 
->   positive results Thomas Gleixner got with a different kind of cli/sti
->   tracer. To activate it, enable CONFIG_CRITICAL_TIMING and 
->   CONFIG_CRITICAL_IRQSOFF_TIMING and cli/sti latencies will be reported
->   'integrated' into the preempt on/off latencies.
->
-> - sped up tracing in a number of ways. Performance of the tracer slowly
->   eroded in the past week or two, it needed alignment and size fixes ,
->   inlining/branch-prediction updates and i got rid of unnecessary code.
->   The max latency is now traced in cycles - this got rid of an
->   expensive 64-bit division in the fastpath. (the /proc/sys tunables
->   are still in usecs so userspace should not notice anything.) It's
->   still not cheap but roughly 5 times faster than -V0.7.20's tracer, on
->   a fast desktop box.
->
-> - renamed CONFIG_PREEMPT_REALTIME to CONFIG_PREEMPT_RT - it's shorter.
->
-> - renamed CONFIG_PREEMPT_TIMING to CONFIG_CRITICAL_TIMING and 
->   introduced CONFIG_CRITICAL_IRQSOFF_TIMING to enable cli/sti timing.
->
->to create a -V0.7.21 tree from scratch, the patching order is:
->
->   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.9.tar.bz2
->   http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.10-rc1.bz2
->   http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10-rc1/2.6.10-rc1-mm3/2.6.10-rc1-mm3.bz2
->   http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.10-rc1-mm3-V0.7.21
->
->	Ingo
->
->  
->
-When trying to patch my kernel i get following notice:
-patching file include/linux/highmem.h
-patch unexpectedly ends in middle of line
-patch: **** unexpected end of file in patch
+> the ring-0 ESP is stored in the TSS and the thread structure, and it's
+> initialized in arch/i386/kernel/process.c:copy_thread().
+
+	Thank you for your reply.
+	If I dereference the address in 1022 (the ring 3 ESP address) it
+does indeed return the value in EBX. I then thought that I could use
+this address to feed to dump_thread() since EBX is the first thing in
+the pt_regs structure, but that's not correct in this case because the
+other registers are definitely incorrect. Shouldn't the ESP value
+pointed to by KSTK_ESP() point to the beginning of the pt_regs structure
+for the user space application?
+

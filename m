@@ -1,28 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269373AbUHZTDQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269376AbUHZTIu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269373AbUHZTDQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 15:03:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269375AbUHZS4g
+	id S269376AbUHZTIu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 15:08:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269405AbUHZTEi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 14:56:36 -0400
-Received: from fw.osdl.org ([65.172.181.6]:58793 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269232AbUHZSst (ORCPT
+	Thu, 26 Aug 2004 15:04:38 -0400
+Received: from fw.osdl.org ([65.172.181.6]:16561 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269386AbUHZS5D (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 14:48:49 -0400
-Date: Thu, 26 Aug 2004 11:46:33 -0700 (PDT)
+	Thu, 26 Aug 2004 14:57:03 -0400
+Date: Thu, 26 Aug 2004 11:55:07 -0700 (PDT)
 From: Linus Torvalds <torvalds@osdl.org>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-cc: Rik van Riel <riel@redhat.com>, Diego Calleja <diegocg@teleline.es>,
-       jamie@shareable.org, christophe@saout.de, christer@weinigel.se,
-       spam@tnonline.net, akpm@osdl.org, wichert@wiggy.net, jra@samba.org,
-       reiser@namesys.com, hch@lst.de, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, flx@namesys.com,
-       reiserfs-list@namesys.com
+To: Rik van Riel <riel@redhat.com>
+cc: Diego Calleja <diegocg@teleline.es>, jamie@shareable.org,
+       christophe@saout.de, vda@port.imtp.ilyichevsk.odessa.ua,
+       christer@weinigel.se, spam@tnonline.net, akpm@osdl.org,
+       wichert@wiggy.net, jra@samba.org, reiser@namesys.com, hch@lst.de,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       flx@namesys.com, reiserfs-list@namesys.com
 Subject: Re: silent semantic changes with reiser4
-In-Reply-To: <200408262128.41326.vda@port.imtp.ilyichevsk.odessa.ua>
-Message-ID: <Pine.LNX.4.58.0408261132150.2304@ppc970.osdl.org>
-References: <Pine.LNX.4.44.0408261356330.27909-100000@chimarrao.boston.redhat.com>
- <200408262128.41326.vda@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <Pine.LNX.4.44.0408261440550.27909-100000@chimarrao.boston.redhat.com>
+Message-ID: <Pine.LNX.4.58.0408261149510.2304@ppc970.osdl.org>
+References: <Pine.LNX.4.44.0408261440550.27909-100000@chimarrao.boston.redhat.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -30,45 +29,34 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Thu, 26 Aug 2004, Denis Vlasenko wrote:
+On Thu, 26 Aug 2004, Rik van Riel wrote:
 > 
-> Is it possible to sufficiently hide "dirs inside files"
-> so that old tools will be unable to see them?
+> So you'd have both a file and a directory that just happen
+> to have the same name ?  How would this work in the dcache?
 
-Certainly possible.
+There would be only one entry in the dcache. The lookup will select 
+whether it opens the file or the directory based on O_DIRECTORY (and 
+usage, of course - if it's in the middle of a path, it obviously needs to 
+be opened as a directory regardless).
 
-> I just checked:
-> 
-> ls -d /foo  does lstat64("/foo", ...)
-> ls -d /foo/ does lstat64("/foo", ...)
-> 	but
-> ls -d /foo/. does lstat64("/foo/.", ...)
-> 
-> Will it work out if "dir inside file" will only be visible when referred as "file/."?
+That's not the problem. The problem from a dcache standpoint ends up being 
+when the file has a link, and you have two paths to the same sub-file 
+through two different ways:
 
-That would likely be the _easiest_ approach for the kernel, and does solve 
-the problem with some apps knowingly removing the trailing '/'.
+	.. create file 'x' with named stream 'y' ...
+	ln x z
+	ls -l x/y z/y	/* it's the same attribute!! */
 
-Note that we could try this out with existing filesystems with very 
-minimal changes:
+but this is actually exactly the same thing that we already have with 
+mounts, ie it is equivalent (from a dentry standpoint) to
 
- - make directory bind mounts work on top of files ("graft_tree()")
- - make open_namei() and friend _not_ do the mount-point following for the 
-   last component if it's a non-directory.
- - probably some trivial fixups I haven't thought about. There might be 
-   some places that use "S_ISDIR()" to check for whether something can be 
-   looked up, but the main path walking already just checks whether there
-   is a ".lookup" operation or not.
+	.. create directory 'x' with file 'y' ..
+	mkdir z
+	mount --bind x z
+	ls -l x/y z/y	/* It's the same file!! */
 
-This would already allow people to "try out" how different applications 
-would react to a file that can show up both as a directory and a file. The 
-patch might end up being less than 25 lines or so, the difficulty is in 
-finding all the right places.
+so none of this is really anything "new" from a dcache standpoint.
 
-Al, anything I missed?
-
-(And yes, it's a quick hack, but it's a quick hack that would probably
-mimic a good part of what we would have to do internally in the VFS layer
-to support this notion anyway).
+Except for all the details, of course ;)
 
 		Linus

@@ -1,66 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261927AbSI3FWD>; Mon, 30 Sep 2002 01:22:03 -0400
+	id <S261928AbSI3Fc3>; Mon, 30 Sep 2002 01:32:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261928AbSI3FWD>; Mon, 30 Sep 2002 01:22:03 -0400
-Received: from stroke.of.genius.brain.org ([206.80.113.1]:55424 "EHLO
-	stroke.of.genius.brain.org") by vger.kernel.org with ESMTP
-	id <S261927AbSI3FWC>; Mon, 30 Sep 2002 01:22:02 -0400
-Date: Mon, 30 Sep 2002 01:27:21 -0400
-From: "Murray J. Root" <murrayr@brain.org>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.39 ide-scsi kernel panic
-Message-ID: <20020930052721.GA1618@Master.Wizards>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S261929AbSI3Fc3>; Mon, 30 Sep 2002 01:32:29 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:22022 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261928AbSI3Fc3>;
+	Mon, 30 Sep 2002 01:32:29 -0400
+Message-ID: <3D97E30E.50703@pobox.com>
+Date: Mon, 30 Sep 2002 01:37:18 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: David Gibson <david@gibson.dropbear.id.au>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+       Orinoco Development List <orinoco-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Orinoco-devel] Re: Orinoco driver update
+References: <20020927025227.GC1898@zax> <3D94B7F5.6030401@pobox.com> <20020930050846.GG10265@zax>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kernel panic trying to use ide-scsi.
-module or built-in, same result
+David,
 
-ASUS P4S533 (SiS645DX chipset)
-P4 2Ghz
-1G PC2700 RAM 
-nVidia Corporation NV15 [GeForce2 GTS] (rev a4)
-Maxtor 4G100J5, ATA DISK drive
-LG CD-RW CED-8120B, ATAPI CD/DVD-ROM drive <-- the one trying to be ide-scsi
-SAMSUNG DVD-ROM SD-616T, ATAPI CD/DVD-ROM drive
+Linus applied 0.13a and that fixes things, thanks.
 
-(incomplete -> hand copied from screen. ide-scsi as a module)
-Mounting local filesystems: -------[ cut here ]-------
-kernel BUG at slab.c:1477!
-invalid operand: 0000
-ide-scsi
-CPU: 0
-EIP: 0060:[<c013735e>]   not tainted
-EFLAGS: 00010016
-EIP is at kmem_cache_free_one+0x7e/0x230
-  <register values here - not copied>
-Process swapper (pid:0, threadinfo=c03e8000 task=c03a2940)
-  <stack values here - not copied>
-Call Trace:
-[<c013693f>]kfree+0x5f/0xb0
-[<fa92a48c>]idescsi_end_request+0x1ac/0x2c0[ide-scsi]
-[<fa92a622>]idescsi_pc_intr+0x82/0x2f0[ide-scsi]
-[<c0226086>]ide_timer_expiry+0xd6/0x230
-[<fa92a5a0>]idescsi_pc_intr+0x0/0x2f0[ide-scsi]
-[<c022afb0>]ide_timer_expiry+0x0/0x230
-[<c01233d2>]run_timer_list+0x112/0x170
-[<c011f4e3>]bh_action+0x33/0x40
-  <there was more (next was tasklet_hi_action) but it was taking too
-  long to write the stuff down by hand>
-  
+Two quick comments:
+* you need pci_set_drvdata(pdev,NULL) after pci_disable_disable in your 
+pci_driver::remove hook
+* I think it would look better to remove the struct pci_driver ->suspend 
+and ->resume hook references, if they are NULL (0)...
 
--- 
-Murray J. Root
-------------------------------------------------
-DISCLAIMER: http://www.goldmark.org/jeff/stupid-disclaimers/
-------------------------------------------------
-Mandrake on irc.openprojects.net:
-  #mandrake & #mandrake-linux = help for newbies 
-  #mdk-cooker = Mandrake Cooker 
 

@@ -1,27 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293038AbSBVXQR>; Fri, 22 Feb 2002 18:16:17 -0500
+	id <S293041AbSBVXYD>; Fri, 22 Feb 2002 18:24:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293040AbSBVXQD>; Fri, 22 Feb 2002 18:16:03 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:56332 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S293038AbSBVXPp>;
-	Fri, 22 Feb 2002 18:15:45 -0500
-Message-Id: <200202222315.AAA06074@webserver.ithnet.com>
+	id <S293040AbSBVXXy>; Fri, 22 Feb 2002 18:23:54 -0500
+Received: from 20.208.phc.net ([208.185.198.20]:27041 "EHLO
+	iteusa-nt.itexinc.com") by vger.kernel.org with ESMTP
+	id <S293046AbSBVXXn> convert rfc822-to-8bit; Fri, 22 Feb 2002 18:23:43 -0500
+Subject: RE: Dlink DSL PCI Card
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Date: Fri, 22 Feb 2002 15:27:56 -0800
+content-class: urn:content-classes:message
+X-MimeOLE: Produced By Microsoft Exchange V6.0.4712.0
+Message-ID: <E788BA1D236784409F3F7138F1EABFDDE4E2@iteusa-nt.itexinc.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Dlink DSL PCI Card
+Thread-Index: AcG792oERZUuVMXPSounNFki0jxrjAAAEjPQ
+From: "Dave Rattay [ITeX]" <Dave.Rattay@itexinc.com>
+To: "Stephan von Krawczynski" <skraw@ithnet.com>
 Cc: "Benjamin LaHaise" <bcrl@redhat.com>, <alan@lxorguk.ukuu.org.uk>,
         <egberts@yahoo.com>, <lkml@secureone.com.au>,
         <linux-kernel@vger.kernel.org>,
         "ITeX Tech Support" <techsupport@itexinc.com>
-Date: Sat, 23 Feb 2002 00:15:15 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-In-Reply-To: <E788BA1D236784409F3F7138F1EABFDDE4DF@iteusa-nt.itexinc.com>
-Content-Transfer-Encoding: 7BIT
-Subject: RE: Dlink DSL PCI Card
-To: "Dave Rattay [ITeX]" <Dave.Rattay@itexinc.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-User-Agent: IMHO/0.97.1 (Webmail for Roxen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
+Stephan,
+
+   I definitely agree that our worlds do not match.  While I would hate
+to lose any customers there are some things that can not be avoided.
+There are many things to be taken into consideration when we make our
+drivers.  One the vast majority of our customers use Windows and
+therefore we must devote most of our time there.  Second when a new OS
+comes out from Microsoft (such as XP) we are given beta copies 6 months
+in advance so that our drivers hit the market along side the new OS
+release.  This just doesn't happen with Linux.  I agree that this would
+be much simpler if the source code was released and we had "help" in
+driver development but as I said that just can't happen, end of story.
+Now as to specs for the board itself you can check with sales because I
+am not even sure what our policy is on that and I wish you luck in those
+regards.
+
+        Dave
+
+
+-----Original Message-----
+From: Stephan von Krawczynski [mailto:skraw@ithnet.com]
+Sent: Friday, February 22, 2002 3:15 PM
+To: Dave Rattay [ITeX]
+Cc: Benjamin LaHaise; alan@lxorguk.ukuu.org.uk; egberts@yahoo.com;
+lkml@secureone.com.au; linux-kernel@vger.kernel.org; ITeX Tech Support
+Subject: RE: Dlink DSL PCI Card
+
 
 > Stephan,                                                            
 > [...]                                                               

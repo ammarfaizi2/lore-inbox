@@ -1,66 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261533AbUBYSab (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 13:30:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261534AbUBYSab
+	id S261530AbUBYSbF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 13:31:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261532AbUBYSbE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 13:30:31 -0500
-Received: from null.rsn.bth.se ([194.47.142.3]:32429 "EHLO null.rsn.bth.se")
-	by vger.kernel.org with ESMTP id S261533AbUBYSaU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 13:30:20 -0500
-Subject: Re: e1000 only works in 2.6.3 with UP kernel ?
-From: Martin Josefsson <gandalf@wlug.westbo.se>
-To: Patrick Richard <patr@axion.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <403CE4E4.9010608@axion.net>
-References: <403CE4E4.9010608@axion.net>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-T1pVaPIM0tnsgEdHx88I"
-Message-Id: <1077733813.8283.1287.camel@tux.rsn.bth.se>
+	Wed, 25 Feb 2004 13:31:04 -0500
+Received: from smtp.golden.net ([199.166.210.31]:35334 "EHLO
+	newsmtp.golden.net") by vger.kernel.org with ESMTP id S261530AbUBYSay
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 13:30:54 -0500
+Date: Wed, 25 Feb 2004 13:30:38 -0500
+From: Paul Mundt <lethal@linux-sh.org>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: "James H. Cloos Jr." <cloos@jhcloos.com>, linux-kernel@vger.kernel.org
+Subject: Re: make help ARCH=xx fun
+Message-ID: <20040225183038.GA24041@linux-sh.org>
+Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
+	Tom Rini <trini@kernel.crashing.org>,
+	"James H. Cloos Jr." <cloos@jhcloos.com>,
+	linux-kernel@vger.kernel.org
+References: <m3y8qwv78e.fsf@lugabout.jhcloos.org> <20040222095021.GB2266@mars.ravnborg.org> <20040224215548.GF1052@smtp.west.cox.net> <20040225190049.GB2474@mars.ravnborg.org> <20040225180858.GW1052@smtp.west.cox.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 25 Feb 2004 19:30:14 +0100
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="M9NhX3UHpAaciwkO"
+Content-Disposition: inline
+In-Reply-To: <20040225180858.GW1052@smtp.west.cox.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-T1pVaPIM0tnsgEdHx88I
-Content-Type: text/plain
+--M9NhX3UHpAaciwkO
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, 2004-02-25 at 19:09, Patrick Richard wrote:
-> Hi,
+On Wed, Feb 25, 2004 at 11:08:59AM -0700, Tom Rini wrote:
+> I can understand that.  How about:
+> for board in arch/$(ARCH)/configs/*defconfig; \
+>  do \
+>    if [ -f $board ]; then
+>     ...
+>    fi
+>  done
 >=20
-> I have been struggling to get the e1000 driver working _at all_ in=20
-> 2.6.3. It works fine under 2.4.xx (same machine). This is all on an ASUS=20
-> P4C800-E deluxe, using onboard e1000 and P4 with HT enabled.
+Simply just matching on *defconfig should be fine. I already changed this on
+matching defconfig-* for sh to get around matching SCCS.
 
-[snip]
-
-> Is anyone else seeing similar problems ? Seems like an interrupt/ACPI=20
-> type of thing to me based on what is affecting it but what do I know.
+> > Also the "- Build for xxxxx" is not good enough.
 >=20
-> Does anyone have this working on an SMP kernel/machine with this=20
-> motherboard ? Is this a mis-config on my part ? Like I said it works=20
-> fine in 2.4 and in UP kernel.
+> Erm, it's usually something descriptive enough, if one is firmiliar with
+> the platform / what's intended to build.
+>=20
+> > I will try to come up with a patch the uses a file named
+> > arch/$(ARCH)/configs/index.txt
+>=20
+> The 'issue' with configs/index.txt, I'll wager, is that for every new
+> board, that's one more file to modify (and thus possibly conflict on).
+>=20
+Agreed. The whole reason I did the automated "- Build for foo" thing is that
+it's completely automated, and people building should already know what the=
+ir
+target is (if not, they can look at arch/$(ARCH)/Kconfig and figure it out).
+I suppose it's not particularly descriptive, but it seems more sensible to
+have an abbreviated help text then none whatsoever.
 
-This is a known problem with 2.6.3
-Please try the latest 2.6.3-bk snapshot, the patch that introduced this
-problem has been reverted.
 
---=20
-/Martin
-
---=-T1pVaPIM0tnsgEdHx88I
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+--M9NhX3UHpAaciwkO
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-iD8DBQBAPOm1Wm2vlfa207ERAkC/AKChISnrNCJ+XlsWzAPCgQtZYc+9QwCgvs+5
-4s16iGLqkgYOCE0sPDe/7JM=
-=2tmM
+iD8DBQFAPOnO1K+teJFxZ9wRAuo1AJ9bzcpRlDgc4+/FE8xU0TFWXbbodACcDWN3
+uohckYY1qstgj+Ks/x5irt4=
+=2YL5
 -----END PGP SIGNATURE-----
 
---=-T1pVaPIM0tnsgEdHx88I--
+--M9NhX3UHpAaciwkO--

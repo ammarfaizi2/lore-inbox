@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262690AbTCTXlI>; Thu, 20 Mar 2003 18:41:08 -0500
+	id <S262684AbTCTXkK>; Thu, 20 Mar 2003 18:40:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262663AbTCTXkP>; Thu, 20 Mar 2003 18:40:15 -0500
-Received: from packet.digeo.com ([12.110.80.53]:16562 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S262661AbTCTXkC>;
-	Thu, 20 Mar 2003 18:40:02 -0500
-Date: Thu, 20 Mar 2003 17:55:32 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
-Subject: Re: Release of 2.4.21
-Message-Id: <20030320175532.3ef85c1b.akpm@digeo.com>
-In-Reply-To: <20030320204218.A18517@infradead.org>
-References: <20030320195657.GA3270@drcomp.erfurt.thur.de>
-	<874r5xyeky.fsf@sdbk.de>
-	<20030320203407.GF8256@gtf.org>
-	<20030320204218.A18517@infradead.org>
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
+	id <S262680AbTCTXkJ>; Thu, 20 Mar 2003 18:40:09 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:15888 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262663AbTCTXj1>; Thu, 20 Mar 2003 18:39:27 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Deprecating .gz format on kernel.org
+Date: 20 Mar 2003 15:50:10 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <b5dk3i$mc6$1@cesium.transmeta.com>
+References: <200303202154.h2KLsDcT009516@marc2.theaimsgroup.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 20 Mar 2003 23:50:16.0312 (UTC) FILETIME=[74E5C780:01C2EF3B]
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@infradead.org> wrote:
+Followup to:  <200303202154.h2KLsDcT009516@marc2.theaimsgroup.com>
+By author:    Hank Leininger <linux-kernel@progressive-comp.com>
+In newsgroup: linux.dev.kernel
 >
-> On Thu, Mar 20, 2003 at 03:34:07PM -0500, Jeff Garzik wrote:
-> > For critical fixes, release a 2.4.20.1, 2.4.20.2, etc.  Don't disrupt
-> > the 2.4.21-pre cycle, that would be less productive than just patching
-> > 2.4.20 and rolling a separate release off of that.
+> On 2003-03-20, Joern Engel <joern () wohnheim ! fh-wedel ! de> wrote:
+> > On Thu, 20 March 2003 17:39:20 +0000, Jamie Lokier wrote:
+> > > (b) On something as large as a .tar, decompressing a bz2 file to
+> > > check the signature is really quite slow, compared with checking the
+> > > signature of the compressed file.
 > 
-> I think the naming is illogical.  If there's a bugfix-only release
-> it whould have normal incremental numbers.  So if marcelo want's
-> it he should clone a tree of at 2.4.20, apply the essential patches
-> and bump the version number in the normal 2.4 tree to 2.4.22-pre1
+> > That shouldn't matter, most of the times. If you want to build the
+> > code, you have to [bg]unzip anyway, so there is no extra cost.
+> > And I have a hard time to think of a real-world application where you
+> > don't want to unpack but need to verify the signature.
+> 
 
-No point in making things too complex.  2.4.20-post1 is something people can
-easily understand.
+Just to finish this debate: I have added support for generating .sign
+files from .gz files, and those are currently being generated, but I
+will not remove .gz.sign or .bz2.sign files.
 
-I needed that for the ext3 problems which popped up shortly after 2.4.20 was
-released - I was reduced to asking people to download fixes from my web page.
-
-And having a -post stream may allow us to be a bit more adventurous in the
--pre stream.
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64

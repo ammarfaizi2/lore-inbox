@@ -1,50 +1,55 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315119AbSE2LmF>; Wed, 29 May 2002 07:42:05 -0400
+	id <S315167AbSE2LnI>; Wed, 29 May 2002 07:43:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315155AbSE2LmF>; Wed, 29 May 2002 07:42:05 -0400
-Received: from ns.suse.de ([213.95.15.193]:57614 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S315119AbSE2LmD>;
-	Wed, 29 May 2002 07:42:03 -0400
-Date: Wed, 29 May 2002 13:42:02 +0200
-From: Dave Jones <davej@suse.de>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>,
-        Luigi Genoni <kernel@Expansa.sns.it>,
-        "J.A. Magallon" <jamagallon@able.es>, Luca Barbieri <ldb@ldb.ods.org>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Linux-Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] [2.4] [2.5] [i386] Add support for GCC 3.1 -march=pentium{-mmx,3,4}
-Message-ID: <20020529134202.F27463@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Pavel Machek <pavel@suse.cz>,
-	Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>,
-	Luigi Genoni <kernel@Expansa.sns.it>,
-	"J.A. Magallon" <jamagallon@able.es>,
-	Luca Barbieri <ldb@ldb.ods.org>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	Linux-Kernel ML <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0205260128110.2047-100000@Expansa.sns.it> <Pine.LNX.4.44.0205260044270.10923-100000@sharra.ivimey.org> <20020526023009.G16102@suse.de> <20020527085301.A38@toy.ucw.cz>
-Mime-Version: 1.0
+	id <S315162AbSE2LnH>; Wed, 29 May 2002 07:43:07 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:44212 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S315155AbSE2LnG>;
+	Wed, 29 May 2002 07:43:06 -0400
+From: Paul Mackerras <paulus@samba.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
+Message-ID: <15604.48752.953866.585175@argo.ozlabs.ibm.com>
+Date: Wed, 29 May 2002 21:41:36 +1000 (EST)
+To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] fix platforms without suspend
+X-Mailer: VM 6.75 under Emacs 20.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 27, 2002 at 08:53:02AM +0000, Pavel Machek wrote:
- > Hi!
- > 
- > > I would be (pleasantly) surprised to see gcc turn a C memcpy into faster
- > > assembly than our current implementation. And I'll bet
- > 
- > gcc has hand-coded assembly inside itself, if gcc compiled memcpy is slower
- > than hand-optimized one, you found a compiler bug.
+At the moment, any architecture that doesn't have <asm/suspend.h>
+won't compile.  The patch below changes <linux/suspend.h> so it only
+looks for <asm/suspend.h> if CONFIG_SOFTWARE_SUSPEND is set.
 
-Not at all. gcc compiled memcpy just has no knowledge of things like
-non-temporal stores, and using mmx/sse to move 64 bits at a time instead
-of 32 bit registers. (It's only recently it got prefetch abilities too).
+Linus, it would be good if you would apply this to your tree so that
+architectures other than i386 will compile.
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Thanks,
+Paul.
+
+diff -urN linux-2.5/include/linux/suspend.h pmac-2.5/include/linux/suspend.h
+--- linux-2.5/include/linux/suspend.h	Thu May 23 12:02:19 2002
++++ pmac-2.5/include/linux/suspend.h	Sat May 25 10:54:02 2002
+@@ -1,17 +1,18 @@
+ #ifndef _LINUX_SWSUSP_H
+ #define _LINUX_SWSUSP_H
+ 
+-#include <asm/suspend.h>
++#include <linux/config.h>
+ #include <linux/swap.h>
+ #include <linux/notifier.h>
+-#include <linux/config.h>
++
++#ifdef CONFIG_SOFTWARE_SUSPEND
++#include <asm/suspend.h>
+ 
+ extern unsigned char software_suspend_enabled;
+ 
+ #define NORESUME	 1
+ #define RESUME_SPECIFIED 2
+ 
+-#ifdef CONFIG_SOFTWARE_SUSPEND
+ /* page backup entry */
+ typedef struct pbe {
+ 	unsigned long address;		/* address of the copy */

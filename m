@@ -1,89 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289025AbSBZXok>; Tue, 26 Feb 2002 18:44:40 -0500
+	id <S289239AbSBZXpA>; Tue, 26 Feb 2002 18:45:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289046AbSBZXoi>; Tue, 26 Feb 2002 18:44:38 -0500
-Received: from tolkor.sgi.com ([192.48.180.13]:13188 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id <S289255AbSBZXnh>;
-	Tue, 26 Feb 2002 18:43:37 -0500
-Subject: Re: Whither XFS? (was: Congrats Marcelo)
-From: Steve Lord <lord@sgi.com>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Andreas Dilger <adilger@turbolabs.com>,
-        Dennis Jim <jdennis@snapserver.com>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-In-Reply-To: <E16f90h-0002rt-00@starship.berlin>
-In-Reply-To: <E16fqZK-0002NE-00@the-village.bc.nu>
-	<1014764374.5993.183.camel@jen.americas.sgi.com> 
-	<E16f90h-0002rt-00@starship.berlin>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 26 Feb 2002 17:39:48 -0600
-Message-Id: <1014766788.9994.231.camel@jen.americas.sgi.com>
-Mime-Version: 1.0
+	id <S289026AbSBZXon>; Tue, 26 Feb 2002 18:44:43 -0500
+Received: from tassadar.physics.auth.gr ([155.207.123.25]:51352 "EHLO
+	tassadar.physics.auth.gr") by vger.kernel.org with ESMTP
+	id <S289298AbSBZXnn>; Tue, 26 Feb 2002 18:43:43 -0500
+Date: Wed, 27 Feb 2002 01:43:35 +0200 (EET)
+From: Dimitris Zilaskos <dzila@tassadar.physics.auth.gr>
+To: Andrew Morton <akpm@zip.com.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: assertion failure : ext3 & lvm , 2.4.17 smp & 2.4.18-ac1 smp
+In-Reply-To: <3C7C1A88.AA6CE5DD@zip.com.au>
+Message-ID: <Pine.LNX.4.44.0202270141090.11106-100000@tassadar.physics.auth.gr>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-02-24 at 18:28, Daniel Phillips wrote:
-> > 
-> >   o Posix ACL support
-> 
-> Are you able to leverage the new EA interface?  (Which I still don't like
-> because of the namespace syntax embedded in the attribute names, btw,
-> please don't misinterpret silence as happiness.)
+On Tue, 26 Feb 2002, Andrew Morton wrote:
 
-Where do you think the interface originated? A lot of time was spent
-working on this and getting the ext2 and xfs code bases in sync.
+> Dimitris Zilaskos wrote:
+> >
+> > Assertion failure in do_get_write_access() at transaction.c:730: "(((jh2bh(jh))->b_state & (1UL << BH_Uptodate)) != 0)"
+>
+> This was fixed in the ext3 patch which went into 2.4.18-pre5
 
-> 
-> >   o The ability to do online filesystem dumps which are coherent with
-> >     the system call interface
-> 
-> It would be nice if some other filesystems could share that mechanism, do
-> you think it's feasible?  If not, what's the stumbling block?  I haven't
-> looked at this for some time and there's was some furious work going on
-> exactly there just before 2.5.  It seems we've at least progressed a
-> little from the viewpoint that nobody would want that.
+well i just got another one
 
-Not really, there are some hooks into XFS which are probably totally
-non-trivial for other filesystems.
+Assertion failure in do_get_write_access() at transaction.c:730:
+"(((jh2bh(jh))->b_state & (1UL << BH_Uptodate)) != 0)"
+invalid operand: 0000
+CPU:    1
+EIP:    0010:[<c016297a>]    Not tainted
+EFLAGS: 00010286
+eax: 0000007b   ebx: d44ffa94   ecx: 00000097   edx: 00000001
+esi: cf514de0   edi: d44ffa00   ebp: c49f8f10   esp: d1bebcd4
+ds: 0018   es: 0018   ss: 0018
+Process wget (pid: 11038, stackpage=d1beb000)
+Stack: c0288aa0 c0288eae c0288a80 000002da c0289060 d44ffa00 cf514de0
+c49f8f10
+       d44ffa94 00000001 00000001 00000000 00000000 dbd3b660 c0162a3d
+cf514de0
+       c49f8f10 00000000 00000000 00001076 d7272400 d1bebd8c c0157e00
+cf514de0
+Call Trace: [<c0162a3d>] [<c0157e00>] [<c023de59>] [<c0159b46>]
+[<c0159e1f>]
+   [<c015a47e>] [<c021e98e>] [<c015a5c6>] [<c01380eb>] [<c013891e>]
+[<c015a56c>]
+   [<c015aa6d>] [<c015a56c>] [<c01299b0>] [<c015874a>] [<c0135747>]
+[<c0106e7b>]
 
-> 
-> >   o delayed allocation of file data
-> 
-> Andrew Morton is working on generic delayed allocation at the vfs level I
-> believe, why not bang heads with him and see if it can be made to work with
-> VFS?
+Code: 0f 0b 83 c4 14 90 8b 4d 00 8b 41 38 0f b6 50 25 8b 7d 0c 8b
 
-Already talked at the end of last week, got majorly sidetracked again
-this week. This is definitely something I would like to be able to
-leverage for XFS. 
+uname -an :
+Linux test 2.4.18-ac1 #2 SMP Tue Feb 26 23:13:44 EET 2002 i686 unknown
 
-> 
-> >   o DMAPI
-> 
-> It would be nice to have unsucky file events.  But there's been roughly zero
-> discussion of dmapi on lkml as far as I can see.
+Kind regards ,
 
-Yep, and its not my strong suite. The previous attempt at an implementation
-by someone else appears to have died a death.
+--
+=============================================================================
 
-> 
-> > As it is we did all of these, and we seem to have half the Linux NAS
-> > vendors in the world building xfs into their boxes.
-> 
-> True enough.
+Dimitris Zilaskos
 
-Now if only we could make some money out of them ;-)
+Department of Physics @ Aristotle Univercity of Thessaloniki , Greece
+=============================================================================
 
-Steve
-
-> 
-> -- 
-> Daniel
--- 
-
-Steve Lord                                      voice: +1-651-683-3511
-Principal Engineer, Filesystem Software         email: lord@sgi.com

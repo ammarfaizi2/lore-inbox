@@ -1,49 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270847AbTG0Pqb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 11:46:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272833AbTG0Pqb
+	id S270850AbTG0P6Y (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 11:58:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270851AbTG0P6Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 11:46:31 -0400
-Received: from oak.sktc.net ([64.71.97.14]:25785 "EHLO oak.sktc.net")
-	by vger.kernel.org with ESMTP id S272686AbTG0Pp5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 11:45:57 -0400
-Message-ID: <3F23F6EB.7070502@sktc.net>
-Date: Sun, 27 Jul 2003 10:59:39 -0500
-From: "David D. Hagood" <wowbagger@sktc.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030507
-X-Accept-Language: en-us, en
+	Sun, 27 Jul 2003 11:58:24 -0400
+Received: from ws-han1.win-ip.dfn.de ([193.174.75.150]:40278 "EHLO
+	ws-han1.win-ip.dfn.de") by vger.kernel.org with ESMTP
+	id S270850AbTG0P6T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jul 2003 11:58:19 -0400
+Date: Sun, 27 Jul 2003 18:14:06 +0200
+Message-ID: <vines.sxdD+Cdz6zA@SZKOM.BFS.DE>
+X-Priority: 3 (Normal)
+To: <linux-kernel@vger.kernel.org>
+From: <WHarms@bfs.de> (Walter Harms)
+Reply-To: <WHarms@bfs.de>
+Subject: inconsistant speed reporting
+X-Incognito-SN: 25185
+X-Incognito-Version: 5.1.0.84
 MIME-Version: 1.0
-To: Adrian Bunk <bunk@fs.tum.de>
-CC: "Robert P. J. Day" <rpjday@mindspring.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: time for some drivers to be removed?
-References: <Pine.LNX.4.53.0307240817520.19533@localhost.localdomain> <20030727153118.GP22218@fs.tum.de>
-In-Reply-To: <20030727153118.GP22218@fs.tum.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a pet peeve of mine on Free Software projects in general - The 
-Program That Wouldn't Compile.
 
-It would seem to me that in the context of the kernel, what is needed is 
-a BROKEN flag.
+hi all,
+ i have noticed that the processor speed reported by the kernel is different. Here is a list that i have compiled on my notebook:
 
-An item with a BROKEN flag would NOT be built in an ALLYES or ALLMODULE 
-configuration - it would require the user to explicitly enable the item 
-in the configuration, and the user would be notified that the module in 
-question was not compiling/linking the last time the configuration data 
-was updated by the kernel team.
+dmesg.2.4.19:      Detected 999.906 MHz processor.
+dmesg.2.4.21:      Detected 1019.778 MHz processor.
+dmesg.2.6.0:       Detected 999.927 MHz processor.
+dmesg.2.6.0-a3:    Detected 999.903 MHz processor.
 
-That way, a busted item would not be built by default, and the item's 
-users would be motivated to correct it (and thus remove the stigma of 
-the BROKEN flag).
+ACPI:
+dmesg.2.4.21:..... CPU clock speed is 999.9308 MHz.
+dmesg.2.6.0:..... CPU clock speed is 1329.0655 MHz.
+dmesg.2.6.0-a3:..... CPU clock speed is 1329.0620 MHz.
 
-If an item stays BROKEN for too long, bu-bye! Obviously no-one cares 
-enough to fix it.
+ACPI:
+dmesg.2.4.21:..... host bus clock speed is 133.3240 MHz.
+dmesg.2.6.0:..... host bus clock speed is 177.0287 MHz.
+dmesg.2.6.0-a3:..... host bus clock speed is 177.0282 MHz.
 
-But that's just my opinion.
 
+notebook:
+acer tm 620
+with
+CPU: Intel(R) Pentium(R) III Mobile CPU      1000MHz stepping 01
+
+btw: thx to the ACPI team without the ACPI patch (for 2.4.x)
+its not possible to use the nb propperly.
+
+
+walter

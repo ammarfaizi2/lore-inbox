@@ -1,93 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261642AbTIFTEt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Sep 2003 15:04:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261608AbTIFTEt
+	id S261168AbTIFTik (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Sep 2003 15:38:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261352AbTIFTik
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Sep 2003 15:04:49 -0400
-Received: from fmr09.intel.com ([192.52.57.35]:55801 "EHLO hermes.hd.intel.com")
-	by vger.kernel.org with ESMTP id S261642AbTIFTEo convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Sep 2003 15:04:44 -0400
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: RE: [PATCHSET][2.6-test4][0/6]Support for HPET based timer - Take 2
-Date: Sat, 6 Sep 2003 12:04:20 -0700
-Message-ID: <C8C38546F90ABF408A5961FC01FDBF1902C7D245@fmsmsx405.fm.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCHSET][2.6-test4][0/6]Support for HPET based timer - Take 2
-Thread-Index: AcN0CvHl1HUD6YWhQxuytHgcxiYiwgAnZeMQ
-From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-To: "George Anzinger" <george@mvista.com>
-Cc: "Andrew Morton" <akpm@osdl.org>, <torvalds@osdl.org>,
-       <linux-kernel@vger.kernel.org>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>
-X-OriginalArrivalTime: 06 Sep 2003 19:04:20.0758 (UTC) FILETIME=[AD9D7B60:01C374A9]
+	Sat, 6 Sep 2003 15:38:40 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:55289 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S261168AbTIFTij (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Sep 2003 15:38:39 -0400
+Date: Sat, 6 Sep 2003 21:38:30 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Gordon Stanton <coder101@linuxmail.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] must fix generic_serial .c
+Message-ID: <20030906193830.GD14436@fs.tum.de>
+References: <20030901062643.14448.qmail@linuxmail.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030901062643.14448.qmail@linuxmail.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Sep 01, 2003 at 02:26:43PM +0800, Gordon Stanton wrote:
 
+> Hi,
 
+Hi Gordon,
 
-> -----Original Message-----
-> From: George Anzinger [mailto:george@mvista.com]
-> 
-> Pallipadi, Venkatesh wrote:
-> > 
-> > 
-> >>-----Original Message-----
-> >>From: Andrew Morton [mailto:akpm@osdl.org] 
-> >>
-> >>We seem to keep on proliferating home-grown x86 64-bit math 
-> functions.
-> >>
-> >>Do you really need these?  Is it possible to use do_div() and 
-> >>the C 64x64
-> >>`*' operator instead?
-> >>
-> > 
-> > 
-> > 
-> > We can change these handcoded 64 bit divs to do_div, with just an
-> > additional data copy 
-> 
-> We already have this in .../include/asm-i386/div64.h.  Check usage in 
-> .../posix-timers.c to cover archs that have not yet included it in 
-> there div64.h.
->
+>   While trying to get most drivers in the kernel to compile, I had to skip a lot of the older ones that use cli() and sti() since deep knowledge is needed to fix those. Because of this I am asking that someone would please fix generic_serial.c in drivers/char and document in a HOWTO on the steps they took and the reasons behind it. This would help more people to be able to understand and fix a lot of the other drivers with the cli/sti problem. Even if the it wasn't generic_serial.c but one of the other serial drivers with the same problem, it still would be very instructive and help other to improve the kernel quicker. 
 
+it's a known problem that generic_serial doesn't compile in SMP kernels 
+due to cli/sti problems.
 
-Yes. We can surely use div_long_long_rem from div64 in place of defining 
-this again. This kind of code is already there in the existing ia32 timer
-code too. I will try and come up with a cleanup patch to replace all 
-these individual asm div statements.
+Documentation/cli-sti-removal.txt already documents how to fix such 
+drivers (although it's usually non-trivial).
 
+> Gordon
 
-> > (as do_div changes dividend in place). But, changing mul 
-> into 64x64 '*'
-> > may be tricky. 
-> > Gcc seem to generate a combination of mul, 2imul and add, 
-> where as we
-> > are happy with 
-> > using only one mull here.
-> 
-> You just need to do the right casting.  It should like 
-> u64=u32*(u64)u32  as in .../kernel/posix-timers.c.  This 
-> could also be 
-> signed with the same results.  If you really need to do a u64*u32, it 
-> will do that as well but takes two mpys.  In this case you will need 
-> to do it unsigned to eliminate the third mpy.
+cu
+Adrian
 
+-- 
 
-Interesting. Is this casting to generate proper mul instruction
-some sort of C standard or is it a gcc feature. I just want to
-make sure doing this way won't break on some other compiler 
-(or on some other version of gcc itself).
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-
-Thanks,
--Venkatesh

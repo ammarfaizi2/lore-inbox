@@ -1,73 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317708AbSIOENo>; Sun, 15 Sep 2002 00:13:44 -0400
+	id <S317742AbSIOEN6>; Sun, 15 Sep 2002 00:13:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317742AbSIOENo>; Sun, 15 Sep 2002 00:13:44 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:25105
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S317708AbSIOENn>; Sun, 15 Sep 2002 00:13:43 -0400
-Date: Sat, 14 Sep 2002 21:16:21 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Alex Davis <alex14641@yahoo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Possible bug and question about ide_notify_reboot in 2.4.19
-In-Reply-To: <20020914214152.15900.qmail@web40512.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.10.10209141548370.6925-100000@master.linux-ide.org>
+	id <S317743AbSIOEN6>; Sun, 15 Sep 2002 00:13:58 -0400
+Received: from dsl-213-023-043-058.arcor-ip.net ([213.23.43.58]:24480 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S317742AbSIOEN4>;
+	Sun, 15 Sep 2002 00:13:56 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Jens Axboe <axboe@suse.de>, Samium Gromoff <_deepfire@mail.ru>
+Subject: Re: [2.5] DAC960
+Date: Sun, 15 Sep 2002 06:21:44 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+References: <E17odbY-000BHv-00@f1.mail.ru> <20020910062030.GL8719@suse.de>
+In-Reply-To: <20020910062030.GL8719@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17qQum-0001qO-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 14 Sep 2002, Alex Davis wrote:
-
-> --- Andre Hedrick <andre@linux-ide.org> wrote:
+On Tuesday 10 September 2002 08:20, Jens Axboe wrote:
+> On Tue, Sep 10 2002, Samium Gromoff wrote:
+> >       Hello folks, i`m looking at the DAC960 driver and i have
+> > realised its implemented at the block layer, bypassing SCSI.
 > > 
-> > Hi Alex,
+> >    So given i have some motivation to have a working 2.5 DAC960
+> > driver (i have one, being my only controller)
+> > i`m kinda pondering the matter.
 > > 
-> > We (T13 Standards) only recently required (shall) all non-packet device to
-> > support flush cache.  No where does it state that a device supporting PM
-> > for a standby (shall), the key word here is "shall", issue a flush-cache.
-> I am assuming that a hard drive is a non-packet device. Let me make sure I'm
+> >    Questions:
+> >        1. Whether we need the thing to be ported to SCSI
+> > layer, as opposed to leaving it being a generic block device? (i suppose yes)
+> 
+> No
 
-Today, yes ...  In the past no.
-There are a handfull of these strange beasts which still exists.
+A somewhat curt reply, it could be seen as a brush-off.  I believe the
+whole story goes something like this: the scsi system is a festering
+sore on the whole and eventually needs to be rationalized.  But until
+that happens, we should basically just keep nursing along the various
+drivers that should be using a generic interface, until there really
+is a generic interface around worth putting in the effort to port to.
 
-> interpreting this correctly: older ( and some current ) drives may flush cache
-> on standby/sleep; current and future drives may not. In addition, older drives
+Linus indicated at the Kernel Summit that he'd like to see a
+cleaned-up scsi midlayer used as framework for *all* disk IO,
+including IDE.  Obviously, what with IDE transitions and whatnot, we
+are far from being ready to attempt that, so see "nursing along"
+above.  There's no longer any chance that a generic disk midlayer is
+going to happen in this cycle, as far as I can see.  Still, anybody
+who is interested would do well by studing the issues, and fixing
+broken drivers certainly qualifies as a way to come up to speed.
 
-It means there are not rules (rules is a loose term) for how to do this in
-the standard.
+> >        2. Which 2.5 SCSI driver should i use as a start of learning?
+> 
+> Don't bother
 
-> may not support the flush cache command.
+Ah, a little harsh.  I'd say: study the DAC960 driver, study the
+scsi midlayer, and study the new bio interface.  That's what I'm
+doing.
 
-There is supported v/s enabled, and these  can be optional.
-Optional == (Mandatory Optional) because nobody wants to not have the
-feature ready or they will miss the sale.
+> >        3. Whether the SCSI driver API would change during 2.5?
+> 
+> Possibly
+> 
+> The DAC960 mainly needs updating to the pci dma api, and to be adjusted
+> for the bio changes. Please coordinate with Daniel Philips (and check
+> the list archives, we had a talk about this very driver some weeks ago),
+> since he's working on making it work in 2.5 again as well.
 
-> > I will not break support for older hardware, on a whim.
-> Not my intention.
+Yep, starting with reconfiguring the datacentre over here, so I can
+run a serial cable from my wife's machine to the to the closet the
+machine with the DAC960 is in, because I'll be dammed if I'm going
+to do this without kgdb.  Then the serial traffic goes from her
+machine over the wireless network to my laptop in the living room,
+where I hack in relative comfort.  While she surfs and emails.  Try
+that with Windows :-)
 
-Cool.
+That part took a long time because it certain aging RPM distribution
+needed to be replaced by a shiny new Debian Sid, and it had to be
+done without taking the machine offline, except to reboot.  All I
+could wish for now is power cycle over the net, and this will be
+civilized.
 
-> > You said you can make a patch, please do so and apply it to your tree.
-> > Now, if you want the option, submit the patch for review.  For two or
-> > three days there has been no patch to test.
-> Still testing locally. I also want to fix the code so that the flush is
-> done before the standby.
+I suppose my serious work on this will start on Monday.
 
-Wait, how did the order go south?
-
-> > 
-> > To be absolutely honest, I really do not like to give options in the
-> > kernel-config build which can cause backwards compatablity problems.
-> This wouldn't be a config option. You would have to modify ide.c by
-> hand to disable standby.
-
-So a manual config option?  That is more reasonable and not doable by
-accident.
-
-Cheers,
-
-Andre Hedrick
-LAD Storage Consulting Group
-
+-- 
+Daniel

@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291314AbSAaVOC>; Thu, 31 Jan 2002 16:14:02 -0500
+	id <S291316AbSAaVRw>; Thu, 31 Jan 2002 16:17:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291317AbSAaVNw>; Thu, 31 Jan 2002 16:13:52 -0500
-Received: from [217.9.226.246] ([217.9.226.246]:47488 "HELO
-	merlin.xternal.fadata.bg") by vger.kernel.org with SMTP
-	id <S291314AbSAaVNk>; Thu, 31 Jan 2002 16:13:40 -0500
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Rik van Riel <riel@conectiva.com.br>, Andrea Arcangeli <andrea@suse.de>,
-        John Stoffel <stoffel@casc.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Radix-tree pagecache for 2.5
-In-Reply-To: <Pine.LNX.4.33.0201311047200.1682-100000@penguin.transmeta.com>
-From: Momchil Velikov <velco@fadata.bg>
-In-Reply-To: <Pine.LNX.4.33.0201311047200.1682-100000@penguin.transmeta.com>
-Date: 31 Jan 2002 23:12:53 +0200
-Message-ID: <87y9ierzqi.fsf@fadata.bg>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
+	id <S291317AbSAaVRm>; Thu, 31 Jan 2002 16:17:42 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:5641 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S291316AbSAaVRc>;
+	Thu, 31 Jan 2002 16:17:32 -0500
+Date: Thu, 31 Jan 2002 13:16:02 -0800
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org
+Subject: Driver auditing
+Message-ID: <20020131211602.GC1772@kroah.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Thu, 03 Jan 2002 15:09:44 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Linus" == Linus Torvalds <torvalds@transmeta.com> writes:
+Hi all,
 
-Linus> On Thu, 31 Jan 2002, Rik van Riel wrote:
->> 
->> It's still a question whether we'll want to use 128 as
->> the branch factor or another number ... but I'm sure
->> somebody will figure that out (and it can be changed
->> later, it's just one define).
+Well it seems that a few people noticed my previous message about
+helping USB driver authors out, and took me up on it :)
 
-Linus> Actually, I think the big question is whether somebody is willing to clean
-Linus> up and fix the "move_from_swap_cache()" issue with block_flushpage.
+So I might as well announce it to everyone.  I am glad to glance over
+driver code, and try to help out with any issues that people have.  I'm
+not guaranteeing to find all potential problems, and don't think that a
+"looks good" from me holds any weight with anyone else, but if you want
+to have someone to help look for stupid mistakes, style issues, and
+other driver related things, feel free to take me up on it.
 
-Ah, almost forgot it. The patch removes ``next_hash'' and
-``pprev_hash'' from ``struct page'', which breaks ARM and sparc64.
+If I get buried in a ton of stuff, and find that all I'm doing is
+auditing code, I'll stop it, but I know the value of a second pair of
+eyes at times, and am glad to help out.
 
-Regards,
--velco
+thanks,
 
+greg k-h

@@ -1,40 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315445AbSFYGeS>; Tue, 25 Jun 2002 02:34:18 -0400
+	id <S315449AbSFYGrG>; Tue, 25 Jun 2002 02:47:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315449AbSFYGeR>; Tue, 25 Jun 2002 02:34:17 -0400
-Received: from meg.hrz.tu-chemnitz.de ([134.109.132.57]:22028 "EHLO
-	meg.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S315445AbSFYGeQ>; Tue, 25 Jun 2002 02:34:16 -0400
-Date: Tue, 18 Jun 2002 12:55:54 +0200
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Initcall depends
-Message-ID: <20020618125554.Q22429@nightmaster.csn.tu-chemnitz.de>
-References: <Pine.LNX.4.44.0206171658470.22308-100000@chaos.physics.uiowa.edu> <E17K6gI-0001Ga-00@wagner.rustcorp.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <E17K6gI-0001Ga-00@wagner.rustcorp.com.au>; from rusty@rustcorp.com.au on Tue, Jun 18, 2002 at 10:17:10AM +1000
+	id <S315451AbSFYGrF>; Tue, 25 Jun 2002 02:47:05 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:39580 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S315449AbSFYGrF>;
+	Tue, 25 Jun 2002 02:47:05 -0400
+Message-ID: <3D1811CD.70103@us.ibm.com>
+Date: Mon, 24 Jun 2002 23:46:37 -0700
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jes Sorensen <jes@trained-monkey.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: acenic >4gig sendfile problem
+References: <3D05204B.4010103@us.ibm.com> <m3r8iwvgl8.fsf@trained-monkey.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 18, 2002 at 10:17:10AM +1000, Rusty Russell wrote:
-> > Then again, there's also the possibility of completing initramsfs, making
-> > it mandatory, compiling things always as modules and leaving it to
-> > "depmod" in initramfs to do the right thing.
+Jes Sorensen wrote:
+>>>>>>"Dave" == Dave Hansen <haveblue@us.ibm.com> writes:
+>>>>>
 > 
-> If that ever happens... 8)
+> Dave> When doing sendfile with my acenic card on my 8xPIII-700 and PAE
+> Dave> running 2.4.18, I'm getting all zeros in the files being
+> Dave> transmitted.  Running the Redhat 2.4.18-4 kernel fixes the
+> Dave> problem.  I saw this entry in the rpm's changelog: * Sat Aug 25
+> Dave> 2001 Ingo Molnar <mingo@redhat.com> - fix the acenic driver bug
+> Dave> that caused random kernel memory being sent out on the wire, on
+> Dave> x86 systems with more than 4 GB RAM.
+> 
+> Actually I think you're hitting a bug in pci_map_page() rather than in
+> the acenic.driver.
+> 
+> Try the patch from Ben LaHaise included below.
+> 
 
-Until there is now way to remove init sections from modules, that
-approach is pretty pointless anyway and will hopefully not
-adapted to be mandatory.
+Thanks for the patch.  I'll give it a shot when I get back from OLS.
 
-Regards
-
-Ingo Oeser
 -- 
-Science is what we can tell a computer. Art is everything else. --- D.E.Knuth
+Dave Hansen
+haveblue@us.ibm.com
+

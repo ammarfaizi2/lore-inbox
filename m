@@ -1,50 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263490AbTCNUWX>; Fri, 14 Mar 2003 15:22:23 -0500
+	id <S263476AbTCNUXg>; Fri, 14 Mar 2003 15:23:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263492AbTCNUWX>; Fri, 14 Mar 2003 15:22:23 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:10434 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S263490AbTCNUWW>;
-	Fri, 14 Mar 2003 15:22:22 -0500
-Date: Fri, 14 Mar 2003 21:33:24 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@digeo.com>
-Subject: Re: 2.5.64-mm6: oops in elv_remove_request
-Message-ID: <20030314203324.GD791@suse.de>
-References: <1047576167.1318.4.camel@ixodes.goop.org> <20030313175454.GP836@suse.de> <1047578690.1322.17.camel@ixodes.goop.org> <20030313190247.GQ836@suse.de> <1047633884.1147.3.camel@ixodes.goop.org>
+	id <S263484AbTCNUXg>; Fri, 14 Mar 2003 15:23:36 -0500
+Received: from linux.kappa.ro ([194.102.255.131]:24274 "EHLO linux.kappa.ro")
+	by vger.kernel.org with ESMTP id <S263476AbTCNUXZ>;
+	Fri, 14 Mar 2003 15:23:25 -0500
+Date: Fri, 14 Mar 2003 22:33:55 +0200
+From: Teodor Iacob <Teodor.Iacob@astral.ro>
+To: Lars Marowsky-Bree <lmb@suse.de>
+Cc: Pavel Machek <pavel@suse.cz>, kernel list <linux-kernel@vger.kernel.org>,
+       vojtech@suse.cz, lm@bitmover.com
+Subject: Re: Never ever use word BitKeeper if Larry does not like you
+Message-ID: <20030314203355.GA31888@linux.kappa.ro>
+References: <20030314105132.GB14270@atrey.karlin.mff.cuni.cz> <20030314115055.GR1211@marowsky-bree.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1047633884.1147.3.camel@ixodes.goop.org>
+In-Reply-To: <20030314115055.GR1211@marowsky-bree.de>
+User-Agent: Mutt/1.5.3i
+X-RAVMilter-Version: 8.3.0(snapshot 20011220) (linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 14 2003, Jeremy Fitzhardinge wrote:
-> With the version or cdrtools I compiled, I get an instant oops+lockup
-> with the above command when running with anticipatory scheduler in
-> 2.5.64-mm6 (hand written):
+Hi!
+
+Please if there is going to be a real fight for this count me in! Tell
+me the place and the hour.. we can meet somewhere and punch some faces around :D
+
+
+On Fri, Mar 14, 2003 at 12:50:55PM +0100, Lars Marowsky-Bree wrote:
+> On 2003-03-14T11:51:32,
+>    Pavel Machek <pavel@suse.cz> said:
 > 
-> elv_remove_request
-> ide_end_request
-> cdrom_end_request
-> cdrom_decode_status
-> cdrom_newpc_intr
-
-
---- drivers/block/as-iosched.c~	2003-03-14 21:32:14.000000000 +0100
-+++ drivers/block/as-iosched.c	2003-03-14 21:32:38.000000000 +0100
-@@ -1341,6 +1341,8 @@
- 			insert_here = ad->dispatch->prev;
- 
- 		list_add(&rq->queuelist, insert_here);
-+		if (arq)
-+			RB_CLEAR(&arq->rb_node);
- 		
- 		if (!list_empty(ad->dispatch) && rq_data_dir(rq) == READ
- 			&& (ad->antic_status == ANTIC_WAIT_REQ
+> > As for it being on your own time, let's see if SuSE wants the negative
+> > publicity.  I'm quite willing to make a stink, you've annoyed me and
+> > I've put up with as much as I'm going to.
+> 
+> Ok, Larry, you have finally done the coyote stunt. Please report how it really
+> feels, stepping of the cliff.
+> 
+> So far, I have considered BK a very cool piece of work, and not taken a
+> political interest in it. But by threatening SuSE developers (for work done on
+> their own time, and for merely describing something as BK-compatible) by
+> threatening SuSE with bad publicity, I can't even begin to describe my disgust
+> for you.
+> 
+> Technically, you are very competent. BK proves that, no doubt. But you should
+> take a year off and work on your social skills. Because, as it is, you _are_
+> making a stink.
+> 
+> 
+> Sincerely,
+>     Lars Marowsky-Br?e <lmb@suse.de>
+> 
+> -- 
+> Principal Squirrel 
+> SuSE Labs - Research & Development, SuSE Linux AG
+>   
+> "If anything can go wrong, it will." "Chance favors the prepared (mind)."
+>   -- Capt. Edward A. Murphy            -- Louis Pasteur
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
 -- 
-Jens Axboe
-
+      Teodor Iacob,
+Network Administrator
+Astral TELECOM Internet

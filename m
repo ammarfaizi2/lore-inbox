@@ -1,47 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265567AbTB1W1a>; Fri, 28 Feb 2003 17:27:30 -0500
+	id <S268215AbTB1WaS>; Fri, 28 Feb 2003 17:30:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268215AbTB1W13>; Fri, 28 Feb 2003 17:27:29 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:36356
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S265567AbTB1W13>; Fri, 28 Feb 2003 17:27:29 -0500
-Subject: Re: [Bug 420] New: Divide by zero 
-	(/proc/sys/net/ipv4/neigh/DEV/base_reachable_time)
-From: Robert Love <rml@tech9.net>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Abramo Bagnara <abramo.bagnara@libero.it>, ak@suse.de, mbligh@aracnet.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20030228142625.1a53da75.rddunlap@osdl.org>
-References: <27440000.1046453828@[10.10.2.4].suse.lists.linux.kernel>
-	 <p733cm86yv0.fsf@amdsimf.suse.de> <3E5FE165.C8BABD4@libero.it>
-	 <20030228142625.1a53da75.rddunlap@osdl.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1046471866.1346.267.camel@phantasy>
+	id <S268229AbTB1WaS>; Fri, 28 Feb 2003 17:30:18 -0500
+Received: from dp.samba.org ([66.70.73.150]:57551 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S268215AbTB1WaS>;
+	Fri, 28 Feb 2003 17:30:18 -0500
+Date: Mon, 1 Jan 2001 16:27:23 +1100
+From: Anton Blanchard <anton@samba.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Dave Jones <davej@codemonkey.org.uk>, Andrew Morton <akpm@digeo.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org,
+       cliffw@osdl.org, akpm@zip.com.au, slpratt@austin.ibm.com,
+       levon@movementarian.org, haveblue@us.ibm.com
+Subject: Re: [PATCH] documentation for basic guide to profiling
+Message-ID: <20010101052723.GB22212@krispykreme>
+References: <8550000.1046419962@[10.10.2.4]> <20030228002935.256ffa98.akpm@digeo.com> <20030228112238.GJ4911@codemonkey.org.uk> <20030228152838.GB32449@gtf.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-1) 
-Date: 28 Feb 2003 17:37:47 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030228152838.GB32449@gtf.org>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-02-28 at 17:26, Randy.Dunlap wrote:
 
-> I agree with that.
+> Alpha is supported too... (as least I saw the kernel part go in)
 
-I agree with that, too.
+sparc64 and ppc64 too, but only timer tick profiling so far.
 
-It is easy, too, because the sysctl mechanism has a built-in bounds
-checking function.
-
-For the seventh parameter (the parsing mechanism) you can specify
-something like proc_dointvec_minmax and then the last parameters can be
-&one and NULL.  This forces the minimum value to be one.
-
-So its trivial and built-in.  While root should be able to wreck the
-system, he should at least have a chance in hell of knowing he is doing
-so.  Zero may seem to be a legitimate value here...
-
-	Robert Love
-
+Anton

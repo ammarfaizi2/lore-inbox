@@ -1,94 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264028AbTDOBwZ (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 21:52:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264038AbTDOBwZ (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 21:52:25 -0400
-Received: from h80ad2716.async.vt.edu ([128.173.39.22]:14464 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S264028AbTDOBwY (for <RFC822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 21:52:24 -0400
-Message-Id: <200304150203.h3F23SlZ001955@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/02/2003 with nmh-1.0.4+dev
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Cc: Russell King <rmk@arm.linux.org.uk>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>, seanlkml@rogers.com,
-       Dominik Brodowski <linux@brodo.de>
-Subject: Re: [CFT] Hopefully fix PCMCIA boot deadlocks 
-In-Reply-To: Your message of "Tue, 15 Apr 2003 00:55:03 +0200."
-             <1050360903.677.3.camel@teapot.felipe-alfaro.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <20030414165057.C22754@flint.arm.linux.org.uk>
-            <1050360903.677.3.camel@teapot.felipe-alfaro.com>
+	id S264081AbTDOCB3 (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 22:01:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264085AbTDOCB3 (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 22:01:29 -0400
+Received: from deviant.impure.org.uk ([195.82.120.238]:18902 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id S264081AbTDOCB2 (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 22:01:28 -0400
+Date: Tue, 15 Apr 2003 03:12:50 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       James Simmons <jsimmons@infradead.org>
+Subject: Re: [FBCON] Could be called outside of a process context. This fixes that.
+Message-ID: <20030415021242.GA2054@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Andrew Morton <akpm@digeo.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	James Simmons <jsimmons@infradead.org>
+References: <200304141829.h3EITgZF028370@hera.kernel.org> <20030414185326.1fdf2e01.akpm@digeo.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_25867588P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Mon, 14 Apr 2003 22:03:27 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030414185326.1fdf2e01.akpm@digeo.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_25867588P
-Content-Type: text/plain; charset=us-ascii
+On Mon, Apr 14, 2003 at 06:53:26PM -0700, Andrew Morton wrote:
+ > > ChangeSet 1.981, 2003/03/25 10:21:46-08:00, jsimmons@maxwell.earthlink.net
+ > > 	[FBCON] Could be called outside of a process context. This fixes that.
+ > > 
+ > 
+ > GFP_ATOMIC memory allocations can and will return NULL when the system is
+ > under load.  The driver _has_ to check for this, and cope with it.
 
-On Tue, 15 Apr 2003 00:55:03 +0200, Felipe Alfaro Solana said:
-> On Mon, 2003-04-14 at 17:50, Russell King wrote:
-> > Ok,
-> > 
-> > Here's my latest patch against 2.5.67 which introduces a proper state
-> > machine into the PCMCIA layer for handling the sockets.  Unfortunately,
-> > I fear that this isn't the answer for the following reasons:
-> 
-> Well, maybe it's not the answer, but it's working for me with
-> 2.5.67-mm3. Besides being too verbose, I have tried booting with the
-> card plugged, booting with the card unplugged and then plugging it, and
-> plugging/unplugging it several time to check that hotplug is working.
+James fixed this up in 1.982, when he changed things over to use workqueues.
 
-Confirmed under vanilla 2.5.67 on a Dell C840.  It's chatty, and I'll
-not comment on the neatness of implementation.  But... ;)
+		Dave
 
-It now boots with the offending card, without it, insert it, eject it, I
-haven't been able to confuse it (though I admit I havent tried a very fast
-insert/eject cycle so the eject arrives before the insert finishes).  And yes,
-the card in question was a multifunction (abbreviated lspci -vv output):
-
-03:00.0 Ethernet controller: Xircom Cardbus Ethernet 10/100 (rev 03)
-        Subsystem: Xircom Cardbus Ethernet 10/100
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 64 (5000ns min, 10000ns max)
-        Interrupt: pin A routed to IRQ 11
-        Region 0: I/O ports at 1000 [size=128]
-        Region 1: Memory at 10800000 (32-bit, non-prefetchable) [size=2K]
-        Region 2: Memory at 10800800 (32-bit, non-prefetchable) [size=2K]
-        Expansion ROM at 10400000 [disabled] [size=16K]
-        Capabilities: [dc] Power Management version 1
-                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
-                Status: D0 PME-Enable- DSel=0 DScale=2 PME-
-
-03:00.1 Serial controller: Xircom Cardbus Ethernet + 56k Modem (rev 03) (prog-if 02 [16550])
-        Subsystem: Xircom CBEM56G-100 Ethernet + 56k Modem
-        Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Interrupt: pin A routed to IRQ 11
-        Region 0: I/O ports at 1080 [size=8]
-        Region 1: Memory at 10801000 (32-bit, non-prefetchable) [size=2K]
-        Region 2: Memory at 10801800 (32-bit, non-prefetchable) [size=2K]
-        Expansion ROM at 10404000 [disabled] [size=16K]
-        Capabilities: [dc] Power Management version 1
-                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
-                Status: D0 PME-Enable- DSel=0 DScale=2 PME-
-
-Thanks Russell!
-
---==_Exmh_25867588P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE+m2hucC3lWbTT17ARAsgJAKDojv5eI8EIA8FhIvcAYVZ0AST3vACfRBnm
-hMqqW+iWS1sAFacnyRj0DUg=
-=mQh3
------END PGP SIGNATURE-----
-
---==_Exmh_25867588P--

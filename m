@@ -1,44 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263792AbUASXEG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 18:04:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263800AbUASXEG
+	id S264428AbUASXYv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jan 2004 18:24:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264445AbUASXYv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 18:04:06 -0500
-Received: from mail.kroah.org ([65.200.24.183]:58259 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263792AbUASXEE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 18:04:04 -0500
-Date: Mon, 19 Jan 2004 15:03:36 -0800
-From: Greg KH <greg@kroah.com>
-To: Christoph Hellwig <hch@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       anton@samba.org
-Subject: Re: [PATCH] ppc64: VIO support, from Dave Boutcher, Hollis Blanchard and Santiago Leon
-Message-ID: <20040119230336.GA5008@kroah.com>
-References: <200401192200.i0JM0dtb006058@hera.kernel.org> <20040119223230.GA4885@kroah.com> <20040119224953.A7395@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040119224953.A7395@infradead.org>
-User-Agent: Mutt/1.4.1i
+	Mon, 19 Jan 2004 18:24:51 -0500
+Received: from netfinity2.mailbox.hu ([195.70.35.152]:46505 "HELO
+	web1.mailbox.hu") by vger.kernel.org with SMTP id S264428AbUASXYo convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jan 2004 18:24:44 -0500
+Message-ID: <20040119232440.15676.qmail@web2.mailbox.hu>
+From: "Perverz Tata" <perverztata@mailbox.hu>
+Date: Tue, 20 Jan 2004 00:24:40 +0100
+To: linux-kernel@vger.kernel.org
+X-Mailer: Mailbox Webmail
+MIME-Version: 1.0
+Subject: kg7-RAID: DMA timeout error
+Content-Type: text/plain; charset=iso-8859-2
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 19, 2004 at 10:49:53PM +0000, Christoph Hellwig wrote:
-> On Mon, Jan 19, 2004 at 02:32:30PM -0800, Greg KH wrote:
-> > Ick ick ick.  I thought you all were not going to add this function, but
-> > just use vio_register_driver() on it's own?  Loading a driver should not
-> > depend on CONFIG_HOTPLUG, as we now have different ways we can bind
-> > drivers to devices after they are loaded (see the new_id stuff for pci
-> > devices as an example.)
-> 
-> I wonder why this code got merged at all.  Half of it could easily be
-> scrapped by using the driver model properly.
+I have attached a new hdd to my integrated raid controller, but i have
+the following message from the kernel:
+HPT370A: IDE controller at PCI slot 0000:00:13.0
+HPT370A: chipset revision 4
+HPT37X: using 33MHz PCI clock
+HPT370A: 100% native mode on irq 11
+    ide2: BM-DMA at 0xec00-0xec07, BIOS settings: hde:pio, hdf:DMA
+    ide3: BM-DMA at 0xec08-0xec0f, BIOS settings: hdg:pio, hdh:pio
+hdf: Maxtor 6Y080P0, ATA DISK drive
+...
 
-Which is another point.  I thought I saw a port of this code to the
-driver model for 2.6 on the ppc mailing list.  Why this old code?
+hdf: max request size: 128KiB
+hdf: 160086528 sectors (81964 MB) w/7936KiB Cache, CHS=65535/16/63,
+UDMA(100)
+ hdf:<4>hdf: dma_timer_expiry: dma status == 0x41
+hdf: DMA timeout error
+hdf: 0 bytes in FIFO
+hdf: timeout waiting for DMA
+hdf: dma timeout error: status=0x58 { DriveReady SeekComplete
+DataRequest }
+                                                                        
+       
+ hdf1
 
-thanks,
+The hdd is unusable slow under linux, but it works fine with win2000. I
+googled for a solution a lot, but i found nothing.
 
-greg k-h
+I use 2.6.1 kernel and Debian unstable.
+Here is some important part of my kernel's conf:
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_BLK_DEV_HPT366=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_IDEDMA_AUTO=y
+
+PerverzTata
+
+_____________________________________________________________________
+Most megnyerheted a Palm Zire 71 kéziszámítógépet, ami digitáli
+s
+fényképezõ és MP3 lejátszó is egyben. Kattints ide:
+http://www.edmax.hu/kerdoiv_2003.php
+

@@ -1,232 +1,148 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264372AbTFEC0A (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 22:26:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264393AbTFEC0A
+	id S264376AbTFECfP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 22:35:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264393AbTFECfP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 22:26:00 -0400
-Received: from charger.oldcity.dca.net ([207.245.82.76]:4290 "EHLO
-	charger.oldcity.dca.net") by vger.kernel.org with ESMTP
-	id S264372AbTFECZ4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 22:25:56 -0400
-Date: Wed, 4 Jun 2003 22:39:22 -0400
-From: "Mark M. Hoffman" <mhoffman@lightlink.com>
-To: LKML <linux-kernel@vger.kernel.org>,
-       Sensors <sensors@stimpy.netroedge.com>
-Cc: Greg KH <greg@kroah.com>, Martin Schlemmer <azarah@gentoo.org>
-Subject: Re: [RFC PATCH] Re: [OOPS] w83781d during rmmod (2.5.69-bk17)
-Message-ID: <20030605023922.GA8943@earth.solarsys.private>
-Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>,
-	Sensors <sensors@stimpy.netroedge.com>, Greg KH <greg@kroah.com>,
-	Martin Schlemmer <azarah@gentoo.org>
-References: <20030524183748.GA3097@earth.solarsys.private> <3ED8067E.1050503@paradyne.com> <20030601143808.GA30177@earth.solarsys.private> <20030602172040.GC4992@kroah.com>
+	Wed, 4 Jun 2003 22:35:15 -0400
+Received: from conure.mail.pas.earthlink.net ([207.217.120.54]:42488 "EHLO
+	conure.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id S264376AbTFECfM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jun 2003 22:35:12 -0400
+Date: Wed, 4 Jun 2003 22:49:40 -0400
+To: linux-kernel@vger.kernel.org
+Subject: [BENCHMARK] AIM7 fserver regressed in 2.5.70*
+Message-ID: <20030605024940.GA14406@rushmore>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="J2SCkAp4GZ/dPZZf"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030602172040.GC4992@kroah.com>
 User-Agent: Mutt/1.4.1i
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---J2SCkAp4GZ/dPZZf
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Summary:
+AIM7 fileserver workload behaviour changed with 2.5.70.
+At low task counts (load average), 2.5.70* takes 40% 
+longer than 2.5.69.  As task count increases, regression
+disappears.
 
-* Greg KH <greg@kroah.com> [2003-06-02 10:20:40 -0700]:
-> On Sun, Jun 01, 2003 at 10:38:08AM -0400, Mark M. Hoffman wrote:
-> > 
-> > This patch against 2.5.70 works for me vs. an SMBus adapter.  It needs
-> > re-testing against an ISA adapter since my particular chip is SMBus only.
-> 
-> I've applied this and will send it off to Linus in a bit.
+Hardware has (4) 700 mhz P3 Xeons.
+3.75 GB RAM
+RAID 0 LUN (hardware raid)
 
-Thanks!
+Background:
+AIM7 fserver is the only regressed workload.  In general, 
+2.5.70* has better numbers than 2.5.69* for a variety of
+benchmarks.
 
-This patch fixes the various return values in the w83781d_detect()
-error paths.  It also cleans up some formatting here and there.
-It should be applied on top of the previous one.
+Part of the improvement in 2.5.70 I/O benchmarks is
+from a fiber channel configuration change.  2.5.70* has
+two online fiber channels.  Earlier kernels had only one
+fiber channel online.  
 
-It works for me; same caveat as above w.r.t. ISA.
+Tiobench and bonnie++ show about 10% improvement.  
+LMbench microbenchmarks are generally improving or stable
+in recent 2.5.x.  
 
-Regards,
+So, it's strange that AIM7 fserver is regressed.  
+
+The kernels below are listed in chronological order.
+
+AIM7 database workloads show a nice 27-30% improvement
+with 2.5.70*.
+
+Real and CPU are time in seconds.
+
+AIM7 dbase workload
+kernel             Tasks  Jobs/Min      Real       CPU
+2.5.69              32	 477.6	      398.0	 149.3
+2.5.69-bk1          32	 476.3	      399.0	 143.1
+2.5.69-mm3          32	 560.5	      339.1	 159.3
+2.5.69-mm5          32	 560.9	      338.9	 164.0
+2.5.70              32	 611.1	      311.0	 153.0
+2.5.70-mjb1         32	 606.4	      313.5	 159.2
+2.5.70-mm3          32	 685.8	      277.2	 161.8
+
+
+2.5.69             256	 769.9	     1975.2	 982.2
+2.5.69-bk1         256	 768.0	     1979.9	 977.9
+2.5.69-mm3         256	 906.5	     1677.5	1132.8
+2.5.69-mm5         256	 909.5	     1671.9	1088.4
+2.5.70             256	1042.7	     1458.4	1036.3
+2.5.70-mjb1        256	1030.0	     1476.4	1049.0
+2.5.70-mm3         256	1186.4	     1281.8	1066.8
+
+
+AIM7 fileserver is regressed about 40% at 4 tasks.
+As the task load increases, the regression becomes less.
+At 32 tasks, 2.5.70* is even or ahead of 2.5.69*.
+
+AIM7 fserver workload
+kernel             Tasks  Jobs/Min      Real       CPU
+2.5.69               4	 120.9	      200.5	  32.8
+2.5.69-bk1           4	 122.3	      198.2	  33.8
+2.5.69-mm3           4	 122.3	      198.3	  37.9
+2.5.69-mm5           4	 124.0	      195.5	  38.0
+2.5.70               4	  79.0	      306.9	  34.2
+2.5.70-mjb1          4	  83.4	      290.8	  33.6
+2.5.70-mm3           4	  71.7	      338.0	  34.9
+2.5.70-mm4	     4    73.9        328.0       33.9
+ 
+ 
+2.5.69               8	 174.7	      277.5  	  61.1
+2.5.69-bk1           8	 175.8	      275.8	  64.1
+2.5.69-mm3           8	 179.4	      270.2	  65.7
+2.5.69-mm5           8	 184.3	      263.0	  66.3
+2.5.70               8	 136.6	      354.9	  58.8
+2.5.70-mjb1          8	 137.3	      353.0	  57.0
+2.5.70-mm3           8	 123.9	      391.3	  58.7
+2.5.70-mm4	     8   118.4        409.4       57.5
+ 
+
+2.5.69              32	 234.3	      827.6	 221.8
+2.5.69-bk1          32	 236.0	      821.8	 220.8
+2.5.69-mm3          32	 253.8	      764.0	 246.6
+2.5.69-mm5          32	 254.8	      761.0	 248.3
+2.5.70              32	 239.7	      809.1	 219.4
+2.5.70-mjb1         32	 248.9	      779.2	 226.3
+2.5.70-mm3          32	 231.3	      838.4	 224.9
+
+AIM7 shared has a similar behavior.  At 64 tasks, 2.5.69*
+is close to or a little ahead of 2.5.70*.
+
+AIM7 shared workload
+kernel             Tasks  Jobs/Min      Real       CPU
+2.5.69              64	2121.2	      175.6	 167.5
+2.5.69-bk1          64	2096.7	      177.7	 168.6
+2.5.69-mm3          64	2422.3	      153.8	 179.2
+2.5.69-mm5          64	2429.0	      153.3	 178.3
+2.5.70              64	2123.1	      175.4	 170.0
+2.5.70-mjb1         64	2163.9	      172.1	 175.5
+2.5.70-mm3          64	2186.9	      170.3	 175.7
+
+2.5.69             128	2257.8	      329.9	 333.9
+2.5.69-bk1         128	2269.9	      328.2	 333.1
+2.5.69-mm3         128	2700.6	      275.9	 352.9
+2.5.69-mm5         128	2697.8	      276.1	 352.8
+2.5.70             128	2410.4	      309.1	 338.2
+2.5.70-mjb1        128	2580.1	      288.7	 354.7
+2.5.70-mm3         128	2705.2	      275.4	 350.6
+
+By 512 tasks, 2.5.70* is AIM7 shared is ahead of 2.5.69*
+by 14-20%.
+
+2.5.69             512	2314.7	     1287.3	1369.2
+2.5.69-bk1         512	2319.4	     1284.7	1370.5
+2.5.69-mm3         512	2574.1	     1157.6	1457.7
+2.5.69-mm5         512	2698.3	     1104.3	1481.0
+2.5.70             512	2788.0	     1068.8	1399.1
+2.5.70-mjb1        512	2607.6	     1142.8	1670.8
+2.5.70-mm3         512	3075.9	      968.8	1462.8
+
 
 -- 
-Mark M. Hoffman
-mhoffman@lightlink.com
+Randy Hron
+http://home.earthlink.net/~rwhron/kernel/bigbox.html
 
-
---J2SCkAp4GZ/dPZZf
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="patch-w83781d-2.txt"
-
---- linux-2.5.70/drivers/i2c/chips/w83781d.c.orig1	2003-06-04 21:05:35.000000000 -0400
-+++ linux-2.5.70/drivers/i2c/chips/w83781d.c	2003-06-04 21:37:11.000000000 -0400
-@@ -1039,7 +1039,7 @@
- 		struct i2c_client *new_client)
- {
- 	int i, val1 = 0, id;
--	int err = 0;
-+	int err;
- 	const char *client_name;
- 	struct w83781d_data *data = i2c_get_clientdata(new_client);
- 
-@@ -1058,7 +1058,8 @@
- 			    force_subclients[i] > 0x4f) {
- 				dev_err(&new_client->dev, "Invalid subclient "
- 					"address %d; must be 0x48-0x4f\n",
--			       force_subclients[i]);
-+					force_subclients[i]);
-+				err = -EINVAL;
- 				goto ERROR_SC_1;
- 			}
- 		}
-@@ -1082,6 +1083,7 @@
- 			dev_err(&new_client->dev,
- 			       "Duplicate addresses 0x%x for subclients.\n",
- 			       data->lm75[0].addr);
-+			err = -EBUSY;
- 			goto ERROR_SC_1;
- 		}
- 	}
-@@ -1119,7 +1121,7 @@
- 			break;
- 	}
- 
--	return err;
-+	return 0;
- 
- /* Undo inits in case of errors */
- ERROR_SC_2:
-@@ -1136,18 +1138,22 @@
- 	int i = 0, val1 = 0, val2;
- 	struct i2c_client *new_client;
- 	struct w83781d_data *data;
--	int err = 0;
-+	int err;
- 	const char *client_name = "";
- 	int is_isa = i2c_is_isa_adapter(adapter);
- 	enum vendor { winbond, asus } vendid;
- 
- 	if (!is_isa
--	    && !i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA))
-+	    && !i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA)) {
-+		err = -EINVAL;
- 		goto ERROR0;
-+	}
- 
- 	if (is_isa)
--		if (!request_region(address, W83781D_EXTENT, "w83781d"))
-+		if (!request_region(address, W83781D_EXTENT, "w83781d")) {
-+			err = -EBUSY;
- 			goto ERROR0;
-+		}
- 
- 	/* Probe whether there is anything available on this address. Already
- 	   done for SMBus clients */
-@@ -1155,15 +1161,21 @@
- 		if (is_isa) {
- 
- #define REALLY_SLOW_IO
--			/* We need the timeouts for at least some LM78-like chips. But only
--			   if we read 'undefined' registers. */
-+			/* We need the timeouts for at least some LM78-like
-+			   chips. But only if we read 'undefined' registers. */
- 			i = inb_p(address + 1);
--			if (inb_p(address + 2) != i)
-+			if (inb_p(address + 2) != i) {
-+				err = -ENODEV;
- 				goto ERROR1;
--			if (inb_p(address + 3) != i)
-+			}
-+			if (inb_p(address + 3) != i) {
-+				err = -ENODEV;
- 				goto ERROR1;
--			if (inb_p(address + 7) != i)
-+			}
-+			if (inb_p(address + 7) != i) {
-+				err = -ENODEV;
- 				goto ERROR1;
-+			}
- #undef REALLY_SLOW_IO
- 
- 			/* Let's just hope nothing breaks here */
-@@ -1171,7 +1183,8 @@
- 			outb_p(~i & 0x7f, address + 5);
- 			if ((inb_p(address + 5) & 0x7f) != (~i & 0x7f)) {
- 				outb_p(i, address + 5);
--				return 0;
-+				err = -ENODEV;
-+				goto ERROR1;
- 			}
- 		}
- 	}
-@@ -1204,8 +1217,10 @@
- 	   force_*=... parameter, and the Winbond will be reset to the right
- 	   bank. */
- 	if (kind < 0) {
--		if (w83781d_read_value(new_client, W83781D_REG_CONFIG) & 0x80)
-+		if (w83781d_read_value(new_client, W83781D_REG_CONFIG) & 0x80){
-+			err = -ENODEV;
- 			goto ERROR2;
-+		}
- 		val1 = w83781d_read_value(new_client, W83781D_REG_BANK);
- 		val2 = w83781d_read_value(new_client, W83781D_REG_CHIPMAN);
- 		/* Check for Winbond or Asus ID if in bank 0 */
-@@ -1213,14 +1228,19 @@
- 		    (((!(val1 & 0x80)) && (val2 != 0xa3) && (val2 != 0xc3)
- 		      && (val2 != 0x94))
- 		     || ((val1 & 0x80) && (val2 != 0x5c) && (val2 != 0x12)
--			 && (val2 != 0x06))))
-+			 && (val2 != 0x06)))) {
-+			err = -ENODEV;
- 			goto ERROR2;
--		/* If Winbond SMBus, check address at 0x48. Asus doesn't support */
-+		}
-+		/* If Winbond SMBus, check address at 0x48.
-+		   Asus doesn't support */
- 		if ((!is_isa) && (((!(val1 & 0x80)) && (val2 == 0xa3)) ||
- 				  ((val1 & 0x80) && (val2 == 0x5c)))) {
- 			if (w83781d_read_value
--			    (new_client, W83781D_REG_I2C_ADDR) != address)
-+			    (new_client, W83781D_REG_I2C_ADDR) != address) {
-+				err = -ENODEV;
- 				goto ERROR2;
-+			}
- 		}
- 	}
- 
-@@ -1239,8 +1259,11 @@
- 			vendid = winbond;
- 		else if ((val2 == 0x12) || (val2 == 0x06))
- 			vendid = asus;
--		else
-+		else {
-+			err = -ENODEV;
- 			goto ERROR2;
-+		}
-+
- 		/* mask off lower bit, not reliable */
- 		val1 =
- 		    w83781d_read_value(new_client, W83781D_REG_WCHIPID) & 0xfe;
-@@ -1262,6 +1285,7 @@
- 				       "Ignoring 'force' parameter for unknown chip at"
- 				       "adapter %d, address 0x%02x\n",
- 				       i2c_adapter_id(adapter), address);
-+			err = -EINVAL;
- 			goto ERROR2;
- 		}
- 	}
-@@ -1279,7 +1303,9 @@
- 	} else if (kind == w83697hf) {
- 		client_name = "W83697HF chip";
- 	} else {
--		dev_err(&new_client->dev, "Internal error: unknown kind (%d)?!?", kind);
-+		dev_err(&new_client->dev, "Internal error: unknown "
-+						"kind (%d)?!?", kind);
-+		err = -ENODEV;
- 		goto ERROR2;
- 	}
- 
-
---J2SCkAp4GZ/dPZZf--

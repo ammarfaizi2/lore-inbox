@@ -1,45 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261181AbTEMPJi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 11:09:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261196AbTEMPJi
+	id S261216AbTEMPNT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 11:13:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261319AbTEMPNS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 11:09:38 -0400
-Received: from deviant.impure.org.uk ([195.82.120.238]:56718 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id S261181AbTEMPJg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 11:09:36 -0400
-Date: Tue, 13 May 2003 16:22:28 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6 must-fix list, v2
-Message-ID: <20030513152228.GA4388@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Trond Myklebust <trond.myklebust@fys.uio.no>,
-	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-References: <20030512155417.67a9fdec.akpm@digeo.com> <20030512155511.21fb1652.akpm@digeo.com> <shswugvjcy9.fsf@charged.uio.no> <20030513135756.GA676@suse.de> <16065.3159.768256.81302@charged.uio.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16065.3159.768256.81302@charged.uio.no>
-User-Agent: Mutt/1.5.4i
+	Tue, 13 May 2003 11:13:18 -0400
+Received: from ida.rowland.org ([192.131.102.52]:7172 "HELO ida.rowland.org")
+	by vger.kernel.org with SMTP id S261216AbTEMPNR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 11:13:17 -0400
+Date: Tue, 13 May 2003 11:26:02 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@ida.rowland.org
+To: Greg KH <greg@kroah.com>
+cc: Paul Fulghum <paulkf@microgate.com>, Andrew Morton <akpm@digeo.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Arnd Bergmann <arnd@arndb.de>, <johannes@erdfelt.com>
+Subject: Re: 2.5.69 Interrupt Latency
+In-Reply-To: <20030512173023.GB28381@kroah.com>
+Message-ID: <Pine.LNX.4.44L0.0305131117240.3274-100000@ida.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 13, 2003 at 05:16:39PM +0200, Trond Myklebust wrote:
- > >>>>> Dave Jones <davej@codemonkey.org.uk> writes:
- > 
- >      > I can still kill an NFS server in under a minute with fsx.
- > 
- > I'm more interested in hearing how the client fixes are coping.
- > i.e. is the client recovering properly if/when you restart the server
- > after such a crash?
+On Mon, 12 May 2003, Greg KH wrote:
 
-After a crash, I can carry on using that export just fine.
-unexporting and reexporting also works fine.
-Perhaps 'kill' was an over-strong word to use above, lets
-replace it with 'make it break causing possible fs corruption'.
+> > > This should only happen when your hardware receives a "RESUME" signal
+> > > from a USB device AND the host controller is in a global suspend state
+> > > at that time.
+> > > 
+> > > Now I think the wait_ms() call is valid for when this is really
+> > > happening, but it sounds like you are having this happen all the time
+> > > during normal operation.
+> > 
+> > It does appear to happen on a regular basis.
+> > 
+> > Should the 20ms delay be in the ISR though?
+> > I thought it was standard practice to move such
+> > lengthy operations outside of the ISR so as not to
+> > impact interrupt latency for the system.
+> 
+> This should only happen when the hardware is suspended, and we are being
+> woken up by a device.  So this should be a _very_ rare occurance, and
+> when it does happen, the latency isn't that big of a deal (we need it to
+> wake up the hardware properly.)
 
-		Dave
+Putting in a sanity check for the global suspend state will be very easy.  
+But I would like to point out that this "global suspend" does not refer to
+the entire system, only the USB bus.  I'm not sure under what
+circumstances the bus is placed in global suspend; I think it's just when
+there are no devices attached (or the last remaining device is detached).
+
+However, there have been cases on my own system where turning off the only
+USB peripheral caused the driver to bounce between suspend_hc() and
+wakeup_hc() several times without any apparent explanation -- possibly as
+a result of transient electrical signals on the bus (?).  So perhaps
+moving that delay out of the ISR isn't such a bad idea.
+
+Alan Stern
 

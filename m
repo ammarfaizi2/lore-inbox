@@ -1,95 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269266AbTGJNT6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 09:19:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269267AbTGJNT6
+	id S269270AbTGJNWm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 09:22:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269271AbTGJNWl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 09:19:58 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:1664 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S269266AbTGJNTz
+	Thu, 10 Jul 2003 09:22:41 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:26050 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S269270AbTGJNWk
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 09:19:55 -0400
-Date: Thu, 10 Jul 2003 09:34:35 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Miquel van Smoorenburg <miquels@cistron.nl>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.74-mm3 OOM killer fubared ?
-In-Reply-To: <bejnl9$m9l$1@news.cistron.nl>
-Message-ID: <Pine.LNX.4.53.0307100918410.203@chaos>
-References: <bejhrj$dgg$1@news.cistron.nl> <20030710112728.GX15452@holomorphy.com>
- <bejnl9$m9l$1@news.cistron.nl>
+	Thu, 10 Jul 2003 09:22:40 -0400
+Date: Thu, 10 Jul 2003 06:36:46 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+cc: linux-mm@kvack.org
+Subject: Re: [announce, patch] 4G/4G split on x86, 64 GB RAM (and more) support
+Message-ID: <86930000.1057844205@[10.10.2.4]>
+In-Reply-To: <80050000.1057800978@[10.10.2.4]>
+References: <Pine.LNX.4.44.0307082332450.17252-100000@localhost.localdomain> <80050000.1057800978@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 10 Jul 2003, Miquel van Smoorenburg wrote:
+Results now with highpte
 
-> In article <20030710112728.GX15452@holomorphy.com>,
-> William Lee Irwin III  <wli@holomorphy.com> wrote:
-> >On Thu, Jul 10, 2003 at 11:14:59AM +0000, Miquel van Smoorenburg wrote:
-> >> Enough memory free, no problems at all .. yet every few minutes
-> >> the OOM killer kills one of my innfeed processes.
-> >> I notice that in -mm3 this was deleted relative to -vanilla:
-> >>
-> >> -
-> >> -       /*
-> >> -        * Enough swap space left?  Not OOM.
-> >> -        */
-> >> -       if (nr_swap_pages > 0)
-> >> -               return;
-> >> .. is that what causes this ? In any case, that should't vene matter -
-> >> there's plenty of memory in this box, all buffers and cached, but that
-> >> should be easily freed ..
-> >
-> >This means we're calling into it more often than we should be.
-> >Basically, we hit __alloc_pages() with __GFP_WAIT set, find nothing
-> >we're allowed to touch, dive into try_to_free_pages(), fall through
-> >scanning there, sleep in blk_congestion_wait(), wake up again, try
-> >to shrink_slab(), find nothing there either, repeat that 11 more times,
-> >and then fall through to out_of_memory()... and this happens at at
-> >least 10Hz.
-> >
-> >        since = now - lastkill;
-> >        if (since < HZ*5)
-> >                goto out_unlock;
-> >
-> >try s/goto out_unlock/goto reset/ and let me know how it goes.
->
-> But that will only change the rate at which processes are killed,
-> not the fact that they are killed in the first place, right ?
->
-> As I said I've got plenty memory free ... perhaps I need to tune
-> /proc/sys/vm because I've got so much streaming I/O ? Possibly,
-> there are too many dirty pages so cleaning them out faster might
-> help (and let pflushd do it instead of my single-threaded app)
->
+2.5.74-bk6-44 is with the patch applied
+2.5.74-bk6-44-on is with the patch applied and 4/4 config option.
+2.5.74-bk6-44-hi is with the patch applied and with highpte instead.
 
-The problem, as I see it, is that you can dirty pages 10-15 times
-faster than they can be written to disk. So, you will always
-have the possibility of an OOM situation as long as you are I/O
-bound. FYI, you can read/write RAM at 1,000+ megabytes/second, but
-you can only write to disk at 80 megabytes/second with the fastest
-SCSI around, 40 megabytes/second with ATA, 20 megabytes/second with
-IDE/DMA, 10 megabytes/second with PIOW, etc. There just aren't
-any disks around that will run at RAM speeds so buffered I/O will
-always result in full buffers if the I/O is sustained. To completely
-solve the OOM situation requires throttling the generation of data.
+Overhead of 4/4 isn't much higher, and is much more generally useful.
 
-It is only when the data generation rate is less than or equal to
-the data storage rate that you can generate data forever.
+Kernbench: (make -j vmlinux, maximal tasks)
+                              Elapsed      System        User         CPU
+                   2.5.74       46.11      115.86      571.77     1491.50
+            2.5.74-bk6-44       45.92      115.71      570.35     1494.75
+         2.5.74-bk6-44-on       48.11      134.51      583.88     1491.75
+         2.5.74-bk6-44-hi       47.06      131.13      570.79     1491.50
 
-A possibility may be to not return control to the writing process
-(including swap), until the write completes if RAM gets low. In
-other words, stop buffering data in RAM in tight memory situations.
-This forces all the tasks to wait and, therefore slows down the
-dirty-page and data generation rate to match the RAM available.
+SDET 128  (see disclaimer)
+                           Throughput    Std. Dev
+                   2.5.74       100.0%         0.1%
+            2.5.74-bk6-44       100.3%         0.7%
+         2.5.74-bk6-44-on        92.1%         0.2%
+         2.5.74-bk6-44-hi        94.5%         0.1%
 
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
 

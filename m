@@ -1,44 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270541AbTGSXSs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jul 2003 19:18:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270557AbTGSXSs
+	id S270563AbTGSXbh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jul 2003 19:31:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270562AbTGSXbh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jul 2003 19:18:48 -0400
-Received: from server0011.freedom2surf.net ([194.106.56.14]:18354 "EHLO
-	server0027.freedom2surf.net") by vger.kernel.org with ESMTP
-	id S270541AbTGSXSs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jul 2003 19:18:48 -0400
-Date: Sun, 20 Jul 2003 00:33:08 +0100
-From: Ian Molton <spyro@f2s.com>
-To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: AMD Athlon MP Machine check exceptions
-Message-Id: <20030720003308.7cd39550.spyro@f2s.com>
-In-Reply-To: <20030719225935.GA628@gallifrey>
-References: <20030719225935.GA628@gallifrey>
-Organization: The Dragon Roost
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sat, 19 Jul 2003 19:31:37 -0400
+Received: from smtp-out1.iol.cz ([194.228.2.86]:24724 "EHLO smtp-out1.iol.cz")
+	by vger.kernel.org with ESMTP id S270564AbTGSXbR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jul 2003 19:31:17 -0400
+Date: Sun, 20 Jul 2003 01:45:50 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: nick@snowman.net, Rik van Riel <riel@redhat.com>,
+       Richard Stallman <rms@gnu.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Bitkeeper
+Message-ID: <20030719234550.GA1198@elf.ucw.cz>
+References: <Pine.LNX.4.21.0307181621530.16266-100000@ns.snowman.net> <1058563709.19558.79.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1058563709.19558.79.camel@dhcp22.swansea.linux.org.uk>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 19 Jul 2003 23:59:35 +0100
-"Dr. David Alan Gilbert" <gilbertd@treblig.org> wrote:
+Hi!
 
+> > How about all of you take a much nicer tilt on this, and ask McVoy (who's
+> > already giveing you the software free) his price to GPL bitkeeper.
 > 
-> Thats from 2.5.75 on a dual Athlon MP on a Tyan 760MP motherboard.
+> Make Larry a clear business case and I'm sure he will. However even
+> though I don't agree with Larry on a lot of things I do agree that there
+> isn't a sane case for him to GPL that software.
 > 
-> The machine has apparently been running fine for some time now - perhaps
-> this is heat related due to the unusually warm weather over here,
-> or perhaps it is the machine check polling picking
-> up something that has been going dodgy for a while.
+> Larry actually had exactly these and related discussions before he ever
+> went to Linus and others with the arrangement he proposed about free if
+> your logs are public.
+> 
+> If you want to make something replace bitkeeper make it better. When
+> Larry has customers forcing him to write bk to [whatever] convertors
+> you've won. 
 
-I've seen a couple of these too, and would appreciate knowing whats going on :)
+Well, we already made him write bk to CVS convertor ;-))))))))).
+
+								Pavel
 
 -- 
-Spyros lair: http://www.mnementh.co.uk/   ||||   Maintainer: arm26 linux
-
-Do not meddle in the affairs of Dragons, for you are tasty and good with ketchup.
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

@@ -1,34 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267627AbRG2PBV>; Sun, 29 Jul 2001 11:01:21 -0400
+	id <S268045AbRG2PeO>; Sun, 29 Jul 2001 11:34:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267880AbRG2PBC>; Sun, 29 Jul 2001 11:01:02 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:7178 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S267627AbRG2PAu>;
-	Sun, 29 Jul 2001 11:00:50 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: "Fr d ric L. W. Meunier" <0@pervalidus.net>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: SLIP and slhc as modules 
-In-Reply-To: Your message of "Sun, 29 Jul 2001 07:21:52 -0300."
-             <20010729072152.K135@pervalidus> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 30 Jul 2001 01:00:41 +1000
-Message-ID: <11303.996418841@ocs3.ocs-net>
+	id <S268047AbRG2PeE>; Sun, 29 Jul 2001 11:34:04 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:38156 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S268045AbRG2Pd5>; Sun, 29 Jul 2001 11:33:57 -0400
+Date: Sun, 29 Jul 2001 08:30:19 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Hugh Dickins <hugh@veritas.com>
+cc: Ingo Molnar <mingo@elte.hu>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] hold cow while breaking
+In-Reply-To: <Pine.LNX.4.21.0107291404410.897-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.33.0107290827430.7119-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Sun, 29 Jul 2001 07:21:52 -0300, 
-Fr d ric L. W. Meunier <0@pervalidus.net> wrote:
->Hi. I build PPP and SLIP as modules, but slhc is always built
->in. In 2.4.7 I disabled SLIP, and slhc was built as a module.
->
->Why not when I build SLIP as a module ?
 
-http://marc.theaimsgroup.com/?l=linux-netdev&m=99628442702543&w=2
-Same problem description, but with a patch.  I hope DaveM will take the
-patch.
+On Sun, 29 Jul 2001, Hugh Dickins wrote:
+>
+> do_wp_page() COW breaking is now very slightly unsafe.  Please don't
+> ask me to provide a test case! but the pte_same() check after regetting
+> page_table_lock is not quite enough to guarantee that the old_page was
+> not reaped, reused for something else, copy_cow_paged while containing
+> that other data, freed and then reused for precisely its original pte.
+
+Oh, but it is.
+
+We do hold the MM semaphore over the whole sequence, so there's no way the
+page table entry can be replaced by anything else than a non-present one
+(ie vmscan can swap it out, but nothing can swap it in because of the
+lock).
+
+So yes, we may copy data that is "garbage", but re-testing the page table
+will make sure that if it was garbage we will never use it.
+
+		Linus
 

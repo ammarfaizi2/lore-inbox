@@ -1,56 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129598AbQLHCSb>; Thu, 7 Dec 2000 21:18:31 -0500
+	id <S129627AbQLHCYv>; Thu, 7 Dec 2000 21:24:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129627AbQLHCSW>; Thu, 7 Dec 2000 21:18:22 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:17668 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129598AbQLHCSL>; Thu, 7 Dec 2000 21:18:11 -0500
-Message-ID: <3A303CAD.5600DE5A@timpanogas.org>
-Date: Thu, 07 Dec 2000 18:43:09 -0700
-From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
-Organization: TRG, Inc.
-X-Mailer: Mozilla 4.7 [en] (WinNT; I)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Rainer Mager <rmager@vgkk.com>, linux-kernel@vger.kernel.org
-Subject: Re: Signal 11
-In-Reply-To: <E144BOL-0003Eg-00@the-village.bc.nu> <NEBBJBCAFMMNIHGDLFKGMEFHCIAA.rmager@vgkk.com> <20001208022044.A6417@gruyere.muc.suse.de> <3A303852.790E3CE4@timpanogas.org> <20001208024018.A6673@gruyere.muc.suse.de>
+	id <S129736AbQLHCYl>; Thu, 7 Dec 2000 21:24:41 -0500
+Received: from gateway.sequent.com ([192.148.1.10]:10362 "EHLO
+	gateway.sequent.com") by vger.kernel.org with ESMTP
+	id <S129627AbQLHCYY>; Thu, 7 Dec 2000 21:24:24 -0500
+Date: Thu, 7 Dec 2000 17:53:36 -0800
+From: Mike Kravetz <mkravetz@sequent.com>
+To: george anzinger <george@mvista.com>
+Cc: "linux-kernel@vger.redhat.com" <linux-kernel@vger.kernel.org>,
+        Andrew Morton <andrewm@uow.edu.au>
+Subject: Re: Lock ordering, inquiring minds want to know.
+Message-ID: <20001207175336.A15623@w-mikek.des.sequent.com>
+In-Reply-To: <3A301826.B483D19D@mvista.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <3A301826.B483D19D@mvista.com>; from george@mvista.com on Thu, Dec 07, 2000 at 03:07:18PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+George,
 
+I can't answer your question.  However, have  you noticed that this
+lock ordering has changed in the test11 kernel.  The new sequence is:
 
-Andi Kleen wrote:
+        read_lock_irq(&tasklist_lock);
+        spin_lock(&runqueue_lock);
+
+Perhaps the person who made this change could provide their reasoning.
+
+An additional question I have is:  Is it really necessary to hold
+the runqueue lock (with interrupts disabled) for as long as we do
+in this routine (setscheduler())?  I suspect we only need the
+tasklist_lock while calling find_process_by_pid().  Isn't it
+possible to do the error checking (parameter validation) with just
+the tasklist_lock held?  Seems that we would only need to acquire
+the runqueue_lock (and disable interrupts) if we are in fact
+changing the task's scheduling policy.
+-
+Mike
+
+On Thu, Dec 07, 2000 at 03:07:18PM -0800, george anzinger wrote:
+> In looking over sched.c I find:
 > 
-> On Thu, Dec 07, 2000 at 06:24:34PM -0700, Jeff V. Merkey wrote:
-> >
-> > Andi,
-> >
-> > It's related to some change in 2.4 vs. 2.2.  There are other programs
-> > affected other than X, SSH also get's spurious signal 11's now and again
-> > with 2.4 and glibc <= 2.1 and it does not occur on 2.2.
+> 	spin_lock_irq(&runqueue_lock);
+> 	read_lock(&tasklist_lock);
 > 
-> So have you enabled core dumps and actually looked at the core dumps
-> of the programs using gdb to see where they crashed ?
-
-Yes.  I can only get the SSH crash when I am running remotely from the
-house over the internet, and it only shows then when running a build in
-jobserver mode (parallel build).  The X problem seems related as well,
-since it's related to (usually) NetScape spawing off a forked process. 
-I will attempt to recreate tonight, and post the core dump file.  
-
-Jeff 
-
-
-
-
-
 > 
-> -Andi
+> This seems to me to be the wrong order of things.  The read lock
+> unavailable (some one holds a write lock) for relatively long periods of
+> time, for example, wait holds it in a while loop.  On the other hand the
+> runqueue_lock, being a "irq" lock will always be held for short periods
+> of time.  It would seem better to wait for the runqueue lock while
+> holding the read_lock with the interrupts on than to wait for the
+> read_lock with interrupts off.  As near as I can tell this is the only
+> place in the system that both of these locks are held (of course, all
+> cases of two locks being held at the same time, both locker must use the
+> same order).  So...
+> 
+> 
+> What am I missing here? 
+> 
+> George
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

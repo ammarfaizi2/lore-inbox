@@ -1,41 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275697AbRIZXvQ>; Wed, 26 Sep 2001 19:51:16 -0400
+	id <S275708AbRIZXw0>; Wed, 26 Sep 2001 19:52:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275705AbRIZXvG>; Wed, 26 Sep 2001 19:51:06 -0400
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:4110 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S275697AbRIZXvD>;
-	Wed, 26 Sep 2001 19:51:03 -0400
-Date: Wed, 26 Sep 2001 16:46:43 -0700
-From: Greg KH <greg@kroah.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, crispin@wirex.com,
-        linux-security-module@wirex.com
-Subject: Re: Binary only module overview
-Message-ID: <20010926164643.B21369@kroah.com>
-In-Reply-To: <Pine.LNX.4.33.0109261743400.27586-100000@terbidium.openservices.net> <E15mMhP-00021p-00@the-village.bc.nu>
-Mime-Version: 1.0
+	id <S275707AbRIZXwR>; Wed, 26 Sep 2001 19:52:17 -0400
+Received: from air-1.osdlab.org ([65.201.151.5]:64010 "EHLO
+	osdlab.pdx.osdl.net") by vger.kernel.org with ESMTP
+	id <S275705AbRIZXwB>; Wed, 26 Sep 2001 19:52:01 -0400
+Message-ID: <3BB26983.29B37F4E@osdlab.org>
+Date: Wed, 26 Sep 2001 16:49:23 -0700
+From: "Randy.Dunlap" <rddunlap@osdlab.org>
+Organization: OSDL
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-20mdk i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+CC: Peter Sandstrom <peter@zaphod.nu>, Robert Cantu <robert@tux.cs.ou.edu>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Question: Etherenet Link Detection
+In-Reply-To: <20010926174116.A7544@tux.cs.ou.edu> <CIEJKOKMAIAHDBBLFGFFEEOPCGAA.peter@zaphod.nu> <20010926163928.A3678@one-eyed-alien.net>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E15mMhP-00021p-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.21i
-X-Operating-System: Linux 2.2.19 (i586)
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 26, 2001 at 10:58:35PM +0100, Alan Cox wrote:
+Hi-
+
+It's traditionally been defined as MII information, but that's
+awfully slow, so some Ethernet controllers make it available
+in a quicker manner.
+
+ethtool might do this (http://sourceforge.net/projects/gkernel/);
+I don't know for sure.
+
+or mii-diag (http://www.scyld.com/diag/).
+
+~Randy
+
+
+Matthew Dharm wrote:
 > 
-> Given the SSSCA we have to be very clear on this issue, and if its not clear
-> I might be best to kill the entire uncertainty by not including the LSM
-> patch in Linux until the US government returns to sanity
-
-Or place some kind of markings on the symbols/functions that the LSM
-code exports stating that these symbols/functions can only be called
-from GPL licensed code.
-
-But to do that, it would require the cooperation of all of the LSM
-authors :)
-
-thanks,
-
-greg k-h
+> You can get that information from the PHY too, so if you can get to the MII
+> control registers, you can query the phy for link status.
+> 
+> Again, tho, the problem is getting that data to userland.
+> 
+> Matt
+> 
+> On Fri, Sep 28, 2001 at 01:36:07AM +0200, Peter Sandstrom wrote:
+> > I know for sure that the Intel 82559 Fast Ethernet embedded controller
+> > has a register where it's possible to read out if the link led is active
+> > or not. It seems quite likely that this would be available on other
+> > controllers as well.
+> >
+> > Is there any functionality in the current kernel that enables a userland
+> > program to read this? I mostly turn my machines on and and let them do
+> > their thing until the hardware fails :)
+> >
+> > /Peter
+> >
+> > -----Original Message-----
+> > From: linux-kernel-owner@vger.kernel.org
+> > [mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Robert Cantu
+> > Sent: den 26 september 2001 23:41
+> > To: linux-kernel@vger.kernel.org
+> > Subject: Question: Etherenet Link Detection
+> >
+> >
+> > Is there a method of detecting the link status of an ethernet NIC? If not,
+> > is it feasible? And if it is, then would it be something in each driver,
+> > or on a level above the driver, thereby available to all drivers? I figure
+> > the list is the best place to ask this, although it might be a moot point.
+> >
+> > Example: Have a cable modem hooked into a computer's NIC. Cable service
+> > goes out, link light on back of NIC goes out. A hypothetical program says
+> > that the link is gone via some hook in /proc somewhere.
+> >
+> > Is this a worthwhile endeavor, if possible?

@@ -1,69 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290299AbSAXVHV>; Thu, 24 Jan 2002 16:07:21 -0500
+	id <S290300AbSAXVKv>; Thu, 24 Jan 2002 16:10:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290300AbSAXVHL>; Thu, 24 Jan 2002 16:07:11 -0500
-Received: from dns.uni-trier.de ([136.199.8.101]:12457 "EHLO
-	rzmail.uni-trier.de") by vger.kernel.org with ESMTP
-	id <S290299AbSAXVHE>; Thu, 24 Jan 2002 16:07:04 -0500
-Date: Thu, 24 Jan 2002 22:06:47 +0100 (CET)
-From: Daniel Nofftz <nofftz@castor.uni-trier.de>
-X-X-Sender: nofftz@infcip10.uni-trier.de
-To: Martin Eriksson <nitrax@giron.wox.org>
-cc: Ed Sweetman <ed.sweetman@wmich.edu>, Vojtech Pavlik <vojtech@suse.cz>,
-        Timothy Covell <timothy.covell@ashavan.org>,
-        Dieter N?tzel <Dieter.Nuetzel@hamburg.de>,
-        Martin Peters <mpet@bigfoot.de>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] amd athlon cooling on kt266/266a chipset
-In-Reply-To: <007801c1a4e4$ee428480$0201a8c0@HOMER>
-Message-ID: <Pine.LNX.4.40.0201242201480.9957-100000@infcip10.uni-trier.de>
+	id <S290301AbSAXVKl>; Thu, 24 Jan 2002 16:10:41 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:62993 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S290300AbSAXVKa>; Thu, 24 Jan 2002 16:10:30 -0500
+Message-ID: <3C5076C1.DDEE200B@zip.com.au>
+Date: Thu, 24 Jan 2002 13:04:01 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Anish Srivastava <anishs@vsnl.com>
+CC: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        Andrea Arcangeli <andrea@suse.de>,
+        Rik van Riel <riel@conectiva.com.br>, alan@lxorguk.ukuu.org.uk
+Subject: Re: kernel 2.4.17 with -rmap VM patch ROCKS!!!
+In-Reply-To: <008301c1a4c1$a79f8fa0$3c00a8c0@baazee.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 Jan 2002, Martin Eriksson wrote:
+Anish Srivastava wrote:
+> 
+> Hi!
+> 
+> I installed kernel 2.4.17 on my SMP server with 8CPU's and 8GB RAM
+> and lets just say that whenever the entire physical memory was utilised
+> the box would topple over...with kswapd running a havoc on CPU utilization
+> So to avoid losing control I had to reboot every 8 hours.
+> 
 
-> Well I guess it's very mobo-dependent then. What I remember from the VCool
-> program is that it made windows go crazy on me. I dont know exactly what
-> happened, just that I removed vcool very quickly.
->
-> I just tried the function again, not using vcool, instead *only* enabling
-> bit 8 of register 0x52 ("Disconnect Enable When STPGNT Detected") with the
-> following results:
->
-> * No other (major) load than Winamp: Minor sound skips
-> * Winamp when reading from hard disk: Major sound skips
-> * Winamp when using distributed.net client: Almost no sound skips (one or
-> two on a 4 minute tune)
-> * Winamp when using distributed.net & using hard disk: Almost no sound skips
->
-> As both the HD controller and soundcard does much DMA, I guess it has some
-> connection to DMA transfers on the PCI bus?
->
-> OS: Windows 2000 Pro
-> Northbridge: VIA KT133
-> Southbridge: VIA 686B
-> CPU: Athlon(B) 1GHz
+The fact that the current stable version of the Linux kernel
+can only achieve an eight-hour uptime on this class of machine
+is a fairly serious problem, don't we all agree?
 
-i agree that this could be connected with dma transfers ... maybe the
-disconnect procedure disturbs dma transfers on slower cpus, where the
-disconnect/reconnect procedure takes to long ?
-maybe it is realy a metter of the motherboard ? who realy knows ? maybe a
-amd/via guru could answer this question ... at the moment i can't answer
-it ... and my system isn't affected by this sound skips ... so i even
-can'T make testes on it ...
-maybe someon with this skips could make some tests ?
-disabling/enabling dma , change some timings for pci bus in bios or such
-things ?
+We need a fix for 2.4.18.
 
-daniel
+Did you test the -aa patches?
 
-
-
-# Daniel Nofftz
-# Sysadmin CIP-Pool Informatik
-# University of Trier(Germany), Room V 103
-# Mail: daniel@nofftz.de
-
+-

@@ -1,47 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276231AbRI1Sgs>; Fri, 28 Sep 2001 14:36:48 -0400
+	id <S276233AbRI1Sis>; Fri, 28 Sep 2001 14:38:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276232AbRI1Sgi>; Fri, 28 Sep 2001 14:36:38 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:28936 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S276231AbRI1SgY>; Fri, 28 Sep 2001 14:36:24 -0400
-Date: Fri, 28 Sep 2001 15:36:33 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: bill davidsen <davidsen@tmr.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.9-ac16 good perfomer?
-In-Reply-To: <200109281826.f8SIQLP06585@deathstar.prodigy.com>
-Message-ID: <Pine.LNX.4.33L.0109281535220.26495-100000@duckman.distro.conectiva>
-X-supervisor: aardvark@nl.linux.org
+	id <S276232AbRI1Sii>; Fri, 28 Sep 2001 14:38:38 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:53257 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S276229AbRI1Si0>; Fri, 28 Sep 2001 14:38:26 -0400
+Subject: Re: Adding a printk in start_secondary breaks 2.4.10, not 2.4.9 ??
+To: Martin.Bligh@us.ibm.com
+Date: Fri, 28 Sep 2001 19:43:42 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        linux-kernel@vger.kernel.org (linux-kernel)
+In-Reply-To: <949648833.1001677028@[10.10.1.2]> from "Martin J. Bligh" at Sep 28, 2001 11:37:08 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15n2bu-000805-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 Sep 2001, bill davidsen wrote:
+> But this printk breaks a standard SMP machine without my patches (well,
+> just this tiny printk part), not just the NUMA boxes ....
 
->   I have been playing with 2.4.9-ac16 and I note that on a small machine
-> (without the highmem issues) it really seems much slower initially.
-> After startx I pop up netscape for a test, and it takes almost 50%
-> longer than 2.4.8-pre3 I've been running since it was new. After that it
-> seems okay but not wildly better, my aim was to be able to use netscape
-> and cdrecord and {anything_else} at the same time.
-
-Mmmm, interesting.  Could you send me a screen worth of
-top output and maybe 10 or 20 lines or so of 'vmstat 1'
-output, both taken while the machine is going through a
-hard time ?
-
-Lets try to resolve this issue while we're at it ;)
-
-regards,
-
-Rik
---
-IA64: a worthy successor to the i860.
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
-
+That makes the situation more interesting. Can you serialize the output
+and see why ?

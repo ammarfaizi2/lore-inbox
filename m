@@ -1,51 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263475AbUFJXnH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262963AbUFJXwd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263475AbUFJXnH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jun 2004 19:43:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263457AbUFJXnH
+	id S262963AbUFJXwd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jun 2004 19:52:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263457AbUFJXwd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jun 2004 19:43:07 -0400
-Received: from fire.osdl.org ([65.172.181.4]:14469 "EHLO fire-2.osdl.org")
-	by vger.kernel.org with ESMTP id S263551AbUFJXme (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jun 2004 19:42:34 -0400
-Subject: Re: sparse in compile stats
-From: John Cherry <cherry@osdl.org>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040606191830.GB2788@mars.ravnborg.org>
-References: <20040606191830.GB2788@mars.ravnborg.org>
-Content-Type: text/plain
-Message-Id: <1086910938.5884.79.camel@cherrybomb.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Thu, 10 Jun 2004 16:42:18 -0700
-Content-Transfer-Encoding: 7bit
+	Thu, 10 Jun 2004 19:52:33 -0400
+Received: from mx1.cs.washington.edu ([128.208.5.52]:1448 "EHLO
+	mx1.cs.washington.edu") by vger.kernel.org with ESMTP
+	id S262963AbUFJXwc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jun 2004 19:52:32 -0400
+Date: Thu, 10 Jun 2004 16:52:30 -0700 (PDT)
+From: Vadim Lobanov <vadim@cs.washington.edu>
+To: walt <wa1ter@myrealbox.com>
+cc: alan <alan@clueserver.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: Insults in the kernel-sources
+In-Reply-To: <40C8EC21.2090803@myrealbox.com>
+Message-ID: <20040610164948.N7071-100000@attu2.cs.washington.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam,
+On Thu, 10 Jun 2004, walt wrote:
 
-I am doing sparse runs now on all of linus' and andrew's kernels.  Since
-sparse is changing along with the kernel, comparing to older versions
-will not buy us much right now.  As sparse stabalizes, perhaps this
-would be an option.
-
-For the sparse runs, I am building with allmodconfig (bzImage and
-modules).
-
-John
-
-On Sun, 2004-06-06 at 12:18, Sam Ravnborg wrote:
-> Hi John.
+> alan wrote:
 > 
-> Recently Al Viro has put in a huge effort into sparse sanitize the kernel,
-> and likewise Linus has done several updates to sparse.
-> Net result is a _lot_ of sparse warnings removed, and very few (if any?) false positives.
+> > Turns out the Microsoft code has just as much profanity, if not more, than 
+> > the Linux kernel source.  (Of course, they have more to swear about...)
 > 
-> Do you think it is worth to include a sparse run when Linus does next -rc?
-> Comparing with older versions should only be for amusement, since Al and Linus did
-> such a big effor the last weeks.
+> Not that I doubt you for one second -- but I'd like to examine the M$ source
+> code for myself if you don't mind.  Only for the purpose of verifying your
+> somewhat unusual claim, naturally.
 > 
-> 	Sam
+> Oh, BTW, where can I find their source code...
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+Actually, in this area, Linux has MSWindows beaten hands down - the amount 
+of profanity in the Windows 2000 source code was actually not that great. 
+However, what MS lacks in profane comments, it makes up by sheer oddness - 
+some of the comments looked like they were written by someone on acid, and 
+were extraordinarily long (50 lines of comments to 3 lines of code was a 
+norm). Amusing reading overall, however.
+
+-VadimL
 

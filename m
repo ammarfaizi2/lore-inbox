@@ -1,41 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288255AbSA3DQS>; Tue, 29 Jan 2002 22:16:18 -0500
+	id <S288153AbSA3DLs>; Tue, 29 Jan 2002 22:11:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288256AbSA3DP6>; Tue, 29 Jan 2002 22:15:58 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:15630 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S288255AbSA3DPq>;
-	Tue, 29 Jan 2002 22:15:46 -0500
-Date: Wed, 30 Jan 2002 01:15:28 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: kaih@khms.westfalen.de (Kai Henningsen)
+	id <S288255AbSA3DLj>; Tue, 29 Jan 2002 22:11:39 -0500
+Received: from bitmover.com ([192.132.92.2]:65182 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S288153AbSA3DL3>;
+	Tue, 29 Jan 2002 22:11:29 -0500
+Date: Tue, 29 Jan 2002 19:11:28 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: "H. Peter Anvin" <hpa@zytor.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: A modest proposal -- We need a patch penguin
-Message-ID: <20020130031528.GF973@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	kaih@khms.westfalen.de (Kai Henningsen), linux-kernel@vger.kernel.org
-In-Reply-To: <20020129145344.GC2611@hydra> <8Ho-eesXw-B@khms.westfalen.de>
+Subject: Re: master.kernel.org situation update
+Message-ID: <20020129191128.B23269@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	"H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <a37lu4$q5a$1@tazenda.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <8Ho-eesXw-B@khms.westfalen.de>
-User-Agent: Mutt/1.3.25i
-X-Url: http://advogato.org/person/acme
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <a37lu4$q5a$1@tazenda.transmeta.com>; from hpa@transmeta.com on Tue, Jan 29, 2002 at 06:31:32PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Tue, Jan 29, 2002 at 10:03:00PM +0200, Kai Henningsen escreveu:
-> oxygene@studentenbude.ath.cx (Patrick Mauritz)  wrote on 29.01.02 in <20020129145344.GC2611@hydra>:
-> 
-> > On Tue, Jan 29, 2002 at 05:47:27PM +0100, Ingo Molnar wrote:
-> > > -M:	p2@ace.ulyssis.sutdent.kuleuven.ac.be
-                                ^^
-> > > +M:	p2@ace.ulyssis.student.ac.be
-> > fixing the fix:
-> > +M:	p2@ace.ulyssis.student.kuleuven.ac.be
-                        ^^
-> I thought that was the bouncing address?!
+On Tue, Jan 29, 2002 at 06:31:32PM -0800, H. Peter Anvin wrote:
+> The situation on master.kernel.org is looking pretty grim.  We were
+> trying to add disk capacity (the host uses a DAC960PRL RAID
+> controller) and the end result seems to be that a Mylex utility called
+> "ezsetup" has completely trashed the RAID configuration information.
+> What makes matters worse is that an MIS screwup here means no backups
+> have been running for a month or so.
 
-got it? :)
+This doesn't help you now, but what you just hit is why we take a 
+different approach to backups.  For any data we care about, we 
+stick in a 3ware 6410 controller, run it in JBOD mode, and have
+4 drives mounted as 
+	/home
+	/nightly
+	/weekly
+	/monthly
+and we copy all the data once a day to the appropriate spot.  On top
+of that, we run the gzip checksum over all the data and save a database
+of 
+	pathname, size, mtime, chksum
 
-- Arnaldo
+tuples and for all where path, size, mtime match we compare the chksum
+which had better be the same, otherwise the disk, filesystem, or memory
+has corrupted your data.  That way we get warned before all the backups
+are gone.
+
+Using a RAID is a losing proposition - it means you still have exactly 
+one copy of the data and no way to verify that it is correct.  The RAID
+just does what the fs/block layer tells it to do and if the upper layers
+are handing down bad data, the RAID will faithfully store that bad data.
+And you never know until you need it.
+
+The other nice thing about the 4 way mirror is that you can do stuff like
+
+	diff foo.c /nightly/$PWD
+
+and try and figure out what you were smoking when you made that change 
+before the coffee started working.
+
+I know this doesn't help right now and is probably unwelcome advice, but
+I'd encourage you to consider this approach in the future.  It's brute
+force but has huge advantages over tapes, RAID, etc.  You'd be back on 
+line right now, albeit with maybe 12 hour old data, if you had this.
+We have all our scripts in a BitKeeper repository and I'll happily give
+them to you if you want them.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

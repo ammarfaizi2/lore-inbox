@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262530AbTCMTJT>; Thu, 13 Mar 2003 14:09:19 -0500
+	id <S262544AbTCMTNe>; Thu, 13 Mar 2003 14:13:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262531AbTCMTJT>; Thu, 13 Mar 2003 14:09:19 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:54735
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262530AbTCMTJQ>; Thu, 13 Mar 2003 14:09:16 -0500
-Subject: Re: OOPS in 2.4.21-pre5, ide-scsi
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: Willy Gardiol <gardiol@libero.it>, Jens Axboe <axboe@suse.de>,
-       James Stevenson <james@stev.org>,
-       Stephan von Krawczynski <skraw@ithnet.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-In-Reply-To: <Pine.LNX.4.10.10303131048370.391-100000@master.linux-ide.org>
-References: <Pine.LNX.4.10.10303131048370.391-100000@master.linux-ide.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1047587282.26978.5.camel@irongate.swansea.linux.org.uk>
+	id <S262545AbTCMTNe>; Thu, 13 Mar 2003 14:13:34 -0500
+Received: from thunk.org ([140.239.227.29]:62139 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id <S262544AbTCMTNd>;
+	Thu, 13 Mar 2003 14:13:33 -0500
+Date: Thu, 13 Mar 2003 14:23:54 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: sct@redhat.com, Alex Tomas <bzzz@tmi.comex.ru>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       ext2-devel@lists.sourceforge.net, Andrew Morton <akpm@digeo.com>
+Subject: Re: [Ext2-devel] [PATCH] concurrent block allocation for ext2 against 2.5.64
+Message-ID: <20030313192354.GA4777@think.thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>, sct@redhat.com,
+	Alex Tomas <bzzz@tmi.comex.ru>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	ext2-devel@lists.sourceforge.net, Andrew Morton <akpm@digeo.com>
+References: <m3el5bmyrf.fsf@lexa.home.net> <20030313103948.Z12806@schatzie.adilger.int>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 13 Mar 2003 20:28:03 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030313103948.Z12806@schatzie.adilger.int>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-03-13 at 18:50, Andre Hedrick wrote:
-> Alan,
+On Thu, Mar 13, 2003 at 10:39:48AM -0700, Andreas Dilger wrote:
+> Sadly, we are constantly diverging the ext2/ext3 codebases.  Lots of
+> features are going into ext3, but lots of fixes/improvements are only
+> going into ext2.  Is ext3 holding BKL for doing journal_start() still?
 > 
-> Did we not fix this problem when HP addressed it with the ia64 stuff?
+> Looking at ext3_prepare_write() we grab the BKL for doing journal_start()
+> and for journal_stop(), but I don't _think_ we need BKL for journal_stop()
+> do we?  We may or may not need it for the journal_data case, but that is
+> not even working right now I think.
 
-I've been working through a set of DMA problems. The PIO/DMA switching
-timing out is fixed and has been for a while. I've very recently fixed a
-race where we could get a command issued while resetting an interface.
+We badly need to remove the BKL from ext3; it's the source of massive
+performance problems for ext3 on larger machines.  
 
-With 2.4.x the reports I have make me think there are more races in
-ide-scsi left. With 2.5.x its completely broken. Someone rewrote the
-abort/reset handling, some other people rewrote the scsi core and the
-result needs significant work yet
+Stephen, you were telling me a week or two ago that there were some
+subtle issues involved with BKL removal from the jbd layer --- could
+you give us a quick summary of what landminds are there for whoever
+wants to try to tackle the ext3/jbd BKL removal?
 
-> Additionally I have finally found a long outstanding bug in the
-> buildsgtable in ide-dma.c.  I just need to reverify the nature.  It has to
-> do with the execution of the EOT bit in the last segment.  This would also
-> explain why we are seeing expiry dma timeouts.
-
-Cool
+						- Ted

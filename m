@@ -1,64 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261520AbVC2WED@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261527AbVC2WGT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261520AbVC2WED (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 17:04:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261524AbVC2WED
+	id S261527AbVC2WGT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 17:06:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261535AbVC2WGO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 17:04:03 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:59352 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261520AbVC2WDq (ORCPT
+	Tue, 29 Mar 2005 17:06:14 -0500
+Received: from gate.crashing.org ([63.228.1.57]:33250 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261527AbVC2WEk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 17:03:46 -0500
-Date: Tue, 29 Mar 2005 14:01:06 -0800
-From: Paul Jackson <pj@engr.sgi.com>
-To: Jay Lan <jlan@engr.sgi.com>
-Cc: johnpol@2ka.mipt.ru, guillaume.thouvenin@bull.net, akpm@osdl.org,
-       greg@kroah.com, linux-kernel@vger.kernel.org, efocht@hpce.nec.com,
-       linuxram@us.ibm.com, gh@us.ibm.com, elsa-devel@lists.sourceforge.net
-Subject: Re: [patch 1/2] fork_connector: add a fork connector
-Message-Id: <20050329140106.2a9b8aa5.pj@engr.sgi.com>
-In-Reply-To: <4249C418.5040007@engr.sgi.com>
-References: <1111745010.684.49.camel@frecb000711.frec.bull.fr>
-	<20050328134242.4c6f7583.pj@engr.sgi.com>
-	<1112079856.5243.24.camel@uganda>
-	<20050329004915.27cd0edf.pj@engr.sgi.com>
-	<1112092197.5243.80.camel@uganda>
-	<20050329090304.23fbb340.pj@engr.sgi.com>
-	<4249C418.5040007@engr.sgi.com>
-Organization: SGI
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 29 Mar 2005 17:04:40 -0500
+Subject: Re: Mac mini sound woes
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: Lee Revell <rlrevell@joe-job.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <s5hu0mugsg2.wl@alsa2.suse.de>
+References: <1111966920.5409.27.camel@gaston>
+	 <1112067369.19014.24.camel@mindpipe> <s5h8y46kbx7.wl@alsa2.suse.de>
+	 <1112094290.6577.19.camel@gaston> <1112123109.4922.3.camel@mindpipe>
+	 <s5hu0mugsg2.wl@alsa2.suse.de>
+Content-Type: text/plain
+Date: Wed, 30 Mar 2005 08:03:40 +1000
+Message-Id: <1112133820.5353.33.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jay wrote:
-> The fork_connector is not designed to solve accounting data collection
-> problem.
+On Tue, 2005-03-29 at 21:31 +0200, Takashi Iwai wrote:
+> At Tue, 29 Mar 2005 14:05:08 -0500,
+> Lee Revell wrote:
+> > 
+> > On Tue, 2005-03-29 at 21:04 +1000, Benjamin Herrenschmidt wrote:
+> > > Can the driver advertize in some way what it can do ? depending on the
+> > > machine we are running on, it will or will not be able to do HW volume
+> > > control... You probably don't want to use softvol in the former case...
+> > > 
+> > > dmix by default would be nice though :)
+> > 
+> > No, there's still no way to ask the driver whether hardware mixing is
+> > supported yet.  It's come up on alsa-devel before.  Patches are welcome.
+> 
+> Well I don't remember the discussion thread on alsa-devel about this,
+> but it's a good idea that alsa-lib checks the capability of hw-mixing
+> and apples dmix only if necessary.  (In the case of softvol, it can
+> check the existence of hw control by itself, though.)
 
-I don't think I ever said it was designed for that purpose.
+Well, for pmac at least, we'll need dmix all the time, but softvol
+should be based on what the driver advertises yes.
 
-Indeed, I will confess to not yet knowing the 'real' purpose of its
-design.
-
-
-> It was never the fork_connector's
-> intention to piggy back the data to the accounting file.
-
-I am sure that was not its intention, and I can't imagine I would ever
-have said it was.
-
-
-> CSA needs a similar hook off do_exit() to
-> collect more accounting data and write to disk in different
-> accounting records format.
-
-Aha - as I suspected - there will be more data to collect, in addition
-to both the classic bsd accounting records at exit, and the <parent pid,
-child pid> at fork.
-
+> Currently, dmix is enabled per driver-type base.  That is, dmix is set
+> to default in each driver's configuration which is known to have no hw
+> mixing functionality.
+> 
+> > dmix by default would not be nice as users who have sound cards that can
+> > do hardware mixing would be annoyed.  However, in the upcoming 1.0.9
+> > release softvol will be used by default for all the mobo chipsets.
+> 
+> On 1.0.9, dmix will be default, too, for most of mobo drivers.
+> 
+> 
+> Takashi
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401
+Benjamin Herrenschmidt <benh@kernel.crashing.org>
+

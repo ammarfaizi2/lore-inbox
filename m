@@ -1,44 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283691AbRLECRu>; Tue, 4 Dec 2001 21:17:50 -0500
+	id <S283698AbRLECg4>; Tue, 4 Dec 2001 21:36:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283693AbRLECRa>; Tue, 4 Dec 2001 21:17:30 -0500
-Received: from carlsberg.amagerkollegiet.dk ([194.182.238.3]:34067 "HELO
-	carlsberg.amagerkollegiet.dk") by vger.kernel.org with SMTP
-	id <S283691AbRLECRW>; Tue, 4 Dec 2001 21:17:22 -0500
-Date: Wed, 5 Dec 2001 03:17:17 +0100 (CET)
-From: =?iso-8859-1?Q?Rasmus_B=F8g_Hansen?= <moffe@amagerkollegiet.dk>
-To: Erik Tews <erik.tews@gmx.net>
-cc: Roy Sigurd Karlsbakk <roy@karlsbakk.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: tuning ext2 or ReiserFS to avoid fragmentation with large files?
-In-Reply-To: <20011204142047.N11967@no-maam.dyndns.org>
-Message-ID: <Pine.LNX.4.33.0112050315450.2930-100000@grignard.amagerkollegiet.dk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S283699AbRLECgq>; Tue, 4 Dec 2001 21:36:46 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:41383 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S283698AbRLECgk>;
+	Tue, 4 Dec 2001 21:36:40 -0500
+Date: Tue, 04 Dec 2001 18:36:01 -0800 (PST)
+Message-Id: <20011204.183601.22018455.davem@redhat.com>
+To: lm@bitmover.com
+Cc: Martin.Bligh@us.ibm.com, riel@conectiva.com.br, lars.spam@nocrew.org,
+        alan@lxorguk.ukuu.org.uk, hps@intermeta.de,
+        linux-kernel@vger.kernel.org
+Subject: Re: SMP/cc Cluster description
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20011204163646.M7439@work.bitmover.com>
+In-Reply-To: <Pine.LNX.4.33L.0112042129160.4079-100000@imladris.surriel.com>
+	<2457910296.1007480257@mbligh.des.sequent.com>
+	<20011204163646.M7439@work.bitmover.com>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 Dec 2001, Erik Tews wrote:
+   From: Larry McVoy <lm@bitmover.com>
+   Date: Tue, 4 Dec 2001 16:36:46 -0800
+   
+   OK, so start throwing stones at this.  Once we have a memory model that
+   works, I'll go through the process model.
 
-> If I remember right xfs has got a online-defragmentation utility. So
-> have a look at xfs.
-> 
-> I think xfs works different from reiserfs and ext2 when writing files to
-> disk which helps avoiding fragmentation. This feature is called
-> allocation groups.
+What is the difference between your messages and spin locks?
+Both seem to shuffle between cpus anytime anything interesting
+happens.
 
-I *might* be wrong, but isn't the allocation-group thing exactly what 
-ext2/ext3 does?
-
-I don't know about reiserfs and fragmentation, however.
-
-Rasmus
-
--- 
--- [ Rasmus 'Møffe' Bøg Hansen ] ---------------------------------------
-Beware of bugs in the above code;
-I have only proved it correct, not tried it.
-                              - Donald Knuth
---------------------------------- [ moffe at amagerkollegiet dot dk ] --
-
+In the spinlock case, I can thread out the locks in the page cache
+hash table so that the shuffling is reduced.  In the message case, I
+always have to talk to someone.

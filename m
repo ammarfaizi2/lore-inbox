@@ -1,59 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129143AbRA3GCZ>; Tue, 30 Jan 2001 01:02:25 -0500
+	id <S129175AbRA3GEQ>; Tue, 30 Jan 2001 01:04:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129175AbRA3GCP>; Tue, 30 Jan 2001 01:02:15 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:8832 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S129143AbRA3GB4>;
-	Tue, 30 Jan 2001 01:01:56 -0500
+	id <S130090AbRA3GD4>; Tue, 30 Jan 2001 01:03:56 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:10368 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S129175AbRA3GDp>;
+	Tue, 30 Jan 2001 01:03:45 -0500
 From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <14966.22671.446439.838872@pizda.ninka.net>
-Date: Mon, 29 Jan 2001 22:00:47 -0800 (PST)
-To: Andrew Morton <andrewm@uow.edu.au>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-        "netdev@oss.sgi.com" <netdev@oss.sgi.com>
-Subject: Re: sendfile+zerocopy: fairly sexy (nothing to do with ECN)
-In-Reply-To: <3A728475.34CF841@uow.edu.au>
-In-Reply-To: <3A726087.764CC02E@uow.edu.au>
-	<20010126222003.A11994@vitelus.com>
-	<3A728475.34CF841@uow.edu.au>
+Message-ID: <14966.22796.108350.287511@pizda.ninka.net>
+Date: Mon, 29 Jan 2001 22:02:52 -0800 (PST)
+To: Ion Badulescu <ionut@cs.columbia.edu>
+Cc: <kuznet@ms2.inr.ac.ru>, <linux-kernel@vger.kernel.org>
+Subject: Re: [UPDATE] Zerocopy patches, against 2.4.1-pre10
+In-Reply-To: <Pine.LNX.4.30.0101271245240.20615-200000@age.cs.columbia.edu>
+In-Reply-To: <200101271839.VAA02790@ms2.inr.ac.ru>
+	<Pine.LNX.4.30.0101271245240.20615-200000@age.cs.columbia.edu>
 X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-The "more expensive" write/send in zerocopy is a known cost of paged
-SKBs.  This cost may be decreased a bit with some fine tuning, but not
-eliminated entirely.
+Ion Badulescu writes:
+ > I've attached a diff for the latest driver (and firmware) version, against
+ > 2.4.1pre10+zerocopy. Sorry about MIME, but my pine is currently broken
+ > (strips trailing spaces/tabs).
 
-What do we get for this cost?
+Ok.
 
-Basically, the big win is not that the card checksums the packet.
-We could get that for free while copying the data from userspace
-into the kernel pages during the sendmsg(), using the combined
-"copy+checksum" hand-coded assembly routines we already have.
+Ion, I'll start to include your Starfire changes once the
+firmware distribution issue is worked out, so please get it
+resolved for me as I want to include your work, ok?
 
-It is in fact the better use of memory.  Firstly, we use page
-allocations, only single ones.  With linear buffers SLAB could
-use multiple pages which strain the memory subsystem quite a bit at
-times.  Secondly, we fill pages with socket data precisely whereas
-SLAB can only get as tight packing as any general purpose memory
-allocator can.
-
-This, I feel, outweighs the slight performance decrease.  And I would
-wager a bet that the better usage of memory will result in better
-all around performance.
-
-The problem with microscopic tests is that you do not see the world
-around the thing being focused on.  I feel Andrew/Jamal's test are
-very valuable, but lets keep things in perspective when doing cost
-analysis.
-
-Finally, please do some tests on loopback.  It is usually a great
-way to get "pure software overhead" measurements of our TCP stack.
+Thanks.
 
 Later,
 David S. Miller

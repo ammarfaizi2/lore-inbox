@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262260AbSJJV1I>; Thu, 10 Oct 2002 17:27:08 -0400
+	id <S262084AbSJJVgY>; Thu, 10 Oct 2002 17:36:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262261AbSJJV1H>; Thu, 10 Oct 2002 17:27:07 -0400
-Received: from ns2.welch-spires.org ([63.224.205.131]:28851 "EHLO
-	linux.superlucidity.net") by vger.kernel.org with ESMTP
-	id <S262260AbSJJV1H>; Thu, 10 Oct 2002 17:27:07 -0400
-Message-ID: <3DA5F1FA.7070901@superlucidity.net>
-Date: Thu, 10 Oct 2002 14:32:42 -0700
-From: Zach Welch <zwelch@superlucidity.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux ppc; en-US; rv:1.0.0) Gecko/20020828
-X-Accept-Language: en-us, en
+	id <S262246AbSJJVgY>; Thu, 10 Oct 2002 17:36:24 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:29190
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S262084AbSJJVgX>; Thu, 10 Oct 2002 17:36:23 -0400
+Date: Thu, 10 Oct 2002 14:41:38 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Bartlomiej Zolnierkiewicz <bkz@linux-ide.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Task Share Maintainership
+Message-ID: <Pine.LNX.4.10.10210101435490.9997-100000@master.linux-ide.org>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Vojtech Pavlik <vojtech@suse.cz>, Maciej Babinski <maciej@imsa.edu>
-Subject: Re: uinput oops in 2.5.41
-References: <20021009035041.A6226@imsa.edu> <20021009114238.A11161@ucw.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik wrote:
-> On Wed, Oct 09, 2002 at 03:50:41AM -0500, Maciej Babinski wrote:
-> 
->>I get a NULL pointer dereference by running "cat" on /dev/misc/uinput
->>I'm a newbie, but I think the patch at the bottom fixes it.
-> 
-> 
-> Your patch is almost correct - you have to keep both the checks. The
-> first could happen when the device disappears while being waited for.
-> 
 
-I've added this to my backport to 2.4.  I'll be posting it very shortly 
-under the subject 'backport of uinput.c to 2.4, fixes for 2.5'.  This 
-will include numerous additional fixes to uinput.c.
+Greetings Bartlomiej,
+
+It is time for you to step up to the plate!
+
+As many people know, Bartlomiej is someone whom I trust with the driver
+without reservations.  Since I am off working on several other issues, I
+would request the Maintainership be dual duty split over all kernel
+versions regardless.  I am hoping Bartlomiej will accept the shared task
+and everyone will accept his input without question, this includes me too.
+
+I will still be around and active; however, the task is so large now it
+truly does require a team.  Please sign up to help Bart.
 
 Cheers,
 
-Zach Welch
-Superlucidity Services
+Andre Hedrick
+LAD Storage Consulting Group
 

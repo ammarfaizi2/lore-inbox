@@ -1,53 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316783AbSE0XbI>; Mon, 27 May 2002 19:31:08 -0400
+	id <S316782AbSE0X2h>; Mon, 27 May 2002 19:28:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316785AbSE0XbH>; Mon, 27 May 2002 19:31:07 -0400
-Received: from [209.184.141.163] ([209.184.141.163]:55196 "HELO UberGeek")
-	by vger.kernel.org with SMTP id <S316783AbSE0XbG>;
-	Mon, 27 May 2002 19:31:06 -0400
-Subject: Re: business models [was patent stuff]
-From: Austin Gonyou <austin@digitalroadkill.net>
-To: Karim Yaghmour <karim@opersys.com>
-Cc: Larry McVoy <lm@bitmover.com>, "Adam J. Richter" <adam@yggdrasil.com>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3CF2BE26.4FF03387@opersys.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
-Date: 27 May 2002 18:31:02 -0500
-Message-Id: <1022542262.29146.19.camel@UberGeek>
-Mime-Version: 1.0
+	id <S316783AbSE0X2g>; Mon, 27 May 2002 19:28:36 -0400
+Received: from nick.dcs.qmul.ac.uk ([138.37.88.61]:60803 "EHLO
+	nick.dcs.qmul.ac.uk") by vger.kernel.org with ESMTP
+	id <S316782AbSE0X2g>; Mon, 27 May 2002 19:28:36 -0400
+Date: Tue, 28 May 2002 00:28:36 +0100 (BST)
+From: Matt Bernstein <matt@theBachChoir.org.uk>
+To: Benjamin LaHaise <bcrl@redhat.com>
+cc: Jes Sorensen <jes@wildopensource.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: VM oops in RH7.3 2.4.18-3
+In-Reply-To: <20020527123912.A15560@redhat.com>
+Message-ID: <Pine.LNX.4.44.0205280026160.13855-100000@nick.dcs.qmul.ac.uk>
+X-URL: http://www.theBachChoir.org.uk/
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-uvscan-result: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Man..it's like Farenheit 451, but more like "Hex 0xffff"
+On May 27 Benjamin LaHaise wrote:
 
-On Mon, 2002-05-27 at 18:15, Karim Yaghmour wrote:
-...
-> I predict the inverse. Of course, people will actually try to use patents to
-> restrict free and open source software. And of course, they will push this
-> as hard and as far as they can. The community, however, will always find
-> alternative ways to obtain the same results and, in the end, no client wil
-> use the patent holder's products or services. Instead, they will use the
-> community's alternative solutions.
-> 
-> You would like the open source and free software communities to get used
-> to having their rights being violated. I think the software "manufacturers"
-> better get used to the fact that they can't outsmart the community,
-> regardless of the legal/political/financial tools they use.
+>On Mon, May 27, 2002 at 10:33:12AM -0400, Jes Sorensen wrote:
+>> >>>>> "Matt" == Matt Bernstein <matt@theBachChoir.org.uk> writes:
+>>
+>> Matt> This is a dual Athlon, 1 gig registered ECC DDR RAM, will try
+>> Matt> 2.4.18-4 but it doesn't look ext3-related (the only big local
+>> Matt> filesystem is reiserfs over s/w raid0).
+>>
+>> Please send this to Red Hat before the kernel list. They are
+>> responsible for maintaining their kernel.
+>
+>I'm sure Rik is interested in any feedback on the rmap patches that
+>occur out in the wild...  even if they happen in vendor kernels.  With
+>that said, we appreciate getting bugs like this filed in bugzilla.
 
+Thanks--I'll see what I can do, though I really don't have much more to go
+on than the oops. I think power supply / cooling are not to blame.. :-/
 
-I tend to agree with Karim here for sure. It's human nature to overcome
-adversity, and this is adversity in one frame of mind, not from
-different points of view. (Just to clarify the MPAA see adversity in
-certain aspects of the OSS community I think, but they're the opressors,
-not us).
+Matt
 
-Also, in the paragraph about "GPL or bugger off", if you feel it's over
-the top, then it's possible others will too, and then it's simply
-survival of the fittest. People must change to a degree, but the message
-they carry is, and probably will remain, the same. 
-
-Austin

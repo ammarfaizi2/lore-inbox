@@ -1,44 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261250AbTIOPbs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 11:31:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261263AbTIOPbs
+	id S261471AbTIOPiN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 11:38:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261477AbTIOPiN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 11:31:48 -0400
-Received: from dmesg.printk.net ([212.13.197.101]:42629 "EHLO dmesg")
-	by vger.kernel.org with ESMTP id S261250AbTIOPbr (ORCPT
+	Mon, 15 Sep 2003 11:38:13 -0400
+Received: from pat.uio.no ([129.240.130.16]:40632 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S261471AbTIOPiK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 11:31:47 -0400
-Message-ID: <60603.62.173.87.60.1063639907.squirrel@mail.printk.net>
-Date: Mon, 15 Sep 2003 16:31:47 +0100 (BST)
-Subject: /proc/sys sysrq
-From: "Jon Masters" <jcm@printk.net>
-To: <linux-kernel@vger.kernel.org>
-X-Priority: 3
-Importance: Normal
-X-MSMail-Priority: Normal
-Cc: <jcm@jonmasters.org>
-X-Mailer: SquirrelMail (version 1.2.6)
+	Mon, 15 Sep 2003 11:38:10 -0400
+To: russell@coker.com.au
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Oops on 2.4.22 when mounting from broken NFS server
+References: <200309131938.40177.russell@coker.com.au>
+	<200309152247.20462.russell@coker.com.au>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 15 Sep 2003 11:38:03 -0400
+In-Reply-To: <200309152247.20462.russell@coker.com.au>
+Message-ID: <shs3ceyjc4k.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
+X-UiO-MailScanner: No virus found
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
+Without a tcpdump, there's no way to know why this dumped. In what way
+was the NFS server broken, and exactly how do you expect the Linux NFS
+client to protect you against it?
 
-Someone recently posted a message to Linux Managers about rebooting a box
-with a failed drive and no serial console from a remote location. It
-turned out in that instance that there was another drive and enough
-working to copy a simple reboot binary to it.
-
-Anyway I was wondering whether there is an official "alternative sysrq" in
-/proc/sys or if it would be worth me writing a patch to add things like a
-reboot entry one could cat "feeldead" to or whatever...is this even worth
-doing or been done?
-
-Jon.
-
-
-
+Cheers,
+  Trond

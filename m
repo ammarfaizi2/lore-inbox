@@ -1,40 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262671AbTELUlA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 16:41:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262676AbTELUlA
+	id S262598AbTELUjD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 16:39:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262609AbTELUjD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 16:41:00 -0400
-Received: from 66-122-194-202.ded.pacbell.net ([66.122.194.202]:22242 "HELO
-	mail.keyresearch.com") by vger.kernel.org with SMTP id S262671AbTELUk6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 16:40:58 -0400
-Subject: USB mouse freezes under X, 2.5.69-mm3
-From: "Bryan O'Sullivan" <bos@serpentine.com>
-To: linux-kernel@vger.kernel.org
-Cc: greg@kroah.com
-Content-Type: text/plain
-Organization: 
-Message-Id: <1052772819.4835.6.camel@serpentine.internal.keyresearch.com>
+	Mon, 12 May 2003 16:39:03 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:971 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S262598AbTELUjC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 16:39:02 -0400
+Date: Mon, 12 May 2003 22:51:40 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: 2.5.69-mjb1: undefined reference to `blk_queue_empty'
+Message-ID: <20030512205139.GT1107@fs.tum.de>
+References: <9380000.1052624649@[10.10.2.4]>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 12 May 2003 13:53:39 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9380000.1052624649@[10.10.2.4]>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I occasionally see my USB mouse freeze up under X11 on a Red Hat 9
-system running 2.5.69-mm3.  It completely stops responding to events
-until I either switch virtual terminals or restart X, then magically
-comes back to life.
+<--  snip  -->
 
-There are no entries in /var/log/messages to indicate what might be
-going on, so I'm quite mystified.
+...
+  gcc -Wp,-MD,drivers/dump/.dump_blockdev.o.d -D__KERNEL__ -Iinclude 
+-Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe 
+-mpreferred-stack-boundary=2 -march=k6 -Iinclude/asm-i386/mach-default 
+-fomit-frame-pointer -nostdinc -iwithprefix include    -DKBUILD_BASENAME=dump_blockdev 
+\-DKBUILD_MODNAME=dump_blockdev -c -o drivers/dump/dump_blockdev.o 
+drivers/dump/dump_blockdev.c
+drivers/dump/dump_blockdev.c: In function `dump_block_silence':
+drivers/dump/dump_blockdev.c:264: warning: implicit declaration of function `blk_queue_empty'
+...
+386/oprofile/built-in.o  net/built-in.o --end-group  -o .tmp_vmlinux1
+drivers/built-in.o(.text+0x77edaf): In function `dump_block_silence':
+: undefined reference to `blk_queue_empty'
+...
+make: *** [.tmp_vmlinux1] Error 1
 
-This is on a system with USB compiled in modular form, though I notice
-that, weirdly enough, the refcounts on everything USB-related except
-usbcore are zero (i.e. hid, uhci_hcd, ehci_hcd), even though I'm using
-the USB mouse right now.
+<--  snip  -->
 
-	<b
+This is the only occurence of blk_queue_empty in the whole kernel tree.
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

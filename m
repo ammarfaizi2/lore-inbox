@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267633AbTBEAyL>; Tue, 4 Feb 2003 19:54:11 -0500
+	id <S267650AbTBEBIL>; Tue, 4 Feb 2003 20:08:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267636AbTBEAyL>; Tue, 4 Feb 2003 19:54:11 -0500
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:56841 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S267633AbTBEAyL>; Tue, 4 Feb 2003 19:54:11 -0500
-Date: Wed, 5 Feb 2003 02:03:38 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: "Robert P. J. Day" <rpjday@mindspring.com>
-cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: cleanup of filesystems menu
-In-Reply-To: <Pine.LNX.4.44.0302041512090.16603-100000@dell>
-Message-ID: <Pine.LNX.4.44.0302050148490.32518-100000@serv>
-References: <Pine.LNX.4.44.0302041512090.16603-100000@dell>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267651AbTBEBIL>; Tue, 4 Feb 2003 20:08:11 -0500
+Received: from zok.sgi.com ([204.94.215.101]:6283 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S267650AbTBEBIK>;
+	Tue, 4 Feb 2003 20:08:10 -0500
+Date: Tue, 4 Feb 2003 17:17:43 -0800
+From: Jesse Barnes <jbarnes@sgi.com>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: MAINTAINERS update for SN support
+Message-ID: <20030205011743.GA26333@sgi.com>
+Mail-Followup-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Quick add to the maintainers file for SN (aka Altix 3000) support in
+the kernel.
 
-On Tue, 4 Feb 2003, Robert P. J. Day wrote:
+Thanks,
+Jesse
 
->   http://www.xenotime.net/linux/kconfig/kconfig-fs-2.5.59b.patch
-> 
-> currently, it still has leading asterisks in front of the
-> config entries to support editing in emacs outline mode, 
-> but future patches will have these removed.
 
-Hmm, you are abusing comments somewhat, please don't use "<<<< ... >>>>"
-If there is a large group of options it should be in it's own submenu or 
-I'd rather add something else to group these options logically together.
-Maybe it's better to just sort the options logically in the first step and 
-do the rest separately.
-
-bye, Roman
-
+--- linux-2.5.59/MAINTAINERS	Thu Jan 16 18:22:18 2003
++++ linux-2.5.59-ia64/MAINTAINERS	Mon Feb  3 14:37:59 2003
+@@ -797,6 +797,13 @@
+ W:	http://www.linuxia64.org/
+ S:	Maintained
+ 
++SN-IA64 (Itanium) SUB-PLATFORM
++P:	Jesse Barnes
++M:	jbarnes@sgi.com
++L:	linux-ia64@linuxia64.org
++W:	http://www.sgi.com/altix
++S:	Maintained
++
+ IBM MCA SCSI SUBSYSTEM DRIVER
+ P:	Michael Lang
+ M:	langa2@kph.uni-mainz.de

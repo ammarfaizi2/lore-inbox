@@ -1,39 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262098AbTJSTvh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Oct 2003 15:51:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262131AbTJSTvh
+	id S262177AbTJSTyd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Oct 2003 15:54:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262190AbTJSTyd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Oct 2003 15:51:37 -0400
-Received: from ms-smtp-03.nyroc.rr.com ([24.92.226.153]:2715 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S262098AbTJSTvR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Oct 2003 15:51:17 -0400
-Message-ID: <3F92EBDB.8080407@maine.rr.com>
-Date: Sun, 19 Oct 2003 15:54:03 -0400
-From: "David B. Stevens" <dsteven3@maine.rr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
+	Sun, 19 Oct 2003 15:54:33 -0400
+Received: from ncircle.nullnet.fi ([62.236.96.207]:1990 "EHLO
+	ncircle.nullnet.fi") by vger.kernel.org with ESMTP id S262177AbTJSTyb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Oct 2003 15:54:31 -0400
+Message-ID: <50690.192.168.9.10.1066593270.squirrel@ncircle.nullnet.fi>
+In-Reply-To: <1066592564.745.12.camel@bonnie79>
+References: <1066592564.745.12.camel@bonnie79>
+Date: Sun, 19 Oct 2003 22:54:30 +0300 (EEST)
 Subject: Re: HighPoint 374
-References: <00b801c3955c$7e623100$0514a8c0@HUSH> <1066579176.7363.3.camel@milo.comcast.net> <41102.192.168.9.10.1066584247.squirrel@ncircle.nullnet.fi> <yw1x3cdpgm46.fsf@users.sourceforge.net> <48232.192.168.9.10.1066590873.squirrel@ncircle.nullnet.fi> <yw1xy8vhf247.fsf@users.sourceforge.net>
-In-Reply-To: <yw1xy8vhf247.fsf@users.sourceforge.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+From: "Tomi Orava" <Tomi.Orava@ncircle.nullnet.fi>
+To: christian.guggenberger@physik.uni-regensburg.de
+Cc: linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tomi,
 
-I also copied you in my email to Carlos.  But my email got bounced.
 
-You might be interested in the problems with Seagate 120 GB drive thread.
+>>There really must be some explanation why some of us are
+>>having really huge problems with HPT374-contollers while for
+>>others it's working just fine. I haven't exactly heard anyone
+>>been too succesfull for example with Epox 8K9A3+ motherboard
+>>even on this mailing-list based on previous questions seen here.
+>
+> well, it's not an Epox 8k9a3+ here, but an 8k5a3+ with two HPT374 onboard
+> and it is working well with recent 2.6.0-test* kernels.
+> I also just use JBOD - only one disk connected as /dev/hde to the first
+> HPT 374,
+> an IBM-DTLA-305040, and I really don't see any probs here.
 
-Multiple controllers and hard drive mentioned.
+Ok, this is good to know. Have you ever tried 2.4 based kernels with
+that motherboard ? Also, have you ever tried running multiple
+drives with that controller ? Somehow I still have this feeling
+that with only one disk connected to a HPT374-controller it might
+work without problems, while with multiple disks it becomes
+unstable (this is the case with a a friends Epox 4PCA3+
+based machine in addition to my two machines).
 
-Cheers,
-   Dave
+Can you perhaps send me off-the-list your .config and output of
+/proc/interrupts so that I could compare those to mine ?
 
+Regards,
+Tomi Orava
 
 

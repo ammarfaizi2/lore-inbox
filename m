@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269777AbRIHOWz>; Sat, 8 Sep 2001 10:22:55 -0400
+	id <S269815AbRIHOuw>; Sat, 8 Sep 2001 10:50:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269739AbRIHOWq>; Sat, 8 Sep 2001 10:22:46 -0400
-Received: from mailout05.sul.t-online.com ([194.25.134.82]:19464 "EHLO
-	mailout05.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S269777AbRIHOWg>; Sat, 8 Sep 2001 10:22:36 -0400
-Date: 08 Sep 2001 15:16:00 +0200
-From: kaih@khms.westfalen.de (Kai Henningsen)
+	id <S269829AbRIHOum>; Sat, 8 Sep 2001 10:50:42 -0400
+Received: from web20309.mail.yahoo.com ([216.136.226.90]:19983 "HELO
+	web20309.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S269815AbRIHOua>; Sat, 8 Sep 2001 10:50:30 -0400
+Message-ID: <20010908145050.85837.qmail@web20309.mail.yahoo.com>
+Date: Sat, 8 Sep 2001 07:50:50 -0700 (PDT)
+From: Ethan Baldridge <marginal_warfare@yahoo.com>
+Subject: AGPgart broken in 2.4.9-ac9 for Via KT266
 To: linux-kernel@vger.kernel.org
-Message-ID: <88VMSqt1w-B@khms.westfalen.de>
-In-Reply-To: <20010907112935.A26353@castle.nmd.msu.ru>
-Subject: Re: notion of a local address [was: Re: ioctl SIOCGIFNETMASK: ip alias
-X-Mailer: CrossPoint v3.12d.kh7 R/C435
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Organization: Organisation? Me?! Are you kidding?
-In-Reply-To: <20010906235157.D11046@mea-ext.zmailer.org> <20010906212303.A23595@castle.nmd.msu.ru> <20010906173948.502BFBC06C@spike.porcupine.org> <20010906235157.D11046@mea-ext.zmailer.org> <20010907112935.A26353@castle.nmd.msu.ru>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
-X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-saw@saw.sw.com.sg (Andrey Savochkin)  wrote on 07.09.01 in <20010907112935.A26353@castle.nmd.msu.ru>:
+It detects the AGP chipset fine, but when X starts,
+it displays garbage and hard locks the console.
 
-[MTA]
+I know it's not an issue with the Radeon DRI driver,
+as I compiled the radeon.o module directly out of the
+same XFree86 CVS download I was using before I
+upgraded my motherboard.
 
-> But how do you check for the destination IP being in the "local ones"?
+On load the agpgart module does give an odd message:
+agpgart: unable to get minor: 175
 
-Exim does it like this (approximately):
+I checked /dev/agpgart, and it is definitely minor
+175.
+What does it mean it can't get that minor?
 
-1. There is a list of domains considered "local".
+Please CC any responses to me, as I am not subscribed
+to the list.
 
-2. There is an option that means the list will automatically contain the  
-local hostname
+Thank you very much!
 
-3. There is another option that says the list will automatically include  
-the [] notion of local interface addresses, as determined the usual way
+Ethan Baldridge
 
-4. The admin can add to that list anything (s)he wants.
-
-(Note: 2 and 3 are both optional!)
-
-As for netmasks: just use netmask notation when configuring how to treat  
-hosts (such as who to allow relaying for). The probability that looking at  
-the local network interfaces gives the right answer is close to zero.
-
-MfG Kai
+__________________________________________________
+Do You Yahoo!?
+Get email alerts & NEW webcam video instant messaging with Yahoo! Messenger
+http://im.yahoo.com

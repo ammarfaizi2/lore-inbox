@@ -1,72 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262740AbTKIVeN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Nov 2003 16:34:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262745AbTKIVeN
+	id S262745AbTKIVed (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Nov 2003 16:34:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262746AbTKIVed
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Nov 2003 16:34:13 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:40685 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262740AbTKIVeM (ORCPT
+	Sun, 9 Nov 2003 16:34:33 -0500
+Received: from [212.86.245.254] ([212.86.245.254]:48257 "EHLO umka.bear.com.ua")
+	by vger.kernel.org with ESMTP id S262745AbTKIVea (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Nov 2003 16:34:12 -0500
-Date: Sun, 9 Nov 2003 22:34:11 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Shailabh Nagar <nagar@watson.ibm.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       ckrm-tech@lists.sourceforge.net
-Subject: Re: [PATCH] cfq + io priorities
-Message-ID: <20031109213411.GV2831@suse.de>
-References: <20031108124758.GQ14728@suse.de> <3FAEB1DC.7040608@watson.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FAEB1DC.7040608@watson.ibm.com>
+	Sun, 9 Nov 2003 16:34:30 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Alex Lyashkov <shadow@itt.net.ru>
+Organization: Home
+To: Jan Kara <jack@suse.cz>
+Subject: [BUG] journal handler reference count breaked and fs deadlocked
+Date: Sun, 9 Nov 2003 23:34:00 +0200
+User-Agent: KMail/1.4.1
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Herbert Poetzl <herbert@13thfloor.at>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200311092334.01957.shadow@itt.net.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 09 2003, Shailabh Nagar wrote:
-> >A process has an assigned io nice level, anywhere from 0 to 20. Both of
-> >these end values are "special" - 0 means the process is only allowed to
-> >do io if the disk is idle, and 20 means the process io is considered
-> >realtime. Realtime IO always gets first access to the disk. 
-> >
-> 
-> >Values from 1 to 19 assign 5-95% of disk bandwidth to that process. Any io 
-> >class is
-> >allowed to use all of disk bandwidth in absence of higher priority io.
-> > 
-> >
-> Currently, cfq is doing bandwidth allocation in terms of  number of 
-> requests, not bytes. Hence priority inversion can happen if lower 
-> priority levels submit larger requests on an average. Any plans to take 
-> request sizes into consideration  in future ? 
+Hello All
 
-Yes that needs to be taken into account as well. I'll get another
-version out soonish that works around that too.
+I try locate what are point where fs deadlocked.
+after recompile kernel with debug jbd and set debug level to 100 i log kernel 
+via serial console
+after deadlock - i see in log
+==============
+journal.c, 581): log_start_commit: JBD: requesting commit 501252/501251
+(journal.c, 608): log_wait_commit: JBD: want 501252, j_commit_sequence=501251
+(journal.c, 263): kjournald: kjournald wakes
+(journal.c, 238): kjournald: commit_sequence=501251, commit_request=501252
+(journal.c, 242): kjournald: OK, requests differ
+(commit.c, 81): journal_commit_transaction: JBD: starting commit of 
+transaction 501252
+(commit.c, 87): journal_commit_transaction: wait updates.......
+(transaction.c, 567): do_get_write_access: buffer_head c79f2e70, force_copy 0
+(revoke.c, 375): journal_cancel_revoke: journal_head c79f2e70, cancelling 
+revoke
+(transaction.c, 567): do_get_write_access: buffer_head c79f2e70, force_copy 0
+(revoke.c, 375): journal_cancel_revoke: journal_head c79f2e70, cancelling 
+revoke
+(transaction.c, 1104): journal_dirty_metadata: journal_head c79f2e70
+(transaction.c, 1392): journal_stop: h_ref 2 -> 1
+==============
+i think it`s reason fs deadlocked, because wait query not be waked :-\
+if i right - it very big problem on ext3..
+other logs\infos can be created after request....
 
-> Of course, request sizes alone don't determine actual disk bandwidth 
-> consumed  since their seek position also matters.
-
-Yeah that's where it gets tricky. It's basically impossible to get
-absolutely right, it will always be just guidelines. I don't want to
-over complicate matters.
-
-> >About the patch: stuff like this really needs some resource management
-> >abstraction like CKRM. Right now we just look at the tgid of the
-> >process. 
-> >
-> Now thats music to our ears :-)  Though you've complicated matters by 
-> calling the priority level a "class" ! Please consider renaming
-> class  to something else  (say priolevel ).
-
-Done.
-
-> Thanks for separating the hashvalue as a macro. It should make it even 
-> easier to convert cfq to use a  CKRM I/O classes ' priority
-> rather than the submitting task's ioprio value.
-
-Yup that was my intention, to make the transition as smooth as possible.
 
 -- 
-Jens Axboe
-
+With best regards,
+Alex

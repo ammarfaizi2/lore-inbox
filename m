@@ -1,78 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267979AbUHUWoN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267984AbUHUWsG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267979AbUHUWoN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Aug 2004 18:44:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267983AbUHUWoN
+	id S267984AbUHUWsG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Aug 2004 18:48:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267986AbUHUWsF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Aug 2004 18:44:13 -0400
-Received: from web20823.mail.yahoo.com ([216.136.227.136]:57236 "HELO
-	web20823.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S267979AbUHUWoI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Aug 2004 18:44:08 -0400
-Message-ID: <20040821224408.87169.qmail@web20823.mail.yahoo.com>
-Date: Sat, 21 Aug 2004 15:44:08 -0700 (PDT)
-From: Fawad Lateef <fawad_lateef@yahoo.com>
-Subject: Problem in Creating Cache Device ............ related to Sleep ......... plzz help .....
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 21 Aug 2004 18:48:05 -0400
+Received: from cantor.suse.de ([195.135.220.2]:2501 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S267984AbUHUWsC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Aug 2004 18:48:02 -0400
+Date: Sun, 22 Aug 2004 00:48:01 +0200
+From: Olaf Hering <olh@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
+Subject: [PATCH] remove obsolete zero-paged in Documentation/sysctl/kernel.txt
+Message-ID: <20040821224801.GA18858@suse.de>
+References: <20040821222745.GA18734@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040821222745.GA18734@suse.de>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
 
-I m using kernel 2.4, and trying to make a front cache
-block drive, for this I need to pool bh (buffer head)
-to perform operation on free time.
+This entry was removed during 2.5 development.
 
-1) to do this, I m using two threads, one to full fill
-the request.
-2) Other one is used to synch the data when 80% is
-filled on the actual drive.
+Signed-off-by: Olaf Hering <olh@suse.de>
 
-I have my own 5MB memory pages buffer, and using this
-to transfer the data from source drive to target drive
-through generic make request. when no more 
-pages available then it goes to down like
-wait_event_disk in RAID.
+diff -purN linux-2.6.8.1.orig/Documentation/sysctl/kernel.txt linux-2.6.8.1.olh/Documentation/sysctl/kernel.txt
+--- linux-2.6.8.1.orig/Documentation/sysctl/kernel.txt	2004-08-14 12:55:32.000000000 +0200
++++ linux-2.6.8.1.olh/Documentation/sysctl/kernel.txt	2004-08-22 00:30:39.149139687 +0200
+@@ -54,7 +53,6 @@ show up in /proc/sys/kernel:
+ - tainted
+ - threads-max
+ - version
+-- zero-paged                  [ PPC only ]
+ 
+ ==============================================================
+ 
+@@ -322,11 +312,3 @@ can be ORed together:
+       Set by modutils >= 2.4.9 and module-init-tools.
+   4 - Unsafe SMP processors: SMP with CPUs not designed for SMP.
+ 
+-==============================================================
+-
+-zero-paged: (PPC only)
+-
+-When enabled (non-zero), Linux-PPC will pre-zero pages in
+-the idle loop, possibly speeding up get_free_pages. Since
+-this only affects what the idle loop is doing, you should
+-enable this and see if anything changes.
 
-When cache drive cross the 70% boudry it wake-up
-flushing thread which start transfer data from cache
-drive to target drive. at this time synching and 
-normal transfer working parallely. when I/O rate is
-high, at this moment cache drive increases it self,
-whether flush thread is running parallely. 
+-- 
+USB is for mice, FireWire is for men!
 
-After 98% fill of cache drive we lock first thread
-which fullfilling the request, in the mean time
-requests are allwed to queue, and at that moment 
-flushing thread trying to reduce cache disk used area
-by flushing to the target drive.
-
-PROBLEM occurs, when pages are locked and in the mean
-time 98% arrived because of first thread, and it
-locked itself, and never comes back, and in the mean
-time requests are arriving from the outside and queing
-them selves. 
-
-we have thousants of request already in the target
-drive, but no one is fullfilling after lock of both
-threads.
-
-help me , how I can forcely order to the drive to
-start operation on request which it has in its queue.
-
-even i used plug_device(), run_task_queue(&tq_disk)
-fuctions but no results, my process is locked..
-
-Thanks
-
-Fawad
-
-
-
-		
-__________________________________
-Do you Yahoo!?
-Yahoo! Mail Address AutoComplete - You start. We finish.
-http://promotions.yahoo.com/new_mail 
+sUse lINUX ag, nÜRNBERG

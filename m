@@ -1,51 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313207AbSC2MkR>; Fri, 29 Mar 2002 07:40:17 -0500
+	id <S313341AbSC2M51>; Fri, 29 Mar 2002 07:57:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313341AbSC2MkH>; Fri, 29 Mar 2002 07:40:07 -0500
-Received: from harpo.it.uu.se ([130.238.12.34]:5022 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S313207AbSC2Mj6>;
-	Fri, 29 Mar 2002 07:39:58 -0500
-Date: Fri, 29 Mar 2002 13:39:56 +0100 (MET)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200203291239.NAA25704@harpo.it.uu.se>
-To: vojtech@ucw.cz
-Subject: 2.5.7 pre-UDMA PIIX bug
-Cc: linux-kernel@vger.kernel.org
+	id <S313374AbSC2M5R>; Fri, 29 Mar 2002 07:57:17 -0500
+Received: from virgo.cus.cam.ac.uk ([131.111.8.20]:24706 "EHLO
+	virgo.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S313341AbSC2M5I>; Fri, 29 Mar 2002 07:57:08 -0500
+Date: Fri, 29 Mar 2002 12:57:07 +0000 (GMT)
+From: Anton Altaparmakov <aia21@cus.cam.ac.uk>
+To: Padraig Brady <padraig@antefacto.com>
+cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        linux-ntfs-dev@lists.sourceforge.net
+Subject: Re: ANN: NTFS 2.0.1 for kernel 2.5.7 released
+In-Reply-To: <3CA45BEC.8030106@antefacto.com>
+Message-ID: <Pine.SOL.3.96.1020329124320.18653A-100000@virgo.cus.cam.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech's version of drivers/ide/piix.c which went into 2.5.7
-oopses with a divide-by-zero exception when initialising older
-pre-UDMA chips, like in the following 430HX chipset:
+On Fri, 29 Mar 2002, Padraig Brady wrote:
+> Is this a good default?
 
-00:00.0 Host bridge: Intel Corporation 430HX - 82439HX TXC [Triton II] (rev 03)
-00:07.0 ISA bridge: Intel Corporation 82371SB PIIX3 ISA [Natoma/Triton II] (rev 01)
-00:07.1 IDE interface: Intel Corporation 82371SB PIIX3 IDE [Natoma/Triton II]
-(PCI IDs 8086:1250, 8086:7000, and 8086:7010, respectively)
+I don't see what's wrong with that. It follows the logic of least
+surprise. In Windows all files are executable as there is no way to
+distinguish executables from non-executables due to lack of executable
+bit. NTFS on Linux has no way of telling the difference either and hence
+it makes sense to allow execution of all files.
 
-The error occurs in piix.c:piix_set_drive() line 334, shown below.
-The 82371SB has PIIX_UDMA_NONE in the piix_ide_chips[] array,
-so piix_config->flags & PIIX_UDMA is zero, which makes "umul" zero,
-which causes the divide-by-zero on line 334.
+If you don't like it, use -o noexec,fmask=0111 and you will not have any
+files being executable.
 
-  317	static int piix_set_drive(ide_drive_t *drive, unsigned char speed)
-  318	{
-  319		ide_drive_t *peer = HWIF(drive)->drives + (~drive->dn & 1);
-  320		struct ata_timing t, p;
-  321		int err, T, UT, umul;
-  322	
-  323		if (speed != XFER_PIO_SLOW && speed != drive->current_speed)
-  324			if ((err = ide_config_drive_speed(drive, speed)))
-  325				return err;
-  326	
-  327		umul =  min((speed > XFER_UDMA_4) ? 4 : ((speed > XFER_UDMA_2) ? 2 : 1),
-  328			piix_config->flags & PIIX_UDMA);
-  329	
-  330		if (piix_config->flags & PIIX_VICTORY)
-  331			umul = 2;
-  332	
-  333		T = 1000000000 / piix_clock;
-  334		UT = T / umul;
+> IMHO you usually would not want to execute stuff off NTFS, and
+> if you do you can always just explicitly invoke using wine like:
+> `wine /ntfs/lookout.exe`
 
-/Mikael
+No you couldn't.
+
+> To have all files executable breaks stuff like:
+> midnight commander (won't open executable files)
+
+Ouch, that is plain stupid... mc should be fixed. I open executables all
+the time and mc should automatically fire up a hexeditor.
+
+> ls colorizing
+
+I like green files. (-;
+
+> shell tab completion
+
+Heh?!? Works for me. Fix your shell settings.
+
+> ...
+
+Like what?
+
+> see:
+> http://marc.theaimsgroup.com/?t=100143416100009&r=1&w=2
+
+Read it. I still don't see any reason for not having x on files by
+default.
+
+> I think the default should be
+> rx for directories and r for files
+
+If you think so just use fmask to clear the x bit and be happy.
+
+I guess if more people complain I can change the default fmask to be 0177
+instead of 0077 but I want to see more complaints first. I personally find
+the being able to execute behaviour better as I run things off the ntfs
+partitions...
+
+Best regards,
+
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+

@@ -1,70 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287408AbSBISUP>; Sat, 9 Feb 2002 13:20:15 -0500
+	id <S289055AbSBISVf>; Sat, 9 Feb 2002 13:21:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289055AbSBISUH>; Sat, 9 Feb 2002 13:20:07 -0500
-Received: from ns1.alcove-solutions.com ([212.155.209.139]:58634 "EHLO
-	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
-	id <S287408AbSBIST6>; Sat, 9 Feb 2002 13:19:58 -0500
-Date: Sat, 9 Feb 2002 19:19:55 +0100
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: Felix Seeger <felix.seeger@gmx.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: sonypi in 2.4.18-pre9
-Message-ID: <20020209181955.GB32401@come.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
-In-Reply-To: <20020209115453Z288878-13996+19685@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020209115453Z288878-13996+19685@vger.kernel.org>
-User-Agent: Mutt/1.3.25i
+	id <S289099AbSBISVZ>; Sat, 9 Feb 2002 13:21:25 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:4614 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S289055AbSBISVJ>; Sat, 9 Feb 2002 13:21:09 -0500
+Date: Sat, 9 Feb 2002 13:19:58 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Pavel Machek <pavel@suse.cz>
+cc: Dave Jones <davej@suse.de>, kernel list <linux-kernel@vger.kernel.org>,
+        vojtech@ucw.cz, andre@linuxdiskcert.org
+Subject: Re: ide cleanup
+In-Reply-To: <20020206205332.GA3217@elf.ucw.cz>
+Message-ID: <Pine.LNX.3.96.1020209131726.23246D-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 09, 2002 at 12:48:34PM +0100, Felix Seeger wrote:
+On Wed, 6 Feb 2002, Pavel Machek wrote:
 
-> Great I just want to say that sonypi in 2.4.18-pre9 works fine.
+> -#ifdef CONFIG_BLK_DEV_PDC4030
+>  	if (IS_PDC4030_DRIVE) {
+>  		extern ide_startstop_t promise_rw_disk(ide_drive_t *, struct request *, unsigned long);
+>  		return promise_rw_disk(drive, rq, block);
+>  	}
+> -#endif /* CONFIG_BLK_DEV_PDC4030 */
 
-Thanks.
+Am I reading this totally wrong, or do you really think it's a good idea
+to test for a drive even if the user didn't configure such hardware?
 
-> I have a vaio pcg qr10. This is the first kernel Version in which I can 
-> changing the background lite.
-
-Strange, the screen brightness code wasn't modified in a while. What
-was your latest kernel ?
-
-> Just one Problem. Maybe a spicctrl Problem but if I try to get infos like:
-> spicctrl -p
-> BAT1: 2202/2479 88.83%
-> 
-> It works fine.
-> 
-> But sometimes (every 10 times) I get this:
-> BAT1: 2191/44975 4.87%
-[...]
-
-Known problem, not sure if it's a timing io port access problem 
-or something else. This will be properly resolved in the 2.5
-version of the sonypi driver, when the screen brightness / battery
-status etc will be directly accessed through the ACPI layer.
-
-> As you can see I can get the battery status from spicctrl. But apm can't get 
-> the status, is there a way to enable apmd to use sonypi, or work correct.
-> This is the output from /proc/apm:
-> 1.16 1.2 0x03 0x01 0xff 0x80 -1% -1 ?
-
-APM is screwed on most sony (and other recent, not  sony) laptops.
-The only way to get this working is to use ACPI instead of APM 
-(but since ACPI support is not and will not be complete in the 2.4
-kernels, you will not have sleep/hibernation support etc).
-
-That's why I added the battery query functions to the sonypi driver,
-to work around buggy apm bioses and incomplete ACPI kernel support.
-You can then hack the application inquiring the power status to
-execute spicctrl instead of reading from /proc/apm.
-
-Stelian.
 -- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-Alcove - http://www.alcove.com
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

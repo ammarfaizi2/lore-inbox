@@ -1,37 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284160AbRLPAdP>; Sat, 15 Dec 2001 19:33:15 -0500
+	id <S284174AbRLPAsL>; Sat, 15 Dec 2001 19:48:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284163AbRLPAdF>; Sat, 15 Dec 2001 19:33:05 -0500
-Received: from 216-21-153-9.ip.van.radiant.net ([216.21.153.9]:6671 "HELO
-	innerfire.net") by vger.kernel.org with SMTP id <S284160AbRLPAcw>;
-	Sat, 15 Dec 2001 19:32:52 -0500
-Date: Sat, 15 Dec 2001 16:56:32 +0000 (/etc/localtime)
-From: <gmack@innerfire.net>
-To: Mihai Cartoaje <mcartoaj@mat.ulaval.ca>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: the name "framebuffer"
-In-Reply-To: <3C1A71D3.C3373BB3@mat.ulaval.ca>
-Message-ID: <Pine.LNX.4.21.0112151655560.31977-100000@innerfire.net>
+	id <S284175AbRLPAsB>; Sat, 15 Dec 2001 19:48:01 -0500
+Received: from aramis.rutgers.edu ([128.6.4.2]:28413 "EHLO aramis.rutgers.edu")
+	by vger.kernel.org with ESMTP id <S284174AbRLPArr>;
+	Sat, 15 Dec 2001 19:47:47 -0500
+Date: Sat, 15 Dec 2001 19:47:46 -0500 (EST)
+From: Suresh Gopalakrishnan <gsuresh@cs.rutgers.edu>
+To: linux-kernel@vger.kernel.org
+Subject: O_DIRECT wierd behavior..
+Message-ID: <Pine.GSO.4.02A.10112151947010.14453-100000@aramis.rutgers.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Dec 2001, Mihai Cartoaje wrote:
-> As you may recall from chemistry classes, a buffer is a solutee that
-> reduces pH  variations. Since the initials VGA in IBM's display
-> adapter stand for, "video graphics array," I recommend changing the
-> name of the devices from "framebuffer" to "video array." I shall
-> like to know what other people think.
 
-I think you should have gone to McGill instead...
+I tried this small piece of code from an old post in the archive:
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 
---
-Gerhard Mack
+#define O_DIRECT	 040000	/* direct disk access hint */
 
-gmack@innerfire.net
+int main()
+{
+	char buf[16384];
+	int fd;
+	char *p;
 
-<>< As a computer I find your faith in technology amusing.
+	p = (char *)((((unsigned long)buf) + 8191) & ~8191L);
+	fd = open("/tmp/blah", O_CREAT | O_RDWR | O_DIRECT);
+
+	printf("write returns %i\n", write(fd, buf, 8192));
+	printf("write returns %i\n", write(fd, p, 1));
+
+	return 0;
+}
+
+Output is:
+
+write returns -1
+Filesize limit exceeded (core dumped)
+
+$ ls -l /tmp/blah
+----------    1 gsuresh  users    4294967274 Dec 15 19:15 /tmp/blah
+
+The kernel is 2.4.16 and /tmp is ext2. (It runs fine on 2.4.2).
+
+Any idea why this happens and how to fix this?
+
+Thanks
+--suresh
 

@@ -1,70 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265994AbTLISMT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 13:12:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266033AbTLISMT
+	id S266039AbTLISX6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 13:23:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266043AbTLISX5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 13:12:19 -0500
-Received: from c-130372d5.012-136-6c756e2.cust.bredbandsbolaget.se ([213.114.3.19]:47280
-	"EHLO pomac.netswarm.net") by vger.kernel.org with ESMTP
-	id S265994AbTLISMR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 13:12:17 -0500
-Subject: Re: Catching NForce2 lockup with NMI watchdog
-From: Ian Kumlien <pomac@vapor.com>
-To: ross@datscreative.com.au
-Cc: linux-kernel@vger.kernel.org, recbo@nishanet.com
-In-Reply-To: <200312081207.45297.ross@datscreative.com.au>
-References: <1070827127.1991.16.camel@big.pomac.com>
-	 <200312081207.45297.ross@datscreative.com.au>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-bUevnAcnTAc23X4Gf6dZ"
-Message-Id: <1070993538.1674.10.camel@big.pomac.com>
+	Tue, 9 Dec 2003 13:23:57 -0500
+Received: from bgp01360964bgs.sandia01.nm.comcast.net ([68.35.68.128]:18052
+	"EHLO orion.dwf.com") by vger.kernel.org with ESMTP id S266039AbTLISWS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Dec 2003 13:22:18 -0500
+Message-Id: <200312091821.hB9ILv2n017541@orion.dwf.com>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4
+To: arnaud.quette@mgeups.com
+cc: Greg KH <greg@kroah.com>, Paul Stewart <stewart@wetlogic.net>,
+       Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org,
+       linux-usb-users@lists.sourceforge.net, opensource@mgeups.com,
+       "Charles Lepple" <clepple@ghz.cc>, reg@orion.dwf.com
+Subject: Re: USB/HID UPS issue (was Re: USB scanner issue) 
+In-Reply-To: Message from arnaud.quette@mgeups.com 
+   of "Tue, 02 Dec 2003 14:18:25 +0100." <C1256DF0.0048D122.00@gin123.ftgin.com> 
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 09 Dec 2003 19:12:19 +0100
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 09 Dec 2003 11:21:56 -0700
+From: reg@dwf.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-bUevnAcnTAc23X4Gf6dZ
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I havent anything to add to your comments, except to make sure you saw
+my comments about USB/HID problems that I have encountered with a UPS.
 
-Bob wrote:
-> Using a patch that fixes a number of people's nforce2
-> lockups while enabling io-apic edge timer, I can now
-> use nmi_watchdog=3D2 but not =3D1
+Since the message was short, I reproduce it here:
 
-Why regurgitate patches that are outdated, Personally i find int
-outdated after Ross made his patches available and they DO enable
-nmi_watchdog=3D1. (I have seen the old patches mentioned more than once,
-if something better comes along, please move to that instead.)
+---
 
-http://marc.theaimsgroup.com/?l=3Dlinux-kernel&m=3D107080280512734&w=3D2
+(previous post to linux-kernel)
 
-Anyways, Is there anyway to detect if the cpu is "disconnected" or, is
-there anyway to see when the kernel sends it's halts that triggers the
-disconnect? (or is it automagic?)
+I am posting this here since I dont seem to be able to post to
+either of the USB lists.
 
-If there was a way to check, then thats all thats needed, all delays can
-be removed and the code can be more generalized.
+In working with the code apcupsd, I have found two problems that appeare
+in the 2.6.0-testX kernels that did not appear in the 2.4.x series of kernels.
 
-(Since doubt that this is apic torment. It's more apic trying to talk to
-a disconnected cpu... (which both approaches hints at imho))
+    (1) When doing a read to get hiddev_event structures, 2.4 only
+	gave the 'real' events from the device that one expected.
+	Under 2.6.0-testx there are several ZERO event structures/sec
+	where the entire structure is ZERO, both hid and value.
 
---=20
-Ian Kumlien <pomac () vapor ! com> -- http://pomac.netswarm.net
+	For the current code there may be a 'real' event every few
+	seconds, and 5-10 of these zero events/sec.  I have no
+	idea where they are coming from.
 
---=-bUevnAcnTAc23X4Gf6dZ
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+    (2) In one thread the code does a select, followed by a read if
+	data is available.  If one just 'falls thru' to the read with
+	the few lines of code it takes to do the checking, one gets
+	up to 45000 messages/minute (750/sec) reading:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+	    kernel: drivers/usb/input/hid-core.c: control queue full
 
-iD8DBQA/1hCC7F3Euyc51N8RAmPHAKCdN0QduFhsAeJkfrzixhWzydeRZACfXo1k
-B/djESOuSIsjDOP4zVhmqmw=
-=SEMY
------END PGP SIGNATURE-----
+	If one puts a 1/10sec sleep between these two commands, the
+	error messages go away. 
 
---=-bUevnAcnTAc23X4Gf6dZ--
+Anyone know anything about either of these errors?
+Or how to report them to the USB people if you cant post to the USB lists?
+ 
+-- 
+                                        Reg.Clemens
+                                        reg@dwf.com
+
 

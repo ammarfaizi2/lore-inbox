@@ -1,36 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130880AbQKUTp4>; Tue, 21 Nov 2000 14:45:56 -0500
+	id <S129936AbQKUTw7>; Tue, 21 Nov 2000 14:52:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131083AbQKUTpq>; Tue, 21 Nov 2000 14:45:46 -0500
-Received: from imladris.demon.co.uk ([193.237.130.41]:36356 "EHLO
-	imladris.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S130880AbQKUTpg>; Tue, 21 Nov 2000 14:45:36 -0500
-Date: Tue, 21 Nov 2000 19:15:04 +0000 (GMT)
-From: David Woodhouse <dwmw2@infradead.org>
-To: Andre Hedrick <andre@linux-ide.org>
-cc: Peter Samuelson <peter@cadcamlab.org>,
-        Hakan Lennestal <hakanl@cdt.luth.se>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.0, test10, test11: HPT366 problem
-In-Reply-To: <Pine.LNX.4.10.10011211030300.26689-100000@master.linux-ide.org>
-Message-ID: <Pine.LNX.4.30.0011211914400.22252-100000@imladris.demon.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131008AbQKUTwk>; Tue, 21 Nov 2000 14:52:40 -0500
+Received: from pneumatic-tube.sgi.com ([204.94.214.22]:29740 "EHLO
+	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
+	id <S129977AbQKUTwa>; Tue, 21 Nov 2000 14:52:30 -0500
+Message-Id: <200011211922.LAA17238@albion.engr.sgi.com>
+To: linux-kernel@vger.kernel.org
+Subject: Call for Papers - 2001 FREENIX Annual Technical Conference
+Date: Tue, 21 Nov 2000 11:22:17 -0800
+From: Simon Patience <sp@albion.engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Nov 2000, Andre Hedrick wrote:
 
-> No, if it doesn not hang and we get iCRC errors it will down grade
-> automatically, but it is a transfer rate issue than it must be hard coded
-> to force an upper threshold limit.
+	CALL FOR PAPERS- 2001 FREENIX annual conference, Boston, MA.
+	<http://www.usenix.org/events/usenix01/cfp/cfp.pdf>
 
-Do we downgrade gracefully, or do we just drop directly to non-DMA mode?
+NOTE: Summary submission deadline is Monday, November 27.
 
--- 
-dwmw2
+FREENIX is a special track within the USENIX Annual Technical
+Conference.  USENIX encourages the exchange of information and
+technologies between the commercial UNIX products and the free software
+world as well as among the various free operating system alternatives.
 
+FREENIX is the showcase for the latest developments and interesting
+software applications in a form that is being freely distributed. The
+FREENIX forum include APACHE, FreeBSD, GNOME, GNU, KDE, Linux, NetBSD,
+OpenBSD, Samba and more. The FREENIX track attempts to cover the full
+range of software that is freely distributable in source code form and
+provides pointers to where the code can be found on the internet.
 
+We are looking for talks which advance the state of the art of freely
+distributable software or otherwise provide useful information to those
+faced with deploying (and selling) free software in the field.
+
+Areas of interest include, but are not limited to:
+
+	* Operating System design
+	* Network design and implementation
+	* Filesystem design
+	* Highly available systems
+	* Highly scalable systems
+	* Graphical user interface tools
+	* Desktop metaphors
+	* File and print systems
+	* System management tools
+	* Securtity
+	* Large scale system management
+	* Interesting deployments of free software 
+	* How free software is bveing developed and managed today
+
+Interesting applications of freely redistributable software  might
+include:  robotics and automation, clustering, wearable computers,
+embedded systems, high-speed networking, studio graphics, and audio
+processing.
+
+Cash prizes will be awarded for the best paper and the best paper by a
+student.
+
+For instructions on how to submit a paper, please see the instructions
+at the URL above.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

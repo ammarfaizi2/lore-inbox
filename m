@@ -1,44 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271886AbRH1TQC>; Tue, 28 Aug 2001 15:16:02 -0400
+	id <S271884AbRH1TOM>; Tue, 28 Aug 2001 15:14:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271887AbRH1TPw>; Tue, 28 Aug 2001 15:15:52 -0400
-Received: from relay02.cablecom.net ([62.2.33.102]:47374 "EHLO
-	relay02.cablecom.net") by vger.kernel.org with ESMTP
-	id <S271886AbRH1TPo>; Tue, 28 Aug 2001 15:15:44 -0400
-Message-Id: <200108281916.f7SJG0I01130@mail.swissonline.ch>
-Content-Type: text/plain; charset=US-ASCII
-From: Christian Widmer <cwidmer@iiic.ethz.ch>
-Reply-To: cwidmer@iiic.ethz.ch
-To: ptb@it.uc3m.es
-Subject: Re: does the request function block
-Date: Tue, 28 Aug 2001 21:15:59 +0200
-X-Mailer: KMail [version 1.3]
-In-Reply-To: <200108281828.UAA02042@nbd.it.uc3m.es>
-In-Reply-To: <200108281828.UAA02042@nbd.it.uc3m.es>
-Cc: linux kernel <linux-kernel@vger.kernel.org>
+	id <S271886AbRH1TOC>; Tue, 28 Aug 2001 15:14:02 -0400
+Received: from mons.uio.no ([129.240.130.14]:33445 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S271884AbRH1TNr>;
+	Tue, 28 Aug 2001 15:13:47 -0400
+To: Oliver Paukstadt <oliver@paukstadt.de>
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: NFS Client and SMP
+In-Reply-To: <Pine.LNX.4.05.10108281806180.20438-100000@lara.stud.fh-heilbronn.de>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 28 Aug 2001 21:13:55 +0200
+In-Reply-To: Oliver Paukstadt's message of "Tue, 28 Aug 2001 18:16:34 +0200 (CEST)"
+Message-ID: <shsk7zongjw.fsf@charged.uio.no>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 28 August 2001 20:28, you wrote:
-> No they don't. NBD moves the requests to an internal queue when the
-> request function is run. The function does not block. The internal
-> queue is later emptied by another means, in another context.
 
-ok - does 
-	result = sock_sendmsg(sock, &msg, size);
-block? something in the back of my brains sais yes, but i might be
-wrong since i'm new to linux kernel programing. if it does block 
-nbd blocks. it realeases the io_request_lock lock and calls 
-nbd_send_req which calls nbd_xmit and that results in a call to 
-sock_sendmst.
+     > HY HY I have massive problems using client nfs on SMP boxes.  I
+     > can reproduce it 2.4.[0-7] on s390 and s390x and with 2.4.[0-8]
+     > on IA32.
 
-in the documention ob the brbd it sais: that the request function 
-is allways called in the context of a process doing I/O the kflushd
-or the kupdate kernel thread.
+One other thing. If you're running on a Gigabit network, try turning
+off jumbo frames - there seems to be some problems still with getting
+that to work properly, and it's been known to cause NFS hangs.
 
-
-
-
+Cheers,
+  Trond

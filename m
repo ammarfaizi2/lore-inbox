@@ -1,65 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264097AbUECWKK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264102AbUECWMP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264097AbUECWKK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 May 2004 18:10:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264101AbUECWKJ
+	id S264102AbUECWMP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 May 2004 18:12:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264103AbUECWMP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 May 2004 18:10:09 -0400
-Received: from hqemgate02.nvidia.com ([216.228.112.145]:28433 "EHLO
-	hqemgate02.nvidia.com") by vger.kernel.org with ESMTP
-	id S264097AbUECWJ4 convert rfc822-to-8bit (ORCPT
+	Mon, 3 May 2004 18:12:15 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:10679 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S264101AbUECWMJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 May 2004 18:09:56 -0400
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-Subject: RE: IO-APIC on nforce2 [PATCH] + [PATCH] for nmi_debug=1 + [PATCH] for idle=C1halt, 2.6.5
-Date: Mon, 3 May 2004 15:09:46 -0700
-Message-ID: <DCB9B7AA2CAB7F418919D7B59EE45BAF49FC2D@mail-sc-6-bk.nvidia.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: IO-APIC on nforce2 [PATCH] + [PATCH] for nmi_debug=1 + [PATCH] for idle=C1halt, 2.6.5
-Thread-Index: AcQxT5QB/sB27GGwRZ+TO5ejsxPYeQACfEsA
-From: "Allen Martin" <AMartin@nvidia.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: "Ross Dickson" <ross@datscreative.com.au>,
-       "Len Brown" <len.brown@intel.com>
+	Mon, 3 May 2004 18:12:09 -0400
+Date: Mon, 3 May 2004 15:10:44 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Mike Hearn <mh@codeweavers.com>
+Cc: jreiser@BitWagon.com, akpm@osdl.org, pageexec@freemail.hu,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
+       ashok.raj@intel.com
+Subject: Re: arch/ia64/ia32/binfmt_elf32.c: elf32_map() broken ia64 build
+ _and_ boot
+Message-Id: <20040503151044.087d79ca.pj@sgi.com>
+In-Reply-To: <1083619742.24587.3.camel@linux.littlegreen>
+References: <20040426185633.7969ca0d.pj@sgi.com>
+	<20040501013304.32a750d3.pj@sgi.com>
+	<4096526C.4060503@BitWagon.com>
+	<20040503140459.10b9d3eb.pj@sgi.com>
+	<1083619742.24587.3.camel@linux.littlegreen>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm happy to be able to make this information public to the Linux
-community.  This information has been previously released to BIOS /
-board vendors as an appnote, but in the interest of getting a workaround
-into the hands of users the quickest we're making it public for possible
-inclusion into the Linux kernel.
+> It would be nice to get the bssprot patch in though, ...
 
+Once you've digested Andrew's query as to whether there is a simpler way
+to do this, and know whether it's this patch or some other that you want
+to push, then if you send me a patch, ideally including the printk's in
+fs/binfmt_elf.c that Reiser thought might facilitate debugging, then I'd
+be willing to apply the patch and try booting it on my ia64 SN2 hardware.
 
-Problem:
-C1 Halt Disconnect problem on nForce2 systems
-
-Description:
-A hang is caused when the CPU generates a very fast CONNECT/HALT cycle
-sequence.
-
-Workaround:
-Set the SYSTEM_IDLE_TIMEOUT to 80 ns. This allows the state-machine and
-timer to return to a proper state within 80 ns of the CONNECT and probe
-appearing together.
-
-Since the CPU will not issue another HALT within 80 ns of the initial
-HALT, the failure condition is avoided.
-
-This will require changing the value for register at bus:0 dev:0 func:0
-offset 6c.
-
-Chip   Current Value   New Value
-C17       1F0FFF01     1F01FF01
-C18D      9F0FFF01     9F01FF01
-
-Northbridge chip version may be determined by reading the PCI revision
-ID (offset 8) of the host bridge at bus:0 dev:0 func:0.  C1 or greater
-is C18D.
-
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

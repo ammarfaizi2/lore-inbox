@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264441AbUBOJue (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Feb 2004 04:50:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264446AbUBOJue
+	id S264449AbUBOKAJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Feb 2004 05:00:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264451AbUBOKAJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Feb 2004 04:50:34 -0500
-Received: from gate.crashing.org ([63.228.1.57]:55197 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S264441AbUBOJud (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Feb 2004 04:50:33 -0500
-Subject: Re: oops w/ 2.6.2-mm1 on ppc32
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: mh@nadir.org, Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Jens Axboe <axboe@suse.de>
-In-Reply-To: <20040215001019.33e4089b.akpm@osdl.org>
-References: <20040215074140.GA3840@nadir.org>
-	 <1076831383.6958.38.camel@gaston>  <20040215001019.33e4089b.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1076838561.6949.42.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sun, 15 Feb 2004 20:49:21 +1100
-Content-Transfer-Encoding: 7bit
+	Sun, 15 Feb 2004 05:00:09 -0500
+Received: from fmr05.intel.com ([134.134.136.6]:61112 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S264449AbUBOKAB convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Feb 2004 05:00:01 -0500
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: [ACPI] 2.6.2 ACPI problem
+Date: Sun, 15 Feb 2004 17:59:50 +0800
+Message-ID: <3ACA40606221794F80A5670F0AF15F8401CBB6C1@PDSMSX403.ccr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [ACPI] 2.6.2 ACPI problem
+Thread-Index: AcPwOj40lMLutg5WS4q6ayKLyh5G/ADb+wNg
+From: "Yu, Luming" <luming.yu@intel.com>
+To: "Lenar L?hmus" <lenar@vision.ee>,
+       "Linux Kernel Mailinglist" <linux-kernel@vger.kernel.org>,
+       <acpi-devel@lists.sourceforge.net>
+X-OriginalArrivalTime: 15 Feb 2004 09:59:51.0429 (UTC) FILETIME=[7418FB50:01C3F3AA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Note that isofs_fill_super() calls sb_bread() before setting the blocksize.
-> For this it is relying on blockdev.bd_block_size being set up
-> appropriately.
+> Now despite this machine seems to work fine until kde's laptop daemon 
+> does something I'm not aware of which results in
+> these lines in dmesg:
 > 
-> Which all tends to imply that the underlying queue's ->hardsect_size is
-> very wrong.
-> 
-> The code which is responsible for setting up the queue's hardsect_size
-> appears to live in cdrom_read_toc()
-> 
-  .../...
+> Feb 10 17:52:35 debian kernel:     ACPI-0245: *** Error: 
+> Cannot release 
+> Mutex [_GL_], not acquired
 
-I have to double check, but that sounds a bit like some oops report
-I got with HFS/HFS+ on CD-ROMs... I'll check my archives tomorrow
+Would you please have patch
+http://bugzilla.kernel.org/attachment.cgi?id=2090&action=view
+a test!
 
-Ben.
-
-
+-Luming

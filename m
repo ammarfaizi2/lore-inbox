@@ -1,80 +1,229 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278566AbRJSSDk>; Fri, 19 Oct 2001 14:03:40 -0400
+	id <S278565AbRJSR6U>; Fri, 19 Oct 2001 13:58:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278568AbRJSSDa>; Fri, 19 Oct 2001 14:03:30 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:29068 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S278566AbRJSSDV>;
-	Fri, 19 Oct 2001 14:03:21 -0400
+	id <S278566AbRJSR6L>; Fri, 19 Oct 2001 13:58:11 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:13448 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S278565AbRJSR54>;
+	Fri, 19 Oct 2001 13:57:56 -0400
 Importance: Normal
-Subject: Preliminary results of using multiblock raw I/O
+Subject: Doing raw I/O using multiple blocksizes
 To: lse-tech@lists.sourceforge.net
 Cc: linux-kernel@vger.kernel.org
 X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
-Message-ID: <OF3D1910E9.F8DA0202-ON85256AEA.0062AC09@pok.ibm.com>
+Message-ID: <OF3823D204.7A4F33B2-ON85256AEA.00623F79@pok.ibm.com>
 From: "Shailabh Nagar" <nagar@us.ibm.com>
-Date: Fri, 19 Oct 2001 14:03:46 -0400
+Date: Fri, 19 Oct 2001 13:58:20 -0400
 X-MIMETrack: Serialize by Router on D01ML233/01/M/IBM(Release 5.0.8 |June 18, 2001) at
- 10/19/2001 02:03:48 PM
+ 10/19/2001 01:58:22 PM
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-type: multipart/mixed; 
+	Boundary="0__=85256AEA00623F798f9e8a93df938690918c85256AEA00623F79"
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Following up on the previous mail with patches for doing multiblock raw I/O
-:
-
-Experiments on a 2-way, 850MHz PIII, 256K cache, 256M memory
-Running bonnie (modified to allow specification of O_DIRECT option,
-target file etc.)
-Only the block tests (rewrite,read,write) have been run. All tests
-are single threaded.
-
-BW  = bandwidth in kB/s
-cpu = %CPU use
-abs = size of each I/O request
-      (NOT blocksize used by underlying raw I/O mechanism !)
-
-pre2 = using kernel 2.4.13-pre2aa1
-multi = 2.4.13-pre2aa1 kernel with multiblock raw I/O patches applied
-        (both /dev/raw and O_DIRECT)
-
-                  /dev/raw (uses 512 byte blocks)
-               ===============================
-
-         rewrite              write                   read
-------------------------------------------------------------------
-     pre2      multi       pre2     multi         pre2     multi
-------------------------------------------------------------------
-abs BW  cpu   BW  cpu     BW  cpu   BW  cpu      BW  cpu   BW  cpu
-------------------------------------------------------------------
- 4k 884 0.5   882 0.1    1609 0.3  1609 0.2     9841 1.5  9841 0.9
- 6k 884 0.5   882 0.2    1609 0.5  1609 0.1     9841 1.8  9841 1.2
-16k 884 0.6   882 0.2    1609 0.3  1609 0.0     9841 2.7  9841 1.4
-18k 884 0.4   882 0.2    1609 0.4  1607 0.1     9841 2.4  9829 1.2
-64k 883 0.5   882 0.1    1609 0.4  1609 0.3     9841 2.0  9841 0.6
-66k 883 0.5   882 0.2    1609 0.5  1609 0.2     9829 3.4  9829 1.0
+--0__=85256AEA00623F798f9e8a93df938690918c85256AEA00623F79
+Content-type: text/plain; charset=us-ascii
 
 
-               O_DIRECT : on filesystem with 1K blocksize
-            ===========================================
+Attached are patches to do raw I/O using multiple blocksizes.
+These patches try to use PAGE_SIZE transfers as far as possible.
 
-         rewrite              write                   read
-------------------------------------------------------------------
-     pre2      multi       pre2     multi         pre2     multi
-------------------------------------------------------------------
-abs BW  cpu   BW  cpu     BW  cpu   BW  cpu      BW  cpu   BW  cpu
-------------------------------------------------------------------
- 4k 854 0.8   880 0.4    1527 0.5  1607 0.1     9731 2.5  9780 1.3
- 6k 856 0.4   882 0.3    1527 0.4  1607 0.1   9732 1.6  9780 0.7
-16k 857 0.4   881 0.1     1527 0.3  1608 0.0  9732 2.2  9780 1.2
-18k 857 0.3   882 0.2     1527 0.4  1607 0.1  9731 1.9  9780 1.0
-64k 857 0.3   881 0.1     1526 0.4  1607 0.2  9732 1.6  9780 1.6
-66k 856 0.4   882 0.2     1527 0.4  1607 0.2  9731 2.7  9780 1.2
+The idea is to perform I/O for a request of size <size>, from offset
+<offset>
+of a file in three phases :
+
+          <initial> <pagealigned> <final>
+       <---------- <size> ----------->
+
+where <initial> and <final> are done at the default granularity
+and <pagealigned> is done at PAGE_SIZE granularity. The default granularity
+depends on the path used for raw I/O. If /dev/raw is used, it is generally
+set
+to hardsector_size (unmounted filesystems). For the O_DIRECT path, it used
+to
+be 1024(=BUFFERED_BLOCK_SIZE) though I now see 4K size being used in
+2.4.13-pre2aa1 (have to investigate further but doesn't affect the point
+being
+made as a < PAGE_SIZE blocksize is used for mounted file ).
+
+The main benefit of doing the breakup is to allow a major part of the
+request
+to be carried out at a large granularity and reduce the number of
+invocations
+to submit_bh() and other lower layer functions.
+
+The patches attached achieve the breakup and work for most requests.
+odirvar-2.4.13pre2aa1.patch has the changes for the O_DIRECT path and
+rawvary-1-2.4.10.patch has them for the /dev/raw/ path. The latter also
+applies
+cleanly on 2.4.13-pre2aa1 (kernel version chosen on account of O_DIRECT
+being
+dropped from post-2.4.10 kernels).
+
+The patches will always work if the major user parameters : <buf>, <offset>
+and
+<size> are all page-aligned. They will also work if <offset> and <buf> are
+misaligned by the same margin e.g. have the same value modulo PAGE_SIZE.
+
+If <buf> is pagealigned but <offset> is not, the patches cause an
+incomplete
+read. This is what happens :
+I/O for <initial>  is done at default granularity and completes
+successfully.
+While attempting to perform the I/O for <pagealigned>, the portion of <buf>
+that needs to be mapped into the kiobuf is NO LONGER aligned with
+the new blocksize (i.e. PAGE_SIZE) and hence brw_kiovec() fails in its
+alignment checks.
+
+The crux of the matter lies in what alignment conditions are to be imposed
+on
+the <size>,<offset> and <buf> parameters that come from the application's
+I/O
+request. If <offset> is not pagealigned, there will be an <initial> portion
+of
+the I/O that needs to be performed at default granularity. Once that is
+done,
+<buf> is out of alignment with pagesize.
+
+The solution seems to be impose page alignment restrictions on <offset> so
+that
+<initial> is always non-existent.
+
+Any other ways to get around this somewhat unsatisfactory restriction ?
+Other comments on the patches ?
+
+
+(See attached file: rawvary-1-2.4.10.patch)(also applies cleanly on
+2.4.13-pre2aa1)
+
+(See attached file: odirvar-2.4.13pre2aa1.patch)
 
 
 Shailabh Nagar
 Enterprise Linux Group, IBM TJ Watson Research Center
 (914) 945 2851, T/L 862 2851
+--0__=85256AEA00623F798f9e8a93df938690918c85256AEA00623F79
+Content-type: application/octet-stream; 
+	name="rawvary-1-2.4.10.patch"
+Content-Disposition: attachment; filename="rawvary-1-2.4.10.patch"
+Content-transfer-encoding: base64
+
+ZGlmZiAtTmF1ciBsaW51eC0yLjQuMTAtdi9kcml2ZXJzL2NoYXIvcmF3LmMgbGludXgtMi40LjEw
+LXJhd3Zhci9kcml2ZXJzL2NoYXIvcmF3LmMKLS0tIGxpbnV4LTIuNC4xMC12L2RyaXZlcnMvY2hh
+ci9yYXcuYwlTYXQgU2VwIDIyIDIzOjM1OjQzIDIwMDEKKysrIGxpbnV4LTIuNC4xMC1yYXd2YXIv
+ZHJpdmVycy9jaGFyL3Jhdy5jCVdlZCBPY3QgMTcgMTY6MzE6NDMgMjAwMQpAQCAtMjgzLDYgKzI4
+Myw5IEBACiAKIAlpbnQJCXNlY3Rvcl9zaXplLCBzZWN0b3JfYml0cywgc2VjdG9yX21hc2s7CiAJ
+aW50CQltYXhfc2VjdG9yczsKKworCWludCAgICAgICAgICAgICBjdXJzZWN0b3Jfc2l6ZSwgY3Vy
+c2VjdG9yX2JpdHM7ICAgICAgICAKKwlsb2ZmX3QgICAgICAgICAgc3RhcnRwZyxlbmRwZyA7IAog
+CQogCS8qCiAJICogRmlyc3QsIGEgZmV3IGNoZWNrcyBvbiBkZXZpY2Ugc2l6ZSBsaW1pdHMgCkBA
+IC0zMDQsOCArMzA3LDggQEAKIAl9CiAKIAlkZXYgPSB0b19rZGV2X3QocmF3X2RldmljZXNbbWlu
+b3JdLmJpbmRpbmctPmJkX2Rldik7Ci0Jc2VjdG9yX3NpemUgPSByYXdfZGV2aWNlc1ttaW5vcl0u
+c2VjdG9yX3NpemU7Ci0Jc2VjdG9yX2JpdHMgPSByYXdfZGV2aWNlc1ttaW5vcl0uc2VjdG9yX2Jp
+dHM7CisJc2VjdG9yX3NpemUgPSBjdXJzZWN0b3Jfc2l6ZSA9IHJhd19kZXZpY2VzW21pbm9yXS5z
+ZWN0b3Jfc2l6ZTsKKwlzZWN0b3JfYml0cyA9IGN1cnNlY3Rvcl9iaXRzID0gcmF3X2RldmljZXNb
+bWlub3JdLnNlY3Rvcl9iaXRzOwogCXNlY3Rvcl9tYXNrID0gc2VjdG9yX3NpemUtIDE7CiAJbWF4
+X3NlY3RvcnMgPSBLSU9fTUFYX1NFQ1RPUlMgPj4gKHNlY3Rvcl9iaXRzIC0gOSk7CiAJCkBAIC0z
+MjUsNiArMzI4LDIzIEBACiAJaWYgKCgqb2ZmcCA+PiBzZWN0b3JfYml0cykgPj0gbGltaXQpCiAJ
+CWdvdG8gb3V0X2ZyZWU7CiAKKwkvKiBVc2luZyBtdWx0aXBsZSBJL08gZ3JhbnVsYXJpdGllcwor
+CSAgIERpdmlkZSA8c2l6ZT4gaW50byA8aW5pdGlhbD4gPHBhZ2VhbGlnbmVkPiA8ZmluYWw+CisJ
+ICAgPGluaXRpYWw+IGFuZCA8ZmluYWw+IGFyZSBkb25lIGF0IHNlY3Rvcl9zaXplIGdyYW51bGFy
+aXR5IAorCSAgIDxwYWdlYWxpZ25lZD4gaXMgZG9uZSBhdCBQQUdFX1NJWkUgZ3JhbnVsYXJpdHkK
+KwkgICBzdGFydHBnLCBlbmRwZyBkZWZpbmUgdGhlIGJvdW5kYXJpZXMgb2YgPHBhZ2VhbGlnbmVk
+Pi4KKwkgICBUaGV5IGFsc28gc2VydmUgYXMgZmxhZ3Mgb24gd2hldGhlciBQQUdFX1NJWkUgSS9P
+IGlzIAorCSAgIGRvbmUgYXQgYWxsIChpdHMgdW5uZWNlc3NhcnkgaWYgPHNpemU+IGlzIHN1ZmZp
+Y2llbnRseSBzbWFsbCkKKwkqLyAgIAorCQorCXN0YXJ0cGcgPSAoKm9mZnAgKyAobG9mZl90KShQ
+QUdFX1NJWkUgLSAxKSkgJiAobG9mZl90KVBBR0VfTUFTSyA7CisJZW5kcGcgPSAoKm9mZnAgKyAo
+bG9mZl90KSBzaXplKSAmIChsb2ZmX3QpUEFHRV9NQVNLIDsKKworCWlmICgoc3RhcnRwZyA9PSBl
+bmRwZykgfHwgKHNlY3Rvcl9zaXplID09IFBBR0VfU0laRSkpIAorCQkvKiBQQUdFX1NJWkUgSS9P
+IGVpdGhlciB1bm5lY2Vzc2FyeSBvciBiZWluZyBkb25lIGFueXdheSAqLworCQkvKiBpbXBvc3Np
+YmxlIHZhbHVlcyBtYWtlIHN0YXJ0cGcsZW5kcGcgYWN0IGFzIGZsYWdzICAgICAqLyAgCisJCXN0
+YXJ0cGcgPSBlbmRwZyA9IH4obG9mZl90KTAgOworCQogCS8qCiAJICogU3BsaXQgdGhlIElPIGlu
+dG8gS0lPX01BWF9TRUNUT1JTIGNodW5rcywgbWFwcGluZyBhbmQKIAkgKiB1bm1hcHBpbmcgdGhl
+IHNpbmdsZSBraW9idWYgYXMgd2UgZ28gdG8gcGVyZm9ybSBlYWNoIGNodW5rIG9mCkBAIC0zMzIs
+OSArMzUyLDIzIEBACiAJICovCiAKIAl0cmFuc2ZlcnJlZCA9IDA7Ci0JYmxvY2tuciA9ICpvZmZw
+ID4+IHNlY3Rvcl9iaXRzOwogCXdoaWxlIChzaXplID4gMCkgewotCQlibG9ja3MgPSBzaXplID4+
+IHNlY3Rvcl9iaXRzOworCQkKKwkJaWYgKCpvZmZwICA9PSBzdGFydHBnKSB7CisJCQljdXJzZWN0
+b3Jfc2l6ZSA9IFBBR0VfU0laRSA7CisJCQljdXJzZWN0b3JfYml0cyA9IFBBR0VfU0hJRlQgOwor
+CQl9CisJCWVsc2UgaWYgKCpvZmZwID09IGVuZHBnKSB7CisJCQljdXJzZWN0b3Jfc2l6ZSA9IHNl
+Y3Rvcl9zaXplIDsKKwkJCWN1cnNlY3Rvcl9iaXRzID0gc2VjdG9yX2JpdHMgOworCQl9CisJCQor
+CQlibG9ja25yID0gKm9mZnAgPj4gY3Vyc2VjdG9yX2JpdHMgOworCQltYXhfc2VjdG9ycyA9IEtJ
+T19NQVhfU0VDVE9SUyA8PCAoY3Vyc2VjdG9yX2JpdHMgLSA5KSA7CisJCWlmIChsaW1pdCAhPSBJ
+TlRfTUFYKQorCQkJbGltaXQgPSAoKChsb2ZmX3QpIGJsa19zaXplW01BSk9SKGRldildW01JTk9S
+KGRldildKSA8PCBCTE9DS19TSVpFX0JJVFMpID4+IGN1cnNlY3Rvcl9iaXRzIDsKKworCQlibG9j
+a3MgPSBzaXplID4+IGN1cnNlY3Rvcl9iaXRzOwogCQlpZiAoYmxvY2tzID4gbWF4X3NlY3RvcnMp
+CiAJCQlibG9ja3MgPSBtYXhfc2VjdG9yczsKIAkJaWYgKGJsb2NrcyA+IGxpbWl0IC0gYmxvY2tu
+cikKQEAgLTM0Miw3ICszNzYsNyBAQAogCQlpZiAoIWJsb2NrcykKIAkJCWJyZWFrOwogCi0JCWlv
+c2l6ZSA9IGJsb2NrcyA8PCBzZWN0b3JfYml0czsKKwkJaW9zaXplID0gYmxvY2tzIDw8IGN1cnNl
+Y3Rvcl9iaXRzOwogCiAJCWVyciA9IG1hcF91c2VyX2tpb2J1ZihydywgaW9idWYsICh1bnNpZ25l
+ZCBsb25nKSBidWYsIGlvc2l6ZSk7CiAJCWlmIChlcnIpCkBAIC0zNTEsNyArMzg1LDcgQEAKIAkJ
+Zm9yIChpPTA7IGkgPCBibG9ja3M7IGkrKykgCiAJCQlpb2J1Zi0+YmxvY2tzW2ldID0gYmxvY2tu
+cisrOwogCQkKLQkJZXJyID0gYnJ3X2tpb3ZlYyhydywgMSwgJmlvYnVmLCBkZXYsIGlvYnVmLT5i
+bG9ja3MsIHNlY3Rvcl9zaXplKTsKKwkJZXJyID0gYnJ3X2tpb3ZlYyhydywgMSwgJmlvYnVmLCBk
+ZXYsIGlvYnVmLT5ibG9ja3MsIGN1cnNlY3Rvcl9zaXplKTsKIAogCQlpZiAocncgPT0gUkVBRCAm
+JiBlcnIgPiAwKQogCQkJbWFya19kaXJ0eV9raW9idWYoaW9idWYsIGVycik7CkBAIC0zNjAsNiAr
+Mzk0LDcgQEAKIAkJCXRyYW5zZmVycmVkICs9IGVycjsKIAkJCXNpemUgLT0gZXJyOwogCQkJYnVm
+ICs9IGVycjsKKwkJCSpvZmZwICs9IGVyciA7CiAJCX0KIAogCQl1bm1hcF9raW9idWYoaW9idWYp
+OwpAQCAtMzY5LDcgKzQwNCw2IEBACiAJfQogCQogCWlmICh0cmFuc2ZlcnJlZCkgewotCQkqb2Zm
+cCArPSB0cmFuc2ZlcnJlZDsKIAkJZXJyID0gdHJhbnNmZXJyZWQ7CiAJfQogCg==
+
+--0__=85256AEA00623F798f9e8a93df938690918c85256AEA00623F79
+Content-type: application/octet-stream; 
+	name="odirvar-2.4.13pre2aa1.patch"
+Content-Disposition: attachment; filename="odirvar-2.4.13pre2aa1.patch"
+Content-transfer-encoding: base64
+
+ZGlmZiAtTmF1ciBsaW51eC0yLjQuMTMtcHJlMmFhMS9tbS9maWxlbWFwLmMgbGludXgtMi40LjEz
+LXByZTJhYTFyYXd2YXIvbW0vZmlsZW1hcC5jCi0tLSBsaW51eC0yLjQuMTMtcHJlMmFhMS9tbS9m
+aWxlbWFwLmMJV2VkIE9jdCAxNyAxMzo0Njo1MCAyMDAxCisrKyBsaW51eC0yLjQuMTMtcHJlMmFh
+MXJhd3Zhci9tbS9maWxlbWFwLmMJVGh1IE9jdCAxOCAwOTo0ODoyNCAyMDAxCkBAIC0xMzc4LDYg
+KzEzNzgsMTEgQEAKIAlzdHJ1Y3Qga2lvYnVmICogaW9idWY7CiAJc3RydWN0IGlub2RlICogaW5v
+ZGUgPSBmaWxwLT5mX2RlbnRyeS0+ZF9pbm9kZTsKIAlzdHJ1Y3QgYWRkcmVzc19zcGFjZSAqIG1h
+cHBpbmcgPSBpbm9kZS0+aV9tYXBwaW5nOworCQorCXNpemVfdCBjdXJjb3VudCA7CisJaW50IGN1
+cmJsb2Nrc2l6ZSwgY3VyYmxvY2tzaXplX2JpdHM7ICAgICAgICAKKwlsb2ZmX3Qgc3RhcnRwZyxl
+bmRwZyxsaW1pdCA7IAorCiAKIAluZXdfaW9idWYgPSAwOwogCWlvYnVmID0gZmlscC0+Zl9pb2J1
+ZjsKQEAgLTEzOTIsOCArMTM5Nyw5IEBACiAJCW5ld19pb2J1ZiA9IDE7CiAJfQogCi0JYmxvY2tz
+aXplID0gMSA8PCBpbm9kZS0+aV9ibGtiaXRzOwotCWJsb2Nrc2l6ZV9iaXRzID0gaW5vZGUtPmlf
+YmxrYml0czsKKwljdXJjb3VudCA9IGNvdW50IDsKKwlibG9ja3NpemUgPSBjdXJibG9ja3NpemUg
+PSAxIDw8IGlub2RlLT5pX2Jsa2JpdHM7CisJYmxvY2tzaXplX2JpdHMgPSBjdXJibG9ja3NpemVf
+Yml0cyA9IGlub2RlLT5pX2Jsa2JpdHM7CiAJYmxvY2tzaXplX21hc2sgPSBibG9ja3NpemUgLSAx
+OwogCWNodW5rX3NpemUgPSBLSU9fTUFYX0FUT01JQ19JTyA8PCAxMDsKIApAQCAtMTQxMyw5ICsx
+NDE5LDQyIEBACiAJaWYgKHJldHZhbCA8IDApCiAJCWdvdG8gb3V0X2ZyZWU7CiAKKwkvKiBVc2lu
+ZyBtdWx0aXBsZSBJL08gZ3JhbnVsYXJpdGllcworCSAgIERvIEkvTyBmb3IgPGNvdW50PiBpbiBj
+aHVua3Mgb2YgPGluaXRpYWw+IDxwYWdlYWxpZ25lZD4gPGZpbmFsPgorCSAgIDxpbml0aWFsPiBh
+bmQgPGZpbmFsPiBhcmUgZG9uZSBhdCBzZWN0b3Jfc2l6ZSBncmFudWxhcml0eSAKKwkgICA8cGFn
+ZWFsaWduZWQ+IGlzIGRvbmUgYXQgUEFHRV9TSVpFIGdyYW51bGFyaXR5CisJICAgc3RhcnRwZywg
+ZW5kcGcgZGVmaW5lIHRoZSBib3VuZGFyaWVzIG9mIDxwYWdlYWxpZ25lZD4uCisJICAgVGhleSBh
+bHNvIHNlcnZlIGFzIGZsYWdzIG9uIHdoZXRoZXIgUEFHRV9TSVpFIEkvTyBpcyAKKwkgICBkb25l
+IGF0IGFsbCAoaXRzIHVubmVjZXNzYXJ5IGlmIDxjb3VudD4gaXMgc3VmZmljaWVudGx5IHNtYWxs
+KQorCSovICAgCisJCisJbGltaXQgPSAob2Zmc2V0ICsgKGxvZmZfdCljb3VudCkgOworCXN0YXJ0
+cGcgPSAob2Zmc2V0ICsgKGxvZmZfdCkoUEFHRV9TSVpFIC0gMSkpICYgKGxvZmZfdClQQUdFX01B
+U0sgOworCWVuZHBnID0gbGltaXQgJiAobG9mZl90KVBBR0VfTUFTSyA7CisJaWYgKChzdGFydHBn
+ID09IGVuZHBnKSB8fCAoYmxvY2tzaXplID09IFBBR0VfU0laRSkpIAorCQkvKiBQQUdFX1NJWkUg
+SS9PIGVpdGhlciB1bm5lY2Vzc2FyeSBvciBiZWluZyBkb25lIGFueXdheSAqLworCQkvKiBpbXBv
+c3NpYmxlIHZhbHVlcyBtYWtlIHN0YXJ0cGcsZW5kcGcgYWN0IGFzIGZsYWdzICAgICAqLyAgCisJ
+CXN0YXJ0cGcgPSBlbmRwZyA9IH4obG9mZl90KTAgOworCiAJcHJvZ3Jlc3MgPSByZXR2YWwgPSAw
+OwogCXdoaWxlIChjb3VudCA+IDApIHsKLQkJaW9zaXplID0gY291bnQ7CisJCWlmIChvZmZzZXQg
+PT0gc3RhcnRwZykgeworCQkJY3VyY291bnQgPSAoc2l6ZV90KSAoZW5kcGcgLSBzdGFydHBnKSA7
+CisJCQljdXJibG9ja3NpemUgPSBQQUdFX1NJWkUgOworCQkJY3VyYmxvY2tzaXplX2JpdHMgPSBQ
+QUdFX1NISUZUIDsgCisJCX0KKwkJZWxzZSBpZiAoKHN0YXJ0cGcgIT0gfihsb2ZmX3QpMCkgJiYg
+KG9mZnNldCA8IHN0YXJ0cGcpKSB7CisJCQljdXJjb3VudCA9IChzaXplX3QpKHN0YXJ0cGcgLSBv
+ZmZzZXQpIDsKKwkJCWN1cmJsb2Nrc2l6ZSA9IGJsb2Nrc2l6ZSA7ICAKKwkJCWN1cmJsb2Nrc2l6
+ZV9iaXRzID0gYmxvY2tzaXplX2JpdHMgOyAKKwkJfQorCQllbHNlIGlmIChvZmZzZXQgPT0gZW5k
+cGcpIHsKKwkJCWN1cmNvdW50ID0gKHNpemVfdCkgKGxpbWl0IC0gZW5kcGcpIDsKKwkJCWN1cmJs
+b2Nrc2l6ZSA9IGJsb2Nrc2l6ZSA7IAorCQkJY3VyYmxvY2tzaXplX2JpdHMgPSBibG9ja3NpemVf
+Yml0cyA7IAorCQl9CisJCQorCQlpb3NpemUgPSBjdXJjb3VudCA7CiAJCWlmIChpb3NpemUgPiBj
+aHVua19zaXplKQogCQkJaW9zaXplID0gY2h1bmtfc2l6ZTsKIApAQCAtMTQyMywxNSArMTQ2Miwx
+NyBAQAogCQlpZiAocmV0dmFsKQogCQkJYnJlYWs7CiAKLQkJcmV0dmFsID0gbWFwcGluZy0+YV9v
+cHMtPmRpcmVjdF9JTyhydywgaW5vZGUsIGlvYnVmLCAob2Zmc2V0K3Byb2dyZXNzKSA+PiBibG9j
+a3NpemVfYml0cywgYmxvY2tzaXplKTsKKwkJcmV0dmFsID0gbWFwcGluZy0+YV9vcHMtPmRpcmVj
+dF9JTyhydywgaW5vZGUsIGlvYnVmLCBvZmZzZXQgPj4gY3VyYmxvY2tzaXplX2JpdHMsIGN1cmJs
+b2Nrc2l6ZSk7CiAKIAkJaWYgKHJ3ID09IFJFQUQgJiYgcmV0dmFsID4gMCkKIAkJCW1hcmtfZGly
+dHlfa2lvYnVmKGlvYnVmLCByZXR2YWwpOwogCQkKIAkJaWYgKHJldHZhbCA+PSAwKSB7CiAJCQlj
+b3VudCAtPSByZXR2YWw7CisJCQljdXJjb3VudCAtPSByZXR2YWwgOwogCQkJYnVmICs9IHJldHZh
+bDsKIAkJCXByb2dyZXNzICs9IHJldHZhbDsKKwkJCW9mZnNldCArPSByZXR2YWwgOyAKIAkJfQog
+CiAJCXVubWFwX2tpb2J1Zihpb2J1Zik7Cg==
+
+--0__=85256AEA00623F798f9e8a93df938690918c85256AEA00623F79--
 

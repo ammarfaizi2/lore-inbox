@@ -1,74 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266481AbTGEUTh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jul 2003 16:19:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266479AbTGEUTh
+	id S266478AbTGEUXo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jul 2003 16:23:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266483AbTGEUXo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jul 2003 16:19:37 -0400
-Received: from jive.SoftHome.net ([66.54.152.27]:39396 "HELO jive.SoftHome.net")
-	by vger.kernel.org with SMTP id S266481AbTGEUT3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jul 2003 16:19:29 -0400
-From: imunity@softhome.net
-To: linux-kernel@vger.kernel.org
-Subject: Kernel Compiling using =?iso-8859-1?Q?=22make=20rpm=22?= question PLEASE!!
-Date: Sat, 05 Jul 2003 14:33:59 -0600
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [12.249.189.237]
-Message-ID: <courier.3F073637.000070EE@softhome.net>
+	Sat, 5 Jul 2003 16:23:44 -0400
+Received: from mta2.srv.hcvlny.cv.net ([167.206.5.5]:59110 "EHLO
+	mta2.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id S266478AbTGEUXm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Jul 2003 16:23:42 -0400
+Date: Sat, 05 Jul 2003 16:37:43 -0400
+From: Jeff Sipek <jeffpc@optonline.net>
+Subject: Re: [PATCH - RFC] [1/5] 64-bit network statistics - generic net
+In-reply-to: <E19YtAq-0006Xf-00@calista.inka.de>
+To: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>,
+       linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@digeo.com>, Dave Jones <davej@codemonkey.org.uk>,
+       Linus Torvalds <torvalds@osdl.org>, netdev@oss.sgi.com,
+       Jeff Garzik <jgarzik@pobox.com>
+Message-id: <200307051637.52252.jeffpc@optonline.net>
+MIME-version: 1.0
+Content-type: Text/Plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+Content-description: clearsigned data
+User-Agent: KMail/1.5.2
+References: <E19YtAq-0006Xf-00@calista.inka.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I would not be asking this question but I have to say someone maybe even 
-myself will have to make a DOC on this cause there are none!!!! 
+On Saturday 05 July 2003 15:58, Bernd Eckenfels wrote:
+> a reader like ifconfig can easyly work around this with multiple tries, but
+> incremeting those variables wont work that easy, and therefore needs a
+> lock, which will be a major pita.
+>
+> 64bit counters should be a result of lockless per-cpu network counters
+> (32bit) with some kind of async merging.
 
-The convention method for configuring, compiling and installing a kernel I 
-am very clear on but why cannot find any documents on how to compile it 
-using "make rpm" or recompile or "rpmbuild -bb" 
+This is going to make the structure huge - not only you have the 32-bit 
+variables for every CPU, but you have one global set of 64-bit variables 
+(possibly you will need a lock for the 64-bit vars.)
 
-I have searched the bookstores, www.redhat.com, www.tldp, most newgroups and 
-almost every single search result from www.google.com/linux. 
+Also another thing to consider is portability across architectures - we don't 
+need all this code on 64-bit arches.
 
+On the other hand, per-cpu stats may possibly make up for the extra code - no 
+cache bouncing, etc.
 
-Conventional Method: 
+> Or we wait till 64bit hardware is more common :)
 
-tar -zxvf kernel.xx  or rpm -ivh kernel-source.i386.rpm
-ln -s kernel.xx linux
-make clean
-make mrproper
-make menuconfig
-make dep
-make clean
-make bzImage
-make modules
-make modules_install
-make install
-mkinitrd 
+Hehe, the thing is, that when 64bits beecome more common you will have this 
+huge number of unused x86 computers that people will:
 
- 
+- - throw out
+- - donate
+- - convert to all sorts of "embedded" systems which need stable OS (read: 
+Linux) (these include routers)
 
-RPM METHOD: 
+So, x86 is here to stay for some time.
 
-tar -zxvf kernel.xx  or rpm -ivh kernel-source.i386.rpm
-ln -s kernel.xx linux  # I think this step may be need if you have a rpm 
-kernel source!! 
+Jeff.
 
-make clean
-make mrproper
-make menuconfig
-make rpm
-rpm -ivh /usr/src/redhat/RPMS/i386/kernel-xx.i386.rpm
-mkinitrd 
+- -- 
+The Moon is Waxing Crescent (36% of Full)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
- 
-
-
-Just currious as to why I cannot find something as simple as that for "make 
-rpm" 
-
-
-Still trying to figure out how to use "rpmbuild -bb" 
+iD8DBQE/BzcbwFP0+seVj/4RAuMHAJ9sN0E4OgsPeM09D6hbgM3boECLDwCbBDTP
+6u8SSobW0+Y0oWq3H4koHd0=
+=Z89A
+-----END PGP SIGNATURE-----
 

@@ -1,49 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136398AbREDO0i>; Fri, 4 May 2001 10:26:38 -0400
+	id <S136400AbREDOa6>; Fri, 4 May 2001 10:30:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136400AbREDO03>; Fri, 4 May 2001 10:26:29 -0400
-Received: from juicer13.bigpond.com ([139.134.6.21]:40178 "EHLO
-	mailin1.bigpond.com") by vger.kernel.org with ESMTP
-	id <S136398AbREDO0P>; Fri, 4 May 2001 10:26:15 -0400
-Message-Id: <m14vgas-001QLrC@mozart>
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: l.s.r@web.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] strtok -> strsep (The Easy Cases) 
-In-Reply-To: Your message of "Fri, 04 May 2001 13:07:56 +0200."
-             <01050413055100.00907@golmepha> 
-Date: Sat, 05 May 2001 00:30:05 +1000
+	id <S136403AbREDOas>; Fri, 4 May 2001 10:30:48 -0400
+Received: from lange.hostnamen.sind-doof.de ([212.15.192.219]:34822 "HELO
+	xena.sind-doof.de") by vger.kernel.org with SMTP id <S136401AbREDOal>;
+	Fri, 4 May 2001 10:30:41 -0400
+Date: Fri, 4 May 2001 16:21:26 +0200
+From: Andreas Ferber <aferber@techfak.uni-bielefeld.de>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Todd Inglett <tinglett@vnet.ibm.com>, Alexander Viro <viro@math.psu.edu>,
+        linux-kernel@vger.kernel.org
+Subject: Re: SMP races in proc with thread_struct
+Message-ID: <20010504162126.A14679@kallisto.sind-doof.de>
+Mail-Followup-To: Keith Owens <kaos@ocs.com.au>,
+	Todd Inglett <tinglett@vnet.ibm.com>,
+	Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+In-Reply-To: <3AF2A1CC.C22A48E7@vnet.ibm.com> <8541.988980403@ocs3.ocs-net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <8541.988980403@ocs3.ocs-net>; from kaos@ocs.com.au on Fri, May 04, 2001 at 10:46:43PM +1000
+X-Operating-System: Debian GNU/Linux (Linux 2.4.4-int1-vlan101-nf20010428 i686)
+X-Disclaimer: Are you really taking me serious?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <01050413055100.00907@golmepha> you write:
-> Am Freitag,  4. Mai 2001 02:57 schrieb Rusty Russell:
-> > There are two cases where the substitution is problematic:
-> 
-> Yes, but...
-> 
-> The cases which my patch modifies are of a different kind:
+Hi,
 
-The very first hunk of your patch is wrong.  I didn't check the
-others.  Note that the declaration of switches is:
+On Fri, May 04, 2001 at 10:46:43PM +1000, Keith Owens wrote:
 
-    char switches[len+1];
+> For a read only case, the only important
+> thing is not to die, one occurrence of bad data is tolerable.
 
---- linux-2.4.4/arch/m68k/atari/config.c	Tue Nov 28 02:57:34 2000
-+++ linux-2.4.4-rs/arch/m68k/atari/config.c	Tue May  1 17:03:46 2001
-@@ -206,13 +206,15 @@
- 
-     /* parse the options */
--    for( p = strtok( switches, "," ); p; p = strtok( NULL, "," ) ) {
-+    while( p = strsep( &switches, "," ) ) {
-+	if (!*p)
-+		continue;
- 	ovsc_shift = 0;
- 	if (strncmp( p, "ov_", 3 ) == 0) {
- 	    p += 3;
+Strong NACK. The pages where the bad data comes from may in some cases
+already be reclaimed for other data, probably something security
+relevant, which should never ever be given even read access by an
+unauthorized user. Even if this event may be a very rare case, one
+single occurrence of this is one to much.
 
-Cheers,
-Rusty.
---
-Premature optmztion is rt of all evl. --DK
+Andreas
+-- 
+>Ich nehm nicht mal Zucker in den den Kaffee.
+Dafür nehm ich nichtmal Kaffee.
+   (Peter Backof + Bernhard Schultz in detebe)
+

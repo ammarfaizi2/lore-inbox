@@ -1,63 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316548AbSEaSkU>; Fri, 31 May 2002 14:40:20 -0400
+	id <S316574AbSEaSoG>; Fri, 31 May 2002 14:44:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316574AbSEaSkT>; Fri, 31 May 2002 14:40:19 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:19552 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S316548AbSEaSkS>; Fri, 31 May 2002 14:40:18 -0400
-Date: Fri, 31 May 2002 20:40:14 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: linux-kernel@vger.kernel.org
-Cc: Andrey Nekrasov <andy@spylog.ru>
-Subject: Re: 2.4.19pre9aa2
-Message-ID: <20020531184014.GJ1172@dualathlon.random>
-In-Reply-To: <20020531051841.GA1172@dualathlon.random> <20020531131306.GA29960@spylog.ru>
+	id <S316585AbSEaSoF>; Fri, 31 May 2002 14:44:05 -0400
+Received: from ns1.alcove-solutions.com ([212.155.209.139]:56741 "EHLO
+	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
+	id <S316574AbSEaSoF>; Fri, 31 May 2002 14:44:05 -0400
+Date: Fri, 31 May 2002 20:43:51 +0200
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: Greg KH <greg@kroah.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: USB host drivers test results (2.5.19) and problem.
+Message-ID: <20020531184350.GA10621@come.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
+	Greg KH <greg@kroah.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020531133429.GF8310@come.alcove-fr> <20020531163836.GA1250@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 31, 2002 at 05:13:06PM +0400, Andrey Nekrasov wrote:
-> Hello Andrea Arcangeli,
+On Fri, May 31, 2002 at 09:38:36AM -0700, Greg KH wrote:
+
+> > 2 When doing a rmmod on one of the two last drivers, 
+> > the kernel oopses with a (hand copied trace):
 > 
-> 
-> Stability fine. [..]
+> If you remove _any_ pci driver module from 2.5.19 you get an oops, this
+> isn't limited to the USB drivers right now :)
 
-Cool thanks :)
+Yep, I saw that afterwards when shutting down my laptop.
 
-> [..] But something happened with interactivity. If to start the
-> countable task, enter on the computer on ssh, to make "su" - bothers to wait.
-> 
-> On 2.4.19pre8aa3 such was not. Because of "O1"?
+Sorry for having incriminated the USB subsystem for that :-)
 
-if it's a userspace-cpu intensive background load, most probably because
-of o1. The dyn-sched (before I integraed o1 that obsoleted it) was very
-good at detecting cpu hogs and to avoid them to disturb interactive
-tasks like ssh-shell, of course o1 also has a sleep_time/sleep_avg
-derived from the dyn-sched idea from Davide, but maybe the constants are
-tuned in a different manner.
-
-Can you try to renice at +19 the cpu hogs and see if you still get bad
-interactivity?
-
-The other possibility is that the bad interactivity is due to bad
-sched-latency, so that the scheduler posts a reschedule via irq
-(schedule_tick()) but the function schedule() is never invoked because
-the kernel spins on a loop etc... Now the fixes to prune_icache might
-have increased the sched-latency in some case when you shrink the cache
-but in turn now you release the inodes and also we roll the list, so
-overall should be even an improvement for sched latency for you. And I
-doubt you're exercising such path so frequently that it makes a
-difference (even if you're certainly exercising it to test the fix
-worked). So I would suggest to run some readprofile and to see if
-prune_icache/invalidate_inode_pages goes up a lot in the profiling. Also
-please check if the cpu load is all in userspace during the bad
-interactivity, if it's all userspace load the bad sched latency is
-almost certainly not the case.
-
-Andrea
+Stelian.
+-- 
+Stelian Pop <stelian.pop@fr.alcove.com>
+Alcove - http://www.alcove.com

@@ -1,39 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129895AbRAEXjz>; Fri, 5 Jan 2001 18:39:55 -0500
+	id <S131542AbRAEXlz>; Fri, 5 Jan 2001 18:41:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131035AbRAEXjq>; Fri, 5 Jan 2001 18:39:46 -0500
-Received: from lowell.missioncriticallinux.com ([208.51.139.16]:65319 "EHLO
-	dai.lowell.mclinux.com") by vger.kernel.org with ESMTP
-	id <S129895AbRAEXja>; Fri, 5 Jan 2001 18:39:30 -0500
-Message-ID: <3A565D71.4BA25E71@mclinux.com>
-Date: Fri, 05 Jan 2001 18:49:05 -0500
-From: Peng Dai <dai@mclinux.com>
-X-Mailer: Mozilla 4.61 [en] (X11; U; Linux 2.4.0-test10ltt i686)
+	id <S131246AbRAEXlp>; Fri, 5 Jan 2001 18:41:45 -0500
+Received: from burdell.cc.gatech.edu ([130.207.3.207]:62468 "EHLO
+	burdell.cc.gatech.edu") by vger.kernel.org with ESMTP
+	id <S131542AbRAEXl1>; Fri, 5 Jan 2001 18:41:27 -0500
+Message-ID: <3A565BA5.E04635EE@cc.gatech.edu>
+Date: Fri, 05 Jan 2001 18:41:25 -0500
+From: Josh Fryman <fryman@cc.gatech.edu>
+Organization: CoC, GaTech
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test11 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Peng Dai <dai@mclinux.com>
-Subject: vmalloc and pkmap overlap on 2.4
+To: linux-kernel@vger.kernel.org
+Subject: port of linux to Intel IXP1200
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The vmalloc pool runs from 0xf8000000 to FIXADDR_START,
-which is a few pages below the top of virtual address space.
 
-The pkmap area is from 0xfe000000 to 0xfe400000, which fits
-within the vmalloc pool.
+hi,
 
-There does not seem to be any mechanism to prevent these two
-from stepping on each other's toes. It could be fixed by, for
-example, creating a  vm_struct that covers the pkmap area and
-enlisting it to vmlist.
+does anyone out there know if linux has been successfully ported to the Intel
+IXP1200 programmable network processor?  it's got an SA-1 core with lots of
+frills, and there have been rumors of a linux port, but i can't find anything
+through normal channels.
 
-Thanks
-Peng
+cheers,
 
+josh
 
 
 -

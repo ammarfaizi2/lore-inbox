@@ -1,42 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278042AbRJ0IVr>; Sat, 27 Oct 2001 04:21:47 -0400
+	id <S278046AbRJ0Ili>; Sat, 27 Oct 2001 04:41:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278046AbRJ0IVh>; Sat, 27 Oct 2001 04:21:37 -0400
-Received: from 39dyn126.com21.casema.net ([213.17.44.126]:27537 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S278042AbRJ0IV2>; Sat, 27 Oct 2001 04:21:28 -0400
-Message-Id: <200110270822.KAA11581@cave.bitwizard.nl>
-Subject: SR driver
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Date: Sat, 27 Oct 2001 10:22:03 +0200 (MEST)
-From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+	id <S279795AbRJ0Il2>; Sat, 27 Oct 2001 04:41:28 -0400
+Received: from tux.rsn.bth.se ([194.47.143.135]:5513 "EHLO tux.rsn.bth.se")
+	by vger.kernel.org with ESMTP id <S278046AbRJ0IlU>;
+	Sat, 27 Oct 2001 04:41:20 -0400
+Date: Sat, 27 Oct 2001 10:40:59 +0200 (CEST)
+From: Martin Josefsson <gandalf@wlug.westbo.se>
+To: Anuradha Ratnaweera <anuradha@gnu.org>
+cc: "Jeffrey H. Ingber" <jhingber@ix.netcom.com>, linux-kernel@vger.kernel.org
+Subject: Re: Other computers HIGHLY degrading network performance (DoS?)
+In-Reply-To: <20011027093729.B2651@bee.lk>
+Message-ID: <Pine.LNX.4.21.0110271035440.3272-100000@tux.rsn.bth.se>
+X-message-flag: Get yourself a real mail client! http://www.washington.edu/pine/
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 27 Oct 2001, Anuradha Ratnaweera wrote:
 
-Hi,
+> > > Just found out that this is _not_ a problem of the "download accelerator", but
+> > > something to do with queuing algorithm of the router.  Even a normal wget
+> > > process or a big mail has a big impart on the network.  Hopefully an iptables
+> > > firewall would solve the problem.
+> > 
+> > I'd advice you to seriously look over your network, are you 100% sure you
+> > don't have a duplex-issue anywhere?
+> 
+> I will double check.  I wonder if this is the cause, because the network is 100
+> Mbps, but the router is switching only at 64kbps.
 
-I have a program that will read a device. However, instead of stopping
-on error, it will "note the error for later use", and continue.
+Our network almost died when someone changed the duplex in the switch
+here...
 
-When I do this on SCSI or IDE disks, the program will get EOF at the
-end of the disk, and it can take appropriate action. However, when
-run against a SCSI cdrom, it will continue going untill it fills 
-all my disk space. 
+> > I've been running linuxrouters for quite a while and right now I have a few
+> > linuxrouters routing 100Mbit/s internetconnections. We have never had any
+> > problems like the one you describe so my first guess would be that you have a
+> > duplexproblem, probably between the linuxrouter and the switch it's connected
+> > to on the inside, that's usually where it's located.
+> 
+> We have a hub, and not a switch.  Can this be the reason?  BTW, how come that a
+> duplex issue can result in such huge degradations?
 
-This happened on our fileserver, which is currently running 2.4.13,
-but it might have been running 2.4.10 at the time that this happened.
-(Uptime tells me the machine has been rebooted in the meantime). 
+If you are trying to run full-duplex against the hub it till completely
+kill the performance of the entire hub, been there, done that. When I did
+that one I could only push 5-50kB/s through the hub.
 
-				Roger. 
+> > I seriously doubt that this a problem with the networking in linux.
+> 
+> Not in linux, may be the way they have _used_ linux on the router ;-)
 
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 
+Hehe, I think you'll have to have quite weird QoS rules to manage to do
+something like this :)
+
+/Martin
+
+Never argue with an idiot. They drag you down to their level, then beat you with experience.
+

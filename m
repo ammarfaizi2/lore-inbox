@@ -1,215 +1,201 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312716AbSDKSXX>; Thu, 11 Apr 2002 14:23:23 -0400
+	id <S312772AbSDKSvQ>; Thu, 11 Apr 2002 14:51:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312718AbSDKSXW>; Thu, 11 Apr 2002 14:23:22 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:43781 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S312716AbSDKSXU>; Thu, 11 Apr 2002 14:23:20 -0400
-Date: Thu, 11 Apr 2002 15:23:07 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@duckman.distro.conectiva
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] for_each_zone / for_each_pgdat
-Message-ID: <Pine.LNX.4.44L.0204111522000.31387-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S312773AbSDKSvP>; Thu, 11 Apr 2002 14:51:15 -0400
+Received: from zero.tech9.net ([209.61.188.187]:1290 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S312772AbSDKSvL>;
+	Thu, 11 Apr 2002 14:51:11 -0400
+Subject: [PATCH] 2.4: affinity syscalls from 2.5
+From: Robert Love <rml@tech9.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 11 Apr 2002 14:51:10 -0400
+Message-Id: <1018551071.6524.205.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-replace slightly obscure while loops with for_each_zone and
-for_each_pgdat macros  (thanks to William Lee Irwin)
+The following patch implements
 
--- 
-Please apply,
+	int sched_setaffinity(pid_t pid, unsigned int len,
+			      unsigned long *user_mask_ptr)
+	int sched_getaffinity(pid_t pid, unsigned int len,
+			      unsigned long *user_mask_ptr)
 
-Rik
+which are the task cpu affinity syscalls I wrote for 2.5 (and merged
+as-of 2.5.8-pre3).  While the interfaces are the same, the scheduling
+behavior of 2.4 and 2.5 is greatly different due to differing schedules
+and such, so the implementation is different.  This patch, thus, borrows
+a lot from Ingo Molnar's 2.4 affinity syscalls he posted awhile back. 
+The interface, syscall numbers, and behavior, however, are the same as
+what is in 2.5.
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.388   -> 1.389
-#	include/linux/mmzone.h	1.7     -> 1.8
-#	     mm/page_alloc.c	1.43    -> 1.44
-#	         mm/vmscan.c	1.59    -> 1.60
-#	        mm/bootmem.c	1.6     -> 1.7
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/04/11	riel@duckman.distro.conectiva	1.389
-# replace slightly obscure while loops with for_each_zone and
-# for_each_pgdat macros  (thanks to William Lee Irwin)
-# --------------------------------------------
-#
-diff -Nru a/include/linux/mmzone.h b/include/linux/mmzone.h
---- a/include/linux/mmzone.h	Thu Apr 11 15:22:01 2002
-+++ b/include/linux/mmzone.h	Thu Apr 11 15:22:01 2002
-@@ -158,6 +158,59 @@
+This patch is not intended for merging into 2.4 yet, I would like to see
+the 2.5 syscall see more use and make sure we agree on its behavior and
+interface before accepting a backport into 2.4.  This is intended for
+additional testing.
 
- extern pg_data_t contig_page_data;
+At
 
+	ftp://ftp.kernel.org/pub/linux/kernel/people/rml/cpu-affinity
+
+I have some documentation and sample programs for those interested.
+
+The following is against 2.4.19-pre6 .... enjoy.
+
+	Robert Love
+
+diff -urN linux-2.4.19-pre6/arch/i386/kernel/entry.S linux/arch/i386/kernel/entry.S
+--- linux-2.4.19-pre6/arch/i386/kernel/entry.S	Thu Apr 11 00:05:38 2002
++++ linux/arch/i386/kernel/entry.S	Thu Apr 11 00:06:30 2002
+@@ -635,6 +635,10 @@
+ 	.long SYMBOL_NAME(sys_ni_syscall)	/* reserved for lremovexattr */
+ 	.long SYMBOL_NAME(sys_ni_syscall)	/* reserved for fremovexattr */
+  	.long SYMBOL_NAME(sys_tkill)
++	.long SYMBOL_NAME(sys_ni_syscall)	/* reserved for sendfile64 */
++	.long SYMBOL_NAME(sys_ni_syscall)	/* 240 reserved for futex */
++	.long SYMBOL_NAME(sys_sched_setaffinity)
++	.long SYMBOL_NAME(sys_sched_getaffinity)
+ 
+ 	.rept NR_syscalls-(.-sys_call_table)/4
+ 		.long SYMBOL_NAME(sys_ni_syscall)
+diff -urN linux-2.4.19-pre6/include/asm-i386/unistd.h linux/include/asm-i386/unistd.h
+--- linux-2.4.19-pre6/include/asm-i386/unistd.h	Thu Apr 11 00:05:34 2002
++++ linux/include/asm-i386/unistd.h	Thu Apr 11 00:05:59 2002
+@@ -242,6 +242,11 @@
+ #define __NR_removexattr	235
+ #define __NR_lremovexattr	236
+ #define __NR_fremovexattr	237
++#define __NR_tkill		238
++#define __NR_sendfile64		239
++#define __NR_futex		240
++#define __NR_sched_setaffinity	241
++#define __NR_sched_getaffinity	242
+ 
+ #define __NR_tkill		238
+ 
+diff -urN linux-2.4.19-pre6/include/linux/capability.h linux/include/linux/capability.h
+--- linux-2.4.19-pre6/include/linux/capability.h	Thu Apr 11 00:05:34 2002
++++ linux/include/linux/capability.h	Thu Apr 11 00:05:59 2002
+@@ -243,6 +243,7 @@
+ /* Allow use of FIFO and round-robin (realtime) scheduling on own
+    processes and setting the scheduling algorithm used by another
+    process. */
++/* Allow setting cpu affinity on other processes */
+ 
+ #define CAP_SYS_NICE         23
+ 
+diff -urN linux-2.4.19-pre6/kernel/sched.c linux/kernel/sched.c
+--- linux-2.4.19-pre6/kernel/sched.c	Thu Apr 11 00:05:34 2002
++++ linux/kernel/sched.c	Thu Apr 11 00:05:59 2002
+@@ -1124,6 +1124,106 @@
+ 	return retval;
+ }
+ 
 +/**
-+ * for_each_pgdat - helper macro to iterate over all nodes
-+ * @pgdat - pg_data_t * variable
-+ *
-+ * Meant to help with common loops of the form
-+ * pgdat = pgdat_list;
-+ * while(pgdat) {
-+ *     ...
-+ *     pgdat = pgdat->node_next;
-+ * }
++ * sys_sched_setaffinity - set the cpu affinity of a process
++ * @pid: pid of the process
++ * @len: length of the bitmask pointed to by user_mask_ptr
++ * @user_mask_ptr: userspace pointer to the new cpu mask
 + */
-+#define for_each_pgdat(pgdat) \
-+	for (pgdat = pgdat_list; pgdat; pgdat = pgdat->node_next)
-+
-+/*
-+ * next_zone - helper magic for for_each_zone()
-+ * Thanks to William Lee Irwin III for this piece of ingenuity.
-+ */
-+static inline zone_t *next_zone(zone_t *zone)
++asmlinkage int sys_sched_setaffinity(pid_t pid, unsigned int len,
++				     unsigned long *user_mask_ptr)
 +{
-+	pg_data_t *pgdat = zone->zone_pgdat;
++	unsigned long new_mask;
++	struct task_struct *p;
++	int retval, reschedule = 0;
 +
-+	if (zone - pgdat->node_zones < MAX_NR_ZONES - 1)
-+		zone++;
++	if (len < sizeof(new_mask))
++		return -EINVAL;
 +
-+	else if (pgdat->node_next) {
-+		pgdat = pgdat->node_next;
-+		zone = pgdat->node_zones;
-+	} else
-+		zone = NULL;
++	if (copy_from_user(&new_mask, user_mask_ptr, sizeof(new_mask)))
++		return -EFAULT;
 +
-+	return zone;
++	new_mask &= cpu_online_map;
++	if (!new_mask)
++		return -EINVAL;
++
++	read_lock_irq(&tasklist_lock);
++	spin_lock(&runqueue_lock);
++
++	retval = -ESRCH;
++	p = find_process_by_pid(pid);
++	if (!p)
++		goto out_unlock;
++
++	retval = -EPERM;
++	if ((current->euid != p->euid) && (current->euid != p->uid) &&
++			!capable(CAP_SYS_NICE))
++		goto out_unlock;
++
++	p->cpus_allowed = new_mask;
++
++#ifdef CONFIG_SMP
++	if (!(p->cpus_runnable & p->cpus_allowed)) {
++		if (p == current)
++			reschedule = 1;
++		else {
++			p->need_resched = 1;
++			smp_send_reschedule(p->processor);
++		}
++	}
++#endif
++
++	retval = 0;
++out_unlock:
++	spin_unlock(&runqueue_lock);
++	read_unlock_irq(&tasklist_lock);
++
++	if (reschedule)
++		schedule();
++
++	return retval;
 +}
 +
 +/**
-+ * for_each_zone - helper macro to iterate over all memory zones
-+ * @zone - zone_t * variable
-+ *
-+ * The user only needs to declare the zone variable, for_each_zone
-+ * fills it in. This basically means for_each_zone() is an
-+ * easier to read version of this piece of code:
-+ *
-+ * for(pgdat = pgdat_list; pgdat; pgdat = pgdat->node_next)
-+ *     for(i = 0; i < MAX_NR_ZONES; ++i) {
-+ *             zone_t * z = pgdat->node_zones + i;
-+ *             ...
-+ *     }
-+ * }
++ * sys_sched_getaffinity - get the cpu affinity of a process
++ * @pid: pid of the process
++ * @len: length of the bitmask pointed to by user_mask_ptr
++ * @user_mask_ptr: userspace pointer to the new cpu mask
 + */
-+#define for_each_zone(zone) \
-+	for(zone = pgdat_list->node_zones; zone; zone = next_zone(zone))
++asmlinkage int sys_sched_getaffinity(pid_t pid, unsigned int len,
++				     unsigned long *user_mask_ptr)
++{
++	unsigned long mask;
++	unsigned int real_len;
++	struct task_struct *p;
++	int retval;
 +
++	real_len = sizeof(mask);
 +
- #ifndef CONFIG_DISCONTIGMEM
-
- #define NODE_DATA(nid)		(&contig_page_data)
-diff -Nru a/mm/bootmem.c b/mm/bootmem.c
---- a/mm/bootmem.c	Thu Apr 11 15:22:02 2002
-+++ b/mm/bootmem.c	Thu Apr 11 15:22:02 2002
-@@ -326,12 +326,11 @@
- 	pg_data_t *pgdat = pgdat_list;
- 	void *ptr;
-
--	while (pgdat) {
-+	for_each_pgdat(pgdat)
- 		if ((ptr = __alloc_bootmem_core(pgdat->bdata, size,
- 						align, goal)))
- 			return(ptr);
--		pgdat = pgdat->node_next;
--	}
++	if (len < real_len)
++		return -EINVAL;
 +
- 	/*
- 	 * Whoops, we cannot satisfy the allocation request.
- 	 */
-diff -Nru a/mm/page_alloc.c b/mm/page_alloc.c
---- a/mm/page_alloc.c	Thu Apr 11 15:22:01 2002
-+++ b/mm/page_alloc.c	Thu Apr 11 15:22:01 2002
-@@ -479,14 +479,10 @@
++	read_lock_irq(&tasklist_lock);
++	spin_lock(&runqueue_lock);
++
++	retval = -ESRCH;
++	p = find_process_by_pid(pid);
++	if (!p)
++		goto out_unlock;
++
++	retval = 0;
++	mask = p->cpus_allowed & cpu_online_map;
++
++out_unlock:
++	spin_unlock(&runqueue_lock);
++	read_unlock_irq(&tasklist_lock);
++	if (retval)
++		return retval;
++	if (copy_to_user(user_mask_ptr, &mask, real_len))
++		return -EFAULT;
++	return real_len;
++}
++
+ static void show_task(struct task_struct * p)
  {
- 	unsigned int sum;
- 	zone_t *zone;
--	pg_data_t *pgdat = pgdat_list;
-
- 	sum = 0;
--	while (pgdat) {
--		for (zone = pgdat->node_zones; zone < pgdat->node_zones + MAX_NR_ZONES; zone++)
-+	for_each_zone(zone)
- 			sum += zone->free_pages;
--		pgdat = pgdat->node_next;
--	}
- 	return sum;
- }
-
-@@ -498,7 +494,7 @@
- 	pg_data_t *pgdat = pgdat_list;
- 	unsigned int sum = 0;
-
--	do {
-+	for_each_pgdat(pgdat) {
- 		zonelist_t *zonelist = pgdat->node_zonelists + (GFP_USER & GFP_ZONEMASK);
- 		zone_t **zonep = zonelist->zones;
- 		zone_t *zone;
-@@ -509,9 +505,7 @@
- 			if (size > high)
- 				sum += size - high;
- 		}
--
--		pgdat = pgdat->node_next;
--	} while (pgdat);
-+	}
-
- 	return sum;
- }
-@@ -519,13 +513,12 @@
- #if CONFIG_HIGHMEM
- unsigned int nr_free_highpages (void)
- {
--	pg_data_t *pgdat = pgdat_list;
-+	pg_data_t *pgdat;
- 	unsigned int pages = 0;
-
--	while (pgdat) {
-+	for_each_pgdat(pgdat)
- 		pages += pgdat->node_zones[ZONE_HIGHMEM].free_pages;
--		pgdat = pgdat->node_next;
--	}
-+
- 	return pages;
- }
- #endif
-diff -Nru a/mm/vmscan.c b/mm/vmscan.c
---- a/mm/vmscan.c	Thu Apr 11 15:22:01 2002
-+++ b/mm/vmscan.c	Thu Apr 11 15:22:02 2002
-@@ -649,10 +649,8 @@
-
- 	do {
- 		need_more_balance = 0;
--		pgdat = pgdat_list;
--		do
-+		for_each_pgdat(pgdat)
- 			need_more_balance |= kswapd_balance_pgdat(pgdat);
--		while ((pgdat = pgdat->node_next));
- 	} while (need_more_balance);
- }
-
-@@ -675,12 +673,11 @@
- {
- 	pg_data_t * pgdat;
-
--	pgdat = pgdat_list;
--	do {
-+	for_each_pgdat(pgdat) {
- 		if (kswapd_can_sleep_pgdat(pgdat))
- 			continue;
- 		return 0;
--	} while ((pgdat = pgdat->node_next));
-+	}
-
- 	return 1;
- }
+ 	unsigned long free = 0;
 

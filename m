@@ -1,52 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266565AbUHBPxQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266568AbUHBP4f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266565AbUHBPxQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 11:53:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266568AbUHBPxQ
+	id S266568AbUHBP4f (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 11:56:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266574AbUHBP4f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 11:53:16 -0400
-Received: from web14923.mail.yahoo.com ([216.136.225.7]:60041 "HELO
-	web14923.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S266565AbUHBPxM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 11:53:12 -0400
-Message-ID: <20040802155312.56128.qmail@web14923.mail.yahoo.com>
-Date: Mon, 2 Aug 2004 08:53:12 -0700 (PDT)
-From: Jon Smirl <jonsmirl@yahoo.com>
-Subject: DRM code reorganization
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Dave Airlie <airlied@linux.ie>, Ian Romanick <idr@us.ibm.com>
+	Mon, 2 Aug 2004 11:56:35 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:18413 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S266568AbUHBP4e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Aug 2004 11:56:34 -0400
+Date: Mon, 2 Aug 2004 12:00:15 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Dipankar Sarma <dipankar@in.ibm.com>
+Cc: V Srivatsa <vatsa@in.ibm.com>, nathanl@in.ibm.com,
+       Joel Schopp <jschopp@austin.ibm.com>,
+       Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
+       nickp@in.ibm.com
+Subject: Re: CPU hotplug broken in 2.6.8-rc2 ?
+In-Reply-To: <20040802094907.GA3945@in.ibm.com>
+Message-ID: <Pine.LNX.4.58.0408021158040.4095@montezuma.fsmlabs.com>
+References: <20040802094907.GA3945@in.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->4) DRM code reorganization. There were several requests to reorganize
->DRM to more closely follow the Linux kernel guidelines. This
->reorganization should occur before new features are added.
+On Mon, 2 Aug 2004, Dipankar Sarma wrote:
 
-What should be the model for reorganizing DRM? An obvious change is
-eliminate the naming macros. 
+> Could it be that recent sched domain stuff broke CPU hotplug ?
+> While testing cpu hotplug with some RCU changes, I got the following
+> panic (while onlining).
 
-Another is to change to a personality with helper library model like
-fbdev has. All of the common DRM code would go into a library module.
-Each card would then have a small device specific module which depends
-on the library module for common code. 
-
-ian: what about splitting the current memory management code into a
-module that can be swapped for your new version?
-
-Are other structure changes needed?
-
-
-
-
-=====
-Jon Smirl
-jonsmirl@yahoo.com
-
-
-		
-__________________________________
-Do you Yahoo!?
-Yahoo! Mail is new and improved - Check it out!
-http://promotions.yahoo.com/new_mail
+This may be related, i bumped into similar backtrace on i386 when a timer
+interrupt snuck in whilst the cpu was offline, so i ended up enabling
+timer interrupts only after the processor was on the map. This setup
+managed to survive 12hours with a kernel compile load over the weekend.

@@ -1,90 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265390AbUFSAJP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263304AbUFSANr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265390AbUFSAJP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 20:09:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265422AbUFSAHw
+	id S263304AbUFSANr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 20:13:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264763AbUFSANo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 20:07:52 -0400
-Received: from cantor.suse.de ([195.135.220.2]:4075 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S265390AbUFRX7g (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 19:59:36 -0400
-Date: Sat, 19 Jun 2004 01:59:30 +0200
-From: Andi Kleen <ak@suse.de>
-To: Brent Casavant <bcasavan@sgi.com>
-Cc: linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
-Subject: Re: [PATCH] Add kallsyms_lookup() result cache
-Message-Id: <20040619015930.6acf773c.ak@suse.de>
-In-Reply-To: <Pine.SGI.4.58.0406181758200.5029@kzerza.americas.sgi.com>
-References: <Pine.SGI.4.58.0406181435570.5029@kzerza.americas.sgi.com>
-	<20040619000326.067c3ff6.ak@suse.de>
-	<Pine.SGI.4.58.0406181758200.5029@kzerza.americas.sgi.com>
-X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 18 Jun 2004 20:13:44 -0400
+Received: from mail1.webmaster.com ([216.152.64.168]:2572 "EHLO
+	mail1.webmaster.com") by vger.kernel.org with ESMTP id S265422AbUFSANG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 20:13:06 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: <debian-legal@lists.debian.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: How long is it acceptable to leave *undistributable* files in the kernel package?
+Date: Fri, 18 Jun 2004 17:12:58 -0700
+Message-ID: <MDEHLPKNGKAHNMBLJOLKOEINMLAA.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <40D2F463.6090104@almg.gov.br>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2120
+Importance: Normal
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Fri, 18 Jun 2004 16:50:42 -0700
+	(not processed: message from trusted or authenticated source)
+X-MDRemoteIP: 206.171.168.138
+X-Return-Path: davids@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: davids@webmaster.com
+X-MDAV-Processed: mail1.webmaster.com, Fri, 18 Jun 2004 16:50:44 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Jun 2004 18:31:27 -0500
-Brent Casavant <bcasavan@sgi.com> wrote:
 
-> On Sat, 19 Jun 2004, Andi Kleen wrote:
-> 
-> > On Fri, 18 Jun 2004 15:03:00 -0500
-> > Brent Casavant <bcasavan@sgi.com> wrote:
-> >
-> > > On 2.6 based systems, the top command utilizes /proc/[pid]/wchan to
-> > > determine WCHAN symbol name information.  This information is provided
-> > > by the kernel function kallsyms_lookup(), which expands a stem-compressed
-> >
-> > That sounds more like a bug in your top to me. /proc/*/wchan itself
-> > does not access kallsyms, it just outputs a number.
-> 
-> Strange.  All the 2.6 boxes I have access to output a symbol name.
-> I've checked on Debian, SLES9, and Fedora Core 2.  It's not
-> impossible that I have the same whacked-out configuration on all of
-> them, but they definitely output symbol names, not just numbers.
+> But wait; firmware is *not* linking with the kernel, as the icons
+> are *not* linking with emacs.  Or are they? What is linking? If you
+> consider linking to give names fixups and resolving them, well, the
+> char tg3_fw[] = ... is linked with the kernel all right. If you
+> consider that a call (as in the asm CALL opcode sense) must be made,
+> it's not. The firmware does not "execute", at least in the main CPU.
+> Anyway, the non-GPL-compatibly-licensed icon in your previous emacs
+> example is *most* *certainly* not linking with emacs (in the
+> ld-or-ld.so sense) and it's OK.
+>
+> The (simplified) answer: the GPL "do not link" is weak because of
+> the "mere aggregation clause" and because of the dichotomy between
+> derivative and anthology works; it's weaker in the case of the
+> binary kernel modules, especially if they are not distributed with
+> the kernel (the linking is done at the end user, where many things
+> are possible); it's even weaker in the case of firmware (because
+> firmware does not /properly/ link in the software sense, even if it
+> *does* link in the ld-or-ld.so sense); it's really faint in the case
+> of an accompanying icon or image (or movie: eMovix comes to mind).
 
-Yes, that was my mistake. I looked at /proc/self/wchan, which is 
-probably the only one who outputs a number ...
+	I think there's a continuum here. If, for example, the firmware in the
+Linux kernel is identical to the firmware in the Windows driver and the
+Linux kernel contains no special code to talk to this firmware (in other
+words, the firmware makes this device look like every other similar device
+and the kernel contains a generic driver), then the 'mere aggregation'
+argument is persuasive. We have two independently derived works that happen
+to be combined in a single file. They each happen to implement the same
+interface from opposite sides, but they do so for different reasons and are
+not specifically designed to work as a unit.
 
-But anyways you can get the number from /proc/*/stat like in 2.4
+	On the flip side, if the Linux kernel code were developed just to talk to
+this firmware and this firmware were developed just to make this device work
+with Linux, then the 'mere aggregation' argument seems ludicrous. Each work
+is specifically designed to work with the other, they aren't just combined
+after the fact. The two had to have been developed together and each has
+portions that only make sense in combination with the other.
 
-> 
-> > My top doesn't do that.
-> 
-> Hmm.  procps version 3.1.3 introduced the use of /proc/*/wchan where
-> possible.  I'm using 2.0.13 normally, which appears to have the same
-> behavior (can't find a changelong for the 2 series at the moment).
-> Is it your recommendation that I take this up with the maintainers of
-> procps?
+	There are, of course, points in the middle of the continuum.
 
-Yes. Let them revert to the 2.4 code again, only change that they
-should read /proc/kallsyms instead of /boot/System.map
+	I personally have no issues with the lack of the preferred form for the
+purposes of making modifications. I don't find that fight worth fighting in
+any case. I do, however, have major issues with use restrictions and
+distribution restrictions. Code that cannot be freely used, reverse
+engineered, modified, used on whatever hardware or with whatever software,
+or distributed subject only to the GPL restrictions should not be integrated
+into the Linux kernel. These restrictions cut to the heart of the very
+freedoms the GPL is supposed to protect.
+
+	DS
+
+	PS: Please CC me on any replies that you wish me to read and possibly reply
+to.
 
 
-> 
-> > Are you saying your top reads /proc/kallsyms on each redisplay?
-> > That sounds completely wrong - it should only read the file once
-> > and cache it and then look the numbers it is reading from wchan
-> > in the cache.
-> 
-> It would appear so from the performance improvements I observed upon
-> implementing this cache.
-
-I straced a fairly recent SUSE top and it didn't access wchan
-in normal operation. 
-
-> 
-> > As an unrelated comment: i would suggest to avoid rwlocks until
-> > absolutely needed. They are a lot slower than regular spinlocks.
-> 
-> The lock isn't very highly contended at all, and assuming the cache
-> hits almost all of the time, the rwlock seemed better as it would
-> cause the minimum amount of waiting.  That said, my first implementation
-
-When it starts to get contended the read locks tend to be slower
-because they have to bounce more cache lines around.
-
--Andi

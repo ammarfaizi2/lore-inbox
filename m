@@ -1,109 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261231AbVDDFps@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261309AbVDDFru@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261231AbVDDFps (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 01:45:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261309AbVDDFps
+	id S261309AbVDDFru (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 01:47:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261543AbVDDFru
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 01:45:48 -0400
-Received: from smtp810.mail.sc5.yahoo.com ([66.163.170.80]:17536 "HELO
-	smtp810.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261231AbVDDFpS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 01:45:18 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Kenan Esau <kenan.esau@conan.de>
-Subject: Re: [PATCH 4/4] psmouse: dynamic protocol switching via sysfs
-Date: Mon, 4 Apr 2005 00:45:18 -0500
-User-Agent: KMail/1.8
-Cc: harald.hoyer@redhat.de, linux-input@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
-References: <20050217194217.GA2458@ucw.cz> <200503220217.47624.dtor_core@ameritech.net> <1112557765.3625.9.camel@localhost>
-In-Reply-To: <1112557765.3625.9.camel@localhost>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Mon, 4 Apr 2005 01:47:50 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:53721 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261309AbVDDFqd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 01:46:33 -0400
+Date: Mon, 4 Apr 2005 07:45:45 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Paul Jackson <pj@engr.sgi.com>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, kenneth.w.chen@intel.com,
+       torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch] sched: auto-tune migration costs [was: Re: Industry db benchmark result on recent 2.6 kernels]
+Message-ID: <20050404054545.GA22190@elte.hu>
+References: <200504020100.j3210fg04870@unix-os.sc.intel.com> <20050402145351.GA11601@elte.hu> <20050402215332.79ff56cc.pj@engr.sgi.com> <20050403070415.GA18893@elte.hu> <20050403043420.212290a8.pj@engr.sgi.com> <20050403071227.666ac33d.pj@engr.sgi.com> <20050403152413.GA26631@elte.hu> <20050403160807.35381385.pj@engr.sgi.com> <4250A195.5030306@yahoo.com.au> <20050403205558.753f2b55.pj@engr.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200504040045.19263.dtor_core@ameritech.net>
+In-Reply-To: <20050403205558.753f2b55.pj@engr.sgi.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Kenan,
 
-On Sunday 03 April 2005 14:49, Kenan Esau wrote:
-> Patches 1-3 are fine.
+* Paul Jackson <pj@engr.sgi.com> wrote:
+
+> Ingo, if I understood correctly, suggested pushing any necessary 
+> detail of the CPU hierarchy into the scheduler domains, so that his 
+> latest work tuning migration costs could pick it up from there.
 > 
-
-Thank you very much for testing the patches. Based on the feedback I
-received I am goping to drop that DMI patch - does not save enough to
-justify the ifdefs...
-
-> Protocol switching via sysfs works too but if I switch from LBPS/2 to
-> PS/2 the device name changes from "/dev/event1" to "/dev/event2" -- is
-> this intended?
-
-Yes - we in fact getting somewhat a "new" device with new capabilities so
-the driver unregisters old input device and creates a new one. I strongly
-believe that we should not change input device attributes "on fly".
-
-> If I do "echo -n 50 > resolution" "0xe8 0x01" is sent. I don't know if
-> this is correct for "usual" PS/2-devices but for the lifebook it's
-> wrong.
+> It makes good sense for the migration cost estimation to be based on 
+> whatever CPU hierarchy is visible in the sched domains.
 > 
-> For the lifebook the parameters are as following:
-> 
-> 50cpi  <=> 0x00
-> 100cpi <=> 0x01
-> 200cpi <=> 0x02
-> 400cpi <=> 0x03
-> 
+> But if we knew the CPU hierarchy in more detail, and if we had some 
+> other use for that detail (we don't that I know), then I take it from 
+> your comment that we should be reluctant to push those details into 
+> the sched domains.  Put them someplace else if we need them.
 
-"Classic" PS/2 protocol specifies available resolutions of 1, 2, 4 and 8
-units per mm which gives you 25, 50, 100 and 200 cpi respectively. I am
-surprised that Lifebook simply doubles the rates, but if it does I guess
-the patch below will suffice. 
+There's no other place to push them - most of the hierarchy related 
+decisions are done based on the domain tree. So the decision to make is: 
+"is it worth complicating the domain tree, in exchange for more accurate 
+handling of the real hierarchy?".
 
--- 
-Dmitry
+In general, the pros are potentially more accuracy and thus higher 
+application performance, the cons are overhead (more tree walking) and 
+artifacts (the sched-domains logic is good but not perfect, and even if 
+there were no bugs in it, the decisions are approximations. One more 
+domain level might make things worse.)
 
-===================================================================
+but trying and benchmarking it is necessary to tell for sure.
 
-Input: apparently Lifebook touchscreens have double resolution
-       compared to "classic" PS/2 mice, provide appropriate
-       resolution setting handler.
-
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
-
-
- lifebook.c |   12 ++++++++++++
- 1 files changed, 12 insertions(+)
-
-Index: dtor/drivers/input/mouse/lifebook.c
-===================================================================
---- dtor.orig/drivers/input/mouse/lifebook.c
-+++ dtor/drivers/input/mouse/lifebook.c
-@@ -82,6 +82,17 @@ static int lifebook_absolute_mode(struct
- 	return 0;
- }
- 
-+static void lifebook_set_resolution(struct psmouse *psmouse, unsigned int resolution)
-+{
-+	unsigned char params[] = { 0, 1, 2, 2, 3 };
-+
-+	if (resolution == 0 || resolution > 400)
-+		resolution = 400;
-+
-+	ps2_command(&psmouse->ps2dev, &params[resolution / 100], PSMOUSE_CMD_SETRES);
-+	psmouse->resolution = 50 << params[resolution / 100];
-+}
-+
- static void lifebook_disconnect(struct psmouse *psmouse)
- {
- 	psmouse_reset(psmouse);
-@@ -114,6 +125,7 @@ int lifebook_init(struct psmouse *psmous
- 	input_set_abs_params(&psmouse->dev, ABS_Y, 0, 1024, 0, 0);
- 
- 	psmouse->protocol_handler = lifebook_process_byte;
-+	psmouse->set_resolution = lifebook_set_resolution;
- 	psmouse->disconnect = lifebook_disconnect;
- 	psmouse->reconnect  = lifebook_absolute_mode;
- 	psmouse->pktsize = 3;
+	Ingo

@@ -1,37 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282695AbRLOPEI>; Sat, 15 Dec 2001 10:04:08 -0500
+	id <S282688AbRLOOyH>; Sat, 15 Dec 2001 09:54:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282702AbRLOPD7>; Sat, 15 Dec 2001 10:03:59 -0500
-Received: from sushi.toad.net ([162.33.130.105]:4808 "EHLO sushi.toad.net")
-	by vger.kernel.org with ESMTP id <S282695AbRLOPDo>;
-	Sat, 15 Dec 2001 10:03:44 -0500
-Subject: Re: OOPS: 2.5.1-pre8 - cdrecord + ide_scsi
+	id <S282695AbRLOOx5>; Sat, 15 Dec 2001 09:53:57 -0500
+Received: from sushi.toad.net ([162.33.130.105]:63430 "EHLO sushi.toad.net")
+	by vger.kernel.org with ESMTP id <S282688AbRLOOxu>;
+	Sat, 15 Dec 2001 09:53:50 -0500
+Subject: RE: Oops - 2.4.17rc1 (with iptables 2.4.6)
 From: Thomas Hood <jdthood@mail.com>
 To: linux-kernel@vger.kernel.org
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Evolution/1.0 (Preview Release)
-Date: 15 Dec 2001 10:03:42 -0500
-Message-Id: <1008428624.4934.38.camel@thanatos>
+Date: 15 Dec 2001 09:53:47 -0500
+Message-Id: <1008428030.4859.36.camel@thanatos>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> What on earth are you talking about, this is completely
-> unrelated to what this message is about. ide-scsi didn't
-> set the right vec count for the submitted bio, so dma
-> transfers barfed on irq timeout.
+It's interesting that you have the closed-source lt_modem
+driver loaded (and appears to have caused the oops) yet your
+oops log says "Not tainted".
 
-I like the sound of that!    Hmm ...
+--
+Thomas Hood
 
-The vec count is not set by
-ide-scsi for submitted bi
-o.
+"Edward Killips" <ekillips@skyenet.net> wrote:
+[...]
+> EIP: 0010:[c0216e84>] Not tainted
+[...]
+> I just upgraded to rc1 and get the following oops
+> in with the netfilter code.
+[...]
+> Using defaults from ksymoops -t elf32-i386 -a i386
+> Trace; c02193a0 <ip_rcv_finish+0/1e0>
+> Trace; d88919e8 <[lt_modem]UART_CopyDteTxData+44/dc>
 
-So,
-on the timing out ir
-q the dma transfar
-doth barf.
 
 

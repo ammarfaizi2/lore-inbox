@@ -1,40 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265237AbTLFToF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Dec 2003 14:44:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265239AbTLFToF
+	id S265137AbTLFT5e (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Dec 2003 14:57:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265241AbTLFT5c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Dec 2003 14:44:05 -0500
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:13957 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S265237AbTLFToD
+	Sat, 6 Dec 2003 14:57:32 -0500
+Received: from mail.parknet.co.jp ([210.171.160.6]:19976 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S265137AbTLFT5b
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Dec 2003 14:44:03 -0500
-Date: Sat, 6 Dec 2003 20:41:17 +0100
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: =?unknown-8bit?Q?Fernando_Alencar_Mar=F3stica?= 
-	<famarost@unimep.br>
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       RealTek Mailing List <realtek@scyld.com>
-Subject: Re: [PATCH 2.6] Realtek RTL-8169 RX/TX Statistics
-Message-ID: <20031206204117.A14369@electric-eye.fr.zoreil.com>
-References: <1070212415.1607.17.camel@oxygenium> <20031201020453.A16405@electric-eye.fr.zoreil.com> <20031202010649.A27879@electric-eye.fr.zoreil.com> <1070413198.1091.10.camel@oxygenium>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=unknown-8bit
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1070413198.1091.10.camel@oxygenium>; from famarost@unimep.br on Tue, Dec 02, 2003 at 10:59:58PM -0200
-X-Organisation: Land of Sunshine Inc.
+	Sat, 6 Dec 2003 14:57:31 -0500
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: Jon Smirl <jonsmirl@yahoo.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] FIx  'noexec' behavior
+References: <20031206191829.23188.qmail@web14904.mail.yahoo.com>
+	<3FD22F5D.1000806@redhat.com>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Sun, 07 Dec 2003 04:57:14 +0900
+In-Reply-To: <3FD22F5D.1000806@redhat.com>
+Message-ID: <87n0a590th.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fernando Alencar Maróstica <famarost@unimep.br> :
-[...]
-> It's a simple and small patch.
-> This patch add stats improvements and fixes.
+Ulrich Drepper <drepper@redhat.com> writes:
 
-Thanks.
+	if (file && (!file->f_op || !file->f_op->mmap))
+		return -ENODEV;
 
---
-Ueimor
+	if ((prot & PROT_EXEC) && (file->f_vfsmnt->mnt_flags & MNT_NOEXEC))
+		return -EPERM;
+
+Probably he get the oops, because file can be NULL.
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

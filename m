@@ -1,39 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271552AbRHPKz4>; Thu, 16 Aug 2001 06:55:56 -0400
+	id <S271549AbRHPKxQ>; Thu, 16 Aug 2001 06:53:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271553AbRHPKzq>; Thu, 16 Aug 2001 06:55:46 -0400
-Received: from yoda.planetinternet.be ([195.95.30.146]:9738 "EHLO
-	yoda.planetinternet.be") by vger.kernel.org with ESMTP
-	id <S271552AbRHPKzh>; Thu, 16 Aug 2001 06:55:37 -0400
-Date: Thu, 16 Aug 2001 12:55:46 +0200
-From: Kurt Roeckx <Q@ping.be>
-To: linux-kernel@vger.kernel.org
-Subject: system freeze with 2.4.8.
-Message-ID: <20010816125546.A1598@ping.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre2i
+	id <S271552AbRHPKxG>; Thu, 16 Aug 2001 06:53:06 -0400
+Received: from tonib-gw-old.customer.0rbitel.net ([195.24.39.218]:36112 "HELO
+	mail.ludost.net") by vger.kernel.org with SMTP id <S271549AbRHPKw4>;
+	Thu, 16 Aug 2001 06:52:56 -0400
+Date: Thu, 16 Aug 2001 13:53:07 +0300 (EEST)
+From: Vasil Kolev <lnxkrnl@mail.ludost.net>
+X-X-Sender: <lnxkrnl@doom.bastun.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.4.8 vs 2.4.7 observations on loaded web server
+Message-ID: <Pine.LNX.4.33.0108161349370.3011-100000@doom.bastun.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm running 2.4.8 with the ext3 0.9.6 patch.
-
-I was running make dep, and suddenly it the disk stopped doing
-anything.  All I could do with the keyboard was switch consoles.
-
-I pressed alt+scroll lock a few times, and the EIP was about the
-same each time, so I assume it's looping somewhere.
-
-I wrote the EIP and Call trace down, and ran that thru ksymoops,
-and got this:
-
->>EIP; c013d830 <prune_icache+28/114>   <=====
-Trace; c013d934 <shrink_icache_memory+18/2c>
-Trace; c0125410 <do_try_to_free_pages+1c/44>
-Trace; c012548e <kswapd+56/e4>
-Trace; c0105448 <kernel_thread+28/38>
-
-
-Kurt
+  Hello,
+I have a machine that's loaded web server (600-800 req/sec), that
+pushes 35-55 mbits/s traffic. It runs good on 2.4.7 , with
+loadavg between 3 and 5, and because of the different opinions
+about 2.4.8 VM and stuff, tried that too. The result was not good.
+Observing /proc/meminfo, the active memory was a lot more -
+about 500MM ( under 2.4.7 it's about 240MB), it ate all the swap
+(the machine has 1G ram and 200 MB swap), and was working somewhat
+worse.
+Hope this observation helps, if anyone has any questions, feel free
+to mail me :)
 

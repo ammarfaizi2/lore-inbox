@@ -1,31 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276344AbRJUQx6>; Sun, 21 Oct 2001 12:53:58 -0400
+	id <S276350AbRJURHs>; Sun, 21 Oct 2001 13:07:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276347AbRJUQxs>; Sun, 21 Oct 2001 12:53:48 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:29201 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S276344AbRJUQxc>; Sun, 21 Oct 2001 12:53:32 -0400
-Subject: Re: What is /boot/modules-info
-To: tdiehl@rogueind.com (Tom Diehl)
-Date: Sun, 21 Oct 2001 18:00:16 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        linux-kernel@vger.kernel.org (Linux Kernel)
-In-Reply-To: <Pine.LNX.4.33.0110160815030.581-100000@tigger.rogueind.com> from "Tom Diehl" at Oct 16, 2001 08:17:23 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S276359AbRJURHj>; Sun, 21 Oct 2001 13:07:39 -0400
+Received: from www.transvirtual.com ([206.14.214.140]:52228 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S276350AbRJURHY>; Sun, 21 Oct 2001 13:07:24 -0400
+Date: Sun, 21 Oct 2001 10:06:52 -0700 (PDT)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Jonathan Morton <chromi@cyberspace.org>
+cc: lgb@lgb.hu, linux-kernel@vger.kernel.org
+Subject: Re: The new X-Kernel !
+In-Reply-To: <a05100316b7f84103696e@[192.168.239.101]>
+Message-ID: <Pine.LNX.4.10.10110210959110.13079-100000@transvirtual.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15vLxQ-0007FD-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Its a table of drivers, arguments to the module etc for common modules,
-> > used by the various config tools to help guide installs etc
-> 
-> Is there any way to regenerate it for non redhat kernels?
 
-I dont know how it was originally generated or if its hand collected.
+> Come to think of it, the kernel already supports a fair amount of 
+> video hardware, through framebuffer.  I don't know how capable that 
+> is, though, beyond displaying and scrolling text in various 
+> resolutions, and as a place for XFree86 to fall back to.  If fbdev is 
+> accelerated, some kind of userspace utility and kernel-space cleanup 
+> would potentially allow fully-accelerated (including 3D?) graphics, 
+> with much of the hard work in kernel space.  Or is fbdev just a dumb 
+> framebuffer and I'm totally off track?
 
-I suspect modinfo is the tool you need
+At present fbdev is just a dumb framebuffer. In time I plan to merge both
+DRI and fbdev into one common interface. Their is alot of ideas on where
+graphics handling should be done. IMO the kernel should only manage the
+state of the hardware amoung the various processes. This is defintely
+needed for SMP machines where two processes could be using the hardware 
+at the same time. Not actually programming the video hardware. That is
+userland job.  
+

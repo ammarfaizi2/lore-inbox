@@ -1,48 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261688AbVAXWCe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261695AbVAXWGl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261688AbVAXWCe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 17:02:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261606AbVAXWAO
+	id S261695AbVAXWGl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 17:06:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261686AbVAXWEy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 17:00:14 -0500
-Received: from az33egw01.freescale.net ([192.88.158.102]:44686 "EHLO
-	az33egw01.freescale.net") by vger.kernel.org with ESMTP
-	id S261686AbVAXVvw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 16:51:52 -0500
-Date: Mon, 24 Jan 2005 15:51:42 -0600 (CST)
-From: Kumar Gala <galak@freescale.com>
-X-X-Sender: galak@blarg.somerset.sps.mot.com
-To: akpm@osdl.org
-cc: waite@skycomputers.com, linux-kernel@vger.kernel.org,
-       linuxppc-dev@ozlabs.org
-Subject: [PATCH] ppc32: fix powersave with interrupts disabled
-Message-ID: <Pine.LNX.4.61.0501241548380.23263@blarg.somerset.sps.mot.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 24 Jan 2005 17:04:54 -0500
+Received: from fw.osdl.org ([65.172.181.6]:40908 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261678AbVAXWAd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 17:00:33 -0500
+Date: Mon, 24 Jan 2005 14:05:07 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Alexander Nyberg <alexn@dsv.su.se>
+Cc: axboe@suse.de, kas@fi.muni.cz, linux-kernel@vger.kernel.org,
+       lennert.vanalboom@ugent.be
+Subject: Re: Memory leak in 2.6.11-rc1?
+Message-Id: <20050124140507.1761792b.akpm@osdl.org>
+In-Reply-To: <1106528219.867.22.camel@boxen>
+References: <20050121161959.GO3922@fi.muni.cz>
+	<1106360639.15804.1.camel@boxen>
+	<20050123091154.GC16648@suse.de>
+	<20050123011918.295db8e8.akpm@osdl.org>
+	<20050123095608.GD16648@suse.de>
+	<20050123023248.263daca9.akpm@osdl.org>
+	<1106528219.867.22.camel@boxen>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It looks like the problem has to do with entering the powersave routine 
-with irqs disabled. Here is a patch that will only enter powersave if irqs 
-are enabled.
+Alexander Nyberg <alexn@dsv.su.se> wrote:
+>
+> I put something similar together of what you described but I made it a 
+> proc-file. It lists all pages owned by some caller and keeps a backtrace
+> of max 8 addresses.
+> ...
+> I hope you like it ;)
 
-Entering powersave on PPC while irqs are disabled causes a hang. Only 
-enter powersave if irqs are disabled.
-
-Signed-off-by: Brian Waite <waite@skycomputers.com> 
-Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
-
----
-diff -Nru a/arch/ppc/kernel/idle.c b/arch/ppc/kernel/idle.c
---- a/arch/ppc/kernel/idle.c	2005-01-24 15:48:24 -06:00
-+++ b/arch/ppc/kernel/idle.c	2005-01-24 15:48:24 -06:00
-@@ -39,7 +39,7 @@
- 	powersave = ppc_md.power_save;
- 
- 	if (!need_resched()) {
--		if (powersave != NULL)
-+		if (powersave != NULL && !irqs_disabled())
- 			powersave();
- 		else {
- #ifdef CONFIG_SMP
-
+I do!  If you have time, please give it all a real config option under the
+kernel-hacking menu and I'll sustain it in -mm, thanks.

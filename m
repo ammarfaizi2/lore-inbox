@@ -1,52 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290051AbSAKSRg>; Fri, 11 Jan 2002 13:17:36 -0500
+	id <S290054AbSAKSZH>; Fri, 11 Jan 2002 13:25:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290052AbSAKSR0>; Fri, 11 Jan 2002 13:17:26 -0500
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:43183
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S290051AbSAKSRP>; Fri, 11 Jan 2002 13:17:15 -0500
-Date: Fri, 11 Jan 2002 11:17:14 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: [PATCH] Fix fs/fat/inode.c when compiled with gcc-3.0.x
-Message-ID: <20020111181714.GR13931@cpe-24-221-152-185.az.sprintbbd.net>
-In-Reply-To: <20020111152950.GM13931@cpe-24-221-152-185.az.sprintbbd.net> <Pine.LNX.4.33.0201111008240.3952-100000@penguin.transmeta.com>
-Mime-Version: 1.0
+	id <S290055AbSAKSY4>; Fri, 11 Jan 2002 13:24:56 -0500
+Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:13959 "EHLO
+	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S290054AbSAKSYo>; Fri, 11 Jan 2002 13:24:44 -0500
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Q] Looking for an emulation for CMOV* instructions.
+In-Reply-To: <E16Opxl-00066O-00@the-village.bc.nu>
+From: Ronald Wahl <Ronald.Wahl@informatik.tu-chemnitz.de>
+Date: 11 Jan 2002 19:24:42 +0100
+Message-ID: <m2g05cn3th.fsf@goliath.csn.tu-chemnitz.de>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Civil Service)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0201111008240.3952-100000@penguin.transmeta.com>
-User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 11, 2002 at 10:09:08AM -0800, Linus Torvalds wrote:
-> 
-> On Fri, 11 Jan 2002, Tom Rini wrote:
-> >
-> > This was indeed on PPC (I tried x86 w/ the same package but it worked)
-> > running gcc-3.0.3-1 (from Debian/sid).  So it seems the fix didn't make
-> > it into a release yet.  I guess I'll go hunt down some compiler people
-> > and get them to fix it.
-> 
-> I've seen the patch, so it definitely is fixed - rth posted it to the gcc
-> lists. But it may be that it only went into the development tree, or that
-> it happened after 3.0.3 was released.
+On Fri, 11 Jan 2002 00:54:29 +0000 (GMT), Alan Cox wrote:
 
-After talking with Franz Sirl abit (and reading the thread on the
-patch), the fix is in the gcc-3.1 branch (so gcc-3.1.0 will work), and
-the patch can be applied to 3.0.x (I've done it locally and am
-rebuilding).  He's going to try and get the patch applied to the 3.0.x
-branch, but isn't sure if there will be another 3.0.x release with 3.1
-coming out on april 15 (if on schedule).
+>> The compiler doesn't know, where the binary runs later. Or do you mean,
+>> that it has to insert some code that checks for the existance of these
+>> instructions during program start? Ok that would be a solution, but how
+>> do you do this for libraries that are not run in itself?
 
-So should we workaround this now in 2.4.x or no?  There's other changes
-which need to get into 2.4.x / 2.5.x anyhow for gcc-3.0.x to be happy on
-all PPC arches anyhow.  But I also get the feeling 2.4.x and gcc-3.1
-will be unsupported/not a good idea for a while to come anyhow.
+> It means the compiler for -m686 shouldn't have assumed cmov was
+> available
+
+It's not the compiler that is responsible for it. At least in my case.
+The problem is that if you compile the glibc than some assembler code
+gets included into glibc.  So the problem here is glibc and not gcc.
+Ok, the way to go for me now will be to make a new glibc without this
+instructions. But I still think it would be a step to more fault
+tolerance (or tolerance to goofy admins ;-) if we could have an
+emulation of this. If I find some time I will do this...
+
+>> but the costs of automatically catching such errors are little in
+>> respect of the benefit you get. A running system is always better than
+>> a unusable one even if it was the admins fault.
+
+> Then while you are it you can make the kernel magically recover from rm -rf /
+> or rm * in /lib...
+
+Let the FS driver copy all modified sectors into a hidden log on the
+disk (fixed or dynamic in size or as a ringbuffer). Then e.g during
+kernel startup in case you removed most of the system you might be asked
+to recover from some point. Such concepts are used by software like
+HDD-Sheriff but one level below (disc sector level). On filesystem level
+it makes more sense since you may recover partially. All that will bloat
+the kernel but it would be possible. This case is one that has (very)
+high costs. Not that I want this but I want to show that there _are_
+ways to do it.
+
+ron
 
 -- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+/\/\  Dipl.-Inf. Ronald Wahl                /\/\        C S N         /\/\
+\/\/  ronald.wahl@informatik.tu-chemnitz.de \/\/  ------------------  \/\/
+/\/\  http://www.tu-chemnitz.de/~row/       /\/\  network and system  /\/\
+\/\/  GnuPG/PGP key available               \/\/    administration    \/\/

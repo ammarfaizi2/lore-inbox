@@ -1,42 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264723AbTFAUbA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jun 2003 16:31:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264725AbTFAUbA
+	id S264726AbTFAUcF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jun 2003 16:32:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264727AbTFAUcF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jun 2003 16:31:00 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:4359 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S264723AbTFAUbA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jun 2003 16:31:00 -0400
-Date: Sun, 1 Jun 2003 22:44:22 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Stig Brautaset <stig@brautaset.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.70: scripts/Makefile.build fix
-Message-ID: <20030601204422.GA1021@mars.ravnborg.org>
-Mail-Followup-To: Stig Brautaset <stig@brautaset.org>,
-	linux-kernel@vger.kernel.org
-References: <20030601184335.GA31452@brautaset.org>
+	Sun, 1 Jun 2003 16:32:05 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:51462 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id S264726AbTFAUcE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Jun 2003 16:32:04 -0400
+Date: Sun, 1 Jun 2003 22:45:16 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: Willy Tarreau <willy@w.ods.org>,
+       Daniel Podlejski <underley@underley.eu.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: AIC7xxx problem
+Message-ID: <20030601204516.GA15693@alpha.home.local>
+References: <20030531165945.GA5561@witch.underley.eu.org> <20030601083656.GI21673@alpha.home.local> <2859720000.1054499680@aslan.scsiguy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030601184335.GA31452@brautaset.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <2859720000.1054499680@aslan.scsiguy.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 01, 2003 at 07:43:35PM +0100, Stig Brautaset wrote:
-> Hi, 
+On Sun, Jun 01, 2003 at 02:34:40PM -0600, Justin T. Gibbs wrote:
+> > Hmmm that makes quite a difference ! I didn't understand what happened between
+> > these two outputs. Also, did you try with Justin's latest version of the driver:
+> > 
 > 
-> This patch seems to fix `make V=0' for me.
+> My driver can't fix interrupt routing issues which is what Daniel's
+> problem turned out to be.  I'm really tempted to add an interrupt
+> test to the driver attach so that these kinds of problems are clearly
+> flagged and my driver doesn't continue to get blamed for interrupt
+> routing it can't control.
 
-Thanks for the patch.
-I do not see the broken behaviour here. Can you provide me with information
-about your system:
-Make version, shell, architecture, distribution.
+If this is (relatively) easy to do, I really think it could be a valuable
+diagnostic tool. I'd prefer to get a clear "fix your APIC" or any insult
+about my hardware config than devices detection dying in endless timeout
+loops.
 
-I got one report in private mail about make V=0 was broken, and would like
-to find out what is causing the problem.
+This principle may even be generalized to any other driver which can make the
+device trigger an interrupt.
 
-	Sam
+Cheers,
+Willy
+

@@ -1,39 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136148AbRDVOTK>; Sun, 22 Apr 2001 10:19:10 -0400
+	id <S136152AbRDVOTv>; Sun, 22 Apr 2001 10:19:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136150AbRDVOTB>; Sun, 22 Apr 2001 10:19:01 -0400
-Received: from t2.redhat.com ([199.183.24.243]:63729 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S136148AbRDVOSw>; Sun, 22 Apr 2001 10:18:52 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <041d01c0cb21$1f147e90$910201c0@zapper> 
-In-Reply-To: <041d01c0cb21$1f147e90$910201c0@zapper>  <E14qHRp-0007Yc-00@the-village.bc.nu> <Pine.LNX.4.31.0104190944090.4074-100000@penguin.transmeta.com> <E14qXEU-0005xo-00@g212.hadiko.de> <9bqgvi$63q$1@penguin.transmeta.com> <3AE10741.FA4E40BD@gmx.de> <E14rGU8-0003zk-00@g212.hadiko.de> 
-To: "Alon Ziv" <alonz@nolaviz.org>
-Cc: linux-kernel@vger.kernel.org, dhowells@cambridge.redhat.com
-Subject: Re: light weight user level semaphores 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 22 Apr 2001 15:18:34 +0100
-Message-ID: <27025.987949114@redhat.com>
+	id <S136151AbRDVOTn>; Sun, 22 Apr 2001 10:19:43 -0400
+Received: from [212.150.182.35] ([212.150.182.35]:59662 "EHLO
+	exchange.guidelet.com") by vger.kernel.org with ESMTP
+	id <S136150AbRDVOTT>; Sun, 22 Apr 2001 10:19:19 -0400
+Message-ID: <001301c0cb3f$a550d490$910201c0@zapper>
+From: "Alon Ziv" <alonz@nolaviz.org>
+To: <linux-kernel@vger.kernel.org>
+Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <E14rJEP-0005l6-00@the-village.bc.nu>
+Subject: Re: light weight user level semaphores
+Date: Sun, 22 Apr 2001 17:19:38 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Well, that's the reason for my small-negative-integer semaphore-FD idea...
+(It won't support select() easily, but poll() is prob'ly good enough)
+Still, there is the problem of read()/write()/etc. semantics; sure, we can
+declare that 'negative FDs' have their own semantics which just happen to
+include poll(), but it sure looks like a kludge...
 
-alonz@nolaviz.org said:
->  [BTW, another solution is to truly support opaque "handles" to kernel
-> objects; I believe David Howells is already working on something like
-> this for Wine? The poll interface can be trivially extended to support
-> waiting on those...]
+    -az
 
-ISTR it wasn't quite trivial to do it that way - it would require the 
-addition of an extra argument to the fops->poll() method.
+----- Original Message -----
+From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+To: "Alon Ziv" <alonz@nolaviz.org>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Sunday, April 22, 2001 14:44
+Subject: Re: light weight user level semaphores
 
-David?
 
---
-dwmw2
-
+> > All of this FD allocation stuff is truly distrurbing.
+> > This appears to be the one place where Win32 got it (almost) right---
+> > quite about every kernel object looks to userland just like an opaque
+> > handle, and the same operations apply to all of them.
+>
+> Unix got this right, then AT&T broke it in System III. One very good
+reason
+> for pipe based semaphore stuff is precisely that it works in
+poll/select/SIGIO
+>
+> Alan
+>
+>
+>
 

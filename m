@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S273288AbTG3TP1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 15:15:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273316AbTG3TP1
+	id S273356AbTG3T1M (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 15:27:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273358AbTG3T1L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 15:15:27 -0400
-Received: from CPE-65-29-19-166.mn.rr.com ([65.29.19.166]:23688 "EHLO
-	www.enodev.com") by vger.kernel.org with ESMTP id S273288AbTG3TPW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 15:15:22 -0400
-Subject: Re: Buffer I/O error on device hde3, logical block 4429
-From: Shawn <core@enodev.com>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <1059585712.11341.24.camel@localhost>
-References: <1059585712.11341.24.camel@localhost>
-Content-Type: text/plain
+	Wed, 30 Jul 2003 15:27:11 -0400
+Received: from smtp-103-wednesday.noc.nerim.net ([62.4.17.103]:42501 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id S273356AbTG3T1E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 15:27:04 -0400
+Message-ID: <3F281C06.70707@inet6.fr>
+Date: Wed, 30 Jul 2003 21:27:02 +0200
+From: Lionel Bouton <Lionel.Bouton@inet6.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: mru@users.sourceforge.net
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Lionel Bouton <lionel.bouton@inet6.fr>
+Subject: Re: DMA timeouts on SIS IDE
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <1059592520.11341.47.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 30 Jul 2003 14:15:20 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It appears Mike Galbraith has seen something similar in -vanilla.
-http://www.ussg.iu.edu/hypermail/linux/kernel/0307.3/1987.html
+Hi,
 
-Does anyone have any interest at all in pursuing this? Hopefully? I'm
-glad to try and be the pig of Guinea. Kill piggy!
+the lspci output you previously sent confirmed that the SiS IDE driver 
+does set the UDMA timings correctly. Given this is out of the suspects 
+list, I'd advise to :
 
-On Wed, 2003-07-30 at 12:21, Shawn wrote:
-> I am running 2.6.0-test2-mm1, and upon boot have received a gift of many
-> "Buffer I/O error on device hde3" messages in my log. After they quit,
-> they never seem to come back.
-> 
-> I'd just like to know what might cause this? I see fs/buffer.c is
-> telling me this, but I don't know what is failing.
-> 
-> One thing of note, I just upgraded my CPU from an Athlon XP 1800+ to a
-> 2400+, and had to disable IO-APIC, and shut APIC off in my BIOS.
+- test the hardware (uneasy on a notebook, 2.5" IDE drives aren't as 
+common as 3.5" ones)
+- try latest ACPI on sourceforge and enable ACPI in the BIOS if not 
+already done (seems to have helped once : 
+http://marc.theaimsgroup.com/?l=linux-kernel&m=104212864518052&w=4)
+
+LB.
+

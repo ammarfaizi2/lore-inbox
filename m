@@ -1,37 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264486AbTFEG4o (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jun 2003 02:56:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264487AbTFEG4o
+	id S264491AbTFEHCJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jun 2003 03:02:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264492AbTFEHCJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jun 2003 02:56:44 -0400
-Received: from ns.suse.de ([213.95.15.193]:18182 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S264486AbTFEG4n (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jun 2003 02:56:43 -0400
-To: Patrick Mochel <mochel@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Is sys_sysfs used?
-References: <Pine.LNX.4.44.0306041124250.13077-100000@cherise.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 05 Jun 2003 09:09:59 +0200
-In-Reply-To: <Pine.LNX.4.44.0306041124250.13077-100000@cherise.suse.lists.linux.kernel>
-Message-ID: <p731xy96lvc.fsf@oldwotan.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 5 Jun 2003 03:02:09 -0400
+Received: from mail.cpt.sahara.co.za ([196.41.29.142]:5367 "EHLO
+	workshop.saharact.lan") by vger.kernel.org with ESMTP
+	id S264491AbTFEHCI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jun 2003 03:02:08 -0400
+Subject: Re: Why am I getting Kernel Panic VFS cannot mount root fs on 301?
+From: Martin Schlemmer <azarah@gentoo.org>
+To: Joe Burks <jburks@wavicle.org>
+Cc: Helge Hafting <helgehaf@aitel.hist.no>, KML <linux-kernel@vger.kernel.org>
+In-Reply-To: <200306050007.39267.jburks@wavicle.org>
+References: <200306041412.27897.jburks@wavicle.org>
+	 <20030604213950.GC2436@hh.idb.hist.no>
+	 <200306050007.39267.jburks@wavicle.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1054796597.5279.46.camel@workshop.saharacpt.lan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3- 
+Date: 05 Jun 2003 09:03:18 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick Mochel <mochel@osdl.org> writes:
+On Thu, 2003-06-05 at 09:07, Joe Burks wrote:
+> enu).  All is relatively working now (I can't seem to open a console in X 
+> windows if I have devfs built - I think this has something to do with 
+> securetty, but I've made the devfs changes to that file and it is still not 
+> working).
+> 
 
-> I see that only one architecture defines __NR_sysfs: x86-64, though it
-> appears most architectures mention it in arch/*/kernel/entry.S (or 
-> equivalent). 
+>From 2.5.68 somewhere you need devpts support compiled in again
+(was cut from devfs), and need to mount it to /dev/pts ....
 
-That's because x86-64 has a merged entry.S/unistd.h. The other architectures
-probably use some other name in unistd.h
 
-I think it can be removed safely from the AMD64 64bit table at least.
+-- 
+Martin Schlemmer
 
--Andi
+

@@ -1,69 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262520AbTCRQbw>; Tue, 18 Mar 2003 11:31:52 -0500
+	id <S262507AbTCRQaZ>; Tue, 18 Mar 2003 11:30:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262526AbTCRQbv>; Tue, 18 Mar 2003 11:31:51 -0500
-Received: from janus.zeusinc.com ([205.242.242.161]:49778 "EHLO
-	zso-proxy.zeusinc.com") by vger.kernel.org with ESMTP
-	id <S262520AbTCRQba>; Tue, 18 Mar 2003 11:31:30 -0500
-Subject: Re: 2.5.64-mm8 breaks MASQ
-From: Tom Sightler <ttsig@tuxyturvy.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Shawn <core@enodev.com>, LKML <linux-kernel@vger.kernel.org>,
-       Stephen Hemminger <shemminger@osdl.org>
-In-Reply-To: <20030318025523.7360f1d9.akpm@digeo.com>
-References: <1047922184.3223.2.camel@iso-8590-lx.zeusinc.com>
-	 <1047984726.3914.2.camel@localhost.localdomain>
-	 <20030318025523.7360f1d9.akpm@digeo.com>
-Content-Type: text/plain
-Message-Id: <1048005523.2559.15.camel@iso-8590-lx.zeusinc.com>
-Mime-Version: 1.0
-Date: 18 Mar 2003 11:38:43 -0500
-Content-Transfer-Encoding: 7bit
+	id <S262508AbTCRQaY>; Tue, 18 Mar 2003 11:30:24 -0500
+Received: from virgo.cus.cam.ac.uk ([131.111.8.20]:61636 "EHLO
+	virgo.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S262507AbTCRQaX>; Tue, 18 Mar 2003 11:30:23 -0500
+Date: Tue, 18 Mar 2003 16:41:15 +0000 (GMT)
+From: Anton Altaparmakov <aia21@cantab.net>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+cc: linux-ntfs-dev@lists.sourceforge.net,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: NTFS byte swapping
+In-Reply-To: <Pine.GSO.4.21.0303181546500.17808-100000@vervain.sonytel.be>
+Message-ID: <Pine.SOL.3.96.1030318163951.16788B-100000@virgo.cus.cam.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-03-18 at 05:55, Andrew Morton wrote:
-> Shawn <core@enodev.com> wrote:
-> >
-> > This actually broke in -mm7, but I don't know what causes it.
-> > 
-> > I have to admit, I haven't even looked at the patch to see what changed.
-> > Oh well, I suspect good ol' 65-mm1 will fix things up. If so, my TiVo
-> > could stop holding it's breath. ;)
-> > 
-> > Anyone else seeing this?
+Hi,
+
+On Tue, 18 Mar 2003, Geert Uytterhoeven wrote:
+> When compiling NTFS support in 2.5.65 on a big-endian machine (m68k), I get:
 > 
-> Stephen is looking into it.  Please send him your iptables
-> configuration info. 
+> | fs/ntfs/compress.c:167: warning: passing arg 1 of `__swab16p' from incompatible pointer type
+> | fs/ntfs/compress.c:207: warning: passing arg 1 of `__swab16p' from incompatible pointer type
+> | fs/ntfs/compress.c:228: warning: passing arg 1 of `__swab16p' from incompatible pointer type
+> | fs/ntfs/compress.c:333: warning: passing arg 1 of `__swab16p' from incompatible pointer type
+> 
+> The offending code does `le16_to_cpup(cb)', with cb a pointer to a u8.
 
-My iptables config is just a simple one-liner as follows:
+Thanks for letting us know. I have fixed it now (just doing
+le16to_cpup((u16*)cb) instead which should fix the warnings. I will submit
+to Linus together with other changes later.
 
-iptables -t nat -A POSTROUTING -o eth1 -j MASQUERADE
+Best regards,
 
-eth1 is an Aironet PCCARD wireless adapter connected to my corporate
-network
-
-eth0 is 3c556 (3c59x driver) Mini-PCI 10/100 with various systems
-connected to it.
-
-I also regularly NAT my VMware virtual machine (normally configured for
-host only networking) which sits on vmnet1.
-
-I've tried several variations of the iptables option, such as:
-
-iptables -t nat -A POSTROUTING -s 192.168.4.1/24 -j MASQUERADE
-
-iptables -t nat -A POSTROUTING -o ! eth0 -j MASQUERADE
-
-All of these variations work without the brlock patches backed out. 
-Actually, I haven't been able to get any MASQ/NAT options to work with
-the brlock removal patches.
-
-Let me know if you need more info.
-
-Later,
-Tom
-
-
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
 

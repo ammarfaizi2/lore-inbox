@@ -1,99 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261299AbSJYHmI>; Fri, 25 Oct 2002 03:42:08 -0400
+	id <S261304AbSJYHnc>; Fri, 25 Oct 2002 03:43:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261300AbSJYHmI>; Fri, 25 Oct 2002 03:42:08 -0400
-Received: from sun.fadata.bg ([80.72.64.67]:46737 "HELO fadata.bg")
-	by vger.kernel.org with SMTP id <S261299AbSJYHmH>;
-	Fri, 25 Oct 2002 03:42:07 -0400
-To: vda@port.imtp.ilyichevsk.odessa.ua
-Cc: Russell King <rmk@arm.linux.org.uk>,
-       Roy Sigurd Karlsbakk <roy@karlsbakk.net>, netdev@oss.sgi.com,
-       Kernel mailing list <linux-kernel@vger.kernel.org>,
-       libc-alpha@sources.redhat.com
-Subject: Re: Csum and csum copyroutines benchmark
-References: <200210231218.18733.roy@karlsbakk.net>
-	<20021024125030.A7529@flint.arm.linux.org.uk>
-	<200210241249.g9OCnOp09750@Port.imtp.ilyichevsk.odessa.ua>
-	<200210250643.g9P6hop13980@Port.imtp.ilyichevsk.odessa.ua>
-X-No-CC: Reply to lists, not to me.
-From: Momchil Velikov <velco@fadata.bg>
-In-Reply-To: <200210250643.g9P6hop13980@Port.imtp.ilyichevsk.odessa.ua>
-Date: 25 Oct 2002 10:48:10 +0300
-Message-ID: <87n0p3x8lh.fsf@fadata.bg>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	id <S261305AbSJYHnc>; Fri, 25 Oct 2002 03:43:32 -0400
+Received: from [211.150.96.25] ([211.150.96.25]:28597 "EHLO smtp.x263.net")
+	by vger.kernel.org with ESMTP id <S261304AbSJYHnb>;
+	Fri, 25 Oct 2002 03:43:31 -0400
+From: "kcn" <kcn@263.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.4.18 freeze on 4G memory.
+Date: Fri, 25 Oct 2002 15:49:08 +0800
+Message-ID: <000e01c27bfb$06d3d970$31036fa6@zhoulin>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4024
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Denis" == Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> writes:
+  I have a 4*Xeon 700A+2G memory server running reiserfs+2.4.18+openwall
+patch.
+Our service is running with large processes(> 4000) and a little heavy
+disk I/O, and 
+the server's load is about 3.x to 4.x.
+  But last month after I increased 2G memory to 4G, the server is always
+froze every two 
+or three hours. After 5-10 minutes, it can be alive again.
+  I have changed to RedHat kernel 2.4.18-17, and it has the same problem
+but a little well--
+it is froze only several seconds. And the average load is above
+20,higher than 2.4.18.
+  Kernel build with 4G memory support + reiserfs + smp support + intel
+e100 driver module.
+  Any advice? Thank for help.
+2G + linux 2.4.18
+# uptime
+  9:30pm  up 4 days,  9:22,  7 users,  load average: 3.48, 4.63, 4.63
+# vmstat 2 2
+   procs                      memory    swap          io     system
+cpu
+ r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us
+sy  id
+ 2  5  1 294264  20832 321096 584276   7   6    25    15   28    23  10
+7  27
+ 4  1  0 294196  13512 322424 585088 828   0  1476   540 7025  4090  18
+31  51
 
-Denis> /me said:
->> I'm experimenting with different csum_ routines in userspace now.
+4G + 2.4.18 freeze
+# uptime
+  3:30pm  up  3:09,  5 users,  load average: 534.48, 154.42, 69.21
+# vmstat 2 2
+   procs                      memory    swap          io     system
+cpu
+ r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us
+sy  id
+276 14  8      0  43788 191968 2047620   0   0    82   157  822   404
+12  31  57
+ 6 30  2      0  14704 191156 2048776   0   0   760  3564 9212  3028  21
+78   1# uptime
 
-Denis> Short conclusion: 
-Denis> 1. It is possible to speed up csum routines for AMD processors by 30%.
-Denis> 2. It is possible to speed up csum_copy routines for both AMD and Intel
-Denis>    three times or more. Roy, do you like that? ;)
-
-Additional data point:
-
-Short summary:
-1. Checksum - kernelpii_csum is ~19% faster
-2. Copy - lernelpii_csum is ~6% faster
-
-Dual Pentium III, 1266Mhz, 512K cache, 2G SDRAM (133Mhz, ECC)
-
-The only changes I made were to decrease the buffer size to 1K (as I
-think this is more representative to a network packet size, correct me
-if I'm wrong) and increase the runs to 1024. Max values are worthless
-indeed.
-
-
-Csum benchmark program
-buffer size: 1 K
-Each test tried 1024 times, max and min CPU cycles are reported.
-Please disregard max values. They are due to system interference only.
-csum tests:
-                     kernel_csum - took   941 max,  740 min cycles per kb. sum=0x44000077
-                     kernel_csum - took   748 max,  742 min cycles per kb. sum=0x44000077
-                     kernel_csum - took 60559 max,  742 min cycles per kb. sum=0x44000077
-                  kernelpii_csum - took 52804 max,  601 min cycles per kb. sum=0x44000077
-                kernelpiipf_csum - took 12930 max,  601 min cycles per kb. sum=0x44000077
-                        pfm_csum - took 10161 max, 1402 min cycles per kb. sum=0x44000077
-                       pfm2_csum - took   864 max,  838 min cycles per kb. sum=0x44000077
-copy tests:
-                     kernel_copy - took   339 max,  239 min cycles per kb. sum=0x44000077
-                     kernel_copy - took   239 max,  239 min cycles per kb. sum=0x44000077
-                     kernel_copy - took   239 max,  239 min cycles per kb. sum=0x44000077
-                  kernelpii_copy - took   244 max,  225 min cycles per kb. sum=0x44000077
-                      ntqpf_copy - took 10867 max,  512 min cycles per kb. sum=0x44000077
-                     ntqpfm_copy - took   710 max,  403 min cycles per kb. sum=0x44000077
-                        ntq_copy - took  4535 max,  443 min cycles per kb. sum=0x44000077
-                     ntqpf2_copy - took   563 max,  555 min cycles per kb. sum=0x44000077
-Done
+4G + redhat 2.4.18-17
+#uptime
+  1:25pm  up  1:04,  5 users,  load average: 27.79, 23.25, 20.59
+# vmstat 2 2
+   procs                      memory    swap          io     system
+cpu
+ r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us
+sy  id
+ 1  1  1      0 664524 277408 1585192   0   0   113   140  740   398  11
+22  68
+ 0  1  2      0 664928 277852 1585428   0   0   240  1382 4470  2194  17
+43  40
 
 
-HOWEVER ...
-
-sometimes (say 1/30) I get the following output:
-
-Csum benchmark program
-buffer size: 1 K
-Each test tried 1024 times, max and min CPU cycles are reported.
-Please disregard max values. They are due to system interference only.
-csum tests:
-                     kernel_csum - took   958 max,  740 min cycles per kb. sum=0x44000077
-                     kernel_csum - took   748 max,  740 min cycles per kb. sum=0x44000077
-                     kernel_csum - took   752 max,  740 min cycles per kb. sum=0x44000077
-                  kernelpii_csum - took   624 max,  600 min cycles per kb. sum=0x44000077
-                kernelpiipf_csum - took 877211 max,  601 min cycles per kb. sum=0x44000077
-Bad sum
-Aborted
-
-which is to say that pfm_csum and pfm2_csum results are not to be
-trusted (at least on PIII (or my kernel CONFIG_MPENTIUMIII=y
-config?)).
-
-~velco

@@ -1,34 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132555AbRAQFRp>; Wed, 17 Jan 2001 00:17:45 -0500
+	id <S129875AbRAQFhC>; Wed, 17 Jan 2001 00:37:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132518AbRAQFRg>; Wed, 17 Jan 2001 00:17:36 -0500
-Received: from [129.94.172.186] ([129.94.172.186]:242 "EHLO
+	id <S130017AbRAQFgm>; Wed, 17 Jan 2001 00:36:42 -0500
+Received: from [129.94.172.186] ([129.94.172.186]:13298 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S132555AbRAQFRW>; Wed, 17 Jan 2001 00:17:22 -0500
-Date: Wed, 17 Jan 2001 16:16:35 +1100 (EST)
+	id <S129875AbRAQFgg>; Wed, 17 Jan 2001 00:36:36 -0500
+Date: Wed, 17 Jan 2001 16:36:21 +1100 (EST)
 From: Rik van Riel <riel@conectiva.com.br>
 X-X-Sender: <riel@localhost.localdomain>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Ingo Molnar <mingo@elte.hu>, Jens Axboe <axboe@suse.de>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "Stephen C. Tweedie" <sct@redhat.com>,
-        Christoph Hellwig <hch@caldera.de>,
-        "David S. Miller" <davem@redhat.com>, <netdev@oss.sgi.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
-In-Reply-To: <20010109205420.H29904@athlon.random>
-Message-ID: <Pine.LNX.4.31.0101171616100.5464-100000@localhost.localdomain>
+To: <david+validemail@kalifornia.com>
+cc: "John O'Donnell" <johnod@voicefx.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: .br blacklisted ?
+In-Reply-To: <3A5BE0E0.FB061E33@linux.com>
+Message-ID: <Pine.LNX.4.31.0101171635401.5464-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Jan 2001, Andrea Arcangeli wrote:
+On Tue, 9 Jan 2001, David Ford wrote:
+> Rik van Riel wrote:
+> > On Sun, 7 Jan 2001, John O'Donnell wrote:
+> >
+> > > Only on my company's e-mail server.  My company typically gets "zero"
+> > > emails from outside the US.  If I get a piece of spam (sorry they are
+> > > typically from outside the US), I just block the entire .com.br domain.
+> > > I get far less SPAM now!
+> >
+> > Remind me to never help you with kernel problems again.
+>
+> Others on this list blacklist or let others blacklist for them
+> with varying precision.
 
-> BTW, I noticed what is left in blk-13B seems to be my work
-
-Yeah yeah, we'll buy you beer at the next conference... ;)
+So do I. I chose to blacklist John O'Donnell and he will
+never get any kernel help from me again (since I can't see
+his email).
 
 Rik
 --

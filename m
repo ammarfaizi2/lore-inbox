@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265883AbUBBTmZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 14:42:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265913AbUBBTmY
+	id S266037AbUBBUIy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 15:08:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266041AbUBBUHD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 14:42:24 -0500
-Received: from mailr-2.tiscali.it ([212.123.84.82]:3429 "EHLO
-	mailr-2.tiscali.it") by vger.kernel.org with ESMTP id S265911AbUBBTmU
+	Mon, 2 Feb 2004 15:07:03 -0500
+Received: from mailr-2.tiscali.it ([212.123.84.82]:11680 "EHLO
+	mailr-2.tiscali.it") by vger.kernel.org with ESMTP id S266068AbUBBUGg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 14:42:20 -0500
-Date: Mon, 2 Feb 2004 20:42:19 +0100
+	Mon, 2 Feb 2004 15:06:36 -0500
+Date: Mon, 2 Feb 2004 21:06:33 +0100
 From: Kronos <kronos@kronoz.cjb.net>
 To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: [Compile Regression in 2.4.25-pre8][PATCH 7/42]
-Message-ID: <20040202194219.GG6785@dreamland.darkstar.lan>
+Subject: [Compile Regression in 2.4.25-pre8][PATCH 42/42]
+Message-ID: <20040202200633.GP6785@dreamland.darkstar.lan>
 Reply-To: kronos@kronoz.cjb.net
 References: <20040130204956.GA21643@dreamland.darkstar.lan> <Pine.LNX.4.58L.0401301855410.3140@logos.cnet> <20040202180940.GA6367@dreamland.darkstar.lan>
 Mime-Version: 1.0
@@ -25,35 +25,37 @@ User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-cmdlinepart.c:345: warning: `mtdpart_setup' defined but not used
 
-Function is not used when driver is modular.
+yellowfin.c:1282: warning: unsigned int format, different type arg (arg 2)
+yellowfin.c:1294: warning: unsigned int format, different type arg (arg 2)
 
-diff -Nru -X dontdiff linux-2.4-vanilla/drivers/mtd/cmdlinepart.c linux-2.4/drivers/mtd/cmdlinepart.c
---- linux-2.4-vanilla/drivers/mtd/cmdlinepart.c	Fri Jun 13 16:51:34 2003
-+++ linux-2.4/drivers/mtd/cmdlinepart.c	Sat Jan 31 16:57:32 2004
-@@ -335,7 +335,7 @@
- 	return -EINVAL;
- }
+dma_addr_t can be 64 bit long even on x86 (when CONFIG_HIGHMEM64G is
+defined). Cast to dma64_addr_t in the printk.
+
+diff -Nru -X dontdiff linux-2.4-vanilla/drivers/net/yellowfin.c linux-2.4/drivers/net/yellowfin.c
+--- linux-2.4-vanilla/drivers/net/yellowfin.c	Tue Nov 11 17:51:39 2003
++++ linux-2.4/drivers/net/yellowfin.c	Sat Jan 31 19:26:34 2004
+@@ -1279,7 +1279,7 @@
  
--
-+#ifndef MODULE
- /* 
-  * This is the handler for our kernel parameter, called from 
-  * main.c::checksetup(). Note that we can not yet kmalloc() anything,
-@@ -348,6 +348,7 @@
- }
+ #if defined(__i386__)
+ 	if (yellowfin_debug > 2) {
+-		printk("\n"KERN_DEBUG"  Tx ring at %8.8x:\n", yp->tx_ring_dma);
++		printk("\n"KERN_DEBUG"  Tx ring at %8.8Lx:\n", (dma64_addr_r)yp->tx_ring_dma);
+ 		for (i = 0; i < TX_RING_SIZE*2; i++)
+ 			printk(" %c #%d desc. %8.8x %8.8x %8.8x %8.8x.\n",
+ 				   inl(ioaddr + TxPtr) == (long)&yp->tx_ring[i] ? '>' : ' ',
+@@ -1291,7 +1291,7 @@
+ 				   i, yp->tx_status[i].tx_cnt, yp->tx_status[i].tx_errs,
+ 				   yp->tx_status[i].total_tx_cnt, yp->tx_status[i].paused);
  
- __setup("mtdparts=", mtdpart_setup);
-+#endif
- 
- EXPORT_SYMBOL(parse_cmdline_partitions);
- 
+-		printk("\n"KERN_DEBUG "  Rx ring %8.8x:\n", yp->rx_ring_dma);
++		printk("\n"KERN_DEBUG "  Rx ring %8.8Lx:\n", (dma64_addr_t)yp->rx_ring_dma);
+ 		for (i = 0; i < RX_RING_SIZE; i++) {
+ 			printk(KERN_DEBUG " %c #%d desc. %8.8x %8.8x %8.8x\n",
+ 				   inl(ioaddr + RxPtr) == (long)&yp->rx_ring[i] ? '>' : ' ',
+
 -- 
 Reply-To: kronos@kronoz.cjb.net
 Home: http://kronoz.cjb.net
-"I've seen things you people wouldn't believe...
- Attack Ships on fire off the shores of Orion.
- I've watched C-beams glitter in the dark off of Tanhauser Gate.
- All those moments will be lost in time...like tears, in rain.
- Time to die." -- Roy Batty (played by Rutger Hauer)
+"It is more complicated than you think"
+                -- The Eighth Networking Truth from RFC 1925

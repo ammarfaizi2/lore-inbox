@@ -1,81 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317005AbSHAUcP>; Thu, 1 Aug 2002 16:32:15 -0400
+	id <S317012AbSHAUca>; Thu, 1 Aug 2002 16:32:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317012AbSHAUcP>; Thu, 1 Aug 2002 16:32:15 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:8719 "EHLO www.home.local")
-	by vger.kernel.org with ESMTP id <S317005AbSHAUcO>;
-	Thu, 1 Aug 2002 16:32:14 -0400
-Date: Thu, 1 Aug 2002 22:35:20 +0200
-From: Willy TARREAU <willy@w.ods.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Willy Tarreau <willy@w.ods.org>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] solved APM bug with -rc5
-Message-ID: <20020801203520.GA244@pcw.home.local>
-References: <Pine.LNX.4.44.0208010336330.1728-100000@freak.distro.conectiva> <20020801121205.GA168@pcw.home.local> <20020801133202.GA200@pcw.home.local> <1028213732.14865.50.camel@irongate.swansea.linux.org.uk> <20020801135623.GA19879@alpha.home.local> <20020801152459.GA19989@alpha.home.local> <1028220826.14865.69.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S317022AbSHAUca>; Thu, 1 Aug 2002 16:32:30 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:2579 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317012AbSHAUc2>;
+	Thu, 1 Aug 2002 16:32:28 -0400
+Message-ID: <3D499B28.242D07B8@zip.com.au>
+Date: Thu, 01 Aug 2002 13:33:44 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Peter J. Braam" <braam@clusterfs.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: BIG files & file systems
+References: <20020731131620.M15238@lustre.cfs>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1028220826.14865.69.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 01, 2002 at 05:53:46PM +0100, Alan Cox wrote:
-> Very curious indeed because someone else reported that rc3-ac5 works
-> (which has the same vm86 code). In addition the vm86 handler in the
-> kernel isnt actually used for APM. We make 32bit APM calls and the one
-> 16bit case we do is a true return to real mode.
+"Peter J. Braam" wrote:
+> 
+> Hi,
+> 
+> I've just been told that some "limitations" of the following kind will
+> remain:
+>   page index = unsigned long
+>   ino_t      = unsigned long
+> 
+> Lustre has definitely been asked to support much larger files than
+> 16TB.  Also file systems with a trillion files have been requested by
+> one of our supporters (you don't want to know who, besides I've no
+> idea how many bits go in a trillion, but it's more than 32).
+> 
+> I understand why people don't want to sprinkle the kernel with u64's,
+> and arguably we can wait a year or two and use 64 bit architectures,
+> so I'm probably not going to kick up a fuss about it.
+> 
+> However, I thought I'd let you know that there are organizations that
+> _really_ want to have such big files and file systems and get quite
+> dismayed about "small integers".  And we will fail to deliver on a
+> requirement to write a 50TB file because of this.
 
-I finally got rid of it ! I now understand why it hanged randomly, and
-why I spent lots of time adding/removing unrelated patches. It's because
-in apm=power-off mode (SMP), a kernel thread is started for the apm()
-function, which does bios calls. And sometimes, the bios is called from
-CPU >0, which my bios doesn't like at all, thus explaining why the oopses
-were corrupted.
+I don't know about the ino_t thing, but as far as the pagecache
+indices goes it's simply a matter of
 
-By copying a piece of code somewhere else in the same file, I could force
-apm() to be used only by CPU0. I could verify that it doesn't crash anymore,
-and that I can also crash it on demand if I force CPU1.
+- s/unsigned long/pgoff_t/ in a zillion places
+- modify the radix tree code a bit
+- implement CONFIG_LL_PAGECACHE_INDEX
+- make it all work
+- convince Linus
 
-The bonus is that I could re-enable the debug code in this function even
-in SMP mode since we're sure that it runs on CPU0.
+Linus's objections are threefold:  it expands struct page, 64 bit
+arith is slow and gcc tends to get it wrong.  And I would add "most
+developers won't test 64-bit pgoff_t, and it'll get broken regularly".
 
-Here is the patch against 2.4.19-rc5. Marcelo, Alan, please review and apply.
+The expansion of struct page and the performance impact is just a
+cost which you'll have to balance against the benefits.  For a few
+people, 32-bit pagecache index is a showstopper and they'll accept that
+tradeoff.
 
-Cheers,
-Willy
+Sprinkling `pgoff_t' everywhere is, IMO, not a bad thing - it aids code
+readability because it tells you what the variable is used for.
 
-
-diff -urN linux-2.4.19-rc5/arch/i386/kernel/apm.c linux-2.4.19-rc5-fix/arch/i386/kernel/apm.c
---- linux-2.4.19-rc5/arch/i386/kernel/apm.c	Thu Aug  1 22:07:39 2002
-+++ linux-2.4.19-rc5-fix/arch/i386/kernel/apm.c	Thu Aug  1 22:26:56 2002
-@@ -1661,6 +1661,17 @@
- 	strcpy(current->comm, "kapmd");
- 	sigfillset(&current->blocked);
- 
-+#ifdef CONFIG_SMP
-+	/* 2002/08/01 - WT
-+	 * This is to avoid random crashes at boot time during initialization
-+	 * on SMP systems in case of "apm=power-off" mode. Seen on ASUS A7M266D.
-+	 * Some bioses don't like being called from CPU != 0.
-+	 */
-+	while (cpu_number_map(smp_processor_id()) != 0) {
-+		schedule();
-+	}
-+#endif
-+	
- 	if (apm_info.connection_version == 0) {
- 		apm_info.connection_version = apm_info.bios.version;
- 		if (apm_info.connection_version > 0x100) {
-@@ -1707,7 +1718,7 @@
- 		}
- 	}
- 
--	if (debug && (smp_num_cpus == 1)) {
-+	if (debug) {
- 		error = apm_get_power_status(&bx, &cx, &dx);
- 		if (error)
- 			printk(KERN_INFO "apm: power status not available\n");
+As for broken gcc, well, the proponents of 64-bit pgoff_t would have
+to work to identify the correct gcc version and generally get gcc
+doing the right thing.

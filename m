@@ -1,73 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266319AbUFZSwN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264305AbUFZSzu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266319AbUFZSwN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jun 2004 14:52:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266333AbUFZSwM
+	id S264305AbUFZSzu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jun 2004 14:55:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266333AbUFZSzu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jun 2004 14:52:12 -0400
-Received: from anubis.medic.chalmers.se ([129.16.30.218]:21741 "EHLO
-	anubis.medic.chalmers.se") by vger.kernel.org with ESMTP
-	id S266319AbUFZSwI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jun 2004 14:52:08 -0400
-Message-ID: <40DDC5EB.1010304@fy.chalmers.se>
-Date: Sat, 26 Jun 2004 20:52:27 +0200
-From: Andy Polyakov <appro@fy.chalmers.se>
-User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
-X-Accept-Language: en-us, en
+	Sat, 26 Jun 2004 14:55:50 -0400
+Received: from fw.osdl.org ([65.172.181.6]:22506 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264305AbUFZSzs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jun 2004 14:55:48 -0400
+Date: Sat, 26 Jun 2004 11:54:24 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Vojtech Pavlik <vojtech@suse.cz>
+cc: James Bottomley <James.Bottomley@SteelEye.com>,
+       Andrew Morton <akpm@osdl.org>, Paul Jackson <pj@sgi.com>,
+       PARISC list <parisc-linux@lists.parisc-linux.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Fix the cpumask rewrite
+In-Reply-To: <20040626182820.GA3723@ucw.cz>
+Message-ID: <Pine.LNX.4.58.0406261140360.16079@ppc970.osdl.org>
+References: <1088266111.1943.15.camel@mulgrave> <Pine.LNX.4.58.0406260924570.14449@ppc970.osdl.org>
+ <1088268405.1942.25.camel@mulgrave> <Pine.LNX.4.58.0406260948070.14449@ppc970.osdl.org>
+ <1088270298.1942.40.camel@mulgrave> <Pine.LNX.4.58.0406261044580.16079@ppc970.osdl.org>
+ <20040626182820.GA3723@ucw.cz>
 MIME-Version: 1.0
-To: Kronos <kronos@people.it>
-Cc: cdwrite@other.debian.org, linux-kernel@vger.kernel.org
-Subject: Re: [ISOFS] Troubles with multi session DVDs.
-References: <20040623192900.GA20511@dreamland.darkstar.lan>
-In-Reply-To: <20040623192900.GA20511@dreamland.darkstar.lan>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'm having a strange (at least for me) problem burning multisession
-> DVD+R media: the dvd becomes unreadable after the 3rd session is burned.
 
-I have all reasons to believe that it rather has everything to do with 
-position of last session, than with the exact number of sessions. I also 
-have all reasons to believe that it's rather ide-cd.c bug than isofs. In 
-other words this problem was already reported to me, but I didn't have 
-time to bring it up with linux-kernel people yet.
-
-> mount refuses to do its work, and kernel says:
+On Sat, 26 Jun 2004, Vojtech Pavlik wrote:
 > 
-> Unable to identify CD-ROM format.
-> 
-> Note that there isn't any read error, so the kernel is simply unable to
-> locate the primary volume descriptor.
+> At least input pretty much relies on the fact that bitops don't need
+> locking and act as memory barriers.
 
-The keywords for this problem are:
+Well, plain test_bit() has always been more relaxed than the others, and
+has never implied a memory barrier. Only the "test_and_set/clear()" things
+imply memory barriers.
 
-> growisofs -M /dev/hdc -J -r <files> (-Z for the first session)
-                     ^^^ ide-cd.c is involved [it's no problem with sr.c 
-if unit is routed through ide-scsi.c]...
+What we _could_ do (without changing any existing rules) is to add a
+"__test_bit()" that is the relaxed version that doesn't do any of the
+volatile etc. That would match the "__"  versions of the other bit
+operations.
 
-> This is the output of dvd+rw-mediainfo:
-> ...
->  Multi-session Info:    #3@1339392
-                              ^^^^^^^ ... and last recorded session 
-starts beyond LBA #1152000, which corresponds ~2.2GB.
+Then people who know that they use the bits without any volatility issues 
+can use that one, and let the compiler optimize more. 
 
-What's so special about 1152000 (besides that it reminds highest posible 
-bitrate for serial port:-) It's 256 times 60 times 75. What's so special 
-about these numbers? 256 is amount of interger values which can be 
-represented with 8-bit number, 60 is amount of seconds in minute and 75 
-is amount of frames in one second of CD-DA. Yes, it's about conversion 
-from MSF to LBA suffering from overflow around 2.2GB. In the nutshell 
-the problem is that drivers/ide/ide-cd.c always pull TOC in MSF format 
-and then attempts to convert it to LBA. If last session is recorded 
-beyond 1152000, isofs driver will be led by ide-cd driver to belief that 
-volume descriptor resides at 1152000, which in turn results in "unable 
-to identify CD-ROM format" message logged upon mount attempt.
+Hmm?
 
-As fast-acting remedy I can suggest to route your unit through ide-scsi. 
-The way it was under 2.4. Even though it's declared unsupported it 
-actually still works in 2.6 (I for one still use it). And once ide-cd.c 
-is fixed you'll be able to revert back to officially recommended path. A.
-
-
+		Linus

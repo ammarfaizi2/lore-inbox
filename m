@@ -1,63 +1,638 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270416AbUJTDPt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270417AbUJTDPu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270416AbUJTDPt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 23:15:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270413AbUJTDPW
+	id S270417AbUJTDPu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 23:15:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270385AbUJTDPJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 23:15:22 -0400
-Received: from gockel.physik3.uni-rostock.de ([139.30.44.16]:4795 "EHLO
-	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id S266768AbUJTDGg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 23:06:36 -0400
-Date: Wed, 20 Oct 2004 05:05:54 +0200 (CEST)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: john stultz <johnstul@us.ibm.com>
-cc: lkml <linux-kernel@vger.kernel.org>, george anzinger <george@mvista.com>
-Subject: gradual timeofday overhaul
-In-Reply-To: <1098233967.20778.93.camel@cog.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.53.0410200441210.11067@gockel.physik3.uni-rostock.de>
-References: <Pine.LNX.4.61.0410192015420.6471@knorkaan.xs4all.nl> 
- <1098216701.20778.78.camel@cog.beaverton.ibm.com> 
- <Pine.LNX.4.53.0410200233280.9510@gockel.physik3.uni-rostock.de>
- <1098233967.20778.93.camel@cog.beaverton.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 19 Oct 2004 23:15:09 -0400
+Received: from pimout1-ext.prodigy.net ([207.115.63.77]:57548 "EHLO
+	pimout1-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S270342AbUJTCkD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 22:40:03 -0400
+Date: Tue, 19 Oct 2004 19:39:44 -0700
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Jeff Dike <jdike@addtoit.com>
+Subject: [PATCH] UML: use the generic irq code
+Message-ID: <20041020023944.GH8597@taniwha.stupidest.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+From: cw@f00f.org (Chris Wedgwood)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Oct 2004, john stultz wrote:
+UML should use the generic irq code and not the IRQ cruft on the
+underlying architecture.  Strictly speaking to work correctly this
+requires a previous patch I posted adding the platform_free_irq_notify
+hook wart.
 
-> As for the timeofday overhaul, I've had zero time to work on it
-> recently. I hate that I dropped code and then went missing for weeks.
-> I'll have to see if I can get a few cycles at home to sync up my current
-> tree and send it out. 
+Signed-off-by: cw@f00f.org
 
-I still haven't looked at your code and it's discussion. From what I
-remember, I liked your proposal very much. It's surely where we want to
-end up someday. But from the above mail it strikes me that we just don't
-have enough manpower to get there all at once, so we should have a plan 
-for the time code to gradually evolve into what we finally want. I think 
-we could do it in the following steps:
 
-  1. Sync up jiffies with the monotonic clock, very much like we
-     already handle lost ticks. This would immediately remove the
-     hassles with incompatible time sources.
-     Judging from the jiffies wrap experience, we there probably are
-     some drivers which need fixing (mostly because they wait until 
-     jiffies==something), but these are bugs already right now
-     in the case of lost ticks.
 
-  2. Decouple jiffies from the actual interrupt counter. We could
-     then e.g. set HZ to 10000, also increasing the resolution of
-     timers, without increasing the interrupt frequency.
-     We'd then need to identify the places where this might lead to
-     overflows and promote them to use jiffies_64 instead of jiffies
-     (where this hasn't been done already).
+ arch/um/Kconfig               |    5 
+ arch/um/kernel/irq.c          |  488 ------------------------------------------
+ arch/um/kernel/process_kern.c |    1 
+ include/asm-um/hardirq.h      |   32 ++
+ 4 files changed, 33 insertions(+), 493 deletions(-)
 
-  3. Increase HZ all the way up to 1e9. jiffies_64 would then be the
-     same as your plain 64 bit nanoseconds value.
-     This would require an optimization to the timer code to be able
-     to increment jiffies in steps larger than 1.
 
-Thoughts?
-
+diff -Nru a/arch/um/Kconfig b/arch/um/Kconfig
+--- a/arch/um/Kconfig	2004-10-19 17:47:47 -07:00
++++ b/arch/um/Kconfig	2004-10-19 17:47:47 -07:00
+@@ -1,3 +1,8 @@
++# UML uses the generic IRQ sugsystem
++config GENERIC_HARDIRQS
++	bool
++	default y
++
+ config USERMODE
+ 	bool
+ 	default y
+diff -Nru a/arch/um/kernel/irq.c b/arch/um/kernel/irq.c
+--- a/arch/um/kernel/irq.c	2004-10-19 17:47:47 -07:00
++++ b/arch/um/kernel/irq.c	2004-10-19 17:47:47 -07:00
+@@ -32,58 +32,6 @@
+ #include "irq_user.h"
+ #include "irq_kern.h"
+ 
+-static void register_irq_proc (unsigned int irq);
+-
+-irq_desc_t irq_desc[NR_IRQS] __cacheline_aligned = {
+-	[0 ... NR_IRQS-1] = {
+-		.handler = &no_irq_type,
+-		.lock = SPIN_LOCK_UNLOCKED
+-	}
+-};
+-
+-/*
+- * Generic no controller code
+- */
+-
+-static void enable_none(unsigned int irq) { }
+-static unsigned int startup_none(unsigned int irq) { return 0; }
+-static void disable_none(unsigned int irq) { }
+-static void ack_none(unsigned int irq)
+-{
+-/*
+- * 'what should we do if we get a hw irq event on an illegal vector'.
+- * each architecture has to answer this themselves, it doesn't deserve
+- * a generic callback i think.
+- */
+-#ifdef CONFIG_X86
+-	printk(KERN_ERR "unexpected IRQ trap at vector %02x\n", irq);
+-#ifdef CONFIG_X86_LOCAL_APIC
+-	/*
+-	 * Currently unexpected vectors happen only on SMP and APIC.
+-	 * We _must_ ack these because every local APIC has only N
+-	 * irq slots per priority level, and a 'hanging, unacked' IRQ
+-	 * holds up an irq slot - in excessive cases (when multiple
+-	 * unexpected vectors occur) that might lock up the APIC
+-	 * completely.
+-	 */
+-	ack_APIC_irq();
+-#endif
+-#endif
+-}
+-
+-/* startup is the same as "enable", shutdown is same as "disable" */
+-#define shutdown_none	disable_none
+-#define end_none	enable_none
+-
+-struct hw_interrupt_type no_irq_type = {
+-	"none",
+-	startup_none,
+-	shutdown_none,
+-	enable_none,
+-	disable_none,
+-	ack_none,
+-	end_none
+-};
+ 
+ /*
+  * Generic, controller-independent functions:
+@@ -126,10 +74,6 @@
+ skip:
+ 		spin_unlock_irqrestore(&irq_desc[i].lock, flags);
+ 	} else if (i == NR_IRQS) {
+-		seq_printf(p, "NMI: ");
+-		for (j = 0; j < NR_CPUS; j++)
+-			if (cpu_online(j))
+-				seq_printf(p, "%10u ", nmi_count(j));
+ 		seq_putc(p, '\n');
+ 	}
+ 
+@@ -137,134 +81,11 @@
+ }
+ 
+ /*
+- * This should really return information about whether
+- * we should do bottom half handling etc. Right now we
+- * end up _always_ checking the bottom half, which is a
+- * waste of time and is not what some drivers would
+- * prefer.
+- */
+-int handle_IRQ_event(unsigned int irq, struct pt_regs * regs, 
+-		     struct irqaction * action)
+-{
+-	int status = 1;	/* Force the "do bottom halves" bit */
+-	int ret, retval = 0;
+-
+-	if (!(action->flags & SA_INTERRUPT))
+-		local_irq_enable();
+-
+-	do {
+-		ret = action->handler(irq, action->dev_id, regs);
+-		if (ret == IRQ_HANDLED)
+-			status |= action->flags;
+-		retval |= ret;
+-		action = action->next;
+-	} while (action);
+-	if (status & SA_SAMPLE_RANDOM)
+-		add_interrupt_randomness(irq);
+-
+-	local_irq_disable();
+-
+-	return retval;
+-}
+-
+-/*
+  * Generic enable/disable code: this just calls
+  * down into the PIC-specific version for the actual
+  * hardware disable after having gotten the irq
+  * controller lock. 
+  */
+- 
+-/**
+- *	disable_irq_nosync - disable an irq without waiting
+- *	@irq: Interrupt to disable
+- *
+- *	Disable the selected interrupt line. Disables of an interrupt
+- *	stack. Unlike disable_irq(), this function does not ensure existing
+- *	instances of the IRQ handler have completed before returning.
+- *
+- *	This function may be called from IRQ context.
+- */
+- 
+-inline void disable_irq_nosync(unsigned int irq)
+-{
+-	irq_desc_t *desc = irq_desc + irq;
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&desc->lock, flags);
+-	if (!desc->depth++) {
+-		desc->status |= IRQ_DISABLED;
+-		desc->handler->disable(irq);
+-	}
+-	spin_unlock_irqrestore(&desc->lock, flags);
+-}
+-
+-#ifdef CONFIG_SMP
+-inline void synchronize_irq(unsigned int irq)
+-{
+-	/* is there anything to synchronize with? */
+-	if (!irq_desc[irq].action)
+-		return;
+- 
+-	while (irq_desc[irq].status & IRQ_INPROGRESS)
+-		cpu_relax();
+-}
+-#endif
+-
+-/**
+- *	disable_irq - disable an irq and wait for completion
+- *	@irq: Interrupt to disable
+- *
+- *	Disable the selected interrupt line. Disables of an interrupt
+- *	stack. That is for two disables you need two enables. This
+- *	function waits for any pending IRQ handlers for this interrupt
+- *	to complete before returning. If you use this function while
+- *	holding a resource the IRQ handler may need you will deadlock.
+- *
+- *	This function may be called - with care - from IRQ context.
+- */
+- 
+-void disable_irq(unsigned int irq)
+-{
+-	disable_irq_nosync(irq);
+-	synchronize_irq(irq);
+-}
+-
+-/**
+- *	enable_irq - enable interrupt handling on an irq
+- *	@irq: Interrupt to enable
+- *
+- *	Re-enables the processing of interrupts on this IRQ line
+- *	providing no disable_irq calls are now in effect.
+- *
+- *	This function may be called from IRQ context.
+- */
+- 
+-void enable_irq(unsigned int irq)
+-{
+-	irq_desc_t *desc = irq_desc + irq;
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&desc->lock, flags);
+-	switch (desc->depth) {
+-	case 1: {
+-		unsigned int status = desc->status & ~IRQ_DISABLED;
+-		desc->status = status;
+-		if ((status & (IRQ_PENDING | IRQ_REPLAY)) == IRQ_PENDING) {
+-			desc->status = status | IRQ_REPLAY;
+-			hw_resend_irq(desc->handler,irq);
+-		}
+-		desc->handler->enable(irq);
+-		/* fall-through */
+-	}
+-	default:
+-		desc->depth--;
+-		break;
+-	case 0:
+-		printk(KERN_ERR "enable_irq() unbalanced from %p\n",
+-		       __builtin_return_address(0));
+-	}
+-	spin_unlock_irqrestore(&desc->lock, flags);
+-}
+ 
+ /*
+  * do_IRQ handles all normal device IRQ's (the special
+@@ -346,85 +167,6 @@
+ 	return 1;
+ }
+ 
+-/**
+- *	request_irq - allocate an interrupt line
+- *	@irq: Interrupt line to allocate
+- *	@handler: Function to be called when the IRQ occurs
+- *	@irqflags: Interrupt type flags
+- *	@devname: An ascii name for the claiming device
+- *	@dev_id: A cookie passed back to the handler function
+- *
+- *	This call allocates interrupt resources and enables the
+- *	interrupt line and IRQ handling. From the point this
+- *	call is made your handler function may be invoked. Since
+- *	your handler function must clear any interrupt the board 
+- *	raises, you must take care both to initialise your hardware
+- *	and to set up the interrupt handler in the right order.
+- *
+- *	Dev_id must be globally unique. Normally the address of the
+- *	device data structure is used as the cookie. Since the handler
+- *	receives this value it makes sense to use it.
+- *
+- *	If your interrupt is shared you must pass a non NULL dev_id
+- *	as this is required when freeing the interrupt.
+- *
+- *	Flags:
+- *
+- *	SA_SHIRQ		Interrupt is shared
+- *
+- *	SA_INTERRUPT		Disable local interrupts while processing
+- *
+- *	SA_SAMPLE_RANDOM	The interrupt can be used for entropy
+- *
+- */
+- 
+-int request_irq(unsigned int irq,
+-		irqreturn_t (*handler)(int, void *, struct pt_regs *),
+-		unsigned long irqflags, 
+-		const char * devname,
+-		void *dev_id)
+-{
+-	int retval;
+-	struct irqaction * action;
+-
+-#if 1
+-	/*
+-	 * Sanity-check: shared interrupts should REALLY pass in
+-	 * a real dev-ID, otherwise we'll have trouble later trying
+-	 * to figure out which interrupt is which (messes up the
+-	 * interrupt freeing logic etc).
+-	 */
+-	if (irqflags & SA_SHIRQ) {
+-		if (!dev_id)
+-			printk(KERN_ERR "Bad boy: %s (at 0x%x) called us "
+-			       "without a dev_id!\n", devname, (&irq)[-1]);
+-	}
+-#endif
+-
+-	if (irq >= NR_IRQS)
+-		return -EINVAL;
+-	if (!handler)
+-		return -EINVAL;
+-
+-	action = (struct irqaction *)
+-			kmalloc(sizeof(struct irqaction), GFP_KERNEL);
+-	if (!action)
+-		return -ENOMEM;
+-
+-	action->handler = handler;
+-	action->flags = irqflags;
+-	cpus_clear(action->mask);
+-	action->name = devname;
+-	action->next = NULL;
+-	action->dev_id = dev_id;
+-
+-	retval = setup_irq(irq, action);
+-	if (retval)
+-		kfree(action);
+-	return retval;
+-}
+-
+-EXPORT_SYMBOL(request_irq);
+ 
+ int um_request_irq(unsigned int irq, int fd, int type,
+ 		   irqreturn_t (*handler)(int, void *, struct pt_regs *),
+@@ -444,222 +186,6 @@
+ EXPORT_SYMBOL(um_request_irq);
+ EXPORT_SYMBOL(reactivate_fd);
+ 
+-/* this was setup_x86_irq but it seems pretty generic */
+-int setup_irq(unsigned int irq, struct irqaction * new)
+-{
+-	int shared = 0;
+-	unsigned long flags;
+-	struct irqaction *old, **p;
+-	irq_desc_t *desc = irq_desc + irq;
+-
+-	/*
+-	 * Some drivers like serial.c use request_irq() heavily,
+-	 * so we have to be careful not to interfere with a
+-	 * running system.
+-	 */
+-	if (new->flags & SA_SAMPLE_RANDOM) {
+-		/*
+-		 * This function might sleep, we want to call it first,
+-		 * outside of the atomic block.
+-		 * Yes, this might clear the entropy pool if the wrong
+-		 * driver is attempted to be loaded, without actually
+-		 * installing a new handler, but is this really a problem,
+-		 * only the sysadmin is able to do this.
+-		 */
+-		rand_initialize_irq(irq);
+-	}
+-
+-	/*
+-	 * The following block of code has to be executed atomically
+-	 */
+-	spin_lock_irqsave(&desc->lock,flags);
+-	p = &desc->action;
+-	old = *p;
+-	if (old != NULL) {
+-		/* Can't share interrupts unless both agree to */
+-		if (!(old->flags & new->flags & SA_SHIRQ)) {
+-			spin_unlock_irqrestore(&desc->lock,flags);
+-			return -EBUSY;
+-		}
+-
+-		/* add new interrupt at end of irq queue */
+-		do {
+-			p = &old->next;
+-			old = *p;
+-		} while (old);
+-		shared = 1;
+-	}
+-
+-	*p = new;
+-
+-	if (!shared) {
+-		desc->depth = 0;
+-		desc->status &= ~IRQ_DISABLED;
+-		desc->handler->startup(irq);
+-	}
+-	spin_unlock_irqrestore(&desc->lock,flags);
+-
+-	register_irq_proc(irq);
+-	return 0;
+-}
+-
+-/**
+- *	free_irq - free an interrupt
+- *	@irq: Interrupt line to free
+- *	@dev_id: Device identity to free
+- *
+- *	Remove an interrupt handler. The handler is removed and if the
+- *	interrupt line is no longer in use by any driver it is disabled.
+- *	On a shared IRQ the caller must ensure the interrupt is disabled
+- *	on the card it drives before calling this function. The function
+- *	does not return until any executing interrupts for this IRQ
+- *	have completed.
+- *
+- *	This function may be called from interrupt context. 
+- *
+- *	Bugs: Attempting to free an irq in a handler for the same irq hangs
+- *	      the machine.
+- */
+- 
+-void free_irq(unsigned int irq, void *dev_id)
+-{
+-	irq_desc_t *desc;
+-	struct irqaction **p;
+-	unsigned long flags;
+-
+-	if (irq >= NR_IRQS)
+-		return;
+-
+-	desc = irq_desc + irq;
+-	spin_lock_irqsave(&desc->lock,flags);
+-	p = &desc->action;
+-	for (;;) {
+-		struct irqaction * action = *p;
+-		if (action) {
+-			struct irqaction **pp = p;
+-			p = &action->next;
+-			if (action->dev_id != dev_id)
+-				continue;
+-
+-			/* Found it - now remove it from the list of entries */
+-			*pp = action->next;
+-			if (!desc->action) {
+-				desc->status |= IRQ_DISABLED;
+-				desc->handler->shutdown(irq);
+-			}
+-			free_irq_by_irq_and_dev(irq, dev_id);
+-			spin_unlock_irqrestore(&desc->lock,flags);
+-
+-			/* Wait to make sure it's not being used on another CPU */
+-			synchronize_irq(irq);
+-			kfree(action);
+-			return;
+-		}
+-		printk(KERN_ERR "Trying to free free IRQ%d\n",irq);
+-		spin_unlock_irqrestore(&desc->lock,flags);
+-		return;
+-	}
+-}
+-
+-EXPORT_SYMBOL(free_irq);
+-
+-/* These are initialized by sysctl_init, which is called from init/main.c */
+-static struct proc_dir_entry * root_irq_dir;
+-static struct proc_dir_entry * irq_dir [NR_IRQS];
+-static struct proc_dir_entry * smp_affinity_entry [NR_IRQS];
+-
+-/* These are read and written as longs, so a read won't see a partial write
+- * even during a race.
+- */
+-static cpumask_t irq_affinity [NR_IRQS] = { [0 ... NR_IRQS-1] = CPU_MASK_ALL };
+-
+-static int irq_affinity_read_proc (char *page, char **start, off_t off,
+-			int count, int *eof, void *data)
+-{
+-	int len = cpumask_scnprintf(page, count, irq_affinity[(long)data]);
+-	if (count - len < 2)
+-		return -EINVAL;
+-	len += sprintf(page + len, "\n");
+-	return len;
+-}
+-
+-static int irq_affinity_write_proc (struct file *file, const char *buffer,
+-					unsigned long count, void *data)
+-{
+-	int irq = (long) data, full_count = count, err;
+-	cpumask_t new_value;
+-
+-	if (!irq_desc[irq].handler->set_affinity)
+-		return -EIO;
+-
+-	err = cpumask_parse(buffer, count, new_value);
+-	if(err)
+-		return(err);
+-
+-#ifdef CONFIG_SMP
+-	/*
+-	 * Do not allow disabling IRQs completely - it's a too easy
+-	 * way to make the system unusable accidentally :-) At least
+-	 * one online CPU still has to be targeted.
+-	 */
+-	{ cpumask_t tmp;
+-	  cpus_and(tmp, new_value, cpu_online_map);
+-	  if (cpus_empty(tmp))
+-		  return -EINVAL;
+-	}
+-#endif
+-
+-	irq_affinity[irq] = new_value;
+-	irq_desc[irq].handler->set_affinity(irq, new_value);
+-
+-	return full_count;
+-}
+-
+-#define MAX_NAMELEN 10
+-
+-static void register_irq_proc (unsigned int irq)
+-{
+-	struct proc_dir_entry *entry;
+-	char name [MAX_NAMELEN];
+-
+-	if (!root_irq_dir || (irq_desc[irq].handler == &no_irq_type) ||
+-	    irq_dir[irq])
+-		return;
+-
+-	memset(name, 0, MAX_NAMELEN);
+-	sprintf(name, "%d", irq);
+-
+-	/* create /proc/irq/1234 */
+-	irq_dir[irq] = proc_mkdir(name, root_irq_dir);
+-
+-	/* create /proc/irq/1234/smp_affinity */
+-	entry = create_proc_entry("smp_affinity", 0600, irq_dir[irq]);
+-
+-	entry->nlink = 1;
+-	entry->data = (void *)(long)irq;
+-	entry->read_proc = irq_affinity_read_proc;
+-	entry->write_proc = irq_affinity_write_proc;
+-
+-	smp_affinity_entry[irq] = entry;
+-}
+-
+-void __init init_irq_proc (void)
+-{
+-	int i;
+-
+-	/* create /proc/irq */
+-	root_irq_dir = proc_mkdir("irq", 0);
+-
+-	/* create /proc/irq/prof_cpu_mask */
+-	create_prof_cpu_mask(root_irq_dir);
+-
+-	/*
+-	 * Create entries for all existing IRQs.
+-	 */
+-	for (i = 0; i < NR_IRQS; i++)
+-		register_irq_proc(i);
+-}
+-
+ static spinlock_t irq_spinlock = SPIN_LOCK_UNLOCKED;
+ 
+ unsigned long irq_lock(void)
+@@ -674,20 +200,6 @@
+ {
+ 	spin_unlock_irqrestore(&irq_spinlock, flags);
+ }
+-
+-unsigned long probe_irq_on(void)
+-{
+-	return(0);
+-}
+-
+-EXPORT_SYMBOL(probe_irq_on);
+-
+-int probe_irq_off(unsigned long val)
+-{
+-	return(0);
+-}
+-
+-EXPORT_SYMBOL(probe_irq_off);
+ 
+ static unsigned int startup_SIGIO_irq(unsigned int irq)
+ {
+diff -Nru a/arch/um/kernel/process_kern.c b/arch/um/kernel/process_kern.c
+--- a/arch/um/kernel/process_kern.c	2004-10-19 17:47:47 -07:00
++++ b/arch/um/kernel/process_kern.c	2004-10-19 17:47:47 -07:00
+@@ -206,7 +206,6 @@
+ 		 * although we are an idle CPU, we do not want to
+ 		 * get into the scheduler unnecessarily.
+ 		 */
+-		irq_stat[smp_processor_id()].idle_timestamp = jiffies;
+ 		if(need_resched())
+ 			schedule();
+ 		
+diff -Nru a/include/asm-um/hardirq.h b/include/asm-um/hardirq.h
+--- a/include/asm-um/hardirq.h	2004-10-19 17:47:47 -07:00
++++ b/include/asm-um/hardirq.h	2004-10-19 17:47:47 -07:00
+@@ -1,6 +1,30 @@
+-#ifndef __UM_HARDIRQ_H
+-#define __UM_HARDIRQ_H
++/* (c) 2004 cw@f00f.org, GPLv2 blah blah */
+ 
+-#include "asm/arch/hardirq.h"
++#ifndef __ASM_UM_HARDIRQ_H
++#define __ASM_UM_HARDIRQ_H
+ 
+-#endif
++#include <linux/config.h>
++#include <linux/threads.h>
++#include <linux/irq.h>
++
++/* NOTE: When SMP works again we might want to make this
++ * ____cacheline_aligned or maybe use per_cpu state? --cw */
++typedef struct {
++	unsigned int __softirq_pending;
++} irq_cpustat_t;
++
++#include <linux/irq_cpustat.h>
++
++/* As this would be very strange for UML to get we BUG() after the
++ * printk. */
++static inline void ack_bad_irq(unsigned int irq)
++{
++	printk(KERN_ERR "unexpected IRQ %02x\n", irq);
++	BUG();
++}
++
++void free_irq_by_irq_and_dev(int, void *);
++
++#define platform_free_irq_notify(i, d)  free_irq_by_irq_and_dev(i, d)
++
++#endif /* __ASM_UM_HARDIRQ_H */

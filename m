@@ -1,407 +1,268 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264977AbUD2UeZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264963AbUD2UeZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264977AbUD2UeZ (ORCPT <rfc822;willy@w.ods.org>);
+	id S264963AbUD2UeZ (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 29 Apr 2004 16:34:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264976AbUD2UdR
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264977AbUD2Ud6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 16:33:17 -0400
-Received: from [213.133.118.2] ([213.133.118.2]:22417 "EHLO
+	Thu, 29 Apr 2004 16:33:58 -0400
+Received: from [213.133.118.2] ([213.133.118.2]:21649 "EHLO
 	mail.shadowconnect.com") by vger.kernel.org with ESMTP
-	id S264964AbUD2U2A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 16:28:00 -0400
-Message-ID: <40916627.50800@shadowconnect.com>
-Date: Thu, 29 Apr 2004 22:31:35 +0200
+	id S264963AbUD2U16 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 16:27:58 -0400
+Message-ID: <40916621.50509@shadowconnect.com>
+Date: Thu, 29 Apr 2004 22:31:29 +0200
 From: Markus Lidel <Markus.Lidel@shadowconnect.com>
 User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH 4/5] I2O subsystem fixing and cleanup for 2.6 - i2o-64-bit-fix.patch
+Subject: [PATCH 2/5] I2O subsystem fixing and cleanup for 2.6 - i2o-passthru.patch
 Content-Type: multipart/mixed;
- boundary="------------020102030501040002060805"
+ boundary="------------030204090406060902040807"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------020102030501040002060805
+--------------030204090406060902040807
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
 
---------------020102030501040002060805
+--------------030204090406060902040807
 Content-Type: text/plain;
- name="i2o-64-bit-fix.patch"
+ name="i2o-passthru.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="i2o-64-bit-fix.patch"
+ filename="i2o-passthru.patch"
 
---- a/drivers/message/i2o/i2o_core.c	2004-04-03 17:37:36.000000000 -1000
-+++ b/drivers/message/i2o/i2o_core.c	2004-04-25 06:37:54.000000000 -1000
-@@ -213,6 +213,135 @@
- 
- static int verbose;
- 
-+#if BITS_PER_LONG == 64
-+/**
-+ *      i2o_context_list_add -	append an ptr to the context list and return a
-+ *				matching context id.
-+ *	@ptr: pointer to add to the context list
-+ *	@c: controller to which the context list belong
-+ *	returns context id, which could be used in the transaction context
-+ *	field.
-+ *
-+ *	Because the context field in I2O is only 32-bit large, on 64-bit the
-+ *	pointer is to large to fit in the context field. The i2o_context_list
-+ *	functiones map pointers to context fields.
-+ */
-+u32 i2o_context_list_add(void *ptr, struct i2o_controller *c) {
-+	u32 context = 1;
-+	struct i2o_context_list_element **entry = &c->context_list;
-+	struct i2o_context_list_element *element;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&c->context_list_lock, flags);
-+	while(*entry && ((*entry)->flags & I2O_CONTEXT_LIST_USED)) {
-+		if((*entry)->context >= context)
-+			context = (*entry)->context + 1;
-+		entry = &((*entry)->next);
-+	}
-+
-+	if(!*entry) {
-+		if(unlikely(!context)) {
-+			spin_unlock_irqrestore(&c->context_list_lock, flags);
-+			printk(KERN_EMERG "i2o_core: context list overflow\n");
-+			return 0;
-+		}
-+
-+		element = kmalloc(sizeof(struct i2o_context_list_element), GFP_KERNEL);
-+		if(!element) {
-+			printk(KERN_EMERG "i2o_core: could not allocate memory for context list element\n");
-+			return 0;
-+		}
-+		element->context = context;
-+		element->next = NULL;
-+		*entry = element;
-+	} else
-+		element = *entry;
-+
-+	element->ptr = ptr;
-+	element->flags = I2O_CONTEXT_LIST_USED;
-+
-+	spin_unlock_irqrestore(&c->context_list_lock, flags);
-+	dprintk(KERN_DEBUG "i2o_core: add context to list %p -> %d\n", ptr, context);
-+	return context;
-+}
-+
-+/**
-+ *      i2o_context_list_remove - remove a ptr from the context list and return
-+ *				  the matching context id.
-+ *	@ptr: pointer to be removed from the context list
-+ *	@c: controller to which the context list belong
-+ *	returns context id, which could be used in the transaction context
-+ *	field.
-+ */
-+u32 i2o_context_list_remove(void *ptr, struct i2o_controller *c) {
-+	struct i2o_context_list_element **entry = &c->context_list;
-+	struct i2o_context_list_element *element;
-+	u32 context;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&c->context_list_lock, flags);
-+	while(*entry && ((*entry)->ptr != ptr))
-+		entry = &((*entry)->next);
-+
-+	if(unlikely(!*entry)) {
-+		spin_unlock_irqrestore(&c->context_list_lock, flags);
-+		printk(KERN_WARNING "i2o_core: could not remove nonexistent ptr %p\n", ptr);
-+		return 0;
-+	}
-+
-+	element = *entry;
-+
-+	context = element->context;
-+	element->ptr = NULL;
-+	element->flags |= I2O_CONTEXT_LIST_DELETED;
-+
-+	spin_unlock_irqrestore(&c->context_list_lock, flags);
-+	dprintk(KERN_DEBUG "i2o_core: markt as deleted in context list %p -> %d\n", ptr, context);
-+	return context;
-+}
-+
-+/**
-+ *      i2o_context_list_get -	get a ptr from the context list and remove it
-+ *				from the list.
-+ *	@context: context id to which the pointer belong
-+ *	@c: controller to which the context list belong
-+ *	returns pointer to the matching context id
-+ */
-+void *i2o_context_list_get(u32 context, struct i2o_controller *c) {
-+	struct i2o_context_list_element **entry = &c->context_list;
-+	struct i2o_context_list_element *element;
-+	void *ptr;
-+	int count = 0;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&c->context_list_lock, flags);
-+	while(*entry && ((*entry)->context != context)) {
-+		entry = &((*entry)->next);
-+		count ++;
-+	}
-+
-+	if(unlikely(!*entry)) {
-+		spin_unlock_irqrestore(&c->context_list_lock, flags);
-+		printk(KERN_WARNING "i2o_core: context id %d not found\n", context);
-+		return NULL;
-+	}
-+
-+	element = *entry;
-+	ptr = element->ptr;
-+	if(count >= I2O_CONTEXT_LIST_MIN_LENGTH) {
-+		*entry = (*entry)->next;
-+		kfree(element);
-+	} else {
-+		element->ptr = NULL;
-+		element->flags &= !I2O_CONTEXT_LIST_USED;
-+	}
-+
-+	spin_unlock_irqrestore(&c->context_list_lock, flags);
-+	dprintk(KERN_DEBUG "i2o_core: get ptr from context list %d -> %p\n", context, ptr);
-+	return ptr;
-+}
-+#endif
-+
- /*
-  * I2O Core reply handler
-  */
-@@ -3551,6 +3678,10 @@
- 	c->short_req = 0;
- 	c->pdev = dev;
- 
-+#if BITS_PER_LONG == 64
-+	c->context_list_lock = SPIN_LOCK_UNLOCKED;
-+#endif
-+
- 	c->irq_mask = mem+0x34;
- 	c->post_port = mem+0x40;
- 	c->reply_port = mem+0x44;
-@@ -3788,3 +3919,6 @@
- EXPORT_SYMBOL(i2o_report_status);
- EXPORT_SYMBOL(i2o_dump_message);
- EXPORT_SYMBOL(i2o_get_class_name);
-+EXPORT_SYMBOL(i2o_context_list_add);
-+EXPORT_SYMBOL(i2o_context_list_get);
-+EXPORT_SYMBOL(i2o_context_list_remove);
---- a/drivers/message/i2o/i2o_scsi.c	2004-04-03 17:37:41.000000000 -1000
-+++ b/drivers/message/i2o/i2o_scsi.c	2004-04-25 04:08:44.000000000 -1000
-@@ -62,9 +62,6 @@
- #include "../../scsi/scsi.h"
- #include "../../scsi/hosts.h"
- 
--#if BITS_PER_LONG == 64
--#error FIXME: driver does not support 64-bit platforms
--#endif
- 
- 
- #define VERSION_STRING        "Version 0.1.2"
-@@ -233,7 +230,10 @@
- 		{
- 			spin_unlock_irqrestore(&retry_lock, flags);
- 			/* Create a scsi error for this */
--			current_command = (Scsi_Cmnd *)m[3];
-+			current_command = (Scsi_Cmnd *)i2o_context_list_get(m[3], c);
-+			if(!current_command)
-+				return;
-+
- 			lock = current_command->device->host->host_lock;
- 			printk("Aborted %ld\n", current_command->serial_number);
- 
-@@ -276,16 +276,15 @@
- 		printk(KERN_INFO "i2o_scsi: bus reset completed.\n");
- 		return;
- 	}
--	/*
-- 	 *	FIXME: 64bit breakage
--	 */
- 
--	current_command = (Scsi_Cmnd *)m[3];
-+	current_command = (Scsi_Cmnd *)i2o_context_list_get(m[3], c);
- 	
- 	/*
- 	 *	Is this a control request coming back - eg an abort ?
- 	 */
- 	 
-+	atomic_dec(&queue_depth);
-+
- 	if(current_command==NULL)
- 	{
- 		if(st)
-@@ -296,8 +295,6 @@
- 	
- 	dprintk(KERN_INFO "Completed %ld\n", current_command->serial_number);
- 	
--	atomic_dec(&queue_depth);
--	
- 	if(st == 0x06)
- 	{
- 		if(le32_to_cpu(m[5]) < current_command->underflow)
-@@ -647,9 +644,7 @@
- 	if(tid == -1)
- 	{
- 		SCpnt->result = DID_NO_CONNECT << 16;
--		spin_lock_irqsave(host->host_lock, flags);
- 		done(SCpnt);
--		spin_unlock_irqrestore(host->host_lock, flags);
- 		return 0;
- 	}
- 	
-@@ -699,8 +696,7 @@
- 	
- 	i2o_raw_writel(I2O_CMD_SCSI_EXEC<<24|HOST_TID<<12|tid, &msg[1]);
- 	i2o_raw_writel(scsi_context, &msg[2]);	/* So the I2O layer passes to us */
--	/* Sorry 64bit folks. FIXME */
--	i2o_raw_writel((u32)SCpnt, &msg[3]);	/* We want the SCSI control block back */
-+	i2o_raw_writel(i2o_context_list_add(SCpnt, c), &msg[3]);	/* We want the SCSI control block back */
- 
- 	/* LSI_920_PCI_QUIRK
- 	 *
-@@ -883,7 +879,7 @@
-  *	@SCpnt: command to abort
+--- a/drivers/message/i2o/i2o_config.c  2004-02-18 04:59:26.000000000 +0100
++++ b/drivers/message/i2o/i2o_config.c  2004-03-03 17:14:38.035056342 +0100
+@@ -21,6 +21,8 @@
+  *		Added event managmenet support
+  *	Alan Cox <alan@redhat.com>:
+  *		2.4 rewrite ported to 2.5
++ *	Markus Lidel <Markus.Lidel@shadowconnect.com>:
++ *		Added pass-thru support for Adaptec's raidutils
   *
-  *	Ask the I2O controller to abort a command. This is an asynchrnous
-- *	process and oru callback handler will see the command complete
-+ *	process and our callback handler will see the command complete
-  *	with an aborted message if it succeeds. 
-  *
-  *	Locks: no locks are held or needed
-@@ -894,10 +890,9 @@
- 	struct i2o_controller *c;
- 	struct Scsi_Host *host;
- 	struct i2o_scsi_host *hostdata;
--	unsigned long msg;
--	u32 m;
-+	u32 msg[5];
- 	int tid;
--	unsigned long timeout;
-+	int status = FAILED;
- 	
- 	printk(KERN_WARNING "i2o_scsi: Aborting command block.\n");
- 	
-@@ -907,37 +902,22 @@
- 	if(tid==-1)
- 	{
- 		printk(KERN_ERR "i2o_scsi: Impossible command to abort!\n");
--		return FAILED;
-+		return status;
- 	}
- 	c = hostdata->controller;
+  * This program is free software; you can redistribute it and/or
+  * modify it under the terms of the GNU General Public License
+@@ -50,6 +52,11 @@
  
- 	spin_unlock_irq(host->host_lock);
- 		
--	timeout = jiffies+2*HZ;
--	do
--	{
--		m = le32_to_cpu(I2O_POST_READ32(c));
--		if(m != 0xFFFFFFFF)
--			break;
--		set_current_state(TASK_UNINTERRUPTIBLE);
--		schedule_timeout(1);
--		mb();
--	}
--	while(time_before(jiffies, timeout));
--	
--	msg = c->mem_offset + m;
--	
--	i2o_raw_writel(FIVE_WORD_MSG_SIZE, msg);
--	i2o_raw_writel(I2O_CMD_SCSI_ABORT<<24|HOST_TID<<12|tid, msg+4);
--	i2o_raw_writel(scsi_context, msg+8);
--	i2o_raw_writel(0, msg+12);	/* Not needed for an abort */
--	i2o_raw_writel((u32)SCpnt, msg+16);	
--	wmb();
--	i2o_post_message(c,m);
--	wmb();
--	
-+	msg[0] = FIVE_WORD_MSG_SIZE;
-+	msg[1] = I2O_CMD_SCSI_ABORT<<24|HOST_TID<<12|tid;
-+	msg[2] = scsi_context;
-+	msg[3] = 0;
-+	msg[4] = i2o_context_list_remove(SCpnt, c);
-+	if(i2o_post_wait(c, msg, sizeof(msg), 240))
-+		status = SUCCESS;
-+
- 	spin_lock_irq(host->host_lock);
--	return SUCCESS;
-+	return status;
- }
+ #define MODINC(x,y) ((x) = ((x) + 1) % (y))
  
- /**
---- a/include/linux/i2o.h	2004-04-03 17:36:27.000000000 -1000
-+++ b/include/linux/i2o.h	2004-04-25 07:17:21.594623832 -1000
-@@ -76,6 +76,16 @@
- };
- 
- /*
-+ * context queue entry, used for 32-bit context on 64-bit systems
-+ */
-+struct i2o_context_list_element {
-+	struct i2o_context_list_element *next;
-+	u32 context;
-+	void *ptr;
-+	unsigned int flags;
++struct sg_simple_element {
++	u32  flag_count;
++	u32 addr_bus;
 +};
 +
-+/*
-  * Each I2O controller has one of these objects
-  */
- struct i2o_controller
-@@ -133,6 +143,11 @@
- 
- 	void *page_frame;			/* Message buffers */
- 	dma_addr_t page_frame_map;		/* Cache map */
-+#if BITS_PER_LONG == 64
-+	spinlock_t context_list_lock;		/* lock for context_list */
-+	struct i2o_context_list_element *context_list; /* list of context id's
-+						    and pointers */
-+#endif
- };
+ struct i2o_cfg_info
+ {
+ 	struct file* fp;
+@@ -76,6 +83,7 @@
+ static int ioctl_validate(unsigned long); 
+ static int ioctl_evt_reg(unsigned long, struct file *);
+ static int ioctl_evt_get(unsigned long, struct file *);
++static int ioctl_passthru(unsigned long);
+ static int cfg_fasync(int, struct file*, int);
  
  /*
-@@ -322,6 +335,27 @@
- extern void i2o_run_queue(struct i2o_controller *);
- extern int i2o_delete_controller(struct i2o_controller *);
+@@ -257,6 +265,10 @@
+ 			ret = ioctl_evt_get(arg, fp);
+ 			break;
  
-+#if BITS_PER_LONG == 64
-+extern u32 i2o_context_list_add(void *, struct i2o_controller *);
-+extern void *i2o_context_list_get(u32, struct i2o_controller *);
-+extern u32 i2o_context_list_remove(void *, struct i2o_controller *);
-+#else
-+static inline u32 i2o_context_list_add(void *ptr, struct i2o_controller *c)
-+{
-+	return (u32)ptr;
-+}
++		case I2OPASSTHRU:
++			ret = ioctl_passthru(arg);
++			break;
 +
-+static inline void *i2o_context_list_get(u32 context, struct i2o_controller *c)
-+{
-+	return (void *)context;
-+}
-+
-+static inline u32 i2o_context_list_remove(void *ptr, struct i2o_controller *c)
-+{
-+	return (u32)ptr;
-+}
-+#endif
-+
- /*
-  *	Cache strategies
-  */
-@@ -647,5 +683,9 @@
- #define I2O_POST_WAIT_OK	0
- #define I2O_POST_WAIT_TIMEOUT	-ETIMEDOUT
+ 		default:
+ 			ret = -EINVAL;
+ 	}
+@@ -828,6 +840,157 @@
+ 	return 0;
+ }
  
-+#define I2O_CONTEXT_LIST_MIN_LENGTH	15
-+#define I2O_CONTEXT_LIST_USED		0x01
-+#define I2O_CONTEXT_LIST_DELETED	0x02
++static int ioctl_passthru(unsigned long arg)
++{
++	struct i2o_cmd_passthru *cmd = (struct i2o_cmd_passthru *) arg;
++	struct i2o_controller *c;
++	u32 msg[MSG_FRAME_SIZE];
++	u32 *user_msg = (u32*)cmd->msg;
++	u32 *reply = NULL;
++	u32 *user_reply = NULL;
++	u32 size = 0;
++	u32 reply_size = 0;
++	u32 rcode = 0;
++	ulong sg_list[SG_TABLESIZE];
++	u32 sg_offset = 0;
++	u32 sg_count = 0;
++	int sg_index = 0;
++	u32 i = 0;
++	ulong p = 0;
 +
- #endif /* __KERNEL__ */
- #endif /* _I2O_H */
++	c = i2o_find_controller(cmd->iop);
++	if(!c)
++                return -ENXIO;
++
++	memset(&msg, 0, MSG_FRAME_SIZE*4);
++	if(get_user(size, &user_msg[0]))
++		return -EFAULT;
++	size = size>>16;
++
++	user_reply = &user_msg[size];
++	if(size > MSG_FRAME_SIZE)
++		return -EFAULT;
++	size *= 4; // Convert to bytes
++                                              
++	/* Copy in the user's I2O command */
++	if(copy_from_user((void*)msg, (void*)user_msg, size))
++		return -EFAULT;
++	get_user(reply_size, &user_reply[0]);
++	reply_size = reply_size>>16;
++	reply = kmalloc(REPLY_FRAME_SIZE*4, GFP_KERNEL);
++	if(!reply) {
++		printk(KERN_WARNING"%s: Could not allocate reply buffer\n",c->name);
++		return -ENOMEM;
++	}
++	memset(reply, 0, REPLY_FRAME_SIZE*4);
++	sg_offset = (msg[0]>>4)&0x0f;
++	msg[2] = (u32)i2o_cfg_context;
++	msg[3] = (u32)reply;
++
++	memset(sg_list,0, sizeof(sg_list[0])*SG_TABLESIZE);
++	if(sg_offset) {
++		// TODO 64bit fix
++		struct sg_simple_element *sg = (struct sg_simple_element*) (msg+sg_offset);
++		sg_count = (size - sg_offset*4) / sizeof(struct sg_simple_element);
++		if (sg_count > SG_TABLESIZE) {
++			printk(KERN_DEBUG"%s:IOCTL SG List too large (%u)\n", c->name,sg_count);
++			kfree (reply);
++			return -EINVAL;
++		}
++
++		for(i = 0; i < sg_count; i++) {
++			int sg_size;
++
++			if (!(sg[i].flag_count & 0x10000000 /*I2O_SGL_FLAGS_SIMPLE_ADDRESS_ELEMENT*/)) {
++				printk(KERN_DEBUG"%s:Bad SG element %d - not simple (%x)\n",c->name,i,  sg[i].flag_count);
++				rcode = -EINVAL;
++				goto cleanup;
++			}
++			sg_size = sg[i].flag_count & 0xffffff;
++			/* Allocate memory for the transfer */
++			p = (ulong)kmalloc(sg_size, GFP_KERNEL);
++			if (!p) {
++				printk(KERN_DEBUG"%s: Could not allocate SG buffer - size = %d buffer number %d of %d\n", c->name,sg_size,i,sg_count);
++				rcode = -ENOMEM;
++				goto cleanup;
++			}
++			sg_list[sg_index++] = p; // sglist indexed with input frame, not our internal frame.
++			/* Copy in the user's SG buffer if necessary */
++			if(sg[i].flag_count & 0x04000000 /*I2O_SGL_FLAGS_DIR*/) {
++				// TODO 64bit fix
++			        if (copy_from_user((void*)p,(void*)sg[i].addr_bus, sg_size)) {
++					printk(KERN_DEBUG"%s: Could not copy SG buf %d FROM user\n",c->name,i);
++					rcode = -EFAULT;
++					goto cleanup;
++				}
++			}
++			//TODO 64bit fix
++			sg[i].addr_bus = (u32)virt_to_bus((void*)p);
++		}
++	}
++
++	rcode = i2o_post_wait(c, msg, size, 60);
++	if(rcode)
++		goto cleanup;
++
++	if(sg_offset) {
++		/* Copy back the Scatter Gather buffers back to user space */
++		u32 j;
++		// TODO 64bit fix
++		struct sg_simple_element* sg;
++		int sg_size;
++										                                                                                
++		// re-acquire the original message to handle correctly the sg copy operation
++		memset(&msg, 0, MSG_FRAME_SIZE*4);
++		// get user msg size in u32s
++		if (get_user(size, &user_msg[0])) {
++			rcode = -EFAULT;
++			goto cleanup;
++		}
++		size = size>>16;
++		size *= 4;
++		/* Copy in the user's I2O command */
++		if (copy_from_user ((void*)msg, (void*)user_msg, size)) {
++			rcode = -EFAULT;
++			goto cleanup;
++		}
++		sg_count = (size - sg_offset*4) / sizeof(struct sg_simple_element);
++
++		 // TODO 64bit fix
++		sg = (struct sg_simple_element*)(msg + sg_offset);
++		for (j = 0; j < sg_count; j++) {
++			/* Copy out the SG list to user's buffer if necessary */
++			if (!(sg[j].flag_count & 0x4000000 /*I2O_SGL_FLAGS_DIR*/)) {
++				sg_size = sg[j].flag_count & 0xffffff;
++				// TODO 64bit fix
++				if (copy_to_user((void*)sg[j].addr_bus,(void*)sg_list[j], sg_size)) {
++					printk(KERN_WARNING"%s: Could not copy %lx TO user %x\n",c->name, sg_list[j], sg[j].addr_bus);
++					rcode = -EFAULT;
++					goto cleanup;
++				}
++			}
++		}
++	}
++	
++	/* Copy back the reply to user space */
++        if (reply_size) {
++		// we wrote our own values for context - now restore the user supplied ones
++		if(copy_from_user(reply+2, user_msg+2, sizeof(u32)*2)) {
++			printk(KERN_WARNING"%s: Could not copy message context FROM user\n",c->name);
++			rcode = -EFAULT;
++		}
++		if(copy_to_user(user_reply, reply, reply_size)) {
++			printk(KERN_WARNING"%s: Could not copy reply TO user\n",c->name);
++			rcode = -EFAULT;
++		}
++	}
++
++cleanup:
++	kfree(reply);
++	i2o_unlock_controller(c);
++	return rcode;
++}		
++
+ static int cfg_open(struct inode *inode, struct file *file)
+ {
+ 	struct i2o_cfg_info *tmp = 
+--- a/include/linux/i2o.h   2004-03-01 23:18:47.000000000 +0100
++++ b/include/linux/i2o.h   2004-03-03 17:36:20.129361237 +0100
+@@ -621,6 +640,8 @@
+ #define HOST_TID		1
+ 
+ #define MSG_FRAME_SIZE		64	/* i2o_scsi assumes >= 32 */
++#define REPLY_FRAME_SIZE	17
++#define SG_TABLESIZE		30
+ #define NMBR_MSG_FRAMES		128
+ 
+ #define MSG_POOL_SIZE		(MSG_FRAME_SIZE*NMBR_MSG_FRAMES*sizeof(u32))
+--- a/include/linux/i2o-dev.h   2004-03-01 23:18:47.000000000 +0100
++++ b/include/linux/i2o-dev.h   2004-03-03 17:36:20.129361237 +0100
+@@ -41,7 +41,15 @@
+ #define I2OHTML 		_IOWR(I2O_MAGIC_NUMBER,9,struct i2o_html)
+ #define I2OEVTREG		_IOW(I2O_MAGIC_NUMBER,10,struct i2o_evt_id)
+ #define I2OEVTGET		_IOR(I2O_MAGIC_NUMBER,11,struct i2o_evt_info)
++#define I2OPASSTHRU		_IOR(I2O_MAGIC_NUMBER,12,struct i2o_cmd_passthru)
+ 
++struct i2o_cmd_passthru
++{
++	void *msg;		/* message */
++	int iop;		/* number of the I2O controller, to which the
++				   message should go to */
++};
++
+ struct i2o_cmd_hrtlct
+ {
+ 	unsigned int iop;	/* IOP unit number */
 
---------------020102030501040002060805--
+--------------030204090406060902040807--

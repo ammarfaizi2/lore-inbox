@@ -1,64 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129839AbRB0UXX>; Tue, 27 Feb 2001 15:23:23 -0500
+	id <S130225AbRBZO2j>; Mon, 26 Feb 2001 09:28:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129854AbRB0UXP>; Tue, 27 Feb 2001 15:23:15 -0500
-Received: from [195.161.132.222] ([195.161.132.222]:60427 "EHLO got.mmtel.ru")
-	by vger.kernel.org with ESMTP id <S129839AbRB0UWz>;
-	Tue, 27 Feb 2001 15:22:55 -0500
-From: Serg <aaru@got.mmtel.ru>
+	id <S130218AbRBZO23>; Mon, 26 Feb 2001 09:28:29 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:53191 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S130207AbRBZO2P>;
+	Mon, 26 Feb 2001 09:28:15 -0500
 To: linux-kernel@vger.kernel.org
-Subject: Хотитестатьдипломатом?Хотитеиметьдипломатическийстатус?Тогдаэтоименното,чтоВамнеобходимо.(Письмо). Email, 095-7059285#92889
-X-Mailer: Microsoft Outlook Express 5.00.2314.1300
-Reply-To: aaru@got.mmtel.ru
-Date: Tue, 27 Feb 2001 15:22:55 -0500
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Message-Id: <200102280016281.SM00185@aaru>
+Subject: 2.2 -> 2.4: /proc/net/tcp 10x slower ?
+From: Sven Rudolph <rudsve@drewag.de>
+Date: 26 Feb 2001 15:12:01 +0100
+Message-ID: <xfkelwlo7ny.fsf@uxrs2.drewag.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Usually identd's on Linux parse /proc/net/tcp.
 
-Уважаемые господа.
+When migrating from Linux 2.2.17 to 2.4.2 identd became much slower.
 
-Приносим свои извинения за вмешательство в Ваше электронное пространство, но Ваш 
-электронный адрес был взят из открытых источников. Данная рассылка носит исключительно 
-разовый характер и более повторяться не будет.
+I traced it back to the point where /proc/net/tcp is read.
 
-Предлагаем к приобретению Самое полное и максимально подробное руководство:
+On the same slightly loaded system:
 
-"Нетрадиционный путь получения дипломатического статуса"
+2.2.17 $ time cat /proc/net/tcp >/dev/null
+real    0m0.004s
+user    0m0.000s
+sys     0m0.010s
 
-Данное руководство было издано в Лондоне Английской Адвокатской Компанией, более никогда и 
-нигде не издавалась и не переиздавалась.
+(Or sometimes 0.000s due to granularity)
 
-Данное издание содержит подробнейшие инструкции, порядок действий, образцы писем и 
-документов, законодательные акты.
+2.2.17 $ time cat /proc/net/tcp >/dev/null
+real    0m0.083s
+user    0m0.000s
+sys     0m0.080s
 
-Вся информация неоднократно проверена и относится абсолюдно ко всем, ни гражданство, ни 
-прописка, никакие иные данные принципиального значения не имеют.
 
-Более подробной и точной информации Вы не сможете более найти нигде.
+Is this expected? Or is there a more efficient interface that identd
+should use?
 
-Язык руководства русский или английский по Вашему выбору.
+	Sven
 
-Варианты:
-
-- твердый переплет    -  50 у.е.
-- мягкий переплет     -   40 у.е.
-- электронная версия - 30 у.е.
-
-Доставка:  Наложный платеж; Авансовый платеж; Курьерская.
-
-Стоимость доставки по Москве и Московской области входит в стоимость(кроме курьерской).
-
-Скидки:
-- от 10 экз. - 10%
-- от 25 экз. - 15%
-- от 50 экз. - 20%
-- авансовый платеж - 10%.
-
-Обращайтесь. Мы ждем Вас!
-
-е-м: arcot@beep.ru
-t\f\a : 7059285#92889

@@ -1,41 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273141AbRJKHBq>; Thu, 11 Oct 2001 03:01:46 -0400
+	id <S273349AbRJKHCz>; Thu, 11 Oct 2001 03:02:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273349AbRJKHBf>; Thu, 11 Oct 2001 03:01:35 -0400
-Received: from front1.mail.megapathdsl.net ([66.80.60.31]:6416 "EHLO
-	front1.mail.megapathdsl.net") by vger.kernel.org with ESMTP
-	id <S273141AbRJKHBT>; Thu, 11 Oct 2001 03:01:19 -0400
-Subject: Re: Linux 2.4.10-ac11
-From: Miles Lane <miles@megapathdsl.net>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Alan Cox <laughing@shared-source.org>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20011010203004.E11147@cpe-24-221-152-185.az.sprintbbd.net>
-In-Reply-To: <20011011001617.A4636@lightning.swansea.linux.org.uk> 
-	<20011010203004.E11147@cpe-24-221-152-185.az.sprintbbd.net>
-Content-Type: text/plain
+	id <S273358AbRJKHCp>; Thu, 11 Oct 2001 03:02:45 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:59664 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S273349AbRJKHC0>; Thu, 11 Oct 2001 03:02:26 -0400
+Subject: Re: -ac10,-ac11 no boot on SMP PentiumII box
+To: cshihpin@dso.org.sg (Richard Chan)
+Date: Thu, 11 Oct 2001 08:08:19 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20011011110327.B25934@cshihpin.dso.org.sg> from "Richard Chan" at Oct 11, 2001 11:03:27 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.16.99 (Preview Release)
-Date: 10 Oct 2001 23:52:48 -0700
-Message-Id: <1002783189.1357.130.camel@stomata.megapathdsl.net>
-Mime-Version: 1.0
+Message-Id: <E15rZx5-0002H4-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2001-10-10 at 20:30, Tom Rini wrote:
-> Hello.  In updating the PPC defconfigs, I noticed that
-> drivers/usb/Config.in will ask questions on machines where CONFIG_PCI=n
-> but CONFIG_EXPERIMENTAL=y.  The following puts all of the USB items
-> under the if [ "$CONFIG_USB" = "y" -o "$CONFIG_USB" = "m" ] check and
-> fixes some spacing bits.
+> Normally I would expect "Calibrating delay loop..." but no go.
+> 
+> Last -ac kernel tried was 2.4.9-ac10 with success.
+> 2.4.10 stock also works.
+> 
+> Has anything affected the CPU startup code?
 
-Do we really still think USB deserves the Experimental label?
-I use it all the time and it seems about as solid as any of
-the other subsystems.  I know drivers continue to evolve, get
-bugs fixed and new ones get added, but is that a good reason
-to mark all USB support experimental?
+Not that I am aware of. There are some locking changes in specific cases
+but I tested that still booted on my dual PPro
 
-Just wondering what the criteria are,
-
-	Miles
-
+Alan

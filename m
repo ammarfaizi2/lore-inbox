@@ -1,39 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265102AbTLRLiF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Dec 2003 06:38:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265105AbTLRLiF
+	id S265095AbTLRLch (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Dec 2003 06:32:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265100AbTLRLch
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Dec 2003 06:38:05 -0500
-Received: from [220.224.36.57] ([220.224.36.57]:18560 "EHLO balram.gotdns.org")
-	by vger.kernel.org with ESMTP id S265102AbTLRLiD (ORCPT
+	Thu, 18 Dec 2003 06:32:37 -0500
+Received: from math.ut.ee ([193.40.5.125]:34028 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id S265095AbTLRLcd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Dec 2003 06:38:03 -0500
-Date: Thu, 18 Dec 2003 17:06:28 +0000
-From: Balram Adlakha <b_adlakha@softhome.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Can't wait for '2.8 or 3.0',or maybe: 2.8 followed by 2.10 ??
-Message-ID: <20031218170628.GA3129@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+	Thu, 18 Dec 2003 06:32:33 -0500
+Date: Thu, 18 Dec 2003 13:32:20 +0200 (EET)
+From: Meelis Roos <mroos@linux.ee>
+To: Matt Domsch <Matt_Domsch@dell.com>
+cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Anton Altaparmakov <aia21@cam.ac.uk>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.23-bk bogus edd changeset - Re: 2.4.23 compile error in edd
+In-Reply-To: <20031205113619.A20371@lists.us.dell.com>
+Message-ID: <Pine.GSO.4.44.0312181330150.5204-100000@math.ut.ee>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Bradford (john@grabjohn.com) wrote:
+> > > However, changing DISKSIG_BUFFER to DISK80_SIG_BUFFER causes the kernel to
+> > > reboot the computer as soon as it starts booting.  Basically I select it
+> > > in grub and the screen changes graphics mode and by the time it has
+> > > finished the switch the computer reboots.
 
-> I think we should consider introduce a policy of having .*beaver.*
-> names for each 2.6.x release, and maybe drop the version numbers
-> altogether during 2.7.
->
-> John.
-
-Sounds like a cool idea, but how are we supposed to know which "name"
-is newer?
+Same here - instant reboot when EDD is enabled. Do you need my config
+also? The mainboard is Intel D815EEA2 with latest BIOS
+(EA81520A.86A.0039.P21.0211061753).
 
 -- 
- -
-( ) ascii ribbon campaign - against html mail 
- X
-/ \ 
+Meelis Roos (mroos@linux.ee)
+

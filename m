@@ -1,70 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261918AbVAHKIX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262006AbVAHJek@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261918AbVAHKIX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 05:08:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261858AbVAHKH5
+	id S262006AbVAHJek (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 04:34:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261825AbVAHJds
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 05:07:57 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29316 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261918AbVAHKEl
+	Sat, 8 Jan 2005 04:33:48 -0500
+Received: from mail.kroah.org ([69.55.234.183]:25221 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261824AbVAHFsD convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 05:04:41 -0500
-Date: Fri, 7 Jan 2005 20:12:55 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Lukasz Trabinski <lukasz@wsisiz.edu.pl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: uselib()  & 2.6.X?
-Message-ID: <20050107221255.GA8749@logos.cnet>
-References: <Pine.LNX.4.58LT.0501071648160.30645@oceanic.wsisiz.edu.pl> <20050107170712.GK29176@logos.cnet> <1105136446.7628.11.camel@localhost.localdomain> <Pine.LNX.4.58.0501071609540.2386@ppc970.osdl.org>
+	Sat, 8 Jan 2005 00:48:03 -0500
+Subject: Re: [PATCH] USB and Driver Core patches for 2.6.10
+In-Reply-To: <11051632672444@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Fri, 7 Jan 2005 21:47:47 -0800
+Message-Id: <11051632671073@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0501071609540.2386@ppc970.osdl.org>
-User-Agent: Mutt/1.5.5.1i
+Content-Type: text/plain; charset=US-ASCII
+To: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 07, 2005 at 04:15:28PM -0800, Linus Torvalds wrote:
-> 
-> 
-> On Fri, 7 Jan 2005, Alan Cox wrote:
-> >
-> > Please don't use that for mainline - do_brk_locked doesn't follow kernel
-> > convention
-> 
-> I agree, I also find the "do_brk_locked()" naming confusing. To me it 
-> implies that we already _are_ locked, not that we're going to lock.
-> 
-> On the other hand, I think Alan's patch is equally confusing: the calling 
-> rules for "do_brk()" and "do_mmap()" are the same, and they are "caller 
-> takes mmap_sem". 
-> 
-> So I think you _both_ broke kernel conventions.
-> 
-> So I'd personally much prefer to just first fix the bug minimally (by just
-> taking the lock in the two places that need it), and then _separately_ say
-> "we should warn if anybody ever calls 'do_brk()' without the lock". That's 
-> how we tend to verify locking in other cases, ie we have things like
-> 
-> 	if (!spin_is_locked(&t->sighand->siglock))
-> 		BUG();
-> 
-> to verify the calling conventions. Same would go for mmap_sem (although we
-> don't seem to have any "sem_is_writelocked()" test - although you can fake
-> it with
-> 
-> 	if (down_read_trylock(&mm->mmap_sem))
-> 		BUG();
-> 
-> instead.
-> 
-> Now _that_ is a non-silent failure mode. The machine doesn't just silently 
-> deadlock: it tells you exactly what's wrong.
+ChangeSet 1.1938.446.31, 2004/12/17 11:41:58-08:00, david-b@pacbell.net
 
-Only problem is that current do_brk() callers dont take the lock - you would
-need a version of do_brk() that doesnt warn for them? 
+[PATCH] USB: EHCI "park" mode disabled
 
-But yes, the warning is better than silent failure or security problem for 
-out-of-the tree users.
+This changes the default initialization of the EHCI "park" mode so
+that silicon which supports it (NF2, NF3, ALI, GeneSys, ...) will not
+use it unless explicitly told to do so by a (new) module parameter.
+
+This is a workaround for some problems observed on some NF2 systems:
+
+    - Throughput ("hdparm -tT") is lower than expected with recent high
+      performance drives (Maxtor) ... disabling "park" increases it by
+      about 2 MByte/sec, but it's still much slower than expected.
+      (USB analyser traces should be informative here.)
+
+    - Some data corruption observed on reads from drives using an
+      ALI storage adapter ... disabling "park" stops the corruption.
+      (Strongly suggestive of hardware or peripheral firmware bugs;
+      multiple back-to-back bulk-IN packets should work just fine.)
+
+The "don't use park mode" workaround will at most reduce USB (and PCI)
+throughput slightly on systems that work as expected, but some of those
+can re-enable the "park" mode.
+
+Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
+
+
+ drivers/usb/host/ehci-hcd.c |   27 ++++++++++++++++++++++-----
+ 1 files changed, 22 insertions(+), 5 deletions(-)
+
+
+diff -Nru a/drivers/usb/host/ehci-hcd.c b/drivers/usb/host/ehci-hcd.c
+--- a/drivers/usb/host/ehci-hcd.c	2005-01-07 15:46:38 -08:00
++++ b/drivers/usb/host/ehci-hcd.c	2005-01-07 15:46:38 -08:00
+@@ -124,11 +124,16 @@
+ #define EHCI_ASYNC_JIFFIES	(HZ/20)		/* async idle timeout */
+ #define EHCI_SHRINK_JIFFIES	(HZ/200)	/* async qh unlink delay */
+ 
+-/* Initial IRQ latency:  lower than default */
++/* Initial IRQ latency:  faster than hw default */
+ static int log2_irq_thresh = 0;		// 0 to 6
+ module_param (log2_irq_thresh, int, S_IRUGO);
+ MODULE_PARM_DESC (log2_irq_thresh, "log2 IRQ latency, 1-64 microframes");
+ 
++/* initial park setting:  slower than hw default */
++static unsigned park = 0;
++module_param (park, uint, S_IRUGO);
++MODULE_PARM_DESC (park, "park setting; 1-3 back-to-back async packets");
++
+ #define	INTR_MASK (STS_IAA | STS_FATAL | STS_PCD | STS_ERR | STS_INT)
+ 
+ /*-------------------------------------------------------------------------*/
+@@ -506,11 +511,24 @@
+ 	}
+ 
+ 	/* clear interrupt enables, set irq latency */
+-	temp = readl (&ehci->regs->command) & 0x0fff;
+ 	if (log2_irq_thresh < 0 || log2_irq_thresh > 6)
+ 		log2_irq_thresh = 0;
+-	temp |= 1 << (16 + log2_irq_thresh);
+-	// if hc can park (ehci >= 0.96), default is 3 packets per async QH 
++	temp = 1 << (16 + log2_irq_thresh);
++	if (HCC_CANPARK(hcc_params)) {
++		/* HW default park == 3, on hardware that supports it (like
++		 * NVidia and ALI silicon), maximizes throughput on the async
++		 * schedule by avoiding QH fetches between transfers.
++		 *
++		 * With fast usb storage devices and NForce2, "park" seems to
++		 * make problems:  throughput reduction (!), data errors...
++		 */
++		if (park) {
++			park = min (park, (unsigned) 3);
++			temp |= CMD_PARK;
++			temp |= park << 8;
++		}
++		ehci_info (ehci, "park %d\n", park);
++	}
+ 	if (HCC_PGM_FRAMELISTLEN (hcc_params)) {
+ 		/* periodic schedule size can be smaller than default */
+ 		temp &= ~(3 << 2);
+@@ -522,7 +540,6 @@
+ 		default:	BUG ();
+ 		}
+ 	}
+-	temp &= ~(CMD_IAAD | CMD_ASE | CMD_PSE),
+ 	// Philips, Intel, and maybe others need CMD_RUN before the
+ 	// root hub will detect new devices (why?); NEC doesn't
+ 	temp |= CMD_RUN;
+

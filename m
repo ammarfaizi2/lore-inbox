@@ -1,45 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264906AbTFQTlW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 15:41:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264909AbTFQTlW
+	id S264899AbTFQTrH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 15:47:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264909AbTFQTrH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 15:41:22 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:2009 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S264906AbTFQTlW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 15:41:22 -0400
-Date: Tue, 17 Jun 2003 12:50:40 -0700 (PDT)
-Message-Id: <20030617.125040.58438649.davem@redhat.com>
-To: janiceg@us.ibm.com
-Cc: jgarzik@pobox.com, shemminger@osdl.org, Valdis.Kletnieks@vt.edu,
-       girouard@us.ibm.com, stekloff@us.ibm.com, lkessler@us.ibm.com,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com, niv@us.ibm.com
-Subject: Re: patch for common networking error messages
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3EEF7030.6030303@us.ibm.com>
-References: <3EEF66AA.3000509@us.ibm.com>
-	<3EEF6A9D.6050303@pobox.com>
-	<3EEF7030.6030303@us.ibm.com>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	Tue, 17 Jun 2003 15:47:07 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:2357 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S264899AbTFQTrF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jun 2003 15:47:05 -0400
+Date: Tue, 17 Jun 2003 13:01:42 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: roy@karlsbakk.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] O_DIRECT for ext3 (2.4.21)
+Message-Id: <20030617130142.50775749.akpm@digeo.com>
+In-Reply-To: <1055861357.4240.11.camel@sisko.scot.redhat.com>
+References: <20030615110106.GA8404@karlsbakk.net>
+	<1055861357.4240.11.camel@sisko.scot.redhat.com>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 17 Jun 2003 20:01:00.0621 (UTC) FILETIME=[2CA1A7D0:01C3350B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Janice M Girouard <janiceg@us.ibm.com>
-   Date: Tue, 17 Jun 2003 14:46:56 -0500
+"Stephen C. Tweedie" <sct@redhat.com> wrote:
+>
+> Hi,
+> 
+> On Sun, 2003-06-15 at 12:01, Roy Sigurd Karlsbakk wrote:
+> > hi all
+> > 
+> > I've been waiting for the official O_DIRECT on ext3 for some time now, so I
+> > thought perhaps it's time to get it into 2.4.22 or so. The patch I've used, is
+> > the one below (for 2.4.21):
+> 
+> This is Andrea's patch,
 
-    I could see the buffers backing up for 10/100 cards. So that case 
-   favors your point.  I'm still thinking that it's a sign someone should 
-   be buying a 2nd card and ramping up their network capability.  But I can 
-   see your point.
+Actually I'm the culprit.
 
-And when we have 1GHZ memory busses and 10GHz cpus tomorrow,
-what does this say for 1gbit and 10gbit cards?
+> (like allowing direct IO in journaled data mode --- bad move ---
 
-You want to define a machine as having too much "work" or not, yet you
-only want to consider one metric to do so.  Such schemes are
-fundamentally flawed.
+hmm, OK, it doesn't even vaguely work in journalled mode either...
+
+I think the check should be implemented in (the new) ext3_open().  Because
+checking the return from open() is the way in which a good application would
+determine whether the underlying fs supports O_DIRECT.
+
+Unfortunately O_DIRECT can also be set with fcntl(F_SETFL), and we seem to
+have forgotten to provide a way for the fs to be told about fcntl.
+
+

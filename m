@@ -1,47 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267034AbSKMAAG>; Tue, 12 Nov 2002 19:00:06 -0500
+	id <S267039AbSKMAEv>; Tue, 12 Nov 2002 19:04:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267035AbSKMAAG>; Tue, 12 Nov 2002 19:00:06 -0500
-Received: from polomer.sinet.sk ([62.169.169.8]:38660 "EHLO polomer.sinet.sk")
-	by vger.kernel.org with ESMTP id <S267034AbSKMAAF>;
-	Tue, 12 Nov 2002 19:00:05 -0500
-From: Peter Kundrat <kundrat@kundrat.sk>
-Date: Wed, 13 Nov 2002 01:04:50 +0100
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: i810 audio
-Message-ID: <20021113000449.GB7015@napri.sk>
-Mail-Followup-To: kundrat,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0211121802540.27793-100000@graze.net> <1037144284.10029.0.camel@irongate.swansea.linux.org.uk> <20021112184349.A11757@redhat.com>
+	id <S267045AbSKMAEv>; Tue, 12 Nov 2002 19:04:51 -0500
+Received: from smtp08.iddeo.es ([62.81.186.18]:25053 "EHLO smtp08.retemail.es")
+	by vger.kernel.org with ESMTP id <S267039AbSKMAEu>;
+	Tue, 12 Nov 2002 19:04:50 -0500
+Date: Wed, 13 Nov 2002 01:10:59 +0100
+From: =?iso-8859-1?Q?J=2EA=2E_Magall=F3n?= <jamagallon@able.es>
+To: linux-kernel@vger.kernel.org
+Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Subject: Re: Some functions are not inlined by gcc 3.2, resulting code is ugly
+Message-ID: <20021113001059.GA31147@werewolf.able.es>
+References: <200211031125.gA3BP4p27812@Port.imtp.ilyichevsk.odessa.ua> <200211031322.gA3DMTp28125@Port.imtp.ilyichevsk.odessa.ua>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
-In-Reply-To: <20021112184349.A11757@redhat.com>
-User-Agent: Mutt/1.3.27i
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <200211031322.gA3DMTp28125@Port.imtp.ilyichevsk.odessa.ua>; from vda@port.imtp.ilyichevsk.odessa.ua on Sun, Nov 03, 2002 at 19:14:26 +0100
+X-Mailer: Balsa 2.0.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 12, 2002 at 06:43:49PM -0500, Doug Ledford wrote:
-> And in some implementations the codec control labelled PCM2 is actually 
-> main volume, and I've seen one where a headphone was the actual main 
-> volume.  So, the answer is tinker with all the available volume sliders to 
-> see if you can find one that actually changes the volume of everything at 
-> once, and if you do find it, use it.
 
-Isnt there a way for userspace to somehow find this? It is a bit
-annoying that main volume control in kmix doesnt work (and thus the one
-in panel; also there is no headphone control there).
-The other option would be to configure userspace which control is the
-main one (but windows doesnt need that, so this solution would be
-inferior). Eventually i will take a look what does the win driver (maybe
-it sets main and headphone control always together). Until then i'd like
-to hear what are our options .. since the current situation is not
-really desirable.
+(sorry to answer to not-final-version mail, but didn't keep the last one.
+This also applies, anyway...)
 
-Thanks for any ideas,
+On 2002.11.03 Denis Vlasenko wrote:
+> On 3 November 2002 14:17, Denis Vlasenko wrote:
+> > It seems gcc started to de-inline large functions.
+[...]
 
-pkx
+> diff -urN linux-2.5.45.orig/include/linux/compiler.h linux-2.5.45fix/include/linux/compiler.h
+> --- linux-2.5.45.orig/include/linux/compiler.h	Wed Oct 30 22:43:05 2002
+> +++ linux-2.5.45fix/include/linux/compiler.h	Sun Nov  3 15:19:20 2002
+> @@ -20,3 +20,11 @@
+>      __asm__ ("" : "=g"(__ptr) : "0"(ptr));		\
+>      (typeof(ptr)) (__ptr + (off)); })
+>  #endif /* __LINUX_COMPILER_H */
+> +
+> +/* GCC 3 (and probably earlier, I'm not sure) can be told to always inline
+> +   a function. */
+> +#if __GNUC__ < 3
+> +#define force_inline inline
+> +#else
+> +#define force_inline inline __attribute__ ((always_inline))
+> +#endif
+
+This should go before the #endif /* __LINUX_COMPILER_H */, isn't it ?
+
 -- 
-Peter Kundrat
-peter@kundrat.sk
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.1 (Cooker) for i586
+Linux 2.4.20-rc1-jam2 (gcc 3.2 (Mandrake Linux 9.1 3.2-3mdk))

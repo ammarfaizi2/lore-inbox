@@ -1,130 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267658AbUHPOw0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265805AbUHPOwq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267658AbUHPOw0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 10:52:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265805AbUHPOw0
+	id S265805AbUHPOwq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 10:52:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267656AbUHPOwp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 10:52:26 -0400
-Received: from pD9517D3C.dip.t-dialin.net ([217.81.125.60]:45698 "EHLO
-	undata.org") by vger.kernel.org with ESMTP id S267674AbUHPOvo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 10:51:44 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.8.1-P2
-From: Thomas Charbonnel <thomas@undata.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Lee Revell <rlrevell@joe-job.com>, Florian Schmidt <mista.tapas@gmx.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-In-Reply-To: <1092665577.5362.12.camel@localhost>
-References: <20040816023655.GA8746@elte.hu>
-	 <1092624221.867.118.camel@krustophenia.net>
-	 <20040816032806.GA11750@elte.hu> <20040816033623.GA12157@elte.hu>
-	 <1092627691.867.150.camel@krustophenia.net>
-	 <20040816034618.GA13063@elte.hu> <1092628493.810.3.camel@krustophenia.net>
-	 <20040816040515.GA13665@elte.hu> <1092654819.5057.18.camel@localhost>
-	 <20040816113131.GA30527@elte.hu>  <20040816120933.GA4211@elte.hu>
-	 <1092662814.5082.2.camel@localhost>  <1092665577.5362.12.camel@localhost>
-Content-Type: text/plain
-Message-Id: <1092667804.5362.21.camel@localhost>
+	Mon, 16 Aug 2004 10:52:45 -0400
+Received: from pfepc.post.tele.dk ([195.41.46.237]:14914 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S265805AbUHPOwl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 10:52:41 -0400
+Date: Mon, 16 Aug 2004 16:55:19 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: kbuild/ia64: Fix breakage in arch/ia64/kernel/Makefile
+Message-ID: <20040816145519.GA7629@mars.ravnborg.org>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20040815201224.GI7682@mars.ravnborg.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 16 Aug 2004 16:50:04 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040815201224.GI7682@mars.ravnborg.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I wrote :
-> I wrote :
-> > Ingo Molnar wrote :
-> > > here's -P2:
-> > > 
-> > >  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8.1-P2
-> > > 
-> > > Changes since -P1:
-> > > 
-> > >  - trace interrupted kernel code (via hardirqs, NMIs and pagefaults)
-> > > 
-> > >  - yet another shot at trying to fix the IO-APIC/USB issues.
-> > > 
-> > >  - mcount speedups - tracing should be faster
-> > > 
-> > > 	Ingo
-> > 
-> > Same do_IRQ problem with P2, trace is here :
-> > http://www.undata.org/~thomas/swapper-P2.trace
-> > 
-> > Thomas
-> > 
-(...)
-> There still are weird things happening with irq handling, though. how
-> can generic_redirect_hardirq eat half a millisecond :
-> 
-(...)
-> Is there any source of interruption not covered by your P2 patch ?
-(...)
+Brown paperbag time :-(
+The *.lds changes that I added to ia64 introduced an error.
+Fix it so ia64 build againg.
 
-More on this : 
+Pushed to bk://linux-sam.bkbits.net/kbuild
 
-preemption latency trace v1.0
------------------------------
- latency: 611 us, entries: 21 (21)
- process: ksoftirqd/0/2, uid: 0
- nice: -10, policy: 0, rt_priority: 0
-=======>
- 0.000ms (+0.000ms): sched_clock (schedule)
- 0.000ms (+0.000ms): dequeue_task (schedule)
- 0.000ms (+0.000ms): recalc_task_prio (schedule)
- 0.590ms (+0.589ms): effective_prio (recalc_task_prio)
- 0.590ms (+0.000ms): enqueue_task (schedule)
- 0.590ms (+0.000ms): __switch_to (schedule)
- 0.590ms (+0.000ms): finish_task_switch (schedule)
- 0.591ms (+0.001ms): do_IRQ (finish_task_switch)
-(...)
-
-and
-
-preemption latency trace v1.0
------------------------------
- latency: 481 us, entries: 32 (32)
- process: swapper/0, uid: 0
- nice: 0, policy: 0, rt_priority: 0
-=======>
- 0.000ms (+0.000ms): do_IRQ (default_idle)
- 0.000ms (+0.000ms): mask_and_ack_8259A (do_IRQ)
- 0.459ms (+0.459ms): generic_redirect_hardirq (do_IRQ)
- 0.459ms (+0.000ms): generic_handle_IRQ_event (do_IRQ)
- 0.459ms (+0.000ms): timer_interrupt (generic_handle_IRQ_event)
- 0.459ms (+0.000ms): mark_offset_tsc (timer_interrupt)
- 0.465ms (+0.005ms): do_timer (timer_interrupt)
- 0.465ms (+0.000ms): update_process_times (do_timer)
- 0.465ms (+0.000ms): update_one_process (update_process_times)
- 0.465ms (+0.000ms): run_local_timers (update_process_times)
- 0.465ms (+0.000ms): raise_softirq (update_process_times)
- 0.466ms (+0.000ms): scheduler_tick (update_process_times)
- 0.466ms (+0.000ms): sched_clock (scheduler_tick)
- 0.466ms (+0.000ms): update_wall_time (do_timer)
- 0.466ms (+0.000ms): update_wall_time_one_tick (update_wall_time)
- 0.466ms (+0.000ms): profile_hook (timer_interrupt)
- 0.466ms (+0.000ms): notifier_call_chain (profile_hook)
- 0.467ms (+0.000ms): generic_note_interrupt (do_IRQ)
- 0.467ms (+0.000ms): end_8259A_irq (do_IRQ)
- 0.467ms (+0.000ms): enable_8259A_irq (do_IRQ)
- 0.468ms (+0.000ms): do_softirq (do_IRQ)
- 0.468ms (+0.000ms): __do_softirq (do_softirq)
- 0.468ms (+0.000ms): wake_up_process (do_softirq)
- 0.468ms (+0.000ms): try_to_wake_up (wake_up_process)
- 0.468ms (+0.000ms): task_rq_lock (try_to_wake_up)
- 0.468ms (+0.000ms): activate_task (try_to_wake_up)
- 0.469ms (+0.000ms): sched_clock (activate_task)
- 0.469ms (+0.000ms): recalc_task_prio (activate_task)
- 0.469ms (+0.000ms): effective_prio (recalc_task_prio)
- 0.469ms (+0.000ms): enqueue_task (activate_task)
- 0.469ms (+0.000ms): preempt_schedule (try_to_wake_up)
- 0.469ms (+0.000ms): check_preempt_timing (sub_preempt_count)
-
-It definitely looks like the kernel is interrupted by some interrupt
-source not covered by the patch.
-
-Thomas
-
-
+	Sam
+	
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/08/16 16:51:51+02:00 sam@mars.ravnborg.org 
+#   kbuild/ia64: Fix breakage in arch/ia64/kernel/Makefile
+#   
+#   Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+# 
+# arch/ia64/kernel/Makefile
+#   2004/08/16 16:51:35+02:00 sam@mars.ravnborg.org +1 -1
+#   Fix breakage
+# 
+diff -Nru a/arch/ia64/kernel/Makefile b/arch/ia64/kernel/Makefile
+--- a/arch/ia64/kernel/Makefile	2004-08-16 16:52:33 +02:00
++++ b/arch/ia64/kernel/Makefile	2004-08-16 16:52:33 +02:00
+@@ -21,7 +21,7 @@
+ # The gate DSO image is built using a special linker script.
+ targets += gate.so gate-syms.o
+ 
+-extra-y := gate.so gate-syms.o gate.lds gate.o
++extra-y += gate.so gate-syms.o gate.lds gate.o
+ 
+ # fp_emulate() expects f2-f5,f16-f31 to contain the user-level state.
+ CFLAGS_traps.o  += -mfixed-range=f2-f5,f16-f31

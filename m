@@ -1,52 +1,60 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315447AbSEBVpL>; Thu, 2 May 2002 17:45:11 -0400
+	id <S315451AbSEBVxZ>; Thu, 2 May 2002 17:53:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315448AbSEBVpK>; Thu, 2 May 2002 17:45:10 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:31142 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S315447AbSEBVpI>; Thu, 2 May 2002 17:45:08 -0400
-Subject: Re: SEVERE Problems in 2.5.12 at uid0 access
-From: Paul Larson <plars@austin.ibm.com>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Bob_Tracy <rct@gherkin.frus.com>, system_lists@nullzone.org,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.21.0205011417230.12640-100000@weyl.math.psu.edu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 02 May 2002 16:39:01 -0500
-Message-Id: <1020375541.3862.20.camel@plars.austin.ibm.com>
-Mime-Version: 1.0
+	id <S315453AbSEBVxY>; Thu, 2 May 2002 17:53:24 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:59664 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S315451AbSEBVxW>; Thu, 2 May 2002 17:53:22 -0400
+Message-ID: <3CD1A698.80408@evision-ventures.com>
+Date: Thu, 02 May 2002 22:50:32 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
+X-Accept-Language: en-us, pl
+MIME-Version: 1.0
+To: Andries.Brouwer@cwi.nl
+CC: akpm@zip.com.au, daniel@rimspace.net, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.12 severe ext3 filesystem corruption warning!
+In-Reply-To: <UTC200205022140.g42Le8N14139.aeb@smtp.cwi.nl>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-05-01 at 13:18, Alexander Viro wrote:
-> Yes, it is.  Look for the patch I've posted yesterday (subject was
-> something like "[PATCH] missing checks", IIRC).
+U¿ytkownik Andries.Brouwer@cwi.nl napisa³:
+>>>2.5.12, serious ext3 filesystem corrupting behavior
+>>
+> 
+> I have had problems with 2.5.10 (first few blocks of the root
+> filesystem overwritten) and then went back to 2.5.8 that I had
+> used for a while already, but then also noticed corruption there.
+> Back at 2.4.17 today..
+> 
+> In my case the problem was almost certainly the IDE code.
+> More in particular, the 2.5.8 corruption happened on four
+> different occasions, on two different disks, hanging off
+> an HPT366 that is without problems on 2.4*. Three of the
+> four times there were messages like
 
-Before I found this message I was also trying to hunt down this problem
-after noticing that 2.5.12 failed unlink08 from LTP.  The thing I think
-broke it though was a seemlingly minor change to the handling of the
-return value from exec_permission_lite in link_path_walk().  In 2.5.11
-it rechecked with permission() if it got an error back from
-exec_permission_lite(), but in 2.5.12 it only does this if err ==
--EAGAIN.  This patch also seems to fix the problem, and simply reverts
-it back to the original way it was handled rather than adding more code
-to exec_permission_lite().  I'll let you decide which is the best way.
+Hmm... let me assume that you are using UDMA on all those drives.
+Since you have apparently a system with quite a lot of
+different simultanecousy active drives in them it could be very well possible
+that the code that determined the do_request drive selection strategy
+was the cause of your problems. It could very well be that
+the recent changes with respect to this actually could have cured
+this. (2.5.8 is the time around where die PADAM_ tags got introduced
+there.
 
-Thanks,
-Paul Larson
-
---- linux/fs/namei.c	Thu May  2 18:36:01 2002
-+++ linux-fix/fs/namei.c	Thu May  2 18:36:17 2002
-@@ -573,7 +573,7 @@
- 		unsigned int c;
- 
- 		err = exec_permission_lite(inode);
--		if (err == -EAGAIN) {
-+		if (err) {
- 			unlock_nd(nd);
- 			err = permission(inode, MAY_EXEC);
- 			lock_nd(nd);
+> Apr 29 15:26:00 kernel: hde: task_out_intr: status=0x51 { DriveReady SeekComplete Error }
+> Apr 29 15:26:00 kernel: hde: task_out_intr: error=0x04 { DriveStatusError }
+> 
+> May  2 01:21:23 kernel: hdf: status error: status=0x50 { DriveReady SeekComplete }
+> May  2 01:21:23 kernel: hdf: no DRQ after issuing WRITE
+> May  2 01:21:37 kernel: hdf: task_out_intr: status=0x51 { DriveReady SeekComplete Error }
+> May  2 01:21:37 kernel: hdf: task_out_intr: error=0x04 { DriveStatusError }
+> 
+> Each time some data was written at a wrong address on disk.
+> Now these are ext2 filesystems, so I noticed.
+> Elsewhere I have ext3 and reiserfs, but journalling does not
+> protect against IDE drivers that write stuff to the wrong disk block.
 

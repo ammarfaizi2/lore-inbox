@@ -1,118 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261691AbVAXVyf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261692AbVAXVye@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261691AbVAXVyf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 16:54:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261690AbVAXVwZ
+	id S261692AbVAXVye (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 16:54:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261691AbVAXVwq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 16:52:25 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:15333 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S261635AbVAXVvC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 16:51:02 -0500
-Date: Tue, 25 Jan 2005 01:13:30 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Nish Aravamudan <nish.aravamudan@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, Greg Kroah-Hartman <greg@kroah.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [1/1] superio: change scx200 module name to scx.
-Message-ID: <20050125011330.3b4b8611@zanzibar.2ka.mipt.ru>
-In-Reply-To: <29495f1d05012413415c66974b@mail.gmail.com>
-References: <20050124233720.484c7ad0@zanzibar.2ka.mipt.ru>
-	<29495f1d05012413415c66974b@mail.gmail.com>
-Reply-To: johnpol@2ka.mipt.ru
-Organization: MIPT
-X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart=_Tue__25_Jan_2005_01_13_30_+0300_YmXOfa+brsJLmyMS"
+	Mon, 24 Jan 2005 16:52:46 -0500
+Received: from mail26.sea5.speakeasy.net ([69.17.117.28]:19848 "EHLO
+	mail26.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S261606AbVAXVut (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 16:50:49 -0500
+Date: Mon, 24 Jan 2005 13:50:45 -0800 (PST)
+From: vlobanov <vlobanov@speakeasy.net>
+To: Matt Mackall <mpm@selenic.com>
+cc: Felipe Alfaro Solana <lkml@mac.com>, Andi Kleen <ak@muc.de>,
+       Neil Brown <neilb@cse.unsw.edu.au>, linux-kernel@vger.kernel.org,
+       Buck Huppmann <buchk@pobox.com>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Andreas Gruenbacher <agruen@suse.de>,
+       "Andries E. Brouwer" <Andries.Brouwer@cwi.nl>,
+       Andrew Morton <akpm@osdl.org>, Olaf Kirch <okir@suse.de>
+Subject: Re: [patch 1/13] Qsort
+In-Reply-To: <20050124212037.GJ3867@waste.org>
+Message-ID: <Pine.LNX.4.58.0501241342460.30376@shell1.speakeasy.net>
+References: <20050122203326.402087000@blunzn.suse.de> <20050122203618.962749000@blunzn.suse.de>
+ <Pine.LNX.4.58.0501221257440.1982@shell3.speakeasy.net>
+ <FB9BAC88-6CE2-11D9-86B4-000D9352858E@mac.com> <m1r7kc27ix.fsf@muc.de>
+ <5ADB1D78-6CFB-11D9-86B4-000D9352858E@mac.com> <20050124212037.GJ3867@waste.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+On Mon, 24 Jan 2005, Matt Mackall wrote:
 
---Multipart=_Tue__25_Jan_2005_01_13_30_+0300_YmXOfa+brsJLmyMS
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+> On Sun, Jan 23, 2005 at 05:58:00AM +0100, Felipe Alfaro Solana wrote:
+> > On 23 Jan 2005, at 03:39, Andi Kleen wrote:
+> >
+> > >Felipe Alfaro Solana <lkml@mac.com> writes:
+> > >>
+> > >>AFAIK, XOR is quite expensive on IA32 when compared to simple MOV
+> > >>operatings. Also, since the original patch uses 3 MOVs to perform the
+> > >>swapping, and your version uses 3 XOR operations, I don't see any
+> > >>gains.
+> > >
+> > >Both are one cycle latency for register<->register on all x86 cores
+> > >I've looked at. What makes you think differently?
+> >
+> > I thought XOR was more expensie. Anyways, I still don't see any
+> > advantage in replacing 3 MOVs with 3 XORs.
+>
+> Again, no temporaries needed.
+>
+> But I benched it and it was quite a bit slower.
+>
+> --
+> Mathematics is the supreme nostalgia of our time.
 
-On Mon, 24 Jan 2005 13:41:33 -0800
-Nish Aravamudan <nish.aravamudan@gmail.com> wrote:
+Yep, it's a difference of four instructions (when using one or two
+temporary variables and swapping using assignments) versus six
+instructions (when using xors, since IA32 can't do an xor with both
+arguments in memory).
 
-> > +               set_current_state(TASK_INTERRUPTIBLE);
-> > +               schedule_timeout(HZ);
-> > +
-> > +               if (current->flags & PF_FREEZE)
-> > +                       refrigerator(PF_FREEZE);
-> > +
-> > +               if (signal_pending(current))
-> > +                       flush_signals(current);
-> > +       }
-> 
-> <snip>
-> 
-> I believe this schedule_timeout() call can be an msleep_interruptible(1000).
+I originally pitched this idea out to the list just for discussion
+purposes. Most considered it, and said that the advantages don't
+outweigh the disadvantages. And that's fine -- it means that the chosen
+way is that much better considered. Always a good thing. :)
 
-Patch was already sent to Greg, it will be included in next release.
-Attached one with fixed scx200/scx filename.
- 
-> Thanks,
-> Nish
+-Vadim Lobanov
 
-
-	Evgeniy Polyakov
-
-Only failure makes us experts. -- Theo de Raadt
-
---Multipart=_Tue__25_Jan_2005_01_13_30_+0300_YmXOfa+brsJLmyMS
-Content-Type: application/octet-stream;
- name="msleep_superio.patch"
-Content-Disposition: attachment;
- filename="msleep_superio.patch"
-Content-Transfer-Encoding: base64
-
-VXNlIG1zbGVlcCogY2FsbHMgaW5zdGVhZCBvZiBkaXJlY3Qgc2NoZWR1bGUqIGNhbGxzLgoKU2ln
-bmVkLW9mZi1ieTogRXZnZW5peSBQb2x5YWtvdiA8am9obnBvbEAya2EubWlwdC5ydT4KCi0tLSBs
-aW51eC0yLjYvZHJpdmVycy9zdXBlcmlvL3BjODczNnguYy5vcmlnCTIwMDUtMDEtMjEgMjE6Mzc6
-MDUuNTY1ODUwMzI4ICswMzAwCisrKyBsaW51eC0yLjYvZHJpdmVycy9zdXBlcmlvL3BjODczNngu
-YwkyMDA1LTAxLTIxIDIxOjM3OjM3LjExMzA1NDQyNCArMDMwMApAQCAtMTkwLDE1ICsxOTAsMTUg
-QEAKIAl3aGlsZSAoYXRvbWljX3JlYWQoJnBjODczNnhfZGV2LnJlZmNudCkpIHsKIAkJcHJpbnRr
-KEtFUk5fSU5GTyAiV2FpdGluZyBmb3IgJXMgdG8gYmVjYW1lIGZyZWU6IHJlZmNudD0lZC5cbiIs
-CiAJCQkJcGM4NzM2eF9kZXYubmFtZSwgYXRvbWljX3JlYWQoJnBjODczNnhfZGV2LnJlZmNudCkp
-OwotCQkKLQkJc2V0X2N1cnJlbnRfc3RhdGUoVEFTS19JTlRFUlJVUFRJQkxFKTsKLQkJc2NoZWR1
-bGVfdGltZW91dChIWik7CisKKwkJbXNsZWVwX2ludGVycnVwdGlibGUoMTAwMCk7CisKKwkJaWYg
-KHNpZ25hbF9wZW5kaW5nKGN1cnJlbnQpKQorCQkJZmx1c2hfc2lnbmFscyhjdXJyZW50KTsKIAkJ
-CQogCQlpZiAoY3VycmVudC0+ZmxhZ3MgJiBQRl9GUkVFWkUpCiAJCQlyZWZyaWdlcmF0b3IoUEZf
-RlJFRVpFKTsKIAotCQlpZiAoc2lnbmFsX3BlbmRpbmcoY3VycmVudCkpCi0JCQlmbHVzaF9zaWdu
-YWxzKGN1cnJlbnQpOwogCX0KIH0KIAotLS0gbGludXgtMi42L2RyaXZlcnMvc3VwZXJpby9zYy5j
-Lm9yaWcJMjAwNS0wMS0yMSAyMTozNzoxMC44NjIwNDUxODQgKzAzMDAKKysrIGxpbnV4LTIuNi9k
-cml2ZXJzL3N1cGVyaW8vc2MuYwkyMDA1LTAxLTIxIDIxOjM4OjM2LjEzNzA4MTQwOCArMDMwMApA
-QCAtMzcwLDE0ICszNzAsMTQgQEAKIAkJICAgICAgIGxkZXYtPm5hbWUsIGxkZXYtPmluZGV4LAog
-CQkgICAgICAgKHNjX2xkZXZfaXNfY2xvbmUobGRldikpID8gImNsb25lIiA6ICJub3QgY2xvbmUi
-LAogCQkgICAgICAgYXRvbWljX3JlYWQoJmxkZXYtPnJlZmNudCkpOwotCQlzZXRfY3VycmVudF9z
-dGF0ZShUQVNLX0lOVEVSUlVQVElCTEUpOwotCQlzY2hlZHVsZV90aW1lb3V0KEhaKTsKLQkJCQot
-CQlpZiAoY3VycmVudC0+ZmxhZ3MgJiBQRl9GUkVFWkUpCi0JCQlyZWZyaWdlcmF0b3IoUEZfRlJF
-RVpFKTsKKworCQltc2xlZXBfaW50ZXJydXB0aWJsZSgxMDAwKTsKIAogCQlpZiAoc2lnbmFsX3Bl
-bmRpbmcoY3VycmVudCkpCiAJCQlmbHVzaF9zaWduYWxzKGN1cnJlbnQpOworCQkJCisJCWlmIChj
-dXJyZW50LT5mbGFncyAmIFBGX0ZSRUVaRSkKKwkJCXJlZnJpZ2VyYXRvcihQRl9GUkVFWkUpOwog
-CX0KIAogfQpAQCAtNDgyLDE0ICs0ODIsMTQgQEAKIAl3aGlsZSAoYXRvbWljX3JlYWQoJl9fc2Rl
-di0+cmVmY250KSkgewogCQlwcmludGsoS0VSTl9JTkZPICJXYWl0aW5nIFN1cGVySU8gY2hpcCAl
-cyB0byBiZWNvbWUgZnJlZTogcmVmY250PSVkLlxuIiwKIAkJICAgICAgIF9fc2Rldi0+bmFtZSwg
-YXRvbWljX3JlYWQoJl9fc2Rldi0+cmVmY250KSk7Ci0JCXNldF9jdXJyZW50X3N0YXRlKFRBU0tf
-VU5JTlRFUlJVUFRJQkxFKTsKLQkJc2NoZWR1bGVfdGltZW91dChIWik7Ci0JCQkKLQkJaWYgKGN1
-cnJlbnQtPmZsYWdzICYgUEZfRlJFRVpFKQotCQkJcmVmcmlnZXJhdG9yKFBGX0ZSRUVaRSk7CisK
-KwkJbXNsZWVwX2ludGVycnVwdGlibGUoMTAwMCk7CiAKIAkJaWYgKHNpZ25hbF9wZW5kaW5nKGN1
-cnJlbnQpKQogCQkJZmx1c2hfc2lnbmFscyhjdXJyZW50KTsKKwkJCQorCQlpZiAoY3VycmVudC0+
-ZmxhZ3MgJiBQRl9GUkVFWkUpCisJCQlyZWZyaWdlcmF0b3IoUEZfRlJFRVpFKTsKIAl9CiB9CiAK
-LS0tIGxpbnV4LTIuNi9kcml2ZXJzL3N1cGVyaW8vc2N4LmMub3JpZwkyMDA1LTAxLTIxIDIxOjM3
-OjE1Ljk0NDI3MjU2OCArMDMwMAorKysgbGludXgtMi42L2RyaXZlcnMvc3VwZXJpby9zY3guYwky
-MDA1LTAxLTIxIDIxOjM5OjAyLjI4MDEwNzA2NCArMDMwMApAQCAtMzkxLDE0ICszOTEsMTQgQEAK
-IAl7CiAJCXByaW50ayhLRVJOX0lORk8gIldhaXRpbmcgZm9yICVzIHRvIGJlY2FtZSBmcmVlOiBy
-ZWZjbnQ9JWQuXG4iLAogCQkJCXNjeDIwMF9kZXYubmFtZSwgYXRvbWljX3JlYWQoJnNjeDIwMF9k
-ZXYucmVmY250KSk7Ci0JCXNldF9jdXJyZW50X3N0YXRlKFRBU0tfSU5URVJSVVBUSUJMRSk7Ci0J
-CXNjaGVkdWxlX3RpbWVvdXQoSFopOwotCQkJCi0JCWlmIChjdXJyZW50LT5mbGFncyAmIFBGX0ZS
-RUVaRSkKLQkJCXJlZnJpZ2VyYXRvcihQRl9GUkVFWkUpOworCQkKKwkJbXNsZWVwX2ludGVycnVw
-dGlibGUoMTAwMCk7CiAKIAkJaWYgKHNpZ25hbF9wZW5kaW5nKGN1cnJlbnQpKQogCQkJZmx1c2hf
-c2lnbmFscyhjdXJyZW50KTsKKwkJCisJCWlmIChjdXJyZW50LT5mbGFncyAmIFBGX0ZSRUVaRSkK
-KwkJCXJlZnJpZ2VyYXRvcihQRl9GUkVFWkUpOwogCX0KIAogCXBjaV91bnJlZ2lzdGVyX2RyaXZl
-cigmc2N4MjAwX3BjaV9kcml2ZXIpOwoK
-
---Multipart=_Tue__25_Jan_2005_01_13_30_+0300_YmXOfa+brsJLmyMS--
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

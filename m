@@ -1,74 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313842AbSDIL0M>; Tue, 9 Apr 2002 07:26:12 -0400
+	id <S313849AbSDIL3o>; Tue, 9 Apr 2002 07:29:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313846AbSDIL0L>; Tue, 9 Apr 2002 07:26:11 -0400
-Received: from pa215.tychy-biskupa.sdi.tpnet.pl ([217.96.211.215]:59344 "EHLO
-	server.ze.com.pl") by vger.kernel.org with ESMTP id <S313842AbSDIL0K>;
-	Tue, 9 Apr 2002 07:26:10 -0400
-From: "Damian Wrobel" <dwrobel@ertel.com.pl>
-To: <linux-kernel@vger.kernel.org>
-Subject: RE: Compaq Alpha DS10 - Kernel 2.4.18
-Date: Tue, 9 Apr 2002 13:25:56 +0200
-Message-ID: <CDEOINGOFOFAOEOLKDEDOENACAAA.dwrobel@ertel.com.pl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <000d01c1dfb0$0da74a30$010b10ac@sbp.uptime.at>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
-Importance: Normal
+	id <S313851AbSDIL3n>; Tue, 9 Apr 2002 07:29:43 -0400
+Received: from duteinh.et.tudelft.nl ([130.161.42.1]:57348 "EHLO
+	duteinh.et.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S313849AbSDIL3l>; Tue, 9 Apr 2002 07:29:41 -0400
+Date: Tue, 9 Apr 2002 13:29:31 +0200
+From: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>
+To: "T. A." <tkhoadfdsaf@hotmail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: C++ and the kernel
+Message-ID: <20020409112931.GB2214@arthur.ubicom.tudelft.nl>
+In-Reply-To: <OE379mspgEOI7vDcPp200002a4c@hotmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Apr 09, 2002 at 06:16:38AM -0400, T. A. wrote:
+>     I am in the initial stages of writing some C++ wrapper classes for the
+> kernel.
+
+[snip]
+
+>     Would patches be welcomed for one or more of these issues?
+
+No. See http://www.tux.org/lkml/#s15-3 .
 
 
->-----Original Message-----
->From: linux-kernel-owner@vger.kernel.org 
->[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Oliver Pitzeier
->Sent: Tuesday, April 09, 2002 12:20 PM
->To: linux-kernel@vger.kernel.org
->Subject: Compaq Alpha DS10 - Kernel 2.4.18
->
->
->Hi all!
->
->I've got a really big problem with kernel 2.4.18 and 2.4.17 on
->an Alpha.
->
->I can compile, install and boot the kernel on my Alpha.
->But if I shutdown the machine without shutting down the
->system - I know this is crazy, but sometimes this happens...
->
->So if I'm this mad and restart the machine afterwards, I get
->a lot of fsck errors 'til the system give up and tell's me,
->that I have to check it with fsck myself.
->
->OK, I did so... fsck -y /dev/sda1 -> Works perfectly. After
->fsck has corrected more than 1000 errors I'm able to
->reboot the machine.
->
->And than: MY SYSTEM IS NO LONGER BOOTABLE. It's totally
->currupted...
->
->I never saw the filesystem curruption bug on Intel, but it
->sounds like this.
->
->Is this the same bug that was on Intel?
->Have I done something wrong?
->
->Are there any alpha-users in this list? :o))))
->
->Greetz, I look forward for answers,
-> Oliver
->
->
->-
+Erik
 
-Think about one of journaling filesystems: ext3, reiserfs, xfs, jfs...
-
-Regards,
-Damian Wrobel
+-- 
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Faculty
+of Information Technology and Systems, Delft University of Technology,
+PO BOX 5031, 2600 GA Delft, The Netherlands  Phone: +31-15-2783635
+Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

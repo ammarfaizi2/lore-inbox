@@ -1,62 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261628AbUJ0D1w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261387AbUJ0Dez@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261628AbUJ0D1w (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 23:27:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261626AbUJ0D1v
+	id S261387AbUJ0Dez (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 23:34:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261377AbUJ0Dey
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 23:27:51 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:41434 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S261623AbUJ0D0Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 23:26:25 -0400
-Subject: Re: Fixing MTRR smp breakage and suspending sysdevs.
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Li, Shaohua" <shaohua.li@intel.com>, Pavel Machek <pavel@ucw.cz>,
-       Patrick Mochel <mochel@digitalimplant.org>
-In-Reply-To: <200410262220.38052.dtor_core@ameritech.net>
-References: <16A54BF5D6E14E4D916CE26C9AD30575699E58@pdsmsx402.ccr.corp.intel.com>
-	 <200410262220.38052.dtor_core@ameritech.net>
-Content-Type: text/plain
-Message-Id: <1098847066.5661.47.camel@desktop.cunninghams>
+	Tue, 26 Oct 2004 23:34:54 -0400
+Received: from boggle.pobox.com ([208.58.1.193]:36574 "EHLO boggle.pobox.com")
+	by vger.kernel.org with ESMTP id S261626AbUJ0DcS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 23:32:18 -0400
+Date: Tue, 26 Oct 2004 20:32:12 -0700
+From: "Barry K. Nathan" <barryn@pobox.com>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: The naming wars continue...
+Message-ID: <20041027033212.GC9375@ip68-4-98-123.oc.oc.cox.net>
+References: <Pine.LNX.4.58.0410251458080.427@ppc970.osdl.org> <417EC260.1010401@tmr.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Wed, 27 Oct 2004 13:17:46 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <417EC260.1010401@tmr.com>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
-
-On Wed, 2004-10-27 at 13:20, Dmitry Torokhov wrote:
-> On Tuesday 26 October 2004 09:48 pm, Li, Shaohua wrote:
-> > >One thing I have noticed is that by adding the sysdev suspend/resume
-> > >calls, I've gained a few seconds delay. I'll see if I can track down
-> > the
-> > >cause.
-> > Is the problem MTRR resume must be with IRQ enabled, right? Could we
-> > implement a method sysdev resume with IRQ enabled?
+On Tue, Oct 26, 2004 at 05:32:16PM -0400, Bill Davidsen wrote:
+> Linus Torvalds wrote:
+[snip]
+> >Which is just another reason why the name itself is not that meaningful. 
+> >It can never carry the kind of information that people seem to _expect_ it 
+> >to carry. 
 > 
-> If I understand correctly the point of classifying device as sysdev is
-> that it (device) is essential for the system and must be suspended last
-> and resumed first, presumably with interrupts off. IRQ controller comes
-> to mind...
+> I wasn't going to reply to this since it's your call and I've had my 
+> say, but since several others have, let me throw out one more idea on 
+> the off chance you like it:
+> 
+> Stop doing the pre's on the next version! After 2.6.10 comes 2.6.10.1 
+> etc, which everyone can see are incremental changes to 2.6.10, and when 
+> you really mean it, then put out 2.6.11-rc1.
+> 
+> Did that strike a nerve?
 
-Yes, but could we not do something like the process with regular
-devices. ie a call with interrupts disabled and then a similar call with
-interrupts enabled?
+2.6.10.1, etc. suggests important bug fixes for 2.6.10, *not* prereleases
+of 2.6.11. But... perhaps (with sufficient warning) the even/odd principle
+could be applied to the third number. So, this would happen:
 
-Regards,
+2.6.even   = release
+2.6.even.x = release, with added bug/security fixes
+2.6.odd    = first (zeroth?) -pre/-rc release
+2.6.odd.x  = additional -pre/-rc releases
 
-Nigel 
--- 
-Nigel Cunningham
-Pastoral Worker
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
+A more concrete example:
+2.6.11-rc1, 2.6.11-rc2, 2.6.11-rc3, 2.6.11, 2.6.12-rc1, 2.6.12-rc2, 2.6.12
+would become:
+2.6.11,     2.6.11.1,   2.6.11.2,   2.6.12, 2.6.13,     2.6.13.1,   2.6.14
 
-Everyone lives by faith. Some people just don't believe it.
-Want proof? Try to prove that the theory of evolution is true.
+How does this sound? (It just occurred to me that this might break
+scripts, but it may be worth discussing anyway.)
+
+-Barry K. Nathan <barryn@pobox.com>
 

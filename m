@@ -1,38 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264542AbUAJDEU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jan 2004 22:04:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264538AbUAJDEU
+	id S264538AbUAJDPZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jan 2004 22:15:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264545AbUAJDPZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jan 2004 22:04:20 -0500
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:53123
-	"EHLO animx.eu.org") by vger.kernel.org with ESMTP id S264542AbUAJDES
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jan 2004 22:04:18 -0500
-Date: Fri, 9 Jan 2004 22:17:00 -0500
-From: Wakko Warner <wakko@animx.eu.org>
-To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Strange lockup with 2.6.0
-Message-ID: <20040109221700.A8686@animx.eu.org>
-References: <20040109104955.B6840@animx.eu.org> <Pine.LNX.4.44.0401091653340.19686-100000@poirot.grange>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.3i
-In-Reply-To: <Pine.LNX.4.44.0401091653340.19686-100000@poirot.grange>; from Guennadi Liakhovetski on Fri, Jan 09, 2004 at 05:02:02PM +0100
+	Fri, 9 Jan 2004 22:15:25 -0500
+Received: from dp.samba.org ([66.70.73.150]:63884 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S264538AbUAJDPY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jan 2004 22:15:24 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: Fw: Re: 2.6.1-mm1 - OOPs and hangs during modprobe 
+Cc: Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
+In-reply-to: Your message of "Fri, 09 Jan 2004 14:56:59 -0800."
+             <20040109145659.5e18419b.akpm@osdl.org> 
+Date: Sat, 10 Jan 2004 14:11:17 +1100
+Message-Id: <20040110031521.309282C050@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > Are sysrq-keys enabled? If so, could you catch the tar backtrace during
-> > > the lock-up (ALT-SysRq-t)? What was the latest kernel-version that worked?
-> >
-> > Yes, but the machine hard locks.  sysrq does not work.  I have a small
-> 
-> __THAT__ hard...:-)
+In message <20040109145659.5e18419b.akpm@osdl.org> you write:
+> dude,
 
-I'm pretty sure I found the problem.  (well, it hasn't locked yet).  The CPU
-voltage was set at 2.00v in the bios, now it's at 1.65v and I'm not having
-any lockups.
+Oops, you have an older version.
 
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+How did that happen... oh, because I sent it to you.  Fuck.
+
+But either way, it shouldn't be triggering.  Andrew, please revert it,
+and I'll work with Vladis to figure out what's happening.
+
+Vladis, relative patch, actually sets error code.  What happens now?
+
+Please send module which fails if it still fails...
+
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.6.1-rc2-bk2/kernel/module.c working-2.6.1-rc2-bk2-truncated_module/kernel/module.c
+--- linux-2.6.1-rc2-bk2/kernel/module.c	2003-11-24 15:42:33.000000000 +1100
++++ working-2.6.1-rc2-bk2-truncated_module/kernel/module.c	2004-01-08 16:19:01.000000000 +1100
+@@ -1682,5 +1688,6 @@ static struct module *load_module(void _
+ 
+  truncated:
+ 	printk(KERN_ERR "Module len %lu truncated\n", len);
++	err = -ENOEXEC;
+ 	goto free_hdr;
+ }

@@ -1,302 +1,213 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275126AbRJaW7A>; Wed, 31 Oct 2001 17:59:00 -0500
+	id <S275178AbRJaW5u>; Wed, 31 Oct 2001 17:57:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275224AbRJaW6r>; Wed, 31 Oct 2001 17:58:47 -0500
-Received: from femail46.sdc1.sfba.home.com ([24.254.60.40]:55725 "EHLO
-	femail46.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S275126AbRJaW6b>; Wed, 31 Oct 2001 17:58:31 -0500
-Message-ID: <3BE080FE.1040603@home.com>
-Date: Wed, 31 Oct 2001 14:53:50 -0800
-From: "Kahli R. Burke" <kahliburke@home.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2) Gecko/20010702
-X-Accept-Language: en-us
+	id <S275126AbRJaW5l>; Wed, 31 Oct 2001 17:57:41 -0500
+Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:60427 "EHLO
+	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id <S275110AbRJaW51>; Wed, 31 Oct 2001 17:57:27 -0500
+Date: Wed, 31 Oct 2001 23:58:03 +0100 (CET)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: <linux-kernel@vger.kernel.org>
+cc: "Richard B. Johnson" <root@chaos.analogic.com>,
+        Andreas Dilger <adilger@turbolabs.com>,
+        vda <vda@port.imtp.ilyichevsk.odessa.ua>,
+        Petr Vandrovec <VANDROVE@vc.cvut.cz>, J Sloan <jjs@lexus.com>
+Subject: Re: [Patch] Re: Nasty suprise with uptime
+In-Reply-To: <7DFB419183D@vcnet.vc.cvut.cz>
+Message-ID: <Pine.LNX.4.30.0110312341150.30534-100000@gans.physik3.uni-rostock.de>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Heavy IO in 2.4.13-ac4 with preempt patch -> kupdated hogs system
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Wed, 31 Oct 2001, Petr Vandrovec wrote:
 
-    I have seen this with the above mentioned kernel, and 2.4.10 with no 
-extra patches.  When I perform some IO intensive operation (and I'm 
-thinking it may just be writing, not reading), such as copying 300MB 
-from one filesystem to another, or ripping a CD, the system gets VERY 
-slow.  It happens in bursts, if I'm in X the mouse will move normally 
-for a second, then the system will appear to hang completely for a few 
-seconds, then it will move normally, and so on.  If I look at top, I see 
-my system load go up above 3, kupdated hogs the CPU, and the system 
-slice of the CPU is up at about 99%.  It seems like the throughput is 
-way less than it should be, although I haven't benchmarked it.
+> Hi,
+>   this reminds me. Year or so ago there was patch from someone, which
+> detected jiffies overflow in /proc/uptime proc_read() code, so only thing
+> you had to do was run 'uptime', 'w', 'top' or something like that
+> every 497 days - you can schedule it as cron job for Jan 1, 0:00:00,
+> to find some workoholics.
+>
+>   Patch was something like:
+>
+> ...
 
-    Has anyone else been experiencing this, or might have an idea on 
-where to look for answers?
+OK, to summarize and to not loose the patch again, I made up a final
+version.
 
-    Other than that, system seems to be quite stable and performs well.
+Anyone wanting to donate the stability of his box for linux
+kernel-development may feel free to try out this patch.
 
-Thanks for any assistance.  If I missed any important info, let me know...
+It moves forward the wraparound of the jiffies counter on 32 bit boxes
+from about 1.3 years after boot to approx 2 min after boot, which seemed
+to somehow affect stability for my intel box.
 
-    Here is my hardware:
+As a side effect, if your box does not crash within the next 497.1 days,
+this patch will allow it to still display correct uptime.
 
-    Athlon 1.2 GHz
-    ABit KT7A-RAID MB, (I think it's the VIA Apollo KT133A chipset)
-    320MB RAM
-    Assorted HD's, some ATA-66, some not, not using the HPT 370 RAID 
-right now
-    GeForce2 32MB
-    and a bunch of other stuff I don't think is relevant.
+Next step would be to decide what to do with the start_time field of
+struct task_struct, which is still 32 bit and stores seconds times HZ.
+Other uses for 64 bit jiffies might be identified as well.
 
-    Here's excepts from .config that may be relevant (it's probably 
-still too much, I apologize but I 'm not sure exactly what might be wanted)
+Thanks to all that contributed to the discussion.
 
-     grep "[y|m]" .config | grep -v "^#" | grep -v "CONFIG_NLS_" | grep 
--v "CONFIG_SOUND" | grep -v "CONFIG_INPUT"
+Tim
 
 
-CONFIG_X86=y
-CONFIG_ISA=y
-CONFIG_UID16=y
-CONFIG_GENERIC_ISA_DMA=y
-CONFIG_EXPERIMENTAL=y
-CONFIG_MODULES=y
-CONFIG_MODVERSIONS=y
-CONFIG_KMOD=y
-CONFIG_MK7=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_TSC=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_USE_3DNOW=y
-CONFIG_X86_PGE=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_NOHIGHMEM=y
-CONFIG_MTRR=y
-CONFIG_SMP=y
-CONFIG_PREEMPT=y
-CONFIG_HAVE_DEC_LOCK=y
-CONFIG_NET=y
-CONFIG_X86_IO_APIC=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_NAMES=y
-CONFIG_HOTPLUG=y
-CONFIG_PCMCIA=m
-CONFIG_SYSVIPC=y
-CONFIG_SYSCTL=y
-CONFIG_KCORE_ELF=y
-CONFIG_BINFMT_AOUT=y
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_MISC=y
-CONFIG_PM=y
-CONFIG_PARPORT=m
-CONFIG_PARPORT_PC=m
-CONFIG_PARPORT_PC_CML1=m
-CONFIG_PARPORT_PC_FIFO=y
-CONFIG_PARPORT_PC_PCMCIA=m
-CONFIG_PARPORT_1284=y
-CONFIG_PNP=y
-CONFIG_ISAPNP=y
-CONFIG_PNPBIOS=y
-CONFIG_BLK_DEV_FD=y
-CONFIG_BLK_DEV_LOOP=m
-CONFIG_BLK_DEV_NBD=m
-CONFIG_MD=y
-CONFIG_BLK_DEV_MD=m
-CONFIG_MD_LINEAR=m
-CONFIG_MD_RAID0=m
-CONFIG_MD_RAID1=m
-CONFIG_MD_RAID5=m
-CONFIG_MD_MULTIPATH=m
-CONFIG_BLK_DEV_LVM=m
-CONFIG_PACKET=y
-CONFIG_NETLINK=y
-CONFIG_RTNETLINK=y
-CONFIG_NETLINK_DEV=m
-CONFIG_NETFILTER=y
-CONFIG_NETFILTER_DEBUG=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-CONFIG_IP_ADVANCED_ROUTER=y
-CONFIG_RTNETLINK=y
-CONFIG_NETLINK=y
-CONFIG_IP_MULTIPLE_TABLES=y
-CONFIG_IP_ROUTE_FWMARK=y
-CONFIG_IP_ROUTE_NAT=y
-CONFIG_IP_ROUTE_MULTIPATH=y
-CONFIG_IP_ROUTE_TOS=y
-CONFIG_IP_ROUTE_VERBOSE=y
-CONFIG_IP_NF_CONNTRACK=m
-CONFIG_IP_NF_FTP=m
-CONFIG_IP_NF_QUEUE=m
-CONFIG_IP_NF_IPTABLES=m
-CONFIG_IP_NF_MATCH_LIMIT=m
-CONFIG_IP_NF_MATCH_MAC=m
-CONFIG_IP_NF_MATCH_MARK=m
-CONFIG_IP_NF_MATCH_MULTIPORT=m
-CONFIG_IP_NF_MATCH_TOS=m
-CONFIG_IP_NF_MATCH_TCPMSS=m
-CONFIG_IP_NF_MATCH_STATE=m
-CONFIG_IP_NF_MATCH_UNCLEAN=m
-CONFIG_IP_NF_MATCH_OWNER=m
-CONFIG_IP_NF_FILTER=m
-CONFIG_IP_NF_TARGET_REJECT=m
-CONFIG_IP_NF_TARGET_MIRROR=m
-CONFIG_IP_NF_NAT=m
-CONFIG_IP_NF_NAT_NEEDED=y
-CONFIG_IP_NF_TARGET_MASQUERADE=m
-CONFIG_IP_NF_TARGET_REDIRECT=m
-CONFIG_IP_NF_NAT_FTP=m
-CONFIG_IP_NF_MANGLE=m
-CONFIG_IP_NF_TARGET_TOS=m
-CONFIG_IP_NF_TARGET_MARK=m
-CONFIG_IP_NF_TARGET_LOG=m
-CONFIG_IP_NF_TARGET_TCPMSS=m
-CONFIG_IP_NF_COMPAT_IPCHAINS=m
-CONFIG_IP_NF_NAT_NEEDED=y
-CONFIG_IP_NF_COMPAT_IPFWADM=m
-CONFIG_IP_NF_NAT_NEEDED=y
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-CONFIG_BLK_DEV_IDECD=y
-CONFIG_BLK_DEV_IDESCSI=m
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_BLK_DEV_ADMA=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_BLK_DEV_PIIX=y
-CONFIG_PIIX_TUNING=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_BLK_DEV_IDE_MODES=y
-CONFIG_BLK_DEV_ATARAID=m
-CONFIG_BLK_DEV_ATARAID_PDC=m
-CONFIG_BLK_DEV_ATARAID_HPT=m
-CONFIG_SCSI=m
-CONFIG_BLK_DEV_SD=m
-CONFIG_BLK_DEV_SR=m
-CONFIG_CHR_DEV_SG=m
-CONFIG_SCSI_DEBUG_QUEUES=y
-CONFIG_SCSI_MULTI_LUN=y
-CONFIG_SCSI_CONSTANTS=y
-CONFIG_SCSI_PPA=m
-CONFIG_SCSI_SYM53C8XX=m
-CONFIG_NETDEVICES=y
-CONFIG_DUMMY=m
-CONFIG_NET_ETHERNET=y
-CONFIG_NET_VENDOR_3COM=y
-CONFIG_EL1=m
-CONFIG_EL2=m
-CONFIG_ELPLUS=m
-CONFIG_EL16=m
-CONFIG_EL3=m
-CONFIG_3C515=m
-CONFIG_VORTEX=m
-CONFIG_LANCE=m
-CONFIG_NET_VENDOR_SMC=y
-CONFIG_WD80x3=m
-CONFIG_ULTRA=m
-CONFIG_SMC9194=m
-CONFIG_AT1700=m
-CONFIG_DEPCA=m
-CONFIG_HP100=m
-CONFIG_NET_PCI=y
-CONFIG_PCNET32=m
-CONFIG_ADAPTEC_STARFIRE=m
-CONFIG_AC3200=m
-CONFIG_APRICOT=m
-CONFIG_CS89x0=m
-CONFIG_TULIP=m
-CONFIG_DE4X5=m
-CONFIG_DGRS=m
-CONFIG_DM9102=m
-CONFIG_EEPRO100=m
-CONFIG_FEALNX=m
-CONFIG_NATSEMI=m
-CONFIG_NE2K_PCI=m
-CONFIG_8139CP=m
-CONFIG_8139TOO=m
-CONFIG_SIS900=m
-CONFIG_EPIC100=m
-CONFIG_SUNDANCE=m
-CONFIG_TLAN=m
-CONFIG_VIA_RHINE=m
-CONFIG_WINBOND_840=m
-CONFIG_PPP=m
-CONFIG_PPP_ASYNC=m
-CONFIG_PPP_SYNC_TTY=m
-CONFIG_PPP_DEFLATE=m
-CONFIG_PPP_BSDCOMP=m
-CONFIG_PPPOE=m
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_SERIAL=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_MOUSE=y
-CONFIG_PSMOUSE=y
-CONFIG_AGP=y
-CONFIG_AGP_ALI=y
-CONFIG_AGP_AMD=y
-CONFIG_AGP_SIS=y
-CONFIG_AGP_INTEL=y
-CONFIG_AGP_I810=y
-CONFIG_AGP_VIA=y
-CONFIG_DRM=y
-CONFIG_DRM_OLD=y
-CONFIG_AUTOFS4_FS=y
-CONFIG_REISERFS_FS=m
-CONFIG_EXT3_FS=m
-CONFIG_JBD=m
-CONFIG_JBD_DEBUG=y
-CONFIG_FAT_FS=m
-CONFIG_MSDOS_FS=m
-CONFIG_VFAT_FS=m
-CONFIG_TMPFS=y
-CONFIG_ISO9660_FS=y
-CONFIG_JOLIET=y
-CONFIG_PROC_FS=y
-CONFIG_DEVPTS_FS=y
-CONFIG_EXT2_FS=y
-CONFIG_NFS_FS=y
-CONFIG_NFSD=y
-CONFIG_SUNRPC=y
-CONFIG_LOCKD=y
-CONFIG_MSDOS_PARTITION=y
-CONFIG_NLS=y
-CONFIG_VGA_CONSOLE=y
-CONFIG_VIDEO_SELECT=y
-CONFIG_FB=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_FB_VESA=y
-CONFIG_VIDEO_SELECT=y
-CONFIG_FBCON_CFB8=y
-CONFIG_FBCON_CFB16=y
-CONFIG_FBCON_CFB24=y
-CONFIG_FBCON_CFB32=y
-CONFIG_FONT_8x8=y
-CONFIG_FONT_8x16=y
-CONFIG_MIDI_EMU10K1=y
-CONFIG_USB=y
-CONFIG_USB_DEBUG=y
-CONFIG_USB_UHCI=m
-CONFIG_USB_UHCI_ALT=m
-CONFIG_USB_OHCI=m
-CONFIG_USB_STORAGE=m
-CONFIG_USB_STORAGE_DEBUG=y
-CONFIG_USB_STORAGE_HP8200e=y
-CONFIG_USB_PRINTER=m
+--- linux-2.4.14-pre6/fs/proc/proc_misc.c	Thu Oct 11 19:46:57 2001
++++ linux-2.4.14-pre6-jiffies64/fs/proc/proc_misc.c	Wed Oct 31 22:53:55 2001
+@@ -39,6 +39,7 @@
+ #include <asm/uaccess.h>
+ #include <asm/pgtable.h>
+ #include <asm/io.h>
++#include <asm/div64.h>
+
+
+ #define LOAD_INT(x) ((x) >> FSHIFT)
+@@ -103,15 +104,19 @@
+ static int uptime_read_proc(char *page, char **start, off_t off,
+ 				 int count, int *eof, void *data)
+ {
+-	unsigned long uptime;
++	u64 uptime;
++	unsigned long remainder;
+ 	unsigned long idle;
+ 	int len;
+
+-	uptime = jiffies;
++	uptime = get_jiffies64() - INITIAL_JIFFIES;
++	remainder = (unsigned long) do_div(uptime, HZ);
++
+ 	idle = init_tasks[0]->times.tms_utime + init_tasks[0]->times.tms_stime;
+
+-	/* The formula for the fraction parts really is ((t * 100) / HZ) % 100, but
+-	   that would overflow about every five days at HZ == 100.
++	/* The formula for the fraction part of the idle time really is
++	   ((t * 100) / HZ) % 100, but that would overflow about
++	    every five days at HZ == 100.
+ 	   Therefore the identity a = (a / b) * b + a % b is used so that it is
+ 	   calculated as (((t / HZ) * 100) + ((t % HZ) * 100) / HZ) % 100.
+ 	   The part in front of the '+' always evaluates as 0 (mod 100). All divisions
+@@ -121,14 +126,14 @@
+ 	 */
+ #if HZ!=100
+ 	len = sprintf(page,"%lu.%02lu %lu.%02lu\n",
+-		uptime / HZ,
+-		(((uptime % HZ) * 100) / HZ) % 100,
++		(unsigned long) uptime,
++		(remainder * 100) / HZ,
+ 		idle / HZ,
+ 		(((idle % HZ) * 100) / HZ) % 100);
+ #else
+ 	len = sprintf(page,"%lu.%02lu %lu.%02lu\n",
+-		uptime / HZ,
+-		uptime % HZ,
++		(unsigned long) uptime,
++		remainder,
+ 		idle / HZ,
+ 		idle % HZ);
+ #endif
+--- linux-2.4.14-pre6/kernel/timer.c	Mon Oct  8 19:41:41 2001
++++ linux-2.4.14-pre6-jiffies64/kernel/timer.c	Wed Oct 31 22:49:20 2001
+@@ -65,7 +65,7 @@
+
+ extern int do_setitimer(int, struct itimerval *, struct itimerval *);
+
+-unsigned long volatile jiffies;
++unsigned long volatile jiffies = INITIAL_JIFFIES;
+
+ unsigned int * prof_buffer;
+ unsigned long prof_len;
+@@ -117,7 +117,7 @@
+ 		INIT_LIST_HEAD(tv1.vec + i);
+ }
+
+-static unsigned long timer_jiffies;
++static unsigned long timer_jiffies = INITIAL_JIFFIES;
+
+ static inline void internal_add_timer(struct timer_list *timer)
+ {
+@@ -638,7 +638,7 @@
+ }
+
+ /* jiffies at the most recent update of wall time */
+-unsigned long wall_jiffies;
++unsigned long wall_jiffies = INITIAL_JIFFIES;
+
+ /*
+  * This spinlock protect us from races in SMP while playing with xtime. -arca
+@@ -683,6 +683,35 @@
+ 	if (TQ_ACTIVE(tq_timer))
+ 		mark_bh(TQUEUE_BH);
+ }
++
++
++#if BITS_PER_LONG < 48
++
++u64 get_jiffies64(void)
++{
++	static unsigned long jiffies_hi = 0;
++	static unsigned long jiffies_last = INITIAL_JIFFIES;
++	static unsigned long jiffies_tmp;
++
++	jiffies_tmp = jiffies;   /* avoid races */
++	if (jiffies_tmp < jiffies_last) {   /* We have a wrap */
++		jiffies_hi++;
++		jiffies_last = jiffies_tmp;
++	}
++
++	return (jiffies_tmp | ((u64)jiffies_hi) << BITS_PER_LONG);
++}
++
++#else
++ /* jiffies is wide enough to not wrap for 8716 years at HZ==1024 */
++
++static inline u64 get_jiffies64(void)
++{
++	return (u64)jiffies;
++}
++
++#endif /* BITS_PER_LONG < 48 */
++
+
+ #if !defined(__alpha__) && !defined(__ia64__)
+
+--- linux-2.4.14-pre6/kernel/info.c	Sat Apr 21 01:15:40 2001
++++ linux-2.4.14-pre6-jiffies64/kernel/info.c	Wed Oct 31 23:12:56 2001
+@@ -12,15 +12,19 @@
+ #include <linux/smp_lock.h>
+
+ #include <asm/uaccess.h>
++#include <asm/div64.h>
+
+ asmlinkage long sys_sysinfo(struct sysinfo *info)
+ {
+ 	struct sysinfo val;
++	u64 uptime;
+
+ 	memset((char *)&val, 0, sizeof(struct sysinfo));
+
+ 	cli();
+-	val.uptime = jiffies / HZ;
++	uptime = get_jiffies64() - INITIAL_JIFFIES;
++	do_div(uptime, HZ);
++	val.uptime = (unsigned long) uptime;
+
+ 	val.loads[0] = avenrun[0] << (SI_LOAD_SHIFT - FSHIFT);
+ 	val.loads[1] = avenrun[1] << (SI_LOAD_SHIFT - FSHIFT);
+--- linux-2.4.14-pre6/include/linux/sched.h	Wed Oct 31 23:06:23 2001
++++ linux-2.4.14-pre6-jiffies64/include/linux/sched.h	Wed Oct 31 22:50:34 2001
+@@ -543,7 +543,10 @@
+
+ #include <asm/current.h>
+
++#define INITIAL_JIFFIES 0xFFFFD000ul
+ extern unsigned long volatile jiffies;
++extern u64 get_jiffies64(void);
++
+ extern unsigned long itimer_ticks;
+ extern unsigned long itimer_next;
+ extern struct timeval xtime;
 

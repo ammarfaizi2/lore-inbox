@@ -1,43 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261756AbULPQ47@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261773AbULPRBJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261756AbULPQ47 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 11:56:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261767AbULPQ4g
+	id S261773AbULPRBJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 12:01:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261797AbULPRBJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 11:56:36 -0500
-Received: from [213.146.154.40] ([213.146.154.40]:13758 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261744AbULPQ4G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 11:56:06 -0500
-Date: Thu, 16 Dec 2004 16:56:02 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: linux-pci@atrey.karlin.mff.cuni.cz, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, willy@debian.org
-Subject: Re: [PATCH] add legacy I/O port & memory APIs to /proc/bus/pci
-Message-ID: <20041216165602.GA10560@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Jesse Barnes <jbarnes@engr.sgi.com>,
-	linux-pci@atrey.karlin.mff.cuni.cz, linux-ia64@vger.kernel.org,
-	linux-kernel@vger.kernel.org, willy@debian.org
-References: <200412160850.20223.jbarnes@engr.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200412160850.20223.jbarnes@engr.sgi.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Thu, 16 Dec 2004 12:01:09 -0500
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:11136 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261773AbULPRAz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 12:00:55 -0500
+Message-ID: <41C1BF90.2040807@tmr.com>
+Date: Thu, 16 Dec 2004 12:02:08 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: gene.heskett@verizon.net
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10-rc3 vs clock
+References: <200412041111.16055.gene.heskett@verizon.net>
+In-Reply-To: <200412041111.16055.gene.heskett@verizon.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 16, 2004 at 08:50:19AM -0800, Jesse Barnes wrote:
-> This patch documents the /proc/bus/pci interface and adds some optional 
-> architecture specific APIs for accessing legacy I/O port and memory space.  
-> This is necessary on platforms where legacy I/O port space doesn't 'soft 
-> fail' like it does on PCs, and is useful for systems that can route legacy 
-> space to different PCI busses.
+Gene Heskett wrote:
+> At -rc2 my clock kept fairly decent time, but -rc3 is running fast, 
+> about 30 seconds an hour fast.
+> 
+> I've been using ntpdate, is that now officially deprecated?
+> 
+Running ntpd used to keep the clock dead on, now my 2.6 systems all 
+drift one way or the other. I suspect that the system calls used by ntpd 
+have changed somehow, but until I find the time to look harder I can't 
+say that except as conjecture.
 
-Please don't add more interfaces to procfs.  And ioctl() on procfs is even
-more evil.
+The sad thing is that most of the systems have quite good hardware clocks...
 
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

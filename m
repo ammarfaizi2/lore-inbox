@@ -1,337 +1,157 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261573AbVCCMV4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261568AbVCCMSh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261573AbVCCMV4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 07:21:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261558AbVCCMUi
+	id S261568AbVCCMSh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 07:18:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261566AbVCCLF5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 07:20:38 -0500
-Received: from dea.vocord.ru ([217.67.177.50]:53723 "EHLO vocord.com")
-	by vger.kernel.org with ESMTP id S261647AbVCCMQn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 07:16:43 -0500
-Subject: Re: [PATCH 2.6.11-rc4-mm1] connector: Add a fork connector
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Reply-To: johnpol@2ka.mipt.ru
-To: Kaigai Kohei <kaigai@ak.jp.nec.com>
-Cc: Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
-       Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       elsa-devel <elsa-devel@lists.sourceforge.net>,
-       Jay Lan <jlan@engr.sgi.com>, Gerrit Huizenga <gh@us.ibm.com>,
-       Erich Focht <efocht@hpce.nec.com>, Netlink List <netdev@oss.sgi.com>
-In-Reply-To: <1109850689.28266.144.camel@uganda>
-References: <1109240677.1738.196.camel@frecb000711.frec.bull.fr>
-	 <1109753292.8422.117.camel@frecb000711.frec.bull.fr>
-	 <42268201.80706@ak.jp.nec.com>  <20050303084656.A15197@2ka.mipt.ru>
-	 <1109850689.28266.144.camel@uganda>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-04dngmqtPZ1HpTDHUoly"
-Organization: MIPT
-Date: Thu, 03 Mar 2005 15:20:44 +0300
-Message-Id: <1109852444.28266.155.camel@uganda>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (vocord.com [192.168.0.1]); Thu, 03 Mar 2005 15:14:22 +0300 (MSK)
+	Thu, 3 Mar 2005 06:05:57 -0500
+Received: from faui3es.informatik.uni-erlangen.de ([131.188.33.16]:6068 "EHLO
+	faui3es.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id S261568AbVCCKmR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 05:42:17 -0500
+Date: Thu, 3 Mar 2005 11:42:04 +0100
+Message-Id: <200503031042.j23Ag4FG020724@faui31y.informatik.uni-erlangen.de>
+From: Martin Waitz <tali@admingilde.org>
+To: tali@admingilde.org
+Cc: linux-kernel@vger.kernel.org
+References: <20050303102852.GG8617@admingilde.org>
+Subject: [PATCH 7/16] DocBook: new kernel-doc comments for might_sleep & wait_event_*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---=-04dngmqtPZ1HpTDHUoly
-Content-Type: multipart/mixed; boundary="=-JgbT51g/LuBG3QWsxd46"
-
-
---=-JgbT51g/LuBG3QWsxd46
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-On Thu, 2005-03-03 at 14:51 +0300, Evgeniy Polyakov wrote:
-> Simple program to test fork() performance.
-...
-In a bit more advanced version it checks for error value,
-but it never happend.
-It can also have more fine grained measurment,=20
-but IMHO the picture is clear for small systems.
-
-> Creating 10k forks 100 times.
-> Results on 2-way SMP(1+1HT) Xeon for one fork()+exit():
->=20
-> 2.6.11-rc4-mm1                                   494 usec
-
-Actually sometimes it drops to 480 usecs.
-
-> 2.6.11-rc4-mm1-fork-connector-no_userspace       509 usec
-> 2.6.11-rc4-mm1-fork-connector-userspace          520 usec
->=20
-> 5% fork() degradation(connector with userspace vs. vanilla) with fork() c=
-onnector.
-> On my test system global fork lock does not cost anything
-> (tested both with and without userspace listener), but it is only 2-way(p=
-seudo).
-
-connector.c used in experiments is attached.
-
-If fork connector analysis will show that global fork lock is a big
-bottleneck,=20
-than seq counter can be replaced with per-cpu counter, but then inner
-header should
-include cpu id to properly distinguish messages.
-But it is totaly fork's connector area, so I will not break things.
-
---=20
-        Evgeniy Polyakov
-
-Crash is better than data corruption -- Arthur Grabowski
-
---=-JgbT51g/LuBG3QWsxd46
-Content-Disposition: attachment; filename=connector.c
-Content-Type: text/x-csrc; name=connector.c; charset=KOI8-R
-Content-Transfer-Encoding: base64
-
-LyoNCiAqIAljb25uZWN0b3IuYw0KICogDQogKiAyMDA0IENvcHlyaWdodCAoYykgRXZnZW5peSBQ
-b2x5YWtvdiA8am9obnBvbEAya2EubWlwdC5ydT4NCiAqIEFsbCByaWdodHMgcmVzZXJ2ZWQuDQog
-KiANCiAqIFRoaXMgcHJvZ3JhbSBpcyBmcmVlIHNvZnR3YXJlOyB5b3UgY2FuIHJlZGlzdHJpYnV0
-ZSBpdCBhbmQvb3IgbW9kaWZ5DQogKiBpdCB1bmRlciB0aGUgdGVybXMgb2YgdGhlIEdOVSBHZW5l
-cmFsIFB1YmxpYyBMaWNlbnNlIGFzIHB1Ymxpc2hlZCBieQ0KICogdGhlIEZyZWUgU29mdHdhcmUg
-Rm91bmRhdGlvbjsgZWl0aGVyIHZlcnNpb24gMiBvZiB0aGUgTGljZW5zZSwgb3INCiAqIChhdCB5
-b3VyIG9wdGlvbikgYW55IGxhdGVyIHZlcnNpb24uDQogKg0KICogVGhpcyBwcm9ncmFtIGlzIGRp
-c3RyaWJ1dGVkIGluIHRoZSBob3BlIHRoYXQgaXQgd2lsbCBiZSB1c2VmdWwsDQogKiBidXQgV0lU
-SE9VVCBBTlkgV0FSUkFOVFk7IHdpdGhvdXQgZXZlbiB0aGUgaW1wbGllZCB3YXJyYW50eSBvZg0K
-ICogTUVSQ0hBTlRBQklMSVRZIG9yIEZJVE5FU1MgRk9SIEEgUEFSVElDVUxBUiBQVVJQT1NFLiAg
-U2VlIHRoZQ0KICogR05VIEdlbmVyYWwgUHVibGljIExpY2Vuc2UgZm9yIG1vcmUgZGV0YWlscy4N
-CiAqDQogKiBZb3Ugc2hvdWxkIGhhdmUgcmVjZWl2ZWQgYSBjb3B5IG9mIHRoZSBHTlUgR2VuZXJh
-bCBQdWJsaWMgTGljZW5zZQ0KICogYWxvbmcgd2l0aCB0aGlzIHByb2dyYW07IGlmIG5vdCwgd3Jp
-dGUgdG8gdGhlIEZyZWUgU29mdHdhcmUNCiAqIEZvdW5kYXRpb24sIEluYy4sIDU5IFRlbXBsZSBQ
-bGFjZSwgU3VpdGUgMzMwLCBCb3N0b24sIE1BICAwMjExMS0xMzA3ICBVU0ENCiAqLw0KDQojaW5j
-bHVkZSA8bGludXgva2VybmVsLmg+DQojaW5jbHVkZSA8bGludXgvbW9kdWxlLmg+DQojaW5jbHVk
-ZSA8bGludXgvbGlzdC5oPg0KI2luY2x1ZGUgPGxpbnV4L3NrYnVmZi5oPg0KI2luY2x1ZGUgPGxp
-bnV4L25ldGxpbmsuaD4NCiNpbmNsdWRlIDxsaW51eC9tb2R1bGVwYXJhbS5oPg0KI2luY2x1ZGUg
-PGxpbnV4L2Nvbm5lY3Rvci5oPg0KDQojaW5jbHVkZSA8bmV0L3NvY2suaD4NCg0KTU9EVUxFX0xJ
-Q0VOU0UoIkdQTCIpOw0KTU9EVUxFX0FVVEhPUigiRXZnZW5peSBQb2x5YWtvdiA8am9obnBvbEAy
-a2EubWlwdC5ydT4iKTsNCk1PRFVMRV9ERVNDUklQVElPTigiR2VuZXJpYyB1c2Vyc3BhY2UgPC0+
-IGtlcm5lbHNwYWNlIGNvbm5lY3Rvci4iKTsNCg0Kc3RhdGljIGludCB1bml0ID0gTkVUTElOS19O
-RkxPRzsNCnN0YXRpYyB1MzIgY25faWR4ID0gLTE7DQpzdGF0aWMgdTMyIGNuX3ZhbCA9IC0xOw0K
-DQptb2R1bGVfcGFyYW0odW5pdCwgaW50LCAwKTsNCm1vZHVsZV9wYXJhbShjbl9pZHgsIHVpbnQs
-IDApOw0KbW9kdWxlX3BhcmFtKGNuX3ZhbCwgdWludCwgMCk7DQoNCnN0YXRpYyBERUZJTkVfU1BJ
-TkxPQ0sobm90aWZ5X2xvY2spOw0Kc3RhdGljIExJU1RfSEVBRChub3RpZnlfbGlzdCk7DQoNCnN0
-YXRpYyBzdHJ1Y3QgY25fZGV2IGNkZXY7DQoNCmludCBjbl9hbHJlYWR5X2luaXRpYWxpemVkID0g
-MDsNCmludCBjbl9mb3JrX2VuYWJsZSA9IDA7DQpzdHJ1Y3QgY2JfaWQgY2JfZm9ya19pZCA9IHsg
-Q05fSURYX0ZPUkssIENOX1ZBTF9GT1JLIH07DQoNCi8qDQogKiBtc2ctPnNlcSBhbmQgbXNnLT5h
-Y2sgYXJlIHVzZWQgdG8gZGV0ZXJtaW5lIG1lc3NhZ2UgZ2VuZWFsb2d5Lg0KICogV2hlbiBzb21l
-b25lIHNlbmRzIG1lc3NhZ2UgaXQgcHV0cyB0aGVyZSBsb2NhbGx5IHVuaXF1ZSBzZXF1ZW5jZSAN
-CiAqIGFuZCByYW5kb20gYWNrbm93bGVkZ2UgbnVtYmVycy4NCiAqIFNlcXVlbmNlIG51bWJlciBt
-YXkgYmUgY29waWVkIGludG8gbmxtc2doZHItPm5sbXNnX3NlcSB0b28uDQogKg0KICogU2VxdWVu
-Y2UgbnVtYmVyIGlzIGluY3JlbWVudGVkIHdpdGggZWFjaCBtZXNzYWdlIHRvIGJlIHNlbnQuDQog
-Kg0KICogSWYgd2UgZXhwZWN0IHJlcGx5IHRvIG91ciBtZXNzYWdlLCANCiAqIHRoZW4gc2VxdWVu
-Y2UgbnVtYmVyIGluIHJlY2VpdmVkIG1lc3NhZ2UgTVVTVCBiZSB0aGUgc2FtZSBhcyBpbiBvcmln
-aW5hbCBtZXNzYWdlLA0KICogYW5kIGFja25vd2xlZGdlIG51bWJlciBNVVNUIGJlIHRoZSBzYW1l
-ICsgMS4NCiAqDQogKiBJZiB3ZSByZWNlaXZlIG1lc3NhZ2UgYW5kIGl0J3Mgc2VxdWVuY2UgbnVt
-YmVyIGlzIG5vdCBlcXVhbCB0byBvbmUgd2UgYXJlIGV4cGVjdGluZywgDQogKiB0aGVuIGl0IGlz
-IG5ldyBtZXNzYWdlLg0KICogSWYgd2UgcmVjZWl2ZSBtZXNzYWdlIGFuZCBpdCdzIHNlcXVlbmNl
-IG51bWJlciBpcyB0aGUgc2FtZSBhcyBvbmUgd2UgYXJlIGV4cGVjdGluZywNCiAqIGJ1dCBpdCdz
-IGFja25vd2xlZGdlIGlzIG5vdCBlcXVhbCBhY2tub3dsZWRnZSBudW1iZXIgaW4gb3JpZ2luYWwg
-bWVzc2FnZSArIDEsDQogKiB0aGVuIGl0IGlzIG5ldyBtZXNzYWdlLg0KICoNCiAqLw0Kdm9pZCBj
-bl9uZXRsaW5rX3NlbmQoc3RydWN0IGNuX21zZyAqbXNnLCB1MzIgX19ncm91cHMpDQp7DQoJc3Ry
-dWN0IGNuX2NhbGxiYWNrX2VudHJ5ICpuLCAqX19jYnE7DQoJdW5zaWduZWQgaW50IHNpemU7DQoJ
-c3RydWN0IHNrX2J1ZmYgKnNrYiwgKnVza2I7DQoJc3RydWN0IG5sbXNnaGRyICpubGg7DQoJc3Ry
-dWN0IGNuX21zZyAqZGF0YTsNCglzdHJ1Y3QgY25fZGV2ICpkZXYgPSAmY2RldjsNCgl1MzIgZ3Jv
-dXBzID0gMDsNCglpbnQgZm91bmQgPSAwOw0KDQoJaWYgKCFfX2dyb3VwcykNCgl7DQoJCXNwaW5f
-bG9ja19iaCgmZGV2LT5jYmRldi0+cXVldWVfbG9jayk7DQoJCWxpc3RfZm9yX2VhY2hfZW50cnlf
-c2FmZShfX2NicSwgbiwgJmRldi0+Y2JkZXYtPnF1ZXVlX2xpc3QsIGNhbGxiYWNrX2VudHJ5KSB7
-DQoJCQlpZiAoY25fY2JfZXF1YWwoJl9fY2JxLT5jYi0+aWQsICZtc2ctPmlkKSkgew0KCQkJCWZv
-dW5kID0gMTsNCgkJCQlncm91cHMgPSBfX2NicS0+Z3JvdXA7DQoJCQl9DQoJCX0NCgkJc3Bpbl91
-bmxvY2tfYmgoJmRldi0+Y2JkZXYtPnF1ZXVlX2xvY2spOw0KDQoJCWlmICghZm91bmQpIHsNCgkJ
-CXByaW50ayhLRVJOX0VSUiAiRmFpbGVkIHRvIGZpbmQgbXVsdGljYXN0IG5ldGxpbmsgZ3JvdXAg
-Zm9yIGNhbGxiYWNrWzB4JXguMHgleF0uIHNlcT0ldVxuIiwNCgkJCSAgICAgICBtc2ctPmlkLmlk
-eCwgbXNnLT5pZC52YWwsIG1zZy0+c2VxKTsNCgkJCXJldHVybjsNCgkJfQ0KCX0NCgllbHNlDQoJ
-CWdyb3VwcyA9IF9fZ3JvdXBzOw0KDQoJc2l6ZSA9IE5MTVNHX1NQQUNFKHNpemVvZigqbXNnKSAr
-IG1zZy0+bGVuKTsNCg0KCXNrYiA9IGFsbG9jX3NrYihzaXplLCBHRlBfQVRPTUlDKTsNCglpZiAo
-IXNrYikgew0KCQlwcmludGsoS0VSTl9FUlIgIkZhaWxlZCB0byBhbGxvY2F0ZSBuZXcgc2tiIHdp
-dGggc2l6ZT0ldS5cbiIsIHNpemUpOw0KCQlyZXR1cm47DQoJfQ0KDQoJbmxoID0gTkxNU0dfUFVU
-KHNrYiwgMCwgbXNnLT5zZXEsIE5MTVNHX0RPTkUsIHNpemUgLSBOTE1TR19BTElHTihzaXplb2Yo
-Km5saCkpKTsNCg0KCWRhdGEgPSAoc3RydWN0IGNuX21zZyAqKU5MTVNHX0RBVEEobmxoKTsNCg0K
-CW1lbWNweShkYXRhLCBtc2csIHNpemVvZigqZGF0YSkgKyBtc2ctPmxlbik7DQojaWYgMA0KCXBy
-aW50aygiJXM6IGxlbj0ldSwgc2VxPSV1LCBhY2s9JXUsIGdyb3VwPSV1LlxuIiwNCgkgICAgICAg
-X19mdW5jX18sIG1zZy0+bGVuLCBtc2ctPnNlcSwgbXNnLT5hY2ssIGdyb3Vwcyk7DQojZW5kaWYN
-CgkNCglORVRMSU5LX0NCKHNrYikuZHN0X2dyb3VwcyA9IGdyb3VwczsNCg0KCXVza2IgPSBza2Jf
-Y2xvbmUoc2tiLCBHRlBfQVRPTUlDKTsNCglpZiAodXNrYikgew0KCQluZXRsaW5rX3VuaWNhc3Qo
-ZGV2LT5ubHMsIHVza2IsIDAsIDApOw0KCX0NCgkNCgluZXRsaW5rX2Jyb2FkY2FzdChkZXYtPm5s
-cywgc2tiLCAwLCBncm91cHMsIEdGUF9BVE9NSUMpOw0KDQoJcmV0dXJuOw0KDQpubG1zZ19mYWls
-dXJlOg0KCXByaW50ayhLRVJOX0VSUiAiRmFpbGVkIHRvIHNlbmQgJXUuJXVcbiIsIG1zZy0+c2Vx
-LCBtc2ctPmFjayk7DQoJa2ZyZWVfc2tiKHNrYik7DQoJcmV0dXJuOw0KfQ0KDQpzdGF0aWMgaW50
-IGNuX2NhbGxfY2FsbGJhY2soc3RydWN0IGNuX21zZyAqbXNnLCB2b2lkICgqZGVzdHJ1Y3RfZGF0
-YSkgKHZvaWQgKiksIHZvaWQgKmRhdGEpDQp7DQoJc3RydWN0IGNuX2NhbGxiYWNrX2VudHJ5ICpu
-LCAqX19jYnE7DQoJc3RydWN0IGNuX2RldiAqZGV2ID0gJmNkZXY7DQoJaW50IGZvdW5kID0gMDsN
-Cg0KCXNwaW5fbG9ja19iaCgmZGV2LT5jYmRldi0+cXVldWVfbG9jayk7DQoJbGlzdF9mb3JfZWFj
-aF9lbnRyeV9zYWZlKF9fY2JxLCBuLCAmZGV2LT5jYmRldi0+cXVldWVfbGlzdCwgY2FsbGJhY2tf
-ZW50cnkpIHsNCgkJaWYgKGNuX2NiX2VxdWFsKCZfX2NicS0+Y2ItPmlkLCAmbXNnLT5pZCkpIHsN
-CgkJCV9fY2JxLT5jYi0+cHJpdiA9IG1zZzsNCg0KCQkJX19jYnEtPmRkYXRhID0gZGF0YTsNCgkJ
-CV9fY2JxLT5kZXN0cnVjdF9kYXRhID0gZGVzdHJ1Y3RfZGF0YTsNCg0KCQkJcXVldWVfd29yayhk
-ZXYtPmNiZGV2LT5jbl9xdWV1ZSwgJl9fY2JxLT53b3JrKTsNCgkJCWZvdW5kID0gMTsNCgkJCWJy
-ZWFrOw0KCQl9DQoJfQ0KCXNwaW5fdW5sb2NrX2JoKCZkZXYtPmNiZGV2LT5xdWV1ZV9sb2NrKTsN
-Cg0KCXJldHVybiBmb3VuZDsNCn0NCg0Kc3RhdGljIGludCBfX2NuX3J4X3NrYihzdHJ1Y3Qgc2tf
-YnVmZiAqc2tiLCBzdHJ1Y3Qgbmxtc2doZHIgKm5saCkNCnsNCgl1MzIgcGlkLCB1aWQsIHNlcSwg
-Z3JvdXA7DQoJc3RydWN0IGNuX21zZyAqbXNnOw0KDQoJcGlkID0gTkVUTElOS19DUkVEUyhza2Ip
-LT5waWQ7DQoJdWlkID0gTkVUTElOS19DUkVEUyhza2IpLT51aWQ7DQoJc2VxID0gbmxoLT5ubG1z
-Z19zZXE7DQoJZ3JvdXAgPSBORVRMSU5LX0NCKChza2IpKS5ncm91cHM7DQoJbXNnID0gKHN0cnVj
-dCBjbl9tc2cgKilOTE1TR19EQVRBKG5saCk7DQoNCglpZiAoTkxNU0dfU1BBQ0UobXNnLT5sZW4g
-KyBzaXplb2YoKm1zZykpICE9IG5saC0+bmxtc2dfbGVuKSB7DQoJCXByaW50ayhLRVJOX0VSUiAi
-c2tiIGRvZXMgbm90IGhhdmUgZW5vdWdoIGxlbmd0aDogIg0KCQkJCSJyZXF1ZXN0ZWQgbXNnLT5s
-ZW49JXVbJXVdLCBubGgtPm5sbXNnX2xlbj0ldSwgc2tiLT5sZW49JXUuXG4iLCANCgkJCQltc2ct
-PmxlbiwgTkxNU0dfU1BBQ0UobXNnLT5sZW4gKyBzaXplb2YoKm1zZykpLCANCgkJCQlubGgtPm5s
-bXNnX2xlbiwgc2tiLT5sZW4pOw0KCQlrZnJlZV9za2Ioc2tiKTsNCgkJcmV0dXJuIC1FSU5WQUw7
-DQoJfQ0KI2lmIDANCglwcmludGsoS0VSTl9JTkZPICJwaWQ9JXUsIHVpZD0ldSwgc2VxPSV1LCBn
-cm91cD0ldS5cbiIsDQoJICAgICAgIHBpZCwgdWlkLCBzZXEsIGdyb3VwKTsNCiNlbmRpZg0KCXJl
-dHVybiBjbl9jYWxsX2NhbGxiYWNrKG1zZywgKHZvaWQgKCopKHZvaWQgKikpa2ZyZWVfc2tiLCBz
-a2IpOw0KfQ0KDQpzdGF0aWMgdm9pZCBjbl9yeF9za2Ioc3RydWN0IHNrX2J1ZmYgKl9fc2tiKQ0K
-ew0KCXN0cnVjdCBubG1zZ2hkciAqbmxoOw0KCXUzMiBsZW47DQoJaW50IGVycjsNCglzdHJ1Y3Qg
-c2tfYnVmZiAqc2tiOw0KDQoJc2tiID0gc2tiX2dldChfX3NrYik7DQoJaWYgKCFza2IpIHsNCgkJ
-cHJpbnRrKEtFUk5fRVJSICJGYWlsZWQgdG8gcmVmZXJlbmNlIGFuIHNrYi5cbiIpOw0KCQlrZnJl
-ZV9za2IoX19za2IpOw0KCQlyZXR1cm47DQoJfQ0KI2lmIDANCglwcmludGsoS0VSTl9JTkZPDQoJ
-ICAgICAgICJza2I6IGxlbj0ldSwgZGF0YV9sZW49JXUsIHRydWVzaXplPSV1LCBwcm90bz0ldSwg
-Y2xvbmVkPSVkLCBzaGFyZWQ9JWQuXG4iLA0KCSAgICAgICBza2ItPmxlbiwgc2tiLT5kYXRhX2xl
-biwgc2tiLT50cnVlc2l6ZSwgc2tiLT5wcm90b2NvbCwNCgkgICAgICAgc2tiX2Nsb25lZChza2Ip
-LCBza2Jfc2hhcmVkKHNrYikpOw0KI2VuZGlmDQoJd2hpbGUgKHNrYi0+bGVuID49IE5MTVNHX1NQ
-QUNFKDApKSB7DQoJCW5saCA9IChzdHJ1Y3Qgbmxtc2doZHIgKilza2ItPmRhdGE7DQoJCWlmIChu
-bGgtPm5sbXNnX2xlbiA8IHNpemVvZihzdHJ1Y3QgY25fbXNnKSB8fA0KCQkgICAgc2tiLT5sZW4g
-PCBubGgtPm5sbXNnX2xlbiB8fA0KCQkgICAgbmxoLT5ubG1zZ19sZW4gPiBDT05ORUNUT1JfTUFY
-X01TR19TSVpFKSB7DQojaWYgMA0KCQkJcHJpbnRrKEtFUk5fSU5GTyAibmxtc2dfbGVuPSV1LCBz
-aXplb2YoKm5saCk9JXVcbiIsDQoJCQkgICAgICAgbmxoLT5ubG1zZ19sZW4sIHNpemVvZigqbmxo
-KSk7DQojZW5kaWYNCgkJCWtmcmVlX3NrYihza2IpOw0KCQkJYnJlYWs7DQoJCX0NCg0KCQlsZW4g
-PSBOTE1TR19BTElHTihubGgtPm5sbXNnX2xlbik7DQoJCWlmIChsZW4gPiBza2ItPmxlbikNCgkJ
-CWxlbiA9IHNrYi0+bGVuOw0KDQoJCWVyciA9IF9fY25fcnhfc2tiKHNrYiwgbmxoKTsNCgkJaWYg
-KGVycikgew0KI2lmIDANCgkJCWlmIChlcnIgPCAwICYmIChubGgtPm5sbXNnX2ZsYWdzICYgTkxN
-X0ZfQUNLKSkNCgkJCQluZXRsaW5rX2Fjayhza2IsIG5saCwgLWVycik7DQojZW5kaWYNCgkJCWJy
-ZWFrOw0KCQl9IGVsc2Ugew0KI2lmIDANCgkJCWlmIChubGgtPm5sbXNnX2ZsYWdzICYgTkxNX0Zf
-QUNLKQ0KCQkJCW5ldGxpbmtfYWNrKHNrYiwgbmxoLCAwKTsNCiNlbmRpZg0KCQkJYnJlYWs7DQoJ
-CX0NCgkJc2tiX3B1bGwoc2tiLCBsZW4pOw0KCX0NCgkJCQ0KCWtmcmVlX3NrYihfX3NrYik7DQp9
-DQoNCnN0YXRpYyB2b2lkIGNuX2lucHV0KHN0cnVjdCBzb2NrICpzaywgaW50IGxlbikNCnsNCglz
-dHJ1Y3Qgc2tfYnVmZiAqc2tiOw0KDQoJd2hpbGUgKChza2IgPSBza2JfZGVxdWV1ZSgmc2stPnNr
-X3JlY2VpdmVfcXVldWUpKSAhPSBOVUxMKQ0KCQljbl9yeF9za2Ioc2tiKTsNCn0NCg0Kc3RhdGlj
-IHZvaWQgY25fbm90aWZ5KHN0cnVjdCBjYl9pZCAqaWQsIHUzMiBub3RpZnlfZXZlbnQpDQp7DQoJ
-c3RydWN0IGNuX2N0bF9lbnRyeSAqZW50Ow0KDQoJc3Bpbl9sb2NrX2JoKCZub3RpZnlfbG9jayk7
-DQoJbGlzdF9mb3JfZWFjaF9lbnRyeShlbnQsICZub3RpZnlfbGlzdCwgbm90aWZ5X2VudHJ5KSB7
-DQoJCWludCBpOw0KCQlzdHJ1Y3QgY25fbm90aWZ5X3JlcSAqcmVxOw0KCQlzdHJ1Y3QgY25fY3Rs
-X21zZyAqY3RsID0gZW50LT5tc2c7DQoJCWludCBhLCBiOw0KDQoJCWEgPSBiID0gMDsNCgkJDQoJ
-CXJlcSA9IChzdHJ1Y3QgY25fbm90aWZ5X3JlcSAqKWN0bC0+ZGF0YTsNCgkJZm9yIChpPTA7IGk8
-Y3RsLT5pZHhfbm90aWZ5X251bTsgKytpLCArK3JlcSkgew0KCQkJaWYgKGlkLT5pZHggPj0gcmVx
-LT5maXJzdCAmJiBpZC0+aWR4IDwgcmVxLT5maXJzdCArIHJlcS0+cmFuZ2UpIHsNCgkJCQlhID0g
-MTsNCgkJCQlicmVhazsNCgkJCX0NCgkJfQ0KCQkNCgkJZm9yIChpPTA7IGk8Y3RsLT52YWxfbm90
-aWZ5X251bTsgKytpLCArK3JlcSkgew0KCQkJaWYgKGlkLT52YWwgPj0gcmVxLT5maXJzdCAmJiBp
-ZC0+dmFsIDwgcmVxLT5maXJzdCArIHJlcS0+cmFuZ2UpIHsNCgkJCQliID0gMTsNCgkJCQlicmVh
-azsNCgkJCX0NCgkJfQ0KDQoJCWlmIChhICYmIGIpIHsNCgkJCXN0cnVjdCBjbl9tc2cgbTsNCgkJ
-CQ0KCQkJcHJpbnRrKEtFUk5fSU5GTyAiTm90aWZ5aW5nIGdyb3VwICV4IHdpdGggZXZlbnQgJXUg
-YWJvdXQgJXguJXguXG4iLCANCgkJCQkJY3RsLT5ncm91cCwgbm90aWZ5X2V2ZW50LCANCgkJCQkJ
-aWQtPmlkeCwgaWQtPnZhbCk7DQoNCgkJCW1lbXNldCgmbSwgMCwgc2l6ZW9mKG0pKTsNCgkJCW0u
-YWNrID0gbm90aWZ5X2V2ZW50Ow0KDQoJCQltZW1jcHkoJm0uaWQsIGlkLCBzaXplb2YobS5pZCkp
-Ow0KCQkJY25fbmV0bGlua19zZW5kKCZtLCBjdGwtPmdyb3VwKTsNCgkJfQ0KCX0NCglzcGluX3Vu
-bG9ja19iaCgmbm90aWZ5X2xvY2spOw0KfQ0KDQppbnQgY25fYWRkX2NhbGxiYWNrKHN0cnVjdCBj
-Yl9pZCAqaWQsIGNoYXIgKm5hbWUsIHZvaWQgKCpjYWxsYmFjaykgKHZvaWQgKikpDQp7DQoJaW50
-IGVycjsNCglzdHJ1Y3QgY25fZGV2ICpkZXYgPSAmY2RldjsNCglzdHJ1Y3QgY25fY2FsbGJhY2sg
-KmNiOw0KDQoJY2IgPSBrbWFsbG9jKHNpemVvZigqY2IpLCBHRlBfS0VSTkVMKTsNCglpZiAoIWNi
-KSB7DQoJCXByaW50ayhLRVJOX0lORk8gIiVzOiBGYWlsZWQgdG8gYWxsb2NhdGUgbmV3IHN0cnVj
-dCBjbl9jYWxsYmFjay5cbiIsDQoJCSAgICAgICBkZXYtPmNiZGV2LT5uYW1lKTsNCgkJcmV0dXJu
-IC1FTk9NRU07DQoJfQ0KDQoJbWVtc2V0KGNiLCAwLCBzaXplb2YoKmNiKSk7DQoNCglzbnByaW50
-ZihjYi0+bmFtZSwgc2l6ZW9mKGNiLT5uYW1lKSwgIiVzIiwgbmFtZSk7DQoNCgltZW1jcHkoJmNi
-LT5pZCwgaWQsIHNpemVvZihjYi0+aWQpKTsNCgljYi0+Y2FsbGJhY2sgPSBjYWxsYmFjazsNCg0K
-CWF0b21pY19zZXQoJmNiLT5yZWZjbnQsIDApOw0KDQoJZXJyID0gY25fcXVldWVfYWRkX2NhbGxi
-YWNrKGRldi0+Y2JkZXYsIGNiKTsNCglpZiAoZXJyKSB7DQoJCWtmcmVlKGNiKTsNCgkJcmV0dXJu
-IGVycjsNCgl9DQoJCQkNCgljbl9ub3RpZnkoaWQsIDApOw0KDQoJcmV0dXJuIDA7DQp9DQoNCnZv
-aWQgY25fZGVsX2NhbGxiYWNrKHN0cnVjdCBjYl9pZCAqaWQpDQp7DQoJc3RydWN0IGNuX2RldiAq
-ZGV2ID0gJmNkZXY7DQoJc3RydWN0IGNuX2NhbGxiYWNrX2VudHJ5ICpuLCAqX19jYnE7DQoNCgls
-aXN0X2Zvcl9lYWNoX2VudHJ5X3NhZmUoX19jYnEsIG4sICZkZXYtPmNiZGV2LT5xdWV1ZV9saXN0
-LCBjYWxsYmFja19lbnRyeSkgew0KCQlpZiAoY25fY2JfZXF1YWwoJl9fY2JxLT5jYi0+aWQsIGlk
-KSkgew0KCQkJY25fcXVldWVfZGVsX2NhbGxiYWNrKGRldi0+Y2JkZXYsIF9fY2JxLT5jYik7DQoJ
-CQljbl9ub3RpZnkoaWQsIDEpOw0KCQkJYnJlYWs7DQoJCX0NCgl9DQp9DQoNCnN0YXRpYyBpbnQg
-Y25fY3RsX21zZ19lcXVhbHMoc3RydWN0IGNuX2N0bF9tc2cgKm0xLCBzdHJ1Y3QgY25fY3RsX21z
-ZyAqbTIpDQp7DQoJaW50IGk7DQoJc3RydWN0IGNuX25vdGlmeV9yZXEgKnJlcTEsICpyZXEyOw0K
-DQoJaWYgKG0xLT5pZHhfbm90aWZ5X251bSAhPSBtMi0+aWR4X25vdGlmeV9udW0pDQoJCXJldHVy
-biAwOw0KCQ0KCWlmIChtMS0+dmFsX25vdGlmeV9udW0gIT0gbTItPnZhbF9ub3RpZnlfbnVtKQ0K
-CQlyZXR1cm4gMDsNCgkNCglpZiAobTEtPmxlbiAhPSBtMi0+bGVuKQ0KCQlyZXR1cm4gMDsNCg0K
-CWlmICgobTEtPmlkeF9ub3RpZnlfbnVtICsgbTEtPnZhbF9ub3RpZnlfbnVtKSpzaXplb2YoKnJl
-cTEpICE9IG0xLT5sZW4pIHsNCgkJcHJpbnRrKEtFUk5fRVJSICJOb3RpZnkgZW50cnlbaWR4X251
-bT0leCwgdmFsX251bT0leCwgbGVuPSV1XSBjb250YWlucyBnYXJiYWdlLiBSZW1vdmluZy5cbiIs
-IA0KCQkJCW0xLT5pZHhfbm90aWZ5X251bSwgbTEtPnZhbF9ub3RpZnlfbnVtLCBtMS0+bGVuKTsN
-CgkJcmV0dXJuIDE7DQoJfQ0KDQoJcmVxMSA9IChzdHJ1Y3QgY25fbm90aWZ5X3JlcSAqKW0xLT5k
-YXRhOw0KCXJlcTIgPSAoc3RydWN0IGNuX25vdGlmeV9yZXEgKiltMi0+ZGF0YTsNCgkNCglmb3Ig
-KGk9MDsgaTxtMS0+aWR4X25vdGlmeV9udW07ICsraSkgew0KCQlpZiAobWVtY21wKHJlcTEsIHJl
-cTIsIHNpemVvZigqcmVxMSkpKQ0KCQkJcmV0dXJuIDA7DQoNCgkJcmVxMSsrOw0KCQlyZXEyKys7
-DQoJfQ0KDQoJZm9yIChpPTA7IGk8bTEtPnZhbF9ub3RpZnlfbnVtOyArK2kpIHsNCgkJaWYgKG1l
-bWNtcChyZXExLCByZXEyLCBzaXplb2YoKnJlcTEpKSkNCgkJCXJldHVybiAwOw0KDQoJCXJlcTEr
-KzsNCgkJcmVxMisrOw0KCX0NCg0KCXJldHVybiAxOw0KfQ0KDQpzdGF0aWMgdm9pZCBjbl9jYWxs
-YmFjayh2b2lkICogZGF0YSkNCnsNCglzdHJ1Y3QgY25fbXNnICptc2cgPSAoc3RydWN0IGNuX21z
-ZyAqKWRhdGE7DQoJc3RydWN0IGNuX2N0bF9tc2cgKmN0bDsNCglzdHJ1Y3QgY25fY3RsX2VudHJ5
-ICplbnQ7DQoJdTMyIHNpemU7DQogDQoJaWYgKG1zZy0+bGVuIDwgc2l6ZW9mKCpjdGwpKSB7DQoJ
-CXByaW50ayhLRVJOX0VSUiAiV3JvbmcgY29ubmVjdG9yIHJlcXVlc3Qgc2l6ZSAldSwgbXVzdCBi
-ZSA+PSAldS5cbiIsIA0KCQkJCW1zZy0+bGVuLCBzaXplb2YoKmN0bCkpOw0KCQlyZXR1cm47DQoJ
-fQ0KCQ0KCWN0bCA9IChzdHJ1Y3QgY25fY3RsX21zZyAqKW1zZy0+ZGF0YTsNCg0KCXNpemUgPSBz
-aXplb2YoKmN0bCkgKyAoY3RsLT5pZHhfbm90aWZ5X251bSArIGN0bC0+dmFsX25vdGlmeV9udW0p
-KnNpemVvZihzdHJ1Y3QgY25fbm90aWZ5X3JlcSk7DQoNCglpZiAobXNnLT5sZW4gIT0gc2l6ZSkg
-ew0KCQlwcmludGsoS0VSTl9FUlIgIldyb25nIGNvbm5lY3RvciByZXF1ZXN0IHNpemUgJXUsIG11
-c3QgYmUgPT0gJXUuXG4iLCANCgkJCQltc2ctPmxlbiwgc2l6ZSk7DQoJCXJldHVybjsNCgl9DQoN
-CglpZiAoY3RsLT5sZW4gKyBzaXplb2YoKmN0bCkgIT0gbXNnLT5sZW4pIHsNCgkJcHJpbnRrKEtF
-Uk5fRVJSICJXcm9uZyBtZXNzYWdlOiBtc2ctPmxlbj0ldSBtdXN0IGJlIGVxdWFsIHRvIGlubmVy
-X2xlbj0ldSBbKyV1XS5cbiIsIA0KCQkJCW1zZy0+bGVuLCBjdGwtPmxlbiwgc2l6ZW9mKCpjdGwp
-KTsNCgkJcmV0dXJuOw0KCX0NCg0KCS8qDQoJICogUmVtb3ZlIG5vdGlmaWNhdGlvbi4NCgkgKi8N
-CglpZiAoY3RsLT5ncm91cCA9PSAwKSB7DQoJCXN0cnVjdCBjbl9jdGxfZW50cnkgKm47DQoJCQ0K
-CQlzcGluX2xvY2tfYmgoJm5vdGlmeV9sb2NrKTsNCgkJbGlzdF9mb3JfZWFjaF9lbnRyeV9zYWZl
-KGVudCwgbiwgJm5vdGlmeV9saXN0LCBub3RpZnlfZW50cnkpIHsNCgkJCWlmIChjbl9jdGxfbXNn
-X2VxdWFscyhlbnQtPm1zZywgY3RsKSkgew0KCQkJCWxpc3RfZGVsKCZlbnQtPm5vdGlmeV9lbnRy
-eSk7DQoJCQkJa2ZyZWUoZW50KTsNCgkJCX0NCgkJfQ0KCQlzcGluX3VubG9ja19iaCgmbm90aWZ5
-X2xvY2spOw0KDQoJCXJldHVybjsNCgl9DQoNCglzaXplICs9IHNpemVvZigqZW50KTsNCg0KCWVu
-dCA9IGttYWxsb2Moc2l6ZSwgR0ZQX0FUT01JQyk7DQoJaWYgKCFlbnQpIHsNCgkJcHJpbnRrKEtF
-Uk5fRVJSICJGYWlsZWQgdG8gYWxsb2NhdGUgJWQgYnl0ZXMgZm9yIG5ldyBub3RpZnkgZW50cnku
-XG4iLCBzaXplKTsNCgkJcmV0dXJuOw0KCX0NCg0KCW1lbXNldChlbnQsIDAsIHNpemUpOw0KDQoJ
-ZW50LT5tc2cgPSAoc3RydWN0IGNuX2N0bF9tc2cgKikoZW50ICsgMSk7DQoNCgltZW1jcHkoZW50
-LT5tc2csIGN0bCwgc2l6ZSAtIHNpemVvZigqZW50KSk7DQoNCglzcGluX2xvY2tfYmgoJm5vdGlm
-eV9sb2NrKTsNCglsaXN0X2FkZCgmZW50LT5ub3RpZnlfZW50cnksICZub3RpZnlfbGlzdCk7DQoJ
-c3Bpbl91bmxvY2tfYmgoJm5vdGlmeV9sb2NrKTsNCg0KCXsNCgkJaW50IGk7DQoJCXN0cnVjdCBj
-bl9ub3RpZnlfcmVxICpyZXE7DQoJDQoJCXByaW50aygiTm90aWZ5IGdyb3VwICV4IGZvciBpZHg6
-ICIsIGN0bC0+Z3JvdXApOw0KDQoJCXJlcSA9IChzdHJ1Y3QgY25fbm90aWZ5X3JlcSAqKWN0bC0+
-ZGF0YTsNCgkJZm9yIChpPTA7IGk8Y3RsLT5pZHhfbm90aWZ5X251bTsgKytpLCArK3JlcSkgew0K
-CQkJcHJpbnRrKCIldS0ldSAiLCByZXEtPmZpcnN0LCByZXEtPmZpcnN0K3JlcS0+cmFuZ2UtMSk7
-DQoJCX0NCgkJDQoJCXByaW50aygiXG5Ob3RpZnkgZ3JvdXAgJXggZm9yIHZhbDogIiwgY3RsLT5n
-cm91cCk7DQoNCgkJZm9yIChpPTA7IGk8Y3RsLT52YWxfbm90aWZ5X251bTsgKytpLCArK3JlcSkg
-ew0KCQkJcHJpbnRrKCIldS0ldSAiLCByZXEtPmZpcnN0LCByZXEtPmZpcnN0K3JlcS0+cmFuZ2Ut
-MSk7DQoJCX0NCgkJcHJpbnRrKCJcbiIpOw0KCX0NCn0NCg0Kc3RhdGljIHZvaWQgY25fZm9ya19j
-YWxsYmFjayh2b2lkICpkYXRhKSANCnsNCiAgICAgICBpZiAoY25fYWxyZWFkeV9pbml0aWFsaXpl
-ZCkNCiAgICAgICAgICAgICAgIGNuX2ZvcmtfZW5hYmxlID0gMTsNCn0NCg0Kc3RhdGljIGludCBj
-bl9pbml0KHZvaWQpDQp7DQoJc3RydWN0IGNuX2RldiAqZGV2ID0gJmNkZXY7DQoJaW50IGVycjsN
-Cg0KCWRldi0+aW5wdXQgPSBjbl9pbnB1dDsNCglkZXYtPmlkLmlkeCA9IGNuX2lkeDsNCglkZXYt
-PmlkLnZhbCA9IGNuX3ZhbDsNCg0KCWRldi0+bmxzID0gbmV0bGlua19rZXJuZWxfY3JlYXRlKHVu
-aXQsIGRldi0+aW5wdXQpOw0KCWlmICghZGV2LT5ubHMpIHsNCgkJcHJpbnRrKEtFUk5fRVJSICJG
-YWlsZWQgdG8gY3JlYXRlIG5ldyBuZXRsaW5rIHNvY2tldCgldSkuXG4iLA0KCQkgICAgICAgdW5p
-dCk7DQoJCXJldHVybiAtRUlPOw0KCX0NCg0KCWRldi0+Y2JkZXYgPSBjbl9xdWV1ZV9hbGxvY19k
-ZXYoImNxdWV1ZSIsIGRldi0+bmxzKTsNCglpZiAoIWRldi0+Y2JkZXYpIHsNCgkJaWYgKGRldi0+
-bmxzLT5za19zb2NrZXQpDQoJCQlzb2NrX3JlbGVhc2UoZGV2LT5ubHMtPnNrX3NvY2tldCk7DQoJ
-CXJldHVybiAtRUlOVkFMOw0KCX0NCg0KCWVyciA9IGNuX2FkZF9jYWxsYmFjaygmZGV2LT5pZCwg
-ImNvbm5lY3RvciIsICZjbl9jYWxsYmFjayk7DQoJaWYgKGVycikgew0KCQljbl9xdWV1ZV9mcmVl
-X2RldihkZXYtPmNiZGV2KTsNCgkJaWYgKGRldi0+bmxzLT5za19zb2NrZXQpDQoJCQlzb2NrX3Jl
-bGVhc2UoZGV2LT5ubHMtPnNrX3NvY2tldCk7DQoJCXJldHVybiAtRUlOVkFMOw0KCX0NCgllcnIg
-PSBjbl9hZGRfY2FsbGJhY2soJmNiX2ZvcmtfaWQsICJjbl9mb3JrIiwgJmNuX2ZvcmtfY2FsbGJh
-Y2spOw0KCWlmIChlcnIpIHsNCgkJY25fZGVsX2NhbGxiYWNrKCZkZXYtPmlkKTsNCgkJY25fcXVl
-dWVfZnJlZV9kZXYoZGV2LT5jYmRldik7DQoJCWlmIChkZXYtPm5scy0+c2tfc29ja2V0KQ0KCQkJ
-c29ja19yZWxlYXNlKGRldi0+bmxzLT5za19zb2NrZXQpOw0KCQlyZXR1cm4gLUVJTlZBTDsNCgl9
-DQoNCgljbl9hbHJlYWR5X2luaXRpYWxpemVkID0gMTsNCg0KCXJldHVybiAwOw0KfQ0KDQpzdGF0
-aWMgdm9pZCBjbl9maW5pKHZvaWQpDQp7DQoJc3RydWN0IGNuX2RldiAqZGV2ID0gJmNkZXY7DQoN
-Cgljbl9kZWxfY2FsbGJhY2soJmRldi0+aWQpOw0KCWNuX3F1ZXVlX2ZyZWVfZGV2KGRldi0+Y2Jk
-ZXYpOw0KCWlmIChkZXYtPm5scy0+c2tfc29ja2V0KQ0KCQlzb2NrX3JlbGVhc2UoZGV2LT5ubHMt
-PnNrX3NvY2tldCk7DQp9DQoNCm1vZHVsZV9pbml0KGNuX2luaXQpOw0KbW9kdWxlX2V4aXQoY25f
-ZmluaSk7DQoNCkVYUE9SVF9TWU1CT0xfR1BMKGNuX2FkZF9jYWxsYmFjayk7DQpFWFBPUlRfU1lN
-Qk9MX0dQTChjbl9kZWxfY2FsbGJhY2spOw0KRVhQT1JUX1NZTUJPTF9HUEwoY25fbmV0bGlua19z
-ZW5kKTsNCg==
+DocBook: new kernel-doc comments for might_sleep & wait_event_*
+Signed-off-by: Martin Waitz <tali@admingilde.org>
 
 
---=-JgbT51g/LuBG3QWsxd46--
-
---=-04dngmqtPZ1HpTDHUoly
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBCJwEcIKTPhE+8wY0RAjvEAJ0Zij3TMAsXZpLlVRzgDkBbJ38p9wCcDsYG
-/zpUf0VjcDcxqh3HVnCnE+E=
-=Kw5C
------END PGP SIGNATURE-----
-
---=-04dngmqtPZ1HpTDHUoly--
-
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.2031  -> 1.2032 
+#	include/linux/kernel.h	1.60    -> 1.61   
+#	include/linux/wait.h	1.28    -> 1.29   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 05/01/26	tali@admingilde.org	1.2032
+# DocBook: new kernel-doc comments for might_sleep & wait_event_*
+# 
+# Signed-off-by: Martin Waitz <tali@admingilde.org>
+# --------------------------------------------
+#
+diff -Nru a/include/linux/kernel.h b/include/linux/kernel.h
+--- a/include/linux/kernel.h	Thu Mar  3 11:42:09 2005
++++ b/include/linux/kernel.h	Thu Mar  3 11:42:09 2005
+@@ -48,10 +48,20 @@
+ 
+ struct completion;
+ 
++/**
++ * might_sleep - annotation for functions that can sleep
++ *
++ * this macro will print a stack trace if it is executed in an atomic
++ * context (spinlock, irq-handler, ...).
++ *
++ * This is a useful debugging help to be able to catch problems early and not
++ * be biten later when the calling function happens to sleep when it is not
++ * supposed to.
++ */
+ #ifdef CONFIG_DEBUG_SPINLOCK_SLEEP
+-void __might_sleep(char *file, int line);
+ #define might_sleep() __might_sleep(__FILE__, __LINE__)
+ #define might_sleep_if(cond) do { if (unlikely(cond)) might_sleep(); } while (0)
++void __might_sleep(char *file, int line);
+ #else
+ #define might_sleep() do {} while(0)
+ #define might_sleep_if(cond) do {} while (0)
+diff -Nru a/include/linux/wait.h b/include/linux/wait.h
+--- a/include/linux/wait.h	Thu Mar  3 11:42:09 2005
++++ b/include/linux/wait.h	Thu Mar  3 11:42:09 2005
+@@ -169,6 +169,18 @@
+ 	finish_wait(&wq, &__wait);					\
+ } while (0)
+ 
++/**
++ * wait_event - sleep until a condition gets true
++ * @wq: the waitqueue to wait on
++ * @condition: a C expression for the event to wait for
++ *
++ * The process is put to sleep (TASK_UNINTERRUPTIBLE) until the
++ * @condition evaluates to true. The @condition is checked each time
++ * the waitqueue @wq is woken up.
++ *
++ * wake_up() has to be called after changing any variable that could
++ * change the result of the wait condition.
++ */
+ #define wait_event(wq, condition) 					\
+ do {									\
+ 	if (condition)	 						\
+@@ -191,6 +203,22 @@
+ 	finish_wait(&wq, &__wait);					\
+ } while (0)
+ 
++/**
++ * wait_event_timeout - sleep until a condition gets true or a timeout elapses
++ * @wq: the waitqueue to wait on
++ * @condition: a C expression for the event to wait for
++ * @timeout: timeout, in jiffies
++ *
++ * The process is put to sleep (TASK_UNINTERRUPTIBLE) until the
++ * @condition evaluates to true. The @condition is checked each time
++ * the waitqueue @wq is woken up.
++ *
++ * wake_up() has to be called after changing any variable that could
++ * change the result of the wait condition.
++ *
++ * The function returns 0 if the @timeout elapsed, and the remaining
++ * jiffies if the condition evaluated to true before the timeout elapsed.
++ */
+ #define wait_event_timeout(wq, condition, timeout)			\
+ ({									\
+ 	long __ret = timeout;						\
+@@ -217,6 +245,21 @@
+ 	finish_wait(&wq, &__wait);					\
+ } while (0)
+ 
++/**
++ * wait_event_interruptible - sleep until a condition gets true
++ * @wq: the waitqueue to wait on
++ * @condition: a C expression for the event to wait for
++ *
++ * The process is put to sleep (TASK_INTERRUPTIBLE) until the
++ * @condition evaluates to true or a signal is received.
++ * The @condition is checked each time the waitqueue @wq is woken up.
++ *
++ * wake_up() has to be called after changing any variable that could
++ * change the result of the wait condition.
++ *
++ * The function will return -ERESTARTSYS if it was interrupted by a
++ * signal and 0 if @condition evaluated to true.
++ */
+ #define wait_event_interruptible(wq, condition)				\
+ ({									\
+ 	int __ret = 0;							\
+@@ -245,6 +288,23 @@
+ 	finish_wait(&wq, &__wait);					\
+ } while (0)
+ 
++/**
++ * wait_event_interruptible_timeout - sleep until a condition gets true or a timeout elapses
++ * @wq: the waitqueue to wait on
++ * @condition: a C expression for the event to wait for
++ * @timeout: timeout, in jiffies
++ *
++ * The process is put to sleep (TASK_INTERRUPTIBLE) until the
++ * @condition evaluates to true or a signal is received.
++ * The @condition is checked each time the waitqueue @wq is woken up.
++ *
++ * wake_up() has to be called after changing any variable that could
++ * change the result of the wait condition.
++ *
++ * The function returns 0 if the @timeout elapsed, -ERESTARTSYS if it
++ * was interrupted by a signal, and the remaining jiffies otherwise
++ * if the condition evaluated to true before the timeout elapsed.
++ */
+ #define wait_event_interruptible_timeout(wq, condition, timeout)	\
+ ({									\
+ 	long __ret = timeout;						\

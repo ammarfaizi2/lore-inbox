@@ -1,64 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265429AbRF0WSV>; Wed, 27 Jun 2001 18:18:21 -0400
+	id <S265439AbRF0WUv>; Wed, 27 Jun 2001 18:20:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265433AbRF0WSL>; Wed, 27 Jun 2001 18:18:11 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:59660 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S265429AbRF0WR6>; Wed, 27 Jun 2001 18:17:58 -0400
-Date: Wed, 27 Jun 2001 15:16:35 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: David Woodhouse <dwmw2@infradead.org>, <jffs-dev@axis.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Cosmetic JFFS patch.
-In-Reply-To: <E15FNUb-0005wx-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0106271514260.7355-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265437AbRF0WUl>; Wed, 27 Jun 2001 18:20:41 -0400
+Received: from h24-76-51-210.vf.shawcable.net ([24.76.51.210]:55026 "EHLO
+	whiskey.enposte.net") by vger.kernel.org with ESMTP
+	id <S265435AbRF0WUf>; Wed, 27 Jun 2001 18:20:35 -0400
+To: linux-kernel@vger.kernel.org
+Path: whiskey.fireplug.net!not-for-mail
+From: sl@whiskey.fireplug.net (Stuart Lynne)
+Newsgroups: list.linux-kernel
+Subject: Re: What is the best way for multiple net_devices
+Date: 27 Jun 2001 15:19:39 -0700
+Organization: fireplug
+Distribution: local
+Message-ID: <9hdm5r$e9i$1@whiskey.enposte.net>
+In-Reply-To: <993679536.14418@whiskey.enposte.net>
+Reply-To: sl@fireplug.net
+X-Newsreader: trn 4.0-test67 (15 July 1998)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Wed, 27 Jun 2001, Alan Cox wrote:
-
-> > I find printk's with copyright notices quite disturbing. You will notice
-> > that I don't have any myself. I think the whole thing is very tasteless,
-> > and the "polite reminder" is just complete crap.
+In article <993679536.14418@whiskey.enposte.net>,
+Jeff Garzik <jgarzik@mandrakesoft.com> wrote:
+>andrew may wrote:
+>> 
+>> Is there a standard way to make multiple copies of a network device?
+>> 
+>> For things like the bonding/ipip/ip_gre and others they seem to expect
+>> insmod -o copy1 module.o
+>> insmod -o copy2 module.o
 >
-> If someone took all references to your name out of the kernel and put it out
-> as 'Foobaros' by Foobarco you might take a different view.
+>The network driver should provide the capability to add new devices.
+>
+>Most drivers currently have the capability to do N devices, where N is
+>some constant set at compile time.  Typically you use ifconfig, a
+>special-purpose userland program, or sometimes even sysctls to configure
+>additional net devices.
 
-I don't _have_ any instances of my name being printed out to annoy the
-user, so that's a very theoretical argument.
+Ioctls require modifications to other parts of the kernel and a supporting
+user land program.
 
-> Intentionally or otherwise in the change thats what the JFFS argument is about.
+Passing the number to create via insmod seems to be a reasonable compromise.
 
-This is my current patch in my tree. I refuse to have bickering in
-printk's. You can edit the comment all you want.
+>It's certainly possible to modify the driver to create additional
+>network interfaces on the fly, but a lot of drivers are not coded to do
+>that at present.
 
-		Linus
-
------
-diff -urN v2.4.5/linux/fs/jffs/inode-v23.c linux/fs/jffs/inode-v23.c
---- v2.4.5/linux/fs/jffs/inode-v23.c	Sun May 20 11:35:00 2001
-+++ linux/fs/jffs/inode-v23.c	Wed Jun 27 13:51:50 2001
-@@ -16,6 +16,7 @@
-  * Ported to Linux 2.3.x and MTD:
-  * Copyright (C) 2000  Alexander Larsson (alex@cendio.se), Cendio Systems AB
-  *
-+ * Copyright 2000, 2001  Red Hat, Inc.
-  */
-
- /* inode.c -- Contains the code that is called from the VFS.  */
-@@ -1719,9 +1720,6 @@
- static int __init
- init_jffs_fs(void)
- {
--	printk("JFFS version "
--	       JFFS_VERSION_STRING
--	       ", (C) 1999, 2000  Axis Communications AB\n");
- 	return register_filesystem(&jffs_fs_type);
- }
-
-
+-- 
+                                            __O 
+Lineo - For Embedded Linux Solutions      _-\<,_ 
+PGP Fingerprint: 28 E2 A0 15 99 62 9A 00 (_)/ (_) 88 EC A3 EE 2D 1C 15 68
+Stuart Lynne <sl@fireplug.net>       www.fireplug.net        604-461-7532

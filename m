@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310584AbSCGW6I>; Thu, 7 Mar 2002 17:58:08 -0500
+	id <S310586AbSCGXFb>; Thu, 7 Mar 2002 18:05:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310582AbSCGW57>; Thu, 7 Mar 2002 17:57:59 -0500
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:57838 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S310585AbSCGW5k>; Thu, 7 Mar 2002 17:57:40 -0500
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <E16j70R-000463-00@the-village.bc.nu> 
-In-Reply-To: <E16j70R-000463-00@the-village.bc.nu> 
+	id <S310585AbSCGXFJ>; Thu, 7 Mar 2002 18:05:09 -0500
+Received: from mail.cert.uni-stuttgart.de ([129.69.16.17]:16077 "HELO
+	Mail.CERT.Uni-Stuttgart.DE") by vger.kernel.org with SMTP
+	id <S310586AbSCGXFG>; Thu, 7 Mar 2002 18:05:06 -0500
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: phillips@bonn-fries.net (Daniel Phillips), yodaiken@fsmlabs.com,
-        jdike@karaya.com (Jeff Dike), bcrl@redhat.com (Benjamin LaHaise),
-        hpa@zytor.com (H. Peter Anvin), linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Arch option to touch newly allocated pages 
-Mime-Version: 1.0
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [opensource] Re: Petition Against Official Endorsement of
+In-Reply-To: <E16j6zb-00045d-00@the-village.bc.nu>
+From: Florian Weimer <Weimer@CERT.Uni-Stuttgart.DE>
+Date: Fri, 08 Mar 2002 00:04:29 +0100
+In-Reply-To: <E16j6zb-00045d-00@the-village.bc.nu> (Alan Cox's message of
+ "Thu, 7 Mar 2002 23:08:11 +0000 (GMT)")
+Message-ID: <871yewou82.fsf@CERT.Uni-Stuttgart.DE>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) Emacs/21.1 (i686-pc-linux-gnu)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 07 Mar 2002 22:57:12 +0000
-Message-ID: <1916.1015541832@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-alan@lxorguk.ukuu.org.uk said:
->  None at all. If you needed the memory before you committed to an
-> operation you should have reserved it before you started. See "sloppy
-> coders"
+>> Using BitKeeper might break the way security issues are currently
+>> handled by distributors of the GNU/Linux system, due to the open
+>> logging feature.
+>
+> It simply means security updates have to be kept seperate from the bitkeeper
+> maintained tree. We can handle that ok. It might mean the first Linus and
+> Marcelo push into their tree is when the vendor updates go out but thats
+> not a big problem to arrange
 
-This is true. I must admit I was having trouble trying to think of a real 
-case where the latter applied in _sane_ code.
+Keeping changes outside the CMS seems completely unnatural to me. ;-)
 
---
-dwmw2
+But maybe security-related changes are so much an exception that this
+isn't a problem.
 
-
+-- 
+Florian Weimer 	                  Weimer@CERT.Uni-Stuttgart.DE
+University of Stuttgart           http://CERT.Uni-Stuttgart.DE/people/fw/
+RUS-CERT                          +49-711-685-5973/fax +49-711-685-5898

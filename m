@@ -1,62 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267257AbUBSVEb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 16:04:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267305AbUBSVEb
+	id S267569AbUBSVIt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 16:08:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267386AbUBSVIt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 16:04:31 -0500
-Received: from ns.suse.de ([195.135.220.2]:40595 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S267257AbUBSVEV (ORCPT
+	Thu, 19 Feb 2004 16:08:49 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:20174 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S267317AbUBSVIi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 16:04:21 -0500
-Date: Fri, 20 Feb 2004 20:32:28 +0100
-From: Andi Kleen <ak@suse.de>
-To: Philippe Elie <phil.el@wanadoo.fr>
-Cc: jakub@redhat.com, linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: [PATCH] Fix typo in x86-64 fix
-Message-Id: <20040220203228.7846bf32.ak@suse.de>
-In-Reply-To: <20040219212002.GC382@zaniah>
-References: <20040219183448.GB8960@atomide.com>
-	<20040220171337.10cd1ae8.ak@suse.de>
-	<20040219193606.GC31589@devserv.devel.redhat.com>
-	<20040220174454.77ec7086.ak@suse.de>
-	<20040219212002.GC382@zaniah>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 19 Feb 2004 16:08:38 -0500
+Date: Thu, 19 Feb 2004 22:08:29 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Corey Minyard <minyard@wf-rch.cirr.com>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: [PATCH] IPMI warnings
+Message-ID: <Pine.GSO.4.58.0402192202370.13856@waterleaf.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Feb 2004 21:20:02 +0000
-Philippe Elie <phil.el@wanadoo.fr> wrote:
+	Hi Corey,
 
-> On Fri, 20 Feb 2004 at 17:44 +0000, Andi Kleen wrote:
-> 
-> > > > +#ifdef CONFIG_SMP_
-> > > 
-> > > 		    ^ Isn't this a typo?
-> > 
-> > Indeed. Thanks for catching it.
-> > 
-> > It probably doesn't hurt because I don't know of any module that uses cpu_sibling_map[].
-> > I think I just copied the export from i386. Maybe it would be best to just remove it completely.
-> 
-> Andrew added it a few hours ago, oprofile use it.
+When compiling the IPMI drivers on m68k, I needed a few more includes:
+  - <asm/irq.h> (for disable_irq_nosync() and enable_irq())
+  - <linux/types.h> (for size_t)
+  - <asm/system.h> (for printk())
 
-Ok, Andrew, can you please apply this incremental patch to fix the typo too ? 
+--- linux-2.6.3/drivers/char/ipmi/ipmi_kcs_intf.c	2003-08-24 09:49:00.000000000 +0200
++++ linux-m68k-2.6.3/drivers/char/ipmi/ipmi_kcs_intf.c	2004-02-15 14:48:15.000000000 +0100
+@@ -55,6 +55,7 @@
+ #include <linux/rcupdate.h>
+ #include <linux/ipmi_smi.h>
+ #include <asm/io.h>
++#include <asm/irq.h>
+ #include "ipmi_kcs_sm.h"
+ #include <linux/init.h>
 
-diff -u linux-2.6.3-amd64/arch/x86_64/kernel/x8664_ksyms.c-o linux-2.6.3-amd64/arch/x86_64/kernel/x8664_ksyms.c
---- linux-2.6.3-amd64/arch/x86_64/kernel/x8664_ksyms.c-o	2004-02-20 15:53:53.000000000 +0100
-+++ linux-2.6.3-amd64/arch/x86_64/kernel/x8664_ksyms.c	2004-02-20 20:25:03.000000000 +0100
-@@ -194,7 +194,7 @@
- 
- EXPORT_SYMBOL(die_chain);
- 
--#ifdef CONFIG_SMP_
-+#ifdef CONFIG_SMP
- EXPORT_SYMBOL(cpu_sibling_map);
- #endif
- 
+--- linux-2.6.3/drivers/char/ipmi/ipmi_kcs_sm.c	2003-04-08 10:05:05.000000000 +0200
++++ linux-m68k-2.6.3/drivers/char/ipmi/ipmi_kcs_sm.c	2004-02-19 17:30:59.000000000 +0100
+@@ -37,8 +37,11 @@
+  * that document.
+  */
 
--Andi
++#include <linux/types.h>
++
+ #include <asm/io.h>
+ #include <asm/string.h>		/* Gets rid of memcpy warning */
++#include <asm/system.h>
+
+ #include "ipmi_kcs_sm.h"
+
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

@@ -1,60 +1,135 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265650AbTFSALz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 20:11:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265644AbTFSALf
+	id S265641AbTFSATf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 20:19:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265644AbTFSATf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 20:11:35 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:19849 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S265650AbTFSAK0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 20:10:26 -0400
-Date: Wed, 18 Jun 2003 17:25:16 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: "Kevin P. Fleming" <kpfleming@cox.net>
-Cc: greg@kroah.com, oliver@neukum.org, rml@tech9.net, mochel@osdl.org,
-       sdake@mvista.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] udev enhancements to use kernel event queue
-Message-Id: <20030618172516.5ed02221.akpm@digeo.com>
-In-Reply-To: <3EF10002.7020308@cox.net>
-References: <3EE8D038.7090600@mvista.com>
-	<1055459762.662.336.camel@localhost>
-	<20030612232523.GA1917@kroah.com>
-	<200306132201.47346.oliver@neukum.org>
-	<20030618225913.GB2413@kroah.com>
-	<3EF10002.7020308@cox.net>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 19 Jun 2003 00:24:23.0798 (UTC) FILETIME=[2278D960:01C335F9]
+	Wed, 18 Jun 2003 20:19:35 -0400
+Received: from c3po.aoltw.net ([64.236.137.25]:63114 "EHLO netscape.com")
+	by vger.kernel.org with ESMTP id S265641AbTFSATc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jun 2003 20:19:32 -0400
+Message-ID: <3EF104D7.5050905@netscape.com>
+Date: Wed, 18 Jun 2003 17:33:27 -0700
+From: jgmyers@netscape.com (John Myers)
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4) Gecko/20030529
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Joel Becker <jlbec@evilplan.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "linux-aio@kvack.org" <linux-aio@kvack.org>
+Subject: Re: [PATCH 2.5.71-mm1] aio process hang on EINVAL
+References: <1055810609.1250.1466.camel@dell_ss5.pdx.osdl.net> <3EEE6FD9.2050908@netscape.com> <20030617085408.A1934@in.ibm.com> <1055884008.1250.1479.camel@dell_ss5.pdx.osdl.net> <3EEFAC58.905@netscape.com> <20030618001534.GJ7895@parcelfarce.linux.theplanet.co.uk> <3EEFB165.5070208@netscape.com> <20030618004214.GK7895@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20030618004214.GK7895@parcelfarce.linux.theplanet.co.uk>
+Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms050402000706080507070403"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Kevin P. Fleming" <kpfleming@cox.net> wrote:
+This is a cryptographically signed message in MIME format.
+
+--------------ms050402000706080507070403
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Joel Becker wrote:
+
+>But POSIX specifes that all detection that can happen before queuing should.
 >
-> > Yes, we should add the sequence number last.
->  > 
-> 
->  While this is not a bad idea, I don't think you want to make a promise 
->  to userspace that there will never be gaps in the sequence numbers. When 
->  this sequence number was proposed, in my mind it seemed perfect because 
->  then userspace could _order_ multiple events for the same device to 
->  ensure they got processed in the correct order. I don't know that any 
->  hotplug userspace implementation is going to be large and complex enough 
->  to warrant "holding" events until lower-numbered events have been 
->  delivered. That just seems like a very difficult task with little 
->  potential gain, but I could very well be mistaken :-)
+The kernel would have to be substantially more complex to report all 
+errors that could possibly be detected during queuing.  The kernel could 
+even detect success during queuing if it really tried.
 
-The userspace support tools need to be able to handle gaps
-in any case, because call_usermodehelper() may fail.
+This is not a reasonable requirement.  A correctly written program has 
+to be able to handle errors reported asynchronously.  Why else would 
+they be using an asynchronous API?
 
-(In practice it won't fail, because the memory allocator is immortal.
-But the capability should be there.
+>	You also now require a poll round and aditional system call to
+>see the errors.  In addition, you waste resources until you pick up the
+>errorneous call.
+>
+So?  That is a miniscule amount of resources used by an extremely rare 
+condition.  Such a picayune optimization hardly justifies the necessary 
+increase in complexity.
 
-(Well actually, it could fail because the VM overcommit code might
-refuse the mmap.
 
-(But probably not, because root gets an extra margin.)))
+--------------ms050402000706080507070403
+Content-Type: application/x-pkcs7-signature; name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Description: S/MIME Cryptographic Signature
 
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIL0zCC
+A9YwggM/oAMCAQICBAIAAeYwDQYJKoZIhvcNAQEFBQAwRTELMAkGA1UEBhMCVVMxGDAWBgNV
+BAoTD0dURSBDb3Jwb3JhdGlvbjEcMBoGA1UEAxMTR1RFIEN5YmVyVHJ1c3QgUm9vdDAeFw0w
+MTA2MDExMjQ3MDBaFw0wNDA2MDEyMzU5MDBaMIGTMQswCQYDVQQGEwJVUzELMAkGA1UECBMC
+Q0ExFjAUBgNVBAcTDU1vdW50YWluIFZpZXcxGzAZBgNVBAoTEkFtZXJpY2EgT25saW5lIElu
+YzEZMBcGA1UECxMQQU9MIFRlY2hub2xvZ2llczEnMCUGA1UEAxMeSW50cmFuZXQgQ2VydGlm
+aWNhdGUgQXV0aG9yaXR5MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDi718sdkOJSxpf
+s+X4qm+LL4FNZ/+9Sg9jLsTchfaeLEkmIP8AF+SIiGne/YNX4KMRGRGq1ty877PSFS5Uxm58
+v9m5w0bTCQWE5VNcSO2EhZoOOz0WB1zws3mrmhClvMGk0XhMBuVkQfwFJWMm6+8Mx25UoYzO
+VFe2H5LashJLjQIDAQABo4IBgjCCAX4wTQYDVR0fBEYwRDBCoECgPoY8aHR0cDovL3d3dzEu
+dXMtaG9zdGluZy5iYWx0aW1vcmUuY29tL2NnaS1iaW4vQ1JML0dURVJvb3QuY2dpMB0GA1Ud
+DgQWBBQp27Itg35/iyO7wsxmuTnoKfMChjBmBgNVHSAEXzBdMEYGCiqGSIb4YwECAQUwODA2
+BggrBgEFBQcCARYqaHR0cDovL3d3dy5iYWx0aW1vcmUuY29tL0NQUy9PbW5pUm9vdC5odG1s
+MBMGAyoDBDAMMAoGCCsGAQUFBwIBMFgGA1UdIwRRME+hSaRHMEUxCzAJBgNVBAYTAlVTMRgw
+FgYDVQQKEw9HVEUgQ29ycG9yYXRpb24xHDAaBgNVBAMTE0dURSBDeWJlclRydXN0IFJvb3SC
+AgGjMCsGA1UdEAQkMCKADzIwMDEwNjAxMTI0NzMwWoEPMjAwMzA5MDEyMzU5MDBaMA4GA1Ud
+DwEB/wQEAwIBBjAPBgNVHRMECDAGAQH/AgEBMA0GCSqGSIb3DQEBBQUAA4GBAEpiDtn6RncE
+CmwN3f7SIjmZEAquiC2GPVeE5hIkN2n7WV7iEbD5n6RXhoppHwZj0X3uMzZJECAPH5cXLCds
+PWw5BHviReiHG1S2YEFtHa4F8535OjSa43trTHH466grg7A1kEwZaHHt8GMiXsJb7CB6tbBR
+c+kH7oFndnlT95XUMIID+DCCA2GgAwIBAgICbfowDQYJKoZIhvcNAQEFBQAwgZMxCzAJBgNV
+BAYTAlVTMQswCQYDVQQIEwJDQTEWMBQGA1UEBxMNTW91bnRhaW4gVmlldzEbMBkGA1UEChMS
+QW1lcmljYSBPbmxpbmUgSW5jMRkwFwYDVQQLExBBT0wgVGVjaG5vbG9naWVzMScwJQYDVQQD
+Ex5JbnRyYW5ldCBDZXJ0aWZpY2F0ZSBBdXRob3JpdHkwHhcNMDMwNjAzMDA1NjI3WhcNMDMx
+MTMwMDA1NjI3WjB9MQswCQYDVQQGEwJVUzEbMBkGA1UEChMSQW1lcmljYSBPbmxpbmUgSW5j
+MRcwFQYKCZImiZPyLGQBARMHamdteWVyczEjMCEGCSqGSIb3DQEJARYUamdteWVyc0BuZXRz
+Y2FwZS5jb20xEzARBgNVBAMTCkpvaG4gTXllcnMwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJ
+AoGBAK/NyY2CaWvkVG9fLKJvcJauEYngiqm3s4wwDjlMlhbRhRkLqzimtHIKOq3uJj/c6DwL
+f1MhgLZJFDjQwpZO6XDOmmFnFP78G6bH0wd8oGyR309Lx/chgHS9uZqoBWnBa2vQw4KVIPAd
+NNmRhh/29ruE+DdrCUj8de/vyJuGu6QNAgMBAAGjggFuMIIBajAOBgNVHQ8BAf8EBAMCBSAw
+HQYDVR0lBBYwFAYIKwYBBQUHAwIGCCsGAQUFBwMEMEMGCWCGSAGG+EIBDQQ2FjRJc3N1ZWQg
+YnkgTmV0c2NhcGUgQ2VydGlmaWNhdGUgTWFuYWdlbWVudCBTeXN0ZW0gNC41MIGPBgNVHREE
+gYcwgYSBFGpnbXllcnNAbmV0c2NhcGUuY29tgRBqZ215ZXJzQG1jb20uY29tgRNqb2huX215
+ZXJzQG1jb20uY29tgRdqb2huX215ZXJzQG5ldHNjYXBlLmNvbYEXam9obmdteWVyc0BuZXRz
+Y2FwZS5jb22BE2pvaG5nbXllcnNAbWNvbS5jb20wHwYDVR0jBBgwFoAUKduyLYN+f4sju8LM
+Zrk56CnzAoYwQQYIKwYBBQUHAQEENTAzMDEGCCsGAQUFBzABhiVodHRwOi8vY2VydGlmaWNh
+dGVzLm5ldHNjYXBlLmNvbS9vY3NwMA0GCSqGSIb3DQEBBQUAA4GBAFo11Z0i3LS3v79ERUII
+kQw/Of200mw1k4qgUe5+ZCHJCT/NMUGpsVufSQhLHsAxgUtOsQU7Llcgkv2HxSJ0YcI339p1
+fEh6cWL4g8UL/tq6Xgxa9JBDwZ0TXcaOR1Ue+boWazl1O9wAGVZLZbmhpAtK/rR0Xtubw5lL
+eLeJOK5jMIID+TCCA2KgAwIBAgICbfswDQYJKoZIhvcNAQEEBQAwgZMxCzAJBgNVBAYTAlVT
+MQswCQYDVQQIEwJDQTEWMBQGA1UEBxMNTW91bnRhaW4gVmlldzEbMBkGA1UEChMSQW1lcmlj
+YSBPbmxpbmUgSW5jMRkwFwYDVQQLExBBT0wgVGVjaG5vbG9naWVzMScwJQYDVQQDEx5JbnRy
+YW5ldCBDZXJ0aWZpY2F0ZSBBdXRob3JpdHkwHhcNMDMwNjAzMDA1NjI3WhcNMDMxMTMwMDA1
+NjI3WjB9MQswCQYDVQQGEwJVUzEbMBkGA1UEChMSQW1lcmljYSBPbmxpbmUgSW5jMRcwFQYK
+CZImiZPyLGQBARMHamdteWVyczEjMCEGCSqGSIb3DQEJARYUamdteWVyc0BuZXRzY2FwZS5j
+b20xEzARBgNVBAMTCkpvaG4gTXllcnMwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAMcZ
+B138GfG/ZBtJtdSEKALNz7NxibeihURffNrSGi53bXO/jcmBqkdHTCd3tpwmdXGWYkymXO56
+t15Mj1eaq85VcATNhl7O9n8DDjktYgsh8yXptYLfED5BEWtrlaBOPgGpBG11X9YafUMRy2Ki
+mwKcaDvqY7ZTxiA64u9GkuqRAgMBAAGjggFvMIIBazAPBgNVHQ8BAf8EBQMDB4AAMB0GA1Ud
+JQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDBDBDBglghkgBhvhCAQ0ENhY0SXNzdWVkIGJ5IE5l
+dHNjYXBlIENlcnRpZmljYXRlIE1hbmFnZW1lbnQgU3lzdGVtIDQuNTCBjwYDVR0RBIGHMIGE
+gRRqZ215ZXJzQG5ldHNjYXBlLmNvbYEQamdteWVyc0BtY29tLmNvbYETam9obl9teWVyc0Bt
+Y29tLmNvbYEXam9obl9teWVyc0BuZXRzY2FwZS5jb22BF2pvaG5nbXllcnNAbmV0c2NhcGUu
+Y29tgRNqb2huZ215ZXJzQG1jb20uY29tMB8GA1UdIwQYMBaAFCnbsi2Dfn+LI7vCzGa5Oegp
+8wKGMEEGCCsGAQUFBwEBBDUwMzAxBggrBgEFBQcwAYYlaHR0cDovL2NlcnRpZmljYXRlcy5u
+ZXRzY2FwZS5jb20vb2NzcDANBgkqhkiG9w0BAQQFAAOBgQDLhP1VKAUm7V4tbVY4eI/QY1O0
+LahSTyvFj4sF+pAHcRi9rXVnOYCvGKDS3cRxkraJnwKbrtUeCTlkt207yaqHkXNPGMEXK5a/
+Zq/woS11zjrri3vDkykfF/VfSKsaa0E6GJ0lrC6/IdZsdXCHd3SmuuC3X+Gq2uVRytDh5bl/
+UTGCA1QwggNQAgEBMIGaMIGTMQswCQYDVQQGEwJVUzELMAkGA1UECBMCQ0ExFjAUBgNVBAcT
+DU1vdW50YWluIFZpZXcxGzAZBgNVBAoTEkFtZXJpY2EgT25saW5lIEluYzEZMBcGA1UECxMQ
+QU9MIFRlY2hub2xvZ2llczEnMCUGA1UEAxMeSW50cmFuZXQgQ2VydGlmaWNhdGUgQXV0aG9y
+aXR5AgJt+zAJBgUrDgMCGgUAoIICDzAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcBMBwGCSqG
+SIb3DQEJBTEPFw0wMzA2MTkwMDMzMjdaMCMGCSqGSIb3DQEJBDEWBBTFnYHqtXznxZzX5Dz8
+PN4pDKix4zBSBgkqhkiG9w0BCQ8xRTBDMAoGCCqGSIb3DQMHMA4GCCqGSIb3DQMCAgIAgDAN
+BggqhkiG9w0DAgIBQDAHBgUrDgMCBzANBggqhkiG9w0DAgIBKDCBqwYJKwYBBAGCNxAEMYGd
+MIGaMIGTMQswCQYDVQQGEwJVUzELMAkGA1UECBMCQ0ExFjAUBgNVBAcTDU1vdW50YWluIFZp
+ZXcxGzAZBgNVBAoTEkFtZXJpY2EgT25saW5lIEluYzEZMBcGA1UECxMQQU9MIFRlY2hub2xv
+Z2llczEnMCUGA1UEAxMeSW50cmFuZXQgQ2VydGlmaWNhdGUgQXV0aG9yaXR5AgJt+jCBrQYL
+KoZIhvcNAQkQAgsxgZ2ggZowgZMxCzAJBgNVBAYTAlVTMQswCQYDVQQIEwJDQTEWMBQGA1UE
+BxMNTW91bnRhaW4gVmlldzEbMBkGA1UEChMSQW1lcmljYSBPbmxpbmUgSW5jMRkwFwYDVQQL
+ExBBT0wgVGVjaG5vbG9naWVzMScwJQYDVQQDEx5JbnRyYW5ldCBDZXJ0aWZpY2F0ZSBBdXRo
+b3JpdHkCAm36MA0GCSqGSIb3DQEBAQUABIGAXtQOh0X/1Bxje1HQ8XZV/ppdSIEbDGJvzk/k
+ejRqV8XjINOCVY6X0HdNB023dqn+00gbfpoMD9I2FJA1UdL2/Ipzn32urwGPEPc3KT2VyRTA
+/ZId5rUgSp4BTl0VqhaqKJKdqOP8erDzdo+ogNaH968q/roCt4FuPFnOp46rrKIAAAAAAAA=
+--------------ms050402000706080507070403--
 

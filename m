@@ -1,84 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262117AbVAYVGS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262137AbVAYVGV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262117AbVAYVGS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 16:06:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262137AbVAYVEV
+	id S262137AbVAYVGV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 16:06:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262132AbVAYVDs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 16:04:21 -0500
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:17883 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S262128AbVAYU7P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 15:59:15 -0500
-Message-ID: <41F6B32C.7020203@comcast.net>
-Date: Tue, 25 Jan 2005 15:59:24 -0500
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041211)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Valdis.Kletnieks@vt.edu
-CC: dtor_core@ameritech.net, Linus Torvalds <torvalds@osdl.org>,
-       Bill Davidsen <davidsen@tmr.com>,
-       Arjan van de Ven <arjan@infradead.org>, Ingo Molnar <mingo@elte.hu>,
-       Christoph Hellwig <hch@infradead.org>, Dave Jones <davej@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, marcelo.tosatti@cyclades.com,
-       Greg KH <greg@kroah.com>, chrisw@osdl.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: thoughts on kernel security issues
-References: <1106157152.6310.171.camel@laptopd505.fenrus.org> <200501191947.j0JJlf3j024206@turing-police.cc.vt.edu> <41F6604B.4090905@tmr.com> <Pine.LNX.4.58.0501250741210.2342@ppc970.osdl.org> <41F6816D.1020306@tmr.com> <41F68975.8010405@comcast.net> <Pine.LNX.4.58.0501251025510.2342@ppc970.osdl.org> <41F691D6.8040803@comcast.net> <d120d50005012510571d77338d@mail.gmail.com>            <41F6A45D.1000804@comcast.net> <200501252053.j0PKr3G4022890@turing-police.cc.vt.edu>
-In-Reply-To: <200501252053.j0PKr3G4022890@turing-police.cc.vt.edu>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
+	Tue, 25 Jan 2005 16:03:48 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:19606 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262117AbVAYU7u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 15:59:50 -0500
+Subject: Re: ATI drivers working under realtime-preempt linux
+From: Lee Revell <rlrevell@joe-job.com>
+To: John Gilbert <jgilbert@biomail.ucsd.edu>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <41F5CF5D.4060807@biomail.ucsd.edu>
+References: <41F5CF5D.4060807@biomail.ucsd.edu>
+Content-Type: text/plain
+Date: Tue, 25 Jan 2005 15:59:46 -0500
+Message-Id: <1106686786.10845.58.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Mon, 2005-01-24 at 20:47 -0800, John Gilbert wrote:
+> Xv isn't supported. DRI isn't supported.
+> ATI (and NVIDIA) should be all over the hard-realtime kernel, as this 
+> has the potential of making video and games frame accurate (never 
+> missing frames, no page tears).
+> The documentation from Linux user's web pages are better than ATI's.
+> 
+> Making this work should have been someone at ATI's job, not mine. I'm 
+> working blind here.
 
+Be patient, this stuff is very new and vendors are rightfully
+conservative.  They are probably just waiting for the development to
+settle down a bit before committing resources to supporting the RT
+kernel.
 
+Once some distros start to offer the RT kernel as an option I would
+expect a lot of interest from hardware vendors as it really allows the
+hardware pushed to its limits.  For example pro audio interfaces are
+heavily marketed based on the lowest achievable latency, this will let
+them put better numbers on the box, and will probably improve Linux
+support a lot, because the marketing will have to be "FooAudio5000, now
+featuring 0.6 ms*** usable latency (***Linux RT kernel required, 2.6 ms
+under Windows/MacOS)" :-).
 
-Valdis.Kletnieks@vt.edu wrote:
-> On Tue, 25 Jan 2005 14:56:13 EST, John Richard Moser said:
-> 
-> 
->>This puts pressure on the attacker; he has to find a bug, write an
->>exploit, and find an opportunity to use it before a patch is written and
->>applied to fix the exploit.  If say 80% of exploits are suddenly
->>non-exploitable, then he's left with mostly very short windows that are
->>far and few, and thus may be beyond his level of UNION(task->skill,
->>task->luck) in many cases.
-> 
-> 
-> Correct.
-> 
-> 
-> 
->>If you can circumvent protection A by simply using attack B* to disable
->>protection A to do more interesting attack A*, then protection A is
->>smoke and mirrors. 
-> 
-> 
-> You however missed an important case here.  If attack B is outside 
-> UNTION(task->skill,  task->luck) protection A is *NOT* smoke-and-mirrors.
-> 
-> And for the *vast* majority of attackers, if they have a canned exploit for
-> A and it doesn't work, they'll be stuck because B is outside their ability.
+Lee
 
-Yes, true; but someone wrote that canned exploit for them, so the actual
-exploit writers will just adapt.  Those attackers I don't think write
-their own exploits normally :)
-
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFB9rMqhDd4aOud5P8RAgXBAJ9vOzRSZUsxmFOo9W7fROhfq1IBvgCcCINx
-gTiTNm44vp/hlygaPTdy9UM=
-=tDcw
------END PGP SIGNATURE-----

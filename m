@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293110AbSBWHed>; Sat, 23 Feb 2002 02:34:33 -0500
+	id <S293112AbSBWICv>; Sat, 23 Feb 2002 03:02:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293111AbSBWHeX>; Sat, 23 Feb 2002 02:34:23 -0500
-Received: from ns.suse.de ([213.95.15.193]:41989 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S293110AbSBWHeR>;
-	Sat, 23 Feb 2002 02:34:17 -0500
-Date: Sat, 23 Feb 2002 08:34:16 +0100
-From: Andi Kleen <ak@suse.de>
-To: harish.vasudeva@amd.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Need some help with IP/TCP Checksum Offload
-Message-ID: <20020223083416.A22421@wotan.suse.de>
-In-Reply-To: <CB35231B9D59D311B18600508B0EDF2F04F280E6@caexmta9.amd.com>
+	id <S293113AbSBWICl>; Sat, 23 Feb 2002 03:02:41 -0500
+Received: from 198.216-123-194-0.interbaun.com ([216.123.194.198]:41744 "EHLO
+	mail.harddata.com") by vger.kernel.org with ESMTP
+	id <S293112AbSBWIC0>; Sat, 23 Feb 2002 03:02:26 -0500
+Date: Sat, 23 Feb 2002 01:02:22 -0700
+From: Michal Jaegermann <michal@harddata.com>
+To: linux-kernel@vger.kernel.org
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: 2.4.18-rc4 does not boot
+Message-ID: <20020223010222.A5681@mail.harddata.com>
+In-Reply-To: <20020222190538.A3819@mail.harddata.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CB35231B9D59D311B18600508B0EDF2F04F280E6@caexmta9.amd.com>
-User-Agent: Mutt/1.3.22.1i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020222190538.A3819@mail.harddata.com>; from michal@harddata.com on Fri, Feb 22, 2002 at 07:05:38PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 22, 2002 at 02:57:22PM -0800, harish.vasudeva@amd.com wrote:
-> Hi All,
+On Fri, Feb 22, 2002 at 07:05:38PM -0700, Michal Jaegermann wrote:
+> On Monday, Feb 18, I posted a message that 2.4.18-pre9-ac4
+> fails to boot on my machine with
 > 
->  I am trying to offload checksum calculation to my hardware. What i am doing in my driver (kernel 2.4.6) is :
+> FAT: bogus logical sector size 0
+> FAT: bogus logical sector size 0
+> Kernel panic: VFS: Unable to mount root fs on 03:00
 > 
->  dev->features = NETIF_F_IP_CHECKSUM;
-> 
->  Then, in my start_xmit( ) routine, i am parsing for the right headers & when i get the IP/TCP header, i print out the checksum & it is already the right checksum. When does the OS/Protocol offload this task? Am i missing something here?
+> messages.  2.4.18-rc1, and many different kernels, do not have
+> troubles of that sort.  Tonight I found to my dismay that the
+> same trouble afflicted 2.4.18-rc4.  No, I do not know why this
+> happens; at least at this moment.
 
-For TX the checksum is only offloaded when you set and support NETIF_F_SG 
-as well.  Otherwise the stack has to copy anyways and can compute the 
-checksum during the copy operation.  Then with NETIF_F_SG the TX checksumming
-will only be used with sendfile(), because that is the only way to do zero 
-copy for now.
+Well, I still do not know the answer; when I started to investigate it
+decided to work and I am running it right now.  Bootloader not in a
+mood?  Quite possible.  Boot commands used with 2.4.18-rc1 and
+2.4.18-rc4 differ by one character (more precisely, a digit :-).  Sorry
+for a premature alarm.
 
-For RX you should set skb->ip_summed and skb->csum. The hardware checksum
-is more useful in this case. 
+BTW - I noticed that although I wrote that Monday I failed to mention
+this in the message quoted.  The machine is Alpha (Nautilus).
 
--Andi
+  Michal

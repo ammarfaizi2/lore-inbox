@@ -1,79 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131833AbRC0X7y>; Tue, 27 Mar 2001 18:59:54 -0500
+	id <S131958AbRC1Wh4>; Wed, 28 Mar 2001 17:37:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131889AbRC0X7s>; Tue, 27 Mar 2001 18:59:48 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:7436 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S131833AbRC0X7f>; Tue, 27 Mar 2001 18:59:35 -0500
-Date: Tue, 27 Mar 2001 15:57:51 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andre Hedrick <andre@linux-ide.org>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "H. Peter Anvin" <hpa@transmeta.com>,
-        <Andries.Brouwer@cwi.nl>, <linux-kernel@vger.kernel.org>,
-        <tytso@MIT.EDU>
-Subject: Re: Larger dev_t
-In-Reply-To: <Pine.LNX.4.10.10103271359590.17821-100000@master.linux-ide.org>
-Message-ID: <Pine.LNX.4.31.0103271545500.25282-100000@penguin.transmeta.com>
+	id <S132049AbRC1Whf>; Wed, 28 Mar 2001 17:37:35 -0500
+Received: from [206.163.176.10] ([206.163.176.10]:61677 "EHLO clavin.efn.org")
+	by vger.kernel.org with ESMTP id <S131958AbRC1Wha>;
+	Wed, 28 Mar 2001 17:37:30 -0500
+From: Steve VanDevender <stevev@efn.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15042.26433.784057.674954@tzadkiel.efn.org>
+Date: Wed, 28 Mar 2001 14:35:45 -0800
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: menuconfig snafu?
+In-Reply-To: <5.0.0.25.0.20010328172409.020619e0@mail.etinc.com>
+In-Reply-To: <5.0.0.25.0.20010328141605.02ebe0c0@mail.etinc.com>
+	<5.0.0.25.0.20010328172409.020619e0@mail.etinc.com>
+X-Mailer: VM 6.92 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dennis writes:
+ > I KNOW this..my point is that menuconfig is not intuitive in providing the 
+ > choices.
 
-
-On Tue, 27 Mar 2001, Andre Hedrick wrote:
->
-> Am I hearing you state you want dynamic device points and dynamic majors?
-
-Yes and no.
-
-We need static structures for user space - from a user perspective it
-makes a ton more sense to say "I want to see all disks" than it does to
-know that you have to do /dev/hd*, /dev/sd* plus all the extra magic
-combinations that can happen (USB etc).
-
-So in a sense what I'm arguing for is for _stricter_ device numbers to the
-outside world.
-
-But internally, it would be reasonably easy to make a mapping from those
-user-visible numbers to a much looser version.
-
-One example of this is going to happen very early in 2.5.x: the whole
-"partitioning" stuff is going to go away from the driver, and into the
-ll_rw_block layer as just another disk re-mapping thing. We already do
-those kinds of re-mappings for LVM reasons anyway, and partitioning is not
-something a disk driver should know about, really.
-
-And that kind of partitioning mapping automatically means that we'd need
-to remap minor numbers, and do it on a per-major basis (because the
-partitioning mapping right now is not actually the same between SCSI and
-IDE: IDE uses six bits of partitioning, while SCSI uses just four bits).
-And once you do that, you might as well start "remapping" major numbers
-too.
-
-So let's say that you have two separate SCSI controllers - they would both
-show up on major #8, and different minor numbers. Right now, for example,
-controller 1 might have one disk, with minors 0-15 (for the whole disk and
-15 partitions), and controller 2 might have two disks using minors 16-47.
-
-As it stands now, the SCSI layer needs to do the remapping, and because
-the SCSI layer does the remapping, nothing but SCSI layer devices can use
-major #8.
-
-But once you start doing partition mapping in ll_rw_block.c, you might as
-well get rid of the notion that "SCSI is major 8". You could easily have
-many different drivers, with many different queues, and remap them all to
-have major 8 (and different minors) so that it looks simple for a user
-that just wants to see SCSI disks.
-
-Which is not to say that the same disk might not show up somewhere else
-too, if anybody wants it to. The _driver_ should just know "unit x on
-queue y", and then the driver might do whatever it wants (it might be, for
-example, that the driver actually wants to show multiple controllers as
-one queue, if the driver really wants to for some reason). And it should
-be possible to have two drivers that really have no idea at ALL about each
-other to just share the same major numbers.
-
-			Linus
+Linux kernel configuration isn't intuitive.  menuconfig isn't there to
+handhold newbies through the process.
 

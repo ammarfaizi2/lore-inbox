@@ -1,50 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318128AbSFTGfQ>; Thu, 20 Jun 2002 02:35:16 -0400
+	id <S318130AbSFTG3i>; Thu, 20 Jun 2002 02:29:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318131AbSFTGfP>; Thu, 20 Jun 2002 02:35:15 -0400
-Received: from netfinity.realnet.co.sz ([196.28.7.2]:15072 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S318128AbSFTGfO>; Thu, 20 Jun 2002 02:35:14 -0400
-Date: Thu, 20 Jun 2002 08:07:09 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: zwane@netfinity.realnet.co.sz
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: (2.5.23) buffer layer error at buffer.c:2326
-In-Reply-To: <3D10E358.D82DB604@zip.com.au>
-Message-ID: <Pine.LNX.4.44.0206200804210.1263-100000@netfinity.realnet.co.sz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318131AbSFTG3i>; Thu, 20 Jun 2002 02:29:38 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:25456 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S318130AbSFTG3h>; Thu, 20 Jun 2002 02:29:37 -0400
+Date: Thu, 20 Jun 2002 08:30:49 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19pre10aa3
+Message-ID: <20020620063049.GA10718@dualathlon.random>
+References: <20020620055933.GA1308@dualathlon.random> <20020619.230454.111974636.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020619.230454.111974636.davem@redhat.com>
+User-Agent: Mutt/1.3.27i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 19 Jun 2002, Andrew Morton wrote:
-
-> Zwane Mwaikambo wrote:
-> > 
-> > The ide drive holding the mounted filesystem dropped out of DMA and then
-> > spewed the following a number of times. Anyone interested?
-> > 
-> >  buffer layer error at buffer.c:2326
+On Wed, Jun 19, 2002 at 11:04:54PM -0700, David S. Miller wrote:
+>    From: Andrea Arcangeli <andrea@suse.de>
+>    Date: Thu, 20 Jun 2002 07:59:33 +0200
 > 
-> So we had a non-uptodate buffer against an uptodate page.  Were
-> there any other messages in the logs?  I'd have expected a
-> "buffer IO error" to come out first?
+>    Also not yet sure if DaveM is ok with the removal of
+>    prepare_to_switch, his last comment on that is negative as far I
+>    could see.
+> 
+> Ingo's stuff is perfectly fine, it was a brain fart
+> wrt. prepare_to_switch.
 
-end_request: I/O error, dev 03:00, sector 180247
-Buffer I/O error on device ide0(3,1), logical block 90123
-EXT3-fs error (device ide0(3,1)): ext3_get_inode_loc: unable to read inode block - inode=22484, block=90123
-EXT3-fs error (device ide0(3,1)) in ext3_reserve_inode_write: IO failure
-EXT3-fs error (device ide0(3,1)) in ext3_new_inode: IO failure
-hda: ide_dma_intr: status=0x51 [ drive ready seek complete error ] 
-hda: ide_dma_intr: error=0x40 [ uncorrectable error ] , CHS=181/11/14, sector=180247
+Ok, thanks for the info. prepare_arch_switch looked in the same place,
+but just in case. :)
 
-Yep i got em all.
-
-Cheers,
-	Zwane Mwaikambo
--- 
-http://function.linuxpower.ca
-		
-
+Andrea

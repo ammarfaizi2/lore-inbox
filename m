@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315345AbSEBSO3>; Thu, 2 May 2002 14:14:29 -0400
+	id <S314964AbSEBS0N>; Thu, 2 May 2002 14:26:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315346AbSEBSO2>; Thu, 2 May 2002 14:14:28 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:21518 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S315345AbSEBSO1>; Thu, 2 May 2002 14:14:27 -0400
-Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel
-To: dalecki@evision-ventures.com (Martin Dalecki)
-Date: Thu, 2 May 2002 19:33:06 +0100 (BST)
-Cc: arjanv@redhat.com (Arjan van de Ven),
-        rgooch@ras.ucalgary.ca (Richard Gooch), linux-kernel@vger.kernel.org
-In-Reply-To: <3CD16F03.9090900@evision-ventures.com> from "Martin Dalecki" at May 02, 2002 06:53:23 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S315227AbSEBS0M>; Thu, 2 May 2002 14:26:12 -0400
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:12811 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S314964AbSEBS0L>; Thu, 2 May 2002 14:26:11 -0400
+Message-ID: <3CD184BB.ED7F349F@linux-m68k.org>
+Date: Thu, 02 May 2002 20:26:03 +0200
+From: Roman Zippel <zippel@linux-m68k.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Daniel Phillips <phillips@bonn-fries.net>
+CC: Andrea Arcangeli <andrea@suse.de>, Ralf Baechle <ralf@uni-koblenz.de>,
+        Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: discontiguous memory platforms
+In-Reply-To: <Pine.LNX.4.21.0205021539460.23113-100000@serv> <E172umC-0001zd-00@starship> <3CD17DCE.B7DB465D@linux-m68k.org> <E172yOR-00026G-00@starship>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E173LO6-0004Wm-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> And then think about the fact that they are able to even *patch*
-> running kernels. There is no way I can be convinced that the whole
-> versioning stuff is neccessary or a good design for any purpose.
+Hi,
 
-I wouldnt pick Solaris as an example. A long time ago they fixed a bug
-in the streams code I found that let anyone reconfigure networking. It was
-fixed in a day then not released for a year. It cost Sun a lot because
-several customers wisely asked why it hadn't been fixed and went with
-other products. To this day Sun has never explained officially why it took
-a year to fix but I've been informed off the record by sun people I trust
-that it was because it broke their module abi so had to be held over for
-the next release
+Daniel Phillips wrote:
 
-Now I don't actually give a hoot whether you implement the module binding
-via /proc/kernel.so and C++ like mangling hacks or the _R stuff we do now
-but don't confuse the Linux approach of putting a few million users before
-a few binary module ISV's with the Solaris one.
+> > Most of the time there are only a few nodes, I just don't know where and
+> > how big they are, so I don't think a hash based approach will be a lot
+> > faster. When I'm going to change this, I'd rather try the dynamic table
+> > approach.
+> 
+> Which dynamic table approach is that?
 
-Alan
+I mean calculating the lookup table and patching the kernel at startup.
+Anyway, I agree with Andrea, that another mapping isn't really needed.
+Clever use of the mmu should give you almost the same result.
+
+bye, Roman

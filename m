@@ -1,70 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261638AbUFQSnc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261682AbUFQSjz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261638AbUFQSnc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 14:43:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261786AbUFQSkr
+	id S261682AbUFQSjz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 14:39:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261668AbUFQSjd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 14:40:47 -0400
-Received: from mail1.webmaster.com ([216.152.64.168]:50955 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP id S261763AbUFQSg6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 14:36:58 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: <miller@techsource.com>
-Cc: <oliver@neukum.org>, <erikharrison@gmail.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: RE: more files with licenses that aren't GPL-compatible
-Date: Thu, 17 Jun 2004 11:35:54 -0700
-Message-ID: <MDEHLPKNGKAHNMBLJOLKKEAAMLAA.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <40D1A606.7000701@techsource.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2120
-Importance: Normal
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Thu, 17 Jun 2004 11:13:46 -0700
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Thu, 17 Jun 2004 11:13:47 -0700
+	Thu, 17 Jun 2004 14:39:33 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:2824 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261682AbUFQSgG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jun 2004 14:36:06 -0400
+Date: Thu, 17 Jun 2004 11:01:41 -0700
+Message-Id: <200406171801.i5HI1fgo016484@fire-2.osdl.org>
+From: bugme-daemon@osdl.org
+To: rmk@arm.linux.org.uk
+Subject: [Bug 2906] New: PCMCIA IDE device appears twice
+X-Bugzilla-Reason: AssignedTo
+X-Bugzilla-Category: Drivers
+X-Bugzilla-Component: PCMCIA
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+http://bugme.osdl.org/show_bug.cgi?id=2906
 
-> David Schwartz wrote:
-
-> > First, this says, "any work", it's not limited to code. It
-> > says, "in whole
-> > or in part contains or is derived from the Program" -- a binary
-> > of the Linux
-> > kernel is clearly derived from the Linux kernel source. And it says
-> > "licensed *as a whole* ... under the terms of *this* license".
-
-> Ok, so this means that the given binary table which represents the
-> firmware is forced to be under a GPL license.  Let's also say, for the
-> circumstances, that what amounts to a hex dump is the "preferred form"
-> of the firmware.
-
-> Does that make everyone happy?
-
-	That would satisfy me.
-
-> Then get the vendor the say that "the binary form of the firmware" can
-> be converted to GPL as necessary.
->
-> Now, this may open them up to reverse engineering, but so what.
-
-	This would mean that they would have to permit people to modify the
-firmware, reverse engineer the firmware, and use the firmware with other
-products.
-
-	DS
+           Summary: PCMCIA IDE device appears twice
+    Kernel Version: 2.6.6, 2.6.7
+            Status: NEW
+          Severity: normal
+             Owner: rmk@arm.linux.org.uk
+         Submitter: hadmut@danisch.de
 
 
+Distribution: Debian
+Hardware Environment: Dell Inspiron 3800
+Software Environment:
+Problem Description:
+
+When I insert a CompactFlash-PCMCIA adapter
+with a CompactFlash card, two harddisk
+devices appear:
+
+- the hotplug systems registers
+  /block/hde and /block/hde1
+
+- the cardmgr then executes
+  ./ide start hde
+
+- the hotplug system then registers
+  /block/hdf and /block/hdf1
+
+
+hde, hde1, hdf and hdf1 appear in the devfs:
+
+apollo# ls -lF /dev/hd[ef]*
+lr-xr-xr-x    1 root     root           32 2004-06-17 19:55 /dev/hde ->
+ide/host2/bus0/target0/lun0/disc
+lr-xr-xr-x    1 root     root           33 2004-06-17 19:55 /dev/hde1 ->
+ide/host2/bus0/target0/lun0/part1
+lr-xr-xr-x    1 root     root           32 2004-06-17 19:55 /dev/hdf ->
+ide/host2/bus0/target1/lun0/disc
+lr-xr-xr-x    1 root     root           33 2004-06-17 19:55 /dev/hdf1 ->
+ide/host2/bus0/target1/lun0/part1
+
+
+apollo# ls -lF /sys/block/hd[ef]/device
+lrwxrwxrwx    1 root     root           22 2004-06-17 19:55
+/sys/block/hde/device -> ../../devices/ide2/2.0/
+lrwxrwxrwx    1 root     root           22 2004-06-17 19:55
+/sys/block/hdf/device -> ../../devices/ide2/2.1/
+
+
+
+
+regards
+Hadmut
+
+------- You are receiving this mail because: -------
+You are the assignee for the bug, or are watching the assignee.

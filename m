@@ -1,72 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266210AbUFYFvv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266218AbUFYGJ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266210AbUFYFvv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jun 2004 01:51:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266211AbUFYFvv
+	id S266218AbUFYGJ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jun 2004 02:09:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266219AbUFYGJ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jun 2004 01:51:51 -0400
-Received: from everest.2mbit.com ([24.123.221.2]:57519 "EHLO mail.sosdg.org")
-	by vger.kernel.org with ESMTP id S266210AbUFYFvt (ORCPT
+	Fri, 25 Jun 2004 02:09:28 -0400
+Received: from havoc.gtf.org ([216.162.42.101]:25540 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S266218AbUFYGJ0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jun 2004 01:51:49 -0400
-Message-ID: <40DBBD54.8090303@greatcn.org>
-Date: Fri, 25 Jun 2004 13:51:16 +0800
-From: Coywolf Qi Hunt <coywolf@greatcn.org>
-User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-References: <20040624014655.5d2a4bfb.akpm@osdl.org> <40DAE44D.2000305@greatcn.org>
-In-Reply-To: <40DAE44D.2000305@greatcn.org>
-X-Scan-Signature: e39eceae6eb4554774934c39b07fdc9c
-X-SA-Exim-Connect-IP: 218.24.168.201
-X-SA-Exim-Mail-From: coywolf@greatcn.org
-Subject: [PATCH] (2.6.7-mm2) kbuild distclean srctree fix ii
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Report: * -4.9 BAYES_00 BODY: Bayesian spam probability is 0 to 1%
-	*      [score: 0.0000]
-	*  3.0 RCVD_IN_AHBL_CNKR RBL: AHBL: sender is listed in the AHBL China/Korea blocks
-	*      [218.24.168.201 listed in cnkrbl.ahbl.org]
-X-SA-Exim-Version: 4.0 (built Wed, 05 May 2004 12:02:20 -0500)
+	Fri, 25 Jun 2004 02:09:26 -0400
+Date: Fri, 25 Jun 2004 02:09:24 -0400
+From: David Eger <eger@havoc.gtf.org>
+To: linux-kernel@vger.kernel.org, akpm@osdl.org, benh@kernel.crashing.org
+Subject: [PATCH] abs()/ppc build breakage fix
+Message-ID: <20040625060924.GA9307@havoc.gtf.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Andrew,
+(Fix against current 2.6.7-bk)
 
-You've changed a wrong line.  There's several ``@find . 
-$(RCS_FIND_IGNORE)'' in Makefile.
-You want the line about 24 lines below. Please apply this patch to 
-re-fix it.
-http://greatcn.org/~coywolf/patches/2.6/kbuild-distclean-srctree-fix-ii.patch
+include/linux/kernel.h now has abs() as a preprocessor macro.
+This breaks some of the ppc build, as other headers define abs() 
+as a function.  This patch fixes it for me.
 
-     coywolf
-===============================================================
+-dte
 
---- linux-2.6.7-mm2/Makefile	2004-06-24 22:16:08.000000000 -0500
-+++ linux-2.6.7-mm2-cy/Makefile	2004-06-25 00:13:55.885753597 -0500
-@@ -866,7 +866,7 @@ $(clean-dirs):
- clean: archclean $(clean-dirs)
- 	$(call cmd,rmdirs)
- 	$(call cmd,rmfiles)
--	 @find $(srctree) $(RCS_FIND_IGNORE) \
-+	 @find . $(RCS_FIND_IGNORE) \
- 	 	\( -name '*.[oas]' -o -name '*.ko' -o -name '.*.cmd' \
- 		-o -name '.*.d' -o -name '.*.tmp' -o -name '*.mod.c' \) \
- 		-type f -print | xargs rm -f
-@@ -890,7 +890,7 @@ mrproper: clean archmrproper $(mrproper-
- .PHONY: distclean
+
+diff -Nru a/arch/ppc/kernel/ppc_ksyms.c b/arch/ppc/kernel/ppc_ksyms.c
+--- a/arch/ppc/kernel/ppc_ksyms.c	2004-06-18 08:41:08 +02:00
++++ b/arch/ppc/kernel/ppc_ksyms.c	2004-06-25 07:39:50 +02:00
+@@ -68,7 +68,6 @@
+ long long __ashrdi3(long long, int);
+ long long __ashldi3(long long, int);
+ long long __lshrdi3(long long, int);
+-int abs(int);
  
- distclean: mrproper
--	@find . $(RCS_FIND_IGNORE) \
-+	@find $(srctree) $(RCS_FIND_IGNORE) \
- 	 	\( -name '*.orig' -o -name '*.rej' -o -name '*~' \
- 		-o -name '*.bak' -o -name '#*#' -o -name '.*.orig' \
- 	 	-o -name '.*.rej' -o -size 0 \
-
-
--- 
-Coywolf Qi Hunt
-Admin of http://GreatCN.org and http://LoveCN.org
-
+ extern unsigned long mm_ptov (unsigned long paddr);
+ 
+@@ -275,8 +274,6 @@
+ EXPORT_SYMBOL(memscan);
+ EXPORT_SYMBOL(memcmp);
+ EXPORT_SYMBOL(memchr);
+-
+-EXPORT_SYMBOL(abs);
+ 
+ #if defined(CONFIG_FB_VGA16_MODULE)
+ EXPORT_SYMBOL(screen_info);
+diff -Nru a/include/asm-ppc/system.h b/include/asm-ppc/system.h
+--- a/include/asm-ppc/system.h	2004-06-18 08:41:08 +02:00
++++ b/include/asm-ppc/system.h	2004-06-25 07:35:12 +02:00
+@@ -82,7 +82,6 @@
+ extern void cvt_fd(float *from, double *to, unsigned long *fpscr);
+ extern void cvt_df(double *from, float *to, unsigned long *fpscr);
+ extern int call_rtas(const char *, int, int, unsigned long *, ...);
+-extern int abs(int);
+ extern void cacheable_memzero(void *p, unsigned int nb);
+ extern int do_page_fault(struct pt_regs *, unsigned long, unsigned long);
+ extern void bad_page_fault(struct pt_regs *, unsigned long, int);

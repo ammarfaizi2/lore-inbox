@@ -1,61 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263205AbUCYPVS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 10:21:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263204AbUCYPVS
+	id S263204AbUCYPXs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 10:23:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263211AbUCYPXs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 10:21:18 -0500
-Received: from smtp-out.girce.epro.fr ([195.6.195.146]:19799 "EHLO
-	srvsec3.girce.epro.fr") by vger.kernel.org with ESMTP
-	id S263205AbUCYPU7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 10:20:59 -0500
-Message-ID: <138101c4127c$ba50f910$3cc8a8c0@epro.dom>
-From: "Colin Leroy" <colin@colino.net>
-To: "Alan Stern" <stern@rowland.harvard.edu>
-Cc: <linux-kernel@vger.kernel.org>, <linux-usb-devel@lists.sf.net>
-References: <Pine.LNX.4.44L0.0403250936480.1023-100000@ida.rowland.org>
-Subject: Re: [linux-usb-devel] Re: [OOPS] reproducible oops with 2.6.5-rc2-bk3
-Date: Thu, 25 Mar 2004 16:20:38 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Thu, 25 Mar 2004 10:23:48 -0500
+Received: from ztxmail05.ztx.compaq.com ([161.114.1.209]:50694 "EHLO
+	ztxmail05.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id S263204AbUCYPXk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Mar 2004 10:23:40 -0500
+Date: Thu, 25 Mar 2004 09:36:31 -0600
+From: mikem@beardog.cca.cpqcorp.net
+To: axboe@suse.de
+Cc: linux-kernel@vger.kernel.org
+Subject: cciss updates [1 of 2]
+Message-ID: <20040325153631.GA4456@beardog.cca.cpqcorp.net>
+Reply-To: mike.miller@hp.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Please consider this change for inclusion in the 2.4 kernel.
 
-> That's right.  However, the oops you saw shouldn't happen so long as
-> intf->cur_altsetting points to something valid.  I got the impression
-that
-> in the cdc-acm probe routine maybe it was a null pointer.
+This change is required to support the new MSA30 storage enclosure.
+If you do a SCSI inquiry to a SATA disk bad things happen. This patch prevents 
+the inquiry from going to SATA disks.
 
-Yes, i think so too.
-
-> Can you insert
-> a statement in the cdc-acm probe function to print out the values of
-ifcom
-> and ifdata, to check that they aren't NULL?
-
-Already done, that's what helped me find this was related to altsettings
-stuff. I didn't check to see if cur_altsetting was null, but a dev_dbg()
-at the beginnning of the function was appearing, and not the dev_dbg() I
-had put after this block.
-
-> > I'm not sure the change in cdc-acm (which no longer uses index 0
-> > altsetting) is correct. Or is this another bug in my phone (motorola
-C350)
-> > which should be handled differently than other cdc-acm devices ?
->
-> It's hard to say without more information.  The contents of
-> /proc/bus/usb/devices or the output of lsusb with the phone plugged in
-> would help.
-
-Ok, I'll try to do that tonight.
--- 
-Colin
-
+ cciss_scsi.c |    2 ++
+ 1 files changed, 2 insertions(+)
+------------------------------------------------------------------------------
+diff -burN lx2425.orig/drivers/block/cciss_scsi.c lx2425/drivers/block/cciss_scsi.c
+--- lx2425.orig/drivers/block/cciss_scsi.c	2003-11-28 12:26:19.000000000 -0600
++++ lx2425/drivers/block/cciss_scsi.c	2004-03-04 10:21:33.000000000 -0600
+@@ -589,6 +589,8 @@
+ 
+ 	for(i=0; i<num_luns; i++) {
+ 		/* Execute an inquiry to figure the device type */
++		/* Skip over masked devices */
++		if (ld_buff->LUN[i][3] & 0xC0) continue;
+ 		memset(inq_buff, 0, sizeof(InquiryData_struct));
+ 		memcpy(scsi3addr, ld_buff->LUN[i], 8); /* ugly... */
+ 		return_code = sendcmd(CISS_INQUIRY, cntl_num, inq_buff,

@@ -1,60 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262108AbTHTRYR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 13:24:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262124AbTHTRYQ
+	id S262091AbTHTRRZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 13:17:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262092AbTHTRRZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 13:24:16 -0400
-Received: from mailhost.tue.nl ([131.155.2.7]:10765 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S262108AbTHTRYM (ORCPT
+	Wed, 20 Aug 2003 13:17:25 -0400
+Received: from havoc.gtf.org ([63.247.75.124]:10369 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S262091AbTHTRRQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 13:24:12 -0400
-Date: Wed, 20 Aug 2003 19:24:09 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Ulrich Drepper <drepper@redhat.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: NFS regression in 2.6
-Message-ID: <20030820192409.A2868@pclin040.win.tue.nl>
-References: <3F4268C1.9040608@redhat.com> <shszni499e9.fsf@charged.uio.no>
+	Wed, 20 Aug 2003 13:17:16 -0400
+Date: Wed, 20 Aug 2003 13:17:13 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: M?ns Rullg?rd <mru@users.sourceforge.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: how to turn off, or to clear read cache?
+Message-ID: <20030820171713.GA21822@gtf.org>
+References: <200308201322.h7KDMQga000797@81-2-122-30.bradfords.org.uk> <3F437646.4050107@gamic.com> <yw1x8ypocv63.fsf@users.sourceforge.net> <20030820164949.GA5613@lsd.di.uminho.pt> <yw1xptj0b72s.fsf@users.sourceforge.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <shszni499e9.fsf@charged.uio.no>; from trond.myklebust@fys.uio.no on Tue, Aug 19, 2003 at 10:37:50PM -0700
+In-Reply-To: <yw1xptj0b72s.fsf@users.sourceforge.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 19, 2003 at 10:37:50PM -0700, Trond Myklebust wrote:
-> >>>>> " " == Ulrich Drepper <drepper@redhat.com> writes:
+On Wed, Aug 20, 2003 at 06:57:15PM +0200, M?ns Rullg?rd wrote:
+> Luciano Miguel Ferreira Rocha <luciano@lsd.di.uminho.pt> writes:
+> > Will it clear the cache?
 > 
->      > The result is always, 100% of the time, a failure in ftruncate.
->      > The kernel reports ESTALE.  This has not been a problem in 2.4
->      > and not even in 2.6 until <mumble> months ago.  And of course
->      > it works with local disks.
+> It will probably clear some cache to make room for cache from hda.
 > 
-> There are known bugs in the way we handle readdirplus. That's why it
-> only hits NFSv3. Does the following patch fix it?
+> perl -e '@f[0..100000000]=0'
+> 
+> will do it faster.
 
-> +out_zap_parent:
-> +	nfs_zap_caches(dir);
+Using fillmem will do it better :)
 
-I don't think it will. My analysis of yesterday night was:
-- no silly rename is done
-- this is because d_count equals 1
-- this is because we have two different dentries for the same file
-- this is caused by the fragment
-
-        /* If we're doing an exclusive create, optimize away the lookup */
-        if (nfs_is_exclusive_create(dir, nd))
-                return NULL;
-
-in nfs/dir.c.
-Do you agree?
-
-Andries
+	Jeff
 
 
-[but I do not understand all details yet]
-[may look at it again this evening if you don't tell us what happens]
 
+
+/* fillmem.c usage: "fillmem <number-of-megabytes>" */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <string.h>
+
+#define MEGS 140	/* default; override on command line */
+#define MEG (1024 * 1024)
+
+int main (int argc, char *argv[])
+{
+	void **data;
+	int i, r;
+	size_t megs = MEGS;
+
+	if ((argc >= 2) && (atoi(argv[1]) > 0))
+		megs = atoi(argv[1]);
+
+	data = malloc (megs * sizeof (void*));
+	if (!data) abort();
+
+	memset (data, 0, megs * sizeof (void*));
+
+	srand(time(NULL));
+
+	for (i = 0; i < megs; i++) {
+		data[i] = malloc(MEG);
+		memset (data[i], i, MEG);
+		printf("malloc/memset %03d/%03lu\n", i+1, megs);
+	}
+	for (i = megs - 1; i >= 0; i--) {
+		r = rand() % 200;
+		memset (data[i], r, MEG);
+		printf("memset #2 %03d/%03lu = %d\n", i+1, megs, r);
+	}
+	printf("done\n");
+	return 0;
+}

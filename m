@@ -1,19 +1,20 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279381AbRJWLdm>; Tue, 23 Oct 2001 07:33:42 -0400
+	id <S279378AbRJWLgM>; Tue, 23 Oct 2001 07:36:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279380AbRJWLdc>; Tue, 23 Oct 2001 07:33:32 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:44043 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S279378AbRJWLda>;
-	Tue, 23 Oct 2001 07:33:30 -0400
-Date: Tue, 23 Oct 2001 09:33:41 -0200 (BRST)
+	id <S279384AbRJWLgC>; Tue, 23 Oct 2001 07:36:02 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:54027 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S279380AbRJWLft>;
+	Tue, 23 Oct 2001 07:35:49 -0400
+Date: Tue, 23 Oct 2001 09:36:04 -0200 (BRST)
 From: Rik van Riel <riel@conectiva.com.br>
 X-X-Sender: <riel@imladris.surriel.com>
-To: safemode <safemode@speakeasy.net>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: time tells all about kernel VM's
-In-Reply-To: <20011023030353Z279218-17408+3723@vger.kernel.org>
-Message-ID: <Pine.LNX.4.33L.0110230933000.3690-100000@imladris.surriel.com>
+To: Cort Dougan <cort@fsmlabs.com>
+Cc: Nicholas Knight <tegeran@home.com>, <drevil@warpcore.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.13-pre6 breaks Nvidia's kernel module
+In-Reply-To: <20011022230631.A976@ftsoj.fsmlabs.com>
+Message-ID: <Pine.LNX.4.33L.0110230935280.3690-100000@imladris.surriel.com>
 X-spambait: aardvark@kernelnewbies.org
 X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
@@ -21,18 +22,14 @@ Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 Oct 2001, safemode wrote:
+On Mon, 22 Oct 2001, Cort Dougan wrote:
 
-> A.  OOM did not kick in and kill kghostview.  Why you may ask?  Read on to B.
-> B.  ....  So what
-> happens is that the kernel cant swap because the hdd io is being strangled by
-> the process that's going out of control (kghostview) which means that the VM
-> is stuck doing this redistribution at a snails pace and the OOM situation
-> never occurs
+> If the binary only module in question sticks with the "published
+> interface" (as is required) isn't it a problem in Linux then?
 
-> I see this as a pretty serious bug
-
-Fully agreed. Fixes are welcome.
+1) there is no published interface, except in source code
+2) we have no idea which parts of the code the nvidia
+   driver "sticks with", since it's binary-only
 
 Rik
 -- 

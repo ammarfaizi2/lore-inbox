@@ -1,42 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272703AbRIGPEP>; Fri, 7 Sep 2001 11:04:15 -0400
+	id <S272702AbRIGPIp>; Fri, 7 Sep 2001 11:08:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272702AbRIGPEF>; Fri, 7 Sep 2001 11:04:05 -0400
-Received: from mx2.port.ru ([194.67.57.12]:55818 "EHLO smtp2.port.ru")
-	by vger.kernel.org with ESMTP id <S272701AbRIGPEA>;
-	Fri, 7 Sep 2001 11:04:00 -0400
-From: Samium Gromoff <_deepfire@mail.ru>
-Message-Id: <200109071926.f87JQ9l06082@vegae.deep.net>
-Subject: Recent kernels sound crash  solution found?
-To: alan@lxorguk.ukuu.org.uk
-Date: Fri, 7 Sep 2001 19:26:08 +0000 (UTC)
-Cc: linux-kernel@vger.kernel.org
+	id <S272704AbRIGPIf>; Fri, 7 Sep 2001 11:08:35 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:36359 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S272702AbRIGPIQ>; Fri, 7 Sep 2001 11:08:16 -0400
+Subject: Re: hamachi (GNIC-II) and 2.4.9-ac9
+To: lpz@ciit.y12.doe.gov (Lawrence MacIntyre)
+Date: Fri, 7 Sep 2001 16:12:26 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
+In-Reply-To: <3B98E111.B1251D12@ciit.y12.doe.gov> from "Lawrence MacIntyre" at Sep 07, 2001 11:00:34 AM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15fNIw-0001pz-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-         Hello folks, seems that i found the potential bug which
-    led to the infinite trace i`ve described before.
+> except that the hamachi won't work.  ifconfig shows no packets received,
+> but some errors, there are no strange messages in /var/log/messages.  I
+> then built the same kernel on the intel box, and the same thing
 
-   Facts:
-       1. My host have 24M of RAM and on kernels 2.4.x;x>7 it  started
-   to have n-order alloc failures.
-       2. In very rare circumsistances under 2.4.8-ac12 i have
-   1-order alloc failures.
-       3. sound_alloc_dmap::dmabuf.c comments states it will loop
-   until the buffer is alloced
-       4. sound_alloc_dmap::dmabuf.c comments states it wont accept buffer
-   lesser than 8k in size.
+Curious. There are no hamachi driver differences between 2.4.9 and 2.4.9-ac
+so the obvious question is which was the last version it did work ?
 
-   Logic:
-      3 + 4 => it loops forever when 1-order alloc fails
-      1 + 2 + 3 + 4 => my host crashes
-
-      * comment to point 2: very rare circumcistances includes
-   that some time should pass to fragment memory
-
-cheers, Sam 

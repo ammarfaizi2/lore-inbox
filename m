@@ -1,56 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261397AbVAMU05@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261347AbVAMUXJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261397AbVAMU05 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 15:26:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261519AbVAMUXi
+	id S261347AbVAMUXJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 15:23:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261663AbVAMUCu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 15:23:38 -0500
-Received: from one.firstfloor.org ([213.235.205.2]:57539 "EHLO
-	one.firstfloor.org") by vger.kernel.org with ESMTP id S261383AbVAMTik
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 14:38:40 -0500
-To: sander@humilis.net
-Cc: "Sergey S. Kostyliov" <rathamahata@ehouse.ru>,
-       linux-kernel@vger.kernel.org
-Subject: Re: NUMA or not on dual Opteron
-References: <Pine.LNX.4.58.0501112100250.2373@ppc970.osdl.org>
-	<200501121824.44327.rathamahata@ehouse.ru>
-	<Pine.LNX.4.58.0501120730490.2373@ppc970.osdl.org>
-	<20050113094537.GB2547@favonius>
-From: Andi Kleen <ak@muc.de>
-Date: Thu, 13 Jan 2005 20:38:33 +0100
-In-Reply-To: <20050113094537.GB2547@favonius> (sander@humilis.net's message
- of "Thu, 13 Jan 2005 10:45:37 +0100")
-Message-ID: <m1sm552k7a.fsf@muc.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
+	Thu, 13 Jan 2005 15:02:50 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:29875 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261469AbVAMUAb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 15:00:31 -0500
+Date: Thu, 13 Jan 2005 14:59:02 -0500
+From: Dave Jones <davej@redhat.com>
+To: Christoph Hellwig <hch@infradead.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       grendel@caudium.net, Linus Torvalds <torvalds@osdl.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Greg KH <greg@kroah.com>, Chris Wright <chrisw@osdl.org>, akpm@osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: thoughts on kernel security issues
+Message-ID: <20050113195901.GB3555@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Christoph Hellwig <hch@infradead.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, grendel@caudium.net,
+	Linus Torvalds <torvalds@osdl.org>,
+	Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+	Greg KH <greg@kroah.com>, Chris Wright <chrisw@osdl.org>,
+	akpm@osdl.org,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20050112161227.GF32024@logos.cnet> <Pine.LNX.4.58.0501121148240.2310@ppc970.osdl.org> <20050112205350.GM24518@redhat.com> <Pine.LNX.4.58.0501121750470.2310@ppc970.osdl.org> <20050113032506.GB1212@redhat.com> <20050113035331.GC9176@beowulf.thanes.org> <1105627951.4664.32.camel@localhost.localdomain> <20050113192512.GA27607@infradead.org> <20050113193356.GA3555@redhat.com> <20050113193524.GA27785@infradead.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050113193524.GA27785@infradead.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sander <sander@humilis.net> writes:
 
-> Linus Torvalds wrote (ao):
->> On Wed, 12 Jan 2005, Sergey S. Kostyliov wrote:
->> > 2.6.10-rc1 hangs at boot stage for my dual opteron machine
->> 
->> Oops, yes. There's some recent NUMA breakage - either disable
->> CONFIG_NUMA, or apply the patches that Andi Kleen just posted on the
->> mailing list (the second option much preferred, just to verify that
->> yes, that does fix it).
->
-> I was under the impression that NUMA is useful on > 2-way systems only.
-> Is this true, and if not, under what circumstances is NUMA useful on
-> 2-way Opteron systems?
 
-I don't know who gave you this impression, but it's wrong. Using a
-NUMA aware kernel is an advantage under many workloads on a 2way
-Opteron system. 
+ > >  > > 2.6.9 for example went out with known holes and broken AX.25 (known) 
+ > >  > > 2.6.10 went out with the known holes mostly fixed but memory corrupting
+ > >  > > bugs, AX.25 still broken and the wrong fix applied for the smb holes so
+ > >  > > SMB doesn't work on it
+ > >  > XFS on 2.6.10 does work.
+ > 
+ > freudian typo, should have been smbfs as it should be obvious for the
+ > context I replied to.
 
->
-> In other words: why should one want NUMA to be enabled or disabled for
-> dual Opteron?
+The smbfs breakage depended on what server you were using it seemed.
+For a lot of folks it broke horribly.
 
-Because it is faster.
+ > > Depends on your definition of 'work'.
+ > > It oopses under load with NFS very easily,
+ > Do you have a bugreport?
 
--Andi
+There are number of XFS related issues in Red Hat bugzilla.
+As its not something we actively support, they've not got a lot
+of attention. Some of them are quite old (dating back to 2.6.6 or so)
+so may already have got fixed.
+
+We've also seen a few reports on Fedora mailing lists.
+
+		Dave
+

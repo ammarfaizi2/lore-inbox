@@ -1,170 +1,348 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262397AbSJEQJJ>; Sat, 5 Oct 2002 12:09:09 -0400
+	id <S262395AbSJEQJD>; Sat, 5 Oct 2002 12:09:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262398AbSJEQJJ>; Sat, 5 Oct 2002 12:09:09 -0400
-Received: from tristate.vision.ee ([194.204.30.144]:44227 "HELO vision.ee")
-	by vger.kernel.org with SMTP id <S262397AbSJEQJC> convert rfc822-to-8bit;
-	Sat, 5 Oct 2002 12:09:02 -0400
-From: Lenar =?iso-8859-1?q?L=F5hmus?= <lenar@vision.ee>
-Organization: Vision Group LLC
+	id <S262398AbSJEQJD>; Sat, 5 Oct 2002 12:09:03 -0400
+Received: from math.ut.ee ([193.40.5.125]:35798 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id <S262395AbSJEQIz>;
+	Sat, 5 Oct 2002 12:08:55 -0400
+Date: Sat, 5 Oct 2002 19:14:28 +0300 (EEST)
+From: Meelis Roos <mroos@linux.ee>
 To: linux-kernel@vger.kernel.org
-Subject: USB problems with 2.4
-Date: Sat, 5 Oct 2002 19:14:32 +0300
-User-Agent: KMail/1.4.6
+Subject: 2.4.20-pre9: oopses on PPC
+Message-ID: <Pine.GSO.4.44.0210051905030.20309-100000@math.ut.ee>
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200210051914.35873.lenar@vision.ee>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Previous kernels have run well on this machine. Yesterday I compiled
+2.4.20-pre9 and it ran until today. Today I switched from using
+controlfb to using offb and the kernel started to oops on bitkeeper
+operations. This may or may not be related to fb driver change because
+maybe I didn't stress the machine too hard in the last day. But it was
+stable in pre7 or pre8.
 
-Couple of days ago I bought Compaq USB keyboard. Although I find the keyboard quite good 
-(buttons feel awesome) I must say the idea of buying it was not so good after all.
+The oopses, run through ksymoops on the same running kernel, no reboot.
+Looks like PPC oops output does not contain code, so ksymoops complains.
+No idea though why it complains about sunrpc symbols. The kernel is
+still running if anybody needs some additional information.
 
-That's becase I can't get it going under linux correctly. The only way I get it working is in
-Boot Protocol Mode, but anyway - don't like this mode, becase I can't use those extra buttons:(
+ksymoops 2.4.6 on ppc 2.4.20-pre9.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.20-pre9/ (default)
+     -m /boot/System.map-2.4.20-pre9 (default)
 
-Now, I tried it with usb-uhci.o as well as uhci.o. The net result is the same. No working keyboard.
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
 
-Below you find kernel messages related to failure.
+Warning (compare_maps): mismatch on symbol xchg_u32  , ksyms_base says c000b88c, System.map says c0006424.  Ignoring ksyms_base entry
+Warning (compare_maps): mismatch on symbol nlmsvc_ops  , lockd says c8212b0c, /lib/modules/2.4.20-pre9/kernel/fs/lockd/lockd.o says c820500c.  Ignoring /lib/modules/2.4.20-pre9/kernel/fs/lockd/lockd.o entry
+Warning (compare_maps): mismatch on symbol nfs_debug  , sunrpc says c82028e8, /lib/modules/2.4.20-pre9/kernel/net/sunrpc/sunrpc.o says c81f1018.  Ignoring /lib/modules/2.4.20-pre9/kernel/net/sunrpc/sunrpc.o entry
+Warning (compare_maps): mismatch on symbol nfsd_debug  , sunrpc says c82028ec, /lib/modules/2.4.20-pre9/kernel/net/sunrpc/sunrpc.o says c81f101c.  Ignoring /lib/modules/2.4.20-pre9/kernel/net/sunrpc/sunrpc.o entry
+Warning (compare_maps): mismatch on symbol nlm_debug  , sunrpc says c82028f0, /lib/modules/2.4.20-pre9/kernel/net/sunrpc/sunrpc.o says c81f1020.  Ignoring /lib/modules/2.4.20-pre9/kernel/net/sunrpc/sunrpc.o entry
+Warning (compare_maps): mismatch on symbol rpc_debug  , sunrpc says c82028e4, /lib/modules/2.4.20-pre9/kernel/net/sunrpc/sunrpc.o says c81f1014.  Ignoring /lib/modules/2.4.20-pre9/kernel/net/sunrpc/sunrpc.o entry
+Warning (compare_maps): mismatch on symbol packet_socks_nr  , af_packet says c81ecdd4, /lib/modules/2.4.20-pre9/kernel/net/packet/af_packet.o says c81e9004.  Ignoring /lib/modules/2.4.20-pre9/kernel/net/packet/af_packet.o entry
+Warning (compare_maps): mismatch on symbol usb_devfs_handle  , usbcore says c81de720, /lib/modules/2.4.20-pre9/kernel/drivers/usb/usbcore.o says c81cd000.  Ignoring /lib/modules/2.4.20-pre9/kernel/drivers/usb/usbcore.o entry
+Oops: kernel access of bad area, sig: 11
+NIP: C00294D4 XER: 20000000 LR: C0029588 SP: C4823E90 REGS: c4823de0 TRAP: 0300    Not tainted
+Using defaults from ksymoops -t elf32-powerpc -a powerpc:common
+MSR: 00009032 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11
+TASK = c4822000[460] 'bk' Last syscall: 4
+last math c6a8a000 last altivec 00000000
+GPR00: C0029588 C4823E90 C4822000 C4213AE8 000003E5 00000088 C4898314 00000000
+GPR08: 00000000 00000068 C0240000 C04C0000 80808080 10111C54 C4898314 00000000
+GPR16: C4213A88 C4213AA0 C48982F4 C4213AE8 FFFFFFF4 30016000 00001000 00000000
+GPR24: C4213A1C C04CC05C 00001000 000003E5 00000088 C4213AE8 000003E5 00000088
+Call backtrace:
+00000000 C0029588 C002C464 C003AB14 C0003C7C 00000000 0FF209BC
+0FF208C8 0FF20D88 0FF216E4 0FF15F44 1002C75C 10002BCC 100025F4
+0FECAC50 00000000
+Warning (Oops_read): Code line not seen, dumping what data is available
 
-Basically I'm getting lot of 'usb_control/bulk_msg: timeout' messages and no working keyboard.
-I think I got it working one time, but not quite sure about it, because i was quite tired and i haven't 
-been able to reproduce the case. Anyway it happened when I enabled 'long timeout for eclipse
-upses' config option. It gave me some of those timeout messages and then it started to work. 
-After next reboot though - no luck anymore. That time I tried with uhci.o.
 
-Running right now 2.4.20pre8aa2. Please CC me when replying or if you want me to produce 
-some additional information about the case.
+>>NIP; c00294d4 <__find_lock_page_helper+30/d0>   <=====
 
-Lenar
+>>GPR0; c0029588 <__find_lock_page+14/24>
+>>GPR1; c4823e90 <_end+45afdec/7f40f5c>
+>>GPR2; c4822000 <_end+45adf5c/7f40f5c>
+>>GPR3; c4213ae8 <_end+3f9fa44/7f40f5c>
+>>GPR6; c4898314 <_end+4624270/7f40f5c>
+>>GPR10; c0240000 <nvramData+4f44/8000>
+>>GPR11; c04c0000 <_end+24bf5c/7f40f5c>
+>>GPR14; c4898314 <_end+4624270/7f40f5c>
+>>GPR16; c4213a88 <_end+3f9f9e4/7f40f5c>
+>>GPR17; c4213aa0 <_end+3f9f9fc/7f40f5c>
+>>GPR18; c48982f4 <_end+4624250/7f40f5c>
+>>GPR19; c4213ae8 <_end+3f9fa44/7f40f5c>
+>>GPR24; c4213a1c <_end+3f9f978/7f40f5c>
+>>GPR25; c04cc05c <_end+257fb8/7f40f5c>
+>>GPR29; c4213ae8 <_end+3f9fa44/7f40f5c>
 
-Oct  3 18:23:10 horizon kernel: usb-uhci.c: $Revision: 1.275 $ time 18:14:45 Oct  3 2002
-Oct  3 18:23:10 horizon kernel: usb-uhci.c: High bandwidth mode enabled
-Oct  3 18:23:10 horizon kernel: usb-uhci.c: USB UHCI at I/O 0xd800, IRQ 11
-Oct  3 18:23:10 horizon kernel: usb-uhci.c: Detected 2 ports
-Oct  3 18:23:10 horizon kernel: usb.c: new USB bus registered, assigned bus number 1
-Oct  3 18:23:10 horizon kernel: hub.c: USB hub found
-Oct  3 18:23:10 horizon kernel: hub.c: 2 ports detected
-Oct  3 18:23:11 horizon kernel: usb-uhci.c: USB UHCI at I/O 0xdc00, IRQ 11
-Oct  3 18:23:11 horizon kernel: usb-uhci.c: Detected 2 ports
-Oct  3 18:23:11 horizon kernel: usb.c: new USB bus registered, assigned bus number 2
-Oct  3 18:23:11 horizon kernel: hub.c: USB hub found
-Oct  3 18:23:11 horizon kernel: hub.c: 2 ports detected
-Oct  3 18:23:11 horizon kernel: usb-uhci.c: USB UHCI at I/O 0xe000, IRQ 11
-Oct  3 18:23:11 horizon kernel: usb-uhci.c: Detected 2 ports
-Oct  3 18:23:11 horizon kernel: usb.c: new USB bus registered, assigned bus number 3
-Oct  3 18:23:11 horizon kernel: hub.c: USB hub found
-Oct  3 18:23:11 horizon kernel: hub.c: 2 ports detected
-Oct  3 18:23:11 horizon kernel: usb-uhci.c: v1.275:USB Universal Host Controller Interface driver
-Oct  3 18:23:11 horizon kernel: hub.c: new USB device 00:11.2-1, assigned address 2
-Oct  3 18:23:11 horizon kernel: Manufacturer: Logitech
-Oct  3 18:23:11 horizon kernel: Product: USB Mouse
-Oct  3 18:23:11 horizon kernel: usb.c: USB device 2 (vend/prod 0x46d/0xc00c) is not claimed by any active driver.
-Oct  3 18:23:11 horizon kernel:   Length              = 18
-Oct  3 18:23:11 horizon kernel:   DescriptorType      = 01
-Oct  3 18:23:11 horizon kernel:   USB version         = 1.10
-Oct  3 18:23:11 horizon kernel:   Vendor:Product      = 046d:c00c
-Oct  3 18:23:11 horizon kernel:   MaxPacketSize0      = 8
-Oct  3 18:23:11 horizon kernel:   NumConfigurations   = 1
-Oct  3 18:23:11 horizon kernel:   Device version      = 6.20
-Oct  3 18:23:11 horizon kernel:   Device Class:SubClass:Protocol = 00:00:00
-Oct  3 18:23:11 horizon kernel:     Per-interface classes
-Oct  3 18:23:11 horizon kernel: Configuration:
-Oct  3 18:23:11 horizon kernel:   bLength             =    9
-Oct  3 18:23:11 horizon kernel:   bDescriptorType     =   02
-Oct  3 18:23:11 horizon kernel:   wTotalLength        = 0022
-Oct  3 18:23:11 horizon kernel:   bNumInterfaces      =   01
-Oct  3 18:23:11 horizon kernel:   bConfigurationValue =   01
-Oct  3 18:23:11 horizon kernel:   iConfiguration      =   00
-Oct  3 18:23:11 horizon kernel:   bmAttributes        =   a0
-Oct  3 18:23:11 horizon kernel:   MaxPower            =  100mA
-Oct  3 18:23:11 horizon kernel:
-Oct  3 18:23:11 horizon kernel:   Interface: 0
-Oct  3 18:23:11 horizon kernel:   Alternate Setting:  0
-Oct  3 18:23:11 horizon kernel:     bLength             =    9
-Oct  3 18:23:11 horizon kernel:     bDescriptorType     =   04
-Oct  3 18:23:11 horizon kernel:     bInterfaceNumber    =   00
-Oct  3 18:23:11 horizon kernel:     bAlternateSetting   =   00
-Oct  3 18:23:11 horizon kernel:     bNumEndpoints       =   01
-Oct  3 18:23:11 horizon kernel:     bInterface Class:SubClass:Protocol =   03:01:02
-Oct  3 18:23:11 horizon kernel:     iInterface          =   00
-Oct  3 18:23:11 horizon kernel:     Endpoint:
-Oct  3 18:23:11 horizon kernel:       bLength             =    7
-Oct  3 18:23:11 horizon kernel:       bDescriptorType     =   05
-Oct  3 18:23:11 horizon kernel:       bEndpointAddress    =   81 (in)
-Oct  3 18:23:11 horizon kernel:       bmAttributes        =   03 (Interrupt)
-Oct  3 18:23:11 horizon kernel:       wMaxPacketSize      = 0004
-Oct  3 18:23:11 horizon kernel:       bInterval           =   0a
-Oct  3 18:23:12 horizon kernel: hub.c: new USB device 00:11.2-2, assigned address 3
-Oct  3 18:23:12 horizon kernel: mice: PS/2 mouse device common for all mice
-Oct  3 18:23:12 horizon kernel: Manufacturer: Compaq
-Oct  3 18:23:12 horizon kernel: Product: Compaq Internet Keyboard
-Oct  3 18:23:12 horizon kernel: usb.c: USB device 3 (vend/prod 0x49f/0xe) is not claimed by any active driver.
-Oct  3 18:23:12 horizon kernel:   Length              = 18
-Oct  3 18:23:12 horizon kernel:   DescriptorType      = 01
-Oct  3 18:23:12 horizon kernel:   USB version         = 1.10
-Oct  3 18:23:12 horizon kernel:   Vendor:Product      = 049f:000e
-Oct  3 18:23:12 horizon kernel:   MaxPacketSize0      = 8
-Oct  3 18:23:12 horizon kernel:   NumConfigurations   = 1
-Oct  3 18:23:12 horizon kernel:   Device version      = 1.00
-Oct  3 18:23:12 horizon kernel:   Device Class:SubClass:Protocol = 00:00:00
-Oct  3 18:23:12 horizon kernel:     Per-interface classes
-Oct  3 18:23:12 horizon kernel: Configuration:
-Oct  3 18:23:12 horizon kernel:   bLength             =    9
-Oct  3 18:23:12 horizon kernel:   bDescriptorType     =   02
-Oct  3 18:23:12 horizon kernel:   wTotalLength        = 003b
-Oct  3 18:23:12 horizon kernel:   bNumInterfaces      =   02
-Oct  3 18:23:12 horizon kernel:   bConfigurationValue =   01
-Oct  3 18:23:12 horizon kernel:   iConfiguration      =   02
-Oct  3 18:23:12 horizon kernel:   bmAttributes        =   a0
-Oct  3 18:23:12 horizon kernel:   MaxPower            =   50mA
-Oct  3 18:23:12 horizon kernel:
-Oct  3 18:23:12 horizon kernel:   Interface: 0
-Oct  3 18:23:12 horizon kernel:   Alternate Setting:  0
-Oct  3 18:23:12 horizon kernel:     bLength             =    9
-Oct  3 18:23:12 horizon kernel:     bDescriptorType     =   04
-Oct  3 18:23:12 horizon kernel:     bInterfaceNumber    =   00
-Oct  3 18:23:12 horizon kernel:     bAlternateSetting   =   00
-Oct  3 18:23:12 horizon kernel:     bNumEndpoints       =   01
-Oct  3 18:23:12 horizon kernel:     bInterface Class:SubClass:Protocol =   03:01:01
-Oct  3 18:23:12 horizon kernel:     iInterface          =   03
-Oct  3 18:23:12 horizon kernel:     Endpoint:
-Oct  3 18:23:12 horizon kernel:       bLength             =    7
-Oct  3 18:23:12 horizon kernel:       bDescriptorType     =   05
-Oct  3 18:23:12 horizon kernel:       bEndpointAddress    =   81 (in)
-Oct  3 18:23:12 horizon kernel:       bmAttributes        =   03 (Interrupt)
-Oct  3 18:23:12 horizon kernel:       wMaxPacketSize      = 0008
-Oct  3 18:23:12 horizon kernel:       bInterval           =   18
-Oct  3 18:23:12 horizon kernel:
-Oct  3 18:23:12 horizon kernel:   Interface: 1
-Oct  3 18:23:12 horizon kernel:   Alternate Setting:  0
-Oct  3 18:23:12 horizon kernel:     bLength             =    9
-Oct  3 18:23:12 horizon kernel:     bDescriptorType     =   04
-Oct  3 18:23:12 horizon kernel:     bInterfaceNumber    =   01
-Oct  3 18:23:12 horizon kernel:     bAlternateSetting   =   00
-Oct  3 18:23:12 horizon kernel:     bNumEndpoints       =   01
-Oct  3 18:23:12 horizon kernel:     bInterface Class:SubClass:Protocol =   03:01:00
-Oct  3 18:23:12 horizon kernel:     iInterface          =   04
-Oct  3 18:23:12 horizon kernel:     Endpoint:
-Oct  3 18:23:12 horizon kernel:       bLength             =    7
-Oct  3 18:23:12 horizon kernel:       bDescriptorType     =   05
-Oct  3 18:23:12 horizon kernel:       bEndpointAddress    =   82 (in)
-Oct  3 18:23:12 horizon kernel:       bmAttributes        =   03 (Interrupt)
-Oct  3 18:23:12 horizon kernel:       wMaxPacketSize      = 0006
-Oct  3 18:23:12 horizon kernel:       bInterval           =   03
-Oct  3 18:23:12 horizon kernel: usb.c: registered new driver hid
-Oct  3 18:23:12 horizon kernel: input0: USB HID v1.10 Mouse [Logitech USB Mouse] on usb1:2.0
-Oct  3 18:23:12 horizon kernel: input1: USB HID v1.00 Keyboard [Compaq Compaq Internet Keyboard] on usb1:3.0
-Oct  3 18:23:12 horizon kernel: usb-uhci.c: interrupt, status 2, frame# 1646
-Oct  3 18:23:12 horizon kernel: usb.c: registered new driver keyboard
-Oct  3 18:23:15 horizon kernel: usb_control/bulk_msg: timeout
-Oct  3 18:23:40 horizon last message repeated 7 times
+Trace; 00000000 Before first symbol
+Trace; c0029588 <__find_lock_page+14/24>
+Trace; c002c464 <generic_file_write+484/828>
+Trace; c003ab14 <sys_write+c8/14c>
+Trace; c0003c7c <ret_from_syscall_1+0/b4>
+Trace; 00000000 Before first symbol
+Trace; 0ff209bc Before first symbol
+Trace; 0ff208c8 Before first symbol
+Trace; 0ff20d88 Before first symbol
+Trace; 0ff216e4 Before first symbol
+Trace; 0ff15f44 Before first symbol
+Trace; 1002c75c Before first symbol
+Trace; 10002bcc Before first symbol
+Trace; 100025f4 Before first symbol
+Trace; 0fecac50 Before first symbol
+Trace; 00000000 Before first symbol
 
+
+10 warnings issued.  Results may not be reliable.
+
+
+ksymoops 2.4.6 on ppc 2.4.20-pre9.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.20-pre9/ (default)
+     -m /boot/System.map-2.4.20-pre9 (default)
+
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
+
+Warning (compare_maps): mismatch on symbol xchg_u32  , ksyms_base says c000b88c, System.map says c0006424.  Ignoring ksyms_base entry
+Warning (compare_maps): mismatch on symbol nlmsvc_ops  , lockd says c8212b0c, /lib/modules/2.4.20-pre9/kernel/fs/lockd/lockd.o says c820500c.  Ignoring /lib/modules/2.4.20-pre9/kernel/fs/lockd/lockd.o entry
+Warning (compare_maps): mismatch on symbol nfs_debug  , sunrpc says c82028e8, /lib/modules/2.4.20-pre9/kernel/net/sunrpc/sunrpc.o says c81f1018.  Ignoring /lib/modules/2.4.20-pre9/kernel/net/sunrpc/sunrpc.o entry
+Warning (compare_maps): mismatch on symbol nfsd_debug  , sunrpc says c82028ec, /lib/modules/2.4.20-pre9/kernel/net/sunrpc/sunrpc.o says c81f101c.  Ignoring /lib/modules/2.4.20-pre9/kernel/net/sunrpc/sunrpc.o entry
+Warning (compare_maps): mismatch on symbol nlm_debug  , sunrpc says c82028f0, /lib/modules/2.4.20-pre9/kernel/net/sunrpc/sunrpc.o says c81f1020.  Ignoring /lib/modules/2.4.20-pre9/kernel/net/sunrpc/sunrpc.o entry
+Warning (compare_maps): mismatch on symbol rpc_debug  , sunrpc says c82028e4, /lib/modules/2.4.20-pre9/kernel/net/sunrpc/sunrpc.o says c81f1014.  Ignoring /lib/modules/2.4.20-pre9/kernel/net/sunrpc/sunrpc.o entry
+Warning (compare_maps): mismatch on symbol packet_socks_nr  , af_packet says c81ecdd4, /lib/modules/2.4.20-pre9/kernel/net/packet/af_packet.o says c81e9004.  Ignoring /lib/modules/2.4.20-pre9/kernel/net/packet/af_packet.o entry
+Warning (compare_maps): mismatch on symbol usb_devfs_handle  , usbcore says c81de720, /lib/modules/2.4.20-pre9/kernel/drivers/usb/usbcore.o says c81cd000.  Ignoring /lib/modules/2.4.20-pre9/kernel/drivers/usb/usbcore.o entry
+Oops: kernel access of bad area, sig: 11
+NIP: C0028DDC XER: 00000000 LR: C0033A4C SP: C04B7E10 REGS: c04b7d60 TRAP: 0300    Not tainted
+Using defaults from ksymoops -t elf32-powerpc -a powerpc:common
+MSR: 00009032 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11
+TASK = c04b6000[4] 'kswapd' Last syscall: -1
+last math c2aba000 last altivec 00000000
+GPR00: C0033A4C C04B7E10 C04B6000 C031EE58 C01C14C8 0003D6C0 C04CC05C C024CCC4
+GPR08: 00000F5B 00000088 C819B000 C0240000 C0240000 10041FBC C3F5E10C 11000000
+GPR16: 00000000 11559000 11000000 C3F5E10C C56612CC 00000015 10C55000 10C49000
+GPR24: FFFFFFFD C020FEDC 00ADF285 C04B7E68 C031EE70 C01C14C8 C031EE58 C031EE58
+Call backtrace:
+C0B75150 C0033A4C C003191C C0031E14 C00320A8 C0032140 C0032298
+C0032320 C00324B0 C00066B8
+Warning (Oops_read): Code line not seen, dumping what data is available
+
+
+>>NIP; c0028ddc <add_to_page_cache_unique+28/d0>   <=====
+
+>>GPR0; c0033a4c <add_to_swap_cache+c4/174>
+>>GPR1; c04b7e10 <_end+243d6c/7f40f5c>
+>>GPR2; c04b6000 <_end+241f5c/7f40f5c>
+>>GPR3; c031ee58 <_end+aadb4/7f40f5c>
+>>GPR4; c01c14c8 <swapper_space+0/34>
+>>GPR6; c04cc05c <_end+257fb8/7f40f5c>
+>>GPR7; c024ccc4 <swap_info+0/700>
+>>GPR10; c819b000 <_end+7f26f5c/7f40f5c>
+>>GPR11; c0240000 <nvramData+4f44/8000>
+>>GPR12; c0240000 <nvramData+4f44/8000>
+>>GPR14; c3f5e10c <_end+3cea068/7f40f5c>
+>>GPR19; c3f5e10c <_end+3cea068/7f40f5c>
+>>GPR20; c56612cc <_end+53ed228/7f40f5c>
+>>GPR25; c020fedc <mem_pieces_print+4/74>
+>>GPR27; c04b7e68 <_end+243dc4/7f40f5c>
+>>GPR28; c031ee70 <_end+aadcc/7f40f5c>
+>>GPR29; c01c14c8 <swapper_space+0/34>
+>>GPR30; c031ee58 <_end+aadb4/7f40f5c>
+>>GPR31; c031ee58 <_end+aadb4/7f40f5c>
+
+Trace; c0b75150 <_end+9010ac/7f40f5c>
+Trace; c0033a4c <add_to_swap_cache+c4/174>
+Trace; c003191c <swap_out+43c/598>
+Trace; c0031e14 <shrink_cache+39c/43c>
+Trace; c00320a8 <shrink_caches+68/ac>
+Trace; c0032140 <try_to_free_pages_zone+54/88>
+Trace; c0032298 <kswapd_balance_pgdat+68/c4>
+Trace; c0032320 <kswapd_balance+2c/58>
+Trace; c00324b0 <kswapd+b8/d0>
+Trace; c00066b8 <kernel_thread+2c/38>
+
+
+10 warnings issued.  Results may not be reliable.
+
+
+
+
+ksymoops 2.4.6 on ppc 2.4.20-pre9.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.20-pre9/ (default)
+     -m /boot/System.map-2.4.20-pre9 (default)
+
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
+
+Warning (compare_maps): mismatch on symbol xchg_u32  , ksyms_base says c000b88c, System.map says c0006424.  Ignoring ksyms_base entry
+Warning (compare_maps): mismatch on symbol nlmsvc_ops  , lockd says c8212b0c, /lib/modules/2.4.20-pre9/kernel/fs/lockd/lockd.o says c820500c.  Ignoring /lib/modules/2.4.20-pre9/kernel/fs/lockd/lockd.o entry
+Warning (compare_maps): mismatch on symbol nfs_debug  , sunrpc says c82028e8, /lib/modules/2.4.20-pre9/kernel/net/sunrpc/sunrpc.o says c81f1018.  Ignoring /lib/modules/2.4.20-pre9/kernel/net/sunrpc/sunrpc.o entry
+Warning (compare_maps): mismatch on symbol nfsd_debug  , sunrpc says c82028ec, /lib/modules/2.4.20-pre9/kernel/net/sunrpc/sunrpc.o says c81f101c.  Ignoring /lib/modules/2.4.20-pre9/kernel/net/sunrpc/sunrpc.o entry
+Warning (compare_maps): mismatch on symbol nlm_debug  , sunrpc says c82028f0, /lib/modules/2.4.20-pre9/kernel/net/sunrpc/sunrpc.o says c81f1020.  Ignoring /lib/modules/2.4.20-pre9/kernel/net/sunrpc/sunrpc.o entry
+Warning (compare_maps): mismatch on symbol rpc_debug  , sunrpc says c82028e4, /lib/modules/2.4.20-pre9/kernel/net/sunrpc/sunrpc.o says c81f1014.  Ignoring /lib/modules/2.4.20-pre9/kernel/net/sunrpc/sunrpc.o entry
+Warning (compare_maps): mismatch on symbol packet_socks_nr  , af_packet says c81ecdd4, /lib/modules/2.4.20-pre9/kernel/net/packet/af_packet.o says c81e9004.  Ignoring /lib/modules/2.4.20-pre9/kernel/net/packet/af_packet.o entry
+Warning (compare_maps): mismatch on symbol usb_devfs_handle  , usbcore says c81de720, /lib/modules/2.4.20-pre9/kernel/drivers/usb/usbcore.o says c81cd000.  Ignoring /lib/modules/2.4.20-pre9/kernel/drivers/usb/usbcore.o entry
+Oops: kernel access of bad area, sig: 11
+NIP: C00294D4 XER: 20000000 LR: C0029588 SP: C3DFBE90 REGS: c3dfbde0 TRAP: 0300    Not tainted
+Using defaults from ksymoops -t elf32-powerpc -a powerpc:common
+MSR: 00009032 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11
+TASK = c3dfa000[530] 'bk' Last syscall: 4
+last math 00000000 last altivec 00000000
+GPR00: C0029588 C3DFBE90 C3DFA000 C4911AE8 000005D7 00000088 C2059794 00000000
+GPR08: 00000000 00000063 C0240000 C04C0000 80808080 10111C54 C2059794 00000000
+GPR16: C4911A88 C4911AA0 C2059774 C4911AE8 FFFFFFF4 30016000 00001000 00000000
+GPR24: C4911A1C C04CC05C 00001000 000005D7 00000088 C4911AE8 000005D7 00000088
+Call backtrace:
+00000000 C0029588 C002C464 C003AB14 C0003C7C 00000000 0FF209BC
+0FF208C8 0FF20D88 0FF216E4 0FF15F44 1002C75C 10002BCC 100025F4
+0FECAC50 00000000
+Warning (Oops_read): Code line not seen, dumping what data is available
+
+
+>>NIP; c00294d4 <__find_lock_page_helper+30/d0>   <=====
+
+>>GPR0; c0029588 <__find_lock_page+14/24>
+>>GPR1; c3dfbe90 <_end+3b87dec/7f40f5c>
+>>GPR2; c3dfa000 <_end+3b85f5c/7f40f5c>
+>>GPR3; c4911ae8 <_end+469da44/7f40f5c>
+>>GPR6; c2059794 <_end+1de56f0/7f40f5c>
+>>GPR10; c0240000 <nvramData+4f44/8000>
+>>GPR11; c04c0000 <_end+24bf5c/7f40f5c>
+>>GPR14; c2059794 <_end+1de56f0/7f40f5c>
+>>GPR16; c4911a88 <_end+469d9e4/7f40f5c>
+>>GPR17; c4911aa0 <_end+469d9fc/7f40f5c>
+>>GPR18; c2059774 <_end+1de56d0/7f40f5c>
+>>GPR19; c4911ae8 <_end+469da44/7f40f5c>
+>>GPR24; c4911a1c <_end+469d978/7f40f5c>
+>>GPR25; c04cc05c <_end+257fb8/7f40f5c>
+>>GPR29; c4911ae8 <_end+469da44/7f40f5c>
+
+Trace; 00000000 Before first symbol
+Trace; c0029588 <__find_lock_page+14/24>
+Trace; c002c464 <generic_file_write+484/828>
+Trace; c003ab14 <sys_write+c8/14c>
+Trace; c0003c7c <ret_from_syscall_1+0/b4>
+Trace; 00000000 Before first symbol
+Trace; 0ff209bc Before first symbol
+Trace; 0ff208c8 Before first symbol
+Trace; 0ff20d88 Before first symbol
+Trace; 0ff216e4 Before first symbol
+Trace; 0ff15f44 Before first symbol
+Trace; 1002c75c Before first symbol
+Trace; 10002bcc Before first symbol
+Trace; 100025f4 Before first symbol
+Trace; 0fecac50 Before first symbol
+Trace; 00000000 Before first symbol
+
+
+10 warnings issued.  Results may not be reliable.
+
+
+
+
+
+
+ksymoops 2.4.6 on ppc 2.4.20-pre9.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.20-pre9/ (default)
+     -m /boot/System.map-2.4.20-pre9 (default)
+
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
+
+Warning (compare_maps): mismatch on symbol xchg_u32  , ksyms_base says c000b88c, System.map says c0006424.  Ignoring ksyms_base entry
+Warning (compare_maps): mismatch on symbol nlmsvc_ops  , lockd says c8212b0c, /lib/modules/2.4.20-pre9/kernel/fs/lockd/lockd.o says c820500c.  Ignoring /lib/modules/2.4.20-pre9/kernel/fs/lockd/lockd.o entry
+Warning (compare_maps): mismatch on symbol nfs_debug  , sunrpc says c82028e8, /lib/modules/2.4.20-pre9/kernel/net/sunrpc/sunrpc.o says c81f1018.  Ignoring /lib/modules/2.4.20-pre9/kernel/net/sunrpc/sunrpc.o entry
+Warning (compare_maps): mismatch on symbol nfsd_debug  , sunrpc says c82028ec, /lib/modules/2.4.20-pre9/kernel/net/sunrpc/sunrpc.o says c81f101c.  Ignoring /lib/modules/2.4.20-pre9/kernel/net/sunrpc/sunrpc.o entry
+Warning (compare_maps): mismatch on symbol nlm_debug  , sunrpc says c82028f0, /lib/modules/2.4.20-pre9/kernel/net/sunrpc/sunrpc.o says c81f1020.  Ignoring /lib/modules/2.4.20-pre9/kernel/net/sunrpc/sunrpc.o entry
+Warning (compare_maps): mismatch on symbol rpc_debug  , sunrpc says c82028e4, /lib/modules/2.4.20-pre9/kernel/net/sunrpc/sunrpc.o says c81f1014.  Ignoring /lib/modules/2.4.20-pre9/kernel/net/sunrpc/sunrpc.o entry
+Warning (compare_maps): mismatch on symbol packet_socks_nr  , af_packet says c81ecdd4, /lib/modules/2.4.20-pre9/kernel/net/packet/af_packet.o says c81e9004.  Ignoring /lib/modules/2.4.20-pre9/kernel/net/packet/af_packet.o entry
+Warning (compare_maps): mismatch on symbol usb_devfs_handle  , usbcore says c81de720, /lib/modules/2.4.20-pre9/kernel/drivers/usb/usbcore.o says c81cd000.  Ignoring /lib/modules/2.4.20-pre9/kernel/drivers/usb/usbcore.o entry
+Oops: kernel access of bad area, sig: 11
+NIP: C00294D4 XER: 20000000 LR: C0029588 SP: C6735E90 REGS: c6735de0 TRAP: 0300    Not tainted
+Using defaults from ksymoops -t elf32-powerpc -a powerpc:common
+MSR: 00009032 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11
+TASK = c6734000[580] 'bk' Last syscall: 4
+last math 00000000 last altivec 00000000
+GPR00: C0029588 C6735E90 C6734000 C0E16110 000001EA 00000088 C16047B4 00000000
+GPR08: 00000000 00000075 C0240000 C04C0000 80808080 10111C54 C16047B4 00000000
+GPR16: C0E160B0 C0E160C8 C1604794 C0E16110 FFFFFFF4 30016000 00001000 00000000
+GPR24: C0E16044 C04CC05C 00001000 000001EA 00000088 C0E16110 000001EA 00000088
+Call backtrace:
+00000000 C0029588 C002C464 C003AB14 C0003C7C 00000000 0FF209BC
+0FF208C8 0FF20D88 0FF216E4 0FF15F44 1002C75C 10002BCC 100025F4
+0FECAC50 00000000
+Warning (Oops_read): Code line not seen, dumping what data is available
+
+
+>>NIP; c00294d4 <__find_lock_page_helper+30/d0>   <=====
+
+>>GPR0; c0029588 <__find_lock_page+14/24>
+>>GPR1; c6735e90 <_end+64c1dec/7f40f5c>
+>>GPR2; c6734000 <_end+64bff5c/7f40f5c>
+>>GPR3; c0e16110 <_end+ba206c/7f40f5c>
+>>GPR6; c16047b4 <_end+1390710/7f40f5c>
+>>GPR10; c0240000 <nvramData+4f44/8000>
+>>GPR11; c04c0000 <_end+24bf5c/7f40f5c>
+>>GPR14; c16047b4 <_end+1390710/7f40f5c>
+>>GPR16; c0e160b0 <_end+ba200c/7f40f5c>
+>>GPR17; c0e160c8 <_end+ba2024/7f40f5c>
+>>GPR18; c1604794 <_end+13906f0/7f40f5c>
+>>GPR19; c0e16110 <_end+ba206c/7f40f5c>
+>>GPR24; c0e16044 <_end+ba1fa0/7f40f5c>
+>>GPR25; c04cc05c <_end+257fb8/7f40f5c>
+>>GPR29; c0e16110 <_end+ba206c/7f40f5c>
+
+Trace; 00000000 Before first symbol
+Trace; c0029588 <__find_lock_page+14/24>
+Trace; c002c464 <generic_file_write+484/828>
+Trace; c003ab14 <sys_write+c8/14c>
+Trace; c0003c7c <ret_from_syscall_1+0/b4>
+Trace; 00000000 Before first symbol
+Trace; 0ff209bc Before first symbol
+Trace; 0ff208c8 Before first symbol
+Trace; 0ff20d88 Before first symbol
+Trace; 0ff216e4 Before first symbol
+Trace; 0ff15f44 Before first symbol
+Trace; 1002c75c Before first symbol
+Trace; 10002bcc Before first symbol
+Trace; 100025f4 Before first symbol
+Trace; 0fecac50 Before first symbol
+Trace; 00000000 Before first symbol
+
+
+10 warnings issued.  Results may not be reliable.
+
+
+-- 
+Meelis Roos (mroos@linux.ee)
 

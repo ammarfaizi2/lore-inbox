@@ -1,44 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292368AbSBYWlz>; Mon, 25 Feb 2002 17:41:55 -0500
+	id <S292370AbSBYWop>; Mon, 25 Feb 2002 17:44:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292370AbSBYWlo>; Mon, 25 Feb 2002 17:41:44 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:18701 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S292375AbSBYWkv>; Mon, 25 Feb 2002 17:40:51 -0500
+	id <S292378AbSBYWnY>; Mon, 25 Feb 2002 17:43:24 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:38661 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S292370AbSBYWl5>; Mon, 25 Feb 2002 17:41:57 -0500
+Subject: Linux 2.2.21pre3
 To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Linux 2.4.18 - Full tarball is OK
-Date: 25 Feb 2002 14:40:31 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <a5eegv$10o$1@cesium.transmeta.com>
-In-Reply-To: <E16fTkG-0006VG-00@the-village.bc.nu> <Pine.LNX.4.33L.0202251931360.7820-100000@imladris.surriel.com>
+Date: Mon, 25 Feb 2002 22:56:42 +0000 (GMT)
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Message-Id: <E16fU30-0006cD-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.LNX.4.33L.0202251931360.7820-100000@imladris.surriel.com>
-By author:    Rik van Riel <riel@conectiva.com.br>
-In newsgroup: linux.dev.kernel
->
-> On Mon, 25 Feb 2002, Alan Cox wrote:
-> 
-> > If so Marcelo can you put up 2.4.18-fixed patch and a borked-fixed diff ?
-> That would break hpa's incremental diff patches.
-> If somebody needs 2.4.18 + fix, they can just run 2.4.18-rc4.
-> 
+This merges the main backlog stuff as a big chunk. There are some small but
+important fixes left for pre4 then I want to aim for a 2.2.21 about March
+10th or so
 
-Since the tarball apparently is OK and it's only the patch that's
-different, just re-create the patch, put it in the proper place, and
-make sure the file date on the patch is different; the incremental
-diff will be regenerated to match.
+2.2.21pre3
+o	Fix a case where a non blocking tty write could	(Peter Benie)
+	get stuck
+o	Fix non blocking midi close on es1370, es1371	(me)
+	sonicvibes right this time 
+o	Fix menu/xconfig warnings			(René Scharfe)
+o	Fix non blocking midi close on cmpci, cs4281,	(me)
+	esssolo, trident.
+o	Add eepro100VE ident				(Hanno Boeck)
+o	Fix DRM oops case				(Herbert Xu)
+o	Fix an oops causing datagram AF_UNIX race	(Paul Menage)
+o	Support newer geodes using new CPUID properly	(Hiroshi Miura)
+o	Fix up RTC build for non pmac ppc boxes		(Tom Rini)
+o	Fix MCE address reporting			(Pete Wyckoff)
+o	Vibra16 docs update				(Neale Banks)
+o	Eicon include file fix				(Herbert Xu)
+o	ISDN loop and header fixes			(Kai Germaschewski)
+o	Fix eepro100 out of memory during init path	(Neale Banks)
+o	Fix BSD partition table handling breakage	(Andries Brouwer)
+o	Add WD XD signature to xd driver		(Paul)
+o	3Ware driver update				(Adam Radford)
+o	S/390 debugging updates				(Carsten Otte)
+o	S/390 DASD updates				(Carsten Otte)
+o	S/390 CIO updates				(Carsten Otte)
+o	Update USB serial, belkin, digi_acceleport,	(Greg Kroah-Hartmann)
+	empeg, ftdsio, edgeport, keyspan, mctu232,
+	omninet, prolific, visor
+o	Cyberjack USB driver				(Matthias Bruestle)
+o	USB ir dongle driver				(Greg Kroah-Hartmann)
+o	Support very large FAT file systems		(Vijay Kumar)
+o	Backport 2.4 modversions build fix		(Mikael Pettersson)
+o	Backport 2.4 es1371 init for new revs		(Julian Anastasov)
+o	3c507 driver fixes				(Mark Mackenzie)
+o	ext2 obscure group descriptor corruption fix	(Daniel Phillips,
+							 Al Viro)
+o	Correct a problem where rpciod didnt give up	(Andreas Haumer)
+	its current dir
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+2.2.21pre2
+o	Fix non blocking midi close on es1370, es1371	(me)
+	sonicvibes
+o	Update osst driver				(Willem Riede)
+o	Update machine check support in 2.2 to match 2.4(Dave Jones)
+o	Additional P4, Rise, Winchip handling for setup	(Dave Jones)
+o	Fix extended MMX initialisation on Cyrix MII	(me)
+o	Backport a lot of x86 setup (cache size etc)	(Dave Jones)
+o	ISDN cleanups					(Kai Germaschewski)
+o	Backport eicon driver fixes			(Kai Germaschewski)
+o	ISDN ppp fixes					(Andre Beck)
+o	Fix timeout handling in eicon driver		(Kai Germaschewski)
+o	Fix null pointer bug in isdnloop		(Kai Germaschewski)
+o	Menuconfig refresh fixup			(Willy Tarreau)
+o	Modular ati frame buffer build fix		(Krzysztof Taraszka)
+o	Backport VIA chipset fixes to 2.2		(me)
+o	Make DCD high->low work on SX16 with CLOCAL set	(Ado Arnolds)
+
+2.2.21pre1
+o	Fix potential corruption with vmalloc on	(Ralf Baechle)
+	virtually cached boxes
+o	Small PPC build fixups				(Tom Rini)
+o	zImage booting fix				(Kalev Soikonen)
+o	EIO on NFS read fixup				(Trond Myklebust)
+o	Update 3ware raid driver			(Adam Radford)
+o	page_alloc race fix				(Andrea Arcangeli)
+o	Update USB maintainers				(Greg Kroah-Hartmann)
+o	bttv clipcount=0 fix				(Solar Designer)
+o	Fix multiple eepro driver bugs			(Aris)
+o	Sym53c8xx queue handling fix			(Gerard Roudier)
+o	Update SubmittingDrivers document		(Michal Svec)
+o	8139too performance tune			(Jens David)
+o	procfs follow link return fix			(Solar Designer)
+o	Backport SEM_UNDO overflow fix from 2.4		(Leonid Igolnik)
+o	VM86 fixes					(Manfred Spraul)
+o	Fix alpha build					(Kim Heino)

@@ -1,76 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261406AbTLAHnl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Dec 2003 02:43:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261812AbTLAHnl
+	id S261812AbTLAHov (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Dec 2003 02:44:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261825AbTLAHov
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Dec 2003 02:43:41 -0500
-Received: from bluejay.broadware.com ([209.219.63.5]:54656 "EHLO
-	bluejay.broadware.com") by vger.kernel.org with ESMTP
-	id S261406AbTLAHnj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Dec 2003 02:43:39 -0500
-Message-ID: <003c01c3b7de$b2f02090$04740718@vaiors410>
-From: "Suman Puthana" <suman@broadware.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: "Suman Puthana" <suman@broadware.com>
-Subject: problem with iowait (disk I/O) in 2.4.21 kernel
-Date: Sun, 30 Nov 2003 23:35:04 -0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Mon, 1 Dec 2003 02:44:51 -0500
+Received: from holomorphy.com ([199.26.172.102]:41416 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S261812AbTLAHor (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Dec 2003 02:44:47 -0500
+Date: Sun, 30 Nov 2003 23:44:45 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: pgcl-2.6.0-test5-bk3-17
+Message-ID: <20031201074445.GH19856@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org
+References: <20031128041558.GW19856@holomorphy.com> <20031128072148.GY8039@holomorphy.com> <20031130164301.GK8039@holomorphy.com> <20031201073632.GQ8039@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031201073632.GQ8039@holomorphy.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Sun, Nov 30, 2003 at 11:36:32PM -0800, William Lee Irwin III wrote:
+> Stack decoding fixes, shutting up some compiler warnings, and dumping
+> PAGE_SIZE and MMUPAGE_SIZE into /proc/meminfo (for lack of a better place).
+> The printk()'s down there should eventually get ripped out anyway for
+> minimal impact and a quieter boot, but until then...
 
-Is anybody aware of any changes in the 2.4.21 kernel which affects disk I/O
-badly?  We are noticing that the cpu taken up by iowait's is causing
-significant degradation in disk performance.
-
-We have an application in which there are multiple processes writing to disk
-simultaneously, each process writing anywhere from 16 - 64 K Bytes at a time
-and sleeping for about 50 ms depending on how long the write() call takes to
-finish. It is important that the write() finishes within 50 ms for this
-application. The file's are opened with the open() call with the standard
-O_RDWR and O_CREAT flags.
-
-On the 2.4.18 kernel, 25 of these processes take up about 15% of CPU on a
-dual Xeon Pentium 4 2.4 GHz processor with 1 MB of memory for a total
-throughput of about 7 MBps which is very good.  The write() calls typically
-take less than 5 ms to complete and we sleep for the remaining 45 ms or so.
-
-But on the same system when we installed the 2.4.21 kernel, these 25
-processes take anywhere between 40 - 70 % of the CPU depending on how  much
-CPU the iowait is taking up. The iowait part of it varies all the way from
-10 - 60 %. (The iowait CPU is within 1% on the 2.4.18 kernel.).  What is
-even worse - sometimes the write() calls take anywhere between 1 - 2
-seconds( yes seconds!) to return, which degrades the performance of our
-application server pretty badly.
-
- It happens on all kinds of storage devices so it's definitely not a
-hardware problem.(We tested on the standard IDE disk all the way upto the
-EMC clariion storage system).
-
-Is this iowait something which was introduced in the 2.4.21 kernel core code
-or in the file system driver code? It definitely happens with jfs, reiserfs
-and also on ext3 though not as badly . Is there a way to turn it off or to
-make it take up lesser CPU?
-
-Any insight or pointers regarding this problem would be greatly
-appreciated.  Thank you for your support.
-
-- Suman Puthana
-
-PS - Something else of interest here is that when the iowait part of the CPU
-increases, iostat shows a significantly  higher throughput than what we are
-actually trying to write to disk. (When sampled over 30 seconds, when we are
-trying to write 7 MBps, iostat actually shows 11-12 MBps when iowait goes
-upto 30-40 %). It's almost like there's some internal copies going on.
+This fixes some bad address calculations in arch/i386/mm/boot_ioremap.c
 
 
+-- wli
 
+
+diff -prauN pgcl-2.6.0-test11-7/arch/i386/mm/boot_ioremap.c pgcl-2.6.0-test11-8/arch/i386/mm/boot_ioremap.c
+--- pgcl-2.6.0-test11-7/arch/i386/mm/boot_ioremap.c	2003-11-26 12:46:12.000000000 -0800
++++ pgcl-2.6.0-test11-8/arch/i386/mm/boot_ioremap.c	2003-11-30 13:07:00.000000000 -0800
+@@ -31,7 +31,7 @@
+ 
+ #define BOOT_PTE_PTRS (PTRS_PER_PTE*2)
+ #define boot_pte_index(address) \
+-	     (((address) >> PAGE_SHIFT) & (BOOT_PTE_PTRS - 1))
++	     (((address) >> MMUPAGE_SHIFT) & (BOOT_PTE_PTRS - 1))
+ 
+ static inline boot_pte_t* boot_vaddr_to_pte(void *address)
+ {
+@@ -52,17 +52,17 @@ static void __boot_ioremap(unsigned long
+ 	char *vaddr = virtual_source;
+ 
+ 	pte = boot_vaddr_to_pte(virtual_source);
+-	for (i=0; i < nrpages; i++, phys_addr += PAGE_SIZE, pte++) {
+-		set_pte(pte, pfn_pte(phys_addr>>PAGE_SHIFT, PAGE_KERNEL));
+-		__flush_tlb_one(&vaddr[i*PAGE_SIZE]);
++	for (i=0; i < nrpages; i++, phys_addr += MMUPAGE_SIZE, pte++) {
++		set_pte(pte, pfn_pte(phys_addr>>MMUPAGE_SHIFT, PAGE_KERNEL));
++		__flush_tlb_one(&vaddr[i*MMUPAGE_SIZE]);
+ 	}
+ }
+ 
+ /* the virtual space we're going to remap comes from this array */
+ #define BOOT_IOREMAP_PAGES 4
+-#define BOOT_IOREMAP_SIZE (BOOT_IOREMAP_PAGES*PAGE_SIZE)
++#define BOOT_IOREMAP_SIZE (BOOT_IOREMAP_PAGES*MMUPAGE_SIZE)
+ __initdata char boot_ioremap_space[BOOT_IOREMAP_SIZE] 
+-		__attribute__ ((aligned (PAGE_SIZE)));
++		__attribute__ ((aligned (MMUPAGE_SIZE)));
+ 
+ /*
+  * This only applies to things which need to ioremap before paging_init()
+@@ -83,11 +83,11 @@ __init void* boot_ioremap(unsigned long 
+ 	last_addr = phys_addr + size - 1;
+ 
+ 	/* page align the requested address */
+-	offset = phys_addr & ~PAGE_MASK;
+-	phys_addr &= PAGE_MASK;
+-	size = PAGE_ALIGN(last_addr) - phys_addr;
++	offset = phys_addr & ~MMUPAGE_MASK;
++	phys_addr &= MMUPAGE_MASK;
++	size = MMUPAGE_ALIGN(last_addr) - phys_addr;
+ 	
+-	nrpages = size >> PAGE_SHIFT;
++	nrpages = size >> MMUPAGE_SHIFT;
+ 	if (nrpages > BOOT_IOREMAP_PAGES)
+ 		return NULL;
+ 	

@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274603AbRIUCgy>; Thu, 20 Sep 2001 22:36:54 -0400
+	id <S272265AbRIUC3o>; Thu, 20 Sep 2001 22:29:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274637AbRIUCgo>; Thu, 20 Sep 2001 22:36:44 -0400
-Received: from johnson.mail.mindspring.net ([207.69.200.177]:21521 "EHLO
-	johnson.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S274603AbRIUCgk>; Thu, 20 Sep 2001 22:36:40 -0400
-Subject: Re: 2.4.9-ac12 weird mc hang
-From: Robert Love <rml@tech9.net>
-To: Samium Gromoff <_deepfire@mail.ru>
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-In-Reply-To: <200109210517.f8L5Hje00537@vegae.deep.net>
-In-Reply-To: <200109210517.f8L5Hje00537@vegae.deep.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Evolution-Format: text/plain
-X-Mailer: Evolution/0.13.99+cvs.2001.09.20.15.42 (Preview Release)
-Date: 20 Sep 2001 22:37:07 -0400
-Message-Id: <1001039831.7291.3.camel@phantasy>
-Mime-Version: 1.0
+	id <S274603AbRIUC3f>; Thu, 20 Sep 2001 22:29:35 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:38921 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S272265AbRIUC3W>; Thu, 20 Sep 2001 22:29:22 -0400
+Date: Thu, 20 Sep 2001 23:29:25 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Roger Larsson <roger.larsson@norran.net>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Oliver Xymoron <oxymoron@waste.org>,
+        Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
+        Stefan Westerfeld <stefan@space.twc.de>, Robert Love <rml@tech9.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Preemption Latency Measurement Tool
+In-Reply-To: <200109210214.f8L2E8R27561@mailg.telia.com>
+Message-ID: <Pine.LNX.4.33L.0109202328200.1548-100000@duckman.distro.conectiva>
+X-supervisor: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2001-09-21 at 01:17, Samium Gromoff wrote:
->         Hello folks ac12-preempt popped with a new issue:
->     strange it is or not, but i cant start mc since it hangs
->   in random places (as strace shows).
->   	Except my thought that its preempt-unrelated there isnt
->   much to add. Btw console losing issues are back... grr... :(
->         Even glibc/mc recompilation seems not to help...
+On Fri, 21 Sep 2001, Roger Larsson wrote:
 
-Please don't send preempt bugs to Alan.  Only if the bug is reproducible
-outside of the preempt patch should Alan see it.  Certainly send it to
-the list, but make sure its marked as such.
+> > > The yield we do in __alloc_pages is it really correct?
 
-You are the third person to report this problem.  The first person had
-the problem go away when he mounted root on a non-ReiserFS partition, so
-I blamed ReiserFS.  The second person had the problem go away when he
-recompiled his kernel without Athlon optimizations.  So I am baffled.
+> > > I have to try...
+>
+> Unexpected result, but interesting.
+> Things got MUCH WORSE!
 
-You aren't using gcc-3, are you?
+Not at all unexpected, this thing has been tested
+extensively in the 2.4.0-test* kernels.
 
--- 
-Robert M. Love
-rml at ufl.edu
-rml at tech9.net
+Is it really so hard to learn from the past if it's
+more than 6 weeks ago ?
+
+regards,
+
+Rik
+--
+IA64: a worthy successor to the i860.
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
 

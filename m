@@ -1,34 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131649AbRAWU4n>; Tue, 23 Jan 2001 15:56:43 -0500
+	id <S129669AbRAWVJy>; Tue, 23 Jan 2001 16:09:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131692AbRAWU4d>; Tue, 23 Jan 2001 15:56:33 -0500
-Received: from dsl.75.131.networkiowa.com ([209.234.75.131]:23561 "EHLO
-	www.sjdjweis.com") by vger.kernel.org with ESMTP id <S131649AbRAWU4V>;
-	Tue, 23 Jan 2001 15:56:21 -0500
-Date: Tue, 23 Jan 2001 19:37:38 -0600 (CST)
-From: David Weis <djweis@sjdjweis.com>
+	id <S129771AbRAWVJp>; Tue, 23 Jan 2001 16:09:45 -0500
+Received: from harpo.it.uu.se ([130.238.12.34]:15610 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S129669AbRAWVJf>;
+	Tue, 23 Jan 2001 16:09:35 -0500
+Date: Tue, 23 Jan 2001 22:09:32 +0100 (MET)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200101232109.WAA14386@harpo.it.uu.se>
 To: linux-kernel@vger.kernel.org
-Subject: changing mac address of eth alias
-Message-ID: <Pine.LNX.4.21.0101231927060.23337-100000@www.sjdjweis.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: [Announce] Version 1.8 of x86 performance counters driver
+Cc: ptools-perfapi@nacse.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Version 1.8 of my x86 performance-monitoring counters driver is
+now available at http://www.csd.uu.se/~mikpe/linux/perfctr/.
 
-what would be required to make the mac address of aliases changable,
-specifically for something like vrrp that shares a mac address among
-machines. 
+Summary:
+Version 1.8, 2001-01-23
+- Added preliminary interrupt-mode support to virtual perfctrs.
+  Currently for P6 only, and the local APIC must have been enabled.
+  Tested on 2.4.0-ac10 with CONFIG_X86_UP_APIC=y.
+  When an i-mode vperfctr interrupts on overflow, the counters are
+  suspended and a user-specified signal is sent to the process. The
+  user's signal handler can read the trap pc from the mmap:ed vperfctr,
+  and should then issue an IRESUME ioctl to restart the counters.
+  The next version will support buffering and automatic restart.
 
-dave
 
--- 
-Dave Weis             "I believe there are more instances of the abridgement
-djweis@sjdjweis.com   of the freedom of the people by gradual and silent
-                      encroachments of those in power than by violent 
-                      and sudden usurpations."- James Madison
-
+/ Mikael Pettersson
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

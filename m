@@ -1,61 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129156AbRDJRFH>; Tue, 10 Apr 2001 13:05:07 -0400
+	id <S129051AbRDJRFS>; Tue, 10 Apr 2001 13:05:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129134AbRDJREr>; Tue, 10 Apr 2001 13:04:47 -0400
-Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:56886 "EHLO
-	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S129051AbRDJREh>; Tue, 10 Apr 2001 13:04:37 -0400
-Date: Tue, 10 Apr 2001 12:04:34 -0500 (CDT)
-From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Message-Id: <200104101704.MAA02175@tomcat.admin.navo.hpc.mil>
-To: kees@schoen.nl, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] exec_via_sudo
-X-Mailer: [XMailTool v3.1.2b]
+	id <S129134AbRDJRFH>; Tue, 10 Apr 2001 13:05:07 -0400
+Received: from smtp1.cern.ch ([137.138.128.38]:10249 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S129051AbRDJREv>;
+	Tue, 10 Apr 2001 13:04:51 -0400
+Date: Tue, 10 Apr 2001 19:04:44 +0200
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: richard offer <offer@sgi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: build -->/usr/src/linux
+Message-ID: <20010410190444.A21024@pcep-jamie.cern.ch>
+In-Reply-To: <20010408161620.A21660@flint.arm.linux.org.uk> <3AD0A029.C17C3EFC@rcn.com> <9aqmgo$8f6ol$1@fido.engr.sgi.com> <10104091601.ZM401478@sgi.com> <20010410160825.A20555@pcep-jamie.cern.ch> <lk@tantalophile.demon.co.uk> <1010410093615.ZM1231@sgi.com> <20010410184237.A20969@pcep-jamie.cern.ch> <lk@tantalophile.demon.co.uk> <1010410095237.ZM1290@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1010410095237.ZM1290@sgi.com>; from offer@sgi.com on Tue, Apr 10, 2001 at 09:52:36AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kees <kees@schoen.nl>:
-> 
-> Hi
-> 
-> Unix/Linux have a lot of daemons that have to run as root because they
-> need to acces some specific data or run special programs. They are
-> vulnerable as we learn.
-> Is there any way to have something like an exec call that is
-> subject to a sudo like permission system? That would run the daemons
-> as a normal user but allow only for specific functions i.e. NOT A SHELL.
-> comments?
+richard offer wrote:
+> What if your application contains some user code and a kernel module ?
+> Want an obvious example ? X.
 
-Simple answer: no.
+VMware is another.  In such cases, they have to do the same as any other
+system-specific packages: guess, or ask the user.  Autoconf apps prefer
+guessing; X uses Imake and would probably have the kernel source path
+hard-coded in an Imake template :-)
 
-1. The exec system call (or library) has no way to communicate with the
-   user for getting a password.
-2. A user is not always present when the exec is done (cron/at/batch...).
-   there is no terminal like device available.
-3. In the cases where terminals are available, which terminal? The program
-   doing the exec may have been detatched (background/nohup...).
-4. In the cases where the user is connected via a window - there is no
-   known way to provide that communication. (the DISPLAY environment might
-   not be present...)
+The discussions here have suggested ways for a third-party module
+package to guess how to install themselves, so that they will just work
+on most systems.  /lib/modules/`uname -r`/build is the best anyone's
+come up with so far, and it does just work on "plain old" 2.4 systems.
+/usr/src/linux-`uname -r` is the next best.
 
-More complex answer: in some cases.
+This fails in certain cases such as cross-compiling, when the kernel
+isn't living in /usr/src or its not configured, and when it's not the
+running kernel.
 
-If the application doing the exec is programmed to, then it may open
-an input type and actually use "sudo" to start another program. It will
-be up to the implementation of "sudo" to accept the communication path
-and perform suitable validation.
+But then, this is true of userspace too.  Build an app on a Red Hat
+system, don't be surprised to find it fails to run on a Debian.
 
-The primary weakness in this is that the communication path may not be
-trusted by sudo... terminals type devices are easier to validate than
-others (windowing systems for instance).
+When cross-compiling a userspace app, you have to explicitly tell the
+package how to build, libraries to use etc. whether by command line
+flags or editing the source.  That's the joy of
+cross-compiling.  /usr/lib doesn't contain the right libraries, but it's
+ok for apps to look there _unless_ you say otherwise.
 
-The problem with cron/at/batch cannot be solved since the user context
-for any authentication path is missing. It would be necessary to authenticate
-the communication path, before authenticating to sudo...
+Same goes for kernel modules.  /lib/modules/`uname -r`/build doesn't
+contain the right files when cross-compiling, but it's ok for module
+packages to look there _unless_ you say otherwise.
 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
-
-Any opinions expressed are solely my own.
+-- Jamie

@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271701AbRH0K5A>; Mon, 27 Aug 2001 06:57:00 -0400
+	id <S271702AbRH0LQ4>; Mon, 27 Aug 2001 07:16:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271702AbRH0K4u>; Mon, 27 Aug 2001 06:56:50 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:8709 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S271701AbRH0K4n>; Mon, 27 Aug 2001 06:56:43 -0400
-Subject: Re: Linux 2.4.8-ac12
-To: matthias.andree@stud.uni-dortmund.de (Matthias Andree)
-Date: Mon, 27 Aug 2001 12:00:16 +0100 (BST)
-Cc: laughing@shared-source.org (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <20010827093529.A31359@emma1.> from "Matthias Andree" at Aug 27, 2001 09:35:29 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S271703AbRH0LQq>; Mon, 27 Aug 2001 07:16:46 -0400
+Received: from t2.redhat.com ([199.183.24.243]:40440 "HELO
+	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
+	id <S271702AbRH0LQa>; Mon, 27 Aug 2001 07:16:30 -0400
+Message-ID: <3B8A2C1F.63AF4AE7@redhat.com>
+Date: Mon, 27 Aug 2001 12:16:47 +0100
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+Organization: Red Hat, Inc
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-2.9smp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Per Niva <pna@mendosus.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Added devfs support for i386 msr/cpuid driver
+In-Reply-To: <Pine.LNX.4.33.0108271031010.12684-102000@subcentral.mendosus.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15bK7s-0003iU-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 2.4.9 is somewhat stable for me, here's where it bit me:
 > 
-> - init occasionally hangs on boot
+>  int __init msr_init(void)
+>  {
+> +#ifdef CONFIG_DEVFS_FS
+> +    devfs_handle = devfs_register(NULL, "cpu/msr", DEVFS_FL_DEFAULT, 0, 0,
+> +                                  S_IFREG | S_IRUGO | S_IWUSR,
+> +                                  &msr_fops, NULL);
+> +#else
+>    if (register_chrdev(MSR_MAJOR, "cpu/msr", &msr_fops)) {
+>      printk(KERN_ERR "msr: unable to get major %d for msr\n",
+>            MSR_MAJOR);
+>      return -EBUSY;
+>    }
+> +#endif
 
-Seen that too.
+this must be wrong as you don't check for devfs_register failures...
 
-> - bridge (with netfilter patches from bridge.sf.net) kills NFS (I have
->   been told bridge and fragmented traffic don't go together well and I'd
->   have to change rsize/wsize to prevent fragmentation)
-> 
-> Is 2.4.8-ac12 "testable" or rather "stable"?
 
-That sounds like your bridge cards lack enough buffering or can't cope with
-back to back frames. This bites people who use 8K buffer ISA cards in 
-paticular.
 
--ac12 should be pretty solid. Im about to put out 2.4.9-ac1 which is 
-more experimental, although it has run all night, something 2.4.9 never 
-managed
-Alan
-
+Also why devfs can't just use register_chrdev and not touch ALL drivers 
+is beyond me, but it has been like that for a while now...

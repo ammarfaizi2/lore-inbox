@@ -1,59 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317112AbSH0VOS>; Tue, 27 Aug 2002 17:14:18 -0400
+	id <S318428AbSH0VFF>; Tue, 27 Aug 2002 17:05:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317215AbSH0VOS>; Tue, 27 Aug 2002 17:14:18 -0400
-Received: from quark.didntduck.org ([216.43.55.190]:45073 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP
-	id <S317112AbSH0VOR>; Tue, 27 Aug 2002 17:14:17 -0400
-Message-ID: <3D6BEC8A.5030905@didntduck.org>
-Date: Tue, 27 Aug 2002 17:18:02 -0400
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla/5.0 (Windows; U; WinNT4.0; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Hugh Dickins <hugh@veritas.com>, Dave Jones <davej@suse.de>,
-       Marc Dietrich <Marc.Dietrich@hrz.uni-giessen.de>,
+	id <S318389AbSH0VEb>; Tue, 27 Aug 2002 17:04:31 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:18560 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S318376AbSH0VDQ>;
+	Tue, 27 Aug 2002 17:03:16 -0400
+Date: Tue, 27 Aug 2002 15:23:04 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Peter Chubb <peter@chubb.wattle.id.au>, torvalds@transmeta.com,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] M386 flush_one_tlb invlpg
-References: <Pine.LNX.4.44.0208271216440.1419-100000@home.transmeta.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: Large block device patch, part 1 of 9
+Message-ID: <20020827152303.L35@toy.ucw.cz>
+References: <15717.52317.654149.636236@wombat.chubb.wattle.id.au> <20020823070759.GS19435@clusterfs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20020823070759.GS19435@clusterfs.com>; from adilger@clusterfs.com on Fri, Aug 23, 2002 at 01:07:59AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> On Tue, 27 Aug 2002, Hugh Dickins wrote:
-> 
->>I just sent the 2.4.20-pre4 asm-i386/pgtable.h patch to Marcelo:
->>here's patch against 2.5.31 or current BK: please apply.
-> 
-> 
-> This test is senseless, in my opinion:
-> 
-> 
->>+		if (cpu_has_pge)					\
->>+			__flush_tlb_single(addr);			\
-> 
-> 
-> The test _should_ be for something like
-> 
-> 	if (cpu_has_invlpg)
-> 		__flush_tlb_single(addr);
-> 
-> since we want to use the invlpg instruction regardless of any PGE issues 
-> if it is available.
-> 
-> There's another issue, which is the fact that I do not believe that invlpg 
-> is even guaranteed to invalidate a G page at all - although obviously all 
-> current CPU's seem to work that way. However, I don't see that documented 
-> anywhere. 
+Hi!
 
-P4 System Programming Guide, Section 10.9:
-The INVLPG instruction invalidates the TLB for a specific page. This 
-instruction is the most efficient in cases where software only needs to 
-invalidate a specific page, because it improves performance over 
-invalidating the whole TLB. This instruction is not affected by the 
-state of the G flag in a page-directory or page-table entry.
+> Then the following works properly without ugly casts or warnings:
+> 
+> 	__u64 val = 1;
+> 
+> 	printk("at least "PFU64" of your u64s are belong to us\n", val);
+
+Casts are ugly but this looks even worse. I'd go for casts.
+								Pavel
+-- 
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
 

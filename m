@@ -1,99 +1,232 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131517AbRAEO7W>; Fri, 5 Jan 2001 09:59:22 -0500
+	id <S131850AbRAEPAL>; Fri, 5 Jan 2001 10:00:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131697AbRAEO7B>; Fri, 5 Jan 2001 09:59:01 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:39667 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S131517AbRAEO64>; Fri, 5 Jan 2001 09:58:56 -0500
-Date: Fri, 5 Jan 2001 12:58:34 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: "Theodore Y. Ts'o" <tytso@MIT.EDU>
-cc: linux-kernel@vger.kernel.org
-Subject: 2.4 todo list update
-Message-ID: <Pine.LNX.4.21.0101051244440.1295-100000@duckman.distro.conectiva>
+	id <S131855AbRAEPAB>; Fri, 5 Jan 2001 10:00:01 -0500
+Received: from sls.lcs.mit.edu ([18.27.0.167]:26867 "EHLO sls.lcs.mit.edu")
+	by vger.kernel.org with ESMTP id <S131850AbRAEO7u>;
+	Fri, 5 Jan 2001 09:59:50 -0500
+Message-ID: <3A55E15B.F39D6B87@sls.lcs.mit.edu>
+Date: Fri, 05 Jan 2001 09:59:39 -0500
+From: I Lee Hetherington <ilh@sls.lcs.mit.edu>
+Organization: MIT Laboratory for Computer Science
+X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.2.18-pre25.1.smp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <andrewm@uow.edu.au>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>,
+        Lee Hetherington <ilh@sls.lcs.mit.edu>
+Subject: Re: Dell Precision 330 (Pentium 4, i850 chipset, 3c905c)
+In-Reply-To: <3A54E717.11A43B42@sls.lcs.mit.edu> <3A557D12.A5383794@uow.edu.au>
+Content-Type: multipart/mixed;
+ boundary="------------2C5992B15159738B90781940"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ted,
+This is a multi-part message in MIME format.
+--------------2C5992B15159738B90781940
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-in the last few weeks quite a few of the bugs listed on your
-(excellent) http://linux24.sourceforge.net/ have been fixed.
+Andrew Morton wrote:
 
-Here is a list of the VM bugs that are on your list and can
-be moved to the "fixed" category:
+> Please do.  The boot-time messages which come out of the driver
+> would be interesting.  It would help if you add `debug=7' to
+> the 3c59x modprobe command line also.
 
-* truncate->invalidate_inode_pages removes mapping information from
-  mapped pages which may be dirty; sync_pte -> crash. (CRITICAL)
+OK.  I've included dmesg output due to modprobe with debug=7 followed by ifup
+(using pump -- problems persist with static IP as well), cat /proc/interrupts
+showing no eth0, and ifconfig eth0.
 
-	fixed by Linus and Al
+Please let me know what else I can provide to help out.
 
-* VM: raw I/O data loss (raw IO may arrive in a page which afer it
-  is unammped from a process) (CRITICAL)
-
-	fixed by Linus, now page_launder() does the IO
-	and try_to_swap_out() only unmaps the pte
- 
-* VM: Fix the highmem deadlock, where the swapper cannot create low
-  memory bounce buffers OR swap out low memory because it has
-  consumed all resources {CRITICAL}
-
-	this was never an issue, the pagecache has been
-	highmem safe for a long time and the whole bounce
-	buffer creation has been removed
-
-* VM: page->mapping->flush() callback in page_lauder() for easier
-  integration with journaling filesystem and maybe the network
-  filesystems 
-
-	page->mapping->writepage(), used from page_launder()
-	... now ext3, reiserfs, xfs and others need to make
-	their own ->writepage() function
-	... some semantics are still being discussed, but it's
-	mostly ready
-
-* VM: maybe rebalance the swapper a bit... we do page aging now so
-  maybe refill_inactive_scan() / shm_swap() and swap_out() need to
-  be rebalanced a bit
-
-	moving shm into the page cache permanently and doing
-	the page down aging from refill_inactive_scan() seems
-	to have fixed most of this
-	... low priority, but may still have some room for
-	improvement  (consider it fixed)
+--Lee Hetherington
 
 
+--------------2C5992B15159738B90781940
+Content-Type: text/plain; charset=us-ascii;
+ name="dmesg"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="dmesg"
 
-The following bugs _could_ be fixed ... I'm not 100% certain
-but they're probably gone (could somebody confirm/deny?):
+3c59x.c 15Sep00 Donald Becker and others http://www.scyld.com/network/vortex.html
+eth0: 3Com 3c905C Tornado at 0xe880,  00:b0:d0:14:d2:b4, IRQ 11
+  Internal config register is 1800000, transceivers 0xa.
+  8K byte-wide RAM 5:3 Rx:Tx split, autoselect/Autonegotiate interface.
+  MII transceiver found at address 1, status   24.
+  MII transceiver found at address 2, status   24.
+  Enabling bus-master transmits and whole-frame receives.
+eth0: Initial media type Autonegotiate.
+eth0: MII #1 status 0024, link partner capability 41e1, setting full-duplex.
+eth0: vortex_open() InternalConfig 01800000.
+eth0: vortex_open() irq 11 media status 8080.
+eth0:  Filling in the Rx ring.
+eth0: no boomerang interrupt pending
+eth0: no boomerang interrupt pending
+eth0: no boomerang interrupt pending
+eth0: Trying to send a boomerang packet, Tx index 0.
+eth0: interrupt, status f201, latency 3, cur_rx 0, dirty_rx 0
+eth0: In interrupt loop, status f201.
+eth0: exiting interrupt, status f000.
+eth0: Media selection timer tick happened, Autonegotiate.
+eth0: MII transceiver has status 0020.
+eth0: Media selection timer finished, Autonegotiate.
+eth0: Trying to send a boomerang packet, Tx index 1.
+eth0: interrupt, status e201, latency 3, cur_rx 0, dirty_rx 0
+eth0: In interrupt loop, status e201.
+eth0: exiting interrupt, status e000.
+eth0: no boomerang interrupt pending
+eth0: no boomerang interrupt pending
+eth0: no boomerang interrupt pending
+eth0: no boomerang interrupt pending
+eth0: no boomerang interrupt pending
+eth0: no boomerang interrupt pending
+eth0: no boomerang interrupt pending
+eth0: no boomerang interrupt pending
+eth0: no boomerang interrupt pending
+eth0: no boomerang interrupt pending
+eth0: no boomerang interrupt pending
+eth0: no boomerang interrupt pending
+eth0: no boomerang interrupt pending
+eth0: no boomerang interrupt pending
+eth0: no boomerang interrupt pending
+eth0: no boomerang interrupt pending
+eth0: no boomerang interrupt pending
+eth0: no boomerang interrupt pending
+eth0: no boomerang interrupt pending
+eth0: no boomerang interrupt pending
+eth0: Trying to send a boomerang packet, Tx index 2.
+eth0: interrupt, status e201, latency 3, cur_rx 0, dirty_rx 0
+eth0: In interrupt loop, status e201.
+eth0: exiting interrupt, status e000.
+eth0: Trying to send a boomerang packet, Tx index 3.
+eth0: interrupt, status e201, latency 3, cur_rx 0, dirty_rx 0
+eth0: In interrupt loop, status e201.
+eth0: exiting interrupt, status e000.
+eth0: Trying to send a boomerang packet, Tx index 4.
+eth0: interrupt, status e201, latency 3, cur_rx 0, dirty_rx 0
+eth0: In interrupt loop, status e201.
+eth0: exiting interrupt, status e000.
+eth0: Trying to send a boomerang packet, Tx index 5.
+eth0: interrupt, status e201, latency 3, cur_rx 0, dirty_rx 0
+eth0: In interrupt loop, status e201.
+eth0: exiting interrupt, status e000.
+eth0: Trying to send a boomerang packet, Tx index 6.
+eth0: interrupt, status e201, latency 3, cur_rx 0, dirty_rx 0
+eth0: In interrupt loop, status e201.
+eth0: exiting interrupt, status e000.
+eth0: Trying to send a boomerang packet, Tx index 7.
+eth0: interrupt, status e201, latency 3, cur_rx 0, dirty_rx 0
+eth0: In interrupt loop, status e201.
+eth0: exiting interrupt, status e000.
+eth0: Trying to send a boomerang packet, Tx index 8.
+eth0: interrupt, status e201, latency 3, cur_rx 0, dirty_rx 0
+eth0: In interrupt loop, status e201.
+eth0: exiting interrupt, status e000.
+eth0: Trying to send a boomerang packet, Tx index 9.
+eth0: interrupt, status e201, latency 3, cur_rx 0, dirty_rx 0
+eth0: In interrupt loop, status e201.
+eth0: exiting interrupt, status e000.
+eth0: Trying to send a boomerang packet, Tx index 10.
+eth0: interrupt, status e201, latency 2, cur_rx 0, dirty_rx 0
+eth0: In interrupt loop, status e201.
+eth0: exiting interrupt, status e000.
+eth0: vortex_close() status e000, Tx status 00.
+eth0: vortex close stats: rx_nocopy 0 rx_copy 0 tx_queued 11 Rx pre-checksummed 0.
+eth0: Initial media type Autonegotiate.
+eth0: MII #1 status 0020, link partner capability 41e1, setting full-duplex.
+eth0: vortex_open() InternalConfig 01800000.
+eth0: vortex_open() irq 11 media status 8080.
+eth0:  Filling in the Rx ring.
+eth0: no boomerang interrupt pending
+eth0: no boomerang interrupt pending
+eth0: Trying to send a boomerang packet, Tx index 0.
+eth0: interrupt, status f201, latency 3, cur_rx 0, dirty_rx 0
+eth0: In interrupt loop, status f201.
+eth0: exiting interrupt, status f000.
+eth0: Media selection timer tick happened, Autonegotiate.
+eth0: MII transceiver has status 0020.
+eth0: Media selection timer finished, Autonegotiate.
+eth0: Trying to send a boomerang packet, Tx index 1.
+eth0: interrupt, status e201, latency 3, cur_rx 0, dirty_rx 0
+eth0: In interrupt loop, status e201.
+eth0: exiting interrupt, status e000.
+eth0: no boomerang interrupt pending
+eth0: no boomerang interrupt pending
+eth0: Trying to send a boomerang packet, Tx index 2.
+eth0: interrupt, status e201, latency 2, cur_rx 0, dirty_rx 0
+eth0: In interrupt loop, status e201.
+eth0: exiting interrupt, status e000.
+eth0: Trying to send a boomerang packet, Tx index 3.
+eth0: interrupt, status e201, latency 3, cur_rx 0, dirty_rx 0
+eth0: In interrupt loop, status e201.
+eth0: exiting interrupt, status e000.
+eth0: Trying to send a boomerang packet, Tx index 4.
+eth0: interrupt, status e201, latency 3, cur_rx 0, dirty_rx 0
+eth0: In interrupt loop, status e201.
+eth0: exiting interrupt, status e000.
+eth0: Trying to send a boomerang packet, Tx index 5.
+eth0: interrupt, status e201, latency 3, cur_rx 0, dirty_rx 0
+eth0: In interrupt loop, status e201.
+eth0: exiting interrupt, status e000.
+eth0: Trying to send a boomerang packet, Tx index 6.
+eth0: interrupt, status e201, latency 3, cur_rx 0, dirty_rx 0
+eth0: In interrupt loop, status e201.
+eth0: exiting interrupt, status e000.
+eth0: Trying to send a boomerang packet, Tx index 7.
+eth0: interrupt, status e201, latency 2, cur_rx 0, dirty_rx 0
+eth0: In interrupt loop, status e201.
+eth0: exiting interrupt, status e000.
+eth0: Trying to send a boomerang packet, Tx index 8.
+eth0: interrupt, status e201, latency 3, cur_rx 0, dirty_rx 0
+eth0: In interrupt loop, status e201.
+eth0: exiting interrupt, status e000.
+eth0: Trying to send a boomerang packet, Tx index 9.
+eth0: interrupt, status e201, latency 3, cur_rx 0, dirty_rx 0
+eth0: In interrupt loop, status e201.
+eth0: exiting interrupt, status e000.
+eth0: Trying to send a boomerang packet, Tx index 10.
+eth0: interrupt, status e201, latency 3, cur_rx 0, dirty_rx 0
+eth0: In interrupt loop, status e201.
+eth0: exiting interrupt, status e000.
+eth0: vortex_close() status e000, Tx status 00.
+eth0: vortex close stats: rx_nocopy 0 rx_copy 0 tx_queued 22 Rx pre-checksummed 0.
 
-* mm->rss is modified in some places without holding the
-  page_table_lock
+--------------2C5992B15159738B90781940
+Content-Type: text/plain; charset=us-ascii;
+ name="interrupts"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="interrupts"
 
-* VFS?VM - mmap/write deadlock (demo code seems to show lock
-  is there)
+           CPU0       
+  0:      20048          XT-PIC  timer
+  1:        314          XT-PIC  keyboard
+  2:          0          XT-PIC  cascade
+  8:          1          XT-PIC  rtc
+ 11:       1660          XT-PIC  aic7xxx
+ 12:          0          XT-PIC  PS/2 Mouse
+ 13:          1          XT-PIC  fpu
+ 15:          7          XT-PIC  ide1
+NMI:          0
+
+--------------2C5992B15159738B90781940
+Content-Type: text/plain; charset=us-ascii;
+ name="ifconfig"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ifconfig"
+
+eth0      Link encap:Ethernet  HWaddr 00:B0:D0:14:D2:B4  
+          BROADCAST  MTU:1500  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:1 frame:0
+          TX packets:23 errors:0 dropped:0 overruns:0 carrier:1
+          collisions:0 txqueuelen:100 
+          Interrupt:11 Base address:0xe880 
 
 
-The "probably post 2.4" category VM issues remain ... maybe
-we want to add the following 2 items though:
-
-* VM: experiment with different forms of page aging ... maybe
-  different aging rates for pages of different ages
-
-* VM: RSS ulimit enforcement (trivial)
-
-
-regards,
-
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to loose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
+--------------2C5992B15159738B90781940--
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

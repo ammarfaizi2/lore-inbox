@@ -1,65 +1,143 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261996AbTBSWNn>; Wed, 19 Feb 2003 17:13:43 -0500
+	id <S262380AbTBSWc4>; Wed, 19 Feb 2003 17:32:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262038AbTBSWNn>; Wed, 19 Feb 2003 17:13:43 -0500
-Received: from pipgate.pipsworld.sara.nl ([145.100.9.18]:33408 "EHLO
-	dinkie.pipsworld.sara.nl") by vger.kernel.org with ESMTP
-	id <S261996AbTBSWNm>; Wed, 19 Feb 2003 17:13:42 -0500
-Date: Wed, 19 Feb 2003 23:23:44 +0100
-From: Remco Post <r.post@sara.nl>
-To: Remco Post <r.post@sara.nl>
-Cc: linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
-Subject: Re: Linux v2.5.62
-Message-Id: <20030219232344.1b9f4c20.r.post@sara.nl>
-In-Reply-To: <20030219224627.71a85963.r.post@sara.nl>
-References: <Pine.LNX.4.44.0302171515110.1150-100000@penguin.transmeta.com>
-	<3E536237.8010502@blue-labs.org>
-	<20030219185017.GA6091@gemtek.lt>
-	<20030219224627.71a85963.r.post@sara.nl>
-X-Mailer: Sylpheed version 0.8.8 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S262384AbTBSWc4>; Wed, 19 Feb 2003 17:32:56 -0500
+Received: from ip64-48-93-2.z93-48-64.customer.algx.net ([64.48.93.2]:22504
+	"EHLO ns1.limegroup.com") by vger.kernel.org with ESMTP
+	id <S262380AbTBSWcy>; Wed, 19 Feb 2003 17:32:54 -0500
+Date: Wed, 19 Feb 2003 17:41:39 -0500 (EST)
+From: Ion Badulescu <ionut@badula.org>
+X-X-Sender: ion@guppy.limebrokerage.com
+To: "David S. Miller" <davem@redhat.com>
+cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
+       James Bottomley <James.Bottomley@steeleye.com>
+Subject: Re: [PATCH] add new DMA_ADDR_T_SIZE define
+In-Reply-To: <1045692476.14306.14.camel@rth.ninka.net>
+Message-ID: <Pine.LNX.4.44.0302191706330.29393-100000@guppy.limebrokerage.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 19 Feb 2003 22:46:27 +0100
-Remco Post <r.post@sara.nl> wrote:
+On 19 Feb 2003, David S. Miller wrote:
 
-> Hi all,
+> I don't think you are making things any better by adding
+> a new ifdef to all the drivers.
+
+I'm adding an ifdef to types.h, not to all the drivers -- the drivers can 
+use it if they choose to.
+
+> And frankly, trying to super-optimize a driver
+> because it has two different descriptor format is a mess you as a driver
+> author choose to get involved in.
+
+Indeed. But why would you want to make my life miserable if you make that 
+choice? Take a look at starfire.c to see how all that 32/64 bit code is 
+neatly handled by a few very simple macros, and the only really hideous 
+part is the #ifdef which decides if dma_addr_t is 32- or 64-bit.
+
+I would gladly define my own macros if cpp groked sizeof(). But it 
+doesn't, that's why I want this simple macro where it belongs: next to the 
+definition of dma_addr_t.
+
+> Nearly all cards today are 64-bit DMA address descriptors only.
+> So if anything, this new ifdef will get less and less used over
+> time.
+
+Not true. Even if the only descriptors available are 64-bit, there is no 
+reason why I should have to care about the upper 32 bits when I know that 
+my dma_addr_t will always be 32-bit, at compile time. I can simply 
+memset(0) the entire descriptor and initialize only the bottom 32 bits. 
+
+What you're saying is, in essence, "screw your card, screw your 32-bit
+platform, the future is all-64-bit anyway and/or everyone has gobs of
+memory and is using highmem". A little bit exagerated, of course, but...
+
+> > 3. use run-time checks all over the place, of the 
+> > "sizeof(dma_addr_t)==sizeof(u64)" kind, which adds unnecessary overhead to 
+> > all platforms.
 > 
-> just to let you all know, The linus 2.5.62 (plain as can be) just booted
-> on my motorola powerstack II system. No modules, but also, no oops on
-> boot, like 2.5.59 and allmost every other 2.5 before that....
+> The compiler optimizes this completely away, it becomes
+> a compile time test and the unused code block and the test
+> never make it into the assembler.
 > 
-> -- Remco
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> So this argument is bogus, as is the define.
 
-and fortunately, I also have some use for booting this kernel:
+It's not completely bogus, although I already conceded that the code is
+indeed optimized away by the compiler. What the compiler does not optimize
+away is the larger data structures needed to hold 64 bit values.
 
-When the ethernet link goed down on my on-board dec-tulip:
+As I said in a different email, this is what I'll end up using if the new 
+define is not accepted.
 
-eth1: timeout expired stopping DMA                                              
-kernel BUG at drivers/net/tulip/de2104x.c:925!                                  
-Oops: Exception in kernel mode, sig: 4                                          
-NIP: C0138248 LR: C0138248 SP: C0275E00 REGS: c0275d50 TRAP: 0700    
-Not taintedMSR: 00089032 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11                                 
-TASK = c022f550[0] 'swapper' Last syscall: 120                                  
-GPR00: C0138248 C0275E00 C022F550 0000002F 00000001 C0275CB8 C0271800 C02B0000  
-GPR08: 0000161F 00000000 00000000 C0275D30 4000C088 00000000 00000000 00000000  
-GPR16: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000  
-GPR24: 00000000 00000000 00000002 00001032 C03DD000 00009032 FFFFFFCE C03DD1C0  
-Call trace: [c0138588]  [c002066c]  [c001b85c]  [c0007e80]  [c00061c4]  [c00039 
-Kernel panic: Aiee, killing interrupt handler!                                  
-In interrupt handler - not syncing                                             
+On 19 Feb 2003, David S. Miller wrote:
 
-Only after some traffic was supposed to leave the machine, not that it ever does 
-with this kernel....
+> On Wed, 2003-02-19 at 10:20, Ion Badulescu wrote:
+> > Well, yes and no. Indeed those checks are optimized away, but as a result 
+> > of using them most data-access macros must be converted to inline 
+> > functions. And, last I heard at least, gcc was optimizing inline functions 
+> > much worse than preprocessor macros.
+> 
+> Not true, you can still use macros and GCC is saner with inlines
+> these days.
+
+I'm curious about this, actually. If I do something like
+
+#if DMA_ADDR_T_SIZE == 64
+#define cpu_to_dma(x) cpu_to_le64(x)
+#else
+#define cpu_to_dma(x) cpu_to_le32(x)
+#endif
+
+descr.addr = cpu_to_dma(dma_addr)
+
+or
+
+if (sizeof(dma_addr_t) == sizeof(u64))
+	descr64.addr = cpu_to_le64(dma_addr);
+else
+	descr32.addr = cpu_to_le32(dma_addr);
+
+then the compiler generates equivalent code? Even if that's true, which 
+code fragment strikes you as uglier and/or harder to read, particularly if 
+it's repeated multiple times in close succession?
 
 
--- Remco
+Or maybe you are suggesting an abomination like
+
+void assign_dma_addr(descr64_t *descr64, descr32_t *descr32, dma_addt_t dma_addr)
+{
+	if (sizeof(dma_addr_t) == sizeof(u64))
+		descr64->addr = cpu_to_le64(dma_addr);
+	else
+		descr32->addr = cpu_to_le32(dma_addr);
+}
+
+or, worse, the gcc-specific abomination
+
+#define cpu_to_dma(x) \
+({ dma_addr_t dma_addr; \
+   if (sizeof(dma_addr_t) == sizeof(u64)) \
+     dma_addr = cpu_to_le64(x); \
+   else \
+     dma_addr = cpu_to_le32(x); \
+   dma_addr; \
+});
+
+
+And all these just for avoiding a very clearly-defined #ifdef's in a 
+header file?...
+
+> Your arguments are nice to encourage your patch to be accepted,
+> they are however not correct.
+
+I think you're being a bit harsh here. :) "Some arguments were not 100% 
+correct" would be a better description...
+
+Ion
+
+-- 
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.
+

@@ -1,46 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263453AbTLOKSD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 05:18:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263460AbTLOKSD
+	id S263485AbTLOKHf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 05:07:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263486AbTLOKHf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 05:18:03 -0500
-Received: from zero.aec.at ([193.170.194.10]:26631 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S263453AbTLOKSA (ORCPT
+	Mon, 15 Dec 2003 05:07:35 -0500
+Received: from mail.kroah.org ([65.200.24.183]:37254 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263485AbTLOKHc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 05:18:00 -0500
+	Mon, 15 Dec 2003 05:07:32 -0500
+Date: Mon, 15 Dec 2003 02:07:24 -0800
+From: Greg KH <greg@kroah.com>
 To: Vladimir Kondratiev <vladimir.kondratiev@intel.com>
-Cc: linux-kernel@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@redhat.com>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
 Subject: Re: PCI Express support for 2.4 kernel
-From: Andi Kleen <ak@muc.de>
-Date: Mon, 15 Dec 2003 11:17:35 +0100
-In-Reply-To: <12XQ2-7Vs-9@gated-at.bofh.it> (Vladimir Kondratiev's message
- of "Mon, 15 Dec 2003 11:10:14 +0100")
-Message-ID: <m3llpepeps.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.090013 (Oort Gnus v0.13) Emacs/21.2 (i586-suse-linux)
-References: <12KJ6-4F2-13@gated-at.bofh.it> <12Lvu-5X5-5@gated-at.bofh.it>
-	<12XQ2-7Vs-9@gated-at.bofh.it>
-MIME-Version: 1.0
+Message-ID: <20031215100724.GA1950@kroah.com>
+References: <3FDCC171.9070902@intel.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3FDCC171.9070902@intel.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vladimir Kondratiev <vladimir.kondratiev@intel.com> writes:
->
-> As I explained in comment to function, it is not really critical. The
-> problem is, there is no generic way (or I don't know it) to recognize
-> PCI-E. One suggest to go over all devices and see whether PCI-E
-> capability present for at least one of them. I don't think it is good
-> way to do. Sanity check do pretty good job here. If it is not PCI-E
-> platform, this address in physical memory will not be connected to
-> anything real. You will get 0xff's.
+On Sun, Dec 14, 2003 at 10:00:49PM +0200, Vladimir Kondratiev wrote:
+> Please, ignore previous submission with the same subject. Patch file 
+> attached was wrong one. Now correct patch attached.
+> 
+> Hi,
+> PCI-Express platforms will soon appear on the market. It is worth to
+> support it.
 
-I don't think that's a good assumption. There will be surely be some 
-machine that has an mapping there. You will need to find some fool
-proof way to detect the presence of PCI-Express. Otherwise it will likely
-fail the number one criterium for merging ("it shall not break 
-anything else")
+Yes it is worth it, any chance to get access to hardware to test this
+out on?
 
-And in general new development should be done in 2.6 first...
+> Following is patch for 2.4.23 kernel. I tested it on my host, it works
+> properly.
+> I did it for i386 only, I have no other architecture to test.
+> 
+> It was patch on the same subject from* Seshadri, Harinarayanan*
+> (/harinarayanan.seshadri@intel.com/
+> <mailto:harinarayanan.seshadri@intel.com>)
+> http://www.cs.helsinki.fi/linux/linux-kernel/2003-17/0247.html
+> My version differ in several aspects: it is for 2.4 (vs. 2.6); it do not
+> ioremap/unmap page for each transaction.
+> 
+> How about inclusion in 2.4.24?
 
--Andi
+No, we need to get this into 2.6 first.  Can you please forward port
+this to 2.6, clean up the formatting and address the issues everyone
+else has made so far and post it?
+
+>  * command line argument "pci=exp" to force PCI Express, similar to "conf1" and "conf2"
+
+We should be able to do this automatically, and not force this on the
+boot command line, correct?
+
+> +/**
+> + * RRBAR (memory base for PCI-E config space) resides here.
+> + * Initialized to default address. Actually, it is platform specific, and
+> + * value may vary.
+> + * I don't know how to detect it properly, it is chipset specific.
+> + */
+> +static u32 rrbar_phys=0xe0000000UL;
+
+How about information on how to detect it as per chipset type?  We need
+to do this automatically some how.
+
+> +/**
+> + * Initializes PCI Express method for config space access.
+> + * 
+> + * There is no standard method to recognize presence of PCI Express,
+
+Are you sure?  I thought there was (don't have my spec in front of me
+right now...)
+
+thanks,
+
+greg k-h

@@ -1,42 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280592AbRLDEag>; Mon, 3 Dec 2001 23:30:36 -0500
+	id <S280674AbRLDEhG>; Mon, 3 Dec 2001 23:37:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280434AbRLDEa0>; Mon, 3 Dec 2001 23:30:26 -0500
-Received: from zero.tech9.net ([209.61.188.187]:22276 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S280674AbRLDEaQ>;
-	Mon, 3 Dec 2001 23:30:16 -0500
-Subject: Re: [PATCH] improve spinlock debugging
-From: Robert Love <rml@tech9.net>
-To: "David S. Miller" <davem@redhat.com>
-Cc: manfred@colorfullife.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20011203.202130.118628301.davem@redhat.com>
-In-Reply-To: <3C0BDC33.6E18C815@colorfullife.com> 
-	<20011203.202130.118628301.davem@redhat.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 03 Dec 2001 23:30:15 -0500
-Message-Id: <1007440220.1303.14.camel@phantasy>
-Mime-Version: 1.0
+	id <S280907AbRLDEg4>; Mon, 3 Dec 2001 23:36:56 -0500
+Received: from [65.42.38.35] ([65.42.38.35]:65296 "HELO the-collective.net")
+	by vger.kernel.org with SMTP id <S280759AbRLDEgr>;
+	Mon, 3 Dec 2001 23:36:47 -0500
+Date: Mon, 3 Dec 2001 23:44:57 -0500 (EST)
+From: gdf <gdf@gsource.org>
+X-X-Sender: <gdf@ns1.knerd.com>
+To: <vherva@viasys.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: HPT370 (KT7A-RAID) *corrupts* data - SAMSUNG SV8004H does it as
+ well
+Message-ID: <Pine.LNX.4.33.0112032331490.11129-100000@ns1.knerd.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2001-12-03 at 23:21, David S. Miller wrote:
 
-> Keep track of how many locks are being held at once, and check if it
-> is zero at switch_to() time.  You can also do this to measure things
-> like max number of locks held at once and other statistics.
-> 
-> I added the first bit to sparc64 while hunting down a bug.
+I concur with Matt Schulkind.  This is usually symptom of and old
+Highpoint bios or even KT7A bios version.
 
-Another interesting idea is see if a lock is held during a call to
-udelay.
+If you believe it to be some sort of a driver problem i urge you to query
+the atariad mailing list.
 
-Once you get a lock count, a lot is possible.  I have looked into doing
-some of these tests with the preemptible kernel patch.  Since the
-preemption count is essential the lock depth, we have quick access to
-all this data.
+Until then... for your mothe board i would point you to the KT7 FAQ.
+http://www.viahardware.com/faq/kt7/kt7faq.htm
 
-	Robert Love
+Though it is a bit windows centric, it describes in great detail many of
+the issues with the board.  (it seems like there are many, but at least
+they are known and documented, unlike many other MBs out there.)
+
+-Gabe Friedmann
 

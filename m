@@ -1,54 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262069AbTKOVS0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Nov 2003 16:18:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262153AbTKOVS0
+	id S262040AbTKOVMS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Nov 2003 16:12:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262050AbTKOVMS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Nov 2003 16:18:26 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:31239 "EHLO w.ods.org")
-	by vger.kernel.org with ESMTP id S262069AbTKOVSZ (ORCPT
+	Sat, 15 Nov 2003 16:12:18 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:30727 "EHLO w.ods.org")
+	by vger.kernel.org with ESMTP id S262040AbTKOVMR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Nov 2003 16:18:25 -0500
-Date: Sat, 15 Nov 2003 22:18:18 +0100
+	Sat, 15 Nov 2003 16:12:17 -0500
+Date: Sat, 15 Nov 2003 22:12:01 +0100
 From: Willy Tarreau <willy@w.ods.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Xose Vazquez Perez <xose@wanadoo.es>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.23-pre5 bugs: depmod and Unresolved symbols
-Message-ID: <20031115211818.GD9634@alpha.home.local>
-References: <3FB57AE7.5000706@wanadoo.es> <Pine.LNX.4.44.0311151428080.10014-100000@logos.cnet>
+To: Shane Wegner <shane-keyword-kernel.a35a91@cm.nu>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.4.23 crash on Intel SDS2
+Message-ID: <20031115211201.GC9634@alpha.home.local>
+References: <20031112182219.GA2921@cm.nu> <Pine.LNX.4.44.0311151029310.10014-100000@logos.cnet> <20031115205828.GA1367@cm.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0311151428080.10014-100000@logos.cnet>
+In-Reply-To: <20031115205828.GA1367@cm.nu>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-On Sat, Nov 15, 2003 at 02:29:16PM -0200, Marcelo Tosatti wrote:
-> 
-> On Sat, 15 Nov 2003, Xose Vazquez Perez wrote:
-> > http://ftp.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.23pre6aa3/00_comx-driver-compile-1
-> > 
-> > 00_comx-driver-compile-1 first appeared in 2.4.19pre8aa2 - 258 bytes
-> > 
-> > 	Export proc_get_inode for kernel/drivers/net/wan/comx.o so
-> > 	it can link as a module, noticed by Eyal Lebedinsky.
-> 
-> I just applied this and Jeff Garzik pointed out that its wrong to export
-> proc_get_inode, and that comx should be fixed instead.
-> 
-> I reverted the change. 
+On Sat, Nov 15, 2003 at 12:58:28PM -0800, Shane Wegner wrote:
+ 
+> I did and unfortunately, it was of little help.  If
+> anything though, it made the lockup more consistent.  The
+> three times I tried to boot with nmi_watchdog=1, it locked
+> up when starting SpamAssassin.  Nothing special about that
+> process but just above that it started the hotplug
+> subsystem which I use to automatically insert various usb
+> drivers as needed.  Could that have anything to do with it?
 
-Christoph Hellwig once explained us why it was bad and basically what needed
-to be done in comx to make it link. But I think that nobody uses this driver
-nowadays or that its users blindly apply this patch. I myself once tried to
-fix it because of this annoyance (although I don't use it), and found myself
-duplicating lots of proc stuff so I concluded this was plain silly and that
-the comx driver will simply be disabled in my later kernels.
+Would it be possible to print a "starting XXX" and
+"XXX started" before and after every service ? And please
+also try to disable automatic modprobe, or change it to
+something which logs what is loaded. Eg:
 
-Cheers,
+   echo /root/mymodprobe >/proc/sys/kernel/modprobe
+
+with mymodprobe basically looking like :
+
+#!/bin/bash
+{date;echo "starting $@"} >> /tmp/modprobe.log
+sync
+exec modprobe $@
+
+> Btw, to clarify, when the lockup occurs with nmi_watchdog,
+> no oops gets printed.
+
+You may try nmi_watchdog=2. I once was adviced to try =1,
+but it never worked for me, while =2 worked as expected.
+Don't ask me why, all I know is that there are a few other
+people out there happily using it this way too.
+
+Regards,
 Willy
 

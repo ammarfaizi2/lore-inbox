@@ -1,63 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266132AbUFUHF7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266136AbUFUHH5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266132AbUFUHF7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 03:05:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266134AbUFUHF7
+	id S266136AbUFUHH5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 03:07:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266137AbUFUHH5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 03:05:59 -0400
-Received: from smtp4.cwidc.net ([154.33.63.114]:44272 "EHLO smtp4.cwidc.net")
-	by vger.kernel.org with ESMTP id S266132AbUFUHF5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 03:05:57 -0400
-Message-ID: <40D688D1.7020308@tequila.co.jp>
-Date: Mon, 21 Jun 2004 16:05:53 +0900
-From: Clemens Schwaighofer <cs@tequila.co.jp>
-Organization: TEQUILA\ Japan
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040308
-X-Accept-Language: en-us, en, ja
+	Mon, 21 Jun 2004 03:07:57 -0400
+Received: from [195.255.196.126] ([195.255.196.126]:21478 "EHLO
+	gw.compusonic.fi") by vger.kernel.org with ESMTP id S266136AbUFUHHq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jun 2004 03:07:46 -0400
+Date: Mon, 21 Jun 2004 10:07:44 +0300 (EEST)
+From: Hannu Savolainen <hannu@opensound.com>
+X-X-Sender: hannu@zeus.compusonic.fi
+To: 4Front Technologies <dev@opensound.com>
+Cc: David Lang <david.lang@digitalinsight.com>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org
+Subject: Re: Stop the Linux kernel madness
+In-Reply-To: <40D636EA.7090704@opensound.com>
+Message-ID: <Pine.LNX.4.58.0406210933470.26543@zeus.compusonic.fi>
+References: <40D232AD.4020708@opensound.com> <3217460000.1087518092@flay><40D23701.1030302@opensound.com>
+ <1087573691.19400.116.camel@winden.suse.de><40D32C1D.80309@opensound.com>
+ <20040618190257.GN14915@schnapps.adilger.int><40D34CB2.10900@opensound.com><200406181940.i5IJeBDh032311@turing-police.cc.vt.edu><Pine.LNX.4.60.0406181326210.3688@dlang.diginsite.com>
+ <Pine.LNX.4.58.0406191148570.30038@zeus.compusonic.fi>
+ <Pine.LNX.4.60.0406201506360.6470@dlang.diginsite.com> <40D636EA.7090704@opensound.com>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: 2.6.7-bk way too fast
-References: <40D64DF7.5040601@pobox.com> <20040620210233.1e126ddc.akpm@osdl.org> <200406210200.42594.norberto+linux-kernel@bensa.ath.cx> <200406210239.28918.norberto+linux-kernel@bensa.ath.cx> <Pine.LNX.4.58.0406202313510.11274@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0406202313510.11274@ppc970.osdl.org>
-X-Enigmail-Version: 0.83.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sun, 20 Jun 2004, 4Front Technologies wrote:
 
-Linus Torvalds wrote:
-|
-| On Mon, 21 Jun 2004, Norberto Bensa wrote:
-|
-|>Attaaached,    ..cooonfiig  and   dmmesssg.  Note:   iit''s
-|>waaaaaaaaaaaaaaay    too     fffasssst  on X.  Text moode    termiinall
-|>it''ss  oook.
-|
-|
-| Does it fix it to just remove that one line completely?
+> There are loads of other very specific drivers for embedded systems that
+> have no real applicability in the mainstream kernel like DSP boards, specialized
+> encryption board drivers, military grade video capture/display devices. There
+> are other things like PCI-Express "development" drivers that aren't stable and
+> developers need a way to build them outside the kernel.
+Everybody who still thinks it's going to be possible to have all possible
+drivers in the single package should go to /lib/modules and execute
 
-Neither the first one or removing the line fixes it. My mail pingu in
-gkrellm is still running as he would be totaly on drugs ...
+du -sk */kernel
 
-- --
-Clemens Schwaighofer - IT Engineer & System Administration
-==========================================================
-TEQUILA\Japan, 6-17-2 Ginza Chuo-ku, Tokyo 104-8167, JAPAN
-Tel: +81-(0)3-3545-7703            Fax: +81-(0)3-3545-7343
-http://www.tequila.co.jp
-==========================================================
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+In my test machine the directory sizes seem to be between 10M and 300M
+depending on how the kernel was configured. For the Fedora Core 2 kernels
+the sizes are around 25M. When Linux was young it was possible to have the
+whole distribution fitted in that  amount of space.
 
-iD8DBQFA1ojRjBz/yQjBxz8RAkB1AJ44FOG/3bKxIXBwYI6VB5xxb/kWSQCeJdum
-sfPLFlxN2NFcThGrgMkLMpg=
-=1Fq9
------END PGP SIGNATURE-----
+What would the modules directory look like if the next generation devices
+get included there too? Or if all the drivers for currently
+unsupported defence, telecom, aviation, instrumentation and other special
+purpose devices get included in the kernel source tree?
+
+Best regards,
+
+Hannu
+-----
+Hannu Savolainen (hannu@opensound.com)
+http://www.opensound.com (Open Sound System (OSS))
+http://www.compusonic.fi (Finnish OSS pages)
+OH2GLH QTH: Karkkila, Finland LOC: KP20CM

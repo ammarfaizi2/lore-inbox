@@ -1,70 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269709AbRHIHIg>; Thu, 9 Aug 2001 03:08:36 -0400
+	id <S269716AbRHIHcR>; Thu, 9 Aug 2001 03:32:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269712AbRHIHI0>; Thu, 9 Aug 2001 03:08:26 -0400
-Received: from imladris.infradead.org ([194.205.184.45]:7947 "EHLO
-	infradead.org") by vger.kernel.org with ESMTP id <S269709AbRHIHIM>;
-	Thu, 9 Aug 2001 03:08:12 -0400
-Date: Thu, 9 Aug 2001 08:08:15 +0100 (BST)
-From: Riley Williams <rhw@MemAlpha.CX>
-X-X-Sender: <rhw@infradead.org>
-To: Helge Hafting <helgehaf@idb.hist.no>
-cc: Ivan Kalvatchev <iive@yahoo.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Thoughts on tmpfs and swapfs
-In-Reply-To: <3B722DE4.96DA5711@idb.hist.no>
-Message-ID: <Pine.LNX.4.33.0108090754170.10432-100000@infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S269718AbRHIHcI>; Thu, 9 Aug 2001 03:32:08 -0400
+Received: from twilight.cs.hut.fi ([130.233.40.5]:35744 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S269716AbRHIHbz>; Thu, 9 Aug 2001 03:31:55 -0400
+Date: Thu, 9 Aug 2001 10:31:44 +0300
+From: Ville Herva <vherva@mail.niksula.cs.hut.fi>
+To: =?iso-8859-1?Q?Samuli_K=E4rkk=E4inen?= <skarkkai@woods.iki.fi>
+Cc: linux-kernel@vger.kernel.org, viro@math.psu.edu, phillips@nl.linux.org
+Subject: Re: Wrong free inodes count in kernels 2.0 and 2.2
+Message-ID: <20010809103144.B63773@niksula.cs.hut.fi>
+In-Reply-To: <20010502194621.D22433@woods.iki.fi> <20010809010601.A63773@niksula.cs.hut.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010809010601.A63773@niksula.cs.hut.fi>; from vherva@niksula.hut.fi on Thu, Aug 09, 2001 at 01:06:01AM +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Helge.
+On Thu, Aug 09, 2001 at 01:06:01AM +0300, you [Ville Herva] claimed:
+> On Wed, May 02, 2001 at 07:46:21PM +0300, [Samuli Kärkkäinen] claimed:
+> > I get repeatably both in 2.0 and 2.2 serieses of kernels the following kind
+> > of errors:
+> > 
+> > 2.2 kernels (several, including 2.2.18):
+> >   EXT2-fs error (device ide1(22,6)): ext2_check_inodes_bitmap: Wrong free inodes count in group 768, stored = 984, counted = 717
+> >   EXT2-fs error (device ide1(22,6)): ext2_check_inodes_bitmap: Wrong free inodes count in group 769, stored = 1005, counted = 717
+> >   EXT2-fs error (device ide1(22,6)): ext2_check_inodes_bitmap: Wrong free inodes count in group 777, stored = 998, counted = 901
+> >   [ many similar lines deleted ]
+> > 
+> > and sometimes with 2.2 kernel, soon after the errors above:
+> >   EXT2-fs error (device ide1(22,1)): ext2_new_inode: Free inodes count corrupted in group 414 
+> >   last message repeated 795 times
+> 
+> I get these messages as well on 2.2.18pre19:
+> 
+> EXT2-fs error (device md(9,0)): ext2_new_inode: Free inodes count
+> corrupted in group 501                                                                  
+> EXT2-fs error (device md(9,0)): ext2_new_inode: Free inodes count
+> corrupted in group 501                                                                  
 
- >> I didn't look at the chages but i will say this one more time.
- >> Limiting tmpfs size at fixed amount of space will make the bug
- >> harder to reproduce but won't fix it. The right hack is to limit
- >> tmpfs to be with freepages.high less than available
- >> memory(swap+ram). It won't be hard to code.
+I was just wondering, could this be the same bug Daniel Phillips described
+in thread "[PATCH] Re: 2.4.0-test11 ext2 fs corruption":
 
- > The problem with this is that tmpfs may be mounted before swap
- > is initialized, so a little less than swap+ram will become "a
- > little less than just RAM" anyway.
+http://groups.google.com/groups?q=2.4.0-test11+ext2+fs+corruption+group:mlist.linux.kernel&hl=en&safe=off&scoring=r&rnum=1&selm=linux.kernel.news2mail-3A259959.89EAD4DE%40innominate.de
+http://groups.google.com/groups?hl=en&safe=off&th=cbe5e86866187b4,4&rnum=1&selm=linux.kernel.Pine.GSO.4.21.0011301652130.21891-100000%40weyl.math.psu.edu
 
- > Or do you propose a dynamic limit, changing as swap is
- > added/removed? This has problems if some swap is removed, and
- > suddenly tmpfs usage exceeds its quota.
+and that was fixed in 2.4.0-test time?
 
-I have to admit that tmpfs is new to me, but I would assume it's a
-filing system for temporary files, that works along the lines of a
-ramdisk?
+A google search shows a number of people are seeing this error so it would be
+nice to get the fix for 2.2 (and even 2.0), too...
 
-If so, I would see the following issues with this idea:
+http://www.google.com/search?q=ext2_new_inode%3A+Free+inodes+count+corrupted+in+group&sourceid=opera&num=0
 
- 1. If the idea is to keep temporary files off the hard disk,
-    it makes no sense to use swap for them, so any limit on
-    the size of tmpfs would need to be limited to the size
-    of physical ram.
 
- 2. If the idea is to ensure that temporary files are deleted
-    as soon as they are finished with, it makes no sense to
-    use physical ram for them, and this effectively becomes
-    what I would refer to as swapfs - a filing system where
-    the objects within it are stored in swap until such time
-    as the last reference is freed, and are then auto-deleted,
-    possibly with a short delay to allow for programs run one
-    after the other where the first creates a file that is
-    read by the second.
+-- v --
 
- 3. If the idea is to do both of the above at the same time,
-    any limit on the size of tmpfs would need to be linked to
-    the amount of swap present, and the link would need to be
-    such that it was not possible to release swap if doing so
-    would leave tmpfs over-committed. I can see serious bugs
-    with this idea in a hotplug environment.
-
-Comments, anybody?
-
-Best wishes from Riley.
-
+v@iki.fi

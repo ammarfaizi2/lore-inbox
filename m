@@ -1,47 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265769AbUEZTC4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265774AbUEZTG6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265769AbUEZTC4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 15:02:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265777AbUEZTC4
+	id S265774AbUEZTG6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 15:06:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265776AbUEZTG6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 15:02:56 -0400
-Received: from waste.org ([209.173.204.2]:38275 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S265769AbUEZTCz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 15:02:55 -0400
-Date: Wed, 26 May 2004 14:02:22 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: J?rn Engel <joern@wohnheim.fh-wedel.de>, mingo@elte.hu, andrea@suse.de,
-       riel@redhat.com, torvalds@osdl.org, arjanv@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: 4k stacks in 2.6
-Message-ID: <20040526190216.GA5414@waste.org>
-References: <Pine.LNX.4.44.0405251549530.26157-100000@chimarrao.boston.redhat.com> <Pine.LNX.4.44.0405251607520.26157-100000@chimarrao.boston.redhat.com> <20040525211522.GF29378@dualathlon.random> <20040526103303.GA7008@elte.hu> <20040526125014.GE12142@wohnheim.fh-wedel.de> <20040526111222.4159a771.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040526111222.4159a771.davem@redhat.com>
-User-Agent: Mutt/1.3.28i
+	Wed, 26 May 2004 15:06:58 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:8224 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S265774AbUEZTGe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 May 2004 15:06:34 -0400
+Date: Wed, 26 May 2004 20:06:23 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+cc: j-nomura@ce.jp.nec.com, <linux-kernel@vger.kernel.org>, <andrea@suse.de>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [2.4] heavy-load under swap space shortage
+In-Reply-To: <20040526124104.GF6439@logos.cnet>
+Message-ID: <Pine.LNX.4.44.0405261934250.740-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 26, 2004 at 11:12:22AM -0700, David S. Miller wrote:
-> On Wed, 26 May 2004 14:50:14 +0200
-> J?rn Engel <joern@wohnheim.fh-wedel.de> wrote:
+On Wed, 26 May 2004, Marcelo Tosatti wrote:
+
+> Andrea, Hugh, Jun'ichi,
 > 
-> > Change gcc to catch stack overflows before the fact and disallow
-> > module load unless modules have those checks as well.
-> 
-> That's easy, just enable profiling then implement a suitable
-> _mcount that checks for stack overflow.  I bet someone has done
-> this already.
+> I think we can merge this patch.
 
-There was a patch floating around for this in the 2.2 era that I
-ported to 2.4 on one occassion. It won't tell you worst case though,
-just worst observed case.
+I guess so.  I'm unenthusiastic since I've never worked out whether
+it's _right_, or just an ad hoc hack that happens to work around
+more fundamental issues, quite successfully in some workloads.
 
-Sparse is probably not a bad place to put a real call chain stack analysis.
+Andrea seems to have devised it to reduce pagemap_lru_lock
+contention on bigiron, yet here it's solving a different problem.
+Which may be a sign that it's a great patch, or a sign that we
+(I!) don't understand what goes on here well enough.
 
--- 
-Mathematics is the supreme nostalgia of our time.
+Please don't count me as against it: I just don't know.
+
+(My involvement was earlier when Jun'ichi reported page_table_lock
+contention there.  We were working together on an entirely different
+kind of patch addressing that issue, when Andrea suggested he try this
+vm_anon_lru patch.  As I understand it, that solved Jun'ichi's particular
+problem much more satisfactorily than our own dabblings; but I rather
+dropped out at that point.)
+
+> Its very safe - default behaviour unchanged. 
+
+Yes, but please update the comments to reflect that, they imply
+vm_anon_lru 0 by default, presumably how it was in Andrea's tree.
+
+The tunability, of course, does unfairly make it look more like a
+hack than it is; but if we're uncertain, yes, a tunable hack is
+much better than a wrong decision now.
+
+Hugh
+

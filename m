@@ -1,58 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267543AbTAQQA4>; Fri, 17 Jan 2003 11:00:56 -0500
+	id <S267554AbTAQQE5>; Fri, 17 Jan 2003 11:04:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267544AbTAQQA4>; Fri, 17 Jan 2003 11:00:56 -0500
-Received: from tomts6.bellnexxia.net ([209.226.175.26]:12017 "EHLO
-	tomts6-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S267543AbTAQQAy>; Fri, 17 Jan 2003 11:00:54 -0500
-Date: Fri, 17 Jan 2003 11:09:32 -0500 (EST)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@dell
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: unresolved symbols building 2.5.59
-In-Reply-To: <Pine.LNX.4.44.0301171003250.15056-100000@chaos.physics.uiowa.edu>
-Message-ID: <Pine.LNX.4.44.0301171107180.8105-100000@dell>
+	id <S267559AbTAQQE5>; Fri, 17 Jan 2003 11:04:57 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:14904 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S267554AbTAQQE4>; Fri, 17 Jan 2003 11:04:56 -0500
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: Mikael Pettersson <mikpe@csd.uu.se>, kai@tp1.ruhr-uni-bochum.de,
+       rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.59 vmlinux.lds.S change broke modules
+References: <15911.64825.624251.707026@harpo.it.uu.se>
+	<20030117135638.A376@flint.arm.linux.org.uk>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 17 Jan 2003 09:13:14 -0700
+In-Reply-To: <20030117135638.A376@flint.arm.linux.org.uk>
+Message-ID: <m1adhzg3fp.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 Jan 2003, Kai Germaschewski wrote:
+Russell King <rmk@arm.linux.org.uk> writes:
 
-> On Fri, 17 Jan 2003, Robert P. J. Day wrote:
+> On Fri, Jan 17, 2003 at 01:55:21PM +0100, Mikael Pettersson wrote:
+> > This oops occurs for every module, not just af_packet.ko, at
+> > resolve_symbol()'s first call to __find_symbol().
+> > 
+> > What happens is that __find_symbol() oopses because the kernel's
+> > symbol table is in la-la land. (Note the bogus kernel adress
+> > 2220c021 it tried to dereference above.)
+> > 
+> > Reverting 2.5.59's patch to arch/i386/vmlinux.lds.S cured the
+> > problem and modules now load correctly for me.
+> > 
+> > I don't know if this is a problem also for non-i386 archs.
 > 
-> > 
-> > tail end of "make modules_install":
-> > 
-> > if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.59; fi
-> > depmod: *** Unresolved symbols in /lib/modules/2.5.59/kernel/drivers/i2c/i2c-proc.ko
-> > depmod: 	i2c_check_functionality
-> > depmod: 	i2c_smbus_xfer
-> > depmod: 	i2c_check_addr
-> > depmod: 	i2c_adapter_id
-> > depmod: *** Unresolved symbols in /lib/modules/2.5.59/kernel/fs/cramfs/cramfs.ko
-> > depmod: 	zlib_inflate
-> > depmod: 	zlib_inflate_workspacesize
-> > depmod: 	zlib_inflateInit_
-> > depmod: 	zlib_inflateReset
-> > depmod: 	zlib_inflateEnd
-> > 
-> >   the first one seems to be i2c-proc looking for symbols in i2c-core,
-> > which i selected and which was built.
-> > 
-> >   the second seems to be that cramfs needs zlib_inflate, which once
-> > again i selected and which was built.
+> Well:
 > 
-> Which version of module-init-tools do you have? (see 
-> Documentation/Changes)
+>         __start___ksymtab = .;                                          \
+>         __ksymtab         : AT(ADDR(__ksymtab) - LOAD_OFFSET) {         \
+>                 *(__ksymtab)                                            \
+>         }                                                               \
+>         __stop___ksymtab = .;                                           \
 > 
-> --Kai
+> breaks on some ARM binutils (from a couple of years ago.)  The most
+> reliable way we've found in with ARM binutils is to place the symbols
+> inside the section - this appears to work 100% every single time and
+> I've never had any reports of failure (whereas I did with the symbols
+> outside as above.)
 
-ah, i have no such RPM, so where's the canonical location for it?
-and i'm assuming that it is a replacement for the older modutils,
-is that it?
+That has been roughly my experience on x86 as well with the exception
+of bss sections.  For bss sections placing the symbols inside the section
+itself has been deadly.
 
-rday
-
+Eric

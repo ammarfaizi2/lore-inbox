@@ -1,49 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261781AbSJDTKM>; Fri, 4 Oct 2002 15:10:12 -0400
+	id <S263173AbSJDSQG>; Fri, 4 Oct 2002 14:16:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261848AbSJDTKM>; Fri, 4 Oct 2002 15:10:12 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:16513 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S261781AbSJDTKK>;
-	Fri, 4 Oct 2002 15:10:10 -0400
-Message-ID: <3D9DE8E1.6030105@colorfullife.com>
-Date: Fri, 04 Oct 2002 21:15:45 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows NT 4.0)
-X-Accept-Language: en, de
+	id <S263165AbSJDSQG>; Fri, 4 Oct 2002 14:16:06 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:60115 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S263173AbSJDSP3>;
+	Fri, 4 Oct 2002 14:15:29 -0400
+Date: Fri, 4 Oct 2002 14:20:54 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [PATCH] 2.5.40 s390.
+In-Reply-To: <200210041624.17373.schwidefsky@de.ibm.com>
+Message-ID: <Pine.GSO.4.21.0210041354150.19491-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@digeo.com>
-CC: linux-kernel@vger.kernel.org, mbligh@aracnet.com
-Subject: Re: [PATCH] patch-slab-split-03-tail
-References: <3D9DCA1D.7070400@colorfullife.com> <3D9DE69C.C6E88C9F@digeo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+
+
+On Fri, 4 Oct 2002, Martin Schwidefsky wrote:
+
+> Hi Linus,
+> the 27th patch has joint the patch set for s/390. Minimum set for something
+> useful is again the first 7 patches. 
 > 
-> Makes sense.  It would be nice to get this confirmed in 
-> targetted testing ;)
- >
-Not yet done.
+> The list of patches and some comments:
+> 
+> 07: Fixes and more cleanup for the dasd driver. Thanks to Al Viro we
+>     got rid of the ugly things in the dasd driver. The only big thing
+>     left is big minors. In preparation we removed kdev_t where possible.
 
-The right way to test it would be to collect data in kernel about 
-alloc/free, and then run that data against both versions, and check 
-which version gives less internal fragmentation.
+	* please switch to use of alloc_disk()/put_disk()
+	* don't bother with disk->part allocation - it's done by add_disk()
+	* ditto for freeing it (del_gendisk())
+	* dasd_partition_to_kdev_t() - please use ->gdp->{major,first_minor}
+	* s/bdevname(d_device->bdev)/d_device->gdp->disk_name/
+	* lose ->bdev
 
-Or perhaps Bonwick has done that for his slab paper, but I don't have it :-(
+Note that we are getting bdev->bd_disk and disk->private pretty soon, so
+we'll have very easy way to do your devmap by bdev stuff.
 
-* An implementation of the Slab Allocator as described in outline in;
-*      UNIX Internals: The New Frontiers by Uresh Vahalia
-*      Pub: Prentice Hall      ISBN 0-13-101908-2
-* or with a little more detail in;
-*      The Slab Allocator: An Object-Caching Kernel Memory Allocator
-*      Jeff Bonwick (Sun Microsystems).
-*      Presented at: USENIX Summer 1994 Technical Conference
-
-
---
-	Manfred
-
+Anther thing: tapeblock.c and friends.
+<rant>
+	In ~ 2.5.16 blksize_size[] had been removed.  Tape-related code
+in s390 was using it, but that was fairly easy to get rid of.  Now, in
+2.5.21 somebody (presumably architecture maintainers) had submitted a
+patch that
+	* reverted all compile fixes, etc. that had happened in 2.5
+	* reintroduced use of (long-dead) blksize_size[]
+^#$^%@!
+Folks, if you do something like that, at least check the bloody changelog...
+</rant>
 

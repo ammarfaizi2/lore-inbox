@@ -1,53 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266531AbUFVCHQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266446AbUFVCW0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266531AbUFVCHQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 22:07:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266539AbUFVCHQ
+	id S266446AbUFVCW0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 22:22:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266539AbUFVCW0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 22:07:16 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:53891 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S266531AbUFVCGn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 22:06:43 -0400
-Message-ID: <40D7941F.3020909@pobox.com>
-Date: Mon, 21 Jun 2004 22:06:23 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
+	Mon, 21 Jun 2004 22:22:26 -0400
+Received: from umhlanga.stratnet.net ([12.162.17.40]:458 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S266446AbUFVCWY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jun 2004 22:22:24 -0400
+To: tom.l.nguyen@intel.com, linux-kernel@vger.kernel.org
+Subject: Question on using MSI in PCI driver
+X-Message-Flag: Warning: May contain useful information
+From: Roland Dreier <roland@topspin.com>
+Date: Mon, 21 Jun 2004 19:22:23 -0700
+Message-ID: <52lligqqlc.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
 MIME-Version: 1.0
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-CC: Takashi Iwai <tiwai@suse.de>, Matt Porter <mporter@kernel.crashing.org>,
-       Jamey Hicks <jamey.hicks@hp.com>, Ian Molton <spyro@f2s.com>,
-       linux-kernel@vger.kernel.org, greg@kroah.com, tony@atomide.com,
-       david-b@pacbell.net, joshua@joshuawise.com,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: DMA API issues
-References: <20040618175902.778e616a.spyro@f2s.com> <20040618110721.B3851@home.com> <40D3356E.8040800@hp.com> <20040618122112.D3851@home.com> <20040618204322.C17516@flint.arm.linux.org.uk> <s5hoendm3td.wl@alsa2.suse.de> <20040622000838.B7802@flint.arm.linux.org.uk>
-In-Reply-To: <20040622000838.B7802@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 22 Jun 2004 02:22:23.0611 (UTC) FILETIME=[C0CC54B0:01C457FF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> On Mon, Jun 21, 2004 at 03:35:42PM +0200, Takashi Iwai wrote:
->>Yes, the struct page pointer is needed for vma_ops.nopage in mmap on
->>ALSA.  So far, this is broken on some architectures like ARM.  We need
->>a proper conversion from virtual/bus pointer to a page struct.
-> 
-> 
-> Please get away from your nopage implementation.  We've been around this
-> before with Linus, and the conclusion was that it's up to architectures
-> to provide a MMAP method for DMA memory, which _may_ use the nopage
-> method if and only if it is appropriate for their implementation.
+I'm looking at implementing MSI/MSI-X support in a PCI device driver
+I'm working on.  However, I've run into an issue with the MSI API that
+I would like some clarification on.
 
+When I call pci_enable_msi, since my device is MSI-X capable, the
+kernel calls msix_capability_init, which works out the memory region
+where vectors should be written and then calls request_region.  (In
+fact it calls
 
-Can you elaborate?
+             request_mem_region(phys_addr,
+		dev_msi_cap * PCI_MSIX_ENTRY_SIZE,
+		"MSI-X iomap Failure"))
 
-When I was writing sound/oss/via82cxxx_audio.c, Linus specifically 
-recommended using ->nopage, which worked out quite well (modulo cleaning 
-up VM_xxx flags).
+which leads to a bizarre entry in /proc/iomem with the name "MSI-X
+iomap Failure")
 
-	Jeff
+The problem is that if I follow the standard route in my driver and
+call pci_request_regions() during init (since I want to claim my whole
+device), the request_mem_region in msix_capability_init will fail.
+Now, for my device, the MSI-X table happens to fall in the middle of a
+BAR, and I need to access stuff on both sides of it in that BAR.  To
+make things even worse for me, my device has two more BARs I want to claim.
 
+So it seems I am forced to turn my nice clean pci_request_regions()
+call into two calls to request_mem_region() (to get the beginning and
+end of the BAR with the MSI-X table in it) and two more calls to
+pci_request_region() (to get the other two BARs).
 
+This isn't the end of the world but it feels suboptimal to me.  Anyone
+have an idea for a better way to do this?  (I'm happy to write a patch
+to the kernel if someone suggests how to change the MSI API)
+
+Thanks,
+  Roland

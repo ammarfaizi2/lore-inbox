@@ -1,58 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265584AbRGCIEi>; Tue, 3 Jul 2001 04:04:38 -0400
+	id <S266472AbRGCIH2>; Tue, 3 Jul 2001 04:07:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266471AbRGCIE2>; Tue, 3 Jul 2001 04:04:28 -0400
-Received: from t2.redhat.com ([199.183.24.243]:59382 "HELO
+	id <S266473AbRGCIHS>; Tue, 3 Jul 2001 04:07:18 -0400
+Received: from t2.redhat.com ([199.183.24.243]:60662 "HELO
 	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
-	id <S265584AbRGCIEV>; Tue, 3 Jul 2001 04:04:21 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: dwmw2@infradead.org (David Woodhouse), dhowells@redhat.com (David Howells),
-        jes@sunsite.dk (Jes Sorensen), linux-kernel@vger.kernel.org,
-        arjanv@redhat.com
+	id <S266472AbRGCIHD>; Tue, 3 Jul 2001 04:07:03 -0400
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: David Howells <dhowells@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel@vger.kernel.org
 Subject: Re: [RFC] I/O Access Abstractions 
-In-Reply-To: Your message of "Mon, 02 Jul 2001 17:56:56 BST."
-             <E15H70K-0006Cn-00@the-village.bc.nu> 
-Date: Tue, 03 Jul 2001 09:04:15 +0100
-Message-ID: <3925.994147455@warthog.cambridge.redhat.com>
+In-Reply-To: Message from Jeff Garzik <jgarzik@mandrakesoft.com> 
+   of "Tue, 03 Jul 2001 04:00:09 EDT." <3B417B89.6FE1D06A@mandrakesoft.com> 
+Date: Tue, 03 Jul 2001 09:07:02 +0100
+Message-ID: <3938.994147622@warthog.cambridge.redhat.com>
 From: David Howells <dhowells@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Case 1:
-> 	You pass a single cookie to the readb code
-> 	Odd platforms decode it
+> David Howells wrote:
+> > For example, one board I've got doesn't allow you to do a straight
+> > memory-mapped I/O access to your PCI device directly, but have to
+> > reposition a window in the CPU's memory space over part of the PCI memory
+> > space first, and then hold a spinlock whilst you do it.
+> 
+> Yuck.  Does that wind up making MMIO slower than PIO, on this board?
 
-As opposed to passing a cookie (struct resource) and an offset, and letting
-the compiler do the addition it'd do anyway or eliminate the cookie directly
-on platforms where this is suitable.
-
-> Case 2:
-> 	You carry around bus number information all throughout
-> 		each driver
-
-Eh? Who said anything about bus number info? Just the information in the
-resource structure.
-
-> 	You keep putting it on/off the stack
-
-Why should I want to do that? You've got to keep the base address of your
-resource space somewhere anyway, so you could just replace it with a pointer
-to the resource struct (which you've already got). Plus, I can pass this in a
-register to any behind the scenes function.
-
-In my example code, in the really simple cases (most of them), there were no
-pushes and pops.
-
-> 	You keep it in structures
-
-Doesn't everyone? Apart from those that use global variables, I suppose, but
-surely they're limited in reusability.
-
-> 	You do complex generic locking for hotplug 'just in case'
-
-Eh? No I wasn't, but under some circumstances one might have to do that
-anyway, and so the out-of-line functions may be the best place to do that.
+The mapping is not symmetrical (things on the PCI bus can see more of the CPU
+bus at any one time than the reverse, so DMA isn't a problem), and at the
+moment I have only one device on it that I'm actually using (the ethernet
+chipset).
 
 David

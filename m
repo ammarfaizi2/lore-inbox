@@ -1,80 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265535AbUABPgo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jan 2004 10:36:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265536AbUABPgn
+	id S265586AbUABPlX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jan 2004 10:41:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265587AbUABPlX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jan 2004 10:36:43 -0500
-Received: from deadlock.et.tudelft.nl ([130.161.36.93]:21441 "EHLO
-	deadlock.et.tudelft.nl") by vger.kernel.org with ESMTP
-	id S265535AbUABPgm convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jan 2004 10:36:42 -0500
-Date: Fri, 2 Jan 2004 16:36:39 +0100 (CET)
-From: =?ISO-8859-1?Q?Dani=EBl_Mantione?= <daniel@deadlock.et.tudelft.nl>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-cc: Claas Langbehn <claas@rootdir.de>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0: atyfb broken
-In-Reply-To: <Pine.GSO.4.58.0401021341010.3062@waterleaf.sonytel.be>
-Message-ID: <Pine.LNX.4.44.0401021621160.15125-100000@deadlock.et.tudelft.nl>
+	Fri, 2 Jan 2004 10:41:23 -0500
+Received: from web9804.mail.yahoo.com ([216.136.129.214]:56631 "HELO
+	web9804.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S265586AbUABPlQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jan 2004 10:41:16 -0500
+Message-ID: <20040102154114.42231.qmail@web9804.mail.yahoo.com>
+Date: Fri, 2 Jan 2004 07:41:14 -0800 (PST)
+From: Robert Mena <rt_mena@yahoo.com>
+Subject: Fair scheduling in 2.4 ?
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+Back in the days of kernel 2.2 there was a patch (from
+Rik van Riel if I recall) to the kernel so no single
+user could use all available cpu.
 
-On Fri, 2 Jan 2004, Geert Uytterhoeven wrote:
+I was wondering if this feature (or something like it)
+has been ported or integrated in 2.4.x series ?
 
-> > with 2.4.23 it does not work either.
-> >
-> > dmesg says:
-> >
-> > atyfb: using auxiliary register aperture
-> > atyfb: Mach64 BIOS is located at c0000, mapped at c00c0000.
-> > atyfb: BIOS contains driver information table.
-> > atyfb: colour active matrix monitor detected: CPT CLAA141XB01
-> >         id=10, 1024x768 pixels, 262144 colours (LT mode)
-> >         supports 60 Hz refresh rates, default 60 Hz
-> >         LCD CRTC parameters: 15384 167 127 130 0 17 805 767 769 6
-> > atyfb: 3D RAGE Mobility (PCI) [0x4c4d rev 0x64] 8M SDRAM, 29.498928 MHz XTAL,
-> >        230 MHz PLL, 83 Mhz MCLK, 125 Mhz XCLK
-> > Console: switching to colour frame buffer device 80x25
-> > fb0: ATY Mach64 frame buffer device on PCI
-> >
-> >
-> > When booting the screen gets slowly flooded with white.
-> > X11 works anyway.
-> >
-> > dmesg's output shows different MCLK and XCLK with kernel 2.4.23
-> > (see above).
->
-> Does it work with 2.4.22 and earlier? Mobility support was changed a lot in
-> 2.4.23.
+regards,
+rt
 
-Did this laptop work before? My first guess is no. Both 2.4.22 and 2.6.0
-do not support LCD displays.
-
-2.4.23 does, and is the only kernel that does have a chance of working.
-
-In case 2.4.22 did work (possible since 720x400 VGA text mode is
-converted in hardware to 640x400, and therefore very similar to 640x480
-in timings), it will work very badly, the image is most likely not
-correct and any attempt to switch video mode will fail.
-
-The mclk/xclk settings in 2.4.23 are the correct default clock
-frequencies (checked with ATi). Other kernel versions use
-timings for an Apple Powerbook, which, because the open firmware
-initializes a correct startup video mode and PowerPC specific code that
-prevents switching to 640x480 will work with the original driver.
-This Apple laptop is detected in 2.4.23 and still gets the original
-frequencies.
-
-Anyway, the frequencies are correct for your laptop, if the display is
-fading white it means the graphics chip is operating correctly but
-provide wrong video mode timings to your LCD display.
-
-Daniël
-
+__________________________________
+Do you Yahoo!?
+Find out what made the Top Yahoo! Searches of 2003
+http://search.yahoo.com/top2003

@@ -1,149 +1,121 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265895AbTAOJZJ>; Wed, 15 Jan 2003 04:25:09 -0500
+	id <S265998AbTAOJdu>; Wed, 15 Jan 2003 04:33:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265909AbTAOJZJ>; Wed, 15 Jan 2003 04:25:09 -0500
-Received: from almesberger.net ([63.105.73.239]:27919 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id <S265895AbTAOJZG>; Wed, 15 Jan 2003 04:25:06 -0500
-Date: Wed, 15 Jan 2003 06:33:49 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: kuznet@ms2.inr.ac.ru, Roman Zippel <zippel@linux-m68k.org>,
-       kronos@kronoz.cjb.net, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Migrating net/sched to new module interface
-Message-ID: <20030115063349.A1521@almesberger.net>
-References: <20030115043147.A1840@almesberger.net> <20030115082444.062EF2C0F0@lists.samba.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S266006AbTAOJdu>; Wed, 15 Jan 2003 04:33:50 -0500
+Received: from ns.indranet.co.nz ([210.54.239.210]:979 "EHLO
+	mail.acheron.indranet.co.nz") by vger.kernel.org with ESMTP
+	id <S265998AbTAOJdt>; Wed, 15 Jan 2003 04:33:49 -0500
+Date: Wed, 15 Jan 2003 22:42:06 +1300
+From: Andrew McGregor <andrew@indranet.co.nz>
+To: Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
+Subject: Dell Laptop PCI wierdness, was: Re: Weird sound problems on Dell
+ Latitude C840 resolved..
+Message-ID: <453810000.1042623726@localhost.localdomain>
+In-Reply-To: <229640000.1042530648@localhost.localdomain>
+References: <200301140614.h0E6EVqZ024755@turing-police.cc.vt.edu>
+ <229640000.1042530648@localhost.localdomain>
+X-Mailer: Mulberry/3.0.0b10 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20030115082444.062EF2C0F0@lists.samba.org>; from rusty@rustcorp.com.au on Wed, Jan 15, 2003 at 07:16:24PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
-> 1) It's simply not a good idea to force 1600 modules to change, no
->    matter what timescale.
+I've tinkered some more with this.  My system is a 900/700 MHz P3 Inspiron 
+8000, with GeForce2go video.
 
-That's the part that I don't believe. The kernel interfaces
-aren't static. Locking rules have changed several times, the
-wait/sleep interface has changed, the concept of a module
-owner has been added, various other interfaces have changed.
+The linked page below suggests monkeying with setpci and altering the 
+latency timers on those devices in the system that support it.  This works, 
+although my system wants somewhat different numbers than suggested. 
+Specifically, it appears to work setting the audio latency to 248, leaving 
+everything else at default.
 
-So a module will eventually have to be maintained. And the
-more important a module, the more timely this will be done.
-(Well, or so everybody wishes :-) Unmaintained modules will
-eventually just fail to work or even compile for other reasons,
-at which point they cease to be a problem as far as the
-loading/unloading mechanism is concerned.
+By default the video card has a longer latency (64) than the audio 
+controller (32), so it is apparently easy for the audio to get bus-starved. 
+Increasing the latency for the audio controller well above default fixes 
+this.
 
-I agree that it's a bad idea to force changes. That's why
-there should be a reasonably long period where the current
-hack and a clean mechanism are available in parallel.
+Now I can have xmms run with a 3ms buffer, in realtime, and it won't skip 
+(on RedHat 2.4.18 with ALSA, presently).  Video performance is slightly 
+*improved*.  I can concoct linux events that will cause a skip (changing 
+virtual consoles does it), because 3ms is well below the latency bound of 
+this kernel, but the BIOS isn't doing it anymore.
 
-> And changing it in a way that is *more*,
->    not *less* complex is even worse.
+My clock is still strange, though.
 
-The implementation may be more complex, but the change I'm
-suggesting would greatly simplify the rules: no endless set
-of voodoo rites, but one simple rule: "the shutdowncall
-function either does nothing, and returns failure, or it
-returns success, and completely de-registers everything it
-has previously registered".
+But what on earth can the BIOS be doing?  It appears that, at least, the 
+PCI bus goes strange during these skips; however, this doesn't explain the 
+clock, does it?  The CPU can't be going away for long enough to explain 
+that, given the xmms result.
 
-> PS.  The *implementation* flaw in your scheme: someone starts using a
->      module as you try to deregister it.
+Confused.
 
-How could they ? The symbols are hidden, so that way is
-blocked. If another module has registered callbacks using
-symbols obtained from that module, that other module needs
-to be unloaded first anyway, so these references are gone
-too.
+Andrew
 
-If the static kernel accesses a module by resolving symbols
-(except for the well-controlled operations of the module
-loader itself), yes, then that module would become
-un-unloadable. I'm not sure this is much of an issue.
+--On Tuesday, January 14, 2003 20:50:48 +1300 Andrew McGregor 
+<andrew@indranet.co.nz> wrote:
 
-If a callback comes in at the wrong moment, the module can
-choose to de-register and wait until the subsystem has
-finished any callbacks, or detect that it's about to
-shut itself down, and fail the callback. The point is that
-all the locking is now under control of the module, and
-not scattered all over kernel+module(s).
+> These are general Dell laptop problems, and so far as I can tell, there's
+> no solution yet to either.  Audio is quite hard (except to get apps to
+> use bigger buffers; try googling for 'hammerfall cardbus dell', it's a
+> common problem).
+>
+> This page:
+> http://www-106.ibm.com/developerworks/library/l-hw2.html
+> may contain a solution to the audio issue, too, I just discovered.
+>
+> The clock problem is something Linux should deal with.  Like to look into
+> it?  I can help somewhat.
+>
+> Andrew
+>
+>
+> --On Tuesday, January 14, 2003 01:14:31 -0500 Valdis.Kletnieks@vt.edu
+> wrote:
+>
+>> A while back, I reported nasty sound distortion/echoing problems
+>> on a C840.  Well, this is a follow-up that I found the cause of the
+>> problem...
+>>
+>> I was also running gkrellm, with it's APM monitor activated.  Whenever
+>> it read from /proc/apm, this would cause a call to the BIOS down in
+>> apm_get_power_status().  As near as I can tell, on this particular Dell,
+>> calling the APM drops interrupts on the floor even if you run with
+>> CONFIG_APM_ALLOW_INTS.  Another effect of this was a badly drifting
+>> clock (which is how I found this in the first place) - doing a
+>> a 'grep timer /proc/interrupts', waiting 4 or 5 minutes of wall clock
+>> time, doing it again, and doing the math showed only 980 or so interrupts
+>> per second.  The clock drift exhibits itself under 2.4.18 as well,
+>> but it wasn't breaking audio.
+>>
+>> My guess is that the 2.4 driver for the i810 audio is a bit more tolerant
+>> of the occasional dropped interrupt (it seems to like to keep a lot of
+>> data already queued in the ring buffer), but the 2.5 driver runs in much
+>> more 'just in time' mode.  As a result, if the kernel gets suspended
+>> while we monkey around in the BIOS, we get a data underrun, causing my
+>> problems.
+>>
+>> For what it's worth, the i8k plugin for gkrellm also causes clock drift,
+>> but doesn't seem to upset the audio driver.
+>>
+>> (OK, so it's not as glorious as debugging APIC issues on a NUMAQ system.
+>> On the other hand, there's probably a lot more Latitudes out there than
+>> NUMAQ boxes, and more importantly to *me*, I have to deal with this
+>> particular Latitude 8-10 hours a day.  And somebody made a comment about
+>> open source being driven to scratch itches... ;)
+>>
+>> /Valdis
+>>
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
 
-> (ie. you can never unload security modules),
 
-Hmm, what makes security modules (what exactly do you mean
-by that ?) special ? In any case, a module that's truly
-unloadable would simply return failure from its
-shutdowncall.
-
-> or you leave it half unloaded (even worse).
-
-There's always the choice of just sleeping through any
-inconvenient callbacks. In some cases, this is perfectly
-acceptable, because the callback won't keep the module
-busy for a long time anyway (interrupts, timers, tasklets,
-etc.). In other cases (e.g. "open" functions), a callback
-could keep it busy forever.
-
-In that case, the module needs to maintain its own usage
-count and have some flag that indicates that it's shutting
-down. So the callback would look like this:
-
-static int foo_open(...)
-{
-	atomic_inc(&busy);
-	if (shutting_down) {
-		atomic_dec(&busy);
-		return -EGONEFISHING;
-	}
-	...
-}
-
-static int foo_shutdown(...)
-{
-	shutting_down = 1;
-	if (atomic_read(&busy)) {
-		shutting_down = 0;
-		return -EBUSY;
-	}
-	deregister_whatever(&myself);
-	/* deregister and synchronize */
-	...
-}
-
-"busy" could of course just be the module use count.
-
-There is the race condition that the module could briefly
-disappear (i.e. "foo_open" fails), and then come back, because
-it turned out to be or appear to be busy. But I think,
-considering that we're actually trying to make it go away, this
-is acceptable behaviour. You have the race conditions "is busy"
-vs. "can unload" and "can use" vs. "has been unloaded" anyway.
-
-This can be greatly simplified if we have a
-try_deregister_whatever that just returns an error if it would
-have to sleep, i.e. if the synchronization is pushed into the
-service.
-
-Of course, if the "whatever" subsystem will make callbacks
-after returning from deregister_whatever, this doesn't work,
-and the module has to use the old mechanisms. But that's really
-a bug in the "whatever" subsystem.
-
-The problem I see with the current module interface is that it
-just tries to hack the current mess into a less buggy state,
-but doesn't provide much of an incentive for actually cleaning
-up the interfaces.
-
-Avoiding the bugs is good, but we should also work towards a
-clean long-term solution.
-
-- Werner
-
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/

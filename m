@@ -1,57 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129401AbRCFSqR>; Tue, 6 Mar 2001 13:46:17 -0500
+	id <S129408AbRCFSsI>; Tue, 6 Mar 2001 13:48:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129216AbRCFSqI>; Tue, 6 Mar 2001 13:46:08 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:1263 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129408AbRCFSpw>; Tue, 6 Mar 2001 13:45:52 -0500
-Date: Tue, 6 Mar 2001 15:44:52 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Kurt Garloff <garloff@suse.de>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: Patch submissions
-In-Reply-To: <20010306192636.G5944@garloff.etpnet.phys.tue.nl>
-Message-ID: <Pine.LNX.4.33.0103061542550.1409-100000@duckman.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129216AbRCFSr5>; Tue, 6 Mar 2001 13:47:57 -0500
+Received: from aslan.scsiguy.com ([63.229.232.106]:28164 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S129408AbRCFSrl>; Tue, 6 Mar 2001 13:47:41 -0500
+Message-Id: <200103061847.f26IlaO06717@aslan.scsiguy.com>
+To: "Rafael E. Herrera" <raffo@neuronet.pitt.edu>
+cc: LK <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel 2.4.3 and new aic7xxx 
+In-Reply-To: Your message of "Tue, 06 Mar 2001 00:08:22 EST."
+             <3AA470C6.1A2BD379@neuronet.pitt.edu> 
+Date: Tue, 06 Mar 2001 11:47:36 -0700
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Mar 2001, Kurt Garloff wrote:
-> On Tue, Mar 06, 2001 at 02:22:58PM -0300, Rik van Riel wrote:
-> > I agree with Alan that we should keep all experimental stuff
-> > out of 2.4,
->
-> Depends on the impact. Experimental stuff in MM, FS, ...
-	[snip]
-> But, that's probably what you meant.
+>This is just to report on a the behavior of this driver. I've a dual
+>channel Adaptec 7895 controller. The adapter BIOS is configured to boot
+>from devices in channel B. I boot from  a disk connected to channel B
+>and when the kernel loads the driver the disks from channel A are seen
+>first, resulting in the drive names changing from, say sda to sdb. This
+>does not happen with 2.2.18 or 2.4.2. Is there an option to reverse the
+>order? I saw some of the options in the code, but none about this.
 
-*nod*
+Can you provide me with a dmesg from a boot with aic7xxx=verbose?
+I just tested this on a 3940AUW and the behavior was as expected.
+Perhaps you have a motherboard based controller that has no seeprom?
+I don't know how to detect flipped channels in that configuration
+but I'll see what I can find out.
 
-> > probably even out of linux-kernel ...
->
-> No. I want to see experimental stuff on l-k. That's what it's meant for.
-
-Putting the experimental stuff which isn't on l-k at the
-moment would probably triple the volume of this list, if
-not more ...
-
-I'm pretty sure most people already find l-k traffic too
-heavy to keep up. If you want to read all the experimental
-stuff of all the subsystems, why not subscribe to the
-mailing lists of those subsystems ?
-
-regards,
-
-Rik
 --
-Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
-
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
-
+Justin

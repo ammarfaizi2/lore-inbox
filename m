@@ -1,47 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129630AbRBGB0e>; Tue, 6 Feb 2001 20:26:34 -0500
+	id <S129534AbRBGBbz>; Tue, 6 Feb 2001 20:31:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129662AbRBGB0X>; Tue, 6 Feb 2001 20:26:23 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:9992 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129630AbRBGB0R>; Tue, 6 Feb 2001 20:26:17 -0500
-Date: Tue, 6 Feb 2001 17:26:02 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Ingo Molnar <mingo@elte.hu>
-cc: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>, Jens Axboe <axboe@suse.de>,
-        "Stephen C. Tweedie" <sct@redhat.com>, Ben LaHaise <bcrl@redhat.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	id <S129662AbRBGBbq>; Tue, 6 Feb 2001 20:31:46 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:54976 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S129534AbRBGBbf>;
+	Tue, 6 Feb 2001 20:31:35 -0500
+Date: Wed, 7 Feb 2001 01:27:10 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>, Ingo Molnar <mingo@elte.hu>,
+        Ben LaHaise <bcrl@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
         Manfred Spraul <manfred@colorfullife.com>, Steve Lord <lord@sgi.com>,
         Linux Kernel List <linux-kernel@vger.kernel.org>,
-        kiobuf-io-devel@lists.sourceforge.net
+        kiobuf-io-devel@lists.sourceforge.net, Ingo Molnar <mingo@redhat.com>
 Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
-In-Reply-To: <Pine.LNX.4.30.0102070205430.14696-100000@elte.hu>
-Message-ID: <Pine.LNX.4.10.10102061724080.2193-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20010207012710.N1167@redhat.com>
+In-Reply-To: <20010207002107.L1167@redhat.com> <Pine.LNX.4.10.10102061628440.2045-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.LNX.4.10.10102061628440.2045-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Tue, Feb 06, 2001 at 04:41:21PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-
-On Wed, 7 Feb 2001, Ingo Molnar wrote:
+On Tue, Feb 06, 2001 at 04:41:21PM -0800, Linus Torvalds wrote:
 > 
-> most likely some coding error on your side. buffer-size mismatches should
-> show up as filesystem corruption or random DMA scribble, not in-driver
-> oopses.
+> On Wed, 7 Feb 2001, Stephen C. Tweedie wrote:
+> > No, it is a problem of the ll_rw_block interface: buffer_heads need to
+> > be aligned on disk at a multiple of their buffer size.
+> 
+> Ehh.. True of ll_rw_block() and submit_bh(), which are meant for the
+> traditional block device setup, where "b_blocknr" is the "virtual
+> blocknumber" and that indeed is tied in to the block size.
+> 
+> The fact is, if you have problems like the above, then you don't
+> understand the interfaces. And it sounds like you designed kiobuf support
+> around the wrong set of interfaces.
 
-I'm not sure. If I was a driver writer (and I'm happy those days are
-mostly behind me ;), I would not be totally dis-inclined to check for
-various limits and things.
+They used the only interfaces available at the time...
 
-There can be hardware out there that simply has trouble with non-native
-alignment, ie be unhappy about getting a 1kB request that is aligned in
-memory at a 512-byte boundary. So there are real reasons why drivers might
-need updating. Don't dismiss the concerns out-of-hand.
+> If you want to get at the _sector_ level, then you do
+...
+> which doesn't look all that complicated to me. What's the problem?
 
-		Linus
+Doesn't this break nastily as soon as the IO hits an LVM or soft raid
+device?  I don't think we are safe if we create a larger-sized
+buffer_head which spans a raid stripe: the raid mapping is only
+applied once per buffer_head.
 
+--Stephen
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264143AbTFVXoD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jun 2003 19:44:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264218AbTFVXoD
+	id S264495AbTFVXqa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jun 2003 19:46:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264547AbTFVXqa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jun 2003 19:44:03 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:9746 "EHLO
+	Sun, 22 Jun 2003 19:46:30 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:12306 "EHLO
 	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264143AbTFVXoB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jun 2003 19:44:01 -0400
-Date: Mon, 23 Jun 2003 00:58:05 +0100
+	id S264495AbTFVXq3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Jun 2003 19:46:29 -0400
+Date: Mon, 23 Jun 2003 01:00:31 +0100
 From: Russell King <rmk@arm.linux.org.uk>
 To: Linux Kernel List <linux-kernel@vger.kernel.org>,
        David Woodhouse <dwmw2@cambridge.redhat.com>
-Subject: [PATCH] Fix incorrect operator precidence
-Message-ID: <20030623005805.D16537@flint.arm.linux.org.uk>
+Subject: [PATCH] Fix mtdblock / mtdpart / mtdconcat
+Message-ID: <20030623010031.E16537@flint.arm.linux.org.uk>
 Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
 	David Woodhouse <dwmw2@cambridge.redhat.com>
 Mime-Version: 1.0
@@ -25,17 +25,47 @@ X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- orig/drivers/mtd/mtd_blkdevs.c	Sat Jun 14 22:33:57 2003
-+++ linux/drivers/mtd/mtd_blkdevs.c	Mon Jun 23 00:43:14 2003
-@@ -46,7 +46,7 @@
- 	nsect = req->current_nr_sectors;
- 	buf = req->buffer;
+Dirtily disable ECC support; it doesn't work when mtdpart is layered
+on top of mtdconcat on top of CFI flash.
+
+There is probably a better fix, but that's for someone else to find.
+
+--- orig/drivers/mtd/mtdpart.c	Sat Jun 14 22:33:58 2003
++++ linux/drivers/mtd/mtdpart.c	Mon Jun 23 00:55:04 2003
+@@ -55,12 +55,12 @@
+ 		len = 0;
+ 	else if (from + len > mtd->size)
+ 		len = mtd->size - from;
+-	if (part->master->read_ecc == NULL)	
++//	if (part->master->read_ecc == NULL)	
+ 		return part->master->read (part->master, from + part->offset, 
+ 					len, retlen, buf);
+-	else
+-		return part->master->read_ecc (part->master, from + part->offset, 
+-					len, retlen, buf, NULL, &mtd->oobinfo);
++//	else
++//		return part->master->read_ecc (part->master, from + part->offset, 
++//					len, retlen, buf, NULL, &mtd->oobinfo);
+ }
  
--	if (!req->flags & REQ_CMD)
-+	if (!(req->flags & REQ_CMD))
- 		return 0;
+ static int part_point (struct mtd_info *mtd, loff_t from, size_t len, 
+@@ -134,12 +134,12 @@
+ 		len = 0;
+ 	else if (to + len > mtd->size)
+ 		len = mtd->size - to;
+-	if (part->master->write_ecc == NULL)	
++//	if (part->master->write_ecc == NULL)	
+ 		return part->master->write (part->master, to + part->offset, 
+ 					len, retlen, buf);
+-	else
+-		return part->master->write_ecc (part->master, to + part->offset, 
+-					len, retlen, buf, NULL, &mtd->oobinfo);
++//	else
++//		return part->master->write_ecc (part->master, to + part->offset, 
++//					len, retlen, buf, NULL, &mtd->oobinfo);
+ 							
+ }
  
- 	if (block + nsect > get_capacity(req->rq_disk))
 
 -- 
 Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux

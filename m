@@ -1,238 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261433AbSJAA6S>; Mon, 30 Sep 2002 20:58:18 -0400
+	id <S261425AbSJABMY>; Mon, 30 Sep 2002 21:12:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261434AbSJAA6S>; Mon, 30 Sep 2002 20:58:18 -0400
-Received: from smtp.comcast.net ([24.153.64.2]:31385 "EHLO smtp.comcast.net")
-	by vger.kernel.org with ESMTP id <S261433AbSJAA6M>;
-	Mon, 30 Sep 2002 20:58:12 -0400
-Date: Mon, 30 Sep 2002 19:30:54 -0400
-From: phillim2@comcast.net
-Subject: [PATCH] Olympic driver
-To: linux-kernel@vger.kernel.org, jgarzik@mandrakesoft.com,
-       alan@lxorguk.ukuu.org.uk, marcelo@conectiva.com.br
-Message-id: <20020930233053.GB669@cg436716-a.adubn1.nj.home.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-User-Agent: Mutt/1.4i
+	id <S261426AbSJABMY>; Mon, 30 Sep 2002 21:12:24 -0400
+Received: from mesatop.zianet.com ([216.234.192.105]:32526 "HELO
+	mesatop.zianet.com") by vger.kernel.org with SMTP
+	id <S261425AbSJABMX>; Mon, 30 Sep 2002 21:12:23 -0400
+Subject: 2.5.39 Oops on boot (device_attach+0x3a)
+From: Steven Cole <elenstev@mesatop.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2-5mdk 
+Date: 30 Sep 2002 19:13:02 -0600
+Message-Id: <1033434784.3100.10.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A small update to the olympic driver. 
+I tried to boot 2.5.39 on my home machine and got the
+following oops on boot with CONFIG_KALLSYMS=y (thanks Ingo!).
 
-This fixes a bug introduced in the last update that will panic the
-kernel if the wrong options are chosen, corrects some read/write
-alignments for 64bit ppc and adds code to start up the cardbus adapters
-correctly.
+*pde = 00000000
+Oops: 0002
 
-The patch applies cleanly to 2.5.39 as well.
+CPU:	0
+EIP:	0060:[<c01a7979>]	Not tainted
+EFLAGS:	00010286
+EIP is at attach+0x1d/0x30
+eax: c0276724	ebx: 00000000	ecx: c40c8060	edx: c40c8078
+esi: c0276700	edi: 00000000	ebp: 00000000	esp: c40ddf94
+ds:  0068 	es: 0068	ss: 0068
+Process swapper (pid: 1, threadinfo=c40dc000 task=c40da040)
+Stack: 00000000 c01a7a5a c40c8060 c40c8060 c01a7c20 c40c8060 c40c8060 c40c8060
+       c40d7720 c028b879 c40c8060 00000001 c02b9bf4 00000000 00000000 00000000
+       c027e6f2 c0105030 c010504c c0105030 00000000 00000000 00000000 c0105495
+Call Trace:
+[<c01a7a5a>] device_attach+0x3a/0x40
+[<c01a7c20>] device_register+0xd0/0x120
+[<c0105030>] init+0x0/0x160
+[<c010504c>] init+0x1c/0x160
+[<c0105030>] init+0x0/0x160
+[<c0105495>] kernel_thread_helper+0x5/0x10
 
-Mike Phillips
-Linux Token Ring Project
-http://www.linuxtr.net
+Code: 89 13 89 4c 24 08 5b e9 37 0d 00 00 8d b4 26 00 00 00 00 57
+Spurious 8959A interrupt: IRQ7
+Kernel panic: Attempted to kill init!
+
+The "Spurious 8959A interrupt" message occurred only once among several
+boot attempts with slightly differently configured kernels (taking more and more
+stuff out like sound and usb).  The traceback was the same each time however.
+
+The box is a Gateway P450 single PIII with Jabil motherboard.  I have a 
+Promise Ultra/66 disk controller installed.  Support for the 20262 was 
+compiled into 2.5.39 with CONFIG_BLK_DEV_PDC202XX_OLD=y and CONFIG_BLK_DEV_PDC202XX=y.
+Support for the PIIX4 was provided with CONFIG_BLK_DEV_PIIX=y.  
+I tried booting with the onboard IDE and then the PDC20262 with the same oops above.
+Either of those work with 2.4.x kernels.
+
+Here is a snippet from dmesg from a normal 2.4.18 boot:
+
+fb0: VESA VGA frame buffer device
+pty: 256 Unix98 ptys configured
+Serial driver version 5.05c (2001-07-08) with HUB-6 MANY_PORTS MULTIPORT SHARE_IRQ SERIAL_PCI ISAPNP enabled
+ttyS00 at 0x03f8 (irq = 4) is a 16550A
+ttyS01 at port 0x02f8 (irq = 10) is a 16550A
+block: 128 slots per queue, batch=32
+RAMDISK driver initialized: 16 RAM disks of 32000K size 1024 blocksize
+Uniform Multi-Platform E-IDE driver Revision: 6.31
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+PIIX4: IDE controller on PCI bus 00 dev 39
+PIIX4: chipset revision 1
+PIIX4: not 100% native mode: will probe irqs later
+    ide1: BM-DMA at 0x1428-0x142f, BIOS settings: hdc:DMA, hdd:pio
+PDC20262: IDE controller on PCI bus 00 dev 78
+PCI: Found IRQ 5 for device 00:0f.0
+PDC20262: chipset revision 1
+PDC20262: not 100% native mode: will probe irqs later
+PDC20262: (U)DMA Burst Bit ENABLED Primary PCI Mode Secondary PCI Mode.
+    ide0: BM-DMA at 0x10c0-0x10c7, BIOS settings: hda:DMA, hdb:DMA
+    ide2: BM-DMA at 0x10c8-0x10cf, BIOS settings: hde:DMA, hdf:pio
+hda: ST330620A, ATA DISK drive
+hdc: MATSHITADVD-ROM SR-8584A, ATAPI CD/DVD-ROM drive
+ide0 at 0x1440-0x1447,0x1436 on irq 5
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: 58633344 sectors (30020 MB) w/2048KiB Cache, CHS=58168/16/63, UDMA(66)
+hdc: ATAPI 32X DVD-ROM drive, 512kB Cache, UDMA(33)
+Uniform CD-ROM driver Revision: 3.12
+
+Steven
 
 
-diff -urN -X dontdiff linux-2.4.20-pre7-ac3.orig/drivers/net/tokenring/olympic.c linux-2.4.20-pre7-ac3/drivers/net/tokenring/olympic.c
---- linux-2.4.20-pre7-ac3.orig/drivers/net/tokenring/olympic.c	2002-09-22 17:10:00.000000000 -0500
-+++ linux-2.4.20-pre7-ac3/drivers/net/tokenring/olympic.c	2002-09-22 14:12:56.000000000 -0500
-@@ -56,8 +56,15 @@
-  * 07/19/01 - Improve bad LAA reporting, strip out freemem
-  *	      into a separate function, its called from 3 
-  *	      different places now. 
-- * 02/09/01 - Replaced sleep_on. 
-- *
-+ * 02/09/02 - Replaced sleep_on. 
-+ * 03/01/02 - Replace access to several registers from 32 bit to 
-+ * 	      16 bit. Fixes alignment errors on PPC 64 bit machines.
-+ * 	      Thanks to Al Trautman for this one.
-+ * 03/10/02 - Fix BUG in arb_cmd. Bug was there all along but was
-+ * 	      silently ignored until the error checking code 
-+ * 	      went into version 1.0.0 
-+ * 06/04/02 - Add correct start up sequence for the cardbus adapters.
-+ * 	      Required for strict compliance with pci power mgmt specs.
-  *  To Do:
-  *
-  *	     Wake on lan	
-@@ -111,7 +118,7 @@
-  */
- 
- static char version[] __devinitdata = 
--"Olympic.c v1.0.0 2/9/02  - Peter De Schrijver & Mike Phillips" ; 
-+"Olympic.c v1.0.5 6/04/02 - Peter De Schrijver & Mike Phillips" ; 
- 
- static char *open_maj_error[]  = {"No error", "Lobe Media Test", "Physical Insertion",
- 				   "Address Verification", "Neighbor Notification (Ring Poll)",
-@@ -296,9 +303,10 @@
- 	spin_lock_init(&olympic_priv->olympic_lock) ; 
- 
- 	/* Needed for cardbus */
--	if(!(readl(olympic_mmio+BCTL) & BCTL_MODE_INDICATOR))
-+	if(!(readl(olympic_mmio+BCTL) & BCTL_MODE_INDICATOR)) {
- 		writel(readl(olympic_priv->olympic_mmio+FERMASK)|FERMASK_INT_BIT, olympic_mmio+FERMASK);
--
-+	}
-+	
- #if OLYMPIC_DEBUG
- 	printk("BCTL: %x\n",readl(olympic_mmio+BCTL));
- 	printk("GPR: %x\n",readw(olympic_mmio+GPR));
-@@ -311,24 +319,42 @@
- 	writel(readl(olympic_mmio+BCTL)|BCTL_MIMREB,olympic_mmio+BCTL);
- 	
- 	if (olympic_priv->olympic_ring_speed  == 0) { /* Autosense */
--		writel(readl(olympic_mmio+GPR)|GPR_AUTOSENSE,olympic_mmio+GPR);
-+		writew(readw(olympic_mmio+GPR)|GPR_AUTOSENSE,olympic_mmio+GPR);
- 		if (olympic_priv->olympic_message_level) 
- 			printk(KERN_INFO "%s: Ringspeed autosense mode on\n",olympic_priv->olympic_card_name);
- 	} else if (olympic_priv->olympic_ring_speed == 16) {
- 		if (olympic_priv->olympic_message_level) 
- 			printk(KERN_INFO "%s: Trying to open at 16 Mbps as requested\n", olympic_priv->olympic_card_name);
--		writel(GPR_16MBPS, olympic_mmio+GPR);
-+		writew(GPR_16MBPS, olympic_mmio+GPR);
- 	} else if (olympic_priv->olympic_ring_speed == 4) {
- 		if (olympic_priv->olympic_message_level) 
- 			printk(KERN_INFO "%s: Trying to open at 4 Mbps as requested\n", olympic_priv->olympic_card_name) ; 
--		writel(0, olympic_mmio+GPR);
-+		writew(0, olympic_mmio+GPR);
- 	} 
- 	
--	writel(readl(olympic_mmio+GPR)|GPR_NEPTUNE_BF,olympic_mmio+GPR);
-+	writew(readw(olympic_mmio+GPR)|GPR_NEPTUNE_BF,olympic_mmio+GPR);
- 
- #if OLYMPIC_DEBUG
- 	printk("GPR = %x\n",readw(olympic_mmio + GPR) ) ; 
- #endif
-+	/* Solo has been paused to meet the Cardbus power
-+	 * specs if the adapter is cardbus. Check to 
-+	 * see its been paused and then restart solo. The
-+	 * adapter should set the pause bit within 1 second.
-+	 */
-+
-+	if(!(readl(olympic_mmio+BCTL) & BCTL_MODE_INDICATOR)) { 
-+		t=jiffies;
-+		while (!readl(olympic_mmio+CLKCTL) & CLKCTL_PAUSE) { 
-+			schedule() ; 
-+			if(jiffies-t > 2*HZ) { 
-+				printk(KERN_ERR "IBM Cardbus tokenring adapter not responsing.\n") ; 
-+				return -ENODEV;
-+			}
-+		}
-+		writel(readl(olympic_mmio+CLKCTL) & ~CLKCTL_PAUSE, olympic_mmio+CLKCTL) ; 
-+	}
-+	
- 	/* start solo init */
- 	writel((1<<15),olympic_mmio+SISR_MASK_SUM);
- 
-@@ -341,13 +367,13 @@
- 		}
- 	}
- 	
--	writel(readl(olympic_mmio+LAPWWO),olympic_mmio+LAPA);
-+	writel(readw(olympic_mmio+LAPWWO),olympic_mmio+LAPA);
- 
- #if OLYMPIC_DEBUG
- 	printk("LAPWWO: %x, LAPA: %x\n",readl(olympic_mmio+LAPWWO), readl(olympic_mmio+LAPA));
- #endif
- 
--	init_srb=olympic_priv->olympic_lap + ((readl(olympic_mmio+LAPWWO)) & (~0xf800));
-+	init_srb=olympic_priv->olympic_lap + ((readw(olympic_mmio+LAPWWO)) & (~0xf800));
- 
- #if OLYMPIC_DEBUG		
- {
-@@ -422,11 +448,11 @@
- 
- 	/* adapter is closed, so SRB is pointed to by LAPWWO */
- 
--	writel(readl(olympic_mmio+LAPWWO),olympic_mmio+LAPA);
--	init_srb=olympic_priv->olympic_lap + ((readl(olympic_mmio+LAPWWO)) & (~0xf800));
-+	writel(readw(olympic_mmio+LAPWWO),olympic_mmio+LAPA);
-+	init_srb=olympic_priv->olympic_lap + ((readw(olympic_mmio+LAPWWO)) & (~0xf800));
- 	
- #if OLYMPIC_DEBUG
--	printk("LAPWWO: %x, LAPA: %x\n",readl(olympic_mmio+LAPWWO), readl(olympic_mmio+LAPA));
-+	printk("LAPWWO: %x, LAPA: %x\n",readw(olympic_mmio+LAPWWO), readl(olympic_mmio+LAPA));
- 	printk("SISR Mask = %04x\n", readl(olympic_mmio+SISR_MASK));
- 	printk("Before the open command \n");
- #endif	
-@@ -486,7 +512,7 @@
-             			olympic_priv->srb_queued=0;
-             			break;
-         		}
--			if ((jiffies-t) > 60*HZ) { 
-+			if ((jiffies-t) > 10*HZ) { 
- 				printk(KERN_WARNING "%s: SRB timed out. \n",dev->name) ; 
- 				olympic_priv->srb_queued=0;
- 				break ; 
-@@ -495,7 +521,7 @@
-     		}
- 		remove_wait_queue(&olympic_priv->srb_wait,&wait) ; 
- 		set_current_state(TASK_RUNNING) ; 
--
-+		olympic_priv->srb_queued = 0 ; 
- #if OLYMPIC_DEBUG
- 		printk("init_srb(%p): ",init_srb);
- 		for(i=0;i<20;i++)
-@@ -629,7 +655,8 @@
- 	printk(" stat_ring[7]: %p\n", &(olympic_priv->olympic_rx_status_ring[7])  );
- 
- 	printk("RXCDA: %x, rx_ring[0]: %p\n",readl(olympic_mmio+RXCDA),&olympic_priv->olympic_rx_ring[0]);
--	printk("Rx_ring_dma_addr = %08x, rx_status_dma_addr = %08x\n",olympic_priv->rx_ring_dma_addr,olympic_priv->rx_status_ring_dma_addr) ; 
-+	printk("Rx_ring_dma_addr = %08x, rx_status_dma_addr =
-+%08x\n",olympic_priv->rx_ring_dma_addr,olympic_priv->rx_status_ring_dma_addr) ; 
- #endif
- 
- 	writew((((readw(olympic_mmio+RXENQ)) & 0x8000) ^ 0x8000) | i,olympic_mmio+RXENQ);
-@@ -790,7 +817,7 @@
- 			   	   	   first. Ideally all frames would be in a single buffer, this can be tuned by
-                                	   	   altering the buffer size. If the length of the packet is less than
- 					   1500 bytes we're going to copy it over anyway to stop packets getting
--					   dropped from sockets with buffers small than our pkt_buf_sz. */
-+					   dropped from sockets with buffers smaller than our pkt_buf_sz. */
- 				
-  					if (buffer_cnt==1) {
- 						olympic_priv->rx_ring_last_received++ ; 
-@@ -1097,10 +1124,13 @@
- 	writel(readl(olympic_mmio+BCTL)&~(3<<13),olympic_mmio+BCTL);
- 
- #if OLYMPIC_DEBUG
-+	{
-+	int i ; 
- 	printk("srb(%p): ",srb);
- 	for(i=0;i<4;i++)
- 		printk("%x ",readb(srb+i));
- 	printk("\n");
-+	}
- #endif
- 	free_irq(dev->irq,dev);
- 
-@@ -1369,8 +1399,7 @@
- 	arb_block = (u8 *)(olympic_priv->olympic_lap + olympic_priv->arb) ; 
- 	asb_block = (u8 *)(olympic_priv->olympic_lap + olympic_priv->asb) ; 
- 	srb = (u8 *)(olympic_priv->olympic_lap + olympic_priv->srb) ; 
--	writel(readl(olympic_mmio+LAPA),olympic_mmio+LAPWWO);
--
-+	
- 	if (readb(arb_block+0) == ARB_RECEIVE_DATA) { /* Receive.data, MAC frames */
- 
- 		header_len = readb(arb_block+8) ; /* 802.5 Token-Ring Header Length */	
-@@ -1423,7 +1452,7 @@
- 		/* Now tell the card we have dealt with the received frame */
- 
- 		/* Set LISR Bit 1 */
--		writel(LISR_ARB_FREE,olympic_priv->olympic_lap + LISR_SUM);
-+		writel(LISR_ARB_FREE,olympic_priv->olympic_mmio + LISR_SUM);
- 
- 		/* Is the ASB free ? */ 	
- 		
-diff -urN -X dontdiff linux-2.4.20-pre7-ac3.orig/drivers/net/tokenring/olympic.h linux-2.4.20-pre7-ac3/drivers/net/tokenring/olympic.h
---- linux-2.4.20-pre7-ac3.orig/drivers/net/tokenring/olympic.h	2002-08-02 19:39:44.000000000 -0500
-+++ linux-2.4.20-pre7-ac3/drivers/net/tokenring/olympic.h	2002-09-22 14:12:56.000000000 -0500
-@@ -91,6 +91,7 @@
- #define TIMER 0x50
- 
- #define CLKCTL 0x74
-+#define CLKCTL_PAUSE (1<<15) 
- 
- #define PM_CON 0x4
- 

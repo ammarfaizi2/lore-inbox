@@ -1,57 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264083AbTEGQqb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 12:46:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264089AbTEGQqb
+	id S264082AbTEGQoS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 12:44:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264083AbTEGQoS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 12:46:31 -0400
-Received: from tux.rsn.bth.se ([194.47.143.135]:1164 "EHLO tux.rsn.bth.se")
-	by vger.kernel.org with ESMTP id S264083AbTEGQqa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 12:46:30 -0400
-Subject: Re: OSDL DBT-2 AS vs. Deadline 2.5.68-mm2
-From: Martin Josefsson <gandalf@wlug.westbo.se>
-To: markw@osdl.org
-Cc: akpm@digeo.com, linux-kernel@vger.kernel.org
-In-Reply-To: <200305071633.h47GXWW15850@mail.osdl.org>
-References: <200305071633.h47GXWW15850@mail.osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1052326742.24206.16.camel@tux.rsn.bth.se>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 07 May 2003 18:59:02 +0200
+	Wed, 7 May 2003 12:44:18 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:59010 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S264082AbTEGQoQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 12:44:16 -0400
+Date: Wed, 7 May 2003 12:59:17 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: petter wahlman <petter@bluezone.no>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: The disappearing sys_call_table export.
+In-Reply-To: <1052323711.3739.750.camel@badeip>
+Message-ID: <Pine.LNX.4.53.0305071247360.12878@chaos>
+References: <1052321673.3727.737.camel@badeip>  <Pine.LNX.4.53.0305071147510.12652@chaos>
+ <1052323711.3739.750.camel@badeip>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-05-07 at 18:33, markw@osdl.org wrote:
-> I've collected some data from STP to see if it's useful or if there's
-> anything else that would be useful to collect. I've got some tests
-> queued up for the newer patches, but I wanted to put out what I had so
-> far.
-> 
-> 
-> METRICS OVER LAST 20 MINUTES:
-> --------------- -------- ----- ---- -------- -----------------------------------
-> Kernel          Elevator NOTPM CPU% Blocks/s URL                                
-> --------------- -------- ----- ---- -------- -----------------------------------
-> 2.5.68-mm2      as        1155 94.3   8940.2 http://khack.osdl.org/stp/271356/  
-> 2.5.68-mm2      deadline  1255 94.9   9598.7 http://khack.osdl.org/stp/271359/  
-> 
-> FUNCTIONS SORTED BY TICKS:
-> -- ------------------------- ------- ------------------------- -------
->  # as 2.5.68-mm2             ticks   deadline 2.5.68-mm2       ticks  
-> -- ------------------------- ------- ------------------------- -------
->  1 default_idle              6103428 default_idle              5359025
->  2 bounce_copy_vec             86272 bounce_copy_vec             97696
->  3 schedule                    63819 schedule                    70114
->  4 __make_request              30397 __blk_queue_bounce          31167
->  5 __blk_queue_bounce          26962 scsi_request_fn             26623
->  6 scsi_request_fn             24845 __make_request              25012
+On Wed, 7 May 2003, petter wahlman wrote:
 
-You are using scsi, what tcq depth are you using? AS doesn't like >4 or
-something like that.
+> On Wed, 2003-05-07 at 18:00, Richard B. Johnson wrote:
+> > On Wed, 7 May 2003, petter wahlman wrote:
+> >
+> > >
+> > > It seems like nobody belives that there are any technically valid
+> > > reasons for hooking system calls, but how should e.g anti virus
+> > > on-access scanners intercept syscalls?
+> > > Preloading libraries, ptracing init, patching g/libc, etc. are
+> >   ^^^^^^^^^^^^^^^^^^^
+> >                     |________  Is the way to go. That's how
+> > you communicate every system-call to a user-mode daemon that
+> > does whatever you want it to do, including phoning the National
+> > Security Administrator if that's the policy.
+> >
+> > > obviously not the way to go.
+> > >
+> >
+> > Oviously wrong.
+>
+>
+> And how would you force the virus to preload this library?
+>
+> -p.
+>
 
--- 
-/Martin
+The same way you would force a virus to not be statically linked.
+You make sure that only programs that interface with the kernel
+thorugh your hooks can run on that particular system.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
+

@@ -1,48 +1,35 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315178AbSEQMT5>; Fri, 17 May 2002 08:19:57 -0400
+	id <S314596AbSEQMXN>; Fri, 17 May 2002 08:23:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315285AbSEQMT4>; Fri, 17 May 2002 08:19:56 -0400
-Received: from slip-202-135-75-243.ca.au.prserv.net ([202.135.75.243]:10121
-	"EHLO wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
-	id <S315178AbSEQMT4>; Fri, 17 May 2002 08:19:56 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: davem@redhat.com (David S. Miller), torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: AUDIT: copy_from_user is a deathtrap. 
-In-Reply-To: Your message of "Fri, 17 May 2002 13:17:25 +0100."
-             <E178gfl-0006Ip-00@the-village.bc.nu> 
-Date: Fri, 17 May 2002 22:21:45 +1000
-Message-Id: <E178gkH-0001LV-00@wagner.rustcorp.com.au>
+	id <S315255AbSEQMXM>; Fri, 17 May 2002 08:23:12 -0400
+Received: from louise.pinerecords.com ([212.71.160.16]:54028 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S314596AbSEQMXL>; Fri, 17 May 2002 08:23:11 -0400
+Date: Fri, 17 May 2002 14:17:47 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: ext3-users@redhat.com, ext2-devel@lists.sourceforge.net,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@zip.com.au>, Andreas Dilger <adilger@home.com>
+Subject: Re: Ext3-0.9.18 available
+Message-ID: <20020517121746.GA6613@louise.pinerecords.com>
+In-Reply-To: <20020516175637.A21624@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.99i
+X-OS: Linux/sparc 2.2.21-rc4-ext3-0.0.7a SMP (up 1 day, 5:42)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <E178gfl-0006Ip-00@the-village.bc.nu> you write:
-> > > I would much rather fix these instances than add yet another
-> > > interface.
-> > 
-> > I'll accept that if someone's volunteering to audit the kernel for
-> > them every six months.
-> > 
-> > Sorry I wasn't clear: I'm saying *replace*, not add,
-> 
-> Replace requires you audit every single use, and then work out how to
-> handle those that do care about the length and the point it faulted.
+> ext3-0.9.18 is now available for 2.4.19-pre8.  Some of the fixes in
+> this release are already in the 2.4.19-pre8, but there are some
+> important new fixes in the patch and users are encouraged to upgrade.
+> This release fixes all known outstanding bug reports.
 
-Read my original post.  I have done this.
+Is there at least a remote possibility of the fixes getting ported
+to be included in the linux-2.2 ext3 patch (the latest being 0.0.7a?)?
 
-> From what I've seen of the stuff that has been fixed we have a mix
-> of the following
-> 
-> 1.	Misports of ancient verify_* code - eg the serial ones
-> 2.	Not checking the return code - 100% legal and standards compliant
-
-No, the 400+ are all of form:
-
-	/* of course this returns 0 or -EFAULT! */
-	return copy_from_user(xxx);
-
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Thanks,
+T.

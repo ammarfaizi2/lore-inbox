@@ -1,38 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317657AbSGJWrl>; Wed, 10 Jul 2002 18:47:41 -0400
+	id <S317661AbSGJWvw>; Wed, 10 Jul 2002 18:51:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317658AbSGJWrk>; Wed, 10 Jul 2002 18:47:40 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:53521 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S317657AbSGJWrj>; Wed, 10 Jul 2002 18:47:39 -0400
-Date: Wed, 10 Jul 2002 15:49:50 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Emmanuel Fuste <fuste@worldnet.fr>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       <linux-m68k@lists.linux-m68k.org>
-Subject: RE: Info on dn_keyb.c
-In-Reply-To: <1012554508.3c5a5b0cbd627@webmail.worldnet.net>
-Message-ID: <Pine.LNX.4.44.0207101547420.11248-100000@www.transvirtual.com>
+	id <S317663AbSGJWvv>; Wed, 10 Jul 2002 18:51:51 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:6292 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id <S317661AbSGJWvu>; Wed, 10 Jul 2002 18:51:50 -0400
+Date: Thu, 11 Jul 2002 00:54:22 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
+cc: "'Jens Axboe'" <axboe@suse.de>,
+       Richard Zidlicky 
+	<Richard.Zidlicky@stud.informatik.uni-erlangen.de>,
+       <linux-kernel@vger.kernel.org>
+Subject: RE: (RE:  using 2.5.25 with IDE) On sparc64.....
+In-Reply-To: <61DB42B180EAB34E9D28346C11535A783A7B86@nocmail101.ma.tmpw.net>
+Message-ID: <Pine.SOL.4.30.0207110052170.11809-100000@mion.elka.pw.edu.pl>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> >How is in charge of it and where can I get docs on the hardware so I can
-> >port the driver to the input api?
->
-> It was Peter De Schrijver who made the M68K Apollo DN port.
-> I have the hardware docs on paper. I could try to send you the relevant parts
-> or help you to port it.
+Don't waste your time ;-)
+Jens was already sent my old patch to fix endianness..
 
-Could you send me the docs. Its time to port the keyboard driver over to
-the input api.
-
-> I no longuer have Apollo DN hardware on hand but if someone in France who
-> read LKML want to made a donation, he can contact me.
-
-Did someone send you anything.
+--
+Bartlomiej
 
 

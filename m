@@ -1,40 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265055AbUETIyQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265034AbUETJCR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265055AbUETIyQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 May 2004 04:54:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265056AbUETIyQ
+	id S265034AbUETJCR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 May 2004 05:02:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265038AbUETJCQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 May 2004 04:54:16 -0400
-Received: from smtp-out1.xs4all.nl ([194.109.24.11]:26380 "EHLO
-	smtp-out1.xs4all.nl") by vger.kernel.org with ESMTP id S265055AbUETIyP
+	Thu, 20 May 2004 05:02:16 -0400
+Received: from smtp-104-thursday.nerim.net ([62.4.16.104]:7950 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S265034AbUETJCN
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 May 2004 04:54:15 -0400
-Date: Thu, 20 May 2004 10:54:03 +0200
-From: Jurriaan <thunder7@xs4all.nl>
-To: "Emiliano 'AlberT' Gabrielli" <AlberT@SuperAlberT.it>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [OT ML related]
-Message-ID: <20040520085403.GA17391@middle.of.nowhere>
-Reply-To: Jurriaan <thunder7@xs4all.nl>
-References: <Pine.LNX.4.58.0405191118170.4760@rosencrantz.theboonies.us> <20040519030319.1f0e6eec.akpm@osdl.org> <1085009460.15182.87.camel@gaston> <200405201019.51259.AlberT@SuperAlberT.it>
+	Thu, 20 May 2004 05:02:13 -0400
+Date: Thu, 20 May 2004 11:03:12 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: "Mark M. Hoffman" <mhoffman@lightlink.com>
+Cc: Sensors <sensors@Stimpy.netroedge.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Dynamic fan clock divider changes (long)
+Message-Id: <20040520110312.101c5c11.khali@linux-fr.org>
+In-Reply-To: <20040518021540.GB11012@earth.solarsys.private>
+References: <20040516222809.2c3d1ea2.khali@linux-fr.org>
+	<20040518021540.GB11012@earth.solarsys.private>
+Reply-To: Sensors <sensors@Stimpy.netroedge.com>,
+       LKML <linux-kernel@vger.kernel.org>
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200405201019.51259.AlberT@SuperAlberT.it>
-X-Message-Flag: Still using Outlook? As you can see, it has some errors.
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Emiliano 'AlberT' Gabrielli <AlberT@SuperAlberT.it>
-Date: Thu, May 20, 2004 at 10:19:51AM +0200
-> My propose is to prepend every message coming from this ML with a fixed and 
-> significant string, my choice is "[LKML]: "
+> > I think I'll stick to #2 for now. The extra code is reasonable, and
+> > I don't really see the low accuracy at high speed as a problem. What
+> > matters much to me is that the user shouldn't have to worry about
+> > selecting dividers himself, and #2 does this.
+> > 
+> > Part of the extra code may be moved to i2c_sensor if several drivers
+> > use it. Also, remember that the new policy will remove some code
+> > from the drivers (reading and setting dividers manually) so this
+> > gives us some margin anyway.
 > 
-Use procmail and do it yourself.
+> The keyword in your conclusion is "policy", which reminds me of the
+> phrase "mechanism, not policy".
 
-Jurriaan
+I don't quite see how appropriate this phrase is in the context, and, to
+say the truth, I'm not even sure I understand what you imply by saying
+that. Could you please explain in great details why you seem to think
+that my proposal is no good idea?
+
+If the use of the word "policy" is incorrect, maybe I should have used
+another. What I meant was that, if we start implementing that kind of
+stuff in several drivers, we better discuss it together before, and
+implement it the same, optimal way, so that we don't have to change it
+afterwards, and it can be documented, and the user doesn't observe
+different behaviors on different drivers. I'm trying to spare the user
+some trouble, so let's not replace it with different trouble.
+
+> The driver should behave exactly as commanded, nothing more.
+
+Well, most hardware monitoring chip drivers do more than that, and I
+don't think this should be changed. For example, drivers enable
+monitoring on load and configure what needs to be. We have limited their
+action to the least possible, and I think it was a clever move, but some
+things definitely need to be done. Drivers may also need to reset alarm
+flags after they read them. This belongs to the driver's job to do that!
+Likewise, I believe that the fact that a clock divider has to be chosen
+is a hardware implementation detail the user-space shouldn't even be
+aware about.
+
+> The solution to the fan divisor madness can and should be done in
+> userspace.
+
+I agree it could (the whole hardware monitoring chip drivers could).
+However, the current interface doesn't allow that. The user-space would
+need to know which dividers are available for each driver, and would
+need to know the base clock frequency for each driver as well (or,
+alternatively, we would have to export raw register readings for fan
+tachometers). The amount of driver code required to do this would
+probably be equal to, or even greater than, what I am proposing.
+
+For information, my current implementation of the in-driver dynamic
+clock adjustement is about 15 lines of code at update time, if you omit
+comments and debugging, and 7 lines of code at low limit change time.
+The current interface code to fan_div alone has about as much (about 22
+lines)! If we are to export everything we need to do the same in
+user-space, it will make the drivers even bigger, and add overhead at
+the user-space/kernel-space interface. So why would we want to do that?
+
+If you have a reason to believe that what I propose is not correct,
+please explain why you do, with as much details as needed. I would also
+want to read a concrete proposal of how we would do it your way. Simply
+pretending that "it's not the correct way to do it" without additional
+explanation nor proposal doesn't help me much, unfortunately.
+
+I'm definitely surprised that you don't seem to like my proposal at all,
+while I thought you were suggesting we could do something similar a few
+months ago [1]. Quoting you back in January:
+
+"(...) we'd auto-increment the fan_div until we got a non-zero reading
+or we hit the max.  Then the first set to a fan_div turns the feature
+off; that would allow sensors.conf/sensors -s to override."
+
+Or do I misread you somehow?
+
+Thanks.
+
+[1] http://archives.andrew.net.au/lm-sensors/msg05815.html
+
 -- 
-If it sounds too good to be true, it's probably Linux.
-	Seen on Usenet
-Debian (Unstable) GNU/Linux 2.6.6-mm4 2x6062 bogomips 1.04 1.98
+Jean Delvare
+http://khali.linux-fr.org/

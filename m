@@ -1,75 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263419AbRFAIsk>; Fri, 1 Jun 2001 04:48:40 -0400
+	id <S263418AbRFAIsA>; Fri, 1 Jun 2001 04:48:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263421AbRFAIsb>; Fri, 1 Jun 2001 04:48:31 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:36357 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S263419AbRFAIsX>; Fri, 1 Jun 2001 04:48:23 -0400
-Subject: Re: [PATCH] support for Cobalt Networks (x86 only) systems (for real this
-To: thockin@sun.com (Tim Hockin)
-Date: Fri, 1 Jun 2001 09:46:17 +0100 (BST)
-Cc: alan@redhat.com, linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <3B17025B.E5E23095@sun.com> from "Tim Hockin" at May 31, 2001 07:47:55 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S263419AbRFAIru>; Fri, 1 Jun 2001 04:47:50 -0400
+Received: from Backfire.WH8.TU-Dresden.De ([141.30.225.118]:11688 "EHLO
+	Backfire.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id <S263418AbRFAIri>; Fri, 1 Jun 2001 04:47:38 -0400
+Content-Type: Multipart/Mixed;
+  charset="iso-8859-1";
+  boundary="------------Boundary-00=_ART8ETCSKRA4BMVVUYK0"
+From: Gregor Jasny <gjasny@wh8.tu-dresden.de>
+Organization: Netzwerkadministrator WH8/DD
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.4 Kernel Oops and ls+rm segfaults
+Date: Fri, 1 Jun 2001 10:47:34 +0200
+X-Mailer: KMail [version 1.2]
+Cc: Alexander Viro <viro@math.psu.edu>
+X-PGP-fingerprint: B0FA 69E5 D8AC 02B3 BAEF  E307 BD3A E495 93DD A233
+X-PGP-public-key: finger gjasny@hell.wh8.tu-dresden.de
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E155kZV-0000Db-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-Id: <01060110473400.29231@backfire>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +		/* setup osb4 i/o regions */
-> +		if ((reg = get_reg(OSB4_INDEX_PORT, OSB4_DATA_PORT, 0x20)))
-> +			request_region(reg, 4, "OSB4 (pm1a_evt_blk)");
 
-Check request_region worked
+--------------Boundary-00=_ART8ETCSKRA4BMVVUYK0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 
-> +static int 
-> +i2c_wait_for_smi(void)
+Hi!
 
-Obvious question - why duplicate the i2c layer
+Can anyone tell me, where this oops came from?
+The machine is a HP NetServer II lc (EISA+PCI architecture).
+The distribution is a slackware 7.0 with parts of 7.1 and current.
+gcc: 2.95.4 20010319 (Debian prerelease)
 
-> +/* device structure */
-> +static struct miscdevice lcd_dev = {
-> +	COBALT_LCD_MINOR,
+I hope you can help me.
 
-Is this an officially allocated minor ?
+Regards, 
 
-> +	/* Get the current cursor position */
-> +        case LCD_Get_Cursor_Pos:
-> +                display.cursor_address = lcddev_read_inst();
-> +                display.cursor_address = display.cursor_address & 0x07F;
-> +                copy_to_user((struct lcd_display *)arg, &display, dlen);
+-Gregor
+--------------Boundary-00=_ART8ETCSKRA4BMVVUYK0
+Content-Type: text/plain;
+  charset="iso-8859-1";
+  name="oops.txt"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="oops.txt"
 
-		Sleeping holding a spinlock
+a3N5bW9vcHMgMi40LjEgb24gaTU4NiAyLjQuNC1jc2ZkZGkuICBPcHRpb25zIHVzZWQKICAgICAt
+ViAoZGVmYXVsdCkKICAgICAtayAvcHJvYy9rc3ltcyAoZGVmYXVsdCkKICAgICAtbCAvcHJvYy9t
+b2R1bGVzIChkZWZhdWx0KQogICAgIC1vIC9saWIvbW9kdWxlcy8yLjQuNC1jc2ZkZGkvIChkZWZh
+dWx0KQogICAgIC1tIC9ib290L1N5c3RlbS5tYXAtMi40LjQtY3NmZGRpIChzcGVjaWZpZWQpCgpV
+bmFibGUgdG8gaGFuZGxlIGtlcm5lbCBwYWdpbmcgcmVxdWVzdCBhdCB2aXJ0dWFsIGFkZHJlc3Mg
+YzkzNmQzMDAKYzAxMjJkOGMKKnBkZSA9IDAwMDAwMDAwCk9vcHM6IDAwMDIKQ1BVOiAgICAwCkVJ
+UDogICAgMDAxMDpbPGMwMTIyZDhjPl0KVXNpbmcgZGVmYXVsdHMgZnJvbSBrc3ltb29wcyAtdCBl
+bGYzMi1pMzg2IC1hIGkzODYKRUZMQUdTOiAwMDAxMDA4NwplYXg6IDMzOGI5NWVmICAgZWJ4OiAw
+MWY5NTRiYSAgIGVjeDogYzE1MTgwMDAgICBlZHg6IDAwMDAwMDIzCmVzaTogYzExOWZjZGMgICBl
+ZGk6IDAwMDAwMjAyICAgZWJwOiBjMTA1YmU5MCAgIGVzcDogYzFlYTFlYzQKZHM6IDAwMTggICBl
+czogMDAxOCAgIHNzOiAwMDE4ClByb2Nlc3Mgcm0gKHBpZDogMzg3Nywgc3RhY2twYWdlPWMxZWEx
+MDAwKQpTdGFjazogYzE1MThiYTAgYzE1MTgzNjAgYzE1MGRiYzAgYzEwNWJlOTAgYzAxMmUzZDkg
+YzExOWZjZGMgYzE1MThiYTAgYzE1MGRiYzAgCiAgICAgICAwMDAwMTAwMCBjMTUwZGJjMCAwMDAw
+MTAwMCAwMDAwMDAwMCAwMDAwMDAwMSBjMDEyY2UwOCBjMTA1YmU5MCAwMDAwMDAwMCAKICAgICAg
+IGMxMDViZTkwIDAwMDAxMWMwIGM1ZDI2NGM0IDAwMDAwMDAwIGMwMTFkOWZlIGMxMDViZTkwIDAw
+MDAwMDAwIGMxZWExZjQ4IApDYWxsIFRyYWNlOiBbPGMwMTJlM2Q5Pl0gWzxjMDEyY2UwOD5dIFs8
+YzAxMWQ5ZmU+XSBbPGMwMTFkYWNjPl0gWzxjMDEzZGRhNj5dIFs8YzAxM2MzOTg+XSBbPGMwMTM2
+MTk0Pl0gCiAgICAgICBbPGMwMTM2MjZiPl0gWzxjODU4YjhjYz5dIFs8YzAxMDZhYzM+XSAKQ29k
+ZTogODkgNDQgOTkgMTggODkgNTkgMTQgOGIgNTYgMTQgOGIgNDEgMTAgZmYgNDkgMTAgMzkgZDAg
+NzQgMDggCgo+PkVJUDsgYzAxMjJkOGMgPGttZW1fY2FjaGVfZnJlZSszOC9hYz4gICA8PT09PT0K
+VHJhY2U7IGMwMTJlM2Q5IDx0cnlfdG9fZnJlZV9idWZmZXJzK2MxLzE1Yz4KVHJhY2U7IGMwMTJj
+ZTA4IDxibG9ja19mbHVzaHBhZ2UrNzAvOTQ+ClRyYWNlOyBjMDExZDlmZSA8dHJ1bmNhdGVfbGlz
+dF9wYWdlcytmNi8xODQ+ClRyYWNlOyBjMDExZGFjYyA8dHJ1bmNhdGVfaW5vZGVfcGFnZXMrNDAv
+NmM+ClRyYWNlOyBjMDEzZGRhNiA8aXB1dCs5Ni8xNWM+ClRyYWNlOyBjMDEzYzM5OCA8ZF9kZWxl
+dGUrNGMvNmM+ClRyYWNlOyBjMDEzNjE5NCA8dmZzX3VubGluaysxMTQvMTQ0PgpUcmFjZTsgYzAx
+MzYyNmIgPHN5c191bmxpbmsrYTcvMTFjPgpUcmFjZTsgYzg1OGI4Y2MgPEVORF9PRl9DT0RFKzFk
+NDg3ODgvPz8/Pz4KVHJhY2U7IGMwMTA2YWMzIDxzeXN0ZW1fY2FsbCszMy80MD4KQ29kZTsgIGMw
+MTIyZDhjIDxrbWVtX2NhY2hlX2ZyZWUrMzgvYWM+CjAwMDAwMDAwMDAwMDAwMDAgPF9FSVA+OgpD
+b2RlOyAgYzAxMjJkOGMgPGttZW1fY2FjaGVfZnJlZSszOC9hYz4gICA8PT09PT0KICAgMDogICA4
+OSA0NCA5OSAxOCAgICAgICAgICAgICAgIG1vdiAgICAlZWF4LDB4MTgoJWVjeCwlZWJ4LDQpICAg
+PD09PT09CkNvZGU7ICBjMDEyMmQ5MCA8a21lbV9jYWNoZV9mcmVlKzNjL2FjPgogICA0OiAgIDg5
+IDU5IDE0ICAgICAgICAgICAgICAgICAgbW92ICAgICVlYngsMHgxNCglZWN4KQpDb2RlOyAgYzAx
+MjJkOTMgPGttZW1fY2FjaGVfZnJlZSszZi9hYz4KICAgNzogICA4YiA1NiAxNCAgICAgICAgICAg
+ICAgICAgIG1vdiAgICAweDE0KCVlc2kpLCVlZHgKQ29kZTsgIGMwMTIyZDk2IDxrbWVtX2NhY2hl
+X2ZyZWUrNDIvYWM+CiAgIGE6ICAgOGIgNDEgMTAgICAgICAgICAgICAgICAgICBtb3YgICAgMHgx
+MCglZWN4KSwlZWF4CkNvZGU7ICBjMDEyMmQ5OSA8a21lbV9jYWNoZV9mcmVlKzQ1L2FjPgogICBk
+OiAgIGZmIDQ5IDEwICAgICAgICAgICAgICAgICAgZGVjbCAgIDB4MTAoJWVjeCkKQ29kZTsgIGMw
+MTIyZDljIDxrbWVtX2NhY2hlX2ZyZWUrNDgvYWM+CiAgMTA6ICAgMzkgZDAgICAgICAgICAgICAg
+ICAgICAgICBjbXAgICAgJWVkeCwlZWF4CkNvZGU7ICBjMDEyMmQ5ZSA8a21lbV9jYWNoZV9mcmVl
+KzRhL2FjPgogIDEyOiAgIDc0IDA4ICAgICAgICAgICAgICAgICAgICAgamUgICAgIDFjIDxfRUlQ
+KzB4MWM+IGMwMTIyZGE4IDxrbWVtX2NhY2hlX2ZyZWUrNTQvYWM+Cgo=
 
-> +        case LCD_Set_Cursor_Pos:
-> +                copy_from_user(&display, (struct lcd_display *)arg, dlen);
-
-Ditto. Also should check the return and return -EFAULT if so
-
-> +/* LED daemon sits on this, we wake it up once a key is pressed */
-> +static ssize_t 
-> +cobalt_lcd_read(struct file *file, char *buf, size_t count, loff_t *ppos)
-> +{
-> +	int buttons_now;
-> +	static atomic_t lcd_waiters = ATOMIC_INIT(0);
-> +
-> +	if (atomic_read(&lcd_waiters) > 0)
-> +		return -EINVAL;
-> +	atomic_inc(&lcd_waiters);
-
-Unsafe. Two people can execute the atomic_read before anyone executes
-the atomic_inc. You probably want test_and_set_bit() or a semaphore
-
-> +	while (((buttons_now = button_pressed()) == 0) &&
-> +	       !(signal_pending(current)))
-> +	{
-> +		current->state = TASK_INTERRUPTIBLE;
-
-We have a set_ function for this.. ALso what stops an ioctl occuring at
-the same instant ?
-
-
+--------------Boundary-00=_ART8ETCSKRA4BMVVUYK0--

@@ -1,68 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131152AbRALTa1>; Fri, 12 Jan 2001 14:30:27 -0500
+	id <S131719AbRALTdq>; Fri, 12 Jan 2001 14:33:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131645AbRALTaR>; Fri, 12 Jan 2001 14:30:17 -0500
-Received: from tux.rsn.hk-r.se ([194.47.143.135]:42377 "EHLO tux.rsn.hk-r.se")
-	by vger.kernel.org with ESMTP id <S131152AbRALTaC>;
-	Fri, 12 Jan 2001 14:30:02 -0500
-Date: Fri, 12 Jan 2001 20:30:07 +0100 (CET)
-From: Martin Josefsson <gandalf@wlug.westbo.se>
-To: Stephen Torri <s.torri@lancaster.ac.uk>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux booting from HD on Promise Ultra ATA 100
-In-Reply-To: <Pine.LNX.4.21.0101121555240.4828-100000@egb070000014.lancs.ac.uk>
-Message-ID: <Pine.LNX.4.21.0101122027230.6699-100000@tux.rsn.hk-r.se>
+	id <S131645AbRALTdg>; Fri, 12 Jan 2001 14:33:36 -0500
+Received: from colorfullife.com ([216.156.138.34]:43525 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S132462AbRALTd2>;
+	Fri, 12 Jan 2001 14:33:28 -0500
+Message-ID: <3A5F5BFB.69134DB9@colorfullife.com>
+Date: Fri, 12 Jan 2001 20:33:15 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Frank de Lange <frank@unternet.org>
+CC: dwmw2@infradead.org, linux-kernel@vger.kernel.org, mingo@elte.hu,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, torvalds@transmeta.com
+Subject: Re: QUESTION: Network hangs with BP6 and 2.4.x kernels, hardware 
+ related?
+In-Reply-To: <3A5F3BF4.7C5567F8@colorfullife.com> <20010112183314.A24174@unternet.org> <3A5F4428.F3249D2@colorfullife.com> <20010112192500.A25057@unternet.org> <3A5F5538.57F3FDC5@colorfullife.com> <20010112202104.C25675@unternet.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 Jan 2001, Stephen Torri wrote:
-
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
+Frank de Lange wrote:
 > 
-> On Fri, 12 Jan 2001, Martin Josefsson wrote:
+> On Fri, Jan 12, 2001 at 08:04:24PM +0100, Manfred Spraul wrote:
+> > I removed the disable_irq lines from 8390.c, and that fixed the problem:
+> > no hang within 2 minutes - the test is still running.
+> >
+> > Frank, could you double check it?
 > 
-> > My setup looks like this, I boot from hde
-> > I configured my BIOS to boot from SCSI (I have no scsi-adapter but the
-> > promise card reports itself as one at boottime)
-> > 
-> > boot = /dev/hde3
-> > delay = 50
-> > message = /boot/message
-> > vga = extended
-> > read-only
-> > lba32
-> > disk=/dev/hde
-> >   bios=0x80
+> I'm currently running my own patched version, which uses
+> spin_lock_irq/spin_unlock_irq instead of
+> spin_lock_irqsave/spin_unlock_irqrestore like you patch uses. Looking at
+> spinlock.h, spin_lock_irq does a local irq disable, which seems to be closer to
+> the original intent (disable_irq) than spin_lock_irqsave. Anyone want to
+> comment on this?
 > 
-> 
-> The line "lba32" is for what? I have to ask this because I have never seen
-> it in an example of a lilo.conf file before.
+It's a bit dangerous: _if_ one of the function is called with disabled
+local interrupts, then spin_unlock_irq would enable these interrupts.
+That could cause other problems, but I haven't checked if these function
+are actually called with disabled interrupts - e.g. the transmit
+function is called with enabled interrupts.
 
-it is a BIOS extension that allows you to boot of a partition thats
-located above cylinder 1024. I think it's called EDB or something like
-that.
+Frank, the 2.4.0 contains 2 band aids that were added for ne2k smp:
 
-> Also you put "disk=/dev/hde and bios=0x80" to inform lilo that there was a
-> disk there and its bios address is 0x80. Is this right?
+* From Ingo: focus cpu disabled, in arch/i386/kernel/apic.c
+* From myself: TARGET_CPU = cpu_online_mask, was 0xFF.
 
-yes.
+Could you disable both bandaids? I disabled them, no problems so far.
 
-> If I would follow your example then I would put:
-> 
-> lba32
-> disk=/dev/hdf
->    bios=0x82
-
-I think that would be correct yes, and install LILO on hde (I think the
-promise-card only tries to boot from primary master when you have selected
-SCSI in BIOS. But I'm not sure.
-
-/Martin
-
+Now back to the disable_irq_nosync().
+--
+	Manfred
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

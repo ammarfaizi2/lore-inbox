@@ -1,91 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269226AbTGVDrj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 23:47:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269358AbTGVDrj
+	id S269358AbTGVEYs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 00:24:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269392AbTGVEYs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 23:47:39 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.92.226.49]:47602 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S269226AbTGVDrh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 23:47:37 -0400
-Subject: Re: AMD MP, SMP, Tyan 2466
-From: Jason <jason@project-lace.org>
-To: Artur Jasowicz <kernel@mousebusiness.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <BB41BCD3.17A02%kernel@mousebusiness.com>
-References: <BB41BCD3.17A02%kernel@mousebusiness.com>
-Content-Type: text/plain
-Message-Id: <1058846559.8494.17.camel@big-blue.project-lace.org>
+	Tue, 22 Jul 2003 00:24:48 -0400
+Received: from dsl093-170-248.sfo2.dsl.speakeasy.net ([66.93.170.248]:25317
+	"HELO parts-unknown.org") by vger.kernel.org with SMTP
+	id S269358AbTGVEYr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jul 2003 00:24:47 -0400
+Date: Mon, 21 Jul 2003 21:39:17 -0700
+From: David Benfell <benfell@greybeard95a.com>
+To: linux-kernel@vger.kernel.org
+Subject: touchpad doesn't work under 2.6.0-test1-ac2
+Message-ID: <20030722043917.GA29802@parts-unknown.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 22 Jul 2003 00:02:39 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="n8g4imXOkfNTN/H1"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-stardate: [-29]0625.91
+X-moon: The Moon is Waning Crescent (42% of Full)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-I'm coming into this conversation a bit late, so I might be missing
-something and appologize if I am.  But  I have the same board and
-experienced some intersting weirdness with PC2100 NON ECC chips on this
-board as well.  I was using High performance ram from Mushkin at the
-time.  Now here's the interesting part, according to some small print in
-the manual, non ecc ram works up to 1.5Gb.  Knowing this, I bought 1Gb
-of it, 2 512MB sticks.  I put them both in, and the board only sees
-512Mb.  So I talk to Mushkin about it, apparently they've done some
-testing with this board.  Non ECC memory is EXTREMELY flakey in this
-board.  So flakey that Tyan, unofficially mind you, recommened to them
-that they not suggest to their customers to put non ecc memory in this
-board.  So I got 1Gb of ECC Registered memory, and have yet to have a
-problem with it.
+--n8g4imXOkfNTN/H1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-That's just my $.02 and I hope it helps in some way.
+Hello all,
 
-Oh yeah, and I am running 2.4.21 config'ed for AMD and SMP and still, no
-problems.
+Finally decided to give a development kernel a try on an HP zt1180
+laptop.  The kernel build went smoothly and I thought all was well
+(well except I guess I've gotta figure out frame buffer support again)
+until I started X and discovered that the mouse wasn't working.
 
-On Mon, 2003-07-21 at 16:52, Artur Jasowicz wrote:
-> Joe,
-> Thanks for your suggestions. I've tried Kingston registered DIMMs and got
-> the same result (crashes in SMP, runs ok with "nosmp" boot parameter)
-> 
-> I am currently trying to extract your kernel from .deb package, but am
-> running into RPM hell of circular dependency while trying to install alien
-> to access .deb archive.
-> 
-> Any chance I could bother you to put a tgz archive with kernel on your
-> dowlnoads site?
-> 
-> I've also downloaded source archive from your site, but I am not sure if it
-> is for the AMD mobo. The file linux-2.4.21.tz seems to be configured for
-> Intel chips, judging from .config file.
-> 
-> I'd rather borrow your kernel source than use your ready-made kernel. I
-> still have to compile Promise SX6000 drivers for it.
-> 
-> Thanks again
-> 
-> Artur
-> 
-> > 
-> > I shipped out two machines last week using the Tyan 2466, 2.4.21 compiled for
-> > SMP on Debian Woody.  My kernel includes support for promise, hpt, and 3ware
-> > ide raid cards. I shipped one unit with the 3ware 7000-2 and 2 WD-2000-JB
-> > drives and 4 x bt878 frame-grabbers, and the 2nd with 3ware 8500 (8-channel)
-> > and 8 x WD1200-JB drives.  Both machines went through their 48-hour
-> > heavy-load burn-in period without incident.
-> > 
-> > If the exact kernel tree and config would help, you can get it at:
-> > 
-> > wget http://www.briggsmedia.com/downloads/kernel-2.4.21.tz
-> > 
-> > Forgot to mention -
-> > I tried this board with PC2100 bought from the local computer store (don't
-> > know the name) and I got all kinds of weird problems like boot failure, file
-> > system corruption, everything except a memory error.  I then tried a 512 mb
-> > stick of kingston pc2100 and it completely solved the problems.
-> > 
-> 
+I'm guessing this list doesn't allow attachments, and I don't really
+want to splat all over everybody with the output I thought relevant,
+so I've posted it on my website:
 
+	http://www.parts-unknown.org/hp-zt1180-dmesg.gz
+	http://www.parts-unknown.org/hp-zt1180-lspci.gz
+	http://www.parts-unknown.org/hp-zt1180.config.gz
 
+wget should work.
+
+Did I miss a configuration option or do some other stupid thing?
+
+--=20
+David Benfell
+benfell@parts-unknown.org
+
+--n8g4imXOkfNTN/H1
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (Darwin)
+
+iQEXAwUBPxy/83w5zqzgtjVOFALNqwP/V79uiXHPpz31H++Wg1h7AI+MKs8G/0mO
+hAfb8KAgt9YsFPTIe5xHvQT2ieCxEGtSJGkE0pUpNo07Iv3lG7ww9kaRGqzghhZ/
+y3Ru8gGB1r6HRGYQtKO2MeHHsJM31fDdLnQbgJIXLvKbluKNNzC3QoAsja+0pEWh
+0cX0lDqjXw8D/2MkiIsGh/uBpPYdWsrWmPuqeUQg5bMsi82S08PhXldB/uzGstVo
+oorDWyi/+OMwL9Tacwvnds5nSAHIkP96HIOZjDPHExixmKlf0ycYt16NaMbdntN6
+Pq4xLIKY+hJPCoXsLa3Mksxdv/yd9Ocdpk6Zu4UNhv5NqpxOkBSN/ahP
+=7ij0
+-----END PGP SIGNATURE-----
+
+--n8g4imXOkfNTN/H1--

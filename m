@@ -1,52 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261395AbVCNRGY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261623AbVCNRHP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261395AbVCNRGY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 12:06:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261628AbVCNRGY
+	id S261623AbVCNRHP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 12:07:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261625AbVCNRHP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 12:06:24 -0500
-Received: from c7ns3.center7.com ([216.250.142.14]:4761 "EHLO
-	smtp.slc03.viawest.net") by vger.kernel.org with ESMTP
-	id S261395AbVCNRGC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 12:06:02 -0500
-Message-ID: <4235C251.7000801@utah-nac.org>
-Date: Mon, 14 Mar 2005 09:56:49 -0700
-From: jmerkey <jmerkey@utah-nac.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
+	Mon, 14 Mar 2005 12:07:15 -0500
+Received: from alog0162.analogic.com ([208.224.220.177]:3554 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261623AbVCNRGu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 12:06:50 -0500
+Date: Mon, 14 Mar 2005 12:03:23 -0500 (EST)
+From: linux-os <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Jakob Eriksson <jakov@vmlinux.org>
+cc: Andi Kleen <ak@muc.de>, Stas Sergeev <stsp@aknet.ru>,
+       Pavel Machek <pavel@ucw.cz>, Alan Cox <alan@redhat.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>,
+       Petr Vandrovec <vandrove@vc.cvut.cz>,
+       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       wine-devel@winehq.org, torvalds@osdl.org
+Subject: Re: [patch] x86: fix ESP corruption CPU bug
+In-Reply-To: <4235AC0B.70507@vmlinux.org>
+Message-ID: <Pine.LNX.4.61.0503141158460.19270@chaos.analogic.com>
+References: <42348474.7040808@aknet.ru> <20050313201020.GB8231@elf.ucw.cz>
+ <4234A8DD.9080305@aknet.ru> <Pine.LNX.4.58.0503131306450.2822@ppc970.osdl.org>
+ <Pine.LNX.4.58.0503131614360.2822@ppc970.osdl.org> <423518A7.9030704@aknet.ru>
+ <m14qfey3iz.fsf@muc.de> <4235AC0B.70507@vmlinux.org>
 MIME-Version: 1.0
-To: Andreas Dilger <adilger@shaw.ca>
-Cc: Dan Stromberg <strombrg@dcs.nac.uci.edu>, linux-kernel@vger.kernel.org
-Subject: Re: huge filesystems
-References: <pan.2005.03.09.18.53.47.428199@dcs.nac.uci.edu> <20050314164137.GC1451@schnapps.adilger.int>
-In-Reply-To: <20050314164137.GC1451@schnapps.adilger.int>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 14 Mar 2005, Jakob Eriksson wrote:
 
-I am running the DSFS file system as a 7 TB file system on 2.6.9. There 
-are a host
-of problems with the current VFS, ad I have gotten around most of them 
-by **NOT** using the linux page cache interface. The VFS I am using 
-creates a virtual represeation of the files and it's own cache. You need 
-a lot of memory - 2GB roughly. The only way to do it at present is to 
-use the address patch that reserves 1GB for user address space and 
-leaves 3GB of space
-in kernel in order to create the caches.
+> Andi Kleen wrote:
+>
+>> Stas Sergeev <stsp@aknet.ru> writes:
+>> 
+>>>> Another way of saying the same thing: I absolutely hate seeing
+>>>> patches that fix some theoretical issue that no Linux apps will ever
+>>>> care about.
+>>>> 
+>>> No, it is not theoretical, but it is mainly
+>>> about a DOS games and an MS linker, as for
+>>> me. The things I'd like to get working, but
+>>> the ones you may not care too much about:)
+>>> The particular game I want to get working,
+>>> is "Master of Orion 2" for DOS.
+>>> 
+>> 
+>> How about you just run it in dosbox instead of dosemu ?
+>> 
+>
+> Yes, that's a solution of course, but it is a bit like saying why
+> not use Open Office instead of MS Word.
+>
+> A long term goal of wine is to support DOS apps to. Of course
+> it's not a priority, but it's there.
+>
+> regards,
+> Jakob
+>
 
-You also need to ignore the broken fdisk partitioning tools. Just create 
-one partition if you
-create disks larger than 2 TB with 3Ware, and ignore the values in the 
-table. I check for a single partition on these devices and rely on the 
-capacity parameter reported from the
-bdev handle and just use the extra space.
-
-Linux proper has a long way to go on this topic, but it is possible I am 
-doing this today
-on 2.6.9.
-
-Jeff
+Can you tell me how the invisible high-word (invisible in VM-86, and
+in real mode) could possibly harm something running in VM-86 or
+read-mode ???  I don't even think it's a BUG. If the transition
+into and out of VM-86 doesn't handle the fact that the high-word
+of the stack hasn't been used in VM-86, then that piece of code
+is bad (the SP isn't even the same stack, BTW).
 
 
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

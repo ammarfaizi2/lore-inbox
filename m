@@ -1,60 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266665AbTADDM1>; Fri, 3 Jan 2003 22:12:27 -0500
+	id <S265863AbTADDJf>; Fri, 3 Jan 2003 22:09:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266676AbTADDM1>; Fri, 3 Jan 2003 22:12:27 -0500
-Received: from dclient217-162-80-86.hispeed.ch ([217.162.80.86]:54154 "EHLO
+	id <S265872AbTADDJf>; Fri, 3 Jan 2003 22:09:35 -0500
+Received: from dclient217-162-80-86.hispeed.ch ([217.162.80.86]:53386 "EHLO
 	gamecube.hb9jnx.ampr.org") by vger.kernel.org with ESMTP
-	id <S266665AbTADDMV>; Fri, 3 Jan 2003 22:12:21 -0500
-Subject: [PATCH]: 2.4.20: fix oopsable bug in OSS PCI sound drivers
+	id <S265863AbTADDJc>; Fri, 3 Jan 2003 22:09:32 -0500
+Subject: [PATCH]: 2.5.54: fix oopsable bug in OSS PCI sound drivers
 From: Thomas Sailer <sailer@scs.ch>
-To: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 04 Jan 2003 04:21:07 +0100
-Message-Id: <1041650467.9389.21.camel@gamecube>
+Date: 04 Jan 2003 04:18:21 +0100
+Message-Id: <1041650301.9390.17.camel@gamecube>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 The following patch fixes an oopsable (according to a few reports) bug
 in the multiple open exclusion logic in my sound drivers and a driver
-derived from my code. Please apply.
+derived from my code. If you intend to keep the OSS drivers for 2.6,
+please apply.
 
 Tom
 
-
---- drivers/sound/cmpci.c.orig	2002-08-03 02:39:44.000000000 +0200
-+++ drivers/sound/cmpci.c	2003-01-04 02:33:05.000000000 +0100
-@@ -82,6 +82,7 @@
-  *	- speaker mixer support 
-  *	Mon Aug 13 2001
-  *	- optimizations and cleanups
-+ *    03/01/2003 - open_mode fixes from Georg Acher <acher@in.tum.de>
-  *
-  */
- /*****************************************************************************/
-@@ -2266,7 +2267,7 @@
- 		stop_adc(s);
- 		dealloc_dmabuf(&s->dma_adc);
- 	}
--	s->open_mode &= (~file->f_mode) & (FMODE_READ|FMODE_WRITE);
-+	s->open_mode &= ~(file->f_mode & (FMODE_READ|FMODE_WRITE));
- 	up(&s->open_sem);
- 	wake_up(&s->open_wait);
- 	unlock_kernel();
-@@ -2535,7 +2536,7 @@
- 		set_current_state(TASK_RUNNING);
- 	}
- 	down(&s->open_sem);
--	s->open_mode &= (~(file->f_mode << FMODE_MIDI_SHIFT)) & (FMODE_MIDI_READ|FMODE_MIDI_WRITE);
-+	s->open_mode &= ~((file->f_mode << FMODE_MIDI_SHIFT) & (FMODE_MIDI_READ|FMODE_MIDI_WRITE));
- 	spin_lock_irqsave(&s->lock, flags);
- 	if (!(s->open_mode & (FMODE_MIDI_READ | FMODE_MIDI_WRITE))) {
- 		del_timer(&s->midi.timer);		
---- drivers/sound/es1370.c.orig	2002-11-29 00:53:14.000000000 +0100
-+++ drivers/sound/es1370.c	2003-01-04 02:33:05.000000000 +0100
+--- sound/oss/es1370.c.orig	2003-01-02 04:23:16.000000000 +0100
++++ sound/oss/es1370.c	2003-01-03 22:41:49.000000000 +0100
 @@ -3,7 +3,7 @@
  /*
   *      es1370.c  --  Ensoniq ES1370/Asahi Kasei AK4531 audio driver.
@@ -64,7 +36,7 @@ Tom
   *
   *      This program is free software; you can redistribute it and/or modify
   *      it under the terms of the GNU General Public License as published by
-@@ -122,6 +122,7 @@
+@@ -117,6 +117,7 @@
   *    07.01.2001   0.36  Timeout change in wrcodec as requested by Frank Klemm <pfk@fuchs.offl.uni-jena.de>
   *    31.01.2001   0.37  Register/Unregister gameport
   *                       Fix SETTRIGGER non OSS API conformity
@@ -72,7 +44,7 @@ Tom
   *
   * some important things missing in Ensoniq documentation:
   *
-@@ -1809,7 +1810,7 @@
+@@ -1807,7 +1808,7 @@
  		stop_adc(s);
  		dealloc_dmabuf(s, &s->dma_adc);
  	}
@@ -81,7 +53,7 @@ Tom
  	wake_up(&s->open_wait);
  	up(&s->open_sem);
  	unlock_kernel();
-@@ -2494,7 +2495,7 @@
+@@ -2498,7 +2499,7 @@
  		set_current_state(TASK_RUNNING);
  	}
  	down(&s->open_sem);
@@ -90,7 +62,7 @@ Tom
  	spin_lock_irqsave(&s->lock, flags);
  	if (!(s->open_mode & (FMODE_MIDI_READ | FMODE_MIDI_WRITE))) {
  		s->ctrl &= ~CTRL_UART_EN;
-@@ -2745,7 +2746,7 @@
+@@ -2740,7 +2741,7 @@
  {
  	if (!pci_present())   /* No PCI bus in this machine! */
  		return -ENODEV;
@@ -99,8 +71,8 @@ Tom
  	return pci_module_init(&es1370_driver);
  }
  
---- drivers/sound/es1371.c.orig	2002-11-29 00:53:14.000000000 +0100
-+++ drivers/sound/es1371.c	2003-01-04 02:33:05.000000000 +0100
+--- sound/oss/es1371.c.orig	2003-01-03 22:24:47.000000000 +0100
++++ sound/oss/es1371.c	2003-01-03 22:31:53.000000000 +0100
 @@ -3,7 +3,7 @@
  /*
   *      es1371.c  --  Creative Ensoniq ES1371.
@@ -110,7 +82,7 @@ Tom
   *
   *      This program is free software; you can redistribute it and/or modify
   *      it under the terms of the GNU General Public License as published by
-@@ -110,6 +110,7 @@
+@@ -104,6 +104,7 @@
   *    31.01.2001   0.30  Register/Unregister gameport
   *                       Fix SETTRIGGER non OSS API conformity
   *    14.07.2001   0.31  Add list of laptops needing amplifier control
@@ -127,7 +99,7 @@ Tom
  	up(&s->open_sem);
  	wake_up(&s->open_wait);
  	unlock_kernel();
-@@ -2670,7 +2671,7 @@
+@@ -2675,7 +2676,7 @@
  		set_current_state(TASK_RUNNING);
  	}
  	down(&s->open_sem);
@@ -136,7 +108,7 @@ Tom
  	spin_lock_irqsave(&s->lock, flags);
  	if (!(s->open_mode & (FMODE_MIDI_READ | FMODE_MIDI_WRITE))) {
  		s->ctrl &= ~CTRL_UART_EN;
-@@ -3046,7 +3047,7 @@
+@@ -3044,7 +3045,7 @@
  {
  	if (!pci_present())   /* No PCI bus in this machine! */
  		return -ENODEV;
@@ -145,8 +117,8 @@ Tom
  	return pci_module_init(&es1371_driver);
  }
  
---- drivers/sound/esssolo1.c.orig	2002-08-03 02:39:44.000000000 +0200
-+++ drivers/sound/esssolo1.c	2003-01-04 02:33:05.000000000 +0100
+--- sound/oss/esssolo1.c.orig	2003-01-02 04:21:09.000000000 +0100
++++ sound/oss/esssolo1.c	2003-01-03 22:40:43.000000000 +0100
 @@ -3,7 +3,7 @@
  /*
   *      esssolo1.c  --  ESS Technology Solo1 (ES1946) audio driver.
@@ -164,7 +136,7 @@ Tom
   */
  
  /*****************************************************************************/
-@@ -1977,7 +1978,7 @@
+@@ -1986,7 +1987,7 @@
  		set_current_state(TASK_RUNNING);
  	}
  	down(&s->open_sem);
@@ -173,7 +145,7 @@ Tom
  	spin_lock_irqsave(&s->lock, flags);
  	if (!(s->open_mode & (FMODE_MIDI_READ | FMODE_MIDI_WRITE))) {
  		outb(0x30, s->iobase + 7); /* enable A1, A2 irq's */
-@@ -2452,7 +2453,7 @@
+@@ -2461,7 +2462,7 @@
  {
  	if (!pci_present())   /* No PCI bus in this machine! */
  		return -ENODEV;
@@ -182,8 +154,8 @@ Tom
  	if (!pci_register_driver(&solo1_driver)) {
  		pci_unregister_driver(&solo1_driver);
                  return -ENODEV;
---- drivers/sound/sonicvibes.c.orig	2002-08-03 02:39:44.000000000 +0200
-+++ drivers/sound/sonicvibes.c	2003-01-04 02:33:05.000000000 +0100
+--- sound/oss/sonicvibes.c.orig	2003-01-02 04:21:53.000000000 +0100
++++ sound/oss/sonicvibes.c	2003-01-03 22:44:52.000000000 +0100
 @@ -3,7 +3,7 @@
  /*
   *      sonicvibes.c  --  S3 Sonic Vibes audio driver.
@@ -201,7 +173,7 @@ Tom
   *
   */
  
-@@ -1964,7 +1965,7 @@
+@@ -1969,7 +1970,7 @@
  		stop_adc(s);
  		dealloc_dmabuf(s, &s->dma_adc);
  	}
@@ -210,7 +182,7 @@ Tom
  	wake_up(&s->open_wait);
  	up(&s->open_sem);
  	unlock_kernel();
-@@ -2236,7 +2237,7 @@
+@@ -2245,7 +2246,7 @@
  		set_current_state(TASK_RUNNING);
  	}
  	down(&s->open_sem);
@@ -219,7 +191,7 @@ Tom
  	spin_lock_irqsave(&s->lock, flags);
  	if (!(s->open_mode & (FMODE_MIDI_READ | FMODE_MIDI_WRITE))) {
  		outb(inb(s->ioenh + SV_CODEC_INTMASK) & ~SV_CINTMASK_MIDI, s->ioenh + SV_CODEC_INTMASK);
-@@ -2716,7 +2717,7 @@
+@@ -2725,7 +2726,7 @@
  {
  	if (!pci_present())   /* No PCI bus in this machine! */
  		return -ENODEV;
@@ -228,3 +200,33 @@ Tom
  #if 0
  	if (!(wavetable_mem = __get_free_pages(GFP_KERNEL, 20-PAGE_SHIFT)))
  		printk(KERN_INFO "sv: cannot allocate 1MB of contiguous nonpageable memory for wavetable data\n");
+--- sound/oss/cmpci.c.orig	2003-01-02 04:22:17.000000000 +0100
++++ sound/oss/cmpci.c	2003-01-03 22:38:48.000000000 +0100
+@@ -82,6 +82,7 @@
+  *	- speaker mixer support 
+  *	Mon Aug 13 2001
+  *	- optimizations and cleanups
++ *    03/01/2003 - open_mode fixes from Georg Acher <acher@in.tum.de>
+  *
+  */
+ /*****************************************************************************/
+@@ -2272,7 +2273,7 @@
+ 		stop_adc(s);
+ 		dealloc_dmabuf(&s->dma_adc);
+ 	}
+-	s->open_mode &= (~file->f_mode) & (FMODE_READ|FMODE_WRITE);
++	s->open_mode &= ~(file->f_mode & (FMODE_READ|FMODE_WRITE));
+ 	up(&s->open_sem);
+ 	wake_up(&s->open_wait);
+ 	unlock_kernel();
+@@ -2540,7 +2541,7 @@
+ 		set_current_state(TASK_RUNNING);
+ 	}
+ 	down(&s->open_sem);
+-	s->open_mode &= (~(file->f_mode << FMODE_MIDI_SHIFT)) & (FMODE_MIDI_READ|FMODE_MIDI_WRITE);
++	s->open_mode &= ~((file->f_mode << FMODE_MIDI_SHIFT) & (FMODE_MIDI_READ|FMODE_MIDI_WRITE));
+ 	spin_lock_irqsave(&s->lock, flags);
+ 	if (!(s->open_mode & (FMODE_MIDI_READ | FMODE_MIDI_WRITE))) {
+ 		del_timer(&s->midi.timer);		
+
+-- 

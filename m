@@ -1,35 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264533AbTCYVDs>; Tue, 25 Mar 2003 16:03:48 -0500
+	id <S264538AbTCYVNN>; Tue, 25 Mar 2003 16:13:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264534AbTCYVDs>; Tue, 25 Mar 2003 16:03:48 -0500
-Received: from zimbo.cs.wm.edu ([128.239.2.64]:65452 "EHLO zimbo.cs.wm.edu")
-	by vger.kernel.org with ESMTP id <S264533AbTCYVDs>;
-	Tue, 25 Mar 2003 16:03:48 -0500
-Message-ID: <3E80C6D3.6090502@cs.wm.edu>
-Date: Tue, 25 Mar 2003 16:14:59 -0500
-From: Shansi Ren <sren@CS.WM.EDU>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	id <S264542AbTCYVNN>; Tue, 25 Mar 2003 16:13:13 -0500
+Received: from pixpat.austin.ibm.com ([192.35.232.241]:30253 "EHLO
+	dyn94194207.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S264538AbTCYVNM>; Tue, 25 Mar 2003 16:13:12 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Dave Kleikamp <shaggy@austin.ibm.com>
 To: linux-kernel@vger.kernel.org
-Subject: some advice for a beginner level networking guy?
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: [ANNOUNCE] JFS 1.1.2
+Date: Tue, 25 Mar 2003 15:24:21 -0600
+User-Agent: KMail/1.4.3
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <200303251524.21446.shaggy@austin.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everyone,
+Release 1.1.2 of JFS was made available today.
 
-   I'm a graduate student strongly interested in linux 
-kernel/networking. I just started studying the kernel
-a couple of months ago and want to know more, especially about the 
-networking part, like TCP/IP, UDP/IP
-implementation, how congestion control in TCP is done, how different 
-timers work, how the sequence number
-are managed, etc. I'm planning to do some research on TCP congestion 
-control and network bandwidth measurement.
-Can anybody give me a point where to start? Thank you.
+Drop 65 on March 25, 2003 includes fixes to the file system and 
+utilities.
 
-SR
+Utilities changes
+
+- fix undefined reference to errno (G. D. Haraldsson)
+- allow jfs_mkfs to run on regular file
+- fix for-loop going past last element of vopen array
+- sanity checking on variable this_ag
+- s_label displayed incorrectly when 16 chars long
+
+File System changes
+
+- Clean up code flushing outstanding transactions to the journal
+- Replace ugly debug macros with simpler ones
+- Add get_index_page to eliminate unneeded I/O
+- Fix hang while flushing outstanding transactions under heavy load
+- Avoid deadlock under very heavy load
+- Don't zero s_op during failed mount cleanup
+
+Note: The 2.4.21 and 2.5 kernel.org development kernels are kept up to 
+date with the latest JFS code.  The file system updates available on 
+the web site are only needed for maintaining earlier 2.4 kernels.
+
+For more details about JFS, please see our website:
+http://oss.software.ibm.com/jfs
+
+Thanks,
+Shaggy
+-- 
+David Kleikamp
+IBM Linux Technology Center
 

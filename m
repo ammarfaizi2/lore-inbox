@@ -1,35 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129808AbRBQR0w>; Sat, 17 Feb 2001 12:26:52 -0500
+	id <S129915AbRBQRky>; Sat, 17 Feb 2001 12:40:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129915AbRBQR0l>; Sat, 17 Feb 2001 12:26:41 -0500
-Received: from ftp.apple.asimov.net ([209.249.142.209]:21779 "HELO
-	isaac.asimov.net") by vger.kernel.org with SMTP id <S129808AbRBQR0b>;
-	Sat, 17 Feb 2001 12:26:31 -0500
-Date: Sat, 17 Feb 2001 09:26:30 -0800
-From: Patrick Michael Kane <modus@pr.es.to>
-To: Pavel Machek <pavel@suse.cz>
-Cc: "H. Peter Anvin" <hpa@transmeta.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        James Sutherland <jas88@cam.ac.uk>, "H. Peter Anvin" <hpa@zytor.com>,
+	id <S129957AbRBQRko>; Sat, 17 Feb 2001 12:40:44 -0500
+Received: from red.csi.cam.ac.uk ([131.111.8.70]:7377 "EHLO red.csi.cam.ac.uk")
+	by vger.kernel.org with ESMTP id <S129915AbRBQRk0>;
+	Sat, 17 Feb 2001 12:40:26 -0500
+Date: Sat, 17 Feb 2001 17:40:11 +0000 (GMT)
+From: James Sutherland <jas88@cam.ac.uk>
+To: Patrick Michael Kane <modus@pr.es.to>
+cc: Pavel Machek <pavel@suse.cz>, "H. Peter Anvin" <hpa@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, "H. Peter Anvin" <hpa@zytor.com>,
         linux-kernel@vger.kernel.org
 Subject: Re: LILO and serial speeds over 9600
-Message-ID: <20010217092630.A10934@pr.es.to>
-In-Reply-To: <E14SRPp-0008J1-00@the-village.bc.nu> <3A886F73.759DB067@transmeta.com> <20010214125357.E1931@bug.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <20010214125357.E1931@bug.ucw.cz>; from pavel@suse.cz on Wed, Feb 14, 2001 at 12:53:57PM +0100
-X-Mailer: Mutt http://www.mutt.org/
+In-Reply-To: <20010217092630.A10934@pr.es.to>
+Message-ID: <Pine.SOL.4.21.0102171739240.2241-100000@red.csi.cam.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Pavel Machek (pavel@suse.cz) [010217 05:40]:
-> Being able to remotely resed machine with crashed userland would be
-> *very* nice, too...
+On Sat, 17 Feb 2001, Patrick Michael Kane wrote:
 
-If it provides a true remote console, enable SYSRQ and youi should get this
-for free.
--- 
-Patrick Michael Kane
-<modus@pr.es.to>
+> * Pavel Machek (pavel@suse.cz) [010217 05:40]:
+> > Being able to remotely resed machine with crashed userland would be
+> > *very* nice, too...
+> 
+> If it provides a true remote console, enable SYSRQ and youi should get this
+> for free.
+
+Yes, it should work fine. Of course, there's always the risk you'll
+connect to the crashed box from your machine, then hit Alt+SysRq+B, and
+say rude things as YOUR machine reboots... :-)
+
+
+James.
+

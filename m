@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318086AbSFTBu6>; Wed, 19 Jun 2002 21:50:58 -0400
+	id <S318089AbSFTBxg>; Wed, 19 Jun 2002 21:53:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318088AbSFTBu5>; Wed, 19 Jun 2002 21:50:57 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:39950 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318086AbSFTBu4>;
-	Wed, 19 Jun 2002 21:50:56 -0400
-Message-ID: <3D11360F.4EA4807D@zip.com.au>
-Date: Wed, 19 Jun 2002 18:55:27 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: mgross@unix-os.sc.intel.com
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lse-tech@lists.sourceforge.net, richard.a.griffiths@intel.com
-Subject: Re: ext3 performance bottleneck as the number of spindles gets large
-References: <200206200022.g5K0MKP27994@unix-os.sc.intel.com>
-Content-Type: text/plain; charset=us-ascii
+	id <S318090AbSFTBxf>; Wed, 19 Jun 2002 21:53:35 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:64241 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S318089AbSFTBxc>; Wed, 19 Jun 2002 21:53:32 -0400
+Subject: Re: [PATCH] Replace timer_bh with tasklet
+From: Robert Love <rml@tech9.net>
+To: "David S. Miller" <davem@redhat.com>
+Cc: george@mvista.com, kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org
+In-Reply-To: <20020619.183432.27032473.davem@redhat.com>
+References: <200206181829.WAA13590@sex.inr.ac.ru>
+	<3D11245F.DB13A07C@mvista.com>  <20020619.183432.27032473.davem@redhat.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.7 
+Date: 19 Jun 2002 18:53:25 -0700
+Message-Id: <1024538005.922.70.camel@sinai>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mgross wrote:
-> 
-> We've been doing some throughput comparisons and benchmarks of block I/O
-> throughput for 8KB writes as the number of SCSI addapters and drives per
-> adapter is increased.
-> 
-> The Linux platform is a dual processor 1.2GHz PIII, 2Gig or RAM, 2U box.
-> Similar results have been seen with both 2.4.16 and 2.4.18 base kernel, as
-> well as one of those patched up O(1) 2.4.18 kernels out there.
+On Wed, 2002-06-19 at 18:34, David S. Miller wrote:
 
-umm.  Are you not using block-highmem?  That is a must-have.
+> Are you absolutely sure?  What about serial drivers and the TTY layer?
+> Have you audited all of that code too?  What about SCSI_BH?  What
+> about IMMEDIATE_BH, TQUEUE_BH?  Do they interact non-trivially with
+> timers too?
 
-http://www.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.19pre9aa2/00_block-highmem-all-18b-12.gz
+SCSH_BH is gone in 2.5.23.  Matthew Wilcox has a patch to remove
+IMMEDIATE_BH.
 
--
+TIMER_BH is the only BH left as far as I know.
+
+So the needed synchronization, if any, is against the other softirqs.
+
+	Robert Love
+

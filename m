@@ -1,38 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269778AbRHTWw5>; Mon, 20 Aug 2001 18:52:57 -0400
+	id <S269777AbRHTWwQ>; Mon, 20 Aug 2001 18:52:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269779AbRHTWws>; Mon, 20 Aug 2001 18:52:48 -0400
-Received: from netdoor.com ([208.137.128.6]:45816 "EHLO pike.netdoor.com")
-	by vger.kernel.org with ESMTP id <S269778AbRHTWwj>;
-	Mon, 20 Aug 2001 18:52:39 -0400
-Message-ID: <3B8194C2.BAA49752@ayrix.net>
-Date: Mon, 20 Aug 2001 17:52:50 -0500
-From: Bob Martin <bmartin@ayrix.net>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Via chipset
-In-Reply-To: <Pine.LNX.4.30.0108161406270.15558-100000@anime.net> <3B7C89CF.7532DA72@ntsp.nec.co.jp>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S269778AbRHTWwG>; Mon, 20 Aug 2001 18:52:06 -0400
+Received: from mta5.snfc21.pbi.net ([206.13.28.241]:28397 "EHLO snfc21.pbi.net")
+	by vger.kernel.org with ESMTP id <S269777AbRHTWvu>;
+	Mon, 20 Aug 2001 18:51:50 -0400
+Date: Mon, 20 Aug 2001 15:50:58 -0700
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: PROBLEM : PCI hotplug crashes with 2.4.9
+To: Greg KH <greg@kroah.com>, Pierre JUHEN <pierre.juhen@wanadoo.fr>
+Cc: mj@suse.cz, linux-kernel@vger.kernel.org,
+        linux-hotplug-devel@lists.sourceforge.net
+Message-id: <08d401c129ca$94ebd2a0$6800000a@brownell.org>
+MIME-version: 1.0
+X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
+X-Priority: 3
+X-MSMail-priority: Normal
+In-Reply-To: <3B816617.F5C1CD24@wanadoo.fr> <20010820123625.A31374@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Adrian V. Bono" wrote:
-> 
-> I think i'd have to disagree. I have a PII-450 with a cheapo Vanta card
-> in it, and i run GL apps ranging from Quake 3 to various GL programs of
-> my own... no hangs. And i leave my system for days on end with a GL
-> screensaver running. Still no hangs. I've used NVidia drivers all the
-> way from 0.9-6 to 1.0-1251 and i never got that kind of instability.
+>     Only the
+> first line "pcimodules scanning 00:00.0" is displayed.
 
-Thanks for that info. before upgrading to RH7.1 I was using the nvidia 
-drivers and had no problems at all. It's now using the nv driver shipped
-with xfree 4.03 so that might be the problem, although with xfree 3.3.6
-there wasn't a problem with either the nvidia or xfree drivers. I'll grab 
-nvidia driver and give it a try.
--- 
+Curious.  If anything, I'd expect it to say
+"pcimodules is scanning more than 00:00.0".
+(The last version I saw didn't have a way to
+scan for modules appropriate to a particular
+PCI slot, and the hotplug scripts warn about
+that limitation.)
 
-Bob Martin
+You might try renaming "pcimodules" to "pcimodules-"
+to see if that changes any interesting behavior.  I notice
+you're using RedHat with 7.1 and usb-uhci.  I seem to
+recall that Kudzu wanted to do some hotplug-ish things;
+they may not play well together yet.
+
+- Dave
+
+

@@ -1,67 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271767AbRHURzt>; Tue, 21 Aug 2001 13:55:49 -0400
+	id <S271769AbRHUSAa>; Tue, 21 Aug 2001 14:00:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271768AbRHURzj>; Tue, 21 Aug 2001 13:55:39 -0400
-Received: from ns.ithnet.com ([217.64.64.10]:40199 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S271767AbRHURz3>;
-	Tue, 21 Aug 2001 13:55:29 -0400
-Date: Tue, 21 Aug 2001 19:55:25 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: With Daniel Phillips Patch (was: aic7xxx with 2.4.9 on 7899P)
-Message-Id: <20010821195525.05d0f8bf.skraw@ithnet.com>
-In-Reply-To: <20010821172029Z16065-32384+285@humbolt.nl.linux.org>
-In-Reply-To: <20010820230909.A28422@oisec.net>
-	<20010821150202Z16034-32383+699@humbolt.nl.linux.org>
-	<15234.37073.974320.621770@abasin.nj.nec.com>
-	<20010821172029Z16065-32384+285@humbolt.nl.linux.org>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.5.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S271770AbRHUSAU>; Tue, 21 Aug 2001 14:00:20 -0400
+Received: from smtp-rt-11.wanadoo.fr ([193.252.19.62]:40433 "EHLO
+	magnolia.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S271769AbRHUSAJ>; Tue, 21 Aug 2001 14:00:09 -0400
+Message-ID: <3B82A2C5.48E4DFC@wanadoo.fr>
+Date: Tue, 21 Aug 2001 20:04:53 +0200
+From: Pierre JUHEN <pierre.juhen@wanadoo.fr>
+X-Mailer: Mozilla 4.77 [fr] (X11; U; Linux 2.4.9 i686)
+X-Accept-Language: fr, French, en
+MIME-Version: 1.0
+To: David Brownell <david-b@pacbell.net>
+CC: Greg KH <greg@kroah.com>, mj@suse.cz, linux-kernel@vger.kernel.org,
+        linux-hotplug-devel@lists.sourceforge.net
+Subject: Re: PROBLEM : PCI hotplug crashes with 2.4.9
+In-Reply-To: <3B816617.F5C1CD24@wanadoo.fr> <20010820123625.A31374@kroah.com> <08d401c129ca$94ebd2a0$6800000a@brownell.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Aug 2001 19:26:58 +0200
-Daniel Phillips <phillips@bonn-fries.net> wrote:
+I was a bit lazy, writing by memory : you are right the system says
 
-> On August 21, 2001 06:48 pm, Sven Heinicke wrote:
-> > Yes, highmem was on, the stystem got 4G of memory.  I turned off
-> > highmem and got no messages apart from one:
-> > 
-> > Aug 21 07:29:19 ps1 kernel: (scsi0:A:0:0): Locking max tag count at 64
-> > 
-> > which I was getting before.
-> >
-> > Disk access is faster then before but still slower then the IDE
-> > drive.  Any ideas?
-> 
-> Two separate problems, I think.  I don't know anything about the aic7xxx 
-> driver but I can take a look at the highmem problem.  First, can you try
-> it with highmem enabled, on a recent -ac kernel, say 2.4.8-ac7.
+"pcimodules is scanning more than 00:00.0"
 
-Ok, Daniel, here are the results of the german jury :-) (EU insider joke)
+but onluy this line and crashes. Under 2.4.6, it scans all the pci
+adresses.
 
-Aug 21 19:46:40 admin kernel: __alloc_pages: 2-order allocation failed (gfp=0x20/0).
-Aug 21 19:46:40 admin kernel: __alloc_pages: 3-order allocation failed (gfp=0x20/0).
-Aug 21 19:46:40 admin kernel: __alloc_pages: 3-order allocation failed (gfp=0x20/0).
-Aug 21 19:46:40 admin kernel: __alloc_pages: 2-order allocation failed (gfp=0x20/0).
-Aug 21 19:46:40 admin kernel: __alloc_pages: 3-order allocation failed (gfp=0x20/0).
-Aug 21 19:46:40 admin kernel: __alloc_pages: 3-order allocation failed (gfp=0x20/0).
-Aug 21 19:46:40 admin kernel: __alloc_pages: 2-order allocation failed (gfp=0x20/0).
-Aug 21 19:46:40 admin kernel: __alloc_pages: 3-order allocation failed (gfp=0x20/0).
-Aug 21 19:46:40 admin kernel: __alloc_pages: 3-order allocation failed (gfp=0x20/0).
-Aug 21 19:46:40 admin kernel: __alloc_pages: 2-order allocation failed (gfp=0x20/0).
+Renaming pcimodules to pcimodules- leads to " ** can't synthesize pci
+hotplug events".
 
-And what may be of big interest for Justin: I am using the _old_ AIC7xxx driver. 
+On my system, kudzu is started after hotplug, so the problem seems not
+linked with that,
+since it crashes even during boot, very early, just after fsck.
 
-The problem can quite easily be produced on my side. All you need is a (problem) host with NFS-server running and a client system. Then simply copy a lot of big files to the server. If you now go and read CD on the server you are in big trouble:
-cpu load is shot through the ceiling and you cannot even type chars in a shell after about 3 minutes. Remember I am sitting in front of a dual P-III 1GHz with 1 GB of RAM and U160 SCSI, I simply cannot believe this. I have never seen such a thing under 2.2.
 
-Regards,
-Stephan
 
-PS: I try to disable HighMem next.
+
+David Brownell a écrit :
+
+> >     Only the
+> > first line "pcimodules scanning 00:00.0" is displayed.
+>
+> Curious.  If anything, I'd expect it to say
+> "pcimodules is scanning more than 00:00.0".
+> (The last version I saw didn't have a way to
+> scan for modules appropriate to a particular
+> PCI slot, and the hotplug scripts warn about
+> that limitation.)
+>
+> You might try renaming "pcimodules" to "pcimodules-"
+> to see if that changes any interesting behavior.  I notice
+> you're using RedHat with 7.1 and usb-uhci.  I seem to
+> recall that Kudzu wanted to do some hotplug-ish things;
+> they may not play well together yet.
+>
+> - Dave
+

@@ -1,89 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265062AbTLCRKv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Dec 2003 12:10:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265081AbTLCRKv
+	id S265098AbTLCRGw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Dec 2003 12:06:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265099AbTLCRGw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Dec 2003 12:10:51 -0500
-Received: from mra03.ex.eclipse.net.uk ([212.104.129.88]:40147 "EHLO
-	mra03.ex.eclipse.net.uk") by vger.kernel.org with ESMTP
-	id S265062AbTLCRKt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Dec 2003 12:10:49 -0500
-From: Ian Hastie <ianh@iahastie.clara.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [2.6] Missing L2-cache after warm boot
-Date: Wed, 3 Dec 2003 17:10:42 +0000
-User-Agent: KMail/1.5.4
-References: <87ptf8bpnd.fsf@echidna.jochen.org> <200312020300.13067.ianh@iahastie.local.net> <878ylvjqpv.fsf@echidna.jochen.org>
-In-Reply-To: <878ylvjqpv.fsf@echidna.jochen.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 3 Dec 2003 12:06:52 -0500
+Received: from relay.pair.com ([209.68.1.20]:60933 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id S265098AbTLCRGv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Dec 2003 12:06:51 -0500
+X-pair-Authenticated: 68.42.66.6
+Subject: Re: emu10k1 under kernel 2.6?
+From: Daniel Gryniewicz <dang@fprintf.net>
+To: Heinz Ulrich Stille <hus@design-d.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200312031226.08858.hus@design-d.de>
+References: <200312021017.07936.hus@design-d.de>
+	 <1070387001.3fcccf39b1f70@horde.sandall.us>
+	 <200312031226.08858.hus@design-d.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200312031710.43786.ianh@iahastie.local.net>
+Message-Id: <1070471203.4071.3.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 03 Dec 2003 12:06:43 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 02 Dec 2003 13:26, Jochen Hein wrote:
-> Ian Hastie <ianh@iahastie.clara.net> writes:
-> > On Monday 01 Dec 2003 14:04, Jochen Hein wrote:
-> >> I'm running 2.6.0-test11 on an older Thinkpad 390E,
-> >> When booting into 2.6.0-test11 after running Windows2000 I get:
-> >
-> > Do any of the previous test releases show this problem?
->
-> -test11 is the first release running on that machine.  My older TP600
-> destroyed its WIndows 95 so I got a replacement.  Compiling a kernel
-> takes an hour or two, so it is not much fun trying different kernels.
+On Wed, 2003-12-03 at 06:25, Heinz Ulrich Stille wrote:
+> On Tuesday 02 December 2003 18:43, Eric Sandall wrote:
+> > Quoting Heinz Ulrich Stille <hus@design-d.de>:
+> > > ALSA sound/pci/ac97/ac97_codec.c:1671: AC'97 0:0 does not respond - RESET
+> > > EMU10K1_Audigy: probe of 0000:02:06.0 failed with error -6
+> [...]
+> > You have to setup your sound drivers in the kernel now (either OSS or ALSA,
+> > the latter is preferred). I have my SB Live! working on all of the 2.6
+> > kernels (including the -mm patchsets).
+> 
+> I'm using ALSA in 2.4 as well as in 2.6, but where can I find a setup?
+> 
+> > Also, a quick Google search[0] returns at least one page (it shows 10
+> > pages) of usefull information.
+> 
+> Hm, looks like I tried the wrong set of words. Even now I did not find
+> anything definitive, but I got the impression that IRQ sharing does not
+> work anymore (I never checked that - I've got exactly two cards on my
+> board, graphics and sound and guess what - I seem to have picked the one
+> PCI slot that shares it's IRQ with AGP...).
+> Could that really be the problem? It does work with 2.4.
+> 
+> Btw, the system is SMP, a Tyan Tiger MPX with two Athlon XPs.
 
-No faster machine to compile on?  Still think this isn't a kernel problem 
-anyway.
-
-> > If it's
-> > via the BIOS then does that show the L2 cache as being present?
->
-> The BIOS doesn't tell anything, the setup doesn't have a "cache
-> enable" or "turbo" entry.
-
-I was just hoping it would have a configuration screen shown after POST.  I 
-had expected that it would show any active caches.  Doesn't seem so likely 
-now though. *8/
-
-> > My immediate thought was a BIOS problem.  IBM's web site doesn't say any
-> > BIOS updates fix L2 cache related problems, but then it doesn't seem to
-> > use technical descriptions like that.  It says the latest BIOS is 1.55 -
-> > R01_C9.
-> >
-> > http://www-1.ibm.com/support/docview.wss?rs=0&uid=psg1MIGR-4F3VKB&loc=en_
-> >US
->
-> I'll see what BIOS I have - it is the latest.  Thanks for the hint anyway.
-
-OK. *8)
-
-> > Or maybe it's possible that something in MS Windows 2000 is turning off
-> > the L2 cache and it isn't getting reactivated by the warm boot?
->
-> Is there any way to see what Windows does here?  I only found a manual
-> enable of the L2cache when using older processors.
-
-Who knows what a Windows programme or driver might do in order to "fix" some 
-problem?  I suppose it's possible that a programme like SiSoft Sandra might 
-be able to tell if the L2 cache is active or not.  There is almost bound to 
-be some programme that can read the appropriate configuration bits.
-
-> > What happens when
-> > you do a cold boot to Linux then reboot from there?
->
-> That is fine.
->
-> For now the system seems to be fine, even when starting from Win2k via
-> BIOS reboot.  Hmpf.
-
-Annoying.  Can you think of anything you might have done with Windows 2000, eg 
-programme run or device used, that you haven't done when testing?
-
+I have a tyan tiger MP with two Athlon MPs, and my emu10k1 does not work
+with ALSA on 2.4.  I haven't looked into it closely, as I don't really
+use sound on this box, but maybe it's a SMP thing?  Probably not the
+right list for this, but it's a datapoint.
 -- 
-Ian.
-
+Daniel Gryniewicz <dang@fprintf.net>

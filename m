@@ -1,63 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268876AbTGOQrX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 12:47:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268894AbTGOQrW
+	id S268962AbTGOQvj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 12:51:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268964AbTGOQvi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 12:47:22 -0400
-Received: from 64-238-252-21.arpa.kmcmail.net ([64.238.252.21]:15578 "EHLO
-	kermit.unets.com") by vger.kernel.org with ESMTP id S268876AbTGOQrV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 12:47:21 -0400
-Subject: Re: 2.6.0-test1-ac1 Matrox Compile Error
-From: Adam Voigt <adam@cryptocomm.com>
-Reply-To: adam@cryptocomm.com
-To: dank@reflexsecurity.com
-Cc: linux-kernel@vger.kernel.org, jsimmons@infradead.org
-In-Reply-To: <bf19d5$d00$1@main.gmane.org>
-References: <1058285021.2209.13.camel@beowulf.cryptocomm.com>
-	 <bf19d5$d00$1@main.gmane.org>
-Content-Type: text/plain
-Organization: Cryptocomm
-Message-Id: <1058288545.2209.16.camel@beowulf.cryptocomm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 15 Jul 2003 13:02:25 -0400
+	Tue, 15 Jul 2003 12:51:38 -0400
+Received: from mail5.iserv.net ([204.177.184.155]:22180 "EHLO mail5.iserv.net")
+	by vger.kernel.org with ESMTP id S268962AbTGOQvf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 12:51:35 -0400
+Message-ID: <3F14348B.4050606@didntduck.org>
+Date: Tue, 15 Jul 2003 13:06:19 -0400
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla/5.0 (Windows; U; WinNT4.0; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Kathy Frazier <kfrazier@mdc-dayton.com>
+CC: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
+Subject: Re: Interrupt doesn't make it to the 8259 on a ASUS P4PE mobo
+References: <PMEMILJKPKGMMELCJCIGOEKNCCAA.kfrazier@mdc-dayton.com>
+In-Reply-To: <PMEMILJKPKGMMELCJCIGOEKNCCAA.kfrazier@mdc-dayton.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 15 Jul 2003 17:02:12.0489 (UTC) FILETIME=[D5BB9F90:01C34AF2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You were right, I missed VT support on the config, added
-it and no more compile errors, thanks very much.
-
-
-
-
-On Tue, 2003-07-15 at 12:16, nick black wrote:
-> In article <1058285021.2209.13.camel@beowulf.cryptocomm.com>, Adam Voigt wrote:
-> > Let me know if I'm being stupid, but here's the error I get,
-> > and my .config is below:
-> > 
-> > 
-> >   CHK     include/linux/compile.h
-> >   UPD     include/linux/compile.h
-> >   CC      init/version.o
-> >   LD      init/built-in.o
-> >   LD      .tmp_vmlinux1
-> > drivers/built-in.o(.text+0x66e7a): In function `matroxfb_set_par':
-> >: undefined reference to `default_grn'
-> > drivers/built-in.o(.text+0x66e7f): In function `matroxfb_set_par':
-> >: undefined reference to `default_blu'
-> > drivers/built-in.o(.text+0x66e93): In function `matroxfb_set_par':
-> >: undefined reference to `color_table'
-> > drivers/built-in.o(.text+0x66e9b): In function `matroxfb_set_par':
-> >: undefined reference to `default_red'
-> > make: *** [.tmp_vmlinux1] Error 1
+Kathy Frazier wrote:
+> Thanks for your reply, Andi.
 > 
-> you'll need to build VT support.
--- 
-Adam Voigt (adam@cryptocomm.com)
-Linux/Unix Network Administrator
-The Cryptocomm Group
+> 
+>>>We have a proprietary PCI board installed in a (UP) system with an ASUS
+> 
+> P4PE
+> 
+>>>motherboard (uses Intel 845PE chipset). This system is running Red Hat
+> 
+> 9.0
+> 
+> 
+>>Have you checked the 845 errata sheets on the Intel website?
+>>Perhaps it is some known hardware bug.
+> 
+> 
+>>One thing you could try is to use Local APIC / IO APIC interrupt processing
+>>instead of 8259.
+> 
+> 
+> Our hardware engineer has combed the Intel and ASUS websites, but found
+> nothing.  I'll give the APIC a try and see if I get different results and
+> let you know.
+> 
+> 
+>>>/* start timer */
+>>>dmatimer.expires = jiffies + 0.5*HZ;
+> 
+> 
+>>That's a serious bug. You cannot use floating point in the kernel.
+>>It will corrupt the FP state of the user process.
+> 
+> 
+> HZ on the INTEL platform is 100, so this should simply add 50 to the current
+> value of jiffies.  Besides, assigning the value to the unsigned int field
+> (expires) will truncate it to an integer anyway.
+
+Use HZ/2 instead.  GCC doesn't optimize floating point constants to the 
+same degree it does integers, because it doesn't know what mode 
+(rounding, precision) the FPU is in.
+
+--
+				Brian Gerst
 

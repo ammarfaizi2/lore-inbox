@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277097AbRJLADH>; Thu, 11 Oct 2001 20:03:07 -0400
+	id <S277104AbRJLAE2>; Thu, 11 Oct 2001 20:04:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277104AbRJLAC5>; Thu, 11 Oct 2001 20:02:57 -0400
-Received: from c1765315-a.mckiny1.tx.home.com ([65.10.75.71]:260 "EHLO
-	aruba.maner.org") by vger.kernel.org with ESMTP id <S277097AbRJLACu> convert rfc822-to-8bit;
-	Thu, 11 Oct 2001 20:02:50 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.4712.0
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: Compile of 2.4.10-ac12 dies on sparc64
-Date: Thu, 11 Oct 2001 19:03:22 -0500
-content-class: urn:content-classes:message
-Message-ID: <C033B4C3E96AF74A89582654DEC664DB5559@aruba.maner.org>
-Thread-Topic: Compile of 2.4.10-ac12 dies on sparc64
-Thread-Index: AcFSsTpMc/5RBZu3Qd2wJi7DW2TTYg==
-From: "Donald Maner" <donjr@maner.org>
-To: "Linux Kernel (E-mail)" <linux-kernel@vger.rutgers.edu>
+	id <S277103AbRJLAES>; Thu, 11 Oct 2001 20:04:18 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:31755 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S277104AbRJLAEF>;
+	Thu, 11 Oct 2001 20:04:05 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Andrew Over <ajo@acm.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Oops on removing via-rhine [2.4.10-ac11] 
+In-Reply-To: Your message of "Thu, 11 Oct 2001 14:09:43 MST."
+             <20011011140943.A10576@yeah.cx> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 12 Oct 2001 10:04:26 +1000
+Message-ID: <32326.1002845066@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trying to compile 2.4.10-ac12 on an Ultra10:
+On Thu, 11 Oct 2001 14:09:43 -0700, 
+Andrew Over <ajo@acm.org> wrote:
+>This oops is reasonably easy to reproduce (reinsert and remove
+>via-rhine enough times and it happens)
+>>>EIP; c0129840 <__free_pages_ok+10/1c0>   <=====
+>Trace; c01acd3e <pci_release_regions+6e/80>
+>Trace; c0129f1a <__free_pages+1a/20>
+>Trace; c0129f44 <free_pages+24/30>
+>Trace; c010b6bc <pci_free_consistent+1c/20>
+>Trace; e08fdbaa <_end+2066e636/20670a8c>
+>Trace; e08fe860 <_end+2066f2ec/20670a8c>
+>Trace; c01ad01e <pci_unregister_driver+3e/60>
+>Trace; e08fdc0a <_end+2066e696/20670a8c>
+>Trace; e08fe860 <_end+2066f2ec/20670a8c>
 
-sparc64-linux-gcc -D__KERNEL__ -I/home/donjr/linux-2.4.10-ac12/include
--Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
--fno-strict-aliasing -fno-common -m64 -pipe -mno-fpu -mcpu=ultrasparc
--mcmodel=medlow -ffixed-g4 -fcall-used-g5 -fcall-used-g7
--Wno-sign-compare -Wa,--undeclared-regs    -c -o init_task.o init_task.c
-init_task.c:7: `INIT_MMAP' undeclared here (not in a function)
-make[1]: *** [init_task.o] Error 1
-make[1]: Leaving directory
-`/home/donjr/linux-2.4.10-ac12/arch/sparc64/kernel'
-make: *** [_dir_arch/sparc64/kernel] Error 2
-
-Thanks
-Donald
+Oops in module delete may not get the symbol tables for the deleted
+module if they have already been removed from /proc/ksyms.  I suggest
+you create /var/log/ksymoops, man insmod.  Then insmod and rmmod will
+save the symbol tables after each module load or unload, you can point
+ksymoops at the saved symbols from before the failing rmmod.  That will
+give a better ksymoops decode.
 

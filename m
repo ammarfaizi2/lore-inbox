@@ -1,47 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261319AbSKGPsq>; Thu, 7 Nov 2002 10:48:46 -0500
+	id <S261316AbSKGPra>; Thu, 7 Nov 2002 10:47:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261320AbSKGPsp>; Thu, 7 Nov 2002 10:48:45 -0500
-Received: from quark.didntduck.org ([216.43.55.190]:28946 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP
-	id <S261319AbSKGPsj>; Thu, 7 Nov 2002 10:48:39 -0500
-Message-ID: <3DCA8CCE.5090503@didntduck.org>
-Date: Thu, 07 Nov 2002 10:54:54 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla/5.0 (Windows; U; WinNT4.0; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: David Woodhouse <dwmw2@infradead.org>
-CC: Dave Jones <davej@codemonkey.org.uk>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       CaT <cat@zip.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.45 / boottime oops (pnp bios I think)
-References: <20021107145112.GA24278@suse.de>  <1036415133.1106.10.camel@irongate.swansea.linux.org.uk> <20021104025458.GA3088@zip.com.au> <9668.1036679581@passion.cambridge.redhat.com> <11262.1036680930@passion.cambridge.redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S261319AbSKGPra>; Thu, 7 Nov 2002 10:47:30 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:3599 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261316AbSKGPr3>; Thu, 7 Nov 2002 10:47:29 -0500
+Date: Thu, 7 Nov 2002 15:54:04 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Osamu Tomita <tomita@cinet.co.jp>
+Cc: LKML <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] 2.5.45-ac1 CardBus compile Fix
+Message-ID: <20021107155404.B11437@flint.arm.linux.org.uk>
+Mail-Followup-To: Osamu Tomita <tomita@cinet.co.jp>,
+	LKML <linux-kernel@vger.kernel.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>
+References: <3DCA89A0.E6B6DDEF@cinet.co.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3DCA89A0.E6B6DDEF@cinet.co.jp>; from tomita@cinet.co.jp on Fri, Nov 08, 2002 at 12:41:20AM +0900
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Woodhouse wrote:
-> davej@codemonkey.org.uk said:
+On Fri, Nov 08, 2002 at 12:41:20AM +0900, Osamu Tomita wrote:
+> I couldn't compile cistpl.c, that call obsolete function.
 > 
->> Relatively pointless given that there are more and more boxes out
->>there that won't boot without ACPI these days.
+> Here is trivial patch. This works fine for me.
 > 
-> 
-> There are also more and more boxes out there which won't run X without the
-> nvidia driver loaded. Does that mean we shouldn't bother to record that 
-> information either?
-> 
-> I'm not necessarily suggesting we should automatically ignore all reports 
-> with the 'BIOS' taint flag set as we do the 'Proprietary' flag; just that 
-> it should be reported.
+> Regards,
+> Osamu Tomita
+> --- linux-2.5.45-ac1/drivers/pcmcia/cistpl.c.orig	Thu Oct 31 09:42:24 2002
+> +++ linux-2.5.45-ac1/drivers/pcmcia/cistpl.c	Thu Nov  7 01:03:55 2002
+> @@ -429,7 +429,7 @@
+>  #ifdef CONFIG_CARDBUS
+>      if (s->state & SOCKET_CARDBUS) {
+>  	u_int ptr;
+> -	pcibios_read_config_dword(s->cap.cb_dev->subordinate->number, 0, 0x28, &ptr);
+> +	pci_bus_read_config_dword(s->cap.cb_dev->bus, 0, 0x28, &ptr);
+>  	tuple->CISOffset = ptr & ~7;
+>  	SPACE(tuple->Flags) = (ptr & 7);
+>      } else
 
-You only need the binary driver for 3D support.  XFree86 runs fine 
-without it for 2D.
+I think dev->bus the bus number for the bus that the Cardbus controller
+is connected to?  If so, this change is wrong.
 
---
-				Brian Gerst
+bus:device.function = 0:0.0
++--------+
+| host   |
+| bridge >--------+------------------ dev->bus
++--------+        |
+                  |
+             +----v----+ dev
+             | Cardbus |
+             | Bridge  |
+             +---------+
+                  |
+                  | bus number = dev->subordinate->number
+                  |
+                  |
+             +----v----+ bus = dev->subordinate->number
+             | Cardbus | device = 0
+             |   card  |
+             +---------+
 
+The device we want to read the CIS offset from is the cardbus card.
+In the above case, your change means we'll try to read the CIS offset
+from the host bridge, which is obviously wrong.
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

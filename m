@@ -1,65 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267474AbUIFXcl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267363AbUIFXer@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267474AbUIFXcl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Sep 2004 19:32:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267363AbUIFXcl
+	id S267363AbUIFXer (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Sep 2004 19:34:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267475AbUIFXer
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Sep 2004 19:32:41 -0400
-Received: from smtp-out4.blueyonder.co.uk ([195.188.213.7]:48718 "EHLO
-	smtp-out4.blueyonder.co.uk") by vger.kernel.org with ESMTP
-	id S267475AbUIFXcH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Sep 2004 19:32:07 -0400
-Message-ID: <413CF375.6020402@blueyonder.co.uk>
-Date: Tue, 07 Sep 2004 00:32:05 +0100
-From: Sid Boyce <sboyce@blueyonder.co.uk>
-Reply-To: sboyce@blueyonder.co.uk
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040502)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: RE: 2.6.9-rc1-mm3 IDE cdrom bug 
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 6 Sep 2004 19:34:47 -0400
+Received: from mail02.syd.optusnet.com.au ([211.29.132.183]:53454 "EHLO
+	mail02.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S267363AbUIFXeo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Sep 2004 19:34:44 -0400
+References: <413CB661.6030303@sgi.com> <cone.1094512172.450816.6110.502@pc.kolivas.org> <20040906162740.54a5d6c9.akpm@osdl.org>
+Message-ID: <cone.1094513660.210107.6110.502@pc.kolivas.org>
+X-Mailer: http://www.courier-mta.org/cone/
+From: Con Kolivas <kernel@kolivas.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: raybry@sgi.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       riel@redhat.com, piggin@cyberone.com.au, mbligh@aracnet.com
+Subject: Re: swapping and the value of /proc/sys/vm/swappiness
+Date: Tue, 07 Sep 2004 09:34:20 +1000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed; charset="US-ASCII"
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 06 Sep 2004 23:32:30.0402 (UTC) FILETIME=[C6FAD220:01C49469]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It seems all 2.6.9-rc1 kernels give this error ending up with the mount 
-in D state, up to -bk13. Everything works fine on 2.6.8-rc4-mm1 on the 
-Asus A7N8X-E, so I need to go back and find out exactly where it broke, 
-I hadn't used the CDROM/DVD's in quite a while.
-On the Acer 1501LCe x86_64 I get Drive Seek Incomplete errors, hdparm 
-says Using DMA=1, but the mount gives a D process now, whereas it worked 
-flawlessly before, suspect I may have a bad drive.
-Sep  7 00:26:32 Boycie kernel: hdc: cdrom_decode_status: status=0x51 { 
-DriveReady SeekComplete Error }
-Sep  7 00:26:32 Boycie kernel: hdc: cdrom_decode_status: 
-error=0x40LastFailedSense 0x04
-Sep  7 00:26:32 Boycie kernel: hdc: command error: status=0x51 { 
-DriveReady SeekComplete Error }
-Sep  7 00:26:32 Boycie kernel: hdc: command error: error=0x52
-Sep  7 00:26:32 Boycie kernel: ide: failed opcode was 100
-Sep  7 00:26:32 Boycie kernel: end_request: I/O error, dev hdc, sector 64
-Sep  7 00:26:32 Boycie kernel: Buffer I/O error on device hdc, logical 
-block 8
-Sep  7 00:26:32 Boycie automount[8536]: >> /dev/dvd: Input/output error
-Sep  7 00:26:32 Boycie kernel: hdc: request sense failure: status=0x51 { 
-DriveReady SeekComplete Error }
-Sep  7 00:26:32 Boycie kernel: hdc: request sense failure: 
-error=0xb0LastFailedSense 0x0b
-Sep  7 00:26:32 Boycie kernel: hdc: packet command error: status=0x51 { 
-DriveReady SeekComplete Error }
-Sep  7 00:26:32 Boycie kernel: hdc: packet command error: error=0x40
-Sep  7 00:26:32 Boycie kernel: ide: failed opcode was 100
-Sep  7 00:26:32 Boycie kernel: hdc: request sense failure: status=0x51 { 
-DriveReady SeekComplete Error }
-Sep  7 00:26:32 Boycie kernel: hdc: request sense failure: 
-error=0xb0LastFailedSense 0x0b
+Andrew Morton writes:
 
-Regards
-Sid.
+> Con Kolivas <kernel@kolivas.org> wrote:
+>>
+>> > A scan of the change logs for swappiness related changes shows nothing that 
+>>  > might explain these changes.  My question is:  "Is this change in behavior
+>>  > deliberate, or just a side effect of other changes that were made in the vm?" 
+>>  > and "What kind of swappiness behavior might I expect to find in future kernels?".
+>> 
+>>  The change was not deliberate but there have been some other people report 
+>>  significant changes in the swappiness behaviour as well (see archives). It 
+>>  has usually been of the increased swapping variety lately. It has been 
+>>  annoying enough to the bleeding edge desktop users for a swag of out-of-tree 
+>>  hacks to start appearing (like mine).
+> 
+> All of which is largely wasted effort.  It would be much more useful to get
+> down and identify which patch actually caused the behavioural change.
 
--- 
-Sid Boyce .... Hamradio G3VBV and keen Flyer
-=====LINUX ONLY USED HERE=====
+I don't disagree. Is there anyone who has the time and is willing to do the 
+regression testing? This is a general appeal to the mailing list.
+
+Cheers,
+Con
 

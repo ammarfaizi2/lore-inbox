@@ -1,50 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286387AbRL0RjS>; Thu, 27 Dec 2001 12:39:18 -0500
+	id <S286399AbRL0Rp7>; Thu, 27 Dec 2001 12:45:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286384AbRL0RjJ>; Thu, 27 Dec 2001 12:39:09 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:64453 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S286385AbRL0Rit>; Thu, 27 Dec 2001 12:38:49 -0500
-Date: Thu, 27 Dec 2001 10:38:28 -0700
-Message-Id: <200112271738.fBRHcSd30844@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Rik van Riel <riel@conectiva.com.br>,
-        Dana Lacoste <dana.lacoste@peregrine.com>,
-        "'Eyal Sohya'" <linuz_kernel_q@hotmail.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: The direction linux is taking
-In-Reply-To: <20011227165752.A19618@flint.arm.linux.org.uk>
-In-Reply-To: <Pine.LNX.4.33L.0112271353370.12225-100000@duckman.distro.conectiva>
-	<E16JdTa-0005zm-00@the-village.bc.nu>
-	<20011227165752.A19618@flint.arm.linux.org.uk>
+	id <S286394AbRL0Rpx>; Thu, 27 Dec 2001 12:45:53 -0500
+Received: from mail.xmailserver.org ([208.129.208.52]:18950 "EHLO
+	mail.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S286390AbRL0Rox>; Thu, 27 Dec 2001 12:44:53 -0500
+Date: Thu, 27 Dec 2001 09:48:32 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Victor Yodaiken <yodaiken@fsmlabs.com>
+cc: george anzinger <george@mvista.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Scheduler issue 1, RT tasks ...
+In-Reply-To: <20011226204215.A1007@hq2>
+Message-ID: <Pine.LNX.4.40.0112270944450.1558-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King writes:
-> On Thu, Dec 27, 2001 at 04:33:50PM +0000, Alan Cox wrote:
-> > Tridge wrote the system you describe, several years ago. Its called
-> > jitterbug but it doesnt help because Linus wont use it
-> 
-> Speaking as someone who _does_ use a system for tracking patches, I
-> believe that patch management systems are a right pain in the arse.
-> 
-> If the quality of patches aren't good, then it throws you into a
-> problem.  You have to provide people with a reason why you discarded
-> their patch, which provides people with the perfect opportunity to
-> immediately start bugging you about exactly how to make it better.
-> If you get lots of such patches, eventually you've got a mailbox of
-> people wanting to know how to make their patches better.
+On Wed, 26 Dec 2001, Victor Yodaiken wrote:
 
-So you just do what Linus does: delete those questions without
-replying. No matter what system you use, if you want to avoid an
-overflowing mailbox, you either have to silently drop patches, and/or
-silently drop questions/requests/begging letters. There isn't really
-much difference between the two.
+> On Sun, Dec 23, 2001 at 05:20:26PM -0800, Davide Libenzi wrote:
+> > On Sun, 23 Dec 2001, Victor Yodaiken wrote:
+> >
+> > > On Thu, Dec 20, 2001 at 02:36:07PM -0800, Davide Libenzi wrote:
+> > > > > My understanding of the POSIX standard is the the highest priority
+> > > > > task(s) are to get the cpu(s) using the standard calls.  If you want to
+> > > > > deviate from this I think the standard allows extensions, but they IMHO
+> > > > > should be requested, not the default, so I would turn your flag around
+> > > > > to force LOCAL, not GLOBAL.
+> > > >
+> > > > So, you're basically saying that for a better standard compliancy it's
+> > > > better to have global preemption policy by default. And having users to
+> > > > request rt tasks localization explicitly. It's fine for me.
+> > >
+> > > Can you please cite the passaaages in the standrd you have in mind?
+> >
+> > POSIX 1003. The doubt was if ( since the POSIX standard does not talk
+> > about SMP ) the real time priorities apply to CPU or to the entire system.
+>
+> Right, that was my question. George says, in your words, "for better
+> standards compliancy ..." and I want to know why you guys think that.
 
-				Regards,
+The thought was that if someone need RT tasks he probably need a very low
+latency and so the idea that by applying global preemption decisions would
+lead to a better compliancy. But i'll be happy to ear that this is false
+anyway ...
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+
+
+
+- Davide
+
+

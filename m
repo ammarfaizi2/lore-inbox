@@ -1,110 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265905AbSKFSXO>; Wed, 6 Nov 2002 13:23:14 -0500
+	id <S265906AbSKFSId>; Wed, 6 Nov 2002 13:08:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265909AbSKFSXO>; Wed, 6 Nov 2002 13:23:14 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:10224 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S265905AbSKFSXF>;
-	Wed, 6 Nov 2002 13:23:05 -0500
-Message-ID: <3DC95F7A.96B3A866@mvista.com>
-Date: Wed, 06 Nov 2002 10:29:14 -0800
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Skip Ford <skip.ford@verizon.net>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/3] High-res-timers part 1 (core) take 13
-References: <3DC8B75F.4B425973@mvista.com> <200211060827.gA68RoKb021008@pool-141-150-241-241.delv.east.verizon.net>
-Content-Type: text/plain; charset=us-ascii
+	id <S265909AbSKFSId>; Wed, 6 Nov 2002 13:08:33 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:27890 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S265906AbSKFSIc>;
+	Wed, 6 Nov 2002 13:08:32 -0500
+Subject: Re: NUMA scheduler BK tree
+From: Michael Hohnbaum <hohnbaum@us.ibm.com>
+To: Erich Focht <efocht@ess.nec.de>
+Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>, Robert Love <rml@tech9.net>,
+       Anton Blanchard <anton@samba.org>, Ingo Molnar <mingo@elte.hu>,
+       Stephen Hemminger <shemminger@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <200211061734.42713.efocht@ess.nec.de>
+References: <200211061734.42713.efocht@ess.nec.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 06 Nov 2002 10:10:42 -0800
+Message-Id: <1036606243.23147.4.camel@dyn9-47-17-164.beaverton.ibm.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Skip Ford wrote:
+On Wed, 2002-11-06 at 08:34, Erich Focht wrote:
+> Michael, Martin,
 > 
-> george anzinger wrote:
-> >
-> > -     tvec_base_t *old_base, *new_base;
-> > +     tvec_base_t *new_base;
-> > +     IF_SMP( tvec_base_t *old_base;)
+> in order to make it easier to keep up with the main Linux tree I've
+> set up a bitkeeper repository with our NUMA scheduler at
+>        bk://numa-ef.bkbits.net/numa-sched
+> (Web view:  http://numa-ef.bkbits.net/)
+> This used to contain my node affine NUMA scheduler, I'll add extra
+> trees when the additional patches for that are tested on top of our
+> NUMA scheduler.
 > 
-> Your code doesn't compile.  old_base only exists ifdef CONFIG_SMP but
-> it's referneced for UP compiles @ timer.c:line 332
+> Is it ok for you to have it this way or would you prefer having the
+> core and the initial load balancer separate?
 > 
->         if (old_base) {
->                 list_del(&timer->entry);
->                 ret = 1;
->         }
-> 
-> ifdeffing it out works but I don't know if it's correct.  That's one
-> ugly function with your patch applied so one more ifdef won't hurt
-> (unless it's wrong.)
+> The tree is currently in sync with bk://linux.bkbits.net/linux-2.5 and
+> I'll try to keep so.
 
-Yes, it is wrong.  This leaves a lot of useless code in the
-UP case, but this is what I will use:
+Erich,
 
---- /usr/src/linux-2.5.46-bk1-core/kernel/timer.c~	Wed Nov 
-6 10:25:23 2002
-+++ /usr/src/linux-2.5.46-bk1-core/kernel/timer.c	Wed Nov  6
-10:22:02 2002
-@@ -279,7 +279,7 @@
- #endif
- {
- 	tvec_base_t *new_base;
--	IF_SMP( tvec_base_t *old_base;)
-+	tvec_base_t *old_base;
- 	unsigned long flags;
- 	int ret = 0;
- 
-@@ -297,7 +297,6 @@
- 
- 	spin_lock_irqsave(&timer->lock, flags);
- 	new_base = &per_cpu(tvec_bases, smp_processor_id());
--#ifdef CONFIG_SMP
- repeat:
- 	old_base = timer->base;
- 
-@@ -322,7 +321,6 @@
- 			goto repeat;
- 		}
- 	} else
--#endif
- 		spin_lock(&new_base->lock);
- 	/*
- 	 * Delete the previous timeout (if there was any), and
-install
+This is fine with me.  Can't the core changes and and load
+balancer be maintained as separate changesets within the bk
+tree?  
 
-> 
-> --- linux-sk/kernel/timer.c~fix-high-res        Wed Nov  6 03:14:30 2002
-> +++ linux-sk-jr/kernel/timer.c  Wed Nov  6 03:14:30 2002
-> @@ -329,10 +329,12 @@ repeat:
->          * Delete the previous timeout (if there was any), and install
->          * the new one:
->          */
-> +#ifdef CONFIG_SMP
->         if (old_base) {
->                 list_del(&timer->entry);
->                 ret = 1;
->         }
-> +#endif
->         timer->expires = expires;
->         IF_HIGH_RES(timer->sub_expires = sub_expires);
->         internal_add_timer(new_base, timer);
-> 
-> --
-> Skip
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+            Michael
 
+> Regards,
+> Erich
 -- 
-George Anzinger   george@mvista.com
-High-res-timers: 
-http://sourceforge.net/projects/high-res-timers/
-Preemption patch:
-http://www.kernel.org/pub/linux/kernel/people/rml
+
+Michael Hohnbaum                      503-578-5486
+hohnbaum@us.ibm.com                   T/L 775-5486
+

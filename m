@@ -1,55 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315513AbSG3Sss>; Tue, 30 Jul 2002 14:48:48 -0400
+	id <S315449AbSG3Sr4>; Tue, 30 Jul 2002 14:47:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315536AbSG3Sss>; Tue, 30 Jul 2002 14:48:48 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:4592 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S315513AbSG3Ssr>; Tue, 30 Jul 2002 14:48:47 -0400
-Subject: Re: [patch 2/9] 2.5.6 lm_sensors
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020729222434.GB15219@elf.ucw.cz>
-References: <3D381CD1.6A0B9909@bellsouth.net>
-	<1027130877.14314.6.camel@irongate.swansea.linux.org.uk>
-	<20020726104640.GD279@elf.ucw.cz>
-	<1027694678.13429.40.camel@irongate.swansea.linux.org.uk> 
-	<20020729222434.GB15219@elf.ucw.cz>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 30 Jul 2002 21:08:25 +0100
-Message-Id: <1028059705.7974.32.camel@irongate.swansea.linux.org.uk>
+	id <S315456AbSG3Sr4>; Tue, 30 Jul 2002 14:47:56 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:1286 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S315449AbSG3Sr4>; Tue, 30 Jul 2002 14:47:56 -0400
+Date: Tue, 30 Jul 2002 19:51:16 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Remco Treffkorn <remco@rvt.com>
+Cc: "David S. Miller" <davem@redhat.com>, dan@embeddededge.com,
+       benh@kernel.crashing.org, trini@kernel.crashing.org,
+       linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
+Subject: Re: 3 Serial issues up for discussion
+Message-ID: <20020730195116.E7677@flint.arm.linux.org.uk>
+References: <20020729181352.27999@192.168.4.1> <200207291246.43134.remco@rvt.com> <20020729.195414.31386335.davem@redhat.com> <200207301123.48322.remco@rvt.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200207301123.48322.remco@rvt.com>; from remco@rvt.com on Tue, Jul 30, 2002 at 11:23:47AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-07-29 at 23:24, Pavel Machek wrote:
-> > Given an afternoon someone competent can easily write a worm that
-> > destroys every scsi hard disk, almost every PC bios, your IDE firmware,
-> > some laptop batteries some USB devices and far more.
-> 
-> Every scsi harddisk? I do not think *all* of them have upgradable
-> firmware.
-> 
-> Every PC bios? I believe many manufacturers are clever enough to
-> require jumper.
-> 
-> If hardware is so crappy it is possible to kill it ... well ... I
-> believe it is at least bugtraq topic.
+On Tue, Jul 30, 2002 at 11:23:47AM -0700, Remco Treffkorn wrote:
+> The given solution presents almost zero overhead, but has the mentioned 
+> problem. There is a way to allocate and free minor numbers, but that requires 
+> storage. It could be handled like the fd_set's select uses. Just a bit field. 
+> Bit cleared == minor available, bit set == in use.
 
-Pretty much all of them do. They often put the firmware on the disk
-platter nowdays rather than on flash.
+core.c already knows which "slots" are in use and which aren't, so
+allocation and freeing of minor numbers isn't that much of a problem.
 
-As to PC BIOSes  - a few boards have jumpers, even fewer use them.
+The sole purpose behind this is to solicit is peoples opinions and
+ideas on those three points I've raised.
 
-Things are improving with the use of crypto in firmware for drives
-(addmitedly mostly to stop people patching the firmware to remove DVD
-region protection and other crap folks have been sneaking in) and black
-box protection for the bios flash - where a password must be written to
-write only registers (with another write only register set to configure
-a new password or turn on flash write once the old password is written
-to enable)
-
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

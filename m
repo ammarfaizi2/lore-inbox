@@ -1,47 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264696AbVBDSTw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261210AbVBDSYC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264696AbVBDSTw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 13:19:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265210AbVBDSQH
+	id S261210AbVBDSYC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 13:24:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264643AbVBDSU7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 13:16:07 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:32212 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S265648AbVBDSK6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 13:10:58 -0500
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Jon Smirl <jonsmirl@gmail.com>
-Subject: Re: [RFC] Reliable video POSTing on resume
-Date: Fri, 4 Feb 2005 10:10:12 -0800
-User-Agent: KMail/1.7.2
-Cc: Pavel Machek <pavel@ucw.cz>,
-       Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>,
-       ncunningham@linuxmail.org, ACPI List <acpi-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Matthew Garrett <mjg59@srcf.ucam.org>
-References: <20050122134205.GA9354@wsc-gmbh.de> <20050204163019.GC1290@elf.ucw.cz> <9e4733910502040931955f5a6@mail.gmail.com>
-In-Reply-To: <9e4733910502040931955f5a6@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 4 Feb 2005 13:20:59 -0500
+Received: from fed1rmmtao12.cox.net ([68.230.241.27]:50119 "EHLO
+	fed1rmmtao12.cox.net") by vger.kernel.org with ESMTP
+	id S263943AbVBDSUF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 13:20:05 -0500
+Date: Fri, 4 Feb 2005 11:19:58 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.11-rc3-V0.7.38-01
+Message-ID: <20050204181958.GA6073@smtp.west.cox.net>
+References: <20050204100347.GA13186@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200502041010.13220.jbarnes@engr.sgi.com>
+In-Reply-To: <20050204100347.GA13186@elte.hu>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, February 4, 2005 9:31 am, Jon Smirl wrote:
-> For non-x86 systems put an emu version on initramfs. My statically
-> linked against klibc x86 reset app is about 15K. The emu version is
-> significantly bigger but there is no way to avoid it if you are using
-> x86 hardware in a non-x86 box.
+On Fri, Feb 04, 2005 at 11:03:47AM +0100, Ingo Molnar wrote:
+> 
+> i have released the -V0.7.38-01 Real-Time Preemption patch, which can be
+> downloaded from the usual place:
+> 
+>   http://redhat.com/~mingo/realtime-preempt/
 
-Jon does your emulator sit on top of the new legacy I/O and memory APIs?  I 
-added them for this very reason, though atm only ia64 supports them.  There's 
-documentation in Documentation/filesystems/sysfs-pci.txt if you want to take 
-a look.  On kernels that support it, sysfs can be a one stop shop for all 
-your gfx programming needs, since it provides access to the rom, PCI 
-resources (i.e. MMIO ranges, fb memory, etc.) and legacy I/O ports and 
-memory.
+I thought I saw you say x64 should be OK now a few releases ago, so:
+linux-2.6.11-rc3/arch/x86_64/kernel/x8664_ksyms.c:197: error: `_atomic_dec_and_lock' undeclared here (not in a function)
+linux-2.6.11-rc3/arch/x86_64/kernel/x8664_ksyms.c:197: error: initializer element is not constant
+linux-2.6.11-rc3/arch/x86_64/kernel/x8664_ksyms.c:197: error: (near initialization for `__ksymtab__atomic_dec_and_lock.value')
+linux-2.6.11-rc3/arch/x86_64/kernel/x8664_ksyms.c:197: error: __ksymtab__atomic_dec_and_lock causes a section type conflict
+make[2]: *** [arch/x86_64/kernel/x8664_ksyms.o] Error 1
+make[1]: *** [arch/x86_64/kernel] Error 2
+make: *** [_all] Error 2
 
-Jesse
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

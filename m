@@ -1,49 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261626AbVCEPq5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261834AbVCEPq4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261626AbVCEPq5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Mar 2005 10:46:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261990AbVCEPht
+	id S261834AbVCEPq4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Mar 2005 10:46:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261626AbVCEPhW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Mar 2005 10:37:49 -0500
-Received: from coderock.org ([193.77.147.115]:42147 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S262008AbVCEPfl (ORCPT
+	Sat, 5 Mar 2005 10:37:22 -0500
+Received: from coderock.org ([193.77.147.115]:38819 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S261990AbVCEPfc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Mar 2005 10:35:41 -0500
-Subject: [patch 06/12] i386/traps: replace schedule_timeout() with ssleep()
+	Sat, 5 Mar 2005 10:35:32 -0500
+Subject: [patch 03/12] kernel/sysctl.c: docbook comments update
 To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, domen@coderock.org, nacc@us.ibm.com
+Cc: linux-kernel@vger.kernel.org, domen@coderock.org
 From: domen@coderock.org
-Date: Sat, 05 Mar 2005 16:35:25 +0100
-Message-Id: <20050305153525.032C51EE1E@trashy.coderock.org>
+Date: Sat, 05 Mar 2005 16:35:15 +0100
+Message-Id: <20050305153515.5670A1EE1E@trashy.coderock.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-Please consider applying. 
+Add comments about ppos, which was added some months ago.
 
-Use ssleep() instead of schedule_timeout() to guarantee the task
-delays as expected.
+Compile tested.
 
-Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
 Signed-off-by: Domen Puncer <domen@coderock.org>
 ---
 
 
- kj-domen/arch/i386/kernel/traps.c |    3 +--
- 1 files changed, 1 insertion(+), 2 deletions(-)
+ kj-domen/kernel/sysctl.c |    7 +++++++
+ 1 files changed, 7 insertions(+)
 
-diff -puN arch/i386/kernel/traps.c~ssleep-arch_i386_kernel_traps arch/i386/kernel/traps.c
---- kj/arch/i386/kernel/traps.c~ssleep-arch_i386_kernel_traps	2005-03-05 16:11:14.000000000 +0100
-+++ kj-domen/arch/i386/kernel/traps.c	2005-03-05 16:11:14.000000000 +0100
-@@ -345,8 +345,7 @@ void die(const char * str, struct pt_reg
- 
- 	if (panic_on_oops) {
- 		printk(KERN_EMERG "Fatal exception: panic in 5 seconds\n");
--		set_current_state(TASK_UNINTERRUPTIBLE);
--		schedule_timeout(5 * HZ);
-+		ssleep(5);
- 		panic("Fatal exception");
- 	}
- 	do_exit(SIGSEGV);
+diff -puN kernel/sysctl.c~docs-kernel_sysctl kernel/sysctl.c
+--- kj/kernel/sysctl.c~docs-kernel_sysctl	2005-03-05 16:09:57.000000000 +0100
++++ kj-domen/kernel/sysctl.c	2005-03-05 16:09:57.000000000 +0100
+@@ -1366,6 +1366,7 @@ static ssize_t proc_writesys(struct file
+  * @filp: the file structure
+  * @buffer: the user buffer
+  * @lenp: the size of the user buffer
++ * @ppos: file position
+  *
+  * Reads/writes a string from/to the user buffer. If the kernel
+  * buffer provided is not large enough to hold the string, the
+@@ -1582,6 +1583,7 @@ static int do_proc_dointvec(ctl_table *t
+  * @filp: the file structure
+  * @buffer: the user buffer
+  * @lenp: the size of the user buffer
++ * @ppos: file position
+  *
+  * Reads/writes up to table->maxlen/sizeof(unsigned int) integer
+  * values from/to the user buffer, treated as an ASCII string. 
+@@ -1686,6 +1688,7 @@ static int do_proc_dointvec_minmax_conv(
+  * @filp: the file structure
+  * @buffer: the user buffer
+  * @lenp: the size of the user buffer
++ * @ppos: file position
+  *
+  * Reads/writes up to table->maxlen/sizeof(unsigned int) integer
+  * values from/to the user buffer, treated as an ASCII string.
+@@ -1818,6 +1821,7 @@ static int do_proc_doulongvec_minmax(ctl
+  * @filp: the file structure
+  * @buffer: the user buffer
+  * @lenp: the size of the user buffer
++ * @ppos: file position
+  *
+  * Reads/writes up to table->maxlen/sizeof(unsigned long) unsigned long
+  * values from/to the user buffer, treated as an ASCII string.
+@@ -1840,6 +1844,7 @@ int proc_doulongvec_minmax(ctl_table *ta
+  * @filp: the file structure
+  * @buffer: the user buffer
+  * @lenp: the size of the user buffer
++ * @ppos: file position
+  *
+  * Reads/writes up to table->maxlen/sizeof(unsigned long) unsigned long
+  * values from/to the user buffer, treated as an ASCII string. The values
+@@ -1930,6 +1935,8 @@ static int do_proc_dointvec_ms_jiffies_c
+  * @filp: the file structure
+  * @buffer: the user buffer
+  * @lenp: the size of the user buffer
++ * @ppos: file position
++ * @ppos: file position
+  *
+  * Reads/writes up to table->maxlen/sizeof(unsigned int) integer
+  * values from/to the user buffer, treated as an ASCII string. 
 _

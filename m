@@ -1,60 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264231AbTDJWNc (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 18:13:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264233AbTDJWNc (for <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Apr 2003 18:13:32 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:17081 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S264231AbTDJWNY convert rfc822-to-8bit (for <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Apr 2003 18:13:24 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: [patch for playing] Patch to support 4000 disks and maintain backward compatibility
-Date: Thu, 10 Apr 2003 15:22:41 -0700
-User-Agent: KMail/1.4.1
-References: <UTC200304102209.h3AM9pf11795.aeb@smtp.cwi.nl>
-In-Reply-To: <UTC200304102209.h3AM9pf11795.aeb@smtp.cwi.nl>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200304101522.41236.pbadari@us.ibm.com>
+	id S264212AbTDJWKx (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 18:10:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264215AbTDJWKw (for <rfc822;linux-kernel-outgoing>);
+	Thu, 10 Apr 2003 18:10:52 -0400
+Received: from cs.columbia.edu ([128.59.16.20]:64710 "EHLO cs.columbia.edu")
+	by vger.kernel.org with ESMTP id S264212AbTDJWKn (for <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Apr 2003 18:10:43 -0400
+Subject: Re: kernel support for non-english user messages
+From: Shaya Potter <spotter@cs.columbia.edu>
+To: John Bradford <john@grabjohn.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, root@chaos.analogic.com,
+       Frank Davis <fdavis@si.rr.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200304102036.h3AKa837025670@81-2-122-30.bradfords.org.uk>
+References: <200304102036.h3AKa837025670@81-2-122-30.bradfords.org.uk>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1050013215.23204.8.camel@zaphod>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 10 Apr 2003 18:20:15 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 10 April 2003 03:09 pm, Andries.Brouwer@cwi.nl wrote:
+On Thu, 2003-04-10 at 16:36, John Bradford wrote:
+> > There is a lot of anti-VMS stuff in the Unix world mostly coming
+> > from the _horrible_ command line and other bad early memories. There
+> > is also a hell of a lot of really cool stuff under that command line
+> > we could and should learn from.
+> 
+> When are we going to see versioned filesystems in Linux?  That was a
+> standard feature in VMS.
 
->
-> I try to make sure there are no assumptions about the
-> size or structure of device numbers anywhere outside kdev_t.h.
-> In particular I object to the use of KDEV_MINOR_BITS.
->
-> Apart from this formal point, there is also the practical point:
-> suppose 64 = 32+32 is used, so that KDEV_MINOR_BITS equals 32.
-> Then LAST_MAJOR_DISKS is 2^28 and sd_index_bits[] would be 32 MB array.
-> Unreasonable.
+it shouldn't be that hard, it was one of the 6 OS projects for the
+regular 4000 level (senior/grad) level OS class here at columbia last
+semster.  
 
-agreed !! (I mentioned this ealier in my previous postings - sd_index_bits[]
-array size)
+The assignment was to modify ext2 to support versioning, basically means
+making a copy of it within ext2's open, if it's opened O_RDWR.  The
+assignment was a little bit more complicated in that we took an ext2
+flag bit to mean "version", so that a file would only be versioned if
+the bit was set, as well as only allowing a single level of versioning,
+though extending it w/ more wouldn't be that hard.
 
->
-> The conclusion is that the easy way out is to define MAX_NR_DISKS.
-
-Unfortunately, MAX_NR_DISK will be dependent on KDEV_MINOR_BITS.
-We can't set MAX_NR_DISKS to arbitrary value and if there are not
-enought MINOR bits, it won't work. Only way to make this work is
-to do dynamic major allocation and update /dev/ entries for them.
-
-> A different way out, especially when we use 32+32, is to kill this
-> sd_index_bits[] array, and give each disk a new number: replace
-> 	index = find_first_zero_bit(sd_index_bits, SD_DISKS);
-> by
-> 	index = next_index++;
->
-I wish it is that simple. We use sd_index_bits[] since we could
-sd_detach() and then sd_attach()  few disks. We will end up with
-holes, name slippage without this. We need to know what disks are 
-currently being in use.
-
-Thanks,
-Badari
+The student solutions (as well as our sample solution) weren't that
+"pretty", but then again, each project was only for 2-2.5 weeks.
 

@@ -1,40 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261874AbTCEUJE>; Wed, 5 Mar 2003 15:09:04 -0500
+	id <S261364AbTCEUFE>; Wed, 5 Mar 2003 15:05:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261900AbTCEUJE>; Wed, 5 Mar 2003 15:09:04 -0500
-Received: from twinlark.arctic.org ([208.44.199.239]:25223 "EHLO
-	twinlark.arctic.org") by vger.kernel.org with ESMTP
-	id <S261874AbTCEUJD>; Wed, 5 Mar 2003 15:09:03 -0500
-Date: Wed, 5 Mar 2003 12:19:34 -0800 (PST)
-From: dean gaudet <dean-list-linux-kernel@arctic.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-       Benjamin LaHaise <bcrl@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Horrible L2 cache effects from kernel compile
-In-Reply-To: <1046735907.7947.0.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.53.0303051216480.30080@twinlark.arctic.org>
-References: <Pine.LNX.4.44.0303031108390.12011-100000@home.transmeta.com>
- <1046735907.7947.0.camel@irongate.swansea.linux.org.uk>
-X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
+	id <S261451AbTCEUFE>; Wed, 5 Mar 2003 15:05:04 -0500
+Received: from [65.206.249.98] ([65.206.249.98]:5639 "EHLO skat.sky.com")
+	by vger.kernel.org with ESMTP id <S261364AbTCEUFB>;
+	Wed, 5 Mar 2003 15:05:01 -0500
+Message-ID: <022801c2e353$e4fd9550$0400130a@jianwen>
+Reply-To: "Jianwen" <jw.pi@servgate.com>
+From: "Jianwen" <jw.pi@servgate.com>
+To: "kernel" <linux-kernel@vger.kernel.org>
+Subject: kernel crash?
+Date: Wed, 5 Mar 2003 12:14:53 -0800
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2919.6700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 Mar 2003, Alan Cox wrote:
+Hi, there
 
-> On Mon, 2003-03-03 at 19:13, Linus Torvalds wrote:
-> > dentry itself. Yes, you could make it smaller (you could remove the inline
-> > string from it, for example, and you could avoid allocating it at
->
-> How about at least making the inline string align to the slab alignment so we
-> dont waste space ?
+I currently installed Redhat7.3 (kernel 2.4.18-3) and Squid-2.5-STABLE1
+running
+in my linux box serving as the firewall and http proxy/cache server to 30+
+internal
+hosts, after a few hours' stress test -- 5~10hrs depends on the traffic, the
+box will
+crash with oops attached in the end FYI.
 
-what what be best is the hash chaining pointers and the first N bytes of
-the inline name in the same cacheline.  for 32B cache lines it looks like
-it's at least two misses per chain now.  (er, well i'm looking at 2.4
-source.)
+The traffic includes 120 Http requests/per second and others like ftp,
+smtp/pop3
+and udp.
 
--dean
+The crash can be repeatable with most of time caused by process Squid, i
+wonder
+if the crash related with Squid, or something else, kernel? ext3 filesystem?
+or
+hardware related, my linux box use Celoron1G/VIA82C686/Intel82559.
+
+Any suggestion will be highly appreciated, thanks in advanced.
+
+- Jianwen
+
+
+-------------------------------------------------------------------
+Oops: 0000
+EIP: 0010[c0166291] at journal_add_journal_head+0xc1/do
+FLAGS=00010202
+eax:00000000 ebx: d47abeb0 ecs:c3b9af80 edx:c3b9af80 esi:03b9af80
+edi:d312d400 ebp:d37e9sc0 esp:db1bbdf4 ds:0019 es:0018 ss:0018
+process squid(pid: 2335, stackpage=db1bb000)
+
+Stack:
+00000000 00000001 de12d400 c0160d0c c3b9af80
+   00000000 db1bbe10 0000012b
+....
+
+CallTrace: [c0160d0c]journal_dirty_data+0x4c/180
+[c0158fcc]journal_dirty_sync_data+0x1c/70
+[c0109f3c]do_IRQ+0xcc/e0
+[c010c308]call_do_IRQ+0x5/d
+[c0158def]walk_page_buffers+0x5f/90
+[c015922c]ext3_commit_write+0x12c/1e0
+[c0158fb0]journal_dirty_sync_data+0x0/20
+[c0158a30]ext3_get_block+0x0/70
+[c0129858]generic_file_write+0x538/780
+[c0156bd2]ext3_file_write+0x22/a0
+[c01355c6]sys_write+0x96/f0
+[c011a1b3]do_softirq+0x53/a0
+[c0109f3c]do_IRQ+0xcc/e0
+[c0108863]system_call+0x33/40
+
+

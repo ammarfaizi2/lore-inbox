@@ -1,33 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273953AbRIRV6V>; Tue, 18 Sep 2001 17:58:21 -0400
+	id <S272533AbRIRWWg>; Tue, 18 Sep 2001 18:22:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273954AbRIRV6L>; Tue, 18 Sep 2001 17:58:11 -0400
-Received: from forge.redmondlinux.org ([209.81.49.42]:44519 "EHLO
-	forge.redmondlinux.org") by vger.kernel.org with ESMTP
-	id <S273953AbRIRV56>; Tue, 18 Sep 2001 17:57:58 -0400
-Message-ID: <3BA7C2F0.9080609@cheek.com>
-Date: Tue, 18 Sep 2001 14:56:00 -0700
-From: Joseph Cheek <joseph@cheek.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010914
-X-Accept-Language: en-us
+	id <S272552AbRIRWW0>; Tue, 18 Sep 2001 18:22:26 -0400
+Received: from acl.lanl.gov ([128.165.147.1]:27142 "HELO acl.lanl.gov")
+	by vger.kernel.org with SMTP id <S272533AbRIRWWV>;
+	Tue, 18 Sep 2001 18:22:21 -0400
+Date: Tue, 18 Sep 2001 16:22:44 -0600 (MDT)
+From: Ronald G Minnich <rminnich@lanl.gov>
+X-X-Sender: <rminnich@snaresland.acl.lanl.gov>
+To: <linux-kernel@vger.kernel.org>
+cc: <linuxbios@lanl.gov>
+Subject: LinuxBIOS + ASUS CUA + 2.4.5 works; with 2.4.6 locks up
+Message-ID: <Pine.LNX.4.33.0109181612380.28482-100000@snaresland.acl.lanl.gov>
 MIME-Version: 1.0
-To: Steven Walter <srwalter@yahoo.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [ide-]scsi timeouts while writing cdrom
-In-Reply-To: <Pine.LNX.4.10.10109142131030.28176-100000@forge.redmondlinux.org> <20010915122542.A23825@hapablap.dyn.dhs.org> <3BA79F09.9060509@cheek.com> <20010918160040.A27239@hapablap.dyn.dhs.org> <3BA7B849.4010104@cheek.com> <20010918161809.B27239@hapablap.dyn.dhs.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i didn't have tuning support in there.  i'll try it and let you know.
+Here is the scenario. We have LinuxBIOS working fine with 2.4.5 on an ASUS
+CUA mainboard (Acer M1631 TNT2 northbridge, m1535d southbridge). It boots
+to multiuser and works fine. All versions of linux from 2.4.0 to 2.4.5
+also work.
 
-Steven Walter wrote:
+If we upgrade to 2.4.6 we see the 'Posix compliance by Unifix' (or
+whatever) message and then ... that's it. The machine appears to lock up.
+Testing with the ICE shows that it is repeatedly going to address
+0xfefe0c0, or similar (it varies). Note that is 7 digits of hex, not 8:
+it's not going after high PCI or BIOS memory, we think.
 
->Alright.  If you don't already have "Intel PIIXn chipset support" and
->"PIIXn Tuning support" turned on in your config, do so.  See if it
->helps.
->
+It does appear to get through creating the kernel_thread for init, and we
+think it might be dying when it goes idle, but we're not sure.
 
+We sometimes get into the kernel thread for init and can single step it
+into pci setup. At some point however the machine will again lock up. The
+last POST code is 97.
+
+THe 0xfefec00 address is suspicious. Is there any APIC (NOT ACPI, I mean
+IO-APIC) change that came into 2.4.6? Is there any way the kernel could be
+trying to call the BIOS for some reason (we have APM etc. OFF). Does
+anyone have a hint at what we could look at? FWIW, we have run this kernel
+under linuxbios on other boxes. It only fails on the Acer, and only for
+2.4.6 and later (we've tested up to 2.4.9).
+
+Thanks in advance.
+
+ron
 

@@ -1,59 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264799AbVBDNKk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263932AbVBDNOo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264799AbVBDNKk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 08:10:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264849AbVBDNKk
+	id S263932AbVBDNOo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 08:14:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264094AbVBDNOo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 08:10:40 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:33528 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S266284AbVBDNKb (ORCPT
+	Fri, 4 Feb 2005 08:14:44 -0500
+Received: from styx.suse.cz ([82.119.242.94]:30186 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S263932AbVBDNOV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 08:10:31 -0500
-MIME-Version: 1.0
+	Fri, 4 Feb 2005 08:14:21 -0500
+Date: Fri, 4 Feb 2005 14:14:36 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: Roman Zippel <zippel@linux-m68k.org>, linux-input@atrey.karlin.mff.cuni.cz,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 6/8] Kconfig: cleanup input menu
+Message-ID: <20050204131436.GC10424@ucw.cz>
+References: <Pine.LNX.4.61.0501292320090.7662@scrub.home> <200501292307.55193.dtor_core@ameritech.net> <Pine.LNX.4.61.0501301639171.30794@scrub.home> <200501301839.37548.dtor_core@ameritech.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16899.29744.75308.6946@alkaid.it.uu.se>
-Date: Fri, 4 Feb 2005 14:10:08 +0100
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: Mikael Pettersson <mikpe@csd.uu.se>,
-       Mikael Pettersson <mikpe@user.it.uu.se>, Andrew Morton <akpm@osdl.org>,
-       Andreas Dilger <adilger@clusterfs.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ext3 extended attributes refcounting wrong?
-In-Reply-To: <1107513634.2245.46.camel@sisko.sctweedie.blueyonder.co.uk>
-References: <16898.43219.133783.439910@alkaid.it.uu.se>
-	<1107473817.2058.172.camel@sisko.sctweedie.blueyonder.co.uk>
-	<16899.12681.98586.426731@alkaid.it.uu.se>
-	<1107513634.2245.46.camel@sisko.sctweedie.blueyonder.co.uk>
-X-Mailer: VM 7.17 under Emacs 20.7.1
+Content-Disposition: inline
+In-Reply-To: <200501301839.37548.dtor_core@ameritech.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen C. Tweedie writes:
- > Hi,
- > 
- > On Fri, 2005-02-04 at 08:25, Mikael Pettersson wrote:
- > 
- > >  > In which kernel(s) exactly?  There was a fix for that applied fairly
- > >  > recently upstream.
- > > 
- > > I've been seeing this over the last couple of months, with
- > > (at least) 2.4.28 and newer, and 2.6.9 and newer standard kernels.
- > > But since I dual boot and switch kernels often, I can't point
- > > at any given kernel or kernel series as being the culprit.
- > 
- > Plain upstream 2.4.28?  If so, that's probably the trouble, as 2.4
- > doesn't have any xattr support, so if you delete a file on 2.4 it won't
- > delete the xattr block for it.
+On Sun, Jan 30, 2005 at 06:39:37PM -0500, Dmitry Torokhov wrote:
+> On Sunday 30 January 2005 10:45, Roman Zippel wrote:
+> > Hi,
+> > 
+> > On Sat, 29 Jan 2005, Dmitry Torokhov wrote:
+> > 
+> > > Ok, what about making some submenus to manage number of options, like in
+> > > the patch below?
+> > 
+> > I'd rather move it to the bottom and the menus had no dependencies.
+> > Below is an alternative patch, which does a rather complete cleanup.
+> 
+> This one looks nice. I still think that hardware port support should go
+> first. My argument is:
+> 
+> When I go into a menu I explore option and submenus from top to bottom.
+> So I will see PS/2 or serial, and will go there and select what I need.
+> Then I will see that generic input layer is also needed for keyboard
+> and go there.
+> 
+> If generic layer is first one I select options I think are needed I could
+> skip over the HW I/O ports thinking that I already selected everything I
+> need as far as keyboard/mouse goes.
+> 
+> Does this make any sense?
 
-2.4.28 - certainly I've used that at lot.
+Dmitry, will you make a patch that has the port options first? If no,
+I'll likely merge Roman's patch.
 
- > > How recent was that fix? Maybe I'm seeing the aftereffects of
- > > pre-fix corruption?
- > 
- > It went in on the 15th of January this year.
-
-Is it in 2.4.29?
-
-/Mikael
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

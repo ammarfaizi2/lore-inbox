@@ -1,40 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268093AbRG2Qg5>; Sun, 29 Jul 2001 12:36:57 -0400
+	id <S268077AbRG2Qtm>; Sun, 29 Jul 2001 12:49:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268090AbRG2Qgr>; Sun, 29 Jul 2001 12:36:47 -0400
-Received: from minus.inr.ac.ru ([193.233.7.97]:4104 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S268088AbRG2Qga>;
-	Sun, 29 Jul 2001 12:36:30 -0400
-Message-Id: <200107282328.DAA01045@mops.inr.ac.ru>
-Subject: Re: [PATCH] [IMPORTANT] Re: 2.4.7 softirq incorrectness.
-To: andrea@suse.de (Andrea Arcangeli)
-Date: Sun, 29 Jul 2001 03:28:00 +0400 (MSD)
-Cc: maxk@qualcomm.com, linux-kernel@vger.kernel.org, torvalds@transmeta.com,
-        mingo@redhat.com, davem@redhat.com
-In-Reply-To: <20010728213242.B11441@athlon.random> from "Andrea Arcangeli" at Jul 28, 1 09:32:42 pm
-From: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-X-Mailer: ELM [version 2.4 PL24]
+	id <S268090AbRG2Qtd>; Sun, 29 Jul 2001 12:49:33 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:56997 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S268077AbRG2QtR>;
+	Sun, 29 Jul 2001 12:49:17 -0400
+Message-ID: <3B643EA7.46D3F671@mandrakesoft.com>
+Date: Sun, 29 Jul 2001 12:49:43 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Peter Gordon <peter@valor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.7 DAC960.c won't compile
+In-Reply-To: <3B64044F.65B208C2@valor.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hello!
-
-> yes, ksoftirqd should just avoid you to eat all the cpu 
-
-I see now, you completely killed dead loops from Ingo's patch!
-It is your original approach and I am happy with it.
-
-Before falling to euforia, the last question:
-Is Ingo really happy with this? He blamed about latency,
-it is not better than in 2.4.5 (with cpu_idle fix) :-)
-
-> I hope I didn't misunderstood the question in such case please correct
-> me.
-
-You really misunderstood this a bit, but solely because the question
-was meaningless in context of 2.4.7. My apologies. :-)
-
-Alexey
+This was fixed by Jens in 2.4.8-pre2.
+-- 
+Jeff Garzik      | "Mind if I drive?" -Sam
+Building 1024    | "Not if you don't mind me clawing at the dash
+MandrakeSoft     |  and shrieking like a cheerleader." -Max

@@ -1,66 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269041AbUHZOxa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269014AbUHZOxb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269041AbUHZOxa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 10:53:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269014AbUHZOuM
+	id S269014AbUHZOxb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 10:53:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269019AbUHZOud
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 10:50:12 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:31748 "EHLO
-	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S269032AbUHZOqR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 10:46:17 -0400
-From: Felipe Alfaro Solana <lkml@felipe-alfaro.com>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: 2.6.9-rc1-mm1
-Date: Thu, 26 Aug 2004 16:45:54 +0200
-User-Agent: KMail/1.7
-Cc: Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-References: <20040826014745.225d7a2c.akpm@osdl.org> <412DC47B.4000704@kolivas.org> <200408261636.06857.rjw@sisk.pl>
-In-Reply-To: <200408261636.06857.rjw@sisk.pl>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart10618987.bdzzmUu5oY";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200408261646.08419.lkml@felipe-alfaro.com>
+	Thu, 26 Aug 2004 10:50:33 -0400
+Received: from gate.in-addr.de ([212.8.193.158]:59799 "EHLO mx.in-addr.de")
+	by vger.kernel.org with ESMTP id S268961AbUHZOt2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 10:49:28 -0400
+Date: Thu, 26 Aug 2004 16:46:06 +0200
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: Hans Reiser <reiser@namesys.com>, Rik van Riel <riel@redhat.com>
+Cc: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
+       Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: silent semantic changes with reiser4
+Message-ID: <20040826144606.GM3125@marowsky-bree.de>
+References: <Pine.LNX.4.44.0408252052420.13240-100000@chimarrao.boston.redhat.com> <412DA1FD.4010507@namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <412DA1FD.4010507@namesys.com>
+X-Ctuhulu: HASTUR
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart10618987.bdzzmUu5oY
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On 2004-08-26T01:40:29,
+   Hans Reiser <reiser@namesys.com> said:
 
-On Thursday 26 August 2004 16:36, Rafael J. Wysocki wrote:
+> >Obviously this is something that needs to be sorted out at
+> >the VFS layer.
+> >
+> It needs to be sorted out, whether it is sorted out at the VFS layer is 
+> unimportant.
 
-> I think the problem is that relatively not so many people run -mm, and ev=
-en
-> less people try to use them for a longer time.  Also, there sometimes are
-> some issues with -mm that must be sorted out first, but then there's not
-> much time left for testing the scheduler before the next -mm.
+So what exactly is wrong with sorting it out at the VFS layer, and why
+do you _insist_ on sorting it in the reiserfs4 core? I'm missing
+something, please fill me in on the details.
 
-I think this is the main reason of existence for -mm kernels: find problems=
-,=20
-sort them out and fix them. I've been running -mm kernels since 2.5.80+ and=
-=20
-all problems I have had were resolved in a timely manner.
 
-What I think is that Con's scheduler is the one that needs to get into -mm=
-=20
-kernels to give it more exposure. Currently, it has a very limited audience.
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
 
---nextPart10618987.bdzzmUu5oY
-Content-Type: application/pgp-signature
+-- 
+High Availability & Clustering	   \\\  /// 
+SUSE Labs, Research and Development \honk/ 
+SUSE LINUX AG - A Novell company     \\// 
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQBBLfewBmklErlTjhURApKwAKCnfy/Elh63IGcbtDN9MUgajEbNLQCdH1H/
-0EBkxqyFHyvoCmjMdUx2QAc=
-=RlVQ
------END PGP SIGNATURE-----
-
---nextPart10618987.bdzzmUu5oY--

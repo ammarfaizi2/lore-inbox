@@ -1,71 +1,108 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265236AbSKEWuC>; Tue, 5 Nov 2002 17:50:02 -0500
+	id <S265243AbSKEW44>; Tue, 5 Nov 2002 17:56:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265238AbSKEWuC>; Tue, 5 Nov 2002 17:50:02 -0500
-Received: from pimout3-ext.prodigy.net ([207.115.63.102]:54219 "EHLO
-	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id <S265236AbSKEWuB> convert rfc822-to-8bit; Tue, 5 Nov 2002 17:50:01 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-Reply-To: landley@trommello.org
-To: Tom Rini <trini@kernel.crashing.org>, Bill Davidsen <davidsen@tmr.com>
-Subject: Re: CONFIG_TINY
-Date: Tue, 5 Nov 2002 17:55:56 +0000
-User-Agent: KMail/1.4.3
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20021104195144.GC27298@opus.bloom.county> <Pine.LNX.3.96.1021105141149.17410L-100000@gatekeeper.tmr.com> <20021105195616.GF13102@opus.bloom.county>
-In-Reply-To: <20021105195616.GF13102@opus.bloom.county>
+	id <S265246AbSKEW4z>; Tue, 5 Nov 2002 17:56:55 -0500
+Received: from r2d2.aoltw.net ([64.236.137.26]:22240 "EHLO netscape.com")
+	by vger.kernel.org with ESMTP id <S265243AbSKEW4x>;
+	Tue, 5 Nov 2002 17:56:53 -0500
+Message-ID: <3DC84E3C.5020605@netscape.com>
+Date: Tue, 05 Nov 2002 15:03:24 -0800
+From: jgmyers@netscape.com (John Myers)
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.2b) Gecko/20021016
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200211051755.56586.landley@trommello.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: 2.5.46 compilation problem: objcopy: unrecognized option `--rename-section'
+Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms060705020603050406020604"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 05 November 2002 19:56, Tom Rini wrote:
-> On Tue, Nov 05, 2002 at 02:26:08PM -0500, Bill Davidsen wrote:
-> > On Mon, 4 Nov 2002, Tom Rini wrote:
-> > > On Mon, Nov 04, 2002 at 02:13:48AM +0000, Rob Landley wrote:
-> > > > I've used -Os.  I've compiled dozens and dozens of packages with -Os.
-> > > >  It has always saved at least a few bytes, I have yet to see it make
-> > > > something larger.  And in the benchmarks I've done, the smaller code
-> > > > actually runs slightly faster.  More of it fits in cache, you know.
-> > >
-> > > Then we don't we always use -Os?
->
-> [snip 6 good reasons]
+This is a cryptographically signed message in MIME format.
 
-Reasons 1 and 2 were that you can't be sure it works on all compiler versions 
-and all platforms until you'e tried it, which you could say about anything.
+--------------ms060705020603050406020604
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Reason 3, 5, and 6 were about performance gains, when the point of CONFIG_TINY 
-is, in fact, size.
+objcopy 2.11.90.0.8 doesn't recognize the --rename-section switch used 
+when building usr/initramfs_data.o.  If this is too old a version, then 
+Documentation/Changes should be updated to list the new minimal requirement.
 
-Reason 4 is inertia.  You are explicitly considering inertia a good reason, 
-then?  I remember back around 1998, the argument over "-fno-strength-reduce" 
-which accomplished nothing whatsoever (and was in fact disabled in gcc 2.7.x 
-for i386) but was in the kernel compile for a long time becaue nobody could 
-be bothered to remove it...
 
-> So why do we want to force it on for CONFIG_TINY?
+--------------ms060705020603050406020604
+Content-Type: application/x-pkcs7-signature; name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Description: S/MIME Cryptographic Signature
 
-1) The point of CONFIG_TINY is size?
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIK7TCC
+A4UwggLuoAMCAQICAlvfMA0GCSqGSIb3DQEBBAUAMIGTMQswCQYDVQQGEwJVUzELMAkGA1UE
+CBMCQ0ExFjAUBgNVBAcTDU1vdW50YWluIFZpZXcxGzAZBgNVBAoTEkFtZXJpY2EgT25saW5l
+IEluYzEZMBcGA1UECxMQQU9MIFRlY2hub2xvZ2llczEnMCUGA1UEAxMeSW50cmFuZXQgQ2Vy
+dGlmaWNhdGUgQXV0aG9yaXR5MB4XDTAyMDYwMTIwMjIyM1oXDTAyMTEyODIwMjIyM1owfTEL
+MAkGA1UEBhMCVVMxGzAZBgNVBAoTEkFtZXJpY2EgT25saW5lIEluYzEXMBUGCgmSJomT8ixk
+AQETB2pnbXllcnMxIzAhBgkqhkiG9w0BCQEWFGpnbXllcnNAbmV0c2NhcGUuY29tMRMwEQYD
+VQQDEwpKb2huIE15ZXJzMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDsB5tbTLWFycke
+FKQwy1MTNx7SFtehB26RBx2gT+6+5/sYfXuLmBOuEOU2646fK0tz4rFOXfR8TcLfxOp3anh2
+3pKDAnBEOp5u75bEIwY5nteR0opdni/CTeyCfJ1uPuYdNKTYC088GwbpzhBRE8n1APHXCBgv
+bnGAuuYw/BqDtwIDAQABo4H8MIH5MA4GA1UdDwEB/wQEAwIFIDAdBgNVHSUEFjAUBggrBgEF
+BQcDAgYIKwYBBQUHAwQwQwYJYIZIAYb4QgENBDYWNElzc3VlZCBieSBOZXRzY2FwZSBDZXJ0
+aWZpY2F0ZSBNYW5hZ2VtZW50IFN5c3RlbSA0LjUwHwYDVR0RBBgwFoEUamdteWVyc0BuZXRz
+Y2FwZS5jb20wHwYDVR0jBBgwFoAUKduyLYN+f4sju8LMZrk56CnzAoYwQQYIKwYBBQUHAQEE
+NTAzMDEGCCsGAQUFBzABhiVodHRwOi8vY2VydGlmaWNhdGVzLm5ldHNjYXBlLmNvbS9vY3Nw
+MA0GCSqGSIb3DQEBBAUAA4GBAHhQSSAs8Vmute2hyZulGeFAZewLIz+cDGBOikFTP0/mIPmC
+leog5JnWRqXOcVvQhqGg91d9imNdN6ONBE9dNkVDZPiVcgJ+J3wc+htIAc1duKc1CD3K6CM1
+ouBbe4h4dhLWvyLWIcPPXNiGIBhA0PqoZlumSN3wlWdRqMaTC4P0MIIDhjCCAu+gAwIBAgIC
+W+AwDQYJKoZIhvcNAQEEBQAwgZMxCzAJBgNVBAYTAlVTMQswCQYDVQQIEwJDQTEWMBQGA1UE
+BxMNTW91bnRhaW4gVmlldzEbMBkGA1UEChMSQW1lcmljYSBPbmxpbmUgSW5jMRkwFwYDVQQL
+ExBBT0wgVGVjaG5vbG9naWVzMScwJQYDVQQDEx5JbnRyYW5ldCBDZXJ0aWZpY2F0ZSBBdXRo
+b3JpdHkwHhcNMDIwNjAxMjAyMjIzWhcNMDIxMTI4MjAyMjIzWjB9MQswCQYDVQQGEwJVUzEb
+MBkGA1UEChMSQW1lcmljYSBPbmxpbmUgSW5jMRcwFQYKCZImiZPyLGQBARMHamdteWVyczEj
+MCEGCSqGSIb3DQEJARYUamdteWVyc0BuZXRzY2FwZS5jb20xEzARBgNVBAMTCkpvaG4gTXll
+cnMwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAMkrxhwWBuZImCjNet4bJ6Vdv/iXgHQs
+oXf8wdBaJZ2X6jJ17ZzlSha9mmwt3Z9H8LFfVdS+dz29ri1fBuvf0rcxPWdZkKi6HDag2yNV
+f3CV+650RlyzuQr2RNeirkKvaocmakRdplHRw81Txxoi5sCMrkVPmRWA35ILnNbn6sTvAgMB
+AAGjgf0wgfowDwYDVR0PAQH/BAUDAweAADAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUH
+AwQwQwYJYIZIAYb4QgENBDYWNElzc3VlZCBieSBOZXRzY2FwZSBDZXJ0aWZpY2F0ZSBNYW5h
+Z2VtZW50IFN5c3RlbSA0LjUwHwYDVR0RBBgwFoEUamdteWVyc0BuZXRzY2FwZS5jb20wHwYD
+VR0jBBgwFoAUKduyLYN+f4sju8LMZrk56CnzAoYwQQYIKwYBBQUHAQEENTAzMDEGCCsGAQUF
+BzABhiVodHRwOi8vY2VydGlmaWNhdGVzLm5ldHNjYXBlLmNvbS9vY3NwMA0GCSqGSIb3DQEB
+BAUAA4GBAExH0StQaZ/phZAq9PXm8btBCaH3FQsH+P58+LZF/DYQRw/XL+a3ieI6O+YIgMrC
+sQ+vtlCGqTdwvcKhjjgzMS/ialrV0e2COhxzVmccrhjYBvdF8Gzi/bcDxUKoXpSLQUMnMdc3
+2Dtmo+t8EJmuK4U9qCWEFLbt7L1cLnQvFiM4MIID1jCCAz+gAwIBAgIEAgAB5jANBgkqhkiG
+9w0BAQUFADBFMQswCQYDVQQGEwJVUzEYMBYGA1UEChMPR1RFIENvcnBvcmF0aW9uMRwwGgYD
+VQQDExNHVEUgQ3liZXJUcnVzdCBSb290MB4XDTAxMDYwMTEyNDcwMFoXDTA0MDYwMTIzNTkw
+MFowgZMxCzAJBgNVBAYTAlVTMQswCQYDVQQIEwJDQTEWMBQGA1UEBxMNTW91bnRhaW4gVmll
+dzEbMBkGA1UEChMSQW1lcmljYSBPbmxpbmUgSW5jMRkwFwYDVQQLExBBT0wgVGVjaG5vbG9n
+aWVzMScwJQYDVQQDEx5JbnRyYW5ldCBDZXJ0aWZpY2F0ZSBBdXRob3JpdHkwgZ8wDQYJKoZI
+hvcNAQEBBQADgY0AMIGJAoGBAOLvXyx2Q4lLGl+z5fiqb4svgU1n/71KD2MuxNyF9p4sSSYg
+/wAX5IiIad79g1fgoxEZEarW3Lzvs9IVLlTGbny/2bnDRtMJBYTlU1xI7YSFmg47PRYHXPCz
+eauaEKW8waTReEwG5WRB/AUlYybr7wzHblShjM5UV7YfktqyEkuNAgMBAAGjggGCMIIBfjBN
+BgNVHR8ERjBEMEKgQKA+hjxodHRwOi8vd3d3MS51cy1ob3N0aW5nLmJhbHRpbW9yZS5jb20v
+Y2dpLWJpbi9DUkwvR1RFUm9vdC5jZ2kwHQYDVR0OBBYEFCnbsi2Dfn+LI7vCzGa5Oegp8wKG
+MGYGA1UdIARfMF0wRgYKKoZIhvhjAQIBBTA4MDYGCCsGAQUFBwIBFipodHRwOi8vd3d3LmJh
+bHRpbW9yZS5jb20vQ1BTL09tbmlSb290Lmh0bWwwEwYDKgMEMAwwCgYIKwYBBQUHAgEwWAYD
+VR0jBFEwT6FJpEcwRTELMAkGA1UEBhMCVVMxGDAWBgNVBAoTD0dURSBDb3Jwb3JhdGlvbjEc
+MBoGA1UEAxMTR1RFIEN5YmVyVHJ1c3QgUm9vdIICAaMwKwYDVR0QBCQwIoAPMjAwMTA2MDEx
+MjQ3MzBagQ8yMDAzMDkwMTIzNTkwMFowDgYDVR0PAQH/BAQDAgEGMA8GA1UdEwQIMAYBAf8C
+AQEwDQYJKoZIhvcNAQEFBQADgYEASmIO2fpGdwQKbA3d/tIiOZkQCq6ILYY9V4TmEiQ3aftZ
+XuIRsPmfpFeGimkfBmPRfe4zNkkQIA8flxcsJ2w9bDkEe+JF6IcbVLZgQW0drgXznfk6NJrj
+e2tMcfjrqCuDsDWQTBloce3wYyJewlvsIHq1sFFz6QfugWd2eVP3ldQxggNUMIIDUAIBATCB
+mjCBkzELMAkGA1UEBhMCVVMxCzAJBgNVBAgTAkNBMRYwFAYDVQQHEw1Nb3VudGFpbiBWaWV3
+MRswGQYDVQQKExJBbWVyaWNhIE9ubGluZSBJbmMxGTAXBgNVBAsTEEFPTCBUZWNobm9sb2dp
+ZXMxJzAlBgNVBAMTHkludHJhbmV0IENlcnRpZmljYXRlIEF1dGhvcml0eQICW+AwCQYFKw4D
+AhoFAKCCAg8wGAYJKoZIhvcNAQkDMQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMDIx
+MTA1MjMwMzI0WjAjBgkqhkiG9w0BCQQxFgQUH/VfA4O6SQLrDeWipR53DRsO0s4wUgYJKoZI
+hvcNAQkPMUUwQzAKBggqhkiG9w0DBzAOBggqhkiG9w0DAgICAIAwDQYIKoZIhvcNAwICAUAw
+BwYFKw4DAgcwDQYIKoZIhvcNAwICASgwgasGCSsGAQQBgjcQBDGBnTCBmjCBkzELMAkGA1UE
+BhMCVVMxCzAJBgNVBAgTAkNBMRYwFAYDVQQHEw1Nb3VudGFpbiBWaWV3MRswGQYDVQQKExJB
+bWVyaWNhIE9ubGluZSBJbmMxGTAXBgNVBAsTEEFPTCBUZWNobm9sb2dpZXMxJzAlBgNVBAMT
+HkludHJhbmV0IENlcnRpZmljYXRlIEF1dGhvcml0eQICW98wga0GCyqGSIb3DQEJEAILMYGd
+oIGaMIGTMQswCQYDVQQGEwJVUzELMAkGA1UECBMCQ0ExFjAUBgNVBAcTDU1vdW50YWluIFZp
+ZXcxGzAZBgNVBAoTEkFtZXJpY2EgT25saW5lIEluYzEZMBcGA1UECxMQQU9MIFRlY2hub2xv
+Z2llczEnMCUGA1UEAxMeSW50cmFuZXQgQ2VydGlmaWNhdGUgQXV0aG9yaXR5AgJb3zANBgkq
+hkiG9w0BAQEFAASBgFpgVBlPajXFuu33HSMQ4hkE27ZO6Z/yAyyN5qQ4VDfP1noXb8MuakBp
+ztYB08Qln3dFh0TKSGEQ3j2ehlfw6F2xfVGf/Bcmxc+b6ENK+sX0rEAW4xDR7ZcMi57U5DuZ
+tGvoRsbBQLGHN8yE+3X1joW3HwDv+Nj/4ANkca0HUodeAAAAAAAA
+--------------ms060705020603050406020604--
 
-2) Why is any change a "force" when you have the source code?  Isn't "force" 
-an intentionally loaded word?  I could just as easily say your objection 
-still boils down to "I don't want a switch that actually does something, I 
-want somebody to print out a to-do list and mail it to me so I can go through 
-the kernel by hand and remove support for floppy drives other than the actual 
-type I have from the legacy boot sector at the start of the kernel image."  
-If you want to get into loaded words.
-
-The setting in question is a default value.  CONFIG_TINY sets a lot of 
-defaults at once, and gives you something grep for if you don't like them.  I 
-realise this isn't what you want, but objecting to patches because they're 
-completely unrelated to what you want is kind of silly.
-
-Rob
-
--- 
-http://penguicon.sf.net - Terry Pratchett, Eric Raymond, Pete Abrams, Illiad, 
-CmdrTaco, liquid nitrogen ice cream, and caffienated jello.  Well why not?

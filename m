@@ -1,70 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261561AbVCHTOG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261555AbVCHTN3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261561AbVCHTOG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 14:14:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261870AbVCHTOF
+	id S261555AbVCHTN3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 14:13:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261606AbVCHTN2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 14:14:05 -0500
-Received: from isilmar.linta.de ([213.239.214.66]:46040 "EHLO linta.de")
-	by vger.kernel.org with ESMTP id S261561AbVCHTLj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 14:11:39 -0500
-Date: Tue, 8 Mar 2005 20:11:38 +0100
-From: Dominik Brodowski <linux@dominikbrodowski.net>
-To: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org
-Cc: linux-pcmcia@lists.infradead.org, linux-kernel@vger.kernel.org,
-       jt@hpl.hp.com
-Subject: PCMCIA product id strings -> hashes generation at compilation time? [Was: Re: [patch 14/38] pcmcia: id_table for wavelan_cs]
-Message-ID: <20050308191138.GA16169@isilmar.linta.de>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
-	linux-pcmcia@lists.infradead.org, linux-kernel@vger.kernel.org,
-	jt@hpl.hp.com
-References: <20050227161308.GO7351@dominikbrodowski.de> <20050307225355.GB30371@bougret.hpl.hp.com> <20050307230102.GA29779@isilmar.linta.de> <20050307150957.0456dd75.akpm@osdl.org> <20050307232339.GA30057@isilmar.linta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050307232339.GA30057@isilmar.linta.de>
-User-Agent: Mutt/1.5.6+20040907i
+	Tue, 8 Mar 2005 14:13:28 -0500
+Received: from vms048pub.verizon.net ([206.46.252.48]:52680 "EHLO
+	vms048pub.verizon.net") by vger.kernel.org with ESMTP
+	id S261555AbVCHTLO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Mar 2005 14:11:14 -0500
+Date: Tue, 08 Mar 2005 14:11:20 -0500
+From: Paul Davis <paul@linuxaudiosystems.com>
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+In-reply-to: Your message of "Tue, 08 Mar 2005 13:55:55 EST."
+ <1110308156.4401.4.camel@mindpipe>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>, mpm@selenic.com, joq@io.com,
+       cfriesen@nortelnetworks.com, Chris Wright <chrisw@osdl.org>,
+       arjanv@redhat.com, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org
+Message-id: <200503081911.j28JBL4D014012@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew, Linus, all,
+>And as I mentioned a few times, the authors have neither the inclination
+>nor the ability to do that, because they are not kernel hackers.  The
+>realtime LSM was written by users (not developers) of the kernel, to
+>solve a specific real world problem.  No one ever claimed it was the
+>correct solution from the kernel POV.
 
-[note: for detailed code please take a look at 2.6.11-mm2]
+i would just like to add that its very disappointing that the LSM,
+having been included in the kernel (apparently very much against
+Christoph's and others' advice) turns out to be so useless. from
+outside lkml, LSM appeared to be a mechanism to allow
+non-kernel-developers to create new security policies (perhaps even
+mechanisms) without trying to tackle the entire kernel. instead, we
+are now getting a fix which, while it solves the same problem, has
+required substantive analysis of its effect on the overall kernel, and
+will require continued vigilance to ensure that it doesn't now or
+later cause unintended side effects. LSM appeared to be the "right"
+way to do this in terms of modularity - it is disappointing to find it
+has so little support (close to zero to judge from this debate) on
+LKML despite being present in the kernel.
 
-Most pcmcia devices are matched to drivers using "product ID strings"
-embedded in the devices' Card Information Structures, as "manufactor ID /
-card ID" matches are much less reliable. Unfortunately, these strings cannot
-be passed to userspace for easy userspace-based loading of appropriate
-modules (MODNAME -- hotplug), so my suggestion is to also store crc32 hashes
-of the strings in the MODULE_DEVICE_TABLEs, e.g.:
+--p
 
-PCMCIA_DEVICE_PROD_ID12("LINKSYS", "E-CARD", 0xf7cb0b07, 0x6701da11),
-
-Only the hashes are stored in "modules.alias", and only the hashes
-calculated upon device insertion are passed to userspace.
-
-While having to determine the crc32 hashes is a hassle to device driver 
-authors, I do not see a smart way to generate these (or similar) hashes 
-automatically at compilation time:
-	- the C preprocessor doesn't seem to be smart enough
-	- scripts/mod/file2alias.c would need to learn all architectures
-	  (and be cross-compilation aware) to relocate/dereference/access
-	  strings saved as         
-		const char *          prod_id[4];
-	  in struct pcmcia_device_id s
-
-To make the life easier for device driver authors,
-	- a big warning is put into dmesg if a pcmcia driver is inserted
-	  into the kernel and the hash mentioned in PCMCIA_DEVICE_PROD_ID()
-	  is incorrect,
-	- the hash can easily be calculated in userspace from existing
-	  /etc/pcmcia/config files, from inserted PCMCIA cards and and and...,
-	- I've added the appropriate hashes for all device matches for 
-	  drivers in the base linux kernel.
-
-Even though I'm a bit uncomfortable with this solution, I do not see any
-other feasible way. Linus, Andrew, do you agree with this handling despite
-all the troubles involved with it? 
-
-	Dominik

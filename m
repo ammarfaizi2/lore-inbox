@@ -1,84 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268019AbUIAXN4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267810AbUIAXQm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268019AbUIAXN4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 19:13:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267973AbUIAU7x
+	id S267810AbUIAXQm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 19:16:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267594AbUIAXOa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 16:59:53 -0400
-Received: from baikonur.stro.at ([213.239.196.228]:18385 "EHLO
-	baikonur.stro.at") by vger.kernel.org with ESMTP id S267999AbUIAU5o
+	Wed, 1 Sep 2004 19:14:30 -0400
+Received: from mail.shareable.org ([81.29.64.88]:11722 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S267545AbUIAUtQ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 16:57:44 -0400
-Subject: [patch 22/25]  isicom: replace schedule_timeout() with 	msleep()
-To: linux-kernel@vger.kernel.org
-Cc: akpm@digeo.com, janitor@sternwelten.at
-From: janitor@sternwelten.at
-Date: Wed, 01 Sep 2004 22:57:39 +0200
-Message-ID: <E1C2cAl-0007Uz-JC@sputnik>
+	Wed, 1 Sep 2004 16:49:16 -0400
+Date: Wed, 1 Sep 2004 21:47:46 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Jeremy Allison <jra@samba.org>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Rik van Riel <riel@redhat.com>,
+       Christer Weinigel <christer@weinigel.se>, Spam <spam@tnonline.net>,
+       Andrew Morton <akpm@osdl.org>, wichert@wiggy.net,
+       Linus Torvalds <torvalds@osdl.org>, reiser@namesys.com, hch@lst.de,
+       Linux Filesystem Development <linux-fsdevel@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       flx@namesys.com, reiserfs-list@namesys.com
+Subject: Re: silent semantic changes with reiser4
+Message-ID: <20040901204746.GI31934@mail.shareable.org>
+References: <Pine.LNX.4.44.0408261011410.27909-100000@chimarrao.boston.redhat.com> <200408261819.59328.vda@port.imtp.ilyichevsk.odessa.ua> <1093789802.27932.41.camel@localhost.localdomain> <1093804864.8723.15.camel@lade.trondhjem.org> <20040829193851.GB21873@jeremy1> <20040901201945.GE31934@mail.shareable.org> <20040901202641.GJ4455@legion.cup.hp.com> <20040901203101.GG31934@mail.shareable.org> <20040901203543.GK4455@legion.cup.hp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040901203543.GK4455@legion.cup.hp.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jeremy Allison wrote:
+> > I meant when I copy not using Samba.  For example, I copy the .doc
+> > file in Windows NT to an FTP server.
+> > 
+> > Does the FTP operation magically linearise the .doc streams on demand?
+> > Or does FTP lose part of the Word document?
+> 
+> Good question. It depends if the Microsoft ftp client is streams-aware,
+> and understands the Microsoft OLE structured storage format and will do
+> the linearisation on demand or not. I must confess I haven't tested this,
+> as I don't ever run Windows other than on vmware sessions for Samba testing
+> these days :-).
+> 
+> Probably a non-Microsoft ftp client would lose part of the word doc.
 
+So you're saying SCP, CVS, Subversion, Bitkeeper, Apache and rsyncd
+will _all_ lose part of a Word document when they handle it on a
+Window box?
 
+Ouch!
 
+The only sensible implementation I can imagine would be if the OS
+linearised multi-stream Word documents into the non-stream format
+automatically for all programs which don't know about streams.
 
+Which is of course what I would like to implement for Linux...
 
-
-I would appreciate any comments from the janitor@sternweltens list. This is one (of
-many) cases where I made a decision about replacing
-
-set_current_state(TASK_INTERRUPTIBLE);
-schedule_timeout(some_time);
-
-with
-
-msleep(jiffies_to_msecs(some_time));
-
-msleep() is not exactly the same as the previous code, but I only did
-this replacement where I thought long delays were *desired*. If this is
-not the case here, then just disregard this patch.
-
-Note: I could not find any current Maintainer for this driver. If there
-is one I should sent the patch too, please let me know.
-
-Thanks,
-Nish
-
-
-
-Description: Uses msleep() instead of schedule_timeout() to guarantee
-the task delays at least the desired time amount.
-
-Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
-Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
-
-
-
----
-
- linux-2.6.9-rc1-bk7-max/drivers/char/isicom.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
-diff -puN drivers/char/isicom.c~msleep-drivers_char_isicom drivers/char/isicom.c
---- linux-2.6.9-rc1-bk7/drivers/char/isicom.c~msleep-drivers_char_isicom	2004-09-01 21:08:16.000000000 +0200
-+++ linux-2.6.9-rc1-bk7-max/drivers/char/isicom.c	2004-09-01 21:09:01.000000000 +0200
-@@ -48,6 +48,7 @@
- #include <linux/miscdevice.h>
- #include <linux/interrupt.h>
- #include <linux/timer.h>
-+#include <linux/delay.h>
- #include <linux/ioport.h>
- 
- #include <asm/uaccess.h>
-@@ -1906,8 +1907,7 @@ int init_module(void)
- void cleanup_module(void)
- {
- 	re_schedule = 0;
--	set_current_state(TASK_INTERRUPTIBLE);
--	schedule_timeout(HZ);
-+	msleep(1000);
- 
- #ifdef ISICOM_DEBUG	
- 	printk("ISICOM: isicom_tx tx_count = %ld.\n", tx_count);
-
-_
+- Jamie

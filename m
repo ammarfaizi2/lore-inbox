@@ -1,57 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262053AbVDAA7q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262565AbVDABWh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262053AbVDAA7q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 19:59:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262550AbVDAA7q
+	id S262565AbVDABWh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 20:22:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262563AbVDABWg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 19:59:46 -0500
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:12522 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S262053AbVDAA7j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 19:59:39 -0500
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-07
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050331174927.GA11483@elte.hu>
-References: <Pine.OSF.4.05.10503302042450.2022-100000@da410.phys.au.dk>
-	 <1112212608.3691.147.camel@localhost.localdomain>
-	 <1112218750.3691.165.camel@localhost.localdomain>
-	 <20050331110330.GA24842@elte.hu>
-	 <1112273378.3691.228.camel@localhost.localdomain>
-	 <20050331141040.GA2544@elte.hu>
-	 <1112290916.12543.19.camel@localhost.localdomain>
-	 <20050331174927.GA11483@elte.hu>
+	Thu, 31 Mar 2005 20:22:36 -0500
+Received: from pat.uio.no ([129.240.130.16]:41149 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S262555AbVDABWb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Mar 2005 20:22:31 -0500
+Subject: Re: [RFC] Add support for semaphore-like structure with support
+	for asynchronous I/O
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org,
+       Linux Filesystem Development <linux-fsdevel@vger.kernel.org>
+In-Reply-To: <20050331161350.0dc7d376.akpm@osdl.org>
+References: <1112219491.10771.18.camel@lade.trondhjem.org>
+	 <20050330143409.04f48431.akpm@osdl.org>
+	 <1112224663.18019.39.camel@lade.trondhjem.org>
+	 <1112309586.27458.19.camel@lade.trondhjem.org>
+	 <20050331161350.0dc7d376.akpm@osdl.org>
 Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Thu, 31 Mar 2005 19:59:33 -0500
-Message-Id: <1112317173.28076.10.camel@localhost.localdomain>
+Date: Thu, 31 Mar 2005 20:22:17 -0500
+Message-Id: <1112318537.11284.10.camel@lade.trondhjem.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.41, required 12,
+	autolearn=disabled, AWL 1.54, FORGED_RCVD_HELO 0.05,
+	UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ingo,
+to den 31.03.2005 Klokka 16:13 (-0800) skreiv Andrew Morton:
+> Trond Myklebust <trondmy@trondhjem.org> wrote:
+> >
+> >  on den 30.03.2005 Klokka 18:17 (-0500) skreiv Trond Myklebust:
+> >  > > Or have I misunderstood the intent?  Some /* comments */ would be appropriate..
+> >  > 
+> >  > Will do.
+> > 
+> >  OK. Plenty of comments added that will hopefully clarify what is going
+> >  on and how to use the API. Also some cleanups of the code.
+> 
+> Ah, so that's what it does ;)
+> 
+> I guess once we have a caller in-tree we could merge this.  I wonder if
+> there's other existing code which should be converted to iosems.
 
-I was wondering if the issue the bit_spin_lock has gone into the side
-burner? I understand that this is a major problem to change it, if you
-want to get into the mainline kernel. But I still believe it to be a
-problem. With kjournald spinning on a bit lock until it finishes it's
-quota, can be bad for latencies. 
+I can put it into the NFS client stream which feeds into the -mm kernel.
+That will enable me to queue up the NFSv4 patches that depend on it
+too...
 
-Although it only deadlocks on your system if it was a real-time task, it
-still has the ability to become one. Since it can hold two different
-locks at the time of the spin, if a rt-task tries to grab it, with
-priority inheritance it becomes rt, and if that just happened to be the
-highest priority task on the system, you just created a deadlock.
+> You chose to not use the aio kernel threads?
 
-It's not so much of an issue with me, since I'm working with a parallel
-kernel, and have implemented my earlier fixes to it. I just wanted to
-know if there's any plan to deal with them on your end.  I do see this
-causing a random lockup once in a while, and wanted the user to beware.
-Of course if you just avoid ext3, you wont have a problem.
+I thought I'd do that in a separate patch since the aio workqueue is
+currently statically defined in aio.c.
 
--- Steve
+> Does iosem_lock_and_schedule_function() need locking?  It nonatomically
+> alters *lk_state.
 
+iosem_lock_and_schedule_function() will always be called with the
+iosem->wait.lock held, since it is a waitqueue notification function.
+
+In practice it is called by iosem_unlock(). The call to wake_up_locked()
+will trigger a call to __wake_up_common() which again tries the
+notification function of each waiter on the queue until it finds one
+that succeeds.
+
+Cheers,
+  Trond
+
+-- 
+Trond Myklebust <trond.myklebust@fys.uio.no>
 

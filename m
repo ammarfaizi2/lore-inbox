@@ -1,37 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264498AbTIIV0w (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 17:26:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264492AbTIIV0q
+	id S264495AbTIIVq3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 17:46:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264502AbTIIVq3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 17:26:46 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:51847 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264565AbTIIV0b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 17:26:31 -0400
-Subject: Re: 2.4.21 -> 2.4.22 kernel thread oddities
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: hendriks@lanl.gov
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030909192913.GE10623@lanl.gov>
-References: <20030909192913.GE10623@lanl.gov>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1063142708.30962.24.camel@dhcp23.swansea.linux.org.uk>
+	Tue, 9 Sep 2003 17:46:29 -0400
+Received: from fw.osdl.org ([65.172.181.6]:29918 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264495AbTIIVq1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 17:46:27 -0400
+Date: Tue, 9 Sep 2003 14:46:08 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: axboe@suse.de
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] get rid of unused function warning (aztcd)
+Message-Id: <20030909144608.3991c140.shemminger@osdl.org>
+Organization: Open Source Development Lab
+X-Mailer: Sylpheed version 0.9.4claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
+ /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-5) 
-Date: Tue, 09 Sep 2003 22:25:08 +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2003-09-09 at 20:29, hendriks@lanl.gov wrote:
-> The "unshare_files" addition to execve() is having some unexpected
-> side effects for a funky init() program that I use on our clusters.
-> Basically the problem is that standard-equipment type kernel threads
-> (e.g. kupdated, bdflush) are ending up with open file descriptors on a
-> file system that I wish to unmount.
+On 2.6.0-test5, this driver defines a function pa_ok which is only used in some
+commented out debug code.
 
-I sent Marcelo a fix for this in 2.4.23pre/2.4.22-ac - see the change to
-init/main.c
-
-
+diff -Nru a/drivers/cdrom/aztcd.c b/drivers/cdrom/aztcd.c
+--- a/drivers/cdrom/aztcd.c	Tue Sep  9 14:41:41 2003
++++ b/drivers/cdrom/aztcd.c	Tue Sep  9 14:41:41 2003
+@@ -373,6 +373,7 @@
+ 	} while (aztIndatum != AFL_OP_OK);
+ }
+ 
++#if 0
+ /* Wait for PA_OK = drive answers with AFL_PA_OK after receiving parameters*/
+ # define PA_OK pa_ok()
+ static void pa_ok(void)
+@@ -387,6 +388,7 @@
+ 		}
+ 	} while (aztIndatum != AFL_PA_OK);
+ }
++#endif
+ 
+ /* Wait for STEN=Low = handshake signal 'AFL_.._OK available or command executed*/
+ # define STEN_LOW  sten_low()

@@ -1,47 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270561AbTGNHap (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 03:30:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270562AbTGNHap
+	id S270552AbTGNHzR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 03:55:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270559AbTGNHzQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 03:30:45 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:31908 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S270561AbTGNHao
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 03:30:44 -0400
-From: Nikita Danilov <Nikita@Namesys.COM>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16146.24474.707720.580442@laputa.namesys.com>
-Date: Mon, 14 Jul 2003 11:45:30 +0400
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: utimes/futimes/lutimes syscalls
-In-Reply-To: <20030711224210.6fee6a73.akpm@osdl.org>
-References: <3F0F9B0C.10604@redhat.com>
-	<20030711224210.6fee6a73.akpm@osdl.org>
-X-Mailer: ed | telnet under Fuzzball OS, emulated on Emacs 21.5  (beta14) "cassava" XEmacs Lucid
+	Mon, 14 Jul 2003 03:55:16 -0400
+Received: from mail.gmx.de ([213.165.64.20]:31679 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S270552AbTGNHzL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 03:55:11 -0400
+Message-Id: <5.2.1.1.2.20030714100438.01be5008@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
+Date: Mon, 14 Jul 2003 10:14:11 +0200
+To: Davide Libenzi <davidel@xmailserver.org>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: [patch] SCHED_SOFTRR starve-free linux scheduling policy 
+  ...
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.55.0307140004390.3435@bigblue.dev.mcafeelabs.co
+ m>
+References: <5.2.1.1.2.20030714063443.01bcc5f0@pop.gmx.net>
+ <5.2.1.1.2.20030714063443.01bcc5f0@pop.gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton writes:
- > Ulrich Drepper <drepper@redhat.com> wrote:
- > >
- > > If
- > >  there are filesystems which store the sub-seconds on disk I think this
- > >  is necessary since otherwise all kinds of programs (including archives)
- > >  cannot be written correctly.  If the sub-seconds only live in memory I
- > >  still think it would be good to have the syscalls but it would not be
- > >  that urgent.
- > 
- > XFS (at least) stores nanoseconds on disk.  So yes, I think we should make
- > this change.
+At 12:12 AM 7/14/2003 -0700, Davide Libenzi wrote:
+>On Mon, 14 Jul 2003, Mike Galbraith wrote:
+> > While testing, I spotted something pretty strange.  It's not specific to
+> > SCHED_SOFTRR, SCHED_RR causes it too.  If I fire up xmms's gl visualization
+> > with either policy, X stops getting enough sleep credit to stay at a usable
+> > priority even when cpu usage is low.  Fully repeatable weirdness.  See
+> > attached top snapshots.
+>
+>RT tasks are pretty powerfull and should not be used to run everything ;)
+>What I was seeking with this patch was 1) deterministic latency 2) stave
+>protection.
 
-so does reiser4.
+Yes, I know.  I only fired up the cpu hog as a test to see that the 
+protection would kick in.  I did do that too though, ran _everything_... 
+the whole X/KDE beast SCHED_SOFTRR for grins :)
 
- > -
+I should have reported the strangeness in a different thread, it has 
+nothing to do with your patch.
 
-Nikita.
+         -Mike  
 

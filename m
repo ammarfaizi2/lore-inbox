@@ -1,103 +1,110 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311475AbSDANHd>; Mon, 1 Apr 2002 08:07:33 -0500
+	id <S311536AbSDANIX>; Mon, 1 Apr 2002 08:08:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311519AbSDANHY>; Mon, 1 Apr 2002 08:07:24 -0500
-Received: from www.wen-online.de ([212.223.88.39]:63504 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S311475AbSDANHL>;
-	Mon, 1 Apr 2002 08:07:11 -0500
-Date: Mon, 1 Apr 2002 14:07:23 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Andrew Morton <akpm@zip.com.au>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: -aa VM splitup
-In-Reply-To: <20020401030207.N1331@dualathlon.random>
-Message-ID: <Pine.LNX.4.10.10204011405360.270-100000@mikeg.wen-online.de>
-MIME-Version: 1.0
+	id <S311530AbSDANIP>; Mon, 1 Apr 2002 08:08:15 -0500
+Received: from imladris.infradead.org ([194.205.184.45]:25616 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S311519AbSDANIJ>; Mon, 1 Apr 2002 08:08:09 -0500
+Date: Mon, 1 Apr 2002 14:08:08 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: linux-kernel@vger.kernel.org
+Subject: 1.0.9hch1
+Message-ID: <20020401140808.A21512@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 1 Apr 2002, Andrea Arcangeli wrote:
+This is a patchkit against Linux 1.0.9, largely based upon Paul
+Gortmakers linux-lite patch. Why this new kernel release?
 
-> On Sun, Mar 31, 2002 at 02:26:14PM +0200, Mike Galbraith wrote:
-> > #!/bin/sh
-> > # testo
-> > # /tmp is tmpfs
-> > 
-> > for i in 1 2 3 4 5
-> > do
-> > 	mv /test/linux-2.5.7 /tmp/.
-> > 	mv /tmp/linux-2.5.7 /test/.
-> > done
-> 
-> It would be important to see the /tmp and /test tests benchmarked
-> separately, the way tmpfs and normal filesystem writes to disk is very
-> different and involves different algorithms, so it's not easy to say
-> which one could go wrong by looking at the global result. Just in case:
-> it is very important that the tmpfs contents are exactly the same before
-> starting the two tests. If you load something into /tmp before starting
-> the test performance will be different due the need of additional
-> swapouts.
-> 
-> So I would suggest moving linux-2.5.7 over two normal fs and then just
-> moving it over two tmpfs, so we know what's running slower.
+After all the discussions about VFS races and VM problems and growing bloat
+in all areas of the kernel people seem to have forgotten the good old days
+of the small and simple linux kernels.
+Even more important the ego of a young kernel developer will suffer
+in the long term if he doesn't have his own kernel patchkit, so here it is:
 
-2.5.7.virgin
+URL:
 
-time testo (mv tree between /test and /usr/local partitions)
-real    10m42.697s
-user    0m5.110s
-sys     1m16.240s
+	ftp://ftp.kernel.org/pub/linux/kernel/people/hch/kernels/v1.0/1.0.9hch1.gz
+	ftp://ftp.kernel.org/pub/linux/kernel/people/hch/kernels/v1.0/1.0.9hch1/
 
-Bonnie -s 1000
-     -------Sequential Output-------- ---Sequential Input-- --Random--
-     -Per Char- --Block--- -Rewrite-- -Per Char- --Block--- --Seeks---
-  MB K/sec %CPU K/sec %CPU K/sec %CPU K/sec %CPU K/sec %CPU  /sec %CPU
-1000  7197 27.4  8557 12.0  4273  7.3  8049 40.6  9049  8.0 111.5  1.3
 
-2.5.7.aa
+Contents:
 
-time testo
-real    51m17.577s
-user    0m5.680s
-sys     1m15.320s
+00_elf-1
 
-Bonnie -s 1000
-     -------Sequential Output-------- ---Sequential Input-- --Random--
-     -Per Char- --Block--- -Rewrite-- -Per Char- --Block--- --Seeks---
-  MB K/sec %CPU K/sec %CPU K/sec %CPU K/sec %CPU K/sec %CPU  /sec %CPU
-1000  5184 19.6  5965  8.9  3081  4.4  8936 45.5  9049  8.1  98.2  1.0
+	Allow building the kernel as ELF binary.
 
-Egad.  Before I gallop off to look for a merge booboo, let me show you
-what I was looking for with the aa writeout changes ;-)
+00_elf-ksyms-1
 
-2.4.6.virgin
+	Fix kernel symbol table generation for ELF.
+	(Don't apply this if you are still builing a.out kernels)
 
-time testo
-real    12m12.384s
-user    0m5.280s
-sys     0m54.110s
+00_ext3-1 
 
-     -------Sequential Output-------- ---Sequential Input-- --Random--
-     -Per Char- --Block--- -Rewrite-- -Per Char- --Block--- --Seeks---
-  MB K/sec %CPU K/sec %CPU K/sec %CPU K/sec %CPU K/sec %CPU  /sec %CPU
-1000  8377 31.3 10560 12.3  3236  5.2  7289 36.1  8974  6.7 113.3  1.0
+	Preliminary ext3 support.
 
-2.4.6.flushto
+00_gcc272-1
 
-time testo
-real    9m5.801s
-user    0m5.060s
-sys     0m59.310s
+	Fixes for building with gcc 2.7.2.
 
-Bonnie -s 1000
-     -------Sequential Output-------- ---Sequential Input-- --Random--
-     -Per Char- --Block--- -Rewrite-- -Per Char- --Block--- --Seeks---
-  MB K/sec %CPU K/sec %CPU K/sec %CPU K/sec %CPU K/sec %CPU  /sec %CPU
-1000 10553 37.6 11785 13.5  4174  6.5  6785 33.7  8964  6.9 115.7  1.2
+00_idle_hlt-1
 
-	pittypatterpittypatter...
+	Call the i386 'hlt' instruction in the idle loop.
 
-		-Mike
+00_ifnet_unused-1
+
+	Comment out unused struct ifnet methods to avoid compiler warnings.
+
+00_includes-1
+
+	Fix #include breakage.
+
+00_isofs-1
+
+	Rewrite isofs_match to avoid inline assembly.
+
+00_makefiles-1
+
+	Fix up makefile rules for assembly source files.
+
+00_mmap-PROT_NONE-1
+
+	Fix do_mmap problems.
+
+00_mprotect-1
+
+	Fake mprotect() success to emulate never kernels.
+
+00_proc_debug-1
+
+	Disable DEBUG_PROC_TREE - it has proven stable in years of
+	carefull testing.
+
+00_ultrastore-1
+
+	Fix ultrastore driver atomic ops bugs.
+
+00_user-headers-1
+
+	Don't include userspace headers.
+
+00_voxware25-1
+
+	Import Voxware 2.5.
+
+00_warnings-1
+
+	Fix a large number of compiler warnings.
+
+00_zboot-1
+
+	Fix compressed boot header problems.
+
 

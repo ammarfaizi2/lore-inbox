@@ -1,71 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262876AbSLBALR>; Sun, 1 Dec 2002 19:11:17 -0500
+	id <S262875AbSLBAOs>; Sun, 1 Dec 2002 19:14:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262881AbSLBALQ>; Sun, 1 Dec 2002 19:11:16 -0500
-Received: from c16688.thoms1.vic.optusnet.com.au ([210.49.244.54]:46276 "EHLO
-	mail.kolivas.net") by vger.kernel.org with ESMTP id <S262876AbSLBALP>;
-	Sun, 1 Dec 2002 19:11:15 -0500
-Message-ID: <1038788321.3deaa6e126a0c@kolivas.net>
-Date: Mon,  2 Dec 2002 11:18:41 +1100
-From: Con Kolivas <conman@kolivas.net>
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Cc: linux-kernel@vger.kernel.org, Rik van Riel <riel@conectiva.com.br>
-Subject: Re: [PATCH] 2.4.20-rmap15a
-References: <Pine.LNX.4.44L.0212011921420.15981-200000@imladris.surriel.com> <200212012236.17431.m.c.p@wolk-project.de>
-In-Reply-To: <200212012236.17431.m.c.p@wolk-project.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.1
+	id <S262881AbSLBAOs>; Sun, 1 Dec 2002 19:14:48 -0500
+Received: from [195.223.140.107] ([195.223.140.107]:49326 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S262875AbSLBAOq>;
+	Sun, 1 Dec 2002 19:14:46 -0500
+Date: Mon, 2 Dec 2002 01:21:08 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Nuno Monteiro <nuno@itsari.org>
+Cc: linux-kernel@vger.kernel.org, jmarcet@pobox.com, andrew@sol-1.demon.co.uk,
+       jamagallon@able.es, khromy@lnuxlab.ath.cx, conman@kolivas.net
+Subject: Re: Exaggerated swap usage
+Message-ID: <20021202002108.GQ28164@dualathlon.random>
+References: <20021130182345.GA21410@lnuxlab.ath.cx> <20021130184317.GH28164@dualathlon.random> <20021201075921.GC2483@jerry.marcet.dyndns.org> <20021201103643.GL28164@dualathlon.random> <20021201143713.GA871@hobbes.itsari.int>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021201143713.GA871@hobbes.itsari.int>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Marc-Christian Petersen <m.c.p@wolk-project.de>:
-
-> On Sunday 01 December 2002 22:25, you wrote:
+On Sun, Dec 01, 2002 at 02:37:13PM +0000, Nuno Monteiro wrote:
+> Pid: 2, comm:              keventd
+> EIP: 0010:[<c0142ae3>] CPU: 0 EFLAGS: 00000206    Not tainted
+> EAX: c10ec45c EBX: 00000033 ECX: c11f8838 EDX: 40000000
+> ESI: c2fed680 EDI: c10ec400 EBP: 00000033 DS: 0018 ES: 0018
+[..]
+> >>EIP; c0142ae3 <try_to_sync_unused_inodes+1f/1f8>   <=====
 > 
-> Hi Rik,
+> >>EAX; c10ec45c <_end+e521e4/13c9de8>
+> >>ECX; c11f8838 <_end+f5e5c0/13c9de8>
+> >>ESI; c2fed680 <[sb].data.end+a7ffd/25a9dd>
+> >>EDI; c10ec400 <_end+e52188/13c9de8>
 > 
-> > That was my gut feeling as well, but I guess it's a good thing
-> > to quantify how much of a difference it makes.  I wonder if we
-> > could convince Con to test a kernel both with and without this
-> > patch and look at the difference.
-> yep, would be a good idea. Con: *wake up ;)*
-> 
-> > > So, here my patch proposal. Ontop of 2.4.20-rmap15a.
-> > Looks good, now lets test it.  If the patch is as needed as you
-> > say we should push it to marcelo ;)
-> yep, Andrew should do it. Anyway, all those patches do _not_ get rid of those
-> 
-> I/O pauses/stops since 2.4.19-pre6. Andrea did a good approach with his 
-> lowlatency elevator, even if it drops throughput (needs more testing to 
-> become equivalent to throughput w/o it) and also Con and me did a Mini 
-> Lowlatency Elevator + Config option, so you can decide weather you are 
-> building for serverusage where interactive "desktop performance" is not 
-> needed ;) or not.
+> Trace; c0117114 <__run_task_queue+4c/60>
+> Trace; c011e0e9 <context_thread+11d/19c>
+> Trace; c010588c <kernel_thread+28/38>
 
-Ok here are the contest results on the SMP machine with the read latency 2 patch
-(rl2) and my 3 line disk latency hack (dlh) which almost disables the elevator
-on vanilla 2.4.20:
+ok, now it's clear what the problem is. there are inuse-dirty inodes
+that triggers a deadlock in the schedule-capable
+try_to_sync_unused_inodes of 2.4.20rc2aa1 (that avoided me to backout an
+otherwise corrupt lowlatency fix). It can trigger only in UP,
+in SMP the other cpu can always run kupdate that will flush all dirty
+inodes, so it would lockup one cpu as worse for 2.5 sec, this is
+probably why I couldn't reproduce it, I assume all of you reproducing
+the deadlock were running on an UP machine (doesn't matter if the kernel
+was compiled for SMP or not).
 
-io_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.4.19 [5]              162.3   45      28      19      4.48
-2.4.20 [5]              164.9   45      31      21      4.55
-2.4.20-dlh [3]          47.3    157     0       1       1.31
-2.4.20-rl2 [3]          101.8   76      19      22      2.81
+Can you give a spin to this untested incremental fix?
 
-io_other:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.4.19 [5]              62.3    117     11      20      1.72
-2.4.20 [5]              89.6    86      17      21      2.47
-2.4.20-dlh [3]          45.0    159     0       1       1.24
-2.4.20-rl2 [3]          51.8    142     10      21      1.43
+--- 2.4.20rc2aa1/fs/inode.c.~1~	2002-11-27 10:04:43.000000000 +0100
++++ 2.4.20rc2aa1/fs/inode.c	2002-12-02 01:09:05.000000000 +0100
+@@ -459,13 +459,16 @@ static void try_to_sync_unused_inodes(vo
+ {
+ 	struct super_block * sb;
+ 	int nr_inodes = inodes_stat.nr_unused;
++	int global_pass = 0, local_pass;
+ 
+  restart:
+ 	spin_lock(&sb_lock);
++	local_pass = 0;
+ 	sb = sb_entry(super_blocks.next);
+ 	while (nr_inodes && sb != sb_entry(&super_blocks)) {
+-		if (list_empty(&sb->s_dirty)) {
++		if (local_pass < global_pass || list_empty(&sb->s_dirty)) {
+ 			sb = sb_entry(sb->s_list.next);
++			local_pass++;
+ 			continue;
+ 		}
+ 		sb->s_count++;
+@@ -474,6 +477,7 @@ static void try_to_sync_unused_inodes(vo
+ 		if (sb->s_root)
+ 			nr_inodes = try_to_sync_unused_list(&sb->s_dirty, nr_inodes);
+ 		drop_super(sb);
++		global_pass = local_pass + 1;
+ 		goto restart;
+ 	}
+ 	spin_unlock(&sb_lock);
 
-Note no mention of throughput here - but implied drop off with dlh! My guess is
-the drop in throughput with dlh is much worse during kernel compilation than
-when the machine is idle. Nonetheless the dlh hack makes a significant
-improvement in responsivenss under IO load on a desktop.
+thanks,
 
-Con
+Andrea

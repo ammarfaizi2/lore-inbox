@@ -1,57 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289278AbSBSByZ>; Mon, 18 Feb 2002 20:54:25 -0500
+	id <S289273AbSBSBzp>; Mon, 18 Feb 2002 20:55:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289270AbSBSByQ>; Mon, 18 Feb 2002 20:54:16 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:27665 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S289273AbSBSByG>;
-	Mon, 18 Feb 2002 20:54:06 -0500
-Date: Mon, 18 Feb 2002 22:53:45 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Daniel Phillips <phillips@bonn-fries.net>, Hugh Dickins <hugh@veritas.com>,
-        <dmccr@us.ibm.com>, Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        <linux-mm@kvack.org>, Robert Love <rml@tech9.net>, <mingo@redhat.co>,
+	id <S289282AbSBSBzg>; Mon, 18 Feb 2002 20:55:36 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:46346 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S289273AbSBSBzV>; Mon, 18 Feb 2002 20:55:21 -0500
+Date: Mon, 18 Feb 2002 17:53:50 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Daniel Phillips <phillips@bonn-fries.net>
+cc: Hugh Dickins <hugh@veritas.com>, <dmccr@us.ibm.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        <linux-mm@kvack.org>, Robert Love <rml@tech9.net>,
+        Rik van Riel <riel@conectiva.com.br>, <mingo@redhat.com>,
         Andrew Morton <akpm@zip.com.au>, <manfred@colorfullife.com>,
         <wli@holomorphy.com>
 Subject: Re: [RFC] Page table sharing
-In-Reply-To: <Pine.LNX.4.33.0202181746090.24597-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.33L.0202182252260.1930-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+In-Reply-To: <E16czQ1-0000yf-00@starship.berlin>
+Message-ID: <Pine.LNX.4.33.0202181749110.24597-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Feb 2002, Linus Torvalds wrote:
-> On Mon, 18 Feb 2002, Rik van Riel wrote:
-> >
-> > We'll need protection from the swapout code.
+
+
+On Tue, 19 Feb 2002, Daniel Phillips wrote:
 >
-> Absolutely NOT.
->
-> If the swapout code unshares or shares the PMD, that's a major bug.
->
-> The swapout code doesn't need to know one way or the other, because the
-> swapout code never actually touches the pmd itself, it just follows the
-> pointers - it doesn't ever need to worry about the pmd counts at all.
+> Somebody might read fault, changing an entry when we're in the middle of
+> copying it and might might do a duplicated read fault.
 
-The swapout code can remove a page from the page table
-while another process is in the process of unsharing
-the page table.
+You're confusing the mm->mmap_sem with the page_table_lock.
 
-We really want to make sure that the copied-over page
-table doesn't point to a page which just got swapped
-out.
+The mm semaphore is really a read-write semaphore, and yes, there can be
+multiple faulters active at the same time readin gin pages.
 
-regards,
+But the page_table_lock is 100% exclusive, and while you hold the
+page_table_lock there is absolutely _not_ going to be any concurrent page
+faulting.
 
-Rik
--- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
+(NOTE! Sure, there might be another mm that has the same pmd shared, but
+that one is going to do an unshare before it actually touches anything in
+the pmd, so it's NOT going to change the values in the original pmd).
 
-http://www.surriel.com/		http://distro.conectiva.com/
+So I'm personally convinced that the locking shouldn't be needed at all,
+if you just make sure that you do things in the right order (that, of
+course, might need some memory barriers, which had better be implied by
+the atomic dec-and-test anyway).
+
+		Linus
 

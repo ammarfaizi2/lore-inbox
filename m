@@ -1,95 +1,356 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268199AbUJJIpN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268203AbUJJI4J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268199AbUJJIpN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Oct 2004 04:45:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268203AbUJJIpN
+	id S268203AbUJJI4J (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Oct 2004 04:56:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268207AbUJJI4I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Oct 2004 04:45:13 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:7828 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S268199AbUJJIpE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Oct 2004 04:45:04 -0400
-Date: Sun, 10 Oct 2004 10:46:33 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Sven-Thorsten Dietrich <sdietrich@mvista.com>
-Cc: linux-kernel@vger.kernel.org,
-       Alexander Batyrshin <abatyrshin@ru.mvista.com>,
-       "Amakarov@Ru. Mvista. Com" <amakarov@ru.mvista.com>,
-       Daniel Walker <dwalker@mvista.com>,
-       "Eugeny S. Mints" <emints@ru.mvista.com>,
-       "Ext-Rt-Dev@Mvista. Com" <ext-rt-dev@mvista.com>,
-       New Zhang Haitao <hzhang@ch.mvista.com>,
-       "Yyang@Ch. Mvista. Com" <yyang@ch.mvista.com>
-Subject: Re: [ANNOUNCE] Linux 2.6 Real Time Kernel
-Message-ID: <20041010084633.GA13391@elte.hu>
-References: <41677E4D.1030403@mvista.com>
+	Sun, 10 Oct 2004 04:56:08 -0400
+Received: from us1.server44secre01.de ([80.190.243.163]:37032 "EHLO
+	us1.server44secre01.de") by vger.kernel.org with ESMTP
+	id S268203AbUJJIzt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Oct 2004 04:55:49 -0400
+Date: Sun, 10 Oct 2004 10:55:41 +0200
+To: Gerd Knorr <kraxel@bytesex.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: video_usercopy() enforces change of VideoText IOCTLs since 2.6.8
+Message-ID: <20041010085541.GA1642@t-online.de>
+References: <20041007165410.GA2306@t-online.de> <20041008105219.GA24842@bytesex> <20041008140056.72b177d9.akpm@osdl.org> <20041009092801.GC3482@bytesex> <20041009112839.GA2908@t-online.de> <20041009121845.GE3482@bytesex>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <41677E4D.1030403@mvista.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <20041009121845.GE3482@bytesex>
+User-Agent: Mutt/1.3.28i
+From: linux@MichaelGeng.de (Michael Geng)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Sven-Thorsten Dietrich <sdietrich@mvista.com> wrote:
-
-> Announcing the availability of prototype real-time (RT)
-> enhancements to the Linux 2.6 kernel.
+On Sat, Oct 09, 2004 at 02:18:45PM +0200, Gerd Knorr wrote:
+> > I would prefer redefining them with respect
+> > to the arguments passed to the IOCTLs.
 > 
-> We will submit 3 additional emails following this one, containing
-> the remaining 3 patches (of 4) inline, with their descriptions.
+> Thats possible as well.
+> 
+> > Nevertheless there is one big disadvantage: The userspace programs 
+> > have to be recompiled because they of course have to use the same IOCTL 
+> > definitions. 
+> 
+> You can just keep the old ones and map them, so both old and new ones
+> will work (and internally only the new ones are used).
+> video_fix_command() does that for a number of v4l2 ioctls which
+> initially got a _IO* define with wrong read/write bits.  You can either
+> just add the videotext ones there or translate them in the drivers right
+> before calling video_usercopy().
 
-cool! Basically the biggest problem is not the technology itself, but
-its proper integration into Linux. As it can be seen from the 2.4 RT
-patches (TimeSys and yours), just walking the path towards a fully
-preemptible kernel is not fruitful because it generates lots of huge,
-intrusive patches that end up being unmaintainable forks of the Linux
-tree.
+That's a good idea. The patch below maps old IOCTLs to new ones in the
+functions vtx_fix_command() in saa5246a.c and saa5249.c. The drivers now 
+internally use the new IOCTLs but old userspace programs will still work
+without recompiling them.
 
-the other approach is what i'm currently doing with the
-voluntary-preempt patchset: to improve the generic kernel for latency
-purposes without actually adding too many extra features. Here is what
-is happening in the -mm tree right now:
+For the new IOCTLs I need an identifying letter. According to 
+Documentation/ioctl-number.txt the letter 'q', seq# 0-0x1F is presently
+allocated to the videotext drivers. I want to change this because 
+linux/serio.h also uses the letter 'q', seq# 0.
 
- - the generic irq subsystem: irq threading is a simple ~200-lines,
-   architecture-independent add-on to this. It makes no sense to offer 3
-   different implementations - pick one and help make it work well.
+I now allocated 0x81 (the major number of /dev/vtx<n>), seq# 0-0x1F
+to linux/videotext.h. I also added 'q', seq# 0-0x1F to linux/serio.h.
+In the present ioctl-number.txt only a conflict is indicated but the
+allocation for linux/serio.h is missing. I hope that's ok. Who else
+must I ask for this change in Documentation/ioctl-number.txt?
 
- - preemptible BKL. Related to this is new debugging infrastructure in
-   -mm that allows the safe and slow conversion of spinlocks to mutexes. 
-   In the case of the BKL this conversion is expected to be permanent, 
-   for most of the other spinlocks it will be optional - but the 
-   debugging code can still be used.
+In include/linux/videotext.h I additionally cleaned up some definitions 
+for a tuner because these definitions are not used any more anywhere in 
+the kernel. 
 
- - various fixes and latency improvements. A mutex based kernel is of
-   little use if the only code you can execute reliably is user-space
-   code and the moment you hit kernel-space your RT app is exposed to
-   high latencies.
+Michael
 
-A couple of suggestions wrt. how to speed up the integration effort: you
-might want to rebase this stuff to the -mm tree. Also, what i dont see
-in your (and others') patches (yet?) is some of the harder stuff:
+----------------------
 
- - the handling of per-CPU data structures (get_cpu_var())
-
- - RCU and softirq data structures
-
- - the handling of the IRQ flag
-
-These are basic correctness issues that affect UP just as much as SMP.
-Without these the kernel is still not a "fully preemptible" kernel. 
-These need infrastructure changes too, so they must preceed any addition
-of a spinlock -> mutex conversion feature.
-
-So the mutex patch will probably the one that can go upstream _last_,
-which will do the "final step" of making the kernel fully preemptible.
-
-	Ingo
+diff -u -N -r linux-2.6.8.1/Documentation/ioctl-number.txt linux/Documentation/ioctl-number.txt
+--- linux-2.6.8.1/Documentation/ioctl-number.txt	Sat Aug 14 12:56:22 2004
++++ linux/Documentation/ioctl-number.txt	Sun Oct 10 08:34:44 2004
+@@ -144,7 +144,7 @@
+ 'p'	40-7F	linux/nvram.h
+ 'p'	80-9F				user-space parport
+ 					<mailto:tim@cyberelk.net>
+-'q'	00-1F	linux/videotext.h	conflict!
++'q'	00-1F	linux/serio.h
+ 'q'	80-FF				Internet PhoneJACK, Internet LineJACK
+ 					<http://www.quicknet.net>
+ 'r'	00-1F	linux/msdos_fs.h
+@@ -162,6 +162,7 @@
+ 'z'	40-7F				CAN bus card
+ 					<mailto:oe@port.de>
+ 0x80	00-1F	linux/fb.h
++0x81	00-1F	linux/videotext.h
+ 0x89	00-06	asm-i386/sockios.h
+ 0x89	0B-DF	linux/sockios.h
+ 0x89	E0-EF	linux/sockios.h		SIOCPROTOPRIVATE range
+diff -u -N -r linux-2.6.8.1/drivers/media/video/saa5246a.c linux/drivers/media/video/saa5246a.c
+--- linux-2.6.8.1/drivers/media/video/saa5246a.c	Sat Aug 14 12:55:22 2004
++++ linux/drivers/media/video/saa5246a.c	Sun Oct 10 09:40:29 2004
+@@ -682,6 +682,54 @@
+ }
+ 
+ /*
++ * Translates old vtx IOCTLs to new ones
++ *
++ * This keeps new kernel versions compatible with old userspace programs.
++ */
++static inline unsigned int vtx_fix_command(unsigned int cmd)
++{
++	switch (cmd) {
++	case VTXIOCGETINFO_OLD:
++		cmd = VTXIOCGETINFO;
++		break;
++	case VTXIOCCLRPAGE_OLD:
++		cmd = VTXIOCCLRPAGE;
++		break;
++	case VTXIOCCLRFOUND_OLD:
++		cmd = VTXIOCCLRFOUND;
++		break;
++	case VTXIOCPAGEREQ_OLD:
++		cmd = VTXIOCPAGEREQ;
++		break;
++	case VTXIOCGETSTAT_OLD:
++		cmd = VTXIOCGETSTAT;
++		break;
++	case VTXIOCGETPAGE_OLD:
++		cmd = VTXIOCGETPAGE;
++		break;
++	case VTXIOCSTOPDAU_OLD:
++		cmd = VTXIOCSTOPDAU;
++		break;
++	case VTXIOCPUTPAGE_OLD:
++		cmd = VTXIOCPUTPAGE;
++		break;
++	case VTXIOCSETDISP_OLD:
++		cmd = VTXIOCSETDISP;
++		break;
++	case VTXIOCPUTSTAT_OLD:
++		cmd = VTXIOCPUTSTAT;
++		break;
++	case VTXIOCCLRCACHE_OLD:
++		cmd = VTXIOCCLRCACHE;
++		break;
++	case VTXIOCSETVIRT_OLD:
++		cmd = VTXIOCSETVIRT;
++		break;
++	}
++	return cmd;
++}
++
++/*
+  *	Handle the locking
+  */
+ static int saa5246a_ioctl(struct inode *inode, struct file *file,
+@@ -691,6 +739,7 @@
+ 	struct saa5246a_device *t = vd->priv;
+ 	int err;
+ 
++	cmd = vtx_fix_command(cmd);
+ 	down(&t->lock);
+ 	err = video_usercopy(inode, file, cmd, arg, do_saa5246a_ioctl);
+ 	up(&t->lock);
+diff -u -N -r linux-2.6.8.1/drivers/media/video/saa5246a.h linux/drivers/media/video/saa5246a.h
+--- linux-2.6.8.1/drivers/media/video/saa5246a.h	Sat Aug 14 12:55:48 2004
++++ linux/drivers/media/video/saa5246a.h	Sun Oct 10 08:34:13 2004
+@@ -23,7 +23,7 @@
+ #define __SAA5246A_H__
+ 
+ #define MAJOR_VERSION 1		/* driver major version number */
+-#define MINOR_VERSION 7		/* driver minor version number */
++#define MINOR_VERSION 8		/* driver minor version number */
+ 
+ #define IF_NAME "SAA5246A"
+ 
+diff -u -N -r linux-2.6.8.1/drivers/media/video/saa5249.c linux/drivers/media/video/saa5249.c
+--- linux-2.6.8.1/drivers/media/video/saa5249.c	Sat Aug 14 12:55:48 2004
++++ linux/drivers/media/video/saa5249.c	Sun Oct 10 09:40:33 2004
+@@ -1,4 +1,7 @@
+ /*
++ * Modified in order to keep it compatible both with new and old videotext IOCTLs by
++ * Michael Geng <linux@MichaelGeng.de>
++ *
+  *	Cleaned up to use existing videodev interface and allow the idea
+  *	of multiple teletext decoders on the video4linux iface. Changed i2c
+  *	to cover addressing clashes on device busses. It's also rebuilt so
+@@ -58,7 +61,7 @@
+ #include <asm/uaccess.h>
+ 
+ #define VTX_VER_MAJ 1
+-#define VTX_VER_MIN 7
++#define VTX_VER_MIN 8
+ 
+ 
+ 
+@@ -579,6 +582,54 @@
+ }
+ 
+ /*
++ * Translates old vtx IOCTLs to new ones
++ *
++ * This keeps new kernel versions compatible with old userspace programs.
++ */
++static inline unsigned int vtx_fix_command(unsigned int cmd)
++{
++	switch (cmd) {
++	case VTXIOCGETINFO_OLD:
++		cmd = VTXIOCGETINFO;
++		break;
++	case VTXIOCCLRPAGE_OLD:
++		cmd = VTXIOCCLRPAGE;
++		break;
++	case VTXIOCCLRFOUND_OLD:
++		cmd = VTXIOCCLRFOUND;
++		break;
++	case VTXIOCPAGEREQ_OLD:
++		cmd = VTXIOCPAGEREQ;
++		break;
++	case VTXIOCGETSTAT_OLD:
++		cmd = VTXIOCGETSTAT;
++		break;
++	case VTXIOCGETPAGE_OLD:
++		cmd = VTXIOCGETPAGE;
++		break;
++	case VTXIOCSTOPDAU_OLD:
++		cmd = VTXIOCSTOPDAU;
++		break;
++	case VTXIOCPUTPAGE_OLD:
++		cmd = VTXIOCPUTPAGE;
++		break;
++	case VTXIOCSETDISP_OLD:
++		cmd = VTXIOCSETDISP;
++		break;
++	case VTXIOCPUTSTAT_OLD:
++		cmd = VTXIOCPUTSTAT;
++		break;
++	case VTXIOCCLRCACHE_OLD:
++		cmd = VTXIOCCLRCACHE;
++		break;
++	case VTXIOCSETVIRT_OLD:
++		cmd = VTXIOCSETVIRT;
++		break;
++	}
++	return cmd;
++}
++
++/*
+  *	Handle the locking
+  */
+  
+@@ -589,6 +640,7 @@
+ 	struct saa5249_device *t=vd->priv;
+ 	int err;
+ 	
++	cmd = vtx_fix_command(cmd);
+ 	down(&t->lock);
+ 	err = video_usercopy(inode,file,cmd,arg,do_saa5249_ioctl);
+ 	up(&t->lock);
+diff -u -N -r linux-2.6.8.1/include/linux/videotext.h linux/include/linux/videotext.h
+--- linux-2.6.8.1/include/linux/videotext.h	Sat Aug 14 12:56:23 2004
++++ linux/include/linux/videotext.h	Sun Oct 10 08:34:33 2004
+@@ -1,7 +1,13 @@
+ #ifndef _VTX_H
+ #define _VTX_H
+ 
+-/* $Id: videotext.h,v 1.1 1998/03/30 22:26:39 alan Exp $
++/* 
++ * Teletext (=Videotext) hardware decoders using interface /dev/vtx
++ * Do not confuse with drivers using /dev/vbi which decode videotext by software
++ * 
++ * Videotext IOCTLs changed in order to use _IO() macros defined in <linux/ioctl.h>,
++ * unused tuner IOCTLs cleaned up by
++ * Michael Geng <linux@MichaelGeng.de>
+  *
+  * Copyright (c) 1994-97 Martin Buck  <martin-2.buck@student.uni-ulm.de>
+  * Read COPYING for more information
+@@ -12,19 +18,32 @@
+ /*
+  *	Videotext ioctls
+  */
+-#define VTXIOCGETINFO  0x7101  /* get version of driver & capabilities of vtx-chipset */
+-#define VTXIOCCLRPAGE  0x7102  /* clear page-buffer */
+-#define VTXIOCCLRFOUND 0x7103  /* clear bits indicating that page was found */
+-#define VTXIOCPAGEREQ  0x7104  /* search for page */
+-#define VTXIOCGETSTAT  0x7105  /* get status of page-buffer */
+-#define VTXIOCGETPAGE  0x7106  /* get contents of page-buffer */
+-#define VTXIOCSTOPDAU  0x7107  /* stop data acquisition unit */
+-#define VTXIOCPUTPAGE  0x7108  /* display page on TV-screen */
+-#define VTXIOCSETDISP  0x7109  /* set TV-mode */
+-#define VTXIOCPUTSTAT  0x710a  /* set status of TV-output-buffer */
+-#define VTXIOCCLRCACHE 0x710b  /* clear cache on VTX-interface (if avail.) */
+-#define VTXIOCSETVIRT  0x710c  /* turn on virtual mode (this disables TV-display) */
+-
++#define VTXIOCGETINFO	_IOR  (0x81,  1, vtx_info_t)
++#define VTXIOCCLRPAGE	_IOW  (0x81,  2, vtx_pagereq_t)
++#define VTXIOCCLRFOUND	_IOW  (0x81,  3, vtx_pagereq_t)
++#define VTXIOCPAGEREQ	_IOW  (0x81,  4, vtx_pagereq_t)
++#define VTXIOCGETSTAT	_IOW  (0x81,  5, vtx_pagereq_t)
++#define VTXIOCGETPAGE	_IOW  (0x81,  6, vtx_pagereq_t)
++#define VTXIOCSTOPDAU	_IOW  (0x81,  7, vtx_pagereq_t)
++#define VTXIOCPUTPAGE	_IO   (0x81,  8)
++#define VTXIOCSETDISP	_IO   (0x81,  9)
++#define VTXIOCPUTSTAT	_IO   (0x81, 10)
++#define VTXIOCCLRCACHE	_IO   (0x81, 11)
++#define VTXIOCSETVIRT	_IOW  (0x81, 12, long)
++
++/* for compatibility, will go away some day */
++#define VTXIOCGETINFO_OLD  0x7101  /* get version of driver & capabilities of vtx-chipset */
++#define VTXIOCCLRPAGE_OLD  0x7102  /* clear page-buffer */
++#define VTXIOCCLRFOUND_OLD 0x7103  /* clear bits indicating that page was found */
++#define VTXIOCPAGEREQ_OLD  0x7104  /* search for page */
++#define VTXIOCGETSTAT_OLD  0x7105  /* get status of page-buffer */
++#define VTXIOCGETPAGE_OLD  0x7106  /* get contents of page-buffer */
++#define VTXIOCSTOPDAU_OLD  0x7107  /* stop data acquisition unit */
++#define VTXIOCPUTPAGE_OLD  0x7108  /* display page on TV-screen */
++#define VTXIOCSETDISP_OLD  0x7109  /* set TV-mode */
++#define VTXIOCPUTSTAT_OLD  0x710a  /* set status of TV-output-buffer */
++#define VTXIOCCLRCACHE_OLD 0x710b  /* clear cache on VTX-interface (if avail.) */
++#define VTXIOCSETVIRT_OLD  0x710c  /* turn on virtual mode (this disables TV-display) */
+ 
+ /* 
+  *	Definitions for VTXIOCGETINFO
+@@ -102,43 +121,5 @@
+ 	unsigned hamming : 1;		/* hamming-error occurred */
+ }
+ vtx_pageinfo_t;
+-
+-
+-/*
+- *	Definitions for VTXIOCSETDISP
+- */
+- 
+-typedef enum { 
+-	DISPOFF, DISPNORM, DISPTRANS, DISPINS, INTERLACE_OFFSET 
+-} vtxdisp_t;
+-
+-
+-
+-/*
+- *	Tuner ioctls
+- */
+  
+-#define TUNIOCGETINFO  0x7201  /* get version of driver & capabilities of tuner */
+-#define TUNIOCRESET    0x7202  /* reset tuner */
+-#define TUNIOCSETFREQ  0x7203  /* set tuning frequency (unit: kHz) */
+-#define TUNIOCGETFREQ  0x7204  /* get tuning frequency (unit: kHz) */
+-#define TUNIOCSETCHAN  0x7205  /* set tuning channel */
+-#define TUNIOCGETCHAN  0x7206  /* get tuning channel */
+-
+-
+-typedef struct 
+-{
+-	int version_major, version_minor;	/* version of driver; if version_major changes, driver */
+-						/* is not backward compatible!!! CHECK THIS!!! */  
+-	unsigned freq : 1;			/* tuner can be set to given frequency */
+-	unsigned chan : 1;			/* tuner stores several channels */
+-	unsigned scan : 1;			/* tuner supports scanning */
+-	unsigned autoscan : 1;		/* tuner supports scanning with automatic stop */
+-	unsigned afc : 1;			/* tuner supports AFC */
+-	unsigned dummy1, dummy2, dummy3, dummy4, dummy5, dummy6, dummy7, dummy8, dummy9, dummy10,
+- 		dummy11 : 1;
+-	int dummy12, dummy13, dummy14, dummy15, dummy16, dummy17, dummy18, dummy19;
+-} tuner_info_t;
+-
+-
+ #endif /* _VTX_H */

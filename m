@@ -1,53 +1,111 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271327AbTGWVER (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 17:04:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271325AbTGWVEQ
+	id S271329AbTGWVHR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 17:07:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271330AbTGWVHR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 17:04:16 -0400
-Received: from dclient217-162-108-200.hispeed.ch ([217.162.108.200]:41989 "EHLO
-	ritz.dnsalias.org") by vger.kernel.org with ESMTP id S271324AbTGWVEP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 17:04:15 -0400
-From: Daniel Ritz <daniel.ritz@gmx.ch>
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [PATCH 2.5] fixes for airo.c
-Date: Wed, 23 Jul 2003 23:19:54 +0200
-User-Agent: KMail/1.5.2
-Cc: Javier Achirica <achirica@telefonica.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-net <linux-net@vger.kernel.org>
-References: <Pine.SOL.4.30.0307231219020.12179-100000@tudela.mad.ttd.net> <200307231956.58656.daniel.ritz@gmx.ch> <20030723204304.GA1929@gtf.org>
-In-Reply-To: <20030723204304.GA1929@gtf.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 23 Jul 2003 17:07:17 -0400
+Received: from mail-in-05.arcor-online.net ([151.189.21.45]:61598 "EHLO
+	mail-in-05.arcor-online.net") by vger.kernel.org with ESMTP
+	id S271329AbTGWVHN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 17:07:13 -0400
+Date: Wed, 23 Jul 2003 23:22:18 +0200
+From: Jan Killius <jkillius@arcor.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0-test1-ac3 snd_usb_audio problem
+Message-ID: <20030723212218.GA13903@gate.unimatrix>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="gBBFr7Ir9EOA20Yy"
 Content-Disposition: inline
-Message-Id: <200307232319.54741.daniel.ritz@gmx.ch>
+X-Operating-System: Linux 2.6.0-test1-ac1 i586
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed July 23 2003 22:43, Jeff Garzik wrote:
-> On Wed, Jul 23, 2003 at 07:56:58PM +0200, Daniel Ritz wrote:
-> > [shortening the cc: list a bit..]
-> > 
-> > On Wed July 23 2003 12:26, Javier Achirica wrote:
-> > > 
-> > > You cannot use down() in xmit, as it may be called in interrupt context. I
-> > > know it slows things down, but that's the only way I figured out of
-> > > handling a transmission while the card is processing a long command.
-> > 
-> > hu? no. you can do a down() as xmit is never called from interrupt context. and
-> > the dev->hard_start_xmit() calls are serialized with the dev->xmit_lock. the
-> > serialization is broken by the schedule_work() thing.
-> 
-> hard_start_xmit is called from BH-disabled context, so Javier is
-> basically correct.
 
-hmm...sorry for making noise...i really should read more of the kernel/networking code.
-javier, then please send your latest (1.53) diff to jeff and i'm shuting up.
- 
+--gBBFr7Ir9EOA20Yy
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
--daniel
+Hi,
+I have a little problem with the ALSA usb driver it doesn't work.
+I think it is a general problem with the 2.6 kernel scheduler.
+However i have attached some dmesg call trace output. 
+This output comes if i try to play a audio file...
+-- 
+Greets
+Jan Killius
 
+--gBBFr7Ir9EOA20Yy
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=calltrace
+
+bad: scheduling while atomic!
+Call Trace:
+ [<c01199d9>] schedule+0x3a9/0x3b0
+ [<c01251ff>] schedule_timeout+0x5f/0xc0
+ [<c0125190>] process_timeout+0x0/0x10
+ [<c0260217>] usb_start_wait_urb+0xb7/0x1a0
+ [<c0119a40>] default_wake_function+0x0/0x30
+ [<c026036b>] usb_internal_control_msg+0x6b/0x80
+ [<c0260416>] usb_control_msg+0x96/0xb0
+ [<c0260f21>] usb_set_interface+0xc1/0x220
+ [<c025f9c0>] hcd_endpoint_disable+0x0/0x1a0
+ [<e493843f>] set_format+0xbf/0x2b0 [snd_usb_audio]
+ [<e4938694>] snd_usb_pcm_prepare+0x34/0x50 [snd_usb_audio]
+ [<e49239b4>] snd_pcm_do_prepare+0x14/0x40 [snd_pcm]
+ [<e4922e09>] snd_pcm_action_single+0x39/0x70 [snd_pcm]
+ [<e4922f58>] snd_pcm_action_lock_irq+0x98/0xa0 [snd_pcm]
+ [<e4923a71>] snd_pcm_prepare+0x61/0x80 [snd_pcm]
+ [<e492631e>] snd_pcm_playback_ioctl1+0x5e/0x450 [snd_pcm]
+ [<c01250b0>] do_timer+0xe0/0xf0
+ [<c0162893>] sys_ioctl+0xf3/0x280
+ [<c0118040>] do_page_fault+0x0/0x453
+ [<c010918b>] syscall_call+0x7/0xb
+
+bad: scheduling while atomic!
+Call Trace:
+ [<c01199d9>] schedule+0x3a9/0x3b0
+ [<c01251ff>] schedule_timeout+0x5f/0xc0
+ [<c0125190>] process_timeout+0x0/0x10
+ [<c0260217>] usb_start_wait_urb+0xb7/0x1a0
+ [<c0119a40>] default_wake_function+0x0/0x30
+ [<c026036b>] usb_internal_control_msg+0x6b/0x80
+ [<c0260416>] usb_control_msg+0x96/0xb0
+ [<e49382a6>] init_usb_sample_rate+0xb6/0x190 [snd_usb_audio]
+ [<c025f9c0>] hcd_endpoint_disable+0x0/0x1a0
+ [<e4938505>] set_format+0x185/0x2b0 [snd_usb_audio]
+ [<e4938694>] snd_usb_pcm_prepare+0x34/0x50 [snd_usb_audio]
+ [<e49239b4>] snd_pcm_do_prepare+0x14/0x40 [snd_pcm]
+ [<e4922e09>] snd_pcm_action_single+0x39/0x70 [snd_pcm]
+ [<e4922f58>] snd_pcm_action_lock_irq+0x98/0xa0 [snd_pcm]
+ [<e4923a71>] snd_pcm_prepare+0x61/0x80 [snd_pcm]
+ [<e492631e>] snd_pcm_playback_ioctl1+0x5e/0x450 [snd_pcm]
+ [<c01250b0>] do_timer+0xe0/0xf0
+ [<c0162893>] sys_ioctl+0xf3/0x280
+ [<c0118040>] do_page_fault+0x0/0x453
+ [<c010918b>] syscall_call+0x7/0xb
+
+bad: scheduling while atomic!
+Call Trace:
+ [<c01199d9>] schedule+0x3a9/0x3b0
+ [<c01251ff>] schedule_timeout+0x5f/0xc0
+ [<c0125190>] process_timeout+0x0/0x10
+ [<c0260217>] usb_start_wait_urb+0xb7/0x1a0
+ [<c0119a40>] default_wake_function+0x0/0x30
+ [<c026036b>] usb_internal_control_msg+0x6b/0x80
+ [<c0260416>] usb_control_msg+0x96/0xb0
+ [<e4938302>] init_usb_sample_rate+0x112/0x190 [snd_usb_audio]
+ [<c025f9c0>] hcd_endpoint_disable+0x0/0x1a0
+ [<e4938505>] set_format+0x185/0x2b0 [snd_usb_audio]
+ [<e4938694>] snd_usb_pcm_prepare+0x34/0x50 [snd_usb_audio]
+ [<e49239b4>] snd_pcm_do_prepare+0x14/0x40 [snd_pcm]
+ [<e4922e09>] snd_pcm_action_single+0x39/0x70 [snd_pcm]
+ [<e4922f58>] snd_pcm_action_lock_irq+0x98/0xa0 [snd_pcm]
+ [<e4923a71>] snd_pcm_prepare+0x61/0x80 [snd_pcm]
+ [<e492631e>] snd_pcm_playback_ioctl1+0x5e/0x450 [snd_pcm]
+ [<c01250b0>] do_timer+0xe0/0xf0
+ [<c0162893>] sys_ioctl+0xf3/0x280
+ [<c0118040>] do_page_fault+0x0/0x453
+ [<c010918b>] syscall_call+0x7/0xb
+--gBBFr7Ir9EOA20Yy--

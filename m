@@ -1,64 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269472AbUJLGFL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269475AbUJLGIF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269472AbUJLGFL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 02:05:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269474AbUJLGFK
+	id S269475AbUJLGIF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 02:08:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269473AbUJLGIF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 02:05:10 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:17088 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S269472AbUJLGC7 (ORCPT
+	Tue, 12 Oct 2004 02:08:05 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:14210 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S269475AbUJLGGt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 02:02:59 -0400
-Date: Tue, 12 Oct 2004 08:02:13 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: "K.R. Foley" <kr@cybsft.com>
-Cc: Mark_H_Johnson@Raytheon.com, Andrew Morton <akpm@osdl.org>,
-       Daniel Walker <dwalker@mvista.com>, linux-kernel@vger.kernel.org,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>
-Subject: Re: [patch] VP-2.6.9-rc4-mm1-T5
-Message-ID: <20041012060213.GD1479@elte.hu>
-References: <OF29AF5CB7.227D041F-ON86256F2A.0062D210@raytheon.com> <20041011215909.GA20686@elte.hu> <416B54BA.9050606@cybsft.com>
+	Tue, 12 Oct 2004 02:06:49 -0400
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, Geert Uytterhoeven <geert@linux-m68k.org>,
+       davej@redhat.com, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: __init dependencies 
+In-reply-to: Your message of "Mon, 11 Oct 2004 21:04:46 MST."
+             <416B57DE.4070605@osdl.org> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <416B54BA.9050606@cybsft.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Date: Tue, 12 Oct 2004 16:06:02 +1000
+Message-ID: <24112.1097561162@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 11 Oct 2004 21:04:46 -0700, 
+"Randy.Dunlap" <rddunlap@osdl.org> wrote:
+>Randy.Dunlap wrote:
+>> Andrew Morton wrote:
+>> 
+>>> Geert Uytterhoeven <geert@linux-m68k.org> wrote:
+>>>
+>>>> I guess it's about time for a tool to autodetect __init dependencies?
+>>>
+>>> `make buildcheck' does this.  Looks like nobody is using it.
+>
+>John Cherry has been running 'make buildcheck' regularly,
+>but apparently nobody has been looking.
+>
+>Latest (2.6.9-rc4) is here:
+>http://developer.osdl.org/cherry/compile/2.6/linux-2.6.9-rc4.results/2.6.9-rc4.reference_init26.bzImage.txt
+>
+>My experience with output of buildcheck is that it's verbose and has
+>lots of false positives.  (Yes, I have used it and generated patches
+>from it.)  First thing I do is delete all lines that match
+>"data.*init" or "data.*exit".  These are (usually -- famous word) OK.
 
-* K.R. Foley <kr@cybsft.com> wrote:
+They may only be OK because the code is never run more than once.
+Normal code that refers to data.*init and is run more than once is a
+bug just waiting to bite you.
 
-> >i've uploaded -T5 which should fix most of the build issues:
-> >
-> 
-> This fixed the build problems for me (SMP). I did get one unresolved
-> symbol when building this with REALTIME enabled.
+Andrew - small fix for reference_init.pl, against 2.6.9-rc4.
 
-(which symbol was this?)
+------------------------------------------------------------
 
-> [...] Also got error messages scrolling up the screen when I tried to
-> boot it (looked very much like Mark's problem with T4) and it never
-> made it. :( If I had to guess, it might be related to APICs? I always
-> have to use "noapic" boot parameter.  Ingo what are you running this
-> on? I don't have the exact error messages, but I'm rebuilding it now
-> to try to get those. Without RT Preemption it seems to be running very
-> nicely.
+Treat .pci_fixup entries the same as .init code/data.
 
-dont worry about it not booting on your setup with PREEMPT_REALTIME, as
-long as it boots with !PREEMPT_REALTIME - i only really converted my
-testsystems which are basically IDE + e100/e1000/rtl8139, ext3 and the
-bare minimum that is needed to run Fedora. It might be useful to send me
-a bootlog if you have any easy way to capture it - if not it's not a big
-problem either.
+Signed off by: Keith Owens <kaos@ocs.com.au>
 
-	Ingo
+Index: linux/scripts/reference_init.pl
+===================================================================
+--- linux.orig/scripts/reference_init.pl	Sat Aug 14 15:37:37 2004
++++ linux/scripts/reference_init.pl	Tue Oct 12 15:59:39 2004
+@@ -93,6 +93,8 @@ foreach $object (sort(keys(%object))) {
+ 		     $from !~ /\.stab$/ &&
+ 		     $from !~ /\.rodata$/ &&
+ 		     $from !~ /\.text\.lock$/ &&
++		     $from !~ /\.pci_fixup_header$/ &&
++		     $from !~ /\.pci_fixup_final$/ &&
+ 		     $from !~ /\.debug_/)) {
+ 			printf("Error: %s %s refers to %s\n", $object, $from, $line);
+ 		}
+

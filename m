@@ -1,66 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266163AbUIODuL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267511AbUIOEgr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266163AbUIODuL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 23:50:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267184AbUIODuK
+	id S267511AbUIOEgr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 00:36:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267526AbUIOEgr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 23:50:10 -0400
-Received: from mail.kroah.org ([69.55.234.183]:64478 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266163AbUIODuE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 23:50:04 -0400
-Date: Tue, 14 Sep 2004 20:48:53 -0700
-From: Greg KH <greg@kroah.com>
-To: Kay Sievers <kay.sievers@vrfy.org>
-Cc: Robert Love <rml@ximian.com>, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch] kernel sysfs events layer
-Message-ID: <20040915034853.GC30747@kroah.com>
-References: <20040904005433.GA18229@kroah.com> <1094353088.2591.19.camel@localhost> <20040905121814.GA1855@vrfy.org> <20040906020601.GA3199@vrfy.org> <20040910235409.GA32424@kroah.com> <1094875775.10625.5.camel@lucy> <20040911165300.GA17028@kroah.com> <20040913144553.GA10620@vrfy.org> <20040915000753.GA24125@kroah.com> <20040915010901.GA19524@vrfy.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040915010901.GA19524@vrfy.org>
-User-Agent: Mutt/1.5.6i
+	Wed, 15 Sep 2004 00:36:47 -0400
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:2515 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S267511AbUIOEgp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 00:36:45 -0400
+Message-ID: <4147C6D6.30508@nortelnetworks.com>
+Date: Tue, 14 Sep 2004 22:36:38 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andreas Dilger <adilger@clusterfs.com>
+CC: "Martin J. Bligh" <mbligh@aracnet.com>, Anton Blanchard <anton@samba.org>,
+       Linux kernel <linux-kernel@vger.kernel.org>, paulus@samba.org
+Subject: Re: offtopic: how to break huge patch into smaller independent patches?
+References: <41474B15.8040302@nortelnetworks.com> <20040915002023.GD5615@krispykreme> <119340000.1095209242@flay> <414799D1.7050609@nortelnetworks.com> <20040915014711.GA30607@schnapps.adilger.int>
+In-Reply-To: <20040915014711.GA30607@schnapps.adilger.int>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 15, 2004 at 03:09:01AM +0200, Kay Sievers wrote:
-> On Tue, Sep 14, 2004 at 05:07:53PM -0700, Greg KH wrote:
-> > On Mon, Sep 13, 2004 at 04:45:53PM +0200, Kay Sievers wrote:
-> > > Do we agree on the model that the signal is a simple verb and we keep
-> > > only a small dictionary of _static_ signal strings and no fancy compositions?
-> > 
-> > I agree with this.  And because of that, we should enforce that, and
-> > help prevent typos in the signals.  So, here's a patch that does just
-> > that, making it a lot harder to mess up (although you still can, as
-> > enumerated types aren't checked by the compiler...)  This patch booted
-> > on my test box.
-> > 
-> > Anyone object to me adding this patch?  If not, I'll fix up Kay's patch
-> > for mounting to use this interface and add both of them.
-> 
-> I like it, so the printf is gone :) Fine with me.
-> 
-> > > And we should reserve the "add" and "remove" only for the hotplug events.
-> > 
-> > I don't know, the firmware objects already use "add" for an event.
-> 
-> Yes, but isn't the firmware event a real hotplug event? I just want to
-> be sure, that it's easy to recognize the hotplug events from userspace.
+Andreas Dilger wrote:
 
-It's a "real" one in that it is generated :)
+> Consider using a source-control tool next time ;-/.  
 
-request_firmware() causes the hotplug event to happen, so that we know
-to load firmware to the device that requested it.
+We used a source control tool.  Its just not very useful when people do a port 
+from one kernel version to the next and submit it as one giant patch against the 
+new kernel rather than new versions of the original individual patches.
 
-> > I didn't put a check in the kobject_uevent() calls to prevent the add and
-> > remove, but now it's a lot easier to do so if you think it's necessary.
-> 
-> Don't think that this is needed. I will add somthing to the kobject
-> documentation, if it's stable and merged.
+I'm the one planning how to avoid this problem in our next development cycle.
 
-Ok, I'll add this patch and wait for the documentation :)
-
-thanks,
-
-greg k-h
+Chris

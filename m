@@ -1,87 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265163AbTFEUzV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jun 2003 16:55:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265162AbTFEUyJ
+	id S265133AbTFEUtA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jun 2003 16:49:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264941AbTFEUrr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jun 2003 16:54:09 -0400
-Received: from mail.uptime.at ([62.116.87.11]:51352 "EHLO mail.uptime.at")
-	by vger.kernel.org with ESMTP id S265161AbTFEUxh (ORCPT
+	Thu, 5 Jun 2003 16:47:47 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:6838 "EHLO e32.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S265134AbTFEUrW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jun 2003 16:53:37 -0400
-From: "Oliver Pitzeier" <o.pitzeier@uptime.at>
-To: "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: FW: Linux 2.4.20
-Date: Thu, 5 Jun 2003 23:06:48 +0200
-Organization: UPtime system solutions
-Message-ID: <000301c32ba6$6135ff00$1311a8c0@pitzeier.priv.at>
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_NextPart_000_0004_01C32BB7.24BECF00"
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4510
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-X-MailScanner-Information: Please contact UPtime Systemloesungen for more information
-X-MailScanner: clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-3.5, required 4.1,
-	BAYES_20 -2.60, EMAIL_ATTRIBUTION -0.50, QUOTED_EMAIL_TEXT -0.38)
+	Thu, 5 Jun 2003 16:47:22 -0400
+Date: Thu, 5 Jun 2003 13:55:15 -0700
+From: Greg KH <greg@kroah.com>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+Subject: [BK PATCH] i2c driver changes for 2.5.70
+Message-ID: <20030605205515.GA6846@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Hi,
 
-------=_NextPart_000_0004_01C32BB7.24BECF00
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
+Here are some i2c driver changes for 2.5.70.  These consist of some
+small bug fixes to the i2c core which fixes some oopses, a update to the w83781d.c driver, and a sync with the cvs version of the i2c-id.h file.
 
-Hi folks!
+Please pull from:  bk://kernel.bkbits.net/gregkh/linux/i2c-2.5
 
-Andreas de Pretis wrote:
-> das Documentation/DocBook/journal-api.tmpl hat nen Bug (mach 
-> mal ein 'make htmldocs') ... Patch ist anbei.
+thanks,
 
-As German understading people can read above, Mr. Andreas de Pretis, sent me
-this patch to forward it to the lkml. The problem seems to be, that he was not
-able to do a 'make htmldocs', because of some (wrong) SGML tags in
-journal-api.tmpl.
+greg k-h
 
-Please have a look at it, patch is attached (simple, but working. :-) ).
+ drivers/i2c/chips/w83781d.c |  306 +++++++++++++++++++++++++-------------------
+ drivers/i2c/i2c-core.c      |    9 -
+ include/linux/i2c-id.h      |    7 +
+ 3 files changed, 185 insertions(+), 137 deletions(-)
+-----
 
-Best regards,
- Oliver
+<aschultz:warp10.net>:
+  o I2C: fix unsafe usage of list_for_each in i2c-core
 
-------=_NextPart_000_0004_01C32BB7.24BECF00
-Content-Type: application/octet-stream;
-	name="linux-2.4.20-journal-api-sgml.patch"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
-	filename="linux-2.4.20-journal-api-sgml.patch"
+<mhoffman:lightlink.com>:
+  o I2C: more w83781d fixes
+  o I2C: fix oops w83781d during rmmod
 
---- Documentation/DocBook/journal-api.tmpl.orig	Thu Jun  5 22:04:31 2003=0A=
-+++ Documentation/DocBook/journal-api.tmpl	Thu Jun  5 22:04:35 2003=0A=
-@@ -208,7 +208,7 @@=0A=
- if you allow unprivileged userspace to trigger codepaths containing =
-these=0A=
- calls.=0A=
- =0A=
--<para>=0A=
-+</para>=0A=
- </sect1>=0A=
- <sect1>=0A=
- <title>Summary</title>=0A=
-@@ -244,7 +244,8 @@=0A=
-    }=0A=
-    journal_destroy(my_jrnl);=0A=
- </programlisting>=0A=
--=0A=
-+</para>=0A=
-+</sect1>=0A=
- </chapter>=0A=
- =0A=
-   <chapter id=3D"adt">=0A=
-
-------=_NextPart_000_0004_01C32BB7.24BECF00--
+Greg Kroah-Hartman:
+  o I2C: sync i2c-id.h with cvs version
 

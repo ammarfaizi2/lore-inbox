@@ -1,40 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130151AbRBJArH>; Fri, 9 Feb 2001 19:47:07 -0500
+	id <S130438AbRBJAt1>; Fri, 9 Feb 2001 19:49:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130438AbRBJAq6>; Fri, 9 Feb 2001 19:46:58 -0500
-Received: from cheetah.STUDENT.CWRU.Edu ([129.22.164.229]:60800 "EHLO
-	cheetah.STUDENT.cwru.edu") by vger.kernel.org with ESMTP
-	id <S130151AbRBJAqw>; Fri, 9 Feb 2001 19:46:52 -0500
-Date: Fri, 9 Feb 2001 19:46:31 -0500 (EST)
-From: Matthew Gabeler-Lee <msg2@po.cwru.edu>
-X-X-Sender: <cheetah@cheetah.STUDENT.cwru.edu>
-To: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
+	id <S130916AbRBJAtR>; Fri, 9 Feb 2001 19:49:17 -0500
+Received: from mail.valinux.com ([198.186.202.175]:43525 "EHLO
+	mail.valinux.com") by vger.kernel.org with ESMTP id <S130438AbRBJAtE>;
+	Fri, 9 Feb 2001 19:49:04 -0500
+Date: Fri, 9 Feb 2001 16:49:03 -0800 (PST)
+From: Jason Collins <jcollins@valinux.com>
+To: <va-ctcs-users@lists.sourceforge.net>
 cc: <linux-kernel@vger.kernel.org>
-Subject: Re: bttv problems in 2.4.0/2.4.1
-In-Reply-To: <Pine.LNX.4.21.0102091600320.26669-100000@sol.compendium-tech.com>
-Message-ID: <Pine.LNX.4.33.0102091945290.4019-100000@cheetah.STUDENT.cwru.edu>
+Subject: VA-CTCS 1.3.0pre1
+Message-ID: <Pine.LNX.4.30.0102091542050.26410-100000@beefcake.hdqt.valinux.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 9 Feb 2001, Dr. Kelsey Hudson wrote:
+<linux-kernel members, please CC me on reply>
 
-> Do you have framebuffer console compiled into your kernel? I noticed
-> similar behavior on my system when I had framebuffer console compiled in,
-> ACPI or APM (cant remember which, probably ACPI) compiled in, and bttv as
-> modules. System would power off when ACPI was loaded. Other times it would
-> do other stupid things like hang abruptly for no apparent reason.
+It's been far too long, but a new development branch of VA-CTCS (VA
+Cerberus Test Control System) is finally available.  VA Linux has heard my
+pleas for increased manpower in my area so ... expect both minor and major
+releases to turn over faster than the glacial pace of the last six months.
 
-My video card isn't really supported by the framebuffer stuff, at least
-not for accelleration, so I don't have framebuffer support.  I have been
-experiencing abrupt hangs recently too ...
+Highlights since 1.2.xx:
+	- Compiles and runs cleanly under the 2.4 kernel
+	- Removed some of the third party packages in VA-CTCS to ease
+	  my maintenance load
+	- Changed the memory test size computations for the default burn
+	  to fit in with my better knowledge of the Linux VM.  In
+	  particular, avoid exceeding the borrow thresholds in
+	  /proc/sys/vm/buffermem, et. al., to keep from wasting
+	  time swapping.
+	- Added a simple ASCII-only report generator
+	- Massive updates to the FAQ and other documentation
+	- The usual round of bugfixes
 
--- 
-	-Matt
+See the SourceForge project page for release notes, changelog, mailing
+list, and downloads:
 
-If you suspect a man, don't employ him.
+http://sourceforge.net/projects/va-ctcs
+
+Thanks, and happy system thrashing!
+
+--
+Jason T. Collins
+Software Engineer
+VA Linux Systems
+
+(For those unfamiliar with Cerberus...)
+****
+The VA Cerberus Test Control System is a simple, modular test bench with
+modules that can be recombined to beat on hardware and kernels.  The
+included burn-in system combines the modules to try to break hardware.
+VA Linux Systems uses VA-CTCS to test kernel stability as well as the
+reliability of the systems we ship under load.  It is available under the
+GNU General Public License.
+****
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

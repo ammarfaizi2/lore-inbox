@@ -1,55 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261686AbVAMPqP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261678AbVAMPuI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261686AbVAMPqP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 10:46:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261667AbVAMPmf
+	id S261678AbVAMPuI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 10:50:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261675AbVAMPsE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 10:42:35 -0500
-Received: from ms-2.rz.RWTH-Aachen.DE ([134.130.3.131]:37005 "EHLO
-	ms-dienst.rz.rwth-aachen.de") by vger.kernel.org with ESMTP
-	id S261679AbVAMPkw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 10:40:52 -0500
-Date: Mon, 22 Oct 2001 20:45:22 +0200 (CEST)
-From: jarausch@belgacom.net
-Subject: 2.4.13-pre6 breaks Nvidia's kernel module
+	Thu, 13 Jan 2005 10:48:04 -0500
+Received: from fbxmetz.linbox.com ([81.56.128.63]:61333 "EHLO joebar.metz")
+	by vger.kernel.org with ESMTP id S261685AbVAMPmr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 10:42:47 -0500
+Message-ID: <41E696F4.3070700@linbox.com>
+Date: Thu, 13 Jan 2005 16:42:44 +0100
+From: Ludovic Drolez <ludovic.drolez@linbox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en, fr
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Reply-to: jarausch@belgacom.net
-Message-id: <20050113151050.051BEFEC0E@numa-i.igpm.rwth-aachen.de>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; CHARSET=us-ascii
-Content-transfer-encoding: 7BIT
+Subject: RAIT device driver feasibility
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hello,
 
-yes I know, you don't like modules without full sources available.
-But Nvidia is the leading vendor of video cards and all 2.4.x
-kernels up to 2.4.13-pre5 work nice with this module.
+I'd like to know if it's easy to write a RAID like device for tapes (RAIT)...
+For block devices, hooks are present in the kernel code, but for char devices, 
+is there a way to implement a write function for example, which will write in 
+parallel to N /dev/stX tape devices ?
 
-Running pre6 I get
-(==) NVIDIA(0): Write-combining range (0xf0000000,0x2000000)
-(EE) NVIDIA(0): Failed to allocate LUT context DMA
-(EE) NVIDIA(0):  *** Aborting ***
+RAIT already exists in Amanda, in user space, but I'd like to see a generic 
+kernel RAIT driver which could be used by any backup program.
 
+Cheers,
 
-This is Nvidia's 1.0-1541 version of its Linux drivers
-
-Please keep this driver going during the 2.4.x series of the
-kernel if at all possible.
-
-Thanks for looking into it,
-
-Helmut Jarausch
-
-Inst. of Technology
-RWTH Aachen
-Germany
-
-
-Please CC to my private email
-
-jarausch@belgacom.net
-
-
-
+-- 
+Ludovic DROLEZ                              Linbox / Free&ALter Soft
+152 rue de Grigy - Technopole Metz 2000                   57070 METZ
+tel : 03 87 50 87 90                            fax : 03 87 75 19 26

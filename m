@@ -1,21 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132134AbRACEKY>; Tue, 2 Jan 2001 23:10:24 -0500
+	id <S130993AbRACEZT>; Tue, 2 Jan 2001 23:25:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132088AbRACEKO>; Tue, 2 Jan 2001 23:10:14 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:4344 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S129572AbRACEJ7>;
-	Tue, 2 Jan 2001 23:09:59 -0500
-Date: Tue, 2 Jan 2001 22:37:50 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Andreas Dilger <adilger@enel.ucalgary.ca>
-cc: Andreas Dilger <adilger@turbolinux.com>, linux-kernel@vger.kernel.org,
-        "Theodore Y. Ts'o" <tytso@mit.edu>,
-        Ext2 development mailing list 
-	<ext2-devel@lists.sourceforge.net>
-Subject: Re: [RFC] ext2_new_block() behaviour
-In-Reply-To: <200101030147.f031lPa21470@webber.adilger.net>
-Message-ID: <Pine.GSO.4.21.0101022216250.13824-100000@weyl.math.psu.edu>
+	id <S132072AbRACEZK>; Tue, 2 Jan 2001 23:25:10 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:27145 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S130993AbRACEYy>; Tue, 2 Jan 2001 23:24:54 -0500
+Date: Tue, 2 Jan 2001 19:54:15 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Oops in prune_dcache (2.4.0-prerelease)
+In-Reply-To: <3A529F06.5BFA4229@Hell.WH8.TU-Dresden.De>
+Message-ID: <Pine.LNX.4.10.10101021946310.1024-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -23,25 +20,33 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Tue, 2 Jan 2001, Andreas Dilger wrote:
+On Wed, 3 Jan 2001, Udo A. Steinberg wrote:
+> 
+> While under massive disk and cpu load, 2.4.0-prerelease produced
+> the following oops (decode see below)
 
-> This predates me by a while, but I suspect that it is done this way on
-> the assumption it is easier to seek forward on the disk while reading
-> a file rather than seeking backwards.  Also, since with new inodes the
-> goal is initially the first block of the group where the inode lives,
-> the blocks at the start of a group will generally be allocated already,
-> so it is usually a waste of time checking the start of the group for
-> free blocks.
+Hmm.. If I'm not mistaken, this is in dentry_iput() (inline function
+called by prune_one_dentry(), which is _also_ an inline function, which
+is why it gets reported as being in prune_dcache):
 
-Umm... OK, the last argument is convincing. Thanks...
+	if (dentry->d_op && dentry->d_op->d_iput)
+		dentry->d_op->d_iput(dentry, inode);
 
-BTW, what was the reason behind doing preallocation for directories on
-ext2_bread() level? We both buy ourselves an oddity in directory structure
-(preallocated blocks become refered from the inode immediately and they
-are beyond i_size) and get more complicated ext2_alloc_block(). What do
-we win here?
-							Cheers,
-								Al
+and it looks like your dentry->d_op has a value of 0x01000000, so when we
+load the d_op->d_iput pointer, we get a page fault.
+
+The strange thing is that 0x01000000 value, which almost certainly should
+just be NULL. A one-bit error.
+
+Now, I assume this machine has been historically stable, with no history
+of memory corruption problems.. It's entirely possible (and likely) that
+the one-bit error is due to some wild kernel pointer. Which makes this
+_really_ hard to debug.
+
+I'll try to think about it some more, but I'd love to have more reports to
+go on to try to find a pattern..
+
+		Linus
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,80 +1,102 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284376AbRLENBu>; Wed, 5 Dec 2001 08:01:50 -0500
+	id <S284384AbRLENVo>; Wed, 5 Dec 2001 08:21:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284382AbRLENBb>; Wed, 5 Dec 2001 08:01:31 -0500
-Received: from noose.gt.owl.de ([62.52.19.4]:28430 "HELO noose.gt.owl.de")
-	by vger.kernel.org with SMTP id <S284379AbRLENB1>;
-	Wed, 5 Dec 2001 08:01:27 -0500
-Date: Wed, 5 Dec 2001 13:37:20 +0100
-From: Florian Lohoff <flo@rfc822.org>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: "ext3-users@redhat.com" <ext3-users@redhat.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: ext3-0.9.16 against linux-2.4.17-pre2
-Message-ID: <20011205133720.D4916@paradigm.rfc822.org>
-In-Reply-To: <3C0B12C5.F8F05016@zip.com.au> <20011205133204.C4916@paradigm.rfc822.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="6WlEvdN9Dv0WHSBl"
-Content-Disposition: inline
-In-Reply-To: <20011205133204.C4916@paradigm.rfc822.org>
-User-Agent: Mutt/1.3.23i
-Organization: rfc822 - pure communication
+	id <S284385AbRLENVd>; Wed, 5 Dec 2001 08:21:33 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:50700 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S284384AbRLENV1>; Wed, 5 Dec 2001 08:21:27 -0500
+Message-ID: <3C0E1CFD.1E2265FB@evision-ventures.com>
+Date: Wed, 05 Dec 2001 14:11:25 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Deep look into VFS
+In-Reply-To: <E16BJvR-0002uc-00@the-village.bc.nu> <E16BK7Y-0000Rk-00@starship.berlin>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Yerstoday I had  a look into the virtual VFS. Out of this
+the following question araises for me.
 
---6WlEvdN9Dv0WHSBl
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Inside fs/inode.c we have a generic clear_inode(). All fine
+all well at one palce the usage of this function goes as follows:
+(the function in question is iput() from the same file)
 
-On Wed, Dec 05, 2001 at 01:32:04PM +0100, Florian Lohoff wrote:
-> It seems something broken between 2.4.15-pre2 and this update - I am
-> seeing filesystem corruption:
->=20
-> Procmail moans about "locked" mailboxes - Opening them shows that
-> the last mail originates about 4 hours ago although there are coming
-> mails every minute.
->=20
-> procmail: Extraneous locallockfile ignored
-> procmail: Error while writing to "countpl/20011205"
-> procmail: Truncated file to former size
-> procmail: Error while writing to "archive/received-200112"
-> procmail: Truncated file to former size
-> From flo@mediaways.net  Wed Dec  5 13:25:37 2001
->  Subject: Cron <nwmgmt@mgr1> /aol/bin/count.pl
->    Folder: /home/flo/Mail/inbox
->=20
-> (flo@ping)~# ls -la Mail/countpl/20011205 Mail/archive/received-200112
-> -rw-------    1 flo      flo      51200000 Dec  5 13:25 Mail/archive/rece=
-ived-200112
-> -rw-------    1 flo      flo      51200000 Dec  5 13:25 Mail/countpl/2001=
-1205
->=20
-> The last lines of the countpl/20011205 file contain 0 - Cut'n'pasted
-> from "most".
+	if (op && op->delete_inode) {
+		void (*delete)(struct inode *) = op->delete_inode;
+		if (!is_bad_inode(inode))
+			DQUOT_INIT(inode);
+		/* s_op->delete_inode internally recalls clear_inode() */
+		delete(inode);
+	} else
+		clear_inode(inode);
 
-Hand me the brown paperbag and let me die in shame :) Postfix the=20
-ulimit tweaker bit me again ....
+Well my tought was, that it would be nice to avoid
+the explicit callback to inode from driver code in the middle for
+nowhere, which would allow us to change the above code sequence into
+the much cleaner:
 
-Flo
---=20
-Florian Lohoff                  flo@rfc822.org             +49-5201-669912
-Nine nineth on september the 9th              Welcome to the new billenium
+	if (op && op->delete_inode) {
+		void (*delete)(struct inode *) = op->delete_inode;
+		if (!is_bad_inode(inode))
+			DQUOT_INIT(inode);
+		delete(inode);
+	} 
+	clear_inode(inode);
 
---6WlEvdN9Dv0WHSBl
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Therefore I have looked at all the places, where clear_inode
+is actually called inside the FS implementation code.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+shmmem() told me that the above change would be entierly fine with it.
 
-iD8DBQE8DhUAUaz2rXW+gJcRAlRFAKC8MD2HlK5+imRtofFE+UxyRQoJcgCbB9lq
-/0Js/Djv9pSaKH66yDsQVnw=
-=Hu3L
------END PGP SIGNATURE-----
+We have however the following in ext2/ialloc.c:
 
---6WlEvdN9Dv0WHSBl--
+
+/*
+ * NOTE! When we get the inode, we're the only people
+ * that have access to it, and as such there are no
+ * race conditions we have to worry about. The inode
+ * is not on the hash-lists, and it cannot be reached
+ * through the filesystem because the directory entry
+ * has been deleted earlier.
+ *
+ * HOWEVER: we must make sure that we get no aliases,
+ * which means that we have to call "clear_inode()"
+ * _before_ we mark the inode not in use in the inode
+ * bitmaps. Otherwise a newly created file might use
+ * the same inode number (not actually the same pointer
+ * though), and then we'd have two inodes sharing the
+ * same inode number and space on the harddisk.
+ */
+void ext2_free_inode (struct inode * inode)
+{
+...
+	
+	lock_super (sb);
+...
+	/* Do this BEFORE marking the inode not in use or returning an error */
+	clear_inode (inode);
+
+...
+	unlock_super (sb);
+}
+
+Unless I'm compleatly misguided the lock on the superblock
+should entierly prevent the race described inside the header comment
+and we should be able to delete clear_inode from this function.
+
+Question is: Can someone with more knowlendge of the intimidate 
+inner workings of the VFS tell me whatever my suspiction is
+right or not?
+
+Thanks in advance...
+
+PS. Deleting clear_inode() would help to simplify the
+delete_inode parameters quite a significant bit, as
+well as deleting the tail union in struct inode - that's the goal.

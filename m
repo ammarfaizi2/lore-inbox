@@ -1,62 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263809AbTLOP6z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 10:58:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263834AbTLOP6y
+	id S263812AbTLOPzu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 10:55:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263811AbTLOPzu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 10:58:54 -0500
-Received: from fmr99.intel.com ([192.55.52.32]:29673 "EHLO
-	hermes-pilot.fm.intel.com") by vger.kernel.org with ESMTP
-	id S263809AbTLOP6t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 10:58:49 -0500
-Message-ID: <3FDDDA01.20403@intel.com>
-Date: Mon, 15 Dec 2003 17:57:53 +0200
-From: Vladimir Kondratiev <vladimir.kondratiev@intel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031210
-X-Accept-Language: en-us, en, ru
+	Mon, 15 Dec 2003 10:55:50 -0500
+Received: from citrine.spiritone.com ([216.99.193.133]:30955 "EHLO
+	citrine.spiritone.com") by vger.kernel.org with ESMTP
+	id S263809AbTLOPzq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Dec 2003 10:55:46 -0500
+Date: Mon, 15 Dec 2003 07:55:42 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Larry McVoy <lm@bitmover.com>
+cc: linux-kernel@vger.kernel.org, bitkeeper-users@bitmover.com
+Subject: Re: RFC - tarball/patch server in BitKeeper
+Message-ID: <2269690000.1071503741@[10.10.2.4]>
+In-Reply-To: <20031215154226.GD16554@work.bitmover.com>
+References: <20031214172156.GA16554@work.bitmover.com> <2259130000.1071469863@[10.10.2.4]> <20031215154226.GD16554@work.bitmover.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-To: Gabriel Paubert <paubert@iram.es>
-CC: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>,
-       Alan Cox <alan@redhat.com>, Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Martin Mares <mj@ucw.cz>, zaitcev@redhat.com, hch@infradead.org
-Subject: Re: PCI Express support for 2.4 kernel
-References: <3FDCC171.9070902@intel.com> <3FDCCC12.20808@pobox.com> <3FDD8691.80206@intel.com> <20031215103142.GA8735@iram.es>
-In-Reply-To: <20031215103142.GA8735@iram.es>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gabriel Paubert wrote:
+--Larry McVoy <lm@bitmover.com> wrote (on Monday, December 15, 2003 07:42:26 -0800):
 
-Gabriel,
-I verified with PCI-E designers,
-uncacheable memory relates to snoop/non-snoop, not to buffering in 
-bridge. Bridge will still buffer writes.
-The only way to be sure data has arrived, is to perform read.
+> On Sun, Dec 14, 2003 at 10:31:04PM -0800, Martin J. Bligh wrote:
+>> One thing that I've wished for in the past which looks like it *might*
+>> be trivial to do is to grab a raw version of the patch you already
+>> put out in HTML format, eg if I surf down changesets and get to a page
+>> like this:
+>> 
+>> http://linus.bkbits.net:8080/linux-2.5/patch@1.1522?nav=index.html|ChangeSet@-2w|cset@1.1522
+> 
+> We can do that and we will, it's just not hit the top of the priority list.
+> Given past discussions on this list I had thought there was a strong need 
+> for a way to trivially track any BK tree without BK, maybe I misunderstood
+> what was being asked.
 
-Vladimir.
+I suspect different people have different needs ;-)
+ 
+> There isn't any reason we can't do both.
 
->>>Further, PCI posting:  a writeb() / writew() / writel() will not be 
->>>flushed immediately to the processor.  The CPU and/or PCI bridge may 
->>>post (delay/combine) such writes.  I do not think this is a desireable 
->>>effect, for PCI config register accesses.
->>>
->>>      
->>>
->>Good point. Fixed.
->>    
->>
->
->Here I'm somehwat lost. Writes to uncacheable RAM will be in program 
->order and never combined. The bridge itself should not post writes to 
->config space. So it's a matter of pushing the write to the processor
->bus, a PCI read looks very heavy for this. Isn't there a more
->lightweight solution ?
->
->	Regards,
->	Gabriel
->
->  
->
+Thanks!
+
+M.
 

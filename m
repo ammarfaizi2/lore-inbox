@@ -1,60 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273163AbRIPDv1>; Sat, 15 Sep 2001 23:51:27 -0400
+	id <S272270AbRIPFcW>; Sun, 16 Sep 2001 01:32:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273165AbRIPDvR>; Sat, 15 Sep 2001 23:51:17 -0400
-Received: from lsmls01.we.mediaone.net ([24.130.1.20]:23184 "EHLO
-	lsmls01.we.mediaone.net") by vger.kernel.org with ESMTP
-	id <S273163AbRIPDvJ>; Sat, 15 Sep 2001 23:51:09 -0400
-Message-ID: <3BA421C2.761F1EDD@kegel.com>
-Date: Sat, 15 Sep 2001 20:51:30 -0700
-From: Dan Kegel <dank@kegel.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9-dan i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Vitaly Luban <vitaly@luban.org>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][RFC] Signal-per-fd for RT signals
-In-Reply-To: <3BA2AFFF.C7B8C4DF@kegel.com> <3BA2E144.FB0E5D55@luban.org> <3BA2E99A.1134E382@kegel.com> <3BA350A7.7D39FC23@kegel.com> <3BA3C61A.DED5A27A@luban.org> <3BA3D10B.FE3C6C79@kegel.com> <3BA40FEC.A6E0557E@luban.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S273166AbRIPFcC>; Sun, 16 Sep 2001 01:32:02 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:6922 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S272270AbRIPFb4>; Sun, 16 Sep 2001 01:31:56 -0400
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: broken VM in 2.4.10-pre9
+Date: Sun, 16 Sep 2001 05:31:11 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <9o1dev$23l$1@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33L2.0109160031500.7740-100000@flashdance>
+X-Trace: palladium.transmeta.com 1000618315 17555 127.0.0.1 (16 Sep 2001 05:31:55 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 16 Sep 2001 05:31:55 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vitaly Luban wrote:
-> 
-> Dan Kegel wrote:
-> 
-> > But I doubt very much that SIGIO style readiness notification will ever
-> > be used with files.  aio_{read,write} style completion notification is
-> > much more appropriate for file I/O, and my proposal (if I make it) will not
-> > affect that.
-> 
-> Well, when I have an app, that deals primarily with network I/O, and, at the
-> same time has some file I/O, it's only logical to have all I/O handling within
-> the same event loop, and if loop is RT-signals based...
+In article <Pine.LNX.4.33L2.0109160031500.7740-100000@flashdance>,
+Peter Magnusson  <iocc@flashdance.nothanksok.cx> wrote:
+>
+>2.4.10-pre4: quite ok VM, but put little more on the swap than 2.4.7
+>2.4.10-pre8: not good
 
-I agree that having a single event source and event loop is attractive,
-and want Linux to support it.  But my proposal doesn't get in the way of
-that at all.  Let's say you use my patch to pick up network readiness events,
-and have aio_{read,write}() send realtime signals when disk I/O is complete.
-You can distinguish them nicely by using separate signal numbers, or you
-can distinguish them based on the value of si_code (which will be SI_ASYNC
-for the completion notifications, and SI_SIGIO or something like that for the
-readiness notifications).
-No problem, and you still have a unified event queue.
+Ehh..
 
-> > Thanks again for creating and maintaining your patch!  I look forward to
-> > stress-testing the next version.
-> 
-> Could you please try attached one? It's mostly untested, but my home site
-> will be down next week.
-> 
-> And thank you for your efforts also :)
-> I'm looking forward to see a test case, all I could come up with happily
-> runs on the old version.
+There are _no_ VM changes that I can see between pre4 and pre8.
 
-OK, I'll see if I can whip together a test case tomorrow.  (No promises --
-my wife is starting to wonder if I'll ever emerge from my office.)
+>2.4.10-pre9: not good ... Linux didnt had used any swap at all, then i
+>             unrared two very large files at the same time. And now 104
+>             Mbyte swap is used! :-( 2.4.7 didnt do like this.
+>             Best is to use the swap as little as possible.
 
-- Dan
+.. and there are none between pre8 and pre9.
+
+Basically, it sounds lik eyou have tested different loads on different
+kernels, and some loads are nice and others are not.
+
+Also note that the amount of "swap used" is totally meaningless in
+2.4.x. The 2.4.x kernel will _allocate_ the swap backing store much
+earlier than 2.2.x, but that doesn't actuall ymean that it does any of
+the IO. Indeed, allocating the swap backing store just means that the
+swap pages are then kept track of, so that they can be aged along with
+other stores.
+
+So whether Linux uses swap or not is a 100% meaningless indicator of
+"goodness".  The only thing that matters is how well the job gets done,
+ie was it reasonably responsive, and did the big untars finish quickly.. 
+
+Don't look at how many pages of swap were used. That's a statistic,
+nothing more.
+
+		Linus

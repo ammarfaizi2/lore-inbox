@@ -1,68 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262208AbVAYWcM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262197AbVAYWTh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262208AbVAYWcM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 17:32:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262204AbVAYW3u
+	id S262197AbVAYWTh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 17:19:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262183AbVAYWRO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 17:29:50 -0500
-Received: from smtp4.netcabo.pt ([212.113.174.31]:51279 "EHLO
-	exch01smtp10.hdi.tvcabo") by vger.kernel.org with ESMTP
-	id S262207AbVAYW26 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 17:28:58 -0500
-Message-ID: <60892.192.168.1.5.1106686326.squirrel@192.168.1.5>
-In-Reply-To: <87k6q1nynx.fsf@sulphur.joq.us>
-References: <200501201542.j0KFgOwo019109@localhost.localdomain>
-    <87y8eo9hed.fsf@sulphur.joq.us> <20050120172506.GA20295@elte.hu>
-    <87wtu6fho8.fsf@sulphur.joq.us> <20050122165458.GA14426@elte.hu>
-    <87pszvlvma.fsf@sulphur.joq.us> <41F42BD2.4000709@kolivas.org>
-    <877jm3ljo9.fsf@sulphur.joq.us> <41F44AC2.1080609@kolivas.org>
-    <87hdl7v3ik.fsf@sulphur.joq.us> <87651nv356.fsf@sulphur.joq.us>
-    <87ekgbqr2a.fsf@sulphur.joq.us> <41F49735.5000400@kolivas.org>
-    <873bwrpb4o.fsf@sulphur.joq.us> <41F57D94.4010500@kolivas.org>
-    <41F5C347.4030605@kolivas.org> <41F64410.4000702@kolivas.org>
-    <87k6q1nynx.fsf@sulphur.joq.us>
-Date: Tue, 25 Jan 2005 20:52:06 -0000 (WET)
-Subject: Re: [PATCH]sched: Isochronous class v2 for unprivileged soft rt 
-     scheduling
-From: "Rui Nuno Capela" <rncbc@rncbc.org>
-To: "Jack O'Quin" <joq@io.com>
-Cc: "Con Kolivas" <kernel@kolivas.org>, "Alexander Nyberg" <alexn@dsv.su.se>,
-       "Ingo Molnar" <mingo@elte.hu>, "linux" <linux-kernel@vger.kernel.org>,
-       "CK Kernel" <ck@vds.kolivas.org>
-User-Agent: SquirrelMail/1.4.3a
-X-Mailer: SquirrelMail/1.4.3a
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
-X-OriginalArrivalTime: 25 Jan 2005 22:28:50.0569 (UTC) FILETIME=[3E6D4F90:01C5032D]
+	Tue, 25 Jan 2005 17:17:14 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:6851 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262206AbVAYWIb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 17:08:31 -0500
+Date: Tue, 25 Jan 2005 23:08:14 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Chris Wright <chrisw@osdl.org>
+Cc: "Jack O'Quin" <joq@io.com>, Paul Davis <paul@linuxaudiosystems.com>,
+       Con Kolivas <kernel@kolivas.org>, linux <linux-kernel@vger.kernel.org>,
+       rlrevell@joe-job.com, CK Kernel <ck@vds.kolivas.org>,
+       utz <utz@s2y4n2c.de>, Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
+       Rui Nuno Capela <rncbc@rncbc.org>, Arjan van de Ven <arjanv@redhat.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: [patch, 2.6.11-rc2] sched: /proc/sys/kernel/rt_cpu_limit tunable
+Message-ID: <20050125220814.GA11331@elte.hu>
+References: <87hdl940ph.fsf@sulphur.joq.us> <20050124085902.GA8059@elte.hu> <20050124125814.GA31471@elte.hu> <87k6q2umla.fsf@sulphur.joq.us> <20050125083724.GA4812@elte.hu> <87oefdfaxp.fsf@sulphur.joq.us> <20050125214900.GA9421@elte.hu> <20050125135508.A24171@build.pdx.osdl.net> <20050125215758.GA10811@elte.hu> <20050125140302.C24171@build.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050125140302.C24171@build.pdx.osdl.net>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jack O'Quin wrote:
->
-> If you grep your log file for 'client failure:', you'll probably find
-> that JACK has reacted to the deteriorating situation by shutting down
-> some of its clients.  The number of 'client failure:' messages is
-> *not* the number of clients shut down, there is some repetition (not
-> sure why).  This will give the actual number...
->
->   $ grep '^client failure:' ${LOGFILE} | cut -f4 -d' ' | sort -u | wc -l
->
-> It would help if the test script reported this value.
->
 
-I will include it on the next jack_test4.2 :)
-If you remember of anything else, please ask.
+* Chris Wright <chrisw@osdl.org> wrote:
 
-Cheers.
--- 
-rncbc aka Rui Nuno Capela
-rncbc@rncbc.org
+> > did that thread go into technical details? There are some rlimit users
+> > that might not be prepared to see the rlimit change under them. The
+> > RT_CPU_RATIO one ought to be safe, but generally i'm not so sure.
+> 
+> Not really.  I mentioned the above, as well as the security concern.
+> Right now, at least the task_setrlimit hook would have to change to
+> take into account the task.  And I never convinced myself that async
+> changes would be safe for each rlimit.
 
-P.S. I'm under a terrible cold|flu right now #( that's why I didn't had
-the time or patience to test all these new kernel iso/rt_cpu_limit
-goodies. So sorry.
+e.g. the stack rlimit looks dangerous, if any VM codepath ever looks
+twice on it (and relies on it being the same, somehow).
 
+But if someone reviewed all of the rlimit use in the kernel, we could
+make it a policy that rlimits might change. Any unsafe use could be made
+safe pretty easily. Since they are ulongs they are updated atomically
+even without any locking - but e.g. the default and the hard limit might
+change separately. (from the viewpoint of rlimit-using kernel code.)
 
+obviously a remote rlimit must listen to same kind of security
+permissions as e.g. ptrace or signal sending.
+
+	Ingo

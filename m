@@ -1,50 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313000AbSC0M3v>; Wed, 27 Mar 2002 07:29:51 -0500
+	id <S313005AbSC0NAe>; Wed, 27 Mar 2002 08:00:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313001AbSC0M3l>; Wed, 27 Mar 2002 07:29:41 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:6797 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S313000AbSC0M3i>;
-	Wed, 27 Mar 2002 07:29:38 -0500
-Message-ID: <3CA1BABB.7030605@yahoo.com>
-Date: Wed, 27 Mar 2002 15:27:39 +0300
-From: Stas Sergeev <stssppnn@yahoo.com>
-Reply-To: stas.orel@mailcity.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2.1) Gecko/20010901
-X-Accept-Language: ru, en
+	id <S313004AbSC0NAZ>; Wed, 27 Mar 2002 08:00:25 -0500
+Received: from isengard.sl.pt ([212.55.140.11]:39941 "EHLO angelina.sl.pt")
+	by vger.kernel.org with ESMTP id <S313005AbSC0NAT>;
+	Wed, 27 Mar 2002 08:00:19 -0500
+Date: Wed, 27 Mar 2002 13:06:01 +0000 (WET)
+From: Nuno Miguel Rodrigues <nmr@co.sapo.pt>
+X-X-Sender: <nmr@angelina.sl.pt>
+To: Frank Schaefer <frank.schafer@setuza.cz>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Scheduler priorities
+In-Reply-To: <1017222101.1123.12.camel@ADMIN>
+Message-ID: <20020327125828.U2343-100000@angelina.sl.pt>
 MIME-Version: 1.0
-To: Mike Galbraith <mikeg@wen-online.de>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Anyone else seen VM related oops on 2.4.18?
-Content-Type: text/plain; charset=KOI8-R; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+On 27 Mar 2002, Frank Schaefer wrote:
 
-Mike Galbraith wrote:
-> You can use dri with your 7500?
-Yes. And it works really great until
-either locks up the system or gets killed
-by an Oops.
+> On Tue, 2002-03-26 at 18:55, Mike Fedyk wrote:
+> > On Tue, Mar 26, 2002 at 11:41:39AM +0000, Nuno Miguel Rodrigues wrote:
+> > >
+> > > Hi,
+> > >
+> > > Does Linux support a fixed process scheduling priority, in the 2.4.x
+> > > releases?
+> > > If not, are there any plans to support it?
+> >
+> > Can you elaborate?  What do you mean by "fixed process"?  Minimum percentage
+> > of CPU?
+> Hi,
+>
+> I'd read this ...
+> a fixed prority of some process ...
 
-> Same processor as 8500 cards?
-No idea.
+Indeed.  In other words a priority that is not dynamically adjusted over
+time.  Like a real-time scheduling priority.
 
-> If so, which X sources are you using?
-Mine works with 4.2.0's DRI, with latest
-DRI from dri.sourceforge.net and with an
-alternative drivers from gatos.sourceforge.net.
-They all locks my system probably due to
-an AMD Irongate.
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-> I bought an 8500 Evil Master II specifically because I saw Radeon
->    support in the kernel and X source.  Much to my chagrin, I can't
->    use dri because the source (4.2.0) says dri is not yet implimented
->    for that processor.
-I was also confused by the fact that 7500
-support doesn't exist in 4.1.0, but 4.2.0
-really supports it.
-Anyway, visit gatos.sourceforge.net and try
-the drivers from there.

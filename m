@@ -1,32 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129388AbRBBVoK>; Fri, 2 Feb 2001 16:44:10 -0500
+	id <S129049AbRBBVrK>; Fri, 2 Feb 2001 16:47:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129419AbRBBVoA>; Fri, 2 Feb 2001 16:44:00 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:43784 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129049AbRBBVnx>; Fri, 2 Feb 2001 16:43:53 -0500
-Subject: Re: [PATCH] G450 and lockup
-To: vandrove@vc.cvut.cz (Petr Vandrovec)
-Date: Fri, 2 Feb 2001 21:44:53 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
-        linux-fbdev@vuser.vu.union.edu
-In-Reply-To: <20010202195345.A1389@vana.vc.cvut.cz> from "Petr Vandrovec" at Feb 02, 2001 07:53:45 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S129181AbRBBVrA>; Fri, 2 Feb 2001 16:47:00 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:65031 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S129049AbRBBVqu>; Fri, 2 Feb 2001 16:46:50 -0500
+Date: Fri, 2 Feb 2001 15:41:29 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] PCI-SCI Drivers v1.1-6 released
+Message-ID: <20010202154129.A2911@vger.timpanogas.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14Oo0l-0007EN-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Mutt 1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->   Alan, I'm sending it to you and not to Linus, as ac1 contains newer
-> matroxfb than Linus tree and doing otherwise would make your work harder
-> without any reason. But please make sure that Linus's 2.4.2 will contain
-> this fix.
 
-I can try. You might want to send him the stuff too though 8)
+
+Linux Kernel,
+
+(Sorry, had one more change that did not make the patch.  this release
+contains the corrected patch).
+
+Version 1.1-6 of the Dolphin PCI-SCI (Scalable Coherent Interface) drivers
+for Linux kernels 2.2.X and 2.4.X have been posted at 
+vger.timpanogas.org:/sci.  These drivers are freely available under
+the GNU public license and are provided in both RPM and tar.gz 
+formats.
+
+NOTES: 
+
+This release corrects an SMP/non-SMP auto-detection problem during 
+driver install. If someone is using an SMP kernel on a single processor
+system, this version checks the kernel build tree to determine which 
+option was built with the drivers in the /usr/src/linux/.config 
+file prior to installing the drivers.
+
+This version corrects a reported bug for those folks who compile 
+an SMP kernel on a APIC supported single CPU system during driver
+install.
+
+Jeff
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

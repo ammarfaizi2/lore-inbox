@@ -1,62 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263618AbUJ2VxD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263587AbUJ2Uw2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263618AbUJ2VxD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 17:53:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263615AbUJ2VuY
+	id S263587AbUJ2Uw2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 16:52:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263577AbUJ2UvD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 17:50:24 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:18663 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S263524AbUJ2VpE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 17:45:04 -0400
-Date: Fri, 29 Oct 2004 23:46:02 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Florian Schmidt <mista.tapas@gmx.net>,
-       Paul Davis <paul@linuxaudiosystems.com>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       LKML <linux-kernel@vger.kernel.org>, mark_h_johnson@raytheon.com,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       jackit-devel <jackit-devel@lists.sourceforge.net>,
-       Rui Nuno Capela <rncbc@rncbc.org>
-Subject: Re: [Fwd: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4]
-Message-ID: <20041029214602.GA15605@elte.hu>
-References: <20041029170237.GA12374@elte.hu> <20041029170948.GA13727@elte.hu> <20041029193303.7d3990b4@mango.fruits.de> <20041029172151.GB16276@elte.hu> <20041029172243.GA19630@elte.hu> <20041029203619.37b54cba@mango.fruits.de> <20041029204220.GA6727@elte.hu> <20041029233117.6d29c383@mango.fruits.de> <20041029212545.GA13199@elte.hu> <1099086166.1468.4.camel@krustophenia.net>
+	Fri, 29 Oct 2004 16:51:03 -0400
+Received: from pfepa.post.tele.dk ([195.41.46.235]:12671 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S263548AbUJ2Ufu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 16:35:50 -0400
+Date: Sat, 30 Oct 2004 00:36:24 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       linux-arch@vger.kernel.org
+Subject: Re: kbuild/all archs: Sanitize creating offsets.h
+Message-ID: <20041029223624.GA18655@mars.ravnborg.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Andrew Morton <akpm@osdl.org>, linux-arch@vger.kernel.org
+References: <20041028185917.GA9004@mars.ravnborg.org> <20041028204430.C11436@flint.arm.linux.org.uk> <20041028215959.GA17314@mars.ravnborg.org> <20041028220024.D11436@flint.arm.linux.org.uk> <20041028234549.GB17314@mars.ravnborg.org> <20041029212852.GA16634@mars.ravnborg.org> <20041029205106.H31627@flint.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1099086166.1468.4.camel@krustophenia.net>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <20041029205106.H31627@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Lee Revell <rlrevell@joe-job.com> wrote:
-
-> On Fri, 2004-10-29 at 23:25 +0200, Ingo Molnar wrote:
-> > > will do so. btw: i think i'm a bit confused right now. What debugging
-> > > features should i have enabled for this test?
+On Fri, Oct 29, 2004 at 08:51:06PM +0100, Russell King wrote:
+> On Fri, Oct 29, 2004 at 11:28:52PM +0200, Sam Ravnborg wrote:
+> > On Fri, Oct 29, 2004 at 01:45:49AM +0200, Sam Ravnborg wrote:
+> > > On Thu, Oct 28, 2004 at 10:00:24PM +0100, Russell King wrote:
+> > > > > Did you apply the patch that enabled kbuild files to be named Kbuild?
+> > > > > It looks like this patch is missing.
+> > > > 
+> > > > I applied three patches.  The first was "kbuild: Prefer Kbuild as name of
+> > > > the kbuild files"
+> > > > 
+> > > > > If you did apply the patch could you please check if the asm->asm-arm
+> > > > > symlink exists when the error happens and that a file named Kbuild is
+> > > > > located in the directory: include/asm-arm/
+> > > 
+> > > OK - I see it now.
+> > > It's in i386 also - I will have a fix ready tomorrow. Thanks for testing!
 > > 
-> > this particular one (atomicity-checking) is always-enabled if you have
-> > the -RT patch applied (it's a really cheap check).
+> > Fix attached - next time I better check O= support myself.
+> > Russell - I would be glad if you could test this version. There is 
+> > some symlink handling for arm I like to see tested.
 > 
-> One more question, what do you recommend the priorities of the IRQ
-> threads be set to?  AIUI for xrun-free operation with JACK, all that
-> is needed is to set the RT priorities of the soundcard IRQ thread
-> highest, followed by the JACK threads, then the other IRQ threads.  Is
-> this correct?
+> Getting better, but still not right:
 
-correct. softirqs are not used by the sound subsystem so there's no
-ksoftirqd dependency.
+Thanks.
+Building arm toolchain atm so I can test myself.
+The .arch stuff was the main reason to post arm.
 
-	Ingo
+	Sam

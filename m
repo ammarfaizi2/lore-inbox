@@ -1,65 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290259AbSAaKmK>; Thu, 31 Jan 2002 05:42:10 -0500
+	id <S291007AbSAaKm0>; Thu, 31 Jan 2002 05:42:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290596AbSAaKl5>; Thu, 31 Jan 2002 05:41:57 -0500
-Received: from helen.CS.Berkeley.EDU ([128.32.131.251]:49553 "EHLO
-	helen.CS.Berkeley.EDU") by vger.kernel.org with ESMTP
-	id <S290259AbSAaKlg>; Thu, 31 Jan 2002 05:41:36 -0500
-Date: Thu, 31 Jan 2002 02:41:29 -0800
-From: Josh MacDonald <jmacd@CS.Berkeley.EDU>
-To: Momchil Velikov <velco@fadata.bg>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Radix-tree pagecache for 2.5
-Message-ID: <20020131024128.B14482@helen.CS.Berkeley.EDU>
-In-Reply-To: <Pine.LNX.4.33.0201291515480.1747-100000@penguin.transmeta.com> <87d6zrlefa.fsf@fadata.bg> <15448.28224.481925.430169@gargle.gargle.HOWL> <87wuxzjxjm.fsf@fadata.bg>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <87wuxzjxjm.fsf@fadata.bg>; from velco@fadata.bg on Thu, Jan 31, 2002 at 12:15:09AM +0200
+	id <S290596AbSAaKmM>; Thu, 31 Jan 2002 05:42:12 -0500
+Received: from turing.cs.hmc.edu ([134.173.42.99]:1473 "EHLO turing.cs.hmc.edu")
+	by vger.kernel.org with ESMTP id <S290521AbSAaKl6>;
+	Thu, 31 Jan 2002 05:41:58 -0500
+Date: Thu, 31 Jan 2002 02:43:00 -0800 (PST)
+From: Nathan Field <nathan@cs.hmc.edu>
+To: <linux-kernel@vger.kernel.org>
+Subject: BUG: PTRACE_POKETEXT modifies memory in related processes
+Message-ID: <Pine.GSO.4.32.0201310055030.23602-100000@turing.cs.hmc.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Momchil Velikov (velco@fadata.bg):
-> >>>>> "John" == John Stoffel <stoffel@casc.com> writes:
-> 
-> Momchil> Memory overhead due to allocator overhead is of no concern with the
-> Momchil> slab allocator. What matters most is probably the overhead of the
-> Momchil> radix tree nodes themselves, compared to the two pointers in struct
-> Momchil> page with the hash table approach. rat-4 variant ought to have less
-> Momchil> overhead compared to rat-7 at the expense of deeper/higher tree. I
-> Momchil> have no figures for the actual memory usage though. For small files it
-> Momchil> should be negligible, i.e. one radix tree node, 68 or 516 bytes for
-> Momchil> rat-4 or rat-7, for a file of size up to 65536 or 524288 bytes.  The
-> Momchil> worst case would be very large file with a few cached pages with
-> Momchil> offsets uniformly distributed across the whole file, that is having
-> Momchil> deep tree with only one page hanging off each leaf node.
-> 
-> John> Isn't this a good place to use AVL trees then, since they balance
-> John> automatically?  Admittedly, it may be more overhead than we want in
-> John> the case where the tree is balanced by default anyway.  
-> 
-> The widespread opinion is that binary trees are generally way too deep
-> compared to radix trees, so searches have larger cache footprint.
+I believe I have found a bug in recent 2.4 linux kernels (at least 2.4.17)
+running on x86 related to using ptrace to modify a processes memory. From
+a quick scan of the 2.4.17 code it looks like ptrace.c:access_process_vm
+is not checking to see if the page of memory it is writing to has write
+permission, so it is not properly copy-on-write'ing. This means that if I
+have a simple program like this:
 
-I've posted this before -- my cache-optimized skip list solves the
-problem of balanced-tree cache footprint.  It uses cacheline-sized
-nodes and per-node locking to avoid false-sharing and increase 
-concurrency.  The memory usage for the skip list is also less than
-the red-black tree for trees larger than several hundred nodes.
+main() {
+  int pid = fork();
+  while(1) {
+    printf("pid is: %d\n", pid);
+    sleep(1);
+  }
+}
 
-I posted a graph on space consumption (using the Linux vm_area_struct to 
-calculate space overhead) at:
+and I set a breakpoint on the printf() line in the parent both the parent
+and the child will hit that breakpoint.
 
-	http://prdownloads.sourceforge.net/skiplist/slrb_space.gif
+This bug was not present in any 2.2 kernel that I've tested or in 2.4.2 or
+2.4.7 (RH stock kernels for 7.1 and 7.2). Looking at the code for 2.4.14 I
+noticed that access_one_page, which is called through access_process_vm,
+does a lot more work to make sure that page faults are handled correctly.
+I haven't tested 2.4.14 though, so I can't say that it does the correct
+thing. I'm not familiar with kernel source, but it looks to me like
+get_user_pages is supposed to handle the fault, and it is being passed a
+len of 1 rather than the len passed into access_process_vm. Not that I
+think that's the bug, just an observation.
 
-There are also results for concurrency and performance as a function 
-of node size.
+I'm more than willing to test out patches, provide more information, or
+just have a fireside chat. Please CC replies to my address as I'm on the
+daily digest list.
 
--josh
+	nathan
 
--- 
-PRCS version control system    http://sourceforge.net/projects/prcs
-Xdelta storage & transport     http://sourceforge.net/projects/xdelta
-Need a concurrent skip list?   http://sourceforge.net/projects/skiplist
+------------
+Nathan Field  Root is not something to be shared with strangers.
+
+"It is commonly the case with technologies that you can get the best
+ insight about how they work by watching them fail."
+        -- Neal Stephenson
+

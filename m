@@ -1,40 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262148AbVBQNVv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262150AbVBQNWP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262148AbVBQNVv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 08:21:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262150AbVBQNVv
+	id S262150AbVBQNWP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 08:22:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262146AbVBQNWP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 08:21:51 -0500
-Received: from mail.charite.de ([160.45.207.131]:30120 "EHLO mail.charite.de")
-	by vger.kernel.org with ESMTP id S262148AbVBQNVu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 08:21:50 -0500
-Date: Thu, 17 Feb 2005 14:21:48 +0100
-From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-To: Dale Blount <linux-kernel@dale.us>, linux-kernel@vger.kernel.org
-Subject: Re: Oops in 2.6.10-ac12 in kjournald (journal_commit_transaction)
-Message-ID: <20050217132148.GE6680@charite.de>
-Mail-Followup-To: Dale Blount <linux-kernel@dale.us>,
-	linux-kernel@vger.kernel.org
-References: <20050215145618.GP24211@charite.de> <20050216153338.GA26953@atrey.karlin.mff.cuni.cz> <20050216200441.GH19871@charite.de> <1108590885.17089.17.camel@dale.velocity.net> <20050216145548.53f67fec.akpm@osdl.org> <20050217105818.GS6680@charite.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050217105818.GS6680@charite.de>
-User-Agent: Mutt/1.5.6+20040907i
+	Thu, 17 Feb 2005 08:22:15 -0500
+Received: from 213-229-38-66.static.adsl-line.inode.at ([213.229.38.66]:17830
+	"HELO mail.falke.at") by vger.kernel.org with SMTP id S262150AbVBQNWJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Feb 2005 08:22:09 -0500
+Message-ID: <42149A1D.4020901@winischhofer.net>
+Date: Thu, 17 Feb 2005 14:20:29 +0100
+From: Thomas Winischhofer <thomas@winischhofer.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050116 Thunderbird/1.0 Mnenhy/0.6.0.104
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: bruno.virlet@gmail.com
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: AMD 64 and Kernel AGPart support
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> > The best way to do that is to ensure that the kernel was built with
-> > CONFIG_DEBUG_INFO, note the offending EIP value, then do
-> > 
-> > # gdb vmlinux
-> > (gdb) l *0xc0<whatever>
-> 
-> I'm rebuilding the ac12 kernel which crashed on me after just one day
-> and will reboot it today.
 
-Is it normal that the kernel with debugging enabled is not larger than
-the normal kernel?
+I wondered about this a couple of minutes ago, too. I have a SiS760 and
+can't enable AGP support either.
+
+What host bridge does your system have? If it's anything but a 760, the
+agpgart code for sis needs to be patched by adding the proper PCI ID.
+(All this apart from the !X86_64 in the Kconfig file.)
+
+I am running 32bit only at the moment (waiting for a new harddisk to
+install, the 32bit system is only for some initial testing), but does
+AGP compile and initialize correctly if you remove the !X86_64 in
+drivers/char/agp/Kconfig at the AGP_SIS entry?
+
+Thomas
+
+- --
+Thomas Winischhofer
+Vienna/Austria
+thomas AT winischhofer DOT net	       *** http://www.winischhofer.net
+twini AT xfree86 DOT org
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQFCFJodzydIRAktyUcRAoIlAJ9jHr0rvTzx4Ea5eLWZsmhj3h9iBgCgvt6r
+aSKGQteRZWegCJq3i3Lmf+c=
+=y/95
+-----END PGP SIGNATURE-----

@@ -1,51 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262966AbUC3Ari (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 19:47:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263301AbUC3Arh
+	id S263301AbUC3Ay6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 19:54:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263338AbUC3Ay6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 19:47:37 -0500
-Received: from mtvcafw.sgi.com ([192.48.171.6]:4311 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S262966AbUC3Arg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 19:47:36 -0500
-Date: Mon, 29 Mar 2004 15:50:55 -0800
-From: Paul Jackson <pj@sgi.com>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: colpatch@us.ibm.com, linux-kernel@vger.kernel.org, mbligh@aracnet.com,
-       akpm@osdl.org, haveblue@us.ibm.com
-Subject: Re: [PATCH] mask ADT: bitmap and bitop tweaks [1/22]
-Message-Id: <20040329155055.4c032a5e.pj@sgi.com>
-In-Reply-To: <20040329235233.GV791@holomorphy.com>
-References: <20040329041249.65d365a1.pj@sgi.com>
-	<1080601576.6742.43.camel@arrakis>
-	<20040329235233.GV791@holomorphy.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 29 Mar 2004 19:54:58 -0500
+Received: from [202.65.75.150] ([202.65.75.150]:20354 "EHLO
+	pythia.bakeyournoodle.com") by vger.kernel.org with ESMTP
+	id S263301AbUC3Ay4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Mar 2004 19:54:56 -0500
+From: Tony Breeds <tony@bakeyournoodle.com>
+Date: Tue, 30 Mar 2004 08:47:18 +0800
+To: Jim Ruxton <cinetron@passport.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Re: 2.6..5-rc2 "make modules" fails in drivers/scsi/scsi_transport_spi.c
+Message-ID: <20040330004718.GY3445@bakeyournoodle.com>
+Mail-Followup-To: Jim Ruxton <cinetron@passport.ca>,
+	linux-kernel@vger.kernel.org
+References: <4061A548.8060605@passport.ca>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4061A548.8060605@passport.ca>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> No, not those two. xor of 0's is 0 again. and of 0 and anything is 0 again.
+On Wed, Mar 24, 2004 at 10:12:08AM -0500, Jim Ruxton wrote:
+> Hi any thoughts what I can do to fix this? Thanks
+> A reply to me as well as the list would be appreciated.
+> 
+> LD [M] drivers/scsi/scsi_mod.o
+> CC [M] drivers/scsi/scsi_transport_spi.o
+> drivers/scsi/scsi_transport_spi.c: In function `spi_dv_retrain':
+> drivers/scsi/scsi_transport_spi.c:388: parse error before `;'
+> drivers/scsi/scsi_transport_spi.c:392: parse error before `;'
+> drivers/scsi/scsi_transport_spi.c: In function `spi_dv_device_internal':
+> drivers/scsi/scsi_transport_spi.c:463: parse error before `;'
+> drivers/scsi/scsi_transport_spi.c:475: parse error before `;'
+> drivers/scsi/scsi_transport_spi.c:494: parse error before `;'
+> drivers/scsi/scsi_transport_spi.c: In function `spi_dv_device':
+> drivers/scsi/scsi_transport_spi.c:539: parse error before `;'
+> drivers/scsi/scsi_transport_spi.c:543: parse error before `;'
+> make[2]: *** [drivers/scsi/scsi_transport_spi.o] Error 1
+> make[1]: *** [drivers/scsi] Error 2
+> make: *** [drivers] Error 2
 
-I agree with Bill on this.
+I bet you're using an old (gcc-2.95)  Try:
 
+################################################################################
+--- 2.6.5-rc2.clean/drivers/scsi/scsi_transport_spi.c	2004-03-30 10:45:44.000000000 +1000
++++ 2.6.5-rc2.scsi/drivers/scsi/scsi_transport_spi.c	2004-03-30 10:51:01.000000000 +1000
+@@ -33,7 +33,7 @@
+ #include <scsi/scsi_transport.h>
+ #include <scsi/scsi_transport_spi.h>
+ 
+-#define SPI_PRINTK(x, l, f, a...)	printk(l "scsi(%d:%d:%d:%d): " f, (x)->host->host_no, (x)->channel, (x)->id, (x)->lun, ##a)
++#define SPI_PRINTK(x, l, f, a...)	printk(l "scsi(%d:%d:%d:%d): " f, (x)->host->host_no, (x)->channel, (x)->id, (x)->lun , ##a)
+ 
+ static void transport_class_release(struct class_device *class_dev);
+ 
+################################################################################
 
-> It looks like Paul wants those invariants.
+Yours Tony
 
-No - bitmap wants these invariants, and I wanted bitmap to be
-consistent.  It's an exposed API in its own right.  Since it mostly
-already had filtering of unused bits on Boolean/scalar ops, and
-avoidance of setting unused bits on proper calls, I completed that
-model.
+        linux.conf.au       http://lca2005.linux.org.au/
+	Apr 18-23 2005      The Australian Linux Technical Conference!
 
-For masks, I promise not to set them if you don't screw up, but I don't
-add any code to protect against such, and I don't hestitate to presume
-the unused bits are always zero whenever it is convenient to do so.
-
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373

@@ -1,45 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129258AbQKHTr6>; Wed, 8 Nov 2000 14:47:58 -0500
+	id <S129602AbQKHTxR>; Wed, 8 Nov 2000 14:53:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129224AbQKHTrr>; Wed, 8 Nov 2000 14:47:47 -0500
-Received: from mauve.csi.cam.ac.uk ([131.111.8.38]:8652 "EHLO
-	mauve.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S129102AbQKHTrf>; Wed, 8 Nov 2000 14:47:35 -0500
-From: "James A. Sutherland" <jas88@cam.ac.uk>
-To: George Anzinger <george@mvista.com>
-Subject: Re: Installing kernel 2.4
-Date: Wed, 8 Nov 2000 19:43:46 +0000
-X-Mailer: KMail [version 1.0.28]
-Content-Type: text/plain; charset=US-ASCII
-Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
-        "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <200011081205.eA8C5ui27838@pincoya.inf.utfsm.cl> <00110816543500.01639@dax.joh.cam.ac.uk> <3A098F11.1B89EB7B@mvista.com>
-In-Reply-To: <3A098F11.1B89EB7B@mvista.com>
-MIME-Version: 1.0
-Message-Id: <00110819463200.01915@dax.joh.cam.ac.uk>
-Content-Transfer-Encoding: 7BIT
+	id <S129601AbQKHTxI>; Wed, 8 Nov 2000 14:53:08 -0500
+Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:18858 "EHLO
+	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S129582AbQKHTw6>; Wed, 8 Nov 2000 14:52:58 -0500
+Date: Wed, 8 Nov 2000 21:52:38 +0100
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+Cc: Rik van Riel <riel@conectiva.com.br>,
+        Szabolcs Szakacsits <szaka@f-secure.com>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, Linus Torvalds <torvalds@transmeta.com>,
+        Ingo Molnar <mingo@elte.hu>
+Subject: Re: Looking for better VM
+Message-ID: <20001108215238.C947@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <Pine.LNX.4.05.10011081450320.3666-100000@humbolt.nl.linux.org> <Pine.LNX.3.96.1001108172338.7153A-100000@artax.karlin.mff.cuni.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.LNX.3.96.1001108172338.7153A-100000@artax.karlin.mff.cuni.cz>; from mikulas@artax.karlin.mff.cuni.cz on Wed, Nov 08, 2000 at 05:36:40PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 08 Nov 2000, George Anzinger wrote:
-> But, here the customer did run the configure code (he said he did not
-> change anything).  Isn't this where the machine should be diagnosed and
-> the right options chosen?  Need a way to say it is a cross build, but
-> that shouldn't be too hard.
+On Wed, Nov 08, 2000 at 05:36:40PM +0100, Mikulas Patocka wrote:
+> BTW. Why does your OOM killer in 2.4 try to kill process that mmaped most
+> memory? mmap is hamrless. mmap on files can't eat memory and swap.
 
-Why default to incompatibility?! If the user explicitly says "I really do want
-a kernel which only works on this specific machine as it is now, and I want it
-to break otherwise", fine. Don't make it a default!
+Don't complain, build your own and test it ;-)
 
-BTW: Has anyone benchmarked the different optimizations - i.e. how much
-difference does optimizing for a Pentium make when running on a PII? More to
-the point, how about optimizing non-exclusively for a Pentium, so the code
-still runs on earlier CPUs?
+Apply my patch
 
+http://www.tu-chemnitz.de/~ioe/oom_kill_api.patch
 
-James.
+and install your own OOM handler using install_oom_killer() 
+from <linux/swap.h>. It has all the needed documentation inline
+that will be build along the kernel-api-book.
+
+Have fun researching in this area.
+
+PS: Applies cleanly since oom_kill.c exists and also against
+   2.4.0-test11-pre1.
+
+Regards
+
+Ingo Oeser
+-- 
+To the systems programmer, users and applications
+serve only to provide a test load.
+<esc>:x
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

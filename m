@@ -1,46 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262046AbVCHNZ4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262051AbVCHNb4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262046AbVCHNZ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 08:25:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262047AbVCHNZz
+	id S262051AbVCHNb4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 08:31:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262047AbVCHNbz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 08:25:55 -0500
-Received: from aveo.vortech.net ([206.183.8.5]:58336 "EHLO aveo.vortech.net")
-	by vger.kernel.org with ESMTP id S262046AbVCHNZy (ORCPT
+	Tue, 8 Mar 2005 08:31:55 -0500
+Received: from users.linvision.com ([62.58.92.114]:57564 "HELO bitwizard.nl")
+	by vger.kernel.org with SMTP id S262049AbVCHNbx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 08:25:54 -0500
-From: Joshua Jackson <lkernel@vortech.net>
-Organization: Vortech Consulting
-To: linux-kernel@vger.kernel.org, johnpol@2ka.mipt.ru
-Subject: Re: [0/many] Acrypto - asynchronous crypto layer for linux kernel 2.6
-Date: Tue, 8 Mar 2005 08:24:35 -0500
-User-Agent: KMail/1.7.1
-Cc: Fruhwirth Clemens <clemens@endorphin.org>, cryptoapi@lists.logix.cz
-References: <11102278521318@2ka.mipt.ru> <1110229998.13172.48.camel@ghanima> <20050308004944.60fedb51@zanzibar.2ka.mipt.ru>
-In-Reply-To: <20050308004944.60fedb51@zanzibar.2ka.mipt.ru>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 8 Mar 2005 08:31:53 -0500
+Date: Tue, 8 Mar 2005 14:31:49 +0100
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Vineet Joglekar <vintya@excite.com>
+Cc: linux-kernel@vger.kernel.org, linux-c-programming@vger.kernel.org
+Subject: Re: Random number generator in Linux kernel
+Message-ID: <20050308133149.GC31844@harddisk-recovery.com>
+References: <20050307231853.9F661B6E7@xprdmailfe20.nwk.excite.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200503080824.35464.lkernel@vortech.net>
+In-Reply-To: <20050307231853.9F661B6E7@xprdmailfe20.nwk.excite.com>
+User-Agent: Mutt/1.3.28i
+Organization: Harddisk-recovery.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 07 March 2005 4:49 pm, Evgeniy Polyakov wrote:
->
-> Unfortunately acrypto patch is more than 200kb, so neither mail list
-> will accept it, so I've sent it in such form :)
->
+On Mon, Mar 07, 2005 at 06:18:53PM -0500, Vineet Joglekar wrote:
+> I want a function where I will be supplying a seed to that function
+> as an input, and will get a random number back. If same seed is used,
+> same number should be generated again.
 
-As per the FAQ, very large patches are often best submitted as a URL. In case 
-you don't have a place to host it, you are welcome to email me the complete 
-patch and I will post a URL link.
+Google for "Numerical recipes in C", it has a complete section about
+random numbers, including a couple of functions that do what you want.
 
-I am very interested in your async changes and possibly porting some of the 
-Free/OpenBSD HW crypto drivers over to it.
+
+Erik
 
 -- 
-Joshua Jackson
-Vortech Consulting
-http://www.vortech.net
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

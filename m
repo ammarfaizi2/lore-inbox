@@ -1,114 +1,166 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262505AbVBCHJ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262569AbVBCHK5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262505AbVBCHJ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 02:09:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262503AbVBCHJ0
+	id S262569AbVBCHK5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 02:10:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262451AbVBCHK5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 02:09:26 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:24233 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262995AbVBCHIO (ORCPT
+	Thu, 3 Feb 2005 02:10:57 -0500
+Received: from sv1.valinux.co.jp ([210.128.90.2]:18668 "EHLO sv1.valinux.co.jp")
+	by vger.kernel.org with ESMTP id S262569AbVBCHKL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 02:08:14 -0500
-Date: Thu, 3 Feb 2005 08:08:07 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Dave Olien <dmo@osdl.org>, linux-kernel@vger.kernel.org,
-       agk@sourceware.org, dm-devel@redhat.com
-Subject: Re: [PATCH] add local bio pool support and modify dm
-Message-ID: <20050203070803.GA8094@suse.de>
-References: <20050202064720.GA7436@osdl.org> <20050202181924.395165fe.akpm@osdl.org>
+	Thu, 3 Feb 2005 02:10:11 -0500
+Date: Thu, 03 Feb 2005 16:02:52 +0900 (JST)
+Message-Id: <20050203.160252.104031714.taka@valinux.co.jp>
+To: vgoyal@in.ibm.com
+Cc: ebiederm@xmission.com, akpm@osdl.org, fastboot@lists.osdl.org,
+       linux-kernel@vger.kernel.org, maneesh@in.ibm.com, hari@in.ibm.com,
+       suparna@in.ibm.com
+Subject: Re: [Fastboot] [PATCH] Reserving backup region for kexec based
+ crashdumps.
+From: Hirokazu Takahashi <taka@valinux.co.jp>
+In-Reply-To: <1106833527.15652.146.camel@2fwv946.in.ibm.com>
+References: <1106475280.26219.125.camel@2fwv946.in.ibm.com>
+	<m18y6gf6mj.fsf@ebiederm.dsl.xmission.com>
+	<1106833527.15652.146.camel@2fwv946.in.ibm.com>
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050202181924.395165fe.akpm@osdl.org>
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 02 2005, Andrew Morton wrote:
-> Dave Olien <dmo@osdl.org> wrote:
-> >
-> >  +extern inline void zero_fill_bio(struct bio *bio)
-> >  +{
-> >  +	unsigned long flags;
-> >  +	struct bio_vec *bv;
-> >  +	int i;
-> >  +
-> >  +	bio_for_each_segment(bv, bio, i) {
-> >  +		char *data = bvec_kmap_irq(bv, &flags);
-> >  +		memset(data, 0, bv->bv_len);
-> >  +		flush_dcache_page(bv->bv_page);
-> >  +		bvec_kunmap_irq(data, &flags);
-> >  +	}
-> >  +}
-> 
-> heavens.  Why was this made inline?  And extern inline?
-> 
-> It's too big for inlining (and is super-slow anyway) and will cause all
-> sorts of unpleasant header file dependencies for all architectures.  bio.h
-> now needs to see the implementation of everyone's flush_dcache_page(), for
-> example.
-> 
-> 
-> Something like this?
-> 
-> --- 25/include/linux/bio.h~add-local-bio-pool-support-and-modify-dm-uninline-zero_fill_bio	2005-02-02 18:17:18.225901376 -0800
-> +++ 25-akpm/include/linux/bio.h	2005-02-02 18:17:18.230900616 -0800
-> @@ -286,6 +286,7 @@ extern void bio_set_pages_dirty(struct b
->  extern void bio_check_pages_dirty(struct bio *bio);
->  extern struct bio *bio_copy_user(struct request_queue *, unsigned long, unsigned int, int);
->  extern int bio_uncopy_user(struct bio *);
-> +void zero_fill_bio(struct bio *bio);
->  
->  #ifdef CONFIG_HIGHMEM
->  /*
-> @@ -335,18 +336,4 @@ extern inline char *__bio_kmap_irq(struc
->  	__bio_kmap_irq((bio), (bio)->bi_idx, (flags))
->  #define bio_kunmap_irq(buf,flags)	__bio_kunmap_irq(buf, flags)
->  
-> -extern inline void zero_fill_bio(struct bio *bio)
-> -{
-> -	unsigned long flags;
-> -	struct bio_vec *bv;
-> -	int i;
-> -
-> -	bio_for_each_segment(bv, bio, i) {
-> -		char *data = bvec_kmap_irq(bv, &flags);
-> -		memset(data, 0, bv->bv_len);
-> -		flush_dcache_page(bv->bv_page);
-> -		bvec_kunmap_irq(data, &flags);
-> -	}
-> -}
-> -
->  #endif /* __LINUX_BIO_H */
-> diff -puN fs/bio.c~add-local-bio-pool-support-and-modify-dm-uninline-zero_fill_bio fs/bio.c
-> --- 25/fs/bio.c~add-local-bio-pool-support-and-modify-dm-uninline-zero_fill_bio	2005-02-02 18:17:18.227901072 -0800
-> +++ 25-akpm/fs/bio.c	2005-02-02 18:17:18.231900464 -0800
-> @@ -182,6 +182,21 @@ struct bio *bio_alloc(int gfp_mask, int 
->  	return bio_alloc_bioset(gfp_mask, nr_iovecs, fs_bio_set);
->  }
->  
-> +void zero_fill_bio(struct bio *bio)
-> +{
-> +	unsigned long flags;
-> +	struct bio_vec *bv;
-> +	int i;
-> +
-> +	bio_for_each_segment(bv, bio, i) {
-> +		char *data = bvec_kmap_irq(bv, &flags);
-> +		memset(data, 0, bv->bv_len);
-> +		flush_dcache_page(bv->bv_page);
-> +		bvec_kunmap_irq(data, &flags);
-> +	}
-> +}
-> +EXPORT_SYMBOL(zero_fill_bio);
-> +
->  /**
->   * bio_put - release a reference to a bio
->   * @bio:   bio to release reference to
-> _
+Hi Vivek and Eric,
 
-Yep looks good, thanks Andrew.
+IMHO, why don't we swap not only the contents of the top 640K
+but also kernel working memory for kdump kernel?
 
--- 
-Jens Axboe
+I guess this approach has some good points.
+
+ 1.Preallocating reserved area is not mandatory at boot time.
+   And the reserved area can be distributed in small pieces
+   like original kexec does.
+
+ 2.Special linking is not required for kdump kernel.
+   Each kdump kernel can be linked in the same way,
+   where the original kernel exists.
+
+Am I missing something?
+
+
+ physical memory
+   +-------+
+   | 640K  ------------+
+   |.......|           |
+   |       |         copy
+   +-------+           |
+   |       |           |
+   |original<-----+    |
+   |kernel |      |    |
+   |       |      |    |
+   |.......|      |    |
+   |       |      |    |
+   |       |      |    |
+   |       |     swap  |
+   |       |      |    |
+   +-------+      |    |
+   |reserved<----------+
+   |area   |      |
+   |       |      |
+   |kdump  |<-----+
+   |kernel |
+   +-------+
+   |       |
+   |       |
+   |       |
+   +-------+
+
+
+
+> Hi Eric,
+> 
+> It looks like we are looking at things a little differently. I
+> see a portion of the picture in your mind, but obviously not 
+> entirely.
+> 
+> Perhaps, we need to step back and iron out in specific terms what 
+> the interface between the two kernels should be in the crash dump
+> case, and the distribution of responsibility between kernel, user space
+> and the user. 
+> 
+> [BTW, the patch was intended as a step in development up for
+> comment early enough to be able to get agreement on the interface
+> and think issues through to more completeness before going 
+> too far. Sorry, if that wasn't apparent.]
+> 
+> When you say "evil intermingling", I'm guessing you mean the
+> "crashbackup=" boot parameter ? If so, then yes, I agree it'd
+> be nice to find a way around it that doesn't push hardcoding
+> elsewhere.
+> 
+> Let me explain the interface/approach I was looking at.
+> 
+> 1.First kernel reserves some area of memory for crash/capture kernel as
+> specified by crashkernel=X@Y boot time parameter.
+> 
+> 2.First kernel marks the top 640K of this area as backup area. (If
+> architecture needs it.) This is sort of a hardcoding and probably this
+> space reservation can be managed from user space as well as mentioned by
+> you in this mail below.
+> 
+> 3. Location of backup region is exported through /proc/iomem which can
+> be read by user space utility to pass this information to purgatory code
+> to determine where to copy the first 640K.
+> 
+> Note that we do not make any additional reservation for the 
+> backup region. We carve this out from the top of the already 
+> reserved region and export it through /proc/iomem so that 
+> the user space code and the capture kernel code need not 
+> make any assumptions about where this region is located.
+> 
+> 4. Once the capture kernel boots, it needs to know the location of
+> backup region for two purposes.
+>         
+> a. It should not overwrite the backup region.
+> 
+> b. There needs to be a way for the capture tool to access the original
+>    contents of the backed up region
+> 
+> Boot time parameter crashbackup=A@B has been provided to pass this
+> information to capture kernel. This parameter is valid only for capture
+> kernel and becomes effective only if CONFIG_CRASH_DUMP is enabled.
+> 
+> 
+> > What is wrong with user space doing all of the extra space
+> > reservation?
+> 
+> Just for clarity, are you suggesting kexec-tools creating an additional
+> segment for the backup region and pass the information to kernel.
+> 
+> There is no problem in doing reservation from user space except
+> one. How does the user and in-turn capture kernel come to know the
+> location of backup region, assuming that the user is going to provide
+> the exactmap for capture kernel to boot into.
+> 
+> Just a thought, is it  a good idea for kexec-tools to be creating and
+> passing memmap parameters doing appropriate adjustment for backup
+> region.
+> 
+> I had another question. How is the starting location of elf headers 
+> communicated to capture tool? Is parameter segment a good idea? or 
+> some hardcoding? 
+> 
+> Another approach can be that backup area information is encoded in elf
+> headers and capture kernel is booted with modified memmap (User gets
+> backup region information from /proc/iomem) and capture tool can
+> extract backup area information from elf headers as stored by first
+> kernel.
+> 
+> Could you please elaborate a little more on what aspect of your view
+> differs from the above.
+> 
+> Thanks
+> Vivek
+
+Thaks,
+Hirokazu Takahashi.
 

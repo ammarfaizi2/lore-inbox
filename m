@@ -1,56 +1,101 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133025AbRAUBny>; Sat, 20 Jan 2001 20:43:54 -0500
+	id <S131894AbRAUBzn>; Sat, 20 Jan 2001 20:55:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133026AbRAUBnn>; Sat, 20 Jan 2001 20:43:43 -0500
-Received: from seyn.maisel.int-evry.fr ([157.159.41.100]:55936 "HELO
-	seyn.minet.net") by vger.kernel.org with SMTP id <S133025AbRAUBnk>;
-	Sat, 20 Jan 2001 20:43:40 -0500
-Date: Sun, 21 Jan 2001 02:45:16 +0100
-To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: 2.4.1-pre9 does not compile on r128.c
-Message-ID: <20010121024516.A6492@minet.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-From: pierre@minet.net (Pierre CORCINOS)
+	id <S131816AbRAUBzf>; Sat, 20 Jan 2001 20:55:35 -0500
+Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:53123 "EHLO
+	mirai.cx") by vger.kernel.org with ESMTP id <S131894AbRAUBzV>;
+	Sat, 20 Jan 2001 20:55:21 -0500
+Message-ID: <3A6A4185.AF34DBA7@pobox.com>
+Date: Sat, 20 Jan 2001 17:55:17 -0800
+From: J Sloan <jjs@pobox.com>
+Organization: Mirai Consulting
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre9-ll i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Aaron Lehmann <aaronl@vitelus.com>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [OT] Re: 2.4 and ipmasq modules
+In-Reply-To: <20010120144616.A16843@vitelus.com>
+Content-Type: multipart/alternative;
+ boundary="------------BACE5207053D592CD51A2554"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-result of the compilation :
 
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2
--fomit-frame-pointer -fno-strict-aliasing -pipe -mpreferred-stack-boundary=2
--march=i686 -DMODULE -DMODVERSIONS -include
-/usr/src/linux/include/linux/modversions.h   -DEXPORT_SYMTAB -c r128_drv.c
-r128_drv.c:124: `DRM_IOCTL_R128_PACKET' undeclared here (not in a function)
-r128_drv.c:124: nonconstant array index in initializer
-r128_drv.c:124: (near initialization for `r128_ioctls')
-{standard input}: Assembler messages:
-{standard input}:8: Warning: Ignoring changed section attributes for .modinfo
-make[3]: *** [r128_drv.o] Erreur 1
+--------------BACE5207053D592CD51A2554
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-ver_linux :
+Aaron Lehmann wrote:
 
-Linux seyn 2.4.1-pre8 #3 dim jan 21 01:12:23 CET 2001 i686 unknown
-Kernel modules         2.4.1
-Gnu C                  2.95.2
-Gnu Make               3.79.1
-Binutils               2.10.1.0.2
-Linux C Library        > libc.2.2
-Dynamic linker         ldd (GNU libc) 2.2
-Procps                 2.0.6
-Mount                  2.10q
-Net-tools              2.05
-Console-tools          0.2.3
-Sh-utils               2.0.11
-Modules Loaded         ntfs nls_iso8859-15 nls_cp437 vfat fat emu10k1 soundcore
+> It was great to see that 2.4.0 reintroduced ipfwadm support! I had no
+> need for ipchains and ended up using the wrapper around it that
+> emulated ipfwadm. However, 2.[02].x used to have "special IP
+> masquerading modules" such as ip_masq_ftp.o, ip_masq_quake.o, etc. I
+> can't find these in 2.4.0. Where have they gone? Without important
+> modules such as ip_masq_ftp.o I cannot use non-passive ftp from behind
+> the masquerading firewall.
 
-Congratulation for your job
+It's working here for me - the netfilter modules are named differently:
 
--- 
-Pierre CORCINOS					<pierre@minet.net>
+# lsmod
+Module                 Size  Used by
+
+<snip>
+
+iptable_filter          1824   0 (autoclean) (unused)
+ip_nat_ftp              3280   0 (unused)
+iptable_nat            13120   1 [ip_nat_ftp]
+ip_conntrack_ftp        2016   0 (unused)
+ip_conntrack           13408   2 [ip_nat_ftp iptable_nat ip_conntrack_ftp]
+ip_tables              10784   4 [iptable_filter iptable_nat]
+
+<snip>
+
+
+
+
+--------------BACE5207053D592CD51A2554
+Content-Type: text/html; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+Aaron Lehmann wrote:
+<blockquote TYPE=CITE>It was great to see that 2.4.0 reintroduced ipfwadm
+support! I had no
+<br>need for ipchains and ended up using the wrapper around it that
+<br>emulated ipfwadm. However, 2.[02].x used to have "special IP
+<br>masquerading modules" such as ip_masq_ftp.o, ip_masq_quake.o, etc.
+I
+<br>can't find these in 2.4.0. Where have they gone? Without important
+<br>modules such as ip_masq_ftp.o I cannot use non-passive ftp from behind
+<br>the masquerading firewall.</blockquote>
+It's working here for me - the netfilter modules are named differently:
+<p><tt><font size=-1># lsmod</font></tt>
+<br><tt><font size=-1>Module&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Size&nbsp; Used by</font></tt><tt><font size=-1></font></tt>
+<p><tt><font size=-1>&lt;snip></font></tt><tt><font size=-1></font></tt>
+<p><tt><font size=-1>iptable_filter&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+1824&nbsp;&nbsp; 0 (autoclean) (unused)</font></tt>
+<br><tt><font size=-1>ip_nat_ftp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+3280&nbsp;&nbsp; 0 (unused)</font></tt>
+<br><tt><font size=-1>iptable_nat&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+13120&nbsp;&nbsp; 1 [ip_nat_ftp]</font></tt>
+<br><tt><font size=-1>ip_conntrack_ftp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+2016&nbsp;&nbsp; 0 (unused)</font></tt>
+<br><tt><font size=-1>ip_conntrack&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+13408&nbsp;&nbsp; 2 [ip_nat_ftp iptable_nat ip_conntrack_ftp]</font></tt>
+<br><tt><font size=-1>ip_tables&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+10784&nbsp;&nbsp; 4 [iptable_filter iptable_nat]</font></tt><tt><font size=-1></font></tt>
+<p><tt><font size=-1>&lt;snip></font></tt>
+<br><tt><font size=-1></font></tt>&nbsp;
+<br><tt><font size=-1></font></tt>&nbsp;
+<br><tt><font size=-1></font></tt>&nbsp;</html>
+
+--------------BACE5207053D592CD51A2554--
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

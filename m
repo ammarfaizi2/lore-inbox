@@ -1,33 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129150AbRBMLSh>; Tue, 13 Feb 2001 06:18:37 -0500
+	id <S129288AbRBMLUr>; Tue, 13 Feb 2001 06:20:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129546AbRBMLS1>; Tue, 13 Feb 2001 06:18:27 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:34568 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129150AbRBMLSP>; Tue, 13 Feb 2001 06:18:15 -0500
-Subject: Re: lost charaters -- this is becoming annoying!
-To: tigran@veritas.com (Tigran Aivazian)
-Date: Tue, 13 Feb 2001 11:18:35 +0000 (GMT)
+	id <S129592AbRBMLUh>; Tue, 13 Feb 2001 06:20:37 -0500
+Received: from air.lug-owl.de ([62.52.24.190]:28942 "HELO air.lug-owl.de")
+	by vger.kernel.org with SMTP id <S129288AbRBMLUa>;
+	Tue, 13 Feb 2001 06:20:30 -0500
+Date: Tue, 13 Feb 2001 12:20:14 +0100
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: Adam Lackorzynski <al10@inf.tu-dresden.de>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0102130915490.927-100000@penguin.homenet> from "Tigran Aivazian" at Feb 13, 2001 09:20:14 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14SdTi-0001TE-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: PCI bridge handling 2.4.0-test10 -> 2.4.2-pre3
+Message-ID: <20010213122013.A31590@lug-owl.de>
+Reply-To: jbglaw@lug-owl.de
+Mail-Followup-To: Adam Lackorzynski <al10@inf.tu-dresden.de>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010212140419.A11619@lug-owl.de> <20010213003815.A17962@inf.tu-dresden.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="k1lZvvs/B4yU6o8G"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <20010213003815.A17962@inf.tu-dresden.de>; from al10@inf.tu-dresden.de on Tue, Feb 13, 2001 at 12:38:15AM +0100
+X-Operating-System: Linux air 2.4.0-test8-pre1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> PS. This only happens on this Dell latitude CPx (notice lost shift in
-> Latitude?) H450GT. 
-> 
-> PPS. No, my laptop is fine -- rebootingnto 2.2.x makes it type without
-> loosing characters...
 
-2.2 and 2.4 handle keyboard error cases quite differently (less so as of 2.2.18)
-When you say 2.2.x works does that include 2.2.18.
+--k1lZvvs/B4yU6o8G
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The next stage then is probably to log when you see errored keyboard bytes
+On Tue, Feb 13, 2001 at 12:38:15AM +0100, Adam Lackorzynski wrote:
 
+Hi Adam!
+
+> On Mon Feb 12, 2001 at 14:04:20 +0100, Jan-Benedict Glaw wrote:
+> > I've got a "Bull Express5800/Series" (dual P3) with a DAC1164 RAID
+> > controller. The mainboard is ServerWorks based and however, 2.4.2-pre3
+> > fails to find the RAID controller. I think there's a problem at
+> > scanning PCI busses behind PCI bridges. Here's the PCI bus layout as
+> > 2.4.0-test10 recognizes it:
+>=20
+> There's was a change in the PCI bus scan code in pre3.
+>=20
+> --- pci-pc.c.orig       Tue Feb 13 00:02:50 2001
+> +++ pci-pc.c    Tue Feb 13 00:19:29 2001
+> @@ -953,9 +953,6 @@
+[Removal of serverworks fixup routines]
+
+That patch cured the problem; the box is up'n'running again. Thanks!
+
+Is there somebody to work on specivic serverworks fixup routines or
+should this patch simply go into stock kernel (to not treat serverworks
+machines specifically)?
+
+MfG, JBG
+
+--=20
+Fehler eingestehen, Gr=F6=DFe zeigen: Nehmt die Rechtschreibreform zur=FCck=
+!!!
+/* Jan-Benedict Glaw <jbglaw@lug-owl.de> -- +49-177-5601720 */
+keyID=3D0x8399E1BB fingerprint=3D250D 3BCF 7127 0D8C A444 A961 1DBD 5E75 83=
+99 E1BB
+     "insmod vi.o and there we go..." (Alexander Viro on linux-kernel)
+
+--k1lZvvs/B4yU6o8G
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iEYEARECAAYFAjqJGGwACgkQHb1edYOZ4bsNfACeL+Sv/mq9P4h3zAi42GmhIcnu
+3XYAnjj5WukfBvXov9G5ouK9teM+yZZ3
+=QR9h
+-----END PGP SIGNATURE-----
+
+--k1lZvvs/B4yU6o8G--

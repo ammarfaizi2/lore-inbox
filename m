@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271719AbRIOBqN>; Fri, 14 Sep 2001 21:46:13 -0400
+	id <S271711AbRIOBpd>; Fri, 14 Sep 2001 21:45:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271741AbRIOBqD>; Fri, 14 Sep 2001 21:46:03 -0400
-Received: from lego.zianet.com ([204.134.124.54]:51727 "EHLO lego.zianet.com")
-	by vger.kernel.org with ESMTP id <S271719AbRIOBpp>;
-	Fri, 14 Sep 2001 21:45:45 -0400
-Message-ID: <3BA2B1DA.8050208@zianet.com>
-Date: Fri, 14 Sep 2001 19:41:46 -0600
-From: Steven Spence <kwijibo@zianet.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3+) Gecko/20010910
-X-Accept-Language: en-us
+	id <S271719AbRIOBpN>; Fri, 14 Sep 2001 21:45:13 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:3090 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S271711AbRIOBpC>; Fri, 14 Sep 2001 21:45:02 -0400
+Message-ID: <3BA2B2A8.2010402@zytor.com>
+Date: Fri, 14 Sep 2001 18:45:12 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+Organization: Zytor Communications
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010801
+X-Accept-Language: en, sv
 MIME-Version: 1.0
-To: DevilKin@gmx.net
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 CC: linux-kernel@vger.kernel.org
-Subject: Re: AGP Bridge support for AMD 761
-In-Reply-To: <20010914214120.039EE21712C@tartarus.telenet-ops.be>
+Subject: Re: ISOFS corrupt filesizes
+In-Reply-To: <E15i4GM-0001Iw-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-DevilKin wrote:
+Alan Cox wrote:
+>>1 GB comes from the fact that some old CD's actually put garbage in
+>>the upper byte of the file size, so the test triggers if the size is
+>>larger than any CD can be.  Unfortunately, DVDs are a lot bigger than
+>>CDs and that assumption is no longer correct.
+>>
+> 
+> DVD is supposed to be using 1Gb files. I don't think its a
+> big issue as we support UDF too
+> 
 
->Hello all...
->
->I've recently bought a new mobo, the Abit KG7-Raid, and I've run into some trouble trying to get the agpgart to work correctly. Everytime I load it 
->on kernel 2.4.9 (nonpatched, straigt from the tarball) I get messages like 'Unsupported chipset; try try_unsupported' (or smthing, not entirely
->sure about the msg anymore since I'm not on that PC right now). I've tried what it advices, but still it keeps on giving that error.
->
->Anyone got a clue?
->
->Thanks,
->
->Devil
->
-Well, do what its telling you.  Either append 'agp_try_unsupported' to 
-lilo or use it as an option on modules.
+Well, it's not all about DVDs used for video.  I think there are 
+legitimate reasons to have very large files on a DVD-ROM, and they're 
+likely to be encoded in iso9660 format (for maximum compatibility) as 
+long as we don't have individual files > 4 GB.
 
-Ex: modprobe agpgart agp_try_unsupported=1
-
-Steve
-
+	-hpa
 

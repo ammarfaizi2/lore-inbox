@@ -1,45 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263311AbUCNHK5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Mar 2004 02:10:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263312AbUCNHK5
+	id S261528AbUCNIFL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Mar 2004 03:05:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263199AbUCNIFL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Mar 2004 02:10:57 -0500
-Received: from fed1mtao04.cox.net ([68.6.19.241]:24234 "EHLO
-	fed1mtao04.cox.net") by vger.kernel.org with ESMTP id S263311AbUCNHK4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Mar 2004 02:10:56 -0500
-Date: Sat, 13 Mar 2004 23:10:55 -0800
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: John Belmonte <john@neggie.net>
-Cc: "Barry K. Nathan" <barryn@pobox.com>, linux-kernel@vger.kernel.org,
-       arjanv@redhat.com
-Subject: Re: [PATCH] (2.6.x) toshiba_acpi needs copy_from_user (fixes oops)
-Message-ID: <20040314071055.GA2888@ip68-4-255-84.oc.oc.cox.net>
-References: <20040314052510.GA2587@ip68-4-255-84.oc.oc.cox.net> <4053F304.5040903@neggie.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4053F304.5040903@neggie.net>
-User-Agent: Mutt/1.5.5.1i
+	Sun, 14 Mar 2004 03:05:11 -0500
+Received: from fmr06.intel.com ([134.134.136.7]:37276 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261528AbUCNIFB convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Mar 2004 03:05:01 -0500
+Content-Class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: 2.6.4-mm1
+Date: Sun, 14 Mar 2004 00:04:51 -0800
+Message-ID: <7F740D512C7C1046AB53446D37200173FEBA2C@scsmsx402.sc.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.6.4-mm1
+Thread-Index: AcQI/Tnb3XGrDsdsTJ+jC5YS+eDlbAAm1uhQ
+From: "Nakajima, Jun" <jun.nakajima@intel.com>
+To: "SUBODH SHRIVASTAVA" <subodh@btopenworld.com>,
+       "Andrew Morton" <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 14 Mar 2004 08:04:52.0196 (UTC) FILETIME=[07669240:01C4099B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 14, 2004 at 12:52:04AM -0500, John Belmonte wrote:
-> Thank you for tracking this down.
+I checked and tried several things, and I think CONFIG_PCI_USE_VECTOR is
+a red herring. 2.6.4-mm1 did boot with CONFIG_PCI_USE_VECTOR = Y or N as
+long as kernel preemption is disabled. It did not boot regardless of
+CONFIG_PCI_USE_VECTOR if kernel preemption is enabled. I see the
+complaints
+  bad: scheduling while atomic!
+at various spots.
 
-That reminds me of something I forgot to mention in my original message.
+2.6.4 does not have this problem; kernel preemption seems to work fine.
+I encourage people to check kernel preemption in 2.6.4-mm1.
 
-I filed this in Red Hat Bugzilla (#117682), and Arjan van de Ven
-mentioned the likely cause. I then confirmed it and coded up my patch.
-
-So, Arjan deserves credit too. I meant to mention this in my original
-e-mail, but I accidentally forgot. Sorry about that.
-
-> Please don't apply this patch to the kernel tree.  I will submit a 
-> variation via Len Brown.  In any case, it appears at least one other 
-> ACPI driver has a similar bug, so best to go through Len.
-
-Ok, sounds good to me.
-
--Barry K. Nathan <barryn@pobox.com>
+Jun
+>-----Original Message-----
+>From: linux-kernel-owner@vger.kernel.org [mailto:linux-kernel-
+>owner@vger.kernel.org] On Behalf Of SUBODH SHRIVASTAVA
+>Sent: Saturday, March 13, 2004 5:13 AM
+>To: Andrew Morton
+>Cc: linux-kernel@vger.kernel.org
+>Subject: Re: 2.6.4-mm1
+>
+> --- Andrew Morton <akpm@osdl.org> wrote: > Subodh
+>Shrivastava <subodh@btopenworld.com> wrote:
+>> >
+>> > I am able to boot vanilla kernel without the
+>> following option enabled
+>> >
+>> > CONFIG_PCI_USE_VECTOR
+>> >
+>> > If i don't enable the above mentioned option
+>> 2.6.4-mm1 won't boot on my
+>>
+>>        ^^^^^ "do", I assume?
+>
+>Let me try to put it correct again.
+>
+>2.6.4 boots fine with the following option set as
+>CONFIG_PCI_USE_VECTOR=N
+>
+>2.6.4-mm1 will not boot with the following option set
+>as.
+>CONFIG_PCI_USE_VECTOR=N
+>2.6.4-mm1 will boot with the following option set as
+>CONFIG_PCI_USE_VECTOR=Y
+>
+>>
+>> > Laptop
+>>
+>> Is this unique to 2.6.4-mm1 or does 2.6.4 do the
+>> same thing?
+>Yes its unique to 2.6.4-mm1.
+>
+>Subodh
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,72 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288801AbSA2GhM>; Tue, 29 Jan 2002 01:37:12 -0500
+	id <S288834AbSA2Gmd>; Tue, 29 Jan 2002 01:42:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288821AbSA2Ggw>; Tue, 29 Jan 2002 01:36:52 -0500
-Received: from smtp.cogeco.net ([216.221.81.25]:26862 "EHLO fep7.cogeco.net")
-	by vger.kernel.org with ESMTP id <S288801AbSA2Ggt>;
-	Tue, 29 Jan 2002 01:36:49 -0500
-Subject: Re: RFC: booleans and the kernel
-From: "Nix N. Nix" <nix@go-nix.ca>
-To: Kai Henningsen <kaih@khms.westfalen.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <8HYG7RLmw-B@khms.westfalen.de>
-In-Reply-To: <8HXjQ8omw-B@khms.westfalen.de>
-	<1011911932.810.23.camel@phantasy>
-	<200201242243.g0OMhAL06878@home.ashavan.org.>
-	<8HXjQ8omw-B@khms.westfalen.de>
-	<200201250900.g0P8xoL10082@home.ashavan.org.> 
-	<8HYG7RLmw-B@khms.westfalen.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1.99+cvs.2002.01.14.17.03 (Preview Release)
-Date: 29 Jan 2002 01:36:47 -0500
-Message-Id: <1012286208.16721.15.camel@tux>
-Mime-Version: 1.0
+	id <S288854AbSA2GmX>; Tue, 29 Jan 2002 01:42:23 -0500
+Received: from swazi.realnet.co.sz ([196.28.7.2]:2445 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S288834AbSA2GmP>; Tue, 29 Jan 2002 01:42:15 -0500
+Date: Tue, 29 Jan 2002 08:37:06 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ext2 fs corruption and usb devices
+In-Reply-To: <3C558BC0.5050700@wanadoo.fr>
+Message-ID: <Pine.LNX.4.44.0201290831360.20095-100000@netfinity.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-01-25 at 06:28, Thomas Hood wrote:
-> Jeff Garzik wrote:
-> > A small issue...
-> 
-> ... bound therefore to generate the most discussion ...
-> 
+On Mon, 28 Jan 2002, Pierre Rousselet wrote:
 
-:o)
+> Where have you seen it's an oops. have you read my message ?
 
-Since we /are/ gorging ourselves in this C-reverie, I might as well:
-...
-> > int x=0;
-> >
-> > if ( x = 1 )
+oops, i wasn't paying too much attention in that mail run it seems
 
-In my first-year C programming course, one of my more seasoned (and
-phlegmatic) professors recommended that we get used to using 
+> Why? The problem is solved by the diff in ext2 code in 2.4.18-pre7
+> (have you read my message ?)
 
-if (1 == x)
+I got that the first time...
 
-instead of
+> What i would like to know is why the corruption of the ext2 root fs with 
+>   2.4.18-pre6 in only visible by the usb drivers. is it pure chance ?
 
-if (x == 1)
+But i still think proprietory modules showing up in problem traces is 
+usually enough to warrant the trace as useless. The fact that it works now 
+and not then could be anybody's guess.
 
-so that, in case we /do/ miss the second '=', creating
-(1 = x)
-the compiler will puzzle over what exactly we mean by that and ask as
-for advice in the form of something like "Error: lvalue required" (or
-some such), an error, in any case.
+My apologies for skimming through your email, Have a nice day.
 
-
-
-Just comes to mind.
-...
-> 
-> MfG Kai
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Zwane Mwaikambo
 
 

@@ -1,106 +1,72 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312704AbSEAOUJ>; Wed, 1 May 2002 10:20:09 -0400
+	id <S312772AbSEAOXr>; Wed, 1 May 2002 10:23:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312772AbSEAOUI>; Wed, 1 May 2002 10:20:08 -0400
-Received: from elin.scali.no ([62.70.89.10]:65295 "EHLO elin.scali.no")
-	by vger.kernel.org with ESMTP id <S312704AbSEAOUH>;
-	Wed, 1 May 2002 10:20:07 -0400
-Date: Wed, 1 May 2002 16:19:53 +0200 (CEST)
-From: Steffen Persvold <sp@scali.com>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: "J.A. Magallon" <jamagallon@able.es>,
-        Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Plan for e100-e1000 in mainline
-In-Reply-To: <3CCF796C.5090401@mandrakesoft.com>
-Message-ID: <Pine.LNX.4.30.0205010952390.5918-100000@elin.scali.no>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S312920AbSEAOXq>; Wed, 1 May 2002 10:23:46 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:34061 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S312772AbSEAOXp>;
+	Wed, 1 May 2002 10:23:45 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Cc: torvalds@transmeta.com
+Subject: kbuild 2.5 is ready for inclusion in the 2.5 kernel
+Date: Thu, 02 May 2002 00:23:33 +1000
+Message-ID: <20507.1020263013@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 May 2002, Jeff Garzik wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> J.A. Magallon wrote:
->
-> >Hi.
-> >
-> >Well, subject says it all. Which is the status/plans for inclussion
-> >of those drivers in mainline kernel ? AFAIR, e1000 had been licensed,
-> >but e100 was not clear yet.
-> >
->
-> e100 has been in 2.5.x for quite a long time.  All license issues have
-> similarly been resolved a long time ago.
->
-> I expect Intel's Q/A to green light their current driver.  With a few
-> patches it should be ready for 2.4.x soon.
->
-> You can easily copy drivers/net/e100[0] into a 2.4.x kernel, it likely
-> compiles without modification.
->
+Content-Type: text/plain; charset=us-ascii
 
-Has the latency issues with e100 compared to eepro100 been resolved too ?
-Last time I checked the e100 driver (version 1.8.38) had terrible high
-latency on small messages even in a back-to-back configuration (both
-machines using the same driver). As a test I used netperf's TCP_RR
-benchmark (TCP roundtrip) :
+Linus, kbuild 2.5 is ready for inclusion in the main 2.5 kernel tree.
+It is faster, better documented, easier to write build rules in, has
+better install facilities, allows separate source and object trees, can
+do concurrent builds from the same source tree and is significantly
+more accurate than the existing kernel build system.
 
-Message size  | eepro100 latency (usec) | e100 latency (usec)
---------------------------------------------------------------
-     16                 108.985                 114.116
-     24                 110.940                 116.679
-     32                 114.129                 119.608
-     48                 118.614                 125.507
-     64                 124.341                1093.150
-     96                 135.864                1102.190
-    128                 147.177                1102.726
-    192                 167.343                 838.799
-    256                 188.410                 858.572
-    384                 230.797                 900.941
-    512                 271.281                 941.104
-    768                 354.270                1024.753
-   1024                 437.307                1108.231
-   1536                 612.688                1293.912
-   2048                 699.168                1334.828
-   3072                 872.554                1670.787
-   4096                1032.183                1556.056
+The arch independent kbuild 2.5 code (core and common) is up to date
+with 2.5.12, as are i386 and sparc64.  ia64 support is at 2.5.10, which
+was the last ia64 patch against 2.5.  Work is proceeding on arch
+dependent kbuild 2.5 rules for superh, s390[x] and ppc.
 
+This version has only been tested on CML1.  kbuild 2.5 has support for
+an older version of CML2 but it has not been tested on newer versions
+of CML2.
 
-As you can see, with a TCP payload of 64 bytes the latency is quite high
-with the e100 driver compared to the eepro100 driver. As a side note: it
-didn't work well with the bonding module either (neither did the e1000
-module).
+Before I send you the kbuild 2.5 patch, how do you want to handle it?
 
-Another funny thing is that the latency for the gigabit adapter (e1000)
-is also higher than fast ethernet (eepro100) with small messages (<256
-bytes) :
+* Coexist with the existing kernel build for one or two releases or
+  delete the old build system when kbuild 2.5 goes in?
 
-Message size  | eepro100 latency (usec) | e1000 latency (usec)
---------------------------------------------------------------
-     16                 108.985                 177.138
-     24                 110.940                 177.370
-     32                 114.129                 177.523
-     48                 118.614                 178.189
-     64                 124.341                 178.769
-     96                 135.864                 179.669
-    128                 147.177                 180.517
-    192                 167.343                 183.339
-    256                 188.410                 184.552
-    384                 230.797                 188.929
-    512                 271.281                 191.787
-    768                 354.270                 198.745
-   1024                 437.307                 205.793
-   1536                 612.688                 240.772
-   2048                 699.168                 249.540
-   3072                 872.554                 282.348
-   4096                1032.183                 299.220
+  Coexistence for a few days gives a backout, just in case.  It also
+  gives a kernel release where the old and new code can be compared,
+  useful for architectures that have not been converted yet.
 
-Regards,
- --
-  Steffen Persvold   | Scalable Linux Systems |   Try out the world's best
- mailto:sp@scali.com |  http://www.scali.com  | performing MPI implementation:
-Tel: (+47) 2262 8950 |   Olaf Helsets vei 6   |      - ScaMPI 1.13.8 -
-Fax: (+47) 2262 8951 |   N0621 Oslo, NORWAY   | >320MBytes/s and <4uS latency
+  Deleting the old system at the same time means that unconverted
+  architectures cannot build.  OTOH many architectures are already
+  broken in the 2.5 kernel.
 
+* I need a quiet period of 24-48 hours (no changes at all) after a new
+  kernel release to bring kbuild 2.5 up to the latest release, before
+  sending you the complete patch.  Which kernel release do you want
+  kbuild 2.5 against?
+
+I would like kbuild 2.5 to go in in the near future.  Keeping up to
+date with kernel changes is a significant effort, Makefiles change all
+the time, especially when major subsystems like sound and usb are
+reorganised.  There are also some changes to architecture code to do it
+right under kbuild 2.5 and tracking those against kernel changes can be
+painful.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: Exmh version 2.1.1 10/15/1999
+
+iD8DBQE8z/pii4UHNye0ZOoRAlZnAKCm+kmvXHZnGAAwRXl8sFj+cQ+U8ACgwgBG
+2tKEQ0ADLtX7NuKxN7x1R4Y=
+=cB0p
+-----END PGP SIGNATURE-----
 

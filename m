@@ -1,70 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268898AbTGJDmm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 23:42:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268903AbTGJDmm
+	id S268911AbTGJDjq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 23:39:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268912AbTGJDjp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 23:42:42 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:38115 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S268898AbTGJDmk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 23:42:40 -0400
-Date: Thu, 10 Jul 2003 00:54:52 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
+	Wed, 9 Jul 2003 23:39:45 -0400
+Received: from storm.he.net ([64.71.150.66]:44469 "HELO storm.he.net")
+	by vger.kernel.org with SMTP id S268911AbTGJDjo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jul 2003 23:39:44 -0400
+Date: Wed, 9 Jul 2003 20:54:20 -0700
+From: Greg KH <greg@kroah.com>
 To: Jeff Garzik <jgarzik@pobox.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Andrew Morton <akpm@digeo.com>, Linus Torvalds <torvalds@osdl.org>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@digeo.com>,
+       Linus Torvalds <torvalds@osdl.org>
 Subject: Re: RFC:  what's in a stable series?
-In-Reply-To: <3F0CBC08.1060201@pobox.com>
-Message-ID: <Pine.LNX.4.55L.0307100040271.6629@freak.distro.conectiva>
+Message-ID: <20030710035419.GB32507@kroah.com>
 References: <3F0CBC08.1060201@pobox.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F0CBC08.1060201@pobox.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 9 Jul 2003, Jeff Garzik wrote:
-
+On Wed, Jul 09, 2003 at 09:06:16PM -0400, Jeff Garzik wrote:
+> 
 > Does it mean, no API changes except for security (or similarly severe) bugs?
-> Does it mean, no userland ABI changes, but API changes affecting onto
+
+Do that, and we will stagnate.
+
+> Does it mean, no userland ABI changes, but API changes affecting onto 
 > the kernel are ok?
-> Does it mean, "just don't break things such that people are pissed off"?
 
-My initial though on some new feature is to avoid it. We are a stable
-release, after all.
+That sounds acceptable to me.
 
-The quota patches have been around for a long time, and Jan Kara has been
-trying to include for sometime now (since 2.4.20/21). I tried to avoid it.
+But maybe I'm just biased, as I'm looking to start backporting some of
+the USB 2.5 changes to 2.4 to fix real bugs that are in 2.4.  This will
+require changing kernel apis.  And in doing so, fixing up all of the
+in-kernel usages of that api will happen.
 
-Now I realized the possible drawbacks of it are minimal (if any) compared
-to the overall advantage it brings to Linux 2.4.
+In doing this, it just enforces the fact that it really matters if you
+have a in-kernel driver or not.  If you want to keep a driver or any
+other kernel code outside of the main tree, it is costly, both in time
+and effort.
 
-The same goes for ACPI, people have been trying to include it for a long
-time, and I prefered to reject it until 2.4.22-pre.
+My .02
 
-Its a case-by-case problem.  You can't have a general rules like "no API
-changes except for security (or similarly severe) bugs? Does it mean, no
-userland ABI changes, but API changes affecting onto the kernel are ok?"
-
-I reverted the direct IO patches because hch complained on me that they
-change the direct IO API, and we really dont want that kind of
-change, IMHO.
-
-Trond/Christoph/you now have the direct_io2 possibility, which wouldnt
-break the current API and still get us the desired "feature".
-
-> I request the community's input, particularly those CC'd, for some sort
-> of direction or consensus on this.
->
-> In any case, I personally feel that increased stability of the API,
-> coupled with the increased frequency of releases, will make the most
-> people happy.  I would prefer some sort of 2.4.x API freeze, say
-> post-2.4.22, but maybe that's too radical?
-
-I also plan a 2.4.x API freeze. Maybe latter.
-
-In general, I think each case is a case and has its tradeoffs which need
-to be discussed and agreed on.
+greg k-h

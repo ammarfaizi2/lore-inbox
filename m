@@ -1,42 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282314AbRKXAYI>; Fri, 23 Nov 2001 19:24:08 -0500
+	id <S282305AbRKXAZ6>; Fri, 23 Nov 2001 19:25:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282312AbRKXAXw>; Fri, 23 Nov 2001 19:23:52 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:9222 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S282305AbRKXAXc>; Fri, 23 Nov 2001 19:23:32 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: kernel.org multiple hardware failure
-Date: 23 Nov 2001 16:23:17 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9tmp9l$jjr$1@cesium.transmeta.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+	id <S282312AbRKXAZw>; Fri, 23 Nov 2001 19:25:52 -0500
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:23031 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S282305AbRKXAYO>;
+	Fri, 23 Nov 2001 19:24:14 -0500
+Date: Fri, 23 Nov 2001 17:23:03 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+Cc: viro@math.psu.edu, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.0 breakage even with fix?
+Message-ID: <20011123172303.O1308@lynx.no>
+Mail-Followup-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>, viro@math.psu.edu,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <A0A71547524@vcnet.vc.cvut.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <A0A71547524@vcnet.vc.cvut.cz>; from VANDROVE@vc.cvut.cz on Sat, Nov 24, 2001 at 12:54:10AM +0000
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-zeus.kernel.org has suffered what appears to be a multiple disk RAID
-failure, and no longer appears to boot.  I can't do any further
-diagnostic without physical access to the machine; however, there is a
-good chance we have lost a RAID.
+On Nov 24, 2001  00:54 +0000, Petr Vandrovec wrote:
+>   I'm now running 2.5.0 with fix you posted - and now during dselect
+> run I received:
+> 
+> Unpacking replacement manpages ...
+> EXT2-fs error (device ide0(3,3)): ext2_check_page: bad entry in directory
+>   #3801539: unaligned directory entry - offset=0, inode=1801675088,
+>   rec_len=26465, name_len=101
+> Remounting filesystem read-only
+> rm: cannot remove directory `/var/lib/dpkg/tmp.ci': Read-only file system
 
-I will attempt to bring the machine back, but, in the meantime, I
-would like to ask if there is anyone or any company who would be
-willing to donate eight (8) 73 GB SCA SCSI disks on short notice.  We
-have been suffering from a shortage of space on the affected RAID for
-quite a while, and if it is truly dead it might be reasonable to
-replace the drives with higher-capacity ones instead.
+Did you run e2fsck -f after running unpatched 2.4.15/2.5.0?  This may be
+left-over garbage from the other problem.
 
-Please email me if you would be able to help.
+> and system is obviously unusable. I'll probably reboot and run fsck again.
+> If someone can show me how I can dump contents of some inode by number
+> (and not by name) in debugfs, I can look into inode itself... I found
+> only 'ncheck', to convert number to name, and this is running and running...
 
-	-hpa
+debugfs> stat <inum>
+debugfs> dump <inum> /tmp/file
 
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+
+Note that you need to include the <> around the inode number.
+
+> System was running 2.5.0 without patch for some time, but I followed
+> your guidelines for rebooting:
+> 
+> fuser -k /
+> sync
+> mount -o remount,ro /
+> sync
+> reboot
+> 
+> After reboot fsck was NOT run, so it is possible that there
+> might be some corruption - but I ran fsck on my non-root partition
+> after boot, and it did not show any problems.
+
+Ah, yes.  Definitely sounds like left over corruption.
+
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+

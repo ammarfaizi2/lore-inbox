@@ -1,60 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129523AbQL1SPv>; Thu, 28 Dec 2000 13:15:51 -0500
+	id <S131204AbQL1SSL>; Thu, 28 Dec 2000 13:18:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131230AbQL1SPm>; Thu, 28 Dec 2000 13:15:42 -0500
-Received: from serenity.mcc.ac.uk ([130.88.200.93]:2311 "EHLO
-	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S129523AbQL1SPW>; Thu, 28 Dec 2000 13:15:22 -0500
-Date: Thu, 28 Dec 2000 17:44:54 +0000 (GMT)
-From: John Levon <moz@compsoc.man.ac.uk>
-To: David Huggins-Daines <dhd@eradicator.org>
-cc: fpieraut@casi.polymtl.ca, linux-kernel@vger.kernel.org
-Subject: Re: Activating APIC on single processor
-In-Reply-To: <87ae9g8o1q.fsf@monolith.cepstral.com>
-Message-ID: <Pine.LNX.4.21.0012281741180.22864-100000@mrworry.compsoc.man.ac.uk>
+	id <S131183AbQL1SSB>; Thu, 28 Dec 2000 13:18:01 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:13575 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S131141AbQL1SRu>; Thu, 28 Dec 2000 13:17:50 -0500
+Date: Thu, 28 Dec 2000 09:47:01 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Dan Aloni <karrde@callisto.yi.org>, Zlatko Calusic <zlatko@iskon.hr>,
+        "Marco d'Itri" <md@Linux.IT>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Alexander Viro <viro@math.psu.edu>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: innd mmap bug in 2.4.0-test12
+In-Reply-To: <Pine.LNX.4.21.0012281227570.14052-100000@duckman.distro.conectiva>
+Message-ID: <Pine.LNX.4.10.10012280946020.12064-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 28 Dec 2000, David Huggins-Daines wrote:
 
-> <fpieraut@casi.polymtl.ca> writes:
+
+On Thu, 28 Dec 2000, Rik van Riel wrote:
 > 
-> > I activate APIC interruption with the configuration of linux kernel
-> > 2.4.0test-11. In the linux kernel configuration under processor type and
-> > features I activate "APIC and IO-APIC support on uniprocessor",  and I
-> > desactivate "Symmetric multi-processing support". The only way I found to
-> > check APIC activation is looking into /proc/interrupts, no "IO-APIC" can
-> > be found there. So I read IO-APIC.txt and I suppose there sould be
-> > conflicts with IRQ of my PCI cards. So I remove all my PCI cards and still
-> > have no APIC interrupt. 
-> > Is there another way to check APIC activation? 
-> > Am-I doing to right things to activate IO-APIC?
-> 
-> You might not actually have an IO-APIC or even a local APIC.  This is
-> the case with the Mobile PIII for instance (I puzzled over this myself
-> for a long time).
-> 
-> To find out for sure, run:
-> 
-> grep 'flags.*apic' /proc/cpuinfo
+> I've made a small debugging patch that simply checks
+> for this illegal state in add_page_to_active_list and
+> add_page_to_inactive_dirty_list.
 
-This isn't for sure. I bet you *do* have a local APIC.
+I bet it won't catch the real bad guy, which almost certainly is the
+"remove_from_swap_cache()" thing (it should do a ClearPageDirty() before
+it removes it from the swapper_inode mapping).
 
-This flag is missing on a Pentium II here - I think the BIOS disables
-it. However, it can be enabled in the normal way just fine.
-
-The presence of an IO-APIC is a different matter.
-
-thanks
-john
-
---
-"The majority of the stupid is invincible and guaranteed for all time. The
- terror of their tyranny, however, is alleviated by their lack of consistency."
-	- Albert Einstein
+		Linus
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

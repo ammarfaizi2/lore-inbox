@@ -1,62 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261766AbVAMWEH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261767AbVAMWEG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261766AbVAMWEH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 17:04:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261762AbVAMWC2
+	id S261767AbVAMWEG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 17:04:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261766AbVAMWCz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 17:02:28 -0500
-Received: from www.ssc.unict.it ([151.97.230.9]:46085 "HELO ssc.unict.it")
-	by vger.kernel.org with SMTP id S261765AbVAMV6c (ORCPT
+	Thu, 13 Jan 2005 17:02:55 -0500
+Received: from www.ssc.unict.it ([151.97.230.9]:45061 "HELO ssc.unict.it")
+	by vger.kernel.org with SMTP id S261764AbVAMV6a (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 16:58:32 -0500
-Subject: [patch 10/11] uml: add stack addresses to dumps
+	Thu, 13 Jan 2005 16:58:30 -0500
+Subject: [patch 09/11] uml: add stack content to dumps
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org, jdike@addtoit.com,
-       user-mode-linux-devel@lists.sourceforge.net, blaisorblade_spam@yahoo.it,
-       bstroesser@fujitsu-siemens.com
+       user-mode-linux-devel@lists.sourceforge.net, blaisorblade_spam@yahoo.it
 From: blaisorblade_spam@yahoo.it
-Date: Thu, 13 Jan 2005 22:01:11 +0100
-Message-Id: <20050113210111.86DE01FEFB@zion>
+Date: Thu, 13 Jan 2005 22:01:08 +0100
+Message-Id: <20050113210108.751921FEF9@zion>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
-
-Add stack addresses to print of symbols from stack trace.
-For stack analysis it's important to have this information.
-
-Signed-off-by: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
-
-For UML, we should also copy the CONFIG_FRAME_POINTER stack walking from i386,
-and move the result to sys-i386.
-
-Another note: this should be done for i386 also, if ksymoops does not have
-problems.
+Copy some code from i386 to print the stack content. Rough form yet, should
+work although.
 
 Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
 ---
 
- linux-2.6.11-paolo/arch/um/kernel/sysrq.c |    5 +++--
- 1 files changed, 3 insertions(+), 2 deletions(-)
+ linux-2.6.10-rc-paolo/arch/um/kernel/sysrq.c |   40 +++++++++++++++++++++++----
+ 1 files changed, 35 insertions(+), 5 deletions(-)
 
-diff -puN arch/um/kernel/sysrq.c~uml-add-stack-addresses-to-dumps arch/um/kernel/sysrq.c
---- linux-2.6.11/arch/um/kernel/sysrq.c~uml-add-stack-addresses-to-dumps	2005-01-13 21:54:57.450269544 +0100
-+++ linux-2.6.11-paolo/arch/um/kernel/sysrq.c	2005-01-13 21:56:09.250354272 +0100
-@@ -25,12 +25,13 @@ void show_trace(unsigned long * stack)
+diff -puN arch/um/kernel/sysrq.c~uml-add-stack-content-to-dumps arch/um/kernel/sysrq.c
+--- linux-2.6.10-rc/arch/um/kernel/sysrq.c~uml-add-stack-content-to-dumps	2004-11-30 18:32:12.000000000 +0100
++++ linux-2.6.10-rc-paolo/arch/um/kernel/sysrq.c	2004-11-30 20:27:06.540447816 +0100
+@@ -15,11 +15,13 @@
+ void show_trace(unsigned long * stack)
+ {
+ 	/* XXX: Copy the CONFIG_FRAME_POINTER stack-walking backtrace from
+-	 * arch/i386/kernel/traps.c. */
++	 * arch/i386/kernel/traps.c, and then move this to sys-i386/sysrq.c.*/
+         unsigned long addr;
+ 
+-        if (!stack)
++        if (!stack) {
+                 stack = (unsigned long*) &stack;
++		WARN_ON(1);
++	}
  
          printk("Call Trace: \n");
          while (((long) stack & (THREAD_SIZE-1)) != 0) {
--                addr = *stack++;
-+                addr = *stack;
- 		if (__kernel_text_address(addr)) {
--			printk(" [<%08lx>]", addr);
-+			printk("%08lx:  [<%08lx>]", (unsigned long) stack, addr);
- 			print_symbol(" %s", addr);
- 			printk("\n");
-                 }
-+                stack++;
-         }
-         printk("\n");
+@@ -34,7 +36,8 @@ void show_trace(unsigned long * stack)
+ }
+ 
+ /*
+- * The architecture-independent dump_stack generator
++ * stack dumps generator - this is used by arch-independent code.
++ * And this is identical to i386 currently.
+  */
+ void dump_stack(void)
+ {
+@@ -44,7 +47,34 @@ void dump_stack(void)
+ }
+ EXPORT_SYMBOL(dump_stack);
+ 
+-void show_stack(struct task_struct *task, unsigned long *sp)
++/*Stolen from arch/i386/kernel/traps.c */
++static int kstack_depth_to_print = 24;
++
++/* This recently started being used in arch-independent code too, as in
++ * kernel/sched.c.*/
++void show_stack(struct task_struct *task, unsigned long *esp)
+ {
+-	show_trace(sp);
++	unsigned long *stack;
++	int i;
++
++	if (esp == NULL) {
++		if (task != current) {
++			esp = (unsigned long *) KSTK_ESP(task);
++			/* Which one? No actual difference - just coding style.*/
++			//esp = (unsigned long *) PT_REGS_IP(&task->thread.regs);
++		} else {
++			esp = (unsigned long *) &esp;
++		}
++	}
++
++	stack = esp;
++	for(i = 0; i < kstack_depth_to_print; i++) {
++		if (kstack_end(stack))
++			break;
++		if (i && ((i % 8) == 0))
++			printk("\n       ");
++		printk("%08lx ", *stack++);
++	}
++
++	show_trace(esp);
  }
 _

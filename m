@@ -1,63 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261340AbUKFIqT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261342AbUKFJHW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261340AbUKFIqT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Nov 2004 03:46:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261341AbUKFIqT
+	id S261342AbUKFJHW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Nov 2004 04:07:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261343AbUKFJHW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Nov 2004 03:46:19 -0500
-Received: from calvin.codito.com ([203.199.140.162]:2435 "EHLO
-	magrathea.codito.co.in") by vger.kernel.org with ESMTP
-	id S261340AbUKFIqP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Nov 2004 03:46:15 -0500
-From: Amit Shah <amitshah@gmx.net>
-Organization: Codito Technologies
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: RT-preempt-2.6.10-rc1-mm2-V0.7.11 hang
-Date: Sat, 6 Nov 2004 14:14:10 +0530
-User-Agent: KMail/1.7
-Cc: linux-kernel@vger.kernel.org
-References: <200411051837.02083.amitshah@gmx.net> <20041105134639.GA14830@elte.hu>
-In-Reply-To: <20041105134639.GA14830@elte.hu>
-X-GnuPG-Fingerprint: 3001 346D 47C2 E445 EC1B  2EE1 E8FD 8F83 4E56 1092
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 6 Nov 2004 04:07:22 -0500
+Received: from webmail-outgoing.us4.outblaze.com ([205.158.62.67]:11648 "EHLO
+	webmail-outgoing.us4.outblaze.com") by vger.kernel.org with ESMTP
+	id S261342AbUKFJHK convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Nov 2004 04:07:10 -0500
+X-OB-Received: from unknown (205.158.62.182)
+  by wfilter.us4.outblaze.com; 6 Nov 2004 09:07:09 -0000
+Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
-Message-Id: <200411061414.11719.amitshah@gmx.net>
+Content-Transfer-Encoding: 7BIT
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Clayton Weaver" <cgweav@email.com>
+To: linux-kernel@vger.kernel.org
+Date: Sat, 06 Nov 2004 04:07:09 -0500
+Subject: Re: support of older compilers
+X-Originating-Ip: 172.172.217.214
+X-Originating-Server: ws1-6.us4.outblaze.com
+Message-Id: <20041106090709.396FA1CE305@ws1-6.us4.outblaze.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ingo,
+>You found a compiler bug, so you reported
+>it as a bug against
+>glibc?
 
-On Friday 05 Nov 2004 19:16, Ingo Molnar wrote:
-> * Amit Shah <amitshah@gmx.net> wrote:
-> > Hi Ingo,
-> >
-> > I'm trying out the RT preempt patch on a P4 HT machine, I get the
-> > following message:
-> >
-> > e1000_xmit_frame+0x0/0x83b [e1000]
->
-> hm, does this happen with -V0.7.13 too? (note that it's against
-> 2.6.10-rc1-mm3, a newer -mm tree.)
+You don't think it's possible that a glibc bug
+could cause unexpected behavior in a gcc that is
+using the glibc libraries?
 
-I had left the machine running overnight; I got a few BUGs and some spinlock 
-hold counts.
+I assure you it is. gcc-2.95.3 failed compiling
+file.c from strace-4.4.1 when running with glibc-2.3.2
+as it's libc, while it compiles it just fine when
+running with glibc-2.2.5 as it's libc. (I included
+this information and the compile log in my bug
+report to the linux distributor.)
 
-The message mentioned above about the e1000 xmit frame also keeps appearing, 
-but does not result in hangs.
+I don't know whether glibc-2.3.2 *really*
+had the bug or whether gcc-2.95.3 had some
+dodgy workaround for a bug in earlier glibc2
+versions that fixing a bug in glibc-2.3.2
+then exposed. Or if any of the glibc vendor
+patches were involved (something that should
+probably be sorted out before deciding to
+file the bug report to gcc-bug@, so as not
+to unnecessarily waste the time of gcc
+maintainers).
 
-I've uploaded the /var/log/messages file to
+Anyway, that's kind of beside the point.
+It was merely an example of how a user
+might come to decline an "obvious" gcc upgrade.
 
- http://amitshah.nav.to/kernel/messages-rt-0.7.13.txt
+I guess what I was trying to say is that users
+compiling the kernel with older gcc versions is
+less a function of user perversity in refusing to
+modernize their tools than it is a result of focus.
 
-Please take a look.
+What problem is the user trying to solve while
+using linux? Solving problems usually requires
+eliminating variables that may present obstacles
+to arriving at a solution, whether that solution
+is working production code, some statistical result,
+a document that displays correctly, correctly routed
+network flows, whatever.
 
->
->  Ingo
+So users arrive at a relatively stable compiler,
+they stop upgrading and use that. They find a
+kernel that stays up for a week with no oops
+reports or other wierdness, they use that. They
+will periodically upgrade the compiler, libc,
+kernel, etc, when they have a little spare time,
+to take advantage of security fixes, new features,
+better performance, whatever, *as long as the upgrade
+does not become another variable in the problem that
+the user is trying to solve*.
 
-Amit.
+If it does turn out to be a variable (unstable
+or in some other way unreliable), they toss it
+and go back to the old version, because eliminating
+variables until they arrive at the solution to their
+problem is what they do. Any other method ends up
+in combinatorial hell, and they never find a solution
+to their problem except by luck.
+
+Many are quite willing to test new versions, report
+bugs, send in patches, etc, just to contribute, but
+if their main focus is on other problems, they go back
+to the  last stable version right away for their
+everyday work.
+
+This is not perverse, selfish, or uncooperative
+behavior, it's merely normal problem-solving
+methodology. On what basis would one expect
+anything else from such a large user base?
+
 -- 
-Amit Shah
-http://amitshah.nav.to/
+___________________________________________________________
+Sign-up for Ads Free at Mail.com
+http://promo.mail.com/adsfreejump.htm
+

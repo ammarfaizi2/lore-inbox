@@ -1,69 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279851AbRJ3EYK>; Mon, 29 Oct 2001 23:24:10 -0500
+	id <S279852AbRJ3EZU>; Mon, 29 Oct 2001 23:25:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279853AbRJ3EYB>; Mon, 29 Oct 2001 23:24:01 -0500
-Received: from ams-msg-core-1.cisco.com ([144.254.74.60]:42448 "EHLO
-	ams-msg-core-1.cisco.com") by vger.kernel.org with ESMTP
-	id <S279851AbRJ3EXp>; Mon, 29 Oct 2001 23:23:45 -0500
-Message-ID: <3BDE2B4D.CA679FF1@cisco.com>
-Date: Tue, 30 Oct 2001 09:53:41 +0530
-From: Manik Raina <manik@cisco.com>
-Organization: Cisco Systems Inc.
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-12 i686)
-X-Accept-Language: en
+	id <S279856AbRJ3EZH>; Mon, 29 Oct 2001 23:25:07 -0500
+Received: from c255489-c.belvil1.il.home.com ([24.22.144.146]:55449 "EHLO
+	dink.joshisanerd.com") by vger.kernel.org with ESMTP
+	id <S279852AbRJ3EYi>; Mon, 29 Oct 2001 23:24:38 -0500
+Date: Mon, 29 Oct 2001 23:25:10 -0500 (EST)
+From: Josh Myer <jbm@joshisanerd.com>
+To: linux-kernel@vger.kernel.org
+Subject: Asymmetrically bonding PPP and ethernet?
+Message-ID: <Pine.LNX.4.21.0110292315410.894-100000@dignity.joshisanerd.com>
 MIME-Version: 1.0
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] small compile warning fix
-In-Reply-To: <7A9BC5E3241@vcnet.vc.cvut.cz>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Petr Vandrovec wrote:
+Hello,
 
-> On 29 Oct 01 at 15:43, Manik Raina wrote:
-> >
-> > Index: ncplib_kernel.c
-> > ===================================================================
-> > RCS file: /vger/linux/fs/ncpfs/ncplib_kernel.c,v
-> > retrieving revision 1.29
-> > diff -u -r1.29 ncplib_kernel.c
-> > --- ncplib_kernel.c 18 Sep 2001 22:29:08 -0000  1.29
-> > +++ ncplib_kernel.c 29 Oct 2001 10:09:27 -0000
-> > @@ -52,6 +52,11 @@
-> >     return;
-> >  }
-> >
-> > +#ifdef LATER
-> > +/*
-> > + * This function is not currently in use. This leads to a compiler warning.
-> > + * Remove #ifdef when in use...
-> > + */
-> >  static void ncp_add_mem_fromfs(struct ncp_server *server, const char *source, int size)
-> >  {
-> >     assert_server_locked(server);
->
-> You can remove it completely. It should not be '#ifdef LATER', but
-> '#ifdef OLDVERSION'... ncp_add_mem_fromfs was invoked with lock on
-> ncp_server structure, but then it directly accessed userspace. It was
-> possible to use this to cause deadlock, so now ncpfs uses bounce buffers
-> and double copy instead of this.
->
+Has anyone managed to bond a PPP connection as an upstream with an
+Ethernet connection as a downstream? My ISP requires this (one-way cable),
+and i haven't found anything about it, anywhere. Googling for lots of
+different possible keywords turns up nothing of pertinence.
 
-would you include this in your patches or would you like me to make
-it #ifdef OLDVERSION ?
+I tried iptables, and then tweaking bonding.c, but it's not working very
+well. I think it could be made to work, but i'm running into nuances
+between ppp and eth at the kernel level.
 
-thanks
-Manik
+The problem is thus: A machine connected to a local network via eth0, and
+to the cable modem via eth1, and to a ppp provider on ppp0. ppp0 is the
+upstream address at 24.216.n.n/32; eth1 is the downstream at
+10.0.0.1/24. eth0 is 10.1.0.20/16. If i connect the ppp up and run
+ethereal/tcpdump on eth1, then ping a host, i can see the ICMP replies on
+eth1. 
 
->
-> I have some ncpfs patches, but I though that I'll leave them for 2.5.x.
-> Maybe it is time to change this decision.
->                                             Best regards,
->                                                 Petr Vandrovec
->                                                 vandrove@vc.cvut.cz
->
+I'm currently using 2.4.4, but i don't think anything related to this has
+changed much since then.
+
+Thanks in advance for any advice,
+--
+/jbm, but you can call me Josh. Really, you can.
+ "Design may be clever in spurts,
+  but evolution never sleeps"
+  -- Rob Landley
 

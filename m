@@ -1,41 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129388AbRCEPz6>; Mon, 5 Mar 2001 10:55:58 -0500
+	id <S129363AbRCEQBK>; Mon, 5 Mar 2001 11:01:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129394AbRCEPzu>; Mon, 5 Mar 2001 10:55:50 -0500
-Received: from jalon.able.es ([212.97.163.2]:1415 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S129388AbRCEPzd>;
-	Mon, 5 Mar 2001 10:55:33 -0500
-Date: Mon, 5 Mar 2001 16:55:02 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: usb-storage log verbosity
-Message-ID: <20010305165502.A10344@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.1.2
+	id <S129373AbRCEQA6>; Mon, 5 Mar 2001 11:00:58 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:20610 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S129363AbRCEQAr>; Mon, 5 Mar 2001 11:00:47 -0500
+Date: Mon, 5 Mar 2001 10:59:48 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Jan Nieuwenhuizen <janneke@gnu.org>
+cc: Pavel Machek <pavel@suse.cz>, Erik Hensema <erik@hensema.xs4all.nl>,
+        linux-kernel@vger.kernel.org, bug-bash@gnu.org
+Subject: Re: [PATCH]: print missing interpreter name [Was: Re: binfmt_script and ^M]
+In-Reply-To: <m3vgpo462x.fsf@appel.lilypond.org>
+Message-ID: <Pine.LNX.3.95.1010305105132.9913B-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On 5 Mar 2001, Jan Nieuwenhuizen wrote:
 
-I have recently started to use an USB cd toaster and have a little problem.
-Writer is driven by usb-storage and scsi-cdrom and scsi-generic drivers.
-Burning works fine.
+> "Richard B. Johnson" <root@chaos.analogic.com> writes:
+> 
+> > So why would you even consider breaking bash as a work-around for
+> > a broken script?
+> 
+> I don't.
+> 
+> > Somebody must have missed the boat entirely. Unix does not, never
+> > has, and never will end a text line with '\r'. It's Microsoft junk
+> > that does that, a throwback to CP/M, a throwback to MDS/200.
+> 
+> Yes, we all know that, but you missed the point.  As far as this patch
+> goes, it's got nothing to do with the '\r'.  It's meant to get a more
+> informative error message from bash, if ``#!INTERPRETER'' does not
+> exist.  Look:
+> 
+>     $ cat /bin/foo.sh
+>     #!/foo/bar/baz
+>     echo bar
+>     $ /bin/bash -c /bin/foo.sh 
+>     /bin/bash: /bin/foo.sh: No such file or directory
+>     $ ./build/bash -c /bin/foo.sh 
+>     ./build/bash: /foo/bar: No such file or directory
+> 
+> Maybe the message could even be better, but having `/foo/bar' printed,
+> ie, the file that the kernel says does not exist, iso `/bin/foo.sh',
+> the name of the script, that certainly does exist, may help.  Possibly
+> both should be printed.
+> 
+> Greetings,
+> Jan.
 
-The problem is that the usb-storage module spits so many info-debug
-messages (even if I configured no debug in kernel config) that after
-a cd burn I end up with a 25 MB file in /var/log/messages and other 25MB
-in /var/log/kernel/info, so it fills my / partition.
+No. I did not miss the point. The 'No such file or directory' error
+(when you can see the ^$^$)#@@*& filename with 'ls'), usually means
+that there is something wrong with the file. Usually, I have found
+that it was an executable linked against some other runtime library
+than what I have. `strace` finds this quickly.
 
-If someone know a fast way to shut up usb-storage, I'll be gratefull.
-If not, I will try to make a patch to enclose all that printk's into
-#ifdef CONFIG_USB_STORAGE_DEBUG.
+A common problem after a so-called upgrade. So, the bash error output
+(without additional text) is consistent when there is something wrong with
+the file-name as well. 
 
--- 
-J.A. Magallon                                                      $> cd pub
-mailto:jamagallon@able.es                                          $> more beer
+Cheers,
+Dick Johnson
 
-Linux werewolf 2.4.2-ac11 #1 SMP Sat Mar 3 22:18:57 CET 2001 i686
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
 

@@ -1,68 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293645AbSCATYT>; Fri, 1 Mar 2002 14:24:19 -0500
+	id <S293648AbSCAT2t>; Fri, 1 Mar 2002 14:28:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293648AbSCATYK>; Fri, 1 Mar 2002 14:24:10 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:46089 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S293645AbSCATX6>;
-	Fri, 1 Mar 2002 14:23:58 -0500
-Message-ID: <3C7FD550.DCB0D3F5@mandrakesoft.com>
-Date: Fri, 01 Mar 2002 14:24:00 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19pre1 i686)
-X-Accept-Language: en
+	id <S293650AbSCAT2j>; Fri, 1 Mar 2002 14:28:39 -0500
+Received: from pc132.utati.net ([216.143.22.132]:46472 "HELO
+	merlin.webofficenow.com") by vger.kernel.org with SMTP
+	id <S293648AbSCAT2d>; Fri, 1 Mar 2002 14:28:33 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+To: "Randy.Dunlap" <rddunlap@osdl.org>, Hans Reiser <reiser@namesys.com>
+Subject: Re: A modest proposal -- We need a patch penguin
+Date: Fri, 1 Mar 2002 14:29:21 -0500
+X-Mailer: KMail [version 1.3.1]
+Cc: Rik van Riel <riel@conectiva.com.br>, Larry McVoy <lm@bitmover.com>,
+        Andre Hedrick <andre@linux-ide.org>,
+        Linus Torvalds <torvalds@transmeta.com>, <green@thebsh.namesys.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33L2.0202250855310.11464-100000@dragon.pdx.osdl.net>
+In-Reply-To: <Pine.LNX.4.33L2.0202250855310.11464-100000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
-To: Ben Greear <greearb@candelatech.com>
-CC: linux-kernel@vger.kernel.org, "David S. Miller" <davem@redhat.com>
-Subject: Re: Various 802.1Q VLAN driver patches. [try3]
-In-Reply-To: <20020301.072831.120445660.davem@redhat.com> <3C7FA81A.3070602@candelatech.com> <20020301.081110.76328637.davem@redhat.com> <3C7FAC00.4010402@candelatech.com> <20020301183059.V23151@mea-ext.zmailer.org> <3C7FB6F1.1040801@candelatech.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020301193718.B244B4EC@merlin.webofficenow.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ben Greear wrote:
-> --- linux/drivers/net/tulip/interrupt.c Fri Nov  9 22:45:35 2001
-> +++ linux.dev/drivers/net/tulip/interrupt.c     Tue Dec 11 09:24:36 2001
-> @@ -128,8 +128,8 @@
->                                    dev->name, entry, status);
->                 if (--rx_work_limit < 0)
->                         break;
-> -               if ((status & 0x38008300) != 0x0300) {
-> -                       if ((status & 0x38000300) != 0x0300) {
-> +               if ((status & (0x38000000 | RxDescFatalErr | RxWholePkt)) != RxWholePkt) {
-> +                       if ((status & (0x38000000 | RxWholePkt)) != RxWholePkt) {
->                                 /* Ingore earlier buffers. */
->                                 if ((status & 0xffff) != 0x7fff) {
->                                         if (tulip_debug > 1)
-> @@ -155,10 +155,10 @@
->                         struct sk_buff *skb;
-> 
->  #ifndef final_version
-> -                       if (pkt_len > 1518) {
-> +                       if (pkt_len > 1522) {
->                                 printk(KERN_WARNING "%s: Bogus packet size of %d (%#x).\n",
->                                            dev->name, pkt_len, pkt_len);
-> -                               pkt_len = 1518;
-> +                               pkt_len = 1522;
->                                 tp->stats.rx_length_errors++;
->                         }
+On Monday 25 February 2002 12:13 pm, Randy.Dunlap wrote:
+> On Fri, 22 Feb 2002, Hans Reiser wrote:
+> | We need to move from discussing whether Linus can scale to whether the
+> | Linux Community can scale.
+>
+> I have to agree with much of what Hans has written here.
+>
+> and one of the biggest things that would help in this regard, IMHO,
+> is to (dare I say "require") provide documentation for kernel
+> API changes or semantics.  "Read the source" or "Use the source"
+> doesn't scale well either, when 10K kernel developers are
+> trying to use a new widget in 2.5.4, but they all ask questions
+> on lkml about how it's done.
+>
+> Let's keep Documentation/* stuff up to date.  Whether it's in
+> text or DocBook format doesn't matter much.
+> Or have web pages for it if that's preferred by the project or
+> individual(s).
 
+Random comment:
 
-Tulip handles fragmented packets by choking hard.  I'll probably copy
-the fragmented-packed slow path from 8139cp.c, which will change this
-patch immensely.
+It's design documentation that's needed.  Looking at the code you can see 
+what it's doing, but you sometimes have to read an amazing amount of it to 
+even guess at WHY...  The code doesn't always tell you about the author's 
+intentions, just the implementation.  And sometimes the code is wrong 
+anyway...
 
-The REAL vlan tulip patch will look almost exactly like the 8139cp patch
-in 2.5.6-pre2.
+I believe the kernelnewbies project is working on this, but haven't been able 
+to follow it.  (I just moved back to Austin, am recovering from food 
+poisioning, picking an old job back up...  Not following much of anything at 
+the moment...)
 
-	Jeff
+>   ~Randy
 
-
-
-
--- 
-Jeff Garzik      |
-Building 1024    |
-MandrakeSoft     | Choose life.
+Rob

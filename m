@@ -1,47 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129143AbRAZKqi>; Fri, 26 Jan 2001 05:46:38 -0500
+	id <S129305AbRAZKu2>; Fri, 26 Jan 2001 05:50:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129172AbRAZKqS>; Fri, 26 Jan 2001 05:46:18 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:980 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S129143AbRAZKqQ>;
-	Fri, 26 Jan 2001 05:46:16 -0500
-Date: Fri, 26 Jan 2001 10:43:46 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Timur Tabi <ttabi@interactivesi.com>
-Cc: Jeff Hartmann <jhartmann@valinux.com>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: ioremap_nocache problem?
-Message-ID: <20010126104346.D11607@redhat.com>
-In-Reply-To: <3A6D5D28.C132D416@sangate.com> <20010123165117Z131182-221+34@kanga.kvack.org> <20010123165117Z131182-221+34@kanga.kvack.org> <20010125155345Z131181-221+38@kanga.kvack.org> <20010125165001Z132264-460+11@vger.kernel.org> <E14LpvQ-0008Pw-00@mail.valinux.com> <3A7066A1.5030608@valinux.com> <20010125175027Z131219-222+40@kanga.kvack.org>
-Mime-Version: 1.0
+	id <S129172AbRAZKuT>; Fri, 26 Jan 2001 05:50:19 -0500
+Received: from sunrise.pg.gda.pl ([153.19.40.230]:24240 "EHLO
+	sunrise.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S129143AbRAZKuC>; Fri, 26 Jan 2001 05:50:02 -0500
+From: Andrzej Krzysztofowicz <ankry@pg.gda.pl>
+Message-Id: <200101261049.LAA26608@sunrise.pg.gda.pl>
+Subject: Re: Marking sectors on IDE drives as bad
+To: Petter.Wahlman@compaq.com (Wahlman, Petter)
+Date: Fri, 26 Jan 2001 11:49:36 +0100 (MET)
+Cc: linux-kernel@vger.kernel.org ('linux-kernel@vger.kernel.org'),
+        andre@linux-ide.org ('Andre Hedrick'),
+        hahn@coffee.psychology.mcmaster.ca ('Mark Hahn'),
+        adilger@turbolinux.com ('Andreas Dilger')
+In-Reply-To: <E7D21F6C2128D41199B600508BCF8D54A9AD69@nosexc01.nwo.cpqcorp.net> from "Wahlman, Petter" at Jan 26, 2001 10:36:41 AM
+Reply-To: ankry@green.mif.pg.gda.pl
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <20010125175027Z131219-222+40@kanga.kvack.org>; from ttabi@interactivesi.com on Thu, Jan 25, 2001 at 11:53:01AM -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+"Wahlman, Petter wrote:"
+> The problem still persist, even after marking the respective block with:
+> badblocks -n -o /var/log/badblocks,
+> and e2fsck -l /var/log/badblocks
 
-On Thu, Jan 25, 2001 at 11:53:01AM -0600, Timur Tabi wrote:
+> fsck is forced at boot, with the previously mentioned error: 
 > 
-> > As in an MMIO aperture?  If its MMIO on the bus you should be able to 
-> > just call ioremap with the bus address.  By nature of it being outside 
-> > of real ram, it should automatically be uncached (unless you've set an 
-> > MTRR over that region saying otherwise).
-> 
-> It's not outside of real RAM.  The device is inside real RAM (it sits on the
-> DIMM itself), but I need to poke through the entire 4GB range to see how it
-> responds.
+> Jan 26 10:32:37 evil kernel: hda: read_intr: error=0x01 { AddrMarkNotFound
+> }, LBAsect=10262250, sector=1311147
+> Jan 26 10:32:37 evil kernel: ide0: reset: success
+> Jan 26 10:32:37 evil kernel: hda: read_intr: status=0x59 { DriveReady
+> SeekComplete DataRequest Error }
 
-kmap() is designed for that, not ioremap().  Is it absolutely
-essential that your mapping is uncached?  If so, extending kmap() to
-support kmap_nocache() would seem to make a lot more sense than using
-ioremap(): kmap is there for temporarily poking around in high memory,
-whereas ioremap is really intended to be used for persistent maps.
+IDE layer knows nothing about ext2 marked badblocks.
+Did you turn off multicount (PIO) and readahead (DMA) for this disk
+using hdparm ?
 
---Stephen
+However note that some ext2 structure information is not relocable.
+So if bad blocks hit them you lose.
+
+Andrzej
+-- 
+=======================================================================
+  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
+  phone (48)(58) 347 14 61
+Faculty of Applied Phys. & Math.,   Technical University of Gdansk
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263510AbVCEAnt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263487AbVCEAvJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263510AbVCEAnt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 19:43:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263489AbVCEAih
+	id S263487AbVCEAvJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 19:51:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263491AbVCEAro
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 19:38:37 -0500
-Received: from palrel11.hp.com ([156.153.255.246]:58852 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S263399AbVCEA1h (ORCPT
+	Fri, 4 Mar 2005 19:47:44 -0500
+Received: from palrel11.hp.com ([156.153.255.246]:7402 "EHLO palrel11.hp.com")
+	by vger.kernel.org with ESMTP id S263339AbVCEAav (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 19:27:37 -0500
-Date: Fri, 4 Mar 2005 16:27:20 -0800
+	Fri, 4 Mar 2005 19:30:51 -0500
+Date: Fri, 4 Mar 2005 16:30:42 -0800
 To: "David S. Miller" <davem@davemloft.net>,
        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.6 IrDA] Mark exit code properly in VIA driver
-Message-ID: <20050305002720.GE23895@bougret.hpl.hp.com>
+Subject: [PATCH 2.6 IrDA] remove unneeded EXPORT_SYMBOL's from irport.c
+Message-ID: <20050305003042.GI23895@bougret.hpl.hp.com>
 Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -26,69 +26,263 @@ From: Jean Tourrilhes <jt@hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-irXXX_via_devexit.diff :
-~~~~~~~~~~~~~~~~~~~~~~
-		<Patch from Randy Dunlap>
-	o [CORRECT] Mark exit code properly in VIA driver
-Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
+irXXX_irport_exports.diff :
+~~~~~~~~~~~~~~~~~~~~~~~~~
+		<Patch from Adrian Bunk>
+	o [FEATURE] make needlessly global code static
+	o [FEATURE] remove unneeded EXPORT_SYMBOL's from irport.c
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 Signed-off-by: Jean Tourrilhes <jt@hpl.hp.com>
 
 
-
-diff -Naurp ./drivers/net/irda/via-ircc.c~irda_via_devexit ./drivers/net/irda/via-ircc.c
---- ./drivers/net/irda/via-ircc.c~irda_via_devexit	2004-12-24 13:33:47.000000000 -0800
-+++ ./drivers/net/irda/via-ircc.c	2005-01-06 21:18:49.742203456 -0800
-@@ -83,7 +83,7 @@ static struct via_ircc_cb *dev_self[] = 
+--- linux-2.6.11-rc3-mm2-full/drivers/net/irda/irtty-sir.c.old	2005-02-16 15:40:41.000000000 +0100
++++ linux-2.6.11-rc3-mm2-full/drivers/net/irda/irtty-sir.c	2005-02-16 15:40:52.000000000 +0100
+@@ -413,7 +413,7 @@
  
- /* Some prototypes */
- static int via_ircc_open(int i, chipio_t * info, unsigned int id);
--static int __exit via_ircc_close(struct via_ircc_cb *self);
-+static int via_ircc_close(struct via_ircc_cb *self);
- static int via_ircc_dma_receive(struct via_ircc_cb *self);
- static int via_ircc_dma_receive_complete(struct via_ircc_cb *self,
- 					 int iobase);
-@@ -111,7 +111,7 @@ static void hwreset(struct via_ircc_cb *
- static int via_ircc_dma_xmit(struct via_ircc_cb *self, u16 iobase);
- static int upload_rxdata(struct via_ircc_cb *self, int iobase);
- static int __devinit via_init_one (struct pci_dev *pcidev, const struct pci_device_id *id);
--static void __exit via_remove_one (struct pci_dev *pdev);
-+static void __devexit via_remove_one (struct pci_dev *pdev);
+ /* ------------------------------------------------------- */
  
- /* FIXME : Should use udelay() instead, even if we are x86 only - Jean II */
- static void iodelay(int udelay)
-@@ -140,7 +140,7 @@ static struct pci_driver via_driver = {
- 	.name		= VIA_MODULE_NAME,
- 	.id_table	= via_pci_tbl,
- 	.probe		= via_init_one,
--	.remove		= via_remove_one,
-+	.remove		= __devexit_p(via_remove_one),
+-struct sir_driver sir_tty_drv = {
++static struct sir_driver sir_tty_drv = {
+ 	.owner			= THIS_MODULE,
+ 	.driver_name		= "sir_tty",
+ 	.start_dev		= irtty_start_dev,
+--- linux-2.6.11-rc3-mm2-full/drivers/net/irda/smsc-ircc2.c.old	2005-02-16 15:41:08.000000000 +0100
++++ linux-2.6.11-rc3-mm2-full/drivers/net/irda/smsc-ircc2.c	2005-02-16 15:41:17.000000000 +0100
+@@ -203,7 +203,7 @@
+ 
+ /* Transceivers for SMSC-ircc */
+ 
+-smsc_transceiver_t smsc_transceivers[]=
++static smsc_transceiver_t smsc_transceivers[]=
+ {
+ 	{ "Toshiba Satellite 1800 (GP data pin select)", smsc_ircc_set_transceiver_toshiba_sat1800, smsc_ircc_probe_transceiver_toshiba_sat1800},
+ 	{ "Fast pin select", smsc_ircc_set_transceiver_smsc_ircc_fast_pin_select, smsc_ircc_probe_transceiver_smsc_ircc_fast_pin_select},
+--- linux-2.6.11-rc3-mm2-full/drivers/net/irda/irport.h.old	2005-02-16 15:42:36.000000000 +0100
++++ linux-2.6.11-rc3-mm2-full/drivers/net/irda/irport.h	2005-02-16 15:43:24.000000000 +0100
+@@ -77,14 +77,4 @@
+ 	int (*interrupt)(int irq, void *dev_id, struct pt_regs *regs);
  };
  
+-struct irport_cb *irport_open(int i, unsigned int iobase, unsigned int irq);
+-int  irport_close(struct irport_cb *self);
+-void irport_start(struct irport_cb *self);
+-void irport_stop(struct irport_cb *self);
+-void irport_change_speed(void *priv, __u32 speed);
+-irqreturn_t irport_interrupt(int irq, void *dev_id, struct pt_regs *regs);
+-int  irport_hard_xmit(struct sk_buff *skb, struct net_device *dev);
+-int  irport_net_open(struct net_device *dev);
+-int  irport_net_close(struct net_device *dev);
+-
+ #endif /* IRPORT_H */
+--- linux-2.6.11-rc3-mm2-full/drivers/net/irda/irport.c.old	2005-02-16 15:43:34.000000000 +0100
++++ linux-2.6.11-rc3-mm2-full/drivers/net/irda/irport.c	2005-02-16 15:49:06.000000000 +0100
+@@ -87,50 +87,14 @@
+ static int irport_change_speed_complete(struct irda_task *task);
+ static void irport_timeout(struct net_device *dev);
  
-@@ -273,7 +273,7 @@ static int __devinit via_init_one (struc
-  *    Close all configured chips
-  *
-  */
--static void __exit via_ircc_clean(void)
-+static void via_ircc_clean(void)
+-EXPORT_SYMBOL(irport_open);
+-EXPORT_SYMBOL(irport_close);
+-EXPORT_SYMBOL(irport_start);
+-EXPORT_SYMBOL(irport_stop);
+-EXPORT_SYMBOL(irport_interrupt);
+-EXPORT_SYMBOL(irport_hard_xmit);
+-EXPORT_SYMBOL(irport_timeout);
+-EXPORT_SYMBOL(irport_change_speed);
+-EXPORT_SYMBOL(irport_net_open);
+-EXPORT_SYMBOL(irport_net_close);
++static irqreturn_t irport_interrupt(int irq, void *dev_id,
++				    struct pt_regs *regs);
++static int irport_hard_xmit(struct sk_buff *skb, struct net_device *dev);
++static void irport_change_speed(void *priv, __u32 speed);
++static int irport_net_open(struct net_device *dev);
++static int irport_net_close(struct net_device *dev);
+ 
+-static int __init irport_init(void)
+-{
+- 	int i;
+-
+- 	for (i=0; (io[i] < 2000) && (i < 4); i++) {
+- 		if (irport_open(i, io[i], irq[i]) != NULL)
+- 			return 0;
+- 	}
+-	/* 
+-	 * Maybe something failed, but we can still be usable for FIR drivers 
+-	 */
+- 	return 0;
+-}
+-
+-/*
+- * Function irport_cleanup ()
+- *
+- *    Close all configured ports
+- *
+- */
+-static void __exit irport_cleanup(void)
+-{
+- 	int i;
+-
+-        IRDA_DEBUG( 4, "%s()\n", __FUNCTION__);
+-
+-	for (i=0; i < 4; i++) {
+- 		if (dev_self[i])
+- 			irport_close(dev_self[i]);
+- 	}
+-}
+-
+-struct irport_cb *
++static struct irport_cb *
+ irport_open(int i, unsigned int iobase, unsigned int irq)
  {
- 	int i;
- 
-@@ -285,7 +285,7 @@ static void __exit via_ircc_clean(void)
- 	}
+ 	struct net_device *dev;
+@@ -254,7 +218,7 @@
+ 	return NULL;
  }
  
--static void __exit via_remove_one (struct pci_dev *pdev)
-+static void __devexit via_remove_one (struct pci_dev *pdev)
+-int irport_close(struct irport_cb *self)
++static int irport_close(struct irport_cb *self)
  {
- 	IRDA_DEBUG(3, "%s()\n", __FUNCTION__);
+ 	ASSERT(self != NULL, return -1;);
  
-@@ -468,7 +468,7 @@ static __devinit int via_ircc_open(int i
-  *    Close driver instance
-  *
-  */
--static int __exit via_ircc_close(struct via_ircc_cb *self)
-+static int via_ircc_close(struct via_ircc_cb *self)
+@@ -285,40 +249,40 @@
+ 	return 0;
+ }
+ 
+-void irport_start(struct irport_cb *self)
++static void irport_stop(struct irport_cb *self)
  {
  	int iobase;
  
+ 	iobase = self->io.sir_base;
+ 
+-	irport_stop(self);
+-	
+ 	/* We can't lock, we may be called from a FIR driver - Jean II */
+ 
+-	/* Initialize UART */
+-	outb(UART_LCR_WLEN8, iobase+UART_LCR);  /* Reset DLAB */
+-	outb((UART_MCR_DTR | UART_MCR_RTS | UART_MCR_OUT2), iobase+UART_MCR);
++	/* We are not transmitting any more */
++	self->transmitting = 0;
++
++	/* Reset UART */
++	outb(0, iobase+UART_MCR);
+ 	
+-	/* Turn on interrups */
+-	outb(UART_IER_RLSI | UART_IER_RDI |UART_IER_THRI, iobase+UART_IER);
++	/* Turn off interrupts */
++	outb(0, iobase+UART_IER);
+ }
+ 
+-void irport_stop(struct irport_cb *self)
++static void irport_start(struct irport_cb *self)
+ {
+ 	int iobase;
+ 
+ 	iobase = self->io.sir_base;
+ 
++	irport_stop(self);
++	
+ 	/* We can't lock, we may be called from a FIR driver - Jean II */
+ 
+-	/* We are not transmitting any more */
+-	self->transmitting = 0;
+-
+-	/* Reset UART */
+-	outb(0, iobase+UART_MCR);
++	/* Initialize UART */
++	outb(UART_LCR_WLEN8, iobase+UART_LCR);  /* Reset DLAB */
++	outb((UART_MCR_DTR | UART_MCR_RTS | UART_MCR_OUT2), iobase+UART_MCR);
+ 	
+-	/* Turn off interrupts */
+-	outb(0, iobase+UART_IER);
++	/* Turn on interrups */
++	outb(UART_IER_RLSI | UART_IER_RDI |UART_IER_THRI, iobase+UART_IER);
+ }
+ 
+ /*
+@@ -368,7 +332,7 @@
+  *
+  * This function should be called with irq off and spin-lock.
+  */
+-void irport_change_speed(void *priv, __u32 speed)
++static void irport_change_speed(void *priv, __u32 speed)
+ {
+ 	struct irport_cb *self = (struct irport_cb *) priv;
+ 	int iobase; 
+@@ -619,7 +583,7 @@
+  *    waits until the next transmitt interrupt, and continues until the
+  *    frame is transmitted.
+  */
+-int irport_hard_xmit(struct sk_buff *skb, struct net_device *dev)
++static int irport_hard_xmit(struct sk_buff *skb, struct net_device *dev)
+ {
+ 	struct irport_cb *self;
+ 	unsigned long flags;
+@@ -814,7 +778,8 @@
+  *
+  *    Interrupt handler
+  */
+-irqreturn_t irport_interrupt(int irq, void *dev_id, struct pt_regs *regs) 
++static irqreturn_t irport_interrupt(int irq, void *dev_id,
++				    struct pt_regs *regs) 
+ {
+ 	struct net_device *dev = (struct net_device *) dev_id;
+ 	struct irport_cb *self;
+@@ -888,7 +853,7 @@
+  *    Network device is taken up. Usually this is done by "ifconfig irda0 up" 
+  *   
+  */
+-int irport_net_open(struct net_device *dev)
++static int irport_net_open(struct net_device *dev)
+ {
+ 	struct irport_cb *self;
+ 	int iobase;
+@@ -941,7 +906,7 @@
+  *    Network device is taken down. Usually this is done by 
+  *    "ifconfig irda0 down" 
+  */
+-int irport_net_close(struct net_device *dev)
++static int irport_net_close(struct net_device *dev)
+ {
+ 	struct irport_cb *self;
+ 	int iobase;
+@@ -1134,6 +1099,38 @@
+ 	return &self->stats;
+ }
+ 
++static int __init irport_init(void)
++{
++ 	int i;
++
++ 	for (i=0; (io[i] < 2000) && (i < 4); i++) {
++ 		if (irport_open(i, io[i], irq[i]) != NULL)
++ 			return 0;
++ 	}
++	/* 
++	 * Maybe something failed, but we can still be usable for FIR drivers 
++	 */
++ 	return 0;
++}
++
++/*
++ * Function irport_cleanup ()
++ *
++ *    Close all configured ports
++ *
++ */
++static void __exit irport_cleanup(void)
++{
++ 	int i;
++
++        IRDA_DEBUG( 4, "%s()\n", __FUNCTION__);
++
++	for (i=0; i < 4; i++) {
++ 		if (dev_self[i])
++ 			irport_close(dev_self[i]);
++ 	}
++}
++
+ MODULE_PARM(io, "1-4i");
+ MODULE_PARM_DESC(io, "Base I/O addresses");
+ MODULE_PARM(irq, "1-4i");
+

@@ -1,120 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316595AbSHJGIr>; Sat, 10 Aug 2002 02:08:47 -0400
+	id <S316601AbSHJGRV>; Sat, 10 Aug 2002 02:17:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316601AbSHJGIr>; Sat, 10 Aug 2002 02:08:47 -0400
-Received: from vic7-adsl-050.tpgi.com.au ([203.213.71.50]:38556 "EHLO
-	coralshark.bluereef.com.au") by vger.kernel.org with ESMTP
-	id <S316595AbSHJGIq>; Sat, 10 Aug 2002 02:08:46 -0400
-Message-ID: <085301c24035$e2797450$2b01010a@bluereef.local>
-From: "Andrew Hall" <andrew.hall@bluereef.com.au>
-To: "Mike Galbraith" <EFAULT@gmx.de>
-Cc: <linux-kernel@vger.kernel.org>
-References: <079d01c23f7b$e3cf34d0$2b01010a@bluereef.local> <3D53B951.2070304@gmx.de>
-Subject: Re: 2.2.20 ramdisk(initrd) not found by kernel
-Date: Sat, 10 Aug 2002 16:19:29 +1000
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S316608AbSHJGRV>; Sat, 10 Aug 2002 02:17:21 -0400
+Received: from codepoet.org ([166.70.99.138]:61649 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S316601AbSHJGRU>;
+	Sat, 10 Aug 2002 02:17:20 -0400
+Date: Sat, 10 Aug 2002 00:21:08 -0600
+From: Erik Andersen <andersen@codepoet.org>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: davidm@hpl.hp.com, Arnd Bergmann <arnd@bergmann-dalldorf.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: klibc development release
+Message-ID: <20020810062107.GC2551@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	"H. Peter Anvin" <hpa@zytor.com>, davidm@hpl.hp.com,
+	Arnd Bergmann <arnd@bergmann-dalldorf.de>,
+	linux-kernel@vger.kernel.org
+References: <aivdi8$r2i$1@cesium.transmeta.com> <200208090934.g799YVZe116824@d12relay01.de.ibm.com> <200208091754.g79HsJkN058572@d06relay02.portsmouth.uk.ibm.com> <3D541018.4050004@zytor.com> <15700.4689.876752.886309@napali.hpl.hp.com> <3D541478.40808@zytor.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3D541478.40808@zytor.com>
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux 2.4.18-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This infact seems to be correct. After investigation it turns out that it is
-lilo that baulks at anything bigger than 16MB of initrd (after
-decompression). I have confirmed this using 2.2.20, 2.2.21, 2.4.7 and a few
-printks to see if these images are actually getting the start_initrd value
-passed. Anything bigger than 16MB and lilo will either:
+On Fri Aug 09, 2002 at 12:14:00PM -0700, H. Peter Anvin wrote:
+> David Mosberger wrote:
+> >>>>>>On Fri, 09 Aug 2002 11:55:20 -0700, "H. Peter Anvin" <hpa@zytor.com> 
+> >>>>>>said:
+> >>>>>
+> >
+> >  HPA> Hmf... some of these seem to be outright omissions
+> >  HPA> (pivot_root() and umount2() especially), and probably indicate
+> >  HPA> bugs or that the stock kernel isn't up to date anymore.
+> >
+> >  HPA> I can see umount() being missing (as in "use umount2()").
+> >
+> >Alpha calls umount2() "oldumount"; ia64 never had a one-argument
+> >version of umount(), so there is no point creating legacy (and the
+> >naming is inconsistent anyhow...).
+> >
+> 
+> The gratuitous inconsistencies between platforms is something that is 
+> currently driving me up the wall.  I'm starting to think the NetBSD 
+> people have the right idea: when you add a system call on NetBSD, you 
+> only have to add it in one place and it becomes available on all the 
+> platforms they support.  Of course, you can provide a custom 
+> implementation for any one platform, but the idea is to keep as much of 
+> the code generic as possible...
 
-a. Seem to complete the load but not pass the ramdisk_start value to the
-kernel
-or
-b. Cold hang during the copy of the compressed image into memory
+Amen brother.   That would be great!  But I'm not holding 
+my breath waiting to see it,
 
-I've had a bit of a look at the lilo source but the assembly stuff is
-meaningless to me. Can anyone please tell me if this is the intended
-function of lilo (to be limited to a 16MB initrd?) or point me in the right
-direction as to where I might start looking for this bug in the lilo source.
->From what Mike says, below it would seem that this problem is not specific
-to Lilo, but effects Loadlin aswell. I will try grub next.
+ -Erik
 
-Thanks,
-
-Andrew.
------ Original Message -----
-From: "Mike Galbraith" <EFAULT@gmx.de>
-To: "Andrew" <temp01@bluereef.com.au>
-Sent: Friday, August 09, 2002 10:45 PM
-Subject: Re: 2.2.20 ramdisk(initrd) not found by kernel
-
-
-> Andrew wrote:
->
-> >I have a problem that I have been wrestling with now for a number of days
-> >with no solution, and I'm hoping someone can help.
-> >
-> >My problem is that when the 2.2.20 kernel loads, lilo doesn't seem to
-load
-> >the rootfs.img into RAM or it gets dropped before the kernel finds it.
-That
-> >is I don't get the
-> >kernel message 'RAMDISK found at block 0' message and thus Linux panics
-with
-> >something like "root file system not found on dev 1:0".
-> >
-> >I have a stock 2.2.20 kernel with ramdisk and initrd support compiled in.
-> >RAMdisk size is 64MB although I've also tried 32MB and 128MB.
-> >I have tried kernel builds with module support and without (everything
-> >compiled in)
-> >I'm using the latest lilo I can find with the following config:
-> >
-> >boot=/dev/hdc
-> >disk=/dev/hdc
-> > bios=0x80
-> >map=/map
-> >install=/boot.b
-> >backup=/boot.1600
-> >prompt
-> >linear
-> >timeout=50
-> >password=maintenance
-> >restricted
-> >image=/vmlinuz-2.2.20up
-> >        label=test
-> >        ramdisk=65536
-> >        initrd=/rootfs.img
-> >        root=/dev/ram
-> >
-> >The server is a uni processor PIII server with 512MB of RAM
-> >
-> >The sizes of my rootfs.img and kernel are:
-> > 8713856 Aug  7 12:55 rootfs.img (this is an ext2 compressed image)
-> > 787022 Aug  7 12:17 vmlinuz-2.2.20up (this is a monolithic bzImage
-kernel)
-> >
-> >Lilo when building doesn't report any errors in fact it says it
-successfully
-> >maps the RAMdisk ok
-> >
-> >It almost seems like there is some finite size or block limit that my
-> >rootfs.img+kernel is greater than, that stops the
-> >RAMdisk being loaded or being found if it is infact being loaded at all.
-> >
-> >Is there a finite limit on the size initrd can be? Enlarging the ramdisk
-> >size or altering the block size of the image doesn't seem to make any
-> >difference.
-> >
->
-> 16MB was the largest I could ever load.  (but that could have been a
-> loadlin limitation)
->
->     -Mike
->
->
->
->
-
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

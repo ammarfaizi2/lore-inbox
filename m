@@ -1,74 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267667AbTAaBce>; Thu, 30 Jan 2003 20:32:34 -0500
+	id <S267662AbTAaByh>; Thu, 30 Jan 2003 20:54:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267668AbTAaBce>; Thu, 30 Jan 2003 20:32:34 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:31741 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S267667AbTAaBcd>;
-	Thu, 30 Jan 2003 20:32:33 -0500
-Message-ID: <3E39D44A.95862534@mvista.com>
-Date: Thu, 30 Jan 2003 17:41:30 -0800
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-14smp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: john stultz <johnstul@us.ibm.com>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH] linux-2.4.21-pre4_tsc-lost-tick_A0
-References: <1043972238.19049.27.camel@w-jstultz2.beaverton.ibm.com>
-		 <3E39CC85.D9A339D0@mvista.com> <1043976173.19558.12.camel@w-jstultz2.beaverton.ibm.com>
+	id <S267668AbTAaByh>; Thu, 30 Jan 2003 20:54:37 -0500
+Received: from ip68-101-124-193.oc.oc.cox.net ([68.101.124.193]:63361 "EHLO
+	ip68-4-86-174.oc.oc.cox.net") by vger.kernel.org with ESMTP
+	id <S267662AbTAaByg>; Thu, 30 Jan 2003 20:54:36 -0500
+Date: Thu, 30 Jan 2003 18:04:00 -0800
+From: "Barry K. Nathan" <barryn@pobox.com>
+To: "Lars 'Cebewee' Noschinski" <CebeWee@gmx.de>
+Cc: Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
+       John Bradford <john@grabjohn.com>,
+       "(jeff millar)" <wa1hco@adelphia.net>, Raphael_Schmid@CUBUS.COM,
+       rob@r-morris.co.uk, linux-kernel@vger.kernel.org
+Subject: Re: Scaring the non-geeks (was Bootscreen)
+Message-ID: <20030131020400.GA17427@ip68-4-86-174.oc.oc.cox.net>
+References: <200301281440.h0SEeBS8001126@darkstar.example.net> <200301291409.57213.roy@karlsbakk.net> <961914102.20030130195303@gmx.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <961914102.20030130195303@gmx.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-john stultz wrote:
-> 
-> On Thu, 2003-01-30 at 17:08, george anzinger wrote:
-> > john stultz wrote:
-> > > I'm already somewhat cautious that loops_per_jiffy isn't going to cut it
-> > > with this patch (I'm thinking fast_gettimeoffset_quotient would probably
-> > > be better). So please let me know if you find any issues with this
-> > > patch.
-> >
-> > I think you are wondering about the "/", as am I.  Possibly
-> > a while loop, or, something like
-> > fast_gettimeoffset_quotient, but scaled to do jiffies
-> > instead of micro seconds.  Still you SHOULD be doing this so
-> > seldom that one wonders if the "/" is all that bad.
-> 
-> Yea, I'm assuming it would be rare enough that the div won't be too much
-> of a performance drop and would make the code more clear. Although if it
-> is a concern I'm not opposed to speeding it up.
-> 
-> > Another thing, possibly not so easily fixed given the
-> > division between "arch" code and common code, but I would
-> > like to see jiffies updated in only ONE place.  With this
-> > patch it is updated in .../kernel/timer.c AND in
-> > .../arch/kernel/time.c.  In the high-res-timers patch I made
-> > the jiffies update an inline in an "arch" header file so I
-> > could have the best of both worlds, i.e. update from common
-> > code using arch resources (TSC, etc).
-> 
-> Yea, I'm not psyched about that as well (not only is it updated twice,
-> but three times: arch independent, tsc and cyclone). The inline bit
-> sounds interesting, are you planning on pushing that in?
+On Thu, Jan 30, 2003 at 07:53:03PM +0100, Lars 'Cebewee' Noschinski wrote:
+> Till Windows Me, every Windows user got textmode messages at boot time.
+> And they survived it.
 
-I am a bit discouraged on that front.  I was hoping to get
-the POSIX clocks & timers patch in, but it is long past
-Halloween and, while he said he might, he didn't.  I don't
-know if he is finished as yet, but...  The jiffies update
-was part of the core patch to do the high res timers which
-he said he would not take.  I would like to try parting it
-out and pushing in some stuff, such as scmath.h which makes
-things like fast_gettimeoffset_quotient not only
-understandable but easy.  Folks in the cpu frequency area
-would like that.  Still, my boss has other plans...
+Most Win98 boxes (at least in my experience) don't show text-mode
+message as boot either. Same for *all* of the (now rare) Win95 boxes
+I've seen lately.
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers: 
-http://sourceforge.net/projects/high-res-timers/
-Preemption patch:
-http://www.kernel.org/pub/linux/kernel/people/rml
+It depends on whether you have any DOS programs installed in
+autoexec.bat or config.sys that output text. AFAICT many old antivirus
+programs used to spew stuff at boot, but as people update their
+antivirus programs over time, this is becoming less common.
+
+Also, Win95/98 rarely displayed more than a screenful of text, virtually
+never displayed more than two screenfuls, and usually displayed only a
+few lines. Compare with Linux, spewing a multi-screen waterfall of text
+before init even starts. Some people respond by backing away from the
+computer in fear. Others say things like "Daaaaaaamn!" when they
+suddenly recognize the true speed of their video hardware.
+
+I haven't tried confronting an average person with "quiet" added to the
+boot command line arguments yet. That might be sufficient to fix the
+problem. (OTOH I haven't read the full thread yet so I don't know if
+anyone else has tried this.)
+
+-Barry K. Nathan <barryn@pobox.com>

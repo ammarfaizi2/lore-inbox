@@ -1,66 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263465AbUCPGla (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 01:41:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263474AbUCPGla
+	id S263511AbUCPItP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 03:49:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263560AbUCPItO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 01:41:30 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:3235 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S263465AbUCPGl2 (ORCPT
+	Tue, 16 Mar 2004 03:49:14 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:41870 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S263511AbUCPItO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 01:41:28 -0500
-Date: Tue, 16 Mar 2004 07:33:31 +0100
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Peter Williams <peterw@aurema.com>
-Cc: John Reiser <jreiser@BitWagon.com>, Micha Feigin <michf@post.tau.ac.il>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: finding out the value of HZ from userspace
-Message-ID: <20040316063331.GB23988@devserv.devel.redhat.com>
-References: <20040311141703.GE3053@luna.mooo.com> <1079198671.4446.3.camel@laptop.fenrus.com> <4053624D.6080806@BitWagon.com> <20040313193852.GC12292@devserv.devel.redhat.com> <40564A22.5000504@aurema.com>
+	Tue, 16 Mar 2004 03:49:14 -0500
+Date: Tue, 16 Mar 2004 08:38:50 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Jeremy Higdon <jeremy@sgi.com>
+Cc: Nick Piggin <piggin@cyberone.com.au>, linux-kernel@vger.kernel.org,
+       jbarnes@sgi.com
+Subject: Re: [PATCH] per-backing dev unplugging #2
+Message-ID: <20040316073850.GE5320@suse.de>
+References: <20040316052256.GA647970@sgi.com> <4056A062.6040203@cyberone.com.au> <20040316072046.GA636090@sgi.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="cmJC7u66zC7hs+87"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <40564A22.5000504@aurema.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040316072046.GA636090@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---cmJC7u66zC7hs+87
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Tue, Mar 16, 2004 at 11:28:18AM +1100, Peter Williams wrote:
-> >Ugh that should say 100 on x86....
-> >but..
-> >param.h:# define USER_HZ        100             /* .. some user interfaces 
-> >are in "ticks" */
-> >param.h:# define CLOCKS_PER_SEC (USER_HZ)       /* like times() */
-> >.....
-> >that looks like 100 to me.
-> >
+On Mon, Mar 15 2004, Jeremy Higdon wrote:
+> > I wonder why nobody's complained about this before?
 > 
-> This horrible hack of converting all tick values to 100 (from 1000) for 
-> export to user space because a large number of user space programs 
-> assume that HZ is 100 would NOT be necessary if there was a mechanism 
-> whereby user space programs could find out how many ticks there are in a 
-> second instead of having to make assumptions.
+> Well, some of us have, but probably not very loudly.  I had
+> naively believed that the global unplug was gone in 2.6.
 
-there is one. Nothing uses it
-(sysconf() provides this info)
+Ditching plugging at the water cooler doesn't count as complain, it
+needs to get out in the open :-). When Intel posted their patch and
+numbers, that was the first I heard of it.
 
+-- 
+Jens Axboe
 
---cmJC7u66zC7hs+87
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFAVp+6xULwo51rQBIRAk8sAKCTsc9CNbTYxJ40EKvT4gYini9XuwCfUbGM
-jxOj8sI9dDkFDGcXc45ANp8=
-=Kpna
------END PGP SIGNATURE-----
-
---cmJC7u66zC7hs+87--

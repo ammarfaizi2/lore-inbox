@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265363AbSJXJXK>; Thu, 24 Oct 2002 05:23:10 -0400
+	id <S265362AbSJXJWX>; Thu, 24 Oct 2002 05:22:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265364AbSJXJXK>; Thu, 24 Oct 2002 05:23:10 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:20885 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S265363AbSJXJXI>; Thu, 24 Oct 2002 05:23:08 -0400
-Date: Thu, 24 Oct 2002 15:05:16 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Helge Hafting <helgehaf@aitel.hist.no>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [long]2.5.44-mm3 UP went into unexpected trashing
-Message-ID: <20021024150516.C11418@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <3DB7A581.9214EFCC@aitel.hist.no> <3DB7A80C.7D13C750@digeo.com> <3DB7AC97.D31A3CB2@digeo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3DB7AC97.D31A3CB2@digeo.com>; from akpm@digeo.com on Thu, Oct 24, 2002 at 08:22:07AM +0000
+	id <S265363AbSJXJWX>; Thu, 24 Oct 2002 05:22:23 -0400
+Received: from mail.hometree.net ([212.34.181.120]:42946 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S265362AbSJXJWW>; Thu, 24 Oct 2002 05:22:22 -0400
+To: linux-kernel@vger.kernel.org
+Path: forge.intermeta.de!not-for-mail
+From: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Newsgroups: hometree.linux.kernel
+Subject: Re: feature request - why not make netif_rx() a pointer?
+Date: Thu, 24 Oct 2002 09:28:33 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <ap8eg1$8ee$1@forge.intermeta.de>
+References: <20021023003959.GA23155@bougret.hpl.hp.com> <1035432805.9626.4.camel@rth.ninka.net>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1035451713 14481 212.34.181.4 (24 Oct 2002 09:28:33 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Thu, 24 Oct 2002 09:28:33 +0000 (UTC)
+X-Copyright: (C) 1996-2002 Henning Schmiedehausen
+X-No-Archive: yes
+X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 24, 2002 at 08:22:07AM +0000, Andrew Morton wrote:
-> Andrew Morton wrote:
-> > 
-> > Hopefully the rcu fix in -mm4 will cure this.
-> 
-> Oh.  It was in -mm3 too.  But something went wrong with the
-> dcache shrinking there.
+"David S. Miller" <davem@rth.ninka.net> writes:
 
-Hmm.. the thing to do here would be to look at cat /proc/sys/fs/dentry-state.
-The number of dentries in the system should tally with dentry slab,
-if it doesn't it might be an RCU issue in which case I would like to
-look at /proc/rcu. If not, then we need to do some more digging.
+>I really hope you have competant legal advice for the things you are
+>doing, because binary-only derivative works of a GPL work are illegal.
 
-Thanks
+No. Distributing work based on GPL code binary-only without supplying
+the source and the modifications is (might be? is considered?)
+illegal. This is a major difference. 
+
+Else I'd have to delete some of the kernels running here, because I
+lost the sources for these. :-) (They're still running happily).
+
+	Regards
+		Henning
+
 -- 
-Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
-Linux Technology Center, IBM Software Lab, Bangalore, India.
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

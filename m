@@ -1,41 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262567AbVAPSyq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262568AbVAPS7r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262567AbVAPSyq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jan 2005 13:54:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262568AbVAPSyq
+	id S262568AbVAPS7r (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jan 2005 13:59:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262571AbVAPS7r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jan 2005 13:54:46 -0500
-Received: from gprs214-69.eurotel.cz ([160.218.214.69]:43245 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262567AbVAPSym (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jan 2005 13:54:42 -0500
-Date: Sun, 16 Jan 2005 19:53:51 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: len.brown@intel.com, acpi-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, ak@suse.de, discuss@x86-64.org
-Subject: Re: [2.6 patch] i386/x86_64: acpi/sleep.c: kill unused acpi_save_state_disk
-Message-ID: <20050116185351.GA2757@elf.ucw.cz>
-References: <20050116073927.GU4274@stusta.de>
-Mime-Version: 1.0
+	Sun, 16 Jan 2005 13:59:47 -0500
+Received: from tomts13.bellnexxia.net ([209.226.175.34]:14486 "EHLO
+	tomts13-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S262568AbVAPS7p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jan 2005 13:59:45 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Process system call access list.
+From: Bill Pringlemeir <bpringle@sympatico.ca>
+Date: 16 Jan 2005 14:00:22 -0500
+Message-ID: <m2wtudqjw9.fsf@sympatico.ca>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050116073927.GU4274@stusta.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> acpi_save_state_disk does nothing and is completely unused.
-> 
-> Unless some usage is planned in the near future, I'm therefore proposing 
-> the patch below to kill it.
+[please CC me.]
 
-Good idea.
-									Pavel
+I was looking at phrack and many of the remote exploits rely on
+injecting some arbitrary code.  Generally is is something like
+'exec("/bin/sh")' or something like that.
 
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+I was wondering if a section could be added to the link phase of a
+user application that would keep a list/bit mask of all kernel calls
+that the compiler had encountered in some section.
+
+When the kernel loaded a process, it would keep a copy of the bit mask
+and perform a comparison to see if the process was intended to make
+the system call (perhaps only a sub-set of the entire system calls are
+needed).
+
+Of course, I imagine there is some reason that a process would like to
+dynamically create it's own code [although it wouldn't be the
+majority?], so the bit mask could be set to all ones via some linker
+magic when building the user application.
+
+Generally it would help protect against remote code injection and some
+possible privilege elevation exploits by restricting system calls.  On
+the down side, it is probably not fool proof and might give people a
+false sense of security.  So perhaps it is not a good feature for the
+kernel to have.
+
+Sorry if this has been discussed before.  Unlike disk encryption, I
+couldn't find a reference to this topic, but maybe my search was using
+the wrong nomenclature.  The susinct question would be is this worth
+implementing?
+
+tia,
+Bill Pringlemeir.
+
+

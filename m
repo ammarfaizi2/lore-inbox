@@ -1,65 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263249AbSJCMHU>; Thu, 3 Oct 2002 08:07:20 -0400
+	id <S263297AbSJCMkb>; Thu, 3 Oct 2002 08:40:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263250AbSJCMHU>; Thu, 3 Oct 2002 08:07:20 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:61956 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S263249AbSJCMHS>; Thu, 3 Oct 2002 08:07:18 -0400
-Date: Thu, 3 Oct 2002 13:12:41 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org
-Subject: Re: initrd breakage in 2.5.38-2.5.40
-Message-ID: <20021003131240.B2304@flint.arm.linux.org.uk>
-References: <15772.9013.244887.809979@kim.it.uu.se> <Pine.GSO.4.21.0210030702500.13480-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.GSO.4.21.0210030702500.13480-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Thu, Oct 03, 2002 at 07:07:21AM -0400
+	id <S263298AbSJCMkb>; Thu, 3 Oct 2002 08:40:31 -0400
+Received: from mg03.austin.ibm.com ([192.35.232.20]:31919 "EHLO
+	mg03.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S263297AbSJCMkU>; Thu, 3 Oct 2002 08:40:20 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Kevin Corry <corryk@us.ibm.com>
+Organization: IBM
+To: Greg KH <greg@kroah.com>
+Subject: Re: EVMS Submission for 2.5
+Date: Thu, 3 Oct 2002 07:13:11 -0500
+X-Mailer: KMail [version 1.2]
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+       evms-devel@lists.sourceforge.net
+References: <02100216332002.18102@boiler> <20021002224343.GB16453@kroah.com>
+In-Reply-To: <20021002224343.GB16453@kroah.com>
+MIME-Version: 1.0
+Message-Id: <02100307131100.05904@boiler>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 03, 2002 at 07:07:21AM -0400, Alexander Viro wrote:
-> On Thu, 3 Oct 2002, Mikael Pettersson wrote:
-> 
-> > First I thought the problem was caused by a apparently missing
-> > set_capacity() call in 2.5.38's drivers/block/rd.c:
-> 
-> I _really_ doubt it - check the loop just above the add_disk() one.
-> set_capacity() call is done there, repeating it won't change anything.
+On Wednesday 02 October 2002 17:43, Greg KH wrote:
+> Some comments on the code:
+> 	- you might want to post a patch with the whole evms portion of
+> 	  the code, for those people without BitKeeper to see.
+> 	- The #ifdef EVMS_DEBUG lines are still in AIXlvm_vge.c, I
+> 	  thought you said you were going to fix this file up?
+> 	- The OS2 and S390 files don't look like they have been fixed,
+> 	  like you said you would before submission.
 
-My mtdblock problems are probably related to this, so I'll followup here.
+I have been working on these, and should have them done very soon. At the 
+very least, I expect to get OS2 done today. I will let you know as soon as it 
+is ready.
 
-mtdblock registers its gendisk structure in its open() method.
-Unfortunately, do_open wants to obtain this structure before
-the open() method (but doesn't use it.)
+> 	- evms_ecr.h and evms_linear.h have a lot of unneeded typedefs.
 
-This patch trivially re-orders stuff to work, and works for me
-(with mtdblock.)
+For the time being, I have removed these files from the tree. As I mentioned 
+the other day, they are a long way from providing any useful clustering 
+functionality.
 
---- orig/fs/block_dev.c	Thu Oct  3 12:46:08 2002
-+++ linux/fs/block_dev.c	Thu Oct  3 13:08:10 2002
-@@ -631,7 +631,7 @@
- 	}
- 	if (bdev->bd_contains == bdev) {
- 		int part;
--		struct gendisk *g = get_gendisk(bdev->bd_dev, &part);
-+		struct gendisk *g;
- 
- 		if (!bdev->bd_queue) {
- 			struct blk_dev_struct *p = blk_dev + major(dev);
-@@ -645,6 +645,7 @@
- 			if (ret)
- 				goto out2;
- 		}
-+		g = get_gendisk(bdev->bd_dev, &part);
- 		if (!bdev->bd_openers) {
- 			struct backing_dev_info *bdi;
- 			sector_t sect = 0;
+> 	- the md code duplication has not been addressed, as you said it
+> 	  would be.
+
+We will be addressing this. Unfortunately, I don't see this as being a 
+simple, overnight fix. Finding a way to consolidate the common code may take 
+some time.
+
+> 	- the BK repository contains a _lot_ of past history and merges
+> 	  that are probably unnecessary to have.  A few, small
+> 	  changesets are nicer to look at :)
+
+No offense meant, Greg, but that seems a bit contradictory. The way I see it, 
+I can maintain our Bitkeeper tree in one of two ways.
+
+1) Try to mirror the usage of our CVS tree. This means that each file or 
+small group of files that gets checked into CVS also gets checked into 
+Bitkeeper, and the comment logs can stay closely in sync. Doing this produces 
+a _lot_ of _small_ changesets, but each one is fairly easy to read and 
+understand. However, as you mentioned, it does produce a very long history.
+
+2) Just do a periodic sync with the current CVS tree, maybe every three days 
+or so. This will obviously produce far less history, but each changeset may 
+be quite large, and thus harder to read and understand, especially since the 
+comments will likely be something along the lines of "sync'ing with CVS".
+
+> Why don't you propose a small evms patch that adds the core
+> functionality, and worry about getting all of the plugins and other
+> assorted stuff in later?  You will probably get more constructive
+> comments, as wading through a patch 37956 lines long is a bit difficult.
+
+This is fine with me. I've been maintaining our Bitkeeper tree because I've 
+been told by numerous people that it is the easiest way to get new code 
+accepted into the kernel. If it turns out that this isn't actually the best 
+approach, I'll be more than happy to just send patches. Dual-maintaining CVS 
+and Bitkeeper trees is certainly no small task.
+
+So, I will send in a few patches that introduce just the core code so 
+everyone can get a good look. There will be four files coming: evms.c, 
+evms.h, evms_ioctl.h, and evms_biosplit.h.
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+Kevin Corry
+corryk@us.ibm.com
+http://evms.sourceforge.net/

@@ -1,46 +1,36 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316025AbSETN7V>; Mon, 20 May 2002 09:59:21 -0400
+	id <S316590AbSEUUhk>; Tue, 21 May 2002 16:37:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316027AbSETN7U>; Mon, 20 May 2002 09:59:20 -0400
-Received: from islay.mach.uni-karlsruhe.de ([129.13.162.92]:54684 "EHLO
-	mailout.schmorp.de") by vger.kernel.org with ESMTP
-	id <S316025AbSETN7T>; Mon, 20 May 2002 09:59:19 -0400
-Date: Thu, 16 May 2002 16:36:55 +0200
-From: Marc Lehmann <pcg@goof.com>
-To: hgs@anna-strasse.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: IDE *data corruption* VIA VT8367
-Message-ID: <20020516143655.GB13762@schmorp.de>
-Mail-Followup-To: hgs@anna-strasse.de, linux-kernel@vger.kernel.org
-In-Reply-To: <379487051.20020514195533@anna-strasse.de> <E177lx4-0000e6-00@the-village.bc.nu>
+	id <S316591AbSEUUhj>; Tue, 21 May 2002 16:37:39 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:64665 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S316590AbSEUUhi>;
+	Tue, 21 May 2002 16:37:38 -0400
+Date: Fri, 17 May 2002 00:00:33 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
+        alan@lxorguk.ukuu.org.uk
+Subject: Re: AUDIT: copy_from_user is a deathtrap.
+Message-ID: <20020517000033.F116@toy.ucw.cz>
+In-Reply-To: <E179HWb-0000jY-00@wagner.rustcorp.com.au> <Pine.LNX.4.44.0205182210330.878-100000@home.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Operating-System: Linux version 2.4.19-pre2-ac3 (root@fuji) (gcc version 2.95.4 20010319 (prerelease)) 
+X-Mailer: Mutt 1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 15, 2002 at 12:43:30AM +0100, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> > Has anybody seen this before? Any info would be appreciated. I would
-> > be happy to provide more information.
-> 
-> I have multiple similar reports, and in all cases where people tried, switching
-> to a non via chipset cured it - it might be co-incidence but I have enough
-> reports I suspect its some kind of hardware incompatibility/limit with
-> the VIA and multiple promise ide controllers
+Hi!
 
-On my system (ASUS CUV4X-D + 2x promise tx2), disabling pci delayed
-transactions completely cured the data corruption (which corrupted a few
-hundred bytes every gigabyte or so, which is "massive"). Does this help in
-this case, too?
+> However, that apparently flies in the face of UNIX history and apparently
+> some standard (whether it was POSIX or SuS or something else, I can't
+> remember, but that discussion came up earlier..)
 
+As far as I can remember, discussion was that standards *do* allow that.
+I actually ran my system with -EFAULT -> SIGSEGV [it is one-liner!] and
+it worked perfectly well.
+								Pavel
 -- 
-      -----==-                                             |
-      ----==-- _                                           |
-      ---==---(_)__  __ ____  __       Marc Lehmann      +--
-      --==---/ / _ \/ // /\ \/ /       pcg@goof.com      |e|
-      -=====/_/_//_/\_,_/ /_/\_\       XX11-RIPE         --+
-    The choice of a GNU generation                       |
-                                                         |
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
 

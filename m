@@ -1,67 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264092AbTKJTcs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Nov 2003 14:32:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264094AbTKJTcs
+	id S264089AbTKJTc3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Nov 2003 14:32:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264091AbTKJTc2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Nov 2003 14:32:48 -0500
-Received: from notes.hallinto.turkuamk.fi ([195.148.215.149]:26386 "EHLO
-	notes.hallinto.turkuamk.fi") by vger.kernel.org with ESMTP
-	id S264092AbTKJTco (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Nov 2003 14:32:44 -0500
-Message-ID: <3FAFE8D5.4020102@kolumbus.fi>
-Date: Mon, 10 Nov 2003 21:36:53 +0200
-From: =?ISO-8859-1?Q?Mika_Penttil=E4?= <mika.penttila@kolumbus.fi>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Manfred Spraul <manfred@colorfullife.com>
-CC: Petr Vandrovec <vandrove@vc.cvut.cz>, Dave Jones <davej@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: EFAULT reading /dev/mem... - broken x86info
-References: <20031108162737.GB26350@vana.vc.cvut.cz> <20031110161114.GM10144@redhat.com> <3FAFC1D1.3090309@colorfullife.com> <20031110165654.GS10144@redhat.com> <3FAFC831.4090108@colorfullife.com> <20031110180551.GA20168@vana.vc.cvut.cz> <3FAFDFFF.70100@colorfullife.com>
-In-Reply-To: <3FAFDFFF.70100@colorfullife.com>
-X-MIMETrack: Itemize by SMTP Server on marconi.hallinto.turkuamk.fi/TAMK(Release 5.0.8 |June
- 18, 2001) at 10.11.2003 21:34:33,
-	Serialize by Router on notes.hallinto.turkuamk.fi/TAMK(Release 5.0.10 |March
- 22, 2002) at 10.11.2003 21:33:49,
-	Serialize complete at 10.11.2003 21:33:49
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 10 Nov 2003 14:32:28 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:51408
+	"EHLO x30.random") by vger.kernel.org with ESMTP id S264089AbTKJTcX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Nov 2003 14:32:23 -0500
+Date: Mon, 10 Nov 2003 20:31:01 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Davide Libenzi <davidel@xmailserver.org>, Larry McVoy <lm@bitmover.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kernel.bkbits.net off the air
+Message-ID: <20031110193101.GF6834@x30.random>
+References: <3FAFD1E5.5070309@zytor.com> <Pine.LNX.4.44.0311101004150.2097-100000@bigblue.dev.mdolabs.com> <20031110183722.GE6834@x30.random> <3FAFE22B.3030108@zytor.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3FAFE22B.3030108@zytor.com>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Nov 10, 2003 at 11:08:27AM -0800, H. Peter Anvin wrote:
+> Andrea Arcangeli wrote:
+> > 
+> > you must pick file2 before file1:
+> > 
+> > 	you:
+> > 
+> > 	do
+> > 		get file2
+> > 		get repo-file1-j
+> > 		get file1
+> > 	while file2 != file1 && sleep 10
+> >
+> 
+> Okay... I'm starting to think the sequencing requirements on these files
+> may be hard to maintain across multiple levels of rsync... but perhaps
+> I'm wrong, in particular if 'file2' sorts hierachially-lexically last
+> and 'file1' first...
 
+we've to start rsync three times to get them in order, 3 tcp
+connections, there's no way to specify the order in the rsync command
+line, infact those two sequence files can be as well outside the tree
+and we can fetch temporarily in a /tmp/ directory or similar. However we
+can probably hack the rsync client to be able to specify the two
+sequence numbers on the command line.
 
-Manfred Spraul wrote:
+It maybe also cleaner to use a slightly more complicated but more
+compact algorithm, this would make a potential new rsync command line
+option cleaner since only 1 sequence file would need to be specified:
 
-> Petr Vandrovec wrote:
->
->> On Mon, Nov 10, 2003 at 06:17:37PM +0100, Manfred Spraul wrote:
->>  
->>
->>> DEBUG_PAGEALLOC unmaps pages on kmem_cache_free and __free_pages(). 
->>> The pages are mapped again during get_free_pages and kmem_cache_alloc.
->>>
->>> 0x86000 looks like a normal page - what guarantees that it's not 
->>> used by the kernel?
->>>   
->>
->>
->> With DEBUG_PAGEALLOC there is no problem with page if it is USED by 
->> the kernel.
->> Problem is if page is NOT USED - in this case kernel does not have it 
->> in its
->> mapping, and bad thing happen.
->>  
->>
-> If the page is used by AGP, then it won't have a mapping either.
->
-afaics, agp uses change_apge_attr() to turn on NOCACHE bit, and doesn't 
-remove the mapping.
+	do {
+		seq = fetch(sequence-file);
+		if (seq & 1)
+			break;
+		rsync
+		if (seq != fetch(sequence-file))
+			seq = 1;
+	} while (seq & 1 && sleep 10 /* ideally exponential backoff */)
 
---Mika
-
-
-
-
+this way only 1 sequence-file is needed for each repository that we want
+to checkout. the server side only has to increase twice the same file
+before and after each update of the repository, so the server side is
+even simpler (with the only additional requirement that the sequence
+number has to start "even"), only the client side is a bit more complicated.

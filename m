@@ -1,121 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263898AbTEZElg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 00:41:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264231AbTEZElg
+	id S263824AbTEZEil (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 00:38:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263898AbTEZEil
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 00:41:36 -0400
-Received: from host-64-213-145-173.atlantasolutions.com ([64.213.145.173]:49070
-	"EHLO havoc.gtf.org") by vger.kernel.org with ESMTP id S263898AbTEZEld
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 00:41:33 -0400
-Date: Mon, 26 May 2003 00:54:44 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: [BK PATCHES] more net driver merges
-Message-ID: <20030526045444.GA27191@gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	Mon, 26 May 2003 00:38:41 -0400
+Received: from dsl092-235-044.phl1.dsl.speakeasy.net ([66.92.235.44]:21120
+	"EHLO grover.chaseplanet.us") by vger.kernel.org with ESMTP
+	id S263824AbTEZEik (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 May 2003 00:38:40 -0400
+Date: Mon, 26 May 2003 00:50:39 -0400
+Message-Id: <200305260450.h4Q4odMt006006@grover.chaseplanet.us>
+From: "David J. Chase" <david@chaseplanet.us>
+To: linux-kernel@vger.kernel.org
+Subject: 810_audio.c
+Reply-to: david@chaseplanet.us
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I could not use the built in ADI 1885 Audio on my Dell 4550, and after a great
+deal of Googling, I found this single reference to the error I got (kernel
+2.4.20, Slackware 9.0).  I tried it, and it worked.  If it is not in the current
+kernels, I hope it will be.  I include the only e-mail archive reference I could
+find.  I hope this helps.
 
-Linus, please do a
+David Chase
+david@chaseplanet.us
 
-	bk pull bk://kernel.bkbits.net/jgarzik/net-drivers-2.5
+--- from: http://www.cs.helsinki.fi/linux/linux-kernel/2002-30/0022.html ---
 
-Others may download the patch from
+[PATCH] 2.4.19-rc3, i810_audio: ignoring ready status of ICH for
+Mirko D?lle (mdoelle@linux-user.de)
+Sun, 28 Jul 2002 05:00:06 +0200 (CEST)
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/jgarzik/patchkits/2.5/2.5.69-bk18-netdrvr2.patch.bz2
+    * Messages sorted by: [ date ][ thread ][ subject ][ author ]
+    * Next message: Rusty Russell: "Re: [patch] scheduler, migration startup fixes, 2.5.29"
+* Previous message: Timothy Murphy: "kernel-2.5.29"
 
-This will update the following files:
+Hello,
 
- drivers/net/bonding.c             | 3299 ------------------------------
- drivers/net/3c505.c               |  110 -
- drivers/net/Makefile              |    2 
- drivers/net/au1000_eth.c          |   33 
- drivers/net/bmac.c                |    1 
- drivers/net/bonding/Makefile      |   24 
- drivers/net/bonding/bond_3ad.c    | 2476 +++++++++++++++++++++++
- drivers/net/bonding/bond_3ad.h    |  298 ++
- drivers/net/bonding/bond_alb.c    | 1571 ++++++++++++++
- drivers/net/bonding/bond_alb.h    |  127 +
- drivers/net/bonding/bond_main.c   | 4053 ++++++++++++++++++++++++++++++++++++++
- drivers/net/bonding/bonding.h     |  181 +
- drivers/net/cs89x0.h              |    6 
- drivers/net/hamachi.c             |    4 
- drivers/net/tlan.c                |    2 
- drivers/net/tulip/de4x5.c         |    2 
- drivers/net/tulip/interrupt.c     |    2 
- drivers/net/tulip/tulip.h         |   13 
- drivers/net/tulip/xircom_cb.c     |   37 
- drivers/net/wireless/netwave_cs.c |   39 
- drivers/net/wireless/orinoco_cs.c |   24 
- drivers/net/wireless/wavelan_cs.c |   73 
- include/linux/if_bonding.h        |   91 
- include/linux/if_vlan.h           |    1 
- include/linux/skbuff.h            |    1 
- net/core/dev.c                    |    4 
- net/core/skbuff.c                 |    2 
- 27 files changed, 8896 insertions(+), 3580 deletions(-)
+this patch for Kernel 2.4.19-rc3 removes the "break" that aborted the module
+init of i810_audio.o in case of "not ready" status before probing (line
+2656-2663).
+On my Epox 4G4A+ mainboard with i845G chipset the ready status was always "0",
+so the module could not be loaded. After removing the "break" in line 2663
+the module works great: loading, playing serveral MP3s, removing and reloading
+were no problem.
 
-through these ChangeSets:
+Perhaps someone can confirm this so the break could perhaps be removed in the
+final Kernel 2.4.19.
 
-<jgarzik@redhat.com> (03/05/26 1.1366)
-   [netdrvr tulip] fix bogus merges
+diff -ru linux-2.4.19-rc3.orig/drivers/sound/i810_audio.c linux-2.4.19-rc3.patched/drivers/sound/i810_audio.c
+--- linux-2.4.19-rc3.orig/drivers/sound/i810_audio.c Sun Jul 28 05:54:54 2002
++++ linux-2.4.19-rc3.patched/drivers/sound/i810_audio.c Sun Jul 28 06:06:06 2002
+@@ -2660,7 +2660,10 @@
+if (!i810_ac97_exists(card,num_ac97)) {
+if(num_ac97 == 0)
+printk(KERN_ERR "i810_audio: Primary codec not ready.\n");
+- break; /* I think this works, if not ready stop */
++ /* Hack by dg2fer: On my Epox 4G4A+ with i845G we should just */
++ /* continue probing and *not* break. The status is always "not */
++ /* ready" but afterwards it works great. So I removed the break. */
++ /* break; */ /* I think this works, if not ready stop */
+}
 
-<jgarzik@redhat.com> (03/05/26 1.1365)
-   [netdrvr bonding] minor merge/kbuild fixes
+if ((codec = kmalloc(sizeof(struct ac97_codec), GFP_KERNEL)) == NULL)
 
-<jgarzik@redhat.com> (03/05/26 1.1364)
-   [netdrvr bonding] add 802.3ad support
-   
-   Contributed by Intel, with updates by
-   Jay Vosburgh @ IBM (bonding maintainer)
+With best regards,
+Sincerely,
+Mirko, dg2fer
 
-<hch@lst.de> (03/05/25 1.1363)
-   [PATCH] wireless pcmcia updates
-   
-   the same patch stil applies..
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at http://www.tux.org/lkml/
 
-<davej@codemonkey.org.uk> (03/05/25 1.1362)
-   [PATCH] au1000 init cleanups.
-   
-   Not sure if I incorporated all your feedback on this one last time.
-   Bug me if not...
-
-<davej@codemonkey.org.uk> (03/05/25 1.1361)
-   [PATCH] hamachi PCI DMA fix from 2.4
-   
-   Maintainer fix that went into 2.4 last August with the comments
-   "Get hamachi net driver RX working again.
-    Apparently the PCI DMA conversion still has a bug or two left in it..."
-
-<davej@codemonkey.org.uk> (03/05/25 1.1360)
-   [PATCH] 3c505 printk levels.
-
-<davej@codemonkey.org.uk> (03/05/25 1.1359)
-   [PATCH] xircom init cleanups
-
-<davej@codemonkey.org.uk> (03/05/25 1.1358)
-   [PATCH] fix tlan 64bit check
-
-<davej@codemonkey.org.uk> (03/05/25 1.1357)
-   [PATCH] Age old cs89x0 register define 'fixes' ?
-   
-   Remember these? There never was an outcome as to whether or
-   not their doing the right thing.  Any complaints from this being
-   in 2.4 for nearly a year ?
-
-<davej@codemonkey.org.uk> (03/05/25 1.1356)
-   [PATCH] Nuke stale comment from bmac
-   
-   Leftovers from before we used memset to clear the struct.
-
-<jgarzik@redhat.com> (03/05/25 1.1355)
-   [netdvr tulip] nuke stale defines
-   
-   Noticed (indirectly) by davej
+    * Next message: Rusty Russell: "Re: [patch] scheduler, migration startup fixes, 2.5.29"
+* Previous message: Timothy Murphy: "kernel-2.5.29"
 

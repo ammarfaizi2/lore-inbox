@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277304AbRJJQau>; Wed, 10 Oct 2001 12:30:50 -0400
+	id <S277314AbRJJQre>; Wed, 10 Oct 2001 12:47:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277308AbRJJQal>; Wed, 10 Oct 2001 12:30:41 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:23312 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S277304AbRJJQad>; Wed, 10 Oct 2001 12:30:33 -0400
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
+	id <S277313AbRJJQrY>; Wed, 10 Oct 2001 12:47:24 -0400
+Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:50328
+	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
+	with ESMTP id <S277312AbRJJQrK>; Wed, 10 Oct 2001 12:47:10 -0400
+Date: Wed, 10 Oct 2001 12:46:37 -0400
+From: Chris Mason <mason@suse.com>
+To: "Jeffrey W. Baker" <jwbaker@acm.org>, linux-kernel@vger.kernel.org
 Subject: Re: Invalidate: busy buffer at shutdown with 2.4.11
-Date: Wed, 10 Oct 2001 16:29:36 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <9q1t1g$21m$1@penguin.transmeta.com>
+Message-ID: <931490000.1002732397@tiny>
 In-Reply-To: <Pine.LNX.4.33.0110100917460.234-100000@desktop>
-X-Trace: palladium.transmeta.com 1002731433 6993 127.0.0.1 (10 Oct 2001 16:30:33 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 10 Oct 2001 16:30:33 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+In-Reply-To: <Pine.LNX.4.33.0110100917460.234-100000@desktop>
+X-Mailer: Mulberry/2.1.0 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.33.0110100917460.234-100000@desktop>,
-Jeffrey W. Baker <jwbaker@acm.org> wrote:
->What does this message mean in 2.4.11 at shutdown time:
->
->Invalidate: busy buffer
->
->I'm afraid it means "now your RAID is fucked."
 
-No, it really means: raid and LVM are a bit too happy to invalidate the
-underlying block devices, and the warning should be harmless.
 
-Unless, of course, all your data has magically gone up in smoke ;)
+On Wednesday, October 10, 2001 09:18:39 AM -0700 "Jeffrey W. Baker" <jwbaker@acm.org> wrote:
 
-		Linus
+> What does this message mean in 2.4.11 at shutdown time:
+> 
+> Invalidate: busy buffer
+> 
+> I'm afraid it means "now your RAID is fucked."
+
+No, it means someone called invalidate_buffers on a device that still
+had buffers in use.  This happened with older kernels too, 2.4.11
+just complains on the console now.
+
+The in use buffers are left alone, your raid should be fine.
+
+-chris
+

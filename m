@@ -1,66 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313737AbSDJUkh>; Wed, 10 Apr 2002 16:40:37 -0400
+	id <S313805AbSDJUnm>; Wed, 10 Apr 2002 16:43:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313805AbSDJUkg>; Wed, 10 Apr 2002 16:40:36 -0400
-Received: from zero.tech9.net ([209.61.188.187]:30482 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S313737AbSDJUkg>;
-	Wed, 10 Apr 2002 16:40:36 -0400
-Subject: [PATCH] 2.4: reserve syscalls from 2.5
-From: Robert Love <rml@tech9.net>
-To: marcelo@conectiva.com.br
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
+	id <S313816AbSDJUnl>; Wed, 10 Apr 2002 16:43:41 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:53263 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S313805AbSDJUnl>; Wed, 10 Apr 2002 16:43:41 -0400
+Message-ID: <3CB49578.34C34438@zip.com.au>
+Date: Wed, 10 Apr 2002 12:41:44 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jeremy Jackson <jerj@coplanar.net>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [prepatch] address_space-based writeback
+In-Reply-To: <3CB4203D.C3BE7298@zip.com.au> <004b01c1e0c6$01d690f0$7e0aa8c0@bridge>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 10 Apr 2002 16:40:22 -0400
-Message-Id: <1018471223.6524.83.camel@phantasy>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo,
+Jeremy Jackson wrote:
+> 
+> This sounds like a wonderful piece of work.
+> I'm also inspired by the rmap stuff coming down
+> the pipe.   I wonder if there would be any interference
+> between the two, or could they leverage each other?
+> 
 
-The following patch reserves syscall numbers 239 through 242 which are
-the calls to date added to 2.5.  I just set them to sys_ni_syscall and
-note which 2.5 function they correspond to.
+well the theory is that rmap doesn't need to know. It just
+calls writepage when it sees dirty pages. That's a minimal
+approach.  But I'd like the VM to aggressively use the
+"write out lots of pages in the same call" APIs, rather
+than the current "send lots of individual pages" approach.
 
-Patch is against 2.5.19-pre6, please apply.
+For a number of reasons:
 
-	Robert Love
+- For delalloc filesystems, and for sparse mappings
+  against "syncalloc" filesystems, disk allocation is
+  performed at ->writepage time.  It's important that
+  the writes be clustered effectively.  Otherwise
+  the file gets fragmented on-disk.
 
-diff -urN linux-2.4.19-pre6/arch/i386/kernel/entry.S linux/arch/i386/kernel/entry.S
---- linux-2.4.19-pre6/arch/i386/kernel/entry.S	Fri Apr  5 14:53:39 2002
-+++ linux/arch/i386/kernel/entry.S	Wed Apr 10 16:28:17 2002
-@@ -635,6 +635,10 @@
- 	.long SYMBOL_NAME(sys_ni_syscall)	/* reserved for lremovexattr */
- 	.long SYMBOL_NAME(sys_ni_syscall)	/* reserved for fremovexattr */
-  	.long SYMBOL_NAME(sys_tkill)
-+	.long SYMBOL_NAME(sys_ni_syscalls)	/* reserved for sendfile64 */
-+	.long SYMBOL_NAME(sys_ni_syscalls)	/* 240 reserved for futex */
-+	.long SYMBOL_NAME(sys_ni_syscalls)	/* reserved for sched_setaffinity */
-+	.long SYMBOL_NAME(sys_ni_syscalls)	/* reserved for sched_getaffinity */
- 
- 	.rept NR_syscalls-(.-sys_call_table)/4
- 		.long SYMBOL_NAME(sys_ni_syscall)
-diff -urN linux-2.4.19-pre6/include/asm-i386/unistd.h linux/include/asm-i386/unistd.h
---- linux-2.4.19-pre6/include/asm-i386/unistd.h	Fri Apr  5 14:53:56 2002
-+++ linux/include/asm-i386/unistd.h	Wed Apr 10 16:21:00 2002
-@@ -242,8 +242,11 @@
- #define __NR_removexattr	235
- #define __NR_lremovexattr	236
- #define __NR_fremovexattr	237
+- There's a reasonable chance that the pages on the
+  LRU lists get themselves out-of-order as the aging
+  process proceeds.  So calling ->writepage in lru_list
+  order has the potential to result in fragmented write
+  patterns, and inefficient I/O.
+
+- If the VM is trying to free pages from, say, ZONE_NORMAL
+  then it will only perform writeout against pages from
+  ZONE_NORMAL and ZONE_DMA.  But there may be writable pages
+  from ZONE_HIGHMEM sprinkled amongst those pages within the
+  file. It would be really bad if we miss out on opportunistically
+  slotting those other pages into the same disk request.
+
+- The current VM writeback is an enormous code path.  For each
+  tiny little page, we send it off into writepage, pass it
+  to the filesystem, give it a disk mapping, give it a buffer_head,
+  submit the buffer_head, attach a tiny BIO to the buffer_head,
+  submit the BIO, merge that onto a request structure which
+  contains contiguous BIOs, feed that list-of-single-page-BIOs
+  to the device driver.
+
+  That's rather painful.   So the intent is to batch this work
+  up.  Instead, the VM says "write up to four megs from this
+  page's mapping, including this page".
+
+  That request passes through the filesystem and we wrap 64k
+  or larger BIOs around the pagecache data and put those into
+  the request queue.  For some filesystems the buffer_heads
+  are ignored altogether.  For others, the buffer_head
+  can be used at "build the big BIO" time to work out how to
+  segment the BIOs across sub-page boundaries.
+
+  The "including this page" requirement of the vm_writeback
+  method is there because the VM may be trying to free pages
+  from a specific zone, so it would be not useful if the
+  filesystem went and submitted I/O for a ton of pages which
+  are all from the wrong zone.  This is a bit of an ugly
+  back-compatible placeholder to keep the VM happy before
+  we move on to that part of it.
+
 -
- #define __NR_tkill		238
-+#define __NR_sendfile64		239
-+#define __NR_futex		240
-+#define __NR_sched_setaffinity	241
-+#define __NR_sched_getaffinity	242
- 
- /* user-visible error numbers are in the range -1 - -124: see <asm-i386/errno.h> */
- 
-
-
-
-
-

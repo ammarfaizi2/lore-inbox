@@ -1,62 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264012AbRFEPXq>; Tue, 5 Jun 2001 11:23:46 -0400
+	id <S264011AbRFEPUq>; Tue, 5 Jun 2001 11:20:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264013AbRFEPXg>; Tue, 5 Jun 2001 11:23:36 -0400
-Received: from 24.68.61.66.on.wave.home.com ([24.68.61.66]:1540 "HELO sh0n.net")
-	by vger.kernel.org with SMTP id <S264012AbRFEPXV>;
-	Tue, 5 Jun 2001 11:23:21 -0400
-Date: Tue, 5 Jun 2001 11:23:55 -0400 (EDT)
-From: Shawn Starr <spstarr@sh0n.net>
-To: George Bonser <george@gator.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.6-pre1 unresolved symbols
-In-Reply-To: <CHEKKPICCNOGICGMDODJKENIDDAA.george@gator.com>
-Message-ID: <Pine.LNX.4.30.0106051123270.142-100000@coredump.sh0n.net>
+	id <S264012AbRFEPUg>; Tue, 5 Jun 2001 11:20:36 -0400
+Received: from mx2out.umbc.edu ([130.85.253.52]:3512 "EHLO mx2out.umbc.edu")
+	by vger.kernel.org with ESMTP id <S264011AbRFEPU2>;
+	Tue, 5 Jun 2001 11:20:28 -0400
+Date: Tue, 5 Jun 2001 11:20:26 -0400
+From: John Jasen <jjasen1@umbc.edu>
+X-X-Sender: <jjasen1@irix2.gl.umbc.edu>
+To: <linux-kernel@vger.kernel.org>
+cc: <kdb@oss.sgi.com>
+Subject: strange network hangs using kdb
+Message-ID: <Pine.SGI.4.31L.02.0106051115190.11523908-100000@irix2.gl.umbc.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I have noticed unresolves symbols for the netfilter modules. this occurs
-durning depmod -a.
+We have two similar systems, using acenic gigabit cards, plugged into a
+3com Superstack 3 10/100/1000 switch.
 
-Shawn.
+When we use kdb on one of the systems, the other system stops receiving
+packets.
 
-On Tue, 5 Jun 2001, George Bonser wrote:
+We've seen this from kernel 2.4.2 with the kdb patches from oss.sgi.com to
+2.4.4 with the patches.
 
->
-> depmod: *** Unresolved symbols in
-> /lib/modules/2.4.6-pre1/kernel/drivers/net/3c59x.o
-> depmod:         do_softirq
-> depmod: *** Unresolved symbols in
-> /lib/modules/2.4.6-pre1/kernel/drivers/net/bonding.o
-> depmod:         do_softirq
-> depmod: *** Unresolved symbols in
-> /lib/modules/2.4.6-pre1/kernel/drivers/net/plip.o
-> depmod:         tasklet_hi_schedule
-> depmod: *** Unresolved symbols in
-> /lib/modules/2.4.6-pre1/kernel/drivers/net/ppp_generic.o
-> depmod:         do_softirq
-> depmod: *** Unresolved symbols in
-> /lib/modules/2.4.6-pre1/kernel/drivers/net/slip.o
-> depmod:         do_softirq
-> depmod: *** Unresolved symbols in
-> /lib/modules/2.4.6-pre1/kernel/drivers/scsi/imm.o
-> depmod:         tasklet_hi_schedule
-> depmod: *** Unresolved symbols in
-> /lib/modules/2.4.6-pre1/kernel/drivers/scsi/ppa.o
-> depmod:         tasklet_hi_schedule
-> depmod: *** Unresolved symbols in
-> /lib/modules/2.4.6-pre1/kernel/net/ipv6/ipv6.o
-> depmod:         do_softirq
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
->
+Are there any thoughts on this? Any other information that may prove to be
+useful?
+
+--
+-- John E. Jasen (jjasen1@umbc.edu)
+-- In theory, theory and practise are the same. In practise, they aren't.
+
 

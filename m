@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267190AbTAGAHk>; Mon, 6 Jan 2003 19:07:40 -0500
+	id <S267212AbTAGAGz>; Mon, 6 Jan 2003 19:06:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267207AbTAGAHk>; Mon, 6 Jan 2003 19:07:40 -0500
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:43790 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S267190AbTAGAHi>; Mon, 6 Jan 2003 19:07:38 -0500
-Message-ID: <3E19B401.7A9E47D5@linux-m68k.org>
-Date: Mon, 06 Jan 2003 17:51:13 +0100
-From: Roman Zippel <zippel@linux-m68k.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.20 i686)
-X-Accept-Language: en
+	id <S267263AbTAGAGz>; Mon, 6 Jan 2003 19:06:55 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:38311 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S267212AbTAGAGx>;
+	Mon, 6 Jan 2003 19:06:53 -0500
+Date: Mon, 6 Jan 2003 16:12:05 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Andrew Morton <akpm@digeo.com>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+       Tom Rini <trini@kernel.crashing.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] configurable LOG_BUF_SIZE (updated)
+In-Reply-To: <Pine.LNX.4.33L2.0301061555320.15416-100000@dragon.pdx.osdl.net>
+Message-ID: <Pine.LNX.4.33L2.0301061611160.15416-100000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
-To: Andre Hedrick <andre@pyxtechnologies.com>
-CC: Oliver Xymoron <oxymoron@waste.org>, Andrew Morton <akpm@digeo.com>,
-       Rik van Riel <riel@conectiva.com.br>, Richard Stallman <rms@gnu.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Linux iSCSI Initiator, OpenSource (fwd) (Re: Gauntlet Set NOW!)
-References: <Pine.LNX.4.10.10301051924140.421-100000@master.linux-ide.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 6 Jan 2003, Randy.Dunlap wrote:
 
-> If you know anything about iSCSI RFC draft and how storage truly works.
-> Cisco gets it wrong, they do not believe in supporting the full RFC.
-> So you get ERL=0, and now they turned of the "Header and Data Digests",
-> this is equal to turning off the iCRC in ATA, or CRC in SCSI between the
-> controller and the device.  For those people who think removing the
-> checksum test for the integrity of the data and command operations, you
-> get what you deserve.
+| On Mon, 6 Jan 2003, Andrew Morton wrote:
+|
+| | "Randy.Dunlap" wrote:
+| | >
+| | > ...
+| | >  21 files changed, 540 insertions(+), 45 deletions(-)
+| |
+| | Oh gack.   And you've got stuff like "if numaq" in the sparc64
+| | config files.
+| |
+| | You did have a version which instantiated a common $TOPDIR/kernel/Kconfig
+| | and just included that in arch/<arch>/Kconfig.  Seems a better
+| | approach to me.
+|
+| Yes, I like that better also.  This is a bit like design by committee.  :(
+| I'm just trying to get it completed... and will update some more.
 
-Ever heard of TCP checksums? Ever heard of ethernet checksums? Which
-transport doesn't use checksums nowadays? The digest makes only sense if
-you can generate it for free in hardware or for debugging, otherwise
-it's only a waste of cpu time. This makes the complete ERL 1 irrelevant
-for a software implementation. With block devices you can even get away
-with just ERL 0 to implement transparent recovery.
+Linus, I withdraw that previous patch and will send the one that I
+like and want, and will see how it's received/accepted.
 
-bye, Roman
+-- 
+~Randy
 

@@ -1,55 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129585AbQLXN03>; Sun, 24 Dec 2000 08:26:29 -0500
+	id <S129759AbQLXNgC>; Sun, 24 Dec 2000 08:36:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129759AbQLXN0T>; Sun, 24 Dec 2000 08:26:19 -0500
-Received: from mailout01.sul.t-online.com ([194.25.134.80]:27659 "EHLO
-	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S129585AbQLXN0G>; Sun, 24 Dec 2000 08:26:06 -0500
-Date: 24 Dec 2000 11:36:00 +0200
-From: kaih@khms.westfalen.de (Kai Henningsen)
-To: torvalds@transmeta.com
-cc: linux-kernel@vger.kernel.org
-Message-ID: <7sSHLPCmw-B@khms.westfalen.de>
-In-Reply-To: <Pine.LNX.4.10.10012230920330.2066-100000@penguin.transmeta.com>
-Subject: Re: About Celeron processor memory barrier problem
-X-Mailer: CrossPoint v3.12d.kh5 R/C435
-MIME-Version: 1.0
+	id <S129867AbQLXNfw>; Sun, 24 Dec 2000 08:35:52 -0500
+Received: from maynard.mail.mindspring.net ([207.69.200.243]:43031 "EHLO
+	maynard.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S129759AbQLXNfm>; Sun, 24 Dec 2000 08:35:42 -0500
+Date: Sun, 24 Dec 2000 06:05:12 -0700
+From: Jeff Lightfoot <jeffml@pobox.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: innd mmap bug in 2.4.0-test12
+Message-ID: <20001224060512.A11066@www.thefoots.com>
+Reply-To: Jeff Lightfoot <jeffml@pobox.com>
+In-Reply-To: <20001224092835.B649@wonderland.linux.it>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Organization: Organisation? Me?! Are you kidding?
-In-Reply-To: <Pine.LNX.4.10.10012230920330.2066-100000@penguin.transmeta.com>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
-X-Fix-Your-Modem: +++ATS2=255&WO1
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20001224092835.B649@wonderland.linux.it>; from md@Linux.IT on Sun, Dec 24, 2000 at 01:54:50AM -0700
+X-Operating-System: Linux/2.4.0-test13-pre4 (i686)
+X-URL: http://thefoots.com
+X-Uptime: 5:56am  up 10:02,  3 users,  load average: 1.02, 1.02, 1.00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-torvalds@transmeta.com (Linus Torvalds)  wrote on 23.12.00 in <Pine.LNX.4.10.10012230920330.2066-100000@penguin.transmeta.com>:
+"Marco d'Itri" (md@Linux.IT) wrote:
+> I can confirm the bug which loses updates to the inn active file when
+> it's unmapped is present again in 2.4.0-test12.
 
-> On Thu, 23 Dec 1999, michael chen wrote:
-> >         I found that when I compiled the 2.4 kernel with the option
-> >     of Pentium III or Pentium 4 on a Celeron's PC, it could cause  the
-> >     system hang at very beginning boot stage, and I found the problem
-> >     is cause by the fact that Intel Celeron doesn't have a real memory
-> >     barrier,but when you choose the Pentium III option, the kernel
-> >     assume the processor has a real memory barrier.
-> >     Here is a patch to fix it:
->
-> No.
->
-> The fix is to not lie to the configurator.
->
-> A Celeron isn't a PIII, and you shouldn't tell the configure that it is.
->
-> The whole point of being able to choose the CPU to optimize for is that we
-> can optimize things at compile-time.
+It is also still in 2.4.0-test13-pre4 in case someone thought they had
+fixed it.
 
-Which is all fine, but maybe the kernel really ought to detect that  
-problem and complain at boot time?
-
-Or does that happen already?
-
-MfG Kai
+-- 
+Jeff Lightfoot   --    jeffml at pobox.com   --   http://thefoots.com/
+    "I see the light at the end of the tunnel now ... someone please
+    tell me it's not a train" -- Cracker
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,51 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131060AbQKPQlm>; Thu, 16 Nov 2000 11:41:42 -0500
+	id <S129220AbQKPQpW>; Thu, 16 Nov 2000 11:45:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130985AbQKPQlc>; Thu, 16 Nov 2000 11:41:32 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:25094 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S131136AbQKPQlR>;
-	Thu, 16 Nov 2000 11:41:17 -0500
-From: Russell King <rmk@arm.linux.org.uk>
-Message-Id: <200011161611.QAA02401@raistlin.arm.linux.org.uk>
-Subject: Re: 2.4. continues after Aieee...
-To: dennis@etinc.com (Dennis)
-Date: Thu, 16 Nov 2000 16:11:06 +0000 (GMT)
-Cc: R.E.Wolff@BitWizard.nl (Rogier Wolff), linux-kernel@vger.kernel.org
-In-Reply-To: <5.0.0.25.0.20001116103133.02162c80@mail.etinc.com> from "Dennis" at Nov 16, 2000 10:34:30 AM
-X-Location: london.england.earth.mulky-way.universe
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129222AbQKPQpO>; Thu, 16 Nov 2000 11:45:14 -0500
+Received: from mlx3.unm.edu ([129.24.8.189]:29216 "HELO mlx3.unm.edu")
+	by vger.kernel.org with SMTP id <S129220AbQKPQpE>;
+	Thu, 16 Nov 2000 11:45:04 -0500
+Date: Thu, 16 Nov 2000 09:15:00 -0700 (MST)
+From: Todd <todd@unm.edu>
+To: linux-kernel@vger.kernel.org
+Subject: hw or other prob?
+Message-ID: <Pine.A41.4.21.0011160908240.39700-100000@aix04.unm.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dennis writes:
-> >Not every case causes a panic either.  This week, I had an instance of
-> >an i686 box lock solid with a DFE-530TX net card.  Rebooting/power
-> >cycling it didn't recover it (despite it working for the past month
-> >without any problems).  It only started working again after I moved
-> >it into a different PCI slot.
-> >
-> >I've seen a couple of instances now on totally different hardware where
-> >it is possible to lock a PCI bus solid by improper connections on some
-> >of the PCI bus lines, so a faulty PCI socket seem to be the most likely
-> >cause.
-> 
-> 
-> theres nothing that software can do with a pci bus lockup. You need a 
-> hardware watchdog to reboot the system for this type of failure.
+folx,
 
-If you read on, you'll discover I did in fact say this.
-   _____
-  |_____| ------------------------------------------------- ---+---+-
-  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
-  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
-  | +-+-+                                                     --- -+-
-  /   |               THE developer of ARM Linux              |+| /|\
- /  | | |                                                     ---  |
-    +-+-+ -------------------------------------------------  /\\\  |
+on 2.4.0-test6 i got a bunch of the following log messages and then the
+console went dead (well, power-saving monitor and no amount of activity
+on the keyboard or mouse made it wake up), but the machine still responded
+to pings (could not connect w/ telnet or ssh or rlogin). 
+
+does this look like a genuine hw problem or should i upgrade to a newer
+2.4.0 test kernel?  i'm happy to do any troubleshooting suggested.
+
+log messages (lots and lots of them.  they all look just like this):
+
+Nov 12 06:43:30 zapata kernel: APIC error interrupt on CPU#0, should never
+happen. 
+Nov 12 06:43:30 zapata kernel: ... APIC ESR0: 00000002 
+Nov 12 06:43:30 zapata kernel: ... APIC ESR1: 00000002 
+Nov 12 06:43:30 zapata kernel: ... bit 1: APIC Receive CS Error (hw
+problem). 
+Nov 12 06:43:30 zapata kernel: APIC error interrupt on CPU#1, should never
+happen. 
+Nov 12 06:43:30 zapata kernel: ... APIC ESR0: 00000002 
+Nov 12 06:43:30 zapata kernel: ... APIC ESR1: 00000002 
+Nov 12 06:43:30 zapata kernel: ... bit 1: APIC Receive CS Error (hw
+problem). 
+Nov 12 07:43:18 zapata kernel: APIC error interrupt on CPU#1, should never
+happen. 
+Nov 12 07:43:18 zapata kernel: ... APIC ESR0: 00000002 
+Nov 12 07:43:18 zapata kernel: ... APIC ESR1: 00000002 
+Nov 12 07:43:18 zapata kernel: ... bit 1: APIC Receive CS Error (hw
+problem). 
+Nov 12 07:43:18 zapata kernel: APIC error interrupt on CPU#0, should never
+happen. 
+
+machine is smp pIII450 running on a intel N440bx mb.  main disk is ide,
+but i'm using sym53c8xx to access two scsi disks in a logical volume.
+
+thanks,
+
+
+todd underwood
+todd@unm.edu
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

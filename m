@@ -1,74 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265079AbTL1LGy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Dec 2003 06:06:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265080AbTL1LGy
+	id S265078AbTL1LQQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Dec 2003 06:16:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265080AbTL1LQQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Dec 2003 06:06:54 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:51720 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S265079AbTL1LGu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Dec 2003 06:06:50 -0500
-Date: Sun, 28 Dec 2003 11:06:46 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Norman Diamond <ndiamond@wta.att.ne.jp>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0 modules, hotplug, PCMCIA
-Message-ID: <20031228110646.A8072@flint.arm.linux.org.uk>
-Mail-Followup-To: Norman Diamond <ndiamond@wta.att.ne.jp>,
-	linux-kernel@vger.kernel.org
-References: <173b01c3cceb$05ade850$43ee4ca5@DIAMONDLX60>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <173b01c3cceb$05ade850$43ee4ca5@DIAMONDLX60>; from ndiamond@wta.att.ne.jp on Sun, Dec 28, 2003 at 11:33:04AM +0900
+	Sun, 28 Dec 2003 06:16:16 -0500
+Received: from 66-141-88-11.ded.swbell.net ([66.141.88.11]:54029 "EHLO
+	lcisp.com") by vger.kernel.org with ESMTP id S265078AbTL1LQP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Dec 2003 06:16:15 -0500
+From: "Kevin Krieser" <kkrieser@lcisp.com>
+To: "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+Subject: RE: 2.7 (future kernel) wish
+Date: Sun, 28 Dec 2003 05:17:11 -0600
+Message-ID: <011801c3cd34$239b0020$6e01a8c0@athlon2400>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2627
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+In-Reply-To: <3FEE4929.4000500@backtobasicsmgmt.com>
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 28, 2003 at 11:33:04AM +0900, Norman Diamond wrote:
-> 4.  SuSE 8.2 defaults to using the kernel PCMCIA package rather than the
-> external PCMCIA package.  This is fine with me so kernel 2.6.0 also uses its
-> own compiled PCMCIA drivers instead of trying to make an external PCMCIA
-> package work with two kernels.  It seems to me that it should be OK to
-> compile PCMCIA as modules instead of built-in, but there were boot-time
-> errors, so I had to change PCMCIA and Yenta to built-in.
+XP came with an option that I've seen on USB hard drives where it won't
+cache writes by default.  It is in Device Manager, and called Optimize
+for quick removal.  You can also enable write caching, which requires
+the use of the Safe Removal icon.
 
-What were these errors?
+I don't recall 2000 having this option.
 
-> (This is the
-> opposite of the change that I had to make to mice, described in a separate
-> e-mail message.)  Now with PCMCIA compiled built-in, the low-level drivers
-> get loaded, but cardmgr still doesn't run automatically.  I can do "su" and
-> "cardmgr &" and then PCMCIA starts working enough to do modprobes when cards
-> are inserted.
+With Linux, I'm just ingrained to umount first.
 
-It sounds like the SuSE init scripts are being clever and probably only
-know about how their 2.4 situation works.  What we need is a SuSE person
-to comment on this behaviour; I don't have access to any SuSE based
-systems to investigate their quirks.
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Kevin P.
+Fleming
+Sent: Saturday, December 27, 2003 9:08 PM
+To: Jim Crilly
+Cc: Joshua Schmidlkofer; David B. Stevens; Helge Hafting; Jos Hulzink;
+Linux Kernel Mailing List
+Subject: Re: 2.7 (future kernel) wish
 
-> 5.  However, file /etc/pcmcia/serial.opts is still getting ignored under
-> 2.6.0.
 
-"still" ?  This is news to me (as the guy who seems to be handling both
-PCMCIA and serial.)
+Jim Crilly wrote:
 
-> The modem is detected as containing a TI 16750 UART, and whatever
-> the serial driver does then, it causes the modem to hang up.  The serial
-> driver in 2.4.20 defaults to the same thing but 2.4.20 reads file
-> /etc/pcmcia/serial.opts, obeys the line SERIAL_OPTS="uart 16550A", and lets
-> the modem operate at 33% of its rated speed instead of hanging up.
+> 'safely' removed. I also believe Windows mounts any removable device
+> synchronously so that if you do pull it out prematurely the damage
+done 
+> is limited.
 
-"hang up"?  Do you mean "on-hook" or do you mean "stop working"?  Is
-there anything in /var/log/messages about this?
+Nope, when I put stuff onto a CF card via CF-to-USB adapter Windows 
+still buffers writes to the media while the user interface goes on about
 
-On my RH systems, cardmgr logs a fair amount to the system messages log,
-which includes details of any commands run and any failures.  It would
-be really useful to see this.
+its business. The only media that I've ever seen Windows use 
+synchronously is old-style floppy disks.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in the body of a message to majordomo@vger.kernel.org More majordomo
+info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+

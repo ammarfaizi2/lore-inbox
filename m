@@ -1,74 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268515AbUHYHhm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268489AbUHYHWh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268515AbUHYHhm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 03:37:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268518AbUHYHhm
+	id S268489AbUHYHWh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 03:22:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268497AbUHYHWh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 03:37:42 -0400
-Received: from ns.suse.cz ([82.119.242.84]:22029 "EHLO kerberos.suse.cz")
-	by vger.kernel.org with ESMTP id S268515AbUHYHhg (ORCPT
+	Wed, 25 Aug 2004 03:22:37 -0400
+Received: from trantor.org.uk ([213.146.130.142]:36289 "EHLO trantor.org.uk")
+	by vger.kernel.org with ESMTP id S268489AbUHYHWU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 03:37:36 -0400
-Message-ID: <412C41BC.8020607@suse.cz>
-Date: Wed, 25 Aug 2004 09:37:32 +0200
-From: Michal Ludvig <mludvig@suse.cz>
-Organization: SuSE CR, s.r.o.
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8a2) Gecko/20040606
-X-Accept-Language: cs, cz, en
-MIME-Version: 1.0
-To: Michael Halcrow <mahalcro@us.ibm.com>
-Cc: CryptoAPI List <cryptoapi@lists.logix.cz>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] /dev/crypto for Linux
-References: <412BB517.4040204@suse.cz> <20040824215351.GA9272@halcrow.us>
-In-Reply-To: <20040824215351.GA9272@halcrow.us>
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Wed, 25 Aug 2004 03:22:20 -0400
+Subject: Re: Linux Incompatibility List
+From: Gianni Tedesco <gianni@scaramanga.co.uk>
+To: public@mikl.as
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <200408250159.20606.public@mikl.as>
+References: <87r7q0th2n.fsf@dedasys.com> <200408211955.44914.public@mikl.as>
+	 <1093233294.26293.46.camel@sherbert>  <200408250159.20606.public@mikl.as>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-3M4kf8HoqHkYBTfq2ffq"
+Date: Wed, 25 Aug 2004 08:21:33 +0100
+Message-Id: <1093418493.18600.10.camel@sherbert>
+Mime-Version: 1.0
+X-Mailer: Evolution 1.5.9.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Michael Halcrow told me that:
-> On Tue, Aug 24, 2004 at 11:37:27PM +0200, Michal Ludvig wrote:
->
->>attached is a driver for OpenBSD-like /dev/crypto device (aka
->>CryptoDev) that makes a way for userspace processes to access
->>ciphers provided by in-kernel CryptoAPI modules.
->
-> Cool!  Now if I'm interpreting this right, this is only good for
-> working on up to one page worth of data at a time, right?
+--=-3M4kf8HoqHkYBTfq2ffq
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Of course the userspace can request encrypting any amount of data (well,
-multiple of blocksize), but only at most one page at a time is copied
-into the kernel, encrypted and returned back to the process' memory.
+On Wed, 2004-08-25 at 01:59 -0400, Andrew Miklas wrote:
+> I've been working with a few people to reverse engineer the drivers inclu=
+ded=20
+> with the WAP54G 1.08.  We're about 50% done translating them back into C.=
+ =20
+> Once we're done, we plan to study the driver in order to write our own fr=
+om=20
+> scratch, or ask someone else to cleanroom it.
+>=20
+> However, it's likely that by the time we're done (if ever), the hardware =
+will=20
+> be supplanted by something else.  We've learnt the hard way that reverse=20
+> engineering a 420K binary, and completing in a reasonable time isn't as e=
+asy=20
+> as it sounds.  :)  This is especially true when you can't simply make=20
+> everything public (out of copyright concerns) and do the project in a rea=
+l=20
+> open source way. =20
 
-IMHO It is faster than allocating e.g. 4 MB in the kernel, copying all
-of this from userspace, encrypting and returning back. That wouldn't use
-the CPU cache too efficiently.
+I agreee, reverse engineering machine code is not trivial, especially
+with the tools currently available. However I don't think that the
+difficulty is intrinsic. It is possible (though obviously not simple) to
+wite software that is able to infer a great deal from machine code
+automatically and produce pretty good decompilations.
 
-> In cryptfs, I have written some functions that essentially do what
-> your FILL_SG() macro does, only it spreads across multiple sg's, if
-> necessary.  Do you think this might be appropriate for /dev/crypto?
+Also I think that the pciproxy[0] technique currently offers a simpler
+solution. Analyzing the data produced is more akin to reverse
+engineering a network protocol than machine code. Reverse engineering
+protocols is much less 'copyright sensitive' than decompiling machine
+code and, I think, more easily shared.
 
-As I'm currently working only on one kernel page at a time I think
-FILL_SG() is sufficient. But I'm definitely interested how to use
-multiple sg's at once (although I don't immediately ned it). Where can I
-see these functions? Maybe thay could go to some library directly in
-linux/crypto/...?
+Anyway, perhaps once I've had some time to make a little more progress
+we would be able to compare some notes?
 
-Michal Ludvig
-- --
-SUSE Labs                    mludvig@suse.cz
-(+420) 296.542.396        http://www.suse.cz
-Personal homepage http://www.logix.cz/michal
+[0]. I should probably explain the technique. It basically involves
+running supported operating systems under a PC emulator, and trapping
+and logging i/o on the PCI bus.
+
+--=20
+// Gianni Tedesco (gianni at scaramanga dot co dot uk)
+lynx --source www.scaramanga.co.uk/scaramanga.asc | gpg --import
+8646BE7D: 6D9F 2287 870E A2C9 8F60 3A3C 91B5 7669 8646 BE7D
+
+--=-3M4kf8HoqHkYBTfq2ffq
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+Version: GnuPG v1.2.5 (GNU/Linux)
 
-iD8DBQFBLEGhDDolCcRbIhgRApPrAJ9ghoyWXhxnk+wUQL9evde3o5uDqgCfdde8
-OsMo/MlzKifupt1+pbNovYk=
-=yKGK
+iD8DBQBBLD39kbV2aYZGvn0RAkgfAJ0ZdeRfgcGtncxd5EEcHa9GeftDswCeMdvv
+/b1wvaHhfjGyFs5TAKwnvyg=
+=iEyl
 -----END PGP SIGNATURE-----
+
+--=-3M4kf8HoqHkYBTfq2ffq--
+

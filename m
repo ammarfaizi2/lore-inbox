@@ -1,60 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267651AbUJOAsS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267662AbUJOAxk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267651AbUJOAsS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 20:48:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267661AbUJOAsS
+	id S267662AbUJOAxk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 20:53:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267661AbUJOAxk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 20:48:18 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:9933 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S267651AbUJOAsN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 20:48:13 -0400
-Subject: Re: Fw: signed kernel modules?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Rusty Russell (IBM)" <rusty@au1.ibm.com>
-Cc: David Woodhouse <dwmw2@infradead.org>, David Howells <dhowells@redhat.com>,
-       rusty@ozlabs.au.ibm.com, Greg KH <greg@kroah.com>,
-       Arjan van de Ven <arjanv@redhat.com>, Joy Latten <latten@us.ibm.com>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1097707239.14303.22.camel@localhost.localdomain>
-References: <1096544201.8043.816.camel@localhost.localdomain>
-	 <1096411448.3230.22.camel@localhost.localdomain>
-	 <1092403984.29463.11.camel@bach> <1092369784.25194.225.camel@bach>
-	 <20040812092029.GA30255@devserv.devel.redhat.com>
-	 <20040811211719.GD21894@kroah.com>
-	 <OF4B7132F5.8BE9D947-ON87256EEB.007192D0-86256EEB.00740B23@us.ibm.com>
-	 <1092097278.20335.51.camel@bach> <20040810002741.GA7764@kroah.com>
-	 <1092189167.22236.67.camel@bach> <19388.1092301990@redhat.com>
-	 <30797.1092308768@redhat.com>
-	 <20040812111853.GB25950@devserv.devel.redhat.com>
-	 <20040812200917.GD2952@kroah.com> <26280.1092388799@redhat.com>
-	 <27175.1095936746@redhat.com> <30591.1096451074@redhat.com>
-	 <10345.1097507482@redhat.com>
-	 <1097507755.318.332.camel@hades.cambridge.redhat.com>
-	 <1097534090.16153.7.camel@localhost.localdomain>
-	 <1097570159.5788.1089.camel@baythorne.infradead.org>
-	 <1097626296.4013.34.camel@localhost.localdomain>
-	 <1097664137.4440.5.camel@localhost.localdomain>
-	 <1097707239.14303.22.camel@localhost.localdomain>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1097797477.8275.2.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 15 Oct 2004 00:44:41 +0100
+	Thu, 14 Oct 2004 20:53:40 -0400
+Received: from brown.brainfood.com ([146.82.138.61]:9859 "EHLO
+	gradall.private.brainfood.com") by vger.kernel.org with ESMTP
+	id S267662AbUJOAxi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 20:53:38 -0400
+Date: Thu, 14 Oct 2004 19:53:37 -0500 (CDT)
+From: Adam Heath <doogie@debian.org>
+X-X-Sender: adam@gradall.private.brainfood.com
+To: Ingo Molnar <mingo@elte.hu>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U2
+In-Reply-To: <Pine.LNX.4.58.0410141941320.1221@gradall.private.brainfood.com>
+Message-ID: <Pine.LNX.4.58.0410141953000.1221@gradall.private.brainfood.com>
+References: <OF29AF5CB7.227D041F-ON86256F2A.0062D210@raytheon.com>
+ <20041011215909.GA20686@elte.hu> <20041012091501.GA18562@elte.hu>
+ <20041012123318.GA2102@elte.hu> <20041012195424.GA3961@elte.hu>
+ <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu>
+ <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu>
+ <Pine.LNX.4.58.0410141930440.1221@gradall.private.brainfood.com>
+ <Pine.LNX.4.58.0410141941320.1221@gradall.private.brainfood.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2004-10-13 at 23:40, Rusty Russell (IBM) wrote:
-> > Whoops bang "num 0 elements". That check set isn't safe standalone
-> 
-> Thanks, Alan.
-> 
-> I'd appreciate your opinion on the issue at hand.  Is it worth 600 lines
-> of ELF verification and canonicalization code so we can strip modules
-> without altering the signature?
+On Thu, 14 Oct 2004, Adam Heath wrote:
 
-I'm unconvinced at the moment, it seems it would be easier to write the
-neccessary code to do this in userspace, and then sign the canonicalised
-module so that the kernel interface is small and clean.
+> On Thu, 14 Oct 2004, Adam Heath wrote:
+>
+> > On Fri, 15 Oct 2004, Ingo Molnar wrote:
+> >
+> > >
+> > > i have released the -U2 PREEMPT_REALTIME patch:
+> > >
+> > >   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc4-mm1-U2
+> >
+> > kernel/latency.c: In function `add_preempt_count':
+> > kernel/latency.c:390: error: structure has no member named `preempt_trace_eip'
+> > kernel/latency.c:394: error: structure has no member named `preempt_trace_parent_eip'
+>
+> Here's a patch:
+>
+> --- kernel/latency.c.orig	2004-10-14 19:36:26.000000000 -0500
+> +++ kernel/latency.c	2004-10-14 19:33:30.000000000 -0500
+> @@ -387,11 +387,9 @@
+>  	if (val <= 10) {
+>  		unsigned int idx = preempt_count() & PREEMPT_MASK;
+>  		if (idx < MAX_PREEMPT_TRACE) {
+> -			current->preempt_trace_eip[idx] = eip;
+>  #ifdef CONFIG_LATENCY_TRACE
+> +			current->preempt_trace_eip[idx] = eip;
+>  			current->preempt_trace_parent_eip[idx] = parent_eip;
+> -#else
+> -			current->preempt_trace_parent_eip[idx] = 0;
+>  #endif
+>  		}
+>  	}
+> --
 
+How do you set that config option?  I only see it in .c and .h files.

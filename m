@@ -1,69 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262719AbUKXQfP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262674AbUKXQiJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262719AbUKXQfP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 11:35:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262673AbUKXQds
+	id S262674AbUKXQiJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 11:38:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262682AbUKXQfm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 11:33:48 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:63592 "EHLO
-	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S262674AbUKXQbW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 11:31:22 -0500
-Date: Wed, 24 Nov 2004 16:30:59 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: "Zou, Nanhai" <nanhai.zou@intel.com>
-cc: Chris Wright <chrisw@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>, "Luck, Tony" <tony.luck@intel.com>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>, Andi Kleen <ak@suse.de>,
-       <linux-kernel@vger.kernel.org>, <linux-ia64@vger.kernel.org>
-Subject: RE: [PATCH 1/2] setup_arg_pages can insert overlapping vma
-In-Reply-To: <894E37DECA393E4D9374E0ACBBE7427013C9AB@pdsmsx402.ccr.corp.intel.com>
-Message-ID: <Pine.LNX.4.44.0411241558300.5064-100000@localhost.localdomain>
+	Wed, 24 Nov 2004 11:35:42 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:33677 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S262687AbUKXQez (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 11:34:55 -0500
+Date: Wed, 24 Nov 2004 17:34:18 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Suspend 2 merge: 26/51: Kconfig and makefile.
+In-Reply-To: <1101296580.5805.292.camel@desktop.cunninghams>
+Message-ID: <Pine.LNX.4.61.0411241718400.1284@scrub.home>
+References: <1101292194.5805.180.camel@desktop.cunninghams>
+ <1101296580.5805.292.camel@desktop.cunninghams>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks a lot for taking this further.
+Hi,
 
-On Wed, 24 Nov 2004, Zou, Nanhai wrote:
-> I think ia64 ia32
-> subsystem is not vulnerable to this kind of overlapping vm problem,
-> because it does not support a.out binary format, 
-> X84_64 is vulnerable to this. 
-> 
-> just do a 
-> perl -e'print"\x07\x01".("\x00"x10)."\x00\xe0\xff\xff".("\x00"x16)'>
-> evilaout
-> you will get it.
->  
-> and IA64 is also vulnerable to this kind of bug in 64 bit elf support,
-> it just insert a vma of zero page without checking overlap, so user can
-> construct a elf with section begin from 0x0 to trigger this BUGON().I
-> attach a testcase to trigger this bug
-> I don't know what about s390. However, I think it's safe to check
-> overlap before we actually insert a vma into vma list.
+On Wed, 24 Nov 2004, Nigel Cunningham wrote:
 
-I expect you're right: I have neither machines nor expertise to say.
+> +menu "Software Suspend 2"
+> +
+> +config SOFTWARE_SUSPEND2_CORE
+> +	tristate "Software Suspend 2"
+> +	depends on PM
+> +	select SOFTWARE_SUSPEND2
+> +	---help---
+> +	  Software Suspend 2 is the 'new and improved' suspend support. You
+> +	  can now build it as modules, but be aware that this requires
+> +	  initrd support (the modules you use in saving the image have to
+> +	  be loaded in order for you to be able to resume!)
+> +	  
+> +	  See the Software Suspend home page (softwaresuspend.berlios.de)
+> +	  for FAQs, HOWTOs and other documentation.
+> +
+> +	config SOFTWARE_SUSPEND2
+> +	bool
+> +
+> +	if SOFTWARE_SUSPEND2
+> +		config SOFTWARE_SUSPEND2_WRITER
+> +		bool
+> +
 
-> And I also feel check vma overlap everywhere is unnecessary, because
-> invert_vm_struct will check it again, so the check is duplicated. It's
-> better to have invert_vm_struct return a value then let caller check if
-> it successes.
-> Here is a patch against 2.6.10.rc2-mm3
-> I have tested it on i386, x86_64 and ia64 machines.
+Please don't use such indentations.
+There is no need to use to select here either. If you really want to make 
+it modular (and you can convince Christoph), you want to do something like 
+this:
 
-Yes, I agree, that's a welcome improvement.  I'm surprised if all
-those ia64_elf32_init checks are necessary, but better safe than sorry.
+config SOFTWARE_SUSPEND2
+	tristate "Software Suspend 2"
+	depends on PM
 
-Something crosses my mind, you'll know better than I: is it possible to
-construct ELFs or A.OUTs which would need the check in insert_vm_struct
-to be even more defensive?  That is, should it also be checking that
-vma->vm_end > vma->vm_start (vma being the one to be inserted)?
-Or that vma->vm_end <= TASK_SIZE?  If I remember rightly, a 0-length
-vma can cause confusion but survive quite well until exit_mmap's
-BUG_ON(mm->map_count).
+config SOFTWARE_SUSPEND2_BUILTIN
+	def_bool SOFTWARE_SUSPEND2
 
-Hugh
+and let everything else depend on SOFTWARE_SUSPEND2.
 
+> +		config SOFTWARE_SUSPEND_SWAPWRITER
+> +			tristate '   Swap Writer'
+> +			depends on SWAP && SOFTWARE_SUSPEND2_CORE
+> +			select SOFTWARE_SUSPEND2_WRITER
+
+This select is also bogus.
+
+> +
+> +ifeq ($(CONFIG_SOFTWARE_SUSPEND2),y)
+> +obj-y	+= suspend_builtin.o proc.o
+> +endif
+
+Use SOFTWARE_SUSPEND2_BUILTIN here without the ifeq.
+
+bye, Roman

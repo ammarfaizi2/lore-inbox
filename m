@@ -1,65 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265220AbTLKSIH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 13:08:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265221AbTLKSIH
+	id S265192AbTLKSRd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 13:17:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265200AbTLKSRd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 13:08:07 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:61312 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S265220AbTLKSID
+	Thu, 11 Dec 2003 13:17:33 -0500
+Received: from fed1mtao02.cox.net ([68.6.19.243]:27520 "EHLO
+	fed1mtao02.cox.net") by vger.kernel.org with ESMTP id S265192AbTLKSRc
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 13:08:03 -0500
-Date: Thu, 11 Dec 2003 13:10:16 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-cc: gene.heskett@verizon.net, Jean-Marc Valin <Jean-Marc.Valin@USherbrooke.ca>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Increasing HZ (patch for HZ > 1000)
-In-Reply-To: <1316960000.1071164020@[10.10.2.4]>
-Message-ID: <Pine.LNX.4.53.0312111304380.5754@chaos>
-References: <1071122742.5149.12.camel@idefix.homelinux.org>
- <1071126929.5149.24.camel@idefix.homelinux.org> <1293500000.1071127099@[10.10.2.4]>
- <200312111218.35254.gene.heskett@verizon.net> <1316960000.1071164020@[10.10.2.4]>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 11 Dec 2003 13:17:32 -0500
+Date: Thu, 11 Dec 2003 11:21:08 -0700
+From: Jesse Allen <the3dfxdude@hotmail.com>
+To: Ian Kumlien <pomac@vapor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Fixes for nforce2 hard lockup, apic, io-apic, udma133 covered
+Message-ID: <20031211182108.GA353@tesore.local>
+References: <200312072312.01013.ross@datscreative.com.au> <200312111655.25456.ross@datscreative.com.au> <1071143274.2272.4.camel@big.pomac.com> <200312111912.27811.ross@datscreative.com.au> <1071165161.2271.22.camel@big.pomac.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1071165161.2271.22.camel@big.pomac.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Dec 2003, Martin J. Bligh wrote:
-
-> > Hardware indeed.  I'm a Certified Electronics Technician.  Have
-> > someone check all those electrolyric caps in the on-board psu in
-> > particular, using a device similar to a "Capacitor Wizard" which
-> > measures not the capacity of the cap, but the caps Equivalent Series
-> > Resistance (ESR) at 100 kilohertz or more.  Anything over half an ohm
-> > should be replaced forthwith.  This assumes of course that your tech
-> > in charge of hot solder has the tools to do it correctly.  If not,
-> > find one who does have the tools.
-> >
-> > Many mobos in a period ranging from about 2.5 to 1.5 years ago were
-> > built with caps that go defective prematurely due to a bad batch of
-> > them from several far eastern cap makers who were fed a bad recipe
-> > for the electrolyte in the caps, eg the Ethylene Glycol wasn't near
-> > pure enough.
->
-> When you say "fed a bad recipe", didn't they actually steal it? Or
-> is that just an urban legend?
->
-> M.
-
-"Appropriated". Also, it isn't ethylene glycol (that's antifreeze),
-It's potassium hydroxide with an inhibitor. The inhibitor was cleverly
-removed from the recipe and left out to be stolen. As expected, it
-was. Unfortunately, the bad caps didn't damage the competing company
-bad enough to put them out-of-business so the whole ploy was a waste
-of effort. ;^)
+On Thu, Dec 11, 2003 at 06:52:41PM +0100, Ian Kumlien wrote:
+> Heh, yeah, the need for disconnect is somewhat dodgy, i haven't read up
+> on th rest.
+> 
 
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
+Hmm, weird.  I went to go look at the Shuttle motherboard maker's site - maybe so that I can bug them for a bios disconnect option - but I checked for a bios update first.  And sure enough like they read my mind, just posted online today, an update.  Here are the details of fixes:
 
+" Checksum:   8B00H                         Date Code: 12/05/03
+1.Support 0.18 micron AMD Duron (Palomino) CPU.
+2.Add C1 disconnect item."
+
+It's almost as they're reading this list.  This disconnect problem was discovered on the 5th (well the 5th in my timezone).  Perhaps they're aware of this issue...  I'm gonna talk to them.
+
+Jesse
 

@@ -1,46 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265672AbSJSTRY>; Sat, 19 Oct 2002 15:17:24 -0400
+	id <S265660AbSJSTbh>; Sat, 19 Oct 2002 15:31:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265673AbSJSTRY>; Sat, 19 Oct 2002 15:17:24 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:33031 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S265672AbSJSTRX>; Sat, 19 Oct 2002 15:17:23 -0400
-Date: Sat, 19 Oct 2002 15:23:13 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-cc: linux-kernel@vger.kernel.org, Suparna Bhattacharya <suparna@in.ibm.com>,
-       Petr Vandrovec <VANDROVE@vc.cvut.cz>, fastboot@osdl.org,
-       Werner Almesberger <wa@almesberger.net>
-Subject: Re: kexec for 2.5.44 (Who do I send this to?)
-In-Reply-To: <m1y98uyc1a.fsf@frodo.biederman.org>
-Message-ID: <Pine.LNX.3.96.1021019151759.29078I-100000@gatekeeper.tmr.com>
+	id <S265668AbSJSTbh>; Sat, 19 Oct 2002 15:31:37 -0400
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:39331
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id <S265660AbSJSTbg>; Sat, 19 Oct 2002 15:31:36 -0400
+Message-ID: <3DB1B3DF.3090009@redhat.com>
+Date: Sat, 19 Oct 2002 12:34:55 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021014
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Bill Davidsen <davidsen@tmr.com>
+CC: Mark Gross <mark@thegnar.org>,
+       NPT library mailing list <phil-list@redhat.com>,
+       Daniel Jacobowitz <dan@debian.org>, Mark Kettenis <kettenis@gnu.org>,
+       mgross <mgross@unix-os.sc.intel.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] thread-aware coredumps, 2.5.43-C3
+References: <Pine.LNX.3.96.1021019152330.29078J-100000@gatekeeper.tmr.com>
+In-Reply-To: <Pine.LNX.3.96.1021019152330.29078J-100000@gatekeeper.tmr.com>
+X-Enigmail-Version: 0.65.4.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 19 Oct 2002, Eric W. Biederman wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> 
-> The kexec code has gone through a fairly decent review, and all known bugs
-> are resolved.  There are still BIOS's that don't work after you have
-> run a kernel but that is an entirely different problem.  
-> 
-> My real question: With Linus off on vacation my real question is who
-> should I send this to?
+Bill Davidsen wrote:
 
-I believe Linus explicitly said he wasn't going to tell anyone, which
-means we're back to the days of "through it on the list over and over
-until someone admits to seeing it." Or send it to everyone who might be
-willing to push it to Linus when he gets back.
+> But the terminating '\0' is required in ELF, no?
 
-By not accepting stuff at this point I would guess that the defacto freeze
-is here. Hope I'm wrong, there is some good stuff which would be ready by
-Oct 31.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+It is required and the whole discussion is unnecessary now since the
+appropriate gdb patch has been submitted and has aready been approved
+several months ago.
+
+- -- 
+- --------------.                        ,-.            444 Castro Street
+Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
+Red Hat         `--' drepper at redhat.com `---------------------------
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE9sbPf2ijCOnn/RHQRAsjXAJsFLA7AOQ5/sCSHTyCJMHFO3hlUcACgsn71
+n3fLrMKl8n+VTs5UQoVFEVs=
+=rQVr
+-----END PGP SIGNATURE-----
 

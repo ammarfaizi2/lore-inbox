@@ -1,63 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268026AbTCFK3V>; Thu, 6 Mar 2003 05:29:21 -0500
+	id <S267980AbTCFK0w>; Thu, 6 Mar 2003 05:26:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268032AbTCFK3U>; Thu, 6 Mar 2003 05:29:20 -0500
-Received: from mail2.sonytel.be ([195.0.45.172]:43201 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S268026AbTCFK3S>;
-	Thu, 6 Mar 2003 05:29:18 -0500
-Date: Thu, 6 Mar 2003 11:39:40 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Ralf Baechle <ralf@linux-mips.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.64
-In-Reply-To: <Pine.LNX.4.44.0303041944390.3122-100000@home.transmeta.com>
-Message-ID: <Pine.GSO.4.21.0303061137580.28248-100000@vervain.sonytel.be>
+	id <S268001AbTCFK0w>; Thu, 6 Mar 2003 05:26:52 -0500
+Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:45574 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S267980AbTCFK0v>; Thu, 6 Mar 2003 05:26:51 -0500
+Message-Id: <200303061028.h26ASKu02263@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: "H.Rosmanith (Kernel Mailing List)" <kernel@wildsau.idv.uni.linz.at>,
+       kasperd@daimi.au.dk (Kasper Dupont)
+Subject: Re: emm386 hangs when booting from linux
+Date: Thu, 6 Mar 2003 12:25:47 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: kernel@wildsau.idv.uni.linz.at, root@chaos.analogic.com,
+       linux-kernel@vger.kernel.org, herp@wildsau.idv.uni.linz.at
+References: <200303021026.h22AQALn001315@wildsau.idv.uni.linz.at>
+In-Reply-To: <200303021026.h22AQALn001315@wildsau.idv.uni.linz.at>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 Mar 2003, Linus Torvalds wrote:
-> Christoph Hellwig <hch@sgi.com>:
->   o wd33c93 updates
+On 2 March 2003 12:26, H.Rosmanith (Kernel Mailing List) wrote:
+> hello again,
+>
+> I've still not found a solution, but at least I know what's happening
+> when emm386 or similar crash the system. e.g., when starting
+> "loadlin" (with no parameters!) the system will hang too. Reason is
+> that loadlin will generate an int 0x13, which is the general
 
-> Dave Jones <davej@codemonkey.org.uk>:
->   o wd33c93 sync up with 2.4
+int 0x0d (13 decimal) is a protections fault.
 
-These were not compatible. The patch below (untested) fixes the breakage for
-sgiwd93:
+In DOS, int 0x13 is a BIOS interrupt for low-level disk io.
 
---- linux-2.5.64/drivers/scsi/wd33c93.c.orig	Wed Mar  5 10:07:20 2003
-+++ linux-2.5.64/drivers/scsi/wd33c93.c	Wed Mar  5 11:56:14 2003
-@@ -1471,7 +1471,7 @@
- 		int busycount = 0;
- 		extern void sgiwd93_reset(unsigned long);
- 		/* wait 'til the chip gets some time for us */
--		while ((READ_AUX_STAT() & ASR_BSY) && busycount++ < 100)
-+		while ((read_aux_stat(regs) & ASR_BSY) && busycount++ < 100)
- 			udelay (10);
- 	/*
-  	 * there are scsi devices out there, which manage to lock up
-@@ -1481,7 +1481,7 @@
- 	 * does this for the SGI Indy, where this is possible
- 	 */
- 	/* still busy ? */
--	if (READ_AUX_STAT() & ASR_BSY)
-+	if (read_aux_stat(regs) & ASR_BSY)
- 		sgiwd93_reset(instance->base); /* yeah, give it the hard one */
- 	}
- #endif
+> protection fault. I wonder *why*. Well, the int 0x13 handler I wrote
+> just writes "int13" on top of the screen and does an iret, so the
+> system will not crash anymore, but of course, the programs wont work.
+> Another confusing thing I observed that even simply commands such as
+> "copy <file1> <file2>" cause an int13!? and that DOS will become
+> unusable quite soon (directories disappear and so on).
 
-Gr{oetje,eeting}s,
+It is to be expected when you kill int 0x13 ;)
 
-						Geert
+BTW, you may try linld:
 
+http://port.imtp.ilyichevsk.odessa.ua/linux/vda/linld/
+
+instead of loadlin. Its source is way smaller ;)
 --
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+vda

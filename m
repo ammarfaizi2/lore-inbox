@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261707AbVA3Ona@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261708AbVA3PFV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261707AbVA3Ona (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jan 2005 09:43:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261708AbVA3Ona
+	id S261708AbVA3PFV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jan 2005 10:05:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261709AbVA3PFV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jan 2005 09:43:30 -0500
-Received: from rproxy.gmail.com ([64.233.170.195]:57918 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261707AbVA3On3 (ORCPT
+	Sun, 30 Jan 2005 10:05:21 -0500
+Received: from rproxy.gmail.com ([64.233.170.195]:51478 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261708AbVA3PFR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jan 2005 09:43:29 -0500
+	Sun, 30 Jan 2005 10:05:17 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=oY9S26kPevROxf1Mmg8DlcI9bqFz/g1MIH3SQh5Xvb+L8oWLPS0BycJ0H1VmQWWBzNThx+C65mdzNHk8mk+Fs0vWtcfxEdgEUKOMPv3Huk8dRA+9oeymJjydlGaR7wQCtNxiaCETPjCH89L5G1Uocezl16oNl8qGD3yOZ29tFko=
-Message-ID: <9e47339105013006435b7554f6@mail.gmail.com>
-Date: Sun, 30 Jan 2005 09:43:28 -0500
+        b=anqyZMAkoksQF8q0/akTw5gsyz71SGWKnM6C7gH/BYdNHHVidx/lutaUU1xvmbt+GMA0XG6UlyP2nWEFJa0CE2ofVr/l8uPdOMKOqDXwTfohb6ki+3IYgA8xYJd0O9awisvjaFiu88i5Lze/ZA2Tklz6A22iV8fyFkjFeZ2ETk0=
+Message-ID: <9e473391050130070520631901@mail.gmail.com>
+Date: Sun, 30 Jan 2005 10:05:16 -0500
 From: Jon Smirl <jonsmirl@gmail.com>
 Reply-To: Jon Smirl <jonsmirl@gmail.com>
 To: Dave Airlie <airlied@gmail.com>
@@ -34,16 +34,13 @@ References: <fa.ks44mbo.ljgao4@ifi.uio.no> <fa.hinb9iv.s38127@ifi.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 30 Jan 2005 22:22:24 +1100, Dave Airlie <airlied@gmail.com> wrote:
-> Just another guess, but Jon could the PCI ROM patch mess up X's access
-> via the Int10 handler .. maybe if it isn't mapped properly..?
+I just checked out on current Linus BK with my AGP Radeon 9000 which
+is pretty close to a 9200. Everything is working fine.
 
-The ROM patch is inactive until you echo something to the sysfs ROM variable.
-
-> 
-> Dave.
-> 
-
+I notice from his logs that he is running a PCI radeon, not an AGP
+one. Didn't someone make some changes to the PCI radeon memory
+management code recently? I run a PCI R128 and that is still working.
+DRM debug output might give more clues.
 
 -- 
 Jon Smirl

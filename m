@@ -1,105 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267378AbTGONYU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 09:24:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267614AbTGONYU
+	id S267647AbTGON2u (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 09:28:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267685AbTGON2u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 09:24:20 -0400
-Received: from mail-03.iinet.net.au ([203.59.3.35]:3334 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S267378AbTGONYM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 09:24:12 -0400
-Subject: Re: mis-identified cisco aironet pccard (and Re: hang with pcmcia
-	wlan card)
-From: Sven Dowideit <svenud@ozemail.com.au>
-Reply-To: svenud@ozemail.com.au
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: jt@hpl.hp.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Dominik Brodowski <linux@brodo.de>
-In-Reply-To: <20030714175243.B1076@flint.arm.linux.org.uk>
-References: <1058100731.778.5.camel@localhost>
-	 <20030714164852.GC22238@bougret.hpl.hp.com>
-	 <20030714175243.B1076@flint.arm.linux.org.uk>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-lDiPDtloqfYafFyM2B5c"
-Message-Id: <1058275220.758.5.camel@localhost>
+	Tue, 15 Jul 2003 09:28:50 -0400
+Received: from griffon.mipsys.com ([217.167.51.129]:8404 "EHLO gaston")
+	by vger.kernel.org with ESMTP id S267647AbTGON2t (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 09:28:49 -0400
+Subject: Re: radeonfb patch for 2.4.22...
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Peter Osterlund <petero2@telia.com>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, ajoshi@kernel.crashing.org,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <m2ptkcknfh.fsf@telia.com>
+References: <Pine.LNX.4.10.10307141315170.28093-100000@gate.crashing.org>
+	 <Pine.LNX.4.55L.0307141533330.8994@freak.distro.conectiva>
+	 <1058255052.620.2.camel@gaston>  <m2ptkcknfh.fsf@telia.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1058276604.620.53.camel@gaston>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 15 Jul 2003 23:20:20 +1000
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 15 Jul 2003 15:43:25 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-lDiPDtloqfYafFyM2B5c
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> 
+> I have a small problem with radeonfb in 2.4.22-pre5 (+manually created
+> radeonfb.h file). During boot, when the console is switched over to
+> the frame buffer device, the screen becomes corrupted. Mostly by white
+> squares in a grid pattern and some squares with other colors. Between
+> the squares, normal characters can be seen, but each character is
+> duplicated. Here is a picture: (not very sharp unfortunately)
+> 
+>         http://w1.894.telia.com/~u89404340/radeonfb.jpg
+> 
+> Text added after the switch is not corrupted, so eventually the
+> corruption is scrolled off the screen and after that the framebuffer
+> appears to be working correctly.
 
-On Tue, 2003-07-15 at 02:52, Russell King wrote:
-> On Mon, Jul 14, 2003 at 09:48:52AM -0700, Jean Tourrilhes wrote:
-> > On Sun, Jul 13, 2003 at 10:57:58PM +1000, Sven Dowideit wrote:
-> > > Hi,
-> > > i just noticed with 2.5.75 that if I boot with the cisco airo 340 wif=
-i
-> > > card in, this kernel thinks it is a memory card. when i remove it and
-> > > re-insert it after boot, it then works .... see the following log :) =
-I
-> > > am running debian unstable, on an ibm t21 pIII-850 notebook
-> > >=20
-> > > the cisco card works at boot time using 2.5.70.
-> > >=20
-> > > as for the two patches for the pcmcia hang, this time i am running th=
-e
-> > > one Russell posted, but the result is the same for the other.
-> > >=20
-> > > as i shutdown i get a number of kernel stack dumps related to airo_st=
-at,
-> > > but the machine reboots before i can do anything about them..(what do=
- i
-> > > need to log them?)
-> > >=20
-> > > if i replace the cisco card with a dlink orinoco card, it get recogni=
-sed
-> > > correctly at boot.=20
-> > >=20
-> > > to make this story more interesting, i put the thinkpad into the dock=
-ing
-> > > station and the cisco card into the dock's pccard (something that has
-> > > locked up 2.5 every time that i tried it), and the card is recogised
-> > > correctly at boot, and runs fine (there was a kernel stack dump durin=
-g
-> > > boot - *what do i need to do to get them logged?*)
-> > >=20
-> > > thanks for the great work!
-> > >=20
-> > > sven
-> >=20
-> > 	I've seen this bug come and go in the 2.5.X serie. I believe
-> > this is because of the various work happening in the Pcmcia
-> > layer. Please contact Dominik Brodowski <linux@brodo.de>.
->=20
-> I think this may be my fault, but I haven't head a clear bug report for
-> it yet; I've only seen vague references to something going wrong with
-> aero cards on lkml yesterday, referring to what seemed to be a non-
-> existent thread.
+It's a known artifact caused by my latest stuffs, mostly because
+I setup the display earlier than expected by the fbcon core, at
+which point the console buffer contains junk. I'm working on a fix
+though I can't reproduce on pmac.
 
-okely, for me it happened for the first time between 2.5.70 and
-2.6-test1. and now its every time :) what can i send you that will help,
-or, what do i need to figure it out.
-
-cheers
-
-sven
-
---=-lDiPDtloqfYafFyM2B5c
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/E/+UPAwzu0QrW+kRAhZcAKCHNMwe5zb1/kETx2ja3a+xk1ukOgCgkDl9
-J+JIt+68m25t6Xf0sSfZF3o=
-=D1A2
------END PGP SIGNATURE-----
-
---=-lDiPDtloqfYafFyM2B5c--
-
+> 2.4.22-pre3 does not have this problem. I haven't found a patch for
+> the vanilla 0.1.8 version, so I don't know if that version also has
+> this problem. I think someone has reported a similar problem in 2.5.x,
+> but I don't remember the details.
+> 
+> Here are some messages from the kernel log:
+> 
+> Jul 14 23:08:44 best kernel: radeonfb: ref_clk=2700, ref_div=12, xclk=18300 from BIOS
+> Jul 14 23:08:44 best kernel: radeonfb: panel ID string: Samsung LTN150P1-L02    
+> Jul 14 23:08:44 best kernel: radeonfb: detected LCD panel size from BIOS: 1400x1050
+> Jul 14 23:08:44 best kernel: Console: switching to colour frame buffer device 175x65
+> Jul 14 23:08:44 best kernel: radeonfb: ATI Radeon M7 LW DDR SGRAM 64 MB
+> Jul 14 23:08:44 best kernel: radeonfb: DVI port LCD monitor connected
+> Jul 14 23:08:44 best kernel: radeonfb: CRT port no monitor connected
+-- 
+Benjamin Herrenschmidt <benh@kernel.crashing.org>

@@ -1,132 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274973AbTHPWQG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Aug 2003 18:16:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274975AbTHPWQG
+	id S274857AbTHPWdB (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Aug 2003 18:33:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274975AbTHPWdB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Aug 2003 18:16:06 -0400
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:30654 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id S274973AbTHPWQA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Aug 2003 18:16:00 -0400
-Message-ID: <3F3EAD2E.4020702@myrealbox.com>
-Date: Sat, 16 Aug 2003 15:16:14 -0700
-From: walt <wa1ter@myrealbox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
+	Sat, 16 Aug 2003 18:33:01 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:31239 "HELO
+	127.0.0.1") by vger.kernel.org with SMTP id S274857AbTHPWc7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Aug 2003 18:32:59 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: insecure <insecure@mail.od.ua>
+Reply-To: insecure@mail.od.ua
+To: Martin List-Petersen <martin@list-petersen.se>,
+       "Bryan O'Sullivan" <bos@serpentine.com>
+Subject: Re: Centrino support
+Date: Sun, 17 Aug 2003 01:32:50 +0300
+X-Mailer: KMail [version 1.4]
+Cc: Christian Axelsson <smiler@lanil.mine.nu>, linux-kernel@vger.kernel.org
+References: <m2wude3i2y.fsf@tnuctip.rychter.com> <1060980941.29086.25.camel@serpentine.internal.keyresearch.com> <1060982549.15347.30.camel@loke>
+In-Reply-To: <1060982549.15347.30.camel@loke>
 MIME-Version: 1.0
-To: Adam Belay <ambx1@neo.rr.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test3 current - firewire compile error
-References: <3F3E288B.3010105@cornell.edu> <3F3DD93E.7090706@myrealbox.com> <20030816163643.GB9735@kroah.com> <20030816172234.GB9552@neo.rr.com>
-In-Reply-To: <20030816172234.GB9552@neo.rr.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200308170132.50312.insecure@mail.od.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam Belay wrote:
+> > > Got a list of supported good working cards?
+> >
+> > There's a Dell TrueMobile card that uses the Orinoco chipset.  If you're
+> > feeling like life is too boring, there are cards based on the newer
+> > Intersil dual 802.11b/g chipsets available, too, and though I haven't
+> > checked into the shape of the drivers, I know they're under active
+> > development.
+>
+> The Dell TrueMobile 1150 series are Agere/Orinoco/Hermes based (MiniPCI
+> and PC-Card available). All other Dell TrueMobile cards are Broadcom
+> based and have no Linux driver support either.
+>
+> There are also MiniPCI, PC-Card, USB adapters with 802.11a/b/g and Linux
+> drivers available: http://sf.net/projects/madwifi
 
->>On Sat, Aug 16, 2003 at 12:11:58AM -0700, walt wrote:
+That driver contains a binary-only part.
 
->>>drivers/pnp/core.c: In function `pnp_register_protocol':
->>>drivers/pnp/core.c:72: structure has no member named `name'
+<quote>
+The ath_hal module contains the Atheros Hardware Access Layer (HAL).
+This code manages much of the chip-specific operation of the driver.
+The HAL is provided in a binary-only form in order to comply with FCC
+regulations.  In particular, a radio transmitter can only be operated at
+power levels and on frequency channels for which it is approved.  The FCC
+requires that a software-defined radio cannot be configured by a user
+to operate outside the approved power levels and frequency channels.
+This makes it difficult to open-source code that enforces limits on
+the power levels, frequency channels and other parameters of the radio
+transmitter.  See
 
-> I apoligize for forgetting to correct this.  Here is a fix.
+http://ftp.fcc.gov/Bureaus/Engineering_Technology/Orders/2001/fcc01264.pdf
 
-> diff -urN a/drivers/pnp/core.c b/drivers/pnp/core.c
-> --- a/drivers/pnp/core.c	2003-08-09 04:33:18.000000000 +0000
-> +++ b/drivers/pnp/core.c	2003-08-16 16:26:59.000000000 +0000
-> @@ -69,7 +69,6 @@
->  
->  	protocol->number = nodenum;
->  	sprintf(protocol->dev.bus_id, "pnp%d", nodenum);
-> -	strlcpy(protocol->dev.name,protocol->name,DEVICE_NAME_SIZE);
->  	return device_register(&protocol->dev);
->  }
->  
-> diff -urN a/drivers/pnp/isapnp/core.c b/drivers/pnp/isapnp/core.c
-> --- a/drivers/pnp/isapnp/core.c	2003-08-09 04:37:19.000000000 +0000
-> +++ b/drivers/pnp/isapnp/core.c	2003-08-16 16:45:16.000000000 +0000
-> @@ -743,7 +743,7 @@
->  			size = 0;
->  			break;
->  		case _LTAG_ANSISTR:
-> -			isapnp_parse_name(dev->dev.name, sizeof(dev->dev.name), &size);
-> +			isapnp_parse_name(dev->name, sizeof(dev->name), &size);
->  			break;
->  		case _LTAG_UNICODESTR:
->  			/* silently ignore */
-> @@ -808,7 +808,7 @@
->  		case _STAG_VENDOR:
->  			break;
->  		case _LTAG_ANSISTR:
-> -			isapnp_parse_name(card->dev.name, sizeof(card->dev.name), &size);
-> +			isapnp_parse_name(card->name, sizeof(card->name), &size);
->  			break;
->  		case _LTAG_UNICODESTR:
->  			/* silently ignore */
-> @@ -1144,11 +1144,11 @@
->  	protocol_for_each_card(&isapnp_protocol,card) {
->  		cards++;
->  		if (isapnp_verbose) {
-> -			printk(KERN_INFO "isapnp: Card '%s'\n", card->dev.name[0]?card->dev.name:"Unknown");
-> +			printk(KERN_INFO "isapnp: Card '%s'\n", card->name[0]?card->name:"Unknown");
->  			if (isapnp_verbose < 2)
->  				continue;
->  			card_for_each_dev(card,dev) {
-> -				printk(KERN_INFO "isapnp:   Device '%s'\n", dev->dev.name[0]?dev->dev.name:"Unknown");
-> +				printk(KERN_INFO "isapnp:   Device '%s'\n", dev->name[0]?dev->name:"Unknown");
->  			}
->  		}
->  	}
-> --- a/drivers/serial/8250_pnp.c	2003-08-09 04:31:45.000000000 +0000
-> +++ b/drivers/serial/8250_pnp.c	2003-08-16 16:47:21.000000000 +0000
-> @@ -369,7 +369,7 @@
->   */
->  static int __devinit serial_pnp_guess_board(struct pnp_dev *dev, int *flags)
->  {
-> -	if (!(check_name(dev->dev.name) || (dev->card && check_name(dev->card->dev.name))))
-> +	if (!(check_name(pnp_dev_name(dev)) || (dev->card && check_name(dev->card->name))))
->  		return -ENODEV;
->  
->  	if (check_resources(dev->independent))
-> --- a/include/linux/pnp.h	2003-08-09 04:42:16.000000000 +0000
-> +++ b/include/linux/pnp.h	2003-08-16 16:43:32.000000000 +0000
-> @@ -19,6 +19,7 @@
->  #define PNP_MAX_DMA		2
->  #define PNP_MAX_DEVICES		8
->  #define PNP_ID_LEN		8
-> +#define PNP_NAME_LEN		50
->  
->  struct pnp_protocol;
->  struct pnp_dev;
-> @@ -133,6 +134,7 @@
->  	struct pnp_protocol * protocol;
->  	struct pnp_id * id;		/* contains supported EISA IDs*/
->  
-> +	char name[PNP_NAME_LEN];	/* contains a human-readable name */
->  	unsigned char	pnpver;		/* Plug & Play version */
->  	unsigned char	productver;	/* product version */
->  	unsigned int	serial;		/* serial number */
-> @@ -187,6 +189,7 @@
->  	struct pnp_option * dependent;
->  	struct pnp_resource_table res;
->  
-> +	char name[PNP_NAME_LEN];	/* contains a human-readable name */
->  	unsigned short	regs;		/* ISAPnP: supported registers */
->  	int 		flags;		/* used by protocols */
->  	struct proc_dir_entry *procent;	/* device entry in /proc/bus/isapnp */
-> @@ -204,7 +207,7 @@
->  	for((dev) = card_to_pnp_dev((card)->devices.next); \
->  	(dev) != card_to_pnp_dev(&(card)->devices); \
->  	(dev) = card_to_pnp_dev((dev)->card_list.next))
-> -#define pnp_dev_name(dev) (dev)->dev.name
-> +#define pnp_dev_name(dev) (dev)->name
->  
->  static inline void *pnp_get_drvdata (struct pnp_dev *pdev)
->  {
+for the specific FCC regulation.  Because the module is provided in a
+binary-only form it is marked "Proprietary"; this means when you load
+it you will see messages that your system is now "tainted".
+</quote>
 
-Your patch works for me, thanks!
-
+US was a free country. It gets worse by the day.
+-- 
+vda

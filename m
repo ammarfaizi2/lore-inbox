@@ -1,34 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130643AbQLaDLC>; Sat, 30 Dec 2000 22:11:02 -0500
+	id <S135773AbQLaDLw>; Sat, 30 Dec 2000 22:11:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129436AbQLaDKw>; Sat, 30 Dec 2000 22:10:52 -0500
-Received: from mout1.freenet.de ([194.97.50.132]:6799 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id <S131023AbQLaDKi>;
-	Sat, 30 Dec 2000 22:10:38 -0500
-From: mkloppstech@freenet.de
-Message-Id: <200012310240.DAA10504@john.epistle>
-Subject: strange behaviour with test13-pre6
-To: linux-kernel@vger.kernel.org
-Date: Sun, 31 Dec 2000 03:40:13 +0100 (CET)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S135755AbQLaDLn>; Sat, 30 Dec 2000 22:11:43 -0500
+Received: from hybrid-024-221-152-185.az.sprintbbd.net ([24.221.152.185]:36335
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S135762AbQLaDLf>; Sat, 30 Dec 2000 22:11:35 -0500
+Date: Sat, 30 Dec 2000 19:40:31 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4test-ac merge status
+Message-ID: <20001230194031.C4703@opus.bloom.county>
+In-Reply-To: <20001230192737.B4703@opus.bloom.county> <E14CYJk-0007PG-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <E14CYJk-0007PG-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sun, Dec 31, 2000 at 02:33:50AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With test13-pre6 I suddenly found that I could not change the console.
-When I wanted to enter a command letters were changed:
-greek \mu appeared for m,
-tilde n for e.
+On Sun, Dec 31, 2000 at 02:33:50AM +0000, Alan Cox wrote:
+> > I'm sure at least a few people want to know where the PowerPC port falls in
+> > all of that. :)
+> > 
+> > ...hopeing we aren't in the bitbucket..
+> 
+> It might be the ppc port is 2.4.0ac1 and 2.4.2 Linus or something. I don't think
+> that is likely to be a big problem. I need to get on top of 2.2.19pre4 and
+> the rest of the Linus resync then I'm going to dump chunks of stuff out of
+> -ac and try and get a nice clean -ac tree. If folks want to sync non x86
+> ports with that initially go ahead.
 
-After a few seconds the system returned to normal behaviour.
-No messages can be found in the logfiles.
+Oh well.  I guess our problem is we can never get Linus to notice the smaller
+chunks and he always seems to hate big patches.
 
-Please cc to mkloppstech@freenet.de
-
-Mirko Kloppstech
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

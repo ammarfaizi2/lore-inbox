@@ -1,50 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283286AbRLUXLR>; Fri, 21 Dec 2001 18:11:17 -0500
+	id <S282453AbRLUXOO>; Fri, 21 Dec 2001 18:14:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282690AbRLUXLE>; Fri, 21 Dec 2001 18:11:04 -0500
-Received: from waste.org ([209.173.204.2]:63627 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S282453AbRLUXKz>;
-	Fri, 21 Dec 2001 18:10:55 -0500
-Date: Fri, 21 Dec 2001 17:10:20 -0600 (CST)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: Dan Kegel <dkegel@ixiacom.com>, <linux-kernel@vger.kernel.org>
-Subject: re: Linux 2.4.17
-In-Reply-To: <Pine.LNX.4.21.0112211744080.7492-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.43.0112211536430.16844-100000@waste.org>
+	id <S283924AbRLUXOE>; Fri, 21 Dec 2001 18:14:04 -0500
+Received: from datela-1-3-122.dialup.vol.cz ([212.20.98.12]:27407 "HELO
+	ghost.ucw.cz") by vger.kernel.org with SMTP id <S282453AbRLUXNq>;
+	Fri, 21 Dec 2001 18:13:46 -0500
+Date: Sat, 22 Dec 2001 01:14:11 +0100 (MET)
+From: <brain@artax.karlin.mff.cuni.cz>
+To: Andrey Panin <pazke@orbita1.ru>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Problems with GUS PnP: ad1848, pnp
+In-Reply-To: <20011222123216.A2283@pazke.ipt>
+Message-ID: <Pine.LNX.4.30.0112220109270.12320-100000@ghost.ucw.cz>
+X-Echelon: GRU Vatutinki Chodynka Khodinka Putin Suvorov USA Aquarium Russia Ladygin Lybia China Moscow missile reconnaissance agent spetsnaz security tactical target operation military nuclear force defense spy attack bomb explode tap MI5 IRS KGB CIA FBI NSA AK-47 MOSSAD M16 plutonium smuggle intercept plan intelligence war analysis president
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 21 Dec 2001, Marcelo Tosatti wrote:
+On Sat, 22 Dec 2001, Andrey Panin wrote:
 
-> > > Here it is...
-> > >
-> > >
-> > > final:
-> > >
-> > > - Fix more loopback deadlocks                   (Andrea Arcangeli)
-> > > - Make Alpha with Nautilus chipset and
-> > >   Irongate chipset configuration compile
-> > >   correctly                                     (Michal Jaegermann)
-> >
-> > Um, what happened to the idea of 'no changes between the last
-> > release candidate and final'?
->
-> I haven't said that, did I?
+> Does the attached patch help you ?
 
-No, but it's a good idea. There's always the risk of breaking something
-and you don't want to introduce a disk-eating bug between -rc and -final.
-It's better to ship one more -rc and wait a day before -final. If you
-don't, people will just get in the habit of waiting a day after -final to
-be safe.
+Thanx. Now the ad1848 is able to detect the card. Ad1848 info about the card
+corresponds with /proc/isapnp (io, irq, dma). But the DMA/IRQ conflict persists.
 
-> I said I would make -rc kernels which would not add any new _feature_.
+Brain
 
-That's less important.
+--------------------------------
+Petr `Brain' Kulhavy
+<brain@artax.karlin.mff.cuni.cz>
+http://artax.karlin.mff.cuni.cz/~brain
+Faculty of Mathematics and Physics, Charles University Prague, Czech Republic
 
--- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+---
+Wedding is destiny, and hanging likewise.
+                -- John Heywood
 

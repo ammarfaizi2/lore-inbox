@@ -1,246 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262315AbUKWHnz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262324AbUKWHpb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262315AbUKWHnz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 02:43:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262317AbUKWHny
+	id S262324AbUKWHpb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 02:45:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262321AbUKWHn7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 02:43:54 -0500
-Received: from r3az252.chello.upc.cz ([213.220.243.252]:8320 "EHLO
-	aquarius.doma") by vger.kernel.org with ESMTP id S262315AbUKWHlJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 02:41:09 -0500
-Message-ID: <41A2E98E.7090109@ribosome.natur.cuni.cz>
-Date: Tue, 23 Nov 2004 08:41:02 +0100
-From: =?UTF-8?B?TWFydGluIE1PS1JFSsWg?= <mmokrejs@ribosome.natur.cuni.cz>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a5) Gecko/20041114
-X-Accept-Language: cs, en, en-us
-MIME-Version: 1.0
-To: tglx@linutronix.de
-CC: Andrew Morton <akpm@osdl.org>, piggin@cyberone.com.au, chris@tebibyte.org,
-       marcelo.tosatti@cyclades.com, andrea@novell.com,
-       LKML <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
-       Rik van Riel <riel@redhat.com>
-Subject: Re: [PATCH] fix spurious OOM kills
-References: <20041111112922.GA15948@logos.cnet>	 <4193E056.6070100@tebibyte.org>	<4194EA45.90800@tebibyte.org>	 <20041113233740.GA4121@x30.random>	<20041114094417.GC29267@logos.cnet>	 <20041114170339.GB13733@dualathlon.random>	 <20041114202155.GB2764@logos.cnet>	<419A2B3A.80702@tebibyte.org>	 <419B14F9.7080204@tebibyte.org>	<20041117012346.5bfdf7bc.akpm@osdl.org>	 <419CD8C1.4030506@ribosome.natur.cuni.cz>	 <20041118131655.6782108e.akpm@osdl.org>	 <419D25B5.1060504@ribosome.natur.cuni.cz>	 <419D2987.8010305@cyberone.com.au>	 <419D383D.4000901@ribosome.natur.cuni.cz>	 <20041118160824.3bfc961c.akpm@osdl.org>	 <419E821F.7010601@ribosome.natur.cuni.cz>	 <1100946207.2635.202.camel@thomas> <419F2AB4.30401@ribosome.natur.cuni.cz>	 <1100957349.2635.213.camel@thomas>	 <419FB4CD.7090601@ribosome.natur.cuni.cz> <1101037999.23692.5.camel@thomas>	 <41A08765.7030402@ribosome.natur.cuni.cz>	 <1101045469.23692.16.camel@thomas> <1101120922.19380.17.camel@tglx.tec.linutronix.de>
-In-Reply-To: <1101120922.19380.17.camel@tglx.tec.linutronix.de>
-Content-Type: multipart/mixed;
- boundary="------------030902000608030200060205"
+	Tue, 23 Nov 2004 02:43:59 -0500
+Received: from mail.kroah.org ([69.55.234.183]:5604 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262309AbUKWHns (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Nov 2004 02:43:48 -0500
+Date: Mon, 22 Nov 2004 23:43:37 -0800
+From: Greg KH <greg@kroah.com>
+To: Roland Dreier <roland@topspin.com>
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: [PATCH][RFC/v1][9/12] Add InfiniBand userspace MAD support
+Message-ID: <20041123074337.GB23194@kroah.com>
+References: <20041122714.nKCPmH9LMhT0X7WE@topspin.com> <20041122714.9zlcKGKvXlpga8EP@topspin.com> <20041122225033.GD15634@kroah.com> <52ekil9v1m.fsf@topspin.com> <20041123063045.GA22493@kroah.com> <52llct83o1.fsf@topspin.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <52llct83o1.fsf@topspin.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030902000608030200060205
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-
-Thomas Gleixner wrote:
-> On Sun, 2004-11-21 at 14:57 +0100, Thomas Gleixner wrote:
+On Mon, Nov 22, 2004 at 10:45:02PM -0800, Roland Dreier wrote:
+>     Greg> class_simple_device_add returns a pointer to a struct
+>     Greg> class_device * that you can then use to create a file in
+>     Greg> sysfs with.  That should be what you're looking for.
 > 
->>On Sun, 2004-11-21 at 13:17 +0100, Martin MOKREJŠ wrote:
->>
->>>Why can't the algorithm first find the asking for memory now.
->>>When found, kernel should kill first it's children, wait some time,
->>>then kill this process if still exists (it might exit itself when children
->>>get closed).
->>>You have said it's safer to kill that to send ENOMEM as happens
->>>in 2.4, but I still don't undertand why kernel first doesn't send
->>>ENOMEM, and only if that doesn't help it can start after those 5 seconds
->>>OOM killer, and try to kill the very same application.
->>>I don't get the idea why to kill immediately.
->>
->>I see your concern. There are some more changes neccecary to make this
->>reliably work. I'm not sure if it can be done without really big
->>changes. I will look a bit deeper into this.
-> 
-> 
-> One big problem when killing the requesting process or just sending
-> ENOMEM to the requesting process is, that exactly this process might be
-> a ssh login, when you try to log into to machine after some application
-> went crazy and ate up most of the memory. The result is that you
-> _cannot_ log into the machine, because the login is either killed or
-> cannot start because it receives ENOMEM.
+> Shouldn't the ABI version be an attribute in /sys/class/infiniband_mad
+> rather than being per-device?
 
-I believe the application is _first_ who will get ENOMEM. It must be
-terrible luck that it would ask exactly for the size of remaining free
-memory. Most probably, it will ask for less or more. "Less" in not
-a problem in this case, so consider it asks for more. Then, OOM killer
-might well expect the application asking for memory is most probably
-exactly the application which caused the trouble.
+Yes, it probably should be.  Hm, no, we don't allow you to put class
+specific files if you use the class_simple API, sorry I misread your
+question.  You can just handle the class yourself and use the
+CLASS_ATTR() macro to define your api version function.
 
-> 
-> Putting hard coded decisions like "prefer sshd, xyz,...", " don't kill
-> a, b, c" are out of discussion.
+thanks,
 
-I'd go for it at least nowadays.
-
->  
-> The ideas which were proposed to have a possibility to set a "don't kill
-> me" or "yes, I'm a candidate" flag are likely to be a future way to go.
-> But at the moment we have no way to make this work in current userlands.
-
-Do you think login or sshd will ever use flag "yes, I'm a candidate"?
-I think exactly same bahaviour we get right now with those hard coded decisions
-you mention above. Otherwise the hard coded decision is programmed into
-every sshd, init instance anyway. I think it's not necessary to put
-login and shells on thsi ban list, user will re-login again. ;)
-
-> 
-> I refined the decision, so it does not longer kill the parent, if there
-> were forked child processes available to kill. So it now should keep
-> your bash alive.
-
-Yes, it doesn't kill parent bash. I don't understand the _doubled_ output
-in syslog, but maybe you do. Is that related to hyperthreading? ;)
-Tested on 2.6.10-rc2-mm2.
-
---------------030902000608030200060205
-Content-Type: text/plain;
- name="dm"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="dm"
-
-b29tLWtpbGxlcjogZ2ZwX21hc2s9MHhkMgpETUEgcGVyLWNwdToKY3B1IDAgaG90OiBsb3cg
-MiwgaGlnaCA2LCBiYXRjaCAxCmNwdSAwIGNvbGQ6IGxvdyAwLCBoaWdoIDIsIGJhdGNoIDEK
-Tm9ybWFsIHBlci1jcHU6CmNwdSAwIGhvdDogbG93IDMyLCBoaWdoIDk2LCBiYXRjaCAxNgpj
-cHUgMCBjb2xkOiBsb3cgMCwgaGlnaCAzMiwgYmF0Y2ggMTYKSGlnaE1lbSBwZXItY3B1Ogpj
-cHUgMCBob3Q6IGxvdyAxNCwgaGlnaCA0MiwgYmF0Y2ggNwpjcHUgMCBjb2xkOiBsb3cgMCwg
-aGlnaCAxNCwgYmF0Y2ggNwoKRnJlZSBwYWdlczogICAgICAgIDM5MjRrQiAoMTEya0IgSGln
-aE1lbSkKQWN0aXZlOjEyOTI3MiBpbmFjdGl2ZToxMjQzOTMgZGlydHk6MCB3cml0ZWJhY2s6
-MCB1bnN0YWJsZTowIGZyZWU6OTgxIHNsYWI6MTk0NSBtYXBwZWQ6MjUzNDEwIHBhZ2V0YWJs
-ZXM6Nzk0CkRNQSBmcmVlOjY4a0IgbWluOjY4a0IgbG93Ojg0a0IgaGlnaDoxMDBrQiBhY3Rp
-dmU6NTM3MmtCIGluYWN0aXZlOjUzNzZrQiBwcmVzZW50OjE2Mzg0a0IgcGFnZXNfc2Nhbm5l
-ZDoxMTg2NyBhbGxfdW5yZWNsYWltYWJsZT8geWVzCnByb3RlY3Rpb25zW106IDAgMCAwCk5v
-cm1hbCBmcmVlOjM3NDRrQiBtaW46Mzc1NmtCIGxvdzo0Njkya0IgaGlnaDo1NjMya0IgYWN0
-aXZlOjQ0NjkwNGtCIGluYWN0aXZlOjQyNzE2NGtCIHByZXNlbnQ6OTAxMTIwa0IgcGFnZXNf
-c2Nhbm5lZDo4ODkwMTggYWxsX3VucmVjbGFpbWFibGU/IHllcwpwcm90ZWN0aW9uc1tdOiAw
-IDAgMApIaWdoTWVtIGZyZWU6MTEya0IgbWluOjEyOGtCIGxvdzoxNjBrQiBoaWdoOjE5MmtC
-IGFjdGl2ZTo2NDgxMmtCIGluYWN0aXZlOjY1MDMya0IgcHJlc2VudDoxMzEwNDRrQiBwYWdl
-c19zY2FubmVkOjEzMjI5MyBhbGxfdW5yZWNsYWltYWJsZT8geWVzCnByb3RlY3Rpb25zW106
-IDAgMCAwCkRNQTogMSo0a0IgMCo4a0IgMCoxNmtCIDAqMzJrQiAxKjY0a0IgMCoxMjhrQiAw
-KjI1NmtCIDAqNTEya0IgMCoxMDI0a0IgMCoyMDQ4a0IgMCo0MDk2a0IgPSA2OGtCCk5vcm1h
-bDogMCo0a0IgMCo4a0IgMCoxNmtCIDEqMzJrQiAwKjY0a0IgMSoxMjhrQiAwKjI1NmtCIDEq
-NTEya0IgMSoxMDI0a0IgMSoyMDQ4a0IgMCo0MDk2a0IgPSAzNzQ0a0IKSGlnaE1lbTogMCo0
-a0IgMCo4a0IgMSoxNmtCIDEqMzJrQiAxKjY0a0IgMCoxMjhrQiAwKjI1NmtCIDAqNTEya0Ig
-MCoxMDI0a0IgMCoyMDQ4a0IgMCo0MDk2a0IgPSAxMTJrQgpTd2FwIGNhY2hlOiBhZGQgMjkz
-MzU5LCBkZWxldGUgMjkzMzU5LCBmaW5kIDEwNC8xMjQsIHJhY2UgMCswCk91dCBvZiBNZW1v
-cnk6IEtpbGxlZCBwcm9jZXNzIDY2OTMgKFJOQXN1Ym9wdCkuCm9vbS1raWxsZXI6IGdmcF9t
-YXNrPTB4MWQyCkRNQSBwZXItY3B1OgpjcHUgMCBob3Q6IGxvdyAyLCBoaWdoIDYsIGJhdGNo
-IDEKY3B1IDAgY29sZDogbG93IDAsIGhpZ2ggMiwgYmF0Y2ggMQpOb3JtYWwgcGVyLWNwdToK
-Y3B1IDAgaG90OiBsb3cgMzIsIGhpZ2ggOTYsIGJhdGNoIDE2CmNwdSAwIGNvbGQ6IGxvdyAw
-LCBoaWdoIDMyLCBiYXRjaCAxNgpIaWdoTWVtIHBlci1jcHU6CmNwdSAwIGhvdDogbG93IDE0
-LCBoaWdoIDQyLCBiYXRjaCA3CmNwdSAwIGNvbGQ6IGxvdyAwLCBoaWdoIDE0LCBiYXRjaCA3
-CgpGcmVlIHBhZ2VzOiAgICAgICAgMzkyNGtCICgxMTJrQiBIaWdoTWVtKQpBY3RpdmU6MTM0
-NzQwIGluYWN0aXZlOjExODkyNSBkaXJ0eTowIHdyaXRlYmFjazowIHVuc3RhYmxlOjAgZnJl
-ZTo5ODEgc2xhYjoxOTI4IG1hcHBlZDoyNTM0MTAgcGFnZXRhYmxlczo3OTQKRE1BIGZyZWU6
-NjhrQiBtaW46NjhrQiBsb3c6ODRrQiBoaWdoOjEwMGtCIGFjdGl2ZTo1MzY4a0IgaW5hY3Rp
-dmU6NTM4MGtCIHByZXNlbnQ6MTYzODRrQiBwYWdlc19zY2FubmVkOjEzNDY3IGFsbF91bnJl
-Y2xhaW1hYmxlPyB5ZXMKcHJvdGVjdGlvbnNbXTogMCAwIDAKTm9ybWFsIGZyZWU6Mzc0NGtC
-IG1pbjozNzU2a0IgbG93OjQ2OTJrQiBoaWdoOjU2MzJrQiBhY3RpdmU6NDY4Nzgwa0IgaW5h
-Y3RpdmU6NDA1Mjg4a0IgcHJlc2VudDo5MDExMjBrQiBwYWdlc19zY2FubmVkOjkzMzk4MCBh
-bGxfdW5yZWNsYWltYWJsZT8geWVzCnByb3RlY3Rpb25zW106IDAgMCAwCkhpZ2hNZW0gZnJl
-ZToxMTJrQiBtaW46MTI4a0IgbG93OjE2MGtCIGhpZ2g6MTkya0IgYWN0aXZlOjY0ODEya0Ig
-aW5hY3RpdmU6NjUwMzJrQiBwcmVzZW50OjEzMTA0NGtCIHBhZ2VzX3NjYW5uZWQ6MTM3NjA1
-IGFsbF91bnJlY2xhaW1hYmxlPyB5ZXMKcHJvdGVjdGlvbnNbXTogMCAwIDAKRE1BOiAxKjRr
-QiAwKjhrQiAwKjE2a0IgMCozMmtCIDEqNjRrQiAwKjEyOGtCIDAqMjU2a0IgMCo1MTJrQiAw
-KjEwMjRrQiAwKjIwNDhrQiAwKjQwOTZrQiA9IDY4a0IKTm9ybWFsOiAwKjRrQiAwKjhrQiAw
-KjE2a0IgMSozMmtCIDAqNjRrQiAxKjEyOGtCIDAqMjU2a0IgMSo1MTJrQiAxKjEwMjRrQiAx
-KjIwNDhrQiAwKjQwOTZrQiA9IDM3NDRrQgpIaWdoTWVtOiAwKjRrQiAwKjhrQiAxKjE2a0Ig
-MSozMmtCIDEqNjRrQiAwKjEyOGtCIDAqMjU2a0IgMCo1MTJrQiAwKjEwMjRrQiAwKjIwNDhr
-QiAwKjQwOTZrQiA9IDExMmtCClN3YXAgY2FjaGU6IGFkZCAyOTMzNTksIGRlbGV0ZSAyOTMz
-NTksIGZpbmQgMTA0LzEyNCwgcmFjZSAwKzAKT3V0IG9mIE1lbW9yeTogS2lsbGVkIHByb2Nl
-c3MgNjY5MyAoUk5Bc3Vib3B0KS4K
---------------030902000608030200060205
-Content-Type: text/plain;
- name="2.6.10-rc2-mm-oom3.diff"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="2.6.10-rc2-mm-oom3.diff"
-
-ZGlmZiAtdXJOIC0tZXhjbHVkZT0nKn4nIC0tZXhjbHVkZT0nLiMqJyAyLjYuMTAtcmMyLW1t
-Mi5vcmlnL21tL29vbV9raWxsLmMgMi42LjEwLXJjMi1tbS9tbS9vb21fa2lsbC5jCi0tLSAy
-LjYuMTAtcmMyLW1tMi5vcmlnL21tL29vbV9raWxsLmMJMjAwNC0xMS0xOSAxNDo1MjoxNi4w
-MDAwMDAwMDAgKzAxMDAKKysrIDIuNi4xMC1yYzItbW0vbW0vb29tX2tpbGwuYwkyMDA0LTEx
-LTIyIDExOjUzOjE2LjAwMDAwMDAwMCArMDEwMApAQCAtNDUsOCArNDUsMTAgQEAKIHN0YXRp
-YyB1bnNpZ25lZCBsb25nIGJhZG5lc3Moc3RydWN0IHRhc2tfc3RydWN0ICpwLCB1bnNpZ25l
-ZCBsb25nIHVwdGltZSkKIHsKIAl1bnNpZ25lZCBsb25nIHBvaW50cywgY3B1X3RpbWUsIHJ1
-bl90aW1lLCBzOworICAgICAgICBzdHJ1Y3QgbGlzdF9oZWFkICp0c2s7CiAKLQlpZiAoIXAt
-Pm1tKQorCS8qIElnbm9yZSBtbS1sZXNzIHRhc2tzIGFuZCBpbml0ICovCisJaWYgKCFwLT5t
-bSB8fCBwLT5waWQgPT0gMSkKIAkJcmV0dXJuIDA7CiAKIAlpZiAocC0+ZmxhZ3MgJiBQRl9N
-RU1ESUUpCkBAIC01Nyw2ICs1OSwxOSBAQAogCXBvaW50cyA9IHAtPm1tLT50b3RhbF92bTsK
-IAogCS8qCisJICogUHJvY2Vzc2VzIHdoaWNoIGZvcmsgYSBsb3Qgb2YgY2hpbGQgcHJvY2Vz
-c2VzIGFyZSBsaWtlbHkgCisJICogYSBnb29kIGNob2ljZS4gV2UgYWRkIHRoZSB2bXNpemUg
-b2YgdGhlIGNoaWxkcyBpZiB0aGV5CisJICogaGF2ZSBhbiBvd24gbW0uIFRoaXMgcHJldmVu
-dHMgZm9ya2luZyBzZXJ2ZXJzIHRvIGZsb29kIHRoZQorCSAqIG1hY2hpbmUgd2l0aCBhbiBl
-bmRsZXNzIGFtb3VudCBvZiBjaGlsZHMKKwkgKi8KKwlsaXN0X2Zvcl9lYWNoKHRzaywgJnAt
-PmNoaWxkcmVuKSB7CisJCXN0cnVjdCB0YXNrX3N0cnVjdCAqY2hsZDsKKwkJY2hsZCA9IGxp
-c3RfZW50cnkodHNrLCBzdHJ1Y3QgdGFza19zdHJ1Y3QsIHNpYmxpbmcpOworCQlpZiAoY2hs
-ZC0+bW0gIT0gcC0+bW0gJiYgY2hsZC0+bW0pCisJCQlwb2ludHMgKz0gY2hsZC0+bW0tPnRv
-dGFsX3ZtOworCX0KKworCS8qCiAJICogQ1BVIHRpbWUgaXMgaW4gdGVucyBvZiBzZWNvbmRz
-IGFuZCBydW4gdGltZSBpcyBpbiB0aG91c2FuZHMKICAgICAgICAgICogb2Ygc2Vjb25kcy4g
-VGhlcmUgaXMgbm8gcGFydGljdWxhciByZWFzb24gZm9yIHRoaXMgb3RoZXIgdGhhbgogICAg
-ICAgICAgKiB0aGF0IGl0IHR1cm5lZCBvdXQgdG8gd29yayB2ZXJ5IHdlbGwgaW4gcHJhY3Rp
-Y2UuCkBAIC0xNzYsNiArMTkxLDI3IEBACiAJcmV0dXJuIG1tOwogfQogCitzdGF0aWMgc3Ry
-dWN0IG1tX3N0cnVjdCAqb29tX2tpbGxfcHJvY2Vzcyh0YXNrX3QgKnApCit7CisJc3RydWN0
-IG1tX3N0cnVjdCAqbW07CisJc3RydWN0IHRhc2tfc3RydWN0ICpnLCAqcTsKKworCW1tID0g
-b29tX2tpbGxfdGFzayhwKTsKKwlpZiAoIW1tKQorCQlyZXR1cm4gTlVMTDsKKwkvKgorCSAq
-IGtpbGwgYWxsIHByb2Nlc3NlcyB0aGF0IHNoYXJlIHRoZSAtPm1tIChpLmUuIGFsbCB0aHJl
-YWRzKSwKKwkgKiBidXQgYXJlIGluIGEgZGlmZmVyZW50IHRocmVhZCBncm91cAorCSAqLwor
-CWRvX2VhY2hfdGhyZWFkKGcsIHEpCisJCWlmIChxLT5tbSA9PSBtbSAmJiBxLT50Z2lkICE9
-IHAtPnRnaWQpCisJCQlfX29vbV9raWxsX3Rhc2socSk7CisKKwl3aGlsZV9lYWNoX3RocmVh
-ZChnLCBxKTsKKwlpZiAoIXAtPm1tKQorCQlwcmludGsoS0VSTl9JTkZPICJGaXhlZCB1cCBP
-T00ga2lsbCBvZiBtbS1sZXNzIHRhc2tcbiIpOworCXJldHVybiBtbTsKK30KIAogLyoqCiAg
-KiBvb21fa2lsbCAtIGtpbGwgdGhlICJiZXN0IiBwcm9jZXNzIHdoZW4gd2UgcnVuIG91dCBv
-ZiBtZW1vcnkKQEAgLTE4OCw3ICsyMjQsOSBAQAogdm9pZCBvb21fa2lsbCh2b2lkKQogewog
-CXN0cnVjdCBtbV9zdHJ1Y3QgKm1tOwotCXN0cnVjdCB0YXNrX3N0cnVjdCAqZywgKnAsICpx
-OworCXN0cnVjdCB0YXNrX3N0cnVjdCAqYywgKnA7CisJc3RydWN0IGxpc3RfaGVhZCAqdHNr
-OworCWludCBtbWNudCA9IDA7CiAJCiAJcmVhZF9sb2NrKCZ0YXNrbGlzdF9sb2NrKTsKIHJl
-dHJ5OgpAQCAtMjAwLDIxICsyMzgsMzIgQEAKIAkJcGFuaWMoIk91dCBvZiBtZW1vcnkgYW5k
-IG5vIGtpbGxhYmxlIHByb2Nlc3Nlcy4uLlxuIik7CiAJfQogCi0JbW0gPSBvb21fa2lsbF90
-YXNrKHApOwotCWlmICghbW0pCi0JCWdvdG8gcmV0cnk7CiAJLyoKLQkgKiBraWxsIGFsbCBw
-cm9jZXNzZXMgdGhhdCBzaGFyZSB0aGUgLT5tbSAoaS5lLiBhbGwgdGhyZWFkcyksCi0JICog
-YnV0IGFyZSBpbiBhIGRpZmZlcmVudCB0aHJlYWQgZ3JvdXAKKwkgKiBLaWxsIHRoZSBmb3Jr
-ZWQgY2hpbGQgcHJvY2Vzc2VzIGZpcnN0CiAJICovCi0JZG9fZWFjaF90aHJlYWQoZywgcSkK
-LQkJaWYgKHEtPm1tID09IG1tICYmIHEtPnRnaWQgIT0gcC0+dGdpZCkKLQkJCV9fb29tX2tp
-bGxfdGFzayhxKTsKLQl3aGlsZV9lYWNoX3RocmVhZChnLCBxKTsKLQlpZiAoIXAtPm1tKQot
-CQlwcmludGsoS0VSTl9JTkZPICJGaXhlZCB1cCBPT00ga2lsbCBvZiBtbS1sZXNzIHRhc2tc
-biIpOworCWxpc3RfZm9yX2VhY2godHNrLCAmcC0+Y2hpbGRyZW4pIHsKKwkJYyA9IGxpc3Rf
-ZW50cnkodHNrLCBzdHJ1Y3QgdGFza19zdHJ1Y3QsIHNpYmxpbmcpOworCQkvKiBEbyBub3Qg
-dG91Y2ggdGhyZWFkcywgYXMgdGhleSBnZXQga2lsbGVkIGxhdGVyICovCisJCWlmIChjLT5t
-bSA9PSBwLT5tbSkKKwkJCWNvbnRpbnVlOworCQltbSA9IG9vbV9raWxsX3Byb2Nlc3MoYyk7
-CisJCWlmIChtbSkgeworCQkJbW1jbnQgKys7CisJCQltbXB1dChtbSk7CisJCX0KKwl9CisK
-KwkvKgorCSAqIElmIHdlIG1hbmFnZWQgdG8ga2lsbCBvbmUgb3IgbW9yZSBjaGlsZCBwcm9j
-ZXNzZXMKKwkgKiB0aGVuIGxldCB0aGUgcGFyZW50IGxpdmUgZm9yIG5vdworCSAqLworCWlm
-ICghbW1jbnQpIHsKKwkJbW0gPSBvb21fa2lsbF9wcm9jZXNzKHApOworCQlpZiAoIW1tKQor
-CQkJZ290byByZXRyeTsKKwkJbW1wdXQobW0pOworCX0KIAlyZWFkX3VubG9jaygmdGFza2xp
-c3RfbG9jayk7Ci0JbW1wdXQobW0pOwogCXJldHVybjsKIH0KIApAQCAtMjI0LDE0ICsyNzMs
-MjIgQEAKIHZvaWQgb3V0X29mX21lbW9yeShpbnQgZ2ZwX21hc2spCiB7CiAJLyoKLQkgKiBv
-b21fbG9jayBwcm90ZWN0cyBvdXRfb2ZfbWVtb3J5KCkncyBzdGF0aWMgdmFyaWFibGVzLgot
-CSAqIEl0J3MgYSBnbG9iYWwgbG9jazsgdGhpcyBpcyBub3QgcGVyZm9ybWFuY2UtY3JpdGlj
-YWwuCi0JICovCi0Jc3RhdGljIERFRklORV9TUElOTE9DSyhvb21fbG9jayk7CisgCSAqIGlu
-cHJvZ3Jlc3MgcHJvdGVjdHMgb3V0X29mX21lbW9yeSgpJ3Mgc3RhdGljIHZhcmlhYmxlcy4K
-KyAJICogV2UgZG9uJ3QgdXNlIGEgc3Bpbl9sb2NrIGhlcmUsIGFzIHNwaW5sb2NrcyBhcmUK
-KyAJICogbm9wcyBvbiBVUCBzeXN0ZW1zLgorICAJICovCisgCXN0YXRpYyB1bnNpZ25lZCBs
-b25nIGlucHJvZ3Jlc3M7CisgCXN0YXRpYyB1bnNpZ25lZCBpbnQgIGZyZWVwYWdlcyA9IDEw
-MDAwMDA7CiAJc3RhdGljIHVuc2lnbmVkIGxvbmcgZmlyc3QsIGxhc3QsIGNvdW50LCBsYXN0
-a2lsbDsKIAl1bnNpZ25lZCBsb25nIG5vdywgc2luY2U7CiAKLQlzcGluX2xvY2soJm9vbV9s
-b2NrKTsKKyAJaWYgKHRlc3RfYW5kX3NldF9iaXQoMCwgJmlucHJvZ3Jlc3MpKQorIAkJcmV0
-dXJuOworIAkKKyAJLyogQ2hlY2ssIGlmIG1lbW9yeSB3YXMgZnJlZWQgc2luY2UgdGhlIGxh
-c3Qgb29tIGtpbGwgKi8KKyAJaWYgKGZyZWVwYWdlcyA8IG5yX2ZyZWVfcGFnZXMoKSkKKyAJ
-CWdvdG8gb3V0X3VubG9jazsKKwogCW5vdyA9IGppZmZpZXM7CiAJc2luY2UgPSBub3cgLSBs
-YXN0OwogCWxhc3QgPSBub3c7CkBAIC0yNzEsMTIgKzMyOCwxMCBAQAogCSAqIE9rLCByZWFs
-bHkgb3V0IG9mIG1lbW9yeS4gS2lsbCBzb21ldGhpbmcuCiAJICovCiAJbGFzdGtpbGwgPSBu
-b3c7Ci0KIAlwcmludGsoIm9vbS1raWxsZXI6IGdmcF9tYXNrPTB4JXhcbiIsIGdmcF9tYXNr
-KTsKIAlzaG93X2ZyZWVfYXJlYXMoKTsKLQotCS8qIG9vbV9raWxsKCkgc2xlZXBzICovCi0J
-c3Bpbl91bmxvY2soJm9vbV9sb2NrKTsKKwkvKiBTdG9yZSBmcmVlIHBhZ2VzICAqIDIgZm9y
-IHRoZSBjaGVjayBhYm92ZSAqLworCWZyZWVwYWdlcyA9IChucl9mcmVlX3BhZ2VzKCkgPDwg
-MSk7CiAJb29tX2tpbGwoKTsKIAkvKgogCSAqIE1ha2Uga3N3YXBkIGdvIG91dCBvZiB0aGUg
-d2F5LCBzbyAicCIgaGFzIGEgZ29vZCBjaGFuY2Ugb2YKQEAgLTI4NCwxNyArMzM5LDExIEBA
-CiAJICogZm9yIG1vcmUgbWVtb3J5LgogCSAqLwogCXlpZWxkKCk7Ci0Jc3Bpbl9sb2NrKCZv
-b21fbG9jayk7CiAKIHJlc2V0OgotCS8qCi0JICogV2UgZHJvcHBlZCB0aGUgbG9jayBhYm92
-ZSwgc28gY2hlY2sgdG8gYmUgc3VyZSB0aGUgdmFyaWFibGUKLQkgKiBmaXJzdCBvbmx5IGV2
-ZXIgaW5jcmVhc2VzIHRvIHByZXZlbnQgZmFsc2UgT09NJ3MuCi0JICovCi0JaWYgKHRpbWVf
-YWZ0ZXIobm93LCBmaXJzdCkpCi0JCWZpcnN0ID0gbm93OworCWZpcnN0ID0gamlmZmllczsK
-IAljb3VudCA9IDA7CiAKIG91dF91bmxvY2s6Ci0Jc3Bpbl91bmxvY2soJm9vbV9sb2NrKTsK
-KwljbGVhcl9iaXQoMCwgJmlucHJvZ3Jlc3MpOwogfQo=
---------------030902000608030200060205--
+greg k-h

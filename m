@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278230AbRJMBJr>; Fri, 12 Oct 2001 21:09:47 -0400
+	id <S278229AbRJMBJh>; Fri, 12 Oct 2001 21:09:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278232AbRJMBJi>; Fri, 12 Oct 2001 21:09:38 -0400
-Received: from chac.inf.utfsm.cl ([200.1.19.54]:62983 "EHLO chac.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id <S278230AbRJMBJ2>;
-	Fri, 12 Oct 2001 21:09:28 -0400
-Message-Id: <200110130109.f9D19cZj023657@sleipnir.valparaiso.cl>
-To: Matt_Domsch@Dell.com
-cc: jgarzik@mandrakesoft.com, linux-kernel@vger.kernel.org
+	id <S278232AbRJMBJ2>; Fri, 12 Oct 2001 21:09:28 -0400
+Received: from nsd.mandrakesoft.com ([216.71.84.35]:37138 "EHLO
+	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S278228AbRJMBJO>; Fri, 12 Oct 2001 21:09:14 -0400
+Date: Fri, 12 Oct 2001 20:09:38 -0500 (CDT)
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+To: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
+cc: Matt Domsch <Matt_Domsch@dell.com>, linux-kernel@vger.kernel.org
 Subject: Re: crc32 cleanups 
-In-Reply-To: Message from Matt_Domsch@Dell.com 
-   of "Fri, 12 Oct 2001 15:17:12 EST." <71714C04806CD51193520090272892178BD709@ausxmrr502.us.dell.com> 
-Date: Fri, 12 Oct 2001 21:09:38 -0400
-From: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
+In-Reply-To: <200110130104.f9D14e5b021424@sleipnir.valparaiso.cl>
+Message-ID: <Pine.LNX.3.96.1011012200821.1405A-100000@mandrakesoft.mandrakesoft.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt_Domsch@Dell.com said:
-> > That leaves (a) unconditionally building 
-> > it into the kernel, or (b) Makefile and Config.in rules.
+On Fri, 12 Oct 2001, Horst von Brand wrote:
+> Jeff Garzik <jgarzik@mandrakesoft.com> said:
+> > We must consider the case where the kernel is built, and then a random
+> > 3rd party module comes along that needs crc32 features.  An ar library
+> > won't cut it, and neither will [the existing crc32 method of] patching
+> > linux/lib/crc32.c.  That leaves (a) unconditionally building it into the
+> > kernel, or (b) Makefile and Config.in rules.
+> 
+> (b) won't work if my kernel has no CRC32 modules, and a random 3rd party
+> module needs it. So it looks like firm builtin is the only real option (a).
 
-> (a) is simple, but needs a 1KB malloc (or alternately, a 1KB static const
-> array - I've taken the approach that the malloc is better)
+Sure it will.  (b) not only will work, but it is the preferred option.
 
-Better static (less overhead in size and at runtime), initialized at build
-time (you could compute it then). In case of _dire_ kernel size problems, it
-can be left out anyway. AFAIU, there are now a _lot_ of copies of this
-around, so you'll win overall in any case.
+lib/Makefile will contain the line
+	obj-$(CONFIG_CRC32) += crc32.o
 
-> (b) isn't that much harder, but requires drivers to be sure to call
-> init_crc32 and cleanup_crc32.  If somehow they manage not to do that, Oops.
-> I don't want to add a runtime check for the existance of the array in
-> crc32().
+and arch/$arch/config.in will contain
+	tristate 'Include crc32 library?' CONFIG_CRC32
 
-KISS: Keep It Simple, Stupid. Unless it won't cut it, that is.
--- 
-Horst von Brand                             vonbrand@sleipnir.valparaiso.cl
-Casilla 9G, Vin~a del Mar, Chile                               +56 32 672616
+

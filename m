@@ -1,97 +1,115 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261500AbUCFAZ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 19:25:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261501AbUCFAZ2
+	id S261502AbUCFAkY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 19:40:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261505AbUCFAkY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 19:25:28 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:58076 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261500AbUCFAZ0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 19:25:26 -0500
-Subject: 2.6.4-rc2-bk.current: Build failure w/ "supprot for AFAVLAB 8port
-	boards" patch
-From: john stultz <johnstul@us.ibm.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1078532723.797.48.camel@cog.beaverton.ibm.com>
+	Fri, 5 Mar 2004 19:40:24 -0500
+Received: from fw.osdl.org ([65.172.181.6]:29349 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261502AbUCFAkQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Mar 2004 19:40:16 -0500
+Subject: [PATCH 2.6.3-mm4] writeback trylock patch
+From: Daniel McNeil <daniel@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "linux-aio@kvack.org" <linux-aio@kvack.org>,
+       Hugh Dickins <hugh@veritas.com>
+Content-Type: multipart/mixed; boundary="=-y1g3xlq3x6B3KaftlBYl"
+Organization: 
+Message-Id: <1078533612.1773.37.camel@ibm-c.pdx.osdl.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Fri, 05 Mar 2004 16:25:23 -0800
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 05 Mar 2004 16:40:12 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, 
-	I just bk pulled from Linus' tree and when I tried to build, I got the
-compile error listed below:
 
-Dropping the PCI entry at line 1896, added by the changeset in the URL
-below, lets it build. 
+--=-y1g3xlq3x6B3KaftlBYl
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-http://linus.bkbits.net:8080/linux-2.5/cset%401.1647.2.2?nav=index.html|ChangeSet@-1d
+Andrew,
 
-thanks
--john
+Here is update to the wb_rwsema patch that adds back the trylock.
+It avoids the hang hugh was seeing by setting encountered_congestion
+if the trylock fails and checking it in sync_sb_inodes().  Hugh
+tested this and did not see the hang.
 
-  LD      arch/i386/kernel/built-in.o
-drivers/serial/8250_pci.c:1896: `PCI_DEVICE_ID_AFAVLAB_P030' undeclared here (not in a function)
-drivers/serial/8250_pci.c:1896: initializer element is not constant
-drivers/serial/8250_pci.c:1896: (near initialization for `serial_pci_tbl[74].device')
-drivers/serial/8250_pci.c:1898: initializer element is not constant
-drivers/serial/8250_pci.c:1898: (near initialization for `serial_pci_tbl[74]')
-drivers/serial/8250_pci.c:1902: initializer element is not constant
-drivers/serial/8250_pci.c:1902: (near initialization for `serial_pci_tbl[75]')
-drivers/serial/8250_pci.c:1905: initializer element is not constant
-drivers/serial/8250_pci.c:1905: (near initialization for `serial_pci_tbl[76]')
-drivers/serial/8250_pci.c:1908: initializer element is not constant
-drivers/serial/8250_pci.c:1908: (near initialization for `serial_pci_tbl[77]')
-drivers/serial/8250_pci.c:1911: initializer element is not constant
-drivers/serial/8250_pci.c:1911: (near initialization for `serial_pci_tbl[78]')
-drivers/serial/8250_pci.c:1914: initializer element is not constant
-drivers/serial/8250_pci.c:1914: (near initialization for `serial_pci_tbl[79]')
-drivers/serial/8250_pci.c:1917: initializer element is not constant
-drivers/serial/8250_pci.c:1917: (near initialization for `serial_pci_tbl[80]')
-drivers/serial/8250_pci.c:1920: initializer element is not constant
-drivers/serial/8250_pci.c:1920: (near initialization for `serial_pci_tbl[81]')
-drivers/serial/8250_pci.c:1923: initializer element is not constant
-drivers/serial/8250_pci.c:1923: (near initialization for `serial_pci_tbl[82]')
-drivers/serial/8250_pci.c:1926: initializer element is not constant
-drivers/serial/8250_pci.c:1926: (near initialization for `serial_pci_tbl[83]')
-drivers/serial/8250_pci.c:1929: initializer element is not constant
-drivers/serial/8250_pci.c:1929: (near initialization for `serial_pci_tbl[84]')
-drivers/serial/8250_pci.c:1936: initializer element is not constant
-drivers/serial/8250_pci.c:1936: (near initialization for `serial_pci_tbl[85]')
-drivers/serial/8250_pci.c:1943: initializer element is not constant
-drivers/serial/8250_pci.c:1943: (near initialization for `serial_pci_tbl[86]')
-drivers/serial/8250_pci.c:1950: initializer element is not constant
-drivers/serial/8250_pci.c:1950: (near initialization for `serial_pci_tbl[87]')
-drivers/serial/8250_pci.c:1956: initializer element is not constant
-drivers/serial/8250_pci.c:1956: (near initialization for `serial_pci_tbl[88]')
-drivers/serial/8250_pci.c:1967: initializer element is not constant
-drivers/serial/8250_pci.c:1967: (near initialization for `serial_pci_tbl[89]')
-drivers/serial/8250_pci.c:1971: initializer element is not constant
-drivers/serial/8250_pci.c:1971: (near initialization for `serial_pci_tbl[90]')
-drivers/serial/8250_pci.c:1978: initializer element is not constant
-drivers/serial/8250_pci.c:1978: (near initialization for `serial_pci_tbl[91]')
-drivers/serial/8250_pci.c:1981: initializer element is not constant
-drivers/serial/8250_pci.c:1981: (near initialization for `serial_pci_tbl[92]')
-drivers/serial/8250_pci.c:1988: initializer element is not constant
-drivers/serial/8250_pci.c:1988: (near initialization for `serial_pci_tbl[93]')
-drivers/serial/8250_pci.c:1992: initializer element is not constant
-drivers/serial/8250_pci.c:1992: (near initialization for `serial_pci_tbl[94]')
-drivers/serial/8250_pci.c:1995: initializer element is not constant
-drivers/serial/8250_pci.c:1995: (near initialization for `serial_pci_tbl[95]')
-drivers/serial/8250_pci.c:2004: initializer element is not constant
-drivers/serial/8250_pci.c:2004: (near initialization for `serial_pci_tbl[96]')
-drivers/serial/8250_pci.c:2008: initializer element is not constant
-drivers/serial/8250_pci.c:2008: (near initialization for `serial_pci_tbl[97]')
-drivers/serial/8250_pci.c:2012: initializer element is not constant
-drivers/serial/8250_pci.c:2012: (near initialization for `serial_pci_tbl[98]')
-drivers/serial/8250_pci.c:2013: initializer element is not constant
-drivers/serial/8250_pci.c:2013: (near initialization for `serial_pci_tbl[99]')
-make[2]: *** [drivers/serial/8250_pci.o] Error 1
-make[1]: *** [drivers/serial] Error 2
-make: *** [drivers] Error 2
+This prevents non-sync writebacks to from blocking behind sync
+writebacks.
 
+This patch applies to 2.6.4-rc1-mm2.
+
+Thoguhts?
+
+Daniel
+
+--=-y1g3xlq3x6B3KaftlBYl
+Content-Disposition: attachment; filename=263-mm4.writeback.trylock.patch
+Content-Type: text/x-patch; name=263-mm4.writeback.trylock.patch; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+diff -rup linux-2.6.3-mm4.orig/fs/fs-writeback.c linux-2.6.3-mm4/fs/fs-writeback.c
+--- linux-2.6.3-mm4.orig/fs/fs-writeback.c	2004-02-27 16:45:44.956839646 -0800
++++ linux-2.6.3-mm4/fs/fs-writeback.c	2004-02-27 16:57:38.746524736 -0800
+@@ -158,10 +158,14 @@ __sync_single_inode(struct inode *inode,
+ 		 * for all i/o without worrying about racing WB_SYNC_NONE
+ 		 * writers.
+ 		 */
+-		if (wait)
++		if (wait) {
+ 			down_write(&mapping->wb_rwsema);
+-		else
+-			down_read(&mapping->wb_rwsema);
++		} else {
++			if (!down_read_trylock(&mapping->wb_rwsema)) {
++				wbc->encountered_congestion = 1;
++				goto skip_writeback;
++			}
++		}
+ 	}
+ 
+ 	/*
+@@ -184,6 +188,7 @@ __sync_single_inode(struct inode *inode,
+ 			up_read(&mapping->wb_rwsema);
+ 	}
+ 
++skip_writeback:
+ 	/* Don't write the inode if only I_DIRTY_PAGES was set */
+ 	if (dirty & (I_DIRTY_SYNC | I_DIRTY_DATASYNC))
+ 		write_inode(inode, wait);
+@@ -310,7 +315,12 @@ sync_sb_inodes(struct super_block *sb, s
+ 			break;
+ 		}
+ 
+-		if (wbc->nonblocking && bdi_write_congested(bdi)) {
++		/*
++		 * wbc->encountered_congestion is set if we cannot get
++		 * the wb_rwsema.
++		 */
++		if (wbc->nonblocking &&
++		    (bdi_write_congested(bdi) || wbc->encountered_congestion)) {
+ 			wbc->encountered_congestion = 1;
+ 			if (sb != blockdev_superblock)
+ 				break;		/* Skip a congested fs */
+diff -rup linux-2.6.3-mm4.orig/mm/filemap.c linux-2.6.3-mm4/mm/filemap.c
+--- linux-2.6.3-mm4.orig/mm/filemap.c	2004-02-27 16:47:56.351858126 -0800
++++ linux-2.6.3-mm4/mm/filemap.c	2004-02-27 16:49:29.044938317 -0800
+@@ -152,9 +152,10 @@ static int __filemap_fdatawrite(struct a
+ 		return 0;
+ 
+ 	if (!blkdev) {
+-		if (sync_mode == WB_SYNC_NONE)
+-			down_read(&mapping->wb_rwsema);
+-		else
++		if (sync_mode == WB_SYNC_NONE) {
++			if (!down_read_trylock(&mapping->wb_rwsema))
++				return 0;
++		} else 
+ 			down_write(&mapping->wb_rwsema);
+ 	}
+ 
+
+--=-y1g3xlq3x6B3KaftlBYl--
 

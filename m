@@ -1,49 +1,58 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315415AbSFOOLC>; Sat, 15 Jun 2002 10:11:02 -0400
+	id <S315413AbSFOORY>; Sat, 15 Jun 2002 10:17:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315413AbSFOOLB>; Sat, 15 Jun 2002 10:11:01 -0400
-Received: from c0s14.ami.com.au ([203.55.31.79]:11021 "EHLO
-	dugite.summer.ami.com.au") by vger.kernel.org with ESMTP
-	id <S315412AbSFOOLA>; Sat, 15 Jun 2002 10:11:00 -0400
-Message-Id: <200206151408.g5FE8s731047@numbat.Os2.Ami.Com.Au>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: Linux kernel list <linux-kernel@vger.kernel.org>,
-        Linux SCSI list <linux-scsi@vger.kernel.org>
-Subject: Re: /proc/scsi/map 
-In-Reply-To: Message from Kurt Garloff <garloff@suse.de> 
-   of "Sat, 15 Jun 2002 15:36:06 +0200." <20020615133606.GC11016@gum01m.etpnet.phys.tue.nl> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sat, 15 Jun 2002 22:08:54 +0800
-From: John Summerfield <summer@os2.ami.com.au>
+	id <S315414AbSFOORX>; Sat, 15 Jun 2002 10:17:23 -0400
+Received: from harpo.it.uu.se ([130.238.12.34]:41397 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S315413AbSFOORW>;
+	Sat, 15 Jun 2002 10:17:22 -0400
+Date: Sat, 15 Jun 2002 16:13:33 +0200 (MET DST)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200206151413.QAA07923@harpo.it.uu.se>
+To: johnstul@us.ibm.com, kai@tp1.ruhr-uni-bochum.de
+Subject: Re: [Patch] tsc-disable_A5
+Cc: Martin.Bligh@us.ibm.com, davej@suse.de, linux-kernel@vger.kernel.org,
+        marcelo@conectiva.com.br
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 14 Jun 2002 16:44:30 -0700, john stultz wrote:
+>On Fri, 2002-06-14 at 16:29, Kai Germaschewski wrote:
+>> I suppose you could it rewrite like
+>> 
+>> ...
+>> CONFIG_X86_WANT_TSC=y (or whatever)
+>> ...
+>> 
+>> if [ some_condition ]; then
+>>   define_bool CONFIG_X86_TSC n
+>> else
+>>   define_bool CONFIG_X86_TSC $CONFIG_X86_WANT_TSC
+>> fi
+>> 
+>> Not exactly elegant, but it should work ;)
+>
+>Yep, my first release was done in a similar fashion, but Alan suggested
+>the patch take on its current form. There may be cases where we want to
+>know if we have a TSC even if we don't want to use them. 
+>
+>Thread link:
+>http://www.uwsg.iu.edu/hypermail/linux/kernel/0205.3/1188.html
 
-> 
-> Life would be easier if the scsi subsystem would just report which SCSI
-> device (uniquely identified by the controller,bus,target,unit tuple) belongs
-> to which high-level device. The information is available in the kernel.
+I disagree with Alan's recommendation.
+The real problem is that the kernel confuses a CPU-level property
+(do the CPUs have TSCs?) with a system-level property (are the
+TSCs present and in sync?). CONFIG_X86_TSC really describes the
+latter property, for the former we have the cpu_has_tsc() macro.
 
+IMO, Kai is right and a nicer fix is to change arch/i386/config.in to:
+- s/CONFIG_X86_TSC=y/CONFIG_X86_CPU_HAS_TSC=y/
+  (this one can also be used as an optimisation to avoid runtime
+  cpu_has_tsc() checks)
+- append a rule which derives CONFIG_X86_TSC from CONFIG_X86_CPU_HAS_TSC
+  and !multiquad
 
-Does this not fail if I pull a device off, change its ID (perhaps to fit into another system), then plug it in again? Or if I move it from one adaptor to another?
+The other patch which adds an anti-CONFIG_X86_TSC to cancel the
+first CONFIG_X86_TSC is so horribly hacky...
 
-
-
-
-
--- 
-Cheers
-John Summerfield
-
-Microsoft's most solid OS: http://www.geocities.com/rcwoolley/
-
-Note: mail delivered to me is deemed to be intended for me, for my disposition.
-
-==============================
-If you don't like being told you're wrong,
-	be right!
-
-
-
+/Mikael

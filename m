@@ -1,49 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136462AbREDRoV>; Fri, 4 May 2001 13:44:21 -0400
+	id <S136472AbREDRwm>; Fri, 4 May 2001 13:52:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136470AbREDRoL>; Fri, 4 May 2001 13:44:11 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:6675 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S136462AbREDRoH>; Fri, 4 May 2001 13:44:07 -0400
-Date: Fri, 4 May 2001 10:44:00 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Edward Spidre <beamz_owl@yahoo.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Possible PCI subsystem bug in 2.4
-In-Reply-To: <m1hez1nmtc.fsf@frodo.biederman.org>
-Message-ID: <Pine.LNX.4.21.0105041040340.521-100000@penguin.transmeta.com>
+	id <S136473AbREDRwd>; Fri, 4 May 2001 13:52:33 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:27574 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S136472AbREDRwV>;
+	Fri, 4 May 2001 13:52:21 -0400
+Date: Fri, 4 May 2001 13:52:20 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Todd Inglett <tinglett@vnet.ibm.com>, linux-kernel@vger.kernel.org
+Subject: [PATCH][RFC] Re: SMP races in proc with thread_struct
+In-Reply-To: <3AF2A1CC.C22A48E7@vnet.ibm.com>
+Message-ID: <Pine.GSO.4.21.0105041319520.19970-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+	Linus, could you consider the patch below? As it is, access to
+/proc/<pid>/status of dead process with dead parent is possible and
+leads to access to freed memory. Besides, cd /proc/<pid> means
+that even after <pid> is gone, readdir() _and_ lookup on /proc/<pid> work.
+Patch makes sure that ->p_pptr is NULL once the process is gone (fixes
+readdir/lookup stuff) and adds obvious couple of checks in array.c.
+								Al
 
-On 4 May 2001, Eric W. Biederman wrote:
-> 
-> There are a couple of options here.
-> 1) read the MTRRs unless the BIOS is braindead it will set up that area as
->    write-back.  At any rate we shouldn't ever try to allocate a pci region
->    that is write-back cached.
+diff -urN S5-pre1/fs/proc/array.c S5-pre1-p_pptr/fs/proc/array.c
+--- S5-pre1/fs/proc/array.c	Sat Apr 28 02:12:56 2001
++++ S5-pre1-p_pptr/fs/proc/array.c	Fri May  4 13:15:47 2001
+@@ -157,7 +157,9 @@
+ 		"Uid:\t%d\t%d\t%d\t%d\n"
+ 		"Gid:\t%d\t%d\t%d\t%d\n",
+ 		get_task_state(p),
+-		p->pid, p->p_opptr->pid, p->p_pptr->pid != p->p_opptr->pid ? p->p_pptr->pid : 0,
++		p->pid, p->p_opptr->pid,
++		p->p_pptr && p->p_pptr->pid != p->p_opptr->pid
++			? p->p_pptr->pid : 0,
+ 		p->uid, p->euid, p->suid, p->fsuid,
+ 		p->gid, p->egid, p->sgid, p->fsgid);
+ 	read_unlock(&tasklist_lock);	
+@@ -339,7 +341,7 @@
+ 	nice = task->nice;
+ 
+ 	read_lock(&tasklist_lock);
+-	ppid = task->p_opptr->pid;
++	ppid = task->p_pptr ? task->p_opptr->pid : 0;
+ 	read_unlock(&tasklist_lock);
+ 	res = sprintf(buffer,"%d (%s) %c %d %d %d %d %d %lu %lu \
+ %lu %lu %lu %lu %lu %ld %ld %ld %ld %ld %ld %lu %lu %ld %lu %lu %lu %lu %lu \
+diff -urN S5-pre1/kernel/exit.c S5-pre1-p_pptr/kernel/exit.c
+--- S5-pre1/kernel/exit.c	Fri Feb 16 22:52:15 2001
++++ S5-pre1-p_pptr/kernel/exit.c	Fri May  4 13:18:33 2001
+@@ -62,6 +62,9 @@
+ 		current->counter += p->counter;
+ 		if (current->counter >= MAX_COUNTER)
+ 			current->counter = MAX_COUNTER;
++		write_lock_irq(&tasklist_lock);
++		p->p_pptr = NULL;
++		write_unlock_irq(&tasklist_lock);
+ 		free_task_struct(p);
+ 	} else {
+ 		printk("task releasing itself\n");
 
-This one I'd really hesitate to use. We do _not_ want to trust the BIOS
-any more than necessary (obviously trusting even the e820 was too much),
-and especially wrt MTRR's we know that there are too many buggy bioses
-already out there.
-
-> 2) read the memory locations from the northbridge.  It's not possible
->    on every chipset (lack of documentation) but with the linuxBIOS
->    project we code for a couple of them, and we are working on more
->    all of the time.
-
-This will be easy.
-
-In fact, we can easily "mix" different heuristics. Ie we'd do the simple
-thing I suggested in setup_arch(), and use that as a "base guess", and
-then we can have incremental improvements on that guess that might be
-chipset-specific or might depend on other information that is not
-necessarily generic (things like existing PCI programming etc).
-
-		Linus
 

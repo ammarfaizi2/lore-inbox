@@ -1,29 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130238AbRAWAHM>; Mon, 22 Jan 2001 19:07:12 -0500
+	id <S131391AbRAWAQd>; Mon, 22 Jan 2001 19:16:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135573AbRAWAHC>; Mon, 22 Jan 2001 19:07:02 -0500
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:13828
-	"EHLO ani.animx.eu.org") by vger.kernel.org with ESMTP
-	id <S130238AbRAWAG4>; Mon, 22 Jan 2001 19:06:56 -0500
-Date: Mon, 22 Jan 2001 19:15:27 -0500
-From: Wakko Warner <wakko@animx.eu.org>
-To: linux-kernel@vger.kernel.org
-Subject: ibmcam C-It usb
-Message-ID: <20010122191527.A5107@animx.eu.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.3i
+	id <S132826AbRAWAQY>; Mon, 22 Jan 2001 19:16:24 -0500
+Received: from hibernia.clubi.ie ([212.17.32.129]:31104 "EHLO
+	hibernia.jakma.org") by vger.kernel.org with ESMTP
+	id <S131391AbRAWAQO>; Mon, 22 Jan 2001 19:16:14 -0500
+Date: Tue, 23 Jan 2001 00:15:26 +0000 (GMT)
+From: Paul Jakma <paul@clubi.ie>
+X-X-Sender: <paul@fogarty.jakma.org>
+To: Russell King <rmk@arm.linux.org.uk>
+cc: Rogier Wolff <R.E.Wolff@BitWizard.nl>, Rainer Mager <rmager@vgkk.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Is this kernel related (signal 11)?
+In-Reply-To: <200101222147.f0MLlxe01758@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.31.0101230013520.15972-100000@fogarty.jakma.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In 2.4.0, the camera I have no longer works.  It did in test9 I believe.  
-fccid is ksx-x9903
+On Mon, 22 Jan 2001, Russell King wrote:
 
-I would have mailed the author, but I couldn't remember his address.
+> Evidence: I recently had a bad 128MB SDRAM which *always* failed at byte
+> address 0x220068,
 
+and X is likely to be the biggest process by far on a box, so
+statistically will be the process that hits this bad byte the most.
+no?
+
+regards,
 -- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+Paul Jakma	paul@clubi.ie	paul@jakma.org
+PGP5 key: http://www.clubi.ie/jakma/publickey.txt
+-------------------------------------------
+Fortune:
+The bomb will never go off.  I speak as an expert in explosives.
+		-- Admiral William Leahy, U.S. Atomic Bomb Project
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,65 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263661AbTKQTTK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Nov 2003 14:19:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263666AbTKQTTK
+	id S263574AbTKQTRd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Nov 2003 14:17:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263586AbTKQTRc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Nov 2003 14:19:10 -0500
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:8836 "EHLO
-	myware.akkadia.org") by vger.kernel.org with ESMTP id S263661AbTKQTTG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Nov 2003 14:19:06 -0500
-Message-ID: <3FB91F22.6090805@redhat.com>
-Date: Mon, 17 Nov 2003 11:18:58 -0800
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030925 Thunderbird/0.3
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jamie Lokier <jamie@shareable.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] POSIX message queues - syscalls & SIGEV_THREAD
-References: <Pine.GSO.4.58.0311161546260.25475@Juliusz> <20031117064832.GA16597@mail.shareable.org> <Pine.GSO.4.58.0311171236420.29330@Juliusz> <20031117153323.GA18523@mail.shareable.org>
-In-Reply-To: <20031117153323.GA18523@mail.shareable.org>
-X-Enigmail-Version: 0.81.7.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+	Mon, 17 Nov 2003 14:17:32 -0500
+Received: from bristol.phunnypharm.org ([65.207.35.130]:18345 "EHLO
+	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
+	id S263574AbTKQTRb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Nov 2003 14:17:31 -0500
+Date: Mon, 17 Nov 2003 13:38:05 -0500
+From: Ben Collins <bcollins@debian.org>
+To: James Simmons <jsimmons@infradead.org>
+Cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [FBDEV UPDATE] Newer patch.
+Message-ID: <20031117183805.GB476@phunnypharm.org>
+References: <20031023234552.GB554@phunnypharm.org> <Pine.LNX.4.44.0310301833140.4560-100000@phoenix.infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0310301833140.4560-100000@phoenix.infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Thu, Oct 30, 2003 at 06:38:46PM +0000, James Simmons wrote:
+> 
+> > I noticed one thing, and that is that the mach64 used to use software
+> > cursor it seems (I remember wondering why atyfb_cursor was never used
+> > anywhere). It's now using the hw cursor.
+> 
+> Yeap. I'm in the process of getting several driver to use there hardware 
+> cursors.
+>  
+> > Also, I notice with this new code that the random vertical shifting of
+> > the console doesn't occur anymore like it does with current 2.6.0-test8
+> > code. For as long as I can remember 2.6.0-test, and way back into
+> > 2.5.5x, this has been a problem with highly active console programs
+> > (mutt, vim, etc...). Good to see it's going away :)
+> 
+> :-)
+> 
+> I have fixed the problems you have reported. I have a newer patch. Note 
+> this is updated with the LCD support. I like to see if the patch works on 
+> sparc. I has updates from the latest 2.4.X kernels. Please give it a try.
+> 
+> http://phoenix.infradead.org/~jsimmons/fbdev.diff.gz
+> 
+> Let me know the results.
 
-Jamie Lokier wrote:
-> This is the flaw I would like to fix for async futexes,
+FYI, this new code is working for me on my Blade100. The cursor is much
+better now.
 
-Well, this should be discussed much more before doing anything.
-
-IMO, for 2.6 FUTEX_FD should be removed or disabled.  It doesn't work
-reliably.
-
-As for later, and which extensions to add, Ingo and I discussed this
-quite a bit already.  One of the problems is that once you extend the
-basic set of operations the possible way are very numerous and the
-interfaces can explode in number.
-
-My hopes are that we can come up with some nice and generally useful
-additions in the not too distant future and that they can be added to
-the 2.6 kernel.  IMO we cannot wait for the next stable release.
-
-I am not sure that this list is the adequate forum for discussing the
-futex extensions.  If somebody says where it should take place and
-somebody actually declares willingness to work on the implementation
-side, I can write down my thoughts and post it.
-
-- -- 
-➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/uR8i2ijCOnn/RHQRAut0AKC0zV6s/KcJfvEU8PHFmvfXbu7DdQCgwVfE
-BpRqDjxHzpUhhbyfmEQ97Hk=
-=i2+X
------END PGP SIGNATURE-----
-
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+WatchGuard - http://www.watchguard.com/

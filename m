@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129408AbQLFNcv>; Wed, 6 Dec 2000 08:32:51 -0500
+	id <S129450AbQLFNhv>; Wed, 6 Dec 2000 08:37:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129706AbQLFNcl>; Wed, 6 Dec 2000 08:32:41 -0500
-Received: from mailhub2.shef.ac.uk ([143.167.2.154]:1261 "EHLO
-	mailhub2.shef.ac.uk") by vger.kernel.org with ESMTP
-	id <S129408AbQLFNcc>; Wed, 6 Dec 2000 08:32:32 -0500
-Date: Wed, 6 Dec 2000 13:00:19 +0000 (GMT)
-From: Guennadi Liakhovetski <gvlyakh@mail.ru>
-To: linux-kernel@vger.kernel.org
-Subject: Re: DMA !NOT ONLY! for triton again...
-In-Reply-To: <Pine.GSO.4.21.0012051113250.6865-100000@acms23>
-Message-ID: <Pine.GSO.4.21.0012061245030.7771-100000@acms23>
+	id <S129532AbQLFNhm>; Wed, 6 Dec 2000 08:37:42 -0500
+Received: from as3-3-4.ml.g.bonet.se ([194.236.33.69]:21764 "EHLO
+	tellus.mine.nu") by vger.kernel.org with ESMTP id <S129450AbQLFNh2>;
+	Wed, 6 Dec 2000 08:37:28 -0500
+Date: Wed, 6 Dec 2000 14:06:52 +0100 (CET)
+From: Tobias Ringstrom <tori@tellus.mine.nu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: test12-pre6
+In-Reply-To: <Pine.LNX.4.10.10012052318270.5786-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.21.0012061334500.5492-100000@svea.tellus>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Re: PCI clock... Something somewhere (can't find now) made me think that
-> my MB is setting the PCI clock synchronously with the CPU clock, i.e. it
-> is 25MHz in my case... Any ideas where I could see it?:-)
+On Tue, 5 Dec 2000, Linus Torvalds wrote:
+> Concering the PCI irq routing fixes in particular, I'd ask people with
+> laptops to start testing their kernels with PnP OS set to "yes" in the
+> BIOS setup. We shoul dbe at a stage where it should basically work all the
+> time, and it would be interesting to hear about cases that we don't handle
+> right.
 
-I found it - it's in ide.txt too. Isn't Mark Lord around, btw?:-) Maybe he
-could spread some light on the problem...
+It works fine here on a Mitac laptop (the one that needed a Win98
+warm-boot a few weeks ago), but it is quite noisy about IRQs that are also
+used for other devices. (PCI: The same IRQ used for device 00:08.0)
 
-Thanks
-Guennadi
-___
+The way I see it, 2.4.0-test12-pre6 is just a much longer name for 2.4.0.  
+Keep going like this and we may end up calling you Linus "Santa" Torvalds!  
+It has a nice ring to it, don't you think?  :-)  Or should that be *-<:-)
 
-Dr. Guennadi V. Liakhovetski
-Department of Applied Mathematics
-University of Sheffield, U.K.
-email: G.Liakhovetski@sheffield.ac.uk
-
+/Tobias
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
